@@ -20,6 +20,8 @@
 // constants, enums and typedefs
 //
 const std::string edm::ParameterSetDescriptionFillerBase::kBaseForService("Service");
+const std::string edm::ParameterSetDescriptionFillerBase::kBaseForESSource("ESSource");
+const std::string edm::ParameterSetDescriptionFillerBase::kBaseForESProducer("ESProducer");
 
 //
 // static data member definitions

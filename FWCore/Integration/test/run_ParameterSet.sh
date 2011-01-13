@@ -21,6 +21,10 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -p ${LOCAL_TEST_DIR}/testIllegalServiceParameter_cfg.py 2> testIllegalServiceParameter_cfg.txt
   grep "Illegal parameter" testIllegalServiceParameter_cfg.txt || die "cmsRun testIllegalServiceParameter_cfg.py" $?
 
+# Note that DoodadESSource and WhatsItESProducer classes contain little tests for
+# validation of ESSource's and ESProducer's. They are not run here, but thought
+# this comment would be helpful for anyone trying to find those tests.
+
 # Auto generate a cfi file
   echo edmWriteConfigs ------------------------------------------------------------
   edmWriteConfigs pluginTestProducerWithPSetDesc.so || die "edmWriteConfigs pluginTestProducerWithPSetDesc.so" $?

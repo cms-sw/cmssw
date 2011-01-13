@@ -24,6 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ComponentFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 
 // forward declarations
 namespace edm {
@@ -45,7 +46,8 @@ namespace edm {
 }
 
 #define DEFINE_FWK_EVENTSETUP_MODULE(type) \
-DEFINE_EDM_PLUGIN (edm::eventsetup::ModulePluginFactory,edm::eventsetup::ModuleMaker<type>,#type)
+DEFINE_EDM_PLUGIN (edm::eventsetup::ModulePluginFactory,edm::eventsetup::ModuleMaker<type>,#type); \
+DEFINE_DESC_FILLER_FOR_ESPRODUCERS(type)
 
 #endif
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: WhatsItESProducer.cc,v 1.10 2007/07/30 19:15:54 chrjones Exp $
+// $Id: WhatsItESProducer.cc,v 1.11 2007/08/08 16:44:49 wmtan Exp $
 //
 //
 
@@ -30,6 +30,9 @@
 #include "FWCore/Integration/test/Doodad.h"
 #include "FWCore/Integration/test/GadgetRcd.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 //
 // class decleration
@@ -38,12 +41,15 @@ namespace edmtest {
 
 class WhatsItESProducer : public edm::ESProducer {
    public:
-      WhatsItESProducer(const edm::ParameterSet&);
+      WhatsItESProducer(edm::ParameterSet const& pset);
       ~WhatsItESProducer();
 
       typedef std::auto_ptr<WhatsIt> ReturnType;
 
       ReturnType produce(const GadgetRcd &);
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
    private:
       // ----------member data ---------------------------
       std::string dataLabel_;
@@ -60,9 +66,14 @@ class WhatsItESProducer : public edm::ESProducer {
 //
 // constructors and destructor
 //
-WhatsItESProducer::WhatsItESProducer(const edm::ParameterSet& iConfig)
-: dataLabel_(iConfig.exists("doodadLabel")? iConfig.getParameter<std::string>("doodadLabel"):std::string(""))
+WhatsItESProducer::WhatsItESProducer(edm::ParameterSet const& pset)
+: dataLabel_(pset.exists("doodadLabel")? pset.getParameter<std::string>("doodadLabel"):std::string(""))
 {
+  if (pset.getUntrackedParameter<bool>("test", true)) {
+     throw edm::Exception(edm::errors::Configuration, "Something is wrong with ESProducer validation\n")
+       << "Or the test configuration parameter was set true (it should never be true unless you want this exception)\n";
+   }
+
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this);
@@ -99,8 +110,16 @@ WhatsItESProducer::produce(const GadgetRcd& iRecord)
 
    return pWhatsIt ;
 }
-}
 
+void
+WhatsItESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addOptional<std::string>("doodadLabel");
+  desc.addUntracked<bool>("test", false)->
+    setComment("This parameter exists only to test the parameter set validation for ESSources"); 
+  descriptions.add("WhatsItESProducer", desc);
+}
+}
 using namespace edmtest;
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(WhatsItESProducer);

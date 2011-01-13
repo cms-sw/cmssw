@@ -47,6 +47,8 @@ class ParameterSetDescriptionFillerBase
 
 protected:
      static const std::string kBaseForService;
+     static const std::string kBaseForESSource;
+     static const std::string kBaseForESProducer;
    private:
       ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&); // stop default
 

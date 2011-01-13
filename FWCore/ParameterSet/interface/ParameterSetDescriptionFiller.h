@@ -111,5 +111,53 @@ namespace edm {
     DescriptionFillerForServices(const DescriptionFillerForServices&); // stop default
     const DescriptionFillerForServices& operator=(const DescriptionFillerForServices&); // stop default
   };
+
+  template<typename T>
+  class DescriptionFillerForESSources : public ParameterSetDescriptionFillerBase
+  {
+  public:
+    DescriptionFillerForESSources() {}
+
+    // If T has a fillDescriptions function then just call that, otherwise
+    // put in an "unknown description" as a default.
+    virtual void fill(ConfigurationDescriptions & descriptions) const {
+      typename boost::mpl::if_c<edm::fillDetails::has_fillDescriptions_function<T>::value,
+                                edm::fillDetails::DoFillDescriptions<T>,
+                                edm::fillDetails::DoFillAsUnknown<T> >::type fill_descriptions;
+      fill_descriptions(descriptions);
+    }
+
+    virtual const std::string& baseType() const {
+      return kBaseForESSource;
+    }
+
+  private:
+    DescriptionFillerForESSources(const DescriptionFillerForESSources&); // stop default
+    const DescriptionFillerForESSources& operator=(const DescriptionFillerForESSources&); // stop default
+  };
+
+  template<typename T>
+  class DescriptionFillerForESProducers : public ParameterSetDescriptionFillerBase
+  {
+  public:
+    DescriptionFillerForESProducers() {}
+
+    // If T has a fillDescriptions function then just call that, otherwise
+    // put in an "unknown description" as a default.
+    virtual void fill(ConfigurationDescriptions & descriptions) const {
+      typename boost::mpl::if_c<edm::fillDetails::has_fillDescriptions_function<T>::value,
+                                edm::fillDetails::DoFillDescriptions<T>,
+                                edm::fillDetails::DoFillAsUnknown<T> >::type fill_descriptions;
+      fill_descriptions(descriptions);
+    }
+
+    virtual const std::string& baseType() const {
+      return kBaseForESProducer;
+    }
+
+  private:
+    DescriptionFillerForESProducers(const DescriptionFillerForESProducers&); // stop default
+    const DescriptionFillerForESProducers& operator=(const DescriptionFillerForESProducers&); // stop default
+  };
 }
 #endif

@@ -9,8 +9,13 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+
+#include <string>
 
 namespace edm {
   namespace eventsetup {
@@ -104,6 +109,7 @@ namespace edm {
           itName != itNameEnd;
           ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
+        validateEventSetupParameters(*providerPSet);
         providerPSet->registerIt();
         ModuleFactory::get()->addTo(cp,
                                     *providerPSet,
@@ -119,12 +125,44 @@ namespace edm {
           itName != itNameEnd;
           ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
+        validateEventSetupParameters(*providerPSet);
         providerPSet->registerIt();
         SourceFactory::get()->addTo(cp,
                                     *providerPSet,
                                     common.processName_,
                                     common.releaseVersion_,
                                     common.passID_);
+      }
+    }
+
+    // ---------------------------------------------------------------
+    void validateEventSetupParameters(ParameterSet & pset) {
+      std::string modtype;
+      std::string moduleLabel;
+      try {
+        modtype = pset.getParameter<std::string>("@module_type");
+        moduleLabel = pset.getParameter<std::string>("@module_label");
+        // Check for the "unlabeled" case
+        // This is an artifact left over from the old configuration language
+	// we were using before switching to the python configuration
+        // This is handled in the validation code and python configuration
+        // files by using a label equal to the module typename.
+        if (moduleLabel == std::string("")) {
+          moduleLabel = modtype;
+        }
+
+        std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
+          ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
+        ConfigurationDescriptions descriptions(filler->baseType());
+        filler->fill(descriptions);
+        descriptions.validate(pset, moduleLabel);
+      }
+      catch (cms::Exception& iException) {
+        Exception toThrow(errors::Configuration, "Failed validating configuration of ESProducer or ESSource.");
+        toThrow << "\nThe plugin name is \"" << modtype << "\"\n";
+        toThrow << "The module label is \"" << moduleLabel << "\"\n";
+        toThrow.append(iException);
+        throw toThrow;
       }
     }
   }

@@ -18,6 +18,9 @@ namespace edm {
     fillEventSetupProvider(EventSetupProvider& cp,
                            ParameterSet& params,
                            CommonParams const& common);
+
+    void
+    validateEventSetupParameters(ParameterSet & pset);
   }
 }
 #endif

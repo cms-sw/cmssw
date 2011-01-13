@@ -40,4 +40,10 @@ static edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::ParameterSet
 #define DEFINE_DESC_FILLER_FOR_SERVICES(pluginName, serviceType)		\
 static edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::DescriptionFillerForServices<serviceType > > EDM_PLUGIN_SYM(s_filler , __LINE__ ) (#pluginName)
 
+#define DEFINE_DESC_FILLER_FOR_ESSOURCES(type) \
+static edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::DescriptionFillerForESSources<type > > EDM_PLUGIN_SYM(s_filler , __LINE__ ) (#type)
+
+#define DEFINE_DESC_FILLER_FOR_ESPRODUCERS(type) \
+static edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::DescriptionFillerForESProducers<type > > EDM_PLUGIN_SYM(s_filler , __LINE__ ) (#type)
+
 #endif
