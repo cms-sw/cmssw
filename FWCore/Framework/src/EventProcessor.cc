@@ -15,8 +15,8 @@
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/interface/EventSetupProviderMaker.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -568,8 +568,8 @@ namespace edm {
                            parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
                            parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1));
 
-    esp_ = eventsetup::makeEventSetupProvider(*parameterSet);
-    fillEventSetupProvider(*esp_, *parameterSet, common);
+    espController_ = std::auto_ptr<eventsetup::EventSetupsController>( new eventsetup::EventSetupsController);
+    esp_ = espController_->makeProvider(*parameterSet, common);
     processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
 
     looper_ = fillLooper(*esp_, *parameterSet, common);

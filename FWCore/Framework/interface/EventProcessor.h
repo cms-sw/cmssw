@@ -43,6 +43,7 @@ namespace edm {
   class ProcessDesc;
   namespace eventsetup {
     class EventSetupProvider;
+    class EventSetupsController;
   }
 
   namespace event_processor {
@@ -341,7 +342,8 @@ namespace edm {
     boost::shared_ptr<SignallingProductRegistry>  preg_;
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<InputSource>                input_;
-    std::auto_ptr<eventsetup::EventSetupProvider> esp_;
+    std::auto_ptr<eventsetup::EventSetupsController> espController_;
+    boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
     boost::shared_ptr<ActionTable const>          act_table_;
     boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
     std::auto_ptr<Schedule>                       schedule_;
