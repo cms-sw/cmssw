@@ -7,6 +7,9 @@
 	<class name="PerformancePayload"/>
 	<class name="PerformanceWorkingPoint"/>
 
+        <class name="PerformanceResult"/>
+        <class name="BinningVariables"/>
+
 	<class name="std::vector&lt;PerformanceResult::ResultType&gt;"/>
 	<class name="std::vector&lt;BinningVariables::BinningVariablesType&gt;"/>
 
