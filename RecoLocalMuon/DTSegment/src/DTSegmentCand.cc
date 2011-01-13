@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/11/27 11:59:48 $
- * $Revision: 1.15 $
+ * $Date: 2010/01/21 15:33:32 $
+ * $Revision: 1.16 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -109,6 +109,7 @@ DTSegmentCand::conflictingHitPairs(const DTSegmentCand& seg) const{
 
 bool DTSegmentCand::good() const
 {
+  if(NDOF() == 0) return false;
   if(chi2()/NDOF() > chi2max || nHits() < nHitsMin) return false;
 
   if(nHits() == nHitsMin && hitsShareLayer()) return false ;
