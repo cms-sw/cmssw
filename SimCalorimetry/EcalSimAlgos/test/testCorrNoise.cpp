@@ -3,6 +3,15 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
 #include<iostream>
 #include<iomanip>
 #include<fstream>
@@ -14,9 +23,57 @@
 #include "TH1F.h"
 #include "TCanvas.h"
 
-int main() {
+class MyRandomNumberGenerator : public edm::RandomNumberGenerator 
+{
+   public:
 
-  edm::MessageDrop::instance()->debugEnabled = false;
+      MyRandomNumberGenerator() : edm::RandomNumberGenerator(),
+				  m_seed (123456789),
+				  m_engine (new CLHEP::HepJamesRandom(m_seed)) {}
+      virtual ~MyRandomNumberGenerator() {}
+ 
+      virtual CLHEP::HepRandomEngine& getEngine() const { return *m_engine ; }
+      virtual uint32_t mySeed() const { return m_seed; }
+
+      virtual const std::vector<std::string>& getCachedLabels() const {
+	 return m_labels ; }
+      virtual const std::vector<std::vector<uint32_t> >& getCachedStates() const {
+	 return m_states ; }
+      virtual const std::vector<std::vector<uint32_t> >& getCachedSeeds() const {
+	 return m_seeds ; }
+
+      virtual void snapShot() {}
+      virtual void restoreState(const edm::Event& event) {}
+      virtual void saveEngineState(const std::string& fileName) {}
+      virtual void restoreEngineState(const std::string& fileName) {}
+      virtual void print() {}
+
+   private:
+      MyRandomNumberGenerator(const MyRandomNumberGenerator&); // stop default
+      const MyRandomNumberGenerator& operator=(const MyRandomNumberGenerator&); // stop default
+
+      long m_seed ;
+      CLHEP::HepRandomEngine* m_engine ;
+      std::vector<std::vector<uint32_t> > m_states ;
+      std::vector<std::vector<uint32_t> > m_seeds ;
+      std::vector<std::string> m_labels ;
+};
+
+
+int main() 
+{
+   edm::MessageDrop::instance()->debugEnabled = false;
+
+   std::auto_ptr<edm::RandomNumberGenerator> slcptr( new MyRandomNumberGenerator() ) ;
+
+   boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::RandomNumberGenerator > > slc ( new edm::serviceregistry::ServiceWrapper<edm::RandomNumberGenerator >( slcptr ) ) ; 
+   edm::ServiceToken token = edm::ServiceRegistry::createContaining( slc ) ;
+   edm::ServiceRegistry::Operate operate( token ) ; 
+
+/*  std::vector<edm::ParameterSet> serviceConfigs;
+  edm::ServiceToken token = edm::ServiceRegistry::createSet(serviceConfigs);
+  edm::ServiceRegistry::Operate operate(token); 
+*/
 
   const unsigned int readoutFrameSize = CaloSamples::MAXSAMPLES;
 
@@ -131,14 +188,14 @@ int main() {
   thisMatrix(9,7) = 0.53;
   thisMatrix(9,8) = 0.67;
   thisMatrix(9,9) = 1.;
-  
+
   CorrelatedNoisifier<EcalCorrMatrix> theCorrNoise(thisMatrix);
 
   EcalCorrMatrix thisTrivialMatrix;
   for (unsigned int i = 0; i < readoutFrameSize; i++ )
     {
       thisTrivialMatrix(i,i) = 1.;
-      for ( unsigned int j = 0; j < readoutFrameSize; j++ )
+      for ( unsigned int j = i+1; j < readoutFrameSize; j++ )
         {
           thisTrivialMatrix(i,j) = 0.;
           thisTrivialMatrix(j,i) = 0.;
@@ -146,9 +203,9 @@ int main() {
     }
   CorrelatedNoisifier<EcalCorrMatrix> theUncorrNoise(thisTrivialMatrix);
 
-  std::cout << "Using the correlation matrix: " << thisMatrix << std::cout;
+  std::cout << "Using the correlation matrix: " << thisMatrix << std::endl;
 
-  std::cout << "\n And the unit matrix: " << thisTrivialMatrix << std::cout;
+  std::cout << "\n And the unit matrix: " << thisTrivialMatrix << std::endl;
 
   EBDetId detId(1,1);
 
