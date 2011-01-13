@@ -1,5 +1,6 @@
 #include "Calibration/EcalCalibAlgos/src/PhiSymmetryCalibration_step2.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
