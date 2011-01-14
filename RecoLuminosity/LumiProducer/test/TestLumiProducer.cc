@@ -73,16 +73,16 @@ namespace edmtest
     lumiBlock.getByLabel("lumiProducer", lumiDetails);
     if(lumiDetails->isValid()){
       //std::cout << *lumiDetails << "\n";
-      std::cout<<"lumivalue 5 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,5)*6.37<<std::endl;
-      std::cout<<"lumivalue 200 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,200)*6.37<<std::endl;
-      std::cout<<"lumivalue 880 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,880)*6.37<<std::endl;
-      std::cout<<"lumivalue 890 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,890)*6.37<<std::endl;
-      std::cout<<"lumivalue 900 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,900)*6.37<<std::endl;
-      std::cout<<"lumivalue 950 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,950)*6.37<<std::endl;
-      std::cout<<"lumivalue 1500 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,1500)*6.37<<std::endl;
-      std::cout<<"lumivalue 2000 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,2000)*6.37<<std::endl;
-      std::cout<<"lumivalue 2500 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,2500)*6.37<<std::endl;
-      std::cout<<"lumivalue 3500 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,3500)*6.37<<std::endl;
+      std::cout<<"lumivalue beamintensity 5 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,5)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(5)<<std::endl;
+      std::cout<<"lumivalue 200 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,200)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(200)<<std::endl;
+      std::cout<<"lumivalue 880 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,880)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(880)<<std::endl;
+      std::cout<<"lumivalue 890 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,890)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(890)<<std::endl;
+      std::cout<<"lumivalue 900 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,900)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(900)<<std::endl;
+      std::cout<<"lumivalue 950 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,950)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(950)<<std::endl;
+      std::cout<<"lumivalue 1500 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,1500)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(1500)<<std::endl;
+      std::cout<<"lumivalue 2000 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,2000)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(2000)<<std::endl;
+      std::cout<<"lumivalue 2500 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,2500)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(2500)<<std::endl;
+      std::cout<<"lumivalue 3500 "<< lumiDetails->lumiValue(LumiDetails::kOCC1,3500)*6.37<<" "<<lumiDetails->lumiBeam1Intensity(3500)<<std::endl;
     }else{
       std::cout << "no valid lumi detail data" <<std::endl;
     }
