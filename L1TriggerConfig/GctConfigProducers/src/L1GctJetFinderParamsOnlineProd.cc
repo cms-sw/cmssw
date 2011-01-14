@@ -182,7 +182,8 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
      for (unsigned j=0; j< nCoeffs; ++j) {
        std::stringstream coeffCol;
        coeffCol << "GCT_JETCORR_C" << std::dec << j;
-       int coeff;
+       // int coeff;
+       double coeff;
        jetCorrResults.fillVariable( coeffCol.str(), coeff );
 
        coeffs.push_back(coeff);
