@@ -47,7 +47,7 @@ public:
     SiStripDetId::ModuleGeometry moduleGeom;
     float coveredStrips(const LocalVector&, const LocalPoint&) const;
   };
-  Param const & param(const uint32_t detid) const;
+  Param const & param(const uint32_t detid) const __attribute__((optimize(3)));
 
 private:
 
