@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.21 2010/12/06 16:26:54 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.22 2011/01/10 17:20:48 chamont Exp $
 //
 //
 
@@ -51,8 +51,8 @@ using namespace reco ;
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
  : beamSpotTag_("offlineBeamSpot"),
    //conf_(iConfig),
-   seedFilter_(0), applyHOverECut_(true), hcalHelper_(0)
-   , caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
+   seedFilter_(0), applyHOverECut_(true), hcalHelper_(0),
+   caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
  {
   conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
 

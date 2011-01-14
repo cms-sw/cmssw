@@ -152,7 +152,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   inputCfg_.reducedEndcapRecHitCollection = cfg.getParameter<edm::InputTag>("reducedEndcapRecHitCollectionTag") ;
   inputCfg_.pfMVA = cfg.getParameter<edm::InputTag>("pfMvaTag") ;
   inputCfg_.ctfTracks = cfg.getParameter<edm::InputTag>("ctfTracksTag");
-  inputCfg_.seedsTag = cfg.getParameter<edm::InputTag>("seedsTag");
+  //inputCfg_.seedsTag = cfg.getParameter<edm::InputTag>("seedsTag");
   inputCfg_.beamSpotTag = cfg.getParameter<edm::InputTag>("beamSpotTag") ;
 
   strategyCfg_.applyPreselection = cfg.getParameter<bool>("applyPreselection") ;
