@@ -112,11 +112,11 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   if (useNuclear_){
     if (nuclearInteractionsPurity > 3 || nuclearInteractionsPurity < 1)  {
       nuclearInteractionsPurity = 1;
-      cout << "NI purity not properly implemented. Set it to the strongest level " << nuclearInteractionsPurity << endl;
+      edm::LogInfo("PFBlockProducer")  << "NI purity not properly implemented. Set it to the strongest level " << nuclearInteractionsPurity << endl;
     }
     vector<string> securityLevel;
     securityLevel.push_back("isNucl"); securityLevel.push_back("isNucl && isNuclLoose");  securityLevel.push_back("isNucl && isNuclLoose && isNuclKink"); 
-    cout << "NI interactions are corrected in PFlow for " << securityLevel[nuclearInteractionsPurity-1].c_str() << endl;
+    edm::LogInfo("PFBlockProducer")  << "NI interactions are corrected in PFlow for " << securityLevel[nuclearInteractionsPurity-1].c_str() << endl;
   }
 
 

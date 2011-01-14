@@ -2,7 +2,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h" 
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h" 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
 using namespace reco;
 using namespace std;
@@ -11,6 +11,43 @@ const double PFCandConnector::pion_mass2 = 0.0194;
 
 const reco::PFCandidate::Flags PFCandConnector::fT_TO_DISP_ = PFCandidate::T_TO_DISP;
 const reco::PFCandidate::Flags PFCandConnector::fT_FROM_DISP_ = PFCandidate::T_FROM_DISP;
+
+void PFCandConnector::setParameters(bool bCorrect, bool bCalibPrimary, double dptRel_PrimaryTrack, double dptRel_MergedTrack, double ptErrorSecondary, std::vector<double> nuclCalibFactors){
+
+	 bCorrect_ = bCorrect;
+	 bCalibPrimary_ =  bCalibPrimary;
+	 dptRel_PrimaryTrack_ = dptRel_PrimaryTrack;
+	 dptRel_MergedTrack_ = 	dptRel_MergedTrack;
+	 ptErrorSecondary_ = ptErrorSecondary;
+
+	 if (nuclCalibFactors.size() == 5) {
+	   fConst_[0] =  nuclCalibFactors[0]; 
+	   fConst_[1] =  nuclCalibFactors[1]; 
+	   
+	   fNorm_[0] = nuclCalibFactors[2]; 
+	   fNorm_[1] = nuclCalibFactors[3]; 
+	   
+	   fExp_[0] = nuclCalibFactors[4];
+	 } else {
+	   edm::LogWarning("PFCandConnector") << "Wrong calibration factors for nuclear interactions. The calibration procedure would not be applyed." << std::endl;
+	   bCalibPrimary_ =  false;
+	 }
+
+	 std::string sCorrect = bCorrect_ ? "On" : "Off";
+	 edm::LogInfo("PFCandConnector")  << " ====================== The PFCandConnector is switched " << sCorrect.c_str() << " ==================== " << std::endl;
+	 std::string sCalibPrimary = bCalibPrimary_ ? "used for calibration" : "not used for calibration";
+	 if (bCorrect_) edm::LogInfo("PFCandConnector")  << "Primary Tracks are " << sCalibPrimary.c_str() << std::endl;
+	 if (bCorrect_ && bCalibPrimary_) edm::LogInfo("PFCandConnector") << "Under the condition that the precision on the Primary track is better than " << dptRel_PrimaryTrack_ << " % "<< std::endl;
+	 if (bCorrect_ && bCalibPrimary_) edm::LogInfo("PFCandConnector") << "      and on merged tracks better than " <<  dptRel_MergedTrack_ << " % "<< std::endl;
+	 if (bCorrect_ && bCalibPrimary_) edm::LogInfo("PFCandConnector") << "      and secondary tracks in some cases more precise than " << ptErrorSecondary_ << " GeV"<< std::endl;
+	 if (bCorrect_ && bCalibPrimary_) edm::LogInfo("PFCandConnector") << "factor = (" << fConst_[0] << " + " << fConst_[1] << "*cFrac) - (" 
+				       << fNorm_[0] << " - " << fNorm_[1] << "cFrac)*exp( "
+				       << -1*fExp_[0] << "*pT )"<< std::endl;
+	 edm::LogInfo("PFCandConnector") << " =========================================================== " << std::endl;	 
+
+       }
+
+
 
 std::auto_ptr<reco::PFCandidateCollection>
 PFCandConnector::connect(std::auto_ptr<PFCandidateCollection>& pfCand) {
