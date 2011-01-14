@@ -235,6 +235,12 @@ CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) 
   double pin    = preStepPoint->GetTotalEnergy();
   double etain  = momDir.getEta();
   double phiin  = momDir.getPhi();
+  
+  double zint = hitPoint.z();
+  double R=sqrt(hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
+  double theta = atan2(R,std::abs(zint));
+  phiin = atan2(hitPoint.y(),hitPoint.x());
+  etain = -1*(std::log(std::tan((M_PI-theta)/2)));
 
   // Replace "interpolation/extrapolation" by new method "select" that just randomly 
   // selects a record from the appropriate energy bin and fills its content to  

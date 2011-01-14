@@ -182,16 +182,14 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     if (parCode == mupPDG || parCode == mumPDG ) notaMuon = false;
     
     // angle condition
-    double R=sqrt(hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
-    double theta_up = atan2(178.4-R,std::abs(-15849.5-zint));
-    double theta_down = atan2(39.-R,std::abs(-15710.1-zint));
+    double theta_max = M_PI - 3.1305; // angle in radians corresponding to -5.2 eta
     double R_mom=sqrt(hit_mom.x()*hit_mom.x() + hit_mom.y()*hit_mom.y());
     double theta = atan2(R_mom,std::abs(pz));
     bool angleok = false;
-    if ( theta > theta_down && theta < theta_up) angleok = true;
+    if ( theta < theta_max) angleok = true;
     
     // OkToUse
-    //double R = sqrt(hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
+    double R = sqrt(hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
     bool dot = false;
     if ( zint < -14450. && R < 45.) dot = true;
     bool inRange = true;
