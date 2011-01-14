@@ -108,7 +108,7 @@ HLTMhtHtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if( mode_==2 && sqrt(mhtx*mhtx + mhty*mhty)+ht > minMeff_) flag=1;
     if( mode_==3 && sqrt(mhtx*mhtx + mhty*mhty) > minPT12_ && nj>1) flag=1;
     if( mode_==4 && ht > minHt_) flag=1;
-    if( mode_==5 && nj>2) {
+    if( mode_==5 && nj>=minNJet_) {
       if (ht>0) mht2ht = sqrt(mhtx*mhtx + mhty*mhty)/ht;
       if (mht2ht > minMht2Ht_) flag=1;
     }
