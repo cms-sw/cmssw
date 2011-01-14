@@ -20,6 +20,14 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(int firstSample, int samplesToAdd) :
   correctForTimeslew_(false) {
 }
 
+
+void HcalSimpleRecAlgo::resetTimeSamples(int firstSample, int samplesToAdd)
+{
+  firstSample_ = firstSample;
+  samplesToAdd_ = samplesToAdd;
+}
+
+
 ///Timeshift correction for HPDs based on the position of the peak ADC measurement.
 ///  Allows for an accurate determination of the relative phase of the pulse shape from
 ///  the HPD.  Calculated based on a weighted sum of the -1,0,+1 samples relative to the peak

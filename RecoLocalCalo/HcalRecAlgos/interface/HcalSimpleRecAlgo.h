@@ -25,8 +25,8 @@
    has the option of correcting the reconstructed time for energy-dependent
    time slew associated with the QIE.
     
-   $Date: 2009/02/09 00:27:23 $
-   $Revision: 1.8 $
+   $Date: 2010/01/21 14:27:43 $
+   $Revision: 1.9 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
@@ -36,6 +36,9 @@ public:
 		    bool correctForContainment, float fixedPhaseNs);
   /** Simple constructor for PMT-based detectors */
   HcalSimpleRecAlgo(int firstSample, int samplesToAdd);
+
+// ugly hack only for purposes of 3.11 HF treatment
+  void resetTimeSamples(int firstSample, int samplesToAdd);
 
   HBHERecHit reconstruct(const HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HFRecHit reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
