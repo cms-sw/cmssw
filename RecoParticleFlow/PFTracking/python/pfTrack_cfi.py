@@ -6,7 +6,8 @@ pfTrack = cms.EDProducer("PFTrackProducer",
     GsfTrackModuleLabel = cms.InputTag("electronGsfTracks"),
     TkColList = cms.VInputTag(cms.InputTag("generalTracks")),
     MuColl = cms.InputTag("muons"),
-    TrajInEvents = cms.bool(False)
+    TrajInEvents = cms.bool(False),
+    GsfTracksInEvents = cms.bool(True),             
 )
 
 

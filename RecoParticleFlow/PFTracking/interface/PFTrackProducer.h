@@ -43,6 +43,7 @@ private:
   bool useQuality_;
   reco::TrackBase::TrackQuality trackQuality_;
   bool trajinev_;
+  bool gsfinev_;
 
 };
 #endif

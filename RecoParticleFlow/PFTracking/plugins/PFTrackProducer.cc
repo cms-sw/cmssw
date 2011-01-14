@@ -39,6 +39,8 @@ PFTrackProducer::PFTrackProducer(const ParameterSet& iConfig):
   
   trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
 
+  gsfinev_ = iConfig.getParameter<bool>("GsfTracksInEvents");
+
 }
 
 PFTrackProducer::~PFTrackProducer()
@@ -56,9 +58,16 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   //read track collection
   Handle<GsfTrackCollection> gsftrackcoll;
-  iEvent.getByLabel(gsfTrackLabel_,gsftrackcoll);
-  
-  GsfTrackCollection gsftracks = *(gsftrackcoll.product());
+  bool foundgsf = iEvent.getByLabel(gsfTrackLabel_,gsftrackcoll);
+  GsfTrackCollection gsftracks;
+  if(gsfinev_) {
+    if(!foundgsf )
+      LogError("PFTrackProducer")
+	<<" cannot get GsfTracks (probably in HI events): "
+	<< " please set GsfTracksInEvents = False in RecoParticleFlow/PFTracking/python/pfTrack_cfi.py" << endl;
+    else
+      gsftracks  = *(gsftrackcoll.product());
+  }  
 
   // read muon collection
   Handle< reco::MuonCollection > recMuons;
@@ -119,12 +128,14 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
      
       // find the pre-id kf track
       bool preId = false;
-      for (unsigned int igsf=0; igsf<gsftracks.size();igsf++) {
-	GsfTrackRef gsfTrackRef(gsftrackcoll, igsf);
-	if (gsfTrackRef->seedRef().isNull()) continue;
-	ElectronSeedRef ElSeedRef= gsfTrackRef->extra()->seedRef().castTo<ElectronSeedRef>();
-	if (ElSeedRef->ctfTrack().isNonnull()) {
-	  if(ElSeedRef->ctfTrack() == trackRef) preId = true;
+      if(foundgsf) {
+	for (unsigned int igsf=0; igsf<gsftracks.size();igsf++) {
+	  GsfTrackRef gsfTrackRef(gsftrackcoll, igsf);
+	  if (gsfTrackRef->seedRef().isNull()) continue;
+	  ElectronSeedRef ElSeedRef= gsfTrackRef->extra()->seedRef().castTo<ElectronSeedRef>();
+	  if (ElSeedRef->ctfTrack().isNonnull()) {
+	    if(ElSeedRef->ctfTrack() == trackRef) preId = true;
+	  }
 	}
       }
       if(preId) {
