@@ -140,7 +140,7 @@ EcalUncalibRecHitRecChi2Algo<C>::EcalUncalibRecHitRecChi2Algo(
     }
 
 
-    if(!isSaturated && !iGainSwitch)	
+    if(!isSaturated && !iGainSwitch && chi2_>0 && chi2OutOfTime_>0)	
     {	
 	chi2_ = 7*(3+log(chi2_)); chi2_ = chi2_<0 ? 0:chi2_; // this is just a convinient mapping for storing in the calibRecHit bit map 
 	chi2OutOfTime_ = 7*(3+log(chi2OutOfTime_)); chi2OutOfTime_ = chi2OutOfTime_<0 ? 0:chi2OutOfTime_; 
