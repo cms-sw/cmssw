@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.43 2010/09/21 17:06:14 chamont Exp $
+// $Id: PixelHitMatcher.cc,v 1.44 2010/12/17 18:07:48 innocent Exp $
 //
 //
 
@@ -135,18 +135,20 @@ PixelHitMatcher::compatibleSeeds
 
   for (unsigned int i=0;i<seeds->size();++i)
    {
+    assert((*seeds)[i].nHits()<=8) ;
     TrajectorySeed::range rhits=(*seeds)[i].recHits();
 
     // build all possible pairs
-    TrajectorySeed::const_iterator it2=rhits.second;
-    for (TrajectorySeed::const_iterator it1=rhits.first;it1!=rhits.second;it1++)
+    unsigned char rank1, rank2, hitsMask ;
+    TrajectorySeed::const_iterator it1, it2 ;
+    for ( rank1=0, it1=rhits.first ; it1!=rhits.second ; rank1++, it1++ )
      {
-      for (TrajectorySeed::const_iterator it2=it1+1;it2!=rhits.second;it2++)
+      for ( rank2=rank1+1, it2=it1+1 ; it2!=rhits.second ; rank2++, it2++ )
        {
-        TrajectorySeed::range r(it1,it2) ;
+        //TrajectorySeed::range r(it1,it2) ;
 
         // first Hit
-        TrajectorySeed::const_iterator it=r.first;
+        TrajectorySeed::const_iterator it=it1 ;
         if (!(*it).isValid()) continue;
         DetId id=(*it).geographicalId();
         const GeomDet *geomdet=theTrackerGeometry->idToDet((*it).geographicalId());
@@ -185,7 +187,7 @@ PixelHitMatcher::compatibleSeeds
           // now second Hit
           //CC@@
           //it++;
-          it=r.second ;
+          it=it2 ;
           if (!(*it).isValid()) continue ;
 
           DetId id2=(*it).geographicalId();
@@ -246,7 +248,9 @@ PixelHitMatcher::compatibleSeeds
               int subDet2 = id2.subdetId() ;
               float dRz2 = (subDet2%2==1)?pp2.dZ():pp2.dPerp() ;
               float dPhi2 = pp2.dPhi() ;
-              result.push_back(SeedWithInfo((*seeds)[i],subDet2,dRz2,dPhi2,subDet1,dRz1,dPhi1)) ;
+              hitsMask = (1<<rank1)|(1<<rank2) ;
+              std::cout<<"HITS MASK "<<(unsigned int)rank1<<" "<<(unsigned int)rank2<<" => "<<(unsigned int)hitsMask<<std::endl ;
+              result.push_back(SeedWithInfo((*seeds)[i],hitsMask,subDet2,dRz2,dPhi2,subDet1,dRz1,dPhi1)) ;
              }
            }
          } // end tsos1 is valid

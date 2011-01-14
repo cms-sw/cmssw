@@ -1050,6 +1050,13 @@ void GsfElectronAlgo::createElectron()
   double BInTesla = eventSetupData_->magField->inTesla(GlobalPoint(0.,0.,0.)).z() ;
   edm::Handle<reco::TrackCollection> ctfTracks = eventData_->originalCtfTracks ;
   if (!ctfTracks.isValid()) { ctfTracks = eventData_->currentCtfTracks ; }
+
+  // values of conversionInfo.flag()
+  // -9999 : Partner track was not found
+  // 0     : Partner track found in the CTF collection using
+  // 1     : Partner track found in the CTF collection using
+  // 2     : Partner track found in the GSF collection using
+  // 3     : Partner track found in the GSF collection using the electron's GSF track
   ConversionInfo conversionInfo = conversionFinder.getConversionInfo
    (*electronData_->coreRef,ctfTracks,eventData_->originalGsfTracks,BInTesla) ;
 
@@ -1174,7 +1181,8 @@ void GsfElectronAlgo::setAmbiguityFlags( bool ignoreNotPreselected )
        { sameCluster = (scRef1==scRef2) ; }
       else if (generalData_->strategyCfg.ambClustersOverlapStrategy==1)
        {
-        float threshold = 1.*cosh(EleRelPoint(scRef1->position(),eventData_->beamspot->position()).eta()) ;
+        float eMin = 1. ;
+        float threshold = eMin*cosh(EleRelPoint(scRef1->position(),eventData_->beamspot->position()).eta()) ;
         sameCluster =
          ( (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*eleClu2),eventData_->reducedEBRecHits,eventData_->reducedEERecHits)>=threshold) ||
            (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*eleClu2),eventData_->reducedEBRecHits,eventData_->reducedEERecHits)>=threshold) ||

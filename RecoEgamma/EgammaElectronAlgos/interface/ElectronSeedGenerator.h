@@ -13,6 +13,16 @@
  *
  ************************************************************/
 
+#include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
+
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 #include "DataFormats/EgammaReco/interface//ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -22,14 +32,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -63,8 +65,11 @@ class ElectronSeedGenerator
 
  private:
 
-  void seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster, float hoe1, float hoe2, reco::ElectronSeedCollection & out);
-  bool prepareElTrackSeed(ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
+  void seedsFromThisCluster( edm::Ref<reco::SuperClusterCollection> seedCluster, float hoe1, float hoe2, reco::ElectronSeedCollection & out ) ;
+  void seedsFromRecHits( std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > & elePixelHits, PropagationDirection & dir, const GlobalPoint & vertexPos, const reco::ElectronSeed::CaloClusterRef & cluster, reco::ElectronSeedCollection & out, bool positron ) ;
+  void seedsFromTrajectorySeeds( const std::vector<SeedWithInfo> & elePixelSeeds, const reco::ElectronSeed::CaloClusterRef & cluster, float hoe1, float hoe2, reco::ElectronSeedCollection & out, bool positron ) ;
+  void addSeed( reco::ElectronSeed & seed, const SeedWithInfo * info, bool positron, reco::ElectronSeedCollection & out ) ;
+  bool prepareElTrackSeed( ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint & vertexPos) ;
 
   bool dynamicphiroad_;
   bool fromTrackerSeeds_;
@@ -73,7 +78,6 @@ class ElectronSeedGenerator
   edm::Handle<std::vector<reco::Vertex> > theVertices;
   edm::InputTag verticesTag_;
 
-  double zmin1_, zmax1_;
   edm::Handle<reco::BeamSpot> theBeamSpot;
   edm::InputTag beamSpotTag_;
 
