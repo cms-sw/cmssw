@@ -22,7 +22,7 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"

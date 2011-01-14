@@ -26,7 +26,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h" 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"

@@ -8,7 +8,7 @@ typedef Vector2DBase<float,GlobalTag> Global2DVector;
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 

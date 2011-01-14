@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.25 2010/10/26 15:20:31 sunanda Exp $
+// $Id: PixelDigisTest.cc,v 1.26 2010/11/30 09:23:31 dkotlins Exp $
 //
 //
 // system include files
@@ -58,7 +58,7 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 
 // For the big pixel recongnition
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
 // for simulated Tracker hits
 //#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
