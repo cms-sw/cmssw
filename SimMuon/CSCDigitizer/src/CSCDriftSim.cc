@@ -174,13 +174,13 @@ double CSCDriftSim::avalancheCharge() {
 
 double CSCDriftSim::gasGain(const CSCDetId & detId) const
 {
-  double result = 130000.;
+  double result = 130000.;  // 1.30 E05
   // if ME1/1, add some extra gas gain to compensate
   // for a smaller gas gap
   int ring = detId.ring();
   if(detId.station() == 1 && (ring == 1 || ring == 4))
   {
-    result = 385000;
+    result = 213000.; // 2.13 E05 ( to match real world as of Jan-2011)
   }
   return result;
 }
