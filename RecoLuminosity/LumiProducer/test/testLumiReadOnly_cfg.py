@@ -15,10 +15,8 @@ process.maxLuminosityBlocks=cms.untracked.PSet(
 #  input = cms.untracked.int32(3)
 #)
 process.source= cms.Source("PoolSource",
-              fileNames=cms.untracked.vstring('file:testLumiProd-135149.root'),
-              firstRun=cms.untracked.uint32(135149),
-              firstLuminosityBlock = cms.untracked.uint32(1),                           
-              firstEvent=cms.untracked.uint32(1),
+              fileNames=cms.untracked.vstring('file:testLumiProd-149181.root'),
+              firstRun=cms.untracked.uint32(149181)
              )
 process.test = cms.EDAnalyzer("TestLumiProducer")
 
