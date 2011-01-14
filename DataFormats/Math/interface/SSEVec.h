@@ -107,6 +107,7 @@ namespace mathSSE {
   template<typename T>
   struct OldVec { T  theX; T  theY; T  theZ; T  theW;}  __attribute__ ((aligned (16)));
   
+  template<typename T> union Vec4;
 
   template<typename T> union Vec2{
     Vec2() {
@@ -118,12 +119,15 @@ namespace mathSSE {
     explicit Vec2(T f1) {
       arr[0] = f1; arr[1] = f1;
     }
+
     void set(T f1, T f2) {
       arr[0] = f1; arr[1] = f2;
     }
     Vec2 get1(unsigned int n) const {
       return Vec2(arr[n],arr[n]);
     }
+
+    inline Vec2(Vec4<T> v4);
 
     T & operator[](unsigned int n) {
       return arr[n];
@@ -134,7 +138,7 @@ namespace mathSSE {
     }
 
 
-    T __attribute__ ((aligned(16))) arr[2];
+    T arr[2];
   };
 
 
@@ -167,6 +171,11 @@ namespace mathSSE {
     OldVec<T> o;
   };
 
+  template<typename T>
+  inline Vec2<T>::Vec2(Vec4<T> v4) {
+    arr[0]=v4[0];arr[1]=v4[1];
+  }
+
 
 #ifdef CMS_USE_SSE
 
@@ -193,9 +202,27 @@ namespace mathSSE {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
 
+
+    Vec4( Vec2<float> ivec0,   Vec2<float> ivec1) {
+      arr[0] = ivec0.arr[0]; arr[1]=ivec0.arr[1];
+      arr[2] = ivec1.arr[0]; arr[3]=ivec1.arr[1];
+    }
+    
+    Vec4( Vec2<float> ivec0,  float f3, float f4=0) {
+      arr[0] = ivec0.arr[0]; arr[1]=ivec0.arr[1];
+      arr[2] = f3; arr[3] = f4;
+    }
+
+   Vec4( Vec2<float> ivec0) {
+     vec = _mm_setzero_ps();
+     arr[0] = ivec0.arr[0]; arr[1]=ivec0.arr[1];
+    }
+
+
     void set(float f1, float f2, float f3, float f4=0) {
       vec = _mm_set_ps(f4, f3, f2, f1);
     }
+
     void set1(float f1) {
      vec =  _mm_set1_ps(f1);
     }
@@ -218,6 +245,9 @@ namespace mathSSE {
   };
   
   template<>
+  union Vec4<double>;
+
+  template<>
   union Vec2<double> {
     typedef  __m128d nativeType;
     __m128d vec;
@@ -237,6 +267,8 @@ namespace mathSSE {
       set1(f1);
     }
     
+    inline Vec2(Vec4<double> v4); 
+
     void set(double f1, double f2) {
       arr[0] = f1; arr[1] = f2;
     }
@@ -330,6 +362,7 @@ namespace mathSSE {
 
 #endif // CMS_USE_SSE
   
+  typedef Vec2<float> Vec2F;
   typedef Vec4<float> Vec4F;
   typedef Vec4<float> Vec3F;
   typedef Vec2<double> Vec2D;
@@ -427,8 +460,61 @@ inline mathSSE::Vec4F operator*(mathSSE::Vec4F b,float a) {
   return  _mm_mul_ps(_mm_set1_ps(a),b.vec);
 }
 
+//
+// float op 2d (use the 4d one...)
+//
+inline mathSSE::Vec4F operator-(mathSSE::Vec2F a) {
+  return -mathSSE::Vec4F(a);
+}
 
+
+inline mathSSE::Vec4F operator+(mathSSE::Vec2F a, mathSSE::Vec2F b) {
+  return  mathSSE::Vec4F(a)+mathSSE::Vec4F(b);
+}
+
+inline mathSSE::Vec4F operator-(mathSSE::Vec2F a, mathSSE::Vec2F b) {
+  return  mathSSE::Vec4F(a)-mathSSE::Vec4F(b);
+}
+
+inline mathSSE::Vec4F operator*(mathSSE::Vec2F a, mathSSE::Vec2F b) {
+  return  mathSSE::Vec4F(a)*mathSSE::Vec4F(b);
+}
+
+inline mathSSE::Vec4F operator/(mathSSE::Vec2F a, mathSSE::Vec2F b) {
+  return  mathSSE::Vec4F(a)/mathSSE::Vec4F(b);
+}
+
+
+inline mathSSE::Vec4F operator*(mathSSE::Vec2F a, float s) {
+  return  s*mathSSE::Vec4F(a);
+}
+
+inline mathSSE::Vec4F operator*(float s,mathSSE::Vec2F a) {
+  return  s*mathSSE::Vec4F(a);
+}
+
+
+inline float dot(mathSSE::Vec2F a, mathSSE::Vec2F b)  __attribute__((always_inline)) __attribute__ ((pure));
+
+inline float dot(mathSSE::Vec2F a, mathSSE::Vec2F b){
+  return a.arr[0]*b.arr[0] + a.arr[1]*b.arr[1];
+}
+
+inline float cross(mathSSE::Vec2F a, mathSSE::Vec2F b)  __attribute__((always_inline)) __attribute__ ((pure));
+
+inline float cross(mathSSE::Vec2F a, mathSSE::Vec2F b) {
+  return a.arr[0]*b.arr[1] - a.arr[1]*b.arr[0];
+}
+
+
+///
 // double op 2d
+//
+inline  mathSSE::Vec2D::Vec2(Vec4D v4) {
+  vec = v4.vec[0];
+}
+
+
 inline mathSSE::Vec2D operator-(mathSSE::Vec2D a) {
   const __m128d neg = _mm_set_pd ( -0.0 , -0.0);
   return _mm_xor_pd(a.vec,neg);
@@ -570,6 +656,7 @@ inline mathSSE::Vec4D cross(mathSSE::Vec4D a, mathSSE::Vec4D b) {
 // sqrt
 namespace mathSSE {
   template<> inline Vec4F sqrt(Vec4F v) { return _mm_sqrt_ps(v.vec);}
+  template<> inline Vec2F sqrt(Vec2F v) { return sqrt(Vec4F(v));}
   template<> inline Vec2D sqrt(Vec2D v) { return _mm_sqrt_pd(v.vec);}
   template<> inline Vec4D sqrt(Vec4D v) { 
     return Vec4D(_mm_sqrt_pd(v.vec[0]),_mm_sqrt_pd(v.vec[1]));
@@ -600,6 +687,7 @@ namespace mathSSE {
 
 #include <iosfwd>
 std::ostream & operator<<(std::ostream & out, mathSSE::Vec2D const & v);
+std::ostream & operator<<(std::ostream & out, mathSSE::Vec2F const & v);
 std::ostream & operator<<(std::ostream & out, mathSSE::Vec4F const & v);
 std::ostream & operator<<(std::ostream & out, mathSSE::Vec4D const & v);
 
