@@ -32,7 +32,7 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.41.2.1 2011/01/10 17:15:35 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.42 2011/01/10 17:18:09 chamont Exp $
  *
  ****************************************************************************/
 
@@ -60,6 +60,22 @@ class GsfElectron : public RecoCandidate
     struct IsolationVariables ;
     struct ConversionRejection ;
 
+    GsfElectron() ;
+    GsfElectron( const GsfElectronCoreRef & ) ;
+    GsfElectron
+     (
+      const GsfElectron &,
+      const GsfElectronCoreRef &
+     ) ;
+    GsfElectron
+     (
+      const GsfElectron & electron,
+      const GsfElectronCoreRef & core,
+      const CaloClusterPtr & electronCluster,
+      const TrackRef & closestCtfTrack,
+      const TrackBaseRef & conversionPartner,
+      const GsfTrackRefVector & ambiguousTracks
+     ) ;
     GsfElectron
      (
       const LorentzVector & p4, int charge,
@@ -73,21 +89,6 @@ class GsfElectron : public RecoCandidate
       const ConversionRejection &,
       float fbrem
      ) ;
-    GsfElectron
-     (
-      const GsfElectron & electron,
-      const GsfElectronCoreRef & core
-     ) ;
-    GsfElectron
-     (
-      const GsfElectron & electron,
-      const GsfElectronCoreRef & core,
-      const CaloClusterPtr & electronCluster,
-      const TrackRef & closestCtfTrack,
-      const TrackBaseRef & conversionPartner,
-      const GsfTrackRefVector & ambiguousTracks
-     ) ;
-    GsfElectron() ;
     GsfElectron * clone() const ;
     GsfElectron * clone
      (
@@ -159,7 +160,7 @@ class GsfElectron : public RecoCandidate
   public:
 
     // accessors
-    GsfElectronCoreRef core() const { return core_ ; }
+    virtual GsfElectronCoreRef core() const { return core_ ; }
 
     // forward core methods
     SuperClusterRef superCluster() const { return core()->superCluster() ; }
@@ -457,16 +458,16 @@ class GsfElectron : public RecoCandidate
 
     struct ConversionRejection
      {
-      int flags ;  // negative means block not filled
+      int flags ;  // -infinity:not-computed, other: as computed by Puneeth conversion code
       TrackBaseRef partner ; // conversion partner
       float dist ; // distance to the conversion partner
       float dcot ; // difference of cot(angle) with the conversion partner track
       float radius ; // signed conversion radius
       ConversionRejection()
-       : flags(-1),
-         dist(-9999.),
-         dcot(-9999.),
-         radius(-9999.)
+       : flags(-std::numeric_limits<float>::infinity()),
+         dist(std::numeric_limits<float>::infinity()),
+         dcot(std::numeric_limits<float>::infinity()),
+         radius(std::numeric_limits<float>::infinity())
        {}
      } ;
 

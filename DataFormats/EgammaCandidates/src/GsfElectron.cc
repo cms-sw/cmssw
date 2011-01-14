@@ -6,7 +6,12 @@
 using namespace reco ;
 
 GsfElectron::GsfElectron()
- : passCutBasedPreselection_(false), passMvaPreslection_(false), ambiguous_(true), mva_(-999999999), fbrem_(0), class_(UNKNOWN) {}
+ : passCutBasedPreselection_(false), passMvaPreslection_(false), ambiguous_(true), mva_(-999999999), fbrem_(0), class_(UNKNOWN)
+ {}
+
+GsfElectron::GsfElectron( const GsfElectronCoreRef & core )
+ : core_(core), passCutBasedPreselection_(false), passMvaPreslection_(false), ambiguous_(true), mva_(-999999999), fbrem_(0), class_(UNKNOWN)
+ {}
 
 GsfElectron::GsfElectron
  ( const LorentzVector & p4,
