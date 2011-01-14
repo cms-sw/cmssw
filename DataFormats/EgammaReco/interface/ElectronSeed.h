@@ -48,25 +48,37 @@ class ElectronSeed : public TrajectorySeed
 
     //! Set additional info
     void setCtfTrack( const CtfTrackRef & ) ;
-    void setCaloCluster( const CaloClusterRef &,
-        int subDet2 =0,
-        float dRz2 =std::numeric_limits<float>::infinity(),
-        float dPhi2 =std::numeric_limits<float>::infinity(),
-        int subDet1 =0,
-        float dRz1 =std::numeric_limits<float>::infinity(),
-        float dPhi1 =std::numeric_limits<float>::infinity(),
-        float hoe1 =std::numeric_limits<float>::infinity(),
-        float hoe2 =std::numeric_limits<float>::infinity() ) ;
+    void setCaloCluster
+     ( const CaloClusterRef &,
+       unsigned char hitsMask =0,
+       int subDet2 =0, int subDet1 =0,
+       float hoe1 =std::numeric_limits<float>::infinity(),
+       float hoe2 =std::numeric_limits<float>::infinity() ) ;
+    void setNegAttributes
+     ( float dRz2 =std::numeric_limits<float>::infinity(),
+       float dPhi2 =std::numeric_limits<float>::infinity(),
+       float dRz1 =std::numeric_limits<float>::infinity(),
+       float dPhi1 =std::numeric_limits<float>::infinity() ) ;
+    void setPosAttributes
+     ( float dRz2 =std::numeric_limits<float>::infinity(),
+       float dPhi2 =std::numeric_limits<float>::infinity(),
+       float dRz1 =std::numeric_limits<float>::infinity(),
+       float dPhi1 =std::numeric_limits<float>::infinity() ) ;
 
     //! Accessors
     CtfTrackRef ctfTrack() const { return ctfTrack_ ; }
     CaloClusterRef caloCluster() const { return caloCluster_ ; }
+    unsigned char hitsMask() const { return hitsMask_ ; }
     int subDet2() const { return subDet2_ ; }
     float dRz2() const { return dRz2_ ; }
     float dPhi2() const { return dPhi2_ ; }
+    float dRz2Pos() const { return dRz2Pos_ ; }
+    float dPhi2Pos() const { return dPhi2Pos_ ; }
     int subDet1() const { return subDet1_ ; }
     float dRz1() const { return dRz1_ ; }
     float dPhi1() const { return dPhi1_ ; }
+    float dRz1Pos() const { return dRz1Pos_ ; }
+    float dPhi1Pos() const { return dPhi1Pos_ ; }
     float hoe1() const { return hcalDepth1OverEcal_ ; }
     float hoe2() const { return hcalDepth2OverEcal_ ; }
 
@@ -80,12 +92,17 @@ class ElectronSeed : public TrajectorySeed
 
     CtfTrackRef ctfTrack_ ;
     CaloClusterRef caloCluster_ ;
+    unsigned char hitsMask_ ;
     int subDet2_ ;
     float dRz2_ ;
     float dPhi2_ ;
+    float dRz2Pos_ ;
+    float dPhi2Pos_ ;
     int subDet1_ ;
     float dRz1_ ;
     float dPhi1_ ;
+    float dRz1Pos_ ;
+    float dPhi1Pos_ ;
     float hcalDepth1OverEcal_ ; // hcal over ecal seed cluster energy using first hcal depth
     float hcalDepth2OverEcal_ ; // hcal over ecal seed cluster energy using 2nd hcal depth
     bool isEcalDriven_ ;
