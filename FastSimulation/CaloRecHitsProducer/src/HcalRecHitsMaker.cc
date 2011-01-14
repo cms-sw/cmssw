@@ -694,7 +694,7 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   double ssqq_4 = pedWidth->getSigma(3,3);
 
   // correction factors (hb,he,ho,hf)
-  static float corrfac[4]={1.39,1.32,1.53,5.41};
+  static float corrfac[4]={1.39,1.32,1.53,3.76};
 
   int sub   = detId.subdet();
   
