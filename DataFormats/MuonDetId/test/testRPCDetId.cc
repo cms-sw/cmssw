@@ -3,7 +3,7 @@
    test file for RPCDetId
 
    \author Stefano ARGIRO
-   \version $Id: testRPCDetId.cc,v 1.3 2005/11/01 15:17:30 segoni Exp $
+   \version $Id: testRPCDetId.cc,v 1.4 2006/09/13 09:00:22 trentad Exp $
    \date 27 Jul 2005
 */
 
@@ -39,19 +39,18 @@ void testRPCDetId::testOne(){
 
   for (int region=RPCDetId::minRegionId; region<=RPCDetId::maxRegionId; ++region)
   {
-      int minRing=RPCDetId::minRingForwardId;
-      int maxRing=RPCDetId::maxRingForwardId;
-      if (!region) 
-      {
-	minRing=RPCDetId::minRingBarrelId;
-	maxRing=RPCDetId::maxRingBarrelId;
-      } 
+     const int minRing ( 0 != region ? RPCDetId::minRingForwardId : RPCDetId::minRingBarrelId ) ;
+     const int maxRing ( 0 != region ? RPCDetId::maxRingForwardId : RPCDetId::maxRingBarrelId ) ;
+     const int minSector ( 0 != region ? RPCDetId::minSectorForwardId : RPCDetId::minSectorBarrelId ) ;
+     const int maxSector ( 0 != region ? RPCDetId::maxSectorForwardId : RPCDetId::maxSectorBarrelId ) ;
+     const int minSubSector ( 0 != region ? RPCDetId::minSubSectorForwardId : RPCDetId::minSubSectorBarrelId ) ;
+     const int maxSubSector ( 0 != region ? RPCDetId::maxSubSectorForwardId : RPCDetId::maxSubSectorBarrelId ) ;
     
       for (int ring=minRing; ring<=maxRing; ++ring) 	    
         for (int station=RPCDetId::minStationId; station<=RPCDetId::maxStationId; ++station)
-          for (int sector=RPCDetId::minSectorId; sector<=RPCDetId::maxSectorId; ++sector)
+          for (int sector=minSector; sector<=maxSector; ++sector)
             for (int layer=RPCDetId::minLayerId; layer<=RPCDetId::maxLayerId; ++layer)
-              for (int subSector=RPCDetId::minSubSectorId; subSector<=RPCDetId::maxSubSectorId; ++subSector)
+              for (int subSector=minSubSector; subSector<=maxSubSector; ++subSector)
                 for (int roll=RPCDetId::minRollId; roll<=RPCDetId::maxRollId; ++roll){
 
 	          RPCDetId detid(region, ring, station, sector, layer, subSector, roll);
