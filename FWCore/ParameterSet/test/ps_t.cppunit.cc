@@ -419,6 +419,13 @@ test_for_name()
   p2.registerIt();
   // equality tests toStringOfTracked internally
   CPPUNIT_ASSERT(ps == p2);
+  std::string allString;
+  ps.allToString(allString);
+  //since have untracked parameter these strings will not be identical
+  CPPUNIT_ASSERT(firstString != allString);
+  
+  edm::ParameterSet pAll(allString);
+  CPPUNIT_ASSERT(pAll.getParameterNames().size()==2);
 }
 
 void testps::nameAccessTest()

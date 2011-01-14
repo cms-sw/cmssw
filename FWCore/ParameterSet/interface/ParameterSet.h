@@ -82,9 +82,12 @@ namespace edm {
     void copyFrom(ParameterSet const& from, std::string const& name);
     std::string getParameterAsString(std::string const& name) const;
 
-    // encode
+    // encode only tracked parameters
     std::string toString() const;
     void toString(std::string& result) const;
+    
+    //encode tracked and untracked parameters
+    void allToString(std::string& result) const;
 
     template<typename T>
     T
@@ -259,6 +262,8 @@ namespace edm {
   private:
     // decode
     bool fromString(std::string const&);
+    
+    void toStringImp(std::string&, bool useAll) const;
 
     table tbl_;
     psettable psetTable_;

@@ -486,6 +486,16 @@ namespace edm {
 
   void
   ParameterSet::toString(std::string& rep) const {
+    toStringImp(rep,false);
+  }
+
+  void
+  ParameterSet::allToString(std::string& rep) const {
+    toStringImp(rep,true);
+  }
+  
+  void
+  ParameterSet::toStringImp(std::string& rep, bool useAll) const {
     // make sure the PSets get filled
     if (empty()) {
       rep += "<>";
@@ -493,14 +503,14 @@ namespace edm {
     }
     size_t size = 1;
     for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
-      if (b->second.isTracked()) {
+      if (useAll || b->second.isTracked()) {
         size += 2;
         size += b->first.size();
         size += b->second.sizeOfString();
       }
     }
     for(psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
-      if (b->second.isTracked()) {
+      if (useAll || b->second.isTracked()) {
         size += 2;
         size += b->first.size();
         size += b->first.size();
@@ -509,7 +519,7 @@ namespace edm {
       }
     }
     for(vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
-      if (b->second.isTracked()) {
+      if (useAll || b->second.isTracked()) {
         size += 2;
         size += b->first.size();
         size += sizeof(ParameterSetID) * b->second.vpset().size();
@@ -521,7 +531,7 @@ namespace edm {
     std::string start;
     std::string const between(";");
     for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
-      if (b->second.isTracked()) {
+      if (useAll || b->second.isTracked()) {
         rep += start;
         rep += b->first;
         rep += '=';
@@ -530,7 +540,7 @@ namespace edm {
       }
     }
     for(psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
-      if (b->second.isTracked()) {
+      if (useAll || b->second.isTracked()) {
         rep += start;
         rep += b->first;
         rep += '=';
@@ -539,7 +549,7 @@ namespace edm {
       }
     }
     for(vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
-      if (b->second.isTracked()) {
+      if (useAll || b->second.isTracked()) {
         rep += start;
         rep += b->first;
         rep += '=';
