@@ -14,6 +14,7 @@
 #include "HLTrigger/JetMET/interface/HLTPhi2METFilter.h"
 #include "HLTrigger/JetMET/interface/HLTRapGapFilter.h"
 #include "HLTrigger/JetMET/interface/HLTJetIDProducer.h"
+#include "HLTrigger/JetMET/interface/HLTJetL1MatchProducer.h"
 
 DEFINE_FWK_MODULE(HLT2jetGapFilter);
 DEFINE_FWK_MODULE(HLTAcoFilter);
@@ -28,3 +29,4 @@ DEFINE_FWK_MODULE(HLTNVFilter);
 DEFINE_FWK_MODULE(HLTPhi2METFilter);
 DEFINE_FWK_MODULE(HLTRapGapFilter);
 DEFINE_FWK_MODULE(HLTJetIDProducer);
+DEFINE_FWK_MODULE(HLTJetL1MatchProducer);
