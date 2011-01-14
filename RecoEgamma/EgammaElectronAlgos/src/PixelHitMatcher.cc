@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.44 2010/12/17 18:07:48 innocent Exp $
+// $Id: PixelHitMatcher.cc,v 1.45 2011/01/14 21:23:42 chamont Exp $
 //
 //
 
@@ -249,7 +249,6 @@ PixelHitMatcher::compatibleSeeds
               float dRz2 = (subDet2%2==1)?pp2.dZ():pp2.dPerp() ;
               float dPhi2 = pp2.dPhi() ;
               hitsMask = (1<<rank1)|(1<<rank2) ;
-              std::cout<<"HITS MASK "<<(unsigned int)rank1<<" "<<(unsigned int)rank2<<" => "<<(unsigned int)hitsMask<<std::endl ;
               result.push_back(SeedWithInfo((*seeds)[i],hitsMask,subDet2,dRz2,dPhi2,subDet1,dRz1,dPhi1)) ;
              }
            }
