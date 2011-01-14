@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.10 2010/07/12 17:37:59 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.14 2011/01/14 09:57:48 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -655,8 +655,16 @@ LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int 
   std::auto_ptr<LumiDetails> pOut2;
   LumiSummary* pIn1=new LumiSummary;
   LumiDetails* pIn2=new LumiDetails;
+  if(m_isNullRun){
+    pIn1->setLumiVersion("-1");
+    pIn2->setLumiVersion("-1");
+    pOut1.reset(pIn1);
+    iLBlock.put(pOut1);
+    pOut2.reset(pIn2);
+    iLBlock.put(pOut2);
+    return;
+  }
   PerLSData& lsdata=m_lscache[luminum];
-  pIn1->setLumiVersion(m_lumiversion);
   pIn1->setLumiData(lsdata.lumivalue,lsdata.lumierror,lsdata.lumiquality);
   pIn1->setDeadtime(lsdata.deadcount);
   pIn1->setOrbitData(lsdata.startorbit,lsdata.numorbit);
@@ -679,26 +687,23 @@ LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int 
   }
   pIn1->swapL1Data(l1temp);
   pIn1->swapHLTData(hlttemp);
+  pIn1->setLumiVersion(m_lumiversion);
   std::vector<float> beam1Intensities;
-  
   std::vector<float> beam2Intensities;
   pIn2->fillBeamIntensities(lsdata.beam1intensity,lsdata.beam2intensity);
   for(unsigned int i=0;i<lsdata.bunchlumivalue.size();++i){
     std::string algoname=lsdata.bunchlumivalue[i].first;
     if(algoname=="OCC1"){
       pIn2->fill(LumiDetails::kOCC1,lsdata.bunchlumivalue[i].second,lsdata.bunchlumierror[i].second,lsdata.bunchlumiquality[i].second);
-    }
-    if(algoname=="OCC2"){      
+    }else if(algoname=="OCC2"){      
       pIn2->fill(LumiDetails::kOCC2,lsdata.bunchlumivalue[i].second,lsdata.bunchlumierror[i].second,lsdata.bunchlumiquality[i].second);
-    }
-    if(algoname=="ET"){
+    }else if(algoname=="ET"){
       pIn2->fill(LumiDetails::kET,lsdata.bunchlumivalue[i].second,lsdata.bunchlumierror[i].second,lsdata.bunchlumiquality[i].second);
-    }
-    if(algoname=="PLT"){
+    }else if(algoname=="PLT"){
       pIn2->fill(LumiDetails::kPLT,lsdata.bunchlumivalue[i].second,lsdata.bunchlumierror[i].second,lsdata.bunchlumiquality[i].second);
     }
   }
-
+  pIn2->setLumiVersion(m_lumiversion);
   pOut1.reset(pIn1);
   iLBlock.put(pOut1);
   pOut2.reset(pIn2);
