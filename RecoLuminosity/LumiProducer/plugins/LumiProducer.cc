@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.14 2011/01/14 09:57:48 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.15 2011/01/14 10:41:02 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -589,6 +589,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
       const coral::AttributeList& row=trgcursor.currentRow();
       unsigned int cmslsnum=row["cmslsnum"].data<unsigned int>();
       PerLSData& lsdata=m_lscache[cmslsnum];
+      lsdata.deadcount=row["deadtime"].data<unsigned long long>();
       L1Data l1tmp;
       l1tmp.bitnum=row["bitnum"].data<unsigned int>();
       l1tmp.prescale=row["prescale"].data<unsigned int>();
@@ -667,6 +668,7 @@ LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int 
   PerLSData& lsdata=m_lscache[luminum];
   pIn1->setLumiData(lsdata.lumivalue,lsdata.lumierror,lsdata.lumiquality);
   pIn1->setDeadtime(lsdata.deadcount);
+  pIn1->setlsnumber(luminum);
   pIn1->setOrbitData(lsdata.startorbit,lsdata.numorbit);
   std::vector<LumiSummary::L1> l1temp;
   for(std::vector< L1Data >::iterator it=lsdata.l1data.begin();it!=lsdata.l1data.end();++it){
