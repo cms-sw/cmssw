@@ -13,7 +13,7 @@
 //
 // Original Author:  Massimiliano Chiorboli,40 4-A01,+41227671535,
 //         Created:  Mon Oct  4 11:57:35 CEST 2010
-// $Id$
+// $Id: JetCollectionForEleHT.cc,v 1.1 2010/10/12 23:10:07 sharper Exp $
 //
 //
 
@@ -75,15 +75,13 @@ JetCollectionForEleHT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   bool isOverlapping;
  
- 
   for(unsigned int j=0; j<theCaloJetCollection->size(); j++) {
-   
+
     isOverlapping = false;
     for(unsigned int i=0; i<recoecalcands.size(); i++) {
-     
       reco::SuperClusterRef theHltEleSC = recoecalcands[i]->superCluster();
-      TVector3 EleP = (theHltEleSC->position().x(), theHltEleSC->position().y(), theHltEleSC->position().z());
-      TVector3 JetP = ((*theCaloJetCollection)[j].px(), (*theCaloJetCollection)[j].py(), (*theCaloJetCollection)[j].pz());
+      TVector3 EleP(theHltEleSC->position().x(), theHltEleSC->position().y(), theHltEleSC->position().z());
+      TVector3 JetP((*theCaloJetCollection)[j].px(), (*theCaloJetCollection)[j].py(), (*theCaloJetCollection)[j].pz());
       double DR = EleP.DeltaR(JetP);
       if(DR<minDeltaR_) {
 	isOverlapping = true;
