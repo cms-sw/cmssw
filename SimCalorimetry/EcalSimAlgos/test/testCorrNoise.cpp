@@ -34,18 +34,13 @@ class MyRandomNumberGenerator : public edm::RandomNumberGenerator
  
       virtual CLHEP::HepRandomEngine& getEngine() const { return *m_engine ; }
       virtual uint32_t mySeed() const { return m_seed; }
+      virtual void preBeginLumi(edm::LuminosityBlock const& lumi) {}
+      virtual void postEventRead(edm::Event const& event) {}
 
-      virtual const std::vector<std::string>& getCachedLabels() const {
-	 return m_labels ; }
-      virtual const std::vector<std::vector<uint32_t> >& getCachedStates() const {
+      virtual std::vector<RandomEngineState> const& getLumiCache() const {
 	 return m_states ; }
-      virtual const std::vector<std::vector<uint32_t> >& getCachedSeeds() const {
-	 return m_seeds ; }
-
-      virtual void snapShot() {}
-      virtual void restoreState(const edm::Event& event) {}
-      virtual void saveEngineState(const std::string& fileName) {}
-      virtual void restoreEngineState(const std::string& fileName) {}
+      virtual std::vector<RandomEngineState> const& getEventCache() const {
+	 return m_states ; }
       virtual void print() {}
 
    private:
@@ -54,9 +49,7 @@ class MyRandomNumberGenerator : public edm::RandomNumberGenerator
 
       long m_seed ;
       CLHEP::HepRandomEngine* m_engine ;
-      std::vector<std::vector<uint32_t> > m_states ;
-      std::vector<std::vector<uint32_t> > m_seeds ;
-      std::vector<std::string> m_labels ;
+      std::vector<RandomEngineState > m_states ;
 };
 
 

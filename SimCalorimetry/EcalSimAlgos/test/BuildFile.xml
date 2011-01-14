@@ -1,6 +1,7 @@
 <environment>
   <use   name="SimCalorimetry/EcalSimAlgos"/>
   <use   name="SimCalorimetry/CaloSimAlgos"/>
+  <use   name="SimDataFormats/RandomEngine"/>
   <use   name="rootgraphics"/>
   <bin   file="testEcalShape.cpp">
   </bin>
