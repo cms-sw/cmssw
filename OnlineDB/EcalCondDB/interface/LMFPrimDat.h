@@ -34,7 +34,7 @@ class LMFPrimDat : public LMFColoredTable {
   LMFPrimDat(EcalDBConnection *c, int color, std::string system);
   ~LMFPrimDat() {}
 
-  std::string getTableName() {
+  std::string getTableName() const {
     return "LMF_" + getSystem() + "_" + getColor() + "_PRIM_DAT";
   }
 

@@ -25,10 +25,10 @@ class LMFColoredTable : public LMFDat {
 	          oracle::occi::Connection* conn);
   ~LMFColoredTable() {}
 
-  virtual std::string getTableName() = 0;
+  virtual std::string getTableName() const = 0;
 
-  std::string getColor();
-  virtual std::string getSystem();
+  std::string getColor() const;
+  virtual std::string getSystem() const;
 
   LMFColoredTable& setColor(int color) {
     if (COLOR.find(color) != COLOR.end()) {

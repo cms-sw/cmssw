@@ -32,7 +32,7 @@ class LMFLaserPulseDat : public LMFColoredTable {
   LMFLaserPulseDat(EcalDBConnection *c, int color);
   ~LMFLaserPulseDat() {}
   
-  std::string getTableName() {
+  std::string getTableName() const {
     return "LMF_LASER_" + getColor() + "_PULSE_DAT";
   }
   

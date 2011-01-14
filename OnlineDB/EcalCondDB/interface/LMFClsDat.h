@@ -34,7 +34,7 @@ class LMFClsDat : public LMFColoredTable {
   LMFClsDat(EcalDBConnection *c, int color);
   ~LMFClsDat() {}
 
-  std::string getTableName() {
+  std::string getTableName() const {
     return "LMF_CLS_" + getColor() + "_DAT";
   }
   
@@ -59,7 +59,7 @@ class LMFClsDat : public LMFColoredTable {
   int   getFlag(EcalLogicID &id);
   float getEFlag(EcalLogicID &id);
 
-  std::string getSystem() { return ""; }
+  std::string getSystem() const { return ""; }
 
   bool isValid();
   // to do: complete list of set/get methods
