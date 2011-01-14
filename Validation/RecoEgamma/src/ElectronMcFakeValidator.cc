@@ -140,9 +140,9 @@ void ElectronMcFakeValidator::beginJob()
 
   // rec event collections sizes
   h1_recEleNum_= bookH1("h_recEleNum","# rec electrons",11, -0.5,10.5,"N_{ele}");
-  h1_recCoreNum_= bookH1("h_recCoreNum","# rec electrons",21, -0.5,20.5,"N_{core}");
-  h1_recTrackNum_= bookH1("h_recTrackNum","# rec electrons",41, -0.5,40.5,"N_{track}");
-  h1_recSeedNum_= bookH1("h_recSeedNum","# rec electrons",101, -0.5,100.5,"N_{seed}");
+  h1_recCoreNum_= bookH1("h_recCoreNum","# rec electron cores",21, -0.5,20.5,"N_{core}");
+  h1_recTrackNum_= bookH1("h_recTrackNum","# rec gsf tracks",41, -0.5,40.5,"N_{track}");
+  h1_recSeedNum_= bookH1("h_recSeedNum","# rec electron seeds",101, -0.5,100.5,"N_{seed}");
 
   // mc
   h1_matchingObjectEta = bookH1withSumw2("h_matchingObject_eta",matchingObjectType+" #eta",eta_nbin,eta_min,eta_max,"#eta");
@@ -390,13 +390,22 @@ void ElectronMcFakeValidator::beginJob()
   h2_ele_HoEVsEta = bookH2("h_ele_HoEVsEta","ele hadronic energy / em energy vs eta",eta_nbin,eta_min,eta_max,hoe_nbin, hoe_min, hoe_max) ;
   h2_ele_HoEVsPhi = bookH2("h_ele_HoEVsPhi","ele hadronic energy / em energy vs phi",phi2D_nbin,phi_min,phi_max,hoe_nbin, hoe_min, hoe_max) ;
   h2_ele_HoEVsE = bookH2("h_ele_HoEVsE","ele hadronic energy / em energy vs E",p_nbin, 0.,300.,hoe_nbin, hoe_min, hoe_max) ;
+
+  // seeds
+  h1_ele_seed_mask_ = bookH1withSumw2("h_ele_seedMask","ele seed hits mask",13,-0.5,12.5) ;
+  h1_ele_seed_subdet2_ = bookH1withSumw2("h_ele_seedSubdet2","ele seed subdet 2nd layer",11,-0.5,10.5,"2nd hit subdet Id") ;
   h1_ele_seed_dphi2_ = bookH1withSumw2("h_ele_seedDphi2","ele seed dphi 2nd layer", 50,-0.003,+0.003,"#phi_{hit}-#phi_{pred} (rad)") ;
-  h2_ele_seed_dphi2VsEta_ = bookH2("h_ele_seedDphi2VsEta","ele seed dphi 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.003,+0.003) ;
-  h2_ele_seed_dphi2VsPt_ = bookH2("h_ele_seedDphi2VsPt","ele seed dphi 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.003,+0.003) ;
+  h2_ele_seed_dphi2VsEta_ = bookH2("h_ele_seedDphi2_VsEta","ele seed dphi 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.003,+0.003) ;
+  h2_ele_seed_dphi2VsPt_ = bookH2("h_ele_seedDphi2_VsPt","ele seed dphi 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.003,+0.003) ;
+  h1_ele_seed_dphi2pos_ = bookH1withSumw2("h_ele_seedDphi2Pos","ele seed dphi 2nd layer positron", 50,-0.003,+0.003,"#phi_{hit}-#phi_{pred} (rad)") ;
+  h2_ele_seed_dphi2posVsEta_ = bookH2("h_ele_seedDphi2Pos_VsEta","ele seed dphi 2nd layer positron vs eta",eta2D_nbin,eta_min,eta_max,50,-0.003,+0.003) ;
+  h2_ele_seed_dphi2posVsPt_ = bookH2("h_ele_seedDphi2Pos_VsPt","ele seed dphi 2nd layer positron vs pt",pt2D_nbin,0.,pt_max,50,-0.003,+0.003) ;
   h1_ele_seed_drz2_ = bookH1withSumw2("h_ele_seedDrz2","ele seed dr (dz) 2nd layer", 50,-0.03,+0.03,"r(z)_{hit}-r(z)_{pred} (cm)") ;
-  h2_ele_seed_drz2VsEta_ = bookH2("h_ele_seedDrz2VsEta","ele seed dr/dz 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.03,+0.03) ;
-  h2_ele_seed_drz2VsPt_ = bookH2("h_ele_seedDrz2VsPt","ele seed dr/dz 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
-  h1_ele_seed_subdet2_ = bookH1withSumw2("h_ele_seedSubdet2","ele seed subdet 2nd layer",10,0.,10.,"2nd hit subdet Id") ;
+  h2_ele_seed_drz2VsEta_ = bookH2("h_ele_seedDrz2_VsEta","ele seed dr/dz 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.03,+0.03) ;
+  h2_ele_seed_drz2VsPt_ = bookH2("h_ele_seedDrz2_VsPt","ele seed dr/dz 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
+  h1_ele_seed_drz2pos_ = bookH1withSumw2("h_ele_seedDrz2Pos","ele seed dr (dz) 2nd layer positron", 50,-0.03,+0.03,"r(z)_{hit}-r(z)_{pred} (cm)") ;
+  h2_ele_seed_drz2posVsEta_ = bookH2("h_ele_seedDrz2Pos_VsEta","ele seed dr/dz 2nd layer positron vs eta",eta2D_nbin,eta_min,eta_max,50,-0.03,+0.03) ;
+  h2_ele_seed_drz2posVsPt_ = bookH2("h_ele_seedDrz2PoVs_Pt","ele seed dr/dz 2nd layer positron vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
 
   // classes
   h1_ele_classes = bookH1withSumw2("h_ele_classes","ele classes",20,0.0,20.,"class Id");
@@ -726,12 +735,19 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
        { // track extra does not exist in AOD
         edm::RefToBase<TrajectorySeed> seed = bestGsfElectron.gsfTrack()->extra()->seedRef();
         ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
+        h1_ele_seed_mask_->Fill(elseed->hitsMask());
         h1_ele_seed_dphi2_->Fill(elseed->dPhi2());
         h2_ele_seed_dphi2VsEta_->Fill(bestGsfElectron.eta(), elseed->dPhi2());
         h2_ele_seed_dphi2VsPt_->Fill(bestGsfElectron.pt(), elseed->dPhi2()) ;
+        h1_ele_seed_dphi2pos_->Fill(elseed->dPhi2Pos());
+        h2_ele_seed_dphi2posVsEta_->Fill(bestGsfElectron.eta(), elseed->dPhi2Pos());
+        h2_ele_seed_dphi2posVsPt_->Fill(bestGsfElectron.pt(), elseed->dPhi2Pos());
         h1_ele_seed_drz2_->Fill(elseed->dRz2());
         h2_ele_seed_drz2VsEta_->Fill(bestGsfElectron.eta(), elseed->dRz2());
         h2_ele_seed_drz2VsPt_->Fill(bestGsfElectron.pt(), elseed->dRz2());
+        h1_ele_seed_drz2pos_->Fill(elseed->dRz2Pos());
+        h2_ele_seed_drz2posVsEta_->Fill(bestGsfElectron.eta(), elseed->dRz2Pos());
+        h2_ele_seed_drz2posVsPt_->Fill(bestGsfElectron.pt(), elseed->dRz2Pos());
         h1_ele_seed_subdet2_->Fill(elseed->subDet2());
        }
       // match distributions
@@ -991,6 +1007,14 @@ void ElectronMcFakeValidator::endJob()
     profileX("h_ele_vertexTIPVsEta_pfx",h2_ele_vertexTIPVsEta,"mean tip (wrt gen vtx) vs eta","#eta","<TIP> (cm)");
     profileX("h_ele_vertexTIPVsPhi_pfx",h2_ele_vertexTIPVsPhi,"mean tip (wrt gen vtx) vs phi","#phi","<TIP> (cm)");
     profileX("h_ele_vertexTIPVsPt_pfx",h2_ele_vertexTIPVsPt,"mean tip (wrt gen vtx) vs phi","p_{T} (GeV/c)","<TIP> (cm)");
+    profileX("h_ele_seedDphi2_VsEta_pfx",h2_ele_seed_dphi2VsEta_,"mean ele seed dphi 2nd layer vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+    profileX("h_ele_seedDphi2_VsPt_pfx",h2_ele_seed_dphi2VsPt_,"mean ele seed dphi 2nd layer vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+    profileX("h_ele_seedDrz2_VsEta_pfx",h2_ele_seed_drz2VsEta_,"mean ele seed dr(dz) 2nd layer vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+    profileX("h_ele_seedDrz2_VsPt_pfx",h2_ele_seed_drz2VsPt_,"mean ele seed dr(dz) 2nd layer vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+    profileX("h_ele_seedDphi2Pos_VsEta_pfx",h2_ele_seed_dphi2posVsEta_,"mean ele seed dphi 2nd layer positron vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+    profileX("h_ele_seedDphi2Pos_VsPt_pfx",h2_ele_seed_dphi2posVsPt_,"mean ele seed dphi 2nd layer positron vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+    profileX("h_ele_seedDrz2Pos_VsEta_pfx",h2_ele_seed_drz2posVsEta_,"mean ele seed dr(dz) 2nd layer positron vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+    profileX("h_ele_seedDrz2Pos_VsPt_pfx",h2_ele_seed_drz2posVsPt_,"mean ele seed dr(dz) 2nd layer positron vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
 
     saveStore(outputFile_) ;
    }

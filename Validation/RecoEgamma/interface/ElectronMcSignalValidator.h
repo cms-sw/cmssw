@@ -382,12 +382,19 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h2_ele_dPhiEleClVsPhi_propOut;
     MonitorElement *h2_ele_dPhiEleClVsPt_propOut;
 
+    MonitorElement *h1_ele_seed_mask_;
     MonitorElement *h1_ele_seed_dphi2_;
     MonitorElement *h2_ele_seed_dphi2VsEta_;
     MonitorElement *h2_ele_seed_dphi2VsPt_ ;
+    MonitorElement *h1_ele_seed_dphi2pos_;
+    MonitorElement *h2_ele_seed_dphi2posVsEta_;
+    MonitorElement *h2_ele_seed_dphi2posVsPt_ ;
     MonitorElement *h1_ele_seed_drz2_;
     MonitorElement *h2_ele_seed_drz2VsEta_;
     MonitorElement *h2_ele_seed_drz2VsPt_;
+    MonitorElement *h1_ele_seed_drz2pos_;
+    MonitorElement *h2_ele_seed_drz2posVsEta_;
+    MonitorElement *h2_ele_seed_drz2posVsPt_;
     MonitorElement *h1_ele_seed_subdet2_;
 
     MonitorElement *h1_ele_classes;
@@ -438,9 +445,9 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h1_ele_ecalRecHitSumEt_dr04;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2;
-    
+
     MonitorElement *h1_ele_convFlags;
-    MonitorElement *h1_ele_convFlags_all; 
+    MonitorElement *h1_ele_convFlags_all;
     MonitorElement *h1_ele_convDist;
     MonitorElement *h1_ele_convDist_all;
     MonitorElement *h1_ele_convDcot;

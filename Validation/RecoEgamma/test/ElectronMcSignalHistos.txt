@@ -128,13 +128,20 @@ ElectronMcSignalValidator/h_ele_ambiguousTracksVsEta_pfx 0 0 1 0 0 0 1 1
 
 Electron seeds
 
-ElectronMcSignalValidator/h_ele_seedDphi2 1 0 1 0 0 0 1 0
-ElectronMcSignalValidator/h_ele_seedDrz2 1 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_ele_seedMask 1 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_seedSubdet2 1 0 1 0 0 0 1 0
-ElectronMcSignalValidator/h_ele_seedDphi2VsEta_pfx 0 0 1 0 0 0 1 0
-ElectronMcSignalValidator/h_ele_seedDphi2VsPt_pfx 0 0 1 0 0 0 1 0
-ElectronMcSignalValidator/h_ele_seedDrz2VsEta_pfx 0 0 1 0 0 0 1 0
-ElectronMcSignalValidator/h_ele_seedDrz2VsPt_pfx 0 0 1 0 0 0 1 1
+ElectronMcSignalValidator/h_ele_seedDphi2 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_seedDphi2_VsEta_pfx 0 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_seedDphi2_VsPt_pfx 0 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_ele_seedDphi2Pos 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_seedDphi2Pos_VsEta_pfx 0 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_seedDphi2Pos_VsPt_pfx 0 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_ele_seedDrz2 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_seedDrz2_VsEta_pfx 0 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_seedDrz2_VsPt_pfx 0 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_ele_seedDrz2Pos 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_seedDrz2Pos_VsEta_pfx 0 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_seedDrz2Pos_VsPt_pfx 0 0 1 0 0 0 1 1
 
 Brem fraction and related distributions
 
