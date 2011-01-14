@@ -3,13 +3,15 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-//namespace cms
-//{
 HLTJetIDProducer::HLTJetIDProducer(const edm::ParameterSet& iConfig)
 {
   jetsInput_ = iConfig.getParameter<edm::InputTag>("jetsInput");
   min_EMF_ = iConfig.getParameter<double>("min_EMF");
   min_N90_ = iConfig.getParameter<int>("min_N90");
+
+
+  //  produces< reco::CaloJetCollection > ( "hltJetIDCollection" );
+  produces< reco::CaloJetCollection > ();
 }
 
 void HLTJetIDProducer::beginJob()
@@ -38,8 +40,9 @@ void HLTJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   } // calojetc
 
-  iEvent.put( result, "HLTJetIDCollection");
+  //iEvent.put( result, "hltJetIDCollection");
+  iEvent.put( result);
 
 }
-//}
+
 
