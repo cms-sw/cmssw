@@ -127,6 +127,12 @@ namespace mathSSE {
       return Vec2(arr[n],arr[n]);
     }
 
+    template<typename U> 
+    Vec2(Vec2<U> v) {
+      arr[0] = v[0]; arr[1] = v[1];
+
+    }
+
     inline Vec2(Vec4<T> v4);
 
     T & operator[](unsigned int n) {
@@ -180,6 +186,9 @@ namespace mathSSE {
 #ifdef CMS_USE_SSE
 
   template<>
+  union Vec4<double>;
+
+  template<>
   union Vec4<float> {
     typedef  __m128 nativeType;
     __m128 vec;
@@ -193,6 +202,9 @@ namespace mathSSE {
     Vec4() {
       vec = _mm_setzero_ps();
     }
+
+
+    inline Vec4(Vec4<double> ivec);
 
     explicit Vec4(float f1) {
       set1(f1);
@@ -244,8 +256,6 @@ namespace mathSSE {
 
   };
   
-  template<>
-  union Vec4<double>;
 
   template<>
   union Vec2<double> {
@@ -308,6 +318,11 @@ namespace mathSSE {
       vec[1] = _mm_setzero_pd();
     }
 
+    Vec4( Vec4<float> ivec) {
+      vec[0] = _mm_cvtps_pd(ivec.vec);
+      vec[1] = _mm_cvtps_pd(_mm_shuffle_ps(ivec.vec, ivec.vec, _MM_SHUFFLE(1, 0, 3, 2)));
+    }
+
     explicit Vec4(double f1) {
       set1(f1);
     }
@@ -359,6 +374,14 @@ namespace mathSSE {
     Vec2<double> zw() const { return vec[1];}
 
   };
+
+  
+  inline Vec4<float>::Vec4(Vec4<double> ivec) {
+    vec = _mm_cvtpd_ps(ivec.vec[0]);
+    __m128 v2 = _mm_cvtpd_ps(ivec.vec[1]);
+    vec = _mm_shuffle_ps(vec, v2, _MM_SHUFFLE(1, 0, 1, 0));
+  }
+
 
 #endif // CMS_USE_SSE
   
