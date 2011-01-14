@@ -68,6 +68,13 @@ PileUpProducer::PileUpProducer(edm::ParameterSet const & p)
   else
     theVertexGenerator = new NoPrimaryVertexGenerator();
 
+  if (averageNumber_ > 0.)
+    {
+      std::cout << " FastSimulation/PileUpProducer -> minBias events taken from " << theFileNames[0] << " et al., " ;
+      std::cout << " with an average number of events of " << averageNumber_ << std::endl;
+    }
+  else std::cout << " FastSimulation/PileUpProducer -> No pileup " << std::endl;
+
 }
 
 PileUpProducer::~PileUpProducer() { 

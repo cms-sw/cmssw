@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-print "The pile up is taken from 8 TeV MinBias files."
 # Take pileup events from files
 PileUpSimulatorBlock = cms.PSet(
     PileUpSimulator = cms.PSet(
