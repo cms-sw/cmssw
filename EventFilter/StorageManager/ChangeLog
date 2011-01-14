@@ -1,3 +1,8 @@
+2011-01-14 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-07-01
+	* Add missing mapping of consumer to queue id for shared queues.
+
 2010-12-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-07-00
