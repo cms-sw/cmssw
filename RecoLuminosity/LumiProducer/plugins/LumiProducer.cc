@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.15 2011/01/14 10:41:02 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.16 2011/01/14 10:57:37 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -399,6 +399,8 @@ LumiProducer::fillLSCache(unsigned int luminum){
     l.bunchlumivalue.reserve(5);
     l.bunchlumierror.reserve(5);
     l.bunchlumiquality.reserve(5);
+    l.beam1intensity.resize(3564,0.0);
+    l.beam2intensity.resize(3564,0.0);
     m_lscache.insert(std::make_pair(n,l));
   }
   //queries once per cache refill
@@ -450,6 +452,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
     while( lumisummarycursor.next() ){
       const coral::AttributeList& row=lumisummarycursor.currentRow();
       unsigned int cmslsnum=row["cmslsnum"].data<unsigned int>();
+      //std::cout<<"cmslsnum "<<cmslsnum<<std::endl;
       PerLSData& lsdata=m_lscache[cmslsnum];
       lsdata.lumivalue=row["instlumi"].data<float>();
       lsdata.lumierror=row["instlumierror"].data<float>();
@@ -463,23 +466,18 @@ LumiProducer::fillLSCache(unsigned int luminum){
 	short* bxindex=(short*)::malloc(bxindexBlob.size());
 	const coral::Blob& beam1intensityBlob=row["beam1intensityBlob"].data<coral::Blob>();
 	const void* beam1intensityBlob_StartAddress=beam1intensityBlob.startingAddress();
-	float* beam1intensity=(float*)::malloc(sizeof(float)*3564);
+	float* beam1intensity=(float*)::malloc(beam1intensityBlob.size());
 	const coral::Blob& beam2intensityBlob=row["beam2intensityBlob"].data<coral::Blob>();
 	const void* beam2intensityBlob_StartAddress=beam2intensityBlob.startingAddress();
-	float* beam2intensity=(float*)::malloc(sizeof(float)*3564);
+	float* beam2intensity=(float*)::malloc(beam2intensityBlob.size());
 	std::memmove(bxindex,bxindex_StartAddress,bxindexBlob.size());
 	std::memmove(beam1intensity,beam1intensityBlob_StartAddress,beam1intensityBlob.size());
 	std::memmove(beam2intensity,beam2intensityBlob_StartAddress,beam2intensityBlob.size());
-	for(short idx=0;idx<3564;++idx){
-	  for(unsigned int i=0;i<sizeof(bxindex)/sizeof(short);++i){
-	    if(bxindex[i]==idx){
-	      lsdata.beam1intensity.push_back(beam1intensity[idx]);
-	      lsdata.beam2intensity.push_back(beam2intensity[idx]);
-	    }else{
-	      lsdata.beam1intensity.push_back(0.0);
-	      lsdata.beam2intensity.push_back(0.0);
-	    }
-	  }
+	
+	for(unsigned int i=0;i<bxindexBlob.size()/sizeof(short);++i){
+	  unsigned int idx=bxindex[i];
+	  lsdata.beam1intensity.at(idx)=beam1intensity[idx];
+	  lsdata.beam2intensity.at(idx)=beam2intensity[idx];
 	}
 	::free(bxindex);
 	::free(beam1intensity);
@@ -689,9 +687,7 @@ LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int 
   }
   pIn1->swapL1Data(l1temp);
   pIn1->swapHLTData(hlttemp);
-  pIn1->setLumiVersion(m_lumiversion);
-  std::vector<float> beam1Intensities;
-  std::vector<float> beam2Intensities;
+  pIn1->setLumiVersion(m_lumiversion);  
   pIn2->fillBeamIntensities(lsdata.beam1intensity,lsdata.beam2intensity);
   for(unsigned int i=0;i<lsdata.bunchlumivalue.size();++i){
     std::string algoname=lsdata.bunchlumivalue[i].first;
