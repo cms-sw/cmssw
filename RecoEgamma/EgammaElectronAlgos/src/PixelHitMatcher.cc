@@ -1,21 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    EgammaElectronAlgos
-// Class:      PixelHitMatcher
-//
-/**\class PixelHitMatcher EgammaElectronAlgos/PixelHitMatcher
-
- Description: central class for finding compatible hits
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Ursula Berthon, Claude Charlot
-//         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.45 2011/01/14 21:23:42 chamont Exp $
-//
-//
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
