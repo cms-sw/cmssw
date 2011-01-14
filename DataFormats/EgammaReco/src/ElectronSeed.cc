@@ -6,7 +6,7 @@ using namespace reco ;
 
 
 ElectronSeed::ElectronSeed()
- : TrajectorySeed(), ctfTrack_(), caloCluster_(),
+ : TrajectorySeed(), ctfTrack_(), caloCluster_(), hitsMask_(0),
    subDet2_(0),
    dRz2_(std::numeric_limits<float>::infinity()),
    dPhi2_(std::numeric_limits<float>::infinity()),
@@ -25,7 +25,7 @@ ElectronSeed::ElectronSeed()
 ElectronSeed::ElectronSeed
  ( const TrajectorySeed & seed )
  : TrajectorySeed(seed),
-   ctfTrack_(), caloCluster_(),
+   ctfTrack_(), caloCluster_(), hitsMask_(0),
    subDet2_(0),
    dRz2_(std::numeric_limits<float>::infinity()),
    dPhi2_(std::numeric_limits<float>::infinity()),
@@ -44,7 +44,7 @@ ElectronSeed::ElectronSeed
 ElectronSeed::ElectronSeed
  ( PTrajectoryStateOnDet & pts, recHitContainer & rh, PropagationDirection & dir )
  : TrajectorySeed(pts,rh,dir),
-   ctfTrack_(), caloCluster_(),
+   ctfTrack_(), caloCluster_(), hitsMask_(0),
    subDet2_(0),
    dRz2_(std::numeric_limits<float>::infinity()),
    dPhi2_(std::numeric_limits<float>::infinity()),
