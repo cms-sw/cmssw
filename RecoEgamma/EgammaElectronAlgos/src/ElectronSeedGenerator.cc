@@ -464,16 +464,22 @@ void ElectronSeedGenerator::addSeed
       if (positron)
        {
         if (resItr->dRz2Pos()!=std::numeric_limits<float>::infinity())
-         { throw cms::Exception("ElectronSeedGenerator|InternalError")<<"this seed should not known its positive dRz2" ; }
-        resItr->setPosAttributes(info->dRz2(),info->dPhi2(),info->dRz1(),info->dPhi1()) ;
-        seed.setNegAttributes(resItr->dRz2(),resItr->dPhi2(),resItr->dRz1(),resItr->dPhi1()) ;
+         { edm::LogWarning("ElectronSeedGenerator|UnexpectedValue")<<"this seed should not known its positive dRz2" ; }
+        else
+         {
+          resItr->setPosAttributes(info->dRz2(),info->dPhi2(),info->dRz1(),info->dPhi1()) ;
+          seed.setNegAttributes(resItr->dRz2(),resItr->dPhi2(),resItr->dRz1(),resItr->dPhi1()) ;
+         }
        }
       else
        {
         if (resItr->dRz2()!=std::numeric_limits<float>::infinity())
-         { throw cms::Exception("ElectronSeedGenerator|InternalError")<<"this seed should not known its positive dRz2" ; }
-        resItr->setNegAttributes(info->dRz2(),info->dPhi2(),info->dRz1(),info->dPhi1()) ;
-        seed.setPosAttributes(resItr->dRz2Pos(),resItr->dPhi2Pos(),resItr->dRz1Pos(),resItr->dPhi1Pos()) ;
+         { edm::LogWarning("ElectronSeedGenerator|UnexpectedValue")<<"this seed should not known its positive dRz2" ; }
+        else
+         {
+          resItr->setNegAttributes(info->dRz2(),info->dPhi2(),info->dRz1(),info->dPhi1()) ;
+          seed.setPosAttributes(resItr->dRz2Pos(),resItr->dPhi2Pos(),resItr->dRz1Pos(),resItr->dPhi1Pos()) ;
+         }
        }
       break ;
      }
