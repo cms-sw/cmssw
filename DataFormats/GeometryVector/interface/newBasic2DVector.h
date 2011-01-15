@@ -93,7 +93,7 @@ public:
    */
   template <class U> 
   Basic2DVector& operator-= ( const Basic2DVector<U>& p) {
-    v = v + p.v;
+    v = v - p.v;
     return *this;
   } 
 
@@ -108,7 +108,8 @@ public:
 
   /// Scaling by a scalar value (division)
   Basic2DVector& operator/= ( const T& t) {
-    v = v/t;
+    t = T(1)/t;
+    v = v*t;
     return *this;
   } 
 
@@ -224,8 +225,8 @@ inline Basic2DVector<T> operator*( const Scalar& s, const Basic2DVector<T>& v) {
  */
 template <class T, class Scalar>
 inline Basic2DVector<T> operator/( const Basic2DVector<T>& v, const Scalar& s) {
-  T t = static_cast<T>(s);
-  return Basic2DVector<T>(v.v/t);
+  T t = static_cast<T>(1/s);
+  return Basic2DVector<T>(v.v*t);
 }
 
 typedef Basic2DVector<float> Basic2DVectorF;
