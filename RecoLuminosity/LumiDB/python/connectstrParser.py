@@ -103,4 +103,9 @@ if __name__ == '__main__':
     parser.parse()
     print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo(),parser.servlettotranslate()
     print  parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict())
-    
+    print 'case 6'
+    f6='frontier://LumiCalc/CMS_LUMI_PROD'
+    parser=connectstrParser(f6)
+    parser.parse()
+    print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo(),parser.servlettotranslate()
+    print  parser.fullfrontierStr(parser.schemaname(),frontierparser.parameterdict())
