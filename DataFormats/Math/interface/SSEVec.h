@@ -186,6 +186,8 @@ namespace mathSSE {
 #ifdef CMS_USE_SSE
 
   template<>
+  union Vec2<double>;
+  template<>
   union Vec4<double>;
 
   template<>
@@ -268,6 +270,10 @@ namespace mathSSE {
     Vec2() {
       vec = _mm_setzero_pd();
     }
+
+
+    inline Vec2(Vec2<float> ivec);
+
 
     Vec2(double f1, double f2) {
       arr[0] = f1; arr[1] = f2;
@@ -537,6 +543,9 @@ inline  mathSSE::Vec2D::Vec2(Vec4D v4) {
   vec = v4.vec[0];
 }
 
+inline  mathSSE::Vec2D::Vec2(Vec2F ivec) {
+  arr[0] = ivec.arr[0]; arr[1] = ivec.arr[1];
+}
 
 inline mathSSE::Vec2D operator-(mathSSE::Vec2D a) {
   const __m128d neg = _mm_set_pd ( -0.0 , -0.0);
