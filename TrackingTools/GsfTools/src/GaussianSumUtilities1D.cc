@@ -178,7 +178,8 @@ GaussianSumUtilities1D::computeMode () const
     // mode finding failed: set solution to highest component
     //  (alternative would be global mean / variance ..?)
     //
-    edm::LogWarning("GaussianSumUtilities") << "1D mode calculation failed";
+    //two many log warnings to actually be useful - comment out
+    //edm::LogWarning("GaussianSumUtilities") << "1D mode calculation failed";
 //     double x = mean();
 //     double y = pdf(x);
 //     result = std::make_pair(y,x);
