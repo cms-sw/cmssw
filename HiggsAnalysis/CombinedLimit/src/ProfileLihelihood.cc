@@ -78,6 +78,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
      }
      if (limits.size() > 1) {
         std::sort(limits.begin(), limits.end());
+        int nsuccess = limits.size();
         if (limits.size() >= 10) { 
             limits.erase(limits.begin(), limits.begin()+2);
             limits.erase(limits.end()-2, limits.end());
@@ -87,7 +88,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
         for (int i = 0, n = limits.size(); i < n; ++i) { 
             absSpread += fabs(limits[i]-median)/(n-1); // n-1, as one gives 0 by construction
         }
-        std::cout << "Numer of tries: " << (ntries) << "   Number of successes: " << limits.size() << "   Relative spread: " << absSpread/limit << std::endl;
+        std::cout << "Numer of tries: " << ntries << "   Number of successes: " << nsuccess << "   Relative spread: " << absSpread/median << std::endl;
         if (absSpread < 0.01) { success = true; limit = median; }
      }
   }
