@@ -35,8 +35,11 @@ void HLTJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   for (reco::CaloJetCollection::const_iterator calojetc = calojets->begin(); 
        calojetc != calojets->end(); ++calojetc) {
       
-    if (fabs(calojetc->eta()) >= 2.6) result->push_back(*calojetc);
-    else if (calojetc->emEnergyFraction() > min_EMF_ && calojetc->n90() > min_N90_) result->push_back(*calojetc);
+    if (fabs(calojetc->eta()) >= 2.6) {
+      result->push_back(*calojetc);
+    } else if ((calojetc->emEnergyFraction() >= min_EMF_) && (calojetc->n90() >= min_N90_)) {
+      result->push_back(*calojetc);
+    }
 
   } // calojetc
 
@@ -44,5 +47,3 @@ void HLTJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.put( result);
 
 }
-
-
