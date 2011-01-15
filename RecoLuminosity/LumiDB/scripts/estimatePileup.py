@@ -106,7 +106,7 @@ if __name__ == '__main__':
     inputGroup  = optparse.OptionGroup (parser, "Input Options")
     pileupGroup = optparse.OptionGroup (parser, "Pileup Options")
     dbGroup.add_option     ('--parameters', dest = 'connect', action = 'store',
-                           help = 'connect string to lumiDB (optional, default to frontier://LumiProd/CMS_LUMI_PROD)')
+                           help = 'connect string to lumiDB (optional, default to frontier://LumiCalc/CMS_LUMI_PROD)')
     dbGroup.add_option     ('-P', dest = 'authpath', action = 'store',
                              help = 'path to authentication file')
     dbGroup.add_option     ('--siteconfpath', dest = 'siteconfpath', action = 'store',
@@ -174,7 +174,7 @@ if __name__ == '__main__':
 
     session, svc =  \
              LumiQueryAPI.setupSession (options.connect or \
-                                        'frontier://LumiProd/CMS_LUMI_PROD',
+                                        'frontier://LumiCalc/CMS_LUMI_PROD',
                                         options.siteconfpath, parameters,options.debug)
 
     ## Let's start the fun

@@ -176,7 +176,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Dump Fill",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # parse arguments
-    parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='frontier://LumiProd/CMS_LUMI_PROD')
+    parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file,optional')
     parser.add_argument('-i',dest='inputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
@@ -189,7 +189,7 @@ if __name__ == '__main__':
         os.environ['CORAL_AUTH_PATH'] = options.authpath
     parameters = lumiQueryAPI.ParametersObject()
     session,svc =  lumiQueryAPI.setupSession (options.connect or \
-                                              'frontier://LumiProd/CMS_LUMI_PROD',
+                                              'frontier://LumiCalc/CMS_LUMI_PROD',
                                                options.siteconfpath,parameters,options.debug)
 
     ##

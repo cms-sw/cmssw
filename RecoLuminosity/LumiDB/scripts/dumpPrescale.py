@@ -6,7 +6,7 @@ from RecoLuminosity.LumiDB import argparse,lumiQueryAPI
 
 def main():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Dump Prescale info for selected hltpath and trg path",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-c',dest='connect',action='store',help='connect string to lumiDB,optional',default='frontier://LumiProd/CMS_LUMI_PROD')
+    parser.add_argument('-c',dest='connect',action='store',help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
     parser.add_argument('-r',dest='runnumber',action='store',help='run number')
     parser.add_argument('-hltpath',dest='hltpath',action='store',required=True,help='hltpath')
@@ -19,7 +19,7 @@ def main():
         os.environ['CORAL_AUTH_PATH']=args.authpath
     parameters = lumiQueryAPI.ParametersObject()
     session,svc =  lumiQueryAPI.setupSession (args.connect or \
-                                              'frontier://LumiProd/CMS_LUMI_PROD',
+                                              'frontier://LumiCalc/CMS_LUMI_PROD',
                                                args.siteconfpath,parameters,args.debug)
     session.transaction().start(True)
     schema=session.nominalSchema()

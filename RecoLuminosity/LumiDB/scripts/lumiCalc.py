@@ -103,7 +103,7 @@ if __name__ == '__main__':
     beamModeChoices = [ "stable", "quiet", "either"]
     # parse arguments
     parser.add_argument('action',choices=allowedActions,help='command actions')
-    parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='frontier://LumiProd/CMS_LUMI_PROD')
+    parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file,optional')
     parser.add_argument('-n',dest='normfactor',action='store',type=float,default=1.0,help='normalization factor,optional')
     parser.add_argument('-r',dest='runnumber',action='store',type=int,help='run number,optional')
@@ -135,7 +135,7 @@ if __name__ == '__main__':
         parameters.beammode    = 'STABLE BEAMS'
     parameters.xingMinLum  = options.xingMinLum
     session,svc =  lumiQueryAPI.setupSession (options.connect or \
-                                              'frontier://LumiProd/CMS_LUMI_PROD',
+                                              'frontier://LumiCalc/CMS_LUMI_PROD',
                                                options.siteconfpath,parameters,options.debug)
     lumiXing = False
     if options.action in ['lumibylsXing','delivered','recorded','overview','lumibyls','lumibylstime']:
