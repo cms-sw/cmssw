@@ -1,6 +1,8 @@
 #include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
+#include "RooRandom.h"
+#include "RooDataSet.h"
 #include "RooStats/ProfileLikelihoodCalculator.h"
 #include "RooStats/LikelihoodInterval.h"
 #include "RooStats/HypoTestResult.h"
@@ -18,11 +20,13 @@ ProfileLikelihood::ProfileLikelihood() :
     options_.add_options()
         ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value("Minuit2"), "Choice of minimizer (Minuit vs Minuit2)")
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(1e-3),  "Tolerance for minimizer")
+        ("hitItUntilItConverges", "Try and try again until you get the minimization converging (hack)")
     ;
 }
 
 void ProfileLikelihood::applyOptions(const boost::program_options::variables_map &vm) 
 {
+    hitItUntilItConverges_ = vm.count("hitItUntilItConverges");
 }
 
 ProfileLikelihood::MinimizerSentry::MinimizerSentry(std::string &minimizerAlgo, double tolerance) :
@@ -53,6 +57,30 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
   CloseCoutSentry sentry(verbose < 0);
 
   bool success = (doSignificance_ ?  runSignificance(w,data,limit) : runLimit(w,data,limit));
+  if (!success && hitItUntilItConverges_) {
+     std::vector<double> limits; double rMax = w->var("r")->getMax();
+     int ntries = 100;
+     for (int tries = 1; tries <= ntries; ++tries) {
+        w->loadSnapshot("clean");
+        w->var("r")->setMax(rMax*(0.5+RooRandom::uniform()));
+        w->var("r")->setVal(0.2+w->var("r")->getMax()); 
+        if (withSystematics) { 
+            RooArgSet set(*w->set("nuisances")); 
+            RooDataSet *randoms = w->pdf("nuisancePdf")->generate(set, 1); 
+            set = *randoms->get(0);
+            delete randoms;
+        }
+        success = (doSignificance_ ?  runSignificance(w,data,limit) : runLimit(w,data,limit));
+        if (success) limits.push_back(limit);
+        //if (verbose <= 0) break;
+     }
+     if (!limits.empty()) { success = true; limit = limits.front(); }
+     if (success && verbose >= 0) {
+        double absSpread = 0; 
+        for (int i = 1, n = limits.size(); i < n; ++i) { absSpread += fabs(limits[i]-limits[0])/(n-1); }
+        std::cout << "Numer of tries: " << (ntries+1) << "   Number of successes: " << limits.size() << "   Relative spread: " << absSpread/limit << std::endl;
+     }
+  }
   return success;
 }
 
