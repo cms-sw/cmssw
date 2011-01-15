@@ -27,12 +27,12 @@ public:
 
   /// Copy constructor from same type. Should not be needed but for gcc bug 12685
   Basic3DVector( const Basic3DVector & p) : 
-    v(p.x(),p.y(),p.z()) {}
+    v(p.v) {}
 
   /// Copy constructor and implicit conversion from Basic3DVector of different precision
   template <class U>
   Basic3DVector( const Basic3DVector<U> & p) : 
-    v(p.x(),p.y(),p.z()) {}
+    v(p.v) {}
 
 
   /// constructor from 2D vector (X and Y from 2D vector, z set to zero)
@@ -53,8 +53,9 @@ public:
         v(p.x(),p.y(),p.z()) {}
 
 
-  // constructor from Vec3
-  Basic3DVector(mathSSE::Vec4<T> const& iv) : v(iv){}
+  // constructor from Vec4
+  template<class U>
+  Basic3DVector(mathSSE::Vec4<U> const& iv) : v(iv){}
 
   /// construct from cartesian coordinates
   Basic3DVector( const T& x, const T& y, const T& z) : 
@@ -84,11 +85,11 @@ public:
 
   // equality
   bool operator==(const Basic3DVector& rh) const {
-    return x()==rh.x() && y()==rh.y() && z()==rh.z();
+    return v==rh.v;
   }
 
   /// The vector magnitude squared. Equivalent to vec.dot(vec)
-  T mag2() const { return  x()*x() + y()*y()+z()*z();}
+  T mag2() const { return  ::dot(v,v);}
 
   /// The vector magnitude. Equivalent to sqrt(vec.mag2())
   T mag() const  { return std::sqrt( mag2());}
@@ -137,9 +138,7 @@ public:
    */
   template <class U> 
   Basic3DVector& operator+= ( const Basic3DVector<U>& p) {
-    v.o.theX += p.x();
-    v.o.theY += p.y();
-    v.o.theZ += p.z();
+    v = v + p.v;
     return *this;
   } 
 
@@ -147,35 +146,29 @@ public:
    */
   template <class U> 
   Basic3DVector& operator-= ( const Basic3DVector<U>& p) {
-    v.o.theX -= p.x();
-    v.o.theY -= p.y();
-    v.o.theZ -= p.z();
+    v = v - p.v;
     return *this;
   } 
 
   /// Unary minus, returns a vector with components (-x(),-y(),-z())
-  Basic3DVector operator-() const { return Basic3DVector(-x(),-y(),-z());}
+  Basic3DVector operator-() const { return Basic3DVector(-v);}
 
   /// Scaling by a scalar value (multiplication)
   Basic3DVector& operator*= ( T t) {
-    v.o.theX *= t;
-    v.o.theY *= t;
-    v.o.theZ *= t;
+    v = t*v;
     return *this;
   } 
 
   /// Scaling by a scalar value (division)
   Basic3DVector& operator/= ( T t) {
     t = T(1)/t;
-    v.o.theX *= t;
-    v.o.theY *= t;   
-    v.o.theZ *= t;
+    v = t*v;
     return *this;
   } 
 
   /// Scalar product, or "dot" product, with a vector of same type.
-  T dot( const Basic3DVector& v) const { 
-    return x()*v.x() + y()*v.y() + z()*v.z();
+  T dot( const Basic3DVector& rh) const { 
+    return ::dot(v,rh.v);
   }
 
   /** Scalar (or dot) product with a vector of different precision.
@@ -184,16 +177,16 @@ public:
    *  of the two vectors.
    */
   template <class U> 
-  typename PreciseFloatType<T,U>::Type dot( const Basic3DVector<U>& v) const { 
-    return x()*v.x() + y()*v.y() + z()*v.z();
+  typename PreciseFloatType<T,U>::Type dot( const Basic3DVector<U>& lh) const { 
+    return Basic3DVector<typename PreciseFloatType<T,U>::Type>(*this)
+      .dot(Basic3DVector<typename PreciseFloatType<T,U>::Type>(lh));
   }
 
   /// Vector product, or "cross" product, with a vector of same type.
-  Basic3DVector cross( const Basic3DVector& v) const {
-    return Basic3DVector( y()*v.z() - v.y()*z(), 
-			  z()*v.x() - v.z()*x(), 
-			  x()*v.y() - v.x()*y());
+  Basic3DVector cross( const Basic3DVector& lh) const {
+    return ::cross(v,lh.v);
   }
+
 
   /** Vector (or cross) product with a vector of different precision.
    *  The product is computed without loss of precision. The type
@@ -202,10 +195,9 @@ public:
    */
   template <class U> 
   Basic3DVector<typename PreciseFloatType<T,U>::Type> 
-  cross( const Basic3DVector<U>& v) const {
-    return Basic3DVector<typename PreciseFloatType<T,U>::Type>( y()*v.z() - v.y()*z(), 
-								z()*v.x() - v.z()*x(), 
-								x()*v.y() - v.x()*y());
+  cross( const Basic3DVector<U>& lh) const {
+    return Basic3DVector<typename PreciseFloatType<T,U>::Type>(*this)
+      .cross(Basic3DVector<typename PreciseFloatType<T,U>::Type>(lh));
   }
 
 public:
@@ -225,18 +217,29 @@ inline std::ostream & operator<<( std::ostream& s, const Basic3DVector<T>& v) {
 
 
 /// vector sum and subtraction of vectors of possibly different precision
+template <class T>
+inline Basic3DVector<T>
+operator+( const Basic3DVector<T>& a, const Basic3DVector<T>& b) {
+  return a.v+b.v;
+}
+template <class T>
+inline Basic3DVector<T>
+operator-( const Basic3DVector<T>& a, const Basic3DVector<T>& b) {
+  return a.v-b.v;
+}
+
 template <class T, class U>
 inline Basic3DVector<typename PreciseFloatType<T,U>::Type>
 operator+( const Basic3DVector<T>& a, const Basic3DVector<U>& b) {
   typedef Basic3DVector<typename PreciseFloatType<T,U>::Type> RT;
-  return RT(a.x()+b.x(), a.y()+b.y(), a.z()+b.z());
+  return RT(a).v+RT(b).v;
 }
 
 template <class T, class U>
 inline Basic3DVector<typename PreciseFloatType<T,U>::Type>
 operator-( const Basic3DVector<T>& a, const Basic3DVector<U>& b) {
   typedef Basic3DVector<typename PreciseFloatType<T,U>::Type> RT;
-  return RT(a.x()-b.x(), a.y()-b.y(), a.z()-b.z());
+  return RT(a).v-RT(b).v;
 }
 
 /// scalar product of vectors of same precision
@@ -249,7 +252,7 @@ inline T operator*( const Basic3DVector<T>& v1, const Basic3DVector<T>& v2) {
 template <class T, class U>
 inline typename PreciseFloatType<T,U>::Type operator*( const Basic3DVector<T>& v1, 
 						       const Basic3DVector<U>& v2) {
-  return v1.x()*v2.x() + v1.y()*v2.y() + v1.z()*v2.z();
+  return  v1.dot(v2);
 }
 
 /** Multiplication by scalar, does not change the precision of the vector.
@@ -257,13 +260,13 @@ inline typename PreciseFloatType<T,U>::Type operator*( const Basic3DVector<T>& v
  */
 template <class T>
 inline Basic3DVector<T> operator*( const Basic3DVector<T>& v, T t) {
-  return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
+  return v.v*t;
 }
 
 /// Same as operator*( Vector, Scalar)
 template <class T>
 inline Basic3DVector<T> operator*(T t, const Basic3DVector<T>& v) {
-  return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
+  return v.v*t;
 }
 
 template <class T, typename S>
@@ -289,8 +292,6 @@ inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, S s) {
 
 typedef Basic3DVector<float> Basic3DVectorF;
 typedef Basic3DVector<double> Basic3DVectorD;
-
-#include "DataFormats/GeometryVector/interface/Basic3DVectorFSSE.icc"
 
 
 #endif // GeometryVector_Basic3DVector_h

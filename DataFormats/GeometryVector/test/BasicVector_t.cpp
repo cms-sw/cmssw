@@ -26,17 +26,18 @@ void multiSum(Basic3DVectorD&res, float s,  Basic3DVectorD const & a, Basic3DVec
 
 
 
-
-float dotV(  Basic3DVectorF const & a,  Basic3DVectorF const & b) {
+template<typename T, typename U>
+typename PreciseFloatType<T,U>::Type dotV(  Basic3DVector<T> const & a,  Basic3DVector<U> const & b) {
   return a*b;
 }
 
-
-float norm(Basic3DVectorF const & a) {
+template<typename T>
+T norm(Basic3DVector<T> const & a) {
   return std::sqrt(a*a);
 }
 
-float normV(Basic3DVectorF const & a) {
+template<typename T>
+T normV(Basic3DVector<T> const & a) {
   return a.mag();
 }
 
@@ -54,15 +55,31 @@ int main() {
 
   Basic3DVectorF  x(2.0f,4.0f,5.0f);
   Basic3DVectorF  y(-3.0f,2.0f,-5.0f);
+  Basic3DVectorD  xd(2.0,4.0,5.0);
+  Basic3DVectorD  yd = y;
 
   std::cout << dotV(x,y) << std::endl; 
   std::cout << normV(x) << std::endl; 
   std::cout << norm(x) << std::endl; 
 
+  std::cout << dotV(x,yd) << std::endl; 
+  std::cout << dotV(xd,y) << std::endl; 
+  std::cout << dotV(xd,yd) << std::endl; 
+  std::cout << normV(xd) << std::endl; 
+  std::cout << norm(xd) << std::endl; 
+
 
   Basic3DVectorF  z = x.cross(y);
   std::cout << z << std::endl;
   std::cout << -z << std::endl;
+  Basic3DVectorD  zd = x.cross(yd);
+  std::cout << zd << std::endl;
+  std::cout << -zd << std::endl;
+  std::cout << xd.cross(y)<< std::endl;
+  std::cout << xd.cross(yd)<< std::endl;
+
+  auto s = x+xd - 3.1*z;
+  std::cout << s << std::endl;
 
   {
     std::cout << "f" << std::endl;

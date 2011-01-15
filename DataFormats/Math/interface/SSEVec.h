@@ -621,6 +621,8 @@ inline mathSSE::Vec4D operator-(mathSSE::Vec4D a) {
 inline mathSSE::Vec4D operator+(mathSSE::Vec4D a, mathSSE::Vec4D b) {
   return  mathSSE::Vec4D(_mm_add_pd(a.vec[0],b.vec[0]),_mm_add_pd(a.vec[1],b.vec[1]));
 }
+
+
 inline mathSSE::Vec4D operator-(mathSSE::Vec4D a, mathSSE::Vec4D b) {
   return  mathSSE::Vec4D(_mm_sub_pd(a.vec[0],b.vec[0]),_mm_sub_pd(a.vec[1],b.vec[1]));
 }
@@ -641,7 +643,21 @@ inline mathSSE::Vec4D operator*(mathSSE::Vec4D b, double a) {
   return  mathSSE::Vec4D(_mm_mul_pd(res,b.vec[0]),_mm_mul_pd(res,b.vec[1]));
 }
 
-
+// mix algebra (creates ambiguities...)
+/*
+inline mathSSE::Vec4D operator+(mathSSE::Vec4D a, mathSSE::Vec4F b) {
+  return a + mathSSE::Vec4D(b);
+}
+inline mathSSE::Vec4D operator+(mathSSE::Vec4D b, mathSSE::Vec4F a) {
+  return a + mathSSE::Vec4D(b);
+}
+inline mathSSE::Vec4D operator-(mathSSE::Vec4D a, mathSSE::Vec4F b) {
+  return a - mathSSE::Vec4D(b);
+}
+inline mathSSE::Vec4D operator-(mathSSE::Vec4D b, mathSSE::Vec4F a) {
+  return a - mathSSE::Vec4D(b);
+}
+*/
 
 inline double dot(mathSSE::Vec4D a, mathSSE::Vec4D b) __attribute__((always_inline)) __attribute__ ((pure));
 
