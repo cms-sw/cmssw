@@ -21,12 +21,14 @@ ProfileLikelihood::ProfileLikelihood() :
         ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value("Minuit2"), "Choice of minimizer (Minuit vs Minuit2)")
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(1e-3),  "Tolerance for minimizer")
         ("hitItUntilItConverges", "Try and try again until you get the minimization converging (hack)")
+        ("hitItEvenHarder",       "Do multiple attempts even when it converged the first time (debug hack)")
     ;
 }
 
 void ProfileLikelihood::applyOptions(const boost::program_options::variables_map &vm) 
 {
     hitItUntilItConverges_ = vm.count("hitItUntilItConverges");
+    hitItEvenHarder_ = vm.count("hitItEvenHarder");
 }
 
 ProfileLikelihood::MinimizerSentry::MinimizerSentry(std::string &minimizerAlgo, double tolerance) :
@@ -57,7 +59,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
   CloseCoutSentry sentry(verbose < 0);
 
   bool success = (doSignificance_ ?  runSignificance(w,data,limit) : runLimit(w,data,limit));
-  if (!success && hitItUntilItConverges_) {
+  if ((!success && hitItUntilItConverges_) || hitItEvenHarder_) {
      std::vector<double> limits; double rMax = w->var("r")->getMax();
      int ntries = 100;
      for (int tries = 1; tries <= ntries; ++tries) {
@@ -70,15 +72,23 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
             set = *randoms->get(0);
             delete randoms;
         }
-        success = (doSignificance_ ?  runSignificance(w,data,limit) : runLimit(w,data,limit));
-        if (success) limits.push_back(limit);
-        //if (verbose <= 0) break;
+        bool mysuccess = (doSignificance_ ?  runSignificance(w,data,limit) : runLimit(w,data,limit));
+        if (mysuccess) limits.push_back(limit);
+        if (limits.size() == 10) { ntries = tries; break; }
      }
-     if (!limits.empty()) { success = true; limit = limits.front(); }
-     if (success && verbose >= 0) {
+     if (limits.size() > 1) {
+        std::sort(limits.begin(), limits.end());
+        if (limits.size() >= 10) { 
+            limits.erase(limits.begin(), limits.begin()+2);
+            limits.erase(limits.end()-2, limits.end());
+        }
+        double median = limits[limits.size()/2]; // pedantics be damned
         double absSpread = 0; 
-        for (int i = 1, n = limits.size(); i < n; ++i) { absSpread += fabs(limits[i]-limits[0])/(n-1); }
-        std::cout << "Numer of tries: " << (ntries+1) << "   Number of successes: " << limits.size() << "   Relative spread: " << absSpread/limit << std::endl;
+        for (int i = 0, n = limits.size(); i < n; ++i) { 
+            absSpread += fabs(limits[i]-median)/(n-1); // n-1, as one gives 0 by construction
+        }
+        std::cout << "Numer of tries: " << (ntries) << "   Number of successes: " << limits.size() << "   Relative spread: " << absSpread/limit << std::endl;
+        if (absSpread < 0.01) { success = true; limit = median; }
      }
   }
   return success;
