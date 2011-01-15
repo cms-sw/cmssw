@@ -101,13 +101,13 @@ public:
   Basic2DVector operator-() const { return Basic2DVector(-v);}
 
   /// Scaling by a scalar value (multiplication)
-  Basic2DVector& operator*= ( const T& t) {
+  Basic2DVector& operator*= ( T t) {
     v = v*t;
     return *this;
   } 
 
   /// Scaling by a scalar value (division)
-  Basic2DVector& operator/= ( const T& t) {
+  Basic2DVector& operator/= ( T t) {
     t = T(1)/t;
     v = v*t;
     return *this;
