@@ -14,9 +14,11 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
-#include "RecoTauTag/RecoTau/interface/ConeTools.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+
+#include "RecoTauTag/RecoTau/interface/ConeTools.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauCrossCleaning.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
@@ -179,44 +181,59 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   PiZeroDRFilter isoConePiZeroFilter(
       coneAxis, signalConePiZeros_(*jet), isoConePiZeros_(*jet));
 
+  // Build filter iterators select the signal charged stuff.
+  PFCandPtrDRFilterIter signalPFCHs_begin(signalConePFCHFilter, pfchs.begin(), pfchs.end());
+  PFCandPtrDRFilterIter signalPFCHs_end(signalConePFCHFilter, pfchs.end(), pfchs.end());
+
+  // Cross clean pi zero content using signal cone charged hadron constituents.
+  xclean::CrossCleanPiZeros<PFCandPtrDRFilterIter> xCleaner(
+      signalPFCHs_begin, signalPFCHs_end);
+  std::vector<reco::RecoTauPiZero> cleanPiZeros = xCleaner(piZeros);
+
+  // For the rest of the constituents, we need to filter any constituents that
+  // are already contained in the pizeros (i.e. electrons)
+  xclean::CrossCleanPtrs pfCandXCleaner(cleanPiZeros);
+
   // Build signal charged hadrons
   tau.addPFCands(RecoTauConstructor::kSignal,
                  RecoTauConstructor::kChargedHadron,
-                 PFCandPtrDRFilterIter(signalConePFCHFilter, pfchs.begin(),
-                                       pfchs.end()),
-                 PFCandPtrDRFilterIter(signalConePFCHFilter, pfchs.end(),
-                                       pfchs.end()));
+                 signalPFCHs_begin, signalPFCHs_end);
 
-  // Build signal neutral hadrons
   tau.addPFCands(RecoTauConstructor::kSignal,
                  RecoTauConstructor::kNeutralHadron,
-                 PFCandPtrDRFilterIter(signalConePFNHFilter, pfnhs.begin(),
-                                       pfnhs.end()),
-                 PFCandPtrDRFilterIter(signalConePFNHFilter, pfnhs.end(),
-                                       pfnhs.end()));
+                 boost::make_filter_iterator(
+                   xclean::makePredicateAND(signalConePFNHFilter, pfCandXCleaner),
+                   pfnhs.begin(), pfnhs.end()),
+                 boost::make_filter_iterator(
+                   xclean::makePredicateAND(signalConePFNHFilter, pfCandXCleaner),
+                   pfnhs.end(), pfnhs.end()));
 
   // Build signal PiZeros
   tau.addPiZeros(RecoTauConstructor::kSignal,
                  PiZeroDRFilterIter(signalConePiZeroFilter,
-                                    piZeros.begin(), piZeros.end()),
+                                    cleanPiZeros.begin(), cleanPiZeros.end()),
                  PiZeroDRFilterIter(signalConePiZeroFilter,
-                                    piZeros.end(), piZeros.end()));
+                                    cleanPiZeros.end(), cleanPiZeros.end()));
 
   // Build isolation charged hadrons
   tau.addPFCands(RecoTauConstructor::kIsolation,
                  RecoTauConstructor::kChargedHadron,
-                 PFCandPtrDRFilterIter(isoConePFCHFilter, pfchs.begin(),
-                                       pfchs.end()),
-                 PFCandPtrDRFilterIter(isoConePFCHFilter, pfchs.end(),
-                                       pfchs.end()));
+                 boost::make_filter_iterator(
+                   xclean::makePredicateAND(signalConePFCHFilter, pfCandXCleaner),
+                   pfchs.begin(), pfchs.end()),
+                 boost::make_filter_iterator(
+                   xclean::makePredicateAND(signalConePFCHFilter, pfCandXCleaner),
+                   pfchs.end(), pfchs.end()));
 
   // Build isolation neutral hadrons
   tau.addPFCands(RecoTauConstructor::kIsolation,
                  RecoTauConstructor::kNeutralHadron,
-                 PFCandPtrDRFilterIter(isoConePFNHFilter, pfnhs.begin(),
-                                       pfnhs.end()),
-                 PFCandPtrDRFilterIter(isoConePFNHFilter, pfnhs.end(),
-                                       pfnhs.end()));
+                 boost::make_filter_iterator(
+                   xclean::makePredicateAND(isoConePFNHFilter, pfCandXCleaner),
+                   pfnhs.begin(), pfnhs.end()),
+                 boost::make_filter_iterator(
+                   xclean::makePredicateAND(isoConePFNHFilter, pfCandXCleaner),
+                   pfnhs.end(), pfnhs.end()));
 
   // Build isolation PiZeros
   tau.addPiZeros(RecoTauConstructor::kIsolation,
