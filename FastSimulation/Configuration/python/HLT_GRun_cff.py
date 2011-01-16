@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_10_0/GRun/V2 (CMSSW_3_10_0_pre6_HLT2)
+# /dev/CMSSW_3_11_0/GRun/V3 (CMSSW_3_10_0_pre6_HLT4)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/GRun/V2')
+  tableName = cms.string('/dev/CMSSW_3_11_0/GRun/V3')
 )
 
 
@@ -216,10 +216,10 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
         'HcalCellDead' )
     )
   ),
+  appendToDataLabel = cms.string( "" ),
   DropChannelStatusBits = cms.vstring( 'HcalCellMask',
     'HcalCellOff',
     'HcalCellDead' ),
-  appendToDataLabel = cms.string( "" ),
   RecoveredRecHitBits = cms.vstring( 'TimingAddedBit',
     'TimingSubtractedBit' )
 )
@@ -1581,13 +1581,15 @@ hltDiJet20UMeff180U = cms.EDFilter( "HLTMhtHtFilter",
     inputJetTag = cms.InputTag( "hltMCJetCorJetIcone5HF07" ),
     saveTag = cms.untracked.bool( True ),
     minMht = cms.double( 0.0 ),
-    minPtJet = cms.double( 20.0 ),
+    minNJet = cms.int32( 0 ),
     mode = cms.int32( 2 ),
-    etaJet = cms.double( 9999.0 ),
     usePt = cms.bool( True ),
     minPT12 = cms.double( 0.0 ),
     minMeff = cms.double( 180.0 ),
-    minHt = cms.double( 0.0 )
+    minHt = cms.double( 0.0 ),
+    minMht2Ht = cms.double( 0.0 ),
+    minPtJet = cms.vdouble( 20.0, 20.0 ),
+    etaJet = cms.vdouble( 9999.0, 9999.0 )
 )
 hltPreDiJet50UPT50U = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" )
@@ -1596,13 +1598,15 @@ hltDiJet50UPT50U = cms.EDFilter( "HLTMhtHtFilter",
     inputJetTag = cms.InputTag( "hltMCJetCorJetIcone5HF07" ),
     saveTag = cms.untracked.bool( True ),
     minMht = cms.double( 0.0 ),
-    minPtJet = cms.double( 50.0 ),
+    minNJet = cms.int32( 0 ),
     mode = cms.int32( 3 ),
-    etaJet = cms.double( 9999.0 ),
     usePt = cms.bool( False ),
     minPT12 = cms.double( 50.0 ),
     minMeff = cms.double( 0.0 ),
-    minHt = cms.double( 0.0 )
+    minHt = cms.double( 0.0 ),
+    minMht2Ht = cms.double( 0.0 ),
+    minPtJet = cms.vdouble( 50.0, 50.0 ),
+    etaJet = cms.vdouble( 9999.0, 9999.0 )
 )
 hltPreExclDiJet30UHFAND = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" )
