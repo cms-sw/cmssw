@@ -1,7 +1,10 @@
-<export>
-</export>
+ <use   name="RecoLocalCalo/EcalRecAlgos"/>
+ <use   name="FWCore/ParameterSet"/>
+ <use   name="FWCore/Framework"/> 
+ <use   name="FWCore/PluginManager"/>
+
 <library   name="RecoLocalCalo_EcalRecAlgos_plugins" file="*.cc">
-   <use   name="RecoLocalCalo/EcalRecAlgos"/>
-   <use   name="FWCore/ParameterSet"/>
-   <use   name="FWCore/ServiceRegistry"/>
+  
+   <flags   EDM_PLUGIN="1"/>
+
 </library>

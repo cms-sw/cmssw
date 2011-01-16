@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # Ecal part
 #
 from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
-from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelService_cfi import *
+from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 
 #defines a sequence ecalLocalRecoSequence
 #

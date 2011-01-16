@@ -3,7 +3,7 @@
    Implementation of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.cc,v 1.33 2011/01/12 13:40:32 argiro Exp $
+   \version $Id: EcalSeverityLevelAlgo.cc,v 1.34 2011/01/13 13:50:09 argiro Exp $
    \date 10 Jan 2011
 */
 
@@ -23,30 +23,14 @@
 EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
   flagMask_      = p.getParameter< std::vector<uint32_t> >("flagMask");
   dbstatusMask_  = p.getParameter< std::vector<uint32_t> >("dbstatusMask");
-	    
+  chStatus_ =0;	    
 }
 
 
 EcalSeverityLevelAlgo::EcalSeverityLevel 
 EcalSeverityLevelAlgo::severityLevel(const DetId& id, 	   
-				     const EcalRecHitCollection& rhs, 
-				     const edm::EventSetup& es) const{
+				     const EcalRecHitCollection& rhs) const{
   
-  edm::ESHandle<EcalChannelStatus> pChannelStatus;
-  es.get<EcalChannelStatusRcd>().get(pChannelStatus);
-  const EcalChannelStatus* chStatus = pChannelStatus.product();
-
-  return severityLevel(id,rhs,*chStatus);
-
-}
-
- 
-
-EcalSeverityLevelAlgo::EcalSeverityLevel 
-EcalSeverityLevelAlgo::severityLevel(const DetId& id, 	   
-				     const EcalRecHitCollection& rhs, 
-				     const EcalChannelStatus& chs) const{
-
 
   // if the detid is within our rechits, evaluate from flag
  EcalRecHitCollection::const_iterator rh= rhs.find(id);
@@ -56,10 +40,13 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
 
   // else evaluate from dbstatus
  
+  if (!chStatus_)     
+    edm::LogError("ObjectNotFound") << "Channel Status not set for EcalSeverityLevelAlgo"; 
+	
 
-  EcalChannelStatus::const_iterator chIt = chs.find( id );
+  EcalChannelStatus::const_iterator chIt = chStatus_->find( id );
   uint16_t dbStatus = 0;
-  if ( chIt != chs.end() ) {
+  if ( chIt != chStatus_->end() ) {
     dbStatus = chIt->getStatusCode();
   } else {
     edm::LogError("ObjectNotFound") << "No channel status found for xtal " 
