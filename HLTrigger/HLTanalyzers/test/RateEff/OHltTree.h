@@ -3598,14 +3598,20 @@ public :
 
   int OpenHltL1L2TauMatching(float eta, float phi, float tauThr, float jetThre);  int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso,
 		       float L1TauEtThr, float L1CenJetThr);
+  int OpenHltPFTauPassedNoMuon(float Et,float L25TrkPt, int L3TrkIso, int L3GammaIso);
+  int OpenHltPFTauPassedNoEle(float Et,float L25TrkPt, int L3TrkIso, int L3GammaIso);
+  int OpenHltTauPFToCaloMatching(float eta, float phi);
   int OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso,
 			   float L1TauEtThr, float L1CenJetThr);
   int OpenHltTauL2SCMETPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso, float met,
-  		  float L1TauThr, float L1CenJetThr);
+			      float L1TauThr, float L1CenJetThr);
+  int OpenHltTauNoMuonPassed(float Et,float L25Tpt, int L3Tiso);
+  int OpenHltTauMuonMatching(float eta, float phi);
+  int OpenHltTauEleMatching(float eta, float phi);
   int OpenHlt2Tau1LegL3IsoPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt,
 				 float L1TauEtThr, float L1CenJetThr);
   int OpenHltElecTauL2SCPassed(float elecEt, int elecL1iso, float elecTiso, float elecHiso,
-					 float tauEt,float tauL25Tpt, int tauL25Tiso, float tauL3Tpt, int tauL3Tiso);
+			       float tauEt,float tauL25Tpt, int tauL25Tiso, float tauL3Tpt, int tauL3Tiso);
   int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
   int OpenHlt1ElectronSamHarperPassed(float Et, int L1iso,  
 				      float Tisobarrel, float Tisoendcap,  
