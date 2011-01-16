@@ -530,7 +530,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }    
     }    
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve130") == 0) {    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve130U") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHltDiJetAvePassed(130.)>=1) {    
@@ -539,7 +539,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }    
     }    
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve180") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve180U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHltDiJetAvePassed(180.)>=1) {
@@ -548,7 +548,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve300") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve300U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHltDiJetAvePassed(300.)>=1) {
@@ -557,7 +557,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve400") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve400U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHltDiJetAvePassed(400.)>=1) {
@@ -566,7 +566,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve500") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve500U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHltDiJetAvePassed(500.)>=1) {
@@ -575,7 +575,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve600") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve600U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHltDiJetAvePassed(600.)>=1) {
@@ -4285,14 +4285,14 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
       }  
     }  
   }  
-  else if (menu->GetTriggerName(it).CompareTo("OpenMu20_CentralJet20U") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu20_CentralJet20U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if(OpenHlt1MuonPassed(7.,7.,20.,2.,0)>=1 && OpenHlt1JetPassed(20,2.6)>=1) {
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenMu17_TripleCentralJet20U") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_TripleCentralJet20U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if(OpenHlt1MuonPassed(7.,7.,17.,2.,0)>=1 && OpenHlt1JetPassed(20,2.6)>=3) {
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
