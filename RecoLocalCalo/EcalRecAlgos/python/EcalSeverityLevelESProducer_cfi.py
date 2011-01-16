@@ -7,7 +7,14 @@
 
 import FWCore.ParameterSet.Config as cms
 
-EcalSeverityLevelService = cms.Service("EcalSeverityLevelService",
+essourceEcalSev =  cms.ESSource("EmptyESSource",
+                    recordName = cms.string("EcalSeverityLevelAlgoRcd"),
+                    firstValid = cms.vuint32(1),
+                    iovIsRunNotTime = cms.bool(True)
+                    )
+
+
+ecalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
 
  # map EcalRecHit::Flag into EcalSeverityLevel
  # for some reason hex notation does not seem to work with vuint32
