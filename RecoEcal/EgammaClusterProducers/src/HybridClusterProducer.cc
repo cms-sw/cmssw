@@ -17,8 +17,6 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 // Geometry
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -28,6 +26,9 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/HybridClusterProducer.h"
@@ -114,9 +115,8 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   const CaloSubdetectorGeometry *geometry_p;
   std::auto_ptr<const CaloSubdetectorTopology> topology;
 
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  es.get<EcalChannelStatusRcd>().get(chStatus);
-  const EcalChannelStatus* theEcalChStatus = chStatus.product();
+  edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
+  es.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
 
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "\n\n\n" << hitcollection_ << "\n\n" << std::endl;
@@ -134,7 +134,9 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
-  hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, false, std::vector<EcalEtaPhiRegion>(),theEcalChStatus);
+  hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, false,sevLv.product(), 
+			 std::vector<EcalEtaPhiRegion>());
+
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
 

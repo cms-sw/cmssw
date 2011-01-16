@@ -12,7 +12,7 @@ Implementation:
 */
 //
 // Original Author:  "Paolo Meridiani CERN CMG"
-// $Id: testEcalClusterSeverityAlgo.cc,v 1.3 2009/12/29 19:06:04 wmtan Exp $
+// $Id: testEcalClusterSeverityAlgo.cc,v 1.4 2010/01/04 15:08:33 ferriff Exp $
 
 
 
@@ -52,6 +52,7 @@ Implementation:
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
@@ -165,6 +166,7 @@ testEcalClusterSeverityAlgo::testEcalClusterSeverityAlgo(const edm::ParameterSet
 	// Initialize Tree
 	tree_ = new TTree ( "ClusterSeverityAnalysis","ClusterSeverityAnalysis" ) ;
 	setBranches (tree_, myTreeVariables_) ;
+        
 }
 
 
@@ -182,7 +184,11 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
   edm::Handle<edm::HepMCProduct> hepMC;
   ev.getByLabel(mcTruthCollection_,hepMC);
   const HepMC::GenEvent *myGenEvent = hepMC->GetEvent();
-  
+
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlvh;  
+  es.get<EcalSeverityLevelAlgoRcd>().get(sevlvh);  
+  const EcalSeverityLevelAlgo * sevLv= sevlvh.product();
+
   edm::Handle< reco::SuperClusterCollection > pEBClusters;
         ev.getByLabel( barrelClusterCollection_, pEBClusters );
         const reco::SuperClusterCollection *ebClusters = pEBClusters.product();
@@ -206,10 +212,6 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
         edm::ESHandle<CaloTopology> pTopology;
         es.get<CaloTopologyRecord>().get(pTopology);
         const CaloTopology *topology = pTopology.product();
-
-	edm::ESHandle<EcalChannelStatus> chStatus;
-	es.get<EcalChannelStatusRcd>().get(chStatus);
-	const EcalChannelStatus* theEcalChStatus = chStatus.product();
 
 	
 	//        std::cout << "========== BARREL ==========" << std::endl;
@@ -284,9 +286,9 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
 	    myTreeVariables_.scE[problematicSC]=(*it).energy();
 	    myTreeVariables_.scEta[problematicSC]=(*it).eta();
 	    myTreeVariables_.scPhi[problematicSC]=(*it).phi();
-	    myTreeVariables_.scGoodFraction[problematicSC]=EcalClusterSeverityLevelAlgo::goodFraction( *it, *ebRecHits, *theEcalChStatus);
-	    myTreeVariables_.scFracAroundClosProb[problematicSC]=EcalClusterSeverityLevelAlgo::fractionAroundClosestProblematic( *it, *ebRecHits, *theEcalChStatus,topology);
-	    std::pair<int,int> distanceClosestProblematic=EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblematic( *it, *ebRecHits, *theEcalChStatus,topology);
+	    myTreeVariables_.scGoodFraction[problematicSC]=EcalClusterSeverityLevelAlgo::goodFraction( *it, *ebRecHits, *sevLv);
+	    myTreeVariables_.scFracAroundClosProb[problematicSC]=EcalClusterSeverityLevelAlgo::fractionAroundClosestProblematic( *it, *ebRecHits,topology,*sevLv);
+	    std::pair<int,int> distanceClosestProblematic=EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblematic( *it, *ebRecHits,topology,*sevLv);
 	    myTreeVariables_.scClosProbEta[problematicSC]=distanceClosestProblematic.first;
 	    myTreeVariables_.scClosProbPhi[problematicSC]=distanceClosestProblematic.second;
 	    myTreeVariables_.mcE[problematicSC]=bestMcMatch->momentum().t();

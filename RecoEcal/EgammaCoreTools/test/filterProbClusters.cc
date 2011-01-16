@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -44,6 +45,7 @@ private:
   edm::InputTag endcapClusterCollection_;
   edm::InputTag reducedBarrelRecHitCollection_;
   edm::InputTag reducedEndcapRecHitCollection_;
+ 
 };
 
 ProbClustersFilter::ProbClustersFilter(const edm::ParameterSet& iConfig) {
@@ -54,6 +56,7 @@ ProbClustersFilter::ProbClustersFilter(const edm::ParameterSet& iConfig) {
   reducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
   reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
   conf_ = iConfig;
+ 
 }
 
 
@@ -87,15 +90,16 @@ bool ProbClustersFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   iSetup.get<CaloTopologyRecord>().get(pTopology);
   const CaloTopology *topology = pTopology.product();
   
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(chStatus);
-  const EcalChannelStatus* theEcalChStatus = chStatus.product();
   
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlvh;  
+  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlvh);  
+  const EcalSeverityLevelAlgo * sevLv= sevlvh.product();
+
   //        std::cout << "========== BARREL ==========" << std::endl;
   for (reco::SuperClusterCollection::const_iterator it = ebClusters->begin(); it != ebClusters->end(); ++it ) 
     {
-      float goodFraction=EcalClusterSeverityLevelAlgo::goodFraction( *it, *ebRecHits, *theEcalChStatus);
-      std::pair<int,int> distance=EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblematic( *it, *ebRecHits, *theEcalChStatus,topology);
+      float goodFraction=EcalClusterSeverityLevelAlgo::goodFraction( *it, *ebRecHits,*sevLv);
+      std::pair<int,int> distance=EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblematic( *it, *ebRecHits,topology,*sevLv);
       if ( distance.first == -1 && distance.second==-1)
 	{
 	  distance.first=999;

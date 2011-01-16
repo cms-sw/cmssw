@@ -7,8 +7,7 @@
 #include <vector>
 #include <set>
 #include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelService.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 //The real constructor
 HybridClusterAlgo::HybridClusterAlgo(double eb_str, 
@@ -57,9 +56,9 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl, 
 				     const CaloSubdetectorGeometry*geometry,
 				     reco::BasicClusterCollection &basicClusters,
+				     const EcalSeverityLevelAlgo * sevLv,
 				     bool regional,
-				     const std::vector<EcalEtaPhiRegion>& regions,
-				     const EcalChannelStatus*chStatus
+				     const std::vector<EcalEtaPhiRegion>& regions
 				     )
 {
   //clear vector of seeds
@@ -127,8 +126,8 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
 	      excludedCrys_.insert(it->id());
 	    continue; // the recHit has to be excluded from seeding
 	  }
-	  edm::Service<EcalSeverityLevelService> sevlv;
-	  int severityFlag =  sevlv->severityLevel( it->id(), *recHits_, *chStatus);
+
+	  int severityFlag =  sevLv->severityLevel( it->id(), *recHits_);
 	  std::vector<int>::const_iterator sit = std::find( v_severitylevel_.begin(), v_severitylevel_.end(), severityFlag);
 	  if (debugLevel_ == pDEBUG){
 	    std::cout << "found flag: " << severityFlag << std::endl;
