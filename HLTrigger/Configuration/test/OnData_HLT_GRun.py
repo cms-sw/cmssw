@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_0/GRun/V2 (CMSSW_3_10_0_pre6_HLT4)
+# /dev/CMSSW_3_11_0/GRun/V3 (CMSSW_3_10_0_pre6_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_0/GRun/V2')
+  tableName = cms.string('/dev/CMSSW_3_11_0/GRun/V3')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -3185,8 +3185,8 @@ process.hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
     )
 )
 process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
-    firstSample = cms.int32( 3 ),
-    samplesToAdd = cms.int32( 4 ),
+    firstSample = cms.int32( 4 ),
+    samplesToAdd = cms.int32( 2 ),
     correctForTimeslew = cms.bool( False ),
     correctForPhaseContainment = cms.bool( False ),
     correctionPhaseNS = cms.double( 0.0 ),
