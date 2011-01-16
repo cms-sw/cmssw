@@ -72,7 +72,7 @@ from RecoTauTag.Configuration.HPSPFTaus_cfi import *
 from RecoTauTag.Configuration.HPSTancTaus_cfi import *
 
 # FIXME remove this once final pi zero reco is decided
-#combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsLegacyHPSPiZeros")
+combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsLegacyHPSPiZeros")
 
 #-------------------------------------------------------------------------------
 #------------------ PFTauTagInfo workaround ------------------------------------
