@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.44 $
-///  last update: $Date: 2010/10/29 12:32:49 $
-///  by         : $Author: mussgill $
+///  Revision   : $Revision: 1.45 $
+///  last update: $Date: 2010/11/23 14:54:53 $
+///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -289,47 +289,55 @@ void AlignmentProducer::endOfJob()
      (*monitor)->endOfJob();
   }
 
-  // Save alignments to database
-  if (saveToDB_ || saveApeToDB_) {
-    if ( doTracker_ ) { // first tracker
-      const AlignTransform *trackerGlobal = 0; // will be 'removed' from constants 
-      if (globalPositions_) { // i.e. applied before in applyDB
-	trackerGlobal = &align::DetectorGlobalPosition(*globalPositions_,
-						       DetId(DetId::Tracker));
-      }
-      // Get alignments+errors - ownership taken over by writeDB(..), so no delete
-      Alignments *alignments = theAlignableTracker->alignments();
-      AlignmentErrors *alignmentErrors = theAlignableTracker->alignmentErrors();
-      this->writeDB(alignments, "TrackerAlignmentRcd",
-		    alignmentErrors, "TrackerAlignmentErrorRcd", trackerGlobal);
-    }
+  if (0 == nevent_) {
+    edm::LogError("Alignment") << "@SUB=AlignmentProducer::endOfJob" << "Did not process any "
+                               << "events in last loop, do not dare to store to DB.";
+  } else {
     
-    if ( doMuon_ ) { // now muon
-      const AlignTransform *muonGlobal = 0; // will be 'removed' from constants 
-      if (globalPositions_) { // i.e. applied before in applyDB
-	muonGlobal = &align::DetectorGlobalPosition(*globalPositions_,
-						    DetId(DetId::Muon));
-      }
-      // Get alignments+errors, first DT - ownership taken over by writeDB(..), so no delete
-      Alignments      *alignments       = theAlignableMuon->dtAlignments();
-      AlignmentErrors *alignmentErrors  = theAlignableMuon->dtAlignmentErrors();
-      this->writeDB(alignments, "DTAlignmentRcd",
-		    alignmentErrors, "DTAlignmentErrorRcd", muonGlobal);
+    // Save alignments to database
+    if (saveToDB_ || saveApeToDB_) {
       
-      // Get alignments+errors, now CSC - ownership taken over by writeDB(..), so no delete
-      alignments       = theAlignableMuon->cscAlignments();
-      alignmentErrors  = theAlignableMuon->cscAlignmentErrors();
-      this->writeDB(alignments, "CSCAlignmentRcd",
-		    alignmentErrors, "CSCAlignmentErrorRcd", muonGlobal);
+      if ( doTracker_ ) { // first tracker
+	const AlignTransform *trackerGlobal = 0; // will be 'removed' from constants 
+	if (globalPositions_) { // i.e. applied before in applyDB
+	  trackerGlobal = &align::DetectorGlobalPosition(*globalPositions_,
+							 DetId(DetId::Tracker));
+	}
+	// Get alignments+errors - ownership taken over by writeDB(..), so no delete
+	Alignments *alignments = theAlignableTracker->alignments();
+	AlignmentErrors *alignmentErrors = theAlignableTracker->alignmentErrors();
+	this->writeDB(alignments, "TrackerAlignmentRcd",
+		      alignmentErrors, "TrackerAlignmentErrorRcd", trackerGlobal);
+      }
+      
+      if ( doMuon_ ) { // now muon
+	const AlignTransform *muonGlobal = 0; // will be 'removed' from constants 
+	if (globalPositions_) { // i.e. applied before in applyDB
+	  muonGlobal = &align::DetectorGlobalPosition(*globalPositions_,
+						      DetId(DetId::Muon));
+	}
+	// Get alignments+errors, first DT - ownership taken over by writeDB(..), so no delete
+	Alignments      *alignments       = theAlignableMuon->dtAlignments();
+	AlignmentErrors *alignmentErrors  = theAlignableMuon->dtAlignmentErrors();
+	this->writeDB(alignments, "DTAlignmentRcd",
+		      alignmentErrors, "DTAlignmentErrorRcd", muonGlobal);
+	
+	// Get alignments+errors, now CSC - ownership taken over by writeDB(..), so no delete
+	alignments       = theAlignableMuon->cscAlignments();
+	alignmentErrors  = theAlignableMuon->cscAlignmentErrors();
+	this->writeDB(alignments, "CSCAlignmentRcd",
+		      alignmentErrors, "CSCAlignmentErrorRcd", muonGlobal);
+      }
+      
+      // Save surface deformations to database
+      if (saveDeformationsToDB_ && doTracker_) {
+	AlignmentSurfaceDeformations *alignmentSurfaceDeformations = theAlignableTracker->surfaceDeformations();
+	this->writeDB(alignmentSurfaceDeformations, "TrackerSurfaceDeformationRcd");
+      }
+      
     }
   }
-
-  // Save surface deformations to database
-  if (saveDeformationsToDB_ && doTracker_) {
-    AlignmentSurfaceDeformations *alignmentSurfaceDeformations = theAlignableTracker->surfaceDeformations();
-    this->writeDB(alignmentSurfaceDeformations, "TrackerSurfaceDeformationRcd");
-  }
-
+  
   if (theAlignableExtras) theAlignableExtras->dump();
 }
 
@@ -406,7 +414,7 @@ AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
 // Called at each event
 edm::EDLooper::Status 
 AlignmentProducer::duringLoop( const edm::Event& event, 
-  const edm::EventSetup& setup )
+			       const edm::EventSetup& setup )
 {
   ++nevent_;
 
