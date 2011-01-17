@@ -200,12 +200,62 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup& setup) {
 
 }
 
+void display_seed( const std::string & title1, const std::string & title2, const reco::ElectronSeed & seed, edm::ESHandle<TrackerGeometry> trackerGeometry )
+ {
+  const PTrajectoryStateOnDet & startingState = seed.startingState() ;
+  const LocalTrajectoryParameters & parameters = startingState.parameters() ;
+  std::cout<<title1
+    <<" ("<<seed.subDet2()<<"/"<<seed.dRz2()<<"/"<<seed.dPhi2()<<")"
+    <<" ("<<seed.direction()<<"/"<<startingState.detId()<<"/"<<startingState.surfaceSide()<<"/"<<parameters.charge()<<"/"<<parameters.position()<<"/"<<parameters.momentum()<<")"
+    <<std::endl ;
+ }
+
+bool equivalent( const TrajectorySeed & s1, const TrajectorySeed & s2 )
+ {
+  if (s1.nHits()!=s2.nHits()) return false ;
+
+  unsigned int nHits ;
+  TrajectorySeed::range r1 = s1.recHits(), r2 = s2.recHits() ;
+  TrajectorySeed::const_iterator i1, i2 ;
+  for ( i1=r1.first, i2=r2.first, nHits=0 ; i1!=r1.second ; ++i1, ++i2, ++nHits )
+   {
+    if ( !i1->isValid() || !i2->isValid() ) return false ;
+    if ( i1->geographicalId()!=i2->geographicalId() ) return false ;
+    if ( ! ( i1->localPosition()==i2->localPosition() ) ) return false ;
+   }
+
+  return true ;
+ }
+
 void  ElectronSeedGenerator::run
  ( edm::Event & e, const edm::EventSetup & setup,
    const reco::SuperClusterRefVector & sclRefs, const std::vector<float> & hoe1s, const std::vector<float> & hoe2s,
    TrajectorySeedCollection * seeds, reco::ElectronSeedCollection & out )
  {
-  theInitialSeedColl=seeds;
+  theInitialSeedColl = seeds ;
+//  bool duplicateTrajectorySeeds =false ;
+//  unsigned int i,j ;
+//  for (i=0;i<seeds->size();++i)
+//    for (j=i+1;j<seeds->size();++j)
+//     {
+//      const TrajectorySeed & s1 =(*seeds)[i] ;
+//      const TrajectorySeed & s2 =(*seeds)[j] ;
+//      if ( equivalent(s1,s2) )
+//       {
+//        const PTrajectoryStateOnDet & ss1 = s1.startingState() ;
+//        const LocalTrajectoryParameters & p1 = ss1.parameters() ;
+//        const PTrajectoryStateOnDet & ss2 = s2.startingState() ;
+//        const LocalTrajectoryParameters & p2 = ss2.parameters() ;
+//        duplicateTrajectorySeeds = true ;
+//        std::cout<<"Same hits for "
+//          <<"\n  s["<<i<<"] ("<<s1.direction()<<"/"<<ss1.detId()<<"/"<<ss1.surfaceSide()<<"/"<<p1.charge()<<"/"<<p1.position()<<"/"<<p1.momentum()<<")"
+//          <<"\n  s["<<j<<"] ("<<s2.direction()<<"/"<<ss2.detId()<<"/"<<ss2.surfaceSide()<<"/"<<p2.charge()<<"/"<<p2.position()<<"/"<<p2.momentum()<<")"
+//          <<std::endl ;
+//       }
+//     }
+//  if (duplicateTrajectorySeeds)
+//   { edm::LogWarning("ElectronSeedGenerator|DuplicateTrajectorySeeds")<<"We see several identical trajectory seeds." ; }
+
 
   theSetup= &setup;
   NavigationSetter theSetter(*theNavigationSchool);
@@ -424,23 +474,6 @@ void ElectronSeedGenerator::seedsFromTrajectorySeeds
    }
  }
 
-bool equivalent( const TrajectorySeed & s1, const TrajectorySeed & s2 )
- {
-  if (s1.nHits()!=s2.nHits()) return false ;
-
-  unsigned int nHits ;
-  TrajectorySeed::range r1 = s1.recHits(), r2 = s2.recHits() ;
-  TrajectorySeed::const_iterator i1, i2 ;
-  for ( i1=r1.first, i2=r2.first, nHits=0 ; i1!=r1.second ; ++i1, ++i2, ++nHits )
-   {
-    if ( !i1->isValid() || !i2->isValid() ) return false ;
-    if ( i1->geographicalId()!=i2->geographicalId() ) return false ;
-    if ( ! ( i1->localPosition()==i2->localPosition() ) ) return false ;
-   }
-
-  return true ;
- }
-
 void ElectronSeedGenerator::addSeed
  ( reco::ElectronSeed & seed,
    const SeedWithInfo * info,
@@ -463,25 +496,79 @@ void ElectronSeedGenerator::addSeed
      {
       if (positron)
        {
-        if (resItr->dRz2Pos()!=std::numeric_limits<float>::infinity())
-         { edm::LogWarning("ElectronSeedGenerator|UnexpectedValue")<<"this seed should not known its positive dRz2" ; }
-        else
+        if ( resItr->dRz2Pos()==std::numeric_limits<float>::infinity() &&
+             resItr->dRz2()!=std::numeric_limits<float>::infinity() )
          {
           resItr->setPosAttributes(info->dRz2(),info->dPhi2(),info->dRz1(),info->dPhi1()) ;
           seed.setNegAttributes(resItr->dRz2(),resItr->dPhi2(),resItr->dRz1(),resItr->dPhi1()) ;
+          break ;
+         }
+        else
+         {
+          if ( resItr->dRz2Pos()!=std::numeric_limits<float>::infinity() )
+           {
+            if ( resItr->dRz2Pos()!=seed.dRz2Pos() )
+             {
+              edm::LogWarning("ElectronSeedGenerator|BadValue")
+               <<"this similar old seed already has another dRz2Pos"
+               <<"\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)resItr->hitsMask()<<"/"<<resItr->dRz2()<<"/"<<resItr->dPhi2()<<"/"<<resItr->dRz2Pos()<<"/"<<resItr->dPhi2Pos()
+               <<"\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)seed.hitsMask()<<"/"<<seed.dRz2()<<"/"<<seed.dPhi2()<<"/"<<seed.dRz2Pos()<<"/"<<seed.dPhi2Pos() ;
+             }
+//            else
+//             {
+//              edm::LogWarning("ElectronSeedGenerator|UnexpectedValue")
+//               <<"this old seed already knows its dRz2Pos, we suspect duplicates in input trajectry seeds"
+//               <<"\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)resItr->hitsMask()<<"/"<<resItr->dRz2()<<"/"<<resItr->dPhi2()<<"/"<<resItr->dRz2Pos()<<"/"<<resItr->dPhi2Pos()
+//               <<"\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)seed.hitsMask()<<"/"<<seed.dRz2()<<"/"<<seed.dPhi2()<<"/"<<seed.dRz2Pos()<<"/"<<seed.dPhi2Pos() ;
+//             }
+            }
+//          if (resItr->dRz2()==std::numeric_limits<float>::infinity())
+//           {
+//            edm::LogWarning("ElectronSeedGenerator|BadValue")
+//             <<"this old seed has no dRz2, we suspect duplicates in input trajectry seeds"
+//             <<"\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)resItr->hitsMask()<<"/"<<resItr->dRz2()<<"/"<<resItr->dPhi2()<<"/"<<resItr->dRz2Pos()<<"/"<<resItr->dPhi2Pos()
+//             <<"\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)seed.hitsMask()<<"/"<<seed.dRz2()<<"/"<<seed.dPhi2()<<"/"<<seed.dRz2Pos()<<"/"<<seed.dPhi2Pos() ;
+//           }
          }
        }
       else
        {
-        if (resItr->dRz2()!=std::numeric_limits<float>::infinity())
-         { edm::LogWarning("ElectronSeedGenerator|UnexpectedValue")<<"this seed should not known its positive dRz2" ; }
-        else
+        if ( resItr->dRz2()==std::numeric_limits<float>::infinity()
+          && resItr->dRz2Pos()!=std::numeric_limits<float>::infinity() )
          {
           resItr->setNegAttributes(info->dRz2(),info->dPhi2(),info->dRz1(),info->dPhi1()) ;
           seed.setPosAttributes(resItr->dRz2Pos(),resItr->dPhi2Pos(),resItr->dRz1Pos(),resItr->dPhi1Pos()) ;
+          break ;
+         }
+        else
+         {
+          if ( resItr->dRz2()!=std::numeric_limits<float>::infinity() )
+           {
+            if (resItr->dRz2()!=seed.dRz2())
+             {
+              edm::LogWarning("ElectronSeedGenerator|BadValue")
+               <<"this old seed already has another dRz2"
+               <<"\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)resItr->hitsMask()<<"/"<<resItr->dRz2()<<"/"<<resItr->dPhi2()<<"/"<<resItr->dRz2Pos()<<"/"<<resItr->dPhi2Pos()
+               <<"\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)seed.hitsMask()<<"/"<<seed.dRz2()<<"/"<<seed.dPhi2()<<"/"<<seed.dRz2Pos()<<"/"<<seed.dPhi2Pos() ;
+             }
+    //        else
+    //         {
+    //          edm::LogWarning("ElectronSeedGenerator|UnexpectedValue")
+    //           <<"this old seed already knows its dRz2, we suspect duplicates in input trajectry seeds"
+    //           <<"\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)resItr->hitsMask()<<"/"<<resItr->dRz2()<<"/"<<resItr->dPhi2()<<"/"<<resItr->dRz2Pos()<<"/"<<resItr->dPhi2Pos()
+    //           <<"\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)seed.hitsMask()<<"/"<<seed.dRz2()<<"/"<<seed.dPhi2()<<"/"<<seed.dRz2Pos()<<"/"<<seed.dPhi2Pos() ;
+    //          seed.setPosAttributes(resItr->dRz2Pos(),resItr->dPhi2Pos(),resItr->dRz1Pos(),resItr->dPhi1Pos()) ;
+    //         }
+           }
+//          if (resItr->dRz2Pos()==std::numeric_limits<float>::infinity())
+//           {
+//            edm::LogWarning("ElectronSeedGenerator|BadValue")
+//             <<"this old seed has no dRz2Pos"
+//             <<"\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)resItr->hitsMask()<<"/"<<resItr->dRz2()<<"/"<<resItr->dPhi2()<<"/"<<resItr->dRz2Pos()<<"/"<<resItr->dPhi2Pos()
+//             <<"\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)seed.hitsMask()<<"/"<<seed.dRz2()<<"/"<<seed.dPhi2()<<"/"<<seed.dRz2Pos()<<"/"<<seed.dPhi2Pos() ;
+//           }
          }
        }
-      break ;
      }
    }
 
