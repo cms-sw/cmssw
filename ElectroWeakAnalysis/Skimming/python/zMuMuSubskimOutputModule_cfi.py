@@ -26,6 +26,10 @@ zMuMuEventContent =  cms.PSet(
     ### to save jet information
     #'keep *_sisCone5CaloJets_*_*',
     #'keep *_ak5CaloJets_*_*',
+    'keep *_muons_*_*',
+    'keep *_pfMet_*_*',
+    'keep *_ak5PFJets_*_*'
+    
     )
 )
 
