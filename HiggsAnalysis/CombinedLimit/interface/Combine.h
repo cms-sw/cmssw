@@ -36,6 +36,7 @@ class Combine {
         float rMin_, rMax_;
         bool compiledExpr_;
         std::string prior_;
+        bool hintUsesStatOnly_;
 };
 
 

@@ -75,6 +75,7 @@ Combine::Combine() :
         ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
         ("compile", "Compile expressions instead of interpreting them")
         ("significance", "Compute significance instead of upper limit")
+        ("hintStatOnly", "Ignore systematics when computing the hint")
     ;
 }
 
@@ -87,6 +88,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm)
   } 
   compiledExpr_ = vm.count("compile");
   doSignificance_ = vm.count("significance");
+  hintUsesStatOnly_ = vm.count("hintStatOnly");
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
@@ -95,7 +97,13 @@ bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
   try {
     double hint = 0; bool hashint = false;
     if (hintAlgo) {
-        hashint = hintAlgo->run(w, data, hint, 0);
+        if (hintUsesStatOnly_ && withSystematics) {
+            withSystematics = false;
+            hashint = hintAlgo->run(w, data, hint, 0);
+            withSystematics = true;
+        } else {
+            hashint = hintAlgo->run(w, data, hint, 0);
+        } 
    }
     ret = algo->run(w, data, limit, (hashint ? &hint : 0));    
   } catch (std::exception &ex) {
