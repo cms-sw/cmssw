@@ -3,6 +3,7 @@
 #include "TCanvas.h"
 #include "TROOT.h"
 #include "TF1.h"
+#include "TStyle.h"
 #include <iostream>
 
 using std::cout;
@@ -12,17 +13,75 @@ void CMSDASmacro() {
   rootfile->cd("dijetAna");
   gDirectory->ls();
 
+  //------------------Dijet mass spectrum---------------------------
+
+  gStyle->SetOptStat(0);
+  gStyle->SetOptFit(1111);
   //Get pointers to some histograms we will want
-  TH1D* h_CorDijetMass=(TH1D*)gROOT->FindObject("hCorDijetMass");
-  if(h_CorDijetMass==0) { std::cout << "fdsea" << std::endl; }
+  TH1D* h_CorDijetMass=(TH1D*)gROOT->FindObject("hCorDijetXsec");
+  //Error bars, please.
+  h_CorDijetMass->Sumw2();
 
+  //Make a home for the pretty plots
   TCanvas *cDijetMass=new TCanvas();
-  cDijetMass->SetLogy();
-
+  cDijetMass->Divide(1,2,.01,0.01,0); 
+  cDijetMass->cd(1);
+  // Set the current TPad to "Logy()". Not an English word.
+  gPad->SetLogy();
   h_CorDijetMass->Draw();
 
-  TF1 *massfit= new TF1("Dijet Mass Spectrum", "[0]*pow(1-x/7000.0,[1])/pow(x/7000,[2])",200,1000);
+  // Declare the function to fit, over some range, and fit it.
+  //TF1 *massfit= new TF1("Dijet Mass Spectrum", "[0]*pow(1-x/7000.0,[1])/pow(x/7000,[2])",528,2000);
+  TF1 *massfit= new TF1("Dijet Mass Spectrum", "[0]*pow(1-x/7000.0,[1])/pow(x/7000,[2]+[3]*log(x/7000.))",528,2000);
+  
   h_CorDijetMass->Fit(massfit, "R");
+
+  //Make a histogram for the values of the fit, with the binning of h_CorDijetMass
+  TH1D* h_DataMinusFit = new TH1D(*h_CorDijetMass);
+  h_DataMinusFit->SetTitle("(Data Error)/Fit;dijet mass (GeV)");
+
+  //Fill the histogram of the data minus the fit's values
+  for (int bin=1; bin<=h_CorDijetMass->GetNbinsX(); bin++){
+    double data_val = h_CorDijetMass->GetBinContent(bin);
+    double fit_val = massfit->Eval(h_CorDijetMass->GetBinCenter(bin));
+    double err_val  = h_CorDijetMass->GetBinError(bin);
+    // Skip bins with no data value
+    if (data_val != 0.0) {
+      h_DataMinusFit->SetBinContent(bin, (data_val - fit_val)/fit_val );
+      h_DataMinusFit->SetBinError(bin, err_val /fit_val );
+    }
+  }
+
+  //Move to the lower TPad and display the result
+  cDijetMass->cd(2);
+  h_DataMinusFit->Draw();
+
+  //------------------Dijet Centrality Ratio---------------------------
+
+  
+  //Get pointers to some histograms we will want
+  //TH1D* h_InnerDijetMass=(TH1D*)gROOT->FindObject("hInnerDijetMass");
+  //TH1D* h_OuterDijetMass=(TH1D*)gROOT->FindObject("hOuterDijetMass");
+  ////Error bars, please.
+  //h_InnerDijetMass->Sumw2();
+  //h_OuterDijetMass->Sumw2();
+  //
+  ////Make a home for the pretty plots
+  //TCanvas *cDijetDeltaEtaRatio=new TCanvas("cDijetDeltaEtaRatio","cDijetDeltaEtaRatio",800,1200);
+  //cDijetDeltaEtaRatio->Divide(1,3); 
+  //cDijetDeltaEtaRatio->cd(1);
+  //// Set the current TPad to "Logy()". Not an English word.
+  //gPad->SetLogy();
+  //h_InnerDijetMass->Draw();
+  //h_OuterDijetMass->Draw("same");
+  //
+  //cDijetDeltaEtaRatio->cd(2);
+  //
+  //// Make the dijet delta eta ratio in a histogram
+  //TH1D* h_DijetDeltaEtaRatio = (TH1D*)h_InnerDijetMass->Clone();
+  //h_DijetDeltaEtaRatio->Divide(h_OuterDijetMass);
+  //h_DijetDeltaEtaRatio->SetTitle("Dijet |#Delta#eta| Ratio; dijet mass (GeV)");
+  //h_DijetDeltaEtaRatio->Draw();
   
   return;
 }

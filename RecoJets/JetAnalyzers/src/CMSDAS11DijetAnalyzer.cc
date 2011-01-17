@@ -15,6 +15,8 @@
 
 #include <TH1D.h>
 
+const int NBINS=36;
+
 CMSDAS11DijetAnalyzer::CMSDAS11DijetAnalyzer(edm::ParameterSet const& params) :
   edm::EDAnalyzer(),
   jetSrc(params.getParameter<edm::InputTag>("jetSrc")),
@@ -27,7 +29,6 @@ CMSDAS11DijetAnalyzer::CMSDAS11DijetAnalyzer(edm::ParameterSet const& params) :
   // setup file service
   edm::Service<TFileService> fs;
 
-  const int NBINS=36;
   Double_t BOUNDARIES[NBINS] = { 220, 244, 270, 296, 325, 354, 386, 419, 453,
 				 489, 526, 565, 606, 649, 693, 740, 788, 838,
 				 890, 944, 1000, 1058, 1118, 1181, 1246, 1313, 1383,
@@ -53,12 +54,21 @@ CMSDAS11DijetAnalyzer::CMSDAS11DijetAnalyzer(edm::ParameterSet const& params) :
   hJet2EMF	= fs->make<TH1D>("hJet2EMF","EM Fraction of Jet2",50,0,1);
 
   hCorDijetMass = fs->make<TH1D>("hCorDijetMass","Corrected Dijet Mass",NBINS-1,BOUNDARIES);
+  hCorDijetXsec = fs->make<TH1D>("hCorDijetXsec","Corrected Dijet Mass Spectrum",NBINS-1,BOUNDARIES);
   hRawDijetMass = fs->make<TH1D>("hRawDijetMass","Raw Dijet Mass",      NBINS-1,BOUNDARIES);
   hDijetDeltaPhi= fs->make<TH1D>("hDijetDeltaPhi","Dijet |#Delta #phi|",50,0,3.1415);
   hDijetDeltaEta= fs->make<TH1D>("hDijetDeltaEta","Dijet |#Delta #eta|",50,0,6);
 
   hInnerDijetMass = fs->make<TH1D>("hInnerDijetMass","Corrected Inner Dijet Mass",NBINS-1,BOUNDARIES);
   hOuterDijetMass = fs->make<TH1D>("hOuterDijetMass","Corrected Outer Dijet Mass",NBINS-1,BOUNDARIES);
+}
+
+void CMSDAS11DijetAnalyzer::endJob(void) {
+  for (int bin=1; bin< NBINS ; bin++) {
+    std::cout<< "bin:"<<bin<<" numerator/denom: "<<hCorDijetMass->GetBinContent(bin)<<" "<<hCorDijetMass->GetBinWidth(bin)<<" error:"<<hCorDijetMass->GetBinError(bin) <<"\n";
+    hCorDijetXsec->SetBinContent(bin, hCorDijetMass->GetBinContent(bin)/hCorDijetMass->GetBinWidth(bin));
+    hCorDijetXsec->SetBinError(bin, hCorDijetMass->GetBinError(bin)/hCorDijetMass->GetBinWidth(bin));
+  }
 }
 
 void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -160,9 +170,10 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
 
   //Get the mass of the two leading jets.  Needs their 4-vectors...
   double corMass = (selectedJets[0].p4()+selectedJets[1].p4()).M();
-  double deltaEta = fabs(selectedJets[0].eta()+selectedJets[1].eta());
+  double deltaEta = fabs(selectedJets[0].eta()-selectedJets[1].eta());
+  if (corMass < 489) return;
   hCorDijetMass->Fill(corMass);
-  hDijetDeltaPhi->Fill(fabs(selectedJets[0].phi()+selectedJets[1].phi()) );
+  hDijetDeltaPhi->Fill(fabs(selectedJets[0].phi()-selectedJets[1].phi()) );
   hDijetDeltaEta->Fill(deltaEta );
 
   //Fill the inner and outer dijet mass spectra, to make the ratio from
@@ -171,9 +182,7 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
 
   hVertexZ->Fill(theVertex->z());
   return;
-
 }
-
 
 
 DEFINE_FWK_MODULE(CMSDAS11DijetAnalyzer);

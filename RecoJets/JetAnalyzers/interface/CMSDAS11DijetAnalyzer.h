@@ -22,7 +22,7 @@ class CMSDAS11DijetAnalyzer : public edm::EDAnalyzer {
   void analyze( const edm::Event& , const edm::EventSetup& );
   virtual ~CMSDAS11DijetAnalyzer() {}
   virtual void beginJob() {}
-  virtual void endJob() {}
+  virtual void endJob(void);
   
   static bool compare_JetPt(const reco::CaloJet& jet1, const reco::CaloJet& jet2) {
     return (jet1.pt() > jet2.pt() );
@@ -47,6 +47,7 @@ class CMSDAS11DijetAnalyzer : public edm::EDAnalyzer {
 
   TH1D* hRawDijetMass;
   TH1D* hCorDijetMass;
+  TH1D* hCorDijetXsec;
   TH1D* hJet1Pt;
   TH1D* hJet1Eta;
   TH1D* hJet1Phi;
