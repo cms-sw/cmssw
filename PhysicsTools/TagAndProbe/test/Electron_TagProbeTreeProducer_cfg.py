@@ -1,3 +1,23 @@
+## /*****************************************************************************
+##  * Project: CMS detector at the CERN
+##  *
+##  * Package: PhysicsTools/TagAndProbe
+##  *
+##  *
+##  * Authors:
+##  *
+##  *   Kalanand Mishra, Fermilab - kalanand@fnal.gov
+##  *
+##  * Description:
+##  *   - Produces tag & probe TTree for further analysis and computing efficiency
+##  *
+##  * History:
+##  *   
+##  *
+##  * Copyright (C) 2010 FNAL 
+##  *****************************************************************************/
+
+
 import FWCore.ParameterSet.Config as cms
 
 ##                      _              _       
@@ -7,46 +27,119 @@ import FWCore.ParameterSet.Config as cms
 ##  \___\___/|_| |_|___/\__\__,_|_| |_|\__|___/
 ##                                              
 ################################################
-## Following HLT paths are available in "/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Fall10-START38_V12-v1" MC.
+## Following HLT paths are available in MC sample 
+## "/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Fall10-START38_V12-v1"
 ## Please look into the trigger menu to find out the prescale for these paths.
+## Process name used is: "HLT"
 ##
-## HLT_Ele10_SW_L1R, HLT_Ele12_SW_TightEleId_L1R, HLT_Ele12_SW_TightEleIdIsol_L1R, HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R,
-## HLT_Ele17_SW_L1R, HLT_Ele17_SW_CaloEleId_L1R, HLT_Ele17_SW_LooseEleId_L1R, HLT_Ele17_SW_EleId_L1R, 
-## HLT_Ele22_SW_CaloEleId_L1R, HLT_Ele40_SW_L1R, 
-## HLT_DoubleEle4_SW_eeRes_L1R, HLT_DoubleEle10_SW_L1R, 
-## HLT_Photon10_Cleaned_L1R, HLT_Photon15_Cleaned_L1R, HLT_Photon20_NoHE_L1R, HLT_Photon20_Cleaned_L1R, 
-## HLT_Photon30_Cleaned_L1R, HLT_Photon50_NoHE_L1R, HLT_Photon50_NoHE_Cleaned_L1R, HLT_DoublePhoton5_CEP_L1R,
-## HLT_DoublePhoton5_L1R, HLT_DoublePhoton10_L1R, HLT_DoublePhoton15_L1R, HLT_DoublePhoton17_L1R
+## HLT_Ele10_SW_L1R, HLT_Ele12_SW_TightEleId_L1R
+## HLT_Ele12_SW_TightEleIdIsol_L1R
+## HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R
+## HLT_Ele17_SW_L1R
+## HLT_Ele17_SW_CaloEleId_L1R
+## HLT_Ele17_SW_LooseEleId_L1R
+## HLT_Ele17_SW_EleId_L1R
+## HLT_Ele22_SW_CaloEleId_L1R
+## HLT_Ele40_SW_L1R
+## HLT_DoubleEle4_SW_eeRes_L1R
+## HLT_DoubleEle10_SW_L1R, 
+## HLT_Photon10_Cleaned_L1R
+## HLT_Photon15_Cleaned_L1R
+## HLT_Photon20_NoHE_L1R
+## HLT_Photon20_Cleaned_L1R
+## HLT_Photon30_Cleaned_L1R
+## HLT_Photon50_NoHE_L1R
+## HLT_Photon50_NoHE_Cleaned_L1R
+## HLT_DoublePhoton5_CEP_L1R
+## HLT_DoublePhoton5_L1R,
+## HLT_DoublePhoton10_L1R
+## HLT_DoublePhoton15_L1R
+## HLT_DoublePhoton17_L1R
 ################################################
-## Following electron/photon HLT paths are available in Run2010B data (replace "v1" with "v2", "v3" for later runs).
-## Please look into the trigger menu to find out the prescale for these paths.
+## Following HLT paths are available in MC sample
+## "/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1"
+## Process name used is: "REDIGI39X"
 ##
-## HLT_Ele10_SW_L1R, HLT_Ele12_SW_TightEleId_L1R, HLT_Ele12_SW_TighterEleId_L1R_v1, HLT_Ele12_SW_TighterEleIdIsol_L1R_v1,
-## HLT_Ele17_SW_L1R, HLT_Ele17_SW_TightEleId_L1R, HLT_Ele17_SW_TighterEleId_L1R_v1, HLT_Ele17_SW_TightEleIdIsol_L1R_v1,
-## HLT_Ele17_SW_TighterEleIdIsol_L1R_v1,HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R_v1,HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v1,
-## HLT_Ele27_SW_TightCaloEleIdTrack_L1R_v1, HLT_Ele32_SW_TightCaloEleIdTrack_L1R_v1,  
-## HLT_DoubleEle4_SW_eeRes_L1R, HLT_DoubleEle15_SW_L1R_v1, 
-## HLT_Photon10_Cleaned_L1R, HLT_Photon15_Cleaned_L1R, HLT_Photon17_SC17HE_L1R_v1, HLT_Photon20_NoHE_L1R, 
-## HLT_Photon20_Cleaned_L1R, HLT_Photon30_Cleaned_L1R, HLT_Photon30_Isol_EBOnly_Cleaned_L1R_v1,
-## HLT_Photon35_Isol_Cleaned_L1R_v1, HLT_Photon50_Cleaned_L1R_v1, HLT_Photon50_NoHE_L1R, HLT_Photon70_NoHE_Cleaned_L1R_v1
-## HLT_Photon100_NoHE_Cleaned_L1R_v1, HLT_DoublePhoton5_CEP_L1R, HLT_DoublePhoton17_L1R
+## HLT_Ele10_SW_L1R_v2
+## HLT_Ele12_SW_TighterEleId_L1R_v2
+## HLT_Ele17_SW_L1R_v2
+## HLT_Ele17_SW_Isol_L1R_v2
+## HLT_Ele17_SW_TighterEleIdIsol_L1R_v3
+## HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2
+## HLT_Ele22_SW_L1R_v2
+## HLT_Ele22_SW_TighterCaloIdIsol_L1R_v2
+## HLT_Ele22_SW_TighterEleId_L1R_v3
+## HLT_Ele32_SW_TighterEleId_L1R_v2
+## HLT_DoubleEle4_SW_eeRes_L1R_v2
+## HLT_DoubleEle5_SW_Upsilon_L1R_v2
+## HLT_DoubleEle17_SW_L1R_v1
+## HLT_Photon10_Cleaned_L1R
+## HLT_Photon17_Isol_SC17HE_L1R_v1
+## HLT_Photon20_NoHE_L1R
+## HLT_Photon20_Cleaned_L1R
+## HLT_Photon20_Isol_Cleaned_L1R_v1
+## HLT_Photon22_SC22HE_L1R_v1
+## HLT_Photon30_Cleaned_L1R
+## HLT_Photon40_CaloId_Cleaned_L1R_v1
+## HLT_Photon40_Isol_Cleaned_L1R_v1
+## HLT_Photon50_Cleaned_L1R_v1
+## HLT_Photon50_NoHE_L1R
+## HLT_Photon70_Cleaned_L1R_v1
+## HLT_Photon110_NoHE_Cleaned_L1R_v1
+## HLT_DoublePhoton5_CEP_L1R_v3
+## HLT_DoublePhoton17_SingleIsol_L1R_v1
+## HLT_DoublePhoton22_L1R_v1
+################################################
+## Following electron/photon HLT paths are available in Run2010B data (first file)
+## (replace "v1" with "v2", "v3" etc. for later runs).
+## Please look into the trigger menu to find out the prescale for these paths.
+## Process name used is: "HLT"
+##
+## HLT_Ele10_SW_L1R
+## HLT_Ele12_SW_TightEleId_L1R
+## HLT_Ele12_SW_TighterEleId_L1R_v1
+## HLT_Ele12_SW_TighterEleIdIsol_L1R_v1
+## HLT_Ele17_SW_L1R
+## HLT_Ele17_SW_TightEleId_L1R
+## HLT_Ele17_SW_TighterEleId_L1R_v1
+## HLT_Ele17_SW_TightEleIdIsol_L1R_v1
+## HLT_Ele17_SW_TighterEleIdIsol_L1R_v1
+## HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R_v1
+## HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v1
+## HLT_Ele27_SW_TightCaloEleIdTrack_L1R_v1
+## HLT_Ele32_SW_TightCaloEleIdTrack_L1R_v1  
+## HLT_DoubleEle4_SW_eeRes_L1R
+## HLT_DoubleEle15_SW_L1R_v1
+## HLT_Photon10_Cleaned_L1R
+## HLT_Photon15_Cleaned_L1R
+## HLT_Photon17_SC17HE_L1R_v1
+## HLT_Photon20_NoHE_L1R
+## HLT_Photon20_Cleaned_L1R
+## HLT_Photon30_Cleaned_L1R
+## HLT_Photon30_Isol_EBOnly_Cleaned_L1R_v1
+## HLT_Photon35_Isol_Cleaned_L1R_v1
+## HLT_Photon50_Cleaned_L1R_v1
+## HLT_Photon50_NoHE_L1R
+## HLT_Photon70_NoHE_Cleaned_L1R_v1
+## HLT_Photon100_NoHE_Cleaned_L1R_v1
+## HLT_DoublePhoton5_CEP_L1R, HLT_DoublePhoton17_L1R
 ################################################
 
-MC_flag = False
+MC_flag = True
 GLOBAL_TAG = 'GR_R_39X_V4::All'
 if MC_flag:
-    GLOBAL_TAG = 'START38_V12::All'
-
+    #GLOBAL_TAG = 'START38_V12::All'
+    GLOBAL_TAG = 'START39_V8::All'
+    
 HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
+HLTProcessName = "HLT"
 if MC_flag:
-    HLTPath = "HLT_Ele17_SW_LooseEleId_L1R"
-
+    #HLTPath = "HLT_Ele17_SW_LooseEleId_L1R"
+    HLTPath = "HLT_Ele17_SW_TighterEleIdIsol_L1R_v3"
+    HLTProcessName = "REDIGI39X"
 
 OUTPUT_FILE_NAME = "testNewWrite.root"
-#HLTPath = "HLT_Ele15_SW_CaloEleId_L1R"
-#HLTPath = "HLT_Ele15_SW_L1R"
-#HLTPath = "HLT_Ele15_LW_L1R"
-#HLTPath = "HLT_Photon15_Cleaned_L1R"
+
 
 ELECTRON_ET_CUT_MIN = 17.0
 ELECTRON_COLL = "gsfElectrons"
@@ -59,6 +152,9 @@ PHOTON_CUTS = "hadronicOverEm<0.15 && (abs(superCluster.eta)<2.5) && !(1.4442<ab
 
 SUPERCLUSTER_COLL_EB = "hybridSuperClusters"
 SUPERCLUSTER_COLL_EE = "multi5x5SuperClustersWithPreshower"
+if MC_flag:
+    SUPERCLUSTER_COLL_EB = "correctedHybridSuperClusters"
+    SUPERCLUSTER_COLL_EE = "correctedMulti5x5SuperClustersWithPreshower"
 SUPERCLUSTER_CUTS = "abs(eta)<2.5 && !(1.4442< abs(eta) <1.566) && et>" + str(ELECTRON_ET_CUT_MIN)
 
 
@@ -89,23 +185,23 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 ##  
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring(
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/454/ACDEDA3C-B7D3-DF11-A7A1-0030487C6A66.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/454/223CD93D-B7D3-DF11-885E-0030487CD7B4.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/EAB3E588-B6D3-DF11-8BDC-0030487A3232.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/AA0C5537-B7D3-DF11-9194-0030487CD7C6.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/A28CBA36-B7D3-DF11-9F37-00304879BAB2.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/8C67199B-B1D3-DF11-AAC4-0030487CD7CA.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/823B32EE-B7D3-DF11-B2CB-0030487CAF0E.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/3C66014F-B2D3-DF11-9E18-0030487CD6DA.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/3AA99C36-B7D3-DF11-BB90-0030487CAEAC.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/26B82C89-B6D3-DF11-9584-0030487CD6B4.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/0AA663A1-B8D3-DF11-ADD8-0030487CD6B4.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/F08E2485-95D3-DF11-842A-0030486780B8.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/DCF42686-95D3-DF11-8DF0-0030487CD76A.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/5E17B94C-9DD3-DF11-A952-001617E30F58.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/54CDACD8-94D3-DF11-B6A6-001617E30D12.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/346D9037-96D3-DF11-88DF-001617C3B710.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/029B8885-95D3-DF11-B1FE-001617E30D4A.root',  
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/454/ACDEDA3C-B7D3-DF11-A7A1-0030487C6A66.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/454/223CD93D-B7D3-DF11-885E-0030487CD7B4.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/EAB3E588-B6D3-DF11-8BDC-0030487A3232.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/AA0C5537-B7D3-DF11-9194-0030487CD7C6.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/A28CBA36-B7D3-DF11-9F37-00304879BAB2.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/8C67199B-B1D3-DF11-AAC4-0030487CD7CA.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/823B32EE-B7D3-DF11-B2CB-0030487CAF0E.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/3C66014F-B2D3-DF11-9E18-0030487CD6DA.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/3AA99C36-B7D3-DF11-BB90-0030487CAEAC.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/26B82C89-B6D3-DF11-9584-0030487CD6B4.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/0AA663A1-B8D3-DF11-ADD8-0030487CD6B4.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/F08E2485-95D3-DF11-842A-0030486780B8.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/DCF42686-95D3-DF11-8DF0-0030487CD76A.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/5E17B94C-9DD3-DF11-A952-001617E30F58.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/54CDACD8-94D3-DF11-B6A6-001617E30D12.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/346D9037-96D3-DF11-88DF-001617C3B710.root',
+##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/029B8885-95D3-DF11-B1FE-001617E30D4A.root',  
 
 ##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0008/A0A4E0F2-90CF-DF11-B893-00163EC21201.root',
 ##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0008/62CCB894-91CF-DF11-99D7-1CC1DE052068.root',
@@ -115,6 +211,17 @@ process.source = cms.Source("PoolSource",
 ##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0006/FC5D8454-7CCE-DF11-9C04-0017A4770C00.root',
 ##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0006/FC35628B-58CE-DF11-84DB-0018FE283E0C.root',
 ##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0006/F828D75A-43CE-DF11-B389-00163E120701.root',
+
+
+
+       '/store/mc/Winter10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/0034/B29E60A0-1511-E011-8C55-0017A4770030.root',
+       '/store/mc/Winter10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/0033/7AD2434E-1B10-E011-9BFC-0017A477103C.root',
+       '/store/mc/Winter10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/0032/FC974EDD-E90F-E011-BD2E-1CC1DE051038.root',
+       '/store/mc/Winter10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/0032/FC6DFEE1-0910-E011-A0FF-0017A477080C.root',
+       '/store/mc/Winter10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/0032/FA72FB40-0510-E011-89D9-0025B3E0228C.root',
+       '/store/mc/Winter10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/0032/F4C5FEE4-FC0F-E011-992C-0017A477003C.root',
+       '/store/mc/Winter10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/0032/F4537EED-FA0F-E011-A56C-001F296B758E.root',
+       
        
     )
 )
@@ -380,11 +487,11 @@ process.PassingCicHyperTight4.selection = cms.InputTag('eidHyperTight4')
 ##                |___/ |___/                                                |___/ 
 ##   
 # Trigger  ##################
-process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",                     
+process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",    
     InputProducer = cms.InputTag( ELECTRON_COLL ),                          
-    hltTags = cms.VInputTag(cms.InputTag(HLTPath,"","HLT")),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT"),
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults","","HLT")                               
+    hltTags = cms.VInputTag(cms.InputTag(HLTPath,"", HLTProcessName)),
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)   
 )
 
 
