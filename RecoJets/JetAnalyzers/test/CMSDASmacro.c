@@ -4,6 +4,7 @@
 #include "TROOT.h"
 #include "TF1.h"
 #include "TStyle.h"
+#include "TLine.h"
 #include <iostream>
 
 using std::cout;
@@ -24,21 +25,23 @@ void CMSDASmacro() {
 
   //Make a home for the pretty plots
   TCanvas *cDijetMass=new TCanvas();
-  cDijetMass->Divide(1,2,.01,0.01,0); 
-  cDijetMass->cd(1);
   // Set the current TPad to "Logy()". Not an English word.
   gPad->SetLogy();
   h_CorDijetMass->Draw();
 
   // Declare the function to fit, over some range, and fit it.
   //TF1 *massfit= new TF1("Dijet Mass Spectrum", "[0]*pow(1-x/7000.0,[1])/pow(x/7000,[2])",528,2000);
-  TF1 *massfit= new TF1("Dijet Mass Spectrum", "[0]*pow(1-x/7000.0,[1])/pow(x/7000,[2]+[3]*log(x/7000.))",528,2000);
-  
+  TF1 *massfit= new TF1("Dijet Mass Spectrum", "[0]*pow(1-x/7000.0,[1])/pow(x/7000,[2]+[3]*log(x/7000.))",489,2132);
+  massfit->SetParameter(1,5.077);
+  massfit->SetParameter(2, 6.994);
+  massfit->SetParameter(3,0.2658);
+
   h_CorDijetMass->Fit(massfit, "R");
+  h_CorDijetMass->SetMinimum(1E-3);
 
   //Make a histogram for the values of the fit, with the binning of h_CorDijetMass
   TH1D* h_DataMinusFit = new TH1D(*h_CorDijetMass);
-  h_DataMinusFit->SetTitle("(Data Error)/Fit;dijet mass (GeV)");
+  h_DataMinusFit->SetTitle("(Data- Fit)/Fit;dijet mass (GeV)");
 
   //Fill the histogram of the data minus the fit's values
   for (int bin=1; bin<=h_CorDijetMass->GetNbinsX(); bin++){
@@ -53,8 +56,32 @@ void CMSDASmacro() {
   }
 
   //Move to the lower TPad and display the result
-  cDijetMass->cd(2);
+  TCanvas *cDijetMassResiduals=new TCanvas();
+  h_DataMinusFit->SetMinimum(-1.);
+  h_DataMinusFit->SetMaximum( 4);
   h_DataMinusFit->Draw();
+  TLine * line = new TLine(489,0.,2132,0);
+  line->SetLineStyle(2);
+  line->Draw("same");
+
+  TCanvas *cDijetMassPulls=new TCanvas();
+  TH1D* h_DijetMassPulls = new TH1D(*h_CorDijetMass);
+  h_DijetMassPulls->SetTitle("(Data- Fit)/Error;dijet mass (GeV)");
+
+  //Fill the histogram of the data minus the fit's values
+  for (int bin=1; bin<=h_CorDijetMass->GetNbinsX(); bin++){
+    double data_val = h_CorDijetMass->GetBinContent(bin);
+    double fit_val = massfit->Eval(h_CorDijetMass->GetBinCenter(bin));
+    double err_val  = h_CorDijetMass->GetBinError(bin);
+    // Skip bins with no data value
+    if (data_val != 0.0) {
+      h_DijetMassPulls->SetBinContent(bin, (data_val - fit_val)/err_val );
+      h_DijetMassPulls->SetBinError(bin, err_val /err_val );
+    }
+  }
+  h_DijetMassPulls->Draw();
+  h_DijetMassPulls->GetYaxis()->SetRangeUser(-2.5,2.5);
+  line->Draw("same");
 
   //------------------Dijet Centrality Ratio---------------------------
 
