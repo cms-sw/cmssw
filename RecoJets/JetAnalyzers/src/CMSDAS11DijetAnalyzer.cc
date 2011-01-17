@@ -131,11 +131,6 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
     // Introduce a purposeful bias to the correction, to show what happens
     scale *= JESbias;
 
-    // select high pt, central, non-noise-like jets
-    if(jet.pt()*scale<50.0) continue;
-    if(fabs(jet.eta())>2.5) continue;
-    if(jet.emEnergyFraction()<0.01) continue;
-
     // fill the histograms
     hJetRawPt->Fill(jet.pt());
     hJetEta->Fill(jet.eta());
@@ -158,6 +153,15 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
   //sort by corrected pt (not the same order as raw pt, sometimes)
   sort(selectedJets.begin(), selectedJets.end(), compare_JetPt);
 
+  // select high pt, central, non-noise-like jets
+  if (selectedJets[0].pt()<50.0) return;
+  if (fabs(selectedJets[0].eta())>2.5) return;
+  if (selectedJets[0].emEnergyFraction()<0.01) return;
+  if (selectedJets[1].pt()<50.0) return;
+  if (fabs(selectedJets[1].eta())>2.5) return;
+  if (selectedJets[1].emEnergyFraction()<0.01) return;
+  
+
   // fill histograms for the jets in our dijets, only
   hJet1Pt ->Fill(selectedJets[0].pt());
   hJet1Eta->Fill(selectedJets[0].eta());
@@ -172,6 +176,7 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
   double corMass = (selectedJets[0].p4()+selectedJets[1].p4()).M();
   double deltaEta = fabs(selectedJets[0].eta()-selectedJets[1].eta());
   if (corMass < 489) return;
+  if (deltaEta > 1.3) return;
   hCorDijetMass->Fill(corMass);
   hDijetDeltaPhi->Fill(fabs(selectedJets[0].phi()-selectedJets[1].phi()) );
   hDijetDeltaEta->Fill(deltaEta );
