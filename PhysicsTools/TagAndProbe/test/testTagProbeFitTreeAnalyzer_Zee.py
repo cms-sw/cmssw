@@ -18,34 +18,112 @@ if isMC:
 
 
 
+
+
+#specifies the binning of parameters
+EfficiencyBins = cms.PSet(
+    probe_gsfEle_pt = cms.vdouble( 20, 25, 30, 35, 40, 45, 50, 200 ),
+    probe_gsfEle_eta = cms.vdouble( -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5 )
+)
+
+
+#### For data: except for HLT step
 EfficiencyBinningSpecification = cms.PSet(
     #specifies what unbinned variables to include in the dataset, the mass is needed for the fit
     UnbinnedVariables = cms.vstring("mass"),
     #specifies the binning of parameters
-    BinnedVariables = cms.PSet(
-    probe_gsfEle_pt = cms.vdouble( 20, 25, 30, 35, 40, 45, 50, 200 ),
-    probe_gsfEle_eta = cms.vdouble( -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5 )
-    ),
+    BinnedVariables = cms.PSet(EfficiencyBins),
     #first string is the default followed by binRegExp - PDFname pairs
     BinToPDFmap = cms.vstring(PDFName)
-    #BinToPDFmap = cms.vstring()    
 )
 
 
-
+#### For MC truth: do truth matching
 EfficiencyBinningSpecificationMC = cms.PSet(
-    #specifies what unbinned variables to include in the dataset, the mass is needed for the fit
     UnbinnedVariables = cms.vstring("mass"),
-    #specifies the binning of parameters
-    BinnedVariables = cms.PSet(
-    mcTrue = cms.vstring("true"),
-    probe_gsfEle_pt = cms.vdouble( 20, 25, 30, 35, 40, 45, 50, 200 ),
-    probe_gsfEle_eta = cms.vdouble( -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5 )
-    ),
+    BinnedVariables = cms.PSet(EfficiencyBins, mcTrue = cms.vstring("true")),
     BinToPDFmap = cms.vstring()  
 )
 
+#### For HLT step: just do cut & count
+EfficiencyBinningSpecificationHLT = cms.PSet(
+    UnbinnedVariables = cms.vstring("mass"),
+    BinnedVariables = cms.PSet(EfficiencyBins),
+    BinToPDFmap = cms.vstring()  
+)
 
+##########################################################################################
+############################################################################################
+if isMC:
+    mcTruthModules = cms.PSet(
+        MCtruth_WP95 = cms.PSet(
+        EfficiencyBinningSpecificationMC,
+        EfficiencyCategoryAndState = cms.vstring("probe_isWP95","pass"),
+        ),
+        MCtruth_WP90 = cms.PSet(
+        EfficiencyBinningSpecificationMC,
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP90","pass"),
+        ),
+        MCtruth_WP85 = cms.PSet(
+        EfficiencyBinningSpecificationMC,    
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP85","pass"),
+        ),
+        MCtruth_WP80 = cms.PSet(
+        EfficiencyBinningSpecificationMC,   
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP80","pass"),
+        ),
+        MCtruth_WP70 = cms.PSet(
+        EfficiencyBinningSpecificationMC,    
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP70","pass"),
+        ),      
+        MCtruth_WP60 = cms.PSet(
+        EfficiencyBinningSpecificationMC,      
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP60","pass"),
+        ),
+        MCtruth_CicVeryLoose = cms.PSet(
+        EfficiencyBinningSpecificationMC,     
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicVeryLoose","pass"),
+        ),
+        MCtruth_CicLoose = cms.PSet(
+        EfficiencyBinningSpecificationMC,    
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicLoose","pass"),
+        ),
+        MCtruth_CicMedium = cms.PSet(
+        EfficiencyBinningSpecificationMC,    
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicMedium","pass"),
+        ),
+        MCtruth_CicTight = cms.PSet(
+        EfficiencyBinningSpecificationMC,
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicTight","pass"),
+        ),
+        MCtruth_CicSuperTight = cms.PSet(
+        EfficiencyBinningSpecificationMC,    
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicSuperTight","pass"),
+        ),        
+        MCtruth_CicHyperTight1 = cms.PSet(
+        EfficiencyBinningSpecificationMC,    
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight1","pass"),
+        ),
+        MCtruth_CicHyperTight2 = cms.PSet(
+        EfficiencyBinningSpecificationMC,    
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight2","pass"),
+        ),
+        MCtruth_CicHyperTight3 = cms.PSet(
+        EfficiencyBinningSpecificationMC,    
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight3","pass"),
+        ),
+        MCtruth_CicHyperTight4 = cms.PSet(
+        EfficiencyBinningSpecificationMC, 
+        EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight4","pass"),
+        ),
+        )
+else:
+    mcTruthModules = cms.PSet()
+##########################################################################################
+##########################################################################################
+
+
+        
 
 ############################################################################################
 ############################################################################################
@@ -103,8 +181,8 @@ process.GsfElectronToId = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     PDFs = cms.PSet(
         pdfSignalPlusBackground = cms.vstring(
 ##     "CBExGaussShape::signalRes(mass, mean[2.0946e-01], sigma[8.5695e-04],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### the signal function goes here
-     "CBExGaussShape::signalResPass(mass, mean[2.0946e-01, -5., 5.], sigma[8.5695e-04, 0., 5.],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### signal resolution for "pass" sample
-     "CBExGaussShape::signalResFail(mass, mean[2.0946e-01, -5., 5.], sigma[8.5695e-04, 0., 5.],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### signal resolution for "fail" sample     
+     "CBExGaussShape::signalResPass(mass, meanP[2.0946e-01, -5., 5.], sigmaP[8.5695e-04, 0., 5.],alphaP[3.8296e-04], nP[6.7489e+00], sigmaP_2[2.5849e+00], fracP[6.5704e-01])",  ### signal resolution for "pass" sample
+     "CBExGaussShape::signalResFail(mass, meanF[2.0946e-01, -5., 5.], sigmaF[8.5695e-04, 0., 5.],alphaF[3.8296e-04], nF[6.7489e+00], sigmaF_2[2.5849e+00], fracF[6.5704e-01])",  ### signal resolution for "fail" sample     
     "ZGeneratorLineShape::signalPhy(mass)", ### NLO line shape
     "RooExponential::backgroundPass(mass, cPass[-0.02, -5, 0])",
     "RooExponential::backgroundFail(mass, cFail[-0.02, -5, 0])",
@@ -123,133 +201,71 @@ process.GsfElectronToId = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # defines a set of efficiency calculations, what PDF to use for fitting and how to bin the data;
     # there will be a separate output directory for each calculation that includes a simultaneous fit, side band subtraction and counting. 
     Efficiencies = cms.PSet(
-        #the name of the parameter set becomes the name of the directory
-        WP95 = cms.PSet(
-             EfficiencyBinningSpecification,
-            #specifies the efficiency of which category and state to measure 
-            EfficiencyCategoryAndState = cms.vstring("probe_isWP95","pass"),
-        ),
-        WP90 = cms.PSet(
-            EfficiencyBinningSpecification,
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP90","pass"),
-        ),
-        WP85 = cms.PSet(
-            EfficiencyBinningSpecification,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP85","pass"),
-        ),
-         WP80 = cms.PSet(
-            EfficiencyBinningSpecification,   
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP80","pass"),
-        ),
-        WP70 = cms.PSet(
-            EfficiencyBinningSpecification,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP70","pass"),
-        ),      
-        WP60 = cms.PSet(
-            EfficiencyBinningSpecification,      
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP60","pass"),
-        ),
-        CicVeryLoose = cms.PSet(
-            EfficiencyBinningSpecification,     
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicVeryLoose","pass"),
-        ),
-        CicLoose = cms.PSet(
-            EfficiencyBinningSpecification,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicLoose","pass"),
-        ),
-        CicMedium = cms.PSet(
-            EfficiencyBinningSpecification,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicMedium","pass"),
-        ),
-        CicTight = cms.PSet(
-            EfficiencyBinningSpecification,
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicTight","pass"),
-        ),
-        CicSuperTight = cms.PSet(
-            EfficiencyBinningSpecification,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicSuperTight","pass"),
-        ),        
-        CicHyperTight1 = cms.PSet(
-            EfficiencyBinningSpecification,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight1","pass"),
-        ),
-        CicHyperTight2 = cms.PSet(
-            EfficiencyBinningSpecification,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight2","pass"),
-        ),
-        CicHyperTight3 = cms.PSet(
-            EfficiencyBinningSpecification,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight3","pass"),
-        ),
-        CicHyperTight4 = cms.PSet(
-            EfficiencyBinningSpecification, 
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight4","pass"),
-        ),  
-        ############################################################################################
-        ############################################################################################
-        ############################################################################################
-        if isMC:
-        MCtruth_WP95 = cms.PSet(
-            EfficiencyBinningSpecificationMC,
-            EfficiencyCategoryAndState = cms.vstring("probe_isWP95","pass"),
-        ),
-        MCtruth_WP90 = cms.PSet(
-            EfficiencyBinningSpecificationMC,
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP90","pass"),
-        ),
-        MCtruth_WP85 = cms.PSet(
-            EfficiencyBinningSpecificationMC,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP85","pass"),
-        ),
-        MCtruth_WP80 = cms.PSet(
-            EfficiencyBinningSpecificationMC,   
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP80","pass"),
-        ),
-        MCtruth_WP70 = cms.PSet(
-            EfficiencyBinningSpecificationMC,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP70","pass"),
-        ),      
-        MCtruth_WP60 = cms.PSet(
-            EfficiencyBinningSpecificationMC,      
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP60","pass"),
-        ),
-        MCtruth_CicVeryLoose = cms.PSet(
-            EfficiencyBinningSpecificationMC,     
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicVeryLoose","pass"),
-        ),
-        MCtruth_CicLoose = cms.PSet(
-            EfficiencyBinningSpecificationMC,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicLoose","pass"),
-        ),
-        MCtruth_CicMedium = cms.PSet(
-            EfficiencyBinningSpecificationMC,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicMedium","pass"),
-        ),
-        MCtruth_CicTight = cms.PSet(
-            EfficiencyBinningSpecificationMC,
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicTight","pass"),
-        ),
-        MCtruth_CicSuperTight = cms.PSet(
-            EfficiencyBinningSpecificationMC,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicSuperTight","pass"),
-        ),        
-        MCtruth_CicHyperTight1 = cms.PSet(
-            EfficiencyBinningSpecificationMC,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight1","pass"),
-        ),
-        MCtruth_CicHyperTight2 = cms.PSet(
-            EfficiencyBinningSpecificationMC,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight2","pass"),
-        ),
-        MCtruth_CicHyperTight3 = cms.PSet(
-            EfficiencyBinningSpecificationMC,    
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight3","pass"),
-        ),
-        MCtruth_CicHyperTight4 = cms.PSet(
-            EfficiencyBinningSpecificationMC, 
-            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight4","pass"),
-        ),
-        ##########################################################################################
+    mcTruthModules,
+    #the name of the parameter set becomes the name of the directory
+    WP95 = cms.PSet(
+    EfficiencyBinningSpecification,
+    #specifies the efficiency of which category and state to measure 
+    EfficiencyCategoryAndState = cms.vstring("probe_isWP95","pass"),
+    ),
+    WP90 = cms.PSet(
+    EfficiencyBinningSpecification,
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP90","pass"),
+    ),
+    WP85 = cms.PSet(
+    EfficiencyBinningSpecification,    
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP85","pass"),
+    ),
+    WP80 = cms.PSet(
+    EfficiencyBinningSpecification,   
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP80","pass"),
+    ),
+    WP70 = cms.PSet(
+    EfficiencyBinningSpecification,    
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP70","pass"),
+    ),      
+    WP60 = cms.PSet(
+    EfficiencyBinningSpecification,      
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP60","pass"),
+    ),
+    CicVeryLoose = cms.PSet(
+    EfficiencyBinningSpecification,     
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicVeryLoose","pass"),
+    ),
+    CicLoose = cms.PSet(
+    EfficiencyBinningSpecification,    
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicLoose","pass"),
+    ),
+    CicMedium = cms.PSet(
+    EfficiencyBinningSpecification,    
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicMedium","pass"),
+    ),
+    CicTight = cms.PSet(
+    EfficiencyBinningSpecification,
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicTight","pass"),
+    ),
+    CicSuperTight = cms.PSet(
+    EfficiencyBinningSpecification,    
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicSuperTight","pass"),
+    ),        
+    CicHyperTight1 = cms.PSet(
+    EfficiencyBinningSpecification,    
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight1","pass"),
+    ),
+    CicHyperTight2 = cms.PSet(
+    EfficiencyBinningSpecification,    
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight2","pass"),
+    ),
+    CicHyperTight3 = cms.PSet(
+    EfficiencyBinningSpecification,    
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight3","pass"),
+    ),
+    CicHyperTight4 = cms.PSet(
+    EfficiencyBinningSpecification, 
+    EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight4","pass"),
+    ),  
+############################################################################################
+############################################################################################
     )
 )
 
@@ -259,61 +275,59 @@ process.GsfElectronToId = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
 ####### SC->GsfElectron efficiency 
 ############################################################################################
 ############################################################################################
+process.SCToGsfElectron = process.GsfElectronToId.clone()
+process.SCToGsfElectron.InputDirectoryName = cms.string("PhotonToGsfElectron")
+process.SCToGsfElectron.OutputFileName = cms.string("efficiency-SCToGsfElectron.root")
+
 if isMC:
-    EfficienciesPset = cms.PSet(
-        efficiency = cms.PSet(
-        EfficiencyBinningSpecification,
-        EfficiencyCategoryAndState = cms.vstring( "probe_passingGsf", "pass" ),
-        ),
+    SCmcTruthModules = cms.PSet(
         MCtruth_efficiency = cms.PSet(
         EfficiencyBinningSpecificationMC,
         EfficiencyCategoryAndState = cms.vstring( "probe_passingGsf", "pass" ),
         ),
-     )
+    )
 else:
-    EfficienciesPset = cms.PSet(
-        efficiency = cms.PSet(
-        EfficiencyBinningSpecification,
-        EfficiencyCategoryAndState = cms.vstring("probe_passingGsf", "pass"),
-        ),    
-     )
-########
-process.SCToGsfElectron = process.GsfElectronToId.clone()
-process.SCToGsfElectron.InputDirectoryName = cms.string("PhotonToGsfElectron")
-process.SCToGsfElectron.OutputFileName = cms.string("efficiency-SCToGsfElectron.root")
+    SCmcTruthModules = cms.PSet()    
+        
+
 process.SCToGsfElectron.Categories = cms.PSet(
     mcTrue = cms.vstring("MC true", "dummy[true=1,false=0]"),           
     probe_passingGsf = cms.vstring("probe_passingGsf", "dummy[pass=1,fail=0]"),                        
     )
-process.SCToGsfElectron.Efficiencies = EfficienciesPset
-
-
-
-
+process.SCToGsfElectron.Efficiencies = cms.PSet(
+    SCmcTruthModules,
+    efficiency = cms.PSet(
+    EfficiencyBinningSpecification,
+    EfficiencyCategoryAndState = cms.vstring( "probe_passingGsf", "pass" ),
+    ),
+)
 
 ############################################################################################
 ############################################################################################
 ####### HLT efficiency 
 ############################################################################################
 ############################################################################################
+
+
 if isMC:
-    EfficienciesPset = cms.PSet(
-        efficiency = cms.PSet(
-        EfficiencyBinningSpecification,
-        EfficiencyCategoryAndState = cms.vstring( HLTDef, "pass" ),
-        ),
+    HLTmcTruthModules = cms.PSet(
         MCtruth_efficiency = cms.PSet(
         EfficiencyBinningSpecificationMC,
         EfficiencyCategoryAndState = cms.vstring( HLTDef, "pass" ),
-        ),
-     )
-else:
-    EfficienciesPset = cms.PSet(
-        efficiency = cms.PSet(
-        EfficiencyBinningSpecification,
-        EfficiencyCategoryAndState = cms.vstring(HLTDef, "pass"),
         ),    
-     )
+    )
+else:
+    HLTmcTruthModules = cms.PSet()
+
+
+EfficienciesPset = cms.PSet(
+    HLTmcTruthModules,
+    efficiency = cms.PSet(
+    EfficiencyBinningSpecificationHLT,
+    EfficiencyCategoryAndState = cms.vstring( HLTDef, "pass" ),
+    ),
+)
+
 ########
 process.WP95ToHLT = process.GsfElectronToId.clone()
 process.WP95ToHLT.InputDirectoryName = cms.string("WP95ToHLT")
