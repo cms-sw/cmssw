@@ -22,6 +22,7 @@ ProfileLikelihood::ProfileLikelihood() :
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(1e-3),  "Tolerance for minimizer")
         ("hitItUntilItConverges", "Try and try again until you get the minimization converging (hack)")
         ("hitItEvenHarder",       "Do multiple attempts even when it converged the first time (debug hack)")
+        ("acceptEverything",      "Accept the result of the retries, whatever it is")
     ;
 }
 
@@ -29,6 +30,7 @@ void ProfileLikelihood::applyOptions(const boost::program_options::variables_map
 {
     hitItUntilItConverges_ = vm.count("hitItUntilItConverges");
     hitItEvenHarder_ = vm.count("hitItEvenHarder");
+    acceptEverything_ = vm.count("acceptEverything");
 }
 
 ProfileLikelihood::MinimizerSentry::MinimizerSentry(std::string &minimizerAlgo, double tolerance) :
@@ -74,6 +76,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
         }
         bool mysuccess = (doSignificance_ ?  runSignificance(w,data,limit) : runLimit(w,data,limit));
         if (mysuccess) limits.push_back(limit);
+        if (mysuccess && acceptEverything_) { success = true; break; }
         if (limits.size() == 10) { ntries = tries; break; }
      }
      if (limits.size() > 1) {
