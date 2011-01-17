@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.16 2011/01/14 10:57:37 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.17 2011/01/14 20:51:58 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -311,6 +311,7 @@ LumiProducer::fillRunCache(unsigned int runnumber){
   if( !mydbservice.isAvailable() ){
     throw cms::Exception("Non existing service lumi::service::DBService");
   }
+  //std::cout<<"in fillRunCache "<<runnumber<<std::endl;
   coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
   try{
     session->transaction().start(true);
@@ -318,6 +319,7 @@ LumiProducer::fillRunCache(unsigned int runnumber){
     //
     //select bitnum,bitname from trg where runnum=:runnum and cmslsnum=:1 order by bitnum;
     //
+    //std::cout<<"got schema handle "<<std::endl;
     m_cachedrun=runnumber;
     coral::AttributeList trgBindVariables;
     trgBindVariables.extend("runnum",typeid(unsigned int));
@@ -389,6 +391,7 @@ LumiProducer::fillRunCache(unsigned int runnumber){
 }
 void
 LumiProducer::fillLSCache(unsigned int luminum){
+  //std::cout<<"in fillLSCache "<<luminum<<std::endl;
   //initialize cache
   if(m_isNullRun) return;
   m_lscache.clear();
@@ -492,7 +495,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
     delete lumisummaryQuery;
     
     //
-    //select s.cmslsnum,d.bxlumivalue,d.bxlumierror,d.bxlumiquality,d.algoname from lumisummary s,lumidetail d where s.lumisummary_id=d.lumisummary_id and s.runnum=:runnum and s.cmslsnum>=:luminum and s.cmslsnum<:luminum+cachesize order by d.algoname,s.cmslsnum
+    //select lumisummary.cmslsnum,lumidetail.bxlumivalue,lumidetail.bxlumierror,lumidetail.bxlumiquality,lumidetail.algoname from lumisummary,lumidetail where lumisummary.lumisummary_id=lumidetail.lumisummary_id and lumisummary.runnum=:runnum and lumisummary.cmslsnum>=:luminum and lumisummary.cmslsnum<:luminum+cachesize order by lumidetail.algoname,lumisummary.cmslsnum
     //
     coral::AttributeList lumidetailBindVariables;
     lumidetailBindVariables.extend("runnum",typeid(unsigned int));
@@ -511,16 +514,16 @@ LumiProducer::fillLSCache(unsigned int luminum){
     lumidetailOutput.extend("algoname",typeid(std::string));
 
     coral::IQuery* lumidetailQuery=schema.newQuery();
-    lumidetailQuery->addToTableList(lumi::LumiNames::lumisummaryTableName(),"s");
-    lumidetailQuery->addToTableList(lumi::LumiNames::lumidetailTableName(),"d");
-    lumidetailQuery->addToOutputList("s.CMSLSNUM","cmslsnum");
-    lumidetailQuery->addToOutputList("d.BXLUMIVALUE","bxlumivalue");
-    lumidetailQuery->addToOutputList("d.BXLUMIERROR","bxlumierror");
-    lumidetailQuery->addToOutputList("d.BXLUMIQUALITY","instlumiquality");
-    lumidetailQuery->addToOutputList("d.ALGONAME","algoname");
-    lumidetailQuery->setCondition("s.LUMISUMMARY_ID=d.LUMISUMMARY_ID AND s.RUNNUM=:runnum AND s.CMSLSNUM>=:lsmin AND s.CMSLSNUM<:lsmax",lumidetailBindVariables);
-    lumidetailQuery->addToOrderList("d.ALGONAME");
-    lumidetailQuery->addToOrderList("s.cmslsnum");
+    lumidetailQuery->addToTableList(lumi::LumiNames::lumisummaryTableName());
+    lumidetailQuery->addToTableList(lumi::LumiNames::lumidetailTableName());
+    lumidetailQuery->addToOutputList(lumi::LumiNames::lumisummaryTableName()+".CMSLSNUM","cmslsnum");
+    lumidetailQuery->addToOutputList(lumi::LumiNames::lumidetailTableName()+".BXLUMIVALUE","bxlumivalue");
+    lumidetailQuery->addToOutputList(lumi::LumiNames::lumidetailTableName()+".BXLUMIERROR","bxlumierror");
+    lumidetailQuery->addToOutputList(lumi::LumiNames::lumidetailTableName()+".BXLUMIQUALITY","instlumiquality");
+    lumidetailQuery->addToOutputList(lumi::LumiNames::lumidetailTableName()+".ALGONAME","algoname");
+    lumidetailQuery->setCondition(lumi::LumiNames::lumisummaryTableName()+".LUMISUMMARY_ID="+lumi::LumiNames::lumidetailTableName()+".LUMISUMMARY_ID AND "+lumi::LumiNames::lumisummaryTableName()+".RUNNUM=:runnum AND "+lumi::LumiNames::lumisummaryTableName()+".CMSLSNUM>=:lsmin AND "+lumi::LumiNames::lumisummaryTableName()+".CMSLSNUM<:lsmax",lumidetailBindVariables);
+    lumidetailQuery->addToOrderList(lumi::LumiNames::lumidetailTableName()+".ALGONAME");
+    lumidetailQuery->addToOrderList(lumi::LumiNames::lumisummaryTableName()+".CMSLSNUM");
     lumidetailQuery->defineOutput(lumidetailOutput);
     coral::ICursor& lumidetailcursor=lumidetailQuery->execute();
     while( lumidetailcursor.next() ){
