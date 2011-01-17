@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.52 2010/11/21 11:18:13 amraktad Exp $
+// $Id: FW3DView.cc,v 1.53 2010/11/26 20:24:48 amraktad Exp $
 //
 
 // system include files
@@ -67,5 +67,7 @@ void FW3DView::setContext(const fireworks::Context& ctx)
    m_calo->SetBarrelRadius(context().caloR1(false));
    m_calo->SetEndCapPos(context().caloZ1(false));
    m_calo->SetFrameTransparency(80);
+   m_calo->SetAutoRange(false);
+   m_calo->SetScaleAbs(true);
    eventScene()->AddElement(m_calo);
 }
