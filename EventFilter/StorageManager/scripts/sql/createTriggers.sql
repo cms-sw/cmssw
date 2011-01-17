@@ -292,44 +292,45 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE TRIGGER FILES_TRANS_CHECKED_AI
-AFTER INSERT ON FILES_TRANS_CHECKED
-FOR EACH ROW
-DECLARE 
-v_producer VARCHAR(30);
-v_stream VARCHAR(30);
-v_instance NUMBER(5);
-v_runnumber NUMBER(10);
-v_code NUMBER;
-v_errm VARCHAR2(64);
-v_etime VARCHAR2(64);
-BEGIN
-     SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER into v_producer, v_stream, v_instance, v_runnumber FROM FILES_CREATED WHERE FILENAME = :NEW.FILENAME;
-     IF v_producer = 'StorageManager' THEN
-     	UPDATE SM_SUMMARY
-        	SET S_CHECKED = NVL(S_CHECKED,0) + 1,
-            	START_REPACK_TIME = LEAST(:NEW.ITIME, NVL(START_REPACK_TIME,:NEW.ITIME)),
-	    	LAST_UPDATE_TIME = sysdate       
-      	WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
-     	IF SQL%ROWCOUNT = 0 THEN
-         	NULL;
-     	END IF;
-        UPDATE SM_INSTANCES
-                SET N_CHECKED = NVL(N_CHECKED,0) + 1
-        WHERE RUNNUMBER = v_runnumber AND INSTANCE = v_instance;
-        IF SQL%ROWCOUNT = 0 THEN
-                NULL;
-        END IF;
-     END IF;
-     EXCEPTION  --what if error?? do NOT want ERROR to propagate to FILES_TRANS_CHECKED so handle it with message
-        WHEN OTHERS THEN
-                v_code := SQLCODE;
-                v_errm := SUBSTR(SQLERRM, 1 , 64);
-                v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
-                DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_TRANS_CHECKED_AI: ' ||  v_errm || ' <<');
-                DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_TRANS_CHECKED_AI for FILE: ' || :NEW.FILENAME || '  << ');
-END;
-/
+-- Migrated to a stored procedure
+-- CREATE OR REPLACE TRIGGER FILES_TRANS_CHECKED_AI
+-- AFTER INSERT ON FILES_TRANS_CHECKED
+-- FOR EACH ROW
+-- DECLARE 
+-- v_producer VARCHAR(30);
+-- v_stream VARCHAR(30);
+-- v_instance NUMBER(5);
+-- v_runnumber NUMBER(10);
+-- v_code NUMBER;
+-- v_errm VARCHAR2(64);
+-- v_etime VARCHAR2(64);
+-- BEGIN
+--      SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER into v_producer, v_stream, v_instance, v_runnumber FROM FILES_CREATED WHERE FILENAME = :NEW.FILENAME;
+--      IF v_producer = 'StorageManager' THEN
+--      	UPDATE SM_SUMMARY
+--         	SET S_CHECKED = NVL(S_CHECKED,0) + 1,
+--             	START_REPACK_TIME = LEAST(:NEW.ITIME, NVL(START_REPACK_TIME,:NEW.ITIME)),
+-- 	    	LAST_UPDATE_TIME = sysdate       
+--       	WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
+--      	IF SQL%ROWCOUNT = 0 THEN
+--          	NULL;
+--      	END IF;
+--         UPDATE SM_INSTANCES
+--                 SET N_CHECKED = NVL(N_CHECKED,0) + 1
+--         WHERE RUNNUMBER = v_runnumber AND INSTANCE = v_instance;
+--         IF SQL%ROWCOUNT = 0 THEN
+--                 NULL;
+--         END IF;
+--      END IF;
+--      EXCEPTION  --what if error?? do NOT want ERROR to propagate to FILES_TRANS_CHECKED so handle it with message
+--         WHEN OTHERS THEN
+--                 v_code := SQLCODE;
+--                 v_errm := SUBSTR(SQLERRM, 1 , 64);
+--                 v_etime := to_char(sysdate, 'Dy Mon DD HH24:MI:SS YYYY');
+--                 DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_TRANS_CHECKED_AI: ' ||  v_errm || ' <<');
+--                 DBMS_OUTPUT.PUT_LINE ('##   ' || v_etime ||' ERROR: FILES_TRANS_CHECKED_AI for FILE: ' || :NEW.FILENAME || '  << ');
+-- END;
+-- /
 
 CREATE OR REPLACE TRIGGER FILES_TRANS_COPIED_AI
 AFTER INSERT ON FILES_TRANS_COPIED
