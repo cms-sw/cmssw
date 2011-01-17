@@ -31,6 +31,7 @@ MarkovChainMC::MarkovChainMC() :
                               "Proposal function to use: 'fit', 'uniform', 'gaus'")
         ("runMinos",          "Run MINOS when fitting the data")
         ("noReset",           "Don't reset variable state after fit")
+        ("updateHint",        "Update hint with the results")
         ("updateProposalParams", 
                 boost::program_options::value<bool>(&updateProposalParams_)->default_value(false), 
                 "Control ProposalHelper::SetUpdateProposalParameters")
@@ -67,6 +68,7 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
         
     runMinos_ = vm.count("runMinos");
     noReset_  = vm.count("noReset");
+    updateHint_  = vm.count("updateHint");
 }
 
 bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
@@ -74,12 +76,17 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
 
   CloseCoutSentry coutSentry(verbose <= 0); // close standard output and error, so that we don't flood them with minuit messages
   double sum = 0, sum2 = 0, suma = 0; int num = 0;
+  double savhint = -1; const double *thehint = hint;
   for (unsigned int i = 0; i < tries_; ++i) {
-      if (int nacc = runOnce(w,data,limit,hint)) {
+      if (int nacc = runOnce(w,data,limit,thehint)) {
           ++num;
           sum  += limit;
           sum2 += limit * limit;
           suma += nacc;
+          if (updateHint_ && tries_ > 1 && limit > savhint) { 
+            if (verbose > 0) std::cout << "Updating hint from " << savhint << " to " << limit << std::endl;
+            savhint = limit; thehint = &savhint; 
+          }
       }
   }
   if (num == 0) return false;
@@ -105,7 +112,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, con
   RooArgSet const &obs = *w->set("observables");
 
   if ((hint != 0) && (*hint > r->getMin())) {
-    r->setMax(std::min<double>(5*(*hint), r->getMax()));
+    r->setMax(5*(*hint));
   }
 
   if (withSystematics && (w->set("nuisances") == 0)) {

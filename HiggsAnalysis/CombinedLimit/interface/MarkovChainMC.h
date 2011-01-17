@@ -23,7 +23,7 @@ private:
   enum ProposalType { FitP, UniformP, MultiGaussianP, TestP };
   std::string proposalTypeName_;
   ProposalType proposalType_;
-  bool runMinos_, noReset_, updateProposalParams_;
+  bool runMinos_, noReset_, updateProposalParams_, updateHint_;
   unsigned int iterations_;
   unsigned int tries_;
   unsigned int burnInSteps_;
