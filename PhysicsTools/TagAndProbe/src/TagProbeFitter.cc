@@ -503,8 +503,8 @@ void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands){
   } else {
     throw std::logic_error("You must either define one 'signal' PDF or two PDFs ('signalPass', 'signalFail')");
   }
-  w->factory("SUM::pdfPass(numSignalPass*"+sFail+", numBackgroundPass[0.,1e10]*backgroundPass)");
-  w->factory("SUM::pdfFail(numSignalFail*"+sPass+", numBackgroundFail[0.,1e10]*backgroundFail)");
+  w->factory("SUM::pdfPass(numSignalPass*"+sPass+", numBackgroundPass[0.,1e10]*backgroundPass)");
+  w->factory("SUM::pdfFail(numSignalFail*"+sFail+", numBackgroundFail[0.,1e10]*backgroundFail)");
   w->factory("SIMUL::simPdf(_efficiencyCategory_, Passed=pdfPass, Failed=pdfFail)");
   // signalFractionInPassing is not used in the fit just to set the initial values
   if (w->pdf("simPdf") == 0) throw std::runtime_error("Could not create simultaneous fit pdf.");
