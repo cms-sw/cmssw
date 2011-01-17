@@ -427,7 +427,8 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
       // Set the cluster width
       mySuperCluster.setEtaWidth(pfwidth.pflowEtaWidth());
       mySuperCluster.setPhiWidth(pfwidth.pflowPhiWidth());
-
+      // Force the computation of rawEnergy_ of the reco::SuperCluster
+      mySuperCluster.rawEnergy();
       superClusters.push_back(mySuperCluster);
    }
 }
