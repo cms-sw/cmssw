@@ -83,6 +83,15 @@ public :
   Int_t           ohTauL25Tiso[5000];   //[NohTau]
   Float_t         ohTauL3Tpt[5000];   //[NohTau]
   Int_t           ohTauL3Tiso[5000];   //[NohTau]
+  Int_t           NohPFTau; 
+  Float_t         pfTauEta[500]; 
+  Float_t         pfTauPhi[500]; 
+  Float_t         pfTauPt[500]; 
+  Float_t         pfTauJetPt[500]; 
+  Float_t         pfTauLeadTrackPt[500]; 
+  Float_t         pfTauLeadPionPt[500]; 
+  Int_t           pfTauTrkIso[500]; 
+  Int_t           pfTauGammaIso[500]; 
   Int_t           NohBJetL2;     //
   Float_t         ohBJetL2Et[5000];  //[NohBJetL2] 
   Float_t         ohBJetL2Energy[5000];  //[NohBJetL2]  
@@ -259,20 +268,11 @@ public :
   Float_t         ohAlcapi0etaClusAll[51];   //[Nalcapi0clusters] 
   Float_t         ohAlcapi0phiClusAll[51];   //[Nalcapi0clusters] 
   Float_t         ohAlcapi0s4s9ClusAll[51];   //[Nalcapi0clusters] 
-  Int_t           NohPFTau; 
-  Float_t         pfTauPt[60];   //[NohPFTau] 
-  Float_t         pfTauEta[60];   //[NohPFTau] 
-  Float_t         pfTauPhi[60];   //[NohPFTau] 
-  Float_t         pfTauLeadTrackPt[60];   //[NohPFTau] 
-  Float_t         pfTauLeadPionPt[60];   //[NohPFTau] 
-  Int_t           pfTauTrkIso[60];   //[NohPFTau] 
-  Int_t           pfTauGammaIso[60];   //[NohPFTau] 
-  Float_t         pfTauJetPt[60];   //[NohPFTau] 
   Float_t         pfMHT; 
   Int_t           NohPFJet; 
-  Float_t         pfJetPt[60];   //[NohPFJet] 
-  Float_t         pfJetEta[60];   //[NohPFJet] 
-  Float_t         pfJetPhi[60];   //[NohPFJet] 
+  Float_t         pfJetPt[5000];   //[NohPFJet] 
+  Float_t         pfJetEta[5000];   //[NohPFJet] 
+  Float_t         pfJetPhi[5000];   //[NohPFJet] 
   Int_t           NMCpart;
   Int_t           MCpid[1203000];   //[NMCpart]
   Int_t           MCstatus[1203000];   //[NMCpart]
@@ -3596,8 +3596,7 @@ public :
   int OpenHltTauEleMatching(float eta, float phi);
   int OpenHltTauPFToCaloMatching(float eta, float phi);
 
-  int OpenHltL1L2TauMatching(float eta, float phi, float tauThr, float jetThre);  int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso,
-		       float L1TauEtThr, float L1CenJetThr);
+  int OpenHltL1L2TauMatching(float eta, float phi, float tauThr, float jetThre);  int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso, float L1TauEtThr, float L1CenJetThr);
   int OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso,
 			   float L1TauEtThr, float L1CenJetThr);
   int OpenHltTauL2SCMETPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso, float met,
