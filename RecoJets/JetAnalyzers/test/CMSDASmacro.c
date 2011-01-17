@@ -10,7 +10,7 @@
 using std::cout;
 
 void CMSDASmacro() {
-  TFile* rootfile = new TFile("histos.root");
+  TFile* rootfile = new TFile("histosData.root");
   rootfile->cd("dijetAna");
   gDirectory->ls();
 
@@ -20,6 +20,10 @@ void CMSDASmacro() {
   gStyle->SetOptFit(1111);
   //Get pointers to some histograms we will want
   TH1D* h_CorDijetMass=(TH1D*)gROOT->FindObject("hCorDijetXsec");
+
+  //Divide by approx. luminosity to get cross section
+  h_CorDijetMass->Scale(0.333333);
+  
   //Error bars, please.
   h_CorDijetMass->Sumw2();
 
@@ -30,10 +34,9 @@ void CMSDASmacro() {
   h_CorDijetMass->Draw();
 
   // Declare the function to fit, over some range, and fit it.
-  //TF1 *massfit= new TF1("Dijet Mass Spectrum", "[0]*pow(1-x/7000.0,[1])/pow(x/7000,[2])",528,2000);
   TF1 *massfit= new TF1("Dijet Mass Spectrum", "[0]*pow(1-x/7000.0,[1])/pow(x/7000,[2]+[3]*log(x/7000.))",489,2132);
   massfit->SetParameter(1,5.077);
-  massfit->SetParameter(2, 6.994);
+  massfit->SetParameter(2,6.994);
   massfit->SetParameter(3,0.2658);
 
   h_CorDijetMass->Fit(massfit, "R");
@@ -73,6 +76,7 @@ void CMSDASmacro() {
     double data_val = h_CorDijetMass->GetBinContent(bin);
     double fit_val = massfit->Eval(h_CorDijetMass->GetBinCenter(bin));
     double err_val  = h_CorDijetMass->GetBinError(bin);
+    std::cout<<h_CorDijetMass->GetBinCenter(bin)<<": "<<data_val<<"\n";
     // Skip bins with no data value
     if (data_val != 0.0) {
       h_DijetMassPulls->SetBinContent(bin, (data_val - fit_val)/err_val );
