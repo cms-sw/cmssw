@@ -87,28 +87,39 @@ void CMSDASmacro() {
 
   
   //Get pointers to some histograms we will want
-  //TH1D* h_InnerDijetMass=(TH1D*)gROOT->FindObject("hInnerDijetMass");
-  //TH1D* h_OuterDijetMass=(TH1D*)gROOT->FindObject("hOuterDijetMass");
-  ////Error bars, please.
-  //h_InnerDijetMass->Sumw2();
-  //h_OuterDijetMass->Sumw2();
-  //
-  ////Make a home for the pretty plots
-  //TCanvas *cDijetDeltaEtaRatio=new TCanvas("cDijetDeltaEtaRatio","cDijetDeltaEtaRatio",800,1200);
-  //cDijetDeltaEtaRatio->Divide(1,3); 
-  //cDijetDeltaEtaRatio->cd(1);
-  //// Set the current TPad to "Logy()". Not an English word.
-  //gPad->SetLogy();
-  //h_InnerDijetMass->Draw();
-  //h_OuterDijetMass->Draw("same");
-  //
-  //cDijetDeltaEtaRatio->cd(2);
-  //
-  //// Make the dijet delta eta ratio in a histogram
-  //TH1D* h_DijetDeltaEtaRatio = (TH1D*)h_InnerDijetMass->Clone();
-  //h_DijetDeltaEtaRatio->Divide(h_OuterDijetMass);
-  //h_DijetDeltaEtaRatio->SetTitle("Dijet |#Delta#eta| Ratio; dijet mass (GeV)");
-  //h_DijetDeltaEtaRatio->Draw();
+  TH1D* h_InnerDijetMass=(TH1D*)gROOT->FindObject("hInnerDijetMass");
+  TH1D* h_OuterDijetMass=(TH1D*)gROOT->FindObject("hOuterDijetMass");
+  //Error bars, please.
+  h_InnerDijetMass->Sumw2();
+  h_OuterDijetMass->Sumw2();
+  
+
+  //Make a home for the pretty plots
+  TCanvas *cInnerOuterCounts=new TCanvas("cInnerOuterCounts","cInnerOuterCounts");
+  // Set the current TPad to "Logy()". Not an English word.
+  gPad->SetLogy();
+  h_InnerDijetMass->SetLineColor(2);
+  h_InnerDijetMass->SetMarkerStyle(25);
+  h_InnerDijetMass->SetMarkerSize(0.7);
+  h_InnerDijetMass->SetMarkerColor(2);
+  h_OuterDijetMass->SetMarkerStyle(20);
+  h_OuterDijetMass->SetMarkerSize(0.3);
+  h_InnerDijetMass->Draw();
+  h_OuterDijetMass->Draw("same");
+  
+  
+  TCanvas *cDijetDeltaEtaRatio=new TCanvas("cDijetDeltaEtaRatio","cDijetDeltaEtaRatio");
+  // Make the dijet delta eta ratio in a histogram
+  TH1D* h_DijetDeltaEtaRatio = (TH1D*)h_InnerDijetMass->Clone();
+  h_DijetDeltaEtaRatio->Divide(h_OuterDijetMass);
+  h_DijetDeltaEtaRatio->SetMarkerStyle(20);
+  h_DijetDeltaEtaRatio->SetTitle("Dijet |#Delta#eta| Ratio; dijet mass (GeV)");
+  h_DijetDeltaEtaRatio->GetYaxis()->SetRangeUser(0,2.5);
+  h_DijetDeltaEtaRatio->Draw();
+
+  TF1* flatline = new TF1("flatline", "[0]",489,2132);
+  h_DijetDeltaEtaRatio->Fit(flatline, "R");
+  flatline->Draw("same");
   
   return;
 }
