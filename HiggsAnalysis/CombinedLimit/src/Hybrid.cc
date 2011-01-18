@@ -1,12 +1,18 @@
 #include <stdexcept>
+#include <cstdio>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <errno.h>
+
 #include "HiggsAnalysis/CombinedLimit/interface/Hybrid.h"
+#include <TFile.h>
+#include <TKey.h>
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooStats/HybridCalculatorOriginal.h"
 #include "RooAbsPdf.h"
 #include "RooRandom.h"
-#include "TFile.h"
-#include "TKey.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
 
@@ -24,6 +30,8 @@ LimitAlgo("Hybrid specific options") {
         ("rInterval",  "Always try to compute an interval on r even after having found a point satisfiying the CL")
         ("saveHybridResult",  "Save result in the output file  (option saveToys must be enabled)")
         ("readHybridResults", "Read and merge results from file (option toysFile must be enabled)")
+        ("singlePoint", boost::program_options::value<float>(),                   "Just compute CLs for the given value of r")
+        ("fork", boost::program_options::value<unsigned int>(&fork_)->default_value(0), "Fork to N processes before running the toys (experimental debug hack)")
     ;
 }
 
@@ -41,6 +49,9 @@ void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
     }
     saveHybridResult_ = vm.count("saveHybridResult");
     readHybridResults_ = vm.count("readHybridResults");
+    if ((singlePointScan_ = vm.count("singlePoint"))) {
+        rValue_ = vm["singlePoint"].as<float>();
+    }
 }
 
 bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
@@ -50,34 +61,35 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double 
   w->loadSnapshot("clean");
   RooAbsPdf *altModel  = w->pdf("model_s"), *nullModel = w->pdf("model_b");
   
-  HybridCalculatorOriginal* hc = new HybridCalculatorOriginal(data,*altModel,*nullModel);
+  HybridCalculatorOriginal hc(data,*altModel,*nullModel);
   if (withSystematics) {
     if ((w->set("nuisances") == 0) || (w->pdf("nuisancePdf") == 0)) {
       throw std::logic_error("Hybrid: running with systematics enabled, but nuisances or nuisancePdf not defined.");
     }
-    hc->UseNuisance(true);
-    hc->SetNuisancePdf(*w->pdf("nuisancePdf"));
-    hc->SetNuisanceParameters(*w->set("nuisances"));
+    hc.UseNuisance(true);
+    hc.SetNuisancePdf(*w->pdf("nuisancePdf"));
+    hc.SetNuisanceParameters(*w->set("nuisances"));
   } else {
-    hc->UseNuisance(false);
+    hc.UseNuisance(false);
   }
   if (testStat_ == "LEP") {
-    hc->SetTestStatistic(1);
+    hc.SetTestStatistic(1);
     r->setConstant(true);
   } else if (testStat_ == "TEV") {
-    hc->SetTestStatistic(3);
+    hc.SetTestStatistic(3);
     r->setConstant(true);
   } else if (testStat_ == "Atlas") {
-    hc->SetTestStatistic(3);
+    hc.SetTestStatistic(3);
     r->setConstant(false);
   }
-  hc->PatchSetExtended(w->pdf("model_b")->canBeExtended()); // Number counting, each dataset has 1 entry 
-  hc->SetNumberOfToys(nToys_);
+  hc.PatchSetExtended(w->pdf("model_b")->canBeExtended()); // Number counting, each dataset has 1 entry 
+  hc.SetNumberOfToys(nToys_);
 
+  if (singlePointScan_) return runSinglePoint(hc, w, data, limit, hint);
   return doSignificance_ ? runSignificance(hc, w, data, limit, hint) : runLimit(hc, w, data, limit, hint);
 }
   
-bool Hybrid::runLimit(HybridCalculatorOriginal* hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool Hybrid::runLimit(HybridCalculatorOriginal& hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
   RooRealVar *r = w->var("r"); r->setConstant(true);
   if ((hint != 0) && (*hint > r->getMin())) {
     r->setMax(std::min<double>(3*(*hint), r->getMax()));
@@ -124,7 +136,7 @@ bool Hybrid::runLimit(HybridCalculatorOriginal* hc, RooWorkspace *w, RooAbsData 
   if (lucky) {
     limit = r->getVal();
     if (rInterval_) {
-      std::cout << "\n -- HypoTestInverter (before determining interval) -- \n";
+      std::cout << "\n -- Hybrid (before determining interval) -- \n";
       std::cout << "Limit: r < " << limit << " +/- " << 0.5*(rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
 
       double rBoundLow  = limit - 0.5*std::max(rAbsAccuracy_, rRelAccuracy_ * limit);
@@ -140,17 +152,17 @@ bool Hybrid::runLimit(HybridCalculatorOriginal* hc, RooWorkspace *w, RooAbsData 
   } else {
     limit = 0.5*(rMax+rMin);
   }
-  std::cout << "\n -- HypoTestInverter -- \n";
+  std::cout << "\n -- Hybrid -- \n";
   std::cout << "Limit: r < " << limit << " +/- " << 0.5*(rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
   return true;
 }
 
-bool Hybrid::runSignificance(HybridCalculatorOriginal* hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool Hybrid::runSignificance(HybridCalculatorOriginal& hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
     using namespace RooStats;
     RooRealVar *r = w->var("r"); 
     r->setVal(1);
     r->setConstant(true);
-    std::auto_ptr<HybridResult> hcResult(readHybridResults_ ? readToysFromFile() : hc->GetHypoTest());
+    std::auto_ptr<HybridResult> hcResult(readHybridResults_ ? readToysFromFile() : (fork_ ? evalWithFork(hc) : hc.GetHypoTest()));
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
         return false;
@@ -167,6 +179,14 @@ bool Hybrid::runSignificance(HybridCalculatorOriginal* hc, RooWorkspace *w, RooA
     std::cout << "\n -- Hybrid -- \n";
     std::cout << "Significance: " << limit << "  " << sigLo << "/+" << sigHi << " (CLb " << hcResult->CLb() << " +/- " << hcResult->CLbError() << ")\n";
     return isfinite(limit);
+}
+
+bool Hybrid::runSinglePoint(HybridCalculatorOriginal & hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+    std::pair<double, double> result = eval(w->var("r"), rValue_, hc, true);
+    std::cout << "\n -- Hybrid -- \n";
+    std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << result.first << " +/- " << result.second << std::endl;
+    limit = result.first;
+    return true;
 }
 
 RooStats::HybridResult * Hybrid::readToysFromFile() {
@@ -188,13 +208,13 @@ RooStats::HybridResult * Hybrid::readToysFromFile() {
             ret->Append(toy);
         }
     }
-
     return ret.release();
 }
-std::pair<double, double> Hybrid::eval(RooRealVar *r, double rVal, RooStats::HybridCalculatorOriginal *hc, bool adaptive, double clsTarget) {
+
+std::pair<double, double> Hybrid::eval(RooRealVar *r, double rVal, RooStats::HybridCalculatorOriginal &hc, bool adaptive, double clsTarget) {
     using namespace RooStats;
     r->setVal(rVal);
-    std::auto_ptr<HybridResult> hcResult(hc->GetHypoTest());
+    std::auto_ptr<HybridResult> hcResult(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
         return std::pair<double, double>(-1,-1);
@@ -203,8 +223,8 @@ std::pair<double, double> Hybrid::eval(RooRealVar *r, double rVal, RooStats::Hyb
     double clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
     std::cout << "r = " << rVal << (CLs_ ? ": CLs = " : ": CLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
     if (adaptive) {
-        while (fabs(clsMid-clsTarget) < 3*clsMidErr && clsMidErr >= clsAccuracy_) {
-            std::auto_ptr<HybridResult> more(hc->GetHypoTest());
+        while (clsMidErr >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
+            std::auto_ptr<HybridResult> more(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
             hcResult->Add(more.get());
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
             clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
@@ -221,3 +241,46 @@ std::pair<double, double> Hybrid::eval(RooRealVar *r, double rVal, RooStats::Hyb
     return std::pair<double, double>(clsMid, clsMidErr);
 } 
 
+RooStats::HybridResult * Hybrid::evalWithFork(RooStats::HybridCalculatorOriginal &hc) {
+    std::auto_ptr<RooStats::HybridResult> result(0);
+    char *tmpfile = tempnam(NULL,"rstat");
+    unsigned int ich = 0;
+    std::vector<UInt_t> newSeeds(fork_);
+    for (ich = 0; ich < fork_; ++ich) {
+        newSeeds[ich] = RooRandom::integer(std::numeric_limits<UInt_t>::max()-1);
+        if (!fork()) break; // spawn children (but only in the parent thread)
+    }
+    if (ich == fork_) { // if i'm the parent
+        int cstatus, ret;
+        do {
+            do { ret = waitpid(-1, &cstatus, 0); } while (ret == -1 && errno == EINTR);
+        } while (ret != -1);
+        if (ret == -1 && errno != ECHILD) throw std::runtime_error("Didn't wait for child");
+        for (ich = 0; ich < fork_; ++ich) {
+            TFile *f = TFile::Open(TString::Format("%s.%d.root", tmpfile, ich));
+            if (f == 0) throw std::runtime_error(TString::Format("Child didn't leave output file %s.%d.root", tmpfile, ich).Data());
+            RooStats::HybridResult *res = dynamic_cast<RooStats::HybridResult *>(f->Get("result"));
+            if (res == 0)  throw std::runtime_error(TString::Format("Child output file %s.%d.root is corrupted", tmpfile, ich).Data());
+            if (result.get()) result->Append(res); else result.reset(dynamic_cast<RooStats::HybridResult *>(res->Clone()));
+            f->Close();
+            unlink(TString::Format("%s.%d.root",    tmpfile, ich).Data());
+            unlink(TString::Format("%s.%d.out.txt", tmpfile, ich).Data());
+            unlink(TString::Format("%s.%d.err.txt", tmpfile, ich).Data());
+        }
+    } else {
+        RooRandom::randomGenerator()->SetSeed(newSeeds[ich]); 
+        freopen(TString::Format("%s.%d.out.txt", tmpfile, ich).Data(), "w", stdout);
+        freopen(TString::Format("%s.%d.err.txt", tmpfile, ich).Data(), "w", stderr);
+        std::cout << " I'm child " << ich << ", seed " << newSeeds[ich] << std::endl;
+        RooStats::HybridResult *hcResult = hc.GetHypoTest();
+        TFile *f = TFile::Open(TString::Format("%s.%d.root", tmpfile, ich), "RECREATE");
+        f->WriteTObject(hcResult, "result");
+        f->ls();
+        f->Close();
+        fflush(stdout); fflush(stderr);
+        std::cout << "And I'm done" << std::endl;
+        exit(0);
+    }
+    free(tmpfile);
+    return result.release();
+}
