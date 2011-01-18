@@ -63,7 +63,7 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   plotPtMin  = pset.getUntrackedParameter<double>("PtMin",0.);
   plotPtMax  = pset.getUntrackedParameter<double>("PtMax",1000.);
   plotEtaMax = pset.getUntrackedParameter<double>("EtaMax", 2.7);
-  plotPhiMax = pset.getUntrackedParameter<double>("EtaMax", 3.15);
+  plotPhiMax = pset.getUntrackedParameter<double>("PhiMax", 3.15);
   plotBins   = pset.getUntrackedParameter<unsigned int>("Nbins",40);
   plotMinEtForEtaEffPlot = pset.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15);
   useHumanReadableHistTitles = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
