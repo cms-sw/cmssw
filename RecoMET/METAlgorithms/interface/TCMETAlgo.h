@@ -64,7 +64,8 @@ class TCMETAlgo
 
   edm::Handle<reco::MuonCollection> MuonHandle;
   edm::Handle<reco::GsfElectronCollection> ElectronHandle;
-  edm::Handle<reco::CaloMETCollection> metHandle;
+//  edm::Handle<reco::CaloMETCollection> metHandle;
+  edm::Handle<edm::View<reco::MET> > metHandle;
   edm::Handle<reco::TrackCollection> TrackHandle;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   edm::Handle<reco::VertexCollection> VertexHandle;
