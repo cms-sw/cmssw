@@ -17,9 +17,11 @@
 
 EmDQMPostProcessor::EmDQMPostProcessor(const edm::ParameterSet& pset)
 {
-  subDir_ = pset.getUntrackedParameter<std::string>("subDir");
+  subDir_  = pset.getUntrackedParameter<std::string>("subDir");
 
   dataSet_ = pset.getUntrackedParameter<std::string>("dataSet","unknown");
+
+  isData   = pset.getUntrackedParameter<bool>("isData",false);
 }
 
 //----------------------------------------------------------------------
@@ -45,6 +47,19 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
     edm::LogWarning("EmDQMPostProcessor") << "cannot find directory: " << subDir_ << " , skipping";
     return;
   }
+
+  //--------------------
+  // with respect to what are (some) efficiencies calculated ?
+  std::string shortReferenceName;
+  if (isData)
+    shortReferenceName = "RECO";
+  else
+    shortReferenceName = "gen";
+
+
+
+  //--------------------
+
 
   //////////////////////////////////
   //loop over all triggers/samples//
@@ -74,10 +89,12 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
     ////////////////////////////////////////////////////////
 
     std::vector<std::string> postfixes;
-    std::string tmpstring=""; //unmatched histos
-    postfixes.push_back(tmpstring);
-    tmpstring="_MC_matched";
-    postfixes.push_back(tmpstring);
+    postfixes.push_back("");   //unmatched histograms
+
+    if (isData)
+      postfixes.push_back("_RECO_matched"); // for data
+    else
+      postfixes.push_back("_MC_matched");
 
     for(std::vector<std::string>::iterator postfix=postfixes.begin(); postfix!=postfixes.end();postfix++){
       
@@ -87,7 +104,13 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       
       std::string histoName="efficiency_by_step"+ *postfix;
       std::string baseName = "total_eff"+ *postfix;
-      TH1F* basehist = dqm->get(dqm->pwd() + "/" + baseName)->getTH1F();
+
+      TH1F* basehist = getHistogram(dqm, dqm->pwd() + "/" + baseName);
+      if (basehist == NULL)
+	{
+	  edm::LogWarning("EmDQMPostProcessor") << "histogram " << (dqm->pwd() + "/" + baseName) << " does not exist, skipping postfix '" << *postfix << "'"; 
+	  continue;
+	}
       TProfile* total = dqm->bookProfile(histoName,histoName,basehist->GetXaxis()->GetNbins(),basehist->GetXaxis()->GetXmin(),basehist->GetXaxis()->GetXmax(),0.,1.2)->getTProfile();
       total->GetXaxis()->SetBinLabel(1,basehist->GetXaxis()->GetBinLabel(1));
       
@@ -125,7 +148,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       total->SetBinEntries(1, 1 );
       total->SetBinError(1, sqrt(value*value+error*error) );
      
-      //total efficiency relative to gen
+      // total efficiency relative to gen or reco
       if(basehist->GetBinContent(basehist->GetNbinsX()) !=0 ){
 	Efficiency( (int)basehist->GetBinContent(basehist->GetNbinsX()-2), (int)basehist->GetBinContent(basehist->GetNbinsX()), 0.683, value, errorl, errorh );
 	error= value-errorl>errorh-value ? value-errorl : errorh-value;
@@ -135,7 +158,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       total->SetBinContent(total->GetNbinsX(),value);
       total->SetBinEntries(total->GetNbinsX(),1);
       total->SetBinError(total->GetNbinsX(),sqrt(value*value+error*error));
-      total->GetXaxis()->SetBinLabel(total->GetNbinsX(),"total efficiency rel. gen");
+      total->GetXaxis()->SetBinLabel(total->GetNbinsX(),("total efficiency rel. " + shortReferenceName).c_str());
       
       //total efficiency relative to L1
       if(basehist->GetBinContent(1) !=0 ){
@@ -148,7 +171,9 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       total->SetBinError(total->GetNbinsX()-1,sqrt(value*value+error*error));
       total->SetBinEntries(total->GetNbinsX()-1,1);
       total->GetXaxis()->SetBinLabel(total->GetNbinsX()-1,"total efficiency rel. L1");
-      
+
+      //----------------------------------------
+
       ///////////////////////////////////////////
       // compute per-object efficiencies       //
       ///////////////////////////////////////////
@@ -163,7 +188,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       std::string denomName;
       std::string numName;
 
-      // Get the gen-level plots
+      // Get the gen-level (or reco, for data) plots
       std::string genName;
 
       // Get the L1 over gen filter first
@@ -173,37 +198,45 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       for(std::vector<std::string>::iterator var = varNames.begin(); var != varNames.end() ; var++){
 	
 	numName   = dqm->pwd() + "/" + filterName2 + *var + *postfix;
-	genName   = dqm->pwd() + "/gen_" + *var ;
+
+	if (isData)
+	  genName   = dqm->pwd() + "/reco_" + *var ;
+	else
+	  genName   = dqm->pwd() + "/gen_" + *var ;
 
 	// Create the efficiency plot
 	if(!dividehistos(dqm,numName,genName,"efficiency_"+filterName2+"_vs_"+*var +*postfix,*var,"eff. of"+filterName2+" vs "+*var +*postfix))
 	  break;
-      }
+      } // loop over variables
     
       // get the filter names from the bin-labels of the master-histogram
       for (int filter=1; filter < total->GetNbinsX()-2; filter++) {
 	filterName = total->GetXaxis()->GetBinLabel(filter);
 	filterName2= total->GetXaxis()->GetBinLabel(filter+1);
 	
-	//loop over variables (eta/et)
+	//loop over variables (eta/et/phi)
 	for(std::vector<std::string>::iterator var = varNames.begin(); var != varNames.end() ; var++){
 	  numName   = dqm->pwd() + "/" + filterName2 + *var + *postfix;
 	  denomName = dqm->pwd() + "/" + filterName  + *var + *postfix;
 
-	  // Is this the last filter? Book efficiency vs gen level
+	  // Is this the last filter? Book efficiency vs gen (or reco, for data) level
 	  std::string temp = *postfix;
           if (filter==total->GetNbinsX()-3 && temp.find("matched")!=std::string::npos) {
-            genName = dqm->pwd() + "/gen_" + *var;
-	    if(!dividehistos(dqm,numName,genName,"final_eff_vs_"+*var,*var,"Efficiency Compared to Gen vs "+*var))
+	    if (isData)
+	      genName = dqm->pwd() + "/reco_" + *var;
+	    else
+	      genName = dqm->pwd() + "/gen_" + *var;
+
+	    if(!dividehistos(dqm,numName,genName,"final_eff_vs_"+*var,*var,"Efficiency Compared to " + shortReferenceName + " vs "+*var))
 	      break;
 	  }
 
 	  if(!dividehistos(dqm,numName,denomName,"efficiency_"+filterName2+"_vs_"+*var +*postfix,*var,"efficiency_"+filterName2+"_vs_"+*var + *postfix))
 	    break;
 
-	}
-      }
-    } 
+	} // loop over variables
+      } // loop over monitoring modules within path
+    } // loop over postfixes 
     dqm->goUp();
   }
   
@@ -213,12 +246,21 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
 
 TProfile* EmDQMPostProcessor::dividehistos(DQMStore * dqm, const std::string& numName, const std::string& denomName, const std::string& outName,const std::string& label,const std::string& titel){
   //std::cout << numName <<std::endl;
-  TH1F* num  = dqm->get(numName)->getTH1F();
+
+  TH1F* num = getHistogram(dqm,numName);
+
   //std::cout << denomName << std::endl;
-  TH1F* denom   = dqm->get(denomName)->getTH1F();  
-  
+  TH1F* denom = getHistogram(dqm, denomName);
+
+  if (num == NULL)
+    edm::LogWarning("EmDQMPostProcessor") << "numerator histogram " << numName << " does not exist";
+
+  if (denom == NULL)
+    edm::LogWarning("EmDQMPostProcessor") << "denominator histogram " << denomName << " does not exist";
+
   // Check if histograms actually exist
-  if(!num || !denom) return 0; 
+
+  if(!num || !denom) return 0;
 
   // Make sure we are able to book new element
   if (!dqm) return 0;
@@ -243,6 +285,18 @@ TProfile* EmDQMPostProcessor::dividehistos(DQMStore * dqm, const std::string& nu
   }
 
   return out;
+}
+
+//----------------------------------------------------------------------
+
+TH1F *
+EmDQMPostProcessor::getHistogram(DQMStore *dqm, const std::string &histoPath)
+{
+  MonitorElement *monElement = dqm->get(histoPath);
+  if (monElement != NULL)
+    return monElement->getTH1F();
+  else
+    return NULL;
 }
 
 //----------------------------------------------------------------------

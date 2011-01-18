@@ -17,6 +17,19 @@ class EmDQMPostProcessor : public edm::EDAnalyzer, public TGraphAsymmErrors{
   TProfile* dividehistos(DQMStore * dqm, const std::string& num, const std::string& denom, const std::string& out,const std::string& label, const std::string& titel= "");
 
  private:
+
+  /** read from the configuration: flag whether this is data
+      (true) or not (false). Some things are handled differently
+      for data and MC, e.g. the efficiency calculation (which
+      is with respect to the generated particles for MC 
+      but with respect to the reconstructed histograms for DATA). */
+  bool isData;
+
+  /** convenience method to get a histogram but checks first
+      whether the corresponding MonitorElement is non-null.
+      @return null if the MonitorElement is null */
+  TH1F *getHistogram(DQMStore *dqm, const std::string &histoPath);
+
   std::string subDir_;
   
   /** dataset with which these histograms were produced.
