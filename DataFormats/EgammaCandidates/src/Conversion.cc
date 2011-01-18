@@ -176,11 +176,6 @@ Conversion * Conversion::clone() const {
   return new Conversion( * this ); 
 }
 
-reco::CaloClusterPtrVector Conversion::caloCluster() const {
-  return caloCluster_;
-}
-
-
 
 std::vector<edm::RefToBase<reco::Track> >  Conversion::tracks() const { 
   if (trackToBaseRefs_.size() ==0 ) {
