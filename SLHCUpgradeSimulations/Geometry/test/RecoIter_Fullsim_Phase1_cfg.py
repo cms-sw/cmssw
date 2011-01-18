@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -143,6 +143,7 @@ process.load("Validation.RecoTrack.cutsTPFake_cfi")
 
 process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load('SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi')
 
 process.load('Configuration.StandardSequences.Validation_cff')
 ### look look at OOTB generalTracks and high purity collections
@@ -168,7 +169,8 @@ process.trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
 #                                           cms.InputTag("cutsRecoTracksSecondHp"),
 #                                           cms.InputTag("cutsRecoTracksThirdHp")
                                            )
-process.trackValidator.associators = ['TrackAssociatorByHits']
+#process.trackValidator.associators = ['TrackAssociatorByHits']
+process.trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
 process.trackValidator.UseAssociators = True
 process.trackValidator.nint = cms.int32(20)
 process.trackValidator.nintpT = cms.int32(100)
