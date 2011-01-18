@@ -18,6 +18,10 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         engineName = cms.untracked.string('HepJamesRandom')
     )
 )
+process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
+
+process.Timing=cms.Service("Timing",
+    summaryOnly=cms.untracked.bool(True))
 
 
 # The following three lines reduce the clutter of repeated printouts
@@ -89,6 +93,7 @@ process.GEN = cms.OutputModule("PoolOutputModule",
 )
 
 process.p = cms.Path(process.generator)
-process.outpath = cms.EndPath(process.GEN)
 
-process.schedule = cms.Schedule(process.p, process.outpath)
+process.outpath = cms.EndPath(process.GEN)
+process.p1 = cms.Path(process.randomEngineStateProducer)
+process.schedule = cms.Schedule(process.p, process.p1, process.outpath)
