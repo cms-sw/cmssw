@@ -71,7 +71,7 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet& pset)
   plotBins   = pset.getUntrackedParameter<unsigned int>("Nbins",50);
   useHumanReadableHistTitles = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
 
-  triggerNameRecoMonPath = pset.getUntrackedParameter<std::string>("triggerName","HLT_MinBias");
+  triggerNameRecoMonPath = pset.getUntrackedParameter<std::string>("triggerNameRecoMonPath","HLT_MinBias");
 
   // preselction cuts
   // recocutCollection_= pset.getParameter<edm::InputTag>("cutcollection");
