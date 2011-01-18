@@ -11,6 +11,8 @@ using namespace std;
 #include "CalibFormats/CastorObjects/interface/CastorCalibrations.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
+#include "CondFormats/DataRecord/interface/ConfObjectRcd.h"
+#include "CondFormats/Common/interface/ConfObject.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -20,7 +22,9 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
   reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"),
 	conf.getParameter<bool>("correctForPhaseContainment"),conf.getParameter<double>("correctionPhaseNS")),
   det_(DetId::Hcal),
-  inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))	
+  inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
+  firstSample_(conf.getParameter<int>("firstSample")),
+  samplesToAdd_(conf.getParameter<int>("samplesToAdd"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(),"CASTOR")) {
@@ -36,17 +40,22 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
 CastorSimpleReconstructor::~CastorSimpleReconstructor() {
 }
 
+void CastorSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
+  if (firstSample_<0 && samplesToAdd_<0){
+    //retrieve detector conditions for sample configuration
+    edm::ESHandle<ConfObject> samples;
+    es.get<ConfObjectRcd>().get("castorreco",samples);
+    firstSample_=samples->get<int>("firstSample");
+    samplesToAdd_=samples->get<int>("samplesToAdd");
+    reco_.resetTimeSamples(firstSample_,samplesToAdd_);
+  }
+}
 void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
   // get conditions
   edm::ESHandle<CastorDbService> conditions;
   eventSetup.get<CastorDbRecord>().get(conditions);
   const CastorQIEShape* shape = conditions->getCastorShape (); // this one is generic
-  
-  // some hard coding for 2009 data
-  // get event number 
-  int runNumber = e.run();
-  if (runNumber < 129456) { CastorSimpleRecAlgo usedRecAlgo2009(1,4,false,false,0.0); reco_ = usedRecAlgo2009;}
   
   CastorCalibrations calibrations;
   
