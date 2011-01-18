@@ -219,6 +219,7 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
     }
   }
   event.put(output);
+  theFilter->reset();
 }
 
 //
