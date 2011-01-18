@@ -549,30 +549,30 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
   if (plotReco == true) {
     if (pdgGen == 11) {
       for(edm::View<reco::Candidate>::const_iterator recopart = recoObjects->begin(); recopart != recoObjects->end();recopart++){
-	reco::Particle tmpcand(  recopart->charge(), recopart->p4(), recopart->vertex(),recopart->pdgId(),recopart->status() );
-	sortedReco.push_back(tmpcand);
+        reco::Particle tmpcand(  recopart->charge(), recopart->p4(), recopart->vertex(),recopart->pdgId(),recopart->status() );
+        sortedReco.push_back(tmpcand);
       }
     }
     else if (pdgGen == 22) {
       for(std::vector<reco::SuperCluster>::const_iterator recopart2 = recoObjectsEB->begin(); recopart2 != recoObjectsEB->end();recopart2++){
-	float en = recopart2->energy();
-	float er = sqrt(pow(recopart2->x(),2) + pow(recopart2->y(),2) + pow(recopart2->z(),2) );
-	float px = recopart2->energy()*recopart2->x()/er;
-	float py = recopart2->energy()*recopart2->y()/er;
-	float pz = recopart2->energy()*recopart2->z()/er;
-	reco::Candidate::LorentzVector thisLV(px,py,pz,en);
-	reco::Particle tmpcand(  0, thisLV, math::XYZPoint(0.,0.,0.), 22, 1 );
-	sortedReco.push_back(tmpcand);
+        float en = recopart2->energy();
+        float er = sqrt(pow(recopart2->x(),2) + pow(recopart2->y(),2) + pow(recopart2->z(),2) );
+        float px = recopart2->energy()*recopart2->x()/er;
+        float py = recopart2->energy()*recopart2->y()/er;
+        float pz = recopart2->energy()*recopart2->z()/er;
+        reco::Candidate::LorentzVector thisLV(px,py,pz,en);
+        reco::Particle tmpcand(  0, thisLV, math::XYZPoint(0.,0.,0.), 22, 1 );
+        sortedReco.push_back(tmpcand);
       }
       for(std::vector<reco::SuperCluster>::const_iterator recopart2 = recoObjectsEE->begin(); recopart2 != recoObjectsEE->end();recopart2++){
-	float en = recopart2->energy();
-	float er = sqrt(pow(recopart2->x(),2) + pow(recopart2->y(),2) + pow(recopart2->z(),2) );
-	float px = recopart2->energy()*recopart2->x()/er;
-	float py = recopart2->energy()*recopart2->y()/er;
-	float pz = recopart2->energy()*recopart2->z()/er;
+        float en = recopart2->energy();
+        float er = sqrt(pow(recopart2->x(),2) + pow(recopart2->y(),2) + pow(recopart2->z(),2) );
+        float px = recopart2->energy()*recopart2->x()/er;
+        float py = recopart2->energy()*recopart2->y()/er;
+        float pz = recopart2->energy()*recopart2->z()/er;
         reco::Candidate::LorentzVector thisLV(px,py,pz,en);
-	reco::Particle tmpcand(  0, thisLV, math::XYZPoint(0.,0.,0.), 22, 1 );
-	sortedReco.push_back(tmpcand);
+        reco::Particle tmpcand(  0, thisLV, math::XYZPoint(0.,0.,0.), 22, 1 );
+        sortedReco.push_back(tmpcand);
       }
     }
 
@@ -590,10 +590,10 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
       phiReco->Fill( sortedReco[i].phi() );
 
       if (isFired) {
-	etrecomonpath->Fill( sortedReco[i].et() ); 
-	etarecomonpath->Fill( sortedReco[i].eta() );
-	phiRecoMonPath->Fill( sortedReco[i].phi() );
-	plotMonpath = true;
+        etrecomonpath->Fill( sortedReco[i].et() ); 
+        etarecomonpath->Fill( sortedReco[i].eta() );
+        phiRecoMonPath->Fill( sortedReco[i].phi() );
+        plotMonpath = true;
       }
       
     } // END of loop over Reconstructed particles
@@ -653,8 +653,8 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
     triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),trigger::TriggerL1IsoEG,isocands);
     if (isocands.size()>0) 
       {
-	for (unsigned int i=0; i < isocands.size(); i++)
-	  recoecalcands.push_back(isocands[i]);
+        for (unsigned int i=0; i < isocands.size(); i++)
+          recoecalcands.push_back(isocands[i]);
       }
   } // END of if theHLTOutputTypes == 82
   
@@ -697,15 +697,15 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
     ////////////////////////////////////////////////////////////
     if ( n+1 < numOfHLTCollectionLabels ) { // can't plot beyond last
       if (plotiso[n+1]) {
-	for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
-	  edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-	  iEvent.getByLabel(isoNames[n+1].at(j),depMap);
-	  if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
-	    typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[i]);
-	    if (mapi!=depMap->end()){  // found candidate in isolation map! 
-	      etahistiso[n+1]->Fill(recoecalcands[i]->eta(),mapi->val);
-	      ethistiso[n+1]->Fill(recoecalcands[i]->et()  ,mapi->val);
-	      phiHistIso[n+1]->Fill(recoecalcands[i]->phi(),mapi->val);
+        for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
+          edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
+          iEvent.getByLabel(isoNames[n+1].at(j),depMap);
+          if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
+            typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[i]);
+            if (mapi!=depMap->end()){  // found candidate in isolation map! 
+              etahistiso[n+1]->Fill(recoecalcands[i]->eta(),mapi->val);
+              ethistiso[n+1]->Fill(recoecalcands[i]->et()  ,mapi->val);
+              phiHistIso[n+1]->Fill(recoecalcands[i]->phi(),mapi->val);
       }
     }
   }
@@ -725,38 +725,38 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
       float closestRecoDeltaR = 1000.;
       int closestRecoEcalCandIndex = -1;
       for (unsigned int j=0; j<recoecalcands.size(); j++) {
-	float deltaR = DeltaR(recoecalcands[j]->momentum(),currentRecoParticleMomentum);
+        float deltaR = DeltaR(recoecalcands[j]->momentum(),currentRecoParticleMomentum);
 
-	if (deltaR < closestRecoDeltaR) {
-	  closestRecoDeltaR = deltaR;
-	  closestRecoEcalCandIndex = j;
-	}
+        if (deltaR < closestRecoDeltaR) {
+          closestRecoDeltaR = deltaR;
+          closestRecoEcalCandIndex = j;
+        }
     }
       
       // If an HLT object was found within some delta-R
       // of this reco particle, store it in a histogram
       if ( closestRecoEcalCandIndex >= 0 ) {
-	histEtOfHltObjMatchToReco[n] ->Fill( recoecalcands[closestRecoEcalCandIndex]->et()  );
-	histEtaOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->eta() );
-	histPhiOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->phi() );
+        histEtOfHltObjMatchToReco[n] ->Fill( recoecalcands[closestRecoEcalCandIndex]->et()  );
+        histEtaOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->eta() );
+        histPhiOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->phi() );
 
-	// Also store isolation info
-	if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
-	  if (plotiso[n+1] ){  // only plot if requested in config
-	    for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
-	      edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-	      iEvent.getByLabel(isoNames[n+1].at(j),depMap);
-	      if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
-		typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closestRecoEcalCandIndex]);
-		if (mapi!=depMap->end()) {  // found candidate in isolation map! 
-		  histEtaIsoOfHltObjMatchToReco[n+1]->Fill( recoecalcands[closestRecoEcalCandIndex]->eta(),mapi->val);
-		  histEtIsoOfHltObjMatchToReco[n+1] ->Fill( recoecalcands[closestRecoEcalCandIndex]->et(), mapi->val);
-		  histPhiIsoOfHltObjMatchToReco[n+1] ->Fill( recoecalcands[closestRecoEcalCandIndex]->phi(), mapi->val);
-		}
-	      }
-	    }
-	  }
-	}
+        // Also store isolation info
+        if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
+          if (plotiso[n+1] ){  // only plot if requested in config
+            for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
+              edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
+              iEvent.getByLabel(isoNames[n+1].at(j),depMap);
+              if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
+                typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closestRecoEcalCandIndex]);
+                if (mapi!=depMap->end()) {  // found candidate in isolation map! 
+                  histEtaIsoOfHltObjMatchToReco[n+1]->Fill( recoecalcands[closestRecoEcalCandIndex]->eta(),mapi->val);
+                  histEtIsoOfHltObjMatchToReco[n+1] ->Fill( recoecalcands[closestRecoEcalCandIndex]->et(), mapi->val);
+                  histPhiIsoOfHltObjMatchToReco[n+1] ->Fill( recoecalcands[closestRecoEcalCandIndex]->phi(), mapi->val);
+                }
+              }
+            }
+          }
+        }
       } // END of if closestEcalCandIndex >= 0
     }
    
@@ -773,17 +773,17 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
       unsigned int closest = 0;
       double closestDr = 1000.;
       for(unsigned int trigOb = 0 ; trigOb < recoecalcands.size(); trigOb++){
-	double dr = DeltaR(recoecalcands[trigOb]->momentum(),candDir);
-	if (dr < closestDr) {
-	  closestDr = dr;
-	  closest = trigOb;
-	}
-	if (closestDr > minrecodist) { // it's not really a "match" if it's that far away
-	  closest = -1;
-	} else {
-	  mtachedRecoParts++;
-	  matchThis = true;
-	}
+        double dr = DeltaR(recoecalcands[trigOb]->momentum(),candDir);
+        if (dr < closestDr) {
+          closestDr = dr;
+          closest = trigOb;
+        }
+        if (closestDr > minrecodist) { // it's not really a "match" if it's that far away
+          closest = -1;
+        } else {
+          mtachedRecoParts++;
+          matchThis = true;
+        }
       }
       if ( !matchThis ) continue; // only plot matched candidates
       // fill coordinates of mc particle matching trigger object
@@ -792,29 +792,29 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
       phiHistMatchReco[n]->Fill( sortedReco[i].phi() );
 
       if (plotMonpath) {
-	ethistmatchrecomonpath[n]->Fill( sortedReco[i].et() );
-	etahistmatchrecomonpath[n]->Fill( sortedReco[i].eta() );
-	phiHistMatchRecoMonPath[n]->Fill( sortedReco[i].phi() );
+        ethistmatchrecomonpath[n]->Fill( sortedReco[i].et() );
+        etahistmatchrecomonpath[n]->Fill( sortedReco[i].eta() );
+        phiHistMatchRecoMonPath[n]->Fill( sortedReco[i].phi() );
       }
       ////////////////////////////////////////////////////////////
       //  Plot isolation variables (show the not-yet-cut        //
       //  isolation, i.e. associated to next filter)            //
       ////////////////////////////////////////////////////////////
       if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
-	if (plotiso[n+1] ){  // only plot if requested in config
-	  for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
-	    edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMapReco; 
-	    iEvent.getByLabel(isoNames[n+1].at(j),depMapReco);
-	    if (depMapReco.isValid()){ //Map may not exist if only one candidate passes a double filter
-	      typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMapReco->find(recoecalcands[closest]);
-	      if (mapi!=depMapReco->end()){  // found candidate in isolation map!
-		etahistisomatchreco[n+1]->Fill(sortedReco[i].eta(),mapi->val);
-		ethistisomatchreco[n+1]->Fill(sortedReco[i].et(),mapi->val);
-		phiHistIsoMatchReco[n+1]->Fill(sortedReco[i].eta(),mapi->val);
-	      }
-	    }
-	  }
-	}
+        if (plotiso[n+1] ){  // only plot if requested in config
+          for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
+            edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMapReco; 
+            iEvent.getByLabel(isoNames[n+1].at(j),depMapReco);
+            if (depMapReco.isValid()){ //Map may not exist if only one candidate passes a double filter
+              typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMapReco->find(recoecalcands[closest]);
+              if (mapi!=depMapReco->end()){  // found candidate in isolation map!
+                etahistisomatchreco[n+1]->Fill(sortedReco[i].eta(),mapi->val);
+                ethistisomatchreco[n+1]->Fill(sortedReco[i].et(),mapi->val);
+                phiHistIsoMatchReco[n+1]->Fill(sortedReco[i].eta(),mapi->val);
+              }
+            }
+          }
+        }
       } // END of if n+1 < then the number of hlt collections
     }
     // fill total reco matched efficiency
