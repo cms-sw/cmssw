@@ -1,5 +1,5 @@
 // -*- C++ -*-
-//
+//111
 // Package:    HiSpikeCleaner
 // Class:      HiSpikeCleaner
 // 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Yong Kim,32 4-A08,+41227673039,
 //         Created:  Mon Nov  1 18:22:21 CET 2010
-// $Id: HiSpikeCleaner.cc,v 1.5 2010/11/03 22:31:25 edwenger Exp $
+// $Id: HiSpikeCleaner.cc,v 1.6 2010/11/20 14:55:11 kimy Exp $
 //
 //
 
