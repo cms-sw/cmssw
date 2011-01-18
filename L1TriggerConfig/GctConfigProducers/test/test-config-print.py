@@ -23,9 +23,9 @@ options.parseArguments()
 # the job
 process = cms.Process("L1GctConfigDump")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
-process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
-process.MessageLogger.debugModules = cms.untracked.vstring('l1GctConfigDump')
+#process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+#process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
+#process.MessageLogger.debugModules = cms.untracked.vstring('l1GctConfigDump')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -46,9 +46,12 @@ if (options.sqlite != "") :
     process.load("CondTools.L1Trigger.L1CondDBSource_cff")
     print "Can't read SQLite files yet"
 
+#from CondCore.DBCommon.CondDBSetup_cfi import *
+
 
 process.load("L1TriggerConfig.GctConfigProducers.l1GctConfigDump_cfi")
 
 process.path = cms.Path(
     process.l1GctConfigDump
 )
+

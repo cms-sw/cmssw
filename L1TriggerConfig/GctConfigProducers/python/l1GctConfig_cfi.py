@@ -11,10 +11,10 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
     ConvertEtValuesToEnergy = cms.bool(False),
 
     # energy sum eta ranges
-    MEtEtaMask = cms.uint(0),
-    TEtEtaMask = cms.uint(0),
-    MHtEtaMask = cms.uint(0),
-    HtEtaMask = cms.uint(0),
+    MEtEtaMask = cms.uint32(0),
+    TEtEtaMask = cms.uint32(0),
+    MHtEtaMask = cms.uint32(0),
+    HtEtaMask = cms.uint32(0),
                                       
     # The CalibrationStyle should be "None", "PiecewiseCubic", "Simple" or "PF"
     # "PowerSeries", "ORCAStyle" are also available, but not recommended
