@@ -1,10 +1,10 @@
-// CMSDAS11DijetTestAnalyzer.h
+// CMSDAS11DijetTestAnalyzer.cc
 // Description: A basic dijet analyzer for the CMSDAS 2011
 // Author: John Paul Chou
 // Date: January 12, 2011
 
-#ifndef __CMSDAS11_DIJET_TEST_ANALYZER_H__
-#define __CMSDAS11_DIJET_TEST_ANALYZER_H__
+#ifndef __CMSDAS11_DIJET_ANALYZER_H__
+#define __CMSDAS11_DIJET_ANALYZER_H__
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -22,7 +22,7 @@ class CMSDAS11DijetTestAnalyzer : public edm::EDAnalyzer {
   void analyze( const edm::Event& , const edm::EventSetup& );
   virtual ~CMSDAS11DijetTestAnalyzer() {}
   virtual void beginJob() {}
-  virtual void endJob() {}
+  virtual void endJob(void);
   
   static bool compare_JetPt(const reco::CaloJet& jet1, const reco::CaloJet& jet2) {
     return (jet1.pt() > jet2.pt() );
@@ -47,6 +47,7 @@ class CMSDAS11DijetTestAnalyzer : public edm::EDAnalyzer {
 
   TH1D* hRawDijetMass;
   TH1D* hCorDijetMass;
+  TH1D* hCorDijetXsec;
   TH1D* hJet1Pt;
   TH1D* hJet1Eta;
   TH1D* hJet1Phi;

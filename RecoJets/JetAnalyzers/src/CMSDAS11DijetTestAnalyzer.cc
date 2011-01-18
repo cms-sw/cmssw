@@ -1,9 +1,9 @@
-// CMSDAS11DijetAnalyzer.cc
+// CMSDAS11DijetTestAnalyzer.cc
 // Description: A basic dijet analyzer for the CMSDAS 2011
 // Author: John Paul Chou
 // Date: January 12, 2011
 
-#include "RecoJets/JetAnalyzers/interface/CMSDAS11DijetAnalyzer.h"
+#include "RecoJets/JetAnalyzers/interface/CMSDAS11DijetTestAnalyzer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -15,7 +15,7 @@
 
 #include <TH1D.h>
 
-CMSDAS11DijetAnalyzer::CMSDAS11DijetAnalyzer(edm::ParameterSet const& params) :
+CMSDAS11DijetTestAnalyzer::CMSDAS11DijetTestAnalyzer(edm::ParameterSet const& params) :
   edm::EDAnalyzer(),
   jetSrc(params.getParameter<edm::InputTag>("jetSrc")),
   vertexSrc(params.getParameter<edm::InputTag>("vertexSrc")),
@@ -60,10 +60,10 @@ CMSDAS11DijetAnalyzer::CMSDAS11DijetAnalyzer(edm::ParameterSet const& params) :
   hOuterDijetMass = fs->make<TH1D>("hOuterDijetMass","Corrected Outer Dijet Mass",NBINS-1,BOUNDARIES);
 }
 
-void CMSDAS11DijetAnalyzer::endJob(void) {
+void CMSDAS11DijetTestAnalyzer::endJob(void) {
 }
 
-void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void CMSDAS11DijetTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   ////////////////////////////////////////////
   // Get event ID information
@@ -127,4 +127,4 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
 }
 
 
-DEFINE_FWK_MODULE(CMSDAS11DijetAnalyzer);
+DEFINE_FWK_MODULE(CMSDAS11DijetTestAnalyzer);
