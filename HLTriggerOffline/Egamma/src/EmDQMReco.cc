@@ -72,6 +72,7 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet& pset)
   useHumanReadableHistTitles = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
 
   triggerNameRecoMonPath = pset.getUntrackedParameter<std::string>("triggerNameRecoMonPath","HLT_MinBias");
+  processNameRecoMonPath = pset.getUntrackedParameter<std::string>("processNameRecoMonPath","HLT");
 
   // preselction cuts
   // recocutCollection_= pset.getParameter<edm::InputTag>("cutcollection");
@@ -476,7 +477,7 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
   }
 
   edm::Handle<edm::TriggerResults> HLTR;
-  event.getByLabel(edm::InputTag("TriggerResults","","HLT"), HLTR);
+  event.getByLabel(edm::InputTag("TriggerResults","",processNameRecoMonPath), HLTR);
 
   ///
   /// NOTE:

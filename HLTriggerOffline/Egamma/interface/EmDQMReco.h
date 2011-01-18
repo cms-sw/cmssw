@@ -69,9 +69,14 @@ private:
   edm::InputTag recocutCollection_;
   unsigned int recocut_;
 
-  /** events which fire these trigger are filled into {et,eta,phi}recomonpath
+  /** events which fire this trigger are filled into {et,eta,phi}recomonpath
    */
   std::string triggerNameRecoMonPath;
+
+  /** process name for the trigger results for events to be filled
+   *  into {et,eta,phi}recomonpath
+   */
+  std::string processNameRecoMonPath;
 
   ////////////////////////////////////////////////////////////
   //          Create Histograms                             //
