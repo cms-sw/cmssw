@@ -102,7 +102,7 @@ PFTau = cms.Sequence(
     # Build Pi Zeros
     #ak5PFJetsRecoTauPiZeros * # disabled as we are currently using only strips
     # Make shrinking cone taus
-    #ak5PFJetsLegacyTaNCPiZeros * # disabled as we are currently using only strips
+    ak5PFJetsLegacyTaNCPiZeros *
     produceAndDiscriminateShrinkingConePFTaus *
     produceShrinkingConeDiscriminationByTauNeuralClassifier *
     # Build combinatoric base taus
