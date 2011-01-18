@@ -58,19 +58,20 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet& pset)
   dirname_="HLT/HLTEgammaValidation/"+pset.getParameter<std::string>("@module_label");
   dbe->setCurrentFolder(dirname_);
 
-  // paramters for generator study 
+  // parameters for generator study
   reqNum    = pset.getParameter<unsigned int>("reqNum");
   pdgGen    = pset.getParameter<int>("pdgGen");
   recoEtaAcc = pset.getParameter<double>("genEtaAcc");
   recoEtAcc  = pset.getParameter<double>("genEtAcc");
-  // plotting paramters (untracked because they don't affect the physics)
+  // plotting parameters (untracked because they don't affect the physics)
   plotPtMin  = pset.getUntrackedParameter<double>("PtMin",0.);
   plotPtMax  = pset.getUntrackedParameter<double>("PtMax",1000.);
   plotEtaMax = pset.getUntrackedParameter<double>("EtaMax", 2.7);
+  plotPhiMax = pset.getUntrackedParameter<double>("PhiMax", 3.15);
   plotBins   = pset.getUntrackedParameter<unsigned int>("Nbins",50);
   useHumanReadableHistTitles = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
 
-  //preselction cuts 
+  // preselction cuts
   // recocutCollection_= pset.getParameter<edm::InputTag>("cutcollection");
   recocut_          = pset.getParameter<int>("cutnum");
 
@@ -179,27 +180,59 @@ EmDQMReco::beginJob()
     pdgIdString="Particle";
   }
 
+  //--------------------
+
+  // et
   histName = "reco_et";
   histTitle= "E_{T} of " + pdgIdString + "s" ;
   etreco =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+
+  // eta
   histName = "reco_eta";
   histTitle= "#eta of "+ pdgIdString +"s " ;
   etareco = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
- 
+
+  // phi
+  histName = "reco_phi";
+  histTitle= "#phi of "+ pdgIdString +"s " ;
+  phiReco = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+
+  //--------------------
+
+  // et monpath
   histName = "reco_et_monpath";
   histTitle= "E_{T} of " + pdgIdString + "s monpath" ;
   etrecomonpath =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+
+  // eta monpath
   histName = "reco_eta_monpath";
   histTitle= "#eta of "+ pdgIdString +"s monpath" ;
   etarecomonpath = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
- 
+
+  // phi monpath
+  histName = "reco_phi_monpath";
+  histTitle= "#phi of "+ pdgIdString +"s monpath" ;
+  phiRecoMonPath = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+
+  //--------------------
+
+  // TODO: WHAT ARE THESE HISTOGRAMS FOR ? THEY SEEM NEVER REFERENCED ANYWHERE IN THIS FILE...
+  // final et monpath
   histName = "final_et_monpath";
   histTitle = "Final Et Monpath";
   ethistmonpath = dbe->book1D(histName.c_str(), histTitle.c_str(), plotBins, plotPtMin, plotPtMax); 
 
+  // final eta monpath
   histName = "final_eta_monpath";
   histTitle = "Final Eta Monpath";
-  etahistmonpath = dbe->book1D(histName.c_str(), histTitle.c_str(), plotBins, -plotEtaMax, plotEtaMax); 
+  etahistmonpath = dbe->book1D(histName.c_str(), histTitle.c_str(), plotBins, -plotEtaMax, plotEtaMax);
+
+  // final phi monpath
+  histName = "final_phi_monpath";
+  histTitle = "Final Phi Monpath";
+  phiHistMonPath = dbe->book1D(histName.c_str(), histTitle.c_str(), plotBins, -plotPhiMax, plotPhiMax);
+
+  //--------------------
 
   ////////////////////////////////////////////////////////////
   //  Set up histograms of HLT objects                      //
@@ -214,104 +247,182 @@ EmDQMReco::beginJob()
       HltHistTitle.push_back(theHLTCollectionLabels[i].label());
     }
   }
- 
+
   for(unsigned int i = 0; i< numOfHLTCollectionLabels ; i++){
-    // Et distribution of HLT objects passing filter i
+    //--------------------
+    // distributions of HLT objects passing filter i
+    //--------------------
+
+    // Et
     histName = theHLTCollectionLabels[i].label()+"et_all";
     histTitle = HltHistTitle[i]+" Et (ALL)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
     ethist.push_back(tmphisto);
-    
-    // Eta distribution of HLT objects passing filter i
+
+    // Eta
     histName = theHLTCollectionLabels[i].label()+"eta_all";
     histTitle = HltHistTitle[i]+" #eta (ALL)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
-    etahist.push_back(tmphisto);          
+    etahist.push_back(tmphisto);
 
-    // Et distribution of reco object matching HLT object passing filter i
+    // phi
+    histName = theHLTCollectionLabels[i].label()+"phi_all";
+    histTitle = HltHistTitle[i]+" #phi (ALL)";
+    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+    phiHist.push_back(tmphisto);
+
+    //--------------------
+    // distributions of reco object matching HLT object passing filter i
+    //--------------------
+
+    // Et
     histName = theHLTCollectionLabels[i].label()+"et_RECO_matched";
     histTitle = HltHistTitle[i]+" Et (RECO matched)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
     ethistmatchreco.push_back(tmphisto);
-    
-    // Eta distribution of Reco object matching HLT object passing filter i
+
+    // Eta
     histName = theHLTCollectionLabels[i].label()+"eta_RECO_matched";
     histTitle = HltHistTitle[i]+" #eta (RECO matched)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
     etahistmatchreco.push_back(tmphisto);
 
+    // phi
+    histName = theHLTCollectionLabels[i].label()+"phi_RECO_matched";
+    histTitle = HltHistTitle[i]+" #phi (RECO matched)";
+    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+    phiHistMatchReco.push_back(tmphisto);
 
-    // Et distribution of reco object matching HLT object passing filter i
+    //--------------------
+    // distributions of reco object matching HLT object passing filter i
+    //--------------------
+
+    // Et
     histName = theHLTCollectionLabels[i].label()+"et_RECO_matched_monpath";
     histTitle = HltHistTitle[i]+" Et (RECO matched, monpath)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
     ethistmatchrecomonpath.push_back(tmphisto);
-    
-    // Eta distribution of Reco object matching HLT object passing filter i
+
+    // Eta
     histName = theHLTCollectionLabels[i].label()+"eta_RECO_matched_monpath";
     histTitle = HltHistTitle[i]+" #eta (RECO matched, monpath)";
     tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
     etahistmatchrecomonpath.push_back(tmphisto);
 
-    // Et distribution of HLT object that is closest delta-R match to sorted reco particle(s)
+    // phi
+    histName = theHLTCollectionLabels[i].label()+"phi_RECO_matched_monpath";
+    histTitle = HltHistTitle[i]+" #phi (RECO matched, monpath)";
+    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+    phiHistMatchRecoMonPath.push_back(tmphisto);
+
+    //--------------------
+    // distributions of HLT object that is closest delta-R match to sorted reco particle(s)
+    //--------------------
+
+    // Et
     histName  = theHLTCollectionLabels[i].label()+"et_reco";
     histTitle = HltHistTitle[i]+" Et (reco)";
     tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
     histEtOfHltObjMatchToReco.push_back(tmphisto);
 
-    // eta distribution of HLT object that is closest delta-R match to sorted reco particle(s)
+    // eta
     histName  = theHLTCollectionLabels[i].label()+"eta_reco";
     histTitle = HltHistTitle[i]+" eta (reco)";
     tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
     histEtaOfHltObjMatchToReco.push_back(tmphisto);
-    
+
+    // phi
+    histName  = theHLTCollectionLabels[i].label()+"phi_reco";
+    histTitle = HltHistTitle[i]+" phi (reco)";
+    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+    histPhiOfHltObjMatchToReco.push_back(tmphisto);
+
+    //--------------------
+
     if (!plotiso[i]) {
       tmpiso = NULL;
       etahistiso.push_back(tmpiso);
       ethistiso.push_back(tmpiso);
+      phiHistIso.push_back(tmpiso);
+
       etahistisomatchreco.push_back(tmpiso);
       ethistisomatchreco.push_back(tmpiso);
+      phiHistIsoMatchReco.push_back(tmpiso);
+
       histEtaIsoOfHltObjMatchToReco.push_back(tmpiso);
       histEtIsoOfHltObjMatchToReco.push_back(tmpiso);
+      histPhiIsoOfHltObjMatchToReco.push_back(tmpiso);
+
     } else {
-      // 2D plot: Isolation values vs eta for all objects
+
+      //--------------------
+      // 2D plot: Isolation values vs X for all objects
+      //--------------------
+
+      // X = eta
       histName  = theHLTCollectionLabels[i].label()+"eta_isolation_all";
       histTitle = HltHistTitle[i]+" isolation vs #eta (all)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       etahistiso.push_back(tmpiso);
 
-      // 2D plot: Isolation values vs et for all objects
+      // X = et
       histName  = theHLTCollectionLabels[i].label()+"et_isolation_all";
       histTitle = HltHistTitle[i]+" isolation vs Et (all)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       ethistiso.push_back(tmpiso);
 
-      // 2D plot: Isolation values vs eta for reco matched objects
+      // X = phi
+      histName  = theHLTCollectionLabels[i].label()+"phi_isolation_all";
+      histTitle = HltHistTitle[i]+" isolation vs #phi (all)";
+      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      phiHistIso.push_back(tmpiso);
+
+      //--------------------
+      // 2D plot: Isolation values vs X for reco matched objects
+      //--------------------
+
+      // X = eta
       histName  = theHLTCollectionLabels[i].label()+"eta_isolation_RECO_matched";
       histTitle = HltHistTitle[i]+" isolation vs #eta (reco matched)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       etahistisomatchreco.push_back(tmpiso);
 
-      // 2D plot: Isolation values vs et for matched objects
+      // X = et
       histName  = theHLTCollectionLabels[i].label()+"et_isolation_RECO_matched";
       histTitle = HltHistTitle[i]+" isolation vs Et (reco matched)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       ethistisomatchreco.push_back(tmpiso);
 
-      // 2D plot: Isolation values vs eta for HLT object that 
+      // X = eta
+      histName  = theHLTCollectionLabels[i].label()+"phi_isolation_RECO_matched";
+      histTitle = HltHistTitle[i]+" isolation vs #phi (reco matched)";
+      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      phiHistIsoMatchReco.push_back(tmpiso);
+
+      //--------------------
+      // 2D plot: Isolation values vs X for HLT object that
       // is closest delta-R match to sorted reco particle(s)
+      //--------------------
+
+      // X = eta
       histName  = theHLTCollectionLabels[i].label()+"eta_isolation_reco";
       histTitle = HltHistTitle[i]+" isolation vs #eta (reco)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       histEtaIsoOfHltObjMatchToReco.push_back(tmpiso);
 
-      // 2D plot: Isolation values vs et for HLT object that 
-      // is closest delta-R match to sorted reco particle(s)
+      // X = et
       histName  = theHLTCollectionLabels[i].label()+"et_isolation_reco";
       histTitle = HltHistTitle[i]+" isolation vs Et (reco)";
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       histEtIsoOfHltObjMatchToReco.push_back(tmpiso);
-      
+
+      // X = phi
+      histName  = theHLTCollectionLabels[i].label()+"phi_isolation_reco";
+      histTitle = HltHistTitle[i]+" isolation vs #phi (reco)";
+      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      histPhiIsoOfHltObjMatchToReco.push_back(tmpiso);
+      //--------------------
+
     } // END of HLT histograms
 
   }
@@ -476,10 +587,12 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
     for (unsigned int i = 0 ; i < recocut_ ; i++ ) {
       etreco ->Fill( sortedReco[i].et()  ); //validity has been implicitily checked by the cut on recocut_ above
       etareco->Fill( sortedReco[i].eta() );
-      
+      phiReco->Fill( sortedReco[i].phi() );
+
       if (isFired) {
 	etrecomonpath->Fill( sortedReco[i].et() ); 
 	etarecomonpath->Fill( sortedReco[i].eta() );
+	phiRecoMonPath->Fill( sortedReco[i].phi() );
 	plotMonpath = true;
       }
       
@@ -576,6 +689,7 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
    
     ethist[n] ->Fill(recoecalcands[i]->et() );
     etahist[n]->Fill(recoecalcands[i]->eta() );
+    phiHist[n]->Fill(recoecalcands[i]->phi() );
 
     ////////////////////////////////////////////////////////////
     //  Plot isolation variables (show the not-yet-cut        //
@@ -590,10 +704,11 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
 	    typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[i]);
 	    if (mapi!=depMap->end()){  // found candidate in isolation map! 
 	      etahistiso[n+1]->Fill(recoecalcands[i]->eta(),mapi->val);
-	      ethistiso[n+1]->Fill(recoecalcands[i]->et(),mapi->val);
-	    }
-	  }
-	}
+	      ethistiso[n+1]->Fill(recoecalcands[i]->et()  ,mapi->val);
+	      phiHistIso[n+1]->Fill(recoecalcands[i]->phi(),mapi->val);
+      }
+    }
+  }
       }
     } // END of if n+1 < then the number of hlt collections
   }
@@ -623,7 +738,8 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
       if ( closestRecoEcalCandIndex >= 0 ) {
 	histEtOfHltObjMatchToReco[n] ->Fill( recoecalcands[closestRecoEcalCandIndex]->et()  );
 	histEtaOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->eta() );
-	
+	histPhiOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->phi() );
+
 	// Also store isolation info
 	if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
 	  if (plotiso[n+1] ){  // only plot if requested in config
@@ -635,6 +751,7 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
 		if (mapi!=depMap->end()) {  // found candidate in isolation map! 
 		  histEtaIsoOfHltObjMatchToReco[n+1]->Fill( recoecalcands[closestRecoEcalCandIndex]->eta(),mapi->val);
 		  histEtIsoOfHltObjMatchToReco[n+1] ->Fill( recoecalcands[closestRecoEcalCandIndex]->et(), mapi->val);
+		  histPhiIsoOfHltObjMatchToReco[n+1] ->Fill( recoecalcands[closestRecoEcalCandIndex]->phi(), mapi->val);
 		}
 	      }
 	    }
@@ -672,9 +789,12 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
       // fill coordinates of mc particle matching trigger object
       ethistmatchreco[n] ->Fill( sortedReco[i].et()  );
       etahistmatchreco[n]->Fill( sortedReco[i].eta() );
+      phiHistMatchReco[n]->Fill( sortedReco[i].phi() );
+
       if (plotMonpath) {
 	ethistmatchrecomonpath[n]->Fill( sortedReco[i].et() );
 	etahistmatchrecomonpath[n]->Fill( sortedReco[i].eta() );
+	phiHistMatchRecoMonPath[n]->Fill( sortedReco[i].phi() );
       }
       ////////////////////////////////////////////////////////////
       //  Plot isolation variables (show the not-yet-cut        //
@@ -690,6 +810,7 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
 	      if (mapi!=depMapReco->end()){  // found candidate in isolation map!
 		etahistisomatchreco[n+1]->Fill(sortedReco[i].eta(),mapi->val);
 		ethistisomatchreco[n+1]->Fill(sortedReco[i].et(),mapi->val);
+		phiHistIsoMatchReco[n+1]->Fill(sortedReco[i].eta(),mapi->val);
 	      }
 	    }
 	  }

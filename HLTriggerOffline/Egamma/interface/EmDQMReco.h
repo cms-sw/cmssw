@@ -63,6 +63,7 @@ private:
   double plotEtaMax;
   double plotPtMin ;
   double plotPtMax ;
+  double plotPhiMax;
   unsigned int plotBins ;
   // preselction cuts
   edm::InputTag recocutCollection_;
@@ -72,32 +73,58 @@ private:
   ////////////////////////////////////////////////////////////
   //          Create Histograms                             //
   ////////////////////////////////////////////////////////////
-  // Et & eta distributions (RECO)
+  /** \label Et, eta and phi distributions (RECO) */
+  /** @{ */
   std::vector<MonitorElement*> etahist;
   std::vector<MonitorElement*> ethist;
+  std::vector<MonitorElement*> phiHist;
+
   std::vector<MonitorElement*> etahistmatchreco;
   std::vector<MonitorElement*> ethistmatchreco;
+  std::vector<MonitorElement*> phiHistMatchReco;
+
   std::vector<MonitorElement*> etahistmatchrecomonpath;
   std::vector<MonitorElement*> ethistmatchrecomonpath;
+  std::vector<MonitorElement*> phiHistMatchRecoMonPath;
+
   std::vector<MonitorElement*> histEtOfHltObjMatchToReco;
   std::vector<MonitorElement*> histEtaOfHltObjMatchToReco;
-  // Isolation distributions 
+  std::vector<MonitorElement*> histPhiOfHltObjMatchToReco;
+  /** @} */
+
+  /** \label Isolation distributions */
+  /** @{ */
   std::vector<MonitorElement*> etahistiso;
   std::vector<MonitorElement*> ethistiso;
+  std::vector<MonitorElement*> phiHistIso;
+
   std::vector<MonitorElement*> etahistisomatchreco;
   std::vector<MonitorElement*> ethistisomatchreco;
+  std::vector<MonitorElement*> phiHistIsoMatchReco;
+
   std::vector<MonitorElement*> histEtIsoOfHltObjMatchToReco;
   std::vector<MonitorElement*> histEtaIsoOfHltObjMatchToReco;
+  std::vector<MonitorElement*> histPhiIsoOfHltObjMatchToReco;
+  /** @} */
+
   // Plots of efficiency per step
   MonitorElement* totalreco;
   MonitorElement* totalmatchreco;
-  //reco histograms
+
+  /** \name reco histograms */
+  /** @{ */
   MonitorElement* etreco;
   MonitorElement* etareco;
+  MonitorElement* phiReco;
+
   MonitorElement* etahistmonpath;
   MonitorElement* ethistmonpath;
+  MonitorElement* phiHistMonPath;
+
   MonitorElement* etrecomonpath;
   MonitorElement* etarecomonpath;
+  MonitorElement* phiRecoMonPath;
+  /** @} */
 
   int eventnum;
   // int prescale;
@@ -109,6 +136,6 @@ private:
   template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>&,const edm::Event& ,unsigned int, std::vector<reco::Particle>&, bool, bool);
   GreaterByPt<reco::Particle> pTComparator_;
   GreaterByPt<reco::GsfElectron> pTRecoComparator_;
-  
+
 };
 #endif
