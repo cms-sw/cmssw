@@ -11,10 +11,10 @@ from RecoHI.HiEgammaAlgos.HiIsolationCommonParameters_cff import *
 hiEcalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence*preshowerClusteringSequence)
 
 # high purity tracks
-highPurityTracks = cms.EDFilter("TrackSelector",
-    src = cms.InputTag("hiSelectedTracks"),
-    cut = cms.string('quality("highPurity")')
-)
+#highPurityTracks = cms.EDFilter("TrackSelector",
+#    src = cms.InputTag("hiSelectedTracks"),
+##    cut = cms.string('quality("highPurity")')
+#)
 
 # reco photon producer
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
@@ -32,7 +32,8 @@ photons.maxHoverEBarrel = cms.double(0.99)  #0.5
 photons.primaryVertexProducer = cms.string('hiSelectedVertex') # replace the primary vertex
 photons.isolationSumsCalculatorSet.trackProducer = isolationInputParameters.track    # cms.InputTag("highPurityTracks")
 
-hiPhotonSequence = cms.Sequence(highPurityTracks*photonSequence)
+hiPhotonSequence = cms.Sequence(#highPurityTracks*
+                                photonSequence)
 
 # HI Egamma Isolation
 from RecoHI.HiEgammaAlgos.HiEgammaIsolation_cff import *
@@ -44,7 +45,9 @@ hiEcalClustersIsolation = cms.Sequence(hiEgammaSequence * hiEgammaIsolationSeque
 
 # HI Spike Clean Sequence
 import RecoHI.HiEgammaAlgos.hiSpikeCleaner_cfi
-hiSpikeCleanedSC = RecoHI.HiEgammaAlgos.hiSpikeCleaner_cfi.hiSpikeCleaner.clone()
+hiSpikeCleanedSC = RecoHI.HiEgammaAlgos.hiSpikeCleaner_cfi.hiSpikeCleaner.clone(
+#    swissCutThr    = cms.untracked.double(0.95)
+    )
 cleanPhotonCore = photonCore.clone(
     scHybridBarrelProducer = cms.InputTag("hiSpikeCleanedSC")
 )
@@ -53,6 +56,6 @@ cleanPhotons = photons.clone(
 )
 
 hiPhotonCleaningSequence = cms.Sequence(hiSpikeCleanedSC *
-                                        highPurityTracks *
+                                        #highPurityTracks *
                                         cleanPhotonCore  *
                                         cleanPhotons)
