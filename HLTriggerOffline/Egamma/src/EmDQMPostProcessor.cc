@@ -21,7 +21,7 @@ EmDQMPostProcessor::EmDQMPostProcessor(const edm::ParameterSet& pset)
 
   dataSet_ = pset.getUntrackedParameter<std::string>("dataSet","unknown");
 
-  isData   = pset.getUntrackedParameter<bool>("isData",false);
+  normalizeToReco = pset.getUntrackedParameter<bool>("normalizeToReco",false);
 }
 
 //----------------------------------------------------------------------
@@ -51,7 +51,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
   //--------------------
   // with respect to what are (some) efficiencies calculated ?
   std::string shortReferenceName;
-  if (isData)
+  if (normalizeToReco)
     shortReferenceName = "RECO";
   else
     shortReferenceName = "gen";
@@ -90,11 +90,13 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
 
     std::vector<std::string> postfixes;
     postfixes.push_back("");   //unmatched histograms
+    postfixes.push_back("_RECO_matched"); // for data
 
-    if (isData)
-      postfixes.push_back("_RECO_matched"); // for data
-    else
-      postfixes.push_back("_MC_matched");
+    // we put this on the list even when we're running on 
+    // data (where there is no generator information).
+    // The first test in the loop will then fail and
+    // the iteration is skipped.
+    postfixes.push_back("_MC_matched"); 
 
     for(std::vector<std::string>::iterator postfix=postfixes.begin(); postfix!=postfixes.end();postfix++){
       
@@ -199,7 +201,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
 	
 	numName   = dqm->pwd() + "/" + filterName2 + *var + *postfix;
 
-	if (isData)
+	if (normalizeToReco)
 	  genName   = dqm->pwd() + "/reco_" + *var ;
 	else
 	  genName   = dqm->pwd() + "/gen_" + *var ;
@@ -222,7 +224,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
 	  // Is this the last filter? Book efficiency vs gen (or reco, for data) level
 	  std::string temp = *postfix;
           if (filter==total->GetNbinsX()-3 && temp.find("matched")!=std::string::npos) {
-	    if (isData)
+	    if (normalizeToReco)
 	      genName = dqm->pwd() + "/reco_" + *var;
 	    else
 	      genName = dqm->pwd() + "/gen_" + *var;
