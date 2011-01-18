@@ -349,7 +349,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       e.getByLabel(inputLabel_,digi);
 
 // ugly hack only for purposes of 3.11 HF treatment
-      if (e.run() <= 153943) reco_.resetTimeSamples(3,4);
+      if (e.isRealData() && e.run() <= 153943) reco_.resetTimeSamples(3,4);
       else reco_.resetTimeSamples(4,2);
 
 
