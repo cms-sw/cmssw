@@ -178,8 +178,7 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
   specific.EtFractionHadronic = totalHad / totalEt; 
   specific.EtFractionEm       =  totalEm / totalEt;       
 
-  //  const LorentzVector p4( met.mex, met.mey, 0.0, met.met );
-  const LorentzVector p4( met.mex, met.mey, met.mez, sqrt(met.met*met.met + met.mez*met.mez ));
+  const LorentzVector p4( met.mex, met.mey, 0.0, met.met );
   const Point vtx( 0.0, 0.0, 0.0 );
   // Create and return an object of type CaloMET, which is a MET object with 
   // the extra calorimeter specfic information added
