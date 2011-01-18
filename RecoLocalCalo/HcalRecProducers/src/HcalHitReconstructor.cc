@@ -13,7 +13,8 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
-
+#include "CondFormats/DataRecord/interface/ConfObjectRcd.h"
+#include "CondFormats/Common/interface/ConfObject.h"
 #include <iostream>
 
 /*  Hcal Hit reconstructor allows for CaloRecHits with status words */
@@ -33,7 +34,9 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   setPulseShapeFlags_(conf.getParameter<bool>("setPulseShapeFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
-  firstauxTS_(conf.getParameter<int>("firstSample")+conf.getParameter<int>("firstAuxOffset"))
+  firstauxTS_(conf.getParameter<int>("firstSample")+conf.getParameter<int>("firstAuxOffset")),
+  firstSample_(conf.getParameter<int>("firstSample")),
+  samplesToAdd_(conf.getParameter<int>("samplesToAdd"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   //Set all FlagSetters to 0
@@ -184,7 +187,8 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   } else {
     std::cout << "HcalHitReconstructor is not associated with a specific subdetector!" << std::endl;
   }       
-  
+
+  confLabel_ = conf.getParameter<std::string>("@module_label");
 }
 
 HcalHitReconstructor::~HcalHitReconstructor() {
@@ -194,6 +198,21 @@ HcalHitReconstructor::~HcalHitReconstructor() {
   if (hbhePulseShapeFlagSetter_) delete hbhePulseShapeFlagSetter_;
   if (hfS9S1_)                delete hfS9S1_;
   if (hfPET_)                 delete hfPET_;
+}
+
+void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
+  if (firstSample_<0 && samplesToAdd_<0){
+    //retrieve detector conditions for sample configuration
+    edm::ESHandle<ConfObject> samples;
+    es.get<ConfObjectRcd>().get(confLabel_,samples);
+    
+    firstSample_=samples->get<int>("firstSample");
+    samplesToAdd_=samples->get<int>("samplesToAdd");
+    
+    reco_.resetTimeSamples(firstSample_,samplesToAdd_);
+    
+    std::cout<<"configuration parameters retrieved:"<<firstSample_<<" "<<samplesToAdd_<<std::endl;
+  }
 }
 
 void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
@@ -212,7 +231,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
   eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
   const HcalSeverityLevelComputer* mySeverity = mycomputer.product();
-  
+
   if (det_==DetId::Hcal) {
     if (subdet_==HcalBarrel || subdet_==HcalEndcap) {
       edm::Handle<HBHEDigiCollection> digi;
@@ -347,10 +366,6 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
     } else if (subdet_==HcalForward) {
       edm::Handle<HFDigiCollection> digi;
       e.getByLabel(inputLabel_,digi);
-
-// ugly hack only for purposes of 3.11 HF treatment
-      if (e.isRealData() && e.run() <= 153943) reco_.resetTimeSamples(3,4);
-      else reco_.resetTimeSamples(4,2);
 
 
       ///////////////////////////////////////////////////////////////// HF
