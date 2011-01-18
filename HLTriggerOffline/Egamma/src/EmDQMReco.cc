@@ -71,6 +71,8 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet& pset)
   plotBins   = pset.getUntrackedParameter<unsigned int>("Nbins",50);
   useHumanReadableHistTitles = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
 
+  triggerNameRecoMonPath = pset.getUntrackedParameter<std::string>("triggerName","HLT_MinBias");
+
   // preselction cuts
   // recocutCollection_= pset.getParameter<edm::InputTag>("cutcollection");
   recocut_          = pset.getParameter<int>("cutnum");
@@ -492,7 +494,7 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
     } */
 
   unsigned int triggerIndex;
-  triggerIndex = hltConfig_.triggerIndex("HLT_MinBias");
+  triggerIndex = hltConfig_.triggerIndex(triggerNameRecoMonPath);
 
   //triggerIndex must be less than the size of HLTR or you get a CMSException
   bool isFired = false;

@@ -35,10 +35,10 @@ public:
   void beginJob();
   void endJob();
   void beginRun( const edm::Run&, const edm::EventSetup& );
- 
+
 private:
   // Input from cfg file
-  std::vector<edm::InputTag> theHLTCollectionLabels;  
+  std::vector<edm::InputTag> theHLTCollectionLabels;
   unsigned int numOfHLTCollectionLabels;  // Will be size of above vector
   bool useHumanReadableHistTitles;
   std::vector<std::string> theHLTCollectionHumanNames; // Human-readable names for the collections
@@ -46,7 +46,7 @@ private:
   std::vector<int> theHLTOutputTypes;
   std::vector<bool> plotiso;
   std::vector<std::vector<edm::InputTag> > isoNames; // there has to be a better solution
-  std::vector<std::pair<double,double> > plotBounds; 
+  std::vector<std::pair<double,double> > plotBounds;
   std::string theHltName;
   HLTConfigProvider hltConfig_;
   bool isHltConfigInitialized_;
@@ -69,6 +69,9 @@ private:
   edm::InputTag recocutCollection_;
   unsigned int recocut_;
 
+  /** events which fire these trigger are filled into {et,eta,phi}recomonpath
+   */
+  std::string triggerNameRecoMonPath;
 
   ////////////////////////////////////////////////////////////
   //          Create Histograms                             //
