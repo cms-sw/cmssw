@@ -21,8 +21,46 @@
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 class EmDQMReco : public edm::EDAnalyzer{
+
+  //----------------------------------------
+
+  /** a class managing a set of MonitorElements for quantities of a fourvector
+   *  we want to histogram.
+   */
+  class FourVectorMonitorElements
+  {
+
+  public:
+    /** @param histogramNameTemplate should be a format string (like used in printf(..)
+     *  or boost::format(..) for the histogram NAME where the first %s is replaced with et,eta or phi.
+     *
+     *  @param histogramTitleTemplate should be a format string (see histogramNameTemplate)
+     *   for the histogram TITLE where the first %s is replaced with et,eta or phi.
+     */
+    FourVectorMonitorElements(EmDQMReco *_parent,
+        const std::string &histogramNameTemplate,
+        const std::string &histogramTitleTemplate);
+
+    void fill(const math::XYZTLorentzVector &momentum);
+
+  private:
+    /** for accessing the histogramming parameters */
+    EmDQMReco *parent;
+
+    /** DQM objects (histograms) for the variables to be plotted */
+    MonitorElement* etMonitorElement;
+    MonitorElement* etaMonitorElement;
+    MonitorElement* phiMonitorElement;
+
+  };
+  //----------------------------------------
+
 public:
+
+
   /// Constructor
   explicit EmDQMReco(const edm::ParameterSet& pset);
 
@@ -38,8 +76,12 @@ public:
 
 private:
   // Input from cfg file
+
+  /** the HLT collections to be looked at */
   std::vector<edm::InputTag> theHLTCollectionLabels;
+
   unsigned int numOfHLTCollectionLabels;  // Will be size of above vector
+
   bool useHumanReadableHistTitles;
   std::vector<std::string> theHLTCollectionHumanNames; // Human-readable names for the collections
   edm::InputTag theL1Seed;
@@ -54,7 +96,7 @@ private:
   ////////////////////////////////////////////////////////////
   //          Read from configuration file                  //
   ////////////////////////////////////////////////////////////
-  // paramters for generator study
+  // parameters for generator study
   unsigned int reqNum;
   int   pdgGen;
   double recoEtaAcc;
@@ -89,23 +131,31 @@ private:
   ////////////////////////////////////////////////////////////
   //          Create Histograms                             //
   ////////////////////////////////////////////////////////////
-  /** \label Et, eta and phi distributions (RECO) */
+  /** \label Et, eta and phi distributions (RECO) for the different
+   *  HLT modules to be looked at. */
   /** @{ */
-  std::vector<MonitorElement*> etahist;
-  std::vector<MonitorElement*> ethist;
-  std::vector<MonitorElement*> phiHist;
+// std::vector<MonitorElement*> etahist;
+//  std::vector<MonitorElement*> ethist;
+//  std::vector<MonitorElement*> phiHist;
 
-  std::vector<MonitorElement*> etahistmatchreco;
-  std::vector<MonitorElement*> ethistmatchreco;
-  std::vector<MonitorElement*> phiHistMatchReco;
+  boost::ptr_vector<FourVectorMonitorElements> standardHist;
 
-  std::vector<MonitorElement*> etahistmatchrecomonpath;
-  std::vector<MonitorElement*> ethistmatchrecomonpath;
-  std::vector<MonitorElement*> phiHistMatchRecoMonPath;
+//  std::vector<MonitorElement*> etahistmatchreco;
+//  std::vector<MonitorElement*> ethistmatchreco;
+//  std::vector<MonitorElement*> phiHistMatchReco;
+  boost::ptr_vector<FourVectorMonitorElements> histMatchReco;
 
-  std::vector<MonitorElement*> histEtOfHltObjMatchToReco;
-  std::vector<MonitorElement*> histEtaOfHltObjMatchToReco;
-  std::vector<MonitorElement*> histPhiOfHltObjMatchToReco;
+//  std::vector<MonitorElement*> etahistmatchrecomonpath;
+//  std::vector<MonitorElement*> ethistmatchrecomonpath;
+//  std::vector<MonitorElement*> phiHistMatchRecoMonPath;
+  boost::ptr_vector<FourVectorMonitorElements> histMatchRecoMonPath;
+
+
+//  std::vector<MonitorElement*> histEtOfHltObjMatchToReco;
+//  std::vector<MonitorElement*> histEtaOfHltObjMatchToReco;
+//  std::vector<MonitorElement*> histPhiOfHltObjMatchToReco;
+  boost::ptr_vector<FourVectorMonitorElements> histHltObjMatchToReco;
+
   /** @} */
 
   /** \label Isolation distributions */
@@ -123,23 +173,27 @@ private:
   std::vector<MonitorElement*> histPhiIsoOfHltObjMatchToReco;
   /** @} */
 
-  // Plots of efficiency per step
+  /** Plots of efficiency per step (note that these are NOT
+   *  filled with four vector quantities but rather event counts) */
   MonitorElement* totalreco;
   MonitorElement* totalmatchreco;
 
   /** \name reco histograms */
   /** @{ */
-  MonitorElement* etreco;
-  MonitorElement* etareco;
-  MonitorElement* phiReco;
+//  MonitorElement* etreco;
+//  MonitorElement* etareco;
+//  MonitorElement* phiReco;
+  boost::scoped_ptr<FourVectorMonitorElements> histReco;
 
-  MonitorElement* etahistmonpath;
-  MonitorElement* ethistmonpath;
-  MonitorElement* phiHistMonPath;
+  //  MonitorElement* etrecomonpath;
+  //  MonitorElement* etarecomonpath;
+  //  MonitorElement* phiRecoMonPath;
+  boost::scoped_ptr<FourVectorMonitorElements> histRecoMonpath;
 
-  MonitorElement* etrecomonpath;
-  MonitorElement* etarecomonpath;
-  MonitorElement* phiRecoMonPath;
+  //  MonitorElement* etahistmonpath;
+  //  MonitorElement* ethistmonpath;
+  //  MonitorElement* phiHistMonPath;
+  boost::scoped_ptr<FourVectorMonitorElements> histMonpath;
   /** @} */
 
   int eventnum;
@@ -153,5 +207,7 @@ private:
   GreaterByPt<reco::Particle> pTComparator_;
   GreaterByPt<reco::GsfElectron> pTRecoComparator_;
 
+
+  //----------------------------------------
 };
 #endif

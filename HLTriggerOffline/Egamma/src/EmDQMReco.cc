@@ -30,6 +30,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include <boost/format.hpp>
 ////////////////////////////////////////////////////////////////////////////////
 //                           Root include files                               //
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +42,58 @@
 #include <Math/VectorUtil.h>
 using namespace ROOT::Math::VectorUtil ;
 
+//----------------------------------------------------------------------
+// class EmDQMReco::FourVectorMonitorElements
+//----------------------------------------------------------------------
+EmDQMReco::FourVectorMonitorElements::FourVectorMonitorElements(EmDQMReco *_parent,
+    const std::string &histogramNameTemplate,
+    const std::string &histogramTitleTemplate
+  ) :
+  parent(_parent)
+{
+  // introducing variables for better code readability later on
+  std::string histName;
+  std::string histTitle;
+
+  // et
+  histName = boost::str(boost::format(histogramNameTemplate) % "et");
+  histTitle = boost::str(boost::format(histogramTitleTemplate) % "E_{T}");
+  etMonitorElement =  parent->dbe->book1D(histName.c_str(),
+                                   histTitle.c_str(),
+                                   parent->plotBins,
+                                   parent->plotPtMin,
+                                   parent->plotPtMax);
+
+  // eta
+  histName = boost::str(boost::format(histogramNameTemplate) % "eta");
+  histTitle= boost::str(boost::format(histogramTitleTemplate) % "#eta");
+  etaMonitorElement = parent->dbe->book1D(histName.c_str(),
+                                  histTitle.c_str(),
+                                  parent->plotBins,
+                                  - parent->plotEtaMax,
+                                    parent->plotEtaMax);
+
+  // phi
+  histName = boost::str(boost::format(histogramNameTemplate) % "phi");
+  histTitle= boost::str(boost::format(histogramTitleTemplate) % "#phi");
+  phiMonitorElement = parent->dbe->book1D(histName.c_str(),
+                                  histTitle.c_str(),
+                                  parent->plotBins,
+                                  - parent->plotPhiMax,
+                                    parent->plotPhiMax);
+}
+
+//----------------------------------------------------------------------
+
+void
+EmDQMReco::FourVectorMonitorElements::fill(const math::XYZTLorentzVector &momentum)
+{
+  etMonitorElement->Fill(momentum.Et());
+  etaMonitorElement->Fill(momentum.eta() );
+  phiMonitorElement->Fill(momentum.phi() );
+}
+
+//----------------------------------------------------------------------
 
 ////////////////////////////////////////////////////////////////////////////////
 //                             Constructor                                    //
@@ -187,55 +240,34 @@ EmDQMReco::beginJob()
 
   //--------------------
 
-  // et
-  histName = "reco_et";
-  histTitle= "E_{T} of " + pdgIdString + "s" ;
-  etreco =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
-
-  // eta
-  histName = "reco_eta";
-  histTitle= "#eta of "+ pdgIdString +"s " ;
-  etareco = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
-
-  // phi
-  histName = "reco_phi";
-  histTitle= "#phi of "+ pdgIdString +"s " ;
-  phiReco = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+  // reco
+  // (note that reset(..) must be used to set the value of the scoped_ptr...)
+  histReco.reset(
+      new FourVectorMonitorElements(this,
+          "reco_%s",             // pattern for histogram name
+          "%s of " + pdgIdString + "s"
+      ));
 
   //--------------------
 
-  // et monpath
-  histName = "reco_et_monpath";
-  histTitle= "E_{T} of " + pdgIdString + "s monpath" ;
-  etrecomonpath =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
-
-  // eta monpath
-  histName = "reco_eta_monpath";
-  histTitle= "#eta of "+ pdgIdString +"s monpath" ;
-  etarecomonpath = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
-
-  // phi monpath
-  histName = "reco_phi_monpath";
-  histTitle= "#phi of "+ pdgIdString +"s monpath" ;
-  phiRecoMonPath = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+  // monpath
+  histRecoMonpath.reset(
+       new FourVectorMonitorElements(this,
+           "reco_%s_monpath",   // pattern for histogram name
+           "%s of " + pdgIdString + "s monpath"
+       )
+  );
 
   //--------------------
 
   // TODO: WHAT ARE THESE HISTOGRAMS FOR ? THEY SEEM NEVER REFERENCED ANYWHERE IN THIS FILE...
-  // final et monpath
-  histName = "final_et_monpath";
-  histTitle = "Final Et Monpath";
-  ethistmonpath = dbe->book1D(histName.c_str(), histTitle.c_str(), plotBins, plotPtMin, plotPtMax);
-
-  // final eta monpath
-  histName = "final_eta_monpath";
-  histTitle = "Final Eta Monpath";
-  etahistmonpath = dbe->book1D(histName.c_str(), histTitle.c_str(), plotBins, -plotEtaMax, plotEtaMax);
-
-  // final phi monpath
-  histName = "final_phi_monpath";
-  histTitle = "Final Phi Monpath";
-  phiHistMonPath = dbe->book1D(histName.c_str(), histTitle.c_str(), plotBins, -plotPhiMax, plotPhiMax);
+  // final X monpath
+  histMonpath.reset(
+       new FourVectorMonitorElements(this,
+           "final_%s_monpath",   // pattern for histogram name
+           "Final %s Monpath"
+       )
+  );
 
   //--------------------
 
@@ -258,89 +290,107 @@ EmDQMReco::beginJob()
     // distributions of HLT objects passing filter i
     //--------------------
 
-    // Et
-    histName = theHLTCollectionLabels[i].label()+"et_all";
-    histTitle = HltHistTitle[i]+" Et (ALL)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
-    ethist.push_back(tmphisto);
+//    // Et
+//    histName = theHLTCollectionLabels[i].label()+"et_all";
+//    histTitle = HltHistTitle[i]+" Et (ALL)";
+//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+//    ethist.push_back(tmphisto);
+//
+//    // Eta
+//    histName = theHLTCollectionLabels[i].label()+"eta_all";
+//    histTitle = HltHistTitle[i]+" #eta (ALL)";
+//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+//    etahist.push_back(tmphisto);
+//
+//    // phi
+//    histName = theHLTCollectionLabels[i].label()+"phi_all";
+//    histTitle = HltHistTitle[i]+" #phi (ALL)";
+//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+//    phiHist.push_back(tmphisto);
 
-    // Eta
-    histName = theHLTCollectionLabels[i].label()+"eta_all";
-    histTitle = HltHistTitle[i]+" #eta (ALL)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
-    etahist.push_back(tmphisto);
-
-    // phi
-    histName = theHLTCollectionLabels[i].label()+"phi_all";
-    histTitle = HltHistTitle[i]+" #phi (ALL)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
-    phiHist.push_back(tmphisto);
-
-    //--------------------
-    // distributions of reco object matching HLT object passing filter i
-    //--------------------
-
-    // Et
-    histName = theHLTCollectionLabels[i].label()+"et_RECO_matched";
-    histTitle = HltHistTitle[i]+" Et (RECO matched)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
-    ethistmatchreco.push_back(tmphisto);
-
-    // Eta
-    histName = theHLTCollectionLabels[i].label()+"eta_RECO_matched";
-    histTitle = HltHistTitle[i]+" #eta (RECO matched)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
-    etahistmatchreco.push_back(tmphisto);
-
-    // phi
-    histName = theHLTCollectionLabels[i].label()+"phi_RECO_matched";
-    histTitle = HltHistTitle[i]+" #phi (RECO matched)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
-    phiHistMatchReco.push_back(tmphisto);
+    standardHist.push_back(new FourVectorMonitorElements(this,
+        theHLTCollectionLabels[i].label()+"%s_all", // histogram name
+        HltHistTitle[i]+" %s (ALL)"                 // histogram title
+        ));
 
     //--------------------
     // distributions of reco object matching HLT object passing filter i
     //--------------------
 
     // Et
-    histName = theHLTCollectionLabels[i].label()+"et_RECO_matched_monpath";
-    histTitle = HltHistTitle[i]+" Et (RECO matched, monpath)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
-    ethistmatchrecomonpath.push_back(tmphisto);
+//    histName = theHLTCollectionLabels[i].label()+"et_RECO_matched";
+//    histTitle = HltHistTitle[i]+" Et (RECO matched)";
+//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+//    ethistmatchreco.push_back(tmphisto);
 
-    // Eta
-    histName = theHLTCollectionLabels[i].label()+"eta_RECO_matched_monpath";
-    histTitle = HltHistTitle[i]+" #eta (RECO matched, monpath)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
-    etahistmatchrecomonpath.push_back(tmphisto);
+//    // Eta
+//    histName = theHLTCollectionLabels[i].label()+"eta_RECO_matched";
+//    histTitle = HltHistTitle[i]+" #eta (RECO matched)";
+//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+//    etahistmatchreco.push_back(tmphisto);
+//
+//    // phi
+//    histName = theHLTCollectionLabels[i].label()+"phi_RECO_matched";
+//    histTitle = HltHistTitle[i]+" #phi (RECO matched)";
+//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+//    phiHistMatchReco.push_back(tmphisto);
+    histMatchReco.push_back(new FourVectorMonitorElements(this,
+        theHLTCollectionLabels[i].label()+"%s_RECO_matched", // histogram name
+        HltHistTitle[i]+" %s (RECO matched)"                 // histogram title
+        ));
 
-    // phi
-    histName = theHLTCollectionLabels[i].label()+"phi_RECO_matched_monpath";
-    histTitle = HltHistTitle[i]+" #phi (RECO matched, monpath)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
-    phiHistMatchRecoMonPath.push_back(tmphisto);
+    //--------------------
+    // distributions of reco object matching HLT object passing filter i
+    //--------------------
 
+//    // Et
+//    histName = theHLTCollectionLabels[i].label()+"et_RECO_matched_monpath";
+//    histTitle = HltHistTitle[i]+" Et (RECO matched, monpath)";
+//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+//    ethistmatchrecomonpath.push_back(tmphisto);
+//
+//    // Eta
+//    histName = theHLTCollectionLabels[i].label()+"eta_RECO_matched_monpath";
+//    histTitle = HltHistTitle[i]+" #eta (RECO matched, monpath)";
+//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+//    etahistmatchrecomonpath.push_back(tmphisto);
+//
+//    // phi
+//    histName = theHLTCollectionLabels[i].label()+"phi_RECO_matched_monpath";
+//    histTitle = HltHistTitle[i]+" #phi (RECO matched, monpath)";
+//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+//    phiHistMatchRecoMonPath.push_back(tmphisto);
+
+    histMatchRecoMonPath.push_back(new FourVectorMonitorElements(this,
+        theHLTCollectionLabels[i].label()+"%s_RECO_matched_monpath", // histogram name
+        HltHistTitle[i]+" %s (RECO matched, monpath)"                // histogram title
+        ));
     //--------------------
     // distributions of HLT object that is closest delta-R match to sorted reco particle(s)
     //--------------------
 
     // Et
-    histName  = theHLTCollectionLabels[i].label()+"et_reco";
-    histTitle = HltHistTitle[i]+" Et (reco)";
-    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
-    histEtOfHltObjMatchToReco.push_back(tmphisto);
+//    histName  = theHLTCollectionLabels[i].label()+"et_reco";
+//    histTitle = HltHistTitle[i]+" Et (reco)";
+//    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+//    histEtOfHltObjMatchToReco.push_back(tmphisto);
+//
+//    // eta
+//    histName  = theHLTCollectionLabels[i].label()+"eta_reco";
+//    histTitle = HltHistTitle[i]+" eta (reco)";
+//    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+//    histEtaOfHltObjMatchToReco.push_back(tmphisto);
+//
+//    // phi
+//    histName  = theHLTCollectionLabels[i].label()+"phi_reco";
+//    histTitle = HltHistTitle[i]+" phi (reco)";
+//    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+//    histPhiOfHltObjMatchToReco.push_back(tmphisto);
 
-    // eta
-    histName  = theHLTCollectionLabels[i].label()+"eta_reco";
-    histTitle = HltHistTitle[i]+" eta (reco)";
-    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
-    histEtaOfHltObjMatchToReco.push_back(tmphisto);
-
-    // phi
-    histName  = theHLTCollectionLabels[i].label()+"phi_reco";
-    histTitle = HltHistTitle[i]+" phi (reco)";
-    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
-    histPhiOfHltObjMatchToReco.push_back(tmphisto);
+    histHltObjMatchToReco.push_back(new FourVectorMonitorElements(this,
+        theHLTCollectionLabels[i].label()+"%s_reco",   // histogram name
+        HltHistTitle[i]+" %s (reco)"                  // histogram title
+        ));
 
     //--------------------
 
@@ -590,14 +640,15 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
     sortedReco.erase(sortedReco.begin()+recocut_,sortedReco.end());
 
     for (unsigned int i = 0 ; i < recocut_ ; i++ ) {
-      etreco ->Fill( sortedReco[i].et()  ); //validity has been implicitily checked by the cut on recocut_ above
-      etareco->Fill( sortedReco[i].eta() );
-      phiReco->Fill( sortedReco[i].phi() );
+        //validity has been implicitily checked by the cut on recocut_ above
+        histReco->fill(sortedReco[i].p4());
+
+//      etreco ->Fill( sortedReco[i].et()  );
+//      etareco->Fill( sortedReco[i].eta() );
+//      phiReco->Fill( sortedReco[i].phi() );
 
       if (isFired) {
-        etrecomonpath->Fill( sortedReco[i].et() );
-        etarecomonpath->Fill( sortedReco[i].eta() );
-        phiRecoMonPath->Fill( sortedReco[i].phi() );
+        histRecoMonpath->fill(sortedReco[i].p4());
         plotMonpath = true;
       }
 
@@ -692,9 +743,7 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
   //  unsigned int numOfHLTobjectsMatched = 0;
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
 
-    ethist[n] ->Fill(recoecalcands[i]->et() );
-    etahist[n]->Fill(recoecalcands[i]->eta() );
-    phiHist[n]->Fill(recoecalcands[i]->phi() );
+    standardHist[n].fill(recoecalcands[i]->p4());
 
     ////////////////////////////////////////////////////////////
     //  Plot isolation variables (show the not-yet-cut        //
@@ -741,9 +790,11 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
       // If an HLT object was found within some delta-R
       // of this reco particle, store it in a histogram
       if ( closestRecoEcalCandIndex >= 0 ) {
-        histEtOfHltObjMatchToReco[n] ->Fill( recoecalcands[closestRecoEcalCandIndex]->et()  );
-        histEtaOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->eta() );
-        histPhiOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->phi() );
+//        histEtOfHltObjMatchToReco[n] ->Fill( recoecalcands[closestRecoEcalCandIndex]->et()  );
+//        histEtaOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->eta() );
+//        histPhiOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->phi() );
+
+          histHltObjMatchToReco[n].fill(recoecalcands[closestRecoEcalCandIndex]->p4());
 
         // Also store isolation info
         if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
@@ -792,14 +843,17 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
       }
       if ( !matchThis ) continue; // only plot matched candidates
       // fill coordinates of mc particle matching trigger object
-      ethistmatchreco[n] ->Fill( sortedReco[i].et()  );
-      etahistmatchreco[n]->Fill( sortedReco[i].eta() );
-      phiHistMatchReco[n]->Fill( sortedReco[i].phi() );
+//      ethistmatchreco[n] ->Fill( sortedReco[i].et()  );
+//      etahistmatchreco[n]->Fill( sortedReco[i].eta() );
+//      phiHistMatchReco[n]->Fill( sortedReco[i].phi() );
+      histMatchReco[n].fill(sortedReco[i].p4());
 
       if (plotMonpath) {
-        ethistmatchrecomonpath[n]->Fill( sortedReco[i].et() );
-        etahistmatchrecomonpath[n]->Fill( sortedReco[i].eta() );
-        phiHistMatchRecoMonPath[n]->Fill( sortedReco[i].phi() );
+//        ethistmatchrecomonpath[n]->Fill( sortedReco[i].et() );
+//        etahistmatchrecomonpath[n]->Fill( sortedReco[i].eta() );
+//        phiHistMatchRecoMonPath[n]->Fill( sortedReco[i].phi() );
+          histMatchRecoMonPath[n].fill(sortedReco[i].p4());
+
       }
       ////////////////////////////////////////////////////////////
       //  Plot isolation variables (show the not-yet-cut        //
