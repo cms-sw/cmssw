@@ -1,9 +1,9 @@
-// CMSDAS11DijetTestAnalyzer.cc
+// CMSDAS11DijetAnalyzer.cc
 // Description: A basic dijet analyzer for the CMSDAS 2011
 // Author: John Paul Chou
 // Date: January 12, 2011
 
-#include "RecoJets/JetAnalyzers/interface/CMSDAS11DijetTestAnalyzer.h"
+#include "RecoJets/JetAnalyzers/interface/CMSDAS11DijetAnalyzer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -15,7 +15,7 @@
 
 #include <TH1D.h>
 
-CMSDAS11DijetTestAnalyzer::CMSDAS11DijetTestAnalyzer(edm::ParameterSet const& params) :
+CMSDAS11DijetAnalyzer::CMSDAS11DijetAnalyzer(edm::ParameterSet const& params) :
   edm::EDAnalyzer(),
   jetSrc(params.getParameter<edm::InputTag>("jetSrc")),
   vertexSrc(params.getParameter<edm::InputTag>("vertexSrc")),
@@ -53,7 +53,6 @@ CMSDAS11DijetTestAnalyzer::CMSDAS11DijetTestAnalyzer(edm::ParameterSet const& pa
   hJet2EMF	= fs->make<TH1D>("hJet2EMF","EM Fraction of Jet2",50,0,1);
 
   hCorDijetMass = fs->make<TH1D>("hCorDijetMass","Corrected Dijet Mass",NBINS-1,BOUNDARIES);
-  hRawDijetMass = fs->make<TH1D>("hRawDijetMass","Raw Dijet Mass",      NBINS-1,BOUNDARIES);
   hDijetDeltaPhi= fs->make<TH1D>("hDijetDeltaPhi","Dijet |#Delta #phi|",50,0,3.1415);
   hDijetDeltaEta= fs->make<TH1D>("hDijetDeltaEta","Dijet |#Delta #eta|",50,0,6);
 
@@ -61,7 +60,10 @@ CMSDAS11DijetTestAnalyzer::CMSDAS11DijetTestAnalyzer(edm::ParameterSet const& pa
   hOuterDijetMass = fs->make<TH1D>("hOuterDijetMass","Corrected Outer Dijet Mass",NBINS-1,BOUNDARIES);
 }
 
-void CMSDAS11DijetTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void CMSDAS11DijetAnalyzer::endJob(void) {
+}
+
+void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   ////////////////////////////////////////////
   // Get event ID information
@@ -115,65 +117,14 @@ void CMSDAS11DijetTestAnalyzer::analyze( const edm::Event& iEvent, const edm::Ev
   for(reco::CaloJetCollection::const_iterator j_it = jets_h->begin(); j_it!=jets_h->end(); j_it++) {
     reco::CaloJet jet = *j_it;
 
-    // calculate and apply the correction
-    double scale = corrector->correction(jet.p4());
-
-    // Introduce a purposeful bias to the correction, to show what happens
-    scale *= JESbias;
-
-    // select high pt, central, non-noise-like jets
-    if(jet.pt()*scale<50.0) continue;
-    if(fabs(jet.eta())>2.5) continue;
-    if(jet.emEnergyFraction()<0.01) continue;
-
-    // fill the histograms
-    hJetRawPt->Fill(jet.pt());
-    hJetEta->Fill(jet.eta());
-    hJetPhi->Fill(jet.phi());
-    hJetEMF->Fill(jet.emEnergyFraction());
-
-    // correct the jet energy
-    jet.scaleEnergy(scale);
-    
-    // now fill the correct jet pt after the correction
-    hJetCorrPt->Fill(jet.pt());
-
     // put the selected jets into a collection
     selectedJets.push_back(jet);
   }
 
-  // require at least two jets to continue
-  if(selectedJets.size()<2) return;
-
-  //sort by corrected pt (not the same order as raw pt, sometimes)
-  sort(selectedJets.begin(), selectedJets.end(), compare_JetPt);
-
-  // fill histograms for the jets in our dijets, only
-  hJet1Pt ->Fill(selectedJets[0].pt());
-  hJet1Eta->Fill(selectedJets[0].eta());
-  hJet1Phi->Fill(selectedJets[0].phi());
-  hJet1EMF->Fill(selectedJets[0].emEnergyFraction());
-  hJet2Pt ->Fill(selectedJets[1].pt());
-  hJet2Eta->Fill(selectedJets[1].eta());
-  hJet2Phi->Fill(selectedJets[1].phi());
-  hJet2EMF->Fill(selectedJets[1].emEnergyFraction());
-
-  //Get the mass of the two leading jets.  Needs their 4-vectors...
-  double corMass = (selectedJets[0].p4()+selectedJets[1].p4()).M();
-  double deltaEta = fabs(selectedJets[0].eta()+selectedJets[1].eta());
-  hCorDijetMass->Fill(corMass);
-  hDijetDeltaPhi->Fill(fabs(selectedJets[0].phi()+selectedJets[1].phi()) );
-  hDijetDeltaEta->Fill(deltaEta );
-
-  //Fill the inner and outer dijet mass spectra, to make the ratio from
-  if (deltaEta < innerDeltaEta) hInnerDijetMass->Fill(corMass);
-  else if (deltaEta < outerDeltaEta) hOuterDijetMass->Fill(corMass);
 
   hVertexZ->Fill(theVertex->z());
   return;
-
 }
 
 
-
-DEFINE_FWK_MODULE(CMSDAS11DijetTestAnalyzer);
+DEFINE_FWK_MODULE(CMSDAS11DijetAnalyzer);
