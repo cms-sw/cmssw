@@ -2,6 +2,7 @@
 <use   name="Geometry/CommonTopologies"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
+<use   name="roothistmatrix"/>
 <export>
   <lib   name="1"/>
 </export>

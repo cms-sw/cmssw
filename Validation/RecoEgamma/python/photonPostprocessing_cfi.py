@@ -16,9 +16,9 @@ photonPostprocessing = cms.EDAnalyzer("PhotonPostprocessing",
     etMin = photonValidation.etMin,
     etMax = photonValidation.etMax,
 
-    eBin = photonValidation.etBin,
-    eMin = photonValidation.etMin,
-    eMax = photonValidation.etMax,
+    eBin = photonValidation.eBin,
+    eMin = photonValidation.eMin,
+    eMax = photonValidation.eMax,
 
     etaBin = photonValidation.etaBin,
     etaBin2 = photonValidation.etaBin2,

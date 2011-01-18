@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_10_0/pre6/HIon/V14 (CMSSW_3_10_0_pre6_HLT2)
+# /dev/CMSSW_3_10_0/HIon/V2 (CMSSW_3_10_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/HIon/V14')
+  tableName = cms.string('/dev/CMSSW_3_10_0/HIon/V2')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -808,10 +808,6 @@ process.hltESPESUnpackerWorker = cms.ESProducer( "ESUnpackerWorkerESProducer",
   DCCDataUnpacker = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) ),
   RHAlgo = cms.PSet( 
     Type = cms.string( "ESRecHitWorker" ),
-    ESGain = cms.int32( 2 ),
-    ESMIPkeV = cms.double( 81.08 ),
-    ESMIPADC = cms.double( 55.0 ),
-    ESBaseline = cms.int32( 0 ),
     ESRecoAlgo = cms.int32( 0 )
   )
 )
@@ -3029,8 +3025,8 @@ process.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     AllowMissingInputs = cms.bool( False ),
     HcalAcceptSeverityLevel = cms.uint32( 11 ),
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
-    UseHcalRecoveredHits = cms.bool( True ),
-    UseEcalRecoveredHits = cms.bool( True ),
+    UseHcalRecoveredHits = cms.bool( False ),
+    UseEcalRecoveredHits = cms.bool( False ),
     UseRejectedHitsOnly = cms.bool( False ),
     HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
     EcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
@@ -3752,8 +3748,8 @@ process.hltTowerMakerForHcal = cms.EDProducer( "CaloTowersCreator",
     AllowMissingInputs = cms.bool( True ),
     HcalAcceptSeverityLevel = cms.uint32( 11 ),
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
-    UseHcalRecoveredHits = cms.bool( True ),
-    UseEcalRecoveredHits = cms.bool( True ),
+    UseHcalRecoveredHits = cms.bool( False ),
+    UseEcalRecoveredHits = cms.bool( False ),
     UseRejectedHitsOnly = cms.bool( False ),
     HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
     EcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
@@ -3985,8 +3981,8 @@ process.hltStoppedHSCPTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     AllowMissingInputs = cms.bool( True ),
     HcalAcceptSeverityLevel = cms.uint32( 11 ),
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
-    UseHcalRecoveredHits = cms.bool( True ),
-    UseEcalRecoveredHits = cms.bool( True ),
+    UseHcalRecoveredHits = cms.bool( False ),
+    UseEcalRecoveredHits = cms.bool( False ),
     UseRejectedHitsOnly = cms.bool( False ),
     HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
     EcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
@@ -5033,10 +5029,10 @@ if 'GlobalTag' in process.__dict__:
 # override the L1 menu
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.toGet.append(
-        cms.PSet(  
+        cms.PSet(
             record  = cms.string( "L1GtTriggerMenuRcd" ),
             tag     = cms.string( "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2010_v2_mc" ),
-            connect = cms.untracked.string( "sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_CollisionsHeavyIons2010_v2_mc.db" )
+            connect = cms.untracked.string( process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
         )
     )
 

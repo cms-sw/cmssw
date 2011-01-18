@@ -129,15 +129,9 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       //Get histograms from files
       ref_file.cd(RefHistDir);   
       ref_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
-
-      ref_hist1[nh1]->SetMarkerStyle(21);       
-      ref_hist1[nh1]->SetMarkerSize(0.02);
-
+      
       val_file.cd(ValHistDir);   
       val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
-
-      val_hist1[nh1]->SetMarkerStyle(21);       
-      val_hist1[nh1]->SetMarkerSize(0.02);
       
       //Rebin histograms -- has to be done first
       if (nRebin != 1){
@@ -149,10 +143,6 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       if (StatSwitch != "Stat"){
 	ref_hist1[nh1]->SetStats(kFALSE);
 	val_hist1[nh1]->SetStats(kFALSE);
-      }
-      else {
-	ref_hist1[nh1]->SetStats(kTRUE);
-	val_hist1[nh1]->SetStats(kTRUE);
       }
 
       //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
@@ -255,16 +245,9 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       //Get histograms from files
       ref_file.cd(RefHistDir);   
       ref_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
-
-      ref_hist2[nh2]->SetMarkerStyle(21);     
-      ref_hist2[nh2]->SetMarkerSize(0.02);     
-
+      
       val_file.cd(ValHistDir);   
       val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
-
-      val_hist2[nh2]->SetMarkerStyle(21);     
-      val_hist2[nh2]->SetMarkerSize(0.02);     
-
 
       //Set the colors, styles, titles, stat boxes and format x-axis for the histograms 
       if (StatSwitch == "Stat") ref_hist2[nh2]->SetStats(kTRUE);
@@ -320,22 +303,11 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       
       ref_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       ref_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
-
-      ref_hist2[nh2]->SetMarkerStyle(21);     
-      ref_prof[npi] ->SetMarkerStyle(21);
-      ref_hist2[nh2]->SetMarkerSize(0.02);     
-      ref_prof[npi] ->SetMarkerSize(0.02);
-
       
       val_file.cd(ValHistDir);   
       
       val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       val_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
-
-      val_hist2[nh2]->SetMarkerStyle(21);     
-      val_prof[npi] ->SetMarkerStyle(21);
-      val_hist2[nh2]->SetMarkerSize(0.02);     
-      val_prof[npi] ->SetMarkerSize(0.02);
 
       //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
       //xAxis

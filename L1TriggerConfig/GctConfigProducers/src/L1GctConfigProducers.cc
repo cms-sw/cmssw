@@ -45,64 +45,53 @@ L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
 
    //now do what ever other initialization is needed
    std::string CalibStyle = iConfig.getParameter<std::string>("CalibrationStyle");
-   edm::ParameterSet calibCoeffs;
-   
-   if (CalibStyle == "PowerSeries") {
-     m_corrFunType = 1;
-     calibCoeffs = iConfig.getParameter<edm::ParameterSet>("PowerSeriesCoefficients");
-   }
-   
-   if (CalibStyle == "ORCAStyle") {
-     m_corrFunType = 2;
-     calibCoeffs = iConfig.getParameter<edm::ParameterSet>("OrcaStyleCoefficients");
-   }
-   
-   if (CalibStyle == "Simple") {
-     m_corrFunType = 3;
-     calibCoeffs = iConfig.getParameter<edm::ParameterSet>("SimpleCoefficients");
-   }
-   
-   if (CalibStyle == "PiecewiseCubic") {
-     m_corrFunType = 4;
-     calibCoeffs = iConfig.getParameter<edm::ParameterSet>("PiecewiseCubicCoefficients");
-   }
-   
-   if (CalibStyle == "PF") {
-     m_corrFunType = 5;
-     calibCoeffs = iConfig.getParameter<edm::ParameterSet>("PFCoefficients");
-   }
 
-   // check 
-   if (CalibStyle != "None") {
-     
-     // Read the coefficients from file
-     // coefficients for non-tau jet corrections
-     for (unsigned i=0; i<L1GctJetFinderParams::NUMBER_ETA_VALUES; ++i) {
-       std::stringstream ss;
-       std::string str;
-       ss << "nonTauJetCalib" << i;
-       ss >> str;
-       m_jetCalibFunc.push_back(calibCoeffs.getParameter< std::vector<double> >(str));
-     }
-     // coefficients for tau jet corrections
-     for (unsigned i=0; i<L1GctJetFinderParams::N_CENTRAL_ETA_VALUES; ++i) {
-       std::stringstream ss;
-       std::string str;
-       ss << "tauJetCalib" << i;
-       ss >> str;
-       m_tauCalibFunc.push_back(calibCoeffs.getParameter< std::vector<double> >(str));
-     }
-     
-   } else {
-     // No corrections to be applied
-     m_corrFunType = 0;  // no correction
-     // Set the vector sizes to those expected by the CalibrationFunction
-     m_jetCalibFunc.resize(L1GctJetFinderParams::NUMBER_ETA_VALUES);
-     m_tauCalibFunc.resize(L1GctJetFinderParams::N_CENTRAL_ETA_VALUES);
-   }
+  edm::ParameterSet calibCoeffs;
 
-   edm::LogWarning("L1GctConfig") << "Calibration Style option " << CalibStyle << std::endl;
-   
+  if (CalibStyle == "PowerSeries") {
+    m_corrFunType = 1;
+    calibCoeffs = iConfig.getParameter<edm::ParameterSet>("PowerSeriesCoefficients");
+  }
+
+  if (CalibStyle == "ORCAStyle") {
+    m_corrFunType = 2;
+    calibCoeffs = iConfig.getParameter<edm::ParameterSet>("OrcaStyleCoefficients");
+  }
+  
+
+  // check 
+  if (CalibStyle != "None") {
+
+    // Read the coefficients from file
+    // coefficients for non-tau jet corrections
+    for (unsigned i=0; i<L1GctJetFinderParams::NUMBER_ETA_VALUES; ++i) {
+      std::stringstream ss;
+      std::string str;
+      ss << "nonTauJetCalib" << i;
+      ss >> str;
+      m_jetCalibFunc.push_back(calibCoeffs.getParameter< std::vector<double> >(str));
+    }
+    // coefficients for tau jet corrections
+    for (unsigned i=0; i<L1GctJetFinderParams::N_CENTRAL_ETA_VALUES; ++i) {
+      std::stringstream ss;
+      std::string str;
+      ss << "tauJetCalib" << i;
+      ss >> str;
+      m_tauCalibFunc.push_back(calibCoeffs.getParameter< std::vector<double> >(str));
+    }
+
+  } else {
+    // No corrections to be applied
+    m_corrFunType = 0;  // no correction
+    // Set the vector sizes to those expected by the CalibrationFunction
+    m_jetCalibFunc.resize(L1GctJetFinderParams::NUMBER_ETA_VALUES);
+    m_tauCalibFunc.resize(L1GctJetFinderParams::N_CENTRAL_ETA_VALUES);
+    if (CalibStyle != "None") {
+      edm::LogWarning("L1GctConfig") << "Unrecognised Calibration Style option " << CalibStyle
+                                      << "; no Level-1 jet corrections will be applied" << std::endl;
+    }
+  }
+
 }
 
 

@@ -29,8 +29,8 @@
 ///   for the other sensor
 ///
 ///
-///  $Date: 2008/09/02 15:08:12 $
-///  $Revision: 1.13 $
+///  $Date: 2010/10/26 20:41:08 $
+///  $Revision: 1.1 $
 /// (last update by $Author: flucke $)
 
 class Alignable;
@@ -47,9 +47,9 @@ class TwoBowedSurfacesAlignmentParameters : public AlignmentParameters
     dx1 = BowedDerivs::dx,
     dy1 = BowedDerivs::dy,
     dz1 = BowedDerivs::dz,
-    dslopeX1 = BowedDerivs::dslopeX, // NOTE: slope(u) -> k*tan(beta),
-    dslopeY1 = BowedDerivs::dslopeY, //       slope(v) -> k*tan(alpha)
-    drotZ1   = BowedDerivs::drotZ,   //       rot(w)   -> m*gamma
+    dslopeX1 = BowedDerivs::dslopeX, // NOTE: slope(u) -> halfWidth*tan(beta),
+    dslopeY1 = BowedDerivs::dslopeY, //       slope(v) -> halfLength*tan(alpha)
+    drotZ1   = BowedDerivs::drotZ,   //       rot(w)   -> g-scale*gamma
     dsagittaX1  = BowedDerivs::dsagittaX,
     dsagittaXY1 = BowedDerivs::dsagittaXY,
     dsagittaY1  = BowedDerivs::dsagittaY,
@@ -99,7 +99,9 @@ class TwoBowedSurfacesAlignmentParameters : public AlignmentParameters
 				      const AlignableDetOrUnitPtr &aliDet) const;
 
   /// print parameters to screen 
-  void print() const;
+  virtual void print() const;
+
+  double ySplit() const { return ySplit_;}
 
  private:
   double ySplitFromAlignable(const Alignable *ali) const;

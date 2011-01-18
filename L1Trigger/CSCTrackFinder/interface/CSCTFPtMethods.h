@@ -50,12 +50,8 @@ class CSCTFPtMethods
   static const double A_mu14Rare[4][15];
   static const double A_sig14Rare[3][15];
 
-  static const double A_mu51[4][15];
-  static const double A_sig51[3][15];
   static const double A_mu52[4][15];
   static const double A_sig52[3][15];
-  static const double A_mu53[4][15];
-  static const double A_sig53[3][15];
 
   static const double A_mu23[4][15];
   static const double A_sig23[3][15];
@@ -82,20 +78,16 @@ class CSCTFPtMethods
 
   static const double A_rho234CSCTF[5][15];
 
-  static const double A_rho512[5][15];
-  static const double A_rho513[5][15];
-  static const double A_rho523[5][15];
-
 // don't care about Mode 12: 1-2-b1 yet, should add A_mu12CSCTF or A_mu51CSCTF depending how calculate dphi12
 
   /** 2-station Pt measurement for types (see SP class for 2-stn types) */
   float Pt2Stn(int type, float eta, float dphi, int fr=-1) const;
-  float Pt2Stn2010(int type, float eta, float dphi, int fr=-1, int method=11) const;
+  float Pt2Stn2010(int type, float eta, float dphi, int fr=-1) const;
   double Likelihood2(double *phi12, double *par_m12, double *par_sig12, double *v) const;  
  
   /** 3-station Pt measurement for types (see SP class for 3-stn types) */
   float Pt3Stn(int type, float eta, float dphi1, float dphi2, int fr=-1) const;
-  float Pt3Stn2010(int type, float eta, float dphi1, float dphi2, int fr=-1, int method=11) const;
+  float Pt3Stn2010(int type, float eta, float dphi1, float dphi2, int fr=-1) const;
   double Likelihood(double *phi12, double *phi23, double *par_m12, double *par_m23, double *par_sig12, double *par_sig23, double *par_rho, double *v) const; 
   /** Second are the parameterizations of Acosta/Yeh */
 

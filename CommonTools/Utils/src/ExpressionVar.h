@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
  */
 #include "CommonTools/Utils/src/ExpressionBase.h"
@@ -33,7 +33,8 @@ namespace reco {
 
       /// allocate an object to hold the result of a given member (if needed)
       /// this method is used also from the LazyInvoker code
-      static void makeStorage(Reflex::Object &obj, const Reflex::Member &member) ;
+      /// returns true if objects returned from this will require a destructor 
+      static bool makeStorage(Reflex::Object &obj, const Reflex::Member &member) ;
       /// delete an objecty, if needed
       /// this method is used also from the LazyInvoker code
       static void delStorage(Reflex::Object &obj);
@@ -41,6 +42,7 @@ namespace reco {
     private:
       std::vector<MethodInvoker>  methods_;
       mutable std::vector<Reflex::Object> objects_;
+      mutable std::vector<bool>           needsDestructor_;
       method::TypeCode retType_;
       static void trueDelete(Reflex::Object & o) ;
       void initObjects_();
@@ -56,6 +58,7 @@ namespace reco {
 
     private:
       std::vector<LazyInvoker> methods_;
+      mutable std::vector<Reflex::Object> objects_;
   }; 
 
  }

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.264 $"
+__version__ = "$Revision: 1.265 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -744,6 +744,7 @@ class ConfigBuilder(object):
 
     def prepare_GEN(self, sequence = None):
         """ load the fragment of generator configuration """
+	loadFailure=False
 	#remove trailing .py
 	#support old style .cfi by changing into something.cfi into something_cfi
 	#remove python/ from the name
@@ -753,27 +754,32 @@ class ConfigBuilder(object):
                 loadFragment='Configuration.Generator.'+loadFragment
 	else:
 		loadFragment=loadFragment.replace('/','.')
-	__import__(loadFragment)
-	generatorModule=sys.modules[loadFragment]
-	genModules=generatorModule.__dict__
-	if self._options.hideGen:
-		self.loadAndRemember(loadFragment)
-	else:
-		self.process.load(loadFragment)
-		# expose the objects from that fragment to the configuration
-		import FWCore.ParameterSet.Modules as cmstypes
-		for name in genModules:
-			theObject = getattr(generatorModule,name)
-			if isinstance(theObject, cmstypes._Module):
-				self._options.inlineObjets=name+','+self._options.inlineObjets
-			elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
-				self._options.inlineObjets+=','+name
+	try:
+		__import__(loadFragment)
+	except:
+		print "load failure in gen fragment. temporary"
+		loadFailure=True
+	if not loadFailure:
+		generatorModule=sys.modules[loadFragment]
+		genModules=generatorModule.__dict__
+		if self._options.hideGen:
+			self.loadAndRemember(loadFragment)
+		else:
+			self.process.load(loadFragment)
+			# expose the objects from that fragment to the configuration
+			import FWCore.ParameterSet.Modules as cmstypes
+			for name in genModules:
+				theObject = getattr(generatorModule,name)
+				if isinstance(theObject, cmstypes._Module):
+					self._options.inlineObjets=name+','+self._options.inlineObjets
+				elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
+					self._options.inlineObjets+=','+name
 			
-	if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly':
-		if 'ProductionFilterSequence' in genModules and ('generator' in genModules or 'hiSignal' in genModules):
-			self.productionFilterSequence = 'ProductionFilterSequence'
-		elif 'generator' in genModules:
-			self.productionFilterSequence = 'generator'
+		if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly':
+			if 'ProductionFilterSequence' in genModules and ('generator' in genModules or 'hiSignal' in genModules):
+				self.productionFilterSequence = 'ProductionFilterSequence'
+			elif 'generator' in genModules:
+				self.productionFilterSequence = 'generator'
 
         """ Enrich the schedule with the rest of the generation step """
 	self.loadDefaultOrSpecifiedCFF(sequence,self.GENDefaultCFF)
@@ -1249,7 +1255,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.264 $"),
+					    (version=cms.untracked.string("$Revision: 1.265 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )

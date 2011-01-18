@@ -4,18 +4,16 @@
 # to a sqlite file (l1config.db), and assigns them an infinite IOV starting
 # at run 1.
 
+tagbase=CRAFT09
+
 nflag=0
-pflag=0
-while getopts 'nph' OPTION
+while getopts 'nh' OPTION
   do
   case $OPTION in
       n) nflag=1
           ;;
-      p) pflag=1
-	  ;;
       h) echo "Usage: [-n] runnum"
           echo "  -n: no RS"
-          echo "  -p: centrally installed release, not on local machine"
           exit
           ;;
   esac
@@ -36,14 +34,8 @@ if [ -f l1config.db ]
     mv l1config.db l1config.db.save
 fi
 
-if [ ${pflag} -eq 0 ]
-    then
-    export SCRAM_ARCH=""
-    export VO_CMS_SW_DIR=""
-    source /opt/cmssw/cmsset_default.sh
-else
-    source /nfshome0/cmssw2/scripts/setup.sh
-fi
+source /nfshome0/cmssw2/scripts/setup.sh
+export SCRAM_ARCH=slc5_ia32_gcc434
 eval `scramv1 run -sh`
 
 echo "`date` : initializing sqlite file"
@@ -55,7 +47,7 @@ else
 fi
 
 # copy default objects
-cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadCondDB_cfg.py inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb runNumber=${runnum}
-cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVDummy_cfg.py useO2OTags=1
+cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadCondDB_cfg.py tagBase=${tagbase}_hlt inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb runNumber=${runnum}
+cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVDummy_cfg.py tagBase=${tagbase}_hlt
 
 exit ${o2ocode}

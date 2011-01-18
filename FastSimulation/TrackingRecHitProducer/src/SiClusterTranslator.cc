@@ -15,6 +15,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -210,10 +211,10 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       
       //3 = TIB, 4 = TID, 5 = TOB, 6 = TEC
       if((subdet == 3) || (subdet == 5)) {
-	const RectangularStripTopology& topol=(RectangularStripTopology&)stripDet->topology();
+	const RectangularStripTopology& topol=(RectangularStripTopology&)stripDet->type().topology();
 	strip_num = (uint16_t)topol.strip(position);
       } else if ((subdet == 4) || (subdet == 6)) {
-	const RadialStripTopology& topol=(RadialStripTopology&)stripDet->topology();
+	const RadialStripTopology& topol=(RadialStripTopology&)stripDet->type().topology();
 	strip_num = (uint16_t)topol.strip(position);
       }
       

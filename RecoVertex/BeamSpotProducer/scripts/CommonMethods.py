@@ -181,7 +181,7 @@ def ls(dir,filter=""):
     listOfFiles = tmpStatus[1].split('\n')
     if len(listOfFiles) == 1:
         if listOfFiles[0].find('No such file or directory') != -1:
-            exit("ERROR: File or directory " + dir + " doesn't exist") 
+            exit("ERROR: File or directory " + path + " doesn't exist") 
 
     return listOfFiles            
 
@@ -676,38 +676,20 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
         #if False:
         if docheck:
 
-            # define minimum limit
-            min_limit = 0.0025
-            
             # limit for x and y
-            limit = float(ibeam.beamWidthX)/2.
-            if limit < min_limit: limit = min_limit
-            
+            limit = float(ibeam.beamWidthX)/3.
             # check movements in X
             adelta1 = delta(ibeam.X, ibeam.Xerr, inextbeam.X, inextbeam.Xerr)
             adelta2 = (0.,1.e9)
-            adelta1dxdz = delta(ibeam.dxdz, ibeam.dxdzerr, inextbeam.dxdz, inextbeam.dxdzerr)
-            adelta2dxdz = (0.,1.e9)
-            adelta1dydz = delta(ibeam.dydz, ibeam.dydzerr, inextbeam.dydz, inextbeam.dydzerr)
-            adelta2dydz = (0.,1.e9)
-            adelta1widthx = delta(ibeam.beamWidthX, ibeam.beamWidthXerr, inextbeam.beamWidthX, inextbeam.beamWidthXerr)
-            adelta2widthx = (0.,1.e9)
-            adelta1widthy = delta(ibeam.beamWidthY, ibeam.beamWidthYerr, inextbeam.beamWidthY, inextbeam.beamWidthYerr)
-            adelta2widthy = (0.,1.e9)
-            
             if iNNbeam.Type != -1:
                 adelta2 = delta(inextbeam.X, inextbeam.Xerr, iNNbeam.X, iNNbeam.Xerr)
-                adelta2dxdz = delta(inextbeam.dxdz, inextbeam.dxdzerr, iNNbeam.dxdz, iNNbeam.dxdzerr)
-                adelta2dydz = delta(inextbeam.dydz, inextbeam.dydzerr, iNNbeam.dydz, iNNbeam.dydzerr)
-                adelta2widthx = delta(inextbeam.beamWidthX, inextbeam.beamWidthXerr, iNNbeam.beamWidthX, iNNbeam.beamWidthXerr)
-                adelta2widthy = delta(inextbeam.beamWidthY, inextbeam.beamWidthYerr, iNNbeam.beamWidthY, iNNbeam.beamWidthYerr)
-                
+            
             deltaX = deltaSig(adelta1) > 3.5 and adelta1[0] >= limit
             if ii < len(listbeam) -2:
                 if deltaX==False and adelta1[0]*adelta2[0] > 0. and  math.fabs(adelta1[0]+adelta2[0]) >= limit:
                     #print " positive, "+str(adelta1[0]+adelta2[0])+ " limit="+str(limit)
                     deltaX = True
-                elif deltaX==True and adelta1[0]*adelta2[0]<=0 and adelta2[0] != 0 and math.fabs(adelta1[0]/adelta2[0]) > 0.33 and math.fabs(adelta1[0]/adelta2[0]) < 3:
+                elif deltaX==True and adelta1[0]*adelta2[0]<=0 and math.fabs(adelta1[0]/adelta2[0]) > 0.55 and math.fabs(adelta1[0]/adelta2[0]) < 1.45:
                     deltaX = False
                     #print " negative, "+str(adelta1[0]/adelta2[0])
                 #else:
@@ -723,38 +705,25 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
             if ii < len(listbeam) -2:
                 if deltaY==False and adelta1[0]*adelta2[0] > 0. and  math.fabs(adelta1[0]+adelta2[0]) >= limit:
                     deltaY = True
-                elif deltaY==True and adelta1[0]*adelta2[0]<=0 and adelta2[0] != 0 and math.fabs(adelta1[0]/adelta2[0]) > 0.33 and math.fabs(adelta1[0]/adelta2[0]) < 3:
+                elif deltaY==True and adelta1[0]*adelta2[0]<=0 and math.fabs(adelta1[0]/adelta2[0]) > 0.55 and math.fabs(adelta1[0]/adelta2[0]) < 1.45:
                     deltaY = False
             # check movements in Z                                                    
             adelta = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr)
-
-            
-            limit = float(ibeam.sigmaZ)/2.
+            limit = float(ibeam.sigmaZ)/3.
             deltaZ = deltaSig(adelta) > 3.5 and adelta[0] >= limit
- 
+
             adelta = delta(ibeam.sigmaZ, ibeam.sigmaZerr, inextbeam.sigmaZ, inextbeam.sigmaZerr)
             deltasigmaZ = deltaSig(adelta) > 5.0
-
-            # check dxdz
-            adelta = delta(ibeam.dxdz, ibeam.dxdzerr, inextbeam.dxdz, inextbeam.dxdzerr)
+            adelta = delta(ibeam.dxdz, ibeam.dxdzerr, inextbeam.dxdz, inextbeam.dxdzerr) 
             deltadxdz   = deltaSig(adelta) > 5.0
-            if deltadxdz and adelta1dxdz[0]*adelta2dxdz[0]<=0 and adelta2dxdz[0] != 0 and math.fabs(adelta1dxdz[0]/adelta2dxdz[0]) > 0.33 and math.fabs(adelta1dxdz[0]/adelta2dxdz[0]) < 3:
-                deltadxdz = False
-            # check dydz
             adelta = delta(ibeam.dydz, ibeam.dydzerr, inextbeam.dydz, inextbeam.dydzerr)
             deltadydz   = deltaSig(adelta) > 5.0
-            if deltadydz and adelta1dydz[0]*adelta2dydz[0]<=0 and adelta2dydz[0] != 0 and math.fabs(adelta1dydz[0]/adelta2dydz[0]) > 0.33 and math.fabs(adelta1dydz[0]/adelta2dydz[0]) < 3:
-                deltadydz = False
-            
+
             adelta = delta(ibeam.beamWidthX, ibeam.beamWidthXerr, inextbeam.beamWidthX, inextbeam.beamWidthXerr)
             deltawidthX = deltaSig(adelta) > 5
-            if deltawidthX and adelta1widthx[0]*adelta2widthx[0]<=0 and adelta2widthx[0] != 0 and math.fabs(adelta1widthx[0]/adelta2widthx[0]) > 0.33 and math.fabs(adelta1widthx[0]/adelta2widthx[0]) < 3:
-                deltawidthX = False
-                
             adelta = delta(ibeam.beamWidthY, ibeam.beamWidthYerr, inextbeam.beamWidthY, inextbeam.beamWidthYerr) 
             deltawidthY = deltaSig(adelta) > 5
-            if deltawidthY and adelta1widthy[0]*adelta2widthy[0]<=0 and adelta2widthy[0] != 0 and math.fabs(adelta1widthy[0]/adelta2widthy[0]) > 0.33 and math.fabs(adelta1widthy[0]/adelta2widthy[0]) < 3:
-                deltawidthY = False
+
             #if iNNbeam.Type != -1:
             #    deltaX = deltaX and delta(ibeam.X, ibeam.Xerr, iNNbeam.X, iNNbeam.Xerr) > 1.5
             #    deltaY = deltaY and delta(ibeam.Y, ibeam.Yerr, iNNbeam.Y, iNNbeam.Yerr) > 1.5

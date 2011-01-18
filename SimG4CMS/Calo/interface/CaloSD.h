@@ -125,6 +125,7 @@ protected:
   const SimTrackManager*          m_trackManager;
   CaloG4Hit*                      currentHit;
 //  TimerProxy                    theHitTimer;
+  bool                            runInit;
 
   bool                            corrTOFBeam, suppressHeavy;
   double                          correctT;

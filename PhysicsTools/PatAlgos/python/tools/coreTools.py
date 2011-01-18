@@ -48,6 +48,50 @@ class RestrictInputToAOD(ConfigToolBase):
 restrictInputToAOD=RestrictInputToAOD()
 
 
+class RunOnData(ConfigToolBase):
+
+    """ Remove monte carlo matching from a given collection or all PAT
+    candidate collections and adapt the JEC's:
+    """
+    _label='runOnData'
+    _defaultParameters=dicttypes.SortedKeysDict()
+    def __init__(self):
+        ConfigToolBase.__init__(self)
+        self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
+        self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
+        self.addParameter(self._defaultParameters,'outputInProcess',True, "indicate whether there is an output module specified for the process (default is True)  ")
+        self._parameters=copy.deepcopy(self._defaultParameters)
+        self._comment = ""
+
+    def getDefaultParameters(self):
+        return self._defaultParameters
+
+    def __call__(self,process,
+                 names     = None,
+                 postfix   = None,
+                 outputInProcess     = None) :
+        if  names is None:
+            names=self._defaultParameters['names'].value
+        if postfix  is None:
+            postfix=self._defaultParameters['postfix'].value
+        if  outputInProcess is None:
+            outputInProcess=self._defaultParameters['outputInProcess'].value
+        self.setParameter('names',names)
+        self.setParameter('postfix',postfix)
+        self.setParameter('outputInProcess',outputInProcess)        
+        self.apply(process) 
+        
+    def toolCode(self, process):        
+        names=self._parameters['names'].value
+        postfix=self._parameters['postfix'].value
+        outputInProcess=self._parameters['outputInProcess'].value
+        
+        removeMCMatching(process, names, postfix, outputInProcess)
+        process.patJetCorrFactors.levels = ['L2Relative', 'L3Absolute', 'L2L3Residual', 'L5Flavor', 'L7Parton']
+
+runOnData=RunOnData()
+
+
 class RemoveMCMatching(ConfigToolBase):
 
     """ Remove monte carlo matching from a given collection or all PAT

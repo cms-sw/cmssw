@@ -53,11 +53,11 @@ process.source = cms.Source("EmptySource")
 process.simulation = cms.Path(process.generator*process.famosWithEverything)
 
 # To write out events (not need: FastSimulation _is_ fast!)
-process.load("FastSimulation.Configuration.EventContent_cff")
+#process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
-#    outputCommands = cms.untracked.vstring('keep *', 
-#                                           'drop *_mix_*_*'),
-                              process.AODSIMEventContent,
+    outputCommands = cms.untracked.vstring('keep *', 
+                                           'drop *_mix_*_*'),
+#                              process.AODSIMEventContent,
                               fileName = cms.untracked.string('MyFirstFamosFile_2.root')
 )
 process.outpath = cms.EndPath(process.o1)

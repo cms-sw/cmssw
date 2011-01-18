@@ -389,15 +389,8 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err
   cd ${pth}
   if [ "${FLGCOMIX}" == "FALSE" ]; then
-### (test if Sherpa is 32bit or 64bit)
-  testfile=`find ${shr} -type f -name libSherpaMain.so.0.0.0`
-  echo "testfile: "${testfile}
-  testbit=`echo ${testfile} | grep -i -c "ELF 32"`
-  echo "testbit: "${testbit}
-  if [ ${testbit} -ge 1 ]; then
 ##  cp ${shr}/share/SHERPA-MC/makelibs .
     fix_makelibs
-    fi
     echo " <I> compiling libraries..."
     ./makelibs 1>${shrun}/${outflbs}_mklib.out 2>${shrun}/${outflbs}_mklib.err
     nf=`du -sh | grep -o "\." | grep -c "\."`
@@ -410,7 +403,6 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   lsize=`du -sh  | cut -f 1-${nf} -d "."`
   echo " <I>  -> clean size: "${lsize}
   cd ${shrun}
-###
 fi
 
 if [ "${FLGCOMIX}" == "FALSE" ]; then

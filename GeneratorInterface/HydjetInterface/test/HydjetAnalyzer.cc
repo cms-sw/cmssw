@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.22 2010/02/11 00:12:06 wmtan Exp $
+// $Id: HydjetAnalyzer.cc,v 1.21 2010/01/12 11:55:03 hegner Exp $
 //
 //
 
@@ -44,8 +44,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/HeavyIon.h"
@@ -127,14 +125,9 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
    bool printLists_;
    bool doCF_;
    bool doVertex_;
-  bool useHepMCProduct_;
-  bool doHI_;
-
    double etaMax_;
    double ptMin_;
   edm::InputTag src_;
-  edm::InputTag genParticleSrc_;
-  edm::InputTag genHIsrc_;
 
    edm::ESHandle < ParticleDataTable > pdt;
    edm::Service<TFileService> f;
@@ -160,15 +153,12 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet& iConfig)
    fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
    fMFileName = iConfig.getUntrackedParameter<std::string>("output_m", "m_values.txt");
    doAnalysis_ = iConfig.getUntrackedParameter<bool>("doAnalysis", true);
-   useHepMCProduct_ = iConfig.getUntrackedParameter<bool>("useHepMCProduct", true);
    printLists_ = iConfig.getUntrackedParameter<bool>("printLists", false);
    doCF_ = iConfig.getUntrackedParameter<bool>("doMixed", false);
    doVertex_ = iConfig.getUntrackedParameter<bool>("doVertex", false);
    etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2);
    ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
    src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
-   genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("hiGenParticles"));
-   genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("heavyIon"));
 }
 
 
@@ -208,62 +198,63 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    double vz = -99;
    double vr = -99;
    const GenEvent* evt;
+   const GenEvent* evt2;
   
    int nmix = -1;
    int np = 0;
    int sig = -1;
    int src = -1;
 
-   if(useHepMCProduct_){
    if(doCF_){
+
      Handle<CrossingFrame<HepMCProduct> > cf;
      iEvent.getByLabel(InputTag("mix","source"),cf);
+
+
      MixCollection<HepMCProduct> mix(cf.product());
+
      nmix = mix.size();
+
      cout<<"Mix Collection Size: "<<mix<<endl;
 
      MixCollection<HepMCProduct>::iterator mbegin = mix.begin();
      MixCollection<HepMCProduct>::iterator mend = mix.end();
      
      for(MixCollection<HepMCProduct>::iterator mixit = mbegin; mixit != mend; ++mixit){
+
        const GenEvent* subevt = (*mixit).GetEvent();
        int all = subevt->particles_size();
        np += all;
+
+       /*
        HepMC::GenEvent::particle_const_iterator begin = subevt->particles_begin();
        HepMC::GenEvent::particle_const_iterator end = subevt->particles_end();
        for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
 	 if((*it)->status() == 1){
-	   int pdg_id = (*it)->pdg_id();
-	   float eta = (*it)->momentum().eta();
-	   float phi = (*it)->momentum().phi();
-	   float pt = (*it)->momentum().perp();
-	   const ParticleData * part = pdt->particle(pdg_id );
-	   int charge = static_cast<int>(part->charge());
-
-	   hev_.pt[hev_.mult] = pt;
-	   hev_.eta[hev_.mult] = eta;
-	   hev_.phi[hev_.mult] = phi;
-	   hev_.pdg[hev_.mult] = pdg_id;
-	   hev_.chg[hev_.mult] = charge;
-
-	   eta = fabs(eta);
-	   int etabin = 0;
-	   if(eta > 0.5) etabin = 1;
-	   if(eta > 1.) etabin = 2;
-	   if(eta < 2.){
-	     hev_.ptav[etabin] += pt;
-	     ++(hev_.n[etabin]);
+           float pdg_id = (*it)->pdg_id();
+           float eta = (*it)->momentum().eta();
+           float pt = (*it)->momentum().perp();
+           const ParticleData * part = pdt->particle(pdg_id );
+           float charge = part->charge();
 	   }
-	   ++(hev_.mult);
-	   }
+	 }
        }
-     }
-   }else{
+
+       */
+       
+     }     
+
+   }
    
+      
    Handle<HepMCProduct> mc;
    iEvent.getByLabel(src_,mc);
    evt = mc->GetEvent();
       
+      Handle<HepMCProduct> mc2;
+      iEvent.getByLabel(src_,mc2);
+      evt2 = mc2->GetEvent();
+   
    const HeavyIon* hi = evt->heavy_ion();
    if(hi){
       b = hi->impact_parameter();
@@ -279,63 +270,39 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    
    src = evt->particles_size();
+   sig = evt2->particles_size();
+   
    
    HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
    HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
    for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
-     if((*it)->status() == 1){
-       int pdg_id = (*it)->pdg_id();
-       float eta = (*it)->momentum().eta();
-       float phi = (*it)->momentum().phi();
-       float pt = (*it)->momentum().perp();
-       const ParticleData * part = pdt->particle(pdg_id );
-       int charge = static_cast<int>(part->charge());
-       
-       hev_.pt[hev_.mult] = pt;
-       hev_.eta[hev_.mult] = eta;
-       hev_.phi[hev_.mult] = phi;
-       hev_.pdg[hev_.mult] = pdg_id;
-       hev_.chg[hev_.mult] = charge;
-       
-       eta = fabs(eta);
-       int etabin = 0;
-       if(eta > 0.5) etabin = 1; 
-       if(eta > 1.) etabin = 2;
-       if(eta < 2.){
-	 hev_.ptav[etabin] += pt;
-	 ++(hev_.n[etabin]);
+      if((*it)->status() == 1){
+	 int pdg_id = (*it)->pdg_id();
+	 float eta = (*it)->momentum().eta();
+	 float phi = (*it)->momentum().phi();
+	 float pt = (*it)->momentum().perp();
+	 const ParticleData * part = pdt->particle(pdg_id );
+	 int charge = static_cast<int>(part->charge());
+
+	 hev_.pt[hev_.mult] = pt;
+	 hev_.eta[hev_.mult] = eta;
+	 hev_.phi[hev_.mult] = phi;
+	 hev_.pdg[hev_.mult] = pdg_id;
+	 hev_.chg[hev_.mult] = charge;
+	 
+	 eta = fabs(eta);
+	 int etabin = 0;
+	 if(eta > 0.5) etabin = 1; 
+	 if(eta > 1.) etabin = 2;
+	 if(eta < 2.){
+	    hev_.ptav[etabin] += pt;
+	    ++(hev_.n[etabin]);
 	 }
-       ++(hev_.mult);
-     }
+	 ++(hev_.mult);
+      }
    }
-   }
-   }else{
-     edm::Handle<reco::GenParticleCollection> parts;
-     iEvent.getByLabel(genParticleSrc_,parts);
-     for(unsigned int i = 0; i < parts->size(); ++i){
-       const reco::GenParticle& p = (*parts)[i];
-       hev_.pt[hev_.mult] = p.pt();
-       hev_.eta[hev_.mult] = p.eta();
-       hev_.phi[hev_.mult] = p.phi();
-       hev_.pdg[hev_.mult] = p.pdgId();
-       hev_.chg[hev_.mult] = p.charge();
-       double eta = fabs(p.eta());
-
-       int etabin = 0;
-       if(eta > 0.5) etabin = 1;
-       if(eta > 1.) etabin = 2;
-       if(eta < 2.){
-         hev_.ptav[etabin] += p.pt();
-         ++(hev_.n[etabin]);
-       }
-       ++(hev_.mult);
-     }
-     if(doHI_){
-       edm::Handle<GenHIEvent> higen;
-       iEvent.getByLabel(genHIsrc_,higen);
-     }
-   }
-
+   //   }
+   
    if(doVertex_){
       edm::Handle<edm::SimVertexContainer> simVertices;
       iEvent.getByType<edm::SimVertexContainer>(simVertices);

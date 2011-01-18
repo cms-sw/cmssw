@@ -13,11 +13,6 @@ options.register('tagBase',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "IOV tags = object_{tagBase}")
-options.register('useO2OTags',
-                 0, #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "0 = use uniform tags, 1 = ignore tagBase and use O2O tags")
 options.register('outputDBConnect',
                  'sqlite_file:l1config.db', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -46,24 +41,12 @@ else:
     process.load("L1Trigger.Configuration.L1StartupConfig_cff")
     process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_Commissioning2009_v5_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff")
 
-# Define CondDB tags
-if options.useO2OTags == 0:
-    from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
-    from CondTools.L1Trigger.L1UniformTags_cfi import initL1UniformTags
-    initL1UniformTags( tagBase = options.tagBase )
-    tagBaseVec = initL1UniformTags.tagBaseVec
-else:
-    from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
-    from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
-    initL1O2OTags()
-    tagBaseVec = initL1O2OTags.tagBaseVec
-
 # writer modules
 from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
 initPayloadWriter( process,
                    outputDBConnect = options.outputDBConnect,
                    outputDBAuth = options.outputDBAuth,
-                   tagBaseVec = tagBaseVec )
+                   tagBase = options.tagBase )
 
 # Generate dummy L1TriggerKeyList
 process.L1CondDBPayloadWriter.newL1TriggerKeyList = True
@@ -74,5 +57,4 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)
-#process.l1CSCTFConfig.ptLUT_path = '/afs/cern.ch/cms/MUON/csc/fast1/track_finder/luts/PtLUT.dat'
-process.l1CSCTFConfig.ptLUT_path = './PtLUT.dat'
+process.l1CSCTFConfig.ptLUT_path = '/afs/cern.ch/cms/MUON/csc/fast1/track_finder/luts/PtLUT.dat'

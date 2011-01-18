@@ -13,12 +13,11 @@ private:
   edm::InputTag   gen_;
   unsigned int nbinsMass_, nbinsPt_, nbinsAng_;
   double massMax_, ptMax_, angMax_;
-  double  accPtMin_,accMassMin_,accMassMax_, accMassMinDen_,accMassMaxDen_, accEtaMin_, accEtaMax_, ptScale_;
+  double  accPtMin_,accMassMin_,accMassMax_, accEtaMin_, accEtaMax_, ptScale_;
   TH1F *h_nZ_, *h_mZ_, *h_ptZ_, *h_phiZ_, *h_thetaZ_, *h_etaZ_, *h_rapidityZ_;
   TH1F *h_mZMC_, *h_ptZMC_, *h_phiZMC_, *h_thetaZMC_, *h_etaZMC_, *h_rapidityZMC_;
   TH1F *hardpt, *softpt, * hardeta, *softeta;
   unsigned int nAcc_,nAccPtScaleP_,nAccPtScaleN_, nAccPtScaleSmearedFlat_ , nAccPtScaleSmearedGaus_,  nBothMuHasZHasGrandMa_;
- int  muPdgStatus_;
 };
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -53,13 +52,9 @@ ZMuPtScaleAnalyzer::ZMuPtScaleAnalyzer(const ParameterSet& pset) :
   accPtMin_(pset.getUntrackedParameter<double>("accPtMin")), 
   accMassMin_(pset.getUntrackedParameter<double>("accMassMin")),
   accMassMax_(pset.getUntrackedParameter<double>("accMassMax")),
-  accMassMinDen_(pset.getUntrackedParameter<double>("accMassMinDen")),
-  accMassMaxDen_(pset.getUntrackedParameter<double>("accMassMaxDen")),
   accEtaMin_(pset.getUntrackedParameter<double>("accEtaMin")),
   accEtaMax_(pset.getUntrackedParameter<double>("accEtaMax")),
-  ptScale_(pset.getUntrackedParameter<double>("ptScale")),
-  muPdgStatus_(pset.getUntrackedParameter<int>("muPdgStatus")){ 
-
+  ptScale_(pset.getUntrackedParameter<double>("ptScale")){ 
   cout << ">>> Z Histogrammer constructor" << endl;
   Service<TFileService> fs;
   TFileDirectory ZMCHisto = fs->mkdir( "ZMCHisto" );
@@ -82,9 +77,9 @@ ZMuPtScaleAnalyzer::ZMuPtScaleAnalyzer(const ParameterSet& pset) :
   nAccPtScaleN_=0;
   nAccPtScaleSmearedFlat_=0;
   nAccPtScaleSmearedGaus_=0;
-  nBothMuHasZHasGrandMa_=0;}
-
-
+  nBothMuHasZHasGrandMa_=0;
+  
+}
 
 void ZMuPtScaleAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) { 
   cout << ">>> Z HistogrammerZLONLOHistogrammer.cc analyze" << endl;
@@ -104,43 +99,19 @@ void ZMuPtScaleAnalyzer::analyze(const edm::Event& event, const edm::EventSetup&
 
   std::vector<GenParticle> muons;
 
-  double mZGen = -100;
 
     for(unsigned int i = 0; i < gen->size(); ++i){ 
       const GenParticle & muMC  = (*gen)[i];
       // filliScaledPng only muons coming form Z
-      if (abs(muMC.pdgId())==13 &&  muMC.status()==muPdgStatus_  && muMC.numberOfMothers()>0) {   
-	
+      if (abs(muMC.pdgId())==13 &&  muMC.status()==1  && muMC.numberOfMothers()>0) {   
+	if (muMC.mother()->numberOfMothers()> 0 ){
 	  cout << "I'm getting a muon \n" 
 	       << "with " << "muMC.numberOfMothers()  " <<  muMC.numberOfMothers() << "\n the first mother has pdgId " << muMC.mother()->pdgId() 
 	       << "with " << "muMC.mother()->numberOfMothers()  " <<  muMC.mother()->numberOfMothers()<< "\n the first grandma has pdgId " << muMC.mother()->mother()->pdgId()<<endl;
-	       cout << "with  muMC.eta() " <<  muMC.eta()<<endl;
-	       muons.push_back(muMC);
-      }
-	  // introducing here the gen mass cut......................
-	       /*
-   if (muPdgStatus_ ==1) {
-	    mZGen = muMC.mother()->mother()->mass(); 
-	    if (muMC.mother()->mother()->pdgId() ==23  && mZGen>accMassMinDen_ && mZGen<accMassMaxDen_ ) muons.push_back(muMC);}
+	  if (muMC.mother()->mother()->pdgId() ==23 ) muons.push_back(muMC);
 	}
-          if (muPdgStatus_ ==3) {
-	     mZGen = muMC.mother()->mass(); 
-	    if (muMC.mother()->pdgId() ==23  && mZGen>accMassMinDen_ && mZGen<accMassMaxDen_ ) muons.push_back(muMC);}
-	}
-*/
-      
-      
-      const GenParticle & zMC  = (*gen)[i];
-            if (zMC.pdgId()==23 &&  zMC.status()==3 &&zMC.numberOfDaughters()>1  ) {
-        mZGen = zMC.mass();
-	cout << "I'm selecting a Z MC with mass " << mZGen << endl; 
-	  if(mZGen>accMassMinDen_ && mZGen<accMassMaxDen_ ) h_mZMC_->Fill(mZGen); 
-      
-      
-      
       }
-      }
-    
+    }
    
   cout << "finally I selected " << muons.size() << " muons" << endl;
 
@@ -161,9 +132,7 @@ void ZMuPtScaleAnalyzer::analyze(const edm::Event& event, const edm::EventSetup&
    double Zrapidity_ = 0.0;
   
    if(muons.size()>1) {
-
-
-    if (muons[0].mother()->mother()->pdgId()==23 && muons[1].mother()->mother()->pdgId()==23) nBothMuHasZHasGrandMa_ ++;
+     if (muons[0].mother()->mother()->pdgId()==23 && muons[1].mother()->mother()->pdgId()==23) nBothMuHasZHasGrandMa_ ++;
      math::XYZTLorentzVector tot_momentum(muons[0].p4());
      math::XYZTLorentzVector mom2(muons[1].p4());
      tot_momentum += mom2;
@@ -178,8 +147,7 @@ void ZMuPtScaleAnalyzer::analyze(const edm::Event& event, const edm::EventSetup&
      
 
       double weight_sign = 1.    ;
-     
-      //h_mZMC_->Fill(inv_mass); 
+      h_mZMC_->Fill(inv_mass,weight_sign);
       h_ptZMC_->Fill(Zpt_,weight_sign);
       h_etaZMC_->Fill(Zeta_,weight_sign);
       h_thetaZMC_->Fill(Ztheta_,weight_sign);
@@ -264,9 +232,9 @@ nAccPtScaleN_++;
 
 
   
-   }}
+   }
 
-
+} 
   
 
 void ZMuPtScaleAnalyzer::endJob() {

@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2010/09/10 21:43:56 $
- *  $Revision: 1.25 $
+ *  $Date: 2010/05/17 09:44:30 $
+ *  $Revision: 1.24 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -233,13 +233,12 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     if( (*ii).second.globalMomentum().perp()<thePt_threshold1){
       LogTrace(category) << "    Enters  a1" << endl;
 
-      if( ( chi2>0 && fabs((*ii).second.globalMomentum().eta())<theEta_threshold && chi2<theChi2_1 ) || (distance>0 && distance/(*ii).first.second->pt()<theDeltaD_1 && loc_chi2>0 && loc_chi2<theLocChi2) ){
+      if( ( chi2>0 && fabs((*ii).second.globalMomentum().eta())<1.2 && chi2<theChi2_1 ) || (distance>0 && distance<theDeltaD_1 && loc_chi2>0 && loc_chi2<theLocChi2) ){
 	LogTrace(category) << "    Passes a1" << endl;
         result.push_back((*ii).first);
         passes[jj]=true;
       }
-    }
-    if( (passes[jj]==false) && (*ii).second.globalMomentum().perp()<thePt_threshold2){
+    }else if((*ii).second.globalMomentum().perp()<thePt_threshold2){
       LogTrace(category) << "    Enters a2" << endl;
       if( ( chi2>0 && chi2< theChi2_2 ) || (distance>0 && distance<theDeltaD_2) ){
 	LogTrace(category) << "    Passes a2" << endl;
@@ -645,25 +644,24 @@ GlobalMuonTrackMatcher::match_d(const TrajectoryStateOnSurface& sta,
 double
 GlobalMuonTrackMatcher::match_dist(const TrajectoryStateOnSurface& sta, 
 				   const TrajectoryStateOnSurface& tk) const {
- 
-   const string category = "GlobalMuonTrackMatcher";
-   
-   if ( !sta.isValid() || !tk.isValid() ) return -1;
- 
-   AlgebraicMatrix22 m;
-   m(0,0) = tk.localError().positionError().xx() + sta.localError().positionError().xx();
-   m(1,0) = m(0,1) = tk.localError().positionError().xy() + sta.localError().positionError().xy();
-   m(1,1) = tk.localError().positionError().yy() + sta.localError().positionError().yy();
- 
-   AlgebraicVector2 v;
-   v[0] = tk.localPosition().x() - sta.localPosition().x();
-   v[1] = tk.localPosition().y() - sta.localPosition().y();
- 
-   if ( !m.Invert() ) {
-     LogTrace(category) << "Error inverting local matrix ";
-     return -1;
-   }
- 
-   return ROOT::Math::Similarity(v,m);
+  
+  const string category = "GlobalMuonTrackMatcher";
+  
+  if ( !sta.isValid() || !tk.isValid() ) return -1;
+  
+  AlgebraicMatrix22 m;
+  m(0,0) = tk.localError().positionError().xx() + sta.localError().positionError().xx();
+  m(1,0) = m(0,1) = tk.localError().positionError().xy() + sta.localError().positionError().xy();
+  m(1,1) = tk.localError().positionError().yy() + sta.localError().positionError().yy();
+  AlgebraicVector2 v;
+  v[0] = tk.localDirection().x() - sta.localDirection().x();
+  v[1] = tk.localDirection().y() - sta.localDirection().y();
+  
+  if ( !m.Invert() ) {
+    LogTrace(category) << "Error inverting local matrix ";
+    return -1;
+  }
+  
+  return ROOT::Math::Similarity(v,m);
 
 }

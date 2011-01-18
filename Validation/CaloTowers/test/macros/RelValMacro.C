@@ -159,13 +159,7 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       }
       
       //Set the colors, styles, titles, stat boxes and format axes for the histograms 
-      ref_hist1[nh1]->SetStats(kTRUE);
-      val_hist1[nh1]->SetStats(kTRUE);
-
-      if (StatSwitch != "Stat" && StatSwitch != "Statrv") {
-        ref_hist1[nh1]->SetStats(kFALSE);
-        val_hist1[nh1]->SetStats(kFALSE);
-      }
+      if (StatSwitch != "Stat" && StatSwitch != "Statrv") ref_hist1[nh1]->SetStats(kFALSE);   
 
       //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
       //xAxis
@@ -386,22 +380,10 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       ref_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       ref_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
       
-      ref_hist2[nh2]->SetMarkerStyle(21);     
-      ref_prof[npi] ->SetMarkerStyle(21);
-      ref_hist2[nh2]->SetMarkerSize(0.02);     
-      ref_prof[npi] ->SetMarkerSize(0.02);
-
       val_file.cd(ValHistDir);   
       
       val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       val_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
-
-      val_hist2[nh2]->SetMarkerStyle(21);     
-      val_prof[npi] ->SetMarkerStyle(21);
-      val_hist2[nh2]->SetMarkerSize(0.02);     
-      val_prof[npi] ->SetMarkerSize(0.02);
-
-
 
       //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
       //xAxis

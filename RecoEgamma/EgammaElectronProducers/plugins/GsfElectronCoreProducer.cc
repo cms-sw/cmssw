@@ -1,10 +1,5 @@
 
 #include "GsfElectronCoreProducer.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -12,20 +7,9 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-
 #include <map>
 
 using namespace reco ;
-
-// void GsfElectronCoreProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
- // {
-  // edm::ParameterSetDescription desc ;
-  // desc.add<edm::InputTag>("gsfTracks",edm::InputTag("electronGsfTracks")) ;
-  // desc.add<edm::InputTag>("ctfTracks",edm::InputTag("generalTracks")) ;
-  // desc.add<edm::InputTag>("pfSuperClusters",edm::InputTag("pfElectronTranslator:pf")) ;
-  // desc.add<edm::InputTag>("pfSuperClusterTrackMap",edm::InputTag("pfElectronTranslator:pf")) ;
-  // descriptions.add("produceGsfElectronCores",desc) ;
- // }
 
 GsfElectronCoreProducer::GsfElectronCoreProducer( const edm::ParameterSet & config )
  {
@@ -115,7 +99,7 @@ std::pair<TrackRef,float> GsfElectronCoreProducer::getCtfTrackRef
     double dEta = gsfTrackRef->eta() - ctfTkIter->eta();
     double dPhi = gsfTrackRef->phi() - ctfTkIter->phi();
     double pi = acos(-1.);
-    if(std::abs(dPhi) > pi) dPhi = 2*pi - std::abs(dPhi);
+    if(fabs(dPhi) > pi) dPhi = 2*pi - fabs(dPhi);
 
     // dont want to look at every single track in the event!
     if(sqrt(dEta*dEta + dPhi*dPhi) > 0.3) continue;

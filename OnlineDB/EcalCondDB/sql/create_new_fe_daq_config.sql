@@ -177,82 +177,6 @@ ALTER TABLE bad_tt_DAT ADD CONSTRAINT bad_tt_DAT_FK FOREIGN KEY (REC_ID) REFEREN
 ALTER TABLE bad_tt_DAT ADD CONSTRAINT bad_tt_DAT_pk PRIMARY KEY (rec_id, sm_id,tt_id );
 
 
-
-/* towers to bypass */
-
-CREATE TABLE TOWERS_TO_BYPASS_INFO (
- rec_id NUMBER(10) NOT NULL,
- TAG VARCHAR2(100),
- version NUMBER(10),
- db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
-);
-
-ALTER TABLE TOWERS_TO_BYPASS_INFO ADD CONSTRAINT TOWERS_TO_BYPASS_INFO_PK PRIMARY KEY (rec_id);
-ALTER TABLE TOWERS_TO_BYPASS_INFO ADD CONSTRAINT TOWERS_TO_BYPASS_INFO_uk UNIQUE(tag,version);
-
-
-CREATE TABLE TOWERS_TO_BYPASS_dat (
-REC_id NUMBER(10) NOT NULL,
-fed_id NUMBER(3) not null,
-tr_id  NUMBER(3) not null,
-tt_id  NUMBER(3) not null,
-time_corr NUMBER(10), 
-status    NUMBER(10) 
-);
-
-ALTER TABLE TOWERS_TO_BYPASS_DAT ADD CONSTRAINT TOWERS_TO_BYPASS_DAT_pk PRIMARY KEY (rec_id, fed_id, tr_id, tt_id );
-
-/* vfes to reject */
-
-CREATE TABLE  VFES_TO_REJECT_INFO (
- rec_id NUMBER(10) NOT NULL,
- TAG VARCHAR2(100),
- version NUMBER(10),
- db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
-);
-
-ALTER TABLE VFES_TO_REJECT_INFO ADD CONSTRAINT VFES_TO_REJECT_INFO_PK PRIMARY KEY (rec_id);
-ALTER TABLE VFES_TO_REJECT_INFO ADD CONSTRAINT VFES_TO_REJECT_INFO_uk UNIQUE(tag,version);
-
-
-CREATE TABLE VFES_TO_REJECT_dat (
-REC_id NUMBER(10) NOT NULL,
-fed_id NUMBER(3) not null,
-tt_id  NUMBER(3) not null,
-vfe_id  NUMBER(3) not null,
-gain NUMBER(10),
-status    NUMBER(10)
-);
-
-ALTER TABLE VFES_TO_REJECT_DAT ADD CONSTRAINT VFES_TO_REJECT_DAT_pk PRIMARY KEY (rec_id, fed_id, tt_id, vfe_id );
-
-
-/*  GOL bias current */
-
-CREATE TABLE  GOL_BIAS_CURRENT_INFO (
- rec_id NUMBER(10) NOT NULL,
- TAG VARCHAR2(100),
- version NUMBER(10),
- db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
-);
-
-ALTER TABLE GOL_BIAS_CURRENT_INFO ADD CONSTRAINT GOL_BIAS_CURRENT_INFO_PK PRIMARY KEY (rec_id);
-ALTER TABLE GOL_BIAS_CURRENT_INFO ADD CONSTRAINT GOL_BIAS_CURRENT_INFO_uk UNIQUE(tag,version);
-
-CREATE TABLE GOL_BIAS_CURRENT_DAT (
-REC_id NUMBER(10) NOT NULL,
-fed_id NUMBER(3) not null,
-tt_id  NUMBER(3) not null,
-gol_id  NUMBER(2) not null,
-gol_current NUMBER(10),
-pll_current NUMBER(10),
-status    NUMBER(10)
-);
-
-ALTER TABLE GOL_BIAS_CURRENT_DAT ADD CONSTRAINT GOL_BIAS_CURRENT_DAT_pk PRIMARY KEY (rec_id, fed_id, tt_id, gol_id );
-
-
-
 /* FE DAQ */
 
 
@@ -265,11 +189,6 @@ del_id NUMBER(10),
 wei_id NUMBER(10),
 bxt_id NUMBER(10),
 btt_id NUMBER(10),
- TR_BXT_ID                                          NUMBER(10),
- TR_BTT_ID                                          NUMBER(10),
- TBY_ID                                             NUMBER(10),
- VFE_ID                                             NUMBER(10),
- GOL_ID                                             NUMBER(10),
 USER_COMMENT VARCHAR2(100),
 db_timestamp          TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
 );

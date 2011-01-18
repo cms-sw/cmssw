@@ -20,7 +20,7 @@ using namespace edm;
 using namespace std;
 
 // random number glue: use pythia
-/*
+
 extern "C"{
    extern double pyr_(int *idummy);
 
@@ -32,30 +32,7 @@ extern "C"{
          *rvec++ = pyr_(&idummy);
    }
 }
-*/
 
-CLHEP::HepRandomEngine* tauolaRandomEngine;
-
-extern "C" {
-
-  void ranmar_( float *rvec, int *lenv )
-  {
-
-      for(int i = 0; i < *lenv; i++)
-         *rvec++ = tauolaRandomEngine->flat();
-
-      return;
-
-  }
-  
-  void rmarin_( int*, int*, int* )
-  {
-
-     return;
-
-  }
-
-}
 
 //
 //   General Note: While there're no explicit calls or otherwise "links" to Pythia6 anywhere,
@@ -307,27 +284,9 @@ using namespace gen;
 using namespace edm;
 using namespace std;
 
-CLHEP::HepRandomEngine* tauolaRandomEngine;
-
-extern "C" {
-
-  void ranmar_( float *rvec, int *lenv )
-  {
-
-      for(int i = 0; i < *lenv; i++)
-         *rvec++ = tauolaRandomEngine->flat();
-
-      return;
-
-  }
-  
-  void rmarin_( int*, int*, int* )
-  {
-
-     return;
-
-  }
-
+// will need more proper treatment, init, etc. 
+extern "C" { 
+   void ranmar_( float*, int* );
 }
 
 TauolaInterface::TauolaInterface( const ParameterSet& pset )

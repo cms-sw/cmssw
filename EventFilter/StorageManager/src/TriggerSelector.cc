@@ -1,4 +1,4 @@
-// $Id: TriggerSelector.cc,v 1.7 2010/12/01 22:09:56 wmtan Exp $
+// $Id: TriggerSelector.cc,v 1.6 2010/02/17 23:06:15 smorovic Exp $
 /// @file: TriggerSelector.cc
 
 #include "EventFilter/StorageManager/interface/TriggerSelector.h"
@@ -40,7 +40,7 @@ namespace stor
       //let's see if non empty TriggerSelector is present
       try {
 	std::string myPath = trim(config.getParameter<std::string>("TriggerSelector"));
-	if (!myPath.empty()) { 
+	if (myPath.size()) { 
 	  init(myPath, triggernames);
 	  return;
 	}
@@ -51,7 +51,7 @@ namespace stor
       try {
 	Strings paths;
 	paths = config.getParameter<Strings>("SelectEvents");
-	if (!paths.empty()) {
+	if (paths.size()) {
 	  useOld_=true;
 	  eventSelector_.reset( new edm::EventSelector(config, triggernames));
 	  return;
@@ -75,7 +75,7 @@ namespace stor
                         Strings const& triggernames)
   {
     //debug_ = true;
-    if (expression.empty())
+    if (expression.size()==0)
     {
       accept_all_ = true;
       return;
@@ -160,7 +160,7 @@ namespace stor
     size_t offset_=0;
     bool occurrences_=false;
 
-    if (str_.empty())
+    if (!str_.size())
       throw edm::Exception(edm::errors::Configuration)  << "Syntax Error (empty element)" << std::endl;
 
     static const size_t bops_size_ = 2;
@@ -263,7 +263,7 @@ namespace stor
       }
     }
 
-    if (str_.empty()) {
+    if (!str_.size()) {
       op_=AND;
       if (debug_) std::cout << "warning: empty element (will return true)"<< std::endl;
       return;
@@ -364,7 +364,7 @@ namespace stor
   bool TriggerSelector::TreeElement::returnStatus(edm::HLTGlobalStatus const& trStatus) const 
   {
 
-    if (children_.empty()) {
+    if (!children_.size()) {
 
       if (op_==OR  || op_==NOT) return false;
       if (op_==AND || op_==BR) return true;

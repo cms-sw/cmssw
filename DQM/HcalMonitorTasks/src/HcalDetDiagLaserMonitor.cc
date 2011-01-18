@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.15 2010/11/11 01:49:42 temple Exp $
+// $Id: HcalDetDiagLaserMonitor.cc,v 1.13 2010/04/08 10:59:20 dma Exp $
 //
 //
 
@@ -233,7 +233,6 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
       std::string XmlFilePath;
       std::string baseFolder_;
       std::string prefixME_;
-      edm::InputTag rawdatalabel_;
       bool        Online_;
       bool        Overwrite;
 
@@ -304,8 +303,6 @@ HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfi
     subdir_.append("/");
   subdir_=prefixME_+subdir_;
   debug_           = iConfig.getUntrackedParameter<int>("debug",0);
-  rawdatalabel_    = iConfig.getUntrackedParameter<edm::InputTag>("RawDataLabel");
-
 
   LaserTimingThreshold = iConfig.getUntrackedParameter<double>("LaserTimingThreshold",0.2);
   LaserEnergyThreshold = iConfig.getUntrackedParameter<double>("LaserEnergyThreshold",0.1);
@@ -478,7 +475,7 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
    // Abort Gap laser 
    if(LocalRun==false || LaserEvent==false){
        edm::Handle<FEDRawDataCollection> rawdata;
-       iEvent.getByLabel(rawdatalabel_,rawdata);
+       iEvent.getByType(rawdata);
        //checking FEDs for calibration information
        for (int i=FEDNumbering::MINHCALFEDID;i<=FEDNumbering::MAXHCALFEDID; i++) {
           const FEDRawData& fedData = rawdata->FEDData(i) ;

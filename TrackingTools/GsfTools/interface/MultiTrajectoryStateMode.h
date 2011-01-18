@@ -26,12 +26,6 @@ public:
    *  Return value true for success. */
   bool positionFromModeLocal (const TrajectoryStateOnSurface tsos,
 			      GlobalPoint& position) const;
-  /** Momentum from 1D mode calculation in q/p. Return value true for sucess. */
-  bool momentumFromModeQP (const TrajectoryStateOnSurface tsos,
-			   double& momentum) const;
-  /** Momentum from 1D mode calculation in p. Return value true for sucess. */
-  bool momentumFromModeP (const TrajectoryStateOnSurface tsos,
-			  double& momentum) const;
   /** Cartesian momentum from 1D mode calculation in p, phi, eta.
    *  Return value true for success. */
   bool momentumFromModePPhiEta (const TrajectoryStateOnSurface tsos,

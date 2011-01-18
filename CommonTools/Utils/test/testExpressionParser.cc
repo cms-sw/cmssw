@@ -236,6 +236,9 @@ void testExpressionParser::checkAll() {
   muon.setIsoDeposit(pat::TrackIso, dep);
   CPPUNIT_ASSERT(muon.trackIsoDeposit() != 0);
   CPPUNIT_ASSERT(muon.trackIsoDeposit()->candEnergy() == 2.0);
+  pat::TriggerObjectStandAlone tosa;
+  tosa.addPathName("HLT_Something");
+  muon.addTriggerObjectMatch(tosa);
   {
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(pat::Muon));
     o = ROOT::Reflex::Object(t, & muon);
@@ -245,6 +248,19 @@ void testExpressionParser::checkAll() {
     checkMuon("userIso(1)" , muon.userIso(1));
     checkMuon("trackIsoDeposit.candEnergy", muon.trackIsoDeposit()->candEnergy());
     //checkMuon("isoDeposit('TrackIso').candEnergy", muon.isoDeposit(pat::TrackIso)->candEnergy());
+    checkMuon("triggerObjectMatchesByPath('HLT_Something').size()",1);
+    for (int b = 0; b <= 1; ++b) {
+        std::cout << "Check for leaks in the " << (b ? "Lazy" : "standard") << " string parser" << std::endl;
+        expr.reset();
+        reco::parser::expressionParser<pat::Muon>("triggerObjectMatchesByPath('HLT_Something').size()", expr, b);
+        double res = 0;
+        for (size_t i = 0; i < 10*1000; ++i) {
+            for (size_t j = 0; j < 100; ++j) {
+                res += expr->value(o);
+            }
+            if (i % 1000 == 999) std::cout << "iter " << i << std::endl;
+        }
+    }
   }
   reco::CandidatePtrVector ptrOverlaps;
   ptrOverlaps.push_back(reco::CandidatePtr(constituentsHandle, 0));
@@ -256,5 +272,6 @@ void testExpressionParser::checkAll() {
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(pat::Muon));
     o = ROOT::Reflex::Object(t, & muon);
     checkMuon("overlaps('test')[0].pt", muon.overlaps("test")[0]->pt());
+
   }
 }

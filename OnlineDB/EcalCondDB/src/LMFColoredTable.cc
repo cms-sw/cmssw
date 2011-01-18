@@ -84,13 +84,5 @@ int LMFColoredTable::writeDB()
     }
     i++;
   }
-  int ret = 0;
-  try {
-    ret = LMFDat::writeDB();
-  }
-  catch (std::runtime_error &e) {
-    m_conn->rollback();
-    throw(e);
-  }
-  return ret;
+  return LMFDat::writeDB();
 }

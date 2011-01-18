@@ -3,23 +3,21 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-# process.source = cms.Source(
-#     "PoolSource",
-#     fileNames = cms.untracked.vstring(
-#       "file:/home/demattia/3C83C26B-8B91-DF11-9CE6-90E6BAE8CC13.root"
-#       # "file:/home/demattia/MuScleFit/PatMuons/onia2MuMuPAT_Summer10-DESIGN_36_V8-X0MAX-v2.root"
-#     )
-# )
-# 
-# process.maxEvents = cms.untracked.PSet(
-#     input = cms.untracked.int32(1000)
-# )
+process.source = cms.Source(
+    "PoolSource",
+    fileNames = cms.untracked.vstring(
+      "file:/home/demattia/MuScleFit/PatMuons/onia2MuMuPAT_Summer10-DESIGN_36_V8-X0MAX-v2.root"
+    )
+)
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
 
 # Use this when running on a tree
-process.source = cms.Source("EmptySource")
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(0)
-)
+# process.source = cms.Source("EmptySource")
+# process.maxEvents = cms.untracked.PSet(
+#     input = cms.untracked.int32(0)
+# )
 
 process.looper = cms.Looper(
     "MuScleFit",
@@ -28,36 +26,30 @@ process.looper = cms.Looper(
     MaxEventsFromRootTree = cms.int32(-1),
     # Specify a file if you want to read events from a root tree in a local file.
     # In this case the input source should be an empty source with 0 events.
-    InputRootTreeFileName = cms.string("/home/demattia/MuScleFit/TreeConversion/NewTree/newTree_oniaSel_upTo148068_19invpb.root"),
+    InputRootTreeFileName = cms.string(""),
     # Specify the file name where you want to save a root tree with the muon pairs.
     # Leave empty if no file should be written.
-    OutputRootTreeFileName = cms.string(""),
+    OutputRootTreeFileName = cms.string("newTree.root"),
 
     # Choose the kind of muons you want to run on
     # -------------------------------------------
-    MuonLabel = cms.InputTag("muons"),
-    # MuonLabel = cms.InputTag("patMuons"),
+    MuonLabel = cms.InputTag("patMuons"),
     # Defines what type of muons to use:
     # -1 = onia guys selection
     # -2 = onia guys selection - only GG
     # -3 = onia guys selection - only GT
     # -4 = onia guys selection - only TT
     # Note that the above samples are independent and represent the composition of the inclusive sample
-    # 0 = muon
     # 1 = global muon
     # 2 = standalone muon
     # 3 = tracker muon
     # 4 = calo muon
-    # 10 = innerTrack of not standalone muon
-    # 11 = innerTrack of global muon
-    # 13 = innerTrack of tracker muon
-    MuonType = cms.int32(0),
-    # MuonType = cms.int32(-1),
+    # 10 = innerTrack of global muon
+    MuonType = cms.int32(-1),
 
     # This line allows to switch to PAT muons. Default is false.
     # Note that the onia selection works only with onia patTuples.
-    PATmuons = cms.untracked.bool(False),
-    # PATmuons = cms.untracked.bool(True),
+    PATmuons = cms.untracked.bool(True),
 
     # ---------------- #
     # Select resonance #
@@ -65,29 +57,23 @@ process.looper = cms.Looper(
     # The resonances are to be specified in this order:
     # Z0, Y(3S), Y(2S), Y(1S), Psi(2S), J/Psi
     # -------------------------------------------------
-    resfind = cms.vint32(0, 0, 0, 0, 0, 1),
+    resfind = cms.vint32(1, 1, 1, 1, 1, 1),
 
     # Likelihood settings
     # -------------------
-    maxLoopNumber = cms.untracked.int32(2),
+    maxLoopNumber = cms.untracked.int32(1),
     # Select which fits to do in which loop (0 = do not, 1 = do)
-    doResolFit =        cms.vint32(0, 0),
-    doScaleFit =        cms.vint32(1, 0),
-    doBackgroundFit =   cms.vint32(0, 0),
-    doCrossSectionFit = cms.vint32(0, 0),
-
-    # Kinematic cuts on both muons
-    MinMuonEtaFirstRange = cms.untracked.double(-1.),
-    MaxMuonEtaFirstRange = cms.untracked.double(1.),
-    MinMuonEtaSecondRange = cms.untracked.double(-1.),
-    MaxMuonEtaSecondRange = cms.untracked.double(1.),
+    doResolFit =        cms.vint32(0),
+    doScaleFit =        cms.vint32(0),
+    doBackgroundFit =   cms.vint32(0),
+    doCrossSectionFit = cms.vint32(0),
 
     # Use the probability file or not. If not it will perform a simpler selection taking the muon pair with
     # invariant mass closer to the pdf value and will crash if some fit is attempted.
     UseProbsFile = cms.untracked.bool(True),
 
     # False = use also MC information
-    speedup = cms.bool(True),
+    speedup = cms.bool(False),
     # Set this to false if you do not want to use simTracks.
     # (Note that this is skipped anyway if speedup == True).
     compareToSimTracks = cms.bool(False),
@@ -96,8 +82,10 @@ process.looper = cms.Looper(
     # ---------------
     OutputFileName = cms.untracked.string('MuScleFit.root'),
 
+
     # Fit parameters and fix flags (1 = use par)
     # ==========================================
+
 
     # BiasType=0 means no bias to muon momenta
     # ----------------------------------------
@@ -121,25 +109,13 @@ process.looper = cms.Looper(
     # Scale fit parameters #
     # -------------------- #
 
-    # -------------------- #
-    # Scale fit parameters #
-    # -------------------- #
-    ScaleFitType = cms.int32(23),
-    parScaleOrder = cms.vint32(0, 0,0,0,0, 0,0,0,0, 0, 0),
-    parScaleFix =   cms.vint32(1, 1,1,1,1, 1,1,1,1, 1, 1),
-    parScale = cms.vdouble(
-    1.0009,
-    -0.000201924,
-    0.794904,
-    -0.000448317,
-    -0.436103,
-    -0.000172309,
-    1.73538,
-    -0.000602425,
-    0.340324,
-    0.466453,
-    1.18303e-05
-    ),
+    # Scale fit type=14: Pt offset and grade up to three, Eta terms up to the sixth grade
+    # -----------------------------------------------------------------------------------
+    ScaleFitType = cms.int32(18),
+    parScaleOrder = cms.vint32(0, 0, 0, 0),
+    parScaleFix =   cms.vint32(0, 0, 0, 0),
+    #parScale = cms.vdouble(1.0, -0.003, -0.0004, 0, 0),
+    parScale = cms.vdouble(1, 1, 1, 1),
 
     # ---------------------------- #
     # Cross section fit parameters #

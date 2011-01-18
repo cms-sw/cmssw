@@ -30,11 +30,6 @@ options.register('tagBase',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "IOV tags = object_{tagBase}")
-options.register('useO2OTags',
-                 0, #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "0 = use uniform tags, 1 = ignore tagBase and use O2O tags")
 options.register('outputDBConnect',
                  'sqlite_file:l1config.db', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -87,18 +82,6 @@ options.register('rpcHsb1Mask',
                  "Replacement value of l1RPCHsbConfig.hsb1Mask; no replacement by default")
 options.parseArguments()
 
-# Define CondDB tags
-if options.useO2OTags == 0:
-    from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
-    from CondTools.L1Trigger.L1UniformTags_cfi import initL1UniformTags
-    initL1UniformTags( tagBase = options.tagBase )
-    tagBaseVec = initL1UniformTags.tagBaseVec
-else:
-    from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
-    from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
-    initL1O2OTags()
-    tagBaseVec = initL1O2OTags.tagBaseVec
-
 # Generate L1TriggerKey
 process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
 process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
@@ -113,7 +96,7 @@ process.outputDB = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListRcd'),
-        tag = cms.string('L1TriggerKeyList_' + tagBaesVec[ L1CondEnum.L1TriggerKeyList ])
+        tag = cms.string('L1TriggerKeyList_' + options.tagBase)
     ))
 )
 process.es_prefer_outputDB = cms.ESPrefer("PoolDBESSource","outputDB")
@@ -155,7 +138,7 @@ from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
 initPayloadWriter( process,
                    outputDBConnect = options.outputDBConnect,
                    outputDBAuth = options.outputDBAuth,
-                   tagBaseVec = tagBaseVec )
+                   tagBase = options.tagBase )
 process.L1CondDBPayloadWriter.writeL1TriggerKey = False
 
 if options.overwriteKey == 0:

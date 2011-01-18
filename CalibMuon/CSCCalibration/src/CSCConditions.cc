@@ -300,15 +300,6 @@ float CSCConditions::chamberTimingCorrection(const CSCDetId & detId) const
   else
     return 0;
 }
-float CSCConditions::anodeBXoffset(const CSCDetId & detId) const
-{
-  if ( useTimingCorrections() ){
-    assert(theChamberTimingCorrections.isValid());
-    return float ( theChamberTimingCorrections->item(detId).anode_bx_offset*1./theChamberTimingCorrections->factor_precision);
-  }
-  else
-    return 0;
-}
 
 const std::bitset<80>& CSCConditions::badStripWord( const CSCDetId& id ) const {
   CSCIndexer indexer;

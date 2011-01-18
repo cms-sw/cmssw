@@ -7,10 +7,6 @@
 
 #include "HepMC/GenEvent.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
 using namespace gen;
 using namespace edm;
 
@@ -23,14 +19,6 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
     
     std::vector<std::string> extGenNames =
        pset.getParameter< std::vector<std::string> >("parameterSets");
-
-    Service<RandomNumberGenerator> rng;
-    if(!rng.isAvailable()) {
-       throw cms::Exception("Configuration")
-       << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
-          "which appears to be absent.  Please add that service to your configuration\n"
-          "or remove the modules that require it." << std::endl;
-    }      
     
     for (unsigned int ip=0; ip<extGenNames.size(); ++ip )
     {
@@ -42,7 +30,6 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       else if ( curSet == "Tauola" )
       {
          fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
-	 tauolaRandomEngine = &rng->getEngine();
       }
 
       else if ( curSet == "Photos" )

@@ -146,8 +146,6 @@ void L1GctWheelEnergyFpga::process()
     m_outputEy = m_inputEy.at(0) + m_inputEy.at(1) + m_inputEy.at(2);
     m_outputEt = m_inputEt.at(0) + m_inputEt.at(1) + m_inputEt.at(2);
     m_outputHt = m_inputHt.at(0) + m_inputHt.at(1) + m_inputHt.at(2);
-    if (m_outputEt.overFlow()) m_outputEt.setValue(etTotalMaxValue);
-    if (m_outputHt.overFlow()) m_outputHt.setValue(htTotalMaxValue);
 
     m_outputExPipe.store( m_outputEx, bxRel());
     m_outputEyPipe.store( m_outputEy, bxRel());

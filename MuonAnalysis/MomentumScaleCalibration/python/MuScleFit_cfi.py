@@ -50,7 +50,6 @@ Sherpa = cms.untracked.bool(False),
 RapidityBinsForZ = cms.untracked.bool(True),
 
 # Set the cuts on muons to be used in the fit
-SeparateRanges = cms.untracked.bool(True),
 MaxMuonPt = cms.untracked.double(100000000.),
 MinMuonPt = cms.untracked.double(0.),
 MinMuonEtaFirstRange = cms.untracked.double(-6.),

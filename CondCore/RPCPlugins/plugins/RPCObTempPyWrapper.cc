@@ -321,7 +321,7 @@ namespace cond {
     int flip(-1);
     float incr(0.045*histoScale);
     float midSc(0.267949192431123),diagSc(sqrt((1.+(midSc*midSc))/2.));
-    float dists[]={0.558*histoScale,0.607*histoScale,0.697*histoScale,/*0.6971*xSc,0.7464*xSc,*/0.823*histoScale,0.967*histoScale};
+    float dists[]={0.558f*histoScale,0.607f*histoScale,0.697f*histoScale,/*0.6971f*xSc,0.7464f*xSc,*/0.823f*histoScale,0.967f*histoScale};
 
     TCanvas *c=new TCanvas("Temp","Temp",1200,700);
     c->Divide(3,2);

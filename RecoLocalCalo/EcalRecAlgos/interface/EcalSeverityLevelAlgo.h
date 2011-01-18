@@ -30,7 +30,7 @@ class EcalSeverityLevelAlgo {
                                           float spIdThreshold = 0.95,
 					  float recHitEnergyThresholdForTiming = 2.,
 					  float recHitEnergyThresholdForEE = 15,
-                                          float spIdThresholdIEta85 = 0.95
+                                          float spIdThresholdIEta85 = 0.999
                                           );
 
                 /** return the estimator of the signal being a spike

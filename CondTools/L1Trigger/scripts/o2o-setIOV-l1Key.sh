@@ -4,20 +4,16 @@
 
 nflag=0
 oflag=0
-pflag=0
-while getopts 'noph' OPTION
+while getopts 'noh' OPTION
   do
   case $OPTION in
       n) nflag=1
           ;;
       o) oflag=1
           ;;
-      p) pflag=1
-	  ;;
       h) echo "Usage: [-n] runnum L1_KEY"
           echo "  -n: no RS"
           echo "  -o: overwrite RS keys"
-          echo "  -p: centrally installed release, not on local machine"
           exit
           ;;
   esac
@@ -28,8 +24,8 @@ shift $(($OPTIND - 1))
 run=$1
 l1Key=$2
 
-release=CMSSW_3_8_1_onlpatch4_ONLINE
-version=008
+release=CMSSW_3_5_0
+version=007
 
 echo "`date` : o2o-setIOV-l1Key-slc5.sh $run $l1Key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
@@ -41,23 +37,14 @@ fi
 
 # set up environment variables
 cd /cmsnfshome0/nfshome0/popcondev/L1Job/${release}/o2o
-
-if [ ${pflag} -eq 0 ]
-    then
-    export SCRAM_ARCH=""
-    export VO_CMS_SW_DIR=""
-    source /opt/cmssw/cmsset_default.sh
-else
-    source /nfshome0/cmssw2/scripts/setup.sh
-    centralRel="-p"
-fi
+source /nfshome0/cmssw2/scripts/setup.sh
+export SCRAM_ARCH=slc5_ia32_gcc434
 eval `scramv1 run -sh`
 
 # Check for semaphore file
 if [ -f o2o-setIOV.lock ]
     then
-    echo "$0 already running.  Aborting process."  | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
-    tail -2 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
+    echo "$0 already running.  Aborting process."
     exit 50
 else
     touch o2o-setIOV.lock
@@ -67,12 +54,12 @@ fi
 # KILL signal (9) is not trapped even though it is listed below.
 trap "rm -f o2o-setIOV.lock; mv tmp.log tmp.log.save; exit" 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64
 
-# run script; args are run key
+# run script; args are run key tagbase
 rm -f tmp.log
 echo "`date` : setting TSC IOVs" >& tmp.log
 tscKey=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -t ${l1Key}`
-echo "`date` : parsed tscKey = ${tscKey}" >> tmp.log 2>&1
-$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${centralRel} ${run} ${tscKey} >> tmp.log 2>&1
+echo "`date` : parsed tscKey = ${tscKey}" >& tmp.log
+$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${run} ${tscKey} CRAFT09 >> tmp.log 2>&1
 o2ocode1=$?
 
 o2ocode2=0
@@ -85,11 +72,10 @@ fi
 if [ ${nflag} -eq 0 ]
     then
     echo "`date` : setting RS keys and IOVs" >> tmp.log 2>&1
-    $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs-keysFromL1Key.sh -x ${overwrite} ${centralRel} ${run} ${l1Key} >> tmp.log 2>&1
+    $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs-keysFromL1Key.sh -x ${overwrite} ${run} CRAFT09 ${l1Key} >> tmp.log 2>&1
     o2ocode2=$?
 fi
 
-tail -1 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
 cat tmp.log | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
 # log TSC key and RS keys

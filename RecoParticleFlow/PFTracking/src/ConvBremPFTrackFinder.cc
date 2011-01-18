@@ -26,7 +26,7 @@ ConvBremPFTrackFinder::ConvBremPFTrackFinder(const TransientTrackBuilder& builde
   mvaBremConvCut_(mvaBremConvCut),
   mvaWeightFileConvBrem_(mvaWeightFileConvBrem)
 {
-  tmvaReader_ = new TMVA::Reader();
+  tmvaReader_ = new TMVA::Reader("!Color:Silent");
   tmvaReader_->AddVariable("secR",&secR);
   tmvaReader_->AddVariable("sTIP",&sTIP);
   tmvaReader_->AddVariable("nHITS1",&nHITS1);

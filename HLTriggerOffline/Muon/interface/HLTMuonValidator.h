@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2010/04/21 16:58:00 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/04/15 18:37:17 $
+ *  $Revision: 1.9 $
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 
@@ -93,7 +93,7 @@ class HLTMuonValidator : public edm::EDAnalyzer {
     }
   };
 
-  void initializeHists();
+  void initializeHists(std::vector<std::string>);
   void analyzePath(const edm::Event &, 
                    const std::string &, const std::string &,
                    const std::vector<MatchStruct>, 

@@ -27,7 +27,5 @@ hcalDetDiagLaserMonitor=cms.EDAnalyzer("HcalDetDiagLaserMonitor",
                                    XmlFilePath            = cms.untracked.string(""),
 			           # thresholds
                                    LaserTimingThreshold   = cms.untracked.double(0.2),
-                                   LaserEnergyThreshold   = cms.untracked.double(0.1),
-                                   RawDataLabel           = cms.untracked.InputTag("source"),
-                                       
+                                   LaserEnergyThreshold   = cms.untracked.double(0.1)
                                    )

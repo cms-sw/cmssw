@@ -6,8 +6,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2010/05/17 18:50:46 $
-  * $Revision: 1.23 $
+  * $Date: 2010/03/25 11:00:58 $
+  * $Revision: 1.22 $
   * \author W. Fisher - FNAL
   */
 
@@ -65,8 +65,6 @@ class HcalTrigPrimMonitor: public HcalBaseDQMonitor {
       MonitorElement* TPOccupancy_;
       MonitorElement* TPOccupancyEta_;
       MonitorElement* TPOccupancyPhi_;
-      MonitorElement* TPOccupancyPhiHFP_;
-      MonitorElement* TPOccupancyPhiHFM_;
 
       int nBad_TP_per_LS_HB_;
       int nBad_TP_per_LS_HE_;

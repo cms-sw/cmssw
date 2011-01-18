@@ -24,12 +24,6 @@ class ElectronHcalHelper ;
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-namespace edm
- {
-  class ConfigurationDescriptions ;
- }
-
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -37,19 +31,18 @@ namespace edm
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ElectronSeedProducer : public edm::EDProducer
  {
   public:
 
-    //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
-
-    explicit ElectronSeedProducer( const edm::ParameterSet & ) ;
+    explicit ElectronSeedProducer(const edm::ParameterSet& conf);
     virtual void beginRun( edm::Run &, edm::EventSetup const & ) ;
     virtual void endRun( edm::Run &, edm::EventSetup const & ) ;
-    virtual ~ElectronSeedProducer() ;
+    virtual ~ElectronSeedProducer();
 
-    virtual void produce( edm::Event &, const edm::EventSetup & ) ;
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
 

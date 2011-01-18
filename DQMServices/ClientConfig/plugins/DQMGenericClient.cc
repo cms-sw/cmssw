@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2010/07/30 13:10:15 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/12/02 17:51:07 $
+ *  $Revision: 1.21 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -432,6 +432,26 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
       new TProfile(newEfficMEName.c_str(), efficMETitle.c_str(),
                    hReco->GetXaxis()->GetNbins(),
                    hReco->GetXaxis()->GetXbins()->GetArray());
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
+    for (int i=1; i <= hReco->GetNbinsX(); i++) {
+      const double nReco = hReco->GetBinContent(i);
+      const double nSim = hSim->GetBinContent(i);
+    
+      if ( nSim == 0 || nReco > nSim ) continue;
+      const double effVal = nReco/nSim;
+
+      const double errLo = TEfficiency::ClopperPearson((int)hReco->GetBinContent(i), 
+						       (int)hSim->GetBinContent(i),
+						       0.683,false);
+      const double errUp = TEfficiency::ClopperPearson((int)hReco->GetBinContent(i), 
+						       (int)hSim->GetBinContent(i),
+						       0.683,true);
+      const double errVal = (effVal - errLo > errUp - effVal) ? effVal - errLo : errLo - effVal;
+      efficHist->SetBinContent(i, effVal);
+      efficHist->SetBinEntries(i, 1);
+      efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
+    }
+#else
     for (int i=1; i <= hReco->GetNbinsX(); i++) {
       TGraphAsymmErrorsWrapper asymm;
       std::pair<double, double> efficiencyWithError;
@@ -445,6 +465,7 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
         efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
       }
     }
+#endif
     theDQM->bookProfile(newEfficMEName.c_str(),efficHist);
     delete efficHist;  
   }
@@ -807,5 +828,6 @@ void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* effi
   //efficiencyHist->setMinimum(0.0);
   //efficiencyHist->setMaximum(1.0);
 }
+
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */

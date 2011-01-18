@@ -140,7 +140,7 @@ def genObjNameDef (line):
     
     
 def genObjectDef (mylist, tuple, alias, label, type, etaPhiFound):
-    """Does something, but I can't remembrer what... """
+    """ """
     print "tuple %s alias %s label %s type %s" % (tuple, alias, label, type)
     # first get the name of the object
     firstName = mylist[0][0]

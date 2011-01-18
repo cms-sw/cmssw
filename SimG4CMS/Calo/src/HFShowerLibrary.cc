@@ -172,14 +172,14 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
   anutauPDG= theParticleTable->FindParticle(parName="anti_nu_tau")->GetPDGEncoding();
   geantinoPDG= theParticleTable->FindParticle(parName="geantino")->GetPDGEncoding();
 #ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerLibrary: Particle codes for e- = " << emPDG
-		       << ", e+ = " << epPDG << ", gamma = " << gammaPDG 
-		       << ", pi0 = " << pi0PDG << ", eta = " << etaPDG
-		       << ", geantino = " << geantinoPDG << "\n        nu_e = "
-		       << nuePDG << ", nu_mu = " << numuPDG << ", nu_tau = "
-		       << nutauPDG << ", anti_nu_e = " << anuePDG
-		       << ", anti_nu_mu = " << anumuPDG << ", anti_nu_tau = "
-		       << anutauPDG;
+  edm::LogInfo("HFShower") << "HFShowerLibrary: Particle codes for e- = " 
+			   << emPDG << ", e+ = " << epPDG << ", gamma = " 
+			   << gammaPDG << ", pi0 = " << pi0PDG << ", eta = " 
+			   << etaPDG << ", geantino = " << geantinoPDG 
+			   << "\n        nu_e = " << nuePDG << ", nu_mu = " 
+			   << numuPDG << ", nu_tau = " << nutauPDG 
+			   << ", anti_nu_e = " << anuePDG << ", anti_nu_mu = " 
+			   << anumuPDG << ", anti_nu_tau = " << anutauPDG;
 #endif
 }
 
@@ -226,13 +226,14 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   double zoff   = localPos.z() + 0.5*gpar[1];
   //  if (zoff < 0) zoff = 0;
-  LogDebug("HFShower") << "HFShowerLibrary: getHits " << partType
-		       << " of energy " << pin/GeV << " GeV"
-		       << "  dir.orts " << momDir.x() << ", " << momDir.y() 
-		       << ", " << momDir.z() << "  Pos x,y,z = " <<hitPoint.x()
-		       << "," << hitPoint.y() << "," << hitPoint.z() << " ("
-		       << zoff << ")   sphi,cphi,stheta,ctheta  = " << sphi 
-		       << ","  << cphi << ", " << stheta << "," << ctheta ; 
+  edm::LogInfo("HFShower") << "HFShowerLibrary: getHits " << partType
+			   << " of energy " << pin/GeV << " GeV"
+			   << "  dir.orts " << momDir.x() << ", " <<momDir.y() 
+			   << ", " << momDir.z() << "  Pos x,y,z = " 
+			   << hitPoint.x() << "," << hitPoint.y() << "," 
+			   << hitPoint.z() << " (" << zoff 
+			   << ")   sphi,cphi,stheta,ctheta  = " << sphi 
+			   << ","  << cphi << ", " << stheta << "," << ctheta; 
 #endif    
                        
   if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
@@ -281,7 +282,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
       zv = std::abs(pos.z()) - gpar[4] - 0.5*gpar[1];
       G4ThreeVector lpos = G4ThreeVector(pos.x(),pos.y(),zv);
 
-      zv = 0.5*gpar[1] - lpos.z();     // remaining distance to PMT !
+      zv = fibre->zShift(lpos,depth,0);     // distance to PMT !
 
       double r  = pos.perp();
       double p  = fibre->attLength(pe[i].lambda());
@@ -557,7 +558,9 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
 #endif
     }
   }
-  LogDebug("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
+#ifdef DebugLog
+  edm::LogInfo("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
+#endif
 
   if (npe > npold || npold == 0)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Extrapolation Warning == "

@@ -576,7 +576,7 @@ GoodSeedProducer::beginRun(edm::Run & run,
   resMapPhiECAL_ = new PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str());
 
   if(useTmva_){
-    reader = new TMVA::Reader();
+    reader = new TMVA::Reader("!Color:Silent");
     method_ = conf_.getParameter<string>("TMVAMethod");
     
     reader->AddVariable("eP",&eP);

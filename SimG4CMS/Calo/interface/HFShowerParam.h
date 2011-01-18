@@ -51,7 +51,7 @@ private:
   HFShowerLibrary*      showerLibrary;
   HFFibre*              fibre;
   HFGflash*             gflash;
-  double                pePerGeV, edMin, ref_index;
+  double                pePerGeV, edMin, ref_index, attLMeanInv;
   bool                  trackEM, onlyLong, parametrizeLast;
   G4int                 emPDG, epPDG, gammaPDG;
   std::vector<double>   gpar;

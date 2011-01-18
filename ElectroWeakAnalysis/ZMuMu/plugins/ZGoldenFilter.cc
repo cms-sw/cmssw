@@ -103,7 +103,7 @@ bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
   for ( unsigned int ia = 0; ia < handleTriggerEvent_->sizeFilters(); ++ ia) {
     std::string fullname = handleTriggerEvent_->filterTag(ia).encode();
     std::string name;
-    size_t p = fullname.find_first_of(':');
+    unsigned int p = fullname.find_first_of(':');
     if ( p != std::string::npos) {
       name = fullname.substr(0, p);
     }

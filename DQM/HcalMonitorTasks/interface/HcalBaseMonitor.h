@@ -38,8 +38,8 @@
 
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2010/03/25 11:00:57 $
-  * $Revision: 1.39 $
+  * $Date: 2010/03/25 10:43:31 $
+  * $Revision: 1.38.2.2 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -132,7 +132,7 @@ protected:
   int oldlumiblock;
   int NumBadHB, NumBadHE, NumBadHO, NumBadHF;
   MonitorElement* ProblemsVsLB;
-  MonitorElement *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HF, *ProblemsVsLB_HBHEHF;
+  MonitorElement *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HF;
 
 };
 

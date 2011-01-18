@@ -31,17 +31,7 @@ public:
   }
 };
 
-static int indexByEta(HcalDetId id) {
-  return (id.zside()>0)?(id.ietaAbs()-29+13):(41-id.ietaAbs());
-}
-
-static const double MCMaterialCorrections[] = {  1.000,1.000,1.105,0.970,0.965,0.975,0.956,0.958,0.981,1.005,0.986,1.086,1.000,
-						 1.000,1.086,0.986,1.005,0.981,0.958,0.956,0.975,0.965,0.970,1.105,1.000,1.000 };
-
-    
-
-void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold,double maximumSL,double maximumRenergy,
-			  bool usePMTflag,bool usePulseflag, int correctionSet){
+void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold,double maximumSL,double maximumRenergy,bool usePMTflag,bool usePulseflag){
   m_seedThreshold=seedThreshold;
   m_minTowerEnergy=minTowerEnergy;
   m_maximumSL=maximumSL;
@@ -51,16 +41,6 @@ void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold,double max
   for(int ii=0;ii<13;ii++){
     m_cutByEta.push_back(-1);
   }
-
-  // always set all the corrections to one...
-  for (int ii=0; ii<13*2; ii++) 
-    m_correctionByEta.push_back(1.0);
-
-  if (m_correctionSet==1) { // corrections for material from MC
-    for (int ii=0; ii<13*2; ii++) 
-      m_correctionByEta[ii]=MCMaterialCorrections[ii];
-  }
-
 }
 
 /** Analyze the hits */
@@ -97,20 +77,16 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       double eta=geom.getPosition(j->id()).eta();
       m_cutByEta[iz]=m_seedThreshold*cosh(eta); // convert ET to E for this ring
     }
-    double elong=j->energy()*m_correctionByEta[indexByEta(j->id())];
-    if (elong>m_cutByEta[iz]) {
+  
+    if (j->energy()>m_cutByEta[iz]) {
       j2=hf.find(HcalDetId(HcalForward,j->id().ieta(),j->id().iphi(),2));
       double eshort=(j2==hf.end())?(0):(j2->energy());
-      if (j2!=hf.end())
-         eshort*=m_correctionByEta[indexByEta(j2->id())];
-      if (((elong-eshort)/(elong+eshort))>m_maximumSL) continue;
-      if ((m_usePMTFlag)&&(j->flagField(4,1))) continue;
-      if ((m_usePulseFlag)&&(il->flagField(1,1))) continue;
+      if (((j->energy()-eshort)/(j->energy()+eshort))>m_maximumSL) continue;
 
       HFCompleteHit ahit;
       double eta=geom.getPosition(j->id()).eta();
       ahit.id=j->id();
-      ahit.energy=elong;
+      ahit.energy=j->energy();
       ahit.et=ahit.energy/cosh(eta);
       protoseeds.push_back(ahit);
     }
@@ -199,8 +175,6 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   // lots happens here
   // edge type 1 has 40/41 in 3x3 and 5x5
   bool edge_type1=seedid.ietaAbs()==39 && (seedid.iphi()%4)==3;
-
-  double e_seed=si->energy()*m_correctionByEta[indexByEta(si->id())];
   
   for (de=-2; de<=2; de++)
     for (dp=-4;dp<=4; dp+=2) {
@@ -230,14 +204,12 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	il=hf.find(idl);
 	is=hf.find(ids);        
 
-
-
-
 	double e_long=1.0; 
 	double e_short=0.0; 
-	if (il!=hf.end()) e_long=il->energy()*m_correctionByEta[indexByEta(il->id())];
+
+	if (il!=hf.end()) e_long=il->energy();
 	if (e_long <= m_minTowerEnergy) e_long=0.0;
-	if (is!=hf.end()) e_short=is->energy()*m_correctionByEta[indexByEta(is->id())];
+	if (is!=hf.end()) e_short=is->energy();
 	if (e_short <= m_minTowerEnergy) e_short=0.0;
 	double eRatio=(e_long-e_short)/std::max(1.0,(e_long+e_short));
 	
@@ -248,13 +220,13 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	}
 	
 	// cut on "PMT HIT" flag
-	if ((il!=hf.end())&&(il->flagField(4,1))&&(m_usePMTFlag)) {//HFPET flag for lone/short doil->flagField(0,1)
+	if ((il!=hf.end())&&(il->flagField(0,1))&&(m_usePMTFlag)) {
 	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
 	  continue;
 	}
 
 	// cut on "Pulse shape HIT" flag
-	if ((il!=hf.end())&&(il->flagField(1,1))&&(m_usePulseFlag)) {//HF DIGI TIME flag
+	if ((il!=hf.end())&&(il->flagField(1,1))&&(m_usePulseFlag)) {
 	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
 	  continue;
 	}
@@ -275,7 +247,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
           }
 
 	  // maybe in the core?
-	  if ((de>-2)&&(de<2)&&(dp>-4)&&(dp<4)&&(e_long>(.5*e_seed))) {
+	  if ((de>-2)&&(de<2)&&(dp>-4)&&(dp<4)&&(e_long>(.5*si->energy()))) {
             coreCanid.push_back(e_long);
           }
 	  

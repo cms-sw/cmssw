@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.h,v 1.11 2010/12/02 15:51:09 mommsen Exp $
+// $Id: WebPageHelper.h,v 1.9 2009/08/28 14:35:33 mommsen Exp $
 /// @file: WebPageHelper.h
 
 #ifndef StorageManager_WebPageHelper_h
@@ -35,8 +35,8 @@ namespace stor {
    * Helper class to handle web page requests
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2010/12/02 15:51:09 $
+   * $Revision: 1.9 $
+   * $Date: 2009/08/28 14:35:33 $
    */
   
   class WebPageHelper
@@ -45,7 +45,8 @@ namespace stor {
 
     WebPageHelper
     (
-      xdaq::ApplicationDescriptor*
+      xdaq::ApplicationDescriptor*,
+      const std::string SMversion
     );
 
 
@@ -130,7 +131,7 @@ namespace stor {
     /**
      * Returns the webpage body with the standard header as XHTML node
      */
-    XHTMLMaker::Node* createWebPageBody(XHTMLMaker&, const std::string& pageTitle, SharedResourcesPtr);
+    XHTMLMaker::Node* createWebPageBody(XHTMLMaker&, const StatisticsReporterPtr);
 
     /**
      * Adds the links for the other SM webpages
@@ -199,26 +200,6 @@ namespace stor {
     );
 
     /**
-     * Adds statistics for event consumers
-     */
-     void addDOMforEventConsumers
-    (
-      XHTMLMaker& maker,
-      XHTMLMaker::Node *parent,
-      const SharedResourcesPtr
-    );
-
-    /**
-     * Adds statistics for DQM event consumers
-     */
-     void addDOMforDQMEventConsumers
-    (
-      XHTMLMaker& maker,
-      XHTMLMaker::Node *parent,
-      const SharedResourcesPtr
-    );
-
-    /**
      * Adds DQM event processor statistics to the parent DOM element
      */
     void addDOMforProcessedDQMEvents
@@ -255,8 +236,7 @@ namespace stor {
     (
       XHTMLMaker& maker,
       XHTMLMaker::Node* table,
-      const ThroughputMonitorCollection::Stats::Snapshot&,
-      bool const isAverage = false
+      const ThroughputMonitorCollection::Stats::Snapshot&
     );
 
     /**

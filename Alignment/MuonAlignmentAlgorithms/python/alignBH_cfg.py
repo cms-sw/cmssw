@@ -7,8 +7,7 @@ iteration = int(os.environ["ALIGNMENT_ITERATION"])
 mode = os.environ["ALIGNMENT_MODE"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
 globaltag = os.environ["ALIGNMENT_GLOBALTAG"]
-photogrammetry = eval(os.environ["ALIGNMENT_PHOTOGRAMMETRY"])
-fillME11holes = eval(os.environ["ALIGNMENT_FILLME11HOLES"])
+photogrammetry = (os.environ["ALIGNMENT_PHOTOGRAMMETRY"] == "True")
 disks = (os.environ["ALIGNMENT_DISKS"] == "True")
 
 minP = float(os.environ["ALIGNMENT_minP"])
@@ -41,11 +40,10 @@ if disks:
 
 execfile("constraints_cff.py")
 
-# Let's not have the PGFrame forced as a fixed reference frame
-# if photogrammetry and mode != "phipos":
-#     for f in process.looper.algoConfig.fitters:
-#         if "PGFrame" in f.alignables:
-#             f.fixed = cms.string("PGFrame")
+if photogrammetry and mode != "phipos":
+    for f in process.looper.algoConfig.fitters:
+        if "PGFrame" in f.alignables:
+            f.fixed = cms.string("PGFrame")
 
 process.looper.algoConfig.writeTemporaryFile = ""
 process.looper.algoConfig.readTemporaryFiles = cms.vstring(*alignmenttmp)

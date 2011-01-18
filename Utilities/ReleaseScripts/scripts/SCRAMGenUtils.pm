@@ -168,8 +168,8 @@ sub scramVersion ()
     if (exists $ENV{SCRAM_HOME}){$SCRAM_VERSION=basename($ENV{SCRAM_HOME}); return $SCRAM_VERSION;}
     my $scram=`which $SCRAM_CMD 2>&1`; chomp $scram;
     if ($scram!~/\/$SCRAM_CMD\s*$/){die "can not find $SCRAM_CMD command.\n";}
-    my $dir=`cd $rel; sh -v $scram 2>&1 | grep "SCRAMV1_ROOT" | sed 's|^SCRAMV1_ROOT=||'`; chomp $dir;
-    $dir=~s/;.*$//;$dir=~s/"//g;
+    my $dir=`cd $rel; sh -v $scram --help 2>&1 | grep SCRAMV1_ROOT=`; chomp $dir;
+    $dir=~s/SCRAMV1_ROOT=["']//; $dir=~s/['"].*//;
     if (!-d $dir){die "Can not find scram installation path.\n";}
     my $sver=basename($dir);
     my $sdir=dirname($dir);

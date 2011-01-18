@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerEvent
 //
-// $Id: TriggerEvent.h,v 1.7 2010/06/16 15:40:52 vadler Exp $
+// $Id: TriggerEvent.h,v 1.8 2010/07/15 21:33:28 vadler Exp $
 //
 /**
   \class    pat::TriggerEvent TriggerEvent.h "DataFormats/PatCandidates/interface/TriggerEvent.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerEvent
 
   \author   Volker Adler
-  \version  $Id: TriggerEvent.h,v 1.7 2010/06/16 15:40:52 vadler Exp $
+  \version  $Id: TriggerEvent.h,v 1.8 2010/07/15 21:33:28 vadler Exp $
 */
 
 
@@ -145,7 +145,7 @@ namespace pat {
       bool addObjectMatchResult( const edm::Handle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher );       // returns 'false' if 'matcher' alreadey exists
       bool addObjectMatchResult( const edm::OrphanHandle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher ); // returns 'false' if 'matcher' alreadey exists
       const TriggerObjectCollection     * objects() const { return objects_.get(); };                                             // returns 0 if RefProd is null
-      TriggerObjectRefVector              objects( unsigned filterId ) const;                                                     // transient
+      TriggerObjectRefVector              objects( int filterId ) const;                                                          // transient
 
       /// x-collection related
       TriggerFilterRefVector     pathModules( const std::string & namePath, bool all = true ) const;                          // transient; setting 'all' to 'false' returns the run filters only.

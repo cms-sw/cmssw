@@ -106,7 +106,7 @@ bool SimpleSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
 
       const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
       unsigned int pathIndex = trigNames.triggerIndex(selectorPath_);
-      bool pathFound = (pathIndex<trigNames.size()); // pathIndex >= 0, since pathIndex is unsigned
+      bool pathFound = (pathIndex>=0 && pathIndex<trigNames.size());
       if (pathFound) {
             if (triggerResults->accept(pathIndex)) selectedEvent = true;
       }

@@ -9,6 +9,7 @@
 // externals
 #include "CoralBase/Attribute.h"
 #include "Reflex/Object.h"
+#include "Reflex/Member.h"
 
 namespace ora {
   class OraPtrReadBuffer {

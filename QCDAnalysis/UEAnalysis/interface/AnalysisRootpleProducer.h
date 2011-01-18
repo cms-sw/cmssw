@@ -14,13 +14,12 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include <CommonTools/UtilAlgos/interface/TFileService.h>
 
 #include <TROOT.h>
 #include <TTree.h>
 #include <TFile.h>
 #include <TLorentzVector.h>
-#include <TVector.h>
 #include <TObjString.h>
 #include <TClonesArray.h>
 
@@ -30,44 +29,35 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
-#include "DataFormats/JetReco/interface/TrackJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-
 
 // access trigger results
-//#include <FWCore/Framework/interface/TriggerNames.h>
-#include <FWCore/Common/interface/TriggerNames.h>
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
 
-class TTree;
-class TFile;
-class TObject;
-
-
-
 class AnalysisRootpleProducer : public edm::EDAnalyzer
 {
   
-
 public:
   
   //
   explicit AnalysisRootpleProducer( const edm::ParameterSet& ) ;
   virtual ~AnalysisRootpleProducer() {} // no need to delete ROOT stuff
   // as it'll be deleted upon closing TFile
-
+  
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
   virtual void beginJob() ;
   virtual void endJob() ;
   
   void fillEventInfo(int);
+  void fillMCParticles(float, float, float, float);
+  void fillTracks(float, float, float, float);
+  void fillInclusiveJet(float, float, float, float);
+  void fillChargedJet(float, float, float, float);
+  void fillTracksJet(float, float, float, float);
+  void fillCaloJet(float, float, float, float);
   void store();
 
 private:
@@ -82,23 +72,16 @@ private:
   edm::InputTag recoCaloJetCollName;
   edm::InputTag tracksCollName;
   edm::InputTag triggerResultsTag;
-  edm::InputTag triggerEventTag;
-  edm::InputTag genEventScaleTag;
 
-  edm::Handle< double              > genEventScaleHandle;
-  edm::Handle< edm::HepMCProduct        > EvtHandle ;
+  edm::Handle< edm::HepMCProduct         > EvtHandle ;
   edm::Handle< std::vector<reco::GenParticle> > CandHandleMC ;
   edm::Handle< reco::GenJetCollection    > GenJetsHandle ;
   edm::Handle< reco::GenJetCollection    > ChgGenJetsHandle ;
-  //  edm::Handle< CandidateCollection > CandHandleRECO ;
-  edm::Handle< edm::View<reco::Candidate> > CandHandleRECO ;
-  edm::Handle< reco::TrackJetCollection  > TracksJetsHandle ;
+  edm::Handle< reco::CandidateCollection > CandHandleRECO ;
+  edm::Handle< reco::BasicJetCollection  > TracksJetsHandle ;
   edm::Handle< reco::CaloJetCollection   > RecoCaloJetsHandle ;
-  edm::Handle< edm::TriggerResults  > triggerResults;
-  edm::Handle< trigger::TriggerEvent  > triggerEvent;
-
+  edm::Handle< edm::TriggerResults       > triggerResults;
   //  edm::Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
-  edm::TriggerNames triggerNames;
 
   edm::Service<TFileService> fs;
 
@@ -106,73 +89,29 @@ private:
 
   TTree* AnalysisTree;
 
-  int EventKind;
+  static const int NMCPMAX = 10000;   
+  static const int NTKMAX = 10000;
+  static const int NIJMAX = 10000;
+  static const int NCJMAX = 10000;
+  static const int NTJMAX = 10000;
+  static const int NEHJMAX = 10000;
 
-  TClonesArray* Parton;
+  int EventKind,NumberMCParticles,NumberTracks,NumberInclusiveJet,NumberChargedJet,NumberTracksJet,NumberCaloJet;
+  
+  float MomentumMC[NMCPMAX],TransverseMomentumMC[NMCPMAX],EtaMC[NMCPMAX],PhiMC[NMCPMAX];
+  float MomentumTK[NTKMAX],TransverseMomentumTK[NTKMAX],EtaTK[NTKMAX],PhiTK[NTKMAX];
+  float MomentumIJ[NIJMAX],TransverseMomentumIJ[NIJMAX],EtaIJ[NIJMAX],PhiIJ[NIJMAX];
+  float MomentumCJ[NCJMAX],TransverseMomentumCJ[NCJMAX],EtaCJ[NCJMAX],PhiCJ[NCJMAX];
+  float MomentumTJ[NTJMAX],TransverseMomentumTJ[NTJMAX],EtaTJ[NTJMAX],PhiTJ[NTJMAX];
+  float MomentumEHJ[NEHJMAX],TransverseMomentumEHJ[NEHJMAX],EtaEHJ[NEHJMAX],PhiEHJ[NEHJMAX];
+
   TClonesArray* MonteCarlo;
-  TClonesArray* MonteCarlo2;
   TClonesArray* InclusiveJet;
   TClonesArray* ChargedJet;
   TClonesArray* Track;
-  TClonesArray* AssVertex;
   TClonesArray* TracksJet;
   TClonesArray* CalorimeterJet;
   TClonesArray* acceptedTriggers;
-
-  double genEventScale;
-  //info sull'evento 
-  int eventNum;
-  int lumiBlock;
-  int runNumber;
-  int bx;
-
-  //tracks with vertex
-struct Vertex
-{
-  Int_t   npv;
-  Double_t pvx[10];
-  Double_t pvxErr[10];
-  Double_t pvy[10];
-  Double_t pvyErr[10];
-  Double_t pvz[10];
-  Double_t pvzErr[10];
-  Double_t pvchi2[10];
-  int   pvntk[10];
-}vertex_;
- 
-struct TrackExtraUE
-{
- Double_t  pvtkp[5000];
- Double_t pvtkpt[5000];
- Double_t pvtketa[5000];
- Double_t pvtkphi[5000];
- Double_t pvtknhit[5000];
- Double_t pvtkchi2norm[5000];
- Double_t pvtkd0[5000];
- Double_t pvtkd0Err[5000];
- Double_t pvtkdz[5000];
- Double_t pvtkdzErr[5000];
-}trackextraue_;
- 
-
-struct TrackinJet
-{
-  Int_t tkn[100];
- Double_t tkp[5000];
- Double_t tkpt[5000];
- Double_t tketa[5000];
- Double_t tkphi[5000];
- Double_t tknhit[5000];
- Double_t tkchi2norm[5000];
- Double_t tkd0[5000];
- Double_t tkd0Err[5000];
- Double_t tkdz[5000];
- Double_t tkdzErr[5000];
-}trackinjet_;
- 
-
- std::vector<int>  pdgidList;
-
 };
 
 #endif

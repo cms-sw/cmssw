@@ -1,10 +1,11 @@
-<use   name="DataFormats/FWLite"/>
 <use   name="boost"/>
-<use   name="rootcintex"/>
 <use   name="rootcore"/>
 <use   name="rootrflx"/>
+<use   name="rootcintex"/>
 <use   name="roothistmatrix"/>
 <use   name="CommonTools/Utils"/>
+<use   name="DataFormats/FWLite"/>
+<use   name="DataFormats/MuonReco"/>
 <export>
   <lib   name="1"/>
 </export>

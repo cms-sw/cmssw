@@ -3,6 +3,8 @@
 ## ---
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## ... and modify it according to the needs
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
+process.source.fileNames    = pickRelValInputFiles()
 process.maxEvents.input     = 1000 # reduce number of events for testing.
 process.out.fileName        = 'patTuple.root'
 process.options.wantSummary = False # to suppress the long output at the end of the job

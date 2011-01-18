@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2010/04/21 16:58:00 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/04/21 00:11:47 $
+ *  $Revision: 1.21 $
  */
 
 
@@ -80,17 +80,19 @@ HLTMuonValidator::beginRun(const Run & iRun, const EventSetup & iSetup)
   static int runNumber = 0;
   runNumber++;
 
-  l1Matcher_.init(iSetup);
-
   bool changedConfig;
   if (!hltConfig_.init(iRun, iSetup, hltProcessName_, changedConfig)) {
     LogError("HLTMuonVal") << "Initialization of HLTConfigProvider failed!!"; 
     return;
   }
+  if (runNumber > 1 && changedConfig)
+    LogWarning("HLTMuonVal") << "The HLT configuration changed... "
+                             << "results might get funky.";
 
-  hltPaths_.clear();
-  filterLabels_.clear();
+  l1Matcher_.init(iSetup);
+
   vector<string> validTriggerNames = hltConfig_.triggerNames();
+
   for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
     TPRegexp pattern(hltPathsToCheck_[i]);
     for (size_t j = 0; j < validTriggerNames.size(); j++)
@@ -101,19 +103,15 @@ HLTMuonValidator::beginRun(const Run & iRun, const EventSetup & iSetup)
       hltPaths_.insert("NoFilters");
   }
 
-  initializeHists();
-
 }
 
 
 
 void
-HLTMuonValidator::initializeHists()
+HLTMuonValidator::initializeHists(vector<string> sources)
 {
 
-  vector<string> sources(2);
-  sources[0] = "gen";
-  sources[1] = "rec";
+  vector<string> validTriggerNames = hltConfig_.triggerNames();
 
   set<string>::iterator iPath;
   TPRegexp suffixPtCut("[0-9]+$");
@@ -121,14 +119,6 @@ HLTMuonValidator::initializeHists()
   for (iPath = hltPaths_.begin(); iPath != hltPaths_.end(); iPath++) {
  
     string path = * iPath;
-
-    if (path == "NoFilters") {
-      filterLabels_[path].push_back("hltL1sL1SingleMuOpenL1SingleMu0");
-      // The L2 and L3 collections will be built manually later on
-      filterLabels_[path].push_back("");
-      filterLabels_[path].push_back("");
-    }
-
     vector<string> moduleLabels;
     if (path != "NoFilters") moduleLabels = hltConfig_.moduleLabels(path);
 
@@ -151,50 +141,51 @@ HLTMuonValidator::initializeHists()
     if (cutMinPt < 0. || path == "NoFilters") cutMinPt = 0.;
     cutsMinPt_[path] = cutMinPt;
 
-    string baseDir = "HLT/Muon/Distributions/";
-    dbe_->setCurrentFolder(baseDir + path);
+    dbe_->setCurrentFolder("HLT/Muon/Distributions/" + path);
+    elements_[path + "_" + "CutMinPt" ] = dbe_->bookFloat("CutMinPt" );
+    elements_[path + "_" + "CutMaxEta"] = dbe_->bookFloat("CutMaxEta");
+    elements_[path + "_" + "CutMinPt" ]->Fill(cutMinPt);
+    elements_[path + "_" + "CutMaxEta"]->Fill(cutMaxEta);
 
-    if (dbe_->get(baseDir + path + "/CutMinPt") == 0) {
+    if (path == "NoFilters") {
+      filterLabels_[path].push_back("hltL1sL1SingleMuOpenL1SingleMu0");
+      // The L2 and L3 collections will be built manually later on
+      filterLabels_[path].push_back("");
+      filterLabels_[path].push_back("");
+    }
 
-      elements_[path + "_" + "CutMinPt" ] = dbe_->bookFloat("CutMinPt" );
-      elements_[path + "_" + "CutMaxEta"] = dbe_->bookFloat("CutMaxEta");
-      elements_[path + "_" + "CutMinPt" ]->Fill(cutMinPt);
-      elements_[path + "_" + "CutMaxEta"]->Fill(cutMaxEta);
+    // Standardize the names that will be applied to each step
+    const int nFilters = filterLabels_[path].size();
+    stepLabels_[path].push_back("All");
+    stepLabels_[path].push_back("L1");
+    if (nFilters == 2) {
+      stepLabels_[path].push_back("L2");
+    }
+    if (nFilters == 3) {
+      stepLabels_[path].push_back("L2");
+      stepLabels_[path].push_back("L3");
+    }
+    if (nFilters == 5) {
+      stepLabels_[path].push_back("L2");
+      stepLabels_[path].push_back("L2Iso");
+      stepLabels_[path].push_back("L3");
+      stepLabels_[path].push_back("L3Iso");
+    }
 
-      // Standardize the names that will be applied to each step
-      const int nFilters = filterLabels_[path].size();
-      stepLabels_[path].push_back("All");
-      stepLabels_[path].push_back("L1");
-      if (nFilters == 2) {
-        stepLabels_[path].push_back("L2");
+//     string l1Name = path + "_L1Quality";
+//     elements_[l1Name.c_str()] = 
+//       dbe_->book1D("L1Quality", "Quality of L1 Muons", 8, 0, 8);
+//     for (size_t i = 0; i < 8; i++)
+//       elements_[l1Name.c_str()]->setBinLabel(i + 1, Form("%i", i));
+
+    for (size_t i = 0; i < sources.size(); i++) {
+      string source = sources[i];
+      for (size_t j = 0; j < stepLabels_[path].size(); j++) {
+        bookHist(path, stepLabels_[path][j], source, "Eta");
+        bookHist(path, stepLabels_[path][j], source, "Phi");
+        bookHist(path, stepLabels_[path][j], source, "MaxPt1");
+        bookHist(path, stepLabels_[path][j], source, "MaxPt2");
       }
-      if (nFilters == 3) {
-        stepLabels_[path].push_back("L2");
-        stepLabels_[path].push_back("L3");
-      }
-      if (nFilters == 5) {
-        stepLabels_[path].push_back("L2");
-        stepLabels_[path].push_back("L2Iso");
-        stepLabels_[path].push_back("L3");
-        stepLabels_[path].push_back("L3Iso");
-      }
-
-      //     string l1Name = path + "_L1Quality";
-      //     elements_[l1Name.c_str()] = 
-      //       dbe_->book1D("L1Quality", "Quality of L1 Muons", 8, 0, 8);
-      //     for (size_t i = 0; i < 8; i++)
-      //       elements_[l1Name.c_str()]->setBinLabel(i + 1, Form("%i", i));
-
-      for (size_t i = 0; i < sources.size(); i++) {
-        string source = sources[i];
-        for (size_t j = 0; j < stepLabels_[path].size(); j++) {
-          bookHist(path, stepLabels_[path][j], source, "Eta");
-          bookHist(path, stepLabels_[path][j], source, "Phi");
-          bookHist(path, stepLabels_[path][j], source, "MaxPt1");
-          bookHist(path, stepLabels_[path][j], source, "MaxPt2");
-        }
-      }
-
     }
 
   }
@@ -225,6 +216,9 @@ HLTMuonValidator::analyze(const Event & iEvent, const EventSetup & iSetup)
   vector<string> sources;
   if (genParticles.isValid()) sources.push_back("gen");
   if (    recMuons.isValid()) sources.push_back("rec");
+
+  bool isFirstEvent = (eventNumber == 1);
+  if (isFirstEvent) initializeHists(sources);
 
   for (size_t sourceNo = 0; sourceNo < sources.size(); sourceNo++) {
 
@@ -270,7 +264,7 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
 
   const bool skipFilters = (path == "NoFilters");
 
-  const float maxEta = elements_[path + "_" + "CutMaxEta"]->getFloatValue();
+  const float maxEta = elements_[path + "_" + "CutMaxEta" ]->getFloatValue();
   const bool isDoubleMuonPath = (path.find("Double") != string::npos);
   const size_t nFilters   = filterLabels_[path].size();
   const size_t nSteps     = stepLabels_[path].size();

@@ -7,10 +7,11 @@
  *
  * \author Chris Jones, Cornell
  *
- * $Id: RootAutoLibraryLoader.h,v 1.4 2006/09/29 00:54:16 chrjones Exp $
+ * $Id: RootAutoLibraryLoader.h,v 1.2 2010/12/15 21:22:25 chrjones Exp $
  *
  */
 #include "TClassGenerator.h"
+#include "RVersion.h"
 
 class DummyClassToStopCompilerWarning;
 
@@ -35,6 +36,9 @@ private:
   RootAutoLibraryLoader();
   RootAutoLibraryLoader(const RootAutoLibraryLoader&); // stop default
   const RootAutoLibraryLoader& operator=(const RootAutoLibraryLoader&); // stop default
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,6)
+  bool isInitializingCintex_;
+#endif
 };
 
 }

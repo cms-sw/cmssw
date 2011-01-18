@@ -56,7 +56,7 @@ print _computer_name
     #minGammaEt = PFTauQualityCuts.isolationQualityCuts.minGammaEt,
 #)
 
-_KIN_CUT = 'pt > 20 & abs(eta) < 2.5'
+_KIN_CUT = 'jetRef.pt > 20 & abs(eta) < 2.5'
 
 process = cms.Process("TrainTaNC")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )

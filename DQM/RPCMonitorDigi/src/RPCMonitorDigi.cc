@@ -169,8 +169,6 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,const edm::EventSetup& iSe
   edm::Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByLabel(RPCRecHitLabel_,rpcHits);
 
-  if(!rpcdigis.isValid() || !rpcHits.isValid()) return;
-
   map<int,int> bxMap;
  
   if(rpcdigis->begin()!=rpcdigis->end())  RPCEvents -> Fill(1);

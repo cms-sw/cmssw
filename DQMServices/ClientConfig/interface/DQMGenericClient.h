@@ -6,8 +6,8 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2009/11/14 09:07:59 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/06/24 13:38:38 $
+ *  $Revision: 1.8 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -18,7 +18,12 @@
 #include <string>
 #include <vector>
 #include <TH1.h>
+#include <RVersion.h>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
+#include <TEfficiency.h>
+#else
 #include <TGraphAsymmErrors.h>
+#endif
 
 class DQMStore;
 class MonitorElement;
@@ -93,6 +98,9 @@ class DQMGenericClient : public edm::EDAnalyzer
 
   void findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern);
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
+
+#else
   class TGraphAsymmErrorsWrapper : public TGraphAsymmErrors {
    public:
     std::pair<double, double> efficiency(int numerator, int denominator) {
@@ -102,6 +110,7 @@ class DQMGenericClient : public edm::EDAnalyzer
       return std::pair<double, double>(eff, error);
     }
   };
+#endif
 
 };
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # This script creates all the tags required in the "tagList"
 # The tagList needs: tag name, tag type (e.g. Ideal, StartUp, ...) and possible additional
@@ -111,8 +110,6 @@ tagList = [
     Tag("SiStripPedestals", "Ideal"),
     # Latency
     Tag("SiStripLatency", "Ideal"),
-    # BaseDelay
-    Tag("SiStripBaseDelay", "Ideal"),
     # Configuration object
     Tag("SiStripConfObject", "Ideal")
     ]

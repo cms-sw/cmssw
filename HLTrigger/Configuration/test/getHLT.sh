@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_3_10_0/pre6/HLT"     # no explicit version, take te most recent 
-TARGET="/dev/CMSSW_3_10_0/pre6/\$TABLE" # no explicit version, take te most recent 
+MASTER="/dev/CMSSW_3_10_0/HLT"          # no explicit version, take te most recent 
+TARGET="/dev/CMSSW_3_10_0/\$TABLE"      # no explicit version, take te most recent 
 TABLES="GRun HIon"                      # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
@@ -64,8 +64,8 @@ function getConfigForOnline() {
   local NAME="$2"
   local L1T="L1Menu_Collisions2010_v0"
   local L1TPP="L1Menu_Collisions2010_v0"
-# local L1THI="L1Menu_CollisionsHeavyIons2010_v0"
-  local L1THI="sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_CollisionsHeavyIons2010_v2_mc.db:L1Menu_CollisionsHeavyIons2010_v2"
+  local L1THI="L1Menu_CollisionsHeavyIons2010_v2"
+# local L1THI="sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_CollisionsHeavyIons2010_v2_mc.db:L1Menu_CollisionsHeavyIons2010_v2"
 
   log "    dumping full HLT for $NAME"
   # override L1 menus
@@ -74,7 +74,7 @@ function getConfigForOnline() {
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP                               > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "HIon" ]; then
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:hltonline    > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag START39_V4HI::All > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:starthi      > OnLine_HLT_$NAME.py
   else
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME             --globaltag auto:hltonline    > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                           > OnLine_HLT_$NAME.py

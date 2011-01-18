@@ -11,10 +11,11 @@ process.options = cms.untracked.PSet(
 )
 
 ## Source
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 process.source = cms.Source(
   "PoolSource"
 , fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_8_6/RelValTTbar/GEN-SIM-RECO/START38_V13-v1/0065/2856A4C7-B5E7-DF11-BE1D-00304867BFA8.root'
+    pickRelValInputFiles()
   )
 )
 ## Maximal Number of Events
@@ -25,12 +26,12 @@ process.maxEvents = cms.untracked.PSet(
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START38_V13::All')
+process.GlobalTag.globaltag = cms.string('START38_V14::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Standard PAT Configuration File
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-process.load("PhysicsTools.PatAlgos.patTestJEC_cfi")
+# process.load("PhysicsTools.PatAlgos.patTestJEC_cfi")
 
 process.patJets.addTagInfos  = False # to save space
 process.selectedPatMuons.cut = 'isTrackerMuon=1 & isGlobalMuon=1 & innerTrack.numberOfValidHits>=11 & globalTrack.normalizedChi2<10.0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & abs(dB)<0.02 & (trackIso+caloIso)/pt<0.05'

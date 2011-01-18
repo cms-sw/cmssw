@@ -4,20 +4,16 @@
 
 nflag=0
 oflag=0
-pflag=0
-while getopts 'noph' OPTION
+while getopts 'noh' OPTION
   do
   case $OPTION in
       n) nflag=1
           ;;
       o) oflag=1
           ;;
-      p) pflag=1
-	  ;;
       h) echo "Usage: [-n] runnum tsckey"
           echo "  -n: no RS"
           echo "  -o: overwrite RS keys"
-          echo "  -p: centrally installed release, not on local machine"
           exit
           ;;
   esac
@@ -41,16 +37,8 @@ fi
 
 # set up environment variables
 cd /cmsnfshome0/nfshome0/popcondev/L1Job/${release}/o2o
-
-if [ ${pflag} -eq 0 ]
-    then
-    export SCRAM_ARCH=""
-    export VO_CMS_SW_DIR=""
-    source /opt/cmssw/cmsset_default.sh
-else
-    source /nfshome0/cmssw2/scripts/setup.sh
-    centralRel="-p"
-fi
+source /nfshome0/cmssw2/scripts/setup.sh
+export SCRAM_ARCH=slc5_ia32_gcc434
 eval `scramv1 run -sh`
 
 # Check for semaphore file
@@ -66,10 +54,10 @@ fi
 # KILL signal (9) is not trapped even though it is listed below.
 trap "rm -f o2o-setIOV.lock; mv tmp.log tmp.log.save; exit" 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64
 
-# run script; args are run key
+# run script; args are run key tagbase
 rm -f tmp.log
 echo "`date` : setting TSC IOVs" >& tmp.log
-$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${centralRel} ${run} ${key} >> tmp.log 2>&1
+$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${run} ${key} CRAFT09 >> tmp.log 2>&1
 o2ocode1=$?
 
 o2ocode2=0
@@ -78,10 +66,10 @@ if [ ${nflag} -eq 0 ]
     echo "`date` : setting RS keys and IOVs" >> tmp.log 2>&1
     if [ ${oflag} -eq 0 ]
 	then
-	$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs.sh -x ${centralRel} ${run} >> tmp.log 2>&1
+	$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs.sh -x ${run} CRAFT09 >> tmp.log 2>&1
 	o2ocode2=$?
     else
-	$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs.sh -x -o ${centralRel} ${run} >> tmp.log 2>&1
+	$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs.sh -x -o ${run} CRAFT09 >> tmp.log 2>&1
 	o2ocode2=$?
     fi
 fi

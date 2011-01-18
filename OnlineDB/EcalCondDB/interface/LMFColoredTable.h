@@ -28,7 +28,7 @@ class LMFColoredTable : public LMFDat {
   virtual std::string getTableName() = 0;
 
   std::string getColor();
-  virtual std::string getSystem();
+  std::string getSystem();
 
   LMFColoredTable& setColor(int color) {
     if (COLOR.find(color) != COLOR.end()) {
@@ -38,14 +38,14 @@ class LMFColoredTable : public LMFDat {
     return *this;
   }
   LMFColoredTable& setColor(std::string color);
-  virtual LMFColoredTable& setSystem(int system) {
+  LMFColoredTable& setSystem(int system) {
     if (SYSTEM.find(system) != SYSTEM.end()) {
       m_system = system;
       m_className += "/S=" + SYSTEM[system];
     }
     return *this;
   }
-  virtual LMFColoredTable& setSystem(std::string s);
+  LMFColoredTable& setSystem(std::string s);
   LMFColoredTable& setVmin(EcalLogicID &id, int v) {
     setData(id, "VMIN", v);
     return *this;

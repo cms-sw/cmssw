@@ -16,21 +16,19 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCChamberTimeCorrectionsRcd'),
-        tag = cms.string('CSCChamberTimeCorrections_testanode')
+        tag = cms.string('CSCChamberTimeCorrections')
     )),
     #connect = cms.string('frontier://FrontierDev/CMS_COND_CSC')
-    #connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_CSC')
+    connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_CSC')
     #connect = cms.string('sqlite_file:/afs/cern.ch/user/d/deisher/CMSSW_3_7_0_pre3/src/OnlineDB/CSCCondDB/test/CSCChamberTimeCorrections_before_133826.db')
-     connect = cms.string('sqlite_file:/afs/cern.ch/user/d/deisher/public/test_anode_offsets_mc.db')                                 
+     #connect = cms.string('sqlite_file:CSCCables.db')                                 
     #connect = cms.string('sqlite_file:/afs/cern.ch/user/d/deisher/CMSSW_3_7_0_pre3/src/CalibMuon/CSCCalibration/test/test_chipCorr_and_chamberCorr_after_133826.db')
                                    )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-process.source = cms.Source("EmptySource",
-                          firstRun = cms.untracked.uint32(150000))
-
+process.source = cms.Source("EmptySource")
 
 process.prod1 = cms.EDAnalyzer("CSCReadChamberTimeCorrAnalyzer")
 

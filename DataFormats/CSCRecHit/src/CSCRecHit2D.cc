@@ -11,7 +11,7 @@ CSCRecHit2D::CSCRecHit2D() :
   thePositionWithinStrip(-999.),
   theErrorWithinStrip(-999.),
   theQuality( 0 ), theBadStrip( 0 ), theBadWireGroup( 0 ),
-  theScaledWireTime( 0 )
+  theTwiceWireBx( 0 )
 {
 
 /// Extract low byte to account strip number
@@ -45,7 +45,7 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
 			  float posInStrip, 
                           float errInStrip,
 			  int quality, short int badStrip, short int badWireGroup,
-                          int scaledWireTime ):
+                          int twiceWireBx ):
   RecHit2DLocalPos( id ), 
   theLocalPosition( pos ), 
   theLocalError( err ),
@@ -56,7 +56,7 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
   thePositionWithinStrip( posInStrip ),
   theErrorWithinStrip( errInStrip ),
   theQuality( quality ), theBadStrip( badStrip ), theBadWireGroup( badWireGroup ),
-  theScaledWireTime ( scaledWireTime )
+  theTwiceWireBx ( twiceWireBx )
 {
 
 /// Extract second byte to account strip number

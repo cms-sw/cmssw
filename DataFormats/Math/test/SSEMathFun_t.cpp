@@ -1,3 +1,4 @@
+#include "DataFormats/Math/interface/sse_mathfun.h"
 #include "DataFormats/Math/interface/SSEVec.h"
 #include "DataFormats/Math/interface/SSEArray.h"
 #include<iostream>
@@ -8,8 +9,8 @@ typedef float Scalar;
 
 
 typedef mathSSE::Array<Scalar,10> V10;
-static const size_t ssesize = V10::Traits::ssesize;
-static const size_t arrsize = V10::Traits::arrsize;
+static const size_t ssesize = V10::Size::ssesize;
+static const size_t arrsize = V10::Size::arrsize;
 
 const size_t SIZE = 10;
 
@@ -46,40 +47,45 @@ void compChi2(V10 const & ampl, V10 const & err2, Scalar t, Scalar sumAA, Scalar
   typedef  V10::Vec Vec;
   Scalar const denom =  Scalar(1)/Scalar(SIZE);
 
-  Vec one(1);
-  Vec eps(1e-6);
+  Vec one = _mm_set1_ps(1);
+  Vec eps = _mm_set1_ps(1e-6);
 
-  Vec tv(t);
-  Vec alpha(2);
-  Vec overab(0.38);
+  Vec tv = _mm_set1_ps(t);
+  Vec alpha = _mm_set1_ps(2);
+  Vec overab = _mm_set1_ps(0.38);
 
   V10 index;
-  for(unsigned int it = 0; it != arrsize; ++it)
+  V10 mask;
+  for(unsigned int it = 0; it < ssesize; it++)
+      mask.vec[it] = _mm_cmpeq_ps(_mm_setzero_ps(),_mm_setzero_ps());
+  for(unsigned int it = 0; it < arrsize; it++)
     index.arr[it]=it;
+ for(unsigned int it = SIZE; it < arrsize; it++) 
+   mask.arr[it]= 0;
  
 
-  Vec sumAf;
-  Vec sumff;
+  Vec sumAf =  _mm_setzero_ps();
+  Vec sumff =  _mm_setzero_ps();
 
 
   for(unsigned int it = 0; it < ssesize; it++){
-    Vec offset = (index[it]-tv)*overab;
-    Vec term1 =  one+offset;
-    Vec cmp = cmpgt(term1,eps);
+    Vec offset =  _mm_mul_ps(_mm_sub_ps(index.vec[it],tv),overab);
+    Vec term1 =  _mm_add_ps(one,offset);
+    Vec cmp = _mm_cmpgt_ps(term1,eps);
     
-    Vec f =  mathSSE::exp(alpha*(mathSSE::log(term1)-offset) );
+    Vec f = exp_ps(_mm_mul_ps(alpha,_mm_sub_ps(log_ps(term1),offset)) );
     //Vec f = _mm_or_ps(_mm_andnot_ps(cmp, _mm_setzero_ps()), _mm_and_ps(cmp, f));
-    f = cmp&f;
-    Vec fe = f*err2[it];
-    sumAf = sumAf + V10::Traits::mask(ampl[it]*fe,it);
-    sumff = sumff + V10::Traits::mask(f*fe,it);
+    f = _mm_and_ps(cmp, f);
+    Vec fe = _mm_mul_ps(f, err2.vec[it]);
+    sumAf = _mm_add_ps(sumAf, _mm_and_ps(mask.vec[it],_mm_mul_ps(ampl.vec[it],fe)));
+    sumff = _mm_add_ps(sumff, _mm_and_ps(mask.vec[it],_mm_mul_ps(f,fe)));
   }
   
-  Vec sum = hadd(sumAf,sumff);
-  sum = hadd(sum,sum);
+  Vec sum = _mm_hadd_ps(sumAf,sumff);
+  sum = _mm_hadd_ps(sum,sum);
 
-  Scalar af = sum[0];
-  Scalar ff = sum[1];
+  Scalar af; _mm_store_ss(&af,sum);
+  Scalar ff; _mm_store_ss(&ff,_mm_shuffle_ps(sum, sum, _MM_SHUFFLE(1, 1, 1, 1)));
   
   chi2 = sumAA;
   amp = 0;
@@ -94,6 +100,7 @@ void compChi2(V10 const & ampl, V10 const & err2, Scalar t, Scalar sumAA, Scalar
 
 int main() {  
   using mathSSE::Vec4F;
+  typedef  V10::Vec Vec;
  
  
   Vec4F x(0.,-1.,1.,1000.);
@@ -105,15 +112,8 @@ int main() {
   Vec4F z; z.vec = log_ps(x.vec);
   std::cout << z << std::endl;
 
-  std::cout << "mask 0 " << (z&mathSSE::ArrayMask<float, 0>::value()) << std::endl;
-
-  std::cout << "mask 2 " << (z&mathSSE::ArrayMask<float, 2>::value()) << std::endl;
-
-  std::cout << "not mask 2 " << andnot(mathSSE::ArrayMask<float, 2>::value(),z) << std::endl;
-
-
   // some of z are nan... check if I can find out..
-  Vec4F m; m.vec = _mm_cmpeq_ps(_mm_andnot_ps(z.vec, *(__m128*)_ps_mant_mask),_mm_setzero_ps());
+  Vec4F m; m.vec = _mm_cmpeq_ps(_mm_andnot_ps(z.vec, *(Vec*)_ps_mant_mask),_mm_setzero_ps());
   std::cout << m << std::endl;
 
   y.vec = log_ps(y.vec);
@@ -124,9 +124,9 @@ int main() {
 
   Vec4F k(0.1,-1.,1.1e-3,1.);
   Vec4F eps(1.e-3);
-  Vec4F cmp = cmpgt(k,eps);
+  Vec4F cmp; cmp.vec = _mm_cmpgt_ps(k.vec,eps.vec);
   std::cout << cmp  << std::endl;
-  k = cmp&k.vec; 
+  k.vec = _mm_and_ps(cmp.vec, k.vec  ); 
   std::cout << k  << std::endl;
 
 
@@ -144,10 +144,8 @@ int main() {
   
   Scalar chi2=0;
   Scalar amp=0;
-  std::cout << "scalar" << std::endl;
   compChi2Scalar(ampl, err2, 4.7, sumAA, chi2, amp);
   std::cout << "scal " << chi2 << " " << amp << std::endl;
-  std::cout << "vector" << std::endl;
   compChi2(ampl, err2, 4.7, sumAA, chi2, amp);
   std::cout << "vect " << chi2 << " " << amp << std::endl;
    

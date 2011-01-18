@@ -32,23 +32,6 @@ class HcalCondObjectContainer
 
   virtual std::string myname() const {return (std::string)"Hcal Undefined";}
 
-  // setting types for easier work for getAllContainers()
-  typedef std::pair< std::string, std::vector<Item> > tHcalCont;
-  typedef std::vector< tHcalCont > tAllContWithNames;
-
-  const tAllContWithNames getAllContainers() const{
-    tAllContWithNames allContainers;
-    allContainers.push_back(tHcalCont("HB",HBcontainer));
-    allContainers.push_back(tHcalCont("HE",HEcontainer));
-    allContainers.push_back(tHcalCont("HO",HOcontainer));
-    allContainers.push_back(tHcalCont("HF",HFcontainer));
-    allContainers.push_back(tHcalCont("HT",HTcontainer));
-    allContainers.push_back(tHcalCont("ZDC",ZDCcontainer));
-    allContainers.push_back(tHcalCont("CALIB",CALIBcontainer));
-    allContainers.push_back(tHcalCont("CASTOR",CASTORcontainer));
-    return allContainers;
-  }
-
  private:
   void initContainer(int container, bool h2mode_ = false);
 

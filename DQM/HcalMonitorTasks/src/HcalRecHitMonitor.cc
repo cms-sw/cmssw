@@ -195,11 +195,7 @@ void HcalRecHitMonitor::setup()
   h_HEtimedifference = dbe_->book1D("HEweightedtimeDifference",
 				    "Energy-Weighted time difference between HE+ and HE- passing MinBias (no HT cut)",
 				    251,-250.5,250.5);
-  
-  HFP_HFM_Energy = dbe_->book2D("HFP_HFM_Energy",
-				"HFP VS HFM Energy; Total Energy in HFMinus (TeV); Total Energy in HFPlus (TeV)",
-				100,0,100, 100,0,100);
-  
+
   // Would these work better as 2D plots?
   h_HFenergydifference = dbe_->book1D("HFenergyDifference",
 				      "Sum(E_HFPlus - E_HFMinus)/Sum(E_HFPlus + E_HFMinus)",
@@ -642,7 +638,6 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  // trigger decision is based on 'OR' of any specified trigger names
 	  for (unsigned int k=0;k<HcalHLTBits_.size();++k)
 	    {
-	      // std::cout<<triggerNames.triggerName(i)<<std::endl;
 	      if (triggerNames.triggerName(i)==HcalHLTBits_[k] && hltRes->accept(i))
 		{ 
 		  passedHcalHLT=true;
@@ -1185,8 +1180,6 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	      h_LumiPlot_LS_MinBiasEvents->Fill(currentLS);
 	      h_LumiPlot_BX_MinBiasEvents->Fill(BCN);
 	    }
-	  
-	  HFP_HFM_Energy->Fill(HFeMinus/1000., HFePlus/1000.);
 	}
  
       if (debug_>1) std::cout <<"\t<HcalRecHitMonitor:: HF averages>  TPLUS = "<<HFtPlus<<"  EPLUS = "<<HFePlus<<"  TMINUS = "<<HFtMinus<<"  EMINUS = "<<HFeMinus<<"  Weighted Time Diff = "<<((HFtPlus)-(HFtMinus))<<std::endl;

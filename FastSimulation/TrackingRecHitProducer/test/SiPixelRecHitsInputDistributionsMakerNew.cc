@@ -418,24 +418,16 @@ void SiPixelRecHitsInputDistributionsMakerNew::fillBarrel(const SiPixelRecHit& r
   icotbeta  = icotbeta < 0 ? 0 : icotbeta;
   icotbeta  = icotbeta > (cotBetaBinsBarrel_-1 ) ? cotBetaBinsBarrel_-1 : icotbeta;
 
-// Use this definition if you want to consider an ideal topology 
   RectangularPixelTopology rectPixelTopology(rows, cols, pitchX, pitchY);
-// Use the following instead of the previous line if you want the real topology that will take care of the 
-// module deformations when mapping from ideal to real coordinates:
-//  PixelTopology const & rectPixelTopology = theGeomDet->specificTopology();
 
   bool edgex = 
        ( rectPixelTopology.isItEdgePixelInX( firstPixelInX ) || rectPixelTopology.isItEdgePixelInX( lastPixelInX ) );
   bool edgey = 
        ( rectPixelTopology.isItEdgePixelInY( firstPixelInY ) || rectPixelTopology.isItEdgePixelInY( lastPixelInY ) );
-  bool bigx =  ( rectPixelTopology.isItBigPixelInX( firstPixelInX ) || 
-		 rectPixelTopology.isItBigPixelInX( lastPixelInX ) );
-  bool bigy =  ( rectPixelTopology.isItBigPixelInY( firstPixelInY ) ||
-                 rectPixelTopology.isItBigPixelInY( lastPixelInY ) );
-//  bool bigx =  ( RectangularPixelTopology::isItBigPixelInX( firstPixelInX ) || 
-//	 	 RectangularPixelTopology::isItBigPixelInX( lastPixelInX ) );
-//  bool bigy =  ( RectangularPixelTopology::isItBigPixelInY( firstPixelInY ) ||
-//                 RectangularPixelTopology::isItBigPixelInY( lastPixelInY ) );
+  bool bigx =  ( RectangularPixelTopology::isItBigPixelInX( firstPixelInX ) || 
+	 	 RectangularPixelTopology::isItBigPixelInX( lastPixelInX ) );
+  bool bigy =  ( RectangularPixelTopology::isItBigPixelInY( firstPixelInY ) ||
+                 RectangularPixelTopology::isItBigPixelInY( lastPixelInY ) );
   bool edge = ( edgex || edgey );
 
   recHitcotAlpha[0] -> Fill( cotalpha );

@@ -65,7 +65,7 @@ bool CSCFitAFEBThr::ThresholdNoise(const std::vector<float> & inputx,
   
   int sum=0;
   float r;
-  for(unsigned int i=0;i<inputx.size();i++) {
+  for(size_t i=0;i<inputx.size();i++) {
      if(inputy[i]>0.0) sum++;
      r=inputy[i]/(float)dacoccup[i];
      ynorm.push_back(r);
@@ -79,12 +79,16 @@ bool CSCFitAFEBThr::ThresholdNoise(const std::vector<float> & inputx,
    
 
   int nbeg=inputx.size();
-  for(unsigned int i=inputx.size()-1;i>=0;i--) {
-    if(ynorm[i]<1.0) nbeg--;
-    if(ynorm[i]==1.0) break;
+  // for(size_t i=inputx.size()-1;i>=0;i--) // Wrong.
+  // Because i is unsigned, i>=0 is always true, 
+  // and the loop termination condition  is never reached.
+  // We offset by 1.
+  for(size_t i=inputx.size();i>0;i--) {
+    if(ynorm[i-1]<1.0) nbeg--;
+    if(ynorm[i-1]==1.0) break;
   }
 
-  for(unsigned int i=nbeg;i<inputx.size();i++) {
+  for(size_t i=nbeg;i<inputx.size();i++) {
     if(ynorm[i]>0.0) {
       x.push_back(inputx[i]); 
       y.push_back(ynorm[i]);
@@ -104,7 +108,7 @@ bool CSCFitAFEBThr::ThresholdNoise(const std::vector<float> & inputx,
   float half=0.5;
   float dmin=999999.0;
   float diff;
-  for(unsigned int i=0;i<x.size();i++) {
+  for(size_t i=0;i<x.size();i++) {
     diff=y[i]-half; if(diff<0.0) diff=-diff;
     if(diff<dmin) {dmin=diff; parinit[0]=x[i];}   // par[0] from data    
     //std::cout<<i+1<<" "<<x[i]<<" "<<y[i]<<" "<<ery[i]<<std::endl;
@@ -115,7 +119,7 @@ bool CSCFitAFEBThr::ThresholdNoise(const std::vector<float> & inputx,
   theOBJfun->setErrors(ery);   
   theOBJfun->setNorm(1.0);
 
- // for(unsigned int i=0;i<x.size();i++) std::cout<<" "<<x[i]<<" "<<y[i]
+ // for(size_t int i=0;i<x.size();i++) std::cout<<" "<<x[i]<<" "<<y[i]
  //                                               <<" "<<ery[i]<<std::endl; 
 
   /// Fit  as 1D, <=500 iterations, edm=10**-5 (->0.1)

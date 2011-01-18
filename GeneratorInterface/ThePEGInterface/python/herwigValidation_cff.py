@@ -28,4 +28,5 @@ herwigValidationBlock = cms.PSet(
 		'set /Herwig/Cuts/JetKtCut:MaxKT 100*GeV',
 		'set /Herwig/UnderlyingEvent/MPIHandler:IdenticalToUE 0',
 	)
+
 )

@@ -12,7 +12,7 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
     levels = cms.vstring(
         ## tags for the individual jet corrections; when
         ## not available the string should be set to 'none'    
-        'L2Relative', 'L3Absolute', 'L2L3Residual', 'L5Flavor', 'L7Parton'
+        'L2Relative', 'L3Absolute', 'L5Flavor', 'L7Parton'
     ), 
     flavorType = cms.string('J') ## alternatively use 'T'
 )

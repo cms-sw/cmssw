@@ -15,7 +15,6 @@
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/ParticleFlowReco"/>	
-<use   name="CondFormats/JetMETObjects"/>
 <export>
   <lib   name="1"/>
 </export>

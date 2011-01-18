@@ -9,6 +9,12 @@
               driven pixel seeded Ckf tracking
 
 */
+//
+// Original Author:  Ursula Berthon, Claude Charlot
+//         Created:  Thu july 6 13:22:06 CEST 2006
+// $Id: GsfElectronAlgo.cc,v 1.103.2.3 2010/10/05 21:42:59 chamont Exp $
+//
+//
 
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"

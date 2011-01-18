@@ -20,7 +20,7 @@ trap sigHdl SIGKILL SIGABRT SIGQUIT SIGTERM SIGPIPE SIGINT
 # Note that we use `"$@"' to let each command-line parameter expand to a
 # separate word. The quotes around `$@' are essential!
 # We need TEMP as the `eval set --' would nuke the return value of getopt.
-temp=`getopt -o hs:n:N:p:Adqgfrle: --long help,l1axmin:,l1axmax:,no-l1a-history,local-file,fed-size,feds: \
+temp=`getopt -o hs:n:N:p:Adqgfrle: --long help,l1axmin:,l1axmax:,no-hist,local-file,fed-size,feds: \
      -n 'dumpRaw' -- "$@"`
 
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
@@ -47,8 +47,8 @@ function help(){
     --fed-size runs FedSize 
     -g runs within gdb debugger
     -f --local-file file_name is a local file
-    -r execute eval \`scramv1 runtime -sh\` in directory of $0.
-    --no-l1a-history Disable display of L1A, BX and orbit counter history
+    -r execute eval \`scramv1 runtime -sh\` in directory of $0
+    --no-hist desactivates histrogramming
     --l1axmin lower bound on l1a for histogramming 
     --l1aymin upper bound on l1a for histogramming 
     --feds FED ID range. Format first:last. E.g. for every ECAL DCCs: 601:654
@@ -68,7 +68,7 @@ prescale=1
 fedmin=601
 fedmax=654
 unset nevts_
-l1aHist="True"
+doHist="True"
 unset prefix
 unset gdb
 unset cmsswdir
@@ -89,7 +89,7 @@ while true ; do
 	-f|--local-file) prefix="file:"; shift;;
 	--l1axmin) l1axmin="$2"; shift 2;;
 	--l1axmax) l1axmax="$2"; shift 2;;
-	--no-l1a-history) l1aHist="False"; shift;;
+	--no-hist) doHist="False"; shift;;
         --feds) eval `echo $2 | sed 's/\([[:digit:]]\+\):\([[:digit:]]\)/fedmin=\1 fedmax=\2/'`; shift 2;;
         -r) cmsswdir="$bindir"; shift;;
 	-e) eventList="$2"; shift 2;;
@@ -100,18 +100,11 @@ done
 
 [ -n "$nevts_" ] && nevts=$((nskip+nevts_))
 
-if [ -z "$cmsswdir" -a -z "$CMSSW_BASE" ]; then
-    echo "CMSSW environment not set (CMSSW_BASE variable not found). Setting CMSSW environment for $bindir area (scramv1 runtime)."
-    cmsswdir="$bindir"
-fi
-
 if [ -n "$cmsswdir" ]; then
     eval `(cd "$cmsswdir" && scramv1 runtime -sh)`
 fi
 
-TMPFILE=`mktemp -t dumpRaw.XXXXXXX`
-mv "$TMPFILE" "$TMPFILE.py"
-TMPFILE="$TMPFILE.py"
+TMPFILE=`mktemp -t dumpRaw.XXXXXXX`.py
 if [ -z $TMPFILE ]; then
 	echo 'Failed to create a temporary file!'
 	exit 1
@@ -178,11 +171,12 @@ process.source = cms.Source("PoolSource",
 EOF
 elif [ "X$format" = Xlmf ]; then
 cat >> "$TMPFILE" <<EOF
-process.load("CalibCalorimetry.EcalLaserSorting.LmfSource_cfi")
-process.source.fileNames = cms.vstring( $dataset )
-process.source.preScale = cms.uint32( $prescale )
-process.source.orderedRead = cms.bool(True)
-process.source.verbosity = cms.untracked.int32(0)
+process.source = cms.Source("LmfSource",
+   fileNames = cms.vstring( $dataset ),
+   preScale = cms.uint32( $prescale ),
+   orderedRead = cms.bool(True),
+   verbosity = cms.untracked.int32(0)
+)
 EOF
 else
 cat >> "$TMPFILE" <<EOF
@@ -203,15 +197,6 @@ process.MessageLogger = cms.Service("MessageLogger",
  )
 EOF
 if [ X$prog = XDumpRaw ];then
-if [ X$l1aHist = XTrue ]; then
-    cat >> "$TMPFILE" <<EOF
-process.load('EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi')
-EOF
-    cmssw_path="process.scalersRawToDigi*"
-else 
-    cmssw_path=""
-fi
-cmssw_path="${cmssw_path}process.dumpRaw"
 cat >> "$TMPFILE" <<EOF
 process.load("EventFilter.EcalRawToDigi.EcalDumpRaw_cfi")
 process.dumpRaw.l1aMinX = $l1axmin
@@ -221,7 +206,7 @@ process.dumpRaw.first_event = $((nskip+1))
 process.dumpRaw.last_event  = cms.untracked.int32($((nskip+nevts)))
 process.dumpRaw.dumpAdc = $dumpAdc
 process.dumpRaw.dump = $dump
-process.dumpRaw.l1aHistory = $l1aHist
+#process.dumpRaw.doHisto = $doHist
 process.dumpRaw.beg_fed_id = $fedmin
 process.dumpRaw.end_fed_id = $fedmax
 process.dumpRaw.eventList = [ $eventList ]
@@ -229,7 +214,7 @@ process.dumpRaw.eventList = [ $eventList ]
 process.dumpRaw.beg_fed_id = $fedmin
 process.dumpRaw.end_fed_id =  $fedmax
 
-process.p = cms.Path($cmssw_path)
+process.p = cms.Path(process.dumpRaw)
 EOF
 elif [ X$prog = XListCollection ]; then
 cat >> "$TMPFILE" <<EOF
@@ -251,6 +236,10 @@ process.load("pgras.EBDigiAna.EBDigiAna_cfi")
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
+#  process.TFileService = cms.Service("TFileService",
+#     fileName = cms.string("ebDigiAnaHist.root")
+#  )
+
 process.p = cms.Path(process.ecalEBunpacker*process.ebDigiAna)
 EOF
 fi
@@ -263,18 +252,6 @@ if [ $? != 0 ]; then
 fi
 
 $gdb "$EXE" $TMPFILE
-
-if [ $? != 0 ]; then
-cat 1>&2 <<EOF
-
-********************************************************************************
- In case of \"ProductNotFound\" exception (see above) about type
- "FEDRawDataCollection", try to run with the option --no-l1a-history.
-********************************************************************************
-
-EOF
-fi
-
 #"$EXE" $TMPFILE
 
 #rm $TMPFILE

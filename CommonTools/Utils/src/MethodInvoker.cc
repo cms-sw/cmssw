@@ -106,19 +106,19 @@ LazyInvoker::invoker(const Reflex::Type & type) const
 }
 
 Object
-LazyInvoker::invoke(const Reflex::Object & o) const 
+LazyInvoker::invoke(const Reflex::Object & o, std::vector<Reflex::Object> &v) const 
 {
     pair<Object, bool> ret(o,false);
     do {    
         Type type = ret.first.TypeOf();
         if (type.IsClass()) type = ret.first.DynamicType();
-        ret = invoker(type).invoke(Object(type, ret.first.Address()));
+        ret = invoker(type).invoke(Object(type, ret.first.Address()), v);
     } while (ret.second == false);
     return ret.first; 
 }
 
 double
-LazyInvoker::invokeLast(const Reflex::Object & o) const 
+LazyInvoker::invokeLast(const Reflex::Object & o, std::vector<Reflex::Object> &v) const 
 {
     pair<Object, bool> ret(o,false);
     const SingleInvoker *i = 0;
@@ -126,7 +126,7 @@ LazyInvoker::invokeLast(const Reflex::Object & o) const
         Type type = ret.first.TypeOf();
         if (type.IsClass()) type = ret.first.DynamicType();
         i = & invoker(type);
-        ret = i->invoke(Object(type, ret.first.Address()));
+        ret = i->invoke(Object(type, ret.first.Address()), v);
     } while (ret.second == false);
     return i->retToDouble(ret.first);
 }
@@ -141,7 +141,7 @@ SingleInvoker::SingleInvoker(const Reflex::Type &type,
     MethodSetter setter(invokers_, dummy, typeStack, dummy2, false);
     isRefGet_ = !setter.push(name, args, "LazyInvoker dynamic resolution", false);
     //std::cerr  << "SingleInvoker on type " <<  type.Name(QUALIFIED|SCOPED) << ", name " << name << (isRefGet_ ? " is just a ref.get " : " is real") << std::endl;
-    ExpressionVar::makeStorage(storage_, invokers_.front().method());
+    storageNeedsDestructor_ = ExpressionVar::makeStorage(storage_, invokers_.front().method());
     retType_ = reco::typeCode(typeStack[1]); // typeStack[0] = type of self, typeStack[1] = type of ret
 }
 
@@ -151,12 +151,16 @@ SingleInvoker::~SingleInvoker()
 }
 
 pair<Object,bool>
-SingleInvoker::invoke(const Reflex::Object & o) const 
+SingleInvoker::invoke(const Reflex::Object & o, std::vector<Reflex::Object> &v) const 
 {
     /* std::cerr << "[SingleInvoker::invoke] member " << invokers_.front().method().Name(QUALIFIED|SCOPED) << 
                                        " of type " << o.TypeOf().Name(QUALIFIED|SCOPED) <<
                                        (!isRefGet_ ? " is one shot" : " needs another round") << std::endl; */
     pair<Object,bool> ret(invokers_.front().invoke(o, storage_), !isRefGet_);
+    if (storageNeedsDestructor_) {
+        //std::cout << "Storage type: " << storage_.TypeOf().Name(QUALIFIED|SCOPED) << ", I have to call the destructor." << std::endl;
+        v.push_back(storage_);
+    }
     return ret;
 }
 

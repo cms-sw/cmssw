@@ -10,9 +10,9 @@
 ///
 /// Basic class for management of alignment parameters and correlations 
 ///
-///  $Date: 2009/01/08 17:58:59 $
-///  $Revision: 1.16 $
-/// (last update by $Author: ewidl $)
+///  $Date: 2009/02/24 13:24:55 $
+///  $Revision: 1.17 $
+/// (last update by $Author: flucke $)
 
 namespace edm { class ParameterSet; }
 class AlignmentUserVariables;
@@ -119,23 +119,25 @@ public:
 
   /// a single alignable parameter of an Alignable
   typedef std::pair<Alignable*, unsigned int> ParameterId;
-  /// Assuming aliMaster has (sub-)components aliComps with (up to) 6 rigid body parameters
+  /// Assuming aliMaster has (sub-)components aliComps with alignment parameters
   /// (cf. Alignable::firstParamComponents), paramIdsVecOut and factorsVecOut will be filled
   /// (in parallel) with constraints on the selected alignment parameters of aliMaster to
   /// get rid of the additionally introduced degrees of freedom:
   /// The 'vector product' of the parameters identified by ParameterId in std::vector<ParameterId>
   /// and the factors in std::vector<double> has to vanish (i.e. == 0.),
   /// |factor| < epsilon will be treated as 0.
-  /// If all6 == false, skip constraint on aliMaster's degree of freedom 'i' if 'i'th alignment
+  /// If all == false, skip constraint on aliMaster's degree of freedom 'i' if 'i'th alignment
   /// parameter of aliMaster is not selected, i.e. constrain only for otherwise doubled d.o.f.
-  /// If all6 == true, produce all 6 rigid body constraints irrespective of the aliMaster's
-  /// parameters.
+  /// If all == true, produce one constraint for each of the aliMaster's parameters
+  /// irrespective of whether they are selecte dor not.
   /// paramIdsVecOut and factorsVecOut contain exactly one std::vector per selected alignment
   /// parameter of aliMaster, but in principle these can be empty...
+  /// Note that not all combinations of AlignmentParameters classes ar supported.
+  /// If not there will be an exception (and false returned...)
   bool hierarchyConstraints(const Alignable *aliMaster, const align::Alignables &aliComps,
 			    std::vector<std::vector<ParameterId> > &paramIdsVecOut,
 			    std::vector<std::vector<double> > &factorsVecOut,
-			    bool all6, double epsilon) const;
+			    bool all, double epsilon) const;
 
 protected:
 

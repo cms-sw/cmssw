@@ -63,9 +63,6 @@ class CSCRecoConditions
    // returns chamber level timing correction (cable length and extra chamber correction) in ns 
   float chamberTimingCorrection( const CSCDetId & detId )const;
 
-   // returns anode bx off for each chamber, used to correct anode times to 0 for collision muons
-  float anodeBXoffset( const CSCDetId & detId )const;
-
   /// Is a neighbour bad?
   bool nearBadStrip( const CSCDetId& id, int geomStrip ) const;
 

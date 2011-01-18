@@ -58,7 +58,7 @@ FUShmBuffer::FUShmBuffer(bool         segmentationMode,
 			 unsigned int recoCellSize,
 			 unsigned int dqmCellSize)
   : segmentationMode_(segmentationMode)
-  , nClientsMax_(128)
+  , nClientsMax_(16)
   , nRawCells_(nRawCells)
   , rawCellPayloadSize_(rawCellSize)
   , nRecoCells_(nRecoCells)

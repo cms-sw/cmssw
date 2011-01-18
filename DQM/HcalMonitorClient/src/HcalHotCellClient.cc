@@ -11,8 +11,8 @@
 /*
  * \file HcalHotCellClient.cc
  * 
- * $Date: 2010/11/10 20:01:34 $
- * $Revision: 1.75 $
+ * $Date: 2010/08/02 18:47:13 $
+ * $Revision: 1.73 $
  * \author J. Temple
  * \brief Hot Cell Client class
  */
@@ -79,7 +79,7 @@ void HcalHotCellClient::calculateProblems()
 	  (ProblemCellsByDepth->depth[d]->getTH2F())->SetMinimum(0.);
 	}
     }
-  
+
   // Get histograms that are used in testing
   TH2F* HotAboveThresholdByDepth[4];
   TH2F* HotAlwaysAboveThresholdByDepth[4];
@@ -133,7 +133,6 @@ void HcalHotCellClient::calculateProblems()
   for (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]==0) continue;
-
       if (HotAboveETThresholdByDepth[d]) totalevents = std::max(totalevents, HotAboveETThresholdByDepth[d]->GetBinContent(0));
       else if (HotAlwaysAboveETThresholdByDepth[d]) totalevents = std::max(totalevents, HotAlwaysAboveETThresholdByDepth[d]->GetBinContent(0));
       else if (HotAboveThresholdByDepth[d]) totalevents = std::max(totalevents, HotAboveThresholdByDepth[d]->GetBinContent(0));
@@ -164,11 +163,11 @@ void HcalHotCellClient::calculateProblems()
 	      if (problemvalue==0) continue;
 	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
 	      problemvalue = std::min(1.,problemvalue);
-	      
+	       
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
 		ieta<0 ? zside = -1 : zside = 1;
-	      
+	       
 	      // For problem cells that exceed our allowed rate,
 	      // set the values to -1 if the cells are already marked in the status database
 	      if (problemvalue>minerrorrate_)
@@ -205,7 +204,6 @@ void HcalHotCellClient::calculateProblems()
 	    ProblemCells->setBinContent(eta+1,phi+1,1.);
 	}
     }
-
   FillUnphysicalHEHFBins(*ProblemCellsByDepth);
   FillUnphysicalHEHFBins(ProblemCells);
   return;
@@ -246,7 +244,6 @@ void HcalHotCellClient::beginRun(void)
   ProblemCellsByDepth->setup(dqmStore_," Problem Hot Cell Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
-
   nevts_=0;
 }
 
@@ -279,6 +276,7 @@ bool HcalHotCellClient::hasErrors_Temp(void)
 		continue;
 	      if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
 		++problemcount;
+
 	    } // for (int hist_phi=1;...)
 	} // for (int hist_eta=1;...)
     } // for (int depth=0;...)
@@ -345,7 +343,7 @@ void HcalHotCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& m
 	      // Need this to keep from flagging non-existent HE/HF cells
 	      if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
 		continue;
-	      
+
 	      int hotcell=0;
 	      if (binval>minerrorrate_)
 		hotcell=1;
@@ -369,6 +367,7 @@ void HcalHotCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& m
 		  else
 		    myqual[myid] &=~mask;
 		}
+	      
 	    } // for (int hist_phi=1;hist_phi<=phibins;++hist_phi)
 	} // for (int hist_eta=1;hist_eta<=etabins;++hist_eta)
     } // for (int d=0;d<4;++d)
