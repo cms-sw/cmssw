@@ -18,6 +18,8 @@
 <use   name="JetMETCorrections/MCJet"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="FWCore/ServiceRegistry"/>
+<use   name="PhysicsTools/PatUtils"/>
+<use   name="PhysicsTools/PatAlgos"/>
 <export>
   <lib   name="1"/>
 </export>
