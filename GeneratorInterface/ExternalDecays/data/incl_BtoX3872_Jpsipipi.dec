@@ -1,0 +1,47 @@
+# $Id: X3872_fromB.dec,v 1.1 2009/07/10 07:58:27 covarell Exp $
+#
+#
+Alias      MyJ/psi  J/psi
+ChargeConj MyJ/psi  MyJ/psi
+#
+Decay MyJ/psi
+  1.000         mu+       mu-            PHOTOS VLL;
+Enddecay
+#
+#
+Alias Myrho0 rho0
+ChargeConj Myrho0 Myrho0
+#
+Decay Myrho0
+1.000    pi+ pi-                         VSS;
+Enddecay	
+# 
+#
+Alias      myX(3872)  X(3872)
+ChargeConj myX(3872)  myX(3872)
+#Particle X3872 3.872 0.003
+#
+Decay myX(3872)
+  1.000         MyJ/psi      Myrho0          PHSP;
+Enddecay
+# 
+#
+Alias      MyB+  B+
+#
+Decay MyB+
+  1.000         myX(3872)      K+          PHSP;
+Enddecay 
+#
+Alias      MyB0  B0
+Alias      Myanti-B0  anti-B0
+ChargeConj MyB0  Myanti-B0
+#
+Decay MyB0
+  1.000         myX(3872)      K0         PHSP;
+Enddecay
+#
+Decay Myanti-B0
+  1.000         myX(3872)      K0          PHSP;
+Enddecay
+#
+End
