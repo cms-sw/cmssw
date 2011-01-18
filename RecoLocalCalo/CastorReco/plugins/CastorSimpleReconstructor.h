@@ -23,6 +23,8 @@ class CastorSimpleReconstructor : public edm::EDProducer {
       int subdet_;
       //      HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
+
+      std::string confLabel_;
       int firstSample_;
       int samplesToAdd_;
 };

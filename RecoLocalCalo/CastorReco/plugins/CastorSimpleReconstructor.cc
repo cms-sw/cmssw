@@ -35,6 +35,7 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
     edm::LogWarning("CastorSimpleReconstructor") << "CastorSimpleReconstructor is not associated with CASTOR subdetector!" << std::endl;
   }       
   
+  confLabel_=conf.getParameter<std::string>("@module_label");
 }
 
 CastorSimpleReconstructor::~CastorSimpleReconstructor() {
@@ -44,7 +45,7 @@ void CastorSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es)
   if (firstSample_<0 && samplesToAdd_<0){
     //retrieve detector conditions for sample configuration
     edm::ESHandle<ConfObject> samples;
-    es.get<ConfObjectRcd>().get("castorreco",samples);
+    es.get<ConfObjectRcd>().get(confLabel_,samples);
     firstSample_=samples->get<int>("firstSample");
     samplesToAdd_=samples->get<int>("samplesToAdd");
     reco_.resetTimeSamples(firstSample_,samplesToAdd_);
