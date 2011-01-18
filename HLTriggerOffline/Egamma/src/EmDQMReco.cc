@@ -74,6 +74,8 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet& pset)
   triggerNameRecoMonPath = pset.getUntrackedParameter<std::string>("triggerNameRecoMonPath","HLT_MinBias");
   processNameRecoMonPath = pset.getUntrackedParameter<std::string>("processNameRecoMonPath","HLT");
 
+  recoElectronsInputTag  = pset.getUntrackedParameter<edm::InputTag>("recoElectrons",edm::InputTag("gsfElectrons"));
+
   // preselction cuts
   // recocutCollection_= pset.getParameter<edm::InputTag>("cutcollection");
   recocut_          = pset.getParameter<int>("cutnum");
@@ -459,7 +461,7 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
 
   if (pdgGen == 11) {
 
-    event.getByLabel("gsfElectrons", recoObjects);
+    event.getByLabel(recoElectronsInputTag, recoObjects);
 
     if (recoObjects->size() < (unsigned int)recocut_) {
       // edm::LogWarning("EmDQMReco") << "Less than "<< recocut_ <<" Reco particles with pdgId=" << pdgGen << ".  Only " << cutRecoCounter->size() << " particles.";

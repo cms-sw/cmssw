@@ -64,7 +64,10 @@ private:
   double plotPtMin ;
   double plotPtMax ;
   double plotPhiMax;
+
+  /** number of bins to use for ALL plots (?) */
   unsigned int plotBins ;
+
   // preselction cuts
   edm::InputTag recocutCollection_;
   unsigned int recocut_;
@@ -77,6 +80,11 @@ private:
    *  into {et,eta,phi}recomonpath
    */
   std::string processNameRecoMonPath;
+
+  /** input tag for the reconstructed electron collection
+   *  (with respect to which the HLT efficiencies are calculated ?)
+   */
+  edm::InputTag recoElectronsInputTag;
 
   ////////////////////////////////////////////////////////////
   //          Create Histograms                             //
