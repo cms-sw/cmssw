@@ -210,8 +210,6 @@ void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
     samplesToAdd_=samples->get<int>("samplesToAdd");
     
     reco_.resetTimeSamples(firstSample_,samplesToAdd_);
-    
-    std::cout<<"configuration parameters retrieved:"<<firstSample_<<" "<<samplesToAdd_<<std::endl;
   }
 }
 
