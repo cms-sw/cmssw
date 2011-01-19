@@ -22,6 +22,18 @@ kt4CaloJetsL2L3Residual = ak5CaloJetsL2L3.clone(src = 'kt4CaloJets', correctors 
 kt6CaloJetsL2L3Residual = ak5CaloJetsL2L3.clone(src = 'kt6CaloJets', correctors = ['kt6CaloL2L3Residual'])
 ic5CaloJetsL2L3Residual = ak5CaloJetsL2L3.clone(src = 'iterativeCone5CaloJets', correctors = ['ic5CaloL2L3Residual'])
 
+ak5CaloJetsL1L2L3 = ak5CaloJetsL2L3.clone(src = 'ak5CaloJets', correctors = ['ak5CaloL1L2L3'])
+ak7CaloJetsL1L2L3 = ak5CaloJetsL2L3.clone(src = 'ak7CaloJets', correctors = ['ak7CaloL1L2L3'])
+kt4CaloJetsL1L2L3 = ak5CaloJetsL2L3.clone(src = 'kt4CaloJets', correctors = ['kt4CaloL1L2L3'])
+kt6CaloJetsL1L2L3 = ak5CaloJetsL2L3.clone(src = 'kt6CaloJets', correctors = ['kt6CaloL1L2L3'])
+ic5CaloJetsL1L2L3 = ak5CaloJetsL2L3.clone(src = 'iterativeCone5CaloJets', correctors = ['ic5CaloL1L2L3'])
+
+ak5CaloJetsL1L2L3Residual = ak5CaloJetsL2L3.clone(src = 'ak5CaloJets', correctors = ['ak5CaloL1L2L3Residual'])
+ak7CaloJetsL1L2L3Residual = ak5CaloJetsL2L3.clone(src = 'ak7CaloJets', correctors = ['ak7CaloL1L2L3Residual'])
+kt4CaloJetsL1L2L3Residual = ak5CaloJetsL2L3.clone(src = 'kt4CaloJets', correctors = ['kt4CaloL1L2L3Residual'])
+kt6CaloJetsL1L2L3Residual = ak5CaloJetsL2L3.clone(src = 'kt6CaloJets', correctors = ['kt6CaloL1L2L3Residual'])
+ic5CaloJetsL1L2L3Residual = ak5CaloJetsL2L3.clone(src = 'iterativeCone5CaloJets', correctors = ['ic5CaloL1L2L3Residual'])
+
 ##------------------  PF JETS -----------------------------------
 ak5PFJetsL2L3   = cms.EDProducer('PFJetCorrectionProducer',
     src         = cms.InputTag('ak5PFJets'),
@@ -38,6 +50,18 @@ ak7PFJetsL2L3Residual   = ak5PFJetsL2L3.clone(src = 'ak7PFJets', correctors = ['
 kt4PFJetsL2L3Residual   = ak5PFJetsL2L3.clone(src = 'kt4PFJets', correctors = ['kt4PFL2L3Residual'])
 kt6PFJetsL2L3Residual   = ak5PFJetsL2L3.clone(src = 'kt6PFJets', correctors = ['kt6PFL2L3Residual'])
 ic5PFJetsL2L3Residual   = ak5PFJetsL2L3.clone(src = 'iterativeCone5PFJets', correctors = ['ic5PFL2L3Residual'])
+
+ak5PFJetsL1L2L3 = ak5PFJetsL2L3.clone(src = 'ak5PFJets', correctors = ['ak5PFL1L2L3'])
+ak7PFJetsL1L2L3 = ak5PFJetsL2L3.clone(src = 'ak7PFJets', correctors = ['ak7PFL1L2L3'])
+kt4PFJetsL1L2L3 = ak5PFJetsL2L3.clone(src = 'kt4PFJets', correctors = ['kt4PFL1L2L3'])
+kt6PFJetsL1L2L3 = ak5PFJetsL2L3.clone(src = 'kt6PFJets', correctors = ['kt6PFL1L2L3'])
+ic5PFJetsL1L2L3 = ak5PFJetsL2L3.clone(src = 'iterativeCone5PFJets', correctors = ['ic5PFL1L2L3'])
+
+ak5PFJetsL1L2L3Residual = ak5PFJetsL2L3.clone(src = 'ak5PFJets', correctors = ['ak5PFL1L2L3Residual'])
+ak7PFJetsL1L2L3Residual = ak5PFJetsL2L3.clone(src = 'ak7PFJets', correctors = ['ak7PFL1L2L3Residual'])
+kt4PFJetsL1L2L3Residual = ak5PFJetsL2L3.clone(src = 'kt4PFJets', correctors = ['kt4PFL1L2L3Residual'])
+kt6PFJetsL1L2L3Residual = ak5PFJetsL2L3.clone(src = 'kt6PFJets', correctors = ['kt6PFL1L2L3Residual'])
+ic5PFJetsL1L2L3Residual = ak5PFJetsL2L3.clone(src = 'iterativeCone5PFJets', correctors = ['ic5PFL1L2L3Residual'])
 
 ##------------------  JPT JETS ----------------------------------
 ak5JPTJetsL2L3   = cms.EDProducer('JPTJetCorrectionProducer',

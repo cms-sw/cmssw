@@ -7,6 +7,19 @@ from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 # SINGLE LEVEL CORRECTION SERVICES
 #
 
+# L1 (offset) Correction Services
+ak7CaloL1Offset = ak5CaloL1Offset.clone()
+kt4CaloL1Offset = ak5CaloL1Offset.clone()
+kt6CaloL1Offset = ak5CaloL1Offset.clone()
+ic5CaloL1Offset = ak5CaloL1Offset.clone()
+
+ak7PFL1Offset   = ak5PFL1Offset.clone()
+kt4PFL1Offset   = ak5PFL1Offset.clone()
+kt6PFL1Offset   = ak5PFL1Offset.clone()
+ic5PFL1Offset   = ak5PFL1Offset.clone()
+
+ak7JPTL1Offset  = ak5CaloL1Offset.clone()
+
 # L2 (relative eta-conformity) Correction Services
 ak7CaloL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK7Calo' )
 kt4CaloL2Relative = ak5CaloL2Relative.clone( algorithm = 'KT4Calo' )
@@ -123,6 +136,55 @@ ic5PFL2L3 = cms.ESSource(
     useCondDB = cms.untracked.bool(True)
     )
 
+# L1L2L3 CORRECTION SERVICES
+ak7CaloL1L2L3 = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ak7CaloL1Offset','ak7CaloL2Relative','ak7CaloL3Absolute'),
+    useCondDB = cms.untracked.bool(True)
+    )
+kt4CaloL1L2L3 = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt4CaloL1Offset','kt4CaloL2Relative','kt4CaloL3Absolute'),
+    useCondDB = cms.untracked.bool(True)
+    )
+kt6CaloL1L2L3 = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt6CaloL1Offset','kt6CaloL2Relative','kt6CaloL3Absolute'),
+    useCondDB = cms.untracked.bool(True)
+    )
+ic5CaloL1L2L3 = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ic5CaloL1Offset','ic5CaloL2Relative','ic5CaloL3Absolute'),
+    useCondDB = cms.untracked.bool(True)
+    )
+
+ak7PFL1L2L3 = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ak7PFL1Offset','ak7PFL2Relative','ak7PFL3Absolute'),
+    useCondDB = cms.untracked.bool(True)
+    )
+kt4PFL1L2L3 = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt4PFL1Offset','kt4PFL2Relative','kt4PFL3Absolute'),
+    useCondDB = cms.untracked.bool(True)
+    )
+kt6PFL1L2L3 = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt6PFL1Offset','kt6PFL2Relative','kt6PFL3Absolute'),
+    useCondDB = cms.untracked.bool(True)
+    )
+ic5PFL1L2L3 = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ic5PFL1Offset','ic5PFL2Relative','ic5PFL3Absolute'),
+    useCondDB = cms.untracked.bool(True)
+    )
+
+ak7JPTL1L2L3 = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ak7JPTL1Offset','ak7JPTL2Relative','ak7JPTL3Absolute'),
+    useCondDB = cms.untracked.bool(True)
+    )
+
 # L2L3Residual CORRECTION SERVICES
 ak7CaloL2L3Residual = cms.ESSource(
     'JetCorrectionServiceChain',
@@ -158,67 +220,115 @@ ic5PFL2L3Residual = cms.ESSource(
     correctors = cms.vstring('ic5PFL2Relative','ic5PFL3Absolute','ic5PFResidual')
     )
 
+# L1L2L3Residual CORRECTION SERVICES
+ak7CaloL1L2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ak7CaloL1Offset','ak7CaloL2Relative','ak7CaloL3Absolute','ak7CaloResidual'),
+    useCondDB = cms.untracked.bool(True)
+    )
+kt4CaloL1L2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt4CaloL1Offset','kt4CaloL2Relative','kt4CaloL3Absolute','kt4CaloResidual'),
+    useCondDB = cms.untracked.bool(True)
+    )
+kt6CaloL1L2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt6CaloL1Offset','kt6CaloL2Relative','kt6CaloL3Absolute','kt6CaloResidual'),
+    useCondDB = cms.untracked.bool(True)
+    )
+ic5CaloL1L2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ic5CaloL1Offset','ic5CaloL2Relative','ic5CaloL3Absolute','ic5CaloResidual'),
+    useCondDB = cms.untracked.bool(True)
+    )
 
-# L1L2L3 CORRECTION SERVICES
-ak7CaloL1L2L3 = ak7CaloL2L3.clone()
-ak7CaloL1L2L3.correctors.insert(0,'L1Fastjet')
-kt4CaloL1L2L3 = kt4CaloL2L3.clone()
-kt4CaloL1L2L3.correctors.insert(0,'L1Fastjet')
-kt6CaloL1L2L3 = kt6CaloL2L3.clone()
-kt6CaloL1L2L3.correctors.insert(0,'L1Fastjet')
-ic5CaloL1L2L3 = ic5CaloL2L3.clone()
-ic5CaloL1L2L3.correctors.insert(0,'L1Fastjet')
+ak7PFL1L2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ak7PFL1Offset','ak7PFL2Relative','ak7PFL3Absolute','ak7PFResidual'),
+    useCondDB = cms.untracked.bool(True)
+    )
+kt4PFL1L2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt4PFL1Offset','kt4PFL2Relative','kt4PFL3Absolute','kt4PFResidual'),
+    useCondDB = cms.untracked.bool(True)
+    )
+kt6PFL1L2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt6PFL1Offset','kt6PFL2Relative','kt6PFL3Absolute','kt6PFResidual'),
+    useCondDB = cms.untracked.bool(True)
+    )
+ic5PFL1L2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ic5PFL1Offset','ic5PFL2Relative','ic5PFL3Absolute','ic5PFResidual'),
+    useCondDB = cms.untracked.bool(True)
+    )
 
-ak7PFL1L2L3 = ak7PFL2L3.clone()
-ak7PFL1L2L3.correctors.insert(0,'L1Fastjet')
-kt4PFL1L2L3 = kt4PFL2L3.clone()
-kt4PFL1L2L3.correctors.insert(0,'L1Fastjet')
-kt6PFL1L2L3 = kt6PFL2L3.clone()
-kt6PFL1L2L3.correctors.insert(0,'L1Fastjet')
-ic5PFL1L2L3 = ic5PFL2L3.clone()
-ic5PFL1L2L3.correctors.insert(0,'L1Fastjet')
+ak7JPTL1L2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ak7JPTL1Offset','ak7JPTL2Relative','ak7JPTL3Absolute','ak7JPTResidual'),
+    useCondDB = cms.untracked.bool(True)
+    )
 
-ak5JPTL1L2L3 = ak5JPTL2L3.clone()
-ak5JPTL1L2L3.correctors.insert(0,'L1Fastjet')
-ak5TrackL1L2L3 = ak5TrackL2L3.clone()
-ak5TrackL1L2L3.correctors.insert(0,'L1Fastjet')
+# L1FastL2L3 CORRECTION SERVICES
+ak7CaloL1FastL2L3 = ak7CaloL2L3.clone()
+ak7CaloL1FastL2L3.correctors.insert(0,'L1Fastjet')
+kt4CaloL1FastL2L3 = kt4CaloL2L3.clone()
+kt4CaloL1FastL2L3.correctors.insert(0,'L1Fastjet')
+kt6CaloL1FastL2L3 = kt6CaloL2L3.clone()
+kt6CaloL1FastL2L3.correctors.insert(0,'L1Fastjet')
+ic5CaloL1FastL2L3 = ic5CaloL2L3.clone()
+ic5CaloL1FastL2L3.correctors.insert(0,'L1Fastjet')
+
+ak7PFL1FastL2L3 = ak7PFL2L3.clone()
+ak7PFL1FastL2L3.correctors.insert(0,'L1Fastjet')
+kt4PFL1FastL2L3 = kt4PFL2L3.clone()
+kt4PFL1FastL2L3.correctors.insert(0,'L1Fastjet')
+kt6PFL1FastL2L3 = kt6PFL2L3.clone()
+kt6PFL1FastL2L3.correctors.insert(0,'L1Fastjet')
+ic5PFL1FastL2L3 = ic5PFL2L3.clone()
+ic5PFL1FastL2L3.correctors.insert(0,'L1Fastjet')
+
+ak5JPTL1FastL2L3 = ak5JPTL2L3.clone()
+ak5JPTL1FastL2L3.correctors.insert(0,'L1Fastjet')
+ak5TrackL1FastL2L3 = ak5TrackL2L3.clone()
+ak5TrackL1FastL2L3.correctors.insert(0,'L1Fastjet')
 
 
 # L2L3L6 CORRECTION SERVICES
 ak7CaloL2L3L6 = ak7CaloL2L3.clone()
 ak7CaloL2L3L6.correctors.append('ak7CaloL6SLB')
-ak4CaloL2L3L6 = kt4CaloL2L3.clone()
-ak4CaloL2L3L6.correctors.append('kt4CaloL6SLB')
-ak6CaloL2L3L6 = kt6CaloL2L3.clone()
-ak6CaloL2L3L6.correctors.append('kt6CaloL6SLB')
+kt4CaloL2L3L6 = kt4CaloL2L3.clone()
+kt4CaloL2L3L6.correctors.append('kt4CaloL6SLB')
+kt6CaloL2L3L6 = kt6CaloL2L3.clone()
+kt6CaloL2L3L6.correctors.append('kt6CaloL6SLB')
 ic5CaloL2L3L6 = ic5CaloL2L3.clone()
 ic5CaloL2L3L6.correctors.append('ic5CaloL6SLB')
 
 ak7PFL2L3L6 = ak7PFL2L3.clone()
 ak7PFL2L3L6.correctors.append('ak7PFL6SLB')
-ak4PFL2L3L6 = kt4PFL2L3.clone()
-ak4PFL2L3L6.correctors.append('kt4PFL6SLB')
-ak6PFL2L3L6 = kt6PFL2L3.clone()
-ak6PFL2L3L6.correctors.append('kt6PFL6SLB')
+kt4PFL2L3L6 = kt4PFL2L3.clone()
+kt4PFL2L3L6.correctors.append('kt4PFL6SLB')
+kt6PFL2L3L6 = kt6PFL2L3.clone()
+kt6PFL2L3L6.correctors.append('kt6PFL6SLB')
 ic5PFL2L3L6 = ic5PFL2L3.clone()
 ic5PFL2L3L6.correctors.append('ic5PFL6SLB')
 
 
 # L1L2L3L6 CORRECTION SERVICES
-ak7CaloL1L2L3L6 = ak7CaloL1L2L3.clone()
-ak7CaloL1L2L3L6.correctors.append('ak7CaloL6SLB')
-ak4CaloL1L2L3L6 = kt4CaloL1L2L3.clone()
-ak4CaloL1L2L3L6.correctors.append('kt4CaloL6SLB')
-ak6CaloL1L2L3L6 = kt6CaloL1L2L3.clone()
-ak6CaloL1L2L3L6.correctors.append('kt6CaloL6SLB')
-ic5CaloL1L2L3L6 = ic5CaloL1L2L3.clone()
-ic5CaloL1L2L3L6.correctors.append('ic5CaloL6SLB')
+ak7CaloL1FastL2L3L6 = ak7CaloL1L2L3.clone()
+ak7CaloL1FastL2L3L6.correctors.append('ak7CaloL6SLB')
+kt4CaloL1FastL2L3L6 = kt4CaloL1L2L3.clone()
+kt4CaloL1FastL2L3L6.correctors.append('kt4CaloL6SLB')
+kt6CaloL1FastL2L3L6 = kt6CaloL1L2L3.clone()
+kt6CaloL1FastL2L3L6.correctors.append('kt6CaloL6SLB')
+ic5CaloL1FastL2L3L6 = ic5CaloL1L2L3.clone()
+ic5CaloL1FastL2L3L6.correctors.append('ic5CaloL6SLB')
 
-ak7PFL1L2L3L6 = ak7PFL1L2L3.clone()
-ak7PFL1L2L3L6.correctors.append('ak7PFL6SLB')
-ak4PFL1L2L3L6 = kt4PFL1L2L3.clone()
-ak4PFL1L2L3L6.correctors.append('kt4PFL6SLB')
-ak6PFL1L2L3L6 = kt6PFL1L2L3.clone()
-ak6PFL1L2L3L6.correctors.append('kt6PFL6SLB')
-ic5PFL1L2L3L6 = ic5PFL1L2L3.clone()
-ic5PFL1L2L3L6.correctors.append('ic5PFL6SLB')
+ak7PFL1FastL2L3L6 = ak7PFL1FastL2L3.clone()
+ak7PFL1FastL2L3L6.correctors.append('ak7PFL6SLB')
+kt4PFL1FastL2L3L6 = kt4PFL1FastL2L3.clone()
+kt4PFL1FastL2L3L6.correctors.append('kt4PFL6SLB')
+kt6PFL1FastL2L3L6 = kt6PFL1FastL2L3.clone()
+kt6PFL1FastL2L3L6.correctors.append('kt6PFL6SLB')
+ic5PFL1FastL2L3L6 = ic5PFL1FastL2L3.clone()
+ic5PFL1FastL2L3L6.correctors.append('ic5PFL6SLB')
