@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/10/18 19:21:07 $
- **  $Revision: 1.22 $
+ **  $Date: 2011/01/18 12:36:14 $
+ **  $Revision: 1.23 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -171,9 +171,6 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 	      reco::CaloClusterPtr& closestBC);
 
       // finds the super cluster matching with at least one track in the pair
-      //  bool matchingSC(const std::multimap<double, reco::CaloClusterPtr>& scMap, 
-      //		      reco::Conversion& conv,
-      //		      reco::CaloClusterPtr& mSC);
       bool matchingSC(const std::multimap<double, reco::CaloClusterPtr>& scMap, 
 		      reco::Conversion& conv,
 		      reco::CaloClusterPtrVector& mSC);
