@@ -1,0 +1,14 @@
+2011-01-18  Seb Viret  <viret@in2p3.fr>
+ 
+       	* Added two new filters dedicated to BeamGas events selection:
+      	  HLTHFAsymetryFilter and HLTPixelAsymetryFilter. Corresponding python
+       	  configuration files were also added.
+
+	* A small test script was added in ~/test/ directory, test_AsymFilters_cfg.py.  
+	  It runs directly on Raw data.
+
+	* ChangeLog file creation: please try to report any package modification here. This 
+	  will help others developers to follow what's going on around here.
+
+	* This modification was done based on tag V01-18-00
+	 
