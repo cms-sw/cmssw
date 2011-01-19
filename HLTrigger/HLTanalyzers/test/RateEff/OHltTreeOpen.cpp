@@ -2367,38 +2367,250 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }  
     }  
   }  
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_EleId_Ele8_Isol_L1R") == 0) {
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_Ele8") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) { 
+        if(OpenHlt2ElectronsAsymSamHarperPassed(17.,0,          // ET, L1isolation  
+                                                999., 999.,       // Track iso barrel, Track iso endcap  
+                                                999., 999.,        // Track/pT iso barrel, Track/pT iso endcap  
+                                                999., 999.,       // H/ET iso barrel, H/ET iso endcap  
+                                                999., 999.,       // E/ET iso barrel, E/ET iso endcap  
+                                                0.15, 0.15,       // H/E barrel, H/E endcap  
+                                                999., 999.,       // cluster shape barrel, cluster shape endcap  
+                                                999., 999.,       // R9 barrel, R9 endcap  
+                                                999., 999.,       // Deta barrel, Deta endcap  
+                                                999., 999.,        // Dphi barrel, Dphi endcap  
+                                                8.,0,          // ET, L1isolation 
+                                                999., 999.,       // Track iso barrel, Track iso endcap 
+                                                999., 999.,        // Track/pT iso barrel, Track/pT iso endcap 
+                                                999., 999.,       // H/ET iso barrel, H/ET iso endcap 
+                                                999., 999.,       // E/ET iso barrel, E/ET iso endcap 
+                                                0.15, 0.15,       // H/E barrel, H/E endcap 
+                                                999., 999.,       // cluster shape barrel, cluster shape endcap 
+                                                999., 999.,       // R9 barrel, R9 endcap 
+                                                999., 999.,       // Deta barrel, Deta endcap 
+                                                999., 999.        // Dphi barrel, Dphi endcap 
+                                                )>=1) { 
+          triggerBit[it] = true; 
+        } 
+      } 
+    } 
+  } 
+
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_Isol_Ele8") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
-        if(OpenHlt1ElectronSamHarperPassed(17.,0,          // ET, L1isolation
-					   999., 999.,       // Track iso barrel, Track iso endcap
-					   999., 999.,        // Track/pT iso barrel, Track/pT iso endcap
-					   999., 999.,       // H/ET iso barrel, H/ET iso endcap
-					   999., 999.,       // E/ET iso barrel, E/ET iso endcap
-					   0.05, 0.05,       // H/E barrel, H/E endcap
-					   0.011, 0.031,       // cluster shape barrel, cluster shape endcap
-					   0.98, 1.0,       // R9 barrel, R9 endcap
-					   0.008, 0.007,       // Deta barrel, Deta endcap
-					   0.1, 0.1        // Dphi barrel, Dphi endcap
-					   )>=1) {
-	  if(OpenHlt1ElectronSamHarperPassed(8.,0,          // ET, L1isolation
-					     999., 999.,       // Track iso barrel, Track iso endcap
-					     0.15, 0.10,        // Track/pT iso barrel, Track/pT iso endcap
-					     999., 0.05,       // H/ET iso barrel, H/ET iso endcap
-					     0.125, 0.075,       // E/ET iso barrel, E/ET iso endcap
-					     0.05, 0.05,       // H/E barrel, H/E endcap
-					     999., 999.,       // cluster shape barrel, cluster shape endcap
-					     1.0, 1.0,       // R9 barrel, R9 endcap
-					     999., 999.,       // Deta barrel, Deta endcap
-					     999., 999.        // Dphi barrel, Dphi endcap
-					     )>=1) {
-
-	    triggerBit[it] = true;
-	  }
-	}
+        if(OpenHlt2ElectronsAsymSamHarperPassed(17.,0,          // ET, L1isolation 
+						999., 999.,       // Track iso barrel, Track iso endcap 
+						0.15, 0.10,        // Track/pT iso barrel, Track/pT iso endcap 
+						999., 0.05,       // H/ET iso barrel, H/ET iso endcap 
+						0.125, 0.075,       // E/ET iso barrel, E/ET iso endcap 
+						0.15, 0.15,       // H/E barrel, H/E endcap 
+						999., 999.,       // cluster shape barrel, cluster shape endcap 
+						999., 999.,       // R9 barrel, R9 endcap 
+						999., 999.,       // Deta barrel, Deta endcap 
+						999., 999.,        // Dphi barrel, Dphi endcap 
+						8.,0,          // ET, L1isolation
+						999., 999.,       // Track iso barrel, Track iso endcap
+						999., 999.,        // Track/pT iso barrel, Track/pT iso endcap
+						999., 999.,       // H/ET iso barrel, H/ET iso endcap
+						999., 999.,       // E/ET iso barrel, E/ET iso endcap
+						0.15, 0.15,       // H/E barrel, H/E endcap
+						999., 999.,       // cluster shape barrel, cluster shape endcap
+						999., 999.,       // R9 barrel, R9 endcap
+						999., 999.,       // Deta barrel, Deta endcap
+						999., 999.        // Dphi barrel, Dphi endcap
+						)>=1) {
+          triggerBit[it] = true;
+        }
       }
     }
   }
+
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_VeryLooseIsol_Ele8") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt2ElectronsAsymSamHarperPassed(17.,0,          // ET, L1isolation 
+						999., 999.,       // Track iso barrel, Track iso endcap 
+						0.3, 0.3,        // Track/pT iso barrel, Track/pT iso endcap 
+						999., 0.3,       // H/ET iso barrel, H/ET iso endcap 
+						0.3, 0.3,       // E/ET iso barrel, E/ET iso endcap 
+						0.15, 0.15,       // H/E barrel, H/E endcap 
+						999., 999.,       // cluster shape barrel, cluster shape endcap 
+						999., 999.,       // R9 barrel, R9 endcap 
+						999., 999.,       // Deta barrel, Deta endcap 
+						999., 999.,        // Dphi barrel, Dphi endcap 
+						8.,0,          // ET, L1isolation
+						999., 999.,       // Track iso barrel, Track iso endcap
+						999., 999.,        // Track/pT iso barrel, Track/pT iso endcap
+						999., 999.,       // H/ET iso barrel, H/ET iso endcap
+						999., 999.,       // E/ET iso barrel, E/ET iso endcap
+						0.15, 0.15,       // H/E barrel, H/E endcap
+						999., 999.,       // cluster shape barrel, cluster shape endcap
+						999., 999.,       // R9 barrel, R9 endcap
+						999., 999.,       // Deta barrel, Deta endcap
+						999., 999.        // Dphi barrel, Dphi endcap
+						)>=1) {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
+
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_Ele8_Isol") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt2ElectronsAsymSamHarperPassed(17.,0,          // ET, L1isolation 
+						999., 999.,       // Track iso barrel, Track iso endcap 
+						999., 999.,        // Track/pT iso barrel, Track/pT iso endcap 
+						999., 999.,       // H/ET iso barrel, H/ET iso endcap 
+						999., 999.,       // E/ET iso barrel, E/ET iso endcap 
+						0.15, 0.15,       // H/E barrel, H/E endcap 
+						999., 999.,       // cluster shape barrel, cluster shape endcap 
+						999., 999.,       // R9 barrel, R9 endcap 
+						999., 999.,       // Deta barrel, Deta endcap 
+						999., 999.,        // Dphi barrel, Dphi endcap 
+						8.,0,          // ET, L1isolation
+						999., 999.,       // Track iso barrel, Track iso endcap
+						0.15, 0.10,        // Track/pT iso barrel, Track/pT iso endcap
+						999., 0.05,       // H/ET iso barrel, H/ET iso endcap
+						0.125, 0.075,       // E/ET iso barrel, E/ET iso endcap
+						0.15, 0.15,       // H/E barrel, H/E endcap
+						999., 999.,       // cluster shape barrel, cluster shape endcap
+						999., 999.,       // R9 barrel, R9 endcap
+						999., 999.,       // Deta barrel, Deta endcap
+						999., 999.        // Dphi barrel, Dphi endcap
+						)>=1) {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_Ele8_VeryLooseIsol") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt2ElectronsAsymSamHarperPassed(17.,0,          // ET, L1isolation 
+						999., 999.,       // Track iso barrel, Track iso endcap 
+						999., 999.,        // Track/pT iso barrel, Track/pT iso endcap 
+						999., 999.,       // H/ET iso barrel, H/ET iso endcap 
+						999., 999.,       // E/ET iso barrel, E/ET iso endcap 
+						0.15, 0.15,       // H/E barrel, H/E endcap 
+						999., 999.,       // cluster shape barrel, cluster shape endcap 
+						999., 999.,       // R9 barrel, R9 endcap 
+						999., 999.,       // Deta barrel, Deta endcap 
+						999., 999.,        // Dphi barrel, Dphi endcap 
+						8.,0,          // ET, L1isolation
+						999., 999.,       // Track iso barrel, Track iso endcap
+						0.3, 0.3,        // Track/pT iso barrel, Track/pT iso endcap
+						999., 0.3,       // H/ET iso barrel, H/ET iso endcap
+						0.3, 0.3,       // E/ET iso barrel, E/ET iso endcap
+						0.15, 0.15,       // H/E barrel, H/E endcap
+						999., 999.,       // cluster shape barrel, cluster shape endcap
+						999., 999.,       // R9 barrel, R9 endcap
+						999., 999.,       // Deta barrel, Deta endcap
+						999., 999.        // Dphi barrel, Dphi endcap
+						)>=1) {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
+
+  //    # Grid of conditions on both legs
+
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_EleId_Ele8") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt2ElectronsAsymSamHarperPassed(17.,0,          // ET, L1isolation 
+						999., 999.,       // Track iso barrel, Track iso endcap 
+						999., 999.,        // Track/pT iso barrel, Track/pT iso endcap 
+						999., 999.,       // H/ET iso barrel, H/ET iso endcap 
+						999., 999.,       // E/ET iso barrel, E/ET iso endcap 
+						0.15, 0.15,       // H/E barrel, H/E endcap 
+						0.014, 0.035,       // cluster shape barrel, cluster shape endcap 
+						999., 999.,       // R9 barrel, R9 endcap 
+						0.01, 0.01,       // Deta barrel, Deta endcap 
+						0.08, 0.08,        // Dphi barrel, Dphi endcap 
+						8.,0,          // ET, L1isolation
+						999., 999.,       // Track iso barrel, Track iso endcap
+						999., 999.,        // Track/pT iso barrel, Track/pT iso endcap
+						999., 999.,       // H/ET iso barrel, H/ET iso endcap
+						999., 999.,       // E/ET iso barrel, E/ET iso endcap
+						0.15, 0.15,       // H/E barrel, H/E endcap
+						999., 999.,       // cluster shape barrel, cluster shape endcap
+						999., 999.,       // R9 barrel, R9 endcap
+						999., 999.,       // Deta barrel, Deta endcap
+						999., 999.        // Dphi barrel, Dphi endcap
+						)>=1) {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
+
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_EleId_Isol_Ele8") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt2ElectronsAsymSamHarperPassed(17.,0,          // ET, L1isolation 
+						999., 999.,       // Track iso barrel, Track iso endcap 
+						0.15, 0.10,        // Track/pT iso barrel, Track/pT iso endcap 
+						999., 0.05,       // H/ET iso barrel, H/ET iso endcap 
+						0.125, 0.075,       // E/ET iso barrel, E/ET iso endcap 
+						0.15, 0.15,       // H/E barrel, H/E endcap 
+						0.014, 0.035,       // cluster shape barrel, cluster shape endcap 
+						999., 999.,       // R9 barrel, R9 endcap 
+						0.01, 0.01,       // Deta barrel, Deta endcap 
+						0.08, 0.08,        // Dphi barrel, Dphi endcap 
+						8.,0,          // ET, L1isolation
+						999., 999.,       // Track iso barrel, Track iso endcap
+						999., 999.,        // Track/pT iso barrel, Track/pT iso endcap
+						999., 999.,       // H/ET iso barrel, H/ET iso endcap
+						999., 999.,       // E/ET iso barrel, E/ET iso endcap
+						0.15, 0.15,       // H/E barrel, H/E endcap
+						999., 999.,       // cluster shape barrel, cluster shape endcap
+						999., 999.,       // R9 barrel, R9 endcap
+						999., 999.,       // Deta barrel, Deta endcap
+						999., 999.        // Dphi barrel, Dphi endcap
+						)>=1) {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
+
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_EleId_Isol_Ele8_EleId_Isol") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt2ElectronsAsymSamHarperPassed(17.,0,          // ET, L1isolation 
+						999., 999.,       // Track iso barrel, Track iso endcap 
+						0.15, 0.10,        // Track/pT iso barrel, Track/pT iso endcap 
+						999., 0.05,       // H/ET iso barrel, H/ET iso endcap 
+						0.125, 0.075,       // E/ET iso barrel, E/ET iso endcap 
+						0.15, 0.15,       // H/E barrel, H/E endcap 
+						0.014, 0.035,       // cluster shape barrel, cluster shape endcap 
+						999., 999.,       // R9 barrel, R9 endcap 
+						0.01, 0.01,       // Deta barrel, Deta endcap 
+						0.08, 0.08,        // Dphi barrel, Dphi endcap 
+						8.,0,          // ET, L1isolation
+						999., 999.,       // Track iso barrel, Track iso endcap
+						0.15, 0.10,        // Track/pT iso barrel, Track/pT iso endcap
+						999., 0.05,       // H/ET iso barrel, H/ET iso endcap
+						0.125, 0.075,       // E/ET iso barrel, E/ET iso endcap
+						0.15, 0.15,       // H/E barrel, H/E endcap
+						0.014, 0.035,       // cluster shape barrel, cluster shape endcap
+						999., 999.,       // R9 barrel, R9 endcap
+						0.01, 0.01,       // Deta barrel, Deta endcap
+						0.08, 0.08        // Dphi barrel, Dphi endcap
+						)>=1) {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
+  // ########################################################
+  // # End of long sequence of asym DiEle
+  // ########################################################
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle5_SW_Jpsi_L1R") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -5516,6 +5728,258 @@ int OHltTree::OpenHlt2ElectronsSamHarperPassed(float Et, int L1iso,
   
   return rc;
 }
+
+int OHltTree::OpenHltGetElectronsSamHarperPassed(int *Passed,
+						 float Et, int L1iso, 
+						 float Tisobarrel, float Tisoendcap, 
+						 float Tisoratiobarrel, float Tisoratioendcap, 
+						 float HisooverETbarrel, float HisooverETendcap, 
+						 float EisooverETbarrel, float EisooverETendcap,
+						 float hoverebarrel, float hovereendcap,
+						 float clusshapebarrel, float clusshapeendcap, 
+						 float r9barrel, float r9endcap,
+						 float detabarrel, float detaendcap,
+						 float dphibarrel, float dphiendcap)
+{
+  int NPassed = 0;
+
+  float barreleta = 1.479;
+  float endcapeta = 2.65;
+
+  // First check if only one electron is going to pass the cuts using the one electron code
+  // we use the one electron code to look to see if 0 or 1 electrons pass this condition
+  int rc = 0;
+  int tmpindex=-999;
+  // Loop over all oh electrons
+  for (int i=0;i<NohEle;i++) {
+    //    float ohEleHoverE = ohEleHiso[i]/ohEleEt[i];
+    float ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
+    int isbarrel = 0;
+    int isendcap = 0;
+    if(TMath::Abs(ohEleEta[i]) < barreleta)
+      isbarrel = 1;
+    if(barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta)
+      isendcap = 1;
+
+    if ( ohEleEt[i] > Et) {
+      if( TMath::Abs(ohEleEta[i]) < endcapeta ) {
+	if (ohEleNewSC[i]<=1) {
+	  if (ohElePixelSeeds[i]>0) {
+	    if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
+	      if( ohEleL1Dupl[i] == false) { // remove double-counted L1 SCs 
+		if ( (isbarrel && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETbarrel)) ||
+		     (isendcap && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETendcap)) ) {
+		  if ( (isbarrel && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETbarrel)) ||
+		       (isendcap && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETendcap)) ) {
+		    if ( ((isbarrel) && (ohEleHoverE < hoverebarrel)) ||
+			 ((isendcap) && (ohEleHoverE < hovereendcap))) {
+		      if ( (isbarrel && (((ohEleTiso[i] < Tisobarrel && ohEleTiso[i] != -999.) || (Tisobarrel == 999.)))) ||
+			   (isendcap && (((ohEleTiso[i] < Tisoendcap && ohEleTiso[i] != -999.) || (Tisoendcap == 999.))))) {
+			if (((isbarrel) && (ohEleTiso[i]/ohEleEt[i] < Tisoratiobarrel)) ||
+			    ((isendcap) && (ohEleTiso[i]/ohEleEt[i] < Tisoratioendcap))) {
+			  if ( (isbarrel && ohEleClusShap[i] < clusshapebarrel) ||
+			       (isendcap && ohEleClusShap[i] < clusshapeendcap) ) {
+			    if ( (isbarrel && ohEleR9[i] < r9barrel) || 
+				 (isendcap && ohEleR9[i] < r9endcap) ) {
+			      if ( (isbarrel && TMath::Abs(ohEleDeta[i]) < detabarrel) ||
+				   (isendcap && TMath::Abs(ohEleDeta[i]) < detaendcap) ) {
+				if( (isbarrel && ohEleDphi[i] < dphibarrel) ||
+				    (isendcap && ohEleDphi[i] < dphiendcap) ) {
+				  rc++; 
+				  tmpindex=i;  // temporarily store the index of this event
+				  if(rc >1) break; // If we have 2 electrons passing, we need the 2 ele code
+				}
+			      }
+			    }
+			  }
+			}
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  //  cout << "rc = " << rc << endl;;
+  if(rc == 0){
+    return 0;
+  }
+  if(rc == 1){
+    Passed[NPassed++]=tmpindex; // if only 1 ele matched we can use this result without looping on the 2 ele code
+    return NPassed;
+  }
+  // otherwise, we use the 2 ele code:
+  
+  int rcsconly=0;
+  std::vector<int> csPassedEle;
+  // Loop over all oh electrons
+  for (int i=0;i<NohEle;i++) {
+    //float ohEleHoverE = ohEleHiso[i]/ohEleEt[i];
+    float ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
+    int isbarrel = 0;
+    int isendcap = 0;
+    if(TMath::Abs(ohEleEta[i]) < barreleta)
+      isbarrel = 1;
+    if(barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta)
+      isendcap = 1;
+
+    if ( ohEleEt[i] > Et) {
+      if( TMath::Abs(ohEleEta[i]) < endcapeta ) {
+	if (ohEleNewSC[i]==1) {
+	  if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
+	    if( ohEleL1Dupl[i] == false) { // remove double-counted L1 SCs 
+	      if ( (isbarrel && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETbarrel)) ||
+		   (isendcap && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETendcap)) ) {
+		if ( (isbarrel && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETbarrel)) ||
+		     (isendcap && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETendcap)) ) {
+		  if ( ((isbarrel) && (ohEleHoverE < hoverebarrel)) || 
+		       ((isendcap) && (ohEleHoverE < hovereendcap))) { 
+		    if ( (isbarrel && ohEleClusShap[i] < clusshapebarrel) ||
+			 (isendcap && ohEleClusShap[i] < clusshapeendcap) ) {
+		      if ( (isbarrel && ohEleR9[i] < r9barrel) || 
+			   (isendcap && ohEleR9[i] < r9endcap) ) {
+			if (ohElePixelSeeds[i]>0) {
+			  rcsconly++;
+			  csPassedEle.push_back(i);
+			}
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  //  cout << "rcsconly = " << rcsconly << endl;
+  if(rcsconly == 0){ // This really shouldn't happen, but included for safety
+    return NPassed;
+  }
+  if(rcsconly == 1){ // ok, we only had 1 cs, but 2 eles were assigned to it
+    Passed[NPassed++] = tmpindex;
+    return NPassed;
+  }
+
+  if(rcsconly >= 2) {
+    for (int i=0;i<NohEle;i++) {
+      float ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
+      int isbarrel = 0;
+      int isendcap = 0;
+      if(TMath::Abs(ohEleEta[i]) < barreleta)
+	isbarrel = 1;
+      if(barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta)
+	isendcap = 1;
+      
+      if ( ohEleEt[i] > Et) {
+	if( TMath::Abs(ohEleEta[i]) < endcapeta ) {
+	  if (ohEleNewSC[i]<=1) {
+	    if (ohElePixelSeeds[i]>0) {
+	      if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
+		if( ohEleL1Dupl[i] == false) { // remove double-counted L1 SCs 
+		  if ( (isbarrel && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETbarrel)) ||
+		       (isendcap && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETendcap)) ) {
+		    if ( (isbarrel && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETbarrel)) ||
+			 (isendcap && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETendcap)) ) {
+		      if ( ((isbarrel) && (ohEleHoverE < hoverebarrel)) ||
+			   ((isendcap) && (ohEleHoverE < hovereendcap))) {
+			if ( (isbarrel && (((ohEleTiso[i] < Tisobarrel && ohEleTiso[i] != -999.) || (Tisobarrel == 999.)))) ||
+			     (isendcap && (((ohEleTiso[i] < Tisoendcap && ohEleTiso[i] != -999.) || (Tisoendcap == 999.))))) {
+			  if (((isbarrel) && (ohEleTiso[i]/ohEleEt[i] < Tisoratiobarrel)) ||
+			      ((isendcap) && (ohEleTiso[i]/ohEleEt[i] < Tisoratioendcap))) {
+			    if ( (isbarrel && ohEleClusShap[i] < clusshapebarrel) ||
+				 (isendcap && ohEleClusShap[i] < clusshapeendcap) ) {
+			      if ( (isbarrel && ohEleR9[i] < r9barrel) || 
+				   (isendcap && ohEleR9[i] < r9endcap) ) {
+				if ( (isbarrel && TMath::Abs(ohEleDeta[i]) < detabarrel) ||
+				     (isendcap && TMath::Abs(ohEleDeta[i]) < detaendcap) ) {
+				  if( (isbarrel && ohEleDphi[i] < dphibarrel) ||
+				      (isendcap && ohEleDphi[i] < dphiendcap) ) {
+				    for(int j=0;j<csPassedEle.size();j++){
+				      if(i == csPassedEle.at(j)){ // check if the electron is in the cs matching list
+					Passed[NPassed++] = i;
+					rc++;  // ok, don't really need this, but keeping for debugging
+					break;
+				      }
+				    }
+				  }
+				}
+			      }
+			    }
+			  }
+			}
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  
+  return NPassed;
+}
+
+int OHltTree::OpenHlt2ElectronsAsymSamHarperPassed(float Et1, int L1iso1, 
+						   float Tisobarrel1, float Tisoendcap1, 
+						   float Tisoratiobarrel1, float Tisoratioendcap1, 
+						   float HisooverETbarrel1, float HisooverETendcap1, 
+						   float EisooverETbarrel1, float EisooverETendcap1,
+						   float hoverebarrel1, float hovereendcap1,
+						   float clusshapebarrel1, float clusshapeendcap1, 
+						   float r9barrel1, float r9endcap1,
+						   float detabarrel1, float detaendcap1,
+						   float dphibarrel1, float dphiendcap1,
+						   float Et2, int L1iso2, 
+						   float Tisobarrel2, float Tisoendcap2, 
+						   float Tisoratiobarrel2, float Tisoratioendcap2, 
+						   float HisooverETbarrel2, float HisooverETendcap2, 
+						   float EisooverETbarrel2, float EisooverETendcap2,
+						   float hoverebarrel2, float hovereendcap2,
+						   float clusshapebarrel2, float clusshapeendcap2, 
+						   float r9barrel2, float r9endcap2,
+						   float detabarrel2, float detaendcap2,
+						   float dphibarrel2, float dphiendcap2){
+  //  cout << "AB" << endl;
+  int FirstEle[8000],SecondEle[8000];
+  // cout << "BA" << endl;  
+  int NFirst = OpenHltGetElectronsSamHarperPassed(FirstEle, Et1,L1iso1,
+						  Tisobarrel1,Tisoendcap1, 
+						  Tisoratiobarrel1,Tisoratioendcap1,
+						  HisooverETbarrel1,HisooverETendcap1,
+						  EisooverETbarrel1,EisooverETendcap1,
+						  hoverebarrel1,hovereendcap1,
+						  clusshapebarrel1,clusshapeendcap1,
+						  r9barrel1,r9endcap1,
+						  detabarrel1,detaendcap1,
+						  dphibarrel1,dphiendcap1);
+int NSecond = OpenHltGetElectronsSamHarperPassed(SecondEle,Et2,L1iso2,
+						 Tisobarrel2,Tisoendcap2, 
+						 Tisoratiobarrel2,Tisoratioendcap2,
+						 HisooverETbarrel2,HisooverETendcap2,
+						 EisooverETbarrel2,EisooverETendcap2,
+						 hoverebarrel2,hovereendcap2,
+						 clusshapebarrel2,clusshapeendcap2,
+						 r9barrel2,r9endcap2,
+						 detabarrel2,detaendcap2,
+						 dphibarrel2,dphiendcap2);
+// std::cout << "ABBA " << NFirst << "  " << NSecond << endl;
+  if(NFirst == 0 || NSecond == 0) return 0;  // if no eles passed one condition, fail
+  if(NFirst == 1 && NSecond == 1 &&
+     FirstEle[0] == SecondEle[0]) return 0; //only 1 electron passed both conditions
+  return 1;  // in any other case, at least 1 unique electron passed each condition, so pass the event
+  
+}
+
+
 
 int OHltTree::OpenHlt1ElectronPassed(float Et, int L1iso, float Tiso, float Hiso)
 {
