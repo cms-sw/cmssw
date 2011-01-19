@@ -1,3 +1,10 @@
+2011-01-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-09
+	* migration to xml buildfiles(07)
+	* macosx mods (08)
+	* fixes to prescale index(09)
+	
 2010-10-13  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-09-06
