@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCRecHitAli.cc,v 1.2 2010/12/16 18:00:11 carrillo Exp $
+// $Id: RPCRecHitAli.cc,v 1.3 2010/12/16 18:21:24 carrillo Exp $
 //
 //
 
@@ -33,17 +33,16 @@ RPCRecHitAli::RPCRecHitAli(const edm::ParameterSet& iConfig)
   if(debug) std::cout<<"The used file for alignment is"<<AlignmentinfoFile.c_str()<<std::endl;
 
   std::ifstream ifin(AlignmentinfoFile.c_str());
-  
-
-  
+ 
+ 
   int rawId;
   std::string name;
   float offset;
   float rms;
+
   while (ifin.good()){
     ifin >>name >>rawId >> offset >> rms;
     alignmentinfo[rawId]=offset;
-  
     if(debug) std::cout<<"rawId ="<<rawId<<" offset="<<offset<<std::endl;
   }
 
@@ -89,7 +88,7 @@ void RPCRecHitAli::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 	    newXPosition=recHit->localPosition().x()+alignmentinfo[rollId.rawId()];
 	    if(debug)std::cout<<" to:"<<newXPosition<<std::endl;
 	  }
-	  RPCRecHit RPCPoint(rollId,recHit->BunchX(),LocalPoint(newXPosition,recHit->localPosition().y(),recHit->localPosition().z()));
+	  RPCRecHit RPCPoint(rollId,recHit->BunchX(),recHit->firstClusterStrip(),recHit->clusterSize(),LocalPoint(newXPosition,recHit->localPosition().y(),recHit->localPosition().z()),recHit->localPositionError());
 	  RPCPointVector.push_back(RPCPoint);
 	}
 	_ThePoints->put(rollId,RPCPointVector.begin(),RPCPointVector.end());
