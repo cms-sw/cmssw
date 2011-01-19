@@ -7,7 +7,7 @@ import re
 import os
 import sys
 
-piecesRE     = re.compile (r'(.+?)\s+"(\S+)"\s+"(\S*)"\s+"(\S+)\."')
+piecesRE     = re.compile (r'(.+?)\s+"(\S+)"\s+"(\S*)"\s+"(\S+)"')
 #colonRE      = re.compile (r':+')
 nonAlphaRE   = re.compile (r'\W')
 commaRE      = re.compile (r',')
@@ -213,6 +213,8 @@ if __name__ == "__main__":
     output = commands.getoutput (dumpCommand).split("\n")
     if not len(output):
         raise RuntimeError, "No output from edmDumpEventContent."
+    if options.verboseDebug:
+        print "output:\n", "\n".join(output)
     collection = {}
     total = failed = skipped = useless = 0
     for line in output:
