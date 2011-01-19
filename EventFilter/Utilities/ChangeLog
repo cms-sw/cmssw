@@ -1,3 +1,14 @@
+2011-01-19  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-03
+	* 18-06 migrate to xml buildfile
+	* 19-00 macosx compat
+	* 19-01 64-bit fix
+	* 19-02 remove compile flags
+	* 19-03 add support for rate counting 
+	*       microstate collection in iDie
+	*       various updates
+	
 2010-10-07  Emilio Meschi <emilio.meschi@cern.ch>
 	
 	* tag V00-18-06

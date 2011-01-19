@@ -342,7 +342,7 @@ namespace evf{
       sprintf(messageDie,"Dead");
       
       try{
-	poster_->postString(messageDie,5,0);
+	poster_->postString(messageDie,5,0,CurlPoster::stack);
       }
       catch(evf::Exception &e){
 	  //do nothing just swallow the exception
@@ -418,7 +418,7 @@ namespace evf{
 		  << strerror(errsv)<< std::endl;
       }
       unsigned int ipid = (unsigned int)atoi(pid.c_str());
-      poster_->postString(cmdout.c_str(),cmdout.length(),ipid); 
+      poster_->postString(cmdout.c_str(),cmdout.length(),ipid, CurlPoster::stack); 
       
     }
   }

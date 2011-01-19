@@ -63,7 +63,7 @@ namespace evf{
   void MicroStateService::postSource()
   {
     boost::mutex::scoped_lock sl(lock_);
-    microstate2_ = "INPUTDONE";
+    microstate2_ = "FWKOVH";
   }
 
   void MicroStateService::preModule(const edm::ModuleDescription& desc)
@@ -74,6 +74,8 @@ namespace evf{
 
   void MicroStateService::postModule(const edm::ModuleDescription& desc)
   {
+    boost::mutex::scoped_lock sl(lock_);
+    microstate2_ = "FWKOVH";
   }
   
   std::string MicroStateService::getMicroState1()

@@ -11,13 +11,16 @@
 
 
 namespace evf{
+
+  const std::string CurlPoster::standard_post_method_ = "/postEntry";
+
   //______________________________________________________________________________
   void CurlPoster::post(const char *content, 
-			unsigned int len, 
+			size_t len, 
 			unsigned int run,
-			mode m)
+			mode m, const std::string &post_method)
   {
-    std::string urlp = url_+"/postEntry";
+    std::string urlp = url_+post_method;
     char srun[12];
     sprintf(srun,"%d",run);
     std::string method;
@@ -31,7 +34,19 @@ namespace evf{
     case text:
       {
 	headers = curl_slist_append(headers, "Content-Type: text/plain");
+	method = "text";
+	break;
+      }
+    case stack:
+      {
+	headers = curl_slist_append(headers, "Content-Type: text/plain");
 	method = "stacktrace";
+	break;
+      }
+    case leg:
+      {
+	headers = curl_slist_append(headers, "Content-Type: text/plain");
+	method = "legenda";
 	break;
       }
     case bin:
@@ -61,12 +76,13 @@ namespace evf{
     curl_formadd(&post, &last,
 		 CURLFORM_COPYNAME, "run",
 		 CURLFORM_COPYCONTENTS, srun, CURLFORM_END);
-    curl_formadd(&post, &last,
-		 CURLFORM_COPYNAME, method.c_str(),
-		 CURLFORM_COPYCONTENTS, content,
-		 CURLFORM_CONTENTSLENGTH, len,
-		 CURLFORM_CONTENTHEADER, headers,
-		 CURLFORM_END);
+    int retval = curl_formadd(&post, &last,
+			      CURLFORM_COPYNAME, method.c_str(),
+			      CURLFORM_PTRCONTENTS, content,
+			      CURLFORM_CONTENTSLENGTH, len,
+			      CURLFORM_CONTENTHEADER, headers,
+			      CURLFORM_END);
+    if(retval != 0) std::cout << "Error in formadd " << retval << std::endl;
     curl_easy_setopt(han, CURLOPT_HTTPPOST, post);
     curl_easy_setopt(han, CURLOPT_ERRORBUFFER, error);
 	
@@ -84,15 +100,17 @@ namespace evf{
       }
 
   }
-  void CurlPoster::postString(const char *content, size_t len, unsigned int run)
+  void CurlPoster::postString(const char *content, size_t len, unsigned int run, 
+			      mode m, const std::string &post_method)
   {
     if(!active_) return;
-    post(content,(unsigned int)len,run,text);
+    post(content,(unsigned int)len,run,m,post_method);
   }
-  void CurlPoster::postBinary(const char *content, unsigned int len, unsigned int run)
+  void CurlPoster::postBinary(const char *content, size_t len, unsigned int run,
+			      const std::string &post_method)
   {
     if(!active_) return;
-    post(content,len,run,bin);
+    post(content,len,run,bin,post_method);
   }
 
   bool CurlPoster::check(int run)
