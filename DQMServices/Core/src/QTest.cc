@@ -1156,6 +1156,8 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " 
               << me-> getFullname() << "\n";
 
+  if (minEntries_ != 0 && me->getEntries() < minEntries_) return -1;
+
   if (me->kind()==MonitorElement::DQM_KIND_TH1F) 
   { 
     h = me->getTH1F(); //access Test histo
