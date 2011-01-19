@@ -89,6 +89,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
+    hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+1e-9); // issue with < vs <= in discrete models
     limit = hcResult->Significance();
     double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - limit;
     double sigLo = RooStats::PValueToSignificance( 1 - (hcResult->CLb() - hcResult->CLbError()) ) - limit;
@@ -209,6 +210,8 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
     if (testStat_ == "LEP") {
         setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf()));
+        ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetNullParameters(*setup.modelConfig_bonly.GetSnapshot());
+        ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetAltParameters( *setup.modelConfig.GetSnapshot());
     } else if (testStat_ == "TEV") {
         setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), setup.modelConfig.GetSnapshot()));
         ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
@@ -246,6 +249,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, bool adaptive, double clsTarget)
         std::cerr << "Hypotest failed" << std::endl;
         return std::pair<double, double>(-1,-1);
     }
+    hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+1e-9); // issue with < vs <= in discrete models
     double clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
     double clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
     if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
