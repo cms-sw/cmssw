@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2010/10/13 14:54:19 $
- *  $Revision: 1.43 $
+ *  $Date: 2010/11/29 11:27:44 $
+ *  $Revision: 1.44 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -74,6 +74,9 @@ namespace edm {
     , is_(0)
     , mis_(0)
     , thisEventLSid(0)
+    , aBigPsIndex_(10000)
+    , thisEventPsInd(aBigPsIndex_)
+    , goToStopping(false)
   {
     count = 0;
     pthread_mutex_init(&mutex_,0);
@@ -130,6 +133,7 @@ namespace edm {
   InputSource::ItemType 
   DaqSource::getNextItemType() {
     //    std::cout << getpid() << " enter getNextItemType " << std::endl;
+    if(goToStopping){noMoreEvents_ = true; goToStopping=false;}
     if (noMoreEvents_) {
       pthread_mutex_lock(&mutex_);
       pthread_cond_signal(&cond_);
@@ -147,6 +151,7 @@ namespace edm {
       // we hold onto it until we have issued all the necessary endLumi/beginLumi
 //       std::cout << getpid() << "alignLsToLast was set and ls number is " 
 // 		<< luminosityBlockNumber_ << " before signaling" << std::endl;
+      prescaleSetIndex_ = aBigPsIndex_;
       signalWaitingThreadAndBlock();
       luminosityBlockNumber_++;
 //       std::cout << getpid() << "alignLsToLast signaled and incremented " 
@@ -155,7 +160,11 @@ namespace edm {
       newLumi_ = true;
       lumiSectionIndex_.value_ = luminosityBlockNumber_;
       resetLuminosityBlockAuxiliary();
-      if(luminosityBlockNumber_ == thisEventLSid+1) alignLsToLast_ = false;
+      if(luminosityBlockNumber_ == thisEventLSid+1) 
+	{
+	  alignLsToLast_ = false;
+	  prescaleSetIndex_.value_ = thisEventPsInd;
+	}
       if (!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != luminosityBlockNumber_) {
 	setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(
 								 runNumber_, luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp()));
@@ -211,6 +220,7 @@ namespace edm {
 	  {
 	    if(lsToBeRecovered_.value_){
 // 	      std::cout << getpid() << "eol::recover ls::for " << (-1)*retval << std::endl;
+	      prescaleSetIndex_ = aBigPsIndex_;
 	      signalWaitingThreadAndBlock();
 	      luminosityBlockNumber_++;
 	      newLumi_ = true;
@@ -250,7 +260,7 @@ namespace edm {
 	unsigned int nextFakeLs	= 0;
 	if(fakeLSid_ && luminosityBlockNumber_ != 
 	   (nextFakeLs =(eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1)) {
-	  
+	  prescaleSetIndex_ = 0; // since we do not know better but we want to be able to run
 	  if(luminosityBlockNumber_ == nextFakeLs-1)
 	    signalWaitingThreadAndBlock();
 	  luminosityBlockNumber_ = nextFakeLs;
@@ -263,7 +273,7 @@ namespace edm {
 
 	  if(gtpFedAddr!=0 && evf::evtn::evm_board_sense(gtpFedAddr,gtpsize)){
 	    thisEventLSid = evf::evtn::getlbn(gtpFedAddr);
-	    prescaleSetIndex_.value_ = (evf::evtn::getfdlpsc(gtpFedAddr) & 0xffff);
+	    thisEventPsInd = (evf::evtn::getfdlpsc(gtpFedAddr) & 0xffff);
 	    evttype =  edm::EventAuxiliary::ExperimentType(evf::evtn::getevtyp(gtpFedAddr));
 	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
 	      // we got here in a running process and some Ls might have been skipped so set the flag, 
@@ -276,6 +286,7 @@ namespace edm {
 		lumiSectionIndex_.value_ = luminosityBlockNumber_;
 		resetLuminosityBlockAuxiliary();
 		if(luminosityBlockNumber_ != thisEventLSid+1) alignLsToLast_ = true;
+		else prescaleSetIndex_.value_ = thisEventPsInd;
 		//		std::cout << getpid() << "eve::::alignLsToLast_ " << alignLsToLast_ << std::endl;
 	      }
 	      else{ // we got here because the process was restarted. just realign the ls id and proceed with this event
@@ -283,6 +294,7 @@ namespace edm {
 		luminosityBlockNumber_ = thisEventLSid + 1;
 		newLumi_ = true;
 		lumiSectionIndex_.value_ = luminosityBlockNumber_;
+		prescaleSetIndex_.value_ = thisEventPsInd;
 		resetLuminosityBlockAuxiliary();
 		lsToBeRecovered_.value_ = true;
 	      }
@@ -290,6 +302,7 @@ namespace edm {
 	  }
 	  else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
 	    thisEventLSid = evf::evtn::gtpe_getlbn(gtpeFedAddr);
+	    thisEventPsInd = aBigPsIndex_;
 	    evttype =  edm::EventAuxiliary::PhysicsTrigger; 
 	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
 	      if(luminosityBlockNumber_ == thisEventLSid)
@@ -297,6 +310,7 @@ namespace edm {
 	      luminosityBlockNumber_ = thisEventLSid + 1;
 	      newLumi_ = true;
 	      lumiSectionIndex_.value_ = luminosityBlockNumber_;
+	      prescaleSetIndex_.value_ = thisEventPsInd;
 	      resetLuminosityBlockAuxiliary();
 	    }
 	  }
@@ -498,7 +512,7 @@ namespace edm {
 	  cgicc::Cgicc cgi(in);
 	  if ( xgi::Utils::hasFormElement(cgi,"gotostopping") )
 	    {
-	      noMoreEvents_=true;
+	      goToStopping=true;
 	    }
 	  if ( xgi::Utils::hasFormElement(cgi,"module") )
 	    mname = xgi::Utils::getFormElement(cgi, "module")->getValue();
