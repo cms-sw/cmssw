@@ -3,6 +3,7 @@
 # Author: K. Kousouris
 # Date:  02 - September - 2009
 # Date:  22 - November - 2009: Kalanand Mishra: Modified for 3.3.X (re-Reco) corrections
+# Date:  14 - January - 2011: Kalanand Mishra: Modified for 3.8.X 
 
 import FWCore.ParameterSet.Config as cms
 

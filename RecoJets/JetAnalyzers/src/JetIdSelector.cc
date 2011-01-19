@@ -6,18 +6,18 @@
  *
  * usage:
  *
- *
+ * from RecoJets.JetProducers.ak5JetID_cfi import *
  * module CaloJetsLooseId = cms.EDProducer("CaloJetIdSelector",
  *    src     = cms.InputTag( "ak5CaloJets" ),
- *    idLevel = cms.InputTag("LOOSE"),
- *    jetIDMap = cms.Untracked.InputTag("ak5JetID") 
+ *    idLevel = cms.string("LOOSE"),
+ *    jetIDMap = cms.untracked.InputTag("ak5JetID") 
  *               ### must provide jet ID value map for CaloJets
  * )
  *
  *
  * module PFJetsLooseId = cms.EDProducer("PFJetIdSelector",
  *    src     = cms.InputTag( "ak5PFJets" ),
- *    idLevel = cms.InputTag("LOOSE"),
+ *    idLevel = cms.string("LOOSE"),
  * )
  *
  *
@@ -38,6 +38,16 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"  
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"  
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/JPTJet.h"
+#include "DataFormats/JetReco/interface/JPTJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 #include <memory>
 #include <vector>
@@ -46,10 +56,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
+template<typename T>
 class JetIdSelector : public edm::EDProducer
 {
 public:
-  typedef std::vector<reco::Jet> JetCollection;
+  typedef std::vector<T> JetCollection;
   // construction/destruction
   explicit JetIdSelector(const edm::ParameterSet& iConfig);
   virtual ~JetIdSelector();
@@ -63,6 +74,8 @@ private:
   edm::InputTag src_;
   std::string  qualityStr;
   edm::InputTag jetIDMap_;
+  std::string  moduleLabel_;
+
 
   unsigned int nJetsTot_;
   unsigned int nJetsPassed_;
@@ -80,14 +93,17 @@ using namespace std;
 // construction/destruction
 ////////////////////////////////////////////////////////////////////////////////
 //______________________________________________________________________________
-JetIdSelector::JetIdSelector(const edm::ParameterSet& iConfig)
+template<typename T>
+JetIdSelector<T>::JetIdSelector(const edm::ParameterSet& iConfig)
   : src_    (iConfig.getParameter<edm::InputTag>         ("src"))
   , qualityStr  (iConfig.getParameter<string>            ("idLevel"))
-  , jetIDMap_(iConfig.getUntrackedParameter<edm::InputTag> ("jetIDMap"))
+  , jetIDMap_(iConfig.getUntrackedParameter<edm::InputTag> ("jetIDMap", edm::InputTag("ak5JetID")))
+  , moduleLabel_(iConfig.getParameter<string>                ("@module_label"))
   , nJetsTot_(0)
   , nJetsPassed_(0)
 {
   produces<JetCollection>();
+
   use_pfloose = false;
   use_pfmedium = false;
   use_pftight = false;
@@ -125,7 +141,10 @@ JetIdSelector::JetIdSelector(const edm::ParameterSet& iConfig)
 
 
 //______________________________________________________________________________
-JetIdSelector::~JetIdSelector(){}
+template<typename T>
+JetIdSelector<T>::~JetIdSelector(){
+  if(jetIDFunctor) delete jetIDFunctor;
+}
 
 
 
@@ -134,7 +153,8 @@ JetIdSelector::~JetIdSelector(){}
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void JetIdSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
+template<typename T>
+void JetIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
   auto_ptr<JetCollection> selectedJets(new JetCollection);
   edm::Handle<reco::JetView> jets;  // uncorrected jets!
@@ -147,15 +167,15 @@ void JetIdSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
    if(typeid((*jets)[0]) == typeid(reco::CaloJet)) 
      iEvent.getByLabel( jetIDMap_, hJetIDMap );
 
-
-
    unsigned int idx=0;
    bool passed = false;
 
    for ( edm::View<reco::Jet>::const_iterator ibegin = jets->begin(),
            iend = jets->end(), iJet = ibegin;
          iJet != iend; ++iJet ) {
-     idx = iJet - ibegin;
+
+     // initialize the boolean flag to false
+     passed = false;
 
      //calculate the Calo jetID
      const std::type_info & type = typeid((*jets)[idx]);
@@ -206,11 +226,16 @@ void JetIdSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
      }
 
      if ( type == typeid(reco::GenJet) || type == typeid(reco::JPTJet)) {
-       edm::LogWarning( "JetId" )<<"Criteria for jets other than CaloJets and PFJets are not yet implemented";
+       edm::LogWarning( "JetId" )<< 
+	 "Criteria for jets other than CaloJets and PFJets are not yet implemented";
        passed = true;
      } // close GenJet, JPT jet
-     const reco::Jet goodJet = static_cast<const reco::Jet&>((*jets)[idx]);
+
+ 
+     const T& goodJet = static_cast<const T&>((*jets)[idx]);
      if(passed) selectedJets->push_back( goodJet );
+
+     idx++;
    } // close jet iterator
 
 
@@ -218,20 +243,19 @@ void JetIdSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
   nJetsTot_  +=jets->size();
   nJetsPassed_+=selectedJets->size();  
   iEvent.put(selectedJets);
-
-  if(jetIDFunctor) delete jetIDFunctor;
 }
 
 
 
 //______________________________________________________________________________
-void JetIdSelector::endJob()
+template<typename T>
+void JetIdSelector<T>::endJob()
 {
   stringstream ss;
   ss<<"nJetsTot="<<nJetsTot_<<" nJetsPassed="<<nJetsPassed_
     <<" fJetsPassed="<<100.*(nJetsPassed_/(double)nJetsTot_)<<"%\n";
   cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++"
-      <<"\n"<<"JetIdSelector SUMMARY:\n"<<ss.str()
+      <<"\n"<< moduleLabel_ << "(JetIdSelector) SUMMARY:\n"<<ss.str()
       <<"++++++++++++++++++++++++++++++++++++++++++++++++++"
       <<endl;
 }
@@ -240,7 +264,14 @@ void JetIdSelector::endJob()
 ////////////////////////////////////////////////////////////////////////////////
 // plugin definition
 ////////////////////////////////////////////////////////////////////////////////
-DEFINE_FWK_MODULE(JetIdSelector);
+typedef JetIdSelector<reco::CaloJet> CaloJetIdSelector;
+typedef JetIdSelector<reco::PFJet>   PFJetIdSelector;
+typedef JetIdSelector<reco::JPTJet>  JPTJetIdSelector;
+typedef JetIdSelector<reco::GenJet>  GenJetIdSelector;
 
+DEFINE_FWK_MODULE(CaloJetIdSelector);
+DEFINE_FWK_MODULE(PFJetIdSelector);
+DEFINE_FWK_MODULE(JPTJetIdSelector);
+DEFINE_FWK_MODULE(GenJetIdSelector);
 
 
