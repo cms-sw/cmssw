@@ -123,6 +123,8 @@ namespace evf{
     void resetLumiSectionReferenceIndex(){trh_.resetLumiSectionReferenceIndex();}
     void withdrawLumiSectionIncrement(){trh_.withdrawLumiSectionIncrement();}
     unsigned int getLumiSectionReferenceIndex(){return trh_.getLumiSectionReferenceIndex();}
+    unsigned int getNumberOfMicrostates(){return mapmod_.size();}
+    std::vector<std::string> const &getmicromap() const { return mapmod_;}
   private:
     static const std::string        unknown;
     edm::EventProcessor             *evtProcessor_;
