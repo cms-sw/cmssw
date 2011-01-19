@@ -10,6 +10,9 @@ namespace evf {
   class CurlPoster
   {
   public:
+
+    enum mode{text,stack,leg,bin};  
+
     CurlPoster(const std::string& url) : url_(url), active_(true){
       buf_=(struct utsname*)new char[sizeof(struct utsname)];
       uname(buf_);
@@ -17,14 +20,16 @@ namespace evf {
     }
     virtual ~CurlPoster(){delete [] buf_;}
     bool check(int);
-    void postBinary(const char *, unsigned int, unsigned int); 
-    void postString(const char *, size_t, unsigned int); 
+    void postBinary(const char *, size_t, unsigned int
+		    , const std::string& = standard_post_method_); 
+    void postString(const char *, size_t, unsigned int 
+		    , mode, const std::string& = standard_post_method_); 
   private:
-    enum mode{text,bin};  
-    void post(const char *, unsigned int, unsigned int, mode);
+    void post(const char *, size_t, unsigned int, mode, const std::string&);
     std::string url_;
     bool active_;
     struct utsname* buf_; 
+    static const std::string standard_post_method_;
   };
 
 } // evf

@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include <iostream>
+#include <sstream>
 
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/MsgBuf.h"
@@ -28,7 +29,10 @@ namespace evf{
 	/* create or attach a public message queue, with read/write access to every user. */
 	queue_id_ = msgget(QUEUE_ID+ind, IPC_CREAT | 0666); 
 	if (queue_id_ == -1) {
-	  XCEPT_RAISE(evf::Exception, "failed to get message queue");
+	  std::ostringstream ost;
+	  ost << "failed to get message queue:" 
+	      << strerror(errno);
+	  XCEPT_RAISE(evf::Exception, ost.str());
 	}
 	// it may be necessary to drain the queue here if it already exists !!! 
 	drain();

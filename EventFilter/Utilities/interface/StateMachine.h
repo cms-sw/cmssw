@@ -63,6 +63,7 @@ namespace evf
     // disable rcms state notification
     void disableRcmsStateNotification(){doStateNotification_=false;}
 
+    bool checkIfEnabled() {return fsm_.getCurrentState()=='E';}
     
     // report current state
     xdata::String* stateName() { return &stateName_; }
