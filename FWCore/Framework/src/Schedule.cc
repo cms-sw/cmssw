@@ -14,6 +14,7 @@
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
@@ -299,6 +300,7 @@ namespace edm {
 
     ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration);
     BranchIDListHelper::updateRegistries(preg);
+    fillProductRegistryTransients(*processConfiguration, preg);
   } // Schedule::Schedule
 
   void
