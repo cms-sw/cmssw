@@ -315,7 +315,9 @@ RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &h
         f->Close();
         fflush(stdout); fflush(stderr);
         std::cout << "And I'm done" << std::endl;
-        exit(0);
+        throw std::runtime_error("done"); // I have to throw instead of exiting, otherwise there's no proper stack unwinding
+                                          // and deleting of intermediate objects, and when the statics get deleted it crashes
+                                          // in 5.27.06 (but not in 5.28)
     }
     free(tmpfile);
     return result.release();
