@@ -12,6 +12,8 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
 #include <TH1D.h>
 
@@ -66,6 +68,16 @@ void CMSDAS11DijetAnalyzer::endJob(void){
 
 void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+  ////////Get Weight, if this is MC//////////////  
+  double mWeight;
+  edm::Handle<GenEventInfoProduct> hEventInfo;
+  iEvent.getByLabel("generator", hEventInfo);
+  if (hEventInfo.isValid())
+    mWeight = hEventInfo->weight();
+  else 
+    mWeight = 1.;
+
   ////////////////////////////////////////////
   // Get event ID information
   ////////////////////////////////////////////
@@ -125,16 +137,16 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
     scale *= JESbias;
 
     // fill the histograms
-    hJetRawPt->Fill(jet.pt());
-    hJetEta->Fill(jet.eta());
-    hJetPhi->Fill(jet.phi());
-    hJetEMF->Fill(jet.emEnergyFraction());
+    hJetRawPt->Fill(jet.pt(),mWeight);
+    hJetEta->Fill(jet.eta(),mWeight);
+    hJetPhi->Fill(jet.phi(),mWeight);
+    hJetEMF->Fill(jet.emEnergyFraction(),mWeight);
 
     // correct the jet energy
     jet.scaleEnergy(scale);
     
     // now fill the correct jet pt after the correction
-    hJetCorrPt->Fill(jet.pt());
+    hJetCorrPt->Fill(jet.pt(),mWeight);
 
     // put the selected jets into a collection
     selectedJets.push_back(jet);
@@ -156,29 +168,29 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
   
 
   // fill histograms for the jets in our dijets, only
-  hJet1Pt ->Fill(selectedJets[0].pt());
-  hJet1Eta->Fill(selectedJets[0].eta());
-  hJet1Phi->Fill(selectedJets[0].phi());
-  hJet1EMF->Fill(selectedJets[0].emEnergyFraction());
-  hJet2Pt ->Fill(selectedJets[1].pt());
-  hJet2Eta->Fill(selectedJets[1].eta());
-  hJet2Phi->Fill(selectedJets[1].phi());
-  hJet2EMF->Fill(selectedJets[1].emEnergyFraction());
+  hJet1Pt ->Fill(selectedJets[0].pt(),mWeight);
+  hJet1Eta->Fill(selectedJets[0].eta(),mWeight);
+  hJet1Phi->Fill(selectedJets[0].phi(),mWeight);
+  hJet1EMF->Fill(selectedJets[0].emEnergyFraction(),mWeight);
+  hJet2Pt ->Fill(selectedJets[1].pt(),mWeight);
+  hJet2Eta->Fill(selectedJets[1].eta(),mWeight);
+  hJet2Phi->Fill(selectedJets[1].phi(),mWeight);
+  hJet2EMF->Fill(selectedJets[1].emEnergyFraction(),mWeight);
 
   //Get the mass of the two leading jets.  Needs their 4-vectors...
   double corMass = (selectedJets[0].p4()+selectedJets[1].p4()).M();
   double deltaEta = fabs(selectedJets[0].eta()-selectedJets[1].eta());
   if (corMass < 489) return;
   if (deltaEta > 1.3) return;
-  hCorDijetMass->Fill(corMass);
-  hDijetDeltaPhi->Fill(fabs(selectedJets[0].phi()-selectedJets[1].phi()) );
-  hDijetDeltaEta->Fill(deltaEta );
+  hCorDijetMass->Fill(corMass,mWeight);
+  hDijetDeltaPhi->Fill(fabs(selectedJets[0].phi()-selectedJets[1].phi()) ,mWeight);
+  hDijetDeltaEta->Fill(deltaEta ,mWeight);
 
   //Fill the inner and outer dijet mass spectra, to make the ratio from
-  if (deltaEta < innerDeltaEta) hInnerDijetMass->Fill(corMass);
-  else if (deltaEta < outerDeltaEta) hOuterDijetMass->Fill(corMass);
+  if (deltaEta < innerDeltaEta) hInnerDijetMass->Fill(corMass,mWeight);
+  else if (deltaEta < outerDeltaEta) hOuterDijetMass->Fill(corMass,mWeight);
 
-  hVertexZ->Fill(theVertex->z());
+  hVertexZ->Fill(theVertex->z(),mWeight);
   return;
 }
 
