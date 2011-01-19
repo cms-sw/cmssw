@@ -4,13 +4,14 @@ process = cms.Process("dqm")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(-1)
 )
 
 process.load("HLTriggerOffline.Egamma.EgammaValidationReco_cff")
 process.post=cms.EDAnalyzer("EmDQMPostProcessor",
-                            subDir = cms.untracked.string("HLT/HLTEgammaValidationReco"),
+                            subDir = cms.untracked.string("HLT/HLTEgammaValidation"),
                             dataSet = cms.untracked.string("unknown"),
+                            normalizeToReco = cms.untracked.bool(True),
     )
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
@@ -71,7 +72,7 @@ process.p = cms.EndPath(process.post+process.dqmSaver)
 
 process.testW = cms.Path(
     # require generated particles in fiducial volume
-    process.egammaSelectors *     
+    # process.egammaSelectors *     
 
     process.egammaValidationSequenceReco)
 
