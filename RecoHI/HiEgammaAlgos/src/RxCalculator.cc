@@ -21,19 +21,31 @@ RxCalculator::RxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSe
 {
    Handle<HFRecHitCollection> hfhandle;
    iEvent.getByLabel(hfLabel, hfhandle);
-   fHFRecHits_ = hfhandle.product();
+   if(hfhandle.isValid())
+     fHFRecHits_ = hfhandle.product();
+   else 
+     fHFRecHits_ = NULL;
 
    Handle<HORecHitCollection> hohandle;
    iEvent.getByLabel(hoLabel, hohandle);
-   fHORecHits_ = hohandle.product();
+   if(hohandle.isValid())
+     fHORecHits_ = hohandle.product();
+   else
+     fHORecHits_ = NULL;
 
    Handle<HBHERecHitCollection> hehbhandle;
    iEvent.getByLabel(hbheLabel, hehbhandle);
-   fHBHERecHits_ = hehbhandle.product();
+   if(hehbhandle.isValid())
+     fHBHERecHits_ = hehbhandle.product();
+   else 
+     fHBHERecHits_ = NULL;
 
    ESHandle<CaloGeometry> geometryHandle;
    iSetup.get<CaloGeometryRecord>().get(geometryHandle);
-   geometry_ = geometryHandle.product();
+   if(geometryHandle.isValid())
+     geometry_ = geometryHandle.product();
+   else 
+     geometry_ = NULL;
 
 } 
 
@@ -43,10 +55,9 @@ double RxCalculator::getRx(const reco::SuperClusterRef cluster, double x, double
    using namespace edm;
    using namespace reco;
 
-
    if(!fHBHERecHits_) {       
-      LogError("RxCalculator") << "Error! Can't get HBHERecHits for event.";
-      return -100;
+//      LogError("RxCalculator") << "Error! Can't get HBHERecHits for event.";
+     return -100;
    }
 
    double SClusterEta = cluster->eta();
@@ -84,7 +95,7 @@ double RxCalculator::getROx(const reco::SuperClusterRef cluster, double x,double
    using namespace reco;
 
    if(!fHORecHits_) {       
-      LogError("RxCalculator") << "Error! Can't get HORecHits for event.";
+//       LogError("RxCalculator") << "Error! Can't get HORecHits for event.";
       return -100;
    }
 
@@ -160,7 +171,7 @@ double RxCalculator::getCRx(const reco::SuperClusterRef cluster, double x, doubl
 
 
    if(!fHBHERecHits_) {       
-      LogError("RxCalculator") << "Error! Can't get HBHERecHits for event.";
+//       LogError("RxCalculator") << "Error! Can't get HBHERecHits for event.";
       return -100;
    }
 
