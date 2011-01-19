@@ -2,6 +2,8 @@
 #define EVENTFILTER_PROCESSOR_SUB_PROCESS_H
 
 #include "EventFilter/Utilities/interface/MsgBuf.h"
+#include "EventFilter/Utilities/interface/MasterQueue.h"
+#include "EventFilter/Utilities/interface/SlaveQueue.h"
 #include <string>
 
 #include <iostream>
@@ -51,46 +53,15 @@ namespace evf{
       , reported_inconsistent_(b.reported_inconsistent_)
       {
       }
-    SubProcess &operator=(const SubProcess &b)
-      {
-	ind_=b.ind_;
-	pid_=b.pid_;
-	alive_=b.alive_;
-	mqm_=b.mqm_;
-	mqs_=b.mqs_;
-	save_nbp_ = b.save_nbp_;
-	save_nba_ = b.save_nba_;
-	save_ndqm_ = b.save_ndqm_;
-        save_scalers_ = b.save_scalers_;
-	restart_countdown_=b.restart_countdown_;
-	reported_inconsistent_=b.reported_inconsistent_;
-	return *this;
-      }
+    SubProcess &operator=(const SubProcess &b);
+
     virtual ~SubProcess()
       {
       }
-    void disconnect()
-      {
-	mqm_->drain();
-	mqs_->drain();
-	mqs_->disconnect();
-	mqm_->disconnect();
-	save_nbp_ = 0;
-	save_nba_ = 0;
-	save_ndqm_ = 0;
-	save_scalers_ = 0;
-      }
-    void setStatus(int st){
-      alive_ = st;
-      if(alive_ != 1) //i.e. process is no longer alive
-	{
-	  //save counters after last update
-	  save_nbp_= prg_.nbp;
-	  save_nba_= prg_.nba;
-	  save_ndqm_ = prg_.dqm;
-	  save_scalers_ = prg_.trp;
-	}
-    }
+    void disconnect();
+
+    void setStatus(int st);
+
     int queueId(){return (mqm_.get()!=0 ? mqm_->id() : 0);}
     int queueStatus(){return (mqm_.get() !=0 ? mqm_->status() : 0);}
     int queueOccupancy(){return (mqm_.get() !=0 ? mqm_->occupancy() : -1);}
@@ -100,17 +71,7 @@ namespace evf{
     pid_t pid() const {return pid_;}
     int alive() const {return alive_;}
     struct prg &params(){return prg_;}
-    void setParams(struct prg *p)
-      {
-	prg_.ls  = p->ls;
-	prg_.ps  = p->ps;
-	prg_.nbp = p->nbp + save_nbp_;
-	prg_.nba = p->nba + save_nba_;
-	prg_.Ms  = p->Ms;
-	prg_.ms  = p->ms;
-	prg_.dqm = p->dqm + save_ndqm_;
-	prg_.trp = p->trp + save_scalers_;
-      }
+    void setParams(struct prg *p);
     int post(MsgBuf &ptr, bool isMonitor)
       {
 	//	std::cout << "post called for sp " << ind_ << " type " << ptr->mtype 
@@ -132,40 +93,49 @@ namespace evf{
 	else 
 	  return mqs_->rcvNonBlocking(ptr);
       }
-    int forkNew()
+    int postSlave(MsgBuf &ptr, bool isMonitor)
       {
-	mqm_->drain();
-	mqs_->drain();
-	pid_t retval = -1;
-	retval = fork();
-	reported_inconsistent_ = false;
-	if(retval>0)
-	  {
-	    pid_ = retval;
-	    alive_=1;
-	  }
-	if(retval==0)
-	  {
-	    //	  freopen(filename,"w",stdout); // send all console output from children to /dev/null
-	    freopen("/dev/null","w",stderr);
-	  }
-	return retval;
+	//	std::cout << "post called for sp " << ind_ << " type " << ptr->mtype 
+	//	  << " queue ids " << mqm_->id() << " " << mqs_->id() << std::endl;
+	if(isMonitor) return sqm_->post(ptr); else return sqs_->post(ptr);
       }
+    unsigned long rcvSlave(MsgBuf &ptr, bool isMonitor)
+      {
+	//	std::cout << "receive called for sp " << ind_ << " type " << ptr->mtype 
+	//  << " queue ids " << mqm_->id() << " " << mqs_->id() << std::endl;
+	if(isMonitor) return sqm_->rcv(ptr); else return sqs_->rcv(ptr);
+      }
+    unsigned long rcvSlaveNonBlocking(MsgBuf &ptr, bool isMonitor)
+      {
+	//	std::cout << "receivenb called for sp " << ind_ << " type " << ptr->mtype 
+	//	  << " queue ids " << mqm_->id() << " " << mqs_->id() << std::endl;
+	if(isMonitor) 
+	  return sqm_->rcvNonBlocking(ptr); 
+	else 
+	  return sqs_->rcvNonBlocking(ptr);
+      }
+
+    int forkNew();
+
     std::string const &reasonForFailed()const {return reasonForFailed_;}
     bool inInconsistentState() const {return reported_inconsistent_;}
     void setReasonForFailed(std::string r){reasonForFailed_ = r;}
     void setReportedInconsistent(){reported_inconsistent_ = true;}
     unsigned int &countdown(){return restart_countdown_;}
+    static const unsigned int monitor_queue_offset_ = 200;
+
   private:
     int ind_;
     pid_t pid_;
     int alive_;
     boost::shared_ptr<MasterQueue> mqm_; //to be turned to real object not pointer later
     boost::shared_ptr<MasterQueue> mqs_;
+    SlaveQueue*                    sqm_;  // every subprocess will create its instance at fork 
+    SlaveQueue*                    sqs_; 
     std::string reasonForFailed_;
     struct prg prg_;
     unsigned int restart_countdown_;
-    static const unsigned int monitor_queue_offset_ = 200;
+
     int save_nbp_;
     int save_nba_;
     unsigned int save_ndqm_;
