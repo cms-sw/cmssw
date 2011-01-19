@@ -13,7 +13,7 @@
 //
 // Original Author:  Douglas Ryan Berry,512 1-008,+41227670494,
 //         Created:  Mon Jul 26 10:02:34 CEST 2010
-// $Id$
+// $Id: PhotonEnrichmentFilter.cc,v 1.1 2011/01/19 13:38:06 drberry Exp $
 //
 //
 
@@ -150,10 +150,15 @@ PhotonEnrichmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     GenParticle SecondarySeed = *itGenParticles;
     
-    if ((CandidatePDGID==22 || CandidatePDGID==11 || CandidatePDGID==211 || CandidatePDGID==310 || CandidatePDGID==130 || CandidatePDGID==321 || CandidatePDGID==2112 || CandidatePDGID==2212 || CandidatePDGID==3122) && abs(CandidateEta)<etalimit && CandidateEt>EMSeedThreshold_) {
+    if ((CandidatePDGID==22 || CandidatePDGID==11
+         || CandidatePDGID==211 || CandidatePDGID==310 || CandidatePDGID==130
+         || CandidatePDGID==321 || CandidatePDGID==2112 || CandidatePDGID==2212 || CandidatePDGID==3122)
+         && abs(CandidateEta)<etalimit && CandidateEt>EMSeedThreshold_) {
       bool newseed=true;
 
-      if ((CandidatePDGID==211 || CandidatePDGID==321 || CandidatePDGID==2112 || CandidatePDGID==2212 || CandidatePDGID==3122) && CandidateEt<PionSeedThreshold_) newseed=false;
+      if ((CandidatePDGID==211 || CandidatePDGID==321
+           || CandidatePDGID==2112 || CandidatePDGID==2212 || CandidatePDGID==3122)
+           && CandidateEt<PionSeedThreshold_) newseed=false;
 
       if (newseed) {
         for (GenParticleCollection::const_iterator checkGenParticles = GenParticles->begin(); checkGenParticles != GenParticles->end(); ++checkGenParticles) {
@@ -163,8 +168,13 @@ PhotonEnrichmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
           double GenPhi = checkGenParticles->phi();
           double dR = deltaR2(CandidateEta,CandidatePhi,GenEta,GenPhi);
           
-          if ((((GenPDGID==22 || GenPDGID==11 || GenPDGID==310 || GenPDGID==130) && GenEt>CandidateEt) || ((GenPDGID==211 || GenPDGID==321 || GenPDGID==2112 || GenPDGID==2212 || GenPDGID==3122) && GenEt>CandidateEt && GenEt>PionSeedThreshold_)) && dR<ClusterConeSize_) newseed=false;
-          if ((GenPDGID==211 || GenPDGID==321 || GenPDGID==2112 || GenPDGID==2212 || GenPDGID==3122) && GenEt<CandidateEt && (GenEt>SecondarySeed.et() || SecondarySeed.et()==CandidateEt) && GenEt>SecondarySeedThreshold_ && dR<ClusterConeSize_) SecondarySeed=*checkGenParticles;
+          if ((((GenPDGID==22 || GenPDGID==11 || GenPDGID==310 || GenPDGID==130) && GenEt>CandidateEt)
+               || ((GenPDGID==211 || GenPDGID==321 || GenPDGID==2112 || GenPDGID==2212 || GenPDGID==3122) && GenEt>CandidateEt && GenEt>PionSeedThreshold_))
+               && dR<ClusterConeSize_) newseed=false;
+
+          if ((GenPDGID==211 || GenPDGID==321 || GenPDGID==2112 || GenPDGID==2212 || GenPDGID==3122)
+              && (GenEt>SecondarySeed.et() || SecondarySeed.et()==CandidateEt)
+              && GenEt>SecondarySeedThreshold_ && GenEt<CandidateEt && dR<ClusterConeSize_) SecondarySeed=*checkGenParticles;
         }
       }
       
@@ -205,13 +215,13 @@ PhotonEnrichmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       if (GenStatus==1 && GenEt>GenParticleThreshold_) {
 
         if (dR<ClusterConeSize_) {
-          if (GenCharge!=0 && !TheSeedParticle && !TheSeedParticle) {
+          if (GenCharge!=0 && !TheSeedParticle && !TheSecondarySeed) {
             NumChargesInConeCounter++;
             ClusterTotalCharge += GenCharge;
             ClusterTrackEnergy += GenEt;
           }
           if (GenPDGID!=12 && GenPDGID!=14 && GenPDGID!=16) ClusterTotalEnergy+=GenEt;
-          if (GenPDGID!=12 && GenPDGID!=14 && GenPDGID!=16 && GenPDGID!=22 && GenPDGID!=11 && GenPDGID!=310 && !TheSeedParticle && !TheSecondarySeed) NumNonSeedsInConeCounter++;
+          if (GenPDGID!=12 && GenPDGID!=14 && GenPDGID!=16 && GenPDGID!=22 && GenPDGID!=11 && GenPDGID!=310 && GenPDGID!=130 && !TheSeedParticle && !TheSecondarySeed) NumNonSeedsInConeCounter++;
           if (GenPDGID==22 || GenPDGID==11 || GenPDGID==310 || GenPDGID==130 || TheSeedParticle || TheSecondarySeed) {
             NumSeedsInConeCounter++;
             ClusterEnergy += GenEt;
