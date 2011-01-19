@@ -1,5 +1,12 @@
 2010-04-33 Emilio Meschi <emilio.meschi@cern.ch>
 
+	* tag V00-00-06
+	* (04) migration to xml BuildFile
+	* (05) include fixes
+	* (06) added new features (iChoke)
+	
+2010-04-33 Emilio Meschi <emilio.meschi@cern.ch>
+
 	* tag V00-00-03
 	* small fix to get signal number right
 
