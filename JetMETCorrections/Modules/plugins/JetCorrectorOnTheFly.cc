@@ -9,6 +9,9 @@
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/JPTJet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -109,7 +112,14 @@ void JetCorrectorOnTheFly<Jet>::endJob()
   
 }
 //---------------------------------------------------------------------------
+typedef JetCorrectorOnTheFly<CaloJet> CaloJetCorrectorOnTheFly;
+DEFINE_FWK_MODULE(CaloJetCorrectorOnTheFly);
 
+typedef JetCorrectorOnTheFly<PFJet> PFJetCorrectorOnTheFly;
+DEFINE_FWK_MODULE(PFJetCorrectorOnTheFly);
+
+typedef JetCorrectorOnTheFly<JPTJet> JPTJetCorrectorOnTheFly;
+DEFINE_FWK_MODULE(JPTJetCorrectorOnTheFly);
 
 
 
