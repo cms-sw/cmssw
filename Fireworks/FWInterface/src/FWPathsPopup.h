@@ -56,7 +56,7 @@ private:
    bool                     m_hasChanges;
 
    TGLabel                  *m_moduleLabel;   
-   TGLabel                  *m_moduleName;
+  TGLabel                  *m_moduleName;
    
    TGTextButton             *m_apply;
    FWPSetTableManager       *m_psTable;

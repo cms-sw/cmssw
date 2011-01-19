@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.107 2010/11/21 20:52:25 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.108.2.1 2010/12/07 10:30:53 mccauley Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -114,6 +114,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *showMainViewCtl      = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
    CSGAction *showAddCollection    = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
    CSGAction *showInvMassDialog    = new CSGAction(this, cmsshow::sShowInvMassDialog.c_str());
+   CSGAction *showGeometryTable    = new CSGAction(this, cmsshow::sShowGeometryTable.c_str());
 
    CSGAction *help               = new CSGAction(this, cmsshow::sHelp.c_str());
    CSGAction *keyboardShort      = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
@@ -217,6 +218,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    showAddCollection->createMenuEntry(windowMenu);
    showMainViewCtl->createMenuEntry(windowMenu);
    showInvMassDialog->createMenuEntry(windowMenu);
+   showGeometryTable->createMenuEntry(windowMenu);
 
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
