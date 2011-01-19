@@ -332,7 +332,21 @@ namespace evf{
       *out << "Unable to retrieve uptime information on this platform.";
 #endif
     }
-
-
+    void mDiv(std::ostringstream *out, std::string name){
+      *out << "<div id=\"" << name << "\">";
+    }
+    void cDiv(std::ostringstream *out){
+      *out << "</div>";
+    } 
+    void mDiv(std::ostringstream *out, std::string name, std::string value){
+      mDiv(out,name);
+      *out << value;
+      cDiv(out);
+    }
+    void mDiv(std::ostringstream *out, std::string name, unsigned int value){
+      mDiv(out,name);
+      *out << value;
+      cDiv(out);
+    } 
   } // namespace utils
 } //namespace evf
