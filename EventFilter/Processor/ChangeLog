@@ -1,3 +1,13 @@
+2011-01-19 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-00
+	* 02-08 xml buildfile migration
+	* 02-09 macosx compat 
+	* 02-10 removed compilation flags
+	* 03-00 streamlining
+	*       stream rate support 
+	*       fix psid reporting
+	
 2010-10-13 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-02-07
