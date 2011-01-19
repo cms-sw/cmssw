@@ -23,7 +23,6 @@
 
 
 #include <vector>
-#include <queue>
 
 #include <sys/time.h>
 
@@ -32,15 +31,7 @@ namespace evf {
 
 
   namespace internal{
-    struct path{
-      path():l1pass(0),paccept(0),preject(0),pexcept(0),pspass(0){}
-      unsigned int l1pass;
-      unsigned int paccept;
-      unsigned int preject;
-      unsigned int pexcept;
-      unsigned int pspass;
-    };
-    struct fu{
+   struct fu{
       time_t tstamp;
       unsigned int ccount;
       std::vector<pid_t> cpids;
@@ -77,8 +68,12 @@ namespace evf {
       throw (xgi::exception::Exception);
     void updater(xgi::Input *in,xgi::Output *out)
       throw (xgi::exception::Exception);
+    void iChoke(xgi::Input *in,xgi::Output *out)
+      throw (xgi::exception::Exception);
     //AI
     void postEntry(xgi::Input*in,xgi::Output*out)
+      throw (xgi::exception::Exception);
+    void postEntryiChoke(xgi::Input*in,xgi::Output*out)
       throw (xgi::exception::Exception);
     
     // *fake* fsm soap command callback
@@ -90,18 +85,39 @@ namespace evf {
 
 
   private:
+
+    struct sorted_indices{
+      sorted_indices(const std::vector<int> &arr) : arr_(arr)
+      {
+	ind_.resize(arr_.size(),0);
+	unsigned int i = 0;
+	while(i<ind_.size()) ind_[i] = i++;
+	std::sort(ind_.rbegin(),ind_.rend(),*this);
+      }
+      int operator[](size_t ind) const {return arr_[ind_[ind]];}
+      
+      bool operator()(const size_t a, const size_t b) const
+      {
+	return arr_[a]<arr_[b];
+      }
+      int ii(size_t ind){return ind_[ind];}
+      std::vector<int> ind_;
+      const std::vector<int> &arr_;
+    };
     //
     // private member functions
     //
     
     void reset();
+    void parseLegenda(std::string);
+    void parseHisto(const char *, unsigned int);
     //
     // member data
     //
 
     // message logger
     Logger                          log_;
-
+		
     // monitored parameters
     xdata::String                   url_;
     xdata::String                   class_;
@@ -110,10 +126,13 @@ namespace evf {
     xdata::UnsignedInteger32        runNumber_;
     xdata::String                   configString_;
     fmap                            fus_;
-
-    std::vector<std::vector<internal::path> > paths_;
-
+    
     unsigned int                    totalCores_;
+    unsigned int                    nstates_;   
+    std::vector<int>                cpuentries_;
+    std::vector<std::vector<int> >  cpustat_;
+    std::vector<std::string>        mapmod_;
+    unsigned int                    last_ls_;
 
   }; // class iDie
 

@@ -11,14 +11,14 @@
 #include <netinet/in.h>
 #include <sstream>
 #include <errno.h>
+#include <iomanip>
+#include <algorithm>
 
 #include "cgicc/CgiDefs.h"
 #include "cgicc/Cgicc.h"
 #include "cgicc/FormEntry.h"
+#include "cgicc/FormFile.h"
 #include "cgicc/HTMLClasses.h"
-#include "TH1F.h"
-#include "TCanvas.h"
-
 
 
 using namespace evf;
@@ -35,6 +35,9 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , instance_(0)
   , runNumber_(0)
   , totalCores_(0)
+  , nstates_(0)
+  , cpustat_(std::vector<std::vector<int> >(0))
+  , last_ls_(0)
 {
   // initialize application info
   url_     =
@@ -51,13 +54,15 @@ iDie::iDie(xdaq::ApplicationStub *s)
   xoap::bind(this,&evf::iDie::fsmCallback,"Halt",     XDAQ_NS_URI);
 
   // web interface
-  xgi::bind(this,&evf::iDie::defaultWeb,"Default"    );
-  xgi::bind(this,&evf::iDie::summaryTable,"summary"  );
-  xgi::bind(this,&evf::iDie::detailsTable,"details"  );
-  xgi::bind(this,&evf::iDie::dumpTable,"dump"        );
-  xgi::bind(this,&evf::iDie::updater,"updater"       );
+  xgi::bind(this,&evf::iDie::defaultWeb,  "Default");
+  xgi::bind(this,&evf::iDie::summaryTable,"summary");
+  xgi::bind(this,&evf::iDie::detailsTable,"details");
+  xgi::bind(this,&evf::iDie::dumpTable,   "dump"   );
+  xgi::bind(this,&evf::iDie::updater,     "updater");
+  xgi::bind(this,&evf::iDie::iChoke,      "iChoke" );
 
-  xgi::bind(this,&evf::iDie::postEntry, "postEntry"  );
+  xgi::bind(this,&evf::iDie::postEntry,       "postEntry");
+  xgi::bind(this,&evf::iDie::postEntryiChoke, "postChoke");
   //  gui_->setSmallAppIcon("/evf/images/Hilton.gif");
   //  gui_->setLargeAppIcon("/evf/images/Hilton.gif");
 
@@ -159,12 +164,8 @@ void iDie::defaultWeb(xgi::Input *in,xgi::Output *out)
   if(method == "POST"){
     unsigned int run;
     std::vector<cgicc::FormEntry> el1 = cgi.getElements();
-    std::cout << "dump of post to defaultWeb" << std::endl;
-    for(unsigned int i = 0; i < el1.size(); i++)
-      std::cout << el1[i].getValue() << std::endl;
     cgi.getElement("run",el1);
     if(el1.size()!=0){
-      std::cout << "got runnumber " << el1[0].getIntegerValue() << std::endl;
       run = el1[0].getIntegerValue();
       if(run > runNumber_.value_ || runNumber_.value_==0){
 	if(runNumber_.value_!=0) reset();
@@ -227,8 +228,6 @@ void iDie::dumpTable(xgi::Input *in,xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   cgicc::Cgicc cgi(in); 
-  std::cout << "QueryString " << cgi.getEnvironment().getQueryString() 
-	    << std::endl;
 
   std::vector<cgicc::FormEntry> el1;
   cgi.getElement("name",el1);
@@ -236,10 +235,8 @@ void iDie::dumpTable(xgi::Input *in,xgi::Output *out)
     std::string hostname = el1[0].getValue();
     std::transform(hostname.begin(), hostname.end(),
 		   hostname.begin(), ::toupper);
-    std::cout << "looking for "<< hostname << std::endl;
     ifmap fi = fus_.find(hostname);    
     if(fi!=fus_.end()){
-      std::cout << " found " << el1[0].getValue() << std::endl;
       *out << (*fi).second.stacktraces.back() << std::endl;
     }
     else{ 
@@ -247,6 +244,37 @@ void iDie::dumpTable(xgi::Input *in,xgi::Output *out)
 	std::cout << "known hosts: " << (*fi).first << std::endl;
     }
   }
+}
+
+//______________________________________________________________________________
+void iDie::iChoke(xgi::Input *in,xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  cgicc::Cgicc cgi(in);
+  unsigned int i = 0;
+//   while(i<mapmod_.size()){
+//     *out << i << " " << mapmod_[i] << std::endl;
+//     ++i;
+//   }
+  if(last_ls_==0) return;
+  *out << "Last ls=" << last_ls_ << std::endl;
+  *out << "================" << std::endl;
+  sorted_indices tmp(cpustat_[last_ls_-1]);
+  //  std::sort(tmp.begin(),tmp.end());// figure out how to remap indices of legenda
+  while(i<nstates_){
+    if(tmp[i]!=0) *out << mapmod_[tmp.ii(i)] << " " << float(tmp[i])/float(cpuentries_[last_ls_-1]) << std::endl;
+    i++;
+  }
+  unsigned int begin = last_ls_<10 ? 0 : last_ls_-10;
+  for(i=begin; i < last_ls_; i++)
+    *out << std::setw(9) << i +1 << " ";
+  *out << std::endl;
+  for(i=begin; i < last_ls_; i++)
+    *out << "----------";
+  *out << std::endl;
+  for(i=begin; i < last_ls_; i++)
+    *out << std::setw(8) << float(cpustat_[i][2])/float(cpuentries_[i]) << " ";
+  *out << std::endl;
 }
 
 //______________________________________________________________________________
@@ -261,17 +289,10 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
   /*  cgicc::CgiEnvironment cgie(in);
   cout << "query = "  << cgie.getContentLength() << endl;
   */
-  std::cout << "QueryString " << cgi.getEnvironment().getQueryString() 
-	    << std::endl;
   std::vector<cgicc::FormEntry> el1;
-  cgi.getElement("name",el1);
-  if(el1.size()!=0)
-    std::cout << "entry from node " << el1[0].getValue() << std::endl;
-  el1.clear();
   cgi.getElement("run",el1);
   if(el1.size()!=0)
     {
-      std::cout << "entry for run " << el1[0].getIntegerValue() << std::endl;
       cpid =  el1[0].getIntegerValue();
     }
   el1.clear();
@@ -283,7 +304,6 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
       if(el1[0].getValue().find("Dead")==0){
 
 	std::string host = cgi.getEnvironment().getRemoteHost();
-	std::cout << "Received Dead signal from " << host << std::endl;
 	std::transform(host.begin(), host.end(),
 		       host.begin(), ::toupper);
 	ifmap fi = fus_.find(host);
@@ -298,7 +318,6 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 	size_t psig = st.find("signal");
 	if(psig != std::string::npos)
 	  sig = st.substr(psig,9);
-	std::cout << "postEntry string " << st << std::endl;
 	std::string host = cgi.getEnvironment().getRemoteHost();
 	std::transform(host.begin(), host.end(),
 		       host.begin(), ::toupper);
@@ -315,12 +334,75 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 
 }
 
+//______________________________________________________________________________
+void iDie::postEntryiChoke(xgi::Input*in,xgi::Output*out)
+  throw (xgi::exception::Exception)
+{
+  unsigned int lsid = 0;
+  cgicc::Cgicc cgi(in); 
+  /*  cgicc::CgiEnvironment cgie(in);
+  cout << "query = "  << cgie.getContentLength() << endl;
+  */
+  std::vector<cgicc::FormEntry> el1;
+  cgi.getElement("run",el1);
+  if(el1.size()!=0)
+    {
+      lsid =  el1[0].getIntegerValue();
+    }
+  el1.clear();
+
+
+  cgi.getElement("legenda",el1);
+  if(el1.size()!=0)
+    {
+      parseLegenda(el1[0].getValue());
+    }
+  cgi.getElement("trp",el1);
+  if(el1.size()!=0)
+    {
+      parseHisto(el1[0].getStrippedValue().c_str(),lsid);
+    }
+  el1.clear();
+}
+
+
 void iDie::reset()
 {
   fus_.erase(fus_.begin(),fus_.end());
   totalCores_=0;
 }
 
+void iDie::parseLegenda(std::string leg)
+{
+  mapmod_.clear();
+  //  if(cpustat_) delete cpustat_;
+  boost::char_separator<char> sep(",");
+  boost::tokenizer<boost::char_separator<char> > tokens(leg, sep);
+  for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
+       tok_iter != tokens.end(); ++tok_iter){
+    mapmod_.push_back((*tok_iter));
+  }
+  nstates_ = mapmod_.size();
+  //  cpustat_ = new int[nstates_];
+//   for(int i = 0; i < nstates_; i++)
+//     cpustat_[i]=0;	
+//   cpuentries_ = 0;
+}
+
+void iDie::parseHisto(const char *crp, unsigned int lsid)
+{
+  if(last_ls_ < lsid) last_ls_ = lsid; 
+  int *trp = (int*)crp;
+  if(lsid>=cpustat_.size()){
+    cpustat_.resize(lsid,std::vector<int>(nstates_,0));
+    cpuentries_.resize(lsid,0);
+  }
+  for(unsigned int i=0;i<nstates_; i++)
+    {
+      cpustat_[lsid-1][i] += trp[i];
+      cpuentries_[lsid-1] += trp[i];
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////
 // xdaq instantiator implementation macro
 ////////////////////////////////////////////////////////////////////////////////
