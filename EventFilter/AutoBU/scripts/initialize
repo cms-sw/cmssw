@@ -23,97 +23,162 @@ my $runNumber = 10;
 # flags to indicate setup, defaults
 my $doPB  = 0;
 my $doEP  = 1;
-my $doPyCfg  = 0;
+my $doPyCfg  = 1;
 my $doSM  = 1;
-my $doTrigger = 0;
+my $doID = 1;
 my $doDQM = 0;
 my $useStepper = 0;
+my $useAtcp = 1;
+my $forkProcesses = 0;
 
 my $PBfile;
 my $EPcfg = "";
 my $SMcfg = "";
+my $DBcfg = "";
 my $PBcfg = "";
+my $emulateLS = 1000;
+my $replay = "false";
+
+# execution parameters
+my $egAction = -1;
+my $egQualif =  0;
 
 # hostname, default
-my $hostname = $ENV{"HOST"};
+my $hostname = `hostname`;
+chop($hostname);
 my $user     = $ENV{"USER"};
+
+# shell parameters
+my $nice     = "";
 
 # set variables
 my $BUport = 40000;
 my $SMport = 40001;
 my $EPport = 40002;
-my $Triggerport = 40003;
-my $EVMport = 40004;
+my $IDport = 40003;
 
-my $Triggerappname = "evf::AutoTrigger";
-my $EVMappname = "rubuilder::evm::Application";
 my $BUappname = "evf::BU";
 my $RBappname = "evf::FUResourceBroker";
 my $EPappname = "evf::FUEventProcessor";
+my $IDappname = "evf::iDie";
 my $SMappname = "StorageManager";
 my $PTappname = "pt::atcp::PeerTransportATCP";
+my $PTTappname = "pt::tcp::PeerTransportTCP";
 
-my $Triggerlocalid=121;
-my $EVMlocalid=120;
 my $BUlocalid=21;
 my $PBlocalid=22;
 my $RBlocalid=26;
 my $EPlocalid=27;
 my $SMlocalid=44;
 my $PTlocalid=47;
+my $IDlocalid=48;
 
-my $Triggerlibpath = getLibraryPath("EventFilter/AutoBU");
-my $EVMlibpath = "/opt/xdaq/lib";
 my $BUlibpath = getLibraryPath("EventFilter/AutoBU");
 my $RBlibpath = getLibraryPath("EventFilter/ResourceBroker");
 my $EPlibpath = getLibraryPath("EventFilter/Processor");
 my $SMlibpath = getLibraryPath("EventFilter/StorageManager");
 my $PTlibpath = $ENV{"XDAQ_ROOT"} . "/lib";
+my $IDlibpath = getLibraryPath("EventFilter/Goodies");
 
-my $Triggerlibname = "libEventFilterAutoBU.so";
-my $EVMlibname = "librubuilderevm.so";
 my $BUlibname = "libEventFilterAutoBU.so";
 my $RBlibname = "libEventFilterResourceBroker.so";
 my $EPlibname = "libEventFilterProcessor.so";
 my $SMlibname = "libEventFilterStorageManager.so";
+my $IDlibname = "libEventFilterGoodies.so";
 my $PTlibname = "libptatcp.so";
-
+my $PTTlibname = "libpttcp.so";
+my $onlineConverterCmd = "";
+my $i2oprotocol = "atcp";
 
 my $SMperl = 
     $ENV{"CMSSW_RELEASE_BASE"} .
     "/src/EventFilter/StorageManager/scripts/perl";
+my $ConfDBperl = 
+    $ENV{"CMSSW_RELEASE_BASE"} .
+    "/src/EventFilter/AutoBU/scripts";
+if (!-e "$ConfDBperl/onlineConverter"){
+    print "WARNING: ConfDB direct access not available from $ConfDBperl\n\n";
+    $ConfDBperl = 
+    $ENV{"CMSSW_BASE"} .
+    "/src/EventFilter/AutoBU/scripts";
+    print "WARNING: Using $ConfDBperl instead\n\n";
+}
 my $SMout = "/tmp/$user/sm";
 
 
 my $pwd = `pwd`; chomp $pwd;
+my $usage =
+    "USAGE:\initialize - run FilterFarm without RunControl          \n\n" .
+    "\t-help                (print this blurb)\n" .
+    "\t-host                (host to run on             [default: current host ])\n" .
+    "\t-nice                (be nice to other users     [default: not nice     ])\n" .
+    "\t-cfgEP <yourcfg.py>  (use yourcfg.py as HLT menu [default use dummy cfg ])\n" .
+    "\t-cfgSM <yourcfg.py>  (use yourcfg.py as SM conf  [default use dummy cfg ])\n" .
+    "\t-cfgDB <fullpath>    (use key fullpath from db   [default use dummy cfg ])\n" .
+    "\t-noiDie              (do not instantiate iDie    [default iDie present  ])\n" .
+    "\t-egAction <int>      (set up eg to perform action[default: -1, no action])\n" .
+    "\t-egQualif <uint>     (value of eg action qualif  [default: 0            ])\n" .
+    "\t-playback <file>     (playback file <file>       [default: dummy data   ])\n" .
+    "\t-replay              (loop on playback input     [default: single pass  ])\n" .
+    "\t-fork <n>            (fork n EP processes        [default: no fork      ])\n" .
+    "\t-emulateLS <n>       (emulate LS every n events  [default: LS from data ])\n" .
+    "\t-runNumber <n>       (assign run number n        [default: 10           ])\n\n";
 
+die $usage if($ARGV[0] eq "-help");
 
 #
 # interpret command line
 #
 foreach $param (@ARGV) {
-    if    ($hostname eq "fillme")    { $hostname=$param; }
-    elsif ($param    eq "-host")     { $hostname="fillme"; }
-    elsif ($EPcfg    eq "fillme")    { $EPcfg   =$param; }
-    elsif ($param    eq "-cfgEP")    { $EPcfg   ="fillme"; }
-    elsif ($PBfile   eq "fillme")    { $PBfile  =$param; }
-    elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme"; }
+    if    ($hostname eq "fillme")    { $hostname=$param;  }
+    elsif ($param    eq "-host")     { $hostname="fillme";}
+    elsif ($param    eq "-nice")     { $nice="nice -n 15";}
+    elsif ($EPcfg    eq "fillme")    { $EPcfg   =$param;  }
+    elsif ($SMcfg    eq "fillme")    { $SMcfg   =$param;  }
+    elsif ($param    eq "-cfgEP")    { $EPcfg   ="fillme";}
+    elsif ($param    eq "-cfgSM")    { $doSM=1; $SMcfg   ="fillme";}
+    elsif ($param    eq "-cfgDB")    { $doSM=1; $DBcfg   ="fillme";}
+    elsif ($DBcfg    eq "fillme")    { $DBcfg   =$param;  }
+    elsif ($PBfile   eq "fillme")    { $PBfile  =$param;  }
+    elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme";$emulateLS=0 }
     elsif ($doEP     == -1)          { $doEP    =$param; }
-    elsif ($param    eq "-nEP")      { $doEP    =    -1; }
+    elsif ($param    eq "-noEP")     { $doEP    =    -1; }
     elsif ($param    eq "-drop")     { $doEP=0;$doSM=0;$doDQM=0;}
     elsif ($param    eq "-noSM")     { $doSM=0; }
-    elsif ($param    eq "-trigger")  { $doTrigger=1; }
     elsif ($param    eq "-debug")    { $useStepper=1; }
+    elsif ($param    eq "-tcp")      { $useAtcp=0; }
     elsif ($param    eq "-noDQM")    { $doDQM=0; }
-    elsif ($param    eq "-python")   { $doPyCfg=1; }
+    elsif ($param    eq "-noiDie")   { $doID=0; }
+    elsif ($param    eq "-cfg")      { $doPyCfg=0; }
+    elsif ($param    eq "-replay")   { $replay="true"; }
+    elsif ($param    eq "-fork")     { $forkProcesses="fillme"; }
+    elsif ($forkProcesses    eq "fillme")    { $forkProcesses   =$param; }
+    elsif ($param    eq "-egAction") { $egAction ="fillme"; }
+    elsif ($egAction     eq "fillme")    { $egAction   =$param; }
+    elsif ($param    eq "-egQualif") { $egQualif ="fillme"; }
+    elsif ($egQualif     eq "fillme")    { $egQualif   =$param; }
+    elsif ($param    eq "-emulateLS")        { $emulateLS="fillme"; }
+    elsif ($emulateLS    eq "fillme")    { $emulateLS   =$param; }
+    elsif ($param    eq "-runNumber")        { $runNumber="fillme"; }
+    elsif ($runNumber    eq "fillme")    { $runNumber   =$param; }
     else { die ("Unknown parameter $param!\n"); }
+}
+
+if($DBcfg ne ""){
+    $onlineConverterCmd = "$ConfDBperl/onlineConverter";
+    print "NOTE: Using $onlineConverterCmd\n;"
+#    if (!-e "$onlineConverterCmd") { die "ERROR: no access to confDB OnlineConverter at $ConfDBperl";}
 }
 
 print "hostname = $hostname\n";
 
 if (!$doEP) { $doSM  = 0; }
 if (!$doSM) { $doDQM = 0; }
-
+if (!$useAtcp) { 
+    $PTappname   = $PTTappname; 
+    $PTlibname   = $PTTlibname;
+    $i2oprotocol = "tcp";
+}
 
 #
 # make directories
@@ -133,6 +198,15 @@ print "make directories ...\n";
 # make cfg files
 #
 print "make cfg files ...\n";
+
+if ($DBcfg) {
+    print "NOTE: retrieving HLT menu from DB\n\n";  
+#    if(!-e "$ConfDBperl/onlineConverter") {die "DB retrieval of HLT menu not available from $ConfDBperl\n";}
+    system("$onlineConverterCmd -d cms_rcms.cern.ch -h cmsonr1-v.cms -u CMS_HLT_R -c $DBcfg");
+    $EPcfg = "./EP.py";
+    $SMcfg = "./SM.py";
+}
+
 
 if ($EPcfg eq "") {
     if ($doPyCfg){
@@ -187,8 +261,13 @@ print XML makeXmlHeader();
 print XML makeXmlProfileHeader();
 print XML makeXmlAppHeader(0,"executive::Application",0,"executive");
 print XML makeXmlAppProperties("Executive",@EXproperties);
-print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libb2innub.so");
-print XML addModuleToXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
+if($useAtcp){
+  print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libb2innub.so");
+  print XML addModuleToXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
+}
+else{
+  print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
+}
 print XML makeXmlAppHeader(0,"pt::http::PeerTransportHTTP",1);
 print XML makeXmlAppProperties("pt::http::PeerTransportHTTP",@HTTPproperties);
 print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libpthttp.so");
@@ -211,90 +290,62 @@ my @apps = ($BUappname,$BUlocalid,0,
 	    $RBappname,$RBlocalid,0);
 
 if ($doSM) { push (@apps,$SMappname); push (@apps,$SMlocalid); push (@apps,0); }
-if ($doTrigger) { 
-    push (@apps,$Triggerappname); push (@apps,$Triggerlocalid); push (@apps,0);
-    push (@apps,$EVMappname); push (@apps,$EVMlocalid); push (@apps,0);
- }
 
 my @BUproperties = ("runNumber","unsignedInt",$runNumber,
-		    "replay","boolean","false",
+		    "replay","boolean",$replay,
 		    "queueSize","unsignedInt","256",
 		    "fedSizeMean","unsignedInt","16",
-		    "crc","boolean","true",
+		    "crc","boolean","false",
 		    "useFixedFedSize","boolean","true",
-		    "overwriteEvtId","boolean","false",
+		    "overwriteEvtId","boolean","true",
 		    "eventBufferSize","unsignedInt","0x400000");
 
     
-my @PBproperties = ("parameterSet","string","file:$PBcfg",
-		    "hasSharedMemory","boolean","false",
-		    "hasPrescaleService","boolean","false");
+my @PBproperties = ("parameterSet",      "string","file:$PBcfg",
+		    "hasSharedMemory",   "boolean","false",
+		    "hasPrescaleService","boolean","false",
+		    "isRunNumberSetter", "boolean","false");
+
 
 my @RBproperties = ("runNumber",   "unsignedInt",$runNumber,
 		    "buClassName", "string",     $BUappname,
-		    "doCrcCheck",  "unsignedInt","1",
+		    "doCrcCheck",  "unsignedInt","0",
 		    "processKillerEnabled","boolean","false",
 		    "monSleepSec", "unsignedInt","5",
-		    "nbRawCells",  "unsignedInt","32",
-		    "nbRecoCells", "unsignedInt","32",
-		    "nbDqmCells",  "unsignedInt","24",
+		    "nbRawCells",  "unsignedInt","16",
+		    "nbRecoCells", "unsignedInt","8",
+		    "nbDqmCells",  "unsignedInt","8",
 		    "rawCellSize", "unsignedInt","0x200000",
 		    "recoCellSize","unsignedInt","0x400000",
                     "dqmCellSize", "unsignedInt","0x100000");
 
-if (!$doEP) { push (@RPproperties,"doDropEvents","boolean","true"); }
+if (!$doEP) { push (@RBproperties,"doDropEvents","boolean","true"); }
 
-
-my @EPproperties = ("parameterSet",    "string",      "file:$EPcfg",
-		    "runNumber",       "unsignedInt", $runNumber,
-		    "nbSubProcesses",  "unsignedInt", $forkProcesses);
+my @EPproperties = ("parameterSet",  "string",      "file:$EPcfg",
+		    "runNumber",     "unsignedInt", $runNumber,
+		    "nbSubProcesses","unsignedInt", $forkProcesses,
+		    "iDieUrl",       "string",      "http://$hostname:$IDport/urn:xdaq-application:lid=$IDlocalid");
                       
 
 if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 
-my @SMproperties = ("STparameterSet",   "string",     "file:$SMcfg",
-		    "runNumber",        "unsignedInt",$runNumber,
-		    "filePath",         "string",     "$SMout",
-		    "fileCatalog",      "string",     "summaryCatalog.txt",
-		    "setupLabel",       "string",     "test");
-
-
+my @SMproperties = ("STparameterSet",          "string",     "file:$SMcfg",
+		    "runNumber",               "unsignedInt",$runNumber,
+		    "filePath",                "string",     "$SMout",
+		    "fileCatalog",             "string",     "summaryCatalog.txt",
+		    "setupLabel",              "string",     "test",
+		    "lumiSectionTimeOut",      "double",     "1",
+		    "fileClosingTestInterval", "integer",    "1");
 open (XML,">./xml/evf.xml") or die ("Can't open file: $!\n");
 print XML makeXmlHeader();
 print XML makeXmlPartitionHeader();
 print XML makeXmlComm(@apps);
 
-# trigger context
-if($doTrigger) {
-    print XML makeXmlContextHeader("Trigger",$hostname,$Triggerport);
-    print XML makeXmlEndpoint($hostname,50003);
-    print XML makeXmlAppHeader(1,$Triggerappname,$Triggerlocalid);
-    print XML makeXmlAppProperties($Triggerappname,@Triggerproperties);
-    print XML makeXmlUnicast($EVMappname);
-    print XML makeXmlAppTrailer(1,$Triggerlibpath,$Triggerlibname);
-    print XML makeXmlAppHeader(1,$PTappname,$PTlocalid);
-    print XML makeXmlAppTrailer(1,$PTlibpath,$PTlibname);
-    print XML makeXmlContextTrailer();
-
-    print XML makeXmlContextHeader("EVM",$hostname,$EVMport);
-    print XML makeXmlEndpoint($hostname,50004);
-    print XML makeXmlAppHeader(1,$EVMappname,$EVMlocalid);
-    print XML makeXmlAppProperties($EVMappname,@EVMproperties);
-    print XML makeXmlUnicast($Triggerappname);
-    print XML makeXmlUnicast($BUappname);
-    print XML makeXmlAppTrailer(1,$BUlibpath,$BUlibname);
-    print XML makeXmlAppHeader(1,$PTappname,$PTlocalid);
-    print XML makeXmlAppTrailer(1,$PTlibpath,$PTlibname);
-    print XML makeXmlContextTrailer();
-
-}
-
 # BU context
 print XML makeXmlContextHeader("BU",$hostname,$BUport);
-if ($doSM) { print XML makeXmlEndpoint($hostname,50000); }
+if ($doSM) { print XML makeXmlEndpoint($hostname,50000,$i2oprotocol); }
 print XML makeXmlAppHeader(1,$BUappname,$BUlocalid);
 print XML makeXmlAppProperties($BUappname,@BUproperties);
-if ($doTrigger) { print XML makeXmlUnicast($EVMappname); }
 print XML makeXmlAppTrailer(1,$BUlibpath,$BUlibname);
 if ($doPB) {
     print XML makeXmlAppHeader(1,$EPappname,$PBlocalid);
@@ -323,7 +374,7 @@ for ($i=0;$i<$doEP;$i++) {
 # SM context
 if ($doSM) {
     print XML makeXmlContextHeader("SM",$hostname,$SMport);
-    print XML makeXmlEndpoint($hostname,50002);
+    print XML makeXmlEndpoint($hostname,50002,$i2oprotocol);
     print XML makeXmlAppHeader(1,$SMappname,$SMlocalid);
     print XML makeXmlAppProperties($SMappname,@SMproperties);
     print XML makeXmlUnicast($RBappname);
@@ -332,6 +383,15 @@ if ($doSM) {
     print XML makeXmlAppTrailer(1,$PTlibpath,$PTlibname);
     print XML makeXmlContextTrailer();
 }
+
+# Id context
+if ($doID) {
+    print XML makeXmlContextHeader("ID",$hostname,$IDport);
+    print XML makeXmlAppHeader(1,$IDappname,$IDlocalid);
+    print XML makeXmlAppTrailer(1,$IDlibpath,$IDlibname);
+    print XML makeXmlContextTrailer();
+}
+
 
 print XML makeXmlPartitionTrailer();
 close (XML);
@@ -345,28 +405,12 @@ print "make soap command files ...\n";
 my @commands = ('Configure','Enable','Stop','Halt' );
 
 foreach  (@commands) {
-    open(CMD,">./soap/$_"."AT.xml") or die ("Can't open file: $!\n");
-    print CMD makeSoapCommand($hostname,$Triggerport,$Triggerlocalid,$_);
-    close(CMD);
-
-    open(CMD,">./soap/$_"."EVM0.xml") or die ("Can't open file: $!\n");
-    print CMD makeSoapCommand($hostname,$EVMport,$EVMlocalid,$_);
-    close(CMD);
-
     open(CMD,">./soap/$_"."BU.xml") or die ("Can't open file: $!\n");
     print CMD makeSoapCommand($hostname,$BUport,$BUlocalid,$_);
     close(CMD);
     
     open(CMD,">./soap/$_"."PB.xml") or die ("Can't open file: $!\n");
     print CMD makeSoapCommand($hostname,$BUport,$PBlocalid,$_);
-    close(CMD);
-
-    open(CMD,">./soap/$_"."TriggerPT.xml") or die ("Can't open file: $!\n");
-    print CMD makeSoapCommand($hostname,$Triggerport,$PTlocalid,$_);
-    close(CMD);
-
-    open(CMD,">./soap/$_"."EVMPT.xml") or die ("Can't open file: $!\n");
-    print CMD makeSoapCommand($hostname,$EVMport,$PTlocalid,$_);
     close(CMD);
 
     open(CMD,">./soap/$_"."BUPT.xml") or die ("Can't open file: $!\n");
@@ -403,26 +447,20 @@ print "make control scripts ...\n";
 open (CTL,">configure") or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
 if ($doSM) {
-    print CTL makeCtlCommand("Configure",$PTappname,"SMPT",$hostname,$SMport,1);
-    print CTL makeCtlCommand("Enable",$PTappname,"SMPT",$hostname,$SMport,1);
+    if( $useAtcp ){
+	print CTL makeCtlCommand("Configure",$PTappname,"SMPT",$hostname,$SMport,1);
+	print CTL makeCtlCommand("Enable",$PTappname,"SMPT",$hostname,$SMport,1);
+    }
     print CTL makeCtlCommand("Configure",$SMappname,"SM",$hostname,$SMport,1);
-}
-if ($doTrigger) {
-    print CTL makeCtlCommand("Configure",$PTappname,"TriggerPT",$hostname,$Triggerport,1);
-    print CTL makeCtlCommand("Enable",$PTappname,"TriggerPT",$hostname,$Triggerport,1);
-    print CTL makeCtlCommand("Configure",$PTappname,"EVMPT",$hostname,$Triggerport,1);
-    print CTL makeCtlCommand("Enable",$PTappname,"EVMPT",$hostname,$Triggerport,1);
-
-    print CTL makeCtlCommand("Configure",$Triggerappname,"AT",$hostname,$Triggerport,1);
-    print CTL makeCtlCommand("Configure",$EVMappname,"EVM0",$hostname,$EVMport,1);
-
 }
 if ($doPB) {
     print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,30);
     print CTL makeCtlCommand("Enable",   $EPappname,"PB",$hostname,$BUport,5);
 }
-print CTL makeCtlCommand("Configure",$PTappname,"BUPT",$hostname,$BUport,1);
-print CTL makeCtlCommand("Enable",$PTappname,"BUPT",$hostname,$BUport,1);
+if( $useAtcp ){
+    print CTL makeCtlCommand("Configure",$PTappname,"BUPT",$hostname,$BUport,1);
+    print CTL makeCtlCommand("Enable",$PTappname,"BUPT",$hostname,$BUport,1);
+}
 print CTL makeCtlCommand("Configure",$BUappname,"BU",$hostname,$BUport,0);
 print CTL makeCtlCommand("Configure",$RBappname,"RB",$hostname,$BUport,0);
 if ($doEP) {
@@ -450,8 +488,11 @@ if ($doEP) {
 	print CTL makeCtlCommand("Enable",$EPappname,$appabrev,$hostname,$port,0);
     }
 }
+
+if ($doTrigger) {
 print CTL makeCtlCommand("Enable",$EVMappname,"EVM0",$hostname,$EVMport,1);
 print CTL makeCtlCommand("Enable",$Triggerappname,"AT",$hostname,$Triggerport,1);
+}
 close (CTL);
 `chmod +x enable`;
 
@@ -496,37 +537,43 @@ if ($doSM) {
 close (CTL);
 `chmod +x halt`;
 
-# destroy
-open (CTL,">destroy") or die ("Can't open file: $!\n");
-print CTL makeCtlDestroy();
-close (CTL);
-`chmod +x destroy`;
-
-
 #
 # start processes
 #
 
 print "\nstart xdaq.exe on $hostname:$BUport\n";
-`nice -n 15 xdaq.exe -h $hostname -p $BUport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$BUport.log &`;
+`$nice xdaq.exe -h $hostname -p $BUport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$BUport.log &`;
 
 if ($doSM) {
     print "\nstart xdaq.exe on $hostname:$SMport\n";
-    `nice -n 15 xdaq.exe -h $hostname -p $SMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$SMport.log &`;
+     `$nice xdaq.exe -h $hostname -p $SMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$SMport.log &`;
 }
+
+if ($doID) {
+    print "\nstart xdaq.exe on $hostname:$IDport\n";
+     `$nice xdaq.exe -h $hostname -p $IDport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$IDport.log &`;
+}
+
 if ($doTrigger) {
     print "\nstart xdaq.exe on $hostname:$Triggerport\n";
-    `nice -n 15 xdaq.exe -h $hostname -p $Triggerport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$Triggerport.log &`;
+    `$nice xdaq.exe -h $hostname -p $Triggerport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$Triggerport.log &`;
     print "\nstart xdaq.exe on $hostname:$EVMport\n";
-    `nice -n 15 xdaq.exe -h $hostname -p $EVMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$EVMport.log &`;
+    `$nice xdaq.exe -h $hostname -p $EVMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$EVMport.log &`;
 }
 
 for ($i=0;$i<$doEP;$i++) {
     $port = $EPport + $i;
     print "\nstart xdaq.exe on $hostname:$port\n";
-    `nice -n 15 xdaq.exe -h $hostname -p $port -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$port.log &`;
+     `$nice xdaq.exe -h $hostname -p $port -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$port.log &`;
 }
 
+@proc = `pgrep -u $user xdaq.exe`;
+
+# destroy
+open (CTL,">destroy") or die ("Can't open file: $!\n");
+print CTL makeCtlDestroy(@proc);
+close (CTL);
+`chmod +x destroy`;
 
 ################################################################################
 ################################################################################
@@ -576,7 +623,7 @@ sub makeSoapCommand
     $result = $result . "</SOAP-ENV:Header>\n\n";
     $result = $result . "<SOAP-ENV:Body>";
     $result = $result . "<xdaq:$command xmlns:xdaq=\"urn:xdaq-soap:3.0\"></xdaq:$command>";
-    $result = $result . "</SOAP-ENV:Body>\n\n";
+    $result = $result . "</SOAP-ENV:Body>\n";
     $result = $result . "</SOAP-ENV:Envelope>\n";
     
     return $result;
@@ -606,7 +653,7 @@ sub makeCfgFu
     $result = $result . "  source = DaqSource\n";
     $result = $result . "  {\n";
     $result = $result . "    untracked string          readerPluginName    = \"FUShmReader\"\n";
-    $result = $result . "    untracked uint32          evtsPerLS           = 1000\n";
+    $result = $result . "    untracked uint32          evtsPerLS           = $emulateLS\n";
     $result = $result . "  }\n\n";
     $result = $result . "  // paths\n";
     $result = $result . "  path p0 = { errorInjector }\n";
@@ -622,14 +669,16 @@ sub makeCfgFu
     $result = $result . "  endpath ep = { out }\n\n";
     
     $result = $result . "  // services\n\n";
-    $result = $result . "  service = DQMStore { }\n\n";
+#    $result = $result . "  service = DQMStore { }\n\n";
     if ($useStepper) {
 	$result = $result . "  service = Stepper { }\n\n";
     }
 
     $result = $result . "  service = MessageLogger {\n";
-    $result = $result . "    untracked vstring destinations = { \"cout\" }\n";
+    $result = $result . "    untracked vstring destinations = { \"cout\", \"cerr\" }\n";
     $result = $result . "    untracked PSet    cout         = " .
+	                "{ untracked string threshold = \"WARNING\" }\n";
+    $result = $result . "    untracked PSet    cerr         = " .
 	                "{ untracked string threshold = \"WARNING\" }\n";
     $result = $result . "    untracked PSet    log4cplus    = " .
 	                "{ untracked string threshold = \"WARNING\" }\n";
@@ -688,7 +737,6 @@ sub makeCfgFu
     $result = $result . "  module out = ShmStreamConsumer\n";
     $result = $result . "  {\n";
     $result = $result . "    untracked int32 max_event_size       = 7000000\n";
-    $result = $result . "    int32           max_queue_depth      =       5\n";
     $result = $result . "    untracked bool  use_compression      =    true\n";
     $result = $result . "    untracked int32 compression_level    =       1\n";
     $result = $result . "  }\n\n";
@@ -723,27 +771,53 @@ sub makeCfgFuPython
 
     $result = $result . "process.source = cms.Source(\"DaqSource\",\n";
     $result = $result . "    readerPluginName    = cms.untracked.string(\'FUShmReader\'),\n";
-    $result = $result . "    evtsPerLS           = cms.untracked.uint32(1000)\n";
+    $result = $result . "    evtsPerLS           = cms.untracked.uint32($emulateLS)\n";
     $result = $result . "    )\n\n";
     
-    $result = $result . "process.DQMStore = cms.Service (\"DQMStore\") \n\n";
+#    $result = $result . "process.DQMStore = cms.Service (\"DQMStore\") \n\n";
     if ($useStepper) {
 	$result = $result . "process.Stepper = cms.Service (\"Stepper\") \n\n";
     }
     $result = $result . "process.MessageLogger = cms.Service (\"MessageLogger\",\n";
-    $result = $result . "    destinations = cms.untracked.vstring(\'cout\'),\n";
+    $result = $result . "    destinations = cms.untracked.vstring(\'cout\', \'log4cplus\', \'cerr\'),\n";
     $result = $result . "    cout = cms.untracked.PSet (\n" .
-	                "    threshold = cms.untracked.string(\'WARNING\')\n" .
+			"    optionalPSet = cms.untracked.bool(True),\n" .
+	                "    threshold = cms.untracked.string(\'WARNING\'),\n" .
+			"    FwkReport = cms.untracked.PSet(\n" .
+			"        optionalPSet = cms.untracked.bool(False),\n" .
+			"        reportEvery = cms.untracked.int32(10000000),\n" .
+			"        limit = cms.untracked.int32(1)\n" .
+			"        ),\n" .
+			"    ),\n";
+    $result = $result . "    cerr = cms.untracked.PSet (\n" .
+			"    optionalPSet = cms.untracked.bool(True),\n" .
+	                "    threshold = cms.untracked.string(\'WARNING\'),\n" .
+			"    FwkReport = cms.untracked.PSet(\n" .
+			"        optionalPSet = cms.untracked.bool(False),\n" .
+			"        reportEvery = cms.untracked.int32(10000000),\n" .
+			"        limit = cms.untracked.int32(1)\n" .
+			"        ),\n" .
 			"    ),\n";
     $result = $result . "    log4cplus = cms.untracked.PSet(\n" .
 	                "    threshold = cms.untracked.string(\'WARNING\')\n" .
-                        "    )\n";
+                        "    ),\n" .
+			"   categories = cms.untracked.vstring('FwkReport')\n";
     $result = $result . "   )\n\n";
 
     $result = $result . "process.PrescaleService = cms.Service(\"PrescaleService\",\n";
     $result = $result . "    lvl1Labels = cms.vstring(\'DEFAULT\'),\n";
-    $result = $result . "    prescaleTable = cms.VPSet()\n";
-    $result = $result . "    )\n\n";
+    $result = $result . "    prescaleTable = cms.VPSet(\n";
+    $result = $result . "      cms.PSet(  pathName = cms.string(\"p1\"),\n";
+    $result = $result . "       prescales = cms.vuint32(100)\n";
+    $result = $result . "      ),\n";
+    $result = $result . "      cms.PSet(  pathName = cms.string(\"p2\"),\n";
+    $result = $result . "       prescales = cms.vuint32(1000)\n";
+    $result = $result . "      ),\n";
+    $result = $result . "      cms.PSet(  pathName = cms.string(\"p3\"),\n";
+    $result = $result . "       prescales = cms.vuint32(100)\n";
+    $result = $result . "      )\n";
+    $result = $result . "    )\n";
+    $result = $result . ")\n\n";
 
     $result = $result . "process.FUShmDQMOutputService = cms.Service(\"FUShmDQMOutputService\",\n";
     $result = $result . "    initialMessageBufferSize=cms.untracked.int32(1000000),\n";
@@ -776,31 +850,55 @@ sub makeCfgFuPython
     $result = $result . "process.a3 = cms.EDAnalyzer(\"StreamThingAnalyzer\",\n";
     $result = $result . "    product_to_get = cms.string(\'m3\')\n";
     $result = $result . "    )\n\n";
+    $result = $result . "process.ps1 = cms.EDFilter(\"HLTPrescaler\",\n";
+    $result = $result . "         L1GtReadoutRecordTag = cms.InputTag(\"hltGtDigis\")\n";
+    $result = $result . "    )\n\n";
+    $result = $result . "process.ps2 = cms.EDFilter(\"HLTPrescaler\",\n";
+    $result = $result . "         L1GtReadoutRecordTag = cms.InputTag(\"hltGtDigis\")\n";
+    $result = $result . "    )\n\n";
+    $result = $result . "process.ps3 = cms.EDFilter(\"HLTPrescaler\",\n";
+    $result = $result . "         L1GtReadoutRecordTag = cms.InputTag(\"hltGtDigis\")\n";
+    $result = $result . "    )\n\n";
 
     $result = $result . "process.errorInjector = cms.EDAnalyzer(\"ExceptionGenerator\",\n";
-    $result = $result . "    defaultAction       = cms.untracked.int32(9),\n";
-    $result = $result . "    defaultQualifier    = cms.untracked.int32(1000)\n";
+    $result = $result . "         defaultAction       = cms.untracked.int32($egAction),\n";
+    $result = $result . "         defaultQualifier    = cms.untracked.int32($egQualif)\n";
     $result = $result . "    )\n\n";
+
     if ($doDQM) {
 	$result = $result . "process.dqm = cms.EDAnalyzer(\"SMDQMSourceExample\")\n\n";
     }
     
-    $result = $result . "process.out = cms.OutputModule(\"ShmStreamConsumer\",\n";
+    $result = $result . "process.out1 = cms.OutputModule(\"ShmStreamConsumer\",\n";
+    $result = $result . "    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p1')),\n";
     $result = $result . "    max_event_size       = cms.untracked.int32(7000000),\n";
-    $result = $result . "    max_queue_depth      = cms.int32(5),\n";
+    $result = $result . "    use_compression      = cms.untracked.bool(True),\n";
+    $result = $result . "    compression_level    = cms.untracked.int32(1)\n";
+    $result = $result . "    )\n\n";
+    $result = $result . "process.out2 = cms.OutputModule(\"ShmStreamConsumer\",\n";
+    $result = $result . "    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2')),\n";
+    $result = $result . "    max_event_size       = cms.untracked.int32(7000000),\n";
+    $result = $result . "    use_compression      = cms.untracked.bool(True),\n";
+    $result = $result . "    compression_level    = cms.untracked.int32(1)\n";
+    $result = $result . "    )\n\n";
+    $result = $result . "process.out3 = cms.OutputModule(\"ShmStreamConsumer\",\n";
+    $result = $result . "    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p3')),\n";
+    $result = $result . "    max_event_size       = cms.untracked.int32(7000000),\n";
     $result = $result . "    use_compression      = cms.untracked.bool(True),\n";
     $result = $result . "    compression_level    = cms.untracked.int32(1)\n";
     $result = $result . "    )\n\n";
     $result = $result . "process.p0 = cms.Path(process.errorInjector)\n";
-    $result = $result . "process.p1 = cms.Path(process.m1*process.a1 )\n";
-    $result = $result . "process.p2 = cms.Path(process.m2*process.a2 )\n";
-    $result = $result . "process.p3 = cms.Path(process.m3*process.a3 )\n";
+    $result = $result . "process.p1 = cms.Path(process.ps1*process.m1*process.a1 )\n";
+    $result = $result . "process.p2 = cms.Path(process.ps2*process.m2*process.a2 )\n";
+    $result = $result . "process.p3 = cms.Path(process.ps3*process.m3*process.a3 )\n";
 
     if ($doDQM) {
 	$result = $result . "process.p4 = cms.Path( process.dqm )\n";
     }
 
-    $result = $result . "process.ep = cms.EndPath( process.out )\n\n";
+    $result = $result . "process.ep1 = cms.EndPath( process.out1 )\n\n";
+    $result = $result . "process.ep2 = cms.EndPath( process.out2 )\n\n";
+    $result = $result . "process.ep3 = cms.EndPath( process.out3 )\n\n";
     
     return $result;
 }
@@ -842,14 +940,30 @@ sub makeCfgSmPython
     $result = $result . "# source\n";
     $result = $result . "process.source = cms.Source(\"FragmentInput\")\n";
     $result = $result . "# endpath\n";
-    $result = $result . "process.out = cms.OutputModule( \"EventStreamFileWriter\",\n";
+    $result = $result . "process.out1 = cms.OutputModule( \"EventStreamFileWriter\",\n";
     $result = $result . "    streamLabel = cms.string(\"A\"),\n";
     $result = $result . "    maxSize = cms.int32(2048),\n";
     $result = $result . "    SelectEvents = cms.untracked.PSet(SelectEvents=cms.vstring(\"*\")),\n";
-    $result = $result . "    SelectHLTOutput = cms.untracked.string(\"out\")\n";
+    $result = $result . "    SelectHLTOutput = cms.untracked.string(\"out3\"),\n";
+    $result = $result . "    fractionToDisk = cms.untracked.double( 0.1 )\n";
+    $result = $result . ")\n\n";
+    $result = $result . "process.out2 = cms.OutputModule( \"EventStreamFileWriter\",\n";
+    $result = $result . "    streamLabel = cms.string(\"B\"),\n";
+    $result = $result . "    maxSize = cms.int32(2048),\n";
+    $result = $result . "    SelectEvents = cms.untracked.PSet(SelectEvents=cms.vstring(\"*\")),\n";
+    $result = $result . "    SelectHLTOutput = cms.untracked.string(\"out1\"),\n";
+    $result = $result . "    fractionToDisk = cms.untracked.double( 0.0 )\n";
+
+    $result = $result . ")\n\n";
+    $result = $result . "process.out3 = cms.OutputModule( \"EventStreamFileWriter\",\n";
+    $result = $result . "    streamLabel = cms.string(\"C\"),\n";
+    $result = $result . "    maxSize = cms.int32(2048),\n";
+    $result = $result . "    SelectEvents = cms.untracked.PSet(SelectEvents=cms.vstring(\"*\")),\n";
+    $result = $result . "    SelectHLTOutput = cms.untracked.string(\"out2\"),\n";
+    $result = $result . "    fractionToDisk = cms.untracked.double( 0.0 )\n";
     $result = $result . ")\n\n";
 
-    $result = $result . "process.e1 = cms.EndPath( process.out )\n";
+    $result = $result . "process.e1 = cms.EndPath( process.out1+process.out2+process.out3 )\n";
     $result = $result . "# modules\n\n";
 
 }
@@ -1057,12 +1171,12 @@ sub makeXmlContextHeader
 ################################################################################
 sub makeXmlEndpoint
 {
-    my ($hostname,$port) = @_;
+    my ($hostname,$port,$protocol) = @_;
 
     my $result = "";
     $result = $result . "    <xc:Endpoint hostname=\"" . $hostname .
 	"\" network=\"tcp0\" " .
-	"port=\"" .$port . "\" protocol=\"atcp\" " .
+	"port=\"" .$port . "\" protocol=\"" . $protocol ."\" " .
 	"service=\"i2o\"></xc:Endpoint>\n\n";
     return $result;
 }
@@ -1174,20 +1288,30 @@ sub makeXmlPartitionTrailer
 
 
 ################################################################################
-sub makeCtlDestroy
+sub makeCtlDestroy()
 {
     my $result = "";
 
-    my $cmd = "killall xdaq.exe";
-
     $result = $result . "#!/usr/bin/perl\n\n";
-    $result = $result . "print \"$cmd ...\\n\";\n\n";
-    $result = $result . "`$cmd`;\n\n";
+    foreach $x (@proc) {
+	chop($x);
+	my $cmd = "kill -9 $x";
+	$result = $result . "print \"$cmd ...\\n\";\n\n";
+	$result = $result . "`$cmd`;\n\n";
+    }
     $result = $result . "print \"remove files and dirs ...\n\";\n\n";
     $result = $result . "`rm -rf cfg/ soap/ xml/ flash/ log/ $SMout " .
-	"configure enable halt stop gennums.txt summaryCatalog.txt test.root`;\n\n";
+	"configure enable halt stop gennums.txt summaryCatalog.txt test.root log4cplus.log`;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanUp_t`;\n\n";
+    $result = $result . "print \"Cleanup message queues ...\\n\";\n\n";
+    $result = $result . "`ipcrm -Q 0x00000219`;\n";
+    foreach $i (0 .. $forkProcesses-1){
+	$qk1 = 0x00000151 + $i;
+	$qk2 = 0x00000089 + $i;
+	$result = $result . "`ipcrm -Q $qk1`;\n";
+	$result = $result . "`ipcrm -Q $qk2`;\n";
+    }	
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";
     $result = $result . "`rm destroy`;\n";
     
