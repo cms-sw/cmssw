@@ -4,8 +4,11 @@
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/ServiceWebRegistry.h"
 #include "EventFilter/Utilities/interface/ServiceWeb.h"
+#include "EventFilter/Utilities/interface/ShmOutputModuleRegistry.h"
 #include "EventFilter/Utilities/interface/MicroStateService.h"
 #include "EventFilter/Utilities/interface/TimeProfilerService.h"
+
+#include "EventFilter/Modules/src/FUShmOutputModule.h"
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xdaq/ApplicationDescriptorImpl.h"
@@ -200,6 +203,7 @@ namespace evf{
       }
       internal::addServiceMaybe(*pServiceSets,"MLlog4cplus");
       internal::addServiceMaybe(*pServiceSets,"MicroStateService");
+      internal::addServiceMaybe(*pServiceSets,"ShmOutputModuleRegistry");
       if(hasPrescaleService_) internal::addServiceMaybe(*pServiceSets,"PrescaleService");
       if(hasModuleWebRegistry_) internal::addServiceMaybe(*pServiceSets,"ModuleWebRegistry");
       if(hasServiceWebRegistry_) internal::addServiceMaybe(*pServiceSets,"ServiceWebRegistry");
@@ -263,6 +267,17 @@ namespace evf{
 		     "exception when trying to get service ModuleWebRegistry");
     }
 
+    ShmOutputModuleRegistry *sor = 0;
+    try{
+      if(edm::Service<ShmOutputModuleRegistry>().isAvailable())
+	sor = edm::Service<ShmOutputModuleRegistry>().operator->();
+    }
+    catch(...) { 
+      LOG4CPLUS_INFO(log_,
+		     "exception when trying to get service ShmOutputModuleRegistry");
+    }
+
+    if(sor) sor->clear();
     //  if(swr) swr->clear(); // in case we are coming from stop we need to clear the swr
 
 
@@ -326,13 +341,16 @@ namespace evf{
     std::stringstream oss2;
     unsigned int outcount = 0;
     oss2 << 0 << "=Invalid ";
-    oss2 << 1 << "=Input ";
+    oss2 << 1 << "=FwkOvh ";
+    oss2 << 2 << "=Input ";
     modmap_["Invalid"]=0;
-    modmap_["INPUT"]=1;
-    mapmod_.resize(descs_.size()+3); // all modules including output plus one input plus DQM plus the invalid state 0
+    modmap_["FWKOVH"]=1;
+    modmap_["INPUT"]=2;
+    mapmod_.resize(descs_.size()+4); // all modules including output plus one input plus DQM plus the invalid state 0
     mapmod_[0]="Invalid";
-    mapmod_[1]="INPUT";
-    outcount++;
+    mapmod_[1]="FWKOVH";
+    mapmod_[2]="INPUT";
+    outcount+=2;
     for(unsigned int j = 0; j < descs_.size(); j++)
       {
 	if(descs_[j]->moduleName() == "ShmStreamConsumer") // find something better than hardcoding name
@@ -385,13 +403,23 @@ namespace evf{
   {
     edm::event_processor::State st = evtProcessor_->getState();
     
-    LOG4CPLUS_INFO(log_,"FUEventProcessor::stopEventProcessor. state "
+    LOG4CPLUS_WARN(log_,"FUEventProcessor::stopEventProcessor.1 state "
 		   << evtProcessor_->stateName(st));
-    
     edm::EventProcessor::StatusCode rc = edm::EventProcessor::epSuccess;
-    
-    if(st == edm::event_processor::sInit) return rc;
-    
+    if(!(st==edm::event_processor::sStopping || st==edm::event_processor::sJobReady
+	 || st==edm::event_processor::sDone)){
+      ::sleep(1);
+      st = evtProcessor_->getState();
+      if(st!=edm::event_processor::sStopping) {
+	LOG4CPLUS_WARN(log_,
+		       "FUEventProcessor::stopEventProcessor.2 After 1s - state: "
+		       << evtProcessor_->stateName(st)); 
+	return edm::EventProcessor::epOther;
+	}
+    }
+    LOG4CPLUS_WARN(log_,"FUEventProcessor::stopEventProcessor.3 state "
+		   << evtProcessor_->stateName(st));
+
     try  {
       rc = evtProcessor_->waitTillDoneAsync(timeoutOnStop_.value_);
       watching_ = false;
@@ -550,6 +578,9 @@ namespace evf{
       {
 	epmState_  = mss->getMicroState2();
 	epmAltState_ = modmap_[mss->getMicroState2()];
+	if(epmAltState_==0)
+	  std::cout << "Found invalid state !!! " << getpid() << " state name " << epmState_.value_
+		    << std::endl;
       }
     if(evtProcessor_)
       {
@@ -655,8 +686,20 @@ namespace evf{
     trh_.formatReportTable(tr,descs_,false);
 
 
-    trh_.triggerReportToTable(tr,ls,ps,trh_.checkLumiSection(ls));
-    trh_.packTriggerReport(tr);
+    trh_.triggerReportUpdate(tr,ls,ps,trh_.checkLumiSection(ls));
+    ShmOutputModuleRegistry *sor = 0;
+    try{
+      if(edm::Service<ShmOutputModuleRegistry>().isAvailable())
+	sor = edm::Service<ShmOutputModuleRegistry>().operator->();
+    }
+    catch(...) { 
+      LOG4CPLUS_INFO(log_,
+		     "exception when trying to get service ShmOutputModuleRegistry");
+      return false;
+    }
+
+
+    trh_.packTriggerReport(tr,sor);
     it->setField("triggerReport",trh_.getTableWithNames());
     //    std::cout << getpid() << " returning normally from gettriggerreport " << std::endl;
     return true;
@@ -680,7 +723,8 @@ namespace evf{
     //if there is no state listener then do not attempt to send to monitorreceiver
     if(rcms_==0) return false;
     try{
-      createAndSendScalersMessage();
+      if(trh_.getProcThisLumi()!=0U)
+	createAndSendScalersMessage();
       scalersUpdateCounter_++;
     }
     catch(...){return false;}
@@ -703,7 +747,8 @@ namespace evf{
     *out << "<table border=1 bgcolor=\"#CFCFCF\">" << std::endl;
     *out << "  <tr>"							<< std::endl;
     *out << "    <th colspan=7>"						<< std::endl;
-    *out << "      " << "Trigger Summary"					<< std::endl;
+    *out << "      " << "Trigger Summary up to LS "
+	 << trh_.getLumiSectionReferenceIndex()-1 << std::endl;
     *out << "    </th>"							<< std::endl;
     *out << "  </tr>"							<< std::endl;
     
@@ -719,16 +764,33 @@ namespace evf{
     for(int i=0; i<tr->trigPathsInMenu; i++) {
       *out << "  <tr>" << std::endl;
       *out << "    <td>"<< i << "</td>"		<< std::endl;
-      *out << "    <td>" << tr->trigPathSummaries[i].timesRun << "</td>"		<< std::endl;
-      *out << "    <td>" << tr->trigPathSummaries[i].timesPassed << "</td>"	<< std::endl;
-      *out << "    <td >" << tr->trigPathSummaries[i].timesFailed << "</td>"	<< std::endl;
+      *out << "    <td>" << trh_.getl1pre(i) << "</td>"		<< std::endl;
+      *out << "    <td>" << trh_.getaccept(i) << "</td>"	<< std::endl;
+      *out << "    <td >" << trh_.getfailed(i) << "</td>"	<< std::endl;
       *out << "    <td ";
-      if(tr->trigPathSummaries[i].timesExcept !=0)
+      if(trh_.getexcept(i) !=0)
 	*out << "bgcolor=\"red\""		      					<< std::endl;
-      *out << ">" << tr->trigPathSummaries[i].timesExcept << "</td>"		<< std::endl;
+      *out << ">" << trh_.getexcept(i) << "</td>"		<< std::endl;
       *out << "  </tr >"								<< std::endl;
       
       }
+    *out << "  <tr><th colspan=7>EndPaths</th></tr>"		<< std::endl;
+
+    for(int i=tr->trigPathsInMenu; i<tr->endPathsInMenu + tr->trigPathsInMenu; i++) {
+      *out << "  <tr>" << std::endl;
+      *out << "    <td>"<< i << "</td>"		<< std::endl;
+      *out << "    <td>" << trh_.getl1pre(i) << "</td>"		<< std::endl;
+      *out << "    <td>" << trh_.getaccept(i) << "</td>"	<< std::endl;
+      *out << "    <td >" << trh_.getfailed(i) << "</td>"	<< std::endl;
+      *out << "    <td ";
+      if(trh_.getexcept(i) !=0)
+	*out << "bgcolor=\"red\""		      					<< std::endl;
+      *out << ">" << trh_.getexcept(i) << "</td>"		<< std::endl;
+      *out << "  </tr >"								<< std::endl;
+      
+      }
+
+
     *out << "</table>" << std::endl;
     *out << "</td>" << std::endl;
     *out << "</tr>" << std::endl;
@@ -789,14 +851,25 @@ namespace evf{
     }
     catch(xdata::exception::Exception e){
     }
-	
+    ShmOutputModuleRegistry *sor = 0;
+    try{
+      if(edm::Service<ShmOutputModuleRegistry>().isAvailable())
+	sor = edm::Service<ShmOutputModuleRegistry>().operator->();
+    }
+    catch(...) { 
+      LOG4CPLUS_INFO(log_,
+		     "exception when trying to get service ShmOutputModuleRegistry");
+    }
+
     
     for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
       *out << "  <tr>" << std::endl;
       *out << "    <td>"<< tr.trigPathSummaries[i].name << "</td>"		<< std::endl;
       *out << "    <td>" << tr.trigPathSummaries[i].timesRun << "</td>"		<< std::endl;
+
       *out << "    <td>" << tr.trigPathSummaries[i].timesPassed << "</td>"	<< std::endl;
       *out << "    <td >" << tr.trigPathSummaries[i].timesFailed << "</td>"	<< std::endl;
+
       *out << "    <td ";
       if(tr.trigPathSummaries[i].timesExcept !=0)
 	*out << "bgcolor=\"red\""		      					<< std::endl;
@@ -808,6 +881,26 @@ namespace evf{
 	       << "</td>"		<< std::endl;
 	}
       else 	*out << "    <td>N/A</td>"		                        << std::endl;
+      *out << "  </tr >"								<< std::endl;
+      
+    }
+
+
+
+    for(unsigned int i=0; i<tr.endPathSummaries.size(); i++) {
+      std::string olab = trh_.findLabelOfModuleTypeInEndPath(tr,descs_,
+							     i,"ShmStreamConsumer");
+      edm::FUShmOutputModule *o = sor->get(olab);
+      *out << "  <tr>" << std::endl;
+      *out << "    <td>"<< tr.endPathSummaries[i].name << "</td>"		<< std::endl;
+      *out << "    <td>" << tr.endPathSummaries[i].timesRun << "</td>"		<< std::endl;
+      *out << "    <td>" << (o ? o->getCounts() : -1) << "</td>"	<< std::endl;
+      *out << "    <td >" << (o ? (tr.endPathSummaries[i].timesRun - o->getCounts()) : -1) << "</td>"	<< std::endl;
+      *out << "    <td ";
+      if(tr.endPathSummaries[i].timesExcept !=0)
+	*out << "bgcolor=\"red\""		      					<< std::endl;
+      *out << ">" << tr.endPathSummaries[i].timesExcept << "</td>"		<< std::endl;
+      *out << "    <td>N/A</td>"		                        << std::endl;
       *out << "  </tr >"								<< std::endl;
       
     }
