@@ -33,6 +33,53 @@ def splitAtCapitalization(text):
 
     return retval
     
+#----------------------------------------------------------------------
+## @param fin is the ROOT input file (the TFile, not the file name)
+#
+def findTopDir(fin):
+    """tries to find a top directory for the DQM histograms. Note
+    that the run number seems to be always 1 for MC but differs
+    for data. If there is more than one top directory, this function
+    prints an error message on stderr and exits (maybe this should
+    be made more flexible in the future in order to allow DQM histogramming
+    of data of multiple runs).
+
+    Returns None if no full path could be found.
+
+    """
+
+    import re
+
+    # an path looks like:
+    # "DQMData/Run <run>/HLT/Run summary/HLTEgammaValidation"
+
+    theDir = fin.Get("DQMData")
+
+    if theDir == None:
+        return None
+
+    # now look for directories of the form 'Run %d'
+
+    runSubdirName = None
+
+    for subdirName in [ x.GetName() for x in theDir.GetListOfKeys() ]:
+
+        if re.match("Run \d+$", subdirName):
+            if runSubdirName != None:
+                # more than one run found
+                print >> sys.stderr,"more than one run found in the DQM file, this is currently not supported"
+                sys.exit(1)
+
+            runSubdirName = subdirName
+
+
+    # check that we have at least (exactly) one directory
+    if runSubdirName == None:
+        return None
+
+    # get the rest
+    return theDir.Get(runSubdirName + "/HLT/Run summary/HLTEgammaValidation")
+ 
 
 #----------------------------------------------------------------------
 # main
@@ -88,14 +135,17 @@ if len(ARGV) != 1:
 
 #----------------------------------------
 # open the ROOT file
+#----------------------------------------
 
 fin = ROOT.TFile.Open(ARGV[0])
 
-top_path = "DQMData/Run 1/HLT/Run summary/HLTEgammaValidation"
-top_dir = fin.Get(top_path)
+top_dir = findTopDir(fin)
 
 if top_dir == None:
-    print >> sys.stderr,"could not find top directory " + top_path + " inside root file"
+    print >> sys.stderr,"could not find a top directory inside root file"
+    print >> sys.stderr,"A typical top directory for MC is 'DQMData/Run 1/HLT/Run summary/HLTEgammaValidation'"
+    print >> sys.stderr
+    print >> sys.stderr,"Exiting"
     sys.exit(1)
 
 
@@ -115,6 +165,10 @@ for path_key in top_dir.GetListOfKeys():
 
     # find modules in order from total_eff_MC_matched histogram
     total_eff_histo = path_dir.Get("total_eff_MC_matched")
+
+    if total_eff_histo == None:
+        # try with data:
+        total_eff_histo = path_dir.Get("total_eff_RECO_matched")
 
     # subtract 2 for 'Total' and 'Gen' bins
     num_modules = total_eff_histo.GetNbinsX() - 2
