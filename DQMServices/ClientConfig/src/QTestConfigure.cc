@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2010/03/14 13:07:53 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/10/11 12:52:22 $
+ *  $Revision: 1.23 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -218,6 +218,9 @@ void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map
 	double mean=atof(params["mean"].c_str());
 	me_qc1->setExpectedMean(mean);
 	
+        int minEntries=atoi(params["minEntries"].c_str());
+        if ( minEntries != 0 ) me_qc1->setMinimumEntries(minEntries);
+
 	double useRMSVal=atof(params["useRMS"].c_str()); 
 	double useSigmaVal=atof(params["useSigma"].c_str()); 
 	double useRangeVal=atof(params["useRange"].c_str());
