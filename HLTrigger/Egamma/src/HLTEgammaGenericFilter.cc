@@ -1,6 +1,6 @@
 /** \class HLTEgammaGenericFilter
  *
- * $Id: HLTEgammaGenericFilter.cc,v 1.2 2009/08/11 10:16:56 covarell Exp $
+ * $Id: HLTEgammaGenericFilter.cc,v 1.3 2009/09/16 09:23:20 covarell Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *
@@ -74,6 +74,7 @@ HLTEgammaGenericFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
+  if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,recoecalcands);  //we dont know if its type trigger cluster or trigger photon
  
   //get hold of isolated association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
