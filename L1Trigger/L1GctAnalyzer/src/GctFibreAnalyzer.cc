@@ -11,7 +11,7 @@ Description: Analyzer individual fibre channels from the source card.
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Jul 12 14:21:06 CEST 2007
-// $Id: GctFibreAnalyzer.cc,v 1.15 2010/07/19 12:48:16 tapper Exp $
+// $Id: GctFibreAnalyzer.cc,v 1.16 2011/01/12 14:53:25 jbrooke Exp $
 //
 //
 
@@ -203,7 +203,7 @@ void GctFibreAnalyzer::CheckLogicalID(const L1GctFibreWord fibre)
                                                << " " << fibre; //screwed up
         }
 
-      if( (fibre.data() & 0xFF) != (uint)(2 + fibre.index()%3))
+      if( (fibre.data() & 0xFF) != (unsigned int)(2 + fibre.index()%3))
         {
           edm::LogInfo("GCT fibre data error") << "Electron Fibres do not match "  
                                                << "Expected Fibre = " << (2 + fibre.index()%3)
