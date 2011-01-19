@@ -1,3 +1,8 @@
+2011-01-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-07
+	* added method to discard from RB side
+	
 2010-11-03  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-08-05-00 Increase  nClientsMax_ to 128 for > 8 cores

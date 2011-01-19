@@ -105,6 +105,7 @@ namespace evf {
     
     void           scheduleRawEmptyCellForDiscard();
     void           scheduleRawEmptyCellForDiscard(FUShmRawCell* cell);
+    void           scheduleRawEmptyCellForDiscardServerSide(FUShmRawCell* cell);
     
     bool           writeRecoInitMsg(unsigned int   outModId,
 				    unsigned int   fuProcessId,
