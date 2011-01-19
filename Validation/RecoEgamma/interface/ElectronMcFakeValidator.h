@@ -297,7 +297,11 @@ class ElectronMcFakeValidator : public ElectronValidator
     MonitorElement *h2_ele_dPhiEleClVsPhi_propOut;
     MonitorElement *h2_ele_dPhiEleClVsPt_propOut;
 
+    MonitorElement *h1_ele_seed_subdet2_;
     MonitorElement *h1_ele_seed_mask_;
+    MonitorElement *h1_ele_seed_mask_bpix_;
+    MonitorElement *h1_ele_seed_mask_fpix_;
+    MonitorElement *h1_ele_seed_mask_tec_;
     MonitorElement *h1_ele_seed_dphi2_;
     MonitorElement *h2_ele_seed_dphi2VsEta_;
     MonitorElement *h2_ele_seed_dphi2VsPt_ ;
@@ -310,7 +314,6 @@ class ElectronMcFakeValidator : public ElectronValidator
     MonitorElement *h1_ele_seed_drz2pos_;
     MonitorElement *h2_ele_seed_drz2posVsEta_;
     MonitorElement *h2_ele_seed_drz2posVsPt_;
-    MonitorElement *h1_ele_seed_subdet2_;
 
     MonitorElement *h1_ele_classes;
     MonitorElement *h1_ele_eta;

@@ -85,8 +85,11 @@ ElectronMcFakeValidator/h_ele_foundHitsVsEta_pfx 0 0 1 0 0 0 1 1
 
 Electron seeds
 
-ElectronMcFakeValidator/h_ele_seedMask 1 0 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_seedSubdet2 1 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_ele_seedMask 1 0 1 0 0 0 0 0
+ElectronMcFakeValidator/h_ele_seedMask_Bpix 1 0 1 0 0 0 0 0
+ElectronMcFakeValidator/h_ele_seedMask_Fpix 1 0 1 0 0 0 0 0
+ElectronMcFakeValidator/h_ele_seedMask_Tec 1 0 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_seedDphi2 1 0 1 0 0 0 0 0
 ElectronMcFakeValidator/h_ele_seedDphi2_VsEta_pfx 0 0 1 0 0 0 0 0
 ElectronMcFakeValidator/h_ele_seedDphi2_VsPt_pfx 0 0 1 0 0 0 1 0

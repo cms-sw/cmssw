@@ -128,8 +128,11 @@ ElectronMcSignalValidator/h_ele_ambiguousTracksVsEta_pfx 0 0 1 0 0 0 1 1
 
 Electron seeds
 
-ElectronMcSignalValidator/h_ele_seedMask 1 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_seedSubdet2 1 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_ele_seedMask 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_seedMask_Bpix 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_seedMask_Fpix 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_seedMask_Tec 1 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_seedDphi2 1 0 1 0 0 0 0 0
 ElectronMcSignalValidator/h_ele_seedDphi2_VsEta_pfx 0 0 1 0 0 0 0 0
 ElectronMcSignalValidator/h_ele_seedDphi2_VsPt_pfx 0 0 1 0 0 0 1 0
