@@ -1,3 +1,8 @@
+2011-01-19  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-00-00
+	* merge all back from branch
+	* initialize further improved
+	
 2010-11-17  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V00-06-27-04
 	* general overhaul of "initialize" script 
