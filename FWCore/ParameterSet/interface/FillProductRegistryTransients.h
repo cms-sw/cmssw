@@ -12,7 +12,10 @@
 namespace edm {
   class ProductRegistry;
   class ProcessConfiguration;
+
   void
-  fillProductRegistryTransients(std::vector<ProcessConfiguration> const& pcVec, ProductRegistry& preg, bool okToRegister = false);
+  fillProductRegistryTransients(std::vector<ProcessConfiguration> const& pcVec, ProductRegistry const& preg, bool okToRegister = false);
+  void
+  fillProductRegistryTransients(ProcessConfiguration const& pc, ProductRegistry const& preg, bool okToRegister = false);
 }
 #endif
