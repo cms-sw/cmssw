@@ -44,6 +44,7 @@ namespace evf
   struct filter {
 
   };
+  class CPUStat;
   namespace internal{
     
     class MyCgi : public xgi::Input{
@@ -133,10 +134,11 @@ namespace evf
     bool enableCommon();
     bool enableClassic();
     //    void enableMPEPMaster();
-    bool enableMPEPSlave(int);
+    bool enableMPEPSlave();
     bool stopClassic();
     void stopSlavesAndAcknowledge();
-    void killHandler(int);
+    void makeStaticInfo();
+
     //
     // member data
     //
@@ -195,11 +197,6 @@ namespace evf
 
     xdata::UnsignedInteger32         nbSubProcesses_;
     std::vector<SubProcess>          subs_;
-    std::vector<MasterQueue*>        mqs_;
-    std::vector<MasterQueue*>        mqm_;
-    SlaveQueue*                      sq_; // every forked process will create its instance 
-    SlaveQueue*                      sqm_; // every forked process will create its instance 
-    std::vector<int>                 alive_;
     unsigned int                     nblive_; 
     unsigned int                     nbdead_; 
 
@@ -212,7 +209,7 @@ namespace evf
     toolbox::task::WorkLoop         *wlReceivingMonitor_;      
     toolbox::task::ActionSignature  *asReceiveMsgAndRead_;
     bool                             receivingM_;
-    bool                             isChildProcess_;
+    SubProcess*                      myProcess_;
     toolbox::task::WorkLoop         *wlSupervising_;      
     toolbox::task::ActionSignature  *asSupervisor_;
     bool                             supervising_;
@@ -247,6 +244,7 @@ namespace evf
     xdata::String                    iDieUrl_;
     Vulture                         *vulture_;
     pid_t			     vp_;
+    CPUStat                         *cpustat_;
   };
   
 } // namespace evf

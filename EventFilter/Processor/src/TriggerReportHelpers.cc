@@ -1,4 +1,6 @@
 #include "EventFilter/Utilities/interface/Exception.h"
+#include "EventFilter/Utilities/interface/ShmOutputModuleRegistry.h"
+#include "EventFilter/Modules/src/FUShmOutputModule.h"
 #include "TriggerReportHelpers.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -11,7 +13,7 @@
 namespace evf{
   namespace fuep{
 const std::string TriggerReportHelpers::columns[5] = {"l1Pass","psPass","pAccept","pExcept","pReject"};
-void TriggerReportHelpers::triggerReportToTable(edm::TriggerReport &tr, unsigned int ls, unsigned int ps, bool lumiComplete)
+void TriggerReportHelpers::triggerReportUpdate(edm::TriggerReport &tr, unsigned int ls, unsigned int ps, bool lumiComplete)
 {
   if(adjustLsIndex_)
     {
@@ -23,78 +25,49 @@ void TriggerReportHelpers::triggerReportToTable(edm::TriggerReport &tr, unsigned
   if(lumiSectionIndex_ != ls)
     std::cout << getpid() << "WARNING: ls index mismatch " << ls << " should be " << lumiSectionIndex_ << std::endl;
   prescaleIndex_ = ps;
-  for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
-    if(l1pos_[i]>=0) {
-      l1pre_[i] = tr.trigPathSummaries[i].moduleInPathSummaries[l1pos_[i]].timesPassed 
-	+ (lumiComplete ? - pl1pre_[i]  : l1pre_[i].value_);
-      pl1pre_[i] = tr.trigPathSummaries[i].moduleInPathSummaries[l1pos_[i]].timesPassed;
-    }
-    else {
-      l1pre_[i] = tr.trigPathSummaries[i].timesRun 
-	+ (lumiComplete ? - pl1pre_[i] : l1pre_[i].value_);
-      pl1pre_[i] = tr.trigPathSummaries[i].timesRun;
-    }
-    triggerReportAsTable_.setValueAt(i,columns[0],l1pre_[i]);
-    triggerReportAsTableWithNames_.setValueAt(i,columns[0],l1pre_[i]);
-    if(pspos_[i]>=0) {
-      ps_[i] = tr.trigPathSummaries[i].moduleInPathSummaries[pspos_[i]].timesPassed 
-	+ (lumiComplete ? - pps_[i] : ps_[i].value_);
-      pps_[i] = tr.trigPathSummaries[i].moduleInPathSummaries[pspos_[i]].timesPassed;
-    }
-    else if(l1pos_[i]>=0) {
-      ps_[i] =  tr.trigPathSummaries[i].moduleInPathSummaries[l1pos_[i]].timesPassed
-	+ (lumiComplete ? - pps_[i] : ps_[i].value_);
-      pps_[i] = tr.trigPathSummaries[i].moduleInPathSummaries[l1pos_[i]].timesPassed; 
-    }
-    else {
-      ps_[i] = tr.trigPathSummaries[i].timesRun 
-	+ (lumiComplete ? - pps_[i] : ps_[i].value_);
-      pps_[i] = tr.trigPathSummaries[i].timesRun;
-    }
-    triggerReportAsTable_.setValueAt(i,columns[1],ps_[i]);
-    triggerReportAsTableWithNames_.setValueAt(i,columns[1],ps_[i]);
-    accept_[i] = tr.trigPathSummaries[i].timesPassed 
-	+ (lumiComplete ? - paccept_[i] : accept_[i].value_);
-    paccept_[i] = tr.trigPathSummaries[i].timesPassed; 
-    triggerReportAsTable_.setValueAt(i,columns[2], accept_[i]);
-    triggerReportAsTableWithNames_.setValueAt(i,columns[2], accept_[i]);
-    except_[i] = tr.trigPathSummaries[i].timesExcept 
-	+ (lumiComplete ? - pexcept_[i] : except_[i].value_);
-    pexcept_[i] = tr.trigPathSummaries[i].timesExcept;
-    triggerReportAsTable_.setValueAt(i,columns[3], except_[i]);
-    triggerReportAsTableWithNames_.setValueAt(i,columns[3], except_[i]);
-    failed_[i] = tr.trigPathSummaries[i].timesFailed 
-	+ (lumiComplete ? - pfailed_[i] : failed_[i].value_);
-    pfailed_[i] = tr.trigPathSummaries[i].timesFailed;
-    triggerReportAsTable_.setValueAt(i,columns[4], failed_[i]);
-    triggerReportAsTableWithNames_.setValueAt(i,columns[4], failed_[i]);
-  }
 }
-
+    
 void TriggerReportHelpers::packedTriggerReportToTable()
 {
 
-
   TriggerReportStatic *trs = getPackedTriggerReportAsStruct();
+
   eventsProcessed_.value_ = trs->eventSummary.totalEvents;
   eventsAccepted_.value_  = trs->eventSummary.totalEventsPassed;
   for(int i=0; i<trs->trigPathsInMenu; i++) {
-    l1pre_[i] = trs->trigPathSummaries[i].timesPassedL1;
+    pl1pre_[i] += (l1pre_[i] =trs->trigPathSummaries[i].timesPassedL1);
     triggerReportAsTable_.setValueAt(i,columns[0],l1pre_[i]);
     triggerReportAsTableWithNames_.setValueAt(i,columns[0],l1pre_[i]);
-    ps_[i] = trs->trigPathSummaries[i].timesPassedPs;
+    pps_[i] += (ps_[i] = trs->trigPathSummaries[i].timesPassedPs);
     triggerReportAsTable_.setValueAt(i,columns[1],ps_[i]);
     triggerReportAsTableWithNames_.setValueAt(i,columns[1],ps_[i]);
-    accept_[i] = trs->trigPathSummaries[i].timesPassed;
+    paccept_[i] += (accept_[i] = trs->trigPathSummaries[i].timesPassed);
     triggerReportAsTable_.setValueAt(i,columns[2], accept_[i]);
     triggerReportAsTableWithNames_.setValueAt(i,columns[2], accept_[i]);
-    except_[i] = trs->trigPathSummaries[i].timesExcept;
+    pexcept_[i] += (except_[i] = trs->trigPathSummaries[i].timesExcept);
     triggerReportAsTable_.setValueAt(i,columns[3], except_[i]);
     triggerReportAsTableWithNames_.setValueAt(i,columns[3], except_[i]);
-    failed_[i] = trs->trigPathSummaries[i].timesFailed;
+    pfailed_[i] += (failed_[i] = trs->trigPathSummaries[i].timesFailed);
     triggerReportAsTable_.setValueAt(i,columns[4], failed_[i]);
     triggerReportAsTableWithNames_.setValueAt(i,columns[4], failed_[i]);
-
+  }
+  for(int i=0; i<trs->endPathsInMenu; i++) {    
+    int j = i+trs->trigPathsInMenu;
+    pl1pre_[j] += (l1pre_[j] = trs->endPathSummaries[i].timesPassedL1);
+    triggerReportAsTable_.setValueAt(j,columns[0],l1pre_[j]);
+    triggerReportAsTableWithNames_.setValueAt(j,columns[0],l1pre_[j]);
+    pps_[j] += (ps_[j] = trs->endPathSummaries[i].timesPassedPs);
+    triggerReportAsTable_.setValueAt(j,columns[1],ps_[j]);
+    triggerReportAsTableWithNames_.setValueAt(j,columns[1],ps_[j]);
+    paccept_[j] += (accept_[j] = trs->endPathSummaries[i].timesPassed);
+    triggerReportAsTable_.setValueAt(j,columns[2], accept_[j]);
+    triggerReportAsTableWithNames_.setValueAt(j,columns[2], accept_[j]);
+    pexcept_[j] += (except_[j] = trs->endPathSummaries[i].timesExcept);
+    triggerReportAsTable_.setValueAt(j,columns[3], except_[j]);
+    triggerReportAsTableWithNames_.setValueAt(j,columns[3], except_[j]);
+    pfailed_[j] += (failed_[j] = trs->endPathSummaries[i].timesFailed);
+    triggerReportAsTable_.setValueAt(j,columns[4], failed_[j]);
+    triggerReportAsTableWithNames_.setValueAt(j,columns[4], failed_[j]);
   }
 }
 
@@ -112,25 +85,25 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
   TriggerReportStatic *trp = (TriggerReportStatic *)cache_->mtext;
 
   tableFormatted_ = true;
-  paths_.resize(tr.trigPathSummaries.size());
-
+  paths_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size());
   //adjust number of trigger- and end-paths in static structure
   trp->trigPathsInMenu = tr.trigPathSummaries.size();
   trp->endPathsInMenu = tr.endPathSummaries.size();
   ///
 
-  l1pos_.resize(tr.trigPathSummaries.size(),-1);
-  pspos_.resize(tr.trigPathSummaries.size(),-1);
-  l1pre_.resize(tr.trigPathSummaries.size(),0);
-  ps_.resize(tr.trigPathSummaries.size(),0);
-  accept_.resize(tr.trigPathSummaries.size(),0);
-  except_.resize(tr.trigPathSummaries.size(),0);
-  failed_.resize(tr.trigPathSummaries.size(),0);
-  pl1pre_.resize(tr.trigPathSummaries.size(),0);
-  pps_.resize(tr.trigPathSummaries.size(),0);
-  paccept_.resize(tr.trigPathSummaries.size(),0);
-  pexcept_.resize(tr.trigPathSummaries.size(),0);
-  pfailed_.resize(tr.trigPathSummaries.size(),0);
+  l1pos_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),-1);
+  pspos_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),-1);
+  outname_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size());
+  l1pre_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),0);
+  ps_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),0);
+  accept_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),0);
+  except_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),0);
+  failed_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),0);
+  pl1pre_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),0);
+  pps_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),0);
+  paccept_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),0);
+  pexcept_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),0);
+  pfailed_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),0);
   triggerReportAsTable_.clear();
   triggerReportAsTableWithNames_.clear();
   triggerReportAsTable_.addColumn(columns[0],"unsigned int 32");
@@ -141,7 +114,8 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
   triggerReportAsTableWithNames_ = triggerReportAsTable_;
   triggerReportAsTableWithNames_.addColumn("pathName","string");
 
-  for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
+  unsigned int i=0;
+  for(; i<tr.trigPathSummaries.size(); i++) {
     triggerReportAsTable_.append();
     xdata::Table::iterator it = triggerReportAsTableWithNames_.append();
     paths_[i] = tr.trigPathSummaries[i].name;
@@ -166,6 +140,36 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
 
     }
 
+  }
+  for(; i<tr.endPathSummaries.size()+tr.trigPathSummaries.size(); i++) {
+    triggerReportAsTable_.append();
+    xdata::Table::iterator it = triggerReportAsTableWithNames_.append();
+
+    paths_[i] = tr.endPathSummaries[i-tr.trigPathSummaries.size()].name;
+    it->setField("pathName",paths_[i]);
+    ost << i << "=" << paths_[i].value_ << ", ";
+    // reset the l1 and ps positions to pick up modifications of the menu
+    // that result in paths being displaced up and down
+    l1pos_[i] = -1;
+    pspos_[i] = -1;
+    outname_[i] = "";
+
+    for(unsigned int j=0;
+	j<tr.endPathSummaries[i-tr.trigPathSummaries.size()].moduleInPathSummaries.size();
+	j++) {
+      std::string label = tr.endPathSummaries[i-tr.trigPathSummaries.size()].moduleInPathSummaries[j].moduleLabel;
+      for(unsigned int k = 0; k < descs.size(); k++)
+	{
+	  if(descs[k]->moduleLabel() == label) 
+	    {
+	      if(descs[k]->moduleName() == "TriggerResultsFilter") pspos_[i] = j;
+	      //	      if(descs[k]->moduleName() == "HLTPrescaler") l1pos_[i] = j;
+	      if(descs[k]->moduleName() == "ShmStreamConsumer") 
+		outname_[i] = descs[k]->moduleLabel();
+	    }
+	}
+
+    }
   }
   if(noNukeLegenda) pathLegenda_ = ost.str().c_str();
 
@@ -281,7 +285,8 @@ void TriggerReportHelpers::printTriggerReport(edm::TriggerReport &tr)
   //  LOG4CPLUS_DEBUG(getApplicationLogger(),oss.str());
 }
 
-void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr)
+void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
+					     ShmOutputModuleRegistry *sor)
 {
   TriggerReportStatic *trp = (TriggerReportStatic *)cache_->mtext;
   trp->lumiSection = lumiSectionIndex_;
@@ -338,17 +343,57 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr)
 
   for(int i = 0; i < trp->endPathsInMenu; i++)
     {
-
+      unsigned int j = i + trp->trigPathsInMenu;
+      edm::FUShmOutputModule *o = sor->get(outname_[i+trp->trigPathsInMenu]);
+      if(!o) {
+	sor->dumpRegistry();
+	continue;
+      }
       trp->endPathSummaries[i].timesRun    = 
 	tr.endPathSummaries[i].timesRun - trp_.endPathSummaries[i].timesRun;
       trp->endPathSummaries[i].timesPassed = 
-	tr.endPathSummaries[i].timesPassed - trp_.endPathSummaries[i].timesPassed;
+        o->getCounts() - trp_.endPathSummaries[i].timesPassed;
       trp->endPathSummaries[i].timesFailed = 
-	tr.endPathSummaries[i].timesFailed - trp_.endPathSummaries[i].timesFailed;
+	(tr.endPathSummaries[i].timesRun - o->getCounts()) 
+	- trp_.endPathSummaries[i].timesFailed;
       trp->endPathSummaries[i].timesExcept = 
 	tr.endPathSummaries[i].timesExcept - trp_.endPathSummaries[i].timesExcept;
+
+
+      if(l1pos_[i]>=0) {
+	trp->endPathSummaries[i].timesPassedL1 =
+	  tr.endPathSummaries[i].moduleInPathSummaries[l1pos_[j]].timesPassed -
+	  trp_.endPathSummaries[i].moduleInPathSummaries[l1pos_[j]].timesPassed;
+      }
+      else {
+	trp->endPathSummaries[i].timesPassedL1 = trp->endPathSummaries[i].timesRun;
+      }
+      if(pspos_[i]>=0) {
+	trp->endPathSummaries[i].timesPassedPs =
+	  tr.endPathSummaries[i].moduleInPathSummaries[pspos_[j]].timesPassed -
+	  trp_.endPathSummaries[i].moduleInPathSummaries[pspos_[j]].timesPassed;
+      }
+      else if(l1pos_[i]>=0) {
+	trp->endPathSummaries[i].timesPassedPs =
+	  tr.endPathSummaries[i].moduleInPathSummaries[l1pos_[j]].timesPassed -
+	  trp_.endPathSummaries[i].moduleInPathSummaries[l1pos_[j]].timesPassed;
+      }
+      else {
+	trp->endPathSummaries[i].timesPassedPs = trp->endPathSummaries[i].timesRun;
+      }
     }
-  trp_ = tr; 
+  trp_ = tr;
+  for(int i = 0; i < trp->endPathsInMenu; i++)
+    {
+      edm::FUShmOutputModule *o = sor->get(outname_[i+trp->trigPathsInMenu]);
+      if(!o) {
+	sor->dumpRegistry();
+	continue;
+      }
+      trp_.endPathSummaries[i].timesPassed = o->getCounts();
+      trp_.endPathSummaries[i].timesFailed = tr.endPathSummaries[i].timesRun - o->getCounts();
+    }
+  
 }
 
 
@@ -393,7 +438,6 @@ void TriggerReportHelpers::sumAndPackTriggerReport(MsgBuf &buf)
     }
   for(int i = 0; i < trp->endPathsInMenu; i++)
     {
-
       trs->endPathSummaries[i].timesRun += trp->endPathSummaries[i].timesRun;
       trs->endPathSummaries[i].timesPassed += trp->endPathSummaries[i].timesPassed;
       trs->endPathSummaries[i].timesFailed += trp->endPathSummaries[i].timesFailed;
@@ -477,7 +521,27 @@ void TriggerReportHelpers::resetTriggerReport()
     }
 
 }
-
+std::string TriggerReportHelpers::findLabelOfModuleTypeInEndPath(edm::TriggerReport &tr, 
+								 std::vector<edm::ModuleDescription const*>& descs,
+								 unsigned int ind, 
+								 std::string type)
+{
+  std::string retval;
+  for(unsigned int j=0;
+      j<tr.endPathSummaries[ind].moduleInPathSummaries.size();
+      j++) {
+    
+    std::string label = tr.endPathSummaries[ind].moduleInPathSummaries[j].moduleLabel;
+    for(unsigned int k = 0; k < descs.size(); k++)
+      {
+	if(descs[k]->moduleLabel() == label) 
+	  {
+	    if(descs[k]->moduleName() == type) {retval = label; break;}
+	  }
+      }
+  }
+  return retval;
+}
 
 }//end namespace fuep
 }//end namespace evf

@@ -7,7 +7,7 @@
 
 #include "FUEventProcessor.h"
 #include "procUtils.h"
-
+#include "EventFilter/Utilities/interface/CPUStat.h"
 
 #include "EventFilter/Utilities/interface/Exception.h"
 
@@ -107,6 +107,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , iDieUrl_("none")
   , vulture_(0)
   , vp_(0)
+  , cpustat_(0)
 {
   using namespace utils;
 
@@ -330,9 +331,20 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 	configuration_ = evtProcessor_.configuration();
 	if(nbSubProcesses_.value_==0) evtProcessor_.startMonitoringWorkLoop(); 
 	evtProcessor_->beginJob(); 
+	if(cpustat_) delete cpustat_;
+	cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
+			       iDieUrl_.value_);
+	try{
+	  cpustat_->sendLegenda(evtProcessor_.getmicromap());
+	}
+	catch(evf::Exception &e){
+	  LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
+			 << e.what());
+	}
 	fsm_.fireEvent("ConfigureDone",this);
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
 	localLog("-I- Configuration completed");
+
       }
   }
   catch (xcept::Exception &e) {
@@ -355,6 +367,7 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
   }
 
   if(vulture_!=0 && vp_ == 0) vp_ = vulture_->makeProcess();
+
   return false;
 }
 
@@ -379,8 +392,12 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     + (hasPrescaleService_.value_ ? 0x1 : 0);
 
   LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling...");
-  if(!epInitialized_) evtProcessor_.forceInitEventProcessorMaybe();
-
+  if(!epInitialized_){
+    evtProcessor_.forceInitEventProcessorMaybe();
+    if(cpustat_) delete cpustat_;
+    cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
+			   iDieUrl_.value_);
+  }
   std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
   configuration_ = evtProcessor_.configuration(); // get it again after init has been carried out...
   evtProcessor_.resetLumiSectionReferenceIndex();
@@ -1014,6 +1031,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		      subs_[i].setParams(p);
 		      spMStates_[i] = p->Ms;
 		      spmStates_[i] = p->ms;
+		      cpustat_->addEntry(p->ms);
 		      if(!subs_[i].inInconsistentState() && 
 			 (p->Ms == edm::event_processor::sError 
 			  || p->Ms == edm::event_processor::sInvalid
@@ -1205,6 +1223,15 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
     wlScalersActive_ = false;
     return false;
   }
+  //  cpustat_->printStat();
+  try{
+    cpustat_->sendStat(evtProcessor_.getLumiSectionReferenceIndex());
+  }catch(evf::Exception &e){
+    LOG4CPLUS_INFO(getApplicationLogger(),"coud not send statistics"
+		   << e.what());
+	  
+  }
+    cpustat_->reset();
   return true;
 }
 
@@ -1232,6 +1259,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	{
 	  xdata::Serializable *dqmp = 0;
 	  xdata::UnsignedInteger32 *dqm = 0;
+	  evtProcessor_.monitoring(0);
 	  try{
 	    dqmp = applicationInfoSpace_-> find("nbDqmUpdates");
 	  }  catch(xdata::exception::Exception e){}
@@ -1429,7 +1457,8 @@ bool FUEventProcessor::enableMPEPSlave()
   startScalersWorkLoop();
   while(!evtProcessor_.isWaitingForLs())
     ::sleep(1);
-  evtProcessor_.startMonitoringWorkLoop();
+  // @EM test do not run monitor loop in slave, only receiving&Monitor
+  //  evtProcessor_.startMonitoringWorkLoop();
   try{
     //    evtProcessor_.makeServicesOnly();
     try{
@@ -1712,7 +1741,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.112 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.113 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

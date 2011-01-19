@@ -23,6 +23,7 @@ namespace evf{
   static const size_t max_label = 30;
   static const size_t max_modules = 50;
 
+  class ShmOutputModuleRegistry;
 
   struct ModuleInPathsSummaryStatic{
     //max length of a module label is 80 characters - name is truncated otherwise
@@ -75,7 +76,7 @@ namespace evf{
       void resetFormat(){tableFormatted_ = false;}
       void printReportTable();
       void printTriggerReport(edm::TriggerReport &);
-      void triggerReportToTable(edm::TriggerReport &, unsigned int, unsigned int, bool = true);
+      void triggerReportUpdate(edm::TriggerReport &, unsigned int, unsigned int, bool = true);
       void packedTriggerReportToTable();
       void formatReportTable(edm::TriggerReport &
 			     , std::vector<edm::ModuleDescription const*>&
@@ -85,7 +86,7 @@ namespace evf{
       xdata::UnsignedInteger32 &getProcThisLumi(){return eventsProcessed_;}
       xdata::UnsignedInteger32 &getAccThisLumi(){return eventsAccepted_;}
       bool checkLumiSection(unsigned int ls) {return (ls == lumiSectionIndex_);}
-      void packTriggerReport(edm::TriggerReport &);
+      void packTriggerReport(edm::TriggerReport &, ShmOutputModuleRegistry *);
       void sumAndPackTriggerReport(MsgBuf &);
       void resetPackedTriggerReport();
       void adjustLsIndexForRestart(){adjustLsIndex_ = true; lumiSectionIndex_--;}
@@ -96,6 +97,15 @@ namespace evf{
       void resetLumiSectionReferenceIndex(){lumiSectionIndex_=0;}
       void withdrawLumiSectionIncrement(){lumiSectionIndex_--;}
       unsigned int getLumiSectionReferenceIndex(){return lumiSectionIndex_;}
+      std::string findLabelOfModuleTypeInEndPath(edm::TriggerReport &, 
+						 std::vector<edm::ModuleDescription const*>&,
+						 unsigned int, 
+						 std::string);
+      unsigned int getl1pre(unsigned int ind){return pl1pre_[ind];}
+      unsigned int getps(unsigned int ind){return pps_[ind];}
+      unsigned int getaccept(unsigned int ind){return paccept_[ind];}
+      unsigned int getfailed(unsigned int ind){return pfailed_[ind];}
+      unsigned int getexcept(unsigned int ind){return pexcept_[ind];}
     private:
       // scalers table
       xdata::UnsignedInteger32 eventsProcessed_;
@@ -106,6 +116,7 @@ namespace evf{
       bool         tableFormatted_;
       std::vector<int> l1pos_;
       std::vector<int> pspos_;
+      std::vector<std::string> outname_;
       static const std::string columns[5];
       std::vector<xdata::String>            paths_;
       std::vector<xdata::UnsignedInteger32> l1pre_;
