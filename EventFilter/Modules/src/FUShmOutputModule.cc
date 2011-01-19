@@ -4,14 +4,16 @@
      the resource broker to send to the Storage Manager.
      See the CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.cc,v 1.10 2008/08/18 04:16:01 hcheung Exp $
+   $Id: FUShmOutputModule.cc,v 1.11 2008/10/14 13:19:50 biery Exp $
 */
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
+#include "EventFilter/Utilities/interface/ShmOutputModuleRegistry.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "EventFilter/Modules/src/FUShmOutputModule.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -43,15 +45,17 @@ namespace edm
 
   FUShmOutputModule::FUShmOutputModule(edm::ParameterSet const& ps):
     shmBuffer_(0)
+    , name_(ps.getParameter<std::string>( "@module_label" ))
+    , count_(0)
   {
     FDEBUG(9) << "FUShmOutputModule: constructor" << endl;
-
+    if(edm::Service<evf::ShmOutputModuleRegistry>())
+      edm::Service<evf::ShmOutputModuleRegistry>()->registerModule(name_, this);  
     if (! fuIdsInitialized_) {
       fuIdsInitialized_ = true;
 
       edm::Guid guidObj(true);
       std::string guidString = guidObj.toString();
-      //std::cout << "EventOutput GUID string = " << guidString << std::endl;
 
       uLong crc = crc32(0L, Z_NULL, 0);
       Bytef* buf = (Bytef*)guidString.data();
@@ -59,8 +63,6 @@ namespace edm
       fuGuidValue_ = crc;
 
       fuProcId_ = getpid();
-      //std::cout << "EventOutput GUID value = 0x" << std::hex << fuGuidValue_ << std::dec
-      //          << " for PID = " << fuProcId_ << std::endl;
     }
   }
   
@@ -73,7 +75,7 @@ namespace edm
 
   void FUShmOutputModule::doOutputHeader(InitMsgBuilder const& initMessage)
   {
-    //if(!shmBuffer_) shmBuffer_ = evf::FUShmBuffer::getShmBuffer();
+    count_ = 0;
     if(!shmBuffer_) shmBuffer_ = sm_sharedmemory.getShmBuffer();
     if(!shmBuffer_) edm::LogError("FUShmOutputModule") 
       << " Error getting shared memory buffer for INIT. " 
@@ -102,6 +104,7 @@ namespace edm
       << " No event is sent - this is fatal! Should throw here";
     else
     {
+      count_++;
       unsigned char* buffer = (unsigned char*) eventMessage.startAddress();
       unsigned int size = eventMessage.size();
       EventMsgView eventView(eventMessage.startAddress());

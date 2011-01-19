@@ -6,7 +6,7 @@
      Header file shared memory to be used with FUShmOutputModule.
      See CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.h,v 1.4 2008/10/14 13:19:50 biery Exp $
+   $Id: FUShmOutputModule.h,v 1.5 2010/07/14 21:03:14 wmtan Exp $
 */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,6 +15,8 @@
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 
 #include "EventFilter/ShmBuffer/interface/FUShmBuffer.h"
+
+#include <iostream>
 
 // Data structure to be shared by all output modules for event serialization
 struct SM_SharedMemoryHandle
@@ -55,6 +57,9 @@ namespace edm
 
     void doOutputHeader(InitMsgBuilder const& initMessage);
     void doOutputEvent(EventMsgBuilder const& eventMessage);
+    unsigned int getCounts(){
+      return count_;
+    }
     void start();
     void stop();
     // No parameters.
@@ -63,6 +68,8 @@ namespace edm
   private:
 
     evf::FUShmBuffer* shmBuffer_;
+    std::string name_;
+    unsigned int count_;
 
     static bool fuIdsInitialized_;
     static uint32 fuProcId_;
