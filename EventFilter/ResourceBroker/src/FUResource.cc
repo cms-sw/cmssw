@@ -217,11 +217,13 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
   UInt_t fuResourceId=block->fuTransactionId;
   UInt_t buResourceId=block->buResourceId;
   UInt_t evtNumber   =block->eventNumber;
-
+  stringstream oss;
+  oss << "TransId:" << fuResourceId << " BUResourceId:" 
+      << buResourceId << " eventNumber:" << evtNumber << " "; 
   // check fuResourceId consistency
   if (fuResourceId!=fuResourceId_) {
     nbErrors_++;
-    stringstream oss;
+
     oss<<"RU/FU fuResourceId mismatch."
        <<" Received:"<<fuResourceId
        <<" Expected:"<<fuResourceId_;
@@ -231,7 +233,6 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
   // check iBlock consistency
   if (iBlock!=iBlock_) {
     nbErrors_++;
-    stringstream oss;
     oss<<"RU/FU block number mismatch."
        <<" Received:"<<iBlock
        <<" Expected:"<<iBlock_;
@@ -241,7 +242,6 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
   // check iSuperFrag consistency
   if (iSuperFrag!=iSuperFrag_) {
     nbErrors_++;
-    stringstream oss;
     oss<<"RU/FU superfragment number mismatch."
        <<" Received:"<<iSuperFrag
        <<" Expected:"<<iSuperFrag_;
@@ -256,7 +256,6 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
     // check nBlock_
     if (nBlock!=nBlock_) {
       nbErrors_++;
-      stringstream oss;
       oss<<"RU/FU number of blocks mismatch."
 	 <<" Received:"<<nBlock
 	 <<" Expected:"<<nBlock_;
@@ -278,7 +277,6 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
     // check that buffers are allocated for nSuperFrag superfragments
     if(nSuperFrag_>nSuperFragMax_) {
       nbErrors_++;
-      stringstream oss;
       oss<<"Invalid maimum number of superfragments."
 	 <<" fuResourceId:"<<fuResourceId_
 	 <<" evtNumber:"<<evtNumber_
@@ -293,7 +291,6 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
     // check evtNumber
     if (evtNumber!=evtNumber_) {
       nbErrors_++;
-      stringstream oss;
       oss<<"RU/FU evtNumber mismatch."
 	 <<" Received:"<<evtNumber
 	 <<" Expected:"<<evtNumber_;
@@ -303,7 +300,6 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
     // check buResourceId
     if (buResourceId!=buResourceId_) {
       nbErrors_++;
-      stringstream oss;
       oss<<"RU/FU buResourceId mismatch."
 	 <<" Received:"<<buResourceId
 	 <<" Expected:"<<buResourceId_;
@@ -313,7 +309,6 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
     // check nSuperFrag
     if (nSuperFrag!=nSuperFrag_) {
       nbErrors_++;
-      stringstream oss;
       oss<<"RU/FU number of superfragments mismatch."
 	 <<" Received:"<<nSuperFrag
 	 <<" Expected:"<<nSuperFrag_;
@@ -327,7 +322,6 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
     checkDataBlockPayload(bufRef);
   }
   catch (xcept::Exception& e) {
-    stringstream oss;
     oss<<"data block payload failed check."
        <<" evtNumber:"<<evtNumber_
        <<" buResourceId:"<<buResourceId_
@@ -351,7 +345,6 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
       findFEDs();
     }
     catch (xcept::Exception& e) {
-      stringstream oss;
       oss<<"Invalid super fragment."
 	 <<" evtNumber:"<<evtNumber_
 	 <<" buResourceId:"<<buResourceId_
@@ -366,7 +359,6 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
     }
     catch (xcept::Exception& e) {
       nbErrors_++;
-      stringstream oss;
       oss<<"Failed to release super fragment."
 	 <<" evtNumber:"<<evtNumber_
 	 <<" buResourceId:"<<buResourceId_

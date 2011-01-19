@@ -81,6 +81,12 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
 FUResourceTable::~FUResourceTable()
 {
   clear();
+  wlSendData_->cancel();
+  wlSendDqm_->cancel();
+  wlDiscard_->cancel();
+  toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendData","waiting");
+  toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendDqm","waiting");
+  toolbox::task::getWorkLoopFactory()->removeWorkLoop("Discard","waiting");
   shmdt(shmBuffer_);
   if (FUShmBuffer::releaseSharedMemory())
     LOG4CPLUS_INFO(log_,"SHARED MEMORY SUCCESSFULLY RELEASED.");
@@ -967,5 +973,31 @@ void FUResourceTable::injectCRCError()
 {
   for (UInt_t i=0;i<resources_.size();i++) {
     resources_[i]->scheduleCRCError();
+  }
+}
+void FUResourceTable::printWorkLoopStatus()
+{
+  std::cout << "Workloop status===============" << std::endl;
+  std::cout << "==============================" << std::endl;
+  if(wlSendData_!=0)
+    std::cout << "SendData -> " << wlSendData_->isActive() << std::endl;
+  if(wlSendDqm_!=0)
+    std::cout << "SendDqm  -> " << wlSendDqm_->isActive()  << std::endl;
+  if(wlDiscard_!=0)
+    std::cout << "Discard  -> " << wlDiscard_->isActive()  << std::endl;
+  std::cout << "Workloops Active  -> " << isActive_  << std::endl;
+
+}
+
+
+void FUResourceTable::lastResort()
+{
+  std::cout << "lastResort: " << shmBuffer_->nbRawCellsToRead() 
+	    << " more rawcells to read " << std::endl;
+  while(shmBuffer_->nbRawCellsToRead()!=0){
+    FUShmRawCell* newCell=shmBuffer_->rawCellToRead();
+    std::cout << "lastResort: " << shmBuffer_->nbRawCellsToRead() << std::endl;
+    shmBuffer_->scheduleRawEmptyCellForDiscardServerSide(newCell);
+    std::cout << "lastResort: schedule raw cell for discard" << std::endl;
   }
 }

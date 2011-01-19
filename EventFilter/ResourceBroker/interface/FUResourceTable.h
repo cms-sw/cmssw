@@ -198,7 +198,9 @@ namespace evf {
     void   unlock()    { lock_.give(); }
     //void   lockShm()   { shmBuffer_->lock(); }
     //void   unlockShm() { shmBuffer_->unlock(); }
+    void   printWorkLoopStatus();
 
+    void   lastResort();
 
   private:
     //

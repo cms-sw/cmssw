@@ -1,3 +1,9 @@
+2011-01-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-00
+	* 15-10 migration to xml buildfile
+	* 16-00 further improvement to stop handling
+	
 2010-10-13  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-15-09

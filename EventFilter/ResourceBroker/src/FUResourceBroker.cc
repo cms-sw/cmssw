@@ -358,9 +358,15 @@ xoap::MessageReference FUResourceBroker::fsmCallback(xoap::MessageReference msg)
 void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
 {
   nbTakeReceived_.value_++;
-  bool eventComplete=resourceTable_->buildResource(bufRef);
-  if (eventComplete&&doDropEvents_) resourceTable_->dropEvent();
-  
+  if(fsm_.checkIfEnabled()){
+    bool eventComplete=resourceTable_->buildResource(bufRef);
+    if (eventComplete&&doDropEvents_) resourceTable_->dropEvent();
+  }
+  else{
+    LOG4CPLUS_ERROR(log_,"TAKE i2o frame received in state " 
+		    << fsm_.stateName() << " is being lost");
+    bufRef->release();
+  }
 }
 
 //______________________________________________________________________________
@@ -964,31 +970,27 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
 
 void FUResourceBroker::emergencyStop()
 {
-
+  LOG4CPLUS_WARN(log_, "in Emergency stop - handle non-clean stops");
   vector<pid_t> client_prc_ids = resourceTable_->clientPrcIds();
   for (UInt_t i=0;i<client_prc_ids.size();i++) {
     pid_t  pid   =client_prc_ids[i];
     std::cout << "B: killing process " << i << "pid=" << pid << std::endl;
     if(pid!=0){
-      kill(pid,9);
+      //assume processes are dead by now
       if(!resourceTable_->handleCrashedEP(runNumber_,pid))
-	nbTimeoutsWithoutEvent_++;
+ 	nbTimeoutsWithoutEvent_++;
       else
 	nbTimeoutsWithEvent_++;
     }
   }
-  resourceTable_->shutDownClients();
-  timeval now;
-  timeval then;
-  gettimeofday(&then,0);
-  while (!resourceTable_->isReadyToShutDown()) {
-    ::usleep(shmResourceTableTimeout_.value_*10);
-    gettimeofday(&now,0);
-    if ((unsigned int)(now.tv_sec-then.tv_sec) > shmResourceTableTimeout_.value_/10000) {
-      reasonForFailed_ = "RESOURCETABLE SHUTDOWN TIMED OUT.";
+  resourceTable_->lastResort();
+  ::sleep(1);
+  if(!resourceTable_->isReadyToShutDown())
+    {
+      reasonForFailed_ = "EmergencyStop: failed to shut down ResourceTable";
       XCEPT_RAISE(evf::Exception,reasonForFailed_);
     }
-  }
+  resourceTable_->printWorkLoopStatus();
   lock();
   std::cout << "delete resourcetable" <<std::endl;
   delete resourceTable_;
