@@ -3,9 +3,9 @@
  * \file DQMDcsInfoClient.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2010/07/20 02:58:28 $
- * $Revision: 1.5 $
- * $Author: wmtan $
+ * $Date: 2010/12/17 15:51:07 $
+ * $Revision: 1.6 $
+ * $Author: rovere $
  *
 */
 
@@ -151,11 +151,11 @@ DQMDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c)
   {
     while (lastAccessed < (*it))
     {
-      std::cout << "Filling " << lastAccessed << " with -1" << std::endl; 
+      //      std::cout << "Filling " << lastAccessed << " with -1" << std::endl; 
       meProcessedLS_->Fill(lastAccessed, -1.);
       lastAccessed++;
     }
-    std::cout << "Filling " << *it << " with 1" << std::endl; 
+    //    std::cout << "Filling " << *it << " with 1" << std::endl; 
     meProcessedLS_->Fill(*it);
     lastAccessed = (*it)+1;
   }
