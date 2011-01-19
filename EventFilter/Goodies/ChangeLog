@@ -1,9 +1,10 @@
 2010-04-33 Emilio Meschi <emilio.meschi@cern.ch>
 
-	* tag V00-00-06
+	* tag V00-00-07
 	* (04) migration to xml BuildFile
 	* (05) include fixes
-	* (06) added new features (iChoke)
+	* (06) removed compile directive
+	* (07) added new features (iChoke)
 	
 2010-04-33 Emilio Meschi <emilio.meschi@cern.ch>
 
