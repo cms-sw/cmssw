@@ -458,12 +458,15 @@ void ElectronMcSignalValidator::beginJob()
   h2_ele_HoEVsE = bookH2("h_ele_HoEVsE","ele hadronic energy / em energy vs E",p_nbin, 0.,300.,hoe_nbin, hoe_min, hoe_max) ;
 
   // seeds
-  h1_ele_seed_mask_ = bookH1withSumw2("h_ele_seedMask","ele seed hits mask",13,-0.5,12.5) ;
   h1_ele_seed_subdet2_ = bookH1withSumw2("h_ele_seedSubdet2","ele seed subdet 2nd layer",11,-0.5,10.5,"2nd hit subdet Id") ;
-  h1_ele_seed_dphi2_ = bookH1withSumw2("h_ele_seedDphi2","ele seed dphi 2nd layer", 50,-0.003,+0.003,"#phi_{hit}-#phi_{pred} (rad)") ;
+  h1_ele_seed_mask_ = bookH1withSumw2("h_ele_seedMask","ele seed hits mask",13,-0.5,12.5) ;
+  h1_ele_seed_mask_bpix_ = bookH1withSumw2("h_ele_seedMask_Bpix","ele seed hits mask when subdet2 is bpix",13,-0.5,12.5) ;
+  h1_ele_seed_mask_fpix_ = bookH1withSumw2("h_ele_seedMask_Fpix","ele seed hits mask when subdet2 is bpix",13,-0.5,12.5) ;
+  h1_ele_seed_mask_tec_ = bookH1withSumw2("h_ele_seedMask_Tec","ele seed hits mask when subdet2 is bpix",13,-0.5,12.5) ;
+  h1_ele_seed_dphi2_ = bookH1withSumw2("h_ele_seedDphi2","ele seed dphi 2nd layer", 50,-0.010,+0.010,"#phi_{hit}-#phi_{pred} (rad)") ;
   h2_ele_seed_dphi2VsEta_ = bookH2("h_ele_seedDphi2_VsEta","ele seed dphi 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.003,+0.003) ;
   h2_ele_seed_dphi2VsPt_ = bookH2("h_ele_seedDphi2_VsPt","ele seed dphi 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.003,+0.003) ;
-  h1_ele_seed_dphi2pos_ = bookH1withSumw2("h_ele_seedDphi2Pos","ele seed dphi 2nd layer positron", 50,-0.003,+0.003,"#phi_{hit}-#phi_{pred} (rad)") ;
+  h1_ele_seed_dphi2pos_ = bookH1withSumw2("h_ele_seedDphi2Pos","ele seed dphi 2nd layer positron", 50,-0.010,+0.010,"#phi_{hit}-#phi_{pred} (rad)") ;
   h2_ele_seed_dphi2posVsEta_ = bookH2("h_ele_seedDphi2Pos_VsEta","ele seed dphi 2nd layer positron vs eta",eta2D_nbin,eta_min,eta_max,50,-0.003,+0.003) ;
   h2_ele_seed_dphi2posVsPt_ = bookH2("h_ele_seedDphi2Pos_VsPt","ele seed dphi 2nd layer positron vs pt",pt2D_nbin,0.,pt_max,50,-0.003,+0.003) ;
   h1_ele_seed_drz2_ = bookH1withSumw2("h_ele_seedDrz2","ele seed dr (dz) 2nd layer", 50,-0.03,+0.03,"r(z)_{hit}-r(z)_{pred} (cm)") ;
@@ -517,12 +520,12 @@ void ElectronMcSignalValidator::beginJob()
   // conversion rejection information
   h1_ele_convFlags = bookH1withSumw2("h_ele_convFlags","conversion rejection flag",5,-1.5,3.5);
   h1_ele_convFlags_all = bookH1withSumw2("h_ele_convFlags_all","conversion rejection flag, all electrons",5,-1.5,3.5);
-  h1_ele_convDist = bookH1withSumw2("h_ele_convDist","distance to the conversion partner",100,-50.,50.);
-  h1_ele_convDist_all = bookH1withSumw2("h_ele_convDist_all","distance to the conversion partner, all electrons",100,-50.,50.);
-  h1_ele_convDcot = bookH1withSumw2("h_ele_convDcot","difference of cot(angle) with the conversion partner",100,-CLHEP::pi,CLHEP::pi);
-  h1_ele_convDcot_all = bookH1withSumw2("h_ele_convDcot_all","difference of cot(angle) with the conversion partner, all electrons",100,-CLHEP::pi,CLHEP::pi);
-  h1_ele_convRadius = bookH1withSumw2("h_ele_convRadius","signed conversion radius",100,0.,10.);
-  h1_ele_convRadius_all = bookH1withSumw2("h_ele_convRadius_all","signed conversion radius, all electrons",100,0.,10.);
+  h1_ele_convDist = bookH1withSumw2("h_ele_convDist","distance to the conversion partner",100,-15.,15.);
+  h1_ele_convDist_all = bookH1withSumw2("h_ele_convDist_all","distance to the conversion partner, all electrons",100,-15.,15.);
+  h1_ele_convDcot = bookH1withSumw2("h_ele_convDcot","difference of cot(angle) with the conversion partner",100,-CLHEP::pi/2.,CLHEP::pi/2.);
+  h1_ele_convDcot_all = bookH1withSumw2("h_ele_convDcot_all","difference of cot(angle) with the conversion partner, all electrons",100,-CLHEP::pi/2.,CLHEP::pi/2.);
+  h1_ele_convRadius = bookH1withSumw2("h_ele_convRadius","signed conversion radius",100,0.,130.);
+  h1_ele_convRadius_all = bookH1withSumw2("h_ele_convRadius_all","signed conversion radius, all electrons",100,0.,130.);
 
  }
 
@@ -985,7 +988,14 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
      {
       edm::RefToBase<TrajectorySeed> seed = bestGsfElectron.gsfTrack()->extra()->seedRef();
       ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
+      h1_ele_seed_subdet2_->Fill(elseed->subDet2());
       h1_ele_seed_mask_->Fill(elseed->hitsMask());
+      if (elseed->subDet2()==1)
+       { h1_ele_seed_mask_bpix_->Fill(elseed->hitsMask()); }
+      else if (elseed->subDet2()==2)
+       { h1_ele_seed_mask_fpix_->Fill(elseed->hitsMask()); }
+      else if (elseed->subDet2()==6)
+       { h1_ele_seed_mask_tec_->Fill(elseed->hitsMask()); }
       h1_ele_seed_dphi2_->Fill(elseed->dPhi2());
       h2_ele_seed_dphi2VsEta_->Fill(bestGsfElectron.eta(), elseed->dPhi2());
       h2_ele_seed_dphi2VsPt_->Fill(bestGsfElectron.pt(), elseed->dPhi2());
@@ -998,7 +1008,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
       h1_ele_seed_drz2pos_->Fill(elseed->dRz2Pos());
       h2_ele_seed_drz2posVsEta_->Fill(bestGsfElectron.eta(), elseed->dRz2Pos());
       h2_ele_seed_drz2posVsPt_->Fill(bestGsfElectron.pt(), elseed->dRz2Pos());
-      h1_ele_seed_subdet2_->Fill(elseed->subDet2());
      }
 
     // match distributions
