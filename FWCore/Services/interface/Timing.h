@@ -25,7 +25,7 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 namespace edm {
-  struct ActivityRegistry;
+  class ActivityRegistry;
   class Event;
   class EventSetup;
   class ParameterSet;

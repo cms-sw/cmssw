@@ -43,7 +43,8 @@ namespace edm {
    class EventSetup;
    class HLTPathStatus;
    
-   struct ActivityRegistry : private boost::noncopyable {
+   class ActivityRegistry : private boost::noncopyable {
+   public:
       ActivityRegistry() {}
 
       // ---------- signals ------------------------------------

@@ -33,7 +33,7 @@ namespace edm {
   class Event;
   class EventSetup;
   class ConfigurationDescriptions;
-  struct ActivityRegistry;
+  class ActivityRegistry;
 
   namespace service {
 

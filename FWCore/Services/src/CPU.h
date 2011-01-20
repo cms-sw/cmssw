@@ -14,7 +14,7 @@
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 namespace edm {
-  struct ActivityRegistry;
+  class ActivityRegistry;
   class Event;
   class EventSetup;
   class ParameterSet;

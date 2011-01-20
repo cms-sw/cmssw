@@ -19,7 +19,7 @@
 namespace edm {
 
   class Worker;
-  struct ActivityRegistry;
+  class ActivityRegistry;
   struct WorkerParams;
 
   /**

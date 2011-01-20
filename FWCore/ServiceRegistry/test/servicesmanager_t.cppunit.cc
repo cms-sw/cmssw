@@ -53,7 +53,7 @@ namespace {
 }
 
 //namespace edm {
-//   struct ActivityRegistry {};
+//   class ActivityRegistry {};
 //}
 
 void

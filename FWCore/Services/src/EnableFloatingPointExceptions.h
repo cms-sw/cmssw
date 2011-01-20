@@ -89,7 +89,7 @@
 namespace edm {
 
    class ParameterSet;
-   struct ActivityRegistry;
+   class ActivityRegistry;
    class ModuleDescription;
    class ConfigurationDescriptions;
 
