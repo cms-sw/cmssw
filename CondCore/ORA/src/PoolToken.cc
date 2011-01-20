@@ -69,7 +69,8 @@ namespace cond {
     // if not found, generate one...
     if( clguid.empty() ){
       genMD5(className,buff);
-      clguid = ((Guid*)buff)->toString();
+      Guid* gd = reinterpret_cast<Guid*>(buff);
+      clguid = gd->toString();
     }
     int tech = 0xB01;
     char text[128];

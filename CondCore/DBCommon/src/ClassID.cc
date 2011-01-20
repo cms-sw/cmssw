@@ -23,7 +23,8 @@ namespace cond {
 	else  {
 	  char buff[20];
 	  genMD5(type.Name(Reflex::SCOPED),buff);
-	  s = reinterpret_cast<Guid*>(buff)->toString();
+          Guid* gd = reinterpret_cast<Guid*>(buff);
+	  s = gd->toString();
 	}
 //       std::cout << "CondCore::ClassID: CLID for Reflex type " << type.Name(Reflex::SCOPED) 
 //                 << " is " << s << std::endl;
@@ -34,7 +35,8 @@ namespace cond {
 //	std::cout << "CondCore::ClassID: Warning no Reflex type for " << name << std::endl;
 	char buff[20];
 	genMD5(name,buff);
-	s = reinterpret_cast<Guid*>(buff)->toString();
+        Guid* gd = reinterpret_cast<Guid*>(buff);
+	s = gd->toString();
       }
       return s;
     }
