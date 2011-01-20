@@ -14,7 +14,7 @@ class FEConfigBadStripDat : public IODConfig {
   ~FEConfigBadStripDat();
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_BadCRYSTALS_DAT"; }
+  inline std::string getTable() { return "FE_CONFIG_BadST_DAT"; }
 
   inline void setId(int dac) { m_ID = dac; }
   inline int getId() const { return m_ID; }
