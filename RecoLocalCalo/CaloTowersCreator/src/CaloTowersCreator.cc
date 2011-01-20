@@ -5,7 +5,7 @@
 #include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
 
 // severity level for ECAL
-//#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 const std::vector<double>& 
 CaloTowersCreator::getGridValues()
@@ -144,8 +144,10 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
   c.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
   const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
- 
-  const EcalSeverityLevelAlgo* ecalSevLvlAlgo = new EcalSeverityLevelAlgo();
+
+  edm::ESHandle<EcalSeverityLevelAlgo> ecalSevLvlAlgoHndl;
+  c.get<EcalSeverityLevelAlgoRcd>().get(ecalSevLvlAlgoHndl);
+  const EcalSeverityLevelAlgo* ecalSevLvlAlgo = ecalSevLvlAlgoHndl.product();
 
   
   algo_.setEBEScale(EBEScale);
