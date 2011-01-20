@@ -1,7 +1,6 @@
 #ifndef DDException_h
 #define DDException_h
 
-// #include<iostream>
 #include "FWCore/Utilities/interface/Exception.h"
 
 //! An exception for DDD errors
@@ -29,12 +28,6 @@ class DDException : public cms::Exception
   DDException(const DDException& dde);
 
   ~DDException() throw();
-
-  //! other methods just for this to work with DDException legacy...
-  std::string message() const;
-
- private:
-			
 };    
 
 #endif
