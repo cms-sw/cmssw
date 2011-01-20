@@ -22,6 +22,11 @@ namespace reco { namespace tau {
 
 namespace {
 
+// When the output is a RefToBaseVector<Candidate>, we need to copy the input
+// RefToBases.  (otherwise we get a complaint since Ref<Candidate> is not the
+// concrete type.  When storing RefVectors to PFTaus we need to cast the refs
+// correctly.
+
 class RefCaster {
   public:
     template<typename InBaseRef, typename REF>
