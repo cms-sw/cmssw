@@ -1,12 +1,9 @@
 #ifndef DD_READMAPTYPE_H
 #define DD_READMAPTYPE_H
 
-// #include <iostream>
 #include <string>
 #include <map>
 #include "DetectorDescription/Base/interface/DDException.h"
-
-// class DDException;
 
 namespace dddDetails {
   void errorReadMapType(const std::string & key) throw (DDException);
@@ -26,15 +23,10 @@ template<class V> class ReadMapType : public std::map<std::string,V>
       return it->second;
    }
    
-
    V & operator[](const std::string & key)
    {
-      //std::cout << "non-const-called" << std::endl;
       return std::map<std::string,V>::operator[](key);
    }
-  
-private:
-
 };
 
 #endif // DD_READMAPTYE_H
