@@ -258,8 +258,5 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   else e.put(prod,EScales.instanceLabel);
 
 
-  if (ecalSevLvlAlgo) delete ecalSevLvlAlgo;
-
-
 }
 
