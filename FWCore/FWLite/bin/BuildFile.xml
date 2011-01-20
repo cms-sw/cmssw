@@ -1,0 +1,6 @@
+<bin   name="edmClassStorageSize" file="storageSize.cc">
+  <use   name="rootcore"/>
+  <use   name="boost"/>
+  <use   name="boost_program_options"/>
+  <use   name="FWCore/FWLite"/>
+</bin>
