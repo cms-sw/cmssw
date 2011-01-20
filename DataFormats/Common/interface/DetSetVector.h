@@ -440,7 +440,8 @@ namespace edm {
 
   namespace refhelper {
     template<typename T>
-    struct FindForDetSetVector : public std::binary_function<const DetSetVector<T>&, std::pair<det_id_type, typename DetSet<T>::collection_type::size_type>, const T*> {
+    class FindForDetSetVector : public std::binary_function<const DetSetVector<T>&, std::pair<det_id_type, typename DetSet<T>::collection_type::size_type>, const T*> {
+    public:
       typedef FindForDetSetVector<T> self;
       typename self::result_type operator()(typename self::first_argument_type iContainer, typename self::second_argument_type iIndex) {
         return &(*(iContainer.find(iIndex.first)->data.begin()+iIndex.second));
