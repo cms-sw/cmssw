@@ -83,20 +83,20 @@ namespace cms
     else if (METtype == "TCMET" )
       {
 	produces<METCollection>().setBranchAlias(alias.c_str());
-	TCMETAlgo ALGO;
+	//TCMETAlgo ALGO;
 
 	int rfType_               = iConfig.getParameter<int>("rf_type");
 	bool correctShowerTracks_ = iConfig.getParameter<bool>("correctShowerTracks"); 
 
 	if(correctShowerTracks_){
-	  showerRF_ =         (*ALGO.getResponseFunction_shower());
-	  responseFunction_ = (*ALGO.getResponseFunction_noshower());
-	}else{
+		 showerRF_ =         *TCMETAlgo::getResponseFunction_shower();
+		 responseFunction_ = *TCMETAlgo::getResponseFunction_noshower();
+	} else{
 	  
 	  if( rfType_ == 1 )
-	    responseFunction_ = (*ALGO.getResponseFunction_fit());
+		   responseFunction_ = *TCMETAlgo::getResponseFunction_fit();
 	  else if( rfType_ == 2 )
-	    responseFunction_ = (*ALGO.getResponseFunction_mode());
+		   responseFunction_ = *TCMETAlgo::getResponseFunction_mode();
 	  
 	}
       }
