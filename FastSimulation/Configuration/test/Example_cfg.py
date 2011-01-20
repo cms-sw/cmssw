@@ -30,8 +30,10 @@ process.load("Configuration.Generator.H200ZZ4L_cfi")
 # Generate di-electrons with pT=35 GeV
 # process.load("FastSimulation/Configuration/DiElectrons_cfi")
 
-# Famos sequences (Frontier conditions)
-process.load("FastSimulation/Configuration/CommonInputs_cff")
+# Common inputs, with fake conditions (not fake ay more!)
+#process.load("FastSimulation.Configuration.CommonInputs_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load('FastSimulation.Configuration.Geometries_cff')
 from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 process.load("FastSimulation/Configuration/FamosSequences_cff")

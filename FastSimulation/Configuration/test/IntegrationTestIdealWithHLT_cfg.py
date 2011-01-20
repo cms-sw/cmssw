@@ -25,8 +25,12 @@ process.load("Configuration.Generator.QCD_Pt_80_120_cfi")
 #process.load('L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu_MC2009_v0_L1T_Scales_20080922_Imp0_Unprescaled_cff')
 
 
-# Common inputs, with fake conditions
-process.load("FastSimulation.Configuration.CommonInputs_cff")
+# Famos sequences (MC conditions, not Fake anymore!)
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load('FastSimulation.Configuration.Geometries_cff')
+#process.load("FastSimulation.Configuration.CommonInputs_cff")
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
 # L1 Emulator and HLT Setup
 process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")
@@ -49,7 +53,13 @@ process.load("FastSimulation.Configuration.HLT_GRun_cff")
 # Only event accepted by L1 + HLT are reconstructed
 process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 
-# Schedule the HLT paths
+# Schedule the HLT paths (and allows HLTAnalyzers for this test):
+from FastSimulation.HighLevelTrigger.HLTSetup_cff import hltL1GtTrigReport
+process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+)
+process.HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + process.hltTrigReport )
+process.HLTSchedule.append(process.HLTAnalyzerEndpath)
 process.schedule = cms.Schedule()
 process.schedule.extend(process.HLTSchedule)
 

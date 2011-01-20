@@ -42,8 +42,10 @@ process.load("Configuration.Generator.TTbar_cfi")
 # process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1x1032/L1Menu2007_Unprescaled_cff")
 
 
-# Common inputs, with fake conditions
-process.load("FastSimulation.Configuration.CommonInputs_cff")
+# Common inputs, with fake conditions (not fake ay more!)
+#process.load("FastSimulation.Configuration.CommonInputs_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load('FastSimulation.Configuration.Geometries_cff')
 from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
 
@@ -77,7 +79,13 @@ process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 # No reconstruction - only HLT
 process.HLTEndSequence = cms.Sequence(process.dummyModule)
 
-# HLT schedule
+# Schedule the HLT paths (and allows HLTAnalyzers for this test):
+from FastSimulation.HighLevelTrigger.HLTSetup_cff import hltL1GtTrigReport
+process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+)
+process.HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + process.hltTrigReport )
+process.HLTSchedule.append(process.HLTAnalyzerEndpath)
 process.schedule = cms.Schedule()
 process.schedule.extend(process.HLTSchedule)
 

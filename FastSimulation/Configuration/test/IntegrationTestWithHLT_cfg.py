@@ -47,7 +47,13 @@ process.load("FastSimulation.Configuration.HLT_GRun_cff")
 # Only event accepted by L1 + HLT are reconstructed
 process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 
-# Schedule the HLT paths
+# Schedule the HLT paths (and allows HLTAnalyzers for this test):
+from FastSimulation.HighLevelTrigger.HLTSetup_cff import hltL1GtTrigReport
+process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+)
+process.HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + process.hltTrigReport )
+process.HLTSchedule.append(process.HLTAnalyzerEndpath)
 process.schedule = cms.Schedule()
 process.schedule.extend(process.HLTSchedule)
 
@@ -89,10 +95,10 @@ process.misalignedCSCGeometry.applyAlignment = True
 # process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
 # process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_0.0.xml"
 
-
 # Note : if your process is not called HLT, you have to change that! 
 # process.hltTrigReport.HLTriggerResults = TriggerResults::PROD
 # process.hltHighLevel.TriggerResultsTag = TriggerResults::PROD 
+
 
 # To write out events 
 process.load("FastSimulation.Configuration.EventContent_cff")
