@@ -32,7 +32,7 @@ HLTEgammaDoubleLegCombFilter::HLTEgammaDoubleLegCombFilter(const edm::ParameterS
   maxMatchDR_ = iConfig.getParameter<double> ("maxMatchDR");
   
   //register your products
-  //produces<trigger::TriggerFilterObjectWithRefs>();
+  produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
 HLTEgammaDoubleLegCombFilter::~HLTEgammaDoubleLegCombFilter(){}
@@ -69,7 +69,7 @@ bool HLTEgammaDoubleLegCombFilter::filter(edm::Event& iEvent, const edm::EventSe
       if(matchedCands[candNr].second>=0) nrBoth++;//we also found a second leg cand
       else nr1stLegOnly++; //we didnt find a second leg cand
     }else if(matchedCands[candNr].second>=0) nr2ndLegOnly++; //we found a second leg cand but we didnt find a first leg
-    else std::cout <<"debug, remove me: error HLTEgammaDoubleLegCombFilter cand is not 1st leg, 2nd leg or both "<<std::endl;
+    
   }
   
   bool accept=false;
