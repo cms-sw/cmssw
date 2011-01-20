@@ -13,6 +13,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+
 #include <TH1D.h>
 
 CMSDAS11DijetTestAnalyzer::CMSDAS11DijetTestAnalyzer(edm::ParameterSet const& params) :
@@ -65,6 +68,15 @@ void CMSDAS11DijetTestAnalyzer::endJob(void) {
 
 void CMSDAS11DijetTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  ////////Get Weight, if this is MC//////////////  
+  double mWeight;
+  edm::Handle<GenEventInfoProduct> hEventInfo;
+  iEvent.getByLabel("generator", hEventInfo);
+  if (hEventInfo.isValid())
+    mWeight = hEventInfo->weight();
+  else 
+    mWeight = 1.;
+  
   ////////////////////////////////////////////
   // Get event ID information
   ////////////////////////////////////////////
@@ -121,8 +133,7 @@ void CMSDAS11DijetTestAnalyzer::analyze( const edm::Event& iEvent, const edm::Ev
     selectedJets.push_back(jet);
   }
 
-
-  hVertexZ->Fill(theVertex->z());
+  hVertexZ->Fill(theVertex->z(), mWeight);
   return;
 }
 
