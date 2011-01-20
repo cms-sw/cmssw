@@ -13,7 +13,7 @@
 //
 // Original Author:  Yong Kim,32 4-A08,+41227673039,
 //         Created:  Mon Nov  1 18:22:21 CET 2010
-// $Id: HiSpikeCleaner.cc,v 1.6 2010/11/20 14:55:11 kimy Exp $
+// $Id: HiSpikeCleaner.cc,v 1.7 2011/01/18 16:14:53 kimy Exp $
 //
 //
 
@@ -36,9 +36,10 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
+//#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+//#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 
@@ -158,9 +159,11 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    
    // get the channel status from the DB                                                                                                     
-   edm::ESHandle<EcalChannelStatus> chStatus;
-   iSetup.get<EcalChannelStatusRcd>().get(chStatus);
+   //   edm::ESHandle<EcalChannelStatus> chStatus;
+   //   iSetup.get<EcalChannelStatusRcd>().get(chStatus);
    
+   edm::ESHandle<EcalSeverityLevelAlgo> ecalSevLvlAlgoHndl;
+   iSetup.get<EcalSeverityLevelAlgoRcd>().get(ecalSevLvlAlgoHndl);
    
    
    // Create a pointer to the RecHits and raw SuperClusters
@@ -191,8 +194,8 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 EcalRecHitCollection::const_iterator it = rechits.find( id );
 	 
 	 if( it != rechits.end() ) {
-	    severity = EcalSeverityLevelAlgo::severityLevel(id, rechits, *chStatus );
-	    swissCrx = EcalSeverityLevelAlgo::swissCross   (id, rechits, 0.,true);
+	    severity = ecalSevLvlAlgoHndl->severityLevel(id, rechits);
+	    swissCrx = 1.0;//EcalSeverityLevelAlgo::swissCross   (id, rechits, 0.,true);
 	    //	    std::cout << "swissCross = " << swissCrx <<std::endl;
 	    // std::cout << " timing = " << it->time() << std::endl;
 	 }
