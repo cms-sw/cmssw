@@ -709,6 +709,10 @@ if 'MessageLogger' in %(dict)s:
       self.options['paths'].append( "-HLT_SelectEcalSpikesHighEt_L1R" )
       self.options['paths'].append( "-HLT_SelectEcalSpikes_L1R" )
 
+      # remove HLTAnalyzerEndpath from fastsim cff's
+      if self.config.fragment:
+        self.options['paths'].append( "-HLTAnalyzerEndpath" )
+
 
   def build_source(self):
     if self.config.online:
