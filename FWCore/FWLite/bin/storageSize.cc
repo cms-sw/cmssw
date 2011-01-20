@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 20 09:50:58 CST 2011
-// $Id$
+// $Id: storageSize.cc,v 1.1 2011/01/20 16:57:40 chrjones Exp $
 //
 
 // system include files
@@ -85,6 +85,10 @@ int main(int argc, char* argv[])
    
    gDebug = 3;
    cls->WriteBuffer(bf, objInstance);
-   
+ 
+   gDebug = 0;
+   std::cout <<"Total amount stored: "<<bf.Length()<<" bytes"<<std::endl;
+   std::cout<<"\nNOTE: add 4 bytes for each 'has written' value because of a bug in ROOT's printout of the accounting"
+   <<"\n  Each class (inheriting or as member data) has metadata an overhead of 10 bytes"<<std::endl;
    return 0;
 }
