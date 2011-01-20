@@ -20,12 +20,36 @@
 
 namespace reco { namespace tau {
 
-template<typename InputType, typename MatchedType, typename OutputType=typename edm::RefToBaseVector<InputType> >
+namespace {
+
+class RefCaster {
+  public:
+    template<typename InBaseRef, typename REF>
+      REF convert(const InBaseRef& in) const {
+      return in.template castTo<REF>();
+    }
+};
+
+class RefCopier {
+  public:
+    template<typename InBaseRef, typename REF>
+      REF convert(const InBaseRef& in) const {
+      return REF(in);
+    }
+};
+
+}
+
+template<typename InputType, typename MatchedType,
+  typename OutputType=typename edm::RefToBaseVector<InputType>,
+  typename ClonePolicy=RefCopier>
 class AssociationMatchRefSelector : public edm::EDFilter {
   public:
     //typedef typename edm::RefToBaseVector<InputType> OutputType;
     typedef typename OutputType::value_type OutputValue;
     typedef typename edm::Association<MatchedType> AssocType;
+    typedef typename edm::RefToBase<InputType> InputRef;
+
     explicit AssociationMatchRefSelector(const edm::ParameterSet &pset) {
       src_ = pset.getParameter<edm::InputTag>("src");
       matching_ = pset.getParameter<edm::InputTag>("matching");
@@ -42,7 +66,9 @@ class AssociationMatchRefSelector : public edm::EDFilter {
         typename AssocType::reference_type matched = (*match)[input->refAt(i)];
         // Check if matched
         if (matched.isNonnull()) {
-          output->push_back(input->refAt(i).template castTo<OutputValue>());
+          OutputValue toPut =
+            cloner_.template convert<InputRef, OutputValue>(input->refAt(i));
+          output->push_back(toPut);
         }
       }
       bool notEmpty = output->size();
@@ -51,6 +77,7 @@ class AssociationMatchRefSelector : public edm::EDFilter {
       return ( !filter_ || notEmpty );
     }
   private:
+    ClonePolicy cloner_;
     edm::InputTag src_;
     edm::InputTag matching_;
     bool filter_;
@@ -67,7 +94,8 @@ typedef reco::tau::AssociationMatchRefSelector<reco::Candidate,
           reco::GenJetCollection>  CandViewGenJetMatchRefSelector;
 
 typedef reco::tau::AssociationMatchRefSelector<reco::Candidate,
-          reco::PFTauCollection, reco::PFTauRefVector>  CandViewPFTauMatchRefSelector;
+          reco::PFTauCollection, reco::PFTauRefVector,
+          reco::tau::RefCaster>  CandViewPFTauMatchRefSelector;
 
 DEFINE_FWK_MODULE(CandViewGenJetMatchRefSelector);
 DEFINE_FWK_MODULE(CandViewPFTauMatchRefSelector);
