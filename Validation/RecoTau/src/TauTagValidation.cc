@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.16 2010/05/15 21:47:57 dbodin Exp $
+// $Id: TauTagValidation.cc,v 1.18 2010/07/20 17:21:37 wmtan Exp $
 //
 //
 // user include files
@@ -728,6 +728,74 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    }
 	  }	
       }
+    }
+  //------------------------------- hpsTanc (why do I need this? I don't know, the program is made this way) -----------------------------------
+  else if ( TauProducer_.find("hpsTancTaus") != string::npos)
+    {
+      //cout<<"entering the hpsTancTaus section\n"<<endl;
+      Handle<PFTauCollection> thePFTauHandle;
+      iEvent.getByLabel(TauProducerInputTag_,thePFTauHandle);
+      
+      const PFTauCollection  *pfTauProduct;
+      pfTauProduct = thePFTauHandle.product();
+
+      PFTauCollection::size_type thePFTauClosest;      
+
+      for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
+
+	
+	ptTauVisibleMap.find(refCollection_)->second->Fill(RefJet->pt());
+	etaTauVisibleMap.find(refCollection_)->second->Fill(RefJet->eta());
+	phiTauVisibleMap.find(refCollection_)->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+	energyTauVisibleMap.find(refCollection_)->second->Fill(RefJet->energy());
+	
+	const reco::Candidate *gen_particle = &(*RefJet);
+	
+	double delta=TMath::Pi();
+
+	thePFTauClosest = pfTauProduct->size();
+
+	for (PFTauCollection::size_type iPFTau=0 ; iPFTau <  pfTauProduct->size() ; iPFTau++) 
+	  {		    
+	    if (algo_->deltaR(gen_particle, & pfTauProduct->at(iPFTau)) < delta){
+	      delta = algo_->deltaR(gen_particle, & pfTauProduct->at(iPFTau));
+	      thePFTauClosest = iPFTau;
+	    }
+	  }
+	
+	// Skip if there is no reconstructed Tau matching the Reference 
+	if (thePFTauClosest == pfTauProduct->size()) continue;
+	
+	double deltaR = algo_->deltaR(gen_particle, & pfTauProduct->at(thePFTauClosest));
+
+	// Skip if the delta R difference is larger than the required criteria
+	if (deltaR > matching_criteria && matching_criteria != -1.0) continue;
+	
+	ptTauVisibleMap.find( TauProducer_+"Matched")->second->Fill(RefJet->pt());
+	etaTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->eta());
+	phiTauVisibleMap.find( TauProducer_+"Matched" )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+	energyTauVisibleMap.find(  TauProducer_+"Matched")->second->Fill(RefJet->energy());
+	
+	PFTauRef thePFTau(thePFTauHandle, thePFTauClosest);
+	Handle<PFTauDiscriminator> currentDiscriminator;
+	
+	for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++) 
+	  {
+	    string currentDiscriminatorLabel = it->getParameter<string>("discriminator");	      
+	    iEvent.getByLabel(currentDiscriminatorLabel, currentDiscriminator);
+	    
+	    if ((*currentDiscriminator)[thePFTau] >= it->getParameter<double>("selectionCut")){
+	      ptTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->pt());
+	      etaTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->eta());
+	      phiTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
+	      energyTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->energy());
+	      
+	    }
+	    else {
+	      break; 
+	    }
+	  }
+      }
     }    
 }
 
@@ -737,6 +805,15 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 // ---------------------------------------------------------------------------  endJob -----------------------------------------------------------------------
 
 void TauTagValidation::endJob(){
+
+  if(saveoutputhistograms_) //USED for debugging. I keep it here in case of need ;)
+    {
+      cout << "dumping entries for hpsTanc"<<endl;
+      for(std::map<std::string,MonitorElement*>::iterator mapEntry = ptTauVisibleMap.begin(); mapEntry != ptTauVisibleMap.end(); mapEntry++)
+	if( mapEntry->first.find("hpsTancTaus") !=string::npos)    
+	  cout << mapEntry->first << "      entries:   " <<  mapEntry->second->getTH1()->GetEntries() << endl;
+    }
+
   // just fill the denominator histograms for the changing cone sizes
   /*  
   double Denominator_Taus = nRefTaus_etaTauVisible_->getEntries();
