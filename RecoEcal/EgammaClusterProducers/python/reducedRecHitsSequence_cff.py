@@ -16,6 +16,17 @@ interestingEcalDetIdEE = cms.EDProducer("InterestingDetIdCollectionProducer",
     phiSize = cms.int32(5)
 )
 
+# rechits associated to high pt tracks for HSCP
+
+from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
+
+interestingTrackEcalDetIds = cms.EDProducer('InterestingTrackEcalDetIdProducer',
+    TrackAssociatorParameterBlock,
+    TrackCollection = cms.InputTag("generalTracks"),
+    MinTrackPt      = cms.double(50.0)
+)
+
+
 reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     interestingDetIdCollections = cms.VInputTag(
@@ -29,7 +40,9 @@ reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
             #pf
             cms.InputTag("pfElectronInterestingEcalDetIdEB"),
             # muons
-            cms.InputTag("muonEcalDetIds")
+            cms.InputTag("muonEcalDetIds"),
+            # high pt tracks
+            cms.InputTag("interestingTrackEcalDetIds")
             ),
     reducedHitsCollection = cms.string('')
 )
@@ -47,12 +60,15 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
             #pf
             cms.InputTag("pfElectronInterestingEcalDetIdEE"),
             # muons
-            cms.InputTag("muonEcalDetIds")
+            cms.InputTag("muonEcalDetIds"),
+            # high pt tracks
+            cms.InputTag("interestingTrackEcalDetIds")
             ),
     reducedHitsCollection = cms.string('')
 )
 
+
 #selected digis
 from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 
-reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEE*reducedEcalRecHitsEB*reducedEcalRecHitsEE*seldigis)
+reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEE*interestingTrackEcalDetIds*reducedEcalRecHitsEB*reducedEcalRecHitsEE*seldigis)
