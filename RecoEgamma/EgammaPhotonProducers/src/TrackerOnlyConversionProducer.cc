@@ -13,7 +13,7 @@
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.40 2010/11/22 02:02:08 bendavid Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.41 2011/01/18 12:36:07 nancy Exp $
 //
 //
 
@@ -617,50 +617,6 @@ bool TrackerOnlyConversionProducer::getTrackImpactPosition(const reco::Track* tk
 	return false;
 }
 
-
-bool TrackerOnlyConversionProducer::getTrackImpactPosition(const edm::RefToBase<reco::Track>& tk_ref,
-	const TrackerGeometry* trackerGeom, const MagneticField* magField,
-	math::XYZPoint& ew){
-
-    PropagatorWithMaterial propag( alongMomentum, 0.000511, magField );
-    TrajectoryStateTransform transformer;
-    ReferenceCountingPointer<Surface> ecalWall(
-	    new  BoundCylinder( GlobalPoint(0.,0.,0.), TkRotation<float>(),
-		SimpleCylinderBounds( 129, 129, -320.5, 320.5 ) ) );
-    const float epsilon = 0.001;
-    Surface::RotationType rot; // unit rotation matrix
-    const float barrelRadius = 129.f;
-    const float barrelHalfLength = 270.9f;
-    const float endcapRadius = 171.1f;
-    const float endcapZ = 320.5f;
-    ReferenceCountingPointer<BoundCylinder>  theBarrel_(new BoundCylinder( Surface::PositionType(0,0,0), rot,
-		SimpleCylinderBounds( barrelRadius-epsilon, barrelRadius+epsilon, -barrelHalfLength, barrelHalfLength)));
-    ReferenceCountingPointer<BoundDisk>      theNegativeEtaEndcap_(
-	    new BoundDisk( Surface::PositionType( 0, 0, -endcapZ), rot,
-		SimpleDiskBounds( 0, endcapRadius, -epsilon, epsilon)));
-    ReferenceCountingPointer<BoundDisk>      thePositiveEtaEndcap_(
-	    new BoundDisk( Surface::PositionType( 0, 0, endcapZ), rot,
-		SimpleDiskBounds( 0, endcapRadius, -epsilon, epsilon)));
-
-    //const TrajectoryStateOnSurface myTSOS = transformer.innerStateOnSurface(*(*ref), *trackerGeom, magField);
-    const TrajectoryStateOnSurface myTSOS = transformer.outerStateOnSurface(*tk_ref, *trackerGeom, magField);
-    TrajectoryStateOnSurface  stateAtECAL;
-    stateAtECAL = propag.propagate(myTSOS, *theBarrel_);
-    if (!stateAtECAL.isValid() || ( stateAtECAL.isValid() && fabs(stateAtECAL.globalPosition().eta() ) >1.479 )  ) {
-	//endcap propagator
-	if (myTSOS.globalPosition().eta() > 0.) {
-	    stateAtECAL = propag.propagate(myTSOS, *thePositiveEtaEndcap_);
-	} else {
-	    stateAtECAL = propag.propagate(myTSOS, *theNegativeEtaEndcap_);
-	}
-    }       
-    if (stateAtECAL.isValid()){
-	ew = stateAtECAL.globalPosition();
-	return true;
-    }
-    else
-	return false;
-}
 
 
 

@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2011/01/18 12:36:14 $
- **  $Revision: 1.23 $
+ **  $Date: 2011/01/19 11:29:08 $
+ **  $Revision: 1.24 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -139,12 +139,6 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       bool getTrackImpactPosition(const reco::Track* tk_ref, 
 	      const TrackerGeometry* trackerGeom, const MagneticField* magField, 
 	      math::XYZPoint& ew);
-
-      bool getTrackImpactPosition(const edm::RefToBase<reco::Track>& rtob, 
-	      const TrackerGeometry* trackerGeom, const MagneticField* magField, 
-	      math::XYZPoint& ew);
-
-
 
       //distance at min approaching point, returns distance
       //      double getMinApproach(const edm::RefToBase<reco::Track>& ll, const edm::RefToBase<reco::Track>& rr, 
