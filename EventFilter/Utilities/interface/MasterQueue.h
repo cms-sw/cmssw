@@ -107,7 +107,7 @@ namespace evf{
     void drain(){
       status();
       if(occup_>0)
-	std::cout << "message queue contains " << occup_ << "leftover messages, going to drain " 
+	std::cout << "message queue id " << queue_id_ << " contains " << occup_ << "leftover messages, going to drain " 
 		  << std::endl;
       //drain the queue before using it
       MsgBuf msg;

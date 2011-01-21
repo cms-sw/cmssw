@@ -1,5 +1,10 @@
 2011-01-19  Emilio Meschi <emilio.meschi@cern.ch>
 	
+	* tag V00-19-04
+	* added support for path indices 
+
+2011-01-19  Emilio Meschi <emilio.meschi@cern.ch>
+	
 	* tag V00-19-03
 	* 18-06 migrate to xml buildfile
 	* 19-00 macosx compat

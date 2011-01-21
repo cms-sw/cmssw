@@ -67,7 +67,7 @@ namespace evf{
     char error[CURL_ERROR_SIZE];
     
     curl_easy_setopt(han, CURLOPT_URL, urlp.c_str());
-    curl_easy_setopt(han, CURLOPT_VERBOSE,"");
+    //    curl_easy_setopt(han, CURLOPT_VERBOSE,"");
     curl_easy_setopt(han, CURLOPT_NOSIGNAL,"");
     //	curl_easy_setopt(han, CURLOPT_TIMEOUT, 60.0L);
     curl_formadd(&post, &last,

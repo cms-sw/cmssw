@@ -69,7 +69,6 @@ namespace evf{
 	int success = curl_easy_perform(han);
 	curl_slist_free_all(headers); /* free the header list */
 	curl_easy_cleanup(han);
-
 	if(success != 0)
 	  {
 	    ostringstream msg;
@@ -77,6 +76,34 @@ namespace evf{
 		<< success << " " << error;
 	    XCEPT_RAISE(evf::Exception,msg.str().c_str());
 	  }
+
+	//now get path-index table 	
+	headers = NULL;
+	headers = curl_slist_append(headers, "Pragma:");
+	curl_easy_setopt(han, CURLOPT_HTTPHEADER, headers);
+	if(sn.check())
+	  curl_easy_setopt(han, CURLOPT_PROXY, "localhost:3128");
+	hostname = getHostString(in,"paths");
+	curl_easy_setopt(han, CURLOPT_URL, hostname.c_str());
+	curl_easy_setopt(han, CURLOPT_VERBOSE,"");
+	curl_easy_setopt(han, CURLOPT_NOSIGNAL,"");
+	//	curl_easy_setopt(han, CURLOPT_TIMEOUT, 60.0L);
+
+	curl_easy_setopt(han, CURLOPT_WRITEFUNCTION, &write_data);
+	curl_easy_setopt(han, CURLOPT_WRITEDATA, &pathIndexTable);
+	curl_easy_setopt(han, CURLOPT_ERRORBUFFER, error);
+	success = curl_easy_perform(han);
+	curl_slist_free_all(headers); /* free the header list */
+	curl_easy_cleanup(han);
+
+	if(success != 0)
+	  {
+	    ostringstream msg;
+	    msg <<  "could not get pathindex table from url " << in << " error #" 
+		<< success << " " << error;
+	    XCEPT_RAISE(evf::Exception,msg.str().c_str());
+	  }
+
 
       }
     else if (dbheading==in.substr(0,dbheading.size()))
@@ -96,13 +123,29 @@ namespace evf{
   {
     return pset;
   }
-  std::string ParameterSetRetriever::getHostString(const std::string &in) const
+  //______________________________________________________________________________
+  std::string ParameterSetRetriever::getPathTableAsString() const
+  {
+    return pathIndexTable;
+  }
+
+
+  std::string ParameterSetRetriever::getHostString(const std::string &in, std::string modifier) const
   {
     using std::string;
     string innohttp = in.substr(webheading.size());
     string::size_type pos = innohttp.find(':',0);
     string host = innohttp.substr(0,pos);
     string path = innohttp.substr(pos);
+    if(modifier != "")
+      {
+	pos = path.find_last_of('.');
+	if(pos != string::npos)
+	  {
+	    string upath = path.substr(0,pos);
+	    path = upath + '.' + modifier;
+	  }
+      }
     struct hostent *heb = gethostbyname(host.c_str());    
     struct hostent *he = gethostbyaddr(heb->h_addr_list[0], heb->h_length, heb->h_addrtype);
     string completehost = "http://";
