@@ -1,3 +1,10 @@
+2011-01-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-01
+	* handling of path indices in scalers message table
+	* added statistics gathering switch
+	* some cleanup of xdata variables
+	
 2011-01-19 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-03-00

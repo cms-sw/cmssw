@@ -80,7 +80,9 @@ namespace evf{
       void packedTriggerReportToTable();
       void formatReportTable(edm::TriggerReport &
 			     , std::vector<edm::ModuleDescription const*>&
+			     , std::string &pathIndexTable
 			     , bool noNukeLegenda);
+      void fillPathIndexTable(std::string &);
       xdata::Table &getTable(){return triggerReportAsTable_;} 
       xdata::Table &getTableWithNames(){return triggerReportAsTableWithNames_;} 
       xdata::UnsignedInteger32 &getProcThisLumi(){return eventsProcessed_;}
@@ -118,7 +120,7 @@ namespace evf{
       std::vector<int> pspos_;
       std::vector<std::string> outname_;
       static const std::string columns[5];
-      std::vector<xdata::String>            paths_;
+      std::vector<std::string>            paths_;
       std::vector<xdata::UnsignedInteger32> l1pre_;
       std::vector<xdata::UnsignedInteger32> ps_;
       std::vector<xdata::UnsignedInteger32> accept_;
@@ -129,6 +131,7 @@ namespace evf{
       std::vector<unsigned int> paccept_;
       std::vector<unsigned int> pexcept_;
       std::vector<unsigned int> pfailed_;
+      std::map<std::string, xdata::UnsignedInteger32> pathIndexMap_;
       unsigned int lumiSectionIndex_;
       unsigned int prescaleIndex_;
       edm::TriggerReport trp_;

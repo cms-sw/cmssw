@@ -171,6 +171,7 @@ namespace evf
     xdata::Boolean                   hasModuleWebRegistry_;
     xdata::Boolean                   hasServiceWebRegistry_;
     xdata::Boolean                   isRunNumberSetter_;
+    xdata::Boolean                   iDieStatisticsGathering_;
     bool                             outprev_;
     
     // application identifier
@@ -196,6 +197,7 @@ namespace evf
     bool                             logWrap_;
 
     xdata::UnsignedInteger32         nbSubProcesses_;
+    xdata::UnsignedInteger32         nbSubProcessesReporting_;
     std::vector<SubProcess>          subs_;
     unsigned int                     nblive_; 
     unsigned int                     nbdead_; 

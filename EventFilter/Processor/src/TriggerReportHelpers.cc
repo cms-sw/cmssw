@@ -9,6 +9,9 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <map>
+
+#include "boost/tokenizer.hpp"
 
 namespace evf{
   namespace fuep{
@@ -23,7 +26,7 @@ void TriggerReportHelpers::triggerReportUpdate(edm::TriggerReport &tr, unsigned 
   else
     lumiSectionIndex_++;  
   if(lumiSectionIndex_ != ls)
-    std::cout << getpid() << "WARNING: ls index mismatch " << ls << " should be " << lumiSectionIndex_ << std::endl;
+    std::cout << getpid() << " WARNING: ls index mismatch " << ls << " should be " << lumiSectionIndex_ << std::endl;
   prescaleIndex_ = ps;
 }
     
@@ -71,9 +74,39 @@ void TriggerReportHelpers::packedTriggerReportToTable()
   }
 }
 
+void TriggerReportHelpers::fillPathIndexTable(std::string &pathstring)
+{
+  unsigned int i = 0;
+  if(pathstring == ""){
+    for(; i<paths_.size(); i++) {
+      xdata::Table::iterator it = triggerReportAsTableWithNames_.append();
+      it->setField("pathIndex", pathIndexMap_[paths_[i]]=i);
+    }
+  }
+  else{
+    boost::char_separator<char> sep(",");
+    boost::tokenizer<boost::char_separator<char> > tokens(pathstring, sep);
+    for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
+	 tok_iter != tokens.end(); ++tok_iter){
+      unsigned int index = 0;
+      std::string name;
+      std::string::size_type pos = tok_iter->find("=");
+      if(pos!=std::string::npos){
+	name=tok_iter->substr(0,pos);
+	index = atoi(tok_iter->substr(pos+1).c_str());
+	pathIndexMap_[name]=index;
+      }
+    }
+    for(; i<paths_.size(); i++) {
+      xdata::Table::iterator it = triggerReportAsTableWithNames_.append();
+      it->setField("pathIndex",pathIndexMap_[paths_[i]]);
+    }
+  }
+}
 
 void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr, 
 					     std::vector<edm::ModuleDescription const*>& descs,
+					     std::string &pathIndexTable,
 					     bool noNukeLegenda)  
 {
 
@@ -112,15 +145,14 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
   triggerReportAsTable_.addColumn(columns[3],"unsigned int 32");
   triggerReportAsTable_.addColumn(columns[4],"unsigned int 32");
   triggerReportAsTableWithNames_ = triggerReportAsTable_;
-  triggerReportAsTableWithNames_.addColumn("pathName","string");
+  triggerReportAsTableWithNames_.addColumn("pathIndex","unsigned int 32");
 
   unsigned int i=0;
   for(; i<tr.trigPathSummaries.size(); i++) {
     triggerReportAsTable_.append();
-    xdata::Table::iterator it = triggerReportAsTableWithNames_.append();
     paths_[i] = tr.trigPathSummaries[i].name;
-    it->setField("pathName",paths_[i]);
-    ost << i << "=" << paths_[i].value_ << ", ";
+
+    ost << i << "=" << paths_[i] << ", ";
 
     // reset the l1 and ps positions to pick up modifications of the menu
     // that result in paths being displaced up and down
@@ -143,11 +175,8 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
   }
   for(; i<tr.endPathSummaries.size()+tr.trigPathSummaries.size(); i++) {
     triggerReportAsTable_.append();
-    xdata::Table::iterator it = triggerReportAsTableWithNames_.append();
-
     paths_[i] = tr.endPathSummaries[i-tr.trigPathSummaries.size()].name;
-    it->setField("pathName",paths_[i]);
-    ost << i << "=" << paths_[i].value_ << ", ";
+    ost << i << "=" << paths_[i] << ", ";
     // reset the l1 and ps positions to pick up modifications of the menu
     // that result in paths being displaced up and down
     l1pos_[i] = -1;
@@ -171,6 +200,7 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
 
     }
   }
+  fillPathIndexTable(pathIndexTable);
   if(noNukeLegenda) pathLegenda_ = ost.str().c_str();
 
 }
@@ -344,7 +374,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
   for(int i = 0; i < trp->endPathsInMenu; i++)
     {
       unsigned int j = i + trp->trigPathsInMenu;
-      edm::FUShmOutputModule *o = sor->get(outname_[i+trp->trigPathsInMenu]);
+      edm::FUShmOutputModule *o = sor->get(outname_[j]);
       if(!o) {
 	sor->dumpRegistry();
 	continue;
@@ -360,7 +390,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
 	tr.endPathSummaries[i].timesExcept - trp_.endPathSummaries[i].timesExcept;
 
 
-      if(l1pos_[i]>=0) {
+      if(l1pos_[j]>=0) {
 	trp->endPathSummaries[i].timesPassedL1 =
 	  tr.endPathSummaries[i].moduleInPathSummaries[l1pos_[j]].timesPassed -
 	  trp_.endPathSummaries[i].moduleInPathSummaries[l1pos_[j]].timesPassed;
@@ -368,12 +398,12 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
       else {
 	trp->endPathSummaries[i].timesPassedL1 = trp->endPathSummaries[i].timesRun;
       }
-      if(pspos_[i]>=0) {
+      if(pspos_[j]>=0) {
 	trp->endPathSummaries[i].timesPassedPs =
 	  tr.endPathSummaries[i].moduleInPathSummaries[pspos_[j]].timesPassed -
 	  trp_.endPathSummaries[i].moduleInPathSummaries[pspos_[j]].timesPassed;
       }
-      else if(l1pos_[i]>=0) {
+      else if(l1pos_[j]>=0) {
 	trp->endPathSummaries[i].timesPassedPs =
 	  tr.endPathSummaries[i].moduleInPathSummaries[l1pos_[j]].timesPassed -
 	  trp_.endPathSummaries[i].moduleInPathSummaries[l1pos_[j]].timesPassed;
@@ -440,6 +470,8 @@ void TriggerReportHelpers::sumAndPackTriggerReport(MsgBuf &buf)
     {
       trs->endPathSummaries[i].timesRun += trp->endPathSummaries[i].timesRun;
       trs->endPathSummaries[i].timesPassed += trp->endPathSummaries[i].timesPassed;
+      trs->endPathSummaries[i].timesPassedPs += trp->endPathSummaries[i].timesPassedPs;
+      trs->endPathSummaries[i].timesPassedL1 += trp->endPathSummaries[i].timesPassedL1;
       trs->endPathSummaries[i].timesFailed += trp->endPathSummaries[i].timesFailed;
       trs->endPathSummaries[i].timesExcept += trp->endPathSummaries[i].timesExcept;
     }
@@ -472,6 +504,8 @@ void TriggerReportHelpers::resetPackedTriggerReport()
     {
       trp->endPathSummaries[i].timesRun    = 0;
       trp->endPathSummaries[i].timesPassed = 0;
+      trp->endPathSummaries[i].timesPassedPs = 0; 
+      trp->endPathSummaries[i].timesPassedL1 = 0; 
       trp->endPathSummaries[i].timesFailed = 0;
       trp->endPathSummaries[i].timesExcept = 0;
     }

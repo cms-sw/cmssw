@@ -70,6 +70,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , hasModuleWebRegistry_(true)
   , hasServiceWebRegistry_(true)
   , isRunNumberSetter_(true)
+  , iDieStatisticsGathering_(false)
   , outprev_(true)
   , exitOnError_(true)
   , reasonForFailedState_()
@@ -78,6 +79,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , logRingIndex_(logRingSize_)
   , logWrap_(false)
   , nbSubProcesses_(0)
+  , nbSubProcessesReporting_(0)
   , nblive_(0)
   , nbdead_(0)
   , nbTotalDQM_(0)
@@ -154,9 +156,11 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("hasModuleWebRegistry", &hasModuleWebRegistry_        );
   ispace->fireItemAvailable("hasServiceWebRegistry", &hasServiceWebRegistry_      );
   ispace->fireItemAvailable("isRunNumberSetter",    &isRunNumberSetter_           );
+  ispace->fireItemAvailable("iDieStatisticsGathering",   &iDieStatisticsGathering_);
   ispace->fireItemAvailable("rcmsStateListener",     fsm_.rcmsStateListener()     );
   ispace->fireItemAvailable("foundRcmsStateListener",fsm_.foundRcmsStateListener());
   ispace->fireItemAvailable("nbSubProcesses",       &nbSubProcesses_              );
+  ispace->fireItemAvailable("nbSubProcessesReporting",&nbSubProcessesReporting_   );
   ispace->fireItemAvailable("superSleepSec",        &superSleepSec_               );
   ispace->fireItemAvailable("autoRestartSlaves",    &autoRestartSlaves_           );
   ispace->fireItemAvailable("slaveRestartDelaySecs",&slaveRestartDelaySecs_       );
@@ -197,7 +201,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
 
   evtProcessor_.setApplicationInfoSpace(ispace);
   evtProcessor_.setMonitorInfoSpace(monitorInfoSpace_);
-  evtProcessor_.publishConfigAndMonitorItems(nbSubProcesses_.value_);
+  evtProcessor_.publishConfigAndMonitorItems(nbSubProcesses_.value_!=0);
 
   //subprocess state vectors for MP
   monitorInfoSpace_->fireItemAvailable("epMacroStateInt",             &spMStates_); 
@@ -334,12 +338,14 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 	if(cpustat_) delete cpustat_;
 	cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
 			       iDieUrl_.value_);
-	try{
-	  cpustat_->sendLegenda(evtProcessor_.getmicromap());
-	}
-	catch(evf::Exception &e){
-	  LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
-			 << e.what());
+	if(iDieStatisticsGathering_.value_){
+	  try{
+	    cpustat_->sendLegenda(evtProcessor_.getmicromap());
+	  }
+	  catch(evf::Exception &e){
+	    LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
+			   << e.what());
+	  }
 	}
 	fsm_.fireEvent("ConfigureDone",this);
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
@@ -394,11 +400,24 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
   LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling...");
   if(!epInitialized_){
     evtProcessor_.forceInitEventProcessorMaybe();
+  }
+  std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
+  if(!epInitialized_){
     if(cpustat_) delete cpustat_;
     cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
 			   iDieUrl_.value_);
+    if(iDieStatisticsGathering_.value_){
+      try{
+	cpustat_->sendLegenda(evtProcessor_.getmicromap());
+      }
+      catch(evf::Exception &e){
+	LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
+		       << e.what());
+      }
+    }
+    epInitialized_ = true;
   }
-  std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
+
   configuration_ = evtProcessor_.configuration(); // get it again after init has been carried out...
   evtProcessor_.resetLumiSectionReferenceIndex();
   //classic appl will return here 
@@ -1212,26 +1231,29 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
 	}
     }
   if(atLeastOneProcessUpdatedSuccessfully){
+    nbSubProcessesReporting_.value_ = msgCount;
     evtProcessor_.updateRollingReport();
     evtProcessor_.fireScalersUpdate();
   }
   else{
     LOG4CPLUS_WARN(getApplicationLogger(),"Summarize loop: no process updated successfully ");          
     if(msgCount==0) evtProcessor_.withdrawLumiSectionIncrement();
+    nbSubProcessesReporting_.value_ = 0;
   }
   if(fsm_.stateName()->toString()!="Enabled"){
     wlScalersActive_ = false;
     return false;
   }
   //  cpustat_->printStat();
-  try{
-    cpustat_->sendStat(evtProcessor_.getLumiSectionReferenceIndex());
-  }catch(evf::Exception &e){
-    LOG4CPLUS_INFO(getApplicationLogger(),"coud not send statistics"
-		   << e.what());
-	  
+  if(iDieStatisticsGathering_.value_){
+    try{
+      cpustat_->sendStat(evtProcessor_.getLumiSectionReferenceIndex());
+    }catch(evf::Exception &e){
+      LOG4CPLUS_INFO(getApplicationLogger(),"coud not send statistics"
+		     << e.what());
+    }
   }
-    cpustat_->reset();
+  cpustat_->reset();
   return true;
 }
 
@@ -1741,7 +1763,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.113 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.114 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

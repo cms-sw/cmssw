@@ -97,7 +97,7 @@ namespace evf{
 
   FWEPWrapper::~FWEPWrapper() {delete evtProcessor_; evtProcessor_=0;}
 
-  void FWEPWrapper::publishConfigAndMonitorItems(unsigned int nsub)
+  void FWEPWrapper::publishConfigAndMonitorItems(bool multi)
   {
 
     applicationInfoSpace_->fireItemAvailable("monSleepSec",             &monSleepSec_);
@@ -118,7 +118,17 @@ namespace evf{
     scalersComplete_.addColumn("psid", "unsigned int 32");
     scalersComplete_.addColumn("proc", "unsigned int 32");
     scalersComplete_.addColumn("acc",  "unsigned int 32");
+    scalersComplete_.addColumn("exprep",  "unsigned int 32");
+    scalersComplete_.addColumn("effrep",  "unsigned int 32");
     scalersComplete_.addColumn("triggerReport", "table");  
+
+    xdata::Table::iterator it = scalersComplete_.begin();
+    if( it == scalersComplete_.end())
+      {
+	it = scalersComplete_.append();
+	it->setField("instance",instance_);
+      }
+
 
     //fill initial macrostate legenda information
     unsigned int i = 0;
@@ -142,7 +152,7 @@ namespace evf{
     micro_state_legend_ = oss2.str();
     monitorInfoSpace_->unlock();
 
-    if(nsub==0) publishConfigAndMonitorItemsSP();
+    if(!multi) publishConfigAndMonitorItemsSP();
 
   }
 
@@ -178,6 +188,8 @@ namespace evf{
     // job configuration string
     ParameterSetRetriever pr(configString_);
     configuration_ = pr.getAsString();
+    pathTable_     = pr.getPathTableAsString();
+    
     if (configString_.size() > 3 && configString_.substr(configString_.size()-3) == ".py") isPython_ = true;
     boost::shared_ptr<edm::ParameterSet> params; // change this name!
     boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
@@ -386,7 +398,7 @@ namespace evf{
     LOG4CPLUS_INFO(log_," edm::EventProcessor configuration finished.");
     edm::TriggerReport tr;
     evtProcessor_->getTriggerReport(tr);
-    trh_.formatReportTable(tr,descs_,instanceZero);
+    trh_.formatReportTable(tr,descs_,pathTable_,instanceZero);
     epInitialized_ = true;
     //    startMonitoringWorkLoop();
     return;
@@ -578,9 +590,6 @@ namespace evf{
       {
 	epmState_  = mss->getMicroState2();
 	epmAltState_ = modmap_[mss->getMicroState2()];
-	if(epmAltState_==0)
-	  std::cout << "Found invalid state !!! " << getpid() << " state name " << epmState_.value_
-		    << std::endl;
       }
     if(evtProcessor_)
       {
@@ -618,12 +627,6 @@ namespace evf{
 
     unsigned int ls = 0;
     unsigned int ps = 0;
-    xdata::Table::iterator it = scalersComplete_.begin();
-    if( it == scalersComplete_.end())
-      {
-	it = scalersComplete_.append();
-	it->setField("instance",instance_);
-      }
     timeval tv;
     if(useLock) {
       gettimeofday(&tv,0);
@@ -633,6 +636,7 @@ namespace evf{
       //      std::cout << getpid() << " opened Backdoor " << std::endl;
     }
 
+    xdata::Table::iterator it = scalersComplete_.begin();
     try{
       xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
       xdata::Serializable *psid = applicationInfoSpace_->find("prescaleSetIndex");
@@ -683,7 +687,7 @@ namespace evf{
       //      std::cout << getpid() << " closed Backdoor " << std::endl;
     }  
 
-    trh_.formatReportTable(tr,descs_,false);
+    trh_.formatReportTable(tr,descs_,pathTable_,false);
 
 
     trh_.triggerReportUpdate(tr,ls,ps,trh_.checkLumiSection(ls));
@@ -1151,35 +1155,41 @@ namespace evf{
     psid_ = tr->prescaleIndex;
     lst.proc = tr->eventSummary.totalEvents;
     lst.acc = tr->eventSummary.totalEventsPassed;
+    xdata::Serializable *psid = 0;
+    xdata::Serializable *lsid = 0;
+    xdata::Serializable *nbs = 0;
+    xdata::Serializable *nbsr = 0;
     try{
-      xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
+      lsid =applicationInfoSpace_->find("lumiSectionIndex");
       if(lsid!=0){
 	lsp = ((xdata::UnsignedInteger32*)lsid); 
 	lsp->value_= tr->lumiSection;
       }
-    }
-    catch(xdata::exception::Exception e){
-    }
-    xdata::Serializable *psid = 0;
-    try{
       psid = applicationInfoSpace_->find("prescaleSetIndex");
       if(psid!=0) {
 	psp = ((xdata::UnsignedInteger32*)psid);
 	psp->value_ = tr->prescaleIndex;
       }
+      nbs  = applicationInfoSpace_->find("nbSubProcesses");
+      nbsr = applicationInfoSpace_->find("nbSubProcessesReporting");
     }
     catch(xdata::exception::Exception e){
     }
+
     xdata::Table::iterator it = scalersComplete_.begin();
-    if( it == scalersComplete_.end())
-      {
-	it = scalersComplete_.append();
-	it->setField("instance",instance_);
-      }
     if(lsp)
       it->setField("lsid", *lsp);
     if(psp)
       it->setField("psid", *psp);
+    if(nbs)
+      it->setField("exprep", *nbs);
+    else
+      std::cout << "nbSubProcesses item not found !!!" << std::endl;
+    if(nbsr)
+      it->setField("effrep", *nbsr);
+    else
+      std::cout << "nbSubProcessesReporting item not found !!!" << std::endl;
+
     it->setField("proc",trh_.getProcThisLumi());
     it->setField("acc",trh_.getAccThisLumi());
     it->setField("triggerReport",trh_.getTableWithNames());
@@ -1190,7 +1200,6 @@ namespace evf{
 
   void FWEPWrapper::createAndSendScalersMessage()
   {
-
     toolbox::net::URL url(rcms_->getContextDescriptor()->getURL());
     toolbox::net::URL at(xappDesc_->getContextDescriptor()->getURL() + "/" + xappDesc_->getURN());
     toolbox::net::URL properurl(url.getProtocol(),url.getHost(),url.getPort(),"");

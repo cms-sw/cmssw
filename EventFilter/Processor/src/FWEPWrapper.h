@@ -79,7 +79,7 @@ namespace evf{
     void setAppCtxt(xdaq::ApplicationContext *ctx){xappCtxt_ = ctx;}
 
 
-    void publishConfigAndMonitorItems(unsigned int);
+    void publishConfigAndMonitorItems(bool);
     void publishConfigAndMonitorItemsSP();
 
     std::string wlMonitoring(){
@@ -208,6 +208,7 @@ namespace evf{
     xdaq::ApplicationDescriptor*     xappDesc_;
     xdaq::ApplicationContext*        xappCtxt_;
     std::string                      configuration_;
+    std::string                      pathTable_;
     xdata::UnsignedInteger32         instance_;
     bool                             hasSubProcesses;
     bool                             waitingForLs_;
