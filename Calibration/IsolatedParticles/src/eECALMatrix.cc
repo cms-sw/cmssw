@@ -1,12 +1,11 @@
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
 #include "Calibration/IsolatedParticles/interface/FindCaloHit.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-
 #include<iostream>
 
 namespace spr{
 
-  std::pair<double,bool> eECALmatrix(const DetId& detId, edm::Handle<EcalRecHitCollection>& hitsEB, edm::Handle<EcalRecHitCollection>& hitsEE, const EcalChannelStatus& chStatus, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr, double eeThr, double tMin, double tMax, bool debug) {
+  std::pair<double,bool> eECALmatrix(const DetId& detId, edm::Handle<EcalRecHitCollection>& hitsEB, edm::Handle<EcalRecHitCollection>& hitsEE, const EcalChannelStatus& chStatus, const CaloGeometry* geo, const CaloTopology* caloTopology,const EcalSeverityLevelAlgo* sevlv, int ieta, int iphi, double ebThr, double eeThr, double tMin, double tMax,  bool debug) {
 
     std::vector<DetId> vdets;
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
@@ -26,7 +25,8 @@ namespace spr{
 	std::vector<EcalRecHitCollection::const_iterator> hit;
         if (vdets[i1].subdetId()==EcalBarrel) {
           spr::findHit(hitsEB,vdets[i1],hit,debug);
-	  ok  = (EcalSeverityLevelAlgo::severityLevel(vdets[i1], (*recHitsEB), chStatus) != EcalSeverityLevelAlgo::kWeird);
+
+	  ok  = (sevlv->severityLevel(vdets[i1], (*recHitsEB)) != EcalSeverityLevelAlgo::kWeird);
         } else if (vdets[i1].subdetId()==EcalEndcap) {
           spr::findHit(hitsEE,vdets[i1],hit,debug);
         }
@@ -61,7 +61,7 @@ namespace spr{
     return std::pair<double,bool>(energySum,flag);
   }
 
-  std::pair<double,bool> eECALmatrix(const DetId& detId, edm::Handle<EcalRecHitCollection>& hitsEB, edm::Handle<EcalRecHitCollection>& hitsEE, const EcalChannelStatus& chStatus, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalTrigTowerConstituentsMap& ttMap, int ieta, int iphi, double ebThr, double eeThr, double tMin, double tMax, bool debug) {
+  std::pair<double,bool> eECALmatrix(const DetId& detId, edm::Handle<EcalRecHitCollection>& hitsEB, edm::Handle<EcalRecHitCollection>& hitsEE, const EcalChannelStatus& chStatus, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalSeverityLevelAlgo* sevlv,const EcalTrigTowerConstituentsMap& ttMap, int ieta, int iphi, double ebThr, double eeThr, double tMin, double tMax,  bool debug) {
 
     std::vector<DetId> vdets;
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
@@ -87,7 +87,8 @@ namespace spr{
 	  std::vector<EcalRecHitCollection::const_iterator> hit;
 	  if (vdets[i1].subdetId()==EcalBarrel) {
 	    spr::findHit(hitsEB,vdets[i1],hit,debug);
-	    ok  = (EcalSeverityLevelAlgo::severityLevel(vdets[i1], (*recHitsEB), chStatus) != EcalSeverityLevelAlgo::kWeird);
+
+	    ok  = (sevlv->severityLevel(vdets[i1], (*recHitsEB)) != EcalSeverityLevelAlgo::kWeird);
 	  } else if (vdets[i1].subdetId()==EcalEndcap) {
 	    spr::findHit(hitsEE,vdets[i1],hit,debug);
 	  }
