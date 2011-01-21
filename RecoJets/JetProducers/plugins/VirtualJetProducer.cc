@@ -40,6 +40,7 @@
 #include <limits>
 #include <cmath>
 
+
 using namespace std;
 
 
@@ -113,6 +114,8 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet"))
   , doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet"))
   , doPUOffsetCorr_(iConfig.getParameter<bool>         ("doPUOffsetCorr"))
+  , puWidth_(0)
+  , nExclude_(0)
   , jetCollInstanceName_ ("")
 {
   anomalousTowerDef_ = std::auto_ptr<AnomalousTower>(new AnomalousTower(iConfig));
@@ -294,6 +297,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   // put the initial towers collection to the jet,   
   // and subtract from initial towers in jet recalculated mean and sigma of towers 
   if ( doPUOffsetCorr_ ) {
+    LogDebug("VirtualJetProducer") << "Do PUOffsetCorr\n";
     vector<fastjet::PseudoJet> orphanInput;
     subtractor_->calculateOrphanInput(orphanInput);
     subtractor_->calculatePedestal(orphanInput);
@@ -420,6 +424,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   // for unbiased background estimation.
   std::vector<fastjet::PseudoJet> fjexcluded_jets;
   fjexcluded_jets=fjJets_;
+
   if(fjexcluded_jets.size()>2) fjexcluded_jets.resize(nExclude_);
       
   for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
@@ -456,11 +461,11 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     jet.setJetArea (jetArea);
 
     if(doPUOffsetCorr_){
-       jet.setPileup(subtractor_->getPileUpEnergy(ijet));
-   }else{
-       jet.setPileup (0.0);
+      jet.setPileup(subtractor_->getPileUpEnergy(ijet));
+    }else{
+      jet.setPileup (0.0);
     }
-
+    
     // add to the list
     jets->push_back(jet);	
   }
