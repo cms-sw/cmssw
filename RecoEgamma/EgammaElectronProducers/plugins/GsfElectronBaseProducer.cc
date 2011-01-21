@@ -124,9 +124,9 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
   desc.add<bool>("vetoClustered",false) ;
   desc.add<bool>("useNumCrystals",true) ;
   desc.add<int>("severityLevelCut",4) ;
-  //desc.add<double>("severityRecHitThreshold",5.0) ;
-  //desc.add<double>("spikeIdThreshold",0.95) ;
-  //desc.add<std::string>("spikeIdString","kSwissCrossBordersIncluded") ;
+  desc.add<double>("severityRecHitThreshold",5.0) ;
+  desc.add<double>("spikeIdThreshold",0.95) ;
+  desc.add<std::string>("spikeIdString","kSwissCrossBordersIncluded") ;
   desc.add<std::vector<int> >("recHitFlagsToBeExcluded") ;
 
   edm::ParameterSetDescription descNested ;
@@ -152,7 +152,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   inputCfg_.reducedEndcapRecHitCollection = cfg.getParameter<edm::InputTag>("reducedEndcapRecHitCollectionTag") ;
   inputCfg_.pfMVA = cfg.getParameter<edm::InputTag>("pfMvaTag") ;
   inputCfg_.ctfTracks = cfg.getParameter<edm::InputTag>("ctfTracksTag");
-  //inputCfg_.seedsTag = cfg.getParameter<edm::InputTag>("seedsTag");
+  inputCfg_.seedsTag = cfg.getParameter<edm::InputTag>("seedsTag"); // used to check config consistency with seeding
   inputCfg_.beamSpotTag = cfg.getParameter<edm::InputTag>("beamSpotTag") ;
 
   strategyCfg_.applyPreselection = cfg.getParameter<bool>("applyPreselection") ;
@@ -267,18 +267,19 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   // spike removal configuration
   GsfElectronAlgo::SpikeConfiguration spikeCfg ;
   spikeCfg.severityLevelCut = cfg.getParameter<int>("severityLevelCut") ;
-  //spikeCfg.severityRecHitThreshold = cfg.getParameter<double>("severityRecHitThreshold") ;
-  //spikeCfg.spikeIdThreshold = cfg.getParameter<double>("spikeIdThreshold") ;
-  //std::string spikeIdString = cfg.getParameter<std::string>("spikeIdString") ;
-  //if     (!spikeIdString.compare("kE1OverE9"))   spikeCfg.spikeId = EcalSeverityLevelAlgo::kE1OverE9 ;
-  //else if(!spikeIdString.compare("kSwissCross")) spikeCfg.spikeId = EcalSeverityLevelAlgo::kSwissCross ;
-  //else if(!spikeIdString.compare("kSwissCrossBordersIncluded")) spikeCfg.spikeId = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded ;
-  //else
-  // {
-  //  spikeCfg.spikeId = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded ;
-  //  edm::LogWarning("GsfElectronAlgo|SpikeRemovalForIsolation")
-  //    << "Cannot find the requested method. kSwissCross set instead." ;
-  // }
+  spikeCfg.severityRecHitThreshold = cfg.getParameter<double>("severityRecHitThreshold") ;
+  spikeCfg.spikeIdThreshold = cfg.getParameter<double>("spikeIdThreshold") ;
+  std::string spikeIdString = cfg.getParameter<std::string>("spikeIdString") ;
+  if     (!spikeIdString.compare("kE1OverE9"))   spikeCfg.spikeId = EcalSeverityLevelAlgo::kE1OverE9 ;
+  else if(!spikeIdString.compare("kSwissCross")) spikeCfg.spikeId = EcalSeverityLevelAlgo::kSwissCross ;
+  else if(!spikeIdString.compare("kSwissCrossBordersIncluded")) spikeCfg.spikeId = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded ;
+  else
+   {
+    spikeCfg.spikeId = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded ;
+    edm::LogWarning("GsfElectronAlgo|SpikeRemovalForIsolation")
+      << "Cannot find the requested method. kSwissCross set instead." ;
+   }
+  spikeCfg.recHitFlagsToBeExcluded = cfg.getParameter<std::vector<int> >("recHitFlagsToBeExcluded") ;
 
   // function for corrector
   EcalClusterFunctionBaseClass * superClusterErrorFunction = 0 ;
@@ -347,7 +348,7 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
    }
 
   // ambiguity
-  algo_->setAmbiguityFlags() ;
+  algo_->setAmbiguityData() ;
   if (strategyCfg_.applyAmbResolution)
    {
     algo_->removeAmbiguousElectrons() ;
