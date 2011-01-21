@@ -16,7 +16,7 @@ trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
     primaryVertexProducer = cms.string('offlinePrimaryVerticesWithBS'),
 
     HalfwayEta = cms.double(.1),# Track pairing search range on Eta
-
+    maxNumOfTrackInPU =  cms.int32(999999),
     minSCEt = cms.double(10.0),
     dEtacutForSCmatching = cms.double(0.03),
     dPhicutForSCmatching = cms.double(0.05),                                       

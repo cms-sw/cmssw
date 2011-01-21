@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2011/01/19 11:29:08 $
- **  $Revision: 1.24 $
+ **  $Date: 2011/01/21 11:44:55 $
+ **  $Revision: 1.25 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -99,7 +99,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       const TransientTrackBuilder *thettbuilder_;
 
       double halfWayEta_, halfWayPhi_;//halfway open angle to search in basic clusters
-
+      int  maxNumOfTrackInPU_;
       double minSCEt_;
       double dEtacutForSCmatching_;
       double dPhicutForSCmatching_;
