@@ -505,9 +505,9 @@ if options.eventType == 'RealData':
          plotTauValidation += plotSCLPEstimatedBGWJets      
       
    
-if options.eventType == 'ZTT':      
-   plotTauValidation += plotSCEstimatedEffZTT
-   plotTauValidation += plotSCLPEstimatedEffZTT
+#if options.eventType == 'ZTT':      
+#   plotTauValidation += plotSCEstimatedEffZTT
+#   plotTauValidation += plotSCLPEstimatedEffZTT
       
 
 loadAndPlotTauValidation = cms.Sequence(
