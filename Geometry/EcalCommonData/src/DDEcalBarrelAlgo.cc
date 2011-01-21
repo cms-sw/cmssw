@@ -1089,9 +1089,10 @@ void DDEcalBarrelAlgo::execute(DDCompactView& cpv)
 		     const double phi    ( vecIlyPipePhi()[iPipe] ) ;
 		     const double yy     ( radius*sin(phi) ) ;
 		     const double xx     ( radius*cos(phi) ) ;
+		     ++copyNum[type],
 		     cpv.position( ilyPipeLog[type],
 			    xilyLog, 
-			    ++copyNum[type],
+			    copyNum[type],
 			    DDTranslation(xx,yy,zz),
 			    ( 9 > type ? DDRotation() :
 			      myrot( ilyPipeLog[type].name().name() + "_rot" +
