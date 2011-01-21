@@ -28,7 +28,7 @@
 //
 // Original Author:  Nov 16 16:12 (lxplus231.cern.ch)
 //         Created:  Sun Nov 16 16:14:09 CET 2008
-// $Id: MuonMCClassifier.cc,v 1.4 2010/06/03 22:53:31 gpetrucc Exp $
+// $Id: MuonMCClassifier.cc,v 1.5 2010/11/03 15:16:29 gpetrucc Exp $
 //
 //
 
@@ -90,6 +90,12 @@ class MuonMCClassifier : public edm::EDProducer {
         /// The Associations
         std::string associatorLabel_;
 
+        /// Cylinder to use to decide if a decay is early or late
+        double decayRho_, decayAbsZ_;
+
+        //bool makeGenParticles_, linkGenParticles_; // not yet
+        //edm::InputTag genParticles_;               // implemented
+
         TrackingParticleRef getParticleWithGen(TrackingParticleRef tp) const ;
 
         /// Returns the flavour given a pdg id code
@@ -127,7 +133,12 @@ MuonMCClassifier::MuonMCClassifier(const edm::ParameterSet &iConfig) :
     hasMuonCut_(iConfig.existsAs<std::string>("muonPreselection")),
     muonCut_(hasMuonCut_ ? iConfig.getParameter<std::string>("muonPreselection") : ""),
     trackingParticles_(iConfig.getParameter<edm::InputTag>("trackingParticles")),
-    associatorLabel_(iConfig.getParameter< std::string >("associatorLabel"))
+    associatorLabel_(iConfig.getParameter< std::string >("associatorLabel")),
+    decayRho_(iConfig.getParameter<double>("decayRho")),
+    decayAbsZ_(iConfig.getParameter<double>("decayAbsZ"))/*,
+    makeGenParticles_(iConfig.getParameter<bool>("makeGenParticles")),
+    linkGenParticles_(makeGenParticles_ ? iConfig.getParameter<bool>("linkGenParticles") : false),
+    genParticles_(linkGenParticles_ ? iConfig.getParameter<edm::InputTag>("genParticles") : edm::InputTag("NONE"))*/
 {
     std::string trackType = iConfig.getParameter< std::string >("trackType");
     if (trackType == "inner") trackType_ = MuonAssociatorByHits::InnerTk;
@@ -137,16 +148,20 @@ MuonMCClassifier::MuonMCClassifier(const edm::ParameterSet &iConfig) :
     else throw cms::Exception("Configuration") << "Track type '" << trackType << "' not supported.\n";
 
     produces<edm::ValueMap<int> >(); 
+    produces<edm::ValueMap<int> >("ext"); 
     produces<edm::ValueMap<int> >("flav"); 
     produces<edm::ValueMap<int> >("hitsPdgId"); 
     produces<edm::ValueMap<int> >("momPdgId"); 
     produces<edm::ValueMap<int> >("momFlav"); 
+    produces<edm::ValueMap<int> >("momStatus"); 
     produces<edm::ValueMap<int> >("gmomPdgId"); 
     produces<edm::ValueMap<int> >("gmomFlav"); 
     produces<edm::ValueMap<int> >("hmomFlav"); // heaviest mother flavour
     produces<edm::ValueMap<int> >("tpId");
     produces<edm::ValueMap<float> >("prodRho"); 
     produces<edm::ValueMap<float> >("prodZ"); 
+    produces<edm::ValueMap<float> >("momRho"); 
+    produces<edm::ValueMap<float> >("momZ"); 
     produces<edm::ValueMap<float> >("tpAssoQuality");
 }
 
@@ -213,11 +228,11 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     size_t nmu = muons->size();
     edm::LogVerbatim("MuonMCClassifier") <<"\n There are "<<nmu<<" reco::Muons.";
 
-    std::vector<int> classif(nmu, 0);
-    std::vector<int> hitsPdgId(nmu, 0), momPdgId(nmu, 0), gmomPdgId(nmu, 0);
+    std::vector<int> classif(nmu, 0), ext(nmu, 0);
+    std::vector<int> hitsPdgId(nmu, 0), momPdgId(nmu, 0), gmomPdgId(nmu, 0), momStatus(nmu, 0);
     std::vector<int> flav(nmu, 0),      momFlav(nmu, 0),  gmomFlav(nmu, 0), hmomFlav(nmu, 0);
     std::vector<int> tpId(nmu, -1);
-    std::vector<float> prodRho(nmu, 0.0), prodZ(nmu, 0.0);
+    std::vector<float> prodRho(nmu, 0.0), prodZ(nmu, 0.0), momRho(nmu, 0.0), momZ(nmu, 0.0);
     std::vector<float> tpAssoQuality(nmu, -1);
     for(size_t i = 0; i < nmu; ++i) {
         edm::LogVerbatim("MuonMCClassifier") <<"\n reco::Muons # "<<i;
@@ -271,32 +286,48 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             // Try to extract mother and grand mother of this muon.
             // Unfortunately, SIM and GEN histories require diffent code :-(
-            if (!tp->genParticle().empty()) {
+            if (!tp->genParticle().empty()) { // Muon is in GEN
                 const HepMC::GenParticle * genMom = getGpMother(tp->genParticle()[0].get());
                 if (genMom) {
-                    momPdgId[i] = genMom->pdg_id();
+                    momPdgId[i]  = genMom->pdg_id();
+                    momStatus[i] = genMom->status();
+                    if (genMom->production_vertex()) {
+                        const HepMC::ThreeVector & momVtx = genMom->production_vertex()->point3d();
+                        momRho[i] = momVtx.perp(); momZ[i] = momVtx.z();
+                    }
                     edm::LogVerbatim("MuonMCClassifier") << "\t Particle pdgId = "<<hitsPdgId[i] << " produced at rho = " << prodRho[i] << ", z = " << prodZ[i] << ", has GEN mother pdgId = " << momPdgId[i];
                     const HepMC::GenParticle * genGMom = getGpMother(genMom);
-                    if (genGMom) gmomPdgId[i] = genGMom->pdg_id();
+                    if (genGMom) {
+                        gmomPdgId[i] = genGMom->pdg_id();
+                        edm::LogVerbatim("MuonMCClassifier") << "\t\t mother prod. vertex rho = " << momRho[i] << ", z = " << momZ[i] << ", grand-mom pdgId = " << gmomPdgId[i];
+                    }
                     // in this case, we might want to know the heaviest mom flavour
                     for (const HepMC::GenParticle *nMom = genMom; 
                             nMom != 0 && abs(nMom->pdg_id()) >= 100; // stop when we're no longer looking at hadrons or mesons
                             nMom = getGpMother(nMom)) {
                         int flav = flavour(nMom->pdg_id());
                         if (hmomFlav[i] < flav) hmomFlav[i] = flav; 
+                        edm::LogVerbatim("MuonMCClassifier") << "\t\t backtracking flavour: mom pdgId = "<<nMom->pdg_id()<< ", flavour = " << flav << ", heaviest so far = " << hmomFlav[i];
                     }
                 }
-            } else {
+            } else { // Muon is in SIM Only
                 TrackingParticleRef simMom = getTpMother(tp);
                 if (simMom.isNonnull()) {
                     momPdgId[i] = simMom->pdgId();
-                    edm::LogVerbatim("MuonMCClassifier") << "\t Particle pdgId = "<<hitsPdgId[i] << " produced at rho = " << prodRho[i] << ", z = " << prodZ[i] << ", has SIM mother pdgId = " << momPdgId[i];
+                    momRho[i] = simMom->vertex().Rho();
+                    momZ[i]   = simMom->vertex().Z();
+                    edm::LogVerbatim("MuonMCClassifier") << "\t Particle pdgId = "<<hitsPdgId[i] << " produced at rho = " << prodRho[i] << ", z = " << prodZ[i] << 
+                                                            ", has SIM mother pdgId = " << momPdgId[i] << " produced at rho = " << simMom->vertex().Rho() << ", z = " << simMom->vertex().Z();
                     if (!simMom->genParticle().empty()) {
+                        momStatus[i] = simMom->genParticle()[0]->status();
                         const HepMC::GenParticle * genGMom = getGpMother(simMom->genParticle()[0].get());
                         if (genGMom) gmomPdgId[i] = genGMom->pdg_id();
+                        edm::LogVerbatim("MuonMCClassifier") << "\t\t SIM mother is in GEN (status " << momStatus[i] << "), grand-mom id = " << gmomPdgId[i];
                     } else {
+                        momStatus[i] = -1;
                         TrackingParticleRef simGMom = getTpMother(simMom);
                         if (simGMom.isNonnull()) gmomPdgId[i] = simGMom->pdgId();
+                        edm::LogVerbatim("MuonMCClassifier") << "\t\t SIM mother is in SIM only, grand-mom id = " << gmomPdgId[i];
                     }
                 } else {
                   edm::LogVerbatim("MuonMCClassifier") << "\t Particle pdgId = "<<hitsPdgId[i] << " produced at rho = " << prodRho[i] << ", z = " << prodZ[i] << ", has NO mother!";
@@ -308,19 +339,25 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             // Check first IF this is a muon at all
             if (abs(tp->pdgId()) != 13) {
                 classif[i] = isGhost ? -1 : 1;
+                ext[i]     = isGhost ? -1 : 1;
                 edm::LogVerbatim("MuonMCClassifier") <<"\t This is not a muon. Sorry. classif[i] = " << classif[i];
                 continue;
             }
 
             // Is this SIM muon also a GEN muon, with a mother?
-            if (!tp->genParticle().empty() && (momPdgId[i] += 0)) {
+            if (!tp->genParticle().empty() && (momPdgId[i] != 0)) {
                 if (abs(momPdgId[i]) < 100 && (abs(momPdgId[i]) != 15)) {
                     classif[i] = isGhost ? -4 : 4;
                     flav[i] = (abs(momPdgId[i]) == 15 ? 15 : 13);
                     edm::LogVerbatim("MuonMCClassifier") <<"\t This seems PRIMARY MUON ! classif[i] = " << classif[i];
+                    ext[i] = 10;
                 } else if (momFlav[i] == 4 || momFlav[i] == 5 || momFlav[i] == 15) {
                     classif[i] = isGhost ? -3 : 3;
                     flav[i]    = momFlav[i];
+                    if (momFlav[i] == 15)      ext[i] = 9; // tau->mu
+                    else if (momFlav[i] == 5)  ext[i] = 8; // b->mu
+                    else if (hmomFlav[i] == 5) ext[i] = 7; // b->c->mu
+                    else                       ext[i] = 6; // c->mu
                     edm::LogVerbatim("MuonMCClassifier") <<"\t This seems HEAVY FLAVOUR ! classif[i] = " << classif[i];
                 } else {
                     classif[i] = isGhost ? -2 : 2;
@@ -332,20 +369,37 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 flav[i]    = momFlav[i];
                 edm::LogVerbatim("MuonMCClassifier") <<"\t This seems LIGHT FLAVOUR ! classif[i] = " << classif[i];
             }
+            // extended classification
+            if (momPdgId[i] == 0) ext[i] = 2; // if it has no mom, it's not a primary particle so it won't be in ppMuX
+            else if (abs(momPdgId[i]) < 100) ext[i] = (momFlav[i] == 15 ? 9 : 10); // primary mu, or tau->mu
+            else if (momFlav[i] == 5) ext[i] = 8; // b->mu
+            else if (momFlav[i] == 4) ext[i] = (hmomFlav[i] == 5 ? 7 : 6); // b->c->mu and c->mu
+            else if (momStatus[i] != -1) { // primary light particle
+                int id = abs(momPdgId[i]);
+                if (id != /*pi+*/211 && id != /*K+*/321 && id != 130 /*K0L*/)  ext[i] = 5; // other light particle, possibly short-lived
+                else if (prodRho[i] < decayRho_ && abs(prodZ[i]) < decayAbsZ_) ext[i] = 4; // decay a la ppMuX (primary pi/K within a cylinder)
+                else                                                           ext[i] = 3; // late decay that wouldn't be in ppMuX
+            } else ext[i] = 2; // decay of non-primary particle, would not be in ppMuX
+            if (isGhost) ext[i] = -ext[i];
+            edm::LogVerbatim("MuonMCClassifier") <<"\t Extended classification code = " << ext[i];
 	}
     }
     
     writeValueMap(iEvent, muons, classif,   "");
+    writeValueMap(iEvent, muons, ext,       "ext");
     writeValueMap(iEvent, muons, flav,      "flav");
     writeValueMap(iEvent, muons, tpId,      "tpId");
     writeValueMap(iEvent, muons, hitsPdgId, "hitsPdgId");
     writeValueMap(iEvent, muons, momPdgId,  "momPdgId");
+    writeValueMap(iEvent, muons, momStatus, "momStatus");
     writeValueMap(iEvent, muons, momFlav,   "momFlav");
     writeValueMap(iEvent, muons, gmomPdgId, "gmomPdgId");
     writeValueMap(iEvent, muons, gmomFlav,  "gmomFlav");
     writeValueMap(iEvent, muons, hmomFlav,  "hmomFlav");
     writeValueMap(iEvent, muons, prodRho,   "prodRho");
     writeValueMap(iEvent, muons, prodZ,     "prodZ");
+    writeValueMap(iEvent, muons, momRho,    "momRho");
+    writeValueMap(iEvent, muons, momZ,      "momZ");
     writeValueMap(iEvent, muons, tpAssoQuality, "tpAssoQuality");
 }    
 

@@ -15,6 +15,11 @@ classByHitsTM = cms.EDProducer("MuonMCClassifier",
     trackType = cms.string("segments"),  # or 'inner','outer','global'
     trackingParticles = cms.InputTag("mergedtruthNoSimHits"),         
     associatorLabel   = cms.string("muonAssociatorByHits_NoSimHits"),
+    decayRho  = cms.double(200), # to classifiy differently decay muons included in ppMuX
+    decayAbsZ = cms.double(400), # and decay muons that could not be in ppMuX
+    #makeGenParticles = cms.bool(False),           #   N O T
+    #linkGenParticles = cms.bool(False),           #   Y E T
+    #genParticles = cms.InputTag("genParticles"),  # T H E R E
 )
 classByHitsTMLSAT = classByHitsTM.clone(
     muonPreselection = cms.string("muonID('TMLastStationAngTight')")
@@ -40,8 +45,9 @@ muonClassificationByHits = cms.Sequence(
 def addUserData(patMuonProducer,labels=['classByHitsGlb', 'classByHitsTM', 'classByHitsTMLSAT', 'classByHitsSta'], extraInfo = False):
     for label in labels:
         patMuonProducer.userData.userInts.src.append( cms.InputTag(label) )
+        patMuonProducer.userData.userInts.src.append( cms.InputTag(label, "ext") )
         if extraInfo:
-            for ins in ("flav", "hitsPdgId", "momPdgId", "gmomPdgId", "momFlav", "gmomFlav", "hmomFlav", "tpId"):
-                patMuonProducer.userData.userInts.src.append(cms.InputTag(label, ins))
-            for ins in ("prodRho", "prodZ", "tpAssoQuality"):
+            for ints in ("flav", "hitsPdgId", "momPdgId", "gmomPdgId", "momFlav", "gmomFlav", "hmomFlav", "tpId", "momStatus"):
+                patMuonProducer.userData.userInts.src.append(cms.InputTag(label, ints))
+            for ins in ("prodRho", "prodZ", "tpAssoQuality", "momRho", "momPdgId"):
                 patMuonProducer.userData.userFloats.src.append(cms.InputTag(label, ins))
