@@ -203,7 +203,8 @@
       common /hyfpar/ bgen,nbcol,npart,npyt,nhyd
       common /hyflow/ ytfl,ylfl,Tf,fpart
       common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet
-      save /pyjets/,/pydat3/,/hyjets/,/hyipar/,/hyfpar/,
+      common /pypars/ mstp(200),parp(200),msti(200),pari(200)
+      save /pypars/,/pyjets/,/pydat3/,/hyjets/,/hyipar/,/hyfpar/,
      +     /hyflow/,/hyjpar/,/hypyin/
 
 * reset lujets and hyjets arrays before event generation 
@@ -260,6 +261,7 @@
       end if 
       
 * generate hard parton-parton scatterings (Q>ptmin) 'njet' times   
+      xhardestPtHat=-0.1
       njet=0 
       if(nhsel.ne.0) then 
        pjet=sigjet/sigin   
@@ -267,7 +269,10 @@
         if(pyr(0).lt.pjet) njet=njet+1 
        end do  
        call hyhard 
+       if(pari(17).gt.xhardestPtHat) xhardestPtHat = pari(17)
       end if 
+
+      pari(17)=xhardestPtHat
 
 * reset pyjets array before soft component generation 
       nhi=0  
