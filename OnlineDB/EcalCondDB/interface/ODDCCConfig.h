@@ -41,6 +41,8 @@ class ODDCCConfig : public IODConfig {
   inline void setDCCClob(unsigned char* x) { m_dcc_clob = x; }
   inline unsigned char* getDCCClob() const { return m_dcc_clob; }
   inline unsigned int getDCCClobSize() const { return m_size; }
+  inline void setDCCWeightsMode(std::string x) { m_wei = x; }
+  inline std::string getDCCWeightsMode() const { return m_wei; }
 
   void setParameters(std::map<std::string,std::string> my_keys_map);
   
@@ -62,7 +64,8 @@ class ODDCCConfig : public IODConfig {
   int  m_ntest;
   int  m_sm_half;
   unsigned int m_size; 
-  
+  std::string  m_wei;
+
 };
 
 #endif

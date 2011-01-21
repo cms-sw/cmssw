@@ -21,6 +21,7 @@ ODDCCConfig::ODDCCConfig()
   m_size=0;
    m_config_tag="";
    m_ID=0;
+   m_wei="";
    clear();
    
 }
@@ -66,20 +67,21 @@ void ODDCCConfig::prepareWrite()
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO ECAL_DCC_CONFIGURATION (dcc_configuration_id, dcc_tag, "
 			" DCC_CONFIGURATION_URL, TESTPATTERN_FILE_URL, "
-			" N_TESTPATTERNS_TO_LOAD , SM_HALF, " 
+			" N_TESTPATTERNS_TO_LOAD , SM_HALF, weightsmode, " 
 			" dcc_configuration) "
-                        "VALUES (:1, :2, :3, :4, :5, :6 , :7 )");
+                        "VALUES (:1, :2, :3, :4, :5, :6 , :7 ,:8 )");
     m_writeStmt->setInt(1, next_id);
     m_writeStmt->setString(2, getConfigTag());
     m_writeStmt->setString(3, getDCCConfigurationUrl());
     m_writeStmt->setString(4, getTestPatternFileUrl());
     m_writeStmt->setInt(5, getNTestPatternsToLoad());
     m_writeStmt->setInt(6, getSMHalf());
+    m_writeStmt->setString(7, getDCCWeightsMode());
 
     // and now the clob
     oracle::occi::Clob clob(m_conn);
     clob.setEmpty();
-    m_writeStmt->setClob(7,clob);
+    m_writeStmt->setClob(8,clob);
     m_writeStmt->executeUpdate ();
     m_ID=next_id; 
 
@@ -117,6 +119,7 @@ void ODDCCConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "TESTPATTERN_FILE_URL")   setTestPatternFileUrl(ci->second );
     if(ci->first==  "N_TESTPATTERNS_TO_LOAD") setNTestPatternsToLoad(atoi(ci->second.c_str() ));
     if(ci->first==  "SM_HALF")                setSMHalf(atoi(ci->second.c_str() ));
+    if(ci->first==  "WEIGHTSMODE")           setDCCWeightsMode(ci->second.c_str() );
     if(ci->first==  "DCC_CONFIGURATION_URL") {
       std::string fname=ci->second ;
       setDCCConfigurationUrl(fname );
@@ -194,6 +197,7 @@ void ODDCCConfig::clear(){
    m_test_url="";
    m_ntest=0;
    m_sm_half=0;
+   m_wei="";
 
 }
 
@@ -253,6 +257,8 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
 
     */
     result->setDCCClob(buffer );
+    result->setDCCWeightsMode(rset->getString(8));
+
 
   } catch (SQLException &e) {
     throw(std::runtime_error("ODDCCConfig::fetchData():  "+e.getMessage()));
