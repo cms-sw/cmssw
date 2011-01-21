@@ -1,4 +1,4 @@
-#ifndef _HLTHFAsymetryFilter_H
+#ifndef _HLTHFAsymmetryFilter_H
 #define _HLTHFAsymetryFilter_H
 
 
@@ -12,7 +12,7 @@
 //
 // This filter is primarily used to select Beamgas (aka PKAM) events
 // 
-// An asymetry parameter, based on the pixel clusters, is computed as follows
+// An asymmetry parameter, based on the pixel clusters, is computed as follows
 // 
 //  asym1 = E_HF-/(E_HF- + E_HF+) for beam1
 //  asym2 = E_HF+/(E_HF- + E_HF+) for beam2 
@@ -46,10 +46,10 @@
 // class decleration
 //
 
-class HLTHFAsymetryFilter : public HLTFilter {
+class HLTHFAsymmetryFilter : public HLTFilter {
    public:
-      explicit HLTHFAsymetryFilter(const edm::ParameterSet&);
-      ~HLTHFAsymetryFilter();
+      explicit HLTHFAsymmetryFilter(const edm::ParameterSet&);
+      ~HLTHFAsymmetryFilter();
 
 
       virtual bool filter(edm::Event &, const edm::EventSetup&);

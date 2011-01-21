@@ -1,10 +1,10 @@
-#ifndef HLTPixelAsymetryFilter_h
-#define HLTPixelAsymetryFilter_h
+#ifndef HLTPixelAsymmetryFilter_h
+#define HLTPixelAsymmetryFilter_h
 
 
 ///////////////////////////////////////////////////////
 //
-// HLTPixelAsymetryFilter
+// HLTPixelAsymmetryFilter
 //
 // Filter definition
 //
@@ -12,7 +12,7 @@
 //
 // This filter is primarily used to select Beamgas (aka PKAM) events
 // 
-// An asymetry parameter, based on the pixel clusters, is computed as follows
+// An asymmetry parameter, based on the pixel clusters, is computed as follows
 // 
 //  asym1 = fpix-/(fpix- + fpix+) for beam1
 //  asym2 = fpix+/(fpix- + fpix+) for beam2 
@@ -23,7 +23,7 @@
 //  fpix+ = mean cluster charge in FPIX+
 //  bpix  = mean cluster charge in BarrelPIX
 //
-//  Usually for PKAM events, cluster repartition is quite uniform and asymetry is around 0.5 
+//  Usually for PKAM events, cluster repartition is quite uniform and asymmetry is around 0.5 
 //
 //
 // More details:
@@ -47,18 +47,18 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-class HLTPixelAsymetryFilter : public HLTFilter {
+class HLTPixelAsymmetryFilter : public HLTFilter {
  public:
-  explicit HLTPixelAsymetryFilter(const edm::ParameterSet&);
-  ~HLTPixelAsymetryFilter();
+  explicit HLTPixelAsymmetryFilter(const edm::ParameterSet&);
+  ~HLTPixelAsymmetryFilter();
 
  private:
   virtual bool filter(edm::Event&, const edm::EventSetup&);
 
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
   bool          saveTag_;  // whether to save this tag
-  double  min_asym_;       // minimum asymetry 
-  double  max_asym_;       // maximum asymetry
+  double  min_asym_;       // minimum asymmetry 
+  double  max_asym_;       // maximum asymmetry
   double  clus_thresh_;    // minimum charge for a cluster to be selected (in e-)
   double  bmincharge_;     // minimum average charge in the barrel (bpix, in e-)
 

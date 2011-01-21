@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////
 //
-// HLTPixelAsymetryFilter
+// HLTPixelAsymmetryFilter
 //
 // See header file for infos
 //
@@ -8,13 +8,13 @@
 //
 ///////////////////////////////////////////////////////
 
-#include "HLTrigger/special/interface/HLTPixelAsymetryFilter.h"
+#include "HLTrigger/special/interface/HLTPixelAsymmetryFilter.h"
 
 //
 // constructors and destructor
 //
  
-HLTPixelAsymetryFilter::HLTPixelAsymetryFilter(const edm::ParameterSet& config) :
+HLTPixelAsymmetryFilter::HLTPixelAsymmetryFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
   saveTag_      (config.getUntrackedParameter<bool>("saveTag", false)),
   min_asym_ (config.getParameter<double>("MinAsym")),
@@ -23,7 +23,7 @@ HLTPixelAsymetryFilter::HLTPixelAsymetryFilter(const edm::ParameterSet& config) 
   bmincharge_ (config.getParameter<double>("MinBarrel"))
 {
   LogDebug("") << "Using the " << inputTag_ << " input collection";
-  LogDebug("") << "Requesting events with a charge repartition asymetry between " << min_asym_ << " and " << max_asym_;
+  LogDebug("") << "Requesting events with a charge repartition asymmetry between " << min_asym_ << " and " << max_asym_;
   LogDebug("") << "Mean cluster charge in the barrel should be higher than" << bmincharge_ << " electrons ";
   LogDebug("") << "Only clusters with a charge larger than " << clus_thresh_ << " electrons will be used ";
 
@@ -31,7 +31,7 @@ HLTPixelAsymetryFilter::HLTPixelAsymetryFilter(const edm::ParameterSet& config) 
   produces<trigger::TriggerFilterObjectWithRefs>();
 }
 
-HLTPixelAsymetryFilter::~HLTPixelAsymetryFilter()
+HLTPixelAsymmetryFilter::~HLTPixelAsymmetryFilter()
 {
 }
 
@@ -40,7 +40,7 @@ HLTPixelAsymetryFilter::~HLTPixelAsymetryFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixelAsymetryFilter::filter(edm::Event& event, const edm::EventSetup& iSetup)
+bool HLTPixelAsymmetryFilter::filter(edm::Event& event, const edm::EventSetup& iSetup)
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
@@ -79,7 +79,7 @@ bool HLTPixelAsymetryFilter::filter(edm::Event& event, const edm::EventSetup& iS
     int detpos = -1;
 
     // First we look if we are in the endcap or in the barrel PIXELS
-    // Asymetry is computed with endcap pixels only
+    // Asymmetry is computed with endcap pixels only
 
     if (endcap)
     {

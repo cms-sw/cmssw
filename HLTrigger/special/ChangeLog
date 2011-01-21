@@ -1,3 +1,8 @@
+2011-01-21  Seb Viret  <viret@in2p3.fr>
+ 
+       	* Replace Asymetry by Asymmetry everywhere....
+
+
 2011-01-18  Seb Viret  <viret@in2p3.fr>
  
        	* Added two new filters dedicated to BeamGas events selection:

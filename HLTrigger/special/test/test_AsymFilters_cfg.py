@@ -69,18 +69,18 @@ process.HLTBeginSequence = cms.Sequence( process.hltTriggerType + process.HLTL1U
 process.HLTDoLocalPixel = cms.Sequence( process.hltSiPixelDigis + process.hltSiPixelClusters)
 process.HLTDoLocalHF    = cms.Sequence( process.hltHcalDigis + process.hltHfreco )
 
-process.hltPixelAsymetryFilter = cms.EDFilter( "HLTPixelAsymetryFilter",
+process.hltPixelAsymmetryFilter = cms.EDFilter( "HLTPixelAsymmetryFilter",
                                                inputTag  = cms.InputTag( "hltSiPixelClusters" ),
-                                               MinAsym   = cms.double( 0. ),     # minimum asymetry 
-                                               MaxAsym   = cms.double( 1. ),     # maximum asymetry
+                                               MinAsym   = cms.double( 0. ),     # minimum asymmetry 
+                                               MaxAsym   = cms.double( 1. ),     # maximum asymmetry
                                                MinCharge = cms.double( 4000. ),  # minimum charge for a cluster to be selected (in e-)
                                                MinBarrel = cms.double( 10000. ), # minimum average charge in the barrel (bpix, in e-)
                                                ) 
 
-process.hltHFAsymetryFilter = cms.EDFilter( "HLTHFAsymetryFilter",
+process.hltHFAsymmetryFilter = cms.EDFilter( "HLTHFAsymmetryFilter",
                                             ECut_HF         = cms.double( 3.0 ),  # minimum energy for a cluster to be selected
-                                            OS_Asym_max     = cms.double( 0.2 ),  # Opposite side asymetry maximum value
-                                            SS_Asym_min     = cms.double( 0.8 ),  # Same side asymetry minimum value
+                                            OS_Asym_max     = cms.double( 0.2 ),  # Opposite side asymmetry maximum value
+                                            SS_Asym_min     = cms.double( 0.8 ),  # Same side asymmetry minimum value
                                             HFHitCollection = cms.InputTag( "hltHfreco" )
                                             ) 
 
@@ -88,9 +88,9 @@ process.hltHFAsymetryFilter = cms.EDFilter( "HLTHFAsymetryFilter",
 # The test paths
 
 
-process.HLT_L1_BSC_BeamGas = cms.Path( process.HLTBeginSequence  + process.hltL1sL1BptxXORBscMinBiasOR  + process.HLTDoLocalPixel + process.hltPixelAsymetryFilter + process.HLTEndSequence )
+process.HLT_L1_BSC_BeamGas = cms.Path( process.HLTBeginSequence  + process.hltL1sL1BptxXORBscMinBiasOR  + process.HLTDoLocalPixel + process.hltPixelAsymmetryFilter + process.HLTEndSequence )
 
-process.HLT_L1_HF_BeamGas = cms.Path( process.HLTBeginSequence   + process.hltL1sL1BptxXORBscMinBiasOR  + process.HLTDoLocalHF + process.hltHFAsymetryFilter + process.HLTEndSequence )
+process.HLT_L1_HF_BeamGas = cms.Path( process.HLTBeginSequence   + process.hltL1sL1BptxXORBscMinBiasOR  + process.HLTDoLocalHF + process.hltHFAsymmetryFilter + process.HLTEndSequence )
 
 process.m_HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_L1_BSC_BeamGas, process.HLT_L1_HF_BeamGas, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath ))
 

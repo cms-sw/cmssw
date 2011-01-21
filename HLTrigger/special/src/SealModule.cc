@@ -28,8 +28,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "HLTrigger/special/interface/HLTEcalResonanceFilter.h"
 
-#include "HLTrigger/special/interface/HLTPixelAsymetryFilter.h"
-#include "HLTrigger/special/interface/HLTHFAsymetryFilter.h"
+#include "HLTrigger/special/interface/HLTPixelAsymmetryFilter.h"
+#include "HLTrigger/special/interface/HLTHFAsymmetryFilter.h"
 
 
 DEFINE_FWK_MODULE(HLTPixlMBFilt);
@@ -65,5 +65,5 @@ DEFINE_FWK_MODULE(HLTTriggerTypeFilter);
 DEFINE_FWK_MODULE(HLTDTROMonitorFilter);
 DEFINE_FWK_MODULE(HLTEcalResonanceFilter);
 
-DEFINE_FWK_MODULE(HLTPixelAsymetryFilter);
-DEFINE_FWK_MODULE(HLTHFAsymetryFilter);
+DEFINE_FWK_MODULE(HLTPixelAsymmetryFilter);
+DEFINE_FWK_MODULE(HLTHFAsymmetryFilter);

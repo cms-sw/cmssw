@@ -1,9 +1,9 @@
-#include "HLTrigger/special/interface/HLTHFAsymetryFilter.h"
+#include "HLTrigger/special/interface/HLTHFAsymmetryFilter.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-HLTHFAsymetryFilter::HLTHFAsymetryFilter(const edm::ParameterSet& iConfig)
+HLTHFAsymmetryFilter::HLTHFAsymmetryFilter(const edm::ParameterSet& iConfig)
 {
   HFHits_   = iConfig.getParameter<edm::InputTag>("HFHitCollection");  
   eCut_HF_  = iConfig.getParameter<double>("ECut_HF");
@@ -16,7 +16,7 @@ HLTHFAsymetryFilter::HLTHFAsymetryFilter(const edm::ParameterSet& iConfig)
 }
 
 
-HLTHFAsymetryFilter::~HLTHFAsymetryFilter()
+HLTHFAsymmetryFilter::~HLTHFAsymmetryFilter()
 {
  
 
@@ -25,7 +25,7 @@ HLTHFAsymetryFilter::~HLTHFAsymetryFilter()
 
 // ------------ method called to produce the data  ------------
 bool
-HLTHFAsymetryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTHFAsymmetryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<HFRecHitCollection> HFRecHitsH;
   
