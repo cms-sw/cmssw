@@ -1556,9 +1556,9 @@ int main(int argc, char* argv[]) {
   // the missing parameter into the ParameterSet
   testDescriptions[2].validate(pset);
 
-  std::vector<edm::ParameterSet> vpset =
-    pset.getUntrackedParameter<std::vector<edm::ParameterSet> >("nestLevel0");
-  edm::ParameterSet psetInPset = vpset[1].getParameter<edm::ParameterSet>("nestLevel1b");
+  std::vector<edm::ParameterSet> const& vpset =
+    pset.getUntrackedParameterSetVector("nestLevel0");
+  edm::ParameterSet const& psetInPset = vpset[1].getParameterSet("nestLevel1b");
   assert(psetInPset.getParameter<int>("intLevel2extra") ==  11);
 
   // One more iteration, this time the purpose is to

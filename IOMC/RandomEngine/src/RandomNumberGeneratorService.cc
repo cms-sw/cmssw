@@ -88,7 +88,7 @@ namespace edm {
         VString pSets = pset.getParameterNamesForType<ParameterSet>();
         for (VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
 
-          ParameterSet modulePSet = pset.getParameter<ParameterSet>(*it);
+          ParameterSet const& modulePSet = pset.getParameterSet(*it);
           engineName = modulePSet.getUntrackedParameter<std::string>("engineName", std::string("HepJamesRandom"));
 
           bool initialSeedExists = modulePSet.exists("initialSeed");
@@ -1266,7 +1266,7 @@ namespace edm {
         }
       }
 
-      const ParameterSet moduleSeeds = pset.getParameter<ParameterSet>("moduleSeeds");
+      ParameterSet const& moduleSeeds = pset.getParameterSet("moduleSeeds");
 
       std::vector<uint32_t> seeds;
 

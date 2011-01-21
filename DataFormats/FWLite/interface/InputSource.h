@@ -25,15 +25,15 @@ namespace fwlite {
     /// default constructor from parameter set
     InputSource(const edm::ParameterSet& cfg) :
       maxEvents_(-1), reportAfter_(10),
-      files_( cfg.getParameter<edm::ParameterSet>("fwliteInput").getParameter<std::vector<std::string> >("fileNames") )
+      files_( cfg.getParameterSet("fwliteInput").getParameter<std::vector<std::string> >("fileNames") )
       {
 	// optional parameter
-	if( cfg.getParameter<edm::ParameterSet>("fwliteInput").existsAs<int>("maxEvents")){ 
-	  maxEvents_ = cfg.getParameter<edm::ParameterSet>("fwliteInput").getParameter<int>("maxEvents"); 
+	if( cfg.getParameterSet("fwliteInput").existsAs<int>("maxEvents")){ 
+	  maxEvents_ = cfg.getParameterSet("fwliteInput").getParameter<int>("maxEvents"); 
 	}
 	// optional parameter
-	if( cfg.getParameter<edm::ParameterSet>("fwliteInput").existsAs<unsigned int>("outputEvery")){ 
-	  reportAfter_ = cfg.getParameter<edm::ParameterSet>("fwliteInput").getParameter<unsigned int>("outputEvery"); 
+	if( cfg.getParameterSet("fwliteInput").existsAs<unsigned int>("outputEvery")){ 
+	  reportAfter_ = cfg.getParameterSet("fwliteInput").getParameter<unsigned int>("outputEvery"); 
 	}
       }
       /// return vector of files_

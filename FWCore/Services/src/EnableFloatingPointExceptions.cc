@@ -140,7 +140,7 @@ namespace edm {
       VString moduleNames = pset.getUntrackedParameter<VString>("moduleNames", empty_VString);
 
       for (VString::const_iterator it(moduleNames.begin()), itEnd = moduleNames.end(); it != itEnd; ++it) {
-        ParameterSet modulePSet = pset.getUntrackedParameter<ParameterSet>(*it, empty_PSet);
+        ParameterSet const& modulePSet = pset.getUntrackedParameterSet(*it, empty_PSet);
         bool enableDivByZeroEx  = modulePSet.getUntrackedParameter<bool>("enableDivByZeroEx", false);
         bool enableInvalidEx    = modulePSet.getUntrackedParameter<bool>("enableInvalidEx",   false);
         bool enableOverFlowEx   = modulePSet.getUntrackedParameter<bool>("enableOverFlowEx",  false);

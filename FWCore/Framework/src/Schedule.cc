@@ -163,7 +163,7 @@ namespace edm {
     unscheduled_(new UnscheduledCallProducer),
     endpathsAreActive_(true) {
 
-    ParameterSet opts(proc_pset.getUntrackedParameter<ParameterSet>("options", ParameterSet()));
+    ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
     bool hasPath = false;
 
     int trig_bitpos = 0;
@@ -307,10 +307,10 @@ namespace edm {
   Schedule::limitOutput(ParameterSet const& proc_pset) {
     std::string const output("output");
 
-    ParameterSet maxEventsPSet(proc_pset.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
+    ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents", ParameterSet());
     int maxEventSpecs = 0;
     int maxEventsOut = -1;
-    ParameterSet vMaxEventsOut;
+    ParameterSet const* vMaxEventsOut = 0;
     std::vector<std::string> intNamesE = maxEventsPSet.getParameterNamesForType<int>(false);
     if (search_all(intNamesE, output)) {
       maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
@@ -319,7 +319,7 @@ namespace edm {
     std::vector<std::string> psetNamesE;
     maxEventsPSet.getParameterSetNames(psetNamesE, false);
     if (search_all(psetNamesE, output)) {
-      vMaxEventsOut = maxEventsPSet.getUntrackedParameter<ParameterSet>(output);
+      vMaxEventsOut = &maxEventsPSet.getUntrackedParameterSet(output);
       ++maxEventSpecs;
     }
 
@@ -335,15 +335,13 @@ namespace edm {
     for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
         it != itEnd; ++it) {
       OutputModuleDescription desc(maxEventsOut);
-      if (!vMaxEventsOut.empty()) {
+      if (vMaxEventsOut != 0 && !vMaxEventsOut->empty()) {
         std::string moduleLabel = (*it)->description().moduleLabel();
-        if (!vMaxEventsOut.empty()) {
-          try {
-            desc.maxEvents_ = vMaxEventsOut.getUntrackedParameter<int>(moduleLabel);
-          } catch (Exception const&) {
-            throw Exception(errors::Configuration) <<
-              "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
-          }
+        try {
+          desc.maxEvents_ = vMaxEventsOut->getUntrackedParameter<int>(moduleLabel);
+        } catch (Exception const&) {
+          throw Exception(errors::Configuration) <<
+            "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
         }
       }
       (*it)->configure(desc);

@@ -24,7 +24,7 @@ namespace fwlite {
     }
     /// default constructor from parameter set
     OutputFiles(const edm::ParameterSet& cfg) :
-      file_( cfg.getParameter<edm::ParameterSet>("fwliteOutput").getParameter<std::string>("fileName") ) {};
+      file_(cfg.getParameterSet("fwliteOutput").getParameter<std::string>("fileName")) {};
     /// return output fuke name
     std::string const & file() const { return file_; }
       

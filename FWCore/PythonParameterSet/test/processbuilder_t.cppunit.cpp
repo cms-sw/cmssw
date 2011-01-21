@@ -154,8 +154,8 @@ void testProcessDesc:: attriggertest (){
 
   typedef std::vector<std::string> Strs;
   
-  edm::ParameterSet trig_pset =
-   (*test).getParameter<edm::ParameterSet>("@trigger_paths");
+  edm::ParameterSet const& trig_pset =
+   (*test).getParameterSet("@trigger_paths");
   Strs tnames = trig_pset.getParameter<Strs>("@trigger_paths");
   Strs enames = (*test).getParameter<Strs>("@end_paths");
 

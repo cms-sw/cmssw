@@ -12,8 +12,8 @@ PSetTestClient_A::PSetTestClient_A( edm::ParameterSet const & p)
 {
 //  std::cerr << "PSetTestClient_A ctor called\n";
   edm::ParameterSet emptyPSet;
-  a = p.getUntrackedParameter<edm::ParameterSet>("a",emptyPSet);
-  b = a.getUntrackedParameter<edm::ParameterSet>("b",emptyPSet);
+  a = p.getUntrackedParameterSet("a",emptyPSet);
+  b = a.getUntrackedParameterSet("b",emptyPSet);
   xa = a.getUntrackedParameter<int>("x",99);
   xb = b.getUntrackedParameter<int>("x",88);
 //  std::cerr << "...xa = " << xa << "xb = " << xb << "\n";
