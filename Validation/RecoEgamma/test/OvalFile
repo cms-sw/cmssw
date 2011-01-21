@@ -1,7 +1,7 @@
 
-<var name="TEST_RELEASE" value="3_11_0_pre3">
-<var name="TEST_GLOBAL_TAG" value="MC_310_V3">
-<var name="TEST_GLOBAL_STARTUP_TAG" value="START310_V3">
+<var name="TEST_RELEASE" value="3_11_0_pre5">
+<var name="TEST_GLOBAL_TAG" value="MC_311_V0">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START311_V0">
 <var name="TEST_GLOBAL_VERSION" value="v1">
 
 The value of OVAL_ENVNAME is automatically set by Oval to the name
@@ -25,9 +25,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="3_11_0_pre3">
-<var name="VAL_REF_RELEASE" value="3_11_0_pre2">
-<var name="VAL_COMMENT" value="No electron code change.">
+<var name="VAL_NEW_RELEASE" value="3_11_0_pre5">
+<var name="VAL_REF_RELEASE" value="3_11_0_pre3">
+<var name="VAL_COMMENT" value="New seed attributes stored for positron hypothesis, and electron reconstruction split into two steps : first with ecal-driven seeds, second including pflow information.">
 
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
 
@@ -181,8 +181,7 @@ FastSim
 
 <environment name="FastSim">
 
-  <!--var name="DBS_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_GLOBAL_VERSION}"-->
-  <var name="DBS_COND" value="${TEST_GLOBAL_TAG}*FastSim*-v2">
+  <var name="DBS_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
   <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
   <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg.py">
   <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
@@ -207,11 +206,10 @@ FastSim
       
     </environment>
   
-    <environment name="FastZEEStartup">
+    <eNvironment name="FastZEEStartup">
     
       <var name="DBS_SAMPLE" value="RelValZEE">
-      <!--var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}"-->
-      <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-v2">
+      <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
       <executable name="electronDbsDiscovery.py">
       <executable name="cmsRun" args="${VAL_CONFIGURATION}">
       <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
