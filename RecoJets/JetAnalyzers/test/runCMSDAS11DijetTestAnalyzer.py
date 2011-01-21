@@ -420,11 +420,16 @@ process.GlobalTag.globaltag = 'START38_V13::All'
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 # set the record's IOV. Must be defined once. Choose ANY correction service. #
 
+if not whichfiles == 1:
+    correctionsToGet = "ak7CaloL2L3"
+else:
+    correctionsToGet = "ak7CaloL2L3Residual"
+
 #############   Correct Calo Jets on the fly #########
 process.dijetAna = cms.EDAnalyzer("CMSDAS11DijetTestAnalyzer",
                                   jetSrc = cms.InputTag("ak7CaloJets"),
                                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
-                                  jetCorrections = cms.string("ak7CaloL2L3Residual"),
+                                  jetCorrections = cms.string(correctionsToGet),
                                   innerDeltaEta = cms.double(0.7),
                                   outerDeltaEta = cms.double(1.3),
                                   JESbias = cms.double(1.0)
