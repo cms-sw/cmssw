@@ -1,7 +1,7 @@
 /*
  * ===========================================================================
  *
- *       Filename:  RecoTauTruthEmbedder
+ *       Filename:  RecoTauObjectEmbedder
  *
  *    Description:  Embed truth information into (currently unused)
  *                  tau variables.  This is a hack to allow some PAT-like
@@ -17,10 +17,11 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Association.h"
+
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 
 namespace reco { namespace tau {
 
@@ -42,29 +43,39 @@ unsigned int nGammas(const GenJet& jet) {
   }
   return output;
 }
+
+unsigned int nCharged(const PFTau& tau) {
+  return tau.signalPFChargedHadrCands().size();
+}
+unsigned int nGammas(const PFTau& tau) {
+  return tau.signalPiZeroCandidates().size();
+}
 }
 
-class RecoTauTruthEmbedder : public RecoTauModifierPlugin {
+template<typename T>
+class RecoTauObjectEmbedder : public RecoTauModifierPlugin {
   public:
-    explicit RecoTauTruthEmbedder(const edm::ParameterSet &pset)
+    explicit RecoTauObjectEmbedder(const edm::ParameterSet &pset)
         :RecoTauModifierPlugin(pset),
         jetMatchSrc_(pset.getParameter<edm::InputTag>("jetTruthMatch")) {}
-    virtual ~RecoTauTruthEmbedder() {}
+    virtual ~RecoTauObjectEmbedder() {}
     virtual void operator()(PFTau&) const;
     virtual void beginEvent();
   private:
     edm::InputTag jetMatchSrc_;
-    edm::Handle<edm::Association<GenJetCollection> > jetMatch_;
+    edm::Handle<edm::Association<T> > jetMatch_;
 };
 
 // Update our handle to the matching
-void RecoTauTruthEmbedder::beginEvent() {
+template<typename T>
+void RecoTauObjectEmbedder<T>::beginEvent() {
   evt()->getByLabel(jetMatchSrc_, jetMatch_);
 }
 
-void RecoTauTruthEmbedder::operator()(PFTau& tau) const {
+template<typename T>
+void RecoTauObjectEmbedder<T>::operator()(PFTau& tau) const {
   // Get the matched truth tau if it exists
-  GenJetRef truth = (*jetMatch_)[tau.jetRef()];
+  edm::Ref<T> truth = (*jetMatch_)[tau.jetRef()];
   if (truth.isNonnull()) {
     // Store our generator level information
     tau.setalternatLorentzVect(truth->p4());
@@ -79,7 +90,12 @@ void RecoTauTruthEmbedder::operator()(PFTau& tau) const {
   }
 }
 }}  // end namespace reco::tau
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_EDM_PLUGIN(RecoTauModifierPluginFactory,
-    reco::tau::RecoTauTruthEmbedder,
+    reco::tau::RecoTauObjectEmbedder<reco::GenJetCollection>,
     "RecoTauTruthEmbedder");
+
+DEFINE_EDM_PLUGIN(RecoTauModifierPluginFactory,
+    reco::tau::RecoTauObjectEmbedder<reco::PFTauCollection>,
+    "RecoTauPFTauEmbedder");
