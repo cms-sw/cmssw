@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -87,6 +87,13 @@ process.simSiPixelDigis.useDB = False
 process.simSiPixelDigis.DeadModules_DB = False
 ### if doing inefficiency at <PU>=50
 process.simSiPixelDigis.AddPixelInefficiency = 20
+## also for strips TIB inefficiency if we want
+## TIB1,2 inefficiency at 20%
+#process.simSiStripDigis.Inefficiency = 20
+## TIB1,2 inefficiency at 50%
+#process.simSiStripDigis.Inefficiency = 30
+## TIB1,2 inefficiency at 99% (i.e. dead)
+#process.simSiStripDigis.Inefficiency = 40
 
 process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_stdgeom_cff")
 process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")

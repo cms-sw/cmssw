@@ -89,6 +89,13 @@ process.mix.input.nbPileupEvents = cms.PSet(
 )
 ### if doing inefficiency at <PU>=50
 process.simSiPixelDigis.AddPixelInefficiency = 20
+## also for strips TIB inefficiency if we want
+## TIB1,2 inefficiency at 20%
+#process.simSiStripDigis.Inefficiency = 20
+## TIB1,2 inefficiency at 50%
+#process.simSiStripDigis.Inefficiency = 30
+## TIB1,2 inefficiency at 99% (i.e. dead)
+#process.simSiStripDigis.Inefficiency = 40
 
 process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_cff")
 process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R39F16_cff")
