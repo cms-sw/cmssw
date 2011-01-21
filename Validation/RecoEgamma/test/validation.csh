@@ -18,15 +18,15 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv RUNTYPE Central
-#setenv RUNTYPE Local
+#setenv RUNTYPE Central
+setenv RUNTYPE Local
 setenv STARTUP False
 setenv CMSSWver1 3_11_0
 setenv CMSSWver2 3_11_0
 setenv OLDRELEASE 3_11_0
 setenv NEWRELEASE 3_11_0
-setenv OLDPRERELEASE pre2
-setenv NEWPRERELEASE pre3
+setenv OLDPRERELEASE pre3
+setenv NEWPRERELEASE pre3For4XX
 
 if ( $STARTUP == True) then
 setenv OLDGLOBALTAG START310_V3-v1
@@ -55,8 +55,8 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 #Name of sample (affects output directory name and htmldescription only) 
-setenv SAMPLE SingleGammaPt10IDEAL
-#setenv SAMPLE SingleGammaPt35IDEAL
+#setenv SAMPLE SingleGammaPt10IDEAL
+setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE PhotonJets_Pt_10STARTUP
@@ -99,8 +99,10 @@ endif
 else if ($SAMPLE == SingleGammaPt35IDEAL) then 
 
 if ( $RUNTYPE == Local ) then
-setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
+#setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
+#setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
+setenv OLDFILE /tmp/nancy/dev/CMSSW_3_11_0_pre3/src/Validation/RecoEgamma/test/PhotonValidationRelVal3_11_0_pre3_SingleGammaPt35.root
+setenv NEWFILE /tmp/nancy/dev/CMSSW_3_11_0_pre3/src/Validation/RecoEgamma/test/ReRecoSingleGammaPt35_dev.root
 
 else if ( $RUNTYPE == Central ) then
 
@@ -438,8 +440,10 @@ hDPhiTracksAtEcalAll
 eBcOverTkPoutAll
 eBcOverTkPoutBarrel
 eBcOverTkPoutEndcap
-zPVFromTracks
-dzPVFromTracks
+zPVFromTracksBarrel
+zPVFromTracksEndcap
+dzPVFromTracksBarrel
+dzPVFromTracksEndcap
 vtxChi2ProbAll
 vtxChi2ProbBarrel
 vtxChi2ProbEndcap
