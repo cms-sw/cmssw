@@ -49,5 +49,5 @@ def addUserData(patMuonProducer,labels=['classByHitsGlb', 'classByHitsTM', 'clas
         if extraInfo:
             for ints in ("flav", "hitsPdgId", "momPdgId", "gmomPdgId", "momFlav", "gmomFlav", "hmomFlav", "tpId", "momStatus"):
                 patMuonProducer.userData.userInts.src.append(cms.InputTag(label, ints))
-            for ins in ("prodRho", "prodZ", "tpAssoQuality", "momRho", "momPdgId"):
+            for ins in ("prodRho", "prodZ", "tpAssoQuality", "momRho", "momZ"):
                 patMuonProducer.userData.userFloats.src.append(cms.InputTag(label, ins))
