@@ -30,8 +30,6 @@ Implementation:
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-
 class CaloTopology;
 
 class EleIsoDetIdCollectionProducer : public edm::EDProducer {
@@ -53,11 +51,11 @@ class EleIsoDetIdCollectionProducer : public edm::EDProducer {
       double outerRadius_;
       double innerRadius_;
       std::string interestingDetIdCollection_;
-	  int   severityLevelCut_;
-      float severityRecHitThreshold_;
-      std::string spIdString_;
-      float spIdThreshold_;
-      EcalSeverityLevelAlgo::SpikeId spId_;
+      int   severityLevelCut_;
+      //float severityRecHitThreshold_;
+      //std::string spIdString_;
+      //float spIdThreshold_;
+      //EcalSeverityLevelAlgo::SpikeId spId_;
       std::vector<int> v_chstatus_;
 
 };

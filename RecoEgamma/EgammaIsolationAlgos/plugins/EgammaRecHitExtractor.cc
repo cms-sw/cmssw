@@ -29,6 +29,8 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -48,15 +50,16 @@ EgammaRecHitExtractor::EgammaRecHitExtractor(const edm::ParameterSet& par) :
     vetoClustered_(par.getParameter<bool>("vetoClustered")),
     sameTag_(false),
     severityLevelCut_(par.getParameter<int>("severityLevelCut")),
-    severityRecHitThreshold_(par.getParameter<double>("severityRecHitThreshold")),
-    spIdString_(par.getParameter<std::string>("spikeIdString")),
-    spIdThreshold_(par.getParameter<double>("spikeIdThreshold")),
-    v_chstatus_(par.getParameter<std::vector<int> >("recHitFlagsToBeExcluded"))
+    //severityRecHitThreshold_(par.getParameter<double>("severityRecHitThreshold")),
+    //spIdString_(par.getParameter<std::string>("spikeIdString")),
+    //spIdThreshold_(par.getParameter<double>("spikeIdThreshold")),
+    v_chstatus_(par.getParameter<std::vector<int> >("recHitFlagsToBeExcluded")
+                )
 { 
 
-    if     ( !spIdString_.compare("kE1OverE9") )   spId_ = EcalSeverityLevelAlgo::kE1OverE9;
-    else if( !spIdString_.compare("kSwissCross") ) spId_ = EcalSeverityLevelAlgo::kSwissCross;
-    else                                           spId_ = EcalSeverityLevelAlgo::kSwissCross;
+  //if     ( !spIdString_.compare("kE1OverE9") )   spId_ = EcalSeverityLevelAlgo::kE1OverE9;
+  //else if( !spIdString_.compare("kSwissCross") ) spId_ = EcalSeverityLevelAlgo::kSwissCross;
+  //  else                                           spId_ = EcalSeverityLevelAlgo::kSwissCross;
 
     if ((intRadius_ != 0.0) && (fakeNegativeDeposit_)) {
         throw cms::Exception("Configuration Error") << "EgammaRecHitExtractor: " << 
@@ -92,6 +95,9 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
     edm::ESHandle<EcalChannelStatus> chStatus;
     iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
+    edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+    iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+
     const CaloGeometry* caloGeom = pG.product(); 
     const CaloSubdetectorGeometry* barrelgeom = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
     const CaloSubdetectorGeometry* endcapgeom = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
@@ -107,7 +113,6 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
     //Get endcap ECAL RecHits 
     edm::Handle<EcalRecHitCollection> endcapEcalRecHitsH;
     iEvent.getByLabel(endcapEcalHitsTag_, endcapEcalRecHitsH);
-
 
     //define isodeposit starting from candidate
     reco::SuperClusterRef sc = emObject.get<reco::SuperClusterRef>();
@@ -128,21 +133,22 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
     // fill rechits
     bool inBarrel = sameTag_ || ( abs(sc->eta()) < 1.479 ); //check for barrel. If only one collection is used, use barrel
     if (inBarrel || tryBoth_) {
-        collect(deposit, sc, barrelgeom, caloGeom, *barrelEcalRecHitsH, chStatus.product(), true);
+        collect(deposit, sc, barrelgeom, caloGeom, *barrelEcalRecHitsH, chStatus.product(), sevlv.product(), true);
     } 
     if ((!inBarrel) || tryBoth_) {
-        collect(deposit, sc, endcapgeom, caloGeom, *endcapEcalRecHitsH, chStatus.product(), false);
+      collect(deposit, sc, endcapgeom, caloGeom, *endcapEcalRecHitsH, chStatus.product(), sevlv.product(), false);
     }
 
     return deposit;
 }
 
 void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit, 
-        const reco::SuperClusterRef& sc, const CaloSubdetectorGeometry* subdet, 
-        const CaloGeometry* caloGeom,
-        const EcalRecHitCollection &hits, 
-        const EcalChannelStatus* chStatus,
-        bool barrel) const 
+                                    const reco::SuperClusterRef& sc, const CaloSubdetectorGeometry* subdet, 
+                                    const CaloGeometry* caloGeom,
+                                    const EcalRecHitCollection &hits, 
+                                    const EcalChannelStatus* chStatus,
+                                    const EcalSeverityLevelAlgo* sevLevel, 
+                                    bool barrel) const 
 {
 
     GlobalPoint caloPosition(sc->position().x(), sc->position().y() , sc->position().z());
@@ -181,16 +187,22 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
                 if(isClustered) continue;
             }  //end if removeClustered
 
-
-            if(barrel &&                                 //make sure we have a barrel rechit
-               EcalSeverityLevelAlgo::severityLevel(     //call the severity level method
-                   EBDetId(j->id()),                     //passing the EBDetId
-                   hits,                                 //the rechit collection in order to calculate the swiss crss
-                   *chStatus,                            //and the EcalChannelRecHitRcd
-                   severityRecHitThreshold_,             //only consider rechits with ET >
-                   spId_,                                //the SpikeId method (currently kE1OverE9 or kSwissCross)
-                   spIdThreshold_                        //cut value for above
-               ) >= severityLevelCut_) continue;         //then if the severity level is too high, we continue to the next rechit
+            //make sure we have a barrel rechit                                     
+            //call the severity level method                                        
+            //passing the EBDetId                                                   
+            //the rechit collection in order to calculate the swiss crss            
+            //and the EcalChannelRecHitRcd                                          
+            //only consider rechits with ET >                                       
+            //the SpikeId method (currently kE1OverE9 or kSwissCross)               
+            //cut value for above                                                   
+            //then if the severity level is too high, we continue to the next rechit
+            if(barrel && sevLevel->severityLevel(EBDetId(j->id()), hits) >= severityLevelCut_)
+              continue;                                 
+            //                   *chStatus,                            
+            //       severityRecHitThreshold_,             
+            //       spId_,                                
+            //       spIdThreshold_                        
+            //   ) >= severityLevelCut_) continue;         
 
             //Check based on flags to protect from recovered channels from non-read towers
             //Assumption is that v_chstatus_ is empty unless doFlagChecks() has been called

@@ -25,6 +25,9 @@
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+
 EgammaEcalRecHitIsolationProducer::EgammaEcalRecHitIsolationProducer(const edm::ParameterSet& config) : conf_(config)
 {
  // use configuration file to setup input/output collection names
@@ -83,7 +86,10 @@ EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::EventS
   // Next get Ecal hits endcap
   edm::Handle<EcalRecHitCollection> ecalEndcapRecHitHandle;
   iEvent.getByLabel(ecalEndcapRecHitProducer_.label(), ecalEndcapRecHitCollection_.label(),ecalEndcapRecHitHandle);
-  
+
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+  const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
   //create the meta hit collections inorder that we can pass them into the isolation objects
 
   EcalRecHitMetaCollection ecalBarrelHits(*ecalBarrelRecHitHandle);
@@ -99,12 +105,11 @@ EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::EventS
   edm::ValueMap<double>::Filler filler(*isoMap);
   std::vector<double> retV(emObjectHandle->size(),0);
 
-
-  EgammaRecHitIsolation ecalBarrelIsol(egIsoConeSizeOut_,egIsoConeSizeInBarrel_,egIsoJurassicWidth_,egIsoPtMinBarrel_,egIsoEMinBarrel_,caloGeom,&ecalBarrelHits,DetId::Ecal);
+  EgammaRecHitIsolation ecalBarrelIsol(egIsoConeSizeOut_,egIsoConeSizeInBarrel_,egIsoJurassicWidth_,egIsoPtMinBarrel_,egIsoEMinBarrel_,caloGeom,&ecalBarrelHits,sevLevel,DetId::Ecal);
   ecalBarrelIsol.setUseNumCrystals(useNumCrystals_);
   ecalBarrelIsol.setVetoClustered(vetoClustered_);
 
-  EgammaRecHitIsolation ecalEndcapIsol(egIsoConeSizeOut_,egIsoConeSizeInEndcap_,egIsoJurassicWidth_,egIsoPtMinEndcap_,egIsoEMinEndcap_,caloGeom,&ecalEndcapHits,DetId::Ecal);
+  EgammaRecHitIsolation ecalEndcapIsol(egIsoConeSizeOut_,egIsoConeSizeInEndcap_,egIsoJurassicWidth_,egIsoPtMinEndcap_,egIsoEMinEndcap_,caloGeom,&ecalEndcapHits,sevLevel,DetId::Ecal);
   ecalEndcapIsol.setUseNumCrystals(useNumCrystals_);
   ecalEndcapIsol.setVetoClustered(vetoClustered_);
   

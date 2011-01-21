@@ -41,6 +41,7 @@ class EcalClusterFunctionBaseClass ;
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 #include <list>
 #include <string>
@@ -158,11 +159,11 @@ class GsfElectronAlgo {
     // spike removal configuration
     struct SpikeConfiguration
      {
-      int severityLevelCut ;
-      float severityRecHitThreshold ;
-      float spikeIdThreshold ;
-      EcalSeverityLevelAlgo::SpikeId spikeId ;
-      std::vector<int> v_chstatus ;
+       int severityLevelCut ;
+       //float severityRecHitThreshold ;
+       //float spikeIdThreshold ;
+       //EcalSeverityLevelAlgo::SpikeId spikeId ;
+       std::vector<int> v_chstatus ;
      } ;
 
     GsfElectronAlgo
