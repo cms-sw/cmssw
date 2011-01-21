@@ -54,11 +54,20 @@ int getSliId()const {return m_sli_id;  }
 void setWeiId(int x) { m_wei_id = x;}
 int getWeiId() const{  return m_wei_id;}
 //
+void setSpiId(int x) { m_spi_id = x;}
+int getSpiId() const{  return m_spi_id;}
+//
+void setTimId(int x) { m_tim_id = x;}
+int getTimId() const{  return m_tim_id;}
+//
 void setBxtId(int x){ m_bxt_id = x;  }
 int getBxtId()const {return m_bxt_id;  }
 //
 void setBttId(int x){ m_btt_id = x;  }
 int getBttId()const {return m_btt_id;  }
+//
+void setBstId(int x){ m_bst_id = x;  }
+int getBstId()const {return m_bst_id;  }
 //
  inline void setVersion(int id) { m_version = id; }
  inline int getVersion() const { return m_version; }
@@ -80,6 +89,9 @@ int getBttId()const {return m_btt_id;  }
   int m_wei_id;
   int m_bxt_id;
   int m_btt_id;
+  int m_bst_id;
+  int m_tim_id;
+  int m_spi_id;
   int m_version;
   Tm m_db_time;
   std::string m_description;
