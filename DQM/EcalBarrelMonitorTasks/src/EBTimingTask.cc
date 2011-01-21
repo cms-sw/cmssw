@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2010/08/11 13:54:11 $
- * $Revision: 1.63 $
+ * $Date: 2010/08/11 14:57:34 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  *
 */
@@ -23,9 +23,10 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -249,11 +250,6 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
-  // channel status
-  edm::ESHandle<EcalChannelStatus> pChannelStatus;
-  c.get<EcalChannelStatusRcd>().get(pChannelStatus);
-  const EcalChannelStatus* chStatus = pChannelStatus.product();
-
   edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
@@ -297,7 +293,11 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float yval = hitItr->time();
 
       uint32_t flag = hitItr->recoFlag();
-      uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
+
+      edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+      c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+
+      uint32_t sev = sevlv->severityLevel(id, *hits);
 
       if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && sev != EcalSeverityLevelAlgo::kWeird ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);

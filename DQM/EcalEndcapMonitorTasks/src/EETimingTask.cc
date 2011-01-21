@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/08/11 14:57:35 $
- * $Revision: 1.70 $
+ * $Date: 2010/08/30 13:14:09 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  *
 */
@@ -23,9 +23,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -309,11 +309,6 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
-  // channel status
-  edm::ESHandle<EcalChannelStatus> pChannelStatus;
-  c.get<EcalChannelStatusRcd>().get(pChannelStatus);
-  const EcalChannelStatus* chStatus = pChannelStatus.product();
-
   float sumTime_hithr[2] = {0.,0.};
   int n_hithr[2] = {0,0};
 
@@ -362,7 +357,10 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float yval = hitItr->time();
 
       uint32_t flag = hitItr->recoFlag();
-      uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
+
+      edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+      c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+      uint32_t sev = sevlv->severityLevel(id, *hits );
 
       const GlobalPoint& pos = pGeometry_->getGeometry(id)->getPosition();
 
