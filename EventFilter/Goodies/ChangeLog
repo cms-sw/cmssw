@@ -1,4 +1,9 @@
-2010-04-33 Emilio Meschi <emilio.meschi@cern.ch>
+2010-11-19 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-00-08
+	* fix compilation warning
+	
+2010-11-19 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-00-07
 	* (04) migration to xml BuildFile
@@ -6,7 +11,7 @@
 	* (06) removed compile directive
 	* (07) added new features (iChoke)
 	
-2010-04-33 Emilio Meschi <emilio.meschi@cern.ch>
+2010-04-23 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-00-03
 	* small fix to get signal number right

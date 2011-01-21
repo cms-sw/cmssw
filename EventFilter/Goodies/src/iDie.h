@@ -91,7 +91,7 @@ namespace evf {
       {
 	ind_.resize(arr_.size(),0);
 	unsigned int i = 0;
-	while(i<ind_.size()) ind_[i] = i++;
+	while(i<ind_.size()) {ind_[i] = i; i++;}
 	std::sort(ind_.rbegin(),ind_.rend(),*this);
       }
       int operator[](size_t ind) const {return arr_[ind_[ind]];}
