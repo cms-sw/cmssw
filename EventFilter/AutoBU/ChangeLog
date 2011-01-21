@@ -1,3 +1,7 @@
+2011-01-21  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-00-01
+	* added option to turn off iDie
+
 2011-01-19  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-00-00
 	* merge all back from branch

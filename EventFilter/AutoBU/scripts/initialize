@@ -323,9 +323,11 @@ if (!$doEP) { push (@RBproperties,"doDropEvents","boolean","true"); }
 
 my @EPproperties = ("parameterSet",  "string",      "file:$EPcfg",
 		    "runNumber",     "unsignedInt", $runNumber,
-		    "nbSubProcesses","unsignedInt", $forkProcesses,
-		    "iDieUrl",       "string",      "http://$hostname:$IDport/urn:xdaq-application:lid=$IDlocalid");
-                      
+		    "nbSubProcesses","unsignedInt", $forkProcesses);
+if($doID) { 
+    push (@EPproperties,"iDieUrl","string","http://$hostname:$IDport/urn:xdaq-application:lid=$IDlocalid");
+    push (@EPproperties,"iDieStatisticsGathering","boolean","true");
+}                  
 
 if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 
