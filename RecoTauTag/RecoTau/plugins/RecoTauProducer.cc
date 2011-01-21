@@ -34,6 +34,7 @@
 #include "DataFormats/TauReco/interface/JetPiZeroAssociation.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Common/interface/Association.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -50,6 +51,7 @@ class RecoTauProducer : public edm::EDProducer {
 
   private:
     edm::InputTag jetSrc_;
+    edm::InputTag jetRegionSrc_;
     edm::InputTag piZeroSrc_;
     BuilderList builders_;
     ModifierList modifiers_;
@@ -63,6 +65,7 @@ class RecoTauProducer : public edm::EDProducer {
 
 RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
   jetSrc_ = pset.getParameter<edm::InputTag>("jetSrc");
+  jetRegionSrc_ = pset.getParameter<edm::InputTag>("jetRegionSrc");
   piZeroSrc_ = pset.getParameter<edm::InputTag>("piZeroSrc");
 
   typedef std::vector<edm::ParameterSet> VPSet;
@@ -110,6 +113,10 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   reco::PFJetRefVector jets =
       reco::tau::castView<reco::PFJetRefVector>(jetView);
 
+  // Get the jet region producer
+  edm::Handle<edm::Association<reco::PFJetCollection> > jetRegionHandle;
+  evt.getByLabel(jetRegionSrc_, jetRegionHandle);
+
   // Get the pizero input collection
   edm::Handle<reco::JetPiZeroAssociation> piZeroAssoc;
   evt.getByLabel(piZeroSrc_, piZeroAssoc);
@@ -129,6 +136,12 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   // Loop over the jets and build the taus for each jet
   BOOST_FOREACH(reco::PFJetRef jetRef, jets) {
+    // Get the jet with extra constituents from an area around the jet
+    reco::PFJetRef jetRegionRef = (*jetRegionHandle)[jetRef];
+    if (jetRegionRef.isNull()) {
+      throw cms::Exception("BadJetRegionRef") << "No jet region can be"
+        << " found for the current jet: " << jetRef.id();
+    }
     // Get the PiZeros associated with this jet
     const std::vector<reco::RecoTauPiZero>& piZeros = (*piZeroAssoc)[jetRef];
     // Loop over our builders and create the set of taus for this jet
@@ -137,7 +150,10 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         builder != builders_.end(); ++builder) {
       // Get a ptr_vector of taus from the builder
       reco::tau::RecoTauBuilderPlugin::output_type taus(
-          (*builder)(jetRef, piZeros));
+          (*builder)(jetRegionRef, piZeros));
+      // Make sure all taus have their jetref set correctly
+      std::for_each(taus.begin(), taus.end(),
+          boost::bind(&reco::PFTau::setjetRef, _1, jetRef));
       // Check this size of the taus built.
       // Grow the vector if necessary
       output->reserve(output->size() + taus.size());
