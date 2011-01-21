@@ -363,7 +363,7 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
   createPdf(w, pdfs[pdfName]);
   //set the initial values for the yields of signal and background
   setInitialValues(w);  
-  RooFitResult* res;
+  RooFitResult* res = 0;
 
   RooAbsData *data = w->data("data");
   if (binnedFit) { 
