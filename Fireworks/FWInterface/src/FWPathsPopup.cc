@@ -236,14 +236,16 @@ public:
    FWPSetTableManager()
       : m_selectedRow(-1)
    {  
-     m_italicRenderer.setGraphicsContext(&fireworks::italicGC());
-     m_boldRenderer.setGraphicsContext(&fireworks::boldGC());
+      m_boldRenderer.setGraphicsContext(&fireworks::boldGC());
+      m_italicRenderer.setGraphicsContext(&fireworks::italicGC());
 
       m_pathPassedRenderer.setGraphicsContext(&boldGreenGC());
       m_pathPassedRenderer.setHighlightContext(&pathBackgroundGC());
+      m_pathPassedRenderer.setIsParent(true);
 
       m_pathFailedRenderer.setGraphicsContext(&boldRedGC());
       m_pathFailedRenderer.setHighlightContext(&pathBackgroundGC());
+      m_pathFailedRenderer.setIsParent(true);
       
       m_editingDisabledRenderer.setGraphicsContext(&italicGray());
       m_editingDisabledRenderer.setHighlightContext(&pathBackgroundGC());
@@ -251,7 +253,9 @@ public:
       // Italic color doesn't seem to show up well event though
       // modules are displayed in italic
       m_modulePassedRenderer.setGraphicsContext(&boldGreenGC());
+      m_modulePassedRenderer.setIsParent(true);
       m_moduleFailedRenderer.setGraphicsContext(&boldRedGC());
+      m_moduleFailedRenderer.setIsParent(true);
 
       // Debug stuff to dump font list.
 //      std::cout << "Available fonts: " << std::endl;
@@ -514,6 +518,11 @@ public:
            renderer = &m_pathPassedRenderer;
          else 
            renderer = &m_pathFailedRenderer;
+         if( 0 == iCol ) {
+           renderer->setIsParent(true);
+         } else {
+           renderer->setIsParent(false);
+         }
       }
       else if (data.level == 1)
       {
@@ -528,6 +537,11 @@ public:
            renderer = &m_modulePassedRenderer;
          else
            renderer = &m_moduleFailedRenderer;
+         if( 0 == iCol ) {
+           renderer->setIsParent(true);
+         } else {
+           renderer->setIsParent(false);
+         }
       }
       else
       {
@@ -544,6 +558,11 @@ public:
       }
 
       renderer->setIndentation(0);
+      if(data.expanded) {
+        renderer->setIsOpen(true);
+      } else {
+        renderer->setIsOpen(false);        
+      }
 
       if (iCol == 0)
       {
@@ -1488,6 +1507,7 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
    }
    m_psTable->updateSchedule(m_info);
    m_psTable->update(pathUpdates);
+   m_psTable->dataChanged();
    m_tableWidget->body()->DoRedraw();
 }
 

@@ -89,7 +89,7 @@ public:
       FontMetrics_t metrics;
       font()->GetFontMetrics(&metrics);
       gVirtualX->DrawString(iID, graphicsContext()->GetGC(),
-                            iX+m_indentation, iY+metrics.fAscent,
+                            iX+m_indentation+xOffset, iY+metrics.fAscent, 
                             data().c_str(),data().size());
    }
 private:
