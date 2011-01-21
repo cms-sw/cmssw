@@ -638,12 +638,12 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
      }
    }
 
-  int mcNum=0, gamNum=0, eleNum=0 ;
-  bool matchingID, matchingMotherID ;
-
   //===============================================
   // charge mis-ID
   //===============================================
+
+  int mcNum=0, gamNum=0, eleNum=0 ;
+  bool matchingID, matchingMotherID ;
 
   reco::GenParticleCollection::const_iterator mcIter ;
   for
@@ -775,11 +775,9 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     h1_simZ->Fill( mcIter->vz() );
     h2_simPtEta->Fill( mcIter->eta(),mcIter->pt() );
 
-    // looking for the best matching gsf electron
-    bool okGsfFound = false;
-    double gsfOkRatio = 999999.;
-
     // find best matched electron
+    bool okGsfFound = false ;
+    double gsfOkRatio = 999999. ;
     reco::GsfElectron bestGsfElectron ;
     reco::GsfElectronCollection::const_iterator gsfIter ;
     for ( gsfIter=gsfElectrons->begin() ; gsfIter!=gsfElectrons->end() ; gsfIter++ )
