@@ -277,7 +277,7 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
     // check that buffers are allocated for nSuperFrag superfragments
     if(nSuperFrag_>nSuperFragMax_) {
       nbErrors_++;
-      oss<<"Invalid maimum number of superfragments."
+      oss<<"Invalid maximum number of superfragments."
 	 <<" fuResourceId:"<<fuResourceId_
 	 <<" evtNumber:"<<evtNumber_
 	 <<" nSuperFrag:"<<nSuperFrag_
