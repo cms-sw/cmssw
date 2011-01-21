@@ -3,7 +3,6 @@
  *  cmsShow
  *
  *  Created by Ianna Osborne on 7/8/10.
- *  Copyright 2010 FNAL. All rights reserved.
  *
  */
 #include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"

@@ -3,7 +3,6 @@
  *  FWorks
  *
  *  Created by Ianna Osborne on 7/29/10.
- *  Copyright 2010 FNAL. All rights reserved.
  *
  */
 

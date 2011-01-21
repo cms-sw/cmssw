@@ -3,7 +3,6 @@
  *  FWorks
  *
  *  Created by Ianna Osborne on 5/28/10.
- *  Copyright 2010 FNAL. All rights reserved.
  *
  */
 #include "TEveBoxSet.h"
