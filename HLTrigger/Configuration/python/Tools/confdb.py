@@ -194,13 +194,13 @@ if 'hltPreDQMSmart' in %(dict)s:
         replace:  replacement value
     """
     if 'name' in args:
-      self.data = re.sub( 
-          r'%(name)s = cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args, 
+      self.data = re.sub(
+          r'%(name)s = cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args,
           r'%(name)s = cms\g<tracked>.%(type)s( \g<quote>%(replace)s\g<quote>' % args,
           self.data)
     else:
-      self.data = re.sub( 
-          r'cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args, 
+      self.data = re.sub(
+          r'cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args,
           r'cms\g<tracked>.%(type)s( \g<quote>%(replace)s\g<quote>' % args,
           self.data)
 
@@ -230,11 +230,11 @@ if 'hltPreDQMSmart' in %(dict)s:
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'simMuonRPCDigis')
 
       # fix the definition of sequences and paths
-      self.data = re.sub( r'hltMuonCSCDigis',                                       r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data)
-      self.data = re.sub( r'hltMuonDTDigis',                                        r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data)
-      self.data = re.sub( r'hltMuonRPCDigis',                                       r'cms.SequencePlaceholder( "simMuonRPCDigis" )',  self.data)
-      self.data = re.sub( r'HLTEndSequence',                                        r'cms.SequencePlaceholder( "HLTEndSequence" )',   self.data)
-      self.data = re.sub( r'hltGtDigis',                                            r'HLTBeginSequence',                              self.data)
+      self.data = re.sub( r'hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data)
+      self.data = re.sub( r'hltMuonDTDigis',  r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data)
+      self.data = re.sub( r'hltMuonRPCDigis', r'cms.SequencePlaceholder( "simMuonRPCDigis" )',  self.data)
+      self.data = re.sub( r'HLTEndSequence',  r'cms.SequencePlaceholder( "HLTEndSequence" )',   self.data)
+      self.data = re.sub( r'hltGtDigis',      r'HLTBeginSequence',                              self.data)
 
 
   def unprescale(self):
@@ -400,6 +400,35 @@ if 'GlobalTag' in %%(dict)s:
   def instrumentTiming(self):
     if self.config.timing:
       # instrument the menu with the modules and EndPath needed for timing studies
+      text = ''
+
+      if 'HLTriggerFirstPath' in self.data:
+        # remove HLTriggerFirstPath
+        self.data = re.sub(r'.*\bHLTriggerFirstPath\s*=.*\n', '', self.data)
+
+      if not 'hltGetRaw' in self.data:
+        # add hltGetRaw
+        text += """
+%%(process)shltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
+    RawDataCollection = cms.InputTag( "%s" )
+)
+""" % ( self.config.data and 'source' or 'rawDataCollector' )
+
+      if not 'hltGetConditions' in self.data:
+        # add hltGetConditions
+        text += """
+%(process)shltGetConditions = cms.EDAnalyzer( 'EventSetupRecordDataGetter',
+    verbose = cms.untracked.bool( False ),
+    toGet = cms.VPSet( )
+)
+"""
+
+      # add the definition of HLTriggerFirstPath
+      text += """
+%(process)sHLTriggerFirstPath = cms.Path( %(process)shltGetRaw + %(process)shltGetConditions + %(process)shltBoolFalse )
+"""
+      self.data = re.sub(r'\n.*cms\.(End)?Path.*', text + '\g<0>', self.data, 1)
+
       self.data += """
 # instrument the menu with the modules and EndPath needed for timing studies
 %(process)sPathTimerService = cms.Service( "PathTimerService",
@@ -423,12 +452,12 @@ if 'GlobalTag' in %%(dict)s:
       self.loadAdditionalConditions('add XML geometry to keep hltGetConditions happy',
         {
           'record'  : 'GeometryFileRcd',
-          'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc', 
+          'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc',
           'label'   : 'Ideal',
           'connect' : '%(connect)s'
-        }, { 
+        }, {
           'record'  : 'GeometryFileRcd',
-          'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc', 
+          'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc',
           'label'   : 'Extended',
           'connect' : '%(connect)s'
         }
