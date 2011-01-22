@@ -16,7 +16,7 @@ globalPixelLessSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsED
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitPairGenerator'),
         SeedingLayers = cms.string('pixelLessLayerPairs4PixelLessTracking'),
-        maxElement = cms.uint32(10000)
+        maxElement = cms.uint32(100000)
         )
     )
 ## whatever happens to the beam spot

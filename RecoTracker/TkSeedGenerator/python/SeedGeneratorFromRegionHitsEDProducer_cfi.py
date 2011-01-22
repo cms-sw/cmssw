@@ -9,7 +9,7 @@ seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionH
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string(''),
         SeedingLayers = cms.string(''),
-        maxElement = cms.uint32(10000)
+        maxElement = cms.uint32(100000)
     ),
     SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('none')
