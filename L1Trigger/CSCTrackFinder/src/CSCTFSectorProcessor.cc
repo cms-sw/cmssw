@@ -158,6 +158,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   //testing firmwares
   firmSP_Map.insert(std::pair<int,int>(20101011,20101011));
   firmSP_Map.insert(std::pair<int,int>(20101210,20101210));
+  firmSP_Map.insert(std::pair<int,int>(20110118,20110118));
 }
 
 
@@ -807,4 +808,10 @@ void CSCTFSectorProcessor::printDisclaimer(int firmSP, int firmFA){
     edm::LogInfo( "CSCTFSectorProcessor" ) << "\t **** WARNING THIS FIRMWARE IS UNDER TEST ****\n"
                                            << "\t * New Ghost Busting Algorithm Removing Tracks\n"
                                            << "\t   Sharing at Least One LCT\n";
+
+  if (firmSP==20110118)
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t **** WARNING THIS FIRMWARE IS UNDER TEST ****\n"
+                                           << "\t * New Ghost Busting Algorithm Removing Tracks\n"
+                                           << "\t   Sharing at Least One LCT\n"
+                                           << "\t * Passing CLCT and PhiBend for PT LUTs\n";
 }
