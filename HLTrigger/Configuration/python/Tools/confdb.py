@@ -311,23 +311,13 @@ if 'GlobalTag' in %%(dict)s:
 
   def overrideL1Menu(self):
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
-    self.config.l1.record = 'L1GtTriggerMenuRcd'
-    self.config.l1.label  = ''
     if self.config.l1.override:
+      self.config.l1.record = 'L1GtTriggerMenuRcd'
+      self.config.l1.label  = ''
+      self.config.l1.tag    = self.config.l1.override
       if not self.config.l1.connect:
         self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
-      self.data += """
-# override the L1 menu
-if 'GlobalTag' in %%(dict)s:
-    %%(process)sGlobalTag.toGet.append(
-        cms.PSet(
-            record  = cms.string( '%(record)s' ),
-            tag     = cms.string( '%(override)s' ),
-            label   = cms.untracked.string( '%(label)s' ),
-            connect = cms.untracked.string( '%(connect)s' )
-        )
-    )
-""" % self.config.l1.__dict__
+      self.loadAdditionalConditions( 'override the L1 menu', self.config.l1.__dict__ )
 
 
   def overrideOutput(self):
@@ -390,6 +380,22 @@ if 'MessageLogger' in %(dict)s:
 """
 
 
+  def loadAdditionalConditions(self, comment, *conditions):
+    # load additional conditions
+    self.data += """
+# %s
+if 'GlobalTag' in %%(dict)s:
+""" % comment
+    for condition in conditions:
+      self.data += """    %%(process)sGlobalTag.toGet.append(
+        cms.PSet(
+            record  = cms.string( '%(record)s' ),
+            tag     = cms.string( '%(tag)s' ),
+            label   = cms.untracked.string( '%(label)s' ),
+            connect = cms.untracked.string( '%(connect)s' )
+        )
+    )
+""" % condition
 
   def instrumentTiming(self):
     if self.config.timing:
@@ -414,6 +420,19 @@ if 'MessageLogger' in %(dict)s:
 
 %(process)sTimingOutput = cms.EndPath( %(process)shltTimer + %(process)shltOutputTiming )
 """
+      self.loadAdditionalConditions('add XML geometry to keep hltGetConditions happy',
+        {
+          'record'  : 'GeometryFileRcd',
+          'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc', 
+          'label'   : 'Ideal',
+          'connect' : '%(connect)s'
+        }, { 
+          'record'  : 'GeometryFileRcd',
+          'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc', 
+          'label'   : 'Extended',
+          'connect' : '%(connect)s'
+        }
+      )
 
 
   def buildOptions(self):
