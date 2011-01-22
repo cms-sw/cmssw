@@ -480,7 +480,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     std::cout << "FILTER-MSG: Begin Processing ... "
               << "Run = "   << iEvent.run() << " " 
-              << "Lumi = "  << iEvent.getLuminosityBlock().luminosityBlock() << " " 
+              << "Lumi = "  << (Int_t) iEvent.luminosityBlock() << " " 
               << "Event = " << iEvent.eventAuxiliary().event() << " " 
               << std::endl;
 
@@ -1287,7 +1287,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     delete [] et;
 
     std::cout << "Run = "   << iEvent.run() << " " 
-              << "Lumi = "  << iEvent.getLuminosityBlock().luminosityBlock() << " " 
+              << "Lumi = "  << (Int_t)iEvent.luminosityBlock() << " " 
               << "Event = " << iEvent.eventAuxiliary().event() << " " 
               << "FILTER-MSG: Event Accepted for Z Candidate"
               << std::endl;

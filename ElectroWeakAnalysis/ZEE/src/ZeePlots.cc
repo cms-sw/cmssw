@@ -381,7 +381,7 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     // fill the tree variables
     runNumber   = iEvent.run();
     eventNumber = (Long64_t)( iEvent.eventAuxiliary().event() );
-    lumiSection = iEvent.getLuminosityBlock().luminosityBlock();
+    lumiSection = (Int_t)iEvent.luminosityBlock();
 
     ele1_sc_eta         = (Float_t)( myElec1->superCluster()->eta() );
     ele1_sc_phi         = (Float_t)( myElec1->superCluster()->phi() );
@@ -1516,8 +1516,7 @@ ZeePlots::beginJob()
 }
 
 // ------------ method called once each job just after ending the event loop  -
-void
-ZeePlots::endJob() {
+void ZeePlots::endJob() {
     TFile * newfile  =  new TFile(TString(outputFile_),"RECREATE");
     //
     // for consistency all the plots are in the root file

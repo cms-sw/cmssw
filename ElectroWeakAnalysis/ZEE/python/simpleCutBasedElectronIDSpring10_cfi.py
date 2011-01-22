@@ -42,8 +42,8 @@ simpleCutBasedElectronID = cms.EDProducer("EleIdCutBasedExtProducer",
     reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
     # if you want the vertices or the offline beam spot
     verticesCollection = cms.InputTag("offlineBeamSpot"),
-    dataMagneticFieldSetUp = cms.bool(False),
-    dcsTag = cms.InputTag("scalersRawToDigi"),                                          
+    #dataMagneticFieldSetUp = cms.bool(False),
+    #dcsTag = cms.InputTag("scalersRawToDigi"),                                          
     algorithm = cms.string('eIDCB'),
 
     #electronIDType: robust  for the simple Cut-Based

@@ -226,7 +226,7 @@ process.makePatCandidates = cms.Sequence(process.makePatElectrons+process.makePa
 process.patDefaultSequence = cms.Sequence(process.makePatCandidates)
 
 ## WARNING: you may want to modify this item:
-HLT_process_name = "REDIGI36X"   # REDIGI for the production traditional MC / HLT for the powheg samples or data
+HLT_process_name = "REDIGI39X"   # REDIGI for the production traditional MC / HLT for the powheg samples or data
 
 # Trigger Path(s)
 HLT_path_name     = "HLT_Photon10_L1R"
@@ -246,11 +246,14 @@ HLT_filter_name_extra2 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElect
 HLT_path_name_extra3   = "HLT_Ele17_SW_TightEleId_L1R"
 HLT_filter_name_extra3 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt17TightEleIdDphiFilter","",HLT_process_name)
 
-HLT_path_name_extra4   = "HLT_Ele17_SW_TighterEleIdIsol_L1R_v2"
-HLT_filter_name_extra4 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolTrackIsolFilter","",HLT_process_name)
+# HLT_path_name_extra4   = "HLT_Ele17_SW_TighterEleIdIsol_L1R_v2"
+# HLT_filter_name_extra4 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolTrackIsolFilter","",HLT_process_name)
 
 HLT_path_name_extra5   = "HLT_Ele22_SW_TighterCaloIdIsol_L1R_v1"
 HLT_filter_name_extra5 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt22TighterCaloIdIsolTrackIsolFilter","",HLT_process_name)
+
+HLT_path_name_extra6   = "HLT_Ele22_SW_TighterCaloIdIsol_L1R_v2"
+HLT_filter_name_extra6 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt22TighterCaloIdIsolTrackIsolFilter","",HLT_process_name)
 
 
 rules_Filter = cms.PSet (
@@ -283,10 +286,13 @@ rules_Filter = cms.PSet (
     useHLTObjectETCut = cms.untracked.bool(True),
     hltObjectETCut = cms.untracked.double(15.0),
     useExtraTrigger = cms.untracked.bool(True),
-    vHltpathExtra = cms.untracked.vstring(HLT_path_name_extra0,HLT_path_name_extra1,HLT_path_name_extra2,HLT_path_name_extra3,HLT_path_name_extra4,HLT_path_name_extra5),
-    vHltpathFilterExtra = cms.untracked.VInputTag(HLT_filter_name_extra0,HLT_filter_name_extra1,HLT_filter_name_extra2,HLT_filter_name_extra3,HLT_filter_name_extra4,HLT_filter_name_extra5),
+#     vHltpathExtra = cms.untracked.vstring(HLT_path_name_extra0,HLT_path_name_extra1,HLT_path_name_extra2,HLT_path_name_extra3,HLT_path_name_extra4,HLT_path_name_extra5),
+#     vHltpathFilterExtra = cms.untracked.VInputTag(HLT_filter_name_extra0,HLT_filter_name_extra1,HLT_filter_name_extra2,HLT_filter_name_extra3,HLT_filter_name_extra4,HLT_filter_name_extra5),
+    vHltpathExtra = cms.untracked.vstring(HLT_path_name_extra0,HLT_path_name_extra1,HLT_path_name_extra2,HLT_path_name_extra3,HLT_path_name_extra5,HLT_path_name_extra6),
+    vHltpathFilterExtra = cms.untracked.VInputTag(HLT_filter_name_extra0,HLT_filter_name_extra1,HLT_filter_name_extra2,HLT_filter_name_extra3,HLT_filter_name_extra5,HLT_filter_name_extra6),
+
     # ET Cut in the SC
-    ETCut = cms.untracked.double(20.0),                                  
+    ETCut = cms.untracked.double(25.0),                                  
     METCut = cms.untracked.double(0.0),
     # For DATA set it to True, for MC set it to False
     dataMagneticFieldSetUp = cms.untracked.bool(False),
@@ -376,7 +382,7 @@ rules_Plotter = cms.PSet (
 rules_Plotter_Elec0 = cms.PSet (
     # The selection to be used here:
     usePrecalcID0                   = cms.untracked.bool(True),
-    usePrecalcIDType0               = cms.untracked.string('simpleEleId95relIso'),
+    usePrecalcIDType0               = cms.untracked.string('simpleEleId85relIso'),
     usePrecalcIDSign0               = cms.untracked.string('='),
     usePrecalcIDValue0              = cms.untracked.double(7),    
     ## preselection criteria are independent of useSameSelectionOnBothElectrons
@@ -394,7 +400,7 @@ rules_Plotter_Elec0 = cms.PSet (
 rules_Plotter_Elec1 = cms.PSet (
     # The selection to be used here:
     usePrecalcID1                   = cms.untracked.bool(True),
-    usePrecalcIDType1               = cms.untracked.string('simpleEleId95relIso'),
+    usePrecalcIDType1               = cms.untracked.string('simpleEleId85relIso'),
     usePrecalcIDSign1               = cms.untracked.string('='),
     usePrecalcIDValue1              = cms.untracked.double(7),    
     ## preselection criteria are independent of useSameSelectionOnBothElectrons
@@ -412,7 +418,7 @@ rules_Plotter_Elec1 = cms.PSet (
 rules_Plotter_Elec2 = cms.PSet (
     # The selection to be used here:
     usePrecalcID2                   = cms.untracked.bool(True),
-    usePrecalcIDType2               = cms.untracked.string('simpleEleId95relIso'),
+    usePrecalcIDType2               = cms.untracked.string('simpleEleId85relIso'),
     usePrecalcIDSign2               = cms.untracked.string('='),
     usePrecalcIDValue2              = cms.untracked.double(7),    
     ## preselection criteria are independent of useSameSelectionOnBothElectrons
