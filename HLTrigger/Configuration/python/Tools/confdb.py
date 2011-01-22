@@ -315,7 +315,7 @@ if 'GlobalTag' in %%(dict)s:
     self.config.l1.label  = ''
     if self.config.l1.override:
       if not self.config.l1.connect:
-        self.config.l1.connect = '%%(connect)s/CMS_COND_31X_L1T'
+        self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
       self.data += """
 # override the L1 menu
 if 'GlobalTag' in %%(dict)s:
