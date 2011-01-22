@@ -75,7 +75,7 @@ group.add_argument('--output',
                     metavar = 'OUTPUT',
                     choices = [ 'all', 'minimal', 'none' ], 
                     default = 'all',
-                    help    = 'Use\n- "all" to output all output modules (default),\n- "minimal" to only output the TriggerResults,\n- "none" to drop all output modules' )
+                    help    = 'Use\n- "all" to output all output modules (default),\n- "minimal" to only output the TriggerResults,\n- "none" to remove all output modules' )
 group.add_argument('--no-output',
                     dest    = 'output',
                     action  = 'store_const',
