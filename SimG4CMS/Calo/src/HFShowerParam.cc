@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/HFShowerParam.h"
+#include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
@@ -37,6 +38,7 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   onlyLong                = m_HF.getParameter<bool>("OnlyLong");
   ref_index               = m_HF.getParameter<double>("RefIndex");
   double lambdaMean       = m_HF.getParameter<double>("LambdaMean");
+  applyFidCut             = m_HF.getParameter<bool>("ApplyFiducialCut");
   parametrizeLast         = m_HF.getUntrackedParameter<bool>("ParametrizeLast",false);
   edm::LogInfo("HFShower") << "HFShowerParam::Use of shower library is set to "
 			   << useShowerLibrary << " Use of Gflash is set to "
@@ -46,7 +48,8 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
 			   << edMin << " GeV, use of Short fibre info in"
 			   << " shower library set to " << !(onlyLong)
                            << ", use of parametrization for last part set to "
-                           << parametrizeLast << ", Mean lambda " <<lambdaMean;
+                           << parametrizeLast << ", Mean lambda " << lambdaMean
+			   << ", Application of Fiducial Cut " << applyFidCut;
 
 #ifdef DebugLog
   edm::Service<TFileService> tfile;
@@ -182,52 +185,64 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 	if (showerLibrary) {
 	  std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary->getHits(aStep,kill, onlyLong);
 	  for (unsigned int i=0; i<hitSL.size(); i++) {
-	    hit.position = hitSL[i].position;
-	    hit.depth    = hitSL[i].depth;
-	    hit.time     = hitSL[i].time;
-	    hit.edep     = 1;
-	    hits.push_back(hit);
-#ifdef DebugLog
-	    if (fillHisto) {
-	      hzv->Fill(zv);
-	      em_long_sl->Fill(hit.position.z()/cm);
-	      if(hit.depth == 1){
-		em_2d_1->Fill(hit.position.z()/cm, sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
-		em_lateral_1->Fill(sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
-		em_long_1->Fill(hit.position.z()/cm);
-	      }
-	      if(hit.depth == 2){
-		em_2d_2->Fill(hit.position.z()/cm, sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
-		em_lateral_2->Fill(sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
-		em_long_2->Fill(hit.position.z()/cm);
-	      }
+	    bool ok = true;
+	    if (applyFidCut) {
+	      int npmt = HFFibreFiducial:: PMTNumber(hitSL[i].position);
+	      if (npmt <= 0) ok = false;
 	    }
+	    if (ok) {
+	      hit.position = hitSL[i].position;
+	      hit.depth    = hitSL[i].depth;
+	      hit.time     = hitSL[i].time;
+	      hit.edep     = 1;
+	      hits.push_back(hit);
+#ifdef DebugLog
+	      if (fillHisto) {
+		hzv->Fill(zv);
+		em_long_sl->Fill(hit.position.z()/cm);
+		if (hit.depth == 1) {
+		  em_2d_1->Fill(hit.position.z()/cm, sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		  em_lateral_1->Fill(sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		  em_long_1->Fill(hit.position.z()/cm);
+		} else if (hit.depth == 2) {
+		  em_2d_2->Fill(hit.position.z()/cm, sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		  em_lateral_2->Fill(sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
+		  em_long_2->Fill(hit.position.z()/cm);
+		}
+	      }
 
-	    edm::LogInfo("HFShower") << "HFShowerParam: Hit at depth " 
-				     << hit.depth << " with edep " << hit.edep 
-				     << " Time " << hit.time;
+	      edm::LogInfo("HFShower") << "HFShowerParam: Hit at depth " 
+				       << hit.depth << " with edep " << hit.edep
+				       << " Time " << hit.time;
 #endif
+	    }
 	  }
 	} else {
 	  std::vector<HFGflash::Hit>  hitSL = gflash->gfParameterization(aStep,kill, onlyLong);
 	  for (unsigned int i=0; i<hitSL.size(); i++) {
 	    bool ok = true;
-	    G4ThreeVector pe_effect(hitSL[i].position.x()/cm, hitSL[i].position.y()/cm, hitSL[i].position.z()/cm);
-	    pe_effect *= cm; //return to mm
+	    G4ThreeVector pe_effect(hitSL[i].position.x(), hitSL[i].position.y(), hitSL[i].position.z());
 	    double zv  = std::abs(pe_effect.z()) - gpar[4];
 	    //depth
 	    int depth    = 1;
-	    if (G4UniformRand() > 0.5) depth = 2;
+	    int npmt     = 0;
 	    if (zv < 0 )      ok = false;
 	    if (zv > gpar[1]) ok = false;
-	    if (depth == 2 && zv < gpar[0]) ok = false;
+	    if (applyFidCut) {
+	      npmt = HFFibreFiducial:: PMTNumber(pe_effect);
+	      if (npmt <= 0) ok = false;
+	      else if (npmt > 24 && zv > gpar[0]) depth = 2; // a short fibre
 
+	    } else {
+	      if (G4UniformRand() > 0.5) depth = 2;
+	      if (depth == 2 && zv < gpar[0]) ok = false;
+	    }
 	    //attenuation
 	    double dist = fibre->zShift(localPoint,depth,0); // distance to PMT
 	    double r1   = G4UniformRand();
 #ifdef DebugLog
-	    edm::LogInfo("HFShower") << "HFShowerParam:Distance to PMT " 
-				     << dist << ", exclusion flag " 
+	    edm::LogInfo("HFShower") << "HFShowerParam:Distance to PMT (" <<npmt
+				     << ") " << dist << ", exclusion flag " 
 				     << (r1 > exp(-attLMeanInv*zv));
 #endif
 	    if (r1 > exp(-attLMeanInv*dist)) ok = false;
@@ -243,12 +258,11 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 	      if (fillHisto) {
 		em_long_gflash->Fill(pe_effect.z()/cm, hitSL[i].edep);
 		hzv->Fill(zv);
-		if(hit.depth == 1){
+		if (hit.depth == 1) {
 		  em_2d_1->Fill(hit.position.z()/cm, sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
 		  em_lateral_1->Fill(sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
 		  em_long_1->Fill(hit.position.z()/cm);
-		}
-		if(hit.depth == 2){
+		} else if (hit.depth == 2) {
 		  em_2d_2->Fill(hit.position.z()/cm, sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
 		  em_lateral_2->Fill(sqrt(pow(hit.position.x()/cm,2)+pow(hit.position.y()/cm,2)));
 		  em_long_2->Fill(hit.position.z()/cm);
