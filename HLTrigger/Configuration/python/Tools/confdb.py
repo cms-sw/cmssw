@@ -720,7 +720,7 @@ if 'MessageLogger' in %(dict)s:
       self.source = "file:/tmp/InputCollection.root"
     elif self.config.data:
       # offline we can run on data...
-      self.source = "/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root"
+      self.source = "/store/data/Run2010B/MinimumBias/RAW/v1/000/149/291/DC6C917A-0EE3-DF11-867B-001617C3B654.root"
     else:
       # ...or on mc
       self.source = "file:RelVal_DigiL1Raw_%s.root" % self.config.type
