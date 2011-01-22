@@ -194,7 +194,7 @@ process.datasets = cms.PSet(
 )
 
 process.source = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring( '/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root' )
+    fileNames = cms.untracked.vstring( '/store/data/Run2010B/MinimumBias/RAW/v1/000/149/291/DC6C917A-0EE3-DF11-867B-001617C3B654.root' )
 )
 
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
@@ -5025,7 +5025,7 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
 
-# override the GlobalTag connection string and pfnPrefix
+# override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
@@ -5036,9 +5036,10 @@ if 'GlobalTag' in process.__dict__:
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.toGet.append(
         cms.PSet(
-            record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2010_v2_mc" ),
-            connect = cms.untracked.string( process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
+            record  = cms.string( 'L1GtTriggerMenuRcd' ),
+            tag     = cms.string( 'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2010_v2_mc' ),
+            label   = cms.untracked.string( '' ),
+            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_L1T' )
         )
     )
 

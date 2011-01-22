@@ -18331,7 +18331,7 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
 
-# override the GlobalTag connection string and pfnPrefix
+# override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
@@ -18342,9 +18342,10 @@ if 'GlobalTag' in process.__dict__:
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.toGet.append(
         cms.PSet(
-            record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "L1GtTriggerMenu_L1Menu_Collisions2010_v0_mc" ),
-            connect = cms.untracked.string( process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
+            record  = cms.string( 'L1GtTriggerMenuRcd' ),
+            tag     = cms.string( 'L1GtTriggerMenu_L1Menu_Collisions2010_v0_mc' ),
+            label   = cms.untracked.string( '' ),
+            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_L1T' )
         )
     )
 
