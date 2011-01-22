@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.281 $"
+__version__ = "$Revision: 1.282 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1278,7 +1278,6 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.endjob_step)
 
     def finalizeFastSimHLT(self):
-            self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
             self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
             self.schedule.append(self.process.reconstruction)
 
@@ -1329,7 +1328,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.281 $"),
+                                            (version=cms.untracked.string("$Revision: 1.282 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
