@@ -73,7 +73,7 @@ void CMSDAS11DijetTestAnalyzer::analyze( const edm::Event& iEvent, const edm::Ev
   edm::Handle<GenEventInfoProduct> hEventInfo;
   iEvent.getByLabel("generator", hEventInfo);
   if (hEventInfo.isValid())
-    mWeight = hEventInfo->weight();
+    mWeight = hEventInfo->weight() * 1E9; // convert weights from mb to pb
   else 
     mWeight = 1.;
   
@@ -132,6 +132,7 @@ void CMSDAS11DijetTestAnalyzer::analyze( const edm::Event& iEvent, const edm::Ev
     // put the selected jets into a collection
     selectedJets.push_back(jet);
   }
+
 
   hVertexZ->Fill(theVertex->z(), mWeight);
   return;
