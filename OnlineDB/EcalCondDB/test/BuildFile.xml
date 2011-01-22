@@ -5,9 +5,15 @@
 <bin   file="LaserSeqToDB.cpp">
   <flags NO_TESTRUN="1"/>
 </bin>
+<bin   file="TestLMF2010-temp.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
 <bin   file="TestLMF2010-write.cpp">
   <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="TestLMF2010-read.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="TestLMF2010-getPrimitives.cpp">
   <flags NO_TESTRUN="1"/>
 </bin>
