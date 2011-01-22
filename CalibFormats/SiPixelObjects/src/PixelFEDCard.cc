@@ -1666,8 +1666,8 @@ void PixelFEDCard::writeXML( std::ofstream *fedstream,
       *fedstream << "   <NC_TESTREG>"               << NC_testreg 	   << "</NC_TESTREG>"	            << std::endl ;
       *fedstream << "   <SC_TESTREG>"               << SC_testreg 	   << "</SC_TESTREG>"	            << std::endl ;
       *fedstream << "   <SO_TESTREG>"               << S_testreg 	   << "</SO_TESTREG>"	            << std::endl ;
-      *fedstream << "	<BUSYWHENBEHIND>"           << BusyHoldMin	   << "</BUSYWHENBEHIND>"	    << std::endl ;
-      *fedstream << "	<BUSYHOLDMIN>"              << BusyWhenBehind	   << "</BUSYHOLDMIN>"  	    << std::endl ;
+      *fedstream << "	<BUSYWHENBEHIND>"           << BusyWhenBehind	   << "</BUSYWHENBEHIND>"	    << std::endl ;
+      *fedstream << "	<BUSYHOLDMIN>"              << BusyHoldMin	   << "</BUSYHOLDMIN>"  	    << std::endl ;
       *fedstream << "	<FEATUREREGISTER>"          << FeatureRegister	   << "</FEATUREREGISTER>"	    << std::endl ;
       *fedstream << "	<FIFO2LIMIT>"               << FIFO2Limit	   << "</FIFO2LIMIT>"		    << std::endl ;
       *fedstream << "	<LASTDACOFF>"               << LastDacOff	   << "</LASTDACOFF>"		    << std::endl ;
