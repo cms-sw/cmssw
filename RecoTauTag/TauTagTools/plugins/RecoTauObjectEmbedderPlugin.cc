@@ -74,16 +74,17 @@ void RecoTauObjectEmbedder<T>::beginEvent() {
 
 template<typename T>
 void RecoTauObjectEmbedder<T>::operator()(PFTau& tau) const {
-  // Get the matched truth tau if it exists
-  edm::Ref<T> truth = (*jetMatch_)[tau.jetRef()];
-  if (truth.isNonnull()) {
-    // Store our generator level information
-    tau.setalternatLorentzVect(truth->p4());
+  // Get the matched object that is matched to the same jet as the current tau,
+  // if it exists
+  edm::Ref<T> matchedObject = (*jetMatch_)[tau.jetRef()];
+  if (matchedObject.isNonnull()) {
+    // Store our matched object information
+    tau.setalternatLorentzVect(matchedObject->p4());
     // Store our generator decay mode
     tau.setbremsRecoveryEOverPLead(
         reco::tau::translateDecayMode(
-            helpers::nCharged(*truth),
-            helpers::nGammas(*truth)/2)
+            helpers::nCharged(*matchedObject),
+            helpers::nGammas(*matchedObject)/2)
         );
   } else {
     tau.setbremsRecoveryEOverPLead(-10);
