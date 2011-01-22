@@ -29,7 +29,7 @@ GLOBAL_TAG = 'GR_R_38X_V15::All'
 inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
 
 if isMC:
-    GLOBAL_TAG = 'START38_V12::All'
+    GLOBAL_TAG = 'START38_V14::All'
     inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
 
 

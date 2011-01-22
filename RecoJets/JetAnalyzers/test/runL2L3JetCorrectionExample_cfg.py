@@ -24,8 +24,10 @@ isMC = True
 ##                         |___/                                   
 
 NJetsToKeep = 2
+GLOBAL_TAG = 'GR_R_38X_V15::All'
 inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
 if isMC:
+    GLOBAL_TAG = 'START38_V14::All'
     inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
 
 
@@ -37,6 +39,9 @@ if isMC:
 
                                         
 process = cms.Process("Ana")
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = GLOBAL_TAG
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 
@@ -68,25 +73,13 @@ process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMCon
 
 #############   Include the jet corrections ##########
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
-from JetMETCorrections.Configuration.DefaultJEC_cff import *
-ak5CaloL2Relative.useCondDB = False
-ak5CaloL3Absolute.useCondDB = False
-ak5CaloResidual.useCondDB = False
-ak5PFL2Relative.useCondDB = False
-ak5PFL3Absolute.useCondDB = False
-ak5PFResidual.useCondDB = False
-ak5JPTL2Relative.useCondDB = False
-ak5JPTL3Absolute.useCondDB = False
-ak5JPTResidual.useCondDB = False
-
-
-process.ak5CaloJetsCor = ak5CaloJetsL2L3.clone()
-process.ak5PFJetsCor = ak5PFJetsL2L3.clone()
-process.ak5JPTJetsCor = ak5JPTJetsL2L3.clone()
+ak5CaloJetsCor = cms.InputTag("ak5CaloJetsL2L3")
+ak5PFJetsCor = cms.InputTag("ak5PFJetsL2L3")
+ak5JPTJetsCor = cms.InputTag("ak5JPTJetsL2L3")
 if not isMC:
-    process.ak5CaloJetsCor = ak5CaloJetsL2L3Residual.clone()
-    process.ak5PFJetsCor = ak5PFJetsL2L3Residual.clone()
-    process.ak5JPTJetsCor = ak5JPTJetsL2L3Residual.clone()
+    ak5CaloJetsCor = cms.InputTag("ak5CaloJetsL2L3Residual")
+    ak5PFJetsCor = cms.InputTag("ak5PFJetsL2L3Residual")
+    ak5JPTJetsCor = cms.InputTag("ak5JPTJetsL2L3Residual")
 
 
 ##  ____       _           _   _             
@@ -98,16 +91,16 @@ if not isMC:
 
 #############   Apply selection cuts ##
 process.ak5CaloJetsSel = cms.EDFilter("CaloJetSelector",  
-    src = cms.InputTag("ak5CaloJetsCor"),
+    src = ak5CaloJetsCor,
     cut = cms.string('pt > 20.0 && eta<3.0 && eta>-3.0')
 )
 process.ak5PFJetsSel = cms.EDFilter("PFJetSelector",  
-    src = cms.InputTag("ak5PFJetsCor"),
+    src = ak5PFJetsCor,
     cut = cms.string('pt > 20.0 && eta<3.0 && eta>-3.0')
 )
 
 process.ak5JPTJetsSel = cms.EDFilter("JPTJetSelector",  
-    src = cms.InputTag("ak5JPTJetsCor"),
+    src = ak5JPTJetsCor,
     cut = cms.string('pt > 20.0 && eta<3.0 && eta>-3.0')
 )
 
@@ -147,13 +140,16 @@ process.correctedAK5JPT = cms.EDAnalyzer("JPTJetPlotsExample",
 
 
 #############   Path       ###########################
-process.p = cms.Path( process.ak5CaloJetsCor +
+process.p = cms.Path( process.ak5CaloJetsL2L3 +
+                      process.ak5CaloJetsL2L3Residual + 
                       process.ak5CaloJetsSel +
-                      process.correctedAK5Calo +
-                      process.ak5PFJetsCor +
+                      process.correctedAK5Calo +                      
+                      process.ak5PFJetsL2L3 +
+                      process.ak5PFJetsL2L3Residual +
                       process.ak5PFJetsSel +
-                      process.correctedAK5PF  +
-                      process.ak5JPTJetsCor +
+                      process.correctedAK5PF  +                      
+                      process.ak5JPTJetsL2L3 +
+                      process.ak5JPTJetsL2L3Residual +                      
                       process.ak5JPTJetsSel +
                       process.correctedAK5JPT
                       )
