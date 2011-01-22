@@ -31,6 +31,11 @@ class HLTProcess(object):
       self.labels['process'] = 'process.'
       self.labels['dict']    = 'process.__dict__'
 
+    if self.config.online:
+      self.labels['connect'] = 'frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)'
+    else:
+      self.labels['connect'] = 'frontier://FrontierProd'
+
     # get the configuration from ConfdB
     self.buildOptions()
     self.expandWildcardOptions()
@@ -263,6 +268,7 @@ if 'PrescaleService' in %(dict)s:
     text = ''
     if self.config.online:
       if self.config.globaltag:
+        # override the GlobalTag
         text += """
 # override the GlobalTag
 if 'GlobalTag' in %%(dict)s:
@@ -270,14 +276,13 @@ if 'GlobalTag' in %%(dict)s:
 """
 
     else:
-      text += """
-# override the GlobalTag connection string and pfnPrefix
-if 'GlobalTag' in %%(dict)s:
-"""
-
       # override the GlobalTag connection string and pfnPrefix
-      text += "    %%(process)sGlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
-      text += "    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
+      text += """
+# override the GlobalTag, connection string and pfnPrefix
+if 'GlobalTag' in %%(dict)s:
+    %%(process)sGlobalTag.connect   = '%%(connect)s/CMS_COND_31X_GLOBALTAG'
+    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('%%(connect)s/')
+"""
 
       if self.config.data:
         # do not override the GlobalTag unless one was specified on the command line
@@ -306,17 +311,20 @@ if 'GlobalTag' in %%(dict)s:
 
   def overrideL1Menu(self):
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
+    self.config.l1.record = 'L1GtTriggerMenuRcd'
+    self.config.l1.label  = ''
     if self.config.l1.override:
       if not self.config.l1.connect:
-        self.config.l1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
+        self.config.l1.connect = '%%(connect)s/CMS_COND_31X_L1T'
       self.data += """
 # override the L1 menu
 if 'GlobalTag' in %%(dict)s:
     %%(process)sGlobalTag.toGet.append(
         cms.PSet(
-            record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "%(override)s" ),
-            connect = cms.untracked.string( %(connect)s )
+            record  = cms.string( '%(record)s' ),
+            tag     = cms.string( '%(override)s' ),
+            label   = cms.untracked.string( '%(label)s' ),
+            connect = cms.untracked.string( '%(connect)s' )
         )
     )
 """ % self.config.l1.__dict__
