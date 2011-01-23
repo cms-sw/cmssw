@@ -3668,6 +3668,11 @@ public :
 				    float r9barrel, float r9endcap,  
 				    float detabarrel, float detaendcap,  
 				    float dphibarrel, float dphiendcap); 
+  int OpenHlt1PhotonPassedRA3(float Et, int L1iso,
+			      float HisooverETbarrel, float HisooverETendcap,
+			      float EisooverETbarrel, float EisooverETendcap,
+			      float hoverebarrel, float hovereendcap,
+			      float r9barrel, float r9endcap);
   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   std::vector<int> VectorOpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC,float HoverE=999, 
 					      float R9=999, float ClusShapEB=999, float ClusShapEC=999); 

@@ -520,7 +520,7 @@ HLTDatasets::HLTDatasets(const std::vector<TString>& triggerNames, const Char_t*
   if (datasetDefinitionFile && datasetDefinitionFile[0]) {
     std::ifstream           input(datasetDefinitionFile);
     if (!input.good())
-      std::cerr << "ERROR : Cannot open dataset definitions file " << datasetDefinitionFile << std::endl;
+      std::cerr << "WARNING : Cannot open dataset definitions file " << datasetDefinitionFile << " - this is only a problem if you're working on Primary Dataset definitions" << std::endl;
     else {
       scenarioName          = gSystem->BaseName(datasetDefinitionFile);
       Int_t                 iExtension    = scenarioName.Last('.');

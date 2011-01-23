@@ -2813,6 +2813,84 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }  
    
 /* Photons */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon32_SC32_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(32.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=2) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon32_SC26_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(32.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=1  && OpenHlt1PhotonPassedRA3(26.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=2) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon28_SC26_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(28.,0,999.,999.,999.,999.,0.15,0.15,0.98,1.0)>=1  && OpenHlt1PhotonPassedRA3(26.,0,999.,999.,999.,999.,0.15,0.15,0.98,1.0)>=2) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon70_HT200_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(70.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=1  && OpenHltSumHTPassed(200.,30.)>=1) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon70_HT300_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(70.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=1  && OpenHltSumHTPassed(300.,30.)>=1) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon60_HT200_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(60.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=1  && OpenHltSumHTPassed(200.,30.)>=1) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon70_MHT30_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(70.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=1  && OpenHltMHT(30., 20.)==1) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon70_MHT50_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(70.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=1  && OpenHltMHT(50., 20.)==1) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_EgammaSuperClusterOnly_L1R") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -5545,6 +5623,53 @@ int OHltTree::OpenHlt1PhotonSamHarperPassed(float Et, int L1iso,
   
   return rc;
 }
+
+int OHltTree::OpenHlt1PhotonPassedRA3(float Et, int L1iso, 
+				      float HisooverETbarrel, float HisooverETendcap, 
+				      float EisooverETbarrel, float EisooverETendcap,
+				      float hoverebarrel, float hovereendcap,
+				      float r9barrel, float r9endcap)
+{
+  float barreleta = 1.479;
+  float endcapeta = 2.65;
+  
+  int rc = 0;
+  // Loop over all oh photons
+  for (int i=0;i<NohPhot;i++) {
+    float ohPhotE = ohPhotEt[i] / (sin(2*atan(exp(-1.0*ohPhotEta[i]))));   
+    float ohPhotHoverE = ohPhotHforHoverE[i]/ohPhotE;
+    int isbarrel = 0;
+    int isendcap = 0;
+    if(TMath::Abs(ohPhotEta[i]) < barreleta)
+      isbarrel = 1;
+    if(barreleta < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < endcapeta)
+      isendcap = 1;
+    
+    if ( ohPhotEt[i] > Et) {
+      if( TMath::Abs(ohPhotEta[i]) < endcapeta ) {
+	if ( ohPhotL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
+	  if( ohPhotL1Dupl[i] == false) { // remove double-counted L1 SCs 
+	    if ( (isbarrel && ((ohPhotHiso[i]/ohPhotEt[i]) < HisooverETbarrel)) ||
+		 (isendcap && ((ohPhotHiso[i]/ohPhotEt[i]) < HisooverETendcap)) ) {
+	      if ( (isbarrel && ((ohPhotEiso[i]/ohPhotEt[i]) < EisooverETbarrel)) ||
+		   (isendcap && ((ohPhotEiso[i]/ohPhotEt[i]) < EisooverETendcap)) ) {
+		if ( ((isbarrel) && (ohPhotHoverE < hoverebarrel)) ||
+		     ((isendcap) && (ohPhotHoverE < hovereendcap))) {
+		  if ( (isbarrel && ohPhotR9[i] < r9barrel) || 
+		       (isendcap && ohPhotR9[i] < r9endcap)) {
+		    rc++;
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  return rc;
+}
+
 
 int OHltTree::OpenHlt1ElectronSamHarperPassed(float Et, int L1iso, 
 					      float Tisobarrel, float Tisoendcap, 
