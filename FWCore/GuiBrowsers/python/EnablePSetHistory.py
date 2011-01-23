@@ -438,12 +438,27 @@ def new__Sequenceable_name(self):
     return ''
 cms._Sequenceable._name = new__Sequenceable_name
 
-from FWCore.ParameterSet.SequenceTypes import _SequenceCollection, _SequenceNegation, _SequenceIgnore
+try:
+    # for backwards-compatibility with CMSSW_3_10_X
+    from FWCore.ParameterSet.SequenceTypes import _SequenceOperator
 
+    def new__SequenceOperator_name(self):
+        return str(self._left._name())+str(self._pySymbol)+str(self._right._name())
+    _SequenceOperator._name = new__SequenceOperator_name    
+except:
+    pass
 
-def new__SequenceCollection_name(self):
-    return str(self._left._name())+str(self._pySymbol)+str(self._right._name())
-_SequenceCollection._name = new__SequenceCollection_name    
+try:
+    # since CMSSW_3_11_X
+    from FWCore.ParameterSet.SequenceTypes import _SequenceCollection
+
+    def new__SequenceCollection_name(self):
+        return str(self._left._name())+str(self._pySymbol)+str(self._right._name())
+    _SequenceCollection._name = new__SequenceCollection_name    
+except:
+    pass
+
+from FWCore.ParameterSet.SequenceTypes import _SequenceNegation, _SequenceIgnore
 
 def new__SequenceNegation_name(self):
     return '~'+str(self._operand._name())
