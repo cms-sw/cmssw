@@ -219,10 +219,10 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   tau.addPFCands(RecoTauConstructor::kIsolation,
                  RecoTauConstructor::kChargedHadron,
                  boost::make_filter_iterator(
-                   xclean::makePredicateAND(signalConePFCHFilter, pfCandXCleaner),
+                   xclean::makePredicateAND(isoConePFCHFilter, pfCandXCleaner),
                    pfchs.begin(), pfchs.end()),
                  boost::make_filter_iterator(
-                   xclean::makePredicateAND(signalConePFCHFilter, pfCandXCleaner),
+                   xclean::makePredicateAND(isoConePFCHFilter, pfCandXCleaner),
                    pfchs.end(), pfchs.end()));
 
   // Build isolation neutral hadrons
@@ -237,10 +237,10 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
 
   // Build isolation PiZeros
   tau.addPiZeros(RecoTauConstructor::kIsolation,
-                 PiZeroDRFilterIter(isoConePiZeroFilter, piZeros.begin(),
-                                    piZeros.end()),
-                 PiZeroDRFilterIter(isoConePiZeroFilter, piZeros.end(),
-                                    piZeros.end()));
+                 PiZeroDRFilterIter(isoConePiZeroFilter, cleanPiZeros.begin(),
+                                    cleanPiZeros.end()),
+                 PiZeroDRFilterIter(isoConePiZeroFilter, cleanPiZeros.end(),
+                                    cleanPiZeros.end()));
 
   // Put our built tau in the output - 'false' indicates don't build the
   // leading candidtes, we already did that explicitly above.
