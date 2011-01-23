@@ -1509,7 +1509,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1MuonPassed(3.,3.,3.,2.,0)>=1) {  
+	if(OpenHlt1MuonPassed(0.,0.,3.,2.,0)>=1) {  
 	  triggerBit[it] = true; 
 	}
       }  
@@ -1868,7 +1868,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1) {   
+	if(OpenHlt1MuonPassed(3.,3.,5.,2.,0)>=1) {   
 	  triggerBit[it] = true; 
 	}
       }   
@@ -1932,7 +1932,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu15") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1MuonPassed(7.,7.,15.,2.,0)>=1) {    
+	if(OpenHlt1MuonPassed(10.,10.,15.,2.,0)>=1) {    
 	  triggerBit[it] = true; 
 	}
       }    
@@ -1941,7 +1941,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu20") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
-        if(OpenHlt1MuonPassed(7.,15.,20.,2.,0)>=1) { 
+        if(OpenHlt1MuonPassed(12.,12.,20.,2.,0)>=1) { 
           triggerBit[it] = true;  
         } 
       } 
@@ -1950,7 +1950,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu24") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) {  
-        if(OpenHlt1MuonPassed(7.,15.,24.,2.,0)>=1) {  
+        if(OpenHlt1MuonPassed(12.,12.,24.,2.,0)>=1) {  
           triggerBit[it] = true;   
         }  
       }  
@@ -1959,7 +1959,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu30") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) {  
-        if(OpenHlt1MuonPassed(7.,15.,30.,2.,0)>=1) {  
+        if(OpenHlt1MuonPassed(12.,12.,30.,2.,0)>=1) {  
           triggerBit[it] = true;   
         }  
       }  
@@ -2068,7 +2068,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu6") == 0) {    
    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
      if (prescaleResponse(menu,cfg,rcounter,it)) { 
-       if(OpenHlt2MuonPassed(0.,0.,6.,2.,0)>=2) {    
+       if(OpenHlt2MuonPassed(3.,3.,6.,2.,0)>=2) {    
 	 triggerBit[it] = true;  
        } 
      }    
@@ -2077,7 +2077,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu7") == 0) {    
    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
      if (prescaleResponse(menu,cfg,rcounter,it)) { 
-       if(OpenHlt2MuonPassed(0.,0.,7.,2.,0)>=2) {    
+       if(OpenHlt2MuonPassed(3.,3.,7.,2.,0)>=2) {    
 	 triggerBit[it] = true;  
        } 
      }    
@@ -2104,7 +2104,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_TripleMu5") == 0) {      
    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
      if (prescaleResponse(menu,cfg,rcounter,it)) { 
-       if(OpenHlt2MuonPassed(0.,0.,5.,2.,0)>=3) {      
+       if(OpenHlt2MuonPassed(3.,3.,5.,2.,0)>=3) {      
 	 triggerBit[it] = true;  
        } 
      } 
@@ -2219,7 +2219,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu15") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
-        if(OpenHlt1MuonPassed(7.,7.,15.,2.,1)>=1) {    
+        if(OpenHlt1MuonPassed(10.,10.,15.,2.,1)>=1) {    
           triggerBit[it] = true;  
         } 
       }    
@@ -2228,13 +2228,21 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu17") == 0) {     
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
       if (prescaleResponse(menu,cfg,rcounter,it)) {  
-        if(OpenHlt1MuonPassed(7.,7.,17.,2.,1)>=1) {     
+        if(OpenHlt1MuonPassed(10.,10.,17.,2.,1)>=1) {     
           triggerBit[it] = true;   
         }  
       }     
     }     
   }   
-
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu30") == 0) {      
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {    
+      if (prescaleResponse(menu,cfg,rcounter,it)) {   
+        if(OpenHlt1MuonPassed(12.,12.,30.,2.,1)>=1) {      
+          triggerBit[it] = true;    
+        }   
+      }      
+    }      
+  }    
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoEle12_IsoMu12") == 0) {       
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
