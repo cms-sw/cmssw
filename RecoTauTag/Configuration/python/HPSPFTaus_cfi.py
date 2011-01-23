@@ -144,6 +144,8 @@ hpsPFTauProducer = cms.EDProducer(
     cleaners = cms.VPSet(
         # Prefer taus that dont' have charge == 3
         cleaners.unitCharge,
+        # Prefer taus that are within DR<0.1 of the jet axis
+        cleaners.matchingConeCut,
         # Prefer taus that pass HPS selections
         cms.PSet(
             name = cms.string("HPS_Select"),
@@ -152,26 +154,26 @@ hpsPFTauProducer = cms.EDProducer(
         ),
         # Then prefer those that pass isolation.  Also prefer those that pass
         # the tighter isolations
-        cms.PSet(
-            name = cms.string("TightIso"),
-            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
-            src = cms.InputTag("hpsTightIsolationCleaner"),
-        ),
-        cms.PSet(
-            name = cms.string("MediumIso"),
-            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
-            src = cms.InputTag("hpsMediumIsolationCleaner"),
-        ),
-        cms.PSet(
-            name = cms.string("LooseIso"),
-            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
-            src = cms.InputTag("hpsLooseIsolationCleaner"),
-        ),
-        cms.PSet(
-            name = cms.string("VLooseIso"),
-            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
-            src = cms.InputTag("hpsVLooseIsolationCleaner"),
-        ),
+        #cms.PSet(
+            #name = cms.string("TightIso"),
+            #plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
+            #src = cms.InputTag("hpsTightIsolationCleaner"),
+        #),
+        #cms.PSet(
+            #name = cms.string("MediumIso"),
+            #plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
+            #src = cms.InputTag("hpsMediumIsolationCleaner"),
+        #),
+        #cms.PSet(
+            #name = cms.string("LooseIso"),
+            #plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
+            #src = cms.InputTag("hpsLooseIsolationCleaner"),
+        #),
+        #cms.PSet(
+            #name = cms.string("VLooseIso"),
+            #plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
+            #src = cms.InputTag("hpsVLooseIsolationCleaner"),
+        #),
         # Finally, if all this passes, take the one with less stuff in the
         # isolation cone.
         cleaners.combinedIsolation
