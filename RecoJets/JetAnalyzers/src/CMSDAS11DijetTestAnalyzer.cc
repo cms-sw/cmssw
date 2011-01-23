@@ -17,6 +17,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
 #include <TH1D.h>
+#include <TH2D.h>
 
 CMSDAS11DijetTestAnalyzer::CMSDAS11DijetTestAnalyzer(edm::ParameterSet const& params) :
   edm::EDAnalyzer(),
@@ -43,13 +44,13 @@ CMSDAS11DijetTestAnalyzer::CMSDAS11DijetTestAnalyzer(edm::ParameterSet const& pa
   hJet1Pt      = fs->make<TH1D>("hJet1Pt","Corrected Jet1 Pt",50,0,1000);
   hJet2Pt      = fs->make<TH1D>("hJet2Pt","Corrected Jet2 Pt",50,0,1000);
 
-  hJetEta      = fs->make<TH1D>("hJetEta","Corrected Jet Eta",   10,-5,5);
-  hJet1Eta      = fs->make<TH1D>("hJet1Eta","Corrected Jet1 Eta",10,-5,5);
-  hJet2Eta      = fs->make<TH1D>("hJet2Eta","Corrected Jet2 Eta",10,-5,5);
+  hJetEta      = fs->make<TH1D>("hJetEta","Corrected Jet Eta",   50,-5,5);
+  hJet1Eta      = fs->make<TH1D>("hJet1Eta","Corrected Jet1 Eta",50,-5,5);
+  hJet2Eta      = fs->make<TH1D>("hJet2Eta","Corrected Jet2 Eta",50,-5,5);
 
-  hJetPhi      = fs->make<TH1D>("hJetPhi","Corrected Jet Phi",   10,-3.1415,3.1415);
-  hJet1Phi      = fs->make<TH1D>("hJet1Phi","Corrected Jet1 Phi",10,-3.1415,3.1415);
-  hJet2Phi      = fs->make<TH1D>("hJet2Phi","Corrected Jet2 Phi",10,-3.1415,3.1415);
+  hJetPhi      = fs->make<TH1D>("hJetPhi","Corrected Jet Phi",   50,-3.1415,3.1415);
+  hJet1Phi      = fs->make<TH1D>("hJet1Phi","Corrected Jet1 Phi",50,-3.1415,3.1415);
+  hJet2Phi      = fs->make<TH1D>("hJet2Phi","Corrected Jet2 Phi",50,-3.1415,3.1415);
 
   hJetEMF	= fs->make<TH1D>("hJetEMF","EM Fraction of Jets",50,0,1);
   hJet1EMF	= fs->make<TH1D>("hJet1EMF","EM Fraction of Jet1",50,0,1);
@@ -58,6 +59,8 @@ CMSDAS11DijetTestAnalyzer::CMSDAS11DijetTestAnalyzer(edm::ParameterSet const& pa
   hCorDijetMass = fs->make<TH1D>("hCorDijetMass","Corrected Dijet Mass",NBINS-1,BOUNDARIES);
   hDijetDeltaPhi= fs->make<TH1D>("hDijetDeltaPhi","Dijet |#Delta #phi|",50,0,3.1415);
   hDijetDeltaEta= fs->make<TH1D>("hDijetDeltaEta","Dijet |#Delta #eta|",50,0,1.3);
+  hDijetDeltaPhiNJets= fs->make<TH2D>("hDijetDeltaPhiNJets","Dijet |#Delta #phi| v. the number of jets",50,0,3.1415,7,0.5,7.5);
+  hDijetEta1Eta2=fs->make<TH2D>("hDijetEta1Eta2","Eta 1 versus Eta 2 of dijet events",50,-5,5,50,-5,5);
 
   hInnerDijetMass = fs->make<TH1D>("hInnerDijetMass","Corrected Inner Dijet Mass",NBINS-1,BOUNDARIES);
   hOuterDijetMass = fs->make<TH1D>("hOuterDijetMass","Corrected Outer Dijet Mass",NBINS-1,BOUNDARIES);

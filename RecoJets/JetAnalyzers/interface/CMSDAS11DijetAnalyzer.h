@@ -15,6 +15,7 @@
 #include <string>
 
 class TH1D;
+class TH2D;
 
 class CMSDAS11DijetAnalyzer : public edm::EDAnalyzer {
  public:

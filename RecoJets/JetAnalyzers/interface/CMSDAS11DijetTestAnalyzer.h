@@ -15,6 +15,7 @@
 #include <string>
 
 class TH1D;
+class TH2D;
 
 class CMSDAS11DijetTestAnalyzer : public edm::EDAnalyzer {
  public:
@@ -58,6 +59,8 @@ class CMSDAS11DijetTestAnalyzer : public edm::EDAnalyzer {
   TH1D* hJet2EMF;
   TH1D* hDijetDeltaPhi;
   TH1D* hDijetDeltaEta;
+  TH2D* hDijetDeltaPhiNJets;
+  TH2D* hDijetEta1Eta2;
 
   TH1D* hInnerDijetMass;
   TH1D* hOuterDijetMass;
