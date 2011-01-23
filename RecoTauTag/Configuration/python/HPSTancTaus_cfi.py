@@ -146,6 +146,8 @@ hpsTancTaus = cms.EDProducer(
     cleaners = cms.VPSet(
         # Prefer taus that don't have charge == 3
         cleaners.unitCharge,
+        # Prefer taus that are within DR<0.1 of the jet axis
+        cleaners.matchingConeCut,
         # Prefer taus that pass the lead pion requirement
         cms.PSet(
             name = cms.string("lead pion"),
