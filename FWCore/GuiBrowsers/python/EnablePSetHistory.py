@@ -515,7 +515,7 @@ cms._ModuleSequenceType.__imul__ = new__ModuleSequenceType__imul__
 def new__ModuleSequenceType__iadd__(self,other):
     stack = auto_inspect()
     self._isModified=True
-    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name()})
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name(),'old':None})
     return self.old__iadd__(other)
 cms._ModuleSequenceType.old__iadd__ = cms._ModuleSequenceType.__iadd__
 cms._ModuleSequenceType.__iadd__ = new__ModuleSequenceType__iadd__
