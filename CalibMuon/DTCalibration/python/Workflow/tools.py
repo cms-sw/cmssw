@@ -16,19 +16,24 @@ def listFilesInCastor(castor_dir,type = 'root',prefix = 'rfio:'):
 
     from subprocess import Popen,PIPE
     p1 = Popen(['nsls',castor_dir],stdout=PIPE)
-    p2 = Popen(['grep',type],stdin=p1.stdout,stdout=PIPE)
-    files = [prefix + castor_dir + "/" + item[:-1] for item in p2.stdout]
-    p2.stdout.close()
+    #p2 = Popen(['grep',type],stdin=p1.stdout,stdout=PIPE)
+    #files = [prefix + castor_dir + "/" + item[:-1] for item in p2.stdout]
+    #p2.stdout.close()
+    files = [ "%s%s/%s" % (prefix,castor_dir,item.rstrip()) for item in p1.stdout if item.find(type) != -1 ] 
+    p1.stdout.close()
     return files
 
 def listFilesLocal(dir,type = 'root'):
     if not dir: raise ValueError,'Please specify valid dir'
 
-    from subprocess import Popen,PIPE
-    p1 = Popen(['ls',dir],stdout=PIPE)
-    p2 = Popen(['grep',type],stdin=p1.stdout,stdout=PIPE)
-    files = [dir + "/" + item[:-1] for item in p2.stdout]
-    p2.stdout.close()
+    #from subprocess import Popen,PIPE
+    #p1 = Popen(['ls',dir],stdout=PIPE)
+    #p2 = Popen(['grep',type],stdin=p1.stdout,stdout=PIPE)
+    #files = [dir + "/" + item[:-1] for item in p2.stdout]
+    #p2.stdout.close()
+    files = os.listdir(dir)
+    files = [ "%s/%s" % (dir,item) for item in files if item.find(type) != -1 ]
+
     return files
 
 def haddInCastor(castor_dir,result_file,type = 'root',prefix = 'rfio:',suffix = None):
@@ -90,73 +95,77 @@ def parseInput(inputFields,requiredFields = ()):
 
     return options
 
-def loadCmsProcess(pset_name):
-    pset = imp.load_source("psetmodule",pset_name)
+def loadCmsProcess(psetName):
+    pset = imp.load_source("psetmodule",psetName)
     return pset.process
 
 def prependPaths(process,seqname):
     for path in process.paths: 
         getattr(process,path)._seq = getattr(process,seqname)*getattr(process,path)._seq
 
-def writeCfg(process,dir,pset_name):
+def writeCfg(process,dir,psetName):
     if not os.path.exists(dir): os.makedirs(dir)
-    open(dir + '/' + pset_name,'w').write(process.dumpPython())
+    open(dir + '/' + psetName,'w').write(process.dumpPython())
 
-def loadCrabCfg(cfg_name):
+def loadCrabCfg(cfgName=None):
     config = ConfigParser.ConfigParser()
-    config.read(cfg_name)
+    if cfgName: config.read(cfgName)
     return config
 
-def loadCrabDefault(crab_cfg,config):
+def loadCrabDefault(crabCfg,config):
     # CRAB section
-    if not crab_cfg.has_section('CRAB'): crab_cfg.add_section('CRAB')
-    crab_cfg.set('CRAB','jobtype','cmssw')
-    crab_cfg.set('CRAB','scheduler',config.scheduler) 
-    if config.useserver: crab_cfg.set('CRAB','use_server',1)
+    if not crabCfg.has_section('CRAB'): crabCfg.add_section('CRAB')
+    crabCfg.set('CRAB','jobtype','cmssw')
+    crabCfg.set('CRAB','scheduler',config.scheduler) 
+    if config.useserver: crabCfg.set('CRAB','use_server',1)
 
     # CMSSW section
-    if not crab_cfg.has_section('CMSSW'): crab_cfg.add_section('CMSSW')
-    crab_cfg.set('CMSSW','datasetpath',config.datasetpath)
-    crab_cfg.set('CMSSW','pset','pset.py')
+    if not crabCfg.has_section('CMSSW'): crabCfg.add_section('CMSSW')
+    crabCfg.set('CMSSW','datasetpath',config.datasetpath)
+    crabCfg.set('CMSSW','pset','pset.py')
 
     # Splitting config
-    crab_cfg.remove_option('CMSSW','total_number_of_events')
-    crab_cfg.remove_option('CMSSW','events_per_job')
-    crab_cfg.remove_option('CMSSW','number_of_jobs')
-    crab_cfg.remove_option('CMSSW','total_number_of_lumis')
-    crab_cfg.remove_option('CMSSW','lumis_per_job')
-    crab_cfg.remove_option('CMSSW','lumi_mask')
-    crab_cfg.remove_option('CMSSW','split_by_run')
+    crabCfg.remove_option('CMSSW','total_number_of_events')
+    crabCfg.remove_option('CMSSW','events_per_job')
+    crabCfg.remove_option('CMSSW','number_of_jobs')
+    crabCfg.remove_option('CMSSW','total_number_of_lumis')
+    crabCfg.remove_option('CMSSW','lumis_per_job')
+    crabCfg.remove_option('CMSSW','lumi_mask')
+    crabCfg.remove_option('CMSSW','split_by_run')
  
-    crab_cfg.set('CMSSW','runselection',config.runselection)
-    #if hasattr(config,'totalnumberevents'): crab_cfg.set('CMSSW','total_number_of_events',config.totalnumberevents)
-    #if hasattr(config,'eventsperjob'): crab_cfg.set('CMSSW','events_per_job',config.eventsperjob) 
+    crabCfg.set('CMSSW','runselection',config.runselection)
+    """
+    if hasattr(config,'totalnumberevents'): crabCfg.set('CMSSW','total_number_of_events',config.totalnumberevents)
+    if hasattr(config,'eventsperjob'): crabCfg.set('CMSSW','events_per_job',config.eventsperjob) 
+    """
     if hasattr(config,'splitByLumi') and config.splitByLumi:
-        crab_cfg.set('CMSSW','total_number_of_lumis',config.totalnumberlumis)
-        crab_cfg.set('CMSSW','lumis_per_job',config.lumisperjob)
-        if hasattr(config,'lumimask') and config.lumimask: crab_cfg.set('CMSSW','lumi_mask',config.lumimask)
+        crabCfg.set('CMSSW','total_number_of_lumis',config.totalnumberlumis)
+        crabCfg.set('CMSSW','lumis_per_job',config.lumisperjob)
+        if hasattr(config,'lumimask') and config.lumimask: crabCfg.set('CMSSW','lumi_mask',config.lumimask)
     else:
-        crab_cfg.set('CMSSW','split_by_run',1)
+        crabCfg.set('CMSSW','split_by_run',1)
  
     # USER section
-    if not crab_cfg.has_section('USER'): crab_cfg.add_section('USER')  
+    if not crabCfg.has_section('USER'): crabCfg.add_section('USER')  
 
     # Stageout config
     if hasattr(config,'stageOutCAF') and config.stageOutCAF:
-        crab_cfg.set('USER','return_data',0)                
-        crab_cfg.set('USER','copy_data',1)  
-        crab_cfg.set('USER','storage_element','T2_CH_CAF')
-        crab_cfg.set('USER','user_remote_dir',config.userdircaf)
-        crab_cfg.set('USER','check_user_remote_dir',0)
+        crabCfg.set('USER','return_data',0)                
+        crabCfg.set('USER','copy_data',1)  
+        crabCfg.set('USER','storage_element','T2_CH_CAF')
+        crabCfg.set('USER','user_remote_dir',config.userdircaf)
+        crabCfg.set('USER','check_user_remote_dir',0)
     elif hasattr(config,'stageOutLocal') and config.stageOutLocal:
-        crab_cfg.set('USER','return_data',1)                
-        crab_cfg.set('USER','copy_data',0)
-        crab_cfg.remove_option('USER','storage_element')
-        crab_cfg.remove_option('USER','user_remote_dir')
-        crab_cfg.remove_option('USER','check_user_remote_dir')
+        crabCfg.set('USER','return_data',1)                
+        crabCfg.set('USER','copy_data',0)
+        crabCfg.remove_option('USER','storage_element')
+        crabCfg.remove_option('USER','user_remote_dir')
+        crabCfg.remove_option('USER','check_user_remote_dir')
 
-    if hasattr(config,'email') and config.email: crab_cfg.set('USER','eMail',config.email)
-    crab_cfg.set('USER','xml_report','crabReport.xml')
+    if hasattr(config,'email') and config.email: crabCfg.set('USER','eMail',config.email)
+    crabCfg.set('USER','xml_report','crabReport.xml')
 
     if hasattr(config,'runOnGrid') and config.runOnGrid:
-        crab_cfg.remove_section('CAF')
+        crabCfg.remove_section('CAF')
+
+    return crabCfg
