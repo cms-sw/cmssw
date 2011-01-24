@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/23 12:37:32 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/01/24 14:23:01 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -168,20 +168,19 @@ void HLTConfigData::extract()
      if (iPS.existsAs<vector<string> >("lvl1Labels",true)) {
        labels = iPS.getParameter<vector<string> >("lvl1Labels");
      }
-     vector<ParameterSet> vpTable;
-     if (iPS.existsAs<ParameterSet>("prescaleTable",true)) {
-       vpTable=iPS.getParameterSetVector("prescaleTable");
-     }
      unsigned int set(0);
      const unsigned int n(labels.size());
      for (unsigned int i=0; i!=n; ++i) {
        if (labels[i]==defaultLabel) set=i;
      }
      map<string,vector<unsigned int> > table;
-     const unsigned int m (vpTable.size());
-     for (unsigned int i=0; i!=m; ++i) {
-       table[vpTable[i].getParameter<std::string>("pathName")] = 
-	 vpTable[i].getParameter<std::vector<unsigned int> >("prescales");
+     if (iPS.existsAs< vector<ParameterSet> >("prescaleTable",true)) {
+       const vector<ParameterSet>& vpTable(iPS.getParameterSetVector("prescaleTable"));
+       const unsigned int m (vpTable.size());
+       for (unsigned int i=0; i!=m; ++i) {
+	 table[vpTable[i].getParameter<std::string>("pathName")] = 
+	   vpTable[i].getParameter<std::vector<unsigned int> >("prescales");
+       }
      }
      if (n>0) {
        hltPrescaleTable_=HLTPrescaleTable(set,labels,table);
