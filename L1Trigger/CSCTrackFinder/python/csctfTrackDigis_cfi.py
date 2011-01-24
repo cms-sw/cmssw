@@ -18,7 +18,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		PTLUT = cms.PSet(
 			LowQualityFlag = cms.untracked.uint32(4),
 			ReadPtLUT = cms.bool(False),
-			PtMethod = cms.untracked.uint32(4)
+			PtMethod = cms.untracked.uint32(21)
 		),
 		
 		# Operational mode control
@@ -39,7 +39,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		CoreLatency = cms.uint32(7),
 		PreTrigger = cms.uint32(2),
 		BXAdepth = cms.uint32(2),
-		widePhi = cms.uint32(1),
+		widePhi = cms.uint32(0),
 		
 		# Control Registers to core,
 		# Reordered to match firmware interface
@@ -49,7 +49,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		
 		EtaMin = cms.vuint32(0, 0, 0, 0, 0, 0, 0, 0),
 		
-		mindeta12_accp = cms.uint32(8),
+		mindeta12_accp = cms.uint32(12),
 		mindeta13_accp = cms.uint32(13),
 		mindeta112_accp = cms.uint32(14),
 		mindeta113_accp = cms.uint32(21),
@@ -61,7 +61,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		maxdeta112_accp = cms.uint32(29),
 		maxdeta113_accp = cms.uint32(38),
 		
-		EtaWindows = cms.vuint32(6, 6, 6, 6, 6, 6, 6), 
+		EtaWindows = cms.vuint32(4, 4, 6, 6, 6, 6, 6), 
 		
 		maxdphi12_accp = cms.uint32(64),
 		maxdphi13_accp = cms.uint32(64),
@@ -71,8 +71,8 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		mindphip = cms.uint32(180),
 		mindphip_halo = cms.uint32(128),
 		
-		straightp = cms.uint32(60),
-		curvedp = cms.uint32(200),
+		straightp = cms.uint32(19),
+		curvedp = cms.uint32(15),
 		
 		mbaPhiOff = cms.uint32(0),
 		mbbPhiOff = cms.uint32(1982),
@@ -94,14 +94,17 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		QualityEnableME4b  = cms.uint32(65535),
 		QualityEnableME4c  = cms.uint32(65535),
 
-		firmwareSP = cms.uint32(20100210),
+		firmwareSP = cms.uint32(20110118),
 		firmwareFA = cms.uint32(20090521),
 		firmwareDD = cms.uint32(20090521),
 		firmwareVM = cms.uint32(20090521),
 
                 isCoreVerbose = cms.bool(False),
                                    
-		initializeFromPSet = cms.bool(False)
+		#use firmware version and PTLUTs listed in this files if True
+                #use firmware and PTLUTs from O2O if False 
+                #initializeFromPSet = cms.bool(True)
+                initializeFromPSet = cms.bool(False)
 	),
                                  
 	isTMB07 = cms.bool(True),
