@@ -17,9 +17,8 @@ classByHitsTM = cms.EDProducer("MuonMCClassifier",
     associatorLabel   = cms.string("muonAssociatorByHits_NoSimHits"),
     decayRho  = cms.double(200), # to classifiy differently decay muons included in ppMuX
     decayAbsZ = cms.double(400), # and decay muons that could not be in ppMuX
-    #makeGenParticles = cms.bool(False),           #   N O T
-    #linkGenParticles = cms.bool(False),           #   Y E T
-    #genParticles = cms.InputTag("genParticles"),  # T H E R E
+    linkToGenParticles = cms.bool(True),          # produce also a collection of GenParticles for secondary muons
+    genParticles = cms.InputTag("genParticles"),  # and associations to primary and secondaries
 )
 classByHitsTMLSAT = classByHitsTM.clone(
     muonPreselection = cms.string("muonID('TMLastStationAngTight')")
@@ -51,3 +50,7 @@ def addUserData(patMuonProducer,labels=['classByHitsGlb', 'classByHitsTM', 'clas
                 patMuonProducer.userData.userInts.src.append(cms.InputTag(label, ints))
             for ins in ("prodRho", "prodZ", "tpAssoQuality", "momRho", "momZ"):
                 patMuonProducer.userData.userFloats.src.append(cms.InputTag(label, ins))
+def addGenParticleRef(patMuonProducer, label = 'classByHitsGlb'):
+    patMuonProducer.addGenMatch = True
+    patMuonProducer.genParticleMatch = cms.VInputTag(cms.InputTag(label, "toPrimaries"), cms.InputTag(label, "toSecondaries"))
+    

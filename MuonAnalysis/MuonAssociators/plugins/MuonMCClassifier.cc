@@ -28,7 +28,7 @@
 //
 // Original Author:  Nov 16 16:12 (lxplus231.cern.ch)
 //         Created:  Sun Nov 16 16:14:09 CET 2008
-// $Id: MuonMCClassifier.cc,v 1.5 2010/11/03 15:16:29 gpetrucc Exp $
+// $Id: MuonMCClassifier.cc,v 1.6 2011/01/21 08:58:06 gpetrucc Exp $
 //
 //
 
@@ -48,8 +48,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/Association.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -93,10 +94,9 @@ class MuonMCClassifier : public edm::EDProducer {
         /// Cylinder to use to decide if a decay is early or late
         double decayRho_, decayAbsZ_;
 
-        //bool makeGenParticles_, linkGenParticles_; // not yet
-        //edm::InputTag genParticles_;               // implemented
-
-        TrackingParticleRef getParticleWithGen(TrackingParticleRef tp) const ;
+        /// Create a link to the generator level particles
+        bool linkToGenParticles_; 
+        edm::InputTag genParticles_; 
 
         /// Returns the flavour given a pdg id code
         int flavour(int pdgId) const ;
@@ -126,6 +126,17 @@ class MuonMCClassifier : public edm::EDProducer {
             return 0;
         }
 
+        /// Find the index of a genParticle given it's barcode. -1 if not found
+        int fetch(const edm::Handle<std::vector<int> > & genBarcodes, int barcode) const;
+
+        /// Convert TrackingParticle into GenParticle, save into output collection,
+        /// if mother is primary set reference to it,
+        /// return index in output collection
+        int convertAndPush(const TrackingParticle &tp, 
+                           reco::GenParticleCollection &out, 
+                           const TrackingParticleRef &momRef, 
+                           const edm::Handle<reco::GenParticleCollection> & genParticles, 
+                           const edm::Handle<std::vector<int> > & genBarcodes) const ;
 };
 
 MuonMCClassifier::MuonMCClassifier(const edm::ParameterSet &iConfig) :
@@ -135,10 +146,9 @@ MuonMCClassifier::MuonMCClassifier(const edm::ParameterSet &iConfig) :
     trackingParticles_(iConfig.getParameter<edm::InputTag>("trackingParticles")),
     associatorLabel_(iConfig.getParameter< std::string >("associatorLabel")),
     decayRho_(iConfig.getParameter<double>("decayRho")),
-    decayAbsZ_(iConfig.getParameter<double>("decayAbsZ"))/*,
-    makeGenParticles_(iConfig.getParameter<bool>("makeGenParticles")),
-    linkGenParticles_(makeGenParticles_ ? iConfig.getParameter<bool>("linkGenParticles") : false),
-    genParticles_(linkGenParticles_ ? iConfig.getParameter<edm::InputTag>("genParticles") : edm::InputTag("NONE"))*/
+    decayAbsZ_(iConfig.getParameter<double>("decayAbsZ")),
+    linkToGenParticles_(iConfig.getParameter<bool>("linkToGenParticles")),
+    genParticles_(linkToGenParticles_ ? iConfig.getParameter<edm::InputTag>("genParticles") : edm::InputTag("NONE"))
 {
     std::string trackType = iConfig.getParameter< std::string >("trackType");
     if (trackType == "inner") trackType_ = MuonAssociatorByHits::InnerTk;
@@ -163,6 +173,11 @@ MuonMCClassifier::MuonMCClassifier(const edm::ParameterSet &iConfig) :
     produces<edm::ValueMap<float> >("momRho"); 
     produces<edm::ValueMap<float> >("momZ"); 
     produces<edm::ValueMap<float> >("tpAssoQuality");
+    if (linkToGenParticles_) {
+        produces<reco::GenParticleCollection>("secondaries");
+        produces<edm::Association<reco::GenParticleCollection> >("toPrimaries");
+        produces<edm::Association<reco::GenParticleCollection> >("toSecondaries");
+    }
 }
 
 MuonMCClassifier::~MuonMCClassifier() 
@@ -179,6 +194,13 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     edm::Handle<TrackingParticleCollection> trackingParticles;
     iEvent.getByLabel(trackingParticles_, trackingParticles);
+
+    edm::Handle<reco::GenParticleCollection> genParticles;
+    edm::Handle<std::vector<int> > genBarcodes;
+    if (linkToGenParticles_) {
+        iEvent.getByLabel(genParticles_, genParticles);
+        iEvent.getByLabel(genParticles_, genBarcodes);
+    }
 
     edm::ESHandle<TrackAssociatorBase> associatorBase;
     iSetup.get<TrackAssociatorRecord>().get(associatorLabel_, associatorBase);
@@ -234,6 +256,12 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<int> tpId(nmu, -1);
     std::vector<float> prodRho(nmu, 0.0), prodZ(nmu, 0.0), momRho(nmu, 0.0), momZ(nmu, 0.0);
     std::vector<float> tpAssoQuality(nmu, -1);
+
+    std::auto_ptr<reco::GenParticleCollection> secondaries;     // output collection of secondary muons
+    std::map<TrackingParticleRef, int>         tpToSecondaries; // map from tp to (index+1) in output collection
+    std::vector<int> muToPrimary(nmu, -1), muToSecondary(nmu, -1); // map from input into (index) in output, -1 for null
+    if (linkToGenParticles_) secondaries.reset(new reco::GenParticleCollection());
+
     for(size_t i = 0; i < nmu; ++i) {
         edm::LogVerbatim("MuonMCClassifier") <<"\n reco::Muons # "<<i;
         edm::RefToBase<reco::Muon> mu = muons->refAt(i);
@@ -293,7 +321,7 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                     momStatus[i] = genMom->status();
                     if (genMom->production_vertex()) {
                         const HepMC::ThreeVector & momVtx = genMom->production_vertex()->point3d();
-                        momRho[i] = momVtx.perp(); momZ[i] = momVtx.z();
+                        momRho[i] = momVtx.perp() * 0.1; momZ[i] = momVtx.z() * 0.1; // HepMC is in mm!
                     }
                     edm::LogVerbatim("MuonMCClassifier") << "\t Particle pdgId = "<<hitsPdgId[i] << " produced at rho = " << prodRho[i] << ", z = " << prodZ[i] << ", has GEN mother pdgId = " << momPdgId[i];
                     const HepMC::GenParticle * genGMom = getGpMother(genMom);
@@ -381,6 +409,18 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 else                                                           ext[i] = 3; // late decay that wouldn't be in ppMuX
             } else ext[i] = 2; // decay of non-primary particle, would not be in ppMuX
             if (isGhost) ext[i] = -ext[i];
+
+            if (linkToGenParticles_ && abs(ext[i]) >= 2) {
+                // Link to the genParticle if possible, but not decays in flight (in ppMuX they're in GEN block, but they have wrong parameters)
+                if (!tp->genParticle().empty() && abs(ext[i]) >= 5) {
+                    muToPrimary[i] = fetch(genBarcodes, tp->genParticle()[0]->barcode());
+                } else {
+                    // Don't put the same trackingParticle twice!
+                    int &indexPlus1 = tpToSecondaries[tp]; // will create a 0 if the tp is not in the list already
+                    if (indexPlus1 == 0) indexPlus1 = convertAndPush(*tp, *secondaries, getTpMother(tp), genParticles, genBarcodes) + 1;
+                    muToSecondary[i] = indexPlus1 - 1; 
+                }
+            }
             edm::LogVerbatim("MuonMCClassifier") <<"\t Extended classification code = " << ext[i];
 	}
     }
@@ -401,6 +441,20 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     writeValueMap(iEvent, muons, momRho,    "momRho");
     writeValueMap(iEvent, muons, momZ,      "momZ");
     writeValueMap(iEvent, muons, tpAssoQuality, "tpAssoQuality");
+
+    if (linkToGenParticles_) {
+        edm::OrphanHandle<reco::GenParticleCollection> secHandle = iEvent.put(secondaries, "secondaries");
+        edm::RefProd<reco::GenParticleCollection> priRP(genParticles); 
+        edm::RefProd<reco::GenParticleCollection> secRP(secHandle);
+        std::auto_ptr<edm::Association<reco::GenParticleCollection> > outPri(new edm::Association<reco::GenParticleCollection>(priRP));
+        std::auto_ptr<edm::Association<reco::GenParticleCollection> > outSec(new edm::Association<reco::GenParticleCollection>(secRP));
+        edm::Association<reco::GenParticleCollection>::Filler fillPri(*outPri), fillSec(*outSec);
+        fillPri.insert(muons, muToPrimary.begin(),   muToPrimary.end());
+        fillSec.insert(muons, muToSecondary.begin(), muToSecondary.end());
+        fillPri.fill(); fillSec.fill();
+        iEvent.put(outPri, "toPrimaries");
+        iEvent.put(outSec, "toSecondaries");
+    }
 }    
 
 template<typename T>
@@ -419,19 +473,6 @@ MuonMCClassifier::writeValueMap(edm::Event &iEvent,
     iEvent.put(valMap, label);
 }
 
-TrackingParticleRef
-MuonMCClassifier::getParticleWithGen(TrackingParticleRef tp) const {
-    if (!tp->genParticle().empty()) return tp;
-    TrackingParticle::TrackingVertexRef prod = tp->parentVertex();
-    if (prod.isNonnull()) {
-        foreach(TrackingParticleRef par, prod->sourceTracks()) {
-            TrackingParticleRef gp = getParticleWithGen(par);
-            if (gp.isNonnull()) return gp;
-        }
-    }
-    return TrackingParticleRef();
-}
-
 int
 MuonMCClassifier::flavour(int pdgId) const {
     int flav = abs(pdgId);
@@ -447,6 +488,26 @@ MuonMCClassifier::flavour(int pdgId) const {
     return 0;
 }
 
+int MuonMCClassifier::fetch(const edm::Handle<std::vector<int> > & genBarcodes, int barcode) const
+{
+    std::vector<int>::const_iterator it = std::find(genBarcodes->begin(), genBarcodes->end(), barcode);
+    return (it == genBarcodes->end()) ? -1 : (it - genBarcodes->begin());
+}
+
+// push secondary in collection.
+// if it has a primary mother link to it. 
+int MuonMCClassifier::convertAndPush(const TrackingParticle &tp, 
+                                     reco::GenParticleCollection &out,
+                                     const TrackingParticleRef & simMom, 
+                                     const edm::Handle<reco::GenParticleCollection> & genParticles,
+                                     const edm::Handle<std::vector<int> > & genBarcodes) const {
+    out.push_back(reco::GenParticle(tp.charge(), tp.p4(), tp.vertex(), tp.pdgId(), tp.status(), true));
+    if (simMom.isNonnull() && !simMom->genParticle().empty()) {
+        int momIdx = fetch(genBarcodes, simMom->genParticle()[0]->barcode());
+        if (momIdx != -1)  out.back().addMother(reco::GenParticleRef(genParticles, momIdx));
+    }
+    return out.size()-1;
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(MuonMCClassifier);
