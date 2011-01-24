@@ -116,12 +116,16 @@ def loadCrabDefault(crabCfg,config):
     # CRAB section
     if not crabCfg.has_section('CRAB'): crabCfg.add_section('CRAB')
     crabCfg.set('CRAB','jobtype','cmssw')
-    crabCfg.set('CRAB','scheduler',config.scheduler) 
-    if config.useserver: crabCfg.set('CRAB','use_server',1)
+
+    if hasattr(config,'scheduler') and config.scheduler: crabCfg.set('CRAB','scheduler',config.scheduler) 
+    else: crabCfg.set('CRAB','scheduler','CAF')
+
+    if hasattr(config,'useserver') and config.useserver: crabCfg.set('CRAB','use_server',1)
 
     # CMSSW section
     if not crabCfg.has_section('CMSSW'): crabCfg.add_section('CMSSW')
-    crabCfg.set('CMSSW','datasetpath',config.datasetpath)
+    if hasattr(config,'datasetpath') and config.datasetpath: crabCfg.set('CMSSW','datasetpath',config.datasetpath)
+    else: crabCfg.set('CMSSW','datasetpath','/XXX/YYY/ZZZ') 
     crabCfg.set('CMSSW','pset','pset.py')
 
     # Splitting config
@@ -133,7 +137,7 @@ def loadCrabDefault(crabCfg,config):
     crabCfg.remove_option('CMSSW','lumi_mask')
     crabCfg.remove_option('CMSSW','split_by_run')
  
-    crabCfg.set('CMSSW','runselection',config.runselection)
+    if hasattr(config,'runselection') and config.runselection: crabCfg.set('CMSSW','runselection',config.runselection)
     """
     if hasattr(config,'totalnumberevents'): crabCfg.set('CMSSW','total_number_of_events',config.totalnumberevents)
     if hasattr(config,'eventsperjob'): crabCfg.set('CMSSW','events_per_job',config.eventsperjob) 
@@ -167,5 +171,8 @@ def loadCrabDefault(crabCfg,config):
 
     if hasattr(config,'runOnGrid') and config.runOnGrid:
         crabCfg.remove_section('CAF')
-
+    else:
+        if not crabCfg.has_section('CAF'): crabCfg.add_section('CAF')
+        crabCfg.set('CAF','queue','cmscaf1nh') 
+    
     return crabCfg
