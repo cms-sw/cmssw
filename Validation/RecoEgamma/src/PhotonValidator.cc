@@ -79,8 +79,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/11/16 09:32:29 $ 
- **  $Revision: 1.68 $
+ **  $Date: 2010/11/18 15:10:39 $ 
+ **  $Revision: 1.69 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1161,8 +1161,14 @@ void  PhotonValidator::beginJob() {
     h_vtxChi2Prob_[1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, 0., 1.);
     h_vtxChi2Prob_[2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, 0., 1.);
 
-    h_zPVFromTracks_[1] =  dbe_->book1D("zPVFromTracks"," Photons: PV z from conversion tracks",100, -25., 25.);
-    h_dzPVFromTracks_[1] =  dbe_->book1D("dzPVFromTracks"," Photons: PV Z_rec - Z_true from conversion tracks",100, -5., 5.);
+    histname="zPVFromTracks";
+    h_zPVFromTracks_[0] =  dbe_->book1D(histname+"All"," Photons: PV z from conversion tracks",100, -25., 25.);
+    h_zPVFromTracks_[1] =  dbe_->book1D(histname+"Barrel"," Photons: PV z from conversion tracks",100, -25., 25.);
+    h_zPVFromTracks_[2] =  dbe_->book1D(histname+"Endcap"," Photons: PV z from conversion tracks",100, -25., 25.);
+    histname="dzPVFromTracks";
+    h_dzPVFromTracks_[0] =  dbe_->book1D(histname+"All"," Photons: PV Z_rec - Z_true from conversion tracks",100, -5., 5.);
+    h_dzPVFromTracks_[1] =  dbe_->book1D(histname+"Barrel"," Photons: PV Z_rec - Z_true from conversion tracks",100, -5., 5.);
+    h_dzPVFromTracks_[2] =  dbe_->book1D(histname+"Endcap"," Photons: PV Z_rec - Z_true from conversion tracks",100, -5., 5.);
     p_dzPVVsR_ =  dbe_->bookProfile("pdzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax, 100, -3.,3.,"");
 
     if ( ! isRunCentrally_ ) {
@@ -2390,17 +2396,23 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 		if ( ! isRunCentrally_ ) h2_convVtxRrecVsTrue_ -> Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) );
 		
-		
-		
-	      } // end conversion vertex valid
-	      
-	      
-	      
-	      h_zPVFromTracks_[type]->Fill ( aConv->zOfPrimaryVertexFromTracks() );
-	      h_dzPVFromTracks_[type]->Fill ( aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
-	      p_dzPVVsR_ ->Fill(mcConvR_, aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
-	      if ( ! isRunCentrally_ ) h2_dzPVVsR_ ->Fill(mcConvR_, aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );   
 
+		h_zPVFromTracks_[0]->Fill ( aConv->zOfPrimaryVertexFromTracks() );
+		h_dzPVFromTracks_[0]->Fill ( aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
+		
+		
+		if ( phoIsInBarrel ) {
+		  h_zPVFromTracks_[1]->Fill ( aConv->zOfPrimaryVertexFromTracks() );
+		  h_dzPVFromTracks_[1]->Fill ( aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
+		} else if ( phoIsInEndcap) {
+		  h_zPVFromTracks_[2]->Fill ( aConv->zOfPrimaryVertexFromTracks() );
+		  h_dzPVFromTracks_[2]->Fill ( aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
+		}
+		
+		p_dzPVVsR_ ->Fill(mcConvR_, aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
+		if ( ! isRunCentrally_ ) h2_dzPVVsR_ ->Fill(mcConvR_, aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );   
+		
+	      }
 	      	      
 	      float  dPhiTracksAtEcal=-99;
 	      float  dEtaTracksAtEcal=-99;
