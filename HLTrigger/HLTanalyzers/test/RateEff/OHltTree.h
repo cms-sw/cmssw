@@ -747,6 +747,7 @@ public :
   Int_t           OpenL1_Mu3EG5; 
   Int_t           OpenL1_EG5_HTT100; 
   Int_t           OpenL1_SingleMu30;  
+  Int_t           OpenL1_SingleMu5_Eta1pt5_Qal7;
 
   // 5E32 menu
   Int_t           OpenL1_DoubleEG8;
@@ -7182,6 +7183,7 @@ void OHltTree::SetOpenL1Bits()
   OpenL1_SingleJet20_FwdVeto = 0;
   OpenL1_DoubleEG2_FwdVeto = 0;
   OpenL1_ETT220 = 0;
+  OpenL1_SingleMu5_Eta1pt5_Qal7 = 0;
 
   if(L1GoodSingleMuPt[0] > 3.0 && (L1NIsolEmEt[0] > 5.0 || L1IsolEmEt[0] > 5.0)) 
     OpenL1_Mu3EG5 = 1; 
@@ -7219,6 +7221,21 @@ void OHltTree::SetOpenL1Bits()
   if(rc5 >= 2)
     OpenL1_DoubleMu5 = 1;
 
+  Int_t rc = 0;
+  for(Int_t i = 0; i < NL1Mu; i++)
+    {
+      if(L1MuQal[i] == 7)
+        {
+          if(fabs(L1MuEta[i]) < 1.5)
+            {
+              if(L1MuPt[i] > 5)
+                rc++;
+            }
+        }
+    }
+  if(rc >= 1)
+    OpenL1_SingleMu5_Eta1pt5_Qal7 = 1;
+
   if(L1CenJetEt[0] >= 20.0 || L1ForJetEt[0] >= 20.0 || L1TauEt[0] >= 20.0)
     {
       if((L1HfTowerCountNegativeEtaRing1 < 2) &&
@@ -7250,6 +7267,7 @@ void OHltTree::SetOpenL1Bits()
   map_BitOfStandardHLTPath["OpenL1_SingleJet20_FwdVeto"] = OpenL1_SingleJet20_FwdVeto;
   map_BitOfStandardHLTPath["OpenL1_DoubleEG2_FwdVeto"] = OpenL1_DoubleEG2_FwdVeto;
   map_BitOfStandardHLTPath["OpenL1_ETT220"] = OpenL1_ETT220; 
+  map_BitOfStandardHLTPath["OpenL1_SingleMu5_Eta1pt5_Qal7"] = OpenL1_SingleMu5_Eta1pt5_Qal7;
 
   map_BitOfStandardHLTPath["OpenL1_SingleJet6"]  = OpenL1SetSingleJetBit(6)>=1;
   map_BitOfStandardHLTPath["OpenL1_SingleJet10"] = OpenL1SetSingleJetBit(10)>=1;
