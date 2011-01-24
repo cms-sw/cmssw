@@ -18,22 +18,24 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-#setenv RUNTYPE Central
-setenv RUNTYPE Local
-setenv STARTUP False
+setenv RUNTYPE Central
+#setenv RUNTYPE Local
+setenv STARTUP True
+
 setenv CMSSWver1 3_11_0
 setenv CMSSWver2 3_11_0
 setenv OLDRELEASE 3_11_0
 setenv NEWRELEASE 3_11_0
 setenv OLDPRERELEASE pre3
-setenv NEWPRERELEASE pre3For4XX
+setenv NEWPRERELEASE pre5
+
 
 if ( $STARTUP == True) then
 setenv OLDGLOBALTAG START310_V3-v1
-setenv NEWGLOBALTAG START310_V3-v1
+setenv NEWGLOBALTAG START311_V0-v1
 else
 setenv OLDGLOBALTAG MC_310_V3-v1
-setenv NEWGLOBALTAG MC_310_V3-v1
+setenv NEWGLOBALTAG MC_311_V0-v1
 endif
 
 
@@ -55,11 +57,12 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 #Name of sample (affects output directory name and htmldescription only) 
+
 #setenv SAMPLE SingleGammaPt10IDEAL
-setenv SAMPLE SingleGammaPt35IDEAL
+#setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusionSTARTUP
-#setenv SAMPLE PhotonJets_Pt_10STARTUP
+setenv SAMPLE PhotonJets_Pt_10STARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 
@@ -90,8 +93,8 @@ if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0002_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
+setenv OLDFILE ${WorkDir1}/DQM_V0002_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 
 endif
 
@@ -106,8 +109,8 @@ setenv NEWFILE /tmp/nancy/dev/CMSSW_3_11_0_pre3/src/Validation/RecoEgamma/test/R
 
 else if ( $RUNTYPE == Central ) then
 
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0002_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
+setenv OLDFILE ${WorkDir1}/DQM_V0002_R000000001__RelValSingleGammaPt35__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 
 endif
 
@@ -440,10 +443,8 @@ hDPhiTracksAtEcalAll
 eBcOverTkPoutAll
 eBcOverTkPoutBarrel
 eBcOverTkPoutEndcap
-zPVFromTracksBarrel
-zPVFromTracksEndcap
-dzPVFromTracksBarrel
-dzPVFromTracksEndcap
+zPVFromTracks
+dzPVFromTracks
 vtxChi2ProbAll
 vtxChi2ProbBarrel
 vtxChi2ProbEndcap
