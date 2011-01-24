@@ -3,13 +3,12 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <cppunit/extensions/HelperMacros.h>
-#include<fstream>
-#include<string>
+#include <fstream>
+#include <string>
 #include <sstream>
 #include <algorithm>
 #include <iterator>
 #include <vector>
-
 
 #include <regex.h>
 #include <set>

@@ -1,6 +1,5 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDComparator.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 
 /** 
    After construction the instance corresponds to the root of the geometrical tree.
@@ -72,7 +71,6 @@ int DDExpandedView::depth() const
 int DDExpandedView::copyno() const 
 { 
   return history_.back().copyno();
-  //return (*walker_).current().second->copyno_; 
 }
 
   

@@ -1,6 +1,5 @@
 #include "DetectorDescription/Core/src/Ellipsoid.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include <DataFormats/GeometryVector/interface/Pi.h>
 #include <iostream>
 #include <cmath>
 

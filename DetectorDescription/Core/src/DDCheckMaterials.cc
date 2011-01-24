@@ -1,8 +1,6 @@
-//
 #include <vector>
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-
-// Message logger.
+#include "DetectorDescription/Core/src/Material.h"
 
 // internal usage
 bool DDCheckMaterial(DDMaterial& mip, std::pair<std::string,DDName> & result)
