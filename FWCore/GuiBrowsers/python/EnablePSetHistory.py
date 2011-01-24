@@ -453,7 +453,7 @@ try:
     from FWCore.ParameterSet.SequenceTypes import _SequenceCollection
 
     def new__SequenceCollection_name(self):
-        return str(self._left._name())+str(self._pySymbol)+str(self._right._name())
+        return str(self)
     _SequenceCollection._name = new__SequenceCollection_name    
 except:
     pass
