@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/25 16:50:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/07/02 13:34:23 $
+ *  $Revision: 1.2 $
  */
  
 #include "Validation/EventGenerator/interface/DrellYanValidation.h"
@@ -83,7 +83,7 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   iEvent.getByLabel(hepmcCollection_, evt);
 
   //Get EVENT
-  HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+  const HepMC::GenEvent *myGenEvent = evt->GetEvent();
 
   nEvt->Fill(0.5);
 
@@ -96,7 +96,7 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
 
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
     if (vetotau) {
-      if ((*iter)->status()==3 && abs((*iter)->pdg_id() == 15) ) return;
+      if ((*iter)->status()==3 && abs((*iter)->pdg_id() == 15) ) return; 
     }
     if((*iter)->status()==requiredstatus) {
       if(abs((*iter)->pdg_id())==_flavor)
@@ -105,7 +105,7 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   }
  
   //nothing to do if we don't have 2 particles
-  if (allproducts.size() < 2) return;
+  if (allproducts.size() < 2) return; 
 
   //sort them in pt
   std::sort(allproducts.begin(), allproducts.end(), HepMCValidationHelper::sortByPt); 
@@ -122,7 +122,7 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   }
 
   //if we did not find any opposite charge pair there is nothing to do
-  if (products.size() < 2) return;
+  if (products.size() < 2) return; 
 
   assert(products[0]->momentum().perp() > products[1]->momentum().perp()); 
 
@@ -183,6 +183,4 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
     cos_theta_gamma_lepton->Fill(cos(dphi));
   } 
 
-
-  delete myGenEvent;
 }//analyze
