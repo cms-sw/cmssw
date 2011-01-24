@@ -5,11 +5,7 @@
 #include <DetectorDescription/Core/interface/DDPartSelection.h>
 #include "DetectorDescription/Core/interface/DDName.h"
 
-
-#include <iostream>
 #include <fstream>
-
-// Need thes??? maybe 
 #include <cmath>
 #include <iomanip>
 #include <vector>

@@ -12,7 +12,6 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
-#include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/src/StrX.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"

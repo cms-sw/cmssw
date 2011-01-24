@@ -11,7 +11,6 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/src/StrX.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
