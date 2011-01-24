@@ -10,7 +10,7 @@ class CloseCoutSentry {
         void clear() ;
     private:
         bool silent_;
-        int fdOut_, fdErr_;
+        static int fdOut_, fdErr_;
         static bool open_;
 };
 

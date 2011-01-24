@@ -4,15 +4,19 @@
 #include <unistd.h>
 
 bool CloseCoutSentry::open_ = true;
+int  CloseCoutSentry::fdOut_ = 0;
+int  CloseCoutSentry::fdErr_ = 0;
 
 CloseCoutSentry::CloseCoutSentry(bool silent) :
-    silent_(silent), fdOut_(0), fdErr_(0)
+    silent_(silent)
 {
     if (silent_) {
         if (open_) {
             open_ = false;
-            fdOut_ = dup(1);
-            fdErr_ = dup(2);
+            if (fdOut_ == 0 && fdErr_ == 0) {
+                fdOut_ = dup(1);
+                fdErr_ = dup(2);
+            }
             freopen("/dev/null", "w", stdout);
             freopen("/dev/null", "w", stderr);
         } else {
