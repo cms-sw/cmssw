@@ -5,6 +5,8 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
+dt2DSegments.Reco2DAlgoConfig.performT0_vdriftSegCorrection = True
+dt4DSegments.Reco4DAlgoConfig.performT0_vdriftSegCorrection = True
 
 from EventFilter.DTRawToDigi.dtunpacker_cfi import *
 
