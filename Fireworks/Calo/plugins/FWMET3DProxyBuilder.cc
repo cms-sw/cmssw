@@ -143,6 +143,18 @@ FWMET3DProxyBuilder::build(const reco::MET& met, unsigned int iIndex, TEveElemen
    float r1 = r0 + 1;
    marker->AddLine( r0*sin(theta)*cos(phi), r0*sin(theta)*sin(phi), r0*cos(theta),
                     r1*sin(theta)*cos(phi), r1*sin(theta)*sin(phi), r1*cos(theta) );
+   // tip
+   double r2 = r1 - 0.15;
+   double dy = 0.05;
+   marker->AddLine( r2*cos(phi) -dy*sin(phi), r2*sin(phi) + dy*cos(phi), 0,
+                    r1*cos(phi), r1*sin(phi), 0);
+   dy = -dy;
+   marker->AddLine( r2*cos(phi) -dy*sin(phi), r2*sin(phi) + dy*cos(phi), 0,
+                    r1*cos(phi), r1*sin(phi), 0);
+
+   arrow->m_line = marker;
+   m_arrows.push_back(arrow);
+   arrow->setScale(vc->getEnergyScale()); 
    setupAddElement( marker, &oItemHolder );
 
    arrow->m_line = marker;
