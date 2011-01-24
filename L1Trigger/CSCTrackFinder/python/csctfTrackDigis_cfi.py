@@ -44,10 +44,10 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		# Control Registers to core,
 		# Reordered to match firmware interface
 		#######################################
-		mindetap = cms.uint32(15),
+		mindetap = cms.uint32(7),
 		mindetap_halo = cms.uint32(8),
 		
-		EtaMin = cms.vuint32(22, 22, 14, 14, 14, 14, 10, 22),
+		EtaMin = cms.vuint32(0, 0, 0, 0, 0, 0, 0, 0),
 		
 		mindeta12_accp = cms.uint32(8),
 		mindeta13_accp = cms.uint32(13),
@@ -68,7 +68,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		maxdphi112_accp = cms.uint32(64),
 		maxdphi113_accp = cms.uint32(64),
 		
-		mindphip = cms.uint32(720),
+		mindphip = cms.uint32(180),
 		mindphip_halo = cms.uint32(128),
 		
 		straightp = cms.uint32(60),
