@@ -757,6 +757,7 @@ public :
   Int_t           OpenL1_ETT220;
   Int_t           OpenL1_SingleJet20_FwdVeto;
   Int_t           OpenL1_DoubleEG2_FwdVeto;
+  Int_t           OpenL1_QuadJet8U; 
 
   // 8E29 and 1E31 MC menus
   Int_t           HLT_L1Jet15; 
@@ -3696,10 +3697,12 @@ public :
   int OpenHlt1CorJetPassed(double pt);
   int OpenHltFwdJetPassed(double esum);
   int OpenHltFwdCorJetPassed(double esum);
+  int OpenL1QuadJet8(double jetPt, double jetEta); 
   int OpenHltDiJetAvePassed(double pt);
   int OpenHltCorDiJetAvePassed(double pt);
   int OpenHltQuadJetPassed(double pt);
   int OpenHltQuadCorJetPassed(double pt);
+  int OpenHltQuadJetPassedPlusTauPFId(double pt, double etaJet, double ptTau); 
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) ;
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold, double etajetthreshold) ;
@@ -7197,6 +7200,7 @@ void OHltTree::SetOpenL1Bits()
   OpenL1_DoubleEG2_FwdVeto = 0;
   OpenL1_ETT220 = 0;
   OpenL1_SingleMu5_Eta1pt5_Qal7 = 0;
+  OpenL1_QuadJet8U = 0; 
 
   if(L1GoodSingleMuPt[0] > 3.0 && (L1NIsolEmEt[0] > 5.0 || L1IsolEmEt[0] > 5.0)) 
     OpenL1_Mu3EG5 = 1; 
@@ -7270,6 +7274,20 @@ void OHltTree::SetOpenL1Bits()
   if(L1EtTot > 220)
     OpenL1_ETT220 = 1;  
 
+  Int_t njetsforquad = 0; 
+  for(Int_t j = 0; j < NL1ForJet;j++)  
+    {  
+      if(L1ForJetEt[j] > 8.0) 
+        njetsforquad++;  
+    } 
+  for(Int_t k = 0;k < NL1CenJet;k++)  
+    { 
+      if(L1CenJetEt[k] > 8.0)  
+        njetsforquad++;   
+    } 
+  if(njetsforquad >= 4) 
+    OpenL1_QuadJet8U = 1; 
+
   map_BitOfStandardHLTPath["OpenL1_ZeroBias"] = OpenL1_ZeroBias;
   map_BitOfStandardHLTPath["OpenL1_Mu3EG5"] = OpenL1_Mu3EG5;
   map_BitOfStandardHLTPath["OpenL1_EG5_HTT100"] = OpenL1_EG5_HTT100;
@@ -7281,6 +7299,7 @@ void OHltTree::SetOpenL1Bits()
   map_BitOfStandardHLTPath["OpenL1_DoubleEG2_FwdVeto"] = OpenL1_DoubleEG2_FwdVeto;
   map_BitOfStandardHLTPath["OpenL1_ETT220"] = OpenL1_ETT220; 
   map_BitOfStandardHLTPath["OpenL1_SingleMu5_Eta1pt5_Qal7"] = OpenL1_SingleMu5_Eta1pt5_Qal7;
+  map_BitOfStandardHLTPath["OpenL1_QuadJet8U"] = OpenL1_QuadJet8U;    
 
   map_BitOfStandardHLTPath["OpenL1_SingleJet6"]  = OpenL1SetSingleJetBit(6)>=1;
   map_BitOfStandardHLTPath["OpenL1_SingleJet10"] = OpenL1SetSingleJetBit(10)>=1;

@@ -3770,7 +3770,14 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }
   
     
-  /* Tau-MET cross-triggers */
+  /* Tau-jet/MET cross-triggers */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet40_IsoPFTauTag") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHltQuadJetPassedPlusTauPFId(40, 2.5, 40) == 1 && OpenL1QuadJet8(10, 2.5) >= 4) { 
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }  
+      }  
+    }  
+  } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau20_Trk15_MET25") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -3803,6 +3810,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHltTauL2SCMETPassed(35.,15.,0,0.,1,35.,20.,30.)>=1) {
 	  triggerBit[it] = true; 
+	}
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleTau35_Trk20_MET45") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltTauL2SCMETPassed(35.,20.,0,0.,0,45.,32.,40.)>=1) {
+	  triggerBit[it] = true;
 	}
       }
     }
@@ -3976,6 +3992,33 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       } 
     } 
   } 
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJet70U_PT70U") == 0) {     
+   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+     if (prescaleResponse(menu,cfg,rcounter,it)) {  
+       if(OpenHltPT12U(70.,70.) == 1) {  
+         triggerBit[it] = true;   
+       }  
+     }   
+   }   
+ }   
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJet100U_PT100U") == 0) {     
+   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+     if (prescaleResponse(menu,cfg,rcounter,it)) {  
+       if(OpenHltPT12U(100.,100.) == 1) {  
+         triggerBit[it] = true;   
+       }  
+     }   
+   }   
+ }   
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJet50U_PT50U") == 0) {     
+   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+     if (prescaleResponse(menu,cfg,rcounter,it)) {  
+       if(OpenHltPT12U(50.,50.) == 1) {  
+         triggerBit[it] = true;   
+       }  
+     }   
+   }   
+ }   
   /*HT-MET/MHT cross-triggers*/
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET45_HT100U") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
@@ -7000,6 +7043,46 @@ int OHltTree::OpenHltQuadJetPassed(double pt)
 
   return rc;
 }
+
+int OHltTree::OpenHltQuadJetPassedPlusTauPFId(double pt, double etaJet, double ptTau) 
+{ 
+  int njet = 0; 
+  int rc = 0; 
+  bool foundPFTau = false; 
+  for (int i=0;i<NrecoJetCorCal;i++) { 
+    if(recoJetCorCalPt[i] > pt && fabs(recoJetCorCalEta[i]) < etaJet) {  // Jet pT cut 
+      njet++; 
+      for (int j=0; j<NohPFTau;j++){ 
+         
+        if(pfTauPt[j] > ptTau && pfTauLeadTrackPt[j]>= 5 && fabs(pfTauEta[j]) <2.5  && pfTauTrkIso[j] <1 && pfTauGammaIso[j] <1){ 
+           
+          float deltaEta = pfTauEta[j] - recoJetCalEta[i]; 
+          float deltaPhi = pfTauPhi[j] - recoJetCalPhi[i]; 
+           
+          if(fabs(deltaPhi)>3.141592654) deltaPhi = 6.283185308-fabs(deltaPhi); 
+           
+          float deltaR = sqrt ( pow(deltaEta, 2) +  pow(deltaPhi, 2)); 
+           
+          if(deltaR<0.3){ foundPFTau = true; } 
+        } 
+      }       
+    }  
+  }        
+  if(njet >= 4 && foundPFTau == true) 
+    rc = 1;   
+  return rc; 
+} 
+
+int OHltTree::OpenL1QuadJet8(double jetPt, double jetEta) 
+{ 
+  int rc = 0; 
+         
+  for(int i=0;i<NL1CenJet;i++) if(L1CenJetEt[i] >= jetPt && fabs(L1CenJetEta[i])<jetEta) rc++; 
+  for(int i=0;i<NL1ForJet;i++) if(L1ForJetEt[i] >= jetPt && fabs(L1ForJetEta[i])<jetEta) rc++; 
+  for(int i=0;i<NL1Tau   ;i++) if(L1TauEt   [i] >= jetPt && fabs(L1TauEta[i])<jetEta) rc++; 
+        
+  return rc; 
+} 
 
 
 int OHltTree::OpenHltFwdCorJetPassed(double esum)
