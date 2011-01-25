@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.283 $"
+__version__ = "$Revision: 1.284 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -162,9 +162,12 @@ class ConfigBuilder(object):
         if self._options.filein:
            if self._options.filetype == "EDM":
                self.process.source=cms.Source("PoolSource",
-                                              fileNames = cms.untracked.vstring(self._options.filein))
+                                              fileNames = cms.untracked.vstring())
+	       for entry in self._options.filein.split(','):
+		       self.process.source.fileNames.append(entry)
                if self._options.secondfilein:
-                       self.process.source.secondaryFileNames = cms.untracked.vstring(self._options.secondfilein)
+		       for entry in self._options.secondfilein.split(','):
+			       self.process.source.secondaryFileNames = cms.untracked.vstring(entry)
            elif self._options.filetype == "LHE":
                self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring(self._options.filein))
            elif self._options.filetype == "MCDB":
@@ -181,10 +184,15 @@ class ConfigBuilder(object):
                        if line.count(".root")>=2:
                                #two files solution...
                                entries=line.replace("\n","").split()
-                               self.process.source.fileNames.append(entries[0])
-                               self.process.source.secondaryFileNames.append(entries[1])
+			       if not entries[0] in self.process.source.fileNames.value():
+				       self.process.source.fileNames.append(entries[0])
+			       if not entries[1] in self.process.source.secondaryFileNames.value():
+				       self.process.source.secondaryFileNames.append(entries[1])
+				       
                        elif (line.find(".root")!=-1):
-                               self.process.source.fileNames.append(line.replace("\n",""))
+			       entry=line.replace("\n","")
+			       if not entry in self.process.source.fileNames.value():
+				       self.process.source.fileNames.append(entry)
                print "found files: ",self.process.source.fileNames.value()
                if self.process.source.secondaryFileNames.__len__()!=0:
                        print "found parent files:",self.process.source.secondaryFileNames.value()
@@ -1333,7 +1341,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.283 $"),
+                                            (version=cms.untracked.string("$Revision: 1.284 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
