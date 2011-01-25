@@ -383,14 +383,14 @@ plotPFTauEfficiencies_hps = cms.EDAnalyzer("DQMHistPlotter",
   standardDrawingStuff,
   standardCompareTestAndReference,
   drawJobs = Utils.SpawnDrawJobs(RunHPSTanc_HPSValidation, plotPset),
-  outputFilePath = cms.string('./HPSTanc_HPS/'),
+  outputFilePath = cms.string('./HPSTancTaus_HPS/'),
 )
 
 plotPFTauEfficiencies_tanc = cms.EDAnalyzer("DQMHistPlotter",
   standardDrawingStuff,
   standardCompareTestAndReference,
   drawJobs = Utils.SpawnDrawJobs(RunHPSTanc_TANCValidation, plotPset),
-  outputFilePath = cms.string('./HPSTanc_TANC/'),
+  outputFilePath = cms.string('./HPSTancTaus_TANC/'),
 )
 
 ##################################################
