@@ -18,9 +18,9 @@ process.calibDB = cms.ESSource("PoolDBESSource",
     authenticationMethod = cms.untracked.uint32(0),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTTtrigRcd'),
-        tag = cms.string()
+        tag = cms.string('ttrig')
     )),
-    connect = cms.string()
+    connect = cms.string('sqlite_file:ttrig.db')
 )
 
 process.dumpToFile = cms.EDAnalyzer("DumpDBToFile",
