@@ -16,10 +16,17 @@ class PFRecoTauDiscriminationByHPSSelection
     double discriminate(const reco::PFTauRef&);
 
   private:
+    struct DecayModeCuts {
+      double minMass_;
+      double maxMass_;
+      double minPi0Mass_;
+      double maxPi0Mass_;
+    };
+
     typedef StringObjectFunction<reco::PFTau> TauFunc;
     typedef std::pair<unsigned int, unsigned int> IntPair;
     typedef std::pair<double, double> DoublePair;
-    typedef std::map<IntPair, DoublePair> DecayModeCutMap;
+    typedef std::map<IntPair, DecayModeCuts> DecayModeCutMap;
 
     TauFunc signalConeFun_;
     DecayModeCutMap decayModeCuts_;
@@ -37,18 +44,24 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
   BOOST_FOREACH(const edm::ParameterSet &dm, decayModes) {
-    // Get the mass window for each decay mode
+    // The mass window(s)
+    DecayModeCuts cuts;
+    cuts.minMass_ = dm.getParameter<double>("minMass");
+    cuts.maxMass_ = dm.getParameter<double>("maxMass");
+    if (dm.exists("minPi0Mass")) {
+      cuts.minPi0Mass_ = dm.getParameter<double>("minPi0Mass");
+      cuts.maxPi0Mass_ = dm.getParameter<double>("maxPi0Mass");
+    } else {
+      cuts.minPi0Mass_ = -1.0;
+      cuts.maxPi0Mass_ = 1e9;
+    }
     decayModeCuts_.insert(std::make_pair(
             // The decay mode as a key
             std::make_pair(
                 dm.getParameter<uint32_t>("nCharged"),
                 dm.getParameter<uint32_t>("nPiZeros")),
-            // The mass window
-            std::make_pair(
-                dm.getParameter<double>("minMass"),
-                dm.getParameter<double>("maxMass"))
-            )
-        );
+            cuts
+          ));
   }
 }
 
@@ -68,10 +81,22 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
     return 0.0;
   }
 
-  const DoublePair &massWindow = massWindowIter->second;
+  const DecayModeCuts &massWindow = massWindowIter->second;
 
   // Check if tau fails mass cut
-  if (tau->mass() > massWindow.second || tau->mass() < massWindow.first) {
+  if (tau->mass() > massWindow.maxMass_ || tau->mass() < massWindow.minMass_) {
+    return 0.0;
+  }
+
+  // Find the total pizero mass
+  reco::Candidate::LorentzVector stripsP4;
+  BOOST_FOREACH(const reco::RecoTauPiZero& cand, tau->signalPiZeroCandidates()){
+    stripsP4 += cand.p4();
+  }
+
+  // Check if it fails the pi 0 IM cut
+  if (stripsP4.M() > massWindow.maxPi0Mass_ ||
+      stripsP4.M() < massWindow.minPi0Mass_) {
     return 0.0;
   }
 
