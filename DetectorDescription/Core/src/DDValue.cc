@@ -93,7 +93,8 @@ DDValue::DDValue( const std::string & name, const std::string & sval )
 }
 
 DDValue::DDValue( unsigned int i ) 
- : id_( 0 )
+ : id_( 0 ),
+   vecPair_( 0 )
 {
   if( names().size() - 1 <= i )
     id_ = i;
