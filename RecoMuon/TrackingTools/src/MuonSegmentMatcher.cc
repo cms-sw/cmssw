@@ -6,7 +6,7 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.8 2009/06/26 15:18:52 bellan Exp $
+// $Id: MuonSegmentMatcher.cc,v 1.9 2009/10/20 13:26:08 ptraczyk Exp $
 //
 //
 
@@ -48,6 +48,7 @@ MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& matchParameters,
   theService(service),
   DTSegmentTags_(matchParameters.getParameter<edm::InputTag>("DTsegments")),
   CSCSegmentTags_(matchParameters.getParameter<edm::InputTag>("CSCsegments")),
+  dtRadius_(matchParameters.getParameter<double>("DTradius")),
   dtTightMatch(matchParameters.getParameter<bool>("TightMatchDT")),
   cscTightMatch(matchParameters.getParameter<bool>("TightMatchCSC"))
 {
@@ -78,8 +79,8 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
     dtHits.push_back(*hit);
   }
   
-  double PhiCutParameter=0.001;
-  double ZCutParameter=0.001;
+  double PhiCutParameter=dtRadius_;
+  double ZCutParameter=dtRadius_;
   double matchRatioZ=0;
   double matchRatioPhi=0;
 
@@ -123,7 +124,8 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 
           // and compare the local positions
 	  LocalPoint segLocal = hiti->localPosition();
-	  // cout << "Zed Segment Point = "<<pointLocal<<"    Muon Point = "<<segLocal<<"     " << endl;
+//	  cout << "Zed Segment Point = "<<pointLocal<<"    Muon Point = "<<segLocal<<"  Dist:  "
+//	       << (fabs(pointLocal.x()-segLocal.x()))+(fabs(pointLocal.y()-segLocal.y()))<< endl;
 	  if ((fabs(pointLocal.x()-segLocal.x())<ZCutParameter) && 
 	      (fabs(pointLocal.y()-segLocal.y())<ZCutParameter)) 
 	    countAgreeingHits++;
@@ -168,7 +170,8 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 					 
           // and compare the local positions
 	  LocalPoint segLocal = hiti->localPosition();
-	  // cout << "     Phi Segment Point = "<<pointLocal<<"    Muon Point = "<<segLocal<<"     " << endl;
+//	  cout << "     Phi Segment Point = "<<pointLocal<<"    Muon Point = "<<segLocal<<"  Dist:   " 
+//	       << (fabs(pointLocal.x()-segLocal.x()))+(fabs(pointLocal.y()-segLocal.y()))<< endl;
 
 	  if ((fabs(pointLocal.x()-segLocal.x())<PhiCutParameter) && 
 	      (fabs(pointLocal.y()-segLocal.y())<PhiCutParameter))

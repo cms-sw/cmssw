@@ -44,6 +44,7 @@ class MuonSegmentMatcher {
 	edm::InputTag trackTags_; //used to select what tracks to read from configuration file
 	edm::InputTag DTSegmentTags_;
 	edm::InputTag CSCSegmentTags_;
+	double dtRadius_;
 	
 	bool dtTightMatch;
 	bool cscTightMatch;
