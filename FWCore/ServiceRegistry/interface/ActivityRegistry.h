@@ -523,6 +523,10 @@ namespace edm {
       
       ///forwards our signals to slots connected to iOther
       void connect(ActivityRegistry& iOther);
+
+      ///forwards our subprocess independent signals to slots connected to iOther
+      ///forwards iOther's subprocess dependent signals to slots connected to this
+      void connectToSubProcess(ActivityRegistry& iOther);
       
       ///copy the slots from iOther and connect them directly to our own
       /// this allows us to 'forward' signals more efficiently,
@@ -532,6 +536,11 @@ namespace edm {
       void copySlotsFrom(ActivityRegistry& iOther);
       
    private:
+      // forwards subprocess independent signals to slots connected to iOther
+      void connectGlobals(ActivityRegistry& iOther);
+
+      // forwards subprocess dependent signals to slots connected to iOther
+      void connectLocals(ActivityRegistry& iOther);
    };
 }
 #undef AR_WATCH_USING_METHOD
