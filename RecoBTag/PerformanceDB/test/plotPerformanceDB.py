@@ -136,20 +136,20 @@ def main():
     cv1 = TCanvas("SF_jet_pt","SF_jet_pt",700,700)
     histogram["SF_jet_pt"].Draw("ap")
     histogram["SF_jet_pt"].SetName("SF_jet_pt")
-    histogram["SF_jet_pt"].GetHistogram().SetYTitle("Jet p_{T} [GeV/c]")
-    histogram["SF_jet_pt"].GetHistogram().SetXTitle("SF_{b}=#epsilon^{"+OP+"}_{data}/#epsilon^{"+OP+"}_{MC}")
+    histogram["SF_jet_pt"].GetHistogram().SetXTitle("Jet p_{T} [GeV/c]")
+    histogram["SF_jet_pt"].GetHistogram().SetYTitle("SF_{b}=#epsilon^{"+OP+"}_{data}/#epsilon^{"+OP+"}_{MC}")
     
     cv2 = TCanvas("Eff_jet_pt","Eff_jet_pt",700,700)
     histogram["Eff_jet_pt"].Draw("ap")
     histogram["Eff_jet_pt"].SetName("Eff_jet_pt")
-    histogram["Eff_jet_pt"].GetHistogram().SetYTitle("Jet p_{T} [GeV/c]")
-    histogram["Eff_jet_pt"].GetHistogram().SetXTitle("b-tag efficiency #epsilon^{"+OP+"}_{data}")
+    histogram["Eff_jet_pt"].GetHistogram().SetXTitle("Jet p_{T} [GeV/c]")
+    histogram["Eff_jet_pt"].GetHistogram().SetYTitle("b-tag efficiency #epsilon^{"+OP+"}_{data}")
 
     cv3 = TCanvas("MC_Eff_jet_pt","MC_Eff_jet_pt",700,700)
     histogram["MC_Eff_jet_pt"].Draw("ap")
     histogram["MC_Eff_jet_pt"].SetName("MC_Eff_jet_pt")
-    histogram["MC_Eff_jet_pt"].GetHistogram().SetYTitle("Jet p_{T} [GeV/c]")
-    histogram["MC_Eff_jet_pt"].GetHistogram().SetXTitle("b-tag efficiency #epsilon^{"+OP+"}_{MC}")
+    histogram["MC_Eff_jet_pt"].GetHistogram().SetXTitle("Jet p_{T} [GeV/c]")
+    histogram["MC_Eff_jet_pt"].GetHistogram().SetYTitle("b-tag efficiency #epsilon^{"+OP+"}_{MC}")
 
                     
     outfilename = "plotPerformanceDB.root"
