@@ -1,17 +1,10 @@
-#from tools import replaceTemplate
 import os
 
 class CmsswTask:
-    #def __init__(self, dir, configs, pset_templates=None, common_opts=None, pset_opts=None):
     def __init__(self, dir, configs, psets=None):
         self.dir = dir  
         self.configs = configs
-
-        #self.pset_templates = pset_templates 
-        #self.common_opts = common_opts
-        #self.pset_opts = pset_opts
         self.psets = psets
-
         self.initTask()
   
     def initTask(self):

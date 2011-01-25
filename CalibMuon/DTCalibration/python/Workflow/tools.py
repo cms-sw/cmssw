@@ -1,4 +1,5 @@
 import os,sys,imp
+import pickle
 import ConfigParser
 
 def replaceTemplate(template,**opts):
@@ -95,8 +96,12 @@ def parseInput(inputFields,requiredFields = ()):
 
     return options
 
-def loadCmsProcess(psetName):
+def loadCmsProcessFile(psetName):
     pset = imp.load_source("psetmodule",psetName)
+    return pset.process
+
+def loadCmsProcess(psetPath):
+    pset = __import__(psetPath)
     return pset.process
 
 def prependPaths(process,seqname):
@@ -107,10 +112,38 @@ def writeCfg(process,dir,psetName):
     if not os.path.exists(dir): os.makedirs(dir)
     open(dir + '/' + psetName,'w').write(process.dumpPython())
 
+def writeCfgPkl(process,dir,psetName):
+    if not os.path.exists(dir): os.makedirs(dir)
+
+    pklFileName = psetName.split('.')[0] + '.pkl'
+    pklFile = open(dir + '/' + pklFileName,"wb")
+    myPickle = pickle.Pickler(pklFile)
+    myPickle.dump(process)
+    pklFile.close()
+ 
+    outFile = open(dir + '/' + psetName,"w")
+    outFile.write("import FWCore.ParameterSet.Config as cms\n")
+    outFile.write("import pickle\n")
+    outFile.write("process = pickle.load(open('%s', 'rb'))\n" % pklFileName)
+    outFile.close()
+
+
 def loadCrabCfg(cfgName=None):
     config = ConfigParser.ConfigParser()
     if cfgName: config.read(cfgName)
     return config
+
+def addCrabInputFile(crabCfg,inputFile):
+    additionalInputFiles = ''
+    if crabCfg.has_option('USER','additional_input_files'):
+        additionalInputFiles = crab_cfg_parser.get('USER','additional_input_files')
+
+    if additionalInputFiles: additionalInputFiles += ',%s' % inputFile
+    else: additionalInputFiles = inputFile
+
+    crabCfg.set('USER','additional_input_files',additionalInputFiles)
+
+    return crabCfg
 
 def loadCrabDefault(crabCfg,config):
     # CRAB section

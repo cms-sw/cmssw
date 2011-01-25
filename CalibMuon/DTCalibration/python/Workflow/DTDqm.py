@@ -3,18 +3,16 @@ from CmsswTask import *
 import os
 
 class DTDqm:
-    def __init__(self, run, dir, dqm_files, result_dir, config):
-        #basedir = 'Run%s/Ttrig' % run
-        #self.dir = basedir + '/' + 'Exec'
-        #self.result_dir = basedir + '/' + 'Results'
+    def __init__(self, run, dir, dqm_files, result_dir, config=None):
         self.runnumber = int(run)
         self.dir = dir
         self.result_dir = result_dir
         self.dqm_files = dqm_files
 
-        self.pset_name = 'DTkFactValidation_2_DQM_cfg.py'
-        self.pset_template = config.templatepath + '/config/DTkFactValidation_2_DQM_cfg.py'
+        self.pset_name = 'dtDQMClient_cfg.py'
+        self.pset_template = 'CalibMuon.DTCalibration.dtDQMClient_cfg'
 
+        self.process = None
         self.initProcess()
         self.configs = []
         self.configs.append(self.pset_name)
@@ -27,7 +25,8 @@ class DTDqm:
         if self.process.DQMStore.collateHistograms: self.process.dqmSaver.forceRunNumber = self.runnumber
 
     def writeCfg(self):
-        writeCfg(self.process,self.dir,self.pset_name) 
+        writeCfg(self.process,self.dir,self.pset_name)   
+        #writeCfgPkl(self.process,self.dir,self.pset_name) 
     
     def run(self):
         self.task.run()
@@ -37,9 +36,7 @@ def runDQM(run,castor_dir,result_dir,template_path):
     from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor
     dqm_files = listFilesInCastor(castor_dir,'DQM')
     runDir = '.'
-    class config: pass
-    config.templatepath = template_path
 
-    dtDqmFinal = DTDqm(run,runDir,dqm_files,result_dir,config)
+    dtDqmFinal = DTDqm(run,runDir,dqm_files,result_dir)
     dtDqmFinal.writeCfg()
     dtDqmFinal.run()

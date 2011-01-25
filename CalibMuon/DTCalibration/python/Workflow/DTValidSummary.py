@@ -1,5 +1,5 @@
 from tools import loadCmsProcess,writeCfg
-from CmsswTask import *
+from CmsswTask import CmsswTask
 import os
 
 class DTValidSummary:
@@ -10,9 +10,10 @@ class DTValidSummary:
         self.input_file = input_file
         self.output_file = output_file
 
-        self.pset_name = 'DTkFactValidation_2_cfg.py'
-        self.pset_template = config.templatepath + '/config/DTkFactValidation_2_cfg.py'
+        self.pset_name = 'dtTTrigValidSummary_cfg.py'
+        self.pset_template = 'CalibMuon.DTCalibration.dtTTrigValidSummary_cfg'
 
+        self.process = None       
         self.initProcess()
         self.configs = [self.pset_name]
         self.task = CmsswTask(self.dir,self.configs)
@@ -23,7 +24,8 @@ class DTValidSummary:
         self.process.resolutionTest.OutputFileName = self.output_file
 
     def writeCfg(self):
-        writeCfg(self.process,self.dir,self.pset_name) 
+        #writeCfg(self.process,self.dir,self.pset_name) 
+        writeCfgPkl(self.process,self.dir,self.pset_name)
 
     def run(self):
         self.task.run()
