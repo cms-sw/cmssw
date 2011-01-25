@@ -19,6 +19,7 @@ class DTTTrigValid:
     def initProcess(self):
         self.process = loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = self.config.globaltag
+        self.process.dtCalibValidation.OutputMEsInRootFile = True
         if(self.inputdb):
             addPoolDBESSource(process = self.process,
                               moduleName = 'calibDB',record = 'DTTtrigRcd',tag = 'ttrig',

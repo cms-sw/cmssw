@@ -32,7 +32,7 @@ class DTTTrigResidualCorr:
         # dtTTrigResidualCorrection
         self.process['dtTTrigResidualCorrection_cfg.py'] = loadCmsProcess(self.pset_templates['dtTTrigResidualCorrection_cfg.py'])
         self.process['dtTTrigResidualCorrection_cfg.py'].source.firstRun = self.runnumber
-        self.process['DTTTrigResidualCorrection_cfg.py'].GlobalTag.globaltag = self.config.globaltag
+        self.process['dtTTrigResidualCorrection_cfg.py'].GlobalTag.globaltag = self.config.globaltag
         # Input tTrig db
         if(self.inputdb):
             addPoolDBESSource(process = self.process['dtTTrigResidualCorrection_cfg.py'],
@@ -46,7 +46,7 @@ class DTTTrigResidualCorr:
                               connect = 'sqlite_file:%s' % self.config.inputVdriftDB)
 
         self.process['dtTTrigResidualCorrection_cfg.py'].PoolDBOutputService.connect = 'sqlite_file:%s' % ttrig_ResidCorr_db
-        self.process['dtTTrigResidualCorrection_cfg.py'].DTTTrigCorrection.correctionAlgoConfig.residualsRootFile = root_file
+        self.process['dtTTrigResidualCorrection_cfg.py'].dtTTrigResidualCorrection.correctionAlgoConfig.residualsRootFile = root_file
 
         # dumpDBToFile
         self.process['dumpDBToFile_ResidCorr_cfg.py'] = loadCmsProcess(self.pset_templates['dumpDBToFile_ResidCorr_cfg.py'])

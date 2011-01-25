@@ -31,7 +31,7 @@ process.dumpToFile = cms.EDAnalyzer("DumpDBToFile",
         # VDrift & TTrig
         calibConstGranularity = cms.untracked.string('bySL')
     ),
-    outputFileName = cms.untracked.string()
+    outputFileName = cms.untracked.string('ttrig.txt')
 )
 
 process.p = cms.Path(process.dumpToFile)

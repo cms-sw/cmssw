@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from CalibMuon.DTCalibration.Workflow.DTTTrigProd import DTTTrigProd
-from CalibMuon.DTCalibration.Workflow.DTTTrigCorrFirst import DTTTrigCorrFirst
+from CalibMuon.DTCalibration.Workflow.DTTTrigTimeBoxesWriter import DTTTrigTimeBoxesWriter
 from CalibMuon.DTCalibration.Workflow.DTTTrigValid import DTTTrigValid
 from CalibMuon.DTCalibration.Workflow.DTTTrigResidualCorr import DTTTrigResidualCorr
 from CalibMuon.DTCalibration.Workflow.DTValidSummary import DTValidSummary
@@ -22,9 +22,8 @@ def runTtrigProd(run,runselection,trial,config,runStep=True):
 
     print "Processing tTrig production"
     config.runselection = runselection
-    #config.userdircaf = 'TTRIGCalibration/Production/Run' + str(run) + '/v' + str(trial)
     datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Production/' + 'v' + str(trial)
+    config.userdircaf = 'DTCalibration/TTRIGCalibration' + datasetstr + '/Run' + str(run) + '/Production/' + 'v' + str(trial)
     config.digilabel = 'muonDTDigis'
    
     dtTtrigProd = DTTTrigProd(run,config.prod_dir,config) 
@@ -53,25 +52,24 @@ def runTtrigProd(run,runselection,trial,config,runStep=True):
 
     return None
 
-def runTtrigCorrFirst(run,config,runStep=True):
+def runTtrigWriter(run,config,runStep=True):
 
     print "Processing tTrig correction"
-    dtTtrigCorrFirst = DTTTrigCorrFirst(run,config.run_dir,config.result_dir,config)
-    dtTtrigCorrFirst.writeCfg()
+    dtTtrigWriter = DTTTrigTimeBoxesWriter(run,config.run_dir,config.result_dir,config)
+    dtTtrigWriter.writeCfg()
  
     if runStep:  
-        dtTtrigCorrFirst.run()
+        dtTtrigWriter.run()
 
         print "Finished processing:"
-        for pset in dtTtrigCorrFirst.configs: print "--->",pset
+        for pset in dtTtrigWriter.configs: print "--->",pset
 
 def runTtrigValid(run,runselection,trial,input_db,config,runStep=True):
 
     print "Processing tTrig validation"
     config.runselection = runselection
-    #config.userdircaf = 'TTRIGCalibration/Validation/First/Run' + str(run) + '/v' + str(trial)
     datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/First/' + 'v' + str(trial)
+    config.userdircaf = 'DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/First/' + 'v' + str(trial)
     
     dtTtrigValid = DTTTrigValid(run=run,
                                 dir=config.valid_dir,
@@ -90,7 +88,7 @@ def runTtrigValid(run,runselection,trial,input_db,config,runStep=True):
         crabValidFirst.start()
         crabValidFirst.join()
 
-        result_file = config.result_dir + '/DTkFactValidation_%s.root'%run
+        result_file = config.result_dir + '/DTResidualValidation_%s.root'%run
         if config.stageOutLocal:
             output_dir = project_valid_first + "/res"
             haddLocal(output_dir,result_file,'residuals')
@@ -123,9 +121,8 @@ def runTtrigValidResidCorr(run,runselection,trial,input_db,config,runStep=True):
 
     print "Processing tTrig final validation"
     config.runselection = runselection
-    #config.userdircaf = 'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial)
     datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/ResidCorr/' + 'v' + str(trial)
+    config.userdircaf = 'DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/ResidCorr/' + 'v' + str(trial)
 
     dtTtrigValid_ResidCorr = DTTTrigValid(run=run,
                                           dir=config.valid_dir,
@@ -144,7 +141,7 @@ def runTtrigValidResidCorr(run,runselection,trial,input_db,config,runStep=True):
         crabValidResidCorr.start()
         crabValidResidCorr.join()
 
-        result_file = config.result_dir + '/DTkFactValidation_ResidCorr_%s.root'%run
+        result_file = config.result_dir + '/DTResidualValidation_ResidCorr_%s.root'%run
         if config.stageOutLocal:
             output_dir = project_valid_ResidCorr + "/res"
             haddLocal(output_dir,result_file,'residuals')
@@ -172,7 +169,6 @@ def runDQMMerge(run,output_dir,config,runStep=True):
     print "Processing DQM Merge"
 
     if runStep:
-
         dqm_files = [] 
         if config.stageOutLocal:
             dqm_files = listFilesLocal(output_dir,'DQM')
@@ -197,35 +193,32 @@ def runDQMMerge(run,output_dir,config,runStep=True):
 if __name__ == '__main__':
     start = time.time()
 
-    """
-    inputFields = ('run','runselection','trial','castorpath','datasetpath','globaltag','email','templatepath')
-    requiredFields = ('run','castorpath','datasetpath','globaltag','email','templatepath')
-
-    input = parseInput(inputFields,requiredFields)
-    """
-    
     parser = optparse.OptionParser(usage="usage: %prog arg1 arg2 [options]")
     parser.add_option("-r","--run", dest="run", help="set reference run number (typically first or last run in list)")
     parser.add_option("--runselection", dest="runselection", help="run list or range")
-    parser.add_option("--trial", dest="trial", help="trial number used to in the naming of output directories")
-    parser.add_option("--castorpath", dest="castorpath", default=('/castor/cern.ch/cms/store/caf/user/%s' % os.environ['USER']), help="path to user area at CAF (default /castor/cern.ch/cms/store/caf/user/username)")
+    parser.add_option("--trial", dest="trial", help="trial number used in the naming of output directories")
     parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
     parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (without the '::All' string)")
     parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
     parser.add_option("--inputVdriftDB", dest="inputVdriftDB", help="uses local SQLITE vDrift DB (instead of using the one in the GT)")
-    parser.add_option("--email", dest="email", help="user email")
-    parser.add_option("--templatepath", dest="templatepath", help="path to dir with template cfg files")
+    #parser.add_option("--templatepath", dest="templatepath", help="path to dir with template cfg files")
     parser.add_option("--no_exec", action="store_true", dest="no_exec", default=False, help="script will not execute")
+
     # Option group - options for residuals mode
     group_residuals = optparse.OptionGroup(parser,"Options for 'residuals' mode")
     group_residuals.add_option("--inputDB", dest="inputDB", help="sets initial DB (instead of using the one in the GT)")
     parser.add_option_group(group_residuals)
+
     # Option group - additional options
     group_additional = optparse.OptionGroup(parser,"Additional options")
+    group_additional.add_option("--email", dest="email", help="user email")
+    group_additional.add_option("--castorpath", dest="castorpath", default=('/castor/cern.ch/cms/store/caf/user/%s' % os.environ['USER']), help="path to user area at CAF (default /castor/cern.ch/cms/store/caf/user/username)")
+    group_additional.add_option("--useCRABServer", action="store_true", dest="useserver", default=False, help="will use CRAB server to submit jobs (default = False)")
+    group_additional.add_option("--jobsFinishedThreshold", dest="jobsFinishedThreshold", type="float", default=100, help="percentage above or equal to which CRAB tasks will be considered completed")
+
     group_additional.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
     group_additional.add_option("--stageOutLocal", action="store_true", dest="stageOutLocal", default=False, help="output will be copied locally (if running on the Grid this will be the default)")
-    group_additional.add_option("--jobsFinishedThreshold", dest="jobsFinishedThreshold", type="float", default=100, help="percentage above or equal to which CRAB tasks will be considered completed")
-    group_additional.add_option("--useCRABServer", action="store_true", dest="useserver", default=False, help="will use CRAB server to submit jobs (default = False)")
+
     # Split by lumi options
     group_additional.add_option("--splitByLumi", action="store_true", dest="splitByLumi", default=False, help="will split CRAB jobs by lumi section")
     group_additional.add_option("--totalnumberlumis", dest="totalnumberlumis", type="int", default=-1, help="total number of lumis to be analyzed")
@@ -235,16 +228,18 @@ if __name__ == '__main__':
  
     (input, args) = parser.parse_args()
 
+    allowedTypes = ('ttrig','vdrift','noise','t0')
     input.workflowType = 'ttrig'
-    # Only tTrig workflow implemented
-    if len(args) > 0 and args[0] != 'ttrig': parser.error('option "%s" not allowed' % args[0])
+    if len(args) > 0: 
+        if args[0] not in allowedTypes: parser.error('option "%s" not allowed' % args[0])
+ 
     allowedModes = ('timeboxes','residuals')
-    input.workflowMode = 'timeboxes'
+    input.workflowMode = 'residuals'
     if len(args) > 1:
         if args[1] not in allowedModes: parser.error('option "%s" not allowed' % args[1])
         input.workflowMode = args[1]  
     
-    requiredFields = ('run','datasetpath','globaltag','templatepath')
+    requiredFields = ('run','datasetpath','globaltag')
     for item in requiredFields:
         if not getattr(input,item):
             parser.error('field "%s" needs to be set' % item) 
@@ -307,8 +302,8 @@ if __name__ == '__main__':
         config.castor_prefix = input.castorpath
         config.castorpath = input.castorpath
 
-    config.template_path = input.templatepath
-    config.templatepath =  input.templatepath
+    #config.template_path = input.templatepath
+    #config.templatepath =  input.templatepath
     config.jobsFinishedThreshold = input.jobsFinishedThreshold
 
     run_dir = 'Run%s/Ttrig/Exec' % run
@@ -385,7 +380,7 @@ if __name__ == '__main__':
         if not os.path.exists(timeBoxes): runTtrigProd(run,runselection,trial,config)
         if not os.path.exists(timeBoxes): raise RuntimeError,'Could not produce %s'%timeBoxes
 
-        if not os.path.exists(ttrig_second_db): runTtrigCorrFirst(run,config)
+        if not os.path.exists(ttrig_second_db): runTtrigWriter(run,config)
         if not os.path.exists(ttrig_second_db): raise RuntimeError,'Could not produce %s'%ttrig_second_db
 
         if not os.path.exists(residualsFirst): runTtrigValid(run,runselection,trial,ttrig_second_db,config)
@@ -430,5 +425,5 @@ if __name__ == '__main__':
     #sys.stdout = stdout_original
  
     stop = time.time() 
-    print "DT Calibration finished for Run",run
+    print "DT Calibration finished. Results in",result_dir
     print "Time elapsed was %.1f seconds"%(stop-start)

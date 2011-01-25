@@ -24,8 +24,8 @@ class DTValidSummary:
         self.process.resolutionTest.OutputFileName = self.output_file
 
     def writeCfg(self):
-        #writeCfg(self.process,self.dir,self.pset_name) 
-        writeCfgPkl(self.process,self.dir,self.pset_name)
+        writeCfg(self.process,self.dir,self.pset_name) 
+        #writeCfgPkl(self.process,self.dir,self.pset_name)
 
     def run(self):
         self.task.run()

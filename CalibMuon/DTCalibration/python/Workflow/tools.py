@@ -101,8 +101,8 @@ def loadCmsProcessFile(psetName):
     return pset.process
 
 def loadCmsProcess(psetPath):
-    pset = __import__(psetPath)
-    return pset.process
+    module = __import__(psetPath)
+    return sys.modules[psetPath].process
 
 def prependPaths(process,seqname):
     for path in process.paths: 
