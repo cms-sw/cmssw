@@ -25,7 +25,7 @@ ak5CaloL1Offset = cms.ESSource(
     level = cms.string('L1Offset'),
     section   = cms.string(''),
     algorithm = cms.string('AK5Calo'),
-    useCondDB = cms.untracked.bool(False)
+    useCondDB = cms.untracked.bool(True)
     )
 
 ak5PFL1Offset = ak5CaloL1Offset.clone(algorithm = 'AK5PF') 
