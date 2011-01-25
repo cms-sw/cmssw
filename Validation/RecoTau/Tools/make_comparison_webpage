@@ -153,7 +153,7 @@ if __name__ == "__main__":
    plottedPar = ['energy', 'eta', 'phi', 'pt']
    found = False
    for analyzer in scanner.modules():
-        if (type(analyzer) is cms.EDAnalyzer) and (tauidproduct == (analyzer.TauProducer.value() + analyzer.ExtensionName.value())):
+        if (type(analyzer) is cms.EDAnalyzer) and (tauidproduct.lower()== (analyzer.TauProducer.value().lower() + analyzer.ExtensionName.value().lower())):
              found = True
              if analyzer.TauProducer.value().find('caloReco') != -1:
                   mat = 'Calo'
