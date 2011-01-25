@@ -3713,6 +3713,19 @@ public :
   int OpenHlt1ElectronHTPassed(float Et, float HT,float jetThreshold, int L1iso, float Tiso, float Hiso, float dr); 
   int OpenHlt1ElectronEleIDHTPassed(float Et, float HT,float jetThreshold, int L1iso, float Tiso, float Hiso, float dr); 
   int OpenHltRPassed(float Rmin, float MRmin,bool MRP, int NJmax, float jetPt);
+  int OpenHlt1BJetPassedEleRemoval(float jetEt, float jetEta, float drcut, 
+                                   float discL25, float discL3, 
+                                   float Et, int L1iso,  
+                                   float Tisobarrel, float Tisoendcap,  
+                                   float Tisoratiobarrel, float Tisoratioendcap,  
+                                   float HisooverETbarrel, float HisooverETendcap,  
+                                   float EisooverETbarrel, float EisooverETendcap, 
+                                   float hoverebarrel, float hovereendcap, 
+                                   float clusshapebarrel, float clusshapeendcap,  
+                                   float r9barrel, float r9endcap, 
+                                   float detabarrel, float detaendcap, 
+                                   float dphibarrel, float dphiendcap); 
+
   int readRefPrescaleFromFile(TString st); 
 
   int OpenL1SetSingleJetBit(const float& thresh);
