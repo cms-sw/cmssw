@@ -849,21 +849,21 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
    chain processes together directly in one cmsRun job rather than having to run
    separate jobs which are connected via a temporary file.
    """
-   def __init__(self,process, selectEvents = untracked.vstring()):
+   def __init__(self,process, SelectEvents = untracked.PSet()):
       """
       """
       if not isinstance(process, Process):
          raise ValueError("the 'process' argument must be of type cms.Process")
-      if not isinstance(selectEvents,vstring):
-         raise ValueError("the 'selectEvents' argument must be of type cms.untracked.vstring")
+      if not isinstance(SelectEvents,PSet):
+         raise ValueError("the 'SelectEvents' argument must be of type cms.untracked.PSet")
       self.__process = process
-      self.__selectEvents = selectEvents
+      self.__SelectEvents = SelectEvents
    def dumpPython(self,options):
       out = "parentProcess"+str(hash(self))+" = process\n"
       out += self.__process.dumpPython()
       out += "childProcess = process\n"
       out += "process = parentProcess"+str(hash(self))+"\n"
-      out += "process.subProcess = cms.SubProcess( process = childProcess, selectEvents = "+self.__selectEvents.dumpPython(options) +")\n"
+      out += "process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = "+self.__SelectEvents.dumpPython(options) +")\n"
       return out
    def type_(self):
       return 'subProcess'
@@ -891,7 +891,7 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
       topPSet = parameterSet.newPSet()
       self.__process.fillProcessDesc(ProcessDescAdaptor(topPSet),topPSet)
       subProcessPSet = parameterSet.newPSet()
-      self.__selectEvents.insertInto(subProcessPSet,"selectEvents")
+      self.__SelectEvents.insertInto(subProcessPSet,"SelectEvents")
       subProcessPSet.addPSet(False,"process",topPSet)
       #handle services differently
       services = parameterSet.newPSet()
@@ -1398,7 +1398,7 @@ process.Foo = cms.Service("Foo")
 
 childProcess = process
 process = parentProcess
-process.subProcess = cms.SubProcess( process = childProcess, selectEvents = cms.untracked.vstring())
+process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.untracked.PSet())
 """
             equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcess)))
             self.assertEqual(d,equalD)
