@@ -18,15 +18,32 @@ def getDatasetStr(datasetpath):
 
     return datasetstr
 
+def dqmOutputDir(label,config):
+    dqm_output_dir = ''
+    if config.stageOutLocal:
+        from crab_util import findLastWorkDir
+        cwd = os.getcwd()
+        crab_task_dir = config.base_dir + '/' + label
+        os.chdir(crab_task_dir)
+        crabdir = findLastWorkDir('crab_0_')
+        if not crabdir: raise RuntimeError,'Could not find CRAB dir in %s' % crab_task_dir
+        os.chdir(cwd)
+        dqm_output_dir = crabdir + "/res"
+    elif config.stageOutCAF:
+        datasetstr = getDatasetStr(config.datasetpath)
+        dqm_output_dir = config.castorpath + '/DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/' + label + '/' + 'v' + str(trial)
+
+    return dqm_output_dir
+
 def runTtrigProd(run,runselection,trial,config,runStep=True):
 
     print "Processing tTrig production"
     config.runselection = runselection
     datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'DTCalibration/TTRIGCalibration' + datasetstr + '/Run' + str(run) + '/Production/' + 'v' + str(trial)
-    config.digilabel = 'muonDTDigis'
+    config.userdircaf = 'DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/TimeBoxes/' + 'v' + str(trial)
    
-    dtTtrigProd = DTTTrigProd(run,config.prod_dir,config) 
+    task_dir = config.base_dir + '/TimeBoxes'
+    dtTtrigProd = DTTTrigProd(run,task_dir,config) 
     dtTtrigProd.writeCfg()
     
     if runStep:
@@ -64,15 +81,16 @@ def runTtrigWriter(run,config,runStep=True):
         print "Finished processing:"
         for pset in dtTtrigWriter.configs: print "--->",pset
 
-def runTtrigValid(run,runselection,trial,input_db,config,runStep=True):
+def runTtrigValid(run,runselection,trial,input_db,label,result_file,config,runStep=True):
 
     print "Processing tTrig validation"
     config.runselection = runselection
     datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/First/' + 'v' + str(trial)
+    config.userdircaf = 'DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/' + label + '/' + 'v' + str(trial)
     
+    task_dir = config.base_dir + '/' + label
     dtTtrigValid = DTTTrigValid(run=run,
-                                dir=config.valid_dir,
+                                dir=task_dir,
                                 input_db=input_db,
                                 config=config) 
     dtTtrigValid.writeCfg()
@@ -88,7 +106,7 @@ def runTtrigValid(run,runselection,trial,input_db,config,runStep=True):
         crabValidFirst.start()
         crabValidFirst.join()
 
-        result_file = config.result_dir + '/DTResidualValidation_%s.root'%run
+        #result_file = config.result_dir + '/DTResidualValidation_%s.root'%run
         if config.stageOutLocal:
             output_dir = project_valid_first + "/res"
             haddLocal(output_dir,result_file,'residuals')
@@ -117,15 +135,17 @@ def runTtrigResidualCorr(run,input_db,root_file,config,runStep=True):
         print "Finished processing:"
         for pset in dtTtrigResidualCorr.configs: print "--->",pset
 
+"""
 def runTtrigValidResidCorr(run,runselection,trial,input_db,config,runStep=True):
 
     print "Processing tTrig final validation"
     config.runselection = runselection
     datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/ResidCorr/' + 'v' + str(trial)
+    config.userdircaf = 'DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/ResidualsResidCorr/' + 'v' + str(trial)
 
+    task_dir = config.base_dir + '/ResidualsResidCorr'
     dtTtrigValid_ResidCorr = DTTTrigValid(run=run,
-                                          dir=config.valid_dir,
+                                          dir=task_dir,
                                           input_db=input_db,
                                           config=config)
     dtTtrigValid_ResidCorr.writeCfg()
@@ -152,6 +172,7 @@ def runTtrigValidResidCorr(run,runselection,trial,input_db,config,runStep=True):
         return project_valid_ResidCorr
 
     return None
+"""
 
 def runTtrigValidSummary(run,input_file,output_file,config,runStep=True):
 
@@ -189,9 +210,139 @@ def runDQMMerge(run,output_dir,config,runStep=True):
         dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
         dtDqmFinal.writeCfg()
  
+def runTtrigWorkflow(mode,config,execute=True):
+    ttrig_input_db = None
+    if hasattr(config,'inputTTrigDB') and config.inputTTrigDB: ttrig_input_db = os.path.abspath(config.inputTTrigDB)
 
+    if mode == 'timeboxes':
+        timeBoxes = os.path.abspath(result_dir + '/' + 'DTTimeBoxes_' + run + '.root')
+        ttrig_timeboxes_db = os.path.abspath(result_dir + '/' + 'ttrig_timeboxes_' + run + '.db')
+        residualsFirst = os.path.abspath(result_dir + '/' + 'DTResidualValidation_' + run + '.root')
+        ttrig_residuals_db = os.path.abspath(result_dir + '/' + 'ttrig_residuals_' + run + '.db')
+        residualsResidCorr = os.path.abspath(result_dir + '/' + 'DTResidualValidation_ResidCorr_' + run + '.root')
+        summaryResiduals = os.path.abspath(result_dir + '/' + 'SummaryResiduals_' + run + '.root') 
+
+        if not execute:
+            print "Writing configuration files.."
+            runTtrigProd(run,runselection,trial,config,False)
+            runTtrigWriter(run,config,False)
+            runTtrigValid(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config,False)
+            runTtrigResidualCorr(run,ttrig_timeboxes_db,residualsFirst,config,False)                
+            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config,False)
+            runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
+            runDQMMerge(run,'',config,False)
+
+            sys.exit(0)
+
+        # Produce time-boxes
+        if not os.path.exists(timeBoxes): runTtrigProd(run,runselection,trial,config)
+        if not os.path.exists(timeBoxes): raise RuntimeError,'Could not produce %s' % timeBoxes
+
+        # Write tTrig DB
+        if not os.path.exists(ttrig_timeboxes_db): runTtrigWriter(run,config)
+        if not os.path.exists(ttrig_timeboxes_db): raise RuntimeError,'Could not produce %s' % ttrig_timeboxes_db
+
+        # Produce residuals
+        if not os.path.exists(residualsFirst):
+            runTtrigValid(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config)
+        if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s' % residualsFirst
+
+        # Correction from residuals and write tTrig DB
+        if not os.path.exists(ttrig_residuals_db): runTtrigResidualCorr(run,ttrig_timeboxes_db,residualsFirst,config)
+        if not os.path.exists(ttrig_residuals_db): raise RuntimeError,'Could not produce %s' % ttrig_residuals_db
+
+        # Validation         
+        if not os.path.exists(residualsResidCorr):
+            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config)
+        if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s' % residualsResidCorr
+
+        # Summary of validation
+        if not os.path.exists(summaryResiduals): runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config)
+        if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s' % summaryResiduals
+        # Produce DQM output 
+        dqm_output_dir = dqmOutputDir('ResidualsResidCorr',config)
+        runDQMMerge(run,dqm_output_dir,config)
+
+    elif input.workflowMode == 'residuals':
+        residualsFirst = os.path.abspath(result_dir + '/' + 'DTResidualValidation_' + run + '.root')
+        ttrig_residuals_db = os.path.abspath(result_dir + '/' + 'ttrig_residuals_' + run + '.db')
+        residualsResidCorr = os.path.abspath(result_dir + '/' + 'DTResidualValidation_ResidCorr_' + run + '.root')
+        summaryResiduals = os.path.abspath(result_dir + '/' + 'SummaryResiduals_' + run + '.root')
+
+        if not execute:
+            print "Writing configuration files.."
+            if ttrig_input_db:
+                runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config,False)
+                runTtrigResidualCorr(run,ttrig_input_db,residualsFirst,config,False)
+            else:
+                runTtrigValid(run,runselection,trial,None,'Residuals',residualsFirst,config,False)
+                runTtrigResidualCorr(run,None,residualsFirst,config,False)
+
+            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config,False)
+            runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
+            runDQMMerge(run,'',config,False)
+
+            sys.exit(0)
+
+        # Produce residuals
+        if not os.path.exists(residualsFirst):
+            if ttrig_input_db: runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config)
+            else: runTtrigValid(run,runselection,trial,None,'Residuals',residualsFirst,config)
+        if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s' % residualsFirst
+
+        # Correction from residuals and write tTrig DB
+        if not os.path.exists(ttrig_residuals_db):
+            if ttrig_input_db: runTtrigResidualCorr(run,ttrig_input_db,residualsFirst,config)
+            else: runTtrigResidualCorr(run,None,residualsFirst,config)
+        if not os.path.exists(ttrig_residuals_db): raise RuntimeError,'Could not produce %s' % ttrig_residuals_db
+
+        # Validation         
+        if not os.path.exists(residualsResidCorr):
+            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config)
+        if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s' % residualsResidCorr
+
+        # Summary of validation
+        if not os.path.exists(summaryResiduals):
+            runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config)
+        if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s' % summaryResiduals
+
+        # Produce DQM output 
+        dqm_output_dir = dqmOutputDir('ResidualsResidCorr',config)
+        runDQMMerge(run,dqm_output_dir,config)
+
+    elif input.workflowMode == 'validation':
+        residualsValid = os.path.abspath(result_dir + '/' + 'DTResidualValidation_' + run + '.root')
+        summaryResiduals = os.path.abspath(result_dir + '/' + 'SummaryResiduals_' + run + '.root')
+
+        if not execute:
+            print "Writing configuration files.."
+            if ttrig_input_db:
+                runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsValid,config,False)
+            else:
+                runTtrigValid(run,runselection,trial,None,'Residuals',residualsValid,config,False)
+
+            runTtrigValidSummary(run,residualsValid,summaryResiduals,config,False)
+            runDQMMerge(run,'',config,False)
+
+            sys.exit(0)
+
+        # Validation
+        if not os.path.exists(residualsValid):
+            if ttrig_input_db: runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsValid,config)
+            else: runTtrigValid(run,runselection,trial,None,'Residuals',residualsValid,config)
+
+        # Summary of validation
+        if not os.path.exists(summaryResiduals):
+            runTtrigValidSummary(run,residualsValid,summaryResiduals,config)
+        if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s' % summaryResiduals
+
+        # Produce DQM output 
+        dqm_output_dir = dqmOutputDir('Residuals',config)
+        runDQMMerge(run,dqm_output_dir,config)
+
+    return 0
+        
 if __name__ == '__main__':
-    start = time.time()
 
     parser = optparse.OptionParser(usage="usage: %prog arg1 arg2 [options]")
     parser.add_option("-r","--run", dest="run", help="set reference run number (typically first or last run in list)")
@@ -200,14 +351,16 @@ if __name__ == '__main__':
     parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
     parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (without the '::All' string)")
     parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
-    parser.add_option("--inputVdriftDB", dest="inputVdriftDB", help="uses local SQLITE vDrift DB (instead of using the one in the GT)")
+    parser.add_option("--inputVDriftDB", dest="inputVDriftDB", help="uses local SQLITE vDrift DB (instead of using the one in the GT)")
+    parser.add_option("--inputTTrigDB", dest="inputTTrigDB", help="uses local SQLITE tTrig DB (instead of using the one in the GT)")
+    parser.add_option("--runOnRAW", action="store_true", dest="runOnRAW", default=False, help="set this option to run on RAW")
     #parser.add_option("--templatepath", dest="templatepath", help="path to dir with template cfg files")
     parser.add_option("--no_exec", action="store_true", dest="no_exec", default=False, help="script will not execute")
 
     # Option group - options for residuals mode
-    group_residuals = optparse.OptionGroup(parser,"Options for 'residuals' mode")
-    group_residuals.add_option("--inputDB", dest="inputDB", help="sets initial DB (instead of using the one in the GT)")
-    parser.add_option_group(group_residuals)
+    #group_residuals = optparse.OptionGroup(parser,"Options for 'residuals' mode")
+    #group_residuals.add_option("--inputDB", dest="inputDB", help="sets initial DB (instead of using the one in the GT)")
+    #parser.add_option_group(group_residuals)
 
     # Option group - additional options
     group_additional = optparse.OptionGroup(parser,"Additional options")
@@ -233,7 +386,7 @@ if __name__ == '__main__':
     if len(args) > 0: 
         if args[0] not in allowedTypes: parser.error('option "%s" not allowed' % args[0])
  
-    allowedModes = ('timeboxes','residuals')
+    allowedModes = ('timeboxes','residuals','validation')
     input.workflowMode = 'residuals'
     if len(args) > 1:
         if args[1] not in allowedModes: parser.error('option "%s" not allowed' % args[1])
@@ -255,12 +408,20 @@ if __name__ == '__main__':
 
     if hasattr(input,'lumimask') and input.lumimask:
         if not os.path.exists(input.lumimask): parser.error('File "%s" does not exist' % input.lumimask)
-  
+ 
+    ############################################################################### 
     class config: pass
 
     if hasattr(input,'inputVdriftDB') and input.inputVdriftDB: config.inputVdriftDB = os.path.abspath(input.inputVdriftDB)
-    config.globaltag = input.globaltag + '::All'
+    if hasattr(input,'inputTTrigDB') and input.inputTTrigDB: config.inputTTrigDB = os.path.abspath(input.inputTTrigDB)
 
+    config.runOnRAW = False 
+    if hasattr(input,'runOnRAW') and input.runOnRAW: config.runOnRAW = input.runOnRAW
+
+    config.globaltag = input.globaltag + '::All'
+    config.digilabel = 'muonDTDigis'
+    config.preselection = input.preselection 
+    
     if not input.runOnGrid:
         config.scheduler = 'CAF'
         if input.stageOutLocal:
@@ -278,7 +439,6 @@ if __name__ == '__main__':
     config.useserver = input.useserver
     config.datasetpath = input.datasetpath
     config.runselection = runselection
-    config.preselection = input.preselection
     #config.totalnumberevents = 1000000
     #config.eventsperjob = 50000
     if hasattr(input,'splitByLumi') and input.splitByLumi:
@@ -306,34 +466,40 @@ if __name__ == '__main__':
     #config.templatepath =  input.templatepath
     config.jobsFinishedThreshold = input.jobsFinishedThreshold
 
-    run_dir = 'Run%s/Ttrig/Exec' % run
+    base_dir = 'Run%s/Ttrig' % run
+    if not os.path.exists(base_dir): os.makedirs(base_dir)
+    config.base_dir = base_dir
+
+    run_dir = base_dir + '/Exec'
     if not os.path.exists(run_dir): os.makedirs(run_dir)
     config.run_dir = run_dir
 
-    prod_dir = 'Run%s/Ttrig/Production' % run
-    if not os.path.exists(prod_dir): os.makedirs(prod_dir)
-    config.prod_dir = prod_dir
-
-    valid_dir = 'Run%s/Ttrig/Validation' % run
-    if not os.path.exists(valid_dir): os.makedirs(valid_dir)
-    config.valid_dir = valid_dir
-
-    result_dir = 'Run%s/Ttrig/Results' % run
+    result_dir = base_dir + '/Results'
     if not os.path.exists(result_dir): os.makedirs(result_dir)
     config.result_dir = result_dir
 
-    log_dir = 'Run%s/Ttrig/Log' % run
+    log_dir = base_dir + '/Log'
     if not os.path.exists(log_dir): os.makedirs(log_dir)
     config.log_dir = log_dir 
 
+    """
+    prod_dir = 'Run%s/Ttrig/Production' % run
+    if not os.path.exists(prod_dir): os.makedirs(prod_dir)
+    config.prod_dir = prod_dir
+    valid_dir = 'Run%s/Ttrig/Validation' % run
+    if not os.path.exists(valid_dir): os.makedirs(valid_dir)
+    config.valid_dir = valid_dir
+    """
     #logFileName = os.path.abspath('%s/Run_%s_v%s.log' % (log_dir,run,trial))
     #logOut = open(logFileName,'w',1)
 
+    ###############################################################################
+    start = time.time()
     print "DT Calibration starting for Run",run
     print "Using runs",runselection
     print "Running at",run_dir
     print "Results at",result_dir 
-    #print "Log file at",logFileName
+    #print "Log files at",logFileName
  
     #stdout_original = sys.stdout
     #sys.stdout = logOut
@@ -341,89 +507,16 @@ if __name__ == '__main__':
     from CalibMuon.DTCalibration.Workflow.crabWrap import initCrabEnvironment
     initCrabEnvironment()
 
-    timeBoxes = os.path.abspath(result_dir + '/' + 'DTTimeBoxes_' + run + '.root')
-    ttrig_second_db = os.path.abspath(result_dir + '/' + 'ttrig_second_' + run + '.db')
-    residualsFirst = os.path.abspath(result_dir + '/' + 'DTkFactValidation_' + run + '.root')
-    ttrig_ResidCorr_db = os.path.abspath(result_dir + '/' + 'ttrig_ResidCorr_' + run + '.db')
-    residualsResidCorr = os.path.abspath(result_dir + '/' + 'DTkFactValidation_ResidCorr_' + run + '.root')
-    summaryResiduals = os.path.abspath(result_dir + '/' + 'SummaryResiduals_' + run + '.root')
-    #castorDirResidCorr = config.castor_prefix + 'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial)
-    dqm_output_dir = ''
- 
-    ttrig_input_db = None
-    if input.workflowMode == 'residuals' and hasattr(input,'inputDB') and input.inputDB:
-        ttrig_input_db = os.path.abspath(input.inputDB)
+    execute = True
+    if input.no_exec: execute = False
 
-    if input.no_exec:
-        print "Only cfg files will be written"
-        if input.workflowMode == 'timeboxes':
-            runTtrigProd(run,runselection,trial,config,False)
-            runTtrigCorrFirst(run,config,False)
-            runTtrigValid(run,runselection,trial,ttrig_second_db,config,False)
-            runTtrigResidualCorr(run,ttrig_second_db,residualsFirst,config,False)                
-        elif input.workflowMode == 'residuals':
-            if ttrig_input_db:
-                runTtrigValid(run,runselection,trial,ttrig_input_db,config,False)
-                runTtrigResidualCorr(run,ttrig_input_db,residualsFirst,config,False)           
-            else:
-                runTtrigValid(run,runselection,trial,None,config,False)
-                runTtrigResidualCorr(run,None,residualsFirst,config,False)
- 
-        # Common steps
-        #runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config,False)
-        runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
-        runDQMMerge(run,dqm_output_dir,config,False)
-
-        sys.exit(0)
-
-    if input.workflowMode == 'timeboxes':
-        if not os.path.exists(timeBoxes): runTtrigProd(run,runselection,trial,config)
-        if not os.path.exists(timeBoxes): raise RuntimeError,'Could not produce %s'%timeBoxes
-
-        if not os.path.exists(ttrig_second_db): runTtrigWriter(run,config)
-        if not os.path.exists(ttrig_second_db): raise RuntimeError,'Could not produce %s'%ttrig_second_db
-
-        if not os.path.exists(residualsFirst): runTtrigValid(run,runselection,trial,ttrig_second_db,config)
-        if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s'%residualsFirst
-
-        if not os.path.exists(ttrig_ResidCorr_db): runTtrigResidualCorr(run,ttrig_second_db,residualsFirst,config)
-        if not os.path.exists(ttrig_ResidCorr_db): raise RuntimeError,'Could not produce %s'%ttrig_ResidCorr_db
-    elif input.workflowMode == 'residuals':
-        if not os.path.exists(residualsFirst):
-            if ttrig_input_db: runTtrigValid(run,runselection,trial,ttrig_input_db,config)
-            else: runTtrigValid(run,runselection,trial,None,config)
-        if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s'%residualsFirst
-
-        if not os.path.exists(ttrig_ResidCorr_db):
-            if ttrig_input_db: runTtrigResidualCorr(run,ttrig_input_db,residualsFirst,config) 
-            else: runTtrigResidualCorr(run,None,residualsFirst,config)
-        if not os.path.exists(ttrig_ResidCorr_db): raise RuntimeError,'Could not produce %s'%ttrig_ResidCorr_db
-   
-    # Common steps
-    project_valid_ResidCorr = None
-    if not os.path.exists(residualsResidCorr):
-        project_valid_ResidCorr = runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config)
-    if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s'%residualsResidCorr
-
-    if not os.path.exists(summaryResiduals): runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config)
-    if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s'%summaryResiduals
-
-    if config.stageOutLocal:
-        from crab_util import findLastWorkDir
-        cwd = os.getcwd() 
-        os.chdir(config.valid_dir)
-        crabdir = findLastWorkDir('crab_0_')
-        if not crabdir: raise RuntimeError,'Could not find CRAB dir in %s' % config.valid_dir
-        os.chdir(cwd)
-        dqm_output_dir = crabdir + "/res"
-    elif config.stageOutCAF:
-        datasetstr = getDatasetStr(config.datasetpath)
-        dqm_output_dir = config.castorpath + '/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/ResidCorr/' + 'v' + str(trial)
-
-    runDQMMerge(run,dqm_output_dir,config)
+    if input.workflowType == 'ttrig': runTtrigWorkflow(input.workflowMode,config,execute)
+    elif input.workflowType == 'vdrift': pass
+    elif input.workflowType == 'noise': pass
+    elif input.workflowType == 't0': pass
 
     #sys.stdout = stdout_original
  
     stop = time.time() 
-    print "DT Calibration finished. Results in",result_dir
+    print "DT Calibration finished.. results in",result_dir
     print "Time elapsed was %.1f seconds"%(stop-start)

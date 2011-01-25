@@ -23,7 +23,7 @@ class DTTTrigResidualCorr:
         self.task = CmsswTask(self.dir,self.configs)
     
     def initProcess(self): 
-        ttrig_ResidCorr = self.result_dir + '/' + 'ttrig_ResidCorr_' + str(self.runnumber)
+        ttrig_ResidCorr = self.result_dir + '/' + 'ttrig_residuals_' + str(self.runnumber)
         ttrig_ResidCorr_db = os.path.abspath(ttrig_ResidCorr + '.db')
         ttrig_ResidCorr_txt = os.path.abspath(ttrig_ResidCorr + '.txt')
         root_file = self.residuals

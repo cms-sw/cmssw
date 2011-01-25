@@ -19,7 +19,10 @@ class DTTTrigProd:
     def initProcess(self):
         self.process = loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = self.config.globaltag
-        self.process.ttrigcalib.digiLabel = self.config.digilabel
+        self.process.dtTTrigCalibration.digiLabel = self.config.digilabel
+        if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
+            prependPaths(self.process,self.config.digilabel)
+
         if hasattr(self.config,'preselection') and self.config.preselection:
             pathsequence = self.config.preselection.split(':')[0]
             seqname = self.config.preselection.split(':')[1]

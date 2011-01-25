@@ -1,4 +1,5 @@
 from tools import loadCmsProcess,loadCrabCfg,loadCrabDefault,addCrabInputFile,writeCfg,prependPaths
+from addPoolDBESSource import addPoolDBESSource
 from CrabTask import *
 import os
 
@@ -30,6 +31,9 @@ class DTTTrigValid:
                               moduleName = 'vDriftDB',record = 'DTMtimeRcd',tag = 'vDrift',
                               connect = 'sqlite_file:%s' % os.path.basename(self.config.inputVdriftDB))
 
+        if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
+            prependPaths(self.process,self.config.digilabel)
+ 
         if hasattr(self.config,'preselection') and self.config.preselection:
             pathsequence = self.config.preselection.split(':')[0]
             seqname = self.config.preselection.split(':')[1]
