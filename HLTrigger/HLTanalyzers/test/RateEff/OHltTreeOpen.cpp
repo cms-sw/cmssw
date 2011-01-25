@@ -5037,9 +5037,6 @@ int OHltTree::OpenHlt1ElectronSamHarperPassed(float Et, int L1iso,
     if(barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta)
       isendcap = 1;
 
-    if(ohEleL1iso[i] == 0)
-      ohEleHoverE = ohEleR9[i]/ohEleE[i];
-
     if ( ohEleEt[i] > Et) {
       if( TMath::Abs(ohEleEta[i]) < endcapeta ) {
 	if (ohEleNewSC[i]<=1) {
@@ -5058,10 +5055,8 @@ int OHltTree::OpenHlt1ElectronSamHarperPassed(float Et, int L1iso,
 			    ((isendcap) && (ohEleTiso[i]/ohEleEt[i] < Tisoratioendcap))) {
 			  if ( (isbarrel && ohEleClusShap[i] < clusshapebarrel) ||
 			       (isendcap && ohEleClusShap[i] < clusshapeendcap) ) {
-			    if ( (ohEleL1iso[i] == 1 && isbarrel && ohEleR9[i] < r9barrel) || 
-				 (ohEleL1iso[i] == 1 && isendcap && ohEleR9[i] < r9endcap) ||
-				 (ohEleL1iso[i] == 0 && isbarrel && ohEleHforHoverE[i] < r9barrel) ||
-                                 (ohEleL1iso[i] ==0 && isendcap && ohEleHforHoverE[i] < r9endcap)) {
+			    if ( (isbarrel && ohEleR9[i] < r9barrel) || 
+				 (isendcap && ohEleR9[i] < r9endcap) ) {
 			      if ( (isbarrel && TMath::Abs(ohEleDeta[i]) < detabarrel) ||
 				   (isendcap && TMath::Abs(ohEleDeta[i]) < detaendcap) ) {
 				if( (isbarrel && ohEleDphi[i] < dphibarrel) ||
@@ -5116,9 +5111,6 @@ int OHltTree::OpenHlt2ElectronsSamHarperPassed(float Et, int L1iso,
     if(barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta)
       isendcap = 1;
 
-    if(ohEleL1iso[i] == 0)
-      ohEleHoverE = ohEleR9[i]/ohEleE[i];
-
     if ( ohEleEt[i] > Et) {
       if( TMath::Abs(ohEleEta[i]) < endcapeta ) {
 	if (ohEleNewSC[i]==1) {
@@ -5132,10 +5124,8 @@ int OHltTree::OpenHlt2ElectronsSamHarperPassed(float Et, int L1iso,
 		       ((isendcap) && (ohEleHoverE < hovereendcap))) { 
 		    if ( (isbarrel && ohEleClusShap[i] < clusshapebarrel) ||
 			 (isendcap && ohEleClusShap[i] < clusshapeendcap) ) {
-		      if ( (ohEleL1iso[i] == 1 && isbarrel && ohEleR9[i] < r9barrel) ||
-			   (ohEleL1iso[i] == 1 && isendcap && ohEleR9[i] < r9endcap) ||
-			   (ohEleL1iso[i] == 0 && isbarrel && ohEleHforHoverE[i] < r9barrel) ||
-			   (ohEleL1iso[i] ==0 && isendcap && ohEleHforHoverE[i] < r9endcap)) {
+		      if ( (isbarrel && ohEleR9[i] < r9barrel) || 
+			   (isendcap && ohEleR9[i] < r9endcap) ) {
 			if (ohElePixelSeeds[i]>0) {
 			  rcsconly++;
 			}
@@ -5161,9 +5151,6 @@ int OHltTree::OpenHlt2ElectronsSamHarperPassed(float Et, int L1iso,
       if(barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta)
 	isendcap = 1;
 
-      if(ohEleL1iso[i] == 0)
-	ohEleHoverE = ohEleR9[i]/ohEleE[i];
-      
       if ( ohEleEt[i] > Et) {
 	if( TMath::Abs(ohEleEta[i]) < endcapeta ) {
 	  if (ohEleNewSC[i]<=1) {
@@ -5182,10 +5169,8 @@ int OHltTree::OpenHlt2ElectronsSamHarperPassed(float Et, int L1iso,
 			      ((isendcap) && (ohEleTiso[i]/ohEleEt[i] < Tisoratioendcap))) {
 			    if ( (isbarrel && ohEleClusShap[i] < clusshapebarrel) ||
 				 (isendcap && ohEleClusShap[i] < clusshapeendcap) ) {
-			      if ( (ohEleL1iso[i] == 1 && isbarrel && ohEleR9[i] < r9barrel) ||
-				   (ohEleL1iso[i] == 1 && isendcap && ohEleR9[i] < r9endcap) ||
-				   (ohEleL1iso[i] == 0 && isbarrel && ohEleHforHoverE[i] < r9barrel) ||
-				   (ohEleL1iso[i] ==0 && isendcap && ohEleHforHoverE[i] < r9endcap)) {
+			      if ( (isbarrel && ohEleR9[i] < r9barrel) || 
+				   (isendcap && ohEleR9[i] < r9endcap) ) {
 				if ( (isbarrel && TMath::Abs(ohEleDeta[i]) < detabarrel) ||
 				     (isendcap && TMath::Abs(ohEleDeta[i]) < detaendcap) ) {
 				  if( (isbarrel && ohEleDphi[i] < dphibarrel) ||
