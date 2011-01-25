@@ -1,31 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 def customiseCommon(process):
-    
-    #####################################################################################################
-    ####
-    ####  Top level replaces for handling strange scenarios of early collisions
-    ####
-
-    ## TRACKING:
-    process.newSeedFromTriplets.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(100000)
-    process.newSeedFromPairs.OrderedHitsFactoryPSet.maxElement = cms.uint32(100000)
-    process.secTriplets.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(100000)
-    process.thTripletsA.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(100000)
-    process.thTripletsB.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(100000)
-    process.fourthPLSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(100000)
-    process.fifthSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(100000)
-    
-    ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
-
     ### prevent bias in pixel vertex
     process.pixelVertices.useBeamConstraint = False
-    
-    ###
-    ###  end of top level replacements
-    ###
-    ###############################################################################################
-
     return (process)
 
 
@@ -48,6 +25,10 @@ def customisePPData(process):
     process.hfreco.PETstat.flagsToSkip  = 2
     process.hfreco.S8S1stat.flagsToSkip = 18
     process.hfreco.S9S1stat.flagsToSkip = 26
+
+    ##Ecal time bias correction
+    process.ecalGlobalUncalibRecHit.doEBtimeCorrection = True
+    process.ecalGlobalUncalibRecHit.doEEtimeCorrection = True
     
     return process
 
