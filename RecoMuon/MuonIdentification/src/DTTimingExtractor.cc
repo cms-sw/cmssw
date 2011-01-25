@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.10 2010/12/15 11:07:40 ptraczyk Exp $
+// $Id: DTTimingExtractor.cc,v 1.11 2011/01/21 08:52:18 ptraczyk Exp $
 //
 //
 
@@ -203,6 +203,11 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	  float wirePropCorr = propgL/24.4*0.00543; // signal propagation speed along the wire
 	  if (thisHit.isLeft) wirePropCorr=-wirePropCorr;
 	  thisHit.posInLayer += wirePropCorr;
+	  const DTSuperLayer *sl = layer->superLayer();
+	  float tofCorr = sl->surface().position().mag()-tsos.first.globalPosition().mag();
+	  tofCorr = (tofCorr/29.979)*0.00543;
+	  if (thisHit.isLeft) tofCorr=-tofCorr;
+	  thisHit.posInLayer += tofCorr;
 	} 
 	  
 	tms.push_back(thisHit);
