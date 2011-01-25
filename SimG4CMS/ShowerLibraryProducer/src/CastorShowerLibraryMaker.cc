@@ -984,7 +984,7 @@ bool CastorShowerLibraryMaker::SLisPhiBinFilled(int ebin,int etabin,int phibin)
    return true;
 }
 void CastorShowerLibraryMaker::KillSecondaries(const G4Step * aStep) {
-   G4TrackVector *p_sec = aStep->GetSecondary();
+   G4TrackVector *p_sec = const_cast<G4TrackVector*>(aStep->GetSecondary());
    for(int i=0;i<int(p_sec->size());i++) {
       /*if (verbosity)*/ std::cout << "Killing track ID " << p_sec->at(i)->GetTrackID() << " and its secondaries"
           << " Produced by Process " << p_sec->at(i)->GetCreatorProcess()->GetProcessName()
