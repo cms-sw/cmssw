@@ -742,6 +742,29 @@ int HitPattern::numberOfBadMuonRPCHits() const {
   return count;
 }
 
+int HitPattern::numberOfInactiveHits() const {
+  int count = 0;
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern != 0) {
+      if (type_2_HitFilter(pattern)) count++;
+    }
+  }
+  return count;
+}
+
+int HitPattern::numberOfInactiveTrackerHits() const {
+  int count = 0;
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern != 0) {
+      if (type_2_HitFilter(pattern) && trackerHitFilter(pattern)) count++;
+    }
+  }
+  return count;
+}
+
+
 int HitPattern::numberOfValidStripLayersWithMonoAndStereo () const 
 {
      static const int nHits = (PatternSize * 32) / HitSize;

@@ -228,6 +228,9 @@ namespace reco {
     int numberOfBadMuonDTHits() const;        // not-null, bad, muon DT
     int numberOfBadMuonCSCHits() const;       // not-null, bad, muon CSC
     int numberOfBadMuonRPCHits() const;       // not-null, bad, muon RPC
+    int numberOfInactiveHits() const;         // not-null, inactive
+    int numberOfInactiveTrackerHits() const;  // not-null, inactive, tracker
+
 
     int numberOfValidStripLayersWithMonoAndStereo () 
       const; // count strip layers that have non-null, valid mono and stereo hits
