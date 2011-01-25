@@ -43,9 +43,12 @@ private:
 	unsigned zero_7      : 1; // format specific
 	/////// word 8 ///////
 	unsigned pt_high     : 8; // high byte of pt for track, that we are spying at
-	unsigned spare_5     : 1; // not used
-	unsigned spare_6     : 1; // not used
-	unsigned spare_7     : 1; // not used
+        unsigned time_bin    : 3;
+  
+//	unsigned spare_5     : 1; // not used
+//	unsigned spare_6     : 1; // not used
+//	unsigned spare_7     : 1; // not used
+
 	unsigned spare_8     : 1; // not used
 	unsigned bx_barrel_1 : 1;
 	unsigned bx_barrel_2 : 1;
@@ -66,8 +69,8 @@ public:
 	bool check(void) const throw() {
 		return zero_1 !=0 || zero_2 !=0 || zero_3 !=0 || zero_4 !=0
 			|| zero_5 !=0 || zero_6 !=0 || zero_7 !=0 || zero_8 !=0 // || spare_1!=0
-			|| spare_2!=0 || spare_3!=0 || spare_4!=0 || spare_5!=0
-			|| spare_6!=0 || spare_7!=0 || spare_8!=0 || spare_9!=0;
+			|| spare_2!=0 || spare_3!=0 || spare_4!=0 || spare_8!=0
+		        || spare_9!=0;
 	}
 
 	// Following functions return empty vector if no LCTs/MB_stubs/tracks are available
