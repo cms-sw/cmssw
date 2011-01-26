@@ -1,4 +1,30 @@
-void  dumpPlotFromEffFile(char* dir="GsfElectronToIdToHLT", bool isCutAndCount=true) {
+///////////////////////////////////////////////////////////////////////////////////
+////////// Example usages:
+//////////  Data: 
+//////////    dumpPlotFromEffFile.C("efficiency-data-GsfElectronToId.root", "GsfElectronToId", false, false)
+//////////    dumpPlotFromEffFile.C("efficiency-data-SCToGsfElectron.root", "SuperClusterToGsfElectron", false, false)
+//////////    dumpPlotFromEffFile.C("efficiency-data-WP90ToHLT.root", "WP90ToHLT")
+//////////    dumpPlotFromEffFile.C("efficiency-data-WP85ToHLT.root", "WP85ToHLT")
+//////////    dumpPlotFromEffFile.C("efficiency-data-WP80ToHLT.root", "WP80ToHLT")
+//////////    dumpPlotFromEffFile.C("efficiency-data-CicLooseToHLT.root", "CicLooseToHLT")
+//////////    dumpPlotFromEffFile.C("efficiency-data-CicTightToHLT.root", "CicTightToHLT")
+//////////    dumpPlotFromEffFile.C("efficiency-data-CicSuperTightToHLT.root", "CicSuperTightToHLT")
+//////////  MC: 
+//////////    dumpPlotFromEffFile.C("efficiency-mc-GsfElectronToId.root", "GsfElectronToId")
+//////////    dumpPlotFromEffFile.C("efficiency-mc-SCToGsfElectron.root", "SuperClusterToGsfElectron")
+//////////    dumpPlotFromEffFile.C("efficiency-mc-WP90ToHLT.root", "WP90ToHLT")
+//////////    dumpPlotFromEffFile.C("efficiency-mc-WP85ToHLT.root", "WP85ToHLT")
+//////////    dumpPlotFromEffFile.C("efficiency-mc-WP80ToHLT.root", "WP80ToHLT")
+//////////    dumpPlotFromEffFile.C("efficiency-mc-CicLooseToHLT.root", "CicLooseToHLT")
+//////////    dumpPlotFromEffFile.C("efficiency-mc-CicTightToHLT.root", "CicTightToHLT")
+//////////    dumpPlotFromEffFile.C("efficiency-mc-CicSuperTightToHLT.root", "CicSuperTightToHLT")
+
+
+
+void  dumpPlotFromEffFile( char* inputFileName = "testEfficiency_data.root",
+			   char* dir="GsfElectronToId", 
+			   bool isCutAndCount=true, 
+			   bool isMCTruth = false ) {
 
   std::cout << "   ##################################################   " << std::endl;
   if(isCutAndCount) {
@@ -8,9 +34,9 @@ void  dumpPlotFromEffFile(char* dir="GsfElectronToIdToHLT", bool isCutAndCount=t
   else std::cout << "Plotting efficiency from simultaneous fit." << std::endl;
   std::cout << "   ##################################################   " << std::endl;
 
-  const bool isMCTruth = false;
 
-  TFile* f = new TFile("testEfficiency_data.root");
+
+  TFile* f = new TFile(inputFileName);
   f->cd(dir);
 
   TKey *key;
@@ -28,15 +54,22 @@ void  dumpPlotFromEffFile(char* dir="GsfElectronToIdToHLT", bool isCutAndCount=t
     std::cout << "   ==================================================   " << std::endl;
     TString dirName = Form("%s/cnt_eff_plots/", name);
     if( !isCutAndCount ) dirName = Form("%s/fit_eff_plots/", name);
+    cout << "****************************dirName = " << dirName << endl;
     gDirectory->cd(dirName);
-    char* canvasname = "probe_gsfEle_pt_probe_gsfEle_eta_PLOT";
-    if(isMCTruth) canvasname = "probe_gsfEle_pt_probe_gsfEle_eta_PLOT_mcTrue_true";
+    char* canvasname = "probe_sc_et_probe_sc_eta_PLOT";
+    if(isMCTruth) canvasname = "probe_sc_et_probe_sc_eta_PLOT_mcTrue_true";
+    if(dir=="SuperClusterToGsfElectron") canvasname = "probe_et_probe_eta_PLOT";
+    if(dir=="SuperClusterToGsfElectron" && isMCTruth) 
+      canvasname = "probe_et_probe_eta_PLOT_mcTrue_true";
+
+
     c = (TCanvas*) gDirectory->Get( canvasname );
     if(c==0) continue; // do nothing if the canvas doesn't exist
     gStyle->SetPalette(1);
-    c->Draw();
-    c->SaveAs( TString(name)+TString(".gif")); 
+    gStyle->SetPaintTextFormat(".2f"); 
     TH2F* h = (TH2F*) c->FindObject(canvasname );
+    c->Draw();
+    c->SaveAs( TString(name)+TString(".png")); 
     makeTable( h, (const char*) (TString(name)+TString(".txt")) );
 
 
@@ -58,15 +91,18 @@ void  dumpPlotFromEffFile(char* dir="GsfElectronToIdToHLT", bool isCutAndCount=t
       c->Draw();
       TString plotname = TString("fit")+TString(name)+TString("_")+
       TString(innername)+TString(".gif");
-      plotname.ReplaceAll("probe_gsfEle_", "");
+      plotname.ReplaceAll("probe_sc_", "");
       plotname.ReplaceAll("__pdfSignalPlusBackground", "");
       c->SaveAs(plotname); 
+      gDirectory->cd("../");
       } // end while innerkey
     } // end isCutAndCount
 
 
     //get back to the initial directory
-    gDirectory->cd("../../");
+    if( !isCutAndCount ) gDirectory->cd("../");
+    else gDirectory->cd("../../");
+
       std::cout << "   ==================================================   " << std::endl;
   }
   
