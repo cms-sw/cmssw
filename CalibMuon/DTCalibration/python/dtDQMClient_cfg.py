@@ -37,22 +37,23 @@ process.eventInfoProvider = cms.EDFilter("EventCoordinatesSource",
 
 process.qTester = cms.EDAnalyzer("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
-    qtList = cms.untracked.FileInPath('CalibMuon/DTCalibration/QualityTests_ttrig.xml')
+    qtList = cms.untracked.FileInPath('CalibMuon/DTCalibration/data/QualityTests_ttrig.xml')
 )
 
 process.load("DQM.DTMonitorClient.dtResolutionTestFinalCalib_cfi")
 
+workflowName = '/Mu/Calibration-v1/DQM'
 if config.dqmAtRunEnd:
     process.DQMStore.referenceFileName = ''
     process.dqmSaver.convention = 'Offline'
-    process.dqmSaver.workflow = '/Muon/Dt/Calib'
+    process.dqmSaver.workflow = workflowName
     process.DQMStore.collateHistograms = False
     process.EDMtoMEConverter.convertOnEndLumi = True
     process.EDMtoMEConverter.convertOnEndRun = True
 else:
     process.DQMStore.referenceFileName = ''
     process.dqmSaver.convention = 'Offline'
-    process.dqmSaver.workflow = '/Muon/Dt/Calib'
+    process.dqmSaver.workflow = workflowName
     process.DQMStore.collateHistograms = True
     process.EDMtoMEConverter.convertOnEndLumi = True
     process.EDMtoMEConverter.convertOnEndRun = True

@@ -321,7 +321,7 @@ def runTtrigWorkflow(mode,config,execute=True):
             else:
                 runTtrigValid(run,runselection,trial,None,'Residuals',residualsValid,config,False)
 
-            runTtrigValidSummary(run,residualsValid,summaryResiduals,config,False)
+            #runTtrigValidSummary(run,residualsValid,summaryResiduals,config,False)
             runDQMMerge(run,'',config,False)
 
             sys.exit(0)
@@ -331,10 +331,12 @@ def runTtrigWorkflow(mode,config,execute=True):
             if ttrig_input_db: runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsValid,config)
             else: runTtrigValid(run,runselection,trial,None,'Residuals',residualsValid,config)
 
+        """
         # Summary of validation
         if not os.path.exists(summaryResiduals):
             runTtrigValidSummary(run,residualsValid,summaryResiduals,config)
         if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s' % summaryResiduals
+        """
 
         # Produce DQM output 
         dqm_output_dir = dqmOutputDir('Residuals',config)

@@ -17,8 +17,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("CalibMuon.DTCalibration.dtCalibValidation_cfi")
-
 process.load("CalibMuon.DTCalibration.ALCARECODtCalibHLTDQM_cfi")
+process.ALCARECODtCalibHLTDQM.directory = "DT/HLTSummary"
 
 process.output = cms.OutputModule("PoolOutputModule",
                   outputCommands = cms.untracked.vstring('drop *', 

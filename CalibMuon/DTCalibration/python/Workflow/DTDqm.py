@@ -7,6 +7,7 @@ class DTDqm:
         self.runnumber = int(run)
         self.dir = dir
         self.result_dir = result_dir
+        self.config = config
         self.dqm_files = dqm_files
 
         self.pset_name = 'dtDQMClient_cfg.py'
@@ -14,14 +15,15 @@ class DTDqm:
 
         self.process = None
         self.initProcess()
-        self.configs = []
-        self.configs.append(self.pset_name)
-        self.task = CmsswTask(self.dir,self.configs)
+        self.configFiles = []
+        self.configFiles.append(self.pset_name)
+        self.task = CmsswTask(self.dir,self.configFiles)
 
     def initProcess(self):
         self.process = loadCmsProcess(self.pset_template)
         self.process.source.fileNames = self.dqm_files
         self.process.dqmSaver.dirName = os.path.abspath(self.result_dir)
+        if self.config: self.process.dqmSaver.workflow = self.config.datasetpath
         if self.process.DQMStore.collateHistograms: self.process.dqmSaver.forceRunNumber = self.runnumber
 
     def writeCfg(self):
