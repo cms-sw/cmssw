@@ -272,15 +272,15 @@ rules_Filter = cms.PSet (
     ### here the preselection is applied
     # fiducial cuts:
     BarrelMaxEta = cms.untracked.double(1.4442),
-    EndCapMinEta = cms.untracked.double(1.566),
-    EndCapMaxEta = cms.untracked.double(2.5),
+    EndCapMinEta = cms.untracked.double(1.5660),
+    EndCapMaxEta = cms.untracked.double(2.5000),
     # demand ecal driven electron:
     useEcalDrivenElectrons = cms.untracked.bool(True),
     # demand offline spike cleaning with the Swiss Cross criterion:
     useSpikeRejection = cms.untracked.bool(False),
     spikeCleaningSwissCrossCut = cms.untracked.double(0.95),
     # demand geometrically matched to an HLT object with ET>15GeV
-    useTriggerInfo = cms.untracked.bool(False),
+    useTriggerInfo = cms.untracked.bool(True),
     electronMatched2HLT = cms.untracked.bool(True),
     electronMatched2HLT_DR = cms.untracked.double(0.1),
     useHLTObjectETCut = cms.untracked.bool(True),
@@ -295,7 +295,7 @@ rules_Filter = cms.PSet (
     ETCut = cms.untracked.double(25.0),                                  
     METCut = cms.untracked.double(0.0),
     # For DATA set it to True, for MC set it to False
-    dataMagneticFieldSetUp = cms.untracked.bool(False),
+    dataMagneticFieldSetUp = cms.untracked.bool(True),
     dcsTag = cms.untracked.InputTag("scalersRawToDigi")
 )
 
@@ -304,36 +304,36 @@ rules_Filter_Elec0 = cms.PSet (
     # Other parameters of the code - leave them as they are
     useValidFirstPXBHit0            = cms.untracked.bool(False),
     useConversionRejection0         = cms.untracked.bool(False),
-    useExpectedMissingHits0         = cms.untracked.bool(False),
-    maxNumberOfExpectedMissingHits0 = cms.untracked.int32(1),
+    useExpectedMissingHits0         = cms.untracked.bool(True),
+    maxNumberOfExpectedMissingHits0 = cms.untracked.int32(0),
     # calculate some new cuts
-    calculateValidFirstPXBHit0      = cms.untracked.bool(True),
-    calculateConversionRejection0   = cms.untracked.bool(True),
-    calculateExpectedMissingHits0   = cms.untracked.bool(True)
+    calculateValidFirstPXBHit0      = cms.untracked.bool(False),
+    calculateConversionRejection0   = cms.untracked.bool(False),
+    calculateExpectedMissingHits0   = cms.untracked.bool(False)
 )
 
 rules_Filter_Elec1 = cms.PSet (
     # Other parameters of the code - leave them as they are
     useValidFirstPXBHit1            = cms.untracked.bool(False),
     useConversionRejection1         = cms.untracked.bool(False),
-    useExpectedMissingHits1         = cms.untracked.bool(False),
-    maxNumberOfExpectedMissingHits1 = cms.untracked.int32(1),
+    useExpectedMissingHits1         = cms.untracked.bool(True),
+    maxNumberOfExpectedMissingHits1 = cms.untracked.int32(0),
     # calculate some new cuts
-    calculateValidFirstPXBHit1      = cms.untracked.bool(True),
-    calculateConversionRejection1   = cms.untracked.bool(True),
-    calculateExpectedMissingHits1   = cms.untracked.bool(True)
+    calculateValidFirstPXBHit1      = cms.untracked.bool(False),
+    calculateConversionRejection1   = cms.untracked.bool(False),
+    calculateExpectedMissingHits1   = cms.untracked.bool(False)
 )
 
 rules_Filter_Elec2 = cms.PSet (
     # Other parameters of the code - leave them as they are
     useValidFirstPXBHit2            = cms.untracked.bool(False),
     useConversionRejection2         = cms.untracked.bool(False),
-    useExpectedMissingHits2         = cms.untracked.bool(False),
-    maxNumberOfExpectedMissingHits2 = cms.untracked.int32(1),
+    useExpectedMissingHits2         = cms.untracked.bool(True),
+    maxNumberOfExpectedMissingHits2 = cms.untracked.int32(0),
     # calculate some new cuts
-    calculateValidFirstPXBHit2      = cms.untracked.bool(True),
-    calculateConversionRejection2   = cms.untracked.bool(True),
-    calculateExpectedMissingHits2   = cms.untracked.bool(True)
+    calculateValidFirstPXBHit2      = cms.untracked.bool(False),
+    calculateConversionRejection2   = cms.untracked.bool(False),
+    calculateExpectedMissingHits2   = cms.untracked.bool(False)
 )
 
 
@@ -382,15 +382,15 @@ rules_Plotter = cms.PSet (
 rules_Plotter_Elec0 = cms.PSet (
     # The selection to be used here:
     usePrecalcID0                   = cms.untracked.bool(True),
-    usePrecalcIDType0               = cms.untracked.string('simpleEleId85relIso'),
+    usePrecalcIDType0               = cms.untracked.string('simpleEleId80relIso'),
     usePrecalcIDSign0               = cms.untracked.string('='),
     usePrecalcIDValue0              = cms.untracked.double(7),    
     ## preselection criteria are independent of useSameSelectionOnBothElectrons
     #  set them to False if you don't want them
     useValidFirstPXBHit0            = cms.untracked.bool(False),
     useConversionRejection0         = cms.untracked.bool(False),
-    useExpectedMissingHits0         = cms.untracked.bool(False),
-    maxNumberOfExpectedMissingHits0 = cms.untracked.int32(1),    
+    useExpectedMissingHits0         = cms.untracked.bool(True),
+    maxNumberOfExpectedMissingHits0 = cms.untracked.int32(0),    
     ##
     calculateValidFirstPXBHit0      = cms.untracked.bool(False),
     calculateConversionRejection0   = cms.untracked.bool(False),
@@ -400,15 +400,15 @@ rules_Plotter_Elec0 = cms.PSet (
 rules_Plotter_Elec1 = cms.PSet (
     # The selection to be used here:
     usePrecalcID1                   = cms.untracked.bool(True),
-    usePrecalcIDType1               = cms.untracked.string('simpleEleId85relIso'),
+    usePrecalcIDType1               = cms.untracked.string('simpleEleId80relIso'),
     usePrecalcIDSign1               = cms.untracked.string('='),
     usePrecalcIDValue1              = cms.untracked.double(7),    
     ## preselection criteria are independent of useSameSelectionOnBothElectrons
     #  set them to False if you don't want them
     useValidFirstPXBHit1            = cms.untracked.bool(False),
     useConversionRejection1         = cms.untracked.bool(False),
-    useExpectedMissingHits1         = cms.untracked.bool(False),
-    maxNumberOfExpectedMissingHits1 = cms.untracked.int32(1),    
+    useExpectedMissingHits1         = cms.untracked.bool(True),
+    maxNumberOfExpectedMissingHits1 = cms.untracked.int32(0),    
     ##
     calculateValidFirstPXBHit1      = cms.untracked.bool(False),
     calculateConversionRejection1   = cms.untracked.bool(False),
@@ -418,15 +418,15 @@ rules_Plotter_Elec1 = cms.PSet (
 rules_Plotter_Elec2 = cms.PSet (
     # The selection to be used here:
     usePrecalcID2                   = cms.untracked.bool(True),
-    usePrecalcIDType2               = cms.untracked.string('simpleEleId85relIso'),
+    usePrecalcIDType2               = cms.untracked.string('simpleEleId80relIso'),
     usePrecalcIDSign2               = cms.untracked.string('='),
     usePrecalcIDValue2              = cms.untracked.double(7),    
     ## preselection criteria are independent of useSameSelectionOnBothElectrons
     #  set them to False if you don't want them
     useValidFirstPXBHit2            = cms.untracked.bool(False),
     useConversionRejection2         = cms.untracked.bool(False),
-    useExpectedMissingHits2         = cms.untracked.bool(False),
-    maxNumberOfExpectedMissingHits2 = cms.untracked.int32(1),    
+    useExpectedMissingHits2         = cms.untracked.bool(True),
+    maxNumberOfExpectedMissingHits2 = cms.untracked.int32(0),    
     ##
     calculateValidFirstPXBHit2      = cms.untracked.bool(False),
     calculateConversionRejection2   = cms.untracked.bool(False),
@@ -456,7 +456,7 @@ process.plotter = cms.EDAnalyzer('ZeePlots',
 #process.load("RecoEgamma.EgammaTools.correctedElectronsProducer_cfi")
 #process.p = cms.Path( process.gsfElectrons*process.ourJetSequence*process.patDefaultSequence*process.zeeFilter*process.plotter)
 
-# For DATA, 386 electrons are fixed (misalignment corrections included)
+# For DATA, 397 electrons are fixed (misalignment corrections included)
 #process.p = cms.Path( process.ourJetSequence*process.patDefaultSequence*process.zeeFilter*process.plotter)
 
 # For MonteCarlo,

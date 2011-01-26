@@ -278,7 +278,7 @@ ZeeCandidateFilter::ZeeCandidateFilter(const edm::ParameterSet& iConfig)
     //  ----------------------
     //
     Double_t BarrelMaxEta_D = 1.4442 ;
-    Double_t EndCapMinEta_D = 1.5600 ;
+    Double_t EndCapMinEta_D = 1.5660 ;
     Double_t EndCapMaxEta_D = 2.5000 ;
 
     BarrelMaxEta_ = iConfig.getUntrackedParameter<Double_t>("BarrelMaxEta", BarrelMaxEta_D);
