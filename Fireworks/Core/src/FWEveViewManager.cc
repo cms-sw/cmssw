@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.41 2010/12/01 21:40:31 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.42 2010/12/03 20:38:57 amraktad Exp $
 //
 
 // system include files
@@ -114,7 +114,7 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    FWGUIManager::ViewBuildFunctor f =  boost::bind(&FWEveViewManager::buildView, this, _1, _2);
    for (int i = 0; i < FWViewType::kTypeSize; i++)
    {
-      if ( i == FWViewType::kTable || i == FWViewType::kTableTrigger || i == FWViewType::kTableL1)
+      if ( i == FWViewType::kTable || i == FWViewType::kTableHLT || i == FWViewType::kTableL1)
          continue;
       iGUIMgr->registerViewBuilder(FWViewType::idToName(i), f);
    }
