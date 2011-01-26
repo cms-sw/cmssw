@@ -44,9 +44,9 @@ void en(){}
 
 int main(int argc, char * arg[]) {
 
-  std::string file("'BetheHeitler_cdfmom_nC6_O5.par'")
+  std::string file("BetheHeitler_cdfmom_nC6_O5.par");
   if (argc<2) {
-    std::cerr << "parameter file not given in input" << std::endl;
+    std::cerr << "parameter file not given in input: default used" << std::endl;
   } else
     file = arg[1];
 
