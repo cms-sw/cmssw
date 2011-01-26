@@ -113,12 +113,12 @@ WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
 
       // Main cuts 
       muonTrig_(cfg.getUntrackedParameter< std::vector<std::string> > ("MuonTrig")),
-      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 20.)),
+      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaMinCut_(cfg.getUntrackedParameter<double>("EtaMinCut", -2.1)),
       etaMaxCut_(cfg.getUntrackedParameter<double>("EtaMaxCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
       isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", false)),
-      isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.15)),
+      isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.10)),
       mtMin_(cfg.getUntrackedParameter<double>("MtMin", 50.)),
       mtMax_(cfg.getUntrackedParameter<double>("MtMax", 999.)),
       metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),

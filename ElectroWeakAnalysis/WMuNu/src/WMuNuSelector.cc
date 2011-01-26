@@ -143,11 +143,11 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       NVertexMax_(cfg.getUntrackedParameter<int>("MaxVertices", 999)),
 
       // MaiB cuts 
-      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 20.)),
+      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
       isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", true)),
-      isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.15)),
+      isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.10)),
       mtMin_(cfg.getUntrackedParameter<double>("MtMin", 50.)),
       mtMax_(cfg.getUntrackedParameter<double>("MtMax", 9999999.)),
       metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
@@ -197,27 +197,11 @@ void WMuNuSelector::init_histograms(){
      h1_["hPtMu"]                    =fs->make<TH1D>("ptMu","Pt mu",100,0.,100.);
      h1_["hEtaMu"]                   =fs->make<TH1D>("etaMu","Eta mu",50,-2.5,2.5);
      h1_["hd0"]                      =fs->make<TH1D>("d0","Impact parameter",1000,-1.,1.);
-     /*h1_["hNHits"]                 =fs->make<TH1D>("NumberOfValidHits","Number of Hits in Silicon",100,0.,100.);
-     h1_["hNPixelHits"]              =fs->make<TH1D>("NumberOfValidPixelHits","Number of Hits in Pixel",10,0.,10.);
-     h1_["hNMuonHits"]               =fs->make<TH1D>("NumberOfValidMuonHits","Number of Hits in Silicon",100,0.,100.);
-     h1_["hNormChi2"]                =fs->make<TH1D>("NormChi2","Chi2/ndof of global track",1000,0.,50.);
-     h1_["hTracker"]                 =fs->make<TH1D>("isTrackerMuon","is Tracker Muon?",2,0.,2.);
-     h1_["hNMatches"]                =fs->make<TH1D>("NumberOfMatches","Number of Chambers with matched Segments",10,0,10);*/
      h1_["hMuonIDCuts"]              =fs->make<TH1D>("MuonIDQuality","Muon Passes all the VBTF Quality Criteria",2,-0.5,1.5);
      h1_["hMET"]                     =fs->make<TH1D>("MET","Missing Transverse Energy (GeV)", 200,0,200);
      h1_["hTMass"]                   =fs->make<TH1D>("TMass","Rec. Transverse Mass (GeV)",200,0,200);
      h1_["hAcop"]                    =fs->make<TH1D>("Acop","Mu-MET acoplanarity",50,0.,M_PI);
-
-     h1_["hPtSum"]                   =fs->make<TH1D>("ptSum","Track Isolation, Sum pT",100,0.,50.);
-     h1_["hPtSumN"]                  =fs->make<TH1D>("ptSumN","Track Isolation, Sum pT/pT",1000,0.,10.);
-     h1_["hCal"]                     =fs->make<TH1D>("Cal","Calorimetric isolation, HCAL+ECAL (GeV)",200,0.,100.);
      h1_["hIsoTotN"]                 =fs->make<TH1D>("isoTotN","(Sum pT + Cal)/pT",1000,0.,10.);
-     h1_["hIsoTot"]                  =fs->make<TH1D>("isoTot","(Sum pT + Cal)",200,0.,100.);
-  
-     h2_["hTMass_TotIsoNorm"]=fs->make<TH2D>("TMass_TotIsoNorm","Rec. Transverse Mass (GeV) vs (Sum Pt + Cal)/Pt", 1000,0,10,200,0,200);
-
-     h2_["hMET_TotIsoNorm"] =fs->make<TH2D>("MET_TotIsoNorm","Missing Transverse Energy (GeV) vs (SumPt + Cal)/Pt",1000,0,10,200,0,200);
-
 
      h1_["hCutFlowSummary"] = fs->make<TH1D>("CutFlowSummary", "Cut-flow Summary(number of events AFTER each cut)", 11, 0.5, 11.5);
      h1_["hCutFlowSummary"] ->GetXaxis()->SetBinLabel(1, "Total");
@@ -309,9 +293,10 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             {
                   std::string trigName = trigNames.triggerName(i);
                   for (unsigned int j = 0; j < muonTrig_.size(); j++) {
-                       LogDebug("") <<"\t"<<trigName<<"   -->Trigger bit: "<<triggerResults->accept(i);
                        if ( trigName == muonTrig_.at(j) && triggerResults->accept(i)) {
                               trigger_fired = true;
+                       LogDebug("") <<"\t"<<trigName<<"   -->Trigger bit: "<<triggerResults->accept(i);
+
                   }
             }
             }
@@ -513,17 +498,11 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
             if(plotHistograms_){ h1_["hd0"]->Fill(dxy);}
             if (fabs(dxy)>dxyCut_) return 0;
-            //               if(plotHistograms_){ h1_["hNormChi2"]->Fill(normalizedChi2);}
             if (normalizedChi2>normalizedChi2Cut_) return 0;
-            //               if(plotHistograms_){ h1_["hNHits"]->Fill(trackerHits);}
             if (trackerHits<trackerHitsCut_) return 0;
-            //               if(plotHistograms_){ h1_["hNMuonHits"]->Fill(muonHits);}
             if (pixelHits<pixelHitsCut_) return 0;
-            //               if(plotHistograms_){ h1_["hNPixelHits"]->Fill(pixelHits);}
             if (muonHits<muonHitsCut_) return 0;
-            //               if(plotHistograms_){ h1_["hTracker"]->Fill(mu.isTrackerMuon());}
             if (!mu.isTrackerMuon()) return 0;
-            //               if(plotHistograms_){ h1_["hNMatches"]->Fill(nMatches);}
             if (nMatches<nMatchesCut_) return 0;
 
             nid++;
@@ -553,32 +532,14 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
             // Isolation cuts
                   if(plotHistograms_){
-                  h1_["hPtSum"]->Fill(SumPt);
-                  h1_["hPtSumN"]->Fill(SumPt/pt);
-                  h1_["hCal"]->Fill(Cal);
-                  h1_["hIsoTot"]->Fill( (SumPt+Cal));
                   h1_["hIsoTotN"]->Fill( (SumPt+Cal) / pt );
                   }
 
             LogDebug("") << "\t... isolation value" << isovar <<", isolated? " <<iso ;
-
             LogDebug("") << "\t... Met  pt: "<<WMuNu.getNeutrino().pt()<<"[GeV]";
-
             LogDebug("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << WMuNu.px() << ", " << WMuNu.py() << " [GeV]";
 
-
-
-
-
-            // Plot 2D Histograms before final cuts
-                 if(plotHistograms_){
-                  h1_["hAcop"]->Fill(acop);
-      	      if(acop<acopCut_){
-                  h2_["hTMass_TotIsoNorm"]->Fill((SumPt+Cal)/pt,massT);
-                  h2_["hMET_TotIsoNorm"]->Fill((SumPt+Cal)/pt,met_et);
-                  }
-                }
-
+                 if(plotHistograms_){h1_["hAcop"]->Fill(acop);}
             if (acop>=acopCut_) return 0;
 
             nacop++;

@@ -14,6 +14,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -52,8 +53,6 @@ private:
             }
    };
   ComparePt ptComparator;
-
-  unsigned int nall;
 
   bool saveOnlyHighestPtCandidate_;
 
@@ -113,56 +112,59 @@ WMuNuProducer::~WMuNuProducer()
 
 
 void WMuNuProducer::produce (Event & ev, const EventSetup &) {
+  // Muon collection
+  Handle<View<Muon> > muonCollection;
+  if (!ev.getByLabel(muonTag_, muonCollection)) {
+    LogError("") << ">>> Muon collection does not exist !!!";
+    return;
+  }
+  int muonCollectionSize = muonCollection->size();
 
-      // Muon collection
-      Handle<View<Muon> > muonCollection;
-      if (!ev.getByLabel(muonTag_, muonCollection)) {
-            LogError("") << ">>> Muon collection does not exist !!!";
-            return;
-      }
-      int muonCollectionSize = muonCollection->size();
-
-      // MET
-      Handle<View<MET> > metCollection;
-      if (!ev.getByLabel(metTag_, metCollection)) {
-            LogError("") << ">>> MET collection does not exist !!!";
-            return;
-      }
-      //const MET& Met = metCollection->at(0);
-      edm::Ptr<reco::MET> met(metCollection,0);
+  // MET
+  Handle<View<MET> > metCollection;
+  if (!ev.getByLabel(metTag_, metCollection)) {
+    LogError("") << ">>> MET collection does not exist !!!";
+    return;
+  }
+  //const MET& Met = metCollection->at(0);
+  edm::Ptr<reco::MET> met(metCollection,0);
 
 
-      if (muonCollectionSize<1) return;
+  if (muonCollectionSize<1) return;
      
-      auto_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
+  auto_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
 
 
-     // Fill Collection with n muons --> n W Candidates ordered by pt
+  // Fill Collection with n muons --> n W Candidates ordered by pt
 
-     WMuNuCandidate* WCandSel = 0; double ptmax=0; int NCands=0;
+  auto_ptr<WMuNuCandidate> WCandSel; double ptmax=0; int NCands=0;
+      
+  for (int indx=0; indx<muonCollectionSize; indx++){ 
+    edm::Ptr<reco::Muon> muon(muonCollection,indx);
+    if (!muon->isGlobalMuon()) continue;
+    if (muon->globalTrack().isNull()) continue;
+    if (muon->innerTrack().isNull()) continue;
+	
+    // Build WMuNuCandidate
+    LogTrace("")<<"Building WMuNu Candidate!"; 
+    auto_ptr< WMuNuCandidate > WCand (new WMuNuCandidate(muon,met));  NCands++;
+    LogTrace("") << "\t... W mass, W_et: "<<WCand->massT()<<", "<<WCand->eT()<<"[GeV]";
+    LogTrace("") << "\t... W_px, W_py: "<<WCand->px()<<", "<< WCand->py() <<"[GeV]";
+    LogTrace("") << "\t... acop:  " << WCand->acop();
+    LogTrace("") << "\t... Muon pt, px, py, pz: "<<WCand->getMuon().pt()<<", "<<WCand->getMuon().px()<<", "<<WCand->getMuon().py()<<", "<< WCand->getMuon().pz()<<" [GeV]";
+    LogTrace("") << "\t... Met  met_et, met_px, met_py : "<<WCand->getNeutrino().pt()<<", "<<WCand->getNeutrino().px()<<", "<<WCand->getNeutrino().py()<<" [GeV]";
+    if (!saveOnlyHighestPtCandidate_) WMuNuCandidates->push_back(*WCand);
+    else if (muon->pt() > ptmax) { ptmax=muon->pt(); WCandSel=WCand;}   
 
-     for (int indx=0; indx<muonCollectionSize; indx++){ 
-            edm::Ptr<reco::Muon> muon(muonCollection,indx);
-            if (!muon->isGlobalMuon()) continue;
-            if (muon->globalTrack().isNull()) continue;
-            if (muon->innerTrack().isNull()) continue;
- 
-      // Build WMuNuCandidate
-      LogTrace("")<<"Building WMuNu Candidate!"; 
-      WMuNuCandidate* WCand = new WMuNuCandidate(muon,met);  NCands++;
-      LogTrace("") << "\t... W mass, W_et: "<<WCand->massT()<<", "<<WCand->eT()<<"[GeV]";
-      LogTrace("") << "\t... W_px, W_py: "<<WCand->px()<<", "<< WCand->py() <<"[GeV]";
-      LogTrace("") << "\t... acop:  " << WCand->acop();
-      LogTrace("") << "\t... Muon pt, px, py, pz: "<<WCand->getMuon().pt()<<", "<<WCand->getMuon().px()<<", "<<WCand->getMuon().py()<<", "<< WCand->getMuon().pz()<<" [GeV]";
-      LogTrace("") << "\t... Met  met_et, met_px, met_py : "<<WCand->getNeutrino().pt()<<", "<<WCand->getNeutrino().px()<<", "<<WCand->getNeutrino().py()<<" [GeV]";
-  	if (!saveOnlyHighestPtCandidate_) WMuNuCandidates->push_back(*WCand);
-      else if (muon->pt() > ptmax) { ptmax=muon->pt(); WCandSel=WCand;}   
-      } 
-
-      if(!saveOnlyHighestPtCandidate_) {std::sort(WMuNuCandidates->begin(),WMuNuCandidates->end(),ptComparator);}      
-      else if(NCands>0) {WMuNuCandidates->push_back(*WCandSel);}
-      ev.put(WMuNuCandidates);
-
+    
+  } 
+  
+  if(!saveOnlyHighestPtCandidate_) {std::sort(WMuNuCandidates->begin(),WMuNuCandidates->end(),ptComparator);}      
+  else if(NCands>0) {
+    WMuNuCandidates->push_back(*WCandSel);
+  }
+  ev.put(WMuNuCandidates);
+   
 }
 
 DEFINE_FWK_MODULE(WMuNuProducer);

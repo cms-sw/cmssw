@@ -15,7 +15,7 @@ selcorMet = cms.EDFilter("WMuNuSelector",
       VertexTag = cms.untracked.InputTag("offlinePrimaryVertices"),
 
       # Preselection! 
-      MuonTrig = cms.untracked.vstring("HLT_Mu11"), # CAREFUL!!! They have just pre-scaled HLT_Mu9. Changing the trigger of the selector
+      MuonTrig = cms.untracked.vstring("HLT_Mu9","HLT_Mu11","HLT_Mu15_v1"), 
       PtThrForZ1 = cms.untracked.double(20.0),
       PtThrForZ2 = cms.untracked.double(10.0),
       EJetMin = cms.untracked.double(40.),
@@ -25,16 +25,16 @@ selcorMet = cms.EDFilter("WMuNuSelector",
 
 
       # Main cuts ->
-      PtCut = cms.untracked.double(20.0),
+      PtCut = cms.untracked.double(25.0), # Edited for Moriond
       EtaCut = cms.untracked.double(2.1),
       IsRelativeIso = cms.untracked.bool(True),
-      IsCombinedIso = cms.untracked.bool(True), #--> Changed default to Combined Iso. A cut in 0.15 is equivalent (for signal)
-      IsoCut03 = cms.untracked.double(0.15),    # to a cut in TrackIso in 0.10
+      IsCombinedIso = cms.untracked.bool(True), 
+      IsoCut03 = cms.untracked.double(0.10),    # Edited for Moriond
       MtMin = cms.untracked.double(50.0),
       MtMax = cms.untracked.double(999999.),
       MetMin = cms.untracked.double(-999999.),
       MetMax = cms.untracked.double(999999.),
-      AcopCut = cms.untracked.double(999.),  # Remember to take this out if you are looking for High-Pt Bosons! (V+Jets)
+      AcopCut = cms.untracked.double(999.),
 
       # Muon quality cuts ->
       DxyCut = cms.untracked.double(0.2), # dxy < 0.2 cm (cosmics)

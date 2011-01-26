@@ -49,13 +49,13 @@ selWMuNu_MuonIDonly = cms.EDFilter("WMuNuSelector",
 )
 
 selWMuNu_MuonIDAndIso = selWMuNu_MuonIDonly.clone()
-selWMuNu_MuonIDAndIso.IsoCut03 = cms.untracked.double(0.15) # Put Back Isolation Cut 
+selWMuNu_MuonIDAndIso.IsoCut03 = cms.untracked.double(0.10) # Put Back Isolation Cut 
 
 selWMuNu_MuonIDAndIsoAndTrigger = selWMuNu_MuonIDAndIso.clone()
-selWMuNu_MuonIDAndIsoAndTrigger.MuonTrig = cms.untracked.vstring("HLT_Mu11") #Put Back Trigger 
+selWMuNu_MuonIDAndIsoAndTrigger.MuonTrig = cms.untracked.vstring("HLT_Mu9","HLT_Mu11","HLT_Mu15_v1") #Put Back Trigger 
 
 selWMuNu_MuonSelected = selWMuNu_MuonIDAndIsoAndTrigger.clone() 
 selWMuNu_MuonSelected.PtThrForZ1= cms.untracked.double(20.0)
 selWMuNu_MuonSelected.PtThrForZ2= cms.untracked.double(10.0)
-selWMuNu_MuonSelected.PtCut = cms.untracked.double(20.0)
+selWMuNu_MuonSelected.PtCut = cms.untracked.double(25.0)
 
