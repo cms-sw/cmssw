@@ -121,7 +121,7 @@ namespace reco {
 
     /// transverse momentum, massless approximation
     double pt() const { 
-      return (energy() * sin(posrep_.theta()));
+      return (energy() * sin(position_.theta()));
     }
 
     /// angle
