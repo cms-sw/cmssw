@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2011/01/21 18:45:23 $
- **  $Revision: 1.26 $
+ **  $Date: 2011/01/21 18:51:31 $
+ **  $Revision: 1.27 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -100,6 +100,8 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 
       double halfWayEta_, halfWayPhi_;//halfway open angle to search in basic clusters
       unsigned int  maxNumOfTrackInPU_;
+      double  maxTrackZ_;
+      double  maxTrackRho_;
       double minSCEt_;
       double dEtacutForSCmatching_;
       double dPhicutForSCmatching_;

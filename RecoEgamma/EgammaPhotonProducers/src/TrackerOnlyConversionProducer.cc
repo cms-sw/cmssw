@@ -13,7 +13,7 @@
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.42 2011/01/21 11:45:04 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.43 2011/01/21 18:45:15 nancy Exp $
 //
 //
 
@@ -80,6 +80,9 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
     src_ = iConfig.getParameter<edm::InputTag>("src");
 
     maxNumOfTrackInPU_ = iConfig.getParameter<int>("maxNumOfTrackInPU");
+    maxTrackRho_ = iConfig.getParameter<double>("maxTrackRho");
+    maxTrackZ_ = iConfig.getParameter<double>("maxTrackZ");
+
     allowTrackBC_ = iConfig.getParameter<bool>("AllowTrackBC");
     allowD0_ = iConfig.getParameter<bool>("AllowD0");
     allowDeltaPhi_ = iConfig.getParameter<bool>("AllowDeltaPhi");
@@ -769,11 +772,11 @@ bool TrackerOnlyConversionProducer::preselectTrackPair(const reco::TransientTrac
   double rho = tangentPoint.perp();
   
   //reject candidates well outside of tracker bounds
-  if (rho > 120.0) {
+  if (rho > maxTrackRho_) {
     return false;
   }
   
-  if (std::abs(tangentPoint.z()) > 300.0) {
+  if (std::abs(tangentPoint.z()) > maxTrackZ_) {
     return false;
   }
   

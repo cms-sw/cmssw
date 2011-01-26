@@ -17,6 +17,8 @@ trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
 
     HalfwayEta = cms.double(.1),# Track pairing search range on Eta
     maxNumOfTrackInPU =  cms.int32(999999),
+    maxTrackRho =  cms.double(120.),
+    maxTrackZ =  cms.double(300.),                                    
     minSCEt = cms.double(10.0),
     dEtacutForSCmatching = cms.double(0.03),
     dPhicutForSCmatching = cms.double(0.05),                                       
