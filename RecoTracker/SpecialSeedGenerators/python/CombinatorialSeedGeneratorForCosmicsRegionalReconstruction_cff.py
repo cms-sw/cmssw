@@ -4,9 +4,7 @@ layerInfo = cms.PSet(
     TOB = cms.PSet(
       TTRHBuilder = cms.string('WithTrackAngle'),
       ),
-    
     TEC = cms.PSet(
-      #useSimpleRphiHitsCleaner = cms.untracked.bool(True),
       minRing = cms.int32(6),
       useRingSlector = cms.bool(False),
       TTRHBuilder = cms.string('WithTrackAngle'),
@@ -28,17 +26,22 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
         ),
       ToolsPSet = cms.PSet(
         thePropagatorName           = cms.string("AnalyticalPropagator"),
-        regionBase                  = cms.string("seedOnCosmicMuon")
-        #regionBase                  = cms.string("seedOnStaMuon")
+        regionBase                  = cms.string("seedOnL2Muon") # or seedOnCosmicMuon or seedOnStaMuon(default)
+
         ),
       CollectionsPSet = cms.PSet(
         recoMuonsCollection            = cms.InputTag("muons"),  # se to "muons" and change ToolsPSet.regionBase to "" in order to use these.
-        recoTrackMuonsCollection       = cms.InputTag("cosmicMuons")
+        recoTrackMuonsCollection       = cms.InputTag("cosmicMuons"), # or cosmicMuons1Leg and change ToolsPSet.regionBase to "seedOnCosmicMuon" in order to use these.
+        recoL2MuonsCollection          = cms.InputTag(""), # given by the hlt path sequence
+        ),
+      RegionInJetsCheckPSet = cms.PSet( # verify if the region is built inside a jet
+        doJetsExclusionCheck   = cms.bool( True ),
+        deltaRExclusionSize    = cms.double( 0.3 ),
+        recoCaloJetsCollection = cms.InputTag("ak5CaloJets")
         )
     ),
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string( "GenericPairGenerator"),
-        #ComponentName = cms.string( "GenericTripletGenerator"),
         LayerPSet = cms.PSet(
            layerInfo,
            layerList = cms.vstring('TOB6+TOB5',
@@ -55,18 +58,14 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
                                    'TEC1_pos+TOB4'                                   
                                    )
            ),
-        ##PropagationDirection = cms.string('alongMomentum'),
-        ##NavigationDirection = cms.string('outsideIn')
     ), 
 
     ClusterCheckPSet = cms.PSet (
-      MaxNumberOfCosmicClusters = cms.uint32(3000),
+      MaxNumberOfCosmicClusters = cms.uint32(10000),
       ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
-      MaxNumberOfPixelClusters = cms.uint32(3000),
+      MaxNumberOfPixelClusters = cms.uint32(10000),
       PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
-      doClusterCheck = cms.bool( True ),
-      #this is dangerous, but what the heck
-      silentClusterCheck = cms.untracked.bool(True)
+      doClusterCheck = cms.bool( False )
     ) ,
 
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
