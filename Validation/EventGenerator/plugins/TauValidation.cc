@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/09/09 11:49:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/12/06 14:05:52 $
+ *  $Revision: 1.5 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -233,7 +233,7 @@ void TauValidation::rtau(const HepMC::GenParticle* tau,int mother, int decay){
 
 	if(visibleTauE != 0) rTau = ltrack/visibleTauE;
 
-	if(abs(mother) == 23) TauRtauW->Fill(rTau);
+	if(abs(mother) == 24) TauRtauW->Fill(rTau);
         if(abs(mother) == 37) TauRtauHpm->Fill(rTau); 
 }
 
@@ -248,7 +248,7 @@ void TauValidation::spinEffects(const HepMC::GenParticle* tau,int mother, int de
 
 	double energy = pionP4.E()/(momP4.M()/2);
 
-	if(abs(mother) == 23) TauSpinEffectsW->Fill(energy);	
+	if(abs(mother) == 24) TauSpinEffectsW->Fill(energy);	
 	if(abs(mother) == 37) TauSpinEffectsHpm->Fill(energy);
 }
 
