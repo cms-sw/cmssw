@@ -146,8 +146,6 @@ hpsTancTaus = cms.EDProducer(
     cleaners = cms.VPSet(
         # Prefer taus that don't have charge == 3
         cleaners.unitCharge,
-        # Prefer taus that are within DR<0.1 of the jet axis
-        cleaners.matchingConeCut,
         # Prefer taus that pass the lead pion requirement
         cms.PSet(
             name = cms.string("lead pion"),
@@ -190,10 +188,10 @@ hpsTancTausDiscriminationByDecayModeSelection = hpsSelectionDiscriminator.clone(
 )
 
 from RecoTauTag.Configuration.HPSPFTaus_cfi import requireDecayMode,\
-        hpsPFTauDiscriminationByVLooseIsolation,\
         hpsPFTauDiscriminationByLooseIsolation,\
         hpsPFTauDiscriminationByMediumIsolation,\
         hpsPFTauDiscriminationByTightIsolation
+        #hpsPFTauDiscriminationByVLooseIsolation,\
 
 # Build the lead track and lepton discriminators
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi import\
@@ -237,11 +235,11 @@ hpsTancRequireDecayMode.decayMode.Producer = cms.InputTag(
     "hpsTancTausDiscriminationByDecayModeSelection")
 
 # Build the isolation discriminators
-hpsTancTausDiscriminationByVLooseIsolation = \
-        hpsPFTauDiscriminationByVLooseIsolation.clone(
-            PFTauProducer = cms.InputTag("hpsTancTaus"),
-            Prediscriminants = hpsTancRequireDecayMode
-        )
+#hpsTancTausDiscriminationByVLooseIsolation = \
+        #hpsPFTauDiscriminationByVLooseIsolation.clone(
+            #PFTauProducer = cms.InputTag("hpsTancTaus"),
+            #Prediscriminants = hpsTancRequireDecayMode
+        #)
 hpsTancTausDiscriminationByLooseIsolation = \
         hpsPFTauDiscriminationByLooseIsolation.clone(
             PFTauProducer = cms.InputTag("hpsTancTaus"),
@@ -332,7 +330,7 @@ hpsTancTauSequence = cms.Sequence(
     + hpsTancTausDiscriminationByTancMedium
     + hpsTancTausDiscriminationByTancTight
     + hpsTancTausDiscriminationByDecayModeSelection
-    + hpsTancTausDiscriminationByVLooseIsolation
+    #+ hpsTancTausDiscriminationByVLooseIsolation
     + hpsTancTausDiscriminationByLooseIsolation
     + hpsTancTausDiscriminationByMediumIsolation
     + hpsTancTausDiscriminationByTightIsolation
