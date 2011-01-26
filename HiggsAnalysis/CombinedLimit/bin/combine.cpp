@@ -42,6 +42,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/HybridNew.h"
 #include "HiggsAnalysis/CombinedLimit/interface/BayesianFlatPrior.h"
 #include "HiggsAnalysis/CombinedLimit/interface/MarkovChainMC.h"
+#include "HiggsAnalysis/CombinedLimit/interface/FeldmanCousins.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include <map>
 
@@ -67,6 +68,7 @@ int main(int argc, char **argv) {
   algo = new BayesianFlatPrior(); methods.insert(make_pair(algo->name(), algo));
   algo = new MarkovChainMC();  methods.insert(make_pair(algo->name(), algo));
   algo = new HybridNew();  methods.insert(make_pair(algo->name(), algo));
+  algo = new FeldmanCousins();  methods.insert(make_pair(algo->name(), algo));
   
   string methodsDesc("Method to extract upper limit. Supported methods are: ");
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
