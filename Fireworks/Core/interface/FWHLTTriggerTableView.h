@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jan 25 16:02:24 CET 2011
-// $Id$
+// $Id: FWHLTTriggerTableView.h,v 1.1 2011/01/26 11:47:06 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWTriggerTableView.h"
@@ -24,6 +24,8 @@
 
 class FWTriggerTableViewManager;
 class FWTriggerTableViewTableManager;
+class ViewerParameterGUI;
+
 class FWHLTTriggerTableView : public FWTriggerTableView
 {
 public:
@@ -39,6 +41,7 @@ private:
    FWStringParameter               m_regex;
    FWStringParameter               m_process;
 
+   virtual void populateController(ViewerParameterGUI&) const;
    void fillAverageAcceptFractions();
 };
 #endif

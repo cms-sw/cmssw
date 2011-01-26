@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.h,v 1.6 2010/11/04 22:38:54 amraktad Exp $
+// $Id: FWTriggerTableView.h,v 1.7 2011/01/26 11:47:06 amraktad Exp $
 //
 
 // system include files
@@ -37,7 +37,6 @@ namespace fwlite {
 class FWTriggerTableView : public FWViewBase 
 {
    friend class FWTriggerTableViewTableManager;
-
 public:
    struct Column {
       std::string title;
@@ -62,7 +61,6 @@ public:
    //void resetColors( const class FWColorManager& );
    void dataChanged( void );
    void columnSelected( Int_t iCol, Int_t iButton, Int_t iKeyMod );
-   void updateFilter( void );
 
 private:
    FWTriggerTableView( const FWTriggerTableView& );      // stop default

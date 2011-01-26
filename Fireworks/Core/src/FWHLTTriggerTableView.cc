@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jan 25 16:02:03 CET 2011
-// $Id$
+// $Id: FWHLTTriggerTableView.cc,v 1.1 2011/01/26 11:47:07 amraktad Exp $
 //
 #include <boost/regex.hpp>
 
@@ -21,6 +21,8 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewTableManager.h"
+#include "Fireworks/Core/interface/CmsShowViewPopup.h"
+
 
 FWHLTTriggerTableView::FWHLTTriggerTableView(TEveWindowSlot* iParent)
    : FWTriggerTableView(iParent, FWViewType::kTableHLT),
@@ -28,8 +30,8 @@ FWHLTTriggerTableView::FWHLTTriggerTableView(TEveWindowSlot* iParent)
      m_regex(this,"Filter",std::string()),
      m_process(this,"Process",std::string("HLT"))
 {  
-   m_regex.changed_.connect(boost::bind(&FWTriggerTableView::updateFilter,this));
-   m_process.changed_.connect(boost::bind(&FWTriggerTableView::updateFilter,this));
+   m_regex.changed_.connect(boost::bind(&FWTriggerTableView::dataChanged,this));
+   m_process.changed_.connect(boost::bind(&FWTriggerTableView::dataChanged,this));
 
    m_columns[0].title = "Filter Name";
    m_columns.push_back(Column("Accept"));
@@ -96,4 +98,11 @@ FWHLTTriggerTableView::fillAverageAcceptFractions()
    for (acceptmap_t::iterator it = m_averageAccept.begin(), ed = m_averageAccept.end(); it != ed; ++it) {
       it->second *= denominator;
    }
+}
+void 
+FWHLTTriggerTableView::populateController(ViewerParameterGUI& gui) const
+{
+   gui.requestTab("Style").
+      addParam(&m_regex).
+      addParam(&m_process);
 }

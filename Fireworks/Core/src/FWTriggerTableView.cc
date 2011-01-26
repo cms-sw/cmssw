@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.13 2010/11/04 22:38:55 amraktad Exp $
+// $Id: FWTriggerTableView.cc,v 1.14 2011/01/26 11:47:07 amraktad Exp $
 //
 
 // system include files
@@ -122,13 +122,6 @@ void FWTriggerTableView::dataChanged ()
 void
 FWTriggerTableView::columnSelected (Int_t iCol, Int_t iButton, Int_t iKeyMod)
 {
-}
-
-
-void 
-FWTriggerTableView::updateFilter( void )
-{
-   dataChanged();
 }
 
 //
