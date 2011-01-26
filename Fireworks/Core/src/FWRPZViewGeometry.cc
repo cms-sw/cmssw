@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.16 2010/11/04 22:38:55 amraktad Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.15 2010/09/21 11:39:03 amraktad Exp $
 //
 
 // system include files
@@ -73,8 +73,6 @@ FWRPZViewGeometry::~FWRPZViewGeometry()
 TEveElement*
 FWRPZViewGeometry::getGeoElements(const FWViewType::EType type)
 {
-   if( !m_geom ) return ( new TEveCompound( "dummy" ));
-
    if (type == FWViewType::kRhoZ)
    {
       if ( !m_rhoZGeo)
@@ -169,12 +167,12 @@ FWRPZViewGeometry::makeMuonGeometryRhoPhi( void )
          if( iStation < 4 && iSector > 12 ) continue;
          DTChamberId id( iWheel, iStation, iSector );
 	 TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
-	 if( shape ) 
-	 {
-	    shape->SetMainColor(m_colorComp[kFWMuonBarrelLineColorIndex]->GetMainColor());
-	    addToCompound(shape, kFWMuonBarrelLineColorIndex);
-	    container->AddElement( shape );
-	 }
+         if( shape ) 
+         {
+            shape->SetMainColor(m_colorComp[kFWMuonBarrelLineColorIndex]->GetMainColor());
+            addToCompound(shape, kFWMuonBarrelLineColorIndex);
+            container->AddElement( shape );
+         }
       }
    }
    return container;
@@ -185,6 +183,9 @@ FWRPZViewGeometry::makeMuonGeometryRhoPhi( void )
 TEveElement*
 FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
 {
+   // lets project everything by hand
+   if( !m_geom ) return 0;
+
    TEveElementList* container = new TEveElementList( "MuonRhoZ" );
 
    {
@@ -201,8 +202,9 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
             {
                DTChamberId id( iWheel, iStation, iSector );
                unsigned int rawid = id.rawId();
-	       FWGeometry::IdToInfoItr det = m_geom->find( rawid );
-	       estimateProjectionSizeDT( *det, min_rho, max_rho, min_z, max_z );
+
+               FWGeometry::IdToInfoItr det = m_geom->find( rawid );
+               estimateProjectionSizeDT( *det, min_rho, max_rho, min_z, max_z );
             }
             if ( min_rho > max_rho || min_z > max_z ) continue;
             TEveElement* se =  makeShape( min_rho, max_rho, min_z, max_z );
@@ -244,14 +246,15 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
                for( Int_t iChamber = step; iChamber <= maxChambers; iChamber += step )
                {
                   CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
-		  FWGeometry::IdToInfoItr det = m_geom->find( id.rawId() );
-		  estimateProjectionSizeCSC( *det, min_rho, max_rho, min_z, max_z );
 
-		  // and a chamber next to it
-		  ++iChamber;
-		  CSCDetId nextid( iEndcap, iStation, iRing, iChamber, iLayer );
-		  det = m_geom->find( nextid.rawId() );
-		  estimateProjectionSizeCSC( *det, min_rho, max_rho, min_z, max_z );
+                  FWGeometry::IdToInfoItr det = m_geom->find( id.rawId() );
+                  estimateProjectionSizeCSC( *det, min_rho, max_rho, min_z, max_z );
+
+                  // and a chamber next to it
+                  ++iChamber;
+                  CSCDetId nextid( iEndcap, iStation, iRing, iChamber, iLayer );
+                  det = m_geom->find( nextid.rawId() );
+                  estimateProjectionSizeCSC( *det, min_rho, max_rho, min_z, max_z );
                }
                if ( min_rho > max_rho || min_z > max_z ) continue;
 

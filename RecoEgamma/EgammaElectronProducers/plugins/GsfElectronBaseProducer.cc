@@ -152,7 +152,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   inputCfg_.reducedEndcapRecHitCollection = cfg.getParameter<edm::InputTag>("reducedEndcapRecHitCollectionTag") ;
   inputCfg_.pfMVA = cfg.getParameter<edm::InputTag>("pfMvaTag") ;
   inputCfg_.ctfTracks = cfg.getParameter<edm::InputTag>("ctfTracksTag");
-  //inputCfg_.seedsTag = cfg.getParameter<edm::InputTag>("seedsTag");
+  inputCfg_.seedsTag = cfg.getParameter<edm::InputTag>("seedsTag"); // used to check config consistency with seeding
   inputCfg_.beamSpotTag = cfg.getParameter<edm::InputTag>("beamSpotTag") ;
 
   strategyCfg_.applyPreselection = cfg.getParameter<bool>("applyPreselection") ;
@@ -279,6 +279,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
     edm::LogWarning("GsfElectronAlgo|SpikeRemovalForIsolation")
       << "Cannot find the requested method. kSwissCross set instead." ;
    }
+  spikeCfg.recHitFlagsToBeExcluded = cfg.getParameter<std::vector<int> >("recHitFlagsToBeExcluded") ;
 
   // function for corrector
   EcalClusterFunctionBaseClass * superClusterErrorFunction = 0 ;
@@ -347,7 +348,7 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
    }
 
   // ambiguity
-  algo_->setAmbiguityFlags() ;
+  algo_->setAmbiguityData() ;
   if (strategyCfg_.applyAmbResolution)
    {
     algo_->removeAmbiguousElectrons() ;

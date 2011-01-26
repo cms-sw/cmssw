@@ -138,7 +138,6 @@ void testExpressionParser::checkAll() {
     checkTrack("extra.outerPhi", trk.extra()->outerPhi());
     checkTrack("referencePoint.R", trk.referencePoint().R());
     checkTrack("algo", reco::Track::iter2);
-    checkTrack("quality('highPurity')", trk.quality(reco::TrackBase::highPurity));
     checkTrack("cosh(theta)", cosh(trk.theta()));
     checkTrack("hypot(px, py)", hypot(trk.px(), trk.py()));
     checkTrack("?ndof<0?1:0", trk.ndof()<0?1:0);
@@ -215,6 +214,17 @@ void testExpressionParser::checkAll() {
     checkJet("bDiscriminator(\"d \")" , jet.bDiscriminator("d " ));
   }
 
+  {
+     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(pat::Jet));
+     std::vector<reco::SecondaryVertexTagInfo::IndexedTrackData> trackData;
+     std::vector<reco::SecondaryVertexTagInfo::VertexData> vertexData(1);
+     
+     reco::SoftLeptonTagInfo dummyInfo;
+     reco::SoftLeptonProperties props;
+     props.sip3d = 10;
+     dummyInfo.insert(edm::RefToBase<reco::Track>(), props);
+     edm::Ptr<reco::BaseTagInfo> ptrDummyInfo(edm::ProductID(1),&dummyInfo,0);
+  }
   muon = pat::Muon(reco::Muon(+1, p1+p2));
   muon.setUserIso(2.0);
   muon.setUserIso(42.0, 1);
@@ -247,9 +257,7 @@ void testExpressionParser::checkAll() {
         for (size_t i = 0; i < 10*1000; ++i) {
             for (size_t j = 0; j < 100; ++j) {
                 res += expr->value(o);
-                break;
             }
-            break;
             if (i % 1000 == 999) std::cout << "iter " << i << std::endl;
         }
     }

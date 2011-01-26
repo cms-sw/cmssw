@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.281 $"
+__version__ = "$Revision: 1.283 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -43,6 +43,7 @@ defaultOptions.inlineObjets =''
 defaultOptions.hideGen=False
 defaultOptions.beamspot='Realistic7TeVCollision'
 defaultOptions.outputDefinition =''
+defaultOptions.inputCommands = None
 
 # some helper routines
 def dumpPython(process,name):
@@ -188,6 +189,10 @@ class ConfigBuilder(object):
                if self.process.source.secondaryFileNames.__len__()!=0:
                        print "found parent files:",self.process.source.secondaryFileNames.value()
 
+	if self._options.inputCommands:
+		self.process.source.inputCommands = cms.untracked.vstring()
+		for command in self._options.inputCommands.split(','):
+			self.process.source.inputCommands.append(command)
 
         if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
@@ -1278,7 +1283,6 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.endjob_step)
 
     def finalizeFastSimHLT(self):
-            self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
             self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
             self.schedule.append(self.process.reconstruction)
 
@@ -1329,7 +1333,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.281 $"),
+                                            (version=cms.untracked.string("$Revision: 1.283 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

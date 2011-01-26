@@ -41,10 +41,8 @@ lclphidat CSCSectorReceiverMiniLUT::calcLocalPhiMini(unsigned theadd)
       << "+++ Value of phi_local, " << data.phi_local
       << ", exceeds max allowed, " << CSCConstants::NUM_CLCT_PATTERNS-1 << " +++\n";
   
-//  data.phi_bend_local = 0;
-// Just pass through all bits of pattern as bend angle (so 2 MSB unfilled)
-  data.phi_bend_local = pattern & 0x3F;
-
+  data.phi_bend_local = 0;
+    
   return data;
 }
 
@@ -72,7 +70,6 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
   unsigned short int cscid  = ((theadd >> 15) & 0xf);
   unsigned short int lclPhi = ((theadd >> 6)  & 0x3);
   unsigned short int WG     = ((theadd >> 8)  & 0x7f);
-  unsigned short int bend   = ((theadd)       & 0x3f);
   
   int eta_temp=999, eta_min=999, eta_max=999;
   
@@ -113,9 +110,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
   else
     data.global_eta = eta_max;
   
-//  data.global_bend = 0;
-// Just pass through lowest 5 bits of local bend (drop 1 MSB)
-  data.global_bend = bend & 0x1F;
+  data.global_bend = 0;
   
   return data;
 }

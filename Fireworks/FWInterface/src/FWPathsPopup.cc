@@ -4,9 +4,6 @@
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 #include "Fireworks/TableWidget/src/FWTabularWidget.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
-#include "Fireworks/TableWidget/interface/FWTextTreeCellRenderer.h"
-#include "Fireworks/TableWidget/interface/GlobalContexts.h"
-
 #include "Fireworks/Core/src/FWDialogBuilder.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 
@@ -90,6 +87,54 @@ TypeTrans::TypeTrans():table_(255) {
 }
 
 static TypeTrans const sTypeTranslations;
+
+class FWTextTreeCellRenderer : public FWTextTableCellRenderer
+{
+public:
+   FWTextTreeCellRenderer(const TGGC* iContext = &(getDefaultGC()),
+                          const TGGC* iHighlightContext = &(getHighlightGC()),
+                          Justify iJustify = kJustifyLeft)
+      : FWTextTableCellRenderer(iContext, iHighlightContext, iJustify),
+        m_indentation(0),
+        m_editor(0),
+        m_showEditor(false)
+      {}
+
+   virtual void setIndentation(int indentation = 0) { m_indentation = indentation; }
+   virtual void setCellEditor(TGTextEntry *editor) { m_editor = editor; }
+   virtual void showEditor(bool value) { m_showEditor = value; }
+   virtual UInt_t width() const { return FWTextTableCellRenderer::width() + 15 + m_indentation; }
+   virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
+      {
+         if (m_showEditor && m_editor)
+         {
+            m_editor->MoveResize(iX-3, iY-3, iWidth + 6 , iHeight + 6);
+            m_editor->MapWindow();
+            m_editor->SetText(data().c_str());
+            return;
+         }
+
+         if (selected())
+         {
+            GContext_t c = highlightContext()->GetGC();
+            gVirtualX->FillRectangle(iID, c, iX, iY, iWidth, iHeight);
+            
+            gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY-1,iX-1,iY+iHeight);
+            gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX+iWidth,iY-1,iX+iWidth,iY+iHeight);
+            gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY-1,iX+iWidth,iY-1);
+            gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY+iHeight,iX+iWidth,iY+iHeight);
+         }
+         FontMetrics_t metrics;
+         font()->GetFontMetrics(&metrics);
+         gVirtualX->DrawString(iID, graphicsContext()->GetGC(),
+                               iX+m_indentation, iY+metrics.fAscent, 
+                               data().c_str(),data().size());
+      }
+private:
+   int            m_indentation;
+   TGTextEntry    *m_editor;
+   bool           m_showEditor;
+};
 
 /** Custom structure for holding the table contents */
 struct PSetData
@@ -179,6 +224,56 @@ public:
   */
 
 
+   // All this GC stuff is getting very clunky
+   const TGGC&
+   boldGC()
+   {
+      static TGGC s_boldGC(*gClient->GetResourcePool()->GetFrameGC());
+ 
+      TGFontPool *pool = gClient->GetFontPool();
+      TGFont *font = pool->FindFontByHandle(s_boldGC.GetFont());
+      FontAttributes_t attributes = font->GetFontAttributes();
+
+      // This doesn't seem to work:
+      //attributes.fWeight = 1; 
+      //TGFont *newFont = pool->GetFont(attributes.fFamily, 9,
+      //                                attributes.fWeight, attributes.fSlant);
+
+      // But this does:
+      TGFont* newFont = pool->GetFont("-*-helvetica-bold-r-*-*-12-*-*-*-*-*-iso8859-1");
+      
+      if ( ! newFont )
+        return s_boldGC;
+
+      //std::cout<<"boldGC: "<< std::endl;
+      //newFont->Print();
+
+      s_boldGC.SetFont(newFont->GetFontHandle());
+
+      return s_boldGC;
+   }
+
+   const TGGC&
+   italicGC()
+   {
+      static TGGC s_italicGC(*gClient->GetResourcePool()->GetFrameGC());
+ 
+      TGFontPool *pool = gClient->GetFontPool();
+      TGFont *font = pool->FindFontByHandle(s_italicGC.GetFont());
+      FontAttributes_t attributes = font->GetFontAttributes();
+
+      attributes.fSlant = 1;
+      TGFont *newFont = pool->GetFont(attributes.fFamily, 9,
+                                      attributes.fWeight, attributes.fSlant);
+
+      //std::cout<<"italicGC: "<< std::endl;
+      //newFont->Print();
+
+      s_italicGC.SetFont(newFont->GetFontHandle());
+
+      return s_italicGC;
+   }
+
    const TGGC &
    pathBackgroundGC()
    {
@@ -192,7 +287,7 @@ public:
    const TGGC &
    boldRedGC()
    {
-     static TGGC s_boldRedGC(fireworks::boldGC());
+      static TGGC s_boldRedGC(boldGC());
       s_boldRedGC.SetForeground(gVirtualX->GetPixel(kRed-5));
       return s_boldRedGC;
    }
@@ -200,7 +295,7 @@ public:
    const TGGC &
    italicRedGC()
    {
-     static TGGC s_italicRedGC(fireworks::italicGC());
+      static TGGC s_italicRedGC(italicGC());
       s_italicRedGC.SetForeground(gVirtualX->GetPixel(kRed-5));
       return s_italicRedGC;
    }
@@ -208,16 +303,23 @@ public:
    const TGGC&
    italicGray()
    {
-     static TGGC s_italicGrayGC(fireworks::italicGC());
+      static TGGC s_italicGrayGC(italicGC());
       s_italicGrayGC.SetForeground(gVirtualX->GetPixel(kGray+1));
       return s_italicGrayGC;
    }
   
+   const TGGC&
+   redGC()
+   {
+      static TGGC s_redGC(*gClient->GetResourcePool()->GetFrameGC());
+      s_redGC.SetForeground(gVirtualX->GetPixel(kRed-5));
+      return s_redGC;
+   }
  
    const TGGC&
    boldGreenGC()
    {
-     static TGGC s_boldGreenGC(fireworks::boldGC());
+      static TGGC s_boldGreenGC(boldGC());
       s_boldGreenGC.SetForeground(gVirtualX->GetPixel(kGreen-5));
       return s_boldGreenGC;
    }
@@ -225,19 +327,25 @@ public:
    const TGGC &
    italicGreenGC()
    {
-     static TGGC s_italicGreenGC(fireworks::italicGC());
+      static TGGC s_italicGreenGC(italicGC());
       s_italicGreenGC.SetForeground(gVirtualX->GetPixel(kGreen-5));
       return s_italicGreenGC;
    }
 
-  
+   const TGGC&
+   greenGC()
+   {
+      static TGGC s_greenGC(*gClient->GetResourcePool()->GetFrameGC());
+      s_greenGC.SetForeground(gVirtualX->GetPixel(kGreen-5));
+      return s_greenGC;
+   }
   
 
    FWPSetTableManager()
       : m_selectedRow(-1)
    {  
-     m_italicRenderer.setGraphicsContext(&fireworks::italicGC());
-     m_boldRenderer.setGraphicsContext(&fireworks::boldGC());
+      m_italicRenderer.setGraphicsContext(&italicGC());
+      m_boldRenderer.setGraphicsContext(&boldGC());
 
       m_pathPassedRenderer.setGraphicsContext(&boldGreenGC());
       m_pathPassedRenderer.setHighlightContext(&pathBackgroundGC());

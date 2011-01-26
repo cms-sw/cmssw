@@ -96,7 +96,7 @@ void  HLTEgammaDoubleLegCombFilter::matchCands(const std::vector<math::XYZPoint>
     for(size_t secondLegNr=0;secondLegNr<secondLegP3s.size() && matchedNr==-1;secondLegNr++){
       if(reco::deltaR2(firstLegP3s[firstLegNr],secondLegP3s[secondLegNr])<maxMatchDR_*maxMatchDR_) matchedNr=secondLegNr;
     }
-    matchedCands.push_back(std::make_pair<int,int>(firstLegNr,matchedNr));
+    matchedCands.push_back(std::make_pair(firstLegNr,matchedNr));
     if(matchedNr>=0) matched2ndLegs.push_back(static_cast<size_t>(matchedNr));
   }
   std::sort(matched2ndLegs.begin(),matched2ndLegs.end());

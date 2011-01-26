@@ -521,15 +521,15 @@ namespace edm {
 
     boost::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
 
-    ParameterSet optionsPset(parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
+    ParameterSet const& optionsPset(parameterSet->getUntrackedParameterSet("options", ParameterSet()));
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     emptyRunLumiMode_ = optionsPset.getUntrackedParameter<std::string>("emptyRunLumiMode", "");
     forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun", false);
-    ParameterSet forking = optionsPset.getUntrackedParameter<ParameterSet>("multiProcesses", ParameterSet());
+    ParameterSet const& forking = optionsPset.getUntrackedParameterSet("multiProcesses", ParameterSet());
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
     numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild", 1);
     setCpuAffinity_ = forking.getUntrackedParameter<bool>("setCpuAffinity", false);
-    std::vector<ParameterSet> excluded = forking.getUntrackedParameter<std::vector<ParameterSet> >("eventSetupDataToExcludeFromPrefetching", std::vector<ParameterSet>());
+    std::vector<ParameterSet> const& excluded = forking.getUntrackedParameterSetVector("eventSetupDataToExcludeFromPrefetching", std::vector<ParameterSet>());
     for(std::vector<ParameterSet>::const_iterator itPS = excluded.begin(), itPSEnd = excluded.end();
         itPS != itPSEnd;
         ++itPS) {
@@ -585,8 +585,8 @@ namespace edm {
     CommonParams common = CommonParams(processName,
                            getReleaseVersion(),
                            getPassID(),
-                           parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
-                           parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1));
+                           parameterSet->getUntrackedParameterSet("maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
+                           parameterSet->getUntrackedParameterSet("maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1));
 
     std::auto_ptr<eventsetup::EventSetupsController> espController(new eventsetup::EventSetupsController);
     esp_ = espController->makeProvider(*parameterSet, common);

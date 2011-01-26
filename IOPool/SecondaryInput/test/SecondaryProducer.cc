@@ -85,7 +85,7 @@ namespace edm {
   }
 
   boost::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
-    ParameterSet sec_input = ps.getParameter<ParameterSet>("input");
+    ParameterSet const& sec_input = ps.getParameterSet("input");
 
     boost::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
       (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input,

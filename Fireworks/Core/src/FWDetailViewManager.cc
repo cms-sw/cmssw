@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.59 2010/06/18 10:17:15 yana Exp $
+// $Id: FWDetailViewManager.cc,v 1.58 2010/06/02 22:39:21 chrjones Exp $
 //
 
 #include <stdio.h>
@@ -16,7 +16,6 @@
 #include <algorithm>
 
 #include "TClass.h"
-#include "TROOT.h"
 #include "TGWindow.h"
 #include "TGFrame.h"
 #include "TEveWindow.h"
@@ -48,9 +47,6 @@ FWDetailViewManager::FWDetailViewManager(FWColorManager* colMng):
    m_eveFrame(0),
    m_detailView(0)
 {  
-   // force white background for all embedded canvases
-   gROOT->SetStyle("Plain");
-
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWDetailViewManager::colorsChanged,this));
 }
 
@@ -97,11 +93,8 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    TEveWindowSlot* ws  = (TEveWindowSlot*)(m_eveFrame->GetEveWindow());
    m_detailView->init(ws);
    m_detailView->build(id);
-   m_detailView->setBackgroundColor(m_colorManager->background());
 
    TGMainFrame* mf = (TGMainFrame*)(m_eveFrame->GetParent());
-   mf->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));
-
    mf->MapRaised();
 }
 

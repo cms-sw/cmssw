@@ -41,6 +41,7 @@ class EcalClusterFunctionBaseClass ;
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+//#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 #include <list>
 #include <string>
@@ -162,7 +163,7 @@ class GsfElectronAlgo {
       float severityRecHitThreshold ;
       float spikeIdThreshold ;
       EcalSeverityLevelAlgo::SpikeId spikeId ;
-      std::vector<int> v_chstatus ;
+      std::vector<int> recHitFlagsToBeExcluded ;
      } ;
 
     GsfElectronAlgo
@@ -190,7 +191,7 @@ class GsfElectronAlgo {
     void clonePreviousElectrons() ;
     void completeElectrons() ; // do not redo cloned electrons done previously
     void addPflowInfo() ;
-    void setAmbiguityFlags( bool ignoreNotPreselected = true ) ;
+    void setAmbiguityData( bool ignoreNotPreselected = true ) ;
     void removeNotPreselectedElectrons() ;
     void removeAmbiguousElectrons() ;
     void copyElectrons( reco::GsfElectronCollection & ) ;

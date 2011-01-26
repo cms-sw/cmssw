@@ -15,7 +15,7 @@ process.generator.comEnergy = 14000.
 
 #fastsim
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
-process.load('FastSimulation.Configuration.Geometries_cff')
+process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 process.RandomNumberGeneratorService.generator.initialSeed= ==SEED==

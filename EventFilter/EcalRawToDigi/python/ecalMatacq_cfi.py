@@ -45,15 +45,7 @@ ecalMatacq = cms.EDProducer("MatacqProducer",
   ignoreTriggerType = cms.bool(True),
 
   # Name of output file for the logs.
-  logFileName = cms.untracked.string("matacqProducer.log"),
-
-  # Name of log file for execution  timing. If empty, timing logging is disabled. 
-  timeLogFile = cms.untracked.string("matacqProducerTime.txt"),
-
-
-  # Number of event to skip after occurence of an error which is expected
-  # to be persitent
-  onErrorDisablingEvtCnt = cms.int32(0)
+  logFileName = cms.untracked.string("matacqProducer.log")
 )
 
 

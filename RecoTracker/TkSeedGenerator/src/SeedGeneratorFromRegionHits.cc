@@ -57,5 +57,4 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
       theSeedCreator->trajectorySeed(seedCollection, hits, region, es);
     }
   }
-  theHitsGenerator->clear();
 }

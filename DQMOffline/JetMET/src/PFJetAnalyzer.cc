@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/10/15 13:49:55 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/05/14 00:28:58 $
+ *  $Revision: 1.14 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -127,22 +127,6 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   mMass                    = dbe->book1D("Mass", "Mass", 100, 0, 25);
   mNJets                   = dbe->book1D("NJets", "Number of Jets", 100, 0, 100);
 
-  mCHFracVSeta_lowPt= dbe->bookProfile("CHFracVSeta_lowPt","CHFracVSeta_lowPt",etaBin, etaMin, etaMax,0.,1.2);
-  mNHFracVSeta_lowPt= dbe->bookProfile("NHFracVSeta_lowPt","NHFracVSeta_lowPt",etaBin, etaMin, etaMax,0.,1.2);
-  mPhFracVSeta_lowPt= dbe->bookProfile("PhFracVSeta_lowPt","PhFracVSeta_lowPt",etaBin, etaMin, etaMax,0.,1.2);
-  mElFracVSeta_lowPt= dbe->bookProfile("ElFracVSeta_lowPt","ElFracVSeta_lowPt",etaBin, etaMin, etaMax,0.,1.2);
-  mMuFracVSeta_lowPt= dbe->bookProfile("MuFracVSeta_lowPt","MuFracVSeta_lowPt",etaBin, etaMin, etaMax,0.,1.2);
-  mCHFracVSeta_mediumPt= dbe->bookProfile("CHFracVSeta_mediumPt","CHFracVSeta_mediumPt",etaBin, etaMin, etaMax,0.,1.2);
-  mNHFracVSeta_mediumPt= dbe->bookProfile("NHFracVSeta_mediumPt","NHFracVSeta_mediumPt",etaBin, etaMin, etaMax,0.,1.2);
-  mPhFracVSeta_mediumPt= dbe->bookProfile("PhFracVSeta_mediumPt","PhFracVSeta_mediumPt",etaBin, etaMin, etaMax,0.,1.2);
-  mElFracVSeta_mediumPt= dbe->bookProfile("ElFracVSeta_mediumPt","ElFracVSeta_mediumPt",etaBin, etaMin, etaMax,0.,1.2);
-  mMuFracVSeta_mediumPt= dbe->bookProfile("MuFracVSeta_mediumPt","MuFracVSeta_mediumPt",etaBin, etaMin, etaMax,0.,1.2);
-  mCHFracVSeta_highPt= dbe->bookProfile("CHFracVSeta_highPt","CHFracVSeta_highPt",etaBin, etaMin, etaMax,0.,1.2);
-  mNHFracVSeta_highPt= dbe->bookProfile("NHFracVSeta_highPt","NHFracVSeta_highPt",etaBin, etaMin, etaMax,0.,1.2);
-  mPhFracVSeta_highPt= dbe->bookProfile("PhFracVSeta_highPt","PhFracVSeta_highPt",etaBin, etaMin, etaMax,0.,1.2);
-  mElFracVSeta_highPt= dbe->bookProfile("ElFracVSeta_highPt","ElFracVSeta_highPt",etaBin, etaMin, etaMax,0.,1.2);
-  mMuFracVSeta_highPt= dbe->bookProfile("MuFracVSeta_highPt","MuFracVSeta_highPt",etaBin, etaMin, etaMax,0.,1.2);
-
   mPt_Barrel_Lo            = dbe->book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 100, 0, 100);
   mPhi_Barrel_Lo           = dbe->book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
   mConstituents_Barrel_Lo  = dbe->book1D("Constituents_Barrel_Lo", "Constituents Barrel (Pass Low Pt Jet Trigger)", 100, 0, 100);
@@ -176,137 +160,14 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   mPhi_Barrel              = dbe->book1D("Phi_Barrel", "Phi_Barrel", phiBin, phiMin, phiMax);
   mE_Barrel                = dbe->book1D("E_Barrel", "E_Barrel", eBin, eMin, eMax);
   mPt_Barrel               = dbe->book1D("Pt_Barrel", "Pt_Barrel", ptBin, ptMin, ptMax);
-  // energy fractions
-  mCHFrac_lowPt_Barrel     = dbe->book1D("CHFrac_lowPt_Barrel", "CHFrac_lowPt_Barrel", 120, -0.1, 1.1);
-  mNHFrac_lowPt_Barrel     = dbe->book1D("NHFrac_lowPt_Barrel", "NHFrac_lowPt_Barrel", 120, -0.1, 1.1);
-  mPhFrac_lowPt_Barrel     = dbe->book1D("PhFrac_lowPt_Barrel", "PhFrac_lowPt_Barrel", 120, -0.1, 1.1);
-  mElFrac_lowPt_Barrel     = dbe->book1D("ElFrac_lowPt_Barrel", "ElFrac_lowPt_Barrel", 120, -0.1, 1.1);
-  mMuFrac_lowPt_Barrel     = dbe->book1D("MuFrac_lowPt_Barrel", "MuFrac_lowPt_Barrel", 120, -0.1, 1.1);
-  mCHFrac_mediumPt_Barrel  = dbe->book1D("CHFrac_mediumPt_Barrel", "CHFrac_mediumPt_Barrel", 120, -0.1, 1.1);
-  mNHFrac_mediumPt_Barrel  = dbe->book1D("NHFrac_mediumPt_Barrel", "NHFrac_mediumPt_Barrel", 120, -0.1, 1.1);
-  mPhFrac_mediumPt_Barrel  = dbe->book1D("PhFrac_mediumPt_Barrel", "PhFrac_mediumPt_Barrel", 120, -0.1, 1.1);
-  mElFrac_mediumPt_Barrel  = dbe->book1D("ElFrac_mediumPt_Barrel", "ElFrac_mediumPt_Barrel", 120, -0.1, 1.1);
-  mMuFrac_mediumPt_Barrel  = dbe->book1D("MuFrac_mediumPt_Barrel", "MuFrac_mediumPt_Barrel", 120, -0.1, 1.1);
-  mCHFrac_highPt_Barrel    = dbe->book1D("CHFrac_highPt_Barrel", "CHFrac_highPt_Barrel", 120, -0.1, 1.1);
-  mNHFrac_highPt_Barrel    = dbe->book1D("NHFrac_highPt_Barrel", "NHFrac_highPt_Barrel", 120, -0.1, 1.1);
-  mPhFrac_highPt_Barrel    = dbe->book1D("PhFrac_highPt_Barrel", "PhFrac_highPt_Barrel", 120, -0.1, 1.1);
-  mElFrac_highPt_Barrel    = dbe->book1D("ElFrac_highPt_Barrel", "ElFrac_highPt_Barrel", 120, -0.1, 1.1);
-  mMuFrac_highPt_Barrel    = dbe->book1D("MuFrac_highPt_Barrel", "MuFrac_highPt_Barrel", 120, -0.1, 1.1);
-  //energies
-  mCHEn_lowPt_Barrel     = dbe->book1D("CHEn_lowPt_Barrel", "CHEn_lowPt_Barrel", ptBin, ptMin, ptMax);
-  mNHEn_lowPt_Barrel     = dbe->book1D("NHEn_lowPt_Barrel", "NHEn_lowPt_Barrel", ptBin, ptMin, ptMax);
-  mPhEn_lowPt_Barrel     = dbe->book1D("PhEn_lowPt_Barrel", "PhEn_lowPt_Barrel", ptBin, ptMin, ptMax);
-  mElEn_lowPt_Barrel     = dbe->book1D("ElEn_lowPt_Barrel", "ElEn_lowPt_Barrel", ptBin, ptMin, ptMax);
-  mMuEn_lowPt_Barrel     = dbe->book1D("MuEn_lowPt_Barrel", "MuEn_lowPt_Barrel", ptBin, ptMin, ptMax);
-  mCHEn_mediumPt_Barrel  = dbe->book1D("CHEn_mediumPt_Barrel", "CHEn_mediumPt_Barrel", ptBin, ptMin, ptMax);
-  mNHEn_mediumPt_Barrel  = dbe->book1D("NHEn_mediumPt_Barrel", "NHEn_mediumPt_Barrel", ptBin, ptMin, ptMax);
-  mPhEn_mediumPt_Barrel  = dbe->book1D("PhEn_mediumPt_Barrel", "PhEn_mediumPt_Barrel", ptBin, ptMin, ptMax);
-  mElEn_mediumPt_Barrel  = dbe->book1D("ElEn_mediumPt_Barrel", "ElEn_mediumPt_Barrel", ptBin, ptMin, ptMax);
-  mMuEn_mediumPt_Barrel  = dbe->book1D("MuEn_mediumPt_Barrel", "MuEn_mediumPt_Barrel", ptBin, ptMin, ptMax);
-  mCHEn_highPt_Barrel    = dbe->book1D("CHEn_highPt_Barrel", "CHEn_highPt_Barrel", ptBin, ptMin, ptMax);
-  mNHEn_highPt_Barrel    = dbe->book1D("NHEn_highPt_Barrel", "NHEn_highPt_Barrel", ptBin, ptMin, ptMax);
-  mPhEn_highPt_Barrel    = dbe->book1D("PhEn_highPt_Barrel", "PhEn_highPt_Barrel", ptBin, ptMin, ptMax);
-  mElEn_highPt_Barrel    = dbe->book1D("ElEn_highPt_Barrel", "ElEn_highPt_Barrel", ptBin, ptMin, ptMax);
-  mMuEn_highPt_Barrel    = dbe->book1D("MuEn_highPt_Barrel", "MuEn_highPt_Barrel", ptBin, ptMin, ptMax);
-  //multiplicities
-  mChMultiplicity_lowPt_Barrel    = dbe->book1D("ChMultiplicity_lowPt_Barrel", "ChMultiplicity_lowPt_Barrel", 30,0,30);
-  mNeuMultiplicity_lowPt_Barrel   = dbe->book1D("NeuMultiplicity_lowPt_Barrel", "NeuMultiplicity_lowPt_Barrel", 30,0,30);
-  mMuMultiplicity_lowPt_Barrel    = dbe->book1D("MuMultiplicity_lowPt_Barrel", "MuMultiplicity_lowPt_Barrel", 30,0,30);
-  mChMultiplicity_mediumPt_Barrel    = dbe->book1D("ChMultiplicity_mediumPt_Barrel", "ChMultiplicity_mediumPt_Barrel", 30,0,30);
-  mNeuMultiplicity_mediumPt_Barrel   = dbe->book1D("NeuMultiplicity_mediumPt_Barrel", "NeuMultiplicity_mediumPt_Barrel", 30,0,30);
-  mMuMultiplicity_mediumPt_Barrel    = dbe->book1D("MuMultiplicity_mediumPt_Barrel", "MuMultiplicity_mediumPt_Barrel", 30,0,30);
-  mChMultiplicity_highPt_Barrel    = dbe->book1D("ChMultiplicity_highPt_Barrel", "ChMultiplicity_highPt_Barrel", 30,0,30);
-  mNeuMultiplicity_highPt_Barrel   = dbe->book1D("NeuMultiplicity_highPt_Barrel", "NeuMultiplicity_highPt_Barrel", 30,0,30);
-  mMuMultiplicity_highPt_Barrel    = dbe->book1D("MuMultiplicity_highPt_Barrel", "MuMultiplicity_highPt_Barrel", 30,0,30);
-  //
-  mCHFracVSpT_Barrel= dbe->bookProfile("CHFracVSpT_Barrel","CHFracVSpT_Barrel",ptBin, ptMin, ptMax,0.,1.2);
-  mNHFracVSpT_Barrel= dbe->bookProfile("NHFracVSpT_Barrel","NHFracVSpT_Barrel",ptBin, ptMin, ptMax,0.,1.2);
-  mPhFracVSpT_Barrel= dbe->bookProfile("PhFracVSpT_Barrel","PhFracVSpT_Barrel",ptBin, ptMin, ptMax,0.,1.2);
-  mElFracVSpT_Barrel= dbe->bookProfile("ElFracVSpT_Barrel","ElFracVSpT_Barrel",ptBin, ptMin, ptMax,0.,1.2);
-  mMuFracVSpT_Barrel= dbe->bookProfile("MuFracVSpT_Barrel","MuFracVSpT_Barrel",ptBin, ptMin, ptMax,0.,1.2);
-  mCHFracVSpT_EndCap= dbe->bookProfile("CHFracVSpT_EndCap","CHFracVSpT_EndCap",ptBin, ptMin, ptMax,0.,1.2);
-  mNHFracVSpT_EndCap= dbe->bookProfile("NHFracVSpT_EndCap","NHFracVSpT_EndCap",ptBin, ptMin, ptMax,0.,1.2);
-  mPhFracVSpT_EndCap= dbe->bookProfile("PhFracVSpT_EndCap","PhFracVSpT_EndCap",ptBin, ptMin, ptMax,0.,1.2);
-  mElFracVSpT_EndCap= dbe->bookProfile("ElFracVSpT_EndCap","ElFracVSpT_EndCap",ptBin, ptMin, ptMax,0.,1.2);
-  mMuFracVSpT_EndCap= dbe->bookProfile("MuFracVSpT_EndCap","MuFracVSpT_EndCap",ptBin, ptMin, ptMax,0.,1.2);
-  mHFHFracVSpT_Forward= dbe->bookProfile("HFHFracVSpT_Forward","HFHFracVSpT_Forward",ptBin, ptMin, ptMax,0.,1.2);
-  mHFEFracVSpT_Forward= dbe->bookProfile("HFEFracVSpT_Forward","HFEFracVSpT_Forward",ptBin, ptMin, ptMax,0.,1.2);
 
   mPhi_EndCap              = dbe->book1D("Phi_EndCap", "Phi_EndCap", phiBin, phiMin, phiMax);
   mE_EndCap                = dbe->book1D("E_EndCap", "E_EndCap", eBin, eMin, eMax);
   mPt_EndCap               = dbe->book1D("Pt_EndCap", "Pt_EndCap", ptBin, ptMin, ptMax);
-  //energy fractions
-  mCHFrac_lowPt_EndCap     = dbe->book1D("CHFrac_lowPt_EndCap", "CHFrac_lowPt_EndCap", 120, -0.1, 1.1);
-  mNHFrac_lowPt_EndCap     = dbe->book1D("NHFrac_lowPt_EndCap", "NHFrac_lowPt_EndCap", 120, -0.1, 1.1);
-  mPhFrac_lowPt_EndCap     = dbe->book1D("PhFrac_lowPt_EndCap", "PhFrac_lowPt_EndCap", 120, -0.1, 1.1);
-  mElFrac_lowPt_EndCap     = dbe->book1D("ElFrac_lowPt_EndCap", "ElFrac_lowPt_EndCap", 120, -0.1, 1.1);
-  mMuFrac_lowPt_EndCap     = dbe->book1D("MuFrac_lowPt_EndCap", "MuFrac_lowPt_EndCap", 120, -0.1, 1.1);
-  mCHFrac_mediumPt_EndCap  = dbe->book1D("CHFrac_mediumPt_EndCap", "CHFrac_mediumPt_EndCap", 120, -0.1, 1.1);
-  mNHFrac_mediumPt_EndCap  = dbe->book1D("NHFrac_mediumPt_EndCap", "NHFrac_mediumPt_EndCap", 120, -0.1, 1.1);
-  mPhFrac_mediumPt_EndCap  = dbe->book1D("PhFrac_mediumPt_EndCap", "PhFrac_mediumPt_EndCap", 120, -0.1, 1.1);
-  mElFrac_mediumPt_EndCap  = dbe->book1D("ElFrac_mediumPt_EndCap", "ElFrac_mediumPt_EndCap", 120, -0.1, 1.1);
-  mMuFrac_mediumPt_EndCap  = dbe->book1D("MuFrac_mediumPt_EndCap", "MuFrac_mediumPt_EndCap", 120, -0.1, 1.1);
-  mCHFrac_highPt_EndCap    = dbe->book1D("CHFrac_highPt_EndCap", "CHFrac_highPt_EndCap", 120, -0.1, 1.1);
-  mNHFrac_highPt_EndCap    = dbe->book1D("NHFrac_highPt_EndCap", "NHFrac_highPt_EndCap", 120, -0.1, 1.1);
-  mPhFrac_highPt_EndCap    = dbe->book1D("PhFrac_highPt_EndCap", "PhFrac_highPt_EndCap", 120, -0.1, 1.1);
-  mElFrac_highPt_EndCap    = dbe->book1D("ElFrac_highPt_EndCap", "ElFrac_highPt_EndCap", 120, -0.1, 1.1);
-  mMuFrac_highPt_EndCap    = dbe->book1D("MuFrac_highPt_EndCap", "MuFrac_highPt_EndCap", 120, -0.1, 1.1);
-  //energies
-  mCHEn_lowPt_EndCap     = dbe->book1D("CHEn_lowPt_EndCap", "CHEn_lowPt_EndCap", ptBin, ptMin, ptMax);
-  mNHEn_lowPt_EndCap     = dbe->book1D("NHEn_lowPt_EndCap", "NHEn_lowPt_EndCap", ptBin, ptMin, ptMax);
-  mPhEn_lowPt_EndCap     = dbe->book1D("PhEn_lowPt_EndCap", "PhEn_lowPt_EndCap", ptBin, ptMin, ptMax);
-  mElEn_lowPt_EndCap     = dbe->book1D("ElEn_lowPt_EndCap", "ElEn_lowPt_EndCap", ptBin, ptMin, ptMax);
-  mMuEn_lowPt_EndCap     = dbe->book1D("MuEn_lowPt_EndCap", "MuEn_lowPt_EndCap", ptBin, ptMin, ptMax);
-  mCHEn_mediumPt_EndCap  = dbe->book1D("CHEn_mediumPt_EndCap", "CHEn_mediumPt_EndCap", ptBin, ptMin, ptMax);
-  mNHEn_mediumPt_EndCap  = dbe->book1D("NHEn_mediumPt_EndCap", "NHEn_mediumPt_EndCap", ptBin, ptMin, ptMax);
-  mPhEn_mediumPt_EndCap  = dbe->book1D("PhEn_mediumPt_EndCap", "PhEn_mediumPt_EndCap", ptBin, ptMin, ptMax);
-  mElEn_mediumPt_EndCap  = dbe->book1D("ElEn_mediumPt_EndCap", "ElEn_mediumPt_EndCap", ptBin, ptMin, ptMax);
-  mMuEn_mediumPt_EndCap  = dbe->book1D("MuEn_mediumPt_EndCap", "MuEn_mediumPt_EndCap", ptBin, ptMin, ptMax);
-  mCHEn_highPt_EndCap    = dbe->book1D("CHEn_highPt_EndCap", "CHEn_highPt_EndCap", ptBin, ptMin, ptMax);
-  mNHEn_highPt_EndCap    = dbe->book1D("NHEn_highPt_EndCap", "NHEn_highPt_EndCap", ptBin, ptMin, ptMax);
-  mPhEn_highPt_EndCap    = dbe->book1D("PhEn_highPt_EndCap", "PhEn_highPt_EndCap", ptBin, ptMin, ptMax);
-  mElEn_highPt_EndCap    = dbe->book1D("ElEn_highPt_EndCap", "ElEn_highPt_EndCap", ptBin, ptMin, ptMax);
-  mMuEn_highPt_EndCap    = dbe->book1D("MuEn_highPt_EndCap", "MuEn_highPt_EndCap", ptBin, ptMin, ptMax);
-  //multiplicities
-  mChMultiplicity_lowPt_EndCap    = dbe->book1D("ChMultiplicity_lowPt_EndCap", "ChMultiplicity_lowPt_EndCap", 30,0,30);
-  mNeuMultiplicity_lowPt_EndCap   = dbe->book1D("NeuMultiplicity_lowPt_EndCap", "NeuMultiplicity_lowPt_EndCap", 30,0,30);
-  mMuMultiplicity_lowPt_EndCap    = dbe->book1D("MuMultiplicity_lowPt_EndCap", "MuMultiplicity_lowPt_EndCap", 30,0,30);
-  mChMultiplicity_mediumPt_EndCap    = dbe->book1D("ChMultiplicity_mediumPt_EndCap", "ChMultiplicity_mediumPt_EndCap", 30,0,30);
-  mNeuMultiplicity_mediumPt_EndCap   = dbe->book1D("NeuMultiplicity_mediumPt_EndCap", "NeuMultiplicity_mediumPt_EndCap", 30,0,30);
-  mMuMultiplicity_mediumPt_EndCap    = dbe->book1D("MuMultiplicity_mediumPt_EndCap", "MuMultiplicity_mediumPt_EndCap", 30,0,30);
-  mChMultiplicity_highPt_EndCap    = dbe->book1D("ChMultiplicity_highPt_EndCap", "ChMultiplicity_highPt_EndCap", 30,0,30);
-  mNeuMultiplicity_highPt_EndCap   = dbe->book1D("NeuMultiplicity_highPt_EndCap", "NeuMultiplicity_highPt_EndCap", 30,0,30);
-  mMuMultiplicity_highPt_EndCap    = dbe->book1D("MuMultiplicity_highPt_EndCap", "MuMultiplicity_highPt_EndCap", 30,0,30);
 
   mPhi_Forward             = dbe->book1D("Phi_Forward", "Phi_Forward", phiBin, phiMin, phiMax);
   mE_Forward               = dbe->book1D("E_Forward", "E_Forward", eBin, eMin, eMax);
   mPt_Forward              = dbe->book1D("Pt_Forward", "Pt_Forward", ptBin, ptMin, ptMax);
-  //energy fraction
-  mHFEFrac_lowPt_Forward    = dbe->book1D("HFEFrac_lowPt_Forward", "HFEFrac_lowPt_Forward", 120, -0.1, 1.1);
-  mHFHFrac_lowPt_Forward    = dbe->book1D("HFHFrac_lowPt_Forward", "HFHFrac_lowPt_Forward", 120, -0.1, 1.1);
-  mHFEFrac_mediumPt_Forward = dbe->book1D("HFEFrac_mediumPt_Forward", "HFEFrac_mediumPt_Forward", 120, -0.1, 1.1);
-  mHFHFrac_mediumPt_Forward = dbe->book1D("HFHFrac_mediumPt_Forward", "HFHFrac_mediumPt_Forward", 120, -0.1, 1.1);
-  mHFEFrac_highPt_Forward   = dbe->book1D("HFEFrac_highPt_Forward", "HFEFrac_highPt_Forward", 120, -0.1, 1.1);
-  mHFHFrac_highPt_Forward   = dbe->book1D("HFHFrac_highPt_Forward", "HFHFrac_highPt_Forward", 120, -0.1, 1.1);
-  //energies
-  mHFEEn_lowPt_Forward    = dbe->book1D("HFEEn_lowPt_Forward", "HFEEn_lowPt_Forward", ptBin, ptMin, ptMax);
-  mHFHEn_lowPt_Forward    = dbe->book1D("HFHEn_lowPt_Forward", "HFHEn_lowPt_Forward", ptBin, ptMin, ptMax);
-  mHFEEn_mediumPt_Forward = dbe->book1D("HFEEn_mediumPt_Forward", "HFEEn_mediumPt_Forward", ptBin, ptMin, ptMax);
-  mHFHEn_mediumPt_Forward = dbe->book1D("HFHEn_mediumPt_Forward", "HFHEn_mediumPt_Forward", ptBin, ptMin, ptMax);
-  mHFEEn_highPt_Forward   = dbe->book1D("HFEEn_highPt_Forward", "HFEEn_highPt_Forward", ptBin, ptMin, ptMax);
-  mHFHEn_highPt_Forward   = dbe->book1D("HFHEn_highPt_Forward", "HFHEn_highPt_Forward", ptBin, ptMin, ptMax);
-  //multiplicities
-  mChMultiplicity_lowPt_Forward    = dbe->book1D("ChMultiplicity_lowPt_Forward", "ChMultiplicity_lowPt_Forward", 30,0,30);
-  mNeuMultiplicity_lowPt_Forward   = dbe->book1D("NeuMultiplicity_lowPt_Forward", "NeuMultiplicity_lowPt_Forward", 30,0,30);
-  mMuMultiplicity_lowPt_Forward    = dbe->book1D("MuMultiplicity_lowPt_Forward", "MuMultiplicity_lowPt_Forward", 30,0,30);
-  mChMultiplicity_mediumPt_Forward    = dbe->book1D("ChMultiplicity_mediumPt_Forward", "ChMultiplicity_mediumPt_Forward", 30,0,30);
-  mNeuMultiplicity_mediumPt_Forward   = dbe->book1D("NeuMultiplicity_mediumPt_Forward", "NeuMultiplicity_mediumPt_Forward", 30,0,30);
-  mMuMultiplicity_mediumPt_Forward    = dbe->book1D("MuMultiplicity_mediumPt_Forward", "MuMultiplicity_mediumPt_Forward", 30,0,30);
-  mChMultiplicity_highPt_Forward    = dbe->book1D("ChMultiplicity_highPt_Forward", "ChMultiplicity_highPt_Forward", 30,0,30);
-  mNeuMultiplicity_highPt_Forward   = dbe->book1D("NeuMultiplicity_highPt_Forward", "NeuMultiplicity_highPt_Forward", 30,0,30);
-  mMuMultiplicity_highPt_Forward    = dbe->book1D("MuMultiplicity_highPt_Forward", "MuMultiplicity_highPt_Forward", 30,0,30);
-
-
 
   // Leading Jet Parameters
   mEtaFirst                = dbe->book1D("EtaFirst", "EtaFirst", 100, -5, 5);
@@ -483,190 +344,27 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if (mHFrac)        mHFrac->Fill (jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());
       if (mEFrac)        mEFrac->Fill (jet->chargedEmEnergyFraction() +jet->neutralEmEnergyFraction());
       
-      if (jet->pt()<= 50) {
-      if (mCHFracVSeta_lowPt) mCHFracVSeta_lowPt->Fill(jet->eta(),jet->chargedHadronEnergyFraction());
-      if (mNHFracVSeta_lowPt) mNHFracVSeta_lowPt->Fill(jet->eta(),jet->neutralHadronEnergyFraction());
-      if (mPhFracVSeta_lowPt) mPhFracVSeta_lowPt->Fill(jet->eta(),jet->neutralEmEnergyFraction());
-      if (mElFracVSeta_lowPt) mElFracVSeta_lowPt->Fill(jet->eta(),jet->chargedEmEnergyFraction());
-      if (mMuFracVSeta_lowPt) mMuFracVSeta_lowPt->Fill(jet->eta(),jet->chargedMuEnergyFraction());
-      }
-      if (jet->pt()>50. && jet->pt()<=140.) {
-      if (mCHFracVSeta_mediumPt) mCHFracVSeta_mediumPt->Fill(jet->eta(),jet->chargedHadronEnergyFraction());
-      if (mNHFracVSeta_mediumPt) mNHFracVSeta_mediumPt->Fill(jet->eta(),jet->neutralHadronEnergyFraction());
-      if (mPhFracVSeta_mediumPt) mPhFracVSeta_mediumPt->Fill(jet->eta(),jet->neutralEmEnergyFraction());
-      if (mElFracVSeta_mediumPt) mElFracVSeta_mediumPt->Fill(jet->eta(),jet->chargedEmEnergyFraction());
-      if (mMuFracVSeta_mediumPt) mMuFracVSeta_mediumPt->Fill(jet->eta(),jet->chargedMuEnergyFraction());
-      }
-      if (jet->pt()>140.) {
-      if (mCHFracVSeta_highPt) mCHFracVSeta_highPt->Fill(jet->eta(),jet->chargedHadronEnergyFraction());
-      if (mNHFracVSeta_highPt) mNHFracVSeta_highPt->Fill(jet->eta(),jet->neutralHadronEnergyFraction());
-      if (mPhFracVSeta_highPt) mPhFracVSeta_highPt->Fill(jet->eta(),jet->neutralEmEnergyFraction());
-      if (mElFracVSeta_highPt) mElFracVSeta_highPt->Fill(jet->eta(),jet->chargedEmEnergyFraction());
-      if (mMuFracVSeta_highPt) mMuFracVSeta_highPt->Fill(jet->eta(),jet->chargedMuEnergyFraction());
-      }
-
       if (fabs(jet->eta()) <= 1.3) {
 	if (mPt_Barrel)   mPt_Barrel->Fill (jet->pt());
 	if (mPhi_Barrel)  mPhi_Barrel->Fill (jet->phi());
 	if (mE_Barrel)    mE_Barrel->Fill (jet->energy());
-	//fractions
-	if (jet->pt()<=50.) {
-	  if (mCHFrac_lowPt_Barrel) mCHFrac_lowPt_Barrel->Fill(jet->chargedHadronEnergyFraction());
-	  if (mNHFrac_lowPt_Barrel) mNHFrac_lowPt_Barrel->Fill(jet->neutralHadronEnergyFraction());
-	  if (mPhFrac_lowPt_Barrel) mPhFrac_lowPt_Barrel->Fill(jet->neutralEmEnergyFraction());
-	  if (mElFrac_lowPt_Barrel) mElFrac_lowPt_Barrel->Fill(jet->chargedEmEnergyFraction());
-	  if (mMuFrac_lowPt_Barrel) mMuFrac_lowPt_Barrel->Fill(jet->chargedMuEnergyFraction());
-	  //
-	  if (mCHEn_lowPt_Barrel) mCHEn_lowPt_Barrel->Fill(jet->chargedHadronEnergy());
-	  if (mNHEn_lowPt_Barrel) mNHEn_lowPt_Barrel->Fill(jet->neutralHadronEnergy());
-	  if (mPhEn_lowPt_Barrel) mPhEn_lowPt_Barrel->Fill(jet->neutralEmEnergy());
-	  if (mElEn_lowPt_Barrel) mElEn_lowPt_Barrel->Fill(jet->chargedEmEnergy());
-	  if (mMuEn_lowPt_Barrel) mMuEn_lowPt_Barrel->Fill(jet->chargedMuEnergy());
-	}
-	if (jet->pt()>50. && jet->pt()<=140.) {
-	  if (mCHFrac_mediumPt_Barrel) mCHFrac_mediumPt_Barrel->Fill(jet->chargedHadronEnergyFraction());
-	  if (mNHFrac_mediumPt_Barrel) mNHFrac_mediumPt_Barrel->Fill(jet->neutralHadronEnergyFraction());
-	  if (mPhFrac_mediumPt_Barrel) mPhFrac_mediumPt_Barrel->Fill(jet->neutralEmEnergyFraction());
-	  if (mElFrac_mediumPt_Barrel) mElFrac_mediumPt_Barrel->Fill(jet->chargedEmEnergyFraction());
-	  if (mMuFrac_mediumPt_Barrel) mMuFrac_mediumPt_Barrel->Fill(jet->chargedMuEnergyFraction());
-	  //
-	  if (mCHEn_mediumPt_Barrel) mCHEn_mediumPt_Barrel->Fill(jet->chargedHadronEnergy());
-	  if (mNHEn_mediumPt_Barrel) mNHEn_mediumPt_Barrel->Fill(jet->neutralHadronEnergy());
-	  if (mPhEn_mediumPt_Barrel) mPhEn_mediumPt_Barrel->Fill(jet->neutralEmEnergy());
-	  if (mElEn_mediumPt_Barrel) mElEn_mediumPt_Barrel->Fill(jet->chargedEmEnergy());
-	  if (mMuEn_mediumPt_Barrel) mMuEn_mediumPt_Barrel->Fill(jet->chargedMuEnergy());
-	}
-	if (jet->pt()>140.) {
-	  if (mCHFrac_highPt_Barrel) mCHFrac_highPt_Barrel->Fill(jet->chargedHadronEnergyFraction());
-	  if (mNHFrac_highPt_Barrel) mNHFrac_highPt_Barrel->Fill(jet->neutralHadronEnergyFraction());
-	  if (mPhFrac_highPt_Barrel) mPhFrac_highPt_Barrel->Fill(jet->neutralEmEnergyFraction());
-	  if (mElFrac_highPt_Barrel) mElFrac_highPt_Barrel->Fill(jet->chargedEmEnergyFraction());
-	  if (mMuFrac_highPt_Barrel) mMuFrac_highPt_Barrel->Fill(jet->chargedMuEnergyFraction());
-	  //
-	  if (mCHEn_highPt_Barrel) mCHEn_highPt_Barrel->Fill(jet->chargedHadronEnergy());
-	  if (mNHEn_highPt_Barrel) mNHEn_highPt_Barrel->Fill(jet->neutralHadronEnergy());
-	  if (mPhEn_highPt_Barrel) mPhEn_highPt_Barrel->Fill(jet->neutralEmEnergy());
-	  if (mElEn_highPt_Barrel) mElEn_highPt_Barrel->Fill(jet->chargedEmEnergy());
-	  if (mMuEn_highPt_Barrel) mMuEn_highPt_Barrel->Fill(jet->chargedMuEnergy());
-	}
-	if(mChMultiplicity_lowPt_Barrel)  mChMultiplicity_lowPt_Barrel->Fill(jet->chargedMultiplicity());
-	if(mNeuMultiplicity_lowPt_Barrel)  mNeuMultiplicity_lowPt_Barrel->Fill(jet->neutralMultiplicity());
-	if(mMuMultiplicity_lowPt_Barrel)  mMuMultiplicity_lowPt_Barrel->Fill(jet->muonMultiplicity());
-	if(mChMultiplicity_mediumPt_Barrel)  mChMultiplicity_mediumPt_Barrel->Fill(jet->chargedMultiplicity());
-	if(mNeuMultiplicity_mediumPt_Barrel)  mNeuMultiplicity_mediumPt_Barrel->Fill(jet->neutralMultiplicity());
-	if(mMuMultiplicity_mediumPt_Barrel)  mMuMultiplicity_mediumPt_Barrel->Fill(jet->muonMultiplicity());
-	if(mChMultiplicity_highPt_Barrel)  mChMultiplicity_highPt_Barrel->Fill(jet->chargedMultiplicity());
-	if(mNeuMultiplicity_highPt_Barrel)  mNeuMultiplicity_highPt_Barrel->Fill(jet->neutralMultiplicity());
-	if(mMuMultiplicity_highPt_Barrel)  mMuMultiplicity_highPt_Barrel->Fill(jet->muonMultiplicity());
-	//
-	if (mCHFracVSpT_Barrel) mCHFracVSpT_Barrel->Fill(jet->pt(),jet->chargedHadronEnergyFraction());
-	if (mNHFracVSpT_Barrel) mNHFracVSpT_Barrel->Fill(jet->pt(),jet->neutralHadronEnergyFraction());
-	if (mPhFracVSpT_Barrel) mPhFracVSpT_Barrel->Fill(jet->pt(),jet->neutralEmEnergyFraction());
-	if (mElFracVSpT_Barrel) mElFracVSpT_Barrel->Fill(jet->pt(),jet->chargedEmEnergyFraction());
-	if (mMuFracVSpT_Barrel) mMuFracVSpT_Barrel->Fill(jet->pt(),jet->chargedMuEnergyFraction());
       }
       if ( (fabs(jet->eta()) > 1.3) && (fabs(jet->eta()) <= 3) ) {
 	if (mPt_EndCap)   mPt_EndCap->Fill (jet->pt());
 	if (mPhi_EndCap)  mPhi_EndCap->Fill (jet->phi());
 	if (mE_EndCap)    mE_EndCap->Fill (jet->energy());
-	//fractions
-	if (jet->pt()<=50.) {
-	  if (mCHFrac_lowPt_EndCap) mCHFrac_lowPt_EndCap->Fill(jet->chargedHadronEnergyFraction());
-	  if (mNHFrac_lowPt_EndCap) mNHFrac_lowPt_EndCap->Fill(jet->neutralHadronEnergyFraction());
-	  if (mPhFrac_lowPt_EndCap) mPhFrac_lowPt_EndCap->Fill(jet->neutralEmEnergyFraction());
-	  if (mElFrac_lowPt_EndCap) mElFrac_lowPt_EndCap->Fill(jet->chargedEmEnergyFraction());
-	  if (mMuFrac_lowPt_EndCap) mMuFrac_lowPt_EndCap->Fill(jet->chargedMuEnergyFraction());
-	  //
-	  if (mCHEn_lowPt_EndCap) mCHEn_lowPt_EndCap->Fill(jet->chargedHadronEnergy());
-	  if (mNHEn_lowPt_EndCap) mNHEn_lowPt_EndCap->Fill(jet->neutralHadronEnergy());
-	  if (mPhEn_lowPt_EndCap) mPhEn_lowPt_EndCap->Fill(jet->neutralEmEnergy());
-	  if (mElEn_lowPt_EndCap) mElEn_lowPt_EndCap->Fill(jet->chargedEmEnergy());
-	  if (mMuEn_lowPt_EndCap) mMuEn_lowPt_EndCap->Fill(jet->chargedMuEnergy());
-	}
-	if (jet->pt()>50. && jet->pt()<=140.) {
-	  if (mCHFrac_mediumPt_EndCap) mCHFrac_mediumPt_EndCap->Fill(jet->chargedHadronEnergyFraction());
-	  if (mNHFrac_mediumPt_EndCap) mNHFrac_mediumPt_EndCap->Fill(jet->neutralHadronEnergyFraction());
-	  if (mPhFrac_mediumPt_EndCap) mPhFrac_mediumPt_EndCap->Fill(jet->neutralEmEnergyFraction());
-	  if (mElFrac_mediumPt_EndCap) mElFrac_mediumPt_EndCap->Fill(jet->chargedEmEnergyFraction());
-	  if (mMuFrac_mediumPt_EndCap) mMuFrac_mediumPt_EndCap->Fill(jet->chargedMuEnergyFraction());
-	  //
-	  if (mCHEn_mediumPt_EndCap) mCHEn_mediumPt_EndCap->Fill(jet->chargedHadronEnergy());
-	  if (mNHEn_mediumPt_EndCap) mNHEn_mediumPt_EndCap->Fill(jet->neutralHadronEnergy());
-	  if (mPhEn_mediumPt_EndCap) mPhEn_mediumPt_EndCap->Fill(jet->neutralEmEnergy());
-	  if (mElEn_mediumPt_EndCap) mElEn_mediumPt_EndCap->Fill(jet->chargedEmEnergy());
-	  if (mMuEn_mediumPt_EndCap) mMuEn_mediumPt_EndCap->Fill(jet->chargedMuEnergy());
-	}
-	if (jet->pt()>140.) {
-	  if (mCHFrac_highPt_EndCap) mCHFrac_highPt_EndCap->Fill(jet->chargedHadronEnergyFraction());
-	  if (mNHFrac_highPt_EndCap) mNHFrac_highPt_EndCap->Fill(jet->neutralHadronEnergyFraction());
-	  if (mPhFrac_highPt_EndCap) mPhFrac_highPt_EndCap->Fill(jet->neutralEmEnergyFraction());
-	  if (mElFrac_highPt_EndCap) mElFrac_highPt_EndCap->Fill(jet->chargedEmEnergyFraction());
-	  if (mMuFrac_highPt_EndCap) mMuFrac_highPt_EndCap->Fill(jet->chargedMuEnergyFraction());
-	  //
-	  if (mCHEn_highPt_EndCap) mCHEn_highPt_EndCap->Fill(jet->chargedHadronEnergy());
-	  if (mNHEn_highPt_EndCap) mNHEn_highPt_EndCap->Fill(jet->neutralHadronEnergy());
-	  if (mPhEn_highPt_EndCap) mPhEn_highPt_EndCap->Fill(jet->neutralEmEnergy());
-	  if (mElEn_highPt_EndCap) mElEn_highPt_EndCap->Fill(jet->chargedEmEnergy());
-	  if (mMuEn_highPt_EndCap) mMuEn_highPt_EndCap->Fill(jet->chargedMuEnergy());
-	}
-	if(mChMultiplicity_lowPt_EndCap)  mChMultiplicity_lowPt_EndCap->Fill(jet->chargedMultiplicity());
-	if(mNeuMultiplicity_lowPt_EndCap)  mNeuMultiplicity_lowPt_EndCap->Fill(jet->neutralMultiplicity());
-	if(mMuMultiplicity_lowPt_EndCap)  mMuMultiplicity_lowPt_EndCap->Fill(jet->muonMultiplicity());
-	if(mChMultiplicity_mediumPt_EndCap)  mChMultiplicity_mediumPt_EndCap->Fill(jet->chargedMultiplicity());
-	if(mNeuMultiplicity_mediumPt_EndCap)  mNeuMultiplicity_mediumPt_EndCap->Fill(jet->neutralMultiplicity());
-	if(mMuMultiplicity_mediumPt_EndCap)  mMuMultiplicity_mediumPt_EndCap->Fill(jet->muonMultiplicity());
-	if(mChMultiplicity_highPt_EndCap)  mChMultiplicity_highPt_EndCap->Fill(jet->chargedMultiplicity());
-	if(mNeuMultiplicity_highPt_EndCap)  mNeuMultiplicity_highPt_EndCap->Fill(jet->neutralMultiplicity());
-	if(mMuMultiplicity_highPt_EndCap)  mMuMultiplicity_highPt_EndCap->Fill(jet->muonMultiplicity());
-	//
-	if (mCHFracVSpT_EndCap) mCHFracVSpT_EndCap->Fill(jet->pt(),jet->chargedHadronEnergyFraction());
-	if (mNHFracVSpT_EndCap) mNHFracVSpT_EndCap->Fill(jet->pt(),jet->neutralHadronEnergyFraction());
-	if (mPhFracVSpT_EndCap) mPhFracVSpT_EndCap->Fill(jet->pt(),jet->neutralEmEnergyFraction());
-	if (mElFracVSpT_EndCap) mElFracVSpT_EndCap->Fill(jet->pt(),jet->chargedEmEnergyFraction());
-	if (mMuFracVSpT_EndCap) mMuFracVSpT_EndCap->Fill(jet->pt(),jet->chargedMuEnergyFraction());
       }
       if (fabs(jet->eta()) > 3.0) {
 	if (mPt_Forward)   mPt_Forward->Fill (jet->pt());
 	if (mPhi_Forward)  mPhi_Forward->Fill (jet->phi());
 	if (mE_Forward)    mE_Forward->Fill (jet->energy());
-	//fractions
-	if (jet->pt()<=50.) {
-	  if(mHFEFrac_lowPt_Forward) mHFEFrac_lowPt_Forward->Fill(jet->HFEMEnergyFraction());
-	  if(mHFHFrac_lowPt_Forward) mHFHFrac_lowPt_Forward->Fill(jet->HFHadronEnergyFraction());
-	  //
-	  if(mHFEEn_lowPt_Forward) mHFEEn_lowPt_Forward->Fill(jet->HFEMEnergy());
-	  if(mHFHEn_lowPt_Forward) mHFHEn_lowPt_Forward->Fill(jet->HFHadronEnergy());
-	}
-	if (jet->pt()>50. && jet->pt()<=140.) {
-	  if(mHFEFrac_mediumPt_Forward) mHFEFrac_mediumPt_Forward->Fill(jet->HFEMEnergyFraction());
-	  if(mHFHFrac_mediumPt_Forward) mHFHFrac_mediumPt_Forward->Fill(jet->HFHadronEnergyFraction());
-	  //
-	  if(mHFEEn_mediumPt_Forward) mHFEEn_mediumPt_Forward->Fill(jet->HFEMEnergy());
-	  if(mHFHEn_mediumPt_Forward) mHFHEn_mediumPt_Forward->Fill(jet->HFHadronEnergy());
-	}
-	if (jet->pt()>140.) {
-	  if(mHFEFrac_highPt_Forward) mHFEFrac_highPt_Forward->Fill(jet->HFEMEnergyFraction());
-	  if(mHFHFrac_highPt_Forward) mHFHFrac_highPt_Forward->Fill(jet->HFHadronEnergyFraction());
-	  //
-	  if(mHFEEn_highPt_Forward) mHFEEn_highPt_Forward->Fill(jet->HFEMEnergy());
-	  if(mHFHEn_highPt_Forward) mHFHEn_highPt_Forward->Fill(jet->HFHadronEnergy());
-	}
-	if(mChMultiplicity_lowPt_Forward)  mChMultiplicity_lowPt_Forward->Fill(jet->chargedMultiplicity());
-	if(mNeuMultiplicity_lowPt_Forward)  mNeuMultiplicity_lowPt_Forward->Fill(jet->neutralMultiplicity());
-	if(mMuMultiplicity_lowPt_Forward)  mMuMultiplicity_lowPt_Forward->Fill(jet->muonMultiplicity());
-	if(mChMultiplicity_mediumPt_Forward)  mChMultiplicity_mediumPt_Forward->Fill(jet->chargedMultiplicity());
-	if(mNeuMultiplicity_mediumPt_Forward)  mNeuMultiplicity_mediumPt_Forward->Fill(jet->neutralMultiplicity());
-	if(mMuMultiplicity_mediumPt_Forward)  mMuMultiplicity_mediumPt_Forward->Fill(jet->muonMultiplicity());
-	if(mChMultiplicity_highPt_Forward)  mChMultiplicity_highPt_Forward->Fill(jet->chargedMultiplicity());
-	if(mNeuMultiplicity_highPt_Forward)  mNeuMultiplicity_highPt_Forward->Fill(jet->neutralMultiplicity());
-	if(mMuMultiplicity_highPt_Forward)  mMuMultiplicity_highPt_Forward->Fill(jet->muonMultiplicity());
-	if(mHFHFracVSpT_Forward) mHFHFracVSpT_Forward->Fill(jet->pt(),jet->HFHadronEnergyFraction());
-	if(mHFEFracVSpT_Forward) mHFEFracVSpT_Forward->Fill(jet->pt(),jet->HFEMEnergyFraction());
       }
-      if (mE) mE->Fill (jet->energy());
-      if (mP) mP->Fill (jet->p());
+      
+      if (mE)    mE->Fill (jet->energy());
+      if (mP)    mP->Fill (jet->p());
       if (mMass) mMass->Fill (jet->mass());
-            
+      
+      
       if (mChargedHadronEnergy)  mChargedHadronEnergy->Fill (jet->chargedHadronEnergy());
       if (mNeutralHadronEnergy)  mNeutralHadronEnergy->Fill (jet->neutralHadronEnergy());
       if (mChargedEmEnergy) mChargedEmEnergy->Fill(jet->chargedEmEnergy());

@@ -1,7 +1,7 @@
 #include "FWPFRhoPhiRecHit.h"
 
 //______________________________________________________________________________________________________
-FWPFRhoPhiRecHit::FWPFRhoPhiRecHit( FWProxyBuilderBase *pb, TEveElement *iH, const FWViewContext *vc,
+FWPFRhoPhiRecHit::FWPFRhoPhiRecHit( FWProxyBuilderBase *pb, TEveCompound *iH, const FWViewContext *vc,
                                     float E, float et, double lPhi, double rPhi, std::vector<TEveVector> &bCorners )
 : m_hasChild(false), m_energy(E), m_et(et), m_lPhi(lPhi), m_rPhi(rPhi)
 {
@@ -104,9 +104,8 @@ FWPFRhoPhiRecHit::clean()
    delete this;
 }
 
-//______________________________________________________________________________________________________
 void
-FWPFRhoPhiRecHit::addChild( FWProxyBuilderBase *pb, TEveElement *itemHolder, const FWViewContext *vc, float E, float et )
+FWPFRhoPhiRecHit::addChild( FWProxyBuilderBase *pb, TEveCompound *itemHolder, const FWViewContext *vc, float E, float et )
 {
    if( m_hasChild )  // Already has a child stacked on top so move on to child
       m_child->addChild( pb, itemHolder, vc, E, et );
@@ -122,7 +121,7 @@ FWPFRhoPhiRecHit::addChild( FWProxyBuilderBase *pb, TEveElement *itemHolder, con
 
 //______________________________________________________________________________________________________
 void
-FWPFRhoPhiRecHit::buildRecHit( FWProxyBuilderBase *pb, TEveElement *itemHolder, const FWViewContext *vc, std::vector<TEveVector> &bCorners )
+FWPFRhoPhiRecHit::buildRecHit( FWProxyBuilderBase *pb, TEveCompound *itemHolder, const FWViewContext *vc, std::vector<TEveVector> &bCorners )
 {
    float scale = 0;
    float value = 0;

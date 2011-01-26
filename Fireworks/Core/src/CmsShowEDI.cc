@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.42 2010/12/06 16:11:38 amraktad Exp $
+// $Id: CmsShowEDI.cc,v 1.41 2010/09/15 18:14:22 amraktad Exp $
 //
 
 // system include files
@@ -143,7 +143,6 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_selectError->ChangeOptions(0);
 
    m_filterExpressionEntry->setValidator(m_validator);
-   m_selectExpressionEntry->setValidator(m_validator);
 
    m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowEDI", this, "changeItemColor(Color_t)");
    m_opacitySlider->Connect("PositionChanged(Int_t)", "CmsShowEDI", this, "changeItemOpacity(Int_t)");

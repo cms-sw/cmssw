@@ -1,8 +1,8 @@
 /*
  * \file EBDcsInfoTask.cc
  *
- * $Date: 2010/08/11 14:57:34 $
- * $Revision: 1.16 $
+ * $Date: 2010/08/08 08:56:00 $
+ * $Revision: 1.15 $
  * \author E. Di Marco
  *
 */
@@ -91,7 +91,7 @@ void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
   }
 
   if ( !iSetup.find( edm::eventsetup::EventSetupRecordKey::makeKey<EcalDCSTowerStatusRcd>() ) ) {
-    edm::LogWarning("EBDcsInfoTask") << "EcalDCSTowerStatus record not found";
+    edm::LogWarning("EBDcsInfoTask") << "EcalDAQTowerStatus record not found";
     return;
   }
 

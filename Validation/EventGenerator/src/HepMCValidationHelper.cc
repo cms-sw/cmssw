@@ -262,7 +262,7 @@ namespace HepMCValidationHelper {
         momsum += mom;	
       }				
     }
-    TLorentzVector met(-momsum.Px(), -momsum.Py(), 0., momsum.Et());	
+    TLorentzVector met(-momsum.Px(), -momsum.Py(), 0., momsum.Pt());	
     return met;	
   }		 
 }  

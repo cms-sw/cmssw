@@ -8,8 +8,8 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.226.2.1 2010/12/07 10:30:55 mccauley Exp $
 
+// $Id: FWGUIManager.cc,v 1.226 2010/11/22 21:35:08 matevz Exp $
 
 //
 
@@ -49,7 +49,6 @@
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWInvMassDialog.h"
-#include "Fireworks/Core/interface/FWGeometryTable.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -67,6 +66,7 @@
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
+#include "Fireworks/Core/interface/FWInvMassDialog.h"
 
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
 
@@ -168,7 +168,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sShowCommonInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showCommonPopup));
 
       getAction(cmsshow::sShowInvMassDialog)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showInvMassDialog));
-      getAction(cmsshow::sShowGeometryTable)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showGeometryTable));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
@@ -704,19 +703,6 @@ FWGUIManager::showInvMassDialog()
       m_cmsShowMainFrame->bindCSGActionKeys(m_invMassDialog);
    }
    m_invMassDialog->MapRaised();
-}
-
-void
-FWGUIManager::showGeometryTable()
-{
-  std::cout<<"FWGUIManager::showGeometryTable()"<<std::endl;
-
-   if (! m_geometryTable)
-   {
-     m_geometryTable = new FWGeometryTable(getGUIManager());
-      m_cmsShowMainFrame->bindCSGActionKeys(m_geometryTable);
-   }
-   m_geometryTable->MapRaised();
 }
 
 void

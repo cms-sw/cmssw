@@ -47,7 +47,7 @@ namespace edm {
       if(processParameterSet->existsAs<ParameterSet>(moduleLabel)) {
         ParameterSet const& moduleParameterSet = processParameterSet->getParameterSet(moduleLabel);
         if(okToRegister && !moduleParameterSet.isRegistered()) {
-          ParameterSet moduleParameterSetCopy = processParameterSet->getParameter<ParameterSet>(moduleLabel);
+          ParameterSet moduleParameterSetCopy = processParameterSet->getParameterSet(moduleLabel);
           moduleParameterSetCopy.registerIt();
           bd.parameterSetIDs().insert(std::make_pair(pcid, moduleParameterSetCopy.id()));
         } else {

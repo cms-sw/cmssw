@@ -15,6 +15,7 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
+
 //-----------------------------------------------------------------------------
 // FWPFEcalRecHitRPProxyBuilder
 //-----------------------------------------------------------------------------

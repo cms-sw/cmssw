@@ -31,6 +31,11 @@ class HLTProcess(object):
       self.labels['process'] = 'process.'
       self.labels['dict']    = 'process.__dict__'
 
+    if self.config.online:
+      self.labels['connect'] = 'frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)'
+    else:
+      self.labels['connect'] = 'frontier://FrontierProd'
+
     # get the configuration from ConfdB
     self.buildOptions()
     self.expandWildcardOptions()
@@ -189,13 +194,13 @@ if 'hltPreDQMSmart' in %(dict)s:
         replace:  replacement value
     """
     if 'name' in args:
-      self.data = re.sub( 
-          r'%(name)s = cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args, 
+      self.data = re.sub(
+          r'%(name)s = cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args,
           r'%(name)s = cms\g<tracked>.%(type)s( \g<quote>%(replace)s\g<quote>' % args,
           self.data)
     else:
-      self.data = re.sub( 
-          r'cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args, 
+      self.data = re.sub(
+          r'cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args,
           r'cms\g<tracked>.%(type)s( \g<quote>%(replace)s\g<quote>' % args,
           self.data)
 
@@ -212,6 +217,10 @@ if 'hltPreDQMSmart' in %(dict)s:
       # adapt the hle configuration (fragment) to run under fastsim
       self.data = re.sub( r'import FWCore.ParameterSet.Config as cms', r'\g<0>\nfrom FastSimulation.HighLevelTrigger.HLTSetup_cff import *', self.data)
 
+      # remove the definition of streams and datasets
+      self.data = re.compile( r'^streams.*\n(.*\n)*?^\)\s*\n',  re.MULTILINE ).sub( '', self.data )
+      self.data = re.compile( r'^datasets.*\n(.*\n)*?^\)\s*\n', re.MULTILINE ).sub( '', self.data )
+
       # fix the definition of module
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1extraParticles',  replace = 'l1extraParticles')
       self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'gmtDigis')
@@ -225,11 +234,11 @@ if 'hltPreDQMSmart' in %(dict)s:
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'simMuonRPCDigis')
 
       # fix the definition of sequences and paths
-      self.data = re.sub( r'hltMuonCSCDigis',                                       r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data)
-      self.data = re.sub( r'hltMuonDTDigis',                                        r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data)
-      self.data = re.sub( r'hltMuonRPCDigis',                                       r'cms.SequencePlaceholder( "simMuonRPCDigis" )',  self.data)
-      self.data = re.sub( r'HLTEndSequence',                                        r'cms.SequencePlaceholder( "HLTEndSequence" )',   self.data)
-      self.data = re.sub( r'hltGtDigis',                                            r'HLTBeginSequence',                              self.data)
+      self.data = re.sub( r'hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
+      self.data = re.sub( r'hltMuonDTDigis',  r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data )
+      self.data = re.sub( r'hltMuonRPCDigis', r'cms.SequencePlaceholder( "simMuonRPCDigis" )',  self.data )
+      self.data = re.sub( r'HLTEndSequence',  r'cms.SequencePlaceholder( "HLTEndSequence" )',   self.data )
+      self.data = re.sub( r'hltGtDigis',      r'HLTBeginSequence',                              self.data )
 
 
   def unprescale(self):
@@ -263,6 +272,7 @@ if 'PrescaleService' in %(dict)s:
     text = ''
     if self.config.online:
       if self.config.globaltag:
+        # override the GlobalTag
         text += """
 # override the GlobalTag
 if 'GlobalTag' in %%(dict)s:
@@ -270,14 +280,13 @@ if 'GlobalTag' in %%(dict)s:
 """
 
     else:
-      text += """
-# override the GlobalTag connection string and pfnPrefix
-if 'GlobalTag' in %%(dict)s:
-"""
-
       # override the GlobalTag connection string and pfnPrefix
-      text += "    %%(process)sGlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
-      text += "    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
+      text += """
+# override the GlobalTag, connection string and pfnPrefix
+if 'GlobalTag' in %%(dict)s:
+    %%(process)sGlobalTag.connect   = '%%(connect)s/CMS_COND_31X_GLOBALTAG'
+    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('%%(connect)s/')
+"""
 
       if self.config.data:
         # do not override the GlobalTag unless one was specified on the command line
@@ -307,19 +316,12 @@ if 'GlobalTag' in %%(dict)s:
   def overrideL1Menu(self):
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if self.config.l1.override:
+      self.config.l1.record = 'L1GtTriggerMenuRcd'
+      self.config.l1.label  = ''
+      self.config.l1.tag    = self.config.l1.override
       if not self.config.l1.connect:
-        self.config.l1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
-      self.data += """
-# override the L1 menu
-if 'GlobalTag' in %%(dict)s:
-    %%(process)sGlobalTag.toGet.append(
-        cms.PSet(
-            record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "%(override)s" ),
-            connect = cms.untracked.string( %(connect)s )
-        )
-    )
-""" % self.config.l1.__dict__
+        self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
+      self.loadAdditionalConditions( 'override the L1 menu', self.config.l1.__dict__ )
 
 
   def overrideOutput(self):
@@ -382,10 +384,55 @@ if 'MessageLogger' in %(dict)s:
 """
 
 
+  def loadAdditionalConditions(self, comment, *conditions):
+    # load additional conditions
+    self.data += """
+# %s
+if 'GlobalTag' in %%(dict)s:
+""" % comment
+    for condition in conditions:
+      self.data += """    %%(process)sGlobalTag.toGet.append(
+        cms.PSet(
+            record  = cms.string( '%(record)s' ),
+            tag     = cms.string( '%(tag)s' ),
+            label   = cms.untracked.string( '%(label)s' ),
+            connect = cms.untracked.string( '%(connect)s' )
+        )
+    )
+""" % condition
 
   def instrumentTiming(self):
     if self.config.timing:
       # instrument the menu with the modules and EndPath needed for timing studies
+      text = ''
+
+      if 'HLTriggerFirstPath' in self.data:
+        # remove HLTriggerFirstPath
+        self.data = re.sub(r'.*\bHLTriggerFirstPath\s*=.*\n', '', self.data)
+
+      if not 'hltGetRaw' in self.data:
+        # add hltGetRaw
+        text += """
+%%(process)shltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
+    RawDataCollection = cms.InputTag( "%s" )
+)
+""" % ( self.config.data and 'source' or 'rawDataCollector' )
+
+      if not 'hltGetConditions' in self.data:
+        # add hltGetConditions
+        text += """
+%(process)shltGetConditions = cms.EDAnalyzer( 'EventSetupRecordDataGetter',
+    verbose = cms.untracked.bool( False ),
+    toGet = cms.VPSet( )
+)
+"""
+
+      # add the definition of HLTriggerFirstPath
+      text += """
+%(process)sHLTriggerFirstPath = cms.Path( %(process)shltGetRaw + %(process)shltGetConditions + %(process)shltBoolFalse )
+"""
+      self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
+
       self.data += """
 # instrument the menu with the modules and EndPath needed for timing studies
 %(process)sPathTimerService = cms.Service( "PathTimerService",
@@ -406,6 +453,19 @@ if 'MessageLogger' in %(dict)s:
 
 %(process)sTimingOutput = cms.EndPath( %(process)shltTimer + %(process)shltOutputTiming )
 """
+      self.loadAdditionalConditions('add XML geometry to keep hltGetConditions happy',
+        {
+          'record'  : 'GeometryFileRcd',
+          'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc',
+          'label'   : 'Ideal',
+          'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
+        }, {
+          'record'  : 'GeometryFileRcd',
+          'tag'     : 'XMLFILE_Geometry_380V3_Extended_mc',
+          'label'   : 'Extended',
+          'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
+        }
+      )
 
 
   def buildOptions(self):
@@ -720,7 +780,7 @@ if 'MessageLogger' in %(dict)s:
       self.source = "file:/tmp/InputCollection.root"
     elif self.config.data:
       # offline we can run on data...
-      self.source = "/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root"
+      self.source = "/store/data/Run2010B/MinimumBias/RAW/v1/000/149/291/DC6C917A-0EE3-DF11-867B-001617C3B654.root"
     else:
       # ...or on mc
       self.source = "file:RelVal_DigiL1Raw_%s.root" % self.config.type

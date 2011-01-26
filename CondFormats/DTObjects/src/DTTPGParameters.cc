@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/06 14:08:58 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/20 18:20:08 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -141,7 +141,8 @@ float DTTPGParameters::totalTime( int   wheelId,
   int cl = 0;
   float ph = 0.0;
   get( wheelId, stationId, sectorId, cl, ph, unit );
-  return ( cl * clock() ) + ph;
+  if ( unit == DTTimeUnits::ns ) return ( cl * clock() * nsPerCount ) + ph;
+  else                           return ( cl * clock()              ) + ph;
 }
 
 

@@ -9,8 +9,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("HLTriggerOffline.Egamma.EgammaValidation_cff")
 process.post=cms.EDAnalyzer("EmDQMPostProcessor",
-                            subDir = cms.untracked.string("HLT/HLTEgammaValidation"),
-                            dataSet = cms.untracked.string("unknown"),
+                            subDir = cms.untracked.string("HLT/HLTEgammaValidation")                   
     )
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
@@ -37,12 +36,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.p = cms.EndPath(process.post+process.dqmSaver)
 
-process.testW = cms.Path(
-
-    # require generated particles in fiducial volume
-    process.egammaSelectors *     
-
-    process.egammaValidationSequence)
+process.testW = cms.Path(process.egammaValidationSequence)
 
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''

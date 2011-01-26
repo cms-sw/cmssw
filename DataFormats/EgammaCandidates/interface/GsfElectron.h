@@ -32,7 +32,7 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.42 2011/01/10 17:18:09 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.43 2011/01/14 17:45:58 chamont Exp $
  *
  ****************************************************************************/
 
@@ -297,6 +297,7 @@ class GsfElectron : public RecoCandidate
     GsfTrackRefVector::const_iterator ambiguousGsfTracksEnd() const { return ambiguousGsfTracks_.end() ; }
 
     // setters
+    void clearAmbiguousGsfTracks() { ambiguousGsfTracks_.clear() ; }
     void addAmbiguousGsfTrack( const reco::GsfTrackRef & t ) { ambiguousGsfTracks_.push_back(t) ; }
 
 

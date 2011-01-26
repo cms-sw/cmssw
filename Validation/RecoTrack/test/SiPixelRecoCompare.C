@@ -142,10 +142,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       newmeTracksPerEvent->Draw("hesameS"); 
       gPad->Update();      
       TPaveStats *s1 = (TPaveStats*)meTracksPerEvent->GetListOfFunctions()->FindObject("stats");
-      if (s1) {
-	s1->SetX1NDC (0.55); //new x start position
-	s1->SetX2NDC (0.75); //new x end position   
-      }
+      s1->SetX1NDC (0.55); //new x start position
+      s1->SetX2NDC (0.75); //new x end position   
       myPV->PVCompute(meTracksPerEvent, newmeTracksPerEvent, te);
       h_pv->SetBinContent(++bin, myPV->getPV());
       leg1->Draw();   
@@ -171,10 +169,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       newmePixRecHitsPerTrack->Draw("hesameS");
       gPad->Update();
       TPaveStats *s2 = (TPaveStats*)mePixRecHitsPerTrack->GetListOfFunctions()->FindObject("stats");
-      if (s2) {
-	s2->SetX1NDC (0.55); //new x start position
-	s2->SetX2NDC (0.75); //new x end position
-      }
+      s2->SetX1NDC (0.55); //new x start position
+      s2->SetX2NDC (0.75); //new x end position
       myPV->PVCompute(mePixRecHitsPerTrack, newmePixRecHitsPerTrack, te, 0.15, 0.8 );
       h_pv->SetBinContent(++bin, myPV->getPV());
 
@@ -236,10 +232,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       leg2->Draw();
       gPad->Update();      
       TPaveStats *s3 = (TPaveStats*)meChargeBarrel->GetListOfFunctions()->FindObject("stats");
-      if (s3) {
-	s3->SetX1NDC (0.55); //new x start position
-	s3->SetX2NDC (0.75); //new x end position  
-      }
+      s3->SetX1NDC (0.55); //new x start position
+      s3->SetX2NDC (0.75); //new x end position  
+      
       
       can_meCharge->cd(2);
       //gPad->SetLogy();
@@ -263,11 +258,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s4 = (TPaveStats*)meChargeZmPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s4) {
-	s4->SetX1NDC (0.55); //new x start position
-	s4->SetX2NDC (0.75); //new x end position 
-      }
-
+      s4->SetX1NDC (0.55); //new x start position
+      s4->SetX2NDC (0.75); //new x end position 
+      
       can_meCharge->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meChargeZmPanel2, newmeChargeZmPanel2, "panel2, z<0, cluster charge (elec)" );
@@ -289,11 +282,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s5 = (TPaveStats*)meChargeZmPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s5) {
-	s5->SetX1NDC (0.55); //new x start position
-	s5->SetX2NDC (0.75); //new x end position 
-      }
-
+      s5->SetX1NDC (0.55); //new x start position
+      s5->SetX2NDC (0.75); //new x end position 
+      
       can_meCharge->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meChargeZpPanel1, newmeChargeZpPanel1, "panel1, z>0, cluster charge (elec)" );
@@ -315,10 +306,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s6 = (TPaveStats*)meChargeZpPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s6) {
-	s6->SetX1NDC (0.55); //new x start position
-	s6->SetX2NDC (0.75); //new x end position 
-      }
+      s6->SetX1NDC (0.55); //new x start position
+      s6->SetX2NDC (0.75); //new x end position 
 
       can_meCharge->cd(6);
       //gPad->SetLogy();
@@ -341,10 +330,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s7 = (TPaveStats*)meChargeZpPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s7) {
-	s7->SetX1NDC (0.55); //new x start position
-	s7->SetX2NDC (0.75); //new x end position 
-      }
+      s7->SetX1NDC (0.55); //new x start position
+      s7->SetX2NDC (0.75); //new x end position 
       
       can_meCharge->SaveAs("meCharge_compare.eps");
       can_meCharge->SaveAs("meCharge_compare.gif");
@@ -402,11 +389,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s8 = (TPaveStats*)meErrxBarrel->GetListOfFunctions()->FindObject("stats");
-      if (s8) {
-	s8->SetX1NDC (0.55); //new x start position
-	s8->SetX2NDC (0.75); //new x end position 
-      }
-
+      s8->SetX1NDC (0.55); //new x start position
+      s8->SetX2NDC (0.75); //new x end position 
+      
       can_Errx->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(meErrxZmPanel1, newmeErrxZmPanel1, "panel1, z<0, x position error (cm)" );
@@ -428,11 +413,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s9 = (TPaveStats*)meErrxZmPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s9) {
-	s9->SetX1NDC (0.55); //new x start position
-	s9->SetX2NDC (0.75); //new x end position 
-      }
-
+      s9->SetX1NDC (0.55); //new x start position
+      s9->SetX2NDC (0.75); //new x end position 
+      
       can_Errx->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meErrxZmPanel2, newmeErrxZmPanel2, "panel2, z<0, x position error (cm)" );
@@ -454,11 +437,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s10 = (TPaveStats*)meErrxZmPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s10) {
-	s10->SetX1NDC (0.55); //new x start position
-	s10->SetX2NDC (0.75); //new x end position 
-      }
-
+      s10->SetX1NDC (0.55); //new x start position
+      s10->SetX2NDC (0.75); //new x end position 
+      
       can_Errx->cd(5);
       //gPad->SetLogy();
       SetUpHistograms(meErrxZpPanel1, newmeErrxZpPanel1, "panel1, z>0, x position error (cm)" );
@@ -480,10 +461,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s11 = (TPaveStats*)meErrxZpPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s11) {
-	s11->SetX1NDC (0.55); //new x start position
-	s11->SetX2NDC (0.75); //new x end position 
-      }
+      s11->SetX1NDC (0.55); //new x start position
+      s11->SetX2NDC (0.75); //new x end position 
 
       can_Errx->cd(6);
       //gPad->SetLogy();
@@ -506,10 +485,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s12 = (TPaveStats*)meErrxZpPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s12) {
-	s12->SetX1NDC (0.55); //new x start position
-	s12->SetX2NDC (0.75); //new x end position 
-      }
+      s12->SetX1NDC (0.55); //new x start position
+      s12->SetX2NDC (0.75); //new x end position 
 
       can_Errx->SaveAs("meErrx_compare.eps");
       can_Errx->SaveAs("meErrx_compare.gif");
@@ -567,10 +544,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s13 = (TPaveStats*)meErryBarrel->GetListOfFunctions()->FindObject("stats");
-      if (s13) {
-	s13->SetX1NDC (0.55); //new x start position
-	s13->SetX2NDC (0.75); //new x end position 
-      }
+      s13->SetX1NDC (0.55); //new x start position
+      s13->SetX2NDC (0.75); //new x end position 
 
       can_Erry->cd(2);
       //gPad->SetLogy();
@@ -593,11 +568,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s14 = (TPaveStats*)meErryZmPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s14) {
-	s14->SetX1NDC (0.55); //new x start position
-	s14->SetX2NDC (0.75); //new x end position 
-      }
-
+      s14->SetX1NDC (0.55); //new x start position
+      s14->SetX2NDC (0.75); //new x end position 
+      
       can_Erry->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meErryZmPanel2, newmeErryZmPanel2, "panel2, z<0, y position error (cm)" );
@@ -619,10 +592,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());      
       gPad->Update();      
       TPaveStats *s15 = (TPaveStats*)meErryZmPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s15) {
-	s15->SetX1NDC (0.55); //new x start position
-	s15->SetX2NDC (0.75); //new x end position
-      }
+      s15->SetX1NDC (0.55); //new x start position
+      s15->SetX2NDC (0.75); //new x end position
 
       can_Erry->cd(5);
       //gPad->SetLogy();
@@ -645,10 +616,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s16 = (TPaveStats*)meErryZpPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s16) {
-	s16->SetX1NDC (0.55); //new x start position
-	s16->SetX2NDC (0.75); //new x end position
-      }
+      s16->SetX1NDC (0.55); //new x start position
+      s16->SetX2NDC (0.75); //new x end position
 
       can_Erry->cd(6);
       //gPad->SetLogy();
@@ -671,10 +640,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s17 = (TPaveStats*)meErryZpPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s17) {
-	s17->SetX1NDC (0.55); //new x start position
-	s17->SetX2NDC (0.75); //new x end position
-      }
+      s17->SetX1NDC (0.55); //new x start position
+      s17->SetX2NDC (0.75); //new x end position
 
       can_Erry->SaveAs("meErry_compare.eps");
       can_Erry->SaveAs("meErry_compare.gif");
@@ -733,10 +700,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s18 = (TPaveStats*)meNpixBarrel->GetListOfFunctions()->FindObject("stats");
-      if (s18) {
-	s18->SetX1NDC (0.55); //new x start position
-	s18->SetX2NDC (0.75); //new x end position
-      }
+      s18->SetX1NDC (0.55); //new x start position
+      s18->SetX2NDC (0.75); //new x end position
 
       can_Npix->cd(2);
       //gPad->SetLogy();
@@ -759,10 +724,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s19 = (TPaveStats*)meNpixZmPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s19) {
-	s19->SetX1NDC (0.55); //new x start position
-	s19->SetX2NDC (0.75); //new x end position
-      }
+      s19->SetX1NDC (0.55); //new x start position
+      s19->SetX2NDC (0.75); //new x end position
 
       can_Npix->cd(3);
       //gPad->SetLogy();
@@ -785,10 +748,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s20 = (TPaveStats*)meNpixZmPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s20) {
-	s20->SetX1NDC (0.55); //new x start position
-	s20->SetX2NDC (0.75); //new x end position
-      }
+      s20->SetX1NDC (0.55); //new x start position
+      s20->SetX2NDC (0.75); //new x end position
 
       can_Npix->cd(5);
       //gPad->SetLogy();
@@ -811,10 +772,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s21 = (TPaveStats*)meNpixZpPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s21) {
-	s21->SetX1NDC (0.55); //new x start position
-	s21->SetX2NDC (0.75); //new x end position
-      }
+      s21->SetX1NDC (0.55); //new x start position
+      s21->SetX2NDC (0.75); //new x end position
 
       can_Npix->cd(6);
       //gPad->SetLogy();
@@ -837,11 +796,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s22 = (TPaveStats*)meNpixZpPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s22) {
-	s22->SetX1NDC (0.55); //new x start position
-	s22->SetX2NDC (0.75); //new x end position
-      }
-
+      s22->SetX1NDC (0.55); //new x start position
+      s22->SetX2NDC (0.75); //new x end position
+      
       can_Npix->SaveAs("meNpix_compare.eps");
       can_Npix->SaveAs("meNpix_compare.gif");
     }
@@ -898,10 +855,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s23 = (TPaveStats*)meNxpixBarrel->GetListOfFunctions()->FindObject("stats");
-      if (s23) {
-	s23->SetX1NDC (0.55); //new x start position
-	s23->SetX2NDC (0.75); //new x end position
-      }
+      s23->SetX1NDC (0.55); //new x start position
+      s23->SetX2NDC (0.75); //new x end position
 
       can_Nxpix->cd(2);
       //gPad->SetLogy();
@@ -924,10 +879,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s24 = (TPaveStats*)meNxpixZmPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s24) {
-	s24->SetX1NDC (0.55); //new x start position
-	s24->SetX2NDC (0.75); //new x end position
-      }
+      s24->SetX1NDC (0.55); //new x start position
+      s24->SetX2NDC (0.75); //new x end position
 
       can_Nxpix->cd(3);
       //gPad->SetLogy();
@@ -951,10 +904,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       
       gPad->Update();      
       TPaveStats *s25 = (TPaveStats*)meNxpixZmPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s25) {
-	s25->SetX1NDC (0.55); //new x start position
-	s25->SetX2NDC (0.75); //new x end position
-      }
+      s25->SetX1NDC (0.55); //new x start position
+      s25->SetX2NDC (0.75); //new x end position
 
       can_Nxpix->cd(5);
       //gPad->SetLogy();
@@ -978,10 +929,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       
       gPad->Update();      
       TPaveStats *s26 = (TPaveStats*)meNxpixZpPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s26) {
-	s26->SetX1NDC (0.55); //new x start position
-	s26->SetX2NDC (0.75); //new x end position
-      }
+      s26->SetX1NDC (0.55); //new x start position
+      s26->SetX2NDC (0.75); //new x end position
 
       can_Nxpix->cd(6);
       //gPad->SetLogy();
@@ -1004,10 +953,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s27 = (TPaveStats*)meNxpixZpPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s27) {
-	s27->SetX1NDC (0.55); //new x start position
-	s27->SetX2NDC (0.75); //new x end position
-      }
+      s27->SetX1NDC (0.55); //new x start position
+      s27->SetX2NDC (0.75); //new x end position
 
       can_Nxpix->SaveAs("meNxpix_compare.eps");
       can_Nxpix->SaveAs("meNxpix_compare.gif");
@@ -1066,10 +1013,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s28 = (TPaveStats*)meNypixBarrel->GetListOfFunctions()->FindObject("stats");
-      if (s28) {
-	s28->SetX1NDC (0.55); //new x start position
-	s28->SetX2NDC (0.75); //new x end position
-      }
+      s28->SetX1NDC (0.55); //new x start position
+      s28->SetX2NDC (0.75); //new x end position
 
       can_Nypix->cd(2);
       //gPad->SetLogy();
@@ -1092,11 +1037,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s29 = (TPaveStats*)meNypixZmPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s29) {
-	s29->SetX1NDC (0.55); //new x start position
-	s29->SetX2NDC (0.75); //new x end position
-      }
-
+      s29->SetX1NDC (0.55); //new x start position
+      s29->SetX2NDC (0.75); //new x end position
+      
       can_Nypix->cd(3);
       //gPad->SetLogy();
       SetUpHistograms(meNypixZmPanel2, newmeNypixZmPanel2, "panel2, z<0, cluster y size (pixels)" );
@@ -1118,10 +1061,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s30 = (TPaveStats*)meNypixZmPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s30) {
-	s30->SetX1NDC (0.55); //new x start position
-	s30->SetX2NDC (0.75); //new x end position
-      }
+      s30->SetX1NDC (0.55); //new x start position
+      s30->SetX2NDC (0.75); //new x end position
 
       can_Nypix->cd(5);
       //gPad->SetLogy();
@@ -1144,10 +1085,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s31 = (TPaveStats*)meNypixZpPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s31) {
-	s31->SetX1NDC (0.55); //new x start position
-	s31->SetX2NDC (0.75); //new x end position
-      }
+      s31->SetX1NDC (0.55); //new x start position
+      s31->SetX2NDC (0.75); //new x end position
 
       can_Nypix->cd(6);
       //gPad->SetLogy();
@@ -1170,10 +1109,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());      
       gPad->Update();      
       TPaveStats *s32 = (TPaveStats*)meNypixZpPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s32) {
-	s32->SetX1NDC (0.55); //new x start position
-	s32->SetX2NDC (0.75); //new x end position
-      }
+      s32->SetX1NDC (0.55); //new x start position
+      s32->SetX2NDC (0.75); //new x end position
 
       can_Nypix->SaveAs("meNypix_compare.eps");
       can_Nypix->SaveAs("meNypix_compare.gif");
@@ -1231,11 +1168,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());      
       gPad->Update();      
       TPaveStats *s33 = (TPaveStats*)newmePosxBarrel->GetListOfFunctions()->FindObject("stats");
-      if (s33) {
-	s33->SetX1NDC (0.55); //new x start position
-	s33->SetX2NDC (0.75); //new x end position
-      }
-
+      s33->SetX1NDC (0.55); //new x start position
+      s33->SetX2NDC (0.75); //new x end position
+      
       can_Posx->cd(2);
       //gPad->SetLogy();
       SetUpHistograms(mePosxZmPanel1, newmePosxZmPanel1, "panel1, z<0, x (cm)" );
@@ -1257,10 +1192,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());      
       gPad->Update();      
       TPaveStats *s34 = (TPaveStats*)mePosxZmPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s34) {
-	s34->SetX1NDC (0.55); //new x start position
-	s34->SetX2NDC (0.75); //new x end position
-      }
+      s34->SetX1NDC (0.55); //new x start position
+      s34->SetX2NDC (0.75); //new x end position
 
       can_Posx->cd(3);
       //gPad->SetLogy();
@@ -1283,10 +1216,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());     
       gPad->Update();      
       TPaveStats *s35 = (TPaveStats*)mePosxZmPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s35) {
-	s35->SetX1NDC (0.55); //new x start position
-	s35->SetX2NDC (0.75); //new x end position
-      }
+      s35->SetX1NDC (0.55); //new x start position
+      s35->SetX2NDC (0.75); //new x end position
 
       can_Posx->cd(5);
       //gPad->SetLogy();
@@ -1309,10 +1240,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s36 = (TPaveStats*)mePosxZpPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s36) {
-	s36->SetX1NDC (0.55); //new x start position
-	s36->SetX2NDC (0.75); //new x end position
-      }
+      s36->SetX1NDC (0.55); //new x start position
+      s36->SetX2NDC (0.75); //new x end position
 
       can_Posx->cd(6);
       //gPad->SetLogy();
@@ -1335,10 +1264,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());      
       gPad->Update();      
       TPaveStats *s37 = (TPaveStats*)mePosxZpPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s37) {
-	s37->SetX1NDC (0.55); //new x start position
-	s37->SetX2NDC (0.75); //new x end position
-      }
+      s37->SetX1NDC (0.55); //new x start position
+      s37->SetX2NDC (0.75); //new x end position
 
       can_Posx->SaveAs("mePosx_compare.eps");
       can_Posx->SaveAs("mePosx_compare.gif");
@@ -1396,10 +1323,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s38 = (TPaveStats*)mePosyBarrel->GetListOfFunctions()->FindObject("stats");
-      if (s38) {
-	s38->SetX1NDC (0.55); //new x start position
-	s38->SetX2NDC (0.75); //new x end position
-      }
+      s38->SetX1NDC (0.55); //new x start position
+      s38->SetX2NDC (0.75); //new x end position
 
       can_Posy->cd(2);
       //gPad->SetLogy();
@@ -1422,10 +1347,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s39 = (TPaveStats*)mePosyZmPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s39) {
-	s39->SetX1NDC (0.55); //new x start position
-	s39->SetX2NDC (0.75); //new x end position
-      }
+      s39->SetX1NDC (0.55); //new x start position
+      s39->SetX2NDC (0.75); //new x end position
 
       can_Posy->cd(3);
       //gPad->SetLogy();
@@ -1448,10 +1371,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s40 = (TPaveStats*)mePosyZmPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s40) {
-	s40->SetX1NDC (0.55); //new x start position
-	s40->SetX2NDC (0.75); //new x end position
-      }
+      s40->SetX1NDC (0.55); //new x start position
+      s40->SetX2NDC (0.75); //new x end position
 
       can_Posy->cd(5);
       //gPad->SetLogy();
@@ -1474,10 +1395,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s41 = (TPaveStats*)mePosyZpPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s41) {
-	s41->SetX1NDC (0.55); //new x start position
-	s41->SetX2NDC (0.75); //new x end position
-      }
+      s41->SetX1NDC (0.55); //new x start position
+      s41->SetX2NDC (0.75); //new x end position
 
       can_Posy->cd(6);
       //gPad->SetLogy();
@@ -1500,10 +1419,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s42 = (TPaveStats*)mePosyZpPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s42) {
-	s42->SetX1NDC (0.55); //new x start position
-	s42->SetX2NDC (0.75); //new x end position
-      }
+      s42->SetX1NDC (0.55); //new x start position
+      s42->SetX2NDC (0.75); //new x end position
 
       can_Posy->SaveAs("mePosy_compare.eps");
       can_Posy->SaveAs("mePosy_compare.gif");
@@ -1568,10 +1485,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s43 = (TPaveStats*)mePullXvsAlphaBarrel->GetListOfFunctions()->FindObject("stats");
-      if (s43) {
-	s43->SetX1NDC (0.55); //new x start position
-	s43->SetX2NDC (0.75); //new x end position
-      }
+      s43->SetX1NDC (0.55); //new x start position
+      s43->SetX2NDC (0.75); //new x end position
 
       can_PullXvsAlpha->cd(2);
       //gPad->SetLogy();
@@ -1594,10 +1509,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s44 = (TPaveStats*)mePullXvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s44) {
-	s44->SetX1NDC (0.55); //new x start position
-	s44->SetX2NDC (0.75); //new x end position
-      }
+      s44->SetX1NDC (0.55); //new x start position
+      s44->SetX2NDC (0.75); //new x end position
 
       can_PullXvsAlpha->cd(3);
       //gPad->SetLogy();
@@ -1620,10 +1533,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s45 = (TPaveStats*)mePullXvsAlphaZmPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s45) {
-	s45->SetX1NDC (0.55); //new x start position
-	s45->SetX2NDC (0.75); //new x end position
-      }
+      s45->SetX1NDC (0.55); //new x start position
+      s45->SetX2NDC (0.75); //new x end position
 
       can_PullXvsAlpha->cd(5);
       //gPad->SetLogy();
@@ -1646,10 +1557,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s46 = (TPaveStats*)mePullXvsAlphaZpPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s46) {
-	s46->SetX1NDC (0.55); //new x start position
-	s46->SetX2NDC (0.75); //new x end position
-      }
+      s46->SetX1NDC (0.55); //new x start position
+      s46->SetX2NDC (0.75); //new x end position
 
       can_PullXvsAlpha->cd(6);
       //gPad->SetLogy();
@@ -1672,10 +1581,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s47 = (TPaveStats*)mePullXvsAlphaZpPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s47) {
-	s47->SetX1NDC (0.55); //new x start position
-	s47->SetX2NDC (0.75); //new x end position
-      }
+      s47->SetX1NDC (0.55); //new x start position
+      s47->SetX2NDC (0.75); //new x end position
 
       can_PullXvsAlpha->SaveAs("mePullXvsAlpha_compare.eps");
       can_PullXvsAlpha->SaveAs("mePullXvsAlpha_compare.gif");
@@ -1734,10 +1641,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s48 = (TPaveStats*)mePullXvsBetaBarrel->GetListOfFunctions()->FindObject("stats");
-      if (s48) {
-	s48->SetX1NDC (0.55); //new x start position
-	s48->SetX2NDC (0.75); //new x end position
-      }
+      s48->SetX1NDC (0.55); //new x start position
+      s48->SetX2NDC (0.75); //new x end position
 
       can_PullXvsBeta->cd(2);
       //gPad->SetLogy();
@@ -1760,10 +1665,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s49 = (TPaveStats*)mePullXvsBetaZmPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s49) {
-	s49->SetX1NDC (0.55); //new x start position
-	s49->SetX2NDC (0.75); //new x end position
-      }
+      s49->SetX1NDC (0.55); //new x start position
+      s49->SetX2NDC (0.75); //new x end position
 
       can_PullXvsBeta->cd(3);
       //gPad->SetLogy();
@@ -1786,10 +1689,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s50 = (TPaveStats*)mePullXvsBetaZmPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s50) {
-	s50->SetX1NDC (0.55); //new x start position
-	s50->SetX2NDC (0.75); //new x end position
-      }
+      s50->SetX1NDC (0.55); //new x start position
+      s50->SetX2NDC (0.75); //new x end position
 
       can_PullXvsBeta->cd(5);
       //gPad->SetLogy();
@@ -1812,10 +1713,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s51 = (TPaveStats*)mePullXvsBetaZpPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s51) {
-	s51->SetX1NDC (0.55); //new x start position
-	s51->SetX2NDC (0.75); //new x end position
-      }
+      s51->SetX1NDC (0.55); //new x start position
+      s51->SetX2NDC (0.75); //new x end position
 
       can_PullXvsBeta->cd(6);
       //gPad->SetLogy();
@@ -1838,10 +1737,8 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s52 = (TPaveStats*)mePullXvsBetaZpPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s52) {
-	s52->SetX1NDC (0.55); //new x start position
-	s52->SetX2NDC (0.75); //new x end position
-      }
+      s52->SetX1NDC (0.55); //new x start position
+      s52->SetX2NDC (0.75); //new x end position
 
       can_PullXvsBeta->SaveAs("mePullXvsBeta_compare.eps");
       can_PullXvsBeta->SaveAs("mePullXvsBeta_compare.gif");
@@ -1904,10 +1801,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s53 = (TPaveStats*)meWPullXvsAlphaBarrelNFP->GetListOfFunctions()->FindObject("stats");
-      if (s53) {
-	s53->SetX1NDC (0.55); //new x start position
-	s53->SetX2NDC (0.75); //new x end position
-      }
+      s53->SetX1NDC (0.55); //new x start position
+      s53->SetX2NDC (0.75); //new x end position
+
       can_WPullXvsAlpha->cd(2);
       //gPad->SetLogy();
       SetUpProfileHistograms(meWPullXvsAlphaZmPanel1, newmeWPullXvsAlphaZmPanel1, "panel1, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
@@ -1929,10 +1825,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s54 = (TPaveStats*)meWPullXvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s54) {
-	s54->SetX1NDC (0.55); //new x start position
-	s54->SetX2NDC (0.75); //new x end position
-      }
+      s54->SetX1NDC (0.55); //new x start position
+      s54->SetX2NDC (0.75); //new x end position
+
       can_WPullXvsAlpha->cd(3);
       //gPad->SetLogy();
       SetUpProfileHistograms(meWPullXvsAlphaZmPanel2, newmeWPullXvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
@@ -1954,10 +1849,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s55 = (TPaveStats*)meWPullXvsAlphaZmPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s55) {
-	s55->SetX1NDC (0.55); //new x start position
-	s55->SetX2NDC (0.75); //new x end position
-      }
+      s55->SetX1NDC (0.55); //new x start position
+      s55->SetX2NDC (0.75); //new x end position
+
       can_WPullXvsAlpha->cd(4);
       //gPad->SetLogy();
       SetUpProfileHistograms(meWPullXvsAlphaBarrelFP, newmeWPullXvsAlphaBarrelFP, "flipped ladders, barrel, |alpha| (deg)", "< | pull x | >", lwpull, hwpull);
@@ -1979,10 +1873,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s56 = (TPaveStats*)meWPullXvsAlphaBarrelFP->GetListOfFunctions()->FindObject("stats");
-      if (s56) {
-	s56->SetX1NDC (0.55); //new x start position
-	s56->SetX2NDC (0.75); //new x end position
-      }
+      s56->SetX1NDC (0.55); //new x start position
+      s56->SetX2NDC (0.75); //new x end position
+
       can_WPullXvsAlpha->cd(5);
       //gPad->SetLogy();
       SetUpProfileHistograms(meWPullXvsAlphaZpPanel1, newmeWPullXvsAlphaZpPanel1, "panel1, z>0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
@@ -2004,10 +1897,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s57 = (TPaveStats*)meWPullXvsAlphaZpPanel1->GetListOfFunctions()->FindObject("stats");
-      if (s57) {
-	s57->SetX1NDC (0.55); //new x start position
-	s57->SetX2NDC (0.75); //new x end position
-      }
+      s57->SetX1NDC (0.55); //new x start position
+      s57->SetX2NDC (0.75); //new x end position
+
       can_WPullXvsAlpha->cd(6);
       //gPad->SetLogy();
       SetUpProfileHistograms(meWPullXvsAlphaZpPanel2, newmeWPullXvsAlphaZpPanel2, "panel2, z>0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
@@ -2029,10 +1921,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
       h_pv->SetBinContent(++bin, myPV->getPV());
       gPad->Update();      
       TPaveStats *s58 = (TPaveStats*)meWPullXvsAlphaZpPanel2->GetListOfFunctions()->FindObject("stats");
-      if (s58) {
-	s58->SetX1NDC (0.55); //new x start position
-	s58->SetX2NDC (0.75); //new x end position
-      }
+      s58->SetX1NDC (0.55); //new x start position
+      s58->SetX2NDC (0.75); //new x end position
+
       can_WPullXvsAlpha->SaveAs("meWPullXvsAlpha_compare.eps");
       can_WPullXvsAlpha->SaveAs("meWPullXvsAlpha_compare.gif");
     }
@@ -2090,10 +1981,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s59 = (TPaveStats*)mePullXvsPhiBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s59) {
-      s59->SetX1NDC (0.55); //new x start position
-      s59->SetX2NDC (0.75); //new x end position
-    }
+    s59->SetX1NDC (0.55); //new x start position
+    s59->SetX2NDC (0.75); //new x end position
+
     can_PullXvsPhi->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullXvsPhiZmPanel1, newmePullXvsPhiZmPanel1, "panel1, z<0, phi (deg)", "pull x", lpull, hpull );
@@ -2115,10 +2005,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s60 = (TPaveStats*)mePullXvsPhiZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s60) {
-      s60->SetX1NDC (0.55); //new x start position
-      s60->SetX2NDC (0.75); //new x end position
-    }
+    s60->SetX1NDC (0.55); //new x start position
+    s60->SetX2NDC (0.75); //new x end position
+
     can_PullXvsPhi->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullXvsPhiZmPanel2, newmePullXvsPhiZmPanel2, "panel2, z<0, phi (deg)", "pull x", lpull, hpull );
@@ -2140,10 +2029,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s61 = (TPaveStats*)mePullXvsPhiZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s61) {
-      s61->SetX1NDC (0.55); //new x start position
-      s61->SetX2NDC (0.75); //new x end position
-    }
+    s61->SetX1NDC (0.55); //new x start position
+    s61->SetX2NDC (0.75); //new x end position
+
     can_PullXvsPhi->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullXvsPhiZpPanel1, newmePullXvsPhiZpPanel1, "panel1, z>0, phi (deg)", "pull x", lpull, hpull );
@@ -2165,10 +2053,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s62 = (TPaveStats*)mePullXvsPhiZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s62) {
-      s62->SetX1NDC (0.55); //new x start position
-      s62->SetX2NDC (0.75); //new x end position
-    }
+    s62->SetX1NDC (0.55); //new x start position
+    s62->SetX2NDC (0.75); //new x end position
+
     can_PullXvsPhi->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullXvsPhiZpPanel2, newmePullXvsPhiZpPanel2, "panel2, z>0, phi (deg)", "pull x" , lpull, hpull);
@@ -2190,10 +2077,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s63 = (TPaveStats*)mePullXvsPhiZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s63) {
-      s63->SetX1NDC (0.55); //new x start position
-      s63->SetX2NDC (0.75); //new x end position
-    }
+    s63->SetX1NDC (0.55); //new x start position
+    s63->SetX2NDC (0.75); //new x end position
+
     can_PullXvsPhi->SaveAs("mePullXvsPhi_compare.eps");
     can_PullXvsPhi->SaveAs("mePullXvsPhi_compare.gif");
   }
@@ -2251,10 +2137,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s64 = (TPaveStats*)mePullYvsAlphaBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s64) {
-      s64->SetX1NDC (0.55); //new x start position
-      s64->SetX2NDC (0.75); //new x end position
-    }
+    s64->SetX1NDC (0.55); //new x start position
+    s64->SetX2NDC (0.75); //new x end position
+
     can_PullYvsAlpha->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsAlphaZmPanel1, newmePullYvsAlphaZmPanel1, "panel1, z<0, |alpha| (deg)", "pull y", lpull, hpull );
@@ -2275,11 +2160,10 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     myPV->PVCompute(mePullYvsAlphaZmPanel1, newmePullYvsAlphaZmPanel1, te, 0.2, 0.2);
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
-    TPaveStats *s138 = (TPaveStats*)mePullYvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s138) {
-    	s138->SetX1NDC (0.55); //new x start position
-    	s138->SetX2NDC (0.75); //new x end position
-    }
+    TPaveStats *s64 = (TPaveStats*)mePullYvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s64->SetX1NDC (0.55); //new x start position
+    s64->SetX2NDC (0.75); //new x end position
+
     can_PullYvsAlpha->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsAlphaZmPanel2, newmePullYvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "pull y", lpull, hpull );
@@ -2301,10 +2185,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s65 = (TPaveStats*)mePullYvsAlphaZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s65) {
-      s65->SetX1NDC (0.55); //new x start position
-      s65->SetX2NDC (0.75); //new x end position
-    }
+    s65->SetX1NDC (0.55); //new x start position
+    s65->SetX2NDC (0.75); //new x end position
+
     can_PullYvsAlpha->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsAlphaZpPanel1, newmePullYvsAlphaZpPanel1, "panel1, z>0, |alpha| (deg)", "pull y", lpull, hpull );
@@ -2326,10 +2209,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s66 = (TPaveStats*)mePullYvsAlphaZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s66) {
-      s66->SetX1NDC (0.55); //new x start position
-      s66->SetX2NDC (0.75); //new x end position
-    }
+    s66->SetX1NDC (0.55); //new x start position
+    s66->SetX2NDC (0.75); //new x end position
+
     can_PullYvsAlpha->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsAlphaZpPanel2, newmePullYvsAlphaZpPanel2, "panel2, z>0, |alpha| (deg)", "pull y" , lpull, hpull);
@@ -2351,10 +2233,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s67 = (TPaveStats*)mePullYvsAlphaZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s67) {
-      s67->SetX1NDC (0.55); //new x start position
-      s67->SetX2NDC (0.75); //new x end position
-    }
+    s67->SetX1NDC (0.55); //new x start position
+    s67->SetX2NDC (0.75); //new x end position
+
     can_PullYvsAlpha->SaveAs("mePullYvsAlpha_compare.eps");
     can_PullYvsAlpha->SaveAs("mePullYvsAlpha_compare.gif");
   }
@@ -2412,10 +2293,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s68 = (TPaveStats*)mePullYvsBetaBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s68) {
-      s68->SetX1NDC (0.55); //new x start position
-      s68->SetX2NDC (0.75); //new x end position
-    }
+    s68->SetX1NDC (0.55); //new x start position
+    s68->SetX2NDC (0.75); //new x end position
+
     can_PullYvsBeta->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsBetaZmPanel1, newmePullYvsBetaZmPanel1, "panel1, z<0, |beta| (deg)", "pull y", lpull, hpull );
@@ -2437,10 +2317,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s69 = (TPaveStats*)mePullYvsBetaZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s69) {
-      s69->SetX1NDC (0.55); //new x start position
-      s69->SetX2NDC (0.75); //new x end position
-    }
+    s69->SetX1NDC (0.55); //new x start position
+    s69->SetX2NDC (0.75); //new x end position
+
     can_PullYvsBeta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsBetaZmPanel2, newmePullYvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "pull y", lpull, hpull );
@@ -2462,10 +2341,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s70 = (TPaveStats*)mePullYvsBetaZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s70) {
-      s70->SetX1NDC (0.55); //new x start position
-      s70->SetX2NDC (0.75); //new x end position
-    }
+    s70->SetX1NDC (0.55); //new x start position
+    s70->SetX2NDC (0.75); //new x end position
+
     can_PullYvsBeta->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsBetaZpPanel1, newmePullYvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "pull y", lpull, hpull );
@@ -2487,10 +2365,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s71 = (TPaveStats*)mePullYvsBetaZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s71) {
-      s71->SetX1NDC (0.55); //new x start position
-      s71->SetX2NDC (0.75); //new x end position
-    }
+    s71->SetX1NDC (0.55); //new x start position
+    s71->SetX2NDC (0.75); //new x end position
+
     can_PullYvsBeta->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsBetaZpPanel2, newmePullYvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "pull y", lpull, hpull );
@@ -2512,10 +2389,9 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
     TPaveStats *s72 = (TPaveStats*)mePullYvsBetaZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s72) {
-      s72->SetX1NDC (0.55); //new x start position
-      s72->SetX2NDC (0.75); //new x end position
-    }
+    s72->SetX1NDC (0.55); //new x start position
+    s72->SetX2NDC (0.75); //new x end position
+
     can_PullYvsBeta->SaveAs("mePullYvsBeta_compare.eps");
     can_PullYvsBeta->SaveAs("mePullYvsBeta_compare.gif");
   }
@@ -2578,10 +2454,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();    
     TPaveStats *s73 = (TPaveStats*)meWPullYvsBetaBarrelNFP->GetListOfFunctions()->FindObject("stats");
-    if (s73) {
-      s73->SetX1NDC (0.55); //new x start position
-      s73->SetX2NDC (0.75); //new x end position
-    }
+    s73->SetX1NDC (0.55); //new x start position
+    s73->SetX2NDC (0.75); //new x end position
+
     can_WPullYvsBeta->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(meWPullYvsBetaZmPanel1, newmeWPullYvsBetaZmPanel1, "panel1, z<0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
@@ -2603,10 +2478,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();    
     TPaveStats *s74 = (TPaveStats*)meWPullYvsBetaZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s74) {
-      s74->SetX1NDC (0.55); //new x start position
-      s74->SetX2NDC (0.75); //new x end position
-    }
+    s74->SetX1NDC (0.55); //new x start position
+    s74->SetX2NDC (0.75); //new x end position
+
     can_WPullYvsBeta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(meWPullYvsBetaZmPanel2, newmeWPullYvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
@@ -2628,10 +2502,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();    
     TPaveStats *s75 = (TPaveStats*)meWPullYvsBetaZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s75) {
-      s75->SetX1NDC (0.55); //new x start position
-      s75->SetX2NDC (0.75); //new x end position
-    }
+    s75->SetX1NDC (0.55); //new x start position
+    s75->SetX2NDC (0.75); //new x end position
+
     can_WPullYvsBeta->cd(4);
     //gPad->SetLogy();
     SetUpProfileHistograms(meWPullYvsBetaBarrelFP, newmeWPullYvsBetaBarrelFP, "flipped ladders, barrel, |beta| (deg)", "< | pull y | > ", lwpull, hwpull);
@@ -2653,10 +2526,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();    
     TPaveStats *s76 = (TPaveStats*)meWPullYvsBetaBarrelFP->GetListOfFunctions()->FindObject("stats");
-    if (s76) {
-      s76->SetX1NDC (0.55); //new x start position
-      s76->SetX2NDC (0.75); //new x end position
-    }
+    s76->SetX1NDC (0.55); //new x start position
+    s76->SetX2NDC (0.75); //new x end position
+
     can_WPullYvsBeta->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(meWPullYvsBetaZpPanel1, newmeWPullYvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
@@ -2678,10 +2550,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();    
     TPaveStats *s77 = (TPaveStats*)meWPullYvsBetaZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s77) {
-      s77->SetX1NDC (0.55); //new x start position
-      s77->SetX2NDC (0.75); //new x end position
-    }
+    s77->SetX1NDC (0.55); //new x start position
+    s77->SetX2NDC (0.75); //new x end position
+
     can_WPullYvsBeta->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(meWPullYvsBetaZpPanel2, newmeWPullYvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
@@ -2703,10 +2574,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s78 = (TPaveStats*)meWPullYvsBetaZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s78) {
-      s78->SetX1NDC (0.55); //new x start position
-      s78->SetX2NDC (0.75); //new x end position
-    }
+    s78->SetX1NDC (0.55); //new x start position
+    s78->SetX2NDC (0.75); //new x end position
+
     can_WPullYvsBeta->SaveAs("meWPullYvsBeta_compare.eps");
     can_WPullYvsBeta->SaveAs("meWPullYvsBeta_compare.gif");
   }
@@ -2766,10 +2636,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s79 = (TPaveStats*)mePullYvsEtaBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s79) {
-      s79->SetX1NDC (0.55); //new x start position
-      s79->SetX2NDC (0.75); //new x end position
-    }
+    s79->SetX1NDC (0.55); //new x start position
+    s79->SetX2NDC (0.75); //new x end position
+
     can_PullYvsEta->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsEtaZmPanel1, newmePullYvsEtaZmPanel1, "panel1, z<0, eta", "pull y" , lpull, hpull);
@@ -2791,10 +2660,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s80 = (TPaveStats*)mePullYvsEtaZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s80) {
-      s80->SetX1NDC (0.55); //new x start position
-      s80->SetX2NDC (0.75); //new x end position
-    }
+    s80->SetX1NDC (0.55); //new x start position
+    s80->SetX2NDC (0.75); //new x end position
+
     can_PullYvsEta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsEtaZmPanel2, newmePullYvsEtaZmPanel2, "panel2, z<0, eta", "pull y", lpull, hpull );
@@ -2816,10 +2684,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s81 = (TPaveStats*)mePullYvsEtaZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s81) {
-      s81->SetX1NDC (0.55); //new x start position
-      s81->SetX2NDC (0.75); //new x end position
-    }
+    s81->SetX1NDC (0.55); //new x start position
+    s81->SetX2NDC (0.75); //new x end position
+
     can_PullYvsEta->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsEtaZpPanel1, newmePullYvsEtaZpPanel1, "panel1, z>0, eta", "pull y", lpull, hpull );
@@ -2841,10 +2708,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s82 = (TPaveStats*)mePullYvsEtaZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s82) {
-      s82->SetX1NDC (0.55); //new x start position
-      s82->SetX2NDC (0.75); //new x end position
-    }
+    s82->SetX1NDC (0.55); //new x start position
+    s82->SetX2NDC (0.75); //new x end position
+
     can_PullYvsEta->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsEtaZpPanel2, newmePullYvsEtaZpPanel2, "panel2, z>0, eta", "pull y", lpull, hpull );
@@ -2866,10 +2732,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s83 = (TPaveStats*)mePullYvsEtaZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s83) {
-      s83->SetX1NDC (0.55); //new x start position
-      s83->SetX2NDC (0.75); //new x end position
-    }
+    s83->SetX1NDC (0.55); //new x start position
+    s83->SetX2NDC (0.75); //new x end position
+
     can_PullYvsEta->SaveAs("mePullYvsEta_compare.eps");
     can_PullYvsEta->SaveAs("mePullYvsEta_compare.gif");
   }
@@ -2927,10 +2792,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s84 = (TPaveStats*)mePullYvsPhiBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s84) {
-      s84->SetX1NDC (0.55); //new x start position
-      s84->SetX2NDC (0.75); //new x end position
-    }
+    s84->SetX1NDC (0.55); //new x start position
+    s84->SetX2NDC (0.75); //new x end position
+
     can_PullYvsPhi->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsPhiZmPanel1, newmePullYvsPhiZmPanel1, "panel1, z<0, phi (deg)", "pull y" , lpull, hpull);
@@ -2952,10 +2816,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s85 = (TPaveStats*)mePullYvsPhiZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s85) {
-      s85->SetX1NDC (0.55); //new x start position
-      s85->SetX2NDC (0.75); //new x end position
-    }
+    s85->SetX1NDC (0.55); //new x start position
+    s85->SetX2NDC (0.75); //new x end position
+
     can_PullYvsPhi->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsPhiZmPanel2, newmePullYvsPhiZmPanel2, "panel2, z<0, phi (deg)", "pull y" , lpull, hpull);
@@ -2977,10 +2840,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s86 = (TPaveStats*)mePullYvsPhiZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s86) {
-      s86->SetX1NDC (0.55); //new x start position
-      s86->SetX2NDC (0.75); //new x end position
-    }
+    s86->SetX1NDC (0.55); //new x start position
+    s86->SetX2NDC (0.75); //new x end position
+
     can_PullYvsPhi->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsPhiZpPanel1, newmePullYvsPhiZpPanel1, "panel1, z>0, phi (deg)", "pull y", lpull, hpull );
@@ -3002,10 +2864,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s87 = (TPaveStats*)mePullYvsPhiZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s87) {
-      s87->SetX1NDC (0.55); //new x start position
-      s87->SetX2NDC (0.75); //new x end position
-    }
+    s87->SetX1NDC (0.55); //new x start position
+    s87->SetX2NDC (0.75); //new x end position
+
     can_PullYvsPhi->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsPhiZpPanel2, newmePullYvsPhiZpPanel2, "panel2, z>0, phi (deg)", "pull y", lpull, hpull );
@@ -3027,10 +2888,9 @@ if (   1   )
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s88 = (TPaveStats*)mePullYvsPhiZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s88) {
-      s88->SetX1NDC (0.55); //new x start position
-      s88->SetX2NDC (0.75); //new x end position
-    }
+    s88->SetX1NDC (0.55); //new x start position
+    s88->SetX2NDC (0.75); //new x end position
+
     can_PullYvsPhi->SaveAs("mePullYvsPhi_compare.eps");
     can_PullYvsPhi->SaveAs("mePullYvsPhi_compare.gif");
   }
@@ -3087,10 +2947,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s89 = (TPaveStats*)mePullxBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s89) {
-      s89->SetX1NDC (0.55); //new x start position
-      s89->SetX2NDC (0.75); //new x end position
-    }
+    s89->SetX1NDC (0.55); //new x start position
+    s89->SetX2NDC (0.75); //new x end position
+
     can_mePullx->cd(2);
     //gPad->SetLogy();
     SetUpHistograms(mePullxZmPanel1, newmePullxZmPanel1, "panel1, z<0, pull x" );
@@ -3112,10 +2971,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s90 = (TPaveStats*)mePullxZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s90) {
-      s90->SetX1NDC (0.55); //new x start position
-      s90->SetX2NDC (0.75); //new x end position
-    }
+    s90->SetX1NDC (0.55); //new x start position
+    s90->SetX2NDC (0.75); //new x end position
+
     can_mePullx->cd(3);
     //gPad->SetLogy();
     SetUpHistograms(mePullxZmPanel2, newmePullxZmPanel2, "panel2, z<0, pull x" );
@@ -3137,10 +2995,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s91 = (TPaveStats*)mePullxZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s91) {
-      s91->SetX1NDC (0.55); //new x start position
-      s91->SetX2NDC (0.75); //new x end position
-    }
+    s91->SetX1NDC (0.55); //new x start position
+    s91->SetX2NDC (0.75); //new x end position
+
     can_mePullx->cd(5);
     //gPad->SetLogy();
     SetUpHistograms(mePullxZpPanel1, newmePullxZpPanel1, "panel2, z>0, pull x" );
@@ -3162,10 +3019,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s92 = (TPaveStats*)mePullxZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s92) {
-      s92->SetX1NDC (0.55); //new x start position
-      s92->SetX2NDC (0.75); //new x end position
-    }
+    s92->SetX1NDC (0.55); //new x start position
+    s92->SetX2NDC (0.75); //new x end position
+    
     can_mePullx->cd(6);
     //gPad->SetLogy();
     SetUpHistograms(mePullxZpPanel2, newmePullxZpPanel2, "panel1, z>0, pull x" );
@@ -3187,10 +3043,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s93 = (TPaveStats*)mePullxZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s93) {
-      s93->SetX1NDC (0.55); //new x start position
-      s93->SetX2NDC (0.75); //new x end position
-    }
+    s93->SetX1NDC (0.55); //new x start position
+    s93->SetX2NDC (0.75); //new x end position
+
     can_mePullx->SaveAs("mePullx_compare.eps");
     can_mePullx->SaveAs("mePullx_compare.gif");
   }
@@ -3247,10 +3102,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s94 = (TPaveStats*)mePullyBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s94) {
-      s94->SetX1NDC (0.55); //new x start position
-      s94->SetX2NDC (0.75); //new x end position
-    }
+    s94->SetX1NDC (0.55); //new x start position
+    s94->SetX2NDC (0.75); //new x end position
+
 
     can_mePully->cd(2);
     //gPad->SetLogy();
@@ -3272,11 +3126,11 @@ if (1)
     myPV->PVCompute(mePullyZmPanel1, newmePullyZmPanel1, te);
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
-    TPaveStats *s139 = (TPaveStats*)mePullyZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s139) {
-    	s139->SetX1NDC (0.55); //new x start position
-    	s139->SetX2NDC (0.75); //new x end position
-    }
+    TPaveStats *s94 = (TPaveStats*)mePullyZmPanel1->GetListOfFunctions()->FindObject("stats");
+    s94->SetX1NDC (0.55); //new x start position
+    s94->SetX2NDC (0.75); //new x end position
+
+
     can_mePully->cd(3);
     //gPad->SetLogy();
     SetUpHistograms(mePullyZmPanel2, newmePullyZmPanel2, "panel2, z<0, pull y" );
@@ -3298,10 +3152,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s95 = (TPaveStats*)mePullyZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s95) {
-      s95->SetX1NDC (0.55); //new x start position
-      s95->SetX2NDC (0.75); //new x end position
-    }
+    s95->SetX1NDC (0.55); //new x start position
+    s95->SetX2NDC (0.75); //new x end position
+
 
     can_mePully->cd(5);
     //gPad->SetLogy();
@@ -3324,10 +3177,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s96 = (TPaveStats*)mePullyZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s96) {
-      s96->SetX1NDC (0.55); //new x start position
-      s96->SetX2NDC (0.75); //new x end position
-    }
+    s96->SetX1NDC (0.55); //new x start position
+    s96->SetX2NDC (0.75); //new x end position
+
 
     can_mePully->cd(6);
     //gPad->SetLogy();
@@ -3350,10 +3202,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s97 = (TPaveStats*)mePullyZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s97) {
-      s97->SetX1NDC (0.55); //new x start position
-      s97->SetX2NDC (0.75); //new x end position
-    }
+    s97->SetX1NDC (0.55); //new x start position
+    s97->SetX2NDC (0.75); //new x end position
+
 
     can_mePully->SaveAs("mePully_compare.eps");
     can_mePully->SaveAs("mePully_compare.gif");
@@ -3422,10 +3273,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s98 = (TPaveStats*)meResXvsAlphaBarrelFlippedLadders->GetListOfFunctions()->FindObject("stats");
-    if (s98) {
-      s98->SetX1NDC (0.55); //new x start position
-      s98->SetX2NDC (0.75); //new x end position
-    }
+    s98->SetX1NDC (0.55); //new x start position
+    s98->SetX2NDC (0.75); //new x end position
+
     can_ResXvsAlpha->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaZmPanel1, newmeResXvsAlphaZmPanel1, 
@@ -3450,10 +3300,8 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s99 = (TPaveStats*)meResXvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s99) {
-      s99->SetX1NDC (0.55); //new x start position
-      s99->SetX2NDC (0.75); //new x end position
-    }
+    s99->SetX1NDC (0.55); //new x start position
+    s99->SetX2NDC (0.75); //new x end position
     can_ResXvsAlpha->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaZmPanel2, newmeResXvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
@@ -3477,10 +3325,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s100 = (TPaveStats*)meResXvsAlphaZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s100) {
-      s100->SetX1NDC (0.55); //new x start position
-      s100->SetX2NDC (0.75); //new x end position
-    }
+    s100->SetX1NDC (0.55); //new x start position
+    s100->SetX2NDC (0.75); //new x end position
+
     can_ResXvsAlpha->cd(4);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaBarrelNonFlippedLadders, newmeResXvsAlphaBarrelNonFlippedLadders, "barrel, flipped ladders, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
@@ -3504,10 +3351,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s101 = (TPaveStats*)meResXvsAlphaBarrelNonFlippedLadders->GetListOfFunctions()->FindObject("stats");
-    if (s101) {
-      s101->SetX1NDC (0.55); //new x start position
-      s101->SetX2NDC (0.75); //new x end position
-    }
+    s101->SetX1NDC (0.55); //new x start position
+    s101->SetX2NDC (0.75); //new x end position
+
     can_ResXvsAlpha->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaZpPanel1, newmeResXvsAlphaZpPanel1, 
@@ -3532,10 +3378,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s102 = (TPaveStats*)meResXvsAlphaZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s102) {
-      s102->SetX1NDC (0.55); //new x start position
-      s102->SetX2NDC (0.75); //new x end position
-    }
+    s102->SetX1NDC (0.55); //new x start position
+    s102->SetX2NDC (0.75); //new x end position
+
     can_ResXvsAlpha->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsAlphaZpPanel2, newmeResXvsAlphaZpPanel2, "panel2, z>0, |alpha| (deg)", "<|x residual|> (cm)", xmin, xmax );
@@ -3559,10 +3404,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s103 = (TPaveStats*)meResXvsAlphaZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s103) {
-      s103->SetX1NDC (0.55); //new x start position
-      s103->SetX2NDC (0.75); //new x end position
-    }
+    s103->SetX1NDC (0.55); //new x start position
+    s103->SetX2NDC (0.75); //new x end position
+
     can_ResXvsAlpha->SaveAs("meResXvsAlpha_compare.eps");
     can_ResXvsAlpha->SaveAs("meResXvsAlpha_compare.gif");
   }
@@ -3619,10 +3463,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s104 = (TPaveStats*)meResXvsBetaBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s104) {
-      s104->SetX1NDC (0.55); //new x start position
-      s104->SetX2NDC (0.75); //new x end position
-    }
+    s104->SetX1NDC (0.55); //new x start position
+    s104->SetX2NDC (0.75); //new x end position
+
     can_ResXvsBeta->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsBetaZmPanel1, newmeResXvsBetaZmPanel1, "panel1, z<0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax );
@@ -3644,10 +3487,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s105 = (TPaveStats*)meResXvsBetaZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s105) {
-      s105->SetX1NDC (0.55); //new x start position
-      s105->SetX2NDC (0.75); //new x end position
-    }
+    s105->SetX1NDC (0.55); //new x start position
+    s105->SetX2NDC (0.75); //new x end position
+
     can_ResXvsBeta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsBetaZmPanel2, newmeResXvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax ); 
@@ -3669,10 +3511,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s106 = (TPaveStats*)meResXvsBetaZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s106) {
-      s106->SetX1NDC (0.55); //new x start position
-      s106->SetX2NDC (0.75); //new x end position
-    }
+    s106->SetX1NDC (0.55); //new x start position
+    s106->SetX2NDC (0.75); //new x end position
+
     can_ResXvsBeta->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsBetaZpPanel1, newmeResXvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax );
@@ -3694,10 +3535,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s107 = (TPaveStats*)meResXvsBetaZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s107) {
-      s107->SetX1NDC (0.55); //new x start position
-      s107->SetX2NDC (0.75); //new x end position
-    }
+    s107->SetX1NDC (0.55); //new x start position
+    s107->SetX2NDC (0.75); //new x end position
+
     can_ResXvsBeta->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResXvsBetaZpPanel2, newmeResXvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "<|x residual|> (cm)", xmin, xmax );
@@ -3719,10 +3559,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s108 = (TPaveStats*)meResXvsBetaZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s108) {
-      s108->SetX1NDC (0.55); //new x start position
-      s108->SetX2NDC (0.75); //new x end position
-    }
+    s108->SetX1NDC (0.55); //new x start position
+    s108->SetX2NDC (0.75); //new x end position
+
     can_ResXvsBeta->SaveAs("meResXvsBeta_compare.eps");
     can_ResXvsBeta->SaveAs("meResXvsBeta_compare.gif");
   }
@@ -3782,10 +3621,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s109 = (TPaveStats*)meResYvsAlphaBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s109) {
-      s109->SetX1NDC (0.55); //new x start position
-      s109->SetX2NDC (0.75); //new x end position
-    }
+    s109->SetX1NDC (0.55); //new x start position
+    s109->SetX2NDC (0.75); //new x end position
+
     can_ResYvsAlpha->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsAlphaZmPanel1, newmeResYvsAlphaZmPanel1, "panel1, z<0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
@@ -3807,10 +3645,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s110 = (TPaveStats*)meResYvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s110) {
-      s110->SetX1NDC (0.55); //new x start position
-      s110->SetX2NDC (0.75); //new x end position
-    }
+    s110->SetX1NDC (0.55); //new x start position
+    s110->SetX2NDC (0.75); //new x end position
+
     can_ResYvsAlpha->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsAlphaZmPanel2, newmeResYvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
@@ -3832,10 +3669,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s111 = (TPaveStats*)meResYvsAlphaZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s111) {
-      s111->SetX1NDC (0.55); //new x start position
-      s111->SetX2NDC (0.75); //new x end position
-    }
+    s111->SetX1NDC (0.55); //new x start position
+    s111->SetX2NDC (0.75); //new x end position
+
     can_ResYvsAlpha->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsAlphaZpPanel1, newmeResYvsAlphaZpPanel1, "panel1, z>0, |alpha| (deg)", "<|y residual|> (cm)" , ymin, ymax);
@@ -3857,10 +3693,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s112 = (TPaveStats*)meResYvsAlphaZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s112) {
-      s112->SetX1NDC (0.55); //new x start position
-      s112->SetX2NDC (0.75); //new x end position
-    }
+    s112->SetX1NDC (0.55); //new x start position
+    s112->SetX2NDC (0.75); //new x end position
+
     can_ResYvsAlpha->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsAlphaZpPanel2, newmeResYvsAlphaZpPanel2, "panel2, z>0, |alpha| (deg)", "<|y residual|> (cm)", ymin, ymax );
@@ -3882,10 +3717,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s113 = (TPaveStats*)meResYvsAlphaZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s113) {
-      s113->SetX1NDC (0.55); //new x start position
-      s113->SetX2NDC (0.75); //new x end position
-    }
+    s113->SetX1NDC (0.55); //new x start position
+    s113->SetX2NDC (0.75); //new x end position
+
     can_ResYvsAlpha->SaveAs("meResYvsAlpha_compare.eps");
     can_ResYvsAlpha->SaveAs("meResYvsAlpha_compare.gif");
   }
@@ -3942,10 +3776,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s114 = (TPaveStats*)meResYvsBetaBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s114) {
-      s114->SetX1NDC (0.55); //new x start position
-      s114->SetX2NDC (0.75); //new x end position
-    }
+    s114->SetX1NDC (0.55); //new x start position
+    s114->SetX2NDC (0.75); //new x end position
+
     can_ResYvsBeta->cd(2);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsBetaZmPanel1, newmeResYvsBetaZmPanel1, "panel1, z<0, |beta| (deg)", "<|y residual|> (cm)", ymin, ymax );
@@ -3967,10 +3800,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s115 = (TPaveStats*)meResYvsBetaZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s115) {
-      s115->SetX1NDC (0.55); //new x start position
-      s115->SetX2NDC (0.75); //new x end position
-    }
+    s115->SetX1NDC (0.55); //new x start position
+    s115->SetX2NDC (0.75); //new x end position
+
     can_ResYvsBeta->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsBetaZmPanel2, newmeResYvsBetaZmPanel2, "panel2, z<0, |beta| (deg)", "<|y residual|> (cm)", ymin, ymax );
@@ -3992,10 +3824,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s116 = (TPaveStats*)meResYvsBetaZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s116) {
-      s116->SetX1NDC (0.55); //new x start position
-      s116->SetX2NDC (0.75); //new x end position
-    }
+    s116->SetX1NDC (0.55); //new x start position
+    s116->SetX2NDC (0.75); //new x end position
+
     can_ResYvsBeta->cd(5);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsBetaZpPanel1, newmeResYvsBetaZpPanel1, "panel1, z>0, |beta| (deg)", "<|y residual|> (cm)", ymin, ymax );
@@ -4017,10 +3848,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s117 = (TPaveStats*)meResYvsBetaZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s117) {
-      s117->SetX1NDC (0.55); //new x start position
-      s117->SetX2NDC (0.75); //new x end position
-    }
+    s117->SetX1NDC (0.55); //new x start position
+    s117->SetX2NDC (0.75); //new x end position
+
     can_ResYvsBeta->cd(6);
     //gPad->SetLogy();
     SetUpProfileHistograms(meResYvsBetaZpPanel2, newmeResYvsBetaZpPanel2, "panel2, z>0, |beta| (deg)", "<|y residual|> (cm)", ymin, ymax );
@@ -4042,10 +3872,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s118 = (TPaveStats*)meResYvsBetaZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s118) {
-      s118->SetX1NDC (0.55); //new x start position
-      s118->SetX2NDC (0.75); //new x end position
-    }
+    s118->SetX1NDC (0.55); //new x start position
+    s118->SetX2NDC (0.75); //new x end position
+
     can_ResYvsBeta->SaveAs("meResYvsBeta_compare.eps");
     can_ResYvsBeta->SaveAs("meResYvsBeta_compare.gif");
   }
@@ -4102,10 +3931,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s119 = (TPaveStats*)meResxBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s119) {
-      s119->SetX1NDC (0.55); //new x start position
-      s119->SetX2NDC (0.75); //new x end position
-    }
+    s119->SetX1NDC (0.55); //new x start position
+    s119->SetX2NDC (0.75); //new x end position
+
     can_meResx->cd(2);
     gPad->SetLogy();
     SetUpHistograms(meResxZmPanel1, newmeResxZmPanel1, "panel1, z<0, x residual (cm)" );
@@ -4127,10 +3955,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s120 = (TPaveStats*)meResxZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s120) {
-      s120->SetX1NDC (0.55); //new x start position
-      s120->SetX2NDC (0.75); //new x end position
-    }
+    s120->SetX1NDC (0.55); //new x start position
+    s120->SetX2NDC (0.75); //new x end position
+
     can_meResx->cd(3);
     gPad->SetLogy();
     SetUpHistograms(meResxZmPanel2,  newmeResxZmPanel2, "panel2, z<0, x residual (cm)");
@@ -4152,10 +3979,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s121 = (TPaveStats*)meResxZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s121) {
-      s121->SetX1NDC (0.55); //new x start position
-      s121->SetX2NDC (0.75); //new x end position
-    }
+    s121->SetX1NDC (0.55); //new x start position
+    s121->SetX2NDC (0.75); //new x end position
+
     can_meResx->cd(5);
     gPad->SetLogy();
     SetUpHistograms(meResxZpPanel1, newmeResxZpPanel1, "panel1, z>0, x residual (cm)" );
@@ -4177,10 +4003,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s122 = (TPaveStats*)meResxZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s122) {
-      s122->SetX1NDC (0.55); //new x start position
-      s122->SetX2NDC (0.75); //new x end position
-    }
+    s122->SetX1NDC (0.55); //new x start position
+    s122->SetX2NDC (0.75); //new x end position
+
     can_meResx->cd(6);
     gPad->SetLogy();
     SetUpHistograms(meResxZpPanel2, newmeResxZpPanel2, "panel2, z>0, x residual (cm)" );
@@ -4202,10 +4027,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s123 = (TPaveStats*)meResxZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s123) {
-      s123->SetX1NDC (0.55); //new x start position
-      s123->SetX2NDC (0.75); //new x end position
-    }
+    s123->SetX1NDC (0.55); //new x start position
+    s123->SetX2NDC (0.75); //new x end position
+
     can_meResx->SaveAs("meResx_compare.eps");
     can_meResx->SaveAs("meResx_compare.gif");
   }
@@ -4262,10 +4086,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s124 = (TPaveStats*)meResyBarrel->GetListOfFunctions()->FindObject("stats");
-    if (s124) {
-      s124->SetX1NDC (0.55); //new x start position
-      s124->SetX2NDC (0.75); //new x end position
-    }
+    s124->SetX1NDC (0.55); //new x start position
+    s124->SetX2NDC (0.75); //new x end position
+
     can_meResy->cd(2);
     gPad->SetLogy();
     SetUpHistograms(meResyZmPanel1, newmeResyZmPanel1, "panel1, z<0, y residual (cm)" );
@@ -4287,10 +4110,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s125 = (TPaveStats*)meResyZmPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s125) {
-      s125->SetX1NDC (0.55); //new x start position
-      s125->SetX2NDC (0.75); //new x end position
-    }
+    s125->SetX1NDC (0.55); //new x start position
+    s125->SetX2NDC (0.75); //new x end position
+
     can_meResy->cd(3);
     gPad->SetLogy();
     SetUpHistograms(meResyZmPanel2, newmeResyZmPanel2, "panel2, z<0, y residual (cm) " );
@@ -4312,10 +4134,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s126 = (TPaveStats*)meResyZmPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s126) {
-      s126->SetX1NDC (0.55); //new x start position
-      s126->SetX2NDC (0.75); //new x end position
-    }
+    s126->SetX1NDC (0.55); //new x start position
+    s126->SetX2NDC (0.75); //new x end position
+
     can_meResy->cd(5);
     gPad->SetLogy();
     SetUpHistograms(meResyZpPanel1, newmeResyZpPanel1, "panel1, z>0, y residual (cm)" );
@@ -4337,10 +4158,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s127 = (TPaveStats*)meResyZpPanel1->GetListOfFunctions()->FindObject("stats");
-    if (s127) {
-      s127->SetX1NDC (0.55); //new x start position
-      s127->SetX2NDC (0.75); //new x end position
-    }
+    s127->SetX1NDC (0.55); //new x start position
+    s127->SetX2NDC (0.75); //new x end position
+
     can_meResy->cd(6);
     gPad->SetLogy();
     SetUpHistograms(meResyZpPanel2, newmeResyZpPanel2, "panel2, z>0, y residual (cm)" );
@@ -4362,10 +4182,9 @@ if (1)
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
     TPaveStats *s128 = (TPaveStats*)meResyZpPanel2->GetListOfFunctions()->FindObject("stats");
-    if (s128) {
-      s128->SetX1NDC (0.55); //new x start position
-      s128->SetX2NDC (0.75); //new x end position
-    }
+    s128->SetX1NDC (0.55); //new x start position
+    s128->SetX2NDC (0.75); //new x end position
+
     can_meResy->SaveAs("meResy_compare.eps");
     can_meResy->SaveAs("meResy_compare.gif");
   }
@@ -4414,10 +4233,8 @@ if (1)
        h_pv->SetBinContent(++bin, myPV->getPV());
        gPad->Update();
        TPaveStats *s129 = (TPaveStats*)meChargeLayerModule[i][j]->GetListOfFunctions()->FindObject("stats");
-       if (s129) {
-	 s129->SetX1NDC (0.55); //new x start position
-	 s129->SetX2NDC (0.75); //new x end position
-       }
+       s129->SetX1NDC (0.55); //new x start position
+       s129->SetX2NDC (0.75); //new x end position
      }
  TLegend* leg26 = new TLegend(0.45, 0.45, 0.75, 0.65);
  leg26->SetBorderSize(0);
@@ -4464,10 +4281,8 @@ if (1)
        h_pv->SetBinContent(++bin, myPV->getPV());
        gPad->Update();
        TPaveStats *s130 = (TPaveStats*)meChargeZmPanel1DiskPlaq[i][j]->GetListOfFunctions()->FindObject("stats");
-       if (s130) {
-	 s130->SetX1NDC (0.55); //new x start position
-	 s130->SetX2NDC (0.75); //new x end position
-       }
+       s130->SetX1NDC (0.55); //new x start position
+       s130->SetX2NDC (0.75); //new x end position
      }
  TLegend* leg27 = new TLegend(0.5, 0.4, 0.8, 0.6);
  leg27->SetBorderSize(0);
@@ -4514,10 +4329,8 @@ if (1)
        h_pv->SetBinContent(++bin, myPV->getPV());
        gPad->Update();
        TPaveStats *s131 = (TPaveStats*)meChargeZmPanel2DiskPlaq[i][j]->GetListOfFunctions()->FindObject("stats");
-       if (s131) {
-	 s131->SetX1NDC (0.55); //new x start position
-	 s131->SetX2NDC (0.75); //new x end position
-       }
+       s131->SetX1NDC (0.55); //new x start position
+       s131->SetX2NDC (0.75); //new x end position
      }
  TLegend* leg28 = new TLegend(0.5, 0.4, 0.8, 0.6);
  leg28->SetBorderSize(0);
@@ -4564,10 +4377,8 @@ if (1)
        h_pv->SetBinContent(++bin, myPV->getPV());
        gPad->Update();
        TPaveStats *s132 = (TPaveStats*)meChargeZpPanel1DiskPlaq[i][j]->GetListOfFunctions()->FindObject("stats");
-       if (s132) {
-	 s132->SetX1NDC (0.55); //new x start position
-	 s132->SetX2NDC (0.75); //new x end position
-       }
+       s132->SetX1NDC (0.55); //new x start position
+       s132->SetX2NDC (0.75); //new x end position
      }
  TLegend* leg29 = new TLegend(0.5, 0.4, 0.8, 0.6);
  leg29->SetBorderSize(0);
@@ -4614,10 +4425,8 @@ if (1)
        h_pv->SetBinContent(++bin, myPV->getPV());
        gPad->Update();
        TPaveStats *s133 = (TPaveStats*)meChargeZpPanel2DiskPlaq[i][j]->GetListOfFunctions()->FindObject("stats");
-       if (s133) {
-	 s133->SetX1NDC (0.55); //new x start position
-	 s133->SetX2NDC (0.75); //new x end position
-       }
+       s133->SetX1NDC (0.55); //new x start position
+       s133->SetX2NDC (0.75); //new x end position
      }
  TLegend* leg30 = new TLegend(0.5, 0.4, 0.8, 0.6);
  leg30->SetBorderSize(0);
@@ -4666,10 +4475,8 @@ if (1)
      h_pv->SetBinContent(++bin, myPV->getPV());
      gPad->Update();
      TPaveStats *s134 = (TPaveStats*)meResxBarrelLayer[i]->GetListOfFunctions()->FindObject("stats");
-     if (s134) {
-       s134->SetX1NDC (0.55); //new x start position
-       s134->SetX2NDC (0.75); //new x end position
-     }
+     s134->SetX1NDC (0.55); //new x start position
+     s134->SetX2NDC (0.75); //new x end position
    }
  TLegend* leg31 = new TLegend(0.15, 0.65, 0.45, 0.85);
  leg31->SetBorderSize(0);
@@ -4709,10 +4516,8 @@ if (1)
      h_pv->SetBinContent(++bin, myPV->getPV());
      gPad->Update();
      TPaveStats *s135 = (TPaveStats*)meResyBarrelLayer[i]->GetListOfFunctions()->FindObject("stats");
-     if (s135) {
-       s135->SetX1NDC (0.55); //new x start position
-       s135->SetX2NDC (0.75); //new x end position
-     }
+     s135->SetX1NDC (0.55); //new x start position
+     s135->SetX2NDC (0.75); //new x end position
    }
  
  can_meResLayers->SaveAs("meResBarrelLayers_compare.eps");
@@ -4757,10 +4562,8 @@ if (1)
      h_pv->SetBinContent(++bin, myPV->getPV());
      gPad->Update();
      TPaveStats *s136 = (TPaveStats*)mePullxBarrelLayer[i]->GetListOfFunctions()->FindObject("stats");
-     if (s136) {
-       s136->SetX1NDC (0.55); //new x start position
-       s136->SetX2NDC (0.75); //new x end position
-     }
+     s136->SetX1NDC (0.55); //new x start position
+     s136->SetX2NDC (0.75); //new x end position
    }
  TLegend* leg32 = new TLegend(0.15, 0.65, 0.45, 0.85);
  leg32->SetBorderSize(0);
@@ -4800,10 +4603,8 @@ if (1)
      h_pv->SetBinContent(++bin, myPV->getPV());
      gPad->Update();
      TPaveStats *s137 = (TPaveStats*)mePullyBarrelLayer[i]->GetListOfFunctions()->FindObject("stats");
-     if (s137) {
-       s137->SetX1NDC (0.55); //new x start position
-       s137->SetX2NDC (0.75); //new x end position
-     }
+     s137->SetX1NDC (0.55); //new x start position
+     s137->SetX2NDC (0.75); //new x end position
    }
  
  can_mePullLayers->SaveAs("mePullBarrelLayers_compare.eps");

@@ -322,7 +322,7 @@ void FlavourHistograms<T>::plot (TPad * theCanvas /* = 0 */) {
   if ( thePlotLog ) gPad->SetLogy ( 1 ) ; 
   gPad->SetGridx ( 0 ) ;
   gPad->SetGridy ( 0 ) ;
-  gPad->SetTitle ( false ) ;
+  gPad->SetTitle ( 0 ) ;
 
   MonitorElement * histo[4];
   int col[4], lineStyle[4], markerStyle[4];

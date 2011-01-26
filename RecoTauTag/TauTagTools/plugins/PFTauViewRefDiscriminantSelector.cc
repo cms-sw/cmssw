@@ -23,38 +23,20 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
-class ConcreteTauBuilder {
+class RecoTauDiscriminatorRefSelector : public edm::EDFilter {
   public:
-    typedef std::vector<reco::PFTau> OutputType;
-    static OutputType::value_type make(const reco::PFTauRef& ref) {
-      return *ref;
-    }
-};
-
-class RefToBaseBuilder {
-  public:
-    typedef edm::RefToBaseVector<reco::PFTau> OutputType;
-    static OutputType::value_type make(const reco::PFTauRef& ref) {
-      return edm::RefToBase<reco::PFTau>(ref);
-    }
-};
-
-template<typename T>
-class RecoTauDiscriminatorRefSelectorImpl : public edm::EDFilter {
-  public:
-    explicit RecoTauDiscriminatorRefSelectorImpl(const edm::ParameterSet &pset);
-    ~RecoTauDiscriminatorRefSelectorImpl() {}
+    explicit RecoTauDiscriminatorRefSelector(const edm::ParameterSet &pset);
+    ~RecoTauDiscriminatorRefSelector() {}
     bool filter(edm::Event &evt, const edm::EventSetup &es);
   private:
-    typedef typename T::OutputType OutputType;
+    typedef edm::RefToBaseVector<reco::PFTau> OutputType;
     edm::InputTag src_;
     edm::InputTag discriminatorSrc_;
     double cut_;
     bool filter_;
 };
 
-template<typename T>
-RecoTauDiscriminatorRefSelectorImpl<T>::RecoTauDiscriminatorRefSelectorImpl(
+RecoTauDiscriminatorRefSelector::RecoTauDiscriminatorRefSelector(
     const edm::ParameterSet &pset) {
   src_ = pset.getParameter<edm::InputTag>("src");
   discriminatorSrc_ = pset.getParameter<edm::InputTag>("discriminator");
@@ -65,8 +47,7 @@ RecoTauDiscriminatorRefSelectorImpl<T>::RecoTauDiscriminatorRefSelectorImpl(
 }
 
 
-template<typename T>
-bool RecoTauDiscriminatorRefSelectorImpl<T>::filter(edm::Event& evt,
+bool RecoTauDiscriminatorRefSelector::filter(edm::Event& evt,
                                            const edm::EventSetup &es) {
   edm::Handle<reco::CandidateView> input;
   evt.getByLabel(src_, input);
@@ -84,16 +65,12 @@ bool RecoTauDiscriminatorRefSelectorImpl<T>::filter(edm::Event& evt,
 
   BOOST_FOREACH(reco::PFTauRef ref, inputRefs) {
     if ( (*disc)[ref] > cut_ )
-      output->push_back(T::make(ref));
+      output->push_back(edm::RefToBase<reco::PFTau>(ref));
   }
   size_t selected = output->size();
   evt.put(output);
   return (!filter_ || selected);
 }
 
-typedef RecoTauDiscriminatorRefSelectorImpl<RefToBaseBuilder> RecoTauDiscriminatorRefSelector;
-typedef RecoTauDiscriminatorRefSelectorImpl<ConcreteTauBuilder> RecoTauDiscriminatorSelector;
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RecoTauDiscriminatorRefSelector);
-DEFINE_FWK_MODULE(RecoTauDiscriminatorSelector);

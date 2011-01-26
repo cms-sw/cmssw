@@ -45,6 +45,3 @@ DEFINE_FWK_MODULE( trgMatchedElectronProducer );
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 typedef TriggerCandProducer< reco::SuperCluster > trgMatchedSuperClusterProducer;
 DEFINE_FWK_MODULE( trgMatchedSuperClusterProducer );
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-typedef TriggerCandProducer< reco::Photon > trgMatchedPhotonProducer;
-DEFINE_FWK_MODULE( trgMatchedPhotonProducer );

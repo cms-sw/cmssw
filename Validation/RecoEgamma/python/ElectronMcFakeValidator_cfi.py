@@ -20,11 +20,8 @@ electronMcFakeHistosCfg = cms.PSet(
 )
 
 electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
-  matchingObjectCollection = cms.InputTag("iterativeCone5GenJets"),
   electronCollection = cms.InputTag("gsfElectrons"),
-  electronCoreCollection = cms.InputTag("gsfElectronCores"),
-  electronTrackCollection = cms.InputTag("electronGsfTracks"),
-  electronSeedCollection = cms.InputTag("electronMergedSeeds"),
+  matchingObjectCollection = cms.InputTag("iterativeCone5GenJets"),
   beamSpot = cms.InputTag("offlineBeamSpot"),
   readAOD = cms.bool(False),
   outputFile = cms.string(""),

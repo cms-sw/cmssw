@@ -2,8 +2,10 @@
 #include "OnlineDB/EcalCondDB/interface/LMFColor.h"
 #include "OnlineDB/EcalCondDB/interface/LMFTrigType.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
+#include "OnlineDB/EcalCondDB/interface/LMFClsVers.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPrimVers.h"
 #include "OnlineDB/EcalCondDB/interface/LMFSeqVers.h"
+#include "OnlineDB/EcalCondDB/interface/LMFCorrVers.h"
 
 #include <iostream>
 
@@ -172,6 +174,7 @@ void LMFDefFabric::initialize()
   _lmfTrigTypes.clear();
   _lmfRunTags.clear();
   _lmfPrimVersions.clear();
+  _lmfClsVersions.clear();
   _lmfSeqVersions.clear();
   _lmfCorrVersions.clear();
   if ((m_env != NULL) && (m_conn != NULL)) {
@@ -232,11 +235,21 @@ void LMFDefFabric::initialize()
       i++;
     }
     listOfObjects.clear();
+    listOfObjects = LMFClsVers(m_env, m_conn).fetchAll();
+    i = listOfObjects.begin();
+    e = listOfObjects.end();
+    while (i != e) {
+      LMFClsVers *c = (LMFClsVers*)&(*i);
+      _lmfClsVersions.push_back(*c);
+      i++;
+    }
+    listOfObjects.clear();
     _lmfColors.sort();
     _lmfTrigTypes.sort();
     _lmfRunTags.sort();
     _lmfPrimVersions.sort();
     _lmfSeqVersions.sort();
+    _lmfClsVersions.sort();
     _lmfCorrVersions.sort();
   } else {
     throw(std::runtime_error("LMFDefFabric: cannot initialize since connection not"

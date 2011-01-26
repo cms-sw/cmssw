@@ -19,21 +19,20 @@ class FWPFRhoPhiRecHit
 {
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
-      FWPFRhoPhiRecHit( FWProxyBuilderBase *pb, TEveElement *iH, const FWViewContext *vc,
+      FWPFRhoPhiRecHit( FWProxyBuilderBase *pb, TEveCompound *iH, const FWViewContext *vc,
                         float E, float et, double lPhi, double rPhi, std::vector<TEveVector> &bCorners );
       virtual ~FWPFRhoPhiRecHit();
 
       void     updateScale( TEveScalableStraightLineSet *ls, Double_t scale, unsigned int i );
       void     updateScale( const FWViewContext *vc );
-      void     addChild( FWProxyBuilderBase *pb, TEveElement *itemHolder, const FWViewContext *vc, float E, float et );
-      void     buildRecHit( FWProxyBuilderBase *pb, TEveElement *itemHolder, const FWViewContext *vc, std::vector<TEveVector> &bCorners );
+      void     addChild( FWProxyBuilderBase *pb, TEveCompound *itemHolder, const FWViewContext *vc, float E, float et );
+      void     buildRecHit( FWProxyBuilderBase *pb, TEveCompound *itemHolder, const FWViewContext *vc, std::vector<TEveVector> &bCorners );
       void     clean();
 
    // ----------------------Accessor Methods --------------------------
-      Double_t                       getlPhi()                              { return m_lPhi;        }
-      TEveScalableStraightLineSet   *getLineSet()                           { return m_ls;          }
-      void                           setHasChild( bool b )                  { m_hasChild = b;       }
-      void                           setCorners( int i, TEveVector vec )    { m_corners[i] = vec;   }
+      Double_t       getlPhi()                              { return m_lPhi;        }
+      void           setHasChild( bool b )                  { m_hasChild = b;       }
+      void           setCorners( int i, TEveVector vec )    { m_corners[i] = vec;   }
 
    private:
       FWPFRhoPhiRecHit( const FWPFRhoPhiRecHit& );             // Stop default copy constructor

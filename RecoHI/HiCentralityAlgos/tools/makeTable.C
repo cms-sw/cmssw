@@ -26,41 +26,29 @@ static const int nbinsMax = 40;
 using namespace std;
 bool descend(float i,float j) { return (i<j); }
 
-void makeTable(int nbins = 40, const string label = "HFhits", const char * tag = "Preliminary_Eff97_AMPT_run150590_d1114v0", const char* dataset = "DATA",const char* glauber = "HydjetBass"){
+void makeTable(int nbins = 40, const string label = "HFhits", const char * tag = "Preliminary_NoEffCor_AMPT_d1107", const char* dataset = "DATA"){
 
-  bool DATA = true;
-  bool SIM = false;
+  bool DATA = false;
+  bool SIM = true;
   bool MC = false;
-  double EFF = 0.97;
+  double EFF = 1;
   double MXS = 1. - EFF;
-
-  const char* bit0 = "HLT_HIMinBiasBSC_Core";
-  const char* bit1 = "HLT_HIClusterVertexCompatibility";
-  
-  string beamhalobits[100] = {
-    "L1Tech_BSC_halo_beam2_inner.v0",
-    "L1Tech_BSC_halo_beam2_outer.v0",
-    "L1Tech_BSC_halo_beam1_inner.v0",
-    "L1Tech_BSC_halo_beam1_outer.v0"
-  };
 
    // Retrieving data
   int maxEvents = -200;
   vector<int> runnums;
   
-  string infileNames[500] = {
-    Form("/d101/frankma/data/HIAllPhysics/HR10AllPR2/r150590v1/*.root",dataset)
-  };
+  //  const char* infileName = Form("/net/hisrv0001/home/yetkin/hidsk0001/analysis/prod/%s_RECO_391/test.root",dataset);
+  const char* infileName = Form("/net/hisrv0001/home/yetkin/hidsk0001/centrality/prod/%s/test.root",dataset);
 
-  int nFiles = 1;
-  TChain* t = new TChain("hltanalysis/HltTree");
+  //  TFile* infile = new TFile(infileName,"read");
+  TChain* t = new TChain("HltTree");
+  //  TChain* t = new TChain("hltanalysis/HltTree");
 
-  for(int i = 0; i < nFiles; ++i){
-    t->Add(infileNames[i].data());
-  }
+  t->Add(infileName);
 
   // Creating output table
-  TFile* outFile = new TFile("tables_Run150590_AMPTOrgan_d1114.root","update");
+  TFile* outFile = new TFile("tables_d1108.root","update");
    TDirectory* dir = outFile->mkdir(tag);
    dir->cd();
    TNtuple* nt = new TNtuple("nt","","hf:bin:b:npart:ncoll:nhard");
@@ -72,17 +60,10 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
   int runMC = 1;
   TFile * inputMCfile;
   CentralityBins* inputMCtable;
-
-  TH1* hEff;
+  
   if(DATA){
-    if(0){
-      inputMCfile = new TFile("GuitarPiano_Glauber.root","read");
-      inputMCtable = (CentralityBins*)inputMCfile->Get("CentralityTable_HFhits40_AMPT_Piano2760GeV_v3_mc_MC_39Y_V4/run1");
-      hEff = (TH1*)inputMCfile->Get(Form("hEff"));
-    }else{
-      inputMCfile = new TFile("BassOrgan_Glauber.root","read");
-      inputMCtable = (CentralityBins*)inputMCfile->Get("CentralityTable_HFhits40_AMPT2760GeV_v1_mc_MC_38Y_V12/run1");
-    }
+    inputMCfile = new TFile("tables_d1103.root","read");
+    inputMCtable = (CentralityBins*)inputMCfile->Get("CentralityTable_HFhits40_AMPT2760GeV_v1_mc_MC_38Y_V12/run1");
   }
 
   // Setting up variables & branches
@@ -90,19 +71,10 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
   vector<float> values;
 
   float b,npart,ncoll,nhard,hf,hfhit,eb,ee,etmr,parameter;
-  int npix,ntrks, vtxNtrk;
+  int npix,ntrks;
+  //  TTree* t = (TTree*)infile->Get("HltTree");
   int run;
-  int trig[20];
-  int reject[20];
 
-  t->SetBranchAddress(bit0,&(trig[0]));
-  t->SetBranchAddress(bit1,&(trig[1]));
-  t->SetBranchAddress(beamhalobits[0].data(),&(reject[0]));
-  t->SetBranchAddress(beamhalobits[1].data(),&(reject[1]));
-  t->SetBranchAddress(beamhalobits[2].data(),&(reject[2]));
-  t->SetBranchAddress(beamhalobits[3].data(),&(reject[3]));
-  
-  t->SetBranchAddress("recoVrtNtrk",&vtxNtrk);
   if(SIM){
     t->SetBranchAddress("b",&b);
     t->SetBranchAddress("Npart",&npart);
@@ -127,28 +99,16 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
   bool binHFhit = label.compare("HFhits") == 0;
   bool binEB = label.compare("EB") == 0;
   bool binEE = label.compare("EE") == 0;
-  bool binETMR = label.compare("ETmidRapidity") == 0;
+  bool binETMR = label.compare("ETMR") == 0;
   bool binNpix = label.compare("PixelHits") == 0;
   bool binNtrks = label.compare("Ntracks") == 0;
 
   // Determining bins of cross section
   // loop over events
-  double dev = 0;
-  double xsec = 0;
-
   unsigned int events=t->GetEntries();
   for(unsigned int iev = 0; iev < events && (maxEvents < 0 || iev< maxEvents); ++iev){
-    if( iev % 5000 == 0 ) cout<<"Processing event : "<<iev<<endl;
+    if( iev % 100 == 0 ) cout<<"Processing event : "<<iev<<endl;
     t->GetEntry(iev);
-
-    bool validVtx = vtxNtrk > 1;
-    bool selectEvent = trig[0] && trig[1]  // Min Bias, Vtx compatible
-      && 
-      !(reject[0] || reject[1] || reject[2] || reject[3]) // Not halo
-      && 
-      validVtx;
-
-    if(!selectEvent) continue;
 
     if(binNpart) parameter = npart;
     if(binNcoll) parameter = ncoll;
@@ -161,15 +121,9 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
     if(binETMR) parameter = etmr;
     if(binNpix) parameter = npix;
     if(binNtrks) parameter = ntrks;
-    //    cout<<"before runnum"<<endl;
-
+ 
     values.push_back(parameter);
     if(runnums.size() == 0 || runnums[runnums.size()-1] != run) runnums.push_back(run);
-    //    cout<<"runnum"<<endl;
-
-    dev += 1;
-    //    if(0) xsec += parameter / hEff->GetBinContent(hEff->FindBin(val));
-
   }
   
   if(label.compare("b") == 0) sort(values.begin(),values.end(),descend);
@@ -183,28 +137,15 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
   cout<<"(";
 
   int bin = 0;
+  double dev = events;
   for(int i = 0; i< nbins; ++i){
      // Find the boundary 
-    int entry = (int)(i*(dev/EFF/nbins) - dev*MXS/EFF);
+    int entry = (int)(i*(dev/nbins));
     binboundaries[i] = values[entry];
 
      cout<<" "<<binboundaries[i];
      if(i < nbins - 1) cout<<",";
      else cout<<")"<<endl;
-
-  }
-
-  if(0){ // Alternatively, using Npart dependent efficiency
-    double integral = 0;
-    int currentbin = 0;
-    for(int iv = 0; iv < dev && currentbin < nbins; ++iv){
-      double val = values[iv];  
-      integral += val / hEff->GetBinContent(hEff->FindBin(val));
-      if(integral > (int)(currentbin*(xsec/nbins))){
-	binboundaries[currentbin] = val;
-	currentbin++;
-      }
-    }
   }
 
   cout<<"-------------------------------------"<<endl;
@@ -221,15 +162,6 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
   for(unsigned int iev = 0; iev < events && (maxEvents < 0 || iev< maxEvents); ++iev){
      if( iev % 100 == 0 ) cout<<"Processing event : "<<iev<<endl;
      t->GetEntry(iev);
-     bool validVtx = vtxNtrk > 1;
-     bool selectEvent = trig[0] && trig[1]  // Min Bias, Vtx compatible
-      &&
-       !(reject[0] || reject[1] || reject[2] || reject[3]) // Not halo
-      &&
-       validVtx;
-
-     if(!selectEvent) continue;
-
      if(binNpart) parameter = npart;
      if(binNcoll) parameter = ncoll;
      if(binNhard) parameter = nhard;
@@ -253,22 +185,17 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
   }
 
   // Fitting Glauber distributions in bins to get mean and sigma values
-  cout<<"a"<<endl;
 
   dir->cd();
-  cout<<"b"<<endl;
   TF1* fGaus = new TF1("fb","gaus(0)",0,2); 
   fGaus->SetParameter(0,1);
   fGaus->SetParameter(1,0.04);
   fGaus->SetParameter(2,0.02); 
-  cout<<"c"<<endl;
   
   fitSlices(hNpart,fGaus);
-  cout<<"d"<<endl;
   fitSlices(hNcoll,fGaus);
   fitSlices(hNhard,fGaus);
   fitSlices(hb,fGaus);
-  cout<<"e"<<endl;
 
   TH1D* hNpartMean = (TH1D*)gDirectory->Get("hNpart_1");
   TH1D* hNpartSigma = (TH1D*)gDirectory->Get("hNpart_2");
@@ -278,7 +205,6 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
   TH1D* hNhardSigma = (TH1D*)gDirectory->Get("hNhard_2");
   TH1D* hbMean = (TH1D*)gDirectory->Get("hb_1");
   TH1D* hbSigma = (TH1D*)gDirectory->Get("hb_2");
-  cout<<"f"<<endl;
 
   cout<<"-------------------------------------"<<endl;
   cout<<"# Bin NpartMean NpartSigma NcollMean NcollSigma bMean bSigma BinEdge"<<endl;
@@ -310,7 +236,6 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
 
   // Save the table in output file
   if(onlySaveTable){
-    cout<<"x"<<endl;
 
      hNpart->Delete();
      hNpartMean->Delete();
@@ -324,7 +249,6 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
      hb->Delete();
      hbMean->Delete();
      hbSigma->Delete();
-     cout<<"y"<<endl;
   }
  
   }else{
@@ -360,22 +284,14 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
 
   }
 
-  cout<<"ax"<<endl;
 
   outFile->cd(); 
-  cout<<"axx"<<endl;
-
   dir->cd();
-  cout<<"bx"<<endl;
 
   bins->SetName(Form("run%d",1));
-  cout<<"cx"<<endl;
   bins->Write();
-  cout<<"dx"<<endl;
   nt->Write();  
-  cout<<"ex"<<endl;
   bins->Delete();
-  cout<<"fx"<<endl;
   outFile->Write();
   
 }

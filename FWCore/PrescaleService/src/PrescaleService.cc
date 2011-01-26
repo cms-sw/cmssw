@@ -31,7 +31,7 @@ namespace edm {
       , lvl1Labels_(iPS.getParameter<std::vector<std::string> >("lvl1Labels"))
       , nLvl1Index_(lvl1Labels_.size())
       , iLvl1IndexDefault_(0)
-      , vpsetPrescales_(iPS.getParameter<std::vector<ParameterSet> >("prescaleTable"))
+      , vpsetPrescales_(iPS.getParameterSetVector("prescaleTable"))
       , prescaleTable_()
     {
       std::string lvl1DefaultLabel=
@@ -64,7 +64,7 @@ namespace edm {
       iLvl1IndexDefault_ = 0;
       lvl1Labels_ = iPS.getParameter<std::vector<std::string> >("lvl1Labels");
       nLvl1Index_ = lvl1Labels_.size();
-      vpsetPrescales_ = iPS.getParameter<std::vector<ParameterSet> >("prescaleTable");
+      vpsetPrescales_ = iPS.getParameterSetVector("prescaleTable");
       std::string lvl1DefaultLabel=
 	iPS.getUntrackedParameter<std::string>("lvl1DefaultLabel");
       for (unsigned int i=0; i < lvl1Labels_.size(); ++i) {
@@ -90,7 +90,7 @@ namespace edm {
       std::set<std::string> prescalerModules;
       std::vector<std::string> allModules=prcPS.getParameter<std::vector<std::string> >("@all_modules");
       for(unsigned int i = 0; i < allModules.size(); ++i) {
-	ParameterSet pset  = prcPS.getParameter<ParameterSet>(allModules[i]);
+	ParameterSet const& pset  = prcPS.getParameterSet(allModules[i]);
 	std::string moduleLabel = pset.getParameter<std::string>("@module_label");
 	std::string moduleType  = pset.getParameter<std::string>("@module_type");
 	if (moduleType == "HLTPrescaler") prescalerModules.insert(moduleLabel);

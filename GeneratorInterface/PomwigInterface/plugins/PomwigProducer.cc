@@ -1285,19 +1285,25 @@ bool PomwigProducer::setRngSeeds(int mseed)
   }
   long double c;
   c = (long double)2111111111.0 * temx[3] +
-    1492.0 * (temx[3] = temx[2]) +
-    1776.0 * (temx[2] = temx[1]) +
-    5115.0 * (temx[1] = temx[0]) +
+    1492.0 * temx[2] +
+    1776.0 * temx[1] +
+    5115.0 * temx[0] +
     temx[4];
+  temx[3] = temx[2];
+  temx[2] = temx[1];
+  temx[1] = temx[0];
   temx[4] = floorl(c);
   temx[0] = c - temx[4];
   temx[4] = temx[4] * (1./(65536.*65536.));
   hwevnt.NRN[0]=int(temx[0]*99999);
   c = (long double)2111111111.0 * temx[3] +
-    1492.0 * (temx[3] = temx[2]) +
-    1776.0 * (temx[2] = temx[1]) +
-    5115.0 * (temx[1] = temx[0]) +
+    1492.0 * temx[2] +
+    1776.0 * temx[1] +
+    5115.0 * temx[0] +
     temx[4];
+  temx[3] = temx[2];
+  temx[2] = temx[1];
+  temx[1] = temx[0];
   temx[4] = floorl(c);
   temx[0] = c - temx[4];
   hwevnt.NRN[1]=int(temx[0]*99999);

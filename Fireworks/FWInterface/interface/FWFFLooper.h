@@ -77,7 +77,6 @@ private:
    FWFFLooper(const FWFFLooper&);                  // stop default
    const FWFFLooper& operator=(const FWFFLooper&); // stop default
 
-   void loadDefaultGeometryFile( void );
    
    edm::Service<FWFFHelper>            m_appHelper;
    std::auto_ptr<FWFFNavigator>        m_navigator;

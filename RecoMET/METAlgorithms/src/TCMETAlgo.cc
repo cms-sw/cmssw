@@ -26,6 +26,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/PFMET.h"
+//#include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
@@ -241,7 +242,10 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      // get input value maps
      event.getByLabel( muonDepValueMap_ , muon_data_h );
      event.getByLabel( tcmetDepValueMap_, tcmet_data_h );
-
+/*
+     const reco::CaloMETCollection *calometcol = metHandle.product();
+     const reco::CaloMET calomet = calometcol->front();
+*/
      muon_data  = *muon_data_h;
      tcmet_data = *tcmet_data_h;
 

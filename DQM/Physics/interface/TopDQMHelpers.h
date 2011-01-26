@@ -122,8 +122,7 @@ class Calculate {
                      the selection (optional).
     - max          : whether there is a max value on which to reject the whole event after 
                      the selection (optional).
-    - electronId   : input tag of an electronId association map and selection pattern 
-                     (optional). 
+    - electronId   : input tag of an electronId association map (optional). 
     - jetCorrector : label of jet corrector (optional).
     - jetBTagger   : parameters defining the btag algorithm and working point of choice
                      (optional).
@@ -162,19 +161,8 @@ private:
   edm::InputTag src_;
   /// min/max for object multiplicity
   int min_, max_; 
-  /// electronId label as extra selection type
+  /// electronId as extra selection type
   edm::InputTag electronId_;
-  /// electronId pattern we expect the following pattern:
-  ///  0: fails
-  ///  1: passes electron ID only
-  ///  2: passes electron Isolation only
-  ///  3: passes electron ID and Isolation only
-  ///  4: passes conversion rejection
-  ///  5: passes conversion rejection and ID
-  ///  6: passes conversion rejection and Isolation
-  ///  7: passes the whole selection
-  /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-  int eidPattern_;
   /// jet corrector as extra selection type
   std::string jetCorrector_;
   /// choice for b-tag as extra selection type
@@ -202,11 +190,7 @@ SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg) :
   cfg.exists("min") ? min_= cfg.getParameter<int>("min") : min_= -1;
   cfg.exists("max") ? max_= cfg.getParameter<int>("max") : max_= -1;
   // read electron extras if they exist
-  if(cfg.existsAs<edm::ParameterSet>("electronId")){ 
-    edm::ParameterSet elecId=cfg.getParameter<edm::ParameterSet>("electronId");
-    electronId_= elecId.getParameter<edm::InputTag>("src");
-    eidPattern_= elecId.getParameter<int>("pattern");
-  }
+  if(cfg.exists("electronId"  )){ electronId_= cfg.getParameter<edm::InputTag>("electronId"  ); }
   // read jet corrector label if it exists
   if(cfg.exists("jetCorrector")){ jetCorrector_= cfg.getParameter<std::string>("jetCorrector"); }
   // read btag information if it exists
@@ -243,7 +227,7 @@ bool SelectionStep<Object>::select(const edm::Event& event)
     // special treatment for electrons
     if(dynamic_cast<const reco::GsfElectron*>(&*obj)){
       unsigned int idx = obj-src->begin();
-      if( electronId_.label().empty() ? true : ((int)(*electronId)[src->refAt(idx)] & eidPattern_) ){   
+      if( electronId_.label().empty() ? true : (*electronId)[src->refAt(idx)]>0.99 ){   
 	if(select_(*obj))++n;
       }
     }

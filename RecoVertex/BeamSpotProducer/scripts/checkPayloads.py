@@ -92,30 +92,16 @@ def getListOfRunsAndLumiFromRR(lastRun=-1,runErrors={}):
 
 #####################################################################################
 def main():
-    usage = "USAGE: ./checkPayloads.py (optional tagNumber) (optional \"lumi\") (optional \"z\" (optional destDB)"
     printExtra = False
     tagNumber = "14"
-    dbBase = ""
-    sigmaZ = ""
-
     if len(sys.argv) >= 2:
         if not sys.argv[1].isdigit():
-            exit(usage)
+            exit("USAGE: ./checkPayloads.py (optional tagNumber)")
         else:
             tagNumber = sys.argv[1]
-    if len(sys.argv) >= 3:
-        if not sys.argv[2] == "lumi":
-            exit(usage)
-        else:
-            dbBase = "_LumiBased"
-    if len(sys.argv) == 4:
-        if not sys.argv[3] == "z":
-            exit(usage)
-        else:
-            sigmaZ = "_SigmaZ"
     destDB = ""
-    if(len(sys.argv) > 4):
-        destDB = sys.argv[4]
+    if(len(sys.argv) >= 3):
+        destDB = sys.argv[2]
     #132573 Beam lost immediately
     #132958 Bad strips
     #133081 Bad pixels bad strips
@@ -136,27 +122,16 @@ def main():
     #142503 Bad pixels bad strips
     #142653 Strips not in data taking
     #143977 No Beam Strips and Pixels bad
-    #148859 Strips and Pixels HV off waiting for beam 
     
-    knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562,139455,140133,140182,142461,142465,142503,142653,143977,148859]
-    tagName = "BeamSpotObjects_2009" + dbBase + sigmaZ + "_v" + tagNumber + "_offline"
+    knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562,139455,140133,140182,142461,142465,142503,142653,143977]
+    tagName = "BeamSpotObjects_2009_v" + tagNumber + "_offline"
     print "Checking payloads for tag " + tagName
     runErrors = {}
     listOfRunsAndLumiFromRR = getListOfRunsAndLumiFromRR(-1,runErrors)
-    tmpListOfIOVs = []
     if(destDB != ""):
-        tmpListOfIOVs = getUploadedIOVs(tagName,destDB) 
+        listOfIOVs = getUploadedIOVs(tagName,destDB) 
     else:
-        tmpListOfIOVs = getUploadedIOVs(tagName)
-
-
-    listOfIOVs = []
-    if(dbBase == ''):
-        listOfIOVs = tmpListOfIOVs
-    else:
-        for iov in tmpListOfIOVs:
-            if((iov >> 32) not in listOfIOVs):
-                listOfIOVs.append(iov >>32)
+        listOfIOVs = getUploadedIOVs(tagName)
     RRRuns = listOfRunsAndLumiFromRR.keys()
     RRRuns.sort()
     for run in RRRuns:

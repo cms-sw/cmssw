@@ -13,5 +13,4 @@
 <use   name="DataFormats/Math"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="clhep"/>
-<use   name="TrackingTools/TrackAssociator" />
 <flags   EDM_PLUGIN="1"/>

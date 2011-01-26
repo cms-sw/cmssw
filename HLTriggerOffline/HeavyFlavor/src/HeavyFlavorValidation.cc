@@ -177,14 +177,14 @@ void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup
   myBook2D( "globMuon_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
   myBook2D( "globMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dMuon_recoEtaPt",i+1), muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", filterNamesLevels[i].first);
+    myBook2D( TString::Format("filt%dMuon_recoEtaPt",int(i+1)), muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", filterNamesLevels[i].first);
   }
   myBook2D( "pathMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", triggerPathName);
   myBook2D( "resultMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
 // Eta Pt Single Resolution
   myBookProfile2D( "resGlobGen_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBookProfile2D( TString::Format("resFilt%dGlob_recoEtaPt",i+1), muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", filterNamesLevels[i].first);
+    myBookProfile2D( TString::Format("resFilt%dGlob_recoEtaPt",int(i+1)), muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", filterNamesLevels[i].first);
   }
   myBookProfile2D( "resPathGlob_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", triggerPathName);
 // Eta Pt Double  
@@ -192,12 +192,12 @@ void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup
   myBook2D( "globDimuon_genEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
   myBook2D( "globDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dDimuon_recoEtaPt",i+1), dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
+    myBook2D( TString::Format("filt%dDimuon_recoEtaPt",int(i+1)), dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
   }  
   myBook2D( "pathDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
   myBook2D( "resultDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("diFilt%dDimuon_recoEtaPt",i+1), dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
+    myBook2D( TString::Format("diFilt%dDimuon_recoEtaPt",int(i+1)), dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
   }  
   myBook2D( "diPathDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
 // Eta Phi Single
@@ -205,7 +205,7 @@ void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup
   myBook2D( "globMuon_genEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
   myBook2D( "globMuon_recoEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dMuon_recoEtaPhi",i+1), muonEtaBins, "#mu eta", muonPhiBins, "#mu phi", filterNamesLevels[i].first);
+    myBook2D( TString::Format("filt%dMuon_recoEtaPhi",int(i+1)), muonEtaBins, "#mu eta", muonPhiBins, "#mu phi", filterNamesLevels[i].first);
   }
   myBook2D( "pathMuon_recoEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi", triggerPathName);
   myBook2D( "resultMuon_recoEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
@@ -214,12 +214,12 @@ void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup
   myBook2D( "globDimuon_genRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
   myBook2D( "globDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dDimuon_recoRapPt",i+1), dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
+    myBook2D( TString::Format("filt%dDimuon_recoRapPt",int(i+1)), dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
   }  
   myBook2D( "pathDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
   myBook2D( "resultDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("diFilt%dDimuon_recoRapPt",i+1), dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
+    myBook2D( TString::Format("diFilt%dDimuon_recoRapPt",int(i+1)), dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
   }  
   myBook2D( "diPathDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
 // Pt DR Double  
@@ -227,11 +227,11 @@ void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup
   myBook2D( "globDimuon_genPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
   myBook2D( "globDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dDimuon_recoPtDR",i+1), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", filterNamesLevels[i].first);
+    myBook2D( TString::Format("filt%dDimuon_recoPtDR",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", filterNamesLevels[i].first);
   }
   myBook2D( "pathDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", triggerPathName);
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("diFilt%dDimuon_recoPtDR",i+1), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", filterNamesLevels[i].first);
+    myBook2D( TString::Format("diFilt%dDimuon_recoPtDR",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", filterNamesLevels[i].first);
   }  
   myBook2D( "diPathDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", triggerPathName);
   myBook2D( "resultDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
@@ -240,11 +240,11 @@ void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup
 //   myBook2D( "globDimuon_genPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS");
   myBook2D( "globDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS");
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dDimuon_recoPtDRpos",i+1), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", filterNamesLevels[i].first);
+    myBook2D( TString::Format("filt%dDimuon_recoPtDRpos",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", filterNamesLevels[i].first);
   }
   myBook2D( "pathDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", triggerPathName);
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("diFilt%dDimuon_recoPtDRpos",i+1), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", filterNamesLevels[i].first);
+    myBook2D( TString::Format("diFilt%dDimuon_recoPtDRpos",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", filterNamesLevels[i].first);
   }  
   myBook2D( "diPathDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", triggerPathName);
   myBook2D( "resultDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS");
@@ -259,7 +259,7 @@ void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup
 // Matching
   myBook2D( "globGen_deltaEtaDeltaPhi", deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi");
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dGlob_deltaEtaDeltaPhi",i+1), deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi", filterNamesLevels[i].first);
+    myBook2D( TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1)), deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi", filterNamesLevels[i].first);
   }    
   myBook2D( "pathGlob_deltaEtaDeltaPhi", deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi", triggerPathName);
 // Size of containers
@@ -267,7 +267,7 @@ void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup
   myBook1D( "genMuon_size", sizeBins, "container size" );
   myBook1D( "globMuon_size", sizeBins, "container size" );
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook1D( TString::Format("filt%dMuon_size",i+1), sizeBins, "container size", filterNamesLevels[i].first);
+    myBook1D( TString::Format("filt%dMuon_size",int(i+1)), sizeBins, "container size", filterNamesLevels[i].first);
   }    
   myBook1D( "pathMuon_size", sizeBins, "container size", triggerPathName );
 }
@@ -345,7 +345,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
           }
         }
       }
-      ME[TString::Format("filt%dMuon_size",i+1)]->Fill(muonsAtFilter[i].size());
+      ME[TString::Format("filt%dMuon_size",int(i+1))]->Fill(muonsAtFilter[i].size());
       LogDebug("HLTriggerOfflineHeavyFlavor")<<"Filter \""<<filterNamesLevels[i].first<<"\" has "<<muonsAtFilter[i].size()<<" muons"<<endl;
     }
   }else{
@@ -396,11 +396,11 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   for(size_t i=0; i<filterNamesLevels.size(); i++){
     filt_glob.push_back( vector<int>(globMuons.size(),-1) );            
     if( filterNamesLevels[i].second == 1 ){
-      match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",i+1)], globMuons_position, muonsAtFilter[i] ,globL1DeltaRMatchingCut, filt_glob[i] );
+      match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonsAtFilter[i] ,globL1DeltaRMatchingCut, filt_glob[i] );
     }else if( filterNamesLevels[i].second == 2 ){
-      match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",i+1)], globMuons_position, muonPositionsAtFilter[i] ,globL2DeltaRMatchingCut, filt_glob[i] );
+      match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonPositionsAtFilter[i] ,globL2DeltaRMatchingCut, filt_glob[i] );
     }else if( filterNamesLevels[i].second == 3 ){
-      match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",i+1)], globMuons, muonsAtFilter[i] ,globL3DeltaRMatchingCut, filt_glob[i] );
+      match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons, muonsAtFilter[i] ,globL3DeltaRMatchingCut, filt_glob[i] );
     }
   }
   vector<int> path_glob(globMuons.size(),-1);
@@ -425,9 +425,9 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
       ME["globMuon_recoEtaPhi"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
       for(size_t f=0; f<filterNamesLevels.size(); f++){
         if(filt_glob[f][glob_gen[i]] != -1){
-          ME[TString::Format("resFilt%dGlob_recoEtaPt",f+1)]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt(), (muonsAtFilter[f][filt_glob[f][glob_gen[i]]].pt()-globMuons[glob_gen[i]].pt())/globMuons[glob_gen[i]].pt() );
-          ME[TString::Format("filt%dMuon_recoEtaPt",f+1)]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt());
-          ME[TString::Format("filt%dMuon_recoEtaPhi",f+1)]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
+          ME[TString::Format("resFilt%dGlob_recoEtaPt",int(f+1))]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt(), (muonsAtFilter[f][filt_glob[f][glob_gen[i]]].pt()-globMuons[glob_gen[i]].pt())/globMuons[glob_gen[i]].pt() );
+          ME[TString::Format("filt%dMuon_recoEtaPt",int(f+1))]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt());
+          ME[TString::Format("filt%dMuon_recoEtaPhi",int(f+1))]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
         }else{
           break;
         }  
@@ -485,10 +485,10 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
 //two filter objects    
       for(size_t f=0; f<filterNamesLevels.size(); f++){
         if(filt_glob[f][glob_gen[0]] != -1 && filt_glob[f][glob_gen[secondMuon]] != -1){
-          ME[TString::Format("diFilt%dDimuon_recoEtaPt",f+1)]->Fill( globDimuonEta, globDimuonPt );
-          ME[TString::Format("diFilt%dDimuon_recoRapPt",f+1)]->Fill( globDimuonRap, globDimuonPt );
-          if(highPt) ME[TString::Format("diFilt%dDimuon_recoPtDR",f+1)]->Fill( globDimuonPt, globDimuonDR );
-          if(highPt) ME[TString::Format("diFilt%dDimuon_recoPtDRpos",f+1)]->Fill( globDimuonPt, globDimuonDRpos );
+          ME[TString::Format("diFilt%dDimuon_recoEtaPt",int(f+1))]->Fill( globDimuonEta, globDimuonPt );
+          ME[TString::Format("diFilt%dDimuon_recoRapPt",int(f+1))]->Fill( globDimuonRap, globDimuonPt );
+          if(highPt) ME[TString::Format("diFilt%dDimuon_recoPtDR",int(f+1))]->Fill( globDimuonPt, globDimuonDR );
+          if(highPt) ME[TString::Format("diFilt%dDimuon_recoPtDRpos",int(f+1))]->Fill( globDimuonPt, globDimuonDRpos );
         }else{
           break;
         }  
@@ -496,10 +496,10 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
 //one filter object
       for(size_t f=0; f<filterNamesLevels.size(); f++){
         if(filt_glob[f][glob_gen[0]] != -1 || filt_glob[f][glob_gen[secondMuon]] != -1){
-          ME[TString::Format("filt%dDimuon_recoEtaPt",f+1)]->Fill( globDimuonEta, globDimuonPt );
-          ME[TString::Format("filt%dDimuon_recoRapPt",f+1)]->Fill( globDimuonRap, globDimuonPt );
-          if(highPt) ME[TString::Format("filt%dDimuon_recoPtDR",f+1)]->Fill( globDimuonPt, globDimuonDR );
-          if(highPt) ME[TString::Format("filt%dDimuon_recoPtDRpos",f+1)]->Fill( globDimuonPt, globDimuonDRpos );
+          ME[TString::Format("filt%dDimuon_recoEtaPt",int(f+1))]->Fill( globDimuonEta, globDimuonPt );
+          ME[TString::Format("filt%dDimuon_recoRapPt",int(f+1))]->Fill( globDimuonRap, globDimuonPt );
+          if(highPt) ME[TString::Format("filt%dDimuon_recoPtDR",int(f+1))]->Fill( globDimuonPt, globDimuonDR );
+          if(highPt) ME[TString::Format("filt%dDimuon_recoPtDRpos",int(f+1))]->Fill( globDimuonPt, globDimuonDRpos );
         }else{
           break;
         }

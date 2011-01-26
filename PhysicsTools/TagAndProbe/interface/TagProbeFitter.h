@@ -8,7 +8,7 @@
 #include "RooFitResult.h"
 #include "RooDataSet.h"
 
-class TagProbeFitter {
+class TagProbeFitter: public TGraphAsymmErrors{
   public:
   ///construct the fitter with the inputFileName, inputDirectoryName, inputTreeName, outputFileName and specify wether to save the workspace with data for each bin 
   TagProbeFitter(std::vector<std::string> inputFileNames, std::string inputDirectoryName, std::string inputTreeName, std::string outputFileName, int numCPU = 1, bool saveWorkspace_ = false, bool floatShapeParameters = true, std::vector<std::string> fixVars_ = std::vector<std::string>() );
@@ -22,12 +22,6 @@ class TagProbeFitter {
   ///adds a new category variable to the set of variables describing the data in the tree; "expression" is parsed by factory()
   bool addCategory(std::string categoryName, std::string title, std::string expression);
 
-  ///adds a new category based on a cut
-  bool addExpression(std::string expressionName, std::string title, std::string expression, std::vector<std::string> arguments);
-
-  ///adds a new category based on a cut
-  bool addThresholdCategory(std::string categoryName, std::string title, std::string varName, double cutValue);
-
   ///add a new PDF to the list of available PDFs; "pdfCommands" are parsed by factory().
   /// the user needs to define efficiency[0.9,0,1] for the initial value, "signal" PDF, "backgroundPass" PDF and "backgroundFail" PDF
   void addPdf(std::string pdfName, std::vector<std::string>& pdfCommands);
@@ -36,25 +30,10 @@ class TagProbeFitter {
   void addFixedVariavles(std::vector<string>);
 
   ///calculate the efficiency for a particular binning of the data; it saves everything in the directory "dirName", uses the previously defined PDF with name "pdfName"
-  std::string calculateEfficiency(std::string dirName, std::string efficiencyCategory, std::string efficiencyState, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap, bool saveWork) {
-    std::vector<std::string> efficiencyCategories(1,efficiencyCategory);
-    std::vector<std::string> efficiencyStates(1,efficiencyState);
-    return calculateEfficiency(dirName, efficiencyCategories, efficiencyStates, unbinnedVariables, binnedReals, binnedCategories, binToPDFmap, saveWork);
-  }
-
-  std::string calculateEfficiency(std::string dirName, std::vector<std::string> efficiencyCategories, std::vector<std::string> efficiencyStates, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap, bool saveWork);
-
-  /// set if to do a binned fit 
-  void setBinnedFit(bool binned, int bins=0) { binnedFit = binned; massBins = bins; }
+  std::string calculateEfficiency(std::string dirName, std::string efficiencyCategory, std::string efficiencyState, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap, bool saveWork);
 
   /// set number of bins to use when making the plots; 0 = automatic
   void setBinsForMassPlots(int bins) ;
-
-  /// set a variable to be used as weight for a dataset. empty string means no weights.
-  void setWeightVar(const std::string &weight);
-
-  /// suppress most of the output from RooFit and Minuit
-  void setQuiet(bool quiet_=true);
 
   protected:
   ///pointer to the input TTree Chain of data
@@ -72,9 +51,6 @@ class TagProbeFitter {
   ///the default option wether to save the workspace for each bin
   bool saveWorkspace;
 
-  ///do binned fit; 0 = automatic, 1 = yes, -1 = no. d
-  int binnedFit;
-
   ///number of bins to use in mass shape plots; 0 = automatic
   int massBins;
 
@@ -83,17 +59,6 @@ class TagProbeFitter {
 
   ///the set of variables describing the data in the input TTree
   RooArgSet variables;
-
-  ///weight variable (or empy string for no weights)
-  std::string weightVar;
-
-  ///expressions computed almost on the fly
-  //RooArgSet expressionVars;
-  std::vector<std::pair<std::pair<std::string,std::string>, std::pair<std::string, std::vector<std::string> > > > expressionVars;
-
-  // Threshold categories have to be created at the last minute
-  // so we store just the info about them
-  std::vector<std::pair<std::pair<std::string,std::string>, std::pair<std::string, double> > > thresholdCategories;
 
   ///list of variables fo fix (see below)
   std::vector<std::string> fixVars;
@@ -106,9 +71,6 @@ class TagProbeFitter {
 
   ///a RooWorkspace object to parse input parameters with ".factory()"
   RooWorkspace parameterParser;
-
-  /// suppress most printout
-  bool quiet;
 
   ///fix or release variables selected by user
   void varFixer(RooWorkspace* w, bool fix);

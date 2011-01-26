@@ -16,10 +16,10 @@ class ConnectionL1TMenu(object):
     # extract the connection string and configuration name
     if value:
       if ':' in value:
-        self.override = "L1GtTriggerMenu_%s_mc" % value.rsplit(':', 1)[1]
-        self.connect  = '"%s"' % value.rsplit(':', 1)[0]
+        self.override = 'L1GtTriggerMenu_%s_mc' % value.rsplit(':', 1)[1]
+        self.connect  = value.rsplit(':', 1)[0]
       else:
-        self.override = "L1GtTriggerMenu_%s_mc" % value
+        self.override = 'L1GtTriggerMenu_%s_mc' % value
         self.connect  = None
 
 

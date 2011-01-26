@@ -23,7 +23,7 @@ parser.add_argument('menu',
                     action  = 'store', 
                     type    = options.ConnectionHLTMenu,
                     metavar = 'MENU', 
-                    help    = 'HLT menu to dump from the database. Supported formats are:\n- [hltdev:]/path/to/configuration[/Vn]\n- orcoff:/path/to/configuration[/Vn]\n- run:runnumber\nThe possible databases are "hltdev" (default, used for offline development) and "orcoff:" (ued for online menus). If no version is specified, the latest one is automatically used.\nIf "run:" is used instead, the actual HLT menu for thegiven run number is looked up and used.' )
+                    help    = 'HLT menu to dump from the database. Supported formats are:\n- [hltdev:]/path/to/configuration[/Vn]\n- orcoff:/path/to/configuration[/Vn]\n- run:runnumber\nThe possible databases are "hltdev" (default, used for offline development) and "orcoff" (used for online menus). If no version is specified, the latest one is automatically used.\nIf "run:" is used instead, the actual HLT menu for the given run number is looked up and used.' )
 
 # options
 parser.add_argument('--process', 
@@ -75,7 +75,7 @@ group.add_argument('--output',
                     metavar = 'OUTPUT',
                     choices = [ 'all', 'minimal', 'none' ], 
                     default = 'all',
-                    help    = 'Use\n- "all" to output all output modules (default),\n- "minimal" to only output the TriggerResults,\n- "none" to drop all output modules' )
+                    help    = 'Use\n- "all" to output all output modules (default),\n- "minimal" to only output the TriggerResults,\n- "none" to remove all output modules' )
 group.add_argument('--no-output',
                     dest    = 'output',
                     action  = 'store_const',

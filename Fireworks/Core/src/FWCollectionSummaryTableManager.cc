@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.7 2010/06/18 10:17:14 yana Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.6 2010/06/07 21:59:03 chrjones Exp $
 //
 
 // system include files
@@ -53,15 +53,14 @@ m_widget(iWidget)
        boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
        if(trans->isValid()) m_valueGetters.push_back(trans);
      }
-     else if ( m_collection->purpose() == "HCal" ){
+     if ( m_collection->purpose() == "HCal" ){
        s_names.push_back(std::pair<std::string,std::string>("hadEt","GeV"));
        boost::shared_ptr<FWItemValueGetter> hadEt( new FWItemValueGetter(type,s_names));
        if(hadEt->isValid()) m_valueGetters.push_back(hadEt);
-     }
-     else if (m_collection->purpose() == "HCal Outer"){
-        s_names.push_back(std::pair<std::string,std::string>("outerEt","GeV"));
-        boost::shared_ptr<FWItemValueGetter> outerEt( new FWItemValueGetter(type,s_names));
-        if(outerEt->isValid()) m_valueGetters.push_back(outerEt);
+       s_names.clear();
+       s_names.push_back(std::pair<std::string,std::string>("outerEt","GeV"));
+       boost::shared_ptr<FWItemValueGetter> outerEt( new FWItemValueGetter(type,s_names));
+       if(outerEt->isValid()) m_valueGetters.push_back(outerEt);
      }
    } else {
      s_names.push_back(std::pair<std::string,std::string>("pt","GeV"));

@@ -162,19 +162,6 @@ SKIMStreamCosmicSP = cms.FilteredStream(
 
 #####################
 
-from DPGAnalysis.Skims.cosmicTPSkim_cff import *
-cosmicTPSkimPath = cms.Path( cosmicTPSkim )
-SKIMStreamCosmicTP = cms.FilteredStream(
-        responsible = '',
-        name = 'CosmicTP',
-        paths = (cosmicTPSkimPath),
-        content = skimContent.outputCommands,
-        selectEvents = cms.untracked.PSet(),
-        dataTier = cms.untracked.string('RAW-RECO')
-        )
-
-#####################
-
 from DPGAnalysis.Skims.ecalrechitsSkim_cff import *
 ecalrechitSkimPath = cms.Path(ecalrechitSkim)
 SKIMStreamEcalRH = cms.FilteredStream(

@@ -17,41 +17,22 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE TrackBasedConversions
-setenv RUNTYPE Central
-setenv STARTUP True
-
 setenv CMSSWver1 3_10_0
-setenv CMSSWver2 3_11_0
+setenv CMSSWver2 3_10_0
 setenv OLDRELEASE 3_10_0
-setenv NEWRELEASE 3_11_0
-setenv OLDPRERELEASE 
-setenv NEWPRERELEASE pre3
-
-if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START310_V3-v1
-setenv NEWGLOBALTAG START310_V3-v1
-else
-setenv OLDGLOBALTAG MC_310_V3-v1
-setenv NEWGLOBALTAG MC_310_V3-v1
-endif
+setenv NEWRELEASE 3_10_0
+setenv OLDPRERELEASE pre5
+setenv NEWPRERELEASE pre7TEST2
 
 
-#setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
-setenv OLDRELEASE ${OLDRELEASE}
+setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
 
-
-
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
-
-
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #setenv WorkDir1    /data/pccmsnd1/b/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
@@ -60,107 +41,45 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 
 #Name of sample (affects output directory name and htmldescription only) 
+
+
 #setenv SAMPLE SingleGammaPt10IDEAL
-#setenv SAMPLE SingleGammaPt35IDEAL
-setenv SAMPLE QCD_Pt_80_120STARTUP
+setenv SAMPLE SingleGammaPt35IDEAL
+#setenv SAMPLE QCD_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_20_30STARTUP
 
-if ( $RUNTYPE == Central ) then
-setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/ConversionValidator/EfficienciesAndFakeRate
-setenv HISTOPATHNAME_tkConversions DQMData/Run\ 1/EgammaV/Run\ summary/ConversionValidator/ConversionInfo
-endif
-
-if ( $RUNTYPE == Local ) then
-setenv HISTOPATHNAME_Efficiencies DQMData/EgammaV/ConversionValidator/EfficienciesAndFakeRate
-setenv HISTOPATHNAME_tkConversions DQMData/EgammaV/ConversionValidator/ConversionInfo
-endif
+#TYPE must be one ofPixelMatchGsfElectron, Photon 
 
 #==============END BASIC CONFIGURATION==================
-#Input root trees for the two cases to be compared 
 
+
+#Input root trees for the two cases to be compared 
 if ($SAMPLE == SingleGammaPt10IDEAL) then
 
-if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
-else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0002_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
-endif
 
+else if ($SAMPLE == SingleGammaPt35IDEAL) then
 
-else if ($SAMPLE == SingleGammaPt35IDEAL) then 
-
-if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
-else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0002_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
-endif
+#setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35TEST.root
+setenv NEWFILE /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_10_0_pre7/src/Validation/RecoEgamma/test/PhotonValidationRelVal3_10_0_pre7_SingleGammaPt35TEST.root
 
-
-else if ($SAMPLE == SingleGammaFlatPt10_100IDEAL) then 
-
-
-if ( $RUNTYPE == Local ) then
-setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaFlatPt10To100.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaFlatPt10To100.root
-endif 
-
-
-else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
-
-
-if ( $RUNTYPE == Local ) then
-setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
-else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
-endif
-
-
-
-else if ($SAMPLE == PhotonJets_Pt_10STARTUP) then
-
-if ( $RUNTYPE == Local ) then
-setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_PhotonJets_Pt_10.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_PhotonJets_Pt_10.root
-else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValPhotonJets_Pt_10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValPhotonJets_Pt_10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
-endif
-
-else if ($SAMPLE ==  GammaJets_Pt_80_120STARTUP) then 
-
-if ( $RUNTYPE == Local ) then
-setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_GammaJets_Pt_80_120.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_GammaJets_Pt_80_120.root
-else if ( $RUNTYPE == Central ) then
-endif
 
 else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
-if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
-else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
-endif
+
 
 else if ($SAMPLE == QCD_Pt_20_30STARTUP) then 
 
-if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/ConversionValidationRelVal${OLDRELEASE}_QCD_Pt_20_30.root
 setenv NEWFILE ${WorkDir2}/ConversionValidationRelVal${NEWRELEASE}_QCD_Pt_20_30.root
-else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValQCD_Pt_20_30__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValQCD_Pt_20_30__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
+
 endif
- 
-endif
+
+
 
 #Location of output.  The default will put your output in:
 #http://cmsdoc.cern.ch/Physics/egamma/www/validation/
@@ -308,12 +227,10 @@ foreach i (`cat scaledhistos`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i","c$i",430, 10, 700, 500);
 c$i->SetFillColor(10);
-//file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
-file_new->cd("$HISTOPATHNAME_tkConversions");
+file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
 Double_t mnew=$i->GetMaximum();
 Double_t nnew=$i->GetEntries();
-//file_old->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
-file_old->cd("$HISTOPATHNAME_tkConversions");
+file_old->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
 Double_t mold=$i->GetMaximum();
 Double_t nold=$i->GetEntries();
 $i->SetStats(0);
@@ -342,8 +259,7 @@ $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 //$i->SetLineWidth(3);
 $i->Draw();
-//file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
-file_new->cd("$HISTOPATHNAME_tkConversions");
+file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
@@ -367,12 +283,10 @@ foreach i (`cat logYScaledHistos`)
 TCanvas *c$i = new TCanvas("c$i","c$i",430, 10, 700, 500);
 c$i->SetFillColor(10);
 c$i->SetLogy(1);
-//file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
-file_new->cd("$HISTOPATHNAME_tkConversions");
+file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
 Double_t mnew=$i->GetMaximum();
 Double_t nnew=$i->GetEntries();
-//file_old->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
-file_old->cd("$HISTOPATHNAME_tkConversions");
+file_old->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
 Double_t mold=$i->GetMaximum();
 Double_t nold=$i->GetEntries();
 $i->SetStats(0);
@@ -381,8 +295,7 @@ $i->SetMinimum(3.);
 $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 $i->Draw();
-//file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
-file_new->cd("$HISTOPATHNAME_tkConversions");
+file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
@@ -406,8 +319,7 @@ foreach i (`cat efficiency`)
 
 TCanvas *c$i = new TCanvas("c$i","c$i",430, 10, 700, 500);
 c$i->SetFillColor(10);
-//file_old->cd("DQMData/EgammaV/ConversionValidator/EfficienciesAndFakeRate");
-file_old->cd("$HISTOPATHNAME_Efficiencies");
+file_old->cd("DQMData/EgammaV/ConversionValidator/EfficienciesAndFakeRate");
 $i->SetStats(0);
 if ( $i==convFakeRateVsRTwoTracks ) {
 $i->GetYaxis()->SetRangeUser(0.,1.);
@@ -420,8 +332,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw("e1");
-//file_new->cd("DQMData/EgammaV/ConversionValidator/EfficienciesAndFakeRate");
-file_new->cd("$HISTOPATHNAME_Efficiencies");
+file_new->cd("DQMData/EgammaV/ConversionValidator/EfficienciesAndFakeRate");
 $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetMaximum(1.1);
@@ -443,13 +354,11 @@ foreach i (`cat projections`)
 
 TCanvas *c$i = new TCanvas("c$i","c$i",430, 10, 700, 500);
 c$i->SetFillColor(10);
-//file_old->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
-file_old->cd("$HISTOPATHNAME_tkConversions");
+file_old->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
 TH1D *tmp1$i= $i->ProjectionY();
 Double_t nold=tmp1$i->GetEntries();
 Double_t mold=tmp1$i->GetMaximum();
-//file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
-file_new->cd("$HISTOPATHNAME_tkConversions");
+file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
 TH1D *tmp2$i= $i->ProjectionY();
 Double_t nnew=tmp2$i->GetEntries();
 Double_t mnew=tmp2$i->GetMaximum();
@@ -479,8 +388,7 @@ foreach i (`cat profiles`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i","c$i",430, 10, 700, 500);
 c$i->SetFillColor(10);
-//file_old->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
-file_old->cd("$HISTOPATHNAME_tkConversions");
+file_old->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
 $i->SetStats(0);
 if (  $i == pConvVtxdRVsR || $i == pConvVtxdXVsX ||  $i ==  pConvVtxdYVsY ) {
 $i->GetYaxis()->SetRangeUser(-2.,2);
@@ -495,8 +403,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw();
-//file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
-file_new->cd("$HISTOPATHNAME_tkConversions");
+file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);

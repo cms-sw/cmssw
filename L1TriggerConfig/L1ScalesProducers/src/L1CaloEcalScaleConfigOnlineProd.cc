@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1CaloEcalScaleConfigOnlineProd.cc,v 1.3 2009/10/25 19:30:36 efron Exp $
+// $Id: L1CaloEcalScaleConfigOnlineProd.cc,v 1.2 2009/10/23 14:47:00 efron Exp $
 //
 //
 
@@ -220,17 +220,14 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      
        std::vector<int> tpgValue; 
        tpgValue.resize(256);
-       int lastValue = 0;
        for(int tpg = 0; tpg < 256 ; tpg++){
 
 	 for(int i = 0; i < 1024 ; i++) {
 
 	   if(tpg == (0xff & (lut_->at(i)))){
 	     tpgValue[tpg] = i; 
-	     lastValue = i;
 	     break;
 	   }
-	   tpgValue[tpg] = lastValue;
 	 }
        }
        tpgValueMap[grpIt->first] = tpgValue;
@@ -358,7 +355,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      }
 
      
-     //     ecalScale->print(std::cout);
+     
 
  
 // ------------ method called to produce the data  ------------

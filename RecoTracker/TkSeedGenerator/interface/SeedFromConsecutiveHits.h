@@ -44,7 +44,7 @@ public:
 
   bool isValid() {return  theSeed.size()>0 ; }
  
-  TrajectorySeed const & TrajSeed(){ return theSeed.back(); }
+  TrajectorySeed TrajSeed(){ return theSeed.back(); }
 
 private:
   TrajectorySeedCollection theSeed;

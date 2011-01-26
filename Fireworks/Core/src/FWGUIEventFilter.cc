@@ -144,10 +144,12 @@ FWGUIEventFilter::show( std::list<FWEventSelector*>* sels, int filterMode, int f
    m_origFilterMode = filterMode;
 
    // Button ids run from 1
-   m_btnGroup->SetButton(filterMode);
-   
+   if (TGButton *btn = m_btnGroup->GetButton(filterMode)) {
+      btn->SetDown();
+      m_btnGroup->SetButton(filterMode);
+   }
+
    assert(m_selectionFrame == 0);
-   
    m_selectionFrame = new TGVerticalFrame(m_selectionFrameParent);
    m_selectionFrameParent->AddFrame(m_selectionFrame,  new TGLayoutHints(kLHintsExpandX));
 
@@ -161,18 +163,6 @@ FWGUIEventFilter::show( std::list<FWEventSelector*>* sels, int filterMode, int f
    MapWindow();
 }
 
-void
-FWGUIEventFilter::reset()
-{
-   // called on load of configuration
-   m_selectionFrameParent->RemoveFrame(m_selectionFrame);
-   m_selectionFrame = 0;
-   
-   for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
-      delete *i;
-   
-   m_guiSelectors.clear();
-}
 
 ///////////////////////////////////////////
 //   Callbacks

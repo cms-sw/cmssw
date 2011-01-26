@@ -8,7 +8,7 @@
 //
 // Original Author:  M. Fischler
 //         Created:  Wed May 20 2009
-// $Id: MessageServicePSetValidation.cc,v 1.3 2009/07/08 20:26:38 fischler Exp $
+// $Id: MessageServicePSetValidation.cc,v 1.4 2010/07/24 14:15:31 wmtan Exp $
 //
 // Change log
 //
@@ -433,8 +433,8 @@ noOtherPsets(ParameterSet const & pset)
     ParameterSet empty_PSet;
     bool ok_optionalPSet = false; 
     try {
-      ParameterSet culprit = 
-                    pset.getUntrackedParameter<ParameterSet>((*i),empty_PSet);
+      ParameterSet const& culprit = 
+                    pset.getUntrackedParameterSet((*i),empty_PSet);
       ok_optionalPSet = 
           culprit.getUntrackedParameter<bool>("placeholder",  ok_optionalPSet);
       ok_optionalPSet = 
@@ -473,7 +473,7 @@ destinationPSets(ParameterSet const & pset)
   std::vector<std::string>::const_iterator end = destinations.end();
   for ( std::vector<std::string>::const_iterator i = destinations.begin();
   							     i != end; ++i )  {
-    ParameterSet d = pset.getUntrackedParameter<ParameterSet>(*i,empty_PSet);
+    ParameterSet const& d = pset.getUntrackedParameterSet(*i,empty_PSet);
     destinationPSet(d,*i); 
   }
 } // destinationPSets
@@ -534,8 +534,7 @@ edm::service::MessageServicePSetValidation::
 defaultPSet(ParameterSet const & main_pset)
 {
   ParameterSet empty_PSet;
-  ParameterSet pset = main_pset.getUntrackedParameter<ParameterSet>
-  							("default",empty_PSet);
+  ParameterSet const& pset = main_pset.getUntrackedParameterSet("default",empty_PSet);
   std::string psetName = "default (at MessageLogger main level)";
   
   // Category PSets
@@ -590,7 +589,7 @@ statisticsPSets(ParameterSet const & pset)
   for ( std::vector<std::string>::const_iterator i = statistics.begin();
   							     i != end; ++i )  {
     if (lookForMatch(destinations, *i)) continue; 
-    ParameterSet d = pset.getUntrackedParameter<ParameterSet>(*i, empty_PSet);
+    ParameterSet const& d = pset.getUntrackedParameterSet(*i, empty_PSet);
     statisticsPSet(d,*i); 
   }
 } // statisticsPSets
@@ -651,7 +650,7 @@ fwkJobReportPSets(ParameterSet const & pset)
   std::vector<std::string>::const_iterator end = fwkJobReports.end();
   for ( std::vector<std::string>::const_iterator i = fwkJobReports.begin();
   							     i != end; ++i )  {
-    ParameterSet d = pset.getUntrackedParameter<ParameterSet>(*i, empty_PSet);
+    ParameterSet const& d = pset.getUntrackedParameterSet(*i, empty_PSet);
     fwkJobReportPSet(d,*i); 
   }
 } // fwkJobReportPSets
@@ -717,8 +716,8 @@ noNoncategoryPsets(ParameterSet const & pset,std::string const & psetName)
     ParameterSet empty_PSet;
     bool ok_optionalPSet = false; 
     try {
-      ParameterSet culprit = 
-                    pset.getUntrackedParameter<ParameterSet>((*i),empty_PSet);
+      ParameterSet const& culprit = 
+                    pset.getUntrackedParameterSet((*i),empty_PSet);
       ok_optionalPSet = 
           culprit.getUntrackedParameter<bool>("placeholder",  ok_optionalPSet);
       ok_optionalPSet = 
@@ -770,8 +769,7 @@ categoryPSet (ParameterSet const & pset,
       return;  
   }
   ParameterSet empty_PSet;
-  ParameterSet c = pset.getUntrackedParameter<ParameterSet>
-  						(categoryName,empty_PSet);
+  ParameterSet const& c = pset.getUntrackedParameterSet(categoryName,empty_PSet);
   std::string const & psetName(OuterPsetName);
   catInts   			( c, psetName, categoryName );
   catNone <unsigned int> 	( c, psetName, categoryName, "unsigned int" );

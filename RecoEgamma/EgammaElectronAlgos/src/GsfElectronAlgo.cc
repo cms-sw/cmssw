@@ -133,25 +133,27 @@ GsfElectronAlgo::GeneralData::~GeneralData()
 
 struct GsfElectronAlgo::EventSetupData
  {
-  EventSetupData() ;
-  ~EventSetupData() ;
+   EventSetupData() ;
+   ~EventSetupData() ;
 
-  unsigned long long cacheIDGeom ;
-  unsigned long long cacheIDTopo ;
-  unsigned long long cacheIDTDGeom ;
-  unsigned long long cacheIDMagField ;
-  unsigned long long cacheChStatus ;
+   unsigned long long cacheIDGeom ;
+   unsigned long long cacheIDTopo ;
+   unsigned long long cacheIDTDGeom ;
+   unsigned long long cacheIDMagField ;
+   unsigned long long cacheChStatus ;
+   unsigned long long cacheSevLevel ;
 
-  edm::ESHandle<MagneticField> magField ;
-  edm::ESHandle<CaloGeometry> caloGeom ;
-  edm::ESHandle<CaloTopology> caloTopo ;
-  edm::ESHandle<TrackerGeometry> trackerHandle ;
-  edm::ESHandle<EcalChannelStatus> chStatus ;
+   edm::ESHandle<MagneticField> magField ;
+   edm::ESHandle<CaloGeometry> caloGeom ;
+   edm::ESHandle<CaloTopology> caloTopo ;
+   edm::ESHandle<TrackerGeometry> trackerHandle ;
+   edm::ESHandle<EcalChannelStatus> chStatus ;
+//   edm::ESHandle<EcalSeverityLevelAlgo> sevLevel;
 
-  const MultiTrajectoryStateTransform * mtsTransform ;
-  GsfConstraintAtVertex * constraintAtVtx ;
-  const MultiTrajectoryStateMode * mtsMode ;
- } ;
+   const MultiTrajectoryStateTransform * mtsTransform ;
+   GsfConstraintAtVertex * constraintAtVtx ;
+   const MultiTrajectoryStateMode * mtsMode ;
+} ;
 
 GsfElectronAlgo::EventSetupData::EventSetupData()
  : cacheIDGeom(0), cacheIDTopo(0), cacheIDTDGeom(0), cacheIDMagField(0),cacheChStatus(0),
@@ -585,10 +587,16 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
   if (generalData_->superClusterErrorFunction)
    { generalData_->superClusterErrorFunction->init(es) ; }
 
-   if(eventSetupData_->cacheChStatus!=es.get<EcalChannelStatusRcd>().cacheIdentifier()){
-     eventSetupData_->cacheChStatus=es.get<EcalChannelStatusRcd>().cacheIdentifier();
-     es.get<EcalChannelStatusRcd>().get(eventSetupData_->chStatus);
-   }
+
+  if(eventSetupData_->cacheChStatus!=es.get<EcalChannelStatusRcd>().cacheIdentifier()){
+    eventSetupData_->cacheChStatus=es.get<EcalChannelStatusRcd>().cacheIdentifier();
+    es.get<EcalChannelStatusRcd>().get(eventSetupData_->chStatus);
+  }
+
+//  if(eventSetupData_->cacheSevLevel != es.get<EcalSeverityLevelAlgoRcd>().cacheIdentifier()){
+//    eventSetupData_->cacheSevLevel = es.get<EcalSeverityLevelAlgoRcd>().cacheIdentifier();
+//    es.get<EcalSeverityLevelAlgoRcd>().get(eventSetupData_->sevLevel);
+//  }
  }
 
 void GsfElectronAlgo::copyElectrons( GsfElectronCollection & outEle )
@@ -647,24 +655,26 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
   float egIsoPtMinEndcap=generalData_->isoCfg.etMinEndcaps,egIsoEMinEndcap=generalData_->isoCfg.eMinEndcaps, egIsoConeSizeInEndcap=generalData_->isoCfg.intRadiusEcalEndcaps;
   eventData_->ecalBarrelHitsMeta = new EcalRecHitMetaCollection(*eventData_->reducedEBRecHits) ;
   eventData_->ecalEndcapHitsMeta = new EcalRecHitMetaCollection(*eventData_->reducedEERecHits) ;
-  eventData_->ecalBarrelIsol03 = new EgammaRecHitIsolation(egIsoConeSizeOutSmall,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,eventData_->ecalBarrelHitsMeta,DetId::Ecal);
-  eventData_->ecalBarrelIsol04 = new EgammaRecHitIsolation(egIsoConeSizeOutLarge,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,eventData_->ecalBarrelHitsMeta,DetId::Ecal);
-  eventData_->ecalEndcapIsol03 = new EgammaRecHitIsolation(egIsoConeSizeOutSmall,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,eventData_->ecalEndcapHitsMeta,DetId::Ecal);
-  eventData_->ecalEndcapIsol04 = new EgammaRecHitIsolation(egIsoConeSizeOutLarge,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,eventData_->ecalEndcapHitsMeta,DetId::Ecal);
+  eventData_->ecalBarrelIsol03 = new EgammaRecHitIsolation(egIsoConeSizeOutSmall,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,eventData_->ecalBarrelHitsMeta/*,eventSetupData_->sevLevel.product()*/,DetId::Ecal);
+  eventData_->ecalBarrelIsol04 = new EgammaRecHitIsolation(egIsoConeSizeOutLarge,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,eventData_->ecalBarrelHitsMeta/*,eventSetupData_->sevLevel.product()*/,DetId::Ecal);
+  eventData_->ecalEndcapIsol03 = new EgammaRecHitIsolation(egIsoConeSizeOutSmall,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,eventData_->ecalEndcapHitsMeta/*,eventSetupData_->sevLevel.product()*/,DetId::Ecal);
+  eventData_->ecalEndcapIsol04 = new EgammaRecHitIsolation(egIsoConeSizeOutLarge,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,eventData_->ecalEndcapHitsMeta/*,eventSetupData_->sevLevel.product()*/,DetId::Ecal);
   eventData_->ecalBarrelIsol03->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
   eventData_->ecalBarrelIsol03->setVetoClustered(generalData_->isoCfg.vetoClustered);
   eventData_->ecalBarrelIsol03->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
-  //eventData_->ecalBarrelIsol03->doFlagChecks(generalData_->spikeCfg.v_chstatus);
+  //eventData_->ecalBarrelIsol03->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut);//,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
+  eventData_->ecalBarrelIsol03->doFlagChecks(generalData_->spikeCfg.recHitFlagsToBeExcluded);
   eventData_->ecalBarrelIsol04->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
   eventData_->ecalBarrelIsol04->setVetoClustered(generalData_->isoCfg.vetoClustered);
   eventData_->ecalBarrelIsol04->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
-  //eventData_->ecalBarrelIsol04->doFlagChecks(generalData_->spikeCfg.v_chstatus);
+  //eventData_->ecalBarrelIsol04->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut);//,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
+  eventData_->ecalBarrelIsol04->doFlagChecks(generalData_->spikeCfg.recHitFlagsToBeExcluded);
   eventData_->ecalEndcapIsol03->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
   eventData_->ecalEndcapIsol03->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  //eventData_->ecalEndcapIsol03->doFlagChecks(generalData_->spikeCfg.v_chstatus);
+  eventData_->ecalEndcapIsol03->doFlagChecks(generalData_->spikeCfg.recHitFlagsToBeExcluded);
   eventData_->ecalEndcapIsol04->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
   eventData_->ecalEndcapIsol04->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  //eventData_->ecalEndcapIsol04->doFlagChecks(generalData_->spikeCfg.v_chstatus);
+  eventData_->ecalEndcapIsol04->doFlagChecks(generalData_->spikeCfg.recHitFlagsToBeExcluded);
  }
 
 void GsfElectronAlgo::endEvent()
@@ -1128,10 +1138,10 @@ void GsfElectronAlgo::createElectron()
 // Ambiguity solving
 //=======================================================================================
 
-bool better_electron( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
- { return (std::abs(e1->eSuperClusterOverP()-1)<std::abs(e2->eSuperClusterOverP()-1)) ; }
+//bool better_electron( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
+// { return (std::abs(e1->eSuperClusterOverP()-1)<std::abs(e2->eSuperClusterOverP()-1)) ; }
 
-void GsfElectronAlgo::setAmbiguityFlags( bool ignoreNotPreselected )
+void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
  {
   GsfElectronPtrCollection::iterator e1, e2 ;
   if (generalData_->strategyCfg.ambSortingStrategy==0)
@@ -1146,7 +1156,10 @@ void GsfElectronAlgo::setAmbiguityFlags( bool ignoreNotPreselected )
    ( e1 = eventData_->electrons->begin() ;
      e1 != eventData_->electrons->end() ;
      ++e1 )
-   { (*e1)->setAmbiguous(false) ; }
+   {
+    (*e1)->clearAmbiguousGsfTracks() ;
+    (*e1)->setAmbiguous(false) ;
+   }
 
   // resolve when e/g SC is found
   for

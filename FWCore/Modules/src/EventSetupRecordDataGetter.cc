@@ -88,7 +88,7 @@ private:
       descriptions.setComment("Retrieves specified data from the EventSetup sytem whenever that data changes.");
       
       ParameterSetDescription desc;
-      desc.addOptionalUntracked<bool>("verbose", false)->setComment("Print a message to the logger each time a data item is gotten.");
+      desc.addUntracked<bool>("verbose", false)->setComment("Print a message to the logger each time a data item is gotten.");
 
       ParameterSetDescription toGet;
       toGet.add<std::string>("record")->setComment("The name of an EventSetup record holding the data you want obtained.");
@@ -129,9 +129,9 @@ private:
    EventSetupRecordDataGetter::doGet(EventSetup const& iSetup) {  
       if(0 == recordToDataKeys_.size()) {
          typedef std::vector<ParameterSet> Parameters;
-         Parameters toGet = pSet_.getParameter<Parameters>("toGet");
+         Parameters const& toGet = pSet_.getParameterSetVector("toGet");
          
-         for(Parameters::iterator itToGet = toGet.begin(), itToGetEnd = toGet.end(); itToGet != itToGetEnd; ++itToGet) {
+         for(Parameters::const_iterator itToGet = toGet.begin(), itToGetEnd = toGet.end(); itToGet != itToGetEnd; ++itToGet) {
             std::string recordName = itToGet->getParameter<std::string>("record");
             
             eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType(recordName));

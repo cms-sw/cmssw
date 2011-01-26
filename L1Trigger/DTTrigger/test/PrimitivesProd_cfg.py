@@ -9,11 +9,8 @@ process.DTGeometryESModule.applyAlignment = False
 
 process.load("L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi")
 
-process.dtTriggerPrimitiveDigis.digiTag = "hltMuonDTDigis"
-
-
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_9_2/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V3-v1/0068/90B5EFB8-24E8-DF11-A195-001A92971B7C.root')
+    fileNames = cms.untracked.vstring('file:digi.root')
 )
 
 #process.MessageLogger = cms.Service("MessageLogger",
@@ -29,7 +26,23 @@ process.source = cms.Source("PoolSource",
 #)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(1)
+)
+
+process.dtTriggerPrimitiveDigis = cms.EDProducer("DTTrigProd",
+    debug = cms.untracked.bool(False),
+    tTrigModeConfig = cms.PSet(
+        debug = cms.untracked.bool(False),
+        kFactor = cms.double(-2.0),
+        vPropWire = cms.double(24.4),
+        tofCorrType = cms.int32(1),
+        tTrig = cms.double(500.0)
+    ),
+    digiTag = cms.InputTag("muonDTDigis"),
+    tTrigMode = cms.string('DTTTrigSyncTOFCorr'),
+    DTTFSectorNumbering = cms.bool(True),
+    lut_btic = cms.untracked.int32(31),
+    lut_dump_flag = cms.untracked.bool(False)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

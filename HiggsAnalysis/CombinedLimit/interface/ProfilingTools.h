@@ -1,4 +1,0 @@
-#ifndef HiggsAnalysis_CombinedLimit_ProfilingTools_
-#define HiggsAnalysis_CombinedLimit_ProfilingTools_
-bool setupIgProfDumpHook() ;
-#endif

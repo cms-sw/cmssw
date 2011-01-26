@@ -507,7 +507,7 @@ void testps::testEmbeddedPSet()
   CPPUNIT_ASSERT(trackedPart.getParameterSet("psEmbedded").getParameterSet("psDeeper").getParameter<int>("deepest") == 6);
   CPPUNIT_ASSERT(ps.getUntrackedParameter<unsigned long long>("u64") == 64);
   CPPUNIT_ASSERT(!trackedPart.exists("u64"));
-  std::vector<edm::ParameterSet> vpset1 = trackedPart.getParameter<std::vector<edm::ParameterSet> >("psVPset");
+  std::vector<edm::ParameterSet> const& vpset1 = trackedPart.getParameterSetVector("psVPset");
   CPPUNIT_ASSERT(vpset1[0].getParameter<int>("int1") == 1);
   CPPUNIT_ASSERT(vpset1[1].getParameter<int>("int2") == 2);
   CPPUNIT_ASSERT(vpset1[2].getParameter<int>("int3") == 3);

@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: NamedCandCombiner.h,v 1.2 2009/04/22 17:51:06 kaulmer Exp $
+ * $Id: NamedCandCombiner.h,v 1.1 2009/03/03 13:50:54 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -113,8 +113,7 @@ namespace reco {
 		   reco::modules::make<Selector>( cfg ), 
 		   reco::modules::make<PairSelector>( cfg ),
 		   Setup( cfg ), 
-		   cfg.existsAs<bool>("checkCharge")  ? cfg.getParameter<bool>("checkCharge")  : true, 
-		   cfg.existsAs<bool>("checkOverlap") ? cfg.getParameter<bool>("checkOverlap") : true, 
+		   checkCharge(cfg), 
 		   dauCharge_ ) {
         produces<reco::NamedCompositeCandidateCollection>();
       }
@@ -159,6 +158,15 @@ namespace reco {
       }
       /// combiner utility
       ::NamedCandCombiner<Selector, PairSelector, Cloner, Setup> combiner_;
+      bool checkCharge( const edm::ParameterSet & cfg ) const {
+	using namespace std;
+	const string par( "checkCharge" );
+	vector<string> bools = cfg.getParameterNamesForType<bool>();
+	bool found = find( bools.begin(), bools.end(), "checkCharge" ) != bools.end();
+	if (found) return cfg.getParameter<bool>( par );
+	// default: check charge
+	return true;
+      }
     };
 
   }

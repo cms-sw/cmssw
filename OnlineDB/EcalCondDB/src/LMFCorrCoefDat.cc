@@ -1,365 +1,129 @@
 #include "OnlineDB/EcalCondDB/interface/LMFCorrCoefDat.h"
 
-LMFCorrCoefDat::LMFCorrCoefDat() {
+/*
+LMFCorrCoefDat::LMFCorrCoefDat(): LMFDat() {
   init();
 }
 
-LMFCorrCoefDat::LMFCorrCoefDat(EcalDBConnection *c) {
+LMFCorrCoefDat::LMFCorrCoefDat(EcalDBConnection *c): LMFDat(c) {
   init();
-  m_env = c->getEnv();
-  m_conn = c->getConn();
 }
 
 LMFCorrCoefDat::LMFCorrCoefDat(oracle::occi::Environment* env,
-			       oracle::occi::Connection* conn) {
+			       oracle::occi::Connection* conn): 
+  LMFDat(env, conn) {
   init();
-  m_env = env;
-  m_conn = conn;
-}
-
-LMFCorrCoefDat::~LMFCorrCoefDat() {
-  std::map<int, LMFCorrCoefDatComponent*>::iterator i = m_data.begin(); 
-  std::map<int, LMFCorrCoefDatComponent*>::iterator e = m_data.end(); 
-  while (i != e) {
-    delete i->second;
-    i++;
-  }
-  m_data.clear();
-  std::map<int, LMFLmrSubIOV*>::iterator si = m_subiov.begin(); 
-  std::map<int, LMFLmrSubIOV*>::iterator se = m_subiov.end(); 
-  while (si != se) {
-    delete si->second;
-    si++;
-  }
-  m_subiov.clear();
 }
 
 void LMFCorrCoefDat::init() {
-  m_data.clear();
-  m_subiov.clear();
-  m_env = NULL;
-  m_conn = NULL;
-  nodebug();
+  m_className = "LMFCorrCoefDat";
+  m_keys["P1"] = 0;
+  m_keys["P2"] = 1;
+  m_keys["P3"] = 2;
+  m_keys["P1E"] = 3;
+  m_keys["P2E"] = 4;
+  m_keys["P3E"] = 5;
+  m_keys["LMRSUBIOV"] = 6;
+  m_keys["SEQ_ID"] = 7;
+  m_keys["FLAG"] = 8;
 }
 
-LMFCorrCoefDat& LMFCorrCoefDat::setConnection(oracle::occi::Environment* env,
-					      oracle::occi::Connection* conn) {
-  m_env = env;
-  m_conn = conn;
-  std::map<int, LMFCorrCoefDatComponent*>::iterator i = m_data.begin(); 
-  std::map<int, LMFCorrCoefDatComponent*>::iterator e = m_data.end(); 
-  while (i != e) {
-    i->second->setConnection(m_env, m_conn);
-    i++;
-  }
+LMFCorrCoefDat& LMFCorrCoefDat::setLMFLmrSubIOV(const EcalLogicID&id, 
+						const LMFLmrSubIOV &iov) {
+  LMFDat::setData(id, "LMRSUBIOV", iov.getID());
   return *this;
 }
 
-LMFCorrCoefDat& LMFCorrCoefDat::setP123(const LMFLmrSubIOV &iov, 
-					const EcalLogicID &id, float p1, float p2, float p3) {
-  find(iov)->setP123(id, p1, p2, p3);
+LMFCorrCoefDat& LMFCorrCoefDat::setLMFLmrSubIOV(const EcalLogicID &id, 
+						int iov_id) {
+  LMFDat::setData(id, "LMRSUBIOV", iov_id);
   return *this;
 }
 
-LMFCorrCoefDat& LMFCorrCoefDat::setP123(const LMFLmrSubIOV &iov, const EcalLogicID &id, 
+LMFCorrCoefDat& LMFCorrCoefDat::setSequence(const EcalLogicID &id, 
+					    const LMFSeqDat &iov) {
+  LMFDat::setData(id, "SEQ_ID", iov.getID());
+  return *this;
+}
+
+LMFCorrCoefDat& LMFCorrCoefDat::setSequence(const EcalLogicID &id, int seq_id) {
+  LMFDat::setData(id, "SEQ_ID", seq_id);
+  return *this;
+}
+
+LMFCorrCoefDat& LMFCorrCoefDat::setP123(const EcalLogicID &id, 
+					float p1, float p2, float p3) {
+  LMFDat::setData(id, "P1", p1);
+  LMFDat::setData(id, "P2", p2);
+  LMFDat::setData(id, "P3", p3);
+  return *this;
+}
+
+LMFCorrCoefDat& LMFCorrCoefDat::setP123(const EcalLogicID &id, 
 					float p1, float p2, float p3,
 					float p1e, float p2e, float p3e) {
-  find(iov)->setP123(id, p1, p2, p3, p1e, p2e, p3e);
+  setP123(id, p1, p2, p3);
+  setP123Errors(id, p1e, p2e, p3e);
   return *this;
 }
 
-LMFCorrCoefDat& LMFCorrCoefDat::setP123Errors(const LMFLmrSubIOV &iov,
-					      const EcalLogicID &id, float p1e, float p2e,
-					      float p3e) {
-  find(iov)->setP123Errors(id, p1e, p2e, p3e);
+LMFCorrCoefDat& LMFCorrCoefDat::setP123Errors(const EcalLogicID &id, 
+					      float p1e, float p2e, float p3e) {
+  LMFDat::setData(id, "P1E", p1e);
+  LMFDat::setData(id, "P2E", p2e);
+  LMFDat::setData(id, "P3E", p3e);
   return *this;
 }
 
-LMFCorrCoefDat& LMFCorrCoefDat::setFlag(const LMFLmrSubIOV & iov, 
-					const EcalLogicID &id, int flag) {
-  find(iov)->setFlag(id, flag);
+LMFCorrCoefDat& LMFCorrCoefDat::setFlag(const EcalLogicID &id, int flag) {
+  LMFDat::setData(id, "FLAG", flag);
   return *this;
 }
 
-LMFCorrCoefDat& LMFCorrCoefDat::setSequence(const LMFLmrSubIOV & iov, 
-					    const EcalLogicID &id, int seq_id) {
-  find(iov)->setSequence(id, seq_id);
-  return *this;
-}
-
-LMFCorrCoefDat& LMFCorrCoefDat::setSequence(const LMFLmrSubIOV & iov, 
-					    const EcalLogicID &id, 
-					    const LMFSeqDat &seq) {
-  find(iov)->setSequence(id, seq);
-  return *this;
-}
-
-LMFCorrCoefDatComponent* LMFCorrCoefDat::find(const LMFLmrSubIOV &iov) {
-  if (m_data.find(iov.getID()) != m_data.end()) {
-    return m_data[iov.getID()];
-  } else {
-    LMFCorrCoefDatComponent *c = new LMFCorrCoefDatComponent();
-    LMFLmrSubIOV *subiov = new LMFLmrSubIOV();
-    if (m_conn != NULL) {
-      c->setConnection(m_env, m_conn);
-      subiov->setConnection(m_env, m_conn);
-    }
-    c->setLMFLmrSubIOV(iov);
-    *subiov = iov;
-    m_data[iov.getID()] = c;
-    m_subiov[iov.getID()] = subiov;
-    return c;
-  }
-}
-
-void LMFCorrCoefDat::dump() {
-  std::cout << std::endl;
-  std::cout << "##################### LMF_CORR_COEF_DAT ########################" << std::endl;
-  std::cout << "This structure contains " << m_data.size() << " LMR_SUB_IOV_ID" << std::endl;
-  std::map<int, LMFCorrCoefDatComponent*>::const_iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent*>::const_iterator e = m_data.end();
-  int count = 0;
-  while (i != e) {
-    std::cout << "### SUB IOV ID: " << i->second->getLMFLmrSubIOVID() << std::endl;
-    std::list<int> logic_ids = i->second->getLogicIds();
-    std::cout << "    Contains data for " << logic_ids.size() << " xtals" << std::endl; 
-    count += logic_ids.size(); 
-    i++;
-  }
-  std::cout << "Total no. of xtals for which data are stored: " << count << std::endl;
-  std::cout << "##################### LMF_CORR_COEF_DAT ########################" << std::endl;
-}
-
-void LMFCorrCoefDat::writeDB() {
-  std::map<int, LMFCorrCoefDatComponent*>::iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent*>::iterator e = m_data.end();
-  while (i != e) {
-    if (m_debug) {
-      std::cout << "Writing data for LMR_SUB_IOV_ID " << i->first << std::endl;
-    }
-    i->second->writeDB();
-    i++;
-  }
-}
-
-void LMFCorrCoefDat::debug() {
-  m_debug = true;
-}
-
-void LMFCorrCoefDat::nodebug() {
-  m_debug = false;
-}
-
-void LMFCorrCoefDat::fetchAfter(const Tm &t) {
+LMFLmrSubIOV LMFCorrCoefDat::getLMFLmrSubIOV(const EcalLogicID &id) {
   LMFLmrSubIOV iov(m_env, m_conn);
-  std::list<int> l = iov.getIOVIDsLaterThan(t);
-  fetch(l);
+  iov.setByID(getData(id, "LMRSUBIOV"));
+  return iov;
 }
 
-void LMFCorrCoefDat::fetch(std::list<int> subiov_ids) {
-  std::list<int>::const_iterator i = subiov_ids.begin();
-  std::list<int>::const_iterator e = subiov_ids.end();
-  while (i != e) {
-    fetch(*i);
-    i++;
-  }
+int LMFCorrCoefDat::getLMFLmrSubIOVID(const EcalLogicID &id) {
+  return getData(id, "LMRSUBIOV");
 }
 
-void LMFCorrCoefDat::fetch(int subiov_id) {
-  LMFLmrSubIOV iov(m_env, m_conn);
-  iov.setByID(subiov_id);
-  fetch(iov);
-}
-
-void LMFCorrCoefDat::fetch(const LMFLmrSubIOV &iov)
-{
-  // fetch data with given LMR_SUB_IOV_ID from the database
-  if (m_debug) {
-    std::cout << "Looking for SUB_IOV with ID " << iov.getID() << std::endl
-	      << std::flush;
-  }
-  if (m_data.find(iov.getID()) == m_data.end()) {
-    if (m_debug) {
-      std::cout << "Not found. Getting it from DB " << std::endl
-		<< std::flush;
-    }
-    LMFCorrCoefDatComponent *comp = new LMFCorrCoefDatComponent(m_env, m_conn);
-    comp->setLMFLmrSubIOV(iov);
-    comp->fetch();
-    m_data[iov.getID()] = comp;
-    LMFLmrSubIOV *subiov = new LMFLmrSubIOV(m_env, m_conn);
-    *subiov = iov;
-    m_subiov[iov.getID()] = subiov;
-  } else if (m_debug) {
-    std::cout << "Found in memory." << std::endl
-	      << std::flush;
-  }
-}
-
-std::vector<Tm> LMFCorrCoefDat::getTimes(const LMFLmrSubIOV &iov) {
-  return iov.getTimes();
-}
-
-std::map<int, std::map<int, LMFSextuple> > LMFCorrCoefDat::getParameters() {
-  // returns a map whose key is the SEQ_ID 
-  std::map<int, std::map<int, LMFSextuple> > ret;
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
-  int lmr_sub_iov_id = 0;
-  while (i != e) {
-    LMFSextuple s;
-    // loop on all LMR_SUB_IOVs
-    if (lmr_sub_iov_id != i->first) {
-      // As soon as I find a new LMR_SUB_IOV take the first record and get the
-      // SEQ_ID from it
-      std::list<int> tlist = i->second->getLogicIds();
-      int ecal_logic_id = tlist.front();
-      int this_seq_id = i->second->getSeqID(ecal_logic_id);
-      std::cout << "LMR_SUB_IOV_ID = " << i->first << " " << this_seq_id << std::endl;
-      if (ret.find(this_seq_id) == ret.end()) {
-	std::map<int, LMFSextuple> empty_map;
-	ret[this_seq_id] = empty_map;
-      } 
-      LMFLmrSubIOV lmr_sub_iov = i->second->getLMFLmrSubIOV();
-      lmr_sub_iov.getTimes(&s.t[0], &s.t[1], &s.t[2]); 
-      std::list<int>::const_iterator ixtl = tlist.begin();
-      std::list<int>::const_iterator extl = tlist.end();
-      while (ixtl != extl) {
-	std::vector<float> tvect = i->second->getParameters(*ixtl);
-	for (int i = 0; i < 3; i++) {
-	  s.p[i] = tvect[i];
-	}
-	ret[this_seq_id][*ixtl] = s;
-	ixtl++;
-      }
-      lmr_sub_iov_id = i->first;
-    }
-    i++;
-  }
-  /*
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
-  // loop on all components
-  while (i != e) {
-    int subiov_id = i->first;
-    std::list<int> logic_ids = i->second->getLogicIds();
-    std::list<int>::const_iterator il = logic_ids.begin();
-    std::list<int>::const_iterator el = logic_ids.end();
-    // loop on all logic id's in this component
-    while (il != el) {
-      // get p1, p2, p3
-      std::vector<float> p = i->second->getData(*il);
-      // get t1, t2, t3
-      std::vector<Tm> t = m_subiov[subiov_id]->getTimes();
-      // build the six parameters vector
-      std::vector<float> r(6);
-      for (int k = 0; k < 3; k++) {
-	r[k]     = t[k].microsTime();
-	r[k + 3] = p[k];
-      }
-      // add the vector to the resulting map
-      ret[*il].push_back(r);
-      il++;
-    }
-    i++;
-  }
-  */
-  return ret;
-}
-
-std::list<std::vector<float> > LMFCorrCoefDat::getParameters(const EcalLogicID 
-							     &id) {
-  return getParameters(id.getLogicID());
-}
-
-std::list<std::vector<float> > LMFCorrCoefDat::getParameters(int id) {
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
-  std::list<std::vector<float> > ret;
-  while (i != e) {
-    std::list<int> logic_ids = i->second->getLogicIds();
-    std::list<int>::iterator p = 
-      std::find(logic_ids.begin(), logic_ids.end(), id);
-    if (p != logic_ids.end()) {
-      // the given logic id is contained in at least an element of this map
-      std::vector<float> ppar;
-      std::vector<Tm> tpar;
-      // get P1, P2, P3 and T1, T2, T3
-      i->second->getData(id, ppar);
-      tpar = m_subiov[i->first]->getTimes();
-      // construct the resulting pair of triplets
-      std::vector<float> par(6);
-      for (int k = 0; k < 3; k++) {
-	par[k + 3] = ppar[k];
-	par[k]     = tpar[k].microsTime();
-      }
-      ret.push_back(par);
-    }
-    i++;
-  }
-  return ret;
-}
-
-std::vector<float> LMFCorrCoefDat::getParameters(const LMFLmrSubIOV &iov,
-						 const EcalLogicID &id) {
-  std::vector<float> x(3);
-  int key = iov.getID();
-  fetch(iov);
-  if (m_data.find(key) != m_data.end()) {
-    x = (m_data.find(key)->second)->getParameters(id);
-  } 
-  return x;
-}
-
-std::vector<float> LMFCorrCoefDat::getParameterErrors(const LMFLmrSubIOV &iov,
-						      const EcalLogicID &id) 
-{
-  std::vector<float> x;
-  int key = iov.getID();
-  fetch(iov);
-  if (m_data.find(key) != m_data.end()) {
-    x = (m_data.find(key)->second)->getParameterErrors(id);
-  }
-  return x;
-}
-
-int LMFCorrCoefDat::getFlag(const LMFLmrSubIOV &iov, 
-			    const EcalLogicID &id) {
-  int x = -1;
-  fetch(iov);
-  if (m_data.find(iov.getID()) != m_data.end()) {
-    x = (m_data.find(iov.getID())->second)->getFlag(id);
-  }
-  return x;
-}
-
-int LMFCorrCoefDat::getSeqID(const LMFLmrSubIOV &iov, 
-			     const EcalLogicID &id) {
-  int x = -1;
-  fetch(iov);
-  if (m_data.find(iov.getID()) != m_data.end()) {
-    x = (m_data.find(iov.getID())->second)->getSeqID(id);
-  }
-  return x;
-}
-
-LMFSeqDat LMFCorrCoefDat::getSequence(const LMFLmrSubIOV &iov, 
-				      const EcalLogicID &id) {
+LMFSeqDat LMFCorrCoefDat::getSequence(const EcalLogicID &id) {
   LMFSeqDat seq(m_env, m_conn);
-  fetch(iov);
-  if (m_data.find(iov.getID()) != m_data.end()) {
-    seq = (m_data.find(iov.getID())->second)->getSequence(id);
-  }
+  seq.setByID(getData(id, "SEQ_ID"));
   return seq;
 }
 
-int LMFCorrCoefDat::size() const {
-  int c = 0;
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
-  while (i != e) {
-    c += i->second->size();
-    i++;
-  }
-  return c;
+int LMFCorrCoefDat::getSequenceID(const EcalLogicID &id) {
+  return getData(id, "SEQ_ID");
 }
+
+std::vector<float>  LMFCorrCoefDat::getParameters(const EcalLogicID &id) {
+  vector<float> v;
+  v.push_back(getData(id, "P1"));
+  v.push_back(getData(id, "P2"));
+  v.push_back(getData(id, "P3"));
+  return v;
+}
+
+std::vector<float>  LMFCorrCoefDat::getParameterErrors(const EcalLogicID &id) {
+  vector<float> v;
+  v.push_back(getData(id, "P1E"));
+  v.push_back(getData(id, "P2E"));
+  v.push_back(getData(id, "P3E"));
+  return v;
+}
+
+int LMFCorrCoefDat::getFlag(const EcalLogicID &id) {
+  return getData(id, "FLAG");
+}
+
+bool LMFCorrCoefDat::isValid() {
+  bool ret = true;
+  return ret;
+}
+
+
+*/

@@ -1,5 +1,5 @@
 //
-// $Id: TriggerPath.cc,v 1.8 2010/12/15 19:44:28 vadler Exp $
+// $Id: TriggerPath.cc,v 1.4 2010/04/20 21:39:47 vadler Exp $
 //
 
 
@@ -9,10 +9,8 @@
 using namespace pat;
 
 
-// Constructors and Destructor
+/// default constructor
 
-
-// Default constructor
 TriggerPath::TriggerPath() :
   name_(),
   index_(),
@@ -26,8 +24,8 @@ TriggerPath::TriggerPath() :
   filterIndices_.clear();
 }
 
+/// constructor from values
 
-// Constructor from path name only
 TriggerPath::TriggerPath( const std::string & name ) :
   name_( name ),
   index_(),
@@ -41,8 +39,6 @@ TriggerPath::TriggerPath( const std::string & name ) :
   filterIndices_.clear();
 }
 
-
-// Constructor from values
 TriggerPath::TriggerPath( const std::string & name, unsigned index, unsigned prescale, bool run, bool accept, bool error, unsigned lastActiveFilterSlot ) :
   name_( name ),
   index_( index ),
@@ -56,25 +52,29 @@ TriggerPath::TriggerPath( const std::string & name, unsigned index, unsigned pre
   filterIndices_.clear();
 }
 
+/// getters
 
-// Methods
-
-
-// Get the index of a certain module
+// returns size of modules_ if name unknown and -1 if 'modules_' not filled
 int TriggerPath::indexModule( const std::string & name ) const
 {
-  if ( modules_.begin() == modules_.end() ) return -1;
-  return ( std::find( modules_.begin(), modules_.end(), name ) - modules_.begin() );
+  size_t i( 0 );
+  while ( i < modules().size() ) {
+    if ( name == modules().at( i ) ) {
+      return ( int )i;
+    }
+    ++i;
+  }
+  return i == 0 ? -1 : ( int )i;
 }
 
-
-// Get names of all L1 seeds with a certain decision
 std::vector< std::string > TriggerPath::l1Seeds( const bool decision ) const
 {
 
   std::vector< std::string > seeds;
   for ( L1SeedCollection::const_iterator iSeed = l1Seeds().begin(); iSeed != l1Seeds().end(); ++iSeed ) {
     if ( iSeed->first == decision ) seeds.push_back( iSeed->second );
+//   for ( size_t iSeed = 0; iSeed < l1Seeds().size(); ++iSeed ) {
+//     if ( l1Seeds().at( iSeed ).first == decision ) seeds.push_back( l1Seeds().at( iSeed ).second );
   }
   return seeds;
 

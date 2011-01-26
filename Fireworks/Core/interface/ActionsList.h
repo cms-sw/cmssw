@@ -37,7 +37,6 @@ namespace cmsshow {
    extern const std::string sShowMainViewCtl;
    extern const std::string sShowAddCollection;
    extern const std::string sShowInvMassDialog;
-   extern const std::string sShowGeometryTable;
 
    extern const std::string sHelp;
    extern const std::string sKeyboardShort;

@@ -163,7 +163,7 @@ std::string eventSetupComponent(char const* iType,
                                 edm::ParameterSet const& iProcessConfig,
                                 std::string const& iProcessName) {
   std::ostringstream result;
-  edm::ParameterSet const& pset = iProcessConfig.getParameter<edm::ParameterSet>(iCompName);
+  edm::ParameterSet const& pset = iProcessConfig.getParameterSet(iCompName);
   std::string name(pset.getParameter<std::string>("@module_label"));
   if(0 == name.size()) {
     name = pset.getParameter<std::string>("@module_type");
@@ -228,7 +228,7 @@ std::string nonProducerComponent(std::string const& iCompName,
                                  edm::ParameterSet const& iProcessConfig,
                                  std::string const& iProcessName) {
   std::ostringstream result;
-  edm::ParameterSet const& pset = iProcessConfig.getParameter<edm::ParameterSet>(iCompName);
+  edm::ParameterSet const& pset = iProcessConfig.getParameterSet(iCompName);
   std::string label(pset.getParameter<std::string>("@module_label"));
 
   result <<"Module: " << label << " " << iProcessName << "\n"

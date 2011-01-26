@@ -41,7 +41,7 @@ namespace edm {
           itName != itNameEnd;
           ++itName) {
         recordToData.clear();
-        ParameterSet preferPSet = params.getParameter<ParameterSet>(*itName);
+        ParameterSet const& preferPSet = params.getParameterSet(*itName);
         std::vector<std::string> recordNames = preferPSet.getParameterNames();
         for(std::vector<std::string>::iterator itRecordName = recordNames.begin(),
             itRecordNameEnd = recordNames.end();
