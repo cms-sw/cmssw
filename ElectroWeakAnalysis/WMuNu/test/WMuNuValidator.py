@@ -26,7 +26,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 
 process.load("ElectroWeakAnalysis.WMuNu.wmunusValidation_cfi") #load validation sequence (for WMunu & ZMuMu)
-process.wmnVal_pfMet.JetTag = cms.untracked.InputTag("antikt5CaloJets")
+process.wmnVal_pfMet.JetTag = cms.untracked.InputTag("antikt5PFJets")
 #process.wmnVal_corMet.JetTag = cms.untracked.InputTag("antikt5CaloJets") 
 #process.wmnVal_tcMet.JetTag = cms.untracked.InputTag("antikt5CaloJets") 
 

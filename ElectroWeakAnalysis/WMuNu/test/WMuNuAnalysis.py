@@ -53,7 +53,7 @@ process.tcMet = cms.EDFilter("WMuNuSelector",
 
 )
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('/data1/cepeda/NTuple.root') )
+process.TFileService = cms.Service("TFileService", fileName = cms.string('WNTuple.root') )
 
 
 process.path5 = cms.Path(process.pfMetWMuNus+process.pfMet)
