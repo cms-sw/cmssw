@@ -49,6 +49,4 @@ wmnVal_pfMet.METTag = cms.untracked.InputTag("pfMet")
 wmnVal_tcMet = wmnVal_corMet.clone()
 wmnVal_tcMet.METTag = cms.untracked.InputTag("tcMet")
 
-
-
 wmunuVal = cms.Sequence(wmnVal_corMet+wmnVal_tcMet+wmnVal_pfMet)

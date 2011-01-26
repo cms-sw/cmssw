@@ -23,7 +23,6 @@ selcorMet = cms.EDFilter("WMuNuSelector",
       MinVertices = cms.untracked.int32(0),
       MaxVertices = cms.untracked.int32(999),
 
-
       # Main cuts ->
       PtCut = cms.untracked.double(25.0), # Edited for Moriond
       EtaCut = cms.untracked.double(2.1),

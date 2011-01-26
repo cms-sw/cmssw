@@ -88,7 +88,7 @@ using namespace reco;
 WMuNuProducer::WMuNuProducer( const ParameterSet & cfg ) :
       // Input collections
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
-      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
+      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfMet"))),
       saveOnlyHighestPtCandidate_(cfg.getUntrackedParameter<bool> ("OnlyHighestPtCandidate", true))
 {
   produces< WMuNuCandidateCollection >();

@@ -112,7 +112,7 @@ WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
       vertexTag_(cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
 
       // Main cuts 
-      muonTrig_(cfg.getUntrackedParameter< std::vector<std::string> > ("MuonTrig")),
+      muonTrig_(cfg.getUntrackedParameter< std::vector<std::string> > ("MuonTrig")),  
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaMinCut_(cfg.getUntrackedParameter<double>("EtaMinCut", -2.1)),
       etaMaxCut_(cfg.getUntrackedParameter<double>("EtaMaxCut", 2.1)),

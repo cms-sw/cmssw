@@ -504,10 +504,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (muonHits<muonHitsCut_) return 0;
             if (!mu.isTrackerMuon()) return 0;
             if (nMatches<nMatchesCut_) return 0;
-
-            nid++;
-
             if(plotHistograms_)    h1_["hCutFlowSummary"]->Fill(6.);
+            nid++;
 
 
 

@@ -64,4 +64,3 @@ selPFWMuNus = cms.EDFilter("WMuNuSelector",
 )
 
 selectPFWMuNus = cms.Sequence(muonsWithPFIso+pfWMuNus+selPFWMuNus)
-
