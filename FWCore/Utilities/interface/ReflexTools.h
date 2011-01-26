@@ -4,67 +4,42 @@
 /*----------------------------------------------------------------------
 
 ReflexTools provides a small number of Reflex-based tools, used in
-the CMS event model.  
+the CMS event model.
 
 ----------------------------------------------------------------------*/
+
+#include "Reflex/Object.h"
+#include "Reflex/Type.h"
 
 #include <ostream>
 #include <set>
 #include <string>
 #include <vector>
 
-#include "Reflex/Type.h"
-#include "Reflex/Object.h"
-
-namespace edm
-{
+namespace edm {
 
   typedef std::set<std::string> StringSet;
-  
-  bool 
+
+  bool
   find_nested_type_named(std::string const& nested_type,
 			 Reflex::Type const& type_to_search,
 			 Reflex::Type& found_type);
 
   inline
-  bool 
-  value_type_of(Reflex::Type const& t, Reflex::Type& found_type)
-  {
+  bool
+  value_type_of(Reflex::Type const& t, Reflex::Type& found_type) {
     return find_nested_type_named("value_type", t, found_type);
   }
 
 
   inline
-  bool 
+  bool
   wrapper_type_of(Reflex::Type const& possible_wrapper,
-		  Reflex::Type& found_wrapped_type)
-  {
+		  Reflex::Type& found_wrapped_type) {
     return find_nested_type_named("wrapped_type",
 				  possible_wrapper,
 				  found_wrapped_type);
   }
-
-  // is_sequence_wrapper is used to determine whether the Type
-  // 'possible_sequence_wrapper' represents
-  //   edm::Wrapper<Seq<X> >,
-  // where Seq<X> is anything that is a sequence of X.
-  // Note there is special support of edm::RefVector<Seq<X> >, which
-  // will be recognized as a sequence of X.
-  bool 
-  is_sequence_wrapper(Reflex::Type const& possible_sequence_wrapper,
-		      Reflex::Type& found_sequence_value_type);
-
-  bool 
-  if_edm_ref_get_value_type(Reflex::Type const& possible_ref,
-			    Reflex::Type& value_type);
-
-  bool 
-  if_edm_ptr_get_value_type(Reflex::Type const& possible_ref,
-			    Reflex::Type& value_type);
-
-  bool 
-  if_edm_refToBase_get_value_type(Reflex::Type const& possible_ref,
-				  Reflex::Type& value_type);
 
   bool
   is_RefVector(Reflex::Type const& possible_ref_vector,
@@ -80,7 +55,7 @@ namespace edm
   void checkDictionaries(std::string const& name, bool noComponents = false);
   StringSet& missingTypes();
 
-  void public_base_classes(const Reflex::Type& type,
+  void public_base_classes(Reflex::Type const& type,
                            std::vector<Reflex::Type>& baseTypes);
 
   /// Try to convert the un-typed pointer raw (which we promise is a
@@ -96,9 +71,8 @@ namespace edm
 
   template <class T>
   T const*
-  reflex_cast(void* raw, Reflex::Type const& dynamicType)
-  {
-    static const Reflex::Type 
+  reflex_cast(void* raw, Reflex::Type const& dynamicType) {
+    static Reflex::Type const
       toType(Reflex::Type::ByTypeInfo(typeid(T)));
 
     Reflex::Object obj(dynamicType, raw);
@@ -108,7 +82,7 @@ namespace edm
     // to remove the compile-time depenency on Reflex/Type.h and
     // Reflex/Object.h, at the cost of some speed.
     //
-    //     return static_cast<T const*>(reflex_pointer_adjust(raw, 
+    //     return static_cast<T const*>(reflex_pointer_adjust(raw,
     // 						       dynamicType,
     // 						       typeid(T)));
   }
@@ -130,12 +104,11 @@ namespace edm
   /// sub-objects, and returns 0 if the type denoted by toType is
   /// neither the same as, nor a public base of, the type denoted by
   /// dynamicType.
-  
+
   void const*
   reflex_pointer_adjust(void* raw,
 			Reflex::Type const& dynamicType,
 			std::type_info const& toType);
-  
 }
 
 #endif
