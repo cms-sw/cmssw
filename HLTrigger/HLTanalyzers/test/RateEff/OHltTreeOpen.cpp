@@ -7056,8 +7056,8 @@ int OHltTree::OpenHltQuadJetPassedPlusTauPFId(double pt, double etaJet, double p
          
         if(pfTauPt[j] > ptTau && pfTauLeadTrackPt[j]>= 5 && fabs(pfTauEta[j]) <2.5  && pfTauTrkIso[j] <1 && pfTauGammaIso[j] <1){ 
            
-          float deltaEta = pfTauEta[j] - recoJetCalEta[i]; 
-          float deltaPhi = pfTauPhi[j] - recoJetCalPhi[i]; 
+          float deltaEta = pfTauEta[j] - recoJetCorCalEta[i]; 
+          float deltaPhi = pfTauPhi[j] - recoJetCorCalPhi[i]; 
            
           if(fabs(deltaPhi)>3.141592654) deltaPhi = 6.283185308-fabs(deltaPhi); 
            
