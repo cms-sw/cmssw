@@ -444,7 +444,11 @@ eBcOverTkPoutAll
 eBcOverTkPoutBarrel
 eBcOverTkPoutEndcap
 zPVFromTracks
+zPVFromTracksBarrel
+zPVFromTracksEndcap
 dzPVFromTracks
+dzPVFromTracksBarrel
+dzPVFromTracksEndcap
 vtxChi2ProbAll
 vtxChi2ProbBarrel
 vtxChi2ProbEndcap
