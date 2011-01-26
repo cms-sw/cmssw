@@ -34,15 +34,15 @@ def createTables(schema):
             luminormsTab.insertColumn( 'DATA_ID','unsigned long long')
             luminormsTab.insertColumn( 'ENTRY_ID','unsigned long long')
             luminormsTab.insertColumn( 'ENTRY_NAME','string')
-            luminormsTab.insertColumn( 'DEFAULTNORM', 'float')
+            luminormsTab.insertColumn( 'AMODETAG', 'string')
             luminormsTab.insertColumn( 'NORM_1', 'float')
-            luminormsTab.insertColumn( 'ENERGY_1', 'float')
+            luminormsTab.insertColumn( 'EGEV_1', 'float')
             luminormsTab.insertColumn( 'NORM_2', 'float')
-            luminormsTab.insertColumn( 'ENERGY_2', 'float')
+            luminormsTab.insertColumn( 'EGEV_2', 'float')
             luminormsTab.setPrimaryKey( 'DATA_ID' )
             db.createTable(luminormsTab,withIdTable=True,withEntryTables=True,withRevMapTable=True)
             created.append(nameDealer.luminormTableName())
-
+  
         if not schema.existsTable(nameDealer.lumidataTableName()):
             print 'creating lumidata table'
             lumidataTab=coral.TableDescription()
@@ -52,13 +52,73 @@ def createTables(schema):
             lumidataTab.insertColumn( 'ENTRY_NAME','string')
             lumidataTab.insertColumn( 'SOURCE', 'string')
             lumidataTab.insertColumn( 'RUNNUM', 'unsigned int')
-            lumidataTab.insertColumn( 'NOMINALENERGY', 'float')
             lumidataTab.setPrimaryKey( 'DATA_ID' )
             db.createTable(lumidataTab,withIdTable=True,withEntryTables=True,withRevMapTable=True)
             created.append(nameDealer.lumidataTableName())
-
+        #
+        # This table exists in the old schema
+        #
+        if not schema.existsTable(nameDealer.cmsrunsummaryTableName()):
+            cmsrunsummary=coral.TableDescription()
+            cmsrunsummary.setName( nameDealer.cmsrunsummaryTableName() )
+            cmsrunsummary.insertColumn('RUNNUM','unsigned int')
+            cmsrunsummary.insertColumn('HLTKEY','string')
+            cmsrunsummary.insertColumn('L1KEY','string')
+            cmsrunsummary.insertColumn('FILLNUM','unsigned int')
+            cmsrunsummary.insertColumn('SEQUENCE','string')
+            cmsrunsummary.insertColumn('STARTTIME','time stamp',6)
+            cmsrunsummary.insertColumn('STOPTIME','time stamp',6)
+            cmsrunsummary.insertColumn('EGEV','unsigned int')
+            cmsrunsummary.insertColumn('AMODETAG','string')
+            cmsrunsummary.setPrimaryKey('RUNNUM')
+            db.createTable(cmsrunsummary,withIdTable=False)
+            created.append(nameDealer.cmsrunsummaryTableName())
+            
+        #
+        # This table exists in the old schema
+        #
+        if not schema.existsTable(nameDealer.lumisummaryTableName() ):
+            summary=coral.TableDescription()
+            summary.setName( nameDealer.lumisummaryTableName() )
+            summary.insertColumn('DATA_ID','unsigned long long')
+            summary.insertColumn('RUNNUM','unsigned int')
+            summary.insertColumn('CMSLSNUM','unsigned int')
+            summary.insertColumn('LUMILSNUM','unsigned int')
+            summary.insertColumn('CMSALIVE','short')
+            summary.insertColumn('INSTLUMI','float')
+            summary.insertColumn('INSTLUMIERROR','float')
+            summary.insertColumn('INSTLUMIQUALITY','short')
+            summary.insertColumn('BEAMSTATUS','string')
+            summary.insertColumn('BEAMENERGY','float')
+            summary.insertColumn('CMSBXINDEXBLOB','blob')
+            summary.insertColumn('BEAMINTENSITYBLOB_1','blob')
+            summary.insertColumn('BEAMINTENSITYBLOB_2','blob')
+            summary.insertColumn('NUMORBIT','unsigned int')
+            summary.insertColumn('STARTORBIT','unsigned int')
+            summary.setPrimaryKey(('DATA_ID','LUMILSNUM'))
+            db.createTable(summary,withIdTable=False)            
+            created.append(nameDealer.lumisummaryTableName())
+            
+        #
+        # This table exists in the old schema
+        #    
+        if not schema.existsTable(nameDealer.lumidetailTableName() ):
+            detail=coral.TableDescription()
+            detail.setName( nameDealer.lumidetailTableName() )
+            detail.insertColumn('DATA_ID','unsigned long long')
+            detail.insertColumn('RUNNUM','unsigned int')
+            detail.insertColumn('CMSLSNUM','unsigned long long')
+            detail.insertColumn('LUMILSNUM','unsigned long long')
+            detail.insertColumn('ALGONAME','string')
+            detail.insertColumn('BXLUMIVALUE','blob')
+            detail.insertColumn('BXLUMIERROR','blob')
+            detail.insertColumn('BXLUMIQUALITY','blob')
+            detail.setPrimaryKey(('DATA_ID','LUMILSNUM'))
+            db.createTable(detail,withIdTable=False)
+            created.append(nameDealer.lumidetailTableName())
+                           
         if not schema.existsTable(nameDealer.trgdataTableName()):
-            print 'creating trgdata table'
+            #print 'creating trgdata table'
             trgdataTab=coral.TableDescription()
             trgdataTab.setName( nameDealer.trgdataTableName() )
             trgdataTab.insertColumn( 'DATA_ID','unsigned long long')
@@ -85,7 +145,8 @@ def createTables(schema):
             lstrgTab.insertColumn( 'DEADFRAC', 'float')
             lstrgTab.insertColumn( 'PRESCALEBLOB', 'blob')
             lstrgTab.insertColumn( 'TRGCOUNTBLOB', 'blob')
-            db.createTable(lstrgTab,withIdTable=False)
+            lstrgTab.setPrimaryKey( ('DATA_ID','CMSLSNUM') )
+            db.createTable(lstrgTab,withIdTable=False)            
             created.append( nameDealer.lstrgTableName() )
 
         if not schema.existsTable(nameDealer.hltdataTableName()):
@@ -102,7 +163,7 @@ def createTables(schema):
             hltdataTab.setPrimaryKey( 'DATA_ID' )
             db.createTable(hltdataTab,withIdTable=True,withEntryTables=True,withRevMapTable=True)
             created.append(nameDealer.hltTableName())
-
+            
         if not schema.existsTable(nameDealer.lshltTableName()):
             print 'create lshlt table'
             lshltTab=coral.TableDescription()
@@ -114,76 +175,23 @@ def createTables(schema):
             lshltTab.insertColumn( 'HLTCOUNTBLOB', 'blob')
             lshltTab.insertColumn( 'HLTACCEPTBLOB', 'blob')
             db.createTable(lshltTab,withIdTable=False)
-            created.append(nameDealer.lshltTableName())
-            
+            lshltTab.setPrimaryKey( ('DATA_ID','CMSLSNUM') )
+            created.append(nameDealer.lshltTableName())          
         #
-        # These tables existing in the old schema
+        #  This table exists in the old schema
         #
-        if not schema.existsTable(nameDealer.lumisummaryTableName() ):
-            summary=coral.TableDescription()
-            summary.setName( nameDealer.lumisummaryTableName() )
-            summary.insertColumn( 'DATA_ID','unsigned long long')
-            summary.insertColumn('RUNNUM','unsigned int')
-            summary.insertColumn('CMSLSNUM','unsigned int')
-            summary.insertColumn('LUMILSNUM','unsigned int')
-            #summary.insertColumn('LUMIVERSION','string')
-            #summary.insertColumn('DTNORM','float')
-            #summary.insertColumn('LHCNORM','float')
-            summary.insertColumn('INSTLUMI','float')
-            summary.insertColumn('INSTLUMIERROR','float')
-            summary.insertColumn('INSTLUMIQUALITY','short')
-            summary.insertColumn('CMSALIVE','short')
-            summary.insertColumn('STARTORBIT','unsigned int')
-            summary.insertColumn('NUMORBIT','unsigned int')
-            summary.insertColumn('LUMISECTIONQUALITY','short')
-            summary.insertColumn('BEAMENERGY','float')
-            summary.insertColumn('BEAMSTATUS','string')
-            summary.insertColumn('CMSBXINDEXBLOB','blob')
-            summary.insertColumn('BEAMINTENSITYBLOB_1','blob')
-            summary.insertColumn('BEAMINTENSITYBLOB_2','blob')
-            db.createTable(summary,withIdTable=False)
-            created.append(nameDealer.lumisummaryTableName())
-            
-        if not schema.existsTable(nameDealer.lumidetailTableName() ):
-            detail=coral.TableDescription()
-            detail.setName( nameDealer.lumidetailTableName() )
-            detail.insertColumn('DATA_ID','unsigned long long')
-            detail.insertColumn('RUNNUM','unsigned int')
-            detail.insertColumn('CMSLSNUM','unsigned long long')
-            detail.insertColumn('LUMILSNUM','unsigned long long')
-            detail.insertColumn('ALGONAME','string')
-            detail.insertColumn('BXLUMIVALUE','blob')
-            detail.insertColumn('BXLUMIERROR','blob')
-            detail.insertColumn('BXLUMIQUALITY','blob')
-
-            db.createTable(detail,withIdTable=False)
-            created.append(nameDealer.lumidetailTableName())
-            
-        if not schema.existsTable(nameDealer.cmsrunsummaryTableName()):
-            cmsrunsummary=coral.TableDescription()
-            cmsrunsummary.setName( nameDealer.cmsrunsummaryTableName() )
-            cmsrunsummary.insertColumn('RUNNUM','unsigned int')
-            cmsrunsummary.insertColumn('HLTKEY','string')
-            cmsrunsummary.insertColumn('L1KEY','string')
-            cmsrunsummary.insertColumn('SEQUENCE','string')
-            cmsrunsummary.insertColumn('FILLNUM','unsigned int')
-            cmsrunsummary.insertColumn('STARTTIME','time stamp',6)
-            cmsrunsummary.insertColumn('STOPTIME','time stamp',6)
-            cmsrunsummary.setPrimaryKey('RUNNUM')
-            db.createTable(cmsrunsummary,withIdTable=False)
-            created.append(nameDealer.cmsrunsummaryTableName())
-            
         if not schema.existsTable(nameDealer.trghltMapTableName()):
             trghlt=coral.TableDescription()
             trghlt.setName( nameDealer.trghltMapTableName() )
             trghlt.insertColumn( 'HLTKEY','string' )
+            trghlt.insertColumn( 'HLTPATHID','string' )
             trghlt.insertColumn( 'HLTPATHNAME','string' )
             trghlt.insertColumn( 'L1SEED','string' )
             trghlt.setNotNullConstraint('HLTKEY',True)
             trghlt.setNotNullConstraint('HLTPATHNAME',True)
             trghlt.setNotNullConstraint('L1SEED',True)
             db.createTable(trghlt,withIdTable=False)
-            created.append(nameDealer.trghltMapTableName())
+            created.append(nameDealer.trghltMapTableName())  
             
         if not schema.existsTable(nameDealer.lumivalidationTableName()):
             lumivalidation=coral.TableDescription()
@@ -192,13 +200,13 @@ def createTables(schema):
             lumivalidation.insertColumn( 'CMSLSNUM','unsigned int' )
             lumivalidation.insertColumn( 'FLAG','string' )
             lumivalidation.insertColumn( 'COMMENT','string' )
-            lumivalidation.setPrimaryKey(('RUNNUM','CMSLSNUM'))
+            lumivalidation.setPrimaryKey( ('RUNNUM','CMSLSNUM') )
             lumivalidation.setNotNullConstraint('FLAG',True)
             db.createTable(lumivalidation,withIdTable=False)
             created.append(nameDealer.lumivalidationTableName())
         return created
-    except Exception,e :
-        raise RuntimeError(' lumidbDDL.createTables: '+str(e))
+    except :
+        raise 
 
    
 #=======================================================
@@ -217,8 +225,8 @@ def dropTables(schema,tablelist):
             if tablename in [nameDealer.trgTableName(),nameDealer.lumisummaryTableName(),nameDealer.lumidetailTableName(),nameDealer.hltTableName()]:
                 db.dropTable( nameDealer.idTableName(tablename) )
             db.dropTable( tablename )
-    except Exception,e :
-        raise RuntimeError(' lumidbDDL.dropTables: '+str(e))
+    except :
+        raise 
     
 def createOldSchema(schema):
     '''
@@ -267,15 +275,15 @@ def createOldSchema(schema):
             summary.insertColumn('LUMIVERSION','string')
             summary.insertColumn('DTNORM','float')
             summary.insertColumn('LHCNORM','float')
+            summary.insertColumn('CMSALIVE','short')
             summary.insertColumn('INSTLUMI','float')
             summary.insertColumn('INSTLUMIERROR','float')
             summary.insertColumn('INSTLUMIQUALITY','short')
-            summary.insertColumn('CMSALIVE','short')
-            summary.insertColumn('STARTORBIT','unsigned int')
-            summary.insertColumn('NUMORBIT','unsigned int')
-            summary.insertColumn('LUMISECTIONQUALITY','short')
-            summary.insertColumn('BEAMENERGY','float')
             summary.insertColumn('BEAMSTATUS','string')
+            summary.insertColumn('BEAMENERGY','float')
+            summary.insertColumn('NUMORBIT','unsigned int')
+            summary.insertColumn('STARTORBIT','unsigned int')
+            summary.insertColumn('LUMISECTIONQUALITY','short')
             summary.insertColumn('CMSBXINDEXBLOB','blob')
             summary.insertColumn('BEAMINTENSITYBLOB_1','blob')
             summary.insertColumn('BEAMINTENSITYBLOB_2','blob')           
@@ -283,13 +291,13 @@ def createOldSchema(schema):
             summary.setNotNullConstraint('RUNNUM',True)
             summary.setNotNullConstraint('CMSLSNUM',True)
             summary.setNotNullConstraint('LUMILSNUM',True)
+            summary.setNotNullConstraint('CMSALIVE',True)
             summary.setNotNullConstraint('LUMIVERSION',True)
             summary.setNotNullConstraint('DTNORM',True)
             summary.setNotNullConstraint('LHCNORM',True)
             summary.setNotNullConstraint('INSTLUMI',True)
             summary.setNotNullConstraint('INSTLUMIERROR',True)
             summary.setNotNullConstraint('INSTLUMIQUALITY',True)
-            summary.setNotNullConstraint('CMSALIVE',True)
             summary.setNotNullConstraint('STARTORBIT',True)
             summary.setNotNullConstraint('NUMORBIT',True)
             summary.setNotNullConstraint('LUMISECTIONQUALITY',True)
@@ -385,11 +393,16 @@ def createOldSchema(schema):
 #=======================================================
 def oldToNew(schema):
     '''
-    modify old tables:lumisummary,lumidetail
+    modify old tables:lumisummary,lumidetail,cmsrunsummary,trghltmap
+    alter table cmsrunsummary add column(egev unsigned int,amodetag string)
     alter table lumisummary add column(data_id unsigned long long)
     alter table lumidetail add column(data_id unsigned long long,runnum unsigned int,cmslsnum unsigned int,lumilsnum unsigned int)
+    alter table 
     '''
     try:
+        tableHandle=schema.tableHandle(nameDealer.cmsrunsummaryTableName())
+        tableHandle.schemaEditor().insertColumn('EGEV','unsigned int')
+        tableHandle.schemaEditor().insertColumn('AMODETAG','string')
         tableHandle=schema.tableHandle(nameDealer.lumisummaryTableName())
         tableHandle.schemaEditor().insertColumn('DATA_ID','unsigned long long')
         tableHandle=schema.tableHandle(nameDealer.lumidetailTableName())
@@ -397,11 +410,17 @@ def oldToNew(schema):
         tableHandle.schemaEditor().insertColumn('RUNNUM','unsigned int')
         tableHandle.schemaEditor().insertColumn('CMSLSNUM','unsigned int')
         tableHandle.schemaEditor().insertColumn('LUMILSNUM','unsigned int')
-    except Exception,e :
-        raise RuntimeError(' lumidbDDL.oldToNew: '+str(e))
+        tableHandle=schema.tableHandle(nameDealer.trghltMapTableName())
+        tableHandle.schemaEditor().insertColumn('HLTPATHID','unsigned int')
+        createTables(schema)
+    except:
+        raise
     
 def newToOld(schema):
     try:
+        tableHandle=schema.tableHandle(nameDealer.cmsrunsummaryTableName())
+        tableHandle.schemaEditor().dropColumn('EGEV')
+        tableHandle.schemaEditor().dropColumn('AMODETAG')
         tableHandle=schema.tableHandle(nameDealer.lumisummaryTableName())
         tableHandle.schemaEditor().dropColumn('DATA_ID')
         tableHandle=schema.tableHandle(nameDealer.lumidetailTableName())
@@ -409,8 +428,8 @@ def newToOld(schema):
         tableHandle.schemaEditor().dropColumn('RUNNUM')
         tableHandle.schemaEditor().dropColumn('CMSLSNUM')
         tableHandle.schemaEditor().dropColumn('LUMILSNUM')
-    except Exception,e :
-        raise RuntimeError(' lumidbDDL.newToOld: '+str(e))
+    except :
+        raise 
 
 #=======================================================
 #
@@ -473,23 +492,24 @@ def describe(schema):
 
 if __name__ == "__main__":
     import sessionManager
-    #myconstr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
-    #authpath='/afs/cern.ch/user/x/xiezhen'
-    myconstr='sqlite_file:test.db'
-    svc=sessionManager.sessionManager(myconstr,debugON=False)
+    myconstr='oracle://devdb10/cms_xiezhen_dev'
+    authpath='/afs/cern.ch/user/x/xiezhen'
+    #myconstr='sqlite_file:test.db'
+    svc=sessionManager.sessionManager(myconstr,authpath=authpath,debugON=False)
     session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     schema=session.nominalSchema()
+    #session.transaction().start(False)
+    #tables=createTables(schema)
+    #print 'created new ',tables
+    #createUniqueConstraints(schema)
+    #session.transaction().commit()
+    #session.transaction().start(False)
+    #dropTables(schema,tables)
+    #session.transaction().commit()
+    #print 'droped new '
     session.transaction().start(False)
-    tables=createTables(schema)
-    print 'created new ',tables
-    createUniqueConstraints(schema)
+    tables=createOldSchema(schema)
+    print 'created old ',tables
+    oldToNew(schema)
     session.transaction().commit()
-    #session.transaction().start(False)
-    #tables=dropTables(schema,tables)
-    #session.transaction().commit()
-    #print 'droped new ',tables
-    #session.transaction().start(False)
-    #tables=createOldSchema(schema)
-    #session.transaction().commit()
-    #print 'created old ',tables
     del session
