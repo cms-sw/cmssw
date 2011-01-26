@@ -36,7 +36,7 @@ RecoHiTrackerRECO = cms.PSet(
 
 RecoHiTrackerLocalRECO = cms.PSet(
    outputCommands = cms.untracked.vstring(
-   #'keep *_*_APVCM_*',
+   'keep *_*_APVCM_*'
    #'keep *_siStripZeroSuppression_BADAPVBASELINE_*',
    #'keep SiStripRawDigiedmDetSetVector_siStripZeroSuppression_VirginRaw_*'
    )
