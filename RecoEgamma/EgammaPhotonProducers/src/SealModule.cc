@@ -6,9 +6,7 @@
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConvertedPhotonProducer.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConversionTrackCandidateProducer.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/TrackProducerWithSCAssociation.h"
-#include "RecoEgamma/EgammaPhotonProducers/interface/SoftConversionTrackCandidateProducer.h"
-#include "RecoEgamma/EgammaPhotonProducers/interface/SoftConversionProducer.h"
-#include "RecoEgamma/EgammaPhotonProducers/interface/TrackerOnlyConversionProducer.h"
+#include "RecoEgamma/EgammaPhotonProducers/interface/ConversionProducer.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConversionTrackProducer.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConversionTrackMerger.h"
 
@@ -18,8 +16,6 @@ DEFINE_FWK_MODULE(PhotonProducer);
 DEFINE_FWK_MODULE(ConvertedPhotonProducer);
 DEFINE_FWK_MODULE(ConversionTrackCandidateProducer);
 DEFINE_FWK_MODULE(TrackProducerWithSCAssociation);
-DEFINE_FWK_MODULE(TrackerOnlyConversionProducer);
-DEFINE_FWK_MODULE(SoftConversionTrackCandidateProducer);
-DEFINE_FWK_MODULE(SoftConversionProducer);
+DEFINE_FWK_MODULE(ConversionProducer);
 DEFINE_FWK_MODULE(ConversionTrackProducer);
 DEFINE_FWK_MODULE(ConversionTrackMerger);
