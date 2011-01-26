@@ -431,7 +431,7 @@ if 'GlobalTag' in %%(dict)s:
       text += """
 %(process)sHLTriggerFirstPath = cms.Path( %(process)shltGetRaw + %(process)shltGetConditions + %(process)shltBoolFalse )
 """
-      self.data = re.sub(r'\n.*cms\.(End)?Path.*', text + '\g<0>', self.data, 1)
+      self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
 
       self.data += """
 # instrument the menu with the modules and EndPath needed for timing studies
@@ -458,12 +458,12 @@ if 'GlobalTag' in %%(dict)s:
           'record'  : 'GeometryFileRcd',
           'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc',
           'label'   : 'Ideal',
-          'connect' : '%(connect)s'
+          'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
         }, {
           'record'  : 'GeometryFileRcd',
-          'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc',
+          'tag'     : 'XMLFILE_Geometry_380V3_Extended_mc',
           'label'   : 'Extended',
-          'connect' : '%(connect)s'
+          'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
         }
       )
 
