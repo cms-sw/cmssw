@@ -17,9 +17,9 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_10_0
-setenv RELEASE 3_10_0
-setenv PRERELEASE pre7
+setenv CMSSWver1 3_11_0
+setenv RELEASE 3_11_0
+setenv PRERELEASE pre5
 
 setenv RELEASE ${RELEASE}_${PRERELEASE}
 
@@ -53,8 +53,6 @@ setenv SAMPLE H130GGgluonfusionSTARTUP
 
 if ($SAMPLE == SingleGammaPt10IDEAL) then
 
-
-
 setenv FULLSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaPt10.root
 setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaPt10_FastSim.root
 
@@ -72,8 +70,12 @@ setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaFlatPt10T
 
 else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
 
-setenv FULLSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_H130GGgluonfusion.root
+setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Efficiencies
+setenv HISTOPATHNAME_Photons DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Photons
+setenv HISTOPATHNAME_Conversions DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/ConversionInfo
+setenv FULLSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_3_11_0_pre5-START311_V0-v1__GEN-SIM-RECO.root
 setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_H130GGgluonfusion_FastSim.root
+
 
 
 else if ($SAMPLE == PhotonJets_Pt_10) then
@@ -316,8 +318,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw();
-
-file_new->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
+file_new->cd("$HISTOPATHNAME_Efficiencies");
 $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetMaximum(1.1);
@@ -338,7 +339,7 @@ foreach i (`cat scaledhistosForPhotons`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
+file_new->cd("$HISTOPATHNAME_Photons");
 Double_t mnew=$i->GetMaximum();
 Double_t nnew=$i->GetEntries();
 file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
@@ -355,7 +356,7 @@ $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 //$i->SetLineWidth(3);
 $i->Draw();
-file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
+file_new->cd("$HISTOPATHNAME_Photons");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
@@ -377,7 +378,7 @@ foreach i (`cat scaledhistosForPhotonsLogScale`)
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 c$i->SetLogy(1);
-file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
+file_new->cd("$HISTOPATHNAME_Photons");
 Double_t nnew=$i->GetEntries();
 file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
 if ( $i==hcalTowerSumEtConeDR04Barrel ||  $i==hcalTowerSumEtConeDR04Endcap  ) {  
@@ -388,7 +389,7 @@ $i->SetStats(0);
 $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 $i->Draw();
-file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
+file_new->cd("$HISTOPATHNAME_Photons");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
@@ -435,7 +436,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw();
-file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
+file_new->cd("$HISTOPATHNAME_Photons");
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
@@ -464,7 +465,7 @@ $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(2);
 $i->SetMarkerSize(0.2);
 $i->Draw();
-file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
+file_new->cd("$HISTOPATHNAME_Photons");
 $i->SetStats(0);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(2);
