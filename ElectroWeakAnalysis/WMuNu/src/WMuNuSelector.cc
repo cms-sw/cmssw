@@ -507,9 +507,6 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if(plotHistograms_)    h1_["hCutFlowSummary"]->Fill(6.);
             nid++;
 
-
-
-
             // Pt,eta cuts
             LogDebug("") << "\t... Muon pt, eta: " << pt << " [GeV], " << eta;
 

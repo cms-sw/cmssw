@@ -1,5 +1,4 @@
 from ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi import *
-
 # Paths for WMuNuSelector filtering of events
 
 selcorMet = cms.EDFilter("WMuNuSelector",

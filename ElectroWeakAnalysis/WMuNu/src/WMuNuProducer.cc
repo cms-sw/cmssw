@@ -66,19 +66,13 @@ private:
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-
 #include "DataFormats/GeometryVector/interface/Phi.h"
-
 #include "DataFormats/Common/interface/TriggerResults.h"
-
 #include "DataFormats/Common/interface/View.h"
-
-
 
   
 using namespace edm;

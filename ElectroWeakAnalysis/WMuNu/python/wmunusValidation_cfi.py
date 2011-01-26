@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 wmnVal_corMet = cms.EDFilter("WMuNuValidator",
       # Fast selection flag (no histograms or book-keeping) ->
       FastOption = cms.untracked.bool(False),

@@ -1,5 +1,4 @@
 from ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi import *
-
 # Paths for WMuNuSelector filtering of events
 # Intended for baseline for specific VBTF taks (like reconstruction efficiency)
 # Paths:
@@ -7,7 +6,6 @@ from ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi import *
 # selWMuNu_MuonIDAndIso --> "Good" Muons which are also isolated (above 15 GeV)
 # selWMuNu_MuonIDAndIsoAndTrigger --> Also passing the HLT_Mu11
 # selWMuNu_MuonSelected --> All Muon-related cuts (so all cuts but Met-based ones)
- 
 
 selWMuNu_MuonIDonly = cms.EDFilter("WMuNuSelector",
       # Fill Basc Histograms? ->
