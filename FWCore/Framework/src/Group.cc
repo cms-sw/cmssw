@@ -1,10 +1,11 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "FWCore/Framework/interface/Group.h"
+
+#include "DataFormats/Provenance/interface/ProductStatus.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using Reflex::Type;
 using Reflex::TypeTemplate;
@@ -24,8 +25,8 @@ namespace edm {
   ProducedGroup::putProduct_(
         std::auto_ptr<EDProduct> edp,
         boost::shared_ptr<ProductProvenance> productProvenance) {
-    if (product()) {
-      throw edm::Exception(errors::InsertFailure)
+    if(product()) {
+      throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << groupData().branchDescription()->branchName() << "\n";
     }
     assert(branchDescription().produced());
@@ -90,7 +91,7 @@ namespace edm {
 
   bool
   InputGroup::putOrMergeProduct_() const {
-    return (!product());
+    return(!product());
   }
 
   void
@@ -101,10 +102,10 @@ namespace edm {
 
   void
   Group::mergeTheProduct(std::auto_ptr<EDProduct> edp) const {
-    if (product()->isMergeable()) {
+    if(product()->isMergeable()) {
       product()->mergeProduct(edp.get());
-    } else if (product()->hasIsProductEqual()) {
-      if (!product()->isProductEqual(edp.get())) {
+    } else if(product()->hasIsProductEqual()) {
+      if(!product()->isProductEqual(edp.get())) {
         LogError("RunLumiMerging")
               << "Group::mergeGroup\n"
               << "Two run/lumi products for the same run/lumi which should be equal are not\n"
@@ -130,9 +131,9 @@ namespace edm {
   GroupData::checkType(EDProduct const& prod) const {
     // Check if the types match.
     TypeID typeID(prod.dynamicTypeInfo());
-    if (typeID != branchDescription()->typeID()) {
+    if(typeID != branchDescription()->typeID()) {
       // Types do not match.
-      throw edm::Exception(errors::EventCorruption)
+      throw Exception(errors::EventCorruption)
           << "Product on branch " << branchDescription()->branchName() << " is of wrong type.\n"
           << "It is supposed to be of type " << branchDescription()->className() << ".\n"
           << "It is actually of type " << typeID.className() << ".\n";
@@ -142,7 +143,7 @@ namespace edm {
   void
   InputGroup::setProduct(std::auto_ptr<EDProduct> prod) const {
     assert (!product());
-    if (prod.get() == 0 || !prod->isPresent()) {
+    if(prod.get() == 0 || !prod->isPresent()) {
       setProductUnavailable();
     }
     groupData().product_.reset(prod.release());  // Group takes ownership
@@ -158,13 +159,13 @@ namespace edm {
   // If it is not known if there is a real product, it returns false.
   bool
   InputGroup::productUnavailable_() const {
-    if (productIsUnavailable()) {
+    if(productIsUnavailable()) {
       return true;
     }
     // If there is a product, we know if it is real or a dummy.
-    if (product()) {
+    if(product()) {
       bool unavailable = !(product()->isPresent());
-      if (unavailable) {
+      if(unavailable) {
         setProductUnavailable();
       }
       return unavailable;
@@ -178,7 +179,7 @@ namespace edm {
   bool
   ProducedGroup::productUnavailable_() const {
     // If unscheduled production, the product is potentially available.
-    if (onDemand()) return false;
+    if(onDemand()) return false;
     // The product is available if and only if a product has been put.
     bool unavailable = !(product() && product()->isPresent());
     assert (!productstatus::presenceUnknown(status()));
@@ -190,7 +191,7 @@ namespace edm {
   Group::provenanceAvailable() const {
     // If this product is from a the current process,
     // the provenance is available if and only if a product has been put.
-    if (branchDescription().produced()) {
+    if(branchDescription().produced()) {
       return product() && product()->isPresent();
     }
     // If this product is from a prior process, the provenance is available,
@@ -201,22 +202,6 @@ namespace edm {
   Type
   Group::productType() const {
     return Type::ByTypeInfo(typeid(*product()));
-  }
-
-  bool
-  Group::isMatchingSequence(Type const& wantedElementType) const {
-    Type value_type;
-    bool is_sequence = is_sequence_wrapper(productType(), value_type);
-
-    // If our product is not a sequence, we can't match...
-    if (!is_sequence) return false;
-
-    Type elementType = value_type; // this is not true for RefVector...
-
-    TypeTemplate valueTypeTemplate = value_type.TemplateFamily();
-
-    return (elementType==wantedElementType ||
-            elementType.HasBase(wantedElementType));
   }
 
   void

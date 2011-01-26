@@ -8,17 +8,17 @@ is the storage unit of such information.
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <string>
+#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+
+#include "Reflex/Type.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
-#include "Reflex/Type.h"
-
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include <memory>
+#include <string>
 
 namespace edm {
   class DelayedReader;
@@ -32,7 +32,7 @@ namespace edm {
 
 
     void checkType(EDProduct const& prod) const;
-    
+
     boost::shared_ptr<ConstBranchDescription> const& branchDescription() const {
       return prov_.constBranchDescriptionPtr();
     }
@@ -92,13 +92,13 @@ namespace edm {
     // Sets the pointer to the event independent provenance.
     void resetBranchDescription(boost::shared_ptr<ConstBranchDescription> bd) {groupData().resetBranchDescription(bd);}
 
-    // Retrieves  a reference to the module label.
+    // Retrieves a reference to the module label.
     std::string const& moduleLabel() const {return branchDescription().moduleLabel();}
 
-    // Retrieves  a reference to the product instance name
+    // Retrieves a reference to the product instance name
     std::string const& productInstanceName() const {return branchDescription().productInstanceName();}
 
-    // Retrieves  a reference to the process name
+    // Retrieves a reference to the process name
     std::string const& processName() const {return branchDescription().processName();}
 
     // Retrieves pointer to a class containing both the event independent and the per even provenance.
@@ -117,13 +117,6 @@ namespace edm {
     // We are relying on the fact that Type instances are small, and
     // so we are free to copy them at will.
     Reflex::Type productType() const;
-
-    // Return true if this group's product is a sequence, and if the
-    // sequence has a 'value_type' that 'matches' the given type.
-    // 'Matches' in this context means the sequence's value_type is
-    // either the same as the given type, or has the given type as a
-    // public base type.
-    bool isMatchingSequence(Reflex::Type const& wanted) const;
 
     // Retrieves the product ID of the product.
     ProductID const& productID() const {return groupData().prov_.productID();};
@@ -332,7 +325,7 @@ namespace edm {
   };
 
   // Free swap function
-  inline void swap(edm::SourceGroup& a, edm::SourceGroup& b) {
+  inline void swap(SourceGroup& a, SourceGroup& b) {
     a.swap(b);
   }
 }
