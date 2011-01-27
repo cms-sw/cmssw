@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DumpDBToFile")
 
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = ''
+
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 process.source = cms.Source("EmptySource",
@@ -11,16 +14,6 @@ process.source = cms.Source("EmptySource",
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
-)
-
-process.calibDB = cms.ESSource("PoolDBESSource",
-    process.CondDBSetup,
-    authenticationMethod = cms.untracked.uint32(0),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('DTMtimeRcd'),
-        tag = cms.string('vDrift')
-    )),
-    connect = cms.string('sqlite_file:vDrift.db')
 )
 
 process.dumpToFile = cms.EDAnalyzer("DumpDBToFile",
