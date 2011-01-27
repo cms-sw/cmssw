@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.17 2010/11/07 19:15:23 kkousour Exp $
+// $Id: JetCorrectorParameters.cc,v 1.18 2010/11/11 15:35:23 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -340,7 +340,8 @@ JetCorrectorParametersCollection::labelsArray_[JetCorrectorParametersCollection:
     "L7Parton",
     "L1JPTOffset",
     "L2L3Residual",
-    "Uncertainty" 
+    "Uncertainty",
+    "L1FastJet" 
   }; 
 
 const char *
