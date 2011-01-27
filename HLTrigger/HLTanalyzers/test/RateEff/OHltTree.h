@@ -3717,6 +3717,8 @@ public :
   int OpenHltMHTU(double MHTthreshold, double jetthreshold) ;
   int OpenHltMeffU(double Meffthreshold, double jetthreshold);
   int OpenHltPT12U(double PT12threshold, double jetthreshold);
+  int OpenHltMhtOverHTPassed(double HardJetThreshold,double HtJetThreshold, double MhtJetThreshold, double MHTovHT,int NJets);
+  int OpenHltMhtOverHTPassedHTthresh(double HT,double MHTovHT);
   int OpenHlt1PixelTrackPassed(float minpt, float minsep, float miniso);
   int OpenHltHTJetNJPassed(double HTthreshold, double jetthreshold, double etamax, int nj);
   int OpenHlt1ElectronHTPassed(float Et, float HT,float jetThreshold, int L1iso, float Tiso, float Hiso, float dr); 

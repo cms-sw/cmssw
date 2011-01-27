@@ -7502,6 +7502,84 @@ int OHltTree::OpenHlt1L3MuonPassed(double pt, double eta)
  
 } 
 
+int OHltTree::OpenHltMhtOverHTPassed(double HardJetThreshold ,double HtJetThreshold, double MhtJetThreshold, double MHTovHT, int NoJets){
+
+  int rc = 0;
+  double newHT = 0.;
+  double mhtx = 0., mhty = 0.;
+  int nJets = 0;
+  for (int i=0; i<NrecoJetCal; i++){
+    if(recoJetCalPt[i]>HtJetThreshold)
+    {
+      nJets++;
+    }
+  }
+  if( (recoJetCalE[0]/cosh(recoJetCalEta[0])) > HardJetThreshold && (recoJetCalE[1]/cosh(recoJetCalEta[1])) > HardJetThreshold ){
+    if(nJets > NoJets){
+    //loop over NrecoJetCal to calculate a new HT for jets above inputJetPt
+      for (int i=0; i<NrecoJetCal; i++){
+        if( fabs(recoJetCalEta[i]) > 3.){ continue;}
+        if((recoJetCalE[i]/cosh(recoJetCalEta[i])) > MhtJetThreshold){
+          mhtx-=((recoJetCalE[i]/cosh(recoJetCalEta[i]))*cos(recoJetCalPhi[i]));
+          mhty-=((recoJetCalE[i]/cosh(recoJetCalEta[i]))*sin(recoJetCalPhi[i]));
+
+        }
+        if( (recoJetCalE[i]/cosh(recoJetCalEta[i])) > HtJetThreshold){
+          newHT+=((recoJetCalE[i]/cosh(recoJetCalEta[i])));
+        }
+      }
+    }
+    //end calculation of new HT
+    if(nJets > 2){
+      if(newHT > 0. && sqrt(mhtx*mhtx+mhty*mhty)/newHT > MHTovHT ){
+        rc++;
+      }
+    }
+    if(nJets == 2){
+      if( (newHT - fabs( (recoJetCalE[0]/cosh(recoJetCalEta[0] ) - ( recoJetCalE[1]/cosh(recoJetCalEta[1])))))/(2*sqrt(newHT*newHT - (mhtx*mhtx+mhty*mhty))) > sqrt(1. / (4.*(1.-(MHTovHT*MHTovHT))))){rc++;}
+    }
+
+
+  }
+
+      // std::cout << "MHT/HT from Jets is " << sqrt(mhtx*mhtx+mhty*mhty)  /  newHT << " HT is: " << newHT << " MHT is: "<<
+      // sqrt(mhtx*mhtx+mhty*mhty) << " The Jet threshold is: " << HtJetThreshold << std::endl;
+  return rc;
+}
+
+
+int OHltTree::OpenHltMhtOverHTPassedHTthresh(double HT,double MHTovHT){
+
+  int rc = 0;
+  double newHT = 0.;
+  double mhtx = 0., mhty = 0.;
+  int nJets = 0;
+  for (int i=0; i<NrecoJetCal; i++){
+    if((recoJetCalE[i]/cosh(recoJetCalEta[i]))>30.){nJets++;}
+  }
+    //loop over NrecoJetCal to calculate a new HT for jets above inputJetPt
+  for (int i=0; i<NrecoJetCal; i++){
+    if((recoJetCalE[i]/cosh(recoJetCalEta[i])) > 20.){
+      mhtx-=((recoJetCalE[i]/cosh(recoJetCalEta[i]))*cos(recoJetCalPhi[i]));
+      mhty-=((recoJetCalE[i]/cosh(recoJetCalEta[i]))*sin(recoJetCalPhi[i]));
+    }
+    if((recoJetCalE[i]/cosh(recoJetCalEta[i])) > 30.){  newHT+=((recoJetCalE[i]/cosh(recoJetCalEta[i])));}
+  }
+      // }//end calculation of new HT
+  if(nJets > 2){
+    if(newHT > 0. && sqrt(mhtx*mhtx+mhty*mhty)/newHT > MHTovHT ){
+      rc++;
+    }
+  }
+  if(nJets == 2){
+    if( (newHT - fabs( (recoJetCalE[0]/cosh(recoJetCalEta[0] ) - ( recoJetCalE[1]/cosh(recoJetCalEta[1])))))/(2*sqrt(newHT*newHT - (mhtx*mhtx+mhty*mhty))) > sqrt(1. / (4.*(1.-(MHTovHT*MHTovHT))))){rc++;}
+  }
+
+  return rc;
+}
+
+
+
 vector<int>  OHltTree::VectorOpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC, float HoverE, float R9, float ClusShapEB, float ClusShapEC) 
 { 
   vector<int> rc; 
