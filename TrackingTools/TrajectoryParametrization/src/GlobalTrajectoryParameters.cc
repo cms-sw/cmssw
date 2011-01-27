@@ -6,11 +6,11 @@ GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
 						       float transverseCurvature, int, 
 						       const MagneticField* fieldProvider) :
   theField(fieldProvider),
-  theX(aX),  theP(direction), cachedCurvature_(transverseCurvature),  hasCurvature_(true)
+  theX(aX), cachedCurvature_(transverseCurvature),  hasCurvature_(true)
 {
   float bza = -2.99792458e-3f * theField->inTesla(theX).z();
-  float qbpi = bza*direction.perp()/transverseCurvature;
-  theP *= std::abs(qbpi);
+  float qbpi = bza/(direction.perp()*transverseCurvature);
+  theP = direction*std::abs(qbpi);
   theCharge = qbpi > 0. ? 1 : -1;
 }
 
