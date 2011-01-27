@@ -20,6 +20,7 @@
 #include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
+#include "RecoMET/METAlgorithms/interface/PFClusterSpecificAlgo.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
@@ -79,6 +80,10 @@ namespace cms
 	    jetsLabel_ = iConfig.getParameter<edm::InputTag>("jets");
 	}
 
+      }
+    else if( METtype == "PFClusterMET" )
+      {
+	produces<PFClusterMETCollection>().setBranchAlias(alias.c_str()); 
       }
     else if (METtype == "TCMET" )
       {
@@ -208,6 +213,17 @@ namespace cms
 	  }
 	pfmetcoll->push_back( pf.addInfo(input, output) );
 	event.put( pfmetcoll );
+      }
+    //----------------------------------
+    else if( METtype == "PFClusterMET" )
+      {
+	alg_.run(input, &output, globalThreshold);
+	PFClusterSpecificAlgo pfcluster;
+	std::auto_ptr<PFClusterMETCollection> pfclustermetcoll;
+	pfclustermetcoll.reset (new PFClusterMETCollection);
+	
+	pfclustermetcoll->push_back( pfcluster.addInfo(input, output) );
+	event.put( pfclustermetcoll );
       }
     //-----------------------------------
     else if( METtype == "GenMET" ) 
