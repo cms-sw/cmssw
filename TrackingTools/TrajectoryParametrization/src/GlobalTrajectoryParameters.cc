@@ -11,7 +11,7 @@ GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
   float bza = -2.99792458e-3f * theField->inTesla(theX).z();
   float qbpi = bza/(direction.perp()*transverseCurvature);
   theP = direction*std::abs(qbpi);
-  theCharge = qbpi > 0. ? 1 : -1;
+  theCharge = qbpi > 0.f ? 1 : -1;
 }
 
 float GlobalTrajectoryParameters::transverseCurvature() const
