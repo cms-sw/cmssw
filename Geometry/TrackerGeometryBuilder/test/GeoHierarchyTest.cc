@@ -124,8 +124,8 @@ void constructAndDumpTrie(Iter b, Iter e) {
       trie.insert(trackerHierarchy(rawid), *b); 
     }
   }
-  catch(edm::Exception const & e) {
-    std::cout << "in filling " << e.what() << std::endl;
+  catch(edm::Exception const & ex) {
+    std::cout << "in filling " << ex.what() << std::endl;
     unsigned int rawid = (*last)->geographicalId().rawId();
     int subdetid = (*last)->geographicalId().subdetId();
     std::cout << rawid << " " << subdetid << std::endl;
@@ -143,9 +143,9 @@ void constructAndDumpTrie(Iter b, Iter e) {
       std::string s;
       if (layerId[i]>9) s+=char(layerId[i]/10); 
       s+=char(layerId[i]%10);
-      node_iterator e;	
+      node_iterator eit;	
       node_iterator p(trie.node(s));
-      layerSize[i] = std::distance(p,e);
+      layerSize[i] = std::distance(p,eit);
       // layerSize[i]=0;
       // for (;p!=e;++p) ++layerSize[i];
     }
@@ -166,8 +166,8 @@ void constructAndDumpTrie(Iter b, Iter e) {
       //<< "n negforwardLayers: " << this->negForwardLayers().size() << "\n"
       //<< "n posForwardLayers: " << this->posForwardLayers().size() ;
   }
-  catch(edm::Exception const & e) {
-    std::cout << "in walking " << e.what() << std::endl;
+  catch(edm::Exception const & ex) {
+    std::cout << "in walking " << ex.what() << std::endl;
   }
   
 }
