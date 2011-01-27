@@ -2,12 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 hltMuonEfficiencies = cms.EDAnalyzer("DQMGenericClient",
 
-    subDirs        = cms.untracked.vstring("HLT/Muon/Distributions/*"),
+    subDirs        = cms.untracked.vstring("HLT/Muon/Distributions.*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     outputFileName = cms.untracked.string(''),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),
-    efficiency     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "efficiencyPhiVsEta 'Efficiency to Match Reco Muons to Trigger Objects; #eta^{reco}; #phi^{reco}' efficiencyPhiVsEta_numer efficiencyPhiVsEta_denom",
+    ),
 
     efficiencyProfile = cms.untracked.vstring(
         "efficiencyEta 'Efficiency to Match Reco Muons to Trigger Objects; #eta^{reco}; N(#mu matched to trigger object) / N(#mu)' efficiencyEta_numer efficiencyEta_denom",
@@ -19,7 +21,7 @@ hltMuonEfficiencies = cms.EDAnalyzer("DQMGenericClient",
         "fakerateEta 'Trigger Fake Rate; #eta^{trigger}; N(unmatched trigger objects) / N(trigger objects)' fakerateEta_numer fakerateEta_denom",
         "fakeratePhi 'Trigger Fake Rate; #phi^{trigger}; N(unmatched trigger objects) / N(trigger objects)' fakeratePhi_numer fakeratePhi_denom",
         "fakerateTurnOn 'Trigger Fake Rate; p_{T}^{trigger}; N(unmatched trigger objects) / N(trigger objects)' fakerateTurnOn_numer fakerateTurnOn_denom",
-    )
+    ),
 
 )
 
@@ -36,8 +38,8 @@ ZPars = cms.untracked.PSet(
 )
 
 zClient = cms.EDAnalyzer("DQMGenericTnPClient",
-  subDirs = cms.untracked.vstring("HLT/Muon/Distributions/*"),
-  #MyDQMrootFolder = cms.untracked.string("HLT/Muon/Distributions/vbtfMuons/HLT_Mu5"),
+  subDirs = cms.untracked.vstring("HLT/Muon/Distributions*"),
+  #MyDQMrootFolder = cms.untracked.string("HLT/Muon/DistributionsVbtf/HLT_Mu5"),
   # Set this if you want to save info about each fit
   # SavePlotsInRootFileName = cms.untracked.string("fittingPlots.root"),
   Verbose = cms.untracked.bool(False),
