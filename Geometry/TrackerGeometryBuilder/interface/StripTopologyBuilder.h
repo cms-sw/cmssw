@@ -10,20 +10,20 @@ class Bounds;
  * Called by GeomTopologyBuilder, chooses the right topology for Strips.
  */
 
-class StripTopologyBuilder {
+class StripTopologyBuilder
+{
 public:
 
-  StripTopologyBuilder();
+  StripTopologyBuilder( void );
 
-  StripTopology* build(const Bounds* ,double ,std::string);
+  StripTopology* build( const Bounds*, double, std::string );
 
 private:
 
   double theAPVNumb;
 
   StripTopology* constructBarrel( float , float );
-  StripTopology* constructForward( float , float ,float, int);
-
+  StripTopology* constructForward( float, float, float, int );
 };
 
 #endif
