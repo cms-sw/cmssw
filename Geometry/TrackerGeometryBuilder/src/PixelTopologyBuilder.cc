@@ -5,9 +5,15 @@
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
-PixelTopologyBuilder::PixelTopologyBuilder(){}
+PixelTopologyBuilder::PixelTopologyBuilder( void )
+  : thePixelROCRows( 0 ),
+    thePixelROCCols( 0 ),
+    thePixelROCsInX( 0 ),
+    thePixelROCsInY( 0 )
+{}
 
-PixelTopology* PixelTopologyBuilder::build(const Bounds* bs,double rocRow,double rocCol,double rocInX,double rocInY,std::string part)
+PixelTopology*
+PixelTopologyBuilder::build( const Bounds* bs, double rocRow, double rocCol, double rocInX, double rocInY, std::string /* part */ )
 {
   thePixelROCRows = rocRow; // number of pixel rows per ROC
   thePixelROCsInX = rocInX; // number of ROCs per module in x
@@ -43,8 +49,7 @@ PixelTopology* PixelTopologyBuilder::build(const Bounds* bs,double rocRow,double
   //   <<" big pixels "<<BIG_PIX_PER_ROC_X<<"/"<<BIG_PIX_PER_ROC_Y
   //   <<std::endl;   
 
-  return new RectangularPixelTopology(nrows,ncols,pitchX,pitchY);
-
+  return new RectangularPixelTopology( nrows, ncols, pitchX, pitchY );
 }
 
 
