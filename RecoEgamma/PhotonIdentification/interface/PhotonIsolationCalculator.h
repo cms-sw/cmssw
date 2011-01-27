@@ -128,6 +128,8 @@ public:
   //float  spikeIdThreshold_;
   //EcalSeverityLevelAlgo::SpikeId spId_;
   std::vector<int> v_chstatus_;
+  //EcalSeverityLevelAlgo::SpikeId spId_;
+
 
   double photonEcalRecHitConeInnerRadiusB_;
   double photonEcalRecHitConeOuterRadiusB_;

@@ -267,9 +267,6 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
     photonHcalDepth2TowerConeOuterRadiusB_ = hcalIsoBarrelRadiusB_[7];
     photonHcalDepth2TowerThreshEB_         = hcalIsoBarrelRadiusB_[8];
 
-
-    
-
   } else if 
     (detector==EcalEndcap) {
 
@@ -481,15 +478,15 @@ void PhotonIsolationCalculator::classify(const reco::Photon* photon,
 }
 
 void PhotonIsolationCalculator::calculateTrackIso(const reco::Photon* photon,
-						  const edm::Event& e,
-						  double &trkCone,
-						  int &ntrkCone,
-						  double pTThresh,
-						  double RCone,
-						  double RinnerCone,
+                                                  const edm::Event& e,
+                                                  double &trkCone,
+                                                  int &ntrkCone,
+                                                  double pTThresh,
+                                                  double RCone,
+                                                  double RinnerCone,
                                                   double etaSlice, 
-						  double lip, 
-						  double d0){
+                                                  double lip, 
+                                                  double d0){
   int counter  =0;
   double ptSum =0.;
   
@@ -525,17 +522,17 @@ void PhotonIsolationCalculator::calculateTrackIso(const reco::Photon* photon,
 
 
 double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* photon,
-							 const edm::Event& iEvent,
-							 const edm::EventSetup& iSetup,
-							 double RCone,
-							 double RConeInner,
-							 double etaSlice,
-							 double eMin,
-							 double etMin,
-							 bool vetoClusteredHits,
-							 bool useNumXtals)
+                                                         const edm::Event& iEvent,
+                                                         const edm::EventSetup& iSetup,
+                                                         double RCone,
+                                                         double RConeInner,
+                                                         double etaSlice,
+                                                         double eMin,
+                                                         double etMin,
+                                                         bool vetoClusteredHits,
+                                                         bool useNumXtals)
 {
-
+  
   edm::Handle<EcalRecHitCollection> ecalhitsCollEB;
   edm::Handle<EcalRecHitCollection> ecalhitsCollEE;
 
@@ -576,6 +573,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   phoIsoEB.setVetoClustered(vetoClusteredHits);
   phoIsoEB.setUseNumCrystals(useNumXtals);
   phoIsoEB.doSpikeRemoval(ecalhitsCollEB.product(),chStatus.product(),severityLevelCut_);//,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+  phoIsoEB.doFlagChecks(v_chstatus_);
   double ecalIsolEB = phoIsoEB.getEtSum(photon);
   
   EgammaRecHitIsolation phoIsoEE(RCone,
@@ -590,6 +588,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   
   phoIsoEE.setVetoClustered(vetoClusteredHits);
   phoIsoEE.setUseNumCrystals(useNumXtals);
+  phoIsoEE.doFlagChecks(v_chstatus_);
 
   double ecalIsolEE = phoIsoEE.getEtSum(photon);
   //  delete phoIso;
