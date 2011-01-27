@@ -121,24 +121,26 @@ def hlttrgmap(schema):
     '''
     o=['/cdaq/physics/firstCollisions10/v2.0/HLT_7TeV/V5']
     hlttrgmap={}
-    hlttrgmap['HLT_L1Tech_BSC_halo']='4'
-    hlttrgmap['HLT_PixelTracks_Multiplicity70']='L1_ETT60'
-    hlttrgmap['HLT_PixelTracks_Multiplicity85']='L1_ETT60'
-    hlttrgmap['HLT_PixelTracks_Multiplicity100']='L1_ETT100'
-    hlttrgmap['HLT_GlobalRunHPDNoise']="L1_SingleJet10U_NotBptxOR"
-    hlttrgmap['HLT_TechTrigHCALNoise']="11 OR 12"
+    hlttrgmap['HLT_L1Tech_BSC_halo']=('4',1)
+    hlttrgmap['HLT_PixelTracks_Multiplicity70']=('L1_ETT60',2)
+    hlttrgmap['HLT_PixelTracks_Multiplicity85']=('L1_ETT60',2)
+    hlttrgmap['HLT_PixelTracks_Multiplicity100']=('L1_ETT100',3)
+    hlttrgmap['HLT_GlobalRunHPDNoise']=("L1_SingleJet10U_NotBptxOR",4)
+    hlttrgmap['HLT_TechTrigHCALNoise']=("11 OR 12",5)
     o.append(hlttrgmap)
     return o
-def runsummary(schema):
+def runsummary(schema,amodetag,egev):
     '''
     input:
-    output:[hltkey,l1key,fillnum,sequence,starttime,stoptime]
+    output:[hltkey,l1key,fillnum,sequence,starttime,stoptime,amodetag,egev]
     '''
     o=['/cdaq/physics/firstCollisions10/v2.0/HLT_7TeV/V5','collisioncollision','GLOBAL-RUN',1005]
     starttime=coral.TimeStamp(2010,11,1,0,0,0,0)
     stoptime=coral.TimeStamp(2010,11,1,11,0,0,0)
     o.append(starttime)
     o.append(stoptime)
+    o.append(amodetag)
+    o.append(egev)
     return o
     
 if __name__ == "__main__":
