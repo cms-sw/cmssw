@@ -938,7 +938,6 @@ def insertLumiLSDetail(schema,runnumber,data_id,lumibxdata):
                 bxlumivalue=bxdata[1]
                 bxlumierror=bxdata[2]
                 bxlumiquality=bxdata[3]
-                print 'dataid,lumilsnum ',data_id,lumilsnum
                 bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('LUMILSNUM',lumilsnum),('CMSLSNUM',cmslsnum),('ALGONAME',algoname),('BXLUMIVALUE',bxlumivalue),('BXLUMIERROR',bxlumierror),('BXLUMIQUALITY',bxlumiquality)])
         db=dbUtil.dbUtil(schema)
         db.bulkInsert(nameDealer.lumidetailTableName(),lslumiDefDict,bulkvalues)
@@ -1037,7 +1036,7 @@ if __name__ == "__main__":
     session.transaction().commit()
     print 'test reading'
     session.transaction().start(True)
-    print '===inspecting NORM branch==='
+    print '===inspecting NORM by name==='
     normrevlist=revisionDML.revisionsInBranchName(schema,'NORM')
     luminormentry_id=revisionDML.entryInBranch(schema,nameDealer.luminormTableName(),'pp7TeV','NORM')
     latestNorms=revisionDML.latestDataRevisionOfEntry(schema,nameDealer.luminormTableName(),luminormentry_id,normrevlist)
@@ -1083,7 +1082,13 @@ if __name__ == "__main__":
     
     print '===test reading==='
     session.transaction().start(True)
-    normid=guessnormIdByName(schema,'pp7TeV')
+    print 'guess norm by name'
+    normid1=guessnormIdByName(schema,'pp7TeV')
+    print 'normid1 ',normid1
+    normid2=guessnormIdByContext(schema,'PROTPHYS',3500)
+    print 'guess norm of PROTPHYS 3500'
+    print 'normid2 ',normid2
+    normid=normid2
     (lumidataid,trgdataid,hltdataid)=guessDataIdByRun(schema,1200)
     print 'normid,lumiid,trgid,hltid ',normid,lumidataid,trgdataid,hltdataid
     print 'lumi norm'
