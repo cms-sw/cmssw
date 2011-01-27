@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
  *  $Author: klukas $
- *  $Date: 2010/12/15 15:48:35 $
- *  $Revision: 1.19 $
+ *  $Date: 2011/01/03 21:10:33 $
+ *  $Revision: 1.20 $
  */
 
 
@@ -24,7 +24,7 @@
 #include <iostream>
 
 //////////////////////////////////////////////////////////////////////////////
-//////// Namespaces //////////////////////////////////////////////////////////
+//////// Namespaces and Typedefs /////////////////////////////////////////////
 
 using namespace std;
 using namespace edm;
@@ -32,6 +32,7 @@ using namespace reco;
 using namespace trigger;
 using namespace l1extra;
 
+typedef std::vector<std::string> vstring;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -43,16 +44,25 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
                                          vector<string> moduleLabels) :
   hltProcessName_(pset.getParameter<string>("hltProcessName")),
   destination_(pset.getUntrackedParameter<string>("destination")),
+  requiredTriggers_(pset.getUntrackedParameter<vstring>("requiredTriggers")),
   targetParams_(pset.getParameterSet("targetParams")),
   probeParams_(pset.getParameterSet("probeParams")),
   hltPath_(hltPath),
   moduleLabels_(moduleLabels)
 {
 
+  // Create std::map<string, T> from ParameterSets. 
   fillMapFromPSet(inputTags_, pset, "inputTags");
   fillMapFromPSet(binParams_, pset, "binParams");
-  fillMapFromPSet(deltaRCuts_, pset, "deltaRCuts");
+  fillMapFromPSet(plotCuts_, pset, "plotCuts");
 
+  // Set HLT process name for TriggerResults and TriggerSummary.
+  InputTag & resTag = inputTags_["triggerResults"];
+  resTag = InputTag(resTag.label(), resTag.instance(), hltProcessName_);
+  InputTag & sumTag = inputTags_["triggerSummary"];
+  sumTag = InputTag(sumTag.label(), sumTag.instance(), hltProcessName_);
+
+  // Prepare the DQMStore object.
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
 
@@ -61,7 +71,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
 
 
 void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun, 
-                                    const edm::EventSetup& iSetup)
+                                   const edm::EventSetup& iSetup)
 {
 
   TPRegexp suffixPtCut("Mu[0-9]+$");
@@ -90,7 +100,7 @@ void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun,
     book1D("efficiencyD0_" + suffix, "d0", ";d0;");
     book1D("efficiencyZ0_" + suffix, "z0", ";z0;");
     book1D("efficiencyCharge_" + suffix, "charge", ";charge;");
-    book2D("efficiencyEtaVsPhi_" + suffix, "etaCoarse", "phiCoarse", 
+    book2D("efficiencyPhiVsEta_" + suffix, "etaCoarse", "phiCoarse", 
            ";#eta;#phi");
 
     book1D("fakerateEta_" + suffix, "eta", ";#eta;");
@@ -111,57 +121,68 @@ void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun,
 
 
 void HLTMuonMatchAndPlot::endRun(const edm::Run& iRun, 
-                                  const edm::EventSetup& iSetup)
+                                 const edm::EventSetup& iSetup)
 {
 }
 
 
 
 void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
-                                   const edm::EventSetup& iSetup)
+                                  const edm::EventSetup& iSetup)
 
 {
 
-  // Get the triger level
+  // Get the trigger level.
   string triggerLevel = "L3";
   TPRegexp levelRegexp("L[1-3]");
   size_t nModules = moduleLabels_.size();
   TObjArray * levelArray = levelRegexp.MatchS(moduleLabels_[nModules - 1]);
-  if (levelArray->GetEntriesFast() >= 2) {
-    triggerLevel = atoi(((TObjString *)levelArray->At(1))->GetString());
+  if (levelArray->GetEntriesFast() > 0) {
+    triggerLevel = ((TObjString *)levelArray->At(0))->GetString();
   }
 
-  // Get the pT cut by parsing the name of the HLT path
+  // Get the pT cut by parsing the name of the HLT path.
   unsigned int cutMinPt = 3;
   TPRegexp ptRegexp("Mu([0-9]*)");
   TObjArray * objArray = ptRegexp.MatchS(hltPath_);
   if (objArray->GetEntriesFast() >= 2) {
     TObjString * ptCutString = (TObjString *)objArray->At(1);
     cutMinPt = atoi(ptCutString->GetString());
-    cutMinPt = ceil(1.2 * cutMinPt);
+    cutMinPt = ceil(cutMinPt * plotCuts_["minPtFactor"]);
   }
 
+  // Get objects from the event.
   Handle<MuonCollection> allMuons;
   iEvent.getByLabel(inputTags_["recoMuon"], allMuons);
   Handle<BeamSpot> beamSpot;
   iEvent.getByLabel(inputTags_["beamSpot"], beamSpot);
   Handle<TriggerEvent> triggerSummary;
   iEvent.getByLabel(inputTags_["triggerSummary"], triggerSummary);
+  Handle<TriggerResults> triggerResults;
+  iEvent.getByLabel(inputTags_["triggerResults"], triggerResults);
 
+  // Throw out this event if it doesn't pass the required triggers.
+  for (size_t i = 0; i < requiredTriggers_.size(); i++) {
+    unsigned int triggerIndex = triggerResults->find(requiredTriggers_[i]);
+    if (triggerIndex < triggerResults->size() ||
+        !triggerResults->accept(triggerIndex))
+      return;
+  }
+
+  // Select objects based on the configuration.
   MuonCollection targetMuons = selectedMuons(* allMuons, * beamSpot,
-                                               targetParams_);
+                                             targetParams_);
   MuonCollection probeMuons = selectedMuons(* allMuons, * beamSpot,
                                             probeParams_);
   TriggerObjectCollection allTriggerObjects = triggerSummary->getObjects();
-
   TriggerObjectCollection hltMuons = 
     selectedTriggerObjects(allTriggerObjects, * triggerSummary, targetParams_);
 
+  // Find the best trigger object matches for the targetMuons.
   vector<size_t> matches = matchByDeltaR(targetMuons, hltMuons, 
-                                         deltaRCuts_[triggerLevel]);
+                                         plotCuts_[triggerLevel + "DeltaR"]);
 
-  double cutMaxEta = 2.1;
-  
+  // Fill plots for matched muons.
   for (size_t i = 0; i < targetMuons.size(); i++) {
 
     Muon & muon = targetMuons[i];
@@ -184,18 +205,18 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
       string suffix = EFFICIENCY_SUFFIXES[j];
 
       // If no match was found, then the numerator plots don't get filled.
-      if (suffix == "numer" && matches[i] == targetMuons.size()) continue;
+      if (suffix == "numer" && matches[i] >= targetMuons.size()) continue;
 
       if (muon.pt() > cutMinPt) {
         hists_["efficiencyEta_" + suffix]->Fill(muon.eta());
-        hists_["efficiencyEtaVsPhi_" + suffix]->Fill(muon.eta(), muon.phi());
+        hists_["efficiencyPhiVsEta_" + suffix]->Fill(muon.eta(), muon.phi());
       }
       
-      if (fabs(muon.eta()) < cutMaxEta) {
+      if (fabs(muon.eta()) < plotCuts_["maxEta"]) {
         hists_["efficiencyTurnOn_" + suffix]->Fill(muon.pt());
       }
       
-      if (muon.pt() > cutMinPt && fabs(muon.eta()) < cutMaxEta) {
+      if (muon.pt() > cutMinPt && fabs(muon.eta()) < plotCuts_["maxEta"]) {
         double d0 = muon.innerTrack()->dxy(beamSpot->position());
         double z0 = muon.innerTrack()->dz(beamSpot->position());
         hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
@@ -219,7 +240,7 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
 
   // Plot fake rates (efficiency for HLT objects to not get matched to RECO).
   vector<size_t> hltMatches = matchByDeltaR(hltMuons, targetMuons,
-                                            deltaRCuts_[triggerLevel]);
+                                            plotCuts_[triggerLevel + "DeltaR"]);
   for (size_t i = 0; i < hltMuons.size(); i++) {
     TriggerObject & hltMuon = hltMuons[i];
     bool isFake = hltMatches[i] > hltMuons.size();
@@ -230,7 +251,7 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
       hists_["fakerateEta_" + suffix]->Fill(hltMuon.eta());
       hists_["fakeratePhi_" + suffix]->Fill(hltMuon.phi());
       hists_["fakerateTurnOn_" + suffix]->Fill(hltMuon.pt());
-    } // End loop over [numerator, denominator].
+    } // End loop over numerator and denominator.
   } // End loop over hltMuons.
   
 
@@ -238,17 +259,17 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
 
 
 
-// Method to fill binning parameters from a vector of doubles
+// Method to fill binning parameters from a vector of doubles.
 void 
 HLTMuonMatchAndPlot::fillEdges(size_t & nBins, float * & edges, 
-                                vector<double> binning) {
+                               vector<double> binning) {
 
   if (binning.size() < 3) {
     LogWarning("HLTMuonVal") << "Invalid binning parameters!"; 
     return;
   }
 
-  // fixed-width binning
+  // Fixed-width binning.
   if (binning.size() == 3) {
     nBins = binning[0];
     edges = new float[nBins + 1];
@@ -257,7 +278,7 @@ HLTMuonMatchAndPlot::fillEdges(size_t & nBins, float * & edges,
     for (size_t i = 0; i <= nBins; i++) edges[i] = min + (binwidth * i);
   } 
 
-  // variable-width binning
+  // Variable-width binning.
   else {
     nBins = binning.size() - 1;
     edges = new float[nBins + 1];
@@ -274,7 +295,7 @@ HLTMuonMatchAndPlot::fillEdges(size_t & nBins, float * & edges,
 template <class T>
 void 
 HLTMuonMatchAndPlot::fillMapFromPSet(map<string, T> & m, 
-                                      ParameterSet pset, string target) {
+                                     ParameterSet pset, string target) {
 
   // Get the ParameterSet with name 'target' from 'pset'
   ParameterSet targetPset;
@@ -302,8 +323,8 @@ HLTMuonMatchAndPlot::fillMapFromPSet(map<string, T> & m,
 template <class T1, class T2> 
 vector<size_t> 
 HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1> & collection1, 
-                                    const vector<T2> & collection2,
-                                    double maxDeltaR) {
+                                   const vector<T2> & collection2,
+                                   const double maxDeltaR = NOMATCH) {
 
   const size_t n1 = collection1.size();
   const size_t n2 = collection2.size();
@@ -312,8 +333,9 @@ HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1> & collection1,
   vector<vector<double> > deltaRMatrix(n1, vector<double>(n2, NOMATCH));
 
   for (size_t i = 0; i < n1; i++)
-    for (size_t j = 0; j < n2; j++)
+    for (size_t j = 0; j < n2; j++) {
       deltaRMatrix[i][j] = deltaR(collection1[i], collection2[j]);
+    }
 
   // Run through the matrix n1 times to make sure we've found all matches.
   for (size_t k = 0; k < n1; k++) {
@@ -360,13 +382,13 @@ HLTMuonMatchAndPlot::selectedMuons(const MuonCollection & allMuons,
 
   MuonCollection reducedMuons(allMuons);
   MuonCollection::iterator iter = reducedMuons.begin();
-  while (iter != reducedMuons.end())
-    if (selector(* iter)) {
-      if (fabs(iter->innerTrack()->dxy(beamSpot.position())) < d0Cut)
-        if (fabs(iter->innerTrack()->dz(beamSpot.position())) < z0Cut)
+  while (iter != reducedMuons.end()) {
+    if (selector(* iter) &&
+        fabs(iter->innerTrack()->dxy(beamSpot.position())) < d0Cut &&
+        fabs(iter->innerTrack()->dz(beamSpot.position())) < z0Cut)
       ++iter;
-    } 
     else reducedMuons.erase(iter);
+  }
 
   return reducedMuons;
 
@@ -396,7 +418,7 @@ HLTMuonMatchAndPlot::selectedTriggerObjects(
 
   if (filterIndex < triggerSummary.sizeFilters()) {
     const Keys &keys = triggerSummary.filterKeys(filterIndex);
-    for ( size_t j = 0; j < keys.size(); j++ ){
+    for (size_t j = 0; j < keys.size(); j++ ){
       TriggerObject foundObject = triggerObjects[keys[j]];
       if (selector(foundObject))
         selectedObjects.push_back(foundObject);
@@ -427,7 +449,7 @@ HLTMuonMatchAndPlot::book1D(string name, string binningType, string title) {
 
 void
 HLTMuonMatchAndPlot::book2D(string name, string binningTypeX, 
-                             string binningTypeY, string title) {
+                            string binningTypeY, string title) {
   
   size_t  nBinsX;
   float * edgesX;
