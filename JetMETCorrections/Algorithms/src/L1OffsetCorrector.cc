@@ -66,7 +66,7 @@ double L1OffsetCorrector::correction(const reco::Jet& fJet,
   fEvent.getByLabel(mVertexCollName,recVtxs);
   int NPV(0);
   for(unsigned int ind=0;ind<recVtxs->size();ind++) {
-    if (!((*recVtxs)[ind].isFake())) {
+    if (!((*recVtxs)[ind].isFake()) && (*recVtxs)[ind].ndof() > 4) {
       NPV++;
     }
   } 
