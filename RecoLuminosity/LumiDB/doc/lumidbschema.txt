@@ -53,7 +53,9 @@ columns:
           lumisectionquality(short)  NOT NULL // use max 3 bits [HLX,HF,BRAN]
           beamenergy(float)          NOT NULL 
           beamstatus(string)         NOT NULL 
-	  
+	  cmsbxindexblob(blob)
+          beamintensityblob_1(blob)
+          beamintensityblob_2(blob)
 ======
 table 3:  LUMIDETAIL (insert 1 rows per run+lumiLS+lumiversion+algorithm from LUMI_RAW file)
 columns: 

@@ -17,19 +17,18 @@ create table luminorms(
      data_id  uint64 PK
      entry_id    uint64 not null references luminorms_entries(entry_id),
      entry_name  string,
-     defaultnorm  float not null,
-     norm_1       float,
-     energy_1     float,
-     norm_2       float,
-     energy_2     float
+     amodetag string,
+     norm_1     float,
+     egev_1     uint32,
+     norm_2     float,
+     egev_2     uint32
 )
 
 create table luminorms_entries(   #versionable entity helper table
      entry_id uint64 PK,
      revision_id uint64 not null references revisions(revision_id),
-     name    string
+     entry_name    string
 )
-
 
 create table luminorms_id(          #id helper table
      nextid uint64 PK
@@ -47,8 +46,7 @@ create table lumidata(             #verionable data table
      entry_id    uint64 not null references lumidata_entries(entry_id),
      entry_name string,
      source     string,
-     runnum     uint32,
-     nominalenergy float,
+     runnum     uint32
 )
 create index lumidata_entry_id on lumidata(entry_id);
 
@@ -73,17 +71,19 @@ create table lumidata_entries_id(
 
 4.
 create table cmsrunsummary(        #data table
-     runnum uint64 PK,
+     runnum uint32 PK,
      hltkey string not null,
      l1key  string,
      fillnum uint32,
      sequence    string,
      starttime   timestamp(6),
-     stoptime    timestamp(6)
+     stoptime    timestamp(6),   
+     egev uint32,
+     amodetag string 
 )
 5. 
 create table lumisummary(         #data table
-     lumidata_id  uint64 not null refrences lumidata(data_id),
+     data_id  uint64 not null refrences lumidata(data_id),
      runnum      uint32,  (redundant)
      cmslsnum    uint32,
      lumilsnum   uint32,
@@ -101,7 +101,7 @@ create table lumisummary(         #data table
 )
 6.
 create table lumidetail(           #data table
-     lumidata_id  uint64 not null references lumidata(data_id),
+     data_id  uint64 not null references lumidata(data_id),
      runnum       uint32, (redundant)
      cmslsnum     uint32,
      lumilsnum    uint32,
@@ -186,6 +186,7 @@ create table lshlt(
 11.
 create table trghltmap(           
    hltkey string not null,
+   hltpathid unsigned int,
    hltpathname string not null,
    l1seed      string not null
 )
