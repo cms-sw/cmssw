@@ -2,10 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
 
+    ## Used when fetching triggerSummary and triggerResults
     hltProcessName = cms.string("HLT"),
+
+    ## Location of plots in DQM
     destination = cms.untracked.string("HLT/Muon/Distributions/globalMuons"),
 
-    # HLT paths passing any one of these regular expressions will be included
+    ## HLT paths passing any one of these regular expressions will be included
     hltPathsToCheck = cms.vstring(
         "HLT_(L[12])?(Double)?(Iso)?Mu[0-9]*(Open)?(_NoVertex)?(_v[0-9]*)?$",
     ),
@@ -15,7 +18,7 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
         recoMuon       = cms.InputTag("muons"),
         beamSpot       = cms.InputTag("offlineBeamSpot"),
         triggerSummary = cms.InputTag("hltTriggerSummaryAOD"),
-        triggerResult  = cms.InputTag("TriggerResults","","HLT"),
+        triggerResults = cms.InputTag("TriggerResults"),
     ),
 
     ## Both 1D and 2D plots use the binnings defined here
@@ -39,33 +42,41 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
                                    100.0, 200.0, 400.0),
     ),
 
-    deltaRCuts = cms.PSet(
-        L1 = cms.untracked.double(0.30),
-        L2 = cms.untracked.double(0.30),
-        L3 = cms.untracked.double(0.05),
+    ## These parameters define which objects are used to fill plots
+    plotCuts = cms.PSet(
+        ## not applied on eta plots
+        maxEta = cms.untracked.double(2.10),
+        ## only fill plots for muons with pt > ceil(hltThreshold * minPtFactor)
+        ## ex: for HLT_Mu17, ceil(17 * 1.2 ) = 21, so we require pT > 21
+        minPtFactor = cms.untracked.double(1.20),
+        ## deltaR cuts
+        L1DeltaR = cms.untracked.double(0.30),
+        L2DeltaR = cms.untracked.double(0.30),
+        L3DeltaR = cms.untracked.double(0.05),
     ),
 
-    # This collection is used to fill most distributions
+    ## Only events passing all these triggers will be considered
+    requiredTriggers = cms.untracked.vstring(),
+
+    ## This collection is used to fill most distributions
     targetParams = cms.PSet(
-        requiredTriggers = cms.untracked.vstring(""),
-        # The d0 and z0 cuts are required for the inner track of the
-        # reco muons, taken with respect to the beamspot
+        ## The d0 and z0 cuts are required for the inner track of the
+        ## reco muons, taken with respect to the beamspot
         d0Cut = cms.untracked.double(2.0),
         z0Cut = cms.untracked.double(25.0),
-        # cuts
+        ## cuts
         recoCuts = cms.untracked.string("isGlobalMuon && abs(eta) < 2.4"),
         hltCuts  = cms.untracked.string("abs(eta) < 2.4"),
     ),
 
-    # If this PSet is empty, then no "tag and probe" plots are produced;
-    # the cuts used for the tags are specified by targetParams
+    ## If this PSet is empty, then no "tag and probe" plots are produced;
+    ## the cuts used for the tags are specified by targetParams
     probeParams = cms.PSet(
-        requiredTriggers = cms.untracked.vstring(""),
-        # The d0 and z0 cuts are required for the inner track of the
-        # reco muons, taken with respect to the beamspot
+        ## The d0 and z0 cuts are required for the inner track of the
+        ## reco muons, taken with respect to the beamspot
         d0Cut = cms.untracked.double(2.0),
         z0Cut = cms.untracked.double(25.0),
-        # cuts
+        ## cuts
         recoCuts = cms.untracked.string("isGlobalMuon && abs(eta) < 2.0"),
         hltCuts  = cms.untracked.string("abs(eta) < 2.0"),
     ),
