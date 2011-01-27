@@ -38,18 +38,12 @@ _isFirstEvent(true)
   std::set< AnaHandle, AnaHandleLess >::const_iterator ibeg = analyses.begin();
   std::set< AnaHandle, AnaHandleLess >::const_iterator iend = analyses.end();
   std::set< AnaHandle, AnaHandleLess >::const_iterator iana; 
-  bool got_xsec = false;
   double xsection = -1.;
+  xsection = pset.getParameter<double>("CrossSection");
   for (iana = ibeg; iana != iend; ++iana){
-    if (!got_xsec){
-      if ((*iana)->needsCrossSection ()){
-        xsection = pset.getParameter<double>("CrossSection");   
-      }
-      got_xsec = true;
-    }
-    (*iana)->setCrossSection(xsection);  
+    if ((*iana)->needsCrossSection())
+      (*iana)->setCrossSection(xsection);
   }
-
 }
 
 RivetAnalyzer::~RivetAnalyzer(){
