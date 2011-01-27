@@ -158,7 +158,7 @@ hltIcone2Central4 = cms.EDProducer( "IterativeConeJetProducer",
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
 openhltL2TauJets = cms.EDProducer( "L2TauJetsMerger",
-    EtMin = cms.double( 15.0 ),
+    EtMin = cms.double( 1.0 ),
     JetSrc = cms.VInputTag( 'hltIconeTau1Regional','hltIconeTau2Regional','hltIconeTau3Regional','hltIconeTau4Regional','hltIconeCentral1Regional','hltIconeCentral2Regional','hltIconeCentral3Regional','hltIconeCentral4Regional' )
 )
 openhltL2TauIsolationProducer = cms.EDProducer( "L2TauNarrowConeIsolationProducer",
@@ -209,7 +209,7 @@ openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "hltPixelLayerPairs" ),
+      SeedingLayers = cms.string( "hltESPPixelLayerPairs" ),
       maxElement = cms.uint32( 0 )      
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -217,12 +217,12 @@ openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
     ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
 openhltL25TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "openhltL25TauPixelSeeds" ),
-    TrajectoryBuilder = cms.string( "trajBuilderL3" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPTrajectoryBuilderL3" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -240,11 +240,11 @@ openhltL25TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "ctfWithMaterialTracks" ),
-    Fitter = cms.string( "FittingSmootherRK" ),
-    Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
+    Fitter = cms.string( "hltESPFittingSmootherRK" ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
     src = cms.InputTag( "openhltL25TauCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -290,3 +290,24 @@ OpenHLTDoCaloSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegion
 OpenHLTCaloTausCreatorSequence = cms.Sequence( OpenHLTDoCaloSequence + hltCaloTowersTau1Regional + hltIconeTau1Regional + hltCaloTowersTau2Regional + hltIconeTau2Regional + hltCaloTowersTau3Regional + hltIconeTau3Regional + hltCaloTowersTau4Regional + hltIconeTau4Regional + hltCaloTowersCentral1Regional + hltIconeCentral1Regional + hltCaloTowersCentral2Regional + hltIconeCentral2Regional + hltCaloTowersCentral3Regional + hltIconeCentral3Regional + hltCaloTowersCentral4Regional + hltIconeCentral4Regional )
 OpenHLTL25TauTrackReconstructionSequence = cms.Sequence( HLTDoLocalStripSequence + openhltL25TauPixelSeeds + openhltL25TauCkfTrackCandidates + openhltL25TauCtfWithMaterialTracks )
 OpenHLTL25TauTrackIsolation = cms.Sequence( openhltL25TauJetTracksAssociator + openhltL25TauConeIsolation )
+
+
+
+#Particle Flow
+#Modifying the trajFilter
+#trajFilterL3.maxNumberOfHits = cms.int32(100)
+#trajFilterL3.minPt = cms.double(0.5)
+
+#HLTRecoJetSequencePrePF = cms.Sequence( HLTDoCaloSequence + hltIterativeCone5CaloJets + hltIterativeCone5CaloJets8 )
+
+#HLTTrackReconstructionForJets = cms.Sequence( hltPFJetPixelSeeds + hltPFJetCkfTrackCandidates + hltPFJetCtfWithMaterialTracks +hltPFJetCkfTrackCandidatesHighPurity )
+#HLTPreshowerSequence = cms.Sequence( hltESRawToRecHitFacility + 
+#                                     hltEcalRegionalESRestFEDs + 
+#                                     hltESRecHitAll 
+#                                     )
+#HLTParticleFlowSequence = cms.Sequence( HLTPreshowerSequence + hltParticleFlowRecHitECAL + hltParticleFlowRecHitHCAL + hltParticleFlowRecHitPS + hltParticleFlowClusterECAL + hltParticleFlowClusterHCAL + hltParticleFlowClusterHFEM + hltParticleFlowClusterHFHAD + hltParticleFlowClusterPS + hltLightPFTracks + hltParticleFlowBlock + hltParticleFlow )
+#HLTPFJetsSequence = cms.Sequence( hltIcone5PFJets )
+#HLTPFJetTriggerSequence = cms.Sequence( HLTRecopixelvertexingSequence + HLTTrackReconstructionForJets + HLTParticleFlowSequence + HLTPFJetsSequence )
+#HLTPFTauSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltPFTauTagInfo + hltPFTaus)
+
+

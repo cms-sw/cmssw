@@ -24,12 +24,12 @@ openHltBLifetimeL25BJetTags = copy.deepcopy(hltBLifetimeL25BJetTagsStartup)
 openHltBLifetimeL25BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL25TagInfos"))
 
 # L2.5 reco sequence for lifetime tagger
-OpenHLTBLifetimeL25recoSequence = cms.Sequence( 
-    HLTDoLocalPixelSequence +
-    HLTRecopixelvertexingSequence +
-    openHltBLifetimeL25Associator +
-    openHltBLifetimeL25TagInfos +
-    openHltBLifetimeL25BJetTags )
+OpenHLTBLifetimeL25recoSequence = cms.Sequence(
+        HLTDoLocalPixelSequence +
+        HLTRecopixelvertexingSequence +
+        openHltBLifetimeL25Associator +
+        openHltBLifetimeL25TagInfos +
+        openHltBLifetimeL25BJetTags )
 
 # L3 reco modules
 
@@ -41,29 +41,29 @@ openHltBLifetimeRegionalCkfTrackCandidates.src = cms.InputTag("openHltBLifetimeR
 
 openHltBLifetimeRegionalCtfWithMaterialTracks = copy.deepcopy(hltBLifetimeRegionalCtfWithMaterialTracksStartup)
 openHltBLifetimeRegionalCtfWithMaterialTracks.src = cms.InputTag("openHltBLifetimeRegionalCkfTrackCandidates")
-  
+
 openHltBLifetimeL3Associator = copy.deepcopy(hltBLifetimeL3AssociatorStartup)
 openHltBLifetimeL3Associator.jets   = cms.InputTag("hltIterativeCone5CaloJets")
 openHltBLifetimeL3Associator.tracks = cms.InputTag("openHltBLifetimeRegionalCtfWithMaterialTracks")
 
 openHltBLifetimeL3TagInfos = copy.deepcopy(hltBLifetimeL3TagInfosStartup)
 openHltBLifetimeL3TagInfos.jetTracks = cms.InputTag("openHltBLifetimeL3Associator")
-  
+
 openHltBLifetimeL3BJetTags = copy.deepcopy(hltBLifetimeL3BJetTagsStartup)
 openHltBLifetimeL3BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL3TagInfos"))
 
 # L3 reco sequence for lifetime tagger
-OpenHLTBLifetimeL3recoSequence = cms.Sequence( 
-    HLTDoLocalPixelSequence + 
-    HLTDoLocalStripSequence + 
-    openHltBLifetimeRegionalPixelSeedGenerator + 
-    openHltBLifetimeRegionalCkfTrackCandidates + 
-    openHltBLifetimeRegionalCtfWithMaterialTracks + 
-    openHltBLifetimeL3Associator + 
-    openHltBLifetimeL3TagInfos + 
+OpenHLTBLifetimeL3recoSequence = cms.Sequence(
+    HLTDoLocalPixelSequence +
+    HLTDoLocalStripSequence +
+    openHltBLifetimeRegionalPixelSeedGenerator +
+    openHltBLifetimeRegionalCkfTrackCandidates +
+    openHltBLifetimeRegionalCtfWithMaterialTracks +
+    openHltBLifetimeL3Associator +
+    openHltBLifetimeL3TagInfos +
     openHltBLifetimeL3BJetTags )
 
-### lifetime-based b-tag OpenHLT (start up) ###################################
+    ### lifetime-based b-tag OpenHLT (start up) ###################################
 # L1 filter is skipped
 # L2 reco sequence is common to all paths, and taken from the global table
 # L2.5 as rewritten is common with ideal conditions
@@ -77,26 +77,26 @@ openHltBLifetimeRegionalCkfTrackCandidatesStartup.src = cms.InputTag("openHltBLi
 
 openHltBLifetimeRegionalCtfWithMaterialTracksStartup = copy.deepcopy(hltBLifetimeRegionalCtfWithMaterialTracksStartup)
 openHltBLifetimeRegionalCtfWithMaterialTracksStartup.src = cms.InputTag("openHltBLifetimeRegionalCkfTrackCandidatesStartup")
-  
+
 openHltBLifetimeL3AssociatorStartup = copy.deepcopy(hltBLifetimeL3AssociatorStartup)
 openHltBLifetimeL3AssociatorStartup.jets   = cms.InputTag("hltIterativeCone5CaloJets")
 openHltBLifetimeL3AssociatorStartup.tracks = cms.InputTag("openHltBLifetimeRegionalCtfWithMaterialTracksStartup")
 
 openHltBLifetimeL3TagInfosStartup = copy.deepcopy(hltBLifetimeL3TagInfosStartup)
 openHltBLifetimeL3TagInfosStartup.jetTracks = cms.InputTag("openHltBLifetimeL3AssociatorStartup")
-  
+
 openHltBLifetimeL3BJetTagsStartup = copy.deepcopy(hltBLifetimeL3BJetTagsStartup)
 openHltBLifetimeL3BJetTagsStartup.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL3TagInfosStartup"))
-  
+
 # L3 reco sequence for relaxed lifetime tagger
-OpenHLTBLifetimeL3recoSequenceStartup = cms.Sequence( 
-    HLTDoLocalPixelSequence + 
-    HLTDoLocalStripSequence + 
-    openHltBLifetimeRegionalPixelSeedGeneratorStartup + 
-    openHltBLifetimeRegionalCkfTrackCandidatesStartup + 
-    openHltBLifetimeRegionalCtfWithMaterialTracksStartup + 
-    openHltBLifetimeL3AssociatorStartup + 
-    openHltBLifetimeL3TagInfosStartup + 
+OpenHLTBLifetimeL3recoSequenceStartup = cms.Sequence(
+    HLTDoLocalPixelSequence +
+    HLTDoLocalStripSequence +
+    openHltBLifetimeRegionalPixelSeedGeneratorStartup +
+    openHltBLifetimeRegionalCkfTrackCandidatesStartup +
+    openHltBLifetimeRegionalCtfWithMaterialTracksStartup +
+    openHltBLifetimeL3AssociatorStartup +
+    openHltBLifetimeL3TagInfosStartup +
     openHltBLifetimeL3BJetTagsStartup )
 
 ### soft-muon-based b-tag OpenHLT (ideal, start up, and performance meas.) ####
@@ -119,14 +119,13 @@ openHltBSoftmuonL3BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftmu
 openHltBPerfMeasL3BJetTags = copy.deepcopy(hltBSoftMuonL3BJetTagsUByDR)
 openHltBPerfMeasL3BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftmuonL3TagInfos"))
 
-OpenHLTBSoftMuonL25recoSequence = cms.Sequence( 
+OpenHLTBSoftMuonL25recoSequence = cms.Sequence(
     HLTL2muonrecoNocandSequence +
     openHltBSoftmuonL25TagInfos +
-    openHltBSoftmuonL25BJetTags ) 
+    openHltBSoftmuonL25BJetTags )
 
-OpenHLTBSoftMuonL3recoSequence = cms.Sequence( 
+OpenHLTBSoftMuonL3recoSequence = cms.Sequence(
     HLTL3muonrecoNocandSequence +
     openHltBSoftmuonL3TagInfos +
     openHltBSoftmuonL3BJetTags +
     openHltBPerfMeasL3BJetTags )
-

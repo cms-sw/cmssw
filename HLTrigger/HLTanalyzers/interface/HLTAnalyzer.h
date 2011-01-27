@@ -10,7 +10,6 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTTrack.h"
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
 #include "HLTrigger/HLTanalyzers/interface/RECOVertex.h"
-#include "HLTrigger/HLTanalyzers/interface/HLTHeavyIon.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,13 +33,9 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
-
-
-
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
 /** \class HLTAnalyzer
   *  
@@ -76,7 +71,6 @@ private:
   HLTTrack    track_analysis_;
   HLTInfo     hlt_analysis_;
   RECOVertex  vrt_analysis_;
-  HLTHeavyIon hi_analysis_;
 
   int firstLumi_, lastLumi_, towerThreshold_;
   double xSection_, filterEff_, treeWeight;
@@ -97,10 +91,22 @@ private:
   edm::InputTag gtReadoutRecord_,gtObjectMap_; 
   edm::InputTag gctBitCounts_,gctRingSums_;
 
-  edm::InputTag MuCandTag2_,MuIsolTag2_,MuCandTag3_,MuIsolTag3_;
+  edm::InputTag MuCandTag2_,MuIsolTag2_,MuNoVtxCandTag2_,MuCandTag3_,MuIsolTag3_;
   edm::InputTag oniaPixelTag_,oniaTrackTag_;
-  edm::InputTag HLTTau_;
-
+  edm::InputTag HLTTau_, PFTau_;
+  edm::InputTag PFJets_;
+  
+  //offline reco tau collection and discriminators
+  edm::InputTag RecoPFTau_;
+  edm::InputTag RecoPFTauDiscrByTanCOnePercent_;
+  edm::InputTag RecoPFTauDiscrByTanCHalfPercent_;
+  edm::InputTag RecoPFTauDiscrByTanCQuarterPercent_;
+  edm::InputTag RecoPFTauDiscrByTanCTenthPercent_;
+  edm::InputTag RecoPFTauDiscrByIso_;
+  edm::InputTag RecoPFTauAgainstMuon_;
+  edm::InputTag RecoPFTauAgainstElec_;
+  
+ 
   // btag OpenHLT input collections
   edm::InputTag m_rawBJets;
   edm::InputTag m_correctedBJets;
@@ -116,8 +122,6 @@ private:
   // egamma OpenHLT input collections
   edm::InputTag Electron_;
   edm::InputTag Photon_;
-  edm::InputTag BarrelPhoton_;
-  edm::InputTag EndcapPhoton_;
   edm::InputTag CandIso_;
   edm::InputTag CandNonIso_;
   edm::InputTag EcalIso_;
@@ -132,20 +136,12 @@ private:
   edm::InputTag NonIsoEleHcal_;
   edm::InputTag IsoEleTrackIsol_;
   edm::InputTag NonIsoEleTrackIsol_;
-  edm::InputTag IsoElectronLW_;
-  edm::InputTag NonIsoElectronLW_;
-  edm::InputTag IsoEleTrackIsolLW_;
-  edm::InputTag NonIsoEleTrackIsolLW_;
-  edm::InputTag IsoElectronSS_;
-  edm::InputTag NonIsoElectronSS_;
-  edm::InputTag IsoEleTrackIsolSS_;
-  edm::InputTag NonIsoEleTrackIsolSS_;
   edm::InputTag L1IsoPixelSeeds_;
   edm::InputTag L1NonIsoPixelSeeds_;
-  edm::InputTag L1IsoPixelSeedsLW_;
-  edm::InputTag L1NonIsoPixelSeedsLW_;
-  edm::InputTag L1IsoPixelSeedsSS_;
-  edm::InputTag L1NonIsoPixelSeedsSS_;
+  edm::InputTag NonIsoR9_; 
+  edm::InputTag IsoR9_;  
+  edm::InputTag IsoHoverEH_;
+  edm::InputTag NonIsoHoverEH_; 
 
   // AlCa OpenHLT input collections  
   edm::InputTag EERecHitTag_; 
@@ -158,10 +154,6 @@ private:
   edm::InputTag IsoPixelTrackTagL3_;
   edm::InputTag IsoPixelTrackTagL2_; 
   edm::InputTag IsoPixelTrackVerticesTag_;
-  edm::InputTag IsoPixelTrackHBTagL2_;
-  edm::InputTag IsoPixelTrackHBTagL3_;
-  edm::InputTag IsoPixelTrackHETagL2_;
-  edm::InputTag IsoPixelTrackHETagL3_;
 
   // Track OpenHLT input collections
   edm::InputTag PixelTracksTagL3_; 
@@ -169,38 +161,12 @@ private:
   // Reco vertex collection
   edm::InputTag VertexTag_;
 
-  edm::InputTag CentralityTag_;
-  edm::InputTag EvtPlaneTag_;
-  edm::InputTag HiTag_;
-
   int errCnt;
   const int errMax(){return 100;}
 
   std::string _HistName; // Name of histogram file
   double _EtaMin,_EtaMax;
+    double _MinPtChargedHadrons, _MinPtGammas;
   TFile* m_file; // pointer to Histogram file
 
-  bool _DoMC;
-  bool _DoHLT;
-  bool _DoVertex;
-  bool _DoHeavyIon;
-  bool _DoAlCa;
-
-  bool _DoTracks;
-  bool _DoJets;
-  bool _DoPhotons;
-  bool _DoSuperClusters;
-  bool _DoElectrons;
-
-  bool _DoBJets;
-
-  bool _DoMuons;
-  bool _DoL1Muons;
-  bool _DoL2Muons;
-  bool _DoL3Muons;
-  bool _DoOfflineMuons;
-  bool _DoQuarkonias;
-
-  bool _DoCentrality;
-  bool _UseTFileService;
 };
