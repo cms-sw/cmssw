@@ -11,8 +11,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2010/07/21 04:23:22 $
- *  $Revision: 1.13 $
+ *  $Date: 2011/01/03 21:10:33 $
+ *  $Revision: 1.14 $
  *  
  *  \author  J. Slaunwhite, Jeff Klukas
  */
@@ -32,6 +32,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -81,7 +82,7 @@ class HLTMuonMatchAndPlot {
     fillMapFromPSet(std::map<std::string, T> &, edm::ParameterSet, std::string);
   template <class T1, class T2> std::vector<size_t> 
     matchByDeltaR(const std::vector<T1> &, const std::vector<T2> &, 
-                  double maxDeltaR = NOMATCH);
+                  const double maxDeltaR);
 
  private:
 
@@ -100,9 +101,10 @@ class HLTMuonMatchAndPlot {
   // Input from Configuration File
   std::string hltProcessName_;
   std::string destination_;
+  std::vector<std::string> requiredTriggers_;
   std::map<std::string, edm::InputTag> inputTags_;
   std::map<std::string, std::vector<double> > binParams_;
-  std::map<std::string, double > deltaRCuts_;
+  std::map<std::string, double> plotCuts_;
   edm::ParameterSet targetParams_;
   edm::ParameterSet probeParams_;
 
