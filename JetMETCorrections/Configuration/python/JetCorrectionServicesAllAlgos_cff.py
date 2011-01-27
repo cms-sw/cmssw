@@ -20,6 +20,9 @@ ic5PFL1Offset   = ak5PFL1Offset.clone()
 
 ak7JPTL1Offset  = ak5CaloL1Offset.clone()
 
+# SPECIAL L1JPTOffset
+ak7L1JPTOffset = ak5L1JPTOffset.clone()
+
 # L2 (relative eta-conformity) Correction Services
 ak7CaloL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK7Calo' )
 kt4CaloL2Relative = ak5CaloL2Relative.clone( algorithm = 'KT4Calo' )
@@ -136,6 +139,14 @@ ic5PFL2L3 = cms.ESSource(
     useCondDB = cms.untracked.bool(True)
     )
 
+#--- JPT needs the L1JPTOffset to account for the ZSP changes.
+#--- L1JPTOffset is NOT the same as L1Offset !!!!!
+ak7JPTL2L3 = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ak7L1JPTOffset','ak7JPTL2Relative','ak7JPTL3Absolute'),
+    useCondDB = cms.untracked.bool(True)
+    )
+
 # L1L2L3 CORRECTION SERVICES
 ak7CaloL1L2L3 = cms.ESSource(
     'JetCorrectionServiceChain',
@@ -178,10 +189,11 @@ ic5PFL1L2L3 = cms.ESSource(
     correctors = cms.vstring('ic5PFL1Offset','ic5PFL2Relative','ic5PFL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-
+#--- JPT needs the L1JPTOffset to account for the ZSP changes.
+#--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak7JPTL1L2L3 = cms.ESSource(
     'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak7JPTL1Offset','ak7JPTL2Relative','ak7JPTL3Absolute'),
+    correctors = cms.vstring('ak7JPTL1Offset','ak7L1JPTOffset','ak7JPTL2Relative','ak7JPTL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
 
@@ -262,10 +274,11 @@ ic5PFL1L2L3Residual = cms.ESSource(
     correctors = cms.vstring('ic5PFL1Offset','ic5PFL2Relative','ic5PFL3Absolute','ic5PFResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-
+#--- JPT needs the L1JPTOffset to account for the ZSP changes.
+#--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak7JPTL1L2L3Residual = cms.ESSource(
     'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak7JPTL1Offset','ak7JPTL2Relative','ak7JPTL3Absolute','ak7JPTResidual'),
+    correctors = cms.vstring('ak7JPTL1Offset','ak7L1JPTOffset','ak7JPTL2Relative','ak7JPTL3Absolute','ak7JPTResidual'),
     useCondDB = cms.untracked.bool(True)
     )
 
@@ -288,8 +301,6 @@ kt6PFL1FastL2L3.correctors.insert(0,'L1Fastjet')
 ic5PFL1FastL2L3 = ic5PFL2L3.clone()
 ic5PFL1FastL2L3.correctors.insert(0,'L1Fastjet')
 
-ak5JPTL1FastL2L3 = ak5JPTL2L3.clone()
-ak5JPTL1FastL2L3.correctors.insert(0,'L1Fastjet')
 ak5TrackL1FastL2L3 = ak5TrackL2L3.clone()
 ak5TrackL1FastL2L3.correctors.insert(0,'L1Fastjet')
 

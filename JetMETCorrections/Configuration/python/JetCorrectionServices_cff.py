@@ -127,9 +127,11 @@ ak5PFL2L3 = cms.ESSource(
     'JetCorrectionServiceChain',
     correctors = cms.vstring('ak5PFL2Relative','ak5PFL3Absolute')
     )
+#--- JPT needs the L1JPTOffset to account for the ZSP changes.
+#--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak5JPTL2L3 = cms.ESSource(
     'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak5JPTL2Relative','ak5JPTL3Absolute')
+    correctors = cms.vstring('ak5L1JPTOffset','ak5JPTL2Relative','ak5JPTL3Absolute')
     )
 ak5TrackL2L3 = cms.ESSource(
     'JetCorrectionServiceChain',
@@ -145,9 +147,11 @@ ak5PFL2L3Residual = cms.ESSource(
     'JetCorrectionServiceChain',
     correctors = cms.vstring('ak5PFL2Relative','ak5PFL3Absolute','ak5PFResidual')
     )
+#--- JPT needs the L1JPTOffset to account for the ZSP changes.
+#--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak5JPTL2L3Residual = cms.ESSource(
     'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak5JPTL2Relative','ak5JPTL3Absolute','ak5JPTResidual')
+    correctors = cms.vstring('ak5L1JPTOffset','ak5JPTL2Relative','ak5JPTL3Absolute','ak5JPTResidual')
     )
 
 # L1L2L3 CORRECTION SERVICES
@@ -159,9 +163,11 @@ ak5PFL1L2L3 = cms.ESSource(
     'JetCorrectionServiceChain',
     correctors = cms.vstring('ak5PFL1Offset','ak5PFL2Relative','ak5PFL3Absolute')
     )
+#--- JPT needs the L1JPTOffset to account for the ZSP changes.
+#--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak5JPTL1L2L3 = cms.ESSource(
     'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak5JPTL1Offset','ak5JPTL2Relative','ak5JPTL3Absolute')
+    correctors = cms.vstring('ak5JPTL1Offset','ak5L1JPTOffset','ak5JPTL2Relative','ak5JPTL3Absolute')
     )
 
 # L1L2L3Residual CORRECTION SERVICES
@@ -173,9 +179,11 @@ ak5PFL1L2L3Residual = cms.ESSource(
     'JetCorrectionServiceChain',
     correctors = cms.vstring('ak5PFL1Offset','ak5PFL2Relative','ak5PFL3Absolute','ak5PFResidual')
     )
+#--- JPT needs the L1JPTOffset to account for the ZSP changes.
+#--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak5JPTL1L2L3Residual = cms.ESSource(
     'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak5JPTL1Offset','ak5JPTL2Relative','ak5JPTL3Absolute','ak5JPTResidual')
+    correctors = cms.vstring('ak5JPTL1Offset','ak5L1JPTOffset','ak5JPTL2Relative','ak5JPTL3Absolute','ak5JPTResidual')
     )
 
 # L1L2L3 CORRECTION SERVICES WITH FASTJET
@@ -183,9 +191,11 @@ ak5CaloL1FastL2L3 = ak5CaloL2L3.clone()
 ak5CaloL1FastL2L3.correctors.insert(0,'L1Fastjet')
 ak5PFL1FastL2L3 = ak5PFL2L3.clone()
 ak5PFL1FastL2L3.correctors.insert(0,'L1Fastjet')
+#--- JPT needs the L1JPTOffset to account for the ZSP changes.
+#--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak5JPTL1FastL2L3 = cms.ESSource(
     'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak5JPTL1Offset','ak5JPTL2Relative','ak5JPTL3Absolute')
+    correctors = cms.vstring('L1Fastjet','ak5JPTL1Offset','ak5JPTL2Relative','ak5JPTL3Absolute')
     )
 
 # L2L3L6 CORRECTION SERVICES
