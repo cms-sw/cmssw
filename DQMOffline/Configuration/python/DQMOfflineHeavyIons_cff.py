@@ -35,6 +35,8 @@ from DQM.Physics.DQMPhysics_cff import *
 
 egammaDQMOffline.remove(electronAnalyzerSequence)
 photonAnalysis.isHeavyIon = True
+hltResults.RecHitsEBTag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB")
+hltResults.RecHitsEETag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEE")
 
 DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors 
                                           * jetMETDQMOfflineSource
