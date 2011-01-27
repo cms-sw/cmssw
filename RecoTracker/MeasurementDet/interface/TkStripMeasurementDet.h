@@ -196,7 +196,19 @@ private:
   
   std::set<SiStripClusterRef> skipClusters_;
   std::set<SiStripRegionalClusterRef> skipRegClusters_;
+  
  public:
+  inline bool accept(SiStripClusterRef & r) const {
+    return (skipClusters_.find(r) == skipClusters_.end());
+  }
+  inline bool accept(SiStripRegionalClusterRef &r) const{
+    return (skipRegClusters_.find(r) == skipRegClusters_.end());
+  }
+
+  void unset(){
+    skipRegClusters_.clear();
+    skipRegClusters_.clear();
+  }
   template <typename IT>
     void setClusterToSkip(IT begin, IT end){
     skipClusters_.clear();

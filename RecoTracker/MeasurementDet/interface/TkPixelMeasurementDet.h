@@ -81,6 +81,13 @@ private:
 
   std::set<SiPixelClusterRef> skipClusters_;
  public:
+
+  inline bool accept(SiPixelClusterRefNew & r) const {
+    return skipClusters_.find(r) == skipClusters_.end();
+  }
+  inline void unset(){
+    skipClusters_.clear();
+  }
   template <typename IT>
     void setClusterToSkip(IT begin, IT end){
     skipClusters_.clear();
