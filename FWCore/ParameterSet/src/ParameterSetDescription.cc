@@ -227,6 +227,12 @@ namespace edm {
                                   boost::ref(dfh)));
   }
 
+  bool
+  ParameterSetDescription::
+  isLabelUnused(std::string const& label) const {
+    return usedLabels_.find(label) == usedLabels_.end();
+  }
+
   void
   ParameterSetDescription::throwIllegalParameters(
     std::vector<std::string> const& parameterNames,

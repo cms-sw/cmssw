@@ -323,6 +323,8 @@ namespace edm {
 
     void print(std::ostream & os, DocFormatHelper & dfh) const; 
 
+    bool isLabelUnused(std::string const& label) const;
+
   private:
 
     template<typename T, typename U>

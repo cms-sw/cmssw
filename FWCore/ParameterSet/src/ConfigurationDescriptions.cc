@@ -87,6 +87,13 @@ namespace edm {
 
     pair.first = label;
     pair.second = psetDescription;
+
+    if (baseType_ == std::string("ESSource") || baseType_ == std::string("ESProducer")) {
+      std::string name("appendToDataLabel");
+      if (pair.second.isLabelUnused(name)) {
+        pair.second.add<std::string>(name, std::string(""));
+      }
+    }
   }
 
   void
@@ -102,6 +109,13 @@ namespace edm {
 
     defaultDescDefined_ = true;
     defaultDesc_ = psetDescription;
+
+    if (baseType_ == std::string("ESSource") || baseType_ == std::string("ESProducer")) {
+      std::string name("appendToDataLabel");
+      if (defaultDesc_.isLabelUnused(name)) {
+        defaultDesc_.add<std::string>(name, std::string(""));
+      }
+    }
   }
 
   void
