@@ -989,6 +989,8 @@ $i->SetStats(0);
 if ($i==pDCotTracksVsEtaAll ||  $i==pDCotTracksVsRAll ) {
 $i->SetMinimum(-0.05);
 $i->SetMaximum(0.05);
+} else if ( $i==pdzPVVsR ) { 
+$i->GetYaxis()->SetRangeUser(-3.,3.);
 } else {
 $i->SetMinimum(0.);
     if ( mnew > mold) 
