@@ -3609,6 +3609,12 @@ public :
   int OpenHltElecTauL2SCPassed(float elecEt, int elecL1iso, float elecTiso, float elecHiso,
 			       float tauEt,float tauL25Tpt, int tauL25Tiso, float tauL3Tpt, int tauL3Tiso);
   int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
+  int OpenHlt1Ele1PFTauPassed(float Et, int L1iso, float Tisobarrel, float Tisoendcap,
+                                      float Tisoratiobarrel, float Tisoratioendcap, float HisooverETbarrel, float HisooverETendcap,
+                                      float EisooverETbarrel, float EisooverETendcap, float hoverebarrel, float hovereendcap,
+                                      float clusshapebarrel, float clusshapeendcap, float r9barrel, float r9endcap,
+                                      float detabarrel, float detaendcap, float dphibarrel, float dphiendcap,
+                                      float TauEt, float TauEta, float L25TrkPt, float L3TrkIso, float L3GammaIso, float PFMHTCut);
   int OpenHlt1ElectronSamHarperPassed(float Et, int L1iso,  
 				      float Tisobarrel, float Tisoendcap,  
 				      float Tisoratiobarrel, float Tisoratioendcap,  

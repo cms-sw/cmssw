@@ -3758,17 +3758,79 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   
     
   /*Electron-Tau cross-triggers*/
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele12_PFIsoTau15") == 0) {        
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+     else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_TightEleIdIso_SW_L1R_PFIsoTau15") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
-	//PUT HERE THE ELECTRON PART
-	if(OpenHltPFTauPassedNoEle(15.,1.,1,1)>=1) { 
-	  triggerBit[it] = true; 
-	}
-      }        
-    }        
+        if(OpenHlt1Ele1PFTauPassed(15., 0,
+                                   999., 999.,
+                                   0.15, 0.1,
+                                   0.05, 0.05,
+                                   0.125, 0.075,
+                                   0.15, 0.15,
+                                   0.012, 0.032,
+                                   1000.0, 1000.0,
+                                   0.01, 0.01,
+                                   0.08, 0.08,
+                                   15.,2.5,1.,1.,1.,0.) >= 1)
+            triggerBit[it] = true;
+        }
+      }
+    }
+
+    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_TighterEleIdIso_SW_L1R_PFIsoTau15") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1Ele1PFTauPassed(15., 0,
+                                   999., 999.,
+                                   0.15, 0.1,
+                                   0.05, 0.05,
+                                   0.125, 0.075,
+                                   0.15, 0.15,
+                                   0.012, 0.032,
+                                   1000.0, 1000.0,
+                                   0.008, 0.007,
+                                   0.1, 0.1,
+                                   15.,2.5,1.,1.,1.,0.) >= 1)
+            triggerBit[it] = true;
+        }
+      }
+    }
+    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_TightEleIdIso_SW_L1R_PFIsoTau20") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1Ele1PFTauPassed(20., 0,
+                                   999., 999.,
+                                   0.15, 0.1,
+                                   0.05, 0.05,
+                                   0.125, 0.075,
+                                   0.05, 0.05,
+                                   0.011, 0.031,
+                                   1000.0, 1000.0,
+                                   0.01, 0.01,
+                                   0.08, 0.08,
+                                   20.,2.5,1.,1.,1.,0.) >= 1)
+          triggerBit[it] = true;
+      }
+    }
   }
-  
+    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_TighterEleIdIso_SW_L1R_PFIsoTau20") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1Ele1PFTauPassed(20., 0,
+                                   999., 999.,
+                                   0.15, 0.1,
+                                   0.05, 0.05,
+                                   0.125, 0.075,
+                                   0.05, 0.05,
+                                   0.011, 0.031,
+                                   1000.0, 1000.0,
+                                   0.008, 0.007,
+                                   0.1, 0.1,
+                                   20.,2.5,1.,1.,1.,0.) >= 1)
+          triggerBit[it] = true;
+      }
+    }
+  }
     
   /* Tau-jet/MET cross-triggers */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet40_IsoPFTauTag") == 0) {  
@@ -4945,6 +5007,73 @@ int OHltTree::OpenHlt2Tau1LegL3IsoPassed(float Et,float L25Tpt, int L25Tiso, flo
   
   if (rc>=2) return l3iso;
   return 0;
+}
+
+int OHltTree::OpenHlt1Ele1PFTauPassed(float Et, int L1iso, float Tisobarrel, float Tisoendcap,
+                                      float Tisoratiobarrel, float Tisoratioendcap, float HisooverETbarrel, float HisooverETendcap,
+                                      float EisooverETbarrel, float EisooverETendcap, float hoverebarrel, float hovereendcap,
+                                      float clusshapebarrel, float clusshapeendcap, float r9barrel, float r9endcap,
+                                      float detabarrel, float detaendcap, float dphibarrel, float dphiendcap,
+                                      float TauEt, float TauEta, float L25TrkPt, float L3TrkIso, float L3GammaIso, float PFMHTCut)
+{
+  int rc=0;
+  // Loop over all oh electrons
+  for (int i=0;i<NohEle;i++) {
+    float ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
+    bool isBarrel, isEndCap, doTaus;
+    isBarrel = isEndCap = doTaus = false;
+
+    if(fabs(ohEleEta[i]) < 1.479) isBarrel = true;
+    if(fabs(ohEleEta[i]) > 1.479 && fabs(ohEleEta[i]) < 2.65) isEndCap = true;
+
+    if (ohEleEt[i] > Et &&
+        (isBarrel || isEndCap) &&
+        ohEleNewSC[i] == 1 &&
+        ohElePixelSeeds[i] > 0 &&
+        ohEleL1iso[i] >= L1iso &&   // L1iso is 0 or 1
+        !ohEleL1Dupl[i]) { // remove double-counted L1 SCs
+       if (isBarrel) {
+         if (ohEleHiso[i]/ohEleEt[i] < HisooverETbarrel &&
+             ohEleEiso[i]/ohEleEt[i] < EisooverETbarrel &&
+             ohEleHoverE < hoverebarrel &&
+             ((ohEleTiso[i] < Tisobarrel && ohEleTiso[i] != -999.) || Tisobarrel == 999.) &&
+             ohEleTiso[i]/ohEleEt[i] < Tisoratiobarrel &&
+             ohEleClusShap[i] < clusshapebarrel &&
+             ohEleR9[i] < r9barrel &&
+             fabs(ohEleDeta[i]) < detabarrel &&
+             ohEleDphi[i] < dphibarrel
+           ) doTaus = true;
+       }
+      if (isEndCap) {
+         if ((ohEleHiso[i]/ohEleEt[i]) < HisooverETendcap &&
+             (ohEleEiso[i]/ohEleEt[i]) < EisooverETendcap &&
+             ohEleHoverE < hovereendcap &&
+             ((ohEleTiso[i] < Tisoendcap && ohEleTiso[i] != -999.) || (Tisoendcap == 999.)) &&
+             ohEleTiso[i]/ohEleEt[i] < Tisoratioendcap &&
+             ohEleClusShap[i] < clusshapeendcap &&
+             ohEleR9[i] < r9endcap &&
+             fabs(ohEleDeta[i]) < detabarrel &&
+             ohEleDphi[i] < detaendcap
+            ) doTaus = true;
+       }
+     }
+     if (doTaus) {
+       for (int j=0;j < NohPFTau;j++) {
+         if (pfTauPt[j] >= TauEt &&
+           fabs(pfTauEta[j]) < TauEta &&
+           pfTauLeadTrackPt[j] >= L25TrkPt &&
+           pfTauTrkIso[j] < L3TrkIso &&
+           pfTauGammaIso[j] < L3GammaIso &&
+           pfMHT >= PFMHTCut) {
+             float dphi = fabs(ohElePhi[i] - pfTauPhi[j]);
+             float deta = fabs(ohEleEta[i] - pfTauEta[j]);
+             if(dphi > 3.14159) dphi = (2.0 * 3.14159) - dphi;
+             if(dphi > 0.3 && deta > 0.3) ++rc; // box cut, non-collinearity
+         }
+       }
+     }
+   }
+   return rc;
 }
 
 int OHltTree::OpenHlt1PhotonSamHarperPassed(float Et, int L1iso, 
