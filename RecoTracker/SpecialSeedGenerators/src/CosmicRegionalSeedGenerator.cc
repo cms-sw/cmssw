@@ -181,18 +181,6 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
       GlobalPoint  center = regionPosition + stepBack * regionMom.unit();
       GlobalVector v = stepBack * regionMom.unit();
       LogDebug("CosmicRegionalSeedGenerator") << "Step back vector =  " << v << "\n";
-      
-	
-      //definition of the region
-      CosmicTrackingRegion *etaphiRegion = new CosmicTrackingRegion((-1)*regionMom,
-								    center,
-								    ptMin_,
-								    rVertex_,
-								    zVertex_,
-								    deltaEta_,
-								    deltaPhi_,
-								    regionPSet
-								    );
 
       //exclude region built in jets
       if ( doJetsExclusionCheck_ ) {
@@ -212,6 +200,20 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 	  continue;
 	}
       }//end if doJetsExclusionCheck
+      
+	
+      //definition of the region
+      CosmicTrackingRegion *etaphiRegion = new CosmicTrackingRegion((-1)*regionMom,
+								    center,
+								    ptMin_,
+								    rVertex_,
+								    zVertex_,
+								    deltaEta_,
+								    deltaPhi_,
+								    regionPSet
+								    );
+
+
 
       //return the result
       result.push_back(etaphiRegion);      
@@ -331,18 +333,6 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
       GlobalVector v = stepBack * regionMom.unit();
       LogDebug("CosmicRegionalSeedGenerator") << "Step back vector =  " << v << "\n";
       
-	
-      //definition of the region
-      CosmicTrackingRegion *etaphiRegion = new CosmicTrackingRegion((-1)*regionMom,
-								    center,
-								    ptMin_,
-								    rVertex_,
-								    zVertex_,
-								    deltaEta_,
-								    deltaPhi_,
-								    regionPSet
-								    );
-      
       //exclude region built in jets
       if ( doJetsExclusionCheck_ ) {	
 	double delta_R_min = 1000.;
@@ -361,6 +351,18 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 	  continue;
 	}
       }// end if doJetsExclusionCheck
+
+      //definition of the region
+      CosmicTrackingRegion *etaphiRegion = new CosmicTrackingRegion((-1)*regionMom,
+								    center,
+								    ptMin_,
+								    rVertex_,
+								    zVertex_,
+								    deltaEta_,
+								    deltaPhi_,
+								    regionPSet
+								    );
+      
 
       //return the result
       result.push_back(etaphiRegion);      
