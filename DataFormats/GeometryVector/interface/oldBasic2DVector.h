@@ -136,6 +136,22 @@ public:
     return x()*v.x() + y()*v.y();
   }
 
+
+
+  /// Vector product, or "cross" product, with a vector of same type.
+  T cross( const Basic2DVector& v) const { return x()*v.y() - y()*v.x();}
+
+  /** Vector (or cross) product with a vector of different precision.
+   *  The product is computed without loss of precision. The type
+   *  of the returned scalar is the more precise of the scalar types 
+   *  of the two vectors.
+   */
+  template <class U> 
+  typename PreciseFloatType<T,U>::Type cross( const Basic2DVector<U>& lh) const { 
+    return x()*v.y() - y()*v.x();
+  }
+
+
 private:
   T theX;
   T theY;
