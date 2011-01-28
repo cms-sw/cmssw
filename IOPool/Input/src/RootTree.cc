@@ -153,6 +153,7 @@ namespace edm {
       assert(treeCache_->GetOwner() == tree_);
       treeCache_->SetLearnEntries(learningEntries_);
       treeCache_->SetEntryRange(theEntryNumber, tree_->GetEntries());
+      treeCache_->StartLearningPhase();
       treeCache_->AddBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str());
       if (branchType_ == edm::InEvent) {
         treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str());
