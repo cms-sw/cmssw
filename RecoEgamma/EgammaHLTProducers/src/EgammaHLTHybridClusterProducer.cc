@@ -91,9 +91,9 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
                                    ps.getParameter<double>("eThreshA"),
                                    ps.getParameter<double>("eThreshB"),
 				   ps.getParameter<std::vector<int> >("RecHitSeverityToBeExcluded"),
-				   ps.getParameter<double>("severityRecHitThreshold"),
-				   ps.getParameter<int>("severitySpikeId"),
-				   ps.getParameter<double>("severitySpikeThreshold"),
+				   //ps.getParameter<double>("severityRecHitThreshold"),
+				   //ps.getParameter<int>("severitySpikeId"),
+				   //ps.getParameter<double>("severitySpikeThreshold"),
 				   ps.getParameter<bool>("excludeFlagged")
 				   );
 

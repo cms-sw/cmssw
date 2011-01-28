@@ -129,9 +129,9 @@ class HybridClusterAlgo
                     double eThresA = 0,
                     double eThresB = 0.1,
 		    std::vector<int> severityToExclude=std::vector<int>(999),
-		    double severityRecHitThreshold=0.08,
-		    int severitySpikeId=1,
-		    double severitySpikeThreshold=0,
+		    //double severityRecHitThreshold=0.08,
+		    //int severitySpikeId=1,
+		    //double severitySpikeThreshold=0,
 		    bool excludeFromCluster=false
 		    );
 //                    const edm::ParameterSet &bremRecoveryPset,

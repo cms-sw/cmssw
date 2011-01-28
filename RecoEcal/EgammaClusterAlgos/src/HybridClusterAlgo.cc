@@ -22,9 +22,9 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 				     double eThresA,
 				     double eThresB,
 				     std::vector<int> severityToExclude,
-				     double severityRecHitThreshold,
-				     int severitySpikeId,
-				     double severitySpikeThreshold,
+				     //double severityRecHitThreshold,
+				     //int severitySpikeId,
+				     //double severitySpikeThreshold,
 				     bool excludeFromCluster
 				     ) :
   
@@ -32,7 +32,10 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
   eThres_(ethres), eThresA_(eThresA), eThresB_(eThresB),
   Eseed(eseed),  Ewing(ewing), 
   dynamicEThres_(dynamicEThres), debugLevel_(debugLevel),
-  v_chstatus_(v_chstatus), v_severitylevel_(severityToExclude),severityRecHitThreshold_(severityRecHitThreshold), severitySpikeThreshold_(severitySpikeThreshold), excludeFromCluster_(excludeFromCluster)
+  v_chstatus_(v_chstatus), v_severitylevel_(severityToExclude),
+  //severityRecHitThreshold_(severityRecHitThreshold),
+  //severitySpikeThreshold_(severitySpikeThreshold),
+  excludeFromCluster_(excludeFromCluster)
   
   
 {
