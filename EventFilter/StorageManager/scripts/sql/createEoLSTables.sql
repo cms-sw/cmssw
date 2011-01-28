@@ -1,3 +1,6 @@
+-- History, discussion and comments available on the wiki:
+-- https://twiki.cern.ch/twiki/bin/viewauth/CMS/StorageManagerEndOfLumiHandling
+
 create table CMS_STOMGR.RUNS (
   RUNNUMBER       NUMBER(10)     not NULL,
   INSTANCE        NUMBER(5)      not NULL,
