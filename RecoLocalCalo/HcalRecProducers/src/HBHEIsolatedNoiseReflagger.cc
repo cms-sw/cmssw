@@ -216,8 +216,6 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
 
   iEvent.put(pOut);
 
-  delete ecalSevLvlAlgo;
-   
   return;  
 }
 
