@@ -244,6 +244,9 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     std::vector<std::string> commands = 
       pset.getUntrackedParameter<std::vector<std::string> >(parameterName,
 						    defaultCommands);
+    if (commands.empty()) {
+      commands.push_back(defaultCommands[0]);
+    }
     rules_.reserve(commands.size());
     for(std::vector<std::string>::const_iterator it = commands.begin(), end = commands.end();
         it != end; ++it) {
