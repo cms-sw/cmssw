@@ -32,7 +32,8 @@ MatcherUsingTracksAlgorithm::MatcherUsingTracksAlgorithm(const edm::ParameterSet
     whichTrack1_(None),     whichTrack2_(None), 
     whichState1_(AtVertex), whichState2_(AtVertex),
     srcCut_(iConfig.existsAs<std::string>("srcPreselection") ? iConfig.getParameter<std::string>("srcPreselection") : ""),
-    matchedCut_(iConfig.existsAs<std::string>("matchedPreselection") ? iConfig.getParameter<std::string>("matchedPreselection") : "")
+    matchedCut_(iConfig.existsAs<std::string>("matchedPreselection") ? iConfig.getParameter<std::string>("matchedPreselection") : ""),
+    requireSameCharge_(iConfig.existsAs<bool>("requireSameCharge") ? iConfig.getParameter<bool>("requireSameCharge") : false)
 {
     std::string algo = iConfig.getParameter<std::string>("algorithm");
     if      (algo == "byTrackRef")           { algo_ = ByTrackRef; }
@@ -129,6 +130,7 @@ MatcherUsingTracksAlgorithm::getConf(const edm::ParameterSet & iConfig, const st
 bool 
 MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const reco::Candidate &c2, float &deltR, float &deltEta, float &deltPhi, float &deltaLocalPos, float &deltaPtRel, float &chi2) const {
     if (!(srcCut_(c1) && matchedCut_(c2))) return false;
+    if (requireSameCharge_ && (c1.charge() != c2.charge())) return false;
     switch (algo_) {
         case ByTrackRef: { 
             reco::TrackRef t1 = getTrack(c1, whichTrack1_); 
@@ -188,6 +190,7 @@ MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const edm::View<re
     edm::View<reco::Candidate>::const_iterator it, ed; int i;
     for (it = c2s.begin(), ed = c2s.end(), i = 0; it != ed; ++it, ++i) {
         if (!matchedCut_(*it)) continue;
+        if (requireSameCharge_ && (c1.charge() != it->charge()) ) continue;
         bool exit = false;
         switch (algo_) {
             case ByTrackRef: {
