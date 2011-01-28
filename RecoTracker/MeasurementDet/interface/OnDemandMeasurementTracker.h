@@ -6,6 +6,8 @@
 #include "DataFormats/Common/interface/RefGetter.h" 
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 
+#include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
+
  
 class OnDemandMeasurementTracker : public MeasurementTracker {
 public:
@@ -59,7 +61,8 @@ public:
   /// the handle is retrieved from the event to make reference to cluster in it
   mutable edm::Handle< edm::RefGetter<SiStripCluster> > theRefGetterH;
   mutable edm::Handle< edm::LazyGetter<SiStripCluster> > theLazyGetterH;
-
+  mutable bool theSkipClusterRefs;
+  mutable edm::Handle< edmNew::DetSetVector<TkStripMeasurementDet::SiStripRegionalClusterRef> > theStripClusterRefs;
   /// a class that holds flags, region_range (in RefGetter) for a given MeasurementDet
   class DetODStatus {
   public:
