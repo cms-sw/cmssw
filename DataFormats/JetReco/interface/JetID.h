@@ -42,26 +42,26 @@ namespace reco {
 
 
     // hcal+ecal id
-    double fHPD; 
-    double fRBX;
-    int    n90Hits;
-    double fSubDetector1;
-    double fSubDetector2;
-    double fSubDetector3;
-    double fSubDetector4;
-    double restrictedEMF;
-    int    nHCALTowers;
-    int    nECALTowers;
-    double approximatefHPD;
-    double approximatefRBX;
-    int    hitsInN90;
+    float fHPD; 
+    float fRBX;
+    short    n90Hits;
+    float fSubDetector1;
+    float fSubDetector2;
+    float fSubDetector3;
+    float fSubDetector4;
+    float restrictedEMF;
+    short    nHCALTowers;
+    short    nECALTowers;
+    float approximatefHPD;
+    float approximatefRBX;
+    short    hitsInN90;
     // muon hits id
-    int numberOfHits2RPC;
-    int numberOfHits3RPC;
-    int numberOfHitsRPC;
+    short numberOfHits2RPC;
+    short numberOfHits3RPC;
+    short numberOfHitsRPC;
     
-    double fEB, fEE, fHB, fHE, fHO, fLong, fShort;
-    double fLS, fHFOOT;
+    float fEB, fEE, fHB, fHE, fHO, fLong, fShort;
+    float fLS, fHFOOT;
 
   };
 
