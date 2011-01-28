@@ -129,8 +129,10 @@ int main() {
     std::cout << xd2.cross(y2)<< std::endl;
     std::cout << xd2.cross(yd2)<< std::endl;
     
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
     auto s2 = x2+xd2 - 3.1*z2;
     std::cout << s2 << std::endl;
+#endif
   }
 
 
