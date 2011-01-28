@@ -32,7 +32,6 @@ namespace edm {
 
   std::vector<std::string> const& getAllTriggerNames();
 
-
   class OutputModule : private boost::noncopyable {
   public:
     template <typename T> friend class WorkerT;
@@ -82,6 +81,19 @@ namespace edm {
     ModuleDescription const& description() const;
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
+
+    void doBeginJob();
+    void doEndJob();
+    bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+                 CurrentProcessingContext const* cpc);
+    bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+                 CurrentProcessingContext const* cpc);
+    bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
+                 CurrentProcessingContext const* cpc);
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+                 CurrentProcessingContext const* cpc);
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+                 CurrentProcessingContext const* cpc);
 
   private:
 
@@ -133,18 +145,6 @@ namespace edm {
     // private member functions
     //------------------------------------------------------------------
     void configure(OutputModuleDescription const& desc);
-    void doBeginJob();
-    void doEndJob();
-    bool doEvent(EventPrincipal const& ep, EventSetup const& c,
-                 CurrentProcessingContext const* cpc);
-    bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
-                 CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
-                 CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-                 CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-                 CurrentProcessingContext const* cpc);
     void doWriteRun(RunPrincipal const& rp);
     void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp);
     void doOpenFile(FileBlock const& fb);
