@@ -147,7 +147,7 @@ public:
    *  of the two vectors.
    */
   template <class U> 
-  typename PreciseFloatType<T,U>::Type cross( const Basic2DVector<U>& lh) const { 
+  typename PreciseFloatType<T,U>::Type cross( const Basic2DVector<U>& v) const { 
     return x()*v.y() - y()*v.x();
   }
 
