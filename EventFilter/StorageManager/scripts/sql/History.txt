@@ -1,0 +1,6 @@
+This file tries to keep track of which version of the transfer system
+was used with which version of the database schema.
+
+2011-01-28 - Migrated triggers on the transfer tables to stored procedures
+SQL tag: SM20110128
+T0  tag: SM20110128
