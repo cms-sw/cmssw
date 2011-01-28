@@ -1,24 +1,21 @@
 #ifndef FWCore_Sources_VectorInputSource_h
 #define FWCore_Sources_VectorInputSource_h
 
-
 /*----------------------------------------------------------------------
-  
 VectorInputSource: Abstract interface for vector input sources.
-
 ----------------------------------------------------------------------*/
+
+#include "FWCore/Sources/interface/EDInputSource.h"
+
+#include "boost/shared_ptr.hpp"
 
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
-
-#include "FWCore/Sources/interface/EDInputSource.h"
-
 namespace edm {
   class EventPrincipal;
-  class InputSourceDescription;
+  struct InputSourceDescription;
   class ParameterSet;
   class VectorInputSource : public EDInputSource {
   public:
@@ -28,9 +25,9 @@ namespace edm {
     virtual ~VectorInputSource();
 
     void readMany(int number, EventPrincipalVector& result);
-    void readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber); 
-    void readManySequential(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber); 
-    void readManySpecified(std::vector<EventID> const& events, EventPrincipalVector& result); 
+    void readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
+    void readManySequential(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
+    void readManySpecified(std::vector<EventID> const& events, EventPrincipalVector& result);
     void dropUnwantedBranches(std::vector<std::string> const& wantedBranches);
 
   private:
@@ -41,5 +38,4 @@ namespace edm {
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) = 0;
   };
 }
-
 #endif

@@ -17,12 +17,10 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <string>
-#include <set>
-#include <vector>
-
-#include "boost/shared_ptr.hpp"
+#include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
@@ -30,14 +28,16 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
 #include "FWCore/Common/interface/EventBase.h"
-
-#include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/Common/interface/Wrapper.h"
-
-#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
+
+#include "boost/shared_ptr.hpp"
+
+#include <memory>
+#include <string>
+#include <set>
+#include <typeinfo>
+#include <vector>
 
 namespace edm {
 
@@ -185,7 +185,7 @@ namespace edm {
     makeProductID(ConstBranchDescription const& desc) const;
 
     //override used by EventBase class
-    virtual BasicHandle getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const;
+    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
 
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
@@ -198,8 +198,8 @@ namespace edm {
     friend class EDFilter;
     friend class EDProducer;
 
-    void commit_(std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
-    void commit_aux(ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
+    void commit_(std::vector<BranchID>* previousParentage= 0, ParentageID* previousParentageId = 0);
+    void commit_aux(ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage = 0, ParentageID* previousParentageId = 0);
 
     BasicHandle
     getByProductID_(ProductID const& oid) const;
@@ -209,7 +209,6 @@ namespace edm {
 
     ProductPtrVec& putProductsWithoutParents() {return putProductsWithoutParents_;}
     ProductPtrVec const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
-
 
     PrincipalGetAdapter provRecorder_;
 
@@ -264,8 +263,7 @@ namespace edm {
 
   template <typename PROD>
   bool
-  Event::get(ProductID const& oid, Handle<PROD>& result) const
-  {
+  Event::get(ProductID const& oid, Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = this->getByProductID_(oid);
     convert_handle(bh, result);  // throws on conversion error
@@ -278,13 +276,12 @@ namespace edm {
 
   template <typename ELEMENT>
   bool
-  Event::get(ProductID const& oid, Handle<View<ELEMENT> >& result) const
-  {
+  Event::get(ProductID const& oid, Handle<View<ELEMENT> >& result) const {
       result.clear();
       BasicHandle bh = this->getByProductID_(oid);
 
       if(bh.failedToGet()) {
-          boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
+          boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
           *whyFailed
               << "get View by ID failed: no product with ID = " << oid <<"\n";
           Handle<View<ELEMENT> > temp(whyFailed);
@@ -298,8 +295,7 @@ namespace edm {
 
   template <typename PROD>
   OrphanHandle<PROD>
-  Event::put(std::auto_ptr<PROD> product, std::string const& productInstanceName)
-  {
+  Event::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
     if (product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, productInstanceName);
@@ -356,8 +352,7 @@ namespace edm {
 
   template <typename PROD>
   bool
-  Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const
-  {
+  Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     bool ok = provRecorder_.getByLabel(tag, result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
@@ -367,8 +362,7 @@ namespace edm {
 
   template <typename PROD>
   bool
-  Event::getByLabel(std::string const& label, Handle<PROD>& result) const
-  {
+  Event::getByLabel(std::string const& label, Handle<PROD>& result) const {
     bool ok = provRecorder_.getByLabel(label, result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
@@ -400,8 +394,7 @@ namespace edm {
 
   template <typename PROD>
   bool
-  Event::getByType(Handle<PROD>& result) const
-  {
+  Event::getByType(Handle<PROD>& result) const {
     bool ok = provRecorder_.getByType(result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
@@ -411,8 +404,7 @@ namespace edm {
 
   template <typename PROD>
   void
-  Event::getManyByType(std::vector<Handle<PROD> >& results) const
-  {
+  Event::getManyByType(std::vector<Handle<PROD> >& results) const {
     provRecorder_.getManyByType(results);
     for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
         it != itEnd; ++it) {
@@ -442,7 +434,7 @@ namespace edm {
                                                            bh);
 
     if (nFound == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
+      boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
       *whyFailed
         << "getByLabel: Found zero products matching all criteria\n"
         << "Looking for sequence of type: " << typeID << "\n"
@@ -467,8 +459,7 @@ namespace edm {
 
   template <typename ELEMENT>
     bool
-    Event::getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const
-  {
+    Event::getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const {
     result.clear();
     if (tag.process().empty()) {
       return getByLabel(tag.label(), tag.instance(), result);
@@ -483,7 +474,7 @@ namespace edm {
                                                              bh);
 
       if (nFound == 0) {
-        boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
+        boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
         *whyFailed
           << "getByLabel: Found zero products matching all criteria\n"
           << "Looking for sequence of type: " << typeID << "\n"
@@ -529,6 +520,5 @@ namespace edm {
     Handle<View<ELEMENT> > h(&*newview, bh.provenance());
     result.swap(h);
   }
-
 }
 #endif

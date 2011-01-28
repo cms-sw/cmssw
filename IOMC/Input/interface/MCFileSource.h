@@ -1,7 +1,5 @@
-#ifndef Input_MCFileSource_h
-#define Input_MCFileSource_h
-
-// $Id: MCFileSource.h,v 1.4 2007/05/29 21:00:22 weng Exp $
+#ifndef IOMC_Input_MCFileSource_h
+#define IOMC_Input_MCFileSource_h
 
 /** \class MCFileSource
  *
@@ -11,19 +9,16 @@
 
 #include "FWCore/Sources/interface/ExternalInputSource.h"
 
-
 class HepMCFileReader;
 
 namespace HepMC{
   class GenEvent;
 }
 
-
-namespace edm
-{
+namespace edm {
   class Event;
+  struct InputSourceDescription;
   class ParameterSet;
-  class InputSourceDescription;
 
   class MCFileSource : public ExternalInputSource {
   public:

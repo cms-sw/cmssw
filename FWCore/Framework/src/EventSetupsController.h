@@ -16,19 +16,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 12 14:30:42 CST 2011
-// $Id$
 //
-
-// system include files
-#include <vector>
-#include <boost/shared_ptr.hpp>
 
 // user include files
 
+// system include files
+#include <boost/shared_ptr.hpp>
+
+#include <vector>
+
 // forward declarations
 namespace edm {
+   struct CommonParams;
    class ParameterSet;
-   class CommonParams;
    
    namespace eventsetup {
       class EventSetupProvider;
@@ -44,18 +44,16 @@ namespace edm {
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
-         boost::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&, const CommonParams& );
+         boost::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&, CommonParams const&);
          
       private:
-         EventSetupsController(const EventSetupsController&); // stop default
+         EventSetupsController(EventSetupsController const&); // stop default
          
-         const EventSetupsController& operator=(const EventSetupsController&); // stop default
+         EventSetupsController const& operator=(EventSetupsController const&); // stop default
          
          // ---------- member data --------------------------------
          std::vector<boost::shared_ptr<EventSetupProvider> > providers_;
       };
    }
 }
-
-
 #endif

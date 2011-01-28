@@ -18,15 +18,16 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Common/interface/LuminosityBlockBase.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 #include "boost/shared_ptr.hpp"
 
 #include <memory>
 #include <set>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 namespace edm {
@@ -102,7 +103,7 @@ namespace edm {
     luminosityBlockPrincipal();
 
     // Override version from LuminosityBlockBase class
-    virtual BasicHandle getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const;
+    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
 
     typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}

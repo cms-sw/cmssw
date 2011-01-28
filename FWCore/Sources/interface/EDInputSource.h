@@ -6,13 +6,13 @@
 
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
-#include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
+#include "FWCore/Framework/interface/InputSource.h"
 #include <vector>
 #include <string>
 
 namespace edm {
-  class InputSourceDescription;
+  struct InputSourceDescription;
   class ParameterSet;
   class ParameterSetDescription;
 
@@ -32,12 +32,12 @@ namespace edm {
     }
     InputFileCatalog& catalog(int n = 0) {return n ? secondaryCatalog_ : catalog_;}
 
-    static void fillDescription(ParameterSetDescription & desc);
+    static void fillDescription(ParameterSetDescription& desc);
 
   private:
     virtual void setRun(RunNumber_t);
     virtual void setLumi(LuminosityBlockNumber_t lb);
-    
+
     InputFileCatalog catalog_;
     InputFileCatalog secondaryCatalog_;
   };

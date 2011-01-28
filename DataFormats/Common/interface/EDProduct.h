@@ -7,8 +7,10 @@ EDProduct: The base class of all things that will be inserted into the Event.
 
 ----------------------------------------------------------------------*/
 
-#include <vector>
 #include "DataFormats/Common/interface/EDProductfwd.h"
+
+#include <typeinfo>
+#include <vector>
 
 namespace edm {
 

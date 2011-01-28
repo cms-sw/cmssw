@@ -1,12 +1,12 @@
-#ifndef Framework_EventSetupProviderMaker_h
-#define Framework_EventSetupProviderMaker_h
+#ifndef FWCore_Framework_EventSetupProviderMaker_h
+#define FWCore_Framework_EventSetupProviderMaker_h
 
 // system include files
 #include <memory>
 
 // forward declarations
 namespace edm {
-  class CommonParams;
+  struct CommonParams;
   class ParameterSet;
   namespace eventsetup {
     class EventSetupProvider;
@@ -20,7 +20,7 @@ namespace edm {
                            CommonParams const& common);
 
     void
-    validateEventSetupParameters(ParameterSet & pset);
+    validateEventSetupParameters(ParameterSet& pset);
   }
 }
 #endif

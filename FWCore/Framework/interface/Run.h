@@ -24,6 +24,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <memory>
 #include <set>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 namespace edm {
@@ -53,8 +54,8 @@ namespace edm {
     template <typename PROD>
     bool
     getByLabel(std::string const& label,
-	       std::string const& productInstanceName,
-	       Handle<PROD>& result) const;
+               std::string const& productInstanceName,
+               Handle<PROD>& result) const;
 
     /// same as above, but using the InputTag class
     template <typename PROD>
@@ -110,7 +111,7 @@ namespace edm {
     runPrincipal();
 
     // Override version from RunBase class
-    virtual BasicHandle getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const;
+    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
 
     typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
@@ -166,13 +167,13 @@ namespace edm {
   template <typename PROD>
   bool
   Run::get(SelectorBase const& sel, Handle<PROD>& result) const {
-    return provRecorder_.get(sel,result);
+    return provRecorder_.get(sel, result);
   }
 
   template <typename PROD>
   bool
   Run::getByLabel(std::string const& label, Handle<PROD>& result) const {
-    return provRecorder_.getByLabel(label,result);
+    return provRecorder_.getByLabel(label, result);
   }
 
   template <typename PROD>
@@ -180,20 +181,20 @@ namespace edm {
   Run::getByLabel(std::string const& label,
                   std::string const& productInstanceName,
                   Handle<PROD>& result) const {
-    return provRecorder_.getByLabel(label,productInstanceName,result);
+    return provRecorder_.getByLabel(label, productInstanceName, result);
   }
 
   /// same as above, but using the InputTag class
   template <typename PROD>
   bool
   Run::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
-    return provRecorder_.getByLabel(tag,result);
+    return provRecorder_.getByLabel(tag, result);
   }
 
   template <typename PROD>
   void
   Run::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
-    return provRecorder_.getMany(sel,results);
+    return provRecorder_.getMany(sel, results);
   }
 
   template <typename PROD>

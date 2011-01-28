@@ -26,7 +26,7 @@ namespace edm {
   class GeneratedInputSource;
   class Group;
   class InputSource;
-  class InputSourceDescription;
+  struct InputSourceDescription;
   class LuminosityBlock;
   class LuminosityBlockPrincipal;
   class NoDelayedReader;

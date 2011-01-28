@@ -1,11 +1,11 @@
-#ifndef TestObjects_OtherThingCollectionfwd_h
-#define TestObjects_OtherThingCollectionfwd_h
+#ifndef DataFormats_TestObjects_OtherThingCollectionfwd_h
+#define DataFormats_TestObjects_OtherThingCollectionfwd_h
 
 #include <vector>
 
 namespace edmtest {
-	class OtherThing;
-	typedef std::vector<OtherThing> OtherThingCollection;
+  struct OtherThing;
+  typedef std::vector<OtherThing> OtherThingCollection;
 }
 
 #endif

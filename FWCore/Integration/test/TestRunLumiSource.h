@@ -40,7 +40,6 @@ written to the output file anyway.
 
 ----------------------------------------------------------------------*/
 
-
 #include "FWCore/Framework/interface/InputSource.h"
 
 #include "boost/shared_ptr.hpp"
@@ -50,10 +49,10 @@ written to the output file anyway.
 
 namespace edm {
 
-  class ParameterSet;
-  class InputSourceDescription;
   class EventPrincipal;
+  struct InputSourceDescription;
   class LuminosityBlockPrincipal;
+  class ParameterSet;
   class RunPrincipal;
 
   class TestRunLumiSource : public InputSource {

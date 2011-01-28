@@ -1,22 +1,23 @@
 #ifndef IOPool_Input_Inputfwd_h
 #define IOPool_Input_Inputfwd_h
 
-#include <map>
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
 #include "Rtypes.h"
+
+#include <map>
+
 class TBranch;
+class TClass;
 class TFile;
 class TTree;
 class TTreeCache;
-class TClass;
-
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
 namespace edm {
-  class BranchKey;
+  struct BranchKey;
   class FileFormatVersion;
-  class RootFile;
   class RootDelayedReader;
+  class RootFile;
   class RootTree;
   namespace input {
     unsigned int const defaultCacheSize = 20U * 1024 * 1024;

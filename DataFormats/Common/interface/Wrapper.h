@@ -7,21 +7,22 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/RefVectorHolder.h"
+#include "DataFormats/Common/interface/traits.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
+#include "boost/mpl/if.hpp"
+
 #include <algorithm>
+#include <deque>
+#include <list>
 #include <memory>
+#include <set>
 #include <string>
 #include <typeinfo>
 #include <vector>
-#include <list>
-#include <deque>
-#include <set>
-
-#include "boost/mpl/if.hpp"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/RefVectorHolder.h"
-#include "DataFormats/Common/interface/PtrVector.h"
-#include "DataFormats/Common/interface/traits.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
 
@@ -60,8 +61,8 @@ namespace edm {
                            unsigned long iIndex,
                            void const*& oPtr) const;
     virtual void do_fillPtrVector(std::type_info const& iToType,
-                             std::vector<unsigned long> const& iIndices,
-                             std::vector<void const*>& oPtr) const;
+                                  std::vector<unsigned long> const& iIndices,
+                                  std::vector<void const*>& oPtr) const;
 
     // We wish to disallow copy construction and assignment.
     // We make the copy constructor and assignment operator private.

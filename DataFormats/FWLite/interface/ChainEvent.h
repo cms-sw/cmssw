@@ -19,8 +19,9 @@
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
-#include <vector>
 #include <string>
+#include <typeinfo>
+#include <vector>
 #include "boost/shared_ptr.hpp"
 
 // user include files

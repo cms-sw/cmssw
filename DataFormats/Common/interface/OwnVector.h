@@ -1,28 +1,26 @@
 #ifndef DataFormats_Common_OwnVector_h
 #define DataFormats_Common_OwnVector_h
 
-#include <algorithm>
-#include <functional>
-#include <vector>
-
 #include "DataFormats/Common/interface/ClonePolicy.h"
-#include "DataFormats/Common/interface/traits.h"
-#include "DataFormats/Common/interface/Ref.h"
-
-#include "FWCore/Utilities/interface/EDMException.h"
-
 #include "DataFormats/Common/interface/fillPtrVector.h"
+#include "DataFormats/Common/interface/PostReadFixupTrait.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/traits.h"
 
 #if defined CMS_USE_DEBUGGING_ALLOCATOR
 #include "DataFormats/Common/interface/debugging_allocator.h"
 #endif
+#include "FWCore/Utilities/interface/EDMException.h"
 
-#include "DataFormats/Common/interface/PostReadFixupTrait.h"
+#include <algorithm>
+#include <functional>
+#include <typeinfo>
+#include <vector>
 
 namespace edm {
   class ProductID;
   template <typename T, typename P = ClonePolicy<T> >
-  class OwnVector  {
+  class OwnVector {
   private:
 #if defined(CMS_USE_DEBUGGING_ALLOCATOR)
     typedef std::vector<T*, debugging_allocator<T> > base;
@@ -151,16 +149,16 @@ namespace edm {
     void swap(OwnVector<T, P> & other);
 
     void fillView(ProductID const& id,
-		  std::vector<void const*>& pointers,
-		  helper_vector& helpers) const;
+                  std::vector<void const*>& pointers,
+                  helper_vector& helpers) const;
 
     void setPtr(std::type_info const& toType,
-		unsigned long index,
-		void const*& ptr) const;
+                unsigned long index,
+                void const*& ptr) const;
 
-    void fillPtrVector(const std::type_info& toType,
-		       const std::vector<unsigned long>& indices,
-		       std::vector<void const*>& ptrs) const;
+    void fillPtrVector(std::type_info const& toType,
+                       std::vector<unsigned long> const& indices,
+                       std::vector<void const*>& ptrs) const;
 
 
   private:
@@ -169,7 +167,7 @@ namespace edm {
     struct Ordering {
       Ordering(O const& c) : comp(c) { }
       bool operator()(T const* t1, T const* t2) const {
-	return comp(*t1, *t2);
+        return comp(*t1, *t2);
       }
     private:
       O comp;
@@ -183,15 +181,15 @@ namespace edm {
     inline void fixup() const { fixup_(data_); }
     inline void touch() { fixup_.touch(); }
   };
-  
+
   template<typename T, typename P>
   inline OwnVector<T, P>::OwnVector() : data_() {
   }
-  
+
   template<typename T, typename P>
   inline OwnVector<T, P>::OwnVector(size_type n) : data_(n) {
   }
-  
+
   template<typename T, typename P>
   inline OwnVector<T, P>::OwnVector(OwnVector<T, P> const& o) : data_(o.size()) {
     size_type current = 0;
@@ -199,7 +197,7 @@ namespace edm {
       data_[current] = policy_type::clone(*i);
     fixup_ = o.fixup_;
   }
-  
+
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
   template<typename T, typename P>
   inline OwnVector<T, P>::OwnVector(OwnVector<T, P> && o)  {
@@ -207,19 +205,19 @@ namespace edm {
     fixup_ = o.fixup_;
   }
 #endif
-  
+
   template<typename T, typename P>
   inline OwnVector<T, P>::~OwnVector() {
     destroy();
   }
-  
+
   template<typename T, typename P>
   inline OwnVector<T, P> & OwnVector<T, P>::operator=(OwnVector<T, P> const& o) {
     OwnVector<T,P> temp(o);
     swap(temp);
     return *this;
   }
-  
+
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
   template<typename T, typename P>
   inline OwnVector<T, P> & OwnVector<T, P>::operator=(OwnVector<T, P> && o) {
@@ -228,15 +226,15 @@ namespace edm {
     return *this;
   }
 #endif
-  
-  
+
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::begin() {
     fixup();
     touch();
     return iterator(data_.begin());
   }
-  
+
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::end() {
     fixup();
@@ -341,11 +339,11 @@ namespace edm {
     T* result = data_.back();
     if (result == 0) {
       Exception::throwThis(errors::NullPointerError,
-	"In OwnVector::back() we have intercepted an attempt to dereference a null pointer\n"
-	"Since OwnVector is allowed to contain null pointers, you much assure that the\n"
-	"pointer at the end of the collection is not null before calling back()\n"
-	"if you wish to avoid this exception.\n"
-	"Consider using OwnVector::is_back_safe()\n");
+        "In OwnVector::back() we have intercepted an attempt to dereference a null pointer\n"
+        "Since OwnVector is allowed to contain null pointers, you much assure that the\n"
+        "pointer at the end of the collection is not null before calling back()\n"
+        "if you wish to avoid this exception.\n"
+        "Consider using OwnVector::is_back_safe()\n");
     }
     fixup();
     touch();
@@ -357,11 +355,11 @@ namespace edm {
     T* result = data_.back();
     if (result == 0) {
       Exception::throwThis(errors::NullPointerError,
-	"In OwnVector::back() we have intercepted an attempt to dereference a null pointer\n"
-	"Since OwnVector is allowed to contain null pointers, you much assure that the\n"
-	"pointer at the end of the collection is not null before calling back()\n"
-	"if you wish to avoid this exception.\n"
-	"Consider using OwnVector::is_back_safe()\n");
+        "In OwnVector::back() we have intercepted an attempt to dereference a null pointer\n"
+        "Since OwnVector is allowed to contain null pointers, you much assure that the\n"
+        "pointer at the end of the collection is not null before calling back()\n"
+        "if you wish to avoid this exception.\n"
+        "Consider using OwnVector::is_back_safe()\n");
     }
     fixup();
     return *data_.back();
@@ -435,9 +433,8 @@ namespace edm {
 
   template<typename T, typename P>
   void OwnVector<T, P>::fillView(ProductID const& id,
-				 std::vector<void const*>& pointers,
-				 helper_vector& helpers) const
-  {
+                                 std::vector<void const*>& pointers,
+                                 helper_vector& helpers) const {
     typedef Ref<OwnVector>      ref_type ;
     typedef reftobase::RefHolder<ref_type> holder_type;
 
@@ -449,14 +446,14 @@ namespace edm {
 
       if (*i == 0) {
         Exception::throwThis(errors::NullPointerError,
-	  "In OwnVector::fillView() we have intercepted an attempt to put a null pointer\n"
-	  "into a View and that is not allowed.  It is probably an error that the null\n"
-	  "pointer was in the OwnVector in the first place.\n");
+          "In OwnVector::fillView() we have intercepted an attempt to put a null pointer\n"
+          "into a View and that is not allowed.  It is probably an error that the null\n"
+          "pointer was in the OwnVector in the first place.\n");
       }
       else {
-	pointers.push_back(*i);
-	holder_type h(ref_type(id, *i, key,this));
-	helpers.push_back(&h);
+        pointers.push_back(*i);
+        holder_type h(ref_type(id, *i, key,this));
+        helpers.push_back(&h);
       }
     }
   }
@@ -474,16 +471,15 @@ namespace edm {
   inline
   void
   fillView(OwnVector<T,P> const& obj,
-	   ProductID const& id,
-	   std::vector<void const*>& pointers,
-	   helper_vector& helpers) {
+           ProductID const& id,
+           std::vector<void const*>& pointers,
+           helper_vector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 
 
   template <typename T, typename P>
-  struct has_fillView<edm::OwnVector<T, P> >
-  {
+  struct has_fillView<edm::OwnVector<T, P> > {
     static bool const value = true;
   };
 
@@ -494,49 +490,44 @@ namespace edm {
   inline
   void
   OwnVector<T,P>::setPtr(std::type_info const& toType,
-				   unsigned long index,
-				   void const*& ptr) const
-  {
-    detail::reallySetPtr<OwnVector<T,P> >(*this, toType, index, ptr); 
+                                   unsigned long index,
+                                   void const*& ptr) const {
+    detail::reallySetPtr<OwnVector<T,P> >(*this, toType, index, ptr);
   }
 
   template <typename T, typename P>
   inline
   void
   setPtr(OwnVector<T,P> const& obj,
-	 std::type_info const& toType,
-	 unsigned long index,
-	 void const*& ptr)
-  {
+         std::type_info const& toType,
+         unsigned long index,
+         void const*& ptr) {
     obj.setPtr(toType, index, ptr);
   }
 
-  template <class T, class P>
+  template <typename T, typename P>
   inline
-  void 
-    OwnVector<T,P>::fillPtrVector(const std::type_info& toType,
-				  const std::vector<unsigned long>& indices,
-				  std::vector<void const*>& ptrs) const
-  {
+  void
+    OwnVector<T,P>::fillPtrVector(std::type_info const& toType,
+                                  std::vector<unsigned long> const& indices,
+                                  std::vector<void const*>& ptrs) const {
     detail::reallyfillPtrVector(*this, toType, indices, ptrs);
   }
 
 
-  template <class T, class P>
+  template <typename T, typename P>
   inline
   void
   fillPtrVector(OwnVector<T,P> const& obj,
-		const std::type_info& toType,
-		const std::vector<unsigned long>& indices,
-		std::vector<void const*>& ptrs)
-  {
+                std::type_info const& toType,
+                std::vector<unsigned long> const& indices,
+                std::vector<void const*>& ptrs) {
     obj.fillPtrVector(toType, indices, ptrs);
   }
 
 
   template <typename T, typename P>
-   struct has_setPtr<edm::OwnVector<T,P> >
-   {
+   struct has_setPtr<edm::OwnVector<T,P> > {
      static bool const value = true;
    };
 

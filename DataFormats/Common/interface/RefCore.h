@@ -6,9 +6,11 @@
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
 ----------------------------------------------------------------------*/
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+
 #include <algorithm>
+#include <typeinfo>
 
 namespace edm {
   class EDProduct;
@@ -63,13 +65,13 @@ namespace edm {
     struct RefCoreTransients {
        RefCoreTransients() : prodPtr_(0), prodGetter_(0), transient_(false) {}
        explicit RefCoreTransients(void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
-	 prodPtr_(prodPtr), prodGetter_(prodGetter), transient_(transient) {}
+         prodPtr_(prodPtr), prodGetter_(prodGetter), transient_(transient) {}
        bool isTransient() const {return transient_;}
        void setProductGetter(EDProductGetter const* prodGetter) const;
        void setProductPtr(void const* prodPtr) const {prodPtr_ = prodPtr;}
        mutable void const* prodPtr_;               // transient
        mutable EDProductGetter const* prodGetter_; // transient
-       bool transient_;				// transient
+       bool transient_;                            // transient
     };
 
  private:

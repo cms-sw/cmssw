@@ -2,7 +2,7 @@
 #define FWCore_Framework_DelayedReader_h
 
 /*----------------------------------------------------------------------
-  
+
 DelayedReader: The abstract interface through which the EventPrincipal
 uses input sources to retrieve EDProducts from external storage.
 
@@ -13,7 +13,7 @@ uses input sources to retrieve EDProducts from external storage.
 #include "DataFormats/Common/interface/EDProduct.h"
 
 namespace edm {
-  class BranchKey;
+  struct BranchKey;
   class EDProductGetter;
   class DelayedReader {
   public:

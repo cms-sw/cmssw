@@ -5,11 +5,10 @@ namespace edm {
   class BranchDescription;
   class Parentage;
   class BranchID;
-  class BranchKey;
+  struct BranchKey;
   class ConstBranchDescription;
   class ProductProvenance;
   class ProductProvenance;
-  class BranchKey;
   class EventAuxiliary;
   class EventID;
   class LuminosityBlockAuxiliary;

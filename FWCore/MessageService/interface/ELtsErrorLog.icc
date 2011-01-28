@@ -13,7 +13,6 @@
 namespace edm {       
 namespace service {       
 
-
 // ----------------------------------------------------------------------
 // Message Continuation:
 //  Global methods for physicists logging errors:
@@ -22,7 +21,7 @@ namespace service {
 
 template <class T>
 void ELtsItem ( ELtsErrorLog & e, const T & t ) {
-  if (e.e.discarding) return e;
+  if (e.e.discarding) return
   std::ostringstream  ost;
   ost << t << ' ';
   e.msg.emitToken( ost.str() ); 

@@ -4,7 +4,7 @@
 //
 // Package:     Common
 // Class  :     setPtr
-// 
+//
 /**\class setPtr setPtr.h DataFormats/Common/interface/setPtr.h
 
  Description: Helper function used to implement the edm::Ptr class
@@ -18,31 +18,31 @@
 //         Created:  Sat Oct 20 11:45:38 CEST 2007
 //
 
-// system include files
-
 // user include files
 #include "DataFormats/Common/interface/FillView.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
 
+// system include files
+#include <typeinfo>
+#include <vector>
+
 // forward declarations
 namespace edm {
   namespace detail {
-    
-    
-    template <class COLLECTION>
+
+    template <typename COLLECTION>
     void
     reallySetPtr(COLLECTION const& coll,
-                 const std::type_info& iToType,
+                 std::type_info const& iToType,
                  unsigned long iIndex,
-                 void const*& oPtr)
-    {
+                 void const*& oPtr) {
       typedef COLLECTION                            product_type;
       typedef typename GetProduct<product_type>::element_type     element_type;
       typedef typename product_type::const_iterator iter;
       typedef typename product_type::size_type      size_type;
-      
+
       if(iToType == typeid(element_type)) {
         iter it = coll.begin();
         std::advance(it,iIndex);
@@ -51,7 +51,7 @@ namespace edm {
       } else {
         using Reflex::Type;
         using Reflex::Object;
-        static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
+        static Type const s_type(Type::ByTypeInfo(typeid(element_type)));
 
         iter it = coll.begin();
         std::advance(it,iIndex);
@@ -61,7 +61,7 @@ namespace edm {
         // Object's constructor requires a pointer to
         // non-const void, although the implementation does not, of
         // course, modify the object to which the pointer points.
-        Object obj(s_type, const_cast<void*>(static_cast<const void*>(address)));
+        Object obj(s_type, const_cast<void*>(static_cast<void const*>(address)));
         Object cast = obj.CastObject(Type::ByTypeInfo(iToType));
         if(0 != cast.Address()) {
           oPtr = cast.Address(); // returns void*, after pointer adjustment
@@ -77,38 +77,38 @@ namespace edm {
       }
     }
   }
-  
-  template <class T, class A>
+
+  template <typename T, typename A>
   void
-  setPtr(std::vector<T,A> const& obj,
-         const std::type_info& iToType,
+  setPtr(std::vector<T, A> const& obj,
+         std::type_info const& iToType,
          unsigned long iIndex,
          void const*& oPtr) {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
-  
-  template <class T, class A>
+
+  template <typename T, typename A>
   void
-  setPtr(std::list<T,A> const& obj,
-         const std::type_info& iToType,
+  setPtr(std::list<T, A> const& obj,
+         std::type_info const& iToType,
          unsigned long iIndex,
          void const*& oPtr) {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
-  
-  template <class T, class A>
+
+  template <typename T, typename A>
   void
-  setPtr(std::deque<T,A> const& obj,
-         const std::type_info& iToType,
+  setPtr(std::deque<T, A> const& obj,
+         std::type_info const& iToType,
          unsigned long iIndex,
          void const*& oPtr) {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
-  
-  template <class T, class A, class Comp>
+
+  template <typename T, typename A, typename Comp>
   void
-  setPtr(std::set<T,A,Comp> const& obj,
-         const std::type_info& iToType,
+  setPtr(std::set<T, A, Comp> const& obj,
+         std::type_info const& iToType,
          unsigned long iIndex,
          void const*& oPtr) {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);

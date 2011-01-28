@@ -16,10 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Dec 14 15:16:07 CST 2009
-// $Id$
+// $Id: ESHandle.h,v 1.1 2009/12/16 17:42:31 chrjones Exp $
 //
 
 // system include files
+#include <typeinfo>
+#include <vector>
 #include "boost/shared_ptr.hpp"
 
 // user include files

@@ -14,6 +14,7 @@ the CMS event model.
 #include <ostream>
 #include <set>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 namespace edm {

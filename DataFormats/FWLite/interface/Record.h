@@ -22,6 +22,7 @@
 // system include files
 #include <map>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 // user include files
