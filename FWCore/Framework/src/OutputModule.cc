@@ -133,7 +133,9 @@ namespace edm {
     process_name_ = tns->getProcessName();
 
     ParameterSet selectevents =
-      pset.getUntrackedParameter("SelectEvents", ParameterSet());
+      pset.getUntrackedParameterSet("SelectEvents", ParameterSet());
+
+    selectevents.registerIt(); // Just in case this PSet is not registered
 
     selector_config_id_ = selectevents.id();
     // If selectevents is an emtpy ParameterSet, then we are to write
@@ -226,22 +228,22 @@ namespace edm {
     return getTriggerResults(ev);
   }
 
-   namespace {
-     class  PVSentry {
-     public:
-       PVSentry (detail::CachedProducts& prods, bool& valid) : p(prods), v(valid) {}
-       ~PVSentry() {
-         p.clear();
-         v = false;
-       }
-     private:
-       detail::CachedProducts& p;
-       bool&           v;
+  namespace {
+    class  PVSentry {
+    public:
+      PVSentry(detail::CachedProducts& prods, bool& valid) : p(prods), v(valid) {}
+      ~PVSentry() {
+        p.clear();
+        v = false;
+      }
+    private:
+      detail::CachedProducts& p;
+      bool& v;
 
-       PVSentry(PVSentry const&);  // not implemented
-       PVSentry& operator=(PVSentry const&); // not implemented
-     };
-   }
+      PVSentry(PVSentry const&);  // not implemented
+      PVSentry& operator=(PVSentry const&); // not implemented
+    };
+  }
 
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
@@ -252,8 +254,6 @@ namespace edm {
 
     FDEBUG(2) << "writeEvent called\n";
 
-    // This ugly little bit is here to prevent making the Event
-    // if we don't need it.
     if (!wantAllEvents_) {
       // use module description and const_cast unless interface to
       // event is changed to just take a const EventPrincipal
