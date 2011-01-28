@@ -184,7 +184,7 @@ relUncEff = 0.5e-2 # pre-triggering
 #relUncFit= 0.28e-2
 relUncMomRes = 0.35e-2
 relUncTrigChanges = 0.1e-2
-relUncBkg = 0.28 #sqrt(relUncFit**2+0.2e-2**2)
+relUncBkg = 0.28e-2 #sqrt(relUncFit**2+0.2e-2**2)
 absUncZmumu=Zmumu*sqrt(relUncEff**2+relUncMomRes**2+relUncBkg**2+relUncTrigChanges**2)
 print "\nZmumu cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.) +- %.4f (lumi.) [nb]" % (Zmumu, absStatZmumu, absUncZmumu, absCorrZmumu, Zmumu*relSysLumi)
 print "  Systematics >>>>>>>"
@@ -196,7 +196,7 @@ print "\tTheory:                            %.2f %%" % (100./Zmumu*absCorrZmumu)
 print "\tTOTAL (LUMI excluded):             %.2f %%\n" % (100./Zmumu*sqrt(absUncZmumu**2+absCorrZmumu**2))
 
 Ratiomunu = Wplusmunu/Wminusmunu
-absStatRatiomunu = 0.078
+absStatRatiomunu = 0.0078
 absCorrRatiomunu = Ratiomunu*sqrt(0.021**2+0.0129**2) # theory uncertainty
 relUncEff = 2.8e-2
 relUncMomRes = 0.3e-2
