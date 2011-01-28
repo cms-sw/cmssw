@@ -144,7 +144,7 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHESpikeNoise);
 
    // Set the HBHETriangleNoise flag
-   if (mCharge.size() >= mTrianglePeakTS)  // can't compute flag if peak TS isn't present; revise this at some point?
+   if ((int)mCharge.size() >= mTrianglePeakTS)  // can't compute flag if peak TS isn't present; revise this at some point?
    {
       double TS4Left = mCharge[mTrianglePeakTS] / TriangleResult.LeftSlope;
       double TS4Right = mCharge[mTrianglePeakTS] / -TriangleResult.RightSlope;
