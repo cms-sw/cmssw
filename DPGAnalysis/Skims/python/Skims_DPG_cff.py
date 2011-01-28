@@ -282,3 +282,15 @@ SKIMStreamWZMu   = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
+#####################
+
+from DPGAnalysis.Skims.TkSDSkim_cff import *
+TkSDSkimPath = cms.Path (TkSD_Seq)
+SKIMStreamTkSD = cms.FilteredStream(
+    responsible = 'Tracker DPG & Tracking POG',
+    name = 'TkSD',
+    paths = ( TkSDSkimPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW')
+    )
