@@ -14,13 +14,15 @@
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSetEntry.h"
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include <string>
-#include <map>
-#include <vector>
+
 #include <iosfwd>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 // ----------------------------------------------------------------------
 // contents
@@ -85,7 +87,7 @@ namespace edm {
     // encode only tracked parameters
     std::string toString() const;
     void toString(std::string& result) const;
-    
+
     //encode tracked and untracked parameters
     void allToString(std::string& result) const;
 
@@ -238,6 +240,8 @@ namespace edm {
 
     ParameterSet const& registerIt();
 
+    std::auto_ptr<ParameterSet> popParameterSet(std::string const& name);
+
     typedef std::map<std::string, Entry> table;
     table const& tbl() const {return tbl_;}
 
@@ -262,7 +266,7 @@ namespace edm {
   private:
     // decode
     bool fromString(std::string const&);
-    
+
     void toStringImp(std::string&, bool useAll) const;
 
     table tbl_;
