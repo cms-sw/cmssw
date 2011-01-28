@@ -1398,7 +1398,9 @@ process.Foo = cms.Service("Foo")
 
 childProcess = process
 process = parentProcess
-process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.untracked.PSet())
+process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.untracked.PSet(
+
+))
 """
             equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcess)))
             self.assertEqual(d,equalD)
