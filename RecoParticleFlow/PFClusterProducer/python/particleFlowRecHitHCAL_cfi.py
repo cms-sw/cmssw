@@ -23,7 +23,7 @@ particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
 #   weight_HFhad = cms.double(1.0)
 
 # HCAL DPG RecHit calibration
-    HCAL_Calib = cms.bool(True),
+    HCAL_Calib = cms.bool(False),
     HF_Calib = cms.bool(False),
     Max_Calib = cms.double(5.00),
 
