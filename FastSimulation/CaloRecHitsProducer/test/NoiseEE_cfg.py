@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD2")
 
 # The number of events to be processed.
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
     
 # For valgrind studies
 # process.ProfilerService = cms.Service("ProfilerService",
@@ -14,10 +14,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 # Include the RandomNumberGeneratorService definition
 process.load("FastSimulation/Configuration/RandomServiceInitialization_cff")
-
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    'file:NeutrinosWithZSCustom.root'),
+    'file:NeutrinoFullSimNoZS.root'),
                             noEventSort = cms.untracked.bool(True),
                             duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
                             )
@@ -29,8 +29,9 @@ process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
 
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
-process.GlobalTag.globaltag = "MC_31X_V1::All"
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
