@@ -213,7 +213,7 @@ print "\tTheory:                            %.2f %%" % (100./Ratiomunu*absCorrRa
 print "\tTOTAL:                             %.2f %%\n" % (100./Ratiomunu*sqrt(absUncRatiomunu**2+absCorrRatiomunu**2))
 
 WZmu = Wmunu/Zmumu
-absStatWZmu = WZmu*((absStatWmunu/Wmunu)**2+(absStatZmumu/Zmumu)**2)
+absStatWZmu = WZmu*sqrt((absStatWmunu/Wmunu)**2+(absStatZmumu/Zmumu)**2)
 absCorrWZmu = WZmu*sqrt(0.011**2+0.0135**2) # theory uncertainty
 relUncEffW = 1.3e-2
 relUncMomResW = 0.3e-2
