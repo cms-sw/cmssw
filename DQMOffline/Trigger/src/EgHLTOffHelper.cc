@@ -225,9 +225,9 @@ void OffHelper::fillIsolData(const reco::GsfElectron& ele,OffEle::IsolData& isol
   EcalRecHitMetaCollection ebHits(*ebRecHits_);
   EcalRecHitMetaCollection eeHits(*eeRecHits_);
   EgammaRecHitIsolation ecalIsolAlgoEB(hltEMIsolOuterCone_,hltEMIsolInnerConeEB_,hltEMIsolEtaSliceEB_,
-				       hltEMIsolEtMinEB_,hltEMIsolEMinEB_,caloGeom_,&ebHits,DetId::Ecal);
+				       hltEMIsolEtMinEB_,hltEMIsolEMinEB_,caloGeom_,&ebHits,ecalSeverityLevel_.product(),DetId::Ecal);
   EgammaRecHitIsolation ecalIsolAlgoEE(hltEMIsolOuterCone_,hltEMIsolInnerConeEE_,hltEMIsolEtaSliceEE_,
-				       hltEMIsolEtMinEE_,hltEMIsolEMinEE_,caloGeom_,&eeHits,DetId::Ecal);
+				       hltEMIsolEtMinEE_,hltEMIsolEMinEE_,caloGeom_,&eeHits,ecalSeverityLevel_.product(),DetId::Ecal);
   
   isolData.ptTrks=ele.dr03TkSumPt();
   isolData.nrTrks=999; //no longer supported
@@ -245,8 +245,8 @@ void OffHelper::fillIsolData(const reco::GsfElectron& ele,OffEle::IsolData& isol
     else isolData.hltTrksPho=hltPhoTrkIsolAlgo_->photonPtSum(&ele,isolTrks_.product(),false);
   }
   else isolData.hltTrksPho = 0.;
-  if(calHLTEmIsol_) isolData.hltEm = ecalIsolAlgoEB.getEtSum(&ele,ecalSeverityLevel_.product()) + 
-                                     ecalIsolAlgoEE.getEtSum(&ele,ecalSeverityLevel_.product());
+  if(calHLTEmIsol_) isolData.hltEm = ecalIsolAlgoEB.getEtSum(&ele) + 
+                                     ecalIsolAlgoEE.getEtSum(&ele);
   else isolData.hltEm = 0.;
   
 }
@@ -352,9 +352,9 @@ void OffHelper::fillIsolData(const reco::Photon& pho,OffPho::IsolData& isolData)
   EcalRecHitMetaCollection ebHits(*ebRecHits_);
   EcalRecHitMetaCollection eeHits(*ebRecHits_);
   EgammaRecHitIsolation ecalIsolAlgoEB(hltEMIsolOuterCone_,hltEMIsolInnerConeEB_,hltEMIsolEtaSliceEB_,
-				       hltEMIsolEtMinEB_,hltEMIsolEMinEB_,caloGeom_,&ebHits,DetId::Ecal);
+				       hltEMIsolEtMinEB_,hltEMIsolEMinEB_,caloGeom_,&ebHits,ecalSeverityLevel_.product(),DetId::Ecal);
   EgammaRecHitIsolation ecalIsolAlgoEE(hltEMIsolOuterCone_,hltEMIsolInnerConeEE_,hltEMIsolEtaSliceEE_,
-				       hltEMIsolEtMinEE_,hltEMIsolEMinEE_,caloGeom_,&eeHits,DetId::Ecal);
+				       hltEMIsolEtMinEE_,hltEMIsolEMinEE_,caloGeom_,&eeHits,ecalSeverityLevel_.product(),DetId::Ecal);
   
   isolData.nrTrks = pho.nTrkHollowConeDR03();
   isolData.ptTrks = pho.trkSumPtHollowConeDR03();
@@ -369,8 +369,8 @@ void OffHelper::fillIsolData(const reco::Photon& pho,OffPho::IsolData& isolData)
     else isolData.hltTrks=hltPhoTrkIsolAlgo_->photonPtSum(&pho,isolTrks_.product(),false);
   }
   else isolData.hltTrks = 0.;
-  if(calHLTEmIsol_) isolData.hltEm = ecalIsolAlgoEB.getEtSum(&pho,ecalSeverityLevel_.product()) + 
-                                     ecalIsolAlgoEE.getEtSum(&pho,ecalSeverityLevel_.product());
+  if(calHLTEmIsol_) isolData.hltEm = ecalIsolAlgoEB.getEtSum(&pho) + 
+                                     ecalIsolAlgoEE.getEtSum(&pho);
   else isolData.hltEm = 0.;
   
 }
