@@ -397,7 +397,7 @@ def oldToNew(schema):
     alter table cmsrunsummary add column(egev unsigned int,amodetag string)
     alter table lumisummary add column(data_id unsigned long long)
     alter table lumidetail add column(data_id unsigned long long,runnum unsigned int,cmslsnum unsigned int,lumilsnum unsigned int)
-    alter table 
+    alter table trghltmap add column(hltpathid unsigned int)
     '''
     try:
         tableHandle=schema.tableHandle(nameDealer.cmsrunsummaryTableName())
@@ -418,16 +418,35 @@ def oldToNew(schema):
     
 def newToOld(schema):
     try:
+        dropTables(schema,['REVISIONS','LUMINORMS','LUMIDATA','TRGDATA','LSTRG','HLTDATA','LSHLT'])
         tableHandle=schema.tableHandle(nameDealer.cmsrunsummaryTableName())
-        tableHandle.schemaEditor().dropColumn('EGEV')
-        tableHandle.schemaEditor().dropColumn('AMODETAG')
+        ncol=tableHandle.description().numberOfColumns()
+        print ncol
+        for i in range(ncol):
+            colname=tableHandle.description().columnDescription(i).name()
+            if colname in ['EGEV','AMODETAG']:
+                tableHandle.schemaEditor().dropColumn(colname)
         tableHandle=schema.tableHandle(nameDealer.lumisummaryTableName())
-        tableHandle.schemaEditor().dropColumn('DATA_ID')
+        ncol=tableHandle.description().numberOfColumns()
+        print ncol
+        for i in range(ncol):
+            colname=tableHandle.description().columnDescription(i).name()
+            if colname in ['DATA_ID']:
+                tableHandle.schemaEditor().dropColumn(colname)
         tableHandle=schema.tableHandle(nameDealer.lumidetailTableName())
-        tableHandle.schemaEditor().dropColumn('DATA_ID')
-        tableHandle.schemaEditor().dropColumn('RUNNUM')
-        tableHandle.schemaEditor().dropColumn('CMSLSNUM')
-        tableHandle.schemaEditor().dropColumn('LUMILSNUM')
+        ncol=tableHandle.description().numberOfColumns()
+        print ncol
+        for i in range(ncol):
+            colname=tableHandle.description().columnDescription(i).name()
+            if colname in ['DATA_ID','RUNNUM','CMSLSNUM','LUMILSNUM']:
+                tableHandle.schemaEditor().dropColumn(colname)
+        tableHandle=schema.tableHandle(nameDealer.trghltMapTableName())
+        ncol=tableHandle.description().numberOfColumns()
+        print ncol
+        for i in range(ncol):
+            colname=tableHandle.description().columnDescription(i).name()
+            if colname in ['HLTPATHID']:
+                tableHandle.schemaEditor().dropColumn(colname)
     except :
         raise 
 
