@@ -6,10 +6,7 @@ process = cms.Process("CSCDQM")
 # CSC L1 Emulator Configuration
 #-------------------------------------------------
 
-process.load("DQM.CSCMonitorModule.CSCTPE_setup")
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('TPEHists.root')
-                                   )
+process.load("L1Trigger.CSCTriggerPrimitives.CSCTPE_setup_cfi")
 
 #-------------------------------------------------
 # DQM Module Configuration
