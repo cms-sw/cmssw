@@ -134,7 +134,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
-  hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, false,sevLv.product(), 
+  hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, sevLv.product(),false,
 			 std::vector<EcalEtaPhiRegion>());
 
   if (debugL == HybridClusterAlgo::pDEBUG)
