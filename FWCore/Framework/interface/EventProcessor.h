@@ -41,6 +41,7 @@ namespace edm {
   class ActionTable;
   class EDLooperBase;
   class ProcessDesc;
+  class SubProcess;
   namespace eventsetup {
     class EventSetupProvider;
   }
@@ -328,6 +329,10 @@ namespace edm {
 
     static void asyncRun(EventProcessor*);
 
+    bool hasSubProcess() const {
+      return subProcess_.get() != 0;
+    }
+
     //------------------------------------------------------------------
     //
     // Data members below.
@@ -345,6 +350,7 @@ namespace edm {
     boost::shared_ptr<ActionTable const>          act_table_;
     boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
     std::auto_ptr<Schedule>                       schedule_;
+    std::auto_ptr<SubProcess>                     subProcess_;
 
     volatile event_processor::State               state_;
     boost::shared_ptr<boost::thread>              event_loop_;

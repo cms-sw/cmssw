@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -30,9 +29,10 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/src/EPStates.h"
+#include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,7 +53,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
@@ -357,19 +356,21 @@ namespace edm {
                                 std::vector<std::string> const& forcedServices) :
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    actReg_(new ActivityRegistry),
-    preg_(new SignallingProductRegistry),
+    actReg_(),
+    preg_(),
     serviceToken_(),
     input_(),
     esp_(),
     act_table_(),
     processConfiguration_(),
     schedule_(),
+    subProcess_(),
     state_(sInit),
     event_loop_(),
     state_lock_(),
     stop_lock_(),
     stopper_(),
+    starter_(),
     stop_count_(-1),
     last_rc_(epSuccess),
     last_error_text_(),
@@ -378,15 +379,23 @@ namespace edm {
     my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
+    machine_(),
+    principalCache_(),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
+    fileMode_(),
+    emptyRunLumiMode_(),
+    exceptionMessageFiles_(),
+    exceptionMessageRuns_(),
+    exceptionMessageLumis_(),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1),
-    setCpuAffinity_(false) {
+    setCpuAffinity_(false),
+    eventSetupDataToExcludeFromPrefetching_() {
     boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
@@ -397,19 +406,21 @@ namespace edm {
                                 std::vector<std::string> const& forcedServices) :
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    actReg_(new ActivityRegistry),
-    preg_(new SignallingProductRegistry),
+    actReg_(),
+    preg_(),
     serviceToken_(),
     input_(),
     esp_(),
     act_table_(),
     processConfiguration_(),
     schedule_(),
+    subProcess_(),
     state_(sInit),
     event_loop_(),
     state_lock_(),
     stop_lock_(),
     stopper_(),
+    starter_(),
     stop_count_(-1),
     last_rc_(epSuccess),
     last_error_text_(),
@@ -418,15 +429,23 @@ namespace edm {
     my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
+    machine_(),
+    principalCache_(),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
+    fileMode_(),
+    emptyRunLumiMode_(),
+    exceptionMessageFiles_(),
+    exceptionMessageRuns_(),
+    exceptionMessageLumis_(),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1),
-    setCpuAffinity_(false) {
+    setCpuAffinity_(false),
+    eventSetupDataToExcludeFromPrefetching_() {
     boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
@@ -437,19 +456,21 @@ namespace edm {
                  serviceregistry::ServiceLegacy legacy) :
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    actReg_(new ActivityRegistry),
-    preg_(new SignallingProductRegistry),
+    actReg_(),
+    preg_(),
     serviceToken_(),
     input_(),
     esp_(),
     act_table_(),
     processConfiguration_(),
     schedule_(),
+    subProcess_(),
     state_(sInit),
     event_loop_(),
     state_lock_(),
     stop_lock_(),
     stopper_(),
+    starter_(),
     stop_count_(-1),
     last_rc_(epSuccess),
     last_error_text_(),
@@ -458,13 +479,23 @@ namespace edm {
     my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
+    machine_(),
+    principalCache_(),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
+    fileMode_(),
+    emptyRunLumiMode_(),
+    exceptionMessageFiles_(),
+    exceptionMessageRuns_(),
+    exceptionMessageLumis_(),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
-    forceESCacheClearOnNewRun_(false)
-  {
+    forceESCacheClearOnNewRun_(false),
+    numberOfForkedChildren_(0),
+    numberOfSequentialEventsPerChild_(1),
+    setCpuAffinity_(false),
+    eventSetupDataToExcludeFromPrefetching_() {
     init(processDesc, token, legacy);
   }
 
@@ -472,19 +503,21 @@ namespace edm {
   EventProcessor::EventProcessor(std::string const& config, bool isPython):
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    actReg_(new ActivityRegistry),
-    preg_(new SignallingProductRegistry),
+    actReg_(),
+    preg_(),
     serviceToken_(),
     input_(),
     esp_(),
     act_table_(),
     processConfiguration_(),
     schedule_(),
+    subProcess_(),
     state_(sInit),
     event_loop_(),
     state_lock_(),
     stop_lock_(),
     stopper_(),
+    starter_(),
     stop_count_(-1),
     last_rc_(epSuccess),
     last_error_text_(),
@@ -493,13 +526,23 @@ namespace edm {
     my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
+    machine_(),
+    principalCache_(),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
+    fileMode_(),
+    emptyRunLumiMode_(),
+    exceptionMessageFiles_(),
+    exceptionMessageRuns_(),
+    exceptionMessageLumis_(),
     alreadyHandlingException_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
-    forceESCacheClearOnNewRun_(false)
-  {
+    forceESCacheClearOnNewRun_(false),
+    numberOfForkedChildren_(0),
+    numberOfSequentialEventsPerChild_(1),
+    setCpuAffinity_(false),
+    eventSetupDataToExcludeFromPrefetching_() {
     if(isPython) {
       boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
@@ -515,12 +558,18 @@ namespace edm {
                         ServiceToken const& iToken,
                         serviceregistry::ServiceLegacy iLegacy) {
 
+    //std::cerr << processDesc->dump() << std::endl;
     // The BranchIDListRegistry and ProductIDListRegistry are indexed registries, and are singletons.
     //  They must be cleared here because some processes run multiple EventProcessors in succession.
     BranchIDListHelper::clearRegistries();
 
     boost::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
+    //std::cerr << parameterSet->dump() << std::endl;
 
+    // If there is a subprocess, pop the subprocess parameter set out of the process parameter set
+    boost::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*parameterSet).release());
+
+    // Now set some parameters specific to the main process.
     ParameterSet const& optionsPset(parameterSet->getUntrackedParameterSet("options", ParameterSet()));
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     emptyRunLumiMode_ = optionsPset.getUntrackedParameter<std::string>("emptyRunLumiMode", "");
@@ -538,79 +587,51 @@ namespace edm {
                                                                itPS->getUntrackedParameter<std::string>("label", "")));
     }
 
+    std::auto_ptr<eventsetup::EventSetupsController> espController(new eventsetup::EventSetupsController);
+
+    // Now do general initialization
+    ScheduleItems items;
+
+    //initialize the services
     boost::shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
-    //makeParameterSets(config, parameterSet, pServiceSets);
-
-    //create the services
-    ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, iToken, iLegacy));
-
-    //see if any of the Services have to have their PSets stored
-    for(std::vector<ParameterSet>::const_iterator it = pServiceSets->begin(), itEnd = pServiceSets->end();
-        it != itEnd;
-        ++it) {
-      if(it->exists("@save_config")) {
-        parameterSet->addParameter(it->getParameter<std::string>("@service_type"), *it);
-      }
-    }
-    // Copy slots that hold all the registered callback functions like
-    // PostBeginJob into an ActivityRegistry that is owned by EventProcessor
-    tempToken.copySlotsTo(*actReg_);
-
-    //add the ProductRegistry as a service ONLY for the construction phase
-    typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
-    boost::shared_ptr<w_CPR>
-      reg(new w_CPR(std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(*preg_))));
-    ServiceToken tempToken2(ServiceRegistry::createContaining(reg,
-                                                              tempToken,
-                                                              serviceregistry::kOverlapIsError));
-
-    // the next thing is ugly: pull out the trigger path pset and
-    // create a service and extra token for it
-    std::string processName = parameterSet->getParameter<std::string>("@process_name");
-
-    typedef service::TriggerNamesService TNS;
-    typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
-
-    boost::shared_ptr<w_TNS> tnsptr
-      (new w_TNS(std::auto_ptr<TNS>(new TNS(*parameterSet))));
-
-    serviceToken_ = ServiceRegistry::createContaining(tnsptr,
-                                                      tempToken2,
-                                                      serviceregistry::kOverlapIsError);
+    ServiceToken token = items.initServices(*pServiceSets, *parameterSet, iToken, iLegacy, true);
+    serviceToken_ = items.addCPRandTNS(*parameterSet, token);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    act_table_.reset(new ActionTable(*parameterSet));
-    CommonParams common = CommonParams(processName,
-                           getReleaseVersion(),
-                           getPassID(),
-                           parameterSet->getUntrackedParameterSet("maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
-                           parameterSet->getUntrackedParameterSet("maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1));
+    // intialize miscellaneous items
+    boost::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
 
-    std::auto_ptr<eventsetup::EventSetupsController> espController(new eventsetup::EventSetupsController);
-    esp_ = espController->makeProvider(*parameterSet, common);
-    processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
+    // intialize the event setup provider
+    esp_ = espController->makeProvider(*parameterSet, *common);
 
-    looper_ = fillLooper(*esp_, *parameterSet, common);
+    // initialize the looper, if any
+    looper_ = fillLooper(*esp_, *parameterSet, *common);
     if(looper_) {
-      looper_->setActionTable(act_table_.get());
-      looper_->attachTo(*actReg_);
+      looper_->setActionTable(items.act_table_.get());
+      looper_->attachTo(*items.actReg_);
     }
 
-    input_ = makeInput(*parameterSet, common, *preg_, principalCache_, actReg_, processConfiguration_);
+    // initialize the input source
+    input_ = makeInput(*parameterSet, *common, *items.preg_, principalCache_, items.actReg_, items.processConfiguration_);
 
-    schedule_ = std::auto_ptr<Schedule>
-      (new Schedule(*parameterSet,
-                    ServiceRegistry::instance().get<TNS>(),
-                    *preg_,
-                    *act_table_,
-                    actReg_,
-                    processConfiguration_));
+    // intialize the Schedule
+    schedule_ = items.initSchedule(*parameterSet);
 
-    //   initialize(iToken, iLegacy);
+    // set the data members
+    act_table_ = items.act_table_;
+    actReg_ = items.actReg_;
+    preg_ = items.preg_;
+    processConfiguration_ = items.processConfiguration_;
+
     FDEBUG(2) << parameterSet << std::endl;
     connectSigs(this);
+
+    // initialize the subprocess, if there is one
+    if(subProcessParameterSet) {
+      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, *espController, *actReg_, token, serviceregistry::kConfigurationOverrides));
+    }
   }
 
   EventProcessor::~EventProcessor() {
@@ -638,6 +659,7 @@ namespace edm {
     }
 
     // manually destroy all these thing that may need the services around
+    subProcess_.reset();
     esp_.reset();
     schedule_.reset();
     input_.reset();
@@ -721,7 +743,7 @@ namespace edm {
     // again.  In that case the newly added Module needs its 'beginJob'
     // to be called.
 
-    //NOTE: in future we should have a beginOfJob for looper which takes no arguments
+    //NOTE: in future we should have a beginOfJob for looper that takes no arguments
     //  For now we delay calling beginOfJob until first beginOfRun
     //if(looper_) {
     //   looper_->beginOfJob(es);
@@ -741,8 +763,9 @@ namespace edm {
     }
 
     schedule_->beginJob();
-    actReg_->postBeginJobSignal_();
     // toerror.succeeded(); // should we add this?
+    if(hasSubProcess()) subProcess_->doBeginJob();
+    actReg_->postBeginJobSignal_();
   }
 
   void
@@ -758,6 +781,9 @@ namespace edm {
 
     c.call(boost::bind(&EventProcessor::terminateMachine, this));
     c.call(boost::bind(&Schedule::endJob, schedule_.get()));
+    if(hasSubProcess()) {
+      c.call(boost::bind(&SubProcess::doEndJob, subProcess_.get()));
+    }
     c.call(boost::bind(&InputSource::doEndJob, input_));
     if(looper_) {
       c.call(boost::bind(&EDLooperBase::endOfJob, looper_));
@@ -1017,13 +1043,13 @@ namespace edm {
     jobReport->parentAfterFork(jobReportFile);
 }
 
-    //this is the original which is now the master for all the children
+    //this is the original, which is now the master for all the children
 
     //Need to wait for signals from the children or externally
     // To wait we must
     // 1) block the signals we want to wait on so we do not have a race condition
     // 2) check that we haven't already meet our ending criteria
-    // 3) call sigsuspend which unblocks the signals and waits until a signal is caught
+    // 3) call sigsuspend, which unblocks the signals and waits until a signal is caught
     sigset_t blockingSigSet;
     sigset_t unblockingSigSet;
     sigset_t oldSigSet;
@@ -1037,7 +1063,7 @@ namespace edm {
     sigdelset(&unblockingSigSet, SIGINT);
     pthread_sigmask(SIG_BLOCK, &blockingSigSet, &oldSigSet);
 
-    //create a thread which sends the units of work to workers
+    //create a thread that sends the units of work to workers
     // we create it after all signals were blocked so that this
     // thread is never interupted by a signal
     MessageSenderToSource sender(queueID, numberOfSequentialEventsPerChild_);
@@ -1568,7 +1594,7 @@ namespace edm {
     // the call to terminateMachine below only destroys an already
     // terminated state machine.  Because exit is not called, the state destructors
     // handle cleaning up lumis, runs, and files.  The destructors swallow
-    // all exceptions and only pass through the exceptions messages which
+    // all exceptions and only pass through the exceptions messages, which
     // are tacked onto the original exception below.
     //
     // If an exception occurs when the boost state machine is not
@@ -1582,12 +1608,12 @@ namespace edm {
     // In both cases above, the EventProcessor::endOfLoop function is
     // not called because it can throw exceptions.
     //
-    // One tricky aspect of the state machine is that things which can
+    // One tricky aspect of the state machine is that things that can
     // throw should not be invoked by the state machine while another
     // exception is being handled.
     // Another tricky aspect is that it appears to be important to
     // terminate the state machine before invoking its destructor.
-    // We've seen crashes which are not understood when that is not
+    // We've seen crashes that are not understood when that is not
     // done.  Maintainers of this code should be careful about this.
 
     catch (cms::Exception& e) {
@@ -1664,31 +1690,37 @@ namespace edm {
 
   void EventProcessor::openOutputFiles() {
     schedule_->openOutputFiles(*fb_);
+    if(hasSubProcess()) subProcess_->openOutputFiles(*fb_);
     FDEBUG(1) << "\topenOutputFiles\n";
   }
 
   void EventProcessor::closeOutputFiles() {
     schedule_->closeOutputFiles();
+    if(hasSubProcess()) subProcess_->closeOutputFiles();
     FDEBUG(1) << "\tcloseOutputFiles\n";
   }
 
   void EventProcessor::respondToOpenInputFile() {
     schedule_->respondToOpenInputFile(*fb_);
+    if(hasSubProcess()) subProcess_->respondToOpenInputFile(*fb_);
     FDEBUG(1) << "\trespondToOpenInputFile\n";
   }
 
   void EventProcessor::respondToCloseInputFile() {
     schedule_->respondToCloseInputFile(*fb_);
+    if(hasSubProcess()) subProcess_->respondToCloseInputFile(*fb_);
     FDEBUG(1) << "\trespondToCloseInputFile\n";
   }
 
   void EventProcessor::respondToOpenOutputFiles() {
     schedule_->respondToOpenOutputFiles(*fb_);
+    if(hasSubProcess()) subProcess_->respondToOpenOutputFiles(*fb_);
     FDEBUG(1) << "\trespondToOpenOutputFiles\n";
   }
 
   void EventProcessor::respondToCloseOutputFiles() {
     schedule_->respondToCloseOutputFiles(*fb_);
+    if(hasSubProcess()) subProcess_->respondToCloseOutputFiles(*fb_);
     FDEBUG(1) << "\trespondToCloseOutputFiles\n";
   }
 
@@ -1728,7 +1760,7 @@ namespace edm {
 
   bool EventProcessor::shouldWeCloseOutput() const {
     FDEBUG(1) << "\tshouldWeCloseOutput\n";
-    return schedule_->shouldWeCloseOutput();
+    return hasSubProcess() ? subProcess_->shouldWeCloseOutput() : schedule_->shouldWeCloseOutput();
   }
 
   void EventProcessor::doErrorStuff() {
@@ -1761,6 +1793,9 @@ namespace edm {
       typedef OccurrenceTraits<RunPrincipal, BranchActionBegin> Traits;
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
       schedule_->processOneOccurrence<Traits>(runPrincipal, es);
+      if(hasSubProcess()) {
+        subProcess_->doBeginRun(runPrincipal, ts);
+      }
     }
     FDEBUG(1) << "\tbeginRun " << run.runNumber() << "\n";
     if(looper_) {
@@ -1778,6 +1813,9 @@ namespace edm {
       typedef OccurrenceTraits<RunPrincipal, BranchActionEnd> Traits;
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
       schedule_->processOneOccurrence<Traits>(runPrincipal, es);
+      if(hasSubProcess()) {
+        subProcess_->doEndRun(runPrincipal, ts);
+      }
     }
     FDEBUG(1) << "\tendRun " << run.runNumber() << "\n";
     if(looper_) {
@@ -1803,6 +1841,9 @@ namespace edm {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> Traits;
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
       schedule_->processOneOccurrence<Traits>(lumiPrincipal, es);
+      if(hasSubProcess()) {
+        subProcess_->doBeginLuminosityBlock(lumiPrincipal, ts);
+      }
     }
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
@@ -1822,6 +1863,9 @@ namespace edm {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> Traits;
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
       schedule_->processOneOccurrence<Traits>(lumiPrincipal, es);
+      if(hasSubProcess()) {
+        subProcess_->doEndLuminosityBlock(lumiPrincipal, ts);
+      }
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
     if(looper_) {
@@ -1830,7 +1874,6 @@ namespace edm {
   }
 
   statemachine::Run EventProcessor::readAndCacheRun() {
-
     input_->readAndCacheRun();
     input_->markRun();
     return statemachine::Run(input_->processHistoryID(), input_->run());
@@ -1844,6 +1887,7 @@ namespace edm {
 
   void EventProcessor::writeRun(statemachine::Run const& run) {
     schedule_->writeRun(principalCache_.runPrincipal(run.processHistoryID(), run.runNumber()));
+    if(hasSubProcess()) subProcess_->writeRun(run.processHistoryID(), run.runNumber());
     FDEBUG(1) << "\twriteRun " << run.runNumber() << "\n";
   }
 
@@ -1854,6 +1898,7 @@ namespace edm {
 
   void EventProcessor::writeLumi(ProcessHistoryID const& phid, int run, int lumi) {
     schedule_->writeLumi(principalCache_.lumiPrincipal(phid, run, lumi));
+    if(hasSubProcess()) subProcess_->writeLumi(phid, run, lumi);
     FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
@@ -1887,6 +1932,9 @@ namespace edm {
       typedef OccurrenceTraits<EventPrincipal, BranchActionBegin> Traits;
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), pep, &es);
       schedule_->processOneOccurrence<Traits>(*pep, es);
+      if(hasSubProcess()) {
+        subProcess_->doEvent(*pep, ts);
+      }
     }
 
     if(looper_) {
@@ -1921,7 +1969,7 @@ namespace edm {
   bool EventProcessor::shouldWeStop() const {
     FDEBUG(1) << "\tshouldWeStop\n";
     if(shouldWeStop_) return true;
-    return schedule_->terminate();
+    return (schedule_->terminate() || (hasSubProcess() && subProcess_->terminate()));
   }
 
   void EventProcessor::setExceptionMessageFiles(std::string& message) {
