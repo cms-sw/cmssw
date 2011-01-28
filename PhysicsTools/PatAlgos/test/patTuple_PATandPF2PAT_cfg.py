@@ -3,16 +3,16 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 # the source is already defined in patTemplate_cfg.
 # overriding source and various other things
-#process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoEles_DBS_312_cfi")
+#process.load("CommonTools.ParticleFlow.Sources.source_ZtoEles_DBS_312_cfi")
 #process.source = cms.Source("PoolSource", 
 #     fileNames = cms.untracked.vstring('file:myAOD.root')
 #)
 
 
-# process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoMus_DBS_cfi")
+# process.load("CommonTools.ParticleFlow.Sources.source_ZtoMus_DBS_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
-# process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoMus_DBS_cfi")
+# process.load("CommonTools.ParticleFlow.Sources.source_ZtoMus_DBS_cfi")
 runOnMC = True
 
 if runOnMC == False:

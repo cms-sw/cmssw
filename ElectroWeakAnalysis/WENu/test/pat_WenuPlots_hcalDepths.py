@@ -46,7 +46,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ################################################################################################
 
 ## pat sequences to be loaded:
-process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
+process.load("CommonTools.ParticleFlow.PF2PAT_cff")
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 #process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
 ##

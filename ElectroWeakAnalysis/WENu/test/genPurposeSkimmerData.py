@@ -44,7 +44,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 
 # load the necessary pat sequences
-process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
+process.load("CommonTools.ParticleFlow.PF2PAT_cff")
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 

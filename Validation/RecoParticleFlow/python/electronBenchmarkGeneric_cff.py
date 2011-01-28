@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
-from PhysicsTools.PFCandProducer.ParticleSelectors.pfAllElectrons_cfi import pfAllElectrons
+from CommonTools.ParticleFlow.ParticleSelectors.pfAllElectrons_cfi import pfAllElectrons
 
 from Validation.RecoParticleFlow.pfElectronBenchmarkGeneric_cfi import pfElectronBenchmarkGeneric
 
-from  PhysicsTools.PFCandProducer.pfNoPileUp_cff import *
+from  CommonTools.ParticleFlow.pfNoPileUp_cff import *
 # setting the sources
 
 gensource = cms.EDProducer(
