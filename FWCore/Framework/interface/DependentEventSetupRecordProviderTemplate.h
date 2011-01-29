@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun May  1 16:59:49 EDT 2005
-// $Id: DependentEventSetupRecordProviderTemplate.h,v 1.4 2005/09/01 05:41:28 wmtan Exp $
+// $Id: DependentEventSetupRecordProviderTemplate.h,v 1.5 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -25,20 +25,20 @@
 #include "boost/mpl/next.hpp"
 
 // user include files
-#include "FWCore/Framework/interface/DependentEventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
 template <class T>
-class DependentEventSetupRecordProviderTemplate : public DependentEventSetupRecordProvider
+class DependentEventSetupRecordProviderTemplate : public EventSetupRecordProvider
 {
 
    public:
       typedef typename  T::list_type list_type;
 
       DependentEventSetupRecordProviderTemplate(const EventSetupRecordKey& iKey) :
-      DependentEventSetupRecordProvider(iKey) {}
+      EventSetupRecordProvider(iKey) {}
    //virtual ~DependentEventSetupRecordProviderTemplate();
 
       // ---------- const member functions ---------------------
