@@ -81,6 +81,19 @@ int Muon::numberOfMatches( ArbitrationType type ) const
    return matches;
 }
 
+int Muon::numberOfMatchedStations( ArbitrationType type ) const
+{
+   int stations(0);
+
+   unsigned int theStationMask = stationMask(type);
+   // eight stations, eight bits
+   for(int it = 0; it < 8; ++it)
+      if (theStationMask & 1<<it)
+         ++stations;
+
+   return stations;
+}
+
 unsigned int Muon::stationMask( ArbitrationType type ) const
 {
    unsigned int totMask(0);
