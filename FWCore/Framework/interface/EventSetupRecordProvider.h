@@ -79,7 +79,7 @@ class EventSetupRecordProvider {
       bool setValidityIntervalFor(IOVSyncValue const&);
 
       ///If the provided Record depends on other Records, here are the dependent Providers
-      virtual void setDependentProviders(std::vector<boost::shared_ptr<EventSetupRecordProvider> >const&);
+      void setDependentProviders(std::vector<boost::shared_ptr<EventSetupRecordProvider> >const&);
 
       /**In the case of a conflict, sets what Provider to call.  This must be called after
          all providers have been added.  An empty map is acceptable. */

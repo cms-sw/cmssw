@@ -18,9 +18,12 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+
 
 
 //
@@ -99,8 +102,18 @@ EventSetupRecordProvider::setValidityInterval(const ValidityInterval& iInterval)
 }
 
 void 
-EventSetupRecordProvider::setDependentProviders(const std::vector< boost::shared_ptr<EventSetupRecordProvider> >&)
+EventSetupRecordProvider::setDependentProviders(const std::vector< boost::shared_ptr<EventSetupRecordProvider> >& iProviders)
 {
+   boost::shared_ptr< DependentRecordIntervalFinder > newFinder(
+                                                                new DependentRecordIntervalFinder(key()));
+   
+   boost::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
+   for_all(iProviders, boost::bind(std::mem_fun(&DependentRecordIntervalFinder::addProviderWeAreDependentOn), &(*newFinder), _1));
+   //if a finder was already set, add it as a depedency.  This is done to ensure that the IOVs properly change even if the
+   // old finder does not update each time a dependent record does change
+   if(old.get() != 0) {
+      newFinder->setAlternateFinder(old);
+   }
 }
 void 
 EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
