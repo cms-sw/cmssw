@@ -40,7 +40,7 @@ namespace reco {
          bool hasZed_;         // contains local y information (only relevant for segments in DT)
          bool hasPhi_;         // contains local x information (only relevant for segments in DT)
 
-         bool isMask( unsigned int flag = Arbitrated ) const { return mask & flag; }
+         bool isMask( unsigned int flag = Arbitrated ) const { return (mask & flag) == flag; }
          void setMask( unsigned int flag ) { if(!(mask & flag)) mask += flag; }
          float t0;
 
