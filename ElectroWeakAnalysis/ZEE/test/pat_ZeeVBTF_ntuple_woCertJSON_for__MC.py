@@ -1,13 +1,9 @@
+##
+##   Stilianos Kesisoglou - Institute of Nuclear Physics NCSR Demokritos
+##   25 June 2010
+
 #   Initializations
 #   ---------------
-#
-#   Get the base name of the Python script and use it to define input/output associated files
-#
-#   N.B:    Special variable __file__ is not available within cmsRun, and the following line fails:
-#
-#               pyFile=(__file__).replace('.py','')
-#
-#           As a result, the calling arguments must be scanned to locate the Python script.
 #
 import sys
 
@@ -24,14 +20,6 @@ lstFile = "%s.list" % (pyBaseName)          #   Name of the list file       (con
 resFile = "%s.results" % (pyBaseName)       #   Name of the results file    (stdout and stderr messages)
 outFile = "%s.root" % (pyBaseName)          #   Name of the output file     (ROOT)
 
-
-##   Configuration for the production of the ICHEP VBTF ntuple
-##   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-##   MC, spring10
-##
-##   Stilianos Kesisoglou - Institute of Nuclear Physics
-##                                NCSR Demokritos
-##   25 June 2010
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PAT")
