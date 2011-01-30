@@ -20,10 +20,10 @@ using namespace Rivet;
 using namespace edm;
 
 RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset) : 
-_analysisHandler("RivetAnalyzer"),
-_isFirstEvent(true)
+_analysisHandler(),
+_isFirstEvent(true),
+_outFileName(pset.getParameter<std::string>("OutputFile"))
 {
-
   //retrive the analysis name from paarmeter set
   std::vector<std::string> analysisNames = pset.getParameter<std::vector<std::string> >("AnalysisNames");
   
@@ -90,7 +90,7 @@ void RivetAnalyzer::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
 
 void RivetAnalyzer::endJob(){
   _analysisHandler.finalize();   
-  _analysisHandler.writeData("Rivet.aida");
+  _analysisHandler.writeData(_outFileName);
 }
 
 DEFINE_FWK_MODULE(RivetAnalyzer);
