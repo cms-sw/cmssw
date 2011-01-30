@@ -9,10 +9,10 @@ The DBS_* variables are configuration variables for dbs_discovery.py,
 which prepares and send a query to the Data Discovery web server,
 and receive as a result the corresponding list of input data files.
 
-<var name="DBS_RELEASE" value="CMSSW_3_10_0_pre3">
+<var name="DBS_RELEASE" value="CMSSW_3_11_0">
 
 <!var name="DBS_LIKE" value="LOCAL">
-<var name="DBS_LIKE" value="*MC_39Y_V3-v1*-RECO">
+<var name="DBS_LIKE" value="*MC_311_V1_64bit-v2*RECO*">
 <var name="VAL_ANALYZER" value="benchmark-oval">
 <var name="WEB_PUBLICATION" value="true">
 
@@ -106,7 +106,7 @@ and receive as a result the corresponding list of input data files.
 </environment>
 
 <environment name="comparison">
-  <!var name="DBS_COMPARE_RELEASE" value="CMSSW_3_9_0_pre7">
+  <!var name="DBS_COMPARE_RELEASE" value="CMSSW_3_10_0">
      <environment name="Pt35">
      <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
      <executable name="comparison.sh">	
