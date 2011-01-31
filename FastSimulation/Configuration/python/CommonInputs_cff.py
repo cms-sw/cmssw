@@ -29,5 +29,6 @@ GlobalTrajectoryBuilderCommon.TrackTransformer.TrackerRecHitBuilder = 'WithoutRe
 #    toGet = cms.untracked.vstring('GainWidths')
 #)
 
+from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 
 
