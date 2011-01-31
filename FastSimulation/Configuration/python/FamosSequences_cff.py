@@ -221,9 +221,9 @@ from FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff import 
 from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 from TrackingTools.GsfTracking.GsfElectronFit_cff import *
 from RecoEgamma.EgammaPhotonProducers.conversionTrackSequence_cff import *
-from RecoEgamma.EgammaPhotonProducers.trackerOnlyConversionSequence_cff import *
-trackerOnlyConversions.src = 'gsfGeneralConversionTrackMerger'
-famosConversionSequence = cms.Sequence(conversionTrackSequenceNoEcalSeeded*trackerOnlyConversionSequence)
+from RecoEgamma.EgammaPhotonProducers.allConversionSequence_cff import *
+allConversions.src = 'gsfGeneralConversionTrackMerger'
+famosConversionSequence = cms.Sequence(conversionTrackSequenceNoEcalSeeded*allConversionSequence)
 
 from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
 from TrackingTools.GsfTracking.FwdElectronPropagator_cfi import *
