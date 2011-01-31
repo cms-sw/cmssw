@@ -23,14 +23,14 @@ setenv CMSSWver1 3_11_0
 setenv CMSSWver2 3_11_0
 setenv OLDRELEASE 3_11_0
 setenv NEWRELEASE 3_11_0
-setenv OLDPRERELEASE pre3
-setenv NEWPRERELEASE pre5
+setenv OLDPRERELEASE pre5_64bits
+setenv NEWPRERELEASE
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START310_V3-v1
-setenv NEWGLOBALTAG START311_V0-v1
+setenv OLDGLOBALTAG START311_V0_64bit-v1
+setenv NEWGLOBALTAG START311_V1_64bit-v2
 else
-setenv OLDGLOBALTAG MC_310_V3-v1
-setenv NEWGLOBALTAG MC_311_V0-v1
+setenv OLDGLOBALTAG MC_311_V0_64bit-v1
+setenv NEWGLOBALTAG MC_311_V1_64bit-v2
 endif
 
 setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
@@ -43,12 +43,12 @@ setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-
-
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+
+
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
@@ -88,8 +88,8 @@ if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
 else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_3_11_0_pre5-${OLDGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_3_11_0-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 endif
 
 
@@ -268,13 +268,10 @@ $i->SetStats(0);
 if ( $i==deadChVsEtaBkg ||  $i==deadChVsPhiBkg ||  $i==deadChVsEtBkg ) {
 $i->GetYaxis()->SetRangeUser(0.,0.2);
 
-}else if ( $i==bkgEffVsEta ||  $i==bkgEffVsPhi ||  $i==bkgEffVsEt ) {
+}else if ( $i==bkgEffVsEta ||  $i==bkgEffVsPhi ) {
 $i->GetYaxis()->SetRangeUser(0.,0.4);
-
 }else if (  $i==bkgEffVsEt ) {
 $i->GetYaxis()->SetRangeUser(0.,1.);
-
-
 } else {
 $i->GetYaxis()->SetRangeUser(0.,1.1);
 }
