@@ -82,7 +82,6 @@ def revisionsInBranch(schema,branchid):
         while cursor.next():
             nextbranches.append(cursor.currentRow()['branch_id'].data())
         del qHandle
-        print 'nextbranches ',nextbranches
         candidates=[]
         conditionStr='BRANCH_ID=:branchid and REVISION_ID!=0'
         qHandle=schema.newQuery()

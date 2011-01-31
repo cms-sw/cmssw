@@ -421,32 +421,40 @@ def newToOld(schema):
         dropTables(schema,['REVISIONS','LUMINORMS','LUMIDATA','TRGDATA','LSTRG','HLTDATA','LSHLT'])
         tableHandle=schema.tableHandle(nameDealer.cmsrunsummaryTableName())
         ncol=tableHandle.description().numberOfColumns()
-        print ncol
+        todrop=[]
         for i in range(ncol):
             colname=tableHandle.description().columnDescription(i).name()
             if colname in ['EGEV','AMODETAG']:
-                tableHandle.schemaEditor().dropColumn(colname)
+                todrop.append(colname)
+        for colname in todrop:
+            tableHandle.schemaEditor().dropColumn(colname)            
         tableHandle=schema.tableHandle(nameDealer.lumisummaryTableName())
         ncol=tableHandle.description().numberOfColumns()
-        print ncol
+        todrop=[]        
         for i in range(ncol):
             colname=tableHandle.description().columnDescription(i).name()
             if colname in ['DATA_ID']:
-                tableHandle.schemaEditor().dropColumn(colname)
+                todrop.append(colname)
+        for colname in todrop:
+            tableHandle.schemaEditor().dropColumn(colname)
         tableHandle=schema.tableHandle(nameDealer.lumidetailTableName())
         ncol=tableHandle.description().numberOfColumns()
-        print ncol
+        todrop=[]
         for i in range(ncol):
             colname=tableHandle.description().columnDescription(i).name()
             if colname in ['DATA_ID','RUNNUM','CMSLSNUM','LUMILSNUM']:
-                tableHandle.schemaEditor().dropColumn(colname)
+                todrop.append(colname)
+        for colname in todrop:
+            tableHandle.schemaEditor().dropColumn(colname)
         tableHandle=schema.tableHandle(nameDealer.trghltMapTableName())
         ncol=tableHandle.description().numberOfColumns()
-        print ncol
+        todrop=[]
         for i in range(ncol):
             colname=tableHandle.description().columnDescription(i).name()
             if colname in ['HLTPATHID']:
-                tableHandle.schemaEditor().dropColumn(colname)
+                todrop.append(colname)
+        for colname in todrop:
+            tableHandle.schemaEditor().dropColumn(colname)
     except :
         raise 
 
@@ -528,7 +536,7 @@ if __name__ == "__main__":
     #print 'droped new '
     session.transaction().start(False)
     tables=createOldSchema(schema)
-    print 'created old ',tables
     oldToNew(schema)
+    print 'created old ',tables
     session.transaction().commit()
     del session

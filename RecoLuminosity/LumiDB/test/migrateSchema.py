@@ -2,25 +2,25 @@
 VERSION='1.02'
 import os,sys,array
 import coral
-from RecoLuminosity.LumiDB import argparse,idDealer,nameDealer,CommonUtil,lumidbDDL,dbUtil
+from RecoLuminosity.LumiDB import argparse,idDealer,nameDealer,CommonUtil,lumidbDDL,dbUtil,dataDML,revisionDML
 #
 # data transfer section
 #
 def getOldTrgData(schema,runnum):
     '''
     generate new data_id for trgdata
-    select cmslsnum,deadtime,bitname,trgcount,prescale from trg where runnum=:runnum and bitnum=0 order by cmslsnum;
-    select cmslsnum,bitnum,trgcount,deadtime,prescale from trg where runnum=:runnum order by cmslsnum
+    select cmslsnum,deadtime,trgcount,prescale from trg where runnum=:runnum and bitnum=0 order by cmslsnum;
+    select cmslsnum,bitnum,bitname,trgcount,deadtime,prescale from trg where runnum=:runnum order by cmslsnum
     output [bitnames,databuffer]
+    databuffer: {cmslsnum:[deadtime,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}
     '''
     bitnames=''
-    databuffer={} #{cmslsnum:[deadtime,bitzeroname,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}
+    databuffer={} #{cmslsnum:[deadtime,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}
     qHandle=schema.newQuery()
     try:
         qHandle.addToTableList(nameDealer.trgTableName())
         qHandle.addToOutputList('CMSLSNUM','cmslsnum')
         qHandle.addToOutputList('DEADTIME','deadtime')
-        qHandle.addToOutputList('BITNAME','bitname')
         qHandle.addToOutputList('TRGCOUNT','trgcount')
         qHandle.addToOutputList('PRESCALE','prescale')
         qCondition=coral.AttributeList()
@@ -31,7 +31,6 @@ def getOldTrgData(schema,runnum):
         qResult=coral.AttributeList()
         qResult.extend('cmslsnum','unsigned int')
         qResult.extend('deadtime','unsigned long long')
-        qResult.extend('bitname','string')
         qResult.extend('trgcount','unsigned int')
         qResult.extend('prescale','unsigned int')
         qHandle.defineOutput(qResult)
@@ -40,18 +39,16 @@ def getOldTrgData(schema,runnum):
         while cursor.next():
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             deadtime=cursor.currentRow()['deadtime'].data()
-            bitname=cursor.currentRow()['bitname'].data()
             bitcount=cursor.currentRow()['trgcount'].data()
             prescale=cursor.currentRow()['prescale'].data()
             if not databuffer.has_key(cmslsnum):
                 databuffer[cmslsnum]=[]
             databuffer[cmslsnum].append(deadtime)
-            databuffer[cmslsnum].append(bitname)
             databuffer[cmslsnum].append(bitcount)
             databuffer[cmslsnum].append(prescale)
         del qHandle
-        qHandle=dbsession.nominalSchema().newQuery()
-        qHandle.addToTableList(n.trgtable)
+        qHandle=schema.newQuery()
+        qHandle.addToTableList(nameDealer.trgTableName())
         qHandle.addToOutputList('CMSLSNUM','cmslsnum')
         qHandle.addToOutputList('BITNUM','bitnum')
         qHandle.addToOutputList('BITNAME','bitname')
@@ -116,6 +113,7 @@ def getOldHLTData(schema,runnum):
     select count(distinct pathname) from hlt where runnum=:runnum
     select cmslsnum,pathname,inputcount,acceptcount,prescale from hlt where runnum=:runnum order by cmslsnum,pathname
     [pathnames,databuffer]
+    databuffer: {cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}
     '''
     
     databuffer={} #{cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}
@@ -206,8 +204,26 @@ def main():
     session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     session.transaction().start(False)
     schema=session.nominalSchema()
-    #lumidbDDL.newToOld(schema)
+    lumidbDDL.newToOld(schema)
     lumidbDDL.oldToNew(schema)
+    lumidbDDL.createUniqueConstraints(schema)
+    
+    (trunkrevid,trunkparentid,trunkparentname)=revisionDML.createBranch(schema,'TRUNK',None,comment='main')
+    (datarevid,dataparentid,dataparentname)=revisionDML.createBranch(schema,'DATA','TRUNK',comment='hold data')
+    (normrevid,normparentid,normparentname)=revisionDML.createBranch(schema,'NORM','TRUNK',comment='hold normalization factor')
+    dataDML.addNormToBranch(schema,'pp7TeV','PROTPHYS',6370.0,3500,{},(normrevid,'NORM'))
+    dataDML.addNormToBranch(schema,'hi7TeV','HIPHYS',2.38,3500,{},(normrevid,'NORM'))
+    
+    (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(schema,runnumber,[args.connect],(datarevid,'DATA'))
+    [bitnames,trglsdata]=getOldTrgData(schema,runnumber)
+    bitzeroname=bitnames.split(',')[0]
+    trgrundata=['oracle://cms_oron_prod/cms_trg',bitzeroname,bitnames]
+    (trgrevid,trgentryid,trgdataid)=dataDML.addTrgRunDataToBranch(schema,runnumber,trgrundata,(datarevid,'DATA'))
+    dataDML.insertTrgLSData(schema,runnumber,trgdataid,trglsdata)
+    [pathnames,hltlsdata]=getOldHLTData(schema,runnumber)
+    hltrundata=[pathnames,'oracle://cms_orcon_prod/cms_runinfo']
+    (hltrevid,hltentryid,hltdataid)=dataDML.addHLTRunDataToBranch(schema,runnumber,hltrundata,(datarevid,'DATA'))
+    dataDML.insertHltLSData(schema,runnumber,hltdataid,hltlsdata)
     session.transaction().commit()
     del session
     del svc

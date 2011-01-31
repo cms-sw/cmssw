@@ -135,7 +135,7 @@ def trgRunById(schema,dataid):
             source=cursor.currentRow()['source'].data()
             bitzeroname=cursor.currentRow()['bitzeroname'].data()
             bitnameclob=cursor.currentRow()['bitnameclob'].data()
-            print 'bitnameclob ',bitnameclob
+            #print 'bitnameclob ',bitnameclob
             result.extend([runnum,source,bitzeroname,bitnameclob])
     except :
         del qHandle
@@ -739,6 +739,7 @@ def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo):
     '''
     input:
           lumirundata [datasource]
+          branchinfo (branch_id,branch_name)
     output:
           (revision_id,entry_id,data_id)
     '''
@@ -849,7 +850,7 @@ def insertTrgLSData(schema,runnumber,data_id,trglsdata):
     '''
     insert trg per-LS data for given run and data_id, this operation can be split in transaction chuncks 
     input:
-        trglsdata {cmslsnum:[deadtime,bitzeroname,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}
+        trglsdata {cmslsnum:[deadtime,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}
     result nrows inserted
     if nrows==0, then this insertion failed
     '''
@@ -952,7 +953,7 @@ def completeOldLumiData(schema,runnumber,lsdata,data_id):
     '''
     try:
         #update in lumisummary table
-        print 'insert in lumisummary table'
+        #print 'insert in lumisummary table'
         setClause='DATA_ID=:data_id'
         updateCondition='RUNNUM=:runnum AND DATA_ID is NULL'
         updateData=coral.AttributeList()

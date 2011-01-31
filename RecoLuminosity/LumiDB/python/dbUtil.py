@@ -134,8 +134,8 @@ class dbUtil(object):
                 bulkOperation.processNextIteration()
             bulkOperation.flush()
             del bulkOperation
-        except Exception, e:
-            raise Exception, 'dbUtil.bulkInsert:'+str(e)
+        except:
+            raise
         
     def deleteRows( self, tableName, condition, conditionbindDict ):
         """
