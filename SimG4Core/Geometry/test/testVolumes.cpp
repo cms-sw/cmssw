@@ -5,6 +5,8 @@
 #include <DetectorDescription/Core/src/Box.h>
 #include <DetectorDescription/Core/src/Cons.h>
 #include <DetectorDescription/Core/src/Sphere.h>
+#include <DetectorDescription/Core/src/Torus.h>
+#include <DetectorDescription/Core/src/Trap.h>
 #include <DetectorDescription/Core/src/Tubs.h>
 #include <DetectorDescription/Core/src/Parallelepiped.h>
 #include <DetectorDescription/Core/src/Orb.h>
@@ -17,6 +19,9 @@
 #include <G4Sphere.hh>
 #include <G4Para.hh>
 #include <G4Orb.hh>
+#include <G4Torus.hh>
+#include <G4Trap.hh>
+#include <G4Trd.hh>
 #include <G4Tubs.hh>
 #include <string>
 
@@ -111,30 +116,58 @@ doCons( const std::string& name,
 //        G4double   theta,
 //        G4double   phi)
 void
-doPara (const std::string& name, double xHalf, double yHalf, 
+doPara( const std::string& name, double xHalf, double yHalf, 
 	double zHalf, double alpha, double theta, double phi )
 {
-  G4Para g4(name,xHalf, yHalf, zHalf, alpha, theta, phi);
-  DDI::Parallelepiped dd(xHalf, yHalf, zHalf, alpha, theta, phi);
-  dd.stream(std::cout);
+  G4Para g4(name, xHalf, yHalf, zHalf, alpha, theta, phi );
+  DDI::Parallelepiped dd( xHalf, yHalf, zHalf, alpha, theta, phi );
+  DDParallelepiped dds = DDSolidFactory::parallelepiped( name, xHalf, yHalf, zHalf, alpha, theta, phi );
+  dd.stream( std::cout );
   std::cout << std::endl;
   std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
   std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
 }
 
+//
+// Trapezoid:
+//
 // G4Trd(const G4String& pName,                            
 //       G4double  dx1,
 //       G4double  dx2,
 //       G4double  dy1,
 //       G4double  dy2,
 //       G4double  dz)
+void
+doTrd( const std::string& name, double dx1, double dx2, 
+       double dy1, double dy2, double dz )
+{
+  G4Trd g4( name, dx1, dx2, dy1, dy2, dz );
+  /////////////////////////////////////////
+  // DDD does not have direct implementation of Trd.
+  // Use generic trapezoid instead.
+  DDI::Trap dd( dz,  0.0 /* pTheta */, 0.0 /* pPhi */,
+		dy1, dx1, dx1, 0.0 /* pAlp1 */,
+		dy2, dx2, dx2, 0.0 /* pAlp2 */);
+  DDTrap dds = DDSolidFactory::trap( name, dz, 0.0 /* pTheta */, 0.0 /* pPhi */,
+				     dy1, dx1, dx1, 0.0 /* pAlp1 */,
+				     dy2, dx2, dx2, 0.0 /* pAlp2 */);
+  dd.stream( std::cout );
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
 
+//
+// Generic Trapezoid:
+//
 // G4Trap(const G4String& pName,                        
 //        G4double   pZ,
 //        G4double   pY,
 //        G4double   pX,
 //        G4double   pLTX)
-
+//
 // G4Trap(const G4String& pName,                         
 //        G4double   pDz,   G4double   pTheta,
 //        G4double   pPhi,  G4double   pDy1,
@@ -142,6 +175,20 @@ doPara (const std::string& name, double xHalf, double yHalf,
 //        G4double   pAlp1, G4double   pDy2,
 //        G4double   pDx3,  G4double   pDx4,
 //        G4double   pAlp2)
+void
+doTrap( const std::string& name, double dz, double pTheta, double pPhi,
+	double pDy1, double pDx1, double pDx2, double pAlp1,
+	double pDy2, double pDx3, double pDx4, double pAlp2 )
+{
+  G4Trap g4( name, dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2 );
+  DDI::Trap dd( dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2 );
+  DDTrap dds = DDSolidFactory::trap( name, dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2 );
+  dd.stream( std::cout );
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
 
 //
 // Sphere or Spherical Shell Section:
@@ -190,12 +237,27 @@ doOrb( const std::string& name, double radius )
   std::cout << "\tsphere volume = " << dds.volume()/cm3 << " cm3" << std::endl;
 }
 
+//
+// Torus:
+//
 // G4Torus(const G4String& pName,                       
 // 	G4double   pRmin,
 // 	G4double   pRmax,
 // 	G4double   pRtor,
 // 	G4double   pSPhi,
 // 	G4double   pDPhi)
+void
+doTorus( const std::string& name, double rMin, double rMax, double radius, double sPhi, double dPhi )
+{  
+  G4Torus g4( name, rMin, rMax, radius, sPhi, dPhi );
+  DDI::Torus dd( rMin, rMax, radius, sPhi, dPhi );
+  DDTorus dds = DDSolidFactory::torus( name, rMin, rMax, radius, sPhi, dPhi );
+  dd.stream(std::cout);
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
 
 // G4Polycone(const G4String& pName,                    
 // 	   G4double   phiStart,
@@ -381,6 +443,20 @@ main( int argc, char *argv[] )
   doCons( name, rIn, rOut, rIn2, rOut2, zhalf, startPhi, deltaPhi );
   std::cout << std::endl;
 
+  std::cout << "\n\nTorus tests\n" << std::endl;
+  double radius = 200.*cm;
+  doTorus( name, rIn, rOut, radius, startPhi, deltaPhi );
+  std::cout << std::endl;
+
+  std::cout << "\n\nTrapezoid tests\n" << std::endl;
+  double dx1 = 30.*cm;
+  double dx2 = 10.*cm;
+  double dy1 = 40.*cm;
+  double dy2 = 15.*cm;
+  double dz = 60.*cm;
+  doTrd( name, dx1, dx2, dy1, dy2, dz );
+  std::cout << std::endl;
+  
   std::cout << "\n\nElliptical Tube tests\n" << std::endl;
   doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
   std::cout << std::endl;
