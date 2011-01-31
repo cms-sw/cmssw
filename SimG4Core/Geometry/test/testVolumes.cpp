@@ -456,6 +456,19 @@ main( int argc, char *argv[] )
   double dz = 60.*cm;
   doTrd( name, dx1, dx2, dy1, dy2, dz );
   std::cout << std::endl;
+
+  double pTheta = 0.0;
+  double pPhi = 0.0;
+  double pDy1 = 15.*cm;
+  double pDx1 = 30.*cm;
+  double pDx2 = 30.*cm;
+  double pAlp1 = 0.0;
+  double pDy2 = 40.*cm;
+  double pDx3 = 10.*cm;
+  double pDx4 = 10.*cm;
+  double pAlp2 = 0.0;
+  doTrap( name, dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2 );
+  std::cout << std::endl;
   
   std::cout << "\n\nElliptical Tube tests\n" << std::endl;
   doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
