@@ -710,6 +710,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }      
     }      
   }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet60") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {    
+      if (prescaleResponse(menu,cfg,rcounter,it)) {  
+        if(OpenHltQuadCorJetPassed(60.)>=1) {        
+          triggerBit[it] = true;   
+        }  
+      }        
+    }        
+  }    
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet70") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
