@@ -3738,7 +3738,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHlt1MuonPassed(7.,7.,11.,2.,0)>=1)
-	  if(OpenHltPFTauPassedNoMuon(15.,1.,1,1)>=1) { 
+	  if(OpenHltPFTauPassedNoMuon(15.,1.,1,1.)>=1) { 
 	    triggerBit[it] = true; 
 	  }
       }        
@@ -3764,8 +3764,37 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }        
     }        
   }
-  
-    
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu12_PFIsoTau10_Trk1") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1MuonPassed(10.,10.,12.,2.,1)>=1) {
+          if(OpenHltPFTauPassedNoMuon(10.,1.,1.,1.) >=1)
+            triggerBit[it] = true;
+        }
+      }
+    }
+  }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_PFIsoTau15_Trk5") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1MuonPassed(14.,14.,17.,2.,0)>=1) {
+          if(OpenHltPFTauPassedNoMuon(15.,5.,1.,1.) >=1)
+            triggerBit[it] = true;
+        }
+      }
+    }
+  }    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu15_PFIsoTau20_Trk5") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1MuonPassed(10.,10.,15.,2.,1)>=1) {
+          if(OpenHltPFTauPassedNoMuon(20.,5.,1.,1.) >=1)
+            triggerBit[it] = true;
+        }
+      }
+    }
+  }
+
   /*Electron-Tau cross-triggers*/
      else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_TightEleIdIso_SW_L1R_PFIsoTau15") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
@@ -4829,26 +4858,20 @@ void OHltTree::PrintOhltVariables(int level, int type)
 }
 
 // PFTau Leg
-int OHltTree::OpenHltPFTauPassedNoMuon(float Et,float L25TrkPt, int L3TrkIso, int L3GammaIso)
+int OHltTree::OpenHltPFTauPassedNoMuon(float Et, float L25TrkPt, float L3TrkIso, float L3GammaIso)
 {
-    
-    int rc = 0;    
-    // Loop over all oh pfTaus
-    for (int i=0;i < NohPFTau;i++) {    
-//        if (pfTauJetPt[i] >= Et) 
-                if (pfTauPt[i] >= Et) 
-                    if(abs(pfTauEta[i])<2.5)
-            if (pfTauLeadTrackPt[i] >= L25TrkPt)
-                if (pfTauTrkIso[i] < L3TrkIso)
-                    if (pfTauGammaIso[i] < L3GammaIso )   
-		      // if(OpenHltTauPFToCaloMatching(pfTauEta[i], pfTauPhi[i]) == 1)
-                            if (OpenHltTauMuonMatching(pfTauEta[i], pfTauPhi[i]) == 0)
-                      //          if (OpenHltL1L2TauMatching(ohTauEta[i], ohTauPhi[i], 30, 40) == 1)
-                                                               rc++;      
-        
-    }
-    
-    return rc;
+  int rc = 0;
+  // Loop over all oh pfTaus
+  for (int i=0;i < NohPFTau;i++) {
+    if (pfTauPt[i] >= Et &&
+        fabs(pfTauEta[i]) < 2.5 &&
+        pfTauLeadTrackPt[i] >= L25TrkPt &&
+        pfTauTrkIso[i] < L3TrkIso &&
+        pfTauGammaIso[i] < L3GammaIso &&
+        OpenHltTauMuonMatching(pfTauEta[i], pfTauPhi[i]) == 0
+       ) rc++;
+  }
+  return rc;
 }
 
 int OHltTree::OpenHltPFTauPassedNoEle(float Et,float L25TrkPt, int L3TrkIso, int L3GammaIso)

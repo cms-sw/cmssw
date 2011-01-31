@@ -3592,13 +3592,13 @@ public :
   void PlotOHltEffCurves(OHltConfig *cfg,TString hlteffmode,TString ohltobject,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4);
   void CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rc,int it);
   void PrintOhltVariables(int level, int type);
-  int OpenHltPFTauPassedNoMuon(float Et,float L25TrkPt, int L3TrkIso, int L3GammaIso);
+  int OpenHltPFTauPassedNoMuon(float Et, float L25TrkPt, float L3TrkIso, float L3GammaIso);
   int OpenHltPFTauPassedNoEle(float Et,float L25TrkPt, int L3TrkIso, int L3GammaIso);
   int OpenHltTauMuonMatching(float eta, float phi);
   int OpenHltTauEleMatching(float eta, float phi);
   int OpenHltTauPFToCaloMatching(float eta, float phi);
-
-  int OpenHltL1L2TauMatching(float eta, float phi, float tauThr, float jetThre);  int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso, float L1TauEtThr, float L1CenJetThr);
+  int OpenHltL1L2TauMatching(float eta, float phi, float tauThr, float jetThre);
+  int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso, float L1TauEtThr, float L1CenJetThr);
   int OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso,
 			   float L1TauEtThr, float L1CenJetThr);
   int OpenHltTauL2SCMETPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso, float met,
