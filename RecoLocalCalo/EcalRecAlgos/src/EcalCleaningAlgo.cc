@@ -1,6 +1,6 @@
 /* Implementation of class EcalCleaningAlgo
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.cc,v 1.1 2011/01/12 13:40:32 argiro Exp $
+   \version $Id: EcalCleaningAlgo.cc,v 1.2 2011/01/13 13:50:09 argiro Exp $
    \date 20 Dec 2010
 */    
 
@@ -20,16 +20,16 @@ EcalCleaningAlgo::EcalCleaningAlgo(const edm::ParameterSet&  p){
   e4e1_b_barrel_       = p.getParameter<double>("e4e1_b_barrel");
   e4e1_a_endcap_       = p.getParameter<double>("e4e1_a_endcap");
   e4e1_b_endcap_       = p.getParameter<double>("e4e1_b_endcap");
-
   cThreshold_double_   = p.getParameter<double>("cThreshold_double"); 
- 
-  e4e1_IgnoreOutOfTime_= p.getParameter<bool>("e4e1_IgnoreOutOfTime");
-  
-  tightenCrack_e1_single_ = p.getParameter<double>("tightenCrack_e1_single");
-  tightenCrack_e4e1_single_ = p.getParameter<double>("tightenCrack_e4e1_single");
-  tightenCrack_e1_double_ = p.getParameter<double>("tightenCrack_e1_double");
-  tightenCrack_e6e2_double_ = p.getParameter<double>("tightenCrack_e6e2_double");
-  e6e2thresh_=                p.getParameter<double>("e6e2thresh");
+
+  ignoreOutOfTimeThresh_   =p.getParameter<double>("ignoreOutOfTimeThresh");  
+  tightenCrack_e1_single_  =p.getParameter<double>("tightenCrack_e1_single");
+  tightenCrack_e4e1_single_=p.getParameter<double>("tightenCrack_e4e1_single");
+  tightenCrack_e1_double_  =p.getParameter<double>("tightenCrack_e1_double");
+  tightenCrack_e6e2_double_=p.getParameter<double>("tightenCrack_e6e2_double");
+  e6e2thresh_=              p.getParameter<double>("e6e2thresh");
+
+
 }
 
 
@@ -41,24 +41,25 @@ EcalCleaningAlgo::EcalCleaningAlgo(const edm::ParameterSet&  p){
    Mark single spikes. Spike definition:
  
       Barrel: e> cThreshold_barrel_  &&
-              e4e1 < e4e1_a_barrel_ * log10(e) + e4e1_b_barrel_
+              e4e1 > e4e1_a_barrel_ * log10(e) + e4e1_b_barrel_
 
       Near cracks: energy threshold is multiplied by tightenCrack_e1_single
                    e4e1 threshold is divided by tightenCrack_e4e1_single
 
       Endcap : e> cThreshold_endcap_ &&
-               e4e1<   e4e1_a_endcap_ * log10(e) + e4e1_b_endcap_
+               e4e1>   e4e1_a_endcap_ * log10(e) + e4e1_b_endcap_
 
    Mark double spikes    (barrel only)
       e> cThreshold_double_ &&
-      e6e2 <  e6e2thresh_;
+      e6e2 >  e6e2thresh_;
 
    Near cracks:
           energy threshold multiplied by   tightenCrack_e1_double    
           e6e2 threshold divided by tightenCrack_e6e2_double
 
 
-   Out of time hits ignored in topological quantities   
+   Out of time hits above e4e1_IgnoreOutOfTimeThresh_  are 
+   ignored in topological quantities   
  */
 
 EcalRecHit::Flags 
@@ -114,7 +115,7 @@ EcalCleaningAlgo::checkTopology(const DetId& id,
   if (id.subdetId() == EcalBarrel && isNearCrack(id)) 
     e6e2thresh/=tightenCrack_e6e2_double_;
 
-  // identify spike
+  // identify double spike
   if (e6e2value < e6e2thresh) return EcalRecHit::kDiWeird; 
 
   return EcalRecHit::kGood;
@@ -186,11 +187,18 @@ float EcalCleaningAlgo::recHitE( const DetId id,
 {
   if ( id.rawId() == 0 ) return 0;
   
+
   EcalRecHitCollection::const_iterator it = recHits.find( id );
   if ( it != recHits.end() ){
-    // ignore out of time when making e4e1 if so configured
-    if (it->checkFlag(EcalRecHit::kOutOfTime) && e4e1_IgnoreOutOfTime_) return 0;
-    return (*it).energy();
+    float ene= (*it).energy();
+
+    // ignore out of time in EB when making e4e1 if so configured
+    if (id.subdetId()==EcalBarrel &&
+	it->checkFlag(EcalRecHit::kOutOfTime) 
+	&& ene>ignoreOutOfTimeThresh_) return 0;
+
+    // else return the energy of this hit
+    return ene;
   }
   return 0;
 }

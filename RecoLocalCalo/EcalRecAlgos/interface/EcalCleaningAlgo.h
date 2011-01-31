@@ -3,7 +3,7 @@
    Declaration of class EcalCleaningAlgo
 
    \author Stefano Argiro
-   \version $Id$
+   \version $Id: EcalCleaningAlgo.h,v 1.1 2011/01/12 21:39:37 argiro Exp $
    \date 20 Dec 2010
 */
 
@@ -58,7 +58,8 @@ private:
   /// return the id of the  4 neighbours in the swiss cross
   const std::vector<DetId> neighbours(const DetId& id);
 
-  bool e4e1_IgnoreOutOfTime_; /// ignore kOutOfTime when calculating e4e1
+  ///ignore kOutOfTime above threshold when calculating e4e1
+  float ignoreOutOfTimeThresh_;
 
   // Parameters for tolopogical cut 
   // mark anomalous if e> cThreshold &&  e4e1> a*log10(e1e1)+b
@@ -74,6 +75,7 @@ private:
   float tightenCrack_e1_double_;
   float tightenCrack_e6e2_double_;
   float e6e2thresh_;
+
 };
 
 #endif // __EcalCleaningAlgo_h_
