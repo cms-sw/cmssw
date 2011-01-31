@@ -22,6 +22,8 @@ DTLinearDriftFromDBAlgo = cms.PSet(
             tTrigLabel = cms.string('')
         ),
         maxTime = cms.double(420.0),
+        # Forcing Step 2 to go back to digi time 
+        stepTwoFromDigi = cms.bool(False),
         # The module to be used for ttrig synchronization and its set parameter
         tTrigMode = cms.string('DTTTrigSyncFromDB')
     ),

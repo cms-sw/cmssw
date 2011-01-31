@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 09:06:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/04/30 09:30:06 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -26,6 +26,9 @@ DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config) :
     minTime = config.getParameter<double>("minTime"); 
 
     maxTime = config.getParameter<double>("maxTime"); 
+
+    // Option to force going back to digi time at Step 2 
+    stepTwoFromDigi = config.getParameter<bool>("stepTwoFromDigi");
 
     // Set verbose output
     debug = config.getUntrackedParameter<bool>("debug");
@@ -74,13 +77,26 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
 
 
 
-// Second step: the same as 1st step
+// Second step: the same as 1st step (optionally, redo 1st step starting from digi time)
 bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
 				const DTRecHit1D& recHit1D,
 				const float& angle,
 				DTRecHit1D& newHit1D) const {
-  newHit1D.setPositionAndError(recHit1D.localPosition(), recHit1D.localPositionError());
-  return true;
+
+  if (!stepTwoFromDigi) {
+    newHit1D.setPositionAndError(recHit1D.localPosition(), recHit1D.localPositionError());
+    return true;
+  }
+
+  const DTWireId wireId = recHit1D.wireId();
+  
+  // Get Wire position
+  if(!layer->specificTopology().isWireValid(wireId.wire())) return false;
+  LocalPoint locWirePos(layer->specificTopology().wirePosition(wireId.wire()), 0, 0);
+  const GlobalPoint globWirePos = layer->toGlobal(locWirePos);
+
+  return compute(layer, wireId, recHit1D.digiTime(), globWirePos, newHit1D, 2);
+
 }
 
 
