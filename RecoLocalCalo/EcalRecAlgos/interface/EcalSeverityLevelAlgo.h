@@ -3,7 +3,7 @@
    Declaration of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.h,v 1.27 2011/01/12 13:40:31 argiro Exp $
+   \version $Id: EcalSeverityLevelAlgo.h,v 1.28 2011/01/16 08:26:54 argiro Exp $
    \date 10 Jan 2011
 */
 
@@ -43,7 +43,7 @@ public:
    * - kRecovered   --> recovered (e.g. an originally dead or saturated)
    * - kTime        --> the channel is out of time (e.g. spike)
    * - kWeird       --> weird (e.g. spike)
-   * - kBad         --> bad, not suitable to be used in the reconstruction 
+   * - kBad         --> bad, not suitable to be used for reconstruction 
    */
   enum EcalSeverityLevel { kGood=0, kProblematic, kRecovered, kTime, kWeird, kBad };
 
@@ -80,6 +80,10 @@ private:
       The content defines which EcalRecHit::Flag should be mapped into that EcalSeverityLevel 
       in a bit-wise way*/
   std::vector<uint32_t> dbstatusMask_;
+
+
+  /// Return kTime only if the rechit is flagged kOutOfTime and E>timeThresh_
+  float timeThresh_;
 
   const EcalChannelStatus * chStatus_;
 };

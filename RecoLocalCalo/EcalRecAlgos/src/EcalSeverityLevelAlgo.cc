@@ -3,7 +3,7 @@
    Implementation of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.cc,v 1.34 2011/01/13 13:50:09 argiro Exp $
+   \version $Id: EcalSeverityLevelAlgo.cc,v 1.35 2011/01/16 08:26:53 argiro Exp $
    \date 10 Jan 2011
 */
 
@@ -23,7 +23,9 @@
 EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
   flagMask_      = p.getParameter< std::vector<uint32_t> >("flagMask");
   dbstatusMask_  = p.getParameter< std::vector<uint32_t> >("dbstatusMask");
+  timeThresh_    = p.getParameter< double> ("timeThresh");
   chStatus_ =0;	    
+
 }
 
 
@@ -73,15 +75,18 @@ EcalSeverityLevelAlgo::EcalSeverityLevel
 EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
   
 
-  // check if the bit corresponding to that dbStatus is set in the mask
-  // This implementation implies that the severity have a priority... 
-  for (size_t i=0; i< flagMask_.size();++i){
-    for (int flag=0; flag<EcalRecHit::kUnknown; ++flag){
- 
-      if (flagMask_[i] & (rh.checkFlag(flag)<<flag) ) 
-	return EcalSeverityLevel(i);
-      
+  // check if the bit corresponding to that flag is set in the mask
+  // This implementation implies that  severities have a priority... 
+  for (int sev=kBad;sev>=0;--sev){
+    for (int flag=EcalRecHit::kUnknown; flag>=0; --flag){
+
+      if (flagMask_[sev] & (rh.checkFlag(flag)<<flag) ){
+	// return kTime only if above timeThresh
+	if(sev==kTime && rh.energy() < timeThresh_ ) continue;
+	return EcalSeverityLevel(sev);
+      }
     }
+
   }
 
   // no matching
