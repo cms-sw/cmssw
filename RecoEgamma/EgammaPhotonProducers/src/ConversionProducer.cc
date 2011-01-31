@@ -13,7 +13,7 @@
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.44 2011/01/26 11:27:14 nancy Exp $
+// $Id: ConversionProducer.cc,v 1.1 2011/01/26 17:02:19 nancy Exp $
 //
 //
 
@@ -484,8 +484,8 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
           std::vector<reco::CaloClusterPtr> matchingBC;
 
           if (allowTrackBC_){//TODO find out the BC ptrs if not doing matching, otherwise, leave it empty
-	    const int lbc_handle = bcHandleId[ll-allTracks.begin()],
-	      rbc_handle = bcHandleId[rr-allTracks.begin()];
+	    //const int lbc_handle = bcHandleId[ll-allTracks.begin()],
+	    //	      rbc_handle = bcHandleId[rr-allTracks.begin()];
 
               trkPositionAtEcal.push_back(trackImpactPosition[ll-allTracks.begin()]);//left track
               if (trackValidECAL[rr-allTracks.begin()])//second track ECAL position may be invalid
@@ -639,7 +639,7 @@ bool ConversionProducer::matchingSC(const std::multimap<double, reco::CaloCluste
     double sceta = sc->eta();
     double conveta = etaTransformation(aConv.refittedPairMomentum().eta(), aConv.zOfPrimaryVertexFromTracks() );
     const double delta_eta = conveta - sceta;
-    const double dR =  sqrt( delta_eta*delta_eta +  delta_phi*delta_phi );    
+    //    const double dR =  sqrt( delta_eta*delta_eta +  delta_phi*delta_phi );    
     // if ( dR < dRMin ) {
     // dRMin = dR;
     //  match= sc;
