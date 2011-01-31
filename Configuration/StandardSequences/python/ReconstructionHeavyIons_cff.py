@@ -9,6 +9,7 @@ from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 
 # Ecal
 from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
+from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 
 # Hcal
 from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
