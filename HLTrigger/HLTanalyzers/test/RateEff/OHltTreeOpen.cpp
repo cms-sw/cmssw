@@ -737,6 +737,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet50_Jet40") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) { 
+        if((OpenHlt1CorJetPassed(50)>=4) &&  
+           (OpenHlt1CorJetPassed(40)>=5)) 
+          triggerBit[it] = true; 
+      } 
+    } 
+  } 
 
   /* MET, HT, SumHT, Razor, PT */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MET20") == 0) {       
