@@ -26,6 +26,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/JetReco/interface/TrackJetCollection.h"
+#include "DataFormats/JetReco/interface/PFClusterJetCollection.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
@@ -57,7 +58,7 @@ namespace reco {
 
 //______________________________________________________________________________
 const char *VirtualJetProducer::JetType::names[] = {
-  "BasicJet","GenJet","CaloJet","PFJet","TrackJet"
+  "BasicJet","GenJet","CaloJet","PFJet","TrackJet","PFClusterJet"
 };
 
 
@@ -87,6 +88,9 @@ void VirtualJetProducer::makeProduces( std::string alias, std::string tag )
   }
   else if (makeTrackJet(jetTypeE)) {
     produces<reco::TrackJetCollection>(tag).setBranchAlias(alias);
+  }
+  else if (makePFClusterJet(jetTypeE)) {
+    produces<reco::PFClusterJetCollection>(tag).setBranchAlias(alias);
   }
   else if (makeBasicJet(jetTypeE)) {
     produces<reco::BasicJetCollection>(tag).setBranchAlias(alias);
@@ -399,6 +403,9 @@ void VirtualJetProducer::output(edm::Event & iEvent, edm::EventSetup const& iSet
     break;
   case JetType::TrackJet :
     writeJets<reco::TrackJet>( iEvent, iSetup);
+    break;
+  case JetType::PFClusterJet :
+    writeJets<reco::PFClusterJet>( iEvent, iSetup);
     break;
   case JetType::BasicJet :
     writeJets<reco::BasicJet>( iEvent, iSetup);

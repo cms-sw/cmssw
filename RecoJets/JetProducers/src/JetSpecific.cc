@@ -116,7 +116,16 @@ void reco::writeSpecific(reco::TrackJet & jet,
   jet = reco::TrackJet(p4, point, constituents);  
 }
     
-
+// PFClusterJet
+void reco::writeSpecific(reco::PFClusterJet & jet,
+			 reco::Particle::LorentzVector const & p4,
+			 reco::Particle::Point const & point, 
+			 std::vector<reco::CandidatePtr> const & constituents,
+			 edm::EventSetup const & c  )
+{
+  jet = reco::PFClusterJet( p4, point, constituents);  
+}
+  
 
 
 //______________________________________________________________________________
