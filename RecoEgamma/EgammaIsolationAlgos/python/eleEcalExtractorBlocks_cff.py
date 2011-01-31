@@ -20,10 +20,10 @@ EleIsoEcalFromHitsExtractorBlock = cms.PSet(
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
 
-    severityLevelCut = cms.int32(3),
-    severityRecHitThreshold = cms.double(5.0),
-    spikeIdString = cms.string('kSwissCross'),
-    spikeIdThreshold = cms.double(0.95),
+    severityLevelCut = cms.int32(4),
+#     severityRecHitThreshold = cms.double(5.0),
+#     spikeIdString = cms.string('kSwissCrossBordersIncluded'),
+#     spikeIdThreshold = cms.double(0.95),
 
     recHitFlagsToBeExcluded = cms.vint32(
         ecalRecHitFlag_kFaultyHardware,

@@ -57,9 +57,10 @@ EgammaRecHitExtractor::EgammaRecHitExtractor(const edm::ParameterSet& par) :
                 )
 { 
 
-  //if     ( !spIdString_.compare("kE1OverE9") )   spId_ = EcalSeverityLevelAlgo::kE1OverE9;
-  //else if( !spIdString_.compare("kSwissCross") ) spId_ = EcalSeverityLevelAlgo::kSwissCross;
-  //  else                                           spId_ = EcalSeverityLevelAlgo::kSwissCross;
+//     if     ( !spIdString_.compare("kE1OverE9") )                  spId_ = EcalSeverityLevelAlgo::kE1OverE9;
+//     else if( !spIdString_.compare("kSwissCross") )                spId_ = EcalSeverityLevelAlgo::kSwissCross;
+//     else if( !spIdString_.compare("kSwissCrossBordersIncluded") ) spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
+//     else                                                          spId_ = EcalSeverityLevelAlgo::kSwissCross;
 
     if ((intRadius_ != 0.0) && (fakeNegativeDeposit_)) {
         throw cms::Exception("Configuration Error") << "EgammaRecHitExtractor: " << 

@@ -101,7 +101,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
                     double energy = j->energy();
 
                     if(useNumCrystals_) {
-                        if( fabs(etaclus) < 1.474 ) {  // Barrel num crystals, crystal width = 0.0174
+                        if( fabs(etaclus) < 1.479 ) {  // Barrel num crystals, crystal width = 0.0174
                             if ( fabs(etaDiff) < 0.0174*etaSlice_) continue;  
                             if ( sqrt(etaDiff*etaDiff + phiDiff*phiDiff) < 0.0174*intRadius_) continue; 
                         } else {                       // Endcap num crystals, crystal width = 0.00864*fabs(sinh(eta))
