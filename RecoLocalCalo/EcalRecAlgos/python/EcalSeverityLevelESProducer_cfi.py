@@ -21,10 +21,10 @@ ecalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
                                        
  flagMask=cms.vuint32( 1,    #0x00000001, # good->good
                        34,   #0x00000022, # poorreco,poorcalib->problematic
-                       384,  #0x00000180, # LERecovered,TowRecovered->recovered
+                       896,  #0x00000380, # LERecovered,TowRecovered->recovered
                        4,    #0x00000004, # outoftime->time 
-                       24576,#0x00006000, # weird,diweird->weird
-                       1688  #0x00000698  # faultyhw,noisy,saturated,dead,killed->bad
+                       49152,#0x0000C000, # weird,diweird->weird
+                       6232  #0x00001858  # faultyhw,noisy,saturated,dead,killed->bad
  ),
  # map ChannelStatus flags into EcalSeverityLevel
  dbstatusMask=cms.vuint32( 1,   #0x00000001, # good-> good;
@@ -33,5 +33,7 @@ ecalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
                            0,   #0x00000000, # nothing->time
                            0,   #0x00000000, #nothing->weird
                            64512#0x0000FC00  #status 11..16 ->bad
-     )                                   
+     ),
+ #return kTime only if the rechit is above this threshold            
+ timeThresh=cms.double(2.0)                                  
  )
