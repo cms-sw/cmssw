@@ -412,7 +412,7 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
             {
                 if(i->isolationPFGammaCands()[iGamma]->pt() > maxPtGammaIso) maxPtGammaIso = i->isolationPFGammaCands()[iGamma]->pt();
             }                        
-            ohpfTauGammaIso[ipftau] = maxPtTrkIso;
+            ohpfTauGammaIso[ipftau] = maxPtGammaIso;
             ipftau++;
         } 
         pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
