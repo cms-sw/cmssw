@@ -15,6 +15,11 @@ SimpleJetCorrectionUncertainty::SimpleJetCorrectionUncertainty(const std::string
   mParameters = new JetCorrectorParameters(fDataFile);
 }
 /////////////////////////////////////////////////////////////////////////
+SimpleJetCorrectionUncertainty::SimpleJetCorrectionUncertainty(const JetCorrectorParameters& fParameters)  
+{
+  mParameters = new JetCorrectorParameters(fParameters);
+}
+/////////////////////////////////////////////////////////////////////////
 SimpleJetCorrectionUncertainty::~SimpleJetCorrectionUncertainty () 
 {
   delete mParameters;

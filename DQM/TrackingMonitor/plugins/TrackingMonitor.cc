@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/12 07:14:47 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/06/17 06:01:01 $
+ *  $Revision: 1.17 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -205,8 +205,8 @@ void TrackingMonitor::beginJob(void)
       histname = "PixelClustersVsStripClusters_" + CatagoryName; 
       NumberOfStripVsStripClus = dqmStore_->book2D(histname, histname, NClus2DStrBin, NClus2DStrMin, NClus2DStrMax,
                                                                 NClus2DPxBin, NClus2DPxMin,  NClus2DPxMax);
-      NumberOfStripVsStripClus->setAxisTitle("# of Clusters in Pixel Detectors", 1);
-      NumberOfStripVsStripClus->setAxisTitle("# of Clusters in Strip Detectors", 2);
+      NumberOfStripVsStripClus->setAxisTitle("# of Clusters in Strip Detectors", 1);
+      NumberOfStripVsStripClus->setAxisTitle("# of Clusters in Pixel Detectors", 2);
 
       histname = "RatioOfPixelAndStripClusters_" + CatagoryName; 
       RatioOfPixelAndStripClus = dqmStore_->book1D(histname, histname, 100, 0.0, 1.6);

@@ -15,6 +15,6 @@ bscTrigger=cms.EDProducer("BSCTrigger",
 						'L1Tech_BSC_splash_beam2'),
                           coincidence=cms.double(72.85),
                           resolution=cms.double(3.),
-			  theHits=cms.string('g4SimHitsBSCHits')
+			  theHits=cms.InputTag('mix','g4SimHitsBSCHits')
 			  )		  
 

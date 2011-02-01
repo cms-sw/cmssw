@@ -17,7 +17,7 @@ double GeometricAnnealing::weight ( double chi2 ) const
 {
   double mphi = phi ( chi2 );
   long double newtmp = mphi / ( mphi + phi ( theChi2cut ) );
-  if ( !finite(newtmp ) )
+  if ( std::isinf(newtmp) )
   {
     if ( chi2 < theChi2cut ) newtmp=1.;
     else newtmp=0.;

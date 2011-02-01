@@ -80,9 +80,13 @@ class TopProjector : public edm::EDProducer {
 			const edm::Handle< std::vector<Bottom> >& allPFCandidates ) const;
 
 
+  /// enable? if not, all candidates in the bottom collection are copied to the output collection
+  bool            enable_;
+
   /// verbose ?
   bool            verbose_;
 
+  /// name of the top projection
   std::string     name_;
  
   /// input tag for the top (masking) collection
@@ -96,14 +100,13 @@ class TopProjector : public edm::EDProducer {
 
 
 template< class Top, class Bottom>
-TopProjector< Top, Bottom >::TopProjector(const edm::ParameterSet& iConfig) {
-
-  using namespace edm;
+TopProjector< Top, Bottom >::TopProjector(const edm::ParameterSet& iConfig) : 
+  enable_(iConfig.getParameter<bool>("enable")) {
 
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
   name_ = iConfig.getUntrackedParameter<std::string>("name","No Name");
-  inputTagTop_ = iConfig.getParameter<InputTag>("topCollection");
-  inputTagBottom_ = iConfig.getParameter<InputTag>("bottomCollection");
+  inputTagTop_ = iConfig.getParameter<edm::InputTag>("topCollection");
+  inputTagBottom_ = iConfig.getParameter<edm::InputTag>("bottomCollection");
 
   // will produce a collection of the unmasked candidates in the 
   // bottom collection 
@@ -115,12 +118,8 @@ template< class Top, class Bottom >
 void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
 					  const edm::EventSetup& iSetup) {
   
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
-  
   if( verbose_)
-    cout<<"Event -------------------- "<<iEvent.id().event()<<endl;
+    std::cout<<"Event -------------------- "<<iEvent.id().event()<<std::endl;
   
   // get the various collections
 
@@ -131,8 +130,8 @@ void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
 
 /*   if( !tops.isValid() ) { */
 /*     std::ostringstream  err; */
-/*     err<<"The top collection must be supplied."<<endl */
-/*        <<"It is now set to : "<<inputTagTop_<<endl; */
+/*     err<<"The top collection must be supplied."<<std::endl */
+/*        <<"It is now set to : "<<inputTagTop_<<std::endl; */
 /*     edm::LogError("PFPAT")<<err.str(); */
 /*     throw cms::Exception( "MissingProduct", err.str()); */
 /*   } */
@@ -148,8 +147,8 @@ void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
 
 /*   if( !bottoms.isValid() ) { */
 /*     std::ostringstream  err; */
-/*     err<<"The bottom collection must be supplied."<<endl */
-/*        <<"It is now set to : "<<inputTagBottom_<<endl; */
+/*     err<<"The bottom collection must be supplied."<<std::endl */
+/*        <<"It is now set to : "<<inputTagBottom_<<std::endl; */
 /*     edm::LogError("PFPAT")<<err.str(); */
 /*     throw cms::Exception( "MissingProduct", err.str()); */
 /*   } */
@@ -158,50 +157,48 @@ void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
 
  
   if(verbose_) {
-    const Provenance& topProv = iEvent.getProvenance(tops.id());
-    const Provenance& bottomProv = iEvent.getProvenance(bottoms.id());
+    const edm::Provenance& topProv = iEvent.getProvenance(tops.id());
+    const edm::Provenance& bottomProv = iEvent.getProvenance(bottoms.id());
 
-    cout<<"Top projector: event "<<iEvent.id().event()<<endl;
-    cout<<"Inputs --------------------"<<endl;
-    cout<<"Top      :  "
-	<<tops.id()<<"\t"<<tops->size()<<endl
-	<<topProv.branchDescription()<<endl
+    std::cout<<"Top projector: event "<<iEvent.id().event()<<std::endl;
+    std::cout<<"Inputs --------------------"<<std::endl;
+    std::cout<<"Top      :  "
+	<<tops.id()<<"\t"<<tops->size()<<std::endl
+	<<topProv.branchDescription()<<std::endl
 	<<"Bottom   :  "
-	<<bottoms.id()<<"\t"<<bottoms->size()<<endl
-	<<bottomProv.branchDescription()<<endl;
+	<<bottoms.id()<<"\t"<<bottoms->size()<<std::endl
+	<<bottomProv.branchDescription()<<std::endl;
   }
 
 
   // output collection of objects,
   // selected from the Bottom collection
 
-  auto_ptr< BottomCollection >
+  std::auto_ptr< BottomCollection >
     pBottomOutput( new BottomCollection );
   
   // mask for each bottom object.
   // at the beginning, all bottom objects are unmasked.
   std::vector<bool> masked( bottoms->size(), false);
     
-
-
-  processCollection( tops, bottoms, masked, name_.c_str(), iEvent );
-
+  if( enable_ )
+    processCollection( tops, bottoms, masked, name_.c_str(), iEvent );
 
   const BottomCollection& inCands = *bottoms;
 
   if(verbose_)
-    cout<<" Remaining candidates in the bottom collection ------ "<<endl;
+    std::cout<<" Remaining candidates in the bottom collection ------ "<<std::endl;
   
   for(unsigned i=0; i<inCands.size(); i++) {
     
     if(masked[i]) {
       if(verbose_)
-	cout<<"X "<<i<<" "<<inCands[i]<<endl;
+	std::cout<<"X "<<i<<" "<<inCands[i]<<std::endl;
       continue;
     }
     else {
       if(verbose_)
-	cout<<"O "<<i<<" "<<inCands[i]<<endl;
+	std::cout<<"O "<<i<<" "<<inCands[i]<<std::endl;
 
       pBottomOutput->push_back( inCands[i] );
       BottomPtr motherPtr( bottoms, i );
@@ -288,28 +285,23 @@ TopProjector<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
 					 const edm::Event& iEvent) const {
 
   
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
-
-
   unsigned nSources = candPtr->numberOfSourceCandidatePtrs();
 
   if(verbose_) {
-    const Provenance& hereProv = iEvent.getProvenance(candPtr.id());
+    const edm::Provenance& hereProv = iEvent.getProvenance(candPtr.id());
 
-    cout<<"going down from "<<candPtr.id()
+    std::cout<<"going down from "<<candPtr.id()
 	<<"/"<<candPtr.key()<<" #mothers "<<nSources
-	<<" ancestor id "<<ancestorsID<<endl
-	<<hereProv.branchDescription()<<endl;
+	<<" ancestor id "<<ancestorsID<<std::endl
+	<<hereProv.branchDescription()<<std::endl;
   }  
 
   for(unsigned i=0; i<nSources; i++) {
     
-    CandidatePtr mother = candPtr->sourceCandidatePtr(i);
+    reco::CandidatePtr mother = candPtr->sourceCandidatePtr(i);
     if( verbose_ ) {
 /*       const Provenance& motherProv = iEvent.getProvenance(mother.id()); */
-      cout<<"  mother id "<<mother.id()<<endl;
+      std::cout<<"  mother id "<<mother.id()<<std::endl;
     }
     if(  mother.id() != ancestorsID ) {
       // the mother is not yet at lowest level
@@ -329,17 +321,13 @@ template< class Top, class Bottom >
 void TopProjector<Top,Bottom>::maskAncestors( const reco::CandidatePtrVector& ancestors,
 					 std::vector<bool>& masked ) const {
   
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
-  
   for(unsigned i=0; i<ancestors.size(); i++) {
     unsigned index = ancestors[i].key();
     assert( index<masked.size() );
     
     //     if(verbose_) {
     //       ProductID id = ancestors[i].id();
-    //       cout<<"\tmasking "<<index<<", ancestor "<<id<<"/"<<index<<endl;
+    //       std::cout<<"\tmasking "<<index<<", ancestor "<<id<<"/"<<index<<std::endl;
     //     }
     masked[index] = true;
   }

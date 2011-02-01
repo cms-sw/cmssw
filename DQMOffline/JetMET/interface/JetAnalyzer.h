@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2010/06/16 18:49:03 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/07/21 04:23:21 $
+ *  $Revision: 1.12 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -158,45 +158,36 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mPhiVSEta;
 
   MonitorElement* mPt_Barrel;
-  MonitorElement* mEta_Barrel;
   MonitorElement* mPhi_Barrel;
 
   MonitorElement* mPt_EndCap;
-  MonitorElement* mEta_EndCap;
   MonitorElement* mPhi_EndCap;
 
   MonitorElement* mPt_Forward;
-  MonitorElement* mEta_Forward;
   MonitorElement* mPhi_Forward;
 
   MonitorElement* mPt_Barrel_Lo;
-  MonitorElement* mEta_Barrel_Lo;
   MonitorElement* mPhi_Barrel_Lo;
   MonitorElement* mConstituents_Barrel_Lo;
   MonitorElement* mHFrac_Barrel_Lo;
   MonitorElement* mPt_EndCap_Lo;
-  MonitorElement* mEta_EndCap_Lo;
   MonitorElement* mPhi_EndCap_Lo;
   MonitorElement* mConstituents_EndCap_Lo;
   MonitorElement* mHFrac_EndCap_Lo;
   MonitorElement* mPt_Forward_Lo;
-  MonitorElement* mEta_Forward_Lo;
   MonitorElement* mPhi_Forward_Lo;
   MonitorElement* mConstituents_Forward_Lo;
   MonitorElement* mHFrac_Forward_Lo;
 
   MonitorElement* mPt_Barrel_Hi;
-  MonitorElement* mEta_Barrel_Hi;
   MonitorElement* mPhi_Barrel_Hi;
   MonitorElement* mConstituents_Barrel_Hi;
   MonitorElement* mHFrac_Barrel_Hi;
   MonitorElement* mPt_EndCap_Hi;
-  MonitorElement* mEta_EndCap_Hi;
   MonitorElement* mPhi_EndCap_Hi;
   MonitorElement* mConstituents_EndCap_Hi;
   MonitorElement* mHFrac_EndCap_Hi;
   MonitorElement* mPt_Forward_Hi;
-  MonitorElement* mEta_Forward_Hi;
   MonitorElement* mPhi_Forward_Hi;
   MonitorElement* mConstituents_Forward_Hi;
   MonitorElement* mHFrac_Forward_Hi;

@@ -1,9 +1,8 @@
 /*
  * \file AlcaBeamMonitorClient.cc
- * \author Geng-yuan Jeng/UC Riverside
- *         Francisco Yumiceva/FNAL
- * $Date: 2010/09/22 22:53:37 $
- * $Revision: 1.1 $
+ * \author Lorenzo Uplegger/FNAL
+ * $Date: 2010/10/05 18:07:13 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -26,7 +25,8 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------------------------
 AlcaBeamMonitorClient::AlcaBeamMonitorClient( const ParameterSet& ps ) :
   parameters_         (ps),
-  monitorName_        (parameters_.getUntrackedParameter<string>("MonitorName","YourSubsystemName"))
+  monitorName_        (parameters_.getUntrackedParameter<string>("MonitorName","YourSubsystemName")),
+  numberOfValuesToSave_ (0)
 {
   dbe_            = Service<DQMStore>().operator->();
   
@@ -80,6 +80,28 @@ void AlcaBeamMonitorClient::beginJob() {
 
 //----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitorClient::beginRun(const edm::Run& r, const EventSetup& context) {
+  for(HistosContainer::iterator itM=histosMap_.begin(); itM!=histosMap_.end(); itM++){
+    for(map<string,map<string,MonitorElement*> >::iterator itMM=itM->second.begin(); itMM!=itM->second.end(); itMM++){
+      if(itMM->first != "run"){
+      	for(map<string,MonitorElement*>::iterator itMMM=itMM->second.begin(); itMMM!=itMM->second.end(); itMMM++){
+      	  if( itMMM->second != 0){
+	    if(itMM->first == "lumi"){
+      	      dbe_->removeElement(monitorName_+"Debug",itMMM->second->getName());
+	    }
+	    else if(itMM->first == "validation"){
+      	      dbe_->removeElement(monitorName_+"Validation",itMMM->second->getName());
+	    }
+	    else{
+ 	      LogInfo("AlcaBeamMonitorClient") 
+ 	        << "Unrecognized category " << itMM->first;
+	        //assert(0);	    
+	    }
+      	    itMMM->second = 0;
+      	  }
+      	}
+      }
+    }
+  }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -160,6 +182,7 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context){
 //	  }
 //	  else if(itMM->first == "validation" && itMMM->first != "Lumibased Scalers-DataBase" && (itM->first == "sigmaX" || itM->first == "sigmaY" || itM->first == "sigmaZ") ){
 	  else if(itMM->first == "validation" && (itM->first == "sigmaX" || itM->first == "sigmaY" || itM->first == "sigmaZ") ){
+            dbe_->setCurrentFolder(monitorName_+"Validation");
 	    itMMM->second = 0;
 	  }
 	  else{

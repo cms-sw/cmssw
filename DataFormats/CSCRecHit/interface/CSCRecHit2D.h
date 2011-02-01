@@ -35,8 +35,7 @@ public:
                float posInStrip,
                float errInStrip,
 	       int quality,
-               short int badStrip=0, short int badWireGroup=0,
-               int twiceWireBx=0 ); 
+               short int badStrip=0, short int badWireGroup=0 ); 
 	
   ~CSCRecHit2D();
 
@@ -85,9 +84,6 @@ public:
   short int badStrip() const { return theBadStrip; }
   short int badWireGroup() const { return theBadWireGroup; }
   
-  // Calculated wire bx to half bx level
-  float wireBx() const { return (float)theTwiceWireBx/2.; }
-
   /// Returns true if the two TrackingRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
   virtual bool sharesInput(const TrackingRecHit *other, TrackingRecHit::SharedInputType what) const;
   
@@ -113,7 +109,6 @@ private:
   int theQuality;
   short int theBadStrip;
   short int theBadWireGroup;
-  int theTwiceWireBx;
   ChannelContainer theStripsLowBits; /// L1A
   ChannelContainer theStripsHighBits; /// L1A
   ChannelContainer theWgroupsHighBits; /// BX

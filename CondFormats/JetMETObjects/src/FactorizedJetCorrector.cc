@@ -91,6 +91,8 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
       std::string ss = fParameters[i].definitions().level();
       if (ss == "L1Offset")
         mLevels.push_back(kL1);
+      else if (ss == "L1JPTOffset")
+        mLevels.push_back(kL1);
       else if (ss == "L2Relative")
         mLevels.push_back(kL2);
       else if (ss == "L3Absolute")
@@ -104,8 +106,8 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
       else if (ss == "L7Parton")
         mLevels.push_back(kL7);
       mCorrectors.push_back(new SimpleJetCorrector(fParameters[i]));
-      mBinTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().binVar()));
-      mParTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().parVar()));
+      mBinTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().binVar()));
+      mParTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().parVar()));
     }  
 }
 
@@ -127,6 +129,8 @@ void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const st
   for(unsigned i=0;i<tmp.size();i++)
     {
       if (tmp[i] == "L1Offset")
+        mLevels.push_back(kL1);
+      else if (tmp[i] == "L1JPTOffset")
         mLevels.push_back(kL1);
       else if (tmp[i] == "L2Relative")
         mLevels.push_back(kL2);
@@ -324,10 +328,10 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
     { 
       vx = fillVector(mBinTypes[i]);
       vy = fillVector(mParTypes[i]);
-      if (mLevels[i]==kL2||mLevels[i]==kL6)
+      if (mLevels[i]==kL2 || mLevels[i]==kL6)
         mCorrectors[i]->setInterpolation(true); 
       scale = mCorrectors[i]->correction(vx,vy); 	
-      if (mLevels[i]==kL6&&mAddLepToJet) scale *= 1.0 + getLepPt() / mJetPt;
+      if (mLevels[i]==kL6 && mAddLepToJet) scale *= 1.0 + getLepPt() / mJetPt;
       factor*=scale; 
       factors.push_back(factor);	
       mJetE *=scale;

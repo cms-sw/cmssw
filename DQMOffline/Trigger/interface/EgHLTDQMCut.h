@@ -175,7 +175,7 @@ namespace egHLT {
     CutLogic failLogic_;					
     
   public:
-    EgObjTrigCut( TrigCodes::TrigBitSet bitsToPass,CutLogic passLogic=OR,TrigCodes::TrigBitSet bitsToFail=0x0,CutLogic failLogic=AND):
+    EgObjTrigCut( TrigCodes::TrigBitSet bitsToPass,CutLogic passLogic=OR,TrigCodes::TrigBitSet bitsToFail=TrigCodes::TrigBitSet(),CutLogic failLogic=AND):
       bitsToPass_(bitsToPass),passLogic_(passLogic),bitsToFail_(bitsToFail),failLogic_(failLogic){}
     ~EgObjTrigCut(){}
     

@@ -1,5 +1,5 @@
 //
-// $Id: TriggerPath.cc,v 1.3 2009/04/27 20:45:18 vadler Exp $
+// $Id: TriggerPath.cc,v 1.4 2010/04/20 21:39:47 vadler Exp $
 //
 
 
@@ -65,4 +65,17 @@ int TriggerPath::indexModule( const std::string & name ) const
     ++i;
   }
   return i == 0 ? -1 : ( int )i;
+}
+
+std::vector< std::string > TriggerPath::l1Seeds( const bool decision ) const
+{
+
+  std::vector< std::string > seeds;
+  for ( L1SeedCollection::const_iterator iSeed = l1Seeds().begin(); iSeed != l1Seeds().end(); ++iSeed ) {
+    if ( iSeed->first == decision ) seeds.push_back( iSeed->second );
+//   for ( size_t iSeed = 0; iSeed < l1Seeds().size(); ++iSeed ) {
+//     if ( l1Seeds().at( iSeed ).first == decision ) seeds.push_back( l1Seeds().at( iSeed ).second );
+  }
+  return seeds;
+
 }

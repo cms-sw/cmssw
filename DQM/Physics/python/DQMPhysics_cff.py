@@ -16,18 +16,20 @@ from DQM.Physics.qcdUeDQM_cfi import *
 from DQM.Physics.HiggsDQM_cfi import *
 from JetMETCorrections.Configuration.JetCorrectionProducersAllAlgos_cff import *
 
-dqmPhysics = cms.Sequence(bphysicsOniaDQM
-			 *ewkDQM
-                         *ewkMuDQM
-                         *ewkElecDQM
-                         *ewkMuLumiMonitorDQM
-			 *qcdPhotonsDQM
-                         *qcdHighPtDQM
-                         *topDiLeptonOfflineDQM
-                         *topSingleLeptonDQM
-                         *ewkTauDQM
-                         *susyDQM
-			 *QcdUeDQM
-                         *HiggsDQM
-			 )
+dqmPhysics = cms.Sequence( bphysicsOniaDQM 
+                           *ewkDQM
+                           *ewkMuDQM
+                           *ewkElecDQM
+                           *ewkMuLumiMonitorDQM
+                           *qcdPhotonsDQM
+                           *qcdHighPtDQM
+                           *topDiLeptonOfflineDQM
+                           *topSingleLeptonDQM
+                           *ewkTauDQM
+                           *susyDQM
+                           *QcdUeDQM
+                           *HiggsDQM
+                           )
 
+bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
+dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI)

@@ -64,7 +64,6 @@ namespace edmtest
       std::cout<<it->cfeb_length<<"  ";
       std::cout<<it->cfeb_rev<<"  ";
       std::cout<<it->alct_length<<"  ";
-      std::cout<<it->alct_rev<<"  ";
       std::cout<<it->cfeb_tmb_skew_delay<<"  ";
       std::cout<<it->cfeb_timing_corr<<"  "<<std::endl;
     }

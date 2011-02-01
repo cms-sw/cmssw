@@ -114,7 +114,7 @@ namespace
 			 		
 		// Create an histogram with the data from the probability function provided by the user		  
 		int xmin = (int) dataProbFunctionVar[0];
-		int xmax = (int) dataProbFunctionVar[varSize-1];
+		int xmax = (int) dataProbFunctionVar[varSize-1]+1;  // need upper edge to be one beyond last value
 		int numBins = varSize;
 		
 		edm::LogInfo("MixingModule") << "An histogram will be created with " << numBins << " bins in the range ("<< xmin << "," << xmax << ")." << std::endl;
@@ -123,9 +123,9 @@ namespace
 		
 		LogDebug("MixingModule") << "Filling histogram with the following data:" << std::endl;
 		
-		for (int j=0; j <=xmax ; j++){
+		for (int j=0; j < numBins ; j++){
 		  LogDebug("MixingModule") << " x = " << dataProbFunctionVar[j ]<< " P(x) = " << dataProb[j];
-		  hprob->Fill(dataProbFunctionVar[j],dataProb[j]); 
+		  hprob->Fill(dataProbFunctionVar[j]+0.5,dataProb[j]); // assuming integer values for the bins, fill bin centers, not edges 
 	   	}
 				
 		// Check if the histogram is normalized

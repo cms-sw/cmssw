@@ -57,3 +57,8 @@ void HcalADCSaturationFlag::setSaturationFlag(HFRecHit& rechit, const HFDataFram
   return;
 }
 
+void HcalADCSaturationFlag::setSaturationFlag(ZDCRecHit& rechit, const ZDCDataFrame& digi)
+{
+  checkADCSaturation<ZDCRecHit, ZDCDataFrame>(rechit, digi, SaturationLevel_);
+  return;
+}

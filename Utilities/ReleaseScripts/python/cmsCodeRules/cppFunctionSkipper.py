@@ -7,7 +7,9 @@ declarator = '(\*|&)?(\w|<|>|$|::)+'
 cv_decl = '\s*(const|volatile)\s*'
 exception = 'throw\(((::)|\w|\s|,|<|>)*\)'
 decl_param = '\s((\(%s\))|(%s))\s*\((\w|\s|\*|&|\.|=|\'|\"|-|<|>|,|(::))*\)'%(declarator, declarator)
-functStart_re = re.compile('(\s|~|^)((\(%s\))|(%s))\s*\((%s|\w|\s|\*|&|\.|=|\'|\"|-|<|>|,|::)*\)(%s)?(%s)?\s*{'%(declarator, declarator, decl_param, cv_decl, exception), re.MULTILINE)
+operator = '(%s|)operator\s*(\(\)|\[\]|\s+(new|delete)(\s*\[\]|)|\-\>[*]{0,1}|[+\-*/%%^&|~!=<>,]{1,2}(=|))'%(declarator)
+dm_init = '(:[^{]*)'
+functStart_re = re.compile('(\s|~|^)((\(%s\))|(%s)|(%s))\s*\((%s|\w|\s|\*|&|\.|=|\'|\"|-|<|>|,|::)*\)(%s)?(%s)?\s*(%s)?\s*{'%(declarator, declarator, operator, decl_param, cv_decl, exception,dm_init), re.MULTILINE)
 
 def filterFiles(fileList):
     files = []
@@ -41,6 +43,7 @@ def filterFile(file):
             openBracket = 1
             closeBracket = 0
             startPosition = m.start()
+            #print "MATCH: " + lines[m.start():m.end()]
             for i, character in enumerate(lines[m.end():]):
                 if character == "{":
                     openBracket += 1
@@ -54,6 +57,8 @@ def filterFile(file):
                 print "Error in file. To much open brackets. Run commentSkipper before you run functionSkipper."
                 break
             else:
+                #print "LINES: \n" + lines[startPosition:endPosition] 
+                #print "#############################################";
                 lines = delLines(lines, startPosition, endPosition)
                 fileLines = fileLines[:prevEndPosition] + lines
                 lines = lines[endPosition:]

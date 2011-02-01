@@ -26,8 +26,7 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
     #print 'runlist ',runList
     for runnum in runList:
         delivered=0.0
-        recorded=0.0 
-        
+        recorded=0.0       
         #print 'looking for run ',runnum
         q=dbsession.nominalSchema().newQuery()
         runsummary=lumiQueryAPI.runsummaryByrun(q,runnum)
@@ -46,9 +45,22 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
         lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
         del q
         #print 'lumitrginfo ',lumitrginfo
-        if len(lumitrginfo)==0:
-            result.append([runnum,runstarttimeStr,1,t.StrToDatetime(runstarttimeStr),0.0,0.0])
-            if c.VERBOSE: print 'warning request run ',runnum,' has no qualified data, skip'
+        if len(lumitrginfo)==0: #if no qualified cross lumi-trg found, try lumionly
+            #result.append([runnum,runstarttimeStr,1,t.StrToDatetime(runstarttimeStr),0.0,0.0])
+            q=dbsession.nominalSchema().newQuery()
+            lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q3
+            del q
+            if len(lumiinfobyrun)!=0: #if lumionly has qualified data means trg has no data
+                print 'warning request run ',runnum,' has no trigger data, calculate delivered only'
+            for perlsdata in lumiinfobyrun:
+                cmslsnum=perlsdata[0]
+                instlumi=perlsdata[1]
+                norbit=perlsdata[2]
+                startorbit=perlsdata[3]
+                lsstarttime=t.OrbitToTime(runstarttimeStr,startorbit)
+                lslength=t.bunchspace_s*t.nbx*norbit
+                delivered=instlumi*lslength
+                result.append([runnum,runstarttimeStr,cmslsnum,lsstarttime,delivered,0.0])
         else:
             norbits=lumitrginfo.values()[0][1]
             lslength=t.bunchspace_s*t.nbx*norbits
@@ -63,13 +75,13 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
                 if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
                    #if there's a selection list but cmslsnum is not selected,skip                  
                    continue
+                delivered=instlumi*lslength
                 if valuelist[5]==0:#bitzero==0 means no beam,do nothing
-                    delivered=0.0
                     recorded=0.0
                 else:
-                    delivered=instlumi*lslength
                     deadfrac=float(deadcount)/float(float(bitzero)*float(prescale))
-                    recorded=delivered*(1.0-deadfrac)
+                    if(deadfrac<1.0):
+                        recorded=delivered*(1.0-deadfrac)
                 result.append([runnum,runstarttimeStr,cmslsnum,lsstarttime,delivered,recorded])
                 #print 'result : ',result
     dbsession.transaction().commit()
@@ -115,51 +127,68 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
         lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
         del q
         if len(lumitrginfo)==0:
-            result[runnum]=[0.0,0.0,0.0]
-            if c.VERBOSE: print 'request run ',runnum,' has no trigger, skip'
-            continue
-        norbits=lumitrginfo.values()[0][1]
-        lslength=t.bunchspace_s*t.nbx*norbits
-        delivered=totallumi*lslength
-        hlttrgmap={}
-        trgbitinfo={}
-        if len(hltpath)!=0 and hltpath!='all':
-            q=dbsession.nominalSchema().newQuery() #optional q3, initiated only if you ask for a hltpath
-            hlttrgmap=lumiQueryAPI.hlttrgMappingByrun(q,runnum)
+            q=dbsession.nominalSchema().newQuery()
+            lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q3
             del q
-            if hlttrgmap.has_key(hltpath):
-                l1bitname=hltTrgSeedMapper.findUniqueSeed(hltpath,hlttrgmap[hltpath])
-                q=dbsession.nominalSchema().newQuery() #optional q4, initiated only if you ask for a hltpath and it exists 
-                hltinfo=lumiQueryAPI.hltBypathByrun(q,runnum,hltpath)
+            if len(lumiinfobyrun)!=0:
+                print 'warning request run ',runnum,' has no trigger data, calculate delivered only'
+            for perlsdata in lumiinfobyrun:
+                cmslsnum=perlsdata[0]
+                instlumi=perlsdata[1]
+                norbit=perlsdata[2]
+                lslength=t.bunchspace_s*t.nbx*norbit
+                delivered=instlumi*lslength
+                result[runnum]=[delivered,0.0,0.0]
+            #result[runnum]=[0.0,0.0,0.0]
+            #if c.VERBOSE: print 'request run ',runnum,' has no trigger, skip'
+        else:
+            norbits=lumitrginfo.values()[0][1]
+            lslength=t.bunchspace_s*t.nbx*norbits
+            delivered=totallumi*lslength
+            hlttrgmap={}
+            trgbitinfo={}
+            if len(hltpath)!=0 and hltpath!='all':
+                q=dbsession.nominalSchema().newQuery() #optional q3, initiated only if you ask for a hltpath
+                hlttrgmap=lumiQueryAPI.hlttrgMappingByrun(q,runnum)
                 del q
-                q=dbsession.nominalSchema().newQuery()
-                trgbitinfo=lumiQueryAPI.trgBybitnameByrun(q,runnum,l1bitname) #optional q5, initiated only if you ask for a hltpath and it has a unique l1bit
-                del q
+                if hlttrgmap.has_key(hltpath):
+                    l1bitname=hltTrgSeedMapper.findUniqueSeed(hltpath,hlttrgmap[hltpath])
+                    q=dbsession.nominalSchema().newQuery() #optional q4, initiated only if you ask for a hltpath and it exists 
+                    hltinfo=lumiQueryAPI.hltBypathByrun(q,runnum,hltpath)
+                    del q
+                    q=dbsession.nominalSchema().newQuery()
+                    trgbitinfo=lumiQueryAPI.trgBybitnameByrun(q,runnum,l1bitname) #optional q5, initiated only if you ask for a hltpath and it has a unique l1bit
+                    del q
         #done all possible queries. process result
-        for cmslsnum,valuelist in lumitrginfo.items():
-            if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
-                #if there's a selection list but cmslsnum is not selected,skip
-                continue
-            if valuelist[5]==0:#bitzero==0 means no beam,do nothing
-                continue
-            trgprescale=valuelist[8]            
-            deadfrac=float(valuelist[6])/float(float(valuelist[5])*float(trgprescale))
-
-            recorded=recorded+valuelist[0]*(1.0-deadfrac)*lslength
-            if c.VERBOSE: print runnum,cmslsnum,valuelist[0]*lslength,valuelist[0]*(1.0-deadfrac)*lslength,lslength,deadfrac
-            if hlttrgmap.has_key(hltpath) and hltinfo.has_key(cmslsnum):
-                hltprescale=hltinfo[cmslsnum][2]
-                trgprescale=trgbitinfo[cmslsnum][3]
-                recordedinpath=recordedinpath+valuelist[0]*(1.0-deadfrac)*lslength*hltprescale*trgprescale
-        result[runnum]=[delivered,recorded,recordedinpath]
+            for cmslsnum,valuelist in lumitrginfo.items():
+                if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
+                    #if there's a selection list but cmslsnum is not selected,skip
+                    continue
+                if valuelist[5]==0:#bitzero==0 means no beam,do nothing
+                    continue
+                trgprescale=valuelist[8]            
+                deadfrac=float(valuelist[6])/float(float(valuelist[5])*float(trgprescale))
+                if(deadfrac<1.0):
+                    recorded=recorded+valuelist[0]*(1.0-deadfrac)*lslength
+                    if hlttrgmap.has_key(hltpath) and hltinfo.has_key(cmslsnum):
+                        hltprescale=hltinfo[cmslsnum][2]
+                        trgprescale=trgbitinfo[cmslsnum][3]
+                        recordedinpath=recordedinpath+valuelist[0]*(1.0-deadfrac)*lslength*hltprescale*trgprescale
+                else:
+                    if deadfrac<0.0:
+                        print 'warning deadfraction negative in run',runnum,' ls ',cmslsnum
+                if c.VERBOSE:
+                    print runnum,cmslsnum,valuelist[0]*lslength,valuelist[0]*(1.0-deadfrac)*lslength,lslength,deadfrac
+            result[runnum]=[delivered,recorded,recordedinpath]
     dbsession.transaction().commit()
     #if c.VERBOSE:
     #    print result
     return result           
 
 def main():
+    allowedscales=['linear','log','both']
     c=constants()
-    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Plot integrated luminosity as function of the time variable of choice")
+    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Plot integrated luminosity as function of the time variable of choice",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # add required arguments
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
     # add optional arguments
@@ -167,12 +196,13 @@ def main():
     parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor (optional, default to 1.0)')
     parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file (optional)')
     parser.add_argument('-o',dest='outputfile',action='store',help='csv outputfile name (optional)')
-    parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
+    parser.add_argument('-lumiversion',dest='lumiversion',default='0001',action='store',required=False,help='lumi data version')
     parser.add_argument('-begin',dest='begin',action='store',help='begin value of x-axi (required)')
     parser.add_argument('-end',dest='end',action='store',help='end value of x-axi (optional). Default to the maximum exists DB')
     parser.add_argument('-beamenergy',dest='beamenergy',action='store',type=float,required=False,help='beamenergy (in GeV) selection criteria,e.g. 3.5e3')
     parser.add_argument('-beamfluctuation',dest='beamfluctuation',action='store',type=float,required=False,help='allowed fraction of beamenergy to fluctuate, e.g. 0.1')
     parser.add_argument('-beamstatus',dest='beamstatus',action='store',required=False,help='selection criteria beam status,e.g. STABLE BEAMS')
+    parser.add_argument('-yscale',dest='yscale',action='store',required=False,default='linear',help='y_scale')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
     parser.add_argument('-batch',dest='batch',action='store',help='graphical mode to produce PNG file. Specify graphical file here. Default to lumiSum.png')
     parser.add_argument('--annotateboundary',dest='annotateboundary',action='store_true',help='annotate boundary run numbers')
@@ -323,9 +353,13 @@ def main():
         exit
     runList.sort()
     #print 'runList ',runList
-    #print 'runDict ', runDict               
+    #print 'runDict ', runDict
+    
     fig=Figure(figsize=(8,6),dpi=100)
     m=matplotRender.matplotRender(fig)
+    
+    logfig=Figure(figsize=(8,6),dpi=100)
+    mlog=matplotRender.matplotRender(logfig)
     
     if args.action == 'run':
         result={}        
@@ -348,7 +382,8 @@ def main():
             ydata['Recorded'].append(recorded)
             if args.outputfile and (delivered!=0 or recorded!=0):
                 reporter.writeRow([run,result[run][0],result[run][1]])                
-        m.plotSumX_Run(xdata,ydata)
+        m.plotSumX_Run(xdata,ydata,yscale='linear')
+        mlog.plotSumX_Run(xdata,ydata,yscale='log')
     elif args.action == 'fill':        
         lumiDict={}
         lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
@@ -374,7 +409,8 @@ def main():
                 if args.outputfile :
                     reporter.writeRow([fill,run,lumiDict[run][0],lumiDict[run][1]])   
         #print 'input fillDict ',len(fillDict.keys()),fillDict
-        m.plotSumX_Fill(xdata,ydata,fillDict)
+        m.plotSumX_Fill(xdata,ydata,fillDict,yscale='linear')
+        mlog.plotSumX_Fill(xdata,ydata,fillDict,yscale='log')
     elif args.action == 'time' : 
         lumiDict={}
         lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
@@ -397,7 +433,8 @@ def main():
             xdata[run]=[starttime,stoptime]
             if args.outputfile :
                 reporter.writeRow([run,starttime,stoptime,lumiDict[run][0],lumiDict[run][1]])
-        m.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary)
+        m.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
         #print 'input selectionDict ',selectionDict
@@ -438,16 +475,32 @@ def main():
         #print 'beginfo ',beginfo
         #print 'endinfo ',endinfo
         #print resultbyday
-        m.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary)
+        m.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='log')
     else:
         raise Exception,'must specify the type of x-axi'
 
     del session
     del svc
-    if args.batch:
+
+    if args.batch and args.yscale=='linear':
         m.drawPNG(args.batch)
-    if args.interactive:
+    elif args.batch and args.yscale=='log':
+        mlog.drawPNG(args.batch)
+    elif args.batch and args.yscale=='both':
+        m.drawPNG(args.batch)
+        basename,extension=os.path.splitext(args.batch)
+        logfilename=basename+'_log'+extension        
+        mlog.drawPNG(logfilename)
+    else:
+        raise Exception('unsupported yscale for batch mode : '+args.yscale)
+    if not args.interactive:
+        return
+    if args.interactive is True and args.yscale=='linear':
         m.drawInteractive()
-    
+    elif args.interactive is True and args.yscale=='log':
+        mlog.drawInteractive()
+    else:
+        raise Exception('unsupported yscale for interactive mode : '+args.yscale)
 if __name__=='__main__':
     main()

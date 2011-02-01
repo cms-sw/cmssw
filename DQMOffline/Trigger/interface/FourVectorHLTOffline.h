@@ -19,11 +19,9 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.62 2010/10/05 03:15:25 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.64 2010/10/26 04:55:28 wmtan Exp $
 //
 //
-// system include files
-
 // system include files
 #include <memory>
 #include <unistd.h>
@@ -1574,7 +1572,7 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 
          NOnOff++;
          v_->getOffEtOnOffHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
-         if(iter->superCluster()->energy()*abs(sin(iter->superCluster()->position().Theta())) >= thresholdFactor_*v_->getHltThreshold())
+         if(iter->superCluster()->energy()*fabs(sin(iter->superCluster()->position().Theta())) >= thresholdFactor_*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiOnOffHisto()->Fill(iter->eta(),iter->phi());
 
        }

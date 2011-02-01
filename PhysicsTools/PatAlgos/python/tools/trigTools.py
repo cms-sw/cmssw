@@ -592,22 +592,31 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
         sequence        = self._parameters[ 'sequence' ].value
         hltProcess      = self._parameters[ 'hltProcess' ].value
         outputModule    = self._parameters[ 'outputModule' ].value
-        dictEmbedders = { 'selectedPatPhotons'  : 'PATTriggerMatchPhotonEmbedder'
-                        , 'cleanPatPhotons'     : 'PATTriggerMatchPhotonEmbedder'
-                        , 'selectedPatElectrons': 'PATTriggerMatchElectronEmbedder'
-                        , 'cleanPatElectrons'   : 'PATTriggerMatchElectronEmbedder'
-                        , 'selectedPatMuons'    : 'PATTriggerMatchMuonEmbedder'
-                        , 'cleanPatMuons'       : 'PATTriggerMatchMuonEmbedder'
-                        , 'selectedPatTaus'     : 'PATTriggerMatchTauEmbedder'
-                        , 'cleanPatTaus'        : 'PATTriggerMatchTauEmbedder'
-                        , 'selectedPatJets'     : 'PATTriggerMatchJetEmbedder'
-                        , 'cleanPatJets'        : 'PATTriggerMatchJetEmbedder'
-                        , 'patMETs'             : 'PATTriggerMatchMETEmbedder'
-                        }
 
-        # Load default producers from existing config file, if needed
-        if not hasattr( process, 'patTriggerMatchEmbedderDefaultSequence' ):
-            process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatchEmbedder_cfi" )
+        # Build dictionary of known input collections
+        dictPatObjects = { 'Photons'  : 'PATTriggerMatchPhotonEmbedder'
+                         , 'Electrons': 'PATTriggerMatchElectronEmbedder'
+                         , 'Muons'    : 'PATTriggerMatchMuonEmbedder'
+                         , 'Taus'     : 'PATTriggerMatchTauEmbedder'
+                         , 'Jets'     : 'PATTriggerMatchJetEmbedder'
+                         , 'METs'     : 'PATTriggerMatchMETEmbedder'
+                         }
+        listPatSteps   = [ 'pat', 'selectedPat', 'cleanPat' ]
+        listJetAlgos   = [ 'IC5', 'SC5', 'KT4', 'KT6', 'AK5' ]
+        listJetTypes   = [ 'Calo', 'PF', 'JPT' ]
+        dictEmbedders  = {}
+        for objects in dictPatObjects.keys():
+            steps = len( listPatSteps )
+            if objects is 'METs':
+                steps = 1
+            for step in range( steps ):
+                coll = listPatSteps[ step ] + objects
+                dictEmbedders[ coll ] = dictPatObjects[ objects ]
+                if objects is 'Jets':
+                    for jetAlgo in listJetAlgos:
+                        for jetType in listJetTypes:
+                            jetColl = coll + jetAlgo + jetType
+                            dictEmbedders[ jetColl ] = dictPatObjects[ objects ]
 
         # Switch on PAT trigger matching if needed
         for matcher in triggerMatchers:
@@ -630,15 +639,19 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
         patTriggerEventContent = []
         for srcInput in dictConfig.keys():
             if dictEmbedders.has_key( srcInput ):
-                label      = srcInput + 'TriggerMatch'
-                trigEmbMod = getattr( process, label )
+                label = srcInput + 'TriggerMatch'
                 if label in _modulesInSequence( process, sequence ):
                     print '%s():'%( self._label )
                     print '    PAT trigger match embedder %s exists already in sequence %s'%( label, sequence )
                     print '    ==> entry moved to proper place'
                     print _longLine
                     removeIfInSequence( process, label, 'patTriggerSequence' )
-                trigEmbMod.matches         += cms.VInputTag( dictConfig[ srcInput ] )
+                # Configure embedder module
+                module         = cms.EDProducer( dictEmbedders[ srcInput ] )
+                module.src     = cms.InputTag( srcInput )
+                module.matches = cms.VInputTag( dictConfig[ srcInput ] )
+                setattr( process, label, module )
+                trigEmbMod = getattr( process, label )
                 process.patTriggerSequence *= trigEmbMod
                 # Add event content
                 patTriggerEventContent += [ 'drop *_%s_*_*'%( srcInput )

@@ -1,8 +1,23 @@
-2010-09-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
+2010-11-05 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
-	* tag V06-04-00
-	* No longer write and handle index files.
-	  Requires IOPool/Streamer V07-00-00 or newer.
+	* tag V06-03-05
+	* Fix calculation of maxFileSize in bytes when going beyond 2 GB.
+
+2010-11-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-03-04
+	* Merge unit-test fixes from trunk into branch_3_8_x
+
+2010-11-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-03-03
+	* Use unsigned long long consistently when checking file sizes in bytes.
+	  Fixes the file size check when file sizes exceed 2 GB.
+
+2010-10-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-03-02
+	* Add LastLumi to EoR record.
 
 2010-09-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
 

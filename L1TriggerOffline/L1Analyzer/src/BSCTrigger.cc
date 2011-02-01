@@ -63,7 +63,7 @@ private:
   int theNinner_;
   int theNouter_;      
   int nevt_;
-  std::string TheHits_tag_;
+  edm::InputTag TheHits_tag_;
 };
 
 //
@@ -84,7 +84,7 @@ BSCTrigger::BSCTrigger(const edm::ParameterSet& iConfig)
   names_= iConfig.getParameter< std::vector<std::string> >("bitNames");
   theCoincidence_= iConfig.getParameter<double>("coincidence");
   theResolution_= iConfig.getParameter<double>("resolution");
-  TheHits_tag_= iConfig.getParameter<std::string>("theHits");
+  TheHits_tag_= iConfig.getParameter<edm::InputTag>("theHits");
   produces<L1GtTechnicalTriggerRecord>();  
   nevt_=0;
 }
@@ -120,7 +120,7 @@ void BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   float theThreshold=MipFraction*MipEnergy;
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  iEvent.getByLabel("mix", TheHits_tag_, cf);
+  iEvent.getByLabel(TheHits_tag_, cf);
    
   if (!cf.failedToGet()) {
     for ( int c=0;c<32;++c){

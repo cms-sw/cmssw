@@ -1,26 +1,113 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRCalo.cc,v 1.7 2009/03/03 15:20:26 srappocc Exp $
+// $Id: JetTracksAssociationDRCalo.cc,v 1.4.2.1 2009/02/23 12:59:13 bainbrid Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
-
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
+// -----------------------------------------------------------------------------
+//
+JetTracksAssociationDRCalo::JetTracksAssociationDRCalo( double fDr ) 
+  : JetTracksAssociationDR(fDr),
+    propagatedTracks_()
+{;}
 
-namespace {
+// -----------------------------------------------------------------------------
+//
+JetTracksAssociationDRCalo::~JetTracksAssociationDRCalo() 
+{;}
+
+// -----------------------------------------------------------------------------
+//
+void JetTracksAssociationDRCalo::produce( Association* fAssociation, 
+					  const Jets& fJets,
+					  const Tracks& fTracks,
+					  const TrackQuality& fQuality,
+					  const MagneticField& fField,
+					  const Propagator& fPropagator ) 
+{
+  JetRefs jets;
+  createJetRefs( jets, fJets );
+  TrackRefs tracks;
+  createTrackRefs( tracks, fTracks, fQuality );
+  produce( fAssociation, jets, tracks, fField, fPropagator );
+}
+
+// -----------------------------------------------------------------------------
+//
+void JetTracksAssociationDRCalo::produce( Association* fAssociation, 
+					  const JetRefs& fJets,
+					  const TrackRefs& fTracks,
+					  const MagneticField& fField,
+					  const Propagator& fPropagator ) 
+{
+  //clear();
+  propagateTracks( fTracks, fField, fPropagator ); 
+  associateTracksToJets( fAssociation, fJets, fTracks ); 
+}
+
+// -----------------------------------------------------------------------------
+//
+void JetTracksAssociationDRCalo::associateTracksToJet( reco::TrackRefVector& associated,
+						       const reco::Jet& fJet,
+						       const TrackRefs& fTracks ) 
+{
+  associated.clear();
+  std::vector<ImpactPoint>::const_iterator ii = propagatedTracks_.begin();
+  std::vector<ImpactPoint>::const_iterator jj = propagatedTracks_.end();
+  for ( ; ii != jj; ++ii ) {
+    double dR2 = deltaR2( fJet.eta(), fJet.phi(), ii->eta, ii->phi );
+    if ( dR2 < mDeltaR2Threshold ) { associated.push_back( fTracks[ii->index] ); }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+void JetTracksAssociationDRCalo::propagateTracks( const TrackRefs& fTracks,
+						  const MagneticField& fField,
+						  const Propagator& fPropagator ) 
+{
+  propagatedTracks_.clear();
+  propagatedTracks_.reserve( fTracks.size() );
+  TrackRefs::const_iterator ii = fTracks.begin();
+  TrackRefs::const_iterator jj = fTracks.end();
+  for ( ; ii != jj; ++ii ) {
+    GlobalPoint impact = JetTracksAssociationDRCalo::propagateTrackToCalo( **ii, fField, fPropagator );
+    if ( impact.mag() > 0 ) { //@@ successful extrapolation
+      ImpactPoint goodTrack;
+      goodTrack.index = ii - fTracks.begin(); //@@ index
+      goodTrack.eta = impact.eta();
+      goodTrack.phi = impact.barePhi();
+      propagatedTracks_.push_back( goodTrack );
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+math::XYZPoint JetTracksAssociationDRCalo::propagateTrackToCalorimeter( const reco::Track& fTrack,
+									const MagneticField& fField,
+									const Propagator& fPropagator )
+{
+  GlobalPoint result( JetTracksAssociationDRCalo::propagateTrackToCalo( fTrack, fField, fPropagator ) );
+  return math::XYZPoint( result.x(), result.y(), result.z() ); 
+}
+
+// -----------------------------------------------------------------------------
+//
+GlobalPoint JetTracksAssociationDRCalo::propagateTrackToCalo( const reco::Track& fTrack,
+							      const MagneticField& fField,
+							      const Propagator& fPropagator )
+{
+  
   // basic geometry constants, imported from Geometry/HcalTowerAlgo/src/CaloTowerHardcodeGeometryLoader.cc
   const double rBarrel = 129.;
   const double zEndcap = 320.;
@@ -33,117 +120,69 @@ namespace {
     double eta;
     double phi;
   };
-
-  GlobalPoint propagateTrackToCalo (const reco::Track& fTrack,
-				    const MagneticField& fField,
-				    const Propagator& fPropagator)
-  {
-    GlobalPoint trackPosition (fTrack.vx(), fTrack.vy(), fTrack.vz()); // reference point
-    GlobalVector trackMomentum (fTrack.px(), fTrack.py(), fTrack.pz()); // reference momentum
-    if (fTrack.extra().isAvailable() ) { // use outer point information, if available
-      trackPosition =  GlobalPoint (fTrack.outerX(), fTrack.outerY(), fTrack.outerZ());
-      trackMomentum = GlobalVector (fTrack.outerPx(), fTrack.outerPy(), fTrack.outerPz());
-    }
-//     std::cout << "propagateTrackToCalo-> start propagating track"
-// 	      << " x/y/z: " << trackPosition.x() << '/' << trackPosition.y() << '/' << trackPosition.z()
-// 	      << ", pt/eta/phi: " << trackMomentum.perp() << '/' << trackMomentum.eta() << '/' << trackMomentum.barePhi()
-// 	      << std::endl;
-    GlobalTrajectoryParameters trackParams(trackPosition, trackMomentum, fTrack.charge(), &fField);
-    FreeTrajectoryState trackState (trackParams);
-
-    // first propagate to barrel
-    TrajectoryStateOnSurface 
-      propagatedInfo = fPropagator.propagate (trackState, 
-					      *Cylinder::build (Surface::PositionType (0,0,0),
-								Surface::RotationType(),
-								rBarrel)
-					      );
-    if (propagatedInfo.isValid()) {
-      GlobalPoint result (propagatedInfo.globalPosition ());
-      if (fabs (result.z()) < zEndcap) {
-// 	std::cout << "propagateTrackToCalo-> propagated to barrel:"
-// 		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
-// 		  << std::endl;
-	return result;
-      }
-    }
-    
-    // failed with barrel, try endcap
-    double zTarget = trackMomentum.z() > 0 ? zEndcap : -zEndcap;
-    propagatedInfo = fPropagator.propagate (trackState, 
-					    *Plane::build( Surface::PositionType(0, 0, zTarget),
-							   Surface::RotationType())
-					    );
-    if (propagatedInfo.isValid()) {
-      GlobalPoint result (propagatedInfo.globalPosition ());
-      if (fabs (result.perp()) > rEndcapMin) {
-// 	std::cout << "propagateTrackToCalo-> propagated to endcap:"
-// 		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
-// 		  << std::endl;
-	return result;
-      }
-    }
-    // failed with endcap, try VF
-    zTarget = trackMomentum.z() > 0 ? zVF : -zVF;
-    propagatedInfo = fPropagator.propagate (trackState, 
-					    *Plane::build( Surface::PositionType(0, 0, zTarget),
-							   Surface::RotationType())
-					    );
-    if (propagatedInfo.isValid()) {
-      GlobalPoint result (propagatedInfo.globalPosition ());
-      if (fabs (result.perp()) > rVFMin) {
-// 	std::cout << "propagateTrackToCalo-> propagated to VF:"
-// 		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
-// 		  << std::endl;
-	return result;
-      }
-    }
-    // no luck
-//     std::cout << "propagateTrackToCalo-> failed to propagate track to calorimeter" << std::endl;
-    return GlobalPoint (0, 0, 0);
-  }
-}
-
-JetTracksAssociationDRCalo::JetTracksAssociationDRCalo (double fDr) 
-: mDeltaR2Threshold (fDr*fDr)
-{}
-
-void JetTracksAssociationDRCalo::produce (reco::JetTracksAssociation::Container* fAssociation, 
-					  const std::vector <edm::RefToBase<reco::Jet> >& fJets,
-					  const std::vector <reco::TrackRef>& fTracks,
-					  const MagneticField& fField,
-					  const Propagator& fPropagator) const 
-{
-  // cache track parameters
-  std::vector<ImpactPoint> impacts;
-  for (unsigned t = 0; t < fTracks.size(); ++t) {
-    GlobalPoint impact = propagateTrackToCalo (*(fTracks[t]), fField, fPropagator);
-    if (impact.mag () > 0) { // successful extrapolation
-      ImpactPoint goodTrack;
-      goodTrack.index = t;
-      goodTrack.eta = impact.eta ();
-      goodTrack.phi = impact.barePhi();
-      impacts.push_back (goodTrack);
-    }
-  }
   
-  for (unsigned j = 0; j < fJets.size(); ++j) {
-    reco::TrackRefVector assoTracks;
-    const reco::Jet* jet = &*(fJets[j]); 
-    double jetEta = jet->eta();
-    double jetPhi = jet->phi();
-    for (unsigned t = 0; t < impacts.size(); ++t) {
-      double dR2 = deltaR2 (jetEta, jetPhi, impacts[t].eta, impacts[t].phi);
-      if (dR2 < mDeltaR2Threshold)  assoTracks.push_back (fTracks[impacts[t].index]);
-    }
-    reco::JetTracksAssociation::setValue (fAssociation, fJets[j], assoTracks);
+  GlobalPoint trackPosition (fTrack.vx(), fTrack.vy(), fTrack.vz()); // reference point
+  GlobalVector trackMomentum (fTrack.px(), fTrack.py(), fTrack.pz()); // reference momentum
+  if (fTrack.extra().isAvailable() ) { // use outer point information, if available
+    trackPosition =  GlobalPoint (fTrack.outerX(), fTrack.outerY(), fTrack.outerZ());
+    trackMomentum = GlobalVector (fTrack.outerPx(), fTrack.outerPy(), fTrack.outerPz());
   }
+  //     std::cout << "propagateTrackToCalo-> start propagating track"
+  // 	      << " x/y/z: " << trackPosition.x() << '/' << trackPosition.y() << '/' << trackPosition.z()
+  // 	      << ", pt/eta/phi: " << trackMomentum.perp() << '/' << trackMomentum.eta() << '/' << trackMomentum.barePhi()
+  // 	      << std::endl;
+  GlobalTrajectoryParameters trackParams(trackPosition, trackMomentum, fTrack.charge(), &fField);
+  FreeTrajectoryState trackState (trackParams);
+
+  // first propagate to barrel
+  TrajectoryStateOnSurface 
+    propagatedInfo = fPropagator.propagate (trackState, 
+					    *Cylinder::build (Surface::PositionType (0,0,0),
+							      Surface::RotationType(),
+							      rBarrel)
+					    );
+  if (propagatedInfo.isValid()) {
+    GlobalPoint result (propagatedInfo.globalPosition ());
+    if (fabs (result.z()) < zEndcap) {
+      // 	std::cout << "propagateTrackToCalo-> propagated to barrel:"
+      // 		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
+      // 		  << std::endl;
+      return result;
+    }
+  }
+    
+  // failed with barrel, try endcap
+  double zTarget = trackMomentum.z() > 0 ? zEndcap : -zEndcap;
+  propagatedInfo = fPropagator.propagate (trackState, 
+					  *Plane::build( Surface::PositionType(0, 0, zTarget),
+							 Surface::RotationType())
+					  );
+  if (propagatedInfo.isValid()) {
+    GlobalPoint result (propagatedInfo.globalPosition ());
+    if (fabs (result.perp()) > rEndcapMin) {
+      // 	std::cout << "propagateTrackToCalo-> propagated to endcap:"
+      // 		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
+      // 		  << std::endl;
+      return result;
+    }
+  }
+  // failed with endcap, try VF
+  zTarget = trackMomentum.z() > 0 ? zVF : -zVF;
+  propagatedInfo = fPropagator.propagate (trackState, 
+					  *Plane::build( Surface::PositionType(0, 0, zTarget),
+							 Surface::RotationType())
+					  );
+  if (propagatedInfo.isValid()) {
+    GlobalPoint result (propagatedInfo.globalPosition ());
+    if (fabs (result.perp()) > rVFMin) {
+      // 	std::cout << "propagateTrackToCalo-> propagated to VF:"
+      // 		  << " x/y/z/r: " << result.x() << '/' << result.y() << '/' << result.z() << '/' << result.perp()
+      // 		  << std::endl;
+      return result;
+    }
+  }
+  // no luck
+  //     std::cout << "propagateTrackToCalo-> failed to propagate track to calorimeter" << std::endl;
+  return GlobalPoint (0, 0, 0);
 }
 
-math::XYZPoint JetTracksAssociationDRCalo::propagateTrackToCalorimeter (const reco::Track& fTrack,
-								   const MagneticField& fField,
-								   const Propagator& fPropagator)
-{
-  GlobalPoint result (propagateTrackToCalo (fTrack, fField, fPropagator));
-  return math::XYZPoint (result.x(), result.y(), result.z()); 
-}

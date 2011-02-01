@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-triggerResultsFilter = cms.EDFilter('TriggerResultsFilter',
+triggerResultsFilter = cms.EDFilter('TriggerResultsFilterFromDB',
     hltResults              = cms.InputTag('TriggerResults'),   # HLT results   - set to empty to ignore HLT
     l1tResults              = cms.InputTag('hltGtDigis'),       # L1 GT results - set to empty to ignore L1
     l1tIgnoreMask           = cms.bool(False),                  # use L1 mask

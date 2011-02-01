@@ -7,8 +7,11 @@ HiCaloJetDefaults = RecoJets.JetProducers.CaloJetParameters_cfi.CaloJetParameter
     doAreaFastjet = True,
     doRhoFastjet = False,
     doPVCorrection = False,
-    jetPtMin = 10
+    jetPtMin = 10,
+    Ghost_EtaMax = 6.5
+   
 )
+
 
 ## add non-uniform fastjet settings
 HiCaloJetParameters = cms.PSet(
@@ -16,6 +19,7 @@ HiCaloJetParameters = cms.PSet(
     doFastJetNonUniform = cms.bool(True),
     puCenters = cms.vdouble(-5,-4,-3,-2,-1,0,1,2,3,4,5),
     puWidth = cms.double(0.8)
+   
 )
 
 ## default settings for various pileup subtractors

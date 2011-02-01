@@ -42,9 +42,9 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	edm::Handle<edm::View<Candidate> > tauJets;
 	iEvent.getByLabel( jetSrc, tauJets );
 
-//		cout <<"Size of input jet collection "<<tauJets->size()<<std::endl;
+//		std::cout <<"Size of input jet collection "<<tauJets->size()<<std::endl;
 		
-	Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
+	edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
     iEvent.getByLabel(tauTrigger,l1TriggeredTaus);
 		
 		

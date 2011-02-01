@@ -6,8 +6,8 @@
  *  A single trigger object (e.g., an isolated muon, or MET)
  *  - described by its 4-momentum and physics type
  *
- *  $Date: 2007/12/06 20:34:52 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/09/22 16:28:40 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -60,13 +60,13 @@ namespace trigger
     float phi() const {return phi_;}
     float mass() const {return mass_;}
 
-    float px() const {return pt_*cos(phi_);}
-    float py() const {return pt_*sin(phi_);}
-    float pz() const {return pt_*sinh(eta_);}
-    float p () const {return pt_*cosh(eta_);}
-    float energy() const {return sqrt(pow(mass_,2)+pow(p(),2));}
+    float px() const {return pt_*std::cos(phi_);}
+    float py() const {return pt_*std::sin(phi_);}
+    float pz() const {return pt_*std::sinh(eta_);}
+    float p () const {return pt_*std::cosh(eta_);}
+    float energy() const {return std::sqrt(std::pow(mass_,2)+std::pow(p(),2));}
     // et = energy/cosh(eta)
-    float et() const {return sqrt(pow(mass_/cosh(eta_),2)+pow(pt_,2));}
+    float et() const {return std::sqrt(std::pow(mass_/std::cosh(eta_),2)+std::pow(pt_,2));}
 
     reco::Particle particle(reco::Particle::Charge q=0, 
       const reco::Particle::Point & vertex = reco::Particle::Point(0,0,0),

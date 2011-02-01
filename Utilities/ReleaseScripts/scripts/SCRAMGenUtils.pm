@@ -607,6 +607,19 @@ sub readBuildFile ()
     my $xml=$doc2xml->convert($bfile);
     $input = join("",@$xml);
   }
+  else
+  {
+    my $ref;
+    if(open($ref,$bfile))
+    {
+      while(my $l=<$ref>)
+      {
+        chomp $l;
+        if ($l=~/^\s*(#.*|)$/){next;}
+        $input.="$l ";
+      }
+    }
+  }
   my $xml = SCRAM::Plugins::DocParser->new();
   $xml->parse($bfile,$input);
   if ($raw){return $xml->{output};}
@@ -1466,6 +1479,23 @@ sub toolSymbolCache ()
 	  &symbolCacheFork($lib,$tool,$dir,$jobs);
 	  last;
         }
+      }
+    }
+  }
+  elsif($tool eq "cxxcompiler")
+  {
+    my $base=$cache->{SETUP}{$tool}{GCC_BASE} || $cache->{SETUP}{$tool}{CXXCOMPILER_BASE};
+    if (($base ne "") && (-f "${base}/lib/libstdc++.so"))
+    {
+      &symbolCacheFork("${base}/lib/libstdc++.so","system",$dir,$jobs);
+      foreach my $ldd (`ldd ${base}/lib/libstdc++.so`)
+      {
+        chomp $ldd;
+	if ($ldd=~/\=\>\s+([^\s]+)\s+\(0x[0-9a-f]+\)\s*$/)
+	{
+	  $ldd=$1;
+	  if (-f $ldd){&symbolCacheFork($ldd,"system",$dir,$jobs);}
+	}
       }
     }
   }

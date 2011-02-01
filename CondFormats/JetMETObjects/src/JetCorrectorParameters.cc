@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.10 2010/09/14 14:09:39 srappocc Exp $
+// $Id: JetCorrectorParameters.cc,v 1.17 2010/11/07 19:15:23 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -302,25 +302,25 @@ void JetCorrectorParameters::printFile(const std::string& fFileName) const
   std::ofstream txtFile;
   txtFile.open(fFileName.c_str());
   txtFile.setf(std::ios::right);
-  txtFile<<"{"<<definitions().nBinVar()<<std::setw(11);
+  txtFile<<"{"<<definitions().nBinVar()<<std::setw(15);
   for(unsigned i=0;i<definitions().nBinVar();i++)
-    txtFile<<definitions().binVar(i)<<std::setw(11);
-  txtFile<<definitions().nParVar()<<std::setw(11);
+    txtFile<<definitions().binVar(i)<<std::setw(15);
+  txtFile<<definitions().nParVar()<<std::setw(15);
   for(unsigned i=0;i<definitions().nParVar();i++)
-    txtFile<<definitions().parVar(i)<<std::setw(11);
-  txtFile<<std::setw(definitions().formula().size()+11)<<definitions().formula()<<std::setw(11);
+    txtFile<<definitions().parVar(i)<<std::setw(15);
+  txtFile<<std::setw(definitions().formula().size()+15)<<definitions().formula()<<std::setw(15);
   if (definitions().isResponse())
-    txtFile<<"Response"<<std::setw(11);
+    txtFile<<"Response"<<std::setw(15);
   else
-    txtFile<<"Correction"<<std::setw(11);
+    txtFile<<"Correction"<<std::setw(15);
   txtFile<<definitions().level()<<"}"<<"\n";
   for(unsigned i=0;i<size();i++)
     {
       for(unsigned j=0;j<definitions().nBinVar();j++)
-        txtFile<<record(i).xMin(j)<<std::setw(11)<<record(i).xMax(j)<<std::setw(11);
-      txtFile<<record(i).nParameters()<<std::setw(11);
+        txtFile<<record(i).xMin(j)<<std::setw(15)<<record(i).xMax(j)<<std::setw(15);
+      txtFile<<record(i).nParameters()<<std::setw(15);
       for(unsigned j=0;j<record(i).nParameters();j++)
-        txtFile<<record(i).parameter(j)<<std::setw(11);
+        txtFile<<record(i).parameter(j)<<std::setw(15);
       txtFile<<"\n";
     }
   txtFile.close();
@@ -337,7 +337,10 @@ JetCorrectorParametersCollection::labelsArray_[JetCorrectorParametersCollection:
     "L4EMF",
     "L5Flavor",
     "L6UE",
-    "L7Parton"
+    "L7Parton",
+    "L1JPTOffset",
+    "L2L3Residual",
+    "Uncertainty" 
   }; 
 
 const char *
@@ -364,7 +367,7 @@ JetCorrectorParametersCollection::l7PartonArray_[JetCorrectorParametersCollectio
     "L7Parton_qT",
     "L7Parton_cT",
     "L7Parton_bT",
-    "L7Parton_jT"
+    "L7Parton_tT"
   };
 
 
@@ -387,8 +390,8 @@ void JetCorrectorParametersCollection::getSections( std::string inputFile,
   outputs.clear();
   std::ifstream input( inputFile.c_str() );
   while( !input.eof() ) {
-    char buff[1000];
-    input.getline(buff,1000);
+    char buff[10000];
+    input.getline(buff,10000);
     std::string in(buff); 
     if ( in[0] == '[' ) {
       std::string tok = getSection(in);
@@ -404,12 +407,21 @@ void JetCorrectorParametersCollection::getSections( std::string inputFile,
 
 // Add a JetCorrectorParameter object, possibly with flavor. 
 void JetCorrectorParametersCollection::push_back( key_type i, value_type const & j, label_type const & flav) { 
-  if ( isL5(i) )
+  std::cout << "i    = " << i << std::endl;  
+  std::cout << "flav = " << flav << std::endl;
+  if ( isL5(i) ) {
+    std::cout << "This is L5, getL5Bin = " << getL5Bin(flav) << std::endl;
     correctionsL5_.push_back( pair_type(getL5Bin(flav),j) ); 
-  else if ( isL7(i) ) 
+  }
+  else if ( isL7(i) ) {
+    std::cout << "This is L7, getL7Bin = " << getL7Bin(flav) << std::endl;
     correctionsL7_.push_back( pair_type(getL7Bin(flav),j) );
-  else
+  }
+  else if ( flav == "" ) {
     corrections_.push_back( pair_type(i,j) );
+  } else {
+    std::cout << "***** NOT ADDING " << flav << ", corresponding position in JetCorrectorParameters is not found." << std::endl;
+  }
 }
 
 
@@ -461,7 +473,7 @@ JetCorrectorParametersCollection::getL5Bin( std::string const & flav ){
   std::vector<std::string>::const_iterator found = 
     find( l5Flavors_.begin(), l5Flavors_.end(), flav );
   if ( found != l5Flavors_.end() ) {
-    return (found - l5Flavors_.begin()) * 10;
+    return (found - l5Flavors_.begin() + 1) * 100;
   }
   else return L5Flavor;
 }
@@ -471,7 +483,7 @@ JetCorrectorParametersCollection::getL7Bin( std::string const & flav ){
   std::vector<std::string>::const_iterator found = 
     find( l7Partons_.begin(), l7Partons_.end(), flav );
   if ( found != l7Partons_.end() ) {
-    return (found - l7Partons_.begin()) * 1000;
+    return (found - l7Partons_.begin() + 1) * 1000;
   }
   else return L7Parton;
 }
@@ -479,7 +491,7 @@ JetCorrectorParametersCollection::getL7Bin( std::string const & flav ){
 // Check if this is an L5 hashed value
 bool JetCorrectorParametersCollection::isL5( key_type k ) {
   return k == L5Flavor ||
-    ( k / 10 > 0 && k / 1000 == 0 );
+    ( k / 100 > 0 && k / 1000 == 0 );
 }
 // Check if this is an L7 hashed value
 bool JetCorrectorParametersCollection::isL7( key_type k ) {

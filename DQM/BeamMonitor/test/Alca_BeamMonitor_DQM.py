@@ -4,7 +4,10 @@ process = cms.Process("DQM")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_3_8_0/MinimumBias/ALCARECO/GR_R_38X_V7_RelVal_col_10_bs_TkAlMinBias-v1/0007/90B6F8D6-4E96-DF11-B3A9-0018F3D0970A.root',
+#'/store/data/Run2010B/MinimumBias/ALCARECO/TkAlMinBias-v2/000/146/510/7AA2EFFA-A9C7-DF11-A332-001617C3B69C.root',
+'/store/data/Run2010B/MinimumBias/ALCARECO/TkAlMinBias-v2/000/146/514/C8E7D08D-BBC7-DF11-9617-001617E30E28.root',
+'/store/data/Run2010B/MinimumBias/ALCARECO/TkAlMinBias-v2/000/146/514/02FDBC55-30C8-DF11-BB4C-001617DBD224.root',
+#'/store/relval/CMSSW_3_8_0/MinimumBias/ALCARECO/GR_R_38X_V7_RelVal_col_10_bs_TkAlMinBias-v1/0007/90B6F8D6-4E96-DF11-B3A9-0018F3D0970A.root',
 #'/store/relval/CMSSW_3_8_0/MinimumBias/ALCARECO/GR_R_38X_V7_RelVal_col_10_bs_TkAlMinBias-v1/0007/8A6CDD40-C995-DF11-B6D5-0018F3D096AA.root'
     )
 #    , duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
@@ -30,6 +33,16 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+# this is for filtering on L1 technical trigger bit
+#process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+#process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
+#process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
+#process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 ) AND NOT (36 OR 37 OR 38 OR 39)')
+                                                                                                                                         
+#process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag = 'GR_R_38X_V9::All' #'GR_R_35X_V8::All'
+
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -50,16 +63,20 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
     								  )
 						         ),								        
                                          #connect = cms.string('frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_BEAMSPOT')
-                                         connect = cms.string('sqlite_file:step4.db')
+#                                         connect = cms.string('sqlite_file:promptCalibConditions_2.db')
+                                         connect = cms.string('sqlite_file:promptCalibConditions_3.db')
+#                                         connect = cms.string('sqlite_file:ALCAPROMPTHarvest-Run146514-StreamExpress-ALCAPROMPT-305756.db')
                                          #connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT')
                                          #connect = cms.string('frontier://PromptProd/CMS_COND_31X_BEAMSPOT')
                                         )
+
+#process.es_prefer_beamspot = cms.ESPrefer("PoolDBESSource","BeamSpotDBSource")
 
 
 process.DQMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     outputCommands = process.DQMEventContent.outputCommands,
-    fileName = cms.untracked.string('step5_DQM.root'),
+    fileName = cms.untracked.string('AlcaBeamMonitorDQM_3_HLT_GT_Cuts.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -73,5 +90,8 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
     )
 
-process.pp = cms.Path(process.AlcaBeamMonitor*process.endOfProcess*process.DQMoutput)
+process.pp = cms.Path(#process.hltLevel1GTSeed*
+                      process.AlcaBeamMonitor*
+		      process.endOfProcess*
+		      process.DQMoutput)
 process.schedule = cms.Schedule(process.pp)

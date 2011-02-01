@@ -9,7 +9,7 @@ def auto_inspect():
     if not ACTIVATE_INSPECTION:
         return [("unknown","unknown","unknown")]
     stack = inspect.stack()
-    while len(stack)>=1 and len(stack[0])>=2 and 'ParameterSet' in stack[0][1]:
+    while len(stack)>=1 and len(stack[0])>=2 and ('FWCore/ParameterSet' in stack[0][1] or 'FWCore/GuiBrowsers' in stack[0][1]):
         stack = stack[1:]
     if len(stack)>=1 and len(stack[0])>=3:
        return stack
@@ -45,6 +45,8 @@ def new___init__(self,name):
     self.__dict__['_Process__history'] = []
     self.__dict__['_Process__enableRecording'] = 0
     self.__dict__['_Process__modifiedobjects'] = []
+    self.__dict__['_Process__modifiedcheckpoint'] = None
+    self.__dict__['_Process__modifications'] = []
 cms.Process.old___init__=cms.Process.__init__
 cms.Process.__init__=new___init__
 
@@ -151,7 +153,38 @@ def new_checkRecording(self):
     return self.__dict__['_Process__enableRecording']==0
 cms.Process.checkRecording=new_checkRecording
 
+def new_setattr(self, name, value):
+    """
+    This catches modifications that occur during process.load,
+    and only records a modification if there was an existing object
+    and the version after __setattr__ has a different id().
+    This does not mean that the object is different, only redefined.
+    We still really need a recursive-comparison function for parameterizeable
+    objects to determine if a real change has been made.
+    """
+    old = None
+    existing = False
+    if not name.startswith('_Process__'):
+        existing = hasattr(self, name)
+        if existing:
+            old = getattr(self, name)
+    self.old__setattr__(name, value)
+    if existing:
+        if id(getattr(self, name)) != id(old):
+            stack = auto_inspect()
+            self.__dict__['_Process__modifications'] += [{'name': name,
+                                                          'old': deepcopy(old), 
+                                                          'new': deepcopy(getattr(self, name)),
+                                                          'file':stack[0][1],'line':stack[0][2],
+                                                          'action': 'replace'}]
+cms.Process.old__setattr__ = cms.Process.__setattr__
+cms.Process.__setattr__ = new_setattr
+
 def new_recurseResetModified_(self, o):
+    """
+    Empty all the _modifications lists for
+    all objects beneath this one.
+    """
     properties = []
     if isinstance(o, cms._ModuleSequenceType):
         o.resetModified()
@@ -165,82 +198,159 @@ def new_recurseResetModified_(self, o):
             self.recurseResetModified_(item)
 cms.Process.recurseResetModified_=new_recurseResetModified_
 
-def new_recurseDumpModifications_(self, name, o, comments=True):
-    dumpPython = ""
+def new_recurseDumpModifications_(self, name, o):
+    """
+    Recursively return a standardised list of modifications
+    from the object hierarchy.
+    """
+    modifications = []
     if isinstance(o, cms._ModuleSequenceType):
         if o._isModified:
-            if dumpPython != "":
-                dumpPython += "\n"
-            if comments:
-                for mod in o._modifications:
-                    if mod['action']=='replace':
-                        dumpPython += "# MODIFIED BY %(file)s:%(line)s replace %(old)s with %(new)s\n"%mod
-                    if mod['action']=='remove':
-                        dumpPython += "# MODIFIED BY %(file)s:%(line)s remove %(old)s\n"%mod
-                    if mod['action']=='append':
-                        dumpPython += "# MODIFIED BY %(file)s:%(line)s append %(new)s\n"%mod
-            dumpPython += "process.%s = %s"%(name,o.dumpPython({}))
+            for mod in o._modifications:
+                modifications.append({'name':name,
+                                      'action':mod['action'],
+                                      'old': mod['old'],
+                                      'new': mod['new'],
+                                      'file': mod['file'],
+                                      'line': mod['line'],
+                                      'dump': o.dumpPython({}),
+                                      'type': 'seq'})
     
-    # Test this is a parameterizable object. This ignores any parameters never placed in a PSet, but I don't think they're interesting anyway?
     if isinstance(o, cms._Parameterizable):
-        # Build a dictionary parametername->[modifications of that param,...] so that we group all modification statements for a single parameter together.
-        mod_dict = {}          
         for mod in o._modifications:
-            if mod['name'] in mod_dict:
-                mod_dict[mod['name']] += [mod]
+            paramname = mod['name']
+            if hasattr(o, paramname):
+                paramvalue = getattr(o, paramname)
             else:
-                mod_dict[mod['name']] = [mod]
-        
-        # Loop over modified parameters at this level, printing them
-        for paramname in mod_dict:
-            if dumpPython != "":
-                dumpPython += "\n"
-            if comments:
-                for mod in mod_dict[paramname]:
-                    if isinstance(mod['old'],cms._ParameterTypeBase):
-                      mod['old'] = mod['old'].dumpPython().replace('\n','')
-                    if isinstance(mod['new'],cms._ParameterTypeBase):
-                      mod['new'] = mod['new'].dumpPython().replace('\n','')
-                    dumpPython += "# MODIFIED BY %(file)s:%(line)s; %(old)s -> %(new)s\n" % mod
-            paramvalue = getattr(o,paramname)
+                paramvalue = None
             if isinstance(paramvalue,cms._ParameterTypeBase):
-              paramvalue = paramvalue.dumpPython().replace('\n','')
-            dumpPython += "process.%s.%s = %s\n" % (name,paramname,paramvalue) # Currently, _Parameterizable doesn't check __delattr__ for modifications. We don't either, but if anyone does __delattr__ then this will fail.
+                dump = paramvalue.dumpPython()
+            else:
+                dump = paramvalue
+            modifications.append({'name': '%s.%s' %(name, paramname),
+                                  'old': mod['old'],
+                                  'new': mod['new'],
+                                  'file': mod['file'],
+                                  'line': mod['line'],
+                                  'action': mod['action'],
+                                  'dump': dump,
+                                  'type': 'param'})
             
         # Loop over any child elements
         for key in o.parameterNames_():
             value = getattr(o,key)
-            dumpPython += self.recurseDumpModifications_("%s.%s"%(name,key),value,comments)
+            modifications += self.recurseDumpModifications_("%s.%s" % (name, key), value)
     
-    # Test if we have a VPSet (I think the code above would miss checking a VPSet for modified children too)
     if isinstance(o, cms._ValidatingListBase):
-        for index,item in enumerate(o):
-            dumpPython += self.recurseDumpModifications_("%s[%s]"%(name,index),item,comments)
-    return dumpPython    
+        for index, item in enumerate(o):
+            modifications += self.recurseDumpModifications_("%s[%s]" % (name, index), item)
+    if isinstance(o, cms.Process):
+        for mod in o.__dict__['_Process__modifications']:
+            if hasattr(o, mod['name']) and hasattr(getattr(o, mod['name']), 'dumpPython'):
+                dump = getattr(o, mod['name']).dumpPython()
+            else:
+                dump = None
+            modifications.append({'name': mod['name'],
+                                  'action': mod['action'],
+                                  'old': mod['old'],
+                                  'new': mod['new'],
+                                  'dump': dump,
+                                  'file': mod['file'],
+                                  'line': mod['line'],
+                                  'type': 'process'})
+    return modifications
 cms.Process.recurseDumpModifications_=new_recurseDumpModifications_
 
+def new_modificationCheckpoint(self):
+    """
+    Set a checkpoint, ie get the current list of all known
+    top-level names and store them. Later, when we print out
+    modifications we ignore any modifications that do not affect
+    something in this list.
+
+    There is currently no way of clearing this, but I think this
+    is generally a use-once feature.
+    """
+    existing_names = set()
+    for item in self.items_():
+        existing_names.add(item[0])
+    self.__dict__['_Process__modifiedcheckpoint'] = list(existing_names)
+cms.Process.modificationCheckpoint=new_modificationCheckpoint
+
 def new_resetModified(self):
+    """
+    Empty out all the modification lists, so we only see changes that
+    happen from now onwards.
+    """
+    self.__dict__['_Process__modified'] = []
     for name, o in self.items_():
         self.recurseResetModified_(o)
 cms.Process.resetModified=new_resetModified
 
-def new_dumpModifications(self,comments=True):
-    dumpModifications = ""
+def new_dumpModifications(self, comments=True, process=True, module=False, sequence=True, value=True, sort=True, group=True):
+    """
+    Return some text describing all the modifications that have been made.
+
+    * comments: print out comments describing the file and line which triggered
+                the modification, if determined.
+    * process: print "process." in front of every name
+    * module: only print out one entry per top-level module that has been
+              changed, rather than the details
+    * sequence: include changes to sequences
+    * value: print out the latest value of each name
+    * sort: whether to sort all the names before printing (otherwise they're in
+            more-or-less time order, within each category)
+    """
+    modifications = self.recurseDumpModifications_('', self)
+    text = []
     for name, o in self.items_():
-        dumpPython = self.recurseDumpModifications_(name, o, comments)
-        if dumpPython != "":
-            if dumpModifications != "":
-                dumpModifications += "\n"
-            dumpModifications += dumpPython
-    return dumpModifications
+        modifications += self.recurseDumpModifications_(name, o)
+    if not sequence:
+        modifications = filter(lambda x: not x['type'] == 'seq', modifications)
+    checkpoint = self.__dict__['_Process__modifiedcheckpoint']
+    if not checkpoint == None:
+        modifications = filter(lambda x: any([x['name'].startswith(check) for check in checkpoint]), modifications)
+    if module:
+        value = False
+        comments = False
+        modules = list(set([m['name'].split('.')[0] for m in modifications]))
+        if sort:
+            modules = sorted(modules)
+        if process:
+            text = ['process.%s' % m for m in modules]
+        else:
+            text = modules
+    else:
+        if sort:
+            modifications = sorted(modifications, key=lambda x: x['name'])
+        for i, m in enumerate(modifications):
+            t = ''
+            if comments:
+                if m['action'] == 'replace':
+                    t += '# %(file)s:%(line)s replace %(old)s->%(new)s\n' % m
+                elif m['action'] == 'remove':
+                    t += '# %(file)s:%(line)s remove %(old)s\n' % m
+                elif m['action'] == 'append':
+                    t += '# %(file)s:%(line)s append %(new)s\n' % m
+            if not group or i==len(modifications)-1 or not modifications[i+1]['name'] == m['name']:
+                if process and value:
+                    t += 'process.%s = %s' % (m['name'], m['dump'])
+                elif value:
+                    t += '%s = %s' % (m['name'], m['dump'])
+                elif process:
+                    t += 'process.%s' % (m['name'])
+                else:
+                    t += '%s' % (m['name'])
+            text += [t]
+    return '\n'.join(text)+'\n'
 cms.Process.dumpModifications=new_dumpModifications
 
 def new_dumpModificationsWithObjects(self):
     modifications = []
     for name, o in self.items_():
-        for m in self.recurseDumpModifications_(name, o, False).split("\n"):
-            if m != "":
-                modifications += [(m,[o])]
+        for m in self.recurseDumpModifications_(name, o):            
+            text = 'process.%s = %s' % (m['name'], m['dump'])
+            modifications += [(text,[o])]
     return modifications
 cms.Process.dumpModificationsWithObjects=new_dumpModificationsWithObjects
 
@@ -286,18 +396,27 @@ cms._Parameterizable.__init__ = new_Parameterizable_init
 def new_Parameterizable_addParameter(self, name, value):
   self.old__addParameter(name,value)
   stack = auto_inspect()
-  self._modifications.append({'file':stack[0][1],'line':stack[0][2],'name':name,'old':None,'new':deepcopy(value)})
+  self._modifications.append({'file':stack[0][1],'line':stack[0][2],'name':name,'old':None,'new':deepcopy(value),'action':'add'})
 cms._Parameterizable.old__addParameter = cms._Parameterizable._Parameterizable__addParameter
 cms._Parameterizable._Parameterizable__addParameter = new_Parameterizable_addParameter
 
 def new_Parameterizable_setattr(self, name, value):
   if (not self.isFrozen()) and (not name.startswith('_')) and (name in self.__dict__):
     stack = auto_inspect()
-    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'name':name,'old':deepcopy(self.__dict__[name]),'new':deepcopy(value)})
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'name':name,'old':deepcopy(self.__dict__[name]),'new':deepcopy(value),'action':'replace'})
     self._isModified = True
   self.old__setattr__(name,value)
 cms._Parameterizable.old__setattr__ = cms._Parameterizable.__setattr__
 cms._Parameterizable.__setattr__ = new_Parameterizable_setattr
+
+def new_Parameterizeable_delattr(self, name):
+    if not self.isFrozen():
+        stack = auto_inspect()
+        self._modifications.append({'file':stack[0][1],'line':stack[0][2],'name':name,'old':deepcopy(self.__dict__[name]), 'new':None,'action':'delete'})
+    self.old__delattr__(name)
+cms._Parameterizable.old__delattr__ = cms._Parameterizable.__delattr__
+cms._Parameterizable.__delattr__ = new_Parameterizeable_delattr
+
 
 def new_Parameterizable_resetModified(self):
     self._isModified=False
@@ -380,14 +499,14 @@ cms._ModuleSequenceType._replace = new__ModuleSequenceType__replace
 def new__ModuleSequenceType__remove(self, original):
     stack = auto_inspect()
     self._isModified=True
-    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'remove','old':original._name()})
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'remove','old':original._name(),'new':None})
     return self.old__remove(original)
 cms._ModuleSequenceType.old__remove = cms._ModuleSequenceType._remove
 cms._ModuleSequenceType._remove = new__ModuleSequenceType__remove
 
 def new__ModuleSequenceType__imul__(self,other):
     stack = auto_inspect()
-    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name()})
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name(),'old':None})
     self._isModified=True
     return self.old__iadd__(other)
 cms._ModuleSequenceType.old__imul__ = cms._ModuleSequenceType.__imul__
@@ -468,9 +587,11 @@ if __name__=='__main__':
             #self.assert_('process.ex.vps[1].six' in mods)
             #self.assert_('process.ex.seven[0]' in mods)
             #self.assert_('process.ex.eight' in mods)
-            #self.assert_('process.ex.nine' in mods)
+            self.assert_('process.ex.nine' in mods)
             self.assert_('process.ex.newvpset' in mods)
             
+            
+
         def testSeq(self):
             process = cms.Process('unittest')
             for i in range(10):
@@ -514,26 +635,26 @@ if __name__=='__main__':
             changeSource(process,"file:filename3.root")
             self.assertEqual(changeSource._parameters['source'].value,"file:filename3.root")
     
-            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n')
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\n")
             
             process.source.fileNames=cms.untracked.vstring("file:replacedfile.root") 
-            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n')
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n")
             
             process.disableRecording()
             changeSource.setParameter('source',"file:filename4.root")
             action=changeSource.__copy__()
             process.addAction(action)
-            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n')
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n")
             
             process.enableRecording()
             changeSource.setParameter('source',"file:filename5.root")
             action=changeSource.__copy__()
             process.addAction(action)
             process.deleteAction(3)
-            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\n\nchangeSource(process , 'file:filename5.root')\n")
 
             process.deleteAction(0)
-            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\n\nchangeSource(process , 'file:filename5.root')\n")
             
         def testModifiedObjectsHistory(self):
             process = cms.Process('unittest')
