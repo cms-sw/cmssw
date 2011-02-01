@@ -3,6 +3,7 @@
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 class ClusterClusterMapping{
@@ -14,6 +15,8 @@ class ClusterClusterMapping{
   static bool overlap(const reco::CaloCluster & sc1, const reco::CaloCluster & sc,float minfrac=0.01,bool debug=false) ;
   
   static int checkOverlap(const reco::PFCluster & pfc, std::vector<const reco::SuperCluster *> sc,float minfrac=0.01,bool debug=false) ;
+
+  static int checkOverlap(const reco::PFCluster & pfc, std::vector<reco::SuperClusterRef > sc,float minfrac=0.01,bool debug=false) ;
 };
 
 

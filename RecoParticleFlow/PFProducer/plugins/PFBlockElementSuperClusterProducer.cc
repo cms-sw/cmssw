@@ -3,10 +3,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFBlockElementSuperClusterProducer.h"
+#include "RecoParticleFlow/PFProducer/interface/PFPhotonSuperCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 PFBlockElementSuperClusterProducer::PFBlockElementSuperClusterProducer(const edm::ParameterSet & iConfig) {
   inputTagSuperClusters_ 
@@ -15,7 +16,6 @@ PFBlockElementSuperClusterProducer::PFBlockElementSuperClusterProducer(const edm
   outputName_ = iConfig.getParameter<std::string>("PFBESuperClusters");
 
   produces<reco::PFBlockElementSuperClusterCollection>(outputName_); 
-
 }
 
 PFBlockElementSuperClusterProducer::~PFBlockElementSuperClusterProducer() {}
@@ -40,11 +40,23 @@ void PFBlockElementSuperClusterProducer::produce(edm::Event& iEvent,
       throw cms::Exception( "MissingProduct", err.str());      
     }
 
-    unsigned nsc=scH->size();;
+    unsigned nsc=scH->size();
 
     for(unsigned isc=0;isc<nsc;++isc) {
       reco::SuperClusterRef theRef(scH,isc);
+      
+      // create the object
       reco::PFBlockElementSuperCluster myPFBE(theRef);
+
+      // to use the standard tools, create a fake photon object
+      reco::Candidate::LorentzVector p4(theRef->position().X(),
+					theRef->position().Y(),
+					theRef->position().Z(),
+					theRef->energy());
+      reco::PFPhotonSuperCluster myFakePhoton(p4,theRef);
+
+
+
       myPFBE.setTrackIso(0.);
       myPFBE.setEcalIso(0.);
       myPFBE.setHcalIso(0.);

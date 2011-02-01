@@ -60,8 +60,7 @@ class PFBlockProducer : public edm::EDProducer {
   edm::InputTag   inputTagPFClustersPS_;
   edm::InputTag   inputTagPFConversions_;
   edm::InputTag   inputTagPFV0_;
-
-
+  edm::InputTag   inputTagSuperClusters_;
   
   /// verbose ?
   bool   verbose_;

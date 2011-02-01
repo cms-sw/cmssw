@@ -13,6 +13,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     PFClustersHFEM = cms.InputTag("particleFlowClusterHFEM"),
     PFClustersHFHAD = cms.InputTag("particleFlowClusterHFHAD"),
     PFClustersPS = cms.InputTag("particleFlowClusterPS"),
+    PFBESuperClusters = cms.InputTag("pfBlockElementSC"),                                   
 
     # input tracks
     GsfRecTracks = cms.InputTag("pfTrackElec"),

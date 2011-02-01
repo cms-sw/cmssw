@@ -13,8 +13,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -71,6 +71,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   inputTagPFClustersPS_ 
     = iConfig.getParameter<InputTag>("PFClustersPS");
 
+  inputTagSuperClusters_
+    = iConfig.getParameter<InputTag>("PFBESuperClusters");
 
 
   verbose_ = 
@@ -277,8 +279,18 @@ PFBlockProducer::produce(Event& iEvent,
   if(!found )
     LogError("PFBlockProducer")<<" cannot get PS clusters: "
 			       <<inputTagPFClustersPS_<<endl;
-    
+
+  // dummy. Not used in the full framework 
   Handle< reco::PFRecTrackCollection > nuclearRecTracks;
+
+  
+  Handle< reco::PFBlockElementSuperClusterCollection >  pfbeSuperClusters;
+  found = iEvent.getByLabel(inputTagSuperClusters_,
+			    pfbeSuperClusters);
+
+  if(!found )
+    LogError("PFBlockProducer")<<" cannot get PFBlockElement SuperClusters" 
+			       << inputTagSuperClusters_ << endl;
 
   if( usePFatHLT_  ) {
      pfBlockAlgo_.setInput( recTracks, 			   
@@ -300,7 +312,8 @@ PFBlockProducer::produce(Event& iEvent,
 			   clustersHCAL,
 			   clustersHFEM,
 			   clustersHFHAD,
-			   clustersPS );
+			   clustersPS,
+			   pfbeSuperClusters);
   }
   pfBlockAlgo_.findBlocks();
   

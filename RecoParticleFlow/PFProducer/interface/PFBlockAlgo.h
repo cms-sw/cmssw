@@ -42,6 +42,9 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
+
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFBlockLink.h"
@@ -87,13 +90,15 @@ class PFBlockAlgo {
 		   const T<reco::PFClusterCollection>&  hfemh,
 		   const T<reco::PFClusterCollection>&  hfhadh,
 		   const T<reco::PFClusterCollection>&  psh,
+		   const T<reco::PFBlockElementSuperClusterCollection>&  sch,
 		   const Mask& trackMask = dummyMask_,
 		   const Mask& gsftrackMask = dummyMask_,
 		   const Mask& ecalMask = dummyMask_,
 		   const Mask& hcalMask = dummyMask_,
 		   const Mask& hfemMask = dummyMask_,		   
 		   const Mask& hfhadMask = dummyMask_,
-		   const Mask& psMask = dummyMask_  ); 
+		   const Mask& psMask = dummyMask_,
+		   const Mask& scMask = dummyMask_); 
   
   ///COLIN: I think this is for particle flow at HLT...
   template< template<typename> class T >
@@ -114,8 +119,9 @@ class PFBlockAlgo {
     T<reco::PFRecTrackCollection>    nucleartrackh;
     T<reco::PFConversionCollection> convh;
     T<reco::PFV0Collection> v0;
+    T<reco::PFBlockElementSuperClusterCollection> sc;
     setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, 
-		 ecalh, hcalh, hfemh, hfhadh, psh, 
+		 ecalh, hcalh, hfemh, hfhadh, psh, sc,
 		 trackMask, ecalMask, hcalMask, psMask); 
   }
   
@@ -137,7 +143,8 @@ class PFBlockAlgo {
     T<reco::PFRecTrackCollection>    nucleartrackh;
     T<reco::PFConversionCollection> convh;
     T<reco::PFV0Collection> v0;
-    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, ecalh, hcalh, psh, 
+    T<reco::PFBlockElementSuperClusterCollection> sc;
+    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, ecalh, hcalh, psh, sc,
 		 trackMask, gsftrackMask,ecalMask, hcalMask, psMask); 
   }
   
@@ -211,6 +218,9 @@ class PFBlockAlgo {
   double testLinkBySuperCluster(const reco::PFClusterRef & elt1,
 				const reco::PFClusterRef & elt2) const;   
 
+  /// test association between SuperClusters and ECAL
+  double testSuperClusterPFCluster(const reco::SuperClusterRef & sct1,
+				   const reco::PFClusterRef & elt2) const;
 
   /// checks size of the masks with respect to the vectors
   /// they refer to. throws std::length_error if one of the
@@ -222,13 +232,15 @@ class PFBlockAlgo {
 		      const reco::PFClusterCollection&  hfems,
 		      const reco::PFClusterCollection&  hfhads,
 		      const reco::PFClusterCollection&  pss, 
+		      const reco::PFBlockElementSuperClusterCollection&  scs, 
 		      const Mask& trackMask,
 		      const Mask& gsftrackMask, 
 		      const Mask& ecalMask, 
 		      const Mask& hcalMask,
 		      const Mask& hfemMask,
 		      const Mask& hfhadMask,		      
-		      const Mask& psMask ) const;
+		      const Mask& psMask,
+		      const Mask& scMask) const;
 
   /// open a resolution map
   // PFResolutionMap* openResolutionMap(const char* resMapName);
@@ -278,7 +290,7 @@ class PFBlockAlgo {
   bool  useConvBremPFRecTracks_;
 
    /// list of superclusters 
-  std::vector<const reco::SuperCluster *> superClusters_;
+  std::vector<reco::SuperClusterRef > superClusters_;
 
   /// SC corresponding to the PF cluster
   //  std::map<reco::PFClusterRef,int>  pfcRefSCMap_;
@@ -314,13 +326,15 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
                       const T<reco::PFClusterCollection>&  hfemh,
                       const T<reco::PFClusterCollection>&  hfhadh,
                       const T<reco::PFClusterCollection>&  psh,
+		      const T<reco::PFBlockElementSuperClusterCollection>& sch,
                       const Mask& trackMask,
 		      const Mask& gsftrackMask,
                       const Mask& ecalMask,
                       const Mask& hcalMask,
                       const Mask& hfemMask,
                       const Mask& hfhadMask,
-                      const Mask& psMask  ) {
+                      const Mask& psMask,
+		      const Mask& scMask) {
 
 
   checkMaskSize( *trackh,
@@ -330,13 +344,15 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		 *hfemh,
 		 *hfhadh,
                  *psh,
+		 *sch,
                  trackMask,
 		 gsftrackMask,
                  ecalMask,
                  hcalMask,
 		 hfemMask,
 		 hfhadMask,
-                 psMask  );
+                 psMask,
+		 scMask);
 
   /*
   if (nucleartrackh.isValid()){
@@ -372,7 +388,10 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	if(seedRef.isAvailable() && seedRef->isEcalDriven()) {
 	  reco::SuperClusterRef scRef = seedRef->caloCluster().castTo<reco::SuperClusterRef>();
 	  if(scRef.isNonnull())   {	      
-	    superClusters_.push_back(&(*scRef));	      
+	    superClusters_.push_back(scRef);
+	    reco::PFBlockElementSuperCluster * sce =
+	      new reco::PFBlockElementSuperCluster(scRef);
+	    elements_.push_back(sce);
 	  }
 	}
       }
@@ -433,11 +452,29 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	
       }
     }
-    // set the vector to the right size so to allow random access
-    scpfcRefs_.resize(superClusters_.size());
+
   }
 
-
+  /// Loop over the Super Clusters 
+  if(sch.isValid()) {
+    unsigned size=sch->size();
+    for(unsigned isc=0; isc<size; ++isc) {
+      if(!scMask.empty() && !(scMask)[isc] ) continue;
+      // Add only the super clusters not already included 
+      reco::SuperClusterRef scRef((*sch)[isc].superClusterRef());
+      std::vector<reco::SuperClusterRef>::const_iterator itcheck=find(superClusters_.begin(),superClusters_.end(),(*sch)[isc].superClusterRef());
+      if(itcheck==superClusters_.end())
+	{
+	  superClusters_.push_back(scRef);
+	  reco::PFBlockElementSuperCluster * sce =
+	    new reco::PFBlockElementSuperCluster((*sch)[isc]);
+	  elements_.push_back(sce);
+	}
+    }
+  }
+  
+  // set the vector to the right size so to allow random access
+  scpfcRefs_.resize(superClusters_.size());
 
   /// -------------- conversions ---------------------
 

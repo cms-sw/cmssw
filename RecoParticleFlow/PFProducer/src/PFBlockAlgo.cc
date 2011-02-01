@@ -623,6 +623,18 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       linktest = PFBlock::LINKTEST_RECHIT;
       break;
       
+    }
+  case PFBlockLink::SCandECAL:
+    {
+      PFClusterRef  clusterref = lowEl->clusterRef();
+
+      assert( !clusterref.isNull() );
+      
+      const reco::PFBlockElementSuperCluster * scEl = 
+	dynamic_cast<const reco::PFBlockElementSuperCluster*>(highEl);
+      assert (!scEl->superClusterRef().isNull());
+      dist = testSuperClusterPFCluster(scEl->superClusterRef(),
+				       clusterref);
       break;
     }
   default:
@@ -767,6 +779,27 @@ PFBlockAlgo::testLinkBySuperCluster(const PFClusterRef& ecal1,
 }
 
 
+double
+PFBlockAlgo::testSuperClusterPFCluster(const SuperClusterRef& ecal1, 
+				       const PFClusterRef& ecal2)  const {
+  
+  //  cout<<"entering testECALAndECAL "<< pfcRefSCMap_.size() << endl;
+  
+  double dist = -1;
+  
+  bool overlap=ClusterClusterMapping::overlap(*ecal1,*ecal2);
+  
+  if(overlap) 	{
+    dist=LinkByRecHit::computeDist( ecal1->position().eta(),
+				    ecal1->position().phi(), 
+				    ecal2->positionREP().Eta(), 
+				    ecal2->positionREP().Phi() );
+    return dist;
+  }
+  return dist;
+}
+
+
 
 double
 PFBlockAlgo::testPS1AndPS2(const PFCluster& ps1, 
@@ -887,13 +920,15 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
 			    const reco::PFClusterCollection&  hfems,
 			    const reco::PFClusterCollection&  hfhads,
 			    const reco::PFClusterCollection&  pss, 
+			    const reco::PFBlockElementSuperClusterCollection&  scs, 
 			    const Mask& trackMask, 
 			    const Mask& gsftrackMask,  
 			    const Mask& ecalMask,
 			    const Mask& hcalMask, 
 			    const Mask& hfemMask,
 			    const Mask& hfhadMask,		      
-			    const Mask& psMask ) const {
+			    const Mask& psMask,
+			    const Mask& scMask) const {
 
   if( !trackMask.empty() && 
       trackMask.size() != tracks.size() ) {
@@ -951,6 +986,14 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
     throw std::length_error( err.c_str() );
   }
   
+    if( !scMask.empty() && 
+      scMask.size() != scs.size() ) {
+    string err = "PFBlockAlgo::setInput: ";
+    err += "The size of the SC mask is different ";
+    err += "from the size of the SC vector.";
+    throw std::length_error( err.c_str() );
+  }
+
 }
 
 

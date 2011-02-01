@@ -9,6 +9,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include <sstream>
 
 using namespace std;

@@ -36,7 +36,8 @@ class PFBlockLink {
     PS2andGSF = 0x24,
     PS1andBREM = 0x42,
     PS2andBREM = 0x44,
-    HFEMandHFHAD = 0x180
+    HFEMandHFHAD = 0x180,
+    SCandECAL = 0x208
   };
   
   /// default constructor

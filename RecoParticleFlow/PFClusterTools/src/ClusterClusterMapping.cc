@@ -45,3 +45,14 @@ int ClusterClusterMapping::checkOverlap(const reco::PFCluster & pfc, std::vector
   }
   return result;
 }
+
+int ClusterClusterMapping::checkOverlap(const reco::PFCluster & pfc, std::vector<reco::SuperClusterRef > sc,float minfrac,bool debug) {
+  int result=-1;
+  unsigned nsc=sc.size();
+  
+  for(unsigned isc=0;isc<nsc;++isc) {
+    if(overlap(pfc,*sc[isc],minfrac,debug))
+      return isc;
+  }
+  return result;
+}
