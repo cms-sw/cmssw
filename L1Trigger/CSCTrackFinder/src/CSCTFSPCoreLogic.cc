@@ -716,9 +716,9 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
       std::cout << io->me4cVp << " " << io->me4cQp << " " << io->me4cEtap << " " << io->me4cPhip << " " << 0 << std::endl;
       
       std::cout << io->mb1aVp << " " << io->mb1aQp << " " << 0 << " " << io->mb1aPhip <<" " << 0 << std::endl;
-      std::cout << io->mb1bVp << " " << io->mb1bQp << " " << 0 << " " << io->mb1aPhip <<" " << 0 << std::endl;
-      std::cout << io->mb1cVp << " " << io->mb1cQp << " " << 0 << " " << io->mb1aPhip <<" " << 0 << std::endl;
-      std::cout << io->mb1dVp << " " << io->mb1dQp << " " << 0 << " " << io->mb1aPhip <<" " << 0 << std::endl;
+      std::cout << io->mb1bVp << " " << io->mb1bQp << " " << 0 << " " << io->mb1bPhip <<" " << 0 << std::endl;
+      std::cout << io->mb1cVp << " " << io->mb1cQp << " " << 0 << " " << 0/*io->mb1cPhip*/ <<" " << 0 << std::endl;
+      std::cout << io->mb1dVp << " " << io->mb1dQp << " " << 0 << " " << 0/*io->mb1dPhip*/ <<" " << 0 << std::endl;
       
       std::cout << io->ptHp  << " " << io->signHp  << " " << io->modeMemHp << " " << io->etaPTHp << " " << io->FRHp << " " << io->phiHp << std::endl;
       std::cout << io->ptMp  << " " << io->signMp  << " " << io->modeMemMp << " " << io->etaPTMp << " " << io->FRMp << " " << io->phiMp << std::endl;
