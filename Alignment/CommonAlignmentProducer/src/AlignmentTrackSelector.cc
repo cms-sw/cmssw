@@ -51,11 +51,11 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   nHitMin_( cfg.getParameter<double>( "nHitMin" ) ),
   nHitMax_( cfg.getParameter<double>( "nHitMax" ) ),
   chi2nMax_( cfg.getParameter<double>( "chi2nMax" ) ),
-  theCharge_( cfg.getParameter<int>( "theCharge" ) ),
   d0Min_(  cfg.getParameter<double>( "d0Min" ) ),
   d0Max_(  cfg.getParameter<double>( "d0Max" ) ),
   dzMin_(  cfg.getParameter<double>( "dzMin" ) ),
   dzMax_(  cfg.getParameter<double>( "dzMax" ) ),
+  theCharge_( cfg.getParameter<int>( "theCharge" ) ),
   minHitChargeStrip_( cfg.getParameter<double>( "minHitChargeStrip" ) ),
   minHitIsolation_( cfg.getParameter<double>( "minHitIsolation" ) ),
   rphirecHitsTag_( cfg.getParameter<edm::InputTag>("rphirecHits") ),
@@ -260,7 +260,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
        && nhit>=nHitMin_ && nhit<=nHitMax_
        && nlosthit<=nLostHitMax_
        && chi2n<chi2nMax_
-       && isChargeOk &&
+       && isChargeOk
        && d0>=d0Min_ && d0<=d0Max_
        && dz>=dzMin_ && dz<=dzMax_) {
       bool trkQualityOk=false ;
