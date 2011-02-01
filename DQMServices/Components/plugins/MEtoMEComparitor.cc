@@ -13,7 +13,7 @@
 //
 // Original Author:  jean-roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Tue Nov 30 18:55:50 CET 2010
-// $Id: MEtoMEComparitor.cc,v 1.4 2010/12/08 14:32:37 vlimant Exp $
+// $Id: MEtoMEComparitor.cc,v 1.5 2010/12/13 16:56:37 vlimant Exp $
 //
 //
 
@@ -21,7 +21,7 @@
 
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringOps.h"
-
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 
 MEtoMEComparitor::MEtoMEComparitor(const edm::ParameterSet& iConfig)
 
@@ -34,10 +34,8 @@ MEtoMEComparitor::MEtoMEComparitor(const edm::ParameterSet& iConfig)
   _process_ref = iConfig.getParameter<std::string>("processRef");
   _process_new = iConfig.getParameter<std::string>("processNew");
 
-  if (iConfig.getParameter<bool>("autoProcess")){
-    //get the last two process from the provenance
+  _autoProcess=iConfig.getParameter<bool>("autoProcess");
 
-  }
   _KSgoodness = iConfig.getParameter<double>("KSgoodness");
   _diffgoodness = iConfig.getParameter<double>("Diffgoodness");
   _dirDepth = iConfig.getParameter<unsigned int>("dirDepth");
@@ -46,29 +44,8 @@ MEtoMEComparitor::MEtoMEComparitor(const edm::ParameterSet& iConfig)
   _dbe = edm::Service<DQMStore>().operator->();
 
 
-  /*
-    produces<MEtoEDM<TH1F>, edm::InLumi>("name");
-
-    product<TH1S,edm::InLumi>();
-    product<TH1F,edm::InLumi>();
-    product<TH1D,edm::InLumi>();
-
-    product<TH1S,edm::InRun>();
-    product<TH1F,edm::InRun>();
-    product<TH1D,edm::InRun>();
-  */
 }
 
-template<class T,class W>
-void
-MEtoMEComparitor::product(){
-  /*
-    typedef typename MEtoEDM<T> prod;
-    produces<prod,W>("ref");
-    produces<prod,W>("new");
-    produces<prod,W>("diff");
-  */
-}
 
 MEtoMEComparitor::~MEtoMEComparitor()
 {
@@ -82,6 +59,21 @@ MEtoMEComparitor::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const ed
   compare<edm::LuminosityBlock,TH1S>(iLumi,_lumiInstance);
   compare<edm::LuminosityBlock,TH1F>(iLumi,_lumiInstance);
   compare<edm::LuminosityBlock,TH1D>(iLumi,_lumiInstance);
+}
+
+void
+MEtoMEComparitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+{
+  if (_autoProcess)
+    {
+      const edm::ProcessHistory& iHistory=iRun.processHistory();
+
+      edm::ProcessHistory::const_reverse_iterator hi=iHistory.rbegin();
+      _process_new=hi->processName();
+      hi++;
+      _process_ref=hi->processName();
+      std::cout<<_process_ref<<" vs "<<_process_new<<std::endl;
+    }
 }
 
 void
