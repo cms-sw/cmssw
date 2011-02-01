@@ -54,18 +54,23 @@ if ( $filnam ) {
   }
 }
 
-my $cmssw_arch = "slc5_ia32_gcc434";
-my $cmssw_setup = "/nfshome0/cmssw/scripts/setup.sh";
-my $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_3_9_1";
-
-#my $cmssw_arch = "slc5_amd64_gcc434";
-#my $cmssw_setup = "/nfshome0/cmssw2/scripts/setup.sh";
-#my $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_3_11_0";
+my $cmssw_arch;
+my $cmssw_setup;
+my $cmssw_path;
 
 if ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
   $cmssw_arch = "slc4_ia32_gcc345";
   $cmssw_setup = "/nfshome0/cmssw/scripts/setup.sh";
   $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_3_3_5";
+}
+
+if ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
+  $cmssw_arch = "slc5_ia32_gcc434";
+  $cmssw_setup = "/nfshome0/cmssw/scripts/setup.sh";
+  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_3_9_1";
+#  $cmssw_arch = "slc5_amd64_gcc434";
+#  $cmssw_setup = "/nfshome0/cmssw2/scripts/setup.sh";
+#  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_3_11_0";
 }
 
 if ( @filelist != 0 && $filelist[0] =~ /^Minidaq/ ) {
