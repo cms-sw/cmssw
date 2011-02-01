@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/12/06 14:05:52 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/01/26 10:06:04 $
+ *  $Revision: 1.6 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -109,7 +109,7 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 
   // find taus
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
-    if((*iter)->status()==3) {
+//    if((*iter)->status()==3) {
       if(abs((*iter)->pdg_id())==15){
         TauPt->Fill((*iter)->momentum().perp());
         TauEta->Fill((*iter)->momentum().eta());
@@ -120,7 +120,7 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 	spinEffects(*iter,mother,decaychannel);
 	photons(*iter);
       }
-    }
+//    }
   }
 
   delete myGenEvent;
