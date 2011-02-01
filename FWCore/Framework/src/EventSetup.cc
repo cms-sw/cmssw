@@ -16,6 +16,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
 
 namespace edm {
 //
@@ -75,6 +76,13 @@ EventSetup::clear()
 {
    recordMap_.clear();
 }
+   
+void 
+EventSetup::add(const eventsetup::EventSetupRecord& iRecord) 
+{
+   insert(iRecord.key(), &iRecord);
+}
+   
 //
 // const member functions
 //

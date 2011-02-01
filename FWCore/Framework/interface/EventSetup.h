@@ -105,10 +105,7 @@ class EventSetup
       //Only called by EventSetupProvider
       void setIOVSyncValue(const IOVSyncValue&);
 
-      template<typename T>
-         void add(const T& iRecord) {
-            insert(eventsetup::heterocontainer::makeKey<T, eventsetup::EventSetupRecordKey>(), &iRecord);
-         }
+      void add(const eventsetup::EventSetupRecord& iRecord);
       
       void clear();
       
