@@ -260,6 +260,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
        && nhit>=nHitMin_ && nhit<=nHitMax_
        && nlosthit<=nLostHitMax_
        && chi2n<chi2nMax_
+       && isChargeOk &&
        && d0>=d0Min_ && d0<=d0Max_
        && dz>=dzMin_ && dz<=dzMax_) {
       bool trkQualityOk=false ;
