@@ -192,12 +192,14 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
 
     GlobalPoint gp0 = layer_->toGlobal(lp0);
     float tofCorrection = gp0.mag()/29.9792458;
-    //float yCorrection = lp0.y()*0.012;
+    float signalPropagationSpeed[11] = {0.0, -78, -76, -188, -262, -97, -99, -90, -99, -99, -113};
+    float position = lp0.y()/sin(layergeom_->stripAngle(centerStrip));
+    float yCorrection = position/signalPropagationSpeed[id_.iChamberType()];
     //printf("RecHit in e:%d s:%d r:%d c:%d l:%d strip:%d \n",id.endcap(),id.station(), id.ring(),id.chamber(),id.layer(),centerStrip);
     //printf("\t tpeak before = %5.2f \t chipCorr %5.2f phaseCorr %5.2f chamberCorr %5.2f tofCorr %5.2f \n",
     //	   tpeak,chipCorrection, phaseCorrection,chamberCorrection,tofCorrection);
     //printf("localy = %5.2f, yCorr = %5.2f \n",lp0.y(),yCorrection);
-    tpeak = tpeak + chipCorrection + phaseCorrection + chamberCorrection-tofCorrection;//-yCorrection;
+    tpeak = tpeak + chipCorrection + phaseCorrection + chamberCorrection-tofCorrection+yCorrection;
     //printf("\t tpeak after = %5.2f\n",tpeak);
   }
 
