@@ -40,7 +40,8 @@ namespace edm {
       struct ComponentDescription;
       class DataProxyProvider;
       class EventSetupRecordProvider;
-
+      class EventSetupRecord;
+      
 class EventSetupProvider {
 
    public:
@@ -64,11 +65,7 @@ class EventSetupProvider {
       EventSetup const& eventSetup() const {return eventSetup_;}
 
       //called by specializations of EventSetupRecordProviders
-      template<typename T>
-         void addRecordToEventSetup(T& iRecord) {
-            iRecord.setEventSetup(&eventSetup_);
-            eventSetup_.add(iRecord);
-         }
+      void addRecordToEventSetup(EventSetupRecord& iRecord);
 
       void add(boost::shared_ptr<DataProxyProvider>);
       void add(boost::shared_ptr<EventSetupRecordIntervalFinder>);

@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -397,6 +398,13 @@ EventSetupProvider::forceCacheClear()
    }
 }
 
+      
+void 
+EventSetupProvider::addRecordToEventSetup(EventSetupRecord& iRecord) {
+   iRecord.setEventSetup(&eventSetup_);
+   eventSetup_.add(iRecord);
+}
+      
 //
 // const member functions
 //
