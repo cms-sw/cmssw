@@ -695,30 +695,30 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 
     if ( IsVerbose() ) {
       std::cout << "Core Verbose Output For Debugging\n";
-      std::cout << io->me1aVp << " " << io->me1aQp << " " << io->me1aEtap << " " << io->me1aPhip << " " << io->me1aCSCIdp << std::endl;
-      std::cout << io->me1bVp << " " << io->me1bQp << " " << io->me1bEtap << " " << io->me1bPhip << " " << io->me1bCSCIdp << std::endl;
-      std::cout << io->me1cVp << " " << io->me1cQp << " " << io->me1cEtap << " " << io->me1cPhip << " " << io->me1cCSCIdp << std::endl;
+      std::cout << io->me1aVp << " " << io->me1aQp << " " << io->me1aEtap << " " << io->me1aPhip << " " << io->me1aCSCIdp << " " << io->me1aCLCTp << std::endl;
+      std::cout << io->me1bVp << " " << io->me1bQp << " " << io->me1bEtap << " " << io->me1bPhip << " " << io->me1bCSCIdp << " " << io->me1bCLCTp << std::endl;
+      std::cout << io->me1cVp << " " << io->me1cQp << " " << io->me1cEtap << " " << io->me1cPhip << " " << io->me1cCSCIdp << " " << io->me1cCLCTp << std::endl;
     
-      std::cout << io->me1dVp << " " << io->me1dQp << " " << io->me1dEtap << " " << io->me1dPhip << " " << io->me1dCSCIdp << std::endl;
-      std::cout << io->me1eVp << " " << io->me1eQp << " " << io->me1eEtap << " " << io->me1ePhip << " " << io->me1eCSCIdp << std::endl;
-      std::cout << io->me1fVp << " " << io->me1fQp << " " << io->me1fEtap << " " << io->me1fPhip << " " << io->me1fCSCIdp << std::endl;
+      std::cout << io->me1dVp << " " << io->me1dQp << " " << io->me1dEtap << " " << io->me1dPhip << " " << io->me1dCSCIdp << " " << io->me1dCLCTp << std::endl;
+      std::cout << io->me1eVp << " " << io->me1eQp << " " << io->me1eEtap << " " << io->me1ePhip << " " << io->me1eCSCIdp << " " << io->me1eCLCTp << std::endl;
+      std::cout << io->me1fVp << " " << io->me1fQp << " " << io->me1fEtap << " " << io->me1fPhip << " " << io->me1fCSCIdp << " " << io->me1fCLCTp << std::endl;
       
-      std::cout << io->me2aVp << " " << io->me2aQp << " " << io->me2aEtap << " " << io->me2aPhip << " " << 0 << std::endl;
-      std::cout << io->me2bVp << " " << io->me2bQp << " " << io->me2bEtap << " " << io->me2bPhip << " " << 0 << std::endl;
-      std::cout << io->me2cVp << " " << io->me2cQp << " " << io->me2cEtap << " " << io->me2cPhip << " " << 0 << std::endl;
+      std::cout << io->me2aVp << " " << io->me2aQp << " " << io->me2aEtap << " " << io->me2aPhip << " " << 0 << " " << 0 << std::endl;
+      std::cout << io->me2bVp << " " << io->me2bQp << " " << io->me2bEtap << " " << io->me2bPhip << " " << 0 << " " << 0 << std::endl;
+      std::cout << io->me2cVp << " " << io->me2cQp << " " << io->me2cEtap << " " << io->me2cPhip << " " << 0 << " " << 0 << std::endl;
       
-      std::cout << io->me3aVp << " " << io->me3aQp << " " << io->me3aEtap << " " << io->me3aPhip << " " << 0 << std::endl;
-      std::cout << io->me3bVp << " " << io->me3bQp << " " << io->me3bEtap << " " << io->me3bPhip << " " << 0 << std::endl;
-      std::cout << io->me3cVp << " " << io->me3cQp << " " << io->me3cEtap << " " << io->me3cPhip << " " << 0 << std::endl;
+      std::cout << io->me3aVp << " " << io->me3aQp << " " << io->me3aEtap << " " << io->me3aPhip << " " << 0 << " " << 0 << std::endl;
+      std::cout << io->me3bVp << " " << io->me3bQp << " " << io->me3bEtap << " " << io->me3bPhip << " " << 0 << " " << 0 << std::endl;
+      std::cout << io->me3cVp << " " << io->me3cQp << " " << io->me3cEtap << " " << io->me3cPhip << " " << 0 << " " << 0 << std::endl;
       
-      std::cout << io->me4aVp << " " << io->me4aQp << " " << io->me4aEtap << " " << io->me4aPhip << " " << 0 << std::endl;
-      std::cout << io->me4bVp << " " << io->me4bQp << " " << io->me4bEtap << " " << io->me4bPhip << " " << 0 << std::endl;
-      std::cout << io->me4cVp << " " << io->me4cQp << " " << io->me4cEtap << " " << io->me4cPhip << " " << 0 << std::endl;
+      std::cout << io->me4aVp << " " << io->me4aQp << " " << io->me4aEtap << " " << io->me4aPhip << " " << 0 << " " << 0 << std::endl;
+      std::cout << io->me4bVp << " " << io->me4bQp << " " << io->me4bEtap << " " << io->me4bPhip << " " << 0 << " " << 0 << std::endl;
+      std::cout << io->me4cVp << " " << io->me4cQp << " " << io->me4cEtap << " " << io->me4cPhip << " " << 0 << " " << 0 << std::endl;
       
-      std::cout << io->mb1aVp << " " << io->mb1aQp << " " << 0 << " " << io->mb1aPhip <<" " << 0 << std::endl;
-      std::cout << io->mb1bVp << " " << io->mb1bQp << " " << 0 << " " << io->mb1bPhip <<" " << 0 << std::endl;
-      std::cout << io->mb1cVp << " " << io->mb1cQp << " " << 0 << " " << 0/*io->mb1cPhip*/ <<" " << 0 << std::endl;
-      std::cout << io->mb1dVp << " " << io->mb1dQp << " " << 0 << " " << 0/*io->mb1dPhip*/ <<" " << 0 << std::endl;
+      std::cout << io->mb1aVp << " " << io->mb1aQp << " " << 0 << " " << io->mb1aPhip <<" " << 0 << " " << io->mb1aBendp << std::endl;
+      std::cout << io->mb1bVp << " " << io->mb1bQp << " " << 0 << " " << io->mb1bPhip <<" " << 0 << " " << io->mb1bBendp << std::endl;
+      std::cout << io->mb1cVp << " " << io->mb1cQp << " " << 0 << " " << 0/*io->mb1cPhip*/ <<" " << 0 << " " << 0/*io->mb1aBendp*/ << std::endl;
+      std::cout << io->mb1dVp << " " << io->mb1dQp << " " << 0 << " " << 0/*io->mb1dPhip*/ <<" " << 0 << " " << 0/*io->mb1aBendp*/ << std::endl;
       
       std::cout << io->ptHp  << " " << io->signHp  << " " << io->modeMemHp << " " << io->etaPTHp << " " << io->FRHp << " " << io->phiHp << std::endl;
       std::cout << io->ptMp  << " " << io->signMp  << " " << io->modeMemMp << " " << io->etaPTMp << " " << io->FRMp << " " << io->phiMp << std::endl;
