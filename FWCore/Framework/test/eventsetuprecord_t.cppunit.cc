@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/HCTypeTag.h"
 
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
+#include "FWCore/Framework/interface/DataProxyProvider.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -353,8 +354,9 @@ void testEventsetupRecord::proxyResetTest()
   
   EventSetupRecordProviderTemplate<DummyRecord>* prov= dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)); 
   CPPUNIT_ASSERT(0 !=prov);
-  
-  const DummyRecord& dummyRecord = prov->record();
+  const EventSetupRecordProviderTemplate<DummyRecord>* constProv = prov;
+   
+  const EventSetupRecord& dummyRecord = constProv->record();
 
   unsigned long long cacheID = dummyRecord.cacheIdentifier();
   Dummy myDummy;
@@ -401,8 +403,9 @@ void testEventsetupRecord::transientTest()
    EventSetupRecordProviderTemplate<DummyRecord>* prov= dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)); 
    CPPUNIT_ASSERT(0 !=prov);
    
-   const DummyRecord& dummyRecord = prov->record();
-   DummyRecord& nonConstDummyRecord = const_cast<DummyRecord&>(dummyRecord);
+   const EventSetupRecordProviderTemplate<DummyRecord>* constProv = prov;
+   const EventSetupRecord& dummyRecord = constProv->record();
+   EventSetupRecord& nonConstDummyRecord = const_cast<EventSetupRecord&>(dummyRecord);
    
    unsigned long long cacheID = dummyRecord.cacheIdentifier();
    Dummy myDummy;
