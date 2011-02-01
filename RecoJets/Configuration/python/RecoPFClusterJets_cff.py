@@ -5,6 +5,6 @@ from RecoJets.JetProducers.PFClustersForJets_cff import *
 
 
 
-recoPFClusterJets   =cms.Sequence(pfClusterRefsForJetsHCAL+pfClusterRefsForJetsECAL+pfClusterRefsForJetsHFEM+pfClusterRefsForJetsHFHAD+pfClusterRefsForJets+ak5PFClusterJets)
+recoPFClusterJets   =cms.Sequence(pfClusterRefsForJetsHCAL+pfClusterRefsForJetsECAL+pfClusterRefsForJets+ak5PFClusterJets)
 
-recoAllPFClusterJets=cms.Sequence(pfClusterRefsForJetsHCAL+pfClusterRefsForJetsECAL+pfClusterRefsForJetsHFEM+pfClusterRefsForJetsHFHAD+pfClusterRefsForJets+ak5PFClusterJets)
+recoAllPFClusterJets=cms.Sequence(pfClusterRefsForJetsHCAL+pfClusterRefsForJetsECAL+pfClusterRefsForJets+ak5PFClusterJets)
