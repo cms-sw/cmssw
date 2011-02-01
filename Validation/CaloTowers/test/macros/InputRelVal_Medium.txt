@@ -128,14 +128,6 @@
                                         RMS_vs_ieta_HF1   0
                                         RMS_vs_ieta_HF2   0
                                          RMS_vs_ieta_HO   0
-                                               emap_HB1   0
-                                               emap_HB2   0
-                                               emap_HE1   0
-                                               emap_HE2   0
-                                               emap_HE3   0
-                                               emap_HF1   0
-                                               emap_HF2   0
-                                                emap_HO   0
                                           emean_seq_HB1   0
                                           emean_seq_HB2   0
                                           emean_seq_HE1   0
@@ -177,6 +169,11 @@
                                   occupancy_vs_ieta_HF1   1	          occupancy_vs_ieta_HF1.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HF depth 1: occupancy vs ieta
                                   occupancy_vs_ieta_HF2   1	          occupancy_vs_ieta_HF2.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HF depth 2: occupancy vs ieta
                                    occupancy_vs_ieta_HO   1	           occupancy_vs_ieta_HO.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HO: occupancy vs ieta
+                                            emap_depth1   1                    emap_depth1.gif          1      -41      41      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth1
+                                            emap_depth1   1                    emap_depth1-1.gif        1      -29      29      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth1 (HB/HE)
+                                            emap_depth2   1                    emap_depth2.gif          1      -41      41      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth2
+                                            emap_depth3   1                    emap_depth3.gif          1      -41      41      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth3
+                                            emap_depth4   1                    emap_depth4.gif          1      -41      41      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth4 
                                         hLumiBlockCount   0
                                              hRBXEnergy   1	                     RBX_energy.gif	1	0	500	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy (GeV)
                                         hRBXEnergyType1   1	               RBX_energy_type1.gif	1	0	400	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 1 (GeV)
