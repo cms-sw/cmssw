@@ -44,6 +44,9 @@ private:
 
   //static G4ProcessHelper* pinstance;
 
+  G4double Regge(const double boost);
+  G4double Pom(const double boost);
+
   G4double checkfraction;
   G4int n_22;
   G4int n_23;
@@ -59,6 +62,8 @@ private:
   G4double PhaseSpace(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle);
   
   G4double ReactionProductMass(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle);
+
+  G4bool ReactionGivesBaryon(const ReactionProduct& aReaction);
 
   G4bool ReactionIsPossible(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle);
 
@@ -78,6 +83,10 @@ private:
   double gamma;
   double amplitude;
   double suppressionfactor;
+  bool reggemodel;
+  double hadronlifetime;
+  double mixing;
+
 
   //Proton-scattering processes
   ReactionMap pReactionMap;

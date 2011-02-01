@@ -13,7 +13,10 @@ customPhysicsSetup = cms.PSet(
 
     # R-hadron physics setup
     resonant = cms.bool(False),
-    gamma = cms.double(0.1) ##
+    gamma = cms.double(0.1),
+    reggeModel = cms.double(False),
+    hadronLifeTime = cms.double(-1.),
+    mixing = cms.double(1.)
 
 )
 
