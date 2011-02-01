@@ -34,7 +34,6 @@ const TGGC& boldGC()
    s_boldGC.SetFont(newFont->GetFontHandle());
   
    return s_boldGC;
-   *gClient->GetResourcePool()->GetFrameGC();
 }
 
 const TGGC& greenGC()
