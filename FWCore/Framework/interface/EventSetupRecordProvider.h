@@ -39,6 +39,7 @@ namespace edm {
       class DataKey;
       class DataProxyProvider;
       class EventSetupProvider;
+      class EventSetupRecord;
       
 class EventSetupRecordProvider {
 
@@ -67,7 +68,7 @@ class EventSetupRecordProvider {
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void addRecordTo(EventSetupProvider&) = 0;
+      void addRecordTo(EventSetupProvider&);
       void addRecordToIfValid(EventSetupProvider&, IOVSyncValue const&) ;
 
       void add(boost::shared_ptr<DataProxyProvider>);
@@ -91,9 +92,11 @@ class EventSetupRecordProvider {
       boost::shared_ptr<EventSetupRecordIntervalFinder> finder() const { return finder_; }
 
    protected:
-      virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>,
-                                      DataToPreferredProviderMap const&) = 0;
-      virtual void cacheReset() = 0;
+      void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>,
+                              DataToPreferredProviderMap const&);
+      void cacheReset();
+   
+      virtual EventSetupRecord& record() = 0;
       
       boost::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(boost::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
         std::swap(iNew, finder_);
@@ -106,7 +109,7 @@ class EventSetupRecordProvider {
       EventSetupRecordProvider const& operator=(EventSetupRecordProvider const&); // stop default
 
       void resetTransients();
-      virtual bool checkResetTransients() = 0;
+      bool checkResetTransients();
       // ---------- member data --------------------------------
       EventSetupRecordKey const key_;
       ValidityInterval validityInterval_;

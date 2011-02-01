@@ -16,10 +16,13 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -129,6 +132,37 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
   multipleFinders_.reset(0);
 }
 
+void 
+EventSetupRecordProvider::addProxiesToRecord(boost::shared_ptr<DataProxyProvider> iProvider,
+                                const EventSetupRecordProvider::DataToPreferredProviderMap& iMap) {
+   typedef DataProxyProvider::KeyedProxies ProxyList ;
+   typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
+   
+   EventSetupRecord& rec = record();
+   const ProxyList& keyedProxies(iProvider->keyedProxies(this->key())) ;
+   ProxyList::const_iterator finishedProxyList(keyedProxies.end()) ;
+   for (ProxyList::const_iterator keyedProxy(keyedProxies.begin()) ;
+        keyedProxy != finishedProxyList ;
+        ++keyedProxy) {
+      PreferredMap::const_iterator itFound = iMap.find(keyedProxy->first);
+      if(iMap.end() != itFound) {
+         if( itFound->second.type_ != keyedProxy->second->providerDescription()->type_ ||
+            itFound->second.label_ != keyedProxy->second->providerDescription()->label_ ) {
+            //this is not the preferred provider
+            continue;
+         }
+      }
+      rec.add((*keyedProxy).first , (*keyedProxy).second.get()) ;
+   }
+}
+      
+void 
+EventSetupRecordProvider::addRecordTo(EventSetupProvider& iEventSetupProvider) {
+   EventSetupRecord& rec = record();
+   rec.set(this->validityInterval());
+   iEventSetupProvider.addRecordToEventSetup(rec);
+}
+      
 //
 // const member functions
 //
@@ -201,6 +235,18 @@ EventSetupRecordProvider::resetProxies()
 
 }
 
+void 
+EventSetupRecordProvider::cacheReset()
+{
+   record().cacheReset();
+}
+
+bool 
+EventSetupRecordProvider::checkResetTransients() 
+{
+   return record().transientReset();
+}
+      
 
 std::set<EventSetupRecordKey> 
 EventSetupRecordProvider::dependentRecords() const
@@ -231,6 +277,7 @@ EventSetupRecordProvider::proxyProvider(const ComponentDescription& iDesc) const
    return *itFound;
 }
 
+      
 
 //
 // static member functions
