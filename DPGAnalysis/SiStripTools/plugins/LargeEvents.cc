@@ -140,7 +140,7 @@ LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    if(ndigitot > _absthr) {
-     edm::LogInfo("LargeEventSelected") << "event with " << ndigitot << " digi/cluster selected";
+     LogDebug("LargeEventSelected") << "event with " << ndigitot << " digi/cluster selected";
      return true;
    }
 
