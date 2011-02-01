@@ -2,10 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 from Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi import *
 from Calibration.EcalAlCaRecoProducers.electronIsolationSequence_cff import *
+from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
+
 import HLTrigger.HLTfilters.hltHighLevel_cfi 
 
 #
-# The current (as of $Date: 2009/04/30 12:53:25 $) ALCA stream for single and double electron
+# The current (as of $Date: 2010/03/04 05:42:57 $) ALCA stream for single and double electron
 # calibration
 #
 

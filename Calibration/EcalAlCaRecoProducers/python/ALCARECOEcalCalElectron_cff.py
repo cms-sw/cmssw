@@ -10,6 +10,7 @@ import FWCore.ParameterSet.Config as cms
 from Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi import *
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 from Calibration.EcalAlCaRecoProducers.electronFilter_cfi import *
+from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 
 electronewkHLTFilter = hltHighLevel.clone()
 electronewkHLTFilter.throw = False 
