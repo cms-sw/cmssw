@@ -251,7 +251,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       //int CLCT_pattern = static_cast<int>(address.delta_phi_23);
       int CLCT_pattern;
       CLCT_pattern = int(address.delta_phi_23);
-
       dphi12R = (static_cast<float>(absPhi12<<1)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
 
       //std::cout<< " Sector_rad = " << (CSCTFConstants::SECTOR_RAD) << std::endl;
@@ -266,8 +265,9 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
            ptR_front = std::max(ptR_front, ptR_front_min);
            ptR_rear = std::max(ptR_rear, ptR_rear_min);
         }
-      if((CLCT_pattern =! 8) && (CLCT_pattern =! 9) && (CLCT_pattern != 10) && (ptR_front > 5.)) ptR_front = 5.;
-      if((CLCT_pattern =! 8) && (CLCT_pattern =! 9) && (CLCT_pattern != 10) && (ptR_rear > 5.)) ptR_rear = 5.;
+      if( ((CLCT_pattern < 8) || (CLCT_pattern > 10)) && (ptR_front > 5.)) ptR_front = 5.;
+      if( ((CLCT_pattern < 8) || (CLCT_pattern > 10)) && (ptR_rear > 5.)) ptR_rear = 5.;
+      //std::cout << "mode = "<< mode << " CLCT_pattern = " << CLCT_pattern << " ptR_rear = " << ptR_rear << std::endl;
 
       break;
     case 8:
@@ -292,12 +292,16 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
     case 12: // FR = 1 -> b1-2-3,     FR = 0 -> b1-2 
     case 14: // FR = 1 -> b1-1-2-(3), FR = 0 -> b1-1
 
+    //sign definition: sign dphi12 = Phi_DT - Phi_CSC
+    //                 sing dphi23 = 5th sign. bit of phiBend
+    // -> charge = 1 -> dphi12 = +, phiBend = -
+    // -> charge = 0 -> dphi12 = +, phiBend = +    
         charge12 = 1;
         absPhi12 = address.delta_phi_12;
         absPhi23 = address.delta_phi_23;
 
-        if(charge) charge23 = 1;
-        else charge23 = -1;
+        if(charge) charge23 = -1;
+        else charge23 = 1;
 
         dphi12R = (static_cast<float>(absPhi12<<1)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
         dphi23R = float(absPhi23);
@@ -307,8 +311,10 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
         mode1 = int(mode);
         if(fr == 1 && mode1 == 11) mode1 = 14; // 3 station track we use dphi12 and phiBend for 2 and 3 station track
 
+        //dphi23R = -dphi23R; //test
         ptR_front = ptMethods.Pt3Stn2011(mode1, etaR, dphi12R, dphi23R, int(0), int(pt_method));
         ptR_rear = ptMethods.Pt3Stn2011(mode1, etaR, dphi12R, dphi23R, int(0), int(pt_method));
+        //std::cout << "mode = "<< mode << " phiBend = " << dphi23R << " dphi12 = " << dphi12R << " ptR_rear = " << ptR_rear << std::endl;
 
       break;
     case 15: // halo trigger
@@ -397,8 +403,8 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
            ptR_front = std::max(ptR_front, ptR_front_min);
            ptR_rear = std::max(ptR_rear, ptR_rear_min);
         }
-      if((CLCT_pattern =! 8) && (CLCT_pattern =! 9) && (CLCT_pattern != 10) && (ptR_front > 5.)) ptR_front = 5.;
-      if((CLCT_pattern =! 8) && (CLCT_pattern =! 9) && (CLCT_pattern != 10) && (ptR_rear > 5.)) ptR_rear = 5.;
+      if( ((CLCT_pattern < 8) || (CLCT_pattern > 10)) && (ptR_front > 5.)) ptR_front = 5.;
+      if( ((CLCT_pattern < 8) || (CLCT_pattern > 10)) && (ptR_rear > 5.)) ptR_rear = 5.;
 
       break;
     case 8:
@@ -422,12 +428,16 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
     case 12: // FR = 1 -> b1-2-3,     FR = 0 -> b1-2 
     case 14: // FR = 1 -> b1-1-2-(3), FR = 0 -> b1-1
 
+    //sign definition: sign dphi12 = Phi_DT - Phi_CSC
+    //                 sing dphi23 = 5th sign. bit of phiBend
+    // -> charge = 1 -> dphi12 = +, phiBend = -
+    // -> charge = 0 -> dphi12 = +, phiBend = +    
         charge12 = 1;
         absPhi12 = address.delta_phi_12;
         absPhi23 = address.delta_phi_23;
 
-        if(charge) charge23 = 1;
-        else charge23 = -1;
+        if(charge) charge23 = -1;
+        else charge23 = 1;
 
         dphi12R = (static_cast<float>(absPhi12<<1)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
         dphi23R = float(absPhi23);
