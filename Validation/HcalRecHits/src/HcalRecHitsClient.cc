@@ -119,10 +119,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
    MonitorElement* map_depth1 =0, *map_depth2 =0, *map_depth3 =0, *map_depth4 =0;
 // others 
    MonitorElement* Nhf=0;
-   MonitorElement* emap_HB1 =0, *emap_HB2 =0; 
-   MonitorElement* emap_HE1 =0, *emap_HE2 =0, *emap_HE3 =0;
-   MonitorElement* emap_HF1 =0, *emap_HF2 =0; 
-   MonitorElement* emap_HO =0;
+   MonitorElement* emap_depth1 =0, *emap_depth2 =0, *emap_depth3 =0, *emap_depth4 =0; 
    MonitorElement* occupancy_seqHB1 =0, *occupancy_seqHB2 =0; 
    MonitorElement* occupancy_seqHE1 =0, *occupancy_seqHE2 =0, *occupancy_seqHE3 =0;
    MonitorElement* occupancy_seqHF1 =0, *occupancy_seqHF2 =0; 
@@ -188,14 +185,11 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
       if( strcmp(hcalMEs[ih]->getName().c_str(), "ZSmin_map_depth4") ==0  ){ map_depth4= hcalMEs[ih]; }
 
       if( strcmp(hcalMEs[ih]->getName().c_str(), "N_HF") ==0  ){ Nhf= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_HB1") ==0  ){ emap_HB1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_HB2") ==0  ){ emap_HB2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_HE1") ==0  ){ emap_HE1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_HE2") ==0  ){ emap_HE2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_HE3") ==0  ){ emap_HE3= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_HF1") ==0  ){ emap_HF1= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_HF2") ==0  ){ emap_HF2= hcalMEs[ih]; }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_HO") ==0  ){ emap_HO= hcalMEs[ih]; }
+      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth1") ==0  ){ emap_depth1= hcalMEs[ih]; }
+      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth2") ==0  ){ emap_depth2= hcalMEs[ih]; }
+      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth3") ==0  ){ emap_depth3= hcalMEs[ih]; }
+      if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth4") ==0  ){ emap_depth4= hcalMEs[ih]; }
+
       if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB1") ==0  ){ occupancy_seqHB1= hcalMEs[ih]; }
       if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB2") ==0  ){ occupancy_seqHB2= hcalMEs[ih]; }
       if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE1") ==0  ){ occupancy_seqHE1= hcalMEs[ih]; }
@@ -368,8 +362,8 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
       double nevtot = Nhf->getEntries();
       if(verbose_) std::cout<<"nevtot : "<<nevtot<<std::endl;
 
-      int nx = emap_HB1->getNbinsX();    
-      int ny = emap_HB1->getNbinsY();
+      int nx = emap_depth1->getNbinsX();    
+      int ny = emap_depth1->getNbinsY();
       float cnorm;
       float fev = float (nevtot);
       //    std::cout << "*** nevtot " <<  nevtot << std::endl; 
@@ -430,33 +424,26 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	    sumphi_hf1 += occupancy_map_HF1->getBinContent(i,j);
 	    sumphi_hf2 += occupancy_map_HF2->getBinContent(i,j);
 	
-	    // Emean (only emap_HB1 is used)
-	    cnorm = emap_HB1->getBinContent(i,j) / fev;
-            emap_HB1->setBinContent(i,j,cnorm);
-	    if (useAllHistos){
-	       cnorm = emap_HB2->getBinContent(i,j) / fev; 
-	       emap_HB2->setBinContent(i,j,cnorm);
-	       cnorm = emap_HE1->getBinContent(i,j) / fev;
-               emap_HE1->setBinContent(i,j,cnorm);
-	       cnorm = emap_HE2->getBinContent(i,j) / fev;
-	       emap_HE2->setBinContent(i,j,cnorm);
-	       cnorm = emap_HE3->getBinContent(i,j) / fev;
-	       emap_HE3->setBinContent(i,j,cnorm);
-	       cnorm = emap_HO->getBinContent(i,j) / fev;
-	       emap_HO->setBinContent(i,j,cnorm);
-	       cnorm = emap_HF1->getBinContent(i,j) / fev;
-	       emap_HF1->setBinContent(i,j,cnorm);
-	       cnorm = emap_HF2->getBinContent(i,j) / fev;
-	       emap_HF2->setBinContent(i,j,cnorm);
+	    // Emean maps
+	    cnorm = emap_depth1->getBinContent(i,j) / fev;
+            emap_depth1->setBinContent(i,j,cnorm);
+	    cnorm = emap_depth2->getBinContent(i,j) / fev;
+            emap_depth2->setBinContent(i,j,cnorm);
+	    cnorm = emap_depth3->getBinContent(i,j) / fev;
+            emap_depth3->setBinContent(i,j,cnorm);
+	    cnorm = emap_depth4->getBinContent(i,j) / fev;
+            emap_depth4->setBinContent(i,j,cnorm);
 
-               occupancy_seqHB1->Fill(double(index),cnorm);
-	       occupancy_seqHB2->Fill(double(index),cnorm);
-	       occupancy_seqHE1->Fill(double(index),cnorm);
-	       occupancy_seqHE2->Fill(double(index),cnorm);
-	       occupancy_seqHE3->Fill(double(index),cnorm);
-	       occupancy_seqHO->Fill(double(index),cnorm);
-	       occupancy_seqHF1->Fill(double(index),cnorm);
-	       occupancy_seqHF2->Fill(double(index),cnorm); 
+	    // Occupancies - not in main drawn set of histos
+            if(useAllHistos){
+              occupancy_seqHB1->Fill(double(index),cnorm);
+	      occupancy_seqHB2->Fill(double(index),cnorm);
+	      occupancy_seqHE1->Fill(double(index),cnorm);
+	      occupancy_seqHE2->Fill(double(index),cnorm);
+	      occupancy_seqHE3->Fill(double(index),cnorm);
+	      occupancy_seqHO->Fill(double(index),cnorm);
+	      occupancy_seqHF1->Fill(double(index),cnorm);
+	      occupancy_seqHF2->Fill(double(index),cnorm); 
 	    }
          }
 
