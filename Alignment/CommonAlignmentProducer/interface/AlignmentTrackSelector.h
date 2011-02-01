@@ -67,6 +67,7 @@ class AlignmentTrackSelector
   const bool multiplicityOnInput_; /// if true, cut min/maxMultiplicity on input instead of on final result
   const double ptMin_,ptMax_,pMin_,pMax_,etaMin_,etaMax_,phiMin_,phiMax_;
   const double nHitMin_,nHitMax_,chi2nMax_, d0Min_,d0Max_,dzMin_,dzMax_;
+  const int theCharge_;
   const double minHitChargeStrip_, minHitIsolation_;
   const edm::InputTag rphirecHitsTag_;
   const edm::InputTag matchedrecHitsTag_;
