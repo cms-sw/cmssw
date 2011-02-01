@@ -13,7 +13,7 @@
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.1 2011/01/26 17:02:19 nancy Exp $
+// $Id: ConversionProducer.cc,v 1.2 2011/01/31 11:24:40 vlimant Exp $
 //
 //
 
@@ -522,6 +522,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
 	  if ( matchingSC ( superClusterPtrs, newCandidate, scPtrVec) ) 
 	    newCandidate.setMatchingSuperCluster( scPtrVec);
           
+	  std::cout << " ConversionProducer  scPtrVec.size " <<  scPtrVec.size() << std::endl;
 	  
           newCandidate.setQuality(reco::Conversion::highPurity,  highPurityPair);
 	  bool generalTracksOnly = ll->isTrackerOnly() && rr->isTrackerOnly() && !dynamic_cast<const reco::GsfTrack*>(ll->trackRef().get()) && !dynamic_cast<const reco::GsfTrack*>(rr->trackRef().get());
@@ -639,18 +640,13 @@ bool ConversionProducer::matchingSC(const std::multimap<double, reco::CaloCluste
     double sceta = sc->eta();
     double conveta = etaTransformation(aConv.refittedPairMomentum().eta(), aConv.zOfPrimaryVertexFromTracks() );
     const double delta_eta = conveta - sceta;
-    //    const double dR =  sqrt( delta_eta*delta_eta +  delta_phi*delta_phi );    
-    // if ( dR < dRMin ) {
-    // dRMin = dR;
-    //  match= sc;
-    // }
     if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
       detaMin=  fabs(delta_eta);
-      dphiMin=  fabs(dphiMin);
+      dphiMin=  fabs(delta_phi);
       match=sc;
     }
   }
-  // if ( dRMin < dRcutForSCmatching_) {
+  
   if ( detaMin < dEtacutForSCmatching_ && dphiMin < dPhicutForSCmatching_ ) {
     mSC.push_back(match);
     return true;
