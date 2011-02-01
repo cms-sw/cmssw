@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_0/HIon/V7 (CMSSW_3_11_0_pre5_HLT5)
+# /dev/CMSSW_4_2_0/pre2/HIon/V1 (CMSSW_4_2_0_pre1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_0/HIon/V7')
+  tableName = cms.string('/dev/CMSSW_4_2_0/pre2/HIon/V1')
 )
 
 streams = cms.PSet( 
@@ -392,10 +392,10 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
         'HcalCellDead' )
     )
   ),
-  appendToDataLabel = cms.string( "" ),
   DropChannelStatusBits = cms.vstring( 'HcalCellMask',
     'HcalCellOff',
     'HcalCellDead' ),
+  appendToDataLabel = cms.string( "" ),
   RecoveredRecHitBits = cms.vstring( 'TimingAddedBit',
     'TimingSubtractedBit' )
 )
@@ -2865,7 +2865,7 @@ hltCorrectedHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaSCCorrectionM
     rawSuperClusterProducer = cms.InputTag( "hltHybridSuperClustersL1Isolated" ),
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
-    sigmaElectronicNoise = cms.double( 0.03 ),
+    sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
     hyb_fCorrPset = cms.PSet( 
@@ -3012,7 +3012,7 @@ hltCorrectedHybridSuperClustersL1NonIsolatedTemp = cms.EDProducer( "EgammaSCCorr
     rawSuperClusterProducer = cms.InputTag( "hltHybridSuperClustersL1NonIsolated" ),
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
-    sigmaElectronicNoise = cms.double( 0.03 ),
+    sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
     hyb_fCorrPset = cms.PSet( 

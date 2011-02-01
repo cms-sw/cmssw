@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_0/HIon/V7 (CMSSW_3_11_0_pre5_HLT5)
+# /dev/CMSSW_4_2_0/pre2/HIon/V1 (CMSSW_4_2_0_pre1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_0/HIon/V7')
+  tableName = cms.string('/dev/CMSSW_4_2_0/pre2/HIon/V1')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -710,10 +710,10 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
         'HcalCellDead' )
     )
   ),
-  appendToDataLabel = cms.string( "" ),
   DropChannelStatusBits = cms.vstring( 'HcalCellMask',
     'HcalCellOff',
     'HcalCellDead' ),
+  appendToDataLabel = cms.string( "" ),
   RecoveredRecHitBits = cms.vstring( 'TimingAddedBit',
     'TimingSubtractedBit' )
 )
@@ -784,6 +784,12 @@ process.hltESPESUnpackerWorker = cms.ESProducer( "ESUnpackerWorkerESProducer",
 process.hltESPEcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
   appendToDataLabel = cms.string( "" ),
   esMapping = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) )
+)
+process.hltESPEcalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
+  appendToDataLabel = cms.string( "" ),
+  flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
+  dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
+  timeThresh = cms.double( 2.0 )
 )
 process.hltESPEcalTrigTowerConstituentsMapBuilder = cms.ESProducer( "EcalTrigTowerConstituentsMapBuilder",
   MapFile = cms.untracked.string( "Geometry/EcalMapping/data/EndCap_TTMap.txt" ),
@@ -3296,7 +3302,7 @@ process.hltCorrectedHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaSCCor
     rawSuperClusterProducer = cms.InputTag( "hltHybridSuperClustersL1Isolated" ),
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
-    sigmaElectronicNoise = cms.double( 0.03 ),
+    sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
     hyb_fCorrPset = cms.PSet( 
@@ -3443,7 +3449,7 @@ process.hltCorrectedHybridSuperClustersL1NonIsolatedTemp = cms.EDProducer( "Egam
     rawSuperClusterProducer = cms.InputTag( "hltHybridSuperClustersL1NonIsolated" ),
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
-    sigmaElectronicNoise = cms.double( 0.03 ),
+    sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
     hyb_fCorrPset = cms.PSet( 
