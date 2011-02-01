@@ -6,7 +6,7 @@ MEtoMEComparitor = cms.EDAnalyzer("MEtoMEComparitor",
                                   lumiInstance = cms.string('MEtoEDMConverterLumi'),
                                   runInstance = cms.string('MEtoEDMConverterRun'),
 
-                                  autoProcess = cms.bool(False),
+                                  autoProcess = cms.bool(True),
                                   processRef = cms.string('HLT'),
                                   processNew = cms.string('RERECO'),
 

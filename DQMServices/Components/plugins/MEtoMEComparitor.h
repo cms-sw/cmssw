@@ -13,7 +13,7 @@
 //
 // Original Author:  jean-roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Tue Nov 30 18:55:50 CET 2010
-// $Id: MEtoMEComparitor.h,v 1.3 2010/12/08 14:32:37 vlimant Exp $
+// $Id: MEtoMEComparitor.h,v 1.4 2010/12/13 16:56:42 vlimant Exp $
 //
 //
 
@@ -58,6 +58,7 @@ class MEtoMEComparitor : public edm::EDAnalyzer {
    private:
       virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&){}
+      virtual void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
       virtual void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
       virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
       virtual void endJob() ;
@@ -65,7 +66,6 @@ class MEtoMEComparitor : public edm::EDAnalyzer {
   template <class W,class T> void compare(const W& where,const std::string & instance);
   template <class T> void book(const std::string & directory,const std::string & type, const T * h);
   template <class T> void keepBadHistograms(const std::string & directory, const T * h_new, const T * h_ref);
-  template <class T,class where> void product();
 
   DQMStore * _dbe;
   std::string _moduleLabel;
@@ -75,9 +75,11 @@ class MEtoMEComparitor : public edm::EDAnalyzer {
 
   std::string _process_ref;
   std::string _process_new;
+  bool _autoProcess;
+
   double _KSgoodness;
   double _diffgoodness;
   unsigned int _dirDepth;
   double _overallgoodness;
-      // ----------member data ---------------------------
+
 };

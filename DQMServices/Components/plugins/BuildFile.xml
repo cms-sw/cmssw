@@ -1,6 +1,7 @@
 <use   name="DQMServices/Core"/>
 <use   name="DQMServices/Components"/>
 <use   name="DataFormats/Histograms"/>
+<use   name="DataFormats/Provenance"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Version"/>
