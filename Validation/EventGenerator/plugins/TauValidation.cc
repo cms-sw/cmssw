@@ -40,16 +40,19 @@ void TauValidation::beginJob()
     TauPt            = dbe->book1D("TauPt","Tau pT", 100 ,0,100);
     TauEta           = dbe->book1D("TauEta","Tau eta", 100 ,-2.5,2.5);
     TauProngs        = dbe->book1D("TauProngs","Tau n prongs", 7 ,0,7);
-    TauDecayChannels = dbe->book1D("TauDecayChannels","Tau decay channels", 10 ,0,10);
+    TauDecayChannels = dbe->book1D("TauDecayChannels","Tau decay channels", 12 ,0,12);
 	TauDecayChannels->setBinLabel(1+undetermined,"?");
     	TauDecayChannels->setBinLabel(1+electron,"e");
     	TauDecayChannels->setBinLabel(1+muon,"mu");
     	TauDecayChannels->setBinLabel(1+pi,"#pi^{#pm}");
+	TauDecayChannels->setBinLabel(1+rho,"#rho^{#pm}");
+	TauDecayChannels->setBinLabel(1+a1,"a_{1}^{#pm}");
 	TauDecayChannels->setBinLabel(1+pi1pi0,"#pi^{#pm}#pi^{0}");
     	TauDecayChannels->setBinLabel(1+pinpi0,"#pi^{#pm}n#pi^{0}");
     	TauDecayChannels->setBinLabel(1+tripi,"3#pi^{#pm}");
-    	TauDecayChannels->setBinLabel(1+tripinpi0,"3#pi^{#pm}n#pi^{0}");
+//    	TauDecayChannels->setBinLabel(1+tripinpi0,"3#pi^{#pm}n#pi^{0}");
 	TauDecayChannels->setBinLabel(1+K,"K");
+	TauDecayChannels->setBinLabel(1+Kstar,"K^{*}");
 	TauDecayChannels->setBinLabel(1+stable,"Stable");
 
     TauMothers        = dbe->book1D("TauMothers","Tau mother particles", 10 ,0,10);
@@ -181,17 +184,22 @@ int TauValidation::tauDecayChannel(const HepMC::GenParticle* tau){
 	int channel = undetermined;
 	if(tau->status() == 1) channel = stable;
 
-	int eCount   = 0,
-	    muCount  = 0,
-	    pi0Count = 0,
-            piCount  = 0;
+	int allCount   = 0,
+            eCount     = 0,
+	    muCount    = 0,
+	    pi0Count   = 0,
+            piCount    = 0,
+	    rhoCount   = 0,
+	    a1Count    = 0,
+	    KCount     = 0,
+	    KstarCount = 0;
 
         if ( tau->end_vertex() ) {
               HepMC::GenVertex::particle_iterator des;
               for(des = tau->end_vertex()->particles_begin(HepMC::descendants);
                   des!= tau->end_vertex()->particles_end(HepMC::descendants);++des ) {
 
-                        //if(abs(tauMother(*des)) != 15) continue;
+                        if(abs(tauMother(*des)) != 15) continue;
                         int pid = (*des)->pdg_id();
                         //std::cout << " barcode=" << (*des)->barcode() << " pid="
                         //          << pid << " mom=" << tauMother(*des) << " status="
@@ -199,20 +207,30 @@ int TauValidation::tauDecayChannel(const HepMC::GenParticle* tau){
 
                         if(abs(pid) == 15) return tauDecayChannel(*des);
 
-			if(abs(pid) == 11)  eCount++;
-			if(abs(pid) == 13)  muCount++;
-			if(abs(pid) == 111) pi0Count++;
-                        if(abs(pid) == 211) piCount++; 
+			allCount++;
+			if(abs(pid) == 11)    eCount++;
+			if(abs(pid) == 13)    muCount++;
+			if(abs(pid) == 111)   pi0Count++;
+			if(abs(pid) == 211)   piCount++;
+                        if(abs(pid) == 213)   rhoCount++;
+			if(abs(pid) == 20213) a1Count++;
+			if(abs(pid) == 321)   KCount++;
+			if(abs(pid) == 323)   KstarCount++;
 
 		}
 	}
 
+	if(KCount == 1 && allCount == 2)  channel = K;
+	if(KstarCount == 1 && allCount == 2)  channel = Kstar;
+	if(a1Count == 1 && allCount == 2)  channel = a1;
+	if(rhoCount == 1 && allCount == 2)  channel = rho;
+
 	if(piCount == 1 && pi0Count == 0) channel = pi;
-	if(piCount == 1 && pi0Count == 1)  channel = pi1pi0;
+	if(piCount == 1 && pi0Count == 1) channel = pi1pi0;
         if(piCount == 1 && pi0Count > 1)  channel = pinpi0;
 
         if(piCount == 3 && pi0Count == 0) channel = tripi;
-        if(piCount == 3 && pi0Count > 0)  channel = tripinpi0;
+//        if(piCount == 3 && pi0Count > 0)  channel = tripinpi0;
 
 	if(eCount == 1)                   channel = electron;
 	if(muCount == 1)                  channel = muon;

@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2010/07/02 13:34:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/12/06 14:05:50 $
+ *  $Revision: 1.4 $
  *
  */
 
@@ -39,11 +39,14 @@ class TauValidation : public edm::EDAnalyzer
                electron,
                muon,
                pi,
+               rho,
+	       a1,
                K,
+	       Kstar,
 	       pi1pi0,
                pinpi0,
                tripi,
-               tripinpi0,
+//               tripinpi0,
 	       stable};
 	// tau mother particles 
 	enum  {other,
