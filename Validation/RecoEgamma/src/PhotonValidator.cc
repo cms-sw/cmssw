@@ -79,8 +79,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/11/18 15:10:39 $ 
- **  $Revision: 1.69 $
+ **  $Date: 2011/01/24 16:21:18 $ 
+ **  $Revision: 1.70 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1162,13 +1162,17 @@ void  PhotonValidator::beginJob() {
     h_vtxChi2Prob_[2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, 0., 1.);
 
     histname="zPVFromTracks";
-    h_zPVFromTracks_[0] =  dbe_->book1D(histname+"All"," Photons: PV z from conversion tracks",100, -25., 25.);
-    h_zPVFromTracks_[1] =  dbe_->book1D(histname+"Barrel"," Photons: PV z from conversion tracks",100, -25., 25.);
-    h_zPVFromTracks_[2] =  dbe_->book1D(histname+"Endcap"," Photons: PV z from conversion tracks",100, -25., 25.);
+    h_zPVFromTracks_[0] =  dbe_->book1D(histname+"All"," Photons: PV z from conversion tracks",   100, -30., 30.);
+    h_zPVFromTracks_[1] =  dbe_->book1D(histname+"Barrel"," Photons: PV z from conversion tracks",100, -30., 30.);
+    h_zPVFromTracks_[2] =  dbe_->book1D(histname+"Endcap"," Photons: PV z from conversion tracks",100, -30., 30.);
+    h_zPVFromTracks_[3] =  dbe_->book1D(histname+"EndcapP"," Photons: PV z from conversion tracks",100, -30., 30.);
+    h_zPVFromTracks_[4] =  dbe_->book1D(histname+"EndcapM"," Photons: PV z from conversion tracks",100, -30., 30.);
     histname="dzPVFromTracks";
-    h_dzPVFromTracks_[0] =  dbe_->book1D(histname+"All"," Photons: PV Z_rec - Z_true from conversion tracks",100, -5., 5.);
-    h_dzPVFromTracks_[1] =  dbe_->book1D(histname+"Barrel"," Photons: PV Z_rec - Z_true from conversion tracks",100, -5., 5.);
-    h_dzPVFromTracks_[2] =  dbe_->book1D(histname+"Endcap"," Photons: PV Z_rec - Z_true from conversion tracks",100, -5., 5.);
+    h_dzPVFromTracks_[0] =  dbe_->book1D(histname+"All"," Photons: PV Z_rec - Z_true from conversion tracks",   100, -10., 10.);
+    h_dzPVFromTracks_[1] =  dbe_->book1D(histname+"Barrel"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
+    h_dzPVFromTracks_[2] =  dbe_->book1D(histname+"Endcap"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
+    h_dzPVFromTracks_[3] =  dbe_->book1D(histname+"EndcapP"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
+    h_dzPVFromTracks_[4] =  dbe_->book1D(histname+"EndcapM"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
     p_dzPVVsR_ =  dbe_->bookProfile("pdzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax, 100, -3.,3.,"");
 
     if ( ! isRunCentrally_ ) {
@@ -1771,6 +1775,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       bool  phoIsInBarrel=false;
       bool  phoIsInEndcap=false;
+      bool  phoIsInEndcapP=false;
+      bool  phoIsInEndcapM=false;
 
       reco::Photon matchingPho = thePhotons[iMatch];
 
@@ -1778,6 +1784,9 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	phoIsInBarrel=true;
       } else {
 	phoIsInEndcap=true;
+        if ( matchingPho.superCluster()->position().eta() > 0) phoIsInEndcapP=true;
+	if ( matchingPho.superCluster()->position().eta() < 0) phoIsInEndcapM=true;
+   
       }
       edm::Handle<EcalRecHitCollection>   ecalRecHitHandle;
       if ( phoIsInBarrel ) {
@@ -2397,20 +2406,35 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		if ( ! isRunCentrally_ ) h2_convVtxRrecVsTrue_ -> Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) );
 		
 
-		h_zPVFromTracks_[0]->Fill ( aConv->zOfPrimaryVertexFromTracks() );
-		h_dzPVFromTracks_[0]->Fill ( aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
+
+		//float zPV = aConv->zOfPrimaryVertexFromTracks();
+		float thetaConv=aConv->refittedPairMomentum().Theta();
+                float thetaSC=matchingPho.superCluster()->position().theta();
+                float rSC=sqrt(matchingPho.superCluster()->position().x()*matchingPho.superCluster()->position().x() +
+			       matchingPho.superCluster()->position().y()*matchingPho.superCluster()->position().y() );
+                float zSC=matchingPho.superCluster()->position().z();
+                float zPV = sqrt(rSC*rSC+zSC*zSC)*sin( thetaConv - thetaSC)/sin(thetaConv);
+            
+		h_zPVFromTracks_[0]->Fill (  zPV );
+		h_dzPVFromTracks_[0]->Fill ( zPV- (*mcPho).primaryVertex().z() );
 		
 		
 		if ( phoIsInBarrel ) {
-		  h_zPVFromTracks_[1]->Fill ( aConv->zOfPrimaryVertexFromTracks() );
-		  h_dzPVFromTracks_[1]->Fill ( aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
+		  h_zPVFromTracks_[1]->Fill ( zPV );
+		  h_dzPVFromTracks_[1]->Fill ( zPV - (*mcPho).primaryVertex().z() );
 		} else if ( phoIsInEndcap) {
-		  h_zPVFromTracks_[2]->Fill ( aConv->zOfPrimaryVertexFromTracks() );
-		  h_dzPVFromTracks_[2]->Fill ( aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
-		}
-		
-		p_dzPVVsR_ ->Fill(mcConvR_, aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
-		if ( ! isRunCentrally_ ) h2_dzPVVsR_ ->Fill(mcConvR_, aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );   
+		  h_zPVFromTracks_[2]->Fill ( zPV );
+		  h_dzPVFromTracks_[2]->Fill ( zPV - (*mcPho).primaryVertex().z() );
+		} else if ( phoIsInEndcapP) {
+		  h_zPVFromTracks_[3]->Fill ( zPV );
+		  h_dzPVFromTracks_[3]->Fill ( zPV - (*mcPho).primaryVertex().z() );
+		}  else if ( phoIsInEndcapM) {
+		  h_zPVFromTracks_[4]->Fill ( zPV );
+		  h_dzPVFromTracks_[4]->Fill ( zPV - (*mcPho).primaryVertex().z() );
+		}		
+
+		p_dzPVVsR_ ->Fill(mcConvR_, zPV - (*mcPho).primaryVertex().z() );
+		if ( ! isRunCentrally_ ) h2_dzPVVsR_ ->Fill(mcConvR_, zPV - (*mcPho).primaryVertex().z() );   
 		
 	      }
 	      	      
