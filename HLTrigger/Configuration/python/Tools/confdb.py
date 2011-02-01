@@ -529,7 +529,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-hltESPGlobalTrackingGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPMuonDetLayerGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPTrackerRecoGeometryESProducer" )
-      self.options['esmodules'].append( "-hltESPEcalSeverityLevel" )
+
       if not self.config.fastsim:
         self.options['esmodules'].append( "-CaloTowerGeometryFromDBEP" )
         self.options['esmodules'].append( "-CastorGeometryFromDBEP" )

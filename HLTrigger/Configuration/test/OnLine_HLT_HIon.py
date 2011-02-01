@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/pre2/HIon/V1 (CMSSW_4_2_0_pre1_HLT2)
+# /dev/CMSSW_4_2_0/pre2/HIon/V2 (CMSSW_4_2_0_pre1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/pre2/HIon/V1')
+  tableName = cms.string('/dev/CMSSW_4_2_0/pre2/HIon/V2')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -654,6 +654,12 @@ process.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   nPhi = cms.int32( 360 ),
   includeBadChambers = cms.bool( False )
 )
+process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
+  appendToDataLabel = cms.string( "" ),
+  flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
+  dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
+  timeThresh = cms.double( 2.0 )
+)
 process.hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "HcalDetIdAssociator" ),
   appendToDataLabel = cms.string( "" ),
@@ -784,12 +790,6 @@ process.hltESPESUnpackerWorker = cms.ESProducer( "ESUnpackerWorkerESProducer",
 process.hltESPEcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
   appendToDataLabel = cms.string( "" ),
   esMapping = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) )
-)
-process.hltESPEcalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
-  appendToDataLabel = cms.string( "" ),
-  flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
-  dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
-  timeThresh = cms.double( 2.0 )
 )
 process.hltESPEcalTrigTowerConstituentsMapBuilder = cms.ESProducer( "EcalTrigTowerConstituentsMapBuilder",
   MapFile = cms.untracked.string( "Geometry/EcalMapping/data/EndCap_TTMap.txt" ),

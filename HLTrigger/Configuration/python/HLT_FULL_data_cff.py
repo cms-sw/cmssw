@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/pre2/HLT/V2 (CMSSW_4_2_0_pre1_HLT2)
+# /dev/CMSSW_4_2_0/pre2/HLT/V3 (CMSSW_4_2_0_pre1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/pre2/HLT/V2')
+  tableName = cms.string('/dev/CMSSW_4_2_0/pre2/HLT/V3')
 )
 
 streams = cms.PSet( 
@@ -1067,6 +1067,12 @@ ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   nEta = cms.int32( 300 ),
   nPhi = cms.int32( 360 ),
   includeBadChambers = cms.bool( False )
+)
+ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
+  appendToDataLabel = cms.string( "" ),
+  flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
+  dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
+  timeThresh = cms.double( 2.0 )
 )
 hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "HcalDetIdAssociator" ),
