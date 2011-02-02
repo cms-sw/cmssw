@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PFCandProducer.Isolation.tools_cfi import *
-from PhysicsTools.PFCandProducer.Isolation.pfElectronIsolationFromDeposits_cff import *
+from CommonTools.ParticleFlow.Isolation.tools_cfi import *
+from CommonTools.ParticleFlow.Isolation.pfElectronIsolationFromDeposits_cff import *
 
 
 isoDepElectronWithCharged   = isoDepositReplace( 'pfSelectedElectrons',

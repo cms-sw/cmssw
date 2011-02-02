@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.PFCandProducer.Isolation.isoDeposits_cfi import *
+from CommonTools.ParticleFlow.Isolation.isoDeposits_cfi import *
 
 
 

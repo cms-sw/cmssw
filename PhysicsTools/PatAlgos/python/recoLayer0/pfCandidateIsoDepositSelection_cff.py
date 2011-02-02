@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PFCandProducer.ParticleSelectors.pfSortByType_cff import *
-from PhysicsTools.PFCandProducer.pfNoPileUp_cff import *
+from CommonTools.ParticleFlow.ParticleSelectors.pfSortByType_cff import *
+from CommonTools.ParticleFlow.pfNoPileUp_cff import *
 
 
 patPFCandidateIsoDepositSelection = cms.Sequence(

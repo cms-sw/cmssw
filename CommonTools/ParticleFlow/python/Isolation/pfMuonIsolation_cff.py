@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PFCandProducer.Isolation.tools_cfi import *
-from PhysicsTools.PFCandProducer.Isolation.pfMuonIsolationFromDeposits_cff import *
+from CommonTools.ParticleFlow.Isolation.tools_cfi import *
+from CommonTools.ParticleFlow.Isolation.pfMuonIsolationFromDeposits_cff import *
 
 isoDepMuonWithCharged   = isoDepositReplace( 'pfSelectedMuons', 'pfAllChargedHadrons' )
 isoDepMuonWithNeutral   = isoDepositReplace( 'pfSelectedMuons', 'pfAllNeutralHadrons' )
