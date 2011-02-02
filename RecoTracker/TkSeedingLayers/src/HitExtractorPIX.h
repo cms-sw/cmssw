@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 namespace ctfseeding {
 class HitExtractorPIX : public HitExtractor {

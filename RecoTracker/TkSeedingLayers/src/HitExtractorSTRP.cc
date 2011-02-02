@@ -15,6 +15,8 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
+
+
 using namespace ctfseeding;
 using namespace std;
 using namespace edm;
@@ -40,11 +42,54 @@ bool HitExtractorSTRP::ringRange(int ring) const
   else return false;
 }
 
+bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
+				edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const {
+  static DetId lastId=hit->geographicalId();
+  static edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef>::const_iterator f=stripClusterRefs->find(lastId.rawId());
+  
+  if (f==stripClusterRefs->end()) return false;
+  if (!hit->isValid())  return false;
+
+  if (hit->geographicalId()!=lastId){
+    lastId=hit->geographicalId();
+    f=stripClusterRefs->find(lastId.rawId());
+  }
+  
+  return (find(f->begin(),f->end(),hit->cluster())!=f->end());
+}
+bool HitExtractorSTRP::skipThis(const SiStripMatchedRecHit2D * hit,
+				edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const {
+  if (skipThis(hit->stereoHit(),stripClusterRefs)) return true;
+  if (skipThis(hit->monoHit(),stripClusterRefs)) return true;
+  return false;
+}
+
+
+void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits,
+					  bool matched)const{
+  edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > stripClusterRefs;
+  ev.getByLabel(theSkipClusters,stripClusterRefs);
+  std::vector<bool> keep(hits.size(),true);
+  HitExtractor::Hits newHits;
+  newHits.reserve(hits.size());
+  for (unsigned int iH=0;iH!=hits.size();++iH){
+    if (matched && skipThis((SiStripMatchedRecHit2D*) hits[iH]->hit(),stripClusterRefs)){
+      keep[iH]=false;
+      continue;
+    }
+    if (!matched && skipThis((SiStripRecHit2D*) hits[iH]->hit(),stripClusterRefs)){
+      keep[iH]=false;
+      continue;
+    }
+    newHits.push_back(hits[iH]);
+  }
+  hits.swap(newHits);
+}
+
 HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Event& ev, const edm::EventSetup& es) const
 {
-  TrackerLayerIdAccessor accessor;
   HitExtractor::Hits result;
-
+  TrackerLayerIdAccessor accessor;
   //
   // TIB
   //
@@ -53,6 +98,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByLabel( theMatchedHits, matchedHits);
       range2SeedingHits( *matchedHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
+      if (skipClusters) cleanedOfClusters(ev,result,true);
     }
     if (hasRPhiHits) {
       edm::Handle<SiStripRecHit2DCollection> rphiHits;
@@ -60,15 +106,18 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       if (hasMatchedHits){ 
 	if (!hasSimpleRphiHitsCleaner){ // this is a brutal "cleaning". Add something smarter in the future
           range2SeedingHits( *rphiHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
+	  if (skipClusters) cleanedOfClusters(ev,result,false);
 	}
       } else {
         range2SeedingHits( *rphiHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
+	if (skipClusters) cleanedOfClusters(ev,result,false);
       }
     }
     if (hasStereoHits) {
       edm::Handle<SiStripRecHit2DCollection> stereoHits;
       ev.getByLabel( theStereoHits, stereoHits);
       range2SeedingHits( *stereoHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
+      if (skipClusters) cleanedOfClusters(ev,result,false);
     }
   }
   
@@ -84,9 +133,10 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back( sl.hitBuilder()->build(hit) ); 
+		result.push_back( sl.hitBuilder()->build(hit) ); 
               }
           }
+	  if (skipClusters) cleanedOfClusters(ev,result,true);
       }
       if (hasRPhiHits) {
           edm::Handle<SiStripRecHit2DCollection> rphiHits;
@@ -100,6 +150,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
                   result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
+	  if (skipClusters) cleanedOfClusters(ev,result,false);
       }
       if (hasStereoHits) {
           edm::Handle<SiStripRecHit2DCollection> stereoHits;
@@ -112,6 +163,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
                   result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
+	  if (skipClusters) cleanedOfClusters(ev,result,false);
       }
   }
   //
@@ -122,6 +174,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByLabel( theMatchedHits, matchedHits);
       range2SeedingHits( *matchedHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
+      if (skipClusters) cleanedOfClusters(ev,result,true);
     }
     if (hasRPhiHits) {
       edm::Handle<SiStripRecHit2DCollection> rphiHits;
@@ -129,15 +182,18 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       if (hasMatchedHits){ 
 	if (!hasSimpleRphiHitsCleaner){ // this is a brutal "cleaning". Add something smarter in the future
           range2SeedingHits( *rphiHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
+	  if (skipClusters) cleanedOfClusters(ev,result,false);
 	}
       } else {
         range2SeedingHits( *rphiHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
+	if (skipClusters) cleanedOfClusters(ev,result,false);
       }
     }
     if (hasStereoHits) {
       edm::Handle<SiStripRecHit2DCollection> stereoHits;
       ev.getByLabel( theStereoHits, stereoHits);
       range2SeedingHits( *stereoHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
+      if (skipClusters) cleanedOfClusters(ev,result,false);
     }
   }
 
@@ -156,6 +212,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
                   result.push_back(  sl.hitBuilder()->build(hit) );
               }
           }
+	  if (skipClusters) cleanedOfClusters(ev,result,true);
       }
       if (hasRPhiHits) {
           edm::Handle<SiStripRecHit2DCollection> rphiHits;
@@ -169,6 +226,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
                   result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
+	  if (skipClusters) cleanedOfClusters(ev,result,false);
 
       }
       if (hasStereoHits) {
@@ -182,10 +240,9 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
                   result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
+	  if (skipClusters) cleanedOfClusters(ev,result,false);
       }
   }
-  
-
   return result;
 }
 

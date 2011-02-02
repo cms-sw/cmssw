@@ -100,7 +100,12 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
       }else{
           layer.useStereoRecHits = false;
       }
-
+      if (cfgLayer.exists("skipClusters")){
+	layer.clustersToSkip = cfgLayer.getParameter<edm::InputTag>("skipClusters");
+	layer.skipClusters=true;
+      }else{
+	layer.skipClusters=false;
+      }
       layer.hitBuilder  = cfgLayer.getParameter<string>("TTRHBuilder");
 
       layer.useErrorsFromParam = cfgLayer.exists("useErrorsFromParam") ? cfgLayer.getParameter<bool>("useErrorsFromParam") : false; 

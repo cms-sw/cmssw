@@ -8,7 +8,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 
 using namespace ctfseeding;
 using namespace std;
@@ -20,14 +21,40 @@ HitExtractorPIX::HitExtractorPIX(
 
 HitExtractor::Hits HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Event& ev, const edm::EventSetup& es) const
 {
-  TrackerLayerIdAccessor accessor;
   HitExtractor::Hits result;
+  TrackerLayerIdAccessor accessor;
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   ev.getByLabel( theHitProducer, pixelHits);
   if (theSide==SeedingLayer::Barrel) {
     range2SeedingHits( *pixelHits, result, accessor.pixelBarrelLayer(theIdLayer), sl, es );
   } else {
     range2SeedingHits( *pixelHits, result, accessor.pixelForwardDisk(theSide,theIdLayer), sl, es );
+  }
+
+
+  if (skipClusters){
+    edm::Handle<edmNew::DetSetVector<SiPixelClusterRefNew> > pixelClusterRefs;
+    ev.getByLabel(theSkipClusters,pixelClusterRefs);
+    std::vector<bool> keep(result.size(),true);
+    HitExtractor::Hits newHits;
+    if (result.empty()) return result;
+    DetId lookup=result.front()->hit()->geographicalId();
+    edmNew::DetSetVector<SiPixelClusterRefNew>::const_iterator f=pixelClusterRefs->find(lookup);
+    newHits.reserve(result.size());
+    for (unsigned int iH=0;iH!=result.size();++iH){
+      if (result[iH]->hit()->geographicalId()!=lookup)
+	{
+	  lookup=result[iH]->hit()->geographicalId();
+	  f=pixelClusterRefs->find(lookup);
+	}
+      if (!result[iH]->hit()->isValid())
+	continue;
+      SiPixelRecHit * concrete = (SiPixelRecHit *) result[iH]->hit();
+      if (find(f->begin(),f->end(),concrete->cluster())==f->end())
+	newHits.push_back(result[iH]);
+    }
+  
+    result.swap(newHits);
   }
   return result;
 }

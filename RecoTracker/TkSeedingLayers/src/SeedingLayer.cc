@@ -33,7 +33,7 @@ public:
   ~SeedingLayerImpl() { delete theHitExtractor; }
 
   SeedingLayer::Hits hits(const SeedingLayer &sl, const edm::Event& ev, 
-      const edm::EventSetup& es) const { return theHitExtractor->hits(sl,ev,es); }
+			  const edm::EventSetup& es) const { return theHitExtractor->hits(sl,ev,es);  }
 
   std::string name() const { return theName; }
 

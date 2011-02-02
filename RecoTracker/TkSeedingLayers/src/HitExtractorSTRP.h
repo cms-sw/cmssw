@@ -5,6 +5,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HitExtractor.h"
 
+#include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
+
 #include <vector>
 class DetLayer;
 
@@ -25,6 +27,10 @@ public:
   void useStereoHits(  const edm::InputTag & m) { hasStereoHits = true; theStereoHits = m; }
   void useRingSelector(int minRing, int maxRing);
   void useSimpleRphiHitsCleaner(bool use) {hasSimpleRphiHitsCleaner = use;}
+
+  void cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits, bool matched) const;
+  bool skipThis(const SiStripMatchedRecHit2D * hit,edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const;
+  bool skipThis(const SiStripRecHit2D * hit,edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const;
 
 private:
   bool ringRange(int ring) const;

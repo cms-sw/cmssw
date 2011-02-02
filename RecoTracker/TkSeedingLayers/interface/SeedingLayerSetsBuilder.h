@@ -34,6 +34,7 @@ private:
     bool useErrorsFromParam; double hitErrorRPhi; double hitErrorRZ; 
     bool useRingSelector; int minRing; int maxRing;
     bool useSimpleRphiHitsCleaner;
+    bool skipClusters; edm::InputTag clustersToSkip;
     std::string print() const;
   }; 
   std::vector<std::vector<LayerSpec> > theLayersInSets;

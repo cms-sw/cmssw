@@ -15,7 +15,17 @@ class HitExtractor {
 public:
   typedef std::vector<TransientTrackingRecHit::ConstRecHitPointer> Hits;
   virtual ~HitExtractor(){}
+  HitExtractor(){
+    skipClusters=false;}
   virtual Hits hits(const SeedingLayer & sl, const edm::Event& , const edm::EventSetup& ) const =0;
+
+  //skip clusters
+  void useSkipClusters( const edm::InputTag & m) {
+    skipClusters=true;
+    theSkipClusters=m;
+  }
+  bool skipClusters;
+  edm::InputTag theSkipClusters;
 };
 
 class HitConv {
@@ -28,6 +38,7 @@ public:
 private:
   const SeedingLayer    &sl_;
   const edm::EventSetup &es_;
+
 };
   
   template <typename DSTV, typename A, typename B>

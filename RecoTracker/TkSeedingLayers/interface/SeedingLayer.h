@@ -31,6 +31,7 @@ public:
 
   std::string name() const;
 
+  void hits(const edm::Event& ev, const edm::EventSetup& es, Hits &) const;
   Hits hits(const edm::Event& ev, const edm::EventSetup& es) const;
 
   bool operator==(const SeedingLayer &s) const { return name()==s.name(); }

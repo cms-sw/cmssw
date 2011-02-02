@@ -79,7 +79,9 @@ public:
   const std::vector<TkPixelMeasurementDet*>& pixelDets() const {return thePixelDets;}
   const std::vector<TkGluedMeasurementDet*>& gluedDets() const {return theGluedDets;}
 
-
+  void setClusterToSkip(const edm::InputTag & cluster, const edm::Event& event) const;
+  void unsetClusterToSkip() const;
+  
  protected:
   const edm::ParameterSet& pset_;
   const std::string name_;
@@ -118,7 +120,6 @@ public:
 
   void initializePixelStatus (const SiPixelQuality *stripQuality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) const;
 
-  
 };
 
 #endif
