@@ -99,7 +99,9 @@ AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
 
         applyChargeFilter = cms.bool(False),
         applyAcoplanarityFilter = cms.bool(False),
-        applyMissingETFilter = cms.bool(False)
+        applyMissingETFilter = cms.bool(False),
+        numberOfCandidates = cms.uint32(5),
+        PDGMass = cms.double(91.1876) #Z Mass from PDG       
     ),
     trackQualities = cms.vstring(), # take all if empty
     iterativeTrackingSteps = cms.vstring(), # take all if empty
