@@ -185,8 +185,10 @@ std::string LMFRunIOV::getSubRunType() const {
 
 LMFRunIOV& LMFRunIOV::setSequence(LMFSeqDat &seq)
 {
-  attach("sequence", &seq);
-  setInt("seq_id", seq.getID());
+  LMFSeqDat *seqdat = new LMFSeqDat();
+  *seqdat = seq;
+  attach("sequence", seqdat);
+  setInt("seq_id", seqdat->getID());
   return *this;
 }
 

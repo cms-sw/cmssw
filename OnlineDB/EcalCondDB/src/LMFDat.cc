@@ -230,9 +230,16 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
 			"timestamp = 0 and LMFRunIOV = 0"));
   }
   if (ok && isValid()) {
+    if (m_debug) {
+      std::cout << "[LMFDat] This object is valid..." << std::endl;
+    }
     try {
       Statement * stmt = m_conn->createStatement();
       std::string sql = buildSelectSql(logic_id, direction);
+      if (m_debug) {
+	std::cout << "[LMFDat] Executing query " << std::endl;
+	std::cout << "         " << sql << std::endl << std::flush;
+      }
       if (logic_id == 0) {
 	// get data for all crystals with a given timestamp
 	stmt->setPrefetchRowCount(131072);

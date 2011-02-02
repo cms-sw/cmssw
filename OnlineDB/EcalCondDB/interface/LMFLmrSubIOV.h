@@ -70,6 +70,13 @@ class LMFLmrSubIOV : public LMFUnique {
 
   std::list<int> getIOVIDsLaterThan(const Tm &t)
     throw(std::runtime_error);
+  std::list<int> getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax)
+    throw(std::runtime_error);
+  std::list<int> getIOVIDsLaterThan(const Tm &t, int howMany)
+    throw(std::runtime_error);
+  std::list<int> getIOVIDsLaterThan(const Tm &t, const Tm &tmax,
+				    int howMany)
+    throw(std::runtime_error);
 
   // Operators
   inline bool operator==(const LMFLmrSubIOV &m) const

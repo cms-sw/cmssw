@@ -4,6 +4,19 @@
 using namespace std;
 using namespace oracle::occi;
 
+LMFUnique::~LMFUnique() {
+  std::map<std::string, LMFUnique*>::const_iterator i = m_foreignKeys.begin();
+  std::map<std::string, LMFUnique*>::const_iterator e = m_foreignKeys.end();
+  while (i != e) {
+    if (m_debug) {
+      std::cout << "Deleting object with ID " << i->second->getID()
+		<< std::endl << std::flush;
+    }
+    delete i->second;
+    i++;
+  }
+}
+
 LMFUnique& LMFUnique::setString(std::string key, std::string value) {
   // check if this key exists
   std::map<std::string, std::string>::const_iterator i = 

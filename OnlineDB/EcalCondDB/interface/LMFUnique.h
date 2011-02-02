@@ -41,7 +41,7 @@ class LMFUnique: public IUniqueDBObject {
     setConnection(c->getEnv(), c->getConn());
   }
 
-  virtual ~LMFUnique() {  }
+  virtual ~LMFUnique();
 
   virtual bool isValid() const { return true; }
   virtual bool exists();
