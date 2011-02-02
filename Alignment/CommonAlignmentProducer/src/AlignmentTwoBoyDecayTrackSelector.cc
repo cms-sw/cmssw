@@ -29,6 +29,8 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
   if (theMassrangeSwitch){
     theMinMass = cfg.getParameter<double>( "minXMass" );
     theMaxMass = cfg.getParameter<double>( "maxXMass" );
+    CandNumber_ = cfg.getParameter<unsigned int>( "numberOfCandidates" );//Number of candidates to keep
+    zMass      = cfg.getParameter<double>( "PDGMass" );
     theDaughterMass = cfg.getParameter<double>( "daughterMass" );
     LogDebug("Alignment") << ">  Massrange min,max         :   " << theMinMass   << "," << theMaxMass 
 			 << "\n>  Mass of daughter Particle :   " << theDaughterMass;
@@ -96,10 +98,7 @@ AlignmentTwoBodyDecayTrackSelector::select(const Tracks& tracks, const edm::Even
       result = checkAcoplanarity(result);
   }
   LogDebug("Alignment") << ">  TwoBodyDecay tracks all,kept: " << tracks.size() << "," << result.size();
-  //  LogDebug("AlignmentTwoBodyDecayTrackSelector")<<">  o kept:";
-  //printTracks(result);
   return result;
-
 }
 
 ///checks if the mass of the X is in the mass region
@@ -107,18 +106,81 @@ AlignmentTwoBodyDecayTrackSelector::Tracks
 AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
 {
   Tracks result;  result.clear();
-  //TODO perhaps try combinations if there are more than 2 tracks ....
-  if(cands.size() == 2){
-    //TODO use other vectors here
-    TLorentzVector track0(cands.at(0)->px(),cands.at(0)->py(),cands.at(0)->pz(),
-			  sqrt((cands.at(0)->p()*cands.at(0)->p())+theDaughterMass*theDaughterMass));
-    TLorentzVector track1(cands.at(1)->px(),cands.at(1)->py(),cands.at(1)->pz(),
-			  sqrt((cands.at(1)->p()*cands.at(1)->p())+theDaughterMass*theDaughterMass));
-    TLorentzVector mother = track0+track1;
-    if(mother.M() > theMinMass && mother.M() < theMaxMass)
-      result = cands;
-    LogDebug("Alignment") <<">  mass of mother: "<<mother.M()<<"GeV";
+  
+  LogDebug("Alignment") <<">  cands size : "<< cands.size();
+  TLorentzVector track0();
+  TLorentzVector track1();
+  std::vector < const reco::Track * > candTrack;
+  std::vector < pair <const reco::Track *, const reco::Track *> > candPairVector;
+  std::vector <TLorentzVector> motherVector;
+  
+  if(cands.size() >= 2){
+    for (unsigned int iCand = 0; iCand < cands.size(); iCand++){
+      
+      TLorentzVector track0(cands.at(iCand)->px(),cands.at(iCand)->py(),cands.at(iCand)->pz(),
+			    sqrt((cands.at(iCand)->p()*cands.at(iCand)->p())+theDaughterMass*theDaughterMass));
+      for (unsigned int jCand = iCand+1; jCand < cands.size(); jCand++){
+	
+	TLorentzVector track1(cands.at(jCand)->px(),cands.at(jCand)->py(),cands.at(jCand)->pz(),
+			      sqrt((cands.at(jCand)->p()*cands.at(jCand)->p())+theDaughterMass*theDaughterMass));
+	TLorentzVector mother = track0+track1;
+	
+	if(mother.M() > theMinMass && mother.M() < theMaxMass){
+	  
+	  const reco:: Track *trk1 = cands.at(iCand);
+	  const reco:: Track *trk2 = cands.at(jCand);
+	  
+	  pair <const reco::Track *, const reco::Track *> candPair (&*trk1,&*trk2);
+	  candPairVector.push_back(candPair);
+	  motherVector.push_back(mother);
+	}
+      }
+    }
   }
+
+  const unsigned int nZllCands       = candPairVector.size();
+  double             bestZMassDiff = 100.;
+  unsigned int       bestZIndex    = nZllCands;
+  std::vector<double> massdiffvec;
+  for (size_t i = 0; i < nZllCands; i++) { //first loop for ordering
+    TLorentzVector zCand = motherVector.at(i);
+    double zMassDiff = fabs(zMass - zCand.M());
+      massdiffvec.push_back(zMassDiff);    
+  }
+
+ if(massdiffvec.size()>0){
+   sort(massdiffvec.begin(),massdiffvec.end());
+   unsigned int CandNumber ;
+   CandNumber = massdiffvec.size();
+   if (massdiffvec.size()> CandNumber_ ) CandNumber =CandNumber_ ;
+   for(unsigned int j=0;j<CandNumber;++j){//second loop saving the cands in the vector
+     // CandNumber_  number of candidate we want to save.
+     bool found=false;
+     size_t i=0;
+     while(!found){
+     double zMassDiff = fabs(zMass - motherVector.at(i).M());
+     if(fabs(zMassDiff-massdiffvec[j])<0.001){ 
+       int iCandCheck1=0;
+       int iCandCheck2=0;
+       for (unsigned int itrk =0; itrk < candTrack.size(); itrk++){
+	 if (candTrack[itrk]->pt() == candPairVector.at(i).first->pt()) iCandCheck1=1;
+	 if (candTrack[itrk]->pt() == candPairVector.at(i).second->pt()) iCandCheck2=1;
+       }
+       if (iCandCheck1==0) candTrack.push_back(candPairVector.at(i).first);
+       if (iCandCheck2==0) candTrack.push_back(candPairVector.at(i).second);
+       if (zMassDiff < bestZMassDiff) {
+         bestZIndex    = i;
+         bestZMassDiff = zMassDiff;
+       }
+       found=true;
+     }
+     i++;
+     }//end while loop on Z cands
+   }//end for loop on massdiffvec
+ }//end if massdiffvec.size()>0
+
+  
+ result = candTrack;
   return result;
 }
 
