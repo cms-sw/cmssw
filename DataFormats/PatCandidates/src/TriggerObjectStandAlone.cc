@@ -1,5 +1,5 @@
 //
-// $Id: TriggerObjectStandAlone.cc,v 1.7 2010/12/16 18:39:17 vadler Exp $
+// $Id: TriggerObjectStandAlone.cc,v 1.8 2010/12/19 21:06:43 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -35,7 +35,7 @@ bool TriggerObjectStandAlone::hasAnyName( const std::string & name, const std::v
     // Not failed yet
     bool failed( false );
     // Start searching at the first character
-    unsigned index( 0 );
+    size_type index( 0 );
     // Iterate over evaluation name parts
     for ( std::vector< std::string >::const_iterator iName = namePartsVec.begin(); iName != namePartsVec.end(); ++iName ) {
       // Empty parts due to
