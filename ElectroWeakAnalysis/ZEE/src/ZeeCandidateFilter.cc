@@ -89,7 +89,8 @@
 //
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+//#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -703,8 +704,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
         const EcalRecHitCollection *myRecHits = recHits.product();
         const DetId seedId = maxETelec1.superCluster()->seed()->seed();
 
-        EcalSeverityLevelAlgo severity;
-        Double_t swissCross = severity.swissCross(seedId, *myRecHits);
+        Double_t swissCross = EcalTools::swissCross(seedId, *myRecHits,0.);
 
         if ( swissCross > spikeCleaningSwissCrossCut_ ) {
             delete [] sorted;
@@ -729,8 +729,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
         const EcalRecHitCollection *myRecHits = recHits.product();
         const DetId seedId = maxETelec2.superCluster()->seed()->seed();
 
-        EcalSeverityLevelAlgo severity;
-        Double_t swissCross = severity.swissCross(seedId, *myRecHits);
+        Double_t swissCross = EcalTools::swissCross(seedId, *myRecHits,0.);
 
         if ( swissCross > spikeCleaningSwissCrossCut_ ) {
             delete [] sorted;
