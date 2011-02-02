@@ -56,7 +56,7 @@ namespace edm {
     numberOfEventsToSkip_(primaryFiles ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
     noEventSort_(primaryFiles ? pset.getUntrackedParameter<bool>("noEventSort", true) : false),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
-    treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", input::defaultCacheSize)),
+    treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize", input::defaultCacheSize) : 0U),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
@@ -67,8 +67,8 @@ namespace edm {
 
     //we now allow the site local config to specify what the TTree cache size should be
     edm::Service<edm::SiteLocalConfig> pSLC;
-    if(pSLC.isAvailable() && pSLC->sourceTTreeCacheSize()) {
-      treeCacheSize_=*(pSLC->sourceTTreeCacheSize());
+    if(treeCacheSize_ != 0U && pSLC.isAvailable() && pSLC->sourceTTreeCacheSize()) {
+      treeCacheSize_ = *(pSLC->sourceTTreeCacheSize());
     }
     StorageFactory *factory = StorageFactory::get();
     for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
