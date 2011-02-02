@@ -49,6 +49,9 @@ class AlignmentTwoBodyDecayTrackSelector
   double theMinMass;
   double theMaxMass;
   double theDaughterMass;
+  //
+  unsigned int CandNumber_;
+  double zMass; //mass of the candidate, not only Z
   //charge filter
   int theCharge;
   bool theUnsignedSwitch;
