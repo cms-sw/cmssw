@@ -169,7 +169,7 @@ def findDuplicates(process):
       for target, (group, regexp) in groups.iteritems():
         dump.write('s#\\<\\(%s\\)\\>#%s#\n' % ('\\|'.join(group), target))
       dump.close()
-    print "found %d duplicates" % dups
+    print "found %3d duplicates in %3d groups" % (dups, len(groups))
     oldups = dups
     modules.apply_rename(groups)
     groups = modules.group()
