@@ -2926,11 +2926,68 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon32_SC26_L1R") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHlt1PhotonPassedRA3(32.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=1  && 
 	   OpenHlt1PhotonPassedRA3(26.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=2) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+  
+  /* 2011-02-02 Christian Hartl
+   * ph32 + ph26
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon32_Photon26_v1") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(32.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=1  && 
+	   OpenHlt1PhotonPassedRA3(26.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=2) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+
+  /* 2011-02-02 Christian Hartl
+   * ph32 + sc26
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon32_SC26_v1") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(32.,0,999.,999.,999.,999.,0.075,0.075,0.98,1.0)>=1  && 
+	   OpenHlt1PhotonPassedRA3(26.,0,999.,999.,999.,999.,999. ,999. ,0.98,1.0)>=2) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+
+  /* 2011-02-02 Christian Hartl
+   * ph32 + ph26 (looser H/E for ph)
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon32_Photon26_v2") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(32.,0,999.,999.,999.,999.,0.15,0.10,0.98,1.0)>=1  && 
+	   OpenHlt1PhotonPassedRA3(26.,0,999.,999.,999.,999.,0.15,0.10,0.98,1.0)>=2) { 
+          triggerBit[it] = true; 
+        }
+      }
+    }
+  }
+
+  /* 2011-02-02 Christian Hartl
+   * ph32 + sc26 (looser H/E for ph)
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon32_SC26_v2") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonPassedRA3(32.,0,999.,999.,999.,999.,0.15, 0.10, 0.98,1.0)>=1  && 
+	   OpenHlt1PhotonPassedRA3(26.,0,999.,999.,999.,999.,999. ,999. ,0.98,1.0)>=2) { 
           triggerBit[it] = true; 
         }
       }
