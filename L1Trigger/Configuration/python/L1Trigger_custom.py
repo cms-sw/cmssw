@@ -49,6 +49,26 @@ def customiseResetMasksTechTriggers(process):
 
 ##############################################################################
 
+def customiseResetVetoMasksAlgoTriggers(process):
+    
+    process.load("L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskVetoAlgoTrigConfig_cff")
+    process.es_prefer_l1GtTriggerMaskVetoAlgoTrig = cms.ESPrefer(
+        "L1GtTriggerMaskVetoAlgoTrigTrivialProducer","l1GtTriggerMaskVetoAlgoTrig")
+
+    return (process)
+
+##############################################################################
+
+def customiseResetVetoMasksTechTriggers(process):
+    
+    process.load("L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskVetoTechTrigConfig_cff")
+    process.es_prefer_l1GtTriggerMaskVetoTechTrig = cms.ESPrefer(
+        "L1GtTriggerMaskVetoTechTrigTrivialProducer","l1GtTriggerMaskVetoTechTrig")
+
+    return (process)
+
+##############################################################################
+
 def customiseL1Menu(process):
 
     # replace the L1 menu from the global tag with one of the following alternatives
