@@ -86,7 +86,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
           eta_min = gbl_eta_bounds[endcap-1][sector-1][station-1][subsector-1][lclPhi][cscid-1][0];
           eta_max = gbl_eta_bounds[endcap-1][sector-1][station-1][subsector-1][lclPhi][cscid-1][1];
 	  // add offset to ME11a
-	  if ( (cscid < 4)&&(lclPhi == 3) ) eta_temp += 2;  
+	  if ( (cscid < 4)&&(lclPhi == 3) ) eta_temp += 3;  
 	}
       else
         {
