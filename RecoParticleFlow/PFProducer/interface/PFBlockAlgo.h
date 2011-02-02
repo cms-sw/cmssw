@@ -32,6 +32,7 @@
 // #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "RecoParticleFlow/PFProducer/interface/PhotonSelectorAlgo.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -42,7 +43,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
@@ -71,7 +73,10 @@ class PFBlockAlgo {
 		      std::vector<unsigned>& NHitCut,
 		      bool useConvBremPFRecTracks,
 		      bool useIterTracking,
-		      int nuclearInteractionsPurity);
+		      int nuclearInteractionsPurity,
+		      bool useEGPhotons,
+		      std::vector<double> & photonSelectionCuts
+		      );
   
   typedef std::vector<bool> Mask;
 
@@ -90,7 +95,7 @@ class PFBlockAlgo {
 		   const T<reco::PFClusterCollection>&  hfemh,
 		   const T<reco::PFClusterCollection>&  hfhadh,
 		   const T<reco::PFClusterCollection>&  psh,
-		   const T<reco::PFBlockElementSuperClusterCollection>&  sch,
+		   const T<reco::PhotonCollection>&  egphh,
 		   const Mask& trackMask = dummyMask_,
 		   const Mask& gsftrackMask = dummyMask_,
 		   const Mask& ecalMask = dummyMask_,
@@ -98,7 +103,7 @@ class PFBlockAlgo {
 		   const Mask& hfemMask = dummyMask_,		   
 		   const Mask& hfhadMask = dummyMask_,
 		   const Mask& psMask = dummyMask_,
-		   const Mask& scMask = dummyMask_); 
+		   const Mask& phMask = dummyMask_); 
   
   ///COLIN: I think this is for particle flow at HLT...
   template< template<typename> class T >
@@ -119,9 +124,9 @@ class PFBlockAlgo {
     T<reco::PFRecTrackCollection>    nucleartrackh;
     T<reco::PFConversionCollection> convh;
     T<reco::PFV0Collection> v0;
-    T<reco::PFBlockElementSuperClusterCollection> sc;
+    T<reco::PhotonCollection> phh;
     setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, 
-		 ecalh, hcalh, hfemh, hfhadh, psh, sc,
+		 ecalh, hcalh, hfemh, hfhadh, psh, phh,
 		 trackMask, ecalMask, hcalMask, psMask); 
   }
   
@@ -143,8 +148,8 @@ class PFBlockAlgo {
     T<reco::PFRecTrackCollection>    nucleartrackh;
     T<reco::PFConversionCollection> convh;
     T<reco::PFV0Collection> v0;
-    T<reco::PFBlockElementSuperClusterCollection> sc;
-    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, ecalh, hcalh, psh, sc,
+    T<reco::PhotonCollection> egphh;
+    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, ecalh, hcalh, psh, egphh,
 		 trackMask, gsftrackMask,ecalMask, hcalMask, psMask); 
   }
   
@@ -232,7 +237,7 @@ class PFBlockAlgo {
 		      const reco::PFClusterCollection&  hfems,
 		      const reco::PFClusterCollection&  hfhads,
 		      const reco::PFClusterCollection&  pss, 
-		      const reco::PFBlockElementSuperClusterCollection&  scs, 
+		      const reco::PhotonCollection&  egphh, 
 		      const Mask& trackMask,
 		      const Mask& gsftrackMask, 
 		      const Mask& ecalMask, 
@@ -240,7 +245,7 @@ class PFBlockAlgo {
 		      const Mask& hfemMask,
 		      const Mask& hfhadMask,		      
 		      const Mask& psMask,
-		      const Mask& scMask) const;
+		      const Mask& phMask) const;
 
   /// open a resolution map
   // PFResolutionMap* openResolutionMap(const char* resMapName);
@@ -276,6 +281,8 @@ class PFBlockAlgo {
   /// Flag to turn off quality cuts which require iterative tracking (for heavy-ions)
   bool useIterTracking_;
 
+  /// Flag to turn off the import of EG Photons
+  bool useEGPhotons_;
 
   // This parameters defines the level of purity of
   // nuclear interactions choosen.
@@ -289,6 +296,8 @@ class PFBlockAlgo {
   /// switch on/off Conversions Brem Recovery with KF Tracks
   bool  useConvBremPFRecTracks_;
 
+  /// PhotonSelector
+  const PhotonSelectorAlgo * photonSelector_;
    /// list of superclusters 
   std::vector<reco::SuperClusterRef > superClusters_;
 
@@ -326,7 +335,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
                       const T<reco::PFClusterCollection>&  hfemh,
                       const T<reco::PFClusterCollection>&  hfhadh,
                       const T<reco::PFClusterCollection>&  psh,
-		      const T<reco::PFBlockElementSuperClusterCollection>& sch,
+		      const T<reco::PhotonCollection>& egphh,
                       const Mask& trackMask,
 		      const Mask& gsftrackMask,
                       const Mask& ecalMask,
@@ -334,7 +343,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
                       const Mask& hfemMask,
                       const Mask& hfhadMask,
                       const Mask& psMask,
-		      const Mask& scMask) {
+		      const Mask& phMask) {
 
 
   checkMaskSize( *trackh,
@@ -344,7 +353,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		 *hfemh,
 		 *hfhadh,
                  *psh,
-		 *sch,
+		 *egphh,
                  trackMask,
 		 gsftrackMask,
                  ecalMask,
@@ -352,7 +361,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		 hfemMask,
 		 hfhadMask,
                  psMask,
-		 scMask);
+		 phMask);
 
   /*
   if (nucleartrackh.isValid()){
@@ -455,21 +464,27 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
   }
 
-  /// Loop over the Super Clusters 
-  if(sch.isValid()) {
-    unsigned size=sch->size();
+  /// Loop over the photons
+  if(useEGPhotons_ && egphh.isValid()) {
+    unsigned size=egphh->size();
     for(unsigned isc=0; isc<size; ++isc) {
-      if(!scMask.empty() && !(scMask)[isc] ) continue;
+      if(!phMask.empty() && !(phMask)[isc] ) continue;
+      if(!photonSelector_->passPhotonSelection((*egphh)[isc])) continue;
+      //      std::cout << " Selected a supercluster" << std::endl;
       // Add only the super clusters not already included 
-      reco::SuperClusterRef scRef((*sch)[isc].superClusterRef());
-      std::vector<reco::SuperClusterRef>::const_iterator itcheck=find(superClusters_.begin(),superClusters_.end(),(*sch)[isc].superClusterRef());
+      reco::SuperClusterRef scRef((*egphh)[isc].superCluster());
+      std::vector<reco::SuperClusterRef>::const_iterator itcheck=find(superClusters_.begin(),superClusters_.end(),(*egphh)[isc].superCluster());
       if(itcheck==superClusters_.end())
 	{
 	  superClusters_.push_back(scRef);
 	  reco::PFBlockElementSuperCluster * sce =
-	    new reco::PFBlockElementSuperCluster((*sch)[isc]);
+	    new reco::PFBlockElementSuperCluster((*egphh)[isc].superCluster());
 	  elements_.push_back(sce);
 	}
+//      else
+//	{
+//	  	  std::cout << " but was already selected " << std::endl;
+//	}
     }
   }
   

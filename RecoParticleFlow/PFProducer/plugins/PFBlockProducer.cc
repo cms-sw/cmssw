@@ -13,8 +13,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -71,9 +71,12 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   inputTagPFClustersPS_ 
     = iConfig.getParameter<InputTag>("PFClustersPS");
 
-  inputTagSuperClusters_
-    = iConfig.getParameter<InputTag>("PFBESuperClusters");
-
+  useEGPhotons_ = iConfig.getParameter<bool>("useEGPhotons");
+  
+  if(useEGPhotons_) {
+    inputTagEGPhotons_
+      = iConfig.getParameter<InputTag>("EGPhotons");
+  }
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
@@ -111,6 +114,13 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   int nuclearInteractionsPurity
     = iConfig.getParameter<unsigned>("nuclearInteractionsPurity");
 
+  // if first parameter 0, deactivated 
+  std::vector<double> EGPhotonSelectionCuts ;
+
+  if (useEGPhotons_)
+    EGPhotonSelectionCuts = iConfig.getParameter<std::vector<double> >("PhotonSelectionCuts");   
+
+
   if (useNuclear_){
     if (nuclearInteractionsPurity > 3 || nuclearInteractionsPurity < 1)  {
       nuclearInteractionsPurity = 1;
@@ -126,7 +136,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 			      NHitCut,
 			      useConvBremPFRecTracks,
 			      useIterTracking,
-			      nuclearInteractionsPurity);
+			      nuclearInteractionsPurity,
+			      useEGPhotons_,
+			      EGPhotonSelectionCuts );
   
   pfBlockAlgo_.setDebug(debug_);
 
@@ -284,13 +296,13 @@ PFBlockProducer::produce(Event& iEvent,
   Handle< reco::PFRecTrackCollection > nuclearRecTracks;
 
   
-  Handle< reco::PFBlockElementSuperClusterCollection >  pfbeSuperClusters;
-  found = iEvent.getByLabel(inputTagSuperClusters_,
-			    pfbeSuperClusters);
+  Handle< reco::PhotonCollection >  egPhotons;
+  found = iEvent.getByLabel(inputTagEGPhotons_,
+			    egPhotons);
 
   if(!found )
-    LogError("PFBlockProducer")<<" cannot get PFBlockElement SuperClusters" 
-			       << inputTagSuperClusters_ << endl;
+    LogError("PFBlockProducer")<<" cannot get photons" 
+			       << inputTagEGPhotons_ << endl;
 
   if( usePFatHLT_  ) {
      pfBlockAlgo_.setInput( recTracks, 			   
@@ -313,7 +325,7 @@ PFBlockProducer::produce(Event& iEvent,
 			   clustersHFEM,
 			   clustersHFHAD,
 			   clustersPS,
-			   pfbeSuperClusters);
+			   egPhotons);
   }
   pfBlockAlgo_.findBlocks();
   

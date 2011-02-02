@@ -879,14 +879,20 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "NHit_Cut", NHitCut);
   options_->GetOpt("particle_flow", "useIterTracking", useIterTracking);
   options_->GetOpt("particle_flow", "nuclearInteractionsPurity", nuclearInteractionsPurity);
-
+  
+  bool useEGPhotons;
+  std::vector<double> PhotonSelectionCuts;
+  options_->GetOpt("particle_flow","useEGPhotons",useEGPhotons);
+  options_->GetOpt("particle_flow","photonSelection", PhotonSelectionCuts);
 
   try {
     pfBlockAlgo_.setParameters( DPtovPtCut, 
 				NHitCut,
 				useIterTracking,
 				useConvBremPFRecTracks_,
-				nuclearInteractionsPurity); 
+				nuclearInteractionsPurity,
+				useEGPhotons,
+				PhotonSelectionCuts); 
   }  
   catch( std::exception& err ) {
     cerr<<"exception setting PFBlockAlgo parameters: "
@@ -1496,6 +1502,11 @@ void PFRootEventManager::connect( const char* infilename ) {
     v0Tag_ = edm::InputTag(v0tagname);
   }
 
+  // Photons
+  std::string photontagname;
+  options_->GetOpt("root","Photon_inputTag",photontagname);
+  photonTag_ = edm::InputTag(photontagname);
+
  //Displaced Vertices
   usePFNuclearInteractions_=false;
   options_->GetOpt("particle_flow", "usePFNuclearInteractions", usePFNuclearInteractions_);
@@ -2055,6 +2066,8 @@ bool PFRootEventManager::readFromSimulation(int entry) {
         <<entry << " " << conversionTag_<<endl;
   }
 
+
+
   bool foundv0 = iEvent.getByLabel(v0Tag_,v0Handle_);
   if ( foundv0 ) { 
     v0_ = *v0Handle_;
@@ -2062,6 +2075,14 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   } else if ( usePFV0s_ ) { 
     cerr<<"PFRootEventManager::ProcessEntry : v0 Collection not found : "
         <<entry << " " << v0Tag_<<endl;
+  }
+
+  bool foundPhotons = iEvent.getByLabel(photonTag_,photonHandle_);
+  if ( foundPhotons) {
+    photons_ = *photonHandle_;    
+  } else {
+    cerr <<"PFRootEventManager::ProcessEntry : photon collection not found : " 
+	 << entry << " " << photonTag_ << endl;
   }
 
   bool foundgenJets = iEvent.getByLabel(genJetsTag_,genJetsHandle_);
@@ -2747,6 +2768,8 @@ void PFRootEventManager::particleFlow() {
 
   edm::OrphanHandle< reco::GsfPFRecTrackCollection > convBremGsftrackh( &convBremGsfrecTracks_, 
 									edm::ProductID(11) );  
+
+  edm::OrphanHandle< reco::PhotonCollection > photonh( &photons_, edm::ProductID(12) ) ;
   
   vector<bool> trackMask;
   fillTrackMask( trackMask, recTracks_ );
@@ -2762,14 +2785,15 @@ void PFRootEventManager::particleFlow() {
   fillClusterMask( hfhadMask, *clustersHFHAD_ );
   vector<bool> psMask;
   fillClusterMask( psMask, *clustersPS_ );
-  
-  
+  vector<bool> photonMask;
+  fillPhotonMask( photonMask, photons_ );
+
   if ( !useAtHLT )
     pfBlockAlgo_.setInput( trackh, gsftrackh, convBremGsftrackh,
 			   muonh, nuclearh, displacedtrackh, convh, v0,
-			   ecalh, hcalh, hfemh, hfhadh, psh,
+			   ecalh, hcalh, hfemh, hfhadh, psh, photonh,
 			   trackMask,gsftrackMask,
-			   ecalMask, hcalMask, hfemMask, hfhadMask, psMask );
+			   ecalMask, hcalMask, hfemMask, hfhadMask, psMask,photonMask );
   else    
     pfBlockAlgo_.setInput( trackh, ecalh, hcalh, hfemh, hfhadh, psh,
 			   trackMask, ecalMask, hcalMask, psMask );
@@ -4090,6 +4114,27 @@ PFRootEventManager::fillTrackMask(vector<bool>& mask,
       mask.push_back( false );   
   }
 }
+
+void  
+PFRootEventManager::fillPhotonMask(vector<bool>& mask, 
+                                  const reco::PhotonCollection& photons) 
+  const {
+  
+  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
+  if(!cutg) return;
+
+  mask.clear();
+  mask.reserve( photons.size() );
+  for(unsigned i=0; i<photons.size(); i++) {
+    double eta = photons[i].caloPosition().Eta();
+    double phi = photons[i].caloPosition().Phi();
+    if( cutg->IsInside( eta, phi ) )
+      mask.push_back( true );
+    else 
+      mask.push_back( false );   
+  }
+}
+
 
 void  
 PFRootEventManager::fillTrackMask(vector<bool>& mask, 

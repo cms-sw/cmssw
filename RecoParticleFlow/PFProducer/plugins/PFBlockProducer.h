@@ -60,7 +60,7 @@ class PFBlockProducer : public edm::EDProducer {
   edm::InputTag   inputTagPFClustersPS_;
   edm::InputTag   inputTagPFConversions_;
   edm::InputTag   inputTagPFV0_;
-  edm::InputTag   inputTagSuperClusters_;
+  edm::InputTag   inputTagEGPhotons_;
   
   /// verbose ?
   bool   verbose_;
@@ -68,6 +68,8 @@ class PFBlockProducer : public edm::EDProducer {
   /// use NuclearInteractions ?
   bool   useNuclear_;
 
+  /// use EG photons ? 
+  bool useEGPhotons_;
   
   /// switch on/off Conversions
   bool  useConversions_;  

@@ -5,7 +5,7 @@ root outtree 0
 //colin	mode 1
 
 //root file display.root
-root file ../../Configuration/test/display.root
+root file ../../../display.root
 
 // Warning: no cleaning of the HF is done in fast sim, due to the absence of timing simulation and to an unreliable transverse shower shape simulation in the HF. 
 //          Thus you shall switch it off in PFRootEvent also by changing the thresholds to the following values: 
@@ -395,6 +395,11 @@ particle_flow   electronID_mvaWeightFile    /afs/cern.ch/cms/data/CMSSW/RecoPart
 particle_flow   usePFSCEleCalib  1
 particle_flow   calibPFSCEle_barrel  1.0326 -13.71 339.72 0.4862 0.00182 0.36445 1.411 1.0206 0.0059162 -5.14434e-05 1.42516e-07
 particle_flow   calibPFSCEle_endcap  0.9995 -12.313 2.8784 -1.057e-04 10.282 3.059 1.3502e-03 -2.2185 3.4206
+
+// EG photons  Et cut; Track iso (cste;slope), Ecal iso (cste, slope), Hcal iso (cste, slope), H/E
+particle_flow   useEGPhotons 1
+particle_flow   photonSelection 10 2.0 0.001 4.2 0.003 2.2 0.001 0.005
+
 
 // Max sumET in ECAL in the block and in the cone to allow the use of the egamma supercluser
 // Low values correspond to a tigh selection

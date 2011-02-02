@@ -23,6 +23,7 @@ PFBlockAlgo::PFBlockAlgo() :
   DPtovPtCut_(std::vector<double>(4,static_cast<double>(999.))),
   NHitCut_(std::vector<unsigned int>(4,static_cast<unsigned>(0))), 
   useIterTracking_(true),
+  photonSelector_(0),
   debug_(false) {}
 
 
@@ -31,13 +32,23 @@ void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
 				 std::vector<unsigned int>& NHitCut,
 				 bool useConvBremPFRecTracks,
 				 bool useIterTracking,
-				 int nuclearInteractionsPurity) {
+				 int nuclearInteractionsPurity,
+				 bool useEGPhotons,
+				 std::vector<double>& photonSelectionCuts) {
   
   DPtovPtCut_    = DPtovPtCut;
   NHitCut_       = NHitCut;
   useIterTracking_ = useIterTracking;
   useConvBremPFRecTracks_ = useConvBremPFRecTracks;
   nuclearInteractionsPurity_ = nuclearInteractionsPurity;
+  useEGPhotons_ = useEGPhotons;
+  // Pt cut; Track iso (constant + slope), Ecal iso (constant + slope), HCAL iso (constant+slope), H/E
+  if(useEGPhotons_)
+    photonSelector_ = new PhotonSelectorAlgo(photonSelectionCuts[0],   
+					     photonSelectionCuts[1], photonSelectionCuts[2],   
+					     photonSelectionCuts[3], photonSelectionCuts[4],    
+					     photonSelectionCuts[5], photonSelectionCuts[6],    
+					     photonSelectionCuts[7]);
 }
 
 PFBlockAlgo::~PFBlockAlgo() {
@@ -47,7 +58,8 @@ PFBlockAlgo::~PFBlockAlgo() {
     cout<<"~PFBlockAlgo - number of remaining elements: "
 	<<elements_.size()<<endl;
 #endif
-  
+
+  if(photonSelector_) delete photonSelector_;
 }
 
 void 
@@ -920,7 +932,7 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
 			    const reco::PFClusterCollection&  hfems,
 			    const reco::PFClusterCollection&  hfhads,
 			    const reco::PFClusterCollection&  pss, 
-			    const reco::PFBlockElementSuperClusterCollection&  scs, 
+			    const reco::PhotonCollection&  egphh, 
 			    const Mask& trackMask, 
 			    const Mask& gsftrackMask,  
 			    const Mask& ecalMask,
@@ -928,7 +940,7 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
 			    const Mask& hfemMask,
 			    const Mask& hfhadMask,		      
 			    const Mask& psMask,
-			    const Mask& scMask) const {
+			    const Mask& phMask) const {
 
   if( !trackMask.empty() && 
       trackMask.size() != tracks.size() ) {
@@ -986,11 +998,11 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
     throw std::length_error( err.c_str() );
   }
   
-    if( !scMask.empty() && 
-      scMask.size() != scs.size() ) {
+    if( !phMask.empty() && 
+      phMask.size() != egphh.size() ) {
     string err = "PFBlockAlgo::setInput: ";
-    err += "The size of the SC mask is different ";
-    err += "from the size of the SC vector.";
+    err += "The size of the photon mask is different ";
+    err += "from the size of the photon vector.";
     throw std::length_error( err.c_str() );
   }
 

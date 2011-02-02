@@ -13,7 +13,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     PFClustersHFEM = cms.InputTag("particleFlowClusterHFEM"),
     PFClustersHFHAD = cms.InputTag("particleFlowClusterHFHAD"),
     PFClustersPS = cms.InputTag("particleFlowClusterPS"),
-    PFBESuperClusters = cms.InputTag("pfBlockElementSC"),                                   
+    EGPhotons = cms.InputTag("photons"),                                   
 
     # input tracks
     GsfRecTracks = cms.InputTag("pfTrackElec"),
@@ -57,6 +57,11 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
 
     # Turn of track quality cuts that require iterative tracking for heavy-ions
     useIterTracking = cms.bool(True),
+
+    # Photon selection. Et cut; Track iso (cste;slope), Ecal iso (cste, slope), Hcal iso (cste, slope), H/E
+    # just put infinite Et cut to disable the photon import
+    useEGPhotons = cms.bool(True),                                   
+    PhotonSelectionCuts = cms.vdouble(10,2.0, 0.001, 4.2, 0.003, 2.2, 0.001, 0.05)                                   
 )
 
 

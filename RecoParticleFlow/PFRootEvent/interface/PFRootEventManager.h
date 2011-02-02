@@ -33,6 +33,9 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
@@ -70,6 +73,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/MET.h"
+
 
 #include "RecoParticleFlow/PFRootEvent/interface/METManager.h"
 
@@ -367,7 +371,11 @@ class PFRootEventManager {
                       const reco::PFRecTrackCollection& tracks ) const;
   void fillTrackMask( std::vector<bool>& mask, 
                       const reco::GsfPFRecTrackCollection& tracks ) const;
-                       
+            
+  /// photon mask set to true for photons inside TCutG
+  void fillPhotonMask (std::vector<bool>& mask,
+		       const reco::PhotonCollection& photons) const;
+           
   /// find the closest PFSimParticle to a point (eta,phi) in a given detector
   const reco::PFSimParticle& 
     closestParticle( reco::PFTrajectoryPoint::LayerType  layer, 
@@ -538,6 +546,11 @@ class PFRootEventManager {
   edm::InputTag conversionTag_;
   reco::PFConversionCollection conversion_;
   
+  /// photons
+  edm::Handle<reco::PhotonCollection> photonHandle_;
+  edm::InputTag photonTag_;
+  reco::PhotonCollection photons_;
+
   /// V0
   edm::Handle<reco::PFV0Collection> v0Handle_;
   edm::InputTag v0Tag_;
