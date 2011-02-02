@@ -544,16 +544,6 @@ void ParticleReplacerClass::transformMuMu2TauTau(reco::Particle * muon1, reco::P
 	reco::Particle::LorentzVector tau1b_mom = reco::Particle::LorentzVector(scaling1*muon1b.x(),scaling1*muon1b.y(),scaling1*muon1b.z(),tauEnergy);
 	reco::Particle::LorentzVector tau2b_mom = reco::Particle::LorentzVector(scaling2*muon2b.x(),scaling2*muon2b.y(),scaling2*muon2b.z(),tauEnergy);
 
-	// some checks
-	// the following test guarantees a deviation
-	// of less than 0.1% for phi and theta for the
-	// original muons and the placed taus
-	// (in the centre-of-mass system of the z boson)
-	assert((muon1b.phi()-tau1b_mom.phi())/muon1b.phi()<0.001);
-	assert((muon2b.phi()-tau2b_mom.phi())/muon2b.phi()<0.001);
-	assert((muon1b.theta()-tau1b_mom.theta())/muon1b.theta()<0.001);
-	assert((muon2b.theta()-tau2b_mom.theta())/muon2b.theta()<0.001);	
-
 	reco::Particle::LorentzVector tau1_mom = (invbooster(tau1b_mom));
 	reco::Particle::LorentzVector tau2_mom = (invbooster(tau2b_mom));
 	
@@ -563,8 +553,8 @@ void ParticleReplacerClass::transformMuMu2TauTau(reco::Particle * muon1, reco::P
 	// muons and the placed taus
 	//	invariant mass
 	//	transverse momentum
-	assert(((muon1_momentum+muon1_momentum).mass()-(tau1_mom+tau2_mom).mass())/(muon1_momentum+muon1_momentum).mass()<0.001);
-	assert(((muon1_momentum+muon2_momentum).pt()-(tau1_mom+tau2_mom).pt())/(muon1_momentum+muon1_momentum).pt()<0.001);
+	assert(std::abs((muon1_momentum+muon2_momentum).mass()-(tau1_mom+tau2_mom).mass())/(muon1_momentum+muon2_momentum).mass()<0.001);
+	assert(std::abs((muon1_momentum+muon2_momentum).pt()-(tau1_mom+tau2_mom).pt())/(muon1_momentum+muon2_momentum).pt()<0.001);
 
 	muon1->setP4(tau1_mom);
 	muon2->setP4(tau2_mom);
