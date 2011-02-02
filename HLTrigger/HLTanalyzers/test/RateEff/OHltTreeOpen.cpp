@@ -2999,14 +2999,13 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
    * change wrt OpenHLT_Photon32_SC26_L1R
    * - removed _L1R (L1 no longer relaxed in 2011)
    * - thresholds 27 and 37
-   * TODO
-   * - correct? (H/E?) check it (there is no distinction between SC and Photon, it seems... is SamHarper's impl better?)
+   * - removed cut on H/E from SC leg
    */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon27_SC37") == 0) {
 		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
 			if (prescaleResponse(menu, cfg, rcounter, it)) {
 				if (OpenHlt1PhotonPassedRA3(27., 0, 999., 999., 999., 999., 0.075, 0.075, 0.98, 1.0)>=2
-						&& OpenHlt1PhotonPassedRA3(37., 0, 999., 999., 999., 999., 0.075, 0.075, 0.98, 1.0)>=1) {
+						&& OpenHlt1PhotonPassedRA3(37., 0, 999., 999., 999., 999., 999., 999., 0.98, 1.0)>=1) {
 					triggerBit[it] = true;
 				}
 			}
