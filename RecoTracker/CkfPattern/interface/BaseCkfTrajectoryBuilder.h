@@ -68,7 +68,8 @@ public:
 
   virtual TrajectoryContainer trajectories(const TrajectorySeed&) const = 0;
 
-  virtual void setEvent(const edm::Event& event) const = 0;
+  virtual void setEvent(const edm::Event& event) const;
+  virtual void unset() const;
 
   virtual void setDebugger( CkfDebugger * dbg) const {;}
  
@@ -107,7 +108,7 @@ public:
   
   void addToResult( TempTrajectory& traj, TrajectoryContainer& result, bool inOut = false) const;    
   void addToResult( TempTrajectory& traj, TempTrajectoryContainer& result, bool inOut = false) const;    
- 
+
   StateAndLayers findStateAndLayers(const TempTrajectory& traj) const;
 
  private:
@@ -140,7 +141,8 @@ public:
   const TrajectoryFilter* theFilter; /** Filter used at end of complete tracking */
   const TrajectoryFilter* theInOutFilter; /** Filter used at end of in-out tracking */
 
-
+  bool skipClusters_;
+  edm::InputTag clustersToSkip_;
 };
 
 

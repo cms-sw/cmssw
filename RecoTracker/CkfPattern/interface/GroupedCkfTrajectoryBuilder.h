@@ -38,7 +38,7 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
   virtual ~GroupedCkfTrajectoryBuilder(){}
 
   /// set Event for the internal MeasurementTracker data member
-  virtual void setEvent(const edm::Event& event) const;
+  //  virtual void setEvent(const edm::Event& event) const;
 
   /// trajectories building starting from a seed
   TrajectoryContainer trajectories(const TrajectorySeed&) const;

@@ -326,6 +326,10 @@ namespace cms{
     // Step G: write output to file
     if (theTrackCandidateOutput){ e.put(output);}
     if (theTrajectoryOutput){e.put(outputT);}
+    
+    //reset the MT.
+    theTrajectoryBuilder->unset();
   }
+  
 }
 

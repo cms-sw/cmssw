@@ -40,7 +40,7 @@ public:
   }
 
   virtual void setEvent(const edm::Event& event) const = 0;
-
+  virtual void unset() const {};
 };
 
 

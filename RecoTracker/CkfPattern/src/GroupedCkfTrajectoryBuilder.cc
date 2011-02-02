@@ -100,11 +100,12 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 
 }
 
-
-void GroupedCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
-{
+/*
+  void GroupedCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
+  {
   theMeasurementTracker->update(event);
 }
+*/
 
 GroupedCkfTrajectoryBuilder::TrajectoryContainer 
 GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed) const 

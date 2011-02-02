@@ -56,10 +56,12 @@ CkfTrajectoryBuilder::
   */
 }
 
-void CkfTrajectoryBuilder::setEvent(const edm::Event& event) const
-{
+/*
+  void CkfTrajectoryBuilder::setEvent(const edm::Event& event) const
+  {
   theMeasurementTracker->update(event);
-}
+  }
+*/
 
 CkfTrajectoryBuilder::TrajectoryContainer 
 CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const

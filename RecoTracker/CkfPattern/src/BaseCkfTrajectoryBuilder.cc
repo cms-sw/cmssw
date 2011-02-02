@@ -38,7 +38,14 @@ BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
   theForwardPropagator(0),theBackwardPropagator(0),
   theFilter(filter),
   theInOutFilter(inOutFilter)
-{}
+{
+  if (conf.exists("clustersToSkip")){
+    skipClusters_=true;
+    clustersToSkip_=conf.getParameter<edm::InputTag>("clustersToSkip");
+  }
+  else
+    skipClusters_=false;
+}
  
 BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
   delete theLayerMeasurements;
@@ -207,4 +214,17 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const
       TSOS currentState = traj.lastMeasurement().updatedState();
       return StateAndLayers(currentState,traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction()) );
     }
+}
+
+void BaseCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
+  {
+    theMeasurementTracker->update(event);
+    if (skipClusters_)
+      theMeasurementTracker->setClusterToSkip(clustersToSkip_,event);
+  }
+
+void BaseCkfTrajectoryBuilder::unset() const
+{
+  if (skipClusters_)
+    theMeasurementTracker->unsetClusterToSkip();
 }
