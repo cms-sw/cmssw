@@ -181,8 +181,10 @@ doTrap( const std::string& name, double dz, double pTheta, double pPhi,
 	double pDy2, double pDx3, double pDx4, double pAlp2 )
 {
   G4Trap g4( name, dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2 );
-  DDI::Trap dd( dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2 );
-  DDTrap dds = DDSolidFactory::trap( name, dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2 );
+  
+  // Note, the order of parameters is different:
+  DDI::Trap dd( dz, pTheta, pPhi, pDy2, pDx3, pDx4, pAlp1, pDy1, pDx1, pDx2, pAlp2 );
+  DDTrap dds = DDSolidFactory::trap( name, dz, pTheta, pPhi, pDy2, pDx3, pDx4, pAlp1, pDy1, pDx1, pDx2, pAlp2 );
   dd.stream( std::cout );
   std::cout << std::endl;
   std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
@@ -449,24 +451,25 @@ main( int argc, char *argv[] )
   std::cout << std::endl;
 
   std::cout << "\n\nTrapezoid tests\n" << std::endl;
-  double dx1 = 30.*cm;
-  double dx2 = 10.*cm;
-  double dy1 = 40.*cm;
-  double dy2 = 15.*cm;
+  double dx1 = 10.*cm;
+  double dx2 = 30.*cm;
+  double dy1 = 15.*cm;
+  double dy2 = 30.*cm;
   double dz = 60.*cm;
   doTrd( name, dx1, dx2, dy1, dy2, dz );
   std::cout << std::endl;
 
-  double pTheta = 0.0;
-  double pPhi = 0.0;
-  double pDy1 = 15.*cm;
+  std::cout << "\n\nGeneric Trapezoid tests\n" << std::endl;
+  double pTheta = 0.*deg;
+  double pPhi = 0.*deg;
+  double pDy1 = 30.*cm;
   double pDx1 = 30.*cm;
   double pDx2 = 30.*cm;
-  double pAlp1 = 0.0;
-  double pDy2 = 40.*cm;
+  double pAlp1 = 0.*deg;
+  double pDy2 = 15.*cm;
   double pDx3 = 10.*cm;
   double pDx4 = 10.*cm;
-  double pAlp2 = 0.0;
+  double pAlp2 = 0.*deg;
   doTrap( name, dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2 );
   std::cout << std::endl;
   
