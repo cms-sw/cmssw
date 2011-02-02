@@ -77,6 +77,7 @@ class TrackClusterRemover : public edm::EDProducer {
         void mergeOld(reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices &oldRefs) ;
 
   bool clusterWasteSolution_;
+  bool filterTracks_;
   reco::TrackBase::TrackQuality trackQuality_;
   std::map<uint32_t, std::set< SiStripRecHit1D::ClusterRef > > collectedStrip;
   std::map<uint32_t, std::set< SiStripRecHit1D::ClusterRegionalRef > > collectedRegStrip;
@@ -154,8 +155,12 @@ TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
       produces<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> >();
     }
     trackQuality_=reco::TrackBase::undefQuality;
-    if (iConfig.exists("TrackQuality"))
+    filterTracks_=false;
+    if (iConfig.exists("TrackQuality")){
+      filterTracks_=true;
       trackQuality_=reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
+    }
+
 }
 
 
@@ -208,8 +213,7 @@ TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const s
 	}
         if (outds.empty()) outds.abort(); // not write in an empty DSV
     }
-    //    double fraction = countNew  / (double) countOld;
-    //    std::cout<<"fraction: "<<fraction<<std::endl;
+
     if (oldRefs != 0) mergeOld(refs, *oldRefs);
     return output;
 }
@@ -387,7 +391,7 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     for (;asst!=trajectories_totrack->end();++asst){
       const Track & track = *(asst->val);
       bool goodTk = (track.quality(trackQuality_));
-      if (!goodTk) continue;
+      if (filterTracks_ && !goodTk) continue;
       const Trajectory &tj = *(asst->key);
       const vector<TrajectoryMeasurement> &tms = tj.measurements();
       vector<TrajectoryMeasurement>::const_iterator itm, endtm;
@@ -416,9 +420,9 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 
     
     if (clusterWasteSolution_) {
-      double fraction_pxl= cri->pixelIndices().size() / (double) pixels.size();
-      double fraction_strp= cri->stripIndices().size() / (double) strips.size();
-      std::cout<<" fraction: " << fraction_pxl <<" "<<fraction_strp<<std::endl;
+      //      double fraction_pxl= cri->pixelIndices().size() / (double) pixels.size();
+      //      double fraction_strp= cri->stripIndices().size() / (double) strips.size();
+      //      edm::LogWarning("TrackClusterRemover")<<" fraction: " << fraction_pxl <<" "<<fraction_strp;
       iEvent.put(cri);
     }
 
@@ -493,11 +497,9 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       itskiped->second.clear();
     }
     iEvent.put( removedPixelClsuterRefs );
+
     }
 
-    //    collectedStrip.clear();
-    //    collectedRegStrip.clear();
-    //    collectedPixel.clear();
 
 }
 

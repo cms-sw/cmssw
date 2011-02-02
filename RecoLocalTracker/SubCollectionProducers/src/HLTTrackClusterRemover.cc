@@ -77,9 +77,9 @@ class HLTTrackClusterRemover : public edm::EDProducer {
         void mergeOld(reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices &oldRefs) ;
 
   bool makeProducts_;
-  std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRef > > collectedStrip;
-  std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRegionalRef > > collectedRegStrip;
-  std::map<uint32_t, std::vector< SiPixelRecHit::ClusterRef  > > collectedPixel;
+  std::map<uint32_t, std::set< SiStripRecHit1D::ClusterRef > > collectedStrip;
+  std::map<uint32_t, std::set< SiStripRecHit1D::ClusterRegionalRef > > collectedRegStrip;
+  std::map<uint32_t, std::set< SiPixelRecHit::ClusterRef  > > collectedPixel;
 };
 
 
@@ -214,7 +214,7 @@ void HLTTrackClusterRemover::process(const SiStripRecHit2D *hit, uint32_t subdet
       if (clusterReg.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
 	"HLTTrackClusterRemover: strip cluster ref from Product ID = " << clusterReg.id() <<
 	" does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
-      collectedRegStrip[hit->geographicalId()].push_back(clusterReg);
+      collectedRegStrip[hit->geographicalId()].insert(clusterReg);
     }
     /*  else{
   if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
@@ -239,7 +239,7 @@ void HLTTrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet
 	if (clusterReg.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") << 
 	  "HLTTrackClusterRemover: strip cluster ref from Product ID = " << clusterReg.id() << 
 	  " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
-	collectedRegStrip[hit->geographicalId()].push_back(clusterReg);
+	collectedRegStrip[hit->geographicalId()].insert(clusterReg);
       }
       /*    else{
     if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") << 
@@ -252,7 +252,7 @@ void HLTTrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet
 //DBG// cout << "Individual HIT " << cluster.key().first << ", INDEX = " << cluster.key().second << endl;
     strips[cluster.key()] = false;
 
-    collectedStrip[hit->geographicalId()].push_back(cluster);
+    collectedStrip[hit->geographicalId()].insert(cluster);
     }
       */
 }
@@ -289,7 +289,7 @@ void HLTTrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
         // mark as used
 	//        pixels[cluster.key()] = false;
 	
-	collectedPixel[detid.rawId()].push_back(cluster);
+	collectedPixel[detid.rawId()].insert(cluster);
     } else { // aka Strip
         if (!doStrip_) return;
         const type_info &hitType = typeid(*hit);
@@ -362,70 +362,73 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 
     
 
-    auto_ptr<edmNew::DetSetVector<SiPixelClusterRefNew> > removedPixelClsuterRefs(0);
-    auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > removedStripClsuterRefs(0);
-    auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> > removedStripClsuterRegRefs(0);
+    auto_ptr<edmNew::DetSetVector<SiPixelClusterRefNew> > removedPixelClsuterRefs(new edmNew::DetSetVector<SiPixelClusterRefNew>());
+    auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > removedStripClsuterRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>());
+    auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> > removedStripClsuterRegRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>());
+
+    edm::Handle<edmNew::DetSetVector<SiPixelClusterRefNew> > oldPxlRef;
+    edm::Handle<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > oldStrRef;
+    edm::Handle<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> > oldStrRegRef;      
 
     if (mergeOld_){
-      edm::Handle<edmNew::DetSetVector<SiPixelClusterRefNew> > oldPxlRef;
       iEvent.getByLabel(oldRemovalInfo_,oldPxlRef);
-      removedPixelClsuterRefs.reset(new edmNew::DetSetVector<SiPixelClusterRefNew>(*oldPxlRef));
-      
-      edm::Handle<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > oldStrRef;
-      edm::Handle<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> > oldStrRegRef;
       iEvent.getByLabel(oldRemovalInfo_,oldStrRef);
-      if (oldStrRef.failedToGet()){
+      if (oldStrRef.failedToGet())
 	iEvent.getByLabel(oldRemovalInfo_,oldStrRegRef);
-	removedStripClsuterRefs.reset(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>());
-	removedStripClsuterRegRefs.reset(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>(*oldStrRegRef));
-      }else{
-	removedStripClsuterRefs.reset(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>(*oldStrRef));
-	removedStripClsuterRegRefs.reset(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>());
-      }
-    }else{
-      removedPixelClsuterRefs.reset(new edmNew::DetSetVector<SiPixelClusterRefNew>());
-      removedStripClsuterRefs.reset(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>());
-      removedStripClsuterRegRefs.reset(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>());
     }
 
-    for (std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRef > >::iterator itskiped= collectedStrip.begin();
+    for (std::map<uint32_t, std::set< SiStripRecHit1D::ClusterRef > >::iterator itskiped= collectedStrip.begin();
 	 itskiped!=collectedStrip.end();++itskiped){
       edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>::FastFiller fill(*removedStripClsuterRefs, itskiped->first);
-      for (std::vector< SiStripRecHit1D::ClusterRef >::iterator topush = itskiped->second.begin();
+      if (mergeOld_){
+	edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>::const_iterator f=oldStrRef->find(itskiped->first);
+	if (f!=oldStrRef->end())
+	  itskiped->second.insert(f->begin(),f->end());
+      }
+      for (std::set< SiStripRecHit1D::ClusterRef >::iterator topush = itskiped->second.begin();
 	   topush!=itskiped->second.end();++topush){
 	fill.push_back(*topush);
       }
       if (fill.empty()) fill.abort();
+      itskiped->second.clear();
     }
     if (collectedStrip.size()!=0)
       iEvent.put( removedStripClsuterRefs );
     else{
-      for (std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRegionalRef > >::iterator itskiped= collectedRegStrip.begin();
+      for (std::map<uint32_t, std::set< SiStripRecHit1D::ClusterRegionalRef > >::iterator itskiped= collectedRegStrip.begin();
 	   itskiped!=collectedRegStrip.end();++itskiped){
 	edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>::FastFiller fill(*removedStripClsuterRegRefs, itskiped->first);
-	for (std::vector< SiStripRecHit1D::ClusterRegionalRef >::iterator topush = itskiped->second.begin();
+	if (mergeOld_){
+	  edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>::const_iterator f=oldStrRegRef->find(itskiped->first);
+	  if (f!=oldStrRegRef->end())
+	    itskiped->second.insert(f->begin(),f->end());
+	}
+	for (std::set< SiStripRecHit1D::ClusterRegionalRef >::iterator topush = itskiped->second.begin();
 	     topush!=itskiped->second.end();++topush){
 	  fill.push_back(*topush);
 	}
 	if (fill.empty()) fill.abort();
+	itskiped->second.clear();
       }
       iEvent.put( removedStripClsuterRegRefs );
     }
 
-    for (std::map<uint32_t, std::vector< SiPixelRecHit::ClusterRef  > >::iterator itskiped= collectedPixel.begin();
+    for (std::map<uint32_t, std::set< SiPixelRecHit::ClusterRef  > >::iterator itskiped= collectedPixel.begin();
 	 itskiped!=collectedPixel.end();++itskiped){  
       edmNew::DetSetVector<SiPixelClusterRefNew>::FastFiller fill(*removedPixelClsuterRefs, itskiped->first);
-      for (std::vector< SiPixelRecHit::ClusterRef  >::iterator topush = itskiped->second.begin(); 
+      if (mergeOld_){
+	edmNew::DetSetVector<SiPixelRecHit::ClusterRef>::const_iterator f=oldPxlRef->find(itskiped->first);
+	if (f!=oldPxlRef->end())
+	  itskiped->second.insert(f->begin(),f->end());
+      }
+      for (std::set< SiPixelRecHit::ClusterRef  >::iterator topush = itskiped->second.begin(); 
 	   topush!=itskiped->second.end();++topush){ 
 	fill.push_back(*topush); 
       }
       if (fill.empty()) fill.abort();   
+      itskiped->second.clear();
     }
     iEvent.put( removedPixelClsuterRefs );
-
-    collectedStrip.clear();
-    collectedRegStrip.clear();
-    collectedPixel.clear();
 
 }
 
