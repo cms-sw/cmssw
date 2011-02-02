@@ -37,6 +37,7 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
       RegionInJetsCheckPSet = cms.PSet( # verify if the region is built inside a jet
         doJetsExclusionCheck   = cms.bool( True ),
         deltaRExclusionSize    = cms.double( 0.3 ),
+        jetsPtMin              = cms.double( 5 ),
         recoCaloJetsCollection = cms.InputTag("ak5CaloJets")
         )
     ),

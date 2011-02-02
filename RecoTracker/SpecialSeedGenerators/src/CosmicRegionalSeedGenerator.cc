@@ -60,6 +60,7 @@ CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const
   edm::ParameterSet regionInJetsCheckPSet = conf_.getParameter<edm::ParameterSet>("RegionInJetsCheckPSet");
   doJetsExclusionCheck_         = regionInJetsCheckPSet.getParameter<bool>("doJetsExclusionCheck");
   deltaRExclusionSize_          = regionInJetsCheckPSet.getParameter<double>("deltaRExclusionSize");
+  jetsPtMin_                    = regionInJetsCheckPSet.getParameter<double>("jetsPtMin");
   recoCaloJetsCollection_       = regionInJetsCheckPSet.getParameter<edm::InputTag>("recoCaloJetsCollection");
 
 
@@ -186,6 +187,8 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
       if ( doJetsExclusionCheck_ ) {
 	double delta_R_min = 1000.;
 	for ( CaloJetCollection::const_iterator jet = caloJetsHandle->begin (); jet != caloJetsHandle->end(); jet++ ) {
+	  if ( jet->pt() < jetsPtMin_ ) continue;
+	  
 	  double deta = center.eta() - jet->eta();
 	  double dphi = fabs( center.phi() - jet->phi() );
 	  if ( dphi > TMath::Pi() ) dphi = 2*TMath::Pi() - dphi;
@@ -337,6 +340,8 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
       if ( doJetsExclusionCheck_ ) {	
 	double delta_R_min = 1000.;
 	for ( CaloJetCollection::const_iterator jet = caloJetsHandle->begin (); jet != caloJetsHandle->end(); jet++ ) {
+	  if ( jet->pt() < jetsPtMin_ ) continue;
+	  
 	  double deta = center.eta() - jet->eta();
 	  double dphi = fabs( center.phi() - jet->phi() );
 	  if ( dphi > TMath::Pi() ) dphi = 2*TMath::Pi() - dphi;

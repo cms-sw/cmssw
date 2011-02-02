@@ -71,6 +71,7 @@ class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
   
   bool   doJetsExclusionCheck_;
   double deltaRExclusionSize_;
+  double jetsPtMin_;
   edm::InputTag recoCaloJetsCollection_;
 
 };
