@@ -5,8 +5,8 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2008/10/29 18:34:40 $
- * $Revision: 1.15 $
+ * $Date: 2009/03/25 13:13:11 $
+ * $Revision: 1.16 $
  *
  * \author L. Gray, UF
  */
@@ -53,8 +53,8 @@ class CSCCorrelatedLCTDigi
   /// return BX
   int getBX()      const { return bx; }
 
-  /// return CLCT pattern number (obsolete since mid-2008)
-  int getCLCTPattern() const { return (pattern & 0x7); }
+  /// return CLCT pattern number (in use again Feb 2011)
+  int getCLCTPattern() const { return (pattern & 0xF); }
 
   /// return strip type (obsolete since mid-2008)
   int getStripType() const   { return ((pattern & 0x8) >> 3); }
