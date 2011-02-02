@@ -2383,6 +2383,36 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+  
+  /*
+   * 2011-01-26 added by Christian Hartl
+   * according to https://twiki.cern.ch/twiki/bin/view/CMS/EgammaWorkingPoints
+   * changes wrt "OpenHLT_Ele17_SW_TighterEleIdIsol_L1R":
+   * - Et               = 27.0 (was: 17.0)
+   * - HisooverETbarrel =  999.0 (no cut - there was a bug in the TWiki)
+   * - removed _L1R (because L1 no longer relaxed)
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_SW_TighterEleIdIsol") == 0) {
+		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+			if (prescaleResponse(menu, cfg, rcounter, it)) {
+				if (OpenHlt1ElectronSamHarperPassed(
+						27., 0,        // ET, L1isolation
+						999., 999.,    // Track iso barrel, Track iso endcap
+						0.15, 0.10,    // Track/pT iso barrel, Track/pT iso endcap
+						999., 0.05,    // H/ET iso barrel, H/ET iso endcap
+						0.125, 0.075,  // E/ET iso barrel, E/ET iso endcap
+						0.05, 0.05,    // H/E barrel, H/E endcap
+						0.011, 0.031,  // cluster shape barrel, cluster shape endcap
+						0.98, 1.0,     // R9 barrel, R9 endcap
+						0.008, 0.007,  // Deta barrel, Deta endcap
+						0.1, 0.1       // Dphi barrel, Dphi endcap
+				)>=1) {
+					triggerBit[it] = true;
+				}
+			}
+		}
+	}
+  
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele22_SW_TighterEleId_L1R") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
@@ -2401,7 +2431,36 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
         } 
       } 
     } 
-  } 
+  }
+  
+  /*
+   * 2011-01-26 added by Christian Hartl
+   * according to https://twiki.cern.ch/twiki/bin/view/CMS/EgammaWorkingPoints 
+   * changes w.r.t. OpenHLT_Ele22_SW_TighterEleId_L1R:
+   * - Et = 45.0
+   * - dropped _LR from name (because L1 no longer relaxed)
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele45_SW_TighterEleId") == 0) {
+		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+			if (prescaleResponse(menu, cfg, rcounter, it)) {
+				if (OpenHlt1ElectronSamHarperPassed(
+						45., 0,       // ET, L1isolation 
+						999., 999.,   // Track iso barrel, Track iso endcap 
+						999., 999.,   // Track/pT iso barrel, Track/pT iso endcap 
+						999., 999.,   // H/ET iso barrel, H/ET iso endcap 
+						999., 999.,   // E/ET iso barrel, E/ET iso endcap 
+						0.05, 0.05,   // H/E barrel, H/E endcap 
+						0.011, 0.031, // cluster shape barrel, cluster shape endcap 
+						0.98, 1.0,    // R9 barrel, R9 endcap 
+						0.008, 0.007, // Deta barrel, Deta endcap 
+						0.1, 0.1      // Dphi barrel, Dphi endcap 
+				)>=1) {
+					triggerBit[it] = true;
+				}
+			}
+		}
+	}
+  
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele22_SW_TighterCaloIdIsol_L1R") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) {  
@@ -2499,6 +2558,43 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+
+  /*
+   * 2011-01-26 added by Christian Hartl
+   * according to https://twiki.cern.ch/twiki/bin/view/CMS/EgammaWorkingPoints 
+   * from scratch
+   * Note: no Hiso/ET cut (originally there was a cut due to a bug in the WG WP TWiki)
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele35_SW_TighterEleIdIsol_Ele20") == 0) {
+		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+			if (prescaleResponse(menu, cfg, rcounter, it)) {
+				if (OpenHlt2ElectronsAsymSamHarperPassed(
+						35., 0, // ET, L1isolation 
+						999., 999., // Track iso barrel, Track iso endcap 
+						0.15, 0.10, // Track/pT iso barrel, Track/pT iso endcap 
+						999., 0.05, // H/ET iso barrel, H/ET iso endcap 
+						0.125, 0.075, // E/ET iso barrel, E/ET iso endcap 
+						0.05, 0.05, // H/E barrel, H/E endcap 
+						0.011, 0.031, // cluster shape barrel, cluster shape endcap 
+						0.98, 1.0, // R9 barrel, R9 endcap 
+						0.008, 0.007, // Deta barrel, Deta endcap 
+						0.1, 0.1, // Dphi barrel, Dphi endcap 
+						20., 0, // ET, L1isolation
+						999., 999., // Track iso barrel, Track iso endcap
+						999., 999., // Track/pT iso barrel, Track/pT iso endcap
+						999., 999., // H/ET iso barrel, H/ET iso endcap
+						999., 999., // E/ET iso barrel, E/ET iso endcap
+						0.15, 0.15, // H/E barrel, H/E endcap
+						999., 999., // cluster shape barrel, cluster shape endcap
+						0.98, 1.0, // R9 barrel, R9 endcap
+						999., 999., // Deta barrel, Deta endcap
+						999., 999. // Dphi barrel, Dphi endcap
+				)>=1) {
+					triggerBit[it] = true;
+				}
+			}
+		}
+	}
 
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_VeryLooseIsol_Ele8") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
@@ -2680,6 +2776,43 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+
+  /*
+   * 2011-01-26 added by Christian Hartl
+   * according to https://twiki.cern.ch/twiki/bin/view/CMS/EgammaWorkingPoints
+   * from scratch
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_SW_CaloEleId_LooseCaloIsol_Ele8_CaloEleId_LooseCaloIsol") == 0) {
+		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+			if (prescaleResponse(menu, cfg, rcounter, it)) {
+				if (OpenHlt2ElectronsAsymSamHarperPassed(
+						17., 0,        // ET, L1isolation 
+						999., 999.,    // Track iso barrel, Track iso endcap 
+						999., 999.,    // Track/pT iso barrel, Track/pT iso endcap 
+						0.2, 0.2,      // H/ET iso barrel, H/ET iso endcap 
+						0.2, 0.2,      // E/ET iso barrel, E/ET iso endcap 
+						0.15, 0.15,    // H/E barrel, H/E endcap 
+						0.014, 0.035,  // cluster shape barrel, cluster shape endcap 
+						0.98, 1.0,     // R9 barrel, R9 endcap 
+						999., 999.,    // Deta barrel, Deta endcap 
+						999., 999.,    // Dphi barrel, Dphi endcap 
+						8., 0,         // ET, L1isolation
+						999., 999.,    // Track iso barrel, Track iso endcap 
+						999., 999.,    // Track/pT iso barrel, Track/pT iso endcap 
+						0.2, 0.2,      // H/ET iso barrel, H/ET iso endcap 
+						0.2, 0.2,      // E/ET iso barrel, E/ET iso endcap 
+						0.15, 0.15,    // H/E barrel, H/E endcap 
+						0.014, 0.035,  // cluster shape barrel, cluster shape endcap 
+						0.98, 1.0,     // R9 barrel, R9 endcap 
+						999., 999.,    // Deta barrel, Deta endcap 
+						999., 999.     // Dphi barrel, Dphi endcap 
+				)>=1) {
+					triggerBit[it] = true;
+				}
+			}
+		}
+	}
+  
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_CaloIdL_TrkIdVL_Ele8_CaloIdL_TrkIdVL") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
@@ -2749,6 +2882,39 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }       
     }       
   }  
+  
+  /*
+   * 2011-01-26 added by Christian Hartl
+   * according to https://twiki.cern.ch/twiki/bin/view/CMS/EgammaWorkingPoints 
+   * changes w.r.t. OpenHLT_Ele70_SW_L1R:
+   * - reimplemented in terms of OpenHlt1ElectronSamHarperPassed, applied:
+   *    - Et           = 70.0 
+   *    - hoverebarrel = 0.15
+   *    - hovereendcap = 0.15
+   *    - r9barrel     = 0.98
+   *    - r9endcap     = 1.0
+   * - removed _L1R because no longer relaxed
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele70_SW") == 0) {
+		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+			if (prescaleResponse(menu, cfg, rcounter, it)) {
+				if (OpenHlt1ElectronSamHarperPassed(
+						70., 0, // ET, L1isolation 
+						999., 999., // Track iso barrel, Track iso endcap 
+						999., 999., // Track/pT iso barrel, Track/pT iso endcap 
+						999., 999., // H/ET iso barrel, H/ET iso endcap 
+						999., 999., // E/ET iso barrel, E/ET iso endcap 
+						0.15, 0.15, // H/E barrel, H/E endcap 
+						999., 999., // cluster shape barrel, cluster shape endcap 
+						0.98, 1.0, // R9 barrel, R9 endcap 
+						999., 999., // Deta barrel, Deta endcap 
+						999., 999. // Dphi barrel, Dphi endcap 
+				)>=1) {
+					triggerBit[it] = true;
+				}
+			}
+		}
+	}  
    
   /* Photons */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon32_SC32_L1R") == 0) {
@@ -2770,6 +2936,25 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+
+  /*
+   * 2011-01-26 added by Christian Hartl
+   * change wrt OpenHLT_Photon32_SC26_L1R
+   * - removed _L1R (L1 no longer relaxed in 2011)
+   * - thresholds 27 and 37
+   * TODO
+   * - correct? (H/E?) check it (there is no distinction between SC and Photon, it seems... is SamHarper's impl better?)
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon27_SC37") == 0) {
+		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+			if (prescaleResponse(menu, cfg, rcounter, it)) {
+				if (OpenHlt1PhotonPassedRA3(27., 0, 999., 999., 999., 999., 0.075, 0.075, 0.98, 1.0)>=2
+						&& OpenHlt1PhotonPassedRA3(37., 0, 999., 999., 999., 999., 0.075, 0.075, 0.98, 1.0)>=1) {
+					triggerBit[it] = true;
+				}
+			}
+		}
+	}
 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon28_SC26_L1R") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
@@ -2849,6 +3034,66 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+  
+  /*
+   * 2011-01-26 added by Christian Hartl
+   * according to https://twiki.cern.ch/twiki/bin/view/CMS/EgammaWorkingPoints
+   * adapted from "OpenHLT_Photon65_CaloEleId_Isol_L1R":
+   * - dropped _L1R from name because L1 not relaxed anymore 
+   * TODO
+   * - Tisobarrel=0.001, Tisoendcap=5.0 ? -- check with Mass.
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon65_CaloEleId_Isol") == 0) {
+		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+			if (prescaleResponse(menu, cfg, rcounter, it)) {
+				if (OpenHlt1PhotonSamHarperPassed(
+						65., 0,        // ET, L1isolation
+						0.001, 5.0,    // Track iso barrel, Track iso endcap ???
+						0.2, 0.1,      // Track/pT iso barrel, Track/pT iso endcap
+						0.2, 0.1,      // H/ET iso barrel, H/ET iso endcap
+						0.2, 0.1,      // E/ET iso barrel, E/ET iso endcap
+						0.05, 0.05,    // H/E barrel, H/E endcap
+						0.014, 0.035,  // cluster shape barrel, cluster shape endcap
+						0.98, 1.0,     // R9 barrel, R9 endcap
+						999., 999.,    // Deta barrel, Deta endcap
+						999., 999.     // Dphi barrel, Dphi endcap
+				)>=1) {
+					triggerBit[it] = true;
+				}
+			}
+		}
+	}
+  
+  /*
+   * 2011-01-26 added by Christian Hartl
+   * according to https://twiki.cern.ch/twiki/bin/view/CMS/EgammaWorkingPoints
+   * from scratch, using OpenHlt1PhotonSamHarperPassed:
+   * - guessing parameters...
+   * - dropped _L1R from name because L1 not relaxed anymore 
+   * TODO
+   * - OK but implement this in terms of OpenHlt1PhotonSamHarperPassed?
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon100") == 0) {
+		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+			if (prescaleResponse(menu, cfg, rcounter, it)) {
+				if (OpenHlt1PhotonSamHarperPassed(
+						100., 0,     // ET, L1isolation
+						999., 999.,  // Track iso barrel, Track iso endcap ???
+						999., 999.,  // Track/pT iso barrel, Track/pT iso endcap
+						999., 999.,  // H/ET iso barrel, H/ET iso endcap
+						999., 999.,  // E/ET iso barrel, E/ET iso endcap
+						0.15, 0.15,  // H/E barrel, H/E endcap
+						999., 999.,  // cluster shape barrel, cluster shape endcap
+						0.98, 1.0,   // R9 barrel, R9 endcap
+						999., 999.,  // Deta barrel, Deta endcap
+						999., 999.   // Dphi barrel, Dphi endcap
+				)>=1) {
+					triggerBit[it] = true;
+				}
+			}
+		}
+	}
+  
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton22_L1R") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -4700,6 +4945,33 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+
+  /*
+   * 2011-01-26 added by Christian Hartl
+   * according to https://twiki.cern.ch/twiki/bin/view/CMS/EgammaWorkingPoints
+   * from scratch:
+   * - added _SW to name for consistency's sake
+   */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_TripleEle10_SW") == 0) {
+		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+			if (prescaleResponse(menu, cfg, rcounter, it)) {
+				if (OpenHlt2ElectronsSamHarperPassed(
+						10., 0,      // ET, L1isolation
+						999., 999.,  // Track iso barrel, Track iso endcap
+						999., 999.,  // Track/pT iso barrel, Track/pT iso endcap
+						999., 999.,  // H/ET iso barrel, H/ET iso endcap
+						999., 999.,  // E/ET iso barrel, E/ET iso endcap
+						0.15, 0.15,  // H/E barrel, H/E endcap
+						999., 999.,  // cluster shape barrel, cluster shape endcap
+						0.98, 1.0,   // R9 barrel, R9 endcap
+						999., 999.,  // Deta barrel, Deta endcap
+						999., 999.   // Dphi barrel, Dphi endcap
+				)>=3) {
+					triggerBit[it] = true;
+				}
+			}
+		}
+	}
 
   else if(menu->GetTriggerName(it).BeginsWith("OpenHLT_Photon26")==1) {
     // Photon Paths (V. Rekovic)
