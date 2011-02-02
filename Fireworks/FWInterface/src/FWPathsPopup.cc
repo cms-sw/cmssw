@@ -572,7 +572,11 @@ public:
 
       if (iCol == 0)
       {
-         renderer->setIndentation(data.level * 10);
+         if (isParent)
+             renderer->setIndentation(data.level * 10 );
+         else
+             renderer->setIndentation(data.level * 10 + 12);
+
          renderer->setData(label, false);
       }
       else if (iCol == 1)
@@ -1355,6 +1359,8 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
                           "FWPathsPopup",this,
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
    m_tableWidget->Connect("Clicked()", "FWPathsPopup", this, "applyEditor()");
+
+   SetWindowName("Paths GUI");
    MapSubwindows();
    editor->UnmapWindow();
    Layout();
