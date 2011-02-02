@@ -433,16 +433,15 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 }
 
 void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
-  if (runStandalone) {  
-    int w=0;
-    for (unsigned int ww=0;ww<associators.size();ww++){
-      for (unsigned int www=0;www<label.size();www++){
-        if(!skipHistoFit)	histoProducerAlgo_->finalHistoFits(w);
-        histoProducerAlgo_->fillHistosFromVectors(w);
-        w++;
-      }    
-    }
-  }    
+  int w=0;
+  for (unsigned int ww=0;ww<associators.size();ww++){
+    for (unsigned int www=0;www<label.size();www++){
+      if(!skipHistoFit && runStandalone) histoProducerAlgo_->finalHistoFits(w);
+      if (runStandalone) histoProducerAlgo_->fillProfileHistosFromVectors(w);
+      histoProducerAlgo_->fillHistosFromVectors(w);
+      w++;
+    }    
+  }
   if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
 

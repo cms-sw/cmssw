@@ -66,6 +66,7 @@ class MTVHistoProducerAlgo{
 
 
   virtual void fillHistosFromVectors(int counter)=0;
+  virtual void fillProfileHistosFromVectors(int counter)=0;
 
 
  protected: 

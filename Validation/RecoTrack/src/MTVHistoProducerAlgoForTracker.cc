@@ -1081,26 +1081,26 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
 }
 
 
-void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
+void MTVHistoProducerAlgoForTracker::fillProfileHistosFromVectors(int counter){
   //chi2 and #hit vs eta: get mean from 2D histos
   doProfileX(chi2_vs_eta[counter],h_chi2meanh[counter]);
-  doProfileX(nhits_vs_eta[counter],h_hits_eta[counter]);    
-  doProfileX(nPXBhits_vs_eta[counter],h_PXBhits_eta[counter]);    
-  doProfileX(nPXFhits_vs_eta[counter],h_PXFhits_eta[counter]);    
-  doProfileX(nTIBhits_vs_eta[counter],h_TIBhits_eta[counter]);    
-  doProfileX(nTIDhits_vs_eta[counter],h_TIDhits_eta[counter]);    
-  doProfileX(nTOBhits_vs_eta[counter],h_TOBhits_eta[counter]);    
-  doProfileX(nTEChits_vs_eta[counter],h_TEChits_eta[counter]);    
-  
-  doProfileX(nLayersWithMeas_vs_eta[counter],h_LayersWithMeas_eta[counter]);    
+  doProfileX(nhits_vs_eta[counter],h_hits_eta[counter]);
+  doProfileX(nPXBhits_vs_eta[counter],h_PXBhits_eta[counter]);
+  doProfileX(nPXFhits_vs_eta[counter],h_PXFhits_eta[counter]);
+  doProfileX(nTIBhits_vs_eta[counter],h_TIBhits_eta[counter]);
+  doProfileX(nTIDhits_vs_eta[counter],h_TIDhits_eta[counter]);
+  doProfileX(nTOBhits_vs_eta[counter],h_TOBhits_eta[counter]);
+  doProfileX(nTEChits_vs_eta[counter],h_TEChits_eta[counter]);
+
+  doProfileX(nLayersWithMeas_vs_eta[counter],h_LayersWithMeas_eta[counter]);
   doProfileX(nPXLlayersWithMeas_vs_eta[counter],h_PXLlayersWithMeas_eta[counter]);    
   doProfileX(nSTRIPlayersWithMeas_vs_eta[counter],h_STRIPlayersWithMeas_eta[counter]);    
-  doProfileX(nSTRIPlayersWith1dMeas_vs_eta[counter],h_STRIPlayersWith1dMeas_eta[counter]);    
-  doProfileX(nSTRIPlayersWith2dMeas_vs_eta[counter],h_STRIPlayersWith2dMeas_eta[counter]);    
+  doProfileX(nSTRIPlayersWith1dMeas_vs_eta[counter],h_STRIPlayersWith1dMeas_eta[counter]);
+  doProfileX(nSTRIPlayersWith2dMeas_vs_eta[counter],h_STRIPlayersWith2dMeas_eta[counter]);
 
 
 
-  doProfileX(nlosthits_vs_eta[counter],h_losthits_eta[counter]);    
+  doProfileX(nlosthits_vs_eta[counter],h_losthits_eta[counter]);
   //vs phi
   doProfileX(chi2_vs_nhits[counter],h_chi2meanhitsh[counter]); 
   //      doProfileX(ptres_vs_eta[counter],h_ptresmean_vs_eta[counter]);
@@ -1109,8 +1109,9 @@ void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
   doProfileX(nhits_vs_phi[counter],h_hits_phi[counter]);
   //       doProfileX(ptres_vs_phi[counter],h_ptresmean_vs_phi[counter]);
   //       doProfileX(phires_vs_phi[counter],h_phiresmean_vs_phi[counter]);
-  
-  
+}
+
+void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
   fillPlotFromVector(h_recoeta[counter],totRECeta[counter]);
   fillPlotFromVector(h_simuleta[counter],totSIMeta[counter]);
   fillPlotFromVector(h_assoceta[counter],totASSeta[counter]);

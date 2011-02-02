@@ -66,6 +66,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
 
   void fillHistosFromVectors(int counter);
+  void fillProfileHistosFromVectors(int counter);
 
 
  private:
