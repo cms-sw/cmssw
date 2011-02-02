@@ -7,6 +7,7 @@ zdcreco = cms.EDProducer(
     samplesToAdd = cms.int32(3),
     Subdetector = cms.string('ZDC'),
     firstSample = cms.int32(4),
+    firstNoise = cms.int32(1),
     correctForPhaseContainment = cms.bool(False),
     correctForTimeslew = cms.bool(False),
     dropZSmarkedPassed = cms.bool(True),
