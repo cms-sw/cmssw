@@ -1,10 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 allConversions = cms.EDProducer('ConversionProducer',
-    AlgorithmName = cms.string('trackerOnly'),
-    #src = cms.VInputTag(cms.InputTag("generalTracks"), cms.InputTag("secStep"), cms.InputTag("thStep")),
+    AlgorithmName = cms.string('mixed'),
     #src = cms.VInputTag(cms.InputTag("generalTracks")),
-    #src = cms.InputTag("generalConversionTrackProducer"),
     src = cms.InputTag("gsfGeneralInOutOutInConversionTrackMerger"),
     convertedPhotonCollection = cms.string(''), ## or empty
 
