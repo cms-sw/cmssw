@@ -35,6 +35,7 @@ process.TrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
 ### configuration MultiTrackValidator ###
 process.multiTrackValidator.outputFile = 'val.SAMPLE.root'
+process.multiTrackValidator.runStandalone = True
 
 
 process.cutsRecoTracks.algorithm = cms.vstring(ALGORITHM)

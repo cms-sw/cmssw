@@ -34,6 +34,7 @@ class MTVHistoProducerAlgo{
 
   virtual void bookSimHistos()=0;
   virtual void bookRecoHistos()=0;
+  virtual void bookRecoHistosForStandaloneRunning()=0;
 
   virtual void fill_generic_simTrack_histos(int counter,ParticleBase::Vector,ParticleBase::Point vertex)=0;
 

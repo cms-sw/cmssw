@@ -30,6 +30,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   void bookSimHistos();
 
   void bookRecoHistos();
+  void bookRecoHistosForStandaloneRunning();
 
 
   void fill_generic_simTrack_histos(int counter,ParticleBase::Vector,ParticleBase::Point vertex);

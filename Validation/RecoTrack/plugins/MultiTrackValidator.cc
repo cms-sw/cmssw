@@ -66,6 +66,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
 						    pset.getParameter<std::vector<int> >("pdgIdTP"));
 
   useGsf = pset.getParameter<bool>("useGsf");
+  runStandalone = pset.getParameter<bool>("runStandalone");
 
 
     
@@ -120,6 +121,7 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
 
       //Booking histograms concerning with reconstructed tracks
       histoProducerAlgo_->bookRecoHistos();
+      if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning();
 
       if (UseAssociators) {
 	edm::ESHandle<TrackAssociatorBase> theAssociator;
@@ -431,14 +433,16 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 }
 
 void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
-  int w=0;
-  for (unsigned int ww=0;ww<associators.size();ww++){
-    for (unsigned int www=0;www<label.size();www++){
-      if(!skipHistoFit)	histoProducerAlgo_->finalHistoFits(w);
-      histoProducerAlgo_->fillHistosFromVectors(w);
-      w++;
-    }    
-  }
+  if (runStandalone) {  
+    int w=0;
+    for (unsigned int ww=0;ww<associators.size();ww++){
+      for (unsigned int www=0;www<label.size();www++){
+        if(!skipHistoFit)	histoProducerAlgo_->finalHistoFits(w);
+        histoProducerAlgo_->fillHistosFromVectors(w);
+        w++;
+      }    
+    }
+  }    
   if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
 
