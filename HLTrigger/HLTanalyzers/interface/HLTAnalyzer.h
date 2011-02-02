@@ -140,6 +140,8 @@ private:
   edm::InputTag L1NonIsoPixelSeeds_;
   edm::InputTag NonIsoR9_; 
   edm::InputTag IsoR9_;  
+  edm::InputTag NonIsoR9ID_;
+  edm::InputTag IsoR9ID_;
   edm::InputTag IsoHoverEH_;
   edm::InputTag NonIsoHoverEH_; 
 

@@ -131,7 +131,9 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     NonIsoR9_                 = conf.getParameter<edm::InputTag> ("SpikeCleaningNonIsol");   
     IsoHoverEH_               = conf.getParameter<edm::InputTag> ("HcalForHoverEIsol");
     NonIsoHoverEH_            = conf.getParameter<edm::InputTag> ("HcalForHoverENonIsol"); 
-    
+    IsoR9ID_                  = conf.getParameter<edm::InputTag> ("R9IDIsol");
+    NonIsoR9ID_               = conf.getParameter<edm::InputTag> ("R9IDNonIsol");
+
     // AlCa OpenHLT input collections  
     EERecHitTag_              = conf.getParameter<edm::InputTag> ("EERecHits"); 
     EBRecHitTag_              = conf.getParameter<edm::InputTag> ("EBRecHits"); 
@@ -259,12 +261,16 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::PhotonCollection>               photons;
     edm::Handle<reco::RecoEcalCandidateIsolationMap>    photonR9IsoHandle; 
     edm::Handle<reco::RecoEcalCandidateIsolationMap>    photonR9NonIsoHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>    photonR9IDIsoHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>    photonR9IDNonIsoHandle;
     edm::Handle<reco::RecoEcalCandidateIsolationMap>  photonHoverEHIsoHandle;   
     edm::Handle<reco::RecoEcalCandidateIsolationMap>  photonHoverEHNonIsoHandle;    
     edm::Handle<reco::ElectronCollection>             electronIsoHandle;
     edm::Handle<reco::ElectronCollection>             electronNonIsoHandle;
     edm::Handle<reco::RecoEcalCandidateIsolationMap>    electronR9IsoHandle; 
     edm::Handle<reco::RecoEcalCandidateIsolationMap>    electronR9NonIsoHandle;  
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>    electronR9IDIsoHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>    electronR9IDNonIsoHandle;
     edm::Handle<reco::ElectronIsolationMap>           NonIsoTrackEleIsolMap;
     edm::Handle<reco::ElectronIsolationMap>           TrackEleIsolMap;
     edm::Handle<reco::ElectronSeedCollection>         L1IsoPixelSeedsMap;
@@ -405,6 +411,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, HcalNonIsolMap,           HcalNonIsoPho_,             kHcalNonIsoPho);
     getCollection( iEvent, missing, photonR9IsoHandle,        IsoR9_,                     kIsoR9); 
     getCollection( iEvent, missing, photonR9NonIsoHandle,     NonIsoR9_,                  kNonIsoR9);  
+    getCollection( iEvent, missing, photonR9IDIsoHandle,      IsoR9ID_,                   kIsoR9ID);
+    getCollection( iEvent, missing, photonR9IDNonIsoHandle,   NonIsoR9ID_,                kNonIsoR9ID);
     getCollection( iEvent, missing, photonHoverEHIsoHandle,   IsoHoverEH_,                kIsoHoverEH);    
     getCollection( iEvent, missing, photonHoverEHNonIsoHandle,NonIsoHoverEH_,             kNonIsoHoverEH);   
     getCollection( iEvent, missing, electronIsoHandle,        IsoElectron_,               kIsoElectron);
@@ -419,6 +427,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, TrackIsolMap,             IsoPhoTrackIsol_,           kIsoPhoTrackIsol);
     getCollection( iEvent, missing, electronR9IsoHandle,      IsoR9_,                     kIsoR9);  
     getCollection( iEvent, missing, electronR9NonIsoHandle,   NonIsoR9_,                  kNonIsoR9);   
+    getCollection( iEvent, missing, electronR9IDIsoHandle,    IsoR9ID_,                   kIsoR9ID);
+    getCollection( iEvent, missing, electronR9IDNonIsoHandle, NonIsoR9ID_,                kNonIsoR9ID);
     getCollection( iEvent, missing, eerechits,                EERecHitTag_,               kEErechits ); 
     getCollection( iEvent, missing, ebrechits,                EBRecHitTag_,               kEBrechits );  
     getCollection( iEvent, missing, pi0eerechits,             pi0EERecHitTag_,            kpi0EErechits );  
@@ -517,6 +527,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                           electronR9NonIsoHandle, 
 			  photonHoverEHIsoHandle,  
 			  photonHoverEHNonIsoHandle,  
+                          photonR9IDIsoHandle,
+                          photonR9IDNonIsoHandle,
+                          electronR9IDIsoHandle,
+                          electronR9IDNonIsoHandle,
                           HltTree);
     
     mct_analysis_.analyze(

@@ -76,6 +76,8 @@ const char * kL1IsoPixelSeeds             = "pixelSeed-SC association map for el
 const char * kL1NonIsoPixelSeeds          = "pixelSeed-SC for electron";
 const char * kNonIsoR9                    = "Spike-cleaning";
 const char * kIsoR9                       = "Spike-cleaning"; 
+const char * kNonIsoR9ID                  = "isol R9 ID";
+const char * kIsoR9ID                     = "non-isol R9 ID";
 const char * kIsoHoverEH                  = "H for H/E isol photon map";
 const char * kNonIsoHoverEH               = "H for H/E non-isol photon map";
 

@@ -5,6 +5,25 @@ import FWCore.ParameterSet.Config as cms
 #from HLTrigger.Configuration.HLT_1E31_cff import *
 from HLTrigger.Configuration.HLT_FULL_cff import *
 
+
+#
+# Temporarily add EGamma R9-ID here until it goes in the full HLT configuration
+# 
+hltL1IsoR9ID = cms.EDProducer( "EgammaHLTR9IDProducer",
+                                          recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
+                                          ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
+                                          ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
+                               )
+hltL1NonIsoR9ID = cms.EDProducer( "EgammaHLTR9IDProducer",
+                                             recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
+                                             ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
+                                             ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
+                                )
+
+HLTEgammaR9IDSequence  = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1IsolatedEcalClustersSequence +
+                                       HLTL1NonIsolatedEcalClustersSequence + hltL1IsoRecoEcalCandidate + hltL1NonIsoRecoEcalCandidate +
+                                       hltL1IsoR9ID + hltL1NonIsoR9ID ) 
+
 # create the jetMET HLT reco path
 DoHLTJets = cms.Path(HLTBeginSequence + 
     HLTBeginSequence +
@@ -42,6 +61,7 @@ DoHLTPhoton = cms.Path(
     hltL1IsoRecoEcalCandidate + 
     hltL1NonIsoRecoEcalCandidate + 
     HLTEgammaR9ShapeSequence +
+    HLTEgammaR9IDSequence +
     hltL1IsolatedPhotonEcalIsol + 
     hltL1NonIsolatedPhotonEcalIsol + 
     HLTDoLocalHcalWithoutHOSequence + 
@@ -66,6 +86,7 @@ DoHLTElectron = cms.Path(
     hltL1IsoRecoEcalCandidate +
     hltL1NonIsoRecoEcalCandidate +
     HLTEgammaR9ShapeSequence +
+    HLTEgammaR9IDSequence +
     hltL1IsoHLTClusterShape +
     hltL1NonIsoHLTClusterShape +
     hltL1IsolatedPhotonEcalIsol +

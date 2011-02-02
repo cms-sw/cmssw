@@ -95,6 +95,10 @@ public:
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9NonIsoMap, 
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHIsoMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHNonIsoMap, 
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IDIsoMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IDNonIsoMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDIsoMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDNonIsoMap,
       TTree* tree);
 
 private:
@@ -109,6 +113,7 @@ private:
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IsoMap, 
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHIsoMap, 
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IDIsoMap,
       EcalClusterLazyTools& lazyTools
       );
 
@@ -120,6 +125,7 @@ private:
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9NonIsoMap,  
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHNonIsoMap,  
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IDNonIsoMap,
       EcalClusterLazyTools& lazyTools
       );
 
@@ -133,6 +139,7 @@ private:
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IsoMap,  
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHIsoMap,  
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap, 
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDIsoMap,
       EcalClusterLazyTools& lazyTools,
       const edm::ESHandle<MagneticField>& theMagField,
       reco::BeamSpot::Point & BSPosition  );
@@ -147,6 +154,7 @@ private:
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9NonIsoMap,   
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHIsoMap,  
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap, 
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDNonIsoMap,
       EcalClusterLazyTools& lazyTools,
       const edm::ESHandle<MagneticField>& theMagField,
       reco::BeamSpot::Point & BSPosition  );
@@ -165,7 +173,7 @@ private:
   float *hphotet, *hphoteta, *hphotphi, *hphoteiso, *hphothiso, *hphottiso, *hphothovereh;
   float *heleet, *heleeta, *helephi, *heleE, *helep, *helehiso, *heletiso, *helehovereh, *heleeiso;
   float *hphotClusShap, *heleClusShap, *heleDeta, *heleDphi;
-  float *hphotR9, *heleR9;
+  float *hphotR9, *heleR9, *hphotR9ID, *heleR9ID;
   int *hphotl1iso, *helel1iso, *helePixelSeeds;
   int *eleId;// RL  + 2*RT + 4*L +  4*T 
   int *heleNewSC;
@@ -185,6 +193,7 @@ private:
     bool  L1Isolated;
     float clusterShape;
     float hovereh;
+    float r9ID;
     float et() const { return Et; } // Function defined as such to be compatible with EtGreater()
   };
 
@@ -205,6 +214,7 @@ private:
     float Deta;
     float Dphi;
     float hovereh; 
+    float r9ID;
     float et() const { return Et; } // Function defined as such to be compatible with EtGreater()
   };
 

@@ -59,6 +59,7 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   hphotClusShap     = new float[kMaxhPhot];
   hphotR9           = new float[kMaxhPhot]; 
   hphothovereh      = new float[kMaxhPhot];
+  hphotR9ID         = new float[kMaxhPhot];
 
   heleet            = new float[kMaxhEle];
   heleeta           = new float[kMaxhEle];
@@ -76,6 +77,7 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   heleDphi          = new float[kMaxhEle];
   heleR9            = new float[kMaxhEle]; 
   helehovereh       = new float[kMaxhEle];
+  heleR9ID          = new float[kMaxhEle];
 
   nele      = 0;
   nphoton   = 0;
@@ -109,6 +111,7 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   HltTree->Branch("ohPhotClusShap",     hphotClusShap,      "ohPhotClusShap[NohPhot]/F");
   HltTree->Branch("ohPhotR9",           hphotR9,            "ohPhotR9[NohPhot]/F");  
   HltTree->Branch("ohPhotHforHoverE",   hphothovereh,       "ohPhotHforHoverE[NohPhot]/F");   
+  HltTree->Branch("ohPhotR9ID",         hphotR9ID,          "ohPhotR9ID[NohPhot]/F");
 
   HltTree->Branch("NohEle",             & nhltele,          "NohEle/I");
   HltTree->Branch("ohEleEt",            heleet,             "ohEleEt[NohEle]/F");
@@ -127,6 +130,7 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   HltTree->Branch("ohEleDphi",          heleDphi,           "ohEleDphi[NohEle]/F");
   HltTree->Branch("ohEleR9",            heleR9,             "ohEleR9[NohEle]/F");  
   HltTree->Branch("ohEleHforHoverE",    helehovereh,        "ohEleHforHoverE[NohEle]/F");    
+  HltTree->Branch("ohEleR9ID",          heleR9ID,           "ohEleR9ID[NohEle]/F");
 }
 
 void HLTEgamma::clear(void)
@@ -204,6 +208,10 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
                         const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9NonIsoMap,   
 			const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHIsoMap,      
                         const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHNonIsoMap,       
+			const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IDIsoMap,
+			const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IDNonIsoMap,
+			const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDIsoMap,
+			const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDNonIsoMap,
                         TTree* HltTree)
 {
   // reset the tree variables
@@ -282,6 +290,7 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
       TrackIsolMap,
       photonR9IsoMap,
       photonHoverEHIsoMap,
+      photonR9IDIsoMap,
       lazyTools);
   MakeL1NonIsolatedPhotons(
       theHLTPhotons,
@@ -291,6 +300,7 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
       TrackNonIsolMap,
       photonR9NonIsoMap,
       photonHoverEHNonIsoMap,
+      photonR9IDNonIsoMap,
       lazyTools);
 
   std::sort(theHLTPhotons.begin(), theHLTPhotons.end(), EtGreater());
@@ -306,8 +316,9 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
     hphotl1iso[u] = theHLTPhotons[u].L1Isolated;
     hphotClusShap[u] = theHLTPhotons[u].clusterShape;
     hphothovereh[u] = theHLTPhotons[u].hovereh; 
-    hphotR9[u] = theHLTPhotons[u].r9; 
-  }
+    hphotR9[u] = theHLTPhotons[u].r9;
+    hphotR9ID[u] = theHLTPhotons[u].r9ID;
+   }
 
   /////    Open-HLT electrons /////////////////
   std::vector<OpenHLTElectron> theHLTElectrons;
@@ -321,6 +332,7 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
       electronR9IsoMap,
       photonHoverEHIsoMap, 
       EcalIsolMap, 
+      electronR9IDIsoMap,
       lazyTools,
       theMagField,
       BSPosition);
@@ -334,6 +346,7 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
       electronR9NonIsoMap,  
       photonHoverEHNonIsoMap, 
       EcalNonIsolMap, 
+      electronR9IDNonIsoMap,
       lazyTools,
       theMagField,
       BSPosition);
@@ -358,6 +371,7 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
     heleDphi[u]       = theHLTElectrons[u].Dphi;
     heleR9[u]         = theHLTElectrons[u].r9;  
     helehovereh[u]    = theHLTElectrons[u].hovereh;
+    heleR9ID[u]       = theHLTElectrons[u].r9ID;
   }
 }
 
@@ -369,6 +383,7 @@ void HLTEgamma::MakeL1IsolatedPhotons(
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackIsolMap,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IsoMap,    
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHIsoMap,     
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IDIsoMap,
     EcalClusterLazyTools& lazyTools )
 {
   // Iterator to the isolation-map
@@ -390,8 +405,9 @@ void HLTEgamma::MakeL1IsolatedPhotons(
       pho.Et         = recoecalcand->et();
       pho.eta        = recoecalcand->eta();
       pho.phi        = recoecalcand->phi();
-      pho.r9        = -999.;
-      pho.hovereh = -999.;
+      pho.r9         = -999.;
+      pho.hovereh    = -999.;
+      pho.r9ID       = -999.;
 
       //Get the cluster shape
       //      std::vector<float> vCov = lazyTools.covariances( *(recoecalcand->superCluster()->seed()) );
@@ -432,7 +448,12 @@ void HLTEgamma::MakeL1IsolatedPhotons(
 	mapi = (*photonHoverEHIsoMap).find(ref);  
         if (mapi !=(*photonHoverEHIsoMap).end()) { pho.hovereh = mapi->val;}
       }
-      
+      // fill the R9ID
+      if (photonR9IDIsoMap.isValid()) {
+        mapi = (*photonR9IDIsoMap).find(ref);
+        if (mapi !=(*photonR9IDIsoMap).end()) { pho.r9ID = mapi->val;}
+      }
+
       // store the photon into the vector
       theHLTPhotons.push_back(pho);
     }
@@ -447,6 +468,7 @@ void HLTEgamma::MakeL1NonIsolatedPhotons(
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & TrackNonIsolMap,
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9NonIsoMap,     
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHNonIsoMap,      
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IDNonIsoMap,
     EcalClusterLazyTools& lazyTools )
 {
   reco::RecoEcalCandidateIsolationMap::const_iterator mapi;
@@ -464,8 +486,9 @@ void HLTEgamma::MakeL1NonIsolatedPhotons(
       pho.Et         = recoecalcand->et();
       pho.eta        = recoecalcand->eta();
       pho.phi        = recoecalcand->phi();
-      pho.r9        = -999; 
-      pho.hovereh = -999.;
+      pho.r9         = -999; 
+      pho.hovereh    = -999.;
+      pho.r9ID       = -999.;
 
       //Get the cluster shape
       //      std::vector<float> vCov = lazyTools.covariances( *(recoecalcand->superCluster()->seed()) );
@@ -504,6 +527,11 @@ void HLTEgamma::MakeL1NonIsolatedPhotons(
         mapi = (*photonHoverEHNonIsoMap).find(ref);   
         if (mapi !=(*photonHoverEHNonIsoMap).end()) { pho.hovereh = mapi->val;} 
       } 
+      // fill the R9ID
+      if (photonR9IDNonIsoMap.isValid()) {
+        mapi = (*photonR9IDNonIsoMap).find(ref);
+        if (mapi !=(*photonR9IDNonIsoMap).end()) { pho.r9ID = mapi->val;}
+      }
 
       // store the photon into the vector
       theHLTPhotons.push_back(pho);
@@ -521,6 +549,7 @@ void HLTEgamma::MakeL1IsolatedElectrons(
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IsoMap,     
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHIsoMap,      
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap, 
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDIsoMap,
     EcalClusterLazyTools& lazyTools,
     const edm::ESHandle<MagneticField>& theMagField,
     reco::BeamSpot::Point & BSPosition )
@@ -560,6 +589,7 @@ void HLTEgamma::MakeL1IsolatedElectrons(
       //      }
       ele.clusterShape = sigmaee;
       ele.r9 = -999.;
+      ele.r9ID = -999.;
 
       // fill the ecal Isolation 
       if (EcalIsolMap.isValid()) { 
@@ -582,6 +612,12 @@ void HLTEgamma::MakeL1IsolatedElectrons(
 	reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*photonHoverEHIsoMap).find(ref);   
         if (mapi !=(*photonHoverEHIsoMap).end()) { ele.hovereh = mapi->val;} 
       } 
+      // fill the R9ID
+      if (electronR9IDIsoMap.isValid()) {
+	reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*electronR9IDIsoMap).find( ref );
+        if (mapi !=(*electronR9IDIsoMap).end()) { ele.r9ID = mapi->val; }
+      }
+
       // look if the SC has associated pixelSeeds
       int nmatch = 0;
 
@@ -638,6 +674,7 @@ void HLTEgamma::MakeL1IsolatedElectrons(
 	      ele2.r9 = ele.r9;
 	      ele2.hovereh = ele.hovereh;
 	      ele2.ecalIsol = ele.ecalIsol;
+	      ele2.r9ID = ele.r9ID;
 	      float deta=-100, dphi=-100;
               CalculateDetaDphi(theMagField,BSPosition , electronref , deta, dphi, false);
               ele2.Dphi=dphi; ele2.Deta=deta;
@@ -669,6 +706,7 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9NonIsoMap,     
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonHoverEHNonIsoMap,      
     const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalNonIsolMap, 
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDNonIsoMap,
     EcalClusterLazyTools& lazyTools,
     const edm::ESHandle<MagneticField>& theMagField,
     reco::BeamSpot::Point & BSPosition  )
@@ -694,6 +732,7 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
       ele.Dphi = 700; 
       ele.Deta = 700;
       ele.r9 = -999.;
+      ele.r9ID = -999.;
       ele.hovereh = -999; 
       ele.Et         = recoecalcand->et();
       ele.eta        = recoecalcand->eta();
@@ -730,6 +769,12 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
 	reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*photonHoverEHNonIsoMap).find(ref);   
         if (mapi !=(*photonHoverEHNonIsoMap).end()) { ele.hovereh = mapi->val;} 
       } 
+      // fill the R9ID
+      if (electronR9IDNonIsoMap.isValid()) {
+	reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*electronR9IDNonIsoMap).find( ref );
+        if (mapi !=(*electronR9IDNonIsoMap).end()) { ele.r9ID = mapi->val; }
+      }
+
       // look if the SC has associated pixelSeeds
       int nmatch = 0;
 
@@ -786,6 +831,7 @@ void HLTEgamma::MakeL1NonIsolatedElectrons(
               ele2.p          = electronref->track()->momentum().R();
 	      ele2.r9         = ele.r9;
               ele2.hovereh = ele.hovereh; 
+	      ele2.r9ID       = ele.r9ID;
 	      float deta=-100, dphi=-100;
               CalculateDetaDphi(theMagField,BSPosition , electronref , deta, dphi, false);
               ele2.Dphi=dphi; ele2.Deta=deta;
