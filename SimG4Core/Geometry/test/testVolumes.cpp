@@ -1,24 +1,30 @@
 #include <DetectorDescription/Core/interface/DDSolid.h>
 #include <DetectorDescription/Core/interface/DDSolidShapes.h>
-#include <DetectorDescription/Core/src/EllipticalTube.h>
-#include <DetectorDescription/Core/src/Ellipsoid.h>
+
 #include <DetectorDescription/Core/src/Box.h>
 #include <DetectorDescription/Core/src/Cons.h>
+#include <DetectorDescription/Core/src/Ellipsoid.h>
+#include <DetectorDescription/Core/src/EllipticalTube.h>
+#include <DetectorDescription/Core/src/Orb.h>
+#include <DetectorDescription/Core/src/Parallelepiped.h>
+#include <DetectorDescription/Core/src/Polycone.h>
+#include <DetectorDescription/Core/src/Polyhedra.h>
 #include <DetectorDescription/Core/src/Sphere.h>
 #include <DetectorDescription/Core/src/Torus.h>
 #include <DetectorDescription/Core/src/Trap.h>
 #include <DetectorDescription/Core/src/Tubs.h>
-#include <DetectorDescription/Core/src/Parallelepiped.h>
-#include <DetectorDescription/Core/src/Orb.h>
+
 #include <DataFormats/GeometryVector/interface/Pi.h>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <G4Box.hh>
 #include <G4Cons.hh>
-#include <G4EllipticalTube.hh>
 #include <G4Ellipsoid.hh>
-#include <G4Sphere.hh>
-#include <G4Para.hh>
+#include <G4EllipticalTube.hh>
 #include <G4Orb.hh>
+#include <G4Para.hh>
+#include <G4Polycone.hh>
+#include <G4Polyhedra.hh>
+#include <G4Sphere.hh>
 #include <G4Torus.hh>
 #include <G4Trap.hh>
 #include <G4Trd.hh>
@@ -35,7 +41,7 @@
 //
 
 //
-// Box:
+// 1. Box:
 //
 // G4Box(const G4String& pName,                         
 //       G4double  pX,
@@ -56,7 +62,7 @@ doBox( const std::string& name, double xHalfLength, double yHalfLength,
 }
 
 //
-// Cylindrical Section or Tube:
+// 2. Cylindrical Section or Tube:
 //
 // G4Tubs(const G4String& pName,                        
 //        G4double  pRMin,
@@ -79,7 +85,7 @@ doTubs( const std::string& name, double rIn, double rOut,
 }
 
 //
-// Cone or Conical section:
+// 3. Cone or Conical section:
 //
 // G4Cons(const G4String& pName,                        
 //        G4double  pRmin1,
@@ -106,7 +112,7 @@ doCons( const std::string& name,
 }
 
 //
-// Parallelepiped:
+// 4. Parallelepiped:
 //
 // G4Para(const G4String& pName,                                  
 //        G4double   dx,
@@ -130,7 +136,7 @@ doPara( const std::string& name, double xHalf, double yHalf,
 }
 
 //
-// Trapezoid:
+// 5. Trapezoid:
 //
 // G4Trd(const G4String& pName,                            
 //       G4double  dx1,
@@ -160,7 +166,7 @@ doTrd( const std::string& name, double dx1, double dx2,
 }
 
 //
-// Generic Trapezoid:
+// 6. Generic Trapezoid:
 //
 // G4Trap(const G4String& pName,                        
 //        G4double   pZ,
@@ -193,7 +199,7 @@ doTrap( const std::string& name, double dz, double pTheta, double pPhi,
 }
 
 //
-// Sphere or Spherical Shell Section:
+// 7. Sphere or Spherical Shell Section:
 //
 // G4Sphere(const G4String& pName,                      
 // 	    G4double   pRmin,
@@ -217,7 +223,7 @@ doSphere( const std::string& name, double innerRadius, double outerRadius,
 }
 
 //
-// Full Solid Sphere:
+// 8. Full Solid Sphere:
 //
 // G4Orb(const G4String& pName,                                   
 //       G4double  pRmax)
@@ -240,14 +246,14 @@ doOrb( const std::string& name, double radius )
 }
 
 //
-// Torus:
+// 9. Torus:
 //
 // G4Torus(const G4String& pName,                       
-// 	G4double   pRmin,
-// 	G4double   pRmax,
-// 	G4double   pRtor,
-// 	G4double   pSPhi,
-// 	G4double   pDPhi)
+// 	   G4double   pRmin,
+// 	   G4double   pRmax,
+// 	   G4double   pRtor,
+// 	   G4double   pSPhi,
+// 	   G4double   pDPhi)
 void
 doTorus( const std::string& name, double rMin, double rMax, double radius, double sPhi, double dPhi )
 {  
@@ -261,6 +267,12 @@ doTorus( const std::string& name, double rMin, double rMax, double radius, doubl
   std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
 }
 
+// Specific CSG Solids
+//
+
+// 
+// 10. Polycons:
+//
 // G4Polycone(const G4String& pName,                    
 // 	   G4double   phiStart,
 // 	   G4double   phiTotal,
@@ -268,14 +280,47 @@ doTorus( const std::string& name, double rMin, double rMax, double radius, doubl
 // 	   const G4double   zPlane[],
 // 	   const G4double   rInner[],
 // 	   const G4double   rOuter[])
-
+//
 // G4Polycone(const G4String& pName,                      
 // 	   G4double   phiStart,
 // 	   G4double   phiTotal,
 // 	   G4int      numRZ,
 // 	   const G4double  r[],
 // 	   const G4double  z[])
+void
+doPolycone1( const std::string& name, double phiStart, double phiTotal,
+	     const std::vector<double> & z,
+	     const std::vector<double> & rInner,
+	     const std::vector<double> & rOuter )
+{  
+  G4Polycone g4( name, phiStart, phiTotal, z.size(), &z[0], &rInner[0], &rOuter[0] );
+  DDI::Polycone dd( phiStart, phiTotal, z, rInner, rOuter );
+  DDPolycone dds = DDSolidFactory::polycone( name, phiStart, phiTotal, z, rInner, rOuter );
+  dd.stream(std::cout);
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
 
+void
+doPolycone2( const std::string& name, double phiStart, double phiTotal,
+	     const std::vector<double> & z,
+	     const std::vector<double> & r )
+{  
+  G4Polycone g4( name, phiStart, phiTotal, z.size(), &z[0], &r[0] );
+  DDI::Polycone dd( phiStart, phiTotal, z, r );
+  DDPolycone dds = DDSolidFactory::polycone( name, phiStart, phiTotal, z, r );
+  dd.stream(std::cout);
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
+
+//
+// 11. Polyhedra (PGON):
+//
 // G4Polyhedra(const G4String& pName,                   
 // 	    G4double  phiStart,
 // 	    G4double  phiTotal,
@@ -284,7 +329,7 @@ doTorus( const std::string& name, double rMin, double rMax, double radius, doubl
 // 	    const G4double  zPlane[],
 // 	    const G4double  rInner[],
 // 	    const G4double  rOuter[] )
-
+//
 // G4Polyhedra(const G4String& pName,
 // 	    G4double  phiStart,
 // 	    G4double  phiTotal,
@@ -292,9 +337,39 @@ doTorus( const std::string& name, double rMin, double rMax, double radius, doubl
 // 	    G4int     numRZ,
 // 	    const G4double  r[],
 // 	    const G4double  z[] )
+void
+doPolyhedra1( const std::string& name, int sides, double phiStart, double phiTotal,
+	      const std::vector<double> & z,
+	      const std::vector<double> & rInner,
+	      const std::vector<double> & rOuter )
+{  
+  G4Polyhedra g4( name, phiStart, phiTotal, sides, z.size(), &z[0], &rInner[0], &rOuter[0] );
+  DDI::Polyhedra dd( sides, phiStart, phiTotal, z, rInner, rOuter );
+  DDPolyhedra dds = DDSolidFactory::polyhedra( name, sides, phiStart, phiTotal, z, rInner, rOuter );
+  dd.stream(std::cout);
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
+
+void
+doPolyhedra2( const std::string& name, int sides, double phiStart, double phiTotal,
+	      const std::vector<double> & z,
+	      const std::vector<double> & r )
+{  
+  G4Polyhedra g4( name, phiStart, phiTotal, sides, z.size(), &z[0], &r[0] );
+  DDI::Polyhedra dd( sides, phiStart, phiTotal, z, r );
+  DDPolyhedra dds = DDSolidFactory::polyhedra( name, sides, phiStart, phiTotal, z, r );
+  dd.stream(std::cout);
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
 
 //
-// Tube with an elliptical cross section:
+// 12. Tube with an elliptical cross section:
 //
 // G4EllipticalTube(const G4String& pName,                   
 // 		 G4double  Dx,
@@ -316,7 +391,7 @@ doEllipticalTube( const std::string& name, double xSemiaxis, double ySemiAxis, d
 }
 
 //
-// General Ellipsoid:
+// 13. General Ellipsoid:
 //
 // G4Ellipsoid(const G4String& pName,                   
 // 	       G4double  pxSemiAxis,
@@ -338,17 +413,26 @@ doEllipsoid( const std::string& name, double xSemiAxis, double ySemiAxis,
   std::cout << "\tDD Information: " << dde << " vol= " << dde.volume() << std::endl;
 }
 
+//
+// 14. Cone with Elliptical Cross Section:
+//
 // G4EllipticalCone(const G4String& pName,              
 // 		 G4double  pxSemiAxis,
 // 		 G4double  pySemiAxis,
 // 		 G4double  zMax,
 // 		 G4double  pzTopCut)
 
+//
+// 15. Paraboloid, a solid with parabolic profile:
+//
 // G4Paraboloid(const G4String& pName,                   
 // 	     G4double  Dz,
 // 	     G4double  R1,
 // 	     G4double  R2)
 
+//
+// 16. Tube with Hyperbolic Profile:
+//
 // G4Hype(const G4String& pName,                        
 //        G4double  innerRadius,
 //        G4double  outerRadius,
@@ -356,36 +440,48 @@ doEllipsoid( const std::string& name, double xSemiAxis, double ySemiAxis,
 //        G4double  outerStereo,
 //        G4double  halfLenZ)
 
+//
+// 17. Tetrahedra:
+//
 // G4Tet(const G4String& pName,                         
 //       G4ThreeVector  anchor,
 //       G4ThreeVector  p2,
 //       G4ThreeVector  p3,
 //       G4ThreeVector  p4,
 //       G4bool         *degeneracyFlag=0)
-  
+
+//
+// 18. Extruded Polygon:
+//
 // G4ExtrudedSolid(const G4String&                pName,
 // 		std::vector<G4TwoVector> polygon,
 // 		std::vector<ZSection>    zsections)
-
+//
 // G4ExtrudedSolid(const G4String&                pName,
 // 		std::vector<G4TwoVector> polygon,
 // 		G4double                 hz,
 // 		G4TwoVector off1, G4double scale1,
 // 		G4TwoVector off2, G4double scale2)
-    
+
+//
+// 19. Box Twisted:
+//
 // G4TwistedBox(const G4String& pName,                  
 // 	     G4double  twistedangle,
 // 	     G4double  pDx,
 // 	     G4double  pDy,
 // 	     G4double  pDz)
 
+//
+// 20. Trapezoid Twisted along One Axis:
+//
 // G4TwistedTrap(const G4String& pName,                 
 // 	      G4double  twistedangle,
 // 	      G4double  pDxx1, 
 // 	      G4double  pDxx2,
 // 	      G4double  pDy, 
 // 	      G4double   pDz)
-  
+//  
 // G4TwistedTrap(const G4String& pName,
 // 	      G4double  twistedangle,
 // 	      G4double  pDz,
@@ -399,6 +495,9 @@ doEllipsoid( const std::string& name, double xSemiAxis, double ySemiAxis,
 // 	      G4double  pDx4,
 // 	      G4double  pAlph)
 
+//
+// 21. Twisted Trapezoid with x and y dimensions varying along z:
+//
 // G4TwistedTrd(const G4String& pName,                  
 // 	     G4double  pDx1,
 // 	     G4double  pDx2,
@@ -407,10 +506,16 @@ doEllipsoid( const std::string& name, double xSemiAxis, double ySemiAxis,
 // 	     G4double  pDz,
 // 	     G4double  twistedangle)
 
+//
+// 22. Generic trapezoid with optionally collapsing vertices:
+//
 // G4GenericTrap(const G4String& pName,                  
 // 	      G4double  pDz,
 // 	      const std::vector<G4TwoVector>& vertices)
 
+//
+// 23. Tube Section Twisted along Its Axis: 
+// 
 // G4TwistedTubs(const G4String& pName,                 
 // 	      G4double  twistedangle,
 // 	      G4double  endinnerrad,
@@ -426,10 +531,16 @@ main( int argc, char *argv[] )
   double zHeight(2.*cm);
   std::string name("fred1");
 
+//
+// 1. Box:
+//
   std::cout << "\n\nBox tests\n" << std::endl;
   doBox( name, xSemiaxis, ySemiAxis, zHeight );
   std::cout << std::endl;
   
+//
+// 2. Cylindrical Section or Tube:
+//
   std::cout << "\n\nTub tests\n" << std::endl;
   double rIn = 10.*cm;
   double rOut = 15.*cm;
@@ -439,17 +550,25 @@ main( int argc, char *argv[] )
   doTubs( name, rIn, rOut, zhalf, startPhi, deltaPhi );
   std::cout << std::endl;
 
+//
+// 3. Cone or Conical section:
+//
   std::cout << "\n\nCons tests\n" << std::endl;
   double rIn2 = 20.*cm;
   double rOut2 = 25.*cm;
   doCons( name, rIn, rOut, rIn2, rOut2, zhalf, startPhi, deltaPhi );
   std::cout << std::endl;
 
-  std::cout << "\n\nTorus tests\n" << std::endl;
-  double radius = 200.*cm;
-  doTorus( name, rIn, rOut, radius, startPhi, deltaPhi );
-  std::cout << std::endl;
+//
+// 4. Parallelepiped:
+//
+  std::cout << "\n\nParallelepiped tests\n" << std::endl;
+  std::cout << "This next should be the same as a xhalf=5cm, yhalf=6cm, zhalf=7cm, alpha=15deg, theta=30deg, phi=45deg" << std::endl;
+  doPara("fred1", 5.*cm, 6.*cm, 7.*cm, 15*deg, 30*deg, 45*deg);
 
+//
+// 5. Trapezoid:
+//
   std::cout << "\n\nTrapezoid tests\n" << std::endl;
   double dx1 = 10.*cm;
   double dx2 = 30.*cm;
@@ -459,6 +578,9 @@ main( int argc, char *argv[] )
   doTrd( name, dx1, dx2, dy1, dy2, dz );
   std::cout << std::endl;
 
+//
+// 6. Generic Trapezoid:
+//
   std::cout << "\n\nGeneric Trapezoid tests\n" << std::endl;
   double pTheta = 0.*deg;
   double pPhi = 0.*deg;
@@ -472,23 +594,10 @@ main( int argc, char *argv[] )
   double pAlp2 = 0.*deg;
   doTrap( name, dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2 );
   std::cout << std::endl;
-  
-  std::cout << "\n\nElliptical Tube tests\n" << std::endl;
-  doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
-  std::cout << std::endl;
-  ySemiAxis = 3.*cm;
-  doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
-  std::cout << std::endl;
-  xSemiaxis = 3.* cm;
-  ySemiAxis = 2.* cm;
-  zHeight = 10.* cm;
-  doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
-  std::cout << std::endl;
-  xSemiaxis = 300.* cm;
-  ySemiAxis = 400.* cm;
-  zHeight = 3000. * cm;
-  doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
 
+//
+// 7. Sphere or Spherical Shell Section:
+//
   std::cout << "\n\nSphere tests\n" << std::endl;
   std::cout << "This next should be the same as a 2cm ball: " << std::endl;
   doSphere("fred1", 0.0*cm, 2.0*cm, 0.*deg, 360.*deg, 0., 180.*deg);
@@ -514,10 +623,73 @@ main( int argc, char *argv[] )
   std::cout << "\n30 degree span in theta; full phi around equator (should be bigger than above)" << std::endl;
   doSphere("fred1", 2.0*cm, 3.0*cm, 0.*deg, 360.*deg, 75.*deg, 30.*deg);
 
+//
+// 8. Full Solid Sphere:
+//
   std::cout << "\n\nOrb\n" << std::endl;
   std::cout << "This next should be the same as a 2cm ball (also the sphere above): " << std::endl;
   doOrb("fred1", 2.0*cm);
+  
+//
+// 9. Torus:
+//
+  std::cout << "\n\nTorus tests\n" << std::endl;
+  double radius = 200.*cm;
+  doTorus( name, rIn, rOut, radius, startPhi, deltaPhi );
+  std::cout << std::endl;
 
+// 
+// 10. Polycons:
+//
+  std::cout << "\n\nPolycons tests\n" << std::endl;
+  double phiStart = 45.*deg;
+  double phiTotal = 325.*deg;
+  double inner[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  std::vector<double> rInner( inner, inner + sizeof( inner ) / sizeof( double ));
+  double outer[] = { 0, 10, 10, 5, 5, 10, 10, 2, 2 };
+  std::vector<double> rOuter( outer, outer + sizeof( outer ) / sizeof( double ));
+  double pl[] = { 5, 7, 9, 11, 25, 27, 29, 31, 35 };
+  std::vector<double> z( pl, pl + sizeof( pl ) / sizeof( double ));
+  doPolycone1( name, phiStart, phiTotal, z, rInner, rOuter );
+  std::cout << std::endl;
+
+  doPolycone2( name, phiStart, phiTotal, z, rOuter );
+  std::cout << std::endl;
+
+//
+// 11. Polyhedra (PGON):
+//
+  std::cout << "\n\nPolyhedra tests\n" << std::endl;
+  int sides = 3;
+  doPolyhedra1( name, sides, phiStart, phiTotal, z, rInner, rOuter );
+  std::cout << std::endl;
+
+  doPolyhedra2( name, sides, phiStart, phiTotal, z, rOuter );
+  std::cout << std::endl;
+
+//
+// 12. Tube with an elliptical cross section:
+//  
+  
+  std::cout << "\n\nElliptical Tube tests\n" << std::endl;
+  doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
+  std::cout << std::endl;
+  ySemiAxis = 3.*cm;
+  doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
+  std::cout << std::endl;
+  xSemiaxis = 3.* cm;
+  ySemiAxis = 2.* cm;
+  zHeight = 10.* cm;
+  doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
+  std::cout << std::endl;
+  xSemiaxis = 300.* cm;
+  ySemiAxis = 400.* cm;
+  zHeight = 3000. * cm;
+  doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
+
+//
+// 13. General Ellipsoid:
+//
   std::cout << "\n\nEllipsoid tests\n" << std::endl;
   std::cout << "This next should be the same as a x = 3cm; y = 2cm; and z = 5cm " << std::endl;
   doEllipsoid("fred1", 3.0*cm, 2.0*cm, 5.*cm, 0.*cm, 0.*cm);
@@ -528,10 +700,46 @@ main( int argc, char *argv[] )
   std::cout << "\nThis has a bottom cut off at z= -1cm  and top cut at z=1cm and should be smaller (just the fat bit around the middle)." << std::endl;
   doEllipsoid("fred1", 3.0*cm, 2.0*cm, 5.*cm, -1.*cm, 1.*cm);
 
-  std::cout << "\n\nParallelepiped tests\n" << std::endl;
-  std::cout << "This next should be the same as a xhalf=5cm, yhalf=6cm, zhalf=7cm, alpha=15deg, theta=30deg, phi=45deg" << std::endl;
-  doPara("fred1", 5.*cm, 6.*cm, 7.*cm, 15*deg, 30*deg, 45*deg);
+//
+// 14. Cone with Elliptical Cross Section:
+//
 
+//
+// 15. Paraboloid, a solid with parabolic profile:
+//
+
+//
+// 16. Tube with Hyperbolic Profile:
+//
+  
+//
+// 17. Tetrahedra:
+//
+
+//
+// 18. Extruded Polygon:
+//
+
+//
+// 19. Box Twisted:
+//
+
+//
+// 20. Trapezoid Twisted along One Axis:
+//
+
+//
+// 21. Twisted Trapezoid with x and y dimensions varying along z:
+//
+
+//
+// 22. Generic trapezoid with optionally collapsing vertices:
+//
+
+//
+// 23. Tube Section Twisted along Its Axis: 
+//   
+  
   return EXIT_SUCCESS;
 }
 
