@@ -20,6 +20,7 @@ using namespace std;
 
 ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   reco_(conf.getParameter<int>("firstSample"),
+    conf.getParameter<int>("firstNoise"),
 	conf.getParameter<int>("samplesToAdd"),
 	conf.getParameter<bool>("correctForTimeslew"),
 	conf.getParameter<bool>("correctForPhaseContainment"),

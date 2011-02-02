@@ -9,8 +9,9 @@
 
 static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 
-ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew, bool correctForPulse, float phaseNS, int recoMethod) : 
+ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int firstSample, int firstNoise, int samplesToAdd, bool correctForTimeslew, bool correctForPulse, float phaseNS, int recoMethod) : 
   firstSample_(firstSample), 
+  firstNoise_(firstNoise),
   samplesToAdd_(samplesToAdd),
   recoMethod_(recoMethod),
   correctForTimeslew_(correctForTimeslew) {
@@ -18,8 +19,9 @@ ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int firstSample, int samplesToAdd, bool corre
     pulseCorr_=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(samplesToAdd_,phaseNS,MaximumFractionalError));
 }
 
-ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int firstSample, int samplesToAdd, int recoMethod) : 
-  firstSample_(firstSample), 
+ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int firstSample, int firstNoise, int samplesToAdd, int recoMethod) : 
+  firstSample_(firstSample),
+   firstNoise_(firstNoise),
   samplesToAdd_(samplesToAdd),
   recoMethod_(recoMethod),
   correctForTimeslew_(false) {
@@ -30,7 +32,7 @@ static float timeshift_ns_zdc(float wpksamp);
 namespace ZdcSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco1(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
-		     int ifirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
+		     int ifirst, int noiseFirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
     double ampl=0; int maxI = -1; double maxA = -1e10; double ta=0;
@@ -83,7 +85,7 @@ namespace ZdcSimpleRecAlgoImpl {
 namespace ZdcSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco2(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
-		     int ifirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
+		     int ifirst, int noiseFirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
     double ampl=0; int maxI = -1; double maxA = -1e10; double ta=0;
@@ -92,7 +94,7 @@ namespace ZdcSimpleRecAlgoImpl {
     double noise = 0;
     double fc_ampl=0;
 
-    for(int k = 0 ; k < tool.size() && k < ifirst; k++){
+    for(int k = noiseFirst ; k < tool.size() && k < ifirst; k++){
       prenoise += tool[k];
       noiseslices++;
     }
@@ -176,12 +178,12 @@ ZDCRecHit ZdcSimpleRecAlgo::reconstruct(const ZDCDataFrame& digi, const HcalCode
  
   if(recoMethod_ == 1)
    return ZdcSimpleRecAlgoImpl::reco1<ZDCDataFrame,ZDCRecHit>(digi,coder,calibs,
-							      firstSample_,samplesToAdd_,false,
+							      firstSample_,firstNoise_,samplesToAdd_,false,
 							      0,
 							      HcalTimeSlew::Fast);
   if(recoMethod_ == 2)
    return ZdcSimpleRecAlgoImpl::reco2<ZDCDataFrame,ZDCRecHit>(digi,coder,calibs,
-							      firstSample_,samplesToAdd_,false,
+							      firstSample_,firstNoise_,samplesToAdd_,false,
 							      0,HcalTimeSlew::Fast);
 
      edm::LogError("ZDCSimpleRecAlgoImpl::reconstruct, recoMethod was not declared");

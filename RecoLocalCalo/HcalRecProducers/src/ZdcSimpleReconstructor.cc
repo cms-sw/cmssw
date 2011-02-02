@@ -16,7 +16,7 @@ using namespace std;
 
     
 ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf):
-  reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"),
+  reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("firstNoise"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"),
 	conf.getParameter<bool>("correctForPhaseContainment"),conf.getParameter<double>("correctionPhaseNS"),
 	conf.getParameter<int>("recoMethod")),
   det_(DetId::Hcal),

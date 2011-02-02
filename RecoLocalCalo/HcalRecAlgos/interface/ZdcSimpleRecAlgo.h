@@ -29,22 +29,22 @@
    implelented. signal = (S4 + S5 - 2*(S1+S2+S3 + S7+S8+S9+S10))*(ft-Gev constant)
    where SN is the signal in the nth time slice
     
-   $Date: 2010/01/15 00:00:00 $
-   $Revision: 0.0 $
+   $Date: 2010/01/21 14:28:18 $
+   $Revision: 1.1 $
    \author E. Garcia CSU &  J. Gomez UMD
 */
 
 class ZdcSimpleRecAlgo {
 public:
   /** Full featured constructor for ZDC */
-  ZdcSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew, 
+  ZdcSimpleRecAlgo(int firstSample, int firstNoise, int samplesToAdd, bool correctForTimeslew, 
 		   bool correctForContainment, float fixedPhaseNs, int recoMethod);
   /** Simple constructor for PMT-based detectors */
-  ZdcSimpleRecAlgo(int firstSample, int samplesToAdd, int recoMethod);
+  ZdcSimpleRecAlgo(int firstSample, int firstNoise, int samplesToAdd, int recoMethod);
   ZDCRecHit reconstruct(const ZDCDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 private:
-  int firstSample_, samplesToAdd_, recoMethod_;
+  int firstSample_, firstNoise_, samplesToAdd_, recoMethod_;
   bool correctForTimeslew_;
   std::auto_ptr<HcalPulseContainmentCorrection> pulseCorr_;
 };
