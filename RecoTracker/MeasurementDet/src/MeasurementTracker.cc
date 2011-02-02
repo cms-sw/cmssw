@@ -108,6 +108,8 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
   this->initialize();
   this->initializeStripStatus(stripQuality, stripQualityFlags, stripQualityDebugFlags);
   this->initializePixelStatus(pixelQuality, pixelCabling, pixelQualityFlags, pixelQualityDebugFlags);
+  //the measurement tracking is set to skip clusters, the other option is set from outside
+  selfUpdateSkipClusters_=conf.exists("skipClusters");
 }
 
 MeasurementTracker::~MeasurementTracker()
@@ -242,7 +244,43 @@ void MeasurementTracker::update( const edm::Event& event) const
   }
   */
 }
+void MeasurementTracker::setClusterToSkip(const edm::InputTag & cluster, const edm::Event& event) const
+{
+  if (selfUpdateSkipClusters_)
+    edm::LogError("MeasurementTracker")<<"this mode of operation is not supported, either the measurement tracker is set to skip clusters, or is being told to skip clusters. not both";
 
+  edm::Handle<edmNew::DetSetVector<SiPixelClusterRefNew> > pixelClusterRefs;
+  event.getByLabel(cluster,pixelClusterRefs);
+  for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
+       i!=thePixelDets.end(); i++) {
+    edmNew::DetSetVector<SiPixelClusterRefNew>::const_iterator f=pixelClusterRefs->find((**i).geomDet().geographicalId().rawId());
+    if (f!=pixelClusterRefs->end())
+      (**i).setClusterToSkip(f->begin(),f->end());
+  }
+
+  edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > stripClusterRefs;
+  event.getByLabel(cluster,stripClusterRefs);
+  for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+       i!=theStripDets.end(); i++){
+    edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef>::const_iterator f=stripClusterRefs->find((**i).geomDet().geographicalId().rawId());
+    if (f!=stripClusterRefs->end())
+      (**i).setClusterToSkip(f->begin(),f->end());
+  }
+}
+
+void MeasurementTracker::unsetClusterToSkip() const {
+  if (selfUpdateSkipClusters_)
+    edm::LogError("MeasurementTracker")<<"this mode of operation is not supported, either the measurement tracker is set to skip clusters, or is being told to skip clusters. not both";
+
+  for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
+       i!=thePixelDets.end(); i++) {
+    (**i).unset();
+  }
+  for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+       i!=theStripDets.end(); i++){
+    (**i).unset();
+  }
+}
 
 void MeasurementTracker::updatePixels( const edm::Event& event) const
 {
@@ -277,13 +315,11 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
     }
   }else{  
 
-    bool skipClusterRefs=false;
-    //and get the collection of pixel ref to skip
     edm::Handle<edmNew::DetSetVector<SiPixelClusterRefNew> > pixelClusterRefs;
-    if (pset_.exists("skipClusters")){
+    if (selfUpdateSkipClusters_){
+      //and get the collection of pixel ref to skip
       event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),pixelClusterRefs);
-      if (pixelClusterRefs.failedToGet())edm::LogWarning("MeasurementTracker")<<"not getting the pixel clusters to skip";
-      else skipClusterRefs=true;
+      if (pixelClusterRefs.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the pixel clusters to skip";
     }
 
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
@@ -311,11 +347,11 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
       if ( it != pixelCollection->end() ){            
 	// push cluster range in det
 	(**i).update( *it, pixelClusters, id );
-	if (skipClusterRefs){
+	if (selfUpdateSkipClusters_){
 	  edmNew::DetSetVector<SiPixelClusterRefNew>::const_iterator f=pixelClusterRefs->find(id);
 	  if (f!=pixelClusterRefs->end())
 	    (**i).setClusterToSkip(f->begin(),f->end());
-	}	  
+	}
       }else{
 	(**i).setEmpty();
       }
@@ -366,15 +402,12 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
   }else{
     //=========  actually load cluster =============
     if(!isRegional_){
-
-      bool skipClusterRefs=false;
-      //and get the collection of pixel ref to skip
-      edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > stripClusterRefs;
-      if (pset_.exists("skipClusters")){
-	event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterRefs);
-	if (stripClusterRefs.failedToGet())edm::LogWarning("MeasurementTracker")<<"not getting the strip clusters to skip";
-	else skipClusterRefs=true;
-      }
+	edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > stripClusterRefs;
+	if (selfUpdateSkipClusters_){
+	  //and get the collection of pixel ref to skip
+	  event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterRefs);
+	  if (stripClusterRefs.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
+	}
 
       edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterHandle;
       event.getByLabel(stripClusterProducer, clusterHandle);
@@ -399,22 +432,19 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 	// push cluster range in det
 
 	(**i).update( detSet, clusterHandle, id );
-	if (skipClusterRefs){
+	if (selfUpdateSkipClusters_){
 	  edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef>::const_iterator f=stripClusterRefs->find(id);
 	  if (f!=stripClusterRefs->end())
 	    (**i).setClusterToSkip(f->begin(),f->end());
 	}
       }
     }else{
-              
-      bool skipClusterRefs=false;
+
       edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripRegionalClusterRef> > stripClusterRefs;
-      if (pset_.exists("skipClusters")){
-	    event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterRefs);
-	    if (stripClusterRefs.failedToGet())edm::LogWarning("MeasurementTracker")<<"not getting the strip clusters to skip";
-	    else skipClusterRefs=true;
+      if(selfUpdateSkipClusters_){
+	event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterRefs);
+	if (stripClusterRefs.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
       }
-      std::set<TkStripMeasurementDet::SiStripRegionalClusterRef> set;
 
       //then set the not-empty ones only
       edm::Handle<edm::RefGetter<SiStripCluster> > refClusterHandle;
@@ -455,12 +485,11 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 	    TkStripMeasurementDet*  theConcreteDetUpdatable = 
 	      const_cast<TkStripMeasurementDet*>(theConcreteDet);
 	    theConcreteDetUpdatable->update(beginIterator,icluster,lazyClusterHandle,tmpId);
-	    if (skipClusterRefs){
+	    if (selfUpdateSkipClusters_){
 	      edmNew::DetSetVector<TkStripMeasurementDet::SiStripRegionalClusterRef>::const_iterator f=stripClusterRefs->find(tmpId);
 	      if (f!=stripClusterRefs->end())
 		theConcreteDetUpdatable->setRegionalClustersToSkip(f->begin(),f->end());
 	    }
-
 	    //cannot we avoid to update the det with detId of itself??
 
 	    tmpId = icluster->geographicalId();
@@ -474,12 +503,12 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 	      TkStripMeasurementDet*  theConcreteDetUpdatable = 
 	      const_cast<TkStripMeasurementDet*>(theConcreteDet);
 	      theConcreteDetUpdatable->update(icluster,endIterator,lazyClusterHandle,tmpId);
-	      if (skipClusterRefs){
+	      if (selfUpdateSkipClusters_){
 		edmNew::DetSetVector<TkStripMeasurementDet::SiStripRegionalClusterRef>::const_iterator f=stripClusterRefs->find(tmpId);
 		if (f!=stripClusterRefs->end())
 		  theConcreteDetUpdatable->setRegionalClustersToSkip(f->begin(),f->end());
 	      }
-	    }	 
+	    }   
 	  }else if( icluster == (endIterator-1)){	   
 	    const TkStripMeasurementDet* theConcreteDet = 
 	      dynamic_cast<const TkStripMeasurementDet*>(idToDet(DetId(tmpId)));
@@ -491,11 +520,11 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 	    //std::cout << "=== option3. fill det with id,#clust: " << tmpId  << " , " 
 	    //      << iregion->end() - beginIterator << std::endl;
 	    theConcreteDetUpdatable->update(beginIterator,endIterator,lazyClusterHandle,tmpId);	 
-	    if (skipClusterRefs){
+	    if (selfUpdateSkipClusters_){
 	      edmNew::DetSetVector<TkStripMeasurementDet::SiStripRegionalClusterRef>::const_iterator f=stripClusterRefs->find(tmpId);
-              if (f!=stripClusterRefs->end())
-                theConcreteDetUpdatable->setRegionalClustersToSkip(f->begin(),f->end());
-	    }	  
+	      if (f!=stripClusterRefs->end())
+		theConcreteDetUpdatable->setRegionalClustersToSkip(f->begin(),f->end());
+	    }	 
 	  }
 	}//end loop cluster in one ragion
       }

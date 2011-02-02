@@ -102,6 +102,7 @@ public:
   const std::vector<edm::InputTag>      theInactiveStripDetectorLabels;
 
   bool isRegional_;
+  bool selfUpdateSkipClusters_;
 
   void initialize() const;
 

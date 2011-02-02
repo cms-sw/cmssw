@@ -194,9 +194,7 @@ void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const
       event.getByLabel(stripLazyGetter,theLazyGetterH);
 
       //get the skip clusters
-      theSkipClusterRefs=false;
-      if (pset_.exists("skipClusters")){
-	//edm::LogWarning("MeasurementTracker")<<"ready for skipping regional strip clusters";
+      if (selfUpdateSkipClusters_){
 	theSkipClusterRefs=true;
 	event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),theStripClusterRefs);
       }
@@ -301,7 +299,7 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
 	LogDebug(category_)<<"Valid clusters for: "<<id.rawId()
 			   <<"\nnumber of regions defined here: "<< indexes.second-indexes.first
 			   <<"\n"<<dumpCluster(range.first,range.second);
-	if (theSkipClusterRefs){
+	if (selfUpdateSkipClusters_){
 	  //assign skip clusters
 	  edmNew::DetSetVector<TkStripMeasurementDet::SiStripRegionalClusterRef>::const_iterator f=theStripClusterRefs->find(id);
 	  if (f!=theStripClusterRefs->end())
