@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 20 09:50:58 CST 2011
-// $Id: storageSize.cc,v 1.2 2011/01/20 20:00:22 chrjones Exp $
+// $Id: storageSizeForBranch.cc,v 1.1 2011/02/02 15:20:32 chrjones Exp $
 //
 
 // system include files
@@ -31,22 +31,24 @@ static char const* const kBranchNameOpt = "branchName";
 static char const* const kFileNameOpt = "fileName";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt="help,h";
-static char const* const kProgramName = "edmClassStorageSize";
-
+static char const* const kProgramName = "edmBranchStorageSize";
+static char const* const kEntryNumberCommandOpt = "entryNumber,e";
+static char const* const kEntryNumberOpt = "entryNumber";
 
 int main(int argc, char* argv[])
 {
    std::string descString(argv[0]);
    descString += " [options] [--";
    descString += kBranchNameOpt;
-   descString += "] [--";
+   descString += "] branch_name [--";
    descString += kFileNameOpt;
-   descString += "] branch_name file_name"
+   descString += "] file_name"
    "\n The program dumps information about how much storage space is needed to store a given TBranch within a ROOT file"
    "\nAllowed options";
    boost::program_options::options_description desc(descString);
    desc.add_options()
    (kHelpCommandOpt, "show this help message")
+   (kEntryNumberCommandOpt, boost::program_options::value<int>(),"read branch from the given entry value (default 0)")
    (kBranchNameOpt,"name of branch")
    (kFileNameOpt,"name of file");
 
@@ -67,12 +69,17 @@ int main(int argc, char* argv[])
       std::cout << desc <<std::endl;
       return 0;
    }
+   int entryNumber = 0;
+   if(vm.count(kEntryNumberOpt)) {
+      entryNumber = vm[kEntryNumberOpt].as<int>();
+   }
    
    if(!vm.count(kBranchNameOpt)) {
       std::cerr <<"no branch name given\n";
       return 1;
    }
 
+   
    if(!vm.count(kFileNameOpt)) {
       std::cerr <<"no branch name given\n";
       return 1;
@@ -120,7 +127,7 @@ int main(int argc, char* argv[])
    
    branch->SetAddress(pObjInstance);
    
-   branch->GetEntry(0);
+   branch->GetEntry(entryNumber);
    
    TBufferFile bf(TBuffer::kWrite);
    
