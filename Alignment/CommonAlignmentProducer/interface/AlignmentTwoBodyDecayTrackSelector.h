@@ -8,8 +8,8 @@
 //STL
 #include <vector>
 // forward declaration:
-namespace edm {class Track;}
-namespace reco {class Event;}
+#include <DataFormats/TrackReco/interface/TrackFwd.h>
+#include <DataFormats/METReco/interface/CaloMETFwd.h>
 
 class AlignmentTwoBodyDecayTrackSelector
 {
@@ -33,11 +33,12 @@ class AlignmentTwoBodyDecayTrackSelector
   ///checks if the mass of the mother is in the mass region adding missing E_T
   Tracks checkMETMass(const Tracks& cands,const edm::Event& iEvent)const;
   ///checks if the mother has charge = [theCharge]
-  Tracks checkCharge(const Tracks& cands)const;
+  bool checkCharge(const reco::Track* trk1,const reco::Track* trk2 = 0)const;
   ///checks if the [cands] are acoplanar (returns empty set if not)
-  Tracks checkAcoplanarity(const Tracks& cands)const;
+  bool checkAcoplanarity(const reco::Track* trk1,const reco::Track* trk2)const;
   ///checks if [cands] contains a acoplanar track w.r.t missing ET (returns empty set if not)
-  Tracks checkMETAcoplanarity(const Tracks& cands,const edm::Event& iEvent)const; 
+  bool checkMETAcoplanarity(const reco::Track* trk,const reco::CaloMET* met)const; 
+
   /// private data members
 
   //settings from conigfile
@@ -48,10 +49,9 @@ class AlignmentTwoBodyDecayTrackSelector
   //inv mass Cut
   double theMinMass;
   double theMaxMass;
+  double theMass;
   double theDaughterMass;
-  //
-  unsigned int CandNumber_;
-  double zMass; //mass of the candidate, not only Z
+  unsigned int theCandNumber;
   //charge filter
   int theCharge;
   bool theUnsignedSwitch;
