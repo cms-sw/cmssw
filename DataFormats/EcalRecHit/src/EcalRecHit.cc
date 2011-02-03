@@ -133,8 +133,9 @@ bool EcalRecHit::isTimeErrorValid() const
 
  /// DEPRECATED provided for temporary backward compatibility
 EcalRecHit::Flags EcalRecHit::recoFlag() const {
-  for (int i=0; i<kUnknown; ++i){
+  for (int i=kUnknown; ; --i){
     if (checkFlag(i)) return Flags(i);
+    if (i==0) break;
   }
   // no flag assigned, assume good
   return kGood;
