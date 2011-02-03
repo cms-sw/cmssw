@@ -157,7 +157,7 @@ struct GsfElectronAlgo::EventSetupData
 
 GsfElectronAlgo::EventSetupData::EventSetupData()
  : cacheIDGeom(0), cacheIDTopo(0), cacheIDTDGeom(0), cacheIDMagField(0),cacheChStatus(0),
-   mtsTransform(0), constraintAtVtx(0), mtsMode(new MultiTrajectoryStateMode)
+   cacheSevLevel(0), mtsTransform(0), constraintAtVtx(0), mtsMode(new MultiTrajectoryStateMode)
  {}
 
 GsfElectronAlgo::EventSetupData::~EventSetupData()
