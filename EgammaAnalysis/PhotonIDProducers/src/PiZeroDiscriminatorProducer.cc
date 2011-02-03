@@ -127,6 +127,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
   const CaloTopology *topology = pTopology.product();
 
   //make cycle over Photon Collection
+  int Photon_index  = 0;
   Handle<PhotonCollection> correctedPhotonHandle; 
   evt.getByLabel(photonCorrCollectionProducer_, correctedPhotonCollection_ , correctedPhotonHandle);
   const PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
@@ -143,7 +144,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
       float Phot_R9   = iPho->r9();
       
       if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
-         cout << " PiZeroDiscriminatorProducer: Photon index : " << iPho - corrPhoCollection.begin() 
+         cout << " PiZeroDiscriminatorProducer: Photon index : " << Photon_index 
                            << " with Energy = " <<  Phot_En
 			   << " Et = " << Phot_Et
                            << " ETA = " << Phot_eta
@@ -220,9 +221,8 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
           }
 
           if(vout_stripE1.size() == 0 || vout_stripE2.size() == 0 ) {
-            if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) 
-	            cout  << " PiZeroDiscriminatorProducer: Attention!!!!!  Not Valid ES NN input Variables Return NNout = -1" << endl;
-	    Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput);
+            cout  << " PiZeroDiscriminatorProducer: Attention!!!!!  Not Valid ES NN input Variables Return NNout = -1" << endl;
+	    Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,Photon_index), nnoutput);
             continue;
 	  }
 
@@ -243,9 +243,8 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
                                                  SC_seed_Shape_E1, SC_seed_Shape_E3x3, SC_seed_Shape_E5x5, EScorr_);
 
           if(!valid_NNinput) {
-            if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) 
-	           cout  << " PiZeroDiscriminatorProducer: Attention!!!!!  Not Valid ES NN input Variables Return NNout = -1" << endl;
-	    Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput);
+            cout  << " PiZeroDiscriminatorProducer: Attention!!!!!  Not Valid ES NN input Variables Return NNout = -1" << endl;
+	    Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,Photon_index), nnoutput);
 	    continue;
 	  }
 
@@ -263,7 +262,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 
           if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
                cout << " PiZeroDiscriminatorProducer: Event : " <<  evt.id()
-	            << " SC id = " << iPho - corrPhoCollection.begin()
+	            << " SC id = " << Photon_index
 		    << " with Pt = " << SC_Et
 		    << " eta = " << SC_eta
 		    << " phi = " << SC_phi
@@ -271,7 +270,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 		    << " has NNout = " <<  nnoutput << endl;
          }
 	 
- 	 Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput); 
+ 	 Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,Photon_index), nnoutput); 
 	 
       } else if((fabs(SC_eta) <= 1.4442) || (fabs(SC_eta) < 1.65 && fabs(SC_eta) >= 1.566) || fabs(SC_eta) >= 2.5) {
 
@@ -367,7 +366,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 
          if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
            cout << "PiZeroDiscriminatorProducer : Event : " <<  evt.id()
-	            << " SC id = " << iPho - corrPhoCollection.begin()
+	            << " SC id = " << Photon_index
 		    << " with Pt = " << SC_Et
 		    << " eta = " << SC_eta
 		    << " phi = " << SC_phi
@@ -376,8 +375,9 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 	            << endl;
          }
 	 
- 	 Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput);
-      } else { Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), -1.);}
+ 	 Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,Photon_index), nnoutput);
+      } else { Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,Photon_index), -1.);}
+      Photon_index++;
   } // end of cycle over Photons
   
   evt.put(Pi0Assocs_p,PhotonPi0DiscriminatorAssociationMap_);

@@ -55,7 +55,6 @@ c...the subprocess q\bar{q}->bc+b+\bar{c} to generate events.
 c------------------------------------------------
 
       totfun=0.0d0
-      phase = 0.
 
 c------------------------------------------------
       if(isubonly.eq.1) then
@@ -169,8 +168,7 @@ c...this is the energy scale used in gouz's program
 	if(nq2.eq.9) then
 	  q2=4.0d0*pmb**2
 	end if
-        alps  = 0.00
-	alps2 = 0.00
+	
 c...get the value of alphas. all are in leading order.
 	if(ioutpdf.eq.1) then
 	   if(ipdfnum.eq.100) alps =alpgrv(q2,1)*4*pi
@@ -370,7 +368,7 @@ c...the correct cross-section for the subprocess to a particular particle
 c...momenta. 
 	sigscl=conv*phase*sigscl
 	sigvct=conv*phase*sigvct
-	sigcross = 0.0
+
 	if(ibcstate.eq.1) sigcross=sigscl
 	if(ibcstate.eq.2) sigcross=sigvct
 
@@ -440,7 +438,7 @@ c...   cfact=(33.0d0/2.0d0)/(2.0d0**6)
 
 c...this is to get constants for the gluon coupling constant g.
 	 g3=dsqrt(4.0d0*pi*alps)
-	ampofpw = 0.0
+
 	 if(ibcstate.eq.3) then
 	    ampofpw=amps2_1p1()
 	    phase=papawt*cfact*g3**8/(2.0d0**9*pi**5*dotup(1,2))

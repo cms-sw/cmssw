@@ -31,13 +31,13 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
     if( isValid(match[idx], jets) ){
       switch(idx){
       case TtSemiLepEvtPartons::LightQ:
-	if( abs(genEvt->hadronicDecayQuark()->pdgId())==4 )
+	if( std::abs(genEvt->hadronicDecayQuark()->pdgId())==4 )
 	  setCandidate(jets, match[idx], lightQ_, jetCorrectionLevel("cQuark"));
 	else
 	  setCandidate(jets, match[idx], lightQ_, jetCorrectionLevel("udsQuark"));
 	break;
       case TtSemiLepEvtPartons::LightQBar:
-	if( abs(genEvt->hadronicDecayQuarkBar()->pdgId())==4 )
+	if( std::abs(genEvt->hadronicDecayQuarkBar()->pdgId())==4 )
 	  setCandidate(jets, match[idx], lightQBar_, jetCorrectionLevel("cQuark"));
 	else
 	  setCandidate(jets, match[idx], lightQBar_, jetCorrectionLevel("udsQuark"));

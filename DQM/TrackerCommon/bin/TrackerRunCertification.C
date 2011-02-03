@@ -2,7 +2,7 @@
 //
 // Package: DQM/TrackerCommon
 //
-// $Id: TrackerRunCertification.C,v 1.4 2010/08/03 17:19:06 vadler Exp $
+// $Id$
 //
 /**
   \brief    Performs DQM offline data certification for SiStrip, Pixel and Tracking
@@ -13,6 +13,26 @@
 
    Input:
 
+   Text files in order to make the results of hDQM and TkMap based flags available to the script have to be provided
+   in $CMSSW_BASE/src/DQM/TrackerCommon/data/ (default) or any path given in the corresponding command line option '-i':
+   - certSiStrip.txt
+   - hDQMSiStrip.txt
+   - TkMapSiStrip.txt
+   - certPixel.txt
+   - hDQMPixel.txt
+   - certTracking.txt
+   - hDQMTracking.txt
+   The format of the entries in these files is the following:
+   One line per run of the structure
+   RUNNUMBER FLAG [COMMENT]
+   where:
+   - RUNNUMBER is obvious
+   - FLAG is either "GOOD" or "BAD" (Anything different from "BAD" will be treated as "GOOD".)
+   - COMMENT is an "obligatory" explanation in case of flag "BAD", which can have more than one word.
+     However, brief'n'clear statements are preferred (to be standardized in the future).
+   The files can be empty, but must be present!
+
+   Further necessary sources of input are:
    - RunRegistry
    - DQM output files available in AFS
 
@@ -23,7 +43,8 @@
    to be sent directly to the CMS DQM team as reply to the weekly certification request.
    It contains a list of all flags changed with respect to the RunRegistry, including the reason(s) in case the flag is changed to BAD.
 
-   The verbose ('-v') stdout can provide a complete list of all in-/output flags of all analyzed runs and at its end a summary only with the output flags.
+   The (lengthy) stdout can provide a complete list of all in-/output flags of all analyzed runs and at its end a summary only with the output flags.
+   This summary can be used to populate the Tracker Good/Bad Run List (http://cmstac05.cern.ch/ajax/pierro/offShift/#good_bad_run).
    It makes sense to pipe the stdout to another text file.
 
    Usage:
@@ -42,18 +63,18 @@
      -d
        MANDATORY: dataset as in RunRegistry
        no default
-     -g
-       MANDATORY: group name as in RunRegistry
-       no default
      -p
        path to DQM files
-       default: /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/OfflineData/Run2010/StreamExpress
+       default: /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Express
      -P
        pattern of DQM file names in the DQM file path
        default: *[DATASET from '-d' option with '/' --> '__'].root
+     -i
+       path to additional input files
+       default: $CMSSW_BASE/src/DQM/TrackerCommon/data
      -o
        path to output log file
-       default: ./trackerRunCertification[DATASET from '-d' option with '/' --> '__']-[GROUP from '-g'].txt
+       default: ./trackerRunCertification[DATASET from '-d' option with '/' --> '__'].txt
      -L
        path to file with DQM input file list
        default: ./fileList[DATASET from '-d' option with '/' --> '__'].txt
@@ -63,25 +84,20 @@
      -u
        upper bound of run numbers to consider
        default: 1073741824 (2^30)
-     -R
-       web address of the RunRegistry
-       default: http://pccmsdqm04.cern.ch/runregistry
      The default is used for any option not explicitely given in the command line.
 
    Valid options are:
      -rr
        switch on creation of new RR file
      -rronly
-       only create new RR file, do not run certification
-     -a
-       certify all runs, not only those in "SIGNOFF" status
+       only create new RR file, don not run certification
      -v
        switch on verbose logging to stdout
      -h
        display this help and exit
 
   \author   Volker Adler
-  \version  $Id: TrackerRunCertification.C,v 1.4 2010/08/03 17:19:06 vadler Exp $
+  \version  $Id$
 */
 
 #include <algorithm>
@@ -105,12 +121,11 @@ using namespace std;
 
 
 // Functions
+Bool_t  readFiles();
 Bool_t  createInputFileList();
 Bool_t  createRRFile();
 Bool_t  readData( const TString & pathFile );
 Bool_t  readRR( const TString & pathFile );
-Bool_t  readRRLumis( const TString & pathFile );
-Bool_t  readRRTracker( const TString & pathFile );
 Bool_t  readDQM( const TString & pathFile );
 void    readCertificates( TDirectory * dir );
 void    certifyRunRange();
@@ -131,10 +146,14 @@ Int_t   minRun_;
 Int_t   maxRun_;
 
 // Global constants
-const TString nameFileRR_( "RunRegistry.xml" );
-const TString nameFileRunsRR_( TString( "runs" ).Append( nameFileRR_ ) );
-const TString nameFileLumisRR_( TString( "lumis" ).Append( nameFileRR_ ) );
-const TString nameFileTrackerRR_( TString( "tracker" ).Append( nameFileRR_ ) );
+const TString nameFileRR_( "runRegistry.xml" );
+const TString nameFileCertSiStrip_( "certSiStrip.txt" );
+const TString nameFileHDQMSiStrip_( "hDQMSiStrip.txt" );
+const TString nameFileTkMapSiStrip_( "tkMapSiStrip.txt" );
+const TString nameFileCertPixel_( "certPixel.txt" );
+const TString nameFileHDQMPixel_( "hDQMPixel.txt" );
+const TString nameFileCertTracking_( "certTracking.txt" );
+const TString nameFileHDQMTracking_( "hDQMTracking.txt" );
 const TString nameDirHead_( "DQMData" );
 const TString nameDirBase_( "EventInfo" );
 const TString nameDirCert_( "CertificationContents" );
@@ -166,59 +185,47 @@ const Int_t    iRunStartDecon_( 110213 ); // first run in deconvolution mode
 
 // Certificates and flags
 vector< TString > sRunNumbers_;
-UInt_t nRuns_( 0 );
 UInt_t nRunsNotRR_( 0 );
-UInt_t nRunsNotGroup_( 0 );
 UInt_t nRunsNotDataset_( 0 );
-UInt_t nRunsNotSignoff_( 0 );
-UInt_t nRunsNotRRLumis_( 0 );
-UInt_t nRunsNotDatasetLumis_( 0 );
-UInt_t nRunsSiStripOff_( 0 );
-UInt_t nRunsPixelOff_( 0 );
-UInt_t nRunsNotRRTracker_( 0 );
-UInt_t nRunsNotGroupTracker_( 0 );
-UInt_t nRunsNotDatasetTracker_( 0 );
 UInt_t nRunsExclSiStrip_( 0 );
 UInt_t nRunsMissSiStrip_( 0 );
 UInt_t nRunsBadSiStrip_( 0 );
 UInt_t nRunsChangedSiStrip_( 0 );
 map< TString, TString > sSiStrip_;
 map< TString, TString > sRRSiStrip_;
-map< TString, TString > sRRTrackerSiStrip_;
 map< TString, TString > sDQMSiStrip_;
+map< TString, TString > sCertSiStrip_;
+map< TString, TString > sHDQMSiStrip_;
+map< TString, TString > sTkMapSiStrip_;
 map< TString, vector< TString > > sRunCommentsSiStrip_;
 map< TString, TString > sRRCommentsSiStrip_;
-map< TString, TString > sRRTrackerCommentsSiStrip_;
 UInt_t nRunsExclPixel_( 0 );
 UInt_t nRunsMissPixel_( 0 );
 UInt_t nRunsBadPixel_( 0 );
 UInt_t nRunsChangedPixel_( 0 );
 map< TString, TString > sPixel_;
 map< TString, TString > sRRPixel_;
-map< TString, TString > sRRTrackerPixel_;
 map< TString, TString > sDQMPixel_;
+map< TString, TString > sCertPixel_;
+map< TString, TString > sHDQMPixel_;
 map< TString, vector< TString > > sRunCommentsPixel_;
 map< TString, TString > sRRCommentsPixel_;
-map< TString, TString > sRRTrackerCommentsPixel_;
 UInt_t nRunsNoTracking_( 0 );
 UInt_t nRunsBadTracking_( 0 );
 UInt_t nRunsChangedTracking_( 0 );
 map< TString, TString > sTracking_;
 map< TString, TString > sRRTracking_;
-map< TString, TString > sRRTrackerTracking_;
 map< TString, TString > sDQMTracking_;
+map< TString, TString > sCertTracking_;
+map< TString, TString > sHDQMTracking_;
 map< TString, vector< TString > > sRunCommentsTracking_;
 map< TString, TString > sRRCommentsTracking_;
-map< TString, TString > sRRTrackerCommentsTracking_;
 // Certificates and flags (run-by-run)
 TString sRunNumber_;
 TString sVersion_;
 map< TString, Double_t > fCertificates_;
 map< TString, Int_t >    iFlagsRR_;
-map< TString, Int_t >    iFlagsRRTracker_;
 map< TString, Bool_t >   bAvailable_;
-Bool_t                   bSiStripOn_;
-Bool_t                   bPixelOn_;
 
 
 
@@ -230,19 +237,17 @@ int main( int argc, char * argv[] )
 
   // Initialize defaults
   sArguments[ "-d" ] = "";                                                   // dataset
-  sArguments[ "-g" ] = "";                                                   // group
-  sArguments[ "-p" ] = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/OfflineData/Run2010/StreamExpress"; // path to DQM files
+  sArguments[ "-p" ] = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Express"; // path to DQM files
   sArguments[ "-P" ] = "";                                                   // pattern of DQM file names in the DQM file path
   sArguments[ "-l" ] = "0";                                                  // lower bound of run numbers to consider
   sArguments[ "-u" ] = "1073741824"; // 2^30                                 // upper bound of run numbers to consider
+  sArguments[ "-i" ] = TString( gSystem->Getenv( "CMSSW_BASE" ) ) + "/src/DQM/TrackerCommon/data"; // path to additional input files
   sArguments[ "-o" ] = "";                                                   // path to main output file
   sArguments[ "-L" ] = "";                                                   // path to file with DQM input file list
-  sArguments[ "-R" ] = "http://pccmsdqm04.cern.ch/runregistry";              // web address of the RunRegistry
   minRun_ = sArguments[ "-u" ].Atoi();
   maxRun_ = sArguments[ "-l" ].Atoi();
   sOptions[ "-rr" ]     = kFALSE;
   sOptions[ "-rronly" ] = kFALSE;
-  sOptions[ "-a" ]      = kFALSE;
   sOptions[ "-v" ]      = kFALSE;
   sOptions[ "-h" ]      = kFALSE;
 
@@ -264,18 +269,18 @@ int main( int argc, char * argv[] )
     displayHelp();
     return 0;
   }
+  if ( sOptions[ "-rronly" ] ) {
+    if ( ! createRRFile() ) return 13;
+    return 0;
+  }
   if ( sArguments[ "-d" ] == "" ) {
     cerr << "    ERROR: no dataset given with '-d' option" << endl;
-    return 1;
-  }
-  if ( sArguments[ "-g" ] == "" && ! sOptions[ "-rronly" ] ) {
-    cerr << "    ERROR: no group name given with '-g' option" << endl;
     return 1;
   }
   convertDataset_ = sArguments[ "-d" ];
   convertDataset_.ReplaceAll( "/", "__" );
   if ( sArguments[ "-o" ] == "" ) {
-    sArguments[ "-o" ] = TString( "trackerRunCertification" + convertDataset_ + "-" + sArguments[ "-g" ] + ".txt" );
+    sArguments[ "-o" ] = TString( "trackerRunCertification" + convertDataset_ + ".txt" );
   }
   if ( sArguments[ "-L" ] == "" ) {
     sArguments[ "-L" ] = TString( "fileList" + convertDataset_ + ".txt" );
@@ -287,15 +292,159 @@ int main( int argc, char * argv[] )
   maxRange_ = sArguments[ "-u" ].Atoi();
 
   // Run
-  if ( ! createInputFileList() ) return 12;
-  if ( sOptions[ "-rronly" ] ) {
-    if ( ! createRRFile() ) return 13;
-    return 0;
-  }
+  if ( ! readFiles() )              return 11;
+  if ( ! createInputFileList() )    return 12;
   if ( sOptions[ "-rr" ] && ! createRRFile() ) return 13;
   certifyRunRange();
 
   return 0;
+
+}
+
+
+/// Check existance of input files for hDQM and TkMap certificates and read them.
+/// Only existing entries for bad runs are taken into account. Not appearing runs are assumed to be good without further warning.
+/// Returns 'kTRUE', if all needed files are found, 'kFALSE' otherwise.
+Bool_t readFiles()
+{
+
+  // Initialize
+  Bool_t check( kTRUE );
+
+  // open and check and read SiStrip certification file
+  ifstream fileCertSiStripRead;
+  fileCertSiStripRead.open( TString( sArguments[ "-i" ] + "/" + nameFileCertSiStrip_ ).Data() );
+  if ( ! fileCertSiStripRead ) {
+    cerr << "    ERROR: no SiStrip general certificates' file" << endl;
+    check = kFALSE;
+  } else {
+    while ( fileCertSiStripRead.good() ) {
+      TString runNumber, runFlag;
+      fileCertSiStripRead >> runNumber >> runFlag;
+      if ( runNumber.Length() == 0 || runFlag != "BAD" ) continue;
+      string comment;
+      getline( fileCertSiStripRead, comment );
+      TString runComment( comment.c_str() );
+      sCertSiStrip_[ runNumber ] = runComment;
+    }
+  }
+  fileCertSiStripRead.close();
+
+  // open and check and read SiStrip hDQM file
+  ifstream fileHDQMSiStripRead;
+  fileHDQMSiStripRead.open( TString( sArguments[ "-i" ] + "/" + nameFileHDQMSiStrip_ ).Data() );
+  if ( ! fileHDQMSiStripRead ) {
+    cerr << "    ERROR: no SiStrip hDQM certificates' file" << endl;
+    check = kFALSE;
+  } else {
+    while ( fileHDQMSiStripRead.good() ) {
+      TString runNumber, runFlag;
+      fileHDQMSiStripRead >> runNumber >> runFlag;
+      if ( runNumber.Length() == 0 || runFlag != "BAD" ) continue;
+      string comment;
+      getline( fileHDQMSiStripRead, comment );
+      TString runComment( comment.c_str() );
+      sHDQMSiStrip_[ runNumber ] = runComment;
+    }
+  }
+  fileHDQMSiStripRead.close();
+
+  // open and check and read SiStrip TkMap file
+  ifstream fileTkMapSiStripRead;
+  fileTkMapSiStripRead.open( TString( sArguments[ "-i" ] + "/" + nameFileTkMapSiStrip_ ).Data() );
+  if ( ! fileTkMapSiStripRead ) {
+    cerr << "    ERROR: no SiStrip TkMap certificates' file" << endl;
+    check = kFALSE;
+  } else {
+    while ( fileTkMapSiStripRead.good() ) {
+      TString runNumber, runFlag;
+      fileTkMapSiStripRead >> runNumber >> runFlag;
+      if ( runNumber.Length() == 0 || runFlag != "BAD" ) continue;
+      string comment;
+      getline( fileTkMapSiStripRead, comment );
+      TString runComment( comment.c_str() );
+      sTkMapSiStrip_[ runNumber ] = runComment;
+    }
+  }
+  fileTkMapSiStripRead.close();
+
+  // open and check and read Pixel certification file
+  ifstream fileCertPixelRead;
+  fileCertPixelRead.open( TString( sArguments[ "-i" ] + "/" + nameFileCertPixel_ ).Data() );
+  if ( ! fileCertPixelRead ) {
+    cerr << "    ERROR: no Pixel general certificates' file" << endl;
+    check = kFALSE;
+  } else {
+    while ( fileCertPixelRead.good() ) {
+      TString runNumber, runFlag;
+      fileCertPixelRead >> runNumber >> runFlag;
+      if ( runNumber.Length() == 0 || runFlag != "BAD" ) continue;
+      string comment;
+      getline( fileCertPixelRead, comment );
+      TString runComment( comment.c_str() );
+      sCertPixel_[ runNumber ] = runComment;
+    }
+  }
+  fileCertPixelRead.close();
+
+  // open and check and read Pixel hDQM file
+  ifstream fileHDQMPixelRead;
+  fileHDQMPixelRead.open( TString( sArguments[ "-i" ] + "/" + nameFileHDQMPixel_ ).Data() );
+  if ( ! fileHDQMPixelRead ) {
+    cerr << "    ERROR: no Pixel hDQM certificates' file" << endl;
+    check = kFALSE;
+  } else {
+    while ( fileHDQMPixelRead.good() ) {
+      TString runNumber, runFlag;
+      fileHDQMPixelRead >> runNumber >> runFlag;
+      if ( runNumber.Length() == 0 || runFlag != "BAD" ) continue;
+      string comment;
+      getline( fileHDQMPixelRead, comment );
+      TString runComment( comment.c_str() );
+      sHDQMPixel_[ runNumber ] = runComment;
+    }
+  }
+  fileHDQMPixelRead.close();
+
+  // open and check and read Tracking certification file
+  ifstream fileCertTrackingRead;
+  fileCertTrackingRead.open( TString( sArguments[ "-i" ] + "/" + nameFileCertTracking_ ).Data() );
+  if ( ! fileCertTrackingRead ) {
+    cerr << "    ERROR: no Tracking general certificates' file" << endl;
+    check = kFALSE;
+  } else {
+    while ( fileCertTrackingRead.good() ) {
+      TString runNumber, runFlag;
+      fileCertTrackingRead >> runNumber >> runFlag;
+      if ( runNumber.Length() == 0 || runFlag != "BAD" ) continue;
+      string comment;
+      getline( fileCertTrackingRead, comment );
+      TString runComment( comment.c_str() );
+      sCertTracking_[ runNumber ] = runComment;
+    }
+  }
+  fileCertTrackingRead.close();
+
+  // open and check and read Tracking hDQM file
+  ifstream fileHDQMTrackingRead;
+  fileHDQMTrackingRead.open( TString( sArguments[ "-i" ] + "/" + nameFileHDQMTracking_ ).Data() );
+  if ( ! fileHDQMTrackingRead ) {
+    cerr << "    ERROR: no Tracking hDQM certificates' file" << endl;
+    check = kFALSE;
+  } else {
+    while ( fileHDQMTrackingRead.good() ) {
+      TString runNumber, runFlag;
+      fileHDQMTrackingRead >> runNumber >> runFlag;
+      if ( runNumber.Length() == 0 || runFlag != "BAD" ) continue;
+      string comment;
+      getline( fileHDQMTrackingRead, comment );
+      TString runComment( comment.c_str() );
+      sHDQMTracking_[ runNumber ] = runComment;
+    }
+  }
+  fileHDQMTrackingRead.close();
+
+  return check;
 
 }
 
@@ -307,7 +456,7 @@ Bool_t createInputFileList()
 
   // Create input file list on the fly
   gSystem->Exec( TString( "rm -f " + sArguments[ "-L" ] ).Data() );
-  gSystem->Exec( TString( "ls -1 " + sArguments[ "-p" ] + "/*/" + sArguments[ "-P" ] + " > " + sArguments[ "-L" ] ).Data() );
+  gSystem->Exec( TString( "ls -1 " + sArguments[ "-p" ] + "/*/*/" + sArguments[ "-P" ] + " > " + sArguments[ "-L" ] ).Data() );
   ofstream fileListWrite;
   fileListWrite.open( sArguments[ "-L" ].Data(), ios_base::app );
   fileListWrite << "EOF";
@@ -338,7 +487,7 @@ Bool_t createInputFileList()
   fileListNewWrite.close();
   gSystem->Exec( TString( "mv " ).Append( nameFileListNew ).Append( " " ).Append( sArguments[ "-L" ] ) );
 
-  if ( nFiles == 0 || maxRun_ < minRun_ ) {
+  if ( nFiles == 0 ) {
     cerr << "  ERROR: no files to certify" << endl;
     cerr << "  no files found in " << sArguments[ "-p" ] << " between the run numbers " << minRange_ << " and " << maxRange_ << endl;
     return kFALSE;
@@ -353,76 +502,27 @@ Bool_t createInputFileList()
 Bool_t createRRFile()
 {
 
-  ostringstream minRun; minRun << minRun_;
-  ostringstream maxRun; maxRun << maxRun_;
-  cerr << "  Extracting RunRegistry output for runs " << minRun.str() << " - " << maxRun.str() << " ...";
-  TString commandBase( TString( gSystem->Getenv( "CMSSW_BASE" ) ).Append( "/src/DQM/TrackerCommon/bin/getRunRegistry.py" ).Append( " -s " ).Append( sArguments[ "-R" ] ).Append( "/xmlrpc" ).Append( " ").Append( " -l " ).Append( minRun.str() ).Append( " -u " ).Append( maxRun.str() ) );
-  TString commandRuns( commandBase );
-  commandRuns.Append( " -f " ).Append( nameFileRunsRR_ ).Append( " -T RUN -t xml_all" );
-  if ( sOptions[ "-v" ] ) cerr << endl << endl << "    " << commandRuns.Data() << endl;
-  gSystem->Exec( commandRuns );
-  TString commandLumis( commandBase );
-  commandLumis.Append( " -f " ).Append( nameFileLumisRR_ ).Append( " -T RUNLUMISECTION -t xml" );
-  if ( sOptions[ "-v" ] ) cerr << "    " << commandLumis.Data() << endl;
-  gSystem->Exec( commandLumis );
-  TString commandTracker( commandBase );
-  commandTracker.Append( " -f " ).Append( nameFileTrackerRR_ ).Append( " -T RUN -t xml_all -w TRACKER" );
-  if ( sOptions[ "-v" ] ) cerr << "    " << commandTracker.Data() << endl << endl << "  ...";
-  gSystem->Exec( commandTracker );
-  cerr << " done!" << endl
-       << endl;
+  cerr << "  Extracting RunRegistry output ... ";
+  gSystem->Exec( TString( TString( gSystem->Getenv( "CMSSW_BASE" ) ) + "/src/DQM/TrackerCommon/bin/getRunRegistry.py -s http://pccmsdqm04.cern.ch/runregistry/xmlrpc -w GLOBAL -m xml_all -f " ).Append( nameFileRR_ ) ); // all options added hier, just to be on the safe side
+  cerr << "done" << endl << endl;
 
+  ifstream fileRR;
+  fileRR.open( nameFileRR_.Data() );
+  if ( ! fileRR ) {
+    cerr << "  ERROR: RR file does not exist" << endl;
+    cerr << "  Please, check access to RR" << endl;
+    return kFALSE;
+  }
   const UInt_t maxLength( 131071 ); // FIXME hard-coding for what?
   char xmlLine[ maxLength ];
   UInt_t lines( 0 );
-  ifstream fileRunsRR;
-  fileRunsRR.open( nameFileRunsRR_.Data() );
-  if ( ! fileRunsRR ) {
-    cerr << "  ERROR: RR file " << nameFileRunsRR_.Data() << " does not exist" << endl;
+  while ( lines <= 1 && fileRR.getline( xmlLine, maxLength ) ) ++lines;
+  if ( lines <= 1 ) {
+    cerr << "  ERROR: empty RR file" << endl;
     cerr << "  Please, check access to RR" << endl;
     return kFALSE;
   }
-  while ( lines <= 1 && fileRunsRR.getline( xmlLine, maxLength ) ) ++lines;
-  if ( lines <= 1 ) {
-    cerr << "  ERROR: empty RR file " << nameFileRunsRR_.Data() << endl;
-    cerr << "  Please, check access to RR:" << endl;
-    cerr << "  - DQM/TrackerCommon/bin/getRunRegistry.py" << endl;
-    cerr << "  - https://twiki.cern.ch/twiki/bin/view/CMS/DqmRrApi" << endl;
-    return kFALSE;
-  }
-  fileRunsRR.close();
-  ifstream fileLumisRR;
-  fileLumisRR.open( nameFileLumisRR_.Data() );
-  if ( ! fileLumisRR ) {
-    cerr << "  ERROR: RR file " << nameFileLumisRR_.Data() << " does not exist" << endl;
-    cerr << "  Please, check access to RR" << endl;
-    return kFALSE;
-  }
-  while ( lines <= 1 && fileLumisRR.getline( xmlLine, maxLength ) ) ++lines;
-  if ( lines <= 1 ) {
-    cerr << "  ERROR: empty RR file " << nameFileLumisRR_.Data() << endl;
-    cerr << "  Please, check access to RR:" << endl;
-    cerr << "  - DQM/TrackerCommon/bin/getRunRegistry.py" << endl;
-    cerr << "  - https://twiki.cern.ch/twiki/bin/view/CMS/DqmRrApi" << endl;
-    return kFALSE;
-  }
-  fileLumisRR.close();
-  ifstream fileTrackerRR;
-  fileTrackerRR.open( nameFileTrackerRR_.Data() );
-  if ( ! fileTrackerRR ) {
-    cerr << "  ERROR: RR file " << nameFileTrackerRR_.Data() << " does not exist" << endl;
-    cerr << "  Please, check access to RR" << endl;
-    return kFALSE;
-  }
-  while ( lines <= 1 && fileTrackerRR.getline( xmlLine, maxLength ) ) ++lines;
-  if ( lines <= 1 ) {
-    cerr << "  ERROR: empty RR file " << nameFileTrackerRR_.Data() << endl;
-    cerr << "  Please, check access to RR:" << endl;
-    cerr << "  - DQM/TrackerCommon/bin/getRunRegistry.py" << endl;
-    cerr << "  - https://twiki.cern.ch/twiki/bin/view/CMS/DqmRrApi" << endl;
-    return kFALSE;
-  }
-  fileTrackerRR.close();
+  fileRR.close();
 
   return kTRUE;
 
@@ -440,9 +540,8 @@ void certifyRunRange()
     TString pathFile;
     fileListRead >> pathFile;
     if ( pathFile.Length() == 0 ) continue;
-    ++nRuns_;
     sRunNumber_ = RunNumber( pathFile );
-    cout << "  Processing RUN " << sRunNumber_.Data() << endl;
+    cout << "  Processing RUN " << sRunNumber_.Data();
     if ( readData( pathFile ) ) {
       sRunNumbers_.push_back( sRunNumber_ );
       certifyRun();
@@ -461,10 +560,8 @@ void certifyRunRange()
 Bool_t readData( const TString & pathFile )
 {
 
-  if ( ! readRR( pathFile ) )        return kFALSE;
-//   if ( ! readRRLumis( pathFile ) )   return kFALSE; // LS currently not used
-  if ( ! readRRTracker( pathFile ) ) return kFALSE;
-  if ( ! readDQM( pathFile ) )       return kFALSE;
+  if ( ! readRR( pathFile ) )  return kFALSE;
+  if ( ! readDQM( pathFile ) ) return kFALSE;
   return kTRUE;
 
 }
@@ -479,69 +576,51 @@ Bool_t readRR( const TString & pathFile )
   map< TString, TString > sFlagsRR;
   map< TString, TString > sCommentsRR;
   iFlagsRR_.clear();
-  Bool_t foundRun( kFALSE );
-  Bool_t foundGroup( kFALSE );
-  Bool_t foundDataset( kFALSE );
-  Bool_t foundSignoff( kFALSE );
+
+  // Read RR file corresponding to output format type 'xml_all'
+  TXMLEngine * xmlRR( new TXMLEngine );
+  XMLDocPointer_t  xmlRRDoc( xmlRR->ParseFile( nameFileRR_.Data() ) );
+  XMLNodePointer_t nodeMain( xmlRR->DocGetRootElement( xmlRRDoc ) );
   vector< TString > nameCmpNode;
   nameCmpNode.push_back( "STRIP" );
   nameCmpNode.push_back( "PIX" );
   nameCmpNode.push_back( "TRACK" );
-
-  // Read RR file corresponding to output format type 'xml_all'
-  TXMLEngine * xmlRR( new TXMLEngine );
-  XMLDocPointer_t  xmlRRDoc( xmlRR->ParseFile( nameFileRunsRR_.Data() ) );
-  XMLNodePointer_t nodeMain( xmlRR->DocGetRootElement( xmlRRDoc ) );
-  XMLNodePointer_t nodeRun( xmlRR->GetChild( nodeMain ) );
+  Bool_t foundRun( kFALSE );
+  Bool_t foundDataset( kFALSE );
+  XMLNodePointer_t nodeRun( xmlRR->GetChild( nodeMain ) );  
   while ( nodeRun ) {
     XMLNodePointer_t nodeRunChild( xmlRR->GetChild( nodeRun ) );
-    while ( nodeRunChild && TString( xmlRR->GetNodeName( nodeRunChild ) ) != "NUMBER" )
-      nodeRunChild = xmlRR->GetNext( nodeRunChild );
-    if ( nodeRunChild && xmlRR->GetNodeContent( nodeRunChild ) == sRunNumber_ ) {
-      foundRun = kTRUE;
-      nodeRunChild = xmlRR->GetChild( nodeRun );
-      while ( nodeRunChild && TString( xmlRR->GetNodeName( nodeRunChild ) ) != "GROUP_NAME" )
-        nodeRunChild = xmlRR->GetNext( nodeRunChild );
-      if ( nodeRunChild && xmlRR->GetNodeContent( nodeRunChild ) == sArguments[ "-g" ] ) {
-        foundGroup = kTRUE;
+    while ( nodeRunChild && TString( xmlRR->GetNodeName( nodeRunChild ) ) != "NUMBER" ) nodeRunChild = xmlRR->GetNext( nodeRunChild );
+    if ( nodeRunChild ) {
+      if ( xmlRR->GetNodeContent( nodeRunChild ) == sRunNumber_ ) {
         nodeRunChild = xmlRR->GetChild( nodeRun );
-        while ( nodeRunChild && TString( xmlRR->GetNodeName( nodeRunChild ) ) != "DATASETS" )
-          nodeRunChild = xmlRR->GetNext( nodeRunChild );
+        while ( nodeRunChild && TString( xmlRR->GetNodeName( nodeRunChild ) ) != "DATASETS" ) nodeRunChild = xmlRR->GetNext( nodeRunChild );
         if ( nodeRunChild ) {
           XMLNodePointer_t nodeDataset( xmlRR->GetChild( nodeRunChild ) );
           while ( nodeDataset ) {
             XMLNodePointer_t nodeDatasetChild( xmlRR->GetChild( nodeDataset ) );
-            while ( nodeDatasetChild && TString( xmlRR->GetNodeName( nodeDatasetChild ) ) != "NAME" )
-              nodeDatasetChild = xmlRR->GetNext( nodeDatasetChild );
-            if ( nodeDatasetChild && TString( xmlRR->GetNodeContent( nodeDatasetChild ) ) == sArguments[ "-d" ] ) {
-              foundDataset = kTRUE;
-              nodeDatasetChild = xmlRR->GetChild( nodeDataset );
-              while ( nodeDatasetChild && xmlRR->GetNodeName( nodeDatasetChild ) != TString( "STATE" ) )
-                nodeDatasetChild = xmlRR->GetNext( nodeDatasetChild );
-              if ( sOptions[ "-a" ] || ( nodeDatasetChild && TString( xmlRR->GetNodeContent( nodeDatasetChild ) ) == "SIGNOFF" ) ) {
-                foundSignoff = kTRUE;
+            while ( nodeDatasetChild && TString( xmlRR->GetNodeName( nodeDatasetChild ) ) != "NAME" ) nodeDatasetChild = xmlRR->GetNext( nodeDatasetChild );
+            if ( nodeDatasetChild ) {
+              if ( TString( xmlRR->GetNodeContent( nodeDatasetChild ) ) == sArguments[ "-d" ] ) {
+                // FIXME Put additional checks on online status etc. here.
                 nodeDatasetChild = xmlRR->GetChild( nodeDataset );
-                while ( nodeDatasetChild && TString( xmlRR->GetNodeName( nodeDatasetChild ) ) != "CMPS" )
-                  nodeDatasetChild = xmlRR->GetNext( nodeDatasetChild );
+                while ( nodeDatasetChild && TString( xmlRR->GetNodeName( nodeDatasetChild ) ) != "CMPS" ) nodeDatasetChild = xmlRR->GetNext( nodeDatasetChild );
                 if ( nodeDatasetChild ) {
                   XMLNodePointer_t nodeCmp( xmlRR->GetChild( nodeDatasetChild ) );
                   while ( nodeCmp ) {
                     XMLNodePointer_t nodeCmpChild( xmlRR->GetChild( nodeCmp ) );
-                    while ( nodeCmpChild && TString( xmlRR->GetNodeName( nodeCmpChild ) ) != "NAME" )
-                      nodeCmpChild = xmlRR->GetNext( nodeCmpChild );
+                    while ( nodeCmpChild && TString( xmlRR->GetNodeName( nodeCmpChild ) ) != "NAME" ) nodeCmpChild = xmlRR->GetNext( nodeCmpChild );
                     if ( nodeCmpChild ) {
                       for ( UInt_t iNameNode = 0; iNameNode < nameCmpNode.size(); ++iNameNode ) {
                         if ( xmlRR->GetNodeContent( nodeCmpChild ) == nameCmpNode.at( iNameNode ) ) {
                           TString nameNode( "RR_" + nameCmpNode.at( iNameNode ) );
                           XMLNodePointer_t nodeCmpChildNew = xmlRR->GetChild( nodeCmp );
-                          while ( nodeCmpChildNew && TString( xmlRR->GetNodeName( nodeCmpChildNew ) ) != "VALUE" )
-                            nodeCmpChildNew = xmlRR->GetNext( nodeCmpChildNew );
+                          while ( nodeCmpChildNew && TString( xmlRR->GetNodeName( nodeCmpChildNew ) ) != "VALUE" ) nodeCmpChildNew = xmlRR->GetNext( nodeCmpChildNew );
                           if ( nodeCmpChildNew ) {
                             sFlagsRR[ nameNode ] = TString( xmlRR->GetNodeContent( nodeCmpChildNew ) );
                             if ( sFlagsRR[ nameNode ] == "BAD" ) {
                               nodeCmpChildNew = xmlRR->GetChild( nodeCmp );
-                              while ( nodeCmpChildNew && TString( xmlRR->GetNodeName( nodeCmpChildNew ) ) != "COMMENT" )
-                                nodeCmpChildNew = xmlRR->GetNext( nodeCmpChildNew );
+                              while ( nodeCmpChildNew && TString( xmlRR->GetNodeName( nodeCmpChildNew ) ) != "COMMENT" ) nodeCmpChildNew = xmlRR->GetNext( nodeCmpChildNew );
                               if ( nodeCmpChildNew ) {
                                 sCommentsRR[ nameNode ] = TString( xmlRR->GetNodeContent( nodeCmpChildNew ) );
                               }
@@ -553,37 +632,30 @@ Bool_t readRR( const TString & pathFile )
                     nodeCmp = xmlRR->GetNext( nodeCmp );
                   }
                 }
+                foundDataset = kTRUE;
                 break;
               }
-              break;
             }
             nodeDataset = xmlRR->GetNext( nodeDataset );
           }
         }
+        foundRun = kTRUE;
+        break;
       }
-      break;
     }
     nodeRun = xmlRR->GetNext( nodeRun );
   }
+  xmlRR->FreeDoc( xmlRRDoc );
 
   if ( ! foundRun ) {
     ++nRunsNotRR_;
-    cout << "    Run not found in RR" << endl;
+    cout << " --> not found in RR" << endl;
     return kFALSE;
   }
-  if ( ! foundGroup ) {
-    ++nRunsNotGroup_;
-    cout << "    Group " << sArguments[ "-g" ] << " not found in RR" << endl;
-    return kFALSE;
-  }
+  cout << endl;
   if ( ! foundDataset ) {
     ++nRunsNotDataset_;
     cout << "    Dataset " << sArguments[ "-d" ] << " not found in RR" << endl;
-    return kFALSE;
-  }
-  if ( ! foundSignoff ) {
-    ++nRunsNotSignoff_;
-    cout << "    Dataset not in SIGNOFF in RR" << endl;
     return kFALSE;
   }
 
@@ -609,228 +681,6 @@ Bool_t readRR( const TString & pathFile )
   if ( iFlagsRR_[ sSubSys_[ Pixel ] ]   == MISSING ) ++nRunsMissPixel_;
   if ( ( iFlagsRR_[ sSubSys_[ SiStrip ] ] == EXCL || iFlagsRR_[ sSubSys_[ SiStrip ] ] == MISSING ) &&
        ( iFlagsRR_[ sSubSys_[ Pixel ] ]   == EXCL || iFlagsRR_[ sSubSys_[ Pixel ] ]   == MISSING ) ) ++nRunsNoTracking_;
-
-  return kTRUE;
-
-}
-
-
-/// Reads RR HV states for lumi ranges in a given run
-/// Returns 'kFALSE', if Tracker was in STANDBY during the run, 'kTRUE' otherwise.
-Bool_t readRRLumis( const TString & pathFile )
-{
-
-  bSiStripOn_ = false ;
-  bPixelOn_   = false ;
-  map< TString, Bool_t > bLumiSiStripOn_;
-  map< TString, Bool_t > bLumiPixelOn_;
-  Bool_t foundRun( kFALSE );
-  Bool_t foundDataset( kFALSE );
-
-  // Read RR file corresponding to output format type 'xml'
-  TXMLEngine * xmlRR( new TXMLEngine );
-  XMLDocPointer_t  xmlRRDoc( xmlRR->ParseFile( nameFileLumisRR_.Data() ) );
-  XMLNodePointer_t nodeMain( xmlRR->DocGetRootElement( xmlRRDoc ) );
-  XMLNodePointer_t nodeRun( xmlRR->GetChild( nodeMain ) );
-  while ( nodeRun ) {
-    XMLNodePointer_t nodeRunChild( xmlRR->GetChild( nodeRun ) );
-    while ( nodeRunChild && TString( xmlRR->GetNodeName( nodeRunChild ) ) != "NUMBER" )
-      nodeRunChild = xmlRR->GetNext( nodeRunChild );
-    if ( nodeRunChild && xmlRR->GetNodeContent( nodeRunChild ) == sRunNumber_ ) {
-      foundRun = kTRUE;
-      nodeRunChild = xmlRR->GetChild( nodeRun );
-      while ( nodeRunChild && TString( xmlRR->GetNodeName( nodeRunChild ) ) != "DATASET" )
-        nodeRunChild = xmlRR->GetNext( nodeRunChild );
-      if ( nodeRunChild ) {
-        XMLNodePointer_t nodeDatasetChild( xmlRR->GetChild( nodeRunChild ) );
-        while ( nodeDatasetChild && TString( xmlRR->GetNodeName( nodeDatasetChild ) ) != "NAME" )
-          nodeDatasetChild = xmlRR->GetNext( nodeDatasetChild );
-        if ( nodeDatasetChild && xmlRR->GetNodeContent( nodeDatasetChild ) == sArguments[ "-d" ] ) {
-          foundDataset = kTRUE;
-          XMLNodePointer_t nodeLumiRange( xmlRR->GetChild( nodeRunChild ) );
-          while ( nodeLumiRange ) {
-            bLumiSiStripOn_[ "DCSTIBTID" ] = kFALSE;
-            bLumiSiStripOn_[ "DCSTOB" ]    = kFALSE;
-            bLumiSiStripOn_[ "DCSTECM" ]   = kFALSE;
-            bLumiSiStripOn_[ "DCSTECP" ]   = kFALSE;
-            bLumiPixelOn_[ "DCSFPIX" ] = kFALSE;
-            bLumiPixelOn_[ "DCSBPIX" ] = kFALSE;
-            if ( TString( xmlRR->GetNodeName( nodeLumiRange ) ) == "LUMI_SECTION_RANGE" ) {
-              XMLNodePointer_t nodeLumiRangeChild( xmlRR->GetChild( nodeLumiRange ) );
-              while ( nodeLumiRangeChild &&  TString( xmlRR->GetNodeName( nodeLumiRangeChild ) ) != "PARAMETERS")
-                nodeLumiRangeChild = xmlRR->GetNext( nodeLumiRangeChild );
-              if ( nodeLumiRangeChild ) {
-                XMLNodePointer_t nodeParameter( xmlRR->GetChild( nodeLumiRangeChild ) );
-                while ( nodeParameter ) {
-                  if ( xmlRR->GetNodeContent( nodeParameter ) && xmlRR->GetNodeContent( nodeParameter ) == TString( "true" ) ) {
-                    const TString nodeName( xmlRR->GetNodeName( nodeParameter ) );
-                    if ( bLumiSiStripOn_.find( nodeName ) != bLumiSiStripOn_.end() ) {
-                      bLumiSiStripOn_[ nodeName ] = kTRUE;
-                    } else if ( bLumiPixelOn_.find( nodeName ) != bLumiPixelOn_.end() ) {
-                      bLumiPixelOn_[ nodeName ] = kTRUE;
-                    }
-                  }
-                  nodeParameter = xmlRR->GetNext( nodeParameter );
-                }
-              }
-            }
-            Bool_t siStripOn( kTRUE );
-            Bool_t pixelOn( kTRUE );
-            for ( map< TString, Bool_t >::const_iterator iMap = bLumiSiStripOn_.begin(); iMap != bLumiSiStripOn_.end(); ++iMap ) {
-              if ( ! iMap->second ) siStripOn = kFALSE;
-              break;
-            }
-            for ( map< TString, Bool_t >::const_iterator iMap = bLumiPixelOn_.begin(); iMap != bLumiPixelOn_.end(); ++iMap ) {
-              if ( ! iMap->second ) pixelOn = kFALSE;
-              break;
-            }
-            if ( siStripOn ) bSiStripOn_ = kTRUE;
-            if ( pixelOn )   bPixelOn_   = kTRUE;
-            if ( bSiStripOn_ && bPixelOn_ ) break;
-            nodeLumiRange = xmlRR->GetNext( nodeLumiRange );
-          }
-          break;
-        }
-      }
-      break;
-    }
-    nodeRun = xmlRR->GetNext( nodeRun );
-  }
-
-  if ( ! foundRun ) {
-    ++nRunsNotRRLumis_;
-    cout << "    Run " << sRunNumber_ << " not found in RR lumis" << endl;
-    return kFALSE;
-  }
-  if ( ! foundDataset ) {
-    ++nRunsNotDatasetLumis_;
-    cout << "    Dataset " << sArguments[ "-d" ] << " not found in RR lumis" << endl;
-    return kFALSE;
-  }
-  if ( ! bSiStripOn_ ) {
-    ++nRunsSiStripOff_;
-    cout << "    SiStrip (partially) OFF during the whole run" << endl;
-  }
-  if ( ! bPixelOn_ ) {
-    ++nRunsPixelOff_;
-    cout << "    Pixel (partially) OFF during the whole run" << endl;
-  }
-
-  return kTRUE;
-
-}
-
-
-/// Reads RR certification flags for lumi ranges in a given run
-/// Returns 'kTRUE', if a given run is present in RR, 'kFALSE' otherwise.
-Bool_t readRRTracker( const TString & pathFile )
-{
-
-  map< TString, TString > sFlagsRRTracker;
-  map< TString, TString > sCommentsRRTracker;
-  iFlagsRRTracker_.clear();
-  Bool_t foundRun( kFALSE );
-  Bool_t foundGroup( kFALSE );
-  Bool_t foundDataset( kFALSE );
-  vector< TString > nameCmpNode;
-  nameCmpNode.push_back( "STRIP" );
-  nameCmpNode.push_back( "PIXEL" );
-  nameCmpNode.push_back( "TRACKING" );
-
-  // Read RR file corresponding to output format type 'xml'
-  TXMLEngine * xmlRR( new TXMLEngine );
-  XMLDocPointer_t  xmlRRDoc( xmlRR->ParseFile( nameFileTrackerRR_.Data() ) );
-  XMLNodePointer_t nodeMain( xmlRR->DocGetRootElement( xmlRRDoc ) );
-  XMLNodePointer_t nodeRun( xmlRR->GetChild( nodeMain ) );
-  while ( nodeRun ) {
-    XMLNodePointer_t nodeRunChild( xmlRR->GetChild( nodeRun ) );
-    while ( nodeRunChild && TString( xmlRR->GetNodeName( nodeRunChild ) ) != "NUMBER" )
-      nodeRunChild = xmlRR->GetNext( nodeRunChild );
-    if ( nodeRunChild && xmlRR->GetNodeContent( nodeRunChild ) == sRunNumber_ ) {
-      foundRun = kTRUE;
-      nodeRunChild = xmlRR->GetChild( nodeRun );
-      while ( nodeRunChild && TString( xmlRR->GetNodeName( nodeRunChild ) ) != "GROUP_NAME" )
-        nodeRunChild = xmlRR->GetNext( nodeRunChild );
-      if ( nodeRunChild && xmlRR->GetNodeContent( nodeRunChild ) == sArguments[ "-g" ] ) {
-        foundGroup = kTRUE;
-        nodeRunChild = xmlRR->GetChild( nodeRun );
-        while ( nodeRunChild && TString( xmlRR->GetNodeName( nodeRunChild ) ) != "DATASETS" )
-          nodeRunChild = xmlRR->GetNext( nodeRunChild );
-        if ( nodeRunChild ) {
-          XMLNodePointer_t nodeDataset( xmlRR->GetChild( nodeRunChild ) );
-          while ( nodeDataset ) {
-            XMLNodePointer_t nodeDatasetChild( xmlRR->GetChild( nodeDataset ) );
-            while ( nodeDatasetChild && TString( xmlRR->GetNodeName( nodeDatasetChild ) ) != "NAME" )
-              nodeDatasetChild = xmlRR->GetNext( nodeDatasetChild );
-//             if ( nodeDatasetChild && TString( xmlRR->GetNodeContent( nodeDatasetChild ) ) == sArguments[ "-d" ] ) {
-            if ( nodeDatasetChild && TString( xmlRR->GetNodeContent( nodeDatasetChild ) ) == TString( "/Global/Online/ALL" ) ) { // currently cretaed under this dataset name in RR TRACKER
-              foundDataset = kTRUE;
-              nodeDatasetChild = xmlRR->GetChild( nodeDataset );
-              while ( nodeDatasetChild && TString( xmlRR->GetNodeName( nodeDatasetChild ) ) != "CMPS" )
-                nodeDatasetChild = xmlRR->GetNext( nodeDatasetChild );
-              if ( nodeDatasetChild ) {
-                XMLNodePointer_t nodeCmp( xmlRR->GetChild( nodeDatasetChild ) );
-                while ( nodeCmp ) {
-                  XMLNodePointer_t nodeCmpChild( xmlRR->GetChild( nodeCmp ) );
-                  while ( nodeCmpChild && TString( xmlRR->GetNodeName( nodeCmpChild ) ) != "NAME" )
-                    nodeCmpChild = xmlRR->GetNext( nodeCmpChild );
-                  if ( nodeCmpChild ) {
-                    for ( UInt_t iNameNode = 0; iNameNode < nameCmpNode.size(); ++iNameNode ) {
-                      if ( xmlRR->GetNodeContent( nodeCmpChild ) == nameCmpNode.at( iNameNode ) ) {
-                        TString nameNode( "RRTracker_" + nameCmpNode.at( iNameNode ) );
-                        XMLNodePointer_t nodeCmpChildNew( xmlRR->GetChild( nodeCmp ) );
-                        while ( nodeCmpChildNew && TString( xmlRR->GetNodeName( nodeCmpChildNew ) ) != "VALUE" )
-                          nodeCmpChildNew = xmlRR->GetNext( nodeCmpChildNew );
-                        if ( nodeCmpChildNew ) {
-                          sFlagsRRTracker[ nameNode ] = TString( xmlRR->GetNodeContent( nodeCmpChildNew ) );
-                          if ( sFlagsRRTracker[ nameNode ] == "BAD" ) {
-                            nodeCmpChildNew = xmlRR->GetChild( nodeCmp );
-                            while ( nodeCmpChildNew && TString( xmlRR->GetNodeName( nodeCmpChildNew ) ) != "COMMENT" )
-                              nodeCmpChildNew = xmlRR->GetNext( nodeCmpChildNew ); // FIXME Segmentation violation???
-                            if ( nodeCmpChildNew ) {
-                              sCommentsRRTracker[ nameNode ] = TString( xmlRR->GetNodeContent( nodeCmpChildNew ) );
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                  nodeCmp = xmlRR->GetNext( nodeCmp );
-                }
-              }
-              break;
-            }
-            nodeDataset = xmlRR->GetNext( nodeDataset );
-          }
-        }
-      }
-      break;
-    }
-    nodeRun = xmlRR->GetNext( nodeRun );
-  }
-
-  if ( ! foundRun ) {
-    ++nRunsNotRRTracker_;
-    cout << "    Run " << sRunNumber_ << " not found in RR Tracker" << endl;
-    return kFALSE;
-  }
-  if ( ! foundGroup ) {
-    ++nRunsNotGroupTracker_;
-    cout << "    Group " << sArguments[ "-g" ] << " not found in RR" << endl;
-    return kFALSE;
-  }
-  if ( ! foundDataset ) {
-    ++nRunsNotDatasetTracker_;
-    cout << "    Dataset " << sArguments[ "-d" ] << " not found in RR Tracker" << endl;
-    return kFALSE;
-  }
-
-  sRRTrackerCommentsSiStrip_[ sRunNumber_ ]  = sCommentsRRTracker[ "RRTracker_STRIP" ];
-  sRRTrackerCommentsPixel_[ sRunNumber_ ]    = sCommentsRRTracker[ "RRTracker_PIXEL" ];
-  sRRTrackerCommentsTracking_[ sRunNumber_ ] = sCommentsRRTracker[ "RRTracker_TRACKING" ];
-  iFlagsRRTracker_[ sSubSys_[ SiStrip ] ]  = FlagConvert( sFlagsRRTracker[ "RRTracker_STRIP" ] );
-  iFlagsRRTracker_[ sSubSys_[ Pixel ] ]    = FlagConvert( sFlagsRRTracker[ "RRTracker_PIXEL" ] );
-  iFlagsRRTracker_[ sSubSys_[ Tracking ] ] = FlagConvert( sFlagsRRTracker[ "RRTracker_TRACKING" ] );
 
   return kTRUE;
 
@@ -944,34 +794,107 @@ void readCertificates( TDirectory * dir )
 void certifyRun()
 {
 
-  // FIXME Currently, LS-wise HV information from the RR is not determined correctly
-  //       So, it is not used for the certification yet.
-
   // Initialize
   map< TString, Int_t > iFlags;
 
   // SiStrip
-  sRRSiStrip_[ sRunNumber_ ]        = FlagConvert( iFlagsRR_[ sSubSys_[ SiStrip ] ] );
-  sRRTrackerSiStrip_[ sRunNumber_ ] = FlagConvert( iFlagsRRTracker_[ sSubSys_[ SiStrip ] ] );
+  sRRSiStrip_[ sRunNumber_ ] = FlagConvert( iFlagsRR_[ sSubSys_[ SiStrip ] ] );
   if ( bAvailable_[ sSubSys_[ SiStrip ] ] ) {
-    Bool_t flagDet( fCertificates_[ "SiStripReportSummary" ] > minGood_ );
-    Bool_t flagDAQ( fCertificates_[ "SiStripDAQSummary" ] == ( Double_t )EXCL || fCertificates_[ "SiStripDAQSummary" ] > minGood_ );
-    Bool_t flagDCS( fCertificates_[ "SiStripDCSSummary" ] == ( Double_t )EXCL || fCertificates_[ "SiStripDCSSummary" ] == ( Double_t )GOOD );
-    Bool_t flagDQM( flagDet * flagDAQ * flagDCS );
-    Bool_t flagCert( iFlagsRRTracker_[ sSubSys_[ SiStrip ] ] );
-//     iFlags[ sSubSys_[ SiStrip ] ] = ( Int_t )( flagDQM * bSiStripOn_ * flagCert );
-    iFlags[ sSubSys_[ SiStrip ] ] = ( Int_t )( flagDQM * flagCert );
+    Bool_t flagDet;
+    Bool_t flagSubDet;
+    Bool_t flagSToN;
+    Bool_t flagDAQ;
+    Bool_t flagDCS;
+    if ( sVersion_.Contains( "CMSSW_3_2_4" ) ) {
+      if ( iRunStartDecon_ <= sRunNumber_.Atoi() ) { // S/N settings were wrong in the release compared with reality due to switch from Peak to Deconvolution mode
+        flagDet = kTRUE;
+        flagSubDet = (
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TECB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TECB" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TECF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TECF" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TIB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TIB" ]  > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TIDB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TIDB" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TIDF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TIDF" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_DetFraction_TOB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_DetFraction_TOB" ]  > minGood_ )
+        );
+        flagSToN =kTRUE;
+      } else {
+        flagDet = ( fCertificates_[ "SiStripReportSummary" ] > minGood_ );
+        flagSubDet = (
+          ( fCertificates_[ "ReportSiStrip_TECB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TECB" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_TECF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TECF" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_TIB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIB" ]  > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_TIDB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIDB" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_TIDF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIDF" ] > minGood_ ) &&
+          ( fCertificates_[ "ReportSiStrip_TOB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TOB" ]  > minGood_ )
+        );
+        flagSToN = (
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TECB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TECB" ] == ( Double_t )GOOD ) &&
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TECF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TECF" ] == ( Double_t )GOOD ) &&
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ]  == ( Double_t )GOOD ) &&
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TIDB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIDB" ] == ( Double_t )GOOD ) &&
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TIDF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIDF" ] == ( Double_t )GOOD ) &&
+          ( fCertificates_[ "ReportSiStrip_SToNFlag_TOB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TOB" ]  == ( Double_t )GOOD )
+        );
+      }
+      flagDAQ = ( fCertificates_[ "DAQSiStripDaqFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQSiStripDaqFraction" ] > minGood_ );
+      flagDCS = ( fCertificates_[ "DCSSiStripDcsFraction" ] == ( Double_t )EXCL || fCertificates_[ "DCSSiStripDcsFraction" ] == ( Double_t )GOOD );
+    } else {
+      flagDet = ( fCertificates_[ "SiStripReportSummary" ] > minGood_ );
+      if ( sVersion_.Contains( "CMSSW_3_2_8" ) ||
+           sVersion_.Contains( "CMSSW_3_3_0" ) ||
+           sVersion_.Contains( "CMSSW_3_3_2" ) ||
+           sVersion_.Contains( "CMSSW_3_3_3_patch1" ) ||
+           sVersion_.Contains( "CMSSW_3_3_4" ) ) { // bug misses one out of four TIB layers
+        if ( fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ] != ( Double_t )EXCL ) {
+          cout << "    WARNING: ReportSiStrip_SToNFlag_TIB changed from " << fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ] << " to ";
+          fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ] /= 0.75; // re-scaling
+          cout << fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ] << endl;
+        }
+        if ( fCertificates_[ "ReportSiStrip_TIB" ] != ( Double_t )EXCL ) {
+          cout << "    WARNING: ReportSiStrip_TIB re-evaluated from " << fCertificates_[ "ReportSiStrip_TIB" ] << " to ";
+          fCertificates_[ "ReportSiStrip_TIB" ] = min( fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ], fCertificates_[ "ReportSiStrip_DetFraction_TIB" ] ); // re-evaluation
+          cout << fCertificates_[ "ReportSiStrip_TIB" ] << endl;
+        }
+      }
+      flagSubDet = (
+        ( fCertificates_[ "ReportSiStrip_TECB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TECB" ] > minGood_ ) &&
+        ( fCertificates_[ "ReportSiStrip_TECF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TECF" ] > minGood_ ) &&
+        ( fCertificates_[ "ReportSiStrip_TIB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIB" ]  > minGood_ ) &&
+        ( fCertificates_[ "ReportSiStrip_TIDB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIDB" ] > minGood_ ) &&
+        ( fCertificates_[ "ReportSiStrip_TIDF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TIDF" ] > minGood_ ) &&
+        ( fCertificates_[ "ReportSiStrip_TOB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_TOB" ]  > minGood_ )
+      );
+      flagSToN = (
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TECB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TECB" ] == ( Double_t )GOOD ) &&
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TECF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TECF" ] == ( Double_t )GOOD ) &&
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIB" ]  == ( Double_t )GOOD ) &&
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TIDB" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIDB" ] == ( Double_t )GOOD ) &&
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TIDF" ] == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TIDF" ] == ( Double_t )GOOD ) &&
+        ( fCertificates_[ "ReportSiStrip_SToNFlag_TOB" ]  == ( Double_t )EXCL || fCertificates_[ "ReportSiStrip_SToNFlag_TOB" ]  == ( Double_t )GOOD )
+      );
+      flagDAQ = ( fCertificates_[ "SiStripDAQSummary" ] == ( Double_t )EXCL || fCertificates_[ "SiStripDAQSummary" ] > minGood_ );
+      flagDCS = ( fCertificates_[ "SiStripDCSSummary" ] == ( Double_t )EXCL || fCertificates_[ "SiStripDCSSummary" ] == ( Double_t )GOOD );
+    }
+//     Bool_t flagDQM( flagDet * flagSubDet * flagSToN * flagDAQ * flagDSC );
+    Bool_t flagDQM( flagDet * flagSubDet * flagSToN ); // FIXME DAQ and DCS info currently ignored
+    Bool_t flagCert( sCertSiStrip_.find( sRunNumber_ )   == sCertSiStrip_.end() );
+    Bool_t flagHDQM( sHDQMSiStrip_.find( sRunNumber_ )   == sHDQMSiStrip_.end() );
+    Bool_t flagTkMap( sTkMapSiStrip_.find( sRunNumber_ ) == sTkMapSiStrip_.end() );
+    iFlags[ sSubSys_[ SiStrip ] ] = ( Int_t )( flagDQM * flagCert * flagHDQM * flagTkMap );
+
     sDQMSiStrip_[ sRunNumber_ ] = FlagConvert( ( Int_t )( flagDQM ) );
     sSiStrip_[ sRunNumber_ ]    = FlagConvert( iFlags[ sSubSys_[ SiStrip ] ] );
     vector< TString > comments;
     if ( ! flagDet )     comments.push_back( "too low overall fraction of good modules" );
-    if ( ! flagDAQ )     comments.push_back( "DAQSummary BAD" );
-    if ( ! flagDCS )     comments.push_back( "DCSSummary BAD" );
-//     if ( ! bSiStripOn_ ) comments.push_back( "HV off" );
-    if ( ! flagCert )    comments.push_back( TString( "Tracker shifter: " + sRRTrackerCommentsSiStrip_[ sRunNumber_ ] ) );
+    if ( ! flagSubDet )  comments.push_back( "too low fraction of good modules in a sub-system" );
+    if ( ! flagSToN )    comments.push_back( "too low S/N in a sub-system" );
+//     if ( ! flagDAQ )     comments.push_back( "DAQSummary BAD" ); // FIXME DAQ and DCS info currently ignored
+//     if ( ! flagDCS )     comments.push_back( "DCSSummary BAD" ); // FIXME DAQ and DCS info currently ignored
+    if ( ! flagCert )    comments.push_back( "general: " + sCertSiStrip_[ sRunNumber_ ] );
+    if ( ! flagHDQM )    comments.push_back( "hDQM   : " + sHDQMSiStrip_[ sRunNumber_ ] );
+    if ( ! flagTkMap )   comments.push_back( "TkMap  : " + sTkMapSiStrip_[ sRunNumber_ ] );
     if ( iFlags[ sSubSys_[ SiStrip ] ] == BAD ) {
       ++nRunsBadSiStrip_;
-      if ( flagCert ) comments.push_back( TString( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsSiStrip_[ sRunNumber_ ] ) );
       sRunCommentsSiStrip_[ sRunNumber_ ] = comments;
     }
   } else {
@@ -980,28 +903,36 @@ void certifyRun()
   }
 
   // Pixel
-  sRRPixel_[ sRunNumber_ ]        = FlagConvert( iFlagsRR_[ sSubSys_[ Pixel ] ] );
-  sRRTrackerPixel_[ sRunNumber_ ] = FlagConvert( iFlagsRRTracker_[ sSubSys_[ Pixel ] ] );
+  sRRPixel_[ sRunNumber_ ] = FlagConvert( iFlagsRR_[ sSubSys_[ Pixel ] ] );
   if ( bAvailable_[ sSubSys_[ Pixel ] ] ) {
-    Bool_t flagReportSummary( fCertificates_[ "PixelReportSummary" ] > maxBad_ );
-    Bool_t flagDAQ( ( fCertificates_[ "DAQPixelBarrelFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelBarrelFraction" ] > 0. ) &&  ( fCertificates_[ "DAQPixelEndcapFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelEndcapFraction" ] > 0. ) ); // unidentified bug in Pixel DAQ fraction determination
-    Bool_t flagDCS( fCertificates_[ "PixelDCSSummary" ] == ( Double_t )EXCL || fCertificates_[ "PixelDCSSummary" ] > maxBad_ );
-//     Bool_t flagDQM( flagReportSummary * flagDAQ * flagDCS );
-    Bool_t flagDQM( flagDCS ); // bugs in DAQ fraction and report summary
-    Bool_t flagCert( iFlagsRRTracker_[ sSubSys_[ Pixel ] ] );
-//     iFlags[ sSubSys_[ Pixel ] ] = ( Int_t )( flagDQM * bPixelOn_ * flagCert );
-    iFlags[ sSubSys_[ Pixel ] ] = ( Int_t )( flagDQM * flagCert );
+    Bool_t flagReportSummary(
+      fCertificates_[ "PixelReportSummary" ] > maxBad_
+    );
+    Bool_t flagDAQ;
+    Bool_t flagDCS;
+    if ( sVersion_.Contains( "CMSSW_3_2_4" ) ) { // old version with different naming
+      flagDAQ = ( fCertificates_[ "DAQPixelDaqFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelDaqFraction" ] > maxBad_ );
+      flagDCS = ( fCertificates_[ "DCSPixelDcsFraction" ] == ( Double_t )EXCL || fCertificates_[ "DCSPixelDcsFraction" ] > maxBad_ );
+    } else {
+//       flagDAQ = ( fCertificates_[ "PixelDAQSummary" ] == ( Double_t )EXCL || fCertificates_[ "PixelDAQSummary" ] > maxBad_ ); // unidentified bug in Pixel DAQ fraction determination
+      flagDAQ = ( ( fCertificates_[ "DAQPixelBarrelFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelBarrelFraction" ] > 0. ) &&  ( fCertificates_[ "DAQPixelEndcapFraction" ] == ( Double_t )EXCL || fCertificates_[ "DAQPixelEndcapFraction" ] > 0. ) ); // unidentified bug in Pixel DAQ fraction determination
+      flagDCS = ( fCertificates_[ "PixelDCSSummary" ] == ( Double_t )EXCL || fCertificates_[ "PixelDCSSummary" ] > maxBad_ );
+    }
+    Bool_t flagDQM( flagReportSummary * flagDAQ * flagDCS );
+    Bool_t flagCert( sCertPixel_.find( sRunNumber_ ) == sCertPixel_.end() );
+    Bool_t flagHDQM( sHDQMPixel_.find( sRunNumber_ ) == sHDQMPixel_.end() );
+    iFlags[ sSubSys_[ Pixel ] ] = ( Int_t )( flagDQM * flagCert * flagHDQM );
+
     sDQMPixel_[ sRunNumber_ ] = FlagConvert( ( Int_t )( flagDQM ) );
     sPixel_[ sRunNumber_ ]    = FlagConvert( iFlags[ sSubSys_[ Pixel ] ] );
     vector< TString > comments;
     if ( ! flagReportSummary ) comments.push_back( "ReportSummary BAD" );
     if ( ! flagDAQ )           comments.push_back( "DAQSummary BAD" );
     if ( ! flagDCS )           comments.push_back( "DCSSummary BAD" );
-//     if ( ! bPixelOn_ )         comments.push_back( "HV off" );
-    if ( ! flagCert )          comments.push_back( TString( "Tracker shifter: " + sRRTrackerCommentsPixel_[ sRunNumber_ ] ) );
+    if ( ! flagCert )          comments.push_back( "general: " + sCertPixel_[ sRunNumber_ ] );
+    if ( ! flagHDQM )          comments.push_back( "hDQM   : " + sHDQMPixel_[ sRunNumber_ ] );
     if ( iFlags[ sSubSys_[ Pixel ] ] == BAD ) {
       ++nRunsBadPixel_;
-      if ( flagCert ) comments.push_back( TString( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsPixel_[ sRunNumber_ ] ) );
       sRunCommentsPixel_[ sRunNumber_ ] = comments;
     }
   } else {
@@ -1010,32 +941,37 @@ void certifyRun()
   }
 
   // Tracking
-  sRRTracking_[ sRunNumber_ ]        = FlagConvert( iFlagsRR_[ sSubSys_[ Tracking ] ] );
-  sRRTrackerTracking_[ sRunNumber_ ] = FlagConvert( iFlagsRRTracker_[ sSubSys_[ Tracking ] ] );
+  sRRTracking_[ sRunNumber_ ] = FlagConvert( iFlagsRR_[ sSubSys_[ Tracking ] ] );
   if ( bAvailable_[ sSubSys_[ Tracking ] ] ) {
-    Bool_t flagCert( iFlagsRRTracker_[ sSubSys_[ Pixel ] ] );
     Bool_t flagDQM( kFALSE );
+    Bool_t flagCert( sCertTracking_.find( sRunNumber_ ) == sCertTracking_.end() );
+    Bool_t flagHDQM( sHDQMTracking_.find( sRunNumber_ ) == sHDQMTracking_.end() );
     vector< TString > comments;
     if ( iFlagsRR_[ sSubSys_[ SiStrip ] ] == EXCL && iFlagsRR_[ sSubSys_[ Pixel ] ] == EXCL ) {
       comments.push_back( "SiStrip and Pixel EXCL: no reasonable Tracking" );
     } else {
-      Bool_t flagChi2( fCertificates_[ "ReportTrackChi2" ] > maxBad_ );
-      Bool_t flagRate( fCertificates_[ "ReportTrackRate" ] > maxBad_ );
-      Bool_t flagRecHits( fCertificates_[ "ReportTrackRecHits" ] > maxBad_ );
+      Bool_t flagChi2(
+        fCertificates_[ "ReportTrackChi2overDoF" ] > maxBad_
+      );
+      Bool_t flagRate(
+        fCertificates_[ "ReportTrackRate" ] > maxBad_
+      );
+      Bool_t flagRecHits(
+        fCertificates_[ "ReportTrackRecHits" ] > maxBad_
+      );
       flagDQM  = flagChi2 * flagRate * flagRecHits;
+
       if ( ! flagChi2 )    comments.push_back( "Chi2/DoF too low" );
       if ( ! flagRate )    comments.push_back( "Track rate too low" );
       if ( ! flagRecHits ) comments.push_back( "Too few RecHits" );
-//       if ( ! bSiStripOn_ ) comments.push_back( "HV SiStrip off" );
-      if ( ! flagCert ) comments.push_back( TString( "Tracker shifter: " + sRRTrackerCommentsTracking_[ sRunNumber_ ] ) );
+      if ( ! flagCert )    comments.push_back( "general: " + sCertTracking_[ sRunNumber_ ] );
+      if ( ! flagHDQM )    comments.push_back( "hDQM   : " + sHDQMTracking_[ sRunNumber_ ] );
     }
-//     iFlags[ sSubSys_[ Tracking ] ] = ( Int_t )( flagDQM * bSiStripOn_ * flagCert );
-    iFlags[ sSubSys_[ Tracking ] ] = ( Int_t )( flagDQM * flagCert );
+    iFlags[ sSubSys_[ Tracking ] ] = ( Int_t )( flagDQM * flagCert * flagHDQM );
     sDQMTracking_[ sRunNumber_ ] = FlagConvert( ( Int_t )( flagDQM ) );
     sTracking_[ sRunNumber_ ]    = FlagConvert( iFlags[ sSubSys_[ Tracking ] ] );
     if ( iFlags[ sSubSys_[ Tracking ] ] == BAD ) {
       ++nRunsBadTracking_;
-      if ( flagCert ) comments.push_back( TString( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsTracking_[ sRunNumber_ ] ) );
       sRunCommentsTracking_[ sRunNumber_ ] = comments;
     }
   } else {
@@ -1083,40 +1019,24 @@ void writeOutput()
   // Initialize
   ofstream fileLog;
   fileLog.open( sArguments[ "-o" ].Data() );
-  fileLog << "Tracker Certification runs " << minRun_ << " - " << maxRun_ << endl
-          << "==========================================" << endl
-          << endl
-          << "Used DQM files found in " << sArguments[ "-p" ] << endl
-          << "for dataset             " << sArguments[ "-d" ] << endl
-          << "and group name          " << sArguments[ "-g" ] << endl
-          << endl
-          << "# of runs total                          : " << nRuns_                  << endl
-          << "------------------------------------------ "                            << endl
-          << "# of runs certified                      : " << sRunNumbers_.size()     << endl
-          << "# of runs not found in RR                : " << nRunsNotRR_             << endl
-          << "# of runs group not found in RR          : " << nRunsNotGroup_          << endl
-          << "# of runs dataset not found in RR        : " << nRunsNotDataset_        << endl;
-  if ( ! sOptions[ "-a" ] ) fileLog << "# of runs not in SIGNOFF in RR           : " << nRunsNotSignoff_        << endl;
-  fileLog << "# of runs not found in RR Tracker        : " << nRunsNotRRTracker_      << endl
-          << "# of runs group not found in RR Tracker  : " << nRunsNotGroupTracker_   << endl
-//           << "# of runs dataset not found in RR Tracker: " << nRunsNotDatasetTracker_ << endl
-          << "# of runs not found in RR lumis          : " << nRunsNotRRLumis_        << endl
-          << "# of runs dataset not found in RR lumis  : " << nRunsNotDatasetLumis_   << endl
-          << endl
-          << "# of runs w/o SiStrip       : " << nRunsExclSiStrip_     << endl
-          << "# of bad runs SiStrip       : " << nRunsBadSiStrip_      << endl
-          << "# of changed runs SiStrip   : " << nRunsChangedSiStrip_  << endl
-          << "# of runs w/o Pixel         : " << nRunsExclPixel_       << endl
-          << "# of bad runs Pixel         : " << nRunsBadPixel_        << endl
-          << "# of changed runs Pixel     : " << nRunsChangedPixel_    << endl
-          << "# of runs w/o Tracking (BAD): " << nRunsNoTracking_      << endl
-          << "# of bad runs Tracking      : " << nRunsBadTracking_     << endl
-          << "# of changed runs Tracking  : " << nRunsChangedTracking_ << endl;
+  fileLog << "Tracker Certification runs " << minRun_ << " - " << maxRun_ << endl << "==========================================" << endl << endl;
+  fileLog << "Used DQM files found in " << sArguments[ "-p" ] << endl;
+  fileLog << "for dataset             " << sArguments[ "-d" ] << endl << endl;
+  fileLog << "# of runs certified         : " << sRunNumbers_.size()   << endl;
+  fileLog << "# of runs not found in RR   : " << nRunsNotRR_           << endl;
+  fileLog << "# of runs dataset not in RR : " << nRunsNotDataset_      << endl << endl;
+  fileLog << "# of runs w/o SiStrip       : " << nRunsExclSiStrip_     << endl;
+  fileLog << "# of bad runs SiStrip       : " << nRunsBadSiStrip_      << endl;
+  fileLog << "# of changed runs SiStrip   : " << nRunsChangedSiStrip_  << endl;
+  fileLog << "# of runs w/o Pixel         : " << nRunsExclPixel_       << endl;
+  fileLog << "# of bad runs Pixel         : " << nRunsBadPixel_        << endl;
+  fileLog << "# of changed runs Pixel     : " << nRunsChangedPixel_    << endl;
+  fileLog << "# of runs w/o Tracking (BAD): " << nRunsNoTracking_      << endl;
+  fileLog << "# of bad runs Tracking      : " << nRunsBadTracking_     << endl;
+  fileLog << "# of changed runs Tracking  : " << nRunsChangedTracking_ << endl;
 
   // SiStrip
-  fileLog << endl
-          << sSubSys_[ 0 ] << ":" << endl
-          << endl;
+  fileLog << endl << sSubSys_[ 0 ] << ":" << endl << endl;
   for ( UInt_t iRun = 0; iRun < sRunNumbers_.size(); ++iRun ) {
     if ( sRRSiStrip_[ sRunNumbers_.at( iRun ) ] != sSiStrip_[ sRunNumbers_.at( iRun ) ] ) {
       fileLog << "  " << sRunNumbers_.at( iRun ) << ": " << sRRSiStrip_[ sRunNumbers_.at( iRun ) ] << " --> " << sSiStrip_[ sRunNumbers_.at( iRun ) ] << endl;
@@ -1130,9 +1050,7 @@ void writeOutput()
   }
 
   // Pixel
-  fileLog << endl
-          << sSubSys_[ 1 ] << ":" << endl
-          << endl;
+  fileLog << endl << sSubSys_[ 1 ] << ":" << endl << endl;
   for ( UInt_t iRun = 0; iRun < sRunNumbers_.size(); ++iRun ) {
     if ( sRRPixel_[ sRunNumbers_.at( iRun ) ] != sPixel_[ sRunNumbers_.at( iRun ) ] ) {
       fileLog << "  " << sRunNumbers_.at( iRun ) << ": " << sRRPixel_[ sRunNumbers_.at( iRun ) ] << " --> " << sPixel_[ sRunNumbers_.at( iRun ) ] << endl;
@@ -1146,9 +1064,7 @@ void writeOutput()
   }
 
   // Tracking
-  fileLog << endl
-          << sSubSys_[ 2 ] << ":" << endl
-          << endl;
+  fileLog << endl << sSubSys_[ 2 ] << ":" << endl << endl;
   for ( UInt_t iRun = 0; iRun < sRunNumbers_.size(); ++iRun ) {
     if ( sRRTracking_[ sRunNumbers_.at( iRun ) ] != sTracking_[ sRunNumbers_.at( iRun ) ] ) {
       fileLog << "  " << sRunNumbers_.at( iRun ) << ": " << sRRTracking_[ sRunNumbers_.at( iRun ) ] << " --> " << sTracking_[ sRunNumbers_.at( iRun ) ] << endl;
@@ -1163,9 +1079,7 @@ void writeOutput()
 
   fileLog.close();
 
-  cout << endl
-       << "SUMMARY:" << endl
-       << endl;
+  cout << endl << "SUMMARY:" << endl << endl;
   for ( UInt_t iRun = 0; iRun < sRunNumbers_.size(); ++iRun ) {
     cout << "  " << sRunNumbers_.at( iRun ) << ":" << endl;
     cout << "    " << sSubSys_[ 0 ] << ": " << sSiStrip_[ sRunNumbers_.at( iRun ) ] << endl;
@@ -1182,9 +1096,7 @@ void writeOutput()
     }
   }
 
-  cout << endl
-       << "Certification SUMMARY to be sent to CMS DQM team available in ./" << sArguments[ "-o" ].Data() << endl
-       << endl;
+  cout << endl << "Certification SUMMARY to be sent to CMS DQM team available in ./" << sArguments[ "-o" ].Data() << endl << endl;
 
   return;
 
@@ -1195,80 +1107,80 @@ void writeOutput()
 void displayHelp()
 {
 
-  cerr << "  TrackerRunCertification" << endl
-       << endl
-       << "  CMSSW package: DQM/TrackerCommon" << endl
-       << endl
-       << "  Purpose:" << endl
-       << endl
-       << "  The procedure of certifying data of a given run range is automated in order to speed up the procedure and to reduce the Tracker Offline Shift Leader's workload." << endl
-       << endl
-       << "  Input:" << endl
-       << endl
-       << "  - RunRegistry" << endl
-       << "  - DQM output files available in AFS" << endl
-       << endl
-       << "  Output:" << endl
-       << endl
-       << "  Text file" << endl
-       << "  - [as explained for command line option '-o']" << endl
-       << "  to be sent directly to the CMS DQM team as reply to the weekly certification request." << endl
-       << "  It contains a list of all flags changed with respect to the RunRegistry, including the reason(s) in case the flag is changed to BAD." << endl
-       << endl
-       << "  The verbose ('-v') stdout can provide a complete list of all in-/output flags of all analyzed runs and at its end a summary only with the output flags." << endl
-       << "  It makes sense to pipe the stdout to another text file." << endl
-       << endl
-       << "  Usage:" << endl
-       << endl
-       << "  $ cmsrel CMSSW_RELEASE" << endl
-       << "  $ cd CMSSW_RELEASE/src" << endl
-       << "  $ cmsenv" << endl
-       << "  $ cvs co -r Vxx-yy-zz DQM/TrackerCommon" << endl
-       << "  $ scram b -j 5" << endl
-       << "  $ rehash" << endl
-       << "  $ cd WORKING_DIRECTORY" << endl
-       << "  $ [create input files]" << endl
-       << "  $ TrackerRunCertification [ARGUMENTOPTION1] [ARGUMENT1] ... [OPTION2] ..." << endl
-       << endl
-       << "  Valid argument options are:" << endl
-       << "    -d" << endl
-       << "      MANDATORY: dataset as in RunRegistry" << endl
-       << "      no default" << endl
-       << "    -g" << endl
-       << "      MANDATORY: group name as in RunRegistry" << endl
-       << "      no default" << endl
-       << "    -p" << endl
-       << "      path to DQM files" << endl
-       << "      default: /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/OfflineData/Run2010/StreamExpress" << endl
-       << "    -P" << endl
-       << "      pattern of DQM file names in the DQM file path" << endl
-       << "      default: *[DATASET from '-d' option with '/' --> '__'].root" << endl
-       << "    -o" << endl
-       << "      path to output log file" << endl
-       << "      default: trackerRunCertification[DATASET from '-d' option with '/' --> '__']-[GROUP from '-g'].txt" << endl
-       << "    -l" << endl
-       << "      lower bound of run numbers to consider" << endl
-       << "      default: 0" << endl
-       << "    -u" << endl
-       << "      upper bound of run numbers to consider" << endl
-       << "      default: 1073741824 (2^30)" << endl
-       << "    -R" << endl
-       << "      web address of the RunRegistry" << endl
-       << "      default: http://pccmsdqm04.cern.ch/runregistry" << endl
-       << "    The default is used for any option not explicitely given in the command line." << endl
-       << endl
-       << "  Valid options are:" << endl
-       << "    -rr" << endl
-       << "      switch on creation of new RR file" << endl
-       << "    -rronly" << endl
-       << "      only create new RR file, do not run certification" << endl
-       << "    -a" << endl
-       << "      certify all runs, not only those in \"SIGNOFF\" status" << endl
-       << "    -v" << endl
-       << "      switch on verbose logging to stdout" << endl
-       << "    -h" << endl
-       << "      display this help and exit" << endl
-       << endl;
+  cerr << "  TrackerRunCertification" << endl << endl;
+  cerr << "  CMSSW package: DQM/TrackerCommon" << endl << endl;
+  cerr << "  Purpose:" << endl << endl;
+  cerr << "  The procedure of certifying data of a given run range is automated in order to speed up the procedure and to reduce the Tracker Offline Shift Leader's workload." << endl << endl;
+  cerr << "  Input:" << endl << endl;
+  cerr << "  Text files in order to make the results of hDQM and TkMap based flags available to the script have to be provided:" << endl;
+  cerr << "  in $CMSSW_BASE/src/DQM/TrackerCommon/data/ (default) or any path given in the corresponding command line option '-i':" << endl;
+  cerr << "  - certSiStrip.txt" << endl;
+  cerr << "  - hDQMSiStrip.txt" << endl;
+  cerr << "  - TkMapSiStrip.txt" << endl;
+  cerr << "  - certPixel.txt" << endl;
+  cerr << "  - hDQMPixel.txt" << endl;
+  cerr << "  - certTracking.txt" << endl;
+  cerr << "  - hDQMTracking.txt" << endl;
+  cerr << "  The format of the entries in these files is the following:" << endl;
+  cerr << "  One line per run of the structure" << endl;
+  cerr << "  RUNNUMBER FLAG [COMMENT]" << endl;
+  cerr << "  where:" << endl;
+  cerr << "  - RUNNUMBER is obvious" << endl;
+  cerr << "  - FLAG is either \"GOOD\" or \"BAD\" (Anything different from \"BAD\" will be treated as \"GOOD\".)" << endl;
+  cerr << "  - COMMENT is an \"obligatory\" explanation in case of flag \"BAD\", which can have more than one word." << endl;
+  cerr << "    However, brief'n'clear statements are preferred (to be standardized in the future)." << endl;
+  cerr << "  The files can be empty, but must be present!" << endl << endl;
+  cerr << "  Further necessary sources of input are:" << endl;
+  cerr << "  - RunRegistry" << endl;
+  cerr << "  - DQM output files available in AFS" << endl << endl;
+  cerr << "  Output:" << endl << endl;
+  cerr << "  Text file" << endl;
+  cerr << "  - [as explained for command line option '-o']" << endl;
+  cerr << "  to be sent directly to the CMS DQM team as reply to the weekly certification request." << endl;
+  cerr << "  It contains a list of all flags changed with respect to the RunRegistry, including the reason(s) in case the flag is changed to BAD." << endl << endl;
+  cerr << "  The (lengthy) stdout can provide a complete list of all in-/output flags of all analyzed runs and at its end a summary only with the output flags." << endl;
+  cerr << "  This summary can be used to populate the Tracker Good/Bad Run List (http://cmstac05.cern.ch/ajax/pierro/offShift/#good_bad_run)." << endl;
+  cerr << "  It makes sense to pipe the stdout to another text file." << endl << endl;
+  cerr << "  Usage:" << endl << endl;
+  cerr << "  $ cmsrel CMSSW_RELEASE" << endl;
+  cerr << "  $ cd CMSSW_RELEASE/src" << endl;
+  cerr << "  $ cmsenv" << endl;
+  cerr << "  $ cvs co -r Vxx-yy-zz DQM/TrackerCommon" << endl;
+  cerr << "  $ scram b -j 5" << endl;
+  cerr << "  $ rehash" << endl;
+  cerr << "  $ cd WORKING_DIRECTORY" << endl;
+  cerr << "  $ [create input files]" << endl;
+  cerr << "  $ TrackerRunCertification [ARGUMENTOPTION1] [ARGUMENT1] ... [OPTION2] ..." << endl << endl;
+  cerr << "  Valid argument options are:" << endl;
+  cerr << "    -d" << endl;
+  cerr << "      MANDATORY: dataset as in RunRegistry" << endl;
+  cerr << "      no default" << endl;
+  cerr << "    -p" << endl;
+  cerr << "      path to DQM files" << endl;
+  cerr << "      default: /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Express" << endl;
+  cerr << "    -P" << endl;
+  cerr << "      pattern of DQM file names in the DQM file path" << endl;
+  cerr << "      default: *[DATASET from '-d' option with '/' --> '__'].root" << endl;
+  cerr << "    -i" << endl;
+  cerr << "      path to additional input files" << endl;
+  cerr << "      default: $CMSSW_BASE/src/DQM/TrackerCommon/data" << endl;
+  cerr << "    -o" << endl;
+  cerr << "      path to output log file" << endl;
+  cerr << "      default: trackerRunCertification[DATASET from '-d' option with '/' --> '__'].txt" << endl;
+  cerr << "    -l" << endl;
+  cerr << "      lower bound of run numbers to consider" << endl;
+  cerr << "      default: 0" << endl;
+  cerr << "    -u" << endl;
+  cerr << "      upper bound of run numbers to consider" << endl;
+  cerr << "      default: 1073741824 (2^30)" << endl;
+  cerr << "    The default is used for any option not explicitely given in the command line." << endl << endl;
+  cerr << "  Valid options are:" << endl;
+  cerr << "    -rr" << endl;
+  cerr << "      switch on creation of new RR file" << endl;
+  cerr << "    -v" << endl;
+  cerr << "      switch on verbose logging to stdout" << endl;
+  cerr << "    -h" << endl;
+  cerr << "      display this help and exit" << endl << endl;
   return;
 }
 
@@ -1277,8 +1189,8 @@ void displayHelp()
 TString RunNumber( const TString & pathFile )
 {
 
-  const TString sPrefix( "DQM_V" );
-  const TString sNumber( pathFile( pathFile.Index( sPrefix ) + sPrefix.Length() + 6, 9 ) );
+  const TString sPrefix( "DQM_V0001_R" );
+  const TString sNumber( pathFile( pathFile.Index( sPrefix ) + sPrefix.Length(), 9 ) );
   UInt_t index( ( string( sNumber.Data() ) ).find_first_not_of( '0' ) );
   return sNumber( index, sNumber.Length() - index );
 

@@ -73,6 +73,7 @@
 
 #include "RecoParticleFlow/PFRootEvent/interface/METManager.h"
 
+
 #include <TObject.h>
 #include "TEllipse.h"
 #include "TBox.h"
@@ -109,6 +110,10 @@ namespace pftools {
 
 class METManager;
 
+// NEW
+namespace fwlite {
+  class ChainEvent;
+}
 
 typedef std::pair<double, unsigned> simMatch;
 typedef std::list< std::pair<double, unsigned> >::iterator ITM;
@@ -213,9 +218,6 @@ class PFRootEventManager {
   /// open the root file and connect to the tree
   void connect(const char* infilename="");
 
-  /// sets addresses for all branches
-  void setAddresses();
-
   int eventToEntry(int run, int lumi, int event) const;
   
   /// process one event (pass the CMS event number)
@@ -223,9 +225,6 @@ class PFRootEventManager {
 
   /// process one entry (pass the TTree entry)
   virtual bool processEntry(int entry);
-
-  /// read event information
-  void readEventAuxiliary( int entry );
 
   /// read data from simulation tree
   bool readFromSimulation(int entry);
@@ -396,6 +395,8 @@ class PFRootEventManager {
   bool highPtPFCandidate( double ptMin, 
 			  reco::PFCandidate::ParticleType type = reco::PFCandidate::X) const;
 
+  /// returns an InputTag from a vector of strings
+  edm::InputTag stringToTag(const std::vector< std::string >& tagname); 
   // data members -------------------------------------------------------
 
   /// current event
@@ -404,6 +405,9 @@ class PFRootEventManager {
   /// options file parser 
   IO*         options_;      
   
+  /// NEW: input event
+  fwlite::ChainEvent* ev_;
+
   /// input tree  
   TTree*      tree_;          
   
@@ -421,155 +425,73 @@ class PFRootEventManager {
   TH1F*            h_deltaETvisible_MCPF_;
  
 
+
   // branches --------------------------
   
   TBranch*   eventAuxiliaryBranch_;
 
-  /// rechits branch  
-  TBranch*   hitsBranch_;          
-  
-  /// ECAL rechits branch  
-  TBranch*   rechitsECALBranch_;          
-  
-  /// HCAL rechits branch  
-  TBranch*   rechitsHCALBranch_;          
-  
-  /// HFEM rechits branch  
-  TBranch*   rechitsHFEMBranch_;          
-  
-  /// HFHAD rechits branch  
-  TBranch*   rechitsHFHADBranch_;          
-  
-  /// HF Cleaned rechits branch(es)
-  std::vector<TBranch*> rechitsCLEANEDBranch_;          
-  
-  /// PS rechits branch  
-  TBranch*   rechitsPSBranch_;          
-
-  /// ECAL clusters branch  
-  TBranch*   clustersECALBranch_;          
-  
-  /// HCAL clusters branch  
-  TBranch*   clustersHCALBranch_;          
-   
-  /// PS clusters branch  
-  TBranch*   clustersPSBranch_;          
-
-  /// ECAL island clusters branch_;
-  TBranch*   clustersIslandBarrelBranch_;
-
-  /// calotowers
-  TBranch* caloTowersBranch_;
-  
-  /// reconstructed primary vertices  
-  TBranch*   primaryVertexBranch_;          
-  
-  /// reconstructed tracks branch  
-  TBranch*   recTracksBranch_;          
-  
-  /// standard reconstructed tracks branch  
-  TBranch*   stdTracksBranch_;          
-  
-  /// GSF standard reconstructed tracks branch 
-  TBranch*   gsfrecTracksBranch_;
-
-  /// Secondary GSF standard reconstructed tracks branch 
-  TBranch*   convBremGsfrecTracksBranch_;
-
-  ///Muons branch
-  TBranch*   muonsBranch_; 
-  
-  ///Conversions branch
-  TBranch*   conversionBranch_; 
-
-  ///V0 branch
-  TBranch*   v0Branch_;
-
-  ///PFDisplacedVertex branch
-  TBranch*   pfDisplacedVertexBranch_; 
-
-  /// true particles branch
-  TBranch*   trueParticlesBranch_;          
-
-  /// MCtruth branch
-  TBranch*   MCTruthBranch_;          
-
-  /// Gen Particles base Candidates branch
-  TBranch*   genParticlesforJetsBranch_;
-
-  /// Calo Tower base Candidates branch
-  TBranch*   caloTowerBaseCandidatesBranch_;
-  
-  /// CMSSW PF Candidates branch
-  
-  TBranch*   pfCandidatesBranch_;
-  
-  ///CMSSW Gen Jet branch
-  TBranch*   genJetBranch_;
-  
-  ///CMSSW Calo Jet branch
-  TBranch*   recCaloBranch_;
-
-  ///CMSSW corrected calo Jet branch
-  TBranch*   reccorrCaloBranch_;
-
-  ///CMSSW  PF Jet branch
-  TBranch*   recPFBranch_;
-
-  ///CMSSW  GenParticles branch
-  TBranch*   genParticlesforMETBranch_;
-  
-  ///CMSSW  Calo MET branch
-  TBranch*   recCaloMETBranch_;
-
-  ///CMSSW  TCMET branch
-  TBranch*   recTCMETBranch_;
-
-  ///CMSSW  PF MET branch
-  TBranch*   recPFMETBranch_;
-  
-  
   /// event auxiliary information
   edm::EventAuxiliary*      eventAuxiliary_;
 
   /// rechits ECAL
+  edm::Handle<reco::PFRecHitCollection> rechitsECALHandle_;
+  edm::InputTag rechitsECALTag_;
   reco::PFRecHitCollection rechitsECAL_;
 
   /// rechits HCAL
+  edm::Handle<reco::PFRecHitCollection> rechitsHCALHandle_;
+  edm::InputTag rechitsHCALTag_;
   reco::PFRecHitCollection rechitsHCAL_;
 
   /// rechits HF EM
+  edm::Handle<reco::PFRecHitCollection> rechitsHFEMHandle_;
+  edm::InputTag rechitsHFEMTag_;
   reco::PFRecHitCollection rechitsHFEM_;
 
   /// rechits HF HAD
+  edm::Handle<reco::PFRecHitCollection> rechitsHFHADHandle_;
+  edm::InputTag rechitsHFHADTag_;
   reco::PFRecHitCollection rechitsHFHAD_;
 
   /// rechits HF CLEANED
-  std::vector<reco::PFRecHitCollection> rechitsCLEANEDV_;
+  std::vector< reco::PFRecHitCollection > rechitsCLEANEDV_;
+  std::vector< edm::Handle<reco::PFRecHitCollection> > rechitsCLEANEDHandles_;
+  std::vector< edm::InputTag > rechitsCLEANEDTags_;
   reco::PFRecHitCollection rechitsCLEANED_;
 
   /// rechits PS 
+  edm::Handle<reco::PFRecHitCollection> rechitsPSHandle_;
+  edm::InputTag rechitsPSTag_;
   reco::PFRecHitCollection rechitsPS_;
 
   /// clusters ECAL
+  edm::Handle<reco::PFClusterCollection> clustersECALHandle_;
+  edm::InputTag clustersECALTag_;
   std::auto_ptr< reco::PFClusterCollection > clustersECAL_;
 
   /// clusters HCAL
+  edm::Handle<reco::PFClusterCollection> clustersHCALHandle_;
+  edm::InputTag clustersHCALTag_;
   std::auto_ptr< reco::PFClusterCollection > clustersHCAL_;
 
   /// clusters HCAL
+  edm::Handle<reco::PFClusterCollection> clustersHFEMHandle_;
+  edm::InputTag clustersHFEMTag_;
   std::auto_ptr< reco::PFClusterCollection > clustersHFEM_;
 
   /// clusters HCAL
+  edm::Handle<reco::PFClusterCollection> clustersHFHADHandle_;
+  edm::InputTag clustersHFHADTag_;
   std::auto_ptr< reco::PFClusterCollection > clustersHFHAD_;
 
   /// clusters PS
+  edm::Handle<reco::PFClusterCollection> clustersPSHandle_;
+  edm::InputTag clustersPSTag_;
   std::auto_ptr< reco::PFClusterCollection > clustersPS_;
 
-  /// clusters ECAL island barrel
-/*   std::vector<reco::BasicCluster>  clustersIslandBarrel_; */
-  
   /// input collection of calotowers
+  edm::Handle<CaloTowerCollection> caloTowersHandle_;
+  edm::InputTag caloTowersTag_;
   CaloTowerCollection     caloTowers_;
 
   /// for the reconstruction of jets. The elements will point 
@@ -579,38 +501,78 @@ class PFRootEventManager {
 
 
   /// reconstructed primary vertices
+  edm::Handle<reco::VertexCollection> primaryVerticesHandle_;
+  edm::InputTag primaryVerticesTag_;
   reco::VertexCollection primaryVertices_;
 
   /// reconstructed tracks
+  edm::Handle<reco::PFRecTrackCollection> recTracksHandle_;
+  edm::InputTag recTracksTag_;
   reco::PFRecTrackCollection    recTracks_;
 
   /// reconstructed GSF tracks
+  edm::Handle<reco::GsfPFRecTrackCollection> gsfrecTracksHandle_;
+  edm::InputTag gsfrecTracksTag_;
   reco::GsfPFRecTrackCollection  gsfrecTracks_; 
   
   /// reconstructed secondary GSF tracks
+  edm::Handle<reco::GsfPFRecTrackCollection> convBremGsfrecTracksHandle_;
+  edm::InputTag convBremGsfrecTracksTag_;
   reco::GsfPFRecTrackCollection  convBremGsfrecTracks_; 
 
   /// standard reconstructed tracks
+  edm::Handle<reco::TrackCollection> stdTracksHandle_;
+  edm::InputTag stdTracksTag_;
   reco::TrackCollection    stdTracks_;
   
   /// muons
-    reco::MuonCollection  muons_;
+  edm::Handle<reco::MuonCollection> muonsHandle_;
+  edm::InputTag muonsTag_;
+  reco::MuonCollection  muons_;
 
   /// conversions
+  edm::Handle<reco::PFConversionCollection> conversionHandle_;
+  edm::InputTag conversionTag_;
   reco::PFConversionCollection conversion_;
   
   /// V0
+  edm::Handle<reco::PFV0Collection> v0Handle_;
+  edm::InputTag v0Tag_;
   reco::PFV0Collection v0_;
 
   /// PFDisplacedVertex
+  edm::Handle<reco::PFDisplacedTrackerVertexCollection> pfDisplacedTrackerVertexHandle_;
+  edm::InputTag pfDisplacedTrackerVertexTag_;
   reco::PFDisplacedTrackerVertexCollection pfDisplacedTrackerVertex_;
 
   /// true particles
+  edm::Handle<reco::PFSimParticleCollection> trueParticlesHandle_;
+  edm::InputTag trueParticlesTag_;
   reco::PFSimParticleCollection trueParticles_;
 
   /// MC truth
+  edm::Handle<edm::HepMCProduct> MCTruthHandle_;
+  edm::InputTag MCTruthTag_;
   edm::HepMCProduct MCTruth_;
   
+  /// input collection of gen particles 
+  edm::Handle<reco::GenParticleRefVector> genParticlesforJetsHandle_;
+  edm::InputTag genParticlesforJetsTag_;
+  reco::GenParticleRefVector genParticlesforJets_;
+  
+  /// gen Jets
+  reco::GenJetCollection genJets_;
+
+  /// CMSSW GenParticles
+  edm::Handle<reco::GenParticleCollection> genParticlesforMETHandle_;
+  edm::InputTag genParticlesforMETTag_;
+  reco::GenParticleCollection genParticlesCMSSW_;
+
+  /// gen particle base candidates (input for gen jets new since 1_8_0)
+  /// the vector of references to genParticles genParticlesforJets_
+  /// is converted to a PtrVector, which is the input to jet reco
+  reco::CandidatePtrVector genParticlesforJetsPtrs_;
+
   /// reconstructed pfblocks  
   std::auto_ptr< reco::PFBlockCollection >   pfBlocks_;
 
@@ -623,40 +585,31 @@ class PFRootEventManager {
   ///TODO make the other candidate PtrVectors for jets global as well
   reco::CandidatePtrVector pfCandidatesPtrs_;
 
-  /// input collection of gen particles 
-  reco::GenParticleRefVector genParticlesforJets_;
-  
-  /// gen particle base candidates (input for gen jets new since 1_8_0)
-  /// the vector of references to genParticles genParticlesforJets_
-  /// is converted to a PtrVector, which is the input to jet reco
-  reco::CandidatePtrVector genParticlesforJetsPtrs_;
-
-/*   /// calo tower base candidates (input for calo jets) */
-/*   reco::CandidateCollection caloTowerBaseCandidates_; */
-
   /// PF Jets
   reco::PFJetCollection pfJets_;
-
-  /// gen Jets
-  reco::GenJetCollection genJets_;
 
   /// calo Jets
   std::vector<ProtoJet> caloJets_;
 
   /// CMSSW PF Jets
+  edm::Handle<reco::PFJetCollection> pfJetsHandle_;
+  edm::InputTag pfJetsTag_;
   reco::PFJetCollection pfJetsCMSSW_;
 
   /// CMSSW  gen Jets
+  edm::Handle<reco::GenJetCollection> genJetsHandle_;
+  edm::InputTag genJetsTag_;
   reco::GenJetCollection genJetsCMSSW_;
 
   /// CMSSW calo Jets
+  edm::Handle< std::vector<reco::CaloJet> >caloJetsHandle_;
+  edm::InputTag caloJetsTag_;
   std::vector<reco::CaloJet> caloJetsCMSSW_;
 
   /// CMSSW corrected calo Jets
+  edm::Handle< std::vector<reco::CaloJet> > corrcaloJetsHandle_;
+  edm::InputTag corrcaloJetsTag_;
   std::vector<reco::CaloJet> corrcaloJetsCMSSW_;
-
-  /// CMSSW GenParticles
-  reco::GenParticleCollection genParticlesCMSSW_;
 
   /// PF MET
   reco::PFMETCollection pfMets_;
@@ -668,22 +621,30 @@ class PFRootEventManager {
   reco::METCollection tcMets_;
 
   /// CMSSW Calo MET
+  edm::Handle<reco::CaloMETCollection> caloMetsHandle_;
+  edm::InputTag caloMetsTag_;
   reco::CaloMETCollection caloMetsCMSSW_;
 
   /// CMSSW TCMET
+  edm::Handle<reco::METCollection> tcMetsHandle_;
+  edm::InputTag tcMetsTag_;
   reco::METCollection tcMetsCMSSW_;
 
   /// CMSSW PF MET
+  edm::Handle<reco::PFMETCollection> pfMetsHandle_;
+  edm::InputTag pfMetsTag_;
   reco::PFMETCollection pfMetsCMSSW_;
 
   /// CMSSW PF candidates
+  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle_;
+  edm::InputTag pfCandidateTag_;
   reco::PFCandidateCollection pfCandCMSSW_;
 
   /// input file
   TFile*     file_; 
 
-  /// input file name
-  std::string     inFileName_;   
+  /// input file names
+  std::vector<std::string> inFileNames_;
 
   /// output file 
   TFile*     outFile_;

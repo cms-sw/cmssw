@@ -63,6 +63,7 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 
   caloTowersLabel_     = iConfig.getParameter<edm::InputTag>("CaloTowersLabel");
   HLTResultsLabel_     = iConfig.getParameter<edm::InputTag>("HLTResultsLabel");  
+  HcalNoiseSummaryTag_ = iConfig.getParameter<edm::InputTag>("HcalNoiseSummary");
   
   if(iConfig.exists("HLTBitLabels"))
     HLTBitLabel_         = iConfig.getParameter<std::vector<edm::InputTag> >("HLTBitLabels");
@@ -230,6 +231,16 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     edm::LogInfo("")<<"CaloTowers "<< caloTowersLabel_<<" not found!"<<std::endl;
     return;
   }
+
+
+  edm::Handle<HcalNoiseSummary> HNoiseSummary;
+  iEvent.getByLabel(HcalNoiseSummaryTag_,HNoiseSummary);
+  if (!HNoiseSummary.isValid()) {
+    LogDebug("") << "CaloTowerAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
+  }
+
+  bool bHcalNoiseFilter      = HNoiseSummary->passLooseNoiseFilter();
+  if(!bHcalNoiseFilter) return;
 
   edm::View<Candidate>::const_iterator towerCand = towers->begin();
   

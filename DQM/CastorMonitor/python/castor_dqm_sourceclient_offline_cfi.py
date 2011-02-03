@@ -13,6 +13,7 @@ castorOfflineMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            showTiming          = cms.untracked.bool(False),
                            dump2database       = cms.untracked.bool(False),
                            pedestalsInFC = cms.untracked.bool(False),
+                           rawLabel = cms.InputTag("source"),
                            digiLabel = cms.InputTag("castorDigis"),
                            CastorRecHitLabel = cms.InputTag("castorreco"),
                           
@@ -33,7 +34,8 @@ castorOfflineMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            numberSigma = cms.untracked.double(1.5),
                            thirdRegionThreshold =  cms.untracked.double(100),            
                            EDMonitor= cms.untracked.bool(False),
-                                     
+                           HIMonitor= cms.untracked.bool(True),
+                                      
                            diagnosticPrescaleTime = cms.untracked.int32(-1),
                            diagnosticPrescaleUpdate = cms.untracked.int32(-1),
                            diagnosticPrescaleLS = cms.untracked.int32(-1),

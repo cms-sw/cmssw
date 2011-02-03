@@ -53,7 +53,7 @@ if read_from_file=="True":
     f.close()
 else:
   inputfiles = os.environ.get('INPUTFILES',
-  '/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0001/02EC80FB-FEEC-DE11-B28D-00261894389E.root').split(",")
+  '/store/hidata/HIRun2010/HIAllPhysics/RECO/PromptReco-v2/000/150/314/D28FA8E9-4EEA-DF11-9B2A-000423D987E0.root').split(",")
   #'/store/data/Commissioning09/MinimumBias/RECO/v4/000/102/347/F85D1BC6-A06A-DE11-BDF8-0019B9F581C9.root').split(",")
   #'/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(",")
 
@@ -84,7 +84,7 @@ process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
 #process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
-process.GlobalTag.globaltag ='GR10_P_V7::All'
+process.GlobalTag.globaltag ='GR10_P_V12::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
@@ -114,9 +114,6 @@ if allhist=="True":
   process.jetMETAnalyzer.pfMETAnalysis.allSelection         = cms.bool(True)
   process.jetMETAnalyzer.tcMETAnalysis.allSelection         = cms.bool(True)
   process.jetMETAnalyzer.mucorrMETAnalysis.allSelection     = cms.bool(True)
-
-# the task - JetMET trigger
-process.load("DQMOffline.Trigger.JetMETHLTOfflineSource_cfi")
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -150,7 +147,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         jetMETAnalyzer = cms.untracked.PSet(
-            limit = cms.untracked.int32(100)
+            limit = cms.untracked.int32(1)
         ),
         noLineBreaks = cms.untracked.bool(True),
         DEBUG = cms.untracked.PSet(
@@ -180,20 +177,18 @@ process.options = cms.untracked.PSet(
 
 if iscosmics=="True":
   process.p = cms.Path(process.BeamHaloId
-                     * process.jetMETHLTOfflineSource
                      * process.jetMETDQMOfflineSourceCosmic
-                     * process.dqmStoreStats
-                     * process.MEtoEDMConverter
+                     #* process.dqmStoreStats
+                     #* process.MEtoEDMConverter
                      )
 else:
   process.p = cms.Path(process.BeamHaloId
-                     * process.jetMETHLTOfflineSource
                      * process.jetMETDQMOfflineSource
-                     * process.dqmStoreStats
-                     * process.MEtoEDMConverter
+                     #* process.dqmStoreStats
+                     #* process.MEtoEDMConverter
                      )
 
-process.outpath = cms.EndPath(process.FEVT)
+#process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
 
 

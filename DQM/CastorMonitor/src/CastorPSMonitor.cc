@@ -52,6 +52,7 @@ CastorPSMonitor::CastorPSMonitor() {
   secondRegionThreshold_=0.;
   status=-99;
   statusRS=-99;
+  statusSaturated=-99;
 }
 
 //==================================================================//
@@ -74,8 +75,9 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
   ////---- get these parameters from python cfg  
   numberSigma_ = ps.getUntrackedParameter<double>("numberSigma", 1.5);
-  thirdRegionThreshold_ = ps.getUntrackedParameter<double>("thirdRegionThreshold", 100);
-  offline_             = ps.getUntrackedParameter<bool>("OfflineMode", false); 
+  thirdRegionThreshold_ = ps.getUntrackedParameter<double>("thirdRegionThreshold", 300);
+  saturatedThreshold_   = ps.getUntrackedParameter<double>("saturatedThreshold", 0.05); //-- fraction of events in which chargeTS > 127 ADC
+  offline_              = ps.getUntrackedParameter<bool>("OfflineMode", false); 
 
   if(fVerbosity>0) std::cout << "CastorPSMonitor::setup (start)" << std::endl;
     
@@ -85,11 +87,13 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   numOK = 0; 
   fraction=0.; 
 
-  ////---- initialize the array sumDigiForEachChannel
-  for (int row=0; row<14; row++) 
-    for (int col=0; col<16; col++)
+  ////---- initialize the arrays sumDigiForEachChannel, saturatedMap
+  for (int row=0; row<14; row++){
+    for (int col=0; col<16; col++){
         sumDigiForEachChannel[row][col] = 0;
-
+        saturatedMap [row][col] = 0;
+    }
+  }
 
   if ( m_dbe !=NULL ) {    
     m_dbe->setCurrentFolder(baseFolder_);
@@ -103,7 +107,7 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     //---- Pulse Shape per sector
     char name[1024];
     for(int i=0; i<16; i++){
-    sprintf(name,"Castor Pulse Shape for sector=%d (in all 14 modules)",i);      
+    sprintf(name,"Castor Pulse Shape for sector=%d (in all 14 modules)",i+1);      
     PSsector[i] =  m_dbe->book1D(name,name,140,-0.5,139.5);
     }
 
@@ -111,6 +115,12 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     DigiOccupancyMap = m_dbe->book2D("CASTOR Digi Occupancy Map","CASTOR Digi Occupancy Map",14,0.0,14.0,16,0.0,16.0);
     ////---- channel summary map
     ChannelSummaryMap = m_dbe->book2D("CASTOR Digi ChannelSummaryMap","CASTOR Digi ChannelSummaryMap",14,0.0,14.0,20,0.0,20.0); // put 20 instead of 16 to get some space for the legend
+
+    ////---- saturation summary map: 
+    ////---- distinguish between channels with no saturation, saturated in more than 5% events, saturated in less than 5% of events 
+    SaturationSummaryMap = m_dbe->book2D("CASTOR Digi SaturationSummaryMap","CASTOR Digi SaturationSummaryMap",14,0.0,14.0,20,0.0,20.0); // put 20 instead of 16 to get some space for the legend
+
+
 
     ////---- create Digi based reportSummaryMap
     m_dbe->setCurrentFolder(rootFolder_+"EventInfo");
@@ -156,7 +166,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
   ////---- increment here
   ievt_++;
 
-  status = -99; statusRS = -99;
+  status = -99; statusRS = -99; statusSaturated=-99;
 
   ////---- get Castor Shape from the Conditions
   const CastorQIEShape* shape = conditions.getCastorShape();
@@ -164,10 +174,11 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
   if(firstTime_)     
     {
       //===> show the array of sigmas
-      for (int i=0; i<14; i++)
-        for (int k=0; k<16; k++)
-	  std::cout<< "module:"<<i+1<< " sector:"<<k+1<< " Sigma=" <<   PedSigmaInChannel[i][k] << std::endl;   
-      
+      for (int i=0; i<14; i++){
+        for (int k=0; k<16; k++){
+	if(fVerbosity>0)  std::cout<< "module:"<<i+1<< " sector:"<<k+1<< " Sigma=" <<   PedSigmaInChannel[i][k] << std::endl;   
+	}
+      }
       for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++)
 	{     
 	  HcalGenericDetId mygenid(it->rawId());
@@ -200,7 +211,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 	std::vector<NewBunch>::iterator bunch_it;
 	int numBunches = 0;
 	bool firstDigi = true;
-
+        bool saturated = false;
 	
 	////---- loop over Digi Colllection
 	for(CastorDigiCollection::const_iterator j = castorDigis.begin(); j != castorDigis.end(); j++)
@@ -226,7 +237,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 	    const CastorCalibrations& calibrations=conditions.getCastorCalibrations(digi.id().rawId());
 
 	    ////---- intialize these here
-            double sumDigi=0.; int bxTS=-9999;
+            double sumDigi=0.;  double sumDigiADC=0.; int bxTS=-9999; saturated = false;
 
 	    ////---- loop over Time Sclices
 	    for(int ts = firstTS; ts != lastTS+1; ts++)
@@ -251,19 +262,35 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 		  castorDigiHists.meDigi_pulseBX->Fill(static_cast<double>(bxTS),(bunch_it->tsfC[ts])/224.);
 		  ////---- fill pulse shape in sectors 
                   PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]); 
+ 
+                  ////---- sum the signal over all TS in fC
+                  sumDigi +=  bunch_it->tsfC[ts]; //std::cout<< " signal(fC) in TS:"<<ts << " =" << bunch_it->tsfC[ts] << std::endl; 	   
+		  ////---- sum the signal over all TS in ADC
+                  sumDigiADC +=   bunch_it->tsAdc[ts]; //std::cout<< " signal(ADC) in TS:"<<ts << " =" << bunch_it->tsAdc[ts] << std::endl; 
 
-                  ////---- sum the signal over all TS
-                  sumDigi +=  bunch_it->tsfC[ts]; //std::cout<< " signal in TS:"<<ts << " =" << bunch_it->tsfC[ts] << std::endl; 	   
-	     
+		  ////---- check whether the channel is saturated
+		  if(bunch_it->tsAdc[ts]>126.95) {
+                    saturated = true;
+		    std::cout<< "WARNING: ==> Module:" << bunch_it->detid.module() << " Sector:" << bunch_it->detid.sector() << " SATURATED !!! in TS:"<< ts <<std::endl;   
+                 }
+
 	      } //-- end of the loop for time slices
-    
+          
+            ////---- fill  the array  sumDigiForEachChannel
+            sumDigiForEachChannel[bunch_it->detid.module()-1][bunch_it->detid.sector()-1] += sumDigi;
+
+	    ////---- fill the array saturatedMap
+            if(saturated) saturatedMap[bunch_it->detid.module()-1][bunch_it->detid.sector()-1] += 1;
 
             ////---- fill the digi occupancy map 
 	    DigiOccupancyMap->Fill(bunch_it->detid.module()-1,bunch_it->detid.sector()-1, double(sumDigi/10)); //std::cout<< "=====> sumDigi=" << sumDigi << std::endl;
 
-             ////---- fill  the array  sumDigiForEachChannel
-            sumDigiForEachChannel[bunch_it->detid.module()-1][bunch_it->detid.sector()-1] += sumDigi;
-
+            
+            if(fVerbosity>0){
+             std::cout<< "==> Module:" << bunch_it->detid.module() << " Sector:" << bunch_it->detid.sector() << std::endl; 
+             std::cout<< "==> Total charge in fC:" << sumDigi << std::endl;  
+             std::cout<< "==> Total charge in ADC:" << sumDigiADC << std::endl;  
+	    }
 	 
 	   firstDigi = false;  
     } //-- end of the loop over digis 
@@ -300,29 +327,66 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
  if(double(sumDigiForEachChannel[module][sector]/(10*ievt_)) > secondRegionThreshold_ && double(sumDigiForEachChannel[module][sector]/(10*ievt_))< thirdRegionThreshold_ ) 
    { status = 1.; statusRS=1.0; }
 
- ////---- channel is noisy 
- if(double(sumDigiForEachChannel[module][sector]/(10*ievt_)) > thirdRegionThreshold_ ) 
-   { status = -0.25; statusRS=0.88 ; }
-    
+ //---- leave it out for the time being
+ ////---- channel is noisy
+ // if(double(sumDigiForEachChannel[module][sector]/(10*ievt_)) > thirdRegionThreshold_ ) 
+ // { status = -0.25; statusRS=0.88 ; }
+   
+ //-- define the fraction of saturated events for a particular channel
+ double fractionSaturated =  double(saturatedMap[module][sector])/double(ievt_) ;
+ ////---- channel is saturated (in more than saturatedThreshold_ events) 
+ if(fVerbosity>0) std::cout<< "==> module: " << module << " sector: " << sector << " ==> N_saturation:" << saturatedMap[module][sector] << " events:"<< ievt_ << " fraction:" << fractionSaturated << std::endl;
+
+ if( fractionSaturated > saturatedThreshold_ ) 
+   { status = -0.25; statusRS=0.88 ; statusSaturated=-1.0; }
+
+ ////---- channels is saturated at least once
+ if( saturatedMap[module][sector] > 0 && fractionSaturated <  saturatedThreshold_  ) 
+   { statusSaturated= 0; }
+
+ ////---- channel was not in saturation at all
+ if( saturatedMap[module][sector] == 0 ) 
+   { statusSaturated= 1; }
+
    ////---- fill the ChannelSummaryMap
    ChannelSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,status);
+
    ////---- fill the reportSummaryMap
    reportSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,statusRS);
-   ////---- calculate the number of good channels
+
+  ////---- fill the SaturationSummaryMap
+   SaturationSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,double(statusSaturated));
+
+  ////---- calculate the number of good channels
    if ( statusRS > 0.9) numOK++;
-       }
-    }
+
+       } //-- end of the loop over the modules
+     } //-- end of the loop over the sectors
+
     ////--- calculate the fraction of good channels and fill it in
     fraction=double(numOK)/224;
     overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
-  } //
 
-    ////---- set 0 for these
+  } //-- end of if for the number of events
+
+
+
+
+    ////---- set 99 for these (space used for the legend)
       for (int sector=16; sector<20; sector++){
         for (int module=0; module<14; module++){
-      ChannelSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,0);
+      ChannelSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,99);
         }
     }
+    ////---- set 99 for these (space used for the legend)
+      for (int sector=16; sector<20; sector++){
+        for (int module=0; module<14; module++){
+	  SaturationSummaryMap->getTH2F()->SetBinContent(module+1,sector+1, 99);
+        }
+    }
+
+
+
 
 
  } //-- end of the if castDigi

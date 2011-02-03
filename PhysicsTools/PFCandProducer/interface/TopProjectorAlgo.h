@@ -85,7 +85,7 @@ class TopProjectorAlgo {
   bool            verbose_;
 
   //COLIN does not seem to be needed
-  string          name_;
+  std::string     name_;
  
 };
 
@@ -95,10 +95,8 @@ class TopProjectorAlgo {
 template< class Top, class Bottom>
 TopProjectorAlgo< Top, Bottom >::TopProjectorAlgo(const edm::ParameterSet& iConfig) {
 
-  using namespace edm;
-
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
-  name_ = iConfig.getUntrackedParameter<string>("name","No Name");
+  name_ = iConfig.getUntrackedParameter<std::string>("name","No Name");
 }
 
 
@@ -106,10 +104,6 @@ template< class Top, class Bottom >
 std::vector<Bottom> TopProjectorAlgo< Top, Bottom >::produce( const edm::Handle< std::vector<Top> >& tops, 
 							      const edm::Handle< std::vector<Bottom> >& bottoms, 
 							      const edm::EventBase& iEvent ) {
-  
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
   
   edm::ProductID topsID = tops.id();
   edm::ProductID bottomsID = bottoms.id();
@@ -250,10 +244,6 @@ TopProjectorAlgo<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
 					 const edm::EventBase& iEvent) const {
 
   
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
-
 
   unsigned nSources = candPtr->numberOfSourceCandidatePtrs();
 
@@ -291,10 +281,6 @@ TopProjectorAlgo<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
 template< class Top, class Bottom >
 void TopProjectorAlgo<Top,Bottom>::maskAncestors( const reco::CandidatePtrVector& ancestors,
 					 std::vector<bool>& masked ) const {
-  
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
   
   for(unsigned i=0; i<ancestors.size(); i++) {
     unsigned index = ancestors[i].key();

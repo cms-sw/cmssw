@@ -2,6 +2,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
+<use   name="FWCore/ServiceRegistry"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/SiStripDetId"/>
@@ -9,6 +10,8 @@
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="root"/>
 <export>
   <lib   name="1"/>
 </export>

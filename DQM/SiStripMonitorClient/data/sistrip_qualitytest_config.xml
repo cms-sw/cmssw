@@ -46,23 +46,25 @@
 </QTEST>
 <QTEST name="CompareToMedian:TkHistoNumberOfCluster" activate="true">
 	<TYPE>CompareToMedian</TYPE>
-	<PARAM name="MinRel">0.</PARAM>
+	<PARAM name="MinRel">0.1</PARAM>
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
         <PARAM name="MinAbs">0.</PARAM>
         <PARAM name="MaxAbs">5.</PARAM> 
 	<PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
+        <PARAM name="StatCut">100</PARAM>
 </QTEST>
 <QTEST name="CompareToMedian:TkHistoNumberOfDigi" activate="true">
         <TYPE>CompareToMedian</TYPE>
-        <PARAM name="MinRel">0.</PARAM>
+        <PARAM name="MinRel">0.1</PARAM>
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
         <PARAM name="MinAbs">0.</PARAM>
         <PARAM name="MaxAbs">10.</PARAM>
         <PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
+        <PARAM name="StatCut">200</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:StoNTIB">
       <TYPE>MeanWithinExpected</TYPE>

@@ -12,7 +12,7 @@ import copy
 
 process = cms.Process("ZToMuMuAnalysis")
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.include("FWCore/MessageLogger/data/MessageLogger.cfi")
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
@@ -33,8 +33,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-"file:/scratch2/users/degruttola/zmm_cteq66/skim/testZMuMuSubskim_oneshot_Test_1_1.root"
-#"file:/tmp/degrutto/testZMuMuSubskim_doubleMu3.root",
+"file:/tmp/degrutto/testZMuMuSubskim_doubleMu3.root",
 ## 'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/wmn/zMuMuSubskim_1.root',
 ## 'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/wmn/zMuMuSubskim_2.root',
 ## 'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/wmn/zMuMuSubskim_3.root',
@@ -152,7 +151,7 @@ process.goodZToMuMuOnlyOneMuonWithEtaLessThan2p1 = cms.EDFilter(
 
 # same charge dimuons....
 process.dimuonsGlobalSameCharge = cms.EDFilter("CandViewRefSelector",
-    src = cms.InputTag("userDataDimuons"),
+    src = cms.InputTag("dimuons"),
     cut = cms.string('mass > 20 & daughter(0).isGlobalMuon = 1 & daughter(1).isGlobalMuon = 1')
 )
 
@@ -274,7 +273,7 @@ process.twoNonIsolatedZToMuMuAtLeast1HLT = cms.EDFilter(
 process.zToMuGlobalMuOneTrack = cms.EDFilter(
     "CandViewRefSelector",
     cut = cms.string("daughter(0).isGlobalMuon = 1"),
-    src = cms.InputTag("userDataDimuonsOneTrack"),
+    src = cms.InputTag("dimuonsOneTrack"),
     filter = cms.bool(True)
 )
 

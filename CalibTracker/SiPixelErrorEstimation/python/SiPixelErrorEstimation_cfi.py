@@ -10,7 +10,7 @@ PixelErrorEstimation = cms.EDAnalyzer("SiPixelErrorEstimation",
     # Include track hits ?
     include_trk_hits = cms.bool(True),
     # Do we check that the simHit associated with recHit is of the expected particle type ?
-    checkType = cms.bool(False)
+    checkType = cms.bool(True)
 )
 
 

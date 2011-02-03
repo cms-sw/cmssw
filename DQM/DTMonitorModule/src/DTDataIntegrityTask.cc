@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2010/09/09 12:44:42 $
- * $Revision: 1.69 $
+ * $Date: 2010/09/11 16:40:09 $
+ * $Revision: 1.70 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -166,6 +166,8 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str();
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoTitle,501,0,16032);
+
+    if(mode > 2) return;
 
     histoType = "ROSStatus";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
@@ -1039,8 +1041,8 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     //If L1A_ID error identify which ROS has wrong L1A 
     for (vector<DTROS25Data>::const_iterator rosControlData = rosData.begin();
 	 rosControlData != rosData.end(); rosControlData++) { // loop over the ROS data
-      int ROSHeader_TTCCount = ((*rosControlData).getROSHeader()).TTCEventCounter();
-      if(ROSHeader_TTCCount != header.lvl1ID()-1) {
+      int ROSHeader_TTCCount = ((*rosControlData).getROSHeader().TTCEventCounter() + 1) % 0x1000000; // fix comparison in case of last counting bin in ROS /first one in DDU
+      if( ROSHeader_TTCCount != header.lvl1ID() ) { 
 	int ros = (*rosControlData).getROSID();
 	if(mode <= 2) hROSStatus->Fill(10,ros-1);
 	// error code 4

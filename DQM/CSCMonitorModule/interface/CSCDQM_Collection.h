@@ -38,8 +38,6 @@
 
 namespace cscdqm {
 
-  using namespace XERCES_CPP_NAMESPACE;
-
   /**
    * Constants used for element recognition in Booking XML.
    */
@@ -75,7 +73,15 @@ namespace cscdqm {
   class Collection {
 
     public:
-
+      typedef xercesc::DOMDocument DOMDocument;
+      typedef xercesc::DOMElement DOMElement;
+      typedef xercesc::DOMNode DOMNode;
+      typedef xercesc::DOMNodeList DOMNodeList;
+      typedef xercesc::DOMNamedNodeMap DOMNamedNodeMap;
+      typedef xercesc::XMLException XMLException;
+      typedef xercesc::XMLString XMLString;
+      typedef xercesc::XMLPlatformUtils XMLPlatformUtils;
+      typedef xercesc::XercesDOMParser XercesDOMParser;
       Collection(Configuration* const p_config);
       void load();
 

@@ -327,4 +327,7 @@ coral::ISchema& ora::ContainerSchema::storageSchema(){
   return m_session.schema().storageSchema();
 }
 
+ora::DatabaseSession& ora::ContainerSchema::dbSession(){
+  return m_session;
+}
 

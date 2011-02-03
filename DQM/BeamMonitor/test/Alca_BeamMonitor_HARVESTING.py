@@ -4,8 +4,7 @@ process = cms.Process("HARVESTING")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:step5_DQM.root',
-    'file:step6_DQM.root'
+    'file:AlcaBeamMonitorDQM.root ',
     ),
     processingMode = cms.untracked.string('RunsAndLumis')
 )
@@ -21,7 +20,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     ),
     AlcaBeamMonitorClient = cms.untracked.PSet(
         #reportEvery = cms.untracked.int32(100) # every 1000th only
-	limit = cms.untracked.int32(-1)
+	limit = cms.untracked.int32(0)
     )
 )
 #process.MessageLogger.statistics.append('cout')
@@ -33,26 +32,10 @@ process.maxEvents = cms.untracked.PSet(
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load('Configuration.StandardSequences.EDMtoMEAtRunEnd_cff')
-process.load('Configuration.EventContent.EventContent_cff')
+#process.load('Configuration.EventContent.EventContent_cff')
 
 process.load("DQM.BeamMonitor.AlcaBeamMonitorClient_cff")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
-#process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
-#                                        process.CondDBSetup,
-#                                        toGet = cms.VPSet(cms.PSet(
-#    								   record = cms.string('BeamSpotObjectsRcd'),			        
-##    								   tag = cms.string('BeamSpotObjects_2009_LumiBased_v16_offline') 
-#    								   tag = cms.string('BeamSpotObject_ByLumi') 
-#    								  )
-#						         ),								        
-#                                         #connect = cms.string('frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_BEAMSPOT')
-#                                         connect = cms.string('sqlite_file:step4.db')
-#                                         #connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT')
-#                                         #connect = cms.string('frontier://PromptProd/CMS_COND_31X_BEAMSPOT')
-#                                        )
-#
-
 
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = 'cmslpc08.fnal.gov'

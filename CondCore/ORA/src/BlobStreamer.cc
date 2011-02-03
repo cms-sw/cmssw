@@ -1,5 +1,7 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/IBlobStreamingService.h"
+#include "DatabaseSession.h"
+#include "IDatabaseSchema.h"
 #include "BlobStreamer.h"
 #include "DataElement.h"
 #include "MappingElement.h"
@@ -20,7 +22,8 @@ ora::BlobWriterBase::BlobWriterBase( const Reflex::Type& objectType,
   m_dataElement( 0 ),
   m_relationalData( 0 ),
   m_relationalBuffer( 0 ),
-  m_blobWriter( 0 ){
+  m_blobWriter( 0 ),
+  m_useCompression( true ){
   
   if( mapping.columnNames().size() ){
     m_columnName = mapping.columnNames()[0];
@@ -47,6 +50,7 @@ bool ora::BlobWriterBase::buildDataElement(DataElement& dataElement,
     throwException("Blob Streaming Service is not installed.",
                    "BlobWriterBase::::build");
   }
+  if( m_schema.dbSession().schema().mainTable().schemaVersion()==poolSchemaVersion() ) m_useCompression = false;
   return true;
 }
 
@@ -57,7 +61,7 @@ void ora::BlobWriterBase::bindData( const void* data ){
   }
   void* dataElementAddress = m_dataElement->address( data );
   coral::Attribute& relDataElement = m_relationalData->data()[ m_columnName ];
-  boost::shared_ptr<coral::Blob> blobData = m_blobWriter->write( dataElementAddress, m_objectType );
+  boost::shared_ptr<coral::Blob> blobData = m_blobWriter->write( dataElementAddress, m_objectType, m_useCompression );
   m_relationalBuffer->storeBlob( blobData );
   relDataElement.bind<coral::Blob>( *blobData );
 }

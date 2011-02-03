@@ -1,8 +1,10 @@
 //
-// $Id: Centrality.cc,v 1.12 2010/08/23 16:40:43 nart Exp $
+// $Id: Centrality.cc,v 1.13 2010/08/31 18:07:51 edwenger Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+
 #include <iostream>
 using namespace std;
 using namespace reco;
@@ -46,10 +48,23 @@ Centrality::~Centrality()
 
 const CentralityBins* getCentralityBinsFromDB(const edm::EventSetup& iSetup){
 
-   edm::ESHandle<CentralityTable> inputDB_;
-   iSetup.get<HeavyIonRcd>().get(inputDB_);
-   int nbinsMax = inputDB_->m_table.size();
-   //cout<<"nbinsMax "<<nbinsMax<<endl;
+  string centralityLabel = "";
+  string centralityMC = "";
+  
+  const edm::ParameterSet &thepset = edm::getProcessParameterSet();
+  if(thepset.exists("HeavyIonGlobalParameters")){
+    edm::ParameterSet hiPset = thepset.getParameter<edm::ParameterSet>("HeavyIonGlobalParameters");
+    centralityLabel = hiPset.getParameter<string>("centralityVariable");
+    if(hiPset.exists("nonDefaultGlauberModel")){
+      centralityMC = hiPset.getParameter<string>("nonDefaultGlauberModel");
+      centralityLabel += centralityMC;
+    }
+  }
+  
+  edm::ESHandle<CentralityTable> inputDB_;
+  iSetup.get<HeavyIonRcd>().get(centralityLabel,inputDB_);
+  int nbinsMax = inputDB_->m_table.size();
+  //cout<<"nbinsMax "<<nbinsMax<<endl;
    CentralityBins* CB = new CentralityBins("ctemp","",nbinsMax);
    for(int j=0; j<nbinsMax; j++){
 

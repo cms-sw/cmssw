@@ -36,4 +36,5 @@
 <use   name="CalibTracker/Records"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CommonTools/TriggerUtils"/>
+#<flags   CXXFLAGS="-O0 -g3 -fno-inline"/>
 <flags   EDM_PLUGIN="1"/>

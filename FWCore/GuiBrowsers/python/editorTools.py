@@ -5,12 +5,13 @@ from FWCore.ParameterSet.Types  import InputTag
 
 class UserCodeTool(ConfigToolBase):
     """ User code tool """
-    _label="User code"
+    _label="userCode"
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'code','', 'User code modifying the process: e.g. process.maxevents=1')
         self._parameters=copy.deepcopy(self._defaultParameters)  
+        self._comment = ""
     def dumpPython(self):
         dumpPython=""
         if self._comment!="":
@@ -18,14 +19,12 @@ class UserCodeTool(ConfigToolBase):
         dumpPython+=self._parameters['code'].value
         return ("",dumpPython)
     def __call__(self,process,code):
-        self.setParameter(self._parameters,'code',code, 'User code modifying the process: e.g. process.maxevents=1')
+        self.setParameter('code',code)
         self.apply(process)
         return self
-    def apply(self,process):
+    def toolCode(self,process):
         code=self._parameters['code'].value
         exec code
-    def typeError(self,name):
-        pass
 
 userCodeTool=UserCodeTool()
 
@@ -35,14 +34,13 @@ class ChangeSource(ConfigToolBase):
         Implemented for testing purposes.
     """
     
-    _label='ChangeSource'
-    
+    _label='changeSource'
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'testParameter', False, ' Test parameter (has no effect)')
         self.addParameter(self._defaultParameters,'source','No default value. Set your own', ' Source filenames')
         self._parameters=copy.deepcopy(self._defaultParameters)
+        self._comment = ""
         
     def getDefaultParameters(self):
         return self._defaultParameters
@@ -71,6 +69,6 @@ if __name__=='__main__':
             process.source=Source("PoolSource",fileNames = cms.untracked.string("file:file.root"))
             
             changeSource(process,"file:filename.root")
-            self.assertEqual(changeSource.dumpPython(),  ('\nfrom  import *\n', "\nChangeSource(process , False, 'file:filename.root')\n"))
+            self.assertEqual(changeSource.dumpPython(),  ('\nfrom FWCore.GuiBrowsers.editorTools import *\n', "\nchangeSource(process , 'file:filename.root')\n"))
             
     unittest.main()

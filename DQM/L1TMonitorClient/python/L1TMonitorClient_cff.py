@@ -19,6 +19,6 @@ from DQMServices.Components.DQMEnvironment_cfi import *
 #
 
 #l1tmonitorClient = cms.Path(l1tgmtseqClient*l1tcsctfseqClient*l1tdttpgseqClient*l1trpctfseqClient*l1tdemonseqClient*l1tGctseqClient*l1tEventInfoseqClient*dqmEnv*dqmSaver)
-l1tmonitorClient = cms.Path(l1tgmtseqClient*l1tgtseqClient*l1tcsctfseqClient*l1tdttpgseqClient*l1trpctfseqClient*l1tdemonseqClient*l1tGctseqClient*l1tRctseqClient*l1tEventInfoseqClient*dqmEnv*dqmSaver)
+l1tmonitorClient = cms.Path(l1tgmtseqClient*l1tgtseqClient*l1tcsctfseqClient*l1tdttfseqClient*l1trpctfseqClient*l1tdemonseqClient*l1tGctseqClient*l1tRctseqClient*l1tEventInfoseqClient*dqmEnv*dqmSaver)
 #l1tmonitorClient = cms.Path(l1tgmtClient*l1tcsctfClient*l1tdttpgClient*l1trpctfClient*l1tdemonseqClient*l1tGctClient*l1tEventInfoseqClient*dqmEnv*dqmSaver)
 

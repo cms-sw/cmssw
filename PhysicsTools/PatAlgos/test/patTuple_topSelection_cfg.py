@@ -3,24 +3,24 @@ import FWCore.ParameterSet.Config as cms
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-
-
-
-
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run36xOn35xInput
 
 from PhysicsTools.PatAlgos.tools.coreTools import *
 removeMCMatching(process, ['All'])
 
 removeSpecificPATObjects(process,
-                         ['Photons','Taus'],
+                         ['Photons'],  # 'Tau' has currently been taken out due to problems with tau discriminators
                          outputInProcess=False)
 
 removeCleaning(process,
                outputInProcess=False)
 
-process.patJetCorrFactors.corrSample = "Spring10"
-process.patJetCorrFactors.sampleType = "ttbar"
+process.patJetCorrFactors.payload = 'AK5Calo'
+# For data:
+#process.patJetCorrFactors.levels = ['L2Relative', 'L3Absolute', 'L2L3Residual', 'L5Flavor', 'L7Parton']
+# For MC:
+process.patJetCorrFactors.levels = ['L2Relative', 'L3Absolute']
+#process.patJetCorrFactors.flavorType = "T"
 
 process.patMuons.usePV = False
 

@@ -301,16 +301,16 @@ void StripClusterFinder::RefindMax(void)
     //fing Global Max
     GlobalMax=0;
     if(MEStripClusters[i].localMax.size()) {
-      //cout << "Cluster: " << i << " Number of local maximums before erase: " 
-      //		<< MEStripClusters[i].localMax.size() << endl; 
+      //std::cout << "Cluster: " << i << " Number of local maximums before erase: " 
+      //		<< MEStripClusters[i].localMax.size() << std::endl; 
       for(j=0;j<MEStripClusters[i].localMax.size();j++){
 	iS=MEStripClusters[i].localMax[j].Strip;
 	jT=MEStripClusters[i].localMax[j].Time;
 	/*
-	  cout << "Current Max:" 
+	  std::cout << "Current Max:" 
 	  << " " << iS
 	  << " " << jT
-	  << " " << thePulseHeightMap[iS].height_[jT] << endl;
+	  << " " << thePulseHeightMap[iS].height_[jT] << std::endl;
 	*/
 	if(thePulseHeightMap[iS].height_[jT]>GlobalMax)
 	  GlobalMax=thePulseHeightMap[iS].height_[jT];
@@ -331,15 +331,15 @@ void StripClusterFinder::RefindMax(void)
       } while(Erased);
 
       //debug outs
-      //cout << "Cluster: " << i << " Number of local maximums: " 
-      //	<< MEStripClusters[i].localMax.size() << endl; 
+      //std::cout << "Cluster: " << i << " Number of local maximums: " 
+      //	<< MEStripClusters[i].localMax.size() << std::endl; 
       /*
       for(j=0;j<MEStripClusters[i].localMax.size();j++){
 	iS=MEStripClusters[i].localMax[j].Strip;
 	jT=MEStripClusters[i].localMax[j].Time;
-	cout << "Local Max: " << j << " Strip: " << iS << " Time: " << jT 
+	std::cout << "Local Max: " << j << " Strip: " << iS << " Time: " << jT 
 		  << " Height: " << thePulseHeightMap[iS].height_[jT] 
-		  << " Cut Value: " << GlobalMax << endl;
+		  << " Cut Value: " << GlobalMax << std::endl;
       }
       */
     }
@@ -349,36 +349,36 @@ void StripClusterFinder::RefindMax(void)
 void StripClusterFinder::printClusters(void)
 {
   int iS,jT;
-  cout << "====================================================================" << endl;	
-  cout << "debug information from StripClusterFinder" << endl;	
+  std::cout << "====================================================================" << std::endl;	
+  std::cout << "debug information from StripClusterFinder" << std::endl;	
   for(i=0;i<MEStripClusters.size();i++){
     if(!MEStripClusters[i].localMax.size()) continue;
-    cout << " Cluster: " << i+1 
-	      << " Number of local Maximums " <<  MEStripClusters[i].localMax.size() << endl;
+    std::cout << " Cluster: " << i+1 
+	      << " Number of local Maximums " <<  MEStripClusters[i].localMax.size() << std::endl;
     for(j=0;j<MEStripClusters[i].localMax.size();j++){
       iS=MEStripClusters[i].localMax[j].Strip;
       jT=MEStripClusters[i].localMax[j].Time;
 
-      //      cout << "Local Max: " << j << " Strip: " << iS << " Time: " << jT << endl;
+      //      std::cout << "Local Max: " << j << " Strip: " << iS << " Time: " << jT << std::endl;
       for(uint32_t k=0;k<MEStripClusters[i].ClusterPulseMapHeight.size();k++){
 	if(MEStripClusters[i].ClusterPulseMapHeight[k].channel_==iS)
-	  cout << "Local Max: " << j+1 << " Strip: " << iS+1 << " Time: " << jT+1 
-	       << " Height: " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[jT] << endl;
+	  std::cout << "Local Max: " << j+1 << " Strip: " << iS+1 << " Time: " << jT+1 
+	            << " Height: " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[jT] << std::endl;
       }
     }
     for(uint32_t k=0;k<MEStripClusters[i].ClusterPulseMapHeight.size();k++){
-      cout << "Strip: " << MEStripClusters[i].ClusterPulseMapHeight[k].channel_+1;
+      std::cout << "Strip: " << MEStripClusters[i].ClusterPulseMapHeight[k].channel_+1;
       for(int l=0;l<16;l++)
-	cout << " " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[l];
-      cout << endl;
+	std::cout << " " << MEStripClusters[i].ClusterPulseMapHeight[k].height_[l];
+      std::cout << std::endl;
     }
 
-    cout << " Left  Top    corner strip: " << MEStripClusters[i].LFTBNDStrip+1 << " " 
-	 << " time: " << MEStripClusters[i].LFTBNDTime+1 << endl; 
-    cout << " Right Bottom corner strip: " << MEStripClusters[i].IRTBNDStrip+1 << " " 
-	 << " time: " << MEStripClusters[i].IRTBNDTime+1 << endl; 
+    std::cout << " Left  Top    corner strip: " << MEStripClusters[i].LFTBNDStrip+1 << " " 
+	      << " time: " << MEStripClusters[i].LFTBNDTime+1 << std::endl; 
+    std::cout << " Right Bottom corner strip: " << MEStripClusters[i].IRTBNDStrip+1 << " " 
+	      << " time: " << MEStripClusters[i].IRTBNDTime+1 << std::endl; 
   }
- cout << "======================================================================" << endl;	
+ std::cout << "======================================================================" << std::endl;	
    return;
 }
 bool  StripClusterFinder::Sort::operator()(StripClusterFitData a , StripClusterFitData b) const

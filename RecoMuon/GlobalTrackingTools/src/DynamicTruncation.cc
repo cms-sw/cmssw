@@ -6,8 +6,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2010/08/16 18:09:34 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/06/17 11:01:56 $
+ *  $Revision: 1.2 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -78,12 +78,6 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
     }
   }
 
-  // set the DT/CSC thresholds for the track
-  setThrs(traj.firstMeasurement().updatedState().globalMomentum().eta());
-
-  // return all hits of the track in case of maximum thr value
-  if (DTThr == MAX_THR || CSCThr == MAX_THR) return returnGlobal(traj); 
-
   // get the last (forward) predicted state for the tracker
   currentState = lastTKm.forwardPredictedState();
   
@@ -101,46 +95,12 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
 }
 
 
-
-void DynamicTruncation::setThr(const std::vector<int>& Thrs) {
-  DYTthrs.clear();
-  // Check if the thresholds vector is good
-  if (Thrs.size() != 2 && Thrs.size() != 12) DYTthrs.insert(DYTthrs.begin(), 2, MAX_THR);
-  else {
-    for (unsigned int i = 0; i < Thrs.size(); i++) {
-      if (Thrs[i] > MAX_THR || Thrs[i] < 0) DYTthrs.push_back(MAX_THR);
-      else DYTthrs.push_back(Thrs[i]);
-    }
-  }
-}
-
-
-
-void DynamicTruncation::setThrs(float eta) {
-  // Set the thresholds as a function of eta (0.2 eta per slice)
-  if (DYTthrs.size() == 12) {
-    int etaKey = (int) floor(fabs(eta)*5);
-    if (etaKey > 11) etaKey = 11;
-    DTThr = DYTthrs[etaKey];
-    if (etaKey != 4) CSCThr = DYTthrs[etaKey];
-    else CSCThr = DYTthrs[5]; // Overlap region
-  } else {
-    // Set one threshold for DT and one for CSC
-    DTThr = DYTthrs[0]; CSCThr = DYTthrs[1];
-  }
-}
-
  
-
-TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::returnGlobal(const Trajectory& traj) {
-  TransientTrackingRecHit::ConstRecHitContainer global;
-  global.clear();
-  std::vector<TrajectoryMeasurement> muonMeasurements = traj.measurements();
-  for (std::vector<TrajectoryMeasurement>::const_iterator imT = muonMeasurements.begin(); imT != muonMeasurements.end(); imT++ ) {
-    if ( !(*imT).recHit()->isValid() ) continue;
-    global.push_back((*imT).recHit());
-  }
-  return global;
+void DynamicTruncation::setThr(int bThr, int eThr) {
+  if (bThr <= MAX_THR && bThr >= 0) DTThr  = bThr; // DT thr 
+  else DTThr = MAX_THR;
+  if (eThr <= MAX_THR && eThr >= 0) CSCThr = eThr; // CSC thr
+  else CSCThr = MAX_THR;
 }
 
 
@@ -185,6 +145,7 @@ void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface& tsos, map<int, 
   MeasurementEstimator *theEstimator = new Chi2MeasurementEstimator(100, 3);
   std::vector<const DetLayer *> navLayers;
   navLayers = navigation->compatibleLayers(*(currentState.freeState()), alongMomentum);
+  unsigned int nlayer = 0;
   for ( unsigned int ilayer=0; ilayer<navLayers.size(); ilayer++ ) {
     // Skip RPC layers
     if (navLayers[ilayer]->subDetector() == GeomDetEnumerators::RPCEndcap 
@@ -194,10 +155,8 @@ void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface& tsos, map<int, 
     //    cout << comps.size() << " compatible Dets with " << navLayers[ilayer]->subDetector() << " Layer " << ilayer << " "
     //    	 << dumper.dumpLayer(navLayers[ilayer]) << " " << endl;
     if (comps.size() > 0) {
-      for ( unsigned int icomp=0; icomp<comps.size(); icomp++ ) {
-	DetId id(comps[icomp].first->geographicalId().rawId());
-	detMap[ilayer].push_back(id);
-      }
+      DetId id(comps.front().first->geographicalId().rawId());
+      detMap[nlayer].push_back(id);
     }
   }
   if (theEstimator) delete theEstimator;
@@ -239,7 +198,7 @@ void DynamicTruncation::filteringAlgo(map<int, std::vector<DetId> >& detMap) {
 	  if (bestChamberValue < bestLayerValue) bestLayerValue = bestChamberValue;
 	  
 	  // Check if the best estimator value is below the THR and then get the RH componing the segment
-	  if (bestChamberValue > DTThr || bestChamberValue > bestLayerValue) continue; 
+	  if (bestChamberValue >= DTThr || bestChamberValue > bestLayerValue) continue; 
 	  layerRH.clear();
 	  std::vector<DTRecHit1D> DTrh = getSegs.getDTRHmap(bestDTSeg);
 	  for (std::vector<DTRecHit1D>::iterator it = DTrh.begin(); it != DTrh.end(); it++) {
@@ -272,7 +231,7 @@ void DynamicTruncation::filteringAlgo(map<int, std::vector<DetId> >& detMap) {
 	  if (bestChamberValue < bestLayerValue) bestLayerValue = bestChamberValue;
 	  
 	  // Check if the best estimator value is below the THR and then get the RH componing the segment
-	  if (bestChamberValue > CSCThr || bestChamberValue > bestLayerValue) continue;
+	  if (bestChamberValue >= CSCThr || bestChamberValue > bestLayerValue) continue;
 	  layerRH.clear();
 	  
 	  std::vector<CSCRecHit2D> CSCrh = getSegs.getCSCRHmap(bestCSCSeg);

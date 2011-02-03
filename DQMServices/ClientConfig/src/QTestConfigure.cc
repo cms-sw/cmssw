@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2010/03/13 16:47:56 $
- *  $Revision: 1.21 $
+ *  $Date: 2010/03/14 13:07:53 $
+ *  $Revision: 1.22 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -260,6 +260,7 @@ void QTestConfigure::EnableCompareToMedianTest(std::string testName, std::map<st
   vtm->setMaxMedian((double)atof(params["MaxAbs"].c_str()));
   vtm->setWarningProb((double)atof(params["warning"].c_str()));
   vtm->setErrorProb((double)atof(params["error"].c_str()));
+  vtm->setStatCut((double)atof(params["StatCut"].c_str()));
 }
 
 /*

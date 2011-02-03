@@ -516,16 +516,16 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
 
     if
      ( moIter->energy()/cosh(moIter->eta())>maxPtMatchingObject_ ||
-       std::abs(moIter->eta())> maxAbsEtaMatchingObject_ )
+       fabs(moIter->eta())> maxAbsEtaMatchingObject_ )
      { continue ; }
 
 //    // suppress the endcaps
-//    //if (std::abs(moIter->eta()) > 1.5) continue;
+//    //if (fabs(moIter->eta()) > 1.5) continue;
 //    // select central z
-//    //if ( std::abs((*mcIter)->production_vertex()->position().z())>50.) continue;
+//    //if ( fabs((*mcIter)->production_vertex()->position().z())>50.) continue;
 
     h1_matchingObject_Eta->Fill( moIter->eta() );
-//    h1_matchingObject_AbsEta->Fill( std::abs(moIter->eta()) );
+//    h1_matchingObject_AbsEta->Fill( fabs(moIter->eta()) );
 //    h1_matchingObject_P->Fill( moIter->energy() );
     h1_matchingObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
     h1_matchingObject_Phi->Fill( moIter->phi() );
@@ -564,7 +564,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
       if ( matchingCondition_ == "Cone" )
        {
         double dphi = gsfIter->phi()-moIter->phi() ;
-        if (std::abs(dphi)>CLHEP::pi)
+        if (fabs(dphi)>CLHEP::pi)
          { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
         double deltaR = sqrt(pow((moIter->eta()-gsfIter->eta()),2) + pow(dphi,2)) ;
         if ( deltaR < deltaR_ )
@@ -572,7 +572,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
           //if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
           //(gsfIter->charge() > 0.) ){
           double tmpGsfRatio = gsfIter->p()/moIter->energy() ;
-          if ( std::abs(tmpGsfRatio-1) < std::abs(gsfOkRatio-1) )
+          if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) )
            {
             gsfOkRatio = tmpGsfRatio;
             bestGsfElectron=*gsfIter;
@@ -586,7 +586,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
      {
       // generated distributions for matched electrons
       h1_matchedObject_Eta->Fill( moIter->eta() );
-    //  h1_matchedObject_AbsEta->Fill( std::abs(moIter->eta()) );
+    //  h1_matchedObject_AbsEta->Fill( fabs(moIter->eta()) );
       h1_matchedObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
       h1_matchedObject_Phi->Fill( moIter->phi() );
       h1_matchedObject_Z->Fill( moIter->z() );
@@ -594,11 +594,11 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
       //classes
     //  int eleClass = bestGsfElectron.classification() ;
     //  h_classes->Fill(eleClass) ;
-    //  h_matchedEle_eta->Fill(std::abs(bestGsfElectron.eta()));
-    //  if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_matchedEle_eta_golden->Fill(std::abs(bestGsfElectron.eta()));
-    //  if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_matchedEle_eta_shower->Fill(std::abs(bestGsfElectron.eta()));
-    //  //if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_matchedEle_eta_bbrem->Fill(std::abs(bestGsfElectron.eta()));
-    //  //if (bestGsfElectron.classification() == GsfElectron::OLDNARROW) h_matchedEle_eta_narrow->Fill(std::abs(bestGsfElectron.eta()));
+    //  h_matchedEle_eta->Fill(fabs(bestGsfElectron.eta()));
+    //  if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_matchedEle_eta_golden->Fill(fabs(bestGsfElectron.eta()));
+    //  if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_matchedEle_eta_shower->Fill(fabs(bestGsfElectron.eta()));
+    //  //if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_matchedEle_eta_bbrem->Fill(fabs(bestGsfElectron.eta()));
+    //  //if (bestGsfElectron.classification() == GsfElectron::OLDNARROW) h_matchedEle_eta_narrow->Fill(fabs(bestGsfElectron.eta()));
      }
 
    } // loop overmatching object
@@ -703,7 +703,7 @@ bool ElectronAnalyzer::selected( const reco::GsfElectronCollection::const_iterat
 
 bool ElectronAnalyzer::generalCut( const reco::GsfElectronCollection::const_iterator & gsfIter)
  {
-  if (std::abs(gsfIter->eta())>maxAbsEta_) return true ;
+  if (fabs(gsfIter->eta())>maxAbsEta_) return true ;
   if (gsfIter->pt()<minPt_) return true ;
 
   if (gsfIter->isEB() && isEE_) return true ;
@@ -744,14 +744,14 @@ bool ElectronAnalyzer::idCut( const reco::GsfElectronCollection::const_iterator 
   if (gsfIter->isEB() && gsfIter->eSuperClusterOverP() > eOverPMaxBarrel_) return true ;
   if (gsfIter->isEE() && gsfIter->eSuperClusterOverP() < eOverPMinEndcaps_) return true ;
   if (gsfIter->isEE() && gsfIter->eSuperClusterOverP() > eOverPMaxEndcaps_) return true ;
-  if (gsfIter->isEB() && std::abs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinBarrel_) return true ;
-  if (gsfIter->isEB() && std::abs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxBarrel_) return true ;
-  if (gsfIter->isEE() && std::abs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinEndcaps_) return true ;
-  if (gsfIter->isEE() && std::abs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxEndcaps_) return true ;
-  if (gsfIter->isEB() && std::abs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinBarrel_) return true ;
-  if (gsfIter->isEB() && std::abs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxBarrel_) return true ;
-  if (gsfIter->isEE() && std::abs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinEndcaps_) return true ;
-  if (gsfIter->isEE() && std::abs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxEndcaps_) return true ;
+  if (gsfIter->isEB() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinBarrel_) return true ;
+  if (gsfIter->isEB() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxBarrel_) return true ;
+  if (gsfIter->isEE() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinEndcaps_) return true ;
+  if (gsfIter->isEE() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxEndcaps_) return true ;
+  if (gsfIter->isEB() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinBarrel_) return true ;
+  if (gsfIter->isEB() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxBarrel_) return true ;
+  if (gsfIter->isEE() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinEndcaps_) return true ;
+  if (gsfIter->isEE() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxEndcaps_) return true ;
   if (gsfIter->isEB() && gsfIter->scSigmaIEtaIEta() < sigIetaIetaMinBarrel_) return true ;
   if (gsfIter->isEB() && gsfIter->scSigmaIEtaIEta() > sigIetaIetaMaxBarrel_) return true ;
   if (gsfIter->isEE() && gsfIter->scSigmaIEtaIEta() < sigIetaIetaMinEndcaps_) return true ;

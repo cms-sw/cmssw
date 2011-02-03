@@ -25,10 +25,7 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingR
   typedef typename AlgebraicROOTObject<D>::Vector VecD;
   
   std::vector<double> weights;
-  if ( predictedComponents.empty() )  {
-    edm::LogError("EmptyPredictedComponents")<<"a multi state is empty. cannot compute any weight.";
-    return weights;
-  }
+  if ( predictedComponents.empty() )  return weights;
   weights.reserve(predictedComponents.size());
 
   std::vector<double> detRs;
@@ -113,7 +110,6 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingR
   }
   if ( sumWeights<DBL_MIN ) {
     edm::LogInfo("PosteriorWeightsCalculator") << "PosteriorWeightsCalculator: sumWeight < DBL_MIN";
-    edm::LogError("PosteriorWeightsCalculator") << "PosteriorWeightsCalculator: sumWeight < DBL_MIN";
     return std::vector<double>();
   }
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.7 2009/12/14 22:23:47 wmtan Exp $
+// $Id: EvtPlaneProducer.cc,v 1.8 2010/05/17 11:05:24 yilmaz Exp $
 //
 //
 
@@ -33,6 +33,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
@@ -85,6 +86,12 @@ class EvtPlaneProducer : public edm::EDProducer {
   bool useTrackPosEtaGap_;
   bool useTrackNegEtaGap_;
 
+
+  edm::InputTag mcSrc_;
+  edm::InputTag trackSrc_;
+  edm::InputTag towerSrc_;
+
+
 };
 
 //
@@ -121,6 +128,11 @@ int iseed=k;
   useTrackNegCh_ = iConfig.getUntrackedParameter<bool>("useTrackNegCh",true);
   useTrackPosEtaGap_ = iConfig.getUntrackedParameter<bool>("useTrackPosEtaGap",true);
   useTrackNegEtaGap_ = iConfig.getUntrackedParameter<bool>("useTrackNegEtaGap",true);
+
+
+  mcSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("mc",edm::InputTag("generator"));
+  trackSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("tracks",edm::InputTag("hiSelectedTracks"));
+  towerSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("towers",edm::InputTag("towerMaker"));
 
   produces<reco::EvtPlaneCollection>("recoLevel");
 
@@ -181,7 +193,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //       }
 
       Handle<CaloTowerCollection> calotower;
-      iEvent.getByLabel("towerMaker",calotower);
+      iEvent.getByLabel(towerSrc_,calotower);
       
       if(!calotower.isValid()){
         cout << "Error! Can't get calotower product!" << endl;
@@ -481,7 +493,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const GenEvent *evt;
 
    Handle<HepMCProduct> mc;
-   iEvent.getByLabel("generator",mc);
+   iEvent.getByLabel(mcSrc_,mc);
    evt = mc->GetEvent();
 
    const HeavyIon* hi = evt->heavy_ion();
@@ -513,7 +525,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    Handle<reco::TrackCollection> tracks;
-   iEvent.getByLabel("hiSelectedTracks", tracks);
+   iEvent.getByLabel(trackSrc_, tracks);
 
    // cout << " TRACKS Size " << tracks->size() << endl;
 

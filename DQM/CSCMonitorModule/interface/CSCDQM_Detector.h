@@ -120,7 +120,7 @@ struct Address {
     return this;
   };
 
-  friend ostream& operator<<(ostream& out, const Address& adr) {
+  friend std::ostream& operator<<(std::ostream& out, const Address& adr) {
     out << adr.name();
     return out;
   }

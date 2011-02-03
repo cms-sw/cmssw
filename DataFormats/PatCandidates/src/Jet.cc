@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.39 2010/06/15 19:18:55 srappocc Exp $
+// $Id: Jet.cc,v 1.40 2010/08/31 16:05:29 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -186,145 +186,106 @@ int Jet::partonFlavour() const {
 
 /// ============= Jet Energy Correction methods ============
 
-/// method to set the energy scale correction factors
-void Jet::setCorrFactors(const JetCorrFactors & jetCorrF) {
-  jetEnergyCorrections_.clear();
-  jetEnergyCorrections_.push_back(jetCorrF);
-  activeJetCorrIndex_ = 0;
-}
-
-/// method to add more sets of energy scale correction factors
-void Jet::addCorrFactors(const JetCorrFactors& jetCorrF) {
-  jetEnergyCorrections_.push_back(jetCorrF);
-}
-
-/// method to set the energy scale correction factors
-void Jet::setCorrStep(JetCorrFactors::CorrStep step) {
-  jetEnergyCorrectionStep_ = step;
-  setP4(corrFactors_()->correction( step ) * p4());
-}
-
-/// copy of the jet with correction factor to target step for
-/// the set of correction factors, which is currently in use 
-Jet Jet::correctedJet(const std::string& step, const std::string& flavour) const {
-    Jet ret(*this);
-    ret.setP4(p4() * corrFactors_()->correction(corrFactors_()->corrStep(step, flavour), jetEnergyCorrectionStep_));
-    ret.jetEnergyCorrectionStep_ = corrFactors_()->corrStep(step, flavour);
-    return ret;
-}
-
-/// copy of the jet with correction factor to target step for
-/// the set of correction factors, which is currently in use 
-Jet Jet::correctedJet(const JetCorrFactors::CorrStep& step) const {
-    Jet ret(*this);
-    ret.setP4(p4() * corrFactors_()->correction(step, jetEnergyCorrectionStep_));
-    ret.jetEnergyCorrectionStep_ = step;
-    return ret;
-}
-
-/// copy of the jet with correction factor to target step for
-/// the set of correction factors, which is currently in use 
-Jet Jet::correctedJet(const std::string& step, const std::string& flavour, const std::string& set) const {
-    Jet ret(*this);
-    const JetCorrFactors * jetCorrFac = corrFactors_(set);
-    if (!jetCorrFac)
-      throw cms::Exception("InvalidRequest") 
-	<< "invalid JetCorrectionModule label '" << set << "' requested in Jet::correctedJet!";
-    //uncorrect from jec factor from current set first; then correct starting from Raw from new set
-    ret.setP4(p4() * corrFactors_()->correction( JetCorrFactors::Raw, jetEnergyCorrectionStep_) * jetCorrFac->correction(jetCorrFac->corrStep(step, flavour)) );
-    ret.jetEnergyCorrectionStep_ = jetCorrFac->corrStep(step, flavour);
-    return ret;
-}
-
-/// copy of the jet with correction factor to target step for
-/// the set of correction factors, which is currently in use 
-Jet Jet::correctedJet(const JetCorrFactors::CorrStep& step, const std::string& set) const {
-    Jet ret(*this);
-    const JetCorrFactors * jetCorrFac = corrFactors_(set);
-    if (!jetCorrFac)
-      throw cms::Exception("InvalidRequest") 
-	<< "invalid JetCorrectionModule label '" << set << "' requested in Jet::correctedJet!";
-    //uncorrect from jec factor from current set first; then correct starting from Raw from new set
-    ret.setP4(p4() * corrFactors_()->correction( JetCorrFactors::Raw, jetEnergyCorrectionStep_) * jetCorrFac->correction(step) );
-    ret.jetEnergyCorrectionStep_ = step;
-    return ret;
+// initialize the jet to a given JEC level during creation starting from Uncorrected
+void Jet::initializeJEC(unsigned int level, const JetCorrFactors::Flavor& flavor, unsigned int set)
+{ 
+  currentJECSet(set); 
+  currentJECLevel(level); 
+  currentJECFlavor(flavor); 
+  setP4(jec_[set].correction(level, flavor)*p4()); 
 }
 
 /// return true if this jet carries the jet correction factors of a different set, for systematic studies
-bool Jet::hasCorrFactorSet(const std::string& set) const 
+int Jet::jecSet(const std::string& set) const 
 {
-  for (std::vector<pat::JetCorrFactors>::const_iterator it=jetEnergyCorrections_.begin();
-       it!=jetEnergyCorrections_.end(); ++it)
-    if (it->getLabel()==set)
-      return true;
-  return false;      
-}
-
-/// return the jet correction factors of a different set, for systematic studies
-const JetCorrFactors * Jet::corrFactors_(const std::string& set) const 
-{
-  const JetCorrFactors * result = 0;
-  for (std::vector<pat::JetCorrFactors>::const_iterator it=jetEnergyCorrections_.begin();
-       it!=jetEnergyCorrections_.end(); ++it)
-    if (it->getLabel()==set){
-      result = &(*it);
-      break;
-    }  
-  return result;      
-}
-
-/// return the correction factor for this jet. Throws if they're not available.
-const JetCorrFactors * Jet::corrFactors_() const {
-  return &jetEnergyCorrections_.at( activeJetCorrIndex_ );
-}
-
-/// return the name of the current level of jet energy corrections
-std::string Jet::corrStep() const { 
-  return corrFactors_()->corrStep( jetEnergyCorrectionStep_ ); 
-}
-
-/// return flavour of the current level of jet energy corrections
-std::string Jet::corrFlavour() const {
-  return corrFactors_()->flavour( jetEnergyCorrectionStep_ ); 
-}
-
-/// total correction factor to target step, starting from jetCorrStep(),
-/// for the set of correction factors, which is currently in use
-float Jet::corrFactor(const std::string& step, const std::string& flavour) const {
-  return corrFactors_()->correction(corrFactors_()->corrStep(step, flavour), jetEnergyCorrectionStep_);
-}
-
-/// total correction factor to target step, starting from jetCorrStep(),
-/// for a specific set of correction factors
-float Jet::corrFactor(const std::string& step, const std::string& flavour, const std::string& set) const {
-  const JetCorrFactors * jetCorrFac = corrFactors_(set);
-  if (!jetCorrFac) 
-  throw cms::Exception("InvalidRequest") 
-  	<< "invalid JetCorrectionModule label '" << set << "' requested in Jet::jetCorrFactor!"<<std::endl;;
-  return jetCorrFac->correction(jetCorrFac->corrStep(step, flavour), jetEnergyCorrectionStep_);
+  for(std::vector<pat::JetCorrFactors>::const_iterator corrFactor=jec_.begin(); corrFactor!=jec_.end(); ++corrFactor)
+    if( corrFactor->jecSet()==set ){ return (corrFactor-jec_.begin()); }
+  return -1;
 }
 
 /// all available label-names of all sets of jet energy corrections
-const std::vector<std::string> Jet::corrFactorSetLabels() const
+const std::vector<std::string> Jet::availableJECSets() const
 {
-  std::vector<std::string> result;
-  for (std::vector<pat::JetCorrFactors>::const_iterator it=jetEnergyCorrections_.begin();
-       it!=jetEnergyCorrections_.end(); ++it)
-    result.push_back(it->getLabel());
-  return result;      
+  std::vector<std::string> sets;
+  for(std::vector<pat::JetCorrFactors>::const_iterator corrFactor=jec_.begin(); corrFactor!=jec_.end(); ++corrFactor)
+    sets.push_back(corrFactor->jecSet());
+  return sets;      
 }
+
+const std::vector<std::string> Jet::availableJECLevels(const unsigned int& set) const
+{
+  return set>=0 ? jec_.at(set).correctionLabels() : std::vector<std::string>();
+}
+
+/// correction factor to the given level for a specific set 
+/// of correction factors, starting from the current level 
+float Jet::jecFactor(const std::string& level, const std::string& flavor, const std::string& set) const
+{
+  for(unsigned int idx=0; idx<jec_.size(); ++idx){
+    if(set.empty() || jec_.at(idx).jecSet()==set){
+      if(jec_[idx].jecLevel(level)>=0){
+	return jecFactor(jec_[idx].jecLevel(level), jec_[idx].jecFlavor(flavor), idx);
+      } 
+      else{ 
+	throw cms::Exception("InvalidRequest") << "This JEC level " << level << " does not exist. \n";	
+      }
+    }
+  }
+  throw cms::Exception("InvalidRequest") << "This jet does not carry any jet energy correction factor information \n"
+					 << "for a jet energy correction set with label " << set << "\n";
+}
+
+/// correction factor to the given level for a specific set 
+/// of correction factors, starting from the current level 
+float Jet::jecFactor(const unsigned int& level, const JetCorrFactors::Flavor& flavor, const unsigned int& set) const 
+{
+  if(!jecSetsAvailable()){
+    throw cms::Exception("InvalidRequest") << "This jet does not carry any jet energy correction factor information \n";
+  }
+  if(!jecSetAvailable(set)){
+    throw cms::Exception("InvalidRequest") << "This jet does not carry any jet energy correction factor information \n"
+					   << "for a jet energy correction set with index " << set << "\n";
+  }
+  return jec_.at(set).correction(level, flavor)/jec_.at(set).correction(currentJECLevel_, currentJECFlavor_);
+}
+
+/// copy of the jet with correction factor to target step for
+/// the set of correction factors, which is currently in use 
+Jet Jet::correctedJet(const std::string& level, const std::string& flavor, const std::string& set) const 
+{
+  // rescale p4 of the jet; the update of current values is 
+  // done within the called jecFactor function
+  for(unsigned int idx=0; idx<jec_.size(); ++idx){
+    if(set.empty() || jec_.at(idx).jecSet()==set){
+      if(jec_[idx].jecLevel(level)>=0){
+	return correctedJet(jec_[idx].jecLevel(level), jec_[idx].jecFlavor(flavor), idx);
+      } 
+      else{ 
+	throw cms::Exception("InvalidRequest") << "This JEC level " << level << " does not exist. \n";	
+      }
+    }
+  }
+  throw cms::Exception("InvalidRequest") << "This JEC set " << set << " does not exist. \n";	
+}
+
+/// copy of the jet with correction factor to target step for
+/// the set of correction factors, which is currently in use 
+Jet Jet::correctedJet(const unsigned int& level, const JetCorrFactors::Flavor& flavor, const unsigned int& set) const 
+{
+  Jet correctedJet(*this);
+  //rescale p4 of the jet 
+  correctedJet.setP4(jecFactor(level, flavor, set)*p4());
+  // update current level, flavor and set
+  correctedJet.currentJECSet(set); correctedJet.currentJECLevel(level); correctedJet.currentJECFlavor(flavor);
+  return correctedJet;
+}
+
+
+/// ============= BTag information methods ============
 
 const std::vector<std::pair<std::string, float> > & Jet::getPairDiscri() const {
    return pairDiscriVector_;
 }
-
-///returns uncertainty of currently applied jet-correction level 
-///for plus or minus 1 sigma defined by direction ("UP" or "DOWN")
-float Jet::relCorrUncert(const std::string& direction) const
-{
-   return corrFactors_()->uncertainty( jetEnergyCorrectionStep_, direction );
-}
-
 
 /// get b discriminant from label name
 float Jet::bDiscriminator(const std::string & aLabel) const {

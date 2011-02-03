@@ -15,7 +15,7 @@ $summary{'B'} = '';
 $summary{'C'} = '';
 
 while ($iov < 100) {
-    $i = int(rand(6))+ 1;
+    $i = int(rand(4)) + 1;
     $x = rand();
     if ($day > 28) {
 	$month++;
