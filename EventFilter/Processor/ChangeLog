@@ -1,5 +1,11 @@
 2011-01-21 Emilio Meschi <emilio.meschi@cern.ch>
 
+	* tag V02-03-02
+	* fix pathindex handling when path missing in index file
+	* sleep 10 s in summarize to avoid tight loop when no msg present
+
+2011-01-21 Emilio Meschi <emilio.meschi@cern.ch>
+
 	* tag V02-03-01
 	* handling of path indices in scalers message table
 	* added statistics gathering switch

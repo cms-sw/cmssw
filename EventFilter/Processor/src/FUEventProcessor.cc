@@ -1236,9 +1236,10 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
     evtProcessor_.fireScalersUpdate();
   }
   else{
-    LOG4CPLUS_WARN(getApplicationLogger(),"Summarize loop: no process updated successfully ");          
+    LOG4CPLUS_WARN(getApplicationLogger(),"Summarize loop: no process updated successfully - sleep 10 seconds before trying again");          
     if(msgCount==0) evtProcessor_.withdrawLumiSectionIncrement();
     nbSubProcessesReporting_.value_ = 0;
+    ::sleep(10);
   }
   if(fsm_.stateName()->toString()!="Enabled"){
     wlScalersActive_ = false;
@@ -1763,7 +1764,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.114 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.115 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

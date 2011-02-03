@@ -98,6 +98,8 @@ void TriggerReportHelpers::fillPathIndexTable(std::string &pathstring)
       }
     }
     for(; i<paths_.size(); i++) {
+      if(pathIndexMap_.find(paths_[i])==pathIndexMap_.end())
+	pathIndexMap_[paths_[i]] = i;
       xdata::Table::iterator it = triggerReportAsTableWithNames_.append();
       it->setField("pathIndex",pathIndexMap_[paths_[i]]);
     }
