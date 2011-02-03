@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.14 2010/10/18 17:32:25 amraktad Exp $
+// $Id: FWRPZView.h,v 1.15 2010/11/04 22:38:54 amraktad Exp $
 //
 
 // system include files
@@ -52,10 +52,10 @@ public:
    // ---------- member functions ---------------------------
    virtual void setContext(const fireworks::Context&);
    virtual void setFrom(const FWConfiguration&);
+   virtual void voteCaloMaxVal();
 
    //returns the new element created from this import
    void importElements(TEveElement* iProjectableChild, float layer, TEveElement* iProjectedParent=0);
-
 private:
    FWRPZView(const FWRPZView&);    // stop default
    const FWRPZView& operator=(const FWRPZView&);    // stop default 

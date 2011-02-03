@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.27 2010/11/21 11:18:13 amraktad Exp $
+// $Id: FWEveView.h,v 1.28 2010/11/26 20:24:47 amraktad Exp $
 //
 
 
@@ -84,6 +84,7 @@ public:
    virtual void useGlobalEnergyScaleChanged();
    virtual bool isEnergyScaleGlobal() const;
    virtual void setupEnergyScale();
+   virtual void voteCaloMaxVal();
    
 protected:
    virtual void resetCamera();

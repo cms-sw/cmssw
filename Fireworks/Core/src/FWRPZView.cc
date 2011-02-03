@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.31 2010/11/26 20:24:48 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.32 2010/11/30 19:36:57 amraktad Exp $
 //
 
 // system include files
@@ -24,7 +24,10 @@
 #include "TEveProjections.h"
 #include "TEveProjectionManager.h"
 #include "TEveProjectionAxes.h"
+
+#define protected public  //!!! TODO add get/sets for TEveCalo2D for CellIDs
 #include "TEveCalo.h"
+#undef protected
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZView.h"
@@ -203,6 +206,38 @@ FWRPZView::setEtaRng()
    }
 
    FWEveView::setupEnergyScale();
+}
+
+void
+FWRPZView::voteCaloMaxVal()
+{
+   if (! m_calo->GetData()->Empty())
+   {
+      m_calo->AssertCellIdCache();
+      Float_t sumEt, sumE;
+      TEveCaloData::CellData_t cellData;
+      typedef std::vector<TEveCaloData::vCellId_t*>           vBinCells_t;
+      typedef std::vector<TEveCaloData::vCellId_t*>::iterator vBinCells_i;
+
+      vBinCells_t   cellLists = m_calo->fCellLists;
+      for (vBinCells_i it = cellLists.begin(); it != cellLists.end(); it++)
+      {
+         TEveCaloData::vCellId_t* binCells = *it;
+         if (binCells) {
+            sumEt =  0; sumE = 0;
+            TEveCaloData::vCellId_i a = binCells->end();
+      
+            for (TEveCaloData::vCellId_i k = binCells->begin(); k != a; ++k)
+            { 
+               m_calo->GetData()->GetCellData((*k), cellData);
+               sumEt += cellData.Value(true);
+               sumE  += cellData.Value(false);
+            } 
+            // printf("vote sum %f %f \n", sumEt , sumE);
+            context().voteMaxEtAndEnergy(sumEt, sumE);
+         }
+      }
+   }
 }
 
 void FWRPZView::showProjectionAxes( )
