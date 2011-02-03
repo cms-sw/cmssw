@@ -63,7 +63,7 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 					// In the format version >=5.3 with zero_supression
 					if( header.format_version()>=3 && header.suppression() ){
 						//  we seek the loop index untill it matches the current non-empty tbin
-						if( ((spWord[shift+7]>>8) & 0x7) != tbin ) continue;
+						if( ((spWord[shift+7]>>8) & 0x7) != tbin+1 ) continue;
 						//  otherwise there may be no more non-empty tbins and we ran into the trailer
 						if( (spWord[shift+0]&0xF000)==0xF000 && (spWord[shift+1]&0xF000)==0xF000 && (spWord[shift+2]&0xF000)==0xF000 && (spWord[shift+3]&0xF000)==0xF000 &&
 							(spWord[shift+4]&0xF000)==0xE000 && (spWord[shift+5]&0xF000)==0xE000 && (spWord[shift+6]&0xF000)==0xE000 && (spWord[shift+7]&0xF000)==0xE000 ) break;
