@@ -21,7 +21,7 @@ using namespace std;
 
 //______________________________________________________________________________
 L1FastjetCorrector::L1FastjetCorrector (const JetCorrectorParameters& fParam, const edm::ParameterSet& fConfig)
-  : srcMedianPt_(fConfig.getParameter<edm::InputTag>("srcMedianPt"))
+  : srcRho_(fConfig.getParameter<edm::InputTag>("srcRho"))
 {
   if (fParam.definitions().level() != "L1FastJet")
     throw cms::Exception("L1FastjetCorrector")<<" correction level: "<<fParam.definitions().level()<<" is not L1FastJet"; 
@@ -65,13 +65,13 @@ double L1FastjetCorrector::correction(const reco::Jet& fJet,
 				      const edm::Event& fEvent,
 				      const edm::EventSetup& fSetup) const
 {
-  edm::Handle<double> medianPt;
-  fEvent.getByLabel(srcMedianPt_,medianPt);
+  edm::Handle<double> rho;
+  fEvent.getByLabel(srcRho_,rho);
   double result(1.0);
   mCorrector->setJetEta(fJet.eta());
   mCorrector->setJetPt(fJet.pt());
   mCorrector->setJetA(fJet.jetArea());
-  mCorrector->setRho(*medianPt);
+  mCorrector->setRho(*rho);
   result = mCorrector->getCorrection();  
   return result;
 }

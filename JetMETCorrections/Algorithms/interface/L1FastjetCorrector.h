@@ -38,7 +38,7 @@ public:
 
 private:
   // member data
-  edm::InputTag srcMedianPt_;
+  edm::InputTag srcRho_;
   FactorizedJetCorrector* mCorrector;
 };
 
