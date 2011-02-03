@@ -80,7 +80,7 @@ Definition of the event content (the packages where the contents are defined are
 <tr class="even">
 	<td> Geometry <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideDetectorDescription">[Twiki]</a></td>
 	<td> Simulation </td>
-	<td class="contact"> Mike Case, (S.Banerjee, M.Hildreth) </td>
+	<td class="contact"> Ianna Osborne, (S.Banerjee, M.Hildreth) </td>
 </tr>
 <tr class="odd">
 	<td> Documentation <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuide">[Twiki]</a></td>
