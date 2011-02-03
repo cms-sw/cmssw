@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2010/11/29 11:27:44 $
- *  $Revision: 1.44 $
+ *  $Date: 2011/01/19 10:21:49 $
+ *  $Revision: 1.45 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -74,7 +74,7 @@ namespace edm {
     , is_(0)
     , mis_(0)
     , thisEventLSid(0)
-    , aBigPsIndex_(10000)
+    , aBigPsIndex_(0)
     , thisEventPsInd(aBigPsIndex_)
     , goToStopping(false)
   {
@@ -151,7 +151,7 @@ namespace edm {
       // we hold onto it until we have issued all the necessary endLumi/beginLumi
 //       std::cout << getpid() << "alignLsToLast was set and ls number is " 
 // 		<< luminosityBlockNumber_ << " before signaling" << std::endl;
-      prescaleSetIndex_ = aBigPsIndex_;
+//      prescaleSetIndex_ = aBigPsIndex_;
       signalWaitingThreadAndBlock();
       luminosityBlockNumber_++;
 //       std::cout << getpid() << "alignLsToLast signaled and incremented " 
@@ -302,7 +302,7 @@ namespace edm {
 	  }
 	  else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
 	    thisEventLSid = evf::evtn::gtpe_getlbn(gtpeFedAddr);
-	    thisEventPsInd = aBigPsIndex_;
+	    thisEventPsInd = 0; //waiting to get a PS index from gtpe
 	    evttype =  edm::EventAuxiliary::PhysicsTrigger; 
 	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
 	      if(luminosityBlockNumber_ == thisEventLSid)
