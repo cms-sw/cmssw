@@ -448,16 +448,6 @@ try:
 except:
     pass
 
-try:
-    # since CMSSW_3_11_X
-    from FWCore.ParameterSet.SequenceTypes import _SequenceCollection
-
-    def new__SequenceCollection_name(self):
-        return str(self)
-    _SequenceCollection._name = new__SequenceCollection_name    
-except:
-    pass
-
 from FWCore.ParameterSet.SequenceTypes import _SequenceNegation, _SequenceIgnore
 
 def new__SequenceNegation_name(self):
