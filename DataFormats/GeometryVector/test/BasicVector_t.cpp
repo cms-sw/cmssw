@@ -24,6 +24,9 @@ void multiSum(Basic3DVectorD&res, float s,  Basic3DVectorD const & a, Basic3DVec
   res = s*(a-b) + s*(a+b);
 } 
 
+void multiSum(Basic3DVectorLD&res, float s,  Basic3DVectorLD const & a, Basic3DVectorLD const & b) {
+  res = s*(a-b) + s*(a+b);
+} 
 
 
 

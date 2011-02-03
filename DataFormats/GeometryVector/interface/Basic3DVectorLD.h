@@ -219,6 +219,19 @@ __attribute__ ((aligned (16)))
 
 
 /// vector sum and subtraction of vectors of possibly different precision
+inline Basic3DVector<long double>
+operator+( const Basic3DVector<long double>& a, const Basic3DVector<long double>& b) {
+  typedef Basic3DVector<long double> RT;
+  return RT(a.x()+b.x(), a.y()+b.y(), a.z()+b.z());
+}
+inline Basic3DVector<long double>
+operator-( const Basic3DVector<long double>& a, const Basic3DVector<long double>& b) {
+  typedef Basic3DVector<long double> RT;
+  return RT(a.x()-b.x(), a.y()-b.y(), a.z()-b.z());
+}
+
+
+
 template <class U>
 inline Basic3DVector<typename PreciseFloatType<long double,U>::Type>
 operator+( const Basic3DVector<long double>& a, const Basic3DVector<U>& b) {
