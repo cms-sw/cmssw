@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.56 2010/11/04 15:10:15 babar Exp $
+# $Id: InjectWorker.pl,v 1.57 2010/11/17 11:16:23 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -268,6 +268,16 @@ sub setup_main_db {
     $sths->{insertFile} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
+    # For new files: update SM_SUMMARY
+    $sql = "BEGIN CMS_STOMGR.FILES_CREATED_PROC_SUMMARY( ? ); END;";
+    $sths->{insertFileSummaryProc} = $heap->{dbh}->prepare($sql)
+      or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
+
+    # For new files: update SM_INSTANCES
+    $sql = "BEGIN CMS_STOMGR.FILES_CREATED_PROC_INSTANCES( ? ); END;";
+    $sths->{insertFileInstancesProc} = $heap->{dbh}->prepare($sql)
+      or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
+
     # For closed files
     $sql =
         "INSERT INTO CMS_STOMGR.FILES_INJECTED "
@@ -275,6 +285,16 @@ sub setup_main_db {
       . "VALUES (?,?,?,?,?,?,"
       . "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'),?,?,?)";
     $sths->{closeFile} = $heap->{dbh}->prepare($sql)
+      or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
+
+    # For closed files: update SM_SUMMARY
+    $sql = "BEGIN CMS_STOMGR.FILES_INJECTED_PROC_SUMMARY( ? ); END;";
+    $sths->{closeFileSummaryProc} = $heap->{dbh}->prepare($sql)
+      or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
+
+    # For closed files: update SM_INSTANCES
+    $sql = "BEGIN CMS_STOMGR.FILES_INJECTED_PROC_INSTANCES( ? ); END;";
+    $sths->{closeFileInstancesProc} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
   # For explanation, see:
@@ -541,6 +561,14 @@ sub insert_file {
           FILECOUNTER INSTANCE STARTTIME
           )
     );
+    $kernel->yield(
+        update_db  => $args,
+        insertFileSummaryProc => qw( FILENAME )
+    );
+    $kernel->yield(
+        update_db  => $args,
+        insertFileInstancesProc => qw( FILENAME )
+    );
 }
 
 # Inserts the line into the DB (closed file)
@@ -581,9 +609,17 @@ sub close_file {
           CHECKSUM STOPTIME INDFILE INDFILESIZE COMMENT
           )
     );
+    $kernel->yield(
+        update_db  => $args,
+        closeFileSummaryProc => qw( FILENAME )
+    );
+    $kernel->yield(
+        update_db  => $args,
+        closeFileInstancesProc => qw( FILENAME )
+    );
 
     # Alias index for Tier0
-    $args->{INDEX} = $args->{INDFILE};
+    $args->{INDEX} = $args->{INDFILE} if exists $args->{INDFILE};
 
     # Run the hook
     $kernel->yield( start_hook => $args );
