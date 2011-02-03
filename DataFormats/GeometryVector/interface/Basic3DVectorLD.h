@@ -1,23 +1,12 @@
-#ifndef GeometryVector_oldBasic3DVector_h
-#define GeometryVector_oldBasic3DVector_h
-#if defined(__CINT__)  && !defined(__REFLEX__)
-#define __REFLEX__
-#endif
-#include "DataFormats/GeometryVector/interface/Basic2DVector.h"
-#include "DataFormats/GeometryVector/interface/Theta.h"
-#include "DataFormats/GeometryVector/interface/Phi.h"
-#include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
-#include "DataFormats/GeometryVector/interface/CoordinateSets.h"
-#ifndef __REFLEX__ 
-#include "DataFormats/Math/interface/SSEVec.h"
-#endif
-#include <iosfwd>
-#include <cmath>
+#ifndef GeometryVector_Basic3DVectorLD_h
+#define GeometryVector_Basic3DVectorLD_h
 
-template < typename T> 
-class Basic3DVector {
+
+// long double specialization
+template <> 
+class Basic3DVector<long double> {
 public:
-
+  typedef long double                         T;
   typedef T                                   ScalarType;
   typedef Geom::Cylindrical2Cartesian<T>      Cylindrical;
   typedef Geom::Spherical2Cartesian<T>        Spherical;
@@ -137,7 +126,8 @@ public:
     T my_mag = mag2();
     if (my_mag==0) return *this;
     my_mag = T(1)/std::sqrt(my_mag);
-    return *this * my_mag;
+    Basic3DVector ret(*this);
+    return  ret*=my_mag;
   }
 
   /** Operator += with a Basic3DVector of possibly different precision.
@@ -228,85 +218,95 @@ __attribute__ ((aligned (16)))
 ;
 
 
-namespace geometryDetails {
-  std::ostream & print3D(std::ostream& s, double x, double y, double z);
-}
-
-/// simple text output to standard streams
-template <class T>
-inline std::ostream & operator<<( std::ostream& s, const Basic3DVector<T>& v) {
-  return geometryDetails::print3D(s, v.x(),v.y(), v.z());
-}
-
-
 /// vector sum and subtraction of vectors of possibly different precision
-template <class T, class U>
-inline Basic3DVector<typename PreciseFloatType<T,U>::Type>
-operator+( const Basic3DVector<T>& a, const Basic3DVector<U>& b) {
-  typedef Basic3DVector<typename PreciseFloatType<T,U>::Type> RT;
+template <class U>
+inline Basic3DVector<typename PreciseFloatType<long double,U>::Type>
+operator+( const Basic3DVector<long double>& a, const Basic3DVector<U>& b) {
+  typedef Basic3DVector<typename PreciseFloatType<long double,U>::Type> RT;
   return RT(a.x()+b.x(), a.y()+b.y(), a.z()+b.z());
 }
 
-template <class T, class U>
-inline Basic3DVector<typename PreciseFloatType<T,U>::Type>
-operator-( const Basic3DVector<T>& a, const Basic3DVector<U>& b) {
-  typedef Basic3DVector<typename PreciseFloatType<T,U>::Type> RT;
+template <class U>
+inline Basic3DVector<typename PreciseFloatType<long double,U>::Type>
+operator+(const Basic3DVector<U>& a, const Basic3DVector<long double>& b) {
+  typedef Basic3DVector<typename PreciseFloatType<long double,U>::Type> RT;
+  return RT(a.x()+b.x(), a.y()+b.y(), a.z()+b.z());
+}
+
+
+template <class U>
+inline Basic3DVector<typename PreciseFloatType<long double,U>::Type>
+operator-( const Basic3DVector<long double>& a, const Basic3DVector<U>& b) {
+  typedef Basic3DVector<typename PreciseFloatType<long double,U>::Type> RT;
+  return RT(a.x()-b.x(), a.y()-b.y(), a.z()-b.z());
+}
+
+template <class U>
+inline Basic3DVector<typename PreciseFloatType<long double,U>::Type>
+operator-(const Basic3DVector<U>& a,  const Basic3DVector<long double>& b) {
+  typedef Basic3DVector<typename PreciseFloatType<long double,U>::Type> RT;
   return RT(a.x()-b.x(), a.y()-b.y(), a.z()-b.z());
 }
 
 /// scalar product of vectors of same precision
-template <class T>
-inline T operator*( const Basic3DVector<T>& v1, const Basic3DVector<T>& v2) {
+// template <>
+inline long double operator*( const Basic3DVector<long double>& v1, const Basic3DVector<long double>& v2) {
   return v1.dot(v2);
 }
 
 /// scalar product of vectors of different precision
-template <class T, class U>
-inline typename PreciseFloatType<T,U>::Type operator*( const Basic3DVector<T>& v1, 
+template <class U>
+inline typename PreciseFloatType<long double,U>::Type operator*( const Basic3DVector<long double>& v1, 
 						       const Basic3DVector<U>& v2) {
   return v1.x()*v2.x() + v1.y()*v2.y() + v1.z()*v2.z();
 }
 
+template <class U>
+inline typename PreciseFloatType<long double,U>::Type operator*(const Basic3DVector<U>& v1,
+								const Basic3DVector<long double>& v2 ) {
+  return v1.x()*v2.x() + v1.y()*v2.y() + v1.z()*v2.z();
+}
+
+
 /** Multiplication by scalar, does not change the precision of the vector.
  *  The return type is the same as the type of the vector argument.
  */
-template <class T>
-inline Basic3DVector<T> operator*( const Basic3DVector<T>& v, T t) {
-  return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
+//template <>
+inline Basic3DVector<long double> operator*( const Basic3DVector<long double>& v, long double t) {
+  return Basic3DVector<long double>(v.x()*t, v.y()*t, v.z()*t);
 }
 
 /// Same as operator*( Vector, Scalar)
-template <class T>
-inline Basic3DVector<T> operator*(T t, const Basic3DVector<T>& v) {
-  return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
+// template <>
+inline Basic3DVector<long double> operator*(long double t, const Basic3DVector<long double>& v) {
+  return Basic3DVector<long double>(v.x()*t, v.y()*t, v.z()*t);
 }
 
-template <class T, typename S>
-inline Basic3DVector<T> operator*(S t,  const Basic3DVector<T>& v) {
-  return static_cast<T>(t)*v;
+template <typename S>
+inline Basic3DVector<long double> operator*(S t,  const Basic3DVector<long double>& v) {
+  return static_cast<long double>(t)*v;
 }
 
-template <class T, typename S>
-inline Basic3DVector<T> operator*(const Basic3DVector<T>& v, S t) {
-  return static_cast<T>(t)*v;
+template <typename S>
+inline Basic3DVector<long double> operator*(const Basic3DVector<long double>& v, S t) {
+  return static_cast<long double>(t)*v;
 }
 
 
 /** Division by scalar, does not change the precision of the vector.
  *  The return type is the same as the type of the vector argument.
  */
-template <class T, typename S>
-inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, S s) {
-  T t = T(1)/s;
+template <typename S>
+inline Basic3DVector<long double> operator/( const Basic3DVector<long double>& v, S s) {
+  long double t = 1/s;
   return v*t;
 }
 
 
-typedef Basic3DVector<float> Basic3DVectorF;
-typedef Basic3DVector<double> Basic3DVectorD;
 typedef Basic3DVector<long double> Basic3DVectorLD;
 
 
-#endif // GeometryVector_Basic3DVector_h
+#endif // GeometryVector_Basic3DVectorLD_h
+
 
 

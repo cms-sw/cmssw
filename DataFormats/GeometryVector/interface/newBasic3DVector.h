@@ -294,6 +294,9 @@ typedef Basic3DVector<float> Basic3DVectorF;
 typedef Basic3DVector<double> Basic3DVectorD;
 
 
+//  add long double specialization
+#include "Basic3DVectorLD.h"
+
 #endif // GeometryVector_Basic3DVector_h
 
 

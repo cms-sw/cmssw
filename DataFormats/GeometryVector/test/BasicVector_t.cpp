@@ -70,11 +70,16 @@ int main() {
   std::cout << sizeof(Basic2DVectorD) << std::endl;
   std::cout << sizeof(Basic3DVectorF) << std::endl;
   std::cout << sizeof(Basic3DVectorD) << std::endl;
+  std::cout << sizeof(Basic3DVectorLD) << std::endl;
 
   Basic3DVectorF  x(2.0f,4.0f,5.0f);
   Basic3DVectorF  y(-3.0f,2.0f,-5.0f);
   Basic3DVectorD  xd(2.0,4.0,5.0);
   Basic3DVectorD  yd = y;
+
+  Basic3DVectorLD  xld(2.0,4.0,5.0);
+  Basic3DVectorLD  yld = y;
+
 
   Basic2DVectorF  x2(2.0f,4.0f);
   Basic2DVectorF  y2 = y.xy();
@@ -91,6 +96,9 @@ int main() {
     std::cout << dotV(xd,yd) << std::endl; 
     std::cout << normV(xd) << std::endl; 
     std::cout << norm(xd) << std::endl; 
+    std::cout << dotV(xld,yld) << std::endl; 
+    std::cout << normV(xld) << std::endl; 
+    std::cout << norm(xld) << std::endl; 
     
     
     Basic3DVectorF  z = x.cross(y);
@@ -101,10 +109,20 @@ int main() {
     std::cout << -zd << std::endl;
     std::cout << xd.cross(y)<< std::endl;
     std::cout << xd.cross(yd)<< std::endl;
+
+    Basic3DVectorLD  zld = x.cross(yld);
+    std::cout << zld << std::endl;
+    std::cout << -zld << std::endl;
+    std::cout << xld.cross(y)<< std::endl;
+    std::cout << xld.cross(yld)<< std::endl;
+
     
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
     auto s = x+xd - 3.1*z;
     std::cout << s << std::endl;
+    auto s2 = x+xld - 3.1*zd;
+    std::cout << s2 << std::endl;
+
 #endif
   }
 
