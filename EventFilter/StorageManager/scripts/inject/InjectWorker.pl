@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.58 2011/02/03 16:26:28 babar Exp $
+# $Id: InjectWorker.pl,v 1.59 2011/02/03 16:28:16 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -619,7 +619,7 @@ sub close_file {
     );
 
     # Alias index for Tier0
-    $args->{INDEX} = $args->{INDFILE} if exists $args->{INDFILE};
+    $args->{INDEX} = $args->{INDFILE} if $args->{INDFILE};
 
     # Run the hook
     $kernel->yield( start_hook => $args );
