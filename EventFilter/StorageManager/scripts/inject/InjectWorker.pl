@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.59 2011/02/03 16:28:16 babar Exp $
+# $Id: InjectWorker.pl,v 1.60 2011/02/03 16:53:07 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -527,11 +527,22 @@ sub update_db {
               . "), but $rows. Will NOT notify!" );
         return;
     }
-    elsif ( $handler eq 'closeFile' ) {
 
-        # Notify Tier0 by creating an entry in the notify logfile
+    # If injection was successful, update the summary tables
+    if ( $handler =~ /^(?:insert|close)File$/ ) {
+        $kernel->yield(
+            update_db               => $args,
+            "${handler}SummaryProc" => qw( FILENAME )
+        );
+        $kernel->yield(
+            update_db                 => $args,
+            "${handler}InstancesProc" => qw( FILENAME )
+        );
+    }
+
+    # Notify Tier0 by creating an entry in the notify logfile
+    if ( $handler eq 'closeFile' ) {
         return if $stream =~ /_DontNotifyT0$/;    #skip if DontNotify
-
         $kernel->post(
             'notify',
             info => join(
@@ -560,14 +571,6 @@ sub insert_file {
           PRODUCER APPNAME APPVERSION RUNNUMBER LUMISECTION
           FILECOUNTER INSTANCE STARTTIME
           )
-    );
-    $kernel->yield(
-        update_db             => $args,
-        insertFileSummaryProc => qw( FILENAME )
-    );
-    $kernel->yield(
-        update_db               => $args,
-        insertFileInstancesProc => qw( FILENAME )
     );
 }
 
@@ -608,14 +611,6 @@ sub close_file {
           FILENAME PATHNAME DESTINATION NEVENTS FILESIZE
           CHECKSUM STOPTIME INDFILE INDFILESIZE COMMENT
           )
-    );
-    $kernel->yield(
-        update_db            => $args,
-        closeFileSummaryProc => qw( FILENAME )
-    );
-    $kernel->yield(
-        update_db              => $args,
-        closeFileInstancesProc => qw( FILENAME )
     );
 
     # Alias index for Tier0
