@@ -137,6 +137,7 @@ FWMET3DProxyBuilder::build(const reco::MET& met, unsigned int iIndex, TEveElemen
    arrow->setScale(vc->getEnergyScale()); 
    arrow->setScale(vc->getEnergyScale());
 
+   context().voteMaxEtAndEnergy(met.et(), met.energy());
 
 }
 
