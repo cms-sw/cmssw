@@ -3635,6 +3635,16 @@ public :
 				       float r9barrel, float r9endcap,  
 				       float detabarrel, float detaendcap,  
 				       float dphibarrel, float dphiendcap); 
+  int OpenHlt3ElectronsSamHarperPassed(float Et, int L1iso, 
+				       float Tisobarrel, float Tisoendcap, 
+				       float Tisoratiobarrel, float Tisoratioendcap, 
+				       float HisooverETbarrel, float HisooverETendcap, 
+				       float EisooverETbarrel, float EisooverETendcap, 
+				       float hoverebarrel, float hovereendcap, 
+				       float clusshapebarrel, float clusshapeendcap, 
+				       float r9barrel, float r9endcap, 
+				       float detabarrel, float detaendcap, 
+				       float dphibarrel, float dphiendcap); 
   int OpenHltGetElectronsSamHarperPassed(int* Passed,
                                          float Et, int L1iso,
                                          float Tisobarrel, float Tisoendcap,
@@ -7254,7 +7264,9 @@ void OHltTree::SetOpenL1Bits()
           if(fabs(L1MuEta[i]) < 1.5)
             {
               if(L1MuPt[i] > 5)
-                rc++;
+		{
+		  rc++;
+		}
             }
         }
     }
