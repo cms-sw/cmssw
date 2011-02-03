@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFSortRankEtaQLUT
 //
 // 
-//   $Date: 2007/04/02 15:45:39 $
-//   $Revision: 1.3 $
+//   $Date: 2008/04/21 17:21:28 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -52,6 +52,29 @@ void L1MuGMTLFSortRankEtaQLUT::InitParameters() {
 //
 // The Rank-contribution from Eta-Quality is currently not used. Its influence on the
 // sort-rank can be determined in the Sort-Rank Combine LUT.
+// 
+// Explanation of the meaning of m_version:
+//
+// m_version split to 4bit fields:
+// bits 0-3: qCSC=2 code
+//           - 0 - do nothing
+//           - 1 - all to qGMT=3
+//           - 2 - |eta|<1.5 || |eta|>1.8 to qGMT=3
+//           - 3 - 1.2<|eta|<1.5 || |eta|>1.8 to qGMT=3
+//           - >3 - do nothing
+// bits 4-7: qCSC=1 code
+//           - 0 - |eta|>1.2 to qGMT=3
+//           - 1 - |eta|>1.3 to qGMT=3
+//           - >1 - nothing done
+// bits 8-11: qRPC<3 code
+//           - 0 - qRPC=0 1.04<|eta|<1.24 || |eta|>1.48 to qGMT=2
+//                 qRPC=1 0.83<|eta|<1.04 || 1.14<|eta|<1.24 || |eta|>1.36 to qGMT=2
+//                 qRPC=2 0.83<|eta|<0.93 to qGMT=2
+//           - >0 - do nothing
+//
+// m_version=1: TDR
+// m_version=2: 2010 data
+// m_version>2: 2011
 //
 //------------------------------------------------------------------------------------
 
@@ -76,31 +99,43 @@ unsigned L1MuGMTLFSortRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, uns
   // 3 .. output muon will be quality 4 (disable in di-muon trigger only)
 
   unsigned vlq = 0;
+  
+  int vCSC2 = (m_version) & 0xf;
+  int vCSC1 = (m_version>>4) & 0xf;
+  int vRPC =  (m_version>>8) & 0xf;
+  
   // RPC selection
   if (isRPC) {
-    if ( ( q == 0 && ( ( etaValue > 1.04 && etaValue < 1.24 ) || // Q0, high rate, high noise
-		       ( etaValue > 1.48 ) ) ) ||                // Q0, high rate, high noise
-	 ( q == 1 && ( ( etaValue > 0.83 && etaValue < 1.04 ) || // Q1, high rate
-		       ( etaValue > 1.14 && etaValue < 1.24 ) || // Q1, high noise
-		       ( etaValue > 1.36 ) ) ) ||                // Q1, high rate
-	 ( q == 2 && ( etaValue > 0.83 && etaValue < 0.93 ) ) )  // Q2, high rate
-      vlq = 1;
+    if(vRPC == 0) {
+      if ( ( q == 0 && ( ( etaValue > 1.04 && etaValue < 1.24 ) || // Q0, high rate, high noise
+          ( etaValue > 1.48 ) ) ) ||                // Q0, high rate, high noise
+          ( q == 1 && ( ( etaValue > 0.83 && etaValue < 1.04 ) || // Q1, high rate
+              ( etaValue > 1.14 && etaValue < 1.24 ) || // Q1, high noise
+              ( etaValue > 1.36 ) ) ) ||                // Q1, high rate
+              ( q == 2 && ( etaValue > 0.83 && etaValue < 0.93 ) ) )  // Q2, high rate
+        vlq = 1;
+    }
   }                         
       
   // CSC selection
   if ( idx == 2 ) { // CSC
     if (q == 2) {
-      //      if ( etaValue > 1.1 && etaValue < 1.2 ) 
-      //vlq = 1; // disable in single and di-muon trigger
-      //else 
-      
-      // use m_version to distinguish startup (v=2) and full geometry (v=1)
-      if ( m_version == 1 || 
-          (m_version == 2 && (etaValue<1.5 || etaValue>1.8)) ) vlq = 2; // disable in single-muon trigger only
+      if(vCSC2 == 1) vlq = 2;
+      if(vCSC2 == 2) {
+        if(etaValue < 1.5 || etaValue > 1.8) vlq = 2; // disable in single-muon trigger only
+      }
+      if(vCSC2 == 3) {
+        if( (etaValue > 1.2 && etaValue < 1.5) || etaValue > 1.8) vlq = 2; // disable in single-muon trigger only
+      }
     }
+    
     if (q == 1) {
-      if (etaValue > 1.2)
-	vlq = 2;   // disable in single-muon trigger only
+      if(vCSC1 == 0) {
+        if(etaValue > 1.2) vlq = 2;   // disable in single-muon trigger only
+      }
+      if(vCSC1 == 1) {
+        if(etaValue > 1.3) vlq = 2;   // disable in single-muon trigger only
+      }
     }
   }
     
