@@ -927,18 +927,18 @@ PixelFEDCard::PixelFEDCard(string fileName):
         int checkword=0;
   fscanf(infile,"Params FED file check word:%d\n",
                            &checkword);
-        if(checkword!=90508&&checkword!=91509) cout << __LINE__  << "]\t"                             << mthn 
+        if(checkword!=90508&&checkword!=91509&&checkword!=20211) cout << __LINE__  << "]\t"                             << mthn 
 	                          << "FEDID: "                                      << fedNumber 
 				  << " Params FED File read error. Checkword read " << checkword
-				  <<" check word expected 090508 or 91509"          << endl;
-        assert((checkword==90508)|(checkword==91509));
+				  <<" check word expected 090508 or 91509 or 20211"          << endl;
+        assert((checkword==90508)|(checkword==91509)|(checkword==20211));
 
         if(localDEBUG)
          cout << __LINE__  << "]\t" << mthn << "Params FED file check word: " << checkword << endl;
 
       //These bits set the hit limit in fifo-1 for an event
 
-	if(checkword==91509){
+				if(checkword==20211){
       //These bits set the hit limit in fifo-1 for an event
   fscanf(infile,"N fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&N_hitlimit);
   if(localDEBUG)
@@ -966,6 +966,120 @@ PixelFEDCard::PixelFEDCard(string fileName):
   fscanf(infile,"Skip a ROC in ch 28-36, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&S_testreg);
   if(localDEBUG)
     printf("Skip a ROC in ch 28-36, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",S_testreg);
+
+  fscanf(infile,"Set BUSYWHENBEHIND by this many triggers with timeouts:%d\n",&BusyWhenBehind);
+  if(localDEBUG)
+    printf("Set BUSYWHENBEHIND by this many triggers with timeouts:%d\n",BusyWhenBehind);
+				
+ fscanf(infile,"D[0]=1 enable fed-stuck reset D[1]=1 disable ev# protect(dont):%x\n",&FeatureRegister);
+	  if(localDEBUG)
+    printf("D[0]=1 enable fed-stuck reset D[1]=1 disable ev# protect(dont):%x\n",FeatureRegister);	 
+		 
+ fscanf(infile,"Limit for fifo-2 almost full (point for the TTS flag):%x\n",&FIFO2Limit);
+	  if(localDEBUG)
+    printf("Limit for fifo-2 almost full (point for the TTS flag):%x\n",FIFO2Limit);	 
+		 
+ fscanf(infile,"Limit for consecutive timeout OR OOSs:%d\n",&TimeoutOROOSLimit);
+	  if(localDEBUG)
+    printf("Limit for consecutive timeout OR OOSs:%d\n",TimeoutOROOSLimit);	 
+		 
+ fscanf(infile,"Turn off filling of lastdac fifos(exc 1st ROC):%d\n",&LastDacOff);
+	  if(localDEBUG)
+    printf("Turn off filling of lastdac fifos(exc 1st ROC):%d\n",LastDacOff);	 
+		 
+ fscanf(infile,"Number of simulated hits per ROC for internal generator:%d\n",&SimHitsPerRoc);
+	  if(localDEBUG)
+    printf("Number of simulated hits per ROC for internal generator:%d\n",SimHitsPerRoc);	 
+
+ fscanf(infile,"Miniumum hold time for busy (changing definition):%d\n",&BusyHoldMin);
+	  if(localDEBUG)
+    printf("Miniumum hold time for busy (changing definition):%d\n",BusyHoldMin);	 
+		 
+ fscanf(infile,"Trigger Holdoff in units of 25us(0=none):%d\n",&TriggerHoldoff);
+	  if(localDEBUG)
+    printf("Trigger Holdoff in units of 25us(0=none):%d\n",TriggerHoldoff);	 
+		 
+ fscanf(infile,"Spare fedcard input 1:%d\n",&SPARE1);
+	  if(localDEBUG)
+    printf("Spare fedcard input 1:%d\n",SPARE1);	 
+ fscanf(infile,"Spare fedcard input 2:%d\n",&SPARE2);
+	  if(localDEBUG)
+    printf("Spare fedcard input 2:%d\n",SPARE2);	 
+ fscanf(infile,"Spare fedcard input 3:%d\n",&SPARE3);
+	  if(localDEBUG)
+    printf("Spare fedcard input 3:%d\n",SPARE3);	 
+ fscanf(infile,"Spare fedcard input 4:%d\n",&SPARE4);
+	  if(localDEBUG)
+    printf("Spare fedcard input 4:%d\n",SPARE4);	 
+ fscanf(infile,"Spare fedcard input 5:%d\n",&SPARE5);
+	  if(localDEBUG)
+    printf("Spare fedcard input 5:%d\n",SPARE5);	 
+ fscanf(infile,"Spare fedcard input 6:%d\n",&SPARE6);
+	  if(localDEBUG)
+    printf("Spare fedcard input 6:%d\n",SPARE6);	 
+ fscanf(infile,"Spare fedcard input 7:%d\n",&SPARE7);
+	  if(localDEBUG)
+    printf("Spare fedcard input 7:%d\n",SPARE7);	 
+ fscanf(infile,"Spare fedcard input 8:%d\n",&SPARE8);
+	  if(localDEBUG)
+    printf("Spare fedcard input 8:%d\n",SPARE8);	 
+ fscanf(infile,"Spare fedcard input 9:%d\n",&SPARE9);
+	  if(localDEBUG)
+    printf("Spare fedcard input 9:%d\n",SPARE9);	 
+ fscanf(infile,"Spare fedcard input 10:%d\n",&SPARE10);
+	  if(localDEBUG)
+    printf("Spare fedcard input 10:%d\n",SPARE10);	 
+		 
+		 
+		 				
+				}else if(checkword==91509){
+      //These bits set the hit limit in fifo-1 for an event
+  fscanf(infile,"N fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&N_hitlimit);
+  if(localDEBUG)
+    printf("N fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",N_hitlimit);    
+  fscanf(infile,"NC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&NC_hitlimit);
+  if(localDEBUG)
+    printf("NC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",NC_hitlimit);
+  fscanf(infile,"SC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&SC_hitlimit);
+  if(localDEBUG)
+    printf("SC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",SC_hitlimit);
+  fscanf(infile,"S fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&S_hitlimit);
+  if(localDEBUG)
+    printf("S fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",S_hitlimit);
+      //These bits allow a ROC to be skipped (1/fpga)
+      
+  fscanf(infile,"Skip a ROC in ch 1-9, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&N_testreg);
+  if(localDEBUG)
+    printf("Skip a ROC in ch 1-9, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",N_testreg);
+  fscanf(infile,"Skip a ROC in ch 10-18, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&NC_testreg);
+  if(localDEBUG)
+    printf("Skip a ROC in ch 10-18, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",NC_testreg);
+  fscanf(infile,"Skip a ROC in ch 19-27, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&SC_testreg);
+  if(localDEBUG)
+    printf("Skip a ROC in ch 19-27, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",SC_testreg);
+  fscanf(infile,"Skip a ROC in ch 28-36, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&S_testreg);
+  if(localDEBUG)
+    printf("Skip a ROC in ch 28-36, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",S_testreg);
+	
+	  BusyWhenBehind=8;
+    FeatureRegister=0x1;    	
+    FIFO2Limit=0x1C00;	        	
+    TimeoutOROOSLimit=200;   	
+    LastDacOff=0;	        	
+    SimHitsPerRoc=0;       	
+    BusyHoldMin=0;
+		TriggerHoldoff=0;         	
+    SPARE1=0; 	        	    
+    SPARE2=0; 	        	    
+    SPARE3=0;        	    
+    SPARE4=0; 	        	    
+    SPARE5=0; 	        	    
+    SPARE6=0; 	        	    
+    SPARE7=0; 	        	    
+    SPARE8=0; 	        	    
+    SPARE9=0; 	        	    
+    SPARE10=0;                
+  	
          } else {
     
     N_hitlimit=192;	
@@ -977,7 +1091,25 @@ PixelFEDCard::PixelFEDCard(string fileName):
     NC_testreg=0;
     SC_testreg=0;
     S_testreg=0;
-         }
+
+	  BusyWhenBehind=8;
+    FeatureRegister=0x1;    
+    FIFO2Limit=0x1c00;	       
+    TimeoutOROOSLimit=200;   
+    LastDacOff=0;	        	
+    SimHitsPerRoc=0;       	
+    BusyHoldMin=0;
+		TriggerHoldoff=0;         	
+    SPARE1=0; 	        	   
+    SPARE2=0; 	        	   
+    SPARE3=0;        	    
+    SPARE4=0; 	        	   
+    SPARE5=0; 	        	   
+    SPARE6=0; 	        	   
+    SPARE7=0; 	        	   
+    SPARE8=0; 	        	   
+    SPARE9=0; 	        	   
+    SPARE10=0; }
    
   fclose(infile);
 
@@ -1289,7 +1421,7 @@ void PixelFEDCard::writeASCII(std::string dir) const{
   fprintf(outfile,"TTCrx Register 0 fine delay ClkDes1:%d\n",
           FineDes1Del);
 
-  int checkword=91509;
+  int checkword=20211;
 
   fprintf(outfile,"Params FED file check word:%d\n",
                            checkword);
@@ -1322,6 +1454,41 @@ void PixelFEDCard::writeASCII(std::string dir) const{
     fprintf(outfile,"Skip a ROC in ch 28-36, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",
     S_testreg);
     
+    fprintf(outfile,"Set BUSYWHENBEHIND by this many triggers with timeouts:%d\n",
+		BusyWhenBehind);
+				
+    fprintf(outfile,"D[0]=1 enable fed-stuck reset D[1]=1 disable ev# protect(dont):0x%x\n",
+		FeatureRegister);	 
+		 
+    fprintf(outfile,"Limit for fifo-2 almost full (point for the TTS flag):0x%x\n",
+		FIFO2Limit);	 
+		 
+    fprintf(outfile,"Limit for consecutive timeout OR OOSs:%d\n",
+		TimeoutOROOSLimit);	 
+		 
+    fprintf(outfile,"Turn off filling of lastdac fifos(exc 1st ROC):%d\n",
+		LastDacOff);	 
+		 
+    fprintf(outfile,"Number of simulated hits per ROC for internal generator:%d\n",
+		SimHitsPerRoc);	 
+
+    fprintf(outfile,"Miniumum hold time for busy (changing definition):%d\n",
+		BusyHoldMin);	 
+		 
+    fprintf(outfile,"Trigger Holdoff in units of 25us(0=none):%d\n",
+		TriggerHoldoff);	 
+		 
+    fprintf(outfile,"Spare fedcard input 1:%d\n",SPARE1);	 
+    fprintf(outfile,"Spare fedcard input 2:%d\n",SPARE2);	 
+    fprintf(outfile,"Spare fedcard input 3:%d\n",SPARE3);	 
+    fprintf(outfile,"Spare fedcard input 4:%d\n",SPARE4);	 
+    fprintf(outfile,"Spare fedcard input 5:%d\n",SPARE5);	 
+    fprintf(outfile,"Spare fedcard input 6:%d\n",SPARE6);	 
+    fprintf(outfile,"Spare fedcard input 7:%d\n",SPARE7);	 
+    fprintf(outfile,"Spare fedcard input 8:%d\n",SPARE8);	 
+    fprintf(outfile,"Spare fedcard input 9:%d\n",SPARE9);	 
+    fprintf(outfile,"Spare fedcard input 10:%d\n",SPARE10);	 
+		 
 
 
   fclose(outfile);
