@@ -9,13 +9,37 @@
 #include <TH1.h>
 #include <TH2.h>
 
+//
+// -- Constructor
+//
+PFMETMonitor::PFMETMonitor( Benchmark::Mode mode) : 
+   Benchmark(mode), 
+   candBench_(mode), 
+   matchCandBench_(mode) {
+
+  setRange( 0.0, 10e10, -10.0, 10.0, -3.14, 3.14);
+
+  px_                        = 0;
+  sumEt_                     = 0;
+  delta_ex_                  = 0;
+  delta_ex_VS_set_           = 0;
+  delta_set_VS_set_          = 0;
+  delta_set_Over_set_VS_set_ = 0;
+  
+  createMETSpecificHistos_ = false;
+  histogramBooked_ = false;
+} 
+//
+// -- Destructor
+//
 PFMETMonitor::~PFMETMonitor() {}
 
-
+//
+// -- Set Parameters accessing them from ParameterSet
+//
 void PFMETMonitor::setParameters( const edm::ParameterSet & parameterSet) {
   
   mode_           = (Benchmark::Mode) parameterSet.getParameter<int>( "mode" );
-  variablePtBins_ = parameterSet.getParameter< std::vector<double> >( "VariablePtBins" );
   createMETSpecificHistos_ = parameterSet.getParameter<bool>( "CreateMETSpecificHistos" );
   setRange( parameterSet.getParameter<double>("ptMin"),
 	    parameterSet.getParameter<double>("ptMax"),
@@ -27,61 +51,29 @@ void PFMETMonitor::setParameters( const edm::ParameterSet & parameterSet) {
 
   candBench_.setParameters(mode_);
   matchCandBench_.setParameters(mode_);
-  
-  px_                        = 0;
-  sumEt_                     = 0;
-  delta_ex_                  = 0;
-  delta_ex_VS_set_           = 0;
-  delta_set_VS_set_          = 0;
-  delta_set_Over_set_VS_set_ = 0;
 }
+//
+// -- Set Parameters 
+//
+void PFMETMonitor::setParameters(Benchmark::Mode mode, float ptmin, float ptmax, 
+                       float etamin, float etamax, float phimin, 
+				 float phimax, bool metSpHistos) {
+  mode_           = mode;
+  createMETSpecificHistos_ = metSpHistos;
 
-void PFMETMonitor::setup() {
-  candBench_.setup();
-  matchCandBench_.setup();
-  
-  if (createMETSpecificHistos_) {
-    float* ptBins = new float[variablePtBins_.size()];
-    for (size_t i = 0; i < variablePtBins_.size(); i++) {
-      ptBins[i] = variablePtBins_[i];
-    }
-    PhaseSpace pxPS       = PhaseSpace( 50, 0, 200);
-    PhaseSpace dpxPS      = PhaseSpace( 50, -500, 500);    
-    PhaseSpace dptPS      = PhaseSpace( 200, -500, 500);
-    PhaseSpace setPS      = PhaseSpace( 50, 0.0, 3000);
-    PhaseSpace dsetPS     = PhaseSpace( 50, -1000.0, 1000);
-    PhaseSpace setOvsetPS = PhaseSpace( 100,0., 2.);
+  setRange( ptmin, ptmax, etamin, etamax, phimin, phimax);
 
-    px_  = book1D("px_", "px_;p_{X} (GeV)", pxPS.n, pxPS.m, pxPS.M);
-
-    sumEt_ = book1D("sumEt_", "sumEt_;#sumE_{T}", setPS.n, setPS.m, setPS.M);
-
-    delta_ex_ = book1D("delta_ex_", "#DeltaME_{X}", dpxPS.n, dpxPS.m, dpxPS.M);
-    
-    delta_ex_VS_set_ = book2D("delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
-			      setPS.n, setPS.m, setPS.M, 
-			      dpxPS.n, dpxPS.m, dpxPS.M );
-    
-    delta_set_VS_set_ = book2D("delta_set_VS_set_", 
-			       ";SE_{T, true} (GeV);#DeltaSE_{T}",
-			       setPS.n, setPS.m, setPS.M,
-			       dsetPS.n, dsetPS.m, dsetPS.M );
-    
-    delta_set_Over_set_VS_set_ = book2D("delta_set_Over_set_VS_set_", 
-					";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
-					setPS.n, setPS.m, setPS.M,
-					setOvsetPS.n, setOvsetPS.m, setOvsetPS.M );
-  }
+  candBench_.setParameters(mode_);
+  matchCandBench_.setParameters(mode_);  
 }
+//
+// -- Create histograms accessing parameters from ParameterSet
+//
 void PFMETMonitor::setup(const edm::ParameterSet & parameterSet) {
   candBench_.setup(parameterSet);
   matchCandBench_.setup(parameterSet);
   
-  if (createMETSpecificHistos_) {
-    float* ptBins = new float[variablePtBins_.size()];
-    for (size_t i = 0; i < variablePtBins_.size(); i++) {
-      ptBins[i] = variablePtBins_[i];
-    }
+  if (createMETSpecificHistos_ && !histogramBooked_) {
 
     edm::ParameterSet pxPS      = parameterSet.getParameter<edm::ParameterSet>("DeltaPxHistoParameter");
     edm::ParameterSet dpxPS      = parameterSet.getParameter<edm::ParameterSet>("DeltaPxHistoParameter");
@@ -139,6 +131,45 @@ void PFMETMonitor::setup(const edm::ParameterSet & parameterSet) {
 					  setOvsetPS.getParameter<double>("xMin"), 
 					  setOvsetPS.getParameter<double>("xMax"));
     }
+    histogramBooked_ = true;
+  }
+}
+//
+// -- Create histograms using local parameters
+//
+void PFMETMonitor::setup() {
+  candBench_.setup();
+  matchCandBench_.setup();
+  
+  if (createMETSpecificHistos_ && !histogramBooked_) {
+
+    PhaseSpace pxPS       = PhaseSpace( 50, 0, 200);
+    PhaseSpace dpxPS      = PhaseSpace( 50, -500, 500);    
+    PhaseSpace dptPS      = PhaseSpace( 200, -500, 500);
+    PhaseSpace setPS      = PhaseSpace( 50, 0.0, 3000);
+    PhaseSpace dsetPS     = PhaseSpace( 50, -1000.0, 1000);
+    PhaseSpace setOvsetPS = PhaseSpace( 100,0., 2.);
+
+    px_  = book1D("px_", "px_;p_{X} (GeV)", pxPS.n, pxPS.m, pxPS.M);
+
+    sumEt_ = book1D("sumEt_", "sumEt_;#sumE_{T}", setPS.n, setPS.m, setPS.M);
+
+    delta_ex_ = book1D("delta_ex_", "#DeltaME_{X}", dpxPS.n, dpxPS.m, dpxPS.M);
+    
+    delta_ex_VS_set_ = book2D("delta_ex_VS_set_", ";SE_{T, true} (GeV);#DeltaE_{X}",
+			      setPS.n, setPS.m, setPS.M, 
+			      dpxPS.n, dpxPS.m, dpxPS.M );
+    
+    delta_set_VS_set_ = book2D("delta_set_VS_set_", 
+			       ";SE_{T, true} (GeV);#DeltaSE_{T}",
+			       setPS.n, setPS.m, setPS.M,
+			       dsetPS.n, dsetPS.m, dsetPS.M );
+    
+    delta_set_Over_set_VS_set_ = book2D("delta_set_Over_set_VS_set_", 
+					";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
+					setPS.n, setPS.m, setPS.M,
+					setOvsetPS.n, setOvsetPS.m, setOvsetPS.M );
+    histogramBooked_ = true;
   }
 }
 
@@ -153,7 +184,7 @@ void PFMETMonitor::fillOne(const reco::MET& met,
 			   const reco::MET& matchedMet, float& minVal, float& maxVal) {
   candBench_.fillOne(met);
   matchCandBench_.fillOne(met, matchedMet);
-  if (createMETSpecificHistos_) {
+  if (createMETSpecificHistos_ && histogramBooked_) {
     if( !isInRange(met.pt(), met.eta(), met.phi() ) ) return;
 
     if (px_) px_->Fill(met.px());

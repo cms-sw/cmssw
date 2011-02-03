@@ -13,17 +13,19 @@ class PFJetMonitor : public Benchmark {
 
  public:
 
-  PFJetMonitor( float dRMax = 0.3,
-		      bool matchCharge = true, 
-		      Benchmark::Mode mode=Benchmark::DEFAULT) 
-    : 
-    Benchmark(mode), 
-    candBench_(mode), matchCandBench_(mode), 
-    dRMax_(dRMax), matchCharge_(matchCharge) {}
+  
+  PFJetMonitor( float dRMax = 0.3, bool matchCharge = true, 
+		Benchmark::Mode mode=Benchmark::DEFAULT); 
   
   virtual ~PFJetMonitor();
   
-  /// set the parameters
+  /// set the parameters locally
+  void setParameters(float dRMax, bool matchCharge, 
+                     Benchmark::Mode mode,float ptmin, 
+                     float ptmax, float etamin, float etamax, 
+                     float phimin, float phimax, bool fracHistoFlag=true);
+
+  /// set the parameters accessing them from ParameterSet
   void setParameters( const edm::ParameterSet& parameterSet);
   
   /// set directory (to use in ROOT)
@@ -39,7 +41,6 @@ class PFJetMonitor : public Benchmark {
   template< class T, class C>
   void fill(const T& jetCollection,
 	    const C& matchedJetCollection, float& minVal, float& maxVal);
-
 
   void fillOne(const reco::Jet& jet,
 	       const reco::Jet& matchedJet);
@@ -57,6 +58,7 @@ class PFJetMonitor : public Benchmark {
   float dRMax_;
   bool  matchCharge_;
   bool  createPFractionHistos_;
+  bool  histogramBooked_;
 
 };
 
@@ -88,7 +90,7 @@ void PFJetMonitor::fill(const T& jetCollection,
  
       candBench_.fillOne(jet);
       matchCandBench_.fillOne(jet, matchedJetCollection[ iMatch ]);
-      if (createPFractionHistos_) fillOne(jet, matchedJetCollection[ iMatch ]);
+      if (createPFractionHistos_ && histogramBooked_) fillOne(jet, matchedJetCollection[ iMatch ]);
     }
   }
 }

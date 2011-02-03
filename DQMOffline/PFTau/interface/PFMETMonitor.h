@@ -12,14 +12,15 @@ class PFMETMonitor : public Benchmark {
 
  public:
 
-  PFMETMonitor( Benchmark::Mode mode=Benchmark::DEFAULT) 
-    : 
-    Benchmark(mode), 
-    candBench_(mode), matchCandBench_(mode) {} 
+  PFMETMonitor( Benchmark::Mode mode=Benchmark::DEFAULT); 
   
   virtual ~PFMETMonitor();
+
+  /// set the parameters locally
+  void setParameters(Benchmark::Mode mode, float ptmin, float ptmax, float etamin,
+                    float etamax, float phimin, float phimax, bool metSpHistos);
   
-  /// set the parameters
+  /// set the parameters accessing them from ParameterSet
   void setParameters( const edm::ParameterSet& parameterSet);
   
   /// set directory (to use in ROOT)
@@ -42,8 +43,6 @@ class PFMETMonitor : public Benchmark {
   TH2F*   delta_set_VS_set_;
   TH2F*   delta_set_Over_set_VS_set_;
 
-  std::vector<double> variablePtBins_;
- 
   CandidateBenchmark      candBench_;
   MatchCandidateBenchmark matchCandBench_;
 

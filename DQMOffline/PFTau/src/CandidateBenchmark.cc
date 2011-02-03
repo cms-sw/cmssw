@@ -54,42 +54,45 @@ void CandidateBenchmark::setup() {
 }
 
 void CandidateBenchmark::setup(const edm::ParameterSet& parameterSet) {
-  if (histogramBooked_) return;
-  edm::ParameterSet ptPS  = parameterSet.getParameter<edm::ParameterSet>("PtHistoParameter");
-  edm::ParameterSet etaPS = parameterSet.getParameter<edm::ParameterSet>("EtaHistoParameter");
-  edm::ParameterSet phiPS = parameterSet.getParameter<edm::ParameterSet>("PhiHistoParameter");
-  edm::ParameterSet chPS = parameterSet.getParameter<edm::ParameterSet>("ChargeHistoParameter");
-  
-  if (ptPS.getParameter<bool>("switchOn")) {
-    pt_ = book1D("pt_", "pt_;p_{T} (GeV)", ptPS.getParameter<int32_t>("nBin"), 
-		 ptPS.getParameter<double>("xMin"),
-		 ptPS.getParameter<double>("xMax"));
-  } 
+  if (!histogramBooked_)  {
+    edm::ParameterSet ptPS  = parameterSet.getParameter<edm::ParameterSet>("PtHistoParameter");
+    edm::ParameterSet etaPS = parameterSet.getParameter<edm::ParameterSet>("EtaHistoParameter");
+    edm::ParameterSet phiPS = parameterSet.getParameter<edm::ParameterSet>("PhiHistoParameter");
+    edm::ParameterSet chPS = parameterSet.getParameter<edm::ParameterSet>("ChargeHistoParameter");
     
-  if (etaPS.getParameter<bool>("switchOn")) {
-    eta_ = book1D("eta_", "eta_;#eta", etaPS.getParameter<int32_t>("nBin"), 
-		  etaPS.getParameter<double>("xMin"),
-		  etaPS.getParameter<double>("xMax"));
+    if (ptPS.getParameter<bool>("switchOn")) {
+      pt_ = book1D("pt_", "pt_;p_{T} (GeV)", ptPS.getParameter<int32_t>("nBin"), 
+		   ptPS.getParameter<double>("xMin"),
+		   ptPS.getParameter<double>("xMax"));
+    } 
+    
+    if (etaPS.getParameter<bool>("switchOn")) {
+      eta_ = book1D("eta_", "eta_;#eta", etaPS.getParameter<int32_t>("nBin"), 
+		    etaPS.getParameter<double>("xMin"),
+		    etaPS.getParameter<double>("xMax"));
+    }
+    if (phiPS.getParameter<bool>("switchOn")) {
+      phi_ = book1D("phi_", "phi_;#phi", phiPS.getParameter<int32_t>("nBin"), 
+		    phiPS.getParameter<double>("xMin"),
+		    phiPS.getParameter<double>("xMax"));
+    }
+    if (chPS.getParameter<bool>("switchOn")) {
+      charge_ = book1D("charge_","charge_;charge",chPS.getParameter<int32_t>("nBin"),
+		       chPS.getParameter<double>("xMin"),
+		       chPS.getParameter<double>("xMax"));
+    }   
+    histogramBooked_ = true;
   }
-  if (phiPS.getParameter<bool>("switchOn")) {
-    phi_ = book1D("phi_", "phi_;#phi", phiPS.getParameter<int32_t>("nBin"), 
-		  phiPS.getParameter<double>("xMin"),
-		  phiPS.getParameter<double>("xMax"));
-  }
-  if (chPS.getParameter<bool>("switchOn")) {
-    charge_ = book1D("charge_","charge_;charge",chPS.getParameter<int32_t>("nBin"),
-                  chPS.getParameter<double>("xMin"),
-		  chPS.getParameter<double>("xMax"));
-  }   
-  histogramBooked_ = true;
 }
 
 void CandidateBenchmark::fillOne(const reco::Candidate& cand) {
 
   if( !isInRange(cand.pt(), cand.eta(), cand.phi() ) ) return;
 
-  if (pt_) pt_->Fill( cand.pt() );
-  if (eta_) eta_->Fill( cand.eta() );
-  if (phi_) phi_->Fill( cand.phi() );
-  if (charge_) charge_->Fill( cand.charge() );
+  if (histogramBooked_) {
+    if (pt_) pt_->Fill( cand.pt() );
+    if (eta_) eta_->Fill( cand.eta() );
+    if (phi_) phi_->Fill( cand.phi() );
+    if (charge_) charge_->Fill( cand.charge() );
+  }
 }
