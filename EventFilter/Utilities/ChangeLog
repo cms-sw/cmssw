@@ -1,3 +1,8 @@
+2011-02-03  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-05
+	* fix bug in ParameterSetRetriever
+
 2011-01-19  Emilio Meschi <emilio.meschi@cern.ch>
 	
 	* tag V00-19-04
