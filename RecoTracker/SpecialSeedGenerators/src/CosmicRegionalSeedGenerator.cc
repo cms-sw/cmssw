@@ -126,6 +126,9 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 	continue;
       }
       
+      //bit 25 as a coverage -1.4 < eta < 1.4
+      if ( abs( staMuon->standAloneMuon()->eta() ) > 1.5 ) continue;
+
       //debug
       nmuons++;
       LogDebug("CosmicRegionalSeedGenerator") << "Muon stand alone found in the collection - in muons chambers: \n " 
@@ -280,11 +283,13 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
     int nmuons = 0;
     for (reco::TrackCollection::const_iterator cosmicMuon = cosmicMuonsHandle->begin();  cosmicMuon != cosmicMuonsHandle->end();  ++cosmicMuon) {
+      
+      //bit 25 as a coverage -1.4 < eta < 1.4
+      if ( abs( cosmicMuon->eta() ) > 1.5 ) continue;
 
       nmuons++;
             
       //initial position, momentum, charge
-      
       GlobalPoint initialRegionPosition(cosmicMuon->referencePoint().x(), cosmicMuon->referencePoint().y(), cosmicMuon->referencePoint().z());
       GlobalVector initialRegionMomentum(cosmicMuon->momentum().x(), cosmicMuon->momentum().y(), cosmicMuon->momentum().z());
       int charge = (int) cosmicMuon->charge();
@@ -425,13 +430,13 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
     for (reco::RecoChargedCandidateCollection::const_iterator L2Muon = L2MuonsHandle->begin();  L2Muon != L2MuonsHandle->end();  ++L2Muon) {
       reco::TrackRef tkL2Muon = L2Muon->get<reco::TrackRef>();
 
+      //bit 25 as a coverage -1.4 < eta < 1.4
+      if ( abs( tkL2Muon->eta() ) > 1.5 ) continue;
+
       nmuons++;
             
       //initial position, momentum, charge
-      
       GlobalPoint initialRegionPosition(tkL2Muon->referencePoint().x(), tkL2Muon->referencePoint().y(), tkL2Muon->referencePoint().z());
-
-
       GlobalVector initialRegionMomentum(tkL2Muon->momentum().x(), tkL2Muon->momentum().y(), tkL2Muon->momentum().z());
       int charge = (int) tkL2Muon->charge();
    
