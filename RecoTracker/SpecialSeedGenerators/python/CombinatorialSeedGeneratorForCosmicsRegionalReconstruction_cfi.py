@@ -26,7 +26,7 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
         ),
       ToolsPSet = cms.PSet(
         thePropagatorName           = cms.string("AnalyticalPropagator"),
-        regionBase                  = cms.string("seedOnL2Muon") # or seedOnCosmicMuon or seedOnStaMuon(default)
+        regionBase                  = cms.string("seedOnCosmicMuon") # seedOnL2Muon or seedOnCosmicMuon or seedOnStaMuon(default)
 
         ),
       CollectionsPSet = cms.PSet(
