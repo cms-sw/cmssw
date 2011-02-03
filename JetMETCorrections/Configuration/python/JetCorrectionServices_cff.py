@@ -49,7 +49,7 @@ ak5CaloL1Fastjet = cms.ESSource(
     level       = cms.string('L1FastJet'),
     algorithm   = cms.string('AK5Calo'),
     section     = cms.string(''),
-    srcMedianPt = cms.InputTag('kt6PFJets'),
+    srcRho      = cms.InputTag('kt6PFJets','rho'),
     useCondDB = cms.untracked.bool(True)
     )
 ak5PFL1Fastjet = ak5CaloL1Fastjet.clone(algorithm = 'AK5PF')
