@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.57 2010/11/17 11:16:23 babar Exp $
+# $Id: InjectWorker.pl,v 1.58 2011/02/03 16:26:28 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -562,11 +562,11 @@ sub insert_file {
           )
     );
     $kernel->yield(
-        update_db  => $args,
+        update_db             => $args,
         insertFileSummaryProc => qw( FILENAME )
     );
     $kernel->yield(
-        update_db  => $args,
+        update_db               => $args,
         insertFileInstancesProc => qw( FILENAME )
     );
 }
@@ -610,11 +610,11 @@ sub close_file {
           )
     );
     $kernel->yield(
-        update_db  => $args,
+        update_db            => $args,
         closeFileSummaryProc => qw( FILENAME )
     );
     $kernel->yield(
-        update_db  => $args,
+        update_db              => $args,
         closeFileInstancesProc => qw( FILENAME )
     );
 
@@ -939,10 +939,10 @@ sub read_offsets {
 sub heartbeat {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
     my $message = gettimestamp( time() ) . ' Still alive in main loop.';
-    $message .= ' Kernel has ' . $kernel->get_event_count()
-        . ' events to process';
+    $message .=
+      ' Kernel has ' . $kernel->get_event_count() . ' events to process';
     $kernel->post( 'logger', info => $message );
-    $kernel->delay( heartbeat => + $heartbeat );
+    $kernel->delay( heartbeat => +$heartbeat );
 }
 
 # Do something with all POE events which are not caught
