@@ -45,6 +45,9 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   double MuonEt = 0.0;
   double type6Et = 0.0;
   double type7Et = 0.0;
+
+
+  pfsignalgo_.useOriginalPtrs(PFCandidates.id());
   
   for( edm::View<reco::Candidate>::const_iterator iParticle = (PFCandidates.product())->begin() ; iParticle != (PFCandidates.product())->end() ; ++iParticle )
   {   

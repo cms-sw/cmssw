@@ -24,12 +24,13 @@ namespace metsig{
     void setResolutions( metsig::SignAlgoResolutions *resolutions);
     void addPFJets(edm::Handle<edm::View<reco::PFJet> > PFJets);
     void addPFCandidate(reco::PFCandidatePtr pf);
+    void useOriginalPtrs(const edm::ProductID& productID);
     TMatrixD getSignifMatrix() const {return algo_.getSignifMatrix();}
     
   
   private:
     metsig::SignAlgoResolutions *resolutions_;
-    std::set<reco::PFCandidatePtr> clusteredParticlePtrs_;
+    std::set<reco::CandidatePtr> clusteredParticlePtrs_;
     metsig::significanceAlgo algo_;
   };
 }
