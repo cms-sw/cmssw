@@ -381,6 +381,16 @@ with the local modified code.
   
   </environment>
   
+  <environment name="RedoStep1">
+
+    <environment name="RedoTTbar">
+      <var name="DBS_SAMPLE" value="RelValTTbar">
+      <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RAW.root">
+      <executable name="cmsDriver.py" args="TTbar_Tauola_7TeV_cfi.py -s GEN,FASTSIM,HLT:GRun,VALIDATION --pileup=NoPileUp --geometry DB --conditions=auto:mc --eventcontent=FEVTDEBUGHLT --datatier GEN-SIM-DIGI-RECO -n 10 --relval 100000,1000 --fileout ${TEST_OUTPUT_FILE}">
+    </environment>
+
+  </environment>
+
 </environment>
 
 

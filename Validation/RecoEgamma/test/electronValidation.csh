@@ -10,13 +10,13 @@
 # If you prefer to set the variables and run this script directly,
 # here they are :
 #
-# $1 : eventual second command-line argument, immediatly duplicated into VAL_OUTPUT_FILE,
+# $1 : eventual first command-line argument, immediatly duplicated into VAL_OUTPUT_FILE,
 #   is the default base name of the files containing the histograms ; it is
 #   also used to build some default value for other variables.
-# $2 : eventual third command-line argument, immediatly duplicated into VAL_WEB_SUB_DIR,
-#   it is the name of the web subdirectory. Default is close to ${DBS_SAMPLE}_{DBS_COND}.
+# $2 : eventual second command-line argument, immediatly duplicated into VAL_WEB_SUB_DIR,
+#   is the name of the web subdirectory. Default is close to ${DBS_SAMPLE}_{DBS_COND}.
 #
-# VAL_COMMENT : a comment to inserted at the beginning of the web page, which generally
+# VAL_COMMENT : a comment to insert at the beginning of the web page, which generally
 #   explains the specificity of the new release if this is not straightforward.
 # VAL_NEW_RELEASE : chosen name for the new release to validate ; used in web pages
 #   and used to build the path where the web pages will be stored.
@@ -25,11 +25,9 @@
 #   be stored.
 #
 # VAL_NEW_FILE : complete path of the file containing the new histograms.
-#   If not set, a default value is computed, based on 1st command line argument,
-#   2nd command line argument and current directory.
+#   If not set, a default value is deduced from 1st command line argument and VAL_NEW_RELEASE.
 # VAL_REF_FILE : complete path of the file containing the old histograms to compare with.
-#   If not set, a default value is computed, based on 1st command line argument,
-#   2nd command line argument and VAL_REF_RELEASE.
+#   If not set, a default value is deduced from 1st command line argument and VAL_REF_RELEASE.
 # 
 # VAL_HISTOS : name of the file describing the histograms to extract and generate.
 # VAL_ANALYZER : name of the analyzer used.
@@ -82,12 +80,6 @@ echo "VAL_NEW_RELEASE = ${VAL_NEW_RELEASE}"
 if ( ${?VAL_NEW_FILE} == "0" ) setenv VAL_NEW_FILE ""
 
 if ( ${VAL_NEW_FILE} == "" ) then
-  if ( -r "${VAL_ORIGINAL_DIR}/${VAL_OUTPUT_FILE}" ) then
-    setenv VAL_NEW_FILE "${VAL_ORIGINAL_DIR}/${VAL_OUTPUT_FILE}"
-  endif
-endif
-
-if ( ${VAL_NEW_FILE} == "" ) then
   if ( -r "${VAL_WEB}/${VAL_NEW_RELEASE}/Electrons/data/${VAL_OUTPUT_FILE}" ) then
     setenv VAL_NEW_FILE "${VAL_WEB}/${VAL_NEW_RELEASE}/Electrons/data/${VAL_OUTPUT_FILE}"
   endif
@@ -95,8 +87,16 @@ endif
 
 if ( -r "${VAL_NEW_FILE}" ) then
   echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
+  test "${VAL_ORIGINAL_DIR}/${VAL_OUTPUT_FILE}" -nt "${VAL_NEW_FILE}" && echo "WARNING: did you forget to store ${VAL_ORIGINAL_DIR}/${VAL_OUTPUT_FILE} ?"
 else
-  echo "${VAL_NEW_FILE} is unreadable !"
+  if ( ${VAL_NEW_FILE} != "" ) then
+    echo "${VAL_NEW_FILE} is unreadable !"
+  else
+    echo "New histograms file not found !"
+  endif
+  if ( -r "${VAL_ORIGINAL_DIR}/${VAL_OUTPUT_FILE}" ) then
+    echo "Did you forget to store ${VAL_ORIGINAL_DIR}/${VAL_OUTPUT_FILE} ?"
+  endif
   setenv VAL_NEW_FILE ""
 endif
   

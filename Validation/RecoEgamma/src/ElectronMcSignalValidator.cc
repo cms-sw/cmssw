@@ -318,8 +318,8 @@ void ElectronMcSignalValidator::beginJob()
 
   // matched electron, gsf tracks
   h1_ele_ambiguousTracks = bookH1withSumw2("h_ele_ambiguousTracks","ele # ambiguous tracks",  5,0.,5.,"N_{ambiguous tracks}");
-  h2_ele_ambiguousTracksVsEta = bookH2("h_ele_ambiguousTracksVsEta","ele # ambiguous tracks  vs eta",eta2D_nbin,eta_min,eta_max,5,0.,5.);
-  h2_ele_ambiguousTracksVsPhi = bookH2("h_ele_ambiguousTracksVsPhi","ele # ambiguous tracks  vs phi",phi2D_nbin,phi_min,phi_max,5,0.,5.);
+  h2_ele_ambiguousTracksVsEta = bookH2("h_ele_ambiguousTracksVsEta","ele # ambiguous tracks vs eta",eta2D_nbin,eta_min,eta_max,5,0.,5.);
+  h2_ele_ambiguousTracksVsPhi = bookH2("h_ele_ambiguousTracksVsPhi","ele # ambiguous tracks vs phi",phi2D_nbin,phi_min,phi_max,5,0.,5.);
   h2_ele_ambiguousTracksVsPt = bookH2("h_ele_ambiguousTracksVsPt","ele # ambiguous tracks vs pt",pt2D_nbin,0.,pt_max,5,0.,5.);
   h1_ele_foundHits = bookH1withSumw2("h_ele_foundHits","ele track # found hits",fhits_nbin,0.,fhits_max,"N_{hits}");
   h1_ele_foundHits_barrel = bookH1withSumw2("h_ele_foundHits_barrel","ele track # found hits, barrel",fhits_nbin,0.,fhits_max,"N_{hits}");
@@ -1250,6 +1250,7 @@ void ElectronMcSignalValidator::endJob()
     profileX("h_ele_HoEVsPhi_pfx",h2_ele_HoEVsPhi,"mean ele H/E vs phi","#phi (rad)","<H/E>");
     profileX("h_ele_chi2VsEta_pfx",h2_ele_chi2VsEta,"mean ele track chi2 vs eta","#eta","<#Chi^{2}>");
     profileX("h_ele_chi2VsPhi_pfx",h2_ele_chi2VsPhi,"mean ele track chi2 vs phi","#phi (rad)","<#Chi^{2}>");
+    profileX("h_ele_ambiguousTracksVsEta_pfx",h2_ele_ambiguousTracksVsEta,"mean ele # ambiguous tracks  vs eta","#eta","<N_{ambiguous}>");
     profileX("h_ele_foundHitsVsEta_pfx",h2_ele_foundHitsVsEta,"mean ele track # found hits vs eta","#eta","<N_{hits}>");
     profileX("h_ele_foundHitsVsPhi_pfx",h2_ele_foundHitsVsPhi,"mean ele track # found hits vs phi","#phi (rad)","<N_{hits}>");
     profileX("h_ele_lostHitsVsEta_pfx",h2_ele_lostHitsVsEta,"mean ele track # lost hits vs eta","#eta","<N_{hits}>");
