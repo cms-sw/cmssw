@@ -137,9 +137,9 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   const CaloSubdetectorGeometry *geometry_p;
   std::auto_ptr<const CaloSubdetectorTopology> topology;
 
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  es.get<EcalChannelStatusRcd>().get(chStatus);
-  const EcalChannelStatus* theEcalChStatus = chStatus.product();
+  //edm::ESHandle<EcalChannelStatus> chStatus;
+  //es.get<EcalChannelStatusRcd>().get(chStatus);
+  //const EcalChannelStatus* theEcalChStatus = chStatus.product();
   
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   es.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
