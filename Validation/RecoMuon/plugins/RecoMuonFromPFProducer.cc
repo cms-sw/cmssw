@@ -48,7 +48,7 @@ RecoMuonFromPFProducer::produce(Event& iEvent,
 		    const EventSetup& iSetup) {
 
 
-  auto_ptr< reco::MuonCollection > 
+  std::auto_ptr< reco::MuonCollection > 
     pOutput( new reco::MuonCollection); 
 
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
