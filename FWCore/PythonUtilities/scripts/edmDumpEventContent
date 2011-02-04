@@ -235,8 +235,6 @@ if __name__ == "__main__":
                 print "Skipping ", detail
             continue
         branchList.append (branch)
-    if branchList:
-        pass
     Branch.printList (branchList)
     rootfile.Close()
     del rootfile
