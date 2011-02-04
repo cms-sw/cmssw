@@ -1,6 +1,6 @@
 2011-02-04  Emilio Meschi  <emilio.meschi@cern.ch>
 
-	* tag V00-16-01
+	* tag V00-16-02
 	* remove crash due to segv in FUResourceTable destructor 
 	
 2011-01-21  Emilio Meschi  <emilio.meschi@cern.ch>

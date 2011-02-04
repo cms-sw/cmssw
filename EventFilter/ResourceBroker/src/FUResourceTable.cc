@@ -81,12 +81,18 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
 FUResourceTable::~FUResourceTable()
 {
   clear();
-  wlSendData_->cancel();
-  wlSendDqm_->cancel();
-  wlDiscard_->cancel();
-  toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendData","waiting");
-  toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendDqm","waiting");
-  toolbox::task::getWorkLoopFactory()->removeWorkLoop("Discard","waiting");
+  if(wlSendData_){
+    wlSendData_->cancel();
+    toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendData","waiting");
+  }
+  if(wlSendDqm_){
+    wlSendDqm_->cancel();
+    toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendDqm","waiting");
+  }
+  if(wlDiscard_){
+    wlDiscard_->cancel();
+    toolbox::task::getWorkLoopFactory()->removeWorkLoop("Discard","waiting");
+  }
   shmdt(shmBuffer_);
   if (FUShmBuffer::releaseSharedMemory())
     LOG4CPLUS_INFO(log_,"SHARED MEMORY SUCCESSFULLY RELEASED.");
