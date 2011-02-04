@@ -5738,14 +5738,14 @@ void OHltTree::PrintOhltVariables(int level, int type)
 int OHltTree::OpenHltPFTauPassedNoMuon(float Et, float L25TrkPt, float L3TrkIso, float L3GammaIso)
 {
   int rc = 0;
-  // Loop over all oh pfTaus
-  for (int i=0;i < NohPFTau;i++) {
-    if (pfTauPt[i] >= Et &&
-        fabs(pfTauEta[i]) < 2.5 &&
-        pfTauLeadTrackPt[i] >= L25TrkPt &&
-        pfTauTrkIso[i] < L3TrkIso &&
-        pfTauGammaIso[i] < L3GammaIso &&
-        OpenHltTauMuonMatching(pfTauEta[i], pfTauPhi[i]) == 0
+  // Loop over all oh ohpfTaus
+  for (int i=0;i < NohpfTau;i++) {
+    if (ohpfTauPt[i] >= Et &&
+        fabs(ohpfTauEta[i]) < 2.5 &&
+        ohpfTauLeadTrackPt[i] >= L25TrkPt &&
+        ohpfTauTrkIso[i] < L3TrkIso &&
+        ohpfTauGammaIso[i] < L3GammaIso &&
+        OpenHltTauMuonMatching(ohpfTauEta[i], ohpfTauPhi[i]) == 0
        ) rc++;
   }
   return rc;
@@ -5755,16 +5755,16 @@ int OHltTree::OpenHltPFTauPassedNoEle(float Et,float L25TrkPt, int L3TrkIso, int
 {
     
     int rc = 0;    
-    // Loop over all oh pfTaus
-    for (int i=0;i < NohPFTau;i++) {    
-        //        if (pfTauJetPt[i] >= Et) 
-        if (pfTauPt[i] >= Et) 
-            if(abs(pfTauEta[i])<2.5)
-                if (pfTauLeadTrackPt[i] >= L25TrkPt)
-                    if (pfTauTrkIso[i] < L3TrkIso)
-                        if (pfTauGammaIso[i] < L3GammaIso )   
-                            if(OpenHltTauPFToCaloMatching(pfTauEta[i], pfTauPhi[i]) == 1)
-                                if (OpenHltTauEleMatching(pfTauEta[i], pfTauPhi[i]) == 0)
+    // Loop over all oh ohpfTaus
+    for (int i=0;i < NohpfTau;i++) {    
+        //        if (ohpfTauJetPt[i] >= Et) 
+        if (ohpfTauPt[i] >= Et) 
+            if(abs(ohpfTauEta[i])<2.5)
+                if (ohpfTauLeadTrackPt[i] >= L25TrkPt)
+                    if (ohpfTauTrkIso[i] < L3TrkIso)
+                        if (ohpfTauGammaIso[i] < L3GammaIso )   
+                            if(OpenHltTauPFToCaloMatching(ohpfTauEta[i], ohpfTauPhi[i]) == 1)
+                                if (OpenHltTauEleMatching(ohpfTauEta[i], ohpfTauPhi[i]) == 0)
                                     rc++;      
         
     }
@@ -5967,15 +5967,15 @@ int OHltTree::OpenHlt1Ele1PFTauPassed(float Et, int L1iso, float Tisobarrel, flo
        }
      }
      if (doTaus) {
-       for (int j=0;j < NohPFTau;j++) {
-         if (pfTauPt[j] >= TauEt &&
-           fabs(pfTauEta[j]) < TauEta &&
-           pfTauLeadTrackPt[j] >= L25TrkPt &&
-           pfTauTrkIso[j] < L3TrkIso &&
-           pfTauGammaIso[j] < L3GammaIso &&
+       for (int j=0;j < NohpfTau;j++) {
+         if (ohpfTauPt[j] >= TauEt &&
+           fabs(ohpfTauEta[j]) < TauEta &&
+           ohpfTauLeadTrackPt[j] >= L25TrkPt &&
+           ohpfTauTrkIso[j] < L3TrkIso &&
+           ohpfTauGammaIso[j] < L3GammaIso &&
            pfMHT >= PFMHTCut) {
-             float dphi = fabs(ohElePhi[i] - pfTauPhi[j]);
-             float deta = fabs(ohEleEta[i] - pfTauEta[j]);
+             float dphi = fabs(ohElePhi[i] - ohpfTauPhi[j]);
+             float deta = fabs(ohEleEta[i] - ohpfTauEta[j]);
              if(dphi > 3.14159) dphi = (2.0 * 3.14159) - dphi;
              if(dphi > 0.3 && deta > 0.3) ++rc; // box cut, non-collinearity
          }
@@ -8218,12 +8218,12 @@ int OHltTree::OpenHltQuadJetPassedPlusTauPFId(double pt, double etaJet, double p
   for (int i=0;i<NrecoJetCorCal;i++) { 
     if(recoJetCorCalPt[i] > pt && fabs(recoJetCorCalEta[i]) < etaJet) {  // Jet pT cut 
       njet++; 
-      for (int j=0; j<NohPFTau;j++){ 
+      for (int j=0; j<NohpfTau;j++){ 
          
-        if(pfTauPt[j] > ptTau && pfTauLeadTrackPt[j]>= 5 && fabs(pfTauEta[j]) <2.5  && pfTauTrkIso[j] <1 && pfTauGammaIso[j] <1){ 
+        if(ohpfTauPt[j] > ptTau && ohpfTauLeadTrackPt[j]>= 5 && fabs(ohpfTauEta[j]) <2.5  && ohpfTauTrkIso[j] <1 && ohpfTauGammaIso[j] <1){ 
            
-          float deltaEta = pfTauEta[j] - recoJetCorCalEta[i]; 
-          float deltaPhi = pfTauPhi[j] - recoJetCorCalPhi[i]; 
+          float deltaEta = ohpfTauEta[j] - recoJetCorCalEta[i]; 
+          float deltaPhi = ohpfTauPhi[j] - recoJetCorCalPhi[i]; 
            
           if(fabs(deltaPhi)>3.141592654) deltaPhi = 6.283185308-fabs(deltaPhi); 
            
