@@ -9,6 +9,21 @@
 
 using namespace std;
 
+double findThreshold(TString triggerName)
+{
+
+  if (triggerName.EndsWith("U") == 1){
+    triggerName.Chop();
+  }
+
+  int size = triggerName.Length();
+  TSubString thr = triggerName(11, size);
+  TString thresh(thr);
+  double threshold = thresh.Atof();
+  return threshold;
+}
+
+
 void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcounter,int it) 
 {
   //////////////////////////////////////////////////////////////////
@@ -98,170 +113,33 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }    
   }    
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet15U") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1JetPassed(15.)>=1) {
-	  triggerBit[it] = true; 
-	}
-      }    
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet30U") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1JetPassed(30.)>=1) {
-	  triggerBit[it] = true; 
-	}
-      }    
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet50U") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1JetPassed(50.)>=1) {
-	  triggerBit[it] = true; 
-	}
-      }    
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet60U") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1JetPassed(60.)>=1) {
-	  triggerBit[it] = true; 
-	}
-      }    
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet70U") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1JetPassed(70.)>=1) {
-	  triggerBit[it] = true; 
-	}
-      }    
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet100U") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1JetPassed(100.)>=1) {
-	  triggerBit[it] = true; 
-	}
-      }    
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet140U") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1JetPassed(140.)>=1) {
-	  triggerBit[it] = true; 
-	}
-      }    
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet180U") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1JetPassed(180.)>=1) {
-	  triggerBit[it] = true; 
-	}
-      }    
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet300U") == 0) { 
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) { 
-	if(OpenHlt1JetPassed(300.)>=1) { 
-	  triggerBit[it] = true;  
-	} 
-      }     
-    } 
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet400U") == 0) {  
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
-      if (prescaleResponse(menu,cfg,rcounter,it)) {  
-	if(OpenHlt1JetPassed(400.)>=1) {  
-	  triggerBit[it] = true;   
-	}  
-      }      
-    }  
-  }  
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet500U") == 0) {  
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
-      if (prescaleResponse(menu,cfg,rcounter,it)) {  
-	if(OpenHlt1JetPassed(500.)>=1) {  
-	  triggerBit[it] = true;   
-	}  
-      }      
-    }  
-  }  
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet600U") == 0) {  
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
-      if (prescaleResponse(menu,cfg,rcounter,it)) {  
-	if(OpenHlt1JetPassed(600.)>=1) {  
-	  triggerBit[it] = true;   
-	}  
-      }      
-    }  
-  }  
 
-  /* Single corrected jets */
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet30") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+
+  /*OpenHLT_JetX(U) paths*/
+
+
+else if (menu->GetTriggerName(it).BeginsWith("OpenHLT_Jet") == 1) {
+TString triggerName = menu->GetTriggerName(it);
+double threshold = findThreshold(triggerName);    
+   if (menu->GetTriggerName(it).EndsWith("U") == 1){
+   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+      if (prescaleResponse(menu,cfg,rcounter,it)) {  
+	if(OpenHlt1JetPassed(threshold)>=1) {  
+	  triggerBit[it] = true;   
+	}  
+      }      
+    }  
+  }    
+else {
+ if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1CorJetPassed(30)>=1) { 
+	if(OpenHlt1CorJetPassed(threshold)>=1) { 
 	  triggerBit[it] = true; 
 	}
       }    
     }    
-  }    
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet50") == 0) {     
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1CorJetPassed(50)>=1) { 
-	  triggerBit[it] = true; 
-	}
-      }     
-    }     
-  }     
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet80") == 0) {      
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1CorJetPassed(80)>=1) { 
-	  triggerBit[it] = true; 
-	}
-      }      
-    }      
-  }      
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet110") == 0) {      
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1CorJetPassed(110)>=1) {      
-	  triggerBit[it] = true; 
-	}
-      }      
-    }      
-  }      
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet140") == 0) {       
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1CorJetPassed(140)>=1) {       
-	  triggerBit[it] = true; 
-	}
-      }       
-    }       
-  }       
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet180") == 0) { 
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1CorJetPassed(180)>=1) { 
-	  triggerBit[it] = true; 
-	}
-      } 
-    } 
-  } 
+ }
+}
 
   /* Double Jet */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleJet15U_ForwardBackward") == 0) {
