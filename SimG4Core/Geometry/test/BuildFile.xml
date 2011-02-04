@@ -1,4 +1,9 @@
 <use   name="DetectorDescription/Core"/>
 <use   name="geant4core"/>
 
-<bin  name="testVolumes" file="testVolumes.cpp"></bin>
+<bin  name="testVolumes" file="testVolumes.cpp">
+</bin>
+
+<bin  file="Box_.cpp">
+ <use   name="cppunit"/>
+</bin>
