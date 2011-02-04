@@ -880,9 +880,9 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "useIterTracking", useIterTracking);
   options_->GetOpt("particle_flow", "nuclearInteractionsPurity", nuclearInteractionsPurity);
   
-  bool useEGPhotons;
+  
   std::vector<double> PhotonSelectionCuts;
-  options_->GetOpt("particle_flow","useEGPhotons",useEGPhotons);
+  options_->GetOpt("particle_flow","useEGPhotons",useEGPhotons_);
   options_->GetOpt("particle_flow","photonSelection", PhotonSelectionCuts);
 
   try {
@@ -891,7 +891,7 @@ void PFRootEventManager::readOptions(const char* file,
 				useIterTracking,
 				useConvBremPFRecTracks_,
 				nuclearInteractionsPurity,
-				useEGPhotons,
+				useEGPhotons_,
 				PhotonSelectionCuts); 
   }  
   catch( std::exception& err ) {
@@ -2077,12 +2077,14 @@ bool PFRootEventManager::readFromSimulation(int entry) {
         <<entry << " " << v0Tag_<<endl;
   }
 
-  bool foundPhotons = iEvent.getByLabel(photonTag_,photonHandle_);
-  if ( foundPhotons) {
-    photons_ = *photonHandle_;    
-  } else {
-    cerr <<"PFRootEventManager::ProcessEntry : photon collection not found : " 
-	 << entry << " " << photonTag_ << endl;
+  if(useEGPhotons_) {
+    bool foundPhotons = iEvent.getByLabel(photonTag_,photonHandle_);
+    if ( foundPhotons) {
+      photons_ = *photonHandle_;    
+    } else {
+      cerr <<"PFRootEventManager::ProcessEntry : photon collection not found : " 
+	   << entry << " " << photonTag_ << endl;
+    }
   }
 
   bool foundgenJets = iEvent.getByLabel(genJetsTag_,genJetsHandle_);

@@ -822,6 +822,9 @@ class PFRootEventManager {
   /// Use Conv Brem KF Tracks
   bool useConvBremPFRecTracks_;
 
+  /// Use EGPhotons
+  bool useEGPhotons_;
+
   /// Use HLT tracking
   bool useAtHLT;
 
