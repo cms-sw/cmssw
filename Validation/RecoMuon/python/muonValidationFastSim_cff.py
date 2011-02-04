@@ -98,7 +98,7 @@ from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi   import *
 
 #PF reco
-from RecoParticleFlow.PFProducer.recoMuonFromPFProducer_cfi import *
+from Validation.RecoMuon.recoMuonFromPFProducer_cfi import *
 
 #tracker
 from Validation.RecoMuon.muonValidation_cff import muonAssociatorByHitsESProducerNoSimHits_trk 

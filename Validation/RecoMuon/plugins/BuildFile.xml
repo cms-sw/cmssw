@@ -1,7 +1,11 @@
+<use   name="RecoParticleFlow/PFClusterTools"/>
+<use   name="RecoParticleFlow/PFProducer"/>
+<use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/MuonReco"/>
 <use   name="clhep"/>
 <use   name="boost"/>
 <use   name="DQMServices/Core"/>

@@ -185,7 +185,7 @@ from SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi import *
 from SimMuon.MCTruth.MuonAssociatorByHits_cfi import muonAssociatorByHitsCommonParameters
 
 #adding PFReco
-from RecoParticleFlow.PFProducer.recoMuonFromPFProducer_cfi import *
+from Validation.RecoMuon.recoMuonFromPFProducer_cfi import *
 
 #tracker
 muonAssociatorByHitsESProducerNoSimHits_trk = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
