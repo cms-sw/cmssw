@@ -405,6 +405,7 @@ namespace edm {
     indexIntoFile_.addEntry(lb.processHistoryID(), lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
     fillBranches(InLumi, lb, pLumiEntryInfoVector_);
+    lumiTree_.optimizeBaskets(10ULL*1024*1024);
   }
 
   void RootOutputFile::writeRun(RunPrincipal const& r) {
@@ -417,6 +418,7 @@ namespace edm {
     indexIntoFile_.addEntry(r.processHistoryID(), runAux_.run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;
     fillBranches(InRun, r, pRunEntryInfoVector_);
+    runTree_.optimizeBaskets(10ULL*1024*1024);
   }
 
   void RootOutputFile::writeParentageRegistry() {
