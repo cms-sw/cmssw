@@ -11,3 +11,7 @@
 <bin  file="Tubs_.cpp">
  <use   name="cppunit"/>
 </bin>
+
+<bin  file="Cons_.cpp">
+ <use   name="cppunit"/>
+</bin>
