@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!--Training file for one prong taus with no associated pi zeros-->
+<!--Author: Evan K. Friis-->
+<MVATrainer>
+  <general>
+    <option name="trainfiles">train/train_%1$s%2$s.%3$s</option>
+  </general>
+  <input id="input">
+    <!--Common inputs-->
+    <var name="JetPt" multiple="false" optional="false"/>
+    <var name="IsolationChargedPtFraction" multiple="false" optional="false"/>
+    <var name="IsolationECALPtFraction" multiple="false" optional="false"/>
+    <var name="IsolationNeutralHadronPtFraction" multiple="false" optional="false"/>
+    <var name="IsolationChargedAveragePtFraction" multiple="false" optional="false"/>
+    <var name="ScaledEtaJetCollimation" multiple="false" optional="false"/>
+    <var name="ScaledPhiJetCollimation" multiple="false" optional="false"/>
+  </input>
+  <!--MVA defintion-->
+  <processor id="1prong0pi0_hpstanc" name="ProcTMVA">
+    <input>
+      <var source="input" name="JetPt"/>
+      <var source="input" name="IsolationChargedPtFraction"/>
+      <var source="input" name="IsolationECALPtFraction"/>
+      <var source="input" name="IsolationNeutralHadronPtFraction"/>
+      <var source="input" name="IsolationChargedAveragePtFraction"/>
+      <var source="input" name="ScaledEtaJetCollimation"/>
+      <var source="input" name="ScaledPhiJetCollimation"/>
+    </input>
+    <config>
+      <method type="MLP" name="MLP">VerbosityLevel=Verbose:NCycles=800:HiddenLayers=6,11:TestRate=10</method>
+      <setup cuts="" options="NormMode=EqualNumEvents:NSigTrain=0:NBkgTrain=0"/>
+    </config>
+    <output>
+      <var name="MVAOutput"/>
+    </output>
+  </processor>
+  <!--Final output of classifier-->
+  <output>
+    <var source="1prong0pi0_hpstanc" name="MVAOutput"/>
+  </output>
+</MVATrainer>
