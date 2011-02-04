@@ -742,7 +742,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
        }
     }
 
-    if (muonSelection_ == "isGlobalMuon") {
+    if (muonSelection_ == "isGlobalMuon" && muonColl.size()>0) {
     //muon fractions per event
       commonME_->hNTrackerMuon_->Fill(double(nTrackerMu/muonColl.size()));
       commonME_->hNStandAloneMuon_->Fill(double(nStandAloneMu/muonColl.size())); 
