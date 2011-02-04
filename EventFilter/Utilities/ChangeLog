@@ -1,5 +1,10 @@
 2011-02-04  Emilio Meschi <emilio.meschi@cern.ch>
 	
+	* tag V00-19-07
+	* increased max endpaths to 20 in trs
+
+2011-02-04  Emilio Meschi <emilio.meschi@cern.ch>
+	
 	* tag V00-19-06
 	* rate stat gathering
 	
