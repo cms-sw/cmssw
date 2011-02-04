@@ -1186,4 +1186,9 @@ PFBlockAlgo::checkDisplacedVertexLinks( reco::PFBlock& block ) const {
  
 }
 
-  
+void PFBlockAlgo::fillFromPhoton(const reco::Photon & photon, reco::PFBlockElementSuperCluster * pfbe) {
+  pfbe->setTrackIso(photon.trkSumPtHollowConeDR04());
+  pfbe->setEcalIso(photon.ecalRecHitSumEtConeDR04());
+  pfbe->setHcalIso(photon.hcalTowerSumEtConeDR04());
+  pfbe->setHoE(photon.hadronicOverEm());
+}

@@ -261,6 +261,7 @@ class PFBlockAlgo {
   int muAssocToTrack( const reco::TrackRef& trackref,
 		      const edm::OrphanHandle<reco::MuonCollection>& muonh) const;
 
+  void fillFromPhoton(const reco::Photon & photon, reco::PFBlockElementSuperCluster * pfbe);
 
   std::auto_ptr< reco::PFBlockCollection >    blocks_;
   
@@ -473,17 +474,18 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       //      std::cout << " Selected a supercluster" << std::endl;
       // Add only the super clusters not already included 
       reco::SuperClusterRef scRef((*egphh)[isc].superCluster());
-      std::vector<reco::SuperClusterRef>::const_iterator itcheck=find(superClusters_.begin(),superClusters_.end(),(*egphh)[isc].superCluster());
+      std::vector<reco::SuperClusterRef>::iterator itcheck=find(superClusters_.begin(),superClusters_.end(),(*egphh)[isc].superCluster());
       if(itcheck==superClusters_.end())
 	{
 	  superClusters_.push_back(scRef);
 	  reco::PFBlockElementSuperCluster * sce =
 	    new reco::PFBlockElementSuperCluster((*egphh)[isc].superCluster());
+	  fillFromPhoton((*egphh)[isc],sce);
 	  elements_.push_back(sce);
 	}
 //      else
 //	{
-//	  	  std::cout << " but was already selected " << std::endl;
+//	  //	  	  std::cout << " but was already selected " << std::endl;
 //	}
     }
   }
