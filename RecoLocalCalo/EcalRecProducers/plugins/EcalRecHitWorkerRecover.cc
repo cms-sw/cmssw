@@ -85,7 +85,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                      || (flags == EcalRecHitWorkerRecover::EE_VFE && !recoverEEVFE_)
                      ) {
                         EcalRecHit hit( detId, 0., 0., EcalRecHit::kDead );
-                        hit.setFlag( EcalRecHit::kDead)  ;
+
                         insertRecHit( hit, result); // insert trivial rechit with kDead flag
                         return true;
                 } 
@@ -94,7 +94,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         std::vector<DetId> vid = ttMap_->constituentsOf( ttDetId );
                         for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
                                 EcalRecHit hit( (*dit), 0., 0., EcalRecHit::kDead );
-                                hit.setFlag( EcalRecHit::kDead ) ;
+
                                 insertRecHit( hit, result ); // insert trivial rechit with kDead flag
                         }
 			if(logWarningEtThreshold_EB_FE_<0)return true; // if you don't want log warning just return true
@@ -115,7 +115,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         }
                         for ( size_t i = 0; i < eeC.size(); ++i ) {
                                 EcalRecHit hit( eeC[i], 0., 0., EcalRecHit::kDead );
-                                hit.setFlag( EcalRecHit::kDead ) ;
+
                                 insertRecHit( hit, result ); // insert trivial rechit with kDead flag
                         }
 		   	if(logWarningEtThreshold_EE_FE_<0)   return true; // if you don't want log warning just return true

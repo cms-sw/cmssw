@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitSimpleAlgo.h,v 1.12 2010/09/10 13:57:06 theofil Exp $
-  *  $Date: 2010/09/10 13:57:06 $
-  *  $Revision: 1.12 $
+  *  $Id: EcalRecHitSimpleAlgo.h,v 1.13 2011/01/12 13:40:31 argiro Exp $
+  *  $Date: 2011/01/12 13:40:31 $
+  *  $Revision: 1.13 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -55,26 +55,32 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
 
     // Now fill flags
 
-    if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kLeadingEdgeRecovered ) { 
-      rh.setFlag(EcalRecHit::kLeadingEdgeRecovered);
-
-    } else if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kSaturated ) { 
+    bool good=true;
+    
+    if ( uncalibRH.recoFlag()==EcalUncalibratedRecHit::kLeadingEdgeRecovered ){
+            rh.setFlag(EcalRecHit::kLeadingEdgeRecovered);
+            good=false; 
+    } 
+    if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kSaturated ) { 
             // leading edge recovery failed - still keep the information 
             // about the saturation and do not flag as dead 
-      rh.setFlag(EcalRecHit::kSaturated); 
-
-    } else if( uncalibRH.isSaturated() ) {
-            
-	    rh.setFlag(EcalRecHit::kSaturated);
-
-    } else if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kOutOfTime ) {
-            rh.setFlag(EcalRecHit::kOutOfTime); 
-
-    } else if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kPoorReco ) {
+            rh.setFlag(EcalRecHit::kSaturated); 
+            good=false;
+    } 
+    if( uncalibRH.isSaturated() ) {
+            rh.setFlag(EcalRecHit::kSaturated);
+            good=false;
+    } 
+    if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kOutOfTime ) {
+            rh.setFlag(EcalRecHit::kOutOfTime) ;
+	    good=false;   
+    } 
+    if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kPoorReco ) {
             rh.setFlag(EcalRecHit::kPoorReco);
+            good=false;
     }
 
-
+    if (good) rh.setFlag(EcalRecHit::kGood);
     return rh;
   }
 
