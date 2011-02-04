@@ -31,3 +31,7 @@
 <bin  file="Orb_.cpp">
  <use   name="cppunit"/>
 </bin>
+
+<bin  file="Torus_.cpp">
+ <use   name="cppunit"/>
+</bin>
