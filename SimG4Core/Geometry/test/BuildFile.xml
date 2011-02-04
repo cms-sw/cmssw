@@ -35,3 +35,7 @@
 <bin  file="Torus_.cpp">
  <use   name="cppunit"/>
 </bin>
+
+<bin  file="Polycone_.cpp">
+ <use   name="cppunit"/>
+</bin>
