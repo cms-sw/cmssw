@@ -222,7 +222,7 @@ EmDQMReco::beginJob()
   totalmatchreco->setBinLabel(numOfHLTCollectionLabels+2,"Reco");
   for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){totalmatchreco->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
 
-  MonitorElement* tmphisto;
+  // MonitorElement* tmphisto;
   MonitorElement* tmpiso;
 
   ////////////////////////////////////////////////////////////
