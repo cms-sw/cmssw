@@ -19,3 +19,7 @@
 <bin  file="Para_.cpp">
  <use   name="cppunit"/>
 </bin>
+
+<bin  file="Trap_.cpp">
+ <use   name="cppunit"/>
+</bin>
