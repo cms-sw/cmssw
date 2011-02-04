@@ -68,6 +68,20 @@ namespace evf{
 	else if(rc == -1 && errno == ENOMSG) return MSGQ_MESSAGE_TYPE_RANGE;
 	return msg_type;
       }
+    unsigned long rcvNonBlockingAny(MsgBuf &ptr)
+      {
+	unsigned long msg_type = 0;
+	int rc = msgrcv(queue_id_, ptr.ptr_, ptr.msize()+1, msg_type, IPC_NOWAIT);
+	if (rc == -1 && errno != ENOMSG) 
+	  {
+	    std::string serr = "rcvnb::Slave failed to get message from queue - error:";
+	    serr += strerror(errno);
+	    XCEPT_RAISE(evf::Exception, serr);
+	  }
+	else if(rc == -1 && errno == ENOMSG) return MSGQ_MESSAGE_TYPE_RANGE;
+	return msg_type;
+      }
+    int id() const {return queue_id_;}
   private:
 
     int queue_id_;             /* ID of the created queue.            */
