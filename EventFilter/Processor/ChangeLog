@@ -1,3 +1,8 @@
+2011-02-04 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-03
+	* added rate statistics gathering to idie
+
 2011-01-21 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-03-02
