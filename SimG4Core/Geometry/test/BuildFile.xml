@@ -7,3 +7,7 @@
 <bin  file="Box_.cpp">
  <use   name="cppunit"/>
 </bin>
+
+<bin  file="Tubs_.cpp">
+ <use   name="cppunit"/>
+</bin>
