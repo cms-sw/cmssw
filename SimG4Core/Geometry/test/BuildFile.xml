@@ -23,3 +23,7 @@
 <bin  file="Trap_.cpp">
  <use   name="cppunit"/>
 </bin>
+
+<bin  file="Sphere_.cpp">
+ <use   name="cppunit"/>
+</bin>
