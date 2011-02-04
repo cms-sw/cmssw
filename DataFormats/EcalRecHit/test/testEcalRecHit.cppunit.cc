@@ -6,6 +6,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 class testEcalRecHit: public CppUnit::TestFixture
 {
@@ -28,7 +29,7 @@ void testEcalRecHit::testOne(){
   
 
   // test flagbit setter
-  EcalRecHit rh ;
+  EcalRecHit rh (EBDetId(1,1),0.,0.);
   rh.setFlag(EcalRecHit::kTPSaturated);
   CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kTPSaturated ) );
   
@@ -44,13 +45,29 @@ void testEcalRecHit::testOne(){
   EcalUncalibratedRecHit urh;
   urh.setJitterError(timerr);
   rh.setTimeError(urh.jitterErrorBits());
-  std::cout << " timerr " << timerr << " " <<rh.timeError() <<  " " <<urh.jitterError() <<std::endl;
+
+  // mhh, timeError apparantly returns ns
+  // chi2 has rounding error
+
+  //std::cout << " timerr " << timerr << " " <<rh.timeError() <<  " " <<urh.jitterError() <<std::endl;
   
-  std::cout << " **** WARNING : SOMETHING WRONG MIGHT BE GOING ON HERE "<<std::endl;
+  //std::cout << " **** WARNING : SOMETHING WRONG MIGHT BE GOING ON HERE "<<std::endl;
 
   //CPPUNIT_ASSERT(rh.timeError() == timerr);
   //CPPUNIT_ASSERT(urh.jitterError()== rh.timeError());
 
   // did we modify some bit by mistake ?
   CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kTPSaturated) );
+
+
+  // check unsetting of flag
+  EcalRecHit rh2(EBDetId(1,1),0.,0.);
+  rh2.setFlag(EcalRecHit::kOutOfTime);
+  CPPUNIT_ASSERT(rh2.checkFlag(EcalRecHit::kOutOfTime) );
+  rh2.unsetFlag(EcalRecHit::kOutOfTime);
+  CPPUNIT_ASSERT(!rh2.checkFlag(EcalRecHit::kOutOfTime) );
+
+  rh2.unsetFlag(EcalRecHit::kGood);
+  CPPUNIT_ASSERT(!rh2.checkFlag(EcalRecHit::kGood) );
+
 }

@@ -6,8 +6,6 @@
 #include <cassert>
 #include <math.h>
 
-#include <iostream>
-
 EcalRecHit::EcalRecHit() : CaloRecHit(), flagBits_(0) {
 }
 

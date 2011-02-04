@@ -5,7 +5,7 @@
 
 /** \class EcalRecHit
  *  
- * $id: $
+ * $Id$
  * \author P. Meridiani INFN Roma1
  */
 
@@ -67,8 +67,8 @@ public:
    */
 
   EcalRecHit();
-  // by default a recHit is greated with flag kGood
-  EcalRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t flagBits = 0x1);
+  // by default a recHit is greated with no flag
+  EcalRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t flagBits = 0);
   /// get the id
   // For the moment not returning a specific id for subdetector
   DetId id() const { return DetId(detid());}
@@ -92,10 +92,12 @@ public:
   void setTimeError( uint8_t timeErrBits );
 
   
-    /// set the flags (from Flags or ESFlags) 
-  void setFlag(int flag) {flagBits_|= 0x1 << flag;}
+  /// set the flags (from Flags or ESFlags) 
+  void setFlag(int flag) {flagBits_|= (0x1 << flag);}
+  void unsetFlag(int flag) {flagBits_ &= ~(0x1 << flag);}
+
   /// check if the flag is true
-  bool checkFlag(int flag) const{return flagBits_ & 0x1 << flag;}
+  bool checkFlag(int flag) const{return flagBits_ & ( 0x1<<flag);}
 
   /// DEPRECATED provided for temporary backward compatibility
   Flags recoFlag() const ;
