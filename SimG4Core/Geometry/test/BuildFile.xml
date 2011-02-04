@@ -27,3 +27,7 @@
 <bin  file="Sphere_.cpp">
  <use   name="cppunit"/>
 </bin>
+
+<bin  file="Orb_.cpp">
+ <use   name="cppunit"/>
+</bin>
