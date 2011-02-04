@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: NotifyWorker.pl,v 1.5 2010/08/30 12:36:08 babar Exp $
+# $Id: NotifyWorker.pl,v 1.6 2010/09/01 22:12:44 babar Exp $
 # --
 # NotifyWoker.pl
 # Monitors a directory, and sends notifications to Tier0
@@ -42,7 +42,7 @@ chomp( my $host = `hostname -s` );
 my $offsetfile = $logpath . '/notify-offset.txt';
 my $heartbeat = 300;    # Print a heartbeat every 5 minutes
 my $savedelay = 300;    # Frequency to save offset file, in seconds
-my $log4perlConfig = '/opt/injectworker/log4perl.conf';
+my $log4perlConfig = '/opt/injectworker/inject/log4perl.conf';
 
 # To rotate logfiles daily
 sub get_logfile {

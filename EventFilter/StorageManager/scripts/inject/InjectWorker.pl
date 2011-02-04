@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.60 2011/02/03 16:53:07 babar Exp $
+# $Id: InjectWorker.pl,v 1.61 2011/02/03 20:18:53 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -65,7 +65,7 @@ chomp( my $host = `hostname -s` );
 my $offsetfile = $logpath . '/offset.txt';
 my $heartbeat  = 300;                        # Print a heartbeat every 5 minutes
 my $savedelay = 300;    # Frequency to save offset file, in seconds
-my $log4perlConfig = '/opt/injectworker/log4perl.conf';
+my $log4perlConfig = '/opt/injectworker/inject/log4perl.conf';
 
 # To rotate logfiles daily
 sub get_logfile {
