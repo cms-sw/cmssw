@@ -413,6 +413,8 @@ int electronValidation()
       else
        { histo_ref->Scale(new_entries/histo_ref->GetEntries()) ; }
      }
+    if ((histo_new!=0)&&(histo_ref!=0)&&(histo_ref->GetMaximum()>histo_new->GetMaximum()))
+     { histo_new->SetMaximum(histo_ref->GetMaximum()*1.1) ; }
 
     if (histo_new==0)
      {
