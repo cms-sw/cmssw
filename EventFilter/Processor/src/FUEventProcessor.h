@@ -45,6 +45,7 @@ namespace evf
 
   };
   class CPUStat;
+  class RateStat;
   namespace internal{
     
     class MyCgi : public xgi::Input{
@@ -247,6 +248,7 @@ namespace evf
     Vulture                         *vulture_;
     pid_t			     vp_;
     CPUStat                         *cpustat_;
+    RateStat                        *ratestat_;
   };
   
 } // namespace evf

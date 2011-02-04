@@ -8,6 +8,7 @@
 #include "FUEventProcessor.h"
 #include "procUtils.h"
 #include "EventFilter/Utilities/interface/CPUStat.h"
+#include "EventFilter/Utilities/interface/RateStat.h"
 
 #include "EventFilter/Utilities/interface/Exception.h"
 
@@ -338,15 +339,9 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 	if(cpustat_) delete cpustat_;
 	cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
 			       iDieUrl_.value_);
-	if(iDieStatisticsGathering_.value_){
-	  try{
-	    cpustat_->sendLegenda(evtProcessor_.getmicromap());
-	  }
-	  catch(evf::Exception &e){
-	    LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
-			   << e.what());
-	  }
-	}
+	if(ratestat_) delete ratestat_;
+	ratestat_ = new RateStat(iDieUrl_.value_);
+
 	fsm_.fireEvent("ConfigureDone",this);
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
 	localLog("-I- Configuration completed");
@@ -402,22 +397,29 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     evtProcessor_.forceInitEventProcessorMaybe();
   }
   std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
+
   if(!epInitialized_){
     if(cpustat_) delete cpustat_;
     cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
 			   iDieUrl_.value_);
-    if(iDieStatisticsGathering_.value_){
-      try{
-	cpustat_->sendLegenda(evtProcessor_.getmicromap());
-      }
-      catch(evf::Exception &e){
-	LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
-		       << e.what());
-      }
-    }
+    if(ratestat_) delete ratestat_;
+    ratestat_ = new RateStat(iDieUrl_.value_);
     epInitialized_ = true;
   }
-
+  if(iDieStatisticsGathering_.value_){
+    try{
+      cpustat_->sendLegenda(evtProcessor_.getmicromap());
+//       xdata::Serializable *legenda = scalersInfoSpace_->find("scalersLegenda");
+//       if(legenda !=0){
+// 	std::string slegenda = ((xdata::String*)legenda)->value_;
+// 	ratestat_->sendLegenda(slegenda);
+//       }
+    }
+    catch(evf::Exception &e){
+      LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
+		     << e.what());
+    }
+  }
   configuration_ = evtProcessor_.configuration(); // get it again after init has been carried out...
   evtProcessor_.resetLumiSectionReferenceIndex();
   //classic appl will return here 
@@ -1248,7 +1250,11 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
   //  cpustat_->printStat();
   if(iDieStatisticsGathering_.value_){
     try{
-      cpustat_->sendStat(evtProcessor_.getLumiSectionReferenceIndex());
+      std::cout << "sending stats to iDie " << std::endl;
+      cpustat_ ->sendStat(evtProcessor_.getLumiSectionReferenceIndex());
+      ratestat_->sendStat((char*)(evtProcessor_.getPackedTriggerReport()->mtext),
+			  sizeof(TriggerReportStatic),
+			  evtProcessor_.getLumiSectionReferenceIndex());
     }catch(evf::Exception &e){
       LOG4CPLUS_INFO(getApplicationLogger(),"coud not send statistics"
 		     << e.what());
@@ -1764,7 +1770,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.115 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.116 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
