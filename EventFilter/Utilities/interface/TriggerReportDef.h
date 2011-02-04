@@ -6,7 +6,7 @@
 namespace evf{
   
   static const size_t max_paths = 300;
-  static const size_t max_endpaths = 10;
+  static const size_t max_endpaths = 20;
   static const size_t max_label = 30;
   static const size_t max_modules = 50;
 
