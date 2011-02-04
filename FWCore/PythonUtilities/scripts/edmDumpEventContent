@@ -121,7 +121,7 @@ class Branch (object):
         for twoList in lengthDict.values():
             totalLength += twoList[0]
         useMin = True
-        if branch.forceColumns or totalLength < 70:
+        if Branch.forceColumns or totalLength < 70:
             useMin = False
         Branch.form = ""
         if Branch.mode == 'name':
@@ -235,6 +235,8 @@ if __name__ == "__main__":
                 print "Skipping ", detail
             continue
         branchList.append (branch)
+    if branchList:
+        pass
     Branch.printList (branchList)
     rootfile.Close()
     del rootfile
