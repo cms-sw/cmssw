@@ -16,41 +16,41 @@
 class FWPFTrackUtils
 {
    public:
-	// ---------------- Constructor(s)/Destructor ----------------------
+   // ---------------- Constructor(s)/Destructor ----------------------
       FWPFTrackUtils();
       virtual ~FWPFTrackUtils(){}
 
-	// ------------------------ Functionality --------------------------
+   // ------------------------ Functionality --------------------------
       TEveTrack               *getTrack( const reco::Track &iData );
-		TEveVector					lineCircleIntersect( const TEveVector &v1, const TEveVector &v2, float r );
-		TEveVector					lineLineIntersect( const TEveVector &v1, const TEveVector &v2,
-																 const TEveVector &v3, const TEveVector &v4 );
-		TEveVector					cross( const TEveVector &v1, const TEveVector &v2 );
-		float							linearInterpolation( const TEveVector &p1, const TEveVector &p2, float r );
-		float							dot( const TEveVector &v1, const TEveVector &v2 );
-		float							sgn( float val );
-		bool							checkIntersect( const TEveVector &vec, float r );
+      TEveVector              lineCircleIntersect( const TEveVector &v1, const TEveVector &v2, float r );
+      TEveVector              lineLineIntersect( const TEveVector &v1, const TEveVector &v2,
+                                                 const TEveVector &v3, const TEveVector &v4 );
+      TEveVector              cross( const TEveVector &v1, const TEveVector &v2 );
+      float                   linearInterpolation( const TEveVector &p1, const TEveVector &p2, float r );
+      float                   dot( const TEveVector &v1, const TEveVector &v2 );
+      float                   sgn( float val );
+      bool                    checkIntersect( const TEveVector &vec, float r );
 
-	// ---------------------- Accessor Methods ---------------------------
-		float							getCaloR1() { return m_caloR1; }
-		float							getCaloR2() { return m_caloR2; }
-		float							getCaloZ1() { return m_caloZ1; }
-		float							getCaloZ2() { return m_caloZ2; }
-		float							getCaloHR() { return m_caloHR; }
+   // ---------------------- Accessor Methods ---------------------------
+      float                   getCaloR1() { return m_caloR1; }
+      float                   getCaloR2() { return m_caloR2; }
+      float                   getCaloZ1() { return m_caloZ1; }
+      float                   getCaloZ2() { return m_caloZ2; }
+      float                   getCaloHR() { return m_caloHR; }
 
    private:
       FWPFTrackUtils( const FWPFTrackUtils& );
       const FWPFTrackUtils& operator=( const FWPFTrackUtils& );
 
-	// ----------------------- Data Members ---------------------------
+   // ----------------------- Data Members ---------------------------
       TEveTrackPropagator     *m_trackerTrackPropagator;
       TEveTrackPropagator     *m_trackPropagator;
       FWMagField              *m_magField;
 
-		float							m_caloR1;
-		float							m_caloR2;
-		float							m_caloZ1;
-		float							m_caloZ2;
-		float							m_caloHR;
+      float                   m_caloR1;
+      float                   m_caloR2;
+      float                   m_caloZ1;
+      float                   m_caloZ2;
+      float                   m_caloHR;
 };
 #endif

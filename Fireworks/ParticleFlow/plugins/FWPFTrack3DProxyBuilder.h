@@ -2,9 +2,9 @@
 #define _FWPFTrack3DProxyBuilder_H_
 
 //
-// Package:					Particle Flow
-// Class:					FWPFTrack3DProxyBuilder
-// Original Author:		Simon Harris
+// Package:             Particle Flow
+// Class:               FWPFTrack3DProxyBuilder
+// Original Author:     Simon Harris
 //
 
 // System include files
@@ -20,7 +20,7 @@
 class FWPFTrack3DProxyBuilder : public FWPFTrackBaseProxyBuilder
 {
    public:
-	// ---------------- Constructor(s)/Destructor ---------------------
+   // ---------------- Constructor(s)/Destructor ---------------------
       FWPFTrack3DProxyBuilder(){}
       virtual ~FWPFTrack3DProxyBuilder(){}
 
@@ -30,8 +30,8 @@ class FWPFTrack3DProxyBuilder : public FWPFTrackBaseProxyBuilder
       FWPFTrack3DProxyBuilder( const FWPFTrack3DProxyBuilder& );
       const FWPFTrack3DProxyBuilder& operator=( const FWPFTrack3DProxyBuilder& );
 
-	// ----------------------- Functionality ---------------------------
-		float			 linearInterpolation( const TEveVector &p1, const TEveVector &p2, float r );
+   // ----------------------- Functionality ---------------------------
+      float        linearInterpolation( const TEveVector &p1, const TEveVector &p2, float r );
       virtual void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 };
 #endif

@@ -28,14 +28,14 @@
 class FWPFTrackBaseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
    public:
-	// ---------------- Constructor(s)/Destructor ----------------------
+   // ---------------- Constructor(s)/Destructor ----------------------
       FWPFTrackBaseProxyBuilder(){ m_trackUtils = new FWPFTrackUtils(); }
       virtual ~FWPFTrackBaseProxyBuilder(){ delete m_trackUtils; }
 
       REGISTER_PROXYBUILDER_METHODS();
 
    protected:
-	// ----------------------- Data Members ---------------------------
+   // ----------------------- Data Members ---------------------------
       FWPFTrackUtils *m_trackUtils;
 
    private:

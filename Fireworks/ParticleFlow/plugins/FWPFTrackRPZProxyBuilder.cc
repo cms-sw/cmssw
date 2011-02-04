@@ -26,37 +26,37 @@ FWPFTrackRPZProxyBuilder::build( const reco::Track &iData, unsigned int iIndex, 
 
       if( m_trackUtils->checkIntersect( v1, context().caloR1 ( false ) ) )
       {
-			TEveVector v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
+         TEveVector v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
          TEveVector xyPoint = m_trackUtils->lineCircleIntersect( v1, v2, context().caloR1( false ) );
-			TEveVector zPoint;
-			if( v1.fZ < 0 )
-				zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ - 50.f );
-			else
-				zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ + 50.f );
+         TEveVector zPoint;
+         if( v1.fZ < 0 )
+            zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ - 50.f );
+         else
+            zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ + 50.f );
 
-			TEveVector vec = m_trackUtils->lineLineIntersect( v1, v2, xyPoint, zPoint );
-			ps->SetNextPoint( vec.fX, vec.fY, vec.fZ );
+         TEveVector vec = m_trackUtils->lineLineIntersect( v1, v2, xyPoint, zPoint );
+         ps->SetNextPoint( vec.fX, vec.fY, vec.fZ );
 
          check = true;  // There's now a possibility of the track reaching HCAL radius
          break;         // Only want the first point that matches the check condition
       }
       else if( fabs( v1.fZ ) >= context().caloZ1( false ) )
       {
-			TEveVector p1, p2;
-			TEveVector vec, v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
-			float z, y = m_trackUtils->linearInterpolation( v2, v1, context().caloZ1( false ) );
+         TEveVector p1, p2;
+         TEveVector vec, v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
+         float z, y = m_trackUtils->linearInterpolation( v2, v1, context().caloZ1( false ) );
 
-			if( v2.fZ > 0 )
-				z = context().caloZ1( false );
-			else
-				z = context().caloZ1( false ) * -1;
+         if( v2.fZ > 0 )
+            z = context().caloZ1( false );
+         else
+            z = context().caloZ1( false ) * -1;
 
-			p1 = TEveVector( v2.fX + 50, y, z );
-			p2 = TEveVector( v2.fX - 50, y, z );
-			vec = m_trackUtils->lineLineIntersect( v1, v2, p1, p2 );
+         p1 = TEveVector( v2.fX + 50, y, z );
+         p2 = TEveVector( v2.fX - 50, y, z );
+         vec = m_trackUtils->lineLineIntersect( v1, v2, p1, p2 );
 
-			ps->SetNextPoint( vec.fX, vec.fY, vec.fZ );
-			check = true;
+         ps->SetNextPoint( vec.fX, vec.fY, vec.fZ );
+         check = true;
          break;
       }
    }

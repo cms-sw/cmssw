@@ -2,9 +2,9 @@
 #define _FWPFTRACKRPZPROXYBUILDER_H_
 
 //
-// Package:					Particle Flow
-// Class:					FWPFTrackRPZProxyBuilder
-// Original Author:		Simon Harris
+// Package:             Particle Flow
+// Class:               FWPFTrackRPZProxyBuilder
+// Original Author:     Simon Harris
 //
 
 // User include files
@@ -17,7 +17,7 @@
 class FWPFTrackRPZProxyBuilder : public FWPFTrackBaseProxyBuilder
 {
    public:
-	// ---------------- Constructor(s)/Destructor ----------------------
+   // ---------------- Constructor(s)/Destructor ----------------------
       FWPFTrackRPZProxyBuilder(){}
       virtual ~FWPFTrackRPZProxyBuilder(){}
 
@@ -27,7 +27,7 @@ class FWPFTrackRPZProxyBuilder : public FWPFTrackBaseProxyBuilder
       FWPFTrackRPZProxyBuilder( const FWPFTrackRPZProxyBuilder& );
       const FWPFTrackRPZProxyBuilder& operator=( const FWPFTrackRPZProxyBuilder& );
 
-	// ----------------------- Functionality ---------------------------
+   // ----------------------- Functionality ---------------------------
       virtual void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 };
 #endif

@@ -2,9 +2,9 @@
 #define _FWPFTRACKLEGOPROXYBUILDER_H_
 
 //
-// Package:					Particle Flow
-// Class:					FWPFTrackLegoProxyBuilder
-// Original Author:		Simon Harris
+// Package:             Particle Flow
+// Class:               FWPFTrackLegoProxyBuilder
+// Original Author:     Simon Harris
 //
 
 // System include files
@@ -20,7 +20,7 @@
 class FWPFTrackLegoProxyBuilder : public FWPFTrackBaseProxyBuilder
 {
    public:
-	// ---------------- Constructor(s)/Destructor ---------------------
+   // ---------------- Constructor(s)/Destructor ---------------------
       FWPFTrackLegoProxyBuilder(){}
       virtual ~FWPFTrackLegoProxyBuilder(){}
 
@@ -30,7 +30,7 @@ class FWPFTrackLegoProxyBuilder : public FWPFTrackBaseProxyBuilder
       FWPFTrackLegoProxyBuilder( const FWPFTrackLegoProxyBuilder& );
       const FWPFTrackLegoProxyBuilder& operator=( const FWPFTrackLegoProxyBuilder& );
 
-	// ----------------------- Functionality ---------------------------
+   // ----------------------- Functionality ---------------------------
       virtual void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 };
 #endif
