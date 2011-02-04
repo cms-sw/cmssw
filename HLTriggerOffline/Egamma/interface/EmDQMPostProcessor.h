@@ -4,10 +4,9 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "TGraphAsymmErrors.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class EmDQMPostProcessor : public edm::EDAnalyzer, public TGraphAsymmErrors{
+class EmDQMPostProcessor : public edm::EDAnalyzer {
  public:
   EmDQMPostProcessor(const edm::ParameterSet& pset);
   ~EmDQMPostProcessor() {};
@@ -17,6 +16,10 @@ class EmDQMPostProcessor : public edm::EDAnalyzer, public TGraphAsymmErrors{
   TProfile* dividehistos(DQMStore * dqm, const std::string& num, const std::string& denom, const std::string& out,const std::string& label, const std::string& titel= "");
 
  private:
+  
+  /** a replacement for the function TGraphAsymmErrors::Efficiency(..) used with earlier 
+      versions of ROOT (this functionality has been moved to a separate class TEfficiency) */
+  static void Efficiency(int passing, int total, double level, double &mode, double &lowerBound, double &upperBound);
 
   /** read from the configuration: if set to true, efficiencies 
       are calculated with respect to reconstructed objects (instead 

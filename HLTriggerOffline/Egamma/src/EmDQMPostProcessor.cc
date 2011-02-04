@@ -12,6 +12,7 @@
 #include <fstream>
 #include <math.h>
 
+#include <TEfficiency.h>
 
 //----------------------------------------------------------------------
 
@@ -300,6 +301,33 @@ EmDQMPostProcessor::getHistogram(DQMStore *dqm, const std::string &histoPath)
   else
     return NULL;
 }
+
+//----------------------------------------------------------------------
+
+void 
+EmDQMPostProcessor::Efficiency(int passing, int total, double level, double &mode, double &lowerBound, double &upperBound)
+{ 
+  // protection (see also TGraphAsymmErrors::Efficiency(..), mimick the old behaviour )
+  if (total == 0)
+  {
+    mode = 0.5;
+    lowerBound = 0;
+    upperBound = 1;
+    return;
+  }
+
+  mode = passing / ((double) total);
+
+  // note that the order of the two first arguments ('total' and 'passed') is the opposited
+  // with respect to the earlier TGraphAsymmErrors::Efficiency(..) method
+  //
+  // see http://root.cern.ch/root/html/TEfficiency.html#compare for
+  // an illustration of the coverage of the different methods provided by TEfficiency
+  
+  lowerBound = TEfficiency::Wilson(total, passing, level, false);
+  upperBound = TEfficiency::Wilson(total, passing, level, true);
+}
+
 
 //----------------------------------------------------------------------
 
