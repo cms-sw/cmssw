@@ -198,7 +198,8 @@ BlockAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  cout << " Found a SuperCluster.  Energy " ;
 	  const reco::PFBlockElementSuperCluster * sc = dynamic_cast<const reco::PFBlockElementSuperCluster*>(&elements[iEle]);
-	  std::cout << sc->superClusterRef()->energy () << std::endl;
+	  std::cout << sc->superClusterRef()->energy () << " Track/Ecal/Hcal Iso " << sc->trackIso()<< " " << sc->ecalIso() ;
+	  std::cout << " " << sc->hcalIso() <<std::endl;
 	  // find the linked ECAL clusters
 	  std::multimap<double, unsigned int> ecalAssoPFClusters;
 	  iBlock->associatedElements( iEle,linkData,
