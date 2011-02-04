@@ -2,6 +2,7 @@
 #define EVENTFILTER_GOODIES_IDIE_H
 
 #include "EventFilter/Utilities/interface/Exception.h"
+#include "EventFilter/Utilities/interface/TriggerReportDef.h"
 
 #include "xdata/String.h"
 #include "xdata/UnsignedInteger32.h"
@@ -109,8 +110,10 @@ namespace evf {
     //
     
     void reset();
-    void parseLegenda(std::string);
-    void parseHisto(const char *, unsigned int);
+    void parseModuleLegenda(std::string);
+    void parseModuleHisto(const char *, unsigned int);
+    void parsePathLegenda(std::string);
+    void parsePathHisto(const char *, unsigned int);
     //
     // member data
     //
@@ -133,7 +136,9 @@ namespace evf {
     std::vector<std::vector<int> >  cpustat_;
     std::vector<std::string>        mapmod_;
     unsigned int                    last_ls_;
-
+    std::vector<TriggerReportStatic>trp_;
+    std::vector<int>                trpentries_;
+    std::vector<std::string>        mappath_;
   }; // class iDie
 
 
