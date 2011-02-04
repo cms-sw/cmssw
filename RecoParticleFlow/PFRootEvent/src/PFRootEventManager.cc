@@ -299,6 +299,41 @@ void PFRootEventManager::readOptions(const char* file,
     //COLIN need to set the subdirectory.  
     cout<<"+++ Done "<<endl;
   }
+  // Addition to have DQM histograms : by S. Dutta   
+  doPFDQM_ = true;
+  options_->GetOpt("pfDQM_monitor", "on/off", doPFDQM_); 
+
+  if (doPFDQM_) {
+    cout<<"+++ Setting PFDQM Monitoring " <<endl;
+    string dqmfilename;
+    dqmFile_ = 0;
+    options_->GetOpt("pfDQM_monitor","DQMFilename", dqmfilename);
+    dqmFile_ = TFile::Open(dqmfilename.c_str(), "recreate");
+
+    TDirectory* dir = dqmFile_->mkdir("DQMData");
+    TDirectory* dir1 = dir->mkdir("PFJetValidation");
+    TDirectory* dir2 = dir->mkdir("PFMETValidation");
+    pfJetMonitor_.setDirectory( dir1 );
+    pfMETMonitor_.setDirectory( dir2 );
+    float dRMax = 0.5;
+    options_->GetOpt("pfCandidate_benchmark", "dRMax", dRMax);
+    float ptMin = 2;
+    options_->GetOpt("pfCandidate_benchmark", "ptMin", ptMin);
+    bool matchCharge = true;
+    options_->GetOpt("pfCandidate_benchmark", "matchCharge", matchCharge);
+    int mode = static_cast<int>(Benchmark::DEFAULT);
+    options_->GetOpt("pfCandidate_benchmark", "mode", mode);
+
+    pfJetMonitor_.setParameters( dRMax, matchCharge, static_cast<Benchmark::Mode>(mode),
+                                 ptMin, 10e5, -4.5, 4.5, -10.0, 10.0, false);
+    pfJetMonitor_.setup();
+
+    pfMETMonitor_.setParameters( static_cast<Benchmark::Mode>(mode),
+                                 ptMin, 10e5, -4.5, 4.5, -10.0, 10.0, false);
+    pfMETMonitor_.setup();
+  }
+//-----------------------------------------------
+
 
   std::string outputFile0;
   TFile* file0 = 0;
@@ -1599,7 +1634,14 @@ void PFRootEventManager::write() {
   clusterAlgoHFEM_.write();
   clusterAlgoHFHAD_.write();
   
-  
+  // Addition to have DQM histograms : by S. Dutta                                                                                                       
+  if (doPFDQM_) {
+    cout << " Writing DQM root file " << endl;
+    pfJetMonitor_.write();
+    pfMETMonitor_.write();
+    dqmFile_->Write();
+  }
+  //-----------------------------------------------                                                                                                           
   if(outFile_) {
     outFile_->Write();
 //     outFile_->cd(); 
@@ -1788,6 +1830,11 @@ bool PFRootEventManager::processEntry(int entry) {
     //   else return false;
   }// end PFJet Benchmark
 
+  // Addition to have DQM histograms : by S. Dutta 
+  reco::MET reComputedMet_;    
+  reco::MET computedGenMet_;
+  //-----------------------------------------------
+
   //COLIN would  be nice to move this long code to a separate function. 
   // is it necessary to re-set everything at each event?? 
   if(doPFMETBenchmark_) { // start PFMet Benchmark
@@ -1823,7 +1870,16 @@ bool PFRootEventManager::processEntry(int entry) {
   if( goodevent && doPFCandidateBenchmark_ ) {
     pfCandidateManager_.fill( *pfCandidates_, genParticlesCMSSW_);
   }
-    
+  
+  // Addition to have DQM histograms : by S. Dutta                                                                                                          
+  if( goodevent && doPFDQM_ ) {
+    float deltaMin, deltaMax;
+    pfJetMonitor_.fill( pfJets_, genJets_, deltaMin, deltaMax);
+    if (doPFMETBenchmark_) {
+      pfMETMonitor_.fillOne( reComputedMet_, computedGenMet_, deltaMin, deltaMax);
+    }
+  }
+  //-----------------------------------------------                                                                    
   // evaluate tau Benchmark   
   if( goodevent && doTauBenchmark_) { // start tau Benchmark
     double deltaEt = 0.;

@@ -60,6 +60,8 @@
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
 #include "RecoParticleFlow/Benchmark/interface/PFMETBenchmark.h"
 #include "DQMOffline/PFTau/interface/PFCandidateManager.h"
+#include "DQMOffline/PFTau/interface/PFJetMonitor.h"
+#include "DQMOffline/PFTau/interface/PFMETMonitor.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/FWLiteJetProducer.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
@@ -713,6 +715,12 @@ class PFRootEventManager {
   /// wrapper to official jet algorithms
   FWLiteJetProducer jetMaker_;
 
+  // Addition to have DQM histograms : by S. Dutta 
+  PFJetMonitor   pfJetMonitor_;
+  PFMETMonitor   pfMETMonitor_;
+  bool           doPFDQM_;
+  TFile*         dqmFile_;
+  //-----------------------------------------------
 
   //----------------- print flags --------------------------------
 

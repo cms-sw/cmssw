@@ -5,7 +5,7 @@ root outtree 0
 //colin	mode 1
 
 //root file display.root
-root file ../../../display.root
+root file ../../Configuration/test/display.root
 
 // Warning: no cleaning of the HF is done in fast sim, due to the absence of timing simulation and to an unreliable transverse shower shape simulation in the HF. 
 //          Thus you shall switch it off in PFRootEvent also by changing the thresholds to the following values: 
@@ -659,6 +659,9 @@ pfCandidate_benchmark matchCharge	1
 // mode = 0 (default), 1(light), 2(heavy)
 pfCandidate_benchmark mode		2
 
+// PFDQM options   ------------------------------------------
+pfDQM_monitor   on/off           1
+pfDQM_monitor   DQMFilename      pfdqm.root
 
 // FWLITE CMSSW Jet Algorithm options --------------------------------------
 

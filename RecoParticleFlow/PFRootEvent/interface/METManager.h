@@ -52,6 +52,11 @@ class METManager {
   void SetIgnoreParticlesIDs(const std::vector<unsigned int>*);
   void SetSpecificIdCut(const std::vector<unsigned int>*, const std::vector<double>*);
 
+  // Addition to have recomputed METs : by S. Dutta 
+  reco::MET getMET1(){return MET1_;}
+  reco::MET getMET2(){return MET2_;}
+  //-----------------------------------------------
+
  private:
  
   /// private functions
