@@ -23,6 +23,13 @@
    where mixture refers to the flavor mixture as determined from the MC sample the flavor dependent corrections have been
    derived from. 'J' and 'T' stand for a typical dijet (ttbar) sample. 
 
+   L1Offset corrections require the collection of _offlinePrimaryVertices_, which are supposed to be added as an additional 
+   optional parameter _primaryVertices_ in the jetCorrFactors_cfi.py file.  
+
+   L1FastJet corrections, which are an alternative to the standard L1Offset correction as recommended by the JetMET PAG the 
+   energy density parameter _rho_ is supposed to be added as an additional optional parameter _rho_ in the 
+   jetCorrFactors_cfi.py file.  
+
    NOTE:
     * the mixed mode (mc input mixture from dijets/ttbar) only exists for parton level corrections.
     * jJ and tT are not covered in this implementation of the JetCorrFactorsProducer
@@ -77,6 +84,8 @@ namespace pat {
     std::vector<std::string> expand(const std::vector<std::string>& levels, const JetCorrFactors::Flavor& flavor);
     /// evaluate jet correction factor up to a given level
     float evaluate(edm::View<reco::Jet>::const_iterator& jet, boost::shared_ptr<FactorizedJetCorrector>& corrector, int level);
+    /// determines the number of valid primary vertices for the standard L1Offset correction of JetMET
+    int numberOf(const edm::Handle<std::vector<reco::Vertex> >& primaryVertices);
     /// map jet algorithm to payload in DB
     std::string payload();
     
@@ -89,8 +98,12 @@ namespace pat {
     std::string type_;
     /// label of jec factors
     std::string label_;
-    /// payload label
+    /// label of payload
     std::string payload_;
+    /// label for L1Offset primaryVertex collection
+    edm::InputTag primaryVertices_;
+    // label for L1FastJet energy density parameter rho
+    edm::InputTag rho_;
     /// jec levels for different flavors. In the default configuration 
     /// this map would look like this:
     /// GLUON  : 'L2Relative', 'L3Absolute', 'L5FLavor_jg', L7Parton_jg'
@@ -103,6 +116,16 @@ namespace pat {
     /// have the same size 
     FlavorCorrLevelMap levels_;
   };
+
+  inline int 
+  JetCorrFactorsProducer::numberOf(const edm::Handle<std::vector<reco::Vertex> >& primaryVertices)
+  {
+    int npv=0;
+    for(std::vector<reco::Vertex>::const_iterator pv=primaryVertices->begin(); pv!=primaryVertices->end(); ++pv){
+      if(pv->ndof()>=4) ++npv;
+    }
+    return npv;
+  }
 }
 
 #endif
