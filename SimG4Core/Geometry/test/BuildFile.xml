@@ -15,3 +15,7 @@
 <bin  file="Cons_.cpp">
  <use   name="cppunit"/>
 </bin>
+
+<bin  file="Para_.cpp">
+ <use   name="cppunit"/>
+</bin>
