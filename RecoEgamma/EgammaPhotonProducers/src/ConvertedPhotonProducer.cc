@@ -44,14 +44,10 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
 ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config) : 
-
   conf_(config), 
   theTrackPairFinder_(0), 
   theVertexFinder_(0), 
-  theEcalImpactPositionFinder_(0),
   theLikelihoodCalc_(0)
-
-
 {
 
 
@@ -109,9 +105,6 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
 
   // Inizilize my global event counter
   nEvt_=0;
-
-
-  theEcalImpactPositionFinder_ =0;
   
 }
 
@@ -129,9 +122,6 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
     //get magnetic field
   //edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
-    
-  // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
-  theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
   theEventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTransientTrackBuilder_);
@@ -141,7 +131,6 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
 
 
 void  ConvertedPhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
-  delete theEcalImpactPositionFinder_; 
 }
 
 
@@ -159,6 +148,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   
   using namespace edm;
   nEvt_++;  
+
 
   //  LogDebug("ConvertedPhotonProducer")   << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
   //  std::cout    << "ConvertedPhotonProduce::produce event number " <<   theEvent.id() << " Global counter " << nEvt_ << "\n";
@@ -324,7 +314,10 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 
 {
 
+ // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
+  ConversionTrackEcalImpactPoint theEcalImpactPositionFinder( &(*theMF_) );
   
+
   reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
  
   std::vector<reco::TransientTrack> t_generalTrk;
@@ -380,8 +373,8 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
         scPtrVec.push_back(aClus);     
 	nFound++;
 
-	std::vector<math::XYZPoint> trkPositionAtEcal = theEcalImpactPositionFinder_->find(  iPair->first, bcHandle );
-	std::vector<reco::CaloClusterPtr>  matchingBC = theEcalImpactPositionFinder_->matchingBC();
+	std::vector<math::XYZPoint> trkPositionAtEcal = theEcalImpactPositionFinder.find(  iPair->first, bcHandle );
+	std::vector<reco::CaloClusterPtr>  matchingBC = theEcalImpactPositionFinder.matchingBC();
 	
 
         minAppDist=-99;
