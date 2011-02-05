@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # moving to the block.  Will delete the PSet once transition is done
 PixelTripletHLTGenerator = cms.PSet(
-   maxElement = cms.uint32(10000),
+   maxElement = cms.uint32(100000),
     useBending = cms.bool(True),
     useFixedPreFiltering = cms.bool(False),
     ComponentName = cms.string('PixelTripletHLTGenerator'),
