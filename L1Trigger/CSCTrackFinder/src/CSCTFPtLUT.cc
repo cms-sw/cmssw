@@ -43,7 +43,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es)
     : read_pt_lut(false),
       isBinary(false)
 {
-	pt_method = 4;
+	pt_method = 24;
         //std::cout << "pt_method from 4 " << std::endl; 
 	lowQualityFlag = 4;
 	isBeamStartConf = true;
@@ -108,7 +108,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
   // 23 - Anna's: for fw 20110118 and up, curves with MC like method 4 <- 2011 data taking
   // 24 - Anna's: for fw 20110118 and up, curves with MC like method 4 <- 2011 data taking
           //with improvments at ME1/1a: find max pt for 3 links hypothesis
-  pt_method = pset.getUntrackedParameter<unsigned>("PtMethod",4);
+  pt_method = pset.getUntrackedParameter<unsigned>("PtMethod",24);
   //std::cout << "pt_method from pset " << std::endl; 
   // what does this mean???
   lowQualityFlag = pset.getUntrackedParameter<unsigned>("LowQualityFlag",4);
