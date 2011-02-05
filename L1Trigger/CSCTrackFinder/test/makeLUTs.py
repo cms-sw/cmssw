@@ -50,11 +50,12 @@ process.cscmakeptlut = cms.EDAnalyzer("CSCMakePTLUT",
 ##  create .dat file
 #   BinaryOutput = cms.untracked.bool(False), 
    lutParam = cms.PSet(
-    isBeamStartConf = cms.untracked.bool(True)
+    isBeamStartConf = cms.untracked.bool(True),
+    ReadPtLUT = cms.bool(False)
 #    isBeamStartConf = cms.untracked.bool(False)
    )
 )
 
-process.Path = cms.Path(process.cscmakesrlut)
-#process.Path = cms.Path(process.cscmakeptlut)				
+#process.Path = cms.Path(process.cscmakesrlut)
+process.Path = cms.Path(process.cscmakeptlut)				
 #process.Path = cms.Path(process.cscmakesrlut+process.cscmakeptlut)
