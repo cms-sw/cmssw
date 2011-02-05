@@ -3691,6 +3691,7 @@ public :
 			      float EisooverETbarrel, float EisooverETendcap,
 			      float hoverebarrel, float hovereendcap,
 			      float r9barrel, float r9endcap);
+  int OpenHltPhoCuts(float e_t, float he_eb, float he_ee, float shape_eb, float shape_ee, float cal_iso, float trk_iso);
   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   std::vector<int> VectorOpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC,float HoverE=999, 
 					      float R9=999, float ClusShapEB=999, float ClusShapEC=999); 
