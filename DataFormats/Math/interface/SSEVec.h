@@ -236,7 +236,7 @@ namespace mathSSE {
 
     // for masking
     Vec4(unsigned int m1, unsigned int m2, unsigned int m3, unsigned int m4) {
-      mask[0]=m1;  mask[0]=m2;  mask[0]=m3;  mask[0]=m4; 
+      mask[0]=m1;  mask[1]=m2;  mask[2]=m3;  mask[3]=m4; 
     }
 
     void set(float f1, float f2, float f3, float f4=0) {
@@ -295,7 +295,7 @@ namespace mathSSE {
 
    // for masking
     Vec2(unsigned long long m1, unsigned long long m2) {
-      mask[0]=m1;  mask[0]=m2; 
+      mask[0]=m1;  mask[1]=m2; 
     }
 
 
@@ -373,7 +373,7 @@ namespace mathSSE {
 
     // for masking
     Vec4(unsigned long long m1, unsigned long long m2, unsigned long long m3, unsigned long long m4) {
-      mask[0]=m1;  mask[0]=m2;  mask[0]=m3;  mask[0]=m4; 
+      mask[0]=m1;  mask[1]=m2;  mask[2]=m3;  mask[3]=m4; 
     }
 
 
