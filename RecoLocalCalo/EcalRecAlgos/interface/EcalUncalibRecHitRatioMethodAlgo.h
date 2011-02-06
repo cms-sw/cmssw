@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.41 2011/02/06 09:49:36 innocent Exp $
- *  $Date: 2011/02/06 09:49:36 $
- *  $Revision: 1.41 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.42 2011/02/06 11:07:17 innocent Exp $
+ *  $Date: 2011/02/06 11:07:17 $
+ *  $Revision: 1.42 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  * SSE version by V.Innocente
  */
@@ -204,7 +204,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::init( const C &dataFrame, const
     }else{
       // inflate error for useless samples
       amplitudes_[iSample]=sample;
-      amplitudeErrors_[iSample]=1e+9;
+      amplitudeErrors_[iSample]=Scalart(1e+9);
     }
     amplitudeErrors2nor_[iSample] =  amplitudeErrors_[iSample]*amplitudeErrors_[iSample];
     amplitudeErrors2inv_[iSample] = Scalar(1)/amplitudeErrors2nor_[iSample];
@@ -349,17 +349,17 @@ bool EcalUncalibRecHitRatioMethodAlgo<C, Scalar>::fixMGPAslew( const C &dataFram
 
   int GainIdPrev;
   int GainIdNext;
-  for (int iSample = 1; iSample < C::MAXSAMPLES; iSample++) {
-    GainIdPrev = dataFrame.sample(iSample-1).gainId();
-    GainIdNext = dataFrame.sample(iSample).gainId();
-    if( GainIdPrev>=1 && GainIdPrev<=3 && 
-        GainIdNext>=1 && GainIdNext<=3 && 
-        GainIdPrev<GainIdNext ){
-      amplitudes_[iSample-1]=Scalar(1e-9);
-      amplitudeErrors_[iSample-1]=Scalar(1e+9);
-      amplitudeErrors2nor_[iSample-1] =  amplitudeErrors_[iSample]*amplitudeErrors_[iSample];
-      amplitudeErrors2inv_[iSample-1] = Scalar(1)/amplitudeErrors2nor_[iSample];
-      amplitudeErrors2nor_[iSample-1] /= (amplitudes_[iSample]*amplitudes_[iSample]);
+  for (int iSample = 0; iSample < (C::MAXSAMPLES-1); iSample++) {
+    GainIdPrev = dataFrame.sample(iSample).gainId();
+    GainIdNext = dataFrame.sample(iSample+1).gainId();
+    if(  GainIdPrev<GainIdNext && 
+	 GainIdPrev>=1 && GainIdPrev<=3 && 
+        GainIdNext>=1 && GainIdNext<=3 ){
+      amplitudes_[iSample]=Scalar(1e-9);
+      amplitudeErrors_[iSample]=Scalar(1e+9);
+      amplitudeErrors2nor_[iSample] =  amplitudeErrors_[iSample]*amplitudeErrors_[iSample];
+      amplitudeErrors2inv_[iSample] = Scalar(1)/amplitudeErrors2nor_[iSample];
+      amplitudeErrors2nor_[iSample] /= (amplitudes_[iSample]*amplitudes_[iSample]);
  
       result = true;      
     }
@@ -433,33 +433,33 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < Input
       for(unsigned int j = i+1; j < amplitudesSize; j++){
 	if(amplitudes_[j]>1){
 
-	// ratio
-	Scalar Rtmp = amplitudes_[i]/amplitudes_[j];
-
-	// don't include useless ratios
-	if( Rtmp<mill ||  Rtmp> RLimits[j-i] ) continue;
-
-	// error^2 due to stat fluctuations of time samples
-	// (uncorrelated for both samples)
-
-	Scalar err1 = Rtmp*Rtmp*(amplitudeErrors2nor_[i] + amplitudeErrors2nor_[j] );
-
-	// error due to fluctuations of pedestal (common to both samples)
-	Scalar err2 = stat*(amplitudes_[i]-amplitudes_[j])*amplitudeErrors_[j]/(amplitudes_[j]*amplitudes_[j]);
-
-	//error due to integer round-down. It is relevant to low
-	//amplitudes_ in gainID=1 and negligible otherwise.
-        Scalar err3 = Scalar(0.289)/amplitudes_[j];
-
-	Scalar totalError = err1 + err2*err2 +err3*err3;
-
-
-	// don't include useless ratios
-	if(totalError < 1){
-	  Ratio currentRatio = { i, (j-i), Rtmp, std::sqrt(totalError) };
-	  ratios_.push_back(currentRatio);
-	}
-	
+	  // ratio
+	  Scalar Rtmp = amplitudes_[i]/amplitudes_[j];
+	  
+	  // don't include useless ratios
+	  if( Rtmp<mill ||  Rtmp> RLimits[j-i] ) continue;
+	  
+	  // error^2 due to stat fluctuations of time samples
+	  // (uncorrelated for both samples)
+	  
+	  Scalar err1 = Rtmp*Rtmp*(amplitudeErrors2nor_[i] + amplitudeErrors2nor_[j] );
+	  
+	  // error due to fluctuations of pedestal (common to both samples)
+	  Scalar err2 = stat*(amplitudes_[i]-amplitudes_[j])*amplitudeErrors_[j]/(amplitudes_[j]*amplitudes_[j]);
+	  
+	  //error due to integer round-down. It is relevant to low
+	  //amplitudes_ in gainID=1 and negligible otherwise.
+	  Scalar err3 = Scalar(0.289)/amplitudes_[j];
+	  
+	  Scalar totalError = err1 + err2*err2 +err3*err3;
+	  
+	  
+	  // don't include useless ratios
+	  if(totalError < 1){
+	    Ratio currentRatio = { i, (j-i), Rtmp, std::sqrt(totalError) };
+	    ratios_.push_back(currentRatio);
+	  }
+	  
 	}
 	
       }
