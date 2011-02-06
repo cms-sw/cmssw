@@ -1457,7 +1457,7 @@ unsigned int CaloTowersCreationAlgo::hcalChanStatusForCaloTower(const CaloRecHit
 
 unsigned int CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit* hit) {
 
-  const DetId id = hit->detid();
+  // const DetId id = hit->detid();
 
   //  uint16_t dbStatus = theEcalChStatus->find(id)->getStatusCode();
   //  uint32_t rhFlags  = hit->flags();
@@ -1466,10 +1466,13 @@ unsigned int CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit
   // Use the recommended interface - we leave the parameters for spilke removal to be specified by ECAL.
 
 
-  int severityLevel = 999;
+  //  int severityLevel = 999;
 
-  if      (id.subdetId() == EcalBarrel) severityLevel = theEcalSevLvlAlgo->severityLevel( id, *theEbHandle);//, *theEcalChStatus);
-  else if (id.subdetId() == EcalEndcap) severityLevel = theEcalSevLvlAlgo->severityLevel( id, *theEeHandle);//, *theEcalChStatus);
+  EcalRecHit const & rh = *reinterpret_cast<EcalRecHit const *>(hit);
+  int severityLevel = theEcalSevLvlAlgo->severityLevel(rh);
+
+//  if      (id.subdetId() == EcalBarrel) severityLevel = theEcalSevLvlAlgo->severityLevel( id, *theEbHandle);//, *theEcalChStatus);
+//  else if (id.subdetId() == EcalEndcap) severityLevel = theEcalSevLvlAlgo->severityLevel( id, *theEeHandle);//, *theEcalChStatus);
 
   // there should be no other ECAL types used in this reconstruction
 
