@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.40 2011/02/06 08:54:47 innocent Exp $
- *  $Date: 2011/02/06 08:54:47 $
- *  $Revision: 1.40 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.41 2011/02/06 09:49:36 innocent Exp $
+ *  $Date: 2011/02/06 09:49:36 $
+ *  $Revision: 1.41 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  * SSE version by V.Innocente
  */
@@ -355,8 +355,12 @@ bool EcalUncalibRecHitRatioMethodAlgo<C, Scalar>::fixMGPAslew( const C &dataFram
     if( GainIdPrev>=1 && GainIdPrev<=3 && 
         GainIdNext>=1 && GainIdNext<=3 && 
         GainIdPrev<GainIdNext ){
-      amplitudes_[iSample-1]=1e-9;
-      amplitudeErrors_[iSample-1]=1e+9;
+      amplitudes_[iSample-1]=Scalar(1e-9);
+      amplitudeErrors_[iSample-1]=Scalar(1e+9);
+      amplitudeErrors2nor_[iSample-1] =  amplitudeErrors_[iSample]*amplitudeErrors_[iSample];
+      amplitudeErrors2inv_[iSample-1] = Scalar(1)/amplitudeErrors2nor_[iSample];
+      amplitudeErrors2nor_[iSample-1] /= (amplitudes_[iSample]*amplitudes_[iSample]);
+ 
       result = true;      
     }
   }
