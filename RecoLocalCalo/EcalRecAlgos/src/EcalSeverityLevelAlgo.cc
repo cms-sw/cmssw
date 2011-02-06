@@ -3,7 +3,7 @@
    Implementation of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.cc,v 1.35 2011/01/16 08:26:53 argiro Exp $
+   \version $Id: EcalSeverityLevelAlgo.cc,v 1.36 2011/01/31 15:05:59 argiro Exp $
    \date 10 Jan 2011
 */
 
@@ -73,6 +73,24 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
 
 EcalSeverityLevelAlgo::EcalSeverityLevel 
 EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
+  // kGood==0 we know!
+  if (0==rh.flagBits()) return kGood;
+  // check if the bit corresponding to that flag is set in the mask
+  // This implementation implies that  severities have a priority... 
+  for (int sev=kBad;sev>=0;--sev){
+    if(sev==kTime && rh.energy() < timeThresh_ ) continue;
+    if (flagMask_[sev] & rh.flagBits()) return EcalSeverityLevel(sev);
+  }
+
+  // no matching
+  LogDebug("EcalSeverityLevelAlgo")<< "Unmatched Flag , returning kGood";
+  return kGood;
+
+}
+
+/*
+EcalSeverityLevelAlgo::EcalSeverityLevel 
+EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
   
 
   // check if the bit corresponding to that flag is set in the mask
@@ -93,7 +111,7 @@ EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
   LogDebug("EcalSeverityLevelAlgo")<< "Unmatched Flag , returning kGood";
   return kGood;
 }
-
+*/
 
 
 
