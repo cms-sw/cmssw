@@ -294,7 +294,7 @@ namespace mathSSE {
     inline Vec2(Vec4<double> v4); 
 
    // for masking
-    Vec2((unsigned long long m1, unsigned long long m2) {
+    Vec2(unsigned long long m1, unsigned long long m2) {
       mask[0]=m1;  mask[0]=m2; 
     }
 

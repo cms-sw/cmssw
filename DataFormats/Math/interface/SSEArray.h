@@ -46,13 +46,13 @@ namespace mathSSE {
   template <>
   struct ArrayMask<double, 0> {
     static inline Vec2<double> value() {
-      Vec2<double>(0xffffffffffffffffLL,  0xffffffffffffffffLL);
+      return Vec2<double>(0xffffffffffffffffLL,  0xffffffffffffffffLL);
     }
   };
   template <>
   struct ArrayMask<double,1> {
     static inline Vec2<double> value() {
-      Vec2<double>(0xffffffffffffffffLL,  0x0LL);
+      return Vec2<double>(0xffffffffffffffffLL,  0x0LL);
     }
   };
   

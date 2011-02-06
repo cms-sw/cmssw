@@ -96,7 +96,7 @@ int main() {
   using mathSSE::Vec4F;
  
  
-  Vec4F x(0.,-1.,1.,1000.);
+  Vec4F x(0.f,-1.f,1.f,1000.f);
   std::cout << x << std::endl;
   
   Vec4F y; y.vec = exp_ps(x.vec);
@@ -122,8 +122,8 @@ int main() {
   z.vec = exp_ps(z.vec);
   std::cout << z << std::endl;
 
-  Vec4F k(0.1,-1.,1.1e-3,1.);
-  Vec4F eps(1.e-3);
+  Vec4F k(0.1f,-1.f,1.1e-3f,1.f);
+  Vec4F eps(1.e-3f);
   Vec4F cmp = cmpgt(k,eps);
   std::cout << cmp  << std::endl;
   k = cmp&k.vec; 
