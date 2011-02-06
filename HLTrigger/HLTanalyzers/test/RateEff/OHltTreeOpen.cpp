@@ -1745,7 +1745,7 @@ else {
       }     
     }     
   }   
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu24") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu20") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHlt1MuonPassed(10.,10.,20.,2.,1)>=1) {
@@ -2257,10 +2257,10 @@ else {
       }  
     }  
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele70_NoSpikeFilter_v1") == 0) {       
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele90_NoSpikeFilter_v1") == 0) {       
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
-        if(OpenHlt1ElectronSamHarperPassed(70.,0,          // ET, L1isolation  
+        if(OpenHlt1ElectronSamHarperPassed(90.,0,          // ET, L1isolation  
                                            999., 999.,       // Track iso barrel, Track iso endcap  
                                            999., 999.,        // Track/pT iso barrel, Track/pT iso endcap  
                                            999., 999.,       // H/ET iso barrel, H/ET iso endcap  
@@ -2887,7 +2887,7 @@ else {
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon30_CaloIdVL_IsolL") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon30_CaloIdVL_IsoL") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHlt1PhotonSamHarperPassed(30.,0,          // ET, L1isolation
@@ -2925,7 +2925,7 @@ else {
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon75_CaloIdVL_IsolL") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon75_CaloIdVL_IsoL") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHlt1PhotonSamHarperPassed(75.,0,          // ET, L1isolation
@@ -3309,6 +3309,44 @@ else {
                                          0.15, 0.15,       // H/E barrel, H/E endcap
                                          999., 999.,       // cluster shape barrel, cluster shape endcap
                                          999., 999.,       // R9 barrel, R9 endcap
+                                         999., 999.,       // Deta barrel, Deta endcap
+                                         999., 999.        // Dphi barrel, Dphi endcap
+                                         )>=2) {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton32_CaloIdL") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonSamHarperPassed(32.,0,          // ET, L1isolation
+                                         999., 999.,       // Track iso barrel, Track iso endcap
+                                         999., 999.,        // Track/pT iso barrel, Track/pT iso endcap
+                                         999., 999.,       // H iso barrel, H iso endcap
+                                         999., 999.,       // E iso barrel, E iso endcap
+                                         0.15, 0.10,       // H/E barrel, H/E endcap
+                                         0.014, 0.035,       // cluster shape barrel, cluster shape endcap
+                                         0.98, 999.,       // R9 barrel, R9 endcap
+                                         999., 999.,       // Deta barrel, Deta endcap
+                                         999., 999.        // Dphi barrel, Dphi endcap
+                                         )>=2) {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton33") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1PhotonSamHarperPassed(33.,0,          // ET, L1isolation
+                                         999., 999.,       // Track iso barrel, Track iso endcap
+                                         999., 999.,        // Track/pT iso barrel, Track/pT iso endcap
+                                         999., 999.,       // H iso barrel, H iso endcap
+                                         999., 999.,       // E iso barrel, E iso endcap
+                                         0.15, 0.10,       // H/E barrel, H/E endcap
+                                         999., 999.,       // cluster shape barrel, cluster shape endcap
+                                         0.98, 999.,       // R9 barrel, R9 endcap
                                          999., 999.,       // Deta barrel, Deta endcap
                                          999., 999.        // Dphi barrel, Dphi endcap
                                          )>=2) {
@@ -4057,6 +4095,63 @@ else {
   }
   
   /*Electron-jet cross-triggers*/
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_v1") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) {  
+        if(OpenHlt1ElectronSamHarperPassed(25.,0,          // ET, L1isolation  
+                                           999., 999.,       // Track iso barrel, Track iso endcap  
+                                           999., 999.,        // Track/pT iso barrel, Track/pT iso endcap  
+                                           999., 999.,       // H/ET iso barrel, H/ET iso endcap  
+                                           999., 999.,       // E/ET iso barrel, E/ET iso endcap  
+                                           0.05, 0.05,       // H/E barrel, H/E endcap  
+                                           0.011, 0.031,       // cluster shape barrel, cluster shape endcap  
+                                           0.98, 1.0,       // R9 barrel, R9 endcap  
+                                           0.008, 0.008,       // Deta barrel, Deta endcap  
+                                           0.07, 0.05        // Dphi barrel, Dphi endcap  
+                                           )>=1 && OpenHlt1CorJetPassed(30,3.0)>=1) {  
+          triggerBit[it] = true;  
+        }  
+      }  
+    }  
+  } 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralDiJet30_v1") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) {  
+        if(OpenHlt1ElectronSamHarperPassed(25.,0,          // ET, L1isolation  
+                                           999., 999.,       // Track iso barrel, Track iso endcap  
+                                           999., 999.,        // Track/pT iso barrel, Track/pT iso endcap  
+                                           999., 999.,       // H/ET iso barrel, H/ET iso endcap  
+                                           999., 999.,       // E/ET iso barrel, E/ET iso endcap  
+                                           0.05, 0.05,       // H/E barrel, H/E endcap  
+                                           0.011, 0.031,       // cluster shape barrel, cluster shape endcap  
+                                           0.98, 1.0,       // R9 barrel, R9 endcap  
+                                           0.008, 0.008,       // Deta barrel, Deta endcap  
+                                           0.07, 0.05        // Dphi barrel, Dphi endcap  
+                                           )>=1 && OpenHlt1CorJetPassed(30,3.0)>=2) {  
+          triggerBit[it] = true;  
+        }  
+      }  
+    }  
+  } 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralTriJet30_v1") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) {  
+	if(OpenHlt1ElectronSamHarperPassed(25.,0,          // ET, L1isolation  
+					   999., 999.,       // Track iso barrel, Track iso endcap  
+					   999., 999.,        // Track/pT iso barrel, Track/pT iso endcap  
+					   999., 999.,       // H/ET iso barrel, H/ET iso endcap  
+					   999., 999.,       // E/ET iso barrel, E/ET iso endcap  
+					   0.05, 0.05,       // H/E barrel, H/E endcap  
+					   0.011, 0.031,       // cluster shape barrel, cluster shape endcap  
+					   0.98, 1.0,       // R9 barrel, R9 endcap  
+					   0.008, 0.008,       // Deta barrel, Deta endcap  
+					   0.07, 0.05        // Dphi barrel, Dphi endcap  
+					   )>=1 && OpenHlt1CorJetPassed(30,3.0)>=3) {  
+	  triggerBit[it] = true;  
+	}  
+      }  
+    }  
+  }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_SW_TighterEleId_L1R_BTagIP_CentJet20U") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
@@ -4218,6 +4313,55 @@ else {
   }
 
   /* muon-jet/MET/HT cross-triggers */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_CentralJet30") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1MuonPassed(7.,7.,17.,2.,0)>=1 && OpenHlt1CorJetPassed(30,2.6)>=1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_DiCentralJet30") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1MuonPassed(7.,7.,17.,2.,0)>=1 && OpenHlt1CorJetPassed(30,2.6)>=2) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_TripleCentralJet30") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1MuonPassed(7.,7.,17.,2.,0)>=1 && OpenHlt1CorJetPassed(30,2.6)>=3) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_TripleCentralJet30_v1") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1MuonPassed(7.,7.,17.,2.,0)>=1 && OpenHlt1CorJetPassed(30,3)>=3) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_TripleCentralJet30_v2") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1MuonIsoJetPassed(7.,7.,17.,2.,0,30.,2.6)>=1 && OpenHlt1CorJetPassed(30,2.6)>=3) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_TripleCentralJet30_v3") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1MuonIsoJetPassed(7.,7.,17.,2.,0,30.,3.)>=1 && OpenHlt1CorJetPassed(30,3.0)>=3) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_DiCentralJet30_v1") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1MuonIsoJetPassed(7.,7.,17.,2.,0,30.,3.)>=1 && OpenHlt1CorJetPassed(30,3.0)>=2) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu3_HT100U") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -4737,7 +4881,8 @@ else {
       } 
     } 
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_HT140U") == 0) {  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_longname_HT140U") == 0) {
+  //  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_HT140U") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if( 
 	 (OpenHlt1ElectronSamHarperPassed(10.,0,          // ET, L1isolation 
@@ -5137,7 +5282,8 @@ else {
       } 
     } 
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8_1CaloIdL_1TrkIdVL") == 0) { 
+  //  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8_1CaloIdL_1TrkIdVL") == 0) { 
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8_1CIdL_1TIdVL") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1&&OpenHlt2ElectronsSamHarperPassed(8.,0,          // ET, L1isolation 
@@ -5169,7 +5315,8 @@ else {
       } 
     } 
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8_2CaloIdL_2TrkIdVL") == 0) {
+  //  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8_2CaloIdL_2TrkIdVL") == 0) {
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8_2CIdL_2TIdVL") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
 	if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1&&OpenHlt2ElectronsSamHarperPassed(8.,0,          // ET, L1isolation
@@ -5364,27 +5511,47 @@ else {
       } 
     } 
   } 
-
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3_EleId8_HT100U") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT140U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1MuonPassed(3.,3.,3.,2.,0)>=1 && OpenHltSumHTPassed(100,20)>0 && 
+        if(OpenHlt1MuonPassed(3.,3.,3.,2.,0)>=1 && OpenHltSumHTPassed(140,20,3.0)>0 &&
+           OpenHlt1ElectronSamHarperPassed(8.,0,          // ET, L1isolation
+                                           999., 999.,       // Track iso barrel, Track iso endcap
+                                           999., 999.,        // Track/pT iso barrel, Track/pT iso endcap
+                                           999., 999.,       // H/ET iso barrel, H/ET iso endcap
+                                           999., 999.,       // E/ET iso barrel, E/ET iso endcap
+                                           0.15, 0.10,       // H/E barrel, H/E endcap
+                                           0.014, 0.035,       // cluster shape barrel, cluster shape endcap
+                                           0.98, 1.0,       // R9 barrel, R9 endcap
+                                           0.01, 0.01,       // Deta barrel, Deta endcap
+                                           0.15, 0.10       // Dphi barrel, Dphi endcap
+                                           )>=1) {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHlt1MuonPassed(3.,3.,3.,2.,0)>=1 && OpenHltSumHTPassed(100,20,3.0)>0 && 
 	   OpenHlt1ElectronSamHarperPassed(8.,0,          // ET, L1isolation
 					   999., 999.,       // Track iso barrel, Track iso endcap
 					   999., 999.,        // Track/pT iso barrel, Track/pT iso endcap
 					   999., 999.,       // H/ET iso barrel, H/ET iso endcap
 					   999., 999.,       // E/ET iso barrel, E/ET iso endcap
-					   0.15, 0.15,       // H/E barrel, H/E endcap
+					   0.15, 0.10,       // H/E barrel, H/E endcap
 					   0.014, 0.035,       // cluster shape barrel, cluster shape endcap
 					   0.98, 1.0,       // R9 barrel, R9 endcap
 					   0.01, 0.01,       // Deta barrel, Deta endcap
-					   0.08, 0.08       // Dphi barrel, Dphi endcap
+					   0.15, 0.10       // Dphi barrel, Dphi endcap
 					   )>=1) {
 	  triggerBit[it] = true; 
 	}
       }
     }
   }
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_EleId_HT150U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
@@ -5658,31 +5825,40 @@ else {
     
     // No isol
     char pathNamePhotonPhoton[100];
-    sprintf(pathNamePhotonPhoton,"OpenHLT_Photon%d_Photon%d_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonPhoton,"OpenHLT_Photon%d_Photon%d",upperEt,lowerEt);
     // One leg Isol
     char pathNamePhotonIsolPhoton[100];
-    sprintf(pathNamePhotonIsolPhoton,"OpenHLT_Photon%d_Isol_Photon%d_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonIsolPhoton,"OpenHLT_Photon%d_IsoT_Photon%d",upperEt,lowerEt);
     // One leg Loose Isol
     char pathNamePhotonLooseIsolPhoton[100];
-    sprintf(pathNamePhotonLooseIsolPhoton,"OpenHLT_Photon%d_LooseIsol_Photon%d_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonLooseIsolPhoton,"OpenHLT_Photon%d_IsoL_Photon%d",upperEt,lowerEt);
     // One leg Looser Isol
     char pathNamePhotonLooserIsolPhoton[100];
-    sprintf(pathNamePhotonLooserIsolPhoton,"OpenHLT_Photon%d_LooserIsol_Photon%d_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonLooserIsolPhoton,"OpenHLT_Photon%d_IsoVL_Photon%d",upperEt,lowerEt);
     // One leg CaloId
     char pathNamePhotonCaloIdPhoton[100];
-    sprintf(pathNamePhotonCaloIdPhoton,"OpenHLT_Photon%d_CaloId_Photon%d_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonCaloIdPhoton,"OpenHLT_Photon%d_CaloIdL_Photon%d",upperEt,lowerEt);
+    // One leg CaloIdL + IsoVL
+    char pathNamePhotonCaloIdLIsoVLPhoton[100];
+    sprintf(pathNamePhotonCaloIdLIsoVLPhoton,"OpenHLT_Photon%d_CaloIdL_IsoVL_Photon%d",upperEt,lowerEt);
     // One leg Isol + CaloId
     char pathNamePhotonIsolCaloIdPhoton[100];
-    sprintf(pathNamePhotonIsolCaloIdPhoton,"OpenHLT_Photon%d_Isol_CaloId_Photon%d_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonIsolCaloIdPhoton,"OpenHLT_Photon%d_IsoT_CaloIdL_Photon%d",upperEt,lowerEt);
+    // Two leg VLIsol + CaloIdL
+    char pathNamePhotonIsoVLCaloIdLPhotonIsoVLCaloIdL[100];
+    sprintf(pathNamePhotonIsoVLCaloIdLPhotonIsoVLCaloIdL,"OpenHLT_Photon%d_CaloIdL_IsoVL_Photon%d_CaloIdL_IsoVL",upperEt,lowerEt);
     // One leg Isol + CaloId + LooseHoverE
     char pathNamePhotonIsolCaloIdLooseHEPhoton[100];
-    sprintf(pathNamePhotonIsolCaloIdLooseHEPhoton,"OpenHLT_Photon%d_Isol_CaloId_LooseHE_Photon%d_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonIsolCaloIdLooseHEPhoton,"OpenHLT_Photon%d_IsoT_CaloIdL_LooseHE_Photon%d",upperEt,lowerEt);
     // Both legs Isol
     char pathNamePhotonIsolPhotonIsol[100];
-    sprintf(pathNamePhotonIsolPhotonIsol,"OpenHLT_Photon%d_Isol_Photon%d_Isol_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonIsolPhotonIsol,"OpenHLT_Photon%d_IsoT_Photon%d_IsoT",upperEt,lowerEt);
+    // Both legs Isol
+    char pathNamePhotonIsolVLPhotonIsolVL[100];
+    sprintf(pathNamePhotonIsolVLPhotonIsolVL,"OpenHLT_Photon%d_IsoVL_Photon%d_IsoVL",upperEt,lowerEt);
     // Both legs Isol + CaloId
     char pathNamePhotonIsolCaloIdPhotonIsolCaloId[100];
-    sprintf(pathNamePhotonIsolCaloIdPhotonIsolCaloId,"OpenHLT_Photon%d_Isol_CaloId_Photon%d_Isol_CaloId_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonIsolCaloIdPhotonIsolCaloId,"OpenHLT_Photon%d_IsoT_CaloIdL_Photon%d_IsoT_CaloIdL",upperEt,lowerEt);
     
     
     // Names of Photon Paths With Mass Cut
@@ -5690,16 +5866,16 @@ else {
     
     // One leg Isol + Mass>60
     char pathNamePhotonIsolPhotonMass60[100];
-    sprintf(pathNamePhotonIsolPhotonMass60,"OpenHLT_Photon%d_Isol_Photon%d_Mass60_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonIsolPhotonMass60,"OpenHLT_Photon%d_Isol_Photon%d_Mass60",upperEt,lowerEt);
     // One leg Isol + CaloId + Mass>60
     char pathNamePhotonIsolCaloIdPhotonMass60[100];
-    sprintf(pathNamePhotonIsolCaloIdPhotonMass60,"OpenHLT_Photon%d_Isol_CaloId_Photon%d_Mass60_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonIsolCaloIdPhotonMass60,"OpenHLT_Photon%d_Isol_CaloId_Photon%d_Mass60",upperEt,lowerEt);
     // Both legs Isol  + Mass>60
     char pathNamePhotonIsolPhotonIsolMass60[100];
-    sprintf(pathNamePhotonIsolPhotonIsolMass60,"OpenHLT_Photon%d_Isol_Photon%d_Isol_Mass60_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonIsolPhotonIsolMass60,"OpenHLT_Photon%d_Isol_Photon%d_Isol_Mass60",upperEt,lowerEt);
     // Both legs Isol + CaloId + Mass>60
     char pathNamePhotonIsolCaloIdPhotonIsolCaloIdMass60[100];
-    sprintf(pathNamePhotonIsolCaloIdPhotonIsolCaloIdMass60,"OpenHLT_Photon%d_Isol_CaloId_Photon%d_Isol_CaloId_Mass60_L1R",upperEt,lowerEt);
+    sprintf(pathNamePhotonIsolCaloIdPhotonIsolCaloIdMass60,"OpenHLT_Photon%d_Isol_CaloId_Photon%d_Isol_CaloId_Mass60",upperEt,lowerEt);
 
     if (menu->GetTriggerName(it).CompareTo(pathNamePhotonPhoton) == 0) {     
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
@@ -5714,6 +5890,49 @@ else {
        }      
       }      
     } 
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonCaloIdLIsoVLPhoton) == 0) { //Added this
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+	if (prescaleResponse(menu,cfg,rcounter,it)) {
+	  std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,999,999,999,999,0.15,0.98);
+	  if(firstVector.size()>=2) {
+	    std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,4.0,6.0,4.0,4.0,0.15,0.98,0.014,0.035);
+	    if(secondVector.size()>=1) {
+	      triggerBit[it] = true;
+	    }
+	  }
+	}
+      }
+    }
+    //    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolVLPhotonIsolVL) == 0) { //Added this
+    //    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon26_IsoVL_Photon18_IsoVL") == 0) { //Added this
+    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon26_Photon18_long2") == 0) { //Added this
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) {
+	  std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,4.0,6.0,4.0,4.0,0.15,0.98);
+          if(firstVector.size()>=2) {
+	    std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,4.0,6.0,4.0,4.0,0.15,0.98);
+            if(secondVector.size()>=1) {
+              triggerBit[it] = true;
+            }
+          }
+        }
+      }
+    }
+    //    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsoVLCaloIdLPhotonIsoVLCaloIdL) == 0) { //Added this
+    //    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL") == 0) { //Added this
+    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon26_Photon18_long") == 0) { //Added this
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) {
+	  std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,4.0,6.0,4.0,4.0,0.15,0.98,0.014,0.035);
+          if(firstVector.size()>=2) {
+	    std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,4.0,6.0,4.0,4.0,0.15,0.98,0.014,0.035);
+            if(secondVector.size()>=1) {
+              triggerBit[it] = true;
+            }
+          }
+        }
+      }
+    }
     else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolPhoton) == 0) {     
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
         if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -7613,7 +7832,213 @@ int OHltTree::OpenHlt1MuonPassed(double ptl1, double ptl2, double ptl3, double d
 
   return rcL1L2L3;
 }
+//// Separating between Jets and Muon.....
+int OHltTree::OpenHlt1MuonIsoJetPassed(double ptl1, double ptl2, double ptl3, double dr, int iso,
+				       double JetPt, double JetEta)
+{
+  // This example implements the new (CMSSW_2_X) flat muon pT cuts.
+  // To emulate the old behavior, the cuts should be written
+  // L2:        ohMuL2Pt[i]+3.9*ohMuL2PtErr[i]*ohMuL2Pt[i]
+  // L3:        ohMuL3Pt[i]+2.2*ohMuL3PtErr[i]*ohMuL3Pt[i]
 
+  int rcL1 = 0; int rcL2 = 0; int rcL3 = 0; int rcL1L2L3 = 0;
+  int NL1Mu = 8;
+  int L1MinimalQuality = 4;
+  int L1MaximalQuality = 7;
+  int doL1L2matching = 0;
+
+  for(int ic = 0; ic < 10; ic++)
+    L3MuCandIDForOnia[ic] = -1;
+
+  // Loop over all oh L3 muons and apply cuts
+  for (int i=0;i<NohMuL3;i++) {  
+    int bestl1l2drmatchind = -1;
+    double bestl1l2drmatch = 999.0; 
+
+    if( fabs(ohMuL3Eta[i]) < 2.5 ) { // L3 eta cut  
+      if(ohMuL3Pt[i] > ptl3) {  // L3 pT cut        
+        if(ohMuL3Dr[i] < dr) {  // L3 DR cut
+          if(ohMuL3Iso[i] >= iso) {  // L3 isolation
+
+	    // Loop over all oh corrected jets    
+	    float minDR = 100.;
+	    for (int j=0; j <NrecoJetCorCal; j++) {
+	      if (recoJetCorCalPt[j]>JetPt && fabs(recoJetCalEta[j])<JetEta) {  // Jet pT cut
+		double deltaphi = fabs(recoJetCorCalPhi[j]-ohMuL3Phi[i]); 
+		if(deltaphi > 3.14159) deltaphi = (2.0 * 3.14159) - deltaphi; 
+		float deltaRMuJet = sqrt ((recoJetCorCalEta[j]-ohMuL3Eta[i])*(recoJetCorCalEta[j]-ohMuL3Eta[i]) + (deltaphi*deltaphi));
+		if (deltaRMuJet < minDR){
+		  minDR = deltaRMuJet;
+		}
+	      }
+	    }
+            if(minDR < 0.3)break;
+
+            rcL3++;
+
+            // Begin L2 muons here. 
+            // Get best L2<->L3 match, then 
+            // begin applying cuts to L2
+            int j = ohMuL3L2idx[i];  // Get best L2<->L3 match
+
+            if ( (fabs(ohMuL2Eta[j])<2.5) ) {  // L2 eta cut
+              if( ohMuL2Pt[j] > ptl2 ) { // L2 pT cut
+		if(ohMuL2Iso[j] >= iso) { // L2 isolation
+		  rcL2++;
+
+		  // Begin L1 muons here.
+		  // Require there be an L1Extra muon Delta-R
+		  // matched to the L2 candidate, and that it have 
+		  // good quality and pass nominal L1 pT cuts 
+		  for(int k = 0;k < NL1Mu;k++) {
+		    if( (L1MuPt[k] < ptl1) ) // L1 pT cut
+		      continue;
+		        
+		    double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]); 
+		    if(deltaphi > 3.14159) 
+		      deltaphi = (2.0 * 3.14159) - deltaphi; 
+		        
+		    double deltarl1l2 = sqrt((ohMuL2Eta[j]-L1MuEta[k])*(ohMuL2Eta[j]-L1MuEta[k]) +   
+					     (deltaphi*deltaphi)); 
+		    if(deltarl1l2 < bestl1l2drmatch)  
+		      {  
+			bestl1l2drmatchind = k;  
+			bestl1l2drmatch = deltarl1l2;  
+		      }  
+		  } // End loop over L1Extra muons
+		    
+		  if(doL1L2matching == 1) 
+		    {
+		      // Cut on L1<->L2 matching and L1 quality
+		      if((bestl1l2drmatch > 0.3) || (L1MuQal[bestl1l2drmatchind] < L1MinimalQuality) || (L1MuQal[bestl1l2drmatchind] > L1MaximalQuality))  
+			{  
+			  rcL1 = 0; 
+			  cout << "Failed L1-L2 match/quality" << endl;
+			  cout << "L1-L2 delta-eta = " << L1MuEta[bestl1l2drmatchind] << ", " << ohMuL2Eta[j] << endl; 
+			  cout << "L1-L2 delta-pho = " << L1MuPhi[bestl1l2drmatchind] << ", " << ohMuL2Phi[j] << endl;  
+			  cout << "L1-L2 delta-R = " << bestl1l2drmatch << endl;
+			}
+		      else
+			{
+			  cout << "Passed L1-L2 match/quality" << endl;
+                          L3MuCandIDForOnia[rcL1L2L3] = i;
+			  rcL1++;
+			  rcL1L2L3++;
+			} // End L1 matching and quality cuts      
+		    }
+		  else
+		    {
+                      L3MuCandIDForOnia[rcL1L2L3] = i;
+		      rcL1L2L3++;
+		    }
+		} // End L2 isolation cut 
+	      } // End L2 eta cut
+	    } // End L2 pT cut
+          } // End L3 isolation cut
+        } // End L3 DR cut
+      } // End L3 pT cut
+    } // End L3 eta cut
+  } // End loop over L3 muons      
+  return rcL1L2L3;
+  
+}
+
+//++++++++++++++++++++++++++++++++
+// For Overlap removal of muons in jets
+//Added by J.Rani
+int OHltTree::OpenHlt1BJetPassedMuRemoval(float jetEt, float jetEta, float drcut,
+					  float discL25, float discL3,
+					  double ptl1, double ptl2, double ptl3, double dr, int iso)
+
+{
+
+  int rc = 0;
+  
+  //Loop over uncorrected oh b-jets
+  for(int kk = 0; kk < NohBJetL2; kk++) {
+    
+    if(ohBJetL2Et[kk] > jetEt && fabs(ohBJetL2Eta[kk]) < jetEta) { // ET and eta cuts
+      
+      bool isOverlapping = false;
+      
+      int rcL2 = 0; int rcL3 = 0;
+      int NL1Mu = 8;
+      
+      // Loop over all oh L3 muons and apply cuts
+      for (int i=0;i<NohMuL3;i++) {  
+	int bestl1l2drmatchind = -1;
+	double bestl1l2drmatch = 999.0; 
+	
+	if( fabs(ohMuL3Eta[i]) < 2.5 ) { // L3 eta cut  
+	  if(ohMuL3Pt[i] > ptl3) {  // L3 pT cut        
+	    if(ohMuL3Dr[i] < dr) {  // L3 DR cut
+	      if(ohMuL3Iso[i] >= iso) {  // L3 isolation
+		rcL3++;
+		
+		// Begin L2 muons here. 
+		// Get best L2<->L3 match, then 
+		// begin applying cuts to L2
+		int j = ohMuL3L2idx[i];  // Get best L2<->L3 match
+		
+		if ( (fabs(ohMuL2Eta[j])<2.5) ) {  // L2 eta cut
+		  if( ohMuL2Pt[j] > ptl2 ) { // L2 pT cut
+		    if(ohMuL2Iso[j] >= iso) { // L2 isolation
+		      rcL2++;
+		            
+		      // Begin L1 muons here.
+		      // Require there be an L1Extra muon Delta-R
+		      // matched to the L2 candidate, and that it have 
+		      // good quality and pass nominal L1 pT cuts 
+		      for(int k = 0;k < NL1Mu;k++) {
+			if( (L1MuPt[k] < ptl1) ) // L1 pT cut
+			  continue;
+			
+			double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]); 
+			if(deltaphi > 3.14159) 
+			  deltaphi = (2.0 * 3.14159) - deltaphi; 
+			
+			double deltarl1l2 = sqrt((ohMuL2Eta[j]-L1MuEta[k])*(ohMuL2Eta[j]-L1MuEta[k]) +   
+						 (deltaphi*deltaphi)); 
+			if(deltarl1l2 < bestl1l2drmatch)  
+			  {  
+			    bestl1l2drmatchind = k;  
+			    bestl1l2drmatch = deltarl1l2;  
+			  }  
+		      } // End loop over L1Extra muons
+		            
+		            
+		      double deltaphi = fabs(ohBJetL2Phi[kk]-ohMuL2Phi[j]); 
+		      if(deltaphi > 3.14159) 
+			deltaphi = (2.0 * 3.14159) - deltaphi; 
+		            
+		      double deltaRJetMu = sqrt((ohBJetL2Eta[kk]-ohMuL2Eta[j])*(ohBJetL2Eta[kk]-ohMuL2Eta[j]) +
+						(deltaphi*deltaphi)); 
+		            
+		      if(deltaRJetMu < drcut) {
+			isOverlapping = true;
+			break;
+		      }
+		    } // End L2 isolation cut 
+		  } // End L2 eta cut
+		} // End L2 pT cut
+	      } // End L3 isolation cut
+	    } // End L3 DR cut
+	  } // End L3 pT cut
+	} // End L3 eta cut
+      } // End loop over L3 muons      
+      
+      if(!isOverlapping) {//overlap
+	if(ohBJetIPL25Tag[kk] >= discL25) { // Level 2.5 b tag  
+	  if(ohBJetIPL3Tag[kk] >= discL3) { // Level 3 b tag  
+	    rc++;   
+	  }
+	}
+      }//overlap  
+    }
+  }//loop over jets
+
+  return rc;
+}
 int OHltTree::OpenHlt2MuonPassed(double ptl1, double ptl2, double ptl3, double dr, int iso) 
 { 
   // Note that the dimuon paths generally have different L1 requirements than 
@@ -7698,7 +8123,7 @@ int OHltTree::OpenHlt2MuonPassed(double ptl1, double ptl2, double ptl3, double d
       } // End L3 pT cut 
     } // End L3 eta cut 
   } // End loop over L3 muons                  
-
+  
   return rcL1L2L3; 
 } 
 
@@ -8526,17 +8951,30 @@ int OHltTree::OpenHlt1JetPassed(double pt, double etamax, double emfmin, double 
 int OHltTree::OpenHlt1CorJetPassed(double pt)
 {
   int rc = 0;
-
+  
   // Loop over all oh corrected jets
   for (int i=0;i<NrecoJetCorCal;i++) {
     if(recoJetCorCalPt[i]>pt) {  // Jet pT cut
       rc++;
     }
   }
-
+  
   return rc;
 }
 
+int OHltTree::OpenHlt1CorJetPassed(double pt, double etamax)
+{
+  int rc = 0;
+
+  // Loop over all oh corrected jets
+  for (int i=0;i<NrecoJetCorCal;i++) {
+    if(recoJetCorCalPt[i]>pt && fabs(recoJetCalEta[i])<etamax) {  // Jet pT cut
+      rc++;
+    }
+  }
+
+  return rc;
+}
 
 int OHltTree::OpenHltDiJetAvePassed(double pt)
 {

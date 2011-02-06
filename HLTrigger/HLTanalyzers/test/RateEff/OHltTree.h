@@ -3712,6 +3712,7 @@ public :
   int OpenHlt1JetPassed(double pt, double eta);
   int OpenHlt1JetPassed(double pt, double eta, double emfmin, double emfmax);
   int OpenHlt1CorJetPassed(double pt);
+  int OpenHlt1CorJetPassed(double pt, double eta);
   int OpenHltFwdJetPassed(double esum);
   int OpenHltFwdCorJetPassed(double esum);
   int OpenL1QuadJet8(double jetPt, double jetEta); 
@@ -3719,6 +3720,10 @@ public :
   int OpenHltCorDiJetAvePassed(double pt);
   int OpenHltQuadJetPassed(double pt);
   int OpenHltQuadCorJetPassed(double pt);
+  int OpenHlt1MuonIsoJetPassed(double ptl1, double ptl2, double ptl3, double dr, int iso, double JetPt, double JetEta);
+  int OpenHlt1BJetPassedMuRemoval(float jetEt, float jetEta, float drcut,
+				  float discL25, float discL3,
+				  double ptl1, double ptl2, double ptl3, double dr, int iso);
   int OpenHltQuadJetPassedPlusTauPFId(double pt, double etaJet, double ptTau); 
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) ;
