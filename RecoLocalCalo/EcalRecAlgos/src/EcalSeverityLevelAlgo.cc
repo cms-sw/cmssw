@@ -3,7 +3,7 @@
    Implementation of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.cc,v 1.36 2011/01/31 15:05:59 argiro Exp $
+   \version $Id: EcalSeverityLevelAlgo.cc,v 1.37 2011/02/06 09:49:36 innocent Exp $
    \date 10 Jan 2011
 */
 
@@ -56,7 +56,9 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
 	 << "! something wrong with EcalChannelStatus in your DB? ";
   }
  
-
+  // kGood==0 we know!
+  if (0==dbStatus)  return kGood;
+ 
   // check if the bit corresponding to that dbStatus is set in the mask
   // This implementation implies that the statuses have a priority
   for (size_t i=0; i< dbstatusMask_.size();++i){
