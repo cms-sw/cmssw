@@ -5,7 +5,7 @@
 
 /** \class EcalRecHit
  *  
- * $Id$
+ * $Id: EcalRecHit.h,v 1.21 2011/02/04 13:34:06 argiro Exp $
  * \author P. Meridiani INFN Roma1
  */
 
@@ -98,6 +98,8 @@ public:
 
   /// check if the flag is true
   bool checkFlag(int flag) const{return flagBits_ & ( 0x1<<flag);}
+
+  uint32_t flagBits() const { return flagBits_; }
 
   /// DEPRECATED provided for temporary backward compatibility
   Flags recoFlag() const ;
