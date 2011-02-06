@@ -2868,7 +2868,7 @@ else {
 	}  
    
   /* Photons */
-  if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon30_CaloIdVL") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon30_CaloIdVL") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHlt1PhotonSamHarperPassed(30.,0,          // ET, L1isolation
@@ -2887,7 +2887,7 @@ else {
       }
     }
   }
-  if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon30_CaloIdVL_IsolL") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon30_CaloIdVL_IsolL") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHlt1PhotonSamHarperPassed(30.,0,          // ET, L1isolation
@@ -2906,7 +2906,7 @@ else {
       }
     }
   }
-  if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon75_CaloIdVL") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon75_CaloIdVL") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHlt1PhotonSamHarperPassed(75.,0,          // ET, L1isolation
@@ -2925,7 +2925,7 @@ else {
       }
     }
   }
-  if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon75_CaloIdVL_IsolL") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon75_CaloIdVL_IsolL") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHlt1PhotonSamHarperPassed(75.,0,          // ET, L1isolation
@@ -2944,7 +2944,7 @@ else {
       }
     }
   }
-  if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon125_NoSpikeFilter") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon125_NoSpikeFilter") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHlt1PhotonSamHarperPassed(125.,0,          // ET, L1isolation
@@ -2965,7 +2965,7 @@ else {
   }
 
 
-  if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon32_CaloIdL_Photon32_CaloIdL") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon32_CaloIdL_Photon32_CaloIdL") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHltPhoCuts(32,0.15,0.10,0.014,0.034,999,999) >= 1 && OpenHltPhoCuts(32,0.15,0.10,0.014,0.034,999,999) >= 2) {
