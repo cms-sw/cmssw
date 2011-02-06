@@ -194,6 +194,7 @@ namespace mathSSE {
   union Vec4<float> {
     typedef  __m128 nativeType;
     __m128 vec;
+    unsigned int __attribute__ ((aligned(16))) mask[4];
     float __attribute__ ((aligned(16))) arr[4];
     OldVec<float> o;
     
@@ -233,6 +234,11 @@ namespace mathSSE {
     }
 
 
+    // for masking
+    Vec4(unsigned int m1, unsigned int m2, unsigned int m3, unsigned int m4) {
+      mask[0]=m1;  mask[0]=m2;  mask[0]=m3;  mask[0]=m4; 
+    }
+
     void set(float f1, float f2, float f3, float f4=0) {
       vec = _mm_set_ps(f4, f3, f2, f1);
     }
@@ -264,6 +270,8 @@ namespace mathSSE {
     typedef  __m128d nativeType;
     __m128d vec;
     double __attribute__ ((aligned(16))) arr[2];
+    unsigned long long __attribute__ ((aligned(16))) mask[2];
+
         
     Vec2(__m128d ivec) : vec(ivec) {}
     
@@ -284,6 +292,12 @@ namespace mathSSE {
     }
     
     inline Vec2(Vec4<double> v4); 
+
+   // for masking
+    Vec2((unsigned long long m1, unsigned long long m2) {
+      mask[0]=m1;  mask[0]=m2; 
+    }
+
 
     void set(double f1, double f2) {
       arr[0] = f1; arr[1] = f2;
@@ -307,6 +321,8 @@ namespace mathSSE {
   union Vec4<double> {
     __m128d vec[2];
     double __attribute__ ((aligned(16))) arr[4];
+    unsigned long long __attribute__ ((aligned(16))) mask[4];
+
     OldVec<double> o;
     
     Vec4(__m128d ivec[]) {
@@ -354,6 +370,12 @@ namespace mathSSE {
 
 
     Vec4(OldVec<double> const & ivec) : o(ivec) {}
+
+    // for masking
+    Vec4(unsigned long long m1, unsigned long long m2, unsigned long long m3, unsigned long long m4) {
+      mask[0]=m1;  mask[0]=m2;  mask[0]=m3;  mask[0]=m4; 
+    }
+
 
     void set(double f1, double f2, double f3, double f4=0) {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;

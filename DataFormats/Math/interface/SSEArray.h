@@ -21,44 +21,38 @@ namespace mathSSE {
   template <>
   struct ArrayMask<float, 0> {
     static inline Vec4<float> value() {
-      unsigned int v[] = {0xffffffff,  0xffffffff,  0xffffffff,  0xffffffff};
-      return *(Vec4<float>*)(v);
+      return Vec4<float>(0xffffffff,  0xffffffff,  0xffffffff,  0xffffffff);
     }
   };
   template <>
   struct ArrayMask<float,1> {
     static inline Vec4<float> value() {
-     unsigned int v[] = {0xffffffff,  0x0,  0x0,  0x0};
-      return *(Vec4<float>*)(v);
+      return Vec4<float>(0xffffffff,  0x0,  0x0,  0x0);
     }
   };
   template <>
   struct ArrayMask<float,2> {
     static inline Vec4<float> value() {
-     unsigned int v[] = {0xffffffff,  0xffffffff,  0x0,  0x0};
-      return *(Vec4<float>*)(v);
+     return Vec4<float>(0xffffffff,  0xffffffff,  0x0,  0x0);
     }
   };
   template <>
   struct ArrayMask<float,3> {
     static inline Vec4<float> value() {
-      unsigned int v[] = {0xffffffff,  0xffffffff,  0xffffffff,  0x0};
-      return *(Vec4<float>*)(v);
+      return Vec4<float>(0xffffffff,  0xffffffff,  0xffffffff,  0x0);
    }
   };
   
   template <>
   struct ArrayMask<double, 0> {
     static inline Vec2<double> value() {
-       unsigned long long v[] = {0xffffffffffffffffLL,  0xffffffffffffffffLL};
-       return  *(Vec2<double>*)(v);
+      Vec2<double>(0xffffffffffffffffLL,  0xffffffffffffffffLL);
     }
   };
   template <>
   struct ArrayMask<double,1> {
     static inline Vec2<double> value() {
-       unsigned long long v[] = {0xffffffffffffffffLL,  0x0LL};
-       return  *(Vec2<double>*)(v);
+      Vec2<double>(0xffffffffffffffffLL,  0x0LL);
     }
   };
   
