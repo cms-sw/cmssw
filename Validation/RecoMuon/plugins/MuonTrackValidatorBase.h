@@ -4,8 +4,8 @@
 /** \class MuonTrackValidatorBase
  *  Base class for analyzers that produces histograms to validate Muon Track Reconstruction performances
  *
- *  $Date: 2010/03/25 10:25:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/03/26 17:43:34 $
+ *  $Revision: 1.4 $
  */
 
 #include <memory>
@@ -89,7 +89,6 @@ class MuonTrackValidatorBase {
     dxyRes_nbin(pset.getParameter<int>("dxyRes_nbin")),
     dzRes_nbin(pset.getParameter<int>("dzRes_nbin")),
     ignoremissingtkcollection_(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection",false)),
-    skipHistoFit(pset.getUntrackedParameter<bool>("skipHistoFit",false)),
     useLogPt(pset.getUntrackedParameter<bool>("useLogPt",false))
     //
     {
@@ -369,7 +368,6 @@ class MuonTrackValidatorBase {
     dxyRes_rangeMin,dxyRes_rangeMax, dzRes_rangeMin,dzRes_rangeMax;
   int ptRes_nbin, cotThetaRes_nbin, phiRes_nbin, dxyRes_nbin, dzRes_nbin;
   bool ignoremissingtkcollection_;
-  bool skipHistoFit;
   bool useLogPt;
 
   edm::ESHandle<MagneticField> theMF;
@@ -380,18 +378,19 @@ class MuonTrackValidatorBase {
 
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge;
-  std::vector<MonitorElement*> h_effic,  h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
-  std::vector<MonitorElement*> h_efficPt, h_fakeratePt, h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
-  std::vector<MonitorElement*> h_effic_vs_hit, h_fake_vs_hit, h_recohit, h_assochit, h_assoc2hit, h_simulhit;
-  std::vector<MonitorElement*> h_effic_vs_phi, h_fake_vs_phi, h_recophi, h_assocphi, h_assoc2phi, h_simulphi;
-  std::vector<MonitorElement*> h_effic_vs_dxy, h_fake_vs_dxy, h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy;
-  std::vector<MonitorElement*> h_effic_vs_dz, h_fake_vs_dz, h_recodz, h_assocdz, h_assoc2dz, h_simuldz;
-  std::vector<MonitorElement*> h_effic_vs_vertpos, h_effic_vs_zpos, h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
+  std::vector<MonitorElement*> h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
+  std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
+  std::vector<MonitorElement*> h_recohit, h_assochit, h_assoc2hit, h_simulhit;
+  std::vector<MonitorElement*> h_recophi, h_assocphi, h_assoc2phi, h_simulphi;
+  std::vector<MonitorElement*> h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy;
+  std::vector<MonitorElement*> h_recodz, h_assocdz, h_assoc2dz, h_simuldz;
+  std::vector<MonitorElement*> h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
 
-  std::vector<MonitorElement*> h_effic_Quality05, h_assoceta_Quality05, h_effic_Quality075, h_assoceta_Quality075;
-  std::vector<MonitorElement*> h_efficPt_Quality05, h_assocpT_Quality05, h_efficPt_Quality075, h_assocpT_Quality075;
-  std::vector<MonitorElement*> h_effic_vs_phi_Quality05, h_assocphi_Quality05, h_effic_vs_phi_Quality075, h_assocphi_Quality075;
+  std::vector<MonitorElement*> h_assoceta_Quality05, h_assoceta_Quality075;
+  std::vector<MonitorElement*> h_assocpT_Quality05, h_assocpT_Quality075;
+  std::vector<MonitorElement*> h_assocphi_Quality05, h_assocphi_Quality075;
+
 
   //2D  
   std::vector<MonitorElement*> nrec_vs_nsim;

@@ -44,10 +44,6 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     #  the default setting is True: should NOT be changed !
     BiDirectional_RecoToSim_association = cms.bool(True),
     #
-    # set true if you do not want efficiency fakes and resolution fit
-    # to be calculated in the end run (for automated validation):
-    skipHistoFit=cms.untracked.bool(True),
-    #
     # Output File / Directory
     outputFile = cms.string(''),           
     dirName = cms.string('Muons/RecoMuonV/MultiTrack/'),

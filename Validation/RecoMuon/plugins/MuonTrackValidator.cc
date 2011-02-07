@@ -74,23 +74,6 @@ void MuonTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_nchi2.push_back( dbe_->book1D("chi2", "normalized #chi^{2}", 200, 0, 20 ) );
       h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized #chi^{2} probability",100,0,1));
 
-      h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nint,min,max) );
-      h_efficPt.push_back( dbe_->book1D("efficPt","efficiency vs pT",nintpT,minpT,maxpT) );
-      h_effic_vs_hit.push_back( dbe_->book1D("effic_vs_hit","effic vs hit",nintHit,minHit,maxHit) );
-      h_effic_vs_phi.push_back( dbe_->book1D("effic_vs_phi","effic vs phi",nintPhi,minPhi,maxPhi) );
-      h_effic_vs_dxy.push_back( dbe_->book1D("effic_vs_dxy","effic vs dxy",nintDxy,minDxy,maxDxy) );
-      h_effic_vs_dz.push_back( dbe_->book1D("effic_vs_dz","effic vs dz",nintDz,minDz,maxDz) );
-      h_effic_vs_vertpos.push_back( dbe_->book1D("effic_vs_vertpos","effic vs vertpos",nintVertpos,minVertpos,maxVertpos) );
-      h_effic_vs_zpos.push_back( dbe_->book1D("effic_vs_zpos","effic vs zpos",nintZpos,minZpos,maxZpos) );
-
-      h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nint,min,max) );
-      h_fakeratePt.push_back( dbe_->book1D("fakeratePt","fake rate vs pT",nintpT,minpT,maxpT) );
-      h_fake_vs_hit.push_back( dbe_->book1D("fakerate_vs_hit","fake rate vs hit",nintHit,minHit,maxHit) );
-      h_fake_vs_phi.push_back( dbe_->book1D("fakerate_vs_phi","fake vs phi",nintPhi,minPhi,maxPhi) );
-      h_fake_vs_dxy.push_back( dbe_->book1D("fakerate_vs_dxy","fake rate vs dxy",nintDxy,minDxy,maxDxy) );
-      h_fake_vs_dz.push_back( dbe_->book1D("fakerate_vs_dz","fake vs dz",nintDz,minDz,maxDz) );
-
-
       /// this are needed to calculate efficiency during tha harvesting for the automated validation
       h_recoeta.push_back( dbe_->book1D("num_reco_eta","N of reco track vs eta",nint,min,max) );
       h_assoceta.push_back( dbe_->book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nint,min,max) );
@@ -173,53 +156,21 @@ void MuonTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_losthits_eta.push_back( dbe_->bookProfile("losthits_eta","losthits_eta",nint,min,max,nintHit,minHit,maxHit) );
 
       ptres_vs_eta.push_back(dbe_->book2D("ptres_vs_eta","ptres_vs_eta",nint,min,max, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-      h_ptrmsh.push_back( dbe_->book1D("ptres_vs_eta_Sigma","#sigma(#deltap_{t}/p_{t}) vs #eta",nint,min,max) );
-
       ptres_vs_phi.push_back( dbe_->book2D("ptres_vs_phi","p_{t} res vs #phi",nintPhi,minPhi,maxPhi, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-      h_ptmeanhPhi.push_back( dbe_->book1D("ptres_vs_phi_Mean","mean of p_{t} resolution vs #phi",nintPhi,minPhi,maxPhi));
-      h_ptrmshPhi.push_back( dbe_->book1D("ptres_vs_phi_Sigma","#sigma(#deltap_{t}/p_{t}) vs #phi",nintPhi,minPhi,maxPhi) );
-
       ptres_vs_pt.push_back(dbe_->book2D("ptres_vs_pt","ptres_vs_pt",nintpT,minpT,maxpT, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-      h_ptmeanhPt.push_back( dbe_->book1D("ptres_vs_pt_Mean","mean of p_{t} resolution vs p_{t}",nintpT,minpT,maxpT));
-      h_ptrmshPt.push_back( dbe_->book1D("ptres_vs_pt_Sigma","#sigma(#deltap_{t}/p_{t}) vs pT",nintpT,minpT,maxpT) );
 
       cotThetares_vs_eta.push_back(dbe_->book2D("cotThetares_vs_eta","cotThetares_vs_eta",nint,min,max,cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
-      h_cotThetameanh.push_back( dbe_->book1D("cotThetares_vs_eta_Mean","#sigma(cot(#theta)) vs #eta Mean",nint,min,max) );
-      h_cotThetarmsh.push_back( dbe_->book1D("cotThetares_vs_eta_Sigma","#sigma(cot(#theta)) vs #eta Sigma",nint,min,max) );
-
-
-      cotThetares_vs_pt.push_back(dbe_->book2D("cotThetares_vs_pt","cotThetares_vs_pt",nintpT,minpT,maxpT, cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));      
-      h_cotThetameanhPt.push_back( dbe_->book1D("cotThetares_vs_pt_Mean","#sigma(cot(#theta)) vs pT Mean",nintpT,minpT,maxpT) );
-      h_cotThetarmshPt.push_back( dbe_->book1D("cotThetares_vs_pt_Sigma","#sigma(cot(#theta)) vs pT Sigma",nintpT,minpT,maxpT) );
-
+      cotThetares_vs_pt.push_back(dbe_->book2D("cotThetares_vs_pt","cotThetares_vs_pt",nintpT,minpT,maxpT, cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
 
       phires_vs_eta.push_back(dbe_->book2D("phires_vs_eta","phires_vs_eta",nint,min,max, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
-      h_phimeanh.push_back(dbe_->book1D("phires_vs_eta_Mean","mean of #phi res vs #eta",nint,min,max));
-      h_phirmsh.push_back( dbe_->book1D("phires_vs_eta_Sigma","#sigma(#delta#phi) vs #eta",nint,min,max) );
-
       phires_vs_pt.push_back(dbe_->book2D("phires_vs_pt","phires_vs_pt",nintpT,minpT,maxpT, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
-      h_phimeanhPt.push_back(dbe_->book1D("phires_vs_pt_Mean","mean of #phi res vs pT",nintpT,minpT,maxpT));
-      h_phirmshPt.push_back( dbe_->book1D("phires_vs_pt_Sigma","#sigma(#delta#phi) vs pT",nintpT,minpT,maxpT) );
-
       phires_vs_phi.push_back(dbe_->book2D("phires_vs_phi","#phi res vs #phi",nintPhi,minPhi,maxPhi,phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
-      h_phimeanhPhi.push_back(dbe_->book1D("phires_vs_phi_Mean","mean of #phi res vs #phi",nintPhi,minPhi,maxPhi));
-      h_phirmshPhi.push_back( dbe_->book1D("phires_vs_phi_Sigma","#sigma(#delta#phi) vs #phi",nintPhi,minPhi,maxPhi) );
 
       dxyres_vs_eta.push_back(dbe_->book2D("dxyres_vs_eta","dxyres_vs_eta",nint,min,max,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
-      h_dxymeanh.push_back( dbe_->book1D("dxyres_vs_eta_Mean","mean of dxyres vs #eta",nint,min,max) );
-      h_dxyrmsh.push_back( dbe_->book1D("dxyres_vs_eta_Sigma","#sigma(#deltadxy) vs #eta",nint,min,max) );
-
       dxyres_vs_pt.push_back( dbe_->book2D("dxyres_vs_pt","dxyres_vs_pt",nintpT,minpT,maxpT,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
-      h_dxymeanhPt.push_back( dbe_->book1D("dxyres_vs_pt_Mean","mean of dxyres vs pT",nintpT,minpT,maxpT) );
-      h_dxyrmshPt.push_back( dbe_->book1D("dxyres_vs_pt_Sigma","#sigmadxy vs pT",nintpT,minpT,maxpT) );
 
       dzres_vs_eta.push_back(dbe_->book2D("dzres_vs_eta","dzres_vs_eta",nint,min,max,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
-      h_dzmeanh.push_back( dbe_->book1D("dzres_vs_eta_Mean","mean of dzres vs #eta",nint,min,max) );
-      h_dzrmsh.push_back( dbe_->book1D("dzres_vs_eta_Sigma","#sigma(#deltadz) vs #eta",nint,min,max) );
-
       dzres_vs_pt.push_back(dbe_->book2D("dzres_vs_pt","dzres_vs_pt",nintpT,minpT,maxpT,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
-      h_dzmeanhPt.push_back( dbe_->book1D("dzres_vs_pt_Mean","mean of dzres vs pT",nintpT,minpT,maxpT) );
-      h_dzrmshPt.push_back( dbe_->book1D("dzres_vs_pt_Sigma","#sigma(#deltadz vs pT",nintpT,minpT,maxpT) );
 
       ptmean_vs_eta_phi.push_back(dbe_->bookProfile2D("ptmean_vs_eta_phi","mean p_{t} vs #eta and #phi",nintPhi,minPhi,maxPhi,nint,min,max,1000,0,1000));
       phimean_vs_eta_phi.push_back(dbe_->bookProfile2D("phimean_vs_eta_phi","mean #phi vs #eta and #phi",nintPhi,minPhi,maxPhi,nint,min,max,nintPhi,minPhi,maxPhi));
@@ -231,46 +182,16 @@ void MuonTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       phipull_vs_eta.push_back(dbe_->book2D("phipull_vs_eta","phipull_vs_eta",nint,min,max,100,-10,10)); 
       thetapull_vs_eta.push_back(dbe_->book2D("thetapull_vs_eta","thetapull_vs_eta",nint,min,max,100,-10,10));
 
-      h_dxypulletamean.push_back( dbe_->book1D("h_dxypulleta_Mean","mean of dxy pull vs #eta",nint,min,max) ); 
-      h_ptpulletamean.push_back( dbe_->book1D("h_ptpulleta_Mean","mean of p_{t} pull vs #eta",nint,min,max) ); 
-      h_dzpulletamean.push_back( dbe_->book1D("h_dzpulleta_Mean","mean of dz pull vs #eta",nint,min,max) ); 
-      h_phipulletamean.push_back( dbe_->book1D("h_phipulleta_Mean","mean of #phi pull vs #eta",nint,min,max) ); 
-      h_thetapulletamean.push_back( dbe_->book1D("h_thetapulleta_Mean","mean of #theta pull vs #eta",nint,min,max) );
-      //      h_ptshiftetamean.push_back( dbe_->book1D("h_ptshifteta_Mean","<#deltapT/pT>[%] vs #eta",nint,min,max) ); 
-
-      h_dxypulleta.push_back( dbe_->book1D("h_dxypulleta_Sigma","#sigma of dxy pull vs #eta",nint,min,max) ); 
-      h_ptpulleta.push_back( dbe_->book1D("h_ptpulleta_Sigma","#sigma of p_{t} pull vs #eta",nint,min,max) ); 
-      h_dzpulleta.push_back( dbe_->book1D("h_dzpulleta_Sigma","#sigma of dz pull vs #eta",nint,min,max) ); 
-      h_phipulleta.push_back( dbe_->book1D("h_phipulleta_Sigma","#sigma of #phi pull vs #eta",nint,min,max) ); 
-      h_thetapulleta.push_back( dbe_->book1D("h_thetapulleta_Sigma","#sigma of #theta pull vs #eta",nint,min,max) );
-      h_ptshifteta.push_back( dbe_->book1D("ptres_vs_eta_Mean","<#deltapT/pT>[%] vs #eta",nint,min,max) ); 
-
       //pulls of track params vs phi
       ptpull_vs_phi.push_back(dbe_->book2D("ptpull_vs_phi","p_{t} pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10)); 
       phipull_vs_phi.push_back(dbe_->book2D("phipull_vs_phi","#phi pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10)); 
       thetapull_vs_phi.push_back(dbe_->book2D("thetapull_vs_phi","#theta pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
 
-      h_ptpullphimean.push_back( dbe_->book1D("h_ptpullphi_Mean","mean of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) ); 
-      h_phipullphimean.push_back( dbe_->book1D("h_phipullphi_Mean","mean of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
-      h_thetapullphimean.push_back( dbe_->book1D("h_thetapullphi_Mean","mean of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
-
-      h_ptpullphi.push_back( dbe_->book1D("h_ptpullphi_Sigma","#sigma of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) ); 
-      h_phipullphi.push_back( dbe_->book1D("h_phipullphi_Sigma","#sigma of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
-      h_thetapullphi.push_back( dbe_->book1D("h_thetapullphi_Sigma","#sigma of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
-  
-      
       nrecHit_vs_nsimHit_sim2rec.push_back( dbe_->book2D("nrecHit_vs_nsimHit_sim2rec","nrecHit vs nsimHit (Sim2RecAssoc)",nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
       nrecHit_vs_nsimHit_rec2sim.push_back( dbe_->book2D("nrecHit_vs_nsimHit_rec2sim","nrecHit vs nsimHit (Rec2simAssoc)",nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
       
       if (MABH) {
 	h_PurityVsQuality.push_back( dbe_->book2D("PurityVsQuality","Purity vs Quality (MABH)",20,0.01,1.01,20,0.01,1.01) );
-	h_effic_Quality05.push_back( dbe_->book1D("effic_Q05","efficiency vs #eta (Quality>0.5)",nint,min,max) );
-	h_effic_Quality075.push_back( dbe_->book1D("effic_Q075","efficiency vs #eta (Quality>0.75)",nint,min,max) );
-	h_efficPt_Quality05.push_back( dbe_->book1D("efficPt_Q05","efficiency vs pT (Quality>0.5)",nintpT,minpT,maxpT) );
-	h_efficPt_Quality075.push_back( dbe_->book1D("efficPt_Q075","efficiency vs pT (Quality>0.75)",nintpT,minpT,maxpT) );
-	h_effic_vs_phi_Quality05.push_back( dbe_->book1D("effic_vs_phi_Q05","effic vs phi (Quality>0.5)",nintPhi,minPhi,maxPhi) );
-	h_effic_vs_phi_Quality075.push_back( dbe_->book1D("effic_vs_phi_Q075","effic vs phi (Quality>0.75)",nintPhi,minPhi,maxPhi) );
-	//
 	h_assoceta_Quality05.push_back( dbe_->book1D("num_assoc(simToReco)_eta_Q05","N of associated tracks (simToReco) vs eta (Quality>0.5)",nint,min,max) );
 	h_assoceta_Quality075.push_back( dbe_->book1D("num_assoc(simToReco)_eta_Q075","N of associated tracks (simToReco) vs eta (Quality>0.75)",nint,min,max) );
 	h_assocpT_Quality05.push_back( dbe_->book1D("num_assoc(simToReco)_pT_Q05","N of associated tracks (simToReco) vs pT (Quality>0.5)",nintpT,minpT,maxpT) );
@@ -280,44 +201,22 @@ void MuonTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       }
 
       if(useLogPt){
-      BinLogX(dzres_vs_pt[j]->getTH2F());
-      BinLogX(h_dzmeanhPt[j]->getTH1F());
-      BinLogX(h_dzrmshPt[j]->getTH1F());
-
-      BinLogX(dxyres_vs_pt[j]->getTH2F());
-      BinLogX(h_dxymeanhPt[j]->getTH1F());
-      BinLogX(h_dxyrmshPt[j]->getTH1F());
-
-      BinLogX(phires_vs_pt[j]->getTH2F());
-      BinLogX(h_phimeanhPt[j]->getTH1F());
-      BinLogX(h_phirmshPt[j]->getTH1F());
-
-      BinLogX(cotThetares_vs_pt[j]->getTH2F());
-      BinLogX(h_cotThetameanhPt[j]->getTH1F());
-      BinLogX(h_cotThetarmshPt[j]->getTH1F());
-
-      BinLogX(ptres_vs_pt[j]->getTH2F());
-      BinLogX(h_ptmeanhPt[j]->getTH1F());
-      BinLogX(h_ptrmshPt[j]->getTH1F());
-
-      BinLogX(h_efficPt[j]->getTH1F());
-      BinLogX(h_fakeratePt[j]->getTH1F());
-      BinLogX(h_recopT[j]->getTH1F());
-      BinLogX(h_assocpT[j]->getTH1F());
-      BinLogX(h_assoc2pT[j]->getTH1F());
-      BinLogX(h_simulpT[j]->getTH1F());
-
-      if (MABH) 
-	{
-	  BinLogX(h_efficPt_Quality05[j]->getTH1F());
-	  BinLogX(h_efficPt_Quality075[j]->getTH1F());
-	  //
+	BinLogX(dzres_vs_pt[j]->getTH2F());
+	BinLogX(dxyres_vs_pt[j]->getTH2F());
+	BinLogX(phires_vs_pt[j]->getTH2F());
+	BinLogX(cotThetares_vs_pt[j]->getTH2F());
+	BinLogX(ptres_vs_pt[j]->getTH2F());
+	BinLogX(h_recopT[j]->getTH1F());
+	BinLogX(h_assocpT[j]->getTH1F());
+	BinLogX(h_assoc2pT[j]->getTH1F());
+	BinLogX(h_simulpT[j]->getTH1F());
+	if (MABH) 	{
 	  BinLogX(h_assocpT_Quality05[j]->getTH1F());
 	  BinLogX(h_assocpT_Quality075[j]->getTH1F());
 	}
-      
-      j++;
+      	j++;
       }
+
     }
   }
   if (UseAssociators) {
@@ -958,45 +857,6 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
 
-      //resolution of track params: get sigma from 2D histos
-      if(!skipHistoFit){
-      FitSlicesYTool fsyt_dxy(dxyres_vs_eta[w]);
-      fsyt_dxy.getFittedSigmaWithError(h_dxyrmsh[w]);
-      fsyt_dxy.getFittedMeanWithError(h_dxymeanh[w]);
-      FitSlicesYTool fsyt_dxyPt(dxyres_vs_pt[w]);
-      fsyt_dxyPt.getFittedSigmaWithError(h_dxyrmshPt[w]);
-      fsyt_dxyPt.getFittedMeanWithError(h_dxymeanhPt[w]);
-      FitSlicesYTool fsyt_pt(ptres_vs_eta[w]);
-      fsyt_pt.getFittedSigmaWithError(h_ptrmsh[w]);
-      fsyt_pt.getFittedMeanWithError(h_ptshifteta[w]);      
-      FitSlicesYTool fsyt_ptPt(ptres_vs_pt[w]);
-      fsyt_ptPt.getFittedSigmaWithError(h_ptrmshPt[w]);
-      fsyt_ptPt.getFittedMeanWithError(h_ptmeanhPt[w]);
-      FitSlicesYTool fsyt_ptPhi(ptres_vs_phi[w]); 
-      fsyt_ptPhi.getFittedSigmaWithError(h_ptrmshPhi[w]);
-      fsyt_ptPhi.getFittedMeanWithError(h_ptmeanhPhi[w]);
-      FitSlicesYTool fsyt_dz(dzres_vs_eta[w]);
-      fsyt_dz.getFittedSigmaWithError(h_dzrmsh[w]);
-      fsyt_dz.getFittedMeanWithError(h_dzmeanh[w]);
-      FitSlicesYTool fsyt_dzPt(dzres_vs_pt[w]);
-      fsyt_dzPt.getFittedSigmaWithError(h_dzrmshPt[w]);
-      fsyt_dzPt.getFittedMeanWithError(h_dzmeanhPt[w]);
-      FitSlicesYTool fsyt_phi(phires_vs_eta[w]);
-      fsyt_phi.getFittedSigmaWithError(h_phirmsh[w]);
-      fsyt_phi.getFittedMeanWithError(h_phimeanh[w]);
-      FitSlicesYTool fsyt_phiPt(phires_vs_pt[w]);
-      fsyt_phiPt.getFittedSigmaWithError(h_phirmshPt[w]);
-      fsyt_phiPt.getFittedMeanWithError(h_phimeanhPt[w]);
-      FitSlicesYTool fsyt_phiPhi(phires_vs_phi[w]); 
-      fsyt_phiPhi.getFittedSigmaWithError(h_phirmshPhi[w]); 
-      fsyt_phiPhi.getFittedMeanWithError(h_phimeanhPhi[w]); 
-      FitSlicesYTool fsyt_cotTheta(cotThetares_vs_eta[w]);
-      fsyt_cotTheta.getFittedSigmaWithError(h_cotThetarmsh[w]);
-      fsyt_cotTheta.getFittedMeanWithError(h_cotThetameanh[w]);
-      FitSlicesYTool fsyt_cotThetaPt(cotThetares_vs_pt[w]);
-      fsyt_cotThetaPt.getFittedSigmaWithError(h_cotThetarmshPt[w]);
-      fsyt_cotThetaPt.getFittedMeanWithError(h_cotThetameanhPt[w]);
-      }
       //chi2 and #hit vs eta: get mean from 2D histos
       doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
       doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
@@ -1007,65 +867,8 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
       doProfileX(nlosthits_vs_eta[w],h_losthits_eta[w]);    
       //vs phi
       doProfileX(chi2_vs_nhits[w],h_chi2meanhitsh[w]); 
-      //      doProfileX(ptres_vs_eta[w],h_ptresmean_vs_eta[w]);
-      //      doProfileX(phires_vs_eta[w],h_phiresmean_vs_eta[w]);
       doProfileX(chi2_vs_phi[w],h_chi2mean_vs_phi[w]);
       doProfileX(nhits_vs_phi[w],h_hits_phi[w]);
-      //       doProfileX(ptres_vs_phi[w],h_ptresmean_vs_phi[w]);
-      //       doProfileX(phires_vs_phi[w],h_phiresmean_vs_phi[w]);
-      if(!skipHistoFit){      
-      //pulls of track params vs eta: get sigma from 2D histos
-      FitSlicesYTool fsyt_dxyp(dxypull_vs_eta[w]);
-      fsyt_dxyp.getFittedSigmaWithError(h_dxypulleta[w]);
-      fsyt_dxyp.getFittedMeanWithError(h_dxypulletamean[w]);
-      FitSlicesYTool fsyt_ptp(ptpull_vs_eta[w]);
-      fsyt_ptp.getFittedSigmaWithError(h_ptpulleta[w]);
-      fsyt_ptp.getFittedMeanWithError(h_ptpulletamean[w]);
-      FitSlicesYTool fsyt_dzp(dzpull_vs_eta[w]);
-      fsyt_dzp.getFittedSigmaWithError(h_dzpulleta[w]);
-      fsyt_dzp.getFittedMeanWithError(h_dzpulletamean[w]);
-      FitSlicesYTool fsyt_phip(phipull_vs_eta[w]);
-      fsyt_phip.getFittedSigmaWithError(h_phipulleta[w]);
-      fsyt_phip.getFittedMeanWithError(h_phipulletamean[w]);
-      FitSlicesYTool fsyt_thetap(thetapull_vs_eta[w]);
-      fsyt_thetap.getFittedSigmaWithError(h_thetapulleta[w]);
-      fsyt_thetap.getFittedMeanWithError(h_thetapulletamean[w]);
-      //vs phi
-      FitSlicesYTool fsyt_ptpPhi(ptpull_vs_phi[w]);
-      fsyt_ptpPhi.getFittedSigmaWithError(h_ptpullphi[w]);
-      fsyt_ptpPhi.getFittedMeanWithError(h_ptpullphimean[w]);
-      FitSlicesYTool fsyt_phipPhi(phipull_vs_phi[w]);
-      fsyt_phipPhi.getFittedSigmaWithError(h_phipullphi[w]);
-      fsyt_phipPhi.getFittedMeanWithError(h_phipullphimean[w]);
-      FitSlicesYTool fsyt_thetapPhi(thetapull_vs_phi[w]);
-      fsyt_thetapPhi.getFittedSigmaWithError(h_thetapullphi[w]);
-      fsyt_thetapPhi.getFittedMeanWithError(h_thetapullphimean[w]);
-      //effic&fake
-      fillPlotFromVectors(h_effic[w],totASSeta[w],totSIMeta[w],"effic");
-      fillPlotFromVectors(h_fakerate[w],totASS2eta[w],totRECeta[w],"fakerate");
-      fillPlotFromVectors(h_efficPt[w],totASSpT[w],totSIMpT[w],"effic");
-      fillPlotFromVectors(h_fakeratePt[w],totASS2pT[w],totRECpT[w],"fakerate");
-      fillPlotFromVectors(h_effic_vs_hit[w],totASS_hit[w],totSIM_hit[w],"effic");
-      fillPlotFromVectors(h_fake_vs_hit[w],totASS2_hit[w],totREC_hit[w],"fakerate");
-      fillPlotFromVectors(h_effic_vs_phi[w],totASS_phi[w],totSIM_phi[w],"effic");
-      fillPlotFromVectors(h_fake_vs_phi[w],totASS2_phi[w],totREC_phi[w],"fakerate");
-      fillPlotFromVectors(h_effic_vs_dxy[w],totASS_dxy[w],totSIM_dxy[w],"effic");
-      fillPlotFromVectors(h_fake_vs_dxy[w],totASS2_dxy[w],totREC_dxy[w],"fakerate");
-      fillPlotFromVectors(h_effic_vs_dz[w],totASS_dz[w],totSIM_dz[w],"effic");
-      fillPlotFromVectors(h_fake_vs_dz[w],totASS2_dz[w],totREC_dz[w],"fakerate");
-      fillPlotFromVectors(h_effic_vs_vertpos[w],totASS_vertpos[w],totSIM_vertpos[w],"effic");
-      fillPlotFromVectors(h_effic_vs_zpos[w],totASS_zpos[w],totSIM_zpos[w],"effic");
-
-      if (MABH) 
-	{
-	  fillPlotFromVectors(h_effic_Quality05[w] ,totASSeta_Quality05[w] ,totSIMeta[w],"effic");
-	  fillPlotFromVectors(h_effic_Quality075[w],totASSeta_Quality075[w],totSIMeta[w],"effic");
-	  fillPlotFromVectors(h_efficPt_Quality05[w] ,totASSpT_Quality05[w] ,totSIMpT[w],"effic");
-	  fillPlotFromVectors(h_efficPt_Quality075[w],totASSpT_Quality075[w],totSIMpT[w],"effic");
-	  fillPlotFromVectors(h_effic_vs_phi_Quality05[w] ,totASS_phi_Quality05[w],totSIM_phi[w],"effic");
-	  fillPlotFromVectors(h_effic_vs_phi_Quality075[w],totASS_phi_Quality075[w],totSIM_phi[w],"effic");
-	}
-      }
 
       fillPlotFromVector(h_recoeta[w],totRECeta[w]);
       fillPlotFromVector(h_simuleta[w],totSIMeta[w]);
