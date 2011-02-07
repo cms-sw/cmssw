@@ -52,13 +52,6 @@ postProcessorMuonMultiTrackHLTComp = cms.EDAnalyzer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("HLT/Muon/MultiTrack/"), 
     efficiency = cms.vstring(
- #   "Eff_L3Tk_Eta 'Eff_{L3,TK} vs #eta' hltL3Muons_tpToL3Association/effic hltL3TkFromL2_tpToL3TkTrackAssociation/effic",
- #   "Eff_L3Tk_Pt 'Eff_{L3,TK} vs p_{T}' hltL3Muons_tpToL3Association/efficPt hltL3TkFromL2_tpToL3TkTrackAssociation/efficPt",
- #   "Eff_L3Tk_Hit 'Eff_{L3,TK} vs n Hits' hltL3Muons_tpToL3Association/effic_vs_hit hltL3TkFromL2_tpToL3TkTrackAssociation/effic_vs_hit",
- #   "Eff_L3L2_Eta 'Eff_{L3,L2} vs #eta' hltL3Muons_tpToL3Association/effic hltL2Muons_UpdatedAtVtx_tpToL2UpdAssociation/effic",
- #   "Eff_L3L2_Pt 'Eff_{L3,L2} vs p_{T}' hltL3Muons_tpToL3Association/efficPt hltL2Muons_UpdatedAtVtx_tpToL2UpdAssociation/efficPt",
- #   "Eff_L3L2_Hit 'Eff_{L3,L2} vs n Hits' hltL3Muons_tpToL3Association/effic_vs_hit hltL2Muons_UpdatedAtVtx_tpToL2UpdAssociation/effic_vs_hit",
-
     "Eff_L3Tk_Eta_mabh 'Eff_{L3,TK} vs #eta' hltL3Muons_tpToL3MuonAssociation/effic hltL3TkFromL2_tpToL3TkMuonAssociation/effic",
     "Eff_L3Tk_Pt_mabh 'Eff_{L3,TK} vs p_{T}' hltL3Muons_tpToL3MuonAssociation/efficPt hltL3TkFromL2_tpToL3TkMuonAssociation/efficPt",
     "Eff_L3Tk_Hit_mabh 'Eff_{L3,TK} vs n Hits' hltL3Muons_tpToL3MuonAssociation/effic_vs_hit hltL3TkFromL2_tpToL3TkMuonAssociation/effic_vs_hit",
@@ -74,13 +67,6 @@ postProcessorMuonMultiTrackHLTCompFS = cms.EDAnalyzer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("HLT/Muon/MultiTrack/"), 
     efficiency = cms.vstring(
-#    "Eff_L3Tk_Eta 'Eff_{L3,TK} vs #eta' hltL3Muons_tpToL3AssociationFS/effic hltL3TkFromL2_tpToL3TkTrackAssociationFS/effic",
-#    "Eff_L3Tk_Pt 'Eff_{L3,TK} vs p_{T}' hltL3Muons_tpToL3AssociationFS/efficPt hltL3TkFromL2_tpToL3TkTrackAssociationFS/efficPt",
-#    "Eff_L3Tk_Hit 'Eff_{L3,TK} vs n Hits' hltL3Muons_tpToL3AssociationFS/FSeffic_vs_hit hltL3TkFromL2_tpToL3TkTrackAssociationFS/effic_vs_hit",
-#    "Eff_L3L2_Eta 'Eff_{L3,L2} vs #eta' hltL3Muons_tpToL3AssociationFS/effic hltL2Muons_UpdatedAtVtx_tpToL2UpdAssociationFS/effic",
-#    "Eff_L3L2_Pt 'Eff_{L3,L2} vs p_{T}' hltL3Muons_tpToL3AssociationFS/efficPt hltL2Muons_UpdatedAtVtx_tpToL2UpdAssociationFS/efficPt",
-#    "Eff_L3L2_Hit 'Eff_{L3,L2} vs n Hits' hltL3Muons_tpToL3AssociationFS/effic_vs_hit hltL2Muons_UpdatedAtVtx_tpToL2UpdAssociationFS/effic_vs_hit",
-
     "Eff_L3Tk_Eta_mabh 'Eff_{L3,TK} vs #eta' hltL3Muons_tpToL3MuonAssociationFS/effic hltL3TkFromL2_tpToL3TkMuonAssociationFS/effic",
     "Eff_L3Tk_Pt_mabh 'Eff_{L3,TK} vs p_{T}' hltL3Muons_tpToL3MuonAssociationFS/efficPt hltL3TkFromL2_tpToL3TkMuonAssociationFS/efficPt",
     "Eff_L3Tk_Hit_mabh 'Eff_{L3,TK} vs n Hits' hltL3Muons_tpToL3MuonAssociationFS/effic_vs_hit hltL3TkFromL2_tpToL3TkMuonAssociationFS/effic_vs_hit",
