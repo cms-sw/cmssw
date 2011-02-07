@@ -1,6 +1,88 @@
 import array,coral
 from RecoLuminosity.LumiDB import CommonUtil,nameDealer
 
+def hltFromOldLumi(session,runnumber):
+    '''
+    select count(distinct pathname) from hlt where runnum=:runnum
+    select cmslsnum,pathname,inputcount,acceptcount,prescale from hlt where runnum=:runnum order by cmslsnum,pathname
+    [pathnames,databuffer]
+    databuffer: {cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}
+    '''
+    try:
+        databuffer={}
+        session.transaction().start(True)
+        lumischema=session.nominalSchema()
+        npath=0
+        qHandle=lumischema.newQuery()
+        qHandle.addToTableList( nameDealer.hltTableName() )
+        qHandle.addToOutputList('COUNT(DISTINCT PATHNAME)','npath')
+        qCondition=coral.AttributeList()
+        qCondition.extend('runnum','unsigned int')
+        qCondition['runnum'].setData(int(runnumber))
+        qResult=coral.AttributeList()
+        qResult.extend('npath','unsigned int')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition('RUNNUM=:runnum',qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            npath=cursor.currentRow()['npath'].data()
+        del qHandle
+        #print 'npath ',npath
+
+        qHandle=lumischema.newQuery()
+        qHandle.addToTableList( nameDealer.hltTableName() )
+        qHandle.addToOutputList('CMSLSNUM','cmslsnum')
+        qHandle.addToOutputList('PATHNAME','pathname')
+        qHandle.addToOutputList('INPUTCOUNT','inputcount')
+        qHandle.addToOutputList('ACCEPTCOUNT','acceptcount')
+        qHandle.addToOutputList('PRESCALE','prescale')
+        qCondition=coral.AttributeList()
+        qCondition.extend('runnum','unsigned int')
+        qCondition['runnum'].setData(int(runnumber))
+        qResult=coral.AttributeList()
+        qResult.extend('cmslsnum','unsigned int')
+        qResult.extend('pathname','string')
+        qResult.extend('inputcount','unsigned int')
+        qResult.extend('acceptcount','unsigned int')
+        qResult.extend('prescale','unsigned int')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition('RUNNUM=:runnum',qCondition)
+        qHandle.addToOrderList('cmslsnum')
+        qHandle.addToOrderList('pathname')
+        cursor=qHandle.execute()
+        pathnameList=[]
+        inputcountArray=array.array('l')
+        acceptcountArray=array.array('l')
+        prescaleArray=array.array('l')
+        ipath=0
+        while cursor.next():
+            cmslsnum=cursor.currentRow()['cmslsnum'].data()
+            pathname=cursor.currentRow()['pathname'].data()
+            ipath+=1
+            inputcount=cursor.currentRow()['inputcount'].data()
+            acceptcount=cursor.currentRow()['acceptcount'].data()
+            prescale=cursor.currentRow()['prescale'].data()
+            pathnameList.append(pathname)
+            inputcountArray.append(inputcount)
+            acceptcountArray.append(acceptcount)
+            prescaleArray.append(prescale)
+            if ipath==npath:
+                pathnames=','.join(pathnameList)
+                inputcountBlob=CommonUtil.packArraytoBlob(inputcountArray)
+                acceptcountBlob=CommonUtil.packArraytoBlob(acceptcountArray)
+                prescaleBlob=CommonUtil.packArraytoBlob(prescaleArray)
+                databuffer[cmslsnum]=[inputcountBlob,acceptcountBlob,prescaleBlob]
+                pathnameList=[]
+                inputcountArray=array.array('l')
+                acceptcountArray=array.array('l')
+                prescaleArray=array.array('l')
+                ipath=0
+        del qHandle
+        session.transaction().commit()
+        return [pathnames,databuffer]
+    except :
+        raise 
+
 def trgFromOldLumi(session,runnumber):
     '''
     select bitnum,bitname from trg where runnum=:runnumber and cmslsnum=1 order by bitnum
@@ -152,11 +234,6 @@ def hltFromRuninfoV3(session,runnumber):
     '''
     pass
 
-def hltFromOldLumi(session,runnumber):
-    '''
-    '''
-    pass
-
 def hltconf(schema,hltkey):
     '''
     select paths.pathid,paths.name,stringparamvalues.value from stringparamvalues,paths,parameters,superidparameterassoc,modules,moduletemplates,pathmoduleassoc,configurationpathassoc,configurations where parameters.paramid=stringparamvalues.paramid and  superidparameterassoc.paramid=parameters.paramid and modules.superid=superidparameterassoc.superid and moduletemplates.superid=modules.templateid and pathmoduleassoc.moduleid=modules.superid and paths.pathid=pathmoduleassoc.pathid and configurationpathassoc.pathid=paths.pathid and configurations.configid=configurationpathassoc.configid and moduletemplates.name='HLTLevel1GTSeed' and parameters.name='L1SeedsLogicalExpression' and configurations.configid=1905; 
@@ -185,5 +262,7 @@ if __name__ == "__main__":
     svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_lumi_prod',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     lsresult=trgFromOldLumi(session,149181)
-    print lsresult
+    #print lsresult
+    lshltresult=hltFromOldLumi(session,149181)
+    print lshltresult
     del session
