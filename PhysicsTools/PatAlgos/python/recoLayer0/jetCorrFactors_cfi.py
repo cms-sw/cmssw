@@ -12,7 +12,7 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
     levels = cms.vstring(
         ## tags for the individual jet corrections; when
         ## not available the string should be set to 'none'    
-        'L1Offline', 'L2Relative', 'L3Absolute', 'L5Flavor', 'L7Parton'
+        'L1Offset', 'L2Relative', 'L3Absolute', 'L5Flavor', 'L7Parton'
     ), 
     flavorType = cms.string('J'), ## alternatively use 'T'
     ## in case that L1Offset corrections are part of the
@@ -26,6 +26,7 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
     ## in case that L1FastJet corrections are part of the
     ## parameter levels add the optional parameter rho
     ## here to specify the energy density parameter for
-    ## the corresponding jet collection.
-    ## rho = cms.InputTag('kt6PFJets', 'rho'),                                   
+    ## the corresponding jet collection (this variable is
+    ## taken from kt6PFJets).
+    rho = cms.InputTag('kt6PFJets', 'rho'),                                   
 )
