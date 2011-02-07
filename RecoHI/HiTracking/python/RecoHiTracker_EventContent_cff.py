@@ -9,13 +9,16 @@ RecoHiTrackerFEVT = cms.PSet(
 		'keep *_hiSelectedProtoTracks_*_*',	
 		'keep recoVertexs_hiPixelMedianVertex_*_*',
 		'keep recoVertexs_hiPixelAdaptiveVertex_*_*',
-		'keep recoVertexs_hiSelectedVertex_*_*'		
+		'keep recoVertexs_hiSelectedVertex_*_*',
+                'keep recoVertexs_hiPixelClusterVertex_*_*'	
     )
 )
 
 RecoHiTrackerLocalFEVT = cms.PSet(
    outputCommands = cms.untracked.vstring(
-   'keep *_*_APVCM_*'
+   'keep *_*_APVCM_*',
+   'keep *_siStripZeroSuppression_BADAPVBASELINE_*',
+   'keep SiStripRawDigiedmDetSetVector_siStripZeroSuppression_VirginRaw_*'
    )
 )
 
@@ -24,15 +27,18 @@ RecoHiTrackerRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_hiGlobalPrimTracks_*_*', 
 		'keep *_hiSelectedTracks_*_*', 
 		#'keep *_hiPixel3PrimTracks_*_*', 		
-		'keep recoVertexs_hiPixelMedianVertex_*_*', # do we need to keep these anymore?
-		'keep recoVertexs_hiPixelAdaptiveVertex_*_*', # 
-		'keep recoVertexs_hiSelectedVertex_*_*'		
+		'keep recoVertexs_hiPixelMedianVertex_*_*',  
+		'keep recoVertexs_hiPixelAdaptiveVertex_*_*',  
+		'keep recoVertexs_hiSelectedVertex_*_*',
+                'keep recoVertexs_hiPixelClusterVertex_*_*'		
     )
 )
 
 RecoHiTrackerLocalRECO = cms.PSet(
    outputCommands = cms.untracked.vstring(
    'keep *_*_APVCM_*'
+   #'keep *_siStripZeroSuppression_BADAPVBASELINE_*',
+   #'keep SiStripRawDigiedmDetSetVector_siStripZeroSuppression_VirginRaw_*'
    )
 )
 

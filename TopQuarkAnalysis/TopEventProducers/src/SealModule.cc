@@ -35,10 +35,12 @@ DEFINE_FWK_MODULE(TtSemiLepEvtBuilder);
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/StringCutObjectEvtFilter.h"
 
+typedef StringCutObjectEvtFilter<TtGenEvent> TtGenEvtFilter;
 typedef StringCutObjectEvtFilter<TtFullHadronicEvent> TtFullHadEvtFilter;
 typedef StringCutObjectEvtFilter<TtFullLeptonicEvent> TtFullLepEvtFilter;
 typedef StringCutObjectEvtFilter<TtSemiLeptonicEvent> TtSemiLepEvtFilter;
 
+DEFINE_FWK_MODULE(TtGenEvtFilter);
 DEFINE_FWK_MODULE(TtFullHadEvtFilter);
 DEFINE_FWK_MODULE(TtFullLepEvtFilter);
 DEFINE_FWK_MODULE(TtSemiLepEvtFilter);

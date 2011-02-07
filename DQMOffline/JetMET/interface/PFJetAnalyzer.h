@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFlow Jets
  *
- *  $Date: 2010/01/18 21:04:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/03/04 16:31:52 $
+ *  $Revision: 1.5 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -41,6 +41,10 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::PFJetCollection& pfJets);
+  //
+  void setSource(std::string source) {
+    _source = source;
+  }
   //
   void setLeadJetFlag(int flag) {
     _leadJetFlag = flag;
@@ -85,6 +89,12 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   double pMin;
   double pMax;
 
+  int fillpfJIDPassFrac;
+
+  double _ThisCHFMin;
+  double _ThisNHFMax;
+  double _ThisCEFMax;
+  double _ThisNEFMax;
   double _LooseCHFMin;
   double _LooseNHFMax;
   double _LooseCEFMax;
@@ -102,6 +112,7 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   std::string metname;
   // Calo Jet Label
   edm::InputTag thePFJetCollectionLabel;
+  std::string _source;
 
 /*   // Generic Jet Parameters */
 /*   MonitorElement* mEta; */
@@ -129,45 +140,36 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   MonitorElement* mPhiVSEta;
 
   MonitorElement* mPt_Barrel;
-  MonitorElement* mEta_Barrel;
   MonitorElement* mPhi_Barrel;
 
   MonitorElement* mPt_EndCap;
-  MonitorElement* mEta_EndCap;
   MonitorElement* mPhi_EndCap;
 
   MonitorElement* mPt_Forward;
-  MonitorElement* mEta_Forward;
   MonitorElement* mPhi_Forward;
 
   MonitorElement* mPt_Barrel_Lo;
-  MonitorElement* mEta_Barrel_Lo;
   MonitorElement* mPhi_Barrel_Lo;
   MonitorElement* mConstituents_Barrel_Lo;
   MonitorElement* mHFrac_Barrel_Lo;
   MonitorElement* mPt_EndCap_Lo;
-  MonitorElement* mEta_EndCap_Lo;
   MonitorElement* mPhi_EndCap_Lo;
   MonitorElement* mConstituents_EndCap_Lo;
   MonitorElement* mHFrac_EndCap_Lo;
   MonitorElement* mPt_Forward_Lo;
-  MonitorElement* mEta_Forward_Lo;
   MonitorElement* mPhi_Forward_Lo;
   MonitorElement* mConstituents_Forward_Lo;
   MonitorElement* mHFrac_Forward_Lo;
 
   MonitorElement* mPt_Barrel_Hi;
-  MonitorElement* mEta_Barrel_Hi;
   MonitorElement* mPhi_Barrel_Hi;
   MonitorElement* mConstituents_Barrel_Hi;
   MonitorElement* mHFrac_Barrel_Hi;
   MonitorElement* mPt_EndCap_Hi;
-  MonitorElement* mEta_EndCap_Hi;
   MonitorElement* mPhi_EndCap_Hi;
   MonitorElement* mConstituents_EndCap_Hi;
   MonitorElement* mHFrac_EndCap_Hi;
   MonitorElement* mPt_Forward_Hi;
-  MonitorElement* mEta_Forward_Hi;
   MonitorElement* mPhi_Forward_Hi;
   MonitorElement* mConstituents_Forward_Hi;
   MonitorElement* mHFrac_Forward_Hi;

@@ -23,7 +23,7 @@
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
-#include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
+
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
@@ -32,16 +32,12 @@
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CalibCalorimetry/HcalStandardModules/interface/HcalCondXML.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 
 #include "TFile.h"
 #include "TProfile.h"
 #include "TH1.h"
-#include "TH2.h"
-#include "TCanvas.h"
-#include "TStyle.h"
-
 #include <math.h>
 #include <iostream>
 #include <map>
@@ -67,7 +63,6 @@ namespace edm {
       float prod[4][4];
       float prodfc[4][4];
       int num[4][4];
-      int counter;
    };
 
 class HcalPedestalsAnalysis : public edm::EDAnalyzer
@@ -79,18 +74,15 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    virtual ~HcalPedestalsAnalysis();
    //Analysis
    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-   
 
    private:
    //Container for data, 1 per channel
    std::vector<NewPedBunch> Bunches;
    //Flag for saving histos
-
-   bool dumpfC;
+   bool hiSaveFlag;
    bool dumpXML;
    bool verboseflag;
    int runnum;
-   int ievt;
    int firstTS;
    int lastTS;
    std::string ROOTfilename;
@@ -98,7 +90,6 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    std::string pedsfCfilename;
    std::string widthsADCfilename;
    std::string widthsfCfilename;
-   std::string logfilename;
    std::string XMLfilename;
    std::string XMLtag;
 
@@ -111,10 +102,12 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    TH1F *HOMeans;
    TH1F *HOWidths;
 
-   TH2F *dephist[4];
-
    TFile *theFile;
    bool firsttime;
+   HcalPedestals* rawPedsItem;
+   HcalPedestalWidths* rawWidthsItem;
+   HcalPedestals* rawPedsItemfc;
+   HcalPedestalWidths* rawWidthsItemfc;
 };
 #endif
 

@@ -144,16 +144,10 @@ MatrixMeschach operator*( const MatrixMeschach& mat1, const MatrixMeschach& mat2
   mat1copy.setNoColumns( mat2.NoColumns() );
 
   MAT* tempmat = m_get( mat1copy.NoColumns(), mat1copy.NoLines() );
-  m_transp( mat1copy.MatNonConst(), tempmat);
- 
+  m_transp( mat1copy.MatNonConst(), tempmat); 
   //M_FREE( _Mat );
   mat1copy.setMat( m_get( mat1copy.NoLines(), mat2.NoColumns() ) );
   mtrm_mlt( tempmat, mat2.MatNonConst(), mat1copy.MatNonConst());
-
-  free(tempmat);
-
-  return mat1copy;
-
 
   MatrixMeschach* matout = new MatrixMeschach( mat1copy );
 

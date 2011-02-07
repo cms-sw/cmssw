@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-
+#include "DataFormats/JetReco/interface/JPTJet.h"
 
 using namespace std;
 
@@ -32,6 +32,8 @@ LXXXCorrector::LXXXCorrector(const JetCorrectorParameters& fParam, const edm::Pa
     mLevel = 5;
   else if (level == "L7Parton")
     mLevel = 7;
+  else if (level == "L1JPTOffset")
+    mLevel = 8;
   else
     throw cms::Exception("LXXXCorrector")<<" unknown correction level "<<level; 
   vector<JetCorrectorParameters> vParam;
@@ -79,6 +81,24 @@ double LXXXCorrector::correction(const reco::Jet& fJet) const
       mCorrector->setJetPt(fJet.pt());
       mCorrector->setJetEMF(caloJet.emEnergyFraction());
       result = mCorrector->getCorrection();
+    }
+  else if ( mLevel == 8 ) 
+    {
+      // For JPT offset only   
+      const reco::JPTJet& jptjet = dynamic_cast <const reco::JPTJet&> (fJet);
+      edm::RefToBase<reco::Jet> jptjetRef = jptjet.getCaloJetRef();
+      double zspcor_old = jptjet.getZSPCor();
+      reco::CaloJet const * rawcalojet = dynamic_cast<reco::CaloJet const *>( &* jptjetRef);
+
+      mCorrector->setJetEta(rawcalojet->eta()); 
+      mCorrector->setJetPt(rawcalojet->et());
+      
+      double aa = mCorrector->getCorrection();
+      double resulto(0.0);
+      if (aa != 1.0)
+        resulto = 1./(1.-aa);
+      double enew = jptjet.energy() - (zspcor_old-resulto)*rawcalojet->energy();
+      result = enew/jptjet.energy();
     }
   else
     result = correction(fJet.p4());

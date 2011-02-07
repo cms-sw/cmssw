@@ -11,7 +11,8 @@ particleFlowClusterHFHAD.thresh_Pt_Seed_Endcap = cms.double(99999.)
 # run tracker-driven electron seeds with heavy-ion tracks
 from TrackingTools.GsfTracking.FwdAnalyticalPropagator_cfi import *
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
-trackerDrivenElectronSeeds.UseQuality = cms.bool(False)
+trackerDrivenElectronSeeds.UseQuality = cms.bool(True)
+trackerDrivenElectronSeeds.TrackQuality = cms.string('highPurity')
 trackerDrivenElectronSeeds.TkColList = cms.VInputTag("hiSelectedTracks")
 trackerDrivenElectronSeeds.ProducePreId = cms.untracked.bool(False)
 trackerDrivenElectronSeeds.DisablePreId = cms.untracked.bool(True)

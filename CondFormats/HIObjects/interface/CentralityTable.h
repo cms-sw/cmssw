@@ -1,3 +1,6 @@
+#ifndef __CentralityTable_h__
+#define __CentralityTable_h__
+
 #include <vector>
 class CentralityTable {
   
@@ -31,4 +34,6 @@ class CentralityTable {
   CentralityTable(){}
   std::vector<CBin> m_table;
 };
+
+#endif
 

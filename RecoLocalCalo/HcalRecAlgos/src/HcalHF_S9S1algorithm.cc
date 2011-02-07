@@ -227,7 +227,7 @@ double HcalHF_S9S1algorithm::CalcSlope(int abs_ieta, std::vector<double> params)
   double threshold=0;
   for (std::vector<double>::size_type i=0;i<params.size();++i)
     {
-      threshold+=params[i]*pow(abs_ieta, (int)i);
+      threshold+=params[i]*pow(static_cast<double>(abs_ieta), (int)i);
     }
   return threshold;
 } // HcalHF_S9S1algorithm::CalcRThreshold(int abs_ieta, std::vector<double> params)

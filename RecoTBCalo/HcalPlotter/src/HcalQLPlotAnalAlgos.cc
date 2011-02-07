@@ -13,7 +13,7 @@
 //
 // Original Author:  Phillip R. Dudero
 //         Created:  Tue Jan 16 21:11:37 CST 2007
-// $Id: HcalQLPlotAnalAlgos.cc,v 1.4 2008/01/05 22:27:39 elmer Exp $
+// $Id: HcalQLPlotAnalAlgos.cc,v 1.3 2007/05/22 18:50:30 dudero Exp $
 //
 //
 
@@ -29,8 +29,6 @@
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "DataFormats/HcalRecHit/interface/HcalCalibRecHit.h"
 #include "TH1.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 //
 // constants, enums and typedefs
@@ -43,11 +41,13 @@
 //
 // constructors and destructor
 //
-HcalQLPlotAnalAlgos::HcalQLPlotAnalAlgos(const edm::ParameterSet& histoParams)
+HcalQLPlotAnalAlgos::HcalQLPlotAnalAlgos(const char *outputFilename,
+					 edm::ParameterSet histoParams)
 {
   triggerID_=HcalQLPlotHistoMgr::UNKNOWN;
-  edm::Service<TFileService>  fs;
-  histos_ = new HcalQLPlotHistoMgr(*fs,histoParams);
+
+  mf_     = new TFile(outputFilename,"RECREATE");
+  histos_ = new HcalQLPlotHistoMgr(mf_,histoParams);
 }
 
 
@@ -57,6 +57,7 @@ HcalQLPlotAnalAlgos::HcalQLPlotAnalAlgos(const edm::ParameterSet& histoParams)
 
 void HcalQLPlotAnalAlgos::end(void)
 {
+  mf_->Write();
 }
 
 void HcalQLPlotAnalAlgos::SetEventType(const HcalTBTriggerData& trigd)

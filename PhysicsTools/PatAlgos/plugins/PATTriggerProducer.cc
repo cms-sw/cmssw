@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.19 2010/06/26 17:53:57 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.20.2.3 2010/11/08 12:14:14 vadler Exp $
 //
 
 
@@ -14,6 +14,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
 #include "DataFormats/PatCandidates/interface/TriggerPath.h"
@@ -29,6 +31,8 @@ using namespace edm;
 
 
 PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
+  nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
+  autoProcessName_( nameProcess_ == "*" ),
   onlyStandAlone_( iConfig.getParameter< bool >( "onlyStandAlone" ) ),
   // L1 configuration parameters
   addL1Algos_( false ),
@@ -40,9 +44,16 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   tagL1ExtraTauJet_(),
   tagL1ExtraETM_(),
   tagL1ExtraHTM_(),
+  autoProcessNameL1ExtraMu_( false ),
+  autoProcessNameL1ExtraNoIsoEG_( false ),
+  autoProcessNameL1ExtraIsoEG_( false ),
+  autoProcessNameL1ExtraCenJet_( false ),
+  autoProcessNameL1ExtraForJet_( false ),
+  autoProcessNameL1ExtraTauJet_( false ),
+  autoProcessNameL1ExtraETM_( false ),
+  autoProcessNameL1ExtraHTM_( false ),
   saveL1Refs_( false ),
   // HLT configuration parameters
-  nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
   tagTriggerResults_( "TriggerResults" ),
   tagTriggerEvent_( "hltTriggerSummaryAOD" ),
   hltPrescaleLabel_(),
@@ -56,45 +67,67 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   if ( iConfig.exists( "addL1Algos" ) ) addL1Algos_ = iConfig.getParameter< bool >( "addL1Algos" );
   if ( iConfig.exists( "l1ExtraMu" ) ) {
     tagL1ExtraMu_ = iConfig.getParameter< InputTag >( "l1ExtraMu" );
-    if ( tagL1ExtraMu_.process().empty() ) tagL1ExtraMu_ = InputTag( tagL1ExtraMu_.label(), tagL1ExtraMu_.instance(), nameProcess_ );
+    if ( tagL1ExtraMu_.process() == "*" ) {
+      if ( autoProcessName_ ) autoProcessNameL1ExtraMu_ = true;
+      else                    tagL1ExtraMu_ = InputTag( tagL1ExtraMu_.label(), tagL1ExtraMu_.instance(), nameProcess_ );
+    }
   }
   if ( iConfig.exists( "l1ExtraNoIsoEG" ) ) {
     tagL1ExtraNoIsoEG_ = iConfig.getParameter< InputTag >( "l1ExtraNoIsoEG" );
-    if ( tagL1ExtraNoIsoEG_.process().empty() ) tagL1ExtraNoIsoEG_ = InputTag( tagL1ExtraNoIsoEG_.label(), tagL1ExtraNoIsoEG_.instance(), nameProcess_ );
+    if ( tagL1ExtraNoIsoEG_.process() == "*" ) {
+      if ( autoProcessName_ ) autoProcessNameL1ExtraNoIsoEG_ = true;
+      else                    tagL1ExtraNoIsoEG_ = InputTag( tagL1ExtraNoIsoEG_.label(), tagL1ExtraNoIsoEG_.instance(), nameProcess_ );
+    }
   }
   if ( iConfig.exists( "l1ExtraIsoEG" ) ) {
     tagL1ExtraIsoEG_ = iConfig.getParameter< InputTag >( "l1ExtraIsoEG" );
-    if ( tagL1ExtraIsoEG_.process().empty() ) tagL1ExtraIsoEG_ = InputTag( tagL1ExtraIsoEG_.label(), tagL1ExtraIsoEG_.instance(), nameProcess_ );
+    if ( tagL1ExtraIsoEG_.process() == "*" ) {
+      if ( autoProcessName_ ) autoProcessNameL1ExtraIsoEG_ = true;
+      else                    tagL1ExtraIsoEG_ = InputTag( tagL1ExtraIsoEG_.label(), tagL1ExtraIsoEG_.instance(), nameProcess_ );
+    }
   }
   if ( iConfig.exists( "l1ExtraCenJet" ) ) {
     tagL1ExtraCenJet_ = iConfig.getParameter< InputTag >( "l1ExtraCenJet" );
-    if ( tagL1ExtraCenJet_.process().empty() ) tagL1ExtraCenJet_ = InputTag( tagL1ExtraCenJet_.label(), tagL1ExtraCenJet_.instance(), nameProcess_ );
+    if ( tagL1ExtraCenJet_.process() == "*" ) {
+      if ( autoProcessName_ ) autoProcessNameL1ExtraCenJet_ = true;
+      else                    tagL1ExtraCenJet_ = InputTag( tagL1ExtraCenJet_.label(), tagL1ExtraCenJet_.instance(), nameProcess_ );
+    }
   }
   if ( iConfig.exists( "l1ExtraForJet" ) ) {
     tagL1ExtraForJet_ = iConfig.getParameter< InputTag >( "l1ExtraForJet" );
-    if ( tagL1ExtraForJet_.process().empty() ) tagL1ExtraForJet_ = InputTag( tagL1ExtraForJet_.label(), tagL1ExtraForJet_.instance(), nameProcess_ );
+    if ( tagL1ExtraForJet_.process() == "*" ) {
+      if ( autoProcessName_ ) autoProcessNameL1ExtraForJet_ = true;
+      else                    tagL1ExtraForJet_ = InputTag( tagL1ExtraForJet_.label(), tagL1ExtraForJet_.instance(), nameProcess_ );
+    }
   }
   if ( iConfig.exists( "l1ExtraTauJet" ) ) {
     tagL1ExtraTauJet_ = iConfig.getParameter< InputTag >( "l1ExtraTauJet" );
-    if ( tagL1ExtraTauJet_.process().empty() ) tagL1ExtraTauJet_ = InputTag( tagL1ExtraTauJet_.label(), tagL1ExtraTauJet_.instance(), nameProcess_ );
+    if ( tagL1ExtraTauJet_.process() == "*" ) {
+      if ( autoProcessName_ ) autoProcessNameL1ExtraTauJet_ = true;
+      else                    tagL1ExtraTauJet_ = InputTag( tagL1ExtraTauJet_.label(), tagL1ExtraTauJet_.instance(), nameProcess_ );
+    }
   }
   if ( iConfig.exists( "l1ExtraETM" ) ) {
     tagL1ExtraETM_ = iConfig.getParameter< InputTag >( "l1ExtraETM" );
-    if ( tagL1ExtraETM_.process().empty() ) tagL1ExtraETM_ = InputTag( tagL1ExtraETM_.label(), tagL1ExtraETM_.instance(), nameProcess_ );
+    if ( tagL1ExtraETM_.process() == "*" ) {
+      if ( autoProcessName_ ) autoProcessNameL1ExtraETM_ = true;
+      else                    tagL1ExtraETM_ = InputTag( tagL1ExtraETM_.label(), tagL1ExtraETM_.instance(), nameProcess_ );
+    }
   }
   if ( iConfig.exists( "l1ExtraHTM" ) ) {
     tagL1ExtraHTM_ = iConfig.getParameter< InputTag >( "l1ExtraHTM" );
-    if ( tagL1ExtraHTM_.process().empty() ) tagL1ExtraHTM_ = InputTag( tagL1ExtraHTM_.label(), tagL1ExtraHTM_.instance(), nameProcess_ );
+    if ( tagL1ExtraHTM_.process() == "*" ) {
+      if ( autoProcessName_ ) autoProcessNameL1ExtraHTM_ = true;
+      else                    tagL1ExtraHTM_ = InputTag( tagL1ExtraHTM_.label(), tagL1ExtraHTM_.instance(), nameProcess_ );
+    }
   }
   if ( iConfig.exists( "saveL1Refs" ) ) saveL1Refs_ = iConfig.getParameter< bool >( "saveL1Refs" );
   // HLT configuration parameters
-  if ( iConfig.exists( "triggerResults" ) )      tagTriggerResults_      = iConfig.getParameter< InputTag >( "triggerResults" );
-  if ( iConfig.exists( "triggerEvent" ) )        tagTriggerEvent_        = iConfig.getParameter< InputTag >( "triggerEvent" );
-  if ( iConfig.exists( "hltPrescaleLabel" ) )    hltPrescaleLabel_       = iConfig.getParameter< std::string >( "hltPrescaleLabel" );
-  if ( iConfig.exists( "hltPrescaleTable" ) )    labelHltPrescaleTable_  = iConfig.getParameter< std::string >( "hltPrescaleTable" );
-  if ( iConfig.exists( "addPathModuleLabels" ) ) addPathModuleLabels_    = iConfig.getParameter< bool >( "addPathModuleLabels" );
-  if ( tagTriggerResults_.process().empty() ) tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
-  if ( tagTriggerEvent_.process().empty() )   tagTriggerEvent_   = InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance(), nameProcess_ );
+  if ( iConfig.exists( "triggerResults" ) )      tagTriggerResults_     = iConfig.getParameter< InputTag >( "triggerResults" );
+  if ( iConfig.exists( "triggerEvent" ) )        tagTriggerEvent_       = iConfig.getParameter< InputTag >( "triggerEvent" );
+  if ( iConfig.exists( "hltPrescaleLabel" ) )    hltPrescaleLabel_      = iConfig.getParameter< std::string >( "hltPrescaleLabel" );
+  if ( iConfig.exists( "hltPrescaleTable" ) )    labelHltPrescaleTable_ = iConfig.getParameter< std::string >( "hltPrescaleTable" );
+  if ( iConfig.exists( "addPathModuleLabels" ) ) addPathModuleLabels_   = iConfig.getParameter< bool >( "addPathModuleLabels" );
 
   if ( ! onlyStandAlone_ ) {
     produces< TriggerAlgorithmCollection >();
@@ -113,10 +146,56 @@ void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
   // Initialize
   hltConfigInit_ = false;
 
+  // Initialize process name
+  if ( autoProcessName_ ) {
+    // reset
+    nameProcess_ = "*";
+    // determine process name from last run TriggerSummaryProducerAOD module in process history of input
+    const ProcessHistory & processHistory( iRun.processHistory() );
+    ProcessConfiguration processConfiguration;
+    ParameterSet processPSet;
+    // unbroken loop, which relies on time ordering (accepts the last found entry)
+    for ( ProcessHistory::const_iterator iHist = processHistory.begin(); iHist != processHistory.end(); ++iHist ) {
+      if ( processHistory.getConfigurationForProcess( iHist->processName(), processConfiguration )     &&
+           pset::Registry::instance()->getMapped( processConfiguration.parameterSetID(), processPSet ) &&
+           processPSet.exists( tagTriggerEvent_.label() )
+         ) {
+        nameProcess_ = iHist->processName();
+        LogDebug( "autoProcessName" ) << "HLT process name '" << nameProcess_ << "' discovered";
+      }
+    }
+    // terminate, if nothing is found
+    if ( nameProcess_ == "*" ) {
+      LogError( "autoProcessName" ) << "trigger::TriggerEvent product with label '" << tagTriggerEvent_.label() << "' not produced according to process history of input data\n"
+                                    << "No trigger information produced";
+      return;
+    }
+    LogInfo( "autoProcessName" ) << "HLT process name' " << nameProcess_ << "' used for PAT trigger information";
+  }
+  // adapt configuration of used input tags
+  if ( tagTriggerResults_.process().empty() || tagTriggerResults_.process() == "*" ) {
+    tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
+  } else if ( tagTriggerEvent_.process() != nameProcess_ ) {
+    LogWarning( "triggerResultsTag" ) << "TriggerResults process name '" << tagTriggerResults_.process() << "' differs from HLT process name '" << nameProcess_ << "'";
+  }
+  if ( tagTriggerEvent_.process().empty() || tagTriggerEvent_.process()   == "*" ) {
+    tagTriggerEvent_ = InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance(), nameProcess_ );
+  } else if ( tagTriggerEvent_.process() != nameProcess_ ) {
+    LogWarning( "triggerEventTag" ) << "TriggerEvent process name '" << tagTriggerEvent_.process() << "' differs from HLT process name '" << nameProcess_ << "'";
+  }
+  if ( autoProcessNameL1ExtraMu_ )      tagL1ExtraMu_      = InputTag( tagL1ExtraMu_.label()     , tagL1ExtraMu_.instance()     , nameProcess_ );
+  if ( autoProcessNameL1ExtraNoIsoEG_ ) tagL1ExtraNoIsoEG_ = InputTag( tagL1ExtraNoIsoEG_.label(), tagL1ExtraNoIsoEG_.instance(), nameProcess_ );
+  if ( autoProcessNameL1ExtraIsoEG_ )   tagL1ExtraIsoEG_   = InputTag( tagL1ExtraIsoEG_.label()  , tagL1ExtraIsoEG_.instance()  , nameProcess_ );
+  if ( autoProcessNameL1ExtraCenJet_ )  tagL1ExtraCenJet_  = InputTag( tagL1ExtraCenJet_.label() , tagL1ExtraCenJet_.instance() , nameProcess_ );
+  if ( autoProcessNameL1ExtraForJet_ )  tagL1ExtraForJet_  = InputTag( tagL1ExtraForJet_.label() , tagL1ExtraForJet_.instance() , nameProcess_ );
+  if ( autoProcessNameL1ExtraTauJet_ )  tagL1ExtraTauJet_  = InputTag( tagL1ExtraTauJet_.label() , tagL1ExtraTauJet_.instance() , nameProcess_ );
+  if ( autoProcessNameL1ExtraETM_ )     tagL1ExtraETM_     = InputTag( tagL1ExtraETM_.label()    , tagL1ExtraETM_.instance()    , nameProcess_ );
+  if ( autoProcessNameL1ExtraHTM_ )     tagL1ExtraHTM_     = InputTag( tagL1ExtraHTM_.label()    , tagL1ExtraHTM_.instance()    , nameProcess_ );
+
   // Initialize HLTConfigProvider
   bool changed( true );
   if ( ! hltConfig_.init( iRun, iSetup, nameProcess_, changed ) ) {
-    LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
+    LogError( "hltConfigExtraction" ) << "HLT config extraction error with process name '" << nameProcess_ << "'";
   } else if ( hltConfig_.size() <= 0 ) {
     LogError( "hltConfigSize" ) << "HLT config size error";
   } else hltConfigInit_ = true;
@@ -141,6 +220,9 @@ void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
 void PATTriggerProducer::beginLuminosityBlock( LuminosityBlock & iLuminosityBlock, const EventSetup & iSetup )
 {
 
+  // Terminate, if auto process name determination failed
+  if ( nameProcess_ == "*" ) return;
+
   // Extract pre-scales
   if ( hltConfigInit_ ) {
     // Start from run
@@ -161,6 +243,9 @@ void PATTriggerProducer::beginLuminosityBlock( LuminosityBlock & iLuminosityBloc
 void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
 {
 
+  // Terminate, if auto process name determination failed
+  if ( nameProcess_ == "*" ) return;
+
   std::auto_ptr< TriggerObjectCollection > triggerObjects( new TriggerObjectCollection() );
   if ( onlyStandAlone_ ) triggerObjects->reserve( 0 );
   std::auto_ptr< TriggerObjectStandAloneCollection > triggerObjectsStandAlone( new TriggerObjectStandAloneCollection() );
@@ -168,20 +253,19 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   // HLT
 
   // Get and check HLT event data
-
-  Handle< TriggerResults > handleTriggerResults;
-  iEvent.getByLabel( tagTriggerResults_, handleTriggerResults );
   Handle< trigger::TriggerEvent > handleTriggerEvent;
   iEvent.getByLabel( tagTriggerEvent_, handleTriggerEvent );
+  Handle< TriggerResults > handleTriggerResults;
+  iEvent.getByLabel( tagTriggerResults_, handleTriggerResults );
   bool goodHlt( hltConfigInit_ );
   if ( goodHlt ) {
     if( ! handleTriggerResults.isValid() ) {
-      LogError( "errorTriggerResultsValid" ) << "TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event\n"
-                                             << "No HLT information produced.";
+      LogError( "triggerResultsValid" ) << "TriggerResults product with InputTag '" << tagTriggerResults_.encode() << "' not in event\n"
+                                        << "No HLT information produced";
       goodHlt = false;
     } else if ( ! handleTriggerEvent.isValid() ) {
-      LogError( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << tagTriggerEvent_.encode() << " not in event\n"
-                                           << "No HLT information produced.";
+      LogError( "triggerEventValid" ) << "trigger::TriggerEvent product with InputTag '" << tagTriggerEvent_.encode() << "' not in event\n"
+                                      << "No HLT information produced";
       goodHlt = false;
     }
   }
@@ -204,11 +288,13 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     // Try event setup, if no product
     if ( hltPrescaleTable.size() == 0 ) {
       if ( ! labelHltPrescaleTable_.empty() ) {
-        LogWarning( "hltPrescaleInputTag" ) << "HLTPrescaleTable product with label '" << labelHltPrescaleTable_ << "' not found in process '" << nameProcess_ << "'; using default from event setup";
+        LogWarning( "hltPrescaleInputTag" ) << "HLTPrescaleTable product with label '" << labelHltPrescaleTable_ << "' not found in process" << nameProcess_ << "\n"
+                                            << "Using default from event setup";
       }
       if ( hltConfig_.prescaleSize() > 0 ) {
         if ( hltConfig_.prescaleSet( iEvent, iSetup ) != -1 ) {
           hltPrescaleTable = trigger::HLTPrescaleTable( hltConfig_.prescaleSet( iEvent, iSetup ), hltConfig_.prescaleLabels(), hltConfig_.prescaleTable() );
+          LogDebug( "hltPrescaleTable" ) << "HLT prescale table found in event setup";
         } else {
           LogWarning( "hltPrescaleSet" ) << "HLTPrescaleTable from event setup has error";
         }
@@ -226,10 +312,14 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           }
         }
         if ( ! foundPrescaleLabel ) {
-          LogWarning( "hltPrescaleLabel" ) << "HLT prescale label '" << hltPrescaleLabel_ << "' not in prescale table; using default";
+          LogWarning( "hltPrescaleLabel" ) << "HLT prescale label '" << hltPrescaleLabel_ << "' not in prescale table\n"
+                                           << "Using default";
         }
       }
-    } else if ( iEvent.isRealData() ) LogWarning( "hltPrescaleTable" ) << "No HLT prescale table found; using default empty table with all prescales 1";
+    } else if ( iEvent.isRealData() ) {
+      LogWarning( "hltPrescaleTable" ) << "No HLT prescale table found\n"
+                                       << "Using default empty table with all prescales 1";
+    }
 
     const unsigned sizePaths( hltConfig_.size() );
     const unsigned sizeFilters( handleTriggerEvent->sizeFilters() );
@@ -278,9 +368,14 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           const unsigned slotModule( hltConfig_.moduleIndex( indexPath, nameModule ) );
           indicesModules.insert( std::pair< unsigned, std::string >( slotModule, nameModule ) );
         }
+        // add L1 seeds
+        const L1SeedCollection l1Seeds( hltConfig_.hltL1GTSeeds( namePath ) );
+        for ( L1SeedCollection::const_iterator iSeed = l1Seeds.begin(); iSeed != l1Seeds.end(); ++iSeed ) {
+          triggerPath.addL1Seed( *iSeed );
+        }
         // store path
         triggerPaths->push_back( triggerPath );
-        // store module states to be used for the filters
+        // cache module states to be used for the filters
         for ( std::map< unsigned, std::string >::const_iterator iM = indicesModules.begin(); iM != indicesModules.end(); ++iM ) {
           if ( iM->first < indexLastFilterPath ) {
             moduleStates[ iM->second ] = 1;
@@ -397,7 +492,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    } else LogError( "errorL1ExtraMuValid" ) << "l1extra::L1MuonParticleCollection product with InputTag " << tagL1ExtraMu_.encode() << " not in event";
+    } else LogError( "l1ExtraValid" ) << "l1extra::L1MuonParticleCollection product with InputTag '" << tagL1ExtraMu_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraNoIsoEG_.label().empty() ) {
     Handle< l1extra::L1EmParticleCollection > handleL1ExtraNoIsoEG;
@@ -417,7 +512,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    } else LogError( "errorL1ExtraNoIsoEGValid" ) << "l1extra::L1EmParticleCollection product with InputTag " << tagL1ExtraNoIsoEG_.encode() << " not in event";
+    } else LogError( "l1ExtraValid" ) << "l1extra::L1EmParticleCollection product with InputTag '" << tagL1ExtraNoIsoEG_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraIsoEG_.label().empty() ) {
     Handle< l1extra::L1EmParticleCollection > handleL1ExtraIsoEG;
@@ -437,7 +532,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    } else LogError( "errorL1ExtraisoEGValid" ) << "l1extra::L1EmParticleCollection product with InputTag " << tagL1ExtraIsoEG_.encode() << " not in event";
+    } else LogError( "l1ExtraValid" ) << "l1extra::L1EmParticleCollection product with InputTag '" << tagL1ExtraIsoEG_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraCenJet_.label().empty() ) {
     Handle< l1extra::L1JetParticleCollection > handleL1ExtraCenJet;
@@ -457,7 +552,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    } else LogError( "errorL1ExtraCenJetValid" ) << "l1extra::L1JetParticleCollection product with InputTag " << tagL1ExtraCenJet_.encode() << " not in event";
+    } else LogError( "l1ExtraValid" ) << "l1extra::L1JetParticleCollection product with InputTag '" << tagL1ExtraCenJet_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraForJet_.label().empty() ) {
     Handle< l1extra::L1JetParticleCollection > handleL1ExtraForJet;
@@ -477,7 +572,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    } else LogError( "errorL1ExtraForJetValid" ) << "l1extra::L1JetParticleCollection product with InputTag " << tagL1ExtraForJet_.encode() << " not in event";
+    } else LogError( "l1ExtraValid" ) << "l1extra::L1JetParticleCollection product with InputTag '" << tagL1ExtraForJet_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraTauJet_.label().empty() ) {
     Handle< l1extra::L1JetParticleCollection > handleL1ExtraTauJet;
@@ -497,7 +592,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    } else LogError( "errorL1ExtraTauJetValid" ) << "l1extra::L1JetParticleCollection product with InputTag " << tagL1ExtraTauJet_.encode() << " not in event";
+    } else LogError( "l1ExtraValid" ) << "l1extra::L1JetParticleCollection product with InputTag '" << tagL1ExtraTauJet_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraETM_ .label().empty()) {
     Handle< l1extra::L1EtMissParticleCollection > handleL1ExtraETM;
@@ -517,7 +612,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    } else LogError( "errorL1ExtraETMValid" ) << "l1extra::L1EtMissParticleCollection product with InputTag " << tagL1ExtraETM_.encode() << " not in event";
+    } else LogError( "l1ExtraValid" ) << "l1extra::L1EtMissParticleCollection product with InputTag '" << tagL1ExtraETM_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraHTM_.label().empty() ) {
     Handle< l1extra::L1EtMissParticleCollection > handleL1ExtraHTM;
@@ -537,7 +632,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
         triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
       }
-    } else LogError( "errorL1ExtraHTMValid" ) << "l1extra::L1EtMissParticleCollection product with InputTag " << tagL1ExtraHTM_.encode() << " not in event";
+    } else LogError( "l1ExtraValid" ) << "l1extra::L1EtMissParticleCollection product with InputTag '" << tagL1ExtraHTM_.encode() << "' not in event";
   }
 
   // Put HLT & L1 objects to event
@@ -557,13 +652,15 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       // physics algorithms
       for ( AlgorithmMap::const_iterator iAlgo = l1GtAlgorithms.begin(); iAlgo != l1GtAlgorithms.end(); ++iAlgo ) {
         if ( iAlgo->second.algoBitNumber() > 127 ) {
-          LogError( "errorL1AlgoBit" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 127; skipping";
+          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 127\n"
+                               << "Skipping";
           continue;
         }
         L1GtUtils::TriggerCategory category;
         int bit;
         if ( ! l1GtUtils_.l1AlgoTechTrigBitNumber( iAlgo->second.algoName(), category, bit ) ) {
-          LogError( "errorL1AlgoName" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu; skipping";
+          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu\n"
+                               << "Skipping";
           continue;
         }
         bool decisionBeforeMask;
@@ -572,7 +669,8 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         int  mask;
         int  error( l1GtUtils_.l1Results( iEvent, iAlgo->second.algoName(), decisionBeforeMask, decisionAfterMask, prescale, mask ) );
         if ( error ) {
-          LogError( "errorL1AlgoDecision" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << " from 'L1GtUtils'; skipping";
+          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << " from 'L1GtUtils'\n"
+                               << "Skipping";
           continue;
         }
         TriggerAlgorithm triggerAlgo( iAlgo->second.algoName(), iAlgo->second.algoAlias(), category == L1GtUtils::TechnicalTrigger, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
@@ -581,13 +679,15 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       // technical triggers
       for ( AlgorithmMap::const_iterator iAlgo = l1GtTechTriggers.begin(); iAlgo != l1GtTechTriggers.end(); ++iAlgo ) {
         if ( iAlgo->second.algoBitNumber() > 63 ) {
-          LogError( "errorL1AlgoBit" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 63; skipping";
+          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 63\n"
+                               << "Skipping";
           continue;
         }
         L1GtUtils::TriggerCategory category;
         int bit;
         if ( ! l1GtUtils_.l1AlgoTechTrigBitNumber( iAlgo->second.algoName(), category, bit ) ) {
-          LogError( "errorL1AlgoName" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu; skipping";
+          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu\n"
+                               << "Skipping";
           continue;
         }
         bool decisionBeforeMask;
@@ -596,14 +696,14 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         int  mask;
         int  error( l1GtUtils_.l1Results( iEvent, iAlgo->second.algoName(), decisionBeforeMask, decisionAfterMask, prescale, mask ) );
         if ( error ) {
-          LogError( "errorL1AlgoDecision" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << " from 'L1GtUtils'; skipping";
+          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << " from 'L1GtUtils'\n"
+                               << "Skipping";
           continue;
         }
         TriggerAlgorithm triggerAlgo( iAlgo->second.algoName(), iAlgo->second.algoAlias(), category == L1GtUtils::TechnicalTrigger, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
         triggerAlgos->push_back( triggerAlgo );
       }
     }
-
     // Put L1 algorithms to event
     iEvent.put( triggerAlgos );
   }

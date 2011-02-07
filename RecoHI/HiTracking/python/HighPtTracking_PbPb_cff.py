@@ -19,7 +19,8 @@ from RecoHI.HiTracking.HICkfTrackCandidates_cff import *
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 hiGlobalPrimTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone(
 	src = 'hiPrimTrackCandidates',
-	useHitsSplitting=True
+	useHitsSplitting=True,
+        AlgorithmName = 'iter0'
 )
 
 ### track quality cuts

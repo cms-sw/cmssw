@@ -3,5 +3,5 @@
 
 # If not called with arguments, spawn a slave process.
 # Used to test that processCount only counts master processes
-[[ $# == 0 ]] && ./processCountTest.sh slave &
-sleep 5
+[[ $# == 0 ]] && ${CMSSW_BASE}/src/EventFilter/StorageManager/test/processCountTest.sh slave &
+sleep 60

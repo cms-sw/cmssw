@@ -29,6 +29,7 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorkerProd.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingMuonWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripWorker.h"
+#include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripRawWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingGeneralTrackWorker.h"
 
@@ -96,6 +97,8 @@ namespace edm
       // SiPixels
       std::string PixelDigiCollectionDM_  ; // secondary name to be given to new SiPixel digis
 
+      // Tracks
+      std::string GeneralTrackCollectionDM_;
       // FastSimulation or not?
 
       bool DoFastSim_;
@@ -122,6 +125,9 @@ namespace edm
       // Si-Strips
 
       DataMixingSiStripWorker *SiStripWorker_ ;
+      DataMixingSiStripRawWorker *SiStripRawWorker_ ;
+      bool useSiStripRawDigi_;
+      std::string siStripRawDigiSource_;
 
       // Pixels
 

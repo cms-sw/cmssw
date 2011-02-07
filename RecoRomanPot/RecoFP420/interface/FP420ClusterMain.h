@@ -11,14 +11,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
 #include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
 #include <iostream>
 #include <vector>
-
+using namespace std;
 
 class ClusterNoiseFP420;
 class ClusterProducerFP420;
@@ -28,7 +27,7 @@ class FP420ClusterMain
  public:
   
 
-    FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn, int pn, int rn);
+    FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn, int pn);
   //  FP420ClusterMain();
 
   ~FP420ClusterMain();
@@ -60,7 +59,6 @@ class FP420ClusterMain
   double BadElectrodeProbability_;
   bool UseNoiseBadElectrodeFlagFromDB_;
 
-  FP420NumberingScheme * theFP420NumberingScheme;
   
   double ChannelThreshold;
   double SeedThreshold;
@@ -88,8 +86,6 @@ class FP420ClusterMain
    int sn0;
  // Number of planes:
    int pn0;
- // Number of sensors:
-   int rn0;
  // Type of planes:
    int xytype;
 

@@ -18,6 +18,8 @@ l1tgct.gctEnergySumsSource = 'gctDigis::'
 l1tgct.gctIsoEmSource = 'gctDigis:isoEm:'
 l1tgct.gctNonIsoEmSource = 'gctDigis:nonIsoEm:'
 l1trct.rctSource = 'gctDigis::'
+l1tdttf.gmtSource = 'gtDigis::'
+l1tdttf.online = cms.untracked.bool(False)
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvL1T = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
@@ -90,4 +92,3 @@ offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*
 
 
 triggerCosmicOfflineDQMSource =  cms.Sequence(l1temumonitor*l1tmonitor*onlineHLTSource*offlineHLTSource)
-
