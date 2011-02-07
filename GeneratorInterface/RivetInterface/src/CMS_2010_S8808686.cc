@@ -28,10 +28,10 @@
 
 namespace Rivet {
 
-  class CMS_QCD_10_002 : public Analysis {
+  class CMS_2010_S8808686 : public Analysis {
   public:
 
-    CMS_QCD_10_002() : Analysis("CMS_QCD_10_002") {
+    CMS_2010_S8808686() : Analysis("CMS_2010_S8808686") {
        setBeams(PROTON, PROTON);
        setNeedsCrossSection(false);
     }
@@ -45,7 +45,7 @@ namespace Rivet {
 	_N110events = 0;
 	_Nevt_after_cuts = 0;
 	
-	 file = new TFile("cmsridge.root","recreate");
+	 file = new TFile("CMS_2010_S8808686.root","recreate");
 	
         for (int ibin = 0; ibin < 16; ibin++) {
 	   
@@ -427,8 +427,8 @@ namespace Rivet {
 //AK =====================================================FINALIZE
     void finalize() {
 
-	cout << "Number of events analyzed:  " << _Nevt_after_cuts << endl;	
-	cout << "Number of events with N>110:" << _N110events << endl;
+	getLog() << Log::INFO << "Number of events after event selection: " << _Nevt_after_cuts << endl;	
+	getLog() << Log::INFO << "Number of events with N>110:" << _N110events << endl;
 			
   	int nEvent = -99.0;
 	
@@ -550,7 +550,7 @@ namespace Rivet {
 
 
   // This global object acts as a hook for the plugin system
-  AnalysisBuilder<CMS_QCD_10_002> plugin_CMS_QCD_10_002;
+  AnalysisBuilder<CMS_2010_S8808686> plugin_CMS_2010_S8808686;
 
 }
 
