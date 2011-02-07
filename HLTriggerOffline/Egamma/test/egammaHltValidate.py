@@ -562,7 +562,7 @@ if options.num_events != None:
     print >> fout,"#----------------------------------------"
     print >> fout,"# maximum number of events specified"
     print >> fout,"#----------------------------------------"
-    print >> fout,"process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )"
+    print >> fout,"process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(%d) )" % options.num_events
     print >> fout,"#----------------------------------------"
 
 #----------------------------------------
