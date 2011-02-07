@@ -4,6 +4,92 @@
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////  STUFF RELATED TO THE SUBSAMPLES
+
+
+void FillArray(int HitIndex, int EtaIndex, double* Array, double value){
+   Array[ 0                 ] +=  value;
+   Array[           EtaIndex] +=  value;
+   Array[HitIndex           ] +=  value;
+   Array[HitIndex + EtaIndex] +=  value;
+}
+
+void FillHisto(int HitIndex, int EtaIndex, TH1D** Histo, double value, double weight){
+   Histo[ 0                 ]->Fill(value,weight);
+   Histo[           EtaIndex]->Fill(value,weight);
+   Histo[HitIndex           ]->Fill(value,weight);
+   Histo[HitIndex + EtaIndex]->Fill(value,weight);
+}
+
+void FillHisto(int HitIndex, int EtaIndex, TH2D** Histo, double value1, double value2, double weight){
+   Histo[ 0                 ]->Fill(value1,value2,weight);
+   Histo[           EtaIndex]->Fill(value1,value2,weight);
+   Histo[HitIndex           ]->Fill(value1,value2,weight);
+   Histo[HitIndex + EtaIndex]->Fill(value1,value2,weight);
+}
+
+
+int GetCutIndex(int HitIndex, int EtaIndex){
+   int CutIndex;
+   if(SplitMode==0){
+      CutIndex = 0;
+   }else if(SplitMode==1){
+      CutIndex = HitIndex;
+   }else{
+      CutIndex = HitIndex + EtaIndex;
+   }
+   return CutIndex;
+}
+
+void GetIndices(int NOM, double Eta, int& HitIndex, int& EtaIndex)
+{
+         if(fabs(Eta)<1.0)EtaIndex = 1;
+   else  if(fabs(Eta)<2.0)EtaIndex = 2;
+   else                   EtaIndex = 3;
+
+         if(NOM<=8       )HitIndex = 1;
+   else  if(NOM<=10      )HitIndex = 2;
+   else  if(NOM<=12      )HitIndex = 3;
+   else  if(NOM<=14      )HitIndex = 4;
+   else  if(NOM<=16      )HitIndex = 5;
+   else                   HitIndex = 6;
+   
+   HitIndex*=4;  //Multiply by the number of eta slices + 1, in order to allow EtaIndex+HitIndex summmation
+}
+
+string GetNameFromIndex(int index)
+{
+   char buffer[256]; buffer[0]='\0';
+   unsigned int Hit = index/4;  //Divide by eta slices +1 in order to recover the hit and eta index.
+   unsigned int Eta = index%4;
+
+   if(Hit==1)sprintf(buffer,"%s_SSHit00-08",buffer);
+   if(Hit==2)sprintf(buffer,"%s_SSHit09-10",buffer);
+   if(Hit==3)sprintf(buffer,"%s_SSHit11-12",buffer);
+   if(Hit==4)sprintf(buffer,"%s_SSHit13-14",buffer);
+   if(Hit==5)sprintf(buffer,"%s_SSHit15-16",buffer);
+   if(Hit==6)sprintf(buffer,"%s_SSHit17-99",buffer);
+ 
+   if(Eta==1)sprintf(buffer,"%s_Eta00-10",buffer);
+   if(Eta==2)sprintf(buffer,"%s_Eta10-20",buffer);
+   if(Eta==3)sprintf(buffer,"%s_Eta20-25",buffer);
+   return string(buffer);
+}
+
+bool isSubSampleExist(int i, bool extended=false){
+   if(!extended){
+      if(SplitMode==0 && i>0)return false;
+      if(SplitMode==1 && (i==0             || i%NETASUBSAMPLE!=0))return false;
+      if(SplitMode==2 && (i< NETASUBSAMPLE || i%NETASUBSAMPLE==0))return false;
+   }else{
+      if(SplitMode==0 && i>0)return false;
+      if(SplitMode==1 && (i%NETASUBSAMPLE!=0))return false;
+   }
+   return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 double CutFromEfficiency(TH1* Histo, double Efficiency, bool DoesKeepLeft=false)
 {
    if(DoesKeepLeft){  Efficiency = 1 - Efficiency;  }
@@ -76,36 +162,17 @@ double GetEventInRange(double min, double max, TH1D* hist){
   return hist->Integral(binMin,binMax);
 }
 
-void FillArray(int HitIndex, int EtaIndex, double* Array, double value){
-   Array[ 0                 ] +=  value;
-   Array[           EtaIndex] +=  value;
-   Array[HitIndex           ] +=  value;
-   Array[HitIndex + EtaIndex] +=  value;
-}
 
-void FillHisto(int HitIndex, int EtaIndex, TH1D** Histo, double value, double weight){
-   Histo[ 0                 ]->Fill(value,weight);
-   Histo[           EtaIndex]->Fill(value,weight);
-   Histo[HitIndex           ]->Fill(value,weight);
-   Histo[HitIndex + EtaIndex]->Fill(value,weight);
-}
-
-void FillHisto(int HitIndex, int EtaIndex, TH2D** Histo, double value1, double value2, double weight){
-   Histo[ 0                 ]->Fill(value1,value2,weight);
-   Histo[           EtaIndex]->Fill(value1,value2,weight);
-   Histo[HitIndex           ]->Fill(value1,value2,weight);
-   Histo[HitIndex + EtaIndex]->Fill(value1,value2,weight);
-}
 
 double GetMass(double P, double I, bool MC=false){
    if(MC){
-      const double& K = dEdxK_MC[dEdxMassIndex];
-      const double& C = dEdxC_MC[dEdxMassIndex];
+      const double& K = dEdxK_MC;
+      const double& C = dEdxC_MC;
 
       return sqrt((I-C)/K)*P;
    }else{
-      const double& K = dEdxK_Data[dEdxMassIndex];
-      const double& C = dEdxC_Data[dEdxMassIndex];
+      const double& K = dEdxK_Data;
+      const double& C = dEdxC_Data;
 
       return sqrt((I-C)/K)*P;
    }
@@ -117,11 +184,11 @@ TF1* GetMassLine(double M, bool MC=false)
 {
    double K;   double C;
    if(MC){
-      K = dEdxK_MC[dEdxMassIndex];
-      C = dEdxC_MC[dEdxMassIndex];
+      K = dEdxK_MC;
+      C = dEdxC_MC;
    }else{
-      K = dEdxK_Data[dEdxMassIndex];
-      C = dEdxC_Data[dEdxMassIndex];
+      K = dEdxK_Data;
+      C = dEdxC_Data;
    }
 
    double BetaMax = 0.9;
@@ -141,45 +208,7 @@ TF1* GetMassLine(double M, bool MC=false)
    return MassLine;
 }
 
-void GetIndices(int NOM, double Eta, int& HitIndex, int& EtaIndex)
-{
-   int NOM2 = NOM;
-   if(NOM2<=8)NOM2=8;
-   if(NOM2>=17)NOM2=17;
 
-   HitIndex = NOM2*6;
-   EtaIndex = 0;
-
-         if(fabs(Eta)<0.5)EtaIndex = 1;
-   else  if(fabs(Eta)<1.0)EtaIndex = 2;
-   else  if(fabs(Eta)<1.5)EtaIndex = 3;
-   else  if(fabs(Eta)<2.0)EtaIndex = 4;
-   else                   EtaIndex = 5;
-}
-
-int GetCutIndex(int HitIndex, int EtaIndex){
-   int CutIndex;
-   if(SplitMode==0){
-      CutIndex = 0;
-   }else if(SplitMode==1){
-      CutIndex = HitIndex;
-   }else{
-      CutIndex = HitIndex + EtaIndex;
-   }
-   return CutIndex;
-}
-
-void GetNameFromIndex(char* NameExt, int index)
-{
-      unsigned int Hit = index/6;
-      unsigned int Eta = index%6;
-      if(Hit>=1)sprintf(NameExt,"%s_SSHit%02i",NameExt,Hit);
-      if(Eta==1)sprintf(NameExt,"%s_Eta00to05",NameExt);
-      if(Eta==2)sprintf(NameExt,"%s_Eta05to10",NameExt);
-      if(Eta==3)sprintf(NameExt,"%s_Eta10to15",NameExt);
-      if(Eta==4)sprintf(NameExt,"%s_Eta15to20",NameExt);
-      if(Eta==5)sprintf(NameExt,"%s_Eta20to25",NameExt);
-}
 
 double deltaR(double eta1, double phi1, double eta2, double phi2) {
    double deta = eta1 - eta2;
@@ -187,6 +216,17 @@ double deltaR(double eta1, double phi1, double eta2, double phi2) {
    while (dphi >   M_PI) dphi -= 2*M_PI;
    while (dphi <= -M_PI) dphi += 2*M_PI;
    return sqrt(deta*deta + dphi*dphi);
+}
+
+
+string LegendFromType(const string& InputPattern){
+   if(InputPattern.find("Type0",0)<string::npos){
+      return string("Tracker - Only");
+   }else if(InputPattern.find("Type1",0)<string::npos){
+      return string("Tracker + Muon");
+   }else{
+      return string("Tracker + TOF");
+   }
 }
 
 
@@ -227,6 +267,7 @@ void GetPredictionRescale(string InputPattern, double& Rescale, double& RMS, boo
 //       if(!(d!=d) && p>0 && d>10 && (WP_Pt+WP_I)<=-3){
 //         if(!(d!=d) && p>0 && d>20 && (WP_Pt+WP_I)<=-3){
          if(!(d!=d) && p>0 && d>20 && (WP_Pt+WP_I)<=-2){
+//         if(!(d!=d) && p>0 && d>500 && (WP_Pt+WP_I)<=-2){
             DValue.push_back(d);
             PValue.push_back(p);
             printf("%6.2f %6.2f (eff=%6.2E) --> %f  (d=%6.2E)\n",WP_Pt,WP_I, pow(10,WP_Pt+WP_I),d/p, d);
@@ -275,10 +316,10 @@ void MassPredictionFromABCD(string InputPattern, TH1D* Pred_Mass)
 
       char PredExt[1024];
       char DataExt[1024];
-      sprintf(PredExt,"Pred");
-      GetNameFromIndex(PredExt, i);
-      sprintf(DataExt,"Data");
-      GetNameFromIndex(DataExt, i);
+      sprintf(PredExt,"Pred%s",GetNameFromIndex(i).c_str());
+      //GetNameFromIndex(PredExt, i);
+      sprintf(DataExt,"Data%s",GetNameFromIndex(i).c_str());
+      //GetNameFromIndex(DataExt, i);
 
       TH1D* Pred_MassSubSample = (TH1D*)Pred_Mass->Clone("subsamplesprediction");
       Pred_MassSubSample->Reset();
@@ -288,12 +329,12 @@ void MassPredictionFromABCD(string InputPattern, TH1D* Pred_Mass)
       TH2D* Data_PI_A = (TH2D*)GetObjectFromPath(InputFile, string("PI_A_") + DataExt);
       TH2D* Data_PI_B = (TH2D*)GetObjectFromPath(InputFile, string("PI_B_") + DataExt);
       TH2D* Data_PI_C = (TH2D*)GetObjectFromPath(InputFile, string("PI_C_") + DataExt);
-      TH2D* Data_PI_D = (TH2D*)GetObjectFromPath(InputFile, string("PI_D_") + DataExt);
+      //TH2D* Data_PI_D = (TH2D*)GetObjectFromPath(InputFile, string("PI_D_") + DataExt);
 
       double N_A = Data_PI_A->Integral();	double N_Aerr = N_A;
       double N_B = Data_PI_B->Integral();	double N_Berr = N_B;
       double N_C = Data_PI_C->Integral();	double N_Cerr = N_C;
-      double N_D = Data_PI_D->Integral();	double N_Derr = N_D;
+      //double N_D = Data_PI_D->Integral();	//double N_Derr = N_D;
 
 
 

@@ -38,7 +38,6 @@ void MassPlot(string InputPattern);
 void SelectionPlot(string InputPattern);
 void PredictionAndControlPlot(string InputPattern);
 
-void dEdxVsP_Plot_Core(string InputPattern);
 void Make2DPlot_Core(string ResultPattern);
 void MakeCompPlot(string DirName, string InputPattern1, string InputPattern2="");
 void CheckPredictionRescale(string InputPattern, bool RecomputeRescale=false);
@@ -62,8 +61,8 @@ void Analysis_Step5()
    setTDRStyle();
    gStyle->SetPadTopMargin   (0.06);
    gStyle->SetPadBottomMargin(0.10);
-   gStyle->SetPadRightMargin (0.18);
-   gStyle->SetPadLeftMargin  (0.12);
+   gStyle->SetPadRightMargin (0.16);
+   gStyle->SetPadLeftMargin  (0.14);
    gStyle->SetTitleSize(0.04, "XYZ");
    gStyle->SetTitleXOffset(1.1);
    gStyle->SetTitleYOffset(1.45);
@@ -74,7 +73,6 @@ void Analysis_Step5()
    GetMCDefinition(MCsample);
 
    string InputDir;
-   dEdxSeleIndex = 11;
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
 //  WPMap("Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/", 75,2000);
@@ -191,57 +189,14 @@ return;
 */
 
 
-
-
-/*
-
-//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-15/WPI-40/";
-//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-15/WPI-40/";
-//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-25/WPI-35/";
-   InputDir = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-40/"; //X
-//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-35/"; //X
+//   InputDir = "Results/dedxASmi/dt/Eta25/Type2/SplitMode0/WPPt05/WPI05/WPTOF05/";
+   InputDir = "Results/dedxASmi/dt/Eta25/Type0/SplitMode0/WPPt20/WPI20/WPTOF00/";
    CheckPredictionRescale(InputDir, true); 
 //   Make2DPlot_Core(InputDir);
 //   SelectionPlot(InputDir);
-//   PredictionAndControlPlot(InputDir);
-//   dEdxVsP_Plot_Core(InputDir);
+   PredictionAndControlPlot(InputDir);
 
-//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-25/WPI-45/";
-//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-15/WPI-50/";
-//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-25/WPI-45/";
-   InputDir = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-45/"; //X
-//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-40/"; //X
-   CheckPredictionRescale(InputDir, true);
-//   Make2DPlot_Core(InputDir);
-//   SelectionPlot(InputDir);
-//   PredictionAndControlPlot(InputDir);
-//   dEdxVsP_Plot_Core(InputDir);
-*/
-//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-15/";
-//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-20/";
-//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-15/";
-   InputDir = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-15/"; //X
-//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-05/WPI-10/"; //X
-//   CheckPredictionRescale(InputDir, true);
-//   Make2DPlot_Core(InputDir);
-   SelectionPlot(InputDir);
-//   PredictionAndControlPlot(InputDir);
-//   dEdxVsP_Plot_Core(InputDir);
-
-//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-20/";
-//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-25/";
-//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-25/";
-//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-15/WPI-20/";
-//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-15/WPI-20/";
-   InputDir = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-15/WPI-20/"; //X
-//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-10/WPI-15/"; //X
-//   CheckPredictionRescale(InputDir, true);
-//   Make2DPlot_Core(InputDir);
-   SelectionPlot(InputDir);
-//   PredictionAndControlPlot(InputDir);
-//   dEdxVsP_Plot_Core(InputDir);
-
-
+    return;
 
 
 /*
@@ -353,13 +308,13 @@ return;
 
 void WPMap(string InputPattern, double MinM, double MaxM, bool Rescale)
 {
-   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
-   string LegendTitle;
-   if(IsTrackerOnly){
-      LegendTitle = "Tracker - Only";
-   }else{
-      LegendTitle = "Tracker + Muon";
-   }
+//   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
+   string LegendTitle = LegendFromType(InputPattern);;
+//   if(IsTrackerOnly){
+//      LegendTitle = "Tracker - Only";
+//   }else{
+//      LegendTitle = "Tracker + Muon";
+//   }
 
    double RescaleFactor, RescaleError;
    if(Rescale){
@@ -797,13 +752,15 @@ void CutEfficiency(std::vector<string> InputPatterns, std::vector<string> Legend
    TCanvas* c1;
    std::vector<string> legend;
 
-   bool IsTrackerOnly = (InputPatterns[0].find("Type0",0)<string::npos);
-   string LegendTitle;
-   if(IsTrackerOnly){
-      LegendTitle = "Tracker - Only";
-   }else{
-      LegendTitle = "Tracker + Muon";
-   }
+   string LegendTitle = LegendFromType(InputPatterns[0]);;
+//
+//   bool IsTrackerOnly = (InputPatterns[0].find("Type0",0)<string::npos);
+//   string LegendTitle;
+//   if(IsTrackerOnly){
+//      LegendTitle = "Tracker - Only";
+//   }else{
+//      LegendTitle = "Tracker + Muon";
+//   }
 
    string SavePath  = InputPatterns[0] + "MAP/";	   system((string("mkdir ") + SavePath).c_str());
    MakeDirectories(SavePath);
@@ -913,13 +870,14 @@ void CutEfficiency(std::vector<string> InputPatterns, std::vector<string> Legend
 void MassPlot(string InputPattern){
    TCanvas* c1;
 
-   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
-   string LegendTitle;
-   if(IsTrackerOnly){
-      LegendTitle = "Tracker - Only";
-   }else{
-      LegendTitle = "Tracker + Muon";
-   }
+   string LegendTitle = LegendFromType(InputPattern);;
+//   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
+//   string LegendTitle;
+//   if(IsTrackerOnly){
+//      LegendTitle = "Tracker - Only";
+//   }else{
+//      LegendTitle = "Tracker + Muon";
+//   }
 
 
    string Input     = InputPattern + "DumpHistos.root";
@@ -1032,13 +990,14 @@ void MassPlot(string InputPattern){
 
 void SelectionPlot(string InputPattern){
 
-   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
-   string LegendTitle;
-   if(IsTrackerOnly){
-      LegendTitle = "Tracker - Only";
-   }else{
-      LegendTitle = "Tracker + Muon";
-   }
+   string LegendTitle = LegendFromType(InputPattern);;
+//   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
+//   string LegendTitle;
+//   if(IsTrackerOnly){
+//      LegendTitle = "Tracker - Only";
+//   }else{
+//      LegendTitle = "Tracker + Muon";
+//   }
 
 
 //   TCanvas* c1;
@@ -1052,17 +1011,34 @@ void SelectionPlot(string InputPattern){
    stPlots_InitFromFile(DataPlots,"Data", InputFile);
 
    stPlots_InitFromFile(MCTrPlots,"MCTr", InputFile);
+
    for(unsigned int s=0;s<signals.size();s++){
-      if(!signals[s].MakePlot)continue;
       stPlots_InitFromFile(SignPlots[s],signals[s].Name, InputFile);
 
-      printf("PLOT SIGNAL %i\n",s);
-      stPlots_DrawComparison(SignPlots[s], MCTrPlots, DataPlots, signals[s], SavePath + "/Selection_Comp_" + signals[s].Name, LegendTitle);
-      stPlots_Draw(SignPlots[s], SavePath + "/Selection_" +  signals[s].Name, LegendTitle);
+      if(!signals[s].MakePlot)continue;
+      //stPlots_Draw(SignPlots[s], SavePath + "/Selection_" +  signals[s].Name, LegendTitle);
    }
 
    stPlots_Draw(DataPlots, SavePath + "/Selection_Data", LegendTitle);
    stPlots_Draw(MCTrPlots, SavePath + "/Selection_MCTr", LegendTitle);
+
+//   stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, &DataPlots,  &MCTrPlots,  &SignPlots[SID_GL200 ], &SignPlots[SID_GL500 ], &SignPlots[SID_GL900 ]);
+//   stPlots_DrawComparison(SavePath + "/Selection_Comp_GluinoN", LegendTitle, &DataPlots,  &MCTrPlots,  &SignPlots[SID_GL200N], &SignPlots[SID_GL500N], &SignPlots[SID_GL900N]);
+//   stPlots_DrawComparison(SavePath + "/Selection_Comp_Stop"   , LegendTitle, &DataPlots,  &MCTrPlots,  &SignPlots[SID_ST200 ], &SignPlots[SID_ST500 ], &SignPlots[SID_ST800 ]);
+//   stPlots_DrawComparison(SavePath + "/Selection_Comp_StopN"  , LegendTitle, &DataPlots,  &MCTrPlots,  &SignPlots[SID_ST200N], &SignPlots[SID_ST500N], &SignPlots[SID_ST800N]);
+//   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, &DataPlots,  &MCTrPlots,  &SignPlots[SID_GS126 ], &SignPlots[SID_GS247 ], &SignPlots[SID_GS308 ]);
+//   stPlots_DrawComparison(SavePath + "/Selection_Comp_PPStau" , LegendTitle, &DataPlots,  &MCTrPlots,  &SignPlots[SID_PS126 ], &SignPlots[SID_PS247 ], &SignPlots[SID_PS308 ]);
+//   stPlots_DrawComparison(SavePath + "/Selection_Comp_DCStau" , LegendTitle, &DataPlots,  &MCTrPlots,  &SignPlots[SID_DS121 ], &SignPlots[SID_DS242 ], &SignPlots[SID_DS302 ]);
+
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, &DataPlots,  &SignPlots[SID_GL200 ], &SignPlots[SID_GL500 ], &SignPlots[SID_GL900 ]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_GluinoN", LegendTitle, &DataPlots,  &SignPlots[SID_GL200N], &SignPlots[SID_GL500N], &SignPlots[SID_GL900N]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_Stop"   , LegendTitle, &DataPlots,  &SignPlots[SID_ST200 ], &SignPlots[SID_ST500 ], &SignPlots[SID_ST800 ]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_StopN"  , LegendTitle, &DataPlots,  &SignPlots[SID_ST200N], &SignPlots[SID_ST500N], &SignPlots[SID_ST800N]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, &DataPlots,  &SignPlots[SID_GS126 ], &SignPlots[SID_GS247 ], &SignPlots[SID_GS308 ]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_PPStau" , LegendTitle, &DataPlots,  &SignPlots[SID_PS126 ], &SignPlots[SID_PS247 ], &SignPlots[SID_PS308 ]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_DCStau" , LegendTitle, &DataPlots,  &SignPlots[SID_DS121 ], &SignPlots[SID_DS242 ], &SignPlots[SID_DS302 ]);
+
+
 
    stPlots_Clear(DataPlots);
    stPlots_Clear(MCTrPlots);
@@ -1082,14 +1058,14 @@ void PredictionAndControlPlot(string InputPattern){
    TObject** Histos = new TObject*[10];
    std::vector<string> legend;
 
-   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
-   string LegendTitle;
-   if(IsTrackerOnly){
-      LegendTitle = "Tracker - Only";
-   }else{
-      LegendTitle = "Tracker + Muon";
-   }
-
+   string LegendTitle = LegendFromType(InputPattern);;
+//   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
+//   string LegendTitle;
+//   if(IsTrackerOnly){
+//      LegendTitle = "Tracker - Only";
+//   }else{
+//      LegendTitle = "Tracker + Muon";
+//   }
 
 
    string Input     = InputPattern + "DumpHistos.root";
@@ -1097,108 +1073,143 @@ void PredictionAndControlPlot(string InputPattern){
    MakeDirectories(SavePath);
 
    TFile* InputFile = new TFile(Input.c_str());
-   TH1D* Ctrl_BckgP            = (TH1D*)GetObjectFromPath(InputFile, "Ctrl_BckgP"   ); 	Ctrl_BckgP->Rebin(5);
-   TH1D* CtrlPt_BckgIs         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_BckgIs");	CtrlPt_BckgIs->Rebin(5);
-   TH1D* CtrlPt_BckgIm         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_BckgIm");	CtrlPt_BckgIm->Rebin(1);
-   TH1D* CtrlP_BckgIs          = (TH1D*)GetObjectFromPath(InputFile, "CtrlP_BckgIs" );	CtrlP_BckgIs->Rebin(5);
-   TH1D* CtrlP_BckgIm          = (TH1D*)GetObjectFromPath(InputFile, "CtrlP_BckgIm" );	CtrlP_BckgIm->Rebin(1);
-   TH1D* Ctrl_SignP            = (TH1D*)GetObjectFromPath(InputFile, "Ctrl_SignP"   );	Ctrl_SignP->Rebin(5);
-   TH1D* CtrlPt_SignIs         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_SignIs");	CtrlPt_SignIs->Rebin(5);
-   TH1D* CtrlPt_SignIm         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_SignIm");	CtrlPt_SignIm->Rebin(1);
-   TH1D* CtrlP_SignIs          = (TH1D*)GetObjectFromPath(InputFile, "CtrlP_SignIs" );	CtrlP_SignIs->Rebin(5);
-   TH1D* CtrlP_SignIm          = (TH1D*)GetObjectFromPath(InputFile, "CtrlP_SignIm" );	CtrlP_SignIm->Rebin(1);
+   TH1D* CtrlPt_BckgIs         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_BckgIs" );	CtrlPt_BckgIs ->Rebin(5);
+   TH1D* CtrlPt_BckgIm         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_BckgIm" );	CtrlPt_BckgIm ->Rebin(1);
+   TH1D* CtrlPt_BckgTOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_BckgTOF"); CtrlPt_BckgTOF->Rebin(5);
+   TH1D* CtrlPt_SignIs         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_SignIs" );	CtrlPt_SignIs ->Rebin(5);
+   TH1D* CtrlPt_SignIm         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_SignIm" );	CtrlPt_SignIm ->Rebin(1);
+   TH1D* CtrlPt_SignTOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_SignTOF"); CtrlPt_SignTOF->Rebin(5);
+
+   TH1D* CtrlIs_BckgPt         = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_BckgPt" ); CtrlIs_BckgPt ->Rebin(1);
+   TH1D* CtrlIs_BckgTOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_BckgTOF"); CtrlIs_BckgTOF->Rebin(5);
+   TH1D* CtrlIs_SignPt         = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_SignPt" ); CtrlIs_SignPt ->Rebin(1);
+   TH1D* CtrlIs_SignTOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_SignTOF"); CtrlIs_SignTOF->Rebin(5);
+
+   TH1D* CtrlTOF_BckgPt        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_BckgPt"); CtrlTOF_BckgPt ->Rebin(1);
+   TH1D* CtrlTOF_BckgIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_BckgIs"); CtrlTOF_BckgIs ->Rebin(5);
+   TH1D* CtrlTOF_SignPt        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_SignPt"); CtrlTOF_SignPt ->Rebin(1);
+   TH1D* CtrlTOF_SignIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_SignIs"); CtrlTOF_SignIs ->Rebin(5);
 
    TH1D* Pred_Expected_Entries = (TH1D*)GetObjectFromPath(InputFile, "Pred_Expected_Entries");
    TH1D* Pred_Observed_Entries = (TH1D*)GetObjectFromPath(InputFile, "Pred_Observed_Entries");
 
-   TH1D* Pred_Correlation_A    = (TH1D*)GetObjectFromPath(InputFile, "Pred_Correlation_A");
-   TH1D* Pred_Correlation_B    = (TH1D*)GetObjectFromPath(InputFile, "Pred_Correlation_B");
-   TH1D* Pred_Correlation_C    = (TH1D*)GetObjectFromPath(InputFile, "Pred_Correlation_C");
-   TH1D* Pred_Correlation_D    = (TH1D*)GetObjectFromPath(InputFile, "Pred_Correlation_D");
+//   TH1D* Pred_Correlation_A    = (TH1D*)GetObjectFromPath(InputFile, "Pred_Correlation_A");
+//   TH1D* Pred_Correlation_B    = (TH1D*)GetObjectFromPath(InputFile, "Pred_Correlation_B");
+//   TH1D* Pred_Correlation_C    = (TH1D*)GetObjectFromPath(InputFile, "Pred_Correlation_C");
+//   TH1D* Pred_Correlation_D    = (TH1D*)GetObjectFromPath(InputFile, "Pred_Correlation_D");
 
-   TH1D* Pred_P                = (TH1D*)GetObjectFromPath(InputFile, "P_Pred");
-   TH1D* Pred_I                = (TH1D*)GetObjectFromPath(InputFile, "I_Pred");
+   TH1D* Pred_P                = (TH1D*)GetObjectFromPath(InputFile, "Pred_P");
+   TH1D* Pred_I                = (TH1D*)GetObjectFromPath(InputFile, "Pred_I");
+   TH1D* Data_I                = (TH1D*)GetObjectFromPath(InputFile, "Data_AS_Im");   Data_I->Rebin(5); Data_I->Scale(1.0/Data_I->Integral());
+   TH1D* Data_P                = (TH1D*)GetObjectFromPath(InputFile, "Data_AS_P");    Data_P->Rebin(5); Data_P->Scale(1.0/Data_P->Integral());
+
+   Pred_P->Rebin(4);
+   Data_P->Rebin(4);
 
 
-
-
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(Ctrl_BckgP->Integral()>0)Ctrl_BckgP->Scale(1/Ctrl_BckgP->Integral());
-   if(Ctrl_SignP->Integral()>0)Ctrl_SignP->Scale(1/Ctrl_SignP->Integral());
-   Histos[0] = Ctrl_BckgP;                         legend.push_back("control sample");
-   Histos[1] = Ctrl_SignP;                         legend.push_back("signal like sample");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "P (Gev/c)", "arbitrary units", 0,1000, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   c1->SetLogy(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"Control_PSpectrum");
-   delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    if(CtrlPt_BckgIs->Integral()>0)CtrlPt_BckgIs->Scale(1/CtrlPt_BckgIs->Integral());
    if(CtrlPt_SignIs->Integral()>0)CtrlPt_SignIs->Scale(1/CtrlPt_SignIs->Integral());
-//   Histos[0] = CtrlPt_BckgIs;                     legend.push_back("7.5<p_{T}<20 GeV");
    Histos[0] = CtrlPt_BckgIs;                     legend.push_back("15<p_{T}<25 GeV");
    Histos[1] = CtrlPt_SignIs;                     legend.push_back("p_{T}>25 GeV");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "arbitrary units", 0,0, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"Control_IsSpectrum");
+   SaveCanvas(c1,SavePath,"ControlPt_IsSpectrum");
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    if(CtrlPt_BckgIm->Integral()>0)CtrlPt_BckgIm->Scale(1/CtrlPt_BckgIm->Integral());
    if(CtrlPt_SignIm->Integral()>0)CtrlPt_SignIm->Scale(1/CtrlPt_SignIm->Integral());
-//   Histos[0] = CtrlPt_BckgIm;                     legend.push_back("7.5<p_{T}<20 GeV");
    Histos[0] = CtrlPt_BckgIm;                     legend.push_back("15<p_{T}<25 GeV");
    Histos[1] = CtrlPt_SignIm;                     legend.push_back("p_{T}>25 GeV");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "arbitrary units", 0,10, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend, "arbitrary units", 0,15, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"Control_ImSpectrum");
+   SaveCanvas(c1,SavePath,"ControlPt_ImSpectrum");
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlP_BckgIs->Integral()>0)CtrlP_BckgIs->Scale(1/CtrlP_BckgIs->Integral());
-   if(CtrlP_SignIs->Integral()>0)CtrlP_SignIs->Scale(1/CtrlP_SignIs->Integral());
-//   Histos[0] = CtrlP_BckgIs;                      legend.push_back("7.5<p<20 GeV");
-   Histos[0] = CtrlP_BckgIs;                      legend.push_back("15<p<25 GeV");
-   Histos[1] = CtrlP_SignIs;                      legend.push_back("p>25 GeV");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "arbitrary units", 0,0, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
+   if(CtrlPt_BckgTOF->Integral()>0)CtrlPt_BckgTOF->Scale(1/CtrlPt_BckgTOF->Integral());
+   if(CtrlPt_SignTOF->Integral()>0)CtrlPt_SignTOF->Scale(1/CtrlPt_SignTOF->Integral());
+   Histos[0] = CtrlPt_BckgTOF;                    legend.push_back("15<p_{T}<25 GeV");
+   Histos[1] = CtrlPt_SignTOF;                    legend.push_back("p_{T}>25 GeV");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#beta_{DT}", "arbitrary units", 0,0, 0,0); 
+   DrawLegend(Histos,legend,LegendTitle,"P", 0.38, 0.92, 0.20, 0.05);
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"ControlP_IsSpectrum");
-   delete c1;
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlP_BckgIm->Integral()>0)CtrlP_BckgIm->Scale(1/CtrlP_BckgIm->Integral());
-   if(CtrlP_SignIm->Integral()>0)CtrlP_SignIm->Scale(1/CtrlP_SignIm->Integral());
-//   Histos[0] = CtrlP_BckgIm;                      legend.push_back("7.5<p<20 GeV");
-   Histos[0] = CtrlP_BckgIm;                      legend.push_back("15<p<25 GeV");
-   Histos[1] = CtrlP_SignIm;                      legend.push_back("p>25 GeV");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "arbitrary units", 0,10, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   c1->SetLogy(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"ControlP_ImSpectrum");
+   SaveCanvas(c1,SavePath,"ControlPt_TOFSpectrum");
    delete c1;
 
 
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = Pred_Correlation_A;                legend.push_back("Region A");
-   Histos[1] = Pred_Correlation_B;                legend.push_back("Region B");
-   Histos[2] = Pred_Correlation_C;                legend.push_back("Region C");
-   Histos[3] = Pred_Correlation_D;                legend.push_back("Region D");
-   DrawSuperposedHistos((TH1**)Histos, legend, "P",  "Interval Index", "Correlation Factor", 0,0, 0,0);
+   if(CtrlIs_BckgPt->Integral()>0)CtrlIs_BckgPt->Scale(1/CtrlIs_BckgPt->Integral());
+   if(CtrlIs_SignPt->Integral()>0)CtrlIs_SignPt->Scale(1/CtrlIs_SignPt->Integral());
+   Histos[0] = CtrlIs_BckgPt;                     legend.push_back("I_{as}<0.2");
+   Histos[1] = CtrlIs_SignPt;                     legend.push_back("I_{as}>0.2");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} GeV/c", "arbitrary units", 0,300, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
+   c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"Correlation");
+   SaveCanvas(c1,SavePath,"ControlIs_PtSpectrum");
    delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   if(CtrlIs_BckgTOF->Integral()>0)CtrlIs_BckgTOF->Scale(1/CtrlIs_BckgTOF->Integral());
+   if(CtrlIs_SignTOF->Integral()>0)CtrlIs_SignTOF->Scale(1/CtrlIs_SignTOF->Integral());
+   Histos[0] = CtrlIs_BckgTOF;                     legend.push_back("I_{as}<0.2");
+   Histos[1] = CtrlIs_SignTOF;                     legend.push_back("I_{as}>0.2");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#beta_{DT}", "arbitrary units", 0,0, 0,0);
+   DrawLegend(Histos,legend,LegendTitle,"P", 0.38, 0.92, 0.20, 0.05);
+   c1->SetLogy(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"ControlIs_TOFSpectrum");
+   delete c1;
+
+
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   if(CtrlTOF_BckgPt->Integral()>0)CtrlTOF_BckgPt->Scale(1/CtrlTOF_BckgPt->Integral());
+   if(CtrlTOF_SignPt->Integral()>0)CtrlTOF_SignPt->Scale(1/CtrlTOF_SignPt->Integral());
+   Histos[0] = CtrlTOF_SignPt;                    legend.push_back("#beta_{DT}>0.9");
+   Histos[1] = CtrlTOF_BckgPt;                    legend.push_back("#beta_{DT}<0.9");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} GeV/c", "arbitrary units", 0,300, 0,0);
+   DrawLegend(Histos,legend,LegendTitle,"P");
+   c1->SetLogy(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"ControlTOF_PtSpectrum");
+   delete c1;
+
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   if(CtrlTOF_BckgIs->Integral()>0)CtrlTOF_BckgIs->Scale(1/CtrlTOF_BckgIs->Integral());
+   if(CtrlTOF_SignIs->Integral()>0)CtrlTOF_SignIs->Scale(1/CtrlTOF_SignIs->Integral());
+   Histos[0] = CtrlTOF_SignIs;                    legend.push_back("#beta_{DT}>0.9");
+   Histos[1] = CtrlTOF_BckgIs;                    legend.push_back("#beta_{DT}<0.9");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0, 0,0);
+   DrawLegend(Histos,legend,LegendTitle,"P");
+   c1->SetLogy(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"ControlTOF_IsSpectrum");
+   delete c1;
+
+
+
+
+//   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+//   Histos[0] = Pred_Correlation_A;                legend.push_back("Region A");
+//   Histos[1] = Pred_Correlation_B;                legend.push_back("Region B");
+//   Histos[2] = Pred_Correlation_C;                legend.push_back("Region C");
+//   Histos[3] = Pred_Correlation_D;                legend.push_back("Region D");
+//   DrawSuperposedHistos((TH1**)Histos, legend, "P",  "Interval Index", "Correlation Factor", 0,0, 0,0);
+//   DrawLegend(Histos,legend,LegendTitle,"P");
+//   DrawPreliminary(IntegratedLuminosity);
+//   SaveCanvas(c1,SavePath,"Correlation");
+//   delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = Pred_Expected_Entries;             legend.push_back("Predicted");
@@ -1223,8 +1234,10 @@ void PredictionAndControlPlot(string InputPattern){
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    c1->SetLogy(true);
    if(Pred_P->Integral()>0)Pred_P->Scale(1/Pred_P->Integral());
-   Histos[0] = Pred_P;                            legend.push_back("");
-   DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  "p (Gev/c)", "u.a.", 0,1000, 0,0);
+   Histos[0] = Data_P;                            legend.push_back("Observed");
+   Histos[1] = Pred_P;                            legend.push_back("Predicted");
+//   Histos[0] = Pred_P;                            legend.push_back("Predicted");
+   DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  "p (Gev/c)", "u.a.", 0,1500, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Prediction_PSpectrum");
@@ -1233,8 +1246,9 @@ void PredictionAndControlPlot(string InputPattern){
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    c1->SetLogy(true);
    if(Pred_I->Integral()>0)Pred_I->Scale(1/Pred_I->Integral());
-   Histos[0] = Pred_I;                            legend.push_back("");
-   DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  dEdxLegend[dEdxMassIndex], "u.a.", 0,10, 0,0);
+   Histos[0] = Data_I;                            legend.push_back("Observed");
+   Histos[1] = Pred_I;                            legend.push_back("Predicted");
+   DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  dEdxM_Legend, "u.a.", 0,15, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Prediction_ISpectrum");
@@ -1246,45 +1260,69 @@ void Make2DPlot_Core(string InputPattern){
    TCanvas* c1;
    TLegend* leg;
  
-//   GetSignalDefinition(signals);
 
    string Input = InputPattern + "DumpHistos.root";
-//   string outpath = string("Results/PLOT/") + InputPattern;
    string outpath = InputPattern;
    MakeDirectories(outpath);
 
-   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
+   //bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
 
    TFile* InputFile = new TFile(Input.c_str());
-   //TH1D* Data_Mass    = (TH1D*)GetObjectFromPath(InputFile, "Mass_Data");
-   TH2D* Data_PIs     = (TH2D*)GetObjectFromPath(InputFile, "Data_AS_PIs");
-   TH2D* Data_PIm     = (TH2D*)GetObjectFromPath(InputFile, "Data_AS_PIm");
-   TH1D* Stop130_Mass = (TH1D*)GetObjectFromPath(InputFile, "Mass_Stop130");
+   TH1D* Stop130_Mass = (TH1D*)GetObjectFromPath(InputFile, "Stop130_Mass");
    TH2D* Stop130_PIs  = (TH2D*)GetObjectFromPath(InputFile, "Stop130_AS_PIs");
    TH2D* Stop130_PIm  = (TH2D*)GetObjectFromPath(InputFile, "Stop130_AS_PIm");
-   TH1D* Stop200_Mass = (TH1D*)GetObjectFromPath(InputFile, "Mass_Stop200");
+   TH2D* Stop130_TOFIs= (TH2D*)GetObjectFromPath(InputFile, "Stop130_AS_TOFIs");
+   TH2D* Stop130_TOFIm= (TH2D*)GetObjectFromPath(InputFile, "Stop130_AS_TOFIm");
+   TH1D* Stop200_Mass = (TH1D*)GetObjectFromPath(InputFile, "Stop200_Mass");
    TH2D* Stop200_PIs  = (TH2D*)GetObjectFromPath(InputFile, "Stop200_AS_PIs");
    TH2D* Stop200_PIm  = (TH2D*)GetObjectFromPath(InputFile, "Stop200_AS_PIm");
-   TH1D* Stop300_Mass = (TH1D*)GetObjectFromPath(InputFile, "Mass_Stop300");
+   TH2D* Stop200_TOFIs= (TH2D*)GetObjectFromPath(InputFile, "Stop200_AS_TOFIs");
+   TH2D* Stop200_TOFIm= (TH2D*)GetObjectFromPath(InputFile, "Stop200_AS_TOFIm");
+   TH1D* Stop300_Mass = (TH1D*)GetObjectFromPath(InputFile, "Stop300_Mass");
    TH2D* Stop300_PIs  = (TH2D*)GetObjectFromPath(InputFile, "Stop300_AS_PIs");
    TH2D* Stop300_PIm  = (TH2D*)GetObjectFromPath(InputFile, "Stop300_AS_PIm");
-   TH1D* Stop500_Mass = (TH1D*)GetObjectFromPath(InputFile, "Mass_Stop500");
+   TH2D* Stop300_TOFIs= (TH2D*)GetObjectFromPath(InputFile, "Stop300_AS_TOFIs");
+   TH2D* Stop300_TOFIm= (TH2D*)GetObjectFromPath(InputFile, "Stop300_AS_TOFIm");
+   TH1D* Stop500_Mass = (TH1D*)GetObjectFromPath(InputFile, "Stop500_Mass");
    TH2D* Stop500_PIs  = (TH2D*)GetObjectFromPath(InputFile, "Stop500_AS_PIs");
    TH2D* Stop500_PIm  = (TH2D*)GetObjectFromPath(InputFile, "Stop500_AS_PIm");
-   TH1D* Stop800_Mass = (TH1D*)GetObjectFromPath(InputFile, "Mass_Stop800");
+   TH2D* Stop500_TOFIs= (TH2D*)GetObjectFromPath(InputFile, "Stop500_AS_TOFIs");
+   TH2D* Stop500_TOFIm= (TH2D*)GetObjectFromPath(InputFile, "Stop500_AS_TOFIm");
+   TH1D* Stop800_Mass = (TH1D*)GetObjectFromPath(InputFile, "Stop800_Mass");
    TH2D* Stop800_PIs  = (TH2D*)GetObjectFromPath(InputFile, "Stop800_AS_PIs");
    TH2D* Stop800_PIm  = (TH2D*)GetObjectFromPath(InputFile, "Stop800_AS_PIm");
+   TH2D* Stop800_TOFIs= (TH2D*)GetObjectFromPath(InputFile, "Stop800_AS_TOFIs");
+   TH2D* Stop800_TOFIm= (TH2D*)GetObjectFromPath(InputFile, "Stop800_AS_TOFIm");
+   TH2D* Data_PIs     = (TH2D*)GetObjectFromPath(InputFile, "Data_AS_PIs");
+   TH2D* Data_PIm     = (TH2D*)GetObjectFromPath(InputFile, "Data_AS_PIm");
+   TH2D* Data_TOFIs   = (TH2D*)GetObjectFromPath(InputFile, "Data_AS_TOFIs");
+   TH2D* Data_TOFIm   = (TH2D*)GetObjectFromPath(InputFile, "Data_AS_TOFIm");
+   TH2D* Data_PIm_075  = (TH2D*)Data_PIm->Clone();   Data_PIm_075->Reset(); 
+   TH2D* Data_PIm_150  = (TH2D*)Data_PIm->Clone();   Data_PIm_150->Reset();
+   TH2D* Data_PIm_300  = (TH2D*)Data_PIm->Clone();   Data_PIm_300->Reset();
+   TH2D* Data_PIm_450  = (TH2D*)Data_PIm->Clone();   Data_PIm_450->Reset();
+   TH2D* Data_PIm_All  = (TH2D*)Data_PIm->Clone();   Data_PIm_All->Reset();
+
+   for(unsigned int i=0;i<(unsigned int)Data_PIm->GetNbinsX();i++){
+   for(unsigned int j=0;j<(unsigned int)Data_PIm->GetNbinsY();j++){
+      if(Data_PIm->GetBinContent(i,j)<=0)continue;
+      double M = GetMass(Data_PIm->GetXaxis ()->GetBinCenter(i), Data_PIm->GetYaxis ()->GetBinCenter(j));
+      if(isnan(M))continue;
+      if     (M<100){ Data_PIm_075->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
+      else if(M<200){ Data_PIm_150->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
+      else if(M<300){ Data_PIm_300->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
+      else if(M<395){ Data_PIm_450->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
+      else          { Data_PIm_All->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
+   }}
 
 
-//   Data_Mass    = (TH1D*) Data_Mass->Rebin(4);
-   Stop130_Mass = (TH1D*) Stop130_Mass->Rebin(4);
-   Stop200_Mass = (TH1D*) Stop200_Mass->Rebin(4);
-   Stop300_Mass = (TH1D*) Stop300_Mass->Rebin(4);
-   Stop500_Mass = (TH1D*) Stop500_Mass->Rebin(4);
-   Stop800_Mass = (TH1D*) Stop800_Mass->Rebin(4);
+   Stop130_Mass = (TH1D*) Stop130_Mass->Rebin(10);
+   Stop200_Mass = (TH1D*) Stop200_Mass->Rebin(10);
+   Stop300_Mass = (TH1D*) Stop300_Mass->Rebin(10);
+   Stop500_Mass = (TH1D*) Stop500_Mass->Rebin(10);
+   Stop800_Mass = (TH1D*) Stop800_Mass->Rebin(10);
 
-
-   double Min = 1E-6;
+   double Min = 1E-5;
    double Max = 1E2;
 
    char YAxisLegend[1024];
@@ -1292,8 +1330,6 @@ void Make2DPlot_Core(string InputPattern){
 
 
    c1 = new TCanvas("c1","c1", 600, 600);
-//   c1->SetGridx(true);
-//   c1->SetGridy(true);
    Stop130_Mass->SetAxisRange(0,1250,"X");
    Stop130_Mass->SetAxisRange(Min,Max,"Y");
    Stop130_Mass->SetTitle("");
@@ -1304,71 +1340,66 @@ void Make2DPlot_Core(string InputPattern){
    Stop130_Mass->SetLineColor(Color[0]);
    Stop130_Mass->SetMarkerColor(Color[0]);
    Stop130_Mass->SetMarkerStyle(Marker[0]);
-//   Stop130_Mass->SetMarkerSize(0.3);
-   Stop130_Mass->Draw("E1");
-   Stop200_Mass->Draw("E1 same");
+   Stop130_Mass->Draw("HIST E1");
+   Stop200_Mass->Draw("HIST E1 same");
    Stop200_Mass->SetLineWidth(2);
    Stop200_Mass->SetLineColor(Color[1]);
    Stop200_Mass->SetMarkerColor(Color[1]);
    Stop200_Mass->SetMarkerStyle(Marker[1]);
-//   Stop200_Mass->SetMarkerSize(0.3);
-   Stop300_Mass->Draw("E1 same");
+   Stop300_Mass->Draw("HIST E1 same");
    Stop300_Mass->SetLineWidth(2);
    Stop300_Mass->SetLineColor(Color[2]);
    Stop300_Mass->SetMarkerColor(Color[2]);
    Stop300_Mass->SetMarkerStyle(Marker[2]);
-//   Stop300_Mass->SetMarkerSize(0.3);
-   Stop500_Mass->Draw("E1 same");
+   Stop500_Mass->Draw("HIST E1 same");
    Stop500_Mass->SetLineWidth(2);
    Stop500_Mass->SetLineColor(Color[3]);
    Stop500_Mass->SetMarkerColor(Color[3]);
    Stop500_Mass->SetMarkerStyle(Marker[3]);
-//   Stop500_Mass->SetMarkerSize(0.3);
-   Stop800_Mass->Draw("E1 same");
+   Stop800_Mass->Draw("HIST E1 same");
    Stop800_Mass->SetLineWidth(2);
    Stop800_Mass->SetLineColor(Color[4]);
    Stop800_Mass->SetMarkerColor(Color[4]);
    Stop800_Mass->SetMarkerStyle(Marker[4]);
-//   Stop800_Mass->SetMarkerSize(0.3);
    c1->SetLogy(true);
 
+   TLine* line130 = new TLine(130, Min, 130, Max);
+   line130->SetLineWidth(2);
+   line130->SetLineColor(Color[0]);
+   line130->SetLineStyle(2);
+   line130->Draw("same");
 
-   TLine* lineStop130 = new TLine(130, Min, 130, Max);
-   lineStop130->SetLineWidth(2);
-   lineStop130->SetLineColor(Color[0]);
-   lineStop130->SetLineStyle(2);
-   lineStop130->Draw("same");
+   TLine* line200 = new TLine(200, Min, 200, Max);
+   line200->SetLineWidth(2);
+   line200->SetLineColor(Color[1]);
+   line200->SetLineStyle(2);
+   line200->Draw("same");
 
-   TLine* lineStop200 = new TLine(200, Min, 200, Max);
-   lineStop200->SetLineWidth(2);
-   lineStop200->SetLineColor(Color[1]);
-   lineStop200->SetLineStyle(2);
-   lineStop200->Draw("same");
+   TLine* line300 = new TLine(300, Min, 300, Max);
+   line300->SetLineWidth(2);
+   line300->SetLineColor(Color[2]);
+   line300->SetLineStyle(2);
+   line300->Draw("same");
 
-   TLine* lineStop300 = new TLine(300, Min, 300, Max);
-   lineStop300->SetLineWidth(2);
-   lineStop300->SetLineColor(Color[2]);
-   lineStop300->SetLineStyle(2);
-   lineStop300->Draw("same");
+   TLine* line500 = new TLine(500, Min, 500, Max);
+   line500->SetLineWidth(2);
+   line500->SetLineColor(Color[3]);
+   line500->SetLineStyle(2);
+   line500->Draw("same");
 
-   TLine* lineStop500 = new TLine(500, Min, 500, Max);
-   lineStop500->SetLineWidth(2);
-   lineStop500->SetLineColor(Color[3]);
-   lineStop500->SetLineStyle(2);
-   lineStop500->Draw("same");
-
-   TLine* lineStop800 = new TLine(800, Min, 800, Max);
-   lineStop800->SetLineWidth(2);
-   lineStop800->SetLineColor(Color[4]);
-   lineStop800->SetLineStyle(2);
-   lineStop800->Draw("same");
+   TLine* line800 = new TLine(800, Min, 800, Max);
+   line800->SetLineWidth(2);
+   line800->SetLineColor(Color[4]);
+   line800->SetLineStyle(2);
+   line800->Draw("same");
 
    leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
-   if(IsTrackerOnly){ 
-      leg->SetHeader("Tracker - Only");
-   }else{
-      leg->SetHeader("Tracker + Muon");
-   }
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   if(IsTrackerOnly){ 
+//      leg->SetHeader("Tracker - Only");
+//   }else{
+//      leg->SetHeader("Tracker + Muon");
+//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Stop130_Mass, "Stop130"   ,"P");
@@ -1381,31 +1412,28 @@ void Make2DPlot_Core(string InputPattern){
    SaveCanvas(c1, outpath, "Stop_Mass");
    delete c1;
 
+
    c1 = new TCanvas("c1","c1", 600, 600);
    c1->SetLogz(true);
-//   c1->SetGridx(true);
-//   c1->SetGridy(true);
    Data_PIs->SetTitle("");
    Data_PIs->SetStats(kFALSE);
    Data_PIs->GetXaxis()->SetTitle("p (GeV/c)");
-   Data_PIs->GetYaxis()->SetTitle(DiscrLeg);
+   Data_PIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
    Data_PIs->SetAxisRange(0,1250,"X");
    Data_PIs->SetMarkerSize (0.2);
    Data_PIs->SetMarkerColor(Color[4]);
    Data_PIs->SetFillColor(Color[4]);
    Data_PIs->Draw("COLZ");
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1, outpath, "Data_PIs");
+   SaveCanvas(c1, outpath, "Data_PIs", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
    c1->SetLogz(true);
-//   c1->SetGridx(true);
-//   c1->SetGridy(true);
    Data_PIm->SetTitle("");
    Data_PIm->SetStats(kFALSE);
    Data_PIm->GetXaxis()->SetTitle("p (GeV/c)");
-   Data_PIm->GetYaxis()->SetTitle(EstimLeg);
+   Data_PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
    Data_PIm->SetAxisRange(0,1250,"X");
    Data_PIm->SetAxisRange(0,15,"Y");
    Data_PIm->SetMarkerSize (0.2);
@@ -1413,18 +1441,60 @@ void Make2DPlot_Core(string InputPattern){
    Data_PIm->SetFillColor(Color[4]);
    Data_PIm->Draw("COLZ");
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1, outpath, "Data_PIm");
+   SaveCanvas(c1, outpath, "Data_PIm", true);
    delete c1;
 
 
+   c1 = new TCanvas("c1","c1", 600, 600);
+   c1->SetLogz(true);
+   Data_TOFIs->SetTitle("");
+   Data_TOFIs->SetStats(kFALSE);
+   Data_TOFIs->GetXaxis()->SetTitle("#beta_{TOF}");
+   Data_TOFIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
+   Data_TOFIs->SetAxisRange(0,1250,"X");
+   Data_TOFIs->SetMarkerSize (0.2);
+   Data_TOFIs->SetMarkerColor(Color[4]);
+   Data_TOFIs->SetFillColor(Color[4]);
+   Data_TOFIs->Draw("COLZ");
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1, outpath, "Data_TOFIs", true);
+
+   double BinCutTOF  = Data_TOFIs->GetXaxis()->FindBin(0.8);
+   double BinCutIs   = Data_TOFIs->GetYaxis()->FindBin(0.2);
+   double BinLastTOF = Data_TOFIs->GetXaxis()->GetNbins();
+   double BinLastIs  = Data_TOFIs->GetYaxis()->GetNbins();
+
+   double NA = Data_TOFIs->Integral(BinCutTOF,BinLastTOF,0,BinCutIs);
+   double NB = Data_TOFIs->Integral(0, BinCutTOF,0,BinCutIs);
+   double NC = Data_TOFIs->Integral(BinCutTOF,BinLastTOF,BinCutIs,BinLastIs);
+   double ND = Data_TOFIs->Integral(0,BinCutTOF,BinCutIs,BinLastIs);
+   double NDPred = NB*NC/NA;
+   double NDPredErr = (sqrt(NB)*NC/NA) + (sqrt(NC)*NB/NA) + (sqrt(NA)*NB*NC/(NA*NA));
+   printf("NA = %f+-%f NB = %f+-%f NC = %f+-%f ND=%f+-%f  <--> NDpred=%f+-%f\n",NA,sqrt(NA),NB,sqrt(NB),NC,sqrt(NC),ND,sqrt(ND), NDPred,NDPredErr);
+
+
+   delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
-//   c1->SetGridx(true);
-//   c1->SetGridy(true);
+   c1->SetLogz(true);
+   Data_TOFIm->SetTitle("");
+   Data_TOFIm->SetStats(kFALSE);
+   Data_TOFIm->GetXaxis()->SetTitle("#beta_{TOF}");
+   Data_TOFIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
+   Data_TOFIm->SetAxisRange(0,15,"Y");
+   Data_TOFIm->SetMarkerSize (0.2);
+   Data_TOFIm->SetMarkerColor(Color[4]);
+   Data_TOFIm->SetFillColor(Color[4]);
+   Data_TOFIm->Draw("COLZ");
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1, outpath, "Data_TOFIm", true);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1", 600, 600);
    Stop800_PIs->SetTitle("");
    Stop800_PIs->SetStats(kFALSE);
    Stop800_PIs->GetXaxis()->SetTitle("p (GeV/c)");
-   Stop800_PIs->GetYaxis()->SetTitle(DiscrLeg);
+   Stop800_PIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
    Stop800_PIs->SetAxisRange(0,1250,"X");
    Stop800_PIs->Scale(1/Stop800_PIs->Integral());
    Stop800_PIs->SetMarkerSize (0.2);
@@ -1453,11 +1523,12 @@ void Make2DPlot_Core(string InputPattern){
    Stop130_PIs->Draw("same");
 
    leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
-   if(IsTrackerOnly){ 
-      leg->SetHeader("Tracker - Only");
-   }else{
-      leg->SetHeader("Tracker + Muon");
-   }
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   if(IsTrackerOnly){ 
+//      leg->SetHeader("Tracker - Only");
+// /  }else{
+//      leg->SetHeader("Tracker + Muon");
+//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Stop130_PIs, "Stop130"   ,"F");
@@ -1467,18 +1538,14 @@ void Make2DPlot_Core(string InputPattern){
    leg->AddEntry(Stop800_PIs, "Stop800"   ,"F");
    leg->Draw();
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1, outpath, "Stop_PIs");
+   SaveCanvas(c1, outpath, "Stop_PIs", true);
    delete c1;
 
-
-
    c1 = new TCanvas("c1","c1", 600, 600);
-//   c1->SetGridx(true);
-//   c1->SetGridy(true);
    Stop800_PIm->SetTitle("");
    Stop800_PIm->SetStats(kFALSE);
    Stop800_PIm->GetXaxis()->SetTitle("p (GeV/c)");
-   Stop800_PIm->GetYaxis()->SetTitle(EstimLeg);
+   Stop800_PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
    Stop800_PIm->SetAxisRange(0,1250,"X");
    Stop800_PIm->SetAxisRange(0,15,"Y");
    Stop800_PIm->Scale(1/Stop800_PIm->Integral());
@@ -1507,33 +1574,34 @@ void Make2DPlot_Core(string InputPattern){
    Stop130_PIm->SetFillColor(Color[0]);
    Stop130_PIm->Draw("same");
 
-   TF1* Stop800Line = GetMassLine(800, true);
-   Stop800Line->SetLineColor(kMagenta-7);
-   Stop800Line->SetLineWidth(2);
-   Stop800Line->Draw("same");
-   TF1* Stop500Line = GetMassLine(500, true);
-   Stop500Line->SetLineColor(kGreen-7);
-   Stop500Line->SetLineWidth(2);
-   Stop500Line->Draw("same");
-   TF1* Stop300Line = GetMassLine(300, true);
-   Stop300Line->SetLineColor(kGray+3);
-   Stop300Line->SetLineWidth(2);
-   Stop300Line->Draw("same");
-   TF1* Stop200Line = GetMassLine(200, true);
-   Stop200Line->SetLineColor(kBlue-7);
-   Stop200Line->SetLineWidth(2);
-   Stop200Line->Draw("same");
-   TF1* Stop130Line = GetMassLine(130, true);
-   Stop130Line->SetLineColor(kRed-7);
-   Stop130Line->SetLineWidth(2);
-   Stop130Line->Draw("same");
+   TF1* MassLine800 = GetMassLine(800, true);
+   MassLine800->SetLineColor(kMagenta-7);
+   MassLine800->SetLineWidth(2);
+   MassLine800->Draw("same");
+   TF1* MassLine500 = GetMassLine(500, true);
+   MassLine500->SetLineColor(kGreen-7);
+   MassLine500->SetLineWidth(2);
+   MassLine500->Draw("same");
+   TF1* MassLine300 = GetMassLine(300, true);
+   MassLine300->SetLineColor(kGray+3);
+   MassLine300->SetLineWidth(2);
+   MassLine300->Draw("same");
+   TF1* MassLine200 = GetMassLine(200, true);
+   MassLine200->SetLineColor(kBlue-7);
+   MassLine200->SetLineWidth(2);
+   MassLine200->Draw("same");
+   TF1* MassLine130 = GetMassLine(130, true);
+   MassLine130->SetLineColor(kRed-7);
+   MassLine130->SetLineWidth(2);
+   MassLine130->Draw("same");
 
    leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
-   if(IsTrackerOnly){ 
-      leg->SetHeader("Tracker - Only");
-   }else{
-      leg->SetHeader("Tracker + Muon");
-   }
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   if(IsTrackerOnly){ 
+//      leg->SetHeader("Tracker - Only");
+//   }else{
+//      leg->SetHeader("Tracker + Muon");
+//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Stop130_PIm, "Stop130"   ,"F");
@@ -1543,49 +1611,121 @@ void Make2DPlot_Core(string InputPattern){
    leg->AddEntry(Stop800_PIm, "Stop800"   ,"F");
    leg->Draw();
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1, outpath, "Stop_PIm");
+   SaveCanvas(c1, outpath, "Stop_PIm", true);
    delete c1;
-}
 
 
-void dEdxVsP_Plot_Core(string InputPattern){
-   TCanvas* c1;
-   TLegend* leg;
- 
-//   GetSignalDefinition(signals);
 
-   string Input = InputPattern + "DumpHistos.root";
-   string outpath = InputPattern;
-   MakeDirectories(outpath);
 
-   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
+   c1 = new TCanvas("c1","c1", 600, 600);
+   Stop800_TOFIs->SetTitle("");
+   Stop800_TOFIs->SetStats(kFALSE);
+   Stop800_TOFIs->GetXaxis()->SetTitle("beta_{TOF}");
+   Stop800_TOFIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
+   Stop800_TOFIs->SetAxisRange(0,1250,"X");
+   Stop800_TOFIs->Scale(1/Stop800_TOFIs->Integral());
+   Stop800_TOFIs->SetMarkerSize (0.2);
+   Stop800_TOFIs->SetMarkerColor(Color[4]);
+   Stop800_TOFIs->SetFillColor(Color[4]);
+   Stop800_TOFIs->Draw("");
+   Stop500_TOFIs->Scale(1/Stop500_TOFIs->Integral());
+   Stop500_TOFIs->SetMarkerSize (0.2);
+   Stop500_TOFIs->SetMarkerColor(Color[3]);
+   Stop500_TOFIs->SetFillColor(Color[3]);
+   Stop500_TOFIs->Draw("same");
+   Stop300_TOFIs->Scale(1/Stop300_TOFIs->Integral());
+   Stop300_TOFIs->SetMarkerSize (0.2);
+   Stop300_TOFIs->SetMarkerColor(Color[2]);
+   Stop300_TOFIs->SetFillColor(Color[2]);
+   Stop300_TOFIs->Draw("same");
+   Stop200_TOFIs->Scale(1/Stop200_TOFIs->Integral());
+   Stop200_TOFIs->SetMarkerSize (0.2);
+   Stop200_TOFIs->SetMarkerColor(Color[1]);
+   Stop200_TOFIs->SetFillColor(Color[1]);
+   Stop200_TOFIs->Draw("same");
+   Stop130_TOFIs->Scale(1/Stop130_TOFIs->Integral());
+   Stop130_TOFIs->SetMarkerSize (0.2);
+   Stop130_TOFIs->SetMarkerColor(Color[0]);
+   Stop130_TOFIs->SetFillColor(Color[0]);
+   Stop130_TOFIs->Draw("same");
 
-   TFile* InputFile    = new TFile(Input.c_str());
-   TH2D* Data_PIm      = (TH2D*)GetObjectFromPath(InputFile, "Data_AS_PIm");
-   TH2D* Data_PIm_075  = (TH2D*)Data_PIm->Clone();   Data_PIm_075->Reset(); 
-   TH2D* Data_PIm_150  = (TH2D*)Data_PIm->Clone();   Data_PIm_150->Reset();
-   TH2D* Data_PIm_300  = (TH2D*)Data_PIm->Clone();   Data_PIm_300->Reset();
-   TH2D* Data_PIm_450  = (TH2D*)Data_PIm->Clone();   Data_PIm_450->Reset();
-   TH2D* Data_PIm_All  = (TH2D*)Data_PIm->Clone();   Data_PIm_All->Reset();
+   leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   if(IsTrackerOnly){ 
+//      leg->SetHeader("Tracker - Only");
+//   }else{
+//      leg->SetHeader("Tracker + Muon");
+//   }
+   leg->SetFillColor(0);
+   leg->SetBorderSize(0);
+   leg->AddEntry(Stop130_TOFIs, "Stop130"   ,"F");
+   leg->AddEntry(Stop200_TOFIs, "Stop200"   ,"F");
+   leg->AddEntry(Stop300_TOFIs, "Stop300"   ,"F");
+   leg->AddEntry(Stop500_TOFIs, "Stop500"   ,"F");
+   leg->AddEntry(Stop800_TOFIs, "Stop800"   ,"F");
+   leg->Draw();
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1, outpath, "Stop_TOFIs", true);
+   delete c1;
 
-   for(unsigned int i=0;i<(unsigned int)Data_PIm->GetNbinsX();i++){
-   for(unsigned int j=0;j<(unsigned int)Data_PIm->GetNbinsY();j++){
-      if(Data_PIm->GetBinContent(i,j)<=0)continue;
-      double M = GetMass(Data_PIm->GetXaxis ()->GetBinCenter(i), Data_PIm->GetYaxis ()->GetBinCenter(j));
-      if(isnan(M))continue;
-      if     (M<100){ Data_PIm_075->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
-      else if(M<200){ Data_PIm_150->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
-      else if(M<300){ Data_PIm_300->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
-      else if(M<395){ Data_PIm_450->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
-      else          { Data_PIm_All->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
-   }}
+   c1 = new TCanvas("c1","c1", 600, 600);
+   Stop800_TOFIm->SetTitle("");
+   Stop800_TOFIm->SetStats(kFALSE);
+   Stop800_TOFIm->GetXaxis()->SetTitle("#beta_{TOF}");
+   Stop800_TOFIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
+   Stop800_TOFIm->SetAxisRange(0,1250,"X");
+   Stop800_TOFIm->SetAxisRange(0,15,"Y");
+   Stop800_TOFIm->Scale(1/Stop800_TOFIm->Integral());
+   Stop800_TOFIm->SetMarkerSize (0.2);
+   Stop800_TOFIm->SetMarkerColor(Color[4]);
+   Stop800_TOFIm->SetFillColor(Color[4]);
+   Stop800_TOFIm->Draw("");
+   Stop500_TOFIm->Scale(1/Stop500_TOFIm->Integral());
+   Stop500_TOFIm->SetMarkerSize (0.2);
+   Stop500_TOFIm->SetMarkerColor(Color[3]);
+   Stop500_TOFIm->SetFillColor(Color[3]);
+   Stop500_TOFIm->Draw("same");
+   Stop300_TOFIm->Scale(1/Stop300_TOFIm->Integral());
+   Stop300_TOFIm->SetMarkerSize (0.2);
+   Stop300_TOFIm->SetMarkerColor(Color[2]);
+   Stop300_TOFIm->SetFillColor(Color[2]);
+   Stop300_TOFIm->Draw("same");
+   Stop200_TOFIm->Scale(1/Stop200_TOFIm->Integral());
+   Stop200_TOFIm->SetMarkerSize (0.2);
+   Stop200_TOFIm->SetMarkerColor(Color[1]);
+   Stop200_TOFIm->SetFillColor(Color[1]);
+   Stop200_TOFIm->Draw("same");
+   Stop130_TOFIm->Scale(1/Stop130_TOFIm->Integral());
+   Stop130_TOFIm->SetMarkerSize (0.2);
+   Stop130_TOFIm->SetMarkerColor(Color[0]);
+   Stop130_TOFIm->SetFillColor(Color[0]);
+   Stop130_TOFIm->Draw("same");
+
+   leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   if(IsTrackerOnly){ 
+//      leg->SetHeader("Tracker - Only");
+//   }else{
+//      leg->SetHeader("Tracker + Muon");
+//   }
+   leg->SetFillColor(0);
+   leg->SetBorderSize(0);
+   leg->AddEntry(Stop130_TOFIm, "Stop130"   ,"F");
+   leg->AddEntry(Stop200_TOFIm, "Stop200"   ,"F");
+   leg->AddEntry(Stop300_TOFIm, "Stop300"   ,"F");
+   leg->AddEntry(Stop500_TOFIm, "Stop500"   ,"F");
+   leg->AddEntry(Stop800_TOFIm, "Stop800"   ,"F");
+   leg->Draw();
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1, outpath, "Stop_TOFIm", true);
+   delete c1;
 
 
    c1 = new TCanvas("c1","c1", 600, 600);
    Data_PIm_075->SetTitle("");
    Data_PIm_075->SetStats(kFALSE);
    Data_PIm_075->GetXaxis()->SetTitle("p (GeV/c)");
-   Data_PIm_075->GetYaxis()->SetTitle(EstimLeg);
+   Data_PIm_075->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
    Data_PIm_075->SetAxisRange(0,15,"Y");
    Data_PIm_075->SetAxisRange(0,1250,"X");
    Data_PIm_075->SetMarkerSize (0.6);
@@ -1610,37 +1750,16 @@ void dEdxVsP_Plot_Core(string InputPattern){
    Data_PIm_450->Draw("same");
    Data_PIm_All->SetMarkerSize (1.4);
    Data_PIm_All->SetMarkerColor(Color[0]);
-//   Data_PIm_All->SetMarkerStyle(Marker[0]);
    Data_PIm_All->SetFillColor(Color[0]);
    Data_PIm_All->Draw("same");
-/*
-   TF1* Stop800Line = GetMassLine(800, true);
-   Stop800Line->SetLineColor(kMagenta-7);
-   Stop800Line->SetLineWidth(2);
-   Stop800Line->Draw("same");
-   TF1* Stop500Line = GetMassLine(500, true);
-   Stop500Line->SetLineColor(kGreen-7);
-   Stop500Line->SetLineWidth(2);
-   Stop500Line->Draw("same");
-   TF1* Stop300Line = GetMassLine(300, true);
-   Stop300Line->SetLineColor(kGray+3);
-   Stop300Line->SetLineWidth(2);
-   Stop300Line->Draw("same");
-   TF1* Stop200Line = GetMassLine(200, true);
-   Stop200Line->SetLineColor(kBlue-7);
-   Stop200Line->SetLineWidth(2);
-   Stop200Line->Draw("same");
-   TF1* Stop130Line = GetMassLine(130, true);
-   Stop130Line->SetLineColor(kRed-7);
-   Stop130Line->SetLineWidth(2);
-   Stop130Line->Draw("same");
-*/
+
    leg = new TLegend(0.80,0.93,0.80 - 0.30,0.93 - 6*0.03);
-   if(IsTrackerOnly){ 
-      leg->SetHeader("Tracker - Only");
-   }else{
-      leg->SetHeader("Tracker + Muon");
-   }
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   if(IsTrackerOnly){ 
+//      leg->SetHeader("Tracker - Only");
+//   }else{
+//      leg->SetHeader("Tracker + Muon");
+//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Data_PIm_075, "M < 100 GeV","P");
@@ -1650,7 +1769,7 @@ void dEdxVsP_Plot_Core(string InputPattern){
    leg->AddEntry(Data_PIm_All, "400 < M GeV"      ,"P");
    leg->Draw();
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1, outpath, "Data_PIm_Colored");
+   SaveCanvas(c1, outpath, "Data_PIm_Colored", true);
    delete c1;
 }
 
@@ -1661,13 +1780,13 @@ void MakeCompPlot(string DirName, string InputPattern1, string InputPattern2){
    string outpath = string("Results/PLOT/") + DirName;
    MakeDirectories(outpath);
 
-   bool IsTrackerOnly = (InputPattern1.find("Type0",0)<string::npos);
-   string LegendTitle;
-   if(IsTrackerOnly){
-      LegendTitle = "Tracker - Only";
-   }else{
-      LegendTitle = "Tracker + Muon";
-   }
+   //bool IsTrackerOnly = (InputPattern1.find("Type0",0)<string::npos);
+   string LegendTitle = LegendFromType(InputPattern1);
+//   if(IsTrackerOnly){
+//      LegendTitle = "Tracker - Only";
+//   }else{
+//      LegendTitle = "Tracker + Muon";
+//   }
 
 
    TH1D* Histo1;
@@ -1695,7 +1814,7 @@ void MakeCompPlot(string DirName, string InputPattern1, string InputPattern2){
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)Histo1;                      legend.push_back("With ClusterCleaning");
    Histos[1] = (TH1*)Histo2;                      legend.push_back("Without Cluster Cleaning");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  DiscrLeg, "#tracks / 0.05", 0,0, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  dEdxS_Legend, "#tracks / 0.05", 0,0, 0,0);
    Histo2->SetLineStyle(2);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"LP",0.79, 0.90, 0.45, 0.07);
    c1->SetLogy(true);
@@ -1734,7 +1853,7 @@ void MakeCompPlot(string DirName, string InputPattern1, string InputPattern2){
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)Histo1;                      legend.push_back("With ClusterCleaning");
    Histos[1] = (TH1*)Histo2;                      legend.push_back("Without Cluster Cleaning");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  DiscrLeg, "#tracks / 0.05", 0,0, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  dEdxS_Legend, "#tracks / 0.05", 0,0, 0,0);
    Histo2->SetLineStyle(2);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"LP",0.79, 0.90, 0.45, 0.07);
    c1->SetLogy(true);
@@ -1773,7 +1892,7 @@ void MakeCompPlot(string DirName, string InputPattern1, string InputPattern2){
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)Histo1;                      legend.push_back("With ClusterCleaning");
    Histos[1] = (TH1*)Histo2;                      legend.push_back("Without Cluster Cleaning");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  DiscrLeg, "#tracks / 0.05", 0,0, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  dEdxS_Legend, "#tracks / 0.05", 0,0, 0,0);
    Histo2->SetLineStyle(2);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"LP",0.79, 0.90, 0.45, 0.07);
    c1->SetLogy(true);
@@ -1807,7 +1926,7 @@ void MakeCompPlot(string DirName, string InputPattern1, string InputPattern2){
    Histos[0] = (TH1*)Histo1;                      legend.push_back("With ClusterCleaning");
    Histos[1] = (TH1*)Histo2;                      legend.push_back("Without Cluster Cleaning");
    Histos[0]->SetMaximum(Histos[0]->GetMaximum()*4);
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  DiscrLeg, "#tracks / 0.05", 0,0, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  dEdxS_Legend, "#tracks / 0.05", 0,0, 0,0);
    Histo2->SetLineStyle(2);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"LP",0.79, 0.90, 0.45, 0.07);
    c1->SetLogy(true);
@@ -1840,7 +1959,7 @@ void MakeCompPlot(string DirName, string InputPattern1, string InputPattern2){
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)Histo1;                      legend.push_back("With ClusterCleaning");
    Histos[1] = (TH1*)Histo2;                      legend.push_back("Without Cluster Cleaning");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  EstimLeg, "#tracks", 0,25, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  dEdxM_Legend, "#tracks", 0,25, 0,0);
    Histo2->SetLineStyle(2);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"LP",0.79, 0.90, 0.45, 0.07);
    c1->SetLogy(true);
@@ -1870,7 +1989,7 @@ void MakeCompPlot(string DirName, string InputPattern1, string InputPattern2){
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)Histo1;                      legend.push_back("With ClusterCleaning");
    Histos[1] = (TH1*)Histo2;                      legend.push_back("Without Cluster Cleaning");
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  EstimLeg, "#tracks", 0,25, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  dEdxM_Legend, "#tracks", 0,25, 0,0);
    Histo2->SetLineStyle(2);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"LP",0.79, 0.90, 0.45, 0.07);
    c1->SetLogy(true);
@@ -1901,7 +2020,7 @@ void MakeCompPlot(string DirName, string InputPattern1, string InputPattern2){
    Histos[0] = (TH1*)Histo1;                      legend.push_back("With ClusterCleaning");
    Histos[1] = (TH1*)Histo2;                      legend.push_back("Without Cluster Cleaning");
    Histo1->SetMaximum(Histo1->GetMaximum()*1.1);
-   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  EstimLeg, "#tracks", 0,25, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  dEdxM_Legend, "#tracks", 0,25, 0,0);
    Histo2->SetLineStyle(2);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"LP",0.79, 0.90, 0.45, 0.07);
    c1->SetLogy(true);
@@ -1924,19 +2043,20 @@ void MakeCompPlot(string DirName, string InputPattern1, string InputPattern2){
 void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
 {
    double Rescale, RMS;
-   GetPredictionRescale(InputPattern,Rescale, RMS, RecomputeRescale);
+//   GetPredictionRescale(InputPattern,Rescale, RMS, RecomputeRescale);
+//   RMS = fabs(1.0-Rescale)/2.0;
+   Rescale = 1.0;
+   RMS     = 0.0;
 
-   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
 
-//   string outpath = string("Results/PLOT/") + DirName;
+   //bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
+
    string outpath = InputPattern;
    MakeDirectories(outpath);
 
-//   TH1D* Histo1;
    TFile* InputFile1;
    string Input;
 
-//   TH1** Histos = new TH1*[10];
    std::vector<string> legend;
    TCanvas* c1;
 
@@ -1944,129 +2064,120 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
    sprintf(Buffer,"%s/DumpHistos.root",InputPattern.c_str());
    InputFile1 = new TFile(Buffer);
    if(!InputFile1 || InputFile1->IsZombie() || !InputFile1->IsOpen() || InputFile1->TestBit(TFile::kRecovered) )return;
-   TH1D* Pred1 = (TH1D*)((TH1D*)GetObjectFromPath(InputFile1, "Mass_Pred"))->Clone("Pred1");
-   TH1D* Data1 = (TH1D*)((TH1D*)GetObjectFromPath(InputFile1, "Mass_Data"))->Clone("Data1");
-   TH1D* MCTr1 = (TH1D*)((TH1D*)GetObjectFromPath(InputFile1, "Mass_MCTr"))->Clone("MCTr1");
+   TH1D* Pred1 = (TH1D*)((TH1D*)GetObjectFromPath(InputFile1, "Pred_Mass"))->Clone("Pred1");
+   TH1D* Pred2 = (TH1D*)((TH1D*)GetObjectFromPath(InputFile1, "Pred_Mass2"))->Clone("Pred2");
+   TH1D* Data1 = (TH1D*)((TH1D*)GetObjectFromPath(InputFile1, "Data_Mass" ))->Clone("Data1");
+   TH1D* MCTr1 = (TH1D*)((TH1D*)GetObjectFromPath(InputFile1, "MCTr_Mass" ))->Clone("MCTr1");
    MCTr1->Scale(Data1->Integral()/MCTr1->Integral());
    TH1D* Resc1 = (TH1D*)(Pred1->Clone("Resc1"));
    Resc1->Scale(Rescale);
-
-
-
+   TH1D* Resc2 = (TH1D*)(Pred2->Clone("Resc2"));
+   Resc2->Scale(Rescale);
 
    printf("%s\n",InputPattern.c_str());
-   double M,D,P,R, Rerr;
+   double M,D,P,R, Rerr, P2, R2, R2err;
    M = MCTr1->Integral(MCTr1->GetXaxis()->FindBin( 0.0),  MCTr1->GetXaxis()->FindBin(1999.0));
    D = Data1->Integral(Data1->GetXaxis()->FindBin( 0.0),  Data1->GetXaxis()->FindBin(1999.0));  
    P = Pred1->Integral(Pred1->GetXaxis()->FindBin( 0.0),  Pred1->GetXaxis()->FindBin(1999.0));
    R = Resc1->Integral(Resc1->GetXaxis()->FindBin( 0.0),  Resc1->GetXaxis()->FindBin(1999.0));   
+   P2 = Pred2->Integral(Pred2->GetXaxis()->FindBin(0.0),  Pred2->GetXaxis()->FindBin(1999.0));
+   R2 = Resc2->Integral(Resc2->GetXaxis()->FindBin(0.0),  Resc2->GetXaxis()->FindBin(1999.0));
+   R2err = 0; for(int i=Resc2->GetXaxis()->FindBin(0.0);i<Resc2->GetXaxis()->FindBin(1999.0);i++){ R2err += pow(Resc2->GetBinError(i),2); }  R2err = sqrt(R2err);
    Rerr = 0; for(int i=Resc1->GetXaxis()->FindBin( 0.0);i<Resc1->GetXaxis()->FindBin(1999.0);i++){ Rerr += pow(Resc1->GetBinError(i),2); }  Rerr = sqrt(Rerr);
    printf("INTEGRAL in [  0,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P, R, Rerr,R*(2*RMS),sqrt(Rerr*Rerr + pow(R*(2*RMS),2)), D);
+   printf("INTEGRAL in [  0,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P2, R2, R2err,R2*(2*RMS),sqrt(R2err*R2err + pow(R2*(2*RMS),2)), D);
 
    M = MCTr1->Integral(MCTr1->GetXaxis()->FindBin(75.0),  MCTr1->GetXaxis()->FindBin(1999.0));
    D = Data1->Integral(Data1->GetXaxis()->FindBin(75.0),  Data1->GetXaxis()->FindBin(1999.0));
    P = Pred1->Integral(Pred1->GetXaxis()->FindBin(75.0),  Pred1->GetXaxis()->FindBin(1999.0));
    R = Resc1->Integral(Resc1->GetXaxis()->FindBin(75.0),  Resc1->GetXaxis()->FindBin(1999.0));
    Rerr = 0; for(int i=Resc1->GetXaxis()->FindBin(75.0);i<Resc1->GetXaxis()->FindBin(1999.0);i++){ Rerr += pow(Resc1->GetBinError(i),2); }  Rerr = sqrt(Rerr);
+   P2 = Pred2->Integral(Pred2->GetXaxis()->FindBin(75.0),  Pred2->GetXaxis()->FindBin(1999.0));
+   R2 = Resc2->Integral(Resc2->GetXaxis()->FindBin(75.0),  Resc2->GetXaxis()->FindBin(1999.0));
+   R2err = 0; for(int i=Resc2->GetXaxis()->FindBin(75.0);i<Resc2->GetXaxis()->FindBin(1999.0);i++){ R2err += pow(Resc2->GetBinError(i),2); }  R2err = sqrt(R2err);
    printf("INTEGRAL in [ 75,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P, R, Rerr,R*(2*RMS),sqrt(Rerr*Rerr + pow(R*(2*RMS),2)), D);
+   printf("INTEGRAL in [ 75,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P2, R2, R2err,R2*(2*RMS),sqrt(R2err*R2err + pow(R2*(2*RMS),2)), D);
 
    M = MCTr1->Integral(MCTr1->GetXaxis()->FindBin(75.0),  MCTr1->GetXaxis()->FindBin(100.0));
    D = Data1->Integral(Data1->GetXaxis()->FindBin(75.0),  Data1->GetXaxis()->FindBin(100.0));
    P = Pred1->Integral(Pred1->GetXaxis()->FindBin(75.0),  Pred1->GetXaxis()->FindBin(100.0));
    R = Resc1->Integral(Resc1->GetXaxis()->FindBin(75.0),  Resc1->GetXaxis()->FindBin(100.0));
    Rerr = 0; for(int i=Resc1->GetXaxis()->FindBin(75.0);i<Resc1->GetXaxis()->FindBin(100.0);i++){ Rerr += pow(Resc1->GetBinError(i),2); }  Rerr = sqrt(Rerr);
+   P2 = Pred2->Integral(Pred2->GetXaxis()->FindBin(75.0),  Pred2->GetXaxis()->FindBin(100.0));
+   R2 = Resc2->Integral(Resc2->GetXaxis()->FindBin(75.0),  Resc2->GetXaxis()->FindBin(100.0));
+   R2err = 0; for(int i=Resc2->GetXaxis()->FindBin(75.0);i<Resc2->GetXaxis()->FindBin(100.0);i++){ R2err += pow(Resc2->GetBinError(i),2); }  R2err = sqrt(R2err);
    printf("INTEGRAL in [ 75, 100] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P, R, Rerr,R*(2*RMS),sqrt(Rerr*Rerr + pow(R*(2*RMS),2)), D);
+   printf("INTEGRAL in [ 75, 100] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P2, R2, R2err,R2*(2*RMS),sqrt(R2err*R2err + pow(R2*(2*RMS),2)), D);
 
    M = MCTr1->Integral(MCTr1->GetXaxis()->FindBin(100.0),  MCTr1->GetXaxis()->FindBin(1999.0));
    D = Data1->Integral(Data1->GetXaxis()->FindBin(100.0),  Data1->GetXaxis()->FindBin(1999.0));
    P = Pred1->Integral(Pred1->GetXaxis()->FindBin(100.0),  Pred1->GetXaxis()->FindBin(1999.0));
    R = Resc1->Integral(Resc1->GetXaxis()->FindBin(100.0),  Resc1->GetXaxis()->FindBin(1999.0));
    Rerr = 0; for(int i=Resc1->GetXaxis()->FindBin(100.0);i<Resc1->GetXaxis()->FindBin(1999.0);i++){ Rerr += pow(Resc1->GetBinError(i),2); }  Rerr = sqrt(Rerr);
+   P2 = Pred2->Integral(Pred2->GetXaxis()->FindBin(100.0),  Pred2->GetXaxis()->FindBin(1999.0));
+   R2 = Resc2->Integral(Resc2->GetXaxis()->FindBin(100.0),  Resc2->GetXaxis()->FindBin(1999.0));
+   R2err = 0; for(int i=Resc2->GetXaxis()->FindBin(100.0);i<Resc2->GetXaxis()->FindBin(1999.0);i++){ R2err += pow(Resc2->GetBinError(i),2); }  R2err = sqrt(R2err);
    printf("INTEGRAL in [100,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P, R, Rerr,R*(2*RMS),sqrt(Rerr*Rerr + pow(R*(2*RMS),2)), D);
+   printf("INTEGRAL in [100,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P2, R2, R2err,R2*(2*RMS),sqrt(R2err*R2err + pow(R2*(2*RMS),2)), D);
+
+   M = MCTr1->Integral(MCTr1->GetXaxis()->FindBin(200.0),  MCTr1->GetXaxis()->FindBin(1999.0));
+   D = Data1->Integral(Data1->GetXaxis()->FindBin(200.0),  Data1->GetXaxis()->FindBin(1999.0));
+   P = Pred1->Integral(Pred1->GetXaxis()->FindBin(200.0),  Pred1->GetXaxis()->FindBin(1999.0));
+   R = Resc1->Integral(Resc1->GetXaxis()->FindBin(200.0),  Resc1->GetXaxis()->FindBin(1999.0));
+   Rerr = 0; for(int i=Resc1->GetXaxis()->FindBin(200.0);i<Resc1->GetXaxis()->FindBin(1999.0);i++){ Rerr += pow(Resc1->GetBinError(i),2); }  Rerr = sqrt(Rerr);
+   P2 = Pred2->Integral(Pred2->GetXaxis()->FindBin(200.0),  Pred2->GetXaxis()->FindBin(1999.0));
+   R2 = Resc2->Integral(Resc2->GetXaxis()->FindBin(200.0),  Resc2->GetXaxis()->FindBin(1999.0));
+   R2err = 0; for(int i=Resc2->GetXaxis()->FindBin(200.0);i<Resc2->GetXaxis()->FindBin(1999.0);i++){ R2err += pow(Resc2->GetBinError(i),2); }  R2err = sqrt(R2err);
+   printf("INTEGRAL in [200,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P, R, Rerr,R*(2*RMS),sqrt(Rerr*Rerr + pow(R*(2*RMS),2)), D);
+   printf("INTEGRAL in [200,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P2, R2, R2err,R2*(2*RMS),sqrt(R2err*R2err + pow(R2*(2*RMS),2)), D);
 
    M = MCTr1->Integral(MCTr1->GetXaxis()->FindBin(300.0),  MCTr1->GetXaxis()->FindBin(1999.0));
    D = Data1->Integral(Data1->GetXaxis()->FindBin(300.0),  Data1->GetXaxis()->FindBin(1999.0));
    P = Pred1->Integral(Pred1->GetXaxis()->FindBin(300.0),  Pred1->GetXaxis()->FindBin(1999.0));
    R = Resc1->Integral(Resc1->GetXaxis()->FindBin(300.0),  Resc1->GetXaxis()->FindBin(1999.0));
    Rerr = 0; for(int i=Resc1->GetXaxis()->FindBin(300.0);i<Resc1->GetXaxis()->FindBin(1999.0);i++){ Rerr += pow(Resc1->GetBinError(i),2); }  Rerr = sqrt(Rerr);
+   P2 = Pred2->Integral(Pred2->GetXaxis()->FindBin(300.0),  Pred2->GetXaxis()->FindBin(1999.0));
+   R2 = Resc2->Integral(Resc2->GetXaxis()->FindBin(300.0),  Resc2->GetXaxis()->FindBin(1999.0));
+   R2err = 0; for(int i=Resc2->GetXaxis()->FindBin(300.0);i<Resc2->GetXaxis()->FindBin(1999.0);i++){ R2err += pow(Resc2->GetBinError(i),2); }  R2err = sqrt(R2err);
    printf("INTEGRAL in [300,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P, R, Rerr,R*(2*RMS),sqrt(Rerr*Rerr + pow(R*(2*RMS),2)), D);
+   printf("INTEGRAL in [300,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P2, R2, R2err,R2*(2*RMS),sqrt(R2err*R2err + pow(R2*(2*RMS),2)), D);
 
-
-/*
-   unsigned int CountBin=1;
-   double BinWidth = Data1->GetBinWidth(1);
-   double* NewBinning = new double[Data1->GetNbinsX()+2];
-   NewBinning[0] = Data1->GetBinLowEdge(0);
-   while(NewBinning[CountBin-1]<250){NewBinning[CountBin] = NewBinning[CountBin-1] + 1*BinWidth; CountBin++;}
-   while(NewBinning[CountBin-1]<300){NewBinning[CountBin] = NewBinning[CountBin-1] + 2*BinWidth; CountBin++;}
-   while(NewBinning[CountBin-1]<800){NewBinning[CountBin] = NewBinning[CountBin-1] + 3*BinWidth; CountBin++;}
-//   while(NewBinning[CountBin-1]<500){NewBinning[CountBin] = NewBinning[CountBin-1] + 4*BinWidth; CountBin++;}
-//   for(unsigned int i=0;i<CountBin;i++){ printf("Bin %3i --> %8.2f\n", i, NewBinning[i]);  }
-
-   MCTr1 = (TH1D*) MCTr1->Rebin(CountBin-1, "MCTr1Rebinned", NewBinning);
-   Pred1 = (TH1D*) Pred1->Rebin(CountBin-1, "Pred1Rebinned", NewBinning);
-   Resc1 = (TH1D*) Resc1->Rebin(CountBin-1, "Resc1Rebinned", NewBinning);
-   Data1 = (TH1D*) Data1->Rebin(CountBin-1, "Data1Rebinned", NewBinning);
-*/
 
    MCTr1->Rebin(10);
    Pred1->Rebin(10);
    Resc1->Rebin(10);
+   Pred2->Rebin(10);
+   Resc2->Rebin(10);
    Data1->Rebin(10);
 
-   Resc1->Reset();
-   MassPredictionFromABCD(InputPattern,Resc1);
+
+   //Resc1->Reset();  MassPredictionFromABCD(InputPattern,Resc1);
    Resc1->Scale(Rescale);
 
    double Max = std::max(Data1->GetMaximum(), Resc1->GetMaximum());
    Max        = std::max(MCTr1->GetMaximum(), Max);
    Max       *= 2.0;
    double Min = std::min(0.01,Pred1->GetMaximum());
-//   Min       *= 0.5;
-   Min = 0.03;
+   Min       *= 0.1;
 
    TLegend* leg;
    c1 = new TCanvas("c1","c1,",600,600);
 
    char YAxisLegend[1024];
-   sprintf(YAxisLegend,"#tracks / %2.0f GeV/c^{2}",MCTr1->GetXaxis()->GetBinWidth(1));
-
-   MCTr1->GetXaxis()->SetNdivisions(505);
-   MCTr1->SetTitle("");
-   MCTr1->SetStats(kFALSE);
-   MCTr1->GetXaxis()->SetTitle("m (GeV/c^{2})");
-   MCTr1->GetYaxis()->SetTitle(YAxisLegend);
-   MCTr1->GetYaxis()->SetTitleOffset(1.50);
-   MCTr1->SetLineColor(39);
-   MCTr1->SetFillColor(64);
-   MCTr1->SetMarkerSize(1);
-   MCTr1->SetMarkerStyle(1);
-   MCTr1->SetMarkerColor(39);
-   MCTr1->SetMaximum(Max);
-   MCTr1->SetMinimum(Min);
-   MCTr1->SetAxisRange(0,1400,"X");
-   MCTr1->Draw("HIST");
-   TH1D* MCTr1Err = (TH1D*)MCTr1->Clone("MCTr1_Mass_Err");
-   MCTr1Err->SetLineColor(39);
-   MCTr1Err->Draw("E1 same");
-
-
-/*
-   Pred1->SetMarkerStyle(21);
-   Pred1->SetMarkerColor(8);
-   Pred1->SetMarkerSize(1.0);
-   Pred1->SetLineColor(8);
-   Pred1->SetFillColor(0);
-   Pred1->Draw("E1 same");
-*/
-
+   sprintf(YAxisLegend,"Tracks / %2.0f GeV/c^{2}",MCTr1->GetXaxis()->GetBinWidth(1));
 
    TH1D* Resc1Err = (TH1D*) Resc1->Clone("Resc1Err");
+   TH1D* Resc2Err = (TH1D*) Resc2->Clone("Resc2Err");
    for(unsigned int i=0;i<(unsigned int)Resc1->GetNbinsX();i++){
       double error2 = pow(Resc1Err->GetBinError(i),2);
       error2 += pow(Resc1->GetBinContent(i)*2*RMS,2);
-      Resc1Err->SetBinError(i,sqrt(error2));
-      if(Resc1Err->GetBinContent(i)<=Min)Resc1Err->SetBinContent(i,0);
+      Resc1Err->SetBinError(i,sqrt(error2));       
+      if(Resc1Err->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)Resc1->GetNbinsX();j++)Resc1Err->SetBinContent(j,0);}
+
+      error2 = pow(Resc2Err->GetBinError(i),2);
+      error2 += pow(Resc2->GetBinContent(i)*2*RMS,2);
+      Resc2Err->SetBinError(i,sqrt(error2));
+      if(Resc2Err->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)Resc2->GetNbinsX();j++)Resc2Err->SetBinContent(j,0);}
    }
    Resc1Err->SetLineColor(8);
    Resc1Err->SetFillColor(8);
@@ -2074,51 +2185,84 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
    Resc1Err->SetMarkerStyle(22);
    Resc1Err->SetMarkerColor(2);
    Resc1Err->SetMarkerSize(1.0);
-   Resc1Err->Draw("E5 same");
+   Resc1Err->GetXaxis()->SetNdivisions(505);
+   Resc1Err->SetTitle("");
+   Resc1Err->SetStats(kFALSE);
+   Resc1Err->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   Resc1Err->GetYaxis()->SetTitle(YAxisLegend);
+   Resc1Err->GetYaxis()->SetTitleOffset(1.50);
+   Resc1Err->SetMaximum(Max);
+   Resc1Err->SetMinimum(Min);
+   Resc1Err->SetAxisRange(0,1400,"X");
+   Resc1Err->Draw("E5");
+
 
    Resc1->SetMarkerStyle(22);
    Resc1->SetMarkerColor(2);
-   Resc1->SetMarkerSize(1.0);
+   Resc1->SetMarkerSize(1.5);
    Resc1->SetLineColor(2);
    Resc1->SetFillColor(0);
    Resc1->Draw("same HIST P");
 
+
+   if(Resc1->Integral()!=Resc2->Integral()){
+      Resc2Err->SetLineColor(9);
+      Resc2Err->SetFillColor(9);
+      Resc2Err->SetFillStyle(3002);
+      Resc2Err->SetMarkerStyle(22);
+      Resc2Err->SetMarkerColor(2);
+      Resc2Err->SetMarkerSize(1.0);
+      Resc2Err->GetXaxis()->SetNdivisions(505);
+      Resc2Err->SetTitle("");
+      Resc2Err->SetStats(kFALSE);
+      Resc2Err->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+      Resc2Err->GetYaxis()->SetTitle(YAxisLegend);
+      Resc2Err->GetYaxis()->SetTitleOffset(1.50);
+      Resc2Err->SetMaximum(Max);
+      Resc2Err->SetMinimum(Min);
+      Resc2Err->SetAxisRange(0,1400,"X");
+      Resc2Err->Draw("same E5");
+
+      Resc2->SetMarkerStyle(23);
+      Resc2->SetMarkerColor(4);
+      Resc2->SetMarkerSize(1.5);
+      Resc2->SetLineColor(2);
+      Resc2->SetFillColor(0);
+      Resc2->Draw("same HIST P");
+   }
+
+
+
+
    Data1->SetMarkerStyle(20);
    Data1->SetMarkerColor(1);
-   Data1->SetMarkerSize(1.0);
+   Data1->SetMarkerSize(1.5);
    Data1->SetLineColor(1);
    Data1->SetFillColor(0);
    Data1->Draw("E1 same");
 
 
-   leg = new TLegend(0.79,0.93,0.44,0.73);
-   if(IsTrackerOnly){ 
-      leg->SetHeader("Tracker - Only");
-   }else{
-      leg->SetHeader("Tracker + Muon");
-   }
+   leg = new TLegend(0.79,0.93,0.40,0.68);
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(MCTr1, "MC - QCD"          ,"F");
-//   leg->AddEntry(Pred1, "Absolute Prediction"  ,"P");
-
    TH1D* RescLeg = (TH1D*) Resc1->Clone("RescLeg");
    RescLeg->SetFillColor(Resc1Err->GetFillColor());
    RescLeg->SetFillStyle(Resc1Err->GetFillStyle());
-   leg->AddEntry(RescLeg, "Data-driven prediction"  ,"PF");
-//   leg->AddEntry(Resc1Err, "Prediction Syst. Err."  ,"F");
+   leg->AddEntry(RescLeg, "Data-based prediction"  ,"PF");
+   if(Resc1->Integral()!=Resc2->Integral()){
+   TH1D* RescLeg2 = (TH1D*) Resc2->Clone("RescLeg2");
+   RescLeg2->SetFillColor(Resc2Err->GetFillColor());
+   RescLeg2->SetFillStyle(Resc2Err->GetFillStyle());
+   leg->AddEntry(RescLeg2, "Data-based prediction2"  ,"PF");
+   }
    leg->AddEntry(Data1, "Data"        ,"P");
    leg->Draw();
 
    DrawPreliminary(IntegratedLuminosity);
    c1->SetLogy(true);
-//   SaveCanvas(c1, outpath, Histo);
    SaveCanvas(c1, outpath, "Rescale_Mass");
-
-//   c1->SetLogy(true);
-//   SaveCanvas(c1, outpath, Histo+"B");
    delete c1;
-
 
 /*
    for(unsigned int s=0;s<signals.size();s++){
@@ -2129,29 +2273,29 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
       c1 = new TCanvas("c1","c1,",600,600);
 
       double MaxSign = std::max(Max, SIGN->GetMaximum()*2);
-      MCTr1->SetMaximum(MaxSign);
-      MCTr1->SetMinimum(Min);
-      MCTr1->Draw("HIST");
-      MCTr1Err->Draw("E1 same");
-      Resc1Err->Draw("E5 same");
-      Resc1->Draw("same");
-      Data1->Draw("E1 same");
+      Resc1Err->SetMaximum(MaxSign);
+      Resc1Err->SetMinimum(Min);
+      Resc1Err->Draw("E5");
       SIGN->SetLineWidth(1);
-      SIGN->SetLineColor(6);
+      SIGN->SetLineColor(38);
+      SIGN->SetFillColor(38);
       SIGN->Draw("same HIST");
+      Resc1Err->Draw("same E5");
+      Resc1->Draw("same HIST P");
+      Data1->Draw("E1 same");
 
-      leg = new TLegend(0.79,0.93,0.44,0.73);
-      if(IsTrackerOnly){
+
+      leg = new TLegend(0.79,0.93,0.40,0.68);
+      if(IsTrackerOnly){ 
          leg->SetHeader("Tracker - Only");
       }else{
          leg->SetHeader("Tracker + Muon");
       }
       leg->SetFillColor(0);
       leg->SetBorderSize(0);
-      leg->AddEntry(MCTr1, "MC - QCD"          ,"F");
-      leg->AddEntry(SIGN,  (string("MC - ") + signals[s].Legend).c_str()        ,"L");
-      leg->AddEntry(RescLeg, "Data-driven prediction"  ,"PF");
+      leg->AddEntry(RescLeg, "Data-based prediction"  ,"PF");
       leg->AddEntry(Data1, "Data"        ,"P");
+      leg->AddEntry(SIGN,  (string("MC - ") + signals[s].Legend).c_str()        ,"F");
       leg->Draw();
 
       DrawPreliminary(IntegratedLuminosity);
@@ -2160,7 +2304,6 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
 
       delete c1;
    }
-*/
 
 
 
@@ -2173,28 +2316,9 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
   TH1D* Ratio2       = (TH1D*)Resc1->Clone("Ratio2");
   TH1D* Ratio3       = (TH1D*)Resc1->Clone("Ratio3");
   TH1D* DataWithStat = (TH1D*)Data1->Clone("DataWithStat");
-/*  for(unsigned int i=0;i<Ratio1->GetNbinsX();i++){
-     if(Data1->GetBinContent(i)<2){
-        DataWithStat->SetBinContent(i,0);
-        DataWithStat->SetBinError(i,0);
-     }
-  }*/
   Ratio1->Divide(DataWithStat);
   Ratio2->Divide(DataWithStat);
   Ratio3->Divide(MCTr1);
-
-  
-//  TH1D* Ratio1 = (TH1D*)Data1->Clone("Ratio1");
-//  for(unsigned int i=0;i<Ratio1->GetNbinsX();i++){
-//     if(Resc1->GetBinContent(i)>0 && Data1->GetBinContent(i)>1){
-//        Ratio1->SetBinContent(i,Data1->GetBinContent(i)/Resc1->GetBinContent(i));
-//        Ratio1->SetBinError(i,Ratio1->GetBinContent(i)*0.5);
-//     }else{
-//        Ratio1->SetBinContent(i,0);
-//        Ratio1->SetBinError(i,0);
-//     }
-//  }
-  
 
    c1 = new TCanvas("c1","c1,",600,600);
    Ratio2->SetAxisRange(0,1400,"X");
@@ -2202,7 +2326,6 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
    Ratio2->SetTitle("");
    Ratio2->SetStats(kFALSE);
    Ratio2->GetXaxis()->SetTitle("m (GeV/c^{2})");
-//   Ratio2->GetYaxis()->SetTitle("#Predicted / #Observed Tracks");
    Ratio2->GetYaxis()->SetTitle("Ratio");
    Ratio2->GetYaxis()->SetTitleOffset(1.50);
    Ratio2->SetMarkerStyle(21);
@@ -2211,41 +2334,17 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
    Ratio2->SetLineColor(4);
    Ratio2->SetFillColor(0);
    Ratio2->Draw("E1");
-
   
-   TBox* b = new TBox(0,1.0-2*RMS,510,1.0+2*RMS);
+   TBox* b = new TBox(0,1.0-2*RMS,1410,1.0+2*RMS);
    b->SetFillStyle(3003);
    b->SetFillColor(8);
    b->Draw("same");
 
-   TLine* l = new TLine(0,1.0,510,1.0);
+   TLine* l = new TLine(0,1.0,1410,1.0);
    l->Draw("same");
-
-   TLine* lm = new TLine(0,1.0-RMS,510,1.0-RMS);
-   lm->SetLineStyle(2);
-   lm->Draw("same");
-
-   TLine* lp = new TLine(0,1.0+RMS,510,1.0+RMS);
-   lp->SetLineStyle(2);
-   lp->Draw("same");
-
 
    Ratio2->Draw("same E1");
 
-   Ratio3->SetAxisRange(0,1400,"X");
-   Ratio3->SetTitle("");
-   Ratio3->SetStats(kFALSE);
-   Ratio3->GetXaxis()->SetTitle("m (GeV/c^{2})");
-   Ratio3->GetYaxis()->SetTitle("#Predicted / #Observed Tracks");
-   Ratio3->GetYaxis()->SetTitleOffset(1.50);
-   Ratio3->SetMarkerStyle(22);
-   Ratio3->SetMarkerColor(2);
-   Ratio3->SetMarkerSize(1);
-   Ratio3->SetLineColor(2);
-   Ratio3->SetFillColor(0);
-   Ratio3->Draw("E1 same");
-
-//   leg = new TLegend(0.79,0.93,0.50,0.75);
    leg = new TLegend(0.79,0.93,0.40,0.75);
    if(IsTrackerOnly){ 
       leg->SetHeader("Tracker - Only");
@@ -2255,16 +2354,14 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Ratio2, "Rescaled Prediction / Data"     ,"P");
-   leg->AddEntry(Ratio3, "Rescaled Prediction / MC"       ,"P");
    leg->Draw();
 
 
    DrawPreliminary(IntegratedLuminosity);  
-//   SaveCanvas(c1, outpath, Histo + "Rescale1");
    SaveCanvas(c1, outpath, "Rescale_Ratio");
    delete c1;
 
-
+*/
    InputFile1->Close();
 }
 
@@ -2274,7 +2371,7 @@ void MakeHitSplit_Plot(string InputPattern){
    TCanvas* c1;
    TLegend* leg;
  
-   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
+   //bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
 
 //   GetSignalDefinition(signals);
 
@@ -2365,7 +2462,7 @@ void MakeHitSplit_Plot(string InputPattern){
 //   c1->SetGridy(true);
    Data_05_I->SetTitle("");
    Data_05_I->SetStats(kFALSE);
-   Data_05_I->GetXaxis()->SetTitle(DiscrLeg);
+   Data_05_I->GetXaxis()->SetTitle(dEdxS_Legend.c_str());
    Data_05_I->GetYaxis()->SetTitle("arbitrary units");
    Data_05_I->SetLineWidth(2);
    Data_05_I->SetLineColor(Color[0]);
@@ -2391,11 +2488,12 @@ void MakeHitSplit_Plot(string InputPattern){
    c1->SetLogy(true);
 
    leg = new TLegend(0.80,0.93,0.80 - 0.30,0.93 - 6*0.05);
-   if(IsTrackerOnly){ 
-      leg->SetHeader("Tracker - Only");
-   }else{
-      leg->SetHeader("Tracker + Muon");
-   }
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   if(IsTrackerOnly){ 
+//      leg->SetHeader("Tracker - Only");
+//   }else{
+//      leg->SetHeader("Tracker + Muon");
+//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Data_05_I, "<09 dE/dx Hits"   ,"P");
@@ -2440,11 +2538,12 @@ void MakeHitSplit_Plot(string InputPattern){
    c1->SetLogy(true);
 
    leg = new TLegend(0.80,0.93,0.80 - 0.30,0.93 - 6*0.05);
-   if(IsTrackerOnly){ 
-      leg->SetHeader("Tracker - Only");
-   }else{
-      leg->SetHeader("Tracker + Muon");
-   }
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   if(IsTrackerOnly){ 
+//      leg->SetHeader("Tracker - Only");
+//   }else{
+//      leg->SetHeader("Tracker + Muon");
+//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Data_05_Pt, "<09 dE/dx Hits"   ,"P");
@@ -2463,7 +2562,7 @@ void MakeHitSplit_Plot(string InputPattern){
 //   c1->SetGridy(true);
    Data_E1_I->SetTitle("");
    Data_E1_I->SetStats(kFALSE);
-   Data_E1_I->GetXaxis()->SetTitle(DiscrLeg);
+   Data_E1_I->GetXaxis()->SetTitle(dEdxS_Legend.c_str());
    Data_E1_I->GetYaxis()->SetTitle("arbitrary units");
    Data_E1_I->SetLineWidth(2);
    Data_E1_I->SetLineColor(Color[0]);
@@ -2495,11 +2594,12 @@ void MakeHitSplit_Plot(string InputPattern){
    c1->SetLogy(true);
 
    leg = new TLegend(0.80,0.93,0.80 - 0.30,0.93 - 6*0.05);
-   if(IsTrackerOnly){ 
-      leg->SetHeader("Tracker - Only");
-   }else{
-      leg->SetHeader("Tracker + Muon");
-   }
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   if(IsTrackerOnly){ 
+//      leg->SetHeader("Tracker - Only");
+//   }else{
+//      leg->SetHeader("Tracker + Muon");
+//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Data_E1_I, "0.0 < |#eta| < 0.5"   ,"P");
@@ -2550,11 +2650,12 @@ void MakeHitSplit_Plot(string InputPattern){
    c1->SetLogy(true);
 
    leg = new TLegend(0.80,0.93,0.80 - 0.30,0.93 - 6*0.05);
-   if(IsTrackerOnly){ 
-      leg->SetHeader("Tracker - Only");
-   }else{
-      leg->SetHeader("Tracker + Muon");
-   }
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   if(IsTrackerOnly){ 
+//      leg->SetHeader("Tracker - Only");
+//   }else{
+//      leg->SetHeader("Tracker + Muon");
+//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Data_E1_Pt, "0.0 < |#eta| < 0.5"   ,"P");
@@ -2576,7 +2677,7 @@ void CheckHitSplitSloap_Plot(string InputPattern){
    TCanvas* c1;
    TLegend* leg;
  
-   bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
+   //bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
 
 //   GetSignalDefinition(signals);
 
@@ -2603,7 +2704,7 @@ void CheckHitSplitSloap_Plot(string InputPattern){
    c1 = new TCanvas("c1","c1", 600, 600);
    Data_05_I->SetTitle("");
    Data_05_I->SetStats(kFALSE);
-   Data_05_I->GetXaxis()->SetTitle(DiscrLeg);
+   Data_05_I->GetXaxis()->SetTitle(dEdxS_Legend.c_str());
    Data_05_I->GetYaxis()->SetTitle("arbitrary units");
    Data_05_I->SetLineWidth(2);
    Data_05_I->SetLineColor(Color[5]);
@@ -2613,7 +2714,7 @@ void CheckHitSplitSloap_Plot(string InputPattern){
    Data_05_I->Draw("E1 same");
    Data_E1_I->SetTitle("");
    Data_E1_I->SetStats(kFALSE);
-   Data_E1_I->GetXaxis()->SetTitle(DiscrLeg);
+   Data_E1_I->GetXaxis()->SetTitle(dEdxS_Legend.c_str());
    Data_E1_I->GetYaxis()->SetTitle("arbitrary units");
    Data_E1_I->SetLineWidth(2);
    Data_E1_I->SetLineColor(Color[0]);
@@ -2645,11 +2746,12 @@ void CheckHitSplitSloap_Plot(string InputPattern){
    c1->SetLogy(true);
 
    leg = new TLegend(0.80,0.93,0.80 - 0.30,0.93 - 6*0.05);
-   if(IsTrackerOnly){ 
-      leg->SetHeader("Tracker - Only");
-   }else{
-      leg->SetHeader("Tracker + Muon");
-   }
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   if(IsTrackerOnly){ 
+//      leg->SetHeader("Tracker - Only");
+//   }else{
+//      leg->SetHeader("Tracker + Muon");
+//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Data_05_I, "05 dE/dx Hits"   ,"LP");

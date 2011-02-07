@@ -37,6 +37,7 @@ class HSCPHLTFilter : public edm::EDFilter {
 
       unsigned int CountEvent;
       unsigned int MaxPrint;
+      bool         SkipJetTriggers;
 };
 
 
@@ -44,6 +45,7 @@ class HSCPHLTFilter : public edm::EDFilter {
 HSCPHLTFilter::HSCPHLTFilter(const edm::ParameterSet& iConfig)
 {
    TriggerProcess        = iConfig.getParameter<std::string>          ("TriggerProcess");
+   SkipJetTriggers       = iConfig.getParameter<bool>                 ("SkipJetTriggers");
    CountEvent = 0;
    MaxPrint = 10000;
 } 
@@ -132,6 +134,7 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    }
 
+   if(SkipJetTriggers)return false;
 
    // HLT TRIGGER BASED ON 1 JET!
    if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet140U_v3")){
@@ -194,20 +197,23 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // HLT TRIGGER BASED ON 4 JETS!
    if(TrIndex_Unknown != tr.triggerIndex("HLT_QuadJet25U_v3")){
-      if(CountEvent<MaxPrint)printf("Use HLT_QuadJet25U_v3\n");
-      if(tr.accept(tr.triggerIndex("HLT_QuadJet25U_v3") ))return true;
+      if(CountEvent<MaxPrint)printf("Rescale HLT_QuadJet25U_v3\n");
+      if(IncreasedTreshold(trEv, InputTag("hlt4jet25U","",TriggerProcess), 30, 4, false))return true;
+//      if(tr.accept(tr.triggerIndex("HLT_QuadJet25U_v3") ))return true;
    }else{
       if(TrIndex_Unknown != tr.triggerIndex("HLT_QuadJet25U_v2")){
-         if(CountEvent<MaxPrint)printf("Use HLT_QuadJet25U_v2\n");
-         if(tr.accept(tr.triggerIndex("HLT_QuadJet25U_v2") ))return true;
+         if(CountEvent<MaxPrint)printf("Rescale HLT_QuadJet25U_v2\n");
+         if(IncreasedTreshold(trEv, InputTag("hlt4jet25U","",TriggerProcess), 30, 4, false))return true;
+//         if(tr.accept(tr.triggerIndex("HLT_QuadJet25U_v2") ))return true;
       }else{
          if(TrIndex_Unknown != tr.triggerIndex("OpenHLT_QuadJet25U")){
-            if(CountEvent<MaxPrint)printf("Use OpenHLT_QuadJet25U\n");
-            if(tr.accept(tr.triggerIndex("OpenHLT_QuadJet25U") ))return true;
+            if(CountEvent<MaxPrint)printf("Rescale OpenHLT_QuadJet25U\n");
+            if(IncreasedTreshold(trEv, InputTag("hlt4jet25U","",TriggerProcess), 30, 4, false))return true;
+//            if(tr.accept(tr.triggerIndex("OpenHLT_QuadJet25U") ))return true;
          }else{
             if(TrIndex_Unknown != tr.triggerIndex("HLT_QuadJet15U")){
                if(CountEvent<MaxPrint)printf("Use HLT_QuadJet15U Rescaled\n");
-               if(IncreasedTreshold(trEv, InputTag("hlt4jet15U","",TriggerProcess), 25, 4, false))return true;
+               if(IncreasedTreshold(trEv, InputTag("hlt4jet15U","",TriggerProcess), 30, 4, false))return true;
             }else{
                printf("HSCPHLTFilter --> BUG with HLT_QuadJet15U\n");
             }

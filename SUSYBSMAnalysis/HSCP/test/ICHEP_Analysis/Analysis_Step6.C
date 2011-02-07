@@ -30,8 +30,12 @@
 //double PlotMinScale = 0.1;
 //double PlotMaxScale = 50000;
 
-double PlotMinScale = 2;
-double PlotMaxScale = 800;
+//double PlotMinScale = 2;
+//double PlotMaxScale = 800;
+
+double PlotMinScale = 0.01;
+double PlotMaxScale = 10;
+
 
 
 struct stResult{
@@ -69,10 +73,12 @@ struct stGraph{
    TGraph* GluinoNF0;
    TGraph* GluinoNF1;
    TGraph* GluinoNF5;
-   TGraph* Stau;
+   TGraph* GMStau;
+   TGraph* PPStau;
+   TGraph* DCStau;
    TGraph* GluinoTh;
    TGraph* StopTh;
-   TGraph* StauTh;
+   TGraph* GMStauTh;
    TCutG*  GluinoThErr;
    TCutG*  StopThErr;
 };
@@ -162,34 +168,17 @@ void Analysis_Step6(){
 
    MinRange      = 75;
    Mode          = 0;   
-//   RescaleFactor = 1.322384;
-//   RescaleError  = 0.198774*2;
-//   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-30/");
-//   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-25/WPI-30/");
-//   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-20/WPI-35/");
-//   stGraph tkmu = Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-15/WPI-40/");
-//   stGraph tkmu = Analysis_Step6_Core("SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-25/WPI-35/");
-//   stGraph tkmu = Analysis_Step6_Core("SplitMode0/MinHit09/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-20/WPI-45/");
-//   stGraph tkmu = Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-30/");
-   stGraph tkmu = Analysis_Step6_Core("Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-40/"); //X
-//   stGraph tkmu = Analysis_Step6_Core("Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-35/"); //X
+   stGraph tkmu = Analysis_Step6_Core("Results/dedxASmi/dt/Eta25/Type2/SplitMode0/WPPt20/WPI20/WPTOF20/");
+//   stGraph tkmu = Analysis_Step6_Core("Results/dedxASmi/dt/Eta25/Type1/SplitMode0/WPPt35/WPI35/WPTOF00/");
+//   stGraph tkmu = Analysis_Step6_Core("Results/dedxASmi/dt/Eta25/Type0/SplitMode0/WPPt35/WPI35/WPTOF00/");
+   return;
 
    MinRange = 75;
    Mode     = 0;
-//   RescaleFactor = 1.356202;
-//   RescaleError  = 0.176968*2;
-//   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-40/WPI-40/");
-//   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-35/");
-//   stGraph tkonly =  Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-25/WPI-45/");
-//   stGraph tkonly =  Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-25/WPI-50/");
-//   stGraph tkonly =  Analysis_Step6_Core("SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-25/WPI-45/");
-//   stGraph tkonly =  Analysis_Step6_Core("SplitMode0/MinHit09/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-50/");
-//   stGraph tkonly =  Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-30/WPI-40/");
-//   stGraph tkonly =  Analysis_Step6_Core("Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-45/");//X
    stGraph tkonly =  Analysis_Step6_Core("Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-40/");//X
 
 
-   string outpath = string("Results/EXCLUSION/Paper/");
+   string outpath = string("Results/EXCLUSION/");
    MakeDirectories(outpath);
 
    tkonly.GluinoTh ->SetLineColor(4);  tkonly.GluinoTh ->SetLineWidth(1);   tkonly.GluinoTh ->SetLineStyle(3);  tkonly.GluinoTh ->SetMarkerStyle(1);
@@ -214,7 +203,7 @@ void Analysis_Step6(){
    tkonly.StopThErr  ->Draw("f");
    mgA->Draw("same");
    mgA->SetTitle("");
-   mgA->GetXaxis()->SetTitle("m (GeV/c^{2})");
+   mgA->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
    mgA->GetYaxis()->SetTitle("#sigma (pb)");
    mgA->GetYaxis()->SetTitleOffset(1.70);
    mgA->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
@@ -258,8 +247,11 @@ stGraph Analysis_Step6_Core(string InputPattern){
    TCanvas* c1;
 
 
-   GetPredictionRescale(string("Results/") + InputPattern,RescaleFactor, RescaleError, true);
-   RescaleError*=2.0;
+//   GetPredictionRescale(InputPattern,RescaleFactor, RescaleError, true);
+//   RescaleError*=2.0;
+
+   RescaleFactor = 1.0;
+   RescaleError  = 0.1;
 
 
    GetSignalDefinition(signals);
@@ -268,7 +260,7 @@ stGraph Analysis_Step6_Core(string InputPattern){
 
    bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
 
-   string outpath = string("Results/EXCLUSION/") + InputPattern;
+   string outpath = InputPattern + "/EXCLUSION/"; 
    MakeDirectories(outpath);
 
 
@@ -344,12 +336,24 @@ stGraph Analysis_Step6_Core(string InputPattern){
    stAllInfo Stop500N     = Exclusion("Stop500N",InputPattern, 0.1705 / 0.1705 , 0.4868 / 0.4868 , 0.3427 / 0.3427);
    stAllInfo Stop800N     = Exclusion("Stop800N",InputPattern, 0.1705 / 0.1705 , 0.4868 / 0.4868 , 0.3427 / 0.3427);
 
-   stAllInfo Stau100      = Exclusion("Stau100"  ,InputPattern);
-   stAllInfo Stau126      = Exclusion("Stau126"  ,InputPattern);
-   stAllInfo Stau156      = Exclusion("Stau156"  ,InputPattern);
-   stAllInfo Stau200      = Exclusion("Stau200"  ,InputPattern);
-   stAllInfo Stau247      = Exclusion("Stau247"  ,InputPattern);
-   stAllInfo Stau308      = Exclusion("Stau308"  ,InputPattern);
+   stAllInfo GMStau100      = Exclusion("GMStau100"  ,InputPattern);
+   stAllInfo GMStau126      = Exclusion("GMStau126"  ,InputPattern);
+   stAllInfo GMStau156      = Exclusion("GMStau156"  ,InputPattern);
+   stAllInfo GMStau200      = Exclusion("GMStau200"  ,InputPattern);
+   stAllInfo GMStau247      = Exclusion("GMStau247"  ,InputPattern);
+   stAllInfo GMStau308      = Exclusion("GMStau308"  ,InputPattern);
+
+   stAllInfo PPStau100      = Exclusion("PPStau100"  ,InputPattern);
+   stAllInfo PPStau126      = Exclusion("PPStau126"  ,InputPattern);
+   stAllInfo PPStau156      = Exclusion("PPStau156"  ,InputPattern);
+   stAllInfo PPStau200      = Exclusion("PPStau200"  ,InputPattern);
+   stAllInfo PPStau247      = Exclusion("PPStau247"  ,InputPattern);
+   stAllInfo PPStau308      = Exclusion("PPStau308"  ,InputPattern);
+
+   stAllInfo DCStau121      = Exclusion("DCStau121"  ,InputPattern);
+   stAllInfo DCStau182      = Exclusion("DCStau182"  ,InputPattern);
+   stAllInfo DCStau242      = Exclusion("DCStau242"  ,InputPattern);
+   stAllInfo DCStau302      = Exclusion("DCStau302"  ,InputPattern);
 
    double Gluino2C_Mass   [] = {Gluino200_2C.Mass    , Gluino300_2C.Mass    , Gluino400_2C.Mass    , Gluino500_2C.Mass    , Gluino600_2C.Mass    , Gluino900_2C.Mass    };
    double Gluino2C_XSecTh [] = {Gluino200_2C.XSec_Th , Gluino300_2C.XSec_Th , Gluino400_2C.XSec_Th , Gluino500_2C.XSec_Th , Gluino600_2C.XSec_Th , Gluino900_2C.XSec_Th };
@@ -412,12 +416,23 @@ stGraph Analysis_Step6_Core(string InputPattern){
    double StopN_XSecObs    [] = {Stop130N.XSec_Obs     , Stop200N.XSec_Obs     , Stop300N.XSec_Obs     , Stop500N.XSec_Obs     , Stop800N.XSec_Obs   };
    double StopN_XSecExp    [] = {Stop130N.XSec_Exp     , Stop200N.XSec_Exp     , Stop300N.XSec_Exp     , Stop500N.XSec_Exp     , Stop800N.XSec_Exp   };
 
-   double Stau_Mass       [] = {Stau100.Mass         , Stau126.Mass         , Stau156.Mass         , Stau200.Mass         , Stau247.Mass         , Stau308.Mass         };
-   double Stau_XSecTh     [] = {Stau100.XSec_Th      , Stau126.XSec_Th      , Stau156.XSec_Th      , Stau200.XSec_Th      , Stau247.XSec_Th      , Stau308.XSec_Th      };
-   double Stau_XSecErr    [] = {Stau100.XSec_Err     , Stau126.XSec_Err     , Stau156.XSec_Err     , Stau200.XSec_Err     , Stau247.XSec_Err     , Stau308.XSec_Err     };
-   double Stau_XSecObs    [] = {Stau100.XSec_Obs     , Stau126.XSec_Obs     , Stau156.XSec_Obs     , Stau200.XSec_Obs     , Stau247.XSec_Obs     , Stau308.XSec_Obs     };
-   double Stau_XSecExp    [] = {Stau100.XSec_Exp     , Stau126.XSec_Exp     , Stau156.XSec_Exp     , Stau200.XSec_Exp     , Stau247.XSec_Exp     , Stau308.XSec_Exp     };
+   double GMStau_Mass       [] = {GMStau100.Mass         , GMStau126.Mass         , GMStau156.Mass         , GMStau200.Mass         , GMStau247.Mass         , GMStau308.Mass         };
+   double GMStau_XSecTh     [] = {GMStau100.XSec_Th      , GMStau126.XSec_Th      , GMStau156.XSec_Th      , GMStau200.XSec_Th      , GMStau247.XSec_Th      , GMStau308.XSec_Th      };
+   double GMStau_XSecErr    [] = {GMStau100.XSec_Err     , GMStau126.XSec_Err     , GMStau156.XSec_Err     , GMStau200.XSec_Err     , GMStau247.XSec_Err     , GMStau308.XSec_Err     };
+   double GMStau_XSecObs    [] = {GMStau100.XSec_Obs     , GMStau126.XSec_Obs     , GMStau156.XSec_Obs     , GMStau200.XSec_Obs     , GMStau247.XSec_Obs     , GMStau308.XSec_Obs     };
+   double GMStau_XSecExp    [] = {GMStau100.XSec_Exp     , GMStau126.XSec_Exp     , GMStau156.XSec_Exp     , GMStau200.XSec_Exp     , GMStau247.XSec_Exp     , GMStau308.XSec_Exp     };
 
+   double PPStau_Mass       [] = {PPStau100.Mass         , PPStau126.Mass         , PPStau156.Mass         , PPStau200.Mass         , PPStau247.Mass         , PPStau308.Mass         };
+   double PPStau_XSecTh     [] = {PPStau100.XSec_Th      , PPStau126.XSec_Th      , PPStau156.XSec_Th      , PPStau200.XSec_Th      , PPStau247.XSec_Th      , PPStau308.XSec_Th      };
+   double PPStau_XSecErr    [] = {PPStau100.XSec_Err     , PPStau126.XSec_Err     , PPStau156.XSec_Err     , PPStau200.XSec_Err     , PPStau247.XSec_Err     , PPStau308.XSec_Err     };
+   double PPStau_XSecObs    [] = {PPStau100.XSec_Obs     , PPStau126.XSec_Obs     , PPStau156.XSec_Obs     , PPStau200.XSec_Obs     , PPStau247.XSec_Obs     , PPStau308.XSec_Obs     };
+   double PPStau_XSecExp    [] = {PPStau100.XSec_Exp     , PPStau126.XSec_Exp     , PPStau156.XSec_Exp     , PPStau200.XSec_Exp     , PPStau247.XSec_Exp     , PPStau308.XSec_Exp     };
+
+   double DCStau_Mass       [] = {DCStau121.Mass         , DCStau182.Mass         , DCStau242.Mass         , DCStau302.Mass       };
+   double DCStau_XSecTh     [] = {DCStau121.XSec_Th      , DCStau182.XSec_Th      , DCStau242.XSec_Th      , DCStau302.XSec_Th    };
+   double DCStau_XSecErr    [] = {DCStau121.XSec_Err     , DCStau182.XSec_Err     , DCStau242.XSec_Err     , DCStau302.XSec_Err   };
+   double DCStau_XSecObs    [] = {DCStau121.XSec_Obs     , DCStau182.XSec_Obs     , DCStau242.XSec_Obs     , DCStau302.XSec_Obs   };
+   double DCStau_XSecExp    [] = {DCStau121.XSec_Exp     , DCStau182.XSec_Exp     , DCStau242.XSec_Exp     , DCStau302.XSec_Exp   };
 
    printf("gluino F0 mass (GeV/$c^2$)      & %3.0f & %3.0f & %3.0f & %3.0f & %3.0f & %3.0f \\\\ \\hline\n",Gluino200_f0.Mass, Gluino300_f0.Mass, Gluino400_f0.Mass, Gluino500_f0.Mass, Gluino600_f0.Mass, Gluino900_f0.Mass);
    printf("Total acceptance (\\%%)         & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f \\\\\n",100.*Gluino200_f0.Eff,100.*Gluino300_f0.Eff,100.*Gluino400_f0.Eff,100.*Gluino500_f0.Eff,100.*Gluino600_f0.Eff,100.*Gluino900_f0.Eff);
@@ -467,12 +482,24 @@ stGraph Analysis_Step6_Core(string InputPattern){
    printf("Observed 95\\%% C.L. limit (pb) & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f &       \\\\\n",Stop130N.XSec_Obs, Stop200N.XSec_Obs, Stop300N.XSec_Obs, Stop500N.XSec_Obs, Stop800N.XSec_Obs);
    printf("Theoretical cross section (pb)  & %3.0f & %3.1f & %4.2f & %5.3f & %6.4f &       \\\\ \\hline\n",Stop130N.XSec_Th, Stop200N.XSec_Th, Stop300N.XSec_Th, Stop500N.XSec_Th, Stop800N.XSec_Th);
    printf("\\hline\n");
-   printf("stau mass (GeV/$c^2$)           & %3.0f & %3.0f & %3.0f & %3.0f & %3.0f & %3.0f \\\\ \\hline\n",Stau100.Mass, Stau126.Mass, Stau156.Mass, Stau200.Mass, Stau247.Mass, Stau308.Mass);
-   printf("Total acceptance (\\%%)         & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f \\\\\n",100.*Stau100.Eff,100.*Stau126.Eff,100.*Stau156.Eff,100.*Stau200.Eff,100.*Stau247.Eff, 100.*Stau308.Eff); 
-   printf("Expected 95\\%% C.L. limit (pb) & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f \\\\\n",Stau100.XSec_Exp, Stau126.XSec_Exp, Stau156.XSec_Exp, Stau200.XSec_Exp, Stau247.XSec_Exp, Stau308.XSec_Exp); 
-   printf("Observed 95\\%% C.L. limit (pb) & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f \\\\\n",Stau100.XSec_Obs, Stau126.XSec_Obs, Stau156.XSec_Obs, Stau200.XSec_Obs, Stau247.XSec_Obs, Stau308.XSec_Obs);
-   printf("Theoretical cross section (pb)  & %4.2f & %4.2f & %5.3f & %5.3f & %5.3f & %5.3f \\\\ \\hline\n",Stau100.XSec_Th, Stau126.XSec_Th, Stau156.XSec_Th, Stau200.XSec_Th, Stau247.XSec_Th,Stau308.XSec_Th);
-
+   printf("GMSB stau mass (GeV/$c^2$)      & %3.0f & %3.0f & %3.0f & %3.0f & %3.0f & %3.0f \\\\ \\hline\n",GMStau100.Mass, GMStau126.Mass, GMStau156.Mass, GMStau200.Mass, GMStau247.Mass, GMStau308.Mass);
+   printf("Total acceptance (\\%%)         & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f \\\\\n",100.*GMStau100.Eff,100.*GMStau126.Eff,100.*GMStau156.Eff,100.*GMStau200.Eff,100.*GMStau247.Eff, 100.*GMStau308.Eff); 
+   printf("Expected 95\\%% C.L. limit (pb) & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f \\\\\n",GMStau100.XSec_Exp, GMStau126.XSec_Exp, GMStau156.XSec_Exp, GMStau200.XSec_Exp, GMStau247.XSec_Exp, GMStau308.XSec_Exp); 
+   printf("Observed 95\\%% C.L. limit (pb) & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f \\\\\n",GMStau100.XSec_Obs, GMStau126.XSec_Obs, GMStau156.XSec_Obs, GMStau200.XSec_Obs, GMStau247.XSec_Obs, GMStau308.XSec_Obs);
+   printf("Theoretical cross section (pb)  & %4.2f & %4.2f & %5.3f & %5.3f & %5.3f & %5.3f \\\\ \\hline\n",GMStau100.XSec_Th, GMStau126.XSec_Th, GMStau156.XSec_Th, GMStau200.XSec_Th, GMStau247.XSec_Th,GMStau308.XSec_Th);
+   printf("\\hline\n");   
+   printf("PP stau mass (GeV/$c^2$)        & %3.0f & %3.0f & %3.0f & %3.0f & %3.0f & %3.0f \\\\ \\hline\n",PPStau100.Mass, PPStau126.Mass, PPStau156.Mass, PPStau200.Mass, PPStau247.Mass, PPStau308.Mass);
+   printf("Total acceptance (\\%%)         & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f \\\\\n",100.*PPStau100.Eff,100.*PPStau126.Eff,100.*PPStau156.Eff,100.*PPStau200.Eff,100.*PPStau247.Eff, 100.*PPStau308.Eff); 
+   printf("Expected 95\\%% C.L. limit (pb) & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f \\\\\n",PPStau100.XSec_Exp, PPStau126.XSec_Exp, PPStau156.XSec_Exp, PPStau200.XSec_Exp, PPStau247.XSec_Exp, PPStau308.XSec_Exp); 
+   printf("Observed 95\\%% C.L. limit (pb) & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f & %4.2f \\\\\n",PPStau100.XSec_Obs, PPStau126.XSec_Obs, PPStau156.XSec_Obs, PPStau200.XSec_Obs, PPStau247.XSec_Obs, PPStau308.XSec_Obs);
+   printf("Theoretical cross section (pb)  & %4.2f & %4.2f & %5.3f & %5.3f & %5.3f & %5.3f \\\\ \\hline\n",PPStau100.XSec_Th, PPStau126.XSec_Th, PPStau156.XSec_Th, PPStau200.XSec_Th, PPStau247.XSec_Th,PPStau308.XSec_Th);
+   printf("\\hline\n");   
+   printf("DICHAMP stau mass (GeV/$c^2$)   & %3.0f & %3.0f & %3.0f & %3.0f &       &       \\\\ \\hline\n",DCStau121.Mass, DCStau182.Mass, DCStau242.Mass, DCStau302.Mass);
+   printf("Total acceptance (\\%%)         & %4.2f & %4.2f & %4.2f & %4.2f &       &       \\\\\n",100.*DCStau121.Eff,100.*DCStau182.Eff,100.*DCStau242.Eff,100.*DCStau302.Eff); 
+   printf("Expected 95\\%% C.L. limit (pb) & %4.2f & %4.2f & %4.2f & %4.2f &       &       \\\\\n",DCStau121.XSec_Exp, DCStau182.XSec_Exp, DCStau242.XSec_Exp, DCStau302.XSec_Exp); 
+   printf("Observed 95\\%% C.L. limit (pb) & %4.2f & %4.2f & %4.2f & %4.2f &       &       \\\\\n",DCStau121.XSec_Obs, DCStau182.XSec_Obs, DCStau242.XSec_Obs, DCStau302.XSec_Obs);
+   printf("Theoretical cross section (pb)  & %4.2f & %4.2f & %5.3f & %5.3f &       &       \\\\ \\hline\n",DCStau121.XSec_Th, DCStau182.XSec_Th, DCStau242.XSec_Th, DCStau302.XSec_Th);
+   printf("\\hline\n");   
 
    double ThGluinoMass [100];
    double ThGluinoXSec [100];
@@ -514,20 +541,54 @@ stGraph Analysis_Step6_Core(string InputPattern){
    TCutG* StopXSecErr = GetErrorBand("StopErr", ThStopN,ThStopMass,ThStopLow,ThStopHigh);
    TGraph* StopXSecLow = new TGraph(ThStopN,ThStopMass,ThStopLow);
 
-   TGraph* StauXSec = new TGraph(6,Stau_Mass,Stau_XSecTh);
-   StauXSec->SetLineColor(1);
-   StauXSec->SetLineStyle(7);
-   StauXSec->SetLineWidth(1);
-   StauXSec->SetMarkerColor(1);
-   StauXSec->SetTitle("");
-   StauXSec->GetXaxis()->SetTitle("Stau HSCP Mass [ GeV/c^{2} ]");
-   StauXSec->GetYaxis()->SetTitle("CrossSection [ pb ]");
-   StauXSec->GetYaxis()->SetTitleOffset(1.70);
-   TGraphErrors* StauXSecErr = new TGraphErrors(6,Stau_Mass,Stau_XSecTh, NULL, Stau_XSecErr);
-   StauXSecErr->SetLineStyle(0);
-   StauXSecErr->SetLineWidth(0);
-   StauXSecErr->SetLineColor(0);
-   StauXSecErr->SetFillColor(kGreen-7);
+   TGraph* GMStauXSec = new TGraph(6,GMStau_Mass,GMStau_XSecTh);
+   GMStauXSec->SetLineColor(1);
+   GMStauXSec->SetLineStyle(7);
+   GMStauXSec->SetLineWidth(1);
+   GMStauXSec->SetMarkerColor(1);
+   GMStauXSec->SetTitle("");
+   GMStauXSec->GetXaxis()->SetTitle("GMStau HSCP Mass [ GeV/c^{2} ]");
+   GMStauXSec->GetYaxis()->SetTitle("CrossSection [ pb ]");
+   GMStauXSec->GetYaxis()->SetTitleOffset(1.70);
+   TGraphErrors* GMStauXSecErr = new TGraphErrors(6,GMStau_Mass,GMStau_XSecTh, NULL, GMStau_XSecErr);
+   GMStauXSecErr->SetLineStyle(0);
+   GMStauXSecErr->SetLineWidth(0);
+   GMStauXSecErr->SetLineColor(0);
+   GMStauXSecErr->SetFillColor(kGreen-7);
+
+
+
+   TGraph* PPStauXSec = new TGraph(6,PPStau_Mass,PPStau_XSecTh);
+   PPStauXSec->SetLineColor(12);
+   PPStauXSec->SetLineStyle(6);
+   PPStauXSec->SetLineWidth(1);
+   PPStauXSec->SetMarkerColor(1);
+   PPStauXSec->SetTitle("");
+   PPStauXSec->GetXaxis()->SetTitle("PPStau HSCP Mass [ GeV/c^{2} ]");
+   PPStauXSec->GetYaxis()->SetTitle("CrossSection [ pb ]");
+   PPStauXSec->GetYaxis()->SetTitleOffset(1.70);
+   TGraphErrors* PPStauXSecErr = new TGraphErrors(6,PPStau_Mass,PPStau_XSecTh, NULL, PPStau_XSecErr);
+   PPStauXSecErr->SetLineStyle(0);
+   PPStauXSecErr->SetLineWidth(0);
+   PPStauXSecErr->SetLineColor(0);
+   PPStauXSecErr->SetFillColor(kGreen-7);
+
+   TGraph* DCStauXSec = new TGraph(4,DCStau_Mass,DCStau_XSecTh);
+   DCStauXSec->SetLineColor(15);
+   DCStauXSec->SetLineStyle(5);
+   DCStauXSec->SetLineWidth(1);
+   DCStauXSec->SetMarkerColor(1);
+   DCStauXSec->SetTitle("");
+   DCStauXSec->GetXaxis()->SetTitle("DCStau HSCP Mass [ GeV/c^{2} ]");
+   DCStauXSec->GetYaxis()->SetTitle("CrossSection [ pb ]");
+   DCStauXSec->GetYaxis()->SetTitleOffset(1.70);
+   TGraphErrors* DCStauXSecErr = new TGraphErrors(4,DCStau_Mass,DCStau_XSecTh, NULL, DCStau_XSecErr);
+   DCStauXSecErr->SetLineStyle(0);
+   DCStauXSecErr->SetLineWidth(0);
+   DCStauXSecErr->SetLineColor(0);
+   DCStauXSecErr->SetFillColor(kGreen-7);
+
+
 
    /////////////////////////// OBSERVED /////////////////////////
 
@@ -689,27 +750,61 @@ stGraph Analysis_Step6_Core(string InputPattern){
 
 
    c1 = new TCanvas("c1", "c1",600,600);
-   TGraph* StauExclusion = new TGraph(6,Stau_Mass,Stau_XSecObs);
-   StauExclusion->SetLineColor(1);
-   StauExclusion->SetLineWidth(2);
-   StauExclusion->SetFillColor(1);
-   StauExclusion->SetMarkerColor(1);
-   StauExclusion->SetMarkerStyle(21);
-   StauExclusion->Draw("ALP same");
-   StauExclusion->SetTitle("");
-   StauExclusion->GetXaxis()->SetTitle("Stau HSCP Mass [ GeV/c^{2} ]");
-   StauExclusion->GetYaxis()->SetTitle("CrossSection [ pb ]");
-   StauExclusion->GetYaxis()->SetTitleOffset(1.70);
-   SaveCanvas(c1, outpath, "ExclusionPlot_Stau");
+   TGraph* GMStauExclusion = new TGraph(6,GMStau_Mass,GMStau_XSecObs);
+   GMStauExclusion->SetLineColor(1);
+   GMStauExclusion->SetLineWidth(2);
+   GMStauExclusion->SetFillColor(1);
+   GMStauExclusion->SetMarkerColor(1);
+   GMStauExclusion->SetMarkerStyle(21);
+   GMStauExclusion->Draw("ALP same");
+   GMStauExclusion->SetTitle("");
+   GMStauExclusion->GetXaxis()->SetTitle("GMStau HSCP Mass [ GeV/c^{2} ]");
+   GMStauExclusion->GetYaxis()->SetTitle("CrossSection [ pb ]");
+   GMStauExclusion->GetYaxis()->SetTitleOffset(1.70);
+   SaveCanvas(c1, outpath, "ExclusionPlot_GMStau");
+   delete c1;
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   TGraph* PPStauExclusion = new TGraph(6,PPStau_Mass,PPStau_XSecObs);
+   PPStauExclusion->SetLineColor(12);
+   PPStauExclusion->SetLineWidth(2);
+   PPStauExclusion->SetFillColor(1);
+   PPStauExclusion->SetMarkerColor(12);
+   PPStauExclusion->SetMarkerStyle(22);
+   PPStauExclusion->Draw("ALP same");
+   PPStauExclusion->SetTitle("");
+   PPStauExclusion->GetXaxis()->SetTitle("PPStau HSCP Mass [ GeV/c^{2} ]");
+   PPStauExclusion->GetYaxis()->SetTitle("CrossSection [ pb ]");
+   PPStauExclusion->GetYaxis()->SetTitleOffset(1.70);
+   SaveCanvas(c1, outpath, "ExclusionPlot_PPStau");
+   delete c1;
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   TGraph* DCStauExclusion = new TGraph(4,DCStau_Mass,DCStau_XSecObs);
+   DCStauExclusion->SetLineColor(15);
+   DCStauExclusion->SetLineWidth(2);
+   DCStauExclusion->SetFillColor(1);
+   DCStauExclusion->SetMarkerColor(15);
+   DCStauExclusion->SetMarkerStyle(29);
+   DCStauExclusion->Draw("ALP same");
+   DCStauExclusion->SetTitle("");
+   DCStauExclusion->GetXaxis()->SetTitle("DCStau HSCP Mass [ GeV/c^{2} ]");
+   DCStauExclusion->GetYaxis()->SetTitle("CrossSection [ pb ]");
+   DCStauExclusion->GetYaxis()->SetTitleOffset(1.70);
+   SaveCanvas(c1, outpath, "ExclusionPlot_DCStau");
    delete c1;
 
    c1 = new TCanvas("c1", "c1",600,600);
    c1->SetLogy(true);
    TMultiGraph* mg = new TMultiGraph();
-   mg->Add(StauXSec         ,"L");
+   mg->Add(GMStauXSec         ,"L");
+   mg->Add(PPStauXSec         ,"L");
+   mg->Add(DCStauXSec         ,"L");
    mg->Add(StopXSec         ,"L");
    mg->Add(GluinoXSec       ,"L");
-   mg->Add(StauExclusion    ,"LP");
+   mg->Add(GMStauExclusion    ,"LP");
+   mg->Add(PPStauExclusion    ,"LP");
+   mg->Add(DCStauExclusion    ,"LP");
    mg->Add(StopExclusion    ,"LP");
    mg->Add(GluinoExclusionF1,"LP");
    mg->Draw("A");
@@ -717,30 +812,30 @@ stGraph Analysis_Step6_Core(string InputPattern){
    StopXSecErr->Draw("f");
    mg->Draw("same");
    mg->SetTitle("");
-   mg->GetXaxis()->SetTitle("m (GeV/c^{2})");
+   mg->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
    mg->GetYaxis()->SetTitle("#sigma (pb)");
    mg->GetYaxis()->SetTitleOffset(1.70);
    mg->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-
    DrawPreliminary(IntegratedLuminosity);
+
    TLegend* leg = new TLegend(0.40,0.75,0.80,0.90);
-   if(IsTrackerOnly){
-      leg->SetHeader("95% C.L. Exclusion (Tracker - Only)");
-   }else{
-      leg->SetHeader("95% C.L. Exclusion (Tracker + Muon)");
-   }
+   leg->SetHeader((string("95% C.L. Exclusion  (") + LegendFromType(InputPattern) + ")").c_str() );
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(GluinoExclusionF1, "Gluino"   ,"LP");
    leg->AddEntry(StopExclusion    , "Stop"     ,"LP");
-   leg->AddEntry(StauExclusion    , "Stau"     ,"LP");
+   leg->AddEntry(GMStauExclusion    , "GMStau"     ,"LP");
+   leg->AddEntry(PPStauExclusion    , "PPStau"     ,"LP");
+   leg->AddEntry(DCStauExclusion    , "DCStau"     ,"LP");
    leg->Draw();
 
    TLegend* leg2 = new TLegend(0.15,0.75,0.40,0.90);
    leg2->SetHeader("Theoretical Prediction");
    leg2->SetFillColor(0);
    leg2->SetBorderSize(0);
-   leg2->AddEntry(StauXSec  , "Stau (LO)"  ,"L");
+   leg2->AddEntry(GMStauXSec  , "GMStau (LO)"  ,"L");
+   leg2->AddEntry(PPStauXSec  , "PPStau (LO)"  ,"L");
+   leg2->AddEntry(DCStauXSec  , "DCStau (LO)"  ,"L");
    leg2->AddEntry(StopXSec  , "Stop (NLO+NLL)"  ,"L");
    leg2->AddEntry(GluinoXSec, "Gluino (NLO+NLL)","L");
 //   leg2->AddEntry(GluinoXSecErr, "Th. Uncertainty","F");
@@ -753,12 +848,14 @@ stGraph Analysis_Step6_Core(string InputPattern){
    SaveCanvas(c1, outpath, string("ExclusionPlot"));
    delete c1;
 
+  std::cout<<"TESTF"<< endl;
+
    c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* mgA = new TMultiGraph();
-   mgA->Add(StauXSec         ,"L");
+   mgA->Add(GMStauXSec         ,"L");
    mgA->Add(StopXSec         ,"L");
    mgA->Add(GluinoXSec       ,"L");
-   mgA->Add(StauExclusion    ,"LP");
+   mgA->Add(GMStauExclusion    ,"LP");
    mgA->Add(StopExclusion    ,"LP");
    mgA->Add(StopExclusion2C  ,"LP");
    mgA->Add(GluinoExclusionF0,"LP");
@@ -770,7 +867,7 @@ stGraph Analysis_Step6_Core(string InputPattern){
    StopXSecErr->Draw("f");
    mgA->Draw("same");
    mgA->SetTitle("");
-   mgA->GetXaxis()->SetTitle("m (GeV/c^{2})");
+   mgA->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
    mgA->GetYaxis()->SetTitle("#sigma (pb)");
    mgA->GetYaxis()->SetTitleOffset(1.70);
    mgA->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
@@ -791,14 +888,14 @@ stGraph Analysis_Step6_Core(string InputPattern){
    legA->AddEntry(GluinoExclusionF5, "Gluino (f=0.5)"   ,"LP");
    legA->AddEntry(StopExclusion2C  , "Stop (2Charged)"  ,"LP");
    legA->AddEntry(StopExclusion    , "Stop (PYTHIA)"    ,"LP");
-   legA->AddEntry(StauExclusion    , "Stau"             ,"LP");
+   legA->AddEntry(GMStauExclusion    , "GMStau"             ,"LP");
    legA->Draw();
 
    TLegend* leg2A = new TLegend(0.15,0.75,0.40,0.90);
    leg2A->SetHeader("Theoretical Prediction");
    leg2A->SetFillColor(0);
    leg2A->SetBorderSize(0);
-   leg2A->AddEntry(StauXSec  , "Stau (LO)"  ,"L");
+   leg2A->AddEntry(GMStauXSec  , "GMStau (LO)"  ,"L");
    leg2A->AddEntry(StopXSec  , "Stop (NLO+NLL)"  ,"L");
    leg2A->AddEntry(GluinoXSec, "Gluino (NLO+NLL)","L");
 //   leg2A->AddEntry(GluinoXSecErr, "Th. Uncertainty","F");
@@ -811,32 +908,6 @@ stGraph Analysis_Step6_Core(string InputPattern){
    delete c1;
 
 
-   printf("-----------------------\n0%% Uncertainty\n-------------------------\n");
-   printf("MASS EXCLUDED UP TO %8.3fGeV for Gluino2C \n", FindIntersection(GluinoExclusion2C, GluinoXSec, 200, 900, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoF0 \n", FindIntersection(GluinoExclusionF0, GluinoXSec, 200, 900, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 \n", FindIntersection(GluinoExclusionF1, GluinoXSec, 200, 900, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoF5 \n", FindIntersection(GluinoExclusionF5, GluinoXSec, 200, 900, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoNF0\n", FindIntersection(GluinoExclusionNF0,GluinoXSec, 200, 900, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoNF1\n", FindIntersection(GluinoExclusionNF1,GluinoXSec, 200, 900, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoNF5\n", FindIntersection(GluinoExclusionNF5,GluinoXSec, 200, 900, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for Stop2C   \n", FindIntersection(StopExclusion2C  , StopXSec  ,  80, 500, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for Stop     \n", FindIntersection(StopExclusion    , StopXSec  ,  80, 500, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for StopN    \n", FindIntersection(StopNExclusion   , StopXSec  ,  80, 500, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for Stau     \n", FindIntersection(StauExclusion    , StauXSec  , 100, 308, 1, 0.00));
-
-   printf("-----------------------\n15%% Uncertainty\n-------------------------\n");
-   printf("MASS EXCLUDED UP TO %8.3fGeV for Gluino2C \n", FindIntersection(GluinoExclusion2C, GluinoXSec, 200, 900, 1, 0.15));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoF0 \n", FindIntersection(GluinoExclusionF0, GluinoXSec, 200, 900, 1, 0.15));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 \n", FindIntersection(GluinoExclusionF1, GluinoXSec, 200, 900, 1, 0.15));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoF5 \n", FindIntersection(GluinoExclusionF5, GluinoXSec, 200, 900, 1, 0.15));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoNF0\n", FindIntersection(GluinoExclusionNF0,GluinoXSec, 200, 900, 1, 0.15));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoNF1\n", FindIntersection(GluinoExclusionNF1,GluinoXSec, 200, 900, 1, 0.15));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoNF5\n", FindIntersection(GluinoExclusionNF5,GluinoXSec, 200, 900, 1, 0.15));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for Stop2C   \n", FindIntersection(StopExclusion2C  , StopXSec  ,  80, 500, 1, 0.15));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for Stop     \n", FindIntersection(StopExclusion    , StopXSec  ,  80, 500, 1, 0.15));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for StopN    \n", FindIntersection(StopNExclusion   , StopXSec  ,  80, 500, 1, 0.15));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for Stau     \n", FindIntersection(StauExclusion    , StauXSec  , 100, 308, 1, 0.15));
-
    printf("-----------------------\n0%% TH Uncertainty\n-------------------------\n");
    printf("MASS EXCLUDED UP TO %8.3fGeV for Gluino2C \n", FindIntersection(GluinoExclusion2C, GluinoXSecLow, 200, 900, 1, 0.00));
    printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoF0 \n", FindIntersection(GluinoExclusionF0, GluinoXSecLow, 200, 900, 1, 0.00));
@@ -845,11 +916,12 @@ stGraph Analysis_Step6_Core(string InputPattern){
    printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoNF0\n", FindIntersection(GluinoExclusionNF0,GluinoXSecLow, 200, 900, 1, 0.00));
    printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoNF1\n", FindIntersection(GluinoExclusionNF1,GluinoXSecLow, 200, 900, 1, 0.00));
    printf("MASS EXCLUDED UP TO %8.3fGeV for GluinoNF5\n", FindIntersection(GluinoExclusionNF5,GluinoXSecLow, 200, 900, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for Stop2C   \n", FindIntersection(StopExclusion2C  , StopXSecLow  ,  80, 500, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for Stop     \n", FindIntersection(StopExclusion    , StopXSecLow  ,  80, 500, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for StopN    \n", FindIntersection(StopNExclusion   , StopXSecLow  ,  80, 500, 1, 0.00));
-   printf("MASS EXCLUDED UP TO %8.3fGeV for Stau     \n", FindIntersection(StauExclusion    , StauXSec     , 100, 308, 1, 0.15));
-
+   printf("MASS EXCLUDED UP TO %8.3fGeV for Stop2C   \n", FindIntersection(StopExclusion2C  , StopXSecLow  , 200, 500, 1, 0.00));
+   printf("MASS EXCLUDED UP TO %8.3fGeV for Stop     \n", FindIntersection(StopExclusion    , StopXSecLow  , 200, 500, 1, 0.00));
+   printf("MASS EXCLUDED UP TO %8.3fGeV for StopN    \n", FindIntersection(StopNExclusion   , StopXSecLow  , 200, 500, 1, 0.00));
+   printf("MASS EXCLUDED UP TO %8.3fGeV for GMStau     \n", FindIntersection(GMStauExclusion    , GMStauXSec     , 100, 308, 1, 0.15));
+   printf("MASS EXCLUDED UP TO %8.3fGeV for PPStau     \n", FindIntersection(PPStauExclusion    , PPStauXSec     , 100, 308, 1, 0.15));
+   printf("MASS EXCLUDED UP TO %8.3fGeV for DCStau     \n", FindIntersection(DCStauExclusion    , DCStauXSec     , 121, 302, 1, 0.15));
    stGraph ToReturn;
    ToReturn.Stop        = StopExclusion;
    ToReturn.StopN       = StopNExclusion;
@@ -859,10 +931,10 @@ stGraph Analysis_Step6_Core(string InputPattern){
    ToReturn.GluinoNF0   = GluinoExclusionNF0;
    ToReturn.GluinoNF1   = GluinoExclusionNF1;
    ToReturn.GluinoNF5   = GluinoExclusionNF5;
-   ToReturn.Stau        = StauExclusion;
+   ToReturn.GMStau        = GMStauExclusion;
    ToReturn.GluinoTh    = GluinoXSec;
    ToReturn.StopTh      = StopXSec;
-   ToReturn.StauTh      = StauXSec;
+   ToReturn.GMStauTh      = GMStauXSec;
    ToReturn.GluinoThErr = GluinoXSecErr;
    ToReturn.StopThErr   = StopXSecErr;
    return ToReturn;
@@ -881,18 +953,18 @@ stAllInfo Exclusion_Counting(string signal, string pattern, double Ratio_0C, dou
    stAllInfo toReturn;
 
    double RatioValue[] = {Ratio_0C, Ratio_1C, Ratio_2C};
-   string RatioName [] = {"_0C"  , "_1C"    , "_2C"   };
+   string RatioName [] = {"_NC0"  , "_NC1"    , "_NC2"   };
 
-   InputPath            = "Results/" + pattern + "DumpHistos.root";
+   InputPath            = pattern + "DumpHistos.root";
    TFile* InputFile     = new TFile(InputPath.c_str());
-   MassData             = (TH1D*)GetObjectFromPath(InputFile, "Mass_Data");
-   MassPred             = (TH1D*)GetObjectFromPath(InputFile, "Mass_Pred");
+   MassData             = (TH1D*)GetObjectFromPath(InputFile, "Data_Mass");
+   MassPred             = (TH1D*)GetObjectFromPath(InputFile, "Pred_Mass");
 
    double NPredErr    = 0;
    for(int i=MassPred->GetXaxis()->FindBin(MinRange); i<=MassPred->GetXaxis()->FindBin(MaxRange) ;i++){NPredErr+=(MassPred->GetBinError(i)*MassPred->GetBinError(i));}NPredErr=sqrt(NPredErr);
    double NPred       = MassPred->Integral(MassPred->GetXaxis()->FindBin(MinRange), MassPred->GetXaxis()->FindBin(MaxRange));
    double NData       = MassData->Integral(MassData->GetXaxis()->FindBin(MinRange), MassData->GetXaxis()->FindBin(MaxRange));
-   if(NData>0)printf("\n###############################\n BUG BUG Counter #Events is not 0 in data --> can not do exclusion!!! \n ###############################\n\n");
+//   if(NData>0)printf("\n###############################\n BUG BUG Counter #Events is not 0 in data --> can not do exclusion!!! \n ###############################\n\n");
 
    double Eff       = 0;
    double Eff_SYSTA = 0;
@@ -900,37 +972,34 @@ stAllInfo Exclusion_Counting(string signal, string pattern, double Ratio_0C, dou
 
    printf("%20s Total Eff = ",signal.c_str());
 
-
    if(RatioValue[0]<0 && RatioValue[1]<0 && RatioValue[2]<0){
       CurrentSampleIndex   = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return toReturn;  } 
-      MassSign             = (TH1D*)GetObjectFromPath(InputFile, string("Mass_") + signals[CurrentSampleIndex].Name );
-      TH1D* MassSign_SYSTA = (TH1D*)GetObjectFromPath(InputFile, string("Mass_") + signals[CurrentSampleIndex].Name + "_Syst_PtLow");
-      TH1D* MassSign_SYSTB = (TH1D*)GetObjectFromPath(InputFile, string("Mass_") + signals[CurrentSampleIndex].Name + "_Syst_ILow");
-
+      MassSign             = (TH1D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name + "_Mass" );
+      TH1D* MassSign_SYSTA = (TH1D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name + "_Mass_Syst_PtLow");
+      TH1D* MassSign_SYSTB = (TH1D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name + "_Mass_Syst_ILow");
       //signalsMeanHSCPPerEvent is there because we need #events and not #tracks, and NSIgn is at Track (and Not Event) Level.
       //double INTERN_NSign       = MassSign->Integral(MassSign            ->GetXaxis()->FindBin(MinRange), MassSign      ->GetXaxis()->FindBin(MaxRange));
-      double INTERN_ESign       = MassSign->Integral(MassSign            ->GetXaxis()->FindBin(MinRange), MassSign      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent       [CurrentSampleIndex]; 
-      double INTERN_ESign_SYSTA = MassSign_SYSTA->Integral(MassSign_SYSTA->GetXaxis()->FindBin(MinRange), MassSign_SYSTA->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent_SYSTA[CurrentSampleIndex];
-      double INTERN_ESign_SYSTB = MassSign_SYSTB->Integral(MassSign_SYSTB->GetXaxis()->FindBin(MinRange), MassSign_SYSTB->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent_SYSTB[CurrentSampleIndex];
+      double INTERN_ESign       = MassSign->Integral(MassSign            ->GetXaxis()->FindBin(MinRange), MassSign      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex]; 
+      double INTERN_ESign_SYSTA = MassSign_SYSTA->Integral(MassSign_SYSTA->GetXaxis()->FindBin(MinRange), MassSign_SYSTA->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent_SYSTA[4*CurrentSampleIndex];
+      double INTERN_ESign_SYSTB = MassSign_SYSTB->Integral(MassSign_SYSTB->GetXaxis()->FindBin(MinRange), MassSign_SYSTB->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent_SYSTB[4*CurrentSampleIndex];
       double INTERN_Eff         = INTERN_ESign       / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
       double INTERN_Eff_SYSTA   = INTERN_ESign_SYSTA / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
       double INTERN_Eff_SYSTB   = INTERN_ESign_SYSTB / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
-
       Eff       = INTERN_Eff;
       Eff_SYSTA = INTERN_Eff_SYSTA;
       Eff_SYSTB = INTERN_Eff_SYSTB;
    }else{
    for(unsigned int i=0;i<3;i++){
-      CurrentSampleIndex   = JobIdToIndex(signal + RatioName[i]); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return toReturn;  }
-      MassSign             = (TH1D*)GetObjectFromPath(InputFile, string("Mass_") + signals[CurrentSampleIndex].Name);
-      TH1D* MassSign_SYSTA = (TH1D*)GetObjectFromPath(InputFile, string("Mass_") + signals[CurrentSampleIndex].Name + "_Syst_PtLow");
-      TH1D* MassSign_SYSTB = (TH1D*)GetObjectFromPath(InputFile, string("Mass_") + signals[CurrentSampleIndex].Name + "_Syst_ILow");
+      CurrentSampleIndex   = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return toReturn;  }
+      MassSign             = (TH1D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name + RatioName[i] + "_Mass");
+      TH1D* MassSign_SYSTA = (TH1D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name + RatioName[i] + "_Mass_Syst_PtLow");
+      TH1D* MassSign_SYSTB = (TH1D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name + RatioName[i] + "_Mass_Syst_ILow");
 
       //signalsMeanHSCPPerEvent is there because we need #events and not #tracks, and NSIgn is at Track (and Not Event) Level.
       //double INTERN_NSign       = MassSign->Integral(MassSign            ->GetXaxis()->FindBin(MinRange), MassSign      ->GetXaxis()->FindBin(MaxRange));
-      double INTERN_ESign       = MassSign->Integral(MassSign            ->GetXaxis()->FindBin(MinRange), MassSign      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [CurrentSampleIndex]; 
-      double INTERN_ESign_SYSTA = MassSign_SYSTA->Integral(MassSign_SYSTA->GetXaxis()->FindBin(MinRange), MassSign_SYSTA->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent_SYSTA[CurrentSampleIndex];
-      double INTERN_ESign_SYSTB = MassSign_SYSTB->Integral(MassSign_SYSTB->GetXaxis()->FindBin(MinRange), MassSign_SYSTB->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent_SYSTB[CurrentSampleIndex];
+      double INTERN_ESign       = MassSign->Integral(MassSign            ->GetXaxis()->FindBin(MinRange), MassSign      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex+1+i]; 
+      double INTERN_ESign_SYSTA = MassSign_SYSTA->Integral(MassSign_SYSTA->GetXaxis()->FindBin(MinRange), MassSign_SYSTA->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent_SYSTA[4*CurrentSampleIndex+1+i];
+      double INTERN_ESign_SYSTB = MassSign_SYSTB->Integral(MassSign_SYSTB->GetXaxis()->FindBin(MinRange), MassSign_SYSTB->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent_SYSTB[4*CurrentSampleIndex+1+i];
       double INTERN_Eff         = INTERN_ESign       / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
       double INTERN_Eff_SYSTA   = INTERN_ESign_SYSTA / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
       double INTERN_Eff_SYSTB   = INTERN_ESign_SYSTB / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
@@ -945,7 +1014,6 @@ stAllInfo Exclusion_Counting(string signal, string pattern, double Ratio_0C, dou
    }
    printf("%f\n",Eff);
 
-
    NPred*=RescaleFactor;
    toReturn.Mass      = signals[JobIdToIndex(signal)].Mass;
    toReturn.XSec_Th   = signals[JobIdToIndex(signal)].XSec;
@@ -954,9 +1022,10 @@ stAllInfo Exclusion_Counting(string signal, string pattern, double Ratio_0C, dou
 //   toReturn.XSec_Exp  = CLA (IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.20, NPred, NPred*RescaleError, 1);		//Last '1' is for logPrior integration
 //   toReturn.XSec_Obs  = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.20, 0.0  , 0.0               , 0, false, 1);   //Last '1' is for logPrior integration
 //   toReturn.XSec_Exp  = CLA (IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*RescaleError, 1);           //Last '1' is for logPrior integration
-   toReturn.XSec_Obs  = 99999999;
+   toReturn.XSec_Obs  = 999999;
    if(Eff!=0)
-   toReturn.XSec_Obs  = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15,NPred, NPred*RescaleError              , 0, false, 1);   //Last '1' is for logPrior integration
+   toReturn.XSec_Obs  = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15,NPred, NPred*RescaleError              , NData, false, 1);   //Last '1' is for logPrior integration
+//   toReturn.XSec_Obs  = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15,NPred, NPred*RescaleError              , 0, false, 1);   //Last '1' is for logPrior integration
    toReturn.Eff       = Eff;
    toReturn.Eff_SYSTA = Eff_SYSTA;
    toReturn.Eff_SYSTB = Eff_SYSTB;
@@ -1088,16 +1157,16 @@ void Analysis_Step6_Init(string signal, string pattern)
       return;
    }
 
-   InputPath  = "Results/" + pattern + "DumpHistos.root";
-   OutputPath = string("Results/EXCLUSION/") + pattern + signals[CurrentSampleIndex].Name + "/";
+   InputPath  = pattern + "DumpHistos.root";
+   OutputPath = pattern + "/EXCLUSION/" + signals[CurrentSampleIndex].Name;
    MakeDirectories(OutputPath);
 
 
    TFile* InputFile = new TFile(InputPath.c_str());
-   MassMCTr = (TH1D*)GetObjectFromPath(InputFile, "Mass_MCTr");
-   MassSign = (TH1D*)GetObjectFromPath(InputFile, string("Mass_") + signals[CurrentSampleIndex].Name);
-   MassPred = (TH1D*)GetObjectFromPath(InputFile, "Mass_Pred");
-   MassData = (TH1D*)GetObjectFromPath(InputFile, "Mass_Data");
+   MassMCTr = (TH1D*)GetObjectFromPath(InputFile, "MCTr_Mass");
+   MassSign = (TH1D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name + "_Mass");
+   MassPred = (TH1D*)GetObjectFromPath(InputFile, "Pred_Mass");
+   MassData = (TH1D*)GetObjectFromPath(InputFile, "Data_Mass");
    MassMCTr->Rebin(4);
    MassSign->Rebin(4);
    MassPred->Rebin(4);
@@ -1564,8 +1633,8 @@ void SimRecoCorrelation(string InputPattern)
    std::vector<double> SampleMean;
    std::vector<double> SampleSigma;
 
-   string Input = "Results/" + InputPattern + "DumpHistos.root";
-   string outpath = string("Results/EXCLUSION/") + InputPattern;
+   string Input = InputPattern + "DumpHistos.root";
+   string outpath = InputPattern + "/EXCLUSION";
    MakeDirectories(outpath);
 
    TFile* InputFile = new TFile(Input.c_str());
@@ -1779,7 +1848,7 @@ int JobIdToIndex(string JobId){
 
 void GetSignalMeanHSCPPerEvent(string InputPattern)
 {
-   string Input = string("Results/") + InputPattern + "Aeff.tmp";
+   string Input = InputPattern + "Aeff.tmp";
    FILE* pFile = fopen(Input.c_str(),"r");
    if(!pFile){
       printf("Not Found: %s\n",Input.c_str());
@@ -1790,27 +1859,33 @@ void GetSignalMeanHSCPPerEvent(string InputPattern)
    signalsMeanHSCPPerEvent_SYSTA.clear();
    signalsMeanHSCPPerEvent_SYSTB.clear();
    for(unsigned int s=0;s<signals.size();s++){
+   for(unsigned int n=0;n<4;n++){
       signalsMeanHSCPPerEvent.push_back(2.0);
       signalsMeanHSCPPerEvent_SYSTA.push_back(2.0);
-      signalsMeanHSCPPerEvent_SYSTB.push_back(2.0);
-   }
+      signalsMeanHSCPPerEvent_SYSTB.push_back(2.0); 
+   }}
 
    for(unsigned int s=0;s<signals.size();s++){
+   for(unsigned int n=0;n<4;n++){
      char  sname[256];
      float weff, ueff;
      float weff_SYSTA, ueff_SYSTA;
      float weff_SYSTB, ueff_SYSTB;
-     fscanf(pFile,"%s Eff=%E (%E)SYSTA: Eff=%E (%E)SYSTB: Eff=%E (%E)\n",sname,&weff,&ueff,&weff_SYSTA,&ueff_SYSTA,&weff_SYSTB,&ueff_SYSTB);
+     if(n==0)fscanf(pFile,"%s     Eff=%E (%E)SYSTA: Eff=%E (%E)SYSTB: Eff=%E (%E)\n",sname,&weff,&ueff,&weff_SYSTA,&ueff_SYSTA,&weff_SYSTB,&ueff_SYSTB);
+     if(n==1)fscanf(pFile,"%s NC0 Eff=%E (%E)SYSTA: Eff=%E (%E)SYSTB: Eff=%E (%E)\n",sname,&weff,&ueff,&weff_SYSTA,&ueff_SYSTA,&weff_SYSTB,&ueff_SYSTB);
+     if(n==2)fscanf(pFile,"%s NC1 Eff=%E (%E)SYSTA: Eff=%E (%E)SYSTB: Eff=%E (%E)\n",sname,&weff,&ueff,&weff_SYSTA,&ueff_SYSTA,&weff_SYSTB,&ueff_SYSTB);
+     if(n==3)fscanf(pFile,"%s NC2 Eff=%E (%E)SYSTA: Eff=%E (%E)SYSTB: Eff=%E (%E)\n",sname,&weff,&ueff,&weff_SYSTA,&ueff_SYSTA,&weff_SYSTB,&ueff_SYSTB);
 
      int Index = JobIdToIndex(sname);
      if(Index<0){
         printf("BUG UNKNOWN SIGNAL (%s) WHEN READING AVERAGE SELECTED HSCP PER EVENT\n",sname);
      }else{
-        signalsMeanHSCPPerEvent      [JobIdToIndex(sname)] = (float)std::min(1.0f,weff);
-        signalsMeanHSCPPerEvent_SYSTA[JobIdToIndex(sname)] = (float)std::min(1.0f,weff_SYSTA);
-        signalsMeanHSCPPerEvent_SYSTB[JobIdToIndex(sname)] = (float)std::min(1.0f,weff_SYSTB);
+        //printf("%s n=%i Eff=%f\n",sname,n,weff);
+        signalsMeanHSCPPerEvent      [4*Index+n] = (float)std::min(1.0f,weff);
+        signalsMeanHSCPPerEvent_SYSTA[4*Index+n] = (float)std::min(1.0f,weff_SYSTA);
+        signalsMeanHSCPPerEvent_SYSTB[4*Index+n] = (float)std::min(1.0f,weff_SYSTB);
      }
-   }
+   }}
 
    fclose(pFile);
 
@@ -1881,7 +1956,7 @@ int ReadXSection(string InputFile, double* Mass, double* XSec, double* Low, doub
      ErrHigh[NPoints] = tmpH-tmpX;
      NPoints++;
 
-     printf("%fGeV --> Error = %f\n", tmpM, 0.5*(tmpH-tmpL)/tmpX);
+     //printf("%fGeV --> Error = %f\n", tmpM, 0.5*(tmpH-tmpL)/tmpX);
    }
 
    fclose(pFile);
