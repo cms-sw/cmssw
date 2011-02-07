@@ -6,192 +6,10 @@ from RecoLuminosity.LumiDB import argparse,idDealer,nameDealer,CommonUtil,lumidb
 #
 # data transfer section
 #
-def getOldTrgData(schema,runnum):
-    '''
-    generate new data_id for trgdata
-    select cmslsnum,deadtime,trgcount,prescale from trg where runnum=:runnum and bitnum=0 order by cmslsnum;
-    select cmslsnum,bitnum,bitname,trgcount,deadtime,prescale from trg where runnum=:runnum order by cmslsnum
-    output [bitnames,databuffer]
-    databuffer: {cmslsnum:[deadtime,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}
-    '''
-    bitnames=''
-    databuffer={} #{cmslsnum:[deadtime,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}
-    qHandle=schema.newQuery()
-    try:
-        qHandle.addToTableList(nameDealer.trgTableName())
-        qHandle.addToOutputList('CMSLSNUM','cmslsnum')
-        qHandle.addToOutputList('DEADTIME','deadtime')
-        qHandle.addToOutputList('TRGCOUNT','trgcount')
-        qHandle.addToOutputList('PRESCALE','prescale')
-        qCondition=coral.AttributeList()
-        qCondition.extend('runnum','unsigned int')
-        qCondition.extend('bitnum','unsigned int')
-        qCondition['runnum'].setData(int(runnum))
-        qCondition['bitnum'].setData(int(0))
-        qResult=coral.AttributeList()
-        qResult.extend('cmslsnum','unsigned int')
-        qResult.extend('deadtime','unsigned long long')
-        qResult.extend('trgcount','unsigned int')
-        qResult.extend('prescale','unsigned int')
-        qHandle.defineOutput(qResult)
-        qHandle.setCondition('RUNNUM=:runnum AND BITNUM=:bitnum',qCondition)
-        cursor=qHandle.execute()
-        while cursor.next():
-            cmslsnum=cursor.currentRow()['cmslsnum'].data()
-            deadtime=cursor.currentRow()['deadtime'].data()
-            bitcount=cursor.currentRow()['trgcount'].data()
-            prescale=cursor.currentRow()['prescale'].data()
-            if not databuffer.has_key(cmslsnum):
-                databuffer[cmslsnum]=[]
-            databuffer[cmslsnum].append(deadtime)
-            databuffer[cmslsnum].append(bitcount)
-            databuffer[cmslsnum].append(prescale)
-        del qHandle
-        qHandle=schema.newQuery()
-        qHandle.addToTableList(nameDealer.trgTableName())
-        qHandle.addToOutputList('CMSLSNUM','cmslsnum')
-        qHandle.addToOutputList('BITNUM','bitnum')
-        qHandle.addToOutputList('BITNAME','bitname')
-        qHandle.addToOutputList('TRGCOUNT','trgcount')
-        qHandle.addToOutputList('PRESCALE','prescale')
-        qCondition=coral.AttributeList()
-        qCondition.extend('runnum','unsigned int')
-        qCondition['runnum'].setData(int(runnum))
-        qHandle.setCondition('RUNNUM=:runnum',qCondition)
-        qHandle.addToOrderList('cmslsnum')
-        qHandle.addToOrderList('bitnum')
-        qResult=coral.AttributeList()
-        qResult.extend('cmslsnum','unsigned int')
-        qResult.extend('bitnum','unsigned int')
-        qResult.extend('bitname','string')
-        qResult.extend('trgcount','unsigned int')
-        qResult.extend('prescale','unsigned int')
-        qHandle.defineOutput(qResult)
-        cursor=qHandle.execute()
-        bitnameList=[]
-        trgcountArray=array.array('l')
-        prescaleArray=array.array('l')
-        counter=0
-        previouscmslsnum=0
-        cmslsnum=-1
-        while cursor.next():
-            cmslsnum=cursor.currentRow()['cmslsnum'].data()
-            bitnum=cursor.currentRow()['bitnum'].data()
-            bitname=cursor.currentRow()['bitname'].data()
-            trgcount=cursor.currentRow()['trgcount'].data()        
-            prescale=cursor.currentRow()['prescale'].data()
-            
-            if bitnum==0 and counter!=0:
-                trgcountBlob=CommonUtil.packArraytoBlob(trgcountArray)
-                prescaleBlob=CommonUtil.packArraytoBlob(prescaleArray)
-                databuffer[previouslsnum].append(trgcountBlob)
-                databuffer[previouslsnum].append(prescaleBlob)
-                bitnameList=[]
-                trgcountArray=array.array('l')
-                prescaleArray=array.array('l')
-            else:
-                previouslsnum=cmslsnum
-            bitnameList.append(bitname)
-            trgcountArray.append(trgcount)
-            prescaleArray.append(prescale)
-            counter+=1
-        if cmslsnum>0:
-            bitnames=','.join(bitnameList)
-            trgcountBlob=CommonUtil.packArraytoBlob(trgcountArray)
-            prescaleBlob=CommonUtil.packArraytoBlob(prescaleArray)
-
-            databuffer[cmslsnum].append(trgcountBlob)
-            databuffer[cmslsnum].append(prescaleBlob)
-        del qHandle
-        return [bitnames,databuffer]
-    except:
-        del qHandle
-        raise 
-
-def getOldHLTData(schema,runnum):
-    '''
-    select count(distinct pathname) from hlt where runnum=:runnum
-    select cmslsnum,pathname,inputcount,acceptcount,prescale from hlt where runnum=:runnum order by cmslsnum,pathname
-    [pathnames,databuffer]
-    databuffer: {cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}
-    '''
-    
-    databuffer={} #{cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}
-    pathnames=''
-    try:
-        npath=0
-        qHandle=schema.newQuery()
-        qHandle.addToTableList( nameDealer.hltTableName() )
-        qHandle.addToOutputList('COUNT(DISTINCT PATHNAME)','npath')
-        qCondition=coral.AttributeList()
-        qCondition.extend('runnum','unsigned int')
-        qCondition['runnum'].setData(int(runnum))
-        qResult=coral.AttributeList()
-        qResult.extend('npath','unsigned int')
-        qHandle.defineOutput(qResult)
-        qHandle.setCondition('RUNNUM=:runnum',qCondition)
-        cursor=qHandle.execute()
-        while cursor.next():
-            npath=cursor.currentRow()['npath'].data()
-        del qHandle
-        #print 'npath ',npath
-
-        qHandle=schema.newQuery()
-        qHandle.addToTableList( nameDealer.hltTableName() )
-        qHandle.addToOutputList('CMSLSNUM','cmslsnum')
-        qHandle.addToOutputList('PATHNAME','pathname')
-        qHandle.addToOutputList('INPUTCOUNT','inputcount')
-        qHandle.addToOutputList('ACCEPTCOUNT','acceptcount')
-        qHandle.addToOutputList('PRESCALE','prescale')
-        qCondition=coral.AttributeList()
-        qCondition.extend('runnum','unsigned int')
-        qCondition['runnum'].setData(int(runnum))
-        qResult=coral.AttributeList()
-        qResult.extend('cmslsnum','unsigned int')
-        qResult.extend('pathname','string')
-        qResult.extend('inputcount','unsigned int')
-        qResult.extend('acceptcount','unsigned int')
-        qResult.extend('prescale','unsigned int')
-        qHandle.defineOutput(qResult)
-        qHandle.setCondition('RUNNUM=:runnum',qCondition)
-        qHandle.addToOrderList('cmslsnum')
-        qHandle.addToOrderList('pathname')
-        cursor=qHandle.execute()
-        pathnameList=[]
-        inputcountArray=array.array('l')
-        acceptcountArray=array.array('l')
-        prescaleArray=array.array('l')
-        ipath=0
-        while cursor.next():
-            cmslsnum=cursor.currentRow()['cmslsnum'].data()
-            pathname=cursor.currentRow()['pathname'].data()
-            ipath+=1
-            inputcount=cursor.currentRow()['inputcount'].data()
-            acceptcount=cursor.currentRow()['acceptcount'].data()
-            prescale=cursor.currentRow()['prescale'].data()
-            pathnameList.append(pathname)
-            inputcountArray.append(inputcount)
-            acceptcountArray.append(acceptcount)
-            prescaleArray.append(prescale)
-            if ipath==npath:
-                pathnames=','.join(pathnameList)
-                inputcountBlob=CommonUtil.packArraytoBlob(inputcountArray)
-                acceptcountBlob=CommonUtil.packArraytoBlob(acceptcountArray)
-                prescaleBlob=CommonUtil.packArraytoBlob(prescaleArray)
-                databuffer[cmslsnum]=[inputcountBlob,acceptcountBlob,prescaleBlob]
-                pathnameList=[]
-                inputcountArray=array.array('l')
-                acceptcountArray=array.array('l')
-                prescaleArray=array.array('l')
-                ipath=0
-        del qHandle
-        return [pathnames,databuffer]
-    except :
-        del qHandle        
-        raise 
 
 def main():
-    from RecoLuminosity.LumiDB import sessionManager
+    from RecoLuminosity.LumiDB import sessionManager,queryDataSource
+    
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="migrate lumidb schema",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-c',dest='connect',action='store',required=False,default='oracle://cms_orcoff_prep/CMS_LUMI_DEV_OFFLINE',help='connect string to trigger DB(required)')
     parser.add_argument('-P',dest='authpath',action='store',required=False,default='/afs/cern.ch/user/x/xiezhen',help='path to authentication file')
@@ -202,25 +20,23 @@ def main():
     #print 'processing run ',runnumber
     svc=sessionManager.sessionManager(args.connect,authpath=args.authpath,debugON=args.debug)
     session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    [bitnames,trglsdata]=queryDataSource.trgFromOldLumi(session,runnumber)
     session.transaction().start(False)
     schema=session.nominalSchema()
     lumidbDDL.newToOld(schema)
     lumidbDDL.oldToNew(schema)
     lumidbDDL.createUniqueConstraints(schema)
-    
     (trunkrevid,trunkparentid,trunkparentname)=revisionDML.createBranch(schema,'TRUNK',None,comment='main')
     (datarevid,dataparentid,dataparentname)=revisionDML.createBranch(schema,'DATA','TRUNK',comment='hold data')
     (normrevid,normparentid,normparentname)=revisionDML.createBranch(schema,'NORM','TRUNK',comment='hold normalization factor')
     dataDML.addNormToBranch(schema,'pp7TeV','PROTPHYS',6370.0,3500,{},(normrevid,'NORM'))
     dataDML.addNormToBranch(schema,'hi7TeV','HIPHYS',2.38,3500,{},(normrevid,'NORM'))
-    
     (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(schema,runnumber,[args.connect],(datarevid,'DATA'))
-    [bitnames,trglsdata]=getOldTrgData(schema,runnumber)
     bitzeroname=bitnames.split(',')[0]
     trgrundata=['oracle://cms_oron_prod/cms_trg',bitzeroname,bitnames]
     (trgrevid,trgentryid,trgdataid)=dataDML.addTrgRunDataToBranch(schema,runnumber,trgrundata,(datarevid,'DATA'))
     dataDML.insertTrgLSData(schema,runnumber,trgdataid,trglsdata)
-    [pathnames,hltlsdata]=getOldHLTData(schema,runnumber)
+    [pathnames,hltlsdata]=queryDataSource.hltFromOldLumi(session,runnumber)
     hltrundata=[pathnames,'oracle://cms_orcon_prod/cms_runinfo']
     (hltrevid,hltentryid,hltdataid)=dataDML.addHLTRunDataToBranch(schema,runnumber,hltrundata,(datarevid,'DATA'))
     dataDML.insertHltLSData(schema,runnumber,hltdataid,hltlsdata)
