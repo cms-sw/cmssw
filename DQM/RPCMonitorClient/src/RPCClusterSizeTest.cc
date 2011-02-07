@@ -23,10 +23,12 @@ void RPCClusterSizeTest::beginJob(DQMStore *  dbe){
   dbe_ = dbe;
 }
 
-void RPCClusterSizeTest::endRun(const edm::Run& r, const edm::EventSetup& c, std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+void RPCClusterSizeTest::endRun(const edm::Run& r, const edm::EventSetup& c){
   edm::LogVerbatim ("rpceventsummary") << "[RPCClusterSizeTest]: End run";
-  
+}
 
+void RPCClusterSizeTest::bookHisto(std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+    
   MonitorElement* me;
   dbe_->setCurrentFolder(globalFolder_);
 

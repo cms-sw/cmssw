@@ -11,9 +11,7 @@
 
 
 class RPCClusterSizeTest:public RPCClient{
-public:
-
-
+ public:
 
   /// Constructor
   RPCClusterSizeTest(const edm::ParameterSet& ps);
@@ -25,7 +23,7 @@ public:
   void beginJob(DQMStore *);
 
   //Begin Run
-   void endRun(const edm::Run& r, const edm::EventSetup& c ,std::vector<MonitorElement *> , std::vector<RPCDetId>);
+  void endRun(const edm::Run& r, const edm::EventSetup& c );
   
   
   /// Begin Lumi block 
@@ -37,11 +35,13 @@ public:
   /// End Lumi Block
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   
-  virtual void  endJob(void);
+  void  endJob(void);
 
-  virtual void  beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void  beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  virtual void clientOperation(edm::EventSetup const& c);
+  void  clientOperation(edm::EventSetup const& c);
+
+  void  bookHisto(std::vector<MonitorElement *> , std::vector<RPCDetId>);
 
  private:
   

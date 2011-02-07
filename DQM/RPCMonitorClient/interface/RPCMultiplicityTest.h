@@ -23,7 +23,7 @@ public:
   void beginJob(DQMStore * );
 
   //Begin Run
-   void endRun(const edm::Run& , const edm::EventSetup& , std::vector<MonitorElement *> , std::vector<RPCDetId>);
+   void endRun(const edm::Run& , const edm::EventSetup& );
   
   
   /// Begin Lumi block 
@@ -41,8 +41,8 @@ public:
   /// Endjob
   void endJob();
 
-  virtual void clientOperation(edm::EventSetup const& c);
-
+  void clientOperation(edm::EventSetup const& c);
+  void bookHisto(std::vector<MonitorElement *> , std::vector<RPCDetId>);
 
  protected:
   void fillGlobalME(RPCDetId & detId, MonitorElement * myMe);

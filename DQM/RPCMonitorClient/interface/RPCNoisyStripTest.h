@@ -1,9 +1,3 @@
-/**************************************
- *         Autor: David Lomidze       *
- *           INFN di Napoli           *
- *           06 March 2009            *
- *************************************/
-
 #ifndef RPCNoisyStipTest_H
 #define RPCNoisyStipTest_H
 
@@ -16,7 +10,6 @@
 #include <vector>
 
 
-
 class RPCNoisyStripTest:public RPCClient{
 public:
 
@@ -24,13 +17,14 @@ public:
   RPCNoisyStripTest(const edm::ParameterSet& ps);
   virtual ~RPCNoisyStripTest();
   void beginJob(DQMStore *);
-  void endRun(const edm::Run& , const edm::EventSetup& , std::vector<MonitorElement *> , std::vector<RPCDetId>);
+  void endRun(const edm::Run& , const edm::EventSetup& );
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   void beginRun(const edm::Run& , const edm::EventSetup& ); 		
   void endJob();
-  virtual void clientOperation(edm::EventSetup const& c);
+  void clientOperation(edm::EventSetup const& c);
+  void bookHisto(std::vector<MonitorElement *> , std::vector<RPCDetId>);
  protected:
 
   void fillGlobalME(RPCDetId & , MonitorElement * ,edm::EventSetup const& );
@@ -41,7 +35,7 @@ public:
   std::string globalFolder_;
   int  numberOfRings_;
   int prescaleFactor_;
- 
+
   DQMStore* dbe_;
  
   std::vector<MonitorElement *>  myOccupancyMe_;

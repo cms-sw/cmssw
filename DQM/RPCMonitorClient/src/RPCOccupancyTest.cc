@@ -28,10 +28,12 @@ void RPCOccupancyTest::beginJob(DQMStore * dbe){
  dbe_=dbe;
 }
 
-void RPCOccupancyTest::endRun(const edm::Run& r, const edm::EventSetup& c,std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+void RPCOccupancyTest::endRun(const edm::Run& r, const edm::EventSetup& c){
  edm::LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Begin run";
+ }
  
- 
+void RPCOccupancyTest::bookHisto(std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+
  MonitorElement* me;
  dbe_->setCurrentFolder( globalFolder_);
 

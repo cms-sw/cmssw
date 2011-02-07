@@ -19,7 +19,9 @@ RPCNoisyStripTest::RPCNoisyStripTest(const edm::ParameterSet& ps ){
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
- 
+
+
+
 }
 
 RPCNoisyStripTest::~RPCNoisyStripTest(){dbe_=0;}
@@ -30,10 +32,50 @@ void RPCNoisyStripTest::beginJob(DQMStore * dbe){
 
 }
 
-void RPCNoisyStripTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup,std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+void RPCNoisyStripTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
  edm::LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: End run";
+
+}
+
+
+void RPCNoisyStripTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
+
+void RPCNoisyStripTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
+
+void RPCNoisyStripTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {}
+
+void RPCNoisyStripTest::clientOperation(edm::EventSetup const& iSetup) {  
+
+  edm::LogVerbatim ("rpcnoisetest") <<"[RPCNoisyStripTest]: Client Operation";
+  
+  //Clear Distributions
+  int limit = numberOfDisks_ * 2;
+  if(numberOfDisks_<2) limit = 5;
+
+  for(int i =0 ; i<limit; i++){
+
+    if(i < numberOfDisks_ * 2){
+      DEVDDisk[i]->Reset();
+      NOISEDDisk[i]->Reset();
+    }
+    if(i<5){
+      DEVDWheel[i]->Reset();
+      NOISEDWheel[i]->Reset();
+    }
+  }
+  
+ //Loop on MEs
+  for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
+    this->fillGlobalME(myDetIds_[i],myOccupancyMe_[i], iSetup);
+  }//End loop on MEs
+}
+
+
  
- 
+void  RPCNoisyStripTest::beginRun(const edm::Run& r, const edm::EventSetup& c){}
+
+void  RPCNoisyStripTest::bookHisto(std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+
  MonitorElement* me;
  dbe_->setCurrentFolder( globalFolder_);
 
@@ -136,44 +178,8 @@ void RPCNoisyStripTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup,
      myDetIds_.push_back(detIdVector[i]);
    }
  }
+
 }
-
-void RPCNoisyStripTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
-
-void RPCNoisyStripTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
-
-void RPCNoisyStripTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {}
-
-void RPCNoisyStripTest::clientOperation(edm::EventSetup const& iSetup) {  
-
-
-  edm::LogVerbatim ("rpcnoisetest") <<"[RPCNoisyStripTest]: Client Operation";
-  
-  //Clear Distributions
-  int limit = numberOfDisks_ * 2;
-  if(numberOfDisks_<2) limit = 5;
-
-  for(int i =0 ; i<limit; i++){
-
-    if(i < numberOfDisks_ * 2){
-      DEVDDisk[i]->Reset();
-      NOISEDDisk[i]->Reset();
-    }
-    if(i<5){
-      DEVDWheel[i]->Reset();
-      NOISEDWheel[i]->Reset();
-    }
-  }
-  
- //Loop on MEs
-  for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
-    this->fillGlobalME(myDetIds_[i],myOccupancyMe_[i], iSetup);
-  }//End loop on MEs
-}
-
-
- 
-void  RPCNoisyStripTest::beginRun(const edm::Run& r, const edm::EventSetup& c){}
 
 void  RPCNoisyStripTest::endJob(){}
 

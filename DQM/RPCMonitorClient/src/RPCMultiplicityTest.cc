@@ -33,10 +33,14 @@ void RPCMultiplicityTest::beginJob(DQMStore *  dbe ){
 }
 
 
-void RPCMultiplicityTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup,std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+void RPCMultiplicityTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
   edm::LogVerbatim ("multiplicity") << "[RPCMultiplicityTest]: End run";
   
+}
+ 
+void RPCMultiplicityTest::bookHisto(std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+
   MonitorElement* me=NULL;
   dbe_->setCurrentFolder(globalFolder_);
   

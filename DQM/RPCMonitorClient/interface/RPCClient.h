@@ -2,8 +2,8 @@
 /*!
   \file RPCClient.h
    \author A. Cimmino
-  \version $Revision: 1.3 $
-  \date $Date: 2009/03/27 16:24:58 $
+  \version $Revision: 1.4 $
+  \date $Date: 2009/10/29 22:50:23 $
 */
 
 
@@ -36,8 +36,11 @@ class RPCClient {
   virtual ~RPCClient(void) {}
 
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)=0 ;
+
   virtual void clientOperation(edm::EventSetup const& c)=0;
-  
+
+  virtual void bookHisto(std::vector<MonitorElement *> , std::vector<RPCDetId>)= 0;
+
   virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c)=0;
   
   virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& c)      = 0;		       
@@ -48,7 +51,7 @@ class RPCClient {
   
   virtual void beginRun(const edm::Run& r, const edm::EventSetup& c)     = 0;
   
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& c, std::vector<MonitorElement *> , std::vector<RPCDetId>)       = 0;  
+  virtual void endRun(const edm::Run& r, const edm::EventSetup& c)       = 0;  
 
 
   //  private:

@@ -27,8 +27,7 @@ public:
 
   //Begin Run
    void beginRun(const edm::Run& , const edm::EventSetup&);
-  
-  
+    
   /// Begin Lumi block 
   void beginLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& ) ;
 
@@ -46,15 +45,18 @@ public:
 
  protected:
   void makeClientMap(void);
-
+    void getMonitorElements(const edm::Run&, const edm::EventSetup& );
  private:
+
+    bool offlineDQM_;
   int prescaleGlobalFactor_, minimumEvents_, numLumBlock_;
  
   bool enableDQMClients_ , init_; 
   std::string  prefixDir_;
   std::string  globalFolder_;
   std::vector<std::string>  clientList_;
-
+  int lumiCounter_;
+  MonitorElement * RPCEvents_; 
 
   std::vector<std::string> clientNames_,clientHisto_; 
   std::vector<RPCClient*> clientModules_;

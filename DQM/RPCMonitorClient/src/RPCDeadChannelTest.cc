@@ -31,9 +31,12 @@ void RPCDeadChannelTest::beginJob(DQMStore *  dbe ){
   dbe_=dbe;
 }
 
-void RPCDeadChannelTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup, std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+void RPCDeadChannelTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: End run";
+}
+
+void RPCDeadChannelTest::bookHisto(std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
 
  MonitorElement* me;
  dbe_->setCurrentFolder( globalFolder_);
