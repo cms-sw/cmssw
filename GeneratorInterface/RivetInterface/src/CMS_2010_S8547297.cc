@@ -21,8 +21,10 @@ namespace Rivet {
       addProjection(cfs, "CFS");
       addProjection(Beam(), "Beam");
 
-     FinalState hfs(-5.5, 5.5, 0.1*GeV);
+      FinalState hfs(-5.5, 5.5, 0.1*GeV);
       addProjection(hfs, "HFS");
+	
+      _Nevt_after_cuts = 0;
 	
       //eta bins
       _netabins=12;
@@ -131,7 +133,8 @@ namespace Rivet {
 //AK =====================================================FINALIZE
     void finalize() {
     	double normfac=1.0/_Nevt_after_cuts;  
-	cout << "_Nevt_after_cuts:  " << _Nevt_after_cuts << "  " << normfac << endl;	
+
+	getLog() << Log::INFO << "Number of events after event selection: " << _Nevt_after_cuts << endl;	
 
  	if(fuzzyEquals(sqrtS(), 900, 1E-3)){
      	   for (int ietabin=0; ietabin < _netabins; ietabin++){
