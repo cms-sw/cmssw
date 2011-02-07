@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.30 2010/06/16 15:40:51 vadler Exp $
+// $Id: PATObject.h,v 1.31 2010/12/20 20:05:52 vadler Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.30 2010/06/16 15:40:51 vadler Exp $
+  \version  $Id: PATObject.h,v 1.31 2010/12/20 20:05:52 vadler Exp $
 */
 
 
@@ -84,28 +84,50 @@ namespace pat {
         return triggerObjectMatchByType( trigger::TriggerObjectType( triggerObjectType ), idx );
       };
       const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const std::string & coll ) const;
+      // for RooT command line
       const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const char        * coll ) const {
         return triggerObjectMatchesByCollection( std::string( coll ) );
       };
       const TriggerObjectStandAlone           * triggerObjectMatchByCollection( const std::string & coll, const size_t idx = 0 ) const;
+      // for RooT command line
       const TriggerObjectStandAlone           * triggerObjectMatchByCollection( const char        * coll, const size_t idx = 0 ) const {
         return triggerObjectMatchByCollection( std::string( coll ), idx );
       };
       const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilter( const std::string & labelFilter ) const;
+      // for RooT command line
       const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilter( const char        * labelFilter ) const {
         return triggerObjectMatchesByFilter( std::string( labelFilter ) );
       };
       const TriggerObjectStandAlone           * triggerObjectMatchByFilter( const std::string & labelFilter, const size_t idx = 0 ) const;
+      // for RooT command line
       const TriggerObjectStandAlone           * triggerObjectMatchByFilter( const char        * labelFilter, const size_t idx = 0 ) const {
         return triggerObjectMatchByFilter( std::string( labelFilter ), idx );
       };
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const std::string & namePath, const bool pathLastFilterAccepted = false ) const;
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const char        * namePath, const bool pathLastFilterAccepted = false ) const {
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const std::string & namePath, const bool pathLastFilterAccepted = true ) const;
+      // for RooT command line
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const char        * namePath, const bool pathLastFilterAccepted = true ) const {
         return triggerObjectMatchesByPath( std::string( namePath ), pathLastFilterAccepted );
       };
-      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted = false, const size_t idx = 0 ) const;
-      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const char        * namePath, const bool pathLastFilterAccepted = false, const size_t idx = 0 ) const {
+      // for the cut string parser
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const std::string & namePath, const unsigned pathLastFilterAccepted ) const {
+        return triggerObjectMatchesByPath( namePath, bool( pathLastFilterAccepted ) );
+      };
+      // for RooT command line and the cut string parser
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const char        * namePath, const unsigned pathLastFilterAccepted ) const {
+        return triggerObjectMatchesByPath( std::string( namePath ), bool( pathLastFilterAccepted ) );
+      };
+      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted = true, const size_t idx = 0 ) const;
+      // for RooT command line
+      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const char        * namePath, const bool pathLastFilterAccepted = true, const size_t idx = 0 ) const {
         return triggerObjectMatchByPath( std::string( namePath ), pathLastFilterAccepted, idx );
+      };
+      // for the cut string parser
+      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const std::string & namePath, const unsigned pathLastFilterAccepted, const size_t idx = 0 ) const {
+        return triggerObjectMatchByPath( namePath, bool( pathLastFilterAccepted ), idx );
+      };
+      // for RooT command line and the cut string parser
+      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const char        * namePath, const unsigned pathLastFilterAccepted, const size_t idx = 0 ) const {
+        return triggerObjectMatchByPath( std::string( namePath ), bool( pathLastFilterAccepted ), idx );
       };
       /// add a trigger match
       void addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj ) { triggerObjectMatchesEmbedded_.push_back( trigObj ); };
