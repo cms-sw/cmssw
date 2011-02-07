@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.28 2010/11/25 13:46:53 organtin Exp $
+// $Id: EcalCondDBInterface.cc,v 1.29 2010/12/21 16:56:16 organtin Exp $
 
 #include <iostream>
 #include <string>
@@ -473,37 +473,6 @@ void EcalCondDBInterface::insertLmfRunIOV(LMFRunIOV *iov)
   conn->commit();
 }
 
-bool EcalCondDBInterface::fetchLMFRunIOV(const LMFSeqDat &seq, LMFRunIOV& iov, 
-					 int lmr, int type, int color ) const {
-  bool ret = false;
-  iov.setConnection(env, conn);
-  std::list<LMFRunIOV> iovlist = iov.fetchBySequence(seq, lmr, type, color);
-  int s = iovlist.size();
-  if (s > 0) {
-    iov = iovlist.front();
-    ret = true;
-    if (s > 1) {
-      // should not happen
-      std::cout << "################################" << std::endl;
-      std::cout << "################################" << std::endl;
-      std::cout << "WARNING: More than one LMFRUNIOV" << std::endl;
-      std::cout << "         Found for seq " << seq.getID() << std::endl;
-      std::cout << "         lmr " << lmr << " type " << type << std::endl;
-      std::cout << "         and color " << color << std::endl;
-      std::cout << "################################" << std::endl;
-      std::cout << "################################" << std::endl;
-    }
-  } else {
-    // find the most recent data
-    iovlist = iov.fetchLastBeforeSequence(seq, lmr, type, color);
-    s = iovlist.size();
-    if (s == 1) {
-      iov = iovlist.front();
-    } 
-  }
-  return ret;
-}
-
 void EcalCondDBInterface::updateRunIOV(RunIOV* iov)
   throw(std::runtime_error)
 {
@@ -629,6 +598,10 @@ DCUIOV EcalCondDBInterface::fetchDCUIOV(DCUTag* tag, Tm eventTm)
   return dcuiov;
 }
 
+RunIOV EcalCondDBInterface::fetchLMFLastRun() const {
+  LMFSeqDat seq(env, conn);
+  return seq.fetchLastRun();
+}
 
 LMFRunIOV EcalCondDBInterface::fetchLMFRunIOV(RunTag* runtag, LMFRunTag* lmftag, run_t run, subrun_t subrun)
   throw(std::runtime_error)
@@ -640,8 +613,36 @@ LMFRunIOV EcalCondDBInterface::fetchLMFRunIOV(RunTag* runtag, LMFRunTag* lmftag,
   return lmfiov;
 }
 
-
-
+bool EcalCondDBInterface::fetchLMFRunIOV(const LMFSeqDat &seq, LMFRunIOV& iov, 
+					 int lmr, int type, int color ) const {
+  bool ret = false;
+  iov.setConnection(env, conn);
+  std::list<LMFRunIOV> iovlist = iov.fetchBySequence(seq, lmr, type, color);
+  int s = iovlist.size();
+  if (s > 0) {
+    iov = iovlist.front();
+    ret = true;
+    if (s > 1) {
+      // should not happen
+      std::cout << "################################" << std::endl;
+      std::cout << "################################" << std::endl;
+      std::cout << "WARNING: More than one LMFRUNIOV" << std::endl;
+      std::cout << "         Found for seq " << seq.getID() << std::endl;
+      std::cout << "         lmr " << lmr << " type " << type << std::endl;
+      std::cout << "         and color " << color << std::endl;
+      std::cout << "################################" << std::endl;
+      std::cout << "################################" << std::endl;
+    }
+  } else {
+    // find the most recent data
+    iovlist = iov.fetchLastBeforeSequence(seq, lmr, type, color);
+    s = iovlist.size();
+    if (s == 1) {
+      iov = iovlist.front();
+    } 
+  }
+  return ret;
+}
 
 CaliIOV EcalCondDBInterface::fetchCaliIOV(CaliTag* tag, Tm eventTm)
   throw(std::runtime_error)

@@ -38,6 +38,9 @@ public:
   }
 
   void doRun() {
+    RunIOV r = econn->fetchLMFLastRun();
+    std::cout << r.getID() << std::endl;
+    exit(0);
     vector<EcalLogicID> ecid_vec;
     int sm_min=1;
     int sm_max=36;

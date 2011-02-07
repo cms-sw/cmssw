@@ -191,6 +191,14 @@ void LMFSeqDat::fetchParentIDs()
 
 }
 
+std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::string sql,
+						  std::string method)
+  throw(std::runtime_error)
+{
+  std::vector<std::string> pars;
+  return fetchByRunIOV(pars, sql, method);
+}
+
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par, 
 						  std::string sql,
 						  std::string method)
@@ -237,6 +245,21 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::vector<std::string> pars,
 			     e.getMessage()));
   }
   return l;
+}
+
+LMFSeqDat LMFSeqDat::fetchLast() {
+  LMFSeqDat ret;
+  std::map<int, LMFSeqDat> m = 
+    fetchByRunIOV("SELECT SEQ_ID FROM LMF_SEQ_DAT WHERE SEQ_ID = "
+		  "(SELECT MAX(SEQ_ID) FROM LMF_SEQ_DAT)", "fetchLast");
+  if (m.size() > 0) {
+    ret = m.begin()->second;
+  }
+  return ret;
+}
+
+RunIOV LMFSeqDat::fetchLastRun() {
+  return fetchLast().getRunIOV();
 }
 
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(RunIOV &iov) {
