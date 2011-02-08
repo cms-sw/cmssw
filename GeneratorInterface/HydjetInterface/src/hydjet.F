@@ -261,7 +261,6 @@
       end if 
       
 * generate hard parton-parton scatterings (Q>ptmin) 'njet' times   
-      xhardestPtHat=-0.1
       njet=0 
       if(nhsel.ne.0) then 
        pjet=sigjet/sigin   
@@ -269,10 +268,7 @@
         if(pyr(0).lt.pjet) njet=njet+1 
        end do  
        call hyhard 
-       if(pari(17).gt.xhardestPtHat) xhardestPtHat = pari(17)
       end if 
-
-      pari(17)=xhardestPtHat
 
 * reset pyjets array before soft component generation 
       nhi=0  
@@ -452,7 +448,9 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
        ifbp=0                                    ! fix impact parameter 
        bfixp=RA*bgen 
        Ap=AW                                     ! atomic weight            
- 
+
+       xhardestPtHat=-0.1
+
        do ihard=1,njet       
         mstp(111)=0
 
@@ -493,7 +491,7 @@ c        mstj(41)=0                           ! vacuum showering off
            
         call pyexec                         ! hadronization done 
 c        call pyedit(2)                      ! remove partons & leave hadrons 
-
+       if(pari(17).gt.xhardestPtHat) xhardestPtHat = pari(17)
 
 * fill array of final particles                                                                                                       
 #ifndef  __HIROOT_FORTRAN_ONLY__
@@ -535,6 +533,7 @@ c     write(*,*) ihard," ",nhj
       end if
       njet=njet-nshad
 
+      pari(17)=xhardestPtHat
       return
       end
 
