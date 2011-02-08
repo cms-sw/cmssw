@@ -297,7 +297,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
 	  absdata_toy = data_toy;
 	}
       } else {
-	absdata_toy = dynamic_cast<RooAbsData *>(readToysFromHere->Get(TString::Format("toy_%d",iToy)));
+	absdata_toy = dynamic_cast<RooAbsData *>(readToysFromHere->Get(TString::Format("toys/toy_%d",iToy)));
 	if (absdata_toy == 0) {
 	  std::cerr << "Toy toy_"<<iToy<<" not found in " << readToysFromHere->GetName() << ". List follows:\n";
 	  readToysFromHere->ls();
