@@ -3615,6 +3615,12 @@ public :
                                       float clusshapebarrel, float clusshapeendcap, float r9barrel, float r9endcap,
                                       float detabarrel, float detaendcap, float dphibarrel, float dphiendcap,
                                       float TauEt, float TauEta, float L25TrkPt, float L3TrkIso, float L3GammaIso, float PFMHTCut);
+
+  /**
+   * tells if single electron with given threshold and R9 cut passes
+   */
+  bool OpenHLT_EleX_R9cut(const float& Et, const float& r9barrel);
+
   int OpenHlt1ElectronSamHarperPassed(float Et, int L1iso,  
 				      float Tisobarrel, float Tisoendcap,  
 				      float Tisoratiobarrel, float Tisoratioendcap,  

@@ -2835,37 +2835,85 @@ else {
   }  
   
   /*
-   * 2011-01-26 added by Christian Hartl
-   * according to https://twiki.cern.ch/twiki/bin/view/CMS/EgammaWorkingPoints 
-   * changes w.r.t. OpenHLT_Ele70_SW_L1R:
-   * - reimplemented in terms of OpenHlt1ElectronSamHarperPassed, applied:
-   *    - Et           = 70.0 
-   *    - hoverebarrel = 0.15
-   *    - hovereendcap = 0.15
-   *    - r9barrel     = 0.98
-   *    - r9endcap     = 1.0
-   * - removed _L1R because no longer relaxed
+   * 2011-02/07 modified/extended by Christian Hartl
+   * changes w.r.t. OpenHLT_Ele70_SW:
+   * - reimplemented in terms of OpenHLT_EleX_R9cut
+   * - extended to thresholds 30, 40, 50, 60, 70
    */
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele30_SW") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu, cfg, rcounter, it)) {
+        triggerBit[it] = OpenHLT_EleX_R9cut(30.0, 0.98);
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele30_SW_noSpikeCleaning") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu, cfg, rcounter, it)) {
+        triggerBit[it] = OpenHLT_EleX_R9cut(30.0, 1.0);
+      }
+    }
+  }
+   
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele40_SW") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu, cfg, rcounter, it)) {
+        triggerBit[it] = OpenHLT_EleX_R9cut(40.0, 0.98);
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele40_SW_noSpikeCleaning") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu, cfg, rcounter, it)) {
+        triggerBit[it] = OpenHLT_EleX_R9cut(40.0, 1.0);
+      }
+    }
+  }
+   
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele50_SW") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu, cfg, rcounter, it)) {
+        triggerBit[it] = OpenHLT_EleX_R9cut(50.0, 0.98);
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele50_SW_noSpikeCleaning") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu, cfg, rcounter, it)) {
+        triggerBit[it] = OpenHLT_EleX_R9cut(50.0, 1.0);
+      }
+    }
+  }
+   
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele60_SW") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu, cfg, rcounter, it)) {
+        triggerBit[it] = OpenHLT_EleX_R9cut(60.0, 0.98);
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele60_SW_noSpikeCleaning") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu, cfg, rcounter, it)) {
+        triggerBit[it] = OpenHLT_EleX_R9cut(60.0, 1.0);
+      }
+    }
+  }
+   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele70_SW") == 0) {
-		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-			if (prescaleResponse(menu, cfg, rcounter, it)) {
-				if (OpenHlt1ElectronSamHarperPassed(
-						70., 0, // ET, L1isolation 
-						999., 999., // Track iso barrel, Track iso endcap 
-						999., 999., // Track/pT iso barrel, Track/pT iso endcap 
-						999., 999., // H/ET iso barrel, H/ET iso endcap 
-						999., 999., // E/ET iso barrel, E/ET iso endcap 
-						0.15, 0.15, // H/E barrel, H/E endcap 
-						999., 999., // cluster shape barrel, cluster shape endcap 
-						0.98, 1.0, // R9 barrel, R9 endcap 
-						999., 999., // Deta barrel, Deta endcap 
-						999., 999. // Dphi barrel, Dphi endcap 
-				)>=1) {
-					triggerBit[it] = true;
-				}
-			}
-		}
-	}  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu, cfg, rcounter, it)) {
+        triggerBit[it] = OpenHLT_EleX_R9cut(70.0, 0.98);
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele70_SW_noSpikeCleaning") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu, cfg, rcounter, it)) {
+        triggerBit[it] = OpenHLT_EleX_R9cut(70.0, 1.0);
+      }
+    }
+  }
    
   /* Photons */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon30_CaloIdVL") == 0) {
@@ -6709,6 +6757,26 @@ int OHltTree::OpenHlt1PhotonPassedRA3(float Et, int L1iso,
     }
   }
   return rc;
+}
+
+
+bool OHltTree::OpenHLT_EleX_R9cut(
+  const float& Et,
+  const float& r9barrel)
+{
+  return
+    OpenHlt1ElectronSamHarperPassed(
+      Et, 0,         // ET, L1isolation 
+      999., 999.,    // Track iso barrel, Track iso endcap 
+      999., 999.,    // Track/pT iso barrel, Track/pT iso endcap 
+      999., 999.,    // H/ET iso barrel, H/ET iso endcap 
+      999., 999.,    // E/ET iso barrel, E/ET iso endcap 
+      0.15, 0.15,    // H/E barrel, H/E endcap 
+      999., 999.,    // cluster shape barrel, cluster shape endcap 
+      r9barrel, 1.0, // R9 barrel, R9 endcap 
+      999., 999.,    // Deta barrel, Deta endcap 
+      999., 999.     // Dphi barrel, Dphi endcap
+    ) >= 1;
 }
 
 
