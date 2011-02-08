@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process( "laserAlignmentT0ProducerProcess" )
+process = cms.Process( "TkLaserAlignmentHLT" )
 
 process.MessageLogger = cms.Service( "MessageLogger",
   cerr = cms.untracked.PSet(
@@ -26,26 +26,14 @@ process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff"
 process.GlobalTag.globaltag = cms.string('GR_R_37X_V6A::All')
 
 # multiple sets can be given, only those will be output
-process.load( "Alignment.LaserAlignment.LaserAlignmentT0Producer_cfi" )
-process.laserAlignmentT0Producer.DigiProducerList = cms.VPSet(
+process.load( "Alignment.LaserAlignment.LaserAlignmentHLT_cfi" )
+process.LaserAlignmentHLT.DigiProducerList = cms.VPSet(
   cms.PSet(
     DigiLabel = cms.string( 'ZeroSuppressed' ),
     DigiType = cms.string( 'Processed' ),
     DigiProducer = cms.string( 'siStripDigis' )
   )
 )
-
-process.load( "DQMServices.Core.DQM_cfg" )
-process.load( "DQMOffline.Alignment.LaserAlignmentT0ProducerDQM_cfi" )
-process.LaserAlignmentT0ProducerDQM.DigiProducerList = cms.VPSet(
-  cms.PSet(
-    DigiLabel = cms.string( 'ZeroSuppressed' ),
-    DigiType = cms.string( 'Processed' ),
-    DigiProducer = cms.string( 'siStripDigis' )
-  )
-)
-process.LaserAlignmentT0ProducerDQM.OutputInPlainROOT = True;
-process.LaserAlignmentT0ProducerDQM.UpperAdcThreshold = cms.uint32( 280 )
 
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32( -1 )
@@ -56,7 +44,7 @@ process.out = cms.OutputModule( "PoolOutputModule",
     'drop *', 
     'keep *_laserAlignmentT0Producer_*_*'
   ),
-  fileName = cms.untracked.string( '/tmp/wittmer/TkAlLAS_Run140124_LASFilter_test.root' )
+  fileName = cms.untracked.string( '/tmp/wittmer/TkAlLAS_Run140124_LASHLT_test.root' )
 )
 
 process.load('Alignment.LaserAlignment.LaserAlignmentEventFilter_cfi')
@@ -86,7 +74,5 @@ process.load('Alignment.LaserAlignment.LaserAlignmentEventFilter_cfi')
 
 process.seqDigitization = cms.Path( process.siStripDigis )
 
-process.seqAnalysis = cms.Path( process.LaserAlignmentEventFilter * 
-                                (process.laserAlignmentT0Producer +
-                                 process.LaserAlignmentT0ProducerDQM ))
+process.seqAnalysis = cms.Path( process.LaserAlignmentEventFilter * process.LaserAlignmentHLT)
 process.outputPath = cms.EndPath( process.out )
