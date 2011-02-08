@@ -14,7 +14,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "HLTCleanedJetVBFFilter.h"
+#include "HLTrigger/JetMET/interface/HLTCleanedJetVBFFilter.h"
 
 
 //! ctor
