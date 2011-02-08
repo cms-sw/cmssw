@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltJetVBFFilter = cms.EDFilter("HLTJetVBFFilter",
+hltJetVBFFilter = cms.EDFilter("HLTCleanedJetVBFFilter",
     inputJetTag = cms.InputTag("myJets"),
     inputEleTag = cms.InputTag("myElectrons"),
     saveTag     = cms.untracked.bool( False ),
