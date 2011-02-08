@@ -49,6 +49,7 @@ for l in file:
 # read nuisances
 if not options.stat:
     for l in file:
+        if l.rstrip().rstrip() == "": continue
         l = re.sub("--+","0",l)
         m = re.match(r"(.*?)\s+(0\s+(\d+\.?\d*(E[+\-]\d+)?\s+)+)", l)
         if m == None: raise ValueError, "Missing line "+l
