@@ -39,6 +39,7 @@ class LMFCorrCoefDat {
   LMFCorrCoefDat& setSequence(const LMFLmrSubIOV &iov,
 			      const EcalLogicID &id, 
 			      const LMFSeqDat &seq);
+  RunIOV fetchLastInsertedRun();
   void fetchAfter(const Tm &t);
   void fetchAfter(const Tm &t, int howMany);
   void fetchBetween(const Tm &tmin, const Tm &tmax);

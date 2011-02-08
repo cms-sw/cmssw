@@ -152,6 +152,51 @@ void LMFCorrCoefDat::nodebug() {
   m_debug = false;
 }
 
+RunIOV LMFCorrCoefDat::fetchLastInsertedRun() {
+  RunIOV iov;
+  if (m_conn == NULL) {
+    throw std::runtime_error("[LMFCorrCoefDat::fetchLastInsertedRun] ERROR:  "
+                             "Connection not set");
+  }
+  iov.setConnection(m_env, m_conn);
+  std::string sql = "SELECT IOV_ID FROM CMS_ECAL_COND.RUN_IOV WHERE "
+    "IOV_ID = (SELECT RUN_IOV_ID FROM LMF_SEQ_DAT WHERE SEQ_ID = "
+    "(SELECT MAX(SEQ_ID) FROM LMF_CORR_COEF_DAT))"; 
+  oracle::occi::Statement * stmt;
+  try {
+    stmt = m_conn->createStatement();  
+    stmt->setSQL(sql);
+  }
+  catch (oracle::occi::SQLException &e) {
+    throw(std::runtime_error("[LMFCorrCoefDat::fetchLastInsertedRun]: " +
+                             e.getMessage()));
+  }
+  if (m_debug) {
+    std::cout << "[LMFCorrCoefDat::fetchLastInsertedRun] executing query"
+	      << std::endl << sql << std::endl << std::flush;
+  }
+  oracle::occi::ResultSet *rset = stmt->executeQuery();
+  if (m_debug) {
+    std::cout << "                                       done"
+	      << std::endl << std::flush;
+  }
+  int iov_id = -1;
+  try {
+    while (rset->next()) {
+      // there should be just one result
+      iov_id = rset->getInt(1);
+    }
+  }
+  catch (oracle::occi::SQLException &e) {
+    throw(std::runtime_error("[LMFCorrCoefDat::fetchLastInsertedRun]: " +
+                             e.getMessage()));
+  }
+  if (iov_id > 0) {
+    iov.setByID(iov_id);
+  }
+  return iov;
+}
+
 void LMFCorrCoefDat::fetchAfter(const Tm &t) {
   Tm tmax;
   tmax.setToString("9999-12-31 23:59:59");
@@ -322,7 +367,7 @@ LMFCorrCoefDat::getCorrections(const Tm &t, int max) {
     }
     max = MAX_NUMBER_OF_SEQUENCES_TO_FETCH;
   }
-  // we must define some criteris to select the right rows (REMOVE 
+  // we must define some criteria to select the right rows (REMOVE 
   // CONSTRAINT T1>2002)
   std::map<int, std::map<int, LMFSextuple> > ret;
   std::string sql = "SELECT * FROM (SELECT LOGIC_ID, T1, T2, T3, P1, P2, P3, "
