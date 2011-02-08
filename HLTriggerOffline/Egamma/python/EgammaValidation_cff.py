@@ -226,14 +226,14 @@ else:
                 ]:
 
                 if problematicType in moduleCXXtypes:
-                    print >> sys.stderr,msgPrefix, "SKIPPING PATH",pathName,"BECAUSE DON'T KNOW HOW TO HANDLE A MODULE WITH C++ TYPE",problematicType
+##                    print >> sys.stderr,msgPrefix, "SKIPPING PATH",pathName,"BECAUSE DON'T KNOW HOW TO HANDLE A MODULE WITH C++ TYPE",problematicType
                     hasProblematicType = True
                     break
 
             if hasProblematicType:
                 continue
 
-            print >> sys.stderr,msgPrefix, "adding E/gamma HLT dqm module for path",pathName
+##            print >> sys.stderr,msgPrefix, "adding E/gamma HLT dqm module for path",pathName
 
             dqmModuleName = pathName + "_DQM"
 

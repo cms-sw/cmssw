@@ -286,7 +286,7 @@ class EgammaDQMModuleMaker:
 
             #--------------------
 
-            print >> sys.stderr,msgPrefix,"WARNING: unknown module type", module.type_(), " with name " + moduleName + " in path " + pathName
+##            print >> sys.stderr,msgPrefix,"WARNING: unknown module type", module.type_(), " with name " + moduleName + " in path " + pathName
                                          
     #----------------------------------------
     
