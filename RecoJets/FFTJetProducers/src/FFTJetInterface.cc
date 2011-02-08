@@ -100,7 +100,7 @@ void FFTJetInterface::loadInputCollection(const edm::Event& iEvent)
         const reco::Candidate& item(*it);
         if (anomalous(item))
             continue;
-        if (isnan(item.pt()))
+        if (std::isnan(item.pt()))
             continue;
 
         if (adjustForVertex)
