@@ -1897,6 +1897,8 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
     double posZ=0.;
     std::vector<float> bremEnergyVec;
 
+    std::vector<const PFCluster*> pfSC_Clust_vec; 
+
     float de_gs = 0., de_me = 0., de_kf = 0.; 
     float m_el=0.00051;
     int nhit_kf=0; int nhit_gsf=0;
@@ -2096,6 +2098,10 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	ps1TotEne+=ps1;
 	ps2TotEne+=ps2;
 	dene+=dE*dE;
+	
+	//MM Add cluster to the vector pfSC_Clust_vec needed for brem corrections
+	pfSC_Clust_vec.push_back( &cl );
+
       }
       
 
@@ -2156,6 +2162,9 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	      //	      RawEene += RawEE;
 	      dene+=dE*dE;
 
+	      //MM Add cluster to the vector pfSC_Clust_vec needed for brem corrections
+	      pfSC_Clust_vec.push_back( clusterRef.get() );
+
 	      // create a PFCandidate out of it. Watch out, it is for the e/gamma and tau only
 	      // not to be used by the PFAlgo
 	      math::XYZTLorentzVector photonMomentum;
@@ -2203,29 +2212,37 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
       double unCorrEene = Eene;
       double absEta = fabs(momentum_gsf.Eta());
       double emTheta = momentum_gsf.Theta();
+      PFClusterWidthAlgo pfSCwidth(pfSC_Clust_vec); 
+      double brLinear = pfSCwidth.pflowPhiWidth()/pfSCwidth.pflowEtaWidth(); 
+      pfSC_Clust_vec.clear();
+      
       if( DebugIDCandidates ) 
 	cout << "PFEelectronAlgo:: absEta " << absEta  << " theta " << emTheta 
 	     << " EneRaw " << Eene << " Err " << dene;
       
-      // The calibrations are provided till ET = 200 GeV
-      if(usePFSCEleCalib_ && (unCorrEene*sin(emTheta)) < 200 && unCorrEene > 0.) {
+      // The calibrations are provided till ET = 200 GeV //No longer a such cut MM
+      // Protection on at least 1 GeV energy...avoid possible divergencies at very low energy.
+      if(usePFSCEleCalib_ && unCorrEene > 0.) { 
 	if( absEta < 1.5) {
 	  double Etene = Eene*sin(emTheta);
-	  double emCorrFull_et = thePFSCEnergyCalibration_->SCCorrEtEtaBarrel(Etene, absEta);
+	  double emBR_e = thePFSCEnergyCalibration_->SCCorrFBremBarrel(Eene, Etene, brLinear); 
+	  double emBR_et = emBR_e*sin(emTheta); 
+	  double emCorrFull_et = thePFSCEnergyCalibration_->SCCorrEtEtaBarrel(emBR_et, absEta); 
 	  Eene = emCorrFull_et/sin(emTheta);
 	}
 	else {
-	  double Etene = Eene*sin(emTheta);
-	  double emCorrFull_et = thePFSCEnergyCalibration_->SCCorrEtEtaEndcap(Etene, absEta);
+	  //  double Etene = Eene*sin(emTheta); //not needed anymore for endcaps MM
+	  double emBR_e = thePFSCEnergyCalibration_->SCCorrFBremEndcap(Eene, absEta, brLinear); 
+	  double emBR_et = emBR_e*sin(emTheta); 
+	  double emCorrFull_et = thePFSCEnergyCalibration_->SCCorrEtEtaEndcap(emBR_et, absEta); 
 	  Eene = emCorrFull_et/sin(emTheta);
 	}
 	dene = sqrt(dene)*(Eene/unCorrEene);
 	dene = dene*dene;
       }
-      
+
       if( DebugIDCandidates ) 
 	cout << " EneCorrected " << Eene << " Err " << dene  << endl;
-
 
       // charge determination with the majority method
       // if the kf track exists: 2 among 3 of supercluster barycenter position

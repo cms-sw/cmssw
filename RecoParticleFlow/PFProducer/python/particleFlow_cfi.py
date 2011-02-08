@@ -28,9 +28,27 @@ particleFlow = cms.EDProducer("PFProducer",
     pf_electron_mvaCut = cms.double(-0.1),
     # apply the crack corrections                             
     pf_electronID_crackCorrection = cms.bool(False),
-    usePFSCEleCalib = cms.bool(True),                        
-    calibPFSCEle_barrel = cms.vdouble(1.0326,-13.71,339.72,0.4862,0.00182,0.36445,1.411,1.0206,0.0059162,-5.14434e-05,1.42516e-07),
-    calibPFSCEle_endcap = cms.vdouble(0.9995,-12.313,2.8784,-1.057e-04,10.282,3.059,1.3502e-03,-2.2185,3.4206),
+    usePFSCEleCalib = cms.bool(True),
+                              #new corrections  #MM /*
+    calibPFSCEle_Fbrem_barrel = cms.vdouble(0.6, 6,                                                 #Range of non constant correction
+                                            -0.0255975, 0.0576727, 0.975442, -0.000546394, 1.26147, #standard parameters
+                                            25,                                                     #pt value for switch to low pt corrections
+                                            -0.02025, 0.04537, 0.9728, -0.0008962, 1.172),          # low pt parameters
+    calibPFSCEle_Fbrem_endcap = cms.vdouble(0.9, 6.5,                                               #Range of non constant correction
+                                            -0.0692932, 0.101776, 0.995338, -0.00236548, 0.874998,  #standard parameters eta < switch value
+                                            1.653,                                                  #eta value for correction switch
+                                            -0.0750184, 0.147000, 0.923165, 0.000474665, 1.10782),  #standard parameters eta > switch value
+    calibPFSCEle_barrel = cms.vdouble(1.004, -1.536, 22.88, -1.467,  #standard
+                                      0.3555, 0.6227, 14.65, 2051,   #parameters
+                                      25,                            #pt value for switch to low pt corrections
+                                      0.9932, -0.5444, 0, 0.5438,    #low pt
+                                      0.7109, 7.645, 0.2904, 0),     #parameters
+    calibPFSCEle_endcap = cms.vdouble(1.153, -16.5975, 5.668,
+                                      -0.1772, 16.22, 7.326,
+                                      0.0483, -4.068, 9.406),
+                              #old corrections #MM */
+#    calibPFSCEle_barrel = cms.vdouble(1.0326,-13.71,339.72,0.4862,0.00182,0.36445,1.411,1.0206,0.0059162,-5.14434e-05,1.42516e-07),
+#    calibPFSCEle_endcap = cms.vdouble(0.9995,-12.313,2.8784,-1.057e-04,10.282,3.059,1.3502e-03,-2.2185,3.4206),
 
     useEGammaSupercluster =  cms.bool(True),
     sumEtEcalIsoForEgammaSC_barrel = cms.double(1.),

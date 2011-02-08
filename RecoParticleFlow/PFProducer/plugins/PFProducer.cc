@@ -124,13 +124,18 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<std::string>("pf_electron_output_col");
 
   bool usePFSCEleCalib;
+  std::vector<double>  calibPFSCEle_Fbrem_barrel; 
+  std::vector<double>  calibPFSCEle_Fbrem_endcap;
   std::vector<double>  calibPFSCEle_barrel;
   std::vector<double>  calibPFSCEle_endcap;
   usePFSCEleCalib =     iConfig.getParameter<bool>("usePFSCEleCalib");
+  calibPFSCEle_Fbrem_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_barrel");
+  calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
   calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
   calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
   boost::shared_ptr<PFSCEnergyCalibration>  
-    thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_barrel,calibPFSCEle_endcap ));
+    thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
+							 calibPFSCEle_barrel,calibPFSCEle_endcap )); 
 			       
   bool useEGammaSupercluster = iConfig.getParameter<bool>("useEGammaSupercluster");
   double sumEtEcalIsoForEgammaSC_barrel = iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_barrel");

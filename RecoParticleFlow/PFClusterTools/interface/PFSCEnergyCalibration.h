@@ -32,22 +32,35 @@ class PFSCEnergyCalibration
   PFSCEnergyCalibration(); // default constructor;
                            // needed by PFRootEvent
   
-  PFSCEnergyCalibration(std::vector<double> &barrelCorr,
+  PFSCEnergyCalibration(std::vector<double> &barrelFbremCorr,
+			std::vector<double> &endcapFbremCorr,
+			std::vector<double> &barrelCorr,
 			std::vector<double> &endcapCorr);
   
   
   ~PFSCEnergyCalibration();
 
   // ecal calibration
+  double SCCorrFBremBarrel(double e, double et, double brLinear);
+  double SCCorrFBremEndcap(double e, double eta, double brLinear);
+
   double SCCorrEtEtaBarrel(double et, double eta);
   double SCCorrEtEtaEndcap(double et, double eta);
   
 
  private:
+
+  //fBrem values
+  std::vector<double> barrelFbremCorr_;
+  std::vector<double> endcapFbremCorr_;
+  double pbb[13];
+  double pbe[13];
+
+  //Eta / ET values
   std::vector<double> barrelCorr_;
   std::vector<double> endcapCorr_;
   double cc[9];
-  double bb[11];
+  double bb[17];
 
 };
 

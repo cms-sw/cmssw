@@ -989,13 +989,18 @@ void PFRootEventManager::readOptions(const char* file,
   calibration_ = calibration;
 
   bool usePFSCEleCalib;
+  std::vector<double>  calibPFSCEle_Fbrem_barrel; 
+  std::vector<double>  calibPFSCEle_Fbrem_endcap;
   std::vector<double>  calibPFSCEle_barrel;
   std::vector<double>  calibPFSCEle_endcap;
   options_->GetOpt("particle_flow","usePFSCEleCalib",usePFSCEleCalib);
+  options_->GetOpt("particle_flow","calibPFSCEle_Fbrem_barrel",calibPFSCEle_Fbrem_barrel);
+  options_->GetOpt("particle_flow","calibPFSCEle_Fbrem_endcap",calibPFSCEle_Fbrem_endcap);
   options_->GetOpt("particle_flow","calibPFSCEle_barrel",calibPFSCEle_barrel);
   options_->GetOpt("particle_flow","calibPFSCEle_endcap",calibPFSCEle_endcap);
   boost::shared_ptr<PFSCEnergyCalibration>  
-    thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_barrel,calibPFSCEle_endcap ));
+    thePFSCEnergyCalibration (new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
+							calibPFSCEle_barrel,calibPFSCEle_endcap ));
   
   bool useEGammaSupercluster;
   double sumEtEcalIsoForEgammaSC_barrel;
