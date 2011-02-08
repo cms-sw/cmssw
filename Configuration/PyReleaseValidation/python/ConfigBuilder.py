@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.285 $"
-__source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
+__version__ = "$Revision: 1.286 $"
+__source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
@@ -752,7 +752,8 @@ class ConfigBuilder(object):
                     for i, filter in enumerate(filterList):
                             filterList[i] = filter+":"+self._options.triggerResultsProcess
 
-
+	    return output
+    
     #----------------------------------------------------------------------------
     # here the methods to create the steps. Of course we are doing magic here ;)
     # prepare_STEPNAME modifies self.process and what else's needed.
@@ -796,7 +797,18 @@ class ConfigBuilder(object):
             alcastream = getattr(alcaConfig,name)
             shortName = name.replace('ALCARECOStream','')
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
-                self.addExtraStream(name,alcastream, workflow = workflow)
+	        output = self.addExtraStream(name,alcastream, workflow = workflow)
+		if 'DQM' in alcaList:
+			if not self._options.inlineEventContent:
+				self.executeAndRemember('process.' + name + '.outputCommands.append("keep *_MEtoEDMConverter_*_*")')
+			else:
+				output.outputCommands.append("keep *_MEtoEDMConverter_*_*")
+		else:
+			if not self._options.inlineEventContent:
+				self.executeAndRemember('process.' + name + '.outputCommands.append("drop *_MEtoEDMConverter_*_*")')
+			else:
+				output.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+			
                 #rename the HLT process name in the alca modules
                 if self._options.hltProcess:
                         if isinstance(alcastream.paths,tuple):
@@ -1342,7 +1354,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.285 $"),
+                                            (version=cms.untracked.string("$Revision: 1.286 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
