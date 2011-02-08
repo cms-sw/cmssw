@@ -26,11 +26,11 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
+#include "FWCore/Framework/interface/DependentRecordTag.h"
 
 // forward declarations
 namespace edm {
 namespace eventsetup {
-   struct DependentRecordTag {};
    
 template< class RecordT, class ListT>
 class DependentRecordImplementation : public EventSetupRecordImplementation<RecordT>, public DependentRecordTag

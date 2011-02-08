@@ -29,11 +29,11 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/DependentRecordTag.h"
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
-      struct DependentRecordTag;
       
       //If the types are the same, stop the recursion
       template <typename T>
