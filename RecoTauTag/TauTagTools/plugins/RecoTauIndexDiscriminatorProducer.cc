@@ -1,8 +1,8 @@
-/* 
+/*
  * class RecoTauHashDiscriminatorProducer
  * Author : Evan K. Friis (UC Davis)
  *
- * Helper utility module that produces a PFTauDiscriminator 
+ * Helper utility module that produces a PFTauDiscriminator
  * that only contains a unique identifier for a PFTau.
  *
  * Currently, it is only the index into the original colleciton.
@@ -15,7 +15,7 @@ class RecoTauIndexDiscriminatorProducer : public PFTauDiscriminationProducerBase
   public:
       explicit RecoTauIndexDiscriminatorProducer(const edm::ParameterSet& cfg)
         :PFTauDiscriminationProducerBase(cfg) {}
-      ~RecoTauIndexDiscriminatorProducer(){} 
+      ~RecoTauIndexDiscriminatorProducer(){}
       double discriminate(const reco::PFTauRef& thePFTauRef);
       void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) {};
 };
