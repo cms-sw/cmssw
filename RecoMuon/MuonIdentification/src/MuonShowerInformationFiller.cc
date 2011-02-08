@@ -4,8 +4,8 @@
  *
  *  Description: class for muon shower identification
  *
- *  $Date: 2011/11/20 17:02:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/01/09 16:36:45 $
+ *  $Revision: 1.3 $
  *
  *  \author: A. Svyatkovskiy, Purdue University
  *
@@ -845,7 +845,7 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
          } //at least two hits
      //fill deltaRs
      if (muonRecHitsThetaBest.size() > 1 && muonRecHitsPhiBest.size() > 1)
-      theStationShowerDeltaR.at(stat) = pow(pow(muonRecHitsPhiBest.front()->globalPosition().phi()-muonRecHitsPhiBest.back()->globalPosition().phi(),2)+pow(muonRecHitsThetaBest.front()->globalPosition().theta()-muonRecHitsThetaBest.back()->globalPosition().theta(),2),0.5);
+      theStationShowerDeltaR.at(stat) = pow(pow(muonRecHitsPhiBest.front()->globalPosition().phi()-muonRecHitsPhiBest.back()->globalPosition().phi(),2)+pow(muonRecHitsThetaBest.front()->globalPosition().theta()-muonRecHitsThetaBest.back()->globalPosition().theta(),2),0.5f);
 
        LogTrace(category_) << "deltaR around a track containing all the station hits, by station "
        << theStationShowerDeltaR.at(0) << " "
