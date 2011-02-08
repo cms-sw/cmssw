@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/20 18:20:08 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/03/01 10:27:09 $
+ *  $Revision: 1.23 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -16,6 +16,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 //#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+#include "CondFormats/DTObjects/interface/DTCompactMapAbstractHandler.h"
 
 //---------------
 // C++ Headers --
@@ -389,6 +390,14 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
 }
 
 
+DTReadOutMapping::type DTReadOutMapping::mapType() const {
+  if ( mType == 0 ) cacheMap();
+  int defaultValue;
+  mType->find( 0, defaultValue );
+  if ( defaultValue ) return compact;
+  else                return plain;
+}
+
 
 const
 std::string& DTReadOutMapping::mapCellTdc() const {
@@ -493,6 +502,19 @@ DTReadOutMapping::const_iterator DTReadOutMapping::begin() const {
 
 DTReadOutMapping::const_iterator DTReadOutMapping::end() const {
   return readOutChannelDriftTubeMap.end();
+}
+
+
+const DTReadOutMapping* DTReadOutMapping::fullMap() const {
+  if ( mapType() == plain ) return this;
+  DTCompactMapAbstractHandler* cmHandler =
+                               DTCompactMapAbstractHandler::getInstance();
+  if ( cmHandler == 0 ) {
+      std::cout << "CondCoreDTPlugins library not loaded, "
+                << "compactMapHandler plugin missing" << std::endl;
+    return 0;
+  }
+  return cmHandler->expandMap( *this );
 }
 
 
