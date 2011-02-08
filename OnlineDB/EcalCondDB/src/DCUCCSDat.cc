@@ -46,7 +46,7 @@ void DCUCCSDat::prepareWrite()
 			"m2_vinj, m1_vcc, m2_vcc, m1_dcutemp, m2_dcutemp, "
 			"ccstemplow, ccstemphigh) "
 			"VALUES (:iov_id, :logic_id, "
-			":m1_vdd1, :m2_vdd1, :m2_vdd1, :m2_vdd2, :m1_vinj, "
+			":m1_vdd1, :m2_vdd1, :m1_vdd2, :m2_vdd2, :m1_vinj, "
 			":m2_vinj, :m1_vcc, :m2_vcc, :m1_dcutemp, "
 			":m2_dcutemp, :ccstemplow, :ccstemphigh)");
   } catch (SQLException &e) {
