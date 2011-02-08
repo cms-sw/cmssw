@@ -18,7 +18,7 @@ process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
 process.MessageLogger.fwkJobReports = []
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(50000))
 
 process.source = cms.Source("EmptySource")
 
@@ -38,9 +38,11 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
              decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY_NOLONGLIFE.DEC'),
              # decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY.DEC'),
              particle_property_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/evt.pdl'),
-             user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Bs_DsStarlnu_DsGamma.dec'),
-             # user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Bs_Jpsiphi_mumuKK.dec'),
-             list_forced_decays = cms.vstring('MyB_s0','Myanti-B_s0'),
+             # user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Bs_DsStarlnu_DsGamma.dec'),
+             user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/LambdaB_JPsiLambda_ppi.dec'),
+             list_forced_decays = cms.vstring('MyLambda_b0','Myanti-Lambda_b0'),
+             particles_to_polarize = cms.untracked.vint32(5122, -5122),
+             particle_polarizations = cms.untracked.vdouble(-0.4, -0.4),
              ),
         parameterSets = cms.vstring('EvtGen')
     ),
@@ -54,7 +56,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/TestEvtGen.root')
+    fileName = cms.untracked.string('/tmp/TestEvtGenMenoUno.root')
 )
 
 process.p = cms.Path(process.generator)

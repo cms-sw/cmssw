@@ -60,8 +60,11 @@ class EvtGenTestAnalyzer : public edm::EDAnalyzer
      TH1D*       hmumuMassSqrMinus ;
      TH1D*       hIdBsDaugs ;	   
      TH1D*       hIdBDaugs ;	   
-     TH1D*       hCosHelAngleK ;   
-     TH1D*       hCosHelAngleKbkg ;
+     TH1D*       hCosTheta1 ;   
+     TH1D*       hCosTheta2 ;
+     TH1D*       hPhi1 ;   
+     TH1D*       hPhi2 ;
+     TH1D*       hCosThetaLambda ;
     
      ofstream*   decayed; 
      ofstream*   undecayed; 
