@@ -8,6 +8,7 @@ eidVeryLoose.electronQuality = 'veryloose'
 eidVeryLoose.electronVersion = 'V06'
 eidVeryLoose.additionalCategories = True
 eidVeryLoose.classbasedverylooseEleIDCutsV06 = cms.PSet(
+cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
 cutdetain = cms.vdouble(
 1.37e-02, 9.33e-03, 2.57e-02, 2.92e-02, 5.14e-02, 2.89e-02, 4.00e-02, 3.08e-02, 3.20e-02
 ),
@@ -61,6 +62,7 @@ eidLoose.electronQuality = 'loose'
 eidLoose.electronVersion = 'V06'
 eidLoose.additionalCategories = True
 eidLoose.classbasedlooseEleIDCutsV06 = cms.PSet(
+cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
 cutdetain = cms.vdouble(
 1.37e-02, 6.78e-03, 2.41e-02, 1.87e-02, 1.61e-02, 2.24e-02, 2.52e-02, 3.08e-02, 2.73e-02
 ),
@@ -114,6 +116,7 @@ eidMedium.electronQuality = 'medium'
 eidMedium.electronVersion = 'V06'
 eidMedium.additionalCategories = True
 eidMedium.classbasedmediumEleIDCutsV06 = cms.PSet(
+cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
 cutdetain = cms.vdouble(
 1.37e-02, 5.16e-03, 1.27e-02, 1.84e-02, 8.40e-03, 1.29e-02, 2.52e-02, 2.85e-02, 1.63e-02
 ),
@@ -167,6 +170,7 @@ eidTight.electronQuality = 'tight'
 eidTight.electronVersion = 'V06'
 eidTight.additionalCategories = True
 eidTight.classbasedtightEleIDCutsV06 = cms.PSet(
+cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
 cutdetain = cms.vdouble(
 1.16e-02, 4.49e-03, 9.38e-03, 1.84e-02, 6.78e-03, 1.09e-02, 2.52e-02, 2.68e-02, 1.39e-02
 ),
@@ -220,6 +224,7 @@ eidSuperTight.electronQuality = 'supertight'
 eidSuperTight.electronVersion = 'V06'
 eidSuperTight.additionalCategories = True
 eidSuperTight.classbasedsupertightEleIDCutsV06 = cms.PSet(
+cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
 cutdetain = cms.vdouble(
 1.09e-02, 3.48e-03, 6.80e-03, 1.84e-02, 6.78e-03, 9.08e-03, 8.59e-03, 1.46e-02, 1.39e-02
 ),
@@ -273,6 +278,169 @@ eidHyperTight1.electronQuality = 'hypertight1'
 eidHyperTight1.electronVersion = 'V06'
 eidHyperTight1.additionalCategories = True
 eidHyperTight1.classbasedhypertight1EleIDCutsV06 = cms.PSet(
+cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
+cutdetain = cms.vdouble(
+9.93e-03, 3.48e-03, 6.58e-03, 1.65e-02, 6.78e-03, 6.84e-03, 5.95e-03, 9.41e-03, 1.39e-02
+),
+cutdetainl = cms.vdouble(
+3.75e-03, 3.55e-03, 6.03e-03, 1.64e-02, 5.88e-03, 6.34e-03, 1.06e-02, 4.34e-02, 1.12e-02
+),
+cutdphiin = cms.vdouble(
+6.38e-02, 3.62e-02, 2.27e-01, 7.54e-02, 3.00e-02, 1.16e-01, 1.82e-01, 2.76e-01, 3.28e-01
+),
+cutdphiinl = cms.vdouble(
+4.97e-02, 1.44e-02, 2.86e-01, 4.76e-02, 5.60e-02, 2.26e-01, 3.33e-01, 2.60e-01, 2.58e-01
+),
+cuteseedopcor = cms.vdouble(
+7.22e-01, 9.66e-01, 1.00e+00, 8.42e-01, 7.63e-01, 9.04e-01, 5.18e-01, 9.34e-01, 4.73e-01
+),
+cutfmishits = cms.vdouble(
+1.50e+00, 1.50e+00, 5.00e-01, 1.50e+00, 5.00e-01, 5.00e-01, 1.50e+00, 1.50e+00, -5.00e-01
+),
+cuthoe = cms.vdouble(
+7.93e-02, 4.07e-02, 1.47e-01, 3.40e-01, 2.14e-02, 1.02e-01, 3.41e-01, 4.18e-01, 4.04e-01
+),
+cuthoel = cms.vdouble(
+3.79e-02, 7.78e-02, 9.91e-02, 3.33e-01, 1.94e-02, 9.79e-02, 2.57e-01, 3.69e-01, 3.39e-01
+),
+cutip_gsf = cms.vdouble(
+1.26e-02, 1.85e-02, 8.39e-02, 1.70e-02, 1.32e-01, 2.00e-01, 8.97e-02, 8.02e-02, 2.66e-02
+),
+cutip_gsfl = cms.vdouble(
+1.19e-02, 2.70e-02, 4.71e-02, 1.10e-02, 1.16e-01, 1.99e-01, 9.02e-02, 1.22e-01, 4.79e-02
+),
+cutiso_sum = cms.vdouble(
+1.02e+01, 7.77e+00, 8.59e+00, 6.93e+00, 4.43e+00, 5.82e+00, 3.97e+00, 5.10e+00, 1.98e+00
+),
+cutiso_sumoet = cms.vdouble(
+7.87e+00, 5.96e+00, 5.35e+00, 6.72e+00, 4.51e+00, 3.98e+00, 8.14e+00, 6.26e+00, 4.80e+00
+),
+cutiso_sumoetl = cms.vdouble(
+4.17e+00, 4.63e+00, 3.08e+00, 3.77e+00, 2.02e+00, 3.68e+00, 3.45e+00, 2.41e+00, 2.58e+00
+),
+cutsee = cms.vdouble(
+1.13e-02, 1.07e-02, 1.17e-02, 3.21e-02, 2.92e-02, 2.91e-02, 9.78e-03, 3.47e-02, 3.96e-02
+),
+cutseel = cms.vdouble(
+1.32e-02, 1.03e-02, 1.03e-02, 3.43e-02, 2.67e-02, 2.69e-02, 9.76e-03, 2.96e-02, 5.44e-02
+)
+)
+
+eidHyperTight1 = eidCutBasedExt.clone()
+eidHyperTight1.electronIDType = 'classbased'
+eidHyperTight1.electronQuality = 'hypertight2'
+eidHyperTight1.electronVersion = 'V06'
+eidHyperTight1.additionalCategories = True
+eidHyperTight1.classbasedhypertight1EleIDCutsV06 = cms.PSet(
+cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
+cutdetain = cms.vdouble(
+9.93e-03, 3.48e-03, 6.58e-03, 1.65e-02, 6.78e-03, 6.84e-03, 5.95e-03, 9.41e-03, 1.39e-02
+),
+cutdetainl = cms.vdouble(
+3.75e-03, 3.55e-03, 6.03e-03, 1.64e-02, 5.88e-03, 6.34e-03, 1.06e-02, 4.34e-02, 1.12e-02
+),
+cutdphiin = cms.vdouble(
+6.38e-02, 3.62e-02, 2.27e-01, 7.54e-02, 3.00e-02, 1.16e-01, 1.82e-01, 2.76e-01, 3.28e-01
+),
+cutdphiinl = cms.vdouble(
+4.97e-02, 1.44e-02, 2.86e-01, 4.76e-02, 5.60e-02, 2.26e-01, 3.33e-01, 2.60e-01, 2.58e-01
+),
+cuteseedopcor = cms.vdouble(
+7.22e-01, 9.66e-01, 1.00e+00, 8.42e-01, 7.63e-01, 9.04e-01, 5.18e-01, 9.34e-01, 4.73e-01
+),
+cutfmishits = cms.vdouble(
+1.50e+00, 1.50e+00, 5.00e-01, 1.50e+00, 5.00e-01, 5.00e-01, 1.50e+00, 1.50e+00, -5.00e-01
+),
+cuthoe = cms.vdouble(
+7.93e-02, 4.07e-02, 1.47e-01, 3.40e-01, 2.14e-02, 1.02e-01, 3.41e-01, 4.18e-01, 4.04e-01
+),
+cuthoel = cms.vdouble(
+3.79e-02, 7.78e-02, 9.91e-02, 3.33e-01, 1.94e-02, 9.79e-02, 2.57e-01, 3.69e-01, 3.39e-01
+),
+cutip_gsf = cms.vdouble(
+1.26e-02, 1.85e-02, 8.39e-02, 1.70e-02, 1.32e-01, 2.00e-01, 8.97e-02, 8.02e-02, 2.66e-02
+),
+cutip_gsfl = cms.vdouble(
+1.19e-02, 2.70e-02, 4.71e-02, 1.10e-02, 1.16e-01, 1.99e-01, 9.02e-02, 1.22e-01, 4.79e-02
+),
+cutiso_sum = cms.vdouble(
+1.02e+01, 7.77e+00, 8.59e+00, 6.93e+00, 4.43e+00, 5.82e+00, 3.97e+00, 5.10e+00, 1.98e+00
+),
+cutiso_sumoet = cms.vdouble(
+7.87e+00, 5.96e+00, 5.35e+00, 6.72e+00, 4.51e+00, 3.98e+00, 8.14e+00, 6.26e+00, 4.80e+00
+),
+cutiso_sumoetl = cms.vdouble(
+4.17e+00, 4.63e+00, 3.08e+00, 3.77e+00, 2.02e+00, 3.68e+00, 3.45e+00, 2.41e+00, 2.58e+00
+),
+cutsee = cms.vdouble(
+1.13e-02, 1.07e-02, 1.17e-02, 3.21e-02, 2.92e-02, 2.91e-02, 9.78e-03, 3.47e-02, 3.96e-02
+),
+cutseel = cms.vdouble(
+1.32e-02, 1.03e-02, 1.03e-02, 3.43e-02, 2.67e-02, 2.69e-02, 9.76e-03, 2.96e-02, 5.44e-02
+)
+)
+
+eidHyperTight1 = eidCutBasedExt.clone()
+eidHyperTight1.electronIDType = 'classbased'
+eidHyperTight1.electronQuality = 'hypertight3'
+eidHyperTight1.electronVersion = 'V06'
+eidHyperTight1.additionalCategories = True
+eidHyperTight1.classbasedhypertight1EleIDCutsV06 = cms.PSet(
+cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
+cutdetain = cms.vdouble(
+9.93e-03, 3.48e-03, 6.58e-03, 1.65e-02, 6.78e-03, 6.84e-03, 5.95e-03, 9.41e-03, 1.39e-02
+),
+cutdetainl = cms.vdouble(
+3.75e-03, 3.55e-03, 6.03e-03, 1.64e-02, 5.88e-03, 6.34e-03, 1.06e-02, 4.34e-02, 1.12e-02
+),
+cutdphiin = cms.vdouble(
+6.38e-02, 3.62e-02, 2.27e-01, 7.54e-02, 3.00e-02, 1.16e-01, 1.82e-01, 2.76e-01, 3.28e-01
+),
+cutdphiinl = cms.vdouble(
+4.97e-02, 1.44e-02, 2.86e-01, 4.76e-02, 5.60e-02, 2.26e-01, 3.33e-01, 2.60e-01, 2.58e-01
+),
+cuteseedopcor = cms.vdouble(
+7.22e-01, 9.66e-01, 1.00e+00, 8.42e-01, 7.63e-01, 9.04e-01, 5.18e-01, 9.34e-01, 4.73e-01
+),
+cutfmishits = cms.vdouble(
+1.50e+00, 1.50e+00, 5.00e-01, 1.50e+00, 5.00e-01, 5.00e-01, 1.50e+00, 1.50e+00, -5.00e-01
+),
+cuthoe = cms.vdouble(
+7.93e-02, 4.07e-02, 1.47e-01, 3.40e-01, 2.14e-02, 1.02e-01, 3.41e-01, 4.18e-01, 4.04e-01
+),
+cuthoel = cms.vdouble(
+3.79e-02, 7.78e-02, 9.91e-02, 3.33e-01, 1.94e-02, 9.79e-02, 2.57e-01, 3.69e-01, 3.39e-01
+),
+cutip_gsf = cms.vdouble(
+1.26e-02, 1.85e-02, 8.39e-02, 1.70e-02, 1.32e-01, 2.00e-01, 8.97e-02, 8.02e-02, 2.66e-02
+),
+cutip_gsfl = cms.vdouble(
+1.19e-02, 2.70e-02, 4.71e-02, 1.10e-02, 1.16e-01, 1.99e-01, 9.02e-02, 1.22e-01, 4.79e-02
+),
+cutiso_sum = cms.vdouble(
+1.02e+01, 7.77e+00, 8.59e+00, 6.93e+00, 4.43e+00, 5.82e+00, 3.97e+00, 5.10e+00, 1.98e+00
+),
+cutiso_sumoet = cms.vdouble(
+7.87e+00, 5.96e+00, 5.35e+00, 6.72e+00, 4.51e+00, 3.98e+00, 8.14e+00, 6.26e+00, 4.80e+00
+),
+cutiso_sumoetl = cms.vdouble(
+4.17e+00, 4.63e+00, 3.08e+00, 3.77e+00, 2.02e+00, 3.68e+00, 3.45e+00, 2.41e+00, 2.58e+00
+),
+cutsee = cms.vdouble(
+1.13e-02, 1.07e-02, 1.17e-02, 3.21e-02, 2.92e-02, 2.91e-02, 9.78e-03, 3.47e-02, 3.96e-02
+),
+cutseel = cms.vdouble(
+1.32e-02, 1.03e-02, 1.03e-02, 3.43e-02, 2.67e-02, 2.69e-02, 9.76e-03, 2.96e-02, 5.44e-02
+)
+)
+
+eidHyperTight1 = eidCutBasedExt.clone()
+eidHyperTight1.electronIDType = 'classbased'
+eidHyperTight1.electronQuality = 'hypertight4'
+eidHyperTight1.electronVersion = 'V06'
+eidHyperTight1.additionalCategories = True
+eidHyperTight1.classbasedhypertight1EleIDCutsV06 = cms.PSet(
+cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
 cutdetain = cms.vdouble(
 9.93e-03, 3.48e-03, 6.58e-03, 1.65e-02, 6.78e-03, 6.84e-03, 5.95e-03, 9.41e-03, 1.39e-02
 ),
