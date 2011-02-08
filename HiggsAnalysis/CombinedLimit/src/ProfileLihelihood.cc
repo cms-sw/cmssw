@@ -63,6 +63,10 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
   bool success = (doSignificance_ ?  runSignificance(w,data,limit) : runLimit(w,data,limit));
   if ((!success && hitItUntilItConverges_) || hitItEvenHarder_) {
      std::vector<double> limits; double rMax = w->var("r")->getMax();
+     if (success && hitItEvenHarder_) {
+        limits.push_back(limit);
+        success = false;
+     }
      int ntries = 100;
      for (int tries = 1; tries <= ntries; ++tries) {
         w->loadSnapshot("clean");
@@ -92,7 +96,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
             absSpread += fabs(limits[i]-median)/(n-1); // n-1, as one gives 0 by construction
         }
         std::cout << "Numer of tries: " << ntries << "   Number of successes: " << nsuccess << "   Relative spread: " << absSpread/median << std::endl;
-        if (absSpread < 0.01) { success = true; limit = median; }
+        if (absSpread/median < 0.01) { success = true; limit = median; }
      }
   }
   return success;
