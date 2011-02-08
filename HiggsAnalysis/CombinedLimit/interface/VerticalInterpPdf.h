@@ -13,7 +13,7 @@ class VerticalInterpPdf : public RooAbsPdf {
 public:
 
   VerticalInterpPdf() ;
-  VerticalInterpPdf(const char *name, const char *title, const RooArgList& funcList, const RooArgList& coefList, Double_t quadraticRegion=0.) ;
+  VerticalInterpPdf(const char *name, const char *title, const RooArgList& funcList, const RooArgList& coefList, Double_t quadraticRegion=0., Int_t quadraticAlgo=0) ;
   VerticalInterpPdf(const VerticalInterpPdf& other, const char* name=0) ;
   virtual TObject* clone(const char* newname) const { return new VerticalInterpPdf(*this,newname) ; }
   virtual ~VerticalInterpPdf() ;
@@ -43,6 +43,7 @@ protected:
   RooListProxy _funcList ;   //  List of component FUNCs
   RooListProxy _coefList ;  //  List of coefficients
   Double_t     _quadraticRegion;
+  Int_t        _quadraticAlgo;
   TIterator* _funcIter ;     //! Iterator over FUNC list
   TIterator* _coefIter ;    //! Iterator over coefficient list
 
