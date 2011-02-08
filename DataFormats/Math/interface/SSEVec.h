@@ -274,7 +274,7 @@ namespace mathSSE {
 
     // for masking
     void setMask(unsigned int m1, unsigned int m2, unsigned int m3, unsigned int m4) {
-      Mask4<float> masks(m1,m2,m3,m4); vec=mask.vec; 
+      Mask4<float> mask(m1,m2,m3,m4); vec=mask.vec; 
     }
 
     void set(float f1, float f2, float f3, float f4=0) {
@@ -331,7 +331,7 @@ namespace mathSSE {
 
    // for masking
    void setMask(unsigned long long m1, unsigned long long m2) {
-     Mask2<double> masks(m1,m2); vec=mask.vec; 
+     Mask2<double> mask(m1,m2); vec=mask.vec; 
    }
 
 
@@ -407,7 +407,7 @@ namespace mathSSE {
 
     // for masking
     void setMask(unsigned long long m1, unsigned long long m2, unsigned long long m3, unsigned long long m4) {
-      Mask4<double> masks(m1,m2,m3,m4); vec=mask.vec; 
+      Mask4<double> mask(m1,m2,m3,m4); vec[0]=mask.vec[0]; vec[1]=mask.vec[1]; 
     }
 
 
