@@ -316,8 +316,8 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
       monoRH.setSigmaPitch(sigmap12=errormonoRH.uu()*pitch*pitch);
     }
     //float code
-    Vec3F scc1(s1, c1, c1, 0);
-    Vec3F ssc1(s1, s1, c1, 0);
+    Vec3F scc1(float(s1), float(c1), float(c1), 0.f);
+    Vec3F ssc1(float(s1), float(s1), float(c1), 0.f);
     Vec3F l1vec; l1vec.set1(l1);
     const Vec3F cslsimd = scc1 * ssc1 * l1vec;
     Vec3F sigmap12simd; sigmap12simd.set1(sigmap12);
@@ -342,9 +342,9 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
       double diff=(c1*s2-c2*s1);
       double invdet2 = 1/(diff*diff*l1*l2);
       
-      Vec3F invdet2simd(invdet2, -invdet2, invdet2, 0);
-      Vec3F ccssimd(s2, c2, c2, 0);
-      Vec3F csssimd(s2, s2, c2, 0);
+      Vec3F invdet2simd(float(invdet2), float(-invdet2), float(invdet2), 0.f);
+      Vec3F ccssimd(float(s2), float(c2), float(c2), 0.f);
+      Vec3F csssimd(float(s2), float(s2), float(c2), 0.f);
       Vec3F l2simd; l2simd.set1(l2);
       Vec3F sigmap22simd; sigmap22simd.set1(si.sigmap22);
       Vec3F result = invdet2simd * (sigmap22simd * cslsimd + sigmap12simd * ccssimd * csssimd * l2simd);
