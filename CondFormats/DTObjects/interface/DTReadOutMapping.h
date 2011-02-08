@@ -5,8 +5,8 @@
  *  Description:
  *       Class to map read-out channels to physical drift tubes
  *
- *  $Date: 2007/12/07 15:00:45 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/20 18:20:08 $
+ *  $Revision: 1.7 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -68,6 +68,8 @@ class DTReadOutMapping {
    */
   ~DTReadOutMapping();
 
+  enum type { plain, compact };
+
   /** Operations
    */
   /// transform identifiers
@@ -108,6 +110,8 @@ class DTReadOutMapping {
                          int&     tdcId,
                          int& channelId ) const;
 
+  type mapType() const;
+
   /// access parent maps identifiers
   const
   std::string& mapCellTdc() const;
@@ -137,9 +141,11 @@ class DTReadOutMapping {
   const_iterator begin() const;
   const_iterator end() const;
 
+  /// Expand to full map
+  const DTReadOutMapping* fullMap() const;
+
  private:
 
- public:
   std::string cellMapVersion;
   std::string  robMapVersion;
 
