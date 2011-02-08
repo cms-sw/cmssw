@@ -190,11 +190,49 @@ namespace mathSSE {
   template<>
   union Vec4<double>;
 
+  template<typename T> union Mask2{};
+  template<typename T> union Mask4{};
+
+  template<>
+  union Mask4<float> {
+    __m128 vec;
+    unsigned int __attribute__ ((aligned(16))) mask[4];
+    Mask4() {vec = _mm_setzero_ps();}
+    Mask4(unsigned int m1, unsigned int m2, unsigned int m3, unsigned int m4) {
+      mask[0]=m1;  mask[1]=m2;  mask[2]=m3;  mask[3]=m4; 
+    }
+  };
+  
+  template<>
+  union Mask4<double> {
+    __m128d vec[2];
+    unsigned long long __attribute__ ((aligned(16))) mask[4];
+    Mask4() {
+      vec[0] = _mm_setzero_pd();
+      vec[1] = _mm_setzero_pd();
+    }
+    Mask4(unsigned long long m1, unsigned long long m2, unsigned long long m3, unsigned long long m4) {
+      mask[0]=m1;  mask[1]=m2;  mask[2]=m3;  mask[3]=m4; 
+    }
+  };
+
+
+  template<>
+  union Mask2<double> {
+    __m128d vec;
+    unsigned long long __attribute__ ((aligned(16))) mask[2];
+    Mask2() {
+      vec = _mm_setzero_pd();
+    }
+    Mask2(unsigned long long m1, unsigned long long m2) {
+      mask[0]=m1;  mask[1]=m2; 
+    }
+  };
+
   template<>
   union Vec4<float> {
     typedef  __m128 nativeType;
     __m128 vec;
-    unsigned int __attribute__ ((aligned(16))) mask[4];
     float __attribute__ ((aligned(16))) arr[4];
     OldVec<float> o;
     
@@ -236,7 +274,7 @@ namespace mathSSE {
 
     // for masking
     void setMask(unsigned int m1, unsigned int m2, unsigned int m3, unsigned int m4) {
-      mask[0]=m1;  mask[1]=m2;  mask[2]=m3;  mask[3]=m4; 
+      Mask4<float> masks(m1,m2,m3,m4); vec=mask.vec; 
     }
 
     void set(float f1, float f2, float f3, float f4=0) {
@@ -270,8 +308,6 @@ namespace mathSSE {
     typedef  __m128d nativeType;
     __m128d vec;
     double __attribute__ ((aligned(16))) arr[2];
-    unsigned long long __attribute__ ((aligned(16))) mask[2];
-
         
     Vec2(__m128d ivec) : vec(ivec) {}
     
@@ -295,8 +331,8 @@ namespace mathSSE {
 
    // for masking
    void setMask(unsigned long long m1, unsigned long long m2) {
-      mask[0]=m1;  mask[1]=m2; 
-    }
+     Mask2<double> masks(m1,m2); vec=mask.vec; 
+   }
 
 
     void set(double f1, double f2) {
@@ -321,8 +357,6 @@ namespace mathSSE {
   union Vec4<double> {
     __m128d vec[2];
     double __attribute__ ((aligned(16))) arr[4];
-    unsigned long long __attribute__ ((aligned(16))) mask[4];
-
     OldVec<double> o;
     
     Vec4(__m128d ivec[]) {
@@ -373,7 +407,7 @@ namespace mathSSE {
 
     // for masking
     void setMask(unsigned long long m1, unsigned long long m2, unsigned long long m3, unsigned long long m4) {
-      mask[0]=m1;  mask[1]=m2;  mask[2]=m3;  mask[3]=m4; 
+      Mask4<double> masks(m1,m2,m3,m4); vec=mask.vec; 
     }
 
 
