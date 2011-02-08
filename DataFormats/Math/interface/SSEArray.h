@@ -21,38 +21,44 @@ namespace mathSSE {
   template <>
   struct ArrayMask<float, 0> {
     static inline Vec4<float> value() {
-      return Vec4<float>(0xffffffff,  0xffffffff,  0xffffffff,  0xffffffff);
+      Vec4<float> v; v.setMask(0xffffffff,  0xffffffff,  0xffffffff,  0xffffffff);
+      return v;
     }
   };
   template <>
   struct ArrayMask<float,1> {
     static inline Vec4<float> value() {
-      return Vec4<float>(0xffffffff,  0x0,  0x0,  0x0);
+      Vec4<float> v; v.setMask(0xffffffff,  0x0,  0x0,  0x0);
+      return v;
     }
   };
   template <>
   struct ArrayMask<float,2> {
     static inline Vec4<float> value() {
-     return Vec4<float>(0xffffffff,  0xffffffff,  0x0,  0x0);
+     Vec4<float> v; v.setMask(0xffffffff,  0xffffffff,  0x0,  0x0);
+     return v;
     }
   };
   template <>
   struct ArrayMask<float,3> {
     static inline Vec4<float> value() {
-      return Vec4<float>(0xffffffff,  0xffffffff,  0xffffffff,  0x0);
+      Vec4<float> v; v.setMask(0xffffffff,  0xffffffff,  0xffffffff,  0x0);
+      return v;
    }
   };
   
   template <>
   struct ArrayMask<double, 0> {
     static inline Vec2<double> value() {
-      return Vec2<double>(0xffffffffffffffffLL,  0xffffffffffffffffLL);
+      Vec2<double> v; v.setMask(0xffffffffffffffffLL,  0xffffffffffffffffLL);
+      return v;
     }
   };
   template <>
   struct ArrayMask<double,1> {
     static inline Vec2<double> value() {
-      return Vec2<double>(0xffffffffffffffffLL,  0x0LL);
+      Vec2<double> v; v.setMask(0xffffffffffffffffLL,  0x0LL);
+      return v;
     }
   };
   
