@@ -90,8 +90,8 @@ public :
   Float_t         ohpfTauJetPt[500]; 
   Float_t         ohpfTauLeadTrackPt[500]; 
   Float_t         ohpfTauLeadPionPt[500]; 
-  Int_t           ohpfTauTrkIso[500]; 
-  Int_t           ohpfTauGammaIso[500]; 
+  Float_t         ohpfTauTrkIso[500]; 
+  Float_t         ohpfTauGammaIso[500]; 
   Int_t           NohBJetL2;     //
   Float_t         ohBJetL2Et[5000];  //[NohBJetL2] 
   Float_t         ohBJetL2Energy[5000];  //[NohBJetL2]  
