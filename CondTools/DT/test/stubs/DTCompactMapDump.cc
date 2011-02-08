@@ -2,6 +2,8 @@
 /*----------------------------------------------------------------------
 
 Toy EDAnalyzer for testing purposes only.
+It reads ros-rob and tdc-cell connections from ascii files and dumps 
+the resulting compact map.
 
 ----------------------------------------------------------------------*/
 
