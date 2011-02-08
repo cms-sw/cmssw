@@ -463,6 +463,10 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
     BinLogX(phires_vs_pt.back()->getTH2F());
     BinLogX(cotThetares_vs_pt.back()->getTH2F());
     BinLogX(ptres_vs_pt.back()->getTH2F());
+    BinLogX(h_recopT.back()->getTH1F());
+    BinLogX(h_assocpT.back()->getTH1F());
+    BinLogX(h_assoc2pT.back()->getTH1F());
+    BinLogX(h_simulpT.back()->getTH1F());
   }  
 }
 
@@ -562,10 +566,6 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(){
     BinLogX(h_ptrmshPt.back()->getTH1F());
     BinLogX(h_efficPt.back()->getTH1F());
     BinLogX(h_fakeratePt.back()->getTH1F());
-    BinLogX(h_recopT.back()->getTH1F());
-    BinLogX(h_assocpT.back()->getTH1F());
-    BinLogX(h_assoc2pT.back()->getTH1F());
-    BinLogX(h_simulpT.back()->getTH1F());
   }    
 }
 

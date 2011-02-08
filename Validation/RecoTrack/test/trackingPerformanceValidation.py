@@ -10,10 +10,10 @@ import string
 
 
 ### Reference release
-RefRelease='CMSSW_3_11_0_pre5'
+RefRelease='CMSSW_4_2_0_pre1'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_11_0_pre5r52706bT2'
+NewRelease='CMSSW_4_2_0_pre1'
 
 ### startup and ideal sample list
 
@@ -24,7 +24,7 @@ startupsamples= [
     'RelValQCD_Pt_3000_3500'
 ]
 ### the list can be empty if you want to skip the validation for all the samples
-startupsamples= []
+#startupsamples= []
 
 ### This is the list of startup relvals (with PileUP)
 # startupsamples= ['RelValTTbar_Tauola']
@@ -32,12 +32,12 @@ startupsamples= []
 
 ### This is the list of IDEAL-conditions relvals 
 idealsamples= [
-#'RelValMinBias',   ### list of samples to be validated for each pre-release  
+'RelValMinBias',   ### list of samples to be validated for each pre-release  
 'RelValQCD_Pt_3000_3500',
-#'RelValSingleElectronPt35', 
-#'RelValTTbar', 
-#'RelValSingleMuPt10', 
-#'RelValSingleMuPt100',
+'RelValSingleElectronPt35', 
+'RelValTTbar', 
+'RelValSingleMuPt10', 
+'RelValSingleMuPt100',
 ### additional samples to be validated for each mayor release
 # 'RelValSingleMuPt1', 
 # 'RelValSinglePiPt1', 
@@ -60,11 +60,11 @@ Version='v1'
 #Version='BX2808-v1'
 
 ### Ideal and Statup tags
-IdealTag='MC_311_V0'
-StartupTag='START311_V0'
+IdealTag='MC_311_V1'
+StartupTag='START311_V1'
 
-RefIdealTag='MC_311_V0'
-RefStartupTag='START311_V0'
+RefIdealTag='MC_311_V1'
+RefStartupTag='START311_V1'
 ### PileUp: "PU" . No PileUp: "noPU"
 PileUp='noPU'
 #PileUp='PU'
@@ -92,9 +92,9 @@ Tracksname=''
 #   -comparison_only
 
 
-#Sequence='comparison_only'
+Sequence='comparison_only'
 #Sequence='harvesting'
-Sequence='only_validation'
+#Sequence='only_validation'
 
 
 
@@ -116,12 +116,12 @@ NewRepository = 'new' # copy output into a local folder
 
 
 ### AFS location of central harvesting output. It can be used to avoid running the harvesting by yourself
-castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_3_9_x'
+castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_4_2_x'
 
 
 
 ### Default Nevents
-defaultNevents ='100'
+defaultNevents ='-1'
 
 ### Put here the number of event to be processed for specific samples (numbers must be strings) 
 ### if not specified is defaultNevents:
@@ -328,7 +328,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                                     os.system('root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map_hp[trackalgorithm]+ '\\\"\\) >& /dev/null')
 
 
-                    referenceSample=RefRepository+'/'+RefRelease+'_64bit/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
+                    referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
                     if os.path.isfile(referenceSample ):
                             replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
 
