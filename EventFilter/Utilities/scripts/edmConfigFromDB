@@ -110,7 +110,7 @@ while (@ARGV) {
 	$db_version = "cms-project-confdb-hltdev";
     }
     elsif ($arg eq "--test") {
-	$db_version = "test-confdb";
+	$db_version = "test--confdb";
     }
     
     elsif ($arg eq "--hltdev") {
@@ -216,8 +216,6 @@ else {
 }
 
 if ($debug) { print STDERR ("wget \"$url\" -O- -o $log_file\n"); }
-
-print "url: " . $url . "\n";
 
 system("wget \"$url\" -O- -o $log_file");
 
