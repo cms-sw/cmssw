@@ -1,6 +1,15 @@
 import array,coral
 from RecoLuminosity.LumiDB import CommonUtil,nameDealer
 
+class constants(object):
+    def __init__(self):
+        self.debug=False
+        self.runinfodb=''
+        self.runinfoschema='CMS_RUNINFO'
+        self.runsessionparameterTable='RUNSESSION_PARAMETER'
+        self.hltconfname='CMS.LVL0:HLT_KEY_DESCRIPTION'
+        self.tsckeyname='CMS.TRG:TSC_KEY'
+        self.fillnumname='CMS.SCAL:FILLN'
 def hltFromOldLumi(session,runnumber):
     '''
     select count(distinct pathname) from hlt where runnum=:runnum
@@ -55,6 +64,7 @@ def hltFromOldLumi(session,runnumber):
         acceptcountArray=array.array('l')
         prescaleArray=array.array('l')
         ipath=0
+        pathnames=''
         while cursor.next():
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             pathname=cursor.currentRow()['pathname'].data()
@@ -67,7 +77,8 @@ def hltFromOldLumi(session,runnumber):
             acceptcountArray.append(acceptcount)
             prescaleArray.append(prescale)
             if ipath==npath:
-                pathnames=','.join(pathnameList)
+                if cmslsnum==1:
+                    pathnames=','.join(pathnameList)
                 inputcountBlob=CommonUtil.packArraytoBlob(inputcountArray)
                 acceptcountBlob=CommonUtil.packArraytoBlob(acceptcountArray)
                 prescaleBlob=CommonUtil.packArraytoBlob(prescaleArray)
@@ -79,6 +90,7 @@ def hltFromOldLumi(session,runnumber):
                 ipath=0
         del qHandle
         session.transaction().commit()
+        #print 'pathnames ',pathnames
         return [pathnames,databuffer]
     except :
         raise 
@@ -241,28 +253,123 @@ def hltconf(schema,hltkey):
     '''
     pass
 
-def runsummary(session,runnumber,complementalOnly=False):
+def runsummary(session,schemaname,runnumber,complementalOnly=False):
     '''
+    x select string_value from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.TRG:TSC_KEY';
+    x select distinct(string_value) from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.SCAL:AMODEtag'
+    x select distinct(string_value),session_id from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.SCAL:EGEV' order by SESSION_ID
+    
     select string_value from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.LVL0:SEQ_NAME'
     select string_value from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.LVL0:HLT_KEY_DESCRIPTION';
     select string_value from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.SCAL:FILLN' and rownum<=1;
     select time from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.LVL0:START_TIME_T';
     select time from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.LVL0:STOP_TIME_T';
-    select string_value from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='AMODETAG'
-    select string_value from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='EGEV'
     input:
-    output:[hltkey,l1key,fillnum,sequence,starttime,stoptime,amodetag,egev]
+    output:[l1key,amodetag,egev,hltkey,fillnum,sequence,starttime,stoptime]
     if complementalOnly:
-       
+       [l1key,amodetag,egev]
     '''
-    pass
+    runsessionparameterTable=''
+    result=[]
+    l1key=''
+    amodetag=''
+    egev=''
+    hltkey=''
+    fillnum=''
+    sequence=''
+    starttime=''
+    stoptime=''
+    try:
+        session.transaction().start(True)
+        runinfoschema=session.schema(schemaname)
+        l1keyQuery=runinfoschema.newQuery()
+        l1keyQuery.addToTableList('RUNSESSION_PARAMETER')
+        l1keyOutput=coral.AttributeList()
+        l1keyOutput.extend('l1key','string')
+        l1keyCondition=coral.AttributeList()
+        l1keyCondition.extend('name','string')
+        l1keyCondition.extend('runnumber','unsigned int')
+        l1keyCondition['name'].setData('CMS.TRG:TSC_KEY')
+        l1keyCondition['runnumber'].setData(int(runnumber))
+        l1keyQuery.addToOutputList('STRING_VALUE')
+        l1keyQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',l1keyCondition)
+        l1keyQuery.limitReturnedRows(1)
+        l1keyQuery.defineOutput(l1keyOutput)
+        cursor=l1keyQuery.execute()
+        while cursor.next():
+            l1key=cursor.currentRow()['l1key'].data()
+        del l1keyQuery
+        result.append(l1key)
+        amodetagQuery=runinfoschema.newQuery()
+        amodetagQuery.addToTableList('RUNSESSION_PARAMETER')
+        amodetagOutput=coral.AttributeList()
+        amodetagOutput.extend('amodetag','string')
+        amodetagCondition=coral.AttributeList()
+        amodetagCondition.extend('name','string')
+        amodetagCondition.extend('runnumber','unsigned int')
+        amodetagCondition['name'].setData('CMS.SCAL:AMODEtag')
+        amodetagCondition['runnumber'].setData(int(runnumber))
+        amodetagQuery.addToOutputList('distinct(STRING_VALUE)')
+        amodetagQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',amodetagCondition)
+        amodetagQuery.limitReturnedRows(1)
+        amodetagQuery.defineOutput(amodetagOutput)
+        cursor=amodetagQuery.execute()
+        while cursor.next():
+            amodetag=cursor.currentRow()['amodetag'].data()
+        del amodetagQuery
+        result.append(amodetag)
+        egevQuery=runinfoschema.newQuery()
+        egevQuery.addToTableList('RUNSESSION_PARAMETER')
+        egevOutput=coral.AttributeList()
+        egevOutput.extend('egev','string')
+        egevCondition=coral.AttributeList()
+        egevCondition.extend('name','string')
+        egevCondition.extend('runnumber','unsigned int')
+        egevCondition['name'].setData('CMS.SCAL:EGEV')
+        egevCondition['runnumber'].setData(int(runnumber))
+        egevQuery.addToOutputList('distinct(STRING_VALUE)')
+        egevQuery.addToOutputList('SESSION_ID')
+        egevQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',egevCondition)
+        egevQuery.defineOutput(egevOutput)
+        egevQuery.addToOrderList('SESSION_ID')
+        cursor=egevQuery.execute()
+        while cursor.next():
+            egev=cursor.currentRow()['egev'].data()
+        del egevQuery
+        result.append(egev)
+        
+        seqQuery=runinfoschema.newQuery()
+        seqQuery.addToTableList('RUNSESSION_PARAMETER')
+        seqOutput=coral.AttributeList()
+        seqOutput.extend('seq','string')
+        seqCondition=coral.AttributeList()
+        seqCondition.extend('name','string')
+        seqCondition.extend('runnumber','unsigned int')
+        seqCondition['name'].setData('CMS.LVL0:SEQ_NAME')
+        seqCondition['runnumber'].setData(int(runnumber))
+        seqQuery.addToOutputList('STRING_VALUE')
+        seqQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',seqCondition)
+        seqQuery.defineOutput(seqOutput)
+        cursor=seqQuery.execute()
+        while cursor.next():
+            sequence=cursor.currentRow()['seq'].data()
+        del seqQuery
+        result.append(sequence)
+        session.transaction().commit()
+        print result
+        return result
+    except:
+        raise
     
 if __name__ == "__main__":
     from RecoLuminosity.LumiDB import sessionManager
-    svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_lumi_prod',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
-    session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    lsresult=trgFromOldLumi(session,149181)
+    #svc=sessionManager.sessionManager('oracle://cms_orcoff_prep/cms_lumi_dev_offline',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
+    #session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    #lsresult=trgFromOldLumi(session,135735)
     #print lsresult
-    lshltresult=hltFromOldLumi(session,149181)
-    print lshltresult
+    #lshltresult=hltFromOldLumi(session,135735)
+    #print lshltresult
+    svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_runinfo',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
+    session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    runsummary(session,'CMS_RUNINFO',135735,complementalOnly=True)
     del session
