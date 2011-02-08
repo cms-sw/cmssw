@@ -1,6 +1,5 @@
 #include <string>
 #include <sstream>
-#include <map>
 #include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
 #include "DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h"
 #include "DQM/RPCMonitorDigi/interface/utils.h"
@@ -24,10 +23,12 @@ const std::string RPCChamberQuality::regions_[3] = {"EndcapNegative","Barrel","E
 RPCChamberQuality::RPCChamberQuality(const edm::ParameterSet& ps ){
   edm::LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Constructor";
   
-  prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 9);
+  prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 5);
   prefixDir_ = ps.getUntrackedParameter<std::string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   minEvents = ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+
+  offlineDQM_ = ps.getUntrackedParameter<bool> ("OfflineDQM",true); 
 }
 
 RPCChamberQuality::~RPCChamberQuality(){
@@ -43,8 +44,9 @@ void RPCChamberQuality::beginJob(){
 void RPCChamberQuality::beginRun(const edm::Run& r, const edm::EventSetup& c){
   edm::LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Begin run";
   
-  // init_ = false;  
-  
+  init_ = false;  
+  lumiCounter_ = prescaleFactor_ ;
+
   MonitorElement* me;
   dbe_->setCurrentFolder(prefixDir_);
   
@@ -127,34 +129,38 @@ void RPCChamberQuality::analyze(const edm::Event& iEvent, const edm::EventSetup&
 void RPCChamberQuality::endRun(const edm::Run& r, const edm::EventSetup& c) {
   edm::LogVerbatim ("rpceventsummary") <<"[RPCChamberQuality]: End Job, performing DQM client operation";
 
-   MonitorElement * RpcEvents = NULL;
-   std::stringstream meName;
+  this->fillMonitorElements();
+
+}
+
+void RPCChamberQuality::fillMonitorElements() {
+
+  std::stringstream meName;
    
-    
-   meName.str("");
-   meName<<prefixDir_<<"/RPCEvents"; 
-   int rpcEvents=0;
-   RpcEvents = dbe_->get(meName.str());
-
-   if(RpcEvents) rpcEvents= (int)RpcEvents->getEntries();
-
-   if(rpcEvents >= minEvents){
+  meName.str("");
+  meName<<prefixDir_<<"/RPCEvents"; 
+  int rpcEvents=0;
+  RpcEvents = dbe_->get(meName.str());
+  
+  if(RpcEvents) rpcEvents= (int)RpcEvents->getEntries();
+  
+  if(rpcEvents >= minEvents){
     
     MonitorElement * summary[3];
-
+    
     for(int r = 0 ; r < 3 ; r++) {    
-    meName.str("");
-    meName<<prefixDir_<<"/RPCChamberQuality_"<<RPCChamberQuality::regions_[r]; 
-    summary[r] = dbe_ -> get(meName.str());
-
-    if( summary[r] != 0 ) summary[r]->Reset();
+      meName.str("");
+      meName<<prefixDir_<<"/RPCChamberQuality_"<<RPCChamberQuality::regions_[r]; 
+      summary[r] = dbe_ -> get(meName.str());
+      
+      if( summary[r] != 0 ) summary[r]->Reset();
     }
-
+    
     //Barrel
     for (int wheel=-2; wheel<3; wheel++) { // loop by Wheels
       meName.str("");
       meName<<"Roll_vs_Sector_Wheel"<<wheel;
-
+      
       this->performeClientOperation(meName.str(), 0 , summary[1]);
     } // loop by Wheels
     
@@ -189,7 +195,18 @@ void RPCChamberQuality::endRun(const edm::Run& r, const edm::EventSetup& c) {
   }
 } 
 
-void RPCChamberQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {  }
+void RPCChamberQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {  
+
+  if(offlineDQM_) return;
+
+  if(init_ && (lumiCounter_%prescaleFactor_ != 0) ) return;
+
+  this->fillMonitorElements();
+  
+  lumiCounter_++;
+  init_ = true;
+
+}
 
 
 void RPCChamberQuality::performeClientOperation(std::string MESufix, int region, MonitorElement * quality){

@@ -175,7 +175,7 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
   
   if( rpcevents < minimumEvents_) return;
 
-  if( init_ &&  lumiCounter_%prescaleGlobalFactor_ != 0 ) return;
+  if( init_ &&  (lumiCounter_%prescaleGlobalFactor_ != 0 )) return;
 
   lumiCounter_ ++;
 

@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2010/04/19 14:49:38 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/06/25 14:46:41 $
+ *  $Revision: 1.19 $
  *  \author Anna Cimmino
  *   
  */
@@ -58,17 +58,17 @@ public:
 
   
  private:
-  
+  void clientOperation();
   std::string eventInfoPath_, prefixDir_;
 
   bool tier0_;  
   bool enableReportSummary_;
   int prescaleFactor_, minimumEvents_;
-
+  MonitorElement *  RPCEvents ;
   bool init_;
   DQMStore* dbe_;
- 
-  int nLumiSegs_;
+  bool offlineDQM_;
+  int lumiCounter_;
   std::string globalFolder_;
   
   int numberDisk_;

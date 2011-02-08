@@ -32,9 +32,15 @@ public:
   
  private:
 
+  void fillMonitorElements();
 
+  MonitorElement * RpcEvents;
   enum chamberQualityState { GoodState= 1 , OffState =2, NoisyStripState= 3, NoisyRollState= 4 , PartiallyDeadState=5 , DeadState=6,BadShapeState=7 };
 
+  int lumiCounter_;
+
+
+  bool offlineDQM_;
 
   void performeClientOperation(std::string , int , MonitorElement *);
   
@@ -45,7 +51,7 @@ public:
   int prescaleFactor_;
   int numberOfDisks_;
 
-  //  bool init_;
+   bool init_;
   DQMStore* dbe_;
 
   int minEvents;
