@@ -1330,6 +1330,31 @@ public:
   }
 };
 
+template <class T>
+class scaleFunctionType28 : public scaleFunctionBase<T> {
+public:
+  scaleFunctionType28() { this->parNum_ = 5; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
+    return( (parScale[0] + parScale[1]*pt + (double)chg*parScale[4]*eta +
+             (double)chg*parScale[2]*sin(phi+parScale[3]))*pt );
+  }
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(std::vector<double> * scaleVec) const {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const
+ std::vector<int> & parScaleOrder, const int muonType) {
+    double thisStep[] = {0.001, 0.01, 0.01, 0.1,0.01};
+    TString thisParName[] = {"Pt scale", "Pt slope", "Phi ampl", "Phi phase","Eta coeff"};
+    double thisMini[] = {0.9, -0.1, -0.02, -3.1416,-0.2};
+    double thisMaxi[] = {1.1, 0.1, 0.02, 3.1416,0.2};    this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+  }
+};
+
+
 
 
 /// Service to build the scale functor corresponding to the passed identifier
