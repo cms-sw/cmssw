@@ -133,6 +133,9 @@ class CSCHaloFilter : public edm::EDFilter {
   edm::InputTag IT_CSCRecHit;
   edm::InputTag IT_CSCSegment;
   edm::InputTag IT_CSCHaloData;
+  edm::InputTag IT_BeamHaloSummary;
+  bool FilterCSCLoose;
+  bool FilterCSCTight;
 
   bool FilterDigiLevel;    //requires CSCALCTDigiCollection  (usually not available in RECO data tier)
   bool FilterTriggerLevel; //requires L1MuGMTReadoutCollection

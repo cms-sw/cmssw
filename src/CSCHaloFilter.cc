@@ -5,7 +5,7 @@
 
 using namespace std;
 using namespace edm;
-
+using namespace reco;
 CSCHaloFilter::CSCHaloFilter(const edm::ParameterSet & iConfig)
 {
   IT_L1MuGMTReadout = iConfig.getParameter<edm::InputTag>("L1MuGMTReadoutLabel");
@@ -15,6 +15,8 @@ CSCHaloFilter::CSCHaloFilter(const edm::ParameterSet & iConfig)
   IT_CSCRecHit = iConfig.getParameter<edm::InputTag>("CSCRecHitLabel");
   IT_CSCSegment = iConfig.getParameter<edm::InputTag>("CSCSegmentLabel");
   IT_CSCHaloData = iConfig.getParameter<edm::InputTag>("CSCHaloDataLabel");
+  IT_BeamHaloSummary = iConfig.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
+
 
   deta_threshold = (float) iConfig.getParameter<double>("Deta");
   dphi_threshold = (float) iConfig.getParameter<double>("Dphi");
@@ -32,6 +34,9 @@ CSCHaloFilter::CSCHaloFilter(const edm::ParameterSet & iConfig)
   matching_dphi_threshold =  (float)iConfig.getParameter<double>("MatchingDPhiThreshold");
   matching_deta_threshold =  (float)iConfig.getParameter<double>("MatchingDEtaThreshold");
   matching_dwire_threshold  = iConfig.getParameter<int>("MatchingDWireThreshold");
+
+  FilterCSCLoose = iConfig.getParameter<bool>("FilterCSCLoose");
+  FilterCSCTight = iConfig.getParameter<bool>("FilterCSCTight");
 
   FilterTriggerLevel = iConfig.getParameter<bool>("FilterTriggerLevel");
   FilterDigiLevel = iConfig.getParameter<bool>("FilterDigiLevel");
@@ -51,7 +56,20 @@ CSCHaloFilter::~CSCHaloFilter(){}
 
 bool CSCHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) 
 {
- 
+
+  if( FilterCSCLoose || FilterCSCTight ) 
+    {
+      edm::Handle<BeamHaloSummary> TheBeamHaloSummary;
+      iEvent.getByLabel(IT_BeamHaloSummary,TheBeamHaloSummary);
+
+      const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
+      
+      if( FilterCSCLoose ) 
+	return !TheSummary.CSCLooseHaloId();
+      else 
+	return !TheSummary.CSCTightHaloId();
+    }
+  
 
   //Get B-Field
   edm::ESHandle<MagneticField> TheMagneticField;
