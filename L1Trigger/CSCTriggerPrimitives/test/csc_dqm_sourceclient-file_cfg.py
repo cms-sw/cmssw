@@ -6,7 +6,7 @@ process = cms.Process("CSCDQM")
 # CSC L1 Emulator Configuration
 #-------------------------------------------------
 
-process.load("CSCTPE_setup")
+process.load("L1Trigger.CSCTriggerPrimitives.CSCTPE_setup_cfi")
 #process.load("DQM.CSCMonitorModule.CSCTPE_setup")
 # process.TFileService = cms.Service("TFileService",
 #                                    fileName = cms.string('TPEHists.root')
@@ -34,13 +34,13 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 # Event Source
 #-----------------------------
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",
   fileNames  = cms.untracked.vstring(
 
     #'file:/tmp/valdo/0E746464-1D16-DF11-913D-000423D6CAF2.root'
 
-    '/store/data/Commissioning10/Cosmics/RAW/v4/000/132/601/4218B1F6-5940-DF11-BA79-0030487CD178.root',
+    '/store/data/Commissioning10/Cosmics/RAW/v4/000/132/601/4218B1F6-5940-DF11-BA79-0030487CD178.root'
     #'/store/data/Commissioning10/Cosmics/RAW/v4/000/132/601/F0BEA43D-8440-DF11-BD1B-000423D6C8E6.root',
 
     #'/store/data/Commissioning10/Cosmics/RAW/v4/000/132/440/72DAEFC2-1A3C-DF11-A352-0030487A195C.root',
@@ -75,7 +75,7 @@ process.DQMStore.referenceFileName = 'csc_reference_collisions.root'
 
 process.DQM.collectorPort = 9190
 #process.DQM.collectorHost = 'cms-uflap03.dyndns.cern.ch'
-process.DQM.collectorHost = 'localhost'
+process.DQM.collectorHost = 'pcjarvis2'
 #process.DQM.collectorHost = 'pb-d-128-141-82-51.cern.ch'
 process.dqmSaver.convention = "Online"
 #process.dqmSaver.dirName = "./"

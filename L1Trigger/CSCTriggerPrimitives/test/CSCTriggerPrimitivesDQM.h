@@ -9,8 +9,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2010/05/05 13:28:11 $
- * $Revision: 1.17 $
+ * $Date: 2011/01/28 10:45:39 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -233,6 +233,7 @@ class CSCTriggerPrimitivesDQM : public edm::EDAnalyzer
   //Chad's hists
   // DQM
   DQMStore* dbe;
+  /*
   MonitorElement *hAlctCompFound2i;
   MonitorElement *hAlctCompSameN2i;
   MonitorElement *hAlctCompMatch2i;
@@ -245,6 +246,7 @@ class CSCTriggerPrimitivesDQM : public edm::EDAnalyzer
   MonitorElement *hLCTCompSameN2i;
   MonitorElement *hLCTCompMatch2i;
   MonitorElement *hLCTCompTotal2i;
+  */
   MonitorElement *hCompAll;
 
   TH1F *hAlctCompFound;

@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2010/05/05 13:28:11 $
-//   $Revision: 1.38 $
+//   $Date: 2011/01/28 10:45:39 $
+//   $Revision: 1.1 $
 //
 //   Modifications:
 //
@@ -280,6 +280,7 @@ void CSCTriggerPrimitivesDQM::bookCompHistos() {
 
   //Chad's improved historgrams
 
+  /*
   hAlctCompFound2i = dbe->book2D("h_ALCT_found2i","h_ALCT_found2i",18,0,18,36,0.5,36.5);
   hAlctCompSameN2i = dbe->book2D("h_ALCT_SameN2i","h_ALCT_SameN2i",18,0,18,36,0.5,36.5);
   hAlctCompMatch2i = dbe->book2D("h_ALCT_match2i","h_ALCT_match2i",18,0,18,36,0.5,36.5);
@@ -292,6 +293,7 @@ void CSCTriggerPrimitivesDQM::bookCompHistos() {
   hLCTCompSameN2i = dbe->book2D("h_LCT_SameN2i","h_LCT_SameN2i",18,0,18,36,0.5,36.5);
   hLCTCompMatch2i = dbe->book2D("h_LCT_match2i","h_LCT_match2i",18,0,18,36,0.5,36.5);
   hLCTCompTotal2i = dbe->book2D("h_LCT_total2i","h_LCT_total2i",18,0,18,36,0.5,36.5);
+  */
   hCompAll = dbe->book3D("h_All","h_All",15,0.5,15.5,18,0,18,36,0.5,36.5);
   std::vector<std::string> lines[3];
   lines[0]=bad_wires;
@@ -396,12 +398,12 @@ void CSCTriggerPrimitivesDQM::compareALCTs(
 	  //	  int mychamber = chamberSerial(detid);
 	  //	  int ix = chamberIX(detid);
 	  int ix2 = chamberIXi(detid);
-	  hAlctCompFound2i->Fill(ix2,detid.chamber());
+	  //	  hAlctCompFound2i->Fill(ix2,detid.chamber());
 	  hCompAll->Fill(1,ix2,detid.chamber());
 	  if (ndata != nemul) {
 	  }
 	  else {
-	    hAlctCompSameN2i->Fill(ix2,detid.chamber());
+	    //	    hAlctCompSameN2i->Fill(ix2,detid.chamber());
 	    hCompAll->Fill(2,ix2,detid.chamber());
 	  }
 
@@ -434,7 +436,7 @@ void CSCTriggerPrimitivesDQM::compareALCTs(
 		}	   
 		else {
 		}
-                hAlctCompTotal2i->Fill(ix2,detid.chamber());
+		//                hAlctCompTotal2i->Fill(ix2,detid.chamber());
 		hCompAll->Fill(3,ix2,detid.chamber());
 	      }
 	      if (data_trknmb    == emul_trknmb    &&
@@ -448,7 +450,7 @@ void CSCTriggerPrimitivesDQM::compareALCTs(
 		  }	   
 		  else {
 		  }
-		  hAlctCompMatch2i->Fill(ix2,detid.chamber());
+		  //		  hAlctCompMatch2i->Fill(ix2,detid.chamber());
 		  hCompAll->Fill(4,ix2,detid.chamber());
 		}
 	      }
@@ -499,12 +501,12 @@ void CSCTriggerPrimitivesDQM::compareCLCTs(
 	  //	  int csctype = getCSCType(detid);
 	  //	  int ix = chamberIX(detid);
 	  int ix2 = chamberIXi(detid);
-	  hClctCompFound2i->Fill(ix2,detid.chamber());
+	  //	  hClctCompFound2i->Fill(ix2,detid.chamber());
 	  hCompAll->Fill(5,ix2,detid.chamber());
 	  if (ndata != nemul) {
 	  }
 	  else {
-	    hClctCompSameN2i->Fill(ix2,detid.chamber());
+	    //	    hClctCompSameN2i->Fill(ix2,detid.chamber());
 	    hCompAll->Fill(6,ix2,detid.chamber());
 	  }
 
@@ -541,7 +543,7 @@ void CSCTriggerPrimitivesDQM::compareCLCTs(
 		  }	   
 		  else {
 		  }
-		  hClctCompTotal2i->Fill(ix2,detid.chamber());
+		  //		  hClctCompTotal2i->Fill(ix2,detid.chamber());
 		  hCompAll->Fill(7,ix2,detid.chamber());
 		}
 		if (data_quality   == emul_quality   &&
@@ -557,7 +559,7 @@ void CSCTriggerPrimitivesDQM::compareCLCTs(
 		    }	   
 		    else {
 		    }
-		    hClctCompMatch2i->Fill(ix2,detid.chamber());
+		    //		    hClctCompMatch2i->Fill(ix2,detid.chamber());
 		    hCompAll->Fill(8,ix2,detid.chamber());
 		  }
 		}
@@ -616,12 +618,12 @@ void CSCTriggerPrimitivesDQM::compareLCTs(
 	  }	   
 	  else {
 	  }
-	  hLCTCompFound2i->Fill(ix2,detid.chamber());
+	  //	  hLCTCompFound2i->Fill(ix2,detid.chamber());
 	  hCompAll->Fill(9,ix2,detid.chamber());
 	  if (ndata != nemul) {
 	  }
 	  else {
-	    hLCTCompSameN2i->Fill(ix2,detid.chamber());
+	    //	    hLCTCompSameN2i->Fill(ix2,detid.chamber());
 	    hCompAll->Fill(10,ix2,detid.chamber());
 	  }
 	  for (pd = lctV_data.begin(); pd != lctV_data.end(); pd++) {
@@ -655,7 +657,7 @@ void CSCTriggerPrimitivesDQM::compareLCTs(
 		  }	   
 		  else {
 		  }
-		  hLCTCompTotal2i->Fill(ix2,detid.chamber());
+		  //		  hLCTCompTotal2i->Fill(ix2,detid.chamber());
 		  hCompAll->Fill(11,ix2,detid.chamber());
 		}
 		if (data_quality   == emul_quality   &&
@@ -670,7 +672,7 @@ void CSCTriggerPrimitivesDQM::compareLCTs(
 		    }	   
 		    else {
 		    }
-		    hLCTCompMatch2i->Fill(ix2,detid.chamber());
+		    //		    hLCTCompMatch2i->Fill(ix2,detid.chamber());
 		    hCompAll->Fill(12,ix2,detid.chamber());
 		  }
 		}
