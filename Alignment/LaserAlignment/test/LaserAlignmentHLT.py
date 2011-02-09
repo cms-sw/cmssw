@@ -19,6 +19,7 @@ process.source = cms.Source( "PoolSource",
     '/store/data/Run2010A/TestEnables/RAW/v1/000/140/124/56E00D1B-308F-DF11-BE54-001D09F24691.root'
   )
 )
+
 process.load( "EventFilter.SiStripRawToDigi.SiStripDigis_cfi" )
 process.siStripDigis.ProductLabel = "source"#"hltCalibrationRaw"
 
@@ -73,6 +74,5 @@ process.load('Alignment.LaserAlignment.LaserAlignmentEventFilter_cfi')
 #process.LASFilter.SIGNAL_IDs.extend(SIGNAL_IDs_AT_TECm)                                      
 
 process.seqDigitization = cms.Path( process.siStripDigis )
-
 process.seqAnalysis = cms.Path( process.LaserAlignmentEventFilter * process.LaserAlignmentHLT)
 process.outputPath = cms.EndPath( process.out )

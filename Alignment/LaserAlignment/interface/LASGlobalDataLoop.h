@@ -36,6 +36,7 @@ class LASGlobalDataLoop {
   bool finished(){return loop_finished;}
   template <class T> T& GetEntry(LASGlobalData<T>& data){return data.GetEntry(det, ring, beam, zpos);}
   void inspect(std::ostream & out = std::cout);
+  void get_indices(int& gdet, int& gring, int& gbeam, int& gzpos){gdet = det; gring = ring; gbeam = beam; gzpos = zpos;}
 
  private:
   loop_type the_loop_type;
