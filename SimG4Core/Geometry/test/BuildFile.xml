@@ -16,6 +16,14 @@
  <use   name="cppunit"/>
 </bin>
 
+<bin  file="Ellipsoid_.cpp">
+ <use   name="cppunit"/>
+</bin>
+
+<bin  file="EllipticalTube_.cpp">
+ <use   name="cppunit"/>
+</bin>
+
 <bin  file="Para_.cpp">
  <use   name="cppunit"/>
 </bin>
@@ -32,10 +40,28 @@
  <use   name="cppunit"/>
 </bin>
 
+<bin  file="Parallelepiped_.cpp">
+ <use   name="cppunit"/>
+</bin>
+
 <bin  file="Torus_.cpp">
  <use   name="cppunit"/>
 </bin>
 
 <bin  file="Polycone_.cpp">
  <use   name="cppunit"/>
+</bin>
+
+<bin  file="Polyhedra_.cpp">
+ <use   name="cppunit"/>
+</bin>
+
+<bin file="PseudoTrap_.cpp">
+ <use name="SimG4Core/Geometry"/>
+ <use name="cppunit"/>
+</bin>
+
+<bin file="TruncTubs_.cpp">
+ <use name="SimG4Core/Geometry"/>
+ <use name="cppunit"/>
 </bin>
