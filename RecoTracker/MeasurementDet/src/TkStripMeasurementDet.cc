@@ -92,7 +92,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	}
 	if(!isCompatible) break; // exit loop on first incompatible hit
 	}
-	//else edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+	else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterref.key();
       }
     }
     
@@ -112,7 +112,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       }
       if(!isCompatible) break; // exit loop on first incompatible hit
       }
-      //else edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterref.key();
     }
   }// end block with DetSet
   else{
@@ -126,7 +126,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
         if (isMasked(*leftCluster)) continue;
 
 	SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,leftCluster-regionalHandle_->begin_record());
-	if (skipRegClusters_.find(clusterref) == skipRegClusters_.end()){
+	if (accept(clusterref)){
 	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
 	bool isCompatible(false);
 	for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
@@ -139,7 +139,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	}
 	if(!isCompatible) break; // exit loop on first incompatible hit
 	}
-	//else edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+	else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterref.key();
       }
     }
     
@@ -147,7 +147,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       if (isMasked(*rightCluster)) continue;
       //std::cout << "=====making ref in fastMeas rigth " << std::endl;
       SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,rightCluster-regionalHandle_->begin_record());
-      if (skipRegClusters_.find(clusterref) == skipRegClusters_.end()){
+      if (accept(clusterref)){
       RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
       bool isCompatible(false);
       for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
@@ -160,7 +160,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       }
       if(!isCompatible) break; // exit loop on first incompatible hit
       }
-      //else edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration"; 
+      else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterref.key();
     }
   }
 
@@ -255,7 +255,7 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
       SiStripClusterRef  cluster = edmNew::makeRefTo( handle_, ci ); 
       if (accept(cluster))
 	result.push_back( buildRecHit( cluster, ts));
-      //else edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<cluster.key();
     }
   }else{
     result.reserve(endCluster - beginCluster);
@@ -264,7 +264,7 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
       SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci-regionalHandle_->begin_record());     
       if (accept(clusterRef))
 	result.push_back( buildRecHit( clusterRef, ts));
-      //else edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+      else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterRef.key();
     }
   }
   return result;
@@ -298,7 +298,7 @@ TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, std::v
       SiStripClusterRef  cluster = edmNew::makeRefTo( handle_, ci ); 
       if (accept(cluster))
 	buildSimpleRecHit( cluster, ts,result);
-      //else edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<cluster.key();
     }
   }else{
     result.reserve(endCluster - beginCluster);
@@ -307,7 +307,7 @@ TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, std::v
       SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci-regionalHandle_->begin_record());     
       if (accept(clusterRef))
 	buildSimpleRecHit( clusterRef, ts,result);
-      //else edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+      else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterRef.key();
     }
   }
 }

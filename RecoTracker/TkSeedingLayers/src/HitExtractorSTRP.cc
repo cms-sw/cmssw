@@ -53,7 +53,9 @@ bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
   if (f==stripClusterRefs->end()) return false;
   if (!hit->isValid())  return false;
 
-  return (find(f->begin(),f->end(),hit->cluster())!=f->end());
+  bool skipping=(find(f->begin(),f->end(),hit->cluster())!=f->end());
+  if (skipping) LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hit->geographicalId().rawId()<<" key: "<<find(f->begin(),f->end(),hit->cluster())->key();
+  return skipping;
 }
 bool HitExtractorSTRP::skipThis(const SiStripMatchedRecHit2D * hit,
 				edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const {
@@ -67,16 +69,15 @@ void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hi
 					  bool matched)const{
   edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > stripClusterRefs;
   ev.getByLabel(theSkipClusters,stripClusterRefs);
-  std::vector<bool> keep(hits.size(),true);
   HitExtractor::Hits newHits;
   newHits.reserve(hits.size());
   for (unsigned int iH=0;iH!=hits.size();++iH){
     if (matched && skipThis((SiStripMatchedRecHit2D*) hits[iH]->hit(),stripClusterRefs)){
-      keep[iH]=false;
+      LogDebug("HitExtractorSTRP")<<"skipping a matched hit on :"<<hits[iH]->hit()->geographicalId().rawId();
       continue;
     }
     if (!matched && skipThis((SiStripRecHit2D*) hits[iH]->hit(),stripClusterRefs)){
-      keep[iH]=false;
+      //LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->hit()->geographicalId().rawId()<<" key: ";
       continue;
     }
     newHits.push_back(hits[iH]);

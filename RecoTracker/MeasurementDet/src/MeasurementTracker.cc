@@ -110,6 +110,8 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
   this->initializePixelStatus(pixelQuality, pixelCabling, pixelQualityFlags, pixelQualityDebugFlags);
   //the measurement tracking is set to skip clusters, the other option is set from outside
   selfUpdateSkipClusters_=conf.exists("skipClusters");
+
+  LogDebug("MeasurementTracker")<<"skipping clusters: "<<selfUpdateSkipClusters_;
 }
 
 MeasurementTracker::~MeasurementTracker()
@@ -246,6 +248,7 @@ void MeasurementTracker::update( const edm::Event& event) const
 }
 void MeasurementTracker::setClusterToSkip(const edm::InputTag & cluster, const edm::Event& event) const
 {
+  LogDebug("MeasurementTracker")<<"setClusterToSkip";
   if (selfUpdateSkipClusters_)
     edm::LogError("MeasurementTracker")<<"this mode of operation is not supported, either the measurement tracker is set to skip clusters, or is being told to skip clusters. not both";
 
@@ -256,6 +259,8 @@ void MeasurementTracker::setClusterToSkip(const edm::InputTag & cluster, const e
     edmNew::DetSetVector<SiPixelClusterRefNew>::const_iterator f=pixelClusterRefs->find((**i).geomDet().geographicalId().rawId());
     if (f!=pixelClusterRefs->end())
       (**i).setClusterToSkip(f->begin(),f->end());
+    else
+      (**i).unset();
   }
 
   edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > stripClusterRefs;
@@ -265,10 +270,13 @@ void MeasurementTracker::setClusterToSkip(const edm::InputTag & cluster, const e
     edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef>::const_iterator f=stripClusterRefs->find((**i).geomDet().geographicalId().rawId());
     if (f!=stripClusterRefs->end())
       (**i).setClusterToSkip(f->begin(),f->end());
+    else
+      (**i).unset();
   }
 }
 
 void MeasurementTracker::unsetClusterToSkip() const {
+  LogDebug("MeasurementTracker")<<"unsetClusterToSkip";
   if (selfUpdateSkipClusters_)
     edm::LogError("MeasurementTracker")<<"this mode of operation is not supported, either the measurement tracker is set to skip clusters, or is being told to skip clusters. not both";
 
@@ -319,6 +327,7 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
     if (selfUpdateSkipClusters_){
       //and get the collection of pixel ref to skip
       event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),pixelClusterRefs);
+      LogDebug("MeasurementTracker")<<"getting pxl refs to skip";
       if (pixelClusterRefs.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the pixel clusters to skip";
     }
 
@@ -405,6 +414,7 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 	edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > stripClusterRefs;
 	if (selfUpdateSkipClusters_){
 	  //and get the collection of pixel ref to skip
+	  LogDebug("MeasurementTracker")<<"getting strp refs to skip";
 	  event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterRefs);
 	  if (stripClusterRefs.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
 	}
@@ -442,6 +452,7 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
 
       edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripRegionalClusterRef> > stripClusterRefs;
       if(selfUpdateSkipClusters_){
+	LogDebug("MeasurementTracker")<<"getting reg strp refs to skip";
 	event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterRefs);
 	if (stripClusterRefs.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
       }

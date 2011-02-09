@@ -49,8 +49,10 @@ HitExtractor::Hits HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Even
 	}
       if (result[iH]->hit()->isValid()){
 	SiPixelRecHit * concrete = (SiPixelRecHit *) result[iH]->hit();
-	if (f!=pixelClusterRefs->end() && find(f->begin(),f->end(),concrete->cluster())!=f->end())
+	if (f!=pixelClusterRefs->end() && find(f->begin(),f->end(),concrete->cluster())!=f->end()){
+	  LogDebug("HitExtractorPIX")<<"skipping a pixel hit on: "<< result[iH]->hit()->geographicalId().rawId()<<" key: "<<find(f->begin(),f->end(),concrete->cluster())->key();
 	  continue;
+	}
       }
       newHits.push_back(result[iH]);
     }

@@ -101,7 +101,7 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
           layer.useStereoRecHits = false;
       }
       if (cfgLayer.exists("skipClusters")){
-	//	std::cout<<" ready for skipping (1)"<<std::endl;
+	LogDebug("SeedingLayerSetsBuilder")<<" ready for skipping (1)";
 	layer.clustersToSkip = cfgLayer.getParameter<edm::InputTag>("skipClusters");
 	layer.skipClusters=true;
       }else{
@@ -283,7 +283,7 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
           extractor = extSTRP.clone();
         }
 	if (layer.skipClusters) {
-	  //	  std::cout<<" ready for skipping (2)"<<std::endl;
+	  LogDebug("SeedingLayerSetsBuilder")<<" ready for skipping (2)";
 	  extractor->useSkipClusters(layer.clustersToSkip);
 	}
 
