@@ -11,16 +11,14 @@ namespace edm {
   BranchMapperWithReader::BranchMapperWithReader() :
          BranchMapper(true),
          rootTree_(0),
-         useCache_(false),
          infoVector_(),
          pInfoVector_(&infoVector_),
          oldProductIDToBranchIDMap_()
   { }
 
-  BranchMapperWithReader::BranchMapperWithReader(RootTree* rootTree, bool useCache) :
+  BranchMapperWithReader::BranchMapperWithReader(RootTree* rootTree) :
          BranchMapper(true),
          rootTree_(rootTree),
-         useCache_(useCache),
          infoVector_(),
          pInfoVector_(&infoVector_),
          oldProductIDToBranchIDMap_()
@@ -29,11 +27,7 @@ namespace edm {
   void
   BranchMapperWithReader::readProvenance_() const {
     setRefCoreStreamer(0, false, false);
-    if (useCache_) {
-      rootTree_->fillBranchEntry(rootTree_->branchEntryInfoBranch(), pInfoVector_);
-    } else {
-      rootTree_->fillBranchEntryNoCache(rootTree_->branchEntryInfoBranch(), pInfoVector_);
-    }
+    rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), pInfoVector_);
     setRefCoreStreamer(true);
     BranchMapperWithReader* me = const_cast<BranchMapperWithReader*>(this);
     for (ProductProvenanceVector::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();

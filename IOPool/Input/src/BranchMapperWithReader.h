@@ -7,7 +7,6 @@ BranchMapperWithReader:
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Provenance/interface/BranchMapper.h"
-#include "Inputfwd.h"
 
 #include <vector>
 
@@ -16,7 +15,7 @@ namespace edm {
   class BranchMapperWithReader : public BranchMapper {
   public:
     BranchMapperWithReader();
-    BranchMapperWithReader(RootTree* rootTree, bool useCache);
+    explicit BranchMapperWithReader(RootTree* rootTree);
 
     virtual ~BranchMapperWithReader() {}
     void insertIntoMap(ProductID const& oldProductID, BranchID const& branchID);
@@ -26,7 +25,6 @@ namespace edm {
     virtual BranchID oldProductIDToBranchID_(ProductID const& oldProductID) const;
 
     RootTree* rootTree_;
-    bool useCache_;
     ProductProvenanceVector infoVector_;
     mutable ProductProvenanceVector* pInfoVector_;
     std::map<unsigned int, BranchID> oldProductIDToBranchIDMap_;

@@ -2,40 +2,39 @@
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
+#include "BranchMapperWithReader.h"
 #include "DuplicateChecker.h"
 #include "ProvenanceAdaptor.h"
-#include "BranchMapperWithReader.h"
 
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/History.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
-#include "FWCore/Sources/interface/EventSkipperByID.h"
-#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/ParentageRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/RunID.h"
-#include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-//used for friendlyName translation
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 //used for backward compatibility
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
@@ -47,11 +46,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 
 #include "TROOT.h"
+#include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "TTreeCache.h"
-#include "Rtypes.h"
+
 #include <algorithm>
 #include <map>
 #include <list>
@@ -80,8 +79,8 @@ namespace edm {
     explicit RootFileEventFinder(RootTree& eventTree) : eventTree_(eventTree) {}
     virtual ~RootFileEventFinder() {}
     virtual
-    EventNumber_t getEventNumberOfEntry(input::EntryNumber entry) const {
-      input::EntryNumber saveEntry = eventTree_.entryNumber();
+    EventNumber_t getEventNumberOfEntry(roottree::EntryNumber entry) const {
+      roottree::EntryNumber saveEntry = eventTree_.entryNumber();
       eventTree_.setEntryNumber(entry);
       EventAuxiliary eventAux;
       EventAuxiliary *pEvAux = &eventAux;
@@ -139,9 +138,9 @@ namespace edm {
       branchListIndexesUnchanged_(false),
       reportToken_(0),
       eventAux_(),
-      eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, input::defaultLearningEntries),
-      lumiTree_(filePtr_, InLumi, treeMaxVirtualSize, input::defaultNonEventCacheSize, input::defaultNonEventLearningEntries),
-      runTree_(filePtr_, InRun, treeMaxVirtualSize, input::defaultNonEventCacheSize, input::defaultNonEventLearningEntries),
+      eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries),
+      lumiTree_(filePtr_, InLumi, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
+      runTree_(filePtr_, InRun, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
       treePointers_(),
       lastEventEntryNumberRead_(-1LL),
       productRegistry_(),
@@ -176,7 +175,7 @@ namespace edm {
     if(metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != 0) {
       TBranch *fft = metaDataTree->GetBranch(poolNames::fileFormatVersionBranchName().c_str());
       fft->SetAddress(&fftPtr);
-      input::getEntry(fft, 0);
+      roottree::getEntry(fft, 0);
       metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
     }
 
@@ -212,25 +211,18 @@ namespace edm {
         throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::parameterSetsTreeName()
         << " in the input file.\n";
       }
-      psetTree->SetCacheSize(input::defaultNonEventCacheSize);
-      std::auto_ptr<TTreeCache> treeCache(dynamic_cast<TTreeCache*>(filePtr_->GetCacheRead()));
+
+      roottree::trainCache(psetTree, *filePtr_, roottree::defaultNonEventCacheSize);
+
       typedef std::pair<ParameterSetID, ParameterSetBlob> IdToBlobs;
       IdToBlobs idToBlob;
       IdToBlobs* pIdToBlob = &idToBlob;
       psetTree->SetBranchAddress(poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob);
-      if (0 != treeCache.get()) {
-        treeCache->SetEntryRange(0, psetTree->GetEntries());
-        treeCache->AddBranch("*");
-        treeCache->StopLearningPhase();
-      }
+
       for(Long64_t i = 0; i != psetTree->GetEntries(); ++i) {
         psetTree->GetEntry(i);
         psetMap.insert(idToBlob);
       }
-      // We own the treeCache_.
-      // We make sure the treeCache_ is detatched from the file,
-      // so that ROOT does not also delete it.
-      filePtr->SetCacheRead(0);
     }
 
     // backward compatibility
@@ -278,7 +270,7 @@ namespace edm {
     }
 
     // Here we read the metadata tree
-    input::getEntry(metaDataTree, 0);
+    roottree::getEntry(metaDataTree, 0);
 
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
@@ -427,7 +419,7 @@ namespace edm {
     ParentageRegistry& registry = *ParentageRegistry::instance();
 
     for(Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
-      input::getEntry(entryDescriptionTree, i);
+      roottree::getEntry(entryDescriptionTree, i);
       if(idBuffer != entryDescriptionBuffer.id())
         throw edm::Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
       oldregistry.insertMapped(entryDescriptionBuffer);
@@ -459,7 +451,7 @@ namespace edm {
     ParentageRegistry& registry = *ParentageRegistry::instance();
 
     for(Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
-      input::getEntry(parentageTree, i);
+      roottree::getEntry(parentageTree, i);
       registry.insertMapped(parentageBuffer);
     }
     parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), 0);
@@ -1054,7 +1046,7 @@ namespace edm {
           << "Failed to find history branch in event history tree.\n";
       }
       eventHistoryBranch->SetAddress(&pHistory);
-      input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
+      roottree::getEntry(eventHistoryTree_, eventTree_.entryNumber());
       eventAux_.setProcessHistoryID(history_->processHistoryID());
       eventSelectionIDs_.reset(&history_->eventSelectionIDs(), do_nothing_deleter());
       branchListIndexes_.reset(&history_->branchListIndexes(), do_nothing_deleter());
@@ -1080,7 +1072,7 @@ namespace edm {
       provenanceAdaptor_->branchListIndexes(*branchListIndexes_);
     }
   }
-  
+
   boost::shared_ptr<LuminosityBlockAuxiliary>
   RootFile::fillLumiAuxiliary() {
     boost::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary(new LuminosityBlockAuxiliary);
@@ -1206,7 +1198,7 @@ namespace edm {
     IndexIntoFile::SortOrder sortOrder = IndexIntoFile::numericalOrder;
     if (noEventSort_) sortOrder = IndexIntoFile::firstAppearanceOrder;
 
-    IndexIntoFile::IndexIntoFileItr iter = 
+    IndexIntoFile::IndexIntoFileItr iter =
       indexIntoFile_.findPosition(sortOrder, eventID.run(), eventID.luminosityBlock(), eventID.event());
 
     if (iter == indexIntoFile_.end(sortOrder)) {
@@ -1277,6 +1269,7 @@ namespace edm {
 
   void
   RootFile::setAtEventEntry(IndexIntoFile::EntryNumber_t entry) {
+    std::cerr << "BARF: " << entry << std::endl;
     eventTree_.setEntryNumber(entry);
   }
 
@@ -1567,7 +1560,7 @@ namespace edm {
           std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
           BranchEntryDescription* ppb = pb.get();
           br->SetAddress(&ppb);
-          input::getEntry(br, rootTree.entryNumber());
+          roottree::getEntry(br, rootTree.entryNumber());
           ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
           // Not providing parentage!!!
           ProductProvenance entry(it->second.branchID(), status, ParentageID());
@@ -1605,7 +1598,7 @@ namespace edm {
         std::vector<EventEntryInfo> *pInfoVector = infoVector.get();
         rootTree.branchEntryInfoBranch()->SetAddress(&pInfoVector);
         setRefCoreStreamer(0, true, false);
-        input::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
+        roottree::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
         setRefCoreStreamer(true);
         for(std::vector<EventEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
             it != itEnd; ++it) {
@@ -1621,7 +1614,7 @@ namespace edm {
         std::vector<RunLumiEntryInfo> *pInfoVector = infoVector.get();
         rootTree.branchEntryInfoBranch()->SetAddress(&pInfoVector);
         setRefCoreStreamer(0, true, false);
-        input::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
+        roottree::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
         setRefCoreStreamer(true);
         for(std::vector<RunLumiEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
             it != itEnd; ++it) {
@@ -1635,15 +1628,7 @@ namespace edm {
     boost::shared_ptr<BranchMapper>
     makeBranchMapperInRelease300(RootTree& rootTree) {
       boost::shared_ptr<BranchMapperWithReader> mapper(
-        new BranchMapperWithReader(&rootTree, false));
-      mapper->setDelayedRead(true);
-      return mapper;
-    }
-
-    boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease390(RootTree& rootTree) {
-      boost::shared_ptr<BranchMapperWithReader> mapper(
-        new BranchMapperWithReader(&rootTree, true));
+        new BranchMapperWithReader(&rootTree));
       mapper->setDelayedRead(true);
       return mapper;
     }
@@ -1651,9 +1636,7 @@ namespace edm {
 
   boost::shared_ptr<BranchMapper>
   RootFile::makeBranchMapper(RootTree& rootTree, BranchType const& type) const {
-    if(fileFormatVersion().noMetaDataTrees()) {
-      return makeBranchMapperInRelease390(rootTree);
-    } else if(fileFormatVersion().splitProductIDs()) {
+    if(fileFormatVersion().splitProductIDs()) {
       return makeBranchMapperInRelease300(rootTree);
     } else if(fileFormatVersion().perEventProductIDs()) {
       return makeBranchMapperInRelease210(rootTree, type);

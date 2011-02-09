@@ -2,21 +2,23 @@
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
+#include "RootTree.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
+
 #include "TROOT.h"
-#include "TClass.h"
 #include "TBranch.h"
+#include "TClass.h"
 
 namespace edm {
 
   RootDelayedReader::RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
-      boost::shared_ptr<TTreeCache> treeCache,
+      RootTree const& tree,
       boost::shared_ptr<TFile> filePtr,
       FileFormatVersion const& fileFormatVersion) :
    entryNumber_(entry),
    branches_(bMap),
-   treeCache_(treeCache),
+   tree_(tree),
    filePtr_(filePtr),
    nextReader_(),
    fileFormatVersion_(fileFormatVersion) {}
@@ -33,7 +35,7 @@ namespace edm {
         return std::auto_ptr<EDProduct>();
       }
     }
-    input::BranchInfo const& branchInfo = getBranchInfo(iter);
+    roottree::BranchInfo const& branchInfo = getBranchInfo(iter);
     TBranch *br = branchInfo.productBranch_;
     if (br == 0) {
       if (nextReader_) {
@@ -64,7 +66,7 @@ namespace edm {
     std::auto_ptr<EDProduct> edp(pointerUnion.edp);
 
     br->SetAddress(&p);
-    input::getEntryWithCache(br, entryNumber_, treeCache_.get(), filePtr_.get());
+    tree_.getEntry(br, entryNumber_);
     setRefCoreStreamer(!fileFormatVersion_.splitProductIDs());
     return edp;
   }

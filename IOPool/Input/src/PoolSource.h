@@ -7,26 +7,24 @@ PoolSource: This is an InputSource
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <vector>
-#include <string>
-
-#include "Inputfwd.h"
-
-#include "IOPool/Common/interface/RootServiceChecker.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
+#include "FWCore/Sources/interface/VectorInputSource.h"
+#include "IOPool/Common/interface/RootServiceChecker.h"
 
-#include "boost/scoped_ptr.hpp"
 #include "boost/array.hpp"
+#include "boost/scoped_ptr.hpp"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace edm {
 
-  class RootInputFileSequence;
-  class FileCatalogItem;
   class ConfigurationDescriptions;
+  class FileCatalogItem;
+  class RootInputFileSequence;
 
   class PoolSource : public VectorInputSource {
   public:
@@ -37,8 +35,6 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions & descriptions);
 
   private:
-    typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
-    typedef input::EntryNumber EntryNumber;
     virtual EventPrincipal* readEvent_();
     virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lbCache);

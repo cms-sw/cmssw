@@ -56,7 +56,7 @@ namespace edm {
     numberOfEventsToSkip_(primaryFiles ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
     noEventSort_(primaryFiles ? pset.getUntrackedParameter<bool>("noEventSort", true) : false),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
-    treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize", input::defaultCacheSize) : 0U),
+    treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize", roottree::defaultCacheSize) : 0U),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
@@ -677,7 +677,7 @@ namespace edm {
     desc.addUntracked<bool>("skipBadFiles", false)
         ->setComment("True:  Ignore any missing or unopenable input file.\n"
                      "False: Throw exception if missing or unopenable input file.");
-    desc.addUntracked<unsigned int>("cacheSize", input::defaultCacheSize)
+    desc.addUntracked<unsigned int>("cacheSize", roottree::defaultCacheSize)
         ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
     desc.addUntracked<int>("treeMaxVirtualSize", -1)
         ->setComment("Size of ROOT TTree TBasket cache.  Affects performance.");

@@ -7,25 +7,63 @@ RootTree.h // used by ROOT input sources
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <string>
-#include <vector>
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+
+#include "Rtypes.h"
+#include "TBranch.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
-#include "Inputfwd.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "TBranch.h"
+#include <memory>
+#include <map>
+#include <string>
+#include <vector>
+
+class TBranch;
+class TClass;
 class TFile;
+class TTree;
+class TTreeCache;
 
 namespace edm {
+  struct BranchKey;
+  class FileFormatVersion;
+  class RootDelayedReader;
+  class RootFile;
+  class RootTree;
+
+  namespace roottree {
+    unsigned int const defaultCacheSize = 20U * 1024 * 1024;
+    unsigned int const defaultNonEventCacheSize = 1U * 1024 * 1024;
+    unsigned int const defaultLearningEntries = 20U;
+    unsigned int const defaultNonEventLearningEntries = 1U;
+    typedef Long64_t EntryNumber;
+    struct BranchInfo {
+      BranchInfo(ConstBranchDescription const& prod) :
+        branchDescription_(prod),
+        productBranch_(0),
+        provenanceBranch_(0),
+        classCache_(0),
+        offsetToEDProduct_(0) {}
+      ConstBranchDescription branchDescription_;
+      TBranch* productBranch_;
+      TBranch* provenanceBranch_; // For backward compatibility
+      mutable TClass* classCache_;
+      mutable Int_t offsetToEDProduct_;
+    };
+    typedef std::map<BranchKey const, BranchInfo> BranchMap;
+    Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
+    Int_t getEntry(TTree* tree, EntryNumber entryNumber);
+    void trainCache(TTree* tree, TFile& file, unsigned int cacheSize);
+  }
 
   class RootTree : private boost::noncopyable {
   public:
-    typedef input::BranchMap BranchMap;
-    typedef input::EntryNumber EntryNumber;
+    typedef roottree::BranchMap BranchMap;
+    typedef roottree::EntryNumber EntryNumber;
     RootTree(boost::shared_ptr<TFile> filePtr,
              BranchType const& branchType,
              unsigned int maxVirtualSize,
@@ -38,6 +76,7 @@ namespace edm {
                    BranchDescription const& prod,
                    std::string const& oldBranchName);
     void dropBranch(std::string const& oldBranchName);
+    void getEntry(TBranch *branch, EntryNumber entry) const;
     void setPresence(BranchDescription const& prod);
     bool next() {return ++entryNumber_ < entries_;}
     bool previous() {return --entryNumber_ >= 0;}
@@ -47,24 +86,32 @@ namespace edm {
     EntryNumber const& entryNumber() const {return entryNumber_;}
     EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber theEntryNumber);
+    void maybeTrain();
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     boost::shared_ptr<DelayedReader> makeDelayedReader(FileFormatVersion const& fileFormatVersion) const;
     //TBranch* auxBranch() {return auxBranch_;}
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
-      input::getEntryWithCache(auxBranch_, entryNumber_, treeCache_.get(), filePtr_.get());
+      getEntry(auxBranch_, entryNumber_);
     }
+    template <typename T>
+    void fillBranchEntryMeta(TBranch* branch, T*& pbuf) {
+      if (metaTree_ != 0) {
+        // Metadata was in separate tree.  Not cached.
+        branch->SetAddress(&pbuf);
+        roottree::getEntry(branch, entryNumber_);
+      } else {
+        fillBranchEntry<T>(branch, pbuf);
+      }
+    }
+
     template <typename T>
     void fillBranchEntry(TBranch* branch, T*& pbuf) {
       branch->SetAddress(&pbuf);
-      input::getEntryWithCache(branch, entryNumber_, treeCache_.get(), filePtr_.get());
+      getEntry(branch, entryNumber_);
     }
-    template <typename T>
-    void fillBranchEntryNoCache(TBranch* branch, T*& pbuf) {
-      branch->SetAddress(&pbuf);
-      input::getEntry(branch, entryNumber_);
-    }
+
     TTree const* tree() const {return tree_;}
     TTree* tree() {return tree_;}
     TTree const* metaTree() const {return metaTree_;}
@@ -74,7 +121,7 @@ namespace edm {
     // below for backward compatibility
     void fillStatus() { // backward compatibility
       statusBranch_->SetAddress(&pProductStatuses_); // backward compatibility
-      input::getEntry(statusBranch_, entryNumber_); // backward compatibility
+      roottree::getEntry(statusBranch_, entryNumber_); // backward compatibility
     } // backward compatibility
 
     TBranch* const branchEntryInfoBranch() const {return branchEntryInfoBranch_;}

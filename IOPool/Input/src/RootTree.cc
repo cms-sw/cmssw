@@ -87,7 +87,7 @@ namespace edm {
       prod.init();
       //use the translated branch name
       TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
-      input::BranchInfo info = input::BranchInfo(ConstBranchDescription(prod));
+      roottree::BranchInfo info = roottree::BranchInfo(ConstBranchDescription(prod));
       info.productBranch_ = 0;
       if (prod.present()) {
         info.productBranch_ = branch;
@@ -122,13 +122,13 @@ namespace edm {
       }
   }
 
-  input::BranchMap const&
+  roottree::BranchMap const&
   RootTree::branches() const {return *branches_;}
 
   boost::shared_ptr<DelayedReader>
   RootTree::makeDelayedReader(FileFormatVersion const& fileFormatVersion) const {
     boost::shared_ptr<DelayedReader>
-        store(new RootDelayedReader(entryNumber_, branches_, treeCache_, filePtr_, fileFormatVersion));
+        store(new RootDelayedReader(entryNumber_, branches_, *this, filePtr_, fileFormatVersion));
     return store;
   }
 
@@ -148,21 +148,21 @@ namespace edm {
   RootTree::setEntryNumber(EntryNumber theEntryNumber) {
     filePtr_->SetCacheRead(treeCache_.get());
     entryNumber_ = theEntryNumber;
-    tree_->LoadTree(theEntryNumber);
-    if (treeCache_ && !trained_ && theEntryNumber >= 0) {
-      assert(treeCache_->GetOwner() == tree_);
-      treeCache_->SetLearnEntries(learningEntries_);
-      treeCache_->SetEntryRange(theEntryNumber, tree_->GetEntries());
-      treeCache_->StartLearningPhase();
-      treeCache_->AddBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str());
-      if (branchType_ == edm::InEvent) {
-        treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str());
-      }
-      trained_ = kTRUE;
-    }
+    tree_->LoadTree(entryNumber_);
+    maybeTrain();
     filePtr_->SetCacheRead(0);
   }
 
+  void
+  RootTree::getEntry(TBranch* branch, EntryNumber entry) const{
+    if (treeCache_) {
+      filePtr_->SetCacheRead(treeCache_.get());
+      roottree::getEntry(branch, entry);
+      filePtr_->SetCacheRead(0);
+    } else {
+      roottree::getEntry(branch, entry);
+    }
+  }
 
   void
   RootTree::close () {
@@ -179,7 +179,22 @@ namespace edm {
     filePtr_.reset();
   }
 
-  namespace input {
+  void
+  RootTree::maybeTrain() {
+    if (treeCache_ && !trained_ && entryNumber_ >= 0) {
+      assert(treeCache_->GetOwner() == tree_);
+      treeCache_->SetLearnEntries(learningEntries_);
+      treeCache_->SetEntryRange(entryNumber_, tree_->GetEntries());
+      treeCache_->StartLearningPhase();
+      treeCache_->AddBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str(), kTRUE);
+      if (branchType_ == edm::InEvent) {
+        treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str(), kTRUE);
+      }
+      trained_ = kTRUE;
+    }
+  }
+
+  namespace roottree {
     Int_t
     getEntry(TBranch* branch, EntryNumber entryNumber) {
       Int_t n = 0;
@@ -204,26 +219,20 @@ namespace edm {
       return n;
     }
 
-    Int_t
-    getEntryWithCache(TBranch* branch, EntryNumber entryNumber, TTreeCache* tc, TFile* filePtr) {
-      if (tc == 0) {
-        return getEntry(branch, entryNumber);
+    void
+    trainCache(TTree* tree, TFile& file, unsigned int cacheSize) {
+      tree->SetCacheSize(cacheSize);
+      std::auto_ptr<TTreeCache> treeCache(dynamic_cast<TTreeCache*>(file.GetCacheRead()));
+      if (0 != treeCache.get()) {
+        treeCache->StartLearningPhase();
+        treeCache->SetEntryRange(0, tree->GetEntries());
+        treeCache->AddBranch("*", kTRUE);
+        treeCache->StopLearningPhase();
       }
-      filePtr->SetCacheRead(tc);
-      Int_t n = getEntry(branch, entryNumber);
-      filePtr->SetCacheRead(0);
-      return n;
-    }
-
-    Int_t
-    getEntryWithCache(TTree* tree, EntryNumber entryNumber, TTreeCache* tc, TFile* filePtr) {
-      if (tc == 0) {
-        return getEntry(tree, entryNumber);
-      }
-      filePtr->SetCacheRead(tc);
-      Int_t n = getEntry(tree, entryNumber);
-      filePtr->SetCacheRead(0);
-      return n;
+      // We own the treeCache_.
+      // We make sure the treeCache_ is detatched from the file,
+      // so that ROOT does not also delete it.
+      file.SetCacheRead(0);
     }
   }
 }

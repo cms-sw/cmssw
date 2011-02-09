@@ -7,20 +7,21 @@ RootDelayedReader.h // used by ROOT input sources
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <map>
-#include <string>
-#include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "Inputfwd.h"
+#include "RootTree.h"
+
+#include "boost/shared_ptr.hpp"
+#include "boost/utility.hpp"
+
+#include <map>
+#include <memory>
+#include <string>
 
 class TFile;
-class TTreeCache;
 namespace edm {
+  class RootTree;
 
   //------------------------------------------------------------
   // Class RootDelayedReader: pretends to support file reading.
@@ -28,13 +29,13 @@ namespace edm {
 
   class RootDelayedReader : public DelayedReader, private boost::noncopyable {
   public:
-    typedef input::BranchMap BranchMap;
-    typedef input::EntryNumber EntryNumber;
-    typedef input::BranchInfo BranchInfo;
-    typedef input::BranchMap::const_iterator iterator;
+    typedef roottree::BranchInfo BranchInfo;
+    typedef roottree::BranchMap BranchMap;
+    typedef roottree::BranchMap::const_iterator iterator;
+    typedef roottree::EntryNumber EntryNumber;
     RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
-      boost::shared_ptr<TTreeCache> treeCache,
+      RootTree const& tree,
       boost::shared_ptr<TFile> filePtr,
       FileFormatVersion const& fileFormatVersion);
 
@@ -51,7 +52,7 @@ namespace edm {
     boost::shared_ptr<BranchMap const> branches_;
     // NOTE: filePtr_ appears to be unused, but is needed to prevent
     // the TFile containing the branch from being reclaimed.
-    boost::shared_ptr<TTreeCache> treeCache_;
+    RootTree const& tree_;
     boost::shared_ptr<TFile> filePtr_;
     boost::shared_ptr<DelayedReader> nextReader_;
     FileFormatVersion fileFormatVersion_;

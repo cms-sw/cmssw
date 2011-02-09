@@ -7,12 +7,6 @@ RootInputFileSequence: This is an InputSource
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <vector>
-#include <string>
-
-#include "Inputfwd.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GroupSelectorRules.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
@@ -25,18 +19,22 @@ RootInputFileSequence: This is an InputSource
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
+#include <memory>
+#include <string>
+#include <vector>
+
 namespace CLHEP {
   class RandFlat;
 }
 
 namespace edm {
 
-  class PoolSource;
-  class RootFile;
+  class DuplicateChecker;
   class FileCatalogItem;
   class InputFileCatalog;
-  class DuplicateChecker;
   class ParameterSetDescription;
+  class PoolSource;
+  class RootFile;
 
   class RootInputFileSequence : private boost::noncopyable {
   public:
@@ -45,7 +43,6 @@ namespace edm {
 
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
-    typedef input::EntryNumber EntryNumber;
     EventPrincipal* readEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb);
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
