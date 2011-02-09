@@ -1,6 +1,6 @@
 #include "CombinedCaloTowers.C"
 
-void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, int harvest=0, bool bRBX=false);
+void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nHits2D, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, int harvest=0, bool bRBX=false);
 
 void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname, TString vfname, TString InputStream="InputRelVal.txt", int harvest=0){
 
@@ -19,9 +19,10 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   const int CT_nProf    = 6;
   
   //RecHits
-  const int RH_nHistTot = 95+4+4; 
+  const int RH_nHistTot = 87+4+4+5; 
   const int RH_nHist1   = 24+4+4;
   const int RH_nHist2   = 4;
+  const int RH_nHist2D  = 5;
   const int RH_nProfInd = 12;
 
   //RBX Noise
@@ -30,9 +31,9 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
 
   ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_nHist1, CT_nHist2, CT_nProf, CT_nHistTot, ref_vers, val_vers, harvest);
 
-  ProcessRelVal(Ref_File, Val_File, RelValStream, RH_nHist1, RH_nHist2, RH_nProfInd, RH_nHistTot, ref_vers, val_vers, harvest);
+  ProcessRelVal(Ref_File, Val_File, RelValStream, RH_nHist1, RH_nHist2, RH_nHist2D, RH_nProfInd, RH_nHistTot, ref_vers, val_vers, harvest);
 
-  ProcessRelVal(Ref_File, Val_File, RelValStream, RBX_nHist1, 0, 0, RBX_nHistTot, ref_vers, val_vers, harvest, true);
+  ProcessRelVal(Ref_File, Val_File, RelValStream, RBX_nHist1, 0, 0, 0, RBX_nHistTot, ref_vers, val_vers, harvest, true);
 
   Ref_File.Close();
   Val_File.Close();
@@ -40,7 +41,7 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   return;
 }
 
-void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, int harvest, bool bRBX){
+void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nHist2D, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, int harvest, bool bRBX){
 
   TString RefHistDir, ValHistDir;
   
@@ -91,11 +92,13 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
   TH2F*     ref_hist2[nHist2];
   TProfile* ref_prof[nProfInd];
   TH1D*     ref_fp[nProfInd];
+  TH2F*     ref_hist2D[nHist2D];
   
   TH1F*     val_hist1[nHist1];
   TH2F*     val_hist2[nHist2];
   TProfile* val_prof[nProfInd];
   TH1D*     val_fp[nProfInd];
+  TH2F*     val_hist2D[nHist2D];
   
   int i;
   int DrawSwitch;
@@ -114,8 +117,10 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
   int nh2 = 0;
   int npr = 0;
   int npi = 0;
+  int n2D = 0;
  
   for (i = 0; i < nHistTot; i++){
+
     //Read in 1/0 switch saying whether this histogram is used 
     //Skip it if not used, otherwise get output file label, histogram
     //axis ranges and title
@@ -127,6 +132,36 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
     recstr>>DimSwitch>>StatSwitch>>Chi2Switch>>LogSwitch;
     recstr>>RefCol>>ValCol;
     recstr.getline(xAxisTitle,200);
+
+    if (DimSwitch == "2D"){
+      if(n2D == 0) {   
+
+	gStyle->SetPadColor(29);
+	gStyle->SetFrameFillColor(0);
+	gStyle->SetCanvasColor(0);   
+
+        // Nasty trick:
+	// recovering colors redefined in rootlogon.C (for "rainbow" Palette)
+	Float_t  r, g, b;
+	Float_t  saturation = 1;
+	Float_t  lightness = 0.5;
+	Float_t  maxHue = 280;
+	Float_t  minHue = 0;
+	Int_t    maxPretty = 50;
+	Float_t  hue;
+	
+	for (int j=0 ; j<maxPretty ; j++) {
+	  hue = maxHue-(j+1)*((maxHue-minHue)/maxPretty);
+	  TColor::HLStoRGB(hue, lightness, saturation, r, g, b);
+	  TColor *color = (TColor*)(gROOT->GetListOfColors()->At(j+51));
+	  color->SetRGB( r, g, b);
+	}
+	                                                
+        gStyle->SetPalette(1);                  
+                                               
+      }
+    }
+
     
     //Format canvas
     if(DimSwitch == "PRwide") {
@@ -144,6 +179,7 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
     if (LogSwitch == "Log") myc->SetLogy(1);
     else                    myc->SetLogy(0);
 
+
     if (DimSwitch == "1D"){
       //Get histograms from files
       ref_file.cd(RefHistDir);   
@@ -151,6 +187,28 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       
       val_file.cd(ValHistDir);   
       val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
+
+      // HACK to change what is embedded in DQM histos
+      ref_hist1[nh1]->GetXaxis()->SetLabelSize(0.04); 
+      val_hist1[nh1]->GetXaxis()->SetLabelSize(0.04); 
+      ref_hist1[nh1]->GetYaxis()->SetLabelSize(0.04); 
+      val_hist1[nh1]->GetYaxis()->SetLabelSize(0.04); 
+      ref_hist1[nh1]->GetXaxis()->SetTitleSize(0.045); 
+      val_hist1[nh1]->GetXaxis()->SetTitleSize(0.045); 
+
+      ref_hist1[nh1]->GetXaxis()->SetTickLength(-0.015);
+      val_hist1[nh1]->GetXaxis()->SetTickLength(-0.015);      
+      ref_hist1[nh1]->GetYaxis()->SetTickLength(-0.015);
+      val_hist1[nh1]->GetYaxis()->SetTickLength(-0.015);
+      
+      ref_hist1[nh1]->GetXaxis()->SetLabelOffset(0.02);
+      val_hist1[nh1]->GetXaxis()->SetLabelOffset(0.02);
+      ref_hist1[nh1]->GetYaxis()->SetLabelOffset(0.02);
+      val_hist1[nh1]->GetYaxis()->SetLabelOffset(0.02);
+
+      ref_hist1[nh1]->GetXaxis()->SetTitleOffset(1.3); 
+      val_hist1[nh1]->GetXaxis()->SetTitleOffset(1.3); 
+
 
       //Rebin histograms -- has to be done first
       if (nRebin != 1){
@@ -202,7 +260,7 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       if (StatSwitch != "Stat" && StatSwitch != "Statrv") val_hist1[nh1]->SetLineWidth(2); 
    
       //Legend
-      TLegend *leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
+      TLegend *leg = new TLegend(0.50, 0.91, 0.84, 0.99, "","brNDC");
       leg->SetBorderSize(2);
       leg->SetFillStyle(1001); 
       leg->AddEntry(ref_hist1[nh1],"CMSSW_"+ref_vers,"l");
@@ -228,7 +286,7 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
 	sprintf(tempbuff,"Chi2 p-value: %6.3E%c",pval,'\0');
 	mystream<<tempbuff;
 	
-	ptchi2 = new TPaveText(0.225,0.92,0.475,1.0, "NDC");
+	ptchi2 = new TPaveText(0.05,0.92,0.35,0.99, "NDC");
 	
 	if (pval > NCHI2MIN) ptchi2->SetFillColor(kGreen);
 	else                 ptchi2->SetFillColor(kRed);
@@ -274,8 +332,30 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       val_file.cd(ValHistDir);   
       val_prof[npi] = (TProfile*) gDirectory->Get(HistName);
       
+      // HACK to change what is embedded in DQM histos
+      ref_prof[npi]->GetXaxis()->SetLabelSize(0.04); 
+      val_prof[npi]->GetXaxis()->SetLabelSize(0.04); 
+      ref_prof[npi]->GetYaxis()->SetLabelSize(0.04); 
+      val_prof[npi]->GetYaxis()->SetLabelSize(0.04); 
+      ref_prof[npi]->GetXaxis()->SetTitleSize(0.045); 
+      val_prof[npi]->GetXaxis()->SetTitleSize(0.045); 
+
+      ref_prof[npi]->GetXaxis()->SetTickLength(-0.015);
+      val_prof[npi]->GetXaxis()->SetTickLength(-0.015);      
+      ref_prof[npi]->GetYaxis()->SetTickLength(-0.015);
+      val_prof[npi]->GetYaxis()->SetTickLength(-0.015);
+      
+      ref_prof[npi]->GetXaxis()->SetLabelOffset(0.02);
+      val_prof[npi]->GetXaxis()->SetLabelOffset(0.02);
+      ref_prof[npi]->GetYaxis()->SetLabelOffset(0.02);
+      val_prof[npi]->GetYaxis()->SetLabelOffset(0.02);
+
+      ref_prof[npi]->GetXaxis()->SetTitleOffset(1.3); 
+      val_prof[npi]->GetXaxis()->SetTitleOffset(1.3); 
+
+
       //Legend
-      leg = new TLegend(0.58, 0.91, 0.84, 0.99, "","brNDC");
+      leg = new TLegend(0.50, 0.91, 0.84, 0.99, "","brNDC");
       leg->SetBorderSize(2);
       leg->SetFillStyle(1001); 
 
@@ -401,6 +481,26 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       val_hist2[nh2]->SetMarkerSize(0.02);     
       val_prof[npi] ->SetMarkerSize(0.02);
 
+      // HACK to change what is embedded in DQM histos
+      ref_hist2[nh2]->GetXaxis()->SetLabelSize(0.04); 
+      val_hist2[nh2]->GetXaxis()->SetLabelSize(0.04); 
+      ref_hist2[nh2]->GetYaxis()->SetLabelSize(0.04); 
+      val_hist2[nh2]->GetYaxis()->SetLabelSize(0.04); 
+      ref_hist2[nh2]->GetXaxis()->SetTitleSize(0.045); 
+      val_hist2[nh2]->GetXaxis()->SetTitleSize(0.045); 
+
+      ref_hist2[nh2]->GetXaxis()->SetTickLength(-0.015);
+      val_hist2[nh2]->GetXaxis()->SetTickLength(-0.015);      
+      ref_hist2[nh2]->GetYaxis()->SetTickLength(-0.015);
+      val_hist2[nh2]->GetYaxis()->SetTickLength(-0.015);
+      
+      ref_hist2[nh2]->GetXaxis()->SetLabelOffset(0.02);
+      val_hist2[nh2]->GetXaxis()->SetLabelOffset(0.02);
+      ref_hist2[nh2]->GetYaxis()->SetLabelOffset(0.02);
+      val_hist2[nh2]->GetYaxis()->SetLabelOffset(0.02);
+
+      ref_hist2[nh2]->GetXaxis()->SetTitleOffset(1.3); 
+      val_hist2[nh2]->GetXaxis()->SetTitleOffset(1.3); 
 
 
       //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
@@ -422,7 +522,7 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       }
 
       //Legend
-      leg = new TLegend(0.48, 0.91, 0.74, 0.99, "","brNDC");
+      leg = new TLegend(0.50, 0.91, 0.84, 0.99, "","brNDC");
       leg->SetBorderSize(2);
       leg->SetFillStyle(1001); 
       
@@ -450,6 +550,72 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       nh2++;
       i++;
     }
+    else if (DimSwitch == "2D"){
+
+      myc->SetGrid(0,0);                         
+
+      //Get histograms from files
+      ref_file.cd(RefHistDir);   
+      ref_hist2D[n2D] = (TH2F*) gDirectory->Get(HistName);
+      
+      val_file.cd(ValHistDir);   
+      val_hist2D[n2D] = (TH2F*) gDirectory->Get(HistName);
+
+      ref_hist2D[n2D]->SetStats(kFALSE);
+      val_hist2D[n2D]->SetStats(kFALSE);
+
+      // HACK to change what is embedded in DQM histos
+      ref_hist2D[n2D]->GetXaxis()->SetLabelSize(0.04); 
+      val_hist2D[n2D]->GetXaxis()->SetLabelSize(0.04); 
+      ref_hist2D[n2D]->GetYaxis()->SetLabelSize(0.04); 
+      val_hist2D[n2D]->GetYaxis()->SetLabelSize(0.04); 
+      ref_hist2D[n2D]->GetXaxis()->SetTitleSize(0.045); 
+      val_hist2D[n2D]->GetXaxis()->SetTitleSize(0.045); 
+
+      ref_hist2D[n2D]->GetXaxis()->SetTickLength(-0.015);
+      val_hist2D[n2D]->GetXaxis()->SetTickLength(-0.015);      
+      ref_hist2D[n2D]->GetYaxis()->SetTickLength(-0.015);
+      val_hist2D[n2D]->GetYaxis()->SetTickLength(-0.015);
+      
+      ref_hist2D[n2D]->GetXaxis()->SetLabelOffset(0.02);
+      val_hist2D[n2D]->GetXaxis()->SetLabelOffset(0.02);
+      ref_hist2D[n2D]->GetYaxis()->SetLabelOffset(0.02);
+      val_hist2D[n2D]->GetYaxis()->SetLabelOffset(0.02);
+
+      ref_hist2D[n2D]->GetXaxis()->SetTitleOffset(1.3); 
+      val_hist2D[n2D]->GetXaxis()->SetTitleOffset(1.3); 
+
+      // special zoom on HB/HE depth1
+      if(n2D == 1) {
+	ref_hist2D[n2D]->GetXaxis()->SetRangeUser(-29.,28.);
+	val_hist2D[n2D]->GetXaxis()->SetRangeUser(-29.,28.);
+      }
+
+      TLegend *leg1 = new TLegend(0.50, 0.91, 0.84, 0.99, "","brNDC");
+      leg1->SetBorderSize(2);
+      leg1->SetFillStyle(1001); 
+      leg1->AddEntry(ref_hist2D[n2D],"CMSSW_"+ref_vers,"l");
+
+      if (xTitleCheck != "NoTitle") ref_hist2D[n2D]->GetXaxis()->SetTitle(xAxisTitle);
+      ref_hist2D[n2D]->Draw("colz");
+      leg1->Draw();   
+      myc->SaveAs("ref_"+OutLabel);    
+
+
+      TLegend *leg2 = new TLegend(0.50, 0.91, 0.84, 0.99, "","brNDC");
+      leg2->SetBorderSize(2);
+      leg2->SetFillStyle(1001); 
+      leg2->AddEntry(val_hist2D[n2D],"CMSSW_"+val_vers,"l");
+
+      if (xTitleCheck != "NoTitle") val_hist2D[n2D]->GetXaxis()->SetTitle(xAxisTitle);      
+      val_hist2D[n2D]->Draw("colz");
+      leg2->Draw();   
+      myc->SaveAs("val_"+OutLabel);    
+
+      n2D++;
+    }
+
+    
     if(myc) delete myc;
     if(leg) delete leg;
     if(ptchi2) delete ptchi2;

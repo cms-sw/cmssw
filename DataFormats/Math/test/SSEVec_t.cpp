@@ -102,13 +102,13 @@ void testBa() {
   std::cout << vx.theX << ", "<<  vx.theY << ", "<<  vx.theZ << std::endl;
 }
 
-template<typename T> 
+
 void go2d() {
 
-  typedef Vec2<T> Vec2d;
-  typedef Vec4<T> Vec3d;
+  typedef Vec2<double> Vec2d;
+  typedef Vec4<double> Vec3d;
 
-  std::cout << "\n2d" << std::endl;
+  std::cout << std::endl;
   std::cout << sizeof(Vec2d) << std::endl;
 
   Vec3d x(2.0,4.0,5.0);
@@ -119,21 +119,18 @@ void go2d() {
   Vec2d x2 = x.xy();
   Vec2d y2 = y.xy();
   std::cout << x2 << std::endl;
-  Vec2d xx2 = x;
-  std::cout << xx2 << std::endl;
   std::cout << y2 << std::endl;
 
 
-  std::cout << Vec2d(T(3.)*x2) << std::endl;
-  std::cout << Vec2d(y2*T(0.1)) << std::endl;
-  std::cout << Vec2d(T(0.5)*(x2+y2)) << std::endl;
+  std::cout << 3.*x2 << std::endl;
+  std::cout << y2*0.1 << std::endl;
   std::cout << mathSSE::sqrt(x2) << std::endl;
 
 
   std::cout << dot(x2,y2) << " = 2?"<< std::endl; 
   
 
-  T z = cross(x2,y2);
+  double z = cross(x2,y2);
   std::cout << z  << " = 16?" << std::endl;
 
   std::cout <<  mathSSE::sqrt(z)  << " = 4?" << std::endl;
@@ -144,7 +141,6 @@ template<typename T>
 void go() {
 
   typedef Vec4<T> Vec;
-  typedef Vec2<T> Vec2D;
 
   std::cout << std::endl;
   std::cout << sizeof(Vec) << std::endl;
@@ -157,14 +153,12 @@ void go() {
   Vec x(2.0,4.0,5.0);
   Vec y(-3.0,2.0,-5.0);
   std::cout << x << std::endl;
-  std::cout << Vec4<float>(x) << std::endl;
-  std::cout << Vec4<double>(x) << std::endl;
   std::cout << -x << std::endl;
   std::cout << x.get1(2) << std::endl;
   std::cout << y << std::endl;
-  std::cout << T(3.)*x << std::endl;
-  std::cout << y*T(0.1) << std::endl;
-  std::cout << (Vec(1) - y*T(0.1)) << std::endl;
+  std::cout << 3.*x << std::endl;
+  std::cout << y*0.1 << std::endl;
+  std::cout << (Vec(1) - y*0.1) << std::endl;
   std::cout <<  mathSSE::sqrt(x) << std::endl;
 
 
@@ -217,8 +211,7 @@ int main() {
   testBa();
   go<float>();
   go<double>();
-  go2d<float>();
-  go2d<double>();
+  go2d();
 
   return 0;
 }

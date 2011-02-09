@@ -30,11 +30,9 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 namespace egammaisolation {
 
@@ -50,12 +48,11 @@ namespace egammaisolation {
 
       private:
          void collect(reco::IsoDeposit &deposit, 
-                      const reco::SuperClusterRef& sc, const CaloSubdetectorGeometry* subdet,
-                      const CaloGeometry* caloGeom,
-                      const EcalRecHitCollection &hits,
-                      const EcalChannelStatus* chStatus,
-                      const EcalSeverityLevelAlgo* sevLevel,
-                      bool barrel) const;
+                  const reco::SuperClusterRef& sc, const CaloSubdetectorGeometry* subdet,
+                  const CaloGeometry* caloGeom,
+                  const EcalRecHitCollection &hits,
+                  const EcalChannelStatus* chStatus,
+                  bool barrel) const;
 
          double etMin_ ;
          double energyMin_ ;
@@ -70,10 +67,10 @@ namespace egammaisolation {
          bool  vetoClustered_;
          bool  sameTag_;
          int   severityLevelCut_;
-         //float severityRecHitThreshold_;
-         //std::string spIdString_;
-         //float spIdThreshold_;
-         //EcalSeverityLevelAlgo::SpikeId spId_;
+         float severityRecHitThreshold_;
+         std::string spIdString_;
+         float spIdThreshold_;
+         EcalSeverityLevelAlgo::SpikeId spId_;
          std::vector<int> v_chstatus_;
 
 

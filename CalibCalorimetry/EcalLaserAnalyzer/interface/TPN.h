@@ -31,7 +31,7 @@ class TPN
   void  setPNoPN0Cut(double, double);
   void  setPNoPN1Cut(double, double);
 
-  void  addEntry( double, double);
+  void  addEntry(double, double, double);
 
   std::vector<double> get(int);
   std::vector<double> getPN();

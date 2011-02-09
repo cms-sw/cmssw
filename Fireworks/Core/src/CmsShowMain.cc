@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.183 2010/11/01 19:04:33 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.184 2010/11/04 10:48:44 matevz Exp $
 //
 
 // system include files
@@ -34,7 +34,6 @@
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 
 #include "Fireworks/Core/interface/FWTableViewManager.h"
-#include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"

@@ -9,45 +9,51 @@ using std::endl;
 using std::vector;
 using std::auto_ptr;
 
+
+//
+// constants, enums and typedefs
+//
+
+//
+// static data member definitions
+//
+
 //
 // constructors and destructor
 //
 DTConfigTrivialProducer::DTConfigTrivialProducer(const edm::ParameterSet& ps)
 {
-
+ 
+  //the following line is needed to tell the framework what
+  // data is being produced
   setWhatProduced(this);
+
+  //now do what ever other initialization is needed
   
   //get and store parameter set 
   m_ps = ps;
   m_manager = new DTConfigManager();
-  m_tpgParams = new DTTPGParameters();
 
   // set debug
   edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");  
-  m_debug = conf_ps.getUntrackedParameter<bool>("Debug");
-
-  if (m_debug) 
-    cout << "DTConfigTrivialProducer::DTConfigTrivialProducer()" << endl;
-
-  m_manager->setDTTPGDebug(m_debug);
+  bool dttpgdebug = conf_ps.getUntrackedParameter<bool>("Debug");
+  m_manager->setDTTPGDebug(dttpgdebug);
 
   // DB specific requests
-  bool tracoLutsFromDB = m_ps.getParameter<bool>("TracoLutsFromDB");
-  bool useBtiAcceptParam = m_ps.getParameter<bool>("UseBtiAcceptParam");
+  bool tracoLutsFromDB = m_ps.getParameter< bool        >("TracoLutsFromDB");
+  bool useBtiAcceptParam = m_ps.getParameter< bool        >("UseBtiAcceptParam");
 
   // set specific DB requests
   m_manager->setLutFromDB(tracoLutsFromDB);
-  m_manager->setUseAcceptParam(useBtiAcceptParam);  // CB Are these needed here???
-
+  m_manager->setUseAcceptParam(useBtiAcceptParam);
 }
 
 
 DTConfigTrivialProducer::~DTConfigTrivialProducer()
 {
-
-  if (m_debug) 
-    cout << "DTConfigTrivialProducer::~DTConfigTrivialProducer()" << endl;
  
+   // do anything here that needs to be done at destruction time
+   // (e.g. close files, deallocate resources etc.)
 
 }
 
@@ -55,33 +61,25 @@ DTConfigTrivialProducer::~DTConfigTrivialProducer()
 //
 // member functions
 //
-
+// ------------ method called to produce the data  ------------
 std::auto_ptr<DTConfigManager> DTConfigTrivialProducer::produce (const DTConfigManagerRcd& iRecord)
 {
-
-  if (m_debug) 
-    cout << "DTConfigTrivialProducer::produce()" << endl;
-
    using namespace edm::es;
-   buildManager();
 
-   //m_manager->getDTConfigPedestals()->print();
+   buildManager();
 
    std::auto_ptr<DTConfigManager> dtConfig = std::auto_ptr<DTConfigManager>( m_manager );
 
    return dtConfig ;
-
 }
 
 void DTConfigTrivialProducer::buildManager()
 {
 
-  if (m_debug) 
-    cout << "DTConfigTrivialProducer::buildManager()" << endl;
-
   //create config classes&C.
   edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");
   edm::ParameterSet conf_map = m_ps.getUntrackedParameter<edm::ParameterSet>("DTTPGMap");
+  bool dttpgdebug = conf_ps.getUntrackedParameter<bool>("Debug");
   DTConfigSectColl sectcollconf(conf_ps.getParameter<edm::ParameterSet>("SectCollParameters"));
   edm::ParameterSet tups = conf_ps.getParameter<edm::ParameterSet>("TUParameters");
   DTConfigBti bticonf(tups.getParameter<edm::ParameterSet>("BtiParameters"));
@@ -96,8 +94,10 @@ void DTConfigTrivialProducer::buildManager()
       for (int ise=1;ise<=12;++ise){
 	DTChamberId chambid(iwh,ist,ise);
 	vector<int> nmap = conf_map.getUntrackedParameter<vector<int> >(mapEntryName(chambid).c_str());
-
-	if(m_debug)
+//      std::cout << "  untracked vint32 wh" << chambid.wheel()
+// 		  << "st" << chambid.station()
+// 		  << "se" << chambid.sector() << " = { ";
+	if(dttpgdebug)
 	  {
 	    std::cout << " Filling configuration for chamber : wh " << chambid.wheel() << 
 	      ", st " << chambid.station() << 
@@ -111,7 +111,7 @@ void DTConfigTrivialProducer::buildManager()
 	  for (int ibti=0;ibti<ncell;ibti++)
 	    {
 	      m_manager->setDTConfigBti(DTBtiId(chambid,isl,ibti+1),bticonf);
-	      if(m_debug)
+	      if(dttpgdebug)
 		std::cout << "Filling BTI config for chamber : wh " << chambid.wheel() << 
 		  ", st " << chambid.station() << 
 		  ", se " << chambid.sector() << 
@@ -126,7 +126,7 @@ void DTConfigTrivialProducer::buildManager()
 	for (int itraco=0;itraco<ntraco;itraco++)
 	  { 
 	    m_manager->setDTConfigTraco(DTTracoId(chambid,itraco+1),tracoconf);
-	    if(m_debug)
+	    if(dttpgdebug)
 	      std::cout << "Filling TRACO config for chamber : wh " << chambid.wheel() << 
 		", st " << chambid.station() << 
 		", se " << chambid.sector() << 
@@ -150,8 +150,10 @@ void DTConfigTrivialProducer::buildManager()
       int ist =4;
       DTChamberId chambid(iwh,ist,ise);
       vector<int> nmap = conf_map.getUntrackedParameter<vector<int> >(mapEntryName(chambid).c_str());
-
-      if(m_debug)
+//       std::cout << "  untracked vint32 wh" << chambid.wheel()
+// 		<< "st" << chambid.station()
+// 		<< "se" << chambid.sector() << " = { ";
+      if(dttpgdebug)
 	{
 	  std::cout << " Filling configuration for chamber : wh " << chambid.wheel() << 
 	    ", st " << chambid.station() << 
@@ -165,7 +167,7 @@ void DTConfigTrivialProducer::buildManager()
 	for (int ibti=0;ibti<ncell;ibti++)
 	  {
 	    m_manager->setDTConfigBti(DTBtiId(chambid,isl,ibti+1),bticonf);
-	    if(m_debug)
+	    if(dttpgdebug)
 	      std::cout << "Filling BTI config for chamber : wh " << chambid.wheel() << 
 		", st " << chambid.station() << 
 		", se " << chambid.sector() << 
@@ -180,7 +182,7 @@ void DTConfigTrivialProducer::buildManager()
       for (int itraco=0;itraco<ntraco;itraco++)
 	{ 
 	  m_manager->setDTConfigTraco(DTTracoId(chambid,itraco+1),tracoconf);
-	  if(m_debug)
+	  if(dttpgdebug)
 	    std::cout << "Filling TRACO config for chamber : wh " << chambid.wheel() << 
 	      ", st " << chambid.station() << 
 	      ", se " << chambid.sector() << 
@@ -202,38 +204,6 @@ void DTConfigTrivialProducer::buildManager()
   for (int wh=-2;wh<=2;wh++)
     for (int se=1;se<=12;se++)
       m_manager->setDTConfigSectColl(DTSectCollId(wh,se),sectcollconf);
-
-  //fake collection of pedestals
-  m_manager->setDTConfigPedestals(buildPedestals());
-
-}
-
-DTConfigPedestals DTConfigTrivialProducer::buildPedestals()
-{
-
-  int counts = m_ps.getParameter<int>("bxOffset");
-  float fine = m_ps.getParameter<double>("finePhase");
-   
-  if (m_debug) 
-    cout << "DTConfigTrivialProducer::buildPedestals()" << endl;
-
-  //DTTPGParameters tpgParams;
-  for (int iwh=-2;iwh<=2;++iwh){
-    for (int ist=1;ist<=4;++ist){
-      for (int ise=1;ise<=14;++ise){
-	if (ise>12 && ist!=4) continue;
-
-	DTChamberId chId(iwh,ist,ise);
-	m_tpgParams->set(chId,counts,fine,DTTimeUnits::ns);
-      }
-    }
-  }
-
-  DTConfigPedestals tpgPedestals;
-  tpgPedestals.setUseT0(false);
-  tpgPedestals.setES(m_tpgParams);
- 
-  return tpgPedestals;
 
 }
 

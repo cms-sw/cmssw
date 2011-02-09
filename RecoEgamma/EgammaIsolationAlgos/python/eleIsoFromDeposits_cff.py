@@ -4,7 +4,7 @@ from RecoEgamma.EgammaIsolationAlgos.eleIsoFromDepsModules_cff import *
 
 eleIsoFromDeposits = cms.Sequence( 
     eleIsoFromDepsTk * 
-    eleIsoFromDepsEcalFromHits * 
+    eleIsoFromDepsEcalFromHitsByCrystal * 
     eleIsoFromDepsHcalFromTowers *
     eleIsoFromDepsHcalDepth1FromTowers *
     eleIsoFromDepsHcalDepth2FromTowers

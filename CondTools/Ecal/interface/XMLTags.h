@@ -81,15 +81,6 @@ namespace xuti{
   const std::string Laser_t2_tag("t2");
   const std::string Laser_t3_tag("t3");
 
-  const  std::string AlignmentConstant_tag("EcalAlignmentConstant");
-  const  std::string subdet_tag("SubDet");
-  const  std::string x_tag("x");
-  const  std::string y_tag("y");
-  const  std::string z_tag("z");
-  const  std::string Phi_tag("Phi");
-  const  std::string Theta_tag("Theta");
-  const  std::string Psi_tag("Psi");
-
 }
 
 #endif

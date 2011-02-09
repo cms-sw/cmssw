@@ -15,7 +15,7 @@ class PFRecoTauDiscriminationByInvMass: public PFTauDiscriminationProducerBase {
     explicit PFRecoTauDiscriminationByInvMass(const edm::ParameterSet& pset)
         :PFTauDiscriminationProducerBase(pset) {
       // If select is not set, just return the invariant mass
-      cut_ = pset.exists("select");
+      cut_ = !pset.exists("select");
       if (cut_) {
         const edm::ParameterSet &select = pset.getParameter<edm::ParameterSet>
             ("select");

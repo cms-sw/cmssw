@@ -7,9 +7,6 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
-<use   name="MagneticField/Records"/>
-<use   name="MagneticField/Engine"/>
-<use   name="RecoEgamma/EgammaTools"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="root"/>
 <use   name="rootmath"/>

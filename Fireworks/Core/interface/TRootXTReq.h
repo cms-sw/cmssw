@@ -1,8 +1,4 @@
-// $Id: TRootXTReq.h,v 1.1 2010/07/01 13:33:16 matevz Exp $
-
-// Copyright (C) 1999-2008, Matevz Tadel. All rights reserved.
-// This file is part of GLED, released under GNU General Public License version 2.
-// For the licensing terms see $GLEDSYS/LICENSE or http://www.gnu.org/.
+// $Id: TRootXTReq.h,v 1.2 2010/07/01 18:49:58 chrjones Exp $
 
 #ifndef Fireworks_Core_TRootXTReq_h
 #define Fireworks_Core_TRootXTReq_h

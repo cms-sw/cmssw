@@ -24,7 +24,7 @@
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWTableView.h"
 #include "Fireworks/Core/interface/FWTriggerTableView.h"
-#include "Fireworks/Core/interface/FWL1TriggerTableView.h"
+//#include "Fireworks/Core/interface/FWL1TriggerTableView.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
 #include "Fireworks/Core/interface/FWTEventList.h"

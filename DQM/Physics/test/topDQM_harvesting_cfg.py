@@ -8,9 +8,8 @@ process.load('Configuration.StandardSequences.EDMtoMEAtRunEnd_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 ## global tag
-##process.GlobalTag.globaltag = 'START38_V12::All'
-##process.GlobalTag.globaltag = 'GR_R_38X_V13::All' 
-process.GlobalTag.globaltag   = 'GR10_P_V10::All'
+process.GlobalTag.globaltag = 'GR10_P_V7::All' ## for data with CMSSW_3_6_1_patch4
+#process.GlobalTag.globaltag = 'START38_V7::All' ## for CMSSW_3_8_0
 
 ## input file (adapt input file name correspondingly)
 process.source = cms.Source("PoolSource",
@@ -36,7 +35,7 @@ process.EDMtoMEConverter.convertOnEndRun  = True
 process.dqmSaver.saveByRun      = cms.untracked.int32( -1)
 process.dqmSaver.saveAtJobEnd   = cms.untracked.bool(True)
 process.dqmSaver.forceRunNumber = cms.untracked.int32(  1)
-process.dqmSaver.workflow       = cms.untracked.string('/TopVal/CMSSW_3_8_4/RECO') ## adapt apropriately
+process.dqmSaver.workflow       = cms.untracked.string('/TopVal/CMSSW_3_6_1/RECO') ## adapt apropriately
 
 
 ## path definitions

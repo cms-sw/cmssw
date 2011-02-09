@@ -68,8 +68,6 @@ class LMFSeqDat : public LMFUnique {
   LMFSeqDat fetchByRunNumber(int runno, int seq_num) {
     return fetchByRunNumber(runno)[seq_num];
   }
-  LMFSeqDat fetchByRunNumber(int runno, Tm taken_at);
-  LMFSeqDat fetchByRunNumber(int runno, std::string taken_at);
 
  private:
   RunIOV m_runIOV;
@@ -86,10 +84,6 @@ class LMFSeqDat : public LMFUnique {
   void getParameters(ResultSet *rset);
 
   void fetchParentIDs() throw(std::runtime_error);
-  std::map<int, LMFSeqDat> fetchByRunIOV(std::vector<std::string> par, 
-					 std::string sql,
-					 std::string method) 
-    throw(std::runtime_error);
   std::map<int, LMFSeqDat> fetchByRunIOV(int par, std::string sql,
 					 std::string method) 
     throw(std::runtime_error);

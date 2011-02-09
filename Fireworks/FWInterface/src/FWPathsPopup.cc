@@ -518,11 +518,6 @@ public:
            renderer = &m_pathPassedRenderer;
          else 
            renderer = &m_pathFailedRenderer;
-         if( 0 == iCol ) {
-           renderer->setIsParent(true);
-         } else {
-           renderer->setIsParent(false);
-         }
       }
       else if (data.level == 1)
       {
@@ -537,11 +532,6 @@ public:
            renderer = &m_modulePassedRenderer;
          else
            renderer = &m_moduleFailedRenderer;
-         if( 0 == iCol ) {
-           renderer->setIsParent(true);
-         } else {
-           renderer->setIsParent(false);
-         }
       }
       else
       {
@@ -556,6 +546,22 @@ public:
          else
             renderer = &m_editingDisabledRenderer;
       }
+
+      // set isParent state for expand icon
+      bool isParent = false;
+      if (iCol == 0)
+      { 
+         if (m_filter.empty())
+         {
+            size_t nextIdx =  unsortedRow + 1;
+            isParent = (nextIdx < m_entries.size() &&  m_entries[nextIdx].parent == (size_t)unsortedRow);
+         }
+         else 
+         {
+            isParent = data.childMatches;
+         }
+      } 
+      renderer->setIsParent(isParent);
 
       renderer->setIndentation(0);
       if(data.expanded) {

@@ -38,10 +38,6 @@ void FEConfigMainInfo::clear() {
   m_wei_id=0;
   m_bxt_id=0;
   m_btt_id=0;
-  m_tim_id=0;
-  m_spi_id=0;
-  m_bst_id=0;
-
   m_db_time=Tm();
 
 
@@ -129,8 +125,8 @@ void FEConfigMainInfo::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO fe_config_main (conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, spi_conf_id, tim_conf_id, bxt_conf_id, btt_conf_id, bst_conf_id, tag, version, description) "
-			" VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9, :10, :11, :12, :13, :14, :15 )");
+    m_writeStmt->setSQL("INSERT INTO fe_config_main (conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, bxt_conf_id, btt_conf_id, tag, version, description) "
+			" VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9, :10, :11, :12 )");
 
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
@@ -160,14 +156,11 @@ void FEConfigMainInfo::writeDB()
     m_writeStmt->setInt(5, this->getFgrId());
     m_writeStmt->setInt(6, this->getSliId());
     m_writeStmt->setInt(7, this->getWeiId());
-    m_writeStmt->setInt(8, this->getSpiId());
-    m_writeStmt->setInt(9, this->getTimId());
-    m_writeStmt->setInt(10, this->getBxtId());
-    m_writeStmt->setInt(11, this->getBttId());
-    m_writeStmt->setInt(12, this->getBstId());
-    m_writeStmt->setString(13, this->getConfigTag());
-    m_writeStmt->setInt(14, this->getVersion());
-    m_writeStmt->setString(15, this->getDescription());
+    m_writeStmt->setInt(8, this->getBxtId());
+    m_writeStmt->setInt(9, this->getBttId());
+    m_writeStmt->setString(10, this->getConfigTag());
+    m_writeStmt->setInt(11, this->getVersion());
+    m_writeStmt->setString(12, this->getDescription());
     m_writeStmt->executeUpdate();
 
 
@@ -227,7 +220,8 @@ void FEConfigMainInfo::setByID(int id)
    try {
      Statement* stmt = m_conn->createStatement();
 
-     stmt->setSQL("SELECT * FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
+     stmt->setSQL("SELECT conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id,\
+ bxt_conf_id, btt_conf_id, tag, version, description, db_timestamp FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
      stmt->setInt(1, id);
      
      ResultSet* rset = stmt->executeQuery();
@@ -239,15 +233,12 @@ void FEConfigMainInfo::setByID(int id)
        setFgrId(       rset->getInt(5) );
        setSliId(       rset->getInt(6) );
        setWeiId(       rset->getInt(7) );
-       setSpiId(       rset->getInt(8) );
-       setTimId(       rset->getInt(9) );
-       setBxtId(       rset->getInt(10) );
-       setBttId(       rset->getInt(11) );
-       setBstId(       rset->getInt(12) );
-       setConfigTag(   rset->getString(13) );
-       setVersion(     rset->getInt(14) );
-       setDescription(      rset->getString(15) );
-       Date dbdate = rset->getDate(16);
+       setBxtId(       rset->getInt(8) );
+       setBttId(       rset->getInt(9) );
+       setConfigTag(   rset->getString(10) );
+       setVersion(     rset->getInt(11) );
+       setDescription(      rset->getString(12) );
+       Date dbdate = rset->getDate(13);
        setDBTime( dh.dateToTm( dbdate ));
        m_ID = id;
      } else {
@@ -278,7 +269,7 @@ void FEConfigMainInfo::fetchData(FEConfigMainInfo * result)
   }
 
   try {
-    m_readStmt->setSQL("SELECT * FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
+    m_readStmt->setSQL("SELECT conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, bxt_conf_id, btt_conf_id, tag, version, description, db_timestamp FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
 
     std::cout << " ### 2 getId from FEConfigMainInfo = " << result->getId() << std::endl;
      
@@ -289,23 +280,20 @@ void FEConfigMainInfo::fetchData(FEConfigMainInfo * result)
     rset->next();
 
     result->setId(          rset->getInt(1) );
-    
-    setPedId(       rset->getInt(2) );
-    setLinId(       rset->getInt(3) );
-    setLUTId(       rset->getInt(4) );
-    setFgrId(       rset->getInt(5) );
-    setSliId(       rset->getInt(6) );
-    setWeiId(       rset->getInt(7) );
-    setSpiId(       rset->getInt(8) );
-    setTimId(       rset->getInt(9) );
-    setBxtId(       rset->getInt(10) );
-    setBttId(       rset->getInt(11) );
-    setBstId(       rset->getInt(12) );
-    
-    result->setConfigTag(         rset->getString(13) );
-    result->setVersion(     rset->getInt(14) );
-    result->setDescription(      rset->getString(15) );
-    Date dbdate = rset->getDate(16);
+    std::cout << " Id = " << rset->getInt(1) << std::endl;
+    result->setPedId(       rset->getInt(2) );
+    std::cout << " PedId = " << rset->getInt(2) << std::endl;
+    result->setLinId(       rset->getInt(3) );
+    result->setLUTId(       rset->getInt(4) );
+    result->setFgrId(       rset->getInt(5) );
+    result->setSliId(       rset->getInt(6) );
+    result->setWeiId(       rset->getInt(7) );
+    result->setBxtId(       rset->getInt(8) );
+    result->setBttId(       rset->getInt(9) );
+    result->setConfigTag(         rset->getString(10) );
+    result->setVersion(     rset->getInt(11) );
+    result->setDescription(      rset->getString(12) );
+    Date dbdate = rset->getDate(13);
     result->setDBTime( dh.dateToTm( dbdate ));
  
   } catch (SQLException &e) {

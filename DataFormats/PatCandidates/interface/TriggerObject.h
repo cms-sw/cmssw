@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObject
 //
-// $Id: TriggerObject.h,v 1.12 2010/12/19 21:06:43 vadler Exp $
+// $Id: TriggerObject.h,v 1.9 2010/12/11 21:25:44 vadler Exp $
 //
 /**
   \class    pat::TriggerObject TriggerObject.h "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObject
 
   \author   Volker Adler
-  \version  $Id: TriggerObject.h,v 1.12 2010/12/19 21:06:43 vadler Exp $
+  \version  $Id: TriggerObject.h,v 1.9 2010/12/11 21:25:44 vadler Exp $
 */
 
 
@@ -27,7 +27,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
@@ -55,7 +54,7 @@ namespace pat {
       /// Vector of special identifiers for the trigger object type as defined in
       /// trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h),
       /// possibly empty
-      std::vector< trigger::TriggerObjectType > triggerObjectTypes_;
+      std::vector< trigger::TriggerObjectType > filterIds_;
       /// Reference to trigger object,
       /// meant for 'l1extra' particles to access their additional functionalities,
       /// empty otherwise
@@ -69,12 +68,11 @@ namespace pat {
       TriggerObject();
       /// Constructor from trigger::TriggerObject
       TriggerObject( const trigger::TriggerObject & trigObj );
-      /// Constructors from base class object
-      TriggerObject( const reco::LeafCandidate    & leafCand );
-      /// Constructors from base candidate reference (for 'l1extra' particles)
+      /// Constructors from reco::Candidate
+      TriggerObject( const reco::LeafCandidate & leafCand );
       TriggerObject( const reco::CandidateBaseRef & candRef );
       /// Constructors from Lorentz-vectors and (optional) PDG ID
-      TriggerObject( const reco::Particle::LorentzVector      & vec, int id = 0 );
+      TriggerObject( const reco::Particle::LorentzVector & vec, int id = 0 );
       TriggerObject( const reco::Particle::PolarLorentzVector & vec, int id = 0 );
 
       /// Destructor
@@ -83,28 +81,21 @@ namespace pat {
       /// Methods
 
       /// Set the label of the collection the trigger object originates from
-      void setCollection( const std::string & collName )   { collection_ = collName; };
-      void setCollection( const edm::InputTag & collName ) { collection_ = collName.encode(); };
+      void setCollection( const std::string & coll )   { collection_ = coll; };
+      void setCollection( const edm::InputTag & coll ) { collection_ = coll.encode(); };
       /// Add a new trigger object type identifier
-      void addTriggerObjectType( trigger::TriggerObjectType triggerObjectType ) { if ( ! hasTriggerObjectType( triggerObjectType ) ) triggerObjectTypes_.push_back( triggerObjectType ); };
-      void addTriggerObjectType( int                        triggerObjectType ) { addTriggerObjectType( trigger::TriggerObjectType( triggerObjectType ) ); };
-      void addFilterId( trigger::TriggerObjectType triggerObjectType ) { addTriggerObjectType( triggerObjectType ); };                               // for backward compatibility
-      void addFilterId( int                        triggerObjectType ) { addTriggerObjectType( trigger::TriggerObjectType( triggerObjectType ) ); }; // for backward compatibility
+      void addFilterId( trigger::TriggerObjectType filterId ) { filterIds_.push_back( filterId ); };
+      void addFilterId( int filterId )                        { addFilterId( trigger::TriggerObjectType( filterId ) ); };
       /// Get the label of the collection the trigger object originates from
       std::string collection() const { return collection_; };
       /// Get all trigger object type identifiers
-//       std::vector< trigger::TriggerObjectType > triggerObjectTypes() const { return triggerObjectTypes_; };
-//       std::vector< trigger::TriggerObjectType > filterIds()          const { return triggerObjectTypes(); }; // for backward compatibility
-      std::vector< int > triggerObjectTypes() const;                                  // for backward compatibility
-      std::vector< int > filterIds()          const { return triggerObjectTypes(); }; // for double backward compatibility
+      std::vector< trigger::TriggerObjectType > filterIds() const { return filterIds_; };
       /// Checks, if a certain label of original collection is assigned
-      virtual bool hasCollection( const std::string   & collName ) const;
-      virtual bool hasCollection( const edm::InputTag & collName ) const { return hasCollection( collName.encode() ); };
+      bool hasCollection( const std::string & coll ) const;
+      bool hasCollection( const edm::InputTag & coll ) const { return hasCollection( coll.encode() ); };
       /// Checks, if a certain trigger object type identifier is assigned
-      bool hasTriggerObjectType( trigger::TriggerObjectType triggerObjectType ) const;
-      bool hasTriggerObjectType( int                        triggerObjectType ) const { return hasTriggerObjectType( trigger::TriggerObjectType( triggerObjectType ) ); };
-      bool hasFilterId( trigger::TriggerObjectType triggerObjectType ) const { return hasTriggerObjectType( triggerObjectType ); };                               // for backward compatibility
-      bool hasFilterId( int                        triggerObjectType ) const { return hasTriggerObjectType( trigger::TriggerObjectType( triggerObjectType ) ); }; // for backward compatibility
+      bool hasFilterId( trigger::TriggerObjectType filterId ) const;
+      bool hasFilterId( int filterId ) const { return hasFilterId( trigger::TriggerObjectType( filterId ) ); };
 
       /// Special methods for 'l1extra' particles
 
@@ -117,10 +108,10 @@ namespace pat {
       const L1GctEmCand * origL1GctEmCand() const { return origL1EmRef().isNonnull() ? origL1EmRef()->gctEmCand() : 0; };
       /// - EtMiss
       const l1extra::L1EtMissParticleRef origL1EtMissRef() const;
-      const L1GctEtMiss  * origL1GctEtMiss()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtMiss()  : 0; };
+      const L1GctEtMiss  * origL1GctEtMiss()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtMiss() : 0; };
       const L1GctEtTotal * origL1GctEtTotal() const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtTotal() : 0; };
-      const L1GctHtMiss  * origL1GctHtMiss()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctHtMiss()  : 0; };
-      const L1GctEtHad   * origL1GctEtHad()   const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtHad()   : 0; };
+      const L1GctHtMiss  * origL1GctHtMiss()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctHtMiss() : 0; };
+      const L1GctEtHad   * origL1GctEtHad()   const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtHad() : 0; };
       /// - Jet
       const l1extra::L1JetParticleRef origL1JetRef() const;
       const L1GctJetCand * origL1GctJetCand() const { return origL1JetRef().isNonnull() ? origL1JetRef()->gctJetCand() : 0; };
@@ -133,33 +124,31 @@ namespace pat {
       /// - short names for readable configuration files
 
       /// Calls 'hasCollection(...)'
-      virtual bool coll( const std::string & collName ) const { return hasCollection( collName ); };
-      /// Calls 'hasTriggerObjectType(...)'
-      bool type( trigger::TriggerObjectType triggerObjectType ) const { return hasTriggerObjectType( triggerObjectType ); };
-      bool type( int                        triggerObjectType ) const { return hasTriggerObjectType( trigger::TriggerObjectType ( triggerObjectType ) ); };
-      bool id( trigger::TriggerObjectType triggerObjectType ) const { return hasTriggerObjectType( triggerObjectType ); };                                // for backward compatibility
-      bool id( int                        triggerObjectType ) const { return hasTriggerObjectType( trigger::TriggerObjectType ( triggerObjectType ) ); }; // for backward compatibility
+      bool coll( const std::string & coll ) const { return hasCollection( coll );};
+      /// Call 'hasFilterId(...)'
+      bool id( trigger::TriggerObjectType filterId ) const { return hasFilterId( filterId ); };
+      bool id( int filterId ) const                        { return hasFilterId( trigger::TriggerObjectType ( filterId ) ); };
 
   };
 
 
-  /// Collection of TriggerObject
+  /// collection of TriggerObject
   typedef std::vector< TriggerObject >                       TriggerObjectCollection;
-  /// Persistent reference to an item in a TriggerObjectCollection
+  /// persistent reference to an item in a TriggerObjectCollection
   typedef edm::Ref< TriggerObjectCollection >                TriggerObjectRef;
-  /// Container to store match references from different producers (for one PAT object)
+  /// container to store match references from different producers (for one PAT object)
   typedef std::map< std::string, TriggerObjectRef >          TriggerObjectMatchMap;
-  /// Persistent reference to a TriggerObjectCollection product
+  /// persistent reference to a TriggerObjectCollection product
   typedef edm::RefProd< TriggerObjectCollection >            TriggerObjectRefProd;
-  /// Vector of persistent references to items in the same TriggerObjectCollection
+  /// vector of persistent references to items in the same TriggerObjectCollection
   typedef edm::RefVector< TriggerObjectCollection >          TriggerObjectRefVector;
-  /// Const iterator over vector of persistent references to items in the same TriggerObjectCollection
+  /// const iterator over vector of persistent references to items in the same TriggerObjectCollection
   typedef edm::RefVectorIterator< TriggerObjectCollection >  TriggerObjectRefVectorIterator;
-  /// Association of TriggerObjects to store matches to Candidates
+  /// association of TriggerObjects to store matches to Candidates
   typedef edm::Association< TriggerObjectCollection >        TriggerObjectMatch;
-  /// Persistent reference to a TriggerObjectMatch product
+  /// persistent reference to a TriggerObjectMatch product
   typedef edm::RefProd< TriggerObjectMatch >                 TriggerObjectMatchRefProd;
-  /// Container to store references to matches from different producers in the trigger event
+  /// container to store references to matches from different producers in the trigger event
   typedef std::map< std::string, TriggerObjectMatchRefProd > TriggerObjectMatchContainer;
 
 }

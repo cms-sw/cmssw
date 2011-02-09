@@ -18,14 +18,14 @@ class SortPFCandsDescendingPt {
     }
 };
 
-std::vector<PFCandidatePtr>
-flattenPiZeros( const std::vector<RecoTauPiZero>& piZeros) {
+std::vector<PFCandidatePtr> flattenPiZeros(const std::vector<RecoTauPiZero>& piZeros) {
   std::vector<PFCandidatePtr> output;
 
   for(std::vector<RecoTauPiZero>::const_iterator piZero = piZeros.begin();
-      piZero != piZeros.end(); ++piZero) {
-    for(size_t iDaughter = 0; iDaughter < piZero->numberOfDaughters();
-        ++iDaughter) {
+      piZero != piZeros.end(); ++piZero)
+  {
+    for(size_t iDaughter = 0; iDaughter < piZero->numberOfDaughters(); ++iDaughter)
+    {
       output.push_back(PFCandidatePtr(piZero->daughterPtr(iDaughter)));
     }
   }

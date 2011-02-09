@@ -10,8 +10,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet& iConfig) {
 
@@ -197,12 +195,8 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
 				       a_neutIsoR, trkDetItr->directionECAL, nRH_eDR);
 
       HcalDetId closestCell = (HcalDetId)(trkDetItr->detIdHCAL);
-
-      edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-      iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-
-      e11x11_20SigP = spr::eECALmatrix(trkDetItr->detIdECAL,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),5,5,   0.060,  0.300, tMinE_,tMaxE_);
-      e15x15_20SigP = spr::eECALmatrix(trkDetItr->detIdECAL,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),7,7,   0.060,  0.300, tMinE_,tMaxE_);
+      e11x11_20SigP = spr::eECALmatrix(trkDetItr->detIdECAL,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.060,  0.300, tMinE_,tMaxE_);
+      e15x15_20SigP = spr::eECALmatrix(trkDetItr->detIdECAL,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.060,  0.300, tMinE_,tMaxE_);
       
       // Fill the tree Branches here 
       t_trackP                ->push_back( pTrack->p() );

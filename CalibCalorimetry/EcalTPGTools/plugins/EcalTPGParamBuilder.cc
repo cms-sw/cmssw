@@ -506,7 +506,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     float val[] = {float(dccNb+600),float(tccNb),float(towerInTCC),float(stripInTower),
 		   float(xtalInStrip),float(CCUid),float(VFEid),float(xtalInVFE),
 		   float(xtalWithinCCUid),float(id.ieta()),float(id.iphi()),
-		   -999.,-999.,float(towid.ieta())/float(std::abs(towid.ieta())),
+		   -999.,-999.,float(towid.ieta())/float(abs(towid.ieta())),
 		   float(id.hashedIndex()),
 		   float(id.ic()),float(towid.ieta()),float(towid.iphi()), 
 		   float(TCCch), float(getCrate(tccNb).second), 
@@ -568,7 +568,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     // hashed index of strip EcalLogicID:
     int hashedStripLogicID = 68*5*(id.ism()-1) + 5*(towerInTCC-1) +  (VFEid-1) ;
     stripMapEB[hashedStripLogicID] = elId.rawId() & 0xfffffff8 ;
-    stripMapEBsintheta[elId.rawId() & 0xfffffff8] = SFGVB_Threshold_ + std::abs(int(sin(theta)*pedestal_offset_)) ;
+    stripMapEBsintheta[elId.rawId() & 0xfffffff8] = SFGVB_Threshold_ + abs(int(sin(theta)*pedestal_offset_)) ;
 
     FEConfigPedDat pedDB ;
     FEConfigLinDat linDB ;
@@ -605,7 +605,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	    if (i==2)  {pedDB.setPedMeanG1(itLin->second.pedestal_[i]) ; linDB.setMultX1(itLin->second.mult_[i]) ; linDB.setShift1(itLin->second.shift_[i]) ; } 
 	  }
 	}
-	float factor = float(itLin->second.mult_[0])*std::pow(2.,-itLin->second.shift_[0])/xtal_LSB_EB_ ;
+	float factor = float(itLin->second.mult_[0])*pow(2.,-itLin->second.shift_[0])/xtal_LSB_EB_ ;
 	tpgFactorEB->Fill(id.iphi(), id.ieta(), factor) ;
 	tpgFactor->Fill(theBarrelGeometry_->getGeometry(id)->getPosition().phi(), 
 			theBarrelGeometry_->getGeometry(id)->getPosition().eta(), factor) ;
@@ -631,7 +631,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  //PP end
 	  double base = coeff.pedestals_[i] ;
 	  if (forcedPedestalValue_ == -3 && i==0) {
-	    double G = mult*std::pow(2.,-(shift+2)) ;
+	    double G = mult*pow(2.,-(shift+2)) ;
 	    double g = G/sin(theta) ;
 	    // int pedestal = coeff.pedestals_[i] ;
 	    base = double(coeff.pedestals_[i]) - pedestal_offset_/g ;
@@ -657,12 +657,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  if (i==2)  {pedDB.setPedMeanG1(lin.pedestal_[i]) ; linDB.setMultX1(lin.mult_[i]) ; linDB.setShift1(lin.shift_[i]) ; }
 	}
 	if (i==0) {
-	  float factor = float(lin.mult_[i])*std::pow(2.,-lin.shift_[i])/xtal_LSB_EB_ ;
+	  float factor = float(lin.mult_[i])*pow(2.,-lin.shift_[i])/xtal_LSB_EB_ ;
 	  tpgFactorEB->Fill(id.iphi(), id.ieta(), factor) ;
 	  tpgFactor->Fill(theBarrelGeometry_->getGeometry(id)->getPosition().phi(), 
 			  theBarrelGeometry_->getGeometry(id)->getPosition().eta(), factor) ;			    
 	}
-	double G = lin.mult_[i]*std::pow(2.,-(lin.shift_[i]+2)) ;
+	double G = lin.mult_[i]*pow(2.,-(lin.shift_[i]+2)) ;
 	double g = G/sin(theta) ;
 	float val[] = {float(i),float(theta),float(G),float(g),
 		       float(coeff.pedestals_[i]),float(lin.pedestal_[i])} ;// first arg = gainId (0 means gain12)
@@ -744,7 +744,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     float val[] = {float(dccNb+600),float(tccNb),float(towerInTCC),float(stripInTower),
 		   float(xtalInStrip),float(CCUid),float(VFEid),float(xtalInVFE),
 		   float(xtalWithinCCUid),-999.,-999.,
-		   float(id.ix()),float(id.iy()),float(towid.ieta())/float(std::abs(towid.ieta())),
+		   float(id.ix()),float(id.iy()),float(towid.ieta())/float(abs(towid.ieta())),
 		   float(id.hashedIndex()),
 		   float(id.ic()),float(towid.ieta()),float(towid.iphi()),float(TCCch), 
 		   float(getCrate(tccNb).second),
@@ -861,7 +861,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	    if (i==2)  {pedDB.setPedMeanG1(itLin->second.pedestal_[i]) ; linDB.setMultX1(itLin->second.mult_[i]) ; linDB.setShift1(itLin->second.shift_[i]) ; } 
 	  }
 	}
-	float factor = float(itLin->second.mult_[0])*std::pow(2.,-itLin->second.shift_[0])/xtal_LSB_EE_ ;
+	float factor = float(itLin->second.mult_[0])*pow(2.,-itLin->second.shift_[0])/xtal_LSB_EE_ ;
 	if (id.zside()>0) tpgFactorEEPlus->Fill(id.ix(), id.iy(), factor) ;
 	else tpgFactorEEMinus->Fill(id.ix(), id.iy(), factor) ;
 	tpgFactor->Fill(theEndcapGeometry_->getGeometry(id)->getPosition().phi(), 
@@ -895,7 +895,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  if (i==2)  {pedDB.setPedMeanG1(lin.pedestal_[i]) ; linDB.setMultX1(lin.mult_[i]) ; linDB.setShift1(lin.shift_[i]) ; }
 	}
 	if (i==0) {
-	  float factor = float(lin.mult_[i])*std::pow(2.,-lin.shift_[i])/xtal_LSB_EE_ ;
+	  float factor = float(lin.mult_[i])*pow(2.,-lin.shift_[i])/xtal_LSB_EE_ ;
 	  if (id.zside()>0) tpgFactorEEPlus->Fill(id.ix(), id.iy(), factor) ;
 	  else tpgFactorEEMinus->Fill(id.ix(), id.iy(), factor) ;	    
 	  tpgFactor->Fill(theEndcapGeometry_->getGeometry(id)->getPosition().phi(), 
@@ -1572,7 +1572,7 @@ void EcalTPGParamBuilder::create_header()
 int EcalTPGParamBuilder::uncodeWeight(double weight, int complement2)
 {
   int iweight ;
-  unsigned int max = (unsigned int)(std::pow(2.,complement2)-1) ;
+  unsigned int max = (unsigned int)(pow(2.,complement2)-1) ;
   if (weight>0) iweight=int((1<<6)*weight+0.5) ; // +0.5 for rounding pb
   else iweight= max - int(-weight*(1<<6)+0.5) +1 ;
   iweight = iweight & max ;
@@ -1581,9 +1581,9 @@ int EcalTPGParamBuilder::uncodeWeight(double weight, int complement2)
 
 double EcalTPGParamBuilder::uncodeWeight(int iweight, int complement2)
 {
-  double weight = double(iweight)/std::pow(2., 6.) ;
+  double weight = double(iweight)/pow(2., 6.) ;
   // test if negative weight:
-  if ( (iweight & (1<<(complement2-1))) != 0) weight = (double(iweight)-std::pow(2., complement2))/std::pow(2., 6.) ;
+  if ( (iweight & (1<<(complement2-1))) != 0) weight = (double(iweight)-pow(2., complement2))/pow(2., 6.) ;
   return weight ;
 }
 
@@ -1626,7 +1626,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   // Let's check:  
   int isumw  = 0 ;  
   for (unsigned int sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
-  unsigned int imax = (unsigned int)(std::pow(2.,int(complement2_))-1) ;
+  unsigned int imax = (unsigned int)(pow(2.,int(complement2_))-1) ;
   isumw = (isumw & imax ) ;
 
   double ampl = 0. ;
@@ -1676,7 +1676,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
       } 
       isumw  = 0 ;  
       for (unsigned int sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ; 
-      imax = (unsigned int)(std::pow(2.,int(complement2_))-1) ;
+      imax = (unsigned int)(pow(2.,int(complement2_))-1) ;
       isumw = (isumw & imax ) ;
       std::cout<<"Correcting weight number: "<<index<<" sum weights = "<<isumw<<std::endl ;
       count ++ ;
@@ -1686,7 +1686,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   // let's check again
   isumw  = 0 ;  
   for (unsigned int sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
-  imax = (unsigned int)(std::pow(2.,int(complement2_))-1) ;
+  imax = (unsigned int)(pow(2.,int(complement2_))-1) ;
   isumw = (isumw & imax ) ;
   ampl = 0. ;
   for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
@@ -1877,7 +1877,7 @@ bool EcalTPGParamBuilder::realignBaseline(linStruc & lin, float forceBase12)
   float base[3] = {forceBase12, float(lin.pedestal_[1]), float(lin.pedestal_[2])} ;
   for (int i=1 ; i<3 ; i++)
     base[i] = float(lin.pedestal_[i]) - 
-      float(lin.mult_[0])/float(lin.mult_[i])*std::pow(2., -(lin.shift_[0]-lin.shift_[i]))*(lin.pedestal_[0]-base[0]) ;
+      float(lin.mult_[0])/float(lin.mult_[i])*pow(2., -(lin.shift_[0]-lin.shift_[i]))*(lin.pedestal_[0]-base[0]) ;
 
   for (int i=0 ; i<3 ; i++) {
     //std::cout<<lin.pedestal_[i]<<" "<<base[i]<<std::endl ;

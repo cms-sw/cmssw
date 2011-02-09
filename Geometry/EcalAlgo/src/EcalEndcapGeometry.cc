@@ -89,24 +89,21 @@ EcalEndcapGeometry::initializeParms()
   m_yhi[1] = -999 ;
   for( uint32_t i ( 0 ) ; i != cellGeometries().size() ; ++i )
   {
-     if( 0 != cellGeometries()[i] )
-     {
-	const GlobalPoint p ( cellGeometries()[i]->getPosition()  ) ;
-	const double z ( p.z() ) ;
-	const double zz ( 0 > z ? zeN : zeP ) ;
-	const double x ( p.x()*zz/z ) ;
-	const double y ( p.y()*zz/z ) ;
+     const GlobalPoint p ( cellGeometries()[i]->getPosition()  ) ;
+     const double z ( p.z() ) ;
+     const double zz ( 0 > z ? zeN : zeP ) ;
+     const double x ( p.x()*zz/z ) ;
+     const double y ( p.y()*zz/z ) ;
 
-	if( 0 > z && x < m_xlo[0] ) m_xlo[0] = x ;
-	if( 0 < z && x < m_xlo[1] ) m_xlo[1] = x ;
-	if( 0 > z && y < m_ylo[0] ) m_ylo[0] = y ;
-	if( 0 < z && y < m_ylo[1] ) m_ylo[1] = y ;
+     if( 0 > z && x < m_xlo[0] ) m_xlo[0] = x ;
+     if( 0 < z && x < m_xlo[1] ) m_xlo[1] = x ;
+     if( 0 > z && y < m_ylo[0] ) m_ylo[0] = y ;
+     if( 0 < z && y < m_ylo[1] ) m_ylo[1] = y ;
 
-	if( 0 > z && x > m_xhi[0] ) m_xhi[0] = x ;
-	if( 0 < z && x > m_xhi[1] ) m_xhi[1] = x ;
-	if( 0 > z && y > m_yhi[0] ) m_yhi[0] = y ;
-	if( 0 < z && y > m_yhi[1] ) m_yhi[1] = y ;
-     }
+     if( 0 > z && x > m_xhi[0] ) m_xhi[0] = x ;
+     if( 0 < z && x > m_xhi[1] ) m_xhi[1] = x ;
+     if( 0 > z && y > m_yhi[0] ) m_yhi[0] = y ;
+     if( 0 < z && y > m_yhi[1] ) m_yhi[1] = y ;
   }
 
   m_xoff[0] = ( m_xhi[0] + m_xlo[0] )/2. ;
@@ -117,7 +114,7 @@ EcalEndcapGeometry::initializeParms()
   m_del = ( m_xhi[0] - m_xlo[0] + m_xhi[1] - m_xlo[1] +
 	    m_yhi[0] - m_ylo[0] + m_yhi[1] - m_ylo[1]   ) ;
 
-  if( 1 != m_nref ) m_wref = m_del/(4.*(m_nref-1)) ;
+  m_wref = m_del/(4.*(m_nref-1)) ;
 
   m_xlo[0] -= m_wref/2 ;
   m_xlo[1] -= m_wref/2 ;
@@ -473,10 +470,7 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
       const CaloSubdetectorGeometry::CellCont& cells ( cellGeometries() ) ;
       for( unsigned int i ( 0 ) ; i != cells.size() ; ++i )
       {
-	 if( 0 != cells[i] )
-	 {
-	    sum += fabs( cells[i]->getPosition().z() ) ;
-	 }
+	 sum += fabs( cells[i]->getPosition().z() ) ;
       }
       m_avgZ = sum/cells.size() ;
    }

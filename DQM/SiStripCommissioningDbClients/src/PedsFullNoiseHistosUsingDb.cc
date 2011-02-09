@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsFullNoiseHistosUsingDb.cc,v 1.5 2010/04/28 08:46:16 lowette Exp $
+// Last commit: $Id: PedsFullNoiseHistosUsingDb.cc,v 1.3 2009/11/15 16:42:16 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsFullNoiseHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsFullNoiseAnalysis.h"
@@ -176,8 +176,6 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
 									<<" "<<conn.lldChannel()
               		<<" "<<iapv*128+istr<<std::endl;
                 }
-                // Disable every strip if more than half the apv is "Bad"
-              	if ( dead.size() + noisy.size() > 63 ) disableStrip = true;
               }
             } else if ( keepStripsDisabled_ ) {
               disableStrip = temp.getDisable();

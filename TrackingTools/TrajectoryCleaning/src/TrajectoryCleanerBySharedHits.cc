@@ -91,10 +91,10 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
 	  if((*imapp).second > 0 ){
 	    int innerHit = 0;
 	    if ( allowSharedFirstHit ) {
-	      const TrajectoryMeasurement & innerMeasure1 = ( (*itt)->direction() == alongMomentum ) ? 
+	      const TrajectoryMeasurement innerMeasure1 = ( (*itt)->direction() == alongMomentum ) ? 
 		(*itt)->firstMeasurement() : (*itt)->lastMeasurement();
 	      const TransientTrackingRecHit* h1 = &(*(innerMeasure1).recHit());
-	      const TrajectoryMeasurement & innerMeasure2 = ( (*imapp).first->direction() == alongMomentum ) ? 
+	      const TrajectoryMeasurement innerMeasure2 = ( (*imapp).first->direction() == alongMomentum ) ? 
 		(*imapp).first->firstMeasurement() : (*imapp).first->lastMeasurement();
 	      const TransientTrackingRecHit* h2 = &(*(innerMeasure2).recHit());
 	      if ( (h1 == h2) || ((h1->geographicalId() == h2->geographicalId()) && 

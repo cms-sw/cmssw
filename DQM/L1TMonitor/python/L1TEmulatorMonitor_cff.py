@@ -1,75 +1,60 @@
 import FWCore.ParameterSet.Config as cms
 
-# L1 Emulator DQM sequence
-#
-# used by DQM GUI: DQM/Integration/python/test/l1temulator_dqm_sourceclient-*_cfg.py
-#
-# N. Leonardo 2008-02-XX initial version
-#
-# V.M. Ghete 2010-10-22 revised version of L1 emulator DQM
-#                       proper definition of sequences
+# description:
+# workflow for L1 Trigger Emulator DQM
+# used by DQM GUI: DQM/Integration/l1temulator*
+# nuno.leonardo@cern.ch 08.02
 
-# hardware validation sequence - it runs also the L1 emulator
+#global configuration
+#from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
+#es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
+#note: global tag specification moved top parent _cfg , ie
+# : DQM/Integration/pythin/test/l1temulator_dqm_sourceclient-*_cfg.py
+# DQM/L1TMonitor/test/test/testEmulMon_cfg.py : test example
+
+#unpacking
+from Configuration.StandardSequences.RawToDigi_Data_cff import *
+
+#emulator/comparator
 from L1Trigger.HardwareValidation.L1HardwareValidation_cff import *
+l1compare.COMPARE_COLLS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1]
 
 # temporary fix for L1 GT emulator configuration in hardware validation
 valGtDigis.RecordLength = cms.vint32(3, 5)
 valGtDigis.AlternativeNrBxBoardDaq = 0x101
 valGtDigis.AlternativeNrBxBoardEvm = 0x2
 
-# DQM modules
+#dqm
 from DQM.L1TMonitor.L1TDEMON_cfi import *
-
 from DQM.L1TMonitor.L1TdeECAL_cfi import *
-
 from DQM.L1TMonitor.L1TdeGCT_cfi import *
 
 from DQM.L1TMonitor.L1TdeRCT_cfi import *
-l1TdeRCT.rctSourceData = 'gctDigis'
-l1TdeRCT.rctSourceEmul = 'valRctDigis'
+l1tderct.rctSourceData = 'gctDigis'
+l1tderct.rctSourceEmul = 'valRctDigis'
 
 from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
 
 from DQM.L1TMonitor.l1GtHwValidation_cfi import *
 
-# filter to select "real events"
+#Note by Nuno: use of edm filters in dqm are discouraged
+#-offline they are strictly forbidden
+#-online preliminarily allowed if not interferring w other systems
+
+#filter to select "real events"
 from HLTrigger.special.HLTTriggerTypeFilter_cfi import *
 hltTriggerTypeFilter.SelectedTriggerType = 1
 
+p = cms.Path(
+    cms.SequencePlaceholder("RawToDigi")
+    *cms.SequencePlaceholder("L1HardwareValidation")
+    *(l1demon
+      +l1demonecal
+      +l1demongct
+      +l1decsctf
+      +l1GtHwValidation
+      #filter goes in the end
+      +hltTriggerTypeFilter*l1tderct
+      )
+    )
 
-# sequence for expert modules for data - emulator comparison
-# the modules are independent, so uses "+"
-
-# l1TdeRCT requires separate definition due to the filter
-#
-# must be at the end of expert sequence to avoid having the filter 
-# in all modules
-#
-# must be removed in offline sequence
-#
-# TODO ask RCT if really needed - filter are forbidden in DQM
-
-l1TdeRCTSeq = cms.Sequence(
-                    hltTriggerTypeFilter * 
-                    l1TdeRCT
-                    )
-
-l1ExpertDataVsEmulator = cms.Sequence(
-                                l1TdeECAL + 
-                                l1TdeGCT + 
-                                l1TdeCSCTF + 
-                                l1GtHwValidation + 
-                                l1TdeRCTSeq                 
-                                )
-
-
-l1EmulatorMonitor = cms.Sequence(
-                            l1demon+
-                            l1ExpertDataVsEmulator             
-                            )
-
-# for use in processes where hardware validation is not run
-l1HwValEmulatorMonitor = cms.Sequence(
-                                L1HardwareValidation*
-                                l1EmulatorMonitor
-                                )

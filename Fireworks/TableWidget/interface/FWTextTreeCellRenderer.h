@@ -1,11 +1,14 @@
 #ifndef Fireworks_TableWidget_FWTextTreeCellRenderer_h
 #define Fireworks_TableWidget_FWTextTreeCellRenderer_h
 
+#include <cassert>
+
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
 
 #include "TGTextEntry.h"
 #include "TGPicture.h"
+#include "TSystem.h"
 
 class FWTextTreeCellRenderer : public FWTextTableCellRenderer
 {

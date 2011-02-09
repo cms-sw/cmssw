@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.226.2.1 2010/12/07 10:30:55 mccauley Exp $
+// $Id: FWGUIManager.cc,v 1.228 2011/01/19 17:17:15 amraktad Exp $
 
 
 //
@@ -147,7 +147,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
       for (int i = 0 ; i < FWViewType::kTypeSize; ++i)
       {
-         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableTrigger);
+         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableHLT);
          CSGAction* action = m_cmsShowMainFrame->createNewViewerAction(FWViewType::idToName(i), separator);
          action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
       }

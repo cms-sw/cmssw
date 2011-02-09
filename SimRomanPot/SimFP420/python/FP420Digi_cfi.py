@@ -17,8 +17,7 @@ FP420Digi = cms.EDProducer("DigitizerFP420",
     AdcFP420Threshold = cms.double(6.0),
     AddNoisyPixels = cms.bool(True),
     LowtofCutAndTo200ns = cms.double(1350.0),
-    ApplyTofCut = cms.bool(True),
-    ApplyChargeIneff = cms.bool(True)
+    ApplyTofCut = cms.bool(True)
 )
 
 

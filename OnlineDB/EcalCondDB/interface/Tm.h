@@ -1,4 +1,4 @@
-// $Id: Tm.h,v 1.3 2010/04/29 11:07:54 organtin Exp $
+// $Id: Tm.h,v 1.2 2006/06/19 14:43:14 egeland Exp $
 
 #ifndef TM_HH
 #define TM_HH
@@ -102,15 +102,6 @@ class Tm {
     }
 				    
   inline bool operator!=(const Tm &t) const { return !(t == *this); }
-
-  Tm& operator-=(int seconds) {
-    setToMicrosTime(microsTime() - seconds * 1e6);
-    return *this;
-  }
-  Tm& operator+=(int seconds) {
-    setToMicrosTime(microsTime() + seconds * 1e6);
-    return *this;
-  }
 
  private:
   struct tm m_tm;
