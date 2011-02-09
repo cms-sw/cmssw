@@ -48,32 +48,33 @@ PileUpProducer::PileUpProducer(edm::ParameterSet const & p)
     std::cout << " FastSimulation/PileUpProducer -> poissonian distribution" << std::endl;
     averageNumber_ = pu.getParameter<double>("averageNumber");
   } else {//take distribution from configuration
-    std::cout << " FastSimulation/PileUpProducer -> distribution from configuration file "  << std::endl;
     dataProbFunctionVar = pu.getParameter<std::vector<int> >("probFunctionVariable");
     dataProb = pu.getParameter<std::vector<double> >("probValue");
     varSize = (int) dataProbFunctionVar.size();
     probSize = (int) dataProb.size();
-    std::cout << " FastSimulation/PileUpProducer -> varSize = " << varSize  << std::endl;
-    std::cout << " FastSimulation/PileUpProducer -> probSize = " << probSize  << std::endl;
+    //    std::cout << " FastSimulation/PileUpProducer -> varSize = " << varSize  << std::endl;
+    //    std::cout << " FastSimulation/PileUpProducer -> probSize = " << probSize  << std::endl;
     
+    std::cout << " FastSimulation/PileUpProducer -> distribution from configuration file "  << std::endl;
     if (probSize < varSize){
-      std::cout << " The probability function data will be completed with " <<(varSize - probSize)  <<" values 0."; 
       for (int i=0; i<(varSize - probSize); i++) dataProb.push_back(0);
+      edm::LogWarning("") << " The probability function data will be completed with " 
+			  << (varSize - probSize) <<" values `0';"
+                          << " the number of the P(x) data set after adding those 0's is " << dataProb.size();
       probSize = dataProb.size();
-      std::cout << " The number of the P(x) data set after adding the values 0 is " << probSize;
     }
     // Create an histogram with the data from the probability function provided by the user  
     int xmin = (int) dataProbFunctionVar[0];
     int xmax = (int) dataProbFunctionVar[varSize-1]+1;  // need upper edge to be one beyond last value
     int numBins = varSize;
-    std::cout << "An histogram will be created with " << numBins << " bins in the range ("<< xmin << "," << xmax << ")." << std::endl;
+    std::cout << " FastSimulation/PileUpProducer -> An histogram will be created with " << numBins 
+	      << " bins in the range ("<< xmin << "," << xmax << ")." << std::endl;
     hprob = new TH1F("h","Histo from the user's probability function",numBins,xmin,xmax); 
-    std::cout << "Filling histogram with the following data:" << std::endl;
+    LogDebug("") << " FastSimulation/PileUpProducer -> Filling histogram with the following data:";
     for (int j=0; j < numBins ; j++){
-      std::cout << " x = " << dataProbFunctionVar[j ]<< " P(x) = " << dataProb[j];
+      LogDebug("") << " x = " << dataProbFunctionVar[j ]<< " P(x) = " << dataProb[j];
       hprob->Fill(dataProbFunctionVar[j]+0.5,dataProb[j]); // assuming integer values for the bins, fill bin centers, not edges 
     }
-    std::cout << std::endl;
 
     // Check if the histogram is normalized
     if (((hprob->Integral() - 1) > 1.0e-02) && ((hprob->Integral() - 1) < -1.0e-02)) throw cms::Exception("BadHistoDistribution") << "The histogram should be normalized!" << std::endl;
@@ -109,7 +110,7 @@ PileUpProducer::PileUpProducer(edm::ParameterSet const & p)
 
   if (averageNumber_ > 0.)
     {
-      std::cout << " FastSimulation/PileUpProducer -> minBias events taken from " << theFileNames[0] << " et al., " ;
+      std::cout << " FastSimulation/PileUpProducer -> MinBias events taken from " << theFileNames[0] << " et al., " ;
       std::cout << " with an average number of events of " << averageNumber_ << std::endl;
     }
   else std::cout << " FastSimulation/PileUpProducer -> No pileup " << std::endl;
