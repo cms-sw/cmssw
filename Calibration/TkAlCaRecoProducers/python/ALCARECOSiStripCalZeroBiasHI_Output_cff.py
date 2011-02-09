@@ -8,7 +8,6 @@ OutALCARECOSiStripCalZeroBias_noDrop = cms.PSet(
     outputCommands=cms.untracked.vstring(   
         'keep *_ALCARECOSiStripCalZeroBias_*_*',
         'keep *_calZeroBiasClusters_*_*',
-        'keep *_MEtoEDMConverter_*_*',
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep *_TriggerResults_*_*')
 )
