@@ -34,9 +34,9 @@ class FWPFTrackUtils
    // ---------------------- Accessor Methods ---------------------------
       float                   getCaloR1() { return m_caloR1; }
       float                   getCaloR2() { return m_caloR2; }
+		float							getCaloR3() { return m_caloR3; }
       float                   getCaloZ1() { return m_caloZ1; }
       float                   getCaloZ2() { return m_caloZ2; }
-      float                   getCaloHR() { return m_caloHR; }
 
    private:
       FWPFTrackUtils( const FWPFTrackUtils& );
@@ -49,8 +49,8 @@ class FWPFTrackUtils
 
       float                   m_caloR1;
       float                   m_caloR2;
+		float							m_caloR3;
       float                   m_caloZ1;
       float                   m_caloZ2;
-      float                   m_caloHR;
 };
 #endif
