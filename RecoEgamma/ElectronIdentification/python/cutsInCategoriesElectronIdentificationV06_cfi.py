@@ -331,7 +331,7 @@ eidHyperTight1.electronIDType = 'classbased'
 eidHyperTight1.electronQuality = 'hypertight2'
 eidHyperTight1.electronVersion = 'V06'
 eidHyperTight1.additionalCategories = True
-eidHyperTight1.classbasedhypertight1EleIDCutsV06 = cms.PSet(
+eidHyperTight1.classbasedhypertight2EleIDCutsV06 = cms.PSet(
 cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
 cutdetain = cms.vdouble(
 9.93e-03, 3.48e-03, 6.58e-03, 1.65e-02, 6.78e-03, 6.84e-03, 5.95e-03, 9.41e-03, 1.39e-02
@@ -385,7 +385,7 @@ eidHyperTight1.electronIDType = 'classbased'
 eidHyperTight1.electronQuality = 'hypertight3'
 eidHyperTight1.electronVersion = 'V06'
 eidHyperTight1.additionalCategories = True
-eidHyperTight1.classbasedhypertight1EleIDCutsV06 = cms.PSet(
+eidHyperTight1.classbasedhypertight3EleIDCutsV06 = cms.PSet(
 cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
 cutdetain = cms.vdouble(
 9.93e-03, 3.48e-03, 6.58e-03, 1.65e-02, 6.78e-03, 6.84e-03, 5.95e-03, 9.41e-03, 1.39e-02
@@ -439,7 +439,7 @@ eidHyperTight1.electronIDType = 'classbased'
 eidHyperTight1.electronQuality = 'hypertight4'
 eidHyperTight1.electronVersion = 'V06'
 eidHyperTight1.additionalCategories = True
-eidHyperTight1.classbasedhypertight1EleIDCutsV06 = cms.PSet(
+eidHyperTight1.classbasedhypertight4EleIDCutsV06 = cms.PSet(
 cutdcotdist = cms.vdouble(9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.),
 cutdetain = cms.vdouble(
 9.93e-03, 3.48e-03, 6.58e-03, 1.65e-02, 6.78e-03, 6.84e-03, 5.95e-03, 9.41e-03, 1.39e-02
