@@ -26,7 +26,9 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "DataFormats/Common/interface/View.h"
-  
+ 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+ 
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -40,8 +42,7 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       vertexTag_(cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
 
       // Main cuts 
-      muonTrig_(cfg.getUntrackedParameter<std::vector<std::string> > ("MuonTrig")),
-      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 20.)),
+      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
       isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", false)),
@@ -69,9 +70,10 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       eJetMin_(cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
       nJetMax_(cfg.getUntrackedParameter<int>("NJetMax", 999999))
 {
+  isValidHltConfig_ = false;
 }
 
-void EwkMuDQM::beginRun(const Run& r, const EventSetup&) {
+void EwkMuDQM::beginRun(const Run& r, const EventSetup& iSet) {
       nall = 0;
       nsel = 0;
 
@@ -79,6 +81,13 @@ void EwkMuDQM::beginRun(const Run& r, const EventSetup&) {
       niso = 0; 
       nhlt = 0; 
       nmet = 0;
+
+
+     // passed as parameter to HLTConfigProvider::init(), not yet used
+     bool isConfigChanged = false;
+     // isValidHltConfig_ used to short-circuit analyze() in case of problems
+     isValidHltConfig_ = hltConfigProvider_.init( r, iSet, "HLT", isConfigChanged );
+
 }
 
 
@@ -126,7 +135,7 @@ void EwkMuDQM::init_histograms() {
                   iso_after_ = theDbe->book1D("ISO_LASTCUT",chtitle,100, 0., 20.);
             }
 
-            snprintf(chtitle, 255, "Trigger response (OR of Muon triggers)");
+            snprintf(chtitle, 255, "HLT_Mu* Trigger response");
             trig_before_ = theDbe->book1D("TRIG_BEFORECUTS",chtitle,2,-0.5,1.5);
             trig_after_ = theDbe->book1D("TRIG_LASTCUT",chtitle,2,-0.5,1.5);
 
@@ -176,11 +185,11 @@ void EwkMuDQM::init_histograms() {
 void EwkMuDQM::endJob() {
 }
 
-void EwkMuDQM::endRun(const Run& r, const EventSetup&) {
+void EwkMuDQM::endRun(const Run& r, const EventSetup& iSet) {
 
 }
 
-void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
+void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       
       // Reset global event selection flags
       bool rec_sel = false;
@@ -265,36 +274,32 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
       npvs_before_->Fill(nvvertex);
 
       bool trigger_fired = false;
-      bool not_use_trigger = false;  
-      if(muonTrig_.at(0)==""){not_use_trigger=true;}
-      // Trigger
-            Handle<TriggerResults> triggerResults;
-            if (!ev.getByLabel(trigTag_, triggerResults)) {
-		//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
-		return;
-            }
-            const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
+      Handle<TriggerResults> triggerResults;
+      if (!ev.getByLabel(trigTag_, triggerResults)) {
+	//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
+	return;
+      }
+      const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
 
-            for (unsigned int i=0; i<triggerResults->size(); i++)
-            {
-              std::string trigName = trigNames.triggerName(i);
-              for (unsigned int j = 0; j < muonTrig_.size(); j++)
-                {
-                  if ( trigName == muonTrig_.at(j) && triggerResults->accept(i))
-                  {
-                    trigger_fired = true;
-                  }
-                }
-            }
+      for (unsigned int i=0; i<triggerResults->size(); i++)
+      {
+              const std::string trigName = trigNames.triggerName(i);
+              size_t found = trigName.find("HLT_Mu");
+              if ( found == std::string::npos) continue;
 
-            LogTrace("") << ">>> Trigger bit: " << trigger_fired << " for one of ( " ;
-            for (unsigned int k = 0; k < muonTrig_.size(); k++)
-            {
-              LogTrace("") << muonTrig_.at(k) << " ";
-            }
-            LogTrace("") << ")";
-      
+              bool prescaled=false;    
+              for (unsigned int ps= 0; ps<  hltConfigProvider_.prescaleSize(); ps++){
+                  const unsigned int prescaleValue = hltConfigProvider_.prescaleValue(ps, trigName) ;
+                  if (prescaleValue != 1) prescaled =true;
+              }
+              if(prescaled) continue;    
+
+              if( triggerResults->accept(i) )   trigger_fired=true;
+      }     
       trig_before_->Fill(trigger_fired);
+
+
+
 
 
 
@@ -404,7 +409,6 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
 
             // HLT (not mtched to muon for the time being)
             if (trigger_fired) muon_sel[5] = true; 
-            else if(not_use_trigger==true) muon_sel[5] = true;  // In order to allow trigger not to be used for selection
 
             // For Z:
             if (pt>ptThrForZ1_ && fabs(eta)<etaCut_ && fabs(dxy)<dxyCut_ && quality && trigger_fired && isovar<isoCut03_) { muon4Z = true;}
