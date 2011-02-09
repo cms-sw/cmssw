@@ -46,7 +46,6 @@ RawDataConverter::RawDataConverter( const edm::ParameterSet& iConfig ) :
   theProductInstanceLabels = iConfig.getParameter<std::vector<std::string> >( "ProductInstanceLabels" );
 
   fillDetectorId(iConfig);
-
 }
 
 ///
@@ -144,8 +143,6 @@ void RawDataConverter::analyze( const edm::Event& iEvent, const edm::EventSetup&
   static DigiType digitype = Unknown;  // Type of digis in this run
   if(digitype == Unknown) digitype = GetValidLabels( iEvent );   // Initialization of Digi Type
 
-  //static int event_counter=0;
-
   //////////////////////////////////////////////////////////
   // Retrieve SiStripEventSummary produced by the digitizer
   //////////////////////////////////////////////////////////
@@ -159,11 +156,6 @@ void RawDataConverter::analyze( const edm::Event& iEvent, const edm::EventSetup&
   edm::Timestamp timestamp = iEvent.time();
   unixTime = timestamp.unixTime();
   //edm::LogAbsolute("RawdataConverter") << " > run: " << runnumber << " event: " << eventnumber << " lumiBlock: " << lumiBlock << " latency: " << latency << std::endl;
-
-  ///////////////////////////////////////////////////////////
-  // Handles for holding possible Digis
-  edm::Handle< edm::DetSetVector<SiStripRawDigi> > theStripRawDigis;
-  edm::Handle< edm::DetSetVector<SiStripProcessedRawDigi> > theStripProcessedRawDigis;
 
   // Get the Digis as definef by digitype
   // Currently only ZeroSuppressed is implemented properly
@@ -181,24 +173,20 @@ void RawDataConverter::analyze( const edm::Event& iEvent, const edm::EventSetup&
     throw std::runtime_error("Did not find valid Module or Instance label");
   }
 
-
   // Push Container into the Tree
   theOutputTree->Fill();
-
-  //index.push_back(std::pair<int,int>(eventnumber, event_counter));
 
   return;
 }
 
 
 ///
-///
+/// Sort the events by ascending eventnumber  and write them to the output file
 ///
 void RawDataConverter::endJob()
 {
 
   Int_t nentries = (Int_t)theOutputTree->GetEntries();
-
   //Drawing variable eventnumber with no graphics option.
   //variable eventnumber stored in array fV1 (see TTree::Draw)
   theOutputTree->Draw("eventnumber","","goff");
@@ -225,46 +213,31 @@ void RawDataConverter::endJob()
 /// set all strips to zero
 ///
 void RawDataConverter::ClearData( void ) {
-
   // Assign a vector filled with zeros to all module entries
   // The vector is const static to increase performance
   // Even more performant would be to have a complete data object that is filled with zero
-  
+
   // Empty object to be assigned to all modules
   static const std::vector<float> zero_buffer(512,0);
 
-  // loop helper and its variables
-  LASGlobalLoop loop;
-  int det, ring, beam, disk, pos;
-
-  // loop TEC+- (internal)
-  det = 0; ring = 0; beam = 0; disk = 0;
+  // loop helper
+  LASGlobalDataLoop loop;
   do {
-    theData.GetTECEntry( det, ring, beam, disk ) = zero_buffer;
-  } while( loop.TECLoop( det, ring, beam, disk ) );
-  
-  // loop TIB/TOB
-  det = 2; beam = 0; pos = 0; // <- set det = 2 (TIB)
-  do {
-    theData.GetTIBTOBEntry( det, beam, pos ) = zero_buffer;
-  } while( loop.TIBTOBLoop( det, beam, pos ) );
-
-  // loop TEC (AT)
-  det = 0; beam = 0; disk = 0;
-  do {
-    theData.GetTEC2TECEntry( det, beam, disk ) = zero_buffer;
-  } while( loop.TEC2TECLoop( det, beam, disk ) );
-  
+    loop.GetEntry<std::vector<float> >(theData) = zero_buffer;
+  } while( loop.next() );
 }
 
 
+///
+/// Fill the DetIds fron the cfg file into the LASGlobalData object called detectorId
+///
 void RawDataConverter::fillDetectorId( const edm::ParameterSet& iConfig)
 {
 
   // the list of input digi products from the cfg
   std::vector<edm::ParameterSet> detid_list = iConfig.getParameter<std::vector<edm::ParameterSet> >( "DetIds" );
   
-  // loop all input products
+  // loop over all entries
   for ( std::vector<edm::ParameterSet>::iterator aDetIds = detid_list.begin(); aDetIds != detid_list.end(); ++aDetIds ) {
     int   det = aDetIds->getParameter<int>(   "det");
     int  ring = aDetIds->getParameter<int>(  "ring");
@@ -278,4 +251,3 @@ void RawDataConverter::fillDetectorId( const edm::ParameterSet& iConfig)
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(RawDataConverter);
-

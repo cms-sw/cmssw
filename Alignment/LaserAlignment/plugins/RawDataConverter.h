@@ -64,6 +64,7 @@ void RawDataConverter::GetDigis( const edm::Event& iEvent)
   // Get the DetSetVector for the SiStripDigis 
   // This is a vector with all the modules, each module containing zero or more strips with signal (Digis)
   edm::Handle< edm::DetSetVector< Digitype > > detSetVector;  // Handle for holding the DetSetVector
+
   iEvent.getByLabel( CurrentModuleLabel , CurrentInstanceLabel , detSetVector );
   if( ! detSetVector.isValid() ) throw std::runtime_error("Could not find the Digis");
 
