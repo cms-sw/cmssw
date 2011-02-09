@@ -5,18 +5,21 @@ FWPFTrackUtils::FWPFTrackUtils() : m_trackerTrackPropagator(0), m_trackPropagato
 {
    float caloTransAngle = 1.479;
 
-   m_caloR1 = 129;
-   m_caloZ1 = m_caloR1 / tan( caloTransAngle );
-   m_caloZ2 = 315.4;
-   m_caloR2 = m_caloZ2 * tan( caloTransAngle );
-   m_caloHR = 177.7;
+	// ECAL
+   m_caloR1 = 129;		// Centres of front faces of the crystals in supermodules (1.29m) - Barrel
+   m_caloZ1 = 303.353;	// Longitudinal distance between the interaction point and last tracker layer - Endcap
+
+	// HCAL
+	m_caloR2 = 177.7;		// Longitudinal profile in the barrel (inner radius) - Barrel
+	m_caloR3 = 287.65;	// Longitudinal profile in the barrel (outer radius) - Barrel
+	m_caloZ2 = 400.458;	// Longitudinal distance between the interaction point and the endcap envelope - Endcap
 
    m_magField = new FWMagField();
 
    // Common propagator, helix stepper
    m_trackPropagator = new TEveTrackPropagator();
    m_trackPropagator->SetMagFieldObj( m_magField, false );
-   m_trackPropagator->SetMaxR( m_caloHR );
+   m_trackPropagator->SetMaxR( m_caloR3 );
    m_trackPropagator->SetMaxZ( m_caloZ2 );
    m_trackPropagator->SetDelta( 0.01 );
    m_trackPropagator->SetProjTrackBreaking( TEveTrackPropagator::kPTB_UseLastPointPos );
@@ -28,7 +31,7 @@ FWPFTrackUtils::FWPFTrackUtils() : m_trackerTrackPropagator(0), m_trackPropagato
    m_trackerTrackPropagator->SetStepper( TEveTrackPropagator::kRungeKutta );
    m_trackerTrackPropagator->SetMagFieldObj( m_magField, false );
    m_trackerTrackPropagator->SetDelta( 0.01 );
-   m_trackerTrackPropagator->SetMaxR( m_caloHR );
+   m_trackerTrackPropagator->SetMaxR( m_caloR3 );
    m_trackerTrackPropagator->SetMaxZ( m_caloZ2 );
    m_trackerTrackPropagator->SetProjTrackBreaking( TEveTrackPropagator::kPTB_UseLastPointPos );
    m_trackerTrackPropagator->SetRnrPTBMarkers( kTRUE );
