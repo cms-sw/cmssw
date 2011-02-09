@@ -47,13 +47,13 @@ HitExtractor::Hits HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Even
 	  lookup=result[iH]->hit()->geographicalId();
 	  f=pixelClusterRefs->find(lookup);
 	}
-      if (!result[iH]->hit()->isValid())
-	continue;
-      SiPixelRecHit * concrete = (SiPixelRecHit *) result[iH]->hit();
-      if (find(f->begin(),f->end(),concrete->cluster())==f->end())
-	newHits.push_back(result[iH]);
+      if (result[iH]->hit()->isValid()){
+	SiPixelRecHit * concrete = (SiPixelRecHit *) result[iH]->hit();
+	if (f!=pixelClusterRefs->end() && find(f->begin(),f->end(),concrete->cluster())!=f->end())
+	  continue;
+      }
+      newHits.push_back(result[iH]);
     }
-  
     result.swap(newHits);
   }
   return result;

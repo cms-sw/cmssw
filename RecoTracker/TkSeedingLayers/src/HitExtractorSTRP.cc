@@ -46,15 +46,13 @@ bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
 				edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const {
   static DetId lastId=hit->geographicalId();
   static edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef>::const_iterator f=stripClusterRefs->find(lastId.rawId());
-  
-  if (f==stripClusterRefs->end()) return false;
-  if (!hit->isValid())  return false;
-
   if (hit->geographicalId()!=lastId){
     lastId=hit->geographicalId();
     f=stripClusterRefs->find(lastId.rawId());
-  }
-  
+  }  
+  if (f==stripClusterRefs->end()) return false;
+  if (!hit->isValid())  return false;
+
   return (find(f->begin(),f->end(),hit->cluster())!=f->end());
 }
 bool HitExtractorSTRP::skipThis(const SiStripMatchedRecHit2D * hit,

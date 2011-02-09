@@ -101,6 +101,7 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
           layer.useStereoRecHits = false;
       }
       if (cfgLayer.exists("skipClusters")){
+	//	std::cout<<" ready for skipping (1)"<<std::endl;
 	layer.clustersToSkip = cfgLayer.getParameter<edm::InputTag>("skipClusters");
 	layer.skipClusters=true;
       }else{
@@ -281,6 +282,10 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
 	  extSTRP.useSimpleRphiHitsCleaner(layer.useSimpleRphiHitsCleaner);
           extractor = extSTRP.clone();
         }
+	if (layer.skipClusters) {
+	  //	  std::cout<<" ready for skipping (2)"<<std::endl;
+	  extractor->useSkipClusters(layer.clustersToSkip);
+	}
 
         edm::ESHandle<TransientTrackingRecHitBuilder> builder;
         es.get<TransientRecHitRecord>().get(layer.hitBuilder, builder);
