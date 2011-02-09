@@ -333,16 +333,18 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     if (mergeOld_){
       iEvent.getByLabel(oldRemovalInfo_,oldPxlRef);
       iEvent.getByLabel(oldRemovalInfo_,oldStrRegRef);
+      edm::LogWarning("TrackClusterRemover")<<"to merge in, "<<oldStrRegRef->size()<<" strp and "<<oldPxlRef->size()<<" pxl";
     }
 
+    if (mergeOld_){
+      for (edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>::const_iterator itOld=oldStrRegRef->begin();itOld!=oldStrRegRef->end();++itOld){
+	uint32_t id = itOld->detId();
+	collectedRegStrip[id].insert(itOld->begin(),itOld->end());
+      }
+    }
     for (std::map<uint32_t, std::set< SiStripRecHit1D::ClusterRegionalRef > >::iterator itskiped= collectedRegStrip.begin();
 	 itskiped!=collectedRegStrip.end();++itskiped){
       edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>::FastFiller fill(*removedStripClsuterRegRefs, itskiped->first);
-      if (mergeOld_){
-	edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>::const_iterator f=oldStrRegRef->find(itskiped->first);
-	if (f!=oldStrRegRef->end())
-	  itskiped->second.insert(f->begin(),f->end());
-      }
       for (std::set< SiStripRecHit1D::ClusterRegionalRef >::iterator topush = itskiped->second.begin();
 	   topush!=itskiped->second.end();++topush){
 	fill.push_back(*topush);
@@ -352,14 +354,16 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     }
     iEvent.put( removedStripClsuterRegRefs );
 
+    if (mergeOld_){
+      for (edmNew::DetSetVector<SiPixelClusterRefNew>::const_iterator itOld=oldPxlRef->begin();itOld!=oldPxlRef->end();++itOld){
+	uint32_t id = itOld->detId();
+	collectedPixel[id].insert(itOld->begin(),itOld->end());
+      }
+    }
+    
     for (std::map<uint32_t, std::set< SiPixelRecHit::ClusterRef  > >::iterator itskiped= collectedPixel.begin();
 	 itskiped!=collectedPixel.end();++itskiped){  
       edmNew::DetSetVector<SiPixelClusterRefNew>::FastFiller fill(*removedPixelClsuterRefs, itskiped->first);
-      if (mergeOld_){
-	edmNew::DetSetVector<SiPixelRecHit::ClusterRef>::const_iterator f=oldPxlRef->find(itskiped->first);
-	if (f!=oldPxlRef->end())
-	  itskiped->second.insert(f->begin(),f->end());
-      }
       for (std::set< SiPixelRecHit::ClusterRef  >::iterator topush = itskiped->second.begin(); 
 	   topush!=itskiped->second.end();++topush){ 
 	fill.push_back(*topush); 

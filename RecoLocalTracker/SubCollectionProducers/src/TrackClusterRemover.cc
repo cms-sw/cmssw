@@ -422,40 +422,48 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       if (mergeOld_){
 	iEvent.getByLabel(oldRemovalInfo_,oldPxlRef);
 	iEvent.getByLabel(oldRemovalInfo_,oldStrRef);
+	LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrRef->size()<<" strp and "<<oldPxlRef->size()<<" pxl";
       }      
+
+      if (mergeOld_){
+	for (edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>::const_iterator itOld=oldStrRef->begin();itOld!=oldStrRef->end();++itOld){
+	  uint32_t id = itOld->detId();
+	  collectedStrip[id].insert(itOld->begin(),itOld->end());
+	}
+      }
       for (std::map<uint32_t, std::set< SiStripRecHit1D::ClusterRef > >::iterator itskiped= collectedStrip.begin();
 	   itskiped!=collectedStrip.end();++itskiped){
 	edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>::FastFiller fill(*removedStripClsuterRefs, itskiped->first);
-	if (mergeOld_){
-	  edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>::const_iterator f=oldStrRef->find(itskiped->first);
-	  if (f!=oldStrRef->end())
-	    itskiped->second.insert(f->begin(),f->end());
-	}
 	for (std::set< SiStripRecHit1D::ClusterRef >::iterator topush = itskiped->second.begin();
 	     topush!=itskiped->second.end();++topush){
 	  fill.push_back(*topush);
+	  LogDebug("TrackClusterRemover")<<"registering strp ref to be skip on: "<<itskiped->first<<" key: "<<topush->key();
 	}
 	if (fill.empty()) fill.abort();
 	itskiped->second.clear();
       }
+      LogDebug("TrackClusterRemover")<<"total strip to skip: "<<removedStripClsuterRefs->size();
       iEvent.put( removedStripClsuterRefs );
+
+      if (mergeOld_){
+	for (edmNew::DetSetVector<SiPixelClusterRefNew>::const_iterator itOld=oldPxlRef->begin();itOld!=oldPxlRef->end();++itOld){
+	  uint32_t id = itOld->detId();
+	  collectedPixel[id].insert(itOld->begin(),itOld->end());
+	}
+      }
 
       for (std::map<uint32_t, std::set< SiPixelRecHit::ClusterRef  > >::iterator itskiped= collectedPixel.begin();
 	   itskiped!=collectedPixel.end();++itskiped){  
 	edmNew::DetSetVector<SiPixelClusterRefNew>::FastFiller fill(*removedPixelClsuterRefs, itskiped->first);
-	if (mergeOld_){
-	  edmNew::DetSetVector<SiPixelRecHit::ClusterRef>::const_iterator f=oldPxlRef->find(itskiped->first);
-	  if (f!=oldPxlRef->end())
-	    itskiped->second.insert(f->begin(),f->end());
-	}
-	
 	for (std::set< SiPixelRecHit::ClusterRef  >::iterator topush = itskiped->second.begin(); 
 	     topush!=itskiped->second.end();++topush){ 
 	  fill.push_back(*topush); 
+	  LogDebug("TrackClusterRemover")<<"registering pxk ref to be skip on: "<<itskiped->first<<" key: "<<topush->key();
 	}
 	if (fill.empty()) fill.abort();   
 	itskiped->second.clear();
       }
+      LogDebug("TrackClusterRemover")<<"total pxl to skip: "<<removedPixelClsuterRefs->size();
       iEvent.put( removedPixelClsuterRefs );
       
     }
