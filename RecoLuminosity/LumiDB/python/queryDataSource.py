@@ -293,13 +293,13 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
         l1keyCondition['runnumber'].setData(int(runnumber))
         l1keyQuery.addToOutputList('STRING_VALUE')
         l1keyQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',l1keyCondition)
-        l1keyQuery.limitReturnedRows(1)
         l1keyQuery.defineOutput(l1keyOutput)
         cursor=l1keyQuery.execute()
         while cursor.next():
             l1key=cursor.currentRow()['l1key'].data()
         del l1keyQuery
         result.append(l1key)
+        
         amodetagQuery=runinfoschema.newQuery()
         amodetagQuery.addToTableList('RUNSESSION_PARAMETER')
         amodetagOutput=coral.AttributeList()
@@ -318,6 +318,7 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
             amodetag=cursor.currentRow()['amodetag'].data()
         del amodetagQuery
         result.append(amodetag)
+        
         egevQuery=runinfoschema.newQuery()
         egevQuery.addToTableList('RUNSESSION_PARAMETER')
         egevOutput=coral.AttributeList()
@@ -338,24 +339,101 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
         del egevQuery
         result.append(egev)
         
-        seqQuery=runinfoschema.newQuery()
-        seqQuery.addToTableList('RUNSESSION_PARAMETER')
-        seqOutput=coral.AttributeList()
-        seqOutput.extend('seq','string')
-        seqCondition=coral.AttributeList()
-        seqCondition.extend('name','string')
-        seqCondition.extend('runnumber','unsigned int')
-        seqCondition['name'].setData('CMS.LVL0:SEQ_NAME')
-        seqCondition['runnumber'].setData(int(runnumber))
-        seqQuery.addToOutputList('STRING_VALUE')
-        seqQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',seqCondition)
-        seqQuery.defineOutput(seqOutput)
-        cursor=seqQuery.execute()
-        while cursor.next():
-            sequence=cursor.currentRow()['seq'].data()
-        del seqQuery
-        result.append(sequence)
-        session.transaction().commit()
+        if not complementalOnly:
+            seqQuery=runinfoschema.newQuery()
+            seqQuery.addToTableList('RUNSESSION_PARAMETER')
+            seqOutput=coral.AttributeList()
+            seqOutput.extend('seq','string')
+            seqCondition=coral.AttributeList()
+            seqCondition.extend('name','string')
+            seqCondition.extend('runnumber','unsigned int')
+            seqCondition['name'].setData('CMS.LVL0:SEQ_NAME')
+            seqCondition['runnumber'].setData(int(runnumber))
+            seqQuery.addToOutputList('STRING_VALUE')
+            seqQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',seqCondition)
+            seqQuery.defineOutput(seqOutput)
+            cursor=seqQuery.execute()
+            while cursor.next():
+                sequence=cursor.currentRow()['seq'].data()
+            del seqQuery
+            result.append(sequence)
+
+            hltkeyQuery=runinfoschema.newQuery()
+            hltkeyQuery.addToTableList('RUNSESSION_PARAMETER')
+            hltkeyOutput=coral.AttributeList()
+            hltkeyOutput.extend('hltkey','string')
+            hltkeyCondition=coral.AttributeList()
+            hltkeyCondition.extend('name','string')
+            hltkeyCondition.extend('runnumber','unsigned int')
+            hltkeyCondition['name'].setData('CMS.LVL0:HLT_KEY_DESCRIPTION')
+            hltkeyCondition['runnumber'].setData(int(runnumber))
+            hltkeyQuery.addToOutputList('STRING_VALUE')
+            hltkeyQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',hltkeyCondition)
+            #hltkeyQuery.limitReturnedRows(1)
+            hltkeyQuery.defineOutput(hltkeyOutput)
+            cursor=hltkeyQuery.execute()
+            while cursor.next():
+                hltkey=cursor.currentRow()['hltkey'].data()
+                del hltkeyQuery
+            result.append(hltkey)
+
+            fillnumQuery=runinfoschema.newQuery()
+            fillnumQuery.addToTableList('RUNSESSION_PARAMETER')
+            fillnumOutput=coral.AttributeList()
+            fillnumOutput.extend('fillnum','string')
+            fillnumCondition=coral.AttributeList()
+            fillnumCondition.extend('name','string')
+            fillnumCondition.extend('runnumber','unsigned int')
+            fillnumCondition['name'].setData('CMS.SCAL:FILLN')
+            fillnumCondition['runnumber'].setData(int(runnumber))
+            fillnumQuery.addToOutputList('STRING_VALUE')
+            fillnumQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',fillnumCondition)
+            fillnumQuery.limitReturnedRows(1)
+            fillnumQuery.defineOutput(fillnumOutput)
+            cursor=fillnumQuery.execute()
+            while cursor.next():
+                fillnum=cursor.currentRow()['fillnum'].data()
+            del fillnumQuery
+            result.append(fillnum)
+
+            starttimeQuery=runinfoschema.newQuery()
+            starttimeQuery.addToTableList('RUNSESSION_PARAMETER')
+            starttimeOutput=coral.AttributeList()
+            starttimeOutput.extend('starttime','time stamp')
+            starttimeCondition=coral.AttributeList()
+            starttimeCondition.extend('name','string')
+            starttimeCondition.extend('runnumber','unsigned int')
+            starttimeCondition['name'].setData('CMS.LVL0:START_TIME_T')
+            starttimeCondition['runnumber'].setData(int(runnumber))
+            starttimeQuery.addToOutputList('TIME')
+            starttimeQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',starttimeCondition)
+            starttimeQuery.defineOutput(starttimeOutput)
+            cursor=starttimeQuery.execute()
+            while cursor.next():
+                starttime=cursor.currentRow()['starttime'].data()
+            del starttimeQuery
+            result.append(starttime)
+
+            stoptimeQuery=runinfoschema.newQuery()
+            stoptimeQuery.addToTableList('RUNSESSION_PARAMETER')
+            stoptimeOutput=coral.AttributeList()
+            stoptimeOutput.extend('stoptime','time stamp')
+            stoptimeCondition=coral.AttributeList()
+            stoptimeCondition.extend('name','string')
+            stoptimeCondition.extend('runnumber','unsigned int')
+            stoptimeCondition['name'].setData('CMS.LVL0:STOP_TIME_T')
+            stoptimeCondition['runnumber'].setData(int(runnumber))
+            stoptimeQuery.addToOutputList('TIME')
+            stoptimeQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',stoptimeCondition)
+            stoptimeQuery.defineOutput(stoptimeOutput)
+            cursor=stoptimeQuery.execute()
+            while cursor.next():
+                stoptime=cursor.currentRow()['stoptime'].data()
+            del stoptimeQuery
+            result.append(stoptime)
+            session.transaction().commit()
+        else:
+            session.transaction().commit()
         print result
         return result
     except:

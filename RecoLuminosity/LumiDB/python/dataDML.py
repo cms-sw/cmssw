@@ -814,18 +814,46 @@ def addHLTRunDataToBranch(schema,runnumber,hltrundata,branchinfo):
     except :
         raise 
 
-def insertRunSummaryData(schema,runnumber,runsummarydata):
+def insertRunSummaryData(schema,runnumber,runsummarydata,complementalOnly=False):
     '''
     input:
-        runsummarydata [hltkey,l1key,fillnum,sequence,starttime,stoptime,amodetag,egev]
+        runsummarydata [l1key0,amodetag1,egev2,hltkey3,fillnum4,sequence5,starttime6,stoptime7]
     output:
-    
     '''
+    l1key=runsummarydata[0]
+    amodetag=runsummarydata[1]
+    egev=runsummarydata[2]
+    hltkey=''
+    fillnum=0
+    sequence=''
+    starttime=''
+    stoptime=''
+    if not complementalOnly:
+        hltkey=runsummarydata[3]
+        fillnum=runsummarydata[4]
+        sequence=runsummarydata[5]
+        starttime=runsummarydata[6]
+        stoptime=runsummarydata[7]
     try:
-        tabrowDefDict={'RUNNUM':'unsigned int','HLTKEY':'string','L1KEY':'string','SEQUENCE':'string','FILLNUM':'unsigned int','STARTTIME':'time stamp','STOPTIME':'time stamp','AMODETAG':'string','EGEV':'unsigned int'}
-        tabrowValueDict={'RUNNUM':int(runnumber),'HLTKEY':runsummarydata[0],'L1KEY':runsummarydata[1],'SEQUENCE':runsummarydata[2],'FILLNUM':runsummarydata[3],'STARTTIME':runsummarydata[4],'STOPTIME':runsummarydata[5],'AMODETAG':runsummarydata[6],'EGEV':runsummarydata[7]}
-        db=dbUtil.dbUtil(schema)
-        db.insertOneRow(nameDealer.cmsrunsummaryTableName(),tabrowDefDict,tabrowValueDict)
+        if not complementalOnly:
+            tabrowDefDict={'RUNNUM':'unsigned int','L1KEY':'string','AMODETAG':'string','EGEV':'unsigned int','HLTKEY':'string','FILLNUM':'unsigned int','SEQUENCE':'string','STARTTIME':'time stamp','STOPTIME':'time stamp'}
+            tabrowValueDict={'RUNNUM':int(runnumber),'L1KEY':l1key,'AMODETAG':amodetag,'EGEV':int(egev),'HLTKEY':hltkey,'FILLNUM':int(fillnum),'SEQUENCE':sequence,'STARTTIME':starttime,'STOPTIME':stoptime}
+            db=dbUtil.dbUtil(schema)
+            db.insertOneRow(nameDealer.cmsrunsummaryTableName(),tabrowDefDict,tabrowValueDict)
+        else:
+            setClause='L1KEY=:l1key,AMODETAG=:amodetag,EGEV=:egev'
+            updateCondition='RUNNUM=:runnum'
+            inputData=coral.AttributeList()
+            inputData.extend('l1key','string')
+            inputData.extend('amodetag','string')
+            inputData.extend('egev','unsigned int')
+            inputData.extend('runnum','unsigned int')
+            inputData['l1key'].setData(l1key)
+            inputData['amodetag'].setData(amodetag)
+            inputData['egev'].setData(int(egev))
+            inputData['runnum'].setData(int(runnumber))
+            db=dbUtil.dbUtil(schema)
+            db.singleUpdate(nameDealer.cmsrunsummaryTableName(),setClause,updateCondition,inputData)
     except :
         raise   
 def insertTrgHltMap(schema,hltkey,trghltmap):

@@ -394,13 +394,14 @@ def createOldSchema(schema):
 def oldToNew(schema):
     '''
     modify old tables:lumisummary,lumidetail,cmsrunsummary,trghltmap
-    alter table cmsrunsummary add column(egev unsigned int,amodetag string)
+    alter table cmsrunsummary add column(l1key string,egev unsigned int,amodetag string)
     alter table lumisummary add column(data_id unsigned long long)
     alter table lumidetail add column(data_id unsigned long long,runnum unsigned int,cmslsnum unsigned int,lumilsnum unsigned int)
     alter table trghltmap add column(hltpathid unsigned int)
     '''
     try:
         tableHandle=schema.tableHandle(nameDealer.cmsrunsummaryTableName())
+        tableHandle.schemaEditor().insertColumn('L1KEY','string')
         tableHandle.schemaEditor().insertColumn('EGEV','unsigned int')
         tableHandle.schemaEditor().insertColumn('AMODETAG','string')
         tableHandle=schema.tableHandle(nameDealer.lumisummaryTableName())
