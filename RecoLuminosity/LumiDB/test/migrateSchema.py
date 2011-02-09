@@ -21,6 +21,12 @@ def main():
     svc=sessionManager.sessionManager(args.connect,authpath=args.authpath,debugON=args.debug)
     session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     [bitnames,trglsdata]=queryDataSource.trgFromOldLumi(session,runnumber)
+    [pathnames,hltlsdata]=queryDataSource.hltFromOldLumi(session,runnumber)
+
+    runinfosvc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_runinfo',authpath=args.authpath,debugON=args.debug)
+    runinfosession=runinfosvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    [l1key,amodetag,egev]=queryDataSource.runsummary(runinfosession,'CMS_RUNINFO',runnumber,complementalOnly=True)
+    print 'runsummary ',l1key,amodetag,egev
     session.transaction().start(False)
     schema=session.nominalSchema()
     lumidbDDL.newToOld(schema)
@@ -31,12 +37,12 @@ def main():
     (normrevid,normparentid,normparentname)=revisionDML.createBranch(schema,'NORM','TRUNK',comment='hold normalization factor')
     dataDML.addNormToBranch(schema,'pp7TeV','PROTPHYS',6370.0,3500,{},(normrevid,'NORM'))
     dataDML.addNormToBranch(schema,'hi7TeV','HIPHYS',2.38,3500,{},(normrevid,'NORM'))
+    dataDML.insertRunSummaryData(schema,runnumber,[l1key,amodetag,egev],complementalOnly=True)
     (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(schema,runnumber,[args.connect],(datarevid,'DATA'))
     bitzeroname=bitnames.split(',')[0]
     trgrundata=['oracle://cms_oron_prod/cms_trg',bitzeroname,bitnames]
     (trgrevid,trgentryid,trgdataid)=dataDML.addTrgRunDataToBranch(schema,runnumber,trgrundata,(datarevid,'DATA'))
     dataDML.insertTrgLSData(schema,runnumber,trgdataid,trglsdata)
-    [pathnames,hltlsdata]=queryDataSource.hltFromOldLumi(session,runnumber)
     hltrundata=[pathnames,'oracle://cms_orcon_prod/cms_runinfo']
     (hltrevid,hltentryid,hltdataid)=dataDML.addHLTRunDataToBranch(schema,runnumber,hltrundata,(datarevid,'DATA'))
     dataDML.insertHltLSData(schema,runnumber,hltdataid,hltlsdata)
