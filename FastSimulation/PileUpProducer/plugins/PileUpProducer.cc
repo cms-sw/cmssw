@@ -43,7 +43,44 @@ PileUpProducer::PileUpProducer(edm::ParameterSet const & p)
 
   // The pile-up event generation condition
   const edm::ParameterSet& pu = p.getParameter<edm::ParameterSet>("PileUpSimulator");
-  averageNumber_ = pu.getParameter<double>("averageNumber");
+  usePoisson_ = pu.getParameter<bool>("usePoisson");
+  if (usePoisson_) {
+    std::cout << " FastSimulation/PileUpProducer -> poissonian distribution" << std::endl;
+    averageNumber_ = pu.getParameter<double>("averageNumber");
+  } else {//take distribution from configuration
+    std::cout << " FastSimulation/PileUpProducer -> distribution from configuration file "  << std::endl;
+    dataProbFunctionVar = pu.getParameter<std::vector<int> >("probFunctionVariable");
+    dataProb = pu.getParameter<std::vector<double> >("probValue");
+    varSize = (int) dataProbFunctionVar.size();
+    probSize = (int) dataProb.size();
+    std::cout << " FastSimulation/PileUpProducer -> varSize = " << varSize  << std::endl;
+    std::cout << " FastSimulation/PileUpProducer -> probSize = " << probSize  << std::endl;
+    
+    if (probSize < varSize){
+      std::cout << " The probability function data will be completed with " <<(varSize - probSize)  <<" values 0."; 
+      for (int i=0; i<(varSize - probSize); i++) dataProb.push_back(0);
+      probSize = dataProb.size();
+      std::cout << " The number of the P(x) data set after adding the values 0 is " << probSize;
+    }
+    // Create an histogram with the data from the probability function provided by the user  
+    int xmin = (int) dataProbFunctionVar[0];
+    int xmax = (int) dataProbFunctionVar[varSize-1]+1;  // need upper edge to be one beyond last value
+    int numBins = varSize;
+    std::cout << "An histogram will be created with " << numBins << " bins in the range ("<< xmin << "," << xmax << ")." << std::endl;
+    hprob = new TH1F("h","Histo from the user's probability function",numBins,xmin,xmax); 
+    std::cout << "Filling histogram with the following data:" << std::endl;
+    for (int j=0; j < numBins ; j++){
+      std::cout << " x = " << dataProbFunctionVar[j ]<< " P(x) = " << dataProb[j];
+      hprob->Fill(dataProbFunctionVar[j]+0.5,dataProb[j]); // assuming integer values for the bins, fill bin centers, not edges 
+    }
+    std::cout << std::endl;
+
+    // Check if the histogram is normalized
+    if (((hprob->Integral() - 1) > 1.0e-02) && ((hprob->Integral() - 1) < -1.0e-02)) throw cms::Exception("BadHistoDistribution") << "The histogram should be normalized!" << std::endl;
+    
+    // Get the averageNumber from the histo 
+    averageNumber_ = hprob->GetMean();
+  }
   theFileNames = pu.getUntrackedParameter<std::vector<std::string> >("fileNames");
   inputFile = pu.getUntrackedParameter<std::string>("inputFile");
   theNumberOfFiles = theFileNames.size();
@@ -68,12 +105,15 @@ PileUpProducer::PileUpProducer(edm::ParameterSet const & p)
   else
     theVertexGenerator = new NoPrimaryVertexGenerator();
 
+
+
   if (averageNumber_ > 0.)
     {
       std::cout << " FastSimulation/PileUpProducer -> minBias events taken from " << theFileNames[0] << " et al., " ;
       std::cout << " with an average number of events of " << averageNumber_ << std::endl;
     }
   else std::cout << " FastSimulation/PileUpProducer -> No pileup " << std::endl;
+
 
 }
 
@@ -183,7 +223,8 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
   HepMC::GenEvent* evt = new HepMC::GenEvent();
   
   // How many pile-up events?
-  int PUevts = (int) random->poissonShoot(averageNumber_);
+  int PUevts = usePoisson_ ? (int) random->poissonShoot(averageNumber_) : (int) hprob->GetRandom();
+  //  std::cout << "PUevts = " << PUevts << std::endl;
 
   // Get N events from random files
   for ( int ievt=0; ievt<PUevts; ++ievt ) { 
