@@ -5,6 +5,19 @@ from TrackingTools.TrackAssociator.default_cfi import *
 
 CSCBasedHaloFilter = cms.EDFilter("CSCHaloFilter",
 
+                                  BeamHaloSummaryLabel = cms.InputTag("BeamHaloSummary"),
+                                  ### Do you want to filter based on BeamHaloSummary::CSCLooseHaloId() ( ~90% eff, 1E-3 mistag rate) 
+                                  FilterCSCLoose = cms.bool(False),
+                                  ### Do you want to filter based on BeamHaloSummary::CSCTightHaloId() ( ~65% eff, <1E-5 mistag rate)
+                                  FilterCSCTight = cms.bool(False),
+
+
+                                  #############  For Use Only if FilterCSCLoose and FilterCSCTight are false
+                                  #
+                                  #
+                                  #
+                                  #
+
                                   ### Do you want to use L1 CSC BeamHalo Trigger to identify halo? (For < 36X, this requires the RAW-DIGI )
                                   FilterTriggerLevel = cms.bool(True),
                                   ### Do you want to use early ALCT Digis to identify halo? (requires DIGI data tier)
@@ -66,11 +79,19 @@ CSCBasedHaloFilter = cms.EDFilter("CSCHaloFilter",
                                   
                                   # If this is MC, the expected collision bx for ALCT Digis will be 6 instead of 3
                                   ExpectedBX = cms.int32(3),
-
-
                                   TrackAssociatorParameters = TrackAssociatorParameterBlock.TrackAssociatorParameters
                                   )
                              
+
+###CSC Loose Only
+CSCLooseHaloFilter = CSCBasedHaloFilter.clone()
+CSCLooseHaloFilter.FilterCSCLoose = True
+CSCLooseHaloFilter.FilterCSCTight = False
+
+###CSC Tight Only
+CSCTightHaloFilter = CSCBasedHaloFilter.clone()
+CSCTightHaloFilter.FilterCSCLoose = False
+CSCTightHaloFilter.FilterCSCTight = True
 
 ###Trigger Level Only###
 CSCHaloFilterTriggerLevel = CSCBasedHaloFilter.clone()
@@ -113,12 +134,12 @@ CSCHaloFilterDigiOrRecoLevel = cms.Sequence( CSCHaloFilterDigiLevel * CSCHaloFil
 
 ### Digi OR Reco OR Trigger Level ###  (Loose Selection)
 CSCHaloFilterDigiOrRecoOrTriggerLevel = cms.Sequence( CSCHaloFilterDigiLevel * CSCHaloFilterRecoLevel * CSCHaloFilterTriggerLevel )
-CSCHaloFilterLoose = cms.Sequence(CSCHaloFilterDigiOrRecoOrTriggerLevel)
+#CSCHaloFilterLoose = cms.Sequence(CSCHaloFilterDigiOrRecoOrTriggerLevel)
 
 ### (Digi AND Reco) OR (Digi AND Trigger) OR (Reco AND Trigger)###  (Tight Selection)
 CSCHaloFilter_DigiAndReco_Or_DigiAndTrigger_Or_RecoAndTrigger = cms.Sequence( CSCHaloFilterRecoAndTriggerLevel *
                                                                               CSCHaloFilterDigiAndTriggerLevel *
                                                                               CSCHaloFilterDigiAndRecoLevel )
 
-CSCHaloFilterTight = cms.Sequence(CSCHaloFilter_DigiAndReco_Or_DigiAndTrigger_Or_RecoAndTrigger)
+#CSCHaloFilterTight = cms.Sequence(CSCHaloFilter_DigiAndReco_Or_DigiAndTrigger_Or_RecoAndTrigger)
 
