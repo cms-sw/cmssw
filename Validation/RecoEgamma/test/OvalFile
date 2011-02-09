@@ -25,8 +25,8 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="4_2_0_pre1">
-<var name="VAL_REF_RELEASE" value="3_11_0">
+<var name="VAL_NEW_RELEASE" value="4_2_0_pre2_pflow">
+<var name="VAL_REF_RELEASE" value="4_2_0_pre1">
 <var name="VAL_COMMENT" value="No electron code change.">
 
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
