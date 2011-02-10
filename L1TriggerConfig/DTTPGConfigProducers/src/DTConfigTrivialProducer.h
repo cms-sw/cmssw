@@ -57,7 +57,7 @@ private:
   void buildManager();
 
   //! Build Config Pedestals
-  DTConfigPedestals buildPedestals();
+  DTConfigPedestals buildTrivialPedestals();
 
   std::string mapEntryName(const DTChamberId & chambid) const;
 

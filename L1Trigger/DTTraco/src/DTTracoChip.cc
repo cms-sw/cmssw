@@ -13,6 +13,7 @@
 //   16/I/07  SV : new DTConfig update
 //   3/IV/07  SV : setTracoAcceptance moved from card to chip
 //   30/10/09 SV : lut parameters from DB are used in code
+//   110208 SV   : TRACO hardware bug included
 //------------------------------------------------------------
 
 //-----------------------
@@ -93,7 +94,13 @@ DTTracoChip::DTTracoChip(DTTracoCard* card, int n, DTConfigTraco* conf) :
   {
     //int board = int( (n-1)/4 );
     //int traco = int(fmod( double(n-1),4.));
-    _lutsCCB = new Lut(_card->config_luts(),n);
+    // 110208 SV for TRACO hardware bug included SL_shift
+    // SL shift
+    float xBTI1_3 	= _geom->localPosition( DTBtiId(DTSuperLayerId(sid.wheel(),sid.station(),sid.sector(),3),1) ).x();
+    float xBTI1_1 	= _geom->localPosition( DTBtiId(DTSuperLayerId(sid.wheel(),sid.station(),sid.sector(),1),1) ).x();
+    float SL_shift 	= xBTI1_3 - xBTI1_1;
+
+    _lutsCCB = new Lut(_card->config_luts(),n,SL_shift);
     _luts = 0;
   }
   else

@@ -1,3 +1,7 @@
+//
+//   110208 SV TRACO hardware bug included
+//
+//
 //-----------------------
 // This Class's Header --
 //-----------------------
@@ -7,18 +11,28 @@
 // Constructors --
 //----------------
 
-Lut::Lut(DTConfigLUTs* conf, int ntc): _conf_luts(conf) {
+Lut::Lut(DTConfigLUTs* conf, int ntc, float SL_shift): _conf_luts(conf) {
 
   // set parameters from configuration
   m_d		= _conf_luts->D(); 
   m_ST		= _conf_luts->BTIC();
   m_wheel 	= _conf_luts->Wheel();
-  m_Xcn 	= _conf_luts->Xcn() - (CELL_PITCH * 4.0 * (float)(ntc-1) * (float) m_wheel);
 
+  // 110208 SV TRACO hardware bug included: Xcn must be corrected because Xcn parameter has been
+  // inserted in hardware strings with the shift included, because TRACO doesn't apply shift in positive cases
+  float Xcn_corr    = _conf_luts->Xcn();
+  if(SL_shift > 0){
+    if(Xcn_corr > 0)
+      Xcn_corr = Xcn_corr - SL_shift;
+    if(Xcn_corr < 0)
+      Xcn_corr = Xcn_corr + SL_shift;
+  }
+	
+  m_Xcn 	= Xcn_corr - (CELL_PITCH * 4.0 * (float)(ntc-1) * (float) m_wheel);
   m_pitch_d_ST	= CELL_PITCH / m_ST;
 
-  std::cout<< "Lut::Lut  ->  m_d " << m_d << " m_ST " << m_ST << " m_wheel " << m_wheel << " m_Xcn " << m_Xcn << " ntc " << ntc << std::endl;
 
+  //std::cout<< "Lut::Lut  ->  m_d " << m_d << " m_ST " << m_ST << " m_wheel " << m_wheel << " m_Xcn " << m_Xcn << " ntc " << ntc << std::endl;
   return;
 }
  

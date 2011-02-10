@@ -4,7 +4,7 @@
  *
  *   Class for computing single Traco LUT from given parameters
  * 
- *   $Date: 2009/11/02 14:18:30 $
+ *   $Date: 2009/11/12 14:33:22 $
  * 
  *   \author S. Vanini
  */
@@ -34,7 +34,7 @@ class Lut {
 
  public:
   Lut() {}; 
-  Lut(DTConfigLUTs* conf, int ntc);
+  Lut(DTConfigLUTs* conf, int ntc, float SL_shift);
   ~Lut();
 
   // set lut parameters methods

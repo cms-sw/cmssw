@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfig_cff import *
+from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfigFromDB_cff import *
 
 dtTriggerPrimitiveDigis = cms.EDProducer("DTTrigProd",
     debug = cms.untracked.bool(False),
@@ -10,11 +10,7 @@ dtTriggerPrimitiveDigis = cms.EDProducer("DTTrigProd",
     # false means [1-12] (useful for debug)
     # true is [0-11] useful as input for the DTTF emulator
     DTTFSectorNumbering = cms.bool(True),
-    # conig params for dumping of LUTs info from emulator
+    # config params for dumping of LUTs info from emulator
     lutBtic = cms.untracked.int32(31),
     lutDumpFlag = cms.untracked.bool(False)
- 
 )
-
-
-

@@ -385,6 +385,7 @@ DTTrigGeom::dumpLUT(short int btic) {
   if(sector()==1 || sector() ==7){  
   	d = fabs(traco_1.x());
   	xcn = fabs(traco_1.y());
+        // 110208 SV comment: this was inserted for a TRACO hardware bug
   	if (SL_shift > 0) 
 		xcn = xcn+SL_shift;
   	xcn_sign = static_cast<int>(pp.y()/fabs(pp.y()))*static_cast<int>(traco_1.y()/fabs(traco_1.y()));
@@ -401,6 +402,7 @@ DTTrigGeom::dumpLUT(short int btic) {
   
   	d = sqrt(xn*xn+yn*yn);
   	xcn = sqrt( (xn-traco_1.x())*(xn-traco_1.x()) + (yn-traco_1.y())*(yn-traco_1.y()) );
+        // 110208 SV comment: this was inserted for a TRACO hardware bug
   	if (SL_shift > 0) 
 		xcn = xcn+SL_shift;
   

@@ -69,6 +69,10 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
   bool tracoLutsFromDB   = p.getParameter<bool>("TracoLutsFromDB");
   bool useBtiAcceptParam = p.getParameter<bool>("UseBtiAcceptParam");
 
+  // set specific DB requests
+  m_manager->setLutFromDB(tracoLutsFromDB);
+  m_manager->setUseAcceptParam(useBtiAcceptParam);
+
   // initialize flags to check if data are present in OMDS 
   flagDBBti 	= false;
   flagDBTraco 	= false;
@@ -80,10 +84,6 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
   edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");  
   bool dttpgdebug = conf_ps.getUntrackedParameter<bool>("Debug");
   m_manager->setDTTPGDebug(dttpgdebug);
-
-  // set specific DB requests
-  m_manager->setLutFromDB(tracoLutsFromDB);
-  m_manager->setUseAcceptParam(useBtiAcceptParam);
 }
 
 
@@ -108,7 +108,7 @@ std::auto_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManager
    }	
    else{
    	code = readDTCCBConfig(iRecord);
-   	readPedestalsConfig(iRecord); // CB return code anche qui???
+   	readDBPedestalsConfig(iRecord); // CB return code anche qui???
    }
    if(code==-1)
    	cout << "ERROR code: please check!" << endl; 
@@ -127,7 +127,7 @@ std::auto_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManager
    return dtConfig ;
 }
 
-void DTConfigDBProducer::readPedestalsConfig(const DTConfigManagerRcd& iRecord){
+void DTConfigDBProducer::readDBPedestalsConfig(const DTConfigManagerRcd& iRecord){
 
   edm::ESHandle<DTTPGParameters> dttpgParams;
   iRecord.getRecord<DTTPGParametersRcd>().get(dttpgParams);
@@ -495,7 +495,9 @@ void DTConfigDBProducer::configFromCfg(){
   DTConfigTSTheta tsthetaconf(tups.getParameter<edm::ParameterSet>("TSThetaParameters"));
   DTConfigTSPhi tsphiconf(tups.getParameter<edm::ParameterSet>("TSPhiParameters"));
   DTConfigTrigUnit trigunitconf(tups);
-  
+  DTConfigLUTs lutconf(tups.getParameter<edm::ParameterSet>("LutParameters"));
+ 
+ 
   for (int iwh=-2;iwh<=2;++iwh){
     for (int ist=1;ist<=4;++ist){
       for (int ise=1;ise<=12;++ise){
@@ -547,6 +549,7 @@ void DTConfigDBProducer::configFromCfg(){
 		m_manager->setDTConfigTSPhi(chambid,tsphiconf);
 		m_manager->setDTConfigTrigUnit(chambid,trigunitconf);
 	}
+
       }
     }
   }
@@ -610,8 +613,41 @@ void DTConfigDBProducer::configFromCfg(){
     for (int se=1;se<=12;se++)
       m_manager->setDTConfigSectColl(DTSectCollId(wh,se),sectcollconf);
       
+  //fake collection of pedestals
+  m_manager->setDTConfigPedestals(buildTrivialPedestals());
 
   return;          
 
 }
+
+DTConfigPedestals DTConfigDBProducer::buildTrivialPedestals()
+{
+  DTTPGParameters* m_tpgParams = new DTTPGParameters();
+
+  int counts = m_ps.getParameter<int>("bxOffset");
+  float fine = m_ps.getParameter<double>("finePhase");
+   
+  if (m_debugPed) 
+    cout << "DTConfigTrivialProducer::buildPedestals()" << endl;
+
+  //DTTPGParameters tpgParams;
+  for (int iwh=-2;iwh<=2;++iwh){
+    for (int ist=1;ist<=4;++ist){
+      for (int ise=1;ise<=14;++ise){
+	if (ise>12 && ist!=4) continue;
+
+	DTChamberId chId(iwh,ist,ise);
+	m_tpgParams->set(chId,counts,fine,DTTimeUnits::ns);
+      }
+    }
+  }
+
+  DTConfigPedestals tpgPedestals;
+  tpgPedestals.setUseT0(false);
+  tpgPedestals.setES(m_tpgParams);
+ 
+  return tpgPedestals;
+
+}
+
 

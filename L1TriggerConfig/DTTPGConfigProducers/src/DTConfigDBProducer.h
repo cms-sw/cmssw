@@ -58,13 +58,16 @@ class DTConfigDBProducer : public edm::ESProducer{
  private :
 
   //! Read DTTPG pedestal configuration
-  void readPedestalsConfig(const DTConfigManagerRcd& iRecord);
+  void readDBPedestalsConfig(const DTConfigManagerRcd& iRecord);
   
   //! Read CCB string configuration
   int readDTCCBConfig(const DTConfigManagerRcd& iRecord);
 
-  //! CB ???
+  //! CB ??? 110204 SV for debugging purpose ONLY
   void configFromCfg();
+
+  //! Build Config Pedestals : 110204 SV for debugging purpose ONLY
+  DTConfigPedestals buildTrivialPedestals();
 
   std::string mapEntryName(const DTChamberId & chambid) const;
 
@@ -84,8 +87,6 @@ class DTConfigDBProducer : public edm::ESProducer{
   bool m_debugPed;
 
   // general DB requests
-  bool m_TracoLutsFromDB;
-  bool m_UseBtiAcceptParam;
   bool m_UseT0;
 
   bool cfgConfig;

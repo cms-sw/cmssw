@@ -38,7 +38,6 @@ DTConfigTrivialProducer::DTConfigTrivialProducer(const edm::ParameterSet& ps)
   // set specific DB requests
   m_manager->setLutFromDB(tracoLutsFromDB);
   m_manager->setUseAcceptParam(useBtiAcceptParam);  // CB Are these needed here???
-
 }
 
 
@@ -140,7 +139,7 @@ void DTConfigTrivialProducer::buildManager()
 	
 	// fill LUTs
 	m_manager->setDTConfigLUTs(chambid,lutconf);
-        
+        m_manager->setLutFromDB(false);    // 110204 SV to be sure to compute luts from geometry         
       }
     }
   }
@@ -194,7 +193,7 @@ void DTConfigTrivialProducer::buildManager()
 
       // fill LUTs
       m_manager->setDTConfigLUTs(chambid,lutconf);
-      
+      m_manager->setLutFromDB(false);    // 110204 SV to be sure to compute luts from geometry         
     }
   }
   
@@ -204,11 +203,11 @@ void DTConfigTrivialProducer::buildManager()
       m_manager->setDTConfigSectColl(DTSectCollId(wh,se),sectcollconf);
 
   //fake collection of pedestals
-  m_manager->setDTConfigPedestals(buildPedestals());
+  m_manager->setDTConfigPedestals(buildTrivialPedestals());
 
 }
 
-DTConfigPedestals DTConfigTrivialProducer::buildPedestals()
+DTConfigPedestals DTConfigTrivialProducer::buildTrivialPedestals()
 {
 
   int counts = m_ps.getParameter<int>("bxOffset");

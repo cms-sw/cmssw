@@ -12,8 +12,4 @@ L1DTConfig = cms.ESProducer("DTConfigTrivialProducer",
     bxOffset  = cms.int32(19),
     # Digi Pedestal fine Phase
     finePhase = cms.double(25.)
-            
 )
-
-
-
