@@ -12,6 +12,9 @@ def main():
     
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="migrate lumidb schema",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-c',dest='connect',action='store',required=False,default='oracle://cms_orcoff_prep/CMS_LUMI_DEV_OFFLINE',help='connect string to trigger DB(required)')
+    parser.add_argument('-runinfo',dest='runinfo',action='store',required=False,default='oracle://cms_orcoff_prod/CMS_RUNINFO',help='connect string to runinfo db')
+    parser.add_argument('-trgdb',dest='trgdb',action='store',required=False,default='oracle://cms_orcoff_prod/CMS_GT',help='connect string to trg db')
+    parser.add_argument('-confdb',dest='confdb',action='store',required=False,default='oracle://cms_orcoff_prod/CMS_HLT',help='connect string to conf db')
     parser.add_argument('-P',dest='authpath',action='store',required=False,default='/afs/cern.ch/user/x/xiezhen',help='path to authentication file')
     parser.add_argument('-r',dest='runnumber',action='store',required=True,help='run number')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
@@ -23,7 +26,7 @@ def main():
     [bitnames,trglsdata]=queryDataSource.trgFromOldLumi(session,runnumber)
     [pathnames,hltlsdata]=queryDataSource.hltFromOldLumi(session,runnumber)
 
-    runinfosvc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_runinfo',authpath=args.authpath,debugON=args.debug)
+    runinfosvc=sessionManager.sessionManager(args.runinfo,authpath=args.authpath,debugON=args.debug)
     runinfosession=runinfosvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     [l1key,amodetag,egev]=queryDataSource.runsummary(runinfosession,'CMS_RUNINFO',runnumber,complementalOnly=True)
     print 'runsummary ',l1key,amodetag,egev
@@ -40,10 +43,10 @@ def main():
     dataDML.insertRunSummaryData(schema,runnumber,[l1key,amodetag,egev],complementalOnly=True)
     (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(schema,runnumber,[args.connect],(datarevid,'DATA'))
     bitzeroname=bitnames.split(',')[0]
-    trgrundata=['oracle://cms_oron_prod/cms_trg',bitzeroname,bitnames]
+    trgrundata=[args.connect,bitzeroname,bitnames]
     (trgrevid,trgentryid,trgdataid)=dataDML.addTrgRunDataToBranch(schema,runnumber,trgrundata,(datarevid,'DATA'))
     dataDML.insertTrgLSData(schema,runnumber,trgdataid,trglsdata)
-    hltrundata=[pathnames,'oracle://cms_orcon_prod/cms_runinfo']
+    hltrundata=[pathnames,args.connect]
     (hltrevid,hltentryid,hltdataid)=dataDML.addHLTRunDataToBranch(schema,runnumber,hltrundata,(datarevid,'DATA'))
     dataDML.insertHltLSData(schema,runnumber,hltdataid,hltlsdata)
     session.transaction().commit()
