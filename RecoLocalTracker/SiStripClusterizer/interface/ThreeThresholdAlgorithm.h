@@ -18,7 +18,8 @@ class ThreeThresholdAlgorithm : public StripClusterizerAlgorithm {
  private:
 
   template<class T> void clusterizeDetUnit_(const T&, output_t::FastFiller&);
-  ThreeThresholdAlgorithm(float, float, float, unsigned, unsigned, unsigned, std::string qualityLabel);
+  ThreeThresholdAlgorithm(float, float, float, unsigned, unsigned, unsigned, std::string qualityLabel,
+			  bool setDetId);
 
   //state of the candidate cluster
   std::vector<uint16_t> ADCs;  

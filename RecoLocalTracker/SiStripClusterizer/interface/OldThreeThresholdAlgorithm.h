@@ -47,12 +47,13 @@ class OldThreeThresholdAlgorithm : public StripClusterizerAlgorithm {
 
  private:
 
-  OldThreeThresholdAlgorithm(float strip_thr, float seed_thr,float clust_thr, int max_holes,std::string qualityLabel) :
+  OldThreeThresholdAlgorithm(float strip_thr, float seed_thr,float clust_thr, int max_holes,std::string qualityLabel,bool setDetId) :
     theChannelThreshold(strip_thr), 
     theSeedThreshold(seed_thr),
     theClusterThreshold(clust_thr),
     max_holes_(max_holes),
-    qualityLabel_(qualityLabel){};
+    qualityLabel_(qualityLabel){
+    _setDetId=setDetId;};
 
   //  SiStripNoiseService* SiStripNoiseService_; 
   template<typename InputDetSet>
