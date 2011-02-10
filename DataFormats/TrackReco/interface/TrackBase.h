@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.78 2009/10/21 13:04:14 mangano Exp $
+ * \version $Id: TrackBase.h,v 1.79 2010/05/03 10:15:39 cerati Exp $
  *
  */
 
@@ -225,6 +225,15 @@ namespace reco {
     unsigned short numberOfValidHits() const { return hitPattern_.numberOfValidHits(); }
     /// number of cases where track crossed a layer without getting a hit.
     unsigned short numberOfLostHits() const { return hitPattern_.numberOfLostHits(); }
+    /// fraction of valid hits on the track
+    double validFraction() const {
+      int valid = hitPattern_.numberOfValidTrackerHits();
+      int lost  = hitPattern_.numberOfLostTrackerHits();
+      int lostIn = trackerExpectedHitsInner_.numberOfLostTrackerHits();
+      int lostOut = trackerExpectedHitsOuter_.numberOfLostTrackerHits();
+      if ((valid+lost+lostIn+lostOut)==0) return -1;
+      return valid/(1.0*(valid+lost+lostIn+lostOut));
+    }
     /// set hit patterns from vector of hit references
     template<typename C>
     void setHitPattern( const C & c ) { hitPattern_.set( c.begin(), c.end() ); }
