@@ -15,10 +15,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 PropagateToMuon::PropagateToMuon(const edm::ParameterSet & iConfig) :
-    useSimpleGeometry_(iConfig.getParameter<bool>("useSimpleGeometry")),
-    fallbackToME1_(iConfig.existsAs<bool>("fallbackToME1") ? iConfig.getParameter<bool>("fallbackToME1") : false),
-    whichTrack_(None), whichState_(AtVertex),
-    cosmicPropagation_(iConfig.existsAs<bool>("cosmicPropagationHypothesis") ? iConfig.getParameter<bool>("cosmicPropagationHypothesis") : false)
+  useSimpleGeometry_(iConfig.getParameter<bool>("useSimpleGeometry")),
+  useMB2_(iConfig.existsAs<bool>("useStation2") ? iConfig.getParameter<bool>("useStation2") : true),
+  fallbackToME1_(iConfig.existsAs<bool>("fallbackToME1") ? iConfig.getParameter<bool>("fallbackToME1") : false),
+  whichTrack_(None), whichState_(AtVertex),
+  cosmicPropagation_(iConfig.existsAs<bool>("cosmicPropagationHypothesis") ? iConfig.getParameter<bool>("cosmicPropagationHypothesis") : false)
 {
     std::string whichTrack = iConfig.getParameter<std::string>("useTrack");
     if      (whichTrack == "none")    { whichTrack_ = None; }
@@ -48,11 +49,14 @@ PropagateToMuon::init(const edm::EventSetup & iSetup) {
     iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",      propagatorAny_);
     iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry_);
 
-    const DetLayer * dt2 = muonGeometry_->allDTLayers()[1];
-    barrelCylinder_ = dynamic_cast<const BoundCylinder *>(&dt2->surface());
+    // Get the barrel cylinder
+    const DetLayer * dtLay = muonGeometry_->allDTLayers()[useMB2_ ? 1 : 0];
+    barrelCylinder_ = dynamic_cast<const BoundCylinder *>(&dtLay->surface());
     barrelHalfLength_ = barrelCylinder_->bounds().length()/2;;
     //std::cout << "L1MuonMatcher: barrel radius = " << barrelCylinder_->radius() << ", half length = " << barrelHalfLength_ << std::endl;
-    for (size_t i = 0; i <= 2; ++i) {
+
+    // Get the endcap disks. Note that ME1 has two disks (ME1/1 and ME2/1-ME3/2-ME4/1), so there's one more index
+    for (size_t i = 0; i <= (useMB2_ ? 2 : 1); ++i) {
         endcapDiskPos_[i] = dynamic_cast<const BoundDisk *>(& muonGeometry_->forwardCSCLayers()[i]->surface());
         endcapDiskNeg_[i] = dynamic_cast<const BoundDisk *>(& muonGeometry_->backwardCSCLayers()[i]->surface());
         endcapRadii_[i] = std::make_pair(endcapDiskPos_[i]->innerRadius(), endcapDiskPos_[i]->outerRadius());
@@ -136,7 +140,7 @@ PropagateToMuon::extrapolate(const FreeTrajectoryState &start) const {
     const Propagator * propagatorEndcaps = &*propagator_;
     if (whichState_ != AtVertex) { 
         if (start.position().perp()    > barrelCylinder_->radius())         propagatorBarrel  = &*propagatorOpposite_;
-        if (fabs(start.position().z()) > endcapDiskPos_[2]->position().z()) propagatorEndcaps = &*propagatorOpposite_;
+        if (fabs(start.position().z()) > endcapDiskPos_[useMB2_?2:1]->position().z()) propagatorEndcaps = &*propagatorOpposite_;
     }
     if (cosmicPropagation_) {
         if (start.momentum().dot(GlobalVector(start.position().x(), start.position().y(), start.position().z())) < 0) {
@@ -156,7 +160,7 @@ PropagateToMuon::extrapolate(const FreeTrajectoryState &start) const {
         }
     } 
     if (!final.isValid()) { 
-      for (int ie = 2; ie >= 0; --ie) {
+      for (int ie = (useMB2_ ? 2 : 1); ie >= 0; --ie) {
         tsos = propagatorEndcaps->propagate(start, (eta > 0 ? *endcapDiskPos_[ie] : *endcapDiskNeg_[ie]));
         if (tsos.isValid()) {
             if (useSimpleGeometry_) {
@@ -166,9 +170,9 @@ PropagateToMuon::extrapolate(const FreeTrajectoryState &start) const {
             } else {
                 final = getBestDet(tsos, (eta > 0 ? muonGeometry_->forwardCSCLayers()[ie] : muonGeometry_->backwardCSCLayers()[ie]));
             }
-        } else //std::cout << "  failed to propagated to endcap " << ie  << std::endl;
+        } //else //std::cout << "  failed to propagated to endcap " << ie  << std::endl;
         if (final.isValid()) break;
-        if (!fallbackToME1_) break;
+        if (ie == 2 && !fallbackToME1_) break;
       }
     }
     return final;

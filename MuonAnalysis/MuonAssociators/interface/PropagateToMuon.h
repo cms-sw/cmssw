@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
 #define MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
 //
-// $Id: PropagateToMuon.h,v 1.2 2010/04/21 17:19:18 gpetrucc Exp $
+// $Id: PropagateToMuon.h,v 1.3 2010/07/01 07:41:09 gpetrucc Exp $
 //
 
 /**
@@ -10,7 +10,7 @@
             Support for other muon stations will be added on request.
             
   \author   Giovanni Petrucciani
-  \version  $Id: PropagateToMuon.h,v 1.2 2010/04/21 17:19:18 gpetrucc Exp $
+  \version  $Id: PropagateToMuon.h,v 1.3 2010/07/01 07:41:09 gpetrucc Exp $
 */
 
 
@@ -57,6 +57,9 @@ class PropagateToMuon {
 
         /// Use simplified geometry (cylinders and disks, not individual chambers)
         bool useSimpleGeometry_;
+
+        /// Propagate to MB2 (default) instead of MB1
+        bool useMB2_;
 
         /// Fallback to ME1 if propagation to ME2 fails
         bool fallbackToME1_;
