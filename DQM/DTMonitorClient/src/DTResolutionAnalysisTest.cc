@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/22 15:32:04 $
- *  $Revision: 1.21 $
+ *  $Date: 2010/10/27 17:52:18 $
+ *  $Revision: 1.22 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -53,6 +53,7 @@ DTResolutionAnalysisTest::DTResolutionAnalysisTest(const ParameterSet& ps){
 
 
 DTResolutionAnalysisTest::~DTResolutionAnalysisTest(){
+
   LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") << "DTResolutionAnalysisTest: analyzed " << nevents << " events";
 
 }
@@ -64,10 +65,47 @@ void DTResolutionAnalysisTest::beginJob(){
 
   nevents = 0;
 
+}
+
+void DTResolutionAnalysisTest::beginRun(const Run& run, const EventSetup& context){
+
+  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: BeginRun"; 
+
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(muonGeom);
+
+}
+
+
+void DTResolutionAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+
+  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: Begin of LS transition";
+
+  // Get the run number
+  run = lumiSeg.run();
+
+}
+
+
+
+void DTResolutionAnalysisTest::analyze(const Event& e, const EventSetup& context){
+
+  nevents++;
+
+}
+
+
+
+void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+
+}
+
+
+void DTResolutionAnalysisTest::bookHistos() {
+
   // global residual summary
   dbe->setCurrentFolder(topHistoFolder);
   globalResSummary = dbe->book2D("ResidualsGlbSummary", "# of SLs with good mean and good sigma of residuals",12,1,13,5,-2,3);
-
 
   // book summaries for mean and sigma
   dbe->setCurrentFolder(topHistoFolder + "/00-MeanRes");
@@ -119,50 +157,20 @@ void DTResolutionAnalysisTest::beginJob(){
 
 }
 
-void DTResolutionAnalysisTest::beginRun(const Run& run, const EventSetup& context){
-
-  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: BeginRun"; 
-
-  // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
-
-}
-
-
-void DTResolutionAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
-  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: Begin of LS transition";
-
-  // Get the run number
-  run = lumiSeg.run();
-
-
-}
-
-
-
-void DTResolutionAnalysisTest::analyze(const Event& e, const EventSetup& context){
-
-  nevents++;
-
-}
-
-
-
-void DTResolutionAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-}
-
-
 void DTResolutionAnalysisTest::endRun(Run const& run, EventSetup const& context) {
-  
 
-  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") <<"[DTResolutionAnalysisTest]: End of Run transition, performing the DQM client operation";
+  if (!dbe->dirExists(topHistoFolder)) {
+    LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") 
+      <<"[DTResolutionAnalysisTest]: Base folder " << topHistoFolder 
+      << " does not exist. Skipping client operation." << endl;
+    return;
+  }
 
-//   // counts number of lumiSegs 
-//   nLumiSegs = lumiSeg.id().luminosityBlock();
-  
-//   // prescale factor
-//   if ( nLumiSegs%prescaleFactor != 0 ) return;
+  bookHistos(); // histos booked only if top histo folder exist
+                // as Standard/AlcaReco Harvest is performed in the same step
+
+  LogTrace ("DTDQM|DTMonitorClient|DTResolutionAnalysisTest") 
+    << "[DTResolutionAnalysisTest]: End of Run transition, performing the DQM client operation" << endl;
 
   // reset the ME with fixed scale
   resetMEs();

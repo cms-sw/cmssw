@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2010/01/05 10:15:46 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/01/22 15:32:04 $
+ *  $Revision: 1.10 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -48,6 +48,7 @@ public:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   /// book the summary histograms
+  void bookHistos();
   void bookHistos(int wh);
   void bookHistos(int wh, int sect);
 

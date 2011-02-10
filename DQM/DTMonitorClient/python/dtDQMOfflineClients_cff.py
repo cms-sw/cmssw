@@ -10,6 +10,7 @@ from DQM.DTMonitorClient.dtResolutionAnalysisTest_cfi import *
 from DQM.DTMonitorClient.dtTriggerEfficiencyTest_cfi import *
 from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
 blockedROChannelTest.offlineMode = True;
+from DQM.DTMonitorClient.ALCARECODTCalibSynchDQMClient_cff import *
 
 
 dtQualityTests = cms.EDAnalyzer("QualityTester",
@@ -25,6 +26,7 @@ dtClients = cms.Sequence(segmentTest+
                          dtChamberEfficiencyClient+
                          triggerEffTest+
                          blockedROChannelTest+
-                         dtOfflineSummaryClients)
+                         dtOfflineSummaryClients+
+                         ALCARECODTCalibSynchDQMClient)
 
 
