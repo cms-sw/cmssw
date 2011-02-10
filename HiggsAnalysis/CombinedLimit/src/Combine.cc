@@ -129,10 +129,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   gSystem->cd(tmpDir.Data());
 
   TString fileToLoad;
+  bool isTextDatacard = false;
   if (hlfFile.EndsWith(".hlf")) {
     fileToLoad = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
     if (!boost::filesystem::exists(fileToLoad.Data())) throw std::invalid_argument(("File "+fileToLoad+" does not exist").Data());
   }  else {
+    isTextDatacard = true;
     TString txtFile = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
     if (!boost::filesystem::exists(txtFile.Data())) throw std::invalid_argument(("Input file "+txtFile+" does not exist").Data());
     TString options = "";
@@ -186,12 +188,13 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
 
 
   if (w->data(dataset.c_str()) == 0) {
-    std::cout << "Dataset " << dataset.c_str() << " not found, will try to generate the expected dataset from the 'model_b' pdf" << std::endl;
     if (w->pdf("model_b")->canBeExtended()) {
+      std::cout << "Dataset " << dataset.c_str() << " not found, will try to generate the expected dataset from the 'model_b' pdf" << std::endl;
       RooDataHist *bdata_obs = w->pdf("model_b")->generateBinned(*observables, RooFit::Asimov()); 
       bdata_obs->SetName(dataset.c_str());
       w->import(*bdata_obs);
     } else {
+      if (!isTextDatacard) std::cout << "Dataset " << dataset.c_str() << " not found, will make one from the starting values of the observables in the model." << std::endl;
       RooDataSet *data_obs = new RooDataSet(dataset.c_str(), dataset.c_str(), *observables); 
       data_obs->add(*observables);
       w->import(*data_obs);
