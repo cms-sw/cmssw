@@ -220,7 +220,7 @@ namespace edm {
     auxBranch_  = branchEntryInfoBranch_ = statusBranch_ = 0;
     tree_ = metaTree_ = infoTree_ = 0;
     // We own the treeCache_.
-    // We make sure the treeCache_ is detatched from the file,
+    // We make sure the treeCache_ is detached from the file,
     // so that ROOT does not also delete it.
     filePtr_->SetCacheRead(0);
     // We give up our shared ownership of the TFile itself.
@@ -242,7 +242,7 @@ namespace edm {
     treeCache_->AddBranch(branchNames, kTRUE);
     treeCache_->StopLearningPhase();
     // We own the treeCache_.
-    // We make sure the treeCache_ is detatched from the file,
+    // We make sure the treeCache_ is detached from the file,
     // so that ROOT does not also delete it.
     filePtr_->SetCacheRead(0);
   }
@@ -284,7 +284,7 @@ namespace edm {
         treeCache->StopLearningPhase();
       }
       // We own the treeCache_.
-      // We make sure the treeCache_ is detatched from the file,
+      // We make sure the treeCache_ is detached from the file,
       // so that ROOT does not also delete it.
       file.SetCacheRead(0);
       return treeCache;

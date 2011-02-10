@@ -142,8 +142,8 @@ namespace edm {
     TBranch* auxBranch_;
     TBranch* branchEntryInfoBranch_;
 // We use a smart pointer to own the TTreeCache.
-// Unfortunately, ROOT owns it when attached to a TFile, but not after it is detatched.
-// So, we make sure to it is detatched before closing the TFile so there is no double delete.
+// Unfortunately, ROOT owns it when attached to a TFile, but not after it is detached.
+// So, we make sure to it is detached before closing the TFile so there is no double delete.
     boost::shared_ptr<TTreeCache> treeCache_;
     boost::shared_ptr<TTreeCache> rawTreeCache_;
     EntryNumber entries_;
