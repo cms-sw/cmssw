@@ -296,37 +296,45 @@ IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(const edm::EventSetup& iSet
 
   double bfVal=BField.mag();
 
-  double deltaPhi;
+  double deltaPhi=0;
   double etaEC = 100;
   double phiEC = 100;
   double Rcurv = pT*33.3*100/(bfVal*10); //r(m)=pT(GeV)*33.3/B(kG)
   double ecDist = zEE_;  //distance to ECAL andcap from IP (cm), 317 - ecal (not preshower), preshower -300
   double ecRad  = rEB_;  //radius of ECAL barrel (cm)
   double theta=2*atan(exp(-etaIP));
-  double zNew;
+  double zNew=0;
   if (theta>0.5*acos(-1)) theta=acos(-1)-theta;
   if (fabs(etaIP)<ebEtaBoundary_)
     {
-      deltaPhi      =-charge*asin(0.5*ecRad/Rcurv);
-      double alpha1 = 2*asin(0.5*ecRad/Rcurv);
-      double z      = ecRad/tan(theta);
-      if (etaIP>0) zNew = z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
-      else         zNew =-z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
-      double zAbs=fabs(zNew);
-      if (zAbs<ecDist)
-        {
-          etaEC    = -log(tan(0.5*atan(ecRad/zAbs)));
-          deltaPhi = -charge*asin(0.5*ecRad/Rcurv);
-        }
-      if (zAbs>ecDist)
-        {
-          zAbs           = (fabs(etaIP)/etaIP)*ecDist;
-          double Zflight = fabs(zAbs-vtxZ);
-          double alpha   = (Zflight*ecRad)/(z*Rcurv);
-          double Rec     = 2*Rcurv*sin(alpha/2);
-          deltaPhi       =-charge*alpha/2;
-          etaEC          =-log(tan(0.5*atan(Rec/ecDist)));
-        }
+      if ((0.5*ecRad/Rcurv)>1)
+	{
+	  etaEC=10000;
+	  deltaPhi=0;
+	}
+      else
+	{
+	  deltaPhi      =-charge*asin(0.5*ecRad/Rcurv);
+	  double alpha1 = 2*asin(0.5*ecRad/Rcurv);
+	  double z      = ecRad/tan(theta);
+	  if (etaIP>0) zNew = z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
+	  else         zNew =-z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
+	  double zAbs=fabs(zNew);
+	  if (zAbs<ecDist)
+	    {
+	      etaEC    = -log(tan(0.5*atan(ecRad/zAbs)));
+	      deltaPhi = -charge*asin(0.5*ecRad/Rcurv);
+	    }
+	  if (zAbs>ecDist)
+	    {
+	      zAbs           = (fabs(etaIP)/etaIP)*ecDist;
+	      double Zflight = fabs(zAbs-vtxZ);
+	      double alpha   = (Zflight*ecRad)/(z*Rcurv);
+	      double Rec     = 2*Rcurv*sin(alpha/2);
+	      deltaPhi       =-charge*alpha/2;
+	      etaEC          =-log(tan(0.5*atan(Rec/ecDist)));
+	    }
+	}
     }
   else
     {
