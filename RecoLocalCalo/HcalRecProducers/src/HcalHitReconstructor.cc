@@ -34,9 +34,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   setPulseShapeFlags_(conf.getParameter<bool>("setPulseShapeFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
-  firstauxTS_(conf.getParameter<int>("firstSample")+conf.getParameter<int>("firstAuxOffset")),
-  firstSample_(conf.getParameter<int>("firstSample")),
-  samplesToAdd_(conf.getParameter<int>("samplesToAdd"))
+  firstauxTS_(conf.getParameter<int>("firstSample")+conf.getParameter<int>("firstAuxOffset"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   //Set all FlagSetters to 0
