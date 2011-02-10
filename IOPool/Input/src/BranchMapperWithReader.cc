@@ -44,7 +44,7 @@ namespace edm {
   BranchID
   BranchMapperWithReader::oldProductIDToBranchID_(ProductID const& oldProductID) const {
     std::map<unsigned int, BranchID>::const_iterator it = oldProductIDToBranchIDMap_.find(oldProductID.oldID());
-    if (it == oldProductIDToBranchIDMap_.end()) {
+    if(it == oldProductIDToBranchIDMap_.end()) {
       return BranchID();
     }
     return it->second;

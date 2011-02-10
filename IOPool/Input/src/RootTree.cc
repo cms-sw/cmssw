@@ -42,12 +42,15 @@ namespace edm {
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : getProductProvenanceBranch(tree_, branchType_)),
     treeCache_(),
+    rawTreeCache_(),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
     branchNames_(),
     branches_(new BranchMap),
-    trained_(kFALSE),
+    trainNow_(false),
+    switchOverEntry_(-1),
     learningEntries_(learningEntries),
+    cacheSize_(cacheSize),
     productStatuses_(), // backward compatibility
     pProductStatuses_(&productStatuses_), // backward compatibility
     infoTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)), // backward compatibility
@@ -56,7 +59,8 @@ namespace edm {
       setCacheSize(cacheSize);
   }
 
-  RootTree::~RootTree() {}
+  RootTree::~RootTree() {
+  }
 
   bool
   RootTree::isValid() const {
@@ -75,14 +79,14 @@ namespace edm {
       assert(isValid());
       prod.init();
       if(tree_->GetBranch(prod.branchName().c_str()) == 0){
-	prod.setDropped();
+        prod.setDropped();
       }
   }
 
   void
   RootTree::addBranch(BranchKey const& key,
-		      BranchDescription const& prod,
-		      std::string const& oldBranchName) {
+                      BranchDescription const& prod,
+                      std::string const& oldBranchName) {
       assert(isValid());
       prod.init();
       //use the translated branch name
@@ -104,21 +108,21 @@ namespace edm {
       //use the translated branch name
       TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
       if (branch != 0) {
-	TObjArray* leaves = tree_->GetListOfLeaves();
-	int entries = leaves->GetEntries();
-	for (int i = 0; i < entries; ++i) {
-	  TLeaf* leaf = (TLeaf*)(*leaves)[i];
-	  if (leaf == 0) continue;
-	  TBranch* br = leaf->GetBranch();
-	  if (br == 0) continue;
-	  if (br->GetMother() == branch) {
-	    leaves->Remove(leaf);
-	  }
-	}
-	leaves->Compress();
-	tree_->GetListOfBranches()->Remove(branch);
-	tree_->GetListOfBranches()->Compress();
-	delete branch;
+        TObjArray* leaves = tree_->GetListOfLeaves();
+        int entries = leaves->GetEntries();
+        for (int i = 0; i < entries; ++i) {
+          TLeaf* leaf = (TLeaf*)(*leaves)[i];
+          if (leaf == 0) continue;
+          TBranch* br = leaf->GetBranch();
+          if (br == 0) continue;
+          if (br->GetMother() == branch) {
+            leaves->Remove(leaf);
+          }
+        }
+        leaves->Compress();
+        tree_->GetListOfBranches()->Remove(branch);
+        tree_->GetListOfBranches()->Compress();
+        delete branch;
       }
   }
 
@@ -134,9 +138,11 @@ namespace edm {
 
   void
   RootTree::setCacheSize(unsigned int cacheSize) {
+    cacheSize_ = cacheSize;
     tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
     treeCache_.reset(dynamic_cast<TTreeCache*>(filePtr_->GetCacheRead()));
     filePtr_->SetCacheRead(0);
+    rawTreeCache_.reset();
   }
 
   void
@@ -149,19 +155,59 @@ namespace edm {
     filePtr_->SetCacheRead(treeCache_.get());
     entryNumber_ = theEntryNumber;
     tree_->LoadTree(entryNumber_);
-    maybeTrain();
     filePtr_->SetCacheRead(0);
+    if(treeCache_ && trainNow_ && entryNumber_ >= 0) {
+      startTraining();
+      trainNow_ = false;
+    }
+    if (treeCache_ && treeCache_->IsLearning() && switchOverEntry_ >= 0 && entryNumber_ >= switchOverEntry_) {
+      stopTraining();
+    }
   }
 
   void
-  RootTree::getEntry(TBranch* branch, EntryNumber entry) const{
-    if (treeCache_) {
-      filePtr_->SetCacheRead(treeCache_.get());
-      roottree::getEntry(branch, entry);
+  RootTree::getEntry(TBranch* branch, EntryNumber entryNumber) const {
+    if (!treeCache_) {
+      filePtr_->SetCacheRead(0);
+      roottree::getEntry(branch, entryNumber);
+    } else if (treeCache_->IsLearning() && rawTreeCache_) {
+      treeCache_->AddBranch(branch, kTRUE);
+      filePtr_->SetCacheRead(rawTreeCache_.get());
+      roottree::getEntry(branch, entryNumber);
       filePtr_->SetCacheRead(0);
     } else {
-      roottree::getEntry(branch, entry);
+      filePtr_->SetCacheRead(treeCache_.get());
+      roottree::getEntry(branch, entryNumber);
+      filePtr_->SetCacheRead(0);
     }
+  }
+
+  void
+  RootTree::startTraining() {
+    assert(treeCache_ && treeCache_->GetOwner() == tree_);
+    assert(branchType_ == InEvent);
+    assert(!rawTreeCache_);
+    treeCache_->SetLearnEntries(learningEntries_);
+    tree_->SetCacheSize(static_cast<Long64_t>(cacheSize_));
+    rawTreeCache_.reset(dynamic_cast<TTreeCache *>(filePtr_->GetCacheRead()));
+    filePtr_->SetCacheRead(0);
+    rawTreeCache_->SetLearnEntries(0);
+    switchOverEntry_ = entryNumber_ + learningEntries_;
+    rawTreeCache_->StartLearningPhase();
+    rawTreeCache_->SetEntryRange(entryNumber_, switchOverEntry_);
+    rawTreeCache_->AddBranch("*", kTRUE);
+    rawTreeCache_->StopLearningPhase();
+    treeCache_->StartLearningPhase();
+    treeCache_->SetEntryRange(switchOverEntry_, tree_->GetEntries());
+    treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str(), kTRUE);
+    treeCache_->AddBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str(), kTRUE);
+  }
+
+  void
+  RootTree::stopTraining() {
+    filePtr_->SetCacheRead(treeCache_.get());
+    treeCache_->StopLearningPhase();
+    rawTreeCache_.reset();
   }
 
   void
@@ -174,24 +220,8 @@ namespace edm {
     // We make sure the treeCache_ is detatched from the file,
     // so that ROOT does not also delete it.
     filePtr_->SetCacheRead(0);
-    trained_ = kFALSE;
     // We give up our shared ownership of the TFile itself.
     filePtr_.reset();
-  }
-
-  void
-  RootTree::maybeTrain() {
-    if (treeCache_ && !trained_ && entryNumber_ >= 0) {
-      assert(treeCache_->GetOwner() == tree_);
-      treeCache_->SetLearnEntries(learningEntries_);
-      treeCache_->SetEntryRange(entryNumber_, tree_->GetEntries());
-      treeCache_->StartLearningPhase();
-      treeCache_->AddBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str(), kTRUE);
-      if (branchType_ == edm::InEvent) {
-        treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str(), kTRUE);
-      }
-      trained_ = kTRUE;
-    }
   }
 
   namespace roottree {
@@ -202,7 +232,7 @@ namespace edm {
         n = branch->GetEntry(entryNumber);
       }
       catch(cms::Exception const& e) {
-	throw edm::Exception(edm::errors::FileReadError) << e.explainSelf() << "\n";
+        throw Exception(errors::FileReadError) << e.explainSelf() << "\n";
       }
       return n;
     }
@@ -214,19 +244,19 @@ namespace edm {
         n = tree->GetEntry(entryNumber);
       }
       catch(cms::Exception const& e) {
-	throw edm::Exception(edm::errors::FileReadError) << e.explainSelf() << "\n";
+        throw Exception(errors::FileReadError) << e.explainSelf() << "\n";
       }
       return n;
     }
 
     void
-    trainCache(TTree* tree, TFile& file, unsigned int cacheSize) {
+    trainCache(TTree* tree, TFile& file, unsigned int cacheSize, char const* branchNames) {
       tree->SetCacheSize(cacheSize);
       std::auto_ptr<TTreeCache> treeCache(dynamic_cast<TTreeCache*>(file.GetCacheRead()));
       if (0 != treeCache.get()) {
         treeCache->StartLearningPhase();
         treeCache->SetEntryRange(0, tree->GetEntries());
-        treeCache->AddBranch("*", kTRUE);
+        treeCache->AddBranch(branchNames, kTRUE);
         treeCache->StopLearningPhase();
       }
       // We own the treeCache_.

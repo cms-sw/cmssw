@@ -63,7 +63,7 @@ namespace edm {
       int defaultOffset = (inxBegin.run() != 0 ? 0 : 1);
       int offset = (forcedRunNumber != 0U ? forcedRunNumber - inxBegin.run() : defaultOffset);
       if(offset < 0) {
-        throw edm::Exception(errors::Configuration)
+        throw Exception(errors::Configuration)
           << "The value of the 'setRunNumber' parameter must not be\n"
           << "less than the first run number in the first input file.\n"
           << "'setRunNumber' was " << forcedRunNumber <<", while the first run was "
@@ -165,8 +165,8 @@ namespace edm {
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     if(!metaDataTree)
-      throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::metaDataTreeName()
-                                                         << " in the input file.\n";
+      throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::metaDataTreeName()
+                                             << " in the input file.\n";
 
     // To keep things simple, we just read in every possible branch that exists.
     // We don't pay attention to which branches exist in which file format versions
@@ -195,7 +195,7 @@ namespace edm {
     // This preserves backward compatibility against friendly class name algorithm changes.
     ProductRegistry inputProdDescReg;
     ProductRegistry *ppReg = &inputProdDescReg;
-    metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
+    metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(), (&ppReg));
 
     typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
     PsetMap psetMap;
@@ -212,7 +212,7 @@ namespace edm {
         << " in the input file.\n";
       }
 
-      roottree::trainCache(psetTree, *filePtr_, roottree::defaultNonEventCacheSize);
+      roottree::trainCache(psetTree, *filePtr_, roottree::defaultNonEventCacheSize, "*");
 
       typedef std::pair<ParameterSetID, ParameterSetBlob> IdToBlobs;
       IdToBlobs idToBlob;
@@ -303,7 +303,7 @@ namespace edm {
       }
       // New provenance format input file. The branchIDLists branch was read directly from the input file.
       if(metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == 0) {
-        throw edm::Exception(errors::EventCorruption)
+        throw Exception(errors::EventCorruption)
           << "Failed to find branchIDLists branch in metaData tree.\n";
       }
       branchIDLists_.reset(branchIDListsAPtr.release());
@@ -318,7 +318,7 @@ namespace edm {
     // Read the parentage tree.  Old format files are handled internally in readParentageTree().
     readParentageTree();
 
-    if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
+    if(eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
       whyNotFastClonable_ += FileBlock::EventsOrLumisSelectedByID;
     }
 
@@ -351,7 +351,7 @@ namespace edm {
           newReg->copyProduct(prod);
         } else {
           if(fileFormatVersion().splitProductIDs()) {
-            throw edm::Exception(errors::UnimplementedFeature)
+            throw Exception(errors::UnimplementedFeature)
               << "Cannot change friendly class name algorithm without more development work\n"
               << "to update BranchIDLists.  Contact the framework group.\n";
           }
@@ -381,7 +381,7 @@ namespace edm {
     setIfFastClonable(remainingEvents, remainingLumis);
 
     // Update the branch id info.
-    if (!secondaryFile) {
+    if(!secondaryFile) {
       branchListIndexesUnchanged_ = BranchIDListHelper::updateFromInput(*branchIDLists_, file_);
     }
 
@@ -389,6 +389,11 @@ namespace edm {
 
     // We are done with our initial reading of EventAuxiliary.
     indexIntoFile_.doneFileInitialization();
+
+    // Train the run and lumi trees.
+    roottree::trainCache(runTree_.tree(), *filePtr_, roottree::defaultNonEventCacheSize, "*");
+    roottree::trainCache(lumiTree_.tree(), *filePtr_, roottree::defaultNonEventCacheSize, "*");
+    // Tell the event tree to begin training at the next read.
     eventTree_.resetTraining();
   }
 
@@ -401,8 +406,8 @@ namespace edm {
     if(!fileFormatVersion().perEventProductIDs()) return;
     TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str()));
     if(!entryDescriptionTree)
-      throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::entryDescriptionTreeName()
-                                                         << " in the input file.\n";
+      throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::entryDescriptionTreeName()
+                                             << " in the input file.\n";
 
 
     EntryDescriptionID idBuffer;
@@ -421,7 +426,7 @@ namespace edm {
     for(Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
       roottree::getEntry(entryDescriptionTree, i);
       if(idBuffer != entryDescriptionBuffer.id())
-        throw edm::Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
+        throw Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
       oldregistry.insertMapped(entryDescriptionBuffer);
       Parentage parents;
       parents.parents() = entryDescriptionBuffer.parents();
@@ -441,8 +446,8 @@ namespace edm {
     // New format file
     TTree* parentageTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str()));
     if(!parentageTree)
-      throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::parentageTreeName()
-                                                         << " in the input file.\n";
+      throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::parentageTreeName()
+                                             << " in the input file.\n";
 
     Parentage parentageBuffer;
     Parentage *pParentageBuffer = &parentageBuffer;
@@ -479,7 +484,7 @@ namespace edm {
 
     // From here on, record all reasons we can't fast clone.
     IndexIntoFile::SortOrder sortOrder = IndexIntoFile::numericalOrder;
-    if (noEventSort_) sortOrder = IndexIntoFile::firstAppearanceOrder;
+    if(noEventSort_) sortOrder = IndexIntoFile::firstAppearanceOrder;
     if(!indexIntoFile_.iterationWillBeInEntryOrder(sortOrder)) {
       whyNotFastClonable_ += FileBlock::EventsToBeSorted;
     }
@@ -547,17 +552,17 @@ namespace edm {
     if(indexIntoFileIter_ == indexIntoFileEnd_) {
         return false;
     }
-    if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
+    if(eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
 
       // See first if the entire lumi or run is skipped, so we won't have to read the event Auxiliary in that case.
-      if (eventSkipperByID_->skipIt(indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), 0U)) {
+      if(eventSkipperByID_->skipIt(indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), 0U)) {
         return true;
       }
 
       // The Lumi is not skipped.  If this is an event, see if the event is skipped.
-      if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent) {
+      if(indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent) {
         fillEventAuxiliary();
-        if (eventSkipperByID_->skipIt(indexIntoFileIter_.run(),
+        if(eventSkipperByID_->skipIt(indexIntoFileIter_.run(),
                                       indexIntoFileIter_.lumi(),
                                       eventAux_.id().event())) {
           return true;
@@ -565,17 +570,17 @@ namespace edm {
       }
 
       // Skip runs with no lumis if either lumisToSkip or lumisToProcess have been set to select lumis
-      if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun &&
+      if(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun &&
           eventSkipperByID_->skippingLumis()) {
         IndexIntoFile::IndexIntoFileItr iterLumi = indexIntoFileIter_;
 
         // There are no lumis in this run, not even ones we will skip
-        if (iterLumi.peekAheadAtLumi() == IndexIntoFile::invalidLumi) {
+        if(iterLumi.peekAheadAtLumi() == IndexIntoFile::invalidLumi) {
           return true;
         }
         // If we get here there are lumis in the run, check to see if we are skipping all of them
         do {
-          if (!eventSkipperByID_->skipIt(iterLumi.run(), iterLumi.peekAheadAtLumi(), 0U)) {
+          if(!eventSkipperByID_->skipIt(iterLumi.run(), iterLumi.peekAheadAtLumi(), 0U)) {
             return false;
           }
         }
@@ -589,10 +594,10 @@ namespace edm {
   IndexIntoFile::EntryType
   RootFile::getEntryTypeWithSkipping() {
     while(skipThisEntry()) {
-      if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun) {
+      if(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun) {
         indexIntoFileIter_.advanceToNextRun();
       }
-      else if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kLumi) {
+      else if(indexIntoFileIter_.getEntryType() == IndexIntoFile::kLumi) {
         indexIntoFileIter_.advanceToNextLumiOrRun();
       }
       else {
@@ -605,7 +610,7 @@ namespace edm {
   bool
   RootFile::isDuplicateEvent() {
     assert (indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent);
-    if (duplicateChecker_.get() == 0) {
+    if(duplicateChecker_.get() == 0) {
       return false;
     }
     fillEventAuxiliary();
@@ -699,10 +704,10 @@ namespace edm {
     };
     struct LumiItemSortByRunLumiPhid {
       bool operator()(LumiItem const& a, LumiItem const& b) const {
-        if (a.run_ < b.run_) return true;
-        if (b.run_ < a.run_) return false;
-        if (a.lumi_ < b.lumi_) return true;
-        if (b.lumi_ < a.lumi_) return false;
+        if(a.run_ < b.run_) return true;
+        if(b.run_ < a.run_) return false;
+        if(a.lumi_ < b.lumi_) return true;
+        if(b.lumi_ < a.lumi_) return false;
         return a.phid_ < b.phid_;
       }
     };
@@ -756,7 +761,7 @@ namespace edm {
       // are not actually used in this function, but could be needed elsewhere.
       indexIntoFile_.unsortedEventNumbers().push_back(eventAux().event());
 
-      if (prevPhid != eventAux().processHistoryID() || prevRun != eventAux().run()) {
+      if(prevPhid != eventAux().processHistoryID() || prevRun != eventAux().run()) {
         newRun = newLumi = true;
       } else if(prevLumi != eventAux().luminosityBlock()) {
         newLumi = true;
@@ -764,7 +769,7 @@ namespace edm {
       prevPhid = eventAux().processHistoryID();
       prevRun = eventAux().run();
       prevLumi = eventAux().luminosityBlock();
-      if (newLumi) {
+      if(newLumi) {
         lumis.push_back(LumiItem(eventAux().processHistoryID(),
           eventAux().run(), eventAux().luminosityBlock(), eventTree_.entryNumber())); // (insert 1)
         runLumiSet.insert(LuminosityBlockID(eventAux().run(), eventAux().luminosityBlock())); // (insert 2)
@@ -773,10 +778,10 @@ namespace edm {
         assert(currentLumi.lastEventEntry_ == eventTree_.entryNumber());
         ++currentLumi.lastEventEntry_;
       }
-      if (newRun) {
+      if(newRun) {
         // Insert run in list if it is not already there.
         RunItem item(eventAux().processHistoryID(), eventAux().run());
-        if (runItemSet.insert(item).second) { // (check 3, insert 3)
+        if(runItemSet.insert(item).second) { // (check 3, insert 3)
           runs.push_back(item); // (insert 5)
           runSet.insert(eventAux().run()); // (insert 4)
           phidMap.insert(std::make_pair(eventAux().run(), eventAux().processHistoryID()));
@@ -800,7 +805,7 @@ namespace edm {
       while(runTree_.next()) {
         // Note: adjacent duplicates will be skipped without an explicit check.
         boost::shared_ptr<RunAuxiliary> runAux = fillRunAuxiliary();
-        if (runSet.insert(runAux->run()).second) { // (check 4, insert 4)
+        if(runSet.insert(runAux->run()).second) { // (check 4, insert 4)
           // This run was not assciated with any events or lumis.
           emptyRuns.push_back(RunItem(runAux->processHistoryID(), runAux->run())); // (insert 12)
         }
@@ -818,7 +823,7 @@ namespace edm {
     RunList::iterator itRuns = runs.begin(), endRuns = runs.end();
     for (RunVector::const_iterator i = emptyRuns.begin(), iEnd = emptyRuns.end(); i != iEnd; ++i) {
       for (; itRuns != endRuns; ++itRuns) {
-        if (runItemSortByRun(*i, *itRuns)) {
+        if(runItemSortByRun(*i, *itRuns)) {
           break;
         }
       }
@@ -838,7 +843,7 @@ namespace edm {
         // Note: adjacent duplicates will be skipped without an explicit check.
         boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux = fillLumiAuxiliary();
         LuminosityBlockID lumiID = LuminosityBlockID(lumiAux->run(), lumiAux->luminosityBlock());
-        if (runLumiSet.insert(lumiID).second) { // (check 2, insert 2)
+        if(runLumiSet.insert(lumiID).second) { // (check 2, insert 2)
           // This lumi was not associated with any events.
           // Use the process history ID from the corresponding run.  In cases of practical
           // importance, this should be the correct process history ID,  but it is possible
@@ -860,7 +865,7 @@ namespace edm {
     LumiList::iterator itLumis = lumis.begin(), endLumis = lumis.end();
     for (LumiVector::const_iterator i = emptyLumis.begin(), iEnd = emptyLumis.end(); i != iEnd; ++i) {
       for (; itLumis != endLumis; ++itLumis) {
-        if (lumiItemSortByRunLumi(*i, *itLumis)) {
+        if(lumiItemSortByRunLumi(*i, *itLumis)) {
           break;
         }
       }
@@ -878,13 +883,13 @@ namespace edm {
     int rcount = 0;
     for (RunList::iterator it = runs.begin(), itEnd = runs.end(); it != itEnd; ++it) {
       RunCountMap::const_iterator countMapItem = runCountMap.find(*it);
-      if (countMapItem == runCountMap.end()) {
+      if(countMapItem == runCountMap.end()) {
         countMapItem = runCountMap.insert(std::make_pair(*it, rcount)).first; // Insert (17)
         assert(countMapItem != runCountMap.end());
         ++rcount;
       }
       std::vector<ProcessHistoryID>::const_iterator phidItem = find_in_all(phids, it->phid_);
-      if (phidItem == phids.end()) {
+      if(phidItem == phids.end()) {
         phids.push_back(it->phid_);
         phidItem = phids.end() - 1;
       }
@@ -907,7 +912,7 @@ namespace edm {
       RunCountMap::const_iterator runCountMapItem = runCountMap.find(RunItem(it->phid_, it->run_));
       assert(runCountMapItem != runCountMap.end());
       LumiCountMap::const_iterator countMapItem = lumiCountMap.find(*it);
-      if (countMapItem == lumiCountMap.end()) {
+      if(countMapItem == lumiCountMap.end()) {
         countMapItem = lumiCountMap.insert(std::make_pair(*it, lcount)).first; // Insert (17)
         assert(countMapItem != lumiCountMap.end());
         ++lcount;
@@ -933,12 +938,14 @@ namespace edm {
       fid_ = FileID(createGlobalIdentifier());
     }
     if(!eventTree_.isValid()) {
-      throw edm::Exception(errors::EventCorruption) <<
+      throw Exception(errors::EventCorruption) <<
          "'Events' tree is corrupted or not present\n" << "in the input file.\n";
     }
 
-    if (fileFormatVersion().hasIndexIntoFile()) {
-      if (runTree().entries() > 0) {
+    roottree::trainCache(eventTree_.tree(), *filePtr_, roottree::defaultNonEventCacheSize, BranchTypeToAuxiliaryBranchName(InEvent).c_str());
+
+    if(fileFormatVersion().hasIndexIntoFile()) {
+      if(runTree().entries() > 0) {
         assert(!indexIntoFile_.empty());
       }
     }
@@ -954,11 +961,11 @@ namespace edm {
     // such as for secondary files (or secondary sources) or if duplicate checking across files.
     bool needEventNumbers = false;
     bool needIndexesForDuplicateChecker = duplicateChecker_ && duplicateChecker_->checkingAllFiles() && !duplicateChecker_->checkDisabled();
-    if (secondaryFile || needIndexesForDuplicateChecker || usingGoToEvent) {
+    if(secondaryFile || needIndexesForDuplicateChecker || usingGoToEvent) {
       needEventNumbers = true;
     }
     bool needEventEntries = false;
-    if (secondaryFile || !noEventSort_) {
+    if(secondaryFile || !noEventSort_) {
       // We need event entries for sorting or for secondary files or sources.
       needEventEntries = true;
     }
@@ -998,7 +1005,7 @@ namespace edm {
 
   void
   RootFile::fillThisEventAuxiliary() {
-    if (lastEventEntryNumberRead_ == eventTree_.entryNumber()) {
+    if(lastEventEntryNumberRead_ == eventTree_.entryNumber()) {
       // Already read.
       return;
     }
@@ -1042,7 +1049,7 @@ namespace edm {
       History* pHistory = history_.get();
       TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(poolNames::eventHistoryBranchName().c_str());
       if(!eventHistoryBranch) {
-        throw edm::Exception(errors::EventCorruption)
+        throw Exception(errors::EventCorruption)
           << "Failed to find history branch in event history tree.\n";
       }
       eventHistoryBranch->SetAddress(&pHistory);
@@ -1050,7 +1057,7 @@ namespace edm {
       eventAux_.setProcessHistoryID(history_->processHistoryID());
       eventSelectionIDs_.reset(&history_->eventSelectionIDs(), do_nothing_deleter());
       branchListIndexes_.reset(&history_->branchListIndexes(), do_nothing_deleter());
-    } else if (fileFormatVersion().noMetaDataTrees()) {
+    } else if(fileFormatVersion().noMetaDataTrees()) {
       // Current format
       EventSelectionIDVector* pESV = eventSelectionIDs_.get();
       TBranch* eventSelectionIDBranch = eventTree_.tree()->GetBranch(poolNames::eventSelectionsBranchName().c_str());
@@ -1127,12 +1134,12 @@ namespace edm {
                                           skippedEventEntry);
 
       // At the end of the file and there were no more events to skip
-      if (skippedEventEntry == IndexIntoFile::invalidEntry) break;
+      if(skippedEventEntry == IndexIntoFile::invalidEntry) break;
 
-      if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
+      if(eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
         eventTree_.setEntryNumber(skippedEventEntry);
         fillThisEventAuxiliary();
-        if (eventSkipperByID_->skipIt(runOfSkippedEvent, lumiOfSkippedEvent, eventAux_.id().event())) {
+        if(eventSkipperByID_->skipIt(runOfSkippedEvent, lumiOfSkippedEvent, eventAux_.id().event())) {
             continue;
         }
       }
@@ -1142,7 +1149,7 @@ namespace edm {
 
         eventTree_.setEntryNumber(skippedEventEntry);
         fillThisEventAuxiliary();
-        if (duplicateChecker_->isDuplicateAndCheckActive(phIndexOfSkippedEvent,
+        if(duplicateChecker_->isDuplicateAndCheckActive(phIndexOfSkippedEvent,
                                                          runOfSkippedEvent,
                                                          lumiOfSkippedEvent,
                                                          eventAux_.id().event(),
@@ -1169,20 +1176,17 @@ namespace edm {
                                            lumiOfEvent,
                                            eventEntry);
 
-      if (eventEntry == IndexIntoFile::invalidEntry) break;
+      if(eventEntry == IndexIntoFile::invalidEntry) break;
 
-      if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
+      if(eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
         eventTree_.setEntryNumber(eventEntry);
         fillEventAuxiliary();
-        if (eventSkipperByID_->skipIt(runOfEvent, lumiOfEvent, eventAux_.id().event())) {
+        if(eventSkipperByID_->skipIt(runOfEvent, lumiOfEvent, eventAux_.id().event())) {
           continue;
         }
       }
       ++offset;
     }
-
-    eventTree_.resetTraining();
-
     return (indexIntoFileIter_ == indexIntoFileEnd_);
   }
 
@@ -1191,17 +1195,17 @@ namespace edm {
 
     indexIntoFile_.fillEventNumbers();
 
-    if (duplicateChecker_) {
+    if(duplicateChecker_) {
       duplicateChecker_->disable();
     }
 
     IndexIntoFile::SortOrder sortOrder = IndexIntoFile::numericalOrder;
-    if (noEventSort_) sortOrder = IndexIntoFile::firstAppearanceOrder;
+    if(noEventSort_) sortOrder = IndexIntoFile::firstAppearanceOrder;
 
     IndexIntoFile::IndexIntoFileItr iter =
       indexIntoFile_.findPosition(sortOrder, eventID.run(), eventID.luminosityBlock(), eventID.event());
 
-    if (iter == indexIntoFile_.end(sortOrder)) {
+    if(iter == indexIntoFile_.end(sortOrder)) {
       return false;
     }
     indexIntoFileIter_ = iter;
@@ -1441,13 +1445,13 @@ namespace edm {
   RootFile::overrideRunNumber(EventID& id, bool isRealData) {
     if(forcedRunOffset_ != 0) {
       if(isRealData) {
-        throw edm::Exception(errors::Configuration,"RootFile::RootFile()")
+        throw Exception(errors::Configuration, "RootFile::RootFile()")
           << "The 'setRunNumber' parameter of PoolSource cannot be used with real data.\n";
       }
       id = EventID(id.run() + forcedRunOffset_, id.luminosityBlock(), id.event());
     }
     if(RunID(id.run()) < RunID::firstValidRun()) {
-      id = EventID(RunID::firstValidRun().run(), LuminosityBlockID::firstValidLuminosityBlock().luminosityBlock(),id.event());
+      id = EventID(RunID::firstValidRun().run(), LuminosityBlockID::firstValidLuminosityBlock().luminosityBlock(), id.event());
     }
   }
 
@@ -1459,7 +1463,7 @@ namespace edm {
       history_.reset(new History);
       eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
       if(!eventHistoryTree_) {
-        throw edm::Exception(errors::EventCorruption)
+        throw Exception(errors::EventCorruption)
           << "Failed to find the event history tree.\n";
       }
     }

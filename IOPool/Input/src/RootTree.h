@@ -57,7 +57,7 @@ namespace edm {
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
     Int_t getEntry(TTree* tree, EntryNumber entryNumber);
-    void trainCache(TTree* tree, TFile& file, unsigned int cacheSize);
+    void trainCache(TTree* tree, TFile& file, unsigned int cacheSize, char const* branchNames);
   }
 
   class RootTree : private boost::noncopyable {
@@ -86,10 +86,8 @@ namespace edm {
     EntryNumber const& entryNumber() const {return entryNumber_;}
     EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber theEntryNumber);
-    void maybeTrain();
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     boost::shared_ptr<DelayedReader> makeDelayedReader(FileFormatVersion const& fileFormatVersion) const;
-    //TBranch* auxBranch() {return auxBranch_;}
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
@@ -125,11 +123,13 @@ namespace edm {
     } // backward compatibility
 
     TBranch* const branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
-    void resetTraining() {trained_ = kFALSE;}
+    void resetTraining() {trainNow_ = true;}
 
   private:
     void setCacheSize(unsigned int cacheSize);
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
+    void startTraining();
+    void stopTraining();
 
     boost::shared_ptr<TFile> filePtr_;
 // We use bare pointers for pointers to some ROOT entities.
@@ -144,12 +144,15 @@ namespace edm {
 // Unfortunately, ROOT owns it when attached to a TFile, but not after it is detatched.
 // So, we make sure to it is detatched before closing the TFile so there is no double delete.
     boost::shared_ptr<TTreeCache> treeCache_;
+    boost::shared_ptr<TTreeCache> rawTreeCache_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::vector<std::string> branchNames_;
     boost::shared_ptr<BranchMap> branches_;
-    bool trained_; // Set to true if the ROOT TTreeCache started training.
+    bool trainNow_;
+    EntryNumber switchOverEntry_;
     unsigned int learningEntries_;
+    unsigned int cacheSize_;
 
     // below for backward compatibility
     std::vector<ProductStatus> productStatuses_; // backward compatibility
