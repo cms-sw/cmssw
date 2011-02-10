@@ -17,7 +17,7 @@ class StripCPE : public StripClusterParameterEstimator
 public:
 
   StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster&) const; 
-  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster& cl, const GeomDetUnit&) const {return localParameters(cl);}
+  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster& cl, const GeomDetUnit&) const;// {return localParameters(cl);}
   
   StripCPE( edm::ParameterSet & conf, 
 	    const MagneticField&, 

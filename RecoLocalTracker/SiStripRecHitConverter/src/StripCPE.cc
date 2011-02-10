@@ -59,8 +59,20 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
   }
 }
 
+StripClusterParameterEstimator::LocalValues 
+StripCPE::localParameters( const SiStripCluster& cluster, const GeomDetUnit&gd) const {
+  StripCPE::Param const & p = param(gd.geographicalId());
+  const float barycenter = cluster.barycenter();
+  const float fullProjection = p.coveredStrips( p.drift + LocalVector(0,0,-p.thickness), LocalPoint(barycenter,0,0));
+  const float strip = barycenter - 0.5 * (1-shift[p.moduleGeom]) * fullProjection;
+
+  return std::make_pair( p.topology->localPosition(strip),
+			 p.topology->localError(strip, 1/12.) );
+}
+
 StripClusterParameterEstimator::LocalValues StripCPE::
 localParameters( const SiStripCluster& cluster) const {
+  std::cout<< "should be deprecated"<<std::endl;
   StripCPE::Param const & p = param(cluster.geographicalId());
   const float barycenter = cluster.barycenter();
   const float fullProjection = p.coveredStrips( p.drift + LocalVector(0,0,-p.thickness), LocalPoint(barycenter,0,0));
