@@ -1509,7 +1509,7 @@ int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect) {
   int ny=static_cast<int>((yl-yMin)/cellSize); // Layer number (starting from 0)
   if (ny < 0 || ny >= nLay) {             // Sould never happen as was checked beforehand
 #ifdef DebugLog
-    edm::LogInfo("HFShower") << "-Warning-HFShowerParam::PMTNumber: "
+    edm::LogInfo("HFShower") << "-Warning-HFFibreFiducial::PMTNumber: "
 			     << "check limits y = " << yl << ", nL=" << nLay;
 #endif
     return 0;
@@ -1517,8 +1517,8 @@ int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect) {
   int nx=static_cast<int>(fx);           // Cell number (starting from 0)
   if (nx >= nSL[ny]) {
 #ifdef DebugLog
-    edm::LogInfo("HFShower") << "-Warning-HFShowerParam::nx/ny (" << nx << ","
-			     << ny << ") " << " above limit " << nSL[ny];
+    edm::LogInfo("HFShower") << "-Warning-HFFibreFiducial::nx/ny (" << nx 
+			     << "," << ny <<") " << " above limit " << nSL[ny];
 #endif
     return 0;            // ===> out of the acceptance
   }
@@ -1528,7 +1528,13 @@ int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect) {
   int flag= code%10;
   int npmt= code/10;
   bool src= false;                       // by default: not a source-tube
+#ifdef DebugLog
+  edm::LogInfo("HFShower") << "HFFibreFiducial::nx/ny (" << nx << ","
+			   << ny << ") code/flag/npmt " <<  code << "/" << flag
+			   << "/" << npmt;
+#endif
   if (!flag) return 0;                   // ===> no fiber in the cell
+  else if (flag==1) npmt += 24;
   else if (flag==3 || flag==4) {
     flag-=2;
     src=true;
