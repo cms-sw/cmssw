@@ -6,24 +6,6 @@ import FWCore.ParameterSet.Config as cms
 from HLTrigger.Configuration.HLT_FULL_cff import *
 
 
-#
-# Temporarily add EGamma R9-ID here until it goes in the full HLT configuration
-# 
-hltL1IsoR9ID = cms.EDProducer( "EgammaHLTR9IDProducer",
-                                          recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
-                                          ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-                                          ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
-                               )
-hltL1NonIsoR9ID = cms.EDProducer( "EgammaHLTR9IDProducer",
-                                             recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
-                                             ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-                                             ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
-                                )
-
-HLTEgammaR9IDSequence  = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1IsolatedEcalClustersSequence +
-                                       HLTL1NonIsolatedEcalClustersSequence + hltL1IsoRecoEcalCandidate + hltL1NonIsoRecoEcalCandidate +
-                                       hltL1IsoR9ID + hltL1NonIsoR9ID ) 
-
 # create the jetMET HLT reco path
 DoHLTJets = cms.Path(HLTBeginSequence + 
     HLTBeginSequence +
@@ -35,7 +17,8 @@ DoHLTJets = cms.Path(HLTBeginSequence +
 DoHLTJetsU = cms.Path(HLTBeginSequence +
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Uncorrected +
-    hltMet +
+    HLTRegionalRecoJetSequenceAK5Corrected +
+    HLTRecoMETSequence +
     HLTDoJet30HTRecoSequence
 )
 
