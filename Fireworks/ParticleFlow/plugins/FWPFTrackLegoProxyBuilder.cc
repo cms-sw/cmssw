@@ -1,12 +1,12 @@
 #include "FWPFTrackLegoProxyBuilder.h"
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFTrackLegoProxyBuilder::build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc )
 {
    // Declarations
    int wraps[3] = { -1, -1, -1 };
-	bool ECAL = false;
+   bool ECAL = false;
    TEveTrack *trk = m_trackUtils->getTrack( iData );
    std::vector<TEveVector> trackPoints( trk->GetN() - 1 );
    const Float_t *points = trk->GetP();
@@ -37,60 +37,60 @@ FWPFTrackLegoProxyBuilder::build( const reco::Track &iData, unsigned int iIndex,
       int j = i * 3;
       TEveVector v1 = TEveVector( points[j], points[j+1], points[j+2] );
 
-		if( !ECAL )
-		{
-			if( m_trackUtils->checkIntersect( v1, m_trackUtils->getCaloR1() ) )
-			{        
-				TEveVector v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
-				TEveVector xyPoint = m_trackUtils->lineCircleIntersect( v1, v2, m_trackUtils->getCaloR1() );
-				TEveVector zPoint;
-				if( v1.fZ < 0 )
-					zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ - 50.f );
-				else
-					zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ + 50.f );
+      if( !ECAL )
+      {
+         if( m_trackUtils->checkIntersect( v1, m_trackUtils->getCaloR1() ) )
+         {        
+            TEveVector v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
+            TEveVector xyPoint = m_trackUtils->lineCircleIntersect( v1, v2, m_trackUtils->getCaloR1() );
+            TEveVector zPoint;
+            if( v1.fZ < 0 )
+               zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ - 50.f );
+            else
+               zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ + 50.f );
 
-				TEveVector vec = m_trackUtils->lineLineIntersect( v1, v2, xyPoint, zPoint );
-				legoTrack->AddMarker( vec.Eta(), vec.Phi(), 0.001, 0 );
+            TEveVector vec = m_trackUtils->lineLineIntersect( v1, v2, xyPoint, zPoint );
+            legoTrack->AddMarker( vec.Eta(), vec.Phi(), 0.001, 0 );
 
-				wraps[0] = i;        // There is now a chance that the track will also reach the HCAL radius
-				ECAL = true;
-			}
-			else if( fabs( v1.fZ ) >= m_trackUtils->getCaloZ1() )
-			{
-				TEveVector p1, p2;
-				TEveVector vec, v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
-				float z, y = m_trackUtils->linearInterpolation( v2, v1, m_trackUtils->getCaloZ1() );
+            wraps[0] = i;        // There is now a chance that the track will also reach the HCAL radius
+            ECAL = true;
+         }
+         else if( fabs( v1.fZ ) >= m_trackUtils->getCaloZ1() )
+         {
+            TEveVector p1, p2;
+            TEveVector vec, v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
+            float z, y = m_trackUtils->linearInterpolation( v2, v1, m_trackUtils->getCaloZ1() );
 
-				if( v2.fZ > 0 )
-					z = m_trackUtils->getCaloZ1();
-				else
-					z = m_trackUtils->getCaloZ1() * -1;
+            if( v2.fZ > 0 )
+               z = m_trackUtils->getCaloZ1();
+            else
+               z = m_trackUtils->getCaloZ1() * -1;
 
-				p1 = TEveVector( v2.fX + 50, y, z );
-				p2 = TEveVector( v2.fX - 50, y, z );
-				vec = m_trackUtils->lineLineIntersect( v1, v2, p1, p2 );
+            p1 = TEveVector( v2.fX + 50, y, z );
+            p2 = TEveVector( v2.fX - 50, y, z );
+            vec = m_trackUtils->lineLineIntersect( v1, v2, p1, p2 );
 
-				legoTrack->AddMarker( vec.Eta(), vec.Phi(), 0.001, 0 );
-				wraps[0] = i;
-				ECAL = true;
-			}
-		}
-		else if( m_trackUtils->checkIntersect( v1, m_trackUtils->getCaloR2() ) )
-		{
-			TEveVector v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
-			TEveVector xyPoint = m_trackUtils->lineCircleIntersect( v1, v2, m_trackUtils->getCaloR2() );
-			TEveVector zPoint;
-			if( v1.fZ < 0 )
-				zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ - 50.f );
-			else
-				zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ + 50.f );
+            legoTrack->AddMarker( vec.Eta(), vec.Phi(), 0.001, 0 );
+            wraps[0] = i;
+            ECAL = true;
+         }
+      }
+      else if( m_trackUtils->checkIntersect( v1, m_trackUtils->getCaloR2() ) )
+      {
+         TEveVector v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
+         TEveVector xyPoint = m_trackUtils->lineCircleIntersect( v1, v2, m_trackUtils->getCaloR2() );
+         TEveVector zPoint;
+         if( v1.fZ < 0 )
+            zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ - 50.f );
+         else
+            zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ + 50.f );
 
-			TEveVector vec = m_trackUtils->lineLineIntersect( v1, v2, xyPoint, zPoint );
-			legoTrack->AddMarker( vec.Eta(), vec.Phi(), 0.001, 1 );
+         TEveVector vec = m_trackUtils->lineLineIntersect( v1, v2, xyPoint, zPoint );
+         legoTrack->AddMarker( vec.Eta(), vec.Phi(), 0.001, 1 );
 
-			wraps[1] = i;        // There is now a chance that the track will also reach the HCAL radius
-			break;
-		}
+         wraps[1] = i;        // There is now a chance that the track will also reach the HCAL radius
+         break;
+      }
    }
 
    if( wraps[0] != -1 ) //if( ECAL )
@@ -124,7 +124,7 @@ FWPFTrackLegoProxyBuilder::build( const reco::Track &iData, unsigned int iIndex,
             TEveStraightLineSet::Marker_t &m = * ( TEveStraightLineSet::Marker_t* ) mi();
             m.fV[0] = trackPoints[i+1].fX; m.fV[1] = trackPoints[i+1].fY; m.fV[2] = 0.001;
          }
-			else if( i == wraps[1] )
+         else if( i == wraps[1] )
          {
             TEveChunkManager::iterator mi( legoTrack->GetMarkerPlex() );
             mi.next(); mi.next();  // Second point
@@ -143,7 +143,7 @@ FWPFTrackLegoProxyBuilder::build( const reco::Track &iData, unsigned int iIndex,
             TEveStraightLineSet::Marker_t &m = * ( TEveStraightLineSet::Marker_t* ) mi();
             m.fV[0] = trackPoints[i+1].fX; m.fV[1] = trackPoints[i+1].fY; m.fV[2] = 0.001;
          }
-			else if( i == wraps[1] )
+         else if( i == wraps[1] )
          {
             TEveChunkManager::iterator mi( legoTrack->GetMarkerPlex() );
             mi.next();  mi.next(); // Second point
@@ -174,5 +174,5 @@ FWPFTrackLegoProxyBuilder::build( const reco::Track &iData, unsigned int iIndex,
    delete trk;    // Release memory that is no longer required
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 REGISTER_FWPROXYBUILDER( FWPFTrackLegoProxyBuilder, reco::Track, "PF Tracks", FWViewType::kLegoPFECALBit | FWViewType::kLegoBit );

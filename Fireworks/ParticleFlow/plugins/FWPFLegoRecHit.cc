@@ -1,6 +1,7 @@
 #include "FWPFLegoRecHit.h"
 #include "FWPFEcalRecHitLegoProxyBuilder.h"
-//______________________________________________________________________________________________________
+
+//______________________________________________________________________________
 FWPFLegoRecHit::FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElement *comp, FWPFEcalRecHitLegoProxyBuilder *pb,
                                 const FWViewContext *vc, float e, float et )
    : m_builder(pb), m_energy(e), m_et(et), m_isTallest(false)
@@ -12,7 +13,7 @@ FWPFLegoRecHit::FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElem
    pb->setupAddElement( m_ls, comp );
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFLegoRecHit::setupEveBox( const std::vector<TEveVector> &corners )
 {
@@ -25,7 +26,7 @@ FWPFLegoRecHit::setupEveBox( const std::vector<TEveVector> &corners )
    m_tower->SetLineColor( kBlack );
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFLegoRecHit::convertToTower( std::vector<TEveVector> &corners, float scale )
 {
@@ -33,7 +34,7 @@ FWPFLegoRecHit::convertToTower( std::vector<TEveVector> &corners, float scale )
       corners[i+4].fZ = corners[i].fZ + scale;
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFLegoRecHit::buildTower( const std::vector<TEveVector> &corners, const FWViewContext *vc )
 {
@@ -50,7 +51,7 @@ FWPFLegoRecHit::buildTower( const std::vector<TEveVector> &corners, const FWView
    setupEveBox( towerCorners );
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFLegoRecHit::buildLineSet( const std::vector<TEveVector> &corners, const FWViewContext *vc )
 {
@@ -70,7 +71,7 @@ FWPFLegoRecHit::buildLineSet( const std::vector<TEveVector> &corners, const FWVi
    m_ls->AddMarker(0, 0.);
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFLegoRecHit::updateScale( const FWViewContext *vc )
 {
@@ -120,7 +121,7 @@ FWPFLegoRecHit::updateScale( const FWViewContext *vc )
    m_ls->StampTransBBox();
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void FWPFLegoRecHit::setLine(int idx, float x1, float y1, float z1, float x2, float y2, float z2)
 {
    // AMT: this func should go in TEveStraightLineSet class
@@ -136,7 +137,7 @@ void FWPFLegoRecHit::setLine(int idx, float x1, float y1, float z1, float x2, fl
    l->fV2[2] = z2;
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFLegoRecHit::setIsTallest( bool b )
 {
@@ -150,14 +151,14 @@ FWPFLegoRecHit::setIsTallest( bool b )
    }
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFLegoRecHit::addLine( float x1, float y1, float z1, float x2, float y2, float z2 )
 {
    m_ls->AddLine( x1, y1, z1, x2, y2, z2 );
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFLegoRecHit::addLine( const TEveVector &v1, const TEveVector &v2 )
 {

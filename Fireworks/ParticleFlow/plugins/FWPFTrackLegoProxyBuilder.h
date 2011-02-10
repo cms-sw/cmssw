@@ -1,10 +1,15 @@
 #ifndef _FWPFTRACKLEGOPROXYBUILDER_H_
 #define _FWPFTRACKLEGOPROXYBUILDER_H_
 
+// -*- C++ -*-
 //
-// Package:             Particle Flow
-// Class:               FWPFTrackLegoProxyBuilder
-// Original Author:     Simon Harris
+// Package:     ParticleFlow
+// Class  :     FWPFTrackLegoProxyBuilder
+// 
+// Implementation:
+//     <Notes on implementation>
+//
+// Original Author:  Simon Harris
 //
 
 // System include files
@@ -16,11 +21,10 @@
 //-----------------------------------------------------------------------------
 // FWPFTrackLegoProxyBuilder
 //-----------------------------------------------------------------------------
-
 class FWPFTrackLegoProxyBuilder : public FWPFTrackBaseProxyBuilder
 {
    public:
-   // ---------------- Constructor(s)/Destructor ---------------------
+   // ---------------- Constructor(s)/Destructor ----------------------
       FWPFTrackLegoProxyBuilder(){}
       virtual ~FWPFTrackLegoProxyBuilder(){}
 
@@ -30,9 +34,8 @@ class FWPFTrackLegoProxyBuilder : public FWPFTrackBaseProxyBuilder
       FWPFTrackLegoProxyBuilder( const FWPFTrackLegoProxyBuilder& );
       const FWPFTrackLegoProxyBuilder& operator=( const FWPFTrackLegoProxyBuilder& );
 
-   // ----------------------- Functionality ---------------------------
+   // --------------------- Member Functions --------------------------
       virtual void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 };
 #endif
-
-//=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
+//=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

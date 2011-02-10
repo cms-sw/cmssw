@@ -1,16 +1,10 @@
 #include "FWPFPatJetLegoProxyBuilder.h"
 
- /*****************************************************\
-(         CONSTRUCTORS/DESTRUCTOR                       )
- \*****************************************************/
-
+//______________________________________________________________________________
 template<class T> FWPFPatJetLegoProxyBuilder<T>::FWPFPatJetLegoProxyBuilder(){}
 template<class T> FWPFPatJetLegoProxyBuilder<T>::~FWPFPatJetLegoProxyBuilder(){}
 
- /******************************************************\
-(               MEMBER FUNCTIONS                         )
- \******************************************************/
-
+//______________________________________________________________________________
 template<class T> void
 FWPFPatJetLegoProxyBuilder<T>::build(const T& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* vc)
 {
@@ -32,6 +26,7 @@ FWPFPatJetLegoProxyBuilder<T>::build(const T& iData, unsigned int iIndex, TEveEl
    }
 }
 
+//______________________________________________________________________________
 template<class T> void
 FWPFPatJetLegoProxyBuilder<T>::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
@@ -50,6 +45,7 @@ FWPFPatJetLegoProxyBuilder<T>::scaleProduct(TEveElementList* parent, FWViewType:
    }
 }
 
+//______________________________________________________________________________
 template<class T> void
 FWPFPatJetLegoProxyBuilder<T>::localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc)
 {
@@ -66,6 +62,7 @@ FWPFPatJetLegoProxyBuilder<T>::localModelChanges(const FWModelId& iId, TEveEleme
    }
 }
 
+//____________________________PAT_______________________________________________
 class FWPatJetLegoProxyBuilder : public FWPFPatJetLegoProxyBuilder<pat::Jet> {
 public:
    FWPatJetLegoProxyBuilder(){}
@@ -74,6 +71,7 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 };
 
+//____________________________PF________________________________________________
 class FWPFJetLegoProxyBuilder : public FWPFPatJetLegoProxyBuilder<reco::PFJet> {
 public:
    FWPFJetLegoProxyBuilder(){}
@@ -82,8 +80,10 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 };
 
+//______________________________________________________________________________
 template class FWPFPatJetLegoProxyBuilder<reco::PFJet>;
 template class FWPFPatJetLegoProxyBuilder<pat::Jet>;
 
+//______________________________________________________________________________
 REGISTER_FWPROXYBUILDER(FWPFJetLegoProxyBuilder, reco::PFJet, "PF Jet", FWViewType::kLegoPFECALBit | FWViewType::kLegoBit );
 REGISTER_FWPROXYBUILDER(FWPatJetLegoProxyBuilder, pat::Jet, "PF PatJet", FWViewType::kLegoPFECALBit | FWViewType::kLegoBit );

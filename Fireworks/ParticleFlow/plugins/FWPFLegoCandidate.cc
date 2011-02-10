@@ -4,7 +4,7 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 FWPFLegoCandidate::FWPFLegoCandidate( const FWViewContext *vc, const fireworks::Context &context, float energy, float et, float pt,
                                       float eta, float phi )
 : m_energy(energy), m_et(et), m_pt(pt), m_eta(eta), m_phi(phi)
@@ -40,7 +40,7 @@ FWPFLegoCandidate::FWPFLegoCandidate( const FWViewContext *vc, const fireworks::
    }
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFLegoCandidate::updateScale( const FWViewContext *vc, const fireworks::Context &context )
 {

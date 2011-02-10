@@ -1,6 +1,6 @@
 #include "FWPFEcalRecHitLegoProxyBuilder.h"
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFEcalRecHitLegoProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType type, const FWViewContext *vc )
 {
@@ -19,7 +19,7 @@ FWPFEcalRecHitLegoProxyBuilder::scaleProduct( TEveElementList *parent, FWViewTyp
    }
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElement *parent,
                                                    FWViewType::EType viewType, const FWViewContext *vc )
@@ -37,7 +37,7 @@ FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveEle
    }
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 TEveVector
 FWPFEcalRecHitLegoProxyBuilder::calculateCentre( const std::vector<TEveVector> &corners ) const
 {
@@ -54,7 +54,7 @@ FWPFEcalRecHitLegoProxyBuilder::calculateCentre( const std::vector<TEveVector> &
    return centre;   
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 float
 FWPFEcalRecHitLegoProxyBuilder::calculateEt( const TEveVector &centre, float E )
 {
@@ -68,7 +68,7 @@ FWPFEcalRecHitLegoProxyBuilder::calculateEt( const TEveVector &centre, float E )
    return et;
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
@@ -144,7 +144,7 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
       scaleProduct( product, FWViewType::kLegoPFECAL, vc );
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFEcalRecHitLegoProxyBuilder::cleanLocal()
 {
@@ -154,5 +154,5 @@ FWPFEcalRecHitLegoProxyBuilder::cleanLocal()
    m_recHits.clear();
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 REGISTER_FWPROXYBUILDER( FWPFEcalRecHitLegoProxyBuilder, EcalRecHit, "Ecal RecHit", FWViewType::kLegoPFECALBit );

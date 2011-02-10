@@ -1,6 +1,6 @@
 #include "FWPFRhoPhiRecHit.h"
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 FWPFRhoPhiRecHit::FWPFRhoPhiRecHit( FWProxyBuilderBase *pb, TEveElement *iH, const FWViewContext *vc,
                                     float E, float et, double lPhi, double rPhi, std::vector<TEveVector> &bCorners )
 : m_hasChild(false), m_energy(E), m_et(et), m_lPhi(lPhi), m_rPhi(rPhi)
@@ -8,10 +8,10 @@ FWPFRhoPhiRecHit::FWPFRhoPhiRecHit( FWProxyBuilderBase *pb, TEveElement *iH, con
    buildRecHit( pb, iH, vc, bCorners );
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 FWPFRhoPhiRecHit::~FWPFRhoPhiRecHit(){}
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFRhoPhiRecHit::updateScale( const FWViewContext *vc )
 {
@@ -93,7 +93,7 @@ FWPFRhoPhiRecHit::updateScale( const FWViewContext *vc )
    }
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFRhoPhiRecHit::clean()
 {
@@ -104,7 +104,7 @@ FWPFRhoPhiRecHit::clean()
    delete this;
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFRhoPhiRecHit::addChild( FWProxyBuilderBase *pb, TEveElement *itemHolder, const FWViewContext *vc, float E, float et )
 {
@@ -120,7 +120,7 @@ FWPFRhoPhiRecHit::addChild( FWProxyBuilderBase *pb, TEveElement *itemHolder, con
    }
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFRhoPhiRecHit::buildRecHit( FWProxyBuilderBase *pb, TEveElement *itemHolder, const FWViewContext *vc, std::vector<TEveVector> &bCorners )
 {
