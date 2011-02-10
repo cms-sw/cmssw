@@ -41,7 +41,9 @@ LMFRunIOV::LMFRunIOV(EcalDBConnection *c) : LMFUnique(c)
 
 LMFRunIOV::~LMFRunIOV()
 {
-  delete _fabric;
+  if (_fabric != NULL) {
+    delete _fabric;
+  }
 }
 
 LMFRunIOV& LMFRunIOV::setLMFRunTag(const LMFRunTag &tag)
