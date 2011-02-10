@@ -735,6 +735,13 @@ FED_AT_TECm = cms.vint32(
     231
 )
 
+FED_ALL = cms.vint32()
+FED_ALL.extend(FED_TECp)
+FED_ALL.extend(FED_TECm)
+FED_ALL.extend(FED_AT_TOB)
+FED_ALL.extend(FED_AT_TIB)
+FED_ALL.extend(FED_AT_TECp)
+FED_ALL.extend(FED_AT_TECm)
 
 DET_TECp = cms.vint32(
     470307208,
@@ -1274,3 +1281,14 @@ SIGNAL_IDs_AT_TECm = cms.vint32(
     470046596,
     470046860
 )
+
+SIGNAL_IDs_ALL = cms.vint32()
+SIGNAL_IDs_ALL.extend(SIGNAL_IDs_TECp_R4)
+SIGNAL_IDs_ALL.extend(SIGNAL_IDs_TECp_R6)
+SIGNAL_IDs_ALL.extend(SIGNAL_IDs_TECm_R4)
+SIGNAL_IDs_ALL.extend(SIGNAL_IDs_TECm_R6)
+SIGNAL_IDs_ALL.extend(SIGNAL_IDs_AT_TOB)
+SIGNAL_IDs_ALL.extend(SIGNAL_IDs_AT_TIB)
+SIGNAL_IDs_ALL.extend(SIGNAL_IDs_AT_TECp)
+SIGNAL_IDs_ALL.extend(SIGNAL_IDs_AT_TECm)
+
