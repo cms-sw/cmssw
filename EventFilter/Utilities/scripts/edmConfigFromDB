@@ -46,6 +46,8 @@ my $usage =
     "\t--services <-svc1[,-svc2]>  (include all services but the specified)\n" .
     "\t--paths <p1[,p2]>           (include only specified paths)\n" .
     "\t--paths <-p1[,-p2]>         (include all paths but the specified)\n" .
+    "\t--streams <s1[,s2]>         (include only specified streams)\n" .
+    "\t--datasets <d1[,d2]>        (include only specified datasets)\n" .
     "\t--sequences <s1[,s2]>       (include sequences, referenced or not!)\n" .
     "\t--modules <p1[,p2]>         (include modules, referenced or not!)\n" .
     "\t--blocks <m1::p1[,p2][,m2]> (generate parameter blocks\n" .
