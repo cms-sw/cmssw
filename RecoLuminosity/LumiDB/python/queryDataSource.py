@@ -1,15 +1,6 @@
 import array,coral
 from RecoLuminosity.LumiDB import CommonUtil,nameDealer
 
-class constants(object):
-    def __init__(self):
-        self.debug=False
-        self.runinfodb=''
-        self.runinfoschema='CMS_RUNINFO'
-        self.runsessionparameterTable='RUNSESSION_PARAMETER'
-        self.hltconfname='CMS.LVL0:HLT_KEY_DESCRIPTION'
-        self.tsckeyname='CMS.TRG:TSC_KEY'
-        self.fillnumname='CMS.SCAL:FILLN'
 def hltFromOldLumi(session,runnumber):
     '''
     select count(distinct pathname) from hlt where runnum=:runnum

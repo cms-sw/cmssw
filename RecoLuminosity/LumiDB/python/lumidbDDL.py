@@ -425,7 +425,7 @@ def newToOld(schema):
         todrop=[]
         for i in range(ncol):
             colname=tableHandle.description().columnDescription(i).name()
-            if colname in ['EGEV','AMODETAG']:
+            if colname in ['L1KEY','EGEV','AMODETAG']:
                 todrop.append(colname)
         for colname in todrop:
             tableHandle.schemaEditor().dropColumn(colname)            
