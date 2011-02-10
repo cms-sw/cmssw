@@ -158,6 +158,7 @@ namespace edmNew {
 	v.m_data.push_back(d);
 	item.size++;
       }
+      data_type & back() { return v.m_data.back();}
       
     private:
       DetSetVector<T> & v;
