@@ -121,6 +121,7 @@ PileUpProducer::PileUpProducer(edm::ParameterSet const & p)
 PileUpProducer::~PileUpProducer() { 
 
   delete theVertexGenerator;
+  if (hprob) delete hprob;
 
 }
 
