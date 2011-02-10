@@ -11,6 +11,7 @@ class RooAbsData;
 
 extern Float_t t_cpu_, t_real_;
 //RooWorkspace *writeToysHere = 0;
+extern TDirectory *outputFile;
 extern TDirectory *writeToysHere;
 extern TDirectory *readToysFromHere;
 extern LimitAlgo * algo, * hintAlgo ;
@@ -37,6 +38,7 @@ class Combine {
         bool compiledExpr_;
         std::string prior_;
         bool hintUsesStatOnly_;
+        bool saveWorkspace_;
 };
 
 

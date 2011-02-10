@@ -52,6 +52,7 @@ using namespace RooFit;
 LimitAlgo * algo, * hintAlgo;
 
 Float_t t_cpu_, t_real_;
+TDirectory *outputFile = 0;
 TDirectory *writeToysHere = 0;
 TDirectory *readToysFromHere = 0;
 int  verbose = 1;
@@ -76,6 +77,7 @@ Combine::Combine() :
         ("compile", "Compile expressions instead of interpreting them")
         ("significance", "Compute significance instead of upper limit")
         ("hintStatOnly", "Ignore systematics when computing the hint")
+        ("saveWorkspace", "Save workspace to output root file")
     ;
 }
 
@@ -89,6 +91,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm)
   compiledExpr_ = vm.count("compile");
   doSignificance_ = vm.count("significance");
   hintUsesStatOnly_ = vm.count("hintStatOnly");
+  saveWorkspace_ = vm.count("saveWorkspace");
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
@@ -128,15 +131,16 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   mkdtemp(const_cast<char *>(tmpDir.Data()));
   gSystem->cd(tmpDir.Data());
 
-  TString fileToLoad;
-  bool isTextDatacard = false;
-  if (hlfFile.EndsWith(".hlf")) {
-    fileToLoad = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
-    if (!boost::filesystem::exists(fileToLoad.Data())) throw std::invalid_argument(("File "+fileToLoad+" does not exist").Data());
-  }  else {
+  bool isTextDatacard = false, isBinary = false;
+  TString fileToLoad = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
+  if (!boost::filesystem::exists(fileToLoad.Data())) throw std::invalid_argument(("File "+fileToLoad+" does not exist").Data());
+  if (hlfFile.EndsWith(".hlf") ) {
+    // nothing to do
+  } else if (hlfFile.EndsWith(".root")) {
+    isBinary = true;
+  } else {
     isTextDatacard = true;
-    TString txtFile = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
-    if (!boost::filesystem::exists(txtFile.Data())) throw std::invalid_argument(("Input file "+txtFile+" does not exist").Data());
+    TString txtFile = fileToLoad.Data();
     TString options = "";
     if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
@@ -168,14 +172,28 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
 
   if (verbose <= 1) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
-  RooStats::HLFactory hlf("factory", fileToLoad);
-  gSystem->cd(pwd);
-  RooWorkspace *w = hlf.GetWs();
-  if (w == 0) {
-    std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
-    return;
+  RooWorkspace *w = 0;
+  std::auto_ptr<RooStats::HLFactory> hlf(0);
+  if (isBinary) {
+    TFile *fIn = TFile::Open(fileToLoad);
+    w = dynamic_cast<RooWorkspace *>(fIn->Get("w"));
+    if (w == 0) {  std::cerr << "Could not find workspace 'w' in file " << fileToLoad << std::endl; fIn->ls(); return; }
+    w = dynamic_cast<RooWorkspace *>(w->Clone());
+  } else {
+    hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
+    gSystem->cd(pwd);
+    w = hlf->GetWs();
+    if (w == 0) {
+        std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
+        return;
+    }
   }
+
   if (verbose <= 1) RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+
+  if (saveWorkspace_) {
+    outputFile->WriteTObject(w,"w");
+  }
 
   const RooArgSet * observables = w->set("observables");
   if (observables == 0) throw std::invalid_argument("The model must define a RooArgSet 'observables'");
