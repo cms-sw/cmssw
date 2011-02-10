@@ -199,7 +199,8 @@ cleanMuonTriggerMatchTriggerMuon = cms.EDProducer(
   "PATTriggerMatcherDRDPtLessByR"           # match by DeltaR and DeltaPt, best match by DeltaR
 , src     = cms.InputTag( 'cleanPatMuons' )
 , matched = cms.InputTag( 'patTrigger' )    # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
-, matchedCuts = cms.string( '( id( "TriggerL1Mu" ) || id( "TriggerMu" ) ) && ( id( -81 ) || id( 83 ) )' )
+, matchedCuts = cms.string( 'type( "TriggerL1Mu" ) || type( "TriggerMu" )' )
+#, matchedCuts = cms.string( 'type( -81 ) || type( 83 )' )
 #, andOr          = cms.bool( False )        # AND
 #, filterIdsEnum  = cms.vstring(
     #'TriggerL1Mu'
