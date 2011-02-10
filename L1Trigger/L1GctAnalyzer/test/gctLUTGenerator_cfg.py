@@ -65,6 +65,10 @@ process.source = cms.Source("EmptyIOVSource",
 
 # LUT printer
 process.load("L1Trigger.GlobalCaloTrigger.l1GctPrintLuts_cfi")
+process.l1GctPrintLuts.jetRanksFilename = cms.untracked.string("GctJetLUT_"+key+".txt")
+process.l1GctPrintLuts.hfSumLutFilename = cms.untracked.string("GctHFSumLUT_"+key+".txt")
+process.l1GctPrintLuts.htMissLutFilename = cms.untracked.string("GctHtMissLUT_"+key+".txt")
+
 
 process.p = cms.Path(
     process.l1GctPrintLuts
