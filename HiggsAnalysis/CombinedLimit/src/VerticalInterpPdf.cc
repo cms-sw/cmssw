@@ -266,29 +266,40 @@ Double_t VerticalInterpPdf::analyticalIntegralWN(Int_t code, const RooArgSet* no
 
 Double_t VerticalInterpPdf::interpolate(Double_t coeff, Double_t central, RooAbsReal *fUp, RooAbsReal *fDn) const  
 {
-    if (coeff == 0) return 0;
-#if 0
-    if (_quadraticAlgo == 2) { 
-        // John Conway's formula: quadratic interpolation that is everywhere differentiable, null in zero, 
-        // but with derivative 2 instead of 1 above |x| = _quadraticRegion
-        if (fabs(coeff) >= _quadraticRegion) {
-            
-        } else {
-        }
-    }
-#endif
     if (fabs(coeff) >= _quadraticRegion) {
         return coeff * (coeff > 0 ? fUp->getVal() - central : central - fDn->getVal());
     } else {
         // quadratic interpolation coefficients between the three
-        if (_quadraticAlgo == 0) {
-            // quadratic interpolation null in zero and continuos at boundaries, but not differentiable
-            Double_t c_up  = coeff * (_quadraticRegion + coeff) / (2 * _quadraticRegion);
-            Double_t c_dn  = coeff * (_quadraticRegion - coeff) / (2 * _quadraticRegion);
-            Double_t c_cen = - coeff * fabs(coeff) / _quadraticRegion;
+        if (_quadraticAlgo == 0 || _quadraticAlgo == 2) {
+            // quadratic interpolation null in zero and continuos at boundaries, but not differentiable at boundaries
+            // conditions:
+            //   c_up (+_quadraticRegion) = +_quadraticRegion
+            //   c_cen(+_quadraticRegion) = -_quadraticRegion
+            //   c_dn (+_quadraticRegion) = 0
+            //   c_up (-_quadraticRegion) = 0 
+            //   c_cen(-_quadraticRegion) = -_quadraticRegion
+            //   c_dn (-_quadraticRegion) = +_quadraticRegion
+            //   c_up(0) = c_dn(0) = c_cen(0) = 0
+            Double_t c_up  = + coeff * (_quadraticRegion + coeff) / (2 * _quadraticRegion);
+            Double_t c_dn  = - coeff * (_quadraticRegion - coeff) / (2 * _quadraticRegion);
+            Double_t c_cen = - coeff * coeff / _quadraticRegion;
             return c_up * fUp->getVal() + c_dn * fDn->getVal() + c_cen * central;
         } else { //if (_quadraticAlgo == 1) { 
             // quadratic interpolation that is everywhere differentiable, but it's not null in zero
+            // conditions on the function
+            //   c_up (+_quadraticRegion) = +_quadraticRegion
+            //   c_cen(+_quadraticRegion) = -_quadraticRegion
+            //   c_dn (+_quadraticRegion) = 0
+            //   c_up (-_quadraticRegion) = 0 
+            //   c_cen(-_quadraticRegion) = -_quadraticRegion
+            //   c_dn (-_quadraticRegion) = +_quadraticRegion
+            // conditions on the derivatives
+            //   c_up '(+_quadraticRegion) = +1
+            //   c_cen'(+_quadraticRegion) = -1
+            //   c_dn '(+_quadraticRegion) = 0
+            //   c_up '(-_quadraticRegion) = 0
+            //   c_cen'(-_quadraticRegion) = +1
+            //   c_dn '(-_quadraticRegion) = -1
             Double_t c_up  = (_quadraticRegion + coeff) * (_quadraticRegion + coeff) / (4 * _quadraticRegion);
             Double_t c_dn  = (_quadraticRegion - coeff) * (_quadraticRegion - coeff) / (4 * _quadraticRegion);
             Double_t c_cen = - c_up - c_dn;
