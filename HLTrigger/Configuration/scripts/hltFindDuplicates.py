@@ -167,7 +167,7 @@ def findDuplicates(process):
     if debug:
       dump = open('step%d.sed' % index, 'w')
       for target, (group, regexp) in groups.iteritems():
-        dump.write('s#\\<\\(%s\\)\\>#%s#\n' % ('\\|'.join(group), target))
+        dump.write('s#\\<\\(%s\\)\\>#%s#g\n' % ('\\|'.join(group), target))
       dump.close()
     print "found %3d duplicates in %3d groups" % (dups, len(groups))
     oldups = dups

@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_4_2_0/pre2/HLT"          # no explicit version, take te most recent 
-TARGET="/dev/CMSSW_4_2_0/pre2/\$TABLE"      # no explicit version, take te most recent 
+MASTER="/dev/CMSSW_3_11_1/HLT_fix2"     # no explicit version, take te most recent 
+TARGET="/dev/CMSSW_3_11_1/\$TABLE"      # no explicit version, take te most recent 
 TABLES="GRun HIon"                      # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
@@ -63,15 +63,15 @@ function getConfigForOnline() {
   local CONFIG="$1"
   local NAME="$2"
   local L1T="L1Menu_Collisions2010_v0"
-  local L1TPP="L1Menu_Collisions2010_v0"
+  local L1TPP="L1Menu_Collisions2011_v0"
   local L1THI="L1Menu_CollisionsHeavyIons2010_v2"
 # local L1THI="sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_CollisionsHeavyIons2010_v2_mc.db:L1Menu_CollisionsHeavyIons2010_v2"
 
   log "    dumping full HLT for $NAME"
   # override L1 menus
   if [ "$NAME" == "GRun" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:hltonline    > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP                               > OnLine_HLT_$NAME.py 
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag TESTL1_GR_P::All  > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag TESTL1_ST311::All > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "HIon" ]; then
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:hltonline    > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:starthi      > OnLine_HLT_$NAME.py

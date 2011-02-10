@@ -53,17 +53,25 @@ HLT_HIActivityHF_Single3
 HLT_HIClusterVertexCompatibility
 HLT_HICentralityVeto
 HLT_HIRandom
-HLT_EcalCalibration
+HLT_EcalCalibration_v1
 HLT_HcalCalibration_HI
-HLT_LogMonitor
+HLT_LogMonitor_v1
 HLTriggerFinalPath
-HLTOutput
-ExpressOutput
-AlCaOutput
-AlCaHIOutput
+AOutput
+ALCAP0Output
+ALCAPHISYMOutput
+CalibrationOutput
 DQMOutput
+EcalCalibrationOutput
 HLTDQMOutput
-HLTDQMResultsOutput
+HLTMONOutput
 NanoDSTOutput
+RPCMONOutput
+# ExpressOutput
+# AlCaOutput
+# AlCaHIOutput
+# DQMOutput
+# HLTDQMOutput
+# HLTDQMResultsOutput
 HLTriggerFirstPath
 HLTAnalyzerEndpath

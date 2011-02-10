@@ -3,8 +3,8 @@
 # generate HLT tables from master table in ConfDB
 #
 
-MASTER="/dev/CMSSW_4_2_0/pre2/HLT"          # no version, take the latest one
-TARGET="/dev/CMSSW_4_2_0/pre2"              # directory where to store the sub-tables
+MASTER="/dev/CMSSW_3_11_1/HLT_fix2"     # no version, take the latest one
+TARGET="/dev/CMSSW_3_11_1"              # directory where to store the sub-tables
 TABLES="GRun HIon"                      # which sub-tables to create
 
 # hltdev

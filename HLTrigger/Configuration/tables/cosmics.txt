@@ -8,9 +8,10 @@ HLT_L1Jet10U
 HLT_L1MET20
 HLT_L1ETT100
 HLT_L1ETT140_v1
-HLT_L1MuOpen_v2
-HLT_L1MuOpen_DT_v2
-HLT_L1MuOpen_AntiBPTX_v2
+HLT_L1MuOpen
+HLT_L1MuOpen_DT
+HLT_L1MuOpen_AntiBPTX
+HLT_L1Mu
 HLT_L1Mu20
 HLT_Mu20_NoVertex
 HLT_L1DoubleMuOpen
@@ -20,8 +21,7 @@ HLT_L1SingleEG8
 HLT_L1DoubleEG5
 HLT_Photon20_NoHE_L1R
 HLT_Photon50_NoHE_L1R
-HLT_StoppedHSCP20_v3
-HLT_StoppedHSCP35_v3
+HLT_StoppedHSCP
 HLT_ZeroBias
 HLT_L1_BptxXOR_BscMinBiasOR
 HLT_L1Tech_BSC_HighMultiplicity
@@ -54,7 +54,8 @@ HLT_L1_BPTX_PlusOnly
 HLT_L2Mu0_NoVertex
 HLT_L1Bsc2Plus_BptxPlus
 HLT_LogMonitor
-DQM_FEDIntegrity_v2
+DQM_FEDIntegrity
+DQM_TriggerResults
 HLTriggerFinalPath
 HLTOutput
 ExpressOutput

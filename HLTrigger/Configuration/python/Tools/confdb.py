@@ -112,6 +112,17 @@ class HLTProcess(object):
   # customize the configuration according to the options
   def customize(self):
     if self.config.fragment:
+      self.data += """
+#
+# Add for CMSSW 42X+ only
+ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
+  appendToDataLabel = cms.string( "" ),
+  flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
+  dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
+  timeThresh = cms.double( 2.0 )
+)
+#
+"""
       # if running on MC, adapt the configuration accordingly
       self.fixForMC()
 
@@ -128,6 +139,17 @@ class HLTProcess(object):
       self.instrumentTiming()
 
     else:
+      self.data += """
+#
+# Add for CMSSW 42X+ only
+process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
+  appendToDataLabel = cms.string( "" ),
+  flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
+  dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
+  timeThresh = cms.double( 2.0 )
+)
+#
+"""
       # if running on MC, adapt the configuration accordingly
       self.fixForMC()
 
@@ -529,7 +551,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-hltESPGlobalTrackingGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPMuonDetLayerGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPTrackerRecoGeometryESProducer" )
-
       if not self.config.fastsim:
         self.options['esmodules'].append( "-CaloTowerGeometryFromDBEP" )
         self.options['esmodules'].append( "-CastorGeometryFromDBEP" )
@@ -550,17 +571,24 @@ if 'GlobalTag' in %%(dict)s:
       if not self.config.fastsim:
         self.options['services'].append( "-DQMStore" )
 
+      self.options['paths'].append( "-AOutput" )
+      self.options['paths'].append( "-ALCAP0Output" )
+      self.options['paths'].append( "-ALCAPHISYMOutput" )
+      self.options['paths'].append( "-CalibrationOutput" )
+      self.options['paths'].append( "-DQMOutput" )
+      self.options['paths'].append( "-EcalCalibrationOutput" )
       self.options['paths'].append( "-HLTOutput" )
+      self.options['paths'].append( "-HLTDQMOutput" )
+      self.options['paths'].append( "-HLTMONOutput" )
+      self.options['paths'].append( "-NanoDSTOutput" )
+      self.options['paths'].append( "-RPCMONOutput" )
+
       self.options['paths'].append( "-ExpressOutput" )
       self.options['paths'].append( "-EventDisplayOutput" )
       self.options['paths'].append( "-AlCaOutput" )
       self.options['paths'].append( "-AlCaPPOutput" )
       self.options['paths'].append( "-AlCaHIOutput" )
-      self.options['paths'].append( "-DQMOutput" )
-      self.options['paths'].append( "-HLTDQMOutput" )
       self.options['paths'].append( "-HLTDQMResultsOutput" )
-      self.options['paths'].append( "-HLTMONOutput" )
-      self.options['paths'].append( "-NanoDSTOutput" )
 
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
