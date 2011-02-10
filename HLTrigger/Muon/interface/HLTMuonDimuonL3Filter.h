@@ -15,11 +15,16 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
 class HLTMuonDimuonL3Filter : public HLTFilter {
 
    public:
       explicit HLTMuonDimuonL3Filter(const edm::ParameterSet&);
       ~HLTMuonDimuonL3Filter();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands);
 

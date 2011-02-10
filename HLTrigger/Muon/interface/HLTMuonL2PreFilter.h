@@ -13,11 +13,16 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
 class HLTMuonL2PreFilter : public HLTFilter {
 
   public:
     explicit HLTMuonL2PreFilter(const edm::ParameterSet&);
     ~HLTMuonL2PreFilter();
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     virtual bool filter(edm::Event&, const edm::EventSetup&);
 
   private:

@@ -9,11 +9,15 @@
 
 #include <vector>
 
+namespace edm {
+   class ConfigurationDescriptions;
+}
 
 class HLTMuonTrackMassFilter : public HLTFilter {
 public:
   explicit HLTMuonTrackMassFilter(const edm::ParameterSet&);
   ~HLTMuonTrackMassFilter() {}
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   virtual bool filter(edm::Event&, const edm::EventSetup&);

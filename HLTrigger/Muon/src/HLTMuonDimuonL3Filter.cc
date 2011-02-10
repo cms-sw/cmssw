@@ -23,6 +23,10 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -50,7 +54,7 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
    min_PtBalance_ (iConfig.getParameter<double> ("MinPtBalance")),
    max_PtBalance_ (iConfig.getParameter<double> ("MaxPtBalance")),
 										   nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")), 
-   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false)) 
+   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag")) 
 {
 
    LogDebug("HLTMuonDimuonL3Filter")
@@ -74,6 +78,32 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
 
 HLTMuonDimuonL3Filter::~HLTMuonDimuonL3Filter()
 {
+}
+
+void
+HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
+  desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL2PreFiltered0"));
+  desc.add<bool>("FastAccept",false);
+  desc.add<double>("MaxEta",2.5);
+  desc.add<int>("MinNhits",0);
+  desc.add<double>("MaxDr",2.0);
+  desc.add<double>("MaxDz",9999.0);
+  desc.add<int>("ChargeOpt",-1);
+  desc.add<double>("MinPtPair",0.0);
+  desc.add<double>("MinPtMax",0.0);
+  desc.add<double>("MinPtMin",0.0);
+  desc.add<double>("MinInvMass",1.5);
+  desc.add<double>("MaxInvMass",14.5);
+  desc.add<double>("MinAcop",-999.0);
+  desc.add<double>("MaxAcop",999.0);
+  desc.add<double>("MinPtBalance",-1.0);
+  desc.add<double>("MaxPtBalance",999999.0);
+  desc.add<double>("NSigmaPt",0.0);
+  desc.addUntracked<bool>("SaveTag",true);
+  descriptions.add("hltMuonDimuonL3Filter",desc);
 }
 
 //
