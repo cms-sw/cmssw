@@ -1,28 +1,28 @@
 #include "IOPool/Common/bin/CollUtil.h"
 
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/FileID.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
-#include <iostream>
-#include <iomanip>
-
+#include "TBranch.h"
 #include "TFile.h"
-#include "TList.h"
 #include "TIterator.h"
 #include "TKey.h"
-#include "TTree.h"
+#include "TList.h"
 #include "TObject.h"
-#include "TBranch.h"
+#include "TTree.h"
+
+#include <iomanip>
+#include <iostream>
 
 namespace edm {
 
   // Get a file handler
   TFile* openFileHdl(std::string const& fname) {
-    TFile *hdl = TFile::Open(fname.c_str(),"read");
+    TFile *hdl = TFile::Open(fname.c_str(), "read");
 
     if (0 == hdl) {
       std::cout << "ERR Could not open file " << fname.c_str() << std::endl;
@@ -58,12 +58,26 @@ namespace edm {
     }
   }
 
+  namespace {
+    void addBranchSizes(TBranch *branch, Long64_t& size) {
+      size += branch->GetTotalSize(); // Includes size of branch metadata
+      // Now recurse through any subbranches.
+      Long64_t nB = branch->GetListOfBranches()->GetEntries();
+      for (Long64_t i = 0; i < nB; ++i) {
+        TBranch *btemp = (TBranch *)branch->GetListOfBranches()->At(i);
+        addBranchSizes(btemp, size);
+      }
+    }
+  }
+
   void printBranchNames(TTree *tree) {
     if (tree != 0) {
       Long64_t nB = tree->GetListOfBranches()->GetEntries();
       for (Long64_t i = 0; i < nB; ++i) {
+        Long64_t size = 0LL;
         TBranch *btemp = (TBranch *)tree->GetListOfBranches()->At(i);
-        std::cout << "Branch " << i <<" of " << tree->GetName() <<" tree: " << btemp->GetName() << " Total size = " << btemp->GetTotalSize() << std::endl;
+        addBranchSizes(btemp, size);
+        std::cout << "Branch " << i << " of " << tree->GetName() << " tree: " << btemp->GetName() << " Total size = " << size << std::endl;
       }
     } else {
       std::cout << "Missing Events tree?\n";
@@ -147,7 +161,7 @@ namespace edm {
       return;
     }
     //need to read event # from the EventAuxiliary branch
-    TTree* eventsTree = dynamic_cast<TTree*>(tfl->Get(edm::poolNames::eventTreeName().c_str()));
+    TTree* eventsTree = dynamic_cast<TTree*>(tfl->Get(poolNames::eventTreeName().c_str()));
     TBranch* eventAuxBranch = 0;
     assert(0 != eventsTree);
     char const* const kEventAuxiliaryBranchName = "EventAuxiliary";
