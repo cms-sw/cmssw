@@ -50,6 +50,7 @@
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TTreeCache.h"
 
 #include <algorithm>
 #include <map>
@@ -212,17 +213,18 @@ namespace edm {
         << " in the input file.\n";
       }
 
-      roottree::trainCache(psetTree, *filePtr_, roottree::defaultNonEventCacheSize, "*");
-
       typedef std::pair<ParameterSetID, ParameterSetBlob> IdToBlobs;
       IdToBlobs idToBlob;
       IdToBlobs* pIdToBlob = &idToBlob;
       psetTree->SetBranchAddress(poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob);
 
+      std::auto_ptr<TTreeCache> psetTreeCache = roottree::trainCache(psetTree, *filePtr_, roottree::defaultNonEventCacheSize, "*");
+      filePtr_->SetCacheRead(psetTreeCache.get());
       for(Long64_t i = 0; i != psetTree->GetEntries(); ++i) {
         psetTree->GetEntry(i);
         psetMap.insert(idToBlob);
       }
+      filePtr_->SetCacheRead(0);
     }
 
     // backward compatibility
@@ -313,6 +315,8 @@ namespace edm {
     ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
     ProcessConfigurationRegistry::instance()->insertCollection(procConfigVector);
 
+    eventTree_.trainCache(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
+
     validateFile(secondaryFile, usingGoToEvent);
 
     // Read the parentage tree.  Old format files are handled internally in readParentageTree().
@@ -390,11 +394,12 @@ namespace edm {
     // We are done with our initial reading of EventAuxiliary.
     indexIntoFile_.doneFileInitialization();
 
-    // Train the run and lumi trees.
-    roottree::trainCache(runTree_.tree(), *filePtr_, roottree::defaultNonEventCacheSize, "*");
-    roottree::trainCache(lumiTree_.tree(), *filePtr_, roottree::defaultNonEventCacheSize, "*");
     // Tell the event tree to begin training at the next read.
     eventTree_.resetTraining();
+
+    // Train the run and lumi trees.
+    runTree_.trainCache("*");
+    lumiTree_.trainCache("*");
   }
 
   RootFile::~RootFile() {
@@ -941,8 +946,6 @@ namespace edm {
       throw Exception(errors::EventCorruption) <<
          "'Events' tree is corrupted or not present\n" << "in the input file.\n";
     }
-
-    roottree::trainCache(eventTree_.tree(), *filePtr_, roottree::defaultNonEventCacheSize, BranchTypeToAuxiliaryBranchName(InEvent).c_str());
 
     if(fileFormatVersion().hasIndexIntoFile()) {
       if(runTree().entries() > 0) {

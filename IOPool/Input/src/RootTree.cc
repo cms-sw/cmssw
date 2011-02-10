@@ -184,6 +184,9 @@ namespace edm {
 
   void
   RootTree::startTraining() {
+    if (cacheSize_ == 0) {
+      return;
+    }
     assert(treeCache_ && treeCache_->GetOwner() == tree_);
     assert(branchType_ == InEvent);
     assert(!rawTreeCache_);
@@ -224,6 +227,26 @@ namespace edm {
     filePtr_.reset();
   }
 
+  void
+  RootTree::trainCache(char const* branchNames) {
+    if (cacheSize_ == 0) {
+      return;
+    }
+    tree_->LoadTree(0);
+    tree_->SetCacheSize(cacheSize_);
+    assert(treeCache_);
+    filePtr_->SetCacheRead(treeCache_.get());
+    assert(treeCache_->GetOwner() == tree_);
+    treeCache_->StartLearningPhase();
+    treeCache_->SetEntryRange(0, tree_->GetEntries());
+    treeCache_->AddBranch(branchNames, kTRUE);
+    treeCache_->StopLearningPhase();
+    // We own the treeCache_.
+    // We make sure the treeCache_ is detatched from the file,
+    // so that ROOT does not also delete it.
+    filePtr_->SetCacheRead(0);
+  }
+
   namespace roottree {
     Int_t
     getEntry(TBranch* branch, EntryNumber entryNumber) {
@@ -249,8 +272,9 @@ namespace edm {
       return n;
     }
 
-    void
+    std::auto_ptr<TTreeCache>
     trainCache(TTree* tree, TFile& file, unsigned int cacheSize, char const* branchNames) {
+      tree->LoadTree(0);
       tree->SetCacheSize(cacheSize);
       std::auto_ptr<TTreeCache> treeCache(dynamic_cast<TTreeCache*>(file.GetCacheRead()));
       if (0 != treeCache.get()) {
@@ -263,6 +287,7 @@ namespace edm {
       // We make sure the treeCache_ is detatched from the file,
       // so that ROOT does not also delete it.
       file.SetCacheRead(0);
+      return treeCache;
     }
   }
 }

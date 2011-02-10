@@ -57,7 +57,7 @@ namespace edm {
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
     Int_t getEntry(TTree* tree, EntryNumber entryNumber);
-    void trainCache(TTree* tree, TFile& file, unsigned int cacheSize, char const* branchNames);
+    std::auto_ptr<TTreeCache> trainCache(TTree* tree, TFile& file, unsigned int cacheSize, char const* branchNames);
   }
 
   class RootTree : private boost::noncopyable {
@@ -123,6 +123,7 @@ namespace edm {
     } // backward compatibility
 
     TBranch* const branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
+    void trainCache(char const* branchNames);
     void resetTraining() {trainNow_ = true;}
 
   private:
