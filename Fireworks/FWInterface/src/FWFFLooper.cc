@@ -154,7 +154,7 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
    if (workarea && access((workarea + geometryRelFilename).c_str(), R_OK) == 0)
       geometryFilename = workarea + geometryRelFilename;
 
-   displayConfigFilename = ps.getUntrackedParameter<std::string>("diplayConfigFilename", displayConfigFilename);
+   displayConfigFilename = ps.getUntrackedParameter<std::string>("displayConfigFilename", displayConfigFilename);
    geometryFilename = ps.getUntrackedParameter<std::string>("geometryFilename", geometryFilename);
 
    setGeometryFilename(geometryFilename);
