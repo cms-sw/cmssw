@@ -4373,6 +4373,7 @@ else {
   } 
   //to be removed
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_longname_HT140U") == 0) {
+    //Good one? ...HT220U?
   //  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_HT140U") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if( 
@@ -4763,7 +4764,7 @@ else {
   } 
 
   //ok?
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8") == 0) { 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8_v1") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
 	if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1&&OpenHlt2ElectronsSamHarperPassed(8.,0,          // ET, L1isolation 
@@ -4896,7 +4897,7 @@ else {
     }
   }
   //ok?
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu5_Ele8") == 0) {    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu5_Ele8_v1") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
         if(OpenHlt2MuonPassed(0.,0.,5.,2.,0)>=2&&
@@ -5111,7 +5112,7 @@ else {
   }
 
   //ok?
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_Ele8_CaloIdL") == 0) { 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_Ele8_CaloIdL_v1") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
 	if(OpenHlt1MuonPassed(3.,5.,17.,2.,0)>=1 && 
@@ -5132,7 +5133,7 @@ else {
     } 
   } 
   //ok?
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu10_Ele10_CaloIdL") == 0) { 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu10_Ele10_CaloIdL_v1") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
 	if(OpenHlt1MuonPassed(3.,5.,10.,2.,0)>=1 && 
@@ -5153,7 +5154,7 @@ else {
     } 
   } 
   //ok?
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu8_Ele17_CaloIdL") == 0) { 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu8_Ele17_CaloIdL_v1") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
 	if(OpenHlt1MuonPassed(3.,5.,8.,2.,0)>=1 && 
