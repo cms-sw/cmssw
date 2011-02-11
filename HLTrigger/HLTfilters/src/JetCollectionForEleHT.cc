@@ -13,7 +13,7 @@
 //
 // Original Author:  Massimiliano Chiorboli,40 4-A01,+41227671535,
 //         Created:  Mon Oct  4 11:57:35 CEST 2010
-// $Id: JetCollectionForEleHT.cc,v 1.1 2010/10/12 23:10:07 sharper Exp $
+// $Id: JetCollectionForEleHT.cc,v 1.2 2011/01/14 09:03:18 eperez Exp $
 //
 //
 
@@ -30,6 +30,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTfilters/interface/JetCollectionForEleHT.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 JetCollectionForEleHT::JetCollectionForEleHT(const edm::ParameterSet& iConfig):
@@ -50,6 +54,14 @@ JetCollectionForEleHT::~JetCollectionForEleHT()
 
 }
 
+void
+JetCollectionForEleHT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("HltElectronTag",edm::InputTag("hltL1NonIsoHLTNonIsoDoubleElectronEt8HT70PixelMatchFilter"));
+  desc.add<edm::InputTag>("SourceJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
+  desc.add<double>("minDeltaR",0.5);
+  descriptions.add("hltJetCollectionForEleHT",desc);
+}
 
 //
 // member functions

@@ -13,7 +13,7 @@
 //
 // Original Author:  Massimiliano Chiorboli,40 4-A01,+41227671535,
 //         Created:  Mon Oct  4 11:57:35 CEST 2010
-// $Id$
+// $Id: JetCollectionForEleHT.h,v 1.1 2010/10/12 23:10:07 sharper Exp $
 //
 //
 
@@ -40,6 +40,10 @@
 #include "TVector3.h"
 
 
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -48,6 +52,7 @@ class JetCollectionForEleHT : public edm::EDProducer {
    public:
       explicit JetCollectionForEleHT(const edm::ParameterSet&);
       ~JetCollectionForEleHT();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       virtual void beginJob() ;

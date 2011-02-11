@@ -20,13 +20,18 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include <vector>
+
 //
 // constructors and destructor
 //
 HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag",false);
+   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag");
    minMht_= iConfig.getParameter<double> ("minMht"); 
    minPtJet_= iConfig.getParameter<std::vector<double> > ("minPtJet"); 
    minNJet_= iConfig.getParameter<int> ("minNJet"); 
@@ -49,6 +54,35 @@ HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
 
 HLTMhtHtFilter::~HLTMhtHtFilter(){}
 
+void
+HLTMhtHtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
+  desc.addUntracked<bool>("saveTag",true);
+  desc.add<double>("minMht",0.0);
+  {
+    std::vector<double> temp1;
+    temp1.reserve(2);
+    temp1.push_back(20.0);
+    temp1.push_back(20.0);
+    desc.add<std::vector<double> >("minPtJet",temp1);
+  }
+  desc.add<int>("minNJet",0);
+  desc.add<int>("mode",2);
+  {
+    std::vector<double> temp1;
+    temp1.reserve(2);
+    temp1.push_back(9999.0);
+    temp1.push_back(9999.0);
+    desc.add<std::vector<double> >("etaJet",temp1);
+  }
+  desc.add<bool>("usePt",true);
+  desc.add<double>("minPT12",0.0);
+  desc.add<double>("minMeff",180.0);
+  desc.add<double>("minHt",0.0);
+  desc.add<double>("minMht2Ht",0.0);
+  descriptions.add("hltMhtHtFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool

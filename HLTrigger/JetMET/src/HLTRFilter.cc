@@ -17,6 +17,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "TVector3.h"
 #include "TLorentzVector.h"
 //
@@ -45,6 +49,18 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
 
 HLTRFilter::~HLTRFilter()
 {
+}
+
+void
+HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltRHemisphere"));
+  desc.add<edm::InputTag>("inputMetTag",edm::InputTag("hltMet"));
+  desc.add<double>("minR",0.3);
+  desc.add<double>("minMR",100.0);
+  desc.add<bool>("doRPrime",false);
+  desc.add<bool>("acceptNJ",true);
+  descriptions.add("hltRFilter",desc);
 }
 
 //

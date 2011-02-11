@@ -9,6 +9,10 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -18,6 +22,7 @@ class HLTMhtHtFilter : public HLTFilter {
    public:
       explicit HLTMhtHtFilter(const edm::ParameterSet&);
       ~HLTMhtHtFilter();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
