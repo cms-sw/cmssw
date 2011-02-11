@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/01/20 18:28:08 $
+// last change    : $Date: 2009/01/20 20:21:38 $
 // by             : $Author: flucke $
 
 #include "PlotMilleMonitor.h"
@@ -158,7 +158,7 @@ Int_t PlotMilleMonitor::AddResidualsByHit(const char *histName,
     hMean = new TH1F(this->Unique(Form("%sMean", histName)),
                      Form("mean of %s;N(hit)", histName), nHitsMax, 0, nHitsMax);
     hRms  = new TH1F(this->Unique(Form("%sRms", histName)),
-                     Form("%s of %s;N(hit)", (gaus ? "#sigma" : "RMS"), histName, histName),
+                     Form("%s of %s;N(hit)", (gaus ? "#sigma" : "RMS"), histName),
 		     nHitsMax, 0, nHitsMax);
   }
   for (unsigned int i = 0; i < nHitsMax; ++i) {

@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2010/08/13 13:02:55 $
+// last change    : $Date: 2010/10/26 21:34:25 $
 // by             : $Author: flucke $
 
 #include "CompareMillePede.h"
@@ -28,7 +28,8 @@ CompareMillePede::CompareMillePede(const char *fileName1, const char *fileName2,
   if (!tree1 || !tree2) {
     ::Error("CompareMillePede", "Stop here: Previous problems...");
   } else if (tree1->GetEntries() != tree2->GetEntries()) {
-    ::Error("CompareMillePede", "Stop here: %d alignables in tree1, %d in tree2.",
+    // '%lld' for Long64_t
+    ::Error("CompareMillePede", "Stop here: %lld alignables in tree1, %lld in tree2.",
 	    tree1->GetEntries(), tree2->GetEntries());
   } else {
     tree1->AddFriend(tree2);
