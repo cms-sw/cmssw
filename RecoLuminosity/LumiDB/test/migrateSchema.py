@@ -25,11 +25,14 @@ def main():
     session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     [bitnames,trglsdata]=queryDataSource.trgFromOldLumi(session,runnumber)
     [pathnames,hltlsdata]=queryDataSource.hltFromOldLumi(session,runnumber)
-
     runinfosvc=sessionManager.sessionManager(args.runinfo,authpath=args.authpath,debugON=args.debug)
     runinfosession=runinfosvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    [l1key,amodetag,egev]=queryDataSource.runsummary(runinfosession,'CMS_RUNINFO',runnumber,complementalOnly=True)
-    print 'runsummary ',l1key,amodetag,egev
+    [l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime]=queryDataSource.runsummary(runinfosession,'CMS_RUNINFO',runnumber,complementalOnly=False)
+    confdbsvc=sessionManager.sessionManager(args.confdb,authpath=args.authpath,debugON=args.debug)
+    confdbsession=confdbsvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    print 'hltkey ',hltkey
+    hlt2l1map=queryDataSource.hltconf(confdbsession,hltkey)
+    print hlt2l1map
     session.transaction().start(False)
     schema=session.nominalSchema()
     lumidbDDL.newToOld(schema)
