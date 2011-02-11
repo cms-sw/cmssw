@@ -231,7 +231,10 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 	    if (applyFidCut) {
 	      npmt = HFFibreFiducial:: PMTNumber(pe_effect);
 	      if (npmt <= 0) ok = false;
-	      else if (npmt > 24 && zv > gpar[0]) depth = 2; // a short fibre
+	      else if (npmt > 24) { // a short fibre
+		if (zv > gpar[0]) depth = 2; 
+		else              ok = false;
+	      }
 #ifdef DebugLog
 	      edm::LogInfo("HFShower") << "HFShowerParam: npmt " << npmt 
 				       << " zv " << std::abs(pe_effect.z()) 
