@@ -48,6 +48,8 @@ protected:
   /// Try first a plain fit
   bool        preFit_;
 
+  std::string plot_;
+
   bool runSignificance(RooWorkspace *w, RooAbsData &data, double &limit);
   bool runLimit(RooWorkspace *w, RooAbsData &data, double &limit);
 };

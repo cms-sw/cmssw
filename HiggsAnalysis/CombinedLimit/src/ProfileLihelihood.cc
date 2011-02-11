@@ -4,8 +4,10 @@
 #include "RooRandom.h"
 #include "RooDataSet.h"
 #include "RooFitResult.h"
+#include "TCanvas.h"
 #include "RooStats/ProfileLikelihoodCalculator.h"
 #include "RooStats/LikelihoodInterval.h"
+#include "RooStats/LikelihoodIntervalPlot.h"
 #include "RooStats/HypoTestResult.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
@@ -26,6 +28,7 @@ ProfileLikelihood::ProfileLikelihood() :
         ("maxOutlierFraction", boost::program_options::value<float>()->default_value(0.25), "Ignore up to this fraction of results if they're too far from the median")
         ("maxOutliers",        boost::program_options::value<int>()->default_value(3),      "Stop trying after finding N outliers")
         ("preFit", "Attept a fit before running the ProfileLikelihood calculator")
+        ("plot",   boost::program_options::value<std::string>(), "Save a plot of the negative log of the profiled likelihood into the specified file")
     ;
 }
 
@@ -37,6 +40,7 @@ void ProfileLikelihood::applyOptions(const boost::program_options::variables_map
     maxOutlierFraction_ = vm["maxOutlierFraction"].as<float>();
     maxOutliers_        = vm["maxOutliers"].as<int>();
     preFit_ = vm.count("preFit");
+    plot_ = vm.count("plot") ? vm["plot"].as<std::string>() : std::string();
 }
 
 ProfileLikelihood::MinimizerSentry::MinimizerSentry(std::string &minimizerAlgo, double tolerance) :
@@ -124,6 +128,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
       if (noutlier <= maxOutlierFraction_*nresults) {
         if (verbose > 0) std::cout << " \\--> success! " << std::endl;
         success = true;
+        limit   = median;
         break;
       } else if (noutlier > maxOutliers_) {
         if (verbose > 0) std::cout << " \\--> failure! " << std::endl;
@@ -157,6 +162,13 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limi
       break;
     }
     success = true;
+    if (!plot_.empty()) {
+        TCanvas *c1 = new TCanvas("c1","c1");
+        LikelihoodIntervalPlot plot(&*plInterval);
+        plot.Draw();
+        c1->Print(plot_.c_str());
+        delete c1;
+    }
   }
   coutSentry.clear();
   if (verbose >= 0) {
