@@ -1,8 +1,8 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision$
-///  $Date$
-///  (last update by $Author$)
+///  $Revision: 1.1 $
+///  $Date: 2010/10/26 19:00:00 $
+///  (last update by $Author: flucke $)
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -12,6 +12,20 @@
 
 // included by header:
 // #include <vector>
+// #include <string>
+
+SurfaceDeformationFactory::Type
+SurfaceDeformationFactory::surfaceDeformationType(const std::string &typeString)
+{
+  if      (typeString == "BowedSurface")     return kBowedSurface;
+  else if (typeString == "TwoBowedSurfaces") return kTwoBowedSurfaces;
+  else {
+    throw cms::Exception("BadInput") << "SurfaceDeformationFactory::surfaceDeformationType: "
+				     << "Unknown SurfaceDeformation type " << typeString
+				     << " (must be 'BowedSurface' or 'TwoBowedSurfaces'.\n";
+    return kBowedSurface; // not reached, to please the compiler
+  }
+}
 
 SurfaceDeformation* SurfaceDeformationFactory::create(int type, const std::vector<double> &params)
 {

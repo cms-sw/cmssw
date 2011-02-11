@@ -7,11 +7,12 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision$
-///  $Date$
-///  (last update by $Author$)
+///  $Revision: 1.1 $
+///  $Date: 2010/10/26 18:59:59 $
+///  (last update by $Author: flucke $)
 
 #include <vector>
+#include <string>
 
 class SurfaceDeformation;
 
@@ -22,6 +23,10 @@ namespace SurfaceDeformationFactory
     kBowedSurface = 1, // BowedSurfaceDeformation
     kTwoBowedSurfaces  // TwoBowedSurfacesDeformation
   };
+
+  /// convert string to 'Type' - exception if string is not known
+  Type surfaceDeformationType(const std::string &typeString);
+
 
   /// Create an instance of the concrete implementations of 
   /// the 'SurfaceDeformation' interface
