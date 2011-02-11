@@ -203,6 +203,12 @@ else:
 
         egammaSelectors.append(generatorRequirementSequence)
 
+        # fix: if there are no paths for some reason,
+        # provide some dummy objects which we can delete
+        # after the loop over the paths 
+        path = None
+        dqmModule = None
+
         for path in paths:
 
             # name of the HLT path
