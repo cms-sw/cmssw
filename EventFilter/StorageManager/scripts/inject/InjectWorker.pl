@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.61 2011/02/03 20:18:53 babar Exp $
+# $Id: InjectWorker.pl,v 1.62 2011/02/04 13:35:05 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -65,6 +65,8 @@ chomp( my $host = `hostname -s` );
 my $offsetfile = $logpath . '/offset.txt';
 my $heartbeat  = 300;                        # Print a heartbeat every 5 minutes
 my $savedelay = 300;    # Frequency to save offset file, in seconds
+my $retrydelay = 30; # Backoff time before retrying a failed DB query, in seconds
+my $maxretries = 10; # Maximum number of DB retries
 my $log4perlConfig = '/opt/injectworker/inject/log4perl.conf';
 
 # To rotate logfiles daily
@@ -360,25 +362,23 @@ sub setup_runcond_db {
 sub get_num_sm {
     my ( $kernel, $heap, $callback, $args ) = @_[ KERNEL, HEAP, ARG0 .. ARG2 ];
     $kernel->yield(
-        get_from_runcond => 'NumSM',
+        get_from_runcond => 'NumSM', $callback,
         'CMS.DAQ:NB_ACTIVE_STORAGEMANAGERS_T', $args
     );
-    $kernel->yield( $callback => $args );
 }
 
 # Retrieve the HLT key for a given run
 sub get_hlt_key {
     my ( $kernel, $heap, $kind, $args ) = @_[ KERNEL, HEAP, ARG0 .. ARG2 ];
     $kernel->yield(
-        get_from_runcond => 'HLTkey',
+        get_from_runcond => 'HLTkey', "${kind}_file",
         'CMS.LVL0:HLT_KEY_DESCRIPTION', $args
     );
-    $kernel->yield( "${kind}_file" => $args );
 }
 
 sub get_from_runcond {
-    my ( $kernel, $heap, $kind, $key, $args ) =
-      @_[ KERNEL, HEAP, ARG0 .. ARG2 ];
+    my ( $kernel, $heap, $kind, $callback, $key, $args ) =
+      @_[ KERNEL, HEAP, ARG0 .. ARG3 ];
 
     my $runnumber = $args->{RUNNUMBER} || $args->{run};
     unless ( defined $runnumber and $kind and $key ) {
@@ -423,9 +423,14 @@ sub get_from_runcond {
         $sth->finish;
     }
     unless ( defined $cached ) {
-        $kernel->post( 'logger',
-            error =>
-              "Could not retrieve $kind (key: $key) for run $runnumber" );
+        my $delay = $args->{RetryDelay} ||= $retrydelay;
+        my $retries = ($args->{Retries} ||= $maxretries)--;
+        if( $retries ) {
+            $kernel->post( 'logger',
+                error =>
+                  "Could not retrieve $kind (key: $key) for run $runnumber."." Retrying ($retries left) in $delay" );
+            $kernel->delay( get_from_runcond => $delay, $kind, $callback, $key, $args );
+        }
     }
     elsif ( $kind eq 'HLTkey' ) {
         $args->{COMMENT} = 'HLTKEY=' . $cached;
@@ -434,6 +439,7 @@ sub get_from_runcond {
     else {
         $args->{n_instances} = $cached;
     }
+    $kernel->yield( $callback => $args );
 }
 
 # Parse lines like
