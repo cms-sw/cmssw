@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.62 2011/02/04 13:35:05 babar Exp $
+# $Id: InjectWorker.pl,v 1.64 2011/02/11 13:33:52 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -438,6 +438,13 @@ sub get_from_runcond {
                 $kind, $callback, $key, $args
             );
         }
+        else {
+            $kernel->post( 'logger',
+                error =>
+                  "Could not retrieve $kind (key: $key) for run $runnumber."
+                  . " Giving up after $maxretries tries." );
+        }
+        return;
     }
     elsif ( $kind eq 'HLTkey' ) {
         $args->{COMMENT} = 'HLTKEY=' . $cached;
