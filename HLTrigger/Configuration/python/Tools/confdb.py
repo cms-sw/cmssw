@@ -692,11 +692,11 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltL25TauCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltL3TauSingleTrack15CtfWithMaterialTracks" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
-      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorStartup" )
 # 4_2_X ===> Fix it
 #      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorEleJetSingleTop" )
 #      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesEleJetSingleTop" )
 # 4_2_X ==> Fix it
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorStartup" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesStartup" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksStartup" )
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorStartupU" )
@@ -788,7 +788,6 @@ if 'GlobalTag' in %%(dict)s:
 #      self.options['paths'].append( "-HLT_L1DoubleMuOpen_Tight" )
 #      self.options['paths'].append( "-HLT_L1MuOpen_AntiBPTX" )
       self.options['paths'].append( "-HLT_L1MuOpen_AntiBPTX_v*" )
-<<<<<<< confdb.py
 #      self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi" )
 #      self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi_Tight_v*" )
 #      self.options['paths'].append( "-HLT_Mu0_Track0_Jpsi" )
@@ -832,25 +831,12 @@ if 'GlobalTag' in %%(dict)s:
       self.options['paths'].append( "-HLT_IsoMu17_CentralJet40_BTagIP_v*" )
       self.options['paths'].append( "-HLT_Ele25_CaloIdVT_TrkIdT_CentralJet40_BTagIP_v*" )
 #
-=======
-#      self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi" )
-#      self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi_Tight_v*" )
-#      self.options['paths'].append( "-HLT_Mu0_Track0_Jpsi" )
-#      self.options['paths'].append( "-HLT_Mu3_TkMu0_OST_Jpsi" )
-#      self.options['paths'].append( "-HLT_Mu3_TkMu0_OST_Jpsi_Tight_v*" )
-#      self.options['paths'].append( "-HLT_Mu3_Track0_Jpsi" )
-#      self.options['paths'].append( "-HLT_Mu3_Track3_Jpsi" )
-#      self.options['paths'].append( "-HLT_Mu3_Track3_Jpsi_v*" )
-#      self.options['paths'].append( "-HLT_Mu3_Track5_Jpsi_v*" )
-#      self.options['paths'].append( "-HLT_Mu5_TkMu0_OST_Jpsi_Tight_v*" )
-#      self.options['paths'].append( "-HLT_Mu5_Track0_Jpsi_v*" )
-      self.options['paths'].append( "-HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*" )
-      self.options['paths'].append( "-HLT_Mu5_Track0_Jpsi_B5Q7_v*" )
-      self.options['paths'].append( "-HLT_Random_v*" )
-#      self.options['paths'].append( "-HLT_SelectEcalSpikesHighEt_L1R" )
-#      self.options['paths'].append( "-HLT_SelectEcalSpikes_L1R" )
+# For those I don't know...
+#
+      self.options['paths'].append( "-HLT_Photon26_IsoVL_Photon18_v*" )
+      self.options['paths'].append( "-HLT_Photon26_IsoVL_Photon18_IsoVL_v*" )
+      self.options['paths'].append( "-HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v*" )
 
->>>>>>> 1.25
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:
         self.options['paths'].append( "-HLTAnalyzerEndpath" )
