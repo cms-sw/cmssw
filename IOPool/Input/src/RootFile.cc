@@ -1276,7 +1276,6 @@ namespace edm {
 
   void
   RootFile::setAtEventEntry(IndexIntoFile::EntryNumber_t entry) {
-    std::cerr << "BARF: " << entry << std::endl;
     eventTree_.setEntryNumber(entry);
   }
 
