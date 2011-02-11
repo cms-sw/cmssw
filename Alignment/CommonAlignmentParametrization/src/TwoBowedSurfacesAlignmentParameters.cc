@@ -1,7 +1,7 @@
 /** \file TwoBowedSurfacesAlignmentParameters.cc
  *
- *  Version    : $Revision: 1.1 $
- *  last update: $Date: 2010/10/26 20:41:08 $
+ *  Version    : $Revision: 1.2 $
+ *  last update: $Date: 2010/11/23 13:50:50 $
  *  by         : $Author: flucke $
  */
 
@@ -240,11 +240,6 @@ double TwoBowedSurfacesAlignmentParameters::ySplitFromAlignable(const Alignable 
 
   const align::PositionType pos(ali->globalPosition());  
   const double r = pos.perp();
-
-  if (ali->geomDetId().subdetId() == 6) {
-    edm::LogInfo("Alignment") << "@SUB=ySplitFromAlignable" << ali->surface().length() 
-			      << " TEC r " << r;
-  }
 
   // The returned numbers for TEC are calculated as stated below from
   // what is found in CMS-NOTE 2003/20.
