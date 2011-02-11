@@ -37,7 +37,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ht                              = cms.InputTag("hltHtMet"),
     calotowers                      = cms.InputTag("hltTowerMakerForAll"),
     muon                            = cms.InputTag("muons"),
-    Electron                        = cms.InputTag("pixelMatchGsfElectrons"),
+    Electron                        = cms.InputTag("gsfElectrons"),
     Photon                          = cms.InputTag("photons"),
     
     ### muon OpenHLT objects                             
