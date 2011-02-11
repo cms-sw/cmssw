@@ -308,7 +308,7 @@ def getRunRegistryGoodRuns():
                 " and {bfield}>="+str(options.minB)+" and {bfield}<="+str(options.maxB)
     if options.dqCriteria != "": rr_quiery += " and "+options.dqCriteria
     
-    rrstr = server.DataExporter.export('RUN', 'GLOBAL', 'chart_runs_cum_evs_vs_bfield', rr_quiery)
+    rrstr = server.RunDatasetTable.export('GLOBAL', 'chart_runs_cum_evs_vs_bfield', rr_quiery)
     rrstr = rrstr.replace("bfield","'bfield'")
     rrstr = rrstr.replace("events","'events'")
     rrdata = eval(rrstr)
