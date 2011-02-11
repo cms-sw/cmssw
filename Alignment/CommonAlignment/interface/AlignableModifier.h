@@ -1,8 +1,9 @@
 #ifndef Alignment_TrackerAlignment_AlignableModifier_H
 #define Alignment_TrackerAlignment_AlignableModifier_H
 
-// #include <vector>
-// #include <string>
+#include <vector>
+#include <string>
+#include <utility>
 
 #include "CondFormats/Alignment/interface/Definitions.h"
 
@@ -82,8 +83,15 @@ public:
   const std::vector<float> gaussianRandomVector( float sigmaX, float sigmaY, float sigmaZ ) const;
   /// Return a vector of random numbers (flat distribution)
   const std::vector<float> flatRandomVector( float sigmaX, float sigmaY, float sigmaZ ) const;
+  /// Randomise all entries in 'rnd': 
+  /// - either from gaussian with width rnd[i]
+  /// - or from flat distribution between -rnd[i] and rnd[i]
+  void randomise(std::vector<double> &rnd, bool gaussian) const;
 
 private:
+  typedef std::pair<std::string,std::vector<double> > DeformationMemberType;
+  void addDeformation(Alignable *alignable, const DeformationMemberType &deformation,
+		      bool random, bool gaussian, double scale);
 
   /// Unique random number generator
   CLHEP::DRand48Engine* theDRand48Engine;
@@ -103,6 +111,7 @@ private:
   double phiXlocal_, phiYlocal_, phiZlocal_;
   double dX_, dY_, dZ_;
   double dXlocal_, dYlocal_, dZlocal_;
+  DeformationMemberType deformation_;
   double twist_, shear_;
 
 };

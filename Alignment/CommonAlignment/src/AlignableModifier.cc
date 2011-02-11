@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "CLHEP/Random/DRand48Engine.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/Randomize.h"
@@ -11,6 +13,8 @@
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 
+#include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 //__________________________________________________________________________________________________
 AlignableModifier::AlignableModifier( void )
@@ -52,6 +56,8 @@ void AlignableModifier::init_( void )
   dXlocal_      = 0.;        // Local X displacement [cm]
   dYlocal_      = 0.;        // Local Y displacement [cm]
   dZlocal_      = 0.;        // Local Z displacement [cm]
+  deformation_.first.clear();// SurfaceDeformation: type
+  deformation_.second.clear();//SurfaceDeformation: parameter vector
   twist_        = 0.;        // Twist angle [rad]
   shear_        = 0.;        // Shear angle [rad]
 
@@ -120,7 +126,18 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
     else if ( (*iParam) == "phiXlocal" ) { phiXlocal_=pSet.getParameter<double>( *iParam ); rotX_++; }
     else if ( (*iParam) == "phiYlocal" ) { phiYlocal_=pSet.getParameter<double>( *iParam ); rotY_++; }
     else if ( (*iParam) == "phiZlocal" ) { phiZlocal_=pSet.getParameter<double>( *iParam ); rotZ_++; }
-    else if ( !pSet.existsAs<edm::ParameterSet>(*iParam) ) { // PSets are OK to ignore
+    else if ( (*iParam) == "deformation" ) {
+      const edm::ParameterSet deform(pSet.getParameter<edm::ParameterSet>( *iParam ));
+      deformation_.first  = deform.getParameter<std::string>("type");
+      deformation_.second = deform.getParameter<std::vector<double> >("parameters");
+      // a non-complete check of simple mistyping of "deformation"
+      // i.e. should detect at least a single wrong character... HACK
+    } else if (pSet.existsAs<edm::ParameterSet>(*iParam)
+	       && ((*iParam).find("deform") != std::string::npos ||
+		   (*iParam).find("ation")  != std::string::npos)) {
+      throw cms::Exception("BadConfig") << "Probable mistyping in config: '" << (*iParam)
+                                        << "' should probably mean 'deformation'\n";
+    } else if ( !pSet.existsAs<edm::ParameterSet>(*iParam) ) { // other PSets are OK to ignore
       if ( !error.str().length() ) error << "Unknown parameter name(s): ";
       error << " " << *iParam;
     }
@@ -167,6 +184,10 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
   if ( std::abs(shear_) > 0 )
     edm::LogError("NotImplemented") << "Shear is not implemented yet";
   
+  if (!deformation_.first.empty()) {
+    this->addDeformation(alignable, deformation_, random_, gaussian_, scale_);
+  }
+
   // Apply error - first add scale_ to error
   scaleError_ *= scale_;
   if ( setError_ && scaleError_ ) {
@@ -198,6 +219,8 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
 							scaleError_*phiXlocal_, 
 							scaleError_*phiYlocal_, 
 							scaleError_*phiZlocal_ );
+    // Do we need to add any APE for deformations?
+    // Probably we would do so if there wouldn't be data, but only MC to play with... ;-)
   }
   // } // end if (scale_)
 
@@ -313,6 +336,37 @@ void AlignableModifier::moveAlignableLocal( Alignable* alignable, bool random, b
 
 }
 
+//__________________________________________________________________________________________________
+void AlignableModifier
+::addDeformation(Alignable *alignable,
+                const AlignableModifier::DeformationMemberType &deformation,
+                bool random, bool gaussian, double scale)
+{
+  const SurfaceDeformationFactory::Type deformType
+    = SurfaceDeformationFactory::surfaceDeformationType(deformation.first);
+
+  // Scale and randomize
+  // (need a little hack since ySplit must not be treated)!
+  const bool rndNotLast = (deformType == SurfaceDeformationFactory::kTwoBowedSurfaces);
+  std::vector<double> rndDeformation(deformation.second.begin(),
+				     deformation.second.end() - (rndNotLast ? 1 : 0));
+  for (unsigned int i = 0; i < rndDeformation.size(); ++i) {
+    rndDeformation[i] *= scale;
+  }
+  if (random) {
+    this->randomise(rndDeformation, gaussian);
+  }
+  if (rndNotLast) { // put back ySplit at the end
+    rndDeformation.push_back(deformation.second.back());
+  }
+  
+  // auto_ptr has exception safe delete (in contrast to bare pointer)
+  const std::auto_ptr<SurfaceDeformation> surfDef
+    (SurfaceDeformationFactory::create(deformType, rndDeformation));
+  
+  alignable->addSurfaceDeformation(surfDef.get(), true); // true to propagate down
+  ++m_modified;
+}
 
 //__________________________________________________________________________________________________
 /// If 'random' is false, the given rotations are strictly applied. Otherwise, a random
@@ -458,7 +512,24 @@ AlignableModifier::flatRandomVector( float sigmaX,float sigmaY, float sigmaZ ) c
 
 }
 
-
+//__________________________________________________________________________________________________
+void AlignableModifier::randomise(std::vector<double> &rnd, bool gaussian) const
+{
+  for (unsigned int i = 0; i < rnd.size(); ++i) {
+    if (rnd[i] < 0.)  {
+      edm::LogWarning("BadConfig") << " taking absolute value to randomise " << i;
+      rnd[i] = std::abs(rnd[i]);
+    }
+    
+    if (gaussian) {
+      CLHEP::RandGauss aGaussObj( *theDRand48Engine, 0., rnd[i]);
+      rnd[i] = aGaussObj.fire();
+    } else {
+      CLHEP::RandFlat aFlatObj(*theDRand48Engine, -rnd[i], rnd[i]);
+      rnd[i] = aFlatObj.fire();
+    }
+  }
+}
 
 //__________________________________________________________________________________________________
 void AlignableModifier::addAlignmentPositionError( Alignable* alignable, 
