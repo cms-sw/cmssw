@@ -290,8 +290,8 @@ class MatrixReader(object):
         print "processing ", fileNameIn
 
         try:
-            self.relvalModule = __import__( fileNameIn )
-
+            _tmpMod = __import__( 'Configuration.PyReleaseValidation.'+fileNameIn )
+            self.relvalModule = sys.modules['Configuration.PyReleaseValidation.'+fileNameIn]
         except Exception, e:
             print "ERROR importing file ", fileNameIn, str(e)
             return
