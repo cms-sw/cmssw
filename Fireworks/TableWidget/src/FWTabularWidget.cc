@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.13 2010/11/24 16:10:08 amraktad Exp $
+// $Id: FWTabularWidget.cc,v 1.14.2.1 2011/02/04 20:16:08 amraktad Exp $
 //
 
 // system include files
@@ -30,6 +30,9 @@
 //
 // static data member definitions
 //
+
+const int FWTabularWidget::kTextBuffer = 2;
+const int FWTabularWidget::kSeperatorWidth = 1;
 
 //
 // constructors and destructor
@@ -104,16 +107,18 @@ FWTabularWidget::setWidthOfTextInColumns(const std::vector<unsigned int>& iNew)
    assert(iNew.size() == static_cast<unsigned int>(m_table->numberOfColumns()));
 
    m_widthOfTextInColumns=iNew;
-   // with of columns grow to prevent resizing/flickering on next event
-   m_widthOfTextInColumnsMax.resize(iNew.size());
-   std::vector<unsigned int>::iterator k =  m_widthOfTextInColumnsMax.begin();
-   for(std::vector<unsigned int>::iterator it = m_widthOfTextInColumns.begin(); it != m_widthOfTextInColumns.end(); ++it, ++k)
+   if (m_table->growInWidth())
    {
-      if ( *it < *k ) 
-         *it = *k;
-      else
-         *k = *it;
-
+      // with of columns grow to prevent resizing/flickering on next event
+      m_widthOfTextInColumnsMax.resize(iNew.size());
+      std::vector<unsigned int>::iterator k =  m_widthOfTextInColumnsMax.begin();
+      for(std::vector<unsigned int>::iterator it = m_widthOfTextInColumns.begin(); it != m_widthOfTextInColumns.end(); ++it, ++k)
+      {
+         if ( *it < *k ) 
+            *it = *k;
+         else
+            *k = *it;
+      }
    }
 
    m_tableWidth=0;

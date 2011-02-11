@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:19 EST 2009
-// $Id: FWTabularWidget.h,v 1.3 2009/04/08 19:02:34 chrjones Exp $
+// $Id: FWTabularWidget.h,v 1.4.8.1 2011/02/04 20:16:08 amraktad Exp $
 //
 
 // system include files
@@ -34,6 +34,9 @@ class FWTabularWidget : public TGFrame
    public:
       static const TGGC&  getDefaultGC();
       
+      static const int kTextBuffer;
+      static const int kSeperatorWidth;
+
       FWTabularWidget(FWTableManagerBase* iManager,const TGWindow* p=0, GContext_t context = getDefaultGC()());
       virtual ~FWTabularWidget();
 
@@ -71,8 +74,6 @@ class FWTabularWidget : public TGFrame
       //const FWTabularWidget& operator=(const FWTabularWidget&); // stop default
 
       // ---------- member data --------------------------------
-      static const int kTextBuffer=2;
-      static const int kSeperatorWidth=1;
 
       void translateToRowColumn(Int_t iX, Int_t iY, Int_t& oRow, Int_t& oCol, Int_t&oRelX, Int_t& oRelY) const;
 

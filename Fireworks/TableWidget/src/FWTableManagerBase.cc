@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:40:44 EST 2009
-// $Id: FWTableManagerBase.cc,v 1.2 2009/03/04 15:25:37 chrjones Exp $
+// $Id: FWTableManagerBase.cc,v 1.3.8.1 2011/02/04 20:16:08 amraktad Exp $
 //
 
 // system include files
@@ -31,7 +31,8 @@
 //
 FWTableManagerBase::FWTableManagerBase():
 m_sortColumn(-1),
-m_sortOrder(false)
+m_sortOrder(false),
+m_growInWidth(true)
 {
 }
 

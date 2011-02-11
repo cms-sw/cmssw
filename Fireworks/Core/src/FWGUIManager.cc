@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.228 2011/01/19 17:17:15 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.229.2.1 2011/02/11 19:42:16 amraktad Exp $
 
 
 //
@@ -108,6 +108,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
    m_viewPopup(0),
    m_commonPopup(0),
    m_invMassDialog(0),
+   m_geoBrowser(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
    m_helpGLPopup(0),
@@ -155,6 +156,9 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
       m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
 
+      m_geoBrowser = new FWGeometryTable(getGUIManager());
+      m_cmsShowMainFrame->bindCSGActionKeys(m_geoBrowser);
+
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
       getAction(cmsshow::sLoadConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForLoadConfigurationFile));
@@ -191,6 +195,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       TQObject::Connect(gEve->GetWindowManager(), "WindowDocked(TEveWindow*)"  , "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
       TQObject::Connect(gEve->GetWindowManager(), "WindowUndocked(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
    }
+
 }
 
 void FWGUIManager::connectSubviewAreaSignals(FWGUISubviewArea* a)
@@ -709,14 +714,7 @@ FWGUIManager::showInvMassDialog()
 void
 FWGUIManager::showGeometryTable()
 {
-  std::cout<<"FWGUIManager::showGeometryTable()"<<std::endl;
-
-   if (! m_geometryTable)
-   {
-     m_geometryTable = new FWGeometryTable(getGUIManager());
-      m_cmsShowMainFrame->bindCSGActionKeys(m_geometryTable);
-   }
-   m_geometryTable->MapRaised();
+   m_geoBrowser->MapRaised();
 }
 
 void
@@ -1154,6 +1152,14 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       }
    }
    oTo.addKeyValue(kControllers,controllers,true);
+
+   //______________________________________________________________________________
+   // geometry 
+   FWConfiguration rootGeo;
+   {
+     m_geoBrowser->addTo(rootGeo);
+   }
+   oTo.addKeyValue("RootGeo",rootGeo,true);
 }
 
 //----------------------------------------------------------------
@@ -1277,6 +1283,11 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
 
    // disable fist docked view
    checkSubviewAreaIconState(0);
+
+  //______________________________________________________________________________
+  const FWConfiguration* rootGeo = iFrom.valueForKey("rootGeo");
+  if (rootGeo)
+     m_geoBrowser->setFrom(*rootGeo);
 }
 
 void

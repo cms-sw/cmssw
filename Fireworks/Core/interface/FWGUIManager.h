@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.114.2.1 2010/12/07 10:30:52 mccauley Exp $
+// $Id: FWGUIManager.h,v 1.115.2.1 2011/02/11 19:42:15 amraktad Exp $
 //
 
 // system include files
@@ -263,7 +263,7 @@ private:
    CmsShowCommonPopup*     m_commonPopup;
    FWInvMassDialog*        m_invMassDialog;
    
-   FWGeometryTable* m_geometryTable;
+   FWGeometryTable*        m_geoBrowser;
 
    // help
    CmsShowHelpPopup *m_helpPopup;

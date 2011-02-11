@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:50 EST 2009
-// $Id: FWTextTableCellRenderer.h,v 1.3 2009/05/05 08:36:06 elmer Exp $
+// $Id: FWTextTableCellRenderer.h,v 1.4.8.1 2011/02/11 19:42:16 amraktad Exp $
 //
 
 // system include files
@@ -58,6 +58,7 @@ public:
    
    // ---------- member functions ---------------------------
    void setData(const std::string&, bool isSelected);
+   void setData(const char*, bool isSelected);
    const std::string &data() { return m_data; }
    void setGraphicsContext(const TGGC* iContext) { m_context = iContext;}
    void setHighlightContext(const TGGC* context) { m_highlightContext = context; }

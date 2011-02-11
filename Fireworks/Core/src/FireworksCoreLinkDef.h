@@ -22,6 +22,7 @@
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWInvMassDialog.h"
+
 #include "Fireworks/Core/interface/FWGeometryTable.h"
 
 #ifdef __CINT__
@@ -60,6 +61,7 @@
 #pragma link C++ class CmsShowCommonPopup;
 #pragma link C++ class CmsShowViewPopup;
 #pragma link C++ class FWInvMassDialog;
+
 #pragma link C++ class FWGeometryTable;
 
 #endif
