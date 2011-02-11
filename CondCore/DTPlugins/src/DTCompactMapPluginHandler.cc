@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 11:43:02 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/02/08 15:47:28 $
+ *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -51,7 +51,6 @@ DTCompactMapPluginHandler::~DTCompactMapPluginHandler() {
 // Operations --
 //--------------
 void DTCompactMapPluginHandler::build() {
-  std::cout << "build DTCompactMapPluginHandler" << std::endl;
   if ( instance == 0 ) instance = new DTCompactMapPluginHandler;
 }
 
