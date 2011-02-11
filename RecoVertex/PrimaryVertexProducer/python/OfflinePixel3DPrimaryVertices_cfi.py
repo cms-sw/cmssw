@@ -9,7 +9,7 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
     ),
     verbose = cms.untracked.bool(False),
     algorithm = cms.string('AdaptiveVertexFitter'), ## 100 is for when the beamspot is not well known (ONLY FOR STARTUP)
-    useBeamConstraint = cms.bool(True),
+    useBeamConstraint = cms.bool(False),
     minNdof  = cms.double(2.0),               # new 
     TkFilterParameters = cms.PSet(
         algorithm=cms.string('filter'),
