@@ -251,6 +251,7 @@ if 'hltPreDQMSmart' in %(dict)s:
       self._fix_parameter(name = 'initialSeeds',         type = 'InputTag', value = 'noSeedsHere',          replace = 'globalPixelSeeds:GlobalPixel')
       self._fix_parameter(name = 'preFilteredSeeds',     type = 'bool',     value = 'True',                 replace = 'False')
       self._fix_parameter(                               type = 'InputTag', value = 'hltOfflineBeamSpot',   replace = 'offlineBeamSpot')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltOnlineBeamSpot',   replace = 'offlineBeamSpot')
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonCSCDigis',      replace = 'simMuonCSCDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonDTDigis',       replace = 'simMuonDTDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'simMuonRPCDigis')
@@ -692,6 +693,10 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltL3TauSingleTrack15CtfWithMaterialTracks" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorStartup" )
+# 4_2_X ===> Fix it
+#      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorEleJetSingleTop" )
+#      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesEleJetSingleTop" )
+# 4_2_X ==> Fix it
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesStartup" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksStartup" )
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorStartupU" )
@@ -783,6 +788,51 @@ if 'GlobalTag' in %%(dict)s:
 #      self.options['paths'].append( "-HLT_L1DoubleMuOpen_Tight" )
 #      self.options['paths'].append( "-HLT_L1MuOpen_AntiBPTX" )
       self.options['paths'].append( "-HLT_L1MuOpen_AntiBPTX_v*" )
+<<<<<<< confdb.py
+#      self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi" )
+#      self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi_Tight_v*" )
+#      self.options['paths'].append( "-HLT_Mu0_Track0_Jpsi" )
+#      self.options['paths'].append( "-HLT_Mu3_TkMu0_OST_Jpsi" )
+#      self.options['paths'].append( "-HLT_Mu3_TkMu0_OST_Jpsi_Tight_v*" )
+#      self.options['paths'].append( "-HLT_Mu3_Track0_Jpsi" )
+#      self.options['paths'].append( "-HLT_Mu3_Track3_Jpsi" )
+#      self.options['paths'].append( "-HLT_Mu3_Track3_Jpsi_v*" )
+#      self.options['paths'].append( "-HLT_Mu3_Track5_Jpsi_v*" )
+#      self.options['paths'].append( "-HLT_Mu5_TkMu0_OST_Jpsi_Tight_v*" )
+#      self.options['paths'].append( "-HLT_Mu5_Track0_Jpsi_v*" )
+      self.options['paths'].append( "-HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*" )
+      self.options['paths'].append( "-HLT_Mu5_Track0_Jpsi_B5Q7_v*" )
+      self.options['paths'].append( "-HLT_Random_v*" )
+#      self.options['paths'].append( "-HLT_SelectEcalSpikesHighEt_L1R" )
+#      self.options['paths'].append( "-HLT_SelectEcalSpikes_L1R" )
+#
+# Those tags had been removed just to speed up things fro 4_2_0_pre3
+# They must be tested and reinserted in the FastSim tag as soon as possible
+#
+      self.options['paths'].append( "-HLT_PFMHT80_v*" )
+      self.options['paths'].append( "-HLT_PFMHT150_v*" )
+      self.options['paths'].append( "-HLT_IsoPFTau35_Trk20_MET45_v*" )
+      self.options['paths'].append( "-HLT_Mu15_LooseIsoPFTau20_v*" )
+      self.options['paths'].append( "-HLT_Mu12_LooseIsoPFTau10_v*" )
+      self.options['paths'].append( "-HLT_Mu17_CentralJet40_BTagIP_v*" )
+      self.options['paths'].append( "-HLT_IsoMu17_CentralJet40_BTagIP_v*" )
+      self.options['paths'].append( "-HLT_IsoMu12_LooseIsoPFTau10_v*" )
+      self.options['paths'].append( "-HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v*" )
+      self.options['paths'].append( "-HLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_LooseIsoPFTau15_v*" )
+      self.options['paths'].append( "-HLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_LooseIsoPFTau20_v*" )
+      self.options['paths'].append( "-HLT_QuadJet20_IsoPFTau_PFMHT_v*" )
+      self.options['paths'].append( "-HLT_QuadJet40_IsoPFTau40_v*" )
+      self.options['paths'].append( "-HLT_DoubleIsoPFTau20_Trk5_v*" )
+      self.options['paths'].append( "-HLT__v*" )
+#
+# For those we need to adapt FastSimulation/HLTrigger (BTag)
+#
+      self.options['paths'].append( "-HLT_QuadJet50_BTagIP_v*" )
+      self.options['paths'].append( "-HLT_Mu17_CentralJet40_BTagIP_v*" )
+      self.options['paths'].append( "-HLT_IsoMu17_CentralJet40_BTagIP_v*" )
+      self.options['paths'].append( "-HLT_Ele25_CaloIdVT_TrkIdT_CentralJet40_BTagIP_v*" )
+#
+=======
 #      self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi" )
 #      self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi_Tight_v*" )
 #      self.options['paths'].append( "-HLT_Mu0_Track0_Jpsi" )
@@ -800,6 +850,7 @@ if 'GlobalTag' in %%(dict)s:
 #      self.options['paths'].append( "-HLT_SelectEcalSpikesHighEt_L1R" )
 #      self.options['paths'].append( "-HLT_SelectEcalSpikes_L1R" )
 
+>>>>>>> 1.25
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:
         self.options['paths'].append( "-HLTAnalyzerEndpath" )
