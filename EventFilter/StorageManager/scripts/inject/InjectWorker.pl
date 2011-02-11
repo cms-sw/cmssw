@@ -59,15 +59,15 @@ if ( !-e $config ) {
     die "Error: Specified config file \"$config\" does not exist";
 }
 
-#########################################################################################
+##############################################################################
 # Configuration
 chomp( my $host = `hostname -s` );
-my $offsetfile = $logpath . '/offset.txt';
-my $heartbeat  = 300;                        # Print a heartbeat every 5 minutes
-my $savedelay = 300;    # Frequency to save offset file, in seconds
-my $retrydelay = 30; # Backoff time before retrying a failed DB query, in seconds
-my $maxretries = 10; # Maximum number of DB retries
+my $heartbeat  = 300;    # Print a heartbeat every 5 minutes
+my $savedelay  = 300;    # Frequency to save offset file, in seconds
+my $retrydelay = 30;     # Backoff time before retrying a DB query, in seconds
+my $maxretries = 10;     # Maximum number of DB retries
 my $log4perlConfig = '/opt/injectworker/inject/log4perl.conf';
+my $offsetfile     = $logpath . '/offset.txt';
 
 # To rotate logfiles daily
 sub get_logfile {
@@ -190,7 +190,8 @@ sub setup_lock {
         }
         elsif ($process) {
             die
-"Error: Lock \"$lockfile\" exists, pid $pid (running: $process). Stale lock file?";
+              "Error: Lock \"$lockfile\" exists, pid $pid (running: $process)."
+              . " Stale lock file?";
         }
         else {
             $kernel->post( 'logger',
@@ -362,7 +363,8 @@ sub setup_runcond_db {
 sub get_num_sm {
     my ( $kernel, $heap, $callback, $args ) = @_[ KERNEL, HEAP, ARG0 .. ARG2 ];
     $kernel->yield(
-        get_from_runcond => 'NumSM', $callback,
+        get_from_runcond => 'NumSM',
+        $callback,
         'CMS.DAQ:NB_ACTIVE_STORAGEMANAGERS_T', $args
     );
 }
@@ -371,7 +373,8 @@ sub get_num_sm {
 sub get_hlt_key {
     my ( $kernel, $heap, $kind, $args ) = @_[ KERNEL, HEAP, ARG0 .. ARG2 ];
     $kernel->yield(
-        get_from_runcond => 'HLTkey', "${kind}_file",
+        get_from_runcond => 'HLTkey',
+        "${kind}_file",
         'CMS.LVL0:HLT_KEY_DESCRIPTION', $args
     );
 }
@@ -424,12 +427,16 @@ sub get_from_runcond {
     }
     unless ( defined $cached ) {
         my $delay = $args->{RetryDelay} ||= $retrydelay;
-        my $retries = ($args->{Retries} ||= $maxretries)--;
-        if( $retries ) {
+        my $retries = ( $args->{Retries} ||= $maxretries )--;
+        if ($retries) {
             $kernel->post( 'logger',
                 error =>
-                  "Could not retrieve $kind (key: $key) for run $runnumber."." Retrying ($retries left) in $delay" );
-            $kernel->delay( get_from_runcond => $delay, $kind, $callback, $key, $args );
+                  "Could not retrieve $kind (key: $key) for run $runnumber."
+                  . " Retrying ($retries left) in $delay" );
+            $kernel->delay(
+                get_from_runcond => $delay,
+                $kind, $callback, $key, $args
+            );
         }
     }
     elsif ( $kind eq 'HLTkey' ) {
@@ -788,9 +795,8 @@ sub read_changes {
     my $size = ( stat $file )[7];
     if ( $seek > $size ) {
         $kernel->post( 'logger',
-            warning =>
-"Saved seek ($seek) is greater than current filesize ($size) for $file"
-        );
+            warning => "Saved seek ($seek) is greater than"
+              . " current filesize ($size) for $file" );
         $seek = 0;
     }
     $kernel->post( 'logger', info => "Watching $file, starting at $seek" );
