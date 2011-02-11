@@ -219,6 +219,19 @@ class EgammaDQMModuleMaker:
         import FWCore.ParameterSet.Modules
 
         for moduleName in moduleNames:
+
+            # protection for FastSim HLT menu
+            # which seems to reference certain modules in some
+            # paths but these modules are not defined when just
+            # loading the HLT menu into a process object.
+            #
+            # this seems not to happen for the fullsim menu for some
+            # reason...
+            if moduleName in ('simulation',
+                              'offlineBeamSpot',
+                              'HLTEndSequence'):
+                continue
+
             module = getattr(self.process,moduleName)
 
             if not isinstance(module, FWCore.ParameterSet.Modules.EDFilter):
