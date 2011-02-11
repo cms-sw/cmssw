@@ -278,7 +278,12 @@ expertSettings.add_option("--inputCommands",
                           help="specify the input commands; i.e dropping products",
                           default=None,
                           dest="inputCommands")
-                          
+
+expertSettings.add_option("--inputEventContent",
+                          help="specify the input event content",
+                          default=None,
+                          dest="inputEventContent")
+
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
 

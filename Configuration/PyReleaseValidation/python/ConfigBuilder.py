@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.286 $"
-__source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
+__version__ = "$Revision: 1.287 $"
+__source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
@@ -44,6 +44,7 @@ defaultOptions.hideGen=False
 defaultOptions.beamspot='Realistic7TeVCollision'
 defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
+defaultOptions.inputEventContent = None
 
 # some helper routines
 def dumpPython(process,name):
@@ -202,6 +203,15 @@ class ConfigBuilder(object):
 		for command in self._options.inputCommands.split(','):
 			self.process.source.inputCommands.append(command)
 
+	if self._options.inputEventContent:
+		theEventContent = getattr(self.process, self._options.inputEventContent+"EventContent")
+		for p in theEventContent.parameters_():
+			#convert output commands in inputCommands
+			if p=='outputCommands':
+				setattr(self.process.source,'inputCommands',getattr(theEventContent,p))
+			else:
+				setattr(self.process.source,p,getattr(theEventContent,p))
+		
         if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
@@ -1354,7 +1364,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.286 $"),
+                                            (version=cms.untracked.string("$Revision: 1.287 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1365,12 +1375,13 @@ class ConfigBuilder(object):
     def prepare(self, doChecking = False):
         """ Prepare the configuration string and add missing pieces."""
 
+        self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
         self.addMaxEvents()
         if self.with_input:
-           self.addSource()
+           self.addSource()	
         self.addStandardSequences()
         self.addConditions()
-        self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
+
 
         outputModuleCfgCode=""
         if not 'HARVESTING' in self.stepMap.keys() and not 'SKIM' in self.stepMap.keys() and not 'ALCAHARVEST' in self.stepMap.keys() and not 'ALCAOUTPUT' in self.stepMap.keys() and self.with_output:
