@@ -1,6 +1,7 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 // this class's header
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableDataIO.h"
@@ -36,11 +37,21 @@ int AlignableDataIO::writeAbsPos(Alignable* ali, bool validCheck)
       align::PositionType pos = ali->surface().position();
       // global rotation
       align::RotationType rot = ali->surface().rotation();
+      // if a unit: store surface deformation (little kind of hack)...
+      std::vector<double> pars;
+      if (ali->alignableObjectId() == align::AlignableDetUnit) { // only detunits have them
+        std::vector<std::pair<int,SurfaceDeformation*> > result;
+        if (1 == ali->surfaceDeformationIdPairs(result)) { // might not have any...
+          pars = result[0].second->parameters();
+        }
+      }
+
       // write
       return writeAbsRaw( 
 			 AlignableAbsData( pos,rot,
 					   ali->id(),
-					   ali->alignableObjectId() )
+					   ali->alignableObjectId(),
+                                           pars)
 			 );
     }
 
@@ -57,9 +68,11 @@ int AlignableDataIO::writeRelPos(Alignable* ali, bool validCheck)
       align::GlobalVector pos = ali->displacement();
       // rel. rotation in global frame
       align::RotationType rot = ali->rotation();
+      // FIXME: should add something to store changes of surface deformations...
+      std::vector<double> pars;
       // write
       return writeRelRaw(AlignableRelData(pos,rot,ali->id(),
-					  ali->alignableObjectId()));
+					  ali->alignableObjectId(), pars));
     }
 
   return 1;
@@ -75,9 +88,11 @@ int AlignableDataIO::writeOrgPos(Alignable* ali, bool validCheck)
       align::PositionType pos = ali->globalPosition() - ali->displacement();
       // orig rotation
       align::RotationType rot = ali->globalRotation() * ali->rotation().transposed();
+      // FIXME: should add something to store changes of surface deformations...
+      std::vector<double> pars;
       // write
       return writeAbsRaw(AlignableAbsData(pos,rot,ali->id(),
-					  ali->alignableObjectId()));
+					  ali->alignableObjectId(), pars));
     }
 
   return 1;

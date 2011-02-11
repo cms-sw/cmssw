@@ -33,6 +33,9 @@ void AlignableDataIORoot::createBranches(void)
   tree->Branch("ObjId", &ObjId, "ObjId/I");
   tree->Branch("Pos",   &Pos,   "Pos[3]/D");
   tree->Branch("Rot",   &Rot,   "Rot[9]/D");
+
+  tree->Branch("NumDeform",   &numDeformationValues_, "NumDeform/i");
+  tree->Branch("DeformValues", deformationValues_,    "DeformValues[NumDeform]/F");
 }
 
 // ----------------------------------------------------------------------------
@@ -44,6 +47,9 @@ void AlignableDataIORoot::setBranchAddresses(void)
   tree->SetBranchAddress("ObjId", &ObjId);
   tree->SetBranchAddress("Pos",   &Pos);
   tree->SetBranchAddress("Rot",   &Rot);
+
+  tree->SetBranchAddress("NumDeform",   &numDeformationValues_);
+  tree->SetBranchAddress("DeformValues", deformationValues_);
 }
 
 // ----------------------------------------------------------------------------
@@ -81,6 +87,13 @@ int AlignableDataIORoot::writeAbsRaw(const AlignableAbsData &ad)
   Rot[0]=rot.xx(); Rot[1]=rot.xy(); Rot[2]=rot.xz();
   Rot[3]=rot.yx(); Rot[4]=rot.yy(); Rot[5]=rot.yz();
   Rot[6]=rot.zx(); Rot[7]=rot.zy(); Rot[8]=rot.zz();
+
+  const std::vector<double> &deformPars = ad.deformationParameters();
+  numDeformationValues_ = (deformPars.size() > kMaxNumPar ? kMaxNumPar : deformPars.size());
+  for (unsigned int i = 0; i < numDeformationValues_; ++i) {
+    deformationValues_[i] = deformPars[i];
+  }
+
   tree->Fill();
   return 0;
 }
@@ -96,6 +109,13 @@ int AlignableDataIORoot::writeRelRaw(const AlignableRelData &ad)
   Rot[0]=rot.xx(); Rot[1]=rot.xy(); Rot[2]=rot.xz();
   Rot[3]=rot.yx(); Rot[4]=rot.yy(); Rot[5]=rot.yz();
   Rot[6]=rot.zx(); Rot[7]=rot.zy(); Rot[8]=rot.zz();
+
+  const std::vector<double> &deformPars = ad.deformationParameters();
+  numDeformationValues_ = (deformPars.size() > kMaxNumPar ? kMaxNumPar : deformPars.size());
+  for (unsigned int i = 0; i < numDeformationValues_; ++i) {
+    deformationValues_[i] = deformPars[i];
+  }
+
   tree->Fill();
   return 0;
 }
@@ -117,6 +137,9 @@ AlignableAbsData AlignableDataIORoot::readAbsRaw(Alignable* ali,int& ierr)
 			     Rot[6],Rot[7],Rot[8]);
     pos=pos2;
     rot=rot2;
+
+    // FIXME: Should add reading of deformation values?
+    //        Then call Alignable::setSurfaceDeformation(..) ...
     ierr=0;
   }
   else ierr=-1;
@@ -142,6 +165,9 @@ AlignableRelData AlignableDataIORoot::readRelRaw(Alignable* ali,int& ierr)
 			     Rot[6],Rot[7],Rot[8]);
     pos=pos2;
     rot=rot2;
+
+    // FIXME: Should add reading of deformation values?
+    //        Then call Alignable::setSurfaceDeformation(..) ...
     ierr=0;
   }
   else ierr=-1;

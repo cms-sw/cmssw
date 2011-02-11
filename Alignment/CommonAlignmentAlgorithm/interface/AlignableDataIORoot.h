@@ -44,8 +44,11 @@ class AlignableDataIORoot : public AlignmentIORootBase, public AlignableDataIO
   align::StructureType ObjId;
   //unsigned int Id;
   align::ID Id;
-  double Pos[3];
-  double Rot[9];
+  Double_t Pos[3];
+  Double_t Rot[9];
+  UInt_t numDeformationValues_;
+  enum {kMaxNumPar = 20}; // slighly above 'two bowed surfaces' limit
+  Float_t deformationValues_[kMaxNumPar];
 
   bool newopen;
   typedef std::map< std::pair<align::ID, align::StructureType>, int > treemaptype;
