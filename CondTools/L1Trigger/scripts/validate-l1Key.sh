@@ -107,6 +107,20 @@ echo "tsc_key = ${tsc_key}" >> ${logFile}
 echo "O2O release ${release}$" >> ${logFile}
 
 #==============================================================================
+# 0. Write TSC payloads.  Decoupled from validation (for now) b/c of timing.
+#==============================================================================
+
+/nfshome0/l1emulator/o2o/o2o-tscKey-slc5.sh ${tsc_key}
+o2ocode3=$?
+
+if [ ${o2ocode3} -eq 0 ]
+    then
+    writeStatus="successful"
+else
+    writeStatus="failed"
+fi
+
+#==============================================================================
 # 1. Copy conditions for a given TSC key from online database to a sqlite file
 #==============================================================================
 
@@ -181,24 +195,24 @@ echo "`date` : validate-l1Key.sh finished" >> ${logFile}
 tail -6 ${logFile} >> ${summaryFile}
 echo "" >> ${logFile}
 
-#==============================================================================
-# 5. If key is validated, call O2O payload-writing script
-#==============================================================================
-
-if [ ${o2ocode} -eq 0 ]
-    then
-    /nfshome0/l1emulator/o2o/o2o-tscKey-slc5.sh ${tsc_key}
-    o2ocode3=$?
-
-    if [ ${o2ocode3} -eq 0 ]
-	then
-	writeStatus="successful"
-    else
-	writeStatus="failed"
-    fi
+##==============================================================================
+## 5. If key is validated, call O2O payload-writing script
+##==============================================================================
+#
+#if [ ${o2ocode} -eq 0 ]
+#    then
+#    /nfshome0/l1emulator/o2o/o2o-tscKey-slc5.sh ${tsc_key}
+#    o2ocode3=$?
+#
+#    if [ ${o2ocode3} -eq 0 ]
+#	then
+#	writeStatus="successful"
+#    else
+#	writeStatus="failed"
+#    fi
 
     o2ocode=`echo ${o2ocode} + ${o2ocode3} | bc`
-fi
+#fi
 
 echo "${tsc_key} ${validationStatus} ${writeStatus}" >> ${writtenFile}
 
