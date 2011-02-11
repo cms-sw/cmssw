@@ -23,9 +23,9 @@ shift $(($OPTIND - 1))
 # Environment
 #==============================================================================
 
-release=CMSSW_3_8_1_onlpatch4_ONLINE
-emulatorRelease=CMSSW_3_8_2
-version=009
+release=CMSSW_3_11_0_ONLINE
+emulatorRelease=CMSSW_3_11_0_ONLINE
+version=010
 
 #==============================================================================
 # File containing TSC keys that have been tested and written (+ status)
