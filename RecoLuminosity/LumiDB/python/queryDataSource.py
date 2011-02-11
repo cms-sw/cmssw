@@ -55,7 +55,7 @@ def hltFromOldLumi(session,runnumber):
         acceptcountArray=array.array('l')
         prescaleArray=array.array('l')
         ipath=0
-        pathnames=''
+        pathnHLT_PixelTracksVdMames=''
         while cursor.next():
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             pathname=cursor.currentRow()['pathname'].data()
@@ -180,7 +180,7 @@ def trgFromWBM(session,runnumber):
     '''
     pass
 
-def trgFromGT(session,runnumber):
+def trgFromNewGT(session,runnumber):
     '''
     select counts,lsnr,algobit from cms_gt_mon.gt_mon_trig_algo_view where runnr=:runnumber order by lsnr,algobit
     select counts,lsnr,techbit from cms_gt_mon.gt_mon_trig_tech_view where runnr=:runnumber order by lsnr,techbit
@@ -217,7 +217,7 @@ def trgFromOldGT(session,runnumber):
     #    del qHandle
     #    raise 
 
-def hltFromRuninfoV2(session,runnumber):
+def hltFromRuninfoV2(session,schemaname,runnumber):
     '''
     input:
     output: [datasource,pathnameclob,{cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}]
@@ -227,7 +227,7 @@ def hltFromRuninfoV2(session,runnumber):
     '''
     pass
 
-def hltFromRuninfoV3(session,runnumber):
+def hltFromRuninfoV3(session,schemaname,runnumber):
     '''
     input:
     output: [datasource,pathnameclob,{cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}]
@@ -237,12 +237,50 @@ def hltFromRuninfoV3(session,runnumber):
     '''
     pass
 
-def hltconf(schema,hltkey):
+def hltconf(session,hltkey):
     '''
-    select paths.pathid,paths.name,stringparamvalues.value from stringparamvalues,paths,parameters,superidparameterassoc,modules,moduletemplates,pathmoduleassoc,configurationpathassoc,configurations where parameters.paramid=stringparamvalues.paramid and  superidparameterassoc.paramid=parameters.paramid and modules.superid=superidparameterassoc.superid and moduletemplates.superid=modules.templateid and pathmoduleassoc.moduleid=modules.superid and paths.pathid=pathmoduleassoc.pathid and configurationpathassoc.pathid=paths.pathid and configurations.configid=configurationpathassoc.configid and moduletemplates.name='HLTLevel1GTSeed' and parameters.name='L1SeedsLogicalExpression' and configurations.configid=1905; 
+    select paths.pathid,paths.name,stringparamvalues.value from stringparamvalues,paths,parameters,superidparameterassoc,modules,moduletemplates,pathmoduleassoc,configurationpathassoc,configurations where parameters.paramid=stringparamvalues.paramid and  superidparameterassoc.paramid=parameters.paramid and modules.superid=superidparameterassoc.superid and moduletemplates.superid=modules.templateid and pathmoduleassoc.moduleid=modules.superid and paths.pathid=pathmoduleassoc.pathid and configurationpathassoc.pathid=paths.pathid and configurations.configid=configurationpathassoc.configid and moduletemplates.name='HLTLevel1GTSeed' and parameters.name='L1SeedsLogicalExpression' and configurations.configdescriptor=:hlt_description;
+    select paths.pathid,paths.name,stringparamvalues.value from stringparamvalues,paths,parameters,superidparameterassoc,modules,moduletemplates,pathmoduleassoc,configurationpathassoc,configurations where parameters.paramid=stringparamvalues.paramid and  superidparameterassoc.paramid=parameters.paramid and modules.superid=superidparameterassoc.superid and moduletemplates.superid=modules.templateid and pathmoduleassoc.moduleid=modules.superid and paths.pathid=pathmoduleassoc.pathid and configurationpathassoc.pathid=paths.pathid and configurations.configid=configurationpathassoc.configid and moduletemplates.name='HLTLevel1GTSeed' and parameters.name='L1SeedsLogicalExpression' and configurations.configid=:hlt_numkey;
+    ##select paths.pathid from cms_hlt.paths paths,cms_hlt.configurations config where config.configdescriptor=' ' and name=:pathname
+    '''
+    try:
+        session.transaction().start(True)
+        hltconfschema=session.nominalSchema()
+        hltconfQuery=hltconfschema.newQuery()
 
-    '''
-    pass
+        hltconfQuery.addToOutputList('PATHS.NAME','hltpath')
+        hltconfQuery.addToOutputList('STRINGPARAMVALUES.VALUE','l1expression')
+                
+        hltconfQuery.addToTableList('PATHS')
+        hltconfQuery.addToTableList('STRINGPARAMVALUES')
+        hltconfQuery.addToTableList('PARAMETERS')
+        hltconfQuery.addToTableList('SUPERIDPARAMETERASSOC')
+        hltconfQuery.addToTableList('MODULES')
+        hltconfQuery.addToTableList('MODULETEMPLATES')
+        hltconfQuery.addToTableList('PATHMODULEASSOC')
+        hltconfQuery.addToTableList('CONFIGURATIONPATHASSOC')
+        hltconfQuery.addToTableList('CONFIGURATIONS')
+
+        hltconfBindVar=coral.AttributeList()
+        hltconfBindVar.extend('hltseed','string')
+        hltconfBindVar.extend('l1seedexpr','string')
+        hltconfBindVar.extend('hltkey','string')
+        hltconfBindVar['hltseed'].setData('HLTLevel1GTSeed')
+        hltconfBindVar['l1seedexpr'].setData('L1SeedsLogicalExpression')
+        hltconfBindVar['hltkey'].setData(hltkey)
+        hltconfQuery.setCondition('PARAMETERS.PARAMID=STRINGPARAMVALUES.PARAMID AND SUPERIDPARAMETERASSOC.PARAMID=PARAMETERS.PARAMID AND MODULES.SUPERID=SUPERIDPARAMETERASSOC.SUPERID AND MODULETEMPLATES.SUPERID=MODULES.TEMPLATEID AND PATHMODULEASSOC.MODULEID=MODULES.SUPERID AND PATHS.PATHID=PATHMODULEASSOC.PATHID AND CONFIGURATIONPATHASSOC.PATHID=PATHS.PATHID AND CONFIGURATIONS.CONFIGID=CONFIGURATIONPATHASSOC.CONFIGID AND MODULETEMPLATES.NAME=:hltseed AND PARAMETERS.NAME=:l1seedexpr AND CONFIGURATIONS.CONFIGDESCRIPTOR=:hltkey',hltconfBindVar)
+        hlt2l1map={}
+        cursor=hltconfQuery.execute()
+        while cursor.next():
+            hltpath=cursor.currentRow()['hltpath'].data()
+            print hltpath
+            l1expression=cursor.currentRow()['l1expression'].data()
+            hlt2l1map[hltpath]=l1expression
+        del hltconfQuery
+        session.transaction().commit()
+        return hlt2l1map
+    except:
+        raise
 
 def runsummary(session,schemaname,runnumber,complementalOnly=False):
     '''
@@ -256,7 +294,7 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
     select time from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.LVL0:START_TIME_T';
     select time from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.LVL0:STOP_TIME_T';
     input:
-    output:[l1key,amodetag,egev,hltkey,fillnum,sequence,starttime,stoptime]
+    output:[l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime]
     if complementalOnly:
        [l1key,amodetag,egev]
     '''

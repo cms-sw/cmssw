@@ -859,18 +859,29 @@ def insertRunSummaryData(schema,runnumber,runsummarydata,complementalOnly=False)
 def insertTrgHltMap(schema,hltkey,trghltmap):
     '''
     input:
-        trghltmap {hltpath:(l1seed,hltpathid)}
+        trghltmap {hltpath:l1seed}
     output:
     '''
+    hltkeyExists=False
+    nrows=0
     try:
-        nrows=0
-        bulkvalues=[]   
-        trghltDefDict=[('HLTKEY','string'),('HLTPATHNAME','string'),('L1SEED','string'),('HLTPATHID','unsigned int')]
-        for hltpath,(l1seed,hltpathid) in trghltmap.items():
-            bulkvalues.append([('HLTKEY',hltkey),('HLTPATHNAME',hltpath),('L1SEED',l1seed),('HLTPATHID',hltpathid)])
-        db=dbUtil.dbUtil(schema)
-        db.bulkInsert(nameDealer.trghltMapTableName(),trghltDefDict,bulkvalues)
-        nrows=len(bulkvalues)
+        kQueryBindList=coral.AttributeList()
+        kQueryBindList.extend('hltkey','string')
+        kQuery=schema.newQuery()
+        kQuery.addToTableList(nameDealer.trghltMapTableName())
+        kQuery.setCondition('HLTKEY=:hltkey',kQueryBindList)
+        kQueryBindList['hltkey'].setData(hltkey)
+        kResult=kQuery.execute()
+        while kResult.next():
+            hltkeyExists=True
+        if not hltkeyExists:
+            bulkvalues=[]   
+            trghltDefDict=[('HLTKEY','string'),('HLTPATHNAME','string'),('L1SEED','string')]
+            for hltpath,l1seed in trghltmap.items():
+                bulkvalues.append([('HLTKEY',hltkey),('HLTPATHNAME',hltpath),('L1SEED',l1seed)])
+            db=dbUtil.dbUtil(schema)
+            db.bulkInsert(nameDealer.trghltMapTableName(),trghltDefDict,bulkvalues)
+            nrows=len(bulkvalues)
         return nrows
     except :
         raise
