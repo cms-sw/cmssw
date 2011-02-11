@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/01/20 20:21:38 $
+// last change    : $Date: 2010/10/26 21:34:25 $
 // by             : $Author: flucke $
 
 #ifndef MILLEPEDETREES_H
@@ -108,6 +108,8 @@ class MillePedeTrees
   TString GammaSi() const { return ParSi(5);}
   TString HitsX() const { return MpT() += "HitsX";}
   TString HitsY() const { return MpT() += "HitsY";}
+  TString DeformValue(UInt_t i, const TString &whichOne) const;//start,result,diff
+  TString NumDeformValues(const TString &whichOne) const; //start,result,diff
 
   // symbols
   TString Dot() const { return ".";}
@@ -138,14 +140,17 @@ class MillePedeTrees
   // units and names for params
   TString ToMumMuRad(UInt_t iParam) const { return (iParam < 3 ? "*10000" : "*1000000");}
   TString ToMumMuRadPede(UInt_t iParam) const;
+  TString ToMumMuRadSurfDef(UInt_t iParam) const;
   TString Name(UInt_t iParam) const;
   TString NamePede(UInt_t iParam) const;
+  TString NameSurfDef(UInt_t iParam) const;
   TString DelName(UInt_t iParam) const { return "#Delta"+Name(iParam);}
   TString DelNameU(UInt_t iParam) const { return DelName(iParam) += Unit(iParam);}
   TString Unit(UInt_t iParam) const { return (iParam < 3 
 					      ? " [#mum]" 
 					      : (iParam < kNpar ? " [#murad]" : ""));}
   TString UnitPede(UInt_t iParam) const;
+  TString UnitSurfDef(UInt_t iParam) const;
   // units and names for position strings (r, rphi, phi, x, y, z)
   TString ToMumMuRad(const TString &pos) const;
   TString Name(const TString &pos) const;

@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2010/08/12 09:17:10 $
+// last change    : $Date: 2010/10/26 21:34:25 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -104,6 +104,11 @@ class PlotMillePede : public MillePedeTrees
   void DrawParam(bool addPlots = false, const TString &sel = ""); // default: not fixed params
   void DrawPedeParam(Option_t *option = "", unsigned int nNonRigidParam = 12);//"add": add plots, "vs": p_i vs p_j; params beyond rigid body 
   void DrawPedeParamVsLocation(Option_t *option = "", unsigned int nNonRigidParam = 12);//"add" to add plots; params beyond rigid body 
+  //void DrawTwoSurfaceDeltas(Option_t *option = "");
+  void DrawSurfaceDeformations(const TString &whichOne = "result",
+			       Option_t *option = "", unsigned int maxNumPars = 13);//start,result,diff
+
+
   void DrawOrigParam(bool addPlots = false, const TString &sel = ""); //this->AnyFreePar()
   void DrawOrigPos(bool addPlots = false, const TString &sel = "");
 

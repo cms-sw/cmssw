@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2010/08/12 09:22:05 $
+// last change    : $Date: 2010/10/26 21:34:25 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -11,6 +11,7 @@
 #include <TF1.h>
 #include <TMath.h>
 #include <TTree.h>
+#include <TPaveText.h>
 
 #include <TError.h>
 #include <TROOT.h>
@@ -103,6 +104,7 @@ void PlotMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidParam)
   const unsigned int nPar = kNpar + nNonRigidParam;
   const TString titleAdd = this->TitleAdd();
   UInt_t nPlot = 0;
+  TObjArray primitivesParVsPar;
   for (UInt_t iPar = 0; iPar < nPar; ++iPar) { // 
     TString parSel(Fixed(iPar, false) += AndL() += Valid(iPar));
     this->AddBasicSelection(parSel);
@@ -117,7 +119,7 @@ void PlotMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidParam)
       for (UInt_t iPar2 = iPar + 1; iPar2 < nPar; ++iPar2) {
 	const TString hNameVs(this->Unique(Form("pedePar%d_%d", iPar, iPar2))); // 
 	const TString toMum2(this->ToMumMuRadPede(iPar2));
-	TH1 *hVs = this->CreateHist2D(Parenth(MpT() += Par(iPar)) += toMum,
+	TH2 *hVs = this->CreateHist2D(Parenth(MpT() += Par(iPar)) += toMum,
 				      Parenth(MpT() += Par(iPar2)) += toMum2, // Valid(iPar2??)
 				      Parenth(parSel) += AndL() += Fixed(iPar2, false), hNameVs, "BOX");
 	if (0. == hVs->GetEntries()) continue;// delete hVs;
@@ -125,6 +127,11 @@ void PlotMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidParam)
 	  hVs->SetTitle("pede: " + NamePede(iPar2) += " vs. " + NamePede(iPar) += titleAdd + ";"
 			+ NamePede(iPar) += UnitPede(iPar) += ";" + NamePede(iPar2) += UnitPede(iPar2));
 	  histsParVsPar.Add(hVs);
+	  // add info about correlation factor
+	  TPaveText *pave = new TPaveText(.15,.15,.5,.25, "NDC"); 
+	  pave->SetBorderSize(1);
+	  pave->AddText(Form("#rho = %.3f", hVs->GetCorrelationFactor()));
+	  primitivesParVsPar.Add(pave);
 	}
       }
     }
@@ -141,7 +148,7 @@ void PlotMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidParam)
       hBySiInv = this->CreateHist(ParSi(iPar) += Div() += Parenth(MpT() += Par(iPar)),
                                   parSel + AndL() += ParSiOk(iPar), hNameBySiInv);
     }
-
+    
     // parameters vs hits
     const TString hNameH(this->Unique(Form("pedeParVsHits%d", iPar))); // 
     TH2 *hHits = this->CreateHist2D(HitsX(), Parenth(MpT()+=Par(iPar)) += toMum, parSel,
@@ -164,8 +171,8 @@ void PlotMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidParam)
 				     += UnitPede(iPar));
     fHistManager->AddHist(h, layer);
     fHistManager->AddHist(hHits, layer+1);
-    if (hGlobCor) fHistManager->AddHist(hGlobCor, layer+2);
-    if (addParVsPar) fHistManager->AddHists(&histsParVsPar, layer+2+(hGlobCor ? 1 : 0));
+    if (addParVsPar) fHistManager->AddHists(&histsParVsPar, layer+2);
+    if (hGlobCor) fHistManager->AddHist(hGlobCor, layer+(addParVsPar ? 3 : 2));
 
     if (hBySi) {
       const TString namI(NamePede(iPar));
@@ -177,6 +184,12 @@ void PlotMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidParam)
       fHistManager->AddHist(hBySiInv, layer+3+(hGlobCor ? 1 : 0)+addParVsPar);
     }
     ++nPlot;
+  }
+  
+  if (addParVsPar) {
+    for (Int_t i = 0; i < primitivesParVsPar.GetEntries(); ++i) {
+      fHistManager->AddObject(primitivesParVsPar[i], layer+2, i);
+    }
   }
 
   fHistManager->Draw();
@@ -234,6 +247,164 @@ void PlotMillePede::DrawPedeParamVsLocation(Option_t *option, unsigned int nNonR
 //     fHistManager->SetNumHistsXY(3, 2, layer+nPlot);
 
     ++nPlot;
+  }
+
+  fHistManager->Draw();
+}
+
+// ////////////////////////////////////////////////////////////////////////////////////////////////////
+// void PlotMillePede::DrawTwoSurfaceDeltas(Option_t *option)
+// {
+//   const Int_t layer = this->PrepareAdd(TString(option).Contains("add", TString::kIgnoreCase));
+//   const TString titleAdd = this->TitleAdd();
+//
+//   // TEC 7
+//   const double ySplit = .6;//;//really: 0.6;
+//   const double vLenH  = 20.4715/2.;
+//   const double uLenH  = 8.7961/2.;
+//   const double vLenH1 = (vLenH + ySplit)/2.; 
+//   const double vLenH2 = (vLenH - ySplit)/2.; 
+//   // derived constants
+//   const double yMean1 = -vLenH + vLenH1;// y of alpha1 rotation axis in module frame
+//   const double yMean2 =  vLenH - vLenH2;// y of alpha2 rotation axis in module frame
+//   const double gammaScale1 = vLenH1 + uLenH;
+//   const double gammaScale2 = vLenH2 + uLenH;
+//   // pede parameters
+//   const TString pedeU1(MpT() += Par(0));
+//   const TString pedeU2(MpT() += Par(9));
+//   const TString pedeW1(MpT() += Par(2));
+//   const TString pedeW2(MpT() += Par(11));
+//   const TString pedeUslope1(MpT() += Par(3));
+//   const TString pedeUslope2(MpT() += Par(12));
+//   const TString pedeVslope1(MpT() += Par(4));
+//   const TString pedeVslope2(MpT() += Par(13));
+//   const TString pedeRotZ1(MpT() += Par(5));
+//   const TString pedeRotZ2(MpT() += Par(14));
+//   // derived sensor/module orientations
+//   const TString alpha1(pedeVslope1 + Div() += Flt(vLenH1));
+//   const TString alpha2(pedeVslope2 + Div() += Flt(vLenH2));
+//   const TString gamma1(pedeRotZ1 + Div() += Flt(gammaScale1));
+//   const TString gamma2(pedeRotZ2 + Div() += Flt(gammaScale2));
+//   const TString moduleGamma(Parenth(gamma1 + Plu() += gamma2) += Div() += Flt(2.));
+//
+//   //Delta u = (u1 + gamma*yMean1 - (u2 - gamma*yMean2))/2;
+//   const TString deltaU(Parenth(Parenth(pedeU1 + Plu() += moduleGamma + Mal() += Flt(yMean1))
+// 			       += Min() +=
+// 			       Parenth(pedeU2 + Plu() += moduleGamma + Mal() += Flt(yMean2)))
+// 		       += Div() += Flt(2.));
+//
+//   TString parSelDu(Valid(0) += AndL() += Valid(5) += AndL() += Valid(9) += AndL() += Valid(14)
+// 		   += AndL() += Fixed(0, false) += AndL() += Fixed(5, false)
+// 		   += AndL() += Fixed(5, false) += AndL() += Fixed(14, false));
+//   this->AddBasicSelection(parSelDu);
+//   TH1 *hTmp = this->CreateHist(deltaU + this->ToMumMuRad(0), parSelDu, "utemp");
+//   const TString hNameU(this->Unique("h2BowDeltaU") 
+// 		       += Form("(101,%f,%f)", hTmp->GetMean()-fMaxDev, hTmp->GetMean()+fMaxDev));
+//   delete hTmp;
+//   TH1 *hDeltaU = this->CreateHist(deltaU + this->ToMumMuRad(0), parSelDu, hNameU);
+//   hDeltaU->SetTitle("TwoBowed #deltau" + titleAdd + ";#deltau [#mum]");
+//   fHistManager->AddHist(hDeltaU, layer);
+//
+//   //Delta w = (w1 - alpha*yMean1 - (w2 - alpha*yMean1))/2
+//   const TString deltaW(Parenth(Parenth(pedeW1 + Min() += alpha1 + Mal() += Flt(yMean1))
+// 			       += Min() +=
+// 			       Parenth(pedeW2 + Min() += alpha2 + Mal() += Flt(yMean2)))
+// 		       += Div() += Flt(2.));
+//   TString parSelDw(Valid(2) += AndL() += Valid(4) += AndL() += Valid(11) += AndL() += Valid(13)
+// 		   += AndL() += Fixed( 2, false) += AndL() += Fixed( 4, false)
+// 		   += AndL() += Fixed(11, false) += AndL() += Fixed(13, false));
+//   this->AddBasicSelection(parSelDw);
+//   hTmp = this->CreateHist(deltaW + this->ToMumMuRad(0), parSelDw, "wtemp");
+//   const TString hNameW(this->Unique("h2BowDeltaW") 
+// 		       += Form("(101,%f,%f)", hTmp->GetMean()-fMaxDev, hTmp->GetMean()+fMaxDev));
+//   delete hTmp;
+//   TH1 *hDeltaW = this->CreateHist(deltaW + this->ToMumMuRad(0), parSelDw, hNameW);
+//   hDeltaW->SetTitle("TwoBowed #deltaw" + titleAdd + ";#deltaw [#mum]");
+//   fHistManager->AddHist(hDeltaW, layer);
+//
+//   //Delta alpha = (alpha1 - alpha2)/2
+//   const TString deltaA(Parenth(alpha1 + Min() += alpha2) += Div() += Flt(2.));
+//   TString parSelDa(Valid(4) += AndL() += Valid(13) += AndL() +=
+// 		   Fixed(4, false) += AndL() += Fixed(13, false));
+//   this->AddBasicSelection(parSelDa);
+//   hTmp = this->CreateHist(deltaA + this->ToMumMuRad(3), parSelDa, "atemp");
+//   const TString hNameA(this->Unique("h2BowDeltaA")
+// 		       += Form("(101,%f,%f)", hTmp->GetMean()-fMaxDev, hTmp->GetMean()+fMaxDev));
+//   delete hTmp;
+//   TH1 *hDeltaA = this->CreateHist(deltaA + this->ToMumMuRad(3), parSelDa, hNameA);
+//   hDeltaA->SetTitle("TwoBowed #delta#alpha" + titleAdd + ";#delta#alpha [#murad]");
+//   fHistManager->AddHist(hDeltaA, layer);
+//
+//   //Delta beta = (beta1 - beta2)/2
+//   const TString deltaB(Parenth(pedeUslope1 + Min() += pedeUslope2) + Div() += Flt(-2.*uLenH));
+//   TString parSelDb(Valid(3) += AndL() += Valid(12) += AndL() +=
+// 		   Fixed(3, false) += AndL() += Fixed(12, false));
+//   this->AddBasicSelection(parSelDb);
+//   hTmp = this->CreateHist(deltaB + this->ToMumMuRad(3), parSelDb, "btemp");
+//   const TString hNameB(this->Unique("h2BowDeltaB")
+// 		       += Form("(101,%f,%f)", hTmp->GetMean()-fMaxDev, hTmp->GetMean()+fMaxDev));
+//   delete hTmp;
+//   TH1 *hDeltaB = this->CreateHist(deltaB + this->ToMumMuRad(3), parSelDb, hNameB);
+//   hDeltaB->SetTitle("TwoBowed #delta#beta" + titleAdd + ";#delta#beta [#murad]");
+//   fHistManager->AddHist(hDeltaB, layer);
+//
+//   //Delta gamma = (gamma1 - gamma2)/2
+//   const TString deltaG(Parenth(gamma1 + Min() += gamma2) += Div() += Flt(2.));
+//   TString parSelDg(Valid(5) += AndL() += Valid(14) += AndL() +=
+// 		   Fixed(5, false) += AndL() += Fixed(14, false));
+//   this->AddBasicSelection(parSelDg);
+//   hTmp = this->CreateHist(deltaG + this->ToMumMuRad(3), parSelDg, "gtemp");
+//   const TString hNameG(this->Unique("h2BowDeltaG")
+// 		       += Form("(101,%f,%f)", hTmp->GetMean()-fMaxDev, hTmp->GetMean()+fMaxDev));
+//   delete hTmp;
+//   TH1 *hDeltaG = this->CreateHist(deltaG + this->ToMumMuRad(3), parSelDg, hNameG);
+//   hDeltaG->SetTitle("TwoBowed #delta#gamma" + titleAdd + ";#delta#gamma [#murad]");
+//   fHistManager->AddHist(hDeltaG, layer);
+//
+//   TLine *lU = new TLine(-100., 0., -100., hDeltaU->GetMaximum() * 1.05);
+//   lU->SetLineColor(kRed);
+//   lU->SetLineWidth(3);
+//   fHistManager->AddObject(lU, layer, 0);
+//
+//   TLine *lW = new TLine(-150., 0., -150., hDeltaW->GetMaximum() * 1.05);
+//   lU->TAttLine::Copy(*lW);
+//   fHistManager->AddObject(lW, layer, 1);
+//
+//   TLine *lA = new TLine(-150., 0., -150., hDeltaA->GetMaximum() * 1.05);
+//   lU->TAttLine::Copy(*lA);
+//   fHistManager->AddObject(lA, layer, 2);
+//
+//   TLine *lB = new TLine(-300., 0., -300., hDeltaB->GetMaximum() * 1.05);
+//   lU->TAttLine::Copy(*lB);
+//   fHistManager->AddObject(lB, layer, 3);
+//
+//   TLine *lG = new TLine(-250., 0., -250., hDeltaG->GetMaximum() * 1.05);
+//   lU->TAttLine::Copy(*lG);
+//   fHistManager->AddObject(lG, layer, 4);
+//
+//   fHistManager->Draw();
+// }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void PlotMillePede::DrawSurfaceDeformations(const TString &whichOne,
+					    Option_t *option, unsigned int maxNumPars)
+{
+  const Int_t layer = this->PrepareAdd(TString(option).Contains("add", TString::kIgnoreCase));
+  const TString titleAdd = this->TitleAdd();
+
+  TString parSel(Valid(0) += AndL() += Fixed(0, false)); // HACK: if u1 determination is fine
+  this->AddBasicSelection(parSel);
+
+  for (unsigned int i = 0; i < maxNumPars; ++i) {
+    const TString hName(this->Unique(Form("hSurf%u", i)));
+    TH1 *h = this->CreateHist(DeformValue(i, whichOne) += this->ToMumMuRadSurfDef(i),
+			      parSel + AndL() += Parenth(NumDeformValues(whichOne)),
+			      hName);
+
+    if (!h || 0. == h->GetEntries()) continue;
+    h->SetTitle("SurfaceDeformation " + (whichOne + " ") += NameSurfDef(i) += titleAdd + ";"
+		+ NameSurfDef(i) += UnitSurfDef(i));
+    fHistManager->AddHist(h, layer);
   }
 
   fHistManager->Draw();

@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/01/20 20:21:38 $
+// last change    : $Date: 2010/10/26 21:34:25 $
 // by             : $Author: flucke $
 
 #include "TTree.h"
@@ -504,6 +504,48 @@ TString MillePedeTrees::ParSiOk(UInt_t iParam) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+TString MillePedeTrees::DeformValue(UInt_t i, const TString &whichOne) const
+{
+  //start,result,diff
+  if (whichOne == "diff") {
+    ::Error("MillePedeTrees::DeformValue",
+	    "whichOne == diff not yet implemented!");
+    return "2";
+  } else {
+    TString tree;
+    if (whichOne == "result") tree = PosT();
+    else if (whichOne == "start") tree = MisPosT();
+    else {
+      ::Error("MillePedeTrees::DeformValue",
+	      "unknown 'whichOne': %s", whichOne.Data());
+      return "1";
+    }
+    return tree += Form("DeformValues[%u]", i);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+TString MillePedeTrees::NumDeformValues(const TString &whichOne) const
+{
+  //start,result,diff
+  if (whichOne == "diff") {
+    ::Error("MillePedeTrees::NumDeformValues",
+	    "whichOne == diff not yet implemented!");
+    return "0";
+  } else {
+    TString tree;
+    if (whichOne == "result") tree = PosT();
+    else if (whichOne == "start") tree = MisPosT();
+    else {
+      ::Error("MillePedeTrees::NumDeformValues",
+	      "unknown 'whichOne': %s", whichOne.Data());
+      return "0";
+    }
+    return tree += "NumDeform";
+  }
+}  
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 TString MillePedeTrees::Name(UInt_t iParam) const
 {
   switch (iParam) {
@@ -524,27 +566,61 @@ TString MillePedeTrees::NamePede(UInt_t iParam) const
 {
   if (fBowsParameters) {
     switch (iParam) {
-    case 0: return "u_{1}";
-    case 1: return "v_{1}";
-    case 2: return "w_{1}";
-    case 3: return "u-slope_{1}";
-    case 4: return "v-slope_{1}";
-      // case 5: return "#gamma_{1}";
-    case 5: return "w-rot_{1}";
-    case 6: return "u-sagitta_{1}";
-    case 7: return "uv-sagitta_{1}";
-    case 8: return "v-sagitta_{1}";
-      
-    case 9: return "u_{2}";
-    case 10: return "v_{2}";
-    case 11: return "w_{2}";
-    case 12: return "u-slope_{2}";
-    case 13: return "v-slope_{2}";
-      //    case 14: return "#gamma_{2}";
-    case 14: return "w-rot_{2}";
-    case 15: return "u-sagitta_{2}";
-    case 16: return "uv-sagitta_{2}";
-    case 17: return "v-sagitta_{2}";
+//       // temporary 1!
+//     case 0: return "u";
+//     case 1: return "v";
+//     case 2: return "w_{00}";
+//     case 3: return "w_{10}";
+//     case 4: return "w_{01}";
+//     case 5: return "#gamma'";
+//     case 6: return "w_{20}";
+//     case 7: return "w_{11}";
+//     case 8: return "w_{02}";
+//       // END temporary!
+      // temporary 2!
+    case 0: return "u^{1}";
+    case 1: return "v^{1}";
+    case 2: return "w_{00}^{1}";
+    case 3: return "w_{10}^{1}";
+    case 4: return "w_{01}^{1}";
+    case 5: return "#gamma'^{1}";
+    case 6: return "w_{20}^{1}";
+    case 7: return "w_{11}^{1}";
+    case 8: return "w_{02}^{1}";
+    case 9: return "u^{2}";
+    case 10: return "v^{2}";
+    case 11: return "w_{00}^{2}";
+    case 12: return "w_{10}^{2}";
+    case 13: return "w_{01}^{2}";
+    case 14: return "#gamma'^{2}";
+    case 15: return "w_{20}^{2}";
+    case 16: return "w_{11}^{2}";
+    case 17: return "w_{02}^{2}";
+      // END temporary 2!
+      // un-comment these:
+//     case 0: return "u_{1}";
+//     case 1: return "v_{1}";
+//     case 2: return "w_{1}";
+//     case 3: return "u-slope_{1}";
+//     case 4: return "v-slope_{1}";
+//       // case 5: return "#gamma_{1}";
+//     case 5: return "w-rot_{1}";
+//     case 6: return "u-sagitta_{1}";
+//     case 7: return "uv-sagitta_{1}";
+//     case 8: return "v-sagitta_{1}";
+      // END un-comment these
+      // un-comment these for for temporary 1 and default:
+//     case 9: return "u_{2}";
+//     case 10: return "v_{2}";
+//     case 11: return "w_{2}";
+//     case 12: return "u-slope_{2}";
+//     case 13: return "v-slope_{2}";
+//       //    case 14: return "#gamma_{2}";
+//     case 14: return "w-rot_{2}";
+//     case 15: return "u-sagitta_{2}";
+//     case 16: return "uv-sagitta_{2}";
+//     case 17: return "v-sagitta_{2}";
+      // END un-comment these for for temporary 1 and default
     default:
       ::Error("MillePedeTrees::Name", "unknown parameter %d", iParam);
       return Form("param%d", iParam);
@@ -552,6 +628,31 @@ TString MillePedeTrees::NamePede(UInt_t iParam) const
   } else {
     return this->Name(iParam);
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+TString MillePedeTrees::NameSurfDef(UInt_t iParam) const
+{
+  
+  switch(iParam) {
+  case 0: return "w_{20}";
+  case 1: return "w_{11}";
+  case 2: return "w_{02}";
+  case 3: return "u^{#delta}";
+  case 4: return "v^{#delta}"; 
+  case 5: return "w^{#delta}";
+  case 6: return "#alpha^{#delta}";
+  case 7: return "#beta^{#delta}";
+  case 8: return "#gamma^{#delta}";
+  case 9: return "w_{20}^{#delta}";
+  case 10:return "w_{11}^{#delta}";
+  case 11:return "w_{02}^{#delta}";
+  case 12:return "y_{split}";
+  default:
+    ::Error("MillePedeTrees::NameSurfDef", "unknown parameter %d", iParam);
+    return Form("surfDefParam %u", iParam);
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -593,6 +694,31 @@ TString MillePedeTrees::UnitPede(UInt_t iParam) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+TString MillePedeTrees::UnitSurfDef(UInt_t iParam) const
+{
+  switch(iParam) {
+  case 0: // (mean) w_20
+  case 1: // (mean) w_11
+  case 2: // (mean) w_02
+  case 3: // delta u
+  case 4: // delta v
+  case 5: // delta w
+  case 9:  // delta w_20
+  case 10: // delta w_11
+  case 11: // delta w_02
+  case 12: // ySplit
+      return " [#mum]";
+  case 6: // delta alpha
+  case 7: // delta beta
+  case 8: // delta gamma
+    return " [#murad]";
+  default:
+    ::Error("MillePedeTrees::UnitSurfDef", "unknown parameter %d", iParam);
+    return " [?]";
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 TString MillePedeTrees::ToMumMuRadPede(UInt_t iParam) const
 {
   if (fBowsParameters) {
@@ -627,6 +753,31 @@ TString MillePedeTrees::ToMumMuRadPede(UInt_t iParam) const
     }
   } else {
     return this->ToMumMuRad(iParam);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+TString MillePedeTrees::ToMumMuRadSurfDef(UInt_t iParam) const
+{
+  switch(iParam) {
+  case 0: // (mean) w_20
+  case 1: // (mean) w_11
+  case 2: // (mean) w_02
+  case 3: // delta u
+  case 4: // delta v
+  case 5: // delta w
+  case 9:  // delta w_20
+  case 10: // delta w_11
+  case 11: // delta w_02
+  case 12: // ySplit
+      return "*10000"; // cm to mum
+  case 6: // delta alpha
+  case 7: // delta beta
+  case 8: // delta gamma
+    return "*1000000"; // rad to murad
+  default:
+    ::Error("MillePedeTrees::ToMumMuRadSurfDef", "unknown parameter %d", iParam);
+    return "";
   }
 }
 
