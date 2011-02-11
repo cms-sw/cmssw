@@ -1,6 +1,16 @@
 import os
 import FWCore.ParameterSet.Config as cms
 
+# for json support
+try: # FUTURE: Python 2.6, prior to 2.6 requires simplejson
+    import json
+except:
+    try:
+        import simplejson as json
+    except:
+        print "Please use lxplus or set an environment (for example crab) with json lib available"
+        sys.exit(1)
+
 inputfiles = os.environ["ALIGNMENT_INPUTFILES"].split(" ")
 iteration = int(os.environ["ALIGNMENT_ITERATION"])
 jobnumber = int(os.environ["ALIGNMENT_JOBNUMBER"])
@@ -32,16 +42,69 @@ maxEvents = int(os.environ["ALIGNMENT_MAXEVENTS"])
 skipEvents = int(os.environ["ALIGNMENT_SKIPEVENTS"])
 maxResSlopeY = float(os.environ["ALIGNMENT_MAXRESSLOPEY"])
 
+# optionally: create a ntuple with MapPlot plugin
+createMapNtuple = False
+envNtuple = os.getenv("ALIGNMENT_CREATEMAPNTUPLE")
+if envNtuple is not None:
+  if envNtuple=='True': createMapNtuple = True
+
+# optionally do selective DT or CSC alignment
+doDT = True
+doCSC = True
+envDT = os.getenv("ALIGNMENT_DO_DT")
+envCSC = os.getenv("ALIGNMENT_DO_CSC")
+if envDT is not None and envCSC is not None:
+  if envDT=='True' and envCSC=='False':
+    doDT = True
+    doCSC = False
+  if envDT=='False' and envCSC=='True':
+    doDT = False
+    doCSC = True
+
+# optionally use JSON file for good limi mask
+good_lumis = []
+json_file = os.getenv("ALIGNMENT_JSON")
+#json_file = 'Cert_136035-144114_7TeV_StreamExpress_Collisions10_JSON.txt'
+if json_file is not None and json_file != '':
+  jsonfile=file(json_file, 'r')
+  jsondict = json.load(jsonfile)
+  runs = jsondict.keys()
+  runs.sort()
+  for run in runs:
+    blocks = jsondict[run]
+    blocks.sort()
+    prevblock = [-2,-2]
+    for lsrange in blocks:
+      if lsrange[0] == prevblock[1]+1:
+        #print "Run: ",run,"- This lumi starts at ", lsrange[0], " previous ended at ", prevblock[1]+1, " so I should merge"
+        prevblock[1] = lsrange[1]
+        good_lumis[-1] = str("%s:%s-%s:%s" % (run, prevblock[0], run, prevblock[1]))
+      else:
+        good_lumis.append(str("%s:%s-%s:%s" % (run, lsrange[0], run, lsrange[1])))
+        prevblock = lsrange
+
+
 process = cms.Process("GATHER")
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputfiles), skipEvents = cms.untracked.uint32(skipEvents))
+
+if len(good_lumis)>0:
+  process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(*inputfiles),
+    skipEvents = cms.untracked.uint32(skipEvents), 
+    lumisToProcess = cms.untracked.VLuminosityBlockRange(*good_lumis))
+else:
+  process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(*inputfiles),
+    skipEvents = cms.untracked.uint32(skipEvents))
+
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(maxEvents))
+
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     destinations = cms.untracked.vstring("cout"),
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string("ERROR")))
 
 process.load("Alignment.MuonAlignmentAlgorithms.MuonAlignmentFromReference_cff")
-process.looper.algoConfig.writeTemporaryFile = "alignment%03d.tmp" % jobnumber
+process.looper.algoConfig.writeTemporaryFile = "alignment%04d.tmp" % jobnumber
 process.looper.algoConfig.doAlignment = False
 
 process.looper.ParameterBuilder.Selector.alignParams = cms.vstring("MuonDTChambers,%s,stations123" % station123params, "MuonDTChambers,%s,station4" % station4params, "MuonCSCChambers,%s" % cscparams)
@@ -70,19 +133,23 @@ if mapplots:
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minDT13Hits = process.looper.algoConfig.minDT13Hits
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minDT2Hits = process.looper.algoConfig.minDT2Hits
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minCSCHits = process.looper.algoConfig.minCSCHits
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.doDT = cms.bool(doDT)
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.doCSC = cms.bool(doCSC)
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.createNtuple = cms.bool(createMapNtuple)
 
 if segdiffplots:
     process.load("Alignment.CommonAlignmentMonitor.AlignmentMonitorSegmentDifferences_cfi")
     process.looper.monitorConfig.monitors.append("AlignmentMonitorSegmentDifferences")
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences = process.AlignmentMonitorSegmentDifferences
-    # this should be set separately (50 GeV nominal)
-    # process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minTrackPt = cms.double(minTrackPt)
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minTrackPt = cms.double(minTrackPt)
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minTrackerHits = cms.int32(minTrackerHits)
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.maxTrackerRedChi2 = cms.double(maxTrackerRedChi2)
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.allowTIDTEC = cms.bool(allowTIDTEC)
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minDT13Hits = process.looper.algoConfig.minDT13Hits
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minDT2Hits = process.looper.algoConfig.minDT2Hits
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minCSCHits = process.looper.algoConfig.minCSCHits
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.doDT = cms.bool(doDT)
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.doCSC = cms.bool(doCSC)
 
 if curvatureplots:
     process.load("Alignment.CommonAlignmentMonitor.AlignmentMonitorMuonVsCurvature_cfi")
@@ -94,6 +161,8 @@ if curvatureplots:
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minDT13Hits = process.looper.algoConfig.minDT13Hits
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minDT2Hits = process.looper.algoConfig.minDT2Hits
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minCSCHits = process.looper.algoConfig.minCSCHits
+    process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.doDT = cms.bool(doDT)
+    process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.doCSC = cms.bool(doCSC)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)
@@ -134,6 +203,43 @@ if gprcdconnect != "":
                                                    connect = cms.string(gprcdconnect),
                                                    toGet = cms.VPSet(cms.PSet(record = cms.string("GlobalPositionRcd"), tag = cms.string(gprcd))))
     process.es_prefer_GlobalPositionInputDB = cms.ESPrefer("PoolDBESSource", "GlobalPositionInputDB")
+
+
+## the following was needed for Nov 2010 alignment to pick up new lorentz angle and strip conditions for tracker
+#process.poolDBESSourceLA = cms.ESSource("PoolDBESSource",
+#  BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+#  DBParameters = cms.PSet(
+#    messageLevel = cms.untracked.int32(0),
+#    authenticationPath = cms.untracked.string('.')
+#    #messageLevel = cms.untracked.int32(2),
+#    #authenticationPath = cms.untracked.string('/path/to/authentication')
+#  ),
+#  timetype = cms.untracked.string('runnumber'),
+#  connect = cms.string('frontier://PromptProd/CMS_COND_31X_STRIP'),
+#  toGet = cms.VPSet(cms.PSet(
+#    record = cms.string('SiStripLorentzAngleRcd'),
+#    tag = cms.string('SiStripLorentzAngle_GR10_v2_offline')
+#  ))
+#)
+#process.es_prefer_LA = cms.ESPrefer('PoolDBESSource','poolDBESSourceLA')
+#
+#process.poolDBESSourceBP = cms.ESSource("PoolDBESSource",
+#  BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+#  DBParameters = cms.PSet(
+#    messageLevel = cms.untracked.int32(0),
+#    authenticationPath = cms.untracked.string('.')
+#    #messageLevel = cms.untracked.int32(2),
+#    #authenticationPath = cms.untracked.string('/path/to/authentication')
+#  ),
+#  timetype = cms.untracked.string('runnumber'),
+#  connect = cms.string('frontier://PromptProd/CMS_COND_31X_STRIP'),
+#  toGet = cms.VPSet(cms.PSet(
+#    record = cms.string('SiStripConfObjectRcd'),
+#    tag = cms.string('SiStripShiftAndCrosstalk_GR10_v2_offline')
+#  ))
+#)
+#process.es_prefer_BP = cms.ESPrefer('PoolDBESSource','poolDBESSourceBP')
+
 
 process.looper.saveToDB = False
 process.looper.saveApeToDB = False

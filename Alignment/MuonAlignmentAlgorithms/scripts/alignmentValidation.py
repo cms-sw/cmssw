@@ -250,6 +250,8 @@ CANVASES_LIST_TEMPLATE = [
  ['Station&Ring: map of rphi residual vs phi','map_CSCvsphi_x.png'],
  ['Station&Chamber: map of d(rphi)/dz residual vs r','map_CSCvsr_dxdz.png'],
  ['Station&Chamber: map of rphi residual vs r','map_CSCvsr_x.png'],
+ ['Station: segdiff in rphi residuals vs phi','segdifphi_csc_resid.png'],
+ ['Station: segdiff in d(rphi)/dz residuals vs phi','segdifphi_csc_slope.png'],
  ['Chamber: segdiff in rphi residuals','segdif_csc_resid.png'],
  ['Chamber: segdiff in d(rphi)/dz residuals','segdif_csc_slope.png'],
  ['Chamber: residuals distributions','csc_bellcurves.png'],
@@ -433,7 +435,8 @@ def doMapPlotsCSC(csc_basedir, tfiles_plotting):
         pdir = csc_basedir+'/'+endcap[0]+'/'+station[1]+'/'+ring[1]+'/'
         label = "CSCvsphi_me%s%s%s" % (endcap[1], station[1], ring[1])
         htitle = "%s%s/%s" % (endcap[0], station[1],ring[1])
-        mapplot(tfiles_plotting, label, "x", window=15., title=htitle, fitsine=True)
+        mapplot(tfiles_plotting, label, "x", window=15., title=htitle, fitsine=True,fitpeaks=True)
+        #mapplot(tfiles_plotting, label, "x", window=15., title=htitle, fitsine=True)
         c1.SaveAs(pdir+'map_CSCvsphi_x.png')
         mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle)
         c1.SaveAs(pdir+'map_CSCvsphi_dxdz.png')
@@ -619,6 +622,31 @@ def doSegDiffPlotsCSC(csc_basedir, tfiles_plotting, iter_reports):
                   endcap=iendcap[1], ring=int(iring[1]), chamber=ichamber, window=10.)
           c1.SaveAs(pdir + 'segdif_csc_slope.png')
 
+  """segdiffvsphicsc "csc_resid" and "csc_slope"
+
+  plot for a specific deltaME station differences:
+  rphi vs phi of pair ("csc_resid")
+  dxdz vs phi of pair ("csc_slope")
+  contains plots for two (or one for ME4-ME3) rings
+  done for ME1-ME2, ME2-ME3, and ME3-ME4 stations combinations with
+    endcap "m" or "p" 
+  
+  Interface: could be accessed by clicking on ME station boxes, but only for stations 2-4 
+  (e.g., station 2 would provide ME1-ME2 plots)."""
+
+  qcount = 0
+  for iendcap in CSC_TYPES:
+    for istation in iendcap[2]:
+      if istation[1]=="1": continue
+      dstations = (int(istation[1])-1)*10 + int(istation[1])
+      if qcount>QUICKTESTN: break
+      qcount += 1
+      pdir = csc_basedir+'/'+iendcap[0]+'/'+istation[1]+'/'
+      segdiffvsphicsc(tfiles_plotting, "csc_resid", dstations, window=10., endcap=iendcap[1])
+      c1.SaveAs(pdir + 'segdifphi_csc_resid.png')
+      segdiffvsphicsc(tfiles_plotting, "csc_slope", dstations, window=10., endcap=iendcap[1])
+      c1.SaveAs(pdir + 'segdifphi_csc_slope.png')
+
 
 def doFitFunctionsPlotsDT(dt_basedir, iter_tfile, iter_reports):
   """write fit functions plots for DT
@@ -749,10 +777,12 @@ def createCanvasesList(fname="canvases_list.js"):
 
 
 def createCanvasToIDList(fname="canvas2id_list.js"):
-  '''Create a canvas-to-ids list include for the browser.
+  '''Writes out a canvas-2-ids list include for the browser.
      Write out only those canvases which have existing filename.png plots.
+     Returns: list of unique IDs that have existing filename.png plots.
   '''
   CANVAS2ID_LIST = []
+  ID_LIST = []
   for scope in CANVASES_LIST_TEMPLATE:
     if len(scope)>2:
       for canvas_entry in scope[2:]:
@@ -761,6 +791,7 @@ def createCanvasToIDList(fname="canvas2id_list.js"):
         # uniquify:
         set_ids = set(ids)
         uids = list(set_ids)
+        ID_LIST.extend(uids)
         print canvas_entry, ":", len(uids), "ids"
         if (len(uids)>0):
           CANVAS2ID_LIST.append( (canvas_entry[1],uids) )
@@ -771,6 +802,8 @@ def createCanvasToIDList(fname="canvas2id_list.js"):
   print >>ff, "var CANVAS2ID_LIST = "
   json.dump(CANVAS2ID_LIST_DICT,ff)
   ff.close()
+  set_ids = set(ID_LIST)
+  return list(set_ids)
 
 def idsForFile(dir_name, file_name):
   '''Recursively looks for file named file_name under dir_name directory
@@ -797,10 +830,10 @@ def dirToID(d):
     return d[dtn+4:-1]
   cscn = d.find("/ME-/")
   if cscn!=-1:
-    return 'ME-'+d[cscn+4:-1]
+    return 'ME-'+d[cscn+5:-1]
   cscn = d.find("/ME+/")
   if cscn!=-1:
-    return 'ME+'+d[cscn+4:-1]
+    return 'ME+'+d[cscn+5:-1]
   return ''
 
 
@@ -903,6 +936,6 @@ if DO_MEDIAN:
 # perform diagnostic
 if DO_DIAGNOSTIC:
   #if not SINGLE_ITERATION: doTests(iter1_reports,"mu_list_1.js","dqm_report_1.js",options.runLabel)
-  doTests(iterN_reports,"mu_list.js","dqm_report.js",options.runLabel)
   createCanvasesList("canvases_list.js")
-  createCanvasToIDList("canvas2id_list.js")
+  pic_ids = createCanvasToIDList("canvas2id_list.js")
+  doTests(iterN_reports, pic_ids, "mu_list.js","dqm_report.js",options.runLabel)
