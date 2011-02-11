@@ -1127,11 +1127,14 @@ DQMNet::startLocalServer(int port)
 
   try
   {
-    server_ = new InetServerSocket(InetAddress (port), 10);
-    server_->setopt(SO_SNDBUF, SOCKET_BUF_SIZE);
-    server_->setopt(SO_RCVBUF, SOCKET_BUF_SIZE);
-    server_->setBlocking(false);
-    sel_.attach(server_, IOAccept, CreateHook(this, &DQMNet::onPeerConnect));
+    InetAddress addr("0.0.0.0", port);
+    InetSocket *s = new InetSocket(SOCK_STREAM, 0, addr.family());
+    s->bind(addr);
+    s->listen(10);
+    s->setopt(SO_SNDBUF, SOCKET_BUF_SIZE);
+    s->setopt(SO_RCVBUF, SOCKET_BUF_SIZE);
+    s->setBlocking(false);
+    sel_.attach(server_ = s, IOAccept, CreateHook(this, &DQMNet::onPeerConnect));
   }
   catch (Error &e)
   {
