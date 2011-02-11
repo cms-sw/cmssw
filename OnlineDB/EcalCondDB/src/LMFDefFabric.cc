@@ -244,3 +244,45 @@ void LMFDefFabric::initialize()
   }
 }
 
+void LMFDefFabric::dump() {
+  std::cout << "========= Fabric dump @ address " << this << " ============"
+	    << std::endl;
+  std::list<LMFColor>::const_iterator    i1 = _lmfColors.begin();
+  std::list<LMFTrigType>::const_iterator i2 = _lmfTrigTypes.begin();
+  std::list<LMFRunTag>::const_iterator   i3 = _lmfRunTags.begin();
+  std::list<LMFPrimVers>::const_iterator i4 = _lmfPrimVersions.begin();
+  std::list<LMFSeqVers>::const_iterator  i5 = _lmfSeqVersions.begin();
+  std::list<LMFCorrVers>::const_iterator i6 = _lmfCorrVersions.begin();
+  std::list<LMFColor>::const_iterator    e1 = _lmfColors.end();
+  std::list<LMFTrigType>::const_iterator e2 = _lmfTrigTypes.end();
+  std::list<LMFRunTag>::const_iterator   e3 = _lmfRunTags.end();
+  std::list<LMFPrimVers>::const_iterator e4 = _lmfPrimVersions.end();
+  std::list<LMFSeqVers>::const_iterator  e5 = _lmfSeqVersions.end();
+  std::list<LMFCorrVers>::const_iterator e6 = _lmfCorrVersions.end();
+  std::cout << "=== Colors" << std::endl;
+  while (i1 != e1) {
+    i1++->dump();
+  }
+  /*
+  std::cout << "=== Trigger Types" << std::endl;
+  while (i2 != e2) {
+    std::cout << *i1++ << std::endl;
+  }
+  std::cout << "=== Run Tags" << std::endl;
+  while (i3 != e3) {
+    std::cout << *i1++ << std::endl;
+  }
+  std::cout << "=== Prim. Vers." << std::endl;
+  while (i4 != e4) {
+    std::cout << *i1++ << std::endl;
+  }
+  std::cout << "=== Seq. Vers." << std::endl;
+  while (i5 != e5) {
+    std::cout << *i1++ << std::endl;
+  }
+  std::cout << "=== Corr. Vers." << std::endl;
+  while (i6 != e6) {
+    std::cout << *i1++ << std::endl;
+  }
+  */
+}

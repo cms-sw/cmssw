@@ -31,6 +31,7 @@ class LMFDat : public LMFUnique {
   LMFDat& setLMFRunIOV(const LMFRunIOV &iov) {
     setInt(foreignKeyName(), iov.getID());
     attach(foreignKeyName(), (LMFUnique*)&iov);
+    std::cout << this << std::endl;
     return *this;
   }
   LMFRunIOV getLMFRunIOV() const {

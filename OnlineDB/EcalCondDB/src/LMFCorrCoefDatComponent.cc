@@ -44,9 +44,7 @@ std::string LMFCorrCoefDatComponent::getIovIdFieldName() const {
 
 LMFCorrCoefDatComponent& LMFCorrCoefDatComponent::setLMFLmrSubIOV(const LMFLmrSubIOV &iov) {
   setInt(foreignKeyName(), iov.getID());
-  LMFLmrSubIOV *subiov = new LMFLmrSubIOV();
-  *subiov = iov;
-  attach(foreignKeyName(), subiov);
+  attach(foreignKeyName(), (LMFUnique*)&iov);
   return *this;
 }
 

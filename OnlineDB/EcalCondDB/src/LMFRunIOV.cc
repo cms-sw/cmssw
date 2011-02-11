@@ -39,6 +39,10 @@ LMFRunIOV::LMFRunIOV(EcalDBConnection *c) : LMFUnique(c)
   initialize();
 }
 
+LMFRunIOV::LMFRunIOV(const LMFRunIOV &r) {
+  *this = r;
+}
+
 LMFRunIOV::~LMFRunIOV()
 {
   if (_fabric != NULL) {
@@ -199,6 +203,14 @@ LMFSeqDat LMFRunIOV::getSequence() const
   LMFSeqDat rs = LMFSeqDat(m_env, m_conn);
   rs.setByID(getInt("seq_id"));
   return rs;
+}
+
+void LMFRunIOV::dump() const {
+  LMFUnique::dump();
+  std::cout << "# Fabric Address: " << _fabric << std::endl;
+  if (m_debug) {
+    _fabric->dump();
+  }
 }
 
 std::string LMFRunIOV::fetchIdSql(Statement *stmt)
@@ -377,4 +389,14 @@ std::list<LMFRunIOV> LMFRunIOV::fetchLastBeforeSequence(const LMFSeqDat &s,
 			 "fetchBySequence");
 }
 
-
+LMFRunIOV& LMFRunIOV::operator=(const LMFRunIOV &r) {
+  if (this != &r) {
+    LMFUnique::operator=(r);
+    if (r._fabric != NULL) {
+      _fabric = new LMFDefFabric;
+      std::cout << "COPYING INTO " << _fabric << std::endl;
+      *_fabric = *(r._fabric);
+    }
+  }
+  return *this;
+}
