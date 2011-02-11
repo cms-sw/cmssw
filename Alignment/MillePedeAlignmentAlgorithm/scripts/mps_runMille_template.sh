@@ -16,7 +16,7 @@ BATCH_DIR=$(pwd)
 echo "Running at $(date) \n        on $HOST \n        in directory $BATCH_DIR."
 
 # set up the CMS environment (choose your release and working area):
-cd $HOME/cms/CMSSW/CMSSW_3_4_0
+cd $HOME/cms/CMSSW/CMSSW_3_11_0
 echo Setting up $(pwd) as CMSSW environment. 
 eval `scram runtime -sh`
 rehash
@@ -27,7 +27,8 @@ echo The running directory is $(pwd).
 time cmsRun the.cfg
 
 gzip -f *.log
-echo "\nDirectory content after running cmsRun and zipping log file:"
+gzip milleBinaryISN.dat
+echo "\nDirectory content after running cmsRun and zipping log+dat files:"
 ls -lh 
 # Copy everything you need to MPS directory of your job,
 # but you might want to copy less stuff to save disk space
@@ -42,17 +43,17 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 # Not using cmscafuser pool => rfcp command must be used
   export STAGE_SVCCLASS=$MSSDIRPOOL
   export STAGER_TRACE=
-  nsrm -f $MSSDIR/milleBinaryISN.dat
-  echo "rfcp milleBinaryISN.dat $MSSDIR/"
-  rfcp milleBinaryISN.dat    $MSSDIR/
+  nsrm -f $MSSDIR/milleBinaryISN.dat.gz
+  echo "rfcp milleBinaryISN.dat.gz $MSSDIR/"
+  rfcp milleBinaryISN.dat.gz    $MSSDIR/
   rfcp treeFile*root         $MSSDIR/treeFileISN.root
   rfcp millePedeMonitor*root $MSSDIR/millePedeMonitorISN.root
 else
 # Using cmscafuser pool => cmsStageOut command must be used
   . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
-  echo "cmsStageOut milleBinaryISN.dat $MSSCAFDIR/milleBinaryISN.dat"
-  cmsStageOut milleBinaryISN.dat    $MSSCAFDIR/milleBinaryISN.dat > /dev/null
+  echo "cmsStageOut milleBinaryISN.dat.gz $MSSCAFDIR/milleBinaryISN.dat.gz > /dev/null"
+  cmsStageOut milleBinaryISN.dat.gz    $MSSCAFDIR/milleBinaryISN.dat.gz  > /dev/null
   cmsStageOut treeFile*root         $MSSCAFDIR/treeFileISN.root > /dev/null
   cmsStageOut millePedeMonitor*root $MSSCAFDIR/millePedeMonitorISN.root > /dev/null
 fi
