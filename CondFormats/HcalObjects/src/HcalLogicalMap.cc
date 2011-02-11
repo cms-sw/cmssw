@@ -208,7 +208,7 @@ void HcalLogicalMap::printCalibMap(FILE* calibmapfile){
   for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
     titlecounter = titlecounter % 21;
     if (titlecounter == 0){	  
-      fprintf(calibmapfile,"#   side    eta    phi   dphi    det     rbx  sector  rm_fi ");
+      fprintf(calibmapfile,"#   side    eta    phi   dphi    det     rbx  sector  rm  rm_fi ");
       fprintf(calibmapfile," fi_ch  crate  htr  fpga  htr_fi  dcc_sl  spigo  dcc  fedid  ch_type      name\n");
     }
     titlecounter++;

@@ -228,7 +228,12 @@ CALIBLogicalMapEntry::CALIBLogicalMapEntry(
   HcalCalibDetId hcalibdid( mysubdet, in_et, in_ph, in_ch_ty );
 
   int in_rm, in_pix, in_qie, in_adc;
-  in_rm  = 5;
+  //CM RM in HF is 4 rather than 5
+  if (in_s_det=="HF")
+    in_rm  = 4;
+  else
+    in_rm  = 5;
+
   in_pix = 0;
   in_qie = 1;
   in_adc = in_fi_ch + ( 3 * ( in_rm_fi - 1 ) );
@@ -272,7 +277,7 @@ char* CALIBLogicalMapEntry::printLMapLine() {
   (hcaleid.htrTopBottom()==0) ? myfpga = "bot" : myfpga = "top";
 
   sprintf(myline,"%1d %6d %6d %6d %6d %6s %7s",0,myside_,hcalcalibid.ieta(),hcalcalibid.iphi(),mydphi_,mydet.c_str(),rbxid.rbx().c_str());
-  sprintf(myline+strlen(myline),"%8d %6d %6d %6d %4d %5s",mywedge_,rbxid.rmFiber(),hcaleid.fiberChanId(),hcaleid.readoutVMECrateId(),hcaleid.htrSlot(),myfpga.c_str());
+  sprintf(myline+strlen(myline),"%8d %6d %6d %6d %6d %4d %5s",mywedge_,rbxid.rm(),rbxid.rmFiber(),hcaleid.fiberChanId(),hcaleid.readoutVMECrateId(),hcaleid.htrSlot(),myfpga.c_str());
   sprintf(myline+strlen(myline),"%8d %7d %6d %4d %6d %8d %9s\n",hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700, hcalcalibid.cboxChannel(), mycalibsubdet_.c_str());
 
   return myline;
