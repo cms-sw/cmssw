@@ -85,6 +85,8 @@ private:
   TFile* file0;
   std::string filename, dirpath;
   unsigned short MinClusterWidth_, MaxClusterWidth_;
+  double TotNumberOfEvents;
+  uint32_t calibrationthreshold;
 
   SiStrip::QualityHistosMap ClusterPositionHistoMap;
   SiStripHotStripAlgorithmFromClusterOccupancy*          theIdentifier;
