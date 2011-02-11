@@ -167,7 +167,7 @@ private:
 		       float& deltaphi, bool useTrackProjectionToEcal);
 
   // Tree variables
-  float *elpt, *elphi, *eleta, *elet, *ele;
+  float *elpt, *elphi, *eleta, *elet, *ele, *elIP, *elTrkChi2NDF, *elTrkIsoR03, *elECaloIsoR03, *elHCaloIsoR03, *elFbrem; 
   float *photonpt, *photonphi, *photoneta, *photonet, *photone;
 
   float *hphotet, *hphoteta, *hphotphi, *hphoteiso, *hphothiso, *hphottiso, *hphothovereh;
@@ -175,7 +175,8 @@ private:
   float *hphotClusShap, *heleClusShap, *heleDeta, *heleDphi;
   float *hphotR9, *heleR9, *hphotR9ID, *heleR9ID;
   int *hphotl1iso, *helel1iso, *helePixelSeeds;
-  int *eleId;// RL  + 2*RT + 4*L +  4*T 
+  int *eleId, *elNLostHits;//eleId = RL  + 2*RT + 4*L +  4*T  //elNLostHits = conversion rejection  
+  bool *elIsEcalDriven;  
   int *heleNewSC;
   int nele, nphoton, nhltgam, nhltele;
 

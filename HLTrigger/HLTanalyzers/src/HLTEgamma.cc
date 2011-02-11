@@ -11,6 +11,7 @@
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
 #include "HLTrigger/HLTanalyzers/interface/HLTEgamma.h"
 
 
@@ -42,6 +43,14 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   elet              = new float[kMaxEl];
   ele               = new float[kMaxEl];
   eleId             = new int[kMaxEl];// RL  + 2*RT + 4*L +  4*T 
+  elIP              = new float[kMaxEl];  
+  elNLostHits       = new int[kMaxEl];  
+  elTrkChi2NDF      = new float[kMaxEl];        
+  elTrkIsoR03       = new float[kMaxEl];  
+  elECaloIsoR03     = new float[kMaxEl];  
+  elHCaloIsoR03     = new float[kMaxEl];  
+  elIsEcalDriven    = new bool[kMaxEl];  
+  elFbrem           = new float[kMaxEl];      
   
   photonpt          = new float[kMaxPhot];
   photonphi         = new float[kMaxPhot];
@@ -92,6 +101,15 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   HltTree->Branch("recoElecEt",         elet,               "recoElecEt[NrecoElec]/F");
   HltTree->Branch("recoElecE",          ele,                "recoElecE[NrecoElec]/F");
   HltTree->Branch("recoElecEleID",      eleId,              "recoElecEleID[NrecoElec]/I");
+  HltTree->Branch("recoElecIP",           elIP,            "recoElecIP[NrecoElec]/F");  
+  HltTree->Branch("recoElecNLostHits",    elNLostHits,     "recoElecNLostHits[NrecoElec]/I");  
+  HltTree->Branch("recoElecChi2NDF",      elTrkChi2NDF,    "recoElecChi2NDF[NrecoElec]/F");  
+  HltTree->Branch("recoElecTrkIsoR03",    elTrkIsoR03,     "recoElecTrkIsoR03[NrecoElec]/F");  
+  HltTree->Branch("recoElecECaloIsoR03",  elECaloIsoR03,   "recoElecECaloIsoR03[NrecoElec]/F");  
+  HltTree->Branch("recoElecHCaloIsoR03",  elHCaloIsoR03,   "recoElecHCaloIsoR03[NrecoElec]/F");  
+  HltTree->Branch("recoElecIsEcalDriven", elIsEcalDriven,  "recoElecIsEcalDriven[NrecoElec]/O");        
+  HltTree->Branch("recoElecFbrem",        elFbrem,         "recoElecFbrem[NrecoElec]/F");  
+
 
   HltTree->Branch("NrecoPhot",          &nphoton,           "NrecoPhot/I");
   HltTree->Branch("recoPhotPt",         photonpt,           "recoPhotPt[NrecoPhot]/F");
@@ -141,6 +159,14 @@ void HLTEgamma::clear(void)
   std::memset(elet,             '\0', kMaxEl     * sizeof(float));
   std::memset(ele,              '\0', kMaxEl     * sizeof(float));
   std::memset(ele,              '\0', kMaxEl     * sizeof(int));
+  std::memset(elIP,             '\0', kMaxEl     * sizeof(float));  
+  std::memset(elNLostHits,      '\0', kMaxEl     * sizeof(int));  
+  std::memset(elTrkChi2NDF,     '\0', kMaxEl     * sizeof(float));     
+  std::memset(elTrkIsoR03,      '\0', kMaxEl     * sizeof(float));  
+  std::memset(elECaloIsoR03,    '\0', kMaxEl     * sizeof(float));  
+  std::memset(elHCaloIsoR03,    '\0', kMaxEl     * sizeof(float));  
+  std::memset(elIsEcalDriven,   '\0', kMaxEl     * sizeof(bool));  
+  std::memset(elFbrem,          '\0', kMaxEl     * sizeof(float));  
 
   std::memset(photonpt,         '\0', kMaxPhot   * sizeof(float));
   std::memset(photonphi,        '\0', kMaxPhot   * sizeof(float));
@@ -217,49 +243,40 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
   // reset the tree variables
   clear();
 
-  if (electrons.isValid()) {
-    reco::GsfElectronCollection myelectrons( electrons->begin(), electrons->end() );
-    nele = myelectrons.size();
-    std::sort(myelectrons.begin(), myelectrons.end(), EtGreater());
-    int iel = 0;
-    for (reco::GsfElectronCollection::const_iterator i = myelectrons.begin(); i != myelectrons.end(); i++) {
-      elpt[iel]  = i->pt();
-      elphi[iel] = i->phi();
-      eleta[iel] = i->eta();
-      elet[iel]  = i->et();
-      ele[iel]   = i->energy();
-      iel++;
-    }
-  } else {
-    nele = 0;
+  if (electrons.isValid()) {  
+    reco::GsfElectronCollection myelectrons( electrons->begin(), electrons->end() );  
+    nele = myelectrons.size();  
+    std::sort(myelectrons.begin(), myelectrons.end(), EtGreater());  
+    int iel = 0;  
+    for (reco::GsfElectronCollection::const_iterator i = myelectrons.begin(); i != myelectrons.end(); i++) {  
+      elpt[iel]  = i->pt();  
+      elphi[iel] = i->phi();  
+      eleta[iel] = i->eta();  
+      elet[iel]  = i->et();  
+      ele[iel]   = i->energy();  
+        
+      if(i->gsfTrack().isNonnull()){  
+        elNLostHits[iel]   = i->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();  
+        elIP[iel]          = i->gsfTrack()->dxy(BSPosition);    
+        elTrkChi2NDF[iel]  = i->gsfTrack()->normalizedChi2();  
+      }  
+      else {  
+        elNLostHits[iel]  = -99.;  
+        elIP[iel]         = -99.;  
+        elTrkChi2NDF[iel] = -99.;  
+      }  
+        
+      elTrkIsoR03[iel]     = i->dr03TkSumPt();  
+      elECaloIsoR03[iel]   = i->dr03EcalRecHitSumEt();  
+      elHCaloIsoR03[iel]   = i->dr03HcalTowerSumEt();  
+      elIsEcalDriven[iel]  = i->ecalDrivenSeed();  
+      elFbrem[iel]         = i->fbrem();  
+        
+      iel++;  
+    }  
+  } else {  
+    nele = 0;  
   }
-
-// Use of electron-identification (= RobustLoose or RobustTight or Loose or Tight)
-// variable, which does not have the Et-sorting
-//     nele = electrons->size();
-//     for (int iel = 0; iel < nele; iel++) {
-//       edm::Ref<reco::GsfElectronCollection> electronRef(electrons,iel);
-//       elpt[iel]  = electronRef->pt();
-//       elphi[iel] = electronRef->phi();
-//       eleta[iel] = electronRef->eta();
-//       elet[iel]  = electronRef->et();
-//       ele[iel]   = electronRef->energy();
-//       int eleidtmp=0;
-//       bool foundEleId = false;
-//       int pos[4]={1,2,4,8};
-//       for(int id=0; id<4; id++){
-// 	if(eIDValueMap[id].isValid()){
-// 	  foundEleId = true;
-// 	  const edm::ValueMap<float> & eIDmap  = * eIDValueMap[id] ;
-// 	  eleidtmp += pos[id]*int(eIDmap[electronRef]); 
-// 	}
-//       }
-//       if (!foundEleId){eleidtmp = -1;}
-//       eleId[iel]=eleidtmp;
-//     }
-//   } else {
-//     nele = 0;
-//   }
 
   if (photons.isValid()) {
     reco::PhotonCollection myphotons(* photons);

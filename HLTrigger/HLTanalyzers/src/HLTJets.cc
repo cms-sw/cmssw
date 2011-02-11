@@ -435,7 +435,7 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
             recopfTauEta[ipftau] = i->eta();
             recopfTauPhi[ipftau] = i->phi();
             recopfTauPt[ipftau]  = i->pt();
-            recopfTauJetPt[ipftau] = i->pfTauTagInfoRef()->pfjetRef()->pt();
+	    recopfTauJetPt[ipftau] = i->jetRef()->pt();
 
             if( (i->leadPFNeutralCand()).isNonnull())
                 recopfTauLeadPionPt[ipftau] = i->leadPFNeutralCand()->pt();        

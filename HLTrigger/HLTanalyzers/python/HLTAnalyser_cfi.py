@@ -85,14 +85,14 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HLTPFJet                        = cms.InputTag("hltIcone5PFJets"),
 
     ### reco offline particle flow tau related objects
-    RecoPFTau                          = cms.InputTag("shrinkingConePFTauProducer"),
-    RecoPFTauAgainstMuon               = cms.InputTag("shrinkingConePFTauDiscrByIsolation"),
-    RecoPFTauAgainstElec               = cms.InputTag("shrinkingConePFTauDiscrAgainstElectron"),
-    RecoPFTauDiscrByIso                = cms.InputTag("shrinkingConePFTauDiscrAgainstMuon"),
-    RecoPFTauDiscrByTanCOnePercent     = cms.InputTag("shrinkingConePFTauDiscrByTaNCfrOnePercent"),
-    RecoPFTauDiscrByTanCHalfPercent    = cms.InputTag("shrinkingConePFTauDiscrByTaNCfrHalfPercent"),
-    RecoPFTauDiscrByTanCQuarterPercent = cms.InputTag("shrinkingConePFTauDiscrByTaNCfrQuarterPercent"),
-    RecoPFTauDiscrByTanCTenthPercent   = cms.InputTag("shrinkingConePFTauDiscrByTaNCfrTenthPercent"),
+    RecoPFTau = cms.InputTag("shrinkingConePFTauProducer"),
+    RecoPFTauAgainstMuon = cms.InputTag("shrinkingConePFTauDiscriminationAgainstMuon"),
+    RecoPFTauAgainstElec = cms.InputTag("shrinkingConePFTauDiscriminationAgainstElectron"),
+    RecoPFTauDiscrByIso = cms.InputTag("shrinkingConePFTauDiscriminationByIsolation"),
+    RecoPFTauDiscrByTanCOnePercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrOnePercent"),
+    RecoPFTauDiscrByTanCHalfPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrHalfPercent"),
+    RecoPFTauDiscrByTanCQuarterPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
+    RecoPFTauDiscrByTanCTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent"),
                              
     ### b-jet OpenHLT related objects
     CommonBJetsL2                   = cms.InputTag("hltIterativeCone5CaloJets"),
