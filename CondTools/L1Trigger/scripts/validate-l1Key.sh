@@ -24,7 +24,8 @@ shift $(($OPTIND - 1))
 #==============================================================================
 
 release=CMSSW_3_11_0_ONLINE
-emulatorRelease=CMSSW_3_11_0_ONLINE
+# Emulator cannot run in online releases because of missing packages
+emulatorRelease=CMSSW_3_11_0
 version=010
 
 #==============================================================================
@@ -153,9 +154,9 @@ if [ ${o2ocode1} -eq 0 ]
     ln -sf /nfshome0/popcondev/L1Job/${release}/validate-l1Key/Raw.root .
     ln -sf $CMSSW_BASE/src/CondTools/L1Trigger/test/validate-l1Key.py .
 
-    export SCRAM_ARCH=""
-    export VO_CMS_SW_DIR=""
-    source /nfshome0/cmssw/scripts/setup.sh
+    export SCRAM_ARCH=slc5_amd64_gcc434
+    #export VO_CMS_SW_DIR=""
+    source /nfshome0/cmssw2/scripts/setup.sh
 
     eval `scramv1 run -sh`
     cmsRun validate-l1Key.py >& temp.log
@@ -188,7 +189,7 @@ if [ ${o2ocode} -eq 0 ]
 else
     echo "L1-O2O-INFO: failed" >> ${logFile}
     validationStatus="failed"
-    writeStatus="failed"
+#    writeStatus="failed"
 fi
 echo "`date` : validate-l1Key.sh finished" >> ${logFile}
 
