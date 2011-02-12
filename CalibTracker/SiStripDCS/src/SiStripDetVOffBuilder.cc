@@ -1,6 +1,5 @@
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffBuilder.h"
 #include "boost/foreach.hpp"
-#include <sys/stat.h>
 
 // constructor
 SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, const edm::ActivityRegistry&) : 
@@ -59,8 +58,7 @@ SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, cons
      << "     Parameters:\n" 
      << "     DB connection string: " << onlineDbConnectionString << "\n"
      << "     Authentication path: "  << authenticationPath       << "\n"
-     << "     Table to be queried: "  << whichTable               << "\n"
-     << "     MapFile: "  << psuDetIdMapFile_                << "\n";
+     << "     Table to be queried: "  << whichTable               << "\n";
   
   if (whichQuery){
     ss << "     Tmin: "; printPar(ss,tmin_par);  ss << std::endl;
@@ -99,9 +97,6 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
   if (lastStoredCondObj.second > 0) {edm::LogError("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::BuildDetVOff]: retrieved last time stamp from DB: " 
 									    << lastStoredCondObj.second  << endl;}
   // access the information!
-  //We've been using the STATUSCHANGE query only in last year or so... LASTVALUE may have untested issues...
-  //In either case the idea is that the results of the query are saved into the timesAndValues struct
-  //ready to be anaylized (i.e. translated into detIDs, HV/LV statuses)
 
   if (whichQuery) {
     if( whichTable == "STATUSCHANGE" ) {
@@ -117,13 +112,9 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
     }
   }
 
-  //Initialize the stuct that will be used to keep the detID-translated information 
   DetIdListTimeAndStatus dStruct;
 
   // build PSU - det ID map
-  //The following method actually "builds" 4 maps: LVMap, HVMap, HVUnmapped_Map, HVCrosstalking_Map.
-  //It also takes the timesAndValues from the query above and using the maps, it processes the information
-  //populating the DetIDListTimeAndStatus struct that will hold the information by detid.
   buildPSUdetIdMap(timesAndValues, dStruct);
 
 
@@ -152,9 +143,8 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
   }
 
 
-  //Master loop over all the results of the query stored in the dStruct (that contains vectors with vectors of detids, statuses, isHV flags, etc and in particular a vector of timestamps for which the info is valid... basically it is a loop over the timestamps (i.e. IOVs).
   for (unsigned int i = 0; i < dStruct.detidV.size(); i++) {
- 
+
     //     std::vector<uint32_t> detids = dStruct.detidV[i].first;
     //     removeDuplicates(detids);
     std::vector<uint32_t> * detids = &(dStruct.detidV[i].first);
@@ -184,10 +174,6 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
         SiStripDetInfoFileReader reader(fp.fullPath());
         const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > detInfos  = reader.getAllData();
 
-	//FIXME:
-	//Following code is actually broken (well not until the cfg has "" for excludedDetIDListFile parameter!
-	//Fix it if felt necessary (remember that it assumes that whatever detids are excluded should NOT be in the regular map
-	//breaking our current situation with a fully mapped (LV-wise) tracker...
         // Careful: if a module is in the exclusion list it must be ignored and the initial status is set to ON.
         // These modules are expected to not be in the PSU-DetId map, so they will never get any status change from the query.
         SiStripPsuDetIdMap map;
@@ -213,7 +199,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
       else {modV = new SiStripDetVOff( *(modulesOff.back().first) );} // start from copy of previous object
     }
     else {
-      modV = (modulesOff.back()).first; // modify previous object (TEST THIS if possible! it's fundamental in handling changes at the edges of O2O executions and also in case of PVSS DB buffering!
+      modV = (modulesOff.back()).first; // modify previous object
     }
 
 
@@ -222,14 +208,8 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
     std::vector<uint32_t> beforeV;
     modV->getDetIds(beforeV);
 
-    //CHECKTHIS
-    //The following method call is potentially problematic: 
-    //passing modV as argument while extracting information about dStruct,
-    //modV is not currently used in the method!
-    std::pair<int, int> hvlv = extractDetIdVector(i, modV, dStruct);//Returns a pair like this HV OFF->1,-1 HV ON->0,-1 LV OFF->-1,1 LV ON->-1,0
-    //Basically a LV OFF of -1  means that the information (IOV) in question is from an HV channel turning on or off and viceversa for an HVOFF of -1.
-    //This could be confusing when reading the debug output!
- 
+    std::pair<int, int> hvlv = extractDetIdVector(i, modV, dStruct);
+
     for (unsigned int j = 0; j < detids->size(); j++) {
       if( debug_ ) cout << "at time = " << iovtime << " detid["<<j<<"] = " << (*detids)[j] << " has hv = " << hvlv.first << " and lv = " << hvlv.second << endl;
       modV->put((*detids)[j],hvlv.first,hvlv.second);
@@ -480,7 +460,6 @@ void SiStripDetVOffBuilder::reduce( std::vector< std::pair<SiStripDetVOff*,cond:
 				    std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > & resultVec,
 				    const bool last )
 {
-  //const bool last is set to false by default in the header file...
   int first = 0;
   // Check if it is the first
   if( distance(resultVec.begin(), initialIt) == 0 ) {
@@ -495,16 +474,15 @@ void SiStripDetVOffBuilder::reduce( std::vector< std::pair<SiStripDetVOff*,cond:
   if( ( it->first->getLVoffCounts() - initialIt->first->getLVoffCounts() > 0 ) || ( it->first->getHVoffCounts() - initialIt->first->getHVoffCounts() > 0 ) ) {
     // Set the time of the current (last) iov as the time of the initial iov of the sequence
     // replace the first iov with the last one
-    //Naughty use of const bool last... by default it is false (=0), and for the case of the last timestamp in the query results it is set to true(=1) in the call 
     (it+last)->second = (initialIt)->second;
     discardIOVs(it, initialIt, resultVec, last, 0);
-    if( debug_ ) cout << "Reducing IOV sequence (going off)" << endl;
+    if( debug_ ) cout << "going off" << endl;
   }
   // if it was going on
   else if( ( it->first->getLVoffCounts() - initialIt->first->getLVoffCounts() <= 0 ) || ( it->first->getHVoffCounts() - initialIt->first->getHVoffCounts() <= 0 ) ) {
     // replace the last minus one iov with the first one
     discardIOVs(it, initialIt, resultVec, last, first);
-    if( debug_ ) cout << "Reducing IOV sequence (going on)" << endl;
+    if( debug_ ) cout << "going on" << endl;
   }
 }
 
@@ -514,9 +492,9 @@ void SiStripDetVOffBuilder::discardIOVs( std::vector< std::pair<SiStripDetVOff*,
                                          const bool last, const unsigned int first )
 {
   if( debug_ ) {
-    cout << "first (1->means the sequence started at the first timestamp in the query results, 0-> that it did not)= " << first << endl;
-    cout << "initial->first (initial SiStripDetVOff object of the IOV sequence)= " << initialIt->first << ", second (initial timestamp of the IOV sequence) = " << initialIt->second << endl;
-    cout << "last (0->means that the sequence is not ending with the last item in the query results, 1-> that it DOES!)= " << last << endl;
+    cout << "first = " << first << endl;
+    cout << "initial->first = " << initialIt->first << ", second  = " << initialIt->second << endl;
+    cout << "last = " << last << endl;
   }
   if( last == true ) {
     resultVec.erase(initialIt+first, it+1);
@@ -528,10 +506,8 @@ void SiStripDetVOffBuilder::discardIOVs( std::vector< std::pair<SiStripDetVOff*,
   }
 }
 
-//This is the method that (called by GetModulesOff, declared in the header file) executes the reduction by massaging modulesOff
 void SiStripDetVOffBuilder::reduction(const uint32_t deltaTmin, const uint32_t maxIOVlength)
 {
-
   int count = 0;
   std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator initialIt;
 
@@ -581,11 +557,6 @@ void SiStripDetVOffBuilder::statusChange( cond::Time_t & lastTime, TimesAndValue
   }
   
   coralInterface->doQuery(whichTable, tmin ,tmax, tStruct.changeDate, tStruct.actualValue, tStruct.dpname);
-  //UNIT TEST DEBUG to bypass the query wait time!!!
-  //coral::TimeStamp testtime=getCoralTime(lastTime);
-  //tStruct.changeDate.push_back(testtime);
-  //tStruct.actualValue.push_back(1.);
-  //tStruct.dpname.push_back("cms_trk_dcs_03:CAEN/CMS_TRACKER_SY1527_3/branchController00/easyCrate3/easyBoard17/channel002");
 
   // preset the size of the status vector
   tStruct.actualStatus.resize(tStruct.actualValue.size());
@@ -690,471 +661,92 @@ string SiStripDetVOffBuilder::timeToStream(const coral::TimeStamp & coralTime, c
      << ", nanosecond = " << coralTime.nanosecond() << std::endl;
   return ss.str();
 }
-bool SiStripDetVOffBuilder::FileExists(string FileName) {
-  //Helper method to check if local files exist (needed to handle HVUnmapped, HVCrosstalking modules)
-  struct stat FileInfo;
-  bool Existence;
-  int Stat;
-  //Try to get file attributes
-  Stat=stat(FileName.c_str(),&FileInfo);
-  if (Stat==0) {
-    Existence=true;
-  }
-  else {
-    Existence=false;
-  }
-  return Existence;
-}
 
 void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdListTimeAndStatus & detIdStruct)
-//This function builds a PSU to DetID map one way or the other. Then it processes the psuStruct that contains
-//the results of the CAEN status query to the Online DB, filling the detIdStruct with the detIDs corresponding
-//to the PSU (channel in some cases, PSU only in others) reported in the CAEN status query to the Online DB.
-//It may make sense to split this method eventually.
 {
   SiStripPsuDetIdMap map_;
   if( psuDetIdMapFile_ == "" ) {
-    std::cout<<"PLEASE provide the name of a valid PSUDetIDMapFile in the cfg: currently still necessary to have a file, soon will access the info straight from the DB!"<<endl;
-    //map_.BuildMap();//This method is not currently used (it would try to build a map based on a query to SiStripConfigDB, and the info there is STALE!)
+    map_.BuildMap();
   }
   else {
-    map_.BuildMap(psuDetIdMapFile_,debug_); //This is the method used to build the map.
+    map_.BuildMap(psuDetIdMapFile_);
   }
-  LogTrace("SiStripDetVOffBuilder") <<"[SiStripDetVOffBuilder::BuildDetVOff] PSU(Channel)-detID map(s) built";
-  //Following method to be replaced by printMaps... to print all 4 maps built!
-  map_.printMap(); //This method prints to the info.log file, notice that it is overwritten by each individual O2O job running in the same dir.
+  LogTrace("SiStripDetVOffBuilder") <<"[SiStripDetVOffBuilder::BuildDetVOff] DCU-DET ID map built";
+  map_.printMap();
 
   // use map info to build input for list of objects
   // no need to check for duplicates, as put method for SiStripDetVOff checks for you!
-
-  //Debug variables
+  
   unsigned int ch0bad = 0, ch1bad = 0, ch2bad = 0, ch3bad = 0;
   std::vector<unsigned int> numLvBad, numHvBad;
 
-  //Create 2 extra maps that we'll use to keep track of unmapped and crosstalking detids when turning ON and OFF HV:
-  //-unmapped need to be both turned OFF when any HV goes OFF and to be turned ON when both are ON
-  //-crosstaling need to be both turned ON when any HV goes ON and to be turned OFF ONLY when BOTH are OFF.
-  std::map<std::string,bool> UnmappedState, CrosstalkingState;
-  //Get the HVUnmapped map from the map, so that we can set know which PSU are unmapped:
-  std::map<std::string,std::vector<uint32_t> > UnmappedPSUs=map_.getHVUnmappedMap();
-  //Check here if there is a file already, otherwise initialize to OFF all channels in these PSU!
-  if (FileExists("HVUnmappedChannelState.dat")) {
-    std::cout<<"File HVUnmappedChannelState.dat exists!"<<std::endl;
-    ifstream ifs("HVUnmappedChannelState.dat");
-    string line;
-    while( getline( ifs, line ) ) {
-      if( line != "" ) {
-	// split the line and insert in the map
-	stringstream ss(line);
-	string PSUChannel;
-	bool HVStatus;
-	ss >> PSUChannel;
-	ss >> HVStatus;
-	//Extract the PSU from the PSUChannel (since the HVUnmapped_Map uses PSU as key
-	std::string PSU=PSUChannel.substr(0,PSUChannel.size()-10);
-	//Look for the PSU in the unmapped map!
-	std::map<std::string,std::vector<uint32_t> >::iterator iter=UnmappedPSUs.find(PSU);
-	if (iter!=UnmappedPSUs.end()) {
-	  UnmappedState[PSUChannel]=HVStatus;
-	}
-	else {
-	  std::cout<<"WARNING!!! There are channels in the local file with the channel status for HVUnmapped channels, that ARE NOT CONSIDERED AS UNMAPPED in the current map!"<<std::endl;
-	}
-      }
-    }//End of the while loop reading and initializing UnmappedState map from file
-    //Extra check:
-    //Should check if there any HVUnmapped channels in the map that are not listed in the local file!
-    bool MissingChannels=false;
-    for (std::map<std::string, vector<uint32_t> >::iterator it=UnmappedPSUs.begin(); it!=UnmappedPSUs.end(); it++) {
-      std::string chan002=it->first+"channel002";
-      std::string chan003=it->first+"channel003";
-      std::map<std::string,bool>::iterator iter=UnmappedState.find(chan002);
-      if (iter==UnmappedState.end()) {
-	std::cout<<"ERROR! The local file with the channel status for HVUnmapped channels IS MISSING one of the following unmapped channel voltage status information:"<<std::endl;
-	std::cout<<chan002<<std::endl;
-	MissingChannels=true;
-      }
-      iter=UnmappedState.find(chan003);
-      if (iter==UnmappedState.end()) {
-	std::cout<<"ERROR! The local file with the channel status for HVUnmapped channels IS MISSING one of the following unmapped channel voltage status information:"<<std::endl;
-	std::cout<<chan003<<std::endl;
-	MissingChannels=true;
-      }
-    }
-    //Now if any channel WAS missing, exit!
-    if (MissingChannels) {
-      std::cout<<"!!!!\n"<<"Exiting now... please check the local HVUnmappedChannelState.dat and the mapfile you provided ("<<psuDetIdMapFile_<<")"<<std::endl;
-      exit(1);
-    }
-  }
-  else { //If the file HVUnmappedChannelState.dat does not exist, initialize the map to all OFF. 
-    //(see below for creating the file at the end of the execution with the latest state of unmapped channels. 
-    for (std::map<std::string, vector<uint32_t> >::iterator it=UnmappedPSUs.begin(); it!=UnmappedPSUs.end(); it++) {
-      std::string chan002=it->first+"channel002";
-      std::string chan003=it->first+"channel003";
-      UnmappedState[chan002]=false;
-      UnmappedState[chan003]=false;
-    }
-  }
-  //Get the HVCrosstalking map from the map, so that we can set know which PSU are crosstalking:
-  std::map<std::string,std::vector<uint32_t> > CrosstalkingPSUs=map_.getHVCrosstalkingMap();
-  //Check here if there is a file already, otherwise initialize to OFF all channels in these PSU!
-  if (FileExists("HVCrosstalkingChannelState.dat")) {
-    std::cout<<"File HVCrosstalkingChannelState.dat exists!"<<std::endl;
-    ifstream ifs("HVCrosstalkingChannelState.dat");
-    string line;
-    while( getline( ifs, line ) ) {
-      if( line != "" ) {
-	// split the line and insert in the map
-	stringstream ss(line);
-	string PSUChannel;
-	bool HVStatus;
-	ss >> PSUChannel;
-	ss >> HVStatus;
-	//Extract the PSU from the PSUChannel (since the HVCrosstalking_Map uses PSU as key
-	std::string PSU=PSUChannel.substr(0,PSUChannel.size()-10);
-	//Look for the PSU in the unmapped map!
-	std::map<std::string,std::vector<uint32_t> >::iterator iter=CrosstalkingPSUs.find(PSU);
-	if (iter!=CrosstalkingPSUs.end()) {
-	  CrosstalkingState[PSUChannel]=HVStatus;
-	}
-	else {
-	  std::cout<<"WARNING!!! There are channels in the local file with the channel status for HVUnmapped channels, that ARE NOT CONSIDERED AS UNMAPPED in the current map!"<<std::endl;
-	}
-      }
-    }//End of the while loop reading and initializing CrosstalkingState map from file
-    //Extra check:
-    //Should check if there any HVCrosstalking channels in the map that are not listed in the local file!
-    bool MissingChannels=false;
-    for (std::map<std::string, vector<uint32_t> >::iterator it=CrosstalkingPSUs.begin(); it!=CrosstalkingPSUs.end(); it++) {
-      std::string chan002=it->first+"channel002";
-      std::string chan003=it->first+"channel003";
-      std::map<std::string,bool>::iterator iter=CrosstalkingState.find(chan002);
-      if (iter==CrosstalkingState.end()) {
-	std::cout<<"ERROR! The local file with the channel status for HVCrosstalking channels IS MISSING one of the following unmapped channel voltage status information:"<<std::endl;
-	std::cout<<chan002<<std::endl;
-	MissingChannels=true;
-      }
-      iter=CrosstalkingState.find(chan003);
-      if (iter==CrosstalkingState.end()) {
-	std::cout<<"ERROR! The local file with the channel status for HVCrosstalking channels IS MISSING one of the following unmapped channel voltage status information:"<<std::endl;
-	std::cout<<chan003<<std::endl;
-	MissingChannels=true;
-      }
-    }
-    //Now if any channel WAS missing, exit!
-    if (MissingChannels) {
-      std::cout<<"!!!!\n"<<"Exiting now... please check the local HVCrosstalkingChannelState.dat and the mapfile you provided ("<<psuDetIdMapFile_<<")"<<std::endl;
-      exit(1);
-    }
-  }
-  else { //If the file HVCrosstalkingChannelState.dat does not exist, initialize the map to all OFF. 
-    //(see below for creating the file at the end of the execution with the latest state of unmapped channels. 
-    for (std::map<std::string, vector<uint32_t> >::iterator it=CrosstalkingPSUs.begin(); it!=CrosstalkingPSUs.end(); it++) {
-      std::string chan002=it->first+"channel002";
-      std::string chan003=it->first+"channel003";
-      CrosstalkingState[chan002]=false;
-      CrosstalkingState[chan003]=false;
-    }
-  }
-  
-  if (debug_) {
-    //print out the UnmappedState map:
-    std::cout<<"Printing the UnmappedChannelState initial map:"<<std::endl;
-    std::cout<<"PSUChannel\t\tHVON?(true or false)"<<std::endl;
-    for (std::map<std::string,bool>::iterator it=UnmappedState.begin(); it!=UnmappedState.end(); it++) {
-      std::cout<<it->first<<"\t\t"<<it->second<<std::endl;
-    }
-    //print out the CrosstalkingState map:
-    std::cout<<"Printing the CrosstalkingChannelState initial map:"<<std::endl;
-    std::cout<<"PSUChannel\t\tHVON?(true or false)"<<std::endl;
-    for (std::map<std::string,bool>::iterator it=CrosstalkingState.begin(); it!=CrosstalkingState.end(); it++) {
-      std::cout<<it->first<<"\t\t"<<it->second<<std::endl;
-    }
-  }
-  
-  //Loop over the psuStruct (DB query results), lopping over the PSUChannels
-  //This will probably change int he future when we will change the query itself 
-  //to report directly the detIDs associated with a channel
-  //Probably we will report in the query results the detID, the changeDate 
-  //and whether the channel is HV mapped, HV unmapped, HV crosstalking using a flag...
   for (unsigned int dp = 0; dp < psuStruct.dpname.size(); dp++) {
-    //FIX ME:
-    //Check if the following if condition can EVER be true!
-    std::string PSUChannel=psuStruct.dpname[dp];
-    if (PSUChannel != "UNKNOWN") {
+    if (psuStruct.dpname[dp] != "UNKNOWN") {
 
-      // figure out the channel and the PSU individually
-      std::string Channel = PSUChannel.substr(PSUChannel.size()-10); //Channel is the channel, i.e. channel000, channel001 etc
-      std::string PSU = PSUChannel.substr(0,PSUChannel.size()-10);
-      
-      // Get the detIDs corresponding to the given PSU channel using the getDetID function of SiStripPsuDetIdMap.cc
-      //NOTA BENE
-      //Need to make sure the information is treated consistently here:
-      //The map by convention has 
-      //detID-> channel002 or channel003 IF the channel is HV mapped,
-      //detID->channel000 if it is not HV mapped
-      //We want to differentiate the behavior depending on the status reported for the channel for channels that are unmapped!
-      //1-if the channel is turning OFF (!=1) then we want to report all detIDs for that channel and all detIDs that are listed as channel000 for that PSU.
-      //2-if the channel is turning ON (==1) then we want to turn on all detIDs for that channel but turn on all detIDs listed as channel000 for that PSU ONLY IF BOTH channel002 and channel003 are BOTH ON!
-      //Need to handle the case of coupled Power supplies (that only turn off when both are turned off).
+      // figure out the channel
+      std::string board = psuStruct.dpname[dp];
+      std::string::size_type loc = board.size()-10;
+      board.erase(0,loc);
+      // now store!
+      std::vector<uint32_t> ids = map_.getDetID(psuStruct.dpname[dp]);
 
-      //Fixed SiStripPSUdetidMap.cc to make sure now getDetID gets the correct list of detIDs:
-      //-for channels 000/001 all the detIDs connected to the PSU
-      //-for channels 002/003 HV1/HV2 modules only (exclusively) 
-      //UPDATE for HV channels: 
-      //actually fixed it to report also detIDs listed as 
-      //channel000 on the same supply of channel002 or channel003 
-      //and the crosstalking ones (channel999) too..
+      if( debug_ ) cout << "dbname["<<dp<<"] = " << psuStruct.dpname[dp] << ", for time = " << timeToStream(psuStruct.changeDate[dp]) << std::endl;
 
-      //Get the detIDs associated with the DPNAME (i.e. PSUChannel) reported by the query
-      //Declare the vector to be passed as reference parameters to the getDetID method
-      //std::vector<uint32_t> ids,unmapped_ids,crosstalking_ids;
-      std::vector<uint32_t> ids;
-      //map_.getDetID(PSUChannel, debug_, ids, unmapped_ids, crosstalking_ids);
-      //Actually the method above is a bit of an overkill, we could already use the individual methods:
-      //getLvDetID
-      //getHvDetID
-
-      //Declaring the two vector needed for the HV case in this scope.
-      std::vector<uint32_t> unmapped_ids,crosstalking_ids;
-      bool LVCase;
-      //LV CASE
-      if (Channel=="channel000" || Channel=="channel001") {
-	LVCase=true;
-	ids=map_.getLvDetID(PSU); //Since in the LV case only 1 list of detids is returned (unmapped and crosstalking are irrelevant for LV) return the vector directly
-      }
-      //HV CASE
-      else { //if (Channel=="channel002" || Channel=="channel003") {
-	LVCase=false;
-	map_.getHvDetID(PSUChannel,ids,unmapped_ids,crosstalking_ids); //In the HV case since 3 vectors are filled, use reference parameters
-      }
-
-      if ( debug_ ) {
-	cout <<"dpname["<<dp<<"] = "<<PSUChannel<<", for time = "<<timeToStream(psuStruct.changeDate[dp])<<endl;
-	if (!ids.empty()) {
-	  if (Channel=="channel000" || Channel=="channel001") {
-	    cout << "Corresponding to LV (PSU-)matching detids: "<<endl;
-	    for (unsigned int i_detid=0;i_detid<ids.size();i_detid++) {
-	      cout<< ids[i_detid] << std::endl;
-	    }
+      if (!ids.empty()) {
+	// DCU-PSU maps only channel000 and channel000 and channel001 switch on and off together
+	// so check only channel000
+	//	if (board == "channel000" || board == "channel001") {
+	if (board == "channel000") {
+	  detIdStruct.detidV.push_back( std::make_pair(ids,psuStruct.changeDate[dp]) );
+	  if (psuStruct.actualStatus[dp] != 1) {
+	    // 	    if (board == "channel000") {ch0bad++;}
+	    // 	    if (board == "channel001") {ch1bad++;}
+	    ++ch0bad;
+	    ++ch1bad;
+	    detIdStruct.StatusGood.push_back(false);
+	    numLvBad.insert(numLvBad.end(),ids.begin(),ids.end());
 	  }
 	  else {
-	    cout << "Corresponding to straight HV matching detids: "<<endl;
-	    for (unsigned int i_detid=0;i_detid<ids.size();i_detid++) {
-	      cout<< ids[i_detid] << std::endl;
-	    }
+	    detIdStruct.StatusGood.push_back(true);
 	  }
+	  detIdStruct.isHV.push_back(0);
+	  detIdStruct.psuName.push_back( psuStruct.dpname[dp] );
 	}
-	//The unmapped_ids and crosstalking_ids are only filled for HV channels!
-	if (!unmapped_ids.empty()) {
-	  cout << "Corresponding to HV unmapped (PSU-)matching detids: "<<endl;
-	  for (unsigned int i_detid=0;i_detid<unmapped_ids.size();i_detid++) {
-	    cout<< unmapped_ids[i_detid] << std::endl;
-	  }
-	}
-	if (!crosstalking_ids.empty()) {
-	  cout << "Corresponding to HV crosstalking (PSU-)matching detids: "<<endl;
-	  for (unsigned int i_detid=0;i_detid<crosstalking_ids.size();i_detid++) {
-	    cout<< crosstalking_ids[i_detid] << std::endl;
-	  }
-	}
-      }
-	      
-      //NOW implement the new logic using the detids, unmapped_detids, crosstalking_detids!
-
-      //First check whether the channel we're looking at is turning OFF or turning ON!
-      
-      //TURN OFF case:
-      if (psuStruct.actualStatus[dp] != 1) {
-	//Behavior is different for LV vs HV channels:
-	//LV case:
-	if (LVCase) {
-	  //Turn OFF all: 
-	  //-positively matching 
-	  //-unmapped matching
-	  //-crosstalking
-	  //for the LV case all the detids are automatically reported in the ids vector
-	  //unmapped and crosstalking are only differentiated (relevant) for HV.
-	  if (!ids.empty()) {
-	    //debug variables increment
-	    ch0bad++;
-	    ch1bad++;
-	    
-	    //Create a pair with the relevant detIDs (vector) and its timestamp
-	    //And put it in the detidV vector of the detIdStruct that will contain all the 
-	    //results
-	    detIdStruct.detidV.push_back( std::make_pair(ids,psuStruct.changeDate[dp]) );
-	    
-	    //Set the status to OFF
+	else if( board == "channel002" || board == "channel003" ) {
+	  detIdStruct.detidV.push_back( std::make_pair(ids,psuStruct.changeDate[dp]) );
+	  if( debug_ ) cout << "actualStatus = " << psuStruct.actualStatus[dp] << " for psu: " << psuStruct.dpname[dp] << endl;
+	  if (psuStruct.actualStatus[dp] != 1) {
+	    if (board == "channel002") {ch2bad++;}
+	    if (board == "channel003") {ch3bad++;}
 	    detIdStruct.StatusGood.push_back(false);
-	    
-	    //debug variable population
-	    numLvBad.insert(numLvBad.end(),ids.begin(),ids.end());
-
-	    //Set the flag for LV/HV:
-	    detIdStruct.isHV.push_back(0); //LV
-
-	    //Set the PSUChannel (I guess for debug purposes?)
-	    detIdStruct.psuName.push_back( PSUChannel );
-	  }
-	}
-	//HV case:
-	else { //if (!LVCase) {
-	  //Debug variables increment:
-	  if (!ids.empty() || !unmapped_ids.empty() || !crosstalking_ids.empty()) {
-	    if (Channel=="channel002") {
-	      ch2bad++;
-	    }
-	    else if (Channel=="channel003") {
-	      ch3bad++;
-	    }
-	  }
-	  //First sum the ids (positively matching detids) and the unmapped_ids (since both should be TURNED OFF):
-	  std::vector<uint32_t> OFFids;
-	  OFFids.insert(OFFids.end(),ids.begin(),ids.end()); //Add the ids (if any!)
-	  OFFids.insert(OFFids.end(),unmapped_ids.begin(),unmapped_ids.end()); //Add the unmapped_ids (if any!)
-	  //Now for the cross-talking ids this is a bit more complicated!
-	  if (!crosstalking_ids.empty()) {//This already means that the PSUChannel is one of the crosstalking ones (even if only a few modules in that PSU are showing crosstalking behavior both its channels have to be considered crosstalking of course!
-	    //Set the channel OFF in the CrosstalkingState map!
-	    CrosstalkingState[PSUChannel]=false; //Turn OFF the channel in the state map!
-	    
-	    //Need to check if both channels (HV1==channel002 or HV2==channel003) are OFF!
-	    if (!CrosstalkingState[PSUChannel.substr(0,PSUChannel.size()-1)+"2"] && !CrosstalkingState[PSUChannel.substr(0,PSUChannel.size()-1)+"3"]) { //if HV1 & HV2 both OFF (false)
-		OFFids.insert(OFFids.end(),crosstalking_ids.begin(),crosstalking_ids.end()); //Add the crosstalking_ids (if any!) since both HV1 and HV2 are OFF!
-		if (debug_) {
-		  std::cout<<"Adding the unmapped detids corresponding to (HV1/2 cross-talking) PSU "<<PSUChannel.substr(0,PSUChannel.size()-10)<<" to the list of detids turning OFF"<<std::endl;
-		}
-	    }
-	  }
-	  //Handle the crosstalking channel by setting it to OFF in the CrosstalkingState map!
-	  if (!unmapped_ids.empty()) {//This already means that the PSUChannel is one of the unmapped ones (even if only a few modules in that PSU are unmapped both its channels have to be considered crosstalking of course!
-	    UnmappedState[PSUChannel]=false; //Turn OFF the channel in the state map!
-	  }
-	  if (!OFFids.empty()) {
-	    //Create a pair with the relevant detIDs (vector) and its timestamp
-	    //And put it in the detidV vector of the detIdStruct that will contain all the 
-	    //results
-	    
-	    //Going OFF HV:
-	    //report not only ids, but also unmapped_ids.
-	    //have to handle crosstalking_ids here... (only OFF if they corresponding PSU HV1/HV2 is off already...
-	    //then add all three vectors to the pair below...
-	    detIdStruct.detidV.push_back( std::make_pair(OFFids,psuStruct.changeDate[dp]) );
-	    
-	    //Set the status to OFF
-	    detIdStruct.StatusGood.push_back(false);
-	    
-	    //debug variable population
 	    numHvBad.insert(numHvBad.end(),ids.begin(),ids.end());
-
-	    //Set the flag for LV/HV:
-	    detIdStruct.isHV.push_back(1); //HV
-
-	    //Set the PSUChannel (I guess for debug purposes?)
-	    detIdStruct.psuName.push_back( PSUChannel );
+	  }
+	  else {
+	    detIdStruct.StatusGood.push_back(true);
+	  }
+	  detIdStruct.isHV.push_back(1);
+	  detIdStruct.psuName.push_back( psuStruct.dpname[dp] );
+	}
+	else {
+	  if (board != "channel001") {
+	    LogTrace("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::" << __func__ << "] channel name not recognised! " << board;
 	  }
 	}
       }
-      //TURNING ON CASE
-      else {
-	//Implement the rest of the logic!
-	//Behavior is different for LV vs HV channels:
-	//LV case:
-	if (LVCase) {
-	  //Turn ON all (PSU)matching detids: 
-	  //for the LV case all the detids are automatically reported in the ids vector
-	  //unmapped and crosstalking are only differentiated (relevant) for HV.
-	  if (!ids.empty()) {
-	    //Create a pair with the relevant detIDs (vector) and its timestamp
-	    //And put it in the detidV vector of the detIdStruct that will contain all the 
-	    //results
-	    detIdStruct.detidV.push_back( std::make_pair(ids,psuStruct.changeDate[dp]) );
-	    
-	    //Set the status to ON
-	    detIdStruct.StatusGood.push_back(true);
-	    
-	    //Set the flag for LV/HV:
-	    detIdStruct.isHV.push_back(0); //LV
-
-	    //Set the PSUChannel (I guess for debug purposes?)
-	    detIdStruct.psuName.push_back( PSUChannel );
-	  }
-	}
-	//HV case:
-	else { //if (!LVCase) {
-	  //First sum the ids (positively matching detids) and the crosstalking_ids (since all ids on a crosstalking PSU should be TURNED ON when at least one HV channel is ON):
-	  std::vector<uint32_t> ONids;
-	  ONids.insert(ONids.end(),ids.begin(),ids.end()); //Add the ids (if any!)
-	  ONids.insert(ONids.end(),crosstalking_ids.begin(),crosstalking_ids.end()); //Add the crosstalking_ids (if any!)
-	  //Now for the unmapped ids this is a bit more complicated!
-	  if (!unmapped_ids.empty()) {//This already means that the PSUChannel is one of the unmapped ones (even if only a few modules in that PSU are unmapped both its channels have to be considered unmapped of course!
-	    //Set the HV1 channel on in the UnmappedState map!
-	    UnmappedState[PSUChannel]=true; //Turn ON the channel in the state map!
-
-	    //Need to check if BOTH channels (HV1==channel002 or HV2==channel003) are ON!
-	    if (UnmappedState[PSUChannel.substr(0,PSUChannel.size()-1)+"2"] && UnmappedState[PSUChannel.substr(0,PSUChannel.size()-1)+"3"]) { //if HV1 & HV2 are both ON (true)
-	      ONids.insert(ONids.end(),unmapped_ids.begin(),unmapped_ids.end()); //Add the unmapped_ids (if any!) since both HV1 and HV2 are ON!
-	      if (debug_) {
-		  std::cout<<"Adding the detids corresponding to HV-unmapped PSU "<<PSUChannel.substr(0,PSUChannel.size()-10)<<" to the list of detids turning ON"<<std::endl;
-		}
-	    }
-	  }
-	  //Handle the crosstalking channel by setting it to OFF in the CrosstalkingState map!
-	  if (!crosstalking_ids.empty()) {//This already means that the PSUChannel is one of the crosstalking ones (even if only a few modules in that PSU are showing crosstalking behavior both its channels have to be considered crosstalking of course!
-	    CrosstalkingState[PSUChannel]=true; //Turn ON the channel in the state map!
-	  }
-	  if (!ONids.empty()) {
-	    //Create a pair with the relevant detIDs (vector) and its timestamp
-	    //And put it in the detidV vector of the detIdStruct that will contain all the 
-	    //results
-	    
-	    //Going OFF HV:
-	    //report not only ids, but also unmapped_ids.
-	    //have to handle crosstalking_ids here... (only OFF if they corresponding PSU HV1/HV2 is off already...
-	    //then add all three vectors to the pair below...
-	    detIdStruct.detidV.push_back( std::make_pair(ONids,psuStruct.changeDate[dp]) );
-	    
-	    //Set the status to ON
-	    detIdStruct.StatusGood.push_back(true);
-	    
-	    //Set the flag for LV/HV:
-	    detIdStruct.isHV.push_back(1); //HV
-
-	    //Set the PSUChannel (I guess for debug purposes?)
-	    detIdStruct.psuName.push_back( PSUChannel );
-	  }
-	}
-      }
-    }//End of if dpname not "UNKNOWN" 
-    else {
-      //if (debug) {
-      //std::cout<<"PSU Channel name WAS NOT RECOGNIZED"<<std::endl;
-      //}
+    } else {
       detIdStruct.notMatched++;
     }
-  }//End of the loop over all PSUChannels reported by the DB query.
-  //At this point we need to (over)write the 2 files that will keep the HVUnmapped and HVCrosstalking channels status:
-  ofstream ofsUnmapped("HVUnmappedChannelState.dat");
-  for (std::map<std::string,bool>::iterator it=UnmappedState.begin(); it!=UnmappedState.end(); it++) {
-    ofsUnmapped<<it->first<<"\t"<<it->second<<std::endl;
-  }
-  ofstream ofsCrosstalking("HVCrosstalkingChannelState.dat");
-  for (std::map<std::string,bool>::iterator it=CrosstalkingState.begin(); it!=CrosstalkingState.end(); it++) {
-    ofsCrosstalking<<it->first<<"\t"<<it->second<<std::endl;
   }
 
   removeDuplicates(numLvBad);
   removeDuplicates(numHvBad);
 
-
   // useful debugging stuff!
   if( debug_ ) {
-    std::cout << "Number of channels that turned OFF in this O2O interval"<<std::endl;
-    std::cout << "Channel000 = " << ch0bad << " Channel001 = " << ch1bad << std::endl;
-    std::cout << "Channel002 = " << ch2bad << " Channel003 = " << ch3bad << std::endl;
-    std::cout << "Number of LV detIDs that turned OFF in this O2O interval = " << numLvBad.size() << std::endl;
-    std::cout << "Number of HV detIDs that turned OFF in this O2O interval = " << numHvBad.size() << std::endl;
+    std::cout << "Bad 000 = " << ch0bad << " Bad 001 = " << ch1bad << std::endl;
+    std::cout << "Bad 002 = " << ch0bad << " Bad 003 = " << ch1bad << std::endl;
+    std::cout << "Number of bad LV detIDs = " << numLvBad.size() << std::endl;
+    std::cout << "Number of bad HV detIDs = " << numHvBad.size() << std::endl;
   }
 
   LogTrace("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::" << __func__ << "]: Number of PSUs retrieved from DB with map information    " << detIdStruct.detidV.size();
@@ -1165,8 +757,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
     std::vector<unsigned int>::iterator iter = std::find(numHvBad.begin(),numHvBad.end(),numLvBad[t]);
     if (iter != numHvBad.end()) {dupCount++;}
   }
-  if( debug_ ) std::cout << "Number of channels for which LV & HV turned OFF in this O2O interval = " << dupCount << std::endl;
-  
+  if( debug_ ) std::cout << "Number of channels with LV & HV bad = " << dupCount << std::endl;
 }
 
 void SiStripDetVOffBuilder::setPayloadStats(const uint32_t afterV, const uint32_t numAdded, const uint32_t numRemoved)

@@ -32,7 +32,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         EcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -44,7 +44,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(-1)
         ),
         HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         HFShower = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
@@ -64,7 +64,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source("EmptySource",
@@ -92,7 +92,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('HFPMTFibre1.root')
+    fileName = cms.string('HFPMTFibre.root')
 )
 
 process.common_maximum_timex = cms.PSet(
@@ -109,12 +109,11 @@ process.g4SimHits.HCalSD.UseShowerLibrary   = False
 process.g4SimHits.HCalSD.UseParametrize     = True
 process.g4SimHits.HCalSD.UsePMTHits         = True
 process.g4SimHits.HCalSD.UseFibreBundleHits = True
-process.g4SimHits.HFShower.UseShowerLibrary = False
-process.g4SimHits.HFShower.UseHFGflash      = True
+process.g4SimHits.HFShower.UseShowerLibrary = True
+process.g4SimHits.HFShower.UseHFGflash      = False
 process.g4SimHits.HFShower.TrackEM          = False
 process.g4SimHits.HFShower.OnlyLong         = True
 process.g4SimHits.HFShower.EminLibrary      = 0.0
-process.g4SimHits.HFShower.ApplyFiducialCut = True
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
     process.common_maximum_timex,

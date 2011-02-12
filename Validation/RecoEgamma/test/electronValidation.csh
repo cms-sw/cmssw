@@ -10,10 +10,13 @@
 # If you prefer to set the variables and run this script directly,
 # here they are :
 #
-# $1 : eventual second command-line argument, immediatly duplicated into VAL_OUTPUT_FILE,
+# $1 : eventual first command-line argument, immediatly duplicated into VAL_ENV,
+#   is the name of the current context, used to build some default value
+#   for other variables, especially VAL_NEW_FILE and VAL_REF_FILE.
+# $2 : eventual second command-line argument, immediatly duplicated into VAL_OUTPUT_FILE,
 #   is the default base name of the files containing the histograms ; it is
 #   also used to build some default value for other variables.
-# $2 : eventual third command-line argument, immediatly duplicated into VAL_WEB_SUB_DIR,
+# $3 : eventual third command-line argument, immediatly duplicated into VAL_WEB_SUB_DIR,
 #   it is the name of the web subdirectory. Default is close to ${DBS_SAMPLE}_{DBS_COND}.
 #
 # VAL_COMMENT : a comment to inserted at the beginning of the web page, which generally
@@ -46,8 +49,9 @@
 
 #============== Core config ==================
 
-setenv VAL_OUTPUT_FILE $1
-setenv VAL_WEB_SUB_DIR $2
+setenv VAL_ENV $1
+setenv VAL_OUTPUT_FILE $2
+setenv VAL_WEB_SUB_DIR $3
 setenv VAL_ORIGINAL_DIR $cwd
 
 # those must have a value
@@ -82,14 +86,14 @@ echo "VAL_NEW_RELEASE = ${VAL_NEW_RELEASE}"
 if ( ${?VAL_NEW_FILE} == "0" ) setenv VAL_NEW_FILE ""
 
 if ( ${VAL_NEW_FILE} == "" ) then
-  if ( -r "${VAL_ORIGINAL_DIR}/${VAL_OUTPUT_FILE}" ) then
-    setenv VAL_NEW_FILE "${VAL_ORIGINAL_DIR}/${VAL_OUTPUT_FILE}"
+  if ( -r "${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}" ) then
+    setenv VAL_NEW_FILE "${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}"
   endif
 endif
 
 if ( ${VAL_NEW_FILE} == "" ) then
-  if ( -r "${VAL_WEB}/${VAL_NEW_RELEASE}/Electrons/data/${VAL_OUTPUT_FILE}" ) then
-    setenv VAL_NEW_FILE "${VAL_WEB}/${VAL_NEW_RELEASE}/Electrons/data/${VAL_OUTPUT_FILE}"
+  if ( -r "${VAL_WEB}/${VAL_NEW_RELEASE}/Electrons/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}" ) then
+    setenv VAL_NEW_FILE "${VAL_WEB}/${VAL_NEW_RELEASE}/Electrons/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}"
   endif
 endif
 
@@ -113,17 +117,29 @@ if ( ${VAL_REF_FILE} == "" ) then
 endif
 
 if ( ${VAL_REF_FILE} == "" ) then
-  if ( -r "${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/${VAL_OUTPUT_FILE}" ) then
-    setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/${VAL_OUTPUT_FILE}
+  if ( -r "${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}" ) then
+    setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
   endif
 endif
 
 if ( ${VAL_REF_FILE} == "" ) then
-  if ( -r "${VAL_WEB}/${VAL_REF_RELEASE}/data/${VAL_OUTPUT_FILE}" ) then
-    setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/data/${VAL_OUTPUT_FILE}
+  if ( -r "${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/cmsRun.${VAL_ENV}.olog.gsfElectronHistos.root" ) then
+    setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/cmsRun.${VAL_ENV}.olog.gsfElectronHistos.root
   endif
 endif
 
+if ( ${VAL_REF_FILE} == "" ) then
+  if ( -r "${VAL_WEB}/${VAL_REF_RELEASE}/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}" ) then
+    setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
+  endif
+endif
+
+if ( ${VAL_REF_FILE} == "" ) then
+  if ( -r "${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.oref.${VAL_OUTPUT_FILE}" ) then
+    setenv VAL_REF_FILE ${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.oref.${VAL_OUTPUT_FILE}
+  endif
+endif
+ 
 echo "VAL_REF_FILE = ${VAL_REF_FILE}"
  
 #============== Prepare sample/cond subdirectory ==================

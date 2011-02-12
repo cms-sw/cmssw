@@ -82,27 +82,16 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(boo
     chamberObj->chamberCorrections[i-1].cfeb_tmb_skew_delay=0;
     chamberObj->chamberCorrections[i-1].cfeb_timing_corr=0;
     chamberObj->chamberCorrections[i-1].cfeb_cable_delay=0;
-    chamberObj->chamberCorrections[i-1].anode_bx_offset=0;
   }
 
 
-  // for MC there will is a different correction for each chamber type
+  // for MC there will be one value for ME1/1 and one for all other chambers
   if (isMC){
-    float OffsetByType;
-    float anodeOffset;
-    for(i=1;i<=MAX_SIZE;++i){   
-      if (i<= 36 || (i>= 235 && i<=270))       { OffsetByType=172.;  anodeOffset=6.18; }// 1/1
-      else if (i<= 72 || (i>= 271 && i<=306))  { OffsetByType=168.;  anodeOffset=6.22; }// 1/2
-      else if (i<= 108 || (i>= 307 && i<=342)) { OffsetByType=177.;  anodeOffset=6.19; }// 1/3
-      else if (i<= 126 || (i>= 343 && i<=360)) { OffsetByType=171.;  anodeOffset=6.25; }// 2/1
-      else if (i<= 162 || (i>= 361 && i<=396)) { OffsetByType=175.;  anodeOffset=6.21; }// 2/2
-      else if (i<= 180 || (i>= 397 && i<=414)) { OffsetByType=171.;  anodeOffset=6.25; }// 3/1
-      else if (i<= 216 || (i>= 415 && i<=450)) { OffsetByType=175.;  anodeOffset=6.20; }// 3/2
-      else if (i<= 234 || (i>= 451 && i<=468)) { OffsetByType=172.;  anodeOffset=6.19; }// 4/1
-      else {OffsetByType=175; anodeOffset=6.21; }// 4/2
-
-	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(-1*OffsetByType*FACTOR+0.5*(-1*OffsetByType>=0)-0.5*(-1*OffsetByType<0));
-	chamberObj->chamberCorrections[i-1].anode_bx_offset =(short int)(anodeOffset *FACTOR+0.5*(anodeOffset >=0)-0.5*(anodeOffset <0));
+    for(i=1;i<=MAX_SIZE;++i){
+      if (i<= 36 || (i>= 235 && i<=270))
+	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(-1*ME11offset*FACTOR+0.5*(-1*ME11offset>=0)-0.5*(-1*ME11offset<0));
+      else
+	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(-1*nonME11offset*FACTOR+0.5*(-1*nonME11offset>=0)-0.5*(-1*nonME11offset<0));
     }
 
     return chamberObj;
@@ -114,19 +103,6 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(boo
 
   csccableread *cable = new csccableread ();
   for(i=1;i<=MAX_SIZE;++i){
-    // the anode bx offset is 8.15 bx for chambers in 2/1, 3/1, and 4/1 
-    // and 8.18 bx for all other chambers for early runs (8.20 for runs> 149357)
-    float anodeOffset;
-    if (i<= 36 || (i>= 235 && i<=270))       {   anodeOffset=8.20; }// 1/1
-    else if (i<= 72 || (i>= 271 && i<=306))  {   anodeOffset=8.20; }// 1/2
-    else if (i<= 108 || (i>= 307 && i<=342)) {   anodeOffset=8.20; }// 1/3
-    else if (i<= 126 || (i>= 343 && i<=360)) {   anodeOffset=8.15; }// 2/1
-    else if (i<= 162 || (i>= 361 && i<=396)) {   anodeOffset=8.20; }// 2/2
-    else if (i<= 180 || (i>= 397 && i<=414)) {   anodeOffset=8.15; }// 3/1
-    else if (i<= 216 || (i>= 415 && i<=450)) {   anodeOffset=8.20; }// 3/2
-    else if (i<= 234 || (i>= 451 && i<=468)) {   anodeOffset=8.15; }// 4/1
-    else {anodeOffset=8.20; }// 4/2
-
     // for data we will read in from Igor's database
     cable->cable_read(i, &chamber_label, &cfeb_length, &cfeb_rev, &alct_length,
 		      &alct_rev, &cfeb_tmb_skew_delay, &cfeb_timing_corr);
@@ -140,7 +116,6 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(boo
       chamberObj->chamberCorrections[i-1].cfeb_tmb_skew_delay=(short int)(cfeb_tmb_skew_delay*FACTOR+0.5);
       chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(cfeb_timing_corr*FACTOR+0.5);
       chamberObj->chamberCorrections[i-1].cfeb_cable_delay=0;
-      chamberObj->chamberCorrections[i-1].anode_bx_offset=(short int)(anodeOffset*FACTOR+0.5);
     }
     count=count+1;
   }
@@ -194,51 +169,7 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(boo
     chamberObj->chamberCorrections[chamberSerial-1].cfeb_cable_delay= (short int)delay;
   }
   fclose(fdelay);  
-
-  //Read in a 2nd order correction for chamber offsets derived from data 
-  FILE *foffset = fopen("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/offset_26July2010_codeOverhaul_slope012.txt","r");
-  float offset;
-  int iE,iS,iR,iC;
-  while (!feof(foffset)){
-    //note space at end of format string to convert last \n
-    int check = fscanf(foffset,"%d %d %d %d %f \n",&iE,&iS,&iR,&iC,&offset);
-    if (check != 5){
-      printf("offset file has an unexpected format \n");
-      assert(0);  
-    }
-    int chamberSerial = 0;
-    if (iS ==1 && iR ==4)
-      iR =1;
-    chamberSerial = indexer.chamberIndex(iE,iS,iR,iC);
-    //printf("chamberLabel %s (%d %d %d %d) chamberSerial %d delay %d \n",label,c_endcap,c_station, c_ring, c_chamber, chamberSerial,delay);
-    float temp= float(chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr)/FACTOR;
-    chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr= (short int)((temp-offset)*FACTOR+0.5*(temp>=offset)-0.5*(temp<offset));
-    printf("Serial %d old corr  %f change %f newcorr %f \n",chamberSerial,temp,offset,(float)chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr/FACTOR);
-  }
-  fclose(foffset);  
   
-  //Read in a 3rd order correction for chamber offsets derived from data 
-  FILE *foffsetAgain = fopen("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/CathodeTimingCorrection_DB_12082010.txt","r");
-  while (!feof(foffsetAgain)){
-    //note space at end of format string to convert last \n
-    int check = fscanf(foffsetAgain,"%d %d %d %d %f \n",&iE,&iS,&iR,&iC,&offset);
-    if (check != 5){
-      printf("offsetAgain file has an unexpected format \n");
-      assert(0);  
-    }
-    int chamberSerial = 0;
-    if (iS ==1 && iR ==4)
-      iR =1;
-    chamberSerial = indexer.chamberIndex(iE,iS,iR,iC);
-    //printf("chamberLabel %s (%d %d %d %d) chamberSerial %d delay %d \n",label,c_endcap,c_station, c_ring, c_chamber, chamberSerial,delay);
-    float temp= float(chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr)/FACTOR;
-    chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr= (short int)((temp-offset)*FACTOR+0.5*(temp>=offset)-0.5*(temp<offset));
-    printf("Serial %d old corr  %f change %f newcorr %f \n",chamberSerial,temp,offset,(float)chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr/FACTOR);
-  }
-  fclose(foffsetAgain);  
-
-
-
   return chamberObj;
 }
 

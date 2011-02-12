@@ -267,6 +267,10 @@ namespace {
 
     edm::Association<reco::GenJetCollection> a_gj;
     edm::Wrapper<edm::Association<reco::GenJetCollection> > w_a_gj;
+
+    edm::Association<reco::PFJetCollection> a_pfj;
+    edm::Wrapper<edm::Association<reco::PFJetCollection> > w_a_pfj;
+
     std::vector<reco::CaloJet::Specific> v_cj_s;
     std::vector<reco::JPTJet::Specific> v_jptj_s;
     std::vector<reco::PFJet::Specific> v_pj_s;

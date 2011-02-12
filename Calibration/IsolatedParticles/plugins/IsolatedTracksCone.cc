@@ -30,9 +30,6 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-
 IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) {
 
   //now do what ever initialization is needed
@@ -453,16 +450,13 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
     // NxN cluster
     double e3x3=-999.0;
     double trkEcalEne =-999.0;
-    edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-    iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-
     if(std::abs(point1.eta())<1.479) {
       const DetId isoCell = gEB->getClosestCell(point1);
-      e3x3   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology, sevlv.product(),1,1);  
+      e3x3   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology, 1,1);  
       trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb, pcaloee, SimTk, SimVtx, pTrack, *associate);
     } else {
       const DetId isoCell = gEE->getClosestCell(point1);
-      e3x3   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology, sevlv.product(),1,1);
+      e3x3   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology, 1,1);
       trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb, pcaloee, SimTk, SimVtx, pTrack, *associate);
     }
 

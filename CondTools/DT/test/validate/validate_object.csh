@@ -87,9 +87,9 @@ endif
 
 touch ${FNAME}Dump.txt ${FNAME}Validate.log validate_${FNAME}_w.py
 rm -f ${FNAME}Dump.txt ${FNAME}Validate.log validate_${FNAME}_w.py
-#pool_build_object_relational_mapping              \
-#  -f ../../xml/${CLASS}-mapping-custom.xml       \
-#  -d CondFormatsDTObjects -c sqlite_file:test.db
+pool_build_object_relational_mapping              \
+  -f ../../xml/${CLASS}-mapping-custom.xml       \
+  -d CondFormatsDTObjects -c sqlite_file:test.db
 
 sed s/CLASS/${CLASS}/g   validate_w_template.py | \
 sed s/VNAME/${VNAME}/g                          | \

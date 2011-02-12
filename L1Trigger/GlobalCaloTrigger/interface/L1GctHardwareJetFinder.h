@@ -54,6 +54,9 @@ private:
   static const unsigned int N_COLS;
   static const unsigned int CENTRAL_COL0;
 
+  /// Positive/negative eta flag used in the initial clustering
+  bool m_positiveEtaWheel;
+
   /// Local vectors used during both stages of clustering
   RegionsVector m_localMaxima;
   /// Each local maximum becomes a cluster

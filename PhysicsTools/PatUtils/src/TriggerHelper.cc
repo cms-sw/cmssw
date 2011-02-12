@@ -1,5 +1,5 @@
 //
-// $Id: TriggerHelper.cc,v 1.3 2009/06/17 13:40:40 vadler Exp $
+// $Id: TriggerHelper.cc,v 1.1.2.2 2009/06/16 21:21:24 vadler Exp $
 //
 
 
@@ -13,12 +13,8 @@ using namespace pat::helper;
 
 
 
-// Methods
+/// functions
 
-
-// Get a reference to the trigger objects matched to a certain physics object given by a reference for a certain matcher module
-
-// ... by resulting association
 TriggerObjectRef TriggerMatchHelper::triggerMatchObject( const reco::CandidateBaseRef & candRef, const TriggerObjectMatch * matchResult, const edm::Event & event, const TriggerEvent & triggerEvent ) const
 {
   if ( matchResult ) {
@@ -34,15 +30,11 @@ TriggerObjectRef TriggerMatchHelper::triggerMatchObject( const reco::CandidateBa
   }
   return TriggerObjectRef();
 }
-
-// ... by matcher module label
 TriggerObjectRef TriggerMatchHelper::triggerMatchObject( const reco::CandidateBaseRef & candRef, const std::string & labelMatcher, const edm::Event & event, const TriggerEvent & triggerEvent ) const
 {
   return triggerMatchObject( candRef, triggerEvent.triggerObjectMatchResult( labelMatcher ), event, triggerEvent );
 }
 
-
-// Get a table of references to all trigger objects matched to a certain physics object given by a reference
 TriggerObjectMatchMap TriggerMatchHelper::triggerMatchObjects( const reco::CandidateBaseRef & candRef, const edm::Event & event, const TriggerEvent & triggerEvent ) const
 {
   TriggerObjectMatchMap theContainer;
@@ -53,10 +45,6 @@ TriggerObjectMatchMap TriggerMatchHelper::triggerMatchObjects( const reco::Candi
   return theContainer;
 }
 
-
-// Get a vector of references to the phyics objects matched to a certain trigger object given by a reference for a certain matcher module
-
-// ... by resulting association
 reco::CandidateBaseRefVector TriggerMatchHelper::triggerMatchCandidates( const TriggerObjectRef & objectRef, const TriggerObjectMatch * matchResult, const edm::Event & event, const TriggerEvent & triggerEvent ) const
 {
   reco::CandidateBaseRefVector theCands;
@@ -73,8 +61,6 @@ reco::CandidateBaseRefVector TriggerMatchHelper::triggerMatchCandidates( const T
   }
   return theCands;
 }
-
-// ... by matcher module label
 reco::CandidateBaseRefVector TriggerMatchHelper::triggerMatchCandidates( const TriggerObjectRef & objectRef, const std::string & labelMatcher, const edm::Event & event, const TriggerEvent & triggerEvent ) const
 {
   return triggerMatchCandidates( objectRef, triggerEvent.triggerObjectMatchResult( labelMatcher ), event, triggerEvent );

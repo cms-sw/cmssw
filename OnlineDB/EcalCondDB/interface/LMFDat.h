@@ -1,7 +1,6 @@
 #ifndef LMFDAT_H
 #define LMFDAT_H
 
-
 /*
  Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
  */
@@ -26,30 +25,20 @@ class LMFDat : public LMFUnique {
 	 oracle::occi::Connection* conn);
   ~LMFDat() { }
 
-  virtual std::string foreignKeyName() const;
-
   LMFDat& setLMFRunIOV(const LMFRunIOV &iov) {
-    setInt(foreignKeyName(), iov.getID());
-    attach(foreignKeyName(), (LMFUnique*)&iov);
+    setInt("lmfRunIOV_id", iov.getID());
+    attach("lmfRunIOV", (LMFUnique*)&iov);
     return *this;
   }
   LMFRunIOV getLMFRunIOV() const {
     LMFRunIOV runiov(m_env, m_conn);
-    runiov.setByID(getInt(foreignKeyName()));
+    runiov.setByID(getInt("lmfRunIOV_id"));
     return runiov;
   }
 
-  Tm getSubrunStart() const {
-    return getLMFRunIOV().getSubRunStart();
-  }
-
-  void getPrevious(LMFDat *dat) throw(std::runtime_error);
-  void getNext(LMFDat *dat) throw(std::runtime_error);
-
-  virtual std::string getTableName() const {
+  virtual std::string getTableName() {
     return m_tableName;
   }
-  virtual std::string getIovIdFieldName() const ;
   int getLMFRunIOVID();
 
   LMFDat& setData(int logic_id, const std::vector<float> &data) {
@@ -68,34 +57,29 @@ class LMFDat : public LMFUnique {
     m_data[id][m_keys[key]] = v;
     return *this;
   }
-  int size() const { return m_data.size(); }
-  
+
+  std::vector<float> getData(int id) {
+    return m_data[id];
+  }
+  std::vector<float> operator[](int id) {
+    return m_data[id];
+  }
+  std::vector<float> getData(const EcalLogicID &id) {
+    return m_data[id.getLogicID()];
+  }
+  std::map<int, std::vector<float> > getData() {
+    return m_data;
+  }
   std::map<unsigned int, std::string> getReverseMap() const;
-
-  /* UNSAFE methods returning data for a given logic_id */
-  std::vector<float> getData(int id);
-  std::vector<float> operator[](int id);
-  std::vector<float> getData(const EcalLogicID &id);
-
-  /* SAFE methods returning data for a given logic_id */
-  bool getData(int id, std::vector<float> &ret);
-  bool getData(const EcalLogicID &id, std::vector<float> &ret);
-
-  /* methods returning the whole map between logic_id and data */
-  std::map<int, std::vector<float> > getData();
-
-  /* UNSAFE methods returning a field of a given logic_id */
-  float getData(int id, unsigned int k);
-  float getData(const EcalLogicID &id, unsigned int k);
-  float getData(const EcalLogicID &id, const std::string &key);
-  float getData(int id, const std::string &key);
-
-  /* SAFE methods returning a field of a given logic_id */
-  bool getData(int id, unsigned int k, float &ret);
-  bool getData(const EcalLogicID &id, unsigned int k, float &ret);
-  bool getData(int id, const std::string &key, float &ret);
-  bool getData(const EcalLogicID &id, const std::string &key, float &ret);
-
+  float getData(int id, int k) {
+    return m_data[id][k];
+  }
+  float getData(const EcalLogicID &id, int k) {
+    return m_data[id.getLogicID()][k];
+  }
+  float getData(const EcalLogicID &id, const std::string &key) {
+    return m_data[id.getLogicID()][m_keys[key]];
+  }
   std::list<int> getLogicIds() {
     std::list<int> l;
     std::map<int, std::vector<float> >::const_iterator i = m_data.begin();
@@ -106,7 +90,6 @@ class LMFDat : public LMFUnique {
     }
     return l;
   }
-
   std::map<std::string, unsigned int> getKeys() {
     return m_keys;
   }
@@ -124,23 +107,18 @@ class LMFDat : public LMFUnique {
   void dump() const ;
   void dump(int n) const ;
   virtual void dump(int n, int max) const ;
-  std::map<int, std::vector<float> > fetchData() throw(std::runtime_error);
+  virtual int fetchData() throw(std::runtime_error);
   void fetch() throw(std::runtime_error);
   void fetch(int logic_id) throw(std::runtime_error);
-  void fetch(int logic_id, const Tm &tm) throw(std::runtime_error);
-  void fetch(int logic_id, const Tm *timestamp, int dir) throw(std::runtime_error);
-  void fetch(const EcalLogicID &id, const Tm &tm) throw(std::runtime_error);
-  void fetch(const EcalLogicID &id, const Tm &tm, int dir) throw(std::runtime_error);
   void fetch(const EcalLogicID &id) 
     throw(std::runtime_error);
 
   virtual bool isValid();
  protected:
-  void getNeighbour(LMFDat *dat, int which) throw(std::runtime_error);
   int writeDB() throw(std::runtime_error);
   bool check();
   std::string buildInsertSql();
-  std::string buildSelectSql(int logic_id = 0, int direction = 0);
+  std::string buildSelectSql(int logic_id = 0);
   void getKeyTypes() throw(std::runtime_error);
 
   int m_max;

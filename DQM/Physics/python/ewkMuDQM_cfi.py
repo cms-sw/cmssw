@@ -6,11 +6,12 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("pfMet"),
-      JetTag = cms.untracked.InputTag("ak5PFJets"),
-      VertexTag= cms.untracked.InputTag("offlinePrimaryVertices"),
+      METIncludesMuons = cms.untracked.bool(True),
+      JetTag = cms.untracked.InputTag("ak5CaloJets"),
+
 
       # Main cuts ->
-      MuonTrig = cms.untracked.vstring("","HLT_Mu9","HLT_Mu11","HLT_Mu15_v1","HLT_Mu15_v2"),
+      MuonTrig = cms.untracked.string("HLT_Mu11"),
       UseTrackerPt = cms.untracked.bool(True),
       PtCut = cms.untracked.double(20.0),
       EtaCut = cms.untracked.double(2.1),
@@ -18,19 +19,16 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
       IsCombinedIso = cms.untracked.bool(True),
       IsoCut03 = cms.untracked.double(0.15),
       MtMin = cms.untracked.double(50.0),
-      MtMax = cms.untracked.double(9999999),
+      MtMax = cms.untracked.double(999.0),
       MetMin = cms.untracked.double(-999999.),
       MetMax = cms.untracked.double(999999.),
       AcopCut = cms.untracked.double(999.),
 
       # Muon quality cuts ->
-      DxyCut = cms.untracked.double(0.2), # dxy < 0.2 cm (cosmics)
-      NormalizedChi2Cut = cms.untracked.double(10.), # chi2/ndof < 10. 
-      TrackerHitsCut = cms.untracked.int32(11),  # Hits in inner track > 10
-      PixelHitsCut = cms.untracked.int32(1),  # Pixel Hits  > 0 
-      MuonHitsCut = cms.untracked.int32(1),  # Valid Muon Hits  > 0 
+      DxyCut = cms.untracked.double(0.2),
+      NormalizedChi2Cut = cms.untracked.double(10.),
+      TrackerHitsCut = cms.untracked.int32(11),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
-      NMatchesCut = cms.untracked.int32(2),  # At least 2 Chambers matched with segments
 
       # To suppress Zmm ->
       PtThrForZ1 = cms.untracked.double(20.0),

@@ -1,25 +1,15 @@
-/*****************************************************************************
- * Project: CMS detector at the CERN
- *
- * Package: PhysicsTools/TagAndProbe
- *
- *
- * Authors:
- *   Giovanni Petrucciani, UCSD - Giovanni.Petrucciani@cern.ch
- *
- * Description:
- *   - Matches a given object with other objects using deltaR-matching.
- *   - For example: can match a photon with track within a given deltaR.
- *   - Saves collection of the reference vectors of matched objects.
- * History:
- *   
- * Kalanand Mishra, Fermilab - kalanand@fnal.gov
- * Extended the class to compute deltaR with respect to any object 
- * (i.e., Candidate, Jet, Muon, Electron, or Photon). The previous 
- * version of this class could deltaR only with respect to reco::Candidates.
- * This didn't work if one wanted to apply selection cuts on the Candidate's 
- * RefToBase object.
- *****************************************************************************/
+//
+// $Id: DeltaRNearestObjectComputer.cc,v 1.2 2010/02/26 22:30:50 wdd Exp $
+//
+
+/**
+  \class    gDeltaRNearestObjectComputer DeltaRNearestObjectComputer.h "MuonAnalysis/MuonAssociators/interface/DeltaRNearestObjectComputer.h"
+  \brief    Matcher of reconstructed objects to L1 Muons 
+            
+  \author   Giovanni Petrucciani
+  \version  $Id: DeltaRNearestObjectComputer.cc,v 1.2 2010/02/26 22:30:50 wdd Exp $
+*/
+
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -32,15 +22,9 @@
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-template<typename T>
 class DeltaRNearestObjectComputer : public edm::EDProducer {
     public:
         explicit DeltaRNearestObjectComputer(const edm::ParameterSet & iConfig);
@@ -51,11 +35,10 @@ class DeltaRNearestObjectComputer : public edm::EDProducer {
     private:
         edm::InputTag probes_;            
         edm::InputTag objects_; 
-        StringCutObjectSelector<T,true> objCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
+        StringCutObjectSelector<reco::Candidate,true> objCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
 };
 
-template<typename T>
-DeltaRNearestObjectComputer<T>::DeltaRNearestObjectComputer(const edm::ParameterSet & iConfig) :
+DeltaRNearestObjectComputer::DeltaRNearestObjectComputer(const edm::ParameterSet & iConfig) :
     probes_(iConfig.getParameter<edm::InputTag>("probes")),
     objects_(iConfig.getParameter<edm::InputTag>("objects")),
     objCut_(iConfig.existsAs<std::string>("objectSelection") ? iConfig.getParameter<std::string>("objectSelection") : "", true)
@@ -64,34 +47,29 @@ DeltaRNearestObjectComputer<T>::DeltaRNearestObjectComputer(const edm::Parameter
 }
 
 
-template<typename T>
-DeltaRNearestObjectComputer<T>::~DeltaRNearestObjectComputer()
+DeltaRNearestObjectComputer::~DeltaRNearestObjectComputer()
 {
 }
 
-template<typename T>
 void 
-DeltaRNearestObjectComputer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+DeltaRNearestObjectComputer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
 
     // read input
-    Handle<View<reco::Candidate> > probes;
+    Handle<View<reco::Candidate> > probes, objects;
     iEvent.getByLabel(probes_,  probes);
-
-    Handle<View<T> > objects;
     iEvent.getByLabel(objects_, objects);
 
     // prepare vector for output    
     std::vector<float> values;
     
     // fill
-    View<reco::Candidate>::const_iterator probe, endprobes = probes->end();
+    View<reco::Candidate>::const_iterator probe, endprobes = probes->end(), object, endobjects = objects->end();
     for (probe = probes->begin(); probe != endprobes; ++probe) {
         double dr2min = 10000;
-        for (unsigned int iObj=0; iObj<objects->size(); iObj++) {
-	  const T& obj = objects->at(iObj);
-	  if (!objCut_(obj)) continue;
-            double dr2 = deltaR2(*probe, obj);
+        for (object = objects->begin(); object != endobjects; ++object) {
+            if (!objCut_(*object)) continue;
+            double dr2 = deltaR2(*probe, *object);
             if (dr2 < dr2min) { dr2min = dr2; }
         }
         values.push_back(sqrt(dr2min));
@@ -106,21 +84,6 @@ DeltaRNearestObjectComputer<T>::produce(edm::Event & iEvent, const edm::EventSet
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-// plugin definition
-////////////////////////////////////////////////////////////////////////////////
-
-typedef DeltaRNearestObjectComputer<reco::Candidate>     DeltaRNearestCandidateComputer;
-typedef DeltaRNearestObjectComputer<reco::Muon>          DeltaRNearestMuonComputer;
-typedef DeltaRNearestObjectComputer<reco::Electron>      DeltaRNearestElectronComputer;
-typedef DeltaRNearestObjectComputer<reco::GsfElectron>   DeltaRNearestGsfElectronComputer;
-typedef DeltaRNearestObjectComputer<reco::Photon>        DeltaRNearestPhotonComputer;
-typedef DeltaRNearestObjectComputer<reco::Jet>           DeltaRNearestJetComputer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(DeltaRNearestCandidateComputer);          
-DEFINE_FWK_MODULE(DeltaRNearestMuonComputer);          
-DEFINE_FWK_MODULE(DeltaRNearestElectronComputer);          
-DEFINE_FWK_MODULE(DeltaRNearestGsfElectronComputer);          
-DEFINE_FWK_MODULE(DeltaRNearestPhotonComputer);          
-DEFINE_FWK_MODULE(DeltaRNearestJetComputer);          
+DEFINE_FWK_MODULE(DeltaRNearestObjectComputer);

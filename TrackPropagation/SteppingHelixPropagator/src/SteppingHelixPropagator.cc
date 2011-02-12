@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2010/04/20 13:45:33 $
- *  $Revision: 1.73 $
+ *  $Date: 2010/10/03 17:23:11 $
+ *  $Revision: 1.74 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.73 2010/04/20 13:45:33 elmer Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.74 2010/10/03 17:23:11 elmer Exp $
 //
 //
 
@@ -665,6 +665,18 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
 
   GlobalPoint gPointNegZ(svCurrent.r3.x(), svCurrent.r3.y(), -fabs(svCurrent.r3.z()));
   GlobalPoint gPointNorZ(svCurrent.r3.x(), svCurrent.r3.y(), svCurrent.r3.z());
+
+  float gpmag = gPointNegZ.mag2();
+  if (gpmag > 1e20f ) {
+    LogTrace(metname)<<"Initial point is too far";
+    svCurrent.isValid_ = false;
+    return;
+  }
+  if (! (gpmag == gpmag) ) {
+    LogTrace(metname)<<"Initial point is a nan";
+    svCurrent.isValid_ = false;
+    return;
+  }
 
   GlobalVector bf(0,0,0);
   // = field_->inTesla(gPoint);

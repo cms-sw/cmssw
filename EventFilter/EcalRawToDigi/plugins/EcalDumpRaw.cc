@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: EcalDumpRaw.cc,v 1.4 2010/12/06 20:35:02 wmtan Exp $
+ * $Id: EcalDumpRaw.cc,v 1.1 2010/06/30 08:46:20 pgras Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  *
@@ -16,13 +16,13 @@
 #include <sys/time.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 
 // FE BX counter starts at 0, while OD BX starts at 1.
 // For some reason, I do not understand myself,
@@ -133,7 +133,6 @@ EcalDumpRaw::EcalDumpRaw(const edm::ParameterSet& ps):
   amplCut_(ps.getUntrackedParameter<double>("amplCut", 5.)),
   dump_(ps.getUntrackedParameter<bool>("dump", true)),
   dumpAdc_(ps.getUntrackedParameter<bool>("dumpAdc", true)),
-  l1aHistory_(ps.getUntrackedParameter<bool>("l1aHistory", true)),
   //  doHisto_(ps.getUntrackedParameter<bool>("doHisto", true)),
   maxEvt_(ps.getUntrackedParameter<int>("maxEvt", 10000)),
   profileFedId_(ps.getUntrackedParameter<int>("profileFedId", 0)),
@@ -158,7 +157,6 @@ EcalDumpRaw::EcalDumpRaw(const edm::ParameterSet& ps):
   orbits_(36+2),
   tpg_(maxTccsPerDcc_, std::vector<int>(maxTpgsPerTcc_)),
   nTpgs_(maxTccsPerDcc_, 0),
-  dccChStatus_(70, 0),
   srpL1a_(-1),
   tccL1a_(-1),
   nTts_(-1),
@@ -226,33 +224,14 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
   edm::Handle<FEDRawDataCollection> rawdata;
   event.getByType(rawdata);
 
-  if(dump_ || l1aHistory_) cout << "\n======================================================================\n"
-                                << toNth(iEvent_)
-                                << " read event. "
-                                << "Event id: "
-                                << " " << eventId_
-                                << "\n----------------------------------------------------------------------\n";
-  
-  if(l1aHistory_){
-    edm::Handle<L1AcceptBunchCrossingCollection> l1aHist;
-    event.getByType(l1aHist);
-    if(!l1aHist.isValid() || l1aHist->size() == 0){
-      cout << "L1A history not found.\n";
-    } else{
-      cout << "L1A history: \n";
-      for(L1AcceptBunchCrossingCollection::const_iterator it = l1aHist->begin();
-          it != l1aHist->end();
-            ++it){
-        cout << "L1A offset: " <<  it->l1AcceptOffset() << "\t"
-             << "BX: " <<  it->bunchCrossing() << "\t"
-             << "Orbit ID: " << it->orbitNumber() << "\t"
-             << "Trigger type: " << it->eventType() << " ("
-             << trigNames[it->eventType()&0xF] << ")\n";
-        }
-    }
-    cout << "----------------------------------------------------------------------\n";
-  }
-  
+
+  if(dump_) cout << "\n----------------------------------------------------------------------\n"
+                 << toNth(iEvent_)
+                 << " read event. "
+                 << "Event id: "
+                 << " " << eventId_
+                 << "\n----------------------------------------------------------------------\n";
+
   if(eventId_ < minEventId_) minEventId_ = eventId_;
   if(eventId_ > maxEventId_) maxEventId_ = eventId_;
 
@@ -277,7 +256,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
 
     if (data.size()>4){
       ++iFed;
-      if ((data.size() % 8) !=0){
+      if ((data.size() %16) !=0){
         cout << "***********************************************\n";
         cout << " Fed size in bits not multiple of 64, strange.\n";
         cout << "***********************************************\n";
@@ -305,8 +284,6 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
 
       fill(nTpgs_.begin(), nTpgs_.end(), 0);
 
-      fill(dccChStatus_.begin(), dccChStatus_.end(), 0);
-      
       bool rc;
       for(size_t iWord32=0; iWord32 < nWord32; iWord32+=2){
         s.str("");
@@ -326,6 +303,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
                << s.str() << "\n";
         }
       }
+      if(dump_) cout << "\n";
 
       if(iFed==1){
         refDccId = dccId_;
@@ -349,14 +327,14 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
         cerr << "Bx discrepancy between SRP and DCC, Bx(SRP) = "
              << srpBx_ << ", Bx(DCC) = " << bx_
              << " in " << toNth(iEvent_) << " event, FED "
-             << id << endl;
+             << id << "\n";
       }
 
       if(tccBx_!=-1 && tccBx_!=bx_){
         cerr << "Bx discrepancy between TCC and DCC, Bx(TCC) = "
              << srpBx_ << ", Bx(DCC) = " << bx_
              << " in " << toNth(iEvent_) << " event, FED "
-             << id << endl;
+             << id << "\n";
       }
 
       bool feBxErr = false;
@@ -367,19 +345,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
         } else{
           expectedFeBx = (bx_==3564) ? 0 : bx_;
         }
-        if(feBx_[i]!=-1 && feBx_[i]!=expectedFeBx){
-          cerr << "BX error for " << toNth(i+1) << " RU, RU ID "
-               << feRuId_[i];
-          if((unsigned) feRuId_[i] <= dccChStatus_.size()){
-            bool detected = (dccChStatus_[feRuId_[i]-1] == 10 || dccChStatus_[feRuId_[i]-1] == 11);
-            cerr << (detected?" ":" not ") << "detected by DCC (ch status: "
-                 << dccChStatus_[feRuId_[i]-1] << ")";
-          }
-          cerr << " in " << toNth(iEvent_) << " event, FED "
-               << id << "." << endl;
-          
-          feBxErr = true;
-        }
+        if(feBx_[i]!=-1 && feBx_[i]!=bx_-1+feBxOffset) feBxErr = true;
       }
       if(feBxErr) cerr << "Bx discrepancy between DCC and at least one FE"
                        << " in " << toNth(iEvent_) << " event, FED "
@@ -391,7 +357,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
         cerr << "Discrepancy between SRP and DCC L1a counter, L1a(SRP) = "
              << srpL1a_ << ", L1a(DCC) & 0xFFF = " << localL1a
              << " in " << toNth(iEvent_) << " event, FED "
-             << id << endl;
+             << id << "\n";
 
       }
 
@@ -399,22 +365,14 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
         cerr << "Discrepancy between TCC and DCC L1a counter, L1a(TCC) = "
              << srpL1a_ << ", L1a(DCC) & 0xFFF = " << localL1a
              << " in " << toNth(iEvent_) << " event, FED "
-             << id << endl;
+             << id << "\n";
 
       }
 
       bool feL1aErr = false;
       for(int i=0; i < nRu_; ++i){
         if(feL1a_[i]!=-1 && feL1a_[i]!=localL1a-1){
-          cerr << "FE L1A error for " << toNth(i+1) << " RU, RU ID "
-               << feRuId_[i];
-          if((unsigned) feRuId_[i] <= dccChStatus_.size()){
-            bool detected = (dccChStatus_[feRuId_[i]-1] == 9 || dccChStatus_[feRuId_[i]-1] == 11);
-            cerr << (detected?" ":" not ") << "detected by DCC (ch status: "
-                 << dccChStatus_[feRuId_[i]-1] << ")";
-          }
-          cerr << " in " << toNth(iEvent_) << " event, FED "
-               << id << "." << endl;
+          cout << "FE L1A error for RU " << (i+1) << endl;
           feL1aErr = true;
         }
       }
@@ -427,14 +385,12 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
       if(iTow_>0 && iTow_< nRu_ && feRuId_[iTow_] < feRuId_[iTow_-1]){
         cerr << "Error in RU ID (TT/SC ID)"
              << " in " << toNth(iEvent_) << " event, FED "
-             << id << endl;
+             << id << "\n";
       }
 
       if (beg_fed_id_ <= id && id <= end_fed_id_ && writeDcc_){
         dumpFile_.write( reinterpret_cast <const char *> (pData), nWord32*4);
       }
-      
-      if(dump_) cout << "\n";
     } else{
       //      cout << "No data for FED " <<  id << ". Size = "
       //     << data.size() << " byte(s).\n";
@@ -445,9 +401,8 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
                  << iFed << "\n";
 
   if(dccIdErr){
-    cout << flush;
     cerr << "DCC ID discrepancy in detailed trigger type "
-         << " of " << toNth(iEvent_) << " event." << endl;
+         << " of " << toNth(iEvent_) << " event.\n";
   }
   int bx = -1;
   if(!outOfSync){
@@ -543,7 +498,7 @@ bool EcalDumpRaw::decode(const uint32_t* data, int iWord64, ostream& out){
                 << " (" << colorNames[(data[1]>>6)&0x3] << ")"
                 << " DCC ID: " << dccId_;
       int l;
-      if(dccId_>=10 && dccId_<=46 && side_ <= 1){ // side_ >=0, since side is unsigned
+      if(dccId_>=10 && dccId_<=46 && side_ <= 1){ // side >= 0, since side is unsigned
         l = lme(dccId_, side_);
       } else{
         l = -1;//indicates error
@@ -578,28 +533,22 @@ bool EcalDumpRaw::decode(const uint32_t* data, int iWord64, ostream& out){
     case 7:
     case 8:
       {
-        int chOffset = (dccHeaderId-4)*14;
-        dccChStatus_[13+chOffset] = ((data[1] >>20) & 0xF);
-        dccChStatus_[12+chOffset] = ((data[1] >>16) & 0xF);
-        dccChStatus_[11+chOffset] = ((data[1] >>12) & 0xF);
-        dccChStatus_[10+chOffset] = ((data[1] >>8 ) & 0xF);
-        dccChStatus_[ 9+chOffset] = ((data[1] >>4 ) & 0xF);
-        dccChStatus_[ 8+chOffset] = ((data[1] >>0)  & 0xF);
-        dccChStatus_[ 7+chOffset] = ((data[0] >>28) & 0xF);
-        dccChStatus_[ 6+chOffset] = ((data[0] >>24) & 0xF);
-        dccChStatus_[ 5+chOffset] = ((data[0] >>20) & 0xF);
-        dccChStatus_[ 4+chOffset] = ((data[0] >>16) & 0xF);
-        dccChStatus_[ 3+chOffset] = ((data[0] >>12) & 0xF);
-        dccChStatus_[ 2+chOffset] = ((data[0] >>8 ) & 0xF);
-        dccChStatus_[ 1+chOffset] = ((data[0] >>4 ) & 0xF);
-        dccChStatus_[ 0+chOffset] = ((data[0] >>0 ) & 0xF);
-        
-        if(d){
-          out << "FE CH status:";
-          for(int i = chOffset; i < chOffset + 14; ++i){
-            out << " #" << (i+1) << ":" << dccChStatus_[i];
-          }
-        }
+      int chOffset = (dccHeaderId-4)*14;
+      if(d) out << "FE CH status:"
+                << " #" << 14+chOffset << ":" << ((data[1] >>20) & 0xF)
+                << " #" << 13+chOffset << ":" << ((data[1] >>16) & 0xF)
+                << " #" << 12+chOffset << ":" << ((data[1] >>12) & 0xF)
+                << " #" << 11+chOffset << ":" << ((data[1] >>8 ) & 0xF)
+                << " #" << 10+chOffset << ":" << ((data[1] >>4 ) & 0xF)
+                << " #" <<  9+chOffset << ":" << ((data[1] >>0)  & 0xF)
+                << " #" <<  8+chOffset << ":" << ((data[0] >>28) & 0xF)
+                << " #" <<  7+chOffset << ":" << ((data[0] >>24) & 0xF)
+                << " #" <<  6+chOffset << ":" << ((data[0] >>20) & 0xF)
+                << " #" <<  5+chOffset << ":" << ((data[0] >>16) & 0xF)
+                << " #" <<  4+chOffset << ":" << ((data[0] >>12) & 0xF)
+                << " #" <<  3+chOffset << ":" << ((data[0] >>8 ) & 0xF)
+                << " #" <<  2+chOffset << ":" << ((data[0] >>4 ) & 0xF)
+                << " #" <<  1+chOffset << ":" << ((data[0] >>0 ) & 0xF);
       }
       break;
     default:
@@ -632,11 +581,10 @@ bool EcalDumpRaw::decode(const uint32_t* data, int iWord64, ostream& out){
         if(fedId_ < 628) tccType_ = ebmTcc_;
         else tccType_ = ebpTcc_;
       } else if(nTts_ == 16){//Inner EE TCC (TCC48)
-        tccType_ = eeOuterTcc_;
-      } else if(nTts_ == 28){//Outer EE TCC (TCC48)
         tccType_ = eeInnerTcc_;
+      } else if(nTts_ == 28){//Outer EE TCC (TCC48)
+        tccType_ = eeOuterTcc_;
       } else {
-        cout << flush;
         cerr << "Error in #TT field of TCC block."
           "This field is normally used to determine type of TCC "
           "(TCC48 or TCC68). Type of TCC will be deduced from the TCC ID.\n";
@@ -650,7 +598,6 @@ bool EcalDumpRaw::decode(const uint32_t* data, int iWord64, ostream& out){
           cerr << "TCC ID is also invalid. EB- TCC type will be assumed.\n";
           tccType_ = ebmTcc_;
         }
-        cerr << flush;
       }
       tccBlockLen64_ = (tccType_==ebmTcc_ || tccType_==ebpTcc_) ? 18 : 9;        
     } else{// if(iTccWord64_<18){

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # prepare reco information
 from PhysicsTools.PatAlgos.recoLayer0.pfCandidateIsoDepositSelection_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.tauIsolation_cff import *
-#from PhysicsTools.PatAlgos.recoLayer0.tauDiscriminators_cff import *
+from PhysicsTools.PatAlgos.recoLayer0.tauDiscriminators_cff import *
 
 # add PAT specifics
 from PhysicsTools.JetMCAlgos.TauGenJets_cfi import *

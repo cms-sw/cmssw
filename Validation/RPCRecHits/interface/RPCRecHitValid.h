@@ -1,40 +1,73 @@
-#ifndef Validation_RPCRecHits_RPCRecHitValid_h
-#define Validaiton_RPCRecHits_RPCRecHitValid_h
+#ifndef RPCRecHitValid_h
+#define RPCRecHitValid_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+
+#include <iostream>
+#include <string>
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include <string>
+class  RPCRecHitValid: public edm::EDAnalyzer {
 
-class RPCRecHitValid : public edm::EDAnalyzer
-{
-public:
-  RPCRecHitValid(const edm::ParameterSet& pset);
-  ~RPCRecHitValid();
+ public:
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
-  void beginJob();
-  void endJob();
+  RPCRecHitValid(const edm::ParameterSet& ps);
+    ~RPCRecHitValid();
 
-private:
-  edm::InputTag simHitLabel_, recHitLabel_;
+ protected:
+     void analyze(const edm::Event& e, const edm::EventSetup& c);
+     void beginJob();
+     void endJob(void);
 
-  DQMStore* dbe_;
-  std::string rootFileName_;
-  bool isStandAloneMode_;
+ private:
 
-  typedef MonitorElement* MEP;
-  
-  std::map<int, MEP> h_;
+     MonitorElement* Res;
+     MonitorElement* ResWmin2;
+     MonitorElement* ResWmin1;
+     MonitorElement* ResWzer0;
+     MonitorElement* ResWplu1;
+     MonitorElement* ResWplu2;
+     MonitorElement* ResS1;
+     MonitorElement* ResS3;
+
+     MonitorElement* Rechisto;
+     MonitorElement* Simhisto;
+     MonitorElement* Pulls;
+     MonitorElement* ClSize;
+     
+     MonitorElement* res1cl;
+     
+     MonitorElement* occRB1IN;
+     MonitorElement* occRB1OUT;
+     
+     DQMStore* dbe_;
+     std::string rootFileName;
+
 };
+
+
+
 
 #endif

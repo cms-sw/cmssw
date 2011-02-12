@@ -139,14 +139,12 @@ namespace lumi{
       pathcontent.hltconfigid=row["hltconfigid"].data<unsigned int>();
       if(currentLumiSection != lastLumiSection){
 	hltresult.push_back(allpaths);
-	//npath=allpaths.size();
+	npath=allpaths.size();
 	allpaths.clear();
       }
       lastLumiSection=currentLumiSection;
       allpaths.push_back(pathcontent);
-      npath=allpaths.size();
     }
-    hltresult.push_back(allpaths);
     cursor2.close();
     delete q2;
     srcsession->transaction().commit();
@@ -169,7 +167,7 @@ namespace lumi{
     std::vector< std::vector<HLT2DB::hltinfo> >::const_iterator hltEnd=hltresult.end();
     
     try{
-       std::cout<<"\t allocating total ids "<<totalcmsls*npath<<std::endl; 
+      std::cout<<"\t allocating total ids "<<totalcmsls*npath<<std::endl; 
       destsession->transaction().start(false);
       lumi::idDealer idg(destsession->nominalSchema());
       unsigned long long hltID = idg.generateNextIDForTable(LumiNames::hltTableName(),totalcmsls*npath)-totalcmsls*npath;

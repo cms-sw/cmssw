@@ -48,6 +48,10 @@ def customisePPData(process):
     process.hfreco.PETstat.flagsToSkip  = 2
     process.hfreco.S8S1stat.flagsToSkip = 18
     process.hfreco.S9S1stat.flagsToSkip = 26
+
+    ##Ecal time bias correction
+    process.ecalGlobalUncalibRecHit.doEBtimeCorrection = True
+    process.ecalGlobalUncalibRecHit.doEEtimeCorrection = True
     
     return process
 

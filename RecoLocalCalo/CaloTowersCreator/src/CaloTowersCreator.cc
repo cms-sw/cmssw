@@ -5,7 +5,7 @@
 #include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
 
 // severity level for ECAL
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+//#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 const std::vector<double>& 
 CaloTowersCreator::getGridValues()
@@ -144,10 +144,8 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
   c.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
   const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
-
-  edm::ESHandle<EcalSeverityLevelAlgo> ecalSevLvlAlgoHndl;
-  c.get<EcalSeverityLevelAlgoRcd>().get(ecalSevLvlAlgoHndl);
-  const EcalSeverityLevelAlgo* ecalSevLvlAlgo = ecalSevLvlAlgoHndl.product();
+ 
+  const EcalSeverityLevelAlgo* ecalSevLvlAlgo = new EcalSeverityLevelAlgo();
 
   
   algo_.setEBEScale(EBEScale);
@@ -256,6 +254,9 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   // Step D: Put into the event
   if (EScales.instanceLabel=="") e.put(prod);
   else e.put(prod,EScales.instanceLabel);
+
+
+  if (ecalSevLvlAlgo) delete ecalSevLvlAlgo;
 
 
 }

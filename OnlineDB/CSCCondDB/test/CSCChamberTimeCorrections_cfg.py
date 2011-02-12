@@ -9,13 +9,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("ProcessOne")
 #PopCon config
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-#process.CondDBCommon.connect = cms.string("sqlite_file:CSCChamberTimeCorrections_data_new.db")
-process.CondDBCommon.connect = cms.string("sqlite_file:/afs/cern.ch/user/d/deisher/public/test_anode_offsets_mc.db")
+process.CondDBCommon.connect = cms.string("sqlite_file:CSCChamberTimeCorrections_data_new.db")
+#process.CondDBCommon.connect = cms.string("sqlite_file:/afs/cern.ch/user/d/deisher/CMSSW_3_7_0_pre3/src/CalibMuon/CSCCalibration/test/test_chipCorr_and_chamberCorr_before_133826.db")
 #process.CondDBCommon.connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_CSC")
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb' 
+process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet( 
+    cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
@@ -36,7 +36,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     logconnect = cms.untracked.string('sqlite_file:cables.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('CSCChamberTimeCorrectionsRcd'),
-        tag = cms.string('CSCChamberTimeCorrections_testanode')
+        tag = cms.string('CSCChamberTimeCorrections')
     ))
 )
 

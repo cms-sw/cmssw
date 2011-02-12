@@ -30,11 +30,10 @@ private:
   edm::InputTag trigTag_;
   edm::InputTag muonTag_;
   edm::InputTag metTag_;
-  //bool metIncludesMuons_; plain met not supported anymore, default is pfMet
+  bool metIncludesMuons_;
   edm::InputTag jetTag_;
-  edm::InputTag vertexTag_;
 
-  const std::vector<std::string>  muonTrig_;
+  const std::string muonTrig_;
   double ptCut_;
   double etaCut_;
   bool isRelativeIso_;
@@ -49,10 +48,7 @@ private:
   double dxyCut_;
   double normalizedChi2Cut_;
   int trackerHitsCut_;
-  int pixelHitsCut_;
-  int muonHitsCut_;
   bool isAlsoTrackerMuon_;
-  int nMatchesCut_;  
 
   double ptThrForZ1_;
   double ptThrForZ2_;
@@ -127,11 +123,6 @@ private:
   MonitorElement* dimuonSASAmass_before_;
   MonitorElement* dimuonSASAmass_after_;
 
-  MonitorElement* npvs_before_;
-  MonitorElement* npvs_after_;
-
-  MonitorElement* muoncharge_before_;
-  MonitorElement* muoncharge_after_;
 
   MonitorElement* ptmuonZ_after_;
 };

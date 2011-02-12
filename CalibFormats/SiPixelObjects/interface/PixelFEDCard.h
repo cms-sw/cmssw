@@ -154,26 +154,6 @@ namespace pos{
     //VME base address 
     unsigned long FEDBASE_0, fedNumber;
 
-    // Most recent additions requested by Will and Danek (Dario)
-    int BusyHoldMin       ;
-    int BusyWhenBehind    ;
-    int FeatureRegister   ;
-    int FIFO2Limit    	  ;
-    int LastDacOff    	  ;
-    int SimHitsPerRoc 	  ;
-    int TimeoutOROOSLimit ;
-    int TriggerHoldoff    ;
-    int SPARE1  	  ;
-    int SPARE2  	  ;
-    int SPARE3  	  ;
-    int SPARE4  	  ;
-    int SPARE5  	  ;
-    int SPARE6  	  ;
-    int SPARE7  	  ;
-    int SPARE8  	  ;
-    int SPARE9  	  ;
-    int SPARE10 	  ;
-    
  private: 
  
     // Added by Dario (March 26th 2008)

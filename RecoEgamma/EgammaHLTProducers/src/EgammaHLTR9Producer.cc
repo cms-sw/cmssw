@@ -62,12 +62,11 @@ EgammaHLTR9Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float r9 = -1;
 
     if (useSwissCross_){
-      // I guess this can be removed completely
       DetId maxEId = (lazyTools.getMaximum(*(recoecalcandref->superCluster()->seed()) )).first;
       //float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollection & recHits, float recHitEtThreshold )
       edm::Handle< EcalRecHitCollection > pEBRecHits;
       iEvent.getByLabel( ecalRechitEBTag_, pEBRecHits );
-      r9 = -1;//EcalSeverityLevelAlgo::swissCross( maxEId, *(pEBRecHits.product()), 0. );
+      r9 = EcalSeverityLevelAlgo::swissCross( maxEId, *(pEBRecHits.product()), 0. );
     }
     else{
     float e9 = lazyTools.e3x3( *(recoecalcandref->superCluster()->seed()) );

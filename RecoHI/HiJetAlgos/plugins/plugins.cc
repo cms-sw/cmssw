@@ -13,5 +13,3 @@ DEFINE_EDM_PLUGIN(PileUpSubtractorFactory,ParametrizedSubtractor,"ParametrizedSu
 
 
 
-
-

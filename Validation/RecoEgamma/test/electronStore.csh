@@ -10,34 +10,30 @@
 # If you prefer to set the variables and run this script directly,
 # here they are :
 #
-#   $1 : when present, its value is duplicated into STORE_FILE.
-#   $... : when present, other arguments are duplicated into STORE_LOGS.
+# $1 : eventual first command-line argument, immediatly duplicated into STORE_ENV,
+#   is the name of the current context, used to build some default value
+#   for STORE_FILE.
+# $2 : eventual second command-line argument, immediatly duplicated into STORE_OUTPUT_FILE,
+#   is the default base name of the files containing the histograms ; it is
+#   also used to build some default value for STORE_FILE.
 #
-# Mandatory variables :
+# STORE_RELEASE : chosen name for the new release to validate ; used in web pages
+#   and used to build the path where the web pages will be stored.
 #
-#   STORE_WEB : base directory where all the files are stored.
-#   STORE_RELEASE : chosen name for the new release to validate ; used
-#     in web pages and used to build the path where the web pages will be stored.
-#
-# Optional variables, eventually overloaded by command-line arguments :
-#
-#   STORE_FILE : path of the ROOT file containing the histograms.
-#   STORE_LOGS : path of the associated log files (expected to end with .olog),
-#     which will also be compressed.
+# STORE_FILE : complete path of the ROOT file containing the histograms.
+#   If not set, a default value is computed, based on 1st command line argument,
+#   2nd command line argument and current directory.
+# 
+# STORE_LOGS : complete path of the associated log files.
 # 
 #=========================================================================================
 
 
-#============== Comand-line arguments ==================
+#============== Core config ==================
 
-if ( "$1" != "" ) then
-  setenv STORE_FILE "$1"
-  shift
-endif
-
-if ( "$*" != "" ) then
-  setenv STORE_LOGS "$*"
-endif
+setenv STORE_ENV $1
+setenv STORE_OUTPUT_FILE $2
+setenv STORE_ORIGINAL_DIR $cwd
 
 #============== Prepare output directory ==================
 
@@ -67,6 +63,13 @@ if ( ${?STORE_FILE} == "0" ) setenv STORE_FILE ""
 if ( ${?STORE_LOGS} == "0" ) setenv STORE_LOGS ""
 
 if ( ${STORE_FILE} == "" ) then
+  if ( -r "${STORE_ORIGINAL_DIR}/cmsRun.${STORE_ENV}.olog.${STORE_OUTPUT_FILE}" ) then
+    setenv STORE_FILE "${STORE_ORIGINAL_DIR}/cmsRun.${STORE_ENV}.olog.${STORE_OUTPUT_FILE}"
+    setenv STORE_LOGS "${STORE_ORIGINAL_DIR}/*.${STORE_ENV}.olog"
+  endif
+endif
+
+if ( ${STORE_FILE} == "" ) then
   echo "Do not know which file to copy !"
   exit 3
 endif
@@ -78,11 +81,6 @@ else
   exit 4
 endif
   
-if ( "${STORE_LOGS}" != "" ) then
-  echo "STORE_LOGS = ${STORE_LOGS}"
-endif
-  
-
 #============== Copy ==================
 
 echo cp $STORE_FILE $OUTPUT_DIR
@@ -91,7 +89,6 @@ cp -f $STORE_FILE $OUTPUT_DIR
 if ( "${STORE_LOGS}" != "" ) then
   echo cp ${STORE_LOGS} $OUTPUT_DIR
   cp -f ${STORE_LOGS} $OUTPUT_DIR
-  echo "cd $OUTPUT_DIR && gzip -f *.olog"
-  cd $OUTPUT_DIR && gzip -f *.olog
+  gzip -f $OUTPUT_DIR/*.olog
 endif
 

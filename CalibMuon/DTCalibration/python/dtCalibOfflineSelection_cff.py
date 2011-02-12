@@ -19,8 +19,7 @@ bscAnd.L1SeedsLogicalExpression = cms.string('40 OR 41')
 beamHaloVeto = l1tech.clone()
 beamHaloVeto.L1SeedsLogicalExpression = cms.string('NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
 
-#l1Coll = cms.Sequence(bptx + beamHaloVeto)
-l1Coll = cms.Sequence(bptx)
+l1Coll = cms.Sequence(bptx + beamHaloVeto)
 l1CollBscAnd = cms.Sequence(bptx + bscAnd + beamHaloVeto)
 
 primaryVertexFilter = cms.EDFilter("VertexSelector",
@@ -60,20 +59,18 @@ hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
 
 goodMuons = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2 & pt > 5.0'),
-    filter = cms.bool(True) 
+    cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2')
 )
-#muonFilter = cms.EDFilter("CandViewCountFilter",
-#    src = cms.InputTag("goodMuons"),
-#    minNumber = cms.uint32(1)
-#)
-#muonSelection = cms.Sequence(goodMuons * muonFilter)
-muonSelection = cms.Sequence(goodMuons)
+muonFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("goodMuons"),
+    minNumber = cms.uint32(1)
+)
+muonSelection = cms.Sequence(goodMuons * muonFilter)
 
 #offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + hltDTActivityFilter + muonSelection)
 offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelection)
-#offlineSelectionALCARECO = cms.Sequence(hltDTActivityFilter)
-offlineSelectionALCARECO = cms.Sequence(muonSelection)
+offlineSelectionALCARECO = cms.Sequence(hltDTActivityFilter)
+#offlineSelectionALCARECO = cms.Sequence(muonSelection)
 
-dtCalibOfflineSelection = cms.Sequence(offlineSelection)
-dtCalibOfflineSelectionALCARECO = cms.Sequence(offlineSelectionALCARECO)
+dtCalibOfflineSelection = cms.Sequence(l1Coll + offlineSelection)
+dtCalibOfflineSelectionALCARECO = cms.Sequence(l1CollBscAnd + offlineSelectionALCARECO)

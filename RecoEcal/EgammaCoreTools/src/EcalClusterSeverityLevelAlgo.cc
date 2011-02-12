@@ -1,14 +1,12 @@
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterSeverityLevelAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 float EcalClusterSeverityLevelAlgo::goodFraction( const reco::CaloCluster & cluster, 
-						  const EcalRecHitCollection & recHits, const EcalSeverityLevelAlgo& sevlv) 
+                                                   const EcalRecHitCollection & recHits, const EcalChannelStatus & chStatus) 
 {
         float fraction = 0.;
         std::vector< std::pair<DetId, float> > hitsAndFracs = cluster.hitsAndFractions();
@@ -20,8 +18,7 @@ float EcalClusterSeverityLevelAlgo::goodFraction( const reco::CaloCluster & clus
                         edm::LogError("EcalClusterSeverityLevelAlgo") << "The cluster DetId " << id.rawId() << " is not in the recHit collection!!";
                         return -1;
                 }
-		      
-                uint32_t sev = sevlv.severityLevel( id, recHits);
+                uint32_t sev = EcalSeverityLevelAlgo::severityLevel( id, recHits, chStatus );
 		//                if ( sev == EcalSeverityLevelAlgo::kBad ) ++recoveryFailed;
                 if ( sev == EcalSeverityLevelAlgo::kProblematic 
                      || sev == EcalSeverityLevelAlgo::kRecovered || sev == EcalSeverityLevelAlgo::kBad ) 
@@ -34,9 +31,9 @@ float EcalClusterSeverityLevelAlgo::goodFraction( const reco::CaloCluster & clus
 }
 
 float EcalClusterSeverityLevelAlgo::fractionAroundClosestProblematic( const reco::CaloCluster & cluster, 
-								      const EcalRecHitCollection & recHits, const CaloTopology* topology, const EcalSeverityLevelAlgo& sevlv )
+                                                   const EcalRecHitCollection & recHits, const EcalChannelStatus & chStatus, const CaloTopology* topology )
 {
-  DetId closestProb = closestProblematic(cluster , recHits, topology, sevlv);
+  DetId closestProb = closestProblematic(cluster , recHits, chStatus, topology);
   //  std::cout << "%%%%%%%%%%% Closest prob is " << EBDetId(closestProb) << std::endl;
   if (closestProb.null())
     return 0.;
@@ -73,8 +70,8 @@ float EcalClusterSeverityLevelAlgo::fractionAroundClosestProblematic( const reco
 }
 
 DetId EcalClusterSeverityLevelAlgo::closestProblematic(const reco::CaloCluster & cluster, 
-						     const EcalRecHitCollection & recHits, 
-						       const CaloTopology* topology ,  const EcalSeverityLevelAlgo& sevlv)
+						     const EcalRecHitCollection & recHits, const EcalChannelStatus & chStatus , 
+						      const CaloTopology* topology )
 {
   DetId seed=EcalClusterTools::getMaximum(cluster,&recHits).first;
   if ( (seed.det() != DetId::Ecal) || 
@@ -94,8 +91,8 @@ DetId EcalClusterSeverityLevelAlgo::closestProblematic(const reco::CaloCluster &
       EcalRecHitCollection::const_iterator jrh = recHits.find(*it);
       if ( jrh == recHits.end() ) 
 	continue;
-      //Now checking rh flag   
-      uint32_t sev = sevlv.severityLevel( *it, recHits);
+      //Now checking rh flag
+      uint32_t sev = EcalSeverityLevelAlgo::severityLevel( *it, recHits, chStatus );
       if (sev == EcalSeverityLevelAlgo::kGood)
 	continue;
       //      std::cout << "[closestProblematic] Found a problematic channel " << EBDetId(*it) << " " << flag << std::endl;
@@ -110,8 +107,8 @@ DetId EcalClusterSeverityLevelAlgo::closestProblematic(const reco::CaloCluster &
 }
 
 std::pair<int,int> EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblematic( const reco::CaloCluster & cluster, 
-						     const EcalRecHitCollection & recHits, 
-										   const CaloTopology* topology,  const EcalSeverityLevelAlgo& sevlv )
+						     const EcalRecHitCollection & recHits, const EcalChannelStatus & chStatus , 
+						      const CaloTopology* topology )
 {
   DetId seed=EcalClusterTools::getMaximum(cluster,&recHits).first;
   if ( (seed.det() != DetId::Ecal) || 
@@ -122,7 +119,7 @@ std::pair<int,int> EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblemati
       return std::pair<int,int>(-1,-1);
     }
 
-  DetId closestProb = closestProblematic(cluster , recHits, topology, sevlv);
+  DetId closestProb = closestProblematic(cluster , recHits, chStatus, topology);
 
   if (! closestProb.null())
     return std::pair<int,int>(EBDetId::distanceEta(EBDetId(seed),EBDetId(closestProb)),EBDetId::distancePhi(EBDetId(seed),EBDetId(closestProb)));

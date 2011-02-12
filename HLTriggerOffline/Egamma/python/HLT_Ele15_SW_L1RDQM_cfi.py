@@ -5,50 +5,30 @@ HLT_Ele15_SW_L1RDQM = cms.EDAnalyzer("EmDQM",
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(2.0),
     reqNum = cms.uint32(1),
-    filters = cms.VPSet(
-        #----------------------------------------
-        # L1 seed
-        #----------------------------------------
-        cms.PSet(
-            PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1sL1SingleEG8","","HLT"),
-            IsoCollections = cms.VInputTag(cms.InputTag("none")),
-            theHLTOutputTypes = cms.int32(-82)
-        ), 
-
-        #----------------------------------------
-        # Match of cluster to L1 seed
-        #----------------------------------------                                         
+    filters = cms.VPSet(cms.PSet(
+        PlotBounds = cms.vdouble(0.0, 0.0),
+        HLTCollectionLabels = cms.InputTag("hltL1sL1SingleEG8","","HLT"),
+        IsoCollections = cms.VInputTag(cms.InputTag("none")),
+        theHLTOutputTypes = cms.int32(-82)
+    ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15L1MatchFilterRegional","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.int32(92)
         ), 
-
-        #----------------------------------------
-        # Et filter
-        #----------------------------------------
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15EtFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.int32(92)
         ), 
-
-        #----------------------------------------
-        # HCAL isolation
-        #----------------------------------------                                         
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 10.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15HcalIsolFilter","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedElectronHcalIsol","","HLT"), cms.InputTag("hltL1NonIsolatedElectronHcalIsol","","HLT")),
             theHLTOutputTypes = cms.int32(92)
         ), 
-
-        #----------------------------------------
-        # Pixel match
-        #----------------------------------------
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15PixelMatchFilter","","HLT"),

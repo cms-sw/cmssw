@@ -126,54 +126,52 @@ o) EMAIL       = uplegger@cern.ch,yumiceva@fnal.gov
 5) The way I run everything.
    a) Every few days I run the workflow at T0. This is my crab cfg
 //--------------------------------------------------------------------------------------------------
-[CRAB]
-jobtype              = cmssw
-scheduler            = caf
-server_name          = caf_test
+   [CRAB]
+   jobtype		= cmssw
+   scheduler		= caf
+   server_name  	= caf_test
 
-[CAF]
-queue                = cmscaf1nd
+   [CAF]
+   queue		= cmscaf1nd
 
 
-[CMSSW]
+   [CMSSW]
 
-#datasetpath          = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Dec19thReReco_341_v1/ALCARECO
-#datasetpath          = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Dec19thReReco_341_v1/ALCARECO-TEST-1102
-#datasetpath = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Dec19thReReco_341_v1/ALCARECO-TEST-Run[0-9]*-1503
-#datasetpath = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Mar3rdReReco_v2/ALCARECO
-#datasetpath = /StreamExpress/Commissioning10-StreamTkAlMinBias-v9/ALCARECO
-#datasetpath = /StreamExpress/Run2010A-StreamTkAlMinBias-v1/ALCARECO
-#datasetpath = /StreamExpress/Run2010A-TkAlMinBias-v4/ALCARECO
-#datasetpath = /StreamExpress/Run2010B-TkAlMinBias-v1/ALCARECO
-datasetpath = /StreamExpress/Run2010B-TkAlMinBias-v2/ALCARECO
+   #datasetpath 	 = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Dec19thReReco_341_v1/ALCARECO
+   #datasetpath 	 = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Dec19thReReco_341_v1/ALCARECO-TEST-1102
+   #datasetpath = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Dec19thReReco_341_v1/ALCARECO-TEST-Run[0-9]*-1503
+   #datasetpath = /MinimumBias/BeamCommissioning09-StreamTkAlMinBias-Mar3rdReReco_v2/ALCARECO
+   #datasetpath = /StreamExpress/Commissioning10-StreamTkAlMinBias-v9/ALCARECO
+   #datasetpath = /StreamExpress/Run2010A-StreamTkAlMinBias-v1/ALCARECO
+   datasetpath = /StreamExpress/Run2010A-TkAlMinBias-v4/ALCARECO
 
-pset                 = BeamFit_LumiBased_Workflow.py
+   pset 		= BeamFit_LumiBased_NewAlignWorkflow.py
 
-get_edm_output       = 1
-output_file          = BeamFit_LumiBased_Workflow.txt,BeamFit_LumiBased_Workflow.root
+   get_edm_output	= 1
+   output_file  	= BeamFit_LumiBased_NewAlignWorkflow.txt,BeamFit_LumiBased_NewAlignWorkflow.root
 
-[USER]
-ui_working_dir       = crab_LumiBased_express_T0_v3
-# return data to local disk, change to 1
-return_data          = 0
-#user_remote_dir      = ShortWorkflow
-# return data to SE, change to 1
-copy_data            = 1
-storage_element      = T2_CH_CAF
-# area /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/RunBased
-user_remote_dir      = Workflows/381_patch3/express_T0_v3
+   [USER]
+   ui_working_dir	= crab_LumiBased_express_T0_v11
+   # return data to local disk, change to 1
+   return_data  	= 0
+   #user_remote_dir	 = ShortWorkflow
+   # return data to SE, change to 1
+   copy_data		= 1
+   storage_element	= T2_CH_CAF 
+   # area /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/RunBased
+   user_remote_dir	= Workflows/361_patch4/express_T0_v11_1
 
-[WMBS]
+   [WMBS]
 
-automation           = 1
-feeder               = T0AST
-#feeder               = DBS
-startrun             = 149415
-splitting_algorithm  = RunBased
-split_per_job        = files_per_job
-split_value          = 1
-processing           = express
-
+   automation		= 1
+   feeder		= T0AST
+   #feeder		 = DBS
+   startrun		= 140251
+   splitting_algorithm  = RunBased
+   split_per_job	= files_per_job
+   split_value  	= 1
+   processing		= express 
+   #processing  	 = bulk 
 //--------------------------------------------------------------------------------------------------
    b) I start the cron jobs:
      acrontab -e
@@ -182,7 +180,7 @@ processing           = express
 //--------------------------------------------------------------------------------------------------
      using the following cfg file (BeamSpotWorkflow_T0.cfg)
      [Common]
-     SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/381_patch3/express_T0_v3/
+     SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/361_patch4/express_T0_v11_1/
      ARCHIVE_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_archive/
      WORKING_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_tmp
      DBTAG	 = BeamSpotObjects_2009_v13_offline
@@ -246,7 +244,7 @@ processing           = express
      I have 4 cfg files
 //-------------------BeamSpotWorkflow_run.cfg
 [Common]
-SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/381_patch3/express_T0_v3/
+SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/361_patch4/express_T0_v11_1/
 ARCHIVE_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_archive/
 WORKING_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_run
 DBTAG       = BeamSpotObjects_2009_v14_offline
@@ -264,7 +262,7 @@ EMAIL       = uplegger@cern.ch
 
 //-------------------
 [Common]
-SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/381_patch3/express_T0_v3/
+SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/361_patch4/express_T0_v11_1/
 ARCHIVE_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_archive/
 WORKING_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_run_sigmaz
 DBTAG       = BeamSpotObjects_2009_SigmaZ_v14_offline
@@ -282,7 +280,7 @@ EMAIL       = uplegger@cern.ch
 
 //------------------BeamSpotWorkflow_lumi.cfg
 [Common]
-SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/381_patch3/express_T0_v3/
+SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/361_patch4/express_T0_v11_1/
 ARCHIVE_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_archive/
 WORKING_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_lumi
 DBTAG       = BeamSpotObjects_2009_LumiBased_v14_offline
@@ -300,7 +298,7 @@ EMAIL       = uplegger@cern.ch
 
 //----------------BeamSpotWorkflow_lumi_sigmaz.cfg
 [Common]
-SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/381_patch3/express_T0_v3/
+SOURCE_DIR  = /castor/cern.ch/cms/store/caf/user/uplegger/Workflows/361_patch4/express_T0_v11_1/
 ARCHIVE_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_archive/
 WORKING_DIR = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_BSPOT/automated_workflow/good_lumi_sigmaz
 DBTAG       = BeamSpotObjects_2009_LumiBased_SigmaZ_v14_offline
@@ -318,3 +316,8 @@ EMAIL       = uplegger@cern.ch
      
      As you can see the ARCHIVE_DIR are all the same and what changes are just the DBTAG, DB_IOV_BASE and the WORKING_DIR.
      The MISSING_LUMIS_TIMEOUT is set to 0 because I already know that everything went well with the v13 so I don't want to timeout!
+     
+     
+     
+     
+     

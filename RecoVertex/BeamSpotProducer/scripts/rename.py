@@ -2,12 +2,12 @@
 import sys,os,commands,re
 from CommonMethods import *
 def main():
-    sourcePath = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/381_patch3/express_T0_v1"
+    sourcePath = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/andersJetTau/"
 #    sourcePath = "/uscms/home/uplegger/resilient/BeamSpot/"
 #    sourcePath = "Files/"
     sourceDirList = [sourcePath]
     destDirList   = ["Original"]
-    path = "LatestRuns/"
+    path = "Anders/"
     finalDir = path + "Results/"
 
     if not os.path.isdir(path):
@@ -27,7 +27,7 @@ def main():
         if not dirExists(sourceDir):
 	    print sourceDir + " doesn't exist!"
             continue
-        fileList = ls(sourceDir)
+        fileList = ls(sourceDir,".root")
         if not os.path.isdir(destDir):
             error = "WARNING: destination directory doesn't exist! Creating it..."
             print error
@@ -37,10 +37,10 @@ def main():
         #if len(copiedFiles) != len(fileList):
         #    error = "ERROR: I couldn't copy all files"
         #    exit(error)
-#        exit("ok")
+        exit("ok")
         for fileName in copiedFiles:
-            regExp = re.search('(\D+)(\d+)_(\d+)_.txt',fileName)
-            #regExp = re.search('(\D+)(\d+)_(\d+)_[a-zA-Z0-9]+.txt',fileName)
+            #regExp = re.search('(\D+)(\d+)_(\d+)_(\d+).txt',fileName)
+            regExp = re.search('(\D+)(\d+)_(\d+)_[a-zA-Z0-9]+.txt',fileName)
             #if regExp:
                 #print regExp.group(1) + regExp.group(2) + "_" + str(1) + "_" + regExp.group(3) + ".txt" 
                 
@@ -55,7 +55,7 @@ def main():
                         if runNumber != -1 and tmpRun != runNumber:
                             error = "This file (" + fileName + ") contains more than 1 run number!"
                             if regExp:
-                                newFileName = regExp.group(1) + regExp.group(2) + "_" + str(runNumber) + "_1.txt" 
+                                newFileName = regExp.group(1) + regExp.group(2) + "_" + str(runNumber) + "_" + regExp.group(3) + ".txt" 
                                 with open(finalDir+newFileName,'w') as outFile:
                                     outFile.writelines(allTxt)
                                 outFile.close()

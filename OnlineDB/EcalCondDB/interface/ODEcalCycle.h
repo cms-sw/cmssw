@@ -69,8 +69,6 @@ class ODEcalCycle : public IODConfig {
   void prepareWrite()  throw(std::runtime_error);
   void writeDB()       throw(std::runtime_error);
   void clear();
-  int fetchID()        throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
   void fetchData(ODEcalCycle * result)     throw(std::runtime_error);
 
   // User data
