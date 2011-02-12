@@ -68,6 +68,7 @@ if options.useO2OTags == 0:
     from CondTools.L1Trigger.L1UniformTags_cfi import initL1UniformTags
     initL1UniformTags( tagBase = options.tagBase )
     tagBaseVec = initL1UniformTags.tagBaseVec
+    options.condIndex = 0 # Doesn't matter what index is used with uniform tags
 else:
     from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
     from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
