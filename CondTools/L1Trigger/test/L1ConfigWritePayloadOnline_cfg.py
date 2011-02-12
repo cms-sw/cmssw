@@ -55,19 +55,7 @@ options.parseArguments()
 # Generate L1TriggerKey from OMDS
 process.load("CondTools.L1Trigger.L1SubsystemKeysOnline_cfi")
 process.L1SubsystemKeysOnline.tscKey = cms.string( options.tscKey )
-
-process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFObjectKeysOnline_cfi")
-process.load("L1TriggerConfig.DTTrackFinder.L1DTTFTSCObjectKeysOnline_cfi")
-process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCObjectKeysOnline_cfi")
-process.load("L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersKeysOnlineProd_cfi")
-process.load("L1TriggerConfig/L1ScalesProducers.L1MuTriggerScaleKeysOnlineProd_cfi")
-process.L1MuTriggerScaleKeysOnlineProd.subsystemLabel = 'GMTScales'
-process.load("L1TriggerConfig.RCTConfigProducers.L1RCTObjectKeysOnline_cfi")
-process.load("L1TriggerConfig.GctConfigProducers.L1GctTSCObjectKeysOnline_cfi")
-process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTscObjectKeysOnline_cfi")
-#process.l1GtTscObjectKeysOnline.EnableL1GtTriggerMenu = False
-#process.l1GtTscObjectKeysOnline.EnableL1GtPsbSetup = False
-
+process.load("CondTools.L1Trigger.L1ConfigTSCKeys_cff")
 process.load("CondTools.L1Trigger.L1TriggerKeyOnline_cfi")
 process.L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'CSCTF',
                                                           'DTTF',
@@ -79,21 +67,7 @@ process.L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'CSCTF',
                                                           'GT' )
 
 # Generate configuration data from OMDS
-process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFConfigOnline_cfi")
-#process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFAlignmentOnline_cfi")
-process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCPtLutConfigOnline_cfi")
-
-process.load("L1TriggerConfig.DTTrackFinder.L1MuDTEtaPatternLutOnline_cfi")
-process.load("L1TriggerConfig.DTTrackFinder.L1MuDTExtLutOnline_cfi")
-process.load("L1TriggerConfig.DTTrackFinder.L1MuDTPhiLutOnline_cfi")
-process.load("L1TriggerConfig.DTTrackFinder.L1MuDTPtaLutOnline_cfi")
-process.load("L1TriggerConfig.DTTrackFinder.L1MuDTQualPatternLutOnline_cfi")
-process.load("L1TriggerConfig.DTTrackFinder.L1MuDTTFParametersOnline_cfi")
-
-process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfigOnline_cfi")
-process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConeDefinitionOnline_cfi")
-process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCBxOrConfigOnline_cfi")
-process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCHsbConfigOnline_cfi")
+process.load("CondTools.L1Trigger.L1ConfigTSCPayloads_cff")
 
 if options.copyNonO2OPayloads == 1:
     process.L1MuDTEtaPatternLutOnline.copyFromCondDB = cms.bool( True )
@@ -123,25 +97,6 @@ if options.copyNonO2OPayloads == 1:
     process.L1RPCBxOrConfigOnline.copyFromCondDB = cms.bool( True )
     process.L1RPCBxOrConfigOnline.onlineDB = options.copyDBConnect
     process.L1RPCBxOrConfigOnline.onlineAuthentication = options.copyDBAuth
-
-process.load("L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersOnlineProducer_cfi")
-process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleOnlineProducer_cfi")
-process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesOnlineProducer_cfi")
-process.L1MuGMTParametersOnlineProducer.ignoreVersionMismatch = True
-
-process.load("L1TriggerConfig.RCTConfigProducers.L1RCTParametersOnline_cfi")
-process.load("L1TriggerConfig.L1ScalesProducers.L1EmEtScaleConfigOnline_cfi")
-process.load("L1TriggerConfig.L1ScalesProducers.L1CaloEcalScaleConfigOnline_cfi")
-process.load("L1TriggerConfig.L1ScalesProducers.L1CaloHcalScaleConfigOnline_cfi")
-
-process.load("L1TriggerConfig.GctConfigProducers.L1GctJetFinderParamsOnline_cfi")
-process.load("L1TriggerConfig.L1ScalesProducers.L1HtMissScaleOnline_cfi")
-process.load("L1TriggerConfig.L1ScalesProducers.L1HfRingEtScaleOnline_cfi")
-process.load("L1TriggerConfig.L1ScalesProducers.L1JetEtScaleOnline_cfi")
-
-process.load("L1TriggerConfig.L1GtConfigProducers.l1GtParametersOnline_cfi")
-process.load("L1TriggerConfig.L1GtConfigProducers.l1GtPsbSetupOnline_cfi")
-process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuOnline_cfi")
 
 # Define CondDB tags
 from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
