@@ -1,6 +1,15 @@
+# Default behavior: deliver current L1-O2O tags from Frontier.
+
+# IF tagBaseVec is empty then
+#    IF tagBaseVec is given, use uniform tags with the given tagBase
+#    ELSE use current L1-O2O tags
+
+# If tagBase AND tagBaseVec are both given, then tagBaseVec trumps tagBase.
+
 def initCondDBSource( process,
                       inputDBConnect = 'frontier://FrontierProd/CMS_COND_31X_L1T',
                       inputDBAuth = '.',
+                      tagBase = "",
                       tagBaseVec = [],
                       includeAllTags = False,
                       includeRSTags = False,
@@ -11,9 +20,14 @@ def initCondDBSource( process,
     from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
 
     if len( tagBaseVec ) == 0:
-        from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
-        initL1O2OTags()
-        tagBaseVec = initL1O2OTags.tagBaseVec
+        if len( tagBase ) != 0:
+            from CondTools.L1Trigger.L1UniformTags_cfi import initL1UniformTags
+            initL1UniformTags( tagBase )
+            tagBaseVec = initL1UniformTags.tagBaseVec
+        else:
+            from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
+            initL1O2OTags()
+            tagBaseVec = initL1O2OTags.tagBaseVec
                                 
     process.l1conddb = cms.ESSource("PoolDBESSource",
                             CondDBSetup,
