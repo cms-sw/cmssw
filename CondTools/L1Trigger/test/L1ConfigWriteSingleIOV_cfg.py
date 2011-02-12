@@ -10,11 +10,11 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
-options.register('tscKey',
+options.register('objectKey',
                  'dummy', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "TSC key")
+                 "Object key")
 options.register('objectType',
                  'L1RCTParameters', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -92,7 +92,7 @@ initIOVWriter( process,
                outputDBConnect = options.outputDBConnect,
                outputDBAuth = options.outputDBAuth,
                tagBaseVec = tagBaseVec,
-               tscKey = options.tscKey )
+               tscKey = options.objectKey )
 process.L1CondDBIOVWriter.ignoreTriggerKey = cms.bool(True)
 process.L1CondDBIOVWriter.toPut = cms.VPSet(cms.PSet(
     record = cms.string(options.recordName),
