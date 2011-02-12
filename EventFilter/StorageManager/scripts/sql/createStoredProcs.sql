@@ -44,28 +44,10 @@ BEGIN
  		    START_WRITE_TIME =  LEAST(v_timestamp, NVL(START_WRITE_TIME,v_timestamp)),
  		    LAST_UPDATE_TIME = sysdate
                when not matched then 
-	   	INSERT (
-		    RUNNUMBER,
-	            STREAM,
-	            SETUPLABEL,
-	            APP_VERSION,
-	            S_LUMISECTION,
-	            S_CREATED,
-	            N_INSTANCE,
-	            M_INSTANCE,
-	            START_WRITE_TIME,
-        	    LAST_UPDATE_TIME)
-                  VALUES (
-       		    v_runnumber,
-       		    v_stream,
-  	            v_setuplabel,
-        	    v_app_version,
-            	    v_lumisection,
-         	    1,
-                    1,
-          	    v_instance,
-                    v_timestamp,
-                    sysdate);
+	   	INSERT ( RUNNUMBER, STREAM, SETUPLABEL, APP_VERSION, S_LUMISECTION,
+	            S_CREATED, N_INSTANCE, M_INSTANCE, START_WRITE_TIME, LAST_UPDATE_TIME)
+                  VALUES ( v_runnumber, v_stream, v_setuplabel, v_app_version, v_lumisection,
+         	    1, 1, v_instance, v_timestamp, sysdate);
              v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
              DBMS_OUTPUT.PUT_LINE ( v_etime || '  15-FILES_CREATED_AI: done LOCK/INSERT SM_SUMMARY   SQL%ROWCOUNT: ' || SQL%ROWCOUNT  || ' SM_SUMMARY  FILE: '|| v_filename || '   <<');
  
@@ -132,20 +114,8 @@ BEGIN
                 when matched then update 
                    SET N_CREATED = NVL(N_CREATED,0) + 1
                 when not matched then 
-	   	   INSERT (                
-                      RUNNUMBER,
-                      INSTANCE,
-                      HOSTNAME, 
-                      N_CREATED,
-                      START_WRITE_TIME,
-                      SETUPLABEL)
-                    VALUES (
-                      v_runnumber,
-                      v_instance,
-                      v_hostname,
-                      1,
-                      v_timestamp,
-                      v_setuplabel);
+	   	   INSERT ( RUNNUMBER, INSTANCE, HOSTNAME, N_CREATED, START_WRITE_TIME, SETUPLABEL)
+                    VALUES ( v_runnumber, v_instance, v_hostname, 1, v_timestamp, v_setuplabel);
              v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
              DBMS_OUTPUT.PUT_LINE ( v_etime || ' 115-FILES_CREATED_AI: Done LOCK/INSERT SM_INSTANCES SQL%ROWCOUNT: ' || SQL%ROWCOUNT  || ' SM_SUMMARY  FILE: '|| v_filename || '   <<');
 
@@ -226,10 +196,7 @@ BEGIN
      FROM FILES_CREATED WHERE FILENAME = v_filename;
 
      IF v_producer = 'StorageManager' THEN
-         SELECT ITIME
-         into v_timestamp
-         FROM FILES_INJECTED
-         WHERE FILENAME = v_filename;
+         SELECT ITIME into v_timestamp FROM FILES_INJECTED WHERE FILENAME = v_filename;
 
           v_etime := to_char(systimestamp, 'Dy Mon DD HH24:MI:SS.FF5  YYYY');
           DBMS_OUTPUT.PUT_LINE (v_etime || '  3-FILES_INJECTED:  pre-UPDATE INSTANCES   <<');
@@ -245,9 +212,119 @@ END;
 
 GRANT execute on FILES_INJECTED_PROC_INSTANCES to CMS_STOMGR_W;
 
-
+-- ###
 -- Now the Tier0 / Copy Manager - Transfer Status Worker one
-CREATE OR REPLACE PROCEDURE FILES_TRANS_CHECKED_PROC (
+-- ###
+
+-- File has been sent to the Copy Manager
+drop PROCEDURE FILES_TRANS_NEW_PROC;
+CREATE OR REPLACE PROCEDURE FILES_TRANS_NEW_PROC_SUMMARY (
+    v_filename IN Varchar
+)
+IS
+v_producer  VARCHAR2(100);
+v_stream    VARCHAR2(100);
+v_instance  NUMBER(5);
+v_runnumber NUMBER(10);
+v_timestamp TIMESTAMP(6);
+BEGIN
+    SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER
+    into v_producer, v_stream, v_instance, v_runnumber
+    FROM FILES_CREATED
+    WHERE FILENAME = v_filename;
+
+    IF v_producer = 'StorageManager' THEN
+        SELECT ITIME into v_timestamp from FILES_TRANS_NEW where FILENAME = v_filename;
+   	UPDATE SM_SUMMARY
+        SET S_NEW = NVL(S_NEW,0) + 1,
+	    START_TRANS_TIME =  LEAST(v_timestamp, NVL(START_TRANS_TIME,v_timestamp)),
+            LAST_UPDATE_TIME = sysdate
+      	WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
+    END IF;
+END;
+/
+GRANT execute on FILES_TRANS_NEW_PROC_SUMMARY to CMS_STOMGR_TIER0_W;
+
+CREATE OR REPLACE PROCEDURE FILES_TRANS_NEW_PROC_INSTANCES (
+    v_filename IN Varchar
+)
+IS
+v_producer  VARCHAR2(100);
+v_stream    VARCHAR2(100);
+v_instance  NUMBER(5);
+v_runnumber NUMBER(10);
+BEGIN
+    SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER
+    into v_producer, v_stream, v_instance, v_runnumber
+    FROM FILES_CREATED
+    WHERE FILENAME = v_filename;
+
+    IF v_producer = 'StorageManager' THEN
+        UPDATE SM_INSTANCES
+        SET N_NEW = NVL(N_NEW,0) + 1
+        WHERE RUNNUMBER = v_runnumber AND INSTANCE = v_instance;
+    END IF;
+END;
+/
+GRANT execute on FILES_TRANS_NEW_PROC_INSTANCES to CMS_STOMGR_TIER0_W;
+
+-- File has been copied by the Copy Worker
+drop PROCEDURE FILES_TRANS_COPIED_PROC;
+CREATE OR REPLACE PROCEDURE FILES_TRANS_COPIED_PROC_SUMMARY (
+    v_filename IN Varchar
+)
+IS
+v_producer  VARCHAR2(100);
+v_stream    VARCHAR2(100);
+v_instance  NUMBER(5);
+v_runnumber NUMBER(10);
+v_timestamp TIMESTAMP(6);
+BEGIN
+    SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER
+    into v_producer, v_stream, v_instance, v_runnumber
+    FROM FILES_CREATED
+    WHERE FILENAME = v_filename;
+
+    IF v_producer = 'StorageManager' THEN
+        SELECT ITIME into v_timestamp from FILES_TRANS_COPIED where FILENAME = v_filename;
+     	UPDATE SM_SUMMARY
+        SET S_COPIED = NVL(S_COPIED,0) + 1,
+	    STOP_TRANS_TIME = GREATEST(v_timestamp, NVL(STOP_TRANS_TIME, v_timestamp)),
+            S_FILESIZE2T0 = NVL(S_FILESIZE2T0,0) + 
+		NVL((SELECT FILESIZE from FILES_INJECTED where FILENAME = v_filename),0),
+            LAST_UPDATE_TIME = sysdate
+      	WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
+    END IF;
+END;
+/
+GRANT execute on FILES_TRANS_COPIED_PROC_SUMMARY to CMS_STOMGR_TIER0_W;
+
+CREATE OR REPLACE PROCEDURE FILES_TRANS_COPIED_PROC_SUMMARY (
+    v_filename IN Varchar
+)
+IS
+v_producer  VARCHAR2(100);
+v_stream    VARCHAR2(100);
+v_instance  NUMBER(5);
+v_runnumber NUMBER(10);
+BEGIN
+    SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER
+    into v_producer, v_stream, v_instance, v_runnumber
+    FROM FILES_CREATED
+    WHERE FILENAME = v_filename;
+
+    IF v_producer = 'StorageManager' THEN
+        UPDATE SM_INSTANCES
+        SET N_COPIED = NVL(N_COPIED,0) + 1
+        WHERE RUNNUMBER = v_runnumber AND INSTANCE=v_instance;
+    END IF;
+END;
+/
+GRANT execute on FILES_TRANS_COPIED_PROC_SUMMARY to CMS_STOMGR_TIER0_W;
+
+-- File has been checked by Tier0
+drop PROCEDURE FILES_TRANS_CHECKED_PROC;
+CREATE OR REPLACE PROCEDURE FILES_TRANS_CHECKED_PROC_SUMMARY (
     v_filename IN Varchar
 )
 IS
@@ -262,32 +339,19 @@ BEGIN
      FROM FILES_CREATED
      WHERE FILENAME = v_filename;
 
-    SELECT ITIME
-    into v_timestamp
-    from FILES_TRANS_CHECKED
-    where FILENAME = v_filename;
-
     IF v_producer = 'StorageManager' THEN
+        SELECT ITIME into v_timestamp from FILES_TRANS_CHECKED where FILENAME = v_filename;
         UPDATE SM_SUMMARY
-                SET S_CHECKED = NVL(S_CHECKED,0) + 1,
-                START_REPACK_TIME = LEAST(v_timestamp, NVL(START_REPACK_TIME, v_timestamp)),
-                LAST_UPDATE_TIME = sysdate
+        SET S_CHECKED = NVL(S_CHECKED,0) + 1,
+            START_REPACK_TIME = LEAST(v_timestamp, NVL(START_REPACK_TIME, v_timestamp)),
+            LAST_UPDATE_TIME = sysdate
         WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
-        IF SQL%ROWCOUNT = 0 THEN
-                NULL;
-        END IF;
-        UPDATE SM_INSTANCES
-                SET N_CHECKED = NVL(N_CHECKED,0) + 1
-        WHERE RUNNUMBER = v_runnumber AND INSTANCE = v_instance;
-        IF SQL%ROWCOUNT = 0 THEN
-                NULL;
-        END IF;
     END IF;
 END;
 /
-GRANT execute on FILES_TRANS_CHECKED_PROC to CMS_STOMGR_TIER0_W;
+GRANT execute on FILES_TRANS_CHECKED_PROC_SUMMARY to CMS_STOMGR_TIER0_W;
 
-CREATE OR REPLACE PROCEDURE FILES_TRANS_NEW_PROC (
+CREATE OR REPLACE PROCEDURE FILES_TRANS_CHECKED_PROC_INSTANCES (
     v_filename IN Varchar
 )
 IS
@@ -295,39 +359,24 @@ v_producer  VARCHAR2(100);
 v_stream    VARCHAR2(100);
 v_instance  NUMBER(5);
 v_runnumber NUMBER(10);
-v_timestamp TIMESTAMP(6);
 BEGIN
-    SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER
-    into v_producer, v_stream, v_instance, v_runnumber
-    FROM FILES_CREATED
-    WHERE FILENAME = v_filename;
-
-    SELECT ITIME
-    into v_timestamp
-    from FILES_TRANS_NEW
-    where FILENAME = v_filename;
+     SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER
+     into v_producer, v_stream, v_instance, v_runnumber
+     FROM FILES_CREATED
+     WHERE FILENAME = v_filename;
 
     IF v_producer = 'StorageManager' THEN
-   	UPDATE SM_SUMMARY
-        	SET S_NEW = NVL(S_NEW,0) + 1,
-	    	START_TRANS_TIME =  LEAST(v_timestamp, NVL(START_TRANS_TIME,v_timestamp)),
-            	LAST_UPDATE_TIME = sysdate
-      	WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
-     	IF SQL%ROWCOUNT = 0 THEN
-         	NULL;
-     	END IF;
         UPDATE SM_INSTANCES
-                SET N_NEW = NVL(N_NEW,0) + 1
+        SET N_CHECKED = NVL(N_CHECKED,0) + 1
         WHERE RUNNUMBER = v_runnumber AND INSTANCE = v_instance;
-        IF SQL%ROWCOUNT = 0 THEN
-                NULL;
-        END IF;
-     END IF;
- END;
+    END IF;
+END;
 /
-GRANT execute on FILES_TRANS_NEW_PROC to CMS_STOMGR_TIER0_W;
+GRANT execute on FILES_TRANS_CHECKED_PROC_INSTANCES to CMS_STOMGR_TIER0_W;
 
-CREATE OR REPLACE PROCEDURE FILES_TRANS_COPIED_PROC (
+-- File has been repacked by Tier0
+drop PROCEDURE FILES_TRANS_REPACKED_PROC;
+CREATE OR REPLACE PROCEDURE FILES_TRANS_REPACKED_PROC_SUMMARY (
     v_filename IN Varchar
 )
 IS
@@ -342,34 +391,19 @@ BEGIN
     FROM FILES_CREATED
     WHERE FILENAME = v_filename;
 
-    SELECT ITIME
-    into v_timestamp
-    from FILES_TRANS_COPIED
-    where FILENAME = v_filename;
-
     IF v_producer = 'StorageManager' THEN
+        SELECT ITIME into v_timestamp from FILES_TRANS_COPIED where FILENAME = v_filename;
      	UPDATE SM_SUMMARY
-        	SET S_COPIED = NVL(S_COPIED,0) + 1,
-	    	STOP_TRANS_TIME = GREATEST(v_timestamp, NVL(STOP_TRANS_TIME, v_timestamp)),
-            	S_FILESIZE2T0 = NVL(S_FILESIZE2T0,0) + 
-			NVL((SELECT FILESIZE from FILES_INJECTED where FILENAME = v_filename),0),
-            	LAST_UPDATE_TIME = sysdate
+        SET S_REPACKED = NVL(S_REPACKED,0) + 1,
+	    STOP_REPACK_TIME = GREATEST(v_timestamp, NVL(STOP_REPACK_TIME, v_timestamp)),
+	    LAST_UPDATE_TIME = sysdate
       	WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
-     	IF SQL%ROWCOUNT = 0 THEN
-         	NULL;
-     	END IF;
-        UPDATE SM_INSTANCES
-                SET N_COPIED = NVL(N_COPIED,0) + 1
-        WHERE RUNNUMBER = v_runnumber AND INSTANCE=v_instance;
-        IF SQL%ROWCOUNT = 0 THEN
-                NULL;
-        END IF;
-     END IF;
+    END IF;
 END;
 /
-GRANT execute on FILES_TRANS_COPIED_PROC to CMS_STOMGR_TIER0_W;
+GRANT execute on FILES_TRANS_REPACKED_PROC_SUMMARY to CMS_STOMGR_TIER0_W;
 
-CREATE OR REPLACE PROCEDURE FILES_TRANS_REPACKED_PROC (
+CREATE OR REPLACE PROCEDURE FILES_TRANS_REPACKED_PROC_INSTANCES (
     v_filename IN Varchar
 )
 IS
@@ -377,35 +411,18 @@ v_producer  VARCHAR2(100);
 v_stream    VARCHAR2(100);
 v_instance  NUMBER(5);
 v_runnumber NUMBER(10);
-v_timestamp TIMESTAMP(6);
 BEGIN
     SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER
     into v_producer, v_stream, v_instance, v_runnumber
     FROM FILES_CREATED
     WHERE FILENAME = v_filename;
 
-    SELECT ITIME
-    into v_timestamp
-    from FILES_TRANS_COPIED
-    where FILENAME = v_filename;
-
     IF v_producer = 'StorageManager' THEN
-     	UPDATE SM_SUMMARY
-        	SET S_REPACKED = NVL(S_REPACKED,0) + 1,
-	    	STOP_REPACK_TIME = v_timestamp,
-	    	LAST_UPDATE_TIME = sysdate
-      	WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
-     	IF SQL%ROWCOUNT = 0 THEN
-        	 NULL;
-     	END IF;
         UPDATE SM_INSTANCES
-                SET N_REPACKED = NVL(N_REPACKED,0) + 1
+        SET N_REPACKED = NVL(N_REPACKED,0) + 1
         WHERE RUNNUMBER = v_runnumber AND INSTANCE=v_instance;
-        IF SQL%ROWCOUNT = 0 THEN
-                NULL;
-        END IF;
-     END IF;
+    END IF;
 END;
 /
+GRANT execute on FILES_TRANS_REPACKED_PROC_INSTANCES to CMS_STOMGR_TIER0_W;
 
-GRANT execute on FILES_TRANS_REPACKED_PROC to CMS_STOMGR_TIER0_W;
