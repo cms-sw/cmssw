@@ -5,6 +5,7 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include "G4UserTrackingAction.hh"
+#include "G4VSolid.hh"
 
 class EventAction;
 class TrackWithHistory; 
@@ -28,6 +29,7 @@ private:
 private:
     EventAction * eventAction_;
     TrackWithHistory * currentTrack_;
+    G4VSolid * worldSolid;
     bool detailedTiming;
     int  trackMgrVerbose;
 };
