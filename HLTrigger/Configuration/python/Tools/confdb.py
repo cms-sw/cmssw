@@ -572,24 +572,7 @@ if 'GlobalTag' in %%(dict)s:
       if not self.config.fastsim:
         self.options['services'].append( "-DQMStore" )
 
-      self.options['paths'].append( "-AOutput" )
-      self.options['paths'].append( "-ALCAP0Output" )
-      self.options['paths'].append( "-ALCAPHISYMOutput" )
-      self.options['paths'].append( "-CalibrationOutput" )
-      self.options['paths'].append( "-DQMOutput" )
-      self.options['paths'].append( "-EcalCalibrationOutput" )
-      self.options['paths'].append( "-HLTOutput" )
-      self.options['paths'].append( "-HLTDQMOutput" )
-      self.options['paths'].append( "-HLTMONOutput" )
-      self.options['paths'].append( "-NanoDSTOutput" )
-      self.options['paths'].append( "-RPCMONOutput" )
-
-      self.options['paths'].append( "-ExpressOutput" )
-      self.options['paths'].append( "-EventDisplayOutput" )
-      self.options['paths'].append( "-AlCaOutput" )
-      self.options['paths'].append( "-AlCaPPOutput" )
-      self.options['paths'].append( "-AlCaHIOutput" )
-      self.options['paths'].append( "-HLTDQMResultsOutput" )
+      self.options['paths'].append( "-*Output" )
 
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
