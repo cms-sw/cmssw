@@ -263,26 +263,24 @@ void LMFDefFabric::dump() {
   while (i1 != e1) {
     i1++->dump();
   }
-  /*
   std::cout << "=== Trigger Types" << std::endl;
   while (i2 != e2) {
-    std::cout << *i1++ << std::endl;
+    i2++->dump();
   }
   std::cout << "=== Run Tags" << std::endl;
   while (i3 != e3) {
-    std::cout << *i1++ << std::endl;
+    i3++->dump();
   }
   std::cout << "=== Prim. Vers." << std::endl;
   while (i4 != e4) {
-    std::cout << *i1++ << std::endl;
+    i4++->dump();
   }
   std::cout << "=== Seq. Vers." << std::endl;
   while (i5 != e5) {
-    std::cout << *i1++ << std::endl;
+    i5++->dump();
   }
   std::cout << "=== Corr. Vers." << std::endl;
   while (i6 != e6) {
-    std::cout << *i1++ << std::endl;
+    i6++->dump();
   }
-  */
 }

@@ -40,6 +40,7 @@ LMFRunIOV::LMFRunIOV(EcalDBConnection *c) : LMFUnique(c)
 }
 
 LMFRunIOV::LMFRunIOV(const LMFRunIOV &r) {
+  initialize();
   *this = r;
 }
 
@@ -393,8 +394,11 @@ LMFRunIOV& LMFRunIOV::operator=(const LMFRunIOV &r) {
   if (this != &r) {
     LMFUnique::operator=(r);
     if (r._fabric != NULL) {
-      _fabric = new LMFDefFabric;
-      std::cout << "COPYING INTO " << _fabric << std::endl;
+      checkFabric();//      _fabric = new LMFDefFabric;
+      if (m_debug) {
+	_fabric->debug();
+	std::cout << "COPYING INTO " << _fabric << std::endl;
+      }
       *_fabric = *(r._fabric);
     }
   }

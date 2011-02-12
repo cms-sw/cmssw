@@ -71,6 +71,7 @@ public:
 	// Loop on sequences for run ii:
 	//-------------------------------
 
+	int d = 0;
 	while (b != e) {
 	  LMFSeqDat seq = b->second;
 	  seq.setConnection(econn->getEnv(), econn->getConn());
@@ -92,33 +93,23 @@ public:
 
 	  // Loop on LMFRunIOV for sequence b: ie loop on LMR:
 	  //----------------------------------------------------
+	  int c = 0;
 	  while (b_ != e_ ) {
 
-	    std::cout << "===== 0 " << std::endl << std::flush;
-	    b_->dump();
-	    std::cout << "===== 0 " << std::endl << std::flush;
 	    LMFClsDat laser_(econn);
-	    laser_.debug();
 
 	    // choose which primitive you want to read (LASER BLUE)
 	    laser_.setSystem("LASER");
 	    laser_.setColor("BLUE");
-	    laser_.dump();
-	    std::cout << std::flush;
 	    // assign the correct LMFRunIOV
-	    std::cout << "==== 1" << std::endl;
 	    laser_.setLMFRunIOV(*b_);//CRASH!!!!
-	    std::cout << "==== 1a" << std::endl << std::flush;
-	    laser_.dump();
-	    std::cout << std::flush;
 	    
 	    // Fetch the data from DB
 	    laser_.fetch();
-	    std::cout << "==== 2" << std::endl;
-	    laser_.dump();
-	    std::cout << std::flush;
+	    std::cout << c++ << "/" << d << ": " << laser_.size() << std::endl;
 	    b++;
 	  }
+	  d++;
 	}
       }
     return 1;
