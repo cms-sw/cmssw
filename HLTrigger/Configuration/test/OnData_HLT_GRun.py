@@ -17321,18 +17321,8 @@ process.options = cms.untracked.PSet(
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-    process.GlobalTag.globaltag = 'TESTL1_GR_P::All'
-
-# override the L1 menu
-if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.toGet.append(
-        cms.PSet(
-            record  = cms.string( 'L1GtTriggerMenuRcd' ),
-            tag     = cms.string( 'L1GtTriggerMenu_L1Menu_Collisions2011_v0_mc' ),
-            label   = cms.untracked.string( '' ),
-            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_L1T' )
-        )
-    )
+    from Configuration.PyReleaseValidation.autoCond import autoCond
+    process.GlobalTag.globaltag = autoCond['hltonline']
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
