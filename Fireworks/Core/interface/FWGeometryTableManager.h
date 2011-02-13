@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.2 2011/02/11 19:56:36 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.3 2011/02/13 18:11:38 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -31,7 +31,7 @@
 #include "TGeoNode.h"
 
 class FWTableCellRendererBase;
-class FWGeometryTable;
+class FWGeometryBrowser;
 
 class TGeoManager;
 class TGeoNode;
@@ -53,7 +53,6 @@ namespace __gnu_cxx {
 
 class FWGeometryTableManager : public FWTableManagerBase
 {
-   friend class FWGeometryTable;
 private:
    struct NodeInfo
    {
@@ -104,7 +103,7 @@ private:
    };
 
 public:
-   FWGeometryTableManager(FWGeometryTable*);
+   FWGeometryTableManager(FWGeometryBrowser*);
    virtual ~FWGeometryTableManager();
    
    void firstColumnClicked(int row);
@@ -125,10 +124,11 @@ public:
 
    std::vector<int> rowToIndex() { return m_row_to_index; }
 
-protected:
    void setSelection(int row, int column, int mask); 
    virtual void implSort(int, bool) {}
    
+   void loadGeometry(TGeoManager* geoManager);
+
 private:
    enum   ECol { kName, kColor,  kVisSelf, kVisChild, kMaterial, kPosition, kBBoxSize, kNumCol };
 
@@ -141,7 +141,6 @@ private:
    void recalculateVisibility();
    
    // geo
-   void loadGeometry(TGeoManager* geoManager);
    void checkUniqueVolume(TGeoVolume* v); 
    void checkChildMatches(TGeoVolume* v, bool& res);
    int  getNdaughtersLimited(TGeoNode*) const;
@@ -174,7 +173,7 @@ private:
    int               m_selectedColumn;
    
    // geo stuff
-   FWGeometryTable*   m_browser;
+   FWGeometryBrowser*   m_browser;
    TGeoManager*       m_geoManager;
       
    mutable Volumes_t  m_volumes;

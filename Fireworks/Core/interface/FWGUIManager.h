@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.115.2.1 2011/02/11 19:42:15 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.116 2011/02/11 19:56:36 amraktad Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ class FWSelectionManager;
 class FWSummaryManager;
 class FWDetailViewManager;
 class FWInvMassDialog;
-class FWGeometryTable;
+class FWGeometryBrowser;
 class CSGAction;
 class CSGContinuousAction;
 
@@ -263,7 +263,7 @@ private:
    CmsShowCommonPopup*     m_commonPopup;
    FWInvMassDialog*        m_invMassDialog;
    
-   FWGeometryTable*        m_geoBrowser;
+   FWGeometryBrowser*      m_geoBrowser;
 
    // help
    CmsShowHelpPopup *m_helpPopup;

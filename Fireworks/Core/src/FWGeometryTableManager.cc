@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.3 2011/02/13 18:11:38 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.4 2011/02/13 19:19:03 amraktad Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 #include <google/profiler.h>
 #endif
 #include "Fireworks/Core/interface/FWGeometryTableManager.h"
-#include "Fireworks/Core/interface/FWGeometryTable.h"
+#include "Fireworks/Core/interface/FWGeometryBrowser.h"
 #include "Fireworks/Core/src/FWColorBoxIcon.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
 #include "Fireworks/TableWidget/src/FWTabularWidget.h"
@@ -99,7 +99,7 @@ void FWGeometryTableManager::ColorBoxRenderer::draw(Drawable_t iID, int iX, int 
 //==============================================================================
 //==============================================================================
 
-FWGeometryTableManager::FWGeometryTableManager(FWGeometryTable* browser)
+FWGeometryTableManager::FWGeometryTableManager(FWGeometryBrowser* browser)
 :    m_selectedRow(-1),
      m_browser(browser),
      m_geoManager(0),
@@ -378,7 +378,7 @@ void FWGeometryTableManager::setTableContent()
    // cache browser values   
    m_autoExpand = m_browser->m_autoExpand.value();
    m_maxDaughters =  m_browser->m_maxDaughters.value();
-   m_modeVolume   =  m_browser->m_mode.value() == FWGeometryTable::kVolume;
+   m_modeVolume   =  m_browser->m_mode.value() == FWGeometryBrowser::kVolume;
 
    // add top node to init
    NodeInfo topNodeInfo;

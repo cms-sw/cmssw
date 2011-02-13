@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.230 2011/02/11 19:56:36 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.231 2011/02/13 18:11:38 amraktad Exp $
 
 
 //
@@ -49,7 +49,7 @@
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWInvMassDialog.h"
-#include "Fireworks/Core/interface/FWGeometryTable.h"
+#include "Fireworks/Core/interface/FWGeometryBrowser.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -156,7 +156,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
       m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
 
-      m_geoBrowser = new FWGeometryTable(getGUIManager());
+      m_geoBrowser = new FWGeometryBrowser(getGUIManager());
       m_cmsShowMainFrame->bindCSGActionKeys(m_geoBrowser);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));

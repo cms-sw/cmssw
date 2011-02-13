@@ -1,4 +1,4 @@
-#include "Fireworks/Core/interface/FWGeometryTable.h"
+#include "Fireworks/Core/interface/FWGeometryBrowser.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 
@@ -15,7 +15,7 @@
 #include "TGLabel.h"
 
 #include <iostream>
-FWGeometryTable::FWGeometryTable(FWGUIManager *guiManager)
+FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
    : TGMainFrame(gClient->GetRoot(), 600, 500),
      m_mode(this, "Mode:", 0l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
@@ -34,7 +34,7 @@ FWGeometryTable::FWGeometryTable(FWGUIManager *guiManager)
  
    TGTextButton* m_fileOpen = new TGTextButton (this, "Open Geometry File");
    this->AddFrame(m_fileOpen,  new TGLayoutHints( kLHintsExpandX , 2, 2, 2, 2));
-   m_fileOpen->Connect("Clicked()","FWGeometryTable",this,"browse()");
+   m_fileOpen->Connect("Clicked()","FWGeometryBrowser",this,"browse()");
 
 
    m_settersFrame = new TGHorizontalFrame(this);
@@ -47,7 +47,7 @@ FWGeometryTable::FWGeometryTable(FWGUIManager *guiManager)
    m_tableWidget->SetLineSeparatorColor(0x000000);
    m_tableWidget->SetHeaderBackgroundColor(0xececec);
    m_tableWidget->Connect("cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)",
-                          "FWGeometryTable",this,
+                          "FWGeometryBrowser",this,
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
    resetSetters();
 
@@ -56,17 +56,17 @@ FWGeometryTable::FWGeometryTable(FWGUIManager *guiManager)
    AddFrame(m_statBar, new TGLayoutHints(kLHintsExpandX));
 
    SetWindowName("Geometry Browser");
-   this->Connect("CloseWindow()","FWGeometryTable",this,"windowIsClosing()");
+   this->Connect("CloseWindow()","FWGeometryBrowser",this,"windowIsClosing()");
    Layout();
    MapSubwindows();
    // Layout();
 }
 
-FWGeometryTable::~FWGeometryTable()
+FWGeometryBrowser::~FWGeometryBrowser()
 {}
 
 void
-FWGeometryTable::resetSetters()
+FWGeometryBrowser::resetSetters()
 {
    if (!m_settersFrame->GetList()->IsEmpty())
    {
@@ -86,7 +86,7 @@ FWGeometryTable::resetSetters()
 }
 
 void
-FWGeometryTable::makeSetter(TGCompositeFrame* frame, FWParameterBase* param) 
+FWGeometryBrowser::makeSetter(TGCompositeFrame* frame, FWParameterBase* param) 
 {
    boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
    ptr->attach(param, this);
@@ -99,15 +99,15 @@ FWGeometryTable::makeSetter(TGCompositeFrame* frame, FWParameterBase* param)
 
 
 void
-FWGeometryTable::addTo(FWConfiguration& iTo) const
+FWGeometryBrowser::addTo(FWConfiguration& iTo) const
 {
    FWConfigurableParameterizable::addTo(iTo);
 }
   
 void
-FWGeometryTable::setFrom(const FWConfiguration& iFrom)
+FWGeometryBrowser::setFrom(const FWConfiguration& iFrom)
 {
-   printf("FWGeometryTable::setFrom\n");
+   printf("FWGeometryBrowser::setFrom\n");
    for(const_iterator it =begin(), itEnd = end();
        it != itEnd;
        ++it) {
@@ -118,7 +118,7 @@ FWGeometryTable::setFrom(const FWConfiguration& iFrom)
 
 //==============================================================================
 void 
-FWGeometryTable::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t, Int_t)
+FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t, Int_t)
 {
    if (iButton != kButton1)
    {
@@ -132,7 +132,7 @@ FWGeometryTable::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKe
    }
 }
 
-bool FWGeometryTable::HandleKey(Event_t *event)
+bool FWGeometryBrowser::HandleKey(Event_t *event)
 {
       if (!fBindList) return kFALSE;
 
@@ -150,13 +150,13 @@ bool FWGeometryTable::HandleKey(Event_t *event)
 }
 
 void
-FWGeometryTable::windowIsClosing()
+FWGeometryBrowser::windowIsClosing()
 {
   UnmapWindow();
 }
 
 void
-FWGeometryTable::newIndexSelected(int iSelectedRow, int iSelectedColumn)
+FWGeometryBrowser::newIndexSelected(int iSelectedRow, int iSelectedColumn)
 {
   if (iSelectedRow == -1)
     return;
@@ -165,7 +165,7 @@ FWGeometryTable::newIndexSelected(int iSelectedRow, int iSelectedColumn)
 }
 
 void 
-FWGeometryTable::readFile()
+FWGeometryBrowser::readFile()
 {
    try {
 
@@ -190,9 +190,9 @@ FWGeometryTable::readFile()
 }
 
 void
-FWGeometryTable::browse()
+FWGeometryBrowser::browse()
 {
-   std::cout<<"FWGeometryTable::openFile()"<<std::endl;
+   std::cout<<"FWGeometryBrowser::openFile()"<<std::endl;
 
    if (1)
    {  
@@ -219,6 +219,6 @@ FWGeometryTable::browse()
 }
 
 
-void FWGeometryTable::updateStatusBar(const char* status) {
+void FWGeometryBrowser::updateStatusBar(const char* status) {
    m_statBar->SetText(status, 0);
 }

@@ -1,5 +1,5 @@
-#ifndef Fireworks_Core_FWGeometryTable_h
-#define Fireworks_Core_FWGeometryTable_h
+#ifndef Fireworks_Core_FWGeometryBrowser_h
+#define Fireworks_Core_FWGeometryBrowser_h
 
 #ifndef __CINT__
 #include <boost/shared_ptr.hpp>
@@ -31,7 +31,7 @@ class FWConfiguration;
 
 class FWParameterBase;
 
-class FWGeometryTable : public TGMainFrame
+class FWGeometryBrowser : public TGMainFrame
 #ifndef __CINT__
                       , public FWConfigurableParameterizable , public FWParameterSetterEditorBase
 #endif
@@ -41,8 +41,8 @@ class FWGeometryTable : public TGMainFrame
 public:
    enum EMode { kNode, kVolume };
 
-   FWGeometryTable(FWGUIManager*);
-   virtual ~FWGeometryTable();
+   FWGeometryBrowser(FWGUIManager*);
+   virtual ~FWGeometryBrowser();
   
    void cellClicked(Int_t iRow, Int_t iColumn, 
                     Int_t iButton, Int_t iKeyMod, 
@@ -70,8 +70,8 @@ protected:
 #endif
 
 private:
-   FWGeometryTable(const FWGeometryTable&);
-   const FWGeometryTable& operator=(const FWGeometryTable&);
+   FWGeometryBrowser(const FWGeometryBrowser&);
+   const FWGeometryBrowser& operator=(const FWGeometryBrowser&);
 
    FWGUIManager           *m_guiManager;
 
@@ -90,7 +90,7 @@ private:
    void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
 
 
-   ClassDef(FWGeometryTable, 0);
+   ClassDef(FWGeometryBrowser, 0);
 };
 
 #endif
