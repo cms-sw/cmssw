@@ -46,7 +46,7 @@ process.options = cms.untracked.PSet(
 ### User analyzers
 #### RPC Offline DQM
 process.load("DQMOffline.Configuration.DQMOfflineMC_cff")
-process.dqmSaver.workflow = 'RPC/MC/Validation'
+process.dqmSaver.workflow = '/RPC/MC/Validation'
 
 #### Sim-Reco validation
 process.load("Validation.RPCRecHits.rpcRecHitValidation_cfi")
@@ -89,4 +89,12 @@ process.p = cms.Path(
     process.postValidation_step
 )
 #process.outPath = cms.EndPath(process.out)
+import sys, os
+sampleName = os.environ['SAMPLE']
+sys.path.append('samples')
+sampleCfg = __import__(sampleName+"_cfg")
+process.source = sampleCfg.source
+process.maxEvents = sampleCfg.maxEvents
+process.GlobalTag.globaltag = sampleCfg.globaltag
+process.dqmSaver.workflow = '/%s/%s/Validation' % (process.GlobalTag.globaltag.value()[:-5], sampleName)
 
