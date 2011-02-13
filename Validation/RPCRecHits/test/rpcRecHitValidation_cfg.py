@@ -14,6 +14,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['startup']
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
@@ -44,6 +46,7 @@ process.options = cms.untracked.PSet(
 ### User analyzers
 #### RPC Offline DQM
 process.load("DQMOffline.Configuration.DQMOfflineMC_cff")
+process.dqmSaver.workflow = 'RPC/MC/Validation'
 
 #### Sim-Reco validation
 process.load("Validation.RPCRecHits.rpcRecHitValidation_cfi")
