@@ -47,7 +47,6 @@ public:
   
    void newIndexSelected(int,int);
    void windowIsClosing();
-   //   void updateFilterString(const char *str);   
 
    void browse();
    void readFile();
@@ -57,18 +56,12 @@ public:
    // ---------- const member functions --------------------- 
 
    virtual void addTo(FWConfiguration&) const;
-#ifndef __CINT__
-   int maxDepth() { return m_maxDepth.value(); } 
-   int mode()     { return m_mode.value(); } 
-   const char* filer() { return m_filter.value().c_str(); } 
-#endif
-
+   
 protected:
 #ifndef __CINT__
    FWEnumParameter         m_mode;
    FWStringParameter       m_filter; 
-   FWLongParameter         m_maxExpand; 
-   FWLongParameter         m_maxDepth; 
+   FWLongParameter         m_autoExpand; 
    FWLongParameter         m_maxDaughters; 
 #endif
 

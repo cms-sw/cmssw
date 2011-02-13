@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.229.2.1 2011/02/11 19:42:16 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.230 2011/02/11 19:56:36 amraktad Exp $
 
 
 //
@@ -714,6 +714,7 @@ FWGUIManager::showInvMassDialog()
 void
 FWGUIManager::showGeometryTable()
 {
+  m_geoBrowser->browse();
    m_geoBrowser->MapRaised();
 }
 
@@ -1159,7 +1160,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    {
      m_geoBrowser->addTo(rootGeo);
    }
-   oTo.addKeyValue("RootGeo",rootGeo,true);
+   oTo.addKeyValue("geo-browser",rootGeo,true);
 }
 
 //----------------------------------------------------------------
@@ -1285,8 +1286,8 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    checkSubviewAreaIconState(0);
 
   //______________________________________________________________________________
-  const FWConfiguration* rootGeo = iFrom.valueForKey("rootGeo");
-  if (rootGeo)
+  const FWConfiguration* rootGeo = iFrom.valueForKey("geo-browser");
+  if (rootGeo)     
      m_geoBrowser->setFrom(*rootGeo);
 }
 

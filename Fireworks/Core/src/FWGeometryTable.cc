@@ -18,9 +18,8 @@ FWGeometryTable::FWGeometryTable(FWGUIManager *guiManager)
    : TGMainFrame(gClient->GetRoot(), 600, 500),
      m_mode(this, "Mode:", 0l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
-     m_maxExpand(this,"MaxExp:", 2l, 0l, 1000l),
-     m_maxDepth(this,"MaxImport:", 100l, 0l, 100l), // debug
-     m_maxDaughters(this,"MaxND:", 999l, 0l, 1000l), // debug
+     m_autoExpand(this,"AutoExpand:", 2l, 0l, 1000l),
+     m_maxDaughters(this,"MaxDaughters:", 999l, 0l, 1000l), // debug
      m_guiManager(guiManager),
      m_tableManager(0),
      m_geometryFile(0),
@@ -29,7 +28,6 @@ FWGeometryTable::FWGeometryTable(FWGUIManager *guiManager)
 {
    m_mode.addEntry(0, "Node");
    m_mode.addEntry(1, "Volume");
-   
    
    m_tableManager = new FWGeometryTableManager(this);
  
@@ -79,8 +77,7 @@ FWGeometryTable::resetSetters()
    m_settersFrame->AddFrame(frame);
    makeSetter(frame, &m_mode);
    makeSetter(frame, &m_filter);
-   makeSetter(frame, &m_maxDepth);
-   makeSetter(frame, &m_maxExpand);
+   makeSetter(frame, &m_autoExpand);
    makeSetter(frame, &m_maxDaughters);
    m_settersFrame->MapSubwindows();
    Layout();
@@ -108,6 +105,7 @@ FWGeometryTable::addTo(FWConfiguration& iTo) const
 void
 FWGeometryTable::setFrom(const FWConfiguration& iFrom)
 {
+   printf("FWGeometryTable::setFrom\n");
    for(const_iterator it =begin(), itEnd = end();
        it != itEnd;
        ++it) {
@@ -128,7 +126,7 @@ FWGeometryTable::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKe
 
    if (iColumn == 0)
    {
-      m_tableManager->setExpanded(iRow);
+      m_tableManager->firstColumnClicked(iRow);
    }
 }
 
@@ -175,16 +173,16 @@ FWGeometryTable::readFile()
       m_geometryFile->ls();
       
       if ( !m_geometryFile->Get("cmsGeo;1"))
-         throw std::runtime_error("Can't find geomtry in selected file");
+         throw std::runtime_error("Can't find TGeoManager object in selected file.");
 
       TGeoManager* m_geoManager = (TGeoManager*) m_geometryFile->Get("cmsGeo;1");
-      m_tableManager->fillNodeInfo(m_geoManager);
+      m_tableManager->loadGeometry(m_geoManager);
       MapRaised();
 
    }
    catch (std::runtime_error &e)
    {
-      fwLog(fwlog::kError) << "Bala Bala\n";
+      fwLog(fwlog::kError) << "Failed to load simulation geomtery.\n";
    }
 }
 
