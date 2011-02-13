@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.2 2011/02/11 19:56:36 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.3 2011/02/13 18:11:38 amraktad Exp $
 //
 
 // system include files
@@ -359,7 +359,8 @@ void FWGeometryTableManager::loadGeometry(TGeoManager* geoManager)
    
    m_volumes.clear();
    checkUniqueVolume(geoManager->GetTopVolume());
-   printf("FWGeometryTableManager::loadGeometry %d unique volumes \n", (int)m_volumes.size());
+
+   m_browser->updateStatusBar(Form("FWGeometryTableManager::loadGeometry() %d unique volumes", (int)m_volumes.size()));
    
    setTableContent();
 }
@@ -390,9 +391,10 @@ void FWGeometryTableManager::setTableContent()
    
    if (debug) {
       checkHierarchy();
-      printf("FWGeometryTableManager::setTableContent m_entries size %d \n", (int)m_entries.size());
    }
    
+   // m_browser->updateStatusBar(Form("FWGeometryTableManager::setTableContent() m_entries size %d", (int)m_entries.size()));
+ 
    redrawTable();
 }
 
@@ -610,6 +612,14 @@ void FWGeometryTableManager::updateFilter()
       checkChildMatches(i->first,  i->second.m_childMatches );
    }
    
+   // get status
+   int na = 0;
+   for (Volumes_i i = m_volumes.begin(); i!= m_volumes.end(); ++i) 
+   {
+      if ( i->second.m_matches) na++;
+   }
+   m_browser->updateStatusBar(Form("%d of %d TGeoVolumes  passed filter", na, (int)m_volumes.size()));
+ 
    setTableContent();
 }
 

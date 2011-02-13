@@ -15,17 +15,20 @@
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 #endif
 
-class FWGUIManager;
-class FWTableWidget;
-class FWGeometryTableManager;
 class TFile;
 class TGTextButton;
 class TGeoNode;
 class TGeoVolume;
 class TGTextEntry;
 class TGComboBox;
+class TGStatusBar;
 
+
+class FWGUIManager;
+class FWTableWidget;
+class FWGeometryTableManager;
 class FWConfiguration;
+
 class FWParameterBase;
 
 class FWGeometryTable : public TGMainFrame
@@ -50,6 +53,7 @@ public:
 
    void browse();
    void readFile();
+   void updateStatusBar(const char* status);
 
    virtual void setFrom(const FWConfiguration&);
    Bool_t HandleKey(Event_t *event);
@@ -76,7 +80,7 @@ private:
 
    TFile                  *m_geometryFile;
    TGTextButton           *m_fileOpen;
-
+   TGStatusBar            *m_statBar;
    TGCompositeFrame       *m_settersFrame;
 
 #ifndef __CINT__

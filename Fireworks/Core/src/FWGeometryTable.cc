@@ -10,7 +10,8 @@
 #include "TFile.h"
 #include "TGFileDialog.h"
 #include "TGeoNode.h"
-#include "TGComboBox.h"
+#include "TGStatusBar.h"
+#include "TGButton.h"
 #include "TGLabel.h"
 
 #include <iostream>
@@ -19,7 +20,7 @@ FWGeometryTable::FWGeometryTable(FWGUIManager *guiManager)
      m_mode(this, "Mode:", 0l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
      m_autoExpand(this,"AutoExpand:", 2l, 0l, 1000l),
-     m_maxDaughters(this,"MaxDaughters:", 999l, 0l, 1000l), // debug
+     m_maxDaughters(this,"MaxChildren:", 999l, 0l, 1000l), // debug
      m_guiManager(guiManager),
      m_tableManager(0),
      m_geometryFile(0),
@@ -31,21 +32,17 @@ FWGeometryTable::FWGeometryTable(FWGUIManager *guiManager)
    
    m_tableManager = new FWGeometryTableManager(this);
  
-
-   // TGCompositeFrame* hf = new TGHorizontalFrame(this);
-   //AddFrame(hf, new TGLayoutHints(kLHintsExpandX|kLHintsTop));
-
    TGTextButton* m_fileOpen = new TGTextButton (this, "Open Geometry File");
    this->AddFrame(m_fileOpen,  new TGLayoutHints( kLHintsExpandX , 2, 2, 2, 2));
    m_fileOpen->Connect("Clicked()","FWGeometryTable",this,"browse()");
 
 
    m_settersFrame = new TGHorizontalFrame(this);
-   this->AddFrame( m_settersFrame);
+   this->AddFrame( m_settersFrame,new TGLayoutHints(kLHintsExpandX));
    m_settersFrame->SetCleanup(kDeepCleanup);
 
    m_tableWidget = new FWTableWidget(m_tableManager, this); 
-   AddFrame(m_tableWidget,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY|kLHintsBottom,2,2,2,2));
+   AddFrame(m_tableWidget,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,2,2,2,2));
    m_tableWidget->SetBackgroundColor(0xffffff);
    m_tableWidget->SetLineSeparatorColor(0x000000);
    m_tableWidget->SetHeaderBackgroundColor(0xececec);
@@ -53,11 +50,16 @@ FWGeometryTable::FWGeometryTable(FWGUIManager *guiManager)
                           "FWGeometryTable",this,
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
    resetSetters();
-   //  openFile();
+
+   m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
+   m_statBar->SetText("No simulation geomtery loaded.");
+   AddFrame(m_statBar, new TGLayoutHints(kLHintsExpandX));
 
    SetWindowName("Geometry Browser");
    this->Connect("CloseWindow()","FWGeometryTable",this,"windowIsClosing()");
+   Layout();
    MapSubwindows();
+   // Layout();
 }
 
 FWGeometryTable::~FWGeometryTable()
@@ -183,6 +185,7 @@ FWGeometryTable::readFile()
    catch (std::runtime_error &e)
    {
       fwLog(fwlog::kError) << "Failed to load simulation geomtery.\n";
+      updateStatusBar("Failed to load simulation geomtery from file");
    }
 }
 
@@ -213,4 +216,9 @@ FWGeometryTable::browse()
    m_guiManager->clearStatus();
 
    readFile();
+}
+
+
+void FWGeometryTable::updateStatusBar(const char* status) {
+   m_statBar->SetText(status, 0);
 }
