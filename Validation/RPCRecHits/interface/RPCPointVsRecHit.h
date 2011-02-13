@@ -10,8 +10,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "Validation/RPCRecHits/interface/RPCValidHistograms.h"
 
 #include <string>
 
@@ -32,9 +32,7 @@ private:
   std::string rootFileName_;
   bool isStandAloneMode_;
 
-  typedef MonitorElement* MEP;
-  
-  std::map<int, MEP> h_;
+  RPCValidHistograms h_;
 };
 
 #endif
