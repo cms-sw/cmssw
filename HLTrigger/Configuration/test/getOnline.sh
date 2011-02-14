@@ -1,7 +1,7 @@
 #! /bin/bash
 
-HLT='/dev/CMSSW_3_11_0/GRun'
-L1T='L1Menu_Collisions2010_v0'
+HLT='/dev/CMSSW_3_11_1/GRun'
+L1T='L1Menu_Collisions2011_v0a'
 
 hltGetConfiguration $HLT --process TEST --full --offline --mc   --l1 $L1T --unprescale > offline_mc.py
 hltGetConfiguration $HLT --process TEST --full --offline --data --l1 $L1T --unprescale > offline_data.py
