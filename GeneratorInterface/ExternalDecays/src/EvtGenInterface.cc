@@ -500,6 +500,9 @@ void EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC
 	// and make the spin density matrix
 	float pol = polarizations.find(partHep->pdg_id())->second;
 	GlobalVector pPart(momHep.x(), momHep.y(), momHep.z());
+	//std::cout << "Polarizing particle with PDG ID "
+	//  << partHep->pdg_id()
+	//  << " at " << pol*100 << "%" << std::endl;
 	GlobalVector zHat(0., 0., 1.);
 	GlobalVector zCrossP = zHat.cross(pPart);
 	GlobalVector polVec = pol * zCrossP.unit();
@@ -507,11 +510,11 @@ void EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC
 	EvtSpinDensity theSpinDensity;
 	theSpinDensity.SetDim(2);
 	theSpinDensity.Set(0, 0, EvtComplex(1./2. + polVec.z()/2., 0.));
-	theSpinDensity.Set(0, 1, EvtComplex(polVec.x()/2., polVec.y()/2.));
-	theSpinDensity.Set(1, 0, EvtComplex(polVec.x()/2., -polVec.y()/2.));
+	theSpinDensity.Set(0, 1, EvtComplex(polVec.x()/2., -polVec.y()/2.));
+	theSpinDensity.Set(1, 0, EvtComplex(polVec.x()/2., polVec.y()/2.));
 	theSpinDensity.Set(1, 1, EvtComplex(1./2. - polVec.z()/2., 0.));
 
-	partEvt->setSpinDensityForward(theSpinDensity);
+	partEvt->setSpinDensityForwardHelicityBasis(theSpinDensity);
 
     } else {
 	partEvt->setDiagonalSpinDensity();     

@@ -18,7 +18,7 @@ process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
 process.MessageLogger.fwkJobReports = []
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(50000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(500000))
 
 process.source = cms.Source("EmptySource")
 
@@ -56,7 +56,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/TestEvtGenMenoUno.root')
+    fileName = cms.untracked.string('/tmp/TestEvtGen.root')
 )
 
 process.p = cms.Path(process.generator)
