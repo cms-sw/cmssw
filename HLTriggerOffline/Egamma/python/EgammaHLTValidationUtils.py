@@ -648,6 +648,13 @@ def getCXXTypesOfPath(process, path):
 
     for name in moduleNames:
 
+        # skip those modules which are in the path
+        # but not in the process object.
+        # not understood why we need to do this
+        # but seems to cause problems in practice...
+        if not hasattr(process,name):
+            continue
+
         module = getattr(process, name)
 
         retval.add(module.type_())
