@@ -5,6 +5,7 @@ recoTauEnableMVA = True
 
 # Temporary code to load database if CMSSW version < 3_11
 # In 3_11 this has entered the global tag.
+TauTagMVAComputerRecord = None
 #from RecoTauTag.TauTagTools.TancConditions_cff import TauTagMVAComputerRecord
 #TauTagMVAComputerRecord.connect = cms.string(
    #'sqlite_fip:RecoTauTag/RecoTau/data/hpstanc.db'
