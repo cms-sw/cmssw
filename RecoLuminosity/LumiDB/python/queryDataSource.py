@@ -199,24 +199,322 @@ def trgFromOldGT(session,runnumber):
        select deadfrac from 
     else:
     output: [bitnameclob,{cmslsnum:[deadtime,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}]
-    select counts,lsnr,algobit from cms_gt_mon.gt_mon_trig_algo_view where runnr=:runnumber order by lsnr,algobit
-    select counts,lsnr,techbit from cms_gt_mon.gt_mon_trig_tech_view where runnr=:runnumber order by lsnr,techbit
-    select counts,lsnr from cms_gt_mon.gt_mon_trig_dead_view where runnr=:runnumber and deadcounter=:countername order by lsnr
-    select algo_index,alias from cms_gt.gt_run_algo_view where runnumber=:runnumber order by algo_index
-    select techtrig_index,name from cms_gt.gt_run_tech_view where runnumber=:runnumber order by techtrig_index
-    select prescale_factor_algo_000,prescale_factor_algo_001..._127 from cms_gt.gt_run_presc_algo_view where runnr=:runnumber and prescale_index=0;
-    select prescale_factor_tt_000,prescale_factor_tt_001..._63 from cms_gt.gt_run_presc_tech_view where runnr=:runnumber and prescale_index=0;
+    1. select counts,lsnr from cms_gt_mon.gt_mon_trig_dead_view where runnr=:runnumber and deadcounter=:countername order by lsnr
+    2. select counts,lsnr,algobit from cms_gt_mon.gt_mon_trig_algo_view where runnr=:runnumber order by lsnr,algobit
+    3. select counts,lsnr,techbit from cms_gt_mon.gt_mon_trig_tech_view where runnr=:runnumber order by lsnr,techbit
+    4. select algo_index,alias from cms_gt.gt_run_algo_view where runnumber=:runnumber order by algo_index
+    5. select techtrig_index,name from cms_gt.gt_run_tech_view where runnumber=:runnumber order by techtrig_index
+    6  select distinct(prescale_index)  from cms_gt_mon.lumi_sections where run_number=:runnumber;
+    7. select prescale_factor_algo_000,algo.prescale_factor_algo_001..._127 from cms_gt.gt_run_presc_algo_view where prescale_index=:prescale_index and runnr=:runnumber;
+    8. select prescale_factor_tt_000,tech.prescale_factor_tt_001..._63 from cms_gt.gt_run_presc_tech_view where prescale_index=:prescale_index and runnr=:runnumber;
+    9. select lumi_section,prescale_index from cms_gt_mon.lumi_sections where run_number=:runnumber order by lumi_section
     '''
-    pass
-    #bitnames=''
-    #databuffer={} #{cmslsnum:[deadtime,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}
-    #qHandle=schema.newQuery()
-    #try:
+    result={}
+    deadtimeresult=[]
+    NAlgoBit=128 #0-127
+    NTechBit=64  #0-63
+    algocount=[]
+    techcount=[]
+    prescaleDict={} #{prescale_index:[[algo_prescale_factors][tech_prescale_factors]]}
+    prescaleResult={}#{lsnumber:[[algo_prescale_factors][tech_prescale_factors]]}
+    try:
+        session.transaction().start(True)
+        gtmonschema=session.schema('CMS_GT_MON')
+        #
+        # select counts,lsnr from cms_gt_mon.gt_mon_trig_dead_view where runnr=:runnumber and deadcounter=:countername order by lsnr
+        #
+        deadviewQuery=gtmonschema.newQuery()
+        deadviewQuery.addToTableList('GT_MON_TRIG_DEAD_VIEW')
+        deadOutput=coral.AttributeList()
+        deadOutput.extend('counts','unsigned int')
+        deadOutput.extend('lsnr','unsigned int')
+        deadviewQuery.addToOutputList('counts')
+        deadviewQuery.addToOutputList('lsnr')
+        bindVariablesDead=coral.AttributeList()
+        bindVariablesDead.extend('runnumber','int')
+        bindVariablesDead.extend('countername','string')
+        bindVariablesDead['runnumber'].setData(int(runnumber))
+        bindVariablesDead['countername'].setData('DeadtimeBeamActive')
+        deadviewQuery.setCondition('RUNNR=:runnumber AND DEADCOUNTER=:countername',bindVariablesDead)
+        deadviewQuery.addToOrderList('lsnr')
+        deadviewQuery.defineOutput(deadOutput)
+        deadcursor=deadviewQuery.execute()
+        s=0
+        while deadcursor.next():
+            row=deadcursor.currentRow()
+            s+=1
+            lsnr=row['lsnr'].data()
+            while s!=lsnr:
+                print 'DEADTIME alert: found hole in LS range'
+                print '         fill deadtimebeamactive 0 for LS '+str(s)
+                deadtimeresult.append(0)
+                s+=1
+            count=row['counts'].data()
+            deadtimeresult.append(count)
+        if s==0:
+            deadcursor.close()
+            del deadviewQuery
+            session.transaction().commit()
+            raise 'requested run '+str(runnumber )+' does not exist for deadcounts'
+        del deadviewQuery
         
-    #except:
-    #    del qHandle
-    #    raise 
+        mybitcount_algo=[]
+        algoviewQuery=gtmonschema.newQuery()
+        #
+        # select counts,lsnr,algobit from cms_gt_mon.gt_mon_trig_algo_view where runnr=:runnumber order by lsnr,algobit
+        #
+        algoviewQuery.addToTableList('GT_MON_TRIG_ALGO_VIEW')
+        algoOutput=coral.AttributeList()
+        algoOutput.extend('counts','unsigned int')
+        algoOutput.extend('lsnr','unsigned int')
+        algoOutput.extend('algobit','unsigned int')
+        algoviewQuery.addToOutputList('counts')
+        algoviewQuery.addToOutputList('lsnr')
+        algoviewQuery.addToOutputList('algobit')
+        algoCondition=coral.AttributeList()
+        algoCondition.extend('runnumber','unsigned int')
+        algoCondition['runnumber'].setData(int(runnumber))
+        algoviewQuery.setCondition('RUNNR=:runnumber',algoCondition)
+        algoviewQuery.addToOrderList('lsnr')
+        algoviewQuery.addToOrderList('algobit')
+        algoviewQuery.defineOutput(algoOutput)
+      
+        algocursor=algoviewQuery.execute()
+        s=0
+        while algocursor.next():
+            row=algocursor.currentRow()
+            lsnr=row['lsnr'].data()
+            counts=row['counts'].data()
+            algobit=row['algobit'].data()
+            mybitcount_algo.append(counts)
+            if algobit==NAlgoBit-1:
+                s+=1
+                while s!=lsnr:
+                    print 'ALGO COUNT alert: found hole in LS range'
+                    print '     fill all algocount 0 for LS '+str(s)
+                    tmpzero=[0]*NAlgoBit
+                    algocount.append(tmpzero)
+                    s+=1
+                algocount.append(mybitcount_algo)
+                mybitcount_algo=[]
+        if s==0:
+            algocursor.close()
+            del algoviewQuery
+            session.transaction().commit()
+            raise 'requested run '+str(runnumber+' does not exist for algocounts ')
+        del algoviewQuery
+                
+        mybitcount_tech=[]
+        techviewQuery=gtmonschema.newQuery()
+        techviewQuery.addToTableList('GT_MON_TRIG_TECH_VIEW')
+        #
+        # select counts,lsnr,techbit from cms_gt_mon.gt_mon_trig_tech_view where runnr=:runnumber order by lsnr,techbit
+        #
+        techOutput=coral.AttributeList()
+        techOutput.extend('counts','unsigned int')
+        techOutput.extend('lsnr','unsigned int')
+        techOutput.extend('techbit','unsigned int')
+        techviewQuery.addToOutputList('COUNTS','counts')
+        techviewQuery.addToOutputList('LSNR','lsnr')
+        techviewQuery.addToOutputList('TECHBIT','techbit')
+        techCondition=coral.AttributeList()
+        techCondition.extend('runnumber','unsigned int')
+        techCondition['runnumber'].setData(int(runnumber))
+        techviewQuery.setCondition('RUNNR=:runnumber',techCondition)
+        techviewQuery.addToOrderList('lsnr')
+        techviewQuery.addToOrderList('techbit')
+        techviewQuery.defineOutput(techOutput)
+      
+        techcursor=techviewQuery.execute()
+        s=0
+        while techcursor.next():
+            row=techcursor.currentRow()
+            lsnr=row['lsnr'].data()
+            counts=row['counts'].data()
+            techbit=row['techbit'].data()
+            mybitcount_tech.append(counts)
+            if techbit==NTechBit-1:
+                s+=1
+                while s!=lsnr:
+                    print 'TECH COUNT alert: found hole in LS range'
+                    print '     fill all techcount 0 for LS '+str(s)
+                    tmpzero=[0]*NTechBit
+                    techcount.append(tmpzero)
+                    s+=1
+                techcount.append(mybitcount_tech)
+                mybitcount_tech=[]
+        if s==0:
+            techcursor.close()
+            del techviewQuery
+            session.transaction().commit()
+            raise 'requested run '+str(runnumber+' does not exist for algocounts ')
+        del techviewQuery
 
+        gtschema=session.schema('CMS_GT')
+        triggernamemap={}
+        namealiasQuery=gtschema.newQuery()
+        #
+        # select algo_index,alias from cms_gt.gt_run_algo_view where runnumber=:runnumber order by algo_index
+        #
+        
+        namealiasQuery.addToTableList('GT_RUN_ALGO_VIEW')
+        algonameOutput=coral.AttributeList()
+        algonameOutput.extend('algo_index','unsigned int')
+        algonameOutput.extend('alias','string')
+        namealiasQuery.addToOutputList('algo_index')
+        namealiasQuery.addToOutputList('alias')
+        algonameCondition=coral.AttributeList()
+        algonameCondition.extend('runnumber','unsigned int')
+        algonameCondition['runnumber'].setData(int(runnumber))
+        namealiasQuery.setCondition('RUNNUMBER=:runnumber',algonameCondition)
+        namealiasQuery.addToOrderList('algo_index')
+        namealiasQuery.defineOutput(algonameOutput)
+        algonamecursor=namealiasQuery.execute()
+        while algonamecursor.next():
+            row=algonamecursor.currentRow()
+            algo_index=row['algo_index'].data()
+            algo_name=row['alias'].data()
+            triggernamemap[algo_index]=algo_name
+        del namealiasQuery
+
+        techtriggernamemap={}
+        technamealiasQuery=gtschema.newQuery()
+        #
+        # select techtrig_index,name from cms_gt.gt_run_tech_view where runnumber=:runnumber order by techtrig_index
+        #
+        technamealiasQuery.addToTableList('GT_RUN_TECH_VIEW')
+        technameOutput=coral.AttributeList()
+        technameOutput.extend('techtrig_index','unsigned int')
+        technameOutput.extend('name','string')
+        technamealiasQuery.addToOutputList('techtrig_index')
+        technamealiasQuery.addToOutputList('name')
+        technameCondition=coral.AttributeList()
+        technameCondition.extend('runnumber','unsigned int')
+        technameCondition['runnumber'].setData(int(runnumber))
+        technamealiasQuery.setCondition('RUNNUMBER=:runnumber',technameCondition)
+        technamealiasQuery.addToOrderList('techtrig_index')
+        technamealiasQuery.defineOutput(technameOutput)
+        technamecursor=technamealiasQuery.execute()
+        while technamecursor.next():
+            row=technamecursor.currentRow()
+            tech_index=row['techtrig_index'].data()
+            tech_name=row['name'].data()
+            techtriggernamemap[tech_index]=tech_name
+        del technamealiasQuery
+
+        #
+        # select distinct(prescale_index) from cms_gt_mon.lumi_sections where run_number=:runnumber;
+        #
+        prescaleidx=[]
+        presidxQuery=gtmonschema.newQuery()
+        presidxQuery.addToTableList('LUMI_SECTIONS')
+        
+        presidxBindVariable=coral.AttributeList()
+        presidxBindVariable.extend('runnumber','int')
+        presidxBindVariable['runnumber'].setData(int(runnumber))
+
+        presidxOutput=coral.AttributeList()
+        presidxOutput.extend('prescale_index','int')
+        presidxQuery.addToOutputList('distinct(PRESCALE_INDEX)','prescale_index')
+        presidxQuery.defineOutput(presidxOutput)
+        presidxQuery.setCondition('RUN_NUMBER=:runnumber',presidxBindVariable)
+        presidxCursor=presidxQuery.execute()
+        while presidxCursor.next():
+            presc=presidxCursor.currentRow()['prescale_index'].data()
+            prescaleidx.append(presc)
+        print prescaleidx
+        del presidxQuery
+        #
+        # select algo.prescale_factor_algo_000,,algo.prescale_factor_algo_001..._127 from gt_run_presc_algo_view where run_number=:runnumber and prescale_index=:prescale_index;
+        #
+        for prescaleindex in prescaleidx:
+            algoprescQuery=gtschema.newQuery()
+            algoprescQuery.addToTableList('GT_RUN_PRESC_ALGO_VIEW')
+            algoPrescOutput=coral.AttributeList()
+            algoprescBase='PRESCALE_FACTOR_ALGO_'
+            for bitidx in range(NAlgoBit):
+                algopresc=algoprescBase+str(bitidx).zfill(3)
+                algoPrescOutput.extend(algopresc,'unsigned int')
+                algoprescQuery.addToOutputList(algopresc)
+            PrescbindVariable=coral.AttributeList()
+            PrescbindVariable.extend('runnumber','int')
+            PrescbindVariable.extend('prescaleindex','int')
+            PrescbindVariable['runnumber'].setData(int(runnumber))
+            PrescbindVariable['prescaleindex'].setData(prescaleindex)
+            algoprescQuery.setCondition('RUNNR=:runnumber AND PRESCALE_INDEX=:prescaleindex',PrescbindVariable)
+            algoprescQuery.defineOutput(algoPrescOutput)
+            algopresccursor=algoprescQuery.execute()
+            while algopresccursor.next():
+                row=algopresccursor.currentRow()
+                prescaleDict[prescaleindex]=[]
+                algoprescale=[]
+                for bitidx in range(NAlgoBit):
+                    algopresc=algoprescBase+str(bitidx).zfill(3)
+                    algoprescale.append(row[algopresc].data())
+                prescaleDict[prescaleindex].append(algoprescale)
+            del algoprescQuery
+
+        #
+        # select prescale_factor_tt_000,prescale_factor_tt_001..._127 from gt_run_presc_tech_view where run_number=:runnumber and prescale_index=:prescale_index;
+        #
+        for prescaleindex in prescaleidx:
+            techprescQuery=gtschema.newQuery()
+            techprescQuery.addToTableList('GT_RUN_PRESC_TECH_VIEW')
+            techPrescOutput=coral.AttributeList()
+            techprescBase='PRESCALE_FACTOR_TT_'
+            for bitidx in range(NTechBit):
+                techpresc=techprescBase+str(bitidx).zfill(3)
+                techPrescOutput.extend(techpresc,'unsigned int')
+                techprescQuery.addToOutputList(techpresc)
+            PrescbindVariable=coral.AttributeList()
+            PrescbindVariable.extend('runnumber','int')
+            PrescbindVariable.extend('prescaleindex','int')
+            PrescbindVariable['runnumber'].setData(int(runnumber))
+            PrescbindVariable['prescaleindex'].setData(prescaleindex)
+            techprescQuery.setCondition('RUNNR=:runnumber AND PRESCALE_INDEX=:prescaleindex',PrescbindVariable)
+            techprescQuery.defineOutput(techPrescOutput)
+            techpresccursor=techprescQuery.execute()
+            while techpresccursor.next():
+                row=techpresccursor.currentRow()
+                techprescale=[]
+                for bitidx in range(NTechBit):
+                    techpresc=techprescBase+str(bitidx).zfill(3)
+                    techprescale.append(row[techpresc].data())
+                prescaleDict[prescaleindex].append(techprescale)
+            del techprescQuery
+        #print prescaleDict
+        #
+        #select lumi_section,prescale_index from cms_gt_mon.lumi_sections where run_number=:runnumber
+        #
+        lumiprescQuery=gtmonschema.newQuery()
+        lumiprescQuery.addToTableList('LUMI_SECTIONS')
+        
+        lumiprescBindVariable=coral.AttributeList()
+        lumiprescBindVariable.extend('runnumber','int')
+        lumiprescBindVariable['runnumber'].setData(int(runnumber))
+
+        lumiprescOutput=coral.AttributeList()
+        lumiprescOutput.extend('lumisection','int')
+        lumiprescOutput.extend('prescale_index','int')
+        lumiprescQuery.addToOutputList('LUMI_SECTION')
+        lumiprescQuery.addToOutputList('PRESCALE_INDEX')
+        lumiprescQuery.defineOutput(lumiprescOutput)
+        lumiprescQuery.setCondition('RUN_NUMBER=:runnumber',lumiprescBindVariable)
+        lumiprescCursor=lumiprescQuery.execute()
+        while lumiprescCursor.next():
+            row=lumiprescCursor.currentRow()
+            lumisection=row['lumisection'].data()
+            psindex=row['prescale_index'].data()
+            prescaleResult[lumisection]=prescaleDict[psindex]
+        print prescaleResult
+        del lumiprescQuery
+        #return result
+        session.transaction().commit()
+    except:
+        session.transaction().rollback()
+        del session
+        raise
+    
 def hltFromRuninfoV2(session,schemaname,runnumber):
     '''
     input:
@@ -476,7 +774,10 @@ if __name__ == "__main__":
     #print lsresult
     #lshltresult=hltFromOldLumi(session,135735)
     #print lshltresult
-    svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_runinfo',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
+    #svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_runinfo',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
+    #session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    #runsummary(session,'CMS_RUNINFO',135735,complementalOnly=True)
+    svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_gt',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    runsummary(session,'CMS_RUNINFO',135735,complementalOnly=True)
+    trgFromOldGT(session,135735)
     del session
