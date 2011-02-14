@@ -40,8 +40,6 @@ bool isJetXTrigger(TString triggerName, vector<double> &thresholds){
    else return false;
 }
 
-
-
 bool isDiJetAveXUTrigger(TString triggerName, vector<double> &thresholds){
 
   TString pattern = "(OpenHLT_DiJetAve([0-9]+)U){1}$";
@@ -100,8 +98,6 @@ bool isMeffXTrigger(TString triggerName, vector<double> &thresholds){
    else return false;
 }
 
-
-
 bool isHTXUTrigger(TString triggerName, vector<double> &thresholds){
 
   TString pattern = "(OpenHLT_HT([0-9]+)U){1}$";
@@ -129,7 +125,6 @@ bool isHTXTrigger(TString triggerName, vector<double> &thresholds){
    }
    else return false;
 }
-
 
 bool isMHTXUTrigger(TString triggerName, vector<double> &thresholds){
 
@@ -187,7 +182,6 @@ bool ispfMHTXTrigger(TString triggerName, vector<double> &thresholds){
    else return false;
 }
 
-
 bool isDiJetXU_PTXUTrigger(TString triggerName, vector<double> &thresholds){
 
   TString pattern = "(OpenHLT_DiJet([0-9]+)U_PT([0-9]+)U)$";
@@ -219,7 +213,6 @@ bool isDiJetX_PTXTrigger(TString triggerName, vector<double> &thresholds){
    }
    else return false;
 }
-
 
 bool isHTXU_MHTXUTrigger(TString triggerName, vector<double> &thresholds){
 
@@ -281,7 +274,6 @@ bool isDoubleJetX_ForwardBackwardTrigger(TString triggerName, vector<double> &th
    }
    else return false;
 }
-
 
 bool isQuadJetXUTrigger(TString triggerName, vector<double> &thresholds){
 
@@ -355,7 +347,6 @@ bool isPT12_XTrigger(TString triggerName, vector<double> &thresholds){
    else return false;
 }
 
-
 bool isBTagMu_DiJetXUTrigger(TString triggerName, vector<double> &thresholds){
 
   TString pattern = "(OpenHLT_isBTagMu_DiJet([0-9]+)U{1})$";
@@ -427,7 +418,6 @@ bool isBTagMu_DiJetXU_MuXTrigger(TString triggerName, vector<double> &thresholds
    else return false;
 }
 
-
 bool isBTagIP_JetXTrigger(TString triggerName, vector<double> &thresholds){
 
   TString pattern = "(OpenHLT_BTagIP_Jet([0-9]+){1})$";
@@ -441,7 +431,6 @@ bool isBTagIP_JetXTrigger(TString triggerName, vector<double> &thresholds){
    }
    else return false;
 }
-
 
 bool isSingleIsoTauX_TrkX_METXTrigger(TString triggerName, vector<double> &thresholds){
 
@@ -541,6 +530,18 @@ bool isMETX_HTXTrigger(TString triggerName, vector<double> &thresholds){
    else return false;
 }
 
+bool isL1SingleEGXTrigger(TString triggerName){
+
+  TString pattern = "(OpenHLT_L1SingleEG([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName)){
+     return true;
+   }
+   else return false;
+}
+
+
 void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcounter,int it) 
 {
   TString triggerName = menu->GetTriggerName(it);
@@ -638,8 +639,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   /*OpenHLT_JetX(U) paths*/
 
 
-  else if (isJetXUTrigger(menu->GetTriggerName(it),thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+  else if (isJetXUTrigger(triggerName,thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) {   
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
 	if(OpenHlt1JetPassed(thresholds[0])>=1) {  
 	  triggerBit[it] = true;   
@@ -649,7 +650,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }
  
   
-   else if (isJetXTrigger(menu->GetTriggerName(it),thresholds)){
+   else if (isJetXTrigger(triggerName,thresholds)){
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
 	if(OpenHlt1CorJetPassed(thresholds[0])>=1) {  
@@ -664,8 +665,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 
   /* DoubleJetX(U)_ForwardBackward */
 
- else if (isDoubleJetXU_ForwardBackwardTrigger(menu->GetTriggerName(it),thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+ else if (isDoubleJetXU_ForwardBackwardTrigger(triggerName,thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	int rc = 0;
 	int rc1 = 0;
@@ -689,8 +690,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
     }
   }
   
-  else if ( isDoubleJetX_ForwardBackwardTrigger(menu->GetTriggerName(it), thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+  else if ( isDoubleJetX_ForwardBackwardTrigger(triggerName, thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	int rc = 0;
 	int rc1 = 0;
@@ -715,8 +716,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }
   
   /* DiJetAveX(U) */
- else if (isDiJetAveXUTrigger(menu->GetTriggerName(it),thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+ else if (isDiJetAveXUTrigger(triggerName,thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) { 
 	if (prescaleResponse(menu,cfg,rcounter,it)) {
 	  if(OpenHltDiJetAvePassed(thresholds[0])>=1) {   
 	    triggerBit[it] = true; 
@@ -725,8 +726,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }   
   }
   
- else if (isDiJetAveXTrigger(menu->GetTriggerName(it),thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+ else if (isDiJetAveXTrigger(triggerName,thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) { 
 	if (prescaleResponse(menu,cfg,rcounter,it)) {
 	  if(OpenHltCorDiJetAvePassed(thresholds[0])>=1) {   
 	    triggerBit[it] = true; 
@@ -833,8 +834,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   } 
 
   /********QuadJetX(U)********/
- else if (isQuadJetXUTrigger(menu->GetTriggerName(it),thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+ else if (isQuadJetXUTrigger(triggerName,thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) {   
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
 	if(OpenHltQuadJetPassed(thresholds[0])>=1) {  
 	  triggerBit[it] = true;   
@@ -843,8 +844,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
     }  
   }
   
-  else if ( isQuadJetXTrigger(menu->GetTriggerName(it), thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+  else if ( isQuadJetXTrigger(triggerName, thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) {   
       if (prescaleResponse(menu,cfg,rcounter,it)) {  
 	if(OpenHltQuadCorJetPassed(thresholds[0])>=1) {  
 	  triggerBit[it] = true;   
@@ -894,8 +895,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }      
 
   /***METX******/ 
-  else if ( isMETXTrigger(menu->GetTriggerName(it), thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+  else if ( isMETXTrigger(triggerName, thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(recoMetCal > thresholds[0]) {  
 	  triggerBit[it] = true; 
@@ -907,8 +908,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 
   /*******pfMHTX******/
 
- else if (ispfMHTXTrigger(menu->GetTriggerName(it),thresholds)){
-     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+ else if (ispfMHTXTrigger(triggerName,thresholds)){
+     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(pfMHT > thresholds[0]) {
 	  triggerBit[it] = true;
@@ -920,8 +921,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 
   /*******MeffX(U)********/
 
-  else if (isMeffXUTrigger(menu->GetTriggerName(it),thresholds)){
-     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+  else if (isMeffXUTrigger(triggerName,thresholds)){
+     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) { 
 	if (prescaleResponse(menu,cfg,rcounter,it)) {
 	  if(OpenHltMeffU(thresholds[0], 20.)==1) {
 	    triggerBit[it] = true; 
@@ -930,8 +931,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       } 
   }
   
- else if (isMeffXTrigger(menu->GetTriggerName(it),thresholds)){
-     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+ else if (isMeffXTrigger(triggerName,thresholds)){
+     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) { 
 	if (prescaleResponse(menu,cfg,rcounter,it)) {
 	  if(OpenHltMeff(thresholds[0], 20.)==1) {
 	    triggerBit[it] = true; 
@@ -944,8 +945,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   
   /***********PTX(U)_X**************************/
 
-else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
-  if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+else if (isPT12U_XUTrigger(triggerName,thresholds)){
+  if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) { 
     if (prescaleResponse(menu,cfg,rcounter,it)) {
       if(OpenHltPT12U(thresholds[0],50.)==1) {
 	triggerBit[it] = true; 
@@ -954,8 +955,8 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
   }  
  }
   
- else if ( isPT12_XTrigger(menu->GetTriggerName(it), thresholds)){
-   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+ else if ( isPT12_XTrigger(triggerName, thresholds)){
+   if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) { 
      if (prescaleResponse(menu,cfg,rcounter,it)) {
        if(OpenHltPT12(thresholds[0],50.)==1) {
 	 triggerBit[it] = true; 
@@ -967,8 +968,8 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
 
   /*HTX and HTXU paths*/
 
-  else if (isHTXUTrigger(menu->GetTriggerName(it),thresholds)){
-      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
+  else if (isHTXUTrigger(triggerName,thresholds)){
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second>0) {   
        if (prescaleResponse(menu,cfg,rcounter,it)) {
 	 if(OpenHltSumHTPassed(thresholds[0], 20.) == 1) { 
 	   triggerBit[it] = true; 
@@ -977,8 +978,8 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
      }   
   }
   
-  else if (isHTXTrigger(menu->GetTriggerName(it), thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
+  else if (isHTXTrigger(triggerName, thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second>0) {   
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHltSumCorHTPassed(thresholds[0], 20.) == 1) { 
 	  triggerBit[it] = true; 
@@ -1001,8 +1002,8 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
 
   /****RX(U)_MRX(U)**** RPassed not implemented with corrected jets********/
 
- else if (isR0XU_MRXUTrigger(menu->GetTriggerName(it),thresholds)){
-     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+ else if (isR0XU_MRXUTrigger(triggerName,thresholds)){
+     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) { 
       if(OpenHltRPassed(thresholds[0],thresholds[1],false,7,30.)>0) { 
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
       } 
@@ -1940,8 +1941,9 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
   }     
 
   /* Electrons */
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleEG2") == 0) {     
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+
+  else if (isL1SingleEGXTrigger(triggerName)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(true) { // passthrough      
 	  triggerBit[it] = true; 
@@ -1949,24 +1951,7 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
       }      
     }      
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleEG5") == 0) {     
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(true) { // passthrough      
-	  triggerBit[it] = true; 
-	}
-      }      
-    }      
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleEG8") == 0) {      
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(true) { // passthrough       
-	  triggerBit[it] = true; 
-	}
-      }       
-    }       
-  }  
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1DoubleEG5") == 0) {       
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -1996,819 +1981,7 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
     }  
   } 
  
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_CaloIdL_CaloIsoVL_v1") == 0) {  
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) {  
-        if(OpenHlt1ElectronSamHarperPassed(17.,0,          // ET, L1isolation  
-                                           999., 999.,       // Track iso barrel, Track iso endcap  
-                                           999, 999,        // Track/pT iso barrel, Track/pT iso endcap  
-                                           0.2, 0.2,       // H/ET iso barrel, H/ET iso endcap  
-                                           0.2, 0.2,       // E/ET iso barrel, E/ET iso endcap  
-                                           0.15, 0.1,       // H/E barrel, H/E endcap  
-                                           0.014, 0.035,       // cluster shape barrel, cluster shape endcap  
-                                           0.98, 1.0,       // R9 barrel, R9 endcap  
-                                           999, 999,       // Deta barrel, Deta endcap  
-                                           999, 999        // Dphi barrel, Dphi endcap  
-                                           )>=1) {  
-          triggerBit[it] = true;  
-        }  
-      }  
-    }  
-  } 
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1") == 0) {  
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) {  
-        if(OpenHlt1ElectronSamHarperPassed(15.,0,          // ET, L1isolation  
-                                           999., 999.,       // Track iso barrel, Track iso endcap  
-                                           0.125, 0.075,        // Track/pT iso barrel, Track/pT iso endcap  
-                                           0.125, 0.075,       // H/ET iso barrel, H/ET iso endcap  
-                                           0.125, 0.075,       // E/ET iso barrel, E/ET iso endcap  
-                                           0.05, 0.05,       // H/E barrel, H/E endcap  
-                                           0.011, 0.031,       // cluster shape barrel, cluster shape endcap  
-                                           0.98, 1.0,       // R9 barrel, R9 endcap  
-                                           0.008, 0.008,       // Deta barrel, Deta endcap  
-                                           0.07, 0.05        // Dphi barrel, Dphi endcap  
-                                           )>=1) {  
-          triggerBit[it] = true;  
-        }  
-      }  
-    }  
-  } 
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1") == 0) {  
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) {  
-        if(OpenHlt1ElectronSamHarperPassed(27.,0,          // ET, L1isolation  
-                                           999., 999.,       // Track iso barrel, Track iso endcap  
-                                           0.125, 0.075,        // Track/pT iso barrel, Track/pT iso endcap  
-                                           0.125, 0.075,       // H/ET iso barrel, H/ET iso endcap  
-                                           0.125, 0.075,       // E/ET iso barrel, E/ET iso endcap  
-                                           0.05, 0.05,       // H/E barrel, H/E endcap  
-                                           0.011, 0.031,       // cluster shape barrel, cluster shape endcap  
-                                           0.98, 1.0,       // R9 barrel, R9 endcap  
-                                           0.008, 0.008,       // Deta barrel, Deta endcap  
-                                           0.07, 0.05        // Dphi barrel, Dphi endcap  
-                                           )>=1) {  
-          triggerBit[it] = true;  
-        }  
-      }  
-    }  
-  } 
- 
-  //HLT_Ele45_CaloIdT_TrkIdT_v1 
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele45_CaloIdVT_TrkIdT_v1") == 0) {  
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) {  
-        if(OpenHlt1ElectronSamHarperPassed(45.,0,          // ET, L1isolation  
-                                           999., 999.,       // Track iso barrel, Track iso endcap  
-                                           999., 999.,        // Track/pT iso barrel, Track/pT iso endcap  
-                                           999., 999.,       // H/ET iso barrel, H/ET iso endcap  
-                                           999., 999.,       // E/ET iso barrel, E/ET iso endcap  
-                                           0.05, 0.05,       // H/E barrel, H/E endcap  
-                                           0.011, 0.031,       // cluster shape barrel, cluster shape endcap  
-                                           0.98, 1.0,       // R9 barrel, R9 endcap  
-                                           0.008, 0.008,       // Deta barrel, Deta endcap  
-                                           0.07, 0.05        // Dphi barrel, Dphi endcap  
-                                           )>=1) {  
-          triggerBit[it] = true;  
-        }  
-      }  
-    }  
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele90_NoSpikeFilter_v1") == 0) {       
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) { 
-        if(OpenHlt1ElectronSamHarperPassed(90.,0,          // ET, L1isolation  
-                                           999., 999.,       // Track iso barrel, Track iso endcap  
-                                           999., 999.,        // Track/pT iso barrel, Track/pT iso endcap  
-                                           999., 999.,       // H/ET iso barrel, H/ET iso endcap  
-                                           999., 999.,       // E/ET iso barrel, E/ET iso endcap  
-                                           0.15, 0.1,       // H/E barrel, H/E endcap  
-                                           999., 999.,       // cluster shape barrel, cluster shape endcap  
-                                           999., 999.,       // R9 barrel, R9 endcap  
-                                           999., 999.,       // Deta barrel, Deta endcap  
-                                           999., 999.        // Dphi barrel, Dphi endcap  
-                                           )>=1) {  
-          triggerBit[it] = true;  
-        } 
-      }       
-    }       
-  } 
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele70_CaloIdVL") == 0) {  
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) {  
-        if(OpenHlt1ElectronSamHarperPassed(70.,0,          // ET, L1isolation  
-                                           999., 999.,       // Track iso barrel, Track iso endcap  
-                                           999., 999.,        // Track/pT iso barrel, Track/pT iso endcap  
-                                           999., 999.,       // H/ET iso barrel, H/ET iso endcap  
-                                           999., 999.,       // E/ET iso barrel, E/ET iso endcap  
-                                           0.15, 0.10,       // H/E barrel, H/E endcap  
-                                           0.024, 0.040,       // cluster shape barrel, cluster shape endcap  
-                                           0.98, 1.0,       // R9 barrel, R9 endcap  
-                                           999, 999,       // Deta barrel, Deta endcap  
-                                           999, 999        // Dphi barrel, Dphi endcap  
-                                           )>=1) {  
-          triggerBit[it] = true;  
-        }  
-      }  
-    }  
-  } 
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele70_CaloIdVL_v2") == 0) {  
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) {  
-        if(OpenHlt1ElectronSamHarperPassed(70.,0,          // ET, L1isolation  
-                                           999., 999.,       // Track iso barrel, Track iso endcap  
-                                           999., 999.,        // Track/pT iso barrel, Track/pT iso endcap  
-                                           999., 999.,       // H/ET iso barrel, H/ET iso endcap  
-                                           999., 999.,       // E/ET iso barrel, E/ET iso endcap  
-                                           0.15, 0.10,       // H/E barrel, H/E endcap  
-                                           0.024, 0.040,       // cluster shape barrel, cluster shape endcap  
-                                           999, 999,       // R9 barrel, R9 endcap  
-                                           999, 999,       // Deta barrel, Deta endcap  
-                                           999, 999        // Dphi barrel, Dphi endcap  
-                                           )>=1) {  
-          triggerBit[it] = true;  
-        }  
-      }  
-    }  
-  } 
-
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_SW_TighterEleIdIsol_L1R") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-        if(OpenHlt1ElectronSamHarperPassed(17.,0,          // ET, L1isolation
-                                         999., 999.,       // Track iso barrel, Track iso endcap
-                                         0.15, 0.10,        // Track/pT iso barrel, Track/pT iso endcap
-                                         999., 0.05,       // H/ET iso barrel, H/ET iso endcap
-                                         0.125, 0.075,       // E/ET iso barrel, E/ET iso endcap
-                                         0.05, 0.05,       // H/E barrel, H/E endcap
-                                         0.011, 0.031,       // cluster shape barrel, cluster shape endcap
-                                         0.98, 1.0,       // R9 barrel, R9 endcap
-                                         0.008, 0.007,       // Deta barrel, Deta endcap
-                                         0.1, 0.1        // Dphi barrel, Dphi endcap
-                                         )>=1) {
-          triggerBit[it] = true;
-        }
-      }
-    }
-  }
-  
-
-
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu50_NoVertex") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1MuonPassed(7.,15.,50.,9999.,0)>=1) {
-	  triggerBit[it] = true; 
-	}
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu3") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt2MuonPassed(0.,0.,3.,2.,0)>=2) {   
-	  triggerBit[it] = true; 
-	}
-      }   
-    }   
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu4_Exclusive") == 0) {    
-    int rc = 0;
-    float ptl2 = 3.0;
-    float ptl3 = 4.0;
-    float drl3 = 2.0;
-    float etal3 = 2.4;
-    float etal2 = 2.4;
-    float deltaphil3 = 0.3;
-    
-
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) { 
-	for (int i=0;i<NohMuL3;i++) {   
-	  for(int j=i+1;j<NohMuL3;j++) {
-	    if( fabs(ohMuL3Eta[i]) < etal3 && fabs(ohMuL3Eta[j]) < etal3 ) { // L3 eta cut   
-	      if(ohMuL3Pt[i] > ptl3 && ohMuL3Pt[j] > ptl3) {  // L3 pT cut         
-		if(ohMuL3Dr[i] < drl3 && ohMuL3Dr[j] < drl3) {  // L3 DR cut 
-		  if((ohMuL3Chg[i] * ohMuL3Chg[j]) < 0) { // opposite charge
-		    float deltaphi = fabs(ohMuL3Phi[i]-ohMuL3Phi[j]); 
-		    if(deltaphi > 3.14159) 
-		      deltaphi = (2.0 * 3.14159) - deltaphi;  
-
-		    deltaphi = 3.14159 - deltaphi; 
-		    if(deltaphi < deltaphil3) {
-		      int l2match1 = ohMuL3L2idx[i];
-		      int l2match2 = ohMuL3L2idx[j];
-		      
-		      if ( (fabs(ohMuL2Eta[l2match1]) < etal2) && (fabs(ohMuL2Eta[l2match2]) < etal2)) {  // L2 eta cut  
-			if( (ohMuL2Pt[l2match1] > ptl2) && (ohMuL2Pt[l2match2] > ptl2) ) { // L2 pT cut  
-			  rc++;
-			}
-		      }
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-    if(rc >=1)
-      triggerBit[it] = true;  
-  
-  } 
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu5") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt2MuonPassed(0.,0.,5.,2.,0)>=2) {   
-	  triggerBit[it] = true; 
-	}
-      }   
-    }   
- }
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu6") == 0) {    
-   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-     if (prescaleResponse(menu,cfg,rcounter,it)) { 
-       if(OpenHlt2MuonPassed(3.,3.,6.,2.,0)>=2) {    
-	 triggerBit[it] = true;  
-       } 
-     }    
-   }    
- } 
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu7") == 0) {    
-   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-     if (prescaleResponse(menu,cfg,rcounter,it)) { 
-       if(OpenHlt2MuonPassed(3.,3.,7.,2.,0)>=2) {    
-	 triggerBit[it] = true;  
-       } 
-     }    
-   }    
- } 
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1DoubleMuOpen") == 0) {    
-   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-     if (prescaleResponse(menu,cfg,rcounter,it)) {
-       if(1) {    // Pass through
-	 triggerBit[it] = true; 
-       }
-     }    
-   } 
- }
- else if(menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu0") == 0) {     
-   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt2MuonPassed(0.,0.,0.,2.,0)>=2) {     
-	  triggerBit[it] = true; 
-	}
-      }
-    }     
- }     
- else if(menu->GetTriggerName(it).CompareTo("OpenHLT_TripleMu5") == 0) {      
-   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-     if (prescaleResponse(menu,cfg,rcounter,it)) { 
-       if(OpenHlt2MuonPassed(3.,3.,5.,2.,0)>=3) {      
-	 triggerBit[it] = true;  
-       } 
-     } 
-   }      
- }
- else if(menu->GetTriggerName(it).CompareTo("OpenHLT_TripleMu5_1IsoMu5") == 0) {
-  if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-    if (prescaleResponse(menu,cfg,rcounter,it)) {
-      if(OpenHlt2MuonPassed(3.,4.,5.,2.,0)>=3 && OpenHlt1MuonPassed(3.,4.,5.,2.,1)>=1) {
-	triggerBit[it] = true;
-      }
-    }
-  }
- }
- else if(menu->GetTriggerName(it).CompareTo("OpenHLT_TripleMu5_2IsoMu5") == 0) {
-   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-     if (prescaleResponse(menu,cfg,rcounter,it)) {
-       if(OpenHlt2MuonPassed(3.,4.,5.,2.,0)>=3 && OpenHlt2MuonPassed(3.,4.,5.,2.,1)>=2) {
-         triggerBit[it] = true;
-       }
-     }
-   }
- }
- else if(menu->GetTriggerName(it).CompareTo("OpenHLT_TripleIsoMu5") == 0) {
-   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-     if (prescaleResponse(menu,cfg,rcounter,it)) {
-       if(OpenHlt2MuonPassed(3.,4.,5.,2.,1)>=3) {
-         triggerBit[it] = true;
-       }
-     }
-   }
- }
- else if(menu->GetTriggerName(it).CompareTo("OpenHLT_TripleMu_2IsoMu5_1Mu8") == 0) {
-   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-     if (prescaleResponse(menu,cfg,rcounter,it)) {
-       if(OpenHlt2MuonPassed(3.,4.,5.,2.,1)>=3&&OpenHlt1MuonPassed(3.,4.,8.,2.,0)>=1) {
-         triggerBit[it] = true;
-       }
-     }
-   }
- }
-
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu3") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1MuonPassed(3.,3.,3.,2.,1)>=1) {   
-	  triggerBit[it] = true; 
-	}
-      }   
-    }   
-  }     
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu9") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1MuonPassed(7.,7.,9.,2.,1)>=1) {   
-	  triggerBit[it] = true; 
-	}
-      }   
-    }   
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu11") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1MuonPassed(7.,7.,11.,2.,1)>=1) {   
-	  triggerBit[it] = true; 
-	}
-      }   
-    }   
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu12") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) { 
-        if(OpenHlt1MuonPassed(7.,7.,12.,2.,1)>=1) {    
-          triggerBit[it] = true;  
-        } 
-      }    
-    }    
-  }  
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu13") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1MuonPassed(7.,7.,13.,2.,1)>=1) {   
-	  triggerBit[it] = true; 
-	}
-      }   
-    }   
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu15") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) { 
-        if(OpenHlt1MuonPassed(10.,10.,15.,2.,1)>=1) {    
-          triggerBit[it] = true;  
-        } 
-      }    
-    }    
-  }  
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu17") == 0) {     
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
-      if (prescaleResponse(menu,cfg,rcounter,it)) {  
-        if(OpenHlt1MuonPassed(10.,10.,17.,2.,1)>=1) {     
-          triggerBit[it] = true;   
-        }  
-      }     
-    }     
-  }   
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu20") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-        if(OpenHlt1MuonPassed(10.,10.,20.,2.,1)>=1) {
-          triggerBit[it] = true;
-        }
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu24") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-        if(OpenHlt1MuonPassed(10.,10.,24.,2.,1)>=1) {
-          triggerBit[it] = true;
-        }
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu30") == 0) {      
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {    
-      if (prescaleResponse(menu,cfg,rcounter,it)) {   
-        if(OpenHlt1MuonPassed(12.,12.,30.,2.,1)>=1) {      
-          triggerBit[it] = true;    
-        }   
-      }      
-    }      
-  }    
-
-  
-  /* Quarkonia */
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Onia") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	//       cout << "checking for Onia " << endl;
-	//variables for pixel cuts
-	double ptPix = 0.;
-	double pPix = 3.;
-	double etaPix = 999.;
-	double DxyPix = 999.;
-	double DzPix = 999.;
-	int NHitsPix = 3;
-	double normChi2Pix = 999999999.;
-	double massMinPix[2] = {2.6, 7.5};
-	double massMaxPix[2] = {3.6, 12.0};
-	double DzMuonPix = 999.;
-	bool   checkChargePix = false;
-	//variables for tracker track cuts
-	double ptTrack = 0.;
-	double pTrack = 3.;
-	double etaTrack = 999.;
-	double DxyTrack = 999.;
-	double DzTrack = 999.;
-	int NHitsTrack = 5;
-	double normChi2Track = 999999999.;
-	double massMinTrack[2] = {2.8, 8.5};
-	double massMaxTrack[2] = {3.4, 11.0};
-	double DzMuonTrack = 0.5;
-	bool   checkChargeTrack = true;
-	if((OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1) && //check the L3 muon
-	   OpenHltMuPixelPassed(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix) && //check the L3Mu + pixel
-	   OpenHltMuTrackPassed(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack)) { //check the L3Mu + tracker track
-	  triggerBit[it] = true; 
-	}
-	//        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu0_Track0_Ups") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	//       cout << "checking for Onia " << endl;
-	//variables for pixel cuts
-	double ptPix = 0.;
-	double pPix = 3.;
-	double etaPix = 999.;
-	double DxyPix = 999.;
-	double DzPix = 999.;
-	int NHitsPix = 3;
-	double normChi2Pix = 999999999.;
-	double massMinPix[1] = {7.5};
-	double massMaxPix[1] = {12.0};
-	double DzMuonPix = 999.;
-	bool   checkChargePix = false;
-	//variables for tracker track cuts
-	double ptTrack = 0.;
-	double pTrack = 3.;
-	double etaTrack = 999.;
-	double DxyTrack = 999.;
-	double DzTrack = 999.;
-	int NHitsTrack = 5;
-	double normChi2Track = 999999999.;
-	double massMinTrack[1] = {8.5};
-	double massMaxTrack[1] = {11.0};
-	double DzMuonTrack = 0.5;
-	bool   checkChargeTrack = true;
-	if((OpenHlt1MuonPassed(0.,0.,0.,2.,0)>=1) && //check the L3 muon
-	   OpenHltMuPixelPassed_Ups(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 7) && //check the L3Mu + pixel
-	   OpenHltMuTrackPassed_Ups(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 7)) {
-	  //check the L3Mu + tracker track
-	  triggerBit[it] = true; 
-	}
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3_Track0_Ups") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	//       cout << "checking for Onia " << endl;
-	//variables for pixel cuts
-	double ptPix = 0.;
-	double pPix = 3.;
-	double etaPix = 999.;
-	double DxyPix = 999.;
-	double DzPix = 999.;
-	int NHitsPix = 3;
-	double normChi2Pix = 999999999.;
-	double massMinPix[1] = {7.5};
-	double massMaxPix[1] = {12.0};
-	double DzMuonPix = 999.;
-	bool   checkChargePix = false;
-	//variables for tracker track cuts
-	double ptTrack = 0.;
-	double pTrack = 3.;
-	double etaTrack = 999.;
-	double DxyTrack = 999.;
-	double DzTrack = 999.;
-	int NHitsTrack = 5;
-	double normChi2Track = 999999999.;
-	double massMinTrack[1] = {8.5};
-	double massMaxTrack[1] = {11.0};
-	double DzMuonTrack = 0.5;
-	bool   checkChargeTrack = true;
-	if((OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1) && //check the L3 muon
-	   OpenHltMuPixelPassed_Ups(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 8) && //check the L3Mu + pixel
-	   OpenHltMuTrackPassed_Ups(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 8)) {
-	  //check the L3Mu + tracker track
-	  triggerBit[it] = true; 
-	}
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_Track0_Ups") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	//       cout << "checking for Onia " << endl;
-	//variables for pixel cuts
-	double ptPix = 0.;
-	double pPix = 3.;
-	double etaPix = 999.;
-	double DxyPix = 999.;
-	double DzPix = 999.;
-	int NHitsPix = 3;
-	double normChi2Pix = 999999999.;
-	double massMinPix[1] = {7.5};
-	double massMaxPix[1] = {12.0};
-	double DzMuonPix = 999.;
-	bool   checkChargePix = false;
-	//variables for tracker track cuts
-	double ptTrack = 0.;
-	double pTrack = 3.;
-	double etaTrack = 999.;
-	double DxyTrack = 999.;
-	double DzTrack = 999.;
-	int NHitsTrack = 5;
-	double normChi2Track = 999999999.;
-	double massMinTrack[1] = {8.5};
-	double massMaxTrack[1] = {11.0};
-	double DzMuonTrack = 0.5;
-	bool   checkChargeTrack = true;
-	if((OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1) && //check the L3 muon
-	   OpenHltMuPixelPassed_Ups(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 9) && //check the L3Mu + pixel
-	   OpenHltMuTrackPassed_Ups(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 9)) { 
-	  //check the L3Mu + tracker track
-	  triggerBit[it] = true; 
-	}
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu0_Track0_Jpsi") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	//       cout << "checking for Onia " << endl;
-	//variables for pixel cuts
-	double ptPix = 0.;
-	double pPix = 3.;
-	double etaPix = 999.;
-	double DxyPix = 999.;
-	double DzPix = 999.;
-	int NHitsPix = 3;
-	double normChi2Pix = 999999999.;
-	double massMinPix[1] = {2.6};
-	double massMaxPix[1] = {3.6};
-	double DzMuonPix = 999.;
-	bool   checkChargePix = false;
-	//variables for tracker track cuts
-	double ptTrack = 0.;
-	double pTrack = 3.;
-	double etaTrack = 999.;
-	double DxyTrack = 999.;
-	double DzTrack = 999.;
-	int NHitsTrack = 5;
-	double normChi2Track = 999999999.;
-	double massMinTrack[1] = {2.8};
-	double massMaxTrack[1] = {3.4};
-	double DzMuonTrack = 0.5;
-	bool   checkChargeTrack = true;
-	if((OpenHlt1MuonPassed(0.,0.,0.,2.,0)>=1) && //check the L3 muon
-	   OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 0) && //check the L3Mu + pixel
-	   OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 0)) { 
-	  //check the L3Mu + tracker track
-	  triggerBit[it] = true; 
-	}
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3_Track0_Jpsi") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	//       cout << "checking for Onia " << endl;
-	//variables for pixel cuts
-	double ptPix = 0.;
-	double pPix = 3.;
-	double etaPix = 999.;
-	double DxyPix = 999.;
-	double DzPix = 999.;
-	int NHitsPix = 3;
-	double normChi2Pix = 999999999.;
-	double massMinPix[1] = {2.6};
-	double massMaxPix[1] = {3.6};
-	double DzMuonPix = 999.;
-	bool   checkChargePix = false;
-	//variables for tracker track cuts
-	double ptTrack = 0.;
-	double pTrack = 3.;
-	double etaTrack = 999.;
-	double DxyTrack = 999.;
-	double DzTrack = 999.;
-	int NHitsTrack = 5;
-	double normChi2Track = 999999999.;
-	double massMinTrack[1] = {2.8};
-	double massMaxTrack[1] = {3.4};
-	double DzMuonTrack = 0.5;
-	bool   checkChargeTrack = true;
-	if((OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1) && //check the L3 muon
-	   OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 5) && //check the L3Mu + pixel
-	   OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack,5)) { 
-	  //check the L3Mu + tracker track
-	  triggerBit[it] = true; 
-	}
-      }
-    }
-  }
-
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3_Track5_Jpsi") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	//       cout << "checking for Onia " << endl;
-	//variables for pixel cuts
-	double ptPix = 0.;
-	double pPix = 3.;
-	double etaPix = 999.;
-	double DxyPix = 999.;
-	double DzPix = 999.;
-	int NHitsPix = 3;
-	double normChi2Pix = 999999999.;
-	double massMinPix[1] = {2.6};
-	double massMaxPix[1] = {3.6};
-	double DzMuonPix = 999.;
-	bool   checkChargePix = false;
-	//variables for tracker track cuts
-	double ptTrack = 5.;
-	double pTrack = 3.;
-	double etaTrack = 999.;
-	double DxyTrack = 999.;
-	double DzTrack = 999.;
-	int NHitsTrack = 5;
-	double normChi2Track = 999999999.;
-	double massMinTrack[1] = {2.8};
-	double massMaxTrack[1] = {3.4};
-	double DzMuonTrack = 0.5;
-	bool   checkChargeTrack = true;
-	if((OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1) && //check the L3 muon
-	   OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 5) && //check the L3Mu + pixel
-	   OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack,5)) { 
-	  //check the L3Mu + tracker track
-	  triggerBit[it] = true; 
-	}
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_Track0_Jpsi") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	//       cout << "checking for Onia " << endl;
-	//variables for pixel cuts
-	double ptPix = 0.;
-	double pPix = 3.;
-	double etaPix = 999.;
-	double DxyPix = 999.;
-	double DzPix = 999.;
-	int NHitsPix = 3;
-	double normChi2Pix = 999999999.;
-	double massMinPix[1] = {2.6};
-	double massMaxPix[1] = {3.6};
-	double DzMuonPix = 999.;
-	bool   checkChargePix = false;
-	//variables for tracker track cuts
-	double ptTrack = 0.;
-	double pTrack = 3.;
-	double etaTrack = 999.;
-	double DxyTrack = 999.;
-	double DzTrack = 999.;
-	int NHitsTrack = 5;
-	double normChi2Track = 999999999.;
-	double massMinTrack[1] = {2.8};
-	double massMaxTrack[1] = {3.4};
-	double DzMuonTrack = 0.5;
-	bool   checkChargeTrack = true;
-	if((OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1) && //check the L3 muon
-	   OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 6) && //check the L3Mu + pixel
-	   OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 6)) { 
-	  //check the L3Mu + tracker track
-	  triggerBit[it] = true; 
-	}
-      }
-    }
-  }
-
- else if(menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu0_Quarkonium") == 0) {     
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      TLorentzVector mu1;  
-      TLorentzVector mu2;  
-      TLorentzVector diMu; 
-      const double muMass = 0.105658367;
-      int rc = 0; 
-      for (int i=0;i<NohMuL3;i++) { 
-	for (int j=0;j<NohMuL3 && j != i;j++) {  
-	  
-	  mu1.SetPtEtaPhiM(ohMuL3Pt[i],ohMuL3Eta[i],ohMuL3Phi[i],muMass); 
-	  mu2.SetPtEtaPhiM(ohMuL3Pt[j],ohMuL3Eta[j],ohMuL3Phi[j],muMass); 
-	  diMu = mu1 + mu2; 
-	  int dimuCharge = (int) (ohMuL3Chg[i] + ohMuL3Chg[j]);
-	  float diMuMass = diMu.M();
- 	  if(diMuMass > 2.5 && diMuMass < 14.5 && dimuCharge == 0)
-	    rc++;
-	}
-      }
-      if(rc >= 1) {  
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }  
-      }
-    }
-  }     
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu0_Quarkonium_LS") == 0) {     
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      TLorentzVector mu1;  
-      TLorentzVector mu2;  
-      TLorentzVector diMu; 
-      const double muMass = 0.105658367;
-      int rc = 0; 
-      for (int i=0;i<NohMuL3;i++) { 
-	for (int j=0;j<NohMuL3 && j != i;j++) {  
-	  
-	  mu1.SetPtEtaPhiM(ohMuL3Pt[i],ohMuL3Eta[i],ohMuL3Phi[i],muMass); 
-	  mu2.SetPtEtaPhiM(ohMuL3Pt[j],ohMuL3Eta[j],ohMuL3Phi[j],muMass); 
-	  diMu = mu1 + mu2; 
-	  int dimuCharge = (int) (ohMuL3Chg[i] + ohMuL3Chg[j]);
-	  float diMuMass = diMu.M();
- 	  if(diMuMass > 2.5 && diMuMass < 14.5 && dimuCharge != 0)
-	    rc++;
-	}
-      }
-      if(rc >= 1) {  
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }  
-      }
-    }
-  }     
-
-
- 
-
- /* Electrons */
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleEG2") == 0) {     
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(true) { // passthrough      
-	  triggerBit[it] = true; 
-	}
-      }      
-    }      
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleEG5") == 0) {     
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(true) { // passthrough      
-	  triggerBit[it] = true; 
-	}
-      }      
-    }      
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1SingleEG8") == 0) {      
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(true) { // passthrough       
-	  triggerBit[it] = true; 
-	}
-      }       
-    }       
-  }  
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1DoubleEG5") == 0) {       
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(true) { // passthrough        
-	  triggerBit[it] = true; 
-	}
-      }        
-    }        
-  }
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele8_CaloIdL_CaloIsoVL_v1") == 0) {  
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
-      if (prescaleResponse(menu,cfg,rcounter,it)) {  
-        if(OpenHlt1ElectronSamHarperPassed(8.,0,          // ET, L1isolation  
-                                           999., 999.,       // Track iso barrel, Track iso endcap  
-                                           999, 999,        // Track/pT iso barrel, Track/pT iso endcap  
-                                           0.2, 0.2,       // H/ET iso barrel, H/ET iso endcap  
-                                           0.2, 0.2,       // E/ET iso barrel, E/ET iso endcap  
-                                           0.15, 0.1,       // H/E barrel, H/E endcap  
-                                           0.014, 0.035,       // cluster shape barrel, cluster shape endcap  
-                                           0.98, 1.0,       // R9 barrel, R9 endcap  
-                                           999, 999,       // Deta barrel, Deta endcap  
-                                           999, 999        // Dphi barrel, Dphi endcap  
-                                           )>=1) {  
-          triggerBit[it] = true;  
-        }  
-      }  
-    }  
-  } 
- 
-  else if(menu->GetTriggerName(it).CompareTo("openHLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_v1") == 0) {  
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_v1") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) {  
         if(OpenHlt1ElectronSamHarperPassed(15.,0,          // ET, L1isolation  
@@ -3479,8 +2652,8 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
   /* BTag */
 
   /**********BTagMu_JetX(U)**********/
-  else if (isBTagMu_JetXUTrigger(menu->GetTriggerName(it),thresholds)){
-     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+  else if (isBTagMu_JetXUTrigger(triggerName,thresholds)){
+     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	int rc = 0; 
 	int njets = 0; 
@@ -3507,8 +2680,8 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
       }
     }
   }
-  else if (isBTagMu_JetXTrigger(menu->GetTriggerName(it),thresholds)){
-     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+  else if (isBTagMu_JetXTrigger(triggerName,thresholds)){
+     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	int rc = 0; 
 	int max =  (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected;
@@ -3532,8 +2705,8 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
 
   /******BTagMu_DiJetXU******/
 
-  else if (isBTagMu_DiJetXUTrigger(menu->GetTriggerName(it),thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+  else if (isBTagMu_DiJetXUTrigger(triggerName,thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	int rc = 0;
 	int njets = 0;
@@ -3560,8 +2733,8 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
     }
   }
   /**********BTagMu_DiJetXU_MuX***************************************/
-  else if (isBTagMu_DiJetXU_MuXTrigger(menu->GetTriggerName(it),thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+  else if (isBTagMu_DiJetXU_MuXTrigger(triggerName,thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	int rc = 0;
 	int njets = 0;
@@ -3591,8 +2764,8 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
   }
   /****************BTagIP_JetX*********************************/
 
-  else if (isBTagIP_JetXTrigger(menu->GetTriggerName(it),thresholds)){
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+  else if (isBTagIP_JetXTrigger(triggerName,thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	int rc = 0;  
 	int max =  (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected; 
