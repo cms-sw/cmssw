@@ -220,6 +220,16 @@ class EgammaDQMModuleMaker:
 
         for moduleName in moduleNames:
 
+            # add protection to avoid accessing non-existing modules
+            # (not understood why this is needed but happens
+            # in some cases...).
+            #
+            # should also cover the special cases listed afterwards
+            # (i.e. the check after this one could be removed
+            # at some point)
+            if not hasattr(self.process, moduleName):
+                continue
+
             # protection for FastSim HLT menu
             # which seems to reference certain modules in some
             # paths but these modules are not defined when just
@@ -231,6 +241,8 @@ class EgammaDQMModuleMaker:
                               'offlineBeamSpot',
                               'HLTEndSequence'):
                 continue
+
+            
 
             module = getattr(self.process,moduleName)
 
