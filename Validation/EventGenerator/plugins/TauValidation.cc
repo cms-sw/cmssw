@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/02/10 15:01:07 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/02/14 09:52:07 $
+ *  $Revision: 1.10 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -138,6 +138,7 @@ int TauValidation::findMother(const HepMC::GenParticle* tau){
                 for (mother = tau->production_vertex()->particles_begin(HepMC::parents);
                      mother!= tau->production_vertex()->particles_end(HepMC::parents); ++mother ) {
                         mother_pid = (*mother)->pdg_id();
+			if(mother_pid == tau->pdg_id()) mother_pid = -1;//findMother(*mother);
                         //std::cout << " parent " << mother_pid << std::endl;
                 }
         }
@@ -146,7 +147,10 @@ int TauValidation::findMother(const HepMC::GenParticle* tau){
 
 int TauValidation::tauMother(const HepMC::GenParticle* tau){
 
+	if(abs(tau->pdg_id()) != 15 ) return -1;
+
 	int mother_pid = findMother(tau);
+	if(mother_pid == -1) return -1;
 
 	int label = other;
 	if(abs(mother_pid) == 24) label = W;
