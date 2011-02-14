@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.231 2011/02/13 18:11:38 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.232 2011/02/13 19:57:14 amraktad Exp $
 
 
 //
@@ -172,7 +172,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sShowCommonInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showCommonPopup));
 
       getAction(cmsshow::sShowInvMassDialog)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showInvMassDialog));
-      getAction(cmsshow::sShowGeometryTable)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showGeometryTable));
+      getAction(cmsshow::sShowGeometryTable)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showGeometryBrowser));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
@@ -195,7 +195,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       TQObject::Connect(gEve->GetWindowManager(), "WindowDocked(TEveWindow*)"  , "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
       TQObject::Connect(gEve->GetWindowManager(), "WindowUndocked(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
    }
-
 }
 
 void FWGUIManager::connectSubviewAreaSignals(FWGUISubviewArea* a)
@@ -712,7 +711,7 @@ FWGUIManager::showInvMassDialog()
 }
 
 void
-FWGUIManager::showGeometryTable()
+FWGUIManager::showGeometryBrowser()
 {
   m_geoBrowser->browse();
    m_geoBrowser->MapRaised();

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.116 2011/02/11 19:56:36 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.117 2011/02/13 19:57:14 amraktad Exp $
 //
 
 // system include files
@@ -138,7 +138,7 @@ public:
    void showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY, FWViewContextMenuHandlerBase* iHandler);
 
    void showInvMassDialog();
-   void showGeometryTable();
+   void showGeometryBrowser();
 
    // help
    void createHelpPopup ();

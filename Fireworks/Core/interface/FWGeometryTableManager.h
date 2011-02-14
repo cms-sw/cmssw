@@ -16,12 +16,11 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.4 2011/02/13 19:57:14 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.5 2011/02/14 11:15:53 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
 #include <boost/tr1/unordered_map.hpp>
-//#include <unordered_map>
 
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTreeCellRenderer.h"
@@ -128,7 +127,8 @@ private:
    
    // geo
    void checkUniqueVolume(TGeoVolume* v); 
-   void checkChildMatches(TGeoVolume* v, bool& res);
+   // void checkChildMatches(TGeoVolume* v, bool& res);
+   void checkChildMatches(TGeoVolume* v,  std::vector<TGeoVolume*>&);
    int  getNdaughtersLimited(TGeoNode*) const;
    void getNNodesTotal(TGeoNode* geoNode, int level,int& off, bool debug) const;
    void setTableContent();
@@ -140,6 +140,7 @@ private:
    void updateFilter();
    void updateAutoExpand();
 
+   bool filterOff() const;
    // ---------- member data --------------------------------
    typedef std::vector<NodeInfo> Entries_v;
    typedef Entries_v::iterator Entries_i;
@@ -166,6 +167,7 @@ private:
    int               m_autoExpand;
    int               m_maxDaughters;
    bool              m_modeVolume;
+
    
    sigc::signal<void,int,int> indexSelected_;
 };

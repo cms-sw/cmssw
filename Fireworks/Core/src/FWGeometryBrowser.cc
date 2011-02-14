@@ -14,12 +14,14 @@
 #include "TGButton.h"
 #include "TGLabel.h"
 
+bool geodebug = false;
+
 #include <iostream>
 FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
    : TGMainFrame(gClient->GetRoot(), 600, 500),
-     m_mode(this, "Mode:", 0l, 0l, 1l),
+     m_mode(this, "Mode:", 1l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
-     m_autoExpand(this,"AutoExpand:", 2l, 0l, 1000l),
+     m_autoExpand(this,"AutoExpand:", 5l, 0l, 1000l),
      m_maxDaughters(this,"MaxChildren:", 999l, 0l, 1000l), // debug
      m_guiManager(guiManager),
      m_tableManager(0),
@@ -33,12 +35,12 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
    m_tableManager = new FWGeometryTableManager(this);
  
    TGTextButton* m_fileOpen = new TGTextButton (this, "Open Geometry File");
-   this->AddFrame(m_fileOpen,  new TGLayoutHints( kLHintsExpandX , 2, 2, 2, 2));
+   this->AddFrame(m_fileOpen,  new TGLayoutHints( kLHintsExpandX , 4, 2, 2, 2));
    m_fileOpen->Connect("Clicked()","FWGeometryBrowser",this,"browse()");
 
 
    m_settersFrame = new TGHorizontalFrame(this);
-   this->AddFrame( m_settersFrame,new TGLayoutHints(kLHintsExpandX));
+   this->AddFrame( m_settersFrame,new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
    m_settersFrame->SetCleanup(kDeepCleanup);
 
    m_tableWidget = new FWTableWidget(m_tableManager, this); 
@@ -60,6 +62,10 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
    Layout();
    MapSubwindows();
    // Layout();
+
+   gVirtualX->SelectInput(GetId(), kKeyPressMask | kKeyReleaseMask | kExposureMask |
+                          kPointerMotionMask | kStructureNotifyMask | kFocusChangeMask |
+                          kEnterWindowMask | kLeaveWindowMask);
 }
 
 FWGeometryBrowser::~FWGeometryBrowser()
@@ -93,6 +99,7 @@ FWGeometryBrowser::makeSetter(TGCompositeFrame* frame, FWParameterBase* param)
  
    TGFrame* pframe = ptr->build(frame, false);
    frame->AddFrame(pframe, new TGLayoutHints(kLHintsExpandX));
+
    m_setters.push_back(ptr);
 }
 //==============================================================================
@@ -106,8 +113,9 @@ FWGeometryBrowser::addTo(FWConfiguration& iTo) const
   
 void
 FWGeometryBrowser::setFrom(const FWConfiguration& iFrom)
-{
-   printf("FWGeometryBrowser::setFrom\n");
+{ 
+   return;
+   // printf("FWGeometryBrowser::setFrom\n");
    for(const_iterator it =begin(), itEnd = end();
        it != itEnd;
        ++it) {
@@ -122,11 +130,11 @@ FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t i
 {
    if (iButton != kButton1)
    {
-      m_tableManager->setSelection(iRow, iColumn, iKeyMod);
+      // m_tableManager->setSelection(iRow, iColumn, iKeyMod);
       return;   
    }
-
-   if (iColumn == 0)
+ 
+   if (iButton == kButton1 && iColumn == 0)
    {
       m_tableManager->firstColumnClicked(iRow);
    }
@@ -194,7 +202,7 @@ FWGeometryBrowser::browse()
 {
    std::cout<<"FWGeometryBrowser::openFile()"<<std::endl;
 
-   if (1)
+   if (!geodebug)
    {  
       const char* kRootType[] = {"ROOT files","*.root", 0, 0};
       TGFileInfo fi;
