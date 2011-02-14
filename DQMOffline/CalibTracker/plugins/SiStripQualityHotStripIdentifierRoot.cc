@@ -139,7 +139,7 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
 	  theIdentifier3->setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
 	  theIdentifier3->setNumberOfEvents(TotNumberOfEvents);
 	  theIdentifier3->setMinNumOfEvents();
-	  theIdentifier3->setOutputFileName(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root"),conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile",false));
+	  theIdentifier3->setOutputFileName(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root"),conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile",false),conf_.getUntrackedParameter<std::string>("DQMHistoOutputFile","DQMHistos.root"),conf_.getUntrackedParameter<bool>("WriteDQMHistoOutputFile",false));
 	  theIdentifier3->setTrackerGeometry(_tracker);
 	  theIdentifier3->setLowOccupancyThreshold(parameters.getUntrackedParameter<double>("LowOccupancyThreshold",5));
 	  theIdentifier3->setHighOccupancyThreshold(parameters.getUntrackedParameter<double>("HighOccupancyThreshold",10));

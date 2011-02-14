@@ -12,8 +12,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    firstValue = cms.uint64(insertRun),
-    lastValue = cms.uint64(insertRun),
+    firstValue = cms.uint64(146437),
+    lastValue = cms.uint64(146437),
     timetype = cms.string('runnumber'),
     interval = cms.uint64(1)
 )
@@ -25,7 +25,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "GR10_E_V5::All" #GR09_R_34X_V2
+process.GlobalTag.globaltag = "GR_E_V13::All" #GR09_R_34X_V2
 
 #to read information of o2o and cabling
 process.BadComponentsOnline = cms.ESSource("PoolDBESSource",
@@ -103,11 +103,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 process.prod = cms.EDAnalyzer("SiStripQualityHotStripIdentifierRoot",
-    OccupancyRootFile = cms.untracked.string('BadAPVandStripOccupancy_insertRun.root'),
+    OccupancyRootFile = cms.untracked.string('BadAPVandStripOccupancy_146437.root'),
     WriteOccupancyRootFile = cms.untracked.bool(True), # Ouput File has a size of ~100MB. To suppress writing set parameter to 'False'
+    DQMHistoOutputFile = cms.untracked.string('DQMHistos.root'),
+    WriteDQMHistoOutputFile = cms.untracked.bool(True),
     UseInputDB = cms.untracked.bool(True),
     dataLabel=cms.untracked.string('OnlineMasking'),
     OccupancyH_Xmax = cms.untracked.double(1.0),
+    CalibrationThreshold = cms.untracked.uint32(10000),
     AlgoParameters = cms.PSet(
         AlgoName = cms.string('SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy'),
         OccupancyHisto = cms.untracked.string('ClusterDigiPosition__det__'),
@@ -127,8 +130,8 @@ process.prod = cms.EDAnalyzer("SiStripQualityHotStripIdentifierRoot",
     OccupancyH_Xmin = cms.untracked.double(-0.0005),
     IOVMode = cms.string('Run'),
     Record = cms.string('SiStripBadStrip'),
-    rootDirPath = cms.untracked.string('Run insertRun/AlCaReco'),
-    rootFilename = cms.untracked.string('insertCastorPath/insertDataset/insertDQMFile'),
+    rootDirPath = cms.untracked.string('Run 146437/AlCaReco'),
+    rootFilename = cms.untracked.string('DQM_V0001_DT_R000146437.root'),
     doStoreOnDB = cms.bool(True),
     OccupancyH_Nbin = cms.untracked.uint32(1001)
 )
