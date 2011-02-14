@@ -106,10 +106,14 @@ public:
 	    
 	    // Fetch the data from DB
 	    laser_.fetch();
-	    std::cout << c++ << "/" << d << ": " << laser_.size() << std::endl;
-	    b++;
+	    std::cout << "Run: " << irun << "/" << nruns << " Seq " << d << "/"
+		      << l.size() << " RunIOV " << c++ << "/" << l_.size() 
+		      << '\r';
+	    b_++;
 	  }
+	  std::cout << std::endl;
 	  d++;
+	  b++;
 	}
       }
     return 1;
