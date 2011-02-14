@@ -4545,7 +4545,7 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
         if(OpenHlt1MuonPassed(5.,7.,15.,2.,0)>=1 &&
-           OpenHlt1PhotonSamHarperPassed(20.,0,          // ET, L1isolation
+           OpenHlt1PhotonSamHarperPassed(15.,0,          // ET, L1isolation
                                          999., 999.,       // Track iso barrel, Track iso endcap
                                          999., 999.,        // Track/pT iso barrel, Track/pT iso endcap
                                          999., 999.,       // H/ET iso barrel, H/ET iso endcap
@@ -5398,7 +5398,7 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
 	}
       }
     }
-    //to be removed
+    //to be removed ?
     //    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolVLPhotonIsolVL) == 0) { //Added this
     //    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon26_IsoVL_Photon18_IsoVL") == 0) { //Added this
     else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon26_Photon18_long2") == 0) { //Added this
@@ -5415,7 +5415,7 @@ else if (isPT12U_XUTrigger(menu->GetTriggerName(it),thresholds)){
       }
     }
 
-    //to be removed
+    //to be removed ?
     //    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsoVLCaloIdLPhotonIsoVLCaloIdL) == 0) { //Added this
     //    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL") == 0) { //Added this
     else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon26_Photon18_long") == 0) { //Added this
