@@ -11,13 +11,6 @@ typedef PFCandPtrs::iterator PFCandIter;
 
 namespace reco { namespace tau {
 
-class SortPFCandsDescendingPt {
-  public:
-    bool operator()(const PFCandidatePtr& a, const PFCandidatePtr& b) const {
-      return a->pt() > b->pt();
-    }
-};
-
 std::vector<PFCandidatePtr>
 flattenPiZeros( const std::vector<RecoTauPiZero>& piZeros) {
   std::vector<PFCandidatePtr> output;
@@ -32,24 +25,16 @@ flattenPiZeros( const std::vector<RecoTauPiZero>& piZeros) {
   return output;
 }
 
-std::vector<reco::PFCandidatePtr> pfCandidates(const reco::PFJet& jet, int particleId, bool sort)
-{
+std::vector<reco::PFCandidatePtr> pfCandidates(const reco::PFJet& jet,
+    int particleId, bool sort) {
   PFCandPtrs pfCands = jet.getPFConstituents();
-  PFCandPtrs selectedPFCands;
-
-  for(PFCandIter cand = pfCands.begin(); cand != pfCands.end(); ++cand)
-  {
-    if( (**cand).particleId() == particleId )
-      selectedPFCands.push_back(*cand);
-  }
-
-  if ( sort ) std::sort(selectedPFCands.begin(), selectedPFCands.end(), SortPFCandsDescendingPt());
-
+  PFCandPtrs selectedPFCands = filterPFCandidates(
+      pfCands.begin(), pfCands.end(), particleId, sort);
   return selectedPFCands;
 }
 
-std::vector<reco::PFCandidatePtr> pfCandidates(const reco::PFJet& jet, const std::vector<int>& particleIds, bool sort)
-{
+std::vector<reco::PFCandidatePtr> pfCandidates(const reco::PFJet& jet,
+    const std::vector<int>& particleIds, bool sort) {
   PFCandPtrs output;
   // Get each desired candidate type, unsorted for now
   for(std::vector<int>::const_iterator particleId = particleIds.begin();

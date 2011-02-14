@@ -27,6 +27,28 @@
 
 namespace reco { namespace tau {
 
+class SortPFCandsDescendingPt {
+  public:
+    bool operator()(const PFCandidatePtr& a, const PFCandidatePtr& b) const {
+      return a->pt() > b->pt();
+    }
+};
+
+/// Filter a collection of objects that are convertible to PFCandidatePtrs
+/// by PFCandidate ID
+template<typename Iterator> std::vector<PFCandidatePtr>
+filterPFCandidates(const Iterator& begin, const Iterator& end,
+    int particleId, bool sort=true) {
+  std::vector<PFCandidatePtr> output;
+  for(Iterator iter = begin; iter != end; ++iter) {
+    reco::PFCandidatePtr ptr(*iter);
+    if (ptr->particleId() == particleId)
+      output.push_back(ptr);
+  }
+  if (sort) std::sort(output.begin(), output.end(), SortPFCandsDescendingPt());
+  return output;
+}
+
 /// Extract pfCandidates of a given particle Id from a PFJet.  If sort is true,
 /// candidates will be sorted by descending PT
 std::vector<PFCandidatePtr> pfCandidates(const PFJet& jet,
