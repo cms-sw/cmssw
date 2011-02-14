@@ -35,7 +35,6 @@ from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import \
 
 # Only reconstruct the preselected jets
 ak5PFJetsRecoTauPiZeros.jetSrc = cms.InputTag("ak5PFJets")
-ak5PFJetsRecoTauPiZeros.jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region")
 
 #-------------------------------------------------------------------------------
 #------------------ Fixed Cone Taus --------------------------------------------
@@ -51,7 +50,6 @@ from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
         ak5PFJetsLegacyTaNCPiZeros, ak5PFJetsLegacyHPSPiZeros
 
 ak5PFJetsLegacyTaNCPiZeros.jetSrc = cms.InputTag("ak5PFJets")
-ak5PFJetsLegacyTaNCPiZeros.jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region")
 
 shrinkingConePFTauProducer.jetRegionSrc = cms.InputTag(
     "recoTauAK5PFJets08Region")
@@ -87,7 +85,6 @@ combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
 from RecoTauTag.Configuration.HPSPFTaus_cfi import *
 from RecoTauTag.Configuration.HPSTancTaus_cfi import *
 ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
-ak5PFJetsLegacyHPSPiZeros.jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region")
 
 # FIXME remove this once final pi zero reco is decided
 combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsLegacyHPSPiZeros")
@@ -135,6 +132,10 @@ recoTauClassicShrinkingConeSequence = cms.Sequence(
     produceShrinkingConeDiscriminationByTauNeuralClassifier
 )
 
+recoTauClassicShrinkingConeMVASequence = cms.Sequence(
+    produceShrinkingConeDiscriminationByTauNeuralClassifier
+)
+
 # Produce hybrid algorithm taus
 recoTauHPSTancSequence = cms.Sequence(
     recoTauCommonSequence *
@@ -149,7 +150,16 @@ PFTau = cms.Sequence(
     # Make shrinking cone taus
     recoTauClassicShrinkingConeSequence *
     # Make classic HPS taus
-    recoTauClassicHPSSequence *
-    # Make hybrid algo taus
-    recoTauHPSTancSequence
+    recoTauClassicHPSSequence
 )
+
+# Check if we want to run the MVA dependent stuff.  This is disabled in some
+# versions of 3_11_1 due to a TMVA issue.
+from RecoTauTag.Configuration.RecoTauMVAConfiguration_cfi \
+        import recoTauEnableMVA
+
+if recoTauEnableMVA:
+    # Enable shrinking cone tanc discriminators
+    PFTau += recoTauClassicShrinkingConeMVASequence
+    # Make hybrid algo taus
+    PFTau += recoTauHPSTancSequence
