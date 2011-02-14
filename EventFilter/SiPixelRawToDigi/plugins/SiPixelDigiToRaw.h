@@ -11,8 +11,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 
 class SiPixelFedCablingTree;
+class SiPixelFrameReverter;
+class TH1D;
+class R2DTimerObserver;
 
 class SiPixelDigiToRaw : public edm::EDProducer {
 public:
@@ -33,11 +37,15 @@ public:
 private:
 
   SiPixelFedCablingTree * cablingTree_;
+  SiPixelFrameReverter* frameReverter_;
   edm::ParameterSet config_;
+  TH1D *hCPU, *hDigi;
+  R2DTimerObserver * theTimer;
   unsigned long eventCounter;
   edm::InputTag label;  //label of input digi data
   int allDigiCounter;
   int allWordCounter;
+  std::vector<unsigned int> fedIds;
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   bool debug;
  

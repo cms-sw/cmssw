@@ -15,11 +15,18 @@
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+
+#include "EventFilter/SiPixelRawToDigi/interface/R2DTimerObserver.h"
+#include "TH1D.h"
+#include "TFile.h"
+
 using namespace std;
 
 SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
   cablingTree_(0),
-  config_(pset)
+  frameReverter_(0),
+  config_(pset),
+  hCPU(0), hDigi(0), theTimer(0)
 {
 
   // Define EDProduct type
@@ -30,11 +37,26 @@ SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
   allDigiCounter = 0;
   allWordCounter = 0;
 
+  // Timing
+  bool timing = config_.getUntrackedParameter<bool>("Timing",false);
+  if (timing) {
+    theTimer = new R2DTimerObserver("**** MY TIMING REPORT ***");
+    hCPU = new TH1D ("hCPU","hCPU",100,0.,0.050);
+    hDigi = new TH1D("hDigi","hDigi",50,0.,15000.);
+  }
 }
 
 // -----------------------------------------------------------------------------
 SiPixelDigiToRaw::~SiPixelDigiToRaw() {
-   delete cablingTree_;
+  delete cablingTree_;
+  delete frameReverter_;
+
+  if (theTimer) {
+    TFile rootFile("analysis.root", "RECREATE", "my histograms");
+    hCPU->Write();
+    hDigi->Write();
+    delete theTimer;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -52,6 +74,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   label = config_.getParameter<edm::InputTag>("InputLabel");
   ev.getByLabel( label, digiCollection);
 
+  PixelDataFormatter::RawData rawdata;
   PixelDataFormatter::Digis digis;
   typedef vector< edm::DetSet<PixelDigi> >::const_iterator DI;
 
@@ -65,27 +88,34 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   if (recordWatcher.check( es )) {
     edm::ESHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
+    fedIds = cablingMap->fedIds();
     if (cablingTree_) delete cablingTree_; cablingTree_= cablingMap->cablingTree();
+    if (frameReverter_) delete frameReverter_; frameReverter_ = new SiPixelFrameReverter( es, cablingMap.product() );
   }
 
   debug = edm::MessageDrop::instance()->debugEnabled;
   if (debug) LogDebug("SiPixelDigiToRaw") << cablingTree_->version();
-  
+
   PixelDataFormatter formatter(cablingTree_);
+  formatter.passFrameReverter(frameReverter_);
+  if (theTimer) theTimer->start();
 
   // create product (raw data)
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
   const vector<const PixelFEDCabling *>  fedList = cablingTree_->fedList();
 
+  // convert data to raw
+  formatter.formatRawData( ev.id().event(), rawdata, digis );
+
+  // pack raw data into collection
   typedef vector<const PixelFEDCabling *>::const_iterator FI;
   for (FI it = fedList.begin(); it != fedList.end(); it++) {
     LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << (**it).id();
-    FEDRawData * rawData = formatter.formatData( ev.id().event(),(**it).id(), digis);
-    FEDRawData& fedRawData = buffers->FEDData( (**it).id() ); 
-    fedRawData = *rawData;
+    FEDRawData& fedRawData = buffers->FEDData( (**it).id() );
+    PixelDataFormatter::RawData::iterator fedbuffer = rawdata.find( (**it).id() );
+    if( fedbuffer != rawdata.end() ) fedRawData = fedbuffer->second;
     LogDebug("SiPixelDigiToRaw")<<"size of data in fedRawData: "<<fedRawData.size();
-    delete rawData;
   }
   allWordCounter += formatter.nWords();
   if (debug) LogDebug("SiPixelDigiToRaw") 
@@ -94,6 +124,14 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
         <<formatter.nWords()
         <<"  all: "<< allDigiCounter <<"/"<<allWordCounter;
 
+  if (theTimer) {
+    theTimer->stop();
+    LogDebug("SiPixelDigiToRaw") << "TIMING IS: (real)" << theTimer->lastMeasurement().real() ;
+    LogDebug("SiPixelDigiToRaw") << " (Words/Digis) this ev: "
+         <<formatter.nWords()<<"/"<<formatter.nDigis() << "--- all :"<<allWordCounter<<"/"<<allDigiCounter;
+    hCPU->Fill( theTimer->lastMeasurement().real() ); 
+    hDigi->Fill(formatter.nDigis());
+  }
   
   ev.put( buffers );
   

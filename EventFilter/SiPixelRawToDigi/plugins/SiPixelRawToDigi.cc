@@ -95,7 +95,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
     edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
-    fedList = cablingMap->fedIds();
+    fedIds = cablingMap->fedIds();
     if (useCablingTree_ && cabling_) delete cabling_; 
     if (useCablingTree_) cabling_ = cablingMap->cablingTree();
     else cabling_ = cablingMap.product();
@@ -130,7 +130,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   PixelDataFormatter::DetErrors nodeterrors;
 
   typedef std::vector<unsigned int>::const_iterator IF;
-  for (IF aFed = fedList.begin(); aFed != fedList.end(); ++aFed) {
+  for (IF aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
     int fedId = *aFed;
     if(debug) LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
     PixelDataFormatter::Digis digis;

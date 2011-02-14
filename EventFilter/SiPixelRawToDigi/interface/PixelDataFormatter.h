@@ -31,6 +31,7 @@
  * (not FED headers or trailer, which are treated elsewhere).
  */
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -44,11 +45,13 @@ class FEDRawData;
 class SiPixelFedCabling;
 class SiPixelQuality;
 class SiPixelFrameConverter;
+class SiPixelFrameReverter;
 
 class PixelDataFormatter {
 
 public:
 
+  typedef std::map<int, FEDRawData> RawData;
   typedef std::vector<PixelDigi> DetDigis;
   typedef std::map<uint32_t, DetDigis> Digis;
   typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range; 
@@ -62,19 +65,21 @@ public:
 
   void setErrorStatus(bool ErrorStatus);
   void setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo);
+  void passFrameReverter(const SiPixelFrameReverter* reverter);
 
   int nDigis() const { return theDigiCounter; }
   int nWords() const { return theWordCounter; }
 
   void interpretRawData(bool& errorsInEvent, int fedId,  const FEDRawData & data, Digis & digis, Errors & errors);
 
-  FEDRawData * formatData( unsigned int lvl1_ID, int fedId, const Digis & digis);
+  void formatRawData( unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis);
 
 private:
   mutable int theDigiCounter;
   mutable int theWordCounter;
 
   const SiPixelFedCabling* theCablingTree;
+  const SiPixelFrameReverter* theFrameReverter;
   const SiPixelQuality* badPixelInfo;
   bool includeErrors;
   bool useQualityInfo;
@@ -85,11 +90,10 @@ private:
 
   int checkError(const Word32& data) const;
 
-  int digi2word( const SiPixelFrameConverter* converter,
-                  uint32_t detId, const PixelDigi& digi,
-                  std::vector<Word32> & words) const;
+  int digi2word(  uint32_t detId, const PixelDigi& digi,
+                  std::map<int, std::vector<Word32> > & words) const;
 
-  int word2digi( const int fedId,
+  int word2digi(  const int fedId,
                   const SiPixelFrameConverter* converter,
 		  const bool includeError,
 		  const bool useQuality,

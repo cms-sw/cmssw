@@ -76,6 +76,11 @@ void PixelDataFormatter::setQualityStatus(bool QualityStatus, const SiPixelQuali
   badPixelInfo = QualityInfo;
 }
 
+void PixelDataFormatter::passFrameReverter(const SiPixelFrameReverter* reverter)
+{
+  theFrameReverter = reverter;
+}
+
 void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& rawData, Digis& digis, Errors& errors)
 {
   debug = edm::MessageDrop::instance()->debugEnabled;
@@ -147,100 +152,94 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 }
 
 
-FEDRawData * PixelDataFormatter::formatData(unsigned int lvl1_ID, int fedId, const Digis & digis) 
+void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis) 
 {
-  vector<Word32> words;
+  std::map<int, vector<Word32> > words;
 
-  SiPixelFrameConverter converter(theCablingTree, fedId);
+  // translate digis into 32-bit raw words and store in map indexed by Fed
   for (Digis::const_iterator im = digis.begin(); im != digis.end(); im++) {
     allDetDigis++;
     uint32_t rawId = im->first;
-    if ( !converter.hasDetUnit(rawId) ) continue;
     hasDetDigis++;
     const DetDigis & detDigis = im->second;
     for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
       theDigiCounter++;
       const PixelDigi & digi = (*it);
-      int status = digi2word( &converter, rawId, digi, words); 
+      int status = digi2word( rawId, digi, words);
       if (status) {
-         LogError("PixelDataFormatter::formatData exception") 
+         LogError("PixelDataFormatter::formatData exception")
             <<" digi2word returns error #"<<status
             <<" Ndigis: "<<theDigiCounter << endl
             <<" detector: "<<rawId<< endl
-            << print(digi) <<endl; 
-      }
-    }
-  }
+            << print(digi) <<endl;
+      } // if (status)
+    } // for (DetDigis
+  } // for (Digis
   LogTrace(" allDetDigis/hasDetDigis : ") << allDetDigis<<"/"<<hasDetDigis;
 
-  //
-  // since digis are written in the form of 64-bit packets
-  // add extra 32-bit word to make number of digis even
-  //
-  if (words.size() %2 != 0) words.push_back( Word32(0) );
+  typedef std::map<int, vector<Word32> >::const_iterator RI;
+  for (RI feddata = words.begin(); feddata != words.end(); feddata++) {
+    int fedId = feddata->first;
+    // since raw words are written in the form of 64-bit packets
+    // add extra 32-bit word to make number of words even if necessary
+    if (words.find(fedId)->second.size() %2 != 0) words[fedId].push_back( Word32(0) );
 
+    // size in Bytes; create output structure
+    int dataSize = words.find(fedId)->second.size() * sizeof(Word32);
+    int nHeaders = 1;
+    int nTrailers = 1;
+    dataSize += (nHeaders+nTrailers)*sizeof(Word64); 
+    FEDRawData * rawData = new FEDRawData(dataSize);
 
-  //
-  // size in Bytes; create output structure
-  //
-  int dataSize = words.size() * sizeof(Word32);
-  int nHeaders = 1;
-  int nTrailers = 1;
-  dataSize += (nHeaders+nTrailers)*sizeof(Word64); 
-  FEDRawData * rawData = new FEDRawData(dataSize);
+    // get begining of data;
+    Word64 * word = reinterpret_cast<Word64* >(rawData->data());
 
-  //
-  // get begining of data;
-  Word64 * word = reinterpret_cast<Word64* >(rawData->data());
-
-  //
-  // write one header
-  FEDHeader::set(  reinterpret_cast<unsigned char*>(word), 0, lvl1_ID, 0, fedId); 
-  word++;
-
-  //
-  // write data
-  for (unsigned int i=0; i < words.size(); i+=2) {
-    *word = (Word64(words[i]) << 32 ) | words[i+1];
-    LogDebug("PixelDataFormatter")  << print(*word);
+    // write one header
+    FEDHeader::set(  reinterpret_cast<unsigned char*>(word), 0, lvl1_ID, 0, fedId); 
     word++;
-  }
 
-  // write one trailer
-  FEDTrailer::set(  reinterpret_cast<unsigned char*>(word), dataSize/sizeof(Word64), 0,0,0);
-  word++;
+    // write data
+    unsigned int nWord32InFed = words.find(fedId)->second.size();
+    for (unsigned int i=0; i < nWord32InFed; i+=2) {
+      *word = (Word64(words.find(fedId)->second[i]) << 32 ) | words.find(fedId)->second[i+1];
+      LogDebug("PixelDataFormatter")  << print(*word);
+      word++;
+    }
 
-  //
-  // check memory
-  //
-  if (word != reinterpret_cast<Word64* >(rawData->data()+dataSize)) {
-    string s = "** PROBLEM in PixelDataFormatter !!!";
-    throw cms::Exception(s);
-  }
+    // write one trailer
+    FEDTrailer::set(  reinterpret_cast<unsigned char*>(word), dataSize/sizeof(Word64), 0,0,0);
+    word++;
 
-  return rawData;
+    // check memory
+    if (word != reinterpret_cast<Word64* >(rawData->data()+dataSize)) {
+      string s = "** PROBLEM in PixelDataFormatter !!!";
+      throw cms::Exception(s);
+    } // if (word !=
+    fedRawData[fedId] = *rawData;
+  } // for (RI feddata 
 }
 
-int PixelDataFormatter::digi2word( const SiPixelFrameConverter* converter,
-    uint32_t detId, const PixelDigi& digi, std::vector<Word32> & words) const
+int PixelDataFormatter::digi2word( uint32_t detId, const PixelDigi& digi, 
+    std::map<int, vector<Word32> > & words) const
 {
   LogDebug("PixelDataFormatter")
 // <<" detId: " << detId 
   <<print(digi);
 
   DetectorIndex detector = {detId, digi.row(), digi.column()};
-  ElectronicIndex  cabling;
-  int status  = converter->toCabling(cabling, detector);
-  if (status) return status;
+  ElectronicIndex cabling;
+  int fedId  = theFrameReverter->toCabling(cabling, detector);
+  if (fedId<0) return fedId;
 
   Word32 word =
-             (cabling.link  << LINK_shift)
+             (cabling.link << LINK_shift)
            | (cabling.roc << ROC_shift)
            | (cabling.dcol << DCOL_shift)
            | (cabling.pxid << PXID_shift)
            | (digi.adc() << ADC_shift);
-  words.push_back(word);
+  words[fedId].push_back(word);
   theWordCounter++;
+
   return 0;
 }
 
@@ -302,7 +301,6 @@ std::string PixelDataFormatter::print(const PixelDigi & digi) const
 std::string PixelDataFormatter::print(const  Word64 & word) const
 {
   ostringstream str;
-  //str  <<"word64:  " << *reinterpret_cast<const bitset<64>*> (&word);
   str  <<"word64:  " << reinterpret_cast<const bitset<64>&> (word);
   return str.str();
 }
