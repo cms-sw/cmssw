@@ -78,6 +78,7 @@ Combine::Combine() :
         ("significance", "Compute significance instead of upper limit")
         ("hintStatOnly", "Ignore systematics when computing the hint")
         ("saveWorkspace", "Save workspace to output root file")
+        ("toysNoSystematics", "Generate all toys with the central value of the nuisance parameters, without fluctuating them")
     ;
 }
 
@@ -92,6 +93,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm)
   doSignificance_ = vm.count("significance");
   hintUsesStatOnly_ = vm.count("hintStatOnly");
   saveWorkspace_ = vm.count("saveWorkspace");
+  toysNoSystematics_ = vm.count("toysNoSystematics");
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
@@ -293,7 +295,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     unsigned int nLimits = 0;
     w->loadSnapshot("clean");
     RooDataSet *systDs = 0;
-    if (withSystematics && (readToysFromHere == 0)) {
+    if (withSystematics && !toysNoSystematics_ && (readToysFromHere == 0)) {
       if (nuisances == 0 || w->pdf("nuisancePdf") == 0) {
         throw std::logic_error("Running with systematics enabled, but nuisances or nuisancePdf not defined.");
       }
@@ -304,7 +306,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
       if (readToysFromHere == 0) {
 	w->loadSnapshot("clean");
 	if (verbose > 1) utils::printPdf(w, "model_b");
-	if (withSystematics) {
+	if (withSystematics && !toysNoSystematics_) {
 	  std::auto_ptr<RooArgSet> vars(w->pdf("model_b")->getVariables());
 	  *vars = *systDs->get(iToy-1);
 	  if (verbose > 0) utils::printPdf(w, "model_b");

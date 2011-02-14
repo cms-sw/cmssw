@@ -39,6 +39,7 @@ class Combine {
         std::string prior_;
         bool hintUsesStatOnly_;
         bool saveWorkspace_;
+        bool toysNoSystematics_;
 };
 
 
