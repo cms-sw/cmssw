@@ -22,6 +22,13 @@ public:
 
   void buildStructure(edm::EventSetup const&);
 
+  // Function to test if detId exists
+  bool hasDetUnit(uint32_t detId) const { return (DetToFedMap.find(detId)!=DetToFedMap.end()); }
+
+  // Function to convert offline addressing to online
+  int toCabling( sipixelobjects::ElectronicIndex & cabling, 
+                 const sipixelobjects::DetectorIndex & detector) const;
+
   // Function to find FedId given detId
   int findFedId(uint32_t detId);
 
@@ -39,7 +46,6 @@ public:
 
   // Function to find local pixel given detId and pixel row and col on plaquette
   sipixelobjects::LocalPixel findPixelInRoc(uint32_t detId, sipixelobjects::GlobalPixel global);
-
 
 private:
 
