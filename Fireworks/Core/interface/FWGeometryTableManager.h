@@ -16,11 +16,12 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.3 2011/02/13 18:11:38 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.4 2011/02/13 19:57:14 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
-#include <ext/hash_map>
+#include <boost/tr1/unordered_map.hpp>
+//#include <unordered_map>
 
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTreeCellRenderer.h"
@@ -35,21 +36,6 @@ class FWGeometryBrowser;
 
 class TGeoManager;
 class TGeoNode;
-
-namespace __gnu_cxx {
-   /*
-    template <>
-    struct hash<TString> {
-    size_t operator()(const TString& str) const { return str.Hash(); }
-    };*/
-   // this one appears semi-obvious as well ...
-   template <class T>
-   struct hash<T*> {
-      size_t operator()(const T* s) const {
-         hash<size_t> h; return h((size_t)s);
-      }
-   };
-}
 
 class FWGeometryTableManager : public FWTableManagerBase
 {
@@ -149,9 +135,6 @@ private:
    void importChildren(int parent_idx, bool recurse);
    void checkHierarchy();
 
-   // utilities
-   //bool filterOn() const;
-
    // signal callbacks
    void updateMode();
    void updateFilter();
@@ -161,7 +144,7 @@ private:
    typedef std::vector<NodeInfo> Entries_v;
    typedef Entries_v::iterator Entries_i;
    
-   typedef __gnu_cxx::hash_map<TGeoVolume*, Match>  Volumes_t;
+   typedef boost::unordered_map<TGeoVolume*, Match>  Volumes_t;
    typedef Volumes_t::iterator               Volumes_i;
    
    // table stuff
