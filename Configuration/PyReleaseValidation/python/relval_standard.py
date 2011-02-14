@@ -1,6 +1,11 @@
 
 class InputInfo(object):
-    def __init__(self) : pass
+    def __init__(self) :
+        self.run = 1
+        self.files = 1
+        self.events = 1
+        self.location = 'STD'
+
 
 # define input info objects for the data inputs
 real2010Av1 = InputInfo()
@@ -13,19 +18,11 @@ real2010Av1.location = 'CAF',
 
 minBiasRelVal = InputInfo()
 minBiasRelVal.dataSet  = '/RelValProdMinBias/CMSSW_3_11_0_pre5-MC_311_V0-v1/GEN-SIM-RAW'
-minBiasRelVal.run      = 1
-minBiasRelVal.files    = 1
-minBiasRelVal.events   = 1
 minBiasRelVal.label    = 'minbiasrv'
-minBiasRelVal.location = 'STD'
 
 ttBarRelVal = InputInfo()
 ttBarRelVal.dataSet  = '/RelValTTbar/CMSSW_3_11_0_pre5-START311_V0-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-ttBarRelVal.run      = 1
-ttBarRelVal.files    = 1
-ttBarRelVal.events   = 1
 ttBarRelVal.label    = 'ttbarrv'
-ttBarRelVal.location = 'STD'
 
 
 # step1 gensim
