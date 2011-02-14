@@ -19,7 +19,8 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin {
     explicit RecoTauBuilderCombinatoricPlugin(const edm::ParameterSet& pset);
     virtual ~RecoTauBuilderCombinatoricPlugin() {}
     virtual return_type operator() (const reco::PFJetRef& jet,
-         const std::vector<RecoTauPiZero>& piZeros) const;
+         const std::vector<RecoTauPiZero>& piZeros,
+         const std::vector<PFCandidatePtr>& regionalExtras) const;
   private:
     RecoTauQualityCuts qcuts_;
     bool usePFLeptonsAsChargedHadrons_;
@@ -54,7 +55,9 @@ RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(
 RecoTauBuilderCombinatoricPlugin::return_type
 RecoTauBuilderCombinatoricPlugin::operator()(
     const reco::PFJetRef& jet,
-    const std::vector<RecoTauPiZero>& piZeros) const {
+    const std::vector<RecoTauPiZero>& piZeros,
+    const std::vector<PFCandidatePtr>& regionalExtras) const {
+
   typedef std::vector<PFCandidatePtr> PFCandPtrs;
   typedef std::vector<RecoTauPiZero> PiZeroList;
 
@@ -77,6 +80,10 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 
   PFCandPtrs pfnhs = qcuts_.filterRefs(
       pfCandidates(*jet, reco::PFCandidate::h0));
+
+  /// Apply quality cuts to the regional junk around the jet.  Note that the
+  /// particle contents of the junk is exclusive to the jet content.
+  PFCandPtrs regionalJunk = qcuts_.filterRefs(regionalExtras);
 
   // Loop over the decay modes we want to build
   for (std::vector<decayModeInfo>::const_iterator
@@ -183,6 +190,33 @@ RecoTauBuilderCombinatoricPlugin::operator()(
         PiZeroDRFilter isolationConeFilterPiZero(
             tau.p4(), 0, isolationConeSize_);
 
+        // Additionally make predicates to select the different PF object types
+        // of the regional junk objects to add
+        typedef xclean::PredicateAND<xclean::FilterPFCandByParticleId,
+                PFCandPtrDRFilter> RegionalJunkConeAndIdFilter;
+
+        xclean::FilterPFCandByParticleId
+          pfchCandSelector(reco::PFCandidate::h);
+        xclean::FilterPFCandByParticleId
+          pfgammaCandSelector(reco::PFCandidate::gamma);
+        xclean::FilterPFCandByParticleId
+          pfnhCandSelector(reco::PFCandidate::h0);
+
+        RegionalJunkConeAndIdFilter pfChargedJunk(
+            pfchCandSelector, // select charged stuff from junk
+            isolationConeFilter // only take those in iso cone
+            );
+
+        RegionalJunkConeAndIdFilter pfGammaJunk(
+            pfgammaCandSelector, // select gammas from junk
+            isolationConeFilter // only take those in iso cone
+            );
+
+        RegionalJunkConeAndIdFilter pfNeutralJunk(
+            pfnhCandSelector, // select neutral stuff from junk
+            isolationConeFilter // select stuff in iso cone
+            );
+
         // Filter the isolation candidates in a DR cone
         tau.addPFCands(
             RecoTauConstructor::kIsolation, RecoTauConstructor::kChargedHadron,
@@ -205,6 +239,25 @@ RecoTauBuilderCombinatoricPlugin::operator()(
                 pfCandFilter,
                 pfchs.end(), pfchs.end())
             );
+        // Add all charged candidates that are in the iso cone but weren't in the
+        // original PFJet
+        tau.addPFCands(
+            RecoTauConstructor::kIsolation, RecoTauConstructor::kChargedHadron,
+            boost::make_filter_iterator(
+                pfChargedJunk, regionalJunk.begin(), regionalJunk.end()),
+            boost::make_filter_iterator(
+                pfChargedJunk, regionalJunk.end(), regionalJunk.end())
+            );
+
+        // Add all gammas that are in the iso cone but weren't in the
+        // orginal PFJet
+        tau.addPFCands(
+            RecoTauConstructor::kIsolation, RecoTauConstructor::kGamma,
+            boost::make_filter_iterator(
+                pfGammaJunk, regionalJunk.begin(), regionalJunk.end()),
+            boost::make_filter_iterator(
+                pfGammaJunk, regionalJunk.end(), regionalJunk.end())
+            );
 
         // Add all the netural hadron candidates to the isolation collection
         tau.addPFCands(
@@ -215,6 +268,15 @@ RecoTauBuilderCombinatoricPlugin::operator()(
             boost::make_filter_iterator(
                 pfCandFilter,
                 pfnhs.end(), pfnhs.end())
+            );
+        // Add all the netural hadrons from the region collection that are in
+        // the iso cone to the tau
+        tau.addPFCands(
+            RecoTauConstructor::kIsolation,  RecoTauConstructor::kNeutralHadron,
+            boost::make_filter_iterator(
+              pfNeutralJunk, regionalJunk.begin(), regionalJunk.end()),
+            boost::make_filter_iterator(
+              pfNeutralJunk, regionalJunk.end(), regionalJunk.end())
             );
 
         tau.addPiZeros(

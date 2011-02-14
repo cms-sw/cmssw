@@ -57,7 +57,6 @@ class RecoTauPiZeroProducer : public edm::EDProducer {
             reco::RecoTauPiZero> PiZeroPredicate;
 
     edm::InputTag src_;
-    edm::InputTag jetRegionSrc_;
     builderList builders_;
     rankerList rankers_;
     std::auto_ptr<PiZeroPredicate> predicate_;
@@ -66,7 +65,6 @@ class RecoTauPiZeroProducer : public edm::EDProducer {
 
 RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
   src_ = pset.getParameter<edm::InputTag>("jetSrc");
-  jetRegionSrc_ = pset.getParameter<edm::InputTag>("jetRegionSrc");
 
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get the mass hypothesis for the pizeros
@@ -107,10 +105,6 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
   edm::Handle<reco::CandidateView> jetView;
   evt.getByLabel(src_, jetView);
 
-  // Get the jet region producer
-  edm::Handle<edm::Association<reco::PFJetCollection> > jetRegionHandle;
-  evt.getByLabel(jetRegionSrc_, jetRegionHandle);
-
   // Give each of our plugins a chance at doing something with the edm::Event
   BOOST_FOREACH(Builder& builder, builders_) {
     builder.setup(evt, es);
@@ -131,20 +125,13 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
 
   // Loop over our jets
   BOOST_FOREACH(const reco::PFJetRef& jet, jetRefs) {
-    // Get the jet with extra constituents from an area around the jet
-    reco::PFJetRef jetRegionRef = (*jetRegionHandle)[jet];
-    if (jetRegionRef.isNull()) {
-      throw cms::Exception("BadJetRegionRef") << "No jet region can be"
-        << " found for the current jet: " << jet.id();
-    }
-
     // Build our global list of RecoTauPiZero
     PiZeroList dirtyPiZeros;
 
     // Compute the pi zeros from this jet for all the desired algorithms
     BOOST_FOREACH(const Builder& builder, builders_) {
       try {
-        PiZeroVector result(builder(*jetRegionRef));
+        PiZeroVector result(builder(*jet));
         dirtyPiZeros.transfer(dirtyPiZeros.end(), result);
       } catch ( cms::Exception &exception) {
         edm::LogError("BuilderPluginException")

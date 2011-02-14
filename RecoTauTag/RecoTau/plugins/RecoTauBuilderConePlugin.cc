@@ -34,7 +34,8 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
     ~RecoTauBuilderConePlugin() {}
     // Build a tau from a jet
     return_type operator()(const reco::PFJetRef& jet,
-        const std::vector<RecoTauPiZero>& piZeros) const;
+        const std::vector<RecoTauPiZero>& piZeros,
+        const std::vector<PFCandidatePtr>& regionalExtras) const;
   private:
     RecoTauQualityCuts qcuts_;
     bool usePFLeptonsAsChargedHadrons_;
@@ -69,12 +70,12 @@ RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(
     signalConeNeutralHadrons_(
         pset.getParameter<std::string>("signalConeNeutralHadrons")),
     isoConeNeutralHadrons_(
-        pset.getParameter<std::string>("isoConeNeutralHadrons"))
-{}
+        pset.getParameter<std::string>("isoConeNeutralHadrons")) {}
 
 RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
     const reco::PFJetRef& jet,
-    const std::vector<RecoTauPiZero>& piZeros) const {
+    const std::vector<RecoTauPiZero>& piZeros,
+    const std::vector<PFCandidatePtr>& regionalExtras) const {
   // Get access to our cone tools
   using namespace cone;
   // Define output.  We only produce one tau per jet for the cone algo.
@@ -105,6 +106,9 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   // Neutral hadrons
   PFCandPtrs pfnhs = qcuts_.filterRefs(
       pfCandidates(*jet, reco::PFCandidate::h0));
+
+  // All the extra junk
+  PFCandPtrs regionalJunk = qcuts_.filterRefs(regionalExtras);
 
   /***********************************************
    ******     Lead Candidate Finding    **********
@@ -176,14 +180,46 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
 
   PFCandPtrDRFilter isoConePFCHFilter(
       coneAxis, signalConeChargedHadrons_(*jet), isoConeChargedHadrons_(*jet));
+  PFCandPtrDRFilter isoConePFGammaFilter(
+      coneAxis, signalConePiZeros_(*jet), isoConePiZeros_(*jet));
   PFCandPtrDRFilter isoConePFNHFilter(
       coneAxis, signalConeNeutralHadrons_(*jet), isoConeNeutralHadrons_(*jet));
   PiZeroDRFilter isoConePiZeroFilter(
       coneAxis, signalConePiZeros_(*jet), isoConePiZeros_(*jet));
 
+  // Additionally make predicates to select the different PF object types
+  // of the regional junk objects to add to the iso cone.
+  typedef xclean::PredicateAND<xclean::FilterPFCandByParticleId,
+          PFCandPtrDRFilter> RegionalJunkConeAndIdFilter;
+
+  xclean::FilterPFCandByParticleId
+    pfchCandSelector(reco::PFCandidate::h);
+  xclean::FilterPFCandByParticleId
+    pfgammaCandSelector(reco::PFCandidate::gamma);
+  xclean::FilterPFCandByParticleId
+    pfnhCandSelector(reco::PFCandidate::h0);
+
+  // Predicate to select the regional junk in the iso cone by PF id
+  RegionalJunkConeAndIdFilter pfChargedJunk(
+      pfchCandSelector, // select charged stuff from junk
+      isoConePFCHFilter // only take those in iso cone
+      );
+
+  RegionalJunkConeAndIdFilter pfGammaJunk(
+      pfgammaCandSelector, // select gammas from junk
+      isoConePFGammaFilter // only take those in iso cone
+      );
+
+  RegionalJunkConeAndIdFilter pfNeutralJunk(
+      pfnhCandSelector, // select neutral stuff from junk
+      isoConePFNHFilter // select stuff in iso cone
+      );
+
   // Build filter iterators select the signal charged stuff.
-  PFCandPtrDRFilterIter signalPFCHs_begin(signalConePFCHFilter, pfchs.begin(), pfchs.end());
-  PFCandPtrDRFilterIter signalPFCHs_end(signalConePFCHFilter, pfchs.end(), pfchs.end());
+  PFCandPtrDRFilterIter signalPFCHs_begin(
+      signalConePFCHFilter, pfchs.begin(), pfchs.end());
+  PFCandPtrDRFilterIter signalPFCHs_end(
+      signalConePFCHFilter, pfchs.end(), pfchs.end());
 
   // Cross clean pi zero content using signal cone charged hadron constituents.
   xclean::CrossCleanPiZeros<PFCandPtrDRFilterIter> xCleaner(
@@ -225,6 +261,15 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
                    xclean::makePredicateAND(isoConePFCHFilter, pfCandXCleaner),
                    pfchs.end(), pfchs.end()));
 
+  // Add all the stuff in the isolation cone that wasn't in the jet constituents
+  tau.addPFCands(RecoTauConstructor::kIsolation,
+                 RecoTauConstructor::kChargedHadron,
+                 boost::make_filter_iterator(
+                   pfChargedJunk, regionalJunk.begin(), regionalJunk.end()),
+                 boost::make_filter_iterator(
+                   pfChargedJunk, regionalJunk.end(), regionalJunk.end())
+      );
+
   // Build isolation neutral hadrons
   tau.addPFCands(RecoTauConstructor::kIsolation,
                  RecoTauConstructor::kNeutralHadron,
@@ -235,12 +280,30 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
                    xclean::makePredicateAND(isoConePFNHFilter, pfCandXCleaner),
                    pfnhs.end(), pfnhs.end()));
 
+  // Add regional stuff not in jet
+  tau.addPFCands(RecoTauConstructor::kIsolation,
+                 RecoTauConstructor::kNeutralHadron,
+                 boost::make_filter_iterator(
+                   pfNeutralJunk, regionalJunk.begin(), regionalJunk.end()),
+                 boost::make_filter_iterator(
+                   pfNeutralJunk, regionalJunk.end(), regionalJunk.end())
+      );
+
   // Build isolation PiZeros
   tau.addPiZeros(RecoTauConstructor::kIsolation,
                  PiZeroDRFilterIter(isoConePiZeroFilter, cleanPiZeros.begin(),
                                     cleanPiZeros.end()),
                  PiZeroDRFilterIter(isoConePiZeroFilter, cleanPiZeros.end(),
                                     cleanPiZeros.end()));
+
+  // Add regional stuff not in jet
+  tau.addPFCands(RecoTauConstructor::kIsolation,
+                 RecoTauConstructor::kGamma,
+                 boost::make_filter_iterator(
+                   pfGammaJunk, regionalJunk.begin(), regionalJunk.end()),
+                 boost::make_filter_iterator(
+                   pfGammaJunk, regionalJunk.end(), regionalJunk.end())
+      );
 
   // Put our built tau in the output - 'false' indicates don't build the
   // leading candidtes, we already did that explicitly above.

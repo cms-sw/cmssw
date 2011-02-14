@@ -142,6 +142,26 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       throw cms::Exception("BadJetRegionRef") << "No jet region can be"
         << " found for the current jet: " << jetRef.id();
     }
+    // Remove all the jet constituents from the jet extras
+    std::vector<reco::PFCandidatePtr> jetCands = jetRef->getPFConstituents();
+    std::vector<reco::PFCandidatePtr> allRegionalCands =
+      jetRegionRef->getPFConstituents();
+    // Sort both by ref key
+    std::sort(jetCands.begin(), jetCands.end());
+    std::sort(allRegionalCands.begin(), allRegionalCands.end());
+    // Get the regional junk candidates not in the jet.
+    std::vector<reco::PFCandidatePtr> uniqueRegionalCands;
+
+    // This can actually be less than zero, if the jet has really crazy soft
+    // stuff really far away from the jet axis.
+    if (allRegionalCands.size() > jetCands.size())
+      uniqueRegionalCands.reserve(allRegionalCands.size() - jetCands.size());
+
+    // Subtract the jet cands from the regional cands
+    std::set_difference(allRegionalCands.begin(), allRegionalCands.end(),
+        jetCands.begin(), jetCands.end(),
+        std::back_inserter(uniqueRegionalCands));
+
     // Get the PiZeros associated with this jet
     const std::vector<reco::RecoTauPiZero>& piZeros = (*piZeroAssoc)[jetRef];
     // Loop over our builders and create the set of taus for this jet
@@ -150,7 +170,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         builder != builders_.end(); ++builder) {
       // Get a ptr_vector of taus from the builder
       reco::tau::RecoTauBuilderPlugin::output_type taus(
-          (*builder)(jetRegionRef, piZeros));
+          (*builder)(jetRegionRef, piZeros, uniqueRegionalCands));
       // Make sure all taus have their jetref set correctly
       std::for_each(taus.begin(), taus.end(),
           boost::bind(&reco::PFTau::setjetRef, _1, jetRef));

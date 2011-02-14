@@ -63,9 +63,11 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin {
     virtual ~RecoTauBuilderPlugin() {}
 
     /// Construct one or more PFTaus from the a PFJet and its asscociated
-    /// reconstructed PiZeros
+    /// reconstructed PiZeros and regional extras i.e. objects in a 0.8 cone
+    /// about the jet
     virtual return_type operator()(const reco::PFJetRef& jet,
-        const std::vector<reco::RecoTauPiZero>& piZeros) const = 0;
+        const std::vector<reco::RecoTauPiZero>& piZeros,
+        const std::vector<PFCandidatePtr>& regionalExtras) const = 0;
 
     /// Hack to be able to convert Ptrs to Refs
     const edm::Handle<PFCandidateCollection>& getPFCands() const {
