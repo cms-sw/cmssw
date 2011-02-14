@@ -1,5 +1,5 @@
 
-<var name="TEST_RELEASE" value="4_2_0_pre1">
+<var name="TEST_RELEASE" value="4_2_0_pre2">
 <var name="TEST_GLOBAL_TAG" value="MC_311_V1">
 <var name="TEST_GLOBAL_STARTUP_TAG" value="START311_V1">
 <var name="TEST_GLOBAL_VERSION" value="v1">
@@ -25,9 +25,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="4_2_0_pre2_pflow">
+<var name="VAL_NEW_RELEASE" value="4_2_0_pre2">
 <var name="VAL_REF_RELEASE" value="4_2_0_pre1">
-<var name="VAL_COMMENT" value="No electron code change.">
+<var name="VAL_COMMENT" value="Electron code upgraded for new severity code.">
 
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
 
