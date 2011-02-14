@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 // This class has been automatically generated on
 // Mon Sep  1 19:12:16 2008 by ROOT version 5.18/00a
 // from TTree OHltTree/
@@ -3735,10 +3735,13 @@ public :
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) ;
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold, double etajetthreshold) ;
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold, double etajetthreshold, int Njetthreshjold) ;
+  int OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold) ;
   int OpenHltMHT(double MHTthreshold, double jetthreshold) ;
   int OpenHltMHTU(double MHTthreshold, double jetthreshold) ;
   int OpenHltMeffU(double Meffthreshold, double jetthreshold);
+  int OpenHltMeff(double Meffthreshold, double jetthreshold);
   int OpenHltPT12U(double PT12threshold, double jetthreshold);
+  int OpenHltPT12(double PT12threshold, double jetthreshold);
   int OpenHltMhtOverHTPassed(double HardJetThreshold,double HtJetThreshold, double MhtJetThreshold, double MHTovHT,int NJets);
   int OpenHltMhtOverHTPassedHTthresh(double HT,double MHTovHT);
   int OpenHlt1PixelTrackPassed(float minpt, float minsep, float miniso);
@@ -3746,6 +3749,7 @@ public :
   int OpenHlt1ElectronHTPassed(float Et, float HT,float jetThreshold, int L1iso, float Tiso, float Hiso, float dr); 
   int OpenHlt1ElectronEleIDHTPassed(float Et, float HT,float jetThreshold, int L1iso, float Tiso, float Hiso, float dr); 
   int OpenHltRPassed(float Rmin, float MRmin,bool MRP, int NJmax, float jetPt);
+  int OpenHltCorRPassed(float Rmin, float MRmin,bool MRP, int NJmax, float jetPt);
   int OpenHlt1BJetPassedEleRemoval(float jetEt, float jetEta, float drcut, 
                                    float discL25, float discL3, 
                                    float Et, int L1iso,  
