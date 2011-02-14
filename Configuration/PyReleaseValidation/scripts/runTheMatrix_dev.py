@@ -349,8 +349,12 @@ class MatrixReader(object):
             stepCmds = ['','','','']
             for key in ids:
                 num, name, stepCmds[0], stepCmds[1], stepCmds[2], stepCmds[3], inputInfo = self.step1WorkFlows[key]
-                step1,otherSteps = name.split('+',1)
-                line = num + ' ++ '+ step1 + ' ++ ' +otherSteps.replace('+',',')
+                step1 = name
+                otherSteps = None
+                if '+' in name:
+                    step1,otherSteps = name.split('+',1)
+                line = num + ' ++ '+ step1
+                if otherSteps: line += ' ++ ' +otherSteps.replace('+',',')
                 if inputInfo :
                     line += ' ++ REALDATA: '+inputInfo.dataSet
                     line += ', FILES: ' +str(inputInfo.files)
