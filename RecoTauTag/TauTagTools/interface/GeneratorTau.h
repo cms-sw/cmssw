@@ -5,7 +5,7 @@
 /*
  * Class GeneratorTau
  *
- * Tool for retrieving visible decay products and determining PDG-style tau decay mode 
+ * Tool for retrieving visible decay products and determining PDG-style tau decay mode
  * from Pythia output (in CMS genParticle format)
  *
  * Author: Evan K. Friis, UC Davis; friis@physics.ucdavis.edu
@@ -28,13 +28,15 @@ typedef math::XYZTLorentzVector LorentzVector;
 class GeneratorTau : public reco::GenParticle {
    public:
 
-      enum tauDecayModeEnum {kElectron, kMuon, 
+      enum tauDecayModeEnum {kElectron, kMuon,
          kOneProng0pi0, kOneProng1pi0, kOneProng2pi0,
          kThreeProng0pi0, kThreeProng1pi0,
          kOther, kUndefined};
 
       //default constructor
-      GeneratorTau(const reco::GenParticle& input):GenParticle(input){};
+      GeneratorTau(const reco::GenParticle& input):GenParticle(input){
+        theLeadTrack_ = NULL;
+      };
       GeneratorTau();
 
       ~GeneratorTau(){};
@@ -80,8 +82,8 @@ class GeneratorTau : public reco::GenParticle {
       std::vector<const reco::GenParticle*>         genNeutralPions_;
       std::vector<const reco::GenParticle*>         genGammas_;
       std::vector<const reco::GenParticle*>         stableDecayProducts_;
-      std::vector<const reco::GenParticle*>         genNus_; 
-      const reco::GenParticle*                 theLeadTrack_;
+      std::vector<const reco::GenParticle*>         genNus_;
+      const reco::GenParticle*                      theLeadTrack_;
 
       tauDecayModeEnum                                  theDecayMode_;
       int                                               aFinalStateTau_;
