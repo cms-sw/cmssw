@@ -89,12 +89,4 @@ process.p = cms.Path(
     process.postValidation_step
 )
 #process.outPath = cms.EndPath(process.out)
-import sys, os
-sampleName = os.environ['SAMPLE']
-sys.path.append('samples')
-sampleCfg = __import__(sampleName+"_cfg")
-process.source = sampleCfg.source
-process.maxEvents = sampleCfg.maxEvents
-process.GlobalTag.globaltag = sampleCfg.globaltag
-process.dqmSaver.workflow = '/%s/%s/Validation' % (process.GlobalTag.globaltag.value()[:-5], sampleName)
 
