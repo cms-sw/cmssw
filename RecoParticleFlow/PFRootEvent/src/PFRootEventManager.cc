@@ -2303,7 +2303,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   }
 
   if ( displacedRecTracks_.size() ) { 
-    cout << "preprocessing rec tracks" << endl;
+    //   cout << "preprocessing rec tracks" << endl;
     PreprocessRecTracks( displacedRecTracks_);
   }
 

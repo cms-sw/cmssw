@@ -53,7 +53,8 @@ root primaryVertices_inputTag offlinePrimaryVertices
 root conversion_inputTag     pfConversions
 // V0 branch
 root V0_inputTag             pfV0
-
+// Photons branch
+root Photon_inputTag         photons
 
 // CaloTowers branch
 root caloTowers_inputTag     towerMaker
