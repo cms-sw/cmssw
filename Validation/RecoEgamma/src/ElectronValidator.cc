@@ -132,6 +132,7 @@ MonitorElement * ElectronValidator::profileX
    const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
  {
+  if (me2d->getTH2F()->GetSumw2N()==0) me2d->getTH2F()->Sumw2() ; // workaround for http://savannah.cern.ch/bugs/?77751
   TProfile * p1_temp = me2d->getTH2F()->ProfileX() ;
   if (title!="") { p1_temp->SetTitle(title.c_str()) ; }
   if (titleX!="") { p1_temp->GetXaxis()->SetTitle(titleX.c_str()) ; }
@@ -148,6 +149,7 @@ MonitorElement * ElectronValidator::profileY
    const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
  {
+  if (me2d->getTH2F()->GetSumw2N()==0) me2d->getTH2F()->Sumw2() ; // workaround for http://savannah.cern.ch/bugs/?77751
   TProfile * p1_temp = me2d->getTH2F()->ProfileY() ;
   if (title!="") { p1_temp->SetTitle(title.c_str()) ; }
   if (titleX!="") { p1_temp->GetXaxis()->SetTitle(titleX.c_str()) ; }
