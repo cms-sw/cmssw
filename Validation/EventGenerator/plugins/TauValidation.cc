@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/02/01 16:09:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/02/10 15:01:07 $
+ *  $Revision: 1.9 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -76,15 +76,13 @@ void TauValidation::beginJob()
     TauSpinEffectsZ   = dbe->book1D("TauSpinEffectsZ","Mass of pi+ pi-", 22 ,0,1.1);
         TauSpinEffectsZ->setAxisTitle("M_{#pi^{+}#pi^{-}}");
 
-    TauPhotons        = dbe->book1D("TauPhoton","Photons radiating from tau", 2 ,0,2);
-	TauPhotons->setBinLabel(1,"Fraction of taus radiating photons");
-	TauPhotons->setBinLabel(2,"Fraction of tau pt radiated by photons");
+    TauPhotonsN        = dbe->book1D("TauPhotonsN","Photons radiating from tau", 2 ,0,2);
+	TauPhotonsN->setBinLabel(1,"Number of taus");
+	TauPhotonsN->setBinLabel(2,"Number of taus radiating photons");
+    TauPhotonsPt       = dbe->book1D("TauPhotonsPt","Photon pt radiating from tau", 2 ,0,2);
+	TauPhotonsPt->setBinLabel(1,"Sum of tau pt");
+	TauPhotonsPt->setBinLabel(2,"Sum of tau pt radiated by photons");
   }
-
-  nTaus              = 0;
-  nTausWithPhotons   = 0;
-  tauPtSum           = 0;
-  photonFromTauPtSum = 0;
 
   return;
 }
@@ -397,6 +395,7 @@ double TauValidation::visibleTauEnergy(const HepMC::GenParticle* tau){
 void TauValidation::photons(const HepMC::GenParticle* tau){
 
         if ( tau->end_vertex() ) {
+	      double photonFromTauPtSum = 0;
 	      bool photonFromTau = false;
               HepMC::GenVertex::particle_iterator des;
               for(des = tau->end_vertex()->particles_begin(HepMC::descendants);
@@ -407,18 +406,13 @@ void TauValidation::photons(const HepMC::GenParticle* tau){
 				photonFromTau = true;
 			} 
               }
-	      nTaus++;
+	      
+	      TauPhotonsN->Fill(0.5);
+	      TauPhotonsPt->Fill(0.5,tau->momentum().perp());
 	      if(photonFromTau) {
-		tauPtSum += tau->momentum().perp();
-		nTausWithPhotons++;
+		TauPhotonsN->Fill(1.5);
+		TauPhotonsPt->Fill(1.5,photonFromTauPtSum);
 	      }
-
-	      double nFrac = double(nTausWithPhotons)/nTaus;
-	      double ptFrac = 0;
-	      if(tauPtSum > 0) ptFrac = photonFromTauPtSum/tauPtSum;
-
-	      TauPhotons->setBinContent(1,nFrac);
-	      TauPhotons->setBinContent(2,ptFrac);
         }
 }
 

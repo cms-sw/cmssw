@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2011/02/01 16:09:55 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/02/10 15:01:07 $
+ *  $Revision: 1.6 $
  *
  */
 
@@ -86,9 +86,6 @@ class TauValidation : public edm::EDAnalyzer
 
 	double tauEtCut;
 
-	double tauPtSum,photonFromTauPtSum;
-	int    nTaus,nTausWithPhotons;
-
   	/// PDT table
   	edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
   
@@ -99,7 +96,7 @@ class TauValidation : public edm::EDAnalyzer
   	MonitorElement *TauPt, *TauEta, *TauProngs, *TauDecayChannels, *TauMothers, 
                        *TauRtauW, *TauRtauHpm,
                        *TauSpinEffectsW, *TauSpinEffectsHpm, *TauSpinEffectsZ,
-	               *TauPhotons;
+	               *TauPhotonsN,*TauPhotonsPt;
 };
 
 #endif
