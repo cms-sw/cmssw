@@ -539,11 +539,16 @@ class SwitchJetCollection(ConfigToolBase):
         ## save label of old input jet collection
         oldLabel = applyPostfix(process, "patJets", postfix).jetSource;
     
-        ## replace input jet collection for generator matches
-	applyPostfix(process, "patJetPartonMatch", postfix).src = jetCollection
-	applyPostfix(process, "patJetGenJetMatch", postfix).src = jetCollection
-	applyPostfix(process, "patJetGenJetMatch", postfix).matched = genJetCollection
-	applyPostfix(process, "patJetPartonAssociation", postfix).jets = jetCollection
+        ## replace input jet collection for generator matches if the
+        ## genJetCollection is no empty
+        if (process.patJets.addGenPartonMatch):
+            applyPostfix(process, "patJetPartonMatch", postfix).src = jetCollection
+        if (process.patJets.addGenJetMatch):
+            applyPostfix(process, "patJetGenJetMatch", postfix).src = jetCollection
+            applyPostfix(process, "patJetGenJetMatch", postfix).matched = genJetCollection
+        if (process.patJets.getJetMCFlavour):
+            applyPostfix(process, "patJetPartonAssociation", postfix).jets = jetCollection
+            
         ## replace input jet collection for pat jet production
 	applyPostfix(process, "patJets", postfix).jetSource = jetCollection
     
