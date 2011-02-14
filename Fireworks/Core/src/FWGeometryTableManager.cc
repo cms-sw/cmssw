@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.5 2011/02/13 19:57:14 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.6 2011/02/14 20:02:51 amraktad Exp $
 //
 
 //#define PERFTOOL
@@ -109,10 +109,16 @@ FWGeometryTableManager::FWGeometryTableManager(FWGeometryBrowser* browser)
    
    m_browser->m_mode.changed_.connect(boost::bind(&FWGeometryTableManager::updateMode,this));
    m_browser->m_autoExpand.changed_.connect(boost::bind(&FWGeometryTableManager::updateAutoExpand,this));
+   m_browser->m_maxDaughters.changed_.connect(boost::bind(&FWGeometryTableManager::updateAutoExpand,this));
    m_browser->m_filter.changed_.connect(boost::bind(&FWGeometryTableManager::updateFilter,this));
    
    // debug
    m_browser->m_maxDaughters.changed_.connect(boost::bind(&FWGeometryTableManager::updateAutoExpand,this));
+   
+   // init here if no config
+   m_modeVolume   =  m_browser->m_mode.value();
+   m_autoExpand   =  m_browser->m_autoExpand.value();
+   m_maxDaughters =  m_browser->m_maxDaughters.value();
 }
 
 FWGeometryTableManager::~FWGeometryTableManager()
@@ -367,7 +373,9 @@ void FWGeometryTableManager::loadGeometry(TGeoManager* geoManager)
    
    m_volumes.clear();
    checkUniqueVolume(geoManager->GetTopVolume());
-
+   if (!filterOff())
+      updateFilter();
+   
    m_browser->updateStatusBar(Form("FWGeometryTableManager::loadGeometry() %d unique volumes", (int)m_volumes.size()));
    
    setTableContent();
@@ -647,6 +655,8 @@ void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol,  std::vector<TGe
 
 void FWGeometryTableManager::updateFilter()
 {
+   if (!m_geoManager) return;
+   
 #ifdef PERFTOOL
    ProfilerStart(m_browser->m_filter.value().c_str());
 #endif
@@ -669,11 +679,15 @@ void FWGeometryTableManager::updateFilter()
 
 void FWGeometryTableManager::updateAutoExpand()
 {
+   if (!m_geoManager) return;
+   
    setTableContent();
 }
 
 void FWGeometryTableManager::updateMode()
 {
+   if (!m_geoManager) return;
+   
    setTableContent();
 }
 

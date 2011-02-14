@@ -14,7 +14,7 @@
 #include "TGButton.h"
 #include "TGLabel.h"
 
-bool geodebug = false;
+bool geodebug = 1;
 
 #include <iostream>
 FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
@@ -61,7 +61,6 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
    this->Connect("CloseWindow()","FWGeometryBrowser",this,"windowIsClosing()");
    Layout();
    MapSubwindows();
-   // Layout();
 
    gVirtualX->SelectInput(GetId(), kKeyPressMask | kKeyReleaseMask | kExposureMask |
                           kPointerMotionMask | kStructureNotifyMask | kFocusChangeMask |
@@ -86,7 +85,7 @@ FWGeometryBrowser::resetSetters()
    makeSetter(frame, &m_mode);
    makeSetter(frame, &m_filter);
    makeSetter(frame, &m_autoExpand);
-   makeSetter(frame, &m_maxDaughters);
+   if (geodebug) makeSetter(frame, &m_maxDaughters);
    m_settersFrame->MapSubwindows();
    Layout();
 }
@@ -114,12 +113,15 @@ FWGeometryBrowser::addTo(FWConfiguration& iTo) const
 void
 FWGeometryBrowser::setFrom(const FWConfiguration& iFrom)
 { 
-   return;
-   // printf("FWGeometryBrowser::setFrom\n");
    for(const_iterator it =begin(), itEnd = end();
        it != itEnd;
        ++it) {
-      (*it)->setFrom(iFrom);      
+      
+      if (!geodebug && (&m_maxDaughters == (*it)))
+          continue;
+          
+      (*it)->setFrom(iFrom);
+
    }  
    resetSetters();
 }
