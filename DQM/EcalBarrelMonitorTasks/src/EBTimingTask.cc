@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2010/08/11 14:57:34 $
- * $Revision: 1.64 $
+ * $Date: 2011/01/21 10:21:38 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  *
 */
@@ -23,10 +23,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -250,6 +248,9 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+  c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+
   edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
@@ -293,9 +294,6 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float yval = hitItr->time();
 
       uint32_t flag = hitItr->recoFlag();
-
-      edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-      c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
 
       uint32_t sev = sevlv->severityLevel(id, *hits);
 

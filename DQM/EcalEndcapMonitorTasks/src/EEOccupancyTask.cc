@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2010/08/11 14:57:35 $
- * $Revision: 1.85 $
+ * $Date: 2011/01/21 10:21:39 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -30,7 +30,6 @@
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -744,6 +743,8 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+  c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
 
   edm::Handle<EcalRecHitCollection> rechits;
 
@@ -794,8 +795,6 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         uint32_t flag = rechitItr->recoFlag();
 
-	edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-	c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
         uint32_t sev = sevlv->severityLevel(id, *rechits);
 
         if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {

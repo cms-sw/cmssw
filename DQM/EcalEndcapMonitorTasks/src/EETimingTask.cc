@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/08/30 13:14:09 $
- * $Revision: 1.71 $
+ * $Date: 2011/01/21 10:21:39 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -25,7 +25,6 @@
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -312,6 +311,9 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   float sumTime_hithr[2] = {0.,0.};
   int n_hithr[2] = {0,0};
 
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+  c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+
   edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
@@ -358,8 +360,6 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       uint32_t flag = hitItr->recoFlag();
 
-      edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-      c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
       uint32_t sev = sevlv->severityLevel(id, *hits );
 
       const GlobalPoint& pos = pGeometry_->getGeometry(id)->getPosition();
