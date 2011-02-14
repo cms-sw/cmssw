@@ -81,8 +81,8 @@ class RecoTauConstructor {
 
     // Add a collection of objects to the charged hadrons collection
     template<typename InputIterator>
-      void addPFCands(Region region, ParticleType type, InputIterator begin,
-          InputIterator end) {
+      void addPFCands(Region region, ParticleType type,
+          const InputIterator& begin, const InputIterator& end) {
         for(InputIterator iter = begin; iter != end; ++iter) {
           addPFCand(region, type, convertToRef(*iter));
         }
@@ -96,7 +96,8 @@ class RecoTauConstructor {
 
     /// Add a list of pi zeros to the input collection
     template<typename InputIterator>
-      void addPiZeros(Region region, InputIterator begin, InputIterator end)
+      void addPiZeros(Region region,
+          const InputIterator& begin, const InputIterator& end)
       {
         for(InputIterator iter = begin; iter != end; ++iter)
         {
