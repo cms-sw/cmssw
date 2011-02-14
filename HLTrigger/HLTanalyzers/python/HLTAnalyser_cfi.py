@@ -31,8 +31,8 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### reconstructed objects
     genjets                         = cms.InputTag("iterativeCone5GenJets"),
     genmet                          = cms.InputTag("genMet"),
-    recjets                         = cms.InputTag("hltIterativeCone5CaloJets"),
-    reccorjets                      = cms.InputTag("hltMCJetCorJetIcone5Regional"),
+    recjets                         = cms.InputTag("hltAntiKT5CaloJets"),
+    reccorjets                      = cms.InputTag("hltAntiKT5L2L3CorrCaloJets"),
     recmet                          = cms.InputTag("hltMet"),
     ht                              = cms.InputTag("hltHtMet"),
     calotowers                      = cms.InputTag("hltTowerMakerForAll"),
@@ -82,7 +82,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     minPtGammassForTaus             = cms.double(1.5),
 
     ### particle flow jets OpenHLT related objects
-    HLTPFJet                        = cms.InputTag("hltIcone5PFJets"),
+    HLTPFJet                        = cms.InputTag("hltAntiKT5PFJets"),
 
     ### reco offline particle flow tau related objects
     RecoPFTau = cms.InputTag("shrinkingConePFTauProducer"),
@@ -95,8 +95,8 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     RecoPFTauDiscrByTanCTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent"),
                              
     ### b-jet OpenHLT related objects
-    CommonBJetsL2                   = cms.InputTag("hltIterativeCone5CaloJets"),
-    CorrectedBJetsL2                = cms.InputTag("hltMCJetCorJetIcone5Regional"),
+    CommonBJetsL2                   = cms.InputTag("hltAntiKT5CaloJets"),
+    CorrectedBJetsL2                = cms.InputTag("hltAntiKT5L2L3CorrCaloJets"),
     LifetimeBJetsL25                = cms.InputTag("openHltBLifetimeL25BJetTags"),
     LifetimeBJetsL3                 = cms.InputTag("openHltBLifetimeL3BJetTags"),
     LifetimeBJetsL25Relaxed         = cms.InputTag("openHltBLifetimeL25BJetTags"),

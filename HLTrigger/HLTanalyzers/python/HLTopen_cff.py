@@ -10,14 +10,14 @@ from HLTrigger.Configuration.HLT_FULL_cff import *
 DoHLTJets = cms.Path(HLTBeginSequence + 
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Corrected +
-    HLTRegionalRecoJetSequenceAK5Corrected +
+    # HLTRegionalRecoJetSequenceAK5Corrected +
     HLTRecoMETSequence +                 
     HLTDoJet30HTRecoSequence
 )
 DoHLTJetsU = cms.Path(HLTBeginSequence +
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Uncorrected +
-    HLTRegionalRecoJetSequenceAK5Corrected +
+    # HLTRegionalRecoJetSequenceAK5Corrected +
     HLTRecoMETSequence +
     HLTDoJet30HTRecoSequence
 )
@@ -150,7 +150,8 @@ DoHLTAlCaECALPhiSym = cms.Path(
 
 DoHLTMinBiasPixelTracks = cms.Path(
     HLTBeginSequence +
-    HLTDoLocalPixelSequence +
+    # HLTDoLocalPixelSequence +
+    HLTDoHILocalPixelSequence +
     HLTPixelTrackingForHITrackTrigger + 
     hltPixelCandsForHITrackTrigger +
     hltPixelTracks +

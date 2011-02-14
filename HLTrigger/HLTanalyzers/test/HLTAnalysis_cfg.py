@@ -35,7 +35,8 @@ if (isData):
     # GLOBAL_TAG='GR10_H_V6A::All' # collisions2010 tag for CMSSW_3_6_X
     # GLOBAL_TAG='GR10_H_V8_T2::All' # collisions2010 tag for CMSSW_3_8_X
     # GLOBAL_TAG='GR10_H_V9::All' # collisions2010 tag for CMSSW_3_8_X, updated  
-    GLOBAL_TAG='GR_R_311_V0::All' # Temporary tag for running in CMSSW_3_11_X 
+    # GLOBAL_TAG='GR_R_311_V0::All' # Temporary tag for running in CMSSW_3_11_X
+    GLOBAL_TAG='L1HLTST311_V0::All'
 else:
     GLOBAL_TAG='START39_V8::All'
     if (MENU == "GRun"): GLOBAL_TAG= 'START39_V8::All'
@@ -45,6 +46,7 @@ else:
 process = cms.Process("ANALYSIS")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.suppressWarning = cms.untracked.vstring( 'hltOnlineBeamSpot' )
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.options = cms.untracked.PSet(
@@ -53,8 +55,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-            '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/86044E5C-77C7-DF11-902B-001D09F28F25.root',
-            '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/6EC49446-5DC7-DF11-B529-001D09F2447F.root'
+    '/store/data/Run2010B/Jet/RAW/v1/000/149/181/326E0028-28E2-DF11-8EF5-001D09F2546F.root'
     )
 )
 
@@ -104,8 +105,6 @@ process.EcalPreshowerGeometryEP.applyAlignment = True
 
 if (MENU == "GRun"):
     # get the objects associated with the menu
-    process.hltanalysis.recjets = "hltMCJetCorJetIcone5HF07"
-    process.hltanalysis.ht = "hltJet20UHt"
     process.hltanalysis.IsoPixelTracksL3 = "hltHITIPTCorrector8E29"
     process.hltanalysis.IsoPixelTracksL2 = "hltIsolPixelTrackProd8E29"
     if (isData == 0):
@@ -124,7 +123,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 # Schedule the whole thing
 if (MENU == "GRun"):
     process.schedule = cms.Schedule(
-        process.DoHLTJetsU,
+        process.DoHLTJets,
         process.DoHltMuon,
         process.DoHLTPhoton,
         process.DoHLTElectron,
