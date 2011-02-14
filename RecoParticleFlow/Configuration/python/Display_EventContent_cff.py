@@ -42,8 +42,9 @@ DisplayEventContent = cms.PSet(
         'keep recoTrackExtras_electronGSGsfTrackCandidates_*_*',
         'keep recoTrackExtras_electronGsfTracks_*_*',         
         'keep recoElectronSeeds_electronMergedSeeds_*_*',
-        'keep recoPhotons_photons_*_*'                                           
-                                           )
+        'keep recoPhotons_photons_*_*',
+        'keep recoPhotonCores_photonCore_*_*'                                        
+   )
 )
 
 
