@@ -20,6 +20,7 @@ SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::SiStripBadAPVandHotStripA
   Nevents_(0),
   absolute_occupancy_(0),
   OutFileName_("Occupancy.root"),
+  DQMOutfileName_("DQMOutput"),
   UseInputDB_(iConfig.getUntrackedParameter<bool>("UseInputDB",false))
   {
     minNevents_=Nevents_*absolute_occupancy_;
@@ -276,6 +277,9 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::extractBadAPVSandStr
   pQuality=siStripQuality;
   badStripList.clear();
 
+  // Initialize the DQM output histograms
+  initializeDQMHistograms();
+
   // Analyze the Occupancy for both APVs and Strips
   AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer1,MeanAndRms_TIB_Layer1,badStripList,inSiStripQuality);
   AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer2,MeanAndRms_TIB_Layer2,badStripList,inSiStripQuality);
@@ -318,11 +322,42 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::extractBadAPVSandStr
 
   siStripQuality->fillBadComponents();
 
+  // Fill DQM histograms
+  for(unsigned int i = 0; i < subDetName.size(); i++)
+    {
+      projYDistanceVsStripNumber[i]->Add((TH1F*)distanceVsStripNumber[i]->ProjectionY());
+      pfxDistanceVsStripNumber[i]->Add(distanceVsStripNumber[i]->ProfileX(pfxDistanceVsStripNumber[i]->GetName(),1,998));
+      projYNHitsVsStripNumber[i]->Add(nHitsVsStripNumber[i]->ProjectionY());
+      projYNHitsGoodStripsVsStripNumber[i]->Add(nHitsGoodStripsVsStripNumber[i]->ProjectionY());
+      projYNHitsHotStripsVsStripNumber[i]->Add(nHitsHotStripsVsStripNumber[i]->ProjectionY());
+      projYOccupancyVsStripNumber[i]->Add(occupancyVsStripNumber[i]->ProjectionY());
+      projYOccupancyGoodStripsVsStripNumber[i]->Add(occupancyGoodStripsVsStripNumber[i]->ProjectionY());
+      projYOccupancyHotStripsVsStripNumber[i]->Add(occupancyHotStripsVsStripNumber[i]->ProjectionY());
+      pfxOccupancyVsStripNumber[i]->Add(occupancyVsStripNumber[i]->ProfileX(pfxOccupancyVsStripNumber[i]->GetName(),-8.,0.));
+      pfxOccupancyGoodStripsVsStripNumber[i]->Add(occupancyGoodStripsVsStripNumber[i]->ProfileX(pfxOccupancyGoodStripsVsStripNumber[i]->GetName(),-8.,0.));
+      pfxOccupancyHotStripsVsStripNumber[i]->Add(occupancyHotStripsVsStripNumber[i]->ProfileX(pfxOccupancyHotStripsVsStripNumber[i]->GetName(),-8.,0.));
+      projYPoissonProbVsStripNumber[i]->Add(poissonProbVsStripNumber[i]->ProjectionY());
+      projYPoissonProbGoodStripsVsStripNumber[i]->Add(poissonProbGoodStripsVsStripNumber[i]->ProjectionY());
+      projYPoissonProbHotStripsVsStripNumber[i]->Add(poissonProbHotStripsVsStripNumber[i]->ProjectionY());
+      pfxPoissonProbVsStripNumber[i]->Add(poissonProbVsStripNumber[i]->ProfileX(pfxPoissonProbVsStripNumber[i]->GetName(),-18., 0.));
+      pfxPoissonProbGoodStripsVsStripNumber[i]->Add(poissonProbGoodStripsVsStripNumber[i]->ProfileX(pfxPoissonProbGoodStripsVsStripNumber[i]->GetName(),-18., 0.));
+      pfxPoissonProbHotStripsVsStripNumber[i]->Add(poissonProbHotStripsVsStripNumber[i]->ProfileX(pfxPoissonProbHotStripsVsStripNumber[i]->GetName(),-18., 0.));
+      projXDistanceVsStripNumber[i]->Add(distanceVsStripNumber[i]->ProjectionX(projXDistanceVsStripNumber[i]->GetName(),1,998));
+
+    }
+
+  // Save output files
+
   if (WriteOutputFile_==true){
   f->cd();
   apvtree->Write();
   striptree->Write();
   f->Close();
+  }
+
+  if (WriteDQMHistograms_==true){
+    dqmStore->cd();
+    dqmStore->save(DQMOutfileName_.c_str());
   }
 
   LogTrace("SiStripBadAPV") << ss.str() << std::endl;
@@ -402,9 +437,12 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiS
 
       //Analyze the occupancies
       hotstripspermodule = 0;
+      vHotStripsInModule.clear();
 
       for (int apv=0; apv<medianValues[it].numberApvs; apv++)
 	{
+	  double logMedianOccupancy = -1;
+	  double logAbsoluteOccupancy = -1;
 
 	  for (int i=0; i<128; i++)
 	    {
@@ -427,6 +465,29 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiS
 	  global_position_x = pos_apv_global.x();
 	  global_position_y = pos_apv_global.y();
 	  global_position_z = pos_apv_global.z();
+
+	  if (apvMedianOccupancy>0) logMedianOccupancy = log10(apvMedianOccupancy);
+	  if (apvAbsoluteOccupancy>0) logAbsoluteOccupancy = log10(apvAbsoluteOccupancy);
+
+	  //Fill the DQM histograms
+	  unsigned int layer = 0;
+	  if(subdetid==3 || subdetid==5)
+	    layer=layer_ring;
+	  else
+	    layer=disc;
+
+	  // Fill histograms for all the tracker
+	  medianVsAbsoluteOccupancy[0][0]->Fill(logAbsoluteOccupancy,logMedianOccupancy);
+	  medianOccupancy[0][0]->Fill(logMedianOccupancy);
+	  absoluteOccupancy[0][0]->Fill(logAbsoluteOccupancy);
+	  // Fill summary histograms for each subdetector
+	  medianVsAbsoluteOccupancy[subdetid-2][0]->Fill(logAbsoluteOccupancy,logMedianOccupancy);
+	  medianOccupancy[subdetid-2][0]->Fill(logMedianOccupancy);
+	  absoluteOccupancy[subdetid-2][0]->Fill(logAbsoluteOccupancy);
+	  // Fill histograms for each layer/disk
+	  medianVsAbsoluteOccupancy[subdetid-2][layer]->Fill(logAbsoluteOccupancy,logMedianOccupancy);
+	  medianOccupancy[subdetid-2][layer]->Fill(logMedianOccupancy);
+	  absoluteOccupancy[subdetid-2][layer]->Fill(logAbsoluteOccupancy);
 
 	  if(UseInputDB_)
 	    {
@@ -454,11 +515,47 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiS
 			  strip_global_position_y = pos_strip_global.y();
 			  strip_global_position_z = pos_strip_global.z();
 			  striptree->Fill();
+
+			  // Fill the strip DQM Plots
+			  fillStripDQMHistograms();
 			}
+     
+		      if(vHotStripsInModule.size()==1)
+			{
+			  distance = 999;
+			  distanceVsStripNumber[0]->Fill(vHotStripsInModule[0], distance);
+			  distanceVsStripNumber[subdetid-2]->Fill(vHotStripsInModule[0], distance);
+			}
+		      else if(vHotStripsInModule.size()>1)
+			{
+			  for(unsigned int iVec = 0; iVec != vHotStripsInModule.size(); iVec++)
+			    {
+			      if(iVec==0)
+				distance = vHotStripsInModule[1] - vHotStripsInModule[0];
+			      else if(iVec==vHotStripsInModule.size()-1)
+				{
+				  distance = vHotStripsInModule[vHotStripsInModule.size()-1] - vHotStripsInModule[vHotStripsInModule.size() -2];
+				}
+			      else if(vHotStripsInModule.size()>2)
+				{
+				  distanceR = vHotStripsInModule[iVec + 1] -  vHotStripsInModule[iVec];
+				  distanceL = vHotStripsInModule[iVec] - vHotStripsInModule[iVec - 1];
+				  distance = distanceL>distanceR?distanceR:distanceL;
+				}
+			      else
+				{
+				  std::cout << "ERROR! distance is never computed!!!\n";
+				}
+			      distanceVsStripNumber[0]->Fill(vHotStripsInModule[iVec], distance);
+			      distanceVsStripNumber[subdetid-2]->Fill(vHotStripsInModule[iVec], distance);
+			    }
+			}
+
 		    }
 		  continue;//if the apv is already flagged as bad, continue.
 		}
 	    }
+
 	  if (medianValues[it].apvMedian[apv] > minNevents_)
 	    {
 	      if ((medianValues[it].apvMedian[apv]>(MeanAndRms[Moduleposition].first+highoccupancy_*MeanAndRms[Moduleposition].second)) && (medianValues[it].apvMedian[apv]>absolutelow_))
@@ -500,6 +597,39 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiS
 		  strip_global_position_y = pos_strip_global.y();
 		  strip_global_position_z = pos_strip_global.z();
 		  striptree->Fill();
+
+		  // Fill the strip DQM Plots
+		  fillStripDQMHistograms();
+		}
+	      if(vHotStripsInModule.size()==1)
+		{
+		  distance = 999;
+		  distanceVsStripNumber[0]->Fill(vHotStripsInModule[0], distance);
+		  distanceVsStripNumber[subdetid-2]->Fill(vHotStripsInModule[0], distance);
+		}
+	      else if(vHotStripsInModule.size()>1)
+		{
+		  for(unsigned int iVec = 0; iVec != vHotStripsInModule.size(); iVec++)
+		    {
+		      if(iVec==0)
+			distance = vHotStripsInModule[1] - vHotStripsInModule[0];
+		      else if(iVec==vHotStripsInModule.size()-1)
+			{
+			  distance = vHotStripsInModule[vHotStripsInModule.size()-1] - vHotStripsInModule[vHotStripsInModule.size() -2];
+			}
+		      else if(vHotStripsInModule.size()>2)
+			{
+			  distanceR = vHotStripsInModule[iVec + 1] -  vHotStripsInModule[iVec];
+			  distanceL = vHotStripsInModule[iVec] - vHotStripsInModule[iVec - 1];
+			  distance = distanceL>distanceR?distanceR:distanceL;
+			}
+		      else
+			{
+			  std::cout << "ERROR! distance is never computed!!!\n";
+			}
+		      distanceVsStripNumber[0]->Fill(vHotStripsInModule[iVec], distance);
+		      distanceVsStripNumber[subdetid-2]->Fill(vHotStripsInModule[iVec], distance);
+		    }
 		}
 	    }
 	}
@@ -638,4 +768,384 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::setBasicTreeParamete
 void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::setMinNumOfEvents()
 {
   minNevents_=absolute_occupancy_*Nevents_;
+}
+
+void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::initializeDQMHistograms()
+{
+  oss.str("");
+  oss << 1; //runNumber
+
+  dqmStore = edm::Service<DQMStore>().operator->();
+  dqmStore->setCurrentFolder("ChannelStatusPlots");
+
+  // Initialize histograms
+  subDetName.push_back(""); subDetName.push_back("TIB"); subDetName.push_back("TID"); subDetName.push_back("TOB"); subDetName.push_back("TEC");
+  nLayers.push_back(0); nLayers.push_back(4); nLayers.push_back(3); nLayers.push_back(6); nLayers.push_back(9);
+  layerName.push_back(""); layerName.push_back("Layer"); layerName.push_back("Disk"); layerName.push_back("Layer"); layerName.push_back("Disk");
+  
+  std::string histoName;
+  std::string histoTitle;
+
+  for(unsigned int i = 0; i < subDetName.size(); i++)
+  {
+    histoName = "distanceVsStripNumber" + subDetName[i];
+    histoTitle = "Distance between hot strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5, 999, 0.5, 999.5);
+    distanceVsStripNumber.push_back(tmp->getTH2F());
+
+    histoName = "pfxDistanceVsStripNumber" + subDetName[i];
+    tmp_prof = new TProfile(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    tmp = dqmStore->bookProfile(histoName.c_str(), tmp_prof);
+    pfxDistanceVsStripNumber.push_back(tmp->getTProfile());
+    pfxDistanceVsStripNumber[i]->GetXaxis()->SetTitle("Strip");
+    pfxDistanceVsStripNumber[i]->GetYaxis()->SetTitle("Distance");
+
+    histoName = "projXDistanceVsStripNumber" + subDetName[i];
+    histoTitle = "Number of hot strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    projXDistanceVsStripNumber.push_back(tmp->getTH1F());
+    projXDistanceVsStripNumber[i]->GetXaxis()->SetTitle("Strip");
+    projXDistanceVsStripNumber[i]->GetYaxis()->SetTitle("N_{hot}");
+    
+    histoName = "projYDistanceVsStripNumber" + subDetName[i];
+    histoTitle = "Distribution of distance between hot strips";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 999, 0.5, 999.5);
+    projYDistanceVsStripNumber.push_back(tmp->getTH1F());
+    projYDistanceVsStripNumber[i]->GetXaxis()->SetTitle("Distance");
+    projYDistanceVsStripNumber[i]->GetYaxis()->SetTitle("N_{strips}");
+    
+    //
+    histoName = "occupancyVsStripNumber" + subDetName[i];
+    histoTitle = "Occupancy of strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5, 1000, -8.,0.);
+    occupancyVsStripNumber.push_back(tmp->getTH2F());
+    
+    histoName = "pfxOccupancyVsStripNumber" + subDetName[i];
+    tmp_prof = new TProfile(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    tmp = dqmStore->bookProfile(histoName.c_str(), tmp_prof);
+    pfxOccupancyVsStripNumber.push_back(tmp->getTProfile());
+    pfxOccupancyVsStripNumber[i]->GetXaxis()->SetTitle("Strip");
+    pfxOccupancyVsStripNumber[i]->GetYaxis()->SetTitle("log_{10}(Occupancy)");
+    
+    histoName = "projYOccupancyVsStripNumber" + subDetName[i];
+    histoTitle = "Distribution of strip occupancy";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 1000, -8., 0.);
+    projYOccupancyVsStripNumber.push_back(tmp->getTH1F());
+    projYOccupancyVsStripNumber[i]->GetXaxis()->SetTitle("log_{10}(Occupancy)");
+    projYOccupancyVsStripNumber[i]->GetYaxis()->SetTitle("N_{strips}");
+    
+    //
+    histoName = "occupancyHotStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Occupancy of hot strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5, 1000, -8., 0.);
+    occupancyHotStripsVsStripNumber.push_back(tmp->getTH2F());
+    
+    histoName = "pfxOccupancyHotStripsVsStripNumber" + subDetName[i];
+    tmp_prof = new TProfile(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    tmp = dqmStore->bookProfile(histoName.c_str(), tmp_prof);
+    pfxOccupancyHotStripsVsStripNumber.push_back(tmp->getTProfile());
+    pfxOccupancyHotStripsVsStripNumber[i]->GetXaxis()->SetTitle("Strip");
+    pfxOccupancyHotStripsVsStripNumber[i]->GetYaxis()->SetTitle("log_{10}(Occupancy)");
+    
+    histoName = "projYOccupancyHotStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Distribution of hot strip occupancy";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 1000, -8., 0.);
+    projYOccupancyHotStripsVsStripNumber.push_back(tmp->getTH1F());
+    projYOccupancyHotStripsVsStripNumber[i]->GetXaxis()->SetTitle("log_{10}(Occupancy)");
+    projYOccupancyHotStripsVsStripNumber[i]->GetYaxis()->SetTitle("N_{strips}");
+    
+    //
+    histoName = "occupancyGoodStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Occupancy of good strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5, 1000, -8., 0.);
+    occupancyGoodStripsVsStripNumber.push_back(tmp->getTH2F());
+    
+    histoName = "pfxOccupancyGoodStripsVsStripNumber" + subDetName[i];
+    tmp_prof = new TProfile(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    tmp = dqmStore->bookProfile(histoName.c_str(), tmp_prof);
+    pfxOccupancyGoodStripsVsStripNumber.push_back(tmp->getTProfile());
+    pfxOccupancyGoodStripsVsStripNumber[i]->GetXaxis()->SetTitle("Strip");
+    pfxOccupancyGoodStripsVsStripNumber[i]->GetYaxis()->SetTitle("log_{10}(Occupancy)");
+    
+    histoName = "projYOccupancyGoodStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Distribution of good strip occupancy";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 1000, -8., 0.);
+    projYOccupancyGoodStripsVsStripNumber.push_back(tmp->getTH1F());
+    projYOccupancyGoodStripsVsStripNumber[i]->GetXaxis()->SetTitle("log_{10}(Occupancy)");
+    projYOccupancyGoodStripsVsStripNumber[i]->GetYaxis()->SetTitle("N_{strips}");
+    
+    //
+    histoName = "poissonProbVsStripNumber" + subDetName[i];
+    histoTitle = "Poisson probability of strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5, 1000, -18., 0.);
+    poissonProbVsStripNumber.push_back(tmp->getTH2F());
+    
+    histoName = "pfxPoissonProbVsStripNumber" + subDetName[i];
+    tmp_prof = new TProfile(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    tmp = dqmStore->bookProfile(histoName.c_str(), tmp_prof);
+    pfxPoissonProbVsStripNumber.push_back(tmp->getTProfile());
+    pfxPoissonProbVsStripNumber[i]->GetXaxis()->SetTitle("Strip");
+    pfxPoissonProbVsStripNumber[i]->GetYaxis()->SetTitle("log_{10}(Probability)");
+    
+    histoName = "projYPoissonProbVsStripNumber" + subDetName[i];
+    histoTitle = "Distribution of strip Poisson probability";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 1000, -18., 0.);
+    projYPoissonProbVsStripNumber.push_back(tmp->getTH1F());
+    projYPoissonProbVsStripNumber[i]->GetXaxis()->SetTitle("log_{10}(Probability)");
+    projYPoissonProbVsStripNumber[i]->GetYaxis()->SetTitle("N_{strips}");
+    
+    //
+    histoName = "poissonProbHotStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Poisson probability of hot strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5, 1000, -18., 0.);
+    poissonProbHotStripsVsStripNumber.push_back(tmp->getTH2F());
+    
+    histoName = "pfxPoissonProbHotStripsVsStripNumber" + subDetName[i];
+    tmp_prof = new TProfile(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    tmp = dqmStore->bookProfile(histoName.c_str(), tmp_prof);
+    pfxPoissonProbHotStripsVsStripNumber.push_back(tmp->getTProfile());
+    pfxPoissonProbHotStripsVsStripNumber[i]->GetXaxis()->SetTitle("Strip");
+    pfxPoissonProbHotStripsVsStripNumber[i]->GetYaxis()->SetTitle("log_{10}(Probability)");
+    
+    histoName = "projYPoissonProbHotStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Distribution of hot strip Poisson probability";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 1000, -18., 0.);
+    projYPoissonProbHotStripsVsStripNumber.push_back(tmp->getTH1F());
+    projYPoissonProbHotStripsVsStripNumber[i]->GetXaxis()->SetTitle("log_{10}(Probability)");
+    projYPoissonProbHotStripsVsStripNumber[i]->GetYaxis()->SetTitle("N_{strips}");
+    
+    //
+    histoName = "poissonProbGoodStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Poisson probability of good strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5, 1000, -18., 0.);
+    poissonProbGoodStripsVsStripNumber.push_back(tmp->getTH2F());
+    
+    histoName = "pfxPoissonProbGoodStripsVsStripNumber" + subDetName[i];
+    tmp_prof = new TProfile(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    tmp = dqmStore->bookProfile(histoName.c_str(), tmp_prof);
+    pfxPoissonProbGoodStripsVsStripNumber.push_back(tmp->getTProfile());
+    pfxPoissonProbGoodStripsVsStripNumber[i]->GetXaxis()->SetTitle("Strip");
+    pfxPoissonProbGoodStripsVsStripNumber[i]->GetYaxis()->SetTitle("log_{10}(Probability)");
+    
+    histoName = "projYPoissonProbGoodStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Distribution of good strip Poisson probability";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 1000, -18., 0.);
+    projYPoissonProbGoodStripsVsStripNumber.push_back(tmp->getTH1F());
+    projYPoissonProbGoodStripsVsStripNumber[i]->GetXaxis()->SetTitle("log_{10}(Probability)");
+    projYPoissonProbGoodStripsVsStripNumber[i]->GetYaxis()->SetTitle("N_{strips}");
+
+    //
+    histoName = "nHitsVsStripNumber" + subDetName[i];
+    histoTitle = "NHits in strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5, 10000, -0.5, 9999.5);
+    nHitsVsStripNumber.push_back(tmp->getTH2F());
+    
+    histoName = "pfxNHitsVsStripNumber" + subDetName[i];
+    tmp_prof = new TProfile(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    tmp = dqmStore->bookProfile(histoName.c_str(), tmp_prof);
+    pfxNHitsVsStripNumber.push_back(tmp->getTProfile());
+    
+    histoName = "projXNHitsVsStripNumber" + subDetName[i];
+    histoTitle = "Cumulative nHits in strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    projXNHitsVsStripNumber.push_back(tmp->getTH1F());
+    
+    histoName = "projYNHitsVsStripNumber" + subDetName[i];
+    histoTitle = "Distribution of nHits for all strips";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 10000, -0.5, 9999.5);
+    projYNHitsVsStripNumber.push_back(tmp->getTH1F());
+    projYNHitsVsStripNumber[i]->GetXaxis()->SetTitle("N_{hits}");
+    projYNHitsVsStripNumber[i]->GetYaxis()->SetTitle("N_{strips}");
+    
+    //
+    histoName = "nHitsHotStripsVsStripNumber" + subDetName[i];
+    histoTitle = "NHits in hot strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5, 10000, -0.5, 9999.5);
+    nHitsHotStripsVsStripNumber.push_back(tmp->getTH2F());
+    
+    histoName = "pfxNHitsHotStripsVsStripNumber" + subDetName[i];
+    tmp_prof = new TProfile(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    tmp = dqmStore->bookProfile(histoName.c_str(), tmp_prof);
+    pfxNHitsHotStripsVsStripNumber.push_back(tmp->getTProfile());
+    
+    histoName = "projXNHitsHotStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Cumulative nHits in hot strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    projXNHitsHotStripsVsStripNumber.push_back(tmp->getTH1F());
+    
+    histoName = "projYNHitsHotStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Distribution of nHits for hot strips";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 10000, -0.5, 9999.5);
+    projYNHitsHotStripsVsStripNumber.push_back(tmp->getTH1F());
+    projYNHitsHotStripsVsStripNumber[i]->GetXaxis()->SetTitle("N_{hits}");
+    projYNHitsHotStripsVsStripNumber[i]->GetYaxis()->SetTitle("N_{strips}");
+    
+    //
+    histoName = "nHitsGoodStripsVsStripNumber" + subDetName[i];
+    histoTitle = "NHits in good strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5, 10000, -0.5, 9999.5);
+    nHitsGoodStripsVsStripNumber.push_back(tmp->getTH2F());
+    
+    histoName = "pfxNHitsGoodStripsVsStripNumber" + subDetName[i];
+    tmp_prof = new TProfile(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    tmp = dqmStore->bookProfile(histoName.c_str(), tmp_prof);
+    pfxNHitsGoodStripsVsStripNumber.push_back(tmp->getTProfile());
+    
+    histoName = "projXNHitsGoodStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Cumulative nHits in good strips vs. strip number";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 768, 0.5, 768.5);
+    projXNHitsGoodStripsVsStripNumber.push_back(tmp->getTH1F());
+    
+    histoName = "projYNHitsGoodStripsVsStripNumber" + subDetName[i];
+    histoTitle = "Distribution of nHits for good strips";
+    if(i!=0)
+      histoTitle += " in " + subDetName[i];
+    tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 10000, -0.5, 9999.5);
+    projYNHitsGoodStripsVsStripNumber.push_back(tmp->getTH1F());
+    projYNHitsGoodStripsVsStripNumber[i]->GetXaxis()->SetTitle("N_{hits}");
+    projYNHitsGoodStripsVsStripNumber[i]->GetYaxis()->SetTitle("N_{strips}");
+
+    for(unsigned int j = 0; j <= nLayers[i]; j++)
+    {
+      histoName = "medianVsAbsoluteOccupancy" + subDetName[i];
+      if(j!=0)
+      {
+        oss.str("");
+        oss << j;
+        histoName += layerName[i] + oss.str();
+      }
+      histoTitle = "Median APV occupancy vs. absolute APV occupancy";
+      if(i!=0)
+        histoTitle += " in " + subDetName[i];
+      if(j!=0)
+      {
+        histoTitle += " " + layerName[i] + " " + oss.str();
+      }
+      tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 1000, 0., 6., 1000, -1., 3.);
+      medianVsAbsoluteOccupancy[i][j] = tmp->getTH2F();
+      medianVsAbsoluteOccupancy[i][j]->Rebin2D(10,10);
+      medianVsAbsoluteOccupancy[i][j]->GetXaxis()->SetTitle("log_{10}(Abs. Occupancy)");
+      medianVsAbsoluteOccupancy[i][j]->GetYaxis()->SetTitle("log_{10}(Median Occupancy)");
+      //
+      histoName = "medianOccupancy" + subDetName[i];
+      if(j!=0)
+      {
+        oss.str("");
+        oss << j;
+        histoName += layerName[i] + oss.str();
+      }
+      histoTitle = "Median APV occupancy";
+      if(i!=0)
+        histoTitle += " in " + subDetName[i];
+      if(j!=0)
+      {
+        histoTitle += " " + layerName[i] + " " + oss.str();
+      }
+      tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 1000, -1., 3.);
+      medianOccupancy[i][j] = tmp->getTH1F();
+      medianOccupancy[i][j]->GetXaxis()->SetTitle("log_{10}(Occupancy)");
+      medianOccupancy[i][j]->GetYaxis()->SetTitle("APVs");
+      //
+      histoName = "absoluteOccupancy" + subDetName[i];
+      if(j!=0)
+      {
+        oss.str("");
+        oss << j;
+        histoName += layerName[i] + oss.str();
+      }
+      histoTitle = "Absolute APV occupancy";
+      if(i!=0)
+        histoTitle += " in " + subDetName[i];
+      if(j!=0)
+      {
+        histoTitle += " " + layerName[i] + " " + oss.str();
+      }
+      tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 1000, 0., 6.);
+      absoluteOccupancy[i][j] = tmp->getTH1F();
+      absoluteOccupancy[i][j]->GetXaxis()->SetTitle("log_{10}(Occupancy)");
+      absoluteOccupancy[i][j]->GetYaxis()->SetTitle("APVs");
+    }
+  }
+}
+
+void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::fillStripDQMHistograms()
+{
+  double logStripOccupancy = -1;
+  double logPoissonProb = -1;
+
+  if (singleStripOccupancy>0) logStripOccupancy = log10(singleStripOccupancy);
+  if (poissonProb>0) logPoissonProb = log10(fabs(poissonProb));
+
+  occupancyVsStripNumber[0]->Fill(strip_number,logStripOccupancy);
+  occupancyVsStripNumber[subdetid-2]->Fill(strip_number,logStripOccupancy);
+  poissonProbVsStripNumber[0]->Fill(strip_number,logPoissonProb);
+  poissonProbVsStripNumber[subdetid-2]->Fill(strip_number,logPoissonProb);
+  nHitsVsStripNumber[0]->Fill(strip_number,stripHits);
+  nHitsVsStripNumber[subdetid-2]->Fill(strip_number,stripHits);
+       
+  if(isHot)
+    {
+      vHotStripsInModule.push_back(strip_number);
+      occupancyHotStripsVsStripNumber[0]->Fill(strip_number,logStripOccupancy);
+      occupancyHotStripsVsStripNumber[subdetid-2]->Fill(strip_number,logStripOccupancy);
+      poissonProbHotStripsVsStripNumber[0]->Fill(strip_number,logPoissonProb);
+      poissonProbHotStripsVsStripNumber[subdetid-2]->Fill(strip_number,logPoissonProb);
+      nHitsHotStripsVsStripNumber[0]->Fill(strip_number,stripHits);
+      nHitsHotStripsVsStripNumber[subdetid-2]->Fill(strip_number,stripHits);
+    }
+  else
+    {
+      occupancyGoodStripsVsStripNumber[0]->Fill(strip_number,logStripOccupancy);
+      occupancyGoodStripsVsStripNumber[subdetid-2]->Fill(strip_number,logStripOccupancy);
+      poissonProbGoodStripsVsStripNumber[0]->Fill(strip_number,logPoissonProb);
+      poissonProbGoodStripsVsStripNumber[subdetid-2]->Fill(strip_number,logPoissonProb);
+      nHitsGoodStripsVsStripNumber[0]->Fill(strip_number,stripHits);
+      nHitsGoodStripsVsStripNumber[subdetid-2]->Fill(strip_number,stripHits);
+    }
 }

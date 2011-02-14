@@ -13,7 +13,7 @@
 //
 // Original Author:  Gordon KAUSSEN
 //         Created:  Wed Jan 28 09:11:10 CEST 2009
-// $Id: SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy.h,v 1.5 2010/02/19 11:18:19 kaussen Exp $
+// $Id: SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy.h,v 1.1 2010/09/14 12:23:35 kaussen Exp $
 //
 //
 
@@ -36,6 +36,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 class SiStripQuality;
 
 class SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy{
@@ -57,7 +60,7 @@ public:
   void setAbsoluteOccupancyThreshold(long double absolute_occupancy){absolute_occupancy_=absolute_occupancy;}
   void setNumberOfEvents(double Nevents){Nevents_=Nevents;}
   void setMinNumOfEvents();
-  void setOutputFileName(std::string OutputFileName, bool WriteOutputFile){OutFileName_=OutputFileName; WriteOutputFile_=WriteOutputFile;}
+  void setOutputFileName(std::string OutputFileName, bool WriteOutputFile, std::string DQMOutfileName, bool WriteDQMHistograms){OutFileName_=OutputFileName; WriteOutputFile_=WriteOutputFile; DQMOutfileName_=DQMOutfileName; WriteDQMHistograms_=WriteDQMHistograms;}
   void setTrackerGeometry(const TrackerGeometry* tkgeom){TkGeom = tkgeom;}
   void extractBadAPVSandStrips(SiStripQuality*,HistoMap&,edm::ESHandle<SiStripQuality>&);
 
@@ -85,6 +88,10 @@ public:
 
   void setBasicTreeParameters(int detid);
 
+  void initializeDQMHistograms();
+
+  void fillStripDQMHistograms();
+
   long double prob_;
   unsigned short MinNumEntries_;
   unsigned short MinNumEntriesPerStrip_;
@@ -97,6 +104,8 @@ public:
   double minNevents_;
   std::string OutFileName_;
   bool WriteOutputFile_;
+  std::string DQMOutfileName_;
+  bool WriteDQMHistograms_;
   bool UseInputDB_;
   const TrackerGeometry* TkGeom;
 
@@ -192,7 +201,71 @@ public:
   int striphits[128];
   double poissonprob[128];
 
-  std::stringstream ss;   
+  std::stringstream ss;
+
+  std::ostringstream oss;
+
+  DQMStore* dqmStore;
+
+  MonitorElement* tmp;
+  TProfile* tmp_prof;
+
+  // Histograms
+  // indexes in these arrays are [SubDetId-2][LayerN]
+  // histograms for [SubDetId-2][0] are global for the subdetector
+  // histogram for [0][0] is global for the tracker
+  
+  TH2F* medianVsAbsoluteOccupancy[5][10];
+  TH1F* medianOccupancy[5][10];
+  TH1F* absoluteOccupancy[5][10];
+
+  std::vector<TH2F*> distanceVsStripNumber;
+  std::vector<TProfile*> pfxDistanceVsStripNumber;
+  std::vector<TH1F*> projXDistanceVsStripNumber;
+  std::vector<TH1F*> projYDistanceVsStripNumber;
+
+  std::vector<TH2F*> occupancyVsStripNumber;
+  std::vector<TProfile*> pfxOccupancyVsStripNumber;
+  std::vector<TH1F*> projYOccupancyVsStripNumber;
+  std::vector<TH2F*> occupancyHotStripsVsStripNumber;
+  std::vector<TProfile*> pfxOccupancyHotStripsVsStripNumber;
+  std::vector<TH1F*> projYOccupancyHotStripsVsStripNumber;
+  std::vector<TH2F*> occupancyGoodStripsVsStripNumber;
+  std::vector<TProfile*> pfxOccupancyGoodStripsVsStripNumber;
+  std::vector<TH1F*> projYOccupancyGoodStripsVsStripNumber;
+
+  std::vector<TH2F*> poissonProbVsStripNumber;
+  std::vector<TProfile*> pfxPoissonProbVsStripNumber;
+  std::vector<TH1F*> projYPoissonProbVsStripNumber;
+  std::vector<TH2F*> poissonProbHotStripsVsStripNumber;
+  std::vector<TProfile*> pfxPoissonProbHotStripsVsStripNumber;
+  std::vector<TH1F*> projYPoissonProbHotStripsVsStripNumber;
+  std::vector<TH2F*> poissonProbGoodStripsVsStripNumber;
+  std::vector<TProfile*> pfxPoissonProbGoodStripsVsStripNumber;
+  std::vector<TH1F*> projYPoissonProbGoodStripsVsStripNumber;
+   
+  std::vector<TH2F*> nHitsVsStripNumber;
+  std::vector<TProfile*> pfxNHitsVsStripNumber;
+  std::vector<TH1F*> projXNHitsVsStripNumber;
+  std::vector<TH1F*> projYNHitsVsStripNumber;
+  std::vector<TH2F*> nHitsHotStripsVsStripNumber;
+  std::vector<TProfile*> pfxNHitsHotStripsVsStripNumber;
+  std::vector<TH1F*> projXNHitsHotStripsVsStripNumber;
+  std::vector<TH1F*> projYNHitsHotStripsVsStripNumber;
+  std::vector<TH2F*> nHitsGoodStripsVsStripNumber;
+  std::vector<TProfile*> pfxNHitsGoodStripsVsStripNumber;
+  std::vector<TH1F*> projXNHitsGoodStripsVsStripNumber;
+  std::vector<TH1F*> projYNHitsGoodStripsVsStripNumber;
+
+  std::vector<std::string> subDetName;
+  std::vector<unsigned int> nLayers;
+  std::vector<std::string> layerName;
+
+  std::vector<unsigned int> vHotStripsInModule;
+  unsigned int distance;
+  unsigned int distanceR, distanceL;
+
+  std::string outfilename;
 };
 #endif
 
