@@ -60,6 +60,21 @@ class CrossCleanPiZeros {
     std::set<reco::CandidatePtr> toRemove_;
 };
 
+// Predicate to filter PFCandPtrs (and those compatible to this type) by the
+// particle id
+class FilterPFCandByParticleId {
+  public:
+    FilterPFCandByParticleId(int particleId):
+      id_(particleId){};
+    template<typename PFCandCompatiblePtrType>
+      bool operator()(const PFCandCompatiblePtrType& ptr) const {
+        PFCandidatePtr pfptr(ptr);
+        return ptr->particleId() == id_;
+      }
+  private:
+    int id_;
+};
+
 // Determine if a candidate is contained in a collection of PiZeros.
 class CrossCleanPtrs {
   public:
