@@ -18,13 +18,10 @@ GsfPFRecTrack::GsfPFRecTrack(double charge,
 trackId_=trackId;
 }
 
-
-  
 void 
 GsfPFRecTrack::addBrem(const reco::PFBrem& brem){
   pfBremVec_.push_back(brem);
 }
-
 
 void 
 GsfPFRecTrack::calculateBremPositionREP() { 
@@ -35,4 +32,9 @@ GsfPFRecTrack::calculateBremPositionREP() {
 void 
 GsfPFRecTrack::addConvBremPFRecTrackRef(const reco::PFRecTrackRef& pfrectracksref){
   assoPFRecTrack_.push_back(pfrectracksref);
+}
+
+void 
+GsfPFRecTrack::addConvBremGsfPFRecTrackRef(const reco::GsfPFRecTrackRef& gsfpfrectracksref){
+  assoGsfPFRecTrack_.push_back(gsfpfrectracksref);
 }

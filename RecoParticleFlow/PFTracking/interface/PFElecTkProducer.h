@@ -12,6 +12,10 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+
 class PFTrackTransformer;
 class GsfTrack;
 class MagneticField;
@@ -54,11 +58,40 @@ class PFElecTkProducer : public edm::EDProducer {
       
       bool resolveGsfTracks(const std::vector<reco::GsfPFRecTrack> &GsfPFVec,
 			    unsigned int ngsf,
-			    std::vector<unsigned int> &secondaries);
+			    std::vector<unsigned int> &secondaries,
+			    const reco::PFClusterCollection & theEClus);
 
-      float selectSecondaries(const reco::GsfPFRecTrack primGsf,
-			      const reco::GsfPFRecTrack secGsf); 
+      float minTangDist(const reco::GsfPFRecTrack primGsf,
+			const reco::GsfPFRecTrack secGsf); 
       
+      bool isSameEgSC(const reco::ElectronSeedRef& nSeedRef,
+		      const reco::ElectronSeedRef& iSeedRef,
+		      bool& bothGsfEcalDriven,
+		      float& SCEnergy);
+
+      bool isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFRecTrack,
+				       const reco::GsfPFRecTrack& iGsfPFRecTrack,
+				       const reco::ElectronSeedRef& nSeedRef,
+				       const reco::ElectronSeedRef& iSeedRef,
+				       const reco::PFClusterCollection& theEClus,
+				       bool& bothGsfTrackerDriven,
+				       bool& nEcalDriven,
+				       bool& iEcalDriven,
+				       float& nEnergy,
+				       float& iEnergy);
+      
+      bool isInnerMost(const reco::GsfTrackRef& nGsfTrack,
+		       const reco::GsfTrackRef& iGsfTrack,
+		       bool& sameLayer);
+      
+      bool isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrack,
+				   const reco::GsfTrackRef& iGsfTrack,
+				   bool& sameLayer);
+      
+      void createGsfPFRecTrackRef(const edm::OrphanHandle<reco::GsfPFRecTrackCollection>& gsfPfHandle,
+				  std::vector<reco::GsfPFRecTrack>& gsfPFRecTrackPrimary,
+				  const std::map<unsigned int, std::vector<reco::GsfPFRecTrack> >& MapPrimSec);
+	
       // ----------member data ---------------------------
       reco::GsfPFRecTrack pftrack_;
       reco::GsfPFRecTrack secpftrack_;
@@ -73,7 +106,9 @@ class PFElecTkProducer : public edm::EDProducer {
       bool useNuclear_;
       bool useConversions_;
       bool useV0_;
-
+      bool applyAngularGsfClean_;
+      double detaCutGsfClean_;
+      double dphiCutGsfClean_;
 
       ///PFTrackTransformer
       PFTrackTransformer *pfTransformer_;     
@@ -88,7 +123,10 @@ class PFElecTkProducer : public edm::EDProducer {
       bool applySel_;
       bool applyGsfClean_;
       bool useFifthStep_;
-      bool useFifthStepSec_;
+      bool useFifthStepForEcalDriven_;
+      bool useFifthStepForTrackDriven_;
+      //   bool useFifthStepSec_;
+      bool debugGsfCleaning_;
       double SCEne_;
       double detaGsfSC_;
       double dphiGsfSC_;

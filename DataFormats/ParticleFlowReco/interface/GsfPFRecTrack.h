@@ -5,6 +5,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 /* #include "DataFormats/Common/interface/RefToBase.h" */
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBrem.h"
 #include <iostream>
 
@@ -17,7 +18,7 @@ namespace reco {
      - algorithm used to reconstruct the track
      - track ID, soon to be replaced by a RefToBase to the corresponding Track
 
-     \author Renaud Bruneliere, Michele Pioppi
+     \author Renaud Bruneliere, Michele Pioppi, Daniele Benedetti
      \date   July 2006
   */
   class GsfPFRecTrack : public PFRecTrack
@@ -59,6 +60,12 @@ namespace reco {
     /// \return vector of PFRecTrackRef from Conv Brem
     const std::vector<reco::PFRecTrackRef>& convBremPFRecTrackRef() const {return assoPFRecTrack_;}
 
+    /// \add GsfPFRecTrackRef from duplicates
+    void  addConvBremGsfPFRecTrackRef(const reco::GsfPFRecTrackRef& gsfpfrectracksref);
+
+    /// \return vector of GsfPFRecTrackRef from duplicates
+    const std::vector<reco::GsfPFRecTrackRef>& convBremGsfPFRecTrackRef() const {return assoGsfPFRecTrack_;}
+
   private:
     /// reference to corresponding gsf track
     reco::GsfTrackRef     gsfTrackRef_;
@@ -72,6 +79,9 @@ namespace reco {
     /// vector of PFRecTrackRef from conv Brems
     std::vector<reco::PFRecTrackRef> assoPFRecTrack_;
     
+    /// vector of GsfPFRecTrackRef from duplicates
+    std::vector<reco::GsfPFRecTrackRef> assoGsfPFRecTrack_;
+
     /// track id
     int trackId_;
   };
