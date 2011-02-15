@@ -36,6 +36,9 @@ void HcalSiPMHitResponse::run(MixCollection<PCaloHit> & hits) {
 
   typedef std::multiset <const PCaloHit *, PCaloHitCompareTimes> SortedHitSet;
 
+  if(theHitCorrection) {
+    theHitCorrection->init(hits, theHitFilter);
+  }
   std::map< DetId, SortedHitSet > sortedhits;
   for (MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
        hitItr != hits.end(); ++hitItr) {
