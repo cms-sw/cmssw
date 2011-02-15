@@ -7,7 +7,8 @@ from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 # Reconstruct tracks with pixel seeds
 #############################################
 
-# Take all pixel tracks for b tagging track reco (pTMin>1GeV, nHits>=8) 
+# Take all pixel tracks for b tagging track reco (pTMin>1GeV, nHits>=8)
+
 hltBLifetimeRegionalCtfWithMaterialTracks = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
@@ -16,7 +17,7 @@ hltBLifetimeRegionalCtfWithMaterialTracks = cms.EDProducer("FastTrackMerger",
     minHits = cms.untracked.uint32(8)
 )
 
-hltBLifetimeRegionalCtfWithMaterialTracksRelaxed = cms.EDProducer("FastTrackMerger",
+hltBLifetimeRegionalCtfWithMaterialTracksSingleTop = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
                                    cms.InputTag("globalPixelTrackCandidates")),
@@ -24,11 +25,7 @@ hltBLifetimeRegionalCtfWithMaterialTracksRelaxed = cms.EDProducer("FastTrackMerg
     minHits = cms.untracked.uint32(8)
 )
 
-hltBLifetimeRegionalCkfTrackCandidates = cms.Sequence(globalPixelTracking)
-hltBLifetimeRegionalCkfTrackCandidatesRelaxed = cms.Sequence(globalPixelTracking)
-
-# Take all pixel tracks for b tagging track reco (pTMin>1GeV, nHits>=8) 
-hltBLifetimeRegionalCtfWithMaterialTracksStartupU = cms.EDProducer("FastTrackMerger",
+hltBLifetimeRegionalCtfWithMaterialTracksEleJetSingleTop = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
                                    cms.InputTag("globalPixelTrackCandidates")),
@@ -36,19 +33,12 @@ hltBLifetimeRegionalCtfWithMaterialTracksStartupU = cms.EDProducer("FastTrackMer
     minHits = cms.untracked.uint32(8)
 )
 
-hltBLifetimeRegionalCtfWithMaterialTracksStartup = cms.EDProducer("FastTrackMerger",
-    SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
-                                   cms.InputTag("globalPixelTrackCandidates")),
-    ptMin = cms.untracked.double(1.0),
-    minHits = cms.untracked.uint32(8)
-)
 
 
 hltBLifetimeRegionalCkfTrackCandidates = cms.Sequence(globalPixelTracking)
-hltBLifetimeRegionalCkfTrackCandidatesRelaxed = cms.Sequence(globalPixelTracking)
-hltBLifetimeRegionalCkfTrackCandidatesStartupU = cms.Sequence(globalPixelTracking)
-hltBLifetimeRegionalCkfTrackCandidatesStartup = cms.Sequence(globalPixelTracking)
+hltBLifetimeRegionalCkfTrackCandidatesSingleTop = cms.Sequence(globalPixelTracking)
+hltBLifetimeRegionalCkfTrackCandidatesEleJetSingleTop = cms.Sequence(globalPixelTracking)
+
 
 #############################################
 # Reconstruct muons for MumuK

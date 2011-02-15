@@ -251,7 +251,7 @@ if 'hltPreDQMSmart' in %(dict)s:
       self._fix_parameter(name = 'initialSeeds',         type = 'InputTag', value = 'noSeedsHere',          replace = 'globalPixelSeeds:GlobalPixel')
       self._fix_parameter(name = 'preFilteredSeeds',     type = 'bool',     value = 'True',                 replace = 'False')
       self._fix_parameter(                               type = 'InputTag', value = 'hltOfflineBeamSpot',   replace = 'offlineBeamSpot')
-      self._fix_parameter(                               type = 'InputTag', value = 'hltOnlineBeamSpot',   replace = 'offlineBeamSpot')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltOnlineBeamSpot',    replace = 'offlineBeamSpot')
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonCSCDigis',      replace = 'simMuonCSCDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonDTDigis',       replace = 'simMuonDTDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'simMuonRPCDigis')
@@ -675,24 +675,20 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltL25TauCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltL3TauSingleTrack15CtfWithMaterialTracks" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
-# 4_2_X ===> Fix it
-#      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorEleJetSingleTop" )
-#      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesEleJetSingleTop" )
-# 4_2_X ==> Fix it
-      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorStartup" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesStartup" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksStartup" )
-      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorStartupU" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesStartupU" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksStartupU" )
+#=== hltBLifetimeRegional
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGenerator" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidates" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracks" )
-      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorRelaxed" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesRelaxed" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksRelaxed" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorSingleTop" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksSingleTop" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesSingleTop" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorEleJetSingleTop" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesEleJetSingleTop" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksEleJetSingleTop" )
+
       self.options['modules'].append( "-hltPixelTracksForMinBias" )
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
+
       self.options['modules'].append( "-hltMuonCSCDigis" )
       self.options['modules'].append( "-hltMuonDTDigis" )
       self.options['modules'].append( "-hltMuonRPCDigis" )
@@ -796,8 +792,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['paths'].append( "-HLT_IsoPFTau35_Trk20_MET45_v*" )
       self.options['paths'].append( "-HLT_Mu15_LooseIsoPFTau20_v*" )
       self.options['paths'].append( "-HLT_Mu12_LooseIsoPFTau10_v*" )
-      self.options['paths'].append( "-HLT_Mu17_CentralJet40_BTagIP_v*" )
-      self.options['paths'].append( "-HLT_IsoMu17_CentralJet40_BTagIP_v*" )
       self.options['paths'].append( "-HLT_IsoMu12_LooseIsoPFTau10_v*" )
       self.options['paths'].append( "-HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v*" )
       self.options['paths'].append( "-HLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_LooseIsoPFTau15_v*" )
@@ -806,13 +800,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['paths'].append( "-HLT_QuadJet40_IsoPFTau40_v*" )
       self.options['paths'].append( "-HLT_DoubleIsoPFTau20_Trk5_v*" )
       self.options['paths'].append( "-HLT__v*" )
-#
-# For those we need to adapt FastSimulation/HLTrigger (BTag)
-#
-      self.options['paths'].append( "-HLT_QuadJet50_BTagIP_v*" )
-      self.options['paths'].append( "-HLT_Mu17_CentralJet40_BTagIP_v*" )
-      self.options['paths'].append( "-HLT_IsoMu17_CentralJet40_BTagIP_v*" )
-      self.options['paths'].append( "-HLT_Ele25_CaloIdVT_TrkIdT_CentralJet40_BTagIP_v*" )
 #
 # For those I don't know...
 #
