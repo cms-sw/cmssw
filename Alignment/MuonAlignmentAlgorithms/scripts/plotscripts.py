@@ -1154,8 +1154,8 @@ def doTests(reports, pic_ids, fname_base, fname_dqm, run_name):
 
 ######################################################################################################
 
-def plotmedians(reports1, reports2, selection=None, binsx=50, windowx=3., ceilingx=None, binsy=50, windowy=3., 
-                ceilingy=None, binsdxdz=50, windowdxdz=3., ceilingdxdz=None, binsdydz=50, windowdydz=3., ceilingdydz=None, 
+def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceilingx=None, binsy=100, windowy=5., 
+                ceilingy=None, binsdxdz=100, windowdxdz=5., ceilingdxdz=None, binsdydz=100, windowdydz=5., ceilingdydz=None, 
                 r1text=" before", r2text=" after", which="median"):
     tdrStyle.SetOptStat("emrou")
     tdrStyle.SetStatW(0.40)
