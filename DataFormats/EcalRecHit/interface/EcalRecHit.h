@@ -5,7 +5,7 @@
 
 /** \class EcalRecHit
  *  
- * $Id: EcalRecHit.h,v 1.21 2011/02/04 13:34:06 argiro Exp $
+ * $Id: EcalRecHit.h,v 1.22 2011/02/06 09:48:56 innocent Exp $
  * \author P. Meridiani INFN Roma1
  */
 
@@ -99,7 +99,8 @@ public:
   /// check if the flag is true
   bool checkFlag(int flag) const{return flagBits_ & ( 0x1<<flag);}
 
-  uint32_t flagBits() const { return flagBits_; }
+  /// apply a bitmask to our flags. Experts only
+  bool checkFlagMask(uint32_t mask) const { return flagBits_&mask; }
 
   /// DEPRECATED provided for temporary backward compatibility
   Flags recoFlag() const ;
