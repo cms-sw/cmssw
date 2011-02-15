@@ -206,7 +206,7 @@ private:
   }
 
   void unset(){
-    skipRegClusters_.clear();
+    skipClusters_.clear();
     skipRegClusters_.clear();
   }
   template <typename IT>
