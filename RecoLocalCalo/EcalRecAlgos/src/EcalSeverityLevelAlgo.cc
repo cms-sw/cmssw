@@ -3,7 +3,7 @@
    Implementation of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.cc,v 1.37 2011/02/06 09:49:36 innocent Exp $
+   \version $Id: EcalSeverityLevelAlgo.cc,v 1.38 2011/02/06 11:32:28 innocent Exp $
    \date 10 Jan 2011
 */
 
@@ -75,13 +75,15 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
 
 EcalSeverityLevelAlgo::EcalSeverityLevel 
 EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
-  // kGood==0 we know!
-  if (0==rh.flagBits()) return kGood;
+
+  //if marked good, do not do any further test
+  if (rh.checkFlag(kGood)) return kGood;
+
   // check if the bit corresponding to that flag is set in the mask
   // This implementation implies that  severities have a priority... 
   for (int sev=kBad;sev>=0;--sev){
     if(sev==kTime && rh.energy() < timeThresh_ ) continue;
-    if (flagMask_[sev] & rh.flagBits()) return EcalSeverityLevel(sev);
+    if (rh.checkFlagMask(flagMask_[sev])) return EcalSeverityLevel(sev);
   }
 
   // no matching
@@ -90,30 +92,6 @@ EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
 
 }
 
-/*
-EcalSeverityLevelAlgo::EcalSeverityLevel 
-EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
-  
-
-  // check if the bit corresponding to that flag is set in the mask
-  // This implementation implies that  severities have a priority... 
-  for (int sev=kBad;sev>=0;--sev){
-    for (int flag=EcalRecHit::kUnknown; flag>=0; --flag){
-
-      if (flagMask_[sev] & (rh.checkFlag(flag)<<flag) ){
-	// return kTime only if above timeThresh
-	if(sev==kTime && rh.energy() < timeThresh_ ) continue;
-	return EcalSeverityLevel(sev);
-      }
-    }
-
-  }
-
-  // no matching
-  LogDebug("EcalSeverityLevelAlgo")<< "Unmatched Flag , returning kGood";
-  return kGood;
-}
-*/
 
 
 
