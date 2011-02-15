@@ -386,6 +386,9 @@ cat > scaledhistosForConvertedPhotonsLogScale <<EOF
   EoverPtracksAll
   EoverPtracksBarrel 
   EoverPtracksEndcap
+  vtxChi2ProbAll
+  vtxChi2ProbBarrel
+  vtxChi2ProbEndcap
 
 
 EOF
@@ -446,9 +449,6 @@ zPVFromTracksEndcap
 dzPVFromTracks
 dzPVFromTracksBarrel
 dzPVFromTracksEndcap
-vtxChi2ProbAll
-vtxChi2ProbBarrel
-vtxChi2ProbEndcap
 
 EOF
 
