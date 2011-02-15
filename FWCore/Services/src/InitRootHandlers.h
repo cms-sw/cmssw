@@ -14,11 +14,6 @@ namespace edm {
       explicit InitRootHandlers(ParameterSet const& pset);
       virtual ~InitRootHandlers();
 
-      inline
-      bool isProcessWideService(InitRootHandlers const*) {
-        return true;
-      }
-
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     private:
@@ -28,6 +23,12 @@ namespace edm {
       bool resetErrHandler_;
       bool autoLibraryLoader_;
     };
+
+    inline
+    bool isProcessWideService(InitRootHandlers const*) {
+      return true;
+    }
+
   }  // end of namespace service
 }  // end of namespace edm
 
