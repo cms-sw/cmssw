@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWLongParameterSetter.cc,v 1.5.10.1 2011/02/11 19:42:16 amraktad Exp $
+// $Id: FWLongParameterSetter.cc,v 1.6 2011/02/11 19:56:36 amraktad Exp $
 //
 
 // system include files
@@ -102,8 +102,8 @@ FWLongParameterSetter::build(TGFrame* iParent, bool labelBack)
    TGLabel* label = new TGLabel(frame, m_param->name().c_str());
    if (labelBack)
    {
-      frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,8,2,2));
-      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY) );
+      frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,6,2,2));
+      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2, 2, 0, 0));
    }
    else
    {

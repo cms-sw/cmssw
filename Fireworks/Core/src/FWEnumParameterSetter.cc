@@ -8,7 +8,7 @@
 //
 // Original Author:  matevz
 //         Created:  Fri Apr 30 15:17:33 CEST 2010
-// $Id: FWEnumParameterSetter.cc,v 1.4.8.1 2011/02/11 19:42:16 amraktad Exp $
+// $Id: FWEnumParameterSetter.cc,v 1.5 2011/02/11 19:56:36 amraktad Exp $
 //
 
 // system include files
@@ -88,8 +88,8 @@ FWEnumParameterSetter::build(TGFrame* iParent, bool labelBack)
    TGLabel* label = new TGLabel(frame, m_param->name().c_str());
    if (labelBack)
    {
-      frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,8,2,2));
-      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY) );
+      frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,6,2,2));
+      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2, 4, 0, 0));
    }
    else
    {
