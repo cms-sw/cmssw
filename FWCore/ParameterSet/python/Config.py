@@ -665,7 +665,7 @@ class Process(object):
     def _insertServices(self, processDesc, itemDict):
         for name,value in itemDict.iteritems():
            value.insertInto(processDesc)
-    def _insertPaths(self, processDesc, processPSet):
+    def _insertPaths(self, processPSet):
         scheduledPaths = []
         triggerPaths = []
         endpaths = []
@@ -688,7 +688,7 @@ class Process(object):
         processPSet.addVString(True, "@end_paths", endpaths)
         processPSet.addVString(True, "@paths", scheduledPaths)
         # trigger_paths are a little different
-        p = processDesc.newPSet()
+        p = processPSet.newPSet()
         p.addVString(True, "@trigger_paths", triggerPaths)
         processPSet.addPSet(True, "@trigger_paths", p)
         # add all these paths
@@ -752,7 +752,7 @@ class Process(object):
         self._insertManyInto(processPSet, "@all_esmodules", self.es_producers_(), True)
         self._insertManyInto(processPSet, "@all_essources", self.es_sources_(), True)
         self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_(), True)
-        self._insertPaths(processDesc, processPSet)
+        self._insertPaths(processPSet)
         self._insertServices(processDesc, self.services_())
         return processDesc
 
