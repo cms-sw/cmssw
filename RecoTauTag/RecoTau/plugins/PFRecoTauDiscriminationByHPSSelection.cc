@@ -6,6 +6,16 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+namespace {
+// Apply a hypothesis on the mass of the strips.
+math::XYZTLorentzVector applyMassConstraint(
+    const math::XYZTLorentzVector& vec,double mass) {
+  double factor = sqrt(vec.energy()*vec.energy()-mass*mass)/vec.P();
+  return math::XYZTLorentzVector(
+      vec.px()*factor,vec.py()*factor,vec.pz()*factor,vec.energy());
+}
+}
+
 class PFRecoTauDiscriminationByHPSSelection
   : public PFTauDiscriminationProducerBase {
   public:
@@ -21,6 +31,7 @@ class PFRecoTauDiscriminationByHPSSelection
       double maxMass_;
       double minPi0Mass_;
       double maxPi0Mass_;
+      double assumeStripMass_;
     };
 
     typedef StringObjectFunction<reco::PFTau> TauFunc;
@@ -55,6 +66,11 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(
       cuts.minPi0Mass_ = -1.0;
       cuts.maxPi0Mass_ = 1e9;
     }
+    if (dm.exists("assumeStripMass")) {
+      cuts.assumeStripMass_ = dm.getParameter<double>("assumeStripMass");
+    } else {
+      cuts.assumeStripMass_ = -1.0;
+    }
     decayModeCuts_.insert(std::make_pair(
             // The decay mode as a key
             std::make_pair(
@@ -75,23 +91,37 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
   DecayModeCutMap::const_iterator massWindowIter =
       decayModeCuts_.find(std::make_pair(tau->signalPFChargedHadrCands().size(),
                                          tau->signalPiZeroCandidates().size()));
-
   // Check if decay mode is supported
   if (massWindowIter == decayModeCuts_.end()) {
     return 0.0;
   }
-
   const DecayModeCuts &massWindow = massWindowIter->second;
 
-  // Check if tau fails mass cut
-  if (tau->mass() > massWindow.maxMass_ || tau->mass() < massWindow.minMass_) {
-    return 0.0;
+  math::XYZTLorentzVector tauP4 = tau->p4();
+  // Find the total pizero p4
+  reco::Candidate::LorentzVector stripsP4;
+  BOOST_FOREACH(const reco::RecoTauPiZero& cand, 
+      tau->signalPiZeroCandidates()){
+    math::XYZTLorentzVector candP4 = cand.p4();
+    stripsP4 += candP4;
   }
 
-  // Find the total pizero mass
-  reco::Candidate::LorentzVector stripsP4;
-  BOOST_FOREACH(const reco::RecoTauPiZero& cand, tau->signalPiZeroCandidates()){
-    stripsP4 += cand.p4();
+  // Apply strip mass assumption corrections
+  if (massWindow.assumeStripMass_ >= 0) {
+    BOOST_FOREACH(const reco::RecoTauPiZero& cand, 
+        tau->signalPiZeroCandidates()){
+      math::XYZTLorentzVector uncorrected = cand.p4();
+      math::XYZTLorentzVector corrected = 
+        applyMassConstraint(uncorrected, massWindow.assumeStripMass_);
+      math::XYZTLorentzVector correction = corrected - uncorrected;
+      tauP4 += correction;
+      stripsP4 += correction;
+    }
+  }
+
+  // Check if tau fails mass cut
+  if (tauP4.M() > massWindow.maxMass_ || tauP4.M() < massWindow.minMass_) {
+    return 0.0;
   }
 
   // Check if it fails the pi 0 IM cut
@@ -101,7 +131,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
   }
 
   // Check if tau passes matching cone cut
-  if (deltaR(tau->p4(), tau->jetRef()->p4()) > matchingCone_) {
+  if (deltaR(tauP4, tau->jetRef()->p4()) > matchingCone_) {
     return 0.0;
   }
 
@@ -110,13 +140,13 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
   // Check if any charged objects fail the signal cone cut
   BOOST_FOREACH(const reco::PFCandidateRef& cand,
                 tau->signalPFChargedHadrCands()) {
-    if (deltaR(cand->p4(), tau->p4()) > cone_size)
+    if (deltaR(cand->p4(), tauP4) > cone_size)
       return 0.0;
   }
   // Now check the pizeros
   BOOST_FOREACH(const reco::RecoTauPiZero& cand,
                 tau->signalPiZeroCandidates()) {
-    if (deltaR(cand.p4(), tau->p4()) > cone_size)
+    if (deltaR(cand.p4(), tauP4) > cone_size)
       return 0.0;
   }
 
