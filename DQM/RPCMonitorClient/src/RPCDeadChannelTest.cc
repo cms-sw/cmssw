@@ -6,7 +6,6 @@
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <FWCore/Framework/interface/ESHandle.h>
 
 // Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
@@ -59,9 +58,13 @@ void RPCDeadChannelTest::bookHisto(std::vector<MonitorElement *> meVector, std::
      }
      DEADWheel[i+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
 
-     for (int x = 1; x<=12; x++)
+     for (int x = 1; x<=12; x++){
        for(int y=1; y<=21; y++)
 	 DEADWheel[i+2]->setBinContent(x,y,-1);
+
+     }
+
+
 
      rpcUtils.labelXAxisSector( DEADWheel[i+2]);
      rpcUtils.labelYAxisRoll( DEADWheel[i+2], 0, i);
@@ -138,52 +141,50 @@ void RPCDeadChannelTest::endJob(){}
 //
 void  RPCDeadChannelTest::CalculateDeadChannelPercentage(RPCDetId & detId, MonitorElement * myMe, edm::EventSetup const& iSetup){
 
-  edm::ESHandle<RPCGeometry> rpcgeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcgeo); 
+//   edm::ESHandle<RPCGeometry> rpcgeo;
+//   iSetup.get<MuonGeometryRecord>().get(rpcgeo); 
 
-  const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
+//   const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
 
-  unsigned int nstrips =rpcRoll->nstrips();
+//   unsigned int nstrips =rpcRoll->nstrips();
 
   MonitorElement * DEAD = NULL;
+  float deadFraction = 0.0;
 
-   const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
-   if(theOccupancyQReport) {
-     
-     std::vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
-     
-     if (detId.region()==0)   DEAD = DEADWheel[detId.ring() + 2] ;
-     else{
-       if(-detId.station()+ numberOfDisks_ >= 0 ){
-	 
-	 if(detId.region()<0){
-	   DEAD  = DEADDisk[-detId.station() + numberOfDisks_];
-	 }else{
-	   DEAD = DEADDisk[detId.station() + numberOfDisks_-1];
-	 }
-       }
-     }
-
-     if (DEAD){
-       int xBin,yBin;
-       if(detId.region()==0){//Barrel
-	 xBin= detId.sector();
-	 rpcdqm::utils rollNumber;
-	 yBin = rollNumber.detId2RollNr(detId);
-       }else{//Endcap
-	 //get segment number
-	 RPCGeomServ RPCServ(detId);
-	 xBin = RPCServ.segment();
-	 (numberOfRings_ == 3 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
-     }
-       DEAD->setBinContent(xBin,yBin, (float)badChannels.size()/nstrips );
-
-     }
-
-
-     
- 
-   }
+  const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
+  if(theOccupancyQReport) {
+     float qtresult = theOccupancyQReport->getQTresult();
+    //std::vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
+     deadFraction = 1.0 -  qtresult;
+  }
+  
+  if (detId.region()==0)  { DEAD = DEADWheel[detId.ring() + 2] ;
+  }else{
+    if(-detId.station()+ numberOfDisks_ >= 0 ){
+      if(detId.region()<0){
+	DEAD  = DEADDisk[-detId.station() + numberOfDisks_];
+      }else{
+	DEAD = DEADDisk[detId.station() + numberOfDisks_-1];
+      }
+    }
+  }
+  
+  if (DEAD){
+    int xBin,yBin;
+    if(detId.region()==0){//Barrel
+      xBin= detId.sector();
+      rpcdqm::utils rollNumber;
+      yBin = rollNumber.detId2RollNr(detId);
+    }else{//Endcap
+      //get segment number
+      RPCGeomServ RPCServ(detId);
+      xBin = RPCServ.segment();
+      (numberOfRings_ == 3 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
+    }
+    DEAD->setBinContent(xBin,yBin, deadFraction);
+    
+  }
 }
+
 
 

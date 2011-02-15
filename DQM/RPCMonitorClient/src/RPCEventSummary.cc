@@ -30,6 +30,9 @@ RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps ){
   
   NumberOfFeds_ =FEDRange_.second -  FEDRange_.first +1;
 
+  offlineDQM_ = ps.getUntrackedParameter<bool> ("OfflineDQM",true); 
+
+
 }
 
 RPCEventSummary::~RPCEventSummary(){
@@ -44,7 +47,9 @@ void RPCEventSummary::beginJob(){
 
 void RPCEventSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup){
  edm::LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin run";
-
+  
+  init_ = false;  
+  lumiCounter_ = prescaleFactor_ ;
 
  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
  
@@ -69,7 +74,6 @@ void RPCEventSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup){
    }   
  }   
  
- init_=false;
 
  MonitorElement* me;
  dbe_->setCurrentFolder(eventInfoPath_);
@@ -177,38 +181,52 @@ void RPCEventSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& c
 
 void RPCEventSummary::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {  
   edm::LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing DQM client operation";
+
+  if(offlineDQM_) return;
+
+  if(init_ && (lumiCounter_%prescaleFactor_ != 0)) return;
+
+  this->clientOperation();
+
+  init_ = true;
+  lumiCounter_++;
 }
 
 void RPCEventSummary::endRun(const edm::Run& r, const edm::EventSetup& c){
+  
+  this->clientOperation();
+}
 
+void RPCEventSummary::clientOperation(){
 
-  float  rpcevents = 0;
-   MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+  float  rpcevents = minimumEvents_;
+  RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
 
   if(RPCEvents) {
     rpcevents = RPCEvents -> getEntries();
-   }
+  }
+  
 
   if(rpcevents < minimumEvents_) return;
-
-   std::stringstream meName;
-   MonitorElement * myMe;
+  
+  std::stringstream meName;
+  MonitorElement * myMe;
    
-   meName.str("");
-   meName<<eventInfoPath_ + "/reportSummaryMap";
-   MonitorElement * reportMe = dbe_->get(meName.str());
-   
-   MonitorElement * globalMe;
-   
-   //BARREL
-   float barrelFactor = 0;
-   
-     for(int w = -2 ; w<3; w++){
-     
-       meName.str("");
-       meName<<globalFolder_<<"/RPCChamberQuality_Roll_vs_Sector_Wheel"<<w;
-       myMe = dbe_->get(meName.str());
-       
+  meName.str("");
+  meName<<eventInfoPath_ + "/reportSummaryMap";
+  MonitorElement * reportMe = dbe_->get(meName.str());
+  
+  MonitorElement * globalMe;
+  
+  //BARREL
+  float barrelFactor = 0;
+  
+  for(int w = -2 ; w<3; w++){
+    
+    meName.str("");
+    meName<<globalFolder_<<"/RPCChamberQuality_Roll_vs_Sector_Wheel"<<w;
+    myMe = dbe_->get(meName.str());
+    
        if(myMe){      
 	 float wheelFactor = 0;
 	 
@@ -307,10 +325,10 @@ void RPCEventSummary::endRun(const edm::Run& r, const edm::EventSetup& c){
        endcapFactor=endcapFactor/ (numberDisk_ * 2);
        
      } 
-     
+    
      //Fill repor summary
      float rpcFactor = barrelFactor;
-     if(doEndcapCertification_){ rpcFactor =  ( barrelFactor + endcapFactor)/2; }
+     if(doEndcapCertification_)	{ rpcFactor = (barrelFactor + endcapFactor)/2;}
      
      globalMe = dbe_->get(eventInfoPath_ +"/reportSummary"); 
      if(globalMe) globalMe->Fill(rpcFactor);
