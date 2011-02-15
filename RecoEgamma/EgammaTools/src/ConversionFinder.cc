@@ -181,7 +181,7 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
     if(gsftk->numberOfValidHits() < 5)
       continue;
 
-    if(fabs(gsftk->pt() - gsftk_p4.pt())/gsftk_p4.pt() < 0.25)
+    if(fabs(gsftk->pt() - el_gsftrack->pt())/el_gsftrack->pt() < 0.25)
       continue;
 
     //try using the electron's CTF track first if it exists
