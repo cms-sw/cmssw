@@ -451,6 +451,10 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   e.put(hoResult);
   e.put(hfResult);
   e.put(zdcResult);
+
+  if(theHitCorrection) {
+    theHitCorrection->clear();
+  }
 }
 
 
