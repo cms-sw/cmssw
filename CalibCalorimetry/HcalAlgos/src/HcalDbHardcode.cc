@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.22 2009/05/27 11:24:06 fabiocos Exp $
+// $Id: HcalDbHardcode.cc,v 1.23 2010/02/22 20:55:51 kukartse Exp $
 //
 #include <vector>
 #include <string>
@@ -40,6 +40,19 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId) {
   } 
   return result;
 }
+
+HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) {
+  int first = 0;
+  int add = 0;
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {first = 4; add = 4;}
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {first = 4; add = 4;}
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {first = 4; add = 4;}
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {first = 4; add = 2;}
+  HcalRecoParam result(fId.rawId(), first, add);
+
+  return result;
+}
+
 
 HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) {
   HcalGainWidth width = makeGainWidth (fId);

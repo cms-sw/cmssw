@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.56 2010/04/26 18:51:36 devildog Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.57 2010/09/20 11:56:02 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -50,6 +50,8 @@ namespace {
   };
 }
 
+// ------------------------------ some little helpers ------------------------------
+
 std::vector <std::string> splitString (const std::string& fLine) {
   std::vector <std::string> result;
   int start = 0;
@@ -59,6 +61,26 @@ std::vector <std::string> splitString (const std::string& fLine) {
       if (!empty) {
 	std::string item (fLine, start, i-start);
 	result.push_back (item);
+	empty = true;
+      }
+      start = i+1;
+    }
+    else {
+      if (empty) empty = false;
+    }
+  }
+  return result;
+}
+
+std::vector <unsigned int> splitStringToIntByComma (const std::string& fLine) {
+  std::vector <unsigned int> result;
+  int start = 0;
+  bool empty = true;
+  for (unsigned i = 0; i <= fLine.size (); i++) {
+    if (fLine [i] == ',' || i == fLine.size ()) {
+      if (!empty) {
+	std::string itemString (fLine, start, i-start);
+	result.push_back (atoi (itemString.c_str()) );
 	empty = true;
       }
       start = i+1;
@@ -82,6 +104,8 @@ void HcalDbASCIIIO::dumpId (std::ostream& fOutput, DetId id) {
 	   converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str (),converter.getFlavor ().c_str ());  
   fOutput << buffer;
 }
+
+// ------------------------------ start templates ------------------------------
 
 template<class T>
 bool from_string(T& t, const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
@@ -147,7 +171,7 @@ bool getHcalSingleFloatObject (std::istream& fInput, T* fObject, S* fCondObject)
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()==0) continue; // blank line
     if (items.size () < 5) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, value" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, value" << std::endl;
       continue;
     }
     DetId id = HcalDbASCIIIO::getId (items);
@@ -192,7 +216,7 @@ bool getHcalSingleIntObject (std::istream& fInput, T* fObject, S* fCondObject) {
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()==0) continue; // blank line
     if (items.size () < 5) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, value" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, value" << std::endl;
       continue;
     }
     DetId id = HcalDbASCIIIO::getId (items);
@@ -283,6 +307,8 @@ bool dumpHcalMatrixObject (std::ostream& fOutput, const T& fObject) {
   return true;
 }
 
+// ------------------------------ end templates ------------------------------
+
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalGains* fObject) {return getHcalObject (fInput, fObject, new HcalGain);}
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalGains& fObject) {return dumpHcalObject (fOutput, fObject);}
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalGainWidths* fObject) {return getHcalObject (fInput, fObject, new HcalGainWidth);}
@@ -311,9 +337,151 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCovarianceMatrices* fOb
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCovarianceMatrices& fObject) {return dumpHcalMatrixObject (fOutput, fObject); }
 
 
+// ------------------------------ start specific implementations ------------------------------
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalRecoParams* fObject)
+{
+  if (!fObject) fObject = new HcalRecoParams();
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    if (items.size () < 6) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, firstSample, samplesToAdd" << std::endl;
+      continue;
+    }
+    DetId id = HcalDbASCIIIO::getId (items);
+    
+    HcalRecoParam* fCondObject = new HcalRecoParam(id, atoi (items [4].c_str()), atoi (items [5].c_str()) );
+    fObject->addValues(*fCondObject);
+    delete fCondObject;
+  }
+  return true;
+}
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalRecoParams& fObject)
+{
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %18s %15s %10s\n", "eta", "phi", "dep", "det", "firstSample", "samplesToAdd", "DetId");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    HcalDbASCIIIO::dumpId (fOutput, *channel);
+    sprintf (buffer, " %15d %15d %16X\n",
+	     fObject.getValues (*channel)->firstSample(), fObject.getValues (*channel)->samplesToAdd(), channel->rawId ());
+    fOutput << buffer;
+  }
+  return true;
+}
 
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalLongRecoParams* fObject)
+{
+  if (!fObject) fObject = new HcalLongRecoParams();
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    if (items.size() < 5) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, signalTSs, noiseTSs" << std::endl;
+      continue;
+    }
+    if (items.size() > 7) {
+      edm::LogWarning("Format Problem ?") << "Check line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, signalTSs, noiseTSs. "
+					  << "\n ! signalTS and noiseTS must be of format <ts1,ts2,ts3,...> withOUT spaces. Ignoring line for safety" << std::endl;
+      continue;
+    }
+    DetId id = HcalDbASCIIIO::getId (items);
+    
+    std::vector<unsigned int> mySignalTS = splitStringToIntByComma(items[4]);
+    std::vector<unsigned int> myNoiseTS = splitStringToIntByComma(items[5]);
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    HcalLongRecoParam* fCondObject = new HcalLongRecoParam(id, mySignalTS, myNoiseTS );
+    fObject->addValues(*fCondObject);
+    delete fCondObject;
+  }
+  return true;
+}
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLongRecoParams& fObject)
+{
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %10s %10s %10s\n", "eta", "phi", "dep", "det", "signalTSs", "noiseTSs", "DetId");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    HcalGenericDetId fId(*channel);
+    if (fId.isHcalZDCDetId())
+      {
+	std::vector<unsigned int> vSignalTS = fObject.getValues (*channel)->signalTS();
+	std::vector<unsigned int> vNoiseTS = fObject.getValues (*channel)->noiseTS();
+	HcalDbASCIIIO::dumpId (fOutput, *channel);
+	sprintf (buffer, "    ");
+	fOutput << buffer;
+	for (unsigned int i=0; i<vSignalTS.size(); i++)
+	  {
+	    if (i>0) {sprintf (buffer, ",");   fOutput << buffer;}
+	    sprintf (buffer, "%u", vSignalTS.at(i));
+	    fOutput << buffer;
+	  }
+	sprintf (buffer, "       ");
+	fOutput << buffer;
+	for (unsigned int i=0; i<vNoiseTS.size(); i++)
+	  {
+	    if (i>0) { sprintf (buffer, ",");   fOutput << buffer;}
+	    sprintf (buffer, "%u", vNoiseTS.at(i));
+	    fOutput << buffer;
+	  }
+	sprintf (buffer, "     %10X\n", channel->rawId ());
+	fOutput << buffer;
+      }
+  }
+  return true;
+}
+
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalMCParams* fObject)
+{
+  if (!fObject) fObject = new HcalMCParams();
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    if (items.size () < 5) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, signalShape" << std::endl;
+      continue;
+    }
+    DetId id = HcalDbASCIIIO::getId (items);
+    
+    HcalMCParam* fCondObject = new HcalMCParam(id, atoi (items [4].c_str()) );
+    fObject->addValues(*fCondObject);
+    delete fCondObject;
+  }
+  return true;
+}
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalMCParams& fObject)
+{
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %14s %10s\n", "eta", "phi", "dep", "det", "signalShape", "DetId");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    const int value = fObject.getValues (*channel)->signalShape();
+    HcalDbASCIIIO::dumpId (fOutput, *channel);
+    sprintf (buffer, " %10d %17X\n",
+	     value, channel->rawId ());
+    fOutput << buffer;
+  }
+  return true;
+}
+
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestals* fObject) {
   if (!fObject) fObject = new HcalPedestals(false);
   char buffer [1024];

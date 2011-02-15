@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.17 2010/02/22 20:51:12 kukartse Exp $
+// $Id: HcalTextCalibrations.cc,v 1.18 2010/04/26 19:17:00 devildog Exp $
 //
 //
 
@@ -110,12 +110,25 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceCovarianceMatrices);
       findingRecord <HcalCovarianceMatricesRcd> ();
     }
+    else if (objectName == "RecoParams") {
+      setWhatProduced (this, &HcalTextCalibrations::produceRecoParams);
+      findingRecord <HcalRecoParamsRcd> ();
+    }
+    else if (objectName == "LongRecoParams") {
+      setWhatProduced (this, &HcalTextCalibrations::produceLongRecoParams);
+      findingRecord <HcalLongRecoParamsRcd> ();
+    }
+    else if (objectName == "MCParams") {
+      setWhatProduced (this, &HcalTextCalibrations::produceMCParams);
+      findingRecord <HcalMCParamsRcd> ();
+    }
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
 		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
-		<< "ValidationCorrs LutMetadata DcsValues DcsMap CholeskyMatrices CovarianceMatrices"
+		<< "ValidationCorrs LutMetadata DcsValues DcsMap CholeskyMatrices CovarianceMatrices "
+		<< "RecoParams LongRecoParams MCParams "
 		<< std::endl;
     }
   }
@@ -232,3 +245,14 @@ std::auto_ptr<HcalCholeskyMatrices> HcalTextCalibrations::produceCholeskyMatrice
   return produce_impl<HcalCholeskyMatrices> (mInputs ["CholeskyMatrices"]);
 }
 
+std::auto_ptr<HcalRecoParams> HcalTextCalibrations::produceRecoParams (const HcalRecoParamsRcd&) {
+  return produce_impl<HcalRecoParams> (mInputs ["RecoParams"]);
+}
+
+std::auto_ptr<HcalLongRecoParams> HcalTextCalibrations::produceLongRecoParams (const HcalLongRecoParamsRcd&) {
+  return produce_impl<HcalLongRecoParams> (mInputs ["LongRecoParams"]);
+}
+
+std::auto_ptr<HcalMCParams> HcalTextCalibrations::produceMCParams (const HcalMCParamsRcd&) {
+  return produce_impl<HcalMCParams> (mInputs ["MCParams"]);
+}

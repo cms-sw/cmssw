@@ -30,3 +30,6 @@ REGISTER_PLUGIN(HcalDcsRcd, HcalDcsValues);
 REGISTER_PLUGIN(HcalDcsMapRcd,HcalDcsMap);
 REGISTER_PLUGIN(HcalCholeskyMatricesRcd,HcalCholeskyMatrices);
 REGISTER_PLUGIN(HcalCovarianceMatricesRcd,HcalCovarianceMatrices);
+REGISTER_PLUGIN(HcalRecoParamsRcd,HcalRecoParams);
+REGISTER_PLUGIN(HcalLongRecoParamsRcd,HcalLongRecoParams);
+REGISTER_PLUGIN(HcalMCParamsRcd,HcalMCParams);

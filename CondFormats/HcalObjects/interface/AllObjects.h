@@ -25,5 +25,8 @@
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
 #include "CondFormats/HcalObjects/interface/HcalCovarianceMatrix.h"
 #include "CondFormats/HcalObjects/interface/HcalCovarianceMatrices.h"
+#include "CondFormats/HcalObjects/interface/HcalRecoParams.h"
+#include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"
+#include "CondFormats/HcalObjects/interface/HcalMCParams.h"
 
 #endif

@@ -17,6 +17,7 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/HcalDetId/interface/HcalDcsDetId.h"
 #include "CondFormats/HcalObjects/interface/HcalDcsMap.h"
+#include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
 
 
 /**
@@ -34,6 +35,7 @@ namespace HcalDbHardcode {
   HcalQIECoder makeQIECoder (HcalGenericDetId fId);
   HcalCalibrationQIECoder makeCalibrationQIECoder (HcalGenericDetId fId);
   HcalQIEShape makeQIEShape ();
+  HcalRecoParam makeRecoParam (HcalGenericDetId fId);
   void makeHardcodeMap(HcalElectronicsMap& emap);
   void makeHardcodeDcsMap(HcalDcsMap& dcs_map);
 }

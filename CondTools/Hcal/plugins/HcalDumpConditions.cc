@@ -123,6 +123,12 @@ namespace edmtest
       dumpIt(new HcalDcsMap, new HcalDcsMapRcd, e,context,"DcsMap");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CholeskyMatrices")) != mDumpRequest.end())
       dumpIt(new HcalCholeskyMatrices, new HcalCholeskyMatricesRcd, e,context,"CholeskyMatrices");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RecoParams")) != mDumpRequest.end())
+      dumpIt(new HcalRecoParams, new HcalRecoParamsRcd, e,context,"RecoParams");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LongRecoParams")) != mDumpRequest.end())
+      dumpIt(new HcalLongRecoParams, new HcalLongRecoParamsRcd, e,context,"LongRecoParams");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("MCParams")) != mDumpRequest.end())
+      dumpIt(new HcalMCParams, new HcalMCParamsRcd, e,context,"MCParams");
     
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);

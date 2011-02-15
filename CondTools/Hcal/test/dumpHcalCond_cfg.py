@@ -30,7 +30,10 @@ process.prod = cms.EDAnalyzer("HcalDumpConditions",
 #        ,'ValidationCorrs' 
 #        ,'LutMetadata'
 #        ,'DcsValues'
-        ,'DcsMap'
+#        ,'DcsMap'
+    'RecoParams'
+    ,'LongRecoParams'
+    ,'MCParams'
                                  ),
     outFilePrefix = cms.untracked.string('DumpCond')
 )
@@ -42,12 +45,12 @@ process.source = cms.Source("EmptySource",
 )
 
 
-#process.es_pool = cms.ESSource("PoolDBESSource",
-#     process.CondDBSetup,
-#     timetype = cms.string('runnumber'),
-#     connect = cms.string('sqlite_file:testExample.db'),
-#     authenticationMethod = cms.untracked.uint32(0),
-#     toGet = cms.VPSet(
+process.es_pool = cms.ESSource("PoolDBESSource",
+     process.CondDBSetup,
+     timetype = cms.string('runnumber'),
+     connect = cms.string('sqlite_file:testExample.db'),
+     authenticationMethod = cms.untracked.uint32(0),
+     toGet = cms.VPSet(
 #        cms.PSet(
 #            record = cms.string('HcalPedestalsRcd'),
 #            tag = cms.string('hcal_pedestals_fC_v6_mc')
@@ -92,8 +95,20 @@ process.source = cms.Source("EmptySource",
 #            record = cms.string('HcalDcsMapRcd'),
 #            tag = cms.string('HcalDcsMap_v1.00_test')
 #        ) 
-#)
-#)
+        cms.PSet(
+            record = cms.string('HcalRecoParamsRcd'),
+            tag = cms.string('hcal_recoparams_v1.00_test')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalLongRecoParamsRcd'),
+            tag = cms.string('hcal_longrecoparams_v1.00_test')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalMCParamsRcd'),
+            tag = cms.string('hcal_mcparams_v1.00_test')
+        ) 
+)
+)
 
 
 ## specify which conditions should be taken for input, 
@@ -137,11 +152,28 @@ process.source = cms.Source("EmptySource",
 # )
 
 process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
-     toGet = cms.untracked.vstring('Pedestals',
-                                   'GainWidths',
-                                   'L1TriggerObjects',
-                                   'LutMetadata',
-                                   'ZSThresholds')
+     toGet = cms.untracked.vstring(
+        'Pedestals'
+        ,'PedestalWidths' 
+        ,'Gains' 
+        ,'QIEData' 
+        ,'ElectronicsMap'
+        ,'ChannelQuality' 
+        ,'GainWidths' 
+        ,'RespCorrs' 
+        ,'TimeCorrs'
+        ,'LUTCorrs'
+        ,'PFCorrs'
+        ,'L1TriggerObjects'
+        ,'ZSThresholds'
+        ,'ValidationCorrs' 
+        ,'LutMetadata'
+        ,'DcsValues'
+        ,'DcsMap'
+#        ,'RecoParams'
+#        ,'LongRecoParams'
+#        ,'MCParams'
+        )
  )
 
 #process.es_ascii = cms.ESSource("HcalTextCalibrations",
@@ -189,10 +221,22 @@ process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 #         cms.PSet(
 #             object = cms.string('LutMetadata'),
 #             tag = cms.FileInPath('CondFormats/HcalObjects/data/hcal_lutmetadata_trivial_v1.01_mc')
-#         ) 
+#         ), 
 #         cms.PSet(
 #             object = cms.string('DcsMap'),
 #             file = cms.FileInPath('HcalDcsMap_v1.00_test')
+#         ) 
+#         cms.PSet(
+#             object = cms.string('RecoParams'),
+#             file = cms.FileInPath('CondTools/Hcal/test/testdata/RecoParams2011-run153943.txt')
+#         ), 
+#         cms.PSet(
+#             object = cms.string('LongRecoParams'),
+#             file = cms.FileInPath('CondTools/Hcal/test/testdata/LongRecoParams2011-run153943.txt')
+#         ), 
+#         cms.PSet(
+#             object = cms.string('MCParams'),
+#             file = cms.FileInPath('CondTools/Hcal/test/testdata/MCParams.txt')
 #         ) 
 #         )
 # )

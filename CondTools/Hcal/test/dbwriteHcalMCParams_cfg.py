@@ -10,9 +10,6 @@ process.MessageLogger=cms.Service("MessageLogger",
 )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-
-#process.CondDBCommon.connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_30X_HCAL')
-#process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('./authentication.xml')
 process.CondDBCommon.connect = cms.string('sqlite_file:testExample.db')
 process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
 
@@ -23,10 +20,10 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.es_ascii = cms.ESSource("CastorTextCalibrations",
+process.es_ascii = cms.ESSource("HcalTextCalibrations",
     input = cms.VPSet(cms.PSet(
-        object = cms.string('Pedestals'),
-        file = cms.FileInPath('CondFormats/CastorObjects/data/castor_pedestals_test.txt')
+        object = cms.string('MCParams'),
+        file = cms.FileInPath('CondTools/Hcal/test/testdata/MCParams.txt')
     ))
 )
 
@@ -34,15 +31,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('sqlite_file:log.db'),
-#    logconnect= cms.untracked.string('oracle://cms_orcoff_prep/CMS_COND_30X_POPCONLOG'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('CastorPedestalsRcd'),
-        tag = cms.string('castor_pedestals_v1.0_test')
+        record = cms.string('HcalMCParamsRcd'),
+        tag = cms.string('hcal_mcparams_v1.00_test')
          ))
 )
 
-process.mytest = cms.EDAnalyzer("CastorPedestalsPopConAnalyzer",
-    record = cms.string('CastorPedestalsRcd'),
+process.mytest = cms.EDAnalyzer("HcalMCParamsPopConAnalyzer",
+    record = cms.string('HcalMCParamsRcd'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(

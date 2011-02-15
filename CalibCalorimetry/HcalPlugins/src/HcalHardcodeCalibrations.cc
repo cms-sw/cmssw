@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.23 2009/10/23 18:53:53 andersj Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.24 2010/02/22 20:51:12 kukartse Exp $
 //
 //
 
@@ -147,6 +147,18 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     if ((*objectName == "DcsMap") || (*objectName == "dcsMap") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceDcsMap);
       findingRecord <HcalDcsMapRcd> ();
+    }
+    if ((*objectName == "RecoParams") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceRecoParams);
+      findingRecord <HcalRecoParamsRcd> ();
+    }
+    if ((*objectName == "LongRecoParams") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceLongRecoParams);
+      findingRecord <HcalLongRecoParamsRcd> ();
+    }
+    if ((*objectName == "MCParams") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceMCParams);
+      findingRecord <HcalMCParamsRcd> ();
     }
   }
 }
@@ -353,6 +365,50 @@ std::auto_ptr<HcalDcsMap> HcalHardcodeCalibrations::produceDcsMap (const HcalDcs
 
   std::auto_ptr<HcalDcsMap> result (new HcalDcsMap ());
   HcalDbHardcode::makeHardcodeDcsMap(*result);
+  return result;
+}
+
+std::auto_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams (const HcalRecoParamsRcd&) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceRecoParams-> ...";
+  std::auto_ptr<HcalRecoParams> result (new HcalRecoParams ());
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalRecoParam item = HcalDbHardcode::makeRecoParam (*cell);
+    result->addValues(item,h2mode_);
+  }
+  return result;
+}
+
+std::auto_ptr<HcalLongRecoParams> HcalHardcodeCalibrations::produceLongRecoParams (const HcalLongRecoParamsRcd&) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceLongRecoParams-> ...";
+  std::auto_ptr<HcalLongRecoParams> result (new HcalLongRecoParams ());
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+  std::vector <unsigned int> mSignal; 
+  mSignal.push_back(4); 
+  mSignal.push_back(5); 
+  mSignal.push_back(6);
+  std::vector <unsigned int> mNoise;  
+  mNoise.push_back(1);  
+  mNoise.push_back(2);  
+  mNoise.push_back(3);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    if (cell->isHcalZDCDetId())
+      {
+	HcalLongRecoParam item(cell->rawId(),mSignal,mNoise);
+	result->addValues(item,h2mode_);
+      }
+  }
+  return result;
+}
+
+std::auto_ptr<HcalMCParams> HcalHardcodeCalibrations::produceMCParams (const HcalMCParamsRcd&) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceMCParams-> ...";
+  std::auto_ptr<HcalMCParams> result (new HcalMCParams ());
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalMCParam item(cell->rawId(),0);
+    result->addValues(item,h2mode_);
+  }
   return result;
 }
 

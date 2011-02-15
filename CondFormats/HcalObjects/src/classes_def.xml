@@ -108,5 +108,17 @@
  <class name="HcalDcsMap::Item"/>
  <class name="std::vector<HcalDcsMap::Item>"/>
 
+ <class name="HcalRecoParam"/>
+ <class name="std::vector<HcalRecoParam>"/>
+ <class name="HcalRecoParams" class_version="0"/>
+
+ <class name="HcalLongRecoParam"/>
+ <class name="std::vector<HcalLongRecoParam>"/>
+ <class name="HcalLongRecoParams" class_version="0"/>
+
+ <class name="HcalMCParam"/>
+ <class name="std::vector<HcalMCParam>"/>
+ <class name="HcalMCParams" class_version="0"/>
+
  <class pattern="*HcalCondObjectContainer*"/>
 </lcgdict>   
