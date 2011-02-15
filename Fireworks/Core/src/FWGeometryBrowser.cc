@@ -14,7 +14,7 @@
 #include "TGButton.h"
 #include "TGLabel.h"
 
-bool geodebug = 1;
+bool geodebug = 0;
 
 #include <iostream>
 FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
