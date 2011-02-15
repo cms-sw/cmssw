@@ -175,17 +175,22 @@ if __name__ == "__main__":
                 problemTypes[key] = 1
             else:
                 problemTypes[key] += 1
-    print "total:     ", len (files)
-    print "success:   ", succeeded
-    print "weird:     ", weird
-    print "Problem types:"
+    mismatches = problemTypes.get('mismatch', 0)
+    if problemTypes.has_key ('mismatch'):
+        del problemTypes['mismatch']
+    print "total:      ", len (files)
+    print "success:    ", succeeded
+    print "mismatches: ", mismatches
+    print "weird:      ", weird
+    print "Tool issue types:"
     total = 0
     for key, value in sorted (problemTypes.iteritems()):
         print "  %-15s: %4d" % (key, value)
         total += value
     print " ", '-'*13, " : ----"
-    print "  %-15s: %4d + %d = %d" \
-          % ('total', total, succeeded, total + succeeded),
+    print "  %-15s: %4d + %d + %d + %d = %d" \
+          % ('total', total, succeeded, mismatches, weird,
+             total + succeeded + mismatches + weird),
     if not options.counts:
         print "\nDetailed Problems list:"
         for key, problemList in sorted (problems.iteritems()):
