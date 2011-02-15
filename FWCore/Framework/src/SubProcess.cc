@@ -44,7 +44,6 @@ namespace edm {
 
     std::string const maxEvents("maxEvents");
     std::string const maxLumis("maxLuminosityBlocks");
-    std::string const logger("MessageLogger");
 
     std::auto_ptr<ParameterSet> processParameterSet = parameterSet.popParameterSet(std::string("process")); 
 
@@ -76,19 +75,11 @@ namespace edm {
     ServiceToken iToken;
 
     // get any configured services.
-    std::string forcedService("JobReportService");
-    std::auto_ptr<ParameterSet> services = parameterSet.popParameterSet(std::string("services")); 
-    // Remove any MessageLogger configuration in this process
-    if(services->exists(logger)) {
-      services->popParameterSet(logger);
-    }
+    std::auto_ptr<ParameterSet> services = processParameterSet->popParameterSet(std::string("services")); 
     std::vector<std::string> serviceNames;
     services->getParameterSetNames(serviceNames);
     for(std::vector<std::string>::const_iterator it = serviceNames.begin(), itEnd = serviceNames.end();
         it != itEnd; ++it) {
-      if(forcedService == *it) {
-        throw Exception(errors::Configuration) << "Cannot reconfigure " << *it << " in a subprocess.\n";
-      }
       ParameterSet aService = services->getUntrackedParameter<ParameterSet>(*it);
       serviceSets.push_back(aService);
     }
