@@ -154,6 +154,7 @@ namespace cms{
       LogError("TooManySeeds")<<"Exceeded maximum numeber of seeds! theMaxNSeeds="<<theMaxNSeeds<<" nSeed="<<(*collseed).size();
       if (theTrackCandidateOutput){ e.put(output);}
       if (theTrajectoryOutput){e.put(outputT);}
+      theTrajectoryBuilder->unset();
       return;
     }
     
