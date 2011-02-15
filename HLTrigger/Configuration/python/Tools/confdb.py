@@ -700,6 +700,7 @@ if 'GlobalTag' in %%(dict)s:
 
       self.options['sequences'].append( "-HLTL1IsoEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTL1NonIsoEgammaRegionalRecoTrackerSequence" )
+      self.options['sequences'].append( "-HLTEcalActivityEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTL1IsoElectronsRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTL1NonIsoElectronsRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTPixelMatchLargeWindowElectronL1IsoTrackingSequence" )
@@ -799,14 +800,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['paths'].append( "-HLT_QuadJet20_IsoPFTau_PFMHT_v*" )
       self.options['paths'].append( "-HLT_QuadJet40_IsoPFTau40_v*" )
       self.options['paths'].append( "-HLT_DoubleIsoPFTau20_Trk5_v*" )
-      self.options['paths'].append( "-HLT__v*" )
-#
-# For those I don't know...
-#
-      self.options['paths'].append( "-HLT_Photon26_IsoVL_Photon18_v*" )
-      self.options['paths'].append( "-HLT_Photon26_IsoVL_Photon18_IsoVL_v*" )
-      self.options['paths'].append( "-HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v*" )
-
+#      self.options['paths'].append( "-HLT__v*" )
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:
         self.options['paths'].append( "-HLTAnalyzerEndpath" )

@@ -15,5 +15,6 @@ from FastSimulation.EgammaElectronAlgos.l1NonIsoLargeWindowElectronsRegionalReco
 # Tracking for photons
 from FastSimulation.EgammaElectronAlgos.l1IsoEgammaRegionalRecoTracker_cff import *
 from FastSimulation.EgammaElectronAlgos.l1NonIsoEgammaRegionalRecoTracker_cff import *
+from FastSimulation.EgammaElectronAlgos.ecalActivityEgammaRegionalRecoTracker_cff import *
 
 
