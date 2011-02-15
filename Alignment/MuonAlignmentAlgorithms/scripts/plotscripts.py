@@ -1928,7 +1928,7 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
     ddt[2] = 1./ddt[0]*((ddt[0]-1)*ddt[2] + t3-t2)
 
     ####
-    chamber_x.SetAxisRange(-30., 30., "X")
+    chamber_x.SetAxisRange(-50., 50., "X")
     chamber_dxdz.SetAxisRange(-50., 50., "X")
     if not not chamber_y:
         chamber_y.SetAxisRange(-150., 150., "X")

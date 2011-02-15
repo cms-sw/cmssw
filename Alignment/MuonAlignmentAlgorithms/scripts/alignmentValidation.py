@@ -363,18 +363,19 @@ def doMapPlotsDT(dt_basedir, tfiles_plotting):
       pdir = dt_basedir+'/'+wheel[0]+'/'+station[1]+'/'
       label = "DTvsphi_st%dwh%s" % (int(station[1]), wheelLetter(int(wheel[1])))
       htitle = "wheel %+d, station %s" % (int(wheel[1]), station[1])
-      mapplot(tfiles_plotting, label, "x", window=15., title=htitle, fitsawteeth=True,fitsine=True)
+      #mapplot(tfiles_plotting, label, "x", window=25., title=htitle, fitsawteeth=True,fitsine=True)
+      mapplot(tfiles_plotting, label, "x", window=25., title=htitle, fitsine=True,fitpeaks=True)
       c1.SaveAs(pdir+'map_DTvsphi_x.png')
-      #mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle, fitsawteeth=True,fitsine=True)
-      mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle)
+      #mapplot(tfiles_plotting, label, "dxdz", window=25., title=htitle, fitsawteeth=True,fitsine=True)
+      mapplot(tfiles_plotting, label, "dxdz", window=25., title=htitle)
       c1.SaveAs(pdir+'map_DTvsphi_dxdz.png')
 
       if station[1]=='4': continue
-      #mapplot(tfiles_plotting, label, "y", window=15., title=htitle, fitsawteeth=True,fitsine=True)
-      mapplot(tfiles_plotting, label, "y", window=15., title=htitle)
+      #mapplot(tfiles_plotting, label, "y", window=25., title=htitle, fitsawteeth=True,fitsine=True)
+      mapplot(tfiles_plotting, label, "y", window=25., title=htitle)
       c1.SaveAs(pdir+'map_DTvsphi_y.png')
-      #mapplot(tfiles_plotting, label, "dydz", window=15., title=htitle, fitsawteeth=True,fitsine=True)
-      mapplot(tfiles_plotting, label, "dydz", window=15., title=htitle)
+      #mapplot(tfiles_plotting, label, "dydz", window=25., title=htitle, fitsawteeth=True,fitsine=True)
+      mapplot(tfiles_plotting, label, "dydz", window=25., title=htitle)
       c1.SaveAs(pdir+'map_DTvsphi_dydz.png')
 
   qcount=0
@@ -388,15 +389,15 @@ def doMapPlotsDT(dt_basedir, tfiles_plotting):
         pdir = dt_basedir+'/'+wheel[0]+'/'+station[1]+'/'+ssector+'/'
         label = "DTvsz_st%ssec%s" % (station[1], ssector)
         htitle = "station %s, sector %d" % (station[1], sector)
-        mapplot(tfiles_plotting, label, "x", window=15., title=htitle)
+        mapplot(tfiles_plotting, label, "x", window=25., title=htitle)
         c1.SaveAs(pdir+'map_DTvsz_x.png')
-        mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle)
+        mapplot(tfiles_plotting, label, "dxdz", window=25., title=htitle)
         c1.SaveAs(pdir+'map_DTvsz_dxdz.png')
         
         if station[1]=='4': continue
-        mapplot(tfiles_plotting, label, "y", window=15., title=htitle)
+        mapplot(tfiles_plotting, label, "y", window=25., title=htitle)
         c1.SaveAs(pdir+'map_DTvsz_y.png')
-        mapplot(tfiles_plotting, label, "dydz", window=15., title=htitle)
+        mapplot(tfiles_plotting, label, "dydz", window=25., title=htitle)
         c1.SaveAs(pdir+'map_DTvsz_dydz.png')
   
   saveTestResultsMap(options.runLabel)
@@ -435,10 +436,10 @@ def doMapPlotsCSC(csc_basedir, tfiles_plotting):
         pdir = csc_basedir+'/'+endcap[0]+'/'+station[1]+'/'+ring[1]+'/'
         label = "CSCvsphi_me%s%s%s" % (endcap[1], station[1], ring[1])
         htitle = "%s%s/%s" % (endcap[0], station[1],ring[1])
-        mapplot(tfiles_plotting, label, "x", window=15., title=htitle, fitsine=True,fitpeaks=True)
+        mapplot(tfiles_plotting, label, "x", window=25., title=htitle, fitsine=True,fitpeaks=True)
         #mapplot(tfiles_plotting, label, "x", window=15., title=htitle, fitsine=True)
         c1.SaveAs(pdir+'map_CSCvsphi_x.png')
-        mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle)
+        mapplot(tfiles_plotting, label, "dxdz", window=25., title=htitle)
         c1.SaveAs(pdir+'map_CSCvsphi_dxdz.png')
 
   saveTestResultsMap(options.runLabel)
@@ -455,9 +456,9 @@ def doMapPlotsCSC(csc_basedir, tfiles_plotting):
           pdir = csc_basedir+'/'+endcap[0]+'/'+station[1]+'/'+ring[1]+'/'+schamber+'/'
           label = "CSCvsr_me%s%sch%s" % (endcap[1], station[1], schamber)
           htitle = "%s%s/ALL/%d" % (endcap[0], station[1],chamber)
-          mapplot(tfiles_plotting, label, "x", window=15., title=htitle)
+          mapplot(tfiles_plotting, label, "x", window=25., title=htitle)
           c1.SaveAs(pdir+'map_CSCvsr_x.png')
-          mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle)
+          mapplot(tfiles_plotting, label, "dxdz", window=25., title=htitle)
           c1.SaveAs(pdir+'map_CSCvsr_dxdz.png')
 
 
@@ -494,9 +495,9 @@ def doCurvaturePlotsDT(dt_basedir, tfiles_plotting):
       pdir = dt_basedir+'/'+wheel[0]+'/'+station[1]+'/'+ssector+'/'
       label = "wheel%s_sector%s" % (w_dict[wheel[1]], ssector)
       thetitle ="Wheel %s, sector %s" % (wheel[1], ssector)
-      curvatureplot(tfiles_plotting, label, "deltax", title=thetitle, window=15., fitline=True)
+      curvatureplot(tfiles_plotting, label, "deltax", title=thetitle, window=25., fitline=True)
       saveAs(pdir+'dt_curvature_deltax.png')
-      curvatureplot(tfiles_plotting, label, "deltadxdz", title=thetitle, window=15., fitline=True)
+      curvatureplot(tfiles_plotting, label, "deltadxdz", title=thetitle, window=25., fitline=True)
       saveAs(pdir+'dt_curvature_deltadxdz.png')
 
 
@@ -537,15 +538,15 @@ def doSegDiffPlotsDT(dt_basedir, tfiles_plotting, iter_reports):
         ssector = "%02d" % isector
         pdir = dt_basedir + '/' + iwheel[0] + '/' + istation[1] + '/' + ssector + '/'
         
-        segdiff(tfiles_plotting, "dt13_resid", dstations, wheel=int(iwheel[1]), sector=isector, window=10.)
+        segdiff(tfiles_plotting, "dt13_resid", dstations, wheel=int(iwheel[1]), sector=isector, window=20.)
         c1.SaveAs(pdir + 'segdif_dt13_resid.png')
-        segdiff(tfiles_plotting, "dt13_slope", dstations, wheel=int(iwheel[1]), sector=isector, window=10.)
+        segdiff(tfiles_plotting, "dt13_slope", dstations, wheel=int(iwheel[1]), sector=isector, window=20.)
         c1.SaveAs(pdir + 'segdif_dt13_slope.png')
         
         if istation[1] == '4': continue
-        segdiff(tfiles_plotting, "dt2_resid", dstations, wheel=int(iwheel[1]), sector=isector, window=10.)
+        segdiff(tfiles_plotting, "dt2_resid", dstations, wheel=int(iwheel[1]), sector=isector, window=20.)
         c1.SaveAs(pdir + 'segdif_dt2_resid.png')
-        segdiff(tfiles_plotting, "dt2_slope", dstations, wheel=int(iwheel[1]), sector=isector, window=10.)
+        segdiff(tfiles_plotting, "dt2_slope", dstations, wheel=int(iwheel[1]), sector=isector, window=20.)
         c1.SaveAs(pdir + 'segdif_dt2_slope.png')
 
   """segdiffvsphi "dt13_resid" and "dt13_slope"
@@ -575,13 +576,13 @@ def doSegDiffPlotsDT(dt_basedir, tfiles_plotting, iter_reports):
   for iwheel in DT_TYPES:
     if iwheel[1]=="ALL": continue
     pdir = dt_basedir + '/' + iwheel[0] + '/'
-    segdiffvsphi(tfiles_plotting, iter_reports, "dt13_resid", int(iwheel[1]), window=15., excludesectors=(1,7))
+    segdiffvsphi(tfiles_plotting, iter_reports, "dt13_resid", int(iwheel[1]), window=20., excludesectors=(1,7))
     c1.SaveAs(pdir + 'segdifphi_dt13_resid.png')
-    segdiffvsphi(tfiles_plotting, iter_reports, "dt13_slope", int(iwheel[1]), window=15., excludesectors=(1,7))
+    segdiffvsphi(tfiles_plotting, iter_reports, "dt13_slope", int(iwheel[1]), window=20., excludesectors=(1,7))
     c1.SaveAs(pdir + 'segdifphi_dt13_slope.png')
-    segdiffvsphi(tfiles_plotting, iter_reports, "dt2_resid", int(iwheel[1]), window=15., excludesectors=(1,7))
+    segdiffvsphi(tfiles_plotting, iter_reports, "dt2_resid", int(iwheel[1]), window=20., excludesectors=(1,7))
     c1.SaveAs(pdir + 'segdifphi_dt2_resid.png')
-    segdiffvsphi(tfiles_plotting, iter_reports, "dt2_slope", int(iwheel[1]), window=15., excludesectors=(1,7))
+    segdiffvsphi(tfiles_plotting, iter_reports, "dt2_slope", int(iwheel[1]), window=20., excludesectors=(1,7))
     c1.SaveAs(pdir + 'segdifphi_dt2_slope.png')
 
 
@@ -616,10 +617,10 @@ def doSegDiffPlotsCSC(csc_basedir, tfiles_plotting, iter_reports):
           schamber = "%02d" % ichamber
           pdir = csc_basedir+'/'+iendcap[0]+'/'+istation[1]+'/'+iring[1]+'/'+schamber+'/'
           segdiff(tfiles_plotting, "csc_resid", dstations, 
-                  endcap=iendcap[1], ring=int(iring[1]), chamber=ichamber, window=10.)
+                  endcap=iendcap[1], ring=int(iring[1]), chamber=ichamber, window=25.)
           c1.SaveAs(pdir + 'segdif_csc_resid.png')
           segdiff(tfiles_plotting, "csc_slope", dstations, 
-                  endcap=iendcap[1], ring=int(iring[1]), chamber=ichamber, window=10.)
+                  endcap=iendcap[1], ring=int(iring[1]), chamber=ichamber, window=25.)
           c1.SaveAs(pdir + 'segdif_csc_slope.png')
 
   """segdiffvsphicsc "csc_resid" and "csc_slope"
@@ -642,9 +643,9 @@ def doSegDiffPlotsCSC(csc_basedir, tfiles_plotting, iter_reports):
       if qcount>QUICKTESTN: break
       qcount += 1
       pdir = csc_basedir+'/'+iendcap[0]+'/'+istation[1]+'/'
-      segdiffvsphicsc(tfiles_plotting, "csc_resid", dstations, window=10., endcap=iendcap[1])
+      segdiffvsphicsc(tfiles_plotting, "csc_resid", dstations, window=25., endcap=iendcap[1])
       c1.SaveAs(pdir + 'segdifphi_csc_resid.png')
-      segdiffvsphicsc(tfiles_plotting, "csc_slope", dstations, window=10., endcap=iendcap[1])
+      segdiffvsphicsc(tfiles_plotting, "csc_slope", dstations, window=25., endcap=iendcap[1])
       c1.SaveAs(pdir + 'segdifphi_csc_slope.png')
 
 
