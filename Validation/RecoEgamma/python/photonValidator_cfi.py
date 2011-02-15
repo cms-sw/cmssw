@@ -21,7 +21,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     fastSim = cms.bool(False),
     isRunCentrally = cms.bool(False),
 #
-    minPhoEtCut = cms.double(0.),
+    minPhoEtCut = cms.double(10.),
     convTrackMinPtCut = cms.double(1.),
     likelihoodCut = cms.double(0.),
 #
@@ -29,13 +29,13 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
 #
     eBin = cms.int32(100),
     eMin = cms.double(0.0),
-    eMax = cms.double(100.0),
+    eMax = cms.double(500.0),
 #
     etScale = cms.double(0.1),
 #                                  
     etBin = cms.int32(100),                                  
-    etMax = cms.double(100.0),                                  
-    etMin = cms.double(0.0),
+    etMax = cms.double(250.),                                  
+    etMin = cms.double(00),
 #
     etaBin = cms.int32(100),
     etaBin2 = cms.int32(25),
@@ -66,7 +66,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     dPhiMin = cms.double(-0.05),
     dPhiMax = cms.double(0.05),
 #
-    rBin = cms.int32(24), 
+    rBin = cms.int32(48), 
     rMin = cms.double(0.),
     rMax = cms.double(120),
 #
