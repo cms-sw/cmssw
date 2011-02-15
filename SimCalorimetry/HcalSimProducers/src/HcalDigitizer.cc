@@ -411,14 +411,6 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
     isHCAL = false;
   }
 
-  if(theHitCorrection != 0)
-  {
-    theHitCorrection->clear();
-    if(isHCAL)
-      theHitCorrection->fillChargeSums(*col);
-    if(isZDC)
-      theHitCorrection->fillChargeSums(*colzdc);
-  }
   // Step B: Create empty output
 
   std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
