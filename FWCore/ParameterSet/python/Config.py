@@ -896,12 +896,12 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
       subProcessPSet = parameterSet.newPSet()
       self.__SelectEvents.insertInto(subProcessPSet,"SelectEvents")
       self.__outputCommands.insertInto(subProcessPSet,"outputCommands")
-      subProcessPSet.addPSet(False,"process",topPSet)
       #handle services differently
       services = parameterSet.newPSet()
       for n in self.__process.services_():
          getattr(self.__process,n).insertInto(ServiceInjectorAdaptor(services,n))
-      subProcessPSet.addPSet(False,"services",services)
+      topPSet.addPSet(False,"services",services)
+      subProcessPSet.addPSet(False,"process",topPSet)
       parameterSet.addPSet(False,self.nameInProcessDesc_("subProcess"), subProcessPSet)
 
 if __name__=="__main__":
@@ -1412,6 +1412,6 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             process.subProcess.insertInto(p,"dummy")
             self.assertEqual((True,['a']),p.values["@sub_process"][1].values["process"][1].values['@all_modules'])
             self.assertEqual((True,['p']),p.values["@sub_process"][1].values["process"][1].values['@paths'])
-            self.assertEqual({'@service_type':(True,'Foo')}, p.values["@sub_process"][1].values["services"][1].values['Foo'][1].values)
+            self.assertEqual({'@service_type':(True,'Foo')}, p.values["@sub_process"][1].values["process"][1].values["services"][1].values['Foo'][1].values)
 
     unittest.main()
