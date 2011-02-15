@@ -10,20 +10,24 @@
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
 //
 
-// system include files
-#include <set>
-#include <string>
-
 // user include files
-#include "FWCore/ServiceRegistry/interface/ServicesManager.h"
-#include "FWCore/ServiceRegistry/interface/ServicePluginFactory.h"
-#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+#include "FWCore/ServiceRegistry/interface/ServicePluginFactory.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/ServiceRegistry/interface/ServicesManager.h"
+
+#include "FWCore/Utilities/interface/TypeDemangler.h"
+
+// system include files
+#include <set>
+#include <string>
 
 //
 // constants, enums and typedefs
@@ -118,7 +122,7 @@ namespace edm {
                       itType != itTypeEnd;
                       ++itType) {
                      Type2Maker::iterator itFound = type2Maker_->find(*itType);
-                     //HLT needs it such that even if a service isn't created we store is PSet if needed
+                     //HLT needs it such that even if a service isn't created we store its PSet if needed
                      if(itFound->second.maker_->saveConfiguration()) {
                         itFound->second.pset_->addUntrackedParameter("@save_config", true);
                      }
@@ -126,14 +130,32 @@ namespace edm {
                   }
                   break;
                case kConfigurationOverrides:
-                  //get all the services from Token
+                  //get all the services from the Configuration, except process wide services
                   type2Service_ = iToken.manager_->type2Service_;
 
                   //now remove the ones we do not want
                   for(IntersectionType::iterator itType = intersection.begin(), itTypeEnd = intersection.end();
                       itType != itTypeEnd;
                       ++itType) {
-                     type2Service_.erase(type2Service_.find(*itType));
+                     Type2Maker::iterator itFound = type2Maker_->find(*itType);
+                     if(itFound->second.maker_->processWideService()) {
+                       // This is a process wide service, so the token overrides the configuration.
+                       //HLT needs it such that even if a service isn't created we store its PSet if needed
+                       if(itFound->second.maker_->saveConfiguration()) {
+                         itFound->second.pset_->addUntrackedParameter("@save_config", true);
+                       }
+                       std::string type;
+                       typeDemangle(itType->name(), type);
+                       LogInfo("Configuration") << "Warning: You have reconfigured service\n"
+                                 <<  "'" << type << "' in a subprocess.\n"
+                                 << "This service has already been configured.\n"
+                                 << "This particular service may not be reconfigured in a subprocess.\n"
+                                 << "The reconfiguration will be ignored.\n";
+                       type2Maker_->erase(itFound);
+                     } else {
+                       // This is not a process wide service, so the configuration overrides the token.
+                       type2Service_.erase(type2Service_.find(*itType));
+                     }
                   }
                   break;
             }

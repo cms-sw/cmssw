@@ -26,8 +26,13 @@ namespace edm {
    class ParameterSet;
    class ActivityRegistry;
 
-   namespace serviceregistry {
+   namespace service {
+      inline bool isProcessWideService(void const* service) {
+        return false;
+      }
+   }
 
+   namespace serviceregistry {
       class SaveConfiguration;
       class ServiceWrapperBase;
       class ServicesManager;
@@ -44,6 +49,8 @@ public:
          virtual bool make(ParameterSet const&,
                            ActivityRegistry&,
                            ServicesManager&) const = 0;
+
+         virtual bool processWideService() const = 0;
 
          virtual bool saveConfiguration() const = 0;
 

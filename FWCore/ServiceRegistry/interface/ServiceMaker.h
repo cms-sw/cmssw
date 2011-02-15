@@ -91,6 +91,10 @@ public:
             return ServiceMakerBase::testSaveConfiguration(static_cast<typename TMaker::concrete_t const*>(0));
          }
 
+         virtual bool processWideService() const {
+            return service::isProcessWideService(static_cast<typename TMaker::concrete_t const*>(0));
+         }
+
          // ---------- static member functions --------------------
 
          // ---------- member functions ---------------------------
