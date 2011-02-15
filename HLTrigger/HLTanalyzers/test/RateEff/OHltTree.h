@@ -13,6 +13,9 @@
 #include <TFile.h>
 #include <TRandom3.h>
 #include <TLorentzVector.h>
+#include "Math/PtEtaPhiE4D.h"
+#include "Math/PtEtaPhiM4D.h"
+#include "Math/LorentzVector.h"
 
 #include <vector>
 #include <string>
@@ -65,6 +68,8 @@ public :
   Float_t         recoJetCorCalPhi[43000];   //[NrecoJetCorCal]
   Float_t         recoJetCorCalEta[43000];   //[NrecoJetCorCal]
   Float_t         recoJetCorCalE[43000];   //[NrecoJetCorCal]
+  Float_t         recoJetCorCalEMF[43000];   //[NrecoJetCal]
+  Float_t         recoJetCorCalN90[43000];   //[NrecoJetCal]
   Float_t         recoMetCal;
   Float_t         recoMetCalPhi;
   Float_t         recoMetCalSum;
@@ -1825,6 +1830,8 @@ public :
   TBranch        *b_recoJetCorCalPhi;   //!
   TBranch        *b_recoJetCorCalEta;   //!
   TBranch        *b_recoJetCorCalE;   //!
+  TBranch        *b_recoJetCorCalEMF; //!
+  TBranch        *b_recoJetCorCalN90; // !  
   TBranch        *b_NohTau;   //!
   TBranch        *b_ohTauEta;   //!
   TBranch        *b_ohTauPhi;   //!
@@ -3620,6 +3627,15 @@ public :
    * tells if single electron with given threshold and R9 cut passes
    */
   bool OpenHLT_EleX_R9cut(const float& Et, const float& r9barrel);
+  float deltaR(const float& eta1, const float& phi1, const float& eta2, const float& phi2);
+  float deltaPhi(const float& phi1, const float& phi2);
+  float deltaEta(const float& eta1, const float& eta2);
+  int OpenHlt1ElectronVbfEleIDPassed(float Et, float L1SeedEt, bool iso, int& EtMaxIt, std::vector<int>* it);
+  int OpenHltCleanedDiJetPassed(float Et1, float Et2,
+				bool cor, const std::string& algo,
+				float Deta, float Mjj, bool etaOpposite,
+				bool jetID,
+				std::vector<int> ohEleIts);
 
   int OpenHlt1ElectronSamHarperPassed(float Et, int L1iso,  
 				      float Tisobarrel, float Tisoendcap,  
@@ -4047,6 +4063,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("recoJetCorCalPhi", recoJetCorCalPhi, &b_recoJetCorCalPhi);
   fChain->SetBranchAddress("recoJetCorCalEta", recoJetCorCalEta, &b_recoJetCorCalEta);
   fChain->SetBranchAddress("recoJetCorCalE", recoJetCorCalE, &b_recoJetCorCalE);
+  fChain->SetBranchAddress("recoJetCorCalEMF", recoJetCorCalEMF, &b_recoJetCorCalEMF);
+  fChain->SetBranchAddress("recoJetCorCalN90", recoJetCorCalN90, &b_recoJetCorCalN90); 
   fChain->SetBranchAddress("recoMetCal", &recoMetCal, &b_recoMetCal);
   fChain->SetBranchAddress("recoMetCalPhi", &recoMetCalPhi, &b_recoMetCalPhi);
   fChain->SetBranchAddress("recoMetCalSum", &recoMetCalSum, &b_recoMetCalSum);

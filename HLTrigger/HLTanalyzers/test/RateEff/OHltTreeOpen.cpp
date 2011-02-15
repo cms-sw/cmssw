@@ -12,6 +12,8 @@
 
 using namespace std;
 
+typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiELorentzVector;
+
 bool isJetXUTrigger(TString triggerName, vector<double> &thresholds){
 
   TString pattern = "(OpenHLT_Jet([0-9]+)U){1}$";
@@ -540,7 +542,6 @@ bool isL1SingleEGXTrigger(TString triggerName){
    }
    else return false;
 }
-
 
 void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcounter,int it) 
 {
@@ -2079,9 +2080,6 @@ else if (isPT12U_XUTrigger(triggerName,thresholds)){
       }       
     }       
   } 
-
-  
-  
   // only ele17 ele8 to keep
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
@@ -2848,6 +2846,52 @@ else if (isPT12U_XUTrigger(triggerName,thresholds)){
   }
   
   /*Electron-jet cross-triggers*/
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SW_CaloIdVT_TrkIdT_TrkIsoT_CaloIsoT_L1R_CleanedJet35Jet20_Deta2") == 0) {
+    if( map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second == 1 ) {
+      if( prescaleResponse(menu,cfg,rcounter,it) ) {
+        int EtMaxIt = -1;
+	std::vector<int> EleIts;
+        if( OpenHlt1ElectronVbfEleIDPassed(15.,12.,true,EtMaxIt,&EleIts) >= 1 ) {
+          if( OpenHltCleanedDiJetPassed(35.,20.,true,"Calo",2.,0.,false,false,EleIts) >= 1 )   
+            triggerBit[it] = true;
+        }
+      }
+    }
+  }
+
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_SW_TighterEleId_L1R_BTagIP_CentJet20U") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) { 
+	if(OpenHlt1ElectronSamHarperPassed(27.,0,          // ET, L1isolation 
+					   999., 999.,     // Track iso barrel, Track iso endcap 
+					   999., 999.,     // Track/pT iso barrel, Track/pT iso endcap 
+					   999., 999.,     // H/ET iso barrel, H/ET iso endcap 
+					   999., 999.,     // E/ET iso barrel, E/ET iso endcap 
+					   0.05, 0.05,     // H/E barrel, H/E endcap 
+					   0.011, 0.031,   // cluster shape barrel, cluster shape endcap 
+					   0.98, 1.0,      // R9 barrel, R9 endcap 
+					   0.008, 0.007,   // Deta barrel, Deta endcap 
+					   0.1, 0.1        // Dphi barrel, Dphi endcap 
+					   )>=1
+	   && OpenHlt1BJetPassedEleRemoval(20., 3.0, 0.3,  // jet ET, eta, DrCut
+					   0., 2.0,        // discL25, discL3
+					   27.,0,          // ET, L1isolation 
+					   999., 999.,     // Track iso barrel, Track iso endcap 
+					   999., 999.,     // Track/pT iso barrel, Track/pT iso endcap 
+					   999., 999.,     // H/ET iso barrel, H/ET iso endcap 
+					   999., 999.,     // E/ET iso barrel, E/ET iso endcap 
+					   0.05, 0.05,     // H/E barrel, H/E endcap 
+					   0.011, 0.031,   // cluster shape barrel, cluster shape endcap 
+					   0.98, 1.0,      // R9 barrel, R9 endcap 
+					   0.008, 0.007,   // Deta barrel, Deta endcap 
+					   0.1, 0.1        // Dphi barrel, Dphi endcap 
+					   )>=1) { 
+	  triggerBit[it] = true; 
+	}
+      }
+    }
+  }
+
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_v1") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) {  
@@ -8279,3 +8323,260 @@ int OHltTree::OpenL1SetSingleJetBit(const float& thresh){
   return ( rc );
  
 }
+
+int OHltTree::OpenHltCleanedDiJetPassed(float Et1, float Et2,
+                                        bool cor, const std::string& algo,
+                                        float Deta, float Mjj, bool etaOpposite,
+                                        bool jetID,
+                                        std::vector<int> ohEleIts)
+{
+  // fill the jet collection
+  int NohJet = 0;
+  float ohJetEta[200];
+  float ohJetPhi[200];
+  float ohJetEt[200];
+  float ohJetE[200];
+  float ohJetEMF[200];
+  float ohJetN90[200];
+
+  if( (cor == false) && (algo == "Calo") )
+    {
+      NohJet = NrecoJetCal;
+      for(int ohJetIt = 0; ohJetIt < NohJet; ++ohJetIt)
+	{
+	  ohJetEta[ohJetIt] = recoJetCalEta[ohJetIt];
+	  ohJetPhi[ohJetIt] = recoJetCalPhi[ohJetIt];
+	  ohJetEt[ohJetIt]  = recoJetCalE[ohJetIt] * sin(2.*atan(exp(-1.*recoJetCalEta[ohJetIt])));
+	  ohJetE[ohJetIt]   = recoJetCalE[ohJetIt];
+	  ohJetEMF[ohJetIt] = recoJetCalEMF[ohJetIt];
+	  ohJetN90[ohJetIt] = recoJetCalN90[ohJetIt];
+	}
+    }
+
+  if( (cor == true)  && (algo == "Calo") )
+    {
+      NohJet = NrecoJetCorCal;
+      for(int ohJetIt = 0; ohJetIt < NohJet; ++ohJetIt)
+	{
+	  ohJetEta[ohJetIt] = recoJetCorCalEta[ohJetIt];
+	  ohJetPhi[ohJetIt] = recoJetCorCalPhi[ohJetIt];
+	  ohJetEt[ohJetIt]  = recoJetCorCalE[ohJetIt] * sin(2.*atan(exp(-1.*recoJetCorCalEta[ohJetIt])));
+	  ohJetE[ohJetIt]   = recoJetCorCalE[ohJetIt];      
+	  ohJetEMF[ohJetIt] = recoJetCorCalEMF[ohJetIt];
+	  ohJetN90[ohJetIt] = recoJetCorCalN90[ohJetIt];
+	}
+    }
+
+  if( (cor == false) && (algo == "PF") )
+    {
+      NohJet = NohPFJet;
+      for(int ohJetIt = 0; ohJetIt < NohJet; ++ohJetIt)
+	{
+	  ohJetEta[ohJetIt] = pfJetEta[ohJetIt];
+	  ohJetPhi[ohJetIt] = pfJetPhi[ohJetIt];
+	  ohJetEt[ohJetIt]  = pfJetPt[ohJetIt];
+	  ohJetEMF[ohJetIt] = -1.;
+	  ohJetN90[ohJetIt] = -1.;
+	}
+    }
+
+  // clean the jet collection from electrons
+  int NohCleanedJet = 0;
+  float ohCleanedJetEta[200];
+  float ohCleanedJetPhi[200];
+  float ohCleanedJetEt[200];
+  float ohCleanedJetE[200];  
+  float ohCleanedJetEMF[200];
+  float ohCleanedJetN90[200];
+
+  for(int ohJetIt = 0; ohJetIt < NohJet; ++ohJetIt)
+    {
+      bool isMatching = false;
+      for(unsigned int ohEleIt = 0; ohEleIt < ohEleIts.size(); ++ohEleIt)
+	if( deltaR(ohEleEta[ohEleIts.at(ohEleIt)],ohElePhi[ohEleIts.at(ohEleIt)],ohJetEta[ohJetIt],ohJetPhi[ohJetIt]) < 0.5 )
+	  isMatching = true;
+    
+      if( isMatching == true ) continue;
+    
+      ohCleanedJetEta[NohCleanedJet] = ohJetEta[ohJetIt];
+      ohCleanedJetPhi[NohCleanedJet] = ohJetPhi[ohJetIt];
+      ohCleanedJetEt[NohCleanedJet]  = ohJetEt[ohJetIt];
+      ohCleanedJetE[NohCleanedJet]   = ohJetE[ohJetIt];    
+      ohCleanedJetEMF[NohCleanedJet] = ohJetEMF[ohJetIt];
+      ohCleanedJetN90[NohCleanedJet] = ohJetN90[ohJetIt];
+      ++NohCleanedJet;            
+    }
+
+  // do the selection
+  int rc = 0;
+  if(NohCleanedJet < 2)
+    return rc;
+
+  // loop on jets
+  for(int i = 0; i < NohCleanedJet; ++i)
+    {
+      if( (jetID == true) && (TMath::Abs(ohCleanedJetEta[i]) < 2.6) && (ohCleanedJetEMF[i] < 0.01) ) continue;
+      if( (jetID == true) && (TMath::Abs(ohCleanedJetEta[i]) < 2.6) && (ohCleanedJetN90[i] < 2) ) continue;
+
+      for(int j = i+1; j < NohCleanedJet; j++)
+	{
+	  if( (jetID == true) && (TMath::Abs(ohCleanedJetEta[j]) < 2.6) && (ohCleanedJetEMF[j] < 0.01) ) continue;
+	  if( (jetID == true) && (TMath::Abs(ohCleanedJetEta[j]) < 2.6) && (ohCleanedJetN90[j] < 2) ) continue;
+
+	  PtEtaPhiELorentzVector j1(ohCleanedJetEt[i], ohCleanedJetEta[i], ohCleanedJetPhi[i], ohCleanedJetE[i]);
+	  PtEtaPhiELorentzVector j2(ohCleanedJetEt[j], ohCleanedJetEta[j], ohCleanedJetPhi[j], ohCleanedJetE[j]);
+
+	  if( (std::max(ohCleanedJetEt[i],ohCleanedJetEt[j]) > Et1) && 
+	      (std::min(ohCleanedJetEt[i],ohCleanedJetEt[j]) > Et2) &&
+	      (deltaEta(ohCleanedJetEta[i],ohCleanedJetEta[j]) > Deta) &&
+	      ((j1+j2).mass() > Mjj) &&
+	      ( (etaOpposite == true && ohCleanedJetEta[i]*ohCleanedJetEta[j] < 0.) || (etaOpposite == false) ) ) 
+            ++rc;
+	}
+    }
+
+  return rc;
+}
+
+
+
+
+
+int OHltTree::OpenHlt1ElectronVbfEleIDPassed(float Et, float L1SeedEt, bool iso, int& EtMaxIt, std::vector<int>* it)
+{ 
+  int rc = 0;
+  float EtMax = -9999.;  
+  if( it != NULL)
+    it->clear();
+
+  // Loop over all oh electrons  
+  for(int i = 0; i < NohEle; ++i)
+    {
+      // ET/eta/pixelMatch cuts
+      if( ohEleEt[i] < Et ) continue;
+      if( TMath::Abs(ohEleEta[i]) > 2.65 ) continue;
+      if( ohElePixelSeeds[i] <= 0 ) continue;
+      if( ohEleP[i] < 0. ) continue;
+
+      // EleID
+      // R9
+      if( (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleR9[i] > 0.98) ) continue;
+      if( (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleR9[i] > 999.) ) continue;
+      // sigmaietaieta
+      if( (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleClusShap[i] > 0.011) ) continue;
+      if( (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleClusShap[i] > 0.031) ) continue;
+
+      // deta
+      if( (TMath::Abs(ohEleEta[i]) < 1.479) && (TMath::Abs(ohEleDeta[i]) > 0.008) ) continue;
+      if( (TMath::Abs(ohEleEta[i]) > 1.479) && (TMath::Abs(ohEleDeta[i]) > 0.008) ) continue;
+
+      // dphi
+      if( (TMath::Abs(ohEleEta[i]) < 1.479) && (TMath::Abs(ohEleDphi[i]) > 0.070) ) continue;
+      if( (TMath::Abs(ohEleEta[i]) > 1.479) && (TMath::Abs(ohEleDphi[i]) > 0.050) ) continue;
+
+      // H/E
+      if( ohEleHforHoverE[i]/ohEleE[i] > 0.05 ) continue;
+
+      // isolation
+
+      // tracker iso
+      if( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleTiso[i]/ohEleEt[i] > 0.125) ) continue;
+      if( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleTiso[i]/ohEleEt[i] > 0.075) ) continue;
+
+      // ecal iso
+      if( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleEiso[i]/ohEleEt[i] > 0.125) ) continue;
+      if( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleEiso[i]/ohEleEt[i] > 0.075) ) continue;
+
+      // hcal iso
+      if( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleHiso[i]/ohEleEt[i] > 0.125) ) continue;
+      if( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleHiso[i]/ohEleEt[i] > 0.075) ) continue;
+
+      // L1 matching - isolated
+
+      bool isL1IsolMatched = false;
+      for(int j = 0; j < NL1IsolEm; ++j)
+	{
+	  if( L1IsolEmEt[j] > L1SeedEt )
+	    {
+	      float etaLow = 0.;
+	      float etaHigh = 0.;
+
+	      if( fabs(ohEleEta[i]) < 1.479 )
+		{
+		  etaLow  = L1IsolEmEta[j] - 0.522/2.;
+		  etaHigh = L1IsolEmEta[j] + 0.522/2.;
+		}
+	      else
+		{
+		  etaLow  = L1IsolEmEta[j] - 1.0/2.;
+		  etaHigh = L1IsolEmEta[j] + 1.0/2.;
+		}
+
+	      float Dphi = deltaPhi(L1IsolEmPhi[j],ohElePhi[i]);
+
+	      if( ohEleEta[i] > etaLow && ohEleEta[i] < etaHigh && Dphi < 1.044/2. )
+		isL1IsolMatched = true;
+	    }
+	}
+
+      // L1 matching - non isolated
+      bool isL1NIsolMatched = false;
+      for(int j = 0; j < NL1NIsolEm; ++j)
+	{
+	  if( L1NIsolEmEt[j] > L1SeedEt )
+	    {
+	      float etaLow = 0.;
+	      float etaHigh = 0.;
+
+	      if( fabs(ohEleEta[i]) < 1.479 )
+		{
+		  etaLow  = L1NIsolEmEta[j] - 0.522/2.;
+		  etaHigh = L1NIsolEmEta[j] + 0.522/2.;
+		}
+	      else
+		{
+		  etaLow  = L1NIsolEmEta[j] - 1.0/2.;
+		  etaHigh = L1NIsolEmEta[j] + 1.0/2.;
+		}
+
+	      float Dphi = deltaPhi(L1NIsolEmPhi[j],ohElePhi[i]);
+
+	      if( ohEleEta[i] > etaLow && ohEleEta[i] < etaHigh && Dphi < 1.044/2. )
+		isL1NIsolMatched = true;
+	    }
+	}
+
+      if( (L1SeedEt > 0.) && (isL1IsolMatched == false) && (isL1NIsolMatched == false) ) continue;
+
+      ++rc;
+
+      if( ohEleEt[i] > EtMax )
+	{
+	  EtMaxIt = i;
+	  EtMax = ohEleEt[i];
+	}    
+
+      if( it != NULL)
+	it->push_back(i);
+    }
+
+  return rc;  
+}
+
+float OHltTree::deltaPhi(const float& phi1, const float& phi2) 
+{ 
+  float deltaphi = TMath::Abs(phi1 - phi2); 
+  if (deltaphi > 6.283185308) deltaphi -= 6.283185308; 
+  if (deltaphi > 3.141592654) deltaphi = 6.283185308 - deltaphi; 
+  return deltaphi; 
+} 
+ 
+float OHltTree::deltaEta(const float& eta1, const float& eta2) 
+{ 
+  return TMath::Abs(eta1 - eta2); 
+} 
+
+float OHltTree::deltaR(const float& eta1, const float& phi1, const float& eta2, const float& phi2) 
+{ 
+  return sqrt(deltaEta(eta1,eta2)*deltaEta(eta1,eta2) + deltaPhi(phi1,phi2)*deltaPhi(phi1,phi2)); 
+} 

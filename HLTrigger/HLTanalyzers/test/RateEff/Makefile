@@ -1,4 +1,4 @@
-ROOTLIBS   = $(shell root-config --libs)
+ROOTLIBS   = $(shell root-config --libs) -lGenVector
 ROOTCFLAGS = $(shell root-config --cflags)
 
 CFGLIBS   = -L$(shell pwd)/libconfig-1.3/.libs
