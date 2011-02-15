@@ -73,6 +73,13 @@ SiStripQualityChecker::SiStripQualityChecker(edm::ParameterSet const& ps):pSet_(
   tracking_mes.UpperCut = TkPSet.getParameter<double>("UpperCut");
   TrackingMEsMap.insert(std::pair<std::string, TrackingMEs>("RecHits", tracking_mes));
 
+  TkPSet = pSet_.getParameter<edm::ParameterSet>("GoodTrackFractionPSet"); 
+  tracking_mes.TrackingFlag = 0;
+  tracking_mes.HistoName    = TkPSet.getParameter<std::string>("Name");
+  tracking_mes.LowerCut = TkPSet.getParameter<double>("LowerCut");
+  tracking_mes.UpperCut = TkPSet.getParameter<double>("UpperCut");
+  TrackingMEsMap.insert(std::pair<std::string, TrackingMEs>("GoodFraction", tracking_mes));
+
 }
 //
 // --  Destructor
@@ -163,12 +170,13 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
     hname  = "reportSummaryMap";
     htitle = "Tracking Report Summary Map";
     
-    TrackSummaryReportMap    = dqm_store->book2D(hname, htitle, 3,0.5,3.5,1,0.5,1.5);
+    TrackSummaryReportMap    = dqm_store->book2D(hname, htitle, 4,0.5,4.5,1,0.5,1.5);
     TrackSummaryReportMap->setAxisTitle("Track Quality Type", 1);
     TrackSummaryReportMap->setAxisTitle("QTest Flag", 2);
     TrackSummaryReportMap->setBinLabel(1,"Rate");
     TrackSummaryReportMap->setBinLabel(2,"Chi2");
     TrackSummaryReportMap->setBinLabel(3,"RecHits");
+    TrackSummaryReportMap->setBinLabel(4,"GoodTrackFraction");
     
     dqm_store->setCurrentFolder(tracking_dir+"/EventInfo/reportSummaryContents");  
     int ibin = 0;
@@ -314,6 +322,7 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
     std::vector<QReport *> qt_reports = me->getQReports();          
     if (qt_reports.size() == 0) continue;
     std::string name = me->getName();
+
     float status = 1.0; 
 
     int ibin = 0;
@@ -596,6 +605,7 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
     MonitorElement * me = (*it);     
     if (!me) continue;     
     std::string name = me->getName();
+
     float status = -1.0; 
     int ibin = 0;
     for (std::map<std::string, TrackingMEs>::const_iterator it = TrackingMEsMap.begin();
