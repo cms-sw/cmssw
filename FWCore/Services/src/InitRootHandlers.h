@@ -11,8 +11,13 @@ namespace edm {
     class InitRootHandlers : public RootHandlers {
 
     public:
-      explicit InitRootHandlers (ParameterSet const& pset);
-      virtual ~InitRootHandlers ();
+      explicit InitRootHandlers(ParameterSet const& pset);
+      virtual ~InitRootHandlers();
+
+      inline
+      bool isProcessWideService(InitRootHandlers const*) {
+        return true;
+      }
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 

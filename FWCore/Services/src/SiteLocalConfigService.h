@@ -66,6 +66,11 @@ namespace edm {
             std::vector<std::string> m_nativeProtocols;
             std::vector<std::string> const* m_nativeProtocolsPtr;
          };
+
+         inline
+         bool isProcessWideService(SiteLocalConfigService const*) {
+           return true;
+         }
     }
 }
 

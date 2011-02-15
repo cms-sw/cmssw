@@ -43,8 +43,7 @@ class ParameterSet;
 namespace service  {
 
 
-class MessageLogger
-{
+class MessageLogger {
 public:
   MessageLogger( ParameterSet const &, ActivityRegistry & );
 
@@ -148,6 +147,10 @@ private:
   
 };  // MessageLogger
 
+  inline
+  bool isProcessWideService(MessageLogger const*) {
+    return true;
+  }
 
 }  // namespace service
 

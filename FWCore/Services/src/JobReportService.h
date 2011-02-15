@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReportService.h,v 1.2 2007/06/14 21:03:39 wmtan Exp $
+// $Id: JobReportService.h,v 1.3 2010/03/09 16:24:55 wdd Exp $
 //
 
 #include <string>
@@ -50,6 +50,11 @@ namespace edm {
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     };
+
+    inline
+    bool isProcessWideService(JobReportService const*) {
+      return true;
+    }
   }
 }
 

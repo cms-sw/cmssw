@@ -4,14 +4,14 @@
 //
 // Package:     Services
 // Class  :     CPU
-// 
+//
 //
 // Original Author:  Natalia Garcia
 // CPU.h: v 1.0 2009/01/08 11:27:50
 //
 
-#include "sigc++/signal.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "sigc++/signal.h"
 
 namespace edm {
   class ActivityRegistry;
@@ -21,15 +21,14 @@ namespace edm {
   class ConfigurationDescriptions;
 
   namespace service {
-    class CPU
-    {
+    class CPU {
     public:
-      CPU(const ParameterSet&,ActivityRegistry&);
+      CPU(ParameterSet const&, ActivityRegistry&);
       ~CPU();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-      sigc::signal<void, const ModuleDescription&, double> newMeasurementSignal;
+      sigc::signal<void, ModuleDescription const&, double> newMeasurementSignal;
     private:
       int totalNumberCPUs_;
       double averageCoreSpeed_;
@@ -37,6 +36,11 @@ namespace edm {
 
       void postEndJob();
     };
+
+    inline
+    bool isProcessWideService(CPU const*) {
+      return true;
+    }
   }
 }
 #endif
