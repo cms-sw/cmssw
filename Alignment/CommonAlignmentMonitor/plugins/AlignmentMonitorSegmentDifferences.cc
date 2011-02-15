@@ -9,6 +9,7 @@
 // Original Author:  Jim Pivarski
 //         Created:  Mon Nov 12 13:30:14 CST 2007
 //
+// $Id: $
 
 // system include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
@@ -39,7 +40,7 @@ public:
 
   void book();
   void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
-  void afterAlignment(const edm::EventSetup &iSetup);
+  void afterAlignment(const edm::EventSetup &iSetup) {};
 
 private:
   double m_minTrackPt;
@@ -109,92 +110,88 @@ AlignmentMonitorSegmentDifferences::AlignmentMonitorSegmentDifferences(const edm
 
 void AlignmentMonitorSegmentDifferences::book() 
 {
+  char name[222], pos[222], neg[222];
+
   if (m_doDT) for (int wheel = -2;  wheel <= +2;  wheel++) 
   {
-    for (int sector = 1;  sector <= 12;  sector++) {
-      char num[3];
-      num[0] = ('0' + (sector / 10));
-      num[1] = ('0' + (sector % 10));
-      num[2] = 0;
-      
-      std::string wheelletter;
-      if (wheel == -2) wheelletter = "A";
-      else if (wheel == -1) wheelletter = "B";
-      else if (wheel ==  0) wheelletter = "C";
-      else if (wheel == +1) wheelletter = "D";
-      else if (wheel == +2) wheelletter = "E";
-      
-      std::string name, pos, neg;
+    char wheel_label[][2]={"A","B","C","D","E"};
+    for (int sector = 1;  sector <= 12;  sector++) 
+    {
+      char wheel_sector[50];
+      sprintf(wheel_sector,"%s_%02d", wheel_label[wheel+2], sector );
 
-      name = (std::string("dt13_resid_") + wheelletter + std::string("_") + std::string(num) + std::string("_12"));
-      m_dt13_resid[wheel+2][sector-1][0] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_posdt13_resid[wheel+2][sector-1][0] = book1D("/iterN/", pos.c_str(), pos.c_str(), 100, -10., 10.);
-      neg = std::string("neg") + name;
-      m_negdt13_resid[wheel+2][sector-1][0] = book1D("/iterN/", neg.c_str(), neg.c_str(), 100, -10., 10.);
-      
-      name = (std::string("dt13_resid_") + wheelletter + std::string("_") + std::string(num) + std::string("_23"));
-      m_dt13_resid[wheel+2][sector-1][1] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_posdt13_resid[wheel+2][sector-1][1] = book1D("/iterN/", pos.c_str(), pos.c_str(), 100, -10., 10.);
-      neg = std::string("neg") + name;
-      m_negdt13_resid[wheel+2][sector-1][1] = book1D("/iterN/", neg.c_str(), neg.c_str(), 100, -10., 10.);
-      
-      name = (std::string("dt13_resid_") + wheelletter + std::string("_") + std::string(num) + std::string("_34"));
-      m_dt13_resid[wheel+2][sector-1][2] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_posdt13_resid[wheel+2][sector-1][2] = book1D("/iterN/", pos.c_str(), pos.c_str(), 100, -10., 10.);
-      neg = std::string("neg") + name;
-      m_negdt13_resid[wheel+2][sector-1][2] = book1D("/iterN/", neg.c_str(), neg.c_str(), 100, -10., 10.);
+      int nb = 100;
+      double wnd = 25.;
 
-      name = (std::string("dt2_resid_") + wheelletter + std::string("_") + std::string(num) + std::string("_12"));
-      m_dt2_resid[wheel+2][sector-1][0] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -200., 200., " ");
-      pos = std::string("pos") + name;
-      m_posdt2_resid[wheel+2][sector-1][0] = book1D("/iterN/", pos.c_str(), pos.c_str(), 100, -20., 20.);
-      neg = std::string("neg") + name;
-      m_negdt2_resid[wheel+2][sector-1][0] = book1D("/iterN/", neg.c_str(), neg.c_str(), 100, -20., 20.);
+      sprintf(name, "dt13_resid_%s_12", wheel_sector);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_dt13_resid[wheel+2][sector-1][0] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_posdt13_resid[wheel+2][sector-1][0] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negdt13_resid[wheel+2][sector-1][0] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
       
-      name = (std::string("dt2_resid_") + wheelletter + std::string("_") + std::string(num) + std::string("_23"));
-      m_dt2_resid[wheel+2][sector-1][1] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -200., 200., " ");
-      pos = std::string("pos") + name;
-      m_posdt2_resid[wheel+2][sector-1][1] = book1D("/iterN/", pos.c_str(), pos.c_str(), 100, -20., 20.);
-      neg = std::string("neg") + name;
-      m_negdt2_resid[wheel+2][sector-1][1] = book1D("/iterN/", neg.c_str(), neg.c_str(), 100, -20., 20.);
+      sprintf(name, "dt13_resid_%s_23", wheel_sector);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_dt13_resid[wheel+2][sector-1][1] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_posdt13_resid[wheel+2][sector-1][1] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negdt13_resid[wheel+2][sector-1][1] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
+      
+      sprintf(name, "dt13_resid_%s_34", wheel_sector);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_dt13_resid[wheel+2][sector-1][2] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_posdt13_resid[wheel+2][sector-1][2] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negdt13_resid[wheel+2][sector-1][2] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
 
-      name = (std::string("dt13_slope_") + wheelletter + std::string("_") + std::string(num) + std::string("_12"));
-      m_dt13_slope[wheel+2][sector-1][0] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_posdt13_slope[wheel+2][sector-1][0] = book1D("/iterN/", pos.c_str(), pos.c_str(), 100, -10., 10.);
-      neg = std::string("neg") + name;
-      m_negdt13_slope[wheel+2][sector-1][0] = book1D("/iterN/", neg.c_str(), neg.c_str(), 100, -10., 10.);
+      sprintf(name, "dt2_resid_%s_12", wheel_sector);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_dt2_resid[wheel+2][sector-1][0] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -200., 200., " ");
+      m_posdt2_resid[wheel+2][sector-1][0] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negdt2_resid[wheel+2][sector-1][0] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
+      
+      sprintf(name, "dt2_resid_%s_23", wheel_sector);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_dt2_resid[wheel+2][sector-1][1] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -200., 200., " ");
+      m_posdt2_resid[wheel+2][sector-1][1] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negdt2_resid[wheel+2][sector-1][1] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
 
-      name = (std::string("dt13_slope_") + wheelletter + std::string("_") + std::string(num) + std::string("_23"));
-      m_dt13_slope[wheel+2][sector-1][1] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_posdt13_slope[wheel+2][sector-1][1] = book1D("/iterN/", pos.c_str(), pos.c_str(), 100, -10., 10.);
-      neg = std::string("neg") + name;
-      m_negdt13_slope[wheel+2][sector-1][1] = book1D("/iterN/", neg.c_str(), neg.c_str(), 100, -10., 10.);
+      sprintf(name, "dt13_slope_%s_12", wheel_sector);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_dt13_slope[wheel+2][sector-1][0] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_posdt13_slope[wheel+2][sector-1][0] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negdt13_slope[wheel+2][sector-1][0] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
+
+      sprintf(name, "dt13_slope_%s_23", wheel_sector);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_dt13_slope[wheel+2][sector-1][1] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_posdt13_slope[wheel+2][sector-1][1] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negdt13_slope[wheel+2][sector-1][1] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
       
-      name = (std::string("dt13_slope_") + wheelletter + std::string("_") + std::string(num) + std::string("_34"));
-      m_dt13_slope[wheel+2][sector-1][2] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_posdt13_slope[wheel+2][sector-1][2] = book1D("/iterN/", pos.c_str(), pos.c_str(), 100, -10., 10.);
-      neg = std::string("neg") + name;
-      m_negdt13_slope[wheel+2][sector-1][2] = book1D("/iterN/", neg.c_str(), neg.c_str(), 100, -10., 10.);
+      sprintf(name, "dt13_slope_%s_34", wheel_sector);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_dt13_slope[wheel+2][sector-1][2] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_posdt13_slope[wheel+2][sector-1][2] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negdt13_slope[wheel+2][sector-1][2] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
       
-      name = (std::string("dt2_slope_") + wheelletter + std::string("_") + std::string(num) + std::string("_12"));
-      m_dt2_slope[wheel+2][sector-1][0] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -1000., 1000., " ");
-      pos = std::string("pos") + name;
-      m_posdt2_slope[wheel+2][sector-1][0] = book1D("/iterN/", pos.c_str(), pos.c_str(), 100, -100., 100.);
-      neg = std::string("neg") + name;
-      m_negdt2_slope[wheel+2][sector-1][0] = book1D("/iterN/", neg.c_str(), neg.c_str(), 100, -100., 100.);
+      sprintf(name, "dt2_slope_%s_12", wheel_sector);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_dt2_slope[wheel+2][sector-1][0] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -1000., 1000., " ");
+      m_posdt2_slope[wheel+2][sector-1][0] = book1D("/iterN/", pos, pos, nb, -100., 100.);
+      m_negdt2_slope[wheel+2][sector-1][0] = book1D("/iterN/", neg, neg, nb, -100., 100.);
       
-      name = (std::string("dt2_slope_") + wheelletter + std::string("_") + std::string(num) + std::string("_23"));
-      m_dt2_slope[wheel+2][sector-1][1] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -1000., 1000., " ");
-      pos = std::string("pos") + name;
-      m_posdt2_slope[wheel+2][sector-1][1] = book1D("/iterN/", pos.c_str(), pos.c_str(), 100, -100., 100.);
-      neg = std::string("neg") + name;
-      m_negdt2_slope[wheel+2][sector-1][1] = book1D("/iterN/", neg.c_str(), neg.c_str(), 100, -100., 100.);
+      sprintf(name, "dt2_slope_%s_23", wheel_sector);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_dt2_slope[wheel+2][sector-1][1] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -1000., 1000., " ");
+      m_posdt2_slope[wheel+2][sector-1][1] = book1D("/iterN/", pos, pos, nb, -100., 100.);
+      m_negdt2_slope[wheel+2][sector-1][1] = book1D("/iterN/", neg, neg, nb, -100., 100.);
     }
   }
 
@@ -206,97 +203,90 @@ void AlignmentMonitorSegmentDifferences::book()
 
     for (int chamber = 1;  chamber <= 36;  chamber++)
     {
-      char num[3];
-      num[0] = ('0' + (chamber / 10));
-      num[1] = ('0' + (chamber % 10));
-      num[2] = 0;
-      
+      char ec_chamber[50];
+      sprintf(ec_chamber,"%s_%02d", endcapletter.c_str(), chamber );
+
       int nb = 100;
       double wnd = 60.;
 
-      std::string name, pos, neg;
-
-      name = (std::string("cscouter_resid_") + endcapletter + std::string("_") + std::string(num) + std::string("_12"));
-      m_cscouter_resid[endcap-1][chamber-1][0] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_poscscouter_resid[endcap-1][chamber-1][0] = book1D("/iterN/", pos.c_str(), pos.c_str(), nb, -wnd, wnd);
-      neg = std::string("neg") + name;
-      m_negcscouter_resid[endcap-1][chamber-1][0] = book1D("/iterN/", neg.c_str(), neg.c_str(), nb, -wnd, wnd);
+      sprintf(name, "cscouter_resid_%s_12",ec_chamber);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_cscouter_resid[endcap-1][chamber-1][0] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_poscscouter_resid[endcap-1][chamber-1][0] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negcscouter_resid[endcap-1][chamber-1][0] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
       
-      name = (std::string("cscouter_resid_") + endcapletter + std::string("_") + std::string(num) + std::string("_23"));
-      m_cscouter_resid[endcap-1][chamber-1][1] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_poscscouter_resid[endcap-1][chamber-1][1] = book1D("/iterN/", pos.c_str(), pos.c_str(), nb, -wnd, wnd);
-      neg = std::string("neg") + name;
-      m_negcscouter_resid[endcap-1][chamber-1][1] = book1D("/iterN/", neg.c_str(), neg.c_str(), nb, -wnd, wnd);
+      sprintf(name, "cscouter_resid_%s_23",ec_chamber);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_cscouter_resid[endcap-1][chamber-1][1] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_poscscouter_resid[endcap-1][chamber-1][1] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negcscouter_resid[endcap-1][chamber-1][1] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
       
-      name = (std::string("cscouter_slope_") + endcapletter + std::string("_") + std::string(num) + std::string("_12"));
-      m_cscouter_slope[endcap-1][chamber-1][0] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_poscscouter_slope[endcap-1][chamber-1][0] = book1D("/iterN/", pos.c_str(), pos.c_str(), nb, -wnd, wnd);
-      neg = std::string("neg") + name;
-      m_negcscouter_slope[endcap-1][chamber-1][0] = book1D("/iterN/", neg.c_str(), neg.c_str(), nb, -wnd, wnd);
+      sprintf(name, "cscouter_slope_%s_12",ec_chamber);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_cscouter_slope[endcap-1][chamber-1][0] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_poscscouter_slope[endcap-1][chamber-1][0] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negcscouter_slope[endcap-1][chamber-1][0] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
       
-      name = (std::string("cscouter_slope_") + endcapletter + std::string("_") + std::string(num) + std::string("_23"));
-      m_cscouter_slope[endcap-1][chamber-1][1] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_poscscouter_slope[endcap-1][chamber-1][1] = book1D("/iterN/", pos.c_str(), pos.c_str(), nb, -wnd, wnd);
-      neg = std::string("neg") + name;
-      m_negcscouter_slope[endcap-1][chamber-1][1] = book1D("/iterN/", neg.c_str(), neg.c_str(), nb, -wnd, wnd);
+      sprintf(name, "cscouter_slope_%s_23",ec_chamber);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_cscouter_slope[endcap-1][chamber-1][1] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_poscscouter_slope[endcap-1][chamber-1][1] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negcscouter_slope[endcap-1][chamber-1][1] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
     }
 
-    for (int chamber = 1;  chamber <= 18;  chamber++) {
-      char num[3];
-      num[0] = ('0' + (chamber / 10));
-      num[1] = ('0' + (chamber % 10));
-      num[2] = 0;
+    for (int chamber = 1;  chamber <= 18;  chamber++) 
+    {
+      char ec_chamber[50];
+      sprintf(ec_chamber,"%s_%02d", endcapletter.c_str(), chamber );
 
       int nb = 100;
       double wnd = 40.;
       
-      std::string name, pos, neg;
-
-      name = (std::string("cscinner_resid_") + endcapletter + std::string("_") + std::string(num) + std::string("_12"));
-      m_cscinner_resid[endcap-1][chamber-1][0] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_poscscinner_resid[endcap-1][chamber-1][0] = book1D("/iterN/", pos.c_str(), pos.c_str(), nb, -wnd, wnd);
-      neg = std::string("neg") + name;
-      m_negcscinner_resid[endcap-1][chamber-1][0] = book1D("/iterN/", neg.c_str(), neg.c_str(), nb, -wnd, wnd);
+      sprintf(name, "cscinner_resid_%s_12",ec_chamber);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_cscinner_resid[endcap-1][chamber-1][0] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_poscscinner_resid[endcap-1][chamber-1][0] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negcscinner_resid[endcap-1][chamber-1][0] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
       
-      name = (std::string("cscinner_resid_") + endcapletter + std::string("_") + std::string(num) + std::string("_23"));
-      m_cscinner_resid[endcap-1][chamber-1][1] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_poscscinner_resid[endcap-1][chamber-1][1] = book1D("/iterN/", pos.c_str(), pos.c_str(), nb, -wnd, wnd);
-      neg = std::string("neg") + name;
-      m_negcscinner_resid[endcap-1][chamber-1][1] = book1D("/iterN/", neg.c_str(), neg.c_str(), nb, -wnd, wnd);
+      sprintf(name, "cscinner_resid_%s_23",ec_chamber);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_cscinner_resid[endcap-1][chamber-1][1] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_poscscinner_resid[endcap-1][chamber-1][1] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negcscinner_resid[endcap-1][chamber-1][1] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
       
-      name = (std::string("cscinner_resid_") + endcapletter + std::string("_") + std::string(num) + std::string("_34"));
-      m_cscinner_resid[endcap-1][chamber-1][2] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_poscscinner_resid[endcap-1][chamber-1][2] = book1D("/iterN/", pos.c_str(), pos.c_str(), nb, -wnd, wnd);
-      neg = std::string("neg") + name;
-      m_negcscinner_resid[endcap-1][chamber-1][2] = book1D("/iterN/", neg.c_str(), neg.c_str(), nb, -wnd, wnd);
+      sprintf(name, "cscinner_resid_%s_34",ec_chamber);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_cscinner_resid[endcap-1][chamber-1][2] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_poscscinner_resid[endcap-1][chamber-1][2] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negcscinner_resid[endcap-1][chamber-1][2] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
 
-      name = (std::string("cscinner_slope_") + endcapletter + std::string("_") + std::string(num) + std::string("_12"));
-      m_cscinner_slope[endcap-1][chamber-1][0] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_poscscinner_slope[endcap-1][chamber-1][0] = book1D("/iterN/", pos.c_str(), pos.c_str(), nb, -wnd, wnd);
-      neg = std::string("neg") + name;
-      m_negcscinner_slope[endcap-1][chamber-1][0] = book1D("/iterN/", neg.c_str(), neg.c_str(), nb, -wnd, wnd);
+      sprintf(name, "cscinner_slope_%s_12",ec_chamber);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_cscinner_slope[endcap-1][chamber-1][0] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_poscscinner_slope[endcap-1][chamber-1][0] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negcscinner_slope[endcap-1][chamber-1][0] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
 
-      name = (std::string("cscinner_slope_") + endcapletter + std::string("_") + std::string(num) + std::string("_23"));
-      m_cscinner_slope[endcap-1][chamber-1][1] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_poscscinner_slope[endcap-1][chamber-1][1] = book1D("/iterN/", pos.c_str(), pos.c_str(), nb, -wnd, wnd);
-      neg = std::string("neg") + name;
-      m_negcscinner_slope[endcap-1][chamber-1][1] = book1D("/iterN/", neg.c_str(), neg.c_str(), nb, -wnd, wnd);
+      sprintf(name, "cscinner_slope_%s_23",ec_chamber);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_cscinner_slope[endcap-1][chamber-1][1] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_poscscinner_slope[endcap-1][chamber-1][1] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negcscinner_slope[endcap-1][chamber-1][1] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
 
-      name = (std::string("cscinner_slope_") + endcapletter + std::string("_") + std::string(num) + std::string("_34"));
-      m_cscinner_slope[endcap-1][chamber-1][2] = bookProfile("/iterN/", name.c_str(), name.c_str(), 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
-      pos = std::string("pos") + name;
-      m_poscscinner_slope[endcap-1][chamber-1][2] = book1D("/iterN/", pos.c_str(), pos.c_str(), nb, -wnd, wnd);
-      neg = std::string("neg") + name;
-      m_negcscinner_slope[endcap-1][chamber-1][2] = book1D("/iterN/", neg.c_str(), neg.c_str(), nb, -wnd, wnd);
+      sprintf(name, "cscinner_slope_%s_34",ec_chamber);
+      sprintf(pos,"pos%s", name);
+      sprintf(neg,"neg%s", name);
+      m_cscinner_slope[endcap-1][chamber-1][2] = bookProfile("/iterN/", name, name, 20, -1./m_minTrackPt, 1./m_minTrackPt, 1, -100., 100., " ");
+      m_poscscinner_slope[endcap-1][chamber-1][2] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
+      m_negcscinner_slope[endcap-1][chamber-1][2] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
     }
   }
 }
@@ -484,9 +474,6 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
     } // end if track pT is within range
   } // end loop over tracks
 }
-
-
-void AlignmentMonitorSegmentDifferences::afterAlignment(const edm::EventSetup &iSetup) {}
 
 
 //
