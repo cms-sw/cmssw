@@ -29,6 +29,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doBeamSpotPlots       = cms.bool(True),
     doSeedParameterHistos = cms.bool(True),
     doGoodTrackPlots      = cms.bool(False),
+    doProfilesVsLS        = cms.bool(True),
     
     # paramters of the Track
     # ============================================================ 
@@ -320,6 +321,11 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     NTrk2DMin     = cms.double(-0.5),
                           
     TTRHBuilder = cms.string('WithTrackAngle'),
+
+    # For plots vs LS
+    LSBin = cms.int32(5000),
+    LSMin = cms.double(0),
+    LSMax = cms.double(5000.),
 
     # Luminosity based analysis
     doLumiAnalysis = cms.bool(False)                       

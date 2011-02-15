@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.7 2010/05/12 07:14:47 dutta Exp $
+// $Id: TrackingMonitor.h,v 1.8 2010/11/23 19:20:30 borrell Exp $
 
 #include <memory>
 #include <fstream>
@@ -82,11 +82,16 @@ class TrackingMonitor : public edm::EDAnalyzer
         MonitorElement* NumberOfStripVsStripClus;
         MonitorElement* NumberOfTrkVsClus;
 
+	// Monitoring vs LS
+	MonitorElement* GoodTracksFractionVsLS;
+	MonitorElement* GoodTracksNumberOfRecHitsPerTrackVsLS;
+
         std::string builderName;
         edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
  
         bool doTrackerSpecific_; 
         bool doLumiAnalysis;
+	bool doProfilesVsLS_;
 
         GenericTriggerEventFlag* genTriggerEventFlag_;
 };
