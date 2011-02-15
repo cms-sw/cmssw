@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.13 2010/09/29 15:31:27 ferriff Exp $
- *  $Date: 2010/09/29 15:31:27 $
- *  $Revision: 1.13 $
+ *  $Id: EcalRecHitProducer.cc,v 1.14 2011/01/12 13:59:24 argiro Exp $
+ *  $Date: 2011/01/12 13:59:24 $
+ *  $Revision: 1.14 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -268,13 +268,18 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 	EcalRecHitCollection::iterator rh;
 	for (rh=ebRecHits->begin(); rh!=ebRecHits->end(); ++rh){
 	  EcalRecHit::Flags state=cleaningAlgo_->checkTopology(rh->id(),*ebRecHits);
-	  if (state!=EcalRecHit::kGood) rh->setFlag(state);
-
+	  if (state!=EcalRecHit::kGood) { 
+	    rh->unsetFlag(EcalRecHit::kGood);
+	    rh->setFlag(state);
+	  }
 	}
 	
 	for (rh=eeRecHits->begin(); rh!=eeRecHits->end(); ++rh){
 	  EcalRecHit::Flags state=cleaningAlgo_->checkTopology(rh->id(),*eeRecHits);
-	  if (state!=EcalRecHit::kGood) rh->setFlag(state);
+	  if (state!=EcalRecHit::kGood) {
+	    rh->unsetFlag(EcalRecHit::kGood);
+	    rh->setFlag(state);
+	  }
 	}
 
         // put the collection of recunstructed hits in the event   
