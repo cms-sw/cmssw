@@ -13,13 +13,13 @@ class ConnectionL1TMenu(object):
     self.override = None
     self.connect  = None
 
-    # extract the connection string and configuration name
+    # extract the override tag and the connection string
     if value:
-      if ':' in value:
-        self.override = 'L1GtTriggerMenu_%s_mc' % value.rsplit(':', 1)[1]
-        self.connect  = value.rsplit(':', 1)[0]
+      if ',' in value:
+        self.override = value.split(',')[0]
+        self.connect  = value.split(',')[1]
       else:
-        self.override = 'L1GtTriggerMenu_%s_mc' % value
+        self.override = value
         self.connect  = None
 
 
