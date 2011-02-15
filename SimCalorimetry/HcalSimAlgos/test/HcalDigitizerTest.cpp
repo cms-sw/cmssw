@@ -40,7 +40,7 @@ using namespace cms;
 
 void testHitCorrection(HcalHitCorrection * correction, MixCollection<PCaloHit> & hits)
 {
-  correction->init(hits, 0);
+  correction->fillChargeSums(hits);
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
     {
