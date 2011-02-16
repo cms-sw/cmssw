@@ -179,7 +179,8 @@ glbCosmicMuonTrackVMuonAssoc.usemuon = True
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from Validation.RecoMuon.RecoMuonValidator_cfi import *
 
-from SimGeneral.MixingModule.mixNoPU_cfi                          import *
+import SimGeneral.MixingModule.mixNoPU_cfi
+muonMix = SimGeneral.MixingModule.mixNoPU_cfi.mix.clone()
 from SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi   import *
 from SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi import *
 from SimMuon.MCTruth.MuonAssociatorByHits_cfi import muonAssociatorByHitsCommonParameters
@@ -279,7 +280,7 @@ muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc
                                  +staCosmicMuonTrackVMuonAssoc+glbCosmicMuonTrackVMuonAssoc)
 
 # The muon association and validation sequence
-recoMixMuonAssociatorByHits_seq = cms.Sequence(recoMuonFromPFProducer+mix+trackingParticlesNoSimHits)
+recoMixMuonAssociatorByHits_seq = cms.Sequence(recoMuonFromPFProducer+muonMix+trackingParticlesNoSimHits)
 
 recoMuonValidation = cms.Sequence(recoMixMuonAssociatorByHits_seq+
                                   (muonAssociation_seq*muonValidation_seq)
