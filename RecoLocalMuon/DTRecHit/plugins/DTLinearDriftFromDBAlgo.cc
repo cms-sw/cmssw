@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/30 09:30:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/01/31 18:40:05 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -148,6 +148,14 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
 	        hitResolution,
 	        DTVelocityUnits::cm_per_ns);
 
+  //only in step 3
+  if(step == 3){
+    if (abs(wireId.wheel()) == 2 && wireId.superLayer() != 2) {
+      const float k_param = 0.05;
+      LocalPoint local_pos = layer->toLocal(globPos);
+      vDrift = vDrift*(1. + k_param*local_pos.y());
+	} 
+  }
 
   // Compute the drift distance
   float drift = driftTime * vDrift;
