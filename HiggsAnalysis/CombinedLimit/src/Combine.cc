@@ -193,10 +193,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
 
   if (verbose <= 1) RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 
-  if (saveWorkspace_) {
-    outputFile->WriteTObject(w,"w");
-  }
-
   const RooArgSet * observables = w->set("observables");
   if (observables == 0) throw std::invalid_argument("The model must define a RooArgSet 'observables'");
 
@@ -269,6 +265,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   }
 
   w->saveSnapshot("clean", w->allVars());
+
+  if (saveWorkspace_) {
+    outputFile->WriteTObject(w,"w");
+  }
 
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
