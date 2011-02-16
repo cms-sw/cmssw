@@ -495,7 +495,7 @@ namespace fwlite {
         TBranch* branchListIndexesBranch = eventsTree_->GetBranch(edm::poolNames::branchListIndexesBranchName().c_str());
         if (!branchListIndexesBranch) {
           throw edm::Exception(edm::errors::EventCorruption)
-            << "Failed to find history branch in event history tree";
+            << "Failed to find branch list indexes branch in event tree";
           return false;
         }
         // yes, SetAddress really does need to be called every time...
