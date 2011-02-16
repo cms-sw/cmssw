@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -7,11 +7,11 @@
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
-class RecoTauDifferenceAnalyzer : public edm::EDAnalyzer {
+class RecoTauDifferenceAnalyzer : public edm::EDFilter {
   public:
     explicit RecoTauDifferenceAnalyzer(const edm::ParameterSet& pset);
     virtual ~RecoTauDifferenceAnalyzer() {}
-    virtual void analyze(const edm::Event& evt, const edm::EventSetup& es);
+    virtual bool filter(edm::Event& evt, const edm::EventSetup& es);
     virtual void endJob();
   private:
     edm::InputTag src1_;
@@ -26,6 +26,7 @@ class RecoTauDifferenceAnalyzer : public edm::EDAnalyzer {
     size_t passed2_;
     size_t allPassed1_;
     size_t allPassed2_;
+    bool filter_;
 };
 
 RecoTauDifferenceAnalyzer::RecoTauDifferenceAnalyzer(
@@ -41,6 +42,7 @@ RecoTauDifferenceAnalyzer::RecoTauDifferenceAnalyzer(
   passed2_ = 0;
   allPassed2_ = 0;
   allPassed1_ = 0;
+  filter_ = pset.exists("filter") ? pset.getParameter<bool>("filter") : false;
 }
 
 namespace {
@@ -53,8 +55,8 @@ namespace {
   }
 }
 
-void RecoTauDifferenceAnalyzer::analyze(const edm::Event& evt,
-                                        const edm::EventSetup& es) {
+bool RecoTauDifferenceAnalyzer::filter(
+    edm::Event& evt, const edm::EventSetup& es) {
   eventsExamined_++;
   // Get taus
   edm::Handle<reco::PFTauCollection> taus1;
@@ -68,6 +70,7 @@ void RecoTauDifferenceAnalyzer::analyze(const edm::Event& evt,
   edm::Handle<reco::PFTauDiscriminator> disc2;
   evt.getByLabel(disc2_, disc2);
 
+  bool differenceFound = false;
   // Loop over first collection
   for (size_t iTau1 = 0; iTau1 < taus1->size(); ++iTau1) {
     tausExamined_++;
@@ -91,6 +94,7 @@ void RecoTauDifferenceAnalyzer::analyze(const edm::Event& evt,
     allPassed1_ += result1;
     allPassed2_ += result2;
     if (result1 ^ result2) {
+      differenceFound = true;
       passed1_ += result1;
       passed2_ += result2;
       differences_++;
@@ -110,6 +114,7 @@ void RecoTauDifferenceAnalyzer::analyze(const edm::Event& evt,
       bestMatch->dump(std::cout);
     }
   }
+  return (filter_ ? differenceFound : true);
 }
 
 void RecoTauDifferenceAnalyzer::endJob() {
