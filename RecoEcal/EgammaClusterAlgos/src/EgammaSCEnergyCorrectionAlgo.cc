@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.42 2010/11/14 14:14:28 innocent Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.43 2010/11/14 14:21:50 innocent Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -205,11 +205,13 @@ float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::Algo
   
   //Rescale energy scale correction to take into account change in calibrated
   //RecHit definition introduced in CMSSW_1_5_0
-  float const fact = 1.f/0.965f; 
+  float const ebfact = 1.f/0.965f; 
+  float const eefact = 1.f/0.975f; 
+    
   if(theBase == EcalBarrel) {
-    result*=fact;
+    result*=ebfact;
   } else {
-    result*=fact;
+    result*=eefact;
   }
   
   return result;  
