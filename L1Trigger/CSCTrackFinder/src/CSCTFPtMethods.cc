@@ -3144,8 +3144,10 @@ float CSCTFPtMethods::Pt3Stn2011(int type, float eta, float dphi1, float dphi2, 
 
         // Switch to 2-Station measurement if dphi is too small
         // box cut around Pt of 10 GeV
-        if ( fabs(static_cast<double>(dphi2))<0.004  && type != 12) 
+        if ( (fabs(static_cast<double>(dphi2))<0.004  && type != 12 && method < 25)||
+             (fabs(static_cast<double>(dphi2))<0.004  && type != 12 && type != 14 && type != 11 && method >= 25) ) 
           {
+            //if(type == 12 || type == 14 || type == 11) std::cout << "mode = " << type << " dphi23 = " << dphi2 << " method = " << method << std::endl; //test  
             if(type == 2 || type == 3) type = 6; // 1-2-3(or 4) -> 1-2 
             if(type == 4) type = 7; // 1-3-4 -> 1-3
             if(type == 5) type = 8; // 2-3-4 -> 2-3
@@ -3240,6 +3242,8 @@ float CSCTFPtMethods::Pt3Stn2011(int type, float eta, float dphi1, float dphi2, 
                   Pt = PTsolv;
           } // end 2 or 3 station method
     }}
+    // fix overlap region high pt:
+    if(method >= 25 && (type == 12 || type == 14 || type == 11) && fabs(dphi1)<0.003 && fabs(dphi2) <2) Pt = 140.; 
            // if ( fabs(static_cast<double>(dphi2))>0.004 ) std::cout << "Pt = " << Pt << " Mode = " << type << " dphi1 = " << dphi1 << " dphi2 = " << dphi2 << std::endl;
 
     //float Pt_min = trigger_scale->getPtScale()->getLowEdge(1);// 0 GeV
