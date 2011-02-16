@@ -17,6 +17,8 @@ pfRecoTauDiscriminationAgainstCaloMuon = cms.EDProducer("PFRecoTauDiscrimination
     srcEcalRecHitsEndcap = cms.InputTag('ecalRecHit', 'EcalRecHitsEE'),
     srcHcalRecHits = cms.InputTag('hbhereco'),
 
+    srcVertex = cms.InputTag('offlinePrimaryVerticesWithBS'),
+
     minLeadTrackPt = cms.double(15.), # GeV
     minLeadTrackPtFraction = cms.double(0.8), # leadTrackPt/sumPtSignalTracks
 

@@ -32,6 +32,9 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include <TVector3.h>
@@ -105,6 +108,9 @@ class TauDiscriminationAgainstCaloMuon : public TauDiscriminationProducerBase<Ta
   edm::InputTag srcHcalRecHits_;
   edm::Handle<HBHERecHitCollection> hbheRecHits_;
 
+  edm::InputTag srcVertex_;
+  GlobalPoint eventVertexPosition_;
+
   const TransientTrackBuilder* trackBuilder_;
   const CaloGeometry* caloGeometry_;
 
@@ -129,6 +135,8 @@ TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::TauDiscriminationAg
   srcEcalRecHitsBarrel_ = cfg.getParameter<edm::InputTag>("srcEcalRecHitsBarrel");
   srcEcalRecHitsEndcap_ = cfg.getParameter<edm::InputTag>("srcEcalRecHitsEndcap");
   srcHcalRecHits_ = cfg.getParameter<edm::InputTag>("srcHcalRecHits");
+
+  srcVertex_ = cfg.getParameter<edm::InputTag>("srcVertex");
 
   minLeadTrackPt_ = cfg.getParameter<double>("minLeadTrackPt");
   minLeadTrackPtFraction_ = cfg.getParameter<double>("minLeadTrackPtFraction");
@@ -164,11 +172,20 @@ void TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::beginEvent(con
     edm::LogError ("TauDiscriminationAgainstCaloMuon::discriminate")
       << " Failed to access CaloGeometry !!";
   }
+
+  edm::Handle<reco::VertexCollection> vertices;
+  evt.getByLabel(srcVertex_, vertices);
+  eventVertexPosition_ = GlobalPoint(0., 0., 0.);
+  if ( vertices->size() >= 1 ) {
+    const reco::Vertex& thePrimaryEventVertex = (*vertices->begin());
+    eventVertexPosition_ = GlobalPoint(thePrimaryEventVertex.x(), thePrimaryEventVertex.y(), thePrimaryEventVertex.z());
+  }
 }		
 
 double compEcalEnergySum(const EcalRecHitCollection& ecalRecHits, 
 			 const CaloSubdetectorGeometry* detGeometry, 
-			 const reco::TransientTrack& transientTrack, double dR)
+			 const reco::TransientTrack& transientTrack, double dR, 
+			 const GlobalPoint& eventVertexPosition)
 {
   double ecalEnergySum = 0.;
   for ( EcalRecHitCollection::const_iterator ecalRecHit = ecalRecHits.begin();
@@ -183,6 +200,12 @@ double compEcalEnergySum(const EcalRecHitCollection& ecalRecHits,
     }
 
     const GlobalPoint& cellPosition = cellGeometry->getPosition();
+
+//--- CV: speed up computation by requiring eta-phi distance
+//        between cell position and track direction to be dR < 0.5
+    Vector3DBase<float, GlobalTag> cellPositionRelVertex = (cellPosition) - eventVertexPosition;
+    if ( deltaR(cellPositionRelVertex.eta(), cellPositionRelVertex.phi(), 
+		transientTrack.track().eta(), transientTrack.track().phi()) > 0.5 ) continue;
 
     TrajectoryStateClosestToPoint dcaPosition = transientTrack.trajectoryStateClosestToPoint(cellPosition);
     
@@ -204,7 +227,8 @@ double compEcalEnergySum(const EcalRecHitCollection& ecalRecHits,
 
 double compHcalEnergySum(const HBHERecHitCollection& hcalRecHits, 
 			 const CaloSubdetectorGeometry* hbGeometry, const CaloSubdetectorGeometry* heGeometry, 
-			 const reco::TransientTrack& transientTrack, double dR)
+			 const reco::TransientTrack& transientTrack, double dR, 
+			 const GlobalPoint& eventVertexPosition)
 {
   double hcalEnergySum = 0.;
   for ( HBHERecHitCollection::const_iterator hcalRecHit = hcalRecHits.begin();
@@ -222,6 +246,12 @@ double compHcalEnergySum(const HBHERecHitCollection& hcalRecHits,
 	<< " --> skipping !!";
       continue;
     }
+
+//--- CV: speed up computation by requiring eta-phi distance
+//        between cell position and track direction to be dR < 0.5
+    Vector3DBase<float, GlobalTag> cellPositionRelVertex = (*cellPosition) - eventVertexPosition;
+    if ( deltaR(cellPositionRelVertex.eta(), cellPositionRelVertex.phi(), 
+		transientTrack.track().eta(), transientTrack.track().phi()) > 0.5 ) continue;
 
     TrajectoryStateClosestToPoint dcaPosition = transientTrack.trajectoryStateClosestToPoint(*cellPosition);
     
@@ -262,11 +292,11 @@ double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate
     if ( leadTrackPt > minLeadTrackPt_ && leadTrackPtFraction > minLeadTrackPtFraction_ ) {
       reco::TransientTrack transientTrack = trackBuilder_->build(leadTrackRef);
 
-      double ebEnergySum = compEcalEnergySum(*ebRecHits_, ebGeometry, transientTrack, drEcal_);
-      double eeEnergySum = compEcalEnergySum(*eeRecHits_, eeGeometry, transientTrack, drEcal_);
+      double ebEnergySum = compEcalEnergySum(*ebRecHits_, ebGeometry, transientTrack, drEcal_, eventVertexPosition_);
+      double eeEnergySum = compEcalEnergySum(*eeRecHits_, eeGeometry, transientTrack, drEcal_, eventVertexPosition_);
       double ecalEnergySum = ebEnergySum + eeEnergySum;
       
-      double hbheEnergySum = compHcalEnergySum(*hbheRecHits_, hbGeometry, heGeometry, transientTrack, drHcal_);
+      double hbheEnergySum = compHcalEnergySum(*hbheRecHits_, hbGeometry, heGeometry, transientTrack, drHcal_, eventVertexPosition_);
       
       double caloEnergySum = ecalEnergySum + hbheEnergySum;
 

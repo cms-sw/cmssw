@@ -23,5 +23,6 @@
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/ParticleFlowReco"/>
   <use   name="RecoBTag/SecondaryVertex"/>
+  <use   name="DataFormats/VertexReco"/>
   <use   name="root"/>
 </library>
