@@ -270,61 +270,6 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
     hitStruct.phi = tsos.globalDirection().phi();
     hitStruct.eta = tsos.globalDirection().eta();
     
-    // first try for overlap residuals
-    // based on Code from Keith and Wolfgang
-    if (itTraj+1 != tmColl.end()) {
-      TransientTrackingRecHit::ConstRecHitPointer hit2 = (itTraj+1)->recHit();
-      TrackerAlignableId ali1, ali2;
-      if (hit2->isValid() && 
-	  ali1.typeAndLayerFromDetId(hit->geographicalId()) == ali2.typeAndLayerFromDetId(hit2->geographicalId())  &&
-	  hit2->geographicalId().rawId() !=  SiStripDetId(IntRawDetID).partnerDetId()) {	    
-	  
-	float overlapPath_;
-	TrajectoryStateCombiner combiner_;
-	AnalyticalPropagator propagator(&(*magneticField_));
-	// forward and backward predicted states at module 1
-	TrajectoryStateOnSurface fwdPred1 = (itTraj)->forwardPredictedState();
-	TrajectoryStateOnSurface bwdPred1 = (itTraj)->backwardPredictedState();
-	if ( !fwdPred1.isValid() || !bwdPred1.isValid() ) continue;
-	// backward predicted state at module 2
-	TrajectoryStateOnSurface bwdPred2 = (itTraj+1)->backwardPredictedState();
-	TrajectoryStateOnSurface fwdPred2 = (itTraj+1)->forwardPredictedState();
-	if ( !bwdPred2.isValid() ) continue;
-	// extrapolation bwdPred2 to module 1
-	TrajectoryStateOnSurface bwdPred2At1 = propagator.propagate(bwdPred2,fwdPred1.surface());
-	if ( !bwdPred2At1.isValid() ) continue;
-	// combination with fwdPred1 (ref. state, best estimate without hits 1 and 2)
-	TrajectoryStateOnSurface comb1 = combiner_.combine(fwdPred1,bwdPred2At1);
-	if ( !comb1.isValid() ) continue;
-	  
-	//
-	// propagation of reference parameters to module 2
-	//
-	std::pair<TrajectoryStateOnSurface,double> tsosWithS =
-	  propagator.propagateWithPath(comb1,bwdPred2.surface());
-	TrajectoryStateOnSurface comb1At2 = tsosWithS.first;
-	
-	// Alternative possibility, not used at present
-	// TrajectoryStateOnSurface comb1At2 = propagator.propagate(comb1,bwdPred2.surface());
-	  
-	if ( !comb1At2.isValid() ) continue;
-	overlapPath_ = tsosWithS.second;
-	  
-	std::vector<GlobalPoint> predictedPositions;
-	predictedPositions.push_back(comb1.globalPosition());
-	predictedPositions.push_back(comb1At2.globalPosition());
-	
-	GlobalVector diff_pred = predictedPositions[0] - predictedPositions[1];
-	
-	TrajectoryStateOnSurface tsos2 = tsoscomb( (itTraj+1)->forwardPredictedState(), (itTraj+1)->backwardPredictedState() );
-	align::LocalVector res2 = tsos2.localPosition() - hit2->localPosition();
-	//float overlapresidual = res2.x() - res.x();
-	float overlapresidual = diff_pred.x();
-	
-	hitStruct.overlapres = std::make_pair(hit2->geographicalId().rawId(),overlapresidual);
-      }
-    }
-   
     v_avhitout.push_back(hitStruct);
   } 
 }

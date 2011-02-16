@@ -22,7 +22,7 @@ class TrackerValidationVariables
   AVHitStruct() : resX(-999.), resY(-999.), resErrX(-999.), resErrY(-999.), resXprime(-999.), resXprimeErr(-999.), 
       resYprime(-999.), resYprimeErr(-999.), phi(-999.), eta(-999.),
      inside(false), localX(-999.), localY(-999.), localXnorm(-999.), localYnorm(-999.), localAlpha(-999.), localBeta(-999.),
-      rawDetId(0), overlapres(std::make_pair(0,-999.)) {}
+      rawDetId(0) {}
     float resX;
     float resY;
     float resErrX;
@@ -41,7 +41,6 @@ class TrackerValidationVariables
     float localAlpha;    
     float localBeta;
     uint32_t rawDetId;
-    std::pair<unsigned int,float> overlapres;
   };
   
   struct AVTrackStruct

@@ -10,7 +10,6 @@ TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     moduleLevelProfiles       = cms.bool(False),  # Do not switch on in DQM mode
     localCoorProfilesOn       = cms.bool(False),
     stripYResiduals           = cms.bool(False),                                        
-    overlappOn                = cms.bool(False),                                      
     useFwhm                   = cms.bool(True),
     useFit                    = cms.bool(False),  # Unused in DQM mode, where it has to be specified in TrackerOfflineValidationSummary
     useCombinedTrajectory     = cms.bool(False),

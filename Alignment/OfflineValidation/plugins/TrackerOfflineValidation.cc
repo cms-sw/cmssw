@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.43 2010/11/19 12:39:16 flucke Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.44 2010/11/19 12:45:53 flucke Exp $
 //
 //
 
@@ -258,15 +258,12 @@ private:
   const bool lCoorHistOn_;
   const bool moduleLevelHistsTransient_;
   const bool moduleLevelProfiles_;
-  const bool overlappOn_;
   const bool stripYResiduals_;
   const bool useFwhm_;
   const bool useFit_;
   const bool useOverflowForRMS_;
   const bool dqmMode_;
   const std::string moduleDirectory_;
-  
-  std::map< std::pair<uint32_t, uint32_t>, TH1*> hOverlappResidual;
   
   // a vector to keep track which pointers should be deleted at the very end
   std::vector<TH1*> vDeleteObjects_;
@@ -356,7 +353,6 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
   : parSet_(iConfig), bareTkGeomPtr_(0), lCoorHistOn_(parSet_.getParameter<bool>("localCoorHistosOn")),
     moduleLevelHistsTransient_(parSet_.getParameter<bool>("moduleLevelHistsTransient")),
     moduleLevelProfiles_(parSet_.getParameter<bool>("moduleLevelProfiles")),
-    overlappOn_(parSet_.getParameter<bool>("overlappOn")), 
     stripYResiduals_(parSet_.getParameter<bool>("stripYResiduals")), 
     useFwhm_(parSet_.getParameter<bool>("useFwhm")),
     useFit_(parSet_.getParameter<bool>("useFit")),
@@ -1149,23 +1145,6 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  if (itH->resYprimeErr != 0 && itH->resYprimeErr != -999. ) {	
 	    histStruct.NormResYprimeHisto->Fill(itH->resYprime/itH->resYprimeErr);
 	  } 
-	}
-      }
-      
-      if (overlappOn_) {
-	std::pair<uint32_t,uint32_t> tmp_pair(std::make_pair(itH->rawDetId, itH->overlapres.first));
-	if (itH->overlapres.first != 0) {
-	  if (hOverlappResidual[tmp_pair]) {
-	    hOverlappResidual[tmp_pair]->Fill(itH->overlapres.second);
-	  } else if (hOverlappResidual[std::make_pair(itH->overlapres.first, itH->rawDetId)]) {
-	    hOverlappResidual[std::make_pair( itH->overlapres.first, itH->rawDetId)]->Fill(itH->overlapres.second);
-	  } else {
-	    std::string dirname("OverlappResiduals");
-	    DirectoryWrapper tfd(dirname.c_str(),moduleDirectory_,dqmMode_);
-	    hOverlappResidual[tmp_pair] = tfd.make<TH1F>(Form("hOverlappResidual_%d_%d",tmp_pair.first,tmp_pair.second),
-							 "Overlapp Residuals",100,-50,50);
-	    hOverlappResidual[tmp_pair]->Fill(itH->overlapres.second);
-	  }
 	}
       }
       
