@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.1 2010/09/30 03:26:24 edwenger Exp $
+#  $Id: EventContent_cff.py,v 1.33 2010/09/30 20:27:42 vlimant Exp $
 #
 #
 #
@@ -547,6 +547,7 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverlaps_noDro
 ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECODtCalib_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.outputCommands)
 
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')

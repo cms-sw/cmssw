@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# last update: $Date: 2010/09/22 13:00:35 $ by $Author: mussgill $
+# last update: $Date: 2010/11/21 19:40:15 $ by $Author: argiro $
 ###############################################################
 # Tracker Alignment
 ###############################################################
@@ -94,4 +94,5 @@ from CalibMuon.DTCalibration.ALCARECODtCalib_Output_cff import *
 # stream for prompt-calibration @ Tier0
 ###############################################################
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProd_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import *
 
