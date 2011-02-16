@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationXtrpCalo.cc,v 1.1 2010/03/16 21:49:00 srappocc Exp $
+// $Id: JetTracksAssociationXtrpCalo.cc,v 1.2 2010/04/08 09:04:53 kodolova Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationXtrpCalo.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
@@ -71,14 +71,10 @@ void JetTracksAssociationXtrpCalo::associateInputTracksToJet( reco::TrackRefVect
   for ( std::vector<reco::TrackExtrapolation>::const_iterator xtrpBegin = fExtrapolations.begin(),
 	  xtrpEnd = fExtrapolations.end(), ixtrp = xtrpBegin;
 	ixtrp != xtrpEnd; ++ixtrp ) {
-//	
-// Do nothing with invalid propagation	
-//
-	if( ixtrp->isValid().at(0) == 0 ) continue;
 	
     reco::TrackBase::Point const & point = ixtrp->positions().at(0);
-
-
+    
+    
     double dr = reco::deltaR<double>( jetEta, jetPhi, point.eta(), point.phi() );
     if ( dr < dR ) {
 

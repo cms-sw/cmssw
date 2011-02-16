@@ -16,7 +16,8 @@ process.source = cms.Source(
 #    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/9C41071C-96AF-DF11-AF18-003048679228.root',
 #    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/B494B961-B0AF-DF11-8508-003048678B5E.root',
 #    '/store/relval/CMSSW_3_8_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_38Y_V9-v1/0018/D07EF07A-9BAF-DF11-A708-003048678BAE.root',
-    )
+    ),
+    inputCommands = cms.untracked.vstring('keep *_*_*_*','drop recoTrackExtrapolations_*_*_RECO')  
     )
 # output
 process.load('Configuration/EventContent/EventContent_cff')
@@ -47,7 +48,9 @@ process.GlobalTag.globaltag = 'START310_V4::All'
 
 process.load("RecoJets/Configuration/RecoPFClusterJets_cff")
 
-process.recoJets = cms.Path(process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets)
+process.load("RecoJets/JetAssociationProducers/trackExtrapolator_cfi")
+
+process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets)
                                            
 
 process.out = cms.EndPath(process.output)
