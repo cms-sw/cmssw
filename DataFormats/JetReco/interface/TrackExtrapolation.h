@@ -3,8 +3,8 @@
 /* \class reco::TrackExtrapolation TrackExtrapolation.h DataFormats/TrackReco/interface/TrackExtrapolation.h
 *
 * This class represents the track state at several radii (specified by user in producer).
-* It stores a TrackRef to the original track, as well as vectors of the positions, momenta,
-* and directions of the track at the various radii. 
+* It stores a TrackRef to the original track, as well as vectors of the positions and  momenta
+* of the track at the various radii. 
 *
 * \author Salvatore Rappoccio, JHU
 *
@@ -20,41 +20,33 @@
 
 namespace reco {
   class TrackExtrapolation {
+    typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> > Point;
+    typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> > Vector;
   public:
 
 
     TrackExtrapolation() {}
     TrackExtrapolation( reco::TrackRef const & track,
-			std::vector<bool> isValid,
-			std::vector<TrackBase::Point> const & pos,
-			std::vector<TrackBase::Vector> const & mom,
-			std::vector<TrackBase::Vector> const & dir ) :
+			std::vector<Point> const & pos,
+			std::vector<Vector> const & mom) :
     track_(track)
     {
-      isValid_.resize(isValid.size());
-      copy(isValid.begin(), isValid.end(), isValid_.begin() );
       pos_.resize( pos.size() );
       copy( pos.begin(), pos.end(), pos_.begin() );
       mom_.resize( mom.size() );
       copy( mom.begin(), mom.end(), mom_.begin() );
-      dir_.resize( dir.size() );
-      copy( dir.begin(), dir.end(), dir_.begin() );
     }
 
     ~TrackExtrapolation() {}
 
     reco::TrackRef const &                 track()      const { return track_;}
-    std::vector<bool> const &              isValid()    const { return isValid_;}
-    std::vector<TrackBase::Point> const &  positions()  const { return pos_;}
-    std::vector<TrackBase::Vector> const & momenta()    const { return mom_;}
-    std::vector<TrackBase::Vector> const & directions() const { return dir_;}
+    std::vector<Point> const &  positions()  const { return pos_;}
+    std::vector<Vector> const & momenta()    const { return mom_;}
 
   protected:
     reco::TrackRef    track_;
-    std::vector<bool>                  isValid_;
-    std::vector<TrackBase::Point>      pos_;
-    std::vector<TrackBase::Vector>     mom_;
-    std::vector<TrackBase::Vector>     dir_;
+    std::vector<Point>      pos_;
+    std::vector<Vector>     mom_;
   };
 }
 
