@@ -88,8 +88,8 @@ class pp(Scenario):
 
         skims = ['SiStripCalZeroBias',
                  'TkAlMinBias',
-                 'DtCalib',
-                 'MuAlCalIsolatedMu']
+                 'MuAlCalIsolatedMu',
+                 'SiStripPCLHistos']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -224,7 +224,7 @@ class pp(Scenario):
         """
         options = defaultOptions
         options.scenario = "pp"
-        options.step = "ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi"
+        options.step = "ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality"
         options.isMC = False
         options.isData = True
         options.beamspot = None
