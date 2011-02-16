@@ -1,6 +1,6 @@
 /** \class HLTForwardBackwardJetsFilter
  *
- * $Id: HLTForwardBackwardJetsFilter.cc,v 1.1 2009/12/04 12:25:40 apana Exp $
+ * $Id: HLTForwardBackwardJetsFilter.cc,v 1.2 2011/02/11 20:55:24 wdd Exp $
  *
  *
  */
@@ -43,7 +43,7 @@ void
 HLTForwardBackwardJetsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltIterativeCone5CaloJetsRegional"));
-  desc.addUntracked<bool>("saveTag",true);
+  desc.addUntracked<bool>("saveTag",false);
   desc.add<double>("minPt",15.0);
   desc.add<double>("minEta",3.0);
   desc.add<double>("maxEta",5.1);

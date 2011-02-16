@@ -58,7 +58,7 @@ void
 HLTMhtHtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
-  desc.addUntracked<bool>("saveTag",true);
+  desc.addUntracked<bool>("saveTag",false);
   desc.add<double>("minMht",0.0);
   {
     std::vector<double> temp1;

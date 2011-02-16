@@ -44,7 +44,7 @@ void
 HLTDiJetAveFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltIterativeCone5CaloJets"));
-  desc.addUntracked<bool>("saveTag",true);
+  desc.addUntracked<bool>("saveTag",false);
   desc.add<double>("minPtAve",100.0);
   desc.add<double>("minPtJet3",99999.0);
   desc.add<double>("minDphi",-1.0);
