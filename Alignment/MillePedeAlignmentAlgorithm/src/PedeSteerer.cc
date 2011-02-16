@@ -3,13 +3,13 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.29 $
- *  $Date: 2010/03/11 13:07:38 $
- *  (last update by $Author: frmeier $)
+ *  $Revision: 1.30 $
+ *  $Date: 2010/09/10 13:31:54 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "PedeSteerer.h"
-#include "PedeLabeler.h"
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -49,7 +49,7 @@
 #include <iostream>
 
 PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras,
-			 AlignmentParameterStore *store, const PedeLabeler *labels,
+			 AlignmentParameterStore *store, const PedeLabelerBase *labels,
                          const edm::ParameterSet &config, const std::string &defaultDir,
 			 bool noSteerFiles) :
   myParameterStore(store), myLabels(labels), myConfig(config),
@@ -231,17 +231,22 @@ PedeSteerer::fixParameters(const std::vector<Alignable*> &alis, const std::strin
   std::ofstream *filePtr = 0;
 
   for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
+
     AlignmentParameters *params = (*iAli)->alignmentParameters();
     SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(params->userVariables());
     if (!selVar) continue;
-
+    
     for (unsigned int iParam = 0; static_cast<int>(iParam) < params->size(); ++iParam) {
-      int whichFix = this->fixParameter(*iAli, iParam, selVar->fullSelection()[iParam], filePtr,
-					fileName);
-      if (whichFix == 1) {
-        ++(numFixNumFixCor.first);
-      } else if (whichFix == -1) {
-        ++(numFixNumFixCor.second);
+      const unsigned int nInstances = myLabels->numberOfParameterInstances(*iAli, iParam);
+      for (unsigned int iInstance=0;iInstance<nInstances;++iInstance) {
+	int whichFix = this->fixParameter(*iAli, iInstance, iParam,
+					  selVar->fullSelection()[iParam], filePtr,
+					  fileName);
+	if (whichFix == 1) {
+	  ++(numFixNumFixCor.first);
+	} else if (whichFix == -1) {
+	  ++(numFixNumFixCor.second);
+	}
       }
     }
   }
@@ -252,7 +257,8 @@ PedeSteerer::fixParameters(const std::vector<Alignable*> &alis, const std::strin
 }
 
 //_________________________________________________________________________
-int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector,
+int PedeSteerer::fixParameter(Alignable *ali, unsigned int iInstance,
+			      unsigned int iParam, char selector,
                               std::ofstream* &filePtr, const std::string &fileName)
 {
   int result = 0;
@@ -275,7 +281,7 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
     }
     std::ofstream &file = *filePtr;
 
-    const unsigned int aliLabel = myLabels->alignableLabel(ali);
+    const unsigned int aliLabel = myLabels->alignableLabelFromParamAndInstance(ali, iParam, iInstance);
     file << myLabels->parameterLabel(aliLabel, iParam) << "  " 
          << fixAt * this->cmsToPedeFactor(iParam) << " -1.0";
     if (myIsSteerFileDebug) { // debug

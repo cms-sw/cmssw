@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.30 $
-///  $Date: 2010/02/25 18:44:13 $
-///  (last update by $Author: frmeier $)
+///  $Revision: 1.31 $
+///  $Date: 2010/09/10 13:27:42 $
+///  (last update by $Author: mussgill $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
@@ -19,7 +19,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
-
 
 #include <vector>
 #include <string>
@@ -42,7 +41,7 @@ class AlignmentParameterStore;
 
 class MillePedeMonitor;
 class PedeSteerer;
-class PedeLabeler;
+class PedeLabelerBase;
 class Mille;
 class TrajectoryFactoryBase;
 
@@ -71,22 +70,29 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo);
 
   /// Run on run products, e.g. TkLAS
-  virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup);
+  virtual void endRun(const EventInfo &eventInfo, const EndRunInfo &runInfo,
+		      const edm::EventSetup &setup);
 
 /*   virtual void beginLuminosityBlock(const edm::EventSetup &setup) {} */
 /*   virtual void endLuminosityBlock(const edm::EventSetup &setup) {} */
+
+  /// called in order to pass parameters to alignables for a specific run
+  /// range in case the algorithm supports run range dependent alignment.
+  virtual void setParametersForRunRange(const RunRange &runrange);
 
  private:
   enum MeasurementDirection {kLocalX = 0, kLocalY};
 
   /// fill mille for a trajectory, returning number of x/y hits ([0,0] if 'bad' trajectory)
   std::pair<unsigned int, unsigned int>
-    addReferenceTrajectory(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr);
+    addReferenceTrajectory(const EventInfo &eventInfo, 
+			   const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr);
 
   /// If hit is usable: callMille for x and (probably) y direction.
   /// If globalDerivatives fine: returns 2 if 2D-hit, 1 if 1D-hit, 0 if no Alignable for hit.
   /// Returns -1 if any problem (for params cf. globalDerivativesHierarchy)
-  int addMeasurementData(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+  int addMeasurementData(const EventInfo &eventInfo, 
+			 const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
 			 unsigned int iHit, AlignmentParameters *&params);
 
   /// adds data from reference trajectory from a specific Hit
@@ -104,7 +110,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 			   TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
   
   /// recursively adding derivatives and labels, false if problems
-  bool globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
+  bool globalDerivativesHierarchy(const EventInfo &eventInfo, 
+				  const TrajectoryStateOnSurface &tsos,
 				  Alignable *ali, const AlignableDetOrUnitPtr &alidet,
 				  std::vector<float> &globalDerivativesX,
 				  std::vector<float> &globalDerivativesY,
@@ -132,7 +139,9 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   void  diagonalize(TMatrixDSym &aHitCovarianceM, TMatrixF &aLocalDerivativesM,
 		    TMatrixF &aHitResidualsM,TMatrixF &theGlobalDerivativesM) const;
   // deals with the non matrix format of theFloatBufferX ...
-  void makeGlobDerivMatrix(const std::vector<float> &globalDerivativesx, const std::vector<float> &globalDerivativesy,TMatrixF &aGlobalDerivativesM);
+  void makeGlobDerivMatrix(const std::vector<float> &globalDerivativesx,
+			   const std::vector<float> &globalDerivativesy,
+			   TMatrixF &aGlobalDerivativesM);
 
 //   void callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, 
 // 		 unsigned int iTrajHit, MeasurementDirection xOrY,
@@ -141,15 +150,18 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   bool is2D(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
 
   /// read pede input defined by 'psetName', flag to create/not create MillePedeVariables
-  bool readFromPede(const edm::ParameterSet &mprespset, bool setUserVars);
+  bool readFromPede(const edm::ParameterSet &mprespset, bool setUserVars,
+		    const RunRange &runrange);
   bool areEmptyParams(const std::vector<Alignable*> &alignables) const;
   unsigned int doIO(int loop) const;
   /// add MillePedeVariables for each AlignmentParameters (exception if no parameters...)
   void buildUserVariables(const std::vector<Alignable*> &alignables) const;
 
-  void addLaserData(const TkFittedLasBeamCollection &tkLasBeams,
+  void addLaserData(const EventInfo &eventInfo, 
+		    const TkFittedLasBeamCollection &tkLasBeams,
 		    const TsosVectorCollection &tkLasBeamTsoses);
-  void addLasBeam(const TkFittedLasBeam &lasBeam,
+  void addLasBeam(const EventInfo &eventInfo, 
+		  const TkFittedLasBeam &lasBeam,
 		  const std::vector<TrajectoryStateOnSurface> &tsoses);
 
   /// add measurement data from PXB survey
@@ -175,7 +187,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   AlignableNavigator       *theAlignableNavigator;
   MillePedeMonitor         *theMonitor;
   Mille                    *theMille;
-  const PedeLabeler        *thePedeLabels;
+  const PedeLabelerBase    *thePedeLabels;
   PedeSteerer              *thePedeSteer;
   TrajectoryFactoryBase    *theTrajectoryFactory;
   unsigned int              theMinNumHits;

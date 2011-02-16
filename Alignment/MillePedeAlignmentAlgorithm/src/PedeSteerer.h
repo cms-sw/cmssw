@@ -8,9 +8,9 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2009/06/24 12:59:18 $
- * $Revision: 1.19 $
- * (last update by $Author: flucke $)
+ * $Date: 2010/09/10 13:31:54 $
+ * $Revision: 1.20 $
+ * (last update by $Author: mussgill $)
  */
 
 #include <vector>
@@ -27,7 +27,7 @@ class AlignableTracker;
 class AlignableMuon;
 class AlignableExtras;
 class AlignmentParameterStore;
-class PedeLabeler;
+class PedeLabelerBase;
 
 /***************************************
 ****************************************/
@@ -38,7 +38,7 @@ class PedeSteerer
   /// (NOTE: The latter two must live longer than the constructed PedeSteerer!)
   PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras,
 	      AlignmentParameterStore *store,
-	      const PedeLabeler *labels, const edm::ParameterSet &config,
+	      const PedeLabelerBase *labels, const edm::ParameterSet &config,
 	      const std::string &defaultDir, bool noSteerFiles);
   /** non-virtual destructor: do not inherit from this class **/
   ~PedeSteerer();
@@ -82,7 +82,8 @@ class PedeSteerer
   /// If 'selector' means fixing, create corresponding steering file line in file pointed to
   /// by 'filePtr'. If 'filePtr == 0' create file with name 'fileName'
   /// (and return pointer via reference).
-  int fixParameter(Alignable *ali, unsigned int iParam, char selector, std::ofstream* &filePtr,
+  int fixParameter(Alignable *ali, unsigned int iRunRange,
+		   unsigned int iParam, char selector, std::ofstream* &filePtr,
 		   const std::string &fileName);
   /// Return 'alignables' that have SelectionUserVariables attached to their AlignmentParameters
   /// (these must exist) that indicate a definition of a coordinate system.
@@ -111,7 +112,7 @@ class PedeSteerer
 
   // data members
   const AlignmentParameterStore *myParameterStore; /// not the owner!
-  const PedeLabeler             *myLabels; /// pointer to labeler (not the owner)
+  const PedeLabelerBase         *myLabels; /// pointer to labeler (not the owner)
 
   edm::ParameterSet myConfig;
   std::string myDirectory; /// directory of all files

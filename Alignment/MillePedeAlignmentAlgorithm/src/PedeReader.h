@@ -8,16 +8,18 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.2 $
- *  $Date: 2007/03/16 17:06:54 $
+ *  $Revision: 1.3 $
+ *  $Date: 2007/12/17 18:59:52 $
  *  (last update by $Author: flucke $)
  */
 
 #include <fstream>
 #include <vector>
 
+#include <Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h>
+
 class PedeSteerer;
-class PedeLabeler;
+class PedeLabelerBase;
 class Alignable;
 class AlignmentParameters;
 
@@ -30,8 +32,12 @@ namespace edm {
 class PedeReader
 {
  public:
+
+  typedef PedeLabelerBase::RunNumber  RunNumber;
+  typedef PedeLabelerBase::RunRange   RunRange;
+
   PedeReader(const edm::ParameterSet &config, const PedeSteerer &steerer,
-	     const PedeLabeler &labels);
+	     const PedeLabelerBase &labels, const RunRange &runrange);
   /// non virtual destructor: do not inherit from this class
   ~PedeReader() {}
   /// Read pede output into AlignmentParameters attached to 'alignables',
@@ -51,9 +57,10 @@ class PedeReader
  private:
   //  PedeReader() {} // no default ctr.
 
-  std::ifstream      myPedeResult;
-  const PedeSteerer &mySteerer;
-  const PedeLabeler &myLabels;
+  std::ifstream          myPedeResult;
+  const PedeSteerer      &mySteerer;
+  const PedeLabelerBase  &myLabels;
+  const RunRange          myRunRange;
 
   static const unsigned int myMaxNumValPerParam;
 };

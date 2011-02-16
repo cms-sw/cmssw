@@ -3,14 +3,13 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.11 $
- *  $Date: 2009/08/10 16:29:40 $
+ *  $Revision: 1.12 $
+ *  $Date: 2010/09/20 17:25:49 $
  *  (last update by $Author: flucke $)
  */
 
 #include "PedeReader.h"
 #include "PedeSteerer.h"
-#include "PedeLabeler.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -30,8 +29,8 @@ const unsigned int PedeReader::myMaxNumValPerParam = 5;
 
 //__________________________________________________________________________________________________
 PedeReader::PedeReader(const edm::ParameterSet &config, const PedeSteerer &steerer,
-		       const PedeLabeler &labels) 
-  : mySteerer(steerer), myLabels(labels)
+		       const PedeLabelerBase &labels, const RunRange &runrange) 
+  : mySteerer(steerer), myLabels(labels), myRunRange(runrange)
 {
   std::string pedeResultFile(config.getUntrackedParameter<std::string>("fileDir"));
   if (pedeResultFile.empty()) pedeResultFile = steerer.directory(); // includes final '/'
@@ -56,6 +55,10 @@ bool PedeReader::read(std::vector<Alignable*> &alignables, bool setUserVars)
 
   std::map<Alignable*,Alignable*> uniqueList; // Probably should use a std::set here...
   
+  edm::LogInfo("Alignment") << "@SUB=PedeReader::read"
+			    << "will read parameters for run range "
+			    << myRunRange.first << " - " << myRunRange.second;
+  
   // loop on lines of text file
   unsigned int nParam = 0;
   while (myPedeResult.good() && !myPedeResult.eof()) {
@@ -69,7 +72,10 @@ bool PedeReader::read(std::vector<Alignable*> &alignables, bool setUserVars)
     for ( ; bufferPos < myMaxNumValPerParam; ++bufferPos) {
       if (!this->readIfSameLine<float>(myPedeResult, buffer[bufferPos])) break;
     }
-
+    
+    const RunRange & runRange = myLabels.runRangeFromLabel(paramLabel);
+    if (!(runRange.first<=myRunRange.first && myRunRange.second<=runRange.second)) continue;
+    
     Alignable *alignable = this->setParameter(paramLabel, bufferPos, buffer, setUserVars);
     if (!alignable) {
       isAllOk = false;  // or error?
@@ -135,7 +141,8 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
     AlignmentParameters *params = this->checkAliParams(alignable, setUserVars);
     MillePedeVariables *userParams = // static cast ensured by previous checkAliParams
       (setUserVars ? static_cast<MillePedeVariables*>(params->userVariables()) : 0);
-    if (userParams && userParams->label() != myLabels.alignableLabelFromLabel(paramLabel)) {
+    // if (userParams && userParams->label() != myLabels.alignableLabelFromLabel(paramLabel)) {
+    if (userParams && userParams->label() != myLabels.alignableLabel(alignable)) {
       edm::LogError("Alignment") << "@SUB=PedeReader::setParameter" 
 				 << "Label mismatch: paramLabel " << paramLabel 
 				 << " for alignableLabel " << userParams->label();
