@@ -71,7 +71,10 @@ class WorkFlowRunner(Thread):
         inFile = 'file:raw.root'
         if self.wf.cmdStep1.startswith('DATAINPUT'):
             print "going to run with file input ... "
-            run      = str(self.wf.input.run)
+            if self.wf.input.run:
+                run      = str(self.wf.input.run)
+            else:
+                run=None
             label    = self.wf.input.label
             location = self.wf.input.location.lower().strip()
             if 'caf' in location:
@@ -312,6 +315,10 @@ class MatrixReader(object):
                         stepName = step+"INPUT"
                 name += stepName
                 cfg, input, opts = self.makeCmd(self.relvalModule.stepList[stepIndex][stepName])
+                if num==6.1:
+                    print self.relvalModule.stepList[stepIndex][stepName]
+                    print num,cfg, stepIndex, stepName
+                #cfg, input, opts = self.makeCmd(self.relvalModule.step1[stepName])
                 if input and cfg :
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
                     raise msg
