@@ -113,6 +113,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   usePFElectrons_
     = iConfig.getParameter<bool>("usePFElectrons");    
 
+  usePFPhotons_
+    = iConfig.getParameter<bool>("usePFPhotons");    
+
   useEGammaElectrons_
     = iConfig.getParameter<bool>("useEGammaElectrons");    
 
@@ -276,6 +279,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			      useEGammaSupercluster);
   
   //  pfAlgo_->setPFConversionParameters(usePFConversions);
+
+  // PFPhotons: 
+  pfAlgo_->setPFPhotonParameters(usePFPhotons_);
   
   //Secondary tracks and displaced vertices parameters
   

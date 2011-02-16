@@ -54,6 +54,9 @@ class PFProducer : public edm::EDProducer {
   // Use PF electrons ?
   bool usePFElectrons_;
 
+  // Use PF photons ?
+  bool usePFPhotons_;
+
   // what about e/g electrons ?
   bool useEGammaElectrons_;
 

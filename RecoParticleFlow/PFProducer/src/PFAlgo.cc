@@ -440,7 +440,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     }
   }
 
-  if( /* --- */ usePFPhotons_ /* --- */  && false ) {    
+  if( /* --- */ usePFPhotons_ /* --- */ ) {    
     
     if(debug_)
       cout<<endl<<"--------------- entering PFPhotonAlgo ----------------"<<endl;
