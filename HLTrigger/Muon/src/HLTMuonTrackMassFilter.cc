@@ -100,7 +100,7 @@ HLTMuonTrackMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
   desc.add<edm::InputTag>("TrackTag",edm::InputTag("hltMuTkMuJpsiTrackerMuonCands"));
   desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltMu0TkMuJpsiTrackMassFiltered"));
-  desc.addUntracked<bool>("SaveTag",true);
+  desc.addUntracked<bool>("SaveTag",false);
   {
     std::vector<double> temp1;
     temp1.reserve(1);

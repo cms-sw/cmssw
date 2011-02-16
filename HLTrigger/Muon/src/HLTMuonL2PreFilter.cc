@@ -81,7 +81,7 @@ HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("MaxDz",9999.0);
   desc.add<double>("MinPt",0.0);
   desc.add<double>("NSigmaPt",0.0);
-  desc.addUntracked<bool>("SaveTag",true);
+  desc.addUntracked<bool>("SaveTag",false);
   descriptions.add("hltMuonL2PreFilter",desc);
 }
 

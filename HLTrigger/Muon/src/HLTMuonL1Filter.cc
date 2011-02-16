@@ -39,7 +39,7 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
   csctfTag_( iConfig.getParameter<edm::InputTag>("CSCTFtag") ),
   l1MuTriggerScales_(0),
   m_scalesCacheID_(0),
-  saveTag_( iConfig.getUntrackedParameter<bool>("SaveTag",false) ) 
+  saveTag_( iConfig.getUntrackedParameter<bool>("SaveTag") ) 
 {
   using namespace std;
 
@@ -91,7 +91,7 @@ HLTMuonL1Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<int>("MinN",1);
   desc.add<bool>("ExcludeSingleSegmentCSC",false);
   desc.add<edm::InputTag>("CSCTFtag",edm::InputTag("unused"));
-  desc.addUntracked<bool>("SaveTag",true);
+  desc.addUntracked<bool>("SaveTag",false);
   {
     std::vector<int> temp1;
     temp1.reserve(0);

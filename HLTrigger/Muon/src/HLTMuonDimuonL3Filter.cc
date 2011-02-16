@@ -53,7 +53,7 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
    max_Acop_    (iConfig.getParameter<double> ("MaxAcop")),
    min_PtBalance_ (iConfig.getParameter<double> ("MinPtBalance")),
    max_PtBalance_ (iConfig.getParameter<double> ("MaxPtBalance")),
-										   nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")), 
+   nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")), 
    saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag")) 
 {
 
@@ -102,7 +102,7 @@ HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("MinPtBalance",-1.0);
   desc.add<double>("MaxPtBalance",999999.0);
   desc.add<double>("NSigmaPt",0.0);
-  desc.addUntracked<bool>("SaveTag",true);
+  desc.addUntracked<bool>("SaveTag",false);
   descriptions.add("hltMuonDimuonL3Filter",desc);
 }
 
