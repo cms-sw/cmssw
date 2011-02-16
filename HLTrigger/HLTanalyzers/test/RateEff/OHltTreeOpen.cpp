@@ -680,7 +680,7 @@ bool isPhotonX_HTXTrigger(TString triggerName, vector<double> &thresholds)
 bool isPhotonX_MHTXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_Photon([0-9]+)_HT([0-9]+)_L1R)$";
+   TString pattern = "(OpenHLT_Photon([0-9]+)_MHT([0-9]+)_L1R)$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
@@ -701,7 +701,7 @@ bool isPhotonX_CaloIdL_HTXTrigger(
       vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_Photon([0-9]+)CaloIdL_HT([0-9]+))$";
+   TString pattern = "(OpenHLT_Photon([0-9]+)_CaloIdL_HT([0-9]+))$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
@@ -722,7 +722,7 @@ bool isPhotonX_CaloIdL_MHTXTrigger(
       vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_Photon([0-9]+)CaloIdL_MHT([0-9]+))$";
+   TString pattern = "(OpenHLT_Photon([0-9]+)_CaloIdL_MHT([0-9]+))$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
@@ -3507,7 +3507,7 @@ void OHltTree::CheckOpenHlt(
    }
 
    // to be removed ??
-   /*Photon70_(M)HTX */
+   /*PhotonX_(M)HTX */
 
    else if (isPhotonX_HTXTrigger(triggerName, thresholds))
    {
@@ -3563,7 +3563,7 @@ void OHltTree::CheckOpenHlt(
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHltPhoCuts(70, 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1
+            if (OpenHltPhoCuts(thresholds[0], 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1
                   && OpenHltSumCorHTPassed(thresholds[1], 30.)>=1)
             {
                triggerBit[it] = true;
@@ -3578,7 +3578,7 @@ void OHltTree::CheckOpenHlt(
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHltPhoCuts(70, 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1
+            if (OpenHltPhoCuts(thresholds[0], 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1
                   && OpenHltMHT(thresholds[1], 30.)>=1)
             {
                triggerBit[it] = true;
