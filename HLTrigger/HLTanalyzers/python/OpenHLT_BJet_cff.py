@@ -2,20 +2,20 @@
 import copy
 import FWCore.ParameterSet.Config as cms
 
-# import the whole HLT menu
-#from HLTrigger.Configuration.HLT_8E29_cff import *
-#from HLTrigger.Configuration.HLT_1E31_cff import *
 from HLTrigger.Configuration.HLT_FULL_cff import *
 
-### lifetime-based b-tag OpenHLT (ideal) ######################################
+### lifetime-based b-tag OpenHLT ######################################
 # L1 filter is skipped
 # L2 reco sequence is common to all paths, and taken from the global table
 # L2.5 and L3 sequences are rewritten to bypass selectors and filters
 
-# L2.5 reco modules (common with strt up)
+# L2.5 reco modules
 
 # BJetinputjetCollection="hltIterativeCone5CaloJets"
-BJetinputjetCollection="hltAntiKT5CaloJets"
+# BJetinputjetCollection="hltAntiKT5CaloJets"
+#
+###### Use corrected jets same as 5E32 Menu
+BJetinputjetCollection="hltAntiKT5L2L3CorrCaloJets"
 
 openHltBLifetimeL25Associator = copy.deepcopy(hltBLifetimeL25Associator)
 openHltBLifetimeL25Associator.jets = cms.InputTag(BJetinputjetCollection)
@@ -66,42 +66,6 @@ OpenHLTBLifetimeL3recoSequence = cms.Sequence(
     openHltBLifetimeL3TagInfos +
     openHltBLifetimeL3BJetTags )
 
-    ### lifetime-based b-tag OpenHLT (start up) ###################################
-# L1 filter is skipped
-# L2 reco sequence is common to all paths, and taken from the global table
-# L2.5 as rewritten is common with ideal conditions
-# L3 sequence is rewritten to bypass selectors and filters
-
-openHltBLifetimeRegionalPixelSeedGeneratorStartup = copy.deepcopy(hltBLifetimeRegionalPixelSeedGenerator)
-openHltBLifetimeRegionalPixelSeedGeneratorStartup.RegionFactoryPSet.RegionPSet.JetSrc = cms.InputTag(BJetinputjetCollection)
-
-openHltBLifetimeRegionalCkfTrackCandidatesStartup = copy.deepcopy(hltBLifetimeRegionalCkfTrackCandidates)
-openHltBLifetimeRegionalCkfTrackCandidatesStartup.src = cms.InputTag("openHltBLifetimeRegionalPixelSeedGeneratorStartup")
-
-openHltBLifetimeRegionalCtfWithMaterialTracksStartup = copy.deepcopy(hltBLifetimeRegionalCtfWithMaterialTracks)
-openHltBLifetimeRegionalCtfWithMaterialTracksStartup.src = cms.InputTag("openHltBLifetimeRegionalCkfTrackCandidatesStartup")
-
-openHltBLifetimeL3AssociatorStartup = copy.deepcopy(hltBLifetimeL3Associator)
-openHltBLifetimeL3AssociatorStartup.jets   = cms.InputTag(BJetinputjetCollection)
-openHltBLifetimeL3AssociatorStartup.tracks = cms.InputTag("openHltBLifetimeRegionalCtfWithMaterialTracksStartup")
-
-openHltBLifetimeL3TagInfosStartup = copy.deepcopy(hltBLifetimeL3TagInfos)
-openHltBLifetimeL3TagInfosStartup.jetTracks = cms.InputTag("openHltBLifetimeL3AssociatorStartup")
-
-openHltBLifetimeL3BJetTagsStartup = copy.deepcopy(hltBLifetimeL3BJetTags)
-openHltBLifetimeL3BJetTagsStartup.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL3TagInfosStartup"))
-
-# L3 reco sequence for relaxed lifetime tagger
-OpenHLTBLifetimeL3recoSequenceStartup = cms.Sequence(
-    HLTDoLocalPixelSequence +
-    HLTDoLocalStripSequence +
-    openHltBLifetimeRegionalPixelSeedGeneratorStartup +
-    openHltBLifetimeRegionalCkfTrackCandidatesStartup +
-    openHltBLifetimeRegionalCtfWithMaterialTracksStartup +
-    openHltBLifetimeL3AssociatorStartup +
-    openHltBLifetimeL3TagInfosStartup +
-    openHltBLifetimeL3BJetTagsStartup )
-
 ### soft-muon-based b-tag OpenHLT (ideal, start up, and performance meas.) ####
 # L1 filter is skipped
 # L2 reco sequence is common to all paths, and taken from the global table
@@ -110,6 +74,7 @@ OpenHLTBLifetimeL3recoSequenceStartup = cms.Sequence(
 openHltBSoftmuonL25TagInfos = copy.deepcopy(hltBSoftMuonL25TagInfos)
 openHltBSoftmuonL25TagInfos.jets = cms.InputTag(BJetinputjetCollection)
 
+#### BTagMu paths make use of SoftMuonByDR both at L2.5 and L3
 openHltBSoftmuonL25BJetTags = copy.deepcopy(hltBSoftMuonL25BJetTagsByDR)
 openHltBSoftmuonL25BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftmuonL25TagInfos"))
 
@@ -119,6 +84,7 @@ openHltBSoftmuonL3TagInfos.jets = cms.InputTag(BJetinputjetCollection)
 openHltBSoftmuonL3BJetTags = copy.deepcopy(hltBSoftMuon5SelL3BJetTagsByPt)
 openHltBSoftmuonL3BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftmuonL3TagInfos"))
 
+#### BTagMu paths make use of SoftMuonByDR both at L2.5 and L3
 openHltBPerfMeasL3BJetTags = copy.deepcopy(hltBSoftMuon5SelL3BJetTagsByDR)
 openHltBPerfMeasL3BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftmuonL3TagInfos"))
 

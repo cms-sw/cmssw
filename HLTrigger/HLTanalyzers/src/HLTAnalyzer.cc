@@ -101,8 +101,6 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     m_correctedBJets          = conf.getParameter<edm::InputTag>("CorrectedBJetsL2");
     m_lifetimeBJetsL25        = conf.getParameter<edm::InputTag>("LifetimeBJetsL25");
     m_lifetimeBJetsL3         = conf.getParameter<edm::InputTag>("LifetimeBJetsL3");
-    m_lifetimeBJetsL25Relaxed = conf.getParameter<edm::InputTag>("LifetimeBJetsL25Relaxed");
-    m_lifetimeBJetsL3Relaxed  = conf.getParameter<edm::InputTag>("LifetimeBJetsL3Relaxed");
     m_softmuonBJetsL25        = conf.getParameter<edm::InputTag>("SoftmuonBJetsL25");
     m_softmuonBJetsL3         = conf.getParameter<edm::InputTag>("SoftmuonBJetsL3");
     m_performanceBJetsL25     = conf.getParameter<edm::InputTag>("PerformanceBJetsL25");
@@ -249,8 +247,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<edm::View<reco::Jet> >                hCorrectedBJets;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3;
-    edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25Relaxed;
-    edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3Relaxed;
     edm::Handle<reco::JetTagCollection>               hSoftmuonBJetsL25;
     edm::Handle<reco::JetTagCollection>               hSoftmuonBJetsL3;
     edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL25;
@@ -382,8 +378,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, hCorrectedBJets,          m_correctedBJets,           kBTagCorrectedJets );
     getCollection( iEvent, missing, hLifetimeBJetsL25,        m_lifetimeBJetsL25,         kBTagLifetimeBJetsL25 );
     getCollection( iEvent, missing, hLifetimeBJetsL3,         m_lifetimeBJetsL3,          kBTagLifetimeBJetsL3 );
-    getCollection( iEvent, missing, hLifetimeBJetsL25Relaxed, m_lifetimeBJetsL25Relaxed,  kBTagLifetimeBJetsL25Relaxed );
-    getCollection( iEvent, missing, hLifetimeBJetsL3Relaxed,  m_lifetimeBJetsL3Relaxed,   kBTagLifetimeBJetsL3Relaxed );
     getCollection( iEvent, missing, hSoftmuonBJetsL25,        m_softmuonBJetsL25,         kBTagSoftmuonBJetsL25 );
     getCollection( iEvent, missing, hSoftmuonBJetsL3,         m_softmuonBJetsL3,          kBTagSoftmuonBJetsL3 );
     getCollection( iEvent, missing, hPerformanceBJetsL25,     m_performanceBJetsL25,      kBTagPerformanceBJetsL25 );
@@ -569,8 +563,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                            hCorrectedBJets,
                            hLifetimeBJetsL25,
                            hLifetimeBJetsL3,
-                           hLifetimeBJetsL25Relaxed,
-                           hLifetimeBJetsL3Relaxed,
                            hSoftmuonBJetsL25,
                            hSoftmuonBJetsL3,
                            hPerformanceBJetsL25,

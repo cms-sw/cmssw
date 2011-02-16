@@ -36,7 +36,9 @@ if (isData):
     # GLOBAL_TAG='GR10_H_V8_T2::All' # collisions2010 tag for CMSSW_3_8_X
     # GLOBAL_TAG='GR10_H_V9::All' # collisions2010 tag for CMSSW_3_8_X, updated  
     # GLOBAL_TAG='GR_R_311_V0::All' # Temporary tag for running in CMSSW_3_11_X
-    GLOBAL_TAG='L1HLTST311_V0::All'
+##    GLOBAL_TAG='L1HLTST311_V0::All'
+    ## Use the same GLOBAL TAG as in the master table
+    GLOBAL_TAG='TESTL1_GR_P::All'    
 else:
     GLOBAL_TAG='START39_V8::All'
     if (MENU == "GRun"): GLOBAL_TAG= 'START39_V8::All'

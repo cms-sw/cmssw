@@ -125,7 +125,6 @@ DoHLTBTag = cms.Path(
         OpenHLTBLifetimeL25recoSequence +
         OpenHLTBSoftMuonL25recoSequence +
         OpenHLTBLifetimeL3recoSequence +
-        OpenHLTBLifetimeL3recoSequenceStartup +
         OpenHLTBSoftMuonL3recoSequence +
         HLTEndSequence )
 
@@ -157,4 +156,5 @@ DoHLTMinBiasPixelTracks = cms.Path(
     hltPixelTracks +
     hltPixelVertices)
 
-hltPixelVertices.beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
+## Thers is no need to do this as by default 5E32 menu makes use of "hltOnlineBeamSpot" for all the modules
+# hltPixelVertices.beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
