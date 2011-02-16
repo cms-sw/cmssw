@@ -64,33 +64,21 @@ TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       goodTracks.push_back (reco::TrackRef (tracks_h, itrk - trkBegin));
     }
   }
+  std::vector<reco::TrackBase::Point>  vresultPos(1);
+  std::vector<reco::TrackBase::Vector> vresultMom(1);
   
+
   // Now loop through the list of tracks and extrapolate them
   for ( std::vector<reco::TrackRef>::const_iterator trkBegin = goodTracks.begin(),
 	  trkEnd = goodTracks.end(), itrk = trkBegin; 
 	itrk != trkEnd; ++itrk ) {
-    std::vector<reco::TrackBase::Point>  vresultPos;
-    std::vector<reco::TrackBase::Vector> vresultMom;
-    std::vector<reco::TrackBase::Vector> vresultDir;
-    std::vector<bool> visValid;
-
-    reco::TrackBase::Point resultPos;
-    reco::TrackBase::Vector resultMom;
-    reco::TrackBase::Vector resultDir;
-    bool isValid = propagateTrackToVolume( **itrk, *field_h, *propagator_h, ecalvolume,
-					   resultPos, resultMom, resultDir );
-    visValid.push_back(isValid);
-    vresultPos.push_back( resultPos );
-    vresultMom.push_back( resultMom );
-    vresultDir.push_back( resultDir );
-
-    extrapolations->push_back( reco::TrackExtrapolation( *itrk, 
-							 visValid, 
-							 vresultPos, 
-							 vresultMom, 
-							 vresultDir ) );
+    if( propagateTrackToVolume( **itrk, *field_h, *propagator_h, ecalvolume,
+				vresultPos[0], vresultMom[0]) ) {
+      extrapolations->push_back( reco::TrackExtrapolation( *itrk, 
+							   vresultPos, 
+							   vresultMom ) );
+    }
   }
-
   iEvent.put( extrapolations );
 }
 
@@ -115,8 +103,7 @@ bool TrackExtrapolator::propagateTrackToVolume( const reco::Track& fTrack,
 						const Propagator& fPropagator,
 						const FiducialVolume& volume,
 						reco::TrackBase::Point & resultPos,
-						reco::TrackBase::Vector & resultMom,
-						reco::TrackBase::Vector & resultDir
+						reco::TrackBase::Vector & resultMom
 						)
 {
   GlobalPoint trackPosition (fTrack.vx(), fTrack.vy(), fTrack.vz()); // reference point
@@ -155,7 +142,6 @@ bool TrackExtrapolator::propagateTrackToVolume( const reco::Track& fTrack,
   if (propagatedInfo.isValid()) {
     resultPos = propagatedInfo.globalPosition ();
     resultMom = propagatedInfo.globalMomentum ();
-    resultDir = propagatedInfo.globalDirection(); 
     return true;
   }
   else { 

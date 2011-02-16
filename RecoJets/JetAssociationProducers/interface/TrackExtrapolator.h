@@ -18,7 +18,7 @@
 //
 // Original Author:  Salvatore Rappoccio (salvatore.rappoccio@cern.ch)
 //         Created:  Mon Feb 22 11:54:41 CET 2010
-// $Id: TrackExtrapolator.h,v 1.1 2010/03/16 21:45:54 srappocc Exp $
+// $Id: TrackExtrapolator.h,v 1.2 2010/09/01 01:23:35 johnpaul Exp $
 //
 // Revision by: John Paul Chou (chou@hep.brown.edu)
 //              Modified algorithm to extrapolate correctly to the endcap front face.
@@ -82,8 +82,7 @@ class TrackExtrapolator : public edm::EDProducer {
 				   const Propagator& fPropagator,
 				   const FiducialVolume& volume,
 				   reco::TrackBase::Point & resultPos,
-				   reco::TrackBase::Vector & resultMom,
-				   reco::TrackBase::Vector & resultDir
+				   reco::TrackBase::Vector & resultMom
 				   );
 
       
