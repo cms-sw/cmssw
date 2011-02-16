@@ -53,10 +53,17 @@ looper = cms.Looper("AlignmentProducer",
                     # choose monitors (default is none)
                     monitorConfig = cms.PSet(monitors = cms.untracked.vstring()),
 
+                    # VPSet that allows splitting of alignment parameters into various
+                    # run ranges. The default is a run range independent alignment
+                    RunRangeSelection = cms.VPSet(
+                      #cms.PSet(RunRanges = cms.vstring('-1:140400','140401:143487','143488:-1')
+                      #         selector = cms.vstring('TrackerTPBHalfBarrel,001000',
+                      #                                'TrackerTPEHalfDisk,111000')
+                      #)
+                    ),
+
                     # Save alignment to DB: true requires configuration of PoolDBOutputService
                     saveToDB = cms.bool(False),            # save alignment?
                     saveApeToDB = cms.bool(False),         # save APE?
                     saveDeformationsToDB = cms.bool(False) # save surface deformations (bows, etc.)?
                     )
-
-

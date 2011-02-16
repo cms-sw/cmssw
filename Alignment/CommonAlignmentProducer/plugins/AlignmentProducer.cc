@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.46 $
-///  last update: $Date: 2011/01/17 09:54:46 $
-///  by         : $Author: mussgill $
+///  Revision   : $Revision: 1.47 $
+///  last update: $Date: 2011/02/11 12:27:09 $
+///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -23,6 +23,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Run.h"
+
+#include "FWCore/Utilities/interface/Parse.h"
 
 // Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -107,7 +109,9 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 
   // Create the alignment algorithm
   edm::ParameterSet algoConfig = iConfig.getParameter<edm::ParameterSet>( "algoConfig" );
-  std::string algoName = algoConfig.getParameter<std::string>("algoName");
+  edm::VParameterSet iovSelection = iConfig.getParameter<edm::VParameterSet>( "RunRangeSelection" );
+  algoConfig.addUntrackedParameter<edm::VParameterSet>( "RunRangeSelection", iovSelection );
+  std::string algoName = algoConfig.getParameter<std::string>( "algoName" );
   theAlignmentAlgo = AlignmentAlgorithmPluginFactory::get( )->create( algoName, algoConfig  );
 
   // Check if found
@@ -297,6 +301,10 @@ void AlignmentProducer::endOfJob()
     // Save alignments to database
     if (saveToDB_ || saveApeToDB_) {
       
+      // Expand run ranges and make them unique
+      edm::VParameterSet RunRangeSelectionVPSet = theParameterSet.getParameter<edm::VParameterSet>( "RunRangeSelection" );
+      RunRanges uniqueRunRanges = makeNonOverlappingRunRanges(RunRangeSelectionVPSet);
+
       if ( doTracker_ ) { // first tracker
 	const AlignTransform *trackerGlobal = 0; // will be 'removed' from constants 
 	if (globalPositions_) { // i.e. applied before in applyDB
@@ -304,10 +312,17 @@ void AlignmentProducer::endOfJob()
 							 DetId(DetId::Tracker));
 	}
 	// Get alignments+errors - ownership taken over by writeDB(..), so no delete
-	Alignments *alignments = theAlignableTracker->alignments();
-	AlignmentErrors *alignmentErrors = theAlignableTracker->alignmentErrors();
-	this->writeDB(alignments, "TrackerAlignmentRcd",
-		      alignmentErrors, "TrackerAlignmentErrorRcd", trackerGlobal);
+	
+	for (std::vector<RunRange>::const_iterator iRunRange = uniqueRunRanges.begin();
+	     iRunRange != uniqueRunRanges.end();
+	     ++iRunRange) {
+	  theAlignmentAlgo->setParametersForRunRange(*iRunRange);
+	  Alignments *alignments = theAlignableTracker->alignments();
+	  AlignmentErrors *alignmentErrors = theAlignableTracker->alignmentErrors();
+	  this->writeDB(alignments, "TrackerAlignmentRcd",
+			alignmentErrors, "TrackerAlignmentErrorRcd", trackerGlobal,
+			(*iRunRange).first);
+	}
       }
       
       if ( doMuon_ ) { // now muon
@@ -750,7 +765,8 @@ void AlignmentProducer::writeDB(Alignments *alignments,
 				const std::string &alignRcd,
 				AlignmentErrors *alignmentErrors,
 				const std::string &errRcd,
-				const AlignTransform *globalCoordinates) const
+				const AlignTransform *globalCoordinates,
+				cond::Time_t time) const
 {
   Alignments * tempAlignments = alignments;
   AlignmentErrors * tempAlignmentErrors = alignmentErrors;
@@ -784,14 +800,14 @@ void AlignmentProducer::writeDB(Alignments *alignments,
   
   if (saveToDB_) {
     edm::LogInfo("Alignment") << "Writing Alignments to " << alignRcd << ".";
-    poolDb->writeOne<Alignments>(tempAlignments, poolDb->beginOfTime(), alignRcd);
+    poolDb->writeOne<Alignments>(tempAlignments, 0, time, alignRcd);
   } else { // poolDb->writeOne(..) takes over 'alignments' ownership,...
     delete tempAlignments; // ...otherwise we have to delete, as promised!
   }
 
   if (saveApeToDB_) {
     edm::LogInfo("Alignment") << "Writing AlignmentErrors to " << errRcd << ".";
-    poolDb->writeOne<AlignmentErrors>(tempAlignmentErrors, poolDb->beginOfTime(), errRcd);
+    poolDb->writeOne<AlignmentErrors>(tempAlignmentErrors, 0, time, errRcd);
   } else { // poolDb->writeOne(..) takes over 'alignmentErrors' ownership,...
     delete tempAlignmentErrors; // ...otherwise we have to delete, as promised!
   }
@@ -817,6 +833,58 @@ void AlignmentProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDe
   } else { // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
     delete alignmentSurfaceDeformations; // ...otherwise we have to delete, as promised!
   }
+}
+
+AlignmentProducer::RunRanges
+AlignmentProducer::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet)
+{
+  const RunNumber beginValue = cond::timeTypeSpecs[cond::runnumber].beginValue;
+  const RunNumber endValue = cond::timeTypeSpecs[cond::runnumber].endValue;
+      
+  RunRanges uniqueRunRanges;
+  std::map<RunNumber,RunNumber> uniqueFirstRunNumbers;
+  std::map<RunNumber,RunNumber> uniqueLastRunNumbers;
+  if (RunRangeSelectionVPSet.size()==0) {
+    uniqueFirstRunNumbers[beginValue] = beginValue;
+    uniqueLastRunNumbers[endValue] = endValue;
+  } else {
+    for (std::vector<edm::ParameterSet>::const_iterator ipset = RunRangeSelectionVPSet.begin();
+	 ipset != RunRangeSelectionVPSet.end();
+	 ++ipset) {
+      const std::vector<std::string> RunRangeStrings = (*ipset).getParameter<std::vector<std::string> >("RunRanges");
+      for (std::vector<std::string>::const_iterator irange = RunRangeStrings.begin();
+	   irange != RunRangeStrings.end();
+	   ++irange) {
+	std::vector<std::string> tokens = edm::tokenize(*irange, ":");
+	long int temp;
+	
+	RunNumber first = beginValue;
+	temp = strtol(tokens[0].c_str(), 0, 0);
+	if (temp!=-1) first = temp;
+	uniqueFirstRunNumbers[first] = first;
+	
+	RunNumber last = endValue;
+	temp = strtol(tokens[1].c_str(), 0, 0);
+	if (temp!=-1) last = temp;
+	uniqueLastRunNumbers[last] = last;
+      }
+    }
+  }
+  
+  for (std::map<RunNumber,RunNumber>::iterator iFirst = uniqueFirstRunNumbers.begin();
+       iFirst!=uniqueFirstRunNumbers.end();
+       ++iFirst) {
+    for (std::map<RunNumber,RunNumber>::iterator iLast = uniqueLastRunNumbers.begin();
+	 iLast!=uniqueLastRunNumbers.end();
+	 ++iLast) {
+      if ((*iLast).first>(*iFirst).first) {
+	uniqueRunRanges.push_back(std::make_pair<RunNumber,RunNumber>((*iFirst).first, (*iLast).first));
+	break;
+      }
+    }
+  }
+ 
+  return uniqueRunRanges;
 }
 
 DEFINE_FWK_LOOPER( AlignmentProducer );
