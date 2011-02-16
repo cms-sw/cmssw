@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/10/07 17:09:10 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/10/14 12:42:57 $
+ *  $Revision: 1.9 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -26,7 +26,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 //#include "CondCore/Utilities/bin/cmscond_export_iov.cpp"
 //#include "CondCore/Utilities/interface/Utilities.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
+// #include "FWCore/MessageLogger/interface/JobReport.h"
 
 #include <iostream> 
 
@@ -39,9 +39,7 @@ AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig) :
   beamSpotOutputBase_    (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase")),
   outputrecordName_      (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("outputRecordName", "BeamSpotObjectsRcd")),
   sigmaZValue_           (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<double>("SigmaZValue")),
-  theAlcaBeamSpotManager_(iConfig),
-  metadataForOfflineDropBox_(iConfig.getParameter<ParameterSet>("metadataOfflineDropBox"))
-{  
+  theAlcaBeamSpotManager_(iConfig) {  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,29 +152,6 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
     }
 
 
-
-    edm::Service<edm::JobReport> jr;
-    if (jr.isAvailable()) {
-      std::map<std::string, std::string> jrInfo;
-      jrInfo["Source"] = "AlcaHarvesting";
-      jrInfo["FileClass"] = "ALCA";
-
-
-      jrInfo["inputtag"] = poolDbService->tag(outputrecordName_);
-      if(beamSpotOutputBase_ == "runbased") {
-	jrInfo["Timetype"] = "runnumber";
-      } else if(beamSpotOutputBase_ == "lumibased") {
-	jrInfo["Timetype"] = "lumiid";
-      }
-
-      jrInfo["destDB"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("destDB");
-      jrInfo["destDBValidation"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("destDBValidation");
-      jrInfo["tag"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("tag");
-      jrInfo["DuplicateTagPROMPT"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("DuplicateTagPROMPT");
-
-      std::string filename = poolDbService->session().connectionString();
-      jr->reportAnalysisFile(filename, jrInfo);
-    }
 
 
   }

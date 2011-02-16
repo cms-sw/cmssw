@@ -4,15 +4,15 @@
 /** \class AlcaBeamSpotHarvester
  *  No description available.
  *
- *  $Date: 2010/08/13 22:35:16 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/10/07 17:09:10 $
+ *  $Revision: 1.5 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Calibration/TkAlCaRecoProducers/interface/AlcaBeamSpotManager.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class AlcaBeamSpotHarvester : public edm::EDAnalyzer {
  public:
@@ -42,7 +42,7 @@ class AlcaBeamSpotHarvester : public edm::EDAnalyzer {
   // Member Variables
   AlcaBeamSpotManager theAlcaBeamSpotManager_;
 
-  edm::ParameterSet metadataForOfflineDropBox_;
+//   edm::ParameterSet metadataForOfflineDropBox_;
 };
 #endif
 
