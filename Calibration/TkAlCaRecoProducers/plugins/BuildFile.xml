@@ -30,3 +30,6 @@
 <library   file="AlcaBeamSpotFromDB.cc" name="AlcaBeamSpotFromDB">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="PCLMetadataWriter.cc" name="PCLMetadataWriter">
+  <flags   EDM_PLUGIN="1"/>
+</library>
