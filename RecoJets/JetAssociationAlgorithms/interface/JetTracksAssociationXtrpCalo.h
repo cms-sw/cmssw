@@ -1,6 +1,6 @@
 // \class JetTracksAssociationXtrpCalo
 // Associate jets with tracks by extrapolation to calo face
-// $Id: JetTracksAssociationXtrpCalo.h,v 1.5 2009/03/30 15:06:33 bainbrid Exp $
+// $Id: JetTracksAssociationXtrpCalo.h,v 1.1 2010/03/16 21:48:51 srappocc Exp $
 
 #ifndef RecoJets_JetAssociationAlgorithms_JetTracksAssociationXtrpCalo_h
 #define RecoJets_JetAssociationAlgorithms_JetTracksAssociationXtrpCalo_h
@@ -9,7 +9,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include <vector>
-#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDR.h"
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -25,9 +24,12 @@
 class MagneticField;
 class Propagator;
 
-class JetTracksAssociationXtrpCalo : public JetTracksAssociationDR {
-  
+class JetTracksAssociationXtrpCalo { 
  public:
+  typedef reco::JetTracksAssociation::Container Association;
+  typedef edm::RefToBase<reco::Jet> JetRef;
+  typedef std::vector<JetRef> JetRefs;
+  typedef std::vector<reco::TrackRef> TrackRefs;
   /// Constructor
   JetTracksAssociationXtrpCalo();
   
