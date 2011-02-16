@@ -440,13 +440,26 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h1_ele_mva_eg;
     MonitorElement *h1_ele_provenance;
 
+    // isolation
     MonitorElement *h1_ele_tkSumPt_dr03;
+    MonitorElement *h1_ele_tkSumPt_dr03_barrel;
+    MonitorElement *h1_ele_tkSumPt_dr03_endcaps;
     MonitorElement *h1_ele_ecalRecHitSumEt_dr03;
+    MonitorElement *h1_ele_ecalRecHitSumEt_dr03_barrel;
+    MonitorElement *h1_ele_ecalRecHitSumEt_dr03_endcaps;
     MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth1;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth1_barrel;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth1_endcaps;
     MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth2;
     MonitorElement *h1_ele_tkSumPt_dr04;
+    MonitorElement *h1_ele_tkSumPt_dr04_barrel;
+    MonitorElement *h1_ele_tkSumPt_dr04_endcaps;
     MonitorElement *h1_ele_ecalRecHitSumEt_dr04;
+    MonitorElement *h1_ele_ecalRecHitSumEt_dr04_barrel;
+    MonitorElement *h1_ele_ecalRecHitSumEt_dr04_endcaps;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1_barrel;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1_endcaps;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2;
 
     MonitorElement *h1_ele_convFlags;
