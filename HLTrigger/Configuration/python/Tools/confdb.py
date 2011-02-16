@@ -674,8 +674,12 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltL25TauCkfTrackCandidates" )
       self.options['modules'].append( "-hltL25TauCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltL3TauSingleTrack15CtfWithMaterialTracks" )
+#=== hltPF:
+      self.options['modules'].append( "-hltPFJetPixelSeeds" )
+      self.options['modules'].append( "-hltPFJetCkfTrackCandidates" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
-#=== hltBLifetimeRegional
+      self.options['modules'].append( "-hltPFlowTrackSelectionHighPurity" )
+#=== hltBLifetimeRegional:
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGenerator" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidates" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracks" )
@@ -710,12 +714,13 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTDoLocalPixelSequence" )
       self.options['sequences'].append( "-hltSiPixelDigis" )
       self.options['sequences'].append( "-hltSiPixelClusters" )
+      self.options['sequences'].append( "-hltSiPixelRecHits" )
       self.options['sequences'].append( "-HLTRecopixelvertexingSequence" )
       self.options['sequences'].append( "-HLTL3TauTrackReconstructionSequence" )
       self.options['sequences'].append( "-HLTL3TauHighPtTrackReconstructionSequence" )
       self.options['sequences'].append( "-HLTL25TauTrackReconstructionSequence" )
       self.options['sequences'].append( "-HLTL3TauSingleTrack15ReconstructionSequence" )
-      self.options['sequences'].append( "-HLTTrackReconstructionForJets" )
+#      self.options['sequences'].append( "-HLTTrackReconstructionForJets" )
       self.options['sequences'].append( "-HLTEndSequence" )
       self.options['sequences'].append( "-HLTBeginSequence" )
       self.options['sequences'].append( "-HLTBeginSequenceNZS" )
@@ -785,22 +790,6 @@ if 'GlobalTag' in %%(dict)s:
 #      self.options['paths'].append( "-HLT_SelectEcalSpikesHighEt_L1R" )
 #      self.options['paths'].append( "-HLT_SelectEcalSpikes_L1R" )
 #
-# Those tags had been removed just to speed up things fro 4_2_0_pre3
-# They must be tested and reinserted in the FastSim tag as soon as possible
-#
-      self.options['paths'].append( "-HLT_PFMHT80_v*" )
-      self.options['paths'].append( "-HLT_PFMHT150_v*" )
-      self.options['paths'].append( "-HLT_IsoPFTau35_Trk20_MET45_v*" )
-      self.options['paths'].append( "-HLT_Mu15_LooseIsoPFTau20_v*" )
-      self.options['paths'].append( "-HLT_Mu12_LooseIsoPFTau10_v*" )
-      self.options['paths'].append( "-HLT_IsoMu12_LooseIsoPFTau10_v*" )
-      self.options['paths'].append( "-HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v*" )
-      self.options['paths'].append( "-HLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_LooseIsoPFTau15_v*" )
-      self.options['paths'].append( "-HLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_LooseIsoPFTau20_v*" )
-      self.options['paths'].append( "-HLT_QuadJet20_IsoPFTau_PFMHT_v*" )
-      self.options['paths'].append( "-HLT_QuadJet40_IsoPFTau40_v*" )
-      self.options['paths'].append( "-HLT_DoubleIsoPFTau20_Trk5_v*" )
-#      self.options['paths'].append( "-HLT__v*" )
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:
         self.options['paths'].append( "-HLTAnalyzerEndpath" )
