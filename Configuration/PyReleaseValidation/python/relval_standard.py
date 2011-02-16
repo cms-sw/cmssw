@@ -129,7 +129,7 @@ step1['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_2_0_pr
 step1['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='Higgs200ChargedTausrv',location='STD')}
 step1['QCD_Pt_3000_3500_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_Pt_3000_3500rv',location='STD')}
 step1['JpsiMMINPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='JpsiMMrv',location='STD')}
-step1['TTbar2INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_2_0_pre2-START311_V0-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='ttbarrv',location='STD')}
+step1['TTbar2INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='ttbarrv',location='STD')}
 step1['WEINPUT']={'INPUT':InputInfo(dataSet='/RelValWE/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='WErv',location='STD')}
 step1['ZEE2INPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='ZEErv',location='STD')}
 step1['ZTTINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='ZTTrv',location='STD')}
@@ -145,7 +145,7 @@ step1['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},K9by10
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
-step1FastDefaults = {'-s':'GEN,FASTSIM,HLT:GRun,VALIDATION', '--eventcontent':'FEVTDEBUGHLT','--datatier':'GEN-SIM-DIGI-RECO','--relval':'27000,1000'}
+step1FastDefaults =merge([{'-s':'GEN,FASTSIM,HLT:GRun,VALIDATION', '--eventcontent':'FEVTDEBUGHLT','--datatier':'GEN-SIM-DIGI-RECO','--relval':'27000,1000'},step1Defaults])
 K100byK1={'--relval':'100000,1000'}
 step1['TTbarFS1']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi'},K100byK1,step1FastDefaults])
 step1['TTbarFS2']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi'},K100byK1,stCond,step1FastDefaults])
@@ -165,6 +165,7 @@ step2Defaults = { 'cfg'           : 'step2',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
                   '--conditions'  : 'auto:mc',
+                  '--process'     : 'DIGI'
                   }
 
 step2 = {}
@@ -172,7 +173,7 @@ step2 = {}
 step2['DIGIPROD1']=merge([{'--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
 step2['DIGI1']=merge([step2Defaults])
 step2['DIGI2']=merge([stCond,step2Defaults])
-step2['DIGICOS']=merge([{'--scenario':'cosmics'},stCond,step2Defaults])
+step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
 
 dataReco={'--conditions':'auto:com10',
           '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias,DQM',
