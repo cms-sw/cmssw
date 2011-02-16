@@ -41,6 +41,7 @@ class PFSCEnergyCalibration;
 class PFEnergyCalibrationHF;
 class PFElectronAlgo;
 class PFConversionAlgo;
+class PFPhotonAlgo;
 
 namespace pftools { 
   class PFClusterCalibration;
@@ -103,6 +104,8 @@ class PFAlgo {
 			  bool usePFSCEleCalib=true,
 			  bool useEGElectrons=false,
 			  bool useEGammaSupercluster = true);
+
+  void setPFPhotonParameters(bool usePFElectrons);
 
   void setPostHFCleaningParameters(bool postHFCleaning,
 				   double minHFCleaningPt,
@@ -251,6 +254,8 @@ class PFAlgo {
   std::auto_ptr< reco::PFCandidateCollection >    pfCandidates_;
   /// the unfiltered electron collection 
   std::auto_ptr< reco::PFCandidateCollection >    pfElectronCandidates_;
+  /// the unfiltered photon collection 
+  std::auto_ptr< reco::PFCandidateCollection >    pfPhotonCandidates_;
   // the post-HF-cleaned candidates
   std::auto_ptr< reco::PFCandidateCollection >    pfCleanedCandidates_;
   /// the collection of  cosmics cleaned muon candidates
@@ -324,6 +329,7 @@ class PFAlgo {
   std::vector<double> setchi2Values_;
   double mvaEleCut_;
   bool usePFElectrons_;
+  bool usePFPhotons_;
   bool applyCrackCorrectionsElectrons_;
   bool usePFSCEleCalib_;
   bool useEGElectrons_;
@@ -336,6 +342,7 @@ class PFAlgo {
   double coneTrackIsoForEgammaSC_;
   unsigned int nTrackIsoForEgammaSC_;
   PFElectronAlgo *pfele_;
+  PFPhotonAlgo *pfpho_;
 
   // Option to let PF decide the muon momentum
   bool usePFMuonMomAssign_;
