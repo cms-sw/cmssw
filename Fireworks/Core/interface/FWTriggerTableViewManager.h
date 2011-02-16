@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableViewManager
-// $Id: FWTriggerTableViewManager.h,v 1.3 2010/11/04 22:38:54 amraktad Exp $
+// $Id: FWTriggerTableViewManager.h,v 1.4 2011/01/26 11:47:06 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
@@ -36,6 +36,7 @@ public:
 
    FWViewBase *buildView (TEveWindowSlot *iParent, const std::string& type);
 
+   // virtual void setContext(const fireworks::Context*);
 protected:
    FWTriggerTableViewManager();
 
@@ -45,6 +46,8 @@ protected:
 
    virtual void eventEnd();
    virtual void colorsChanged();
+
+   void updateProcessList();
 
    std::vector<boost::shared_ptr<FWTriggerTableView> > m_views;
 

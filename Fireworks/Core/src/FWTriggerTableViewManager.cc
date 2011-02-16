@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTriggerTableViewManager.cc,v 1.4 2010/11/04 22:38:55 amraktad Exp $
+// $Id: FWTriggerTableViewManager.cc,v 1.5 2011/01/26 11:47:07 amraktad Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
+#include "Fireworks/Core/interface/FWJobMetadataManager.h"
 
 
 FWTriggerTableViewManager::FWTriggerTableViewManager(FWGUIManager* iGUIMgr) :
@@ -47,10 +48,12 @@ FWTriggerTableViewManager::buildView(TEveWindowSlot* iParent, const std::string&
    boost::shared_ptr<FWTriggerTableView> view;
    
    if (type == FWViewType::sName[FWViewType::kTableHLT])
-      view.reset( new FWHLTTriggerTableView(iParent) );
+      view.reset( new FWHLTTriggerTableView(iParent));
    else
-      view.reset( new FWL1TriggerTableView(iParent) );
+      view.reset( new FWL1TriggerTableView(iParent));
 
+   view->setProcessList(&(context().metadataManager()->processNamesInJob()));   
+ 
    view->setBackgroundColor(colorManager().background());
    m_views.push_back(boost::shared_ptr<FWTriggerTableView> (view));
    view->beingDestroyed_.connect(boost::bind(&FWTriggerTableViewManager::beingDestroyed,
@@ -94,4 +97,17 @@ FWTriggerTableViewManager::eventEnd()
    }
 }
 
+void
+FWTriggerTableViewManager::updateProcessList()
+{ 
+   // printf("FWTriggerTableViewManager::updateProcessLi\n");
+   for(std::vector<boost::shared_ptr<FWTriggerTableView> >::iterator it=
+          m_views.begin(), itEnd = m_views.end();
+       it != itEnd;
+       ++it) {
+    
+      (*it)->setProcessList(&(context().metadataManager()->processNamesInJob()));
+      (*it)->resetCombo();
+   }
+}
 

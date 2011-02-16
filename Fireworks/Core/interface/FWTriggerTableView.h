@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.h,v 1.7 2011/01/26 11:47:06 amraktad Exp $
+// $Id: FWTriggerTableView.h,v 1.8 2011/01/26 14:08:24 amraktad Exp $
 //
 
 // system include files
@@ -25,10 +25,12 @@
 class TGFrame;
 class TGCompositeFrame;
 class FWTableWidget;
+class TGComboBox;
 class TEveWindowFrame;
 class TEveWindowSlot;
 class FWTriggerTableViewManager;
 class FWTriggerTableViewTableManager;
+class FWJobMetadataManager;
 
 namespace fwlite {
    class Event;
@@ -45,7 +47,7 @@ public:
       {}
    };
 
-   FWTriggerTableView( TEveWindowSlot *, FWViewType::EType );
+   FWTriggerTableView(TEveWindowSlot *, FWViewType::EType );
    virtual ~FWTriggerTableView( void );
 
    // ---------- const member functions ---------------------
@@ -62,22 +64,39 @@ public:
    void dataChanged( void );
    void columnSelected( Int_t iCol, Int_t iButton, Int_t iKeyMod );
 
+   void setProcessList( std::vector<std::string>* x) { m_processList = x; }
+   void resetCombo() const;
+   //  void processChanged(Int_t);
+  void processChanged(const char*);
+protected:
+   FWStringParameter               m_regex;
+   FWStringParameter               m_process;
+
+   std::vector<Column>             m_columns;
+   FWTriggerTableViewTableManager* m_tableManager;
+
+   virtual void fillTable(fwlite::Event* event) = 0;
+
 private:
    FWTriggerTableView( const FWTriggerTableView& );      // stop default
    const FWTriggerTableView& operator=( const FWTriggerTableView& );      // stop default
-	
-protected:
-   virtual void fillTable(fwlite::Event* event) = 0;
 
-   typedef boost::unordered_map<std::string,double> acceptmap_t;
+   bool isProcessValid()const;
+   virtual void populateController(ViewerParameterGUI&) const;
+
+   mutable TGComboBox*             m_combo;
+
+   // destruction
    TEveWindowFrame*                m_eveWindow;
    TGCompositeFrame*               m_vert;
 
-   FWTriggerTableViewTableManager* m_tableManager;
+
    FWTableWidget*                  m_tableWidget;
-   std::vector<Column>             m_columns;
 
    Color_t                         m_backgroundColor;
+
+   std::vector<std::string>*       m_processList;
+
 };
 
 

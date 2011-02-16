@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jan 25 16:02:24 CET 2011
-// $Id: FWHLTTriggerTableView.h,v 1.1 2011/01/26 11:47:06 amraktad Exp $
+// $Id: FWHLTTriggerTableView.h,v 1.2 2011/01/26 14:08:23 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWTriggerTableView.h"
@@ -36,12 +36,11 @@ protected:
    virtual void fillTable(fwlite::Event* event);
 
 private:
+   typedef boost::unordered_map<std::string,double> acceptmap_t;
+
    fwlite::Event*                  m_event;
    acceptmap_t                     m_averageAccept;
-   FWStringParameter               m_regex;
-   FWStringParameter               m_process;
 
-   virtual void populateController(ViewerParameterGUI&) const;
    void fillAverageAcceptFractions();
 };
 #endif

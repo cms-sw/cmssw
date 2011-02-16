@@ -113,6 +113,7 @@ CmsShowMainBase::setupViewManagers()
    boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager(new FWTriggerTableViewManager(guiManager()));
    configurationManager()->add(std::string("TriggerTables"), triggerTableViewManager.get());
    configurationManager()->add(std::string("L1TriggerTables"), triggerTableViewManager.get()); // AMT: added for backward compatibilty
+   triggerTableViewManager->setContext(m_contextPtr);
    viewManager()->add(triggerTableViewManager);
 
     

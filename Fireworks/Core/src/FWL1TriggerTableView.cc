@@ -8,9 +8,10 @@
 //
 // Original Author:  
 //         Created:  Tue Jan 25 16:02:11 CET 2011
-// $Id$
+// $Id: FWL1TriggerTableView.cc,v 1.16 2011/01/26 11:47:07 amraktad Exp $
 //
 
+#include <boost/regex.hpp>
 #include "Fireworks/Core/interface/FWL1TriggerTableView.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
@@ -61,6 +62,8 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event)
       int pfIndexTechTrig = -1;
       int pfIndexAlgoTrig = -1;
 
+      boost::regex filter(m_regex.value());
+
       /// prescale factors
       std::vector<std::vector<int> > prescaleFactorsAlgoTrig = triggerMenuLite->gtPrescaleFactorsAlgoTrig();
       std::vector<std::vector<int> > prescaleFactorsTechTrig = triggerMenuLite->gtPrescaleFactorsTechTrig();
@@ -80,6 +83,8 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event)
          int errorCode = 0;
          const bool result = triggerMenuLite->gtTriggerResult( aName, dWord, errorCode );
 
+         if ( !boost::regex_search(aName, filter) ) continue;
+
          m_columns.at(0).values.push_back( aName );
          m_columns.at(1).values.push_back( Form( "%d", result ));
          m_columns.at(2).values.push_back( Form( "%d", bitNumber ));
@@ -91,26 +96,31 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event)
          else
             m_columns.at(3).values.push_back( "invalid");
       }
+
+      const static std::string kTechTriggerName = "TechTrigger";
       const TechnicalTriggerWord ttWord = triggerRecord->technicalTriggerWord();
 				
       int tBitNumber = 0;
       int tBitResult = 0;
-      for( TechnicalTriggerWord::const_iterator tBitIt = ttWord.begin(), tBitEnd = ttWord.end(); 
-           tBitIt != tBitEnd; ++tBitIt, ++tBitNumber )
+      if(boost::regex_search(kTechTriggerName, filter))
       {
-         if( *tBitIt )
-            tBitResult = 1;
-         else
-            tBitResult = 0;
+         for( TechnicalTriggerWord::const_iterator tBitIt = ttWord.begin(), tBitEnd = ttWord.end(); 
+              tBitIt != tBitEnd; ++tBitIt, ++tBitNumber )
+         {
+            if( *tBitIt )
+               tBitResult = 1;
+            else
+               tBitResult = 0;
 
-         m_columns.at(0).values.push_back( "TechTrigger" );
-         m_columns.at(1).values.push_back( Form( "%d", tBitResult ));
-         m_columns.at(2).values.push_back( Form( "%d", tBitNumber ));
+            m_columns.at(0).values.push_back( kTechTriggerName );
+            m_columns.at(1).values.push_back( Form( "%d", tBitResult ));
+            m_columns.at(2).values.push_back( Form( "%d", tBitNumber ));
 
-         if ( pfIndexTechTrig < pfIndexTechTrigValidSize && static_cast<int>(prescaleFactorsTechTrig.at(pfIndexTechTrig).size()) > tBitNumber)
-            m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( tBitNumber )));
-         else
-            m_columns.at(3).values.push_back( Form( "invalid" ));
+            if ( pfIndexTechTrig < pfIndexTechTrigValidSize && static_cast<int>(prescaleFactorsTechTrig.at(pfIndexTechTrig).size()) > tBitNumber)
+               m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( tBitNumber )));
+            else
+               m_columns.at(3).values.push_back( Form( "invalid" ));
+         }
       }
    } // trigger valid
    else
