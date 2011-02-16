@@ -16,9 +16,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -77,7 +78,7 @@ using namespace reco;
  }
  */
 GsfElectronProducer::GsfElectronProducer( const edm::ParameterSet & cfg )
- : GsfElectronBaseProducer(cfg)
+ : GsfElectronBaseProducer(cfg), pfTranslatorParametersChecked_(false)
  {}
 
 GsfElectronProducer::~GsfElectronProducer()
@@ -93,6 +94,58 @@ void GsfElectronProducer::produce( edm::Event & event, const edm::EventSetup & s
   algo_->addPflowInfo() ;
   fillEvent(event) ;
   endEvent() ;
+ }
+
+void GsfElectronProducer::beginEvent( edm::Event & event, const edm::EventSetup & setup )
+ {
+  // extra configuration checks
+  if (!pfTranslatorParametersChecked_)
+   {
+    pfTranslatorParametersChecked_ = true ;
+    edm::Handle<edm::ValueMap<float> > pfMva ;
+    event.getByLabel(inputCfg_.pfMVA,pfMva) ;
+    checkPfTranslatorParameters(pfMva.provenance()->psetID()) ;
+   }
+
+  // call to base class
+  GsfElectronBaseProducer::beginEvent(event,setup) ;
+ }
+
+void GsfElectronProducer::checkPfTranslatorParameters( edm::ParameterSetID const & psetid )
+ {
+  edm::ParameterSet pset ;
+  edm::pset::Registry::instance()->getMapped(psetid,pset) ;
+  edm::ParameterSet mvaBlock = pset.getParameter<edm::ParameterSet>("MVACutBlock") ;
+  double pfTranslatorMinMva = mvaBlock.getParameter<double>("MVACut") ;
+  double pfTranslatorUndefined = -99. ;
+  if (strategyCfg_.applyPreselection&&(cutsCfgPflow_.minMVA<pfTranslatorMinMva))
+   {
+    // For pure tracker seeded electrons, if MVA is under translatorMinMva, there is no supercluster
+    // of any kind available, so GsfElectronCoreProducer has already discarded the electron.
+    edm::LogWarning("GsfElectronAlgo|MvaCutTooLow")
+      <<"Parameter minMVAPflow will have no effect on purely tracker seeded electrons."
+      <<" It is inferior to the cut already applied by PFlow translator." ;
+   }
+  if (strategyCfg_.applyPreselection&&(cutsCfg_.minMVA<pfTranslatorMinMva))
+   {
+    // For ecal seeded electrons, there is a cluster and GsfElectronCoreProducer has kept all electrons,
+    // but when MVA is under translatorMinMva, the translator has not stored the supercluster and
+    // forced the MVA value to translatorUndefined
+    if (cutsCfg_.minMVA>pfTranslatorUndefined)
+     {
+      edm::LogWarning("GsfElectronAlgo|IncompletePflowInformation")
+        <<"Parameter minMVA is inferior to the cut applied by PFlow translator."
+        <<" Some ecal (and eventually tracker) seeded electrons may lack their MVA value and PFlow supercluster." ;
+     }
+    else
+     {
+      // the MVA value has been forced to translatorUndefined, inferior minMVAPflow
+      // so the cut actually applied is the PFlow one
+      throw cms::Exception("GsfElectronAlgo|BadMvaCut")
+        <<"Parameter minMVA is inferior to the lowest possible value."
+        <<" Every electron will be blessed whatever other criteria." ;
+     }
+   }
  }
 
 

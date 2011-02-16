@@ -14,6 +14,15 @@ class GsfElectronProducer : public GsfElectronBaseProducer
     virtual ~GsfElectronProducer();
     virtual void produce( edm::Event &, const edm::EventSetup & ) ;
 
+  protected:
+
+    void beginEvent( edm::Event &, const edm::EventSetup & ) ;
+
+  private :
+
+    // check expected configuration of previous modules
+    bool pfTranslatorParametersChecked_ ;
+    void checkPfTranslatorParameters( edm::ParameterSetID const & ) ;
  } ;
 
 #endif

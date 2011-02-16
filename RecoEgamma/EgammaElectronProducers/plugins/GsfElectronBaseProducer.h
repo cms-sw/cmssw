@@ -53,8 +53,6 @@ class GsfElectronBaseProducer : public edm::EDProducer
   private :
 
     // check expected configuration of previous modules
-    bool pfTranslatorParametersChecked_ ;
-    void checkPfTranslatorParameters( edm::ParameterSetID const & ) ;
     bool ecalSeedingParametersChecked_ ;
     void checkEcalSeedingParameters( edm::ParameterSetID const & ) ;
 
