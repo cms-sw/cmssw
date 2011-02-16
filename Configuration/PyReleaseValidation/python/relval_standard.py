@@ -9,20 +9,23 @@ class InputInfo(object):
         self.dataSet = dataSet
 
 #merge dictionnaries, with prioty on the [0] index
-def merge(dict1list):
+def merge(dictlist,TELL=False):
     import copy
-    last=len(dict1list)-1
+    last=len(dictlist)-1
+    if TELL: print last,dictlist
     if last==0:
-        return copy.copy(dict1list[0])
+        #ONLY ONE ITEM LEFT
+        return copy.copy(dictlist[0])
     else:
-        reducedlist=dict1list[0:max(0,last-2)]
+        reducedlist=dictlist[0:max(0,last-1)]
+        if TELL: print reducedlist
         #make a copy of the last item
-        d=copy.copy(dict1list[last])
+        d=copy.copy(dictlist[last])
         #update with the last but one item
-        d.update(dict1list[last-1])
+        d.update(dictlist[last-1])
         #and recursively do the rest
         reducedlist.append(d)
-        return merge(reducedlist)
+        return merge(reducedlist,TELL)
 
 
 # step1 gensim
@@ -154,6 +157,8 @@ step1['QCDFlatPt153000FS']=merge([{'cfg':'QCDForPF_7TeV_cfi'},step1FastDefaults]
 step1['H130GGgluonfusionFS']=merge([{'cfg':'H130GGgluonfusion_7TeV_cfi'},step1FastDefaults])
 ##########################
 
+print step1['ZEEFS1']
+print step1['ZEEFS2']
 
 
 # step2 
@@ -239,6 +244,7 @@ step4['ALCAQCD']=merge([{'-s':'ALCA:HcalCalIsoTrk+HcalCalDijets+HcalCalHO'},stCo
 step4['ALCAMU']=merge([{'-s':'ALCA:MuAlOverlaps+TkAlMuonIsolated+TkAlZMuMu'},stCond,step4Defaults])
 step4['ALCACOS']=merge([{'-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics'},stCond,step4Defaults])
 step4['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},stCond,step4Defaults])
+
 
 stepList = [step1, step2, step3, step4]
 
