@@ -39,6 +39,7 @@ hltL3SingleTauPixelSeedsRelaxed = FastSimulation.HighLevelTrigger.DummyModule_cf
 hltL3SingleTauMETPixelSeeds = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltL3SingleTauMETPixelSeedsRelaxed = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltL3TauHighPtPixelSeeds = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltPFJetPixelSeeds = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 
 hltBLifetimeRegionalPixelSeedGenerator = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixelSeedGeneratorSingleTop = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
@@ -66,4 +67,7 @@ from FastSimulation.HighLevelTrigger.HLTFastReco_cff import *
 HLTDoLocalPixelSequence = cms.Sequence(pixeltrackerlocalreco)
 hltSiPixelDigis = cms.Sequence(pixeltrackerlocalreco)
 hltSiPixelClusters = cms.Sequence(pixeltrackerlocalreco)
+hltSiPixelRecHits = cms.Sequence(pixeltrackerlocalreco)
 HLTDoLocalStripSequence = cms.Sequence(striptrackerlocalreco)
+
+HLTTrackReconstructionForJets = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltPFJetCtfWithMaterialTracks)
