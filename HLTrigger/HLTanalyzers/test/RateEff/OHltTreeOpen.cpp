@@ -1186,7 +1186,7 @@ void OHltTree::CheckOpenHlt(
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if ((OpenHlt1JetPassed(25)>=4) && (OpenHlt1JetPassed(25)>=5))
+            if ((OpenHlt1JetPassed(25)>=4) && (OpenHlt1JetPassed(20)>=5))
                triggerBit[it] = true;
          }
       }
