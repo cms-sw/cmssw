@@ -157,8 +157,6 @@ step1['QCDFlatPt153000FS']=merge([{'cfg':'QCDForPF_7TeV_cfi'},step1FastDefaults]
 step1['H130GGgluonfusionFS']=merge([{'cfg':'H130GGgluonfusion_7TeV_cfi'},step1FastDefaults])
 ##########################
 
-print step1['ZEEFS1']
-print step1['ZEEFS2']
 
 
 # step2 

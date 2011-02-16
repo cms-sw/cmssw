@@ -315,10 +315,6 @@ class MatrixReader(object):
                         stepName = step+"INPUT"
                 name += stepName
                 cfg, input, opts = self.makeCmd(self.relvalModule.stepList[stepIndex][stepName])
-                if num==6.1:
-                    print self.relvalModule.stepList[stepIndex][stepName]
-                    print num,cfg, stepIndex, stepName
-                #cfg, input, opts = self.makeCmd(self.relvalModule.step1[stepName])
                 if input and cfg :
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
                     raise msg
