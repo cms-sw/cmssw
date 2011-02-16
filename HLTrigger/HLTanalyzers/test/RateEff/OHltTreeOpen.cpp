@@ -11532,7 +11532,7 @@ int OHltTree::OpenHltQuadCorJetPassed(double pt)
    // Loop over all oh jets
    for (int i=0; i<NrecoJetCorCal; i++)
    {
-      if (recoJetCorCalPt[i] > pt && recoJetCorCalEta[i] < 5.0)
+     if (recoJetCorCalPt[i] > pt && fabs(recoJetCorCalEta[i] < 5.0))
       { // Jet pT cut
          //std::cout << "FL: fires the jet pt cut" << std::endl;
          njet++;
@@ -11555,7 +11555,7 @@ int OHltTree::OpenHltQuadJetPassed(double pt)
    // Loop over all oh jets
    for (int i=0; i<NrecoJetCal; i++)
    {
-      if (recoJetCalPt[i] > pt && recoJetCalEta[i] < 5.0)
+     if (recoJetCalPt[i] > pt && fabs(recoJetCalEta[i] < 5.0))
       { // Jet pT cut
          njet++;
       }
