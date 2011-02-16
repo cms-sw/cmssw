@@ -1217,6 +1217,25 @@ void PFRootEventManager::readOptions(const char* file,
     }
   }
 
+  bool usePFPhotons = false;   // set true to use PFElectrons
+  options_->GetOpt("particle_flow", "usePFPhotons", usePFPhotons);
+  cout<<"use PFPhotons "<<usePFPhotons<<endl;
+
+  if( usePFPhotons ) { 
+    // PFPhoton options -----------------------------
+    
+    try { 
+      pfAlgo_.setPFPhotonParameters(usePFPhotons);
+    }
+
+    catch( std::exception& err ) {
+      cerr<<"exception setting PFAlgo Photon parameters: "
+	  <<err.what()<<". terminating."<<endl;
+      delete this;
+      exit(1);
+    }
+  }
+
 
   bool rejectTracks_Bad = true;
   bool rejectTracks_Step45 = true;
