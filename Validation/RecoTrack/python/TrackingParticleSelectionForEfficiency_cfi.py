@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 TrackingParticleSelectionForEfficiency = cms.PSet(
     lipTP = cms.double(30.0),
     chargedOnlyTP = cms.bool(True),
+    stableOnlyTP = cms.bool(True),
     pdgIdTP = cms.vint32(),
     signalOnlyTP = cms.bool(True),
     minRapidityTP = cms.double(-2.4),
