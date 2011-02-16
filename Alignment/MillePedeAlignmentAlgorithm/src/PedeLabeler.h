@@ -8,36 +8,47 @@
  *
  * \author    : Gero Flucke
  * date       : September 2007
- * $Date: 2010/09/10 13:31:54 $
- * $Revision: 1.3 $
- * (last update by $Author: mussgill $)
+ * $Date: 2010/10/26 20:52:23 $
+ * $Revision: 1.4 $
+ * (last update by $Author: flucke $)
  */
 
 #include <vector>
 #include <map> 
 
+#include <Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h>
 
-class Alignable;
-class AlignableExtras;
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /***************************************
 ****************************************/
-class PedeLabeler
+class PedeLabeler : public PedeLabelerBase
 {
  public:
-  /// constructor from array of Alignables 
-  PedeLabeler(const std::vector<Alignable*> &alis);
-  /// constructor from two Alignables (null pointers allowed )
-  PedeLabeler(Alignable *ali1, Alignable *ali2, AlignableExtras *extras);
+
+  /// constructor from three Alignables (null pointers allowed )
+  PedeLabeler(const PedeLabelerBase::TopLevelAlignables &alignables,
+	      const edm::ParameterSet &config);
   /** non-virtual destructor: do not inherit from this class **/
   ~PedeLabeler();
-    
+  
   /// uniqueId of Alignable, 0 if alignable not known
   /// between this ID and the next there is enough 'space' to add parameter
   /// numbers 0...nPar-1 to make unique IDs for the labels of active parameters
   unsigned int alignableLabel(Alignable *alignable) const;
+  unsigned int alignableLabelFromParamAndInstance(Alignable *alignable,
+						  unsigned int param,
+						  unsigned int instance) const;
   unsigned int lasBeamLabel(unsigned int lasBeamId) const;
   unsigned int parameterLabel(unsigned int aliLabel, unsigned int parNum) const;
+  unsigned int parameterLabel(Alignable *alignable, unsigned int parNum,
+			      const AlignmentAlgorithmBase::EventInfo &eventInfo,
+			      const TrajectoryStateOnSurface &tsos) const {
+    return parameterLabel(alignableLabel(alignable), parNum);
+  }
+  bool hasSplitParameters(Alignable *alignable) const { return false; }
+  unsigned int numberOfParameterInstances(Alignable *alignable,
+					  int param=-1) const { return 1; }
   
   /// parameter number, 0 <= .. < theMaxNumParam, belonging to unique parameter label
   unsigned int paramNumFromLabel(unsigned int paramLabel) const;
@@ -49,13 +60,12 @@ class PedeLabeler
   /// las beam id from las beam or parameter label
   /// zero and error if not a valid las beam label
   unsigned int lasBeamIdFromLabel(unsigned int label) const;
-
+  
  private:
   typedef std::map <Alignable*, unsigned int> AlignableToIdMap;
   typedef AlignableToIdMap::value_type AlignableToIdPair;
   typedef std::map <unsigned int, Alignable*> IdToAlignableMap;
   typedef std::map <unsigned int, unsigned int> UintUintMap;
-
 
   /// returns size of map
   unsigned int buildMap(const std::vector<Alignable*> &alis);
@@ -63,14 +73,10 @@ class PedeLabeler
   unsigned int buildReverseMap();
 
   // data members
-  AlignableToIdMap  myAlignableToIdMap; /// providing unique ID for alignable, space for param IDs
-  IdToAlignableMap  myIdToAlignableMap; /// reverse map
-  UintUintMap       myLasBeamToLabelMap;  /// labels for las beams
-  UintUintMap       myLabelToLasBeamMap; /// reverse of the above
-
- public:
-  static const unsigned int theMaxNumParam;
-  static const unsigned int theMinLabel;
+  AlignableToIdMap  theAlignableToIdMap; /// providing unique ID for alignable, space for param IDs
+  IdToAlignableMap  theIdToAlignableMap; /// reverse map
+  UintUintMap       theLasBeamToLabelMap;  /// labels for las beams
+  UintUintMap       theLabelToLasBeamMap; /// reverse of the above
 };
 
 #endif

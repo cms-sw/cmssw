@@ -3,39 +3,32 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.6 $
- *  $Date: 2010/09/10 13:31:54 $
- *  (last update by $Author: mussgill $)
+ *  $Revision: 1.7 $
+ *  $Date: 2010/10/26 20:49:42 $
+ *  (last update by $Author: flucke $)
  */
-
-#include "PedeLabeler.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
-
-// NOTE: Changing '+14' makes older binary files unreadable...
-const unsigned int PedeLabeler::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM + 14;
-const unsigned int PedeLabeler::theMinLabel = 1; // must be > 0
+#include "PedeLabeler.h"
 
 //___________________________________________________________________________
-PedeLabeler::PedeLabeler(const std::vector<Alignable*> &alis)
-{
-  this->buildMap(alis);
-}
-
-//___________________________________________________________________________
-PedeLabeler::PedeLabeler(Alignable *ali1, Alignable *ali2, AlignableExtras *extras)
+PedeLabeler::PedeLabeler(const PedeLabelerBase::TopLevelAlignables& alignables,
+			 const edm::ParameterSet& config)
+  :PedeLabelerBase(alignables, config)
 {
   std::vector<Alignable*> alis;
-  alis.push_back(ali1);
-  alis.push_back(ali2);
+  alis.push_back(alignables.aliTracker_);
+  alis.push_back(alignables.aliMuon_);
 
-  if (extras) {
-    align::Alignables allExtras = extras->components();
+  if (alignables.aliExtras_) {
+    align::Alignables allExtras = alignables.aliExtras_->components();
     for ( std::vector<Alignable*>::iterator it = allExtras.begin(); it != allExtras.end(); ++it ) {
       alis.push_back(*it);
     }
@@ -45,7 +38,6 @@ PedeLabeler::PedeLabeler(Alignable *ali1, Alignable *ali2, AlignableExtras *extr
 }
 
 //___________________________________________________________________________
-
 PedeLabeler::~PedeLabeler()
 {
 }
@@ -56,8 +48,8 @@ unsigned int PedeLabeler::alignableLabel(Alignable *alignable) const
 {
   if (!alignable) return 0;
 
-  AlignableToIdMap::const_iterator position = myAlignableToIdMap.find(alignable);
-  if (position != myAlignableToIdMap.end()) {
+  AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
+  if (position != theAlignableToIdMap.end()) {
     return position->second;
   } else {
     const DetId detId(alignable->id());
@@ -70,11 +62,20 @@ unsigned int PedeLabeler::alignableLabel(Alignable *alignable) const
   }
 }
 
+//___________________________________________________________________________
+// Return 32-bit unique label for alignable, 0 indicates failure.
+unsigned int PedeLabeler::alignableLabelFromParamAndInstance(Alignable *alignable,
+							     unsigned int /*param*/,
+							     unsigned int /*instance*/) const
+{
+  return this->alignableLabel(alignable);
+}
+
 //_________________________________________________________________________
 unsigned int PedeLabeler::lasBeamLabel(unsigned int lasBeamId) const
 {
-  UintUintMap::const_iterator position = myLasBeamToLabelMap.find(lasBeamId);
-  if (position != myLasBeamToLabelMap.end()) {
+  UintUintMap::const_iterator position = theLasBeamToLabelMap.find(lasBeamId);
+  if (position != theLasBeamToLabelMap.end()) {
     return position->second;
   } else {
     //throw cms::Exception("LogicError") 
@@ -118,14 +119,14 @@ Alignable* PedeLabeler::alignableFromLabel(unsigned int label) const
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
   if (aliLabel < theMinLabel) return 0; // error already given
   
-  if (myIdToAlignableMap.empty()) const_cast<PedeLabeler*>(this)->buildReverseMap();
-  IdToAlignableMap::const_iterator position = myIdToAlignableMap.find(aliLabel);
-  if (position != myIdToAlignableMap.end()) {
+  if (theIdToAlignableMap.empty()) const_cast<PedeLabeler*>(this)->buildReverseMap();
+  IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
+  if (position != theIdToAlignableMap.end()) {
     return position->second;
   } else {
     // error only if not in lasBeamMap:
-    UintUintMap::const_iterator position = myLabelToLasBeamMap.find(aliLabel);
-    if (position == myLabelToLasBeamMap.end()) {
+    UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
+    if (position == theLabelToLasBeamMap.end()) {
       edm::LogError("LogicError") << "@SUB=PedeLabeler::alignableFromLabel"
 				  << "Alignable label " << aliLabel << " not in map.";
     }
@@ -139,9 +140,9 @@ unsigned int PedeLabeler::lasBeamIdFromLabel(unsigned int label) const
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
   if (aliLabel < theMinLabel) return 0; // error already given
   
-  if (myLabelToLasBeamMap.empty()) const_cast<PedeLabeler*>(this)->buildReverseMap();
-  UintUintMap::const_iterator position = myLabelToLasBeamMap.find(aliLabel);
-  if (position != myLabelToLasBeamMap.end()) {
+  if (theLabelToLasBeamMap.empty()) const_cast<PedeLabeler*>(this)->buildReverseMap();
+  UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
+  if (position != theLabelToLasBeamMap.end()) {
     return position->second;
   } else {
     edm::LogError("LogicError") << "@SUB=PedeLabeler::lasBeamIdFromLabel"
@@ -153,7 +154,7 @@ unsigned int PedeLabeler::lasBeamIdFromLabel(unsigned int label) const
 //_________________________________________________________________________
 unsigned int PedeLabeler::buildMap(const std::vector<Alignable*> &alis)
 {
-  myAlignableToIdMap.clear(); // just in case of re-use...
+  theAlignableToIdMap.clear(); // just in case of re-use...
 
   std::vector<Alignable*> allComps;
 
@@ -167,12 +168,12 @@ unsigned int PedeLabeler::buildMap(const std::vector<Alignable*> &alis)
   unsigned int id = theMinLabel;
   for (std::vector<Alignable*>::const_iterator iter = allComps.begin();
        iter != allComps.end(); ++iter) {
-    myAlignableToIdMap.insert(AlignableToIdPair(*iter, id));
+    theAlignableToIdMap.insert(AlignableToIdPair(*iter, id));
     id += theMaxNumParam;
   }
   
   // also care about las beams
-  myLasBeamToLabelMap.clear(); // just in case of re-use...
+  theLasBeamToLabelMap.clear(); // just in case of re-use...
   // FIXME: Temporarily hard code values stolen from 
   // https://twiki.cern.ch/twiki/bin/view/CMS/TkLasTrackBasedInterface#Beam_identifier .
   unsigned int beamIds[] = {  0,  10,  20,  30,  40,  50,  60,  70, // TEC+ R4
@@ -184,12 +185,12 @@ unsigned int PedeLabeler::buildMap(const std::vector<Alignable*> &alis)
   const size_t nBeams = sizeof(beamIds)/sizeof(beamIds[0]);
   for (size_t iBeam = 0; iBeam < nBeams; ++iBeam) {
     //edm::LogInfo("Alignment") << "Las beam " << beamIds[iBeam] << " gets label " << id << ".";
-    myLasBeamToLabelMap[beamIds[iBeam]] = id;
+    theLasBeamToLabelMap[beamIds[iBeam]] = id;
     id += theMaxNumParam;
   }
 
   // return combined size
-  return myAlignableToIdMap.size() + myLasBeamToLabelMap.size();
+  return theAlignableToIdMap.size() + theLasBeamToLabelMap.size();
 }
 
 //_________________________________________________________________________
@@ -197,24 +198,26 @@ unsigned int PedeLabeler::buildReverseMap()
 {
 
   // alignables
-  myIdToAlignableMap.clear();  // just in case of re-use...
+  theIdToAlignableMap.clear();  // just in case of re-use...
 
-  for (AlignableToIdMap::iterator it = myAlignableToIdMap.begin();
-       it != myAlignableToIdMap.end(); ++it) {
+  for (AlignableToIdMap::iterator it = theAlignableToIdMap.begin();
+       it != theAlignableToIdMap.end(); ++it) {
     const unsigned int key = (*it).second;
     Alignable *ali = (*it).first;
-    myIdToAlignableMap[key] = ali;
+    theIdToAlignableMap[key] = ali;
   }
 
   // las beams
-  myLabelToLasBeamMap.clear(); // just in case of re-use...
+  theLabelToLasBeamMap.clear(); // just in case of re-use...
 
-  for (UintUintMap::const_iterator it = myLasBeamToLabelMap.begin();
-       it != myLasBeamToLabelMap.end(); ++it) {
-    myLabelToLasBeamMap[it->second] = it->first; //revert key/value
+  for (UintUintMap::const_iterator it = theLasBeamToLabelMap.begin();
+       it != theLasBeamToLabelMap.end(); ++it) {
+    theLabelToLasBeamMap[it->second] = it->first; //revert key/value
   }
 
   // return combined size
-  return myIdToAlignableMap.size() + myLabelToLasBeamMap.size();
+  return theIdToAlignableMap.size() + theLabelToLasBeamMap.size();
 }
 
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerPluginFactory.h"
+DEFINE_EDM_PLUGIN(PedeLabelerPluginFactory, PedeLabeler, "PedeLabeler");
