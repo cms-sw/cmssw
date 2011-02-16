@@ -79,10 +79,7 @@ class cosmics(Scenario):
 
         """
 
-        skims = ['SiStripCalZeroBias',
-                 'TkAlMinBias',
-                 'DtCalib',
-                 'MuAlCalIsolatedMu']
+        skims = []
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
