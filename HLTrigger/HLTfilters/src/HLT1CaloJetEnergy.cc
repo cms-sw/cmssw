@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/10/08 11:18:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/02/11 20:55:24 $
+ *  $Revision: 1.6 $
  *
  *  \author Jim Brooke
  *
@@ -55,7 +55,7 @@ void
 HLT1CaloJetEnergy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltStoppedHSCPIterativeCone5CaloJets"));
-  desc.addUntracked<bool>("saveTag",true);
+  desc.addUntracked<bool>("saveTag",false);
   desc.add<double>("MinE",20.0);
   desc.add<double>("MaxEta",3.0);
   desc.add<int>("MinN",1);

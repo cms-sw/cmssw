@@ -8,8 +8,8 @@
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: 2010/03/15 11:06:10 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/04/18 11:28:37 $
+ *  $Revision: 1.8 $
  *
  *  \author Andrea Bocci
  *
@@ -23,6 +23,8 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #define PHYSICS_BITS_SIZE    128
 #define TECHNICAL_BITS_SIZE   64
@@ -35,6 +37,7 @@ class HLTLevel1Activity : public HLTFilter {
 public:
   explicit HLTLevel1Activity(const edm::ParameterSet&);
   ~HLTLevel1Activity();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
 
 private:
@@ -93,6 +96,27 @@ HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) :
 
 HLTLevel1Activity::~HLTLevel1Activity()
 {
+}
+
+void
+HLTLevel1Activity::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("L1GtReadoutRecordTag",edm::InputTag("hltGtDigis"));
+  {
+    std::vector<int> temp1;
+    temp1.reserve(3);
+    temp1.push_back(0);
+    temp1.push_back(-1);
+    temp1.push_back(1);
+    desc.add<std::vector<int> >("bunchCrossings",temp1);
+  }
+  desc.add<unsigned int>("daqPartitions",1);
+  desc.add<bool>("ignoreL1Mask",false);
+  desc.add<bool>("invert",false);
+  desc.add<unsigned long long int>("physicsLoBits",1);
+  desc.add<unsigned long long int>("physicsHiBits",262144);
+  desc.add<unsigned long long int>("technicalBits",1);
+  descriptions.add("hltLevel1Activity",desc);
 }
 
 //
