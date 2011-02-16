@@ -21,6 +21,16 @@ MillePedeAlignmentAlgorithm = cms.PSet(
 
     monitorFile = cms.untracked.string('millePedeMonitor.root'), ## if empty: no monitoring...
 
+    # PSet that allows to configure the pede labeler, i.e. select the actual
+    # labeler plugin to use and parameters for the selected plugin
+    pedeLabeler = cms.PSet(
+      #plugin = cms.string('MomentumDependentPedeLabeler')
+      #parameterInstances = cms.VPSet(
+      #  cms.PSet(momentumRanges = cms.vstring('0.0:50.0','50.0:10000.0'),
+      #           selector = cms.vstring('ExtrasBeamSpot,1111'))
+      #  )
+    ),
+    
     pedeSteerer = cms.PSet(
         fileDir = cms.untracked.string(''),
         steerFile = cms.string('pedeSteer'), ## beginning of steering file names
