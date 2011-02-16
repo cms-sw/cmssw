@@ -5,13 +5,14 @@
 #include <boost/iterator/filter_iterator.hpp>
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
+#include <functional>
 
 namespace reco { namespace tau { namespace cone {
 
 // Predicate class that tests if a candidate lies within some deltaR (min,
 // max) about a supplied axis
 template<class CandType>
-class DeltaRFilter {
+class DeltaRFilter : public std::unary_function<CandType, bool> {
   public:
     DeltaRFilter(const reco::Candidate::LorentzVector& axis,
                  double min, double max): axis_(axis), min_(min), max_(max) {}
@@ -28,7 +29,7 @@ class DeltaRFilter {
 
 // Wrapper around DeltaRFilter to support reference types like Ptr<>
 template<class CandType>
-class DeltaRPtrFilter {
+class DeltaRPtrFilter : public std::unary_function<CandType, bool> {
   public:
     DeltaRPtrFilter(const reco::Candidate::LorentzVector& axis,
                     double min, double max): filter_(axis, min, max) {}
