@@ -141,7 +141,13 @@
      <PARAM name="xmin">0</PARAM> 
      <PARAM name="xmax">25.0</PARAM> 
 </QTEST>
-
+<QTEST name="XrangeWithin:FractionOfGoodTracks" activate="true"> 
+     <TYPE>ContentsXRange</TYPE> 
+     <PARAM name="error">0.85</PARAM> 
+     <PARAM name="warning">0.95</PARAM> 
+     <PARAM name="xmin">-1.1</PARAM> 
+     <PARAM name="xmax">1.1</PARAM> 
+</QTEST>
 
 <LINK name="*nFEDErrors">
   <TestName activate="true">MeanWithinExpectedRange:nFEDErrors</TestName>
@@ -187,5 +193,8 @@
 </LINK>
 <LINK name="*TrackParameters/GeneralProperties/Chi2oNDF_CKFTk">
   <TestName activate="true">XrangeWithin:Chi2overDoF</TestName>
+</LINK>
+<LINK name="*TrackParameters/GeneralProperties/FractionOfGoodTracks_CKFTk">
+  <TestName activate="true">XrangeWithin:FractionOfGoodTracks</TestName>
 </LINK>
 </TESTCONFIGURATION>
