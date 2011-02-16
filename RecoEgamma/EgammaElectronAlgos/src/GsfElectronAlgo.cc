@@ -287,7 +287,7 @@ struct GsfElectronAlgo::ElectronData
   CaloClusterPtr getEleBasicCluster( const MultiTrajectoryStateTransform * ) ;
   bool calculateTSOS( const MultiTrajectoryStateTransform *, GsfConstraintAtVertex * ) ;
   void calculateMode( const MultiTrajectoryStateMode * mtsMode ) ;
-  Candidate::LorentzVector computeMomemtum() ;
+  Candidate::LorentzVector calculateMomentum() ;
 
   // TSOS
   TrajectoryStateOnSurface innTSOS ;
@@ -510,7 +510,7 @@ void GsfElectronAlgo::ElectronData::calculateMode( const MultiTrajectoryStateMod
   mtsMode->momentumFromModeCartesian(constrainedVtxTSOS,vtxMomWithConstraint);
  }
 
-Candidate::LorentzVector GsfElectronAlgo::ElectronData::computeMomemtum()
+Candidate::LorentzVector GsfElectronAlgo::ElectronData::calculateMomentum()
  {
   double scale = superClusterRef->energy()/vtxMom.mag() ;
   return Candidate::LorentzVector
@@ -746,20 +746,21 @@ void GsfElectronAlgo::clonePreviousElectrons()
  {
   const GsfElectronCollection * oldElectrons = eventData_->previousElectrons.product() ;
   const GsfElectronCoreCollection * newCores = eventData_->coreElectrons.product() ;
-  GsfElectronCollection::const_iterator electron ;
+  GsfElectronCollection::const_iterator oldElectron ;
   for
-   ( electron = oldElectrons->begin() ;
-     electron != oldElectrons->end() ;
-     ++electron )
+   ( oldElectron = oldElectrons->begin() ;
+     oldElectron != oldElectrons->end() ;
+     ++oldElectron )
    {
-    const GsfTrackRef electronGsfTrackRef = electron->gsfTrack() ;
+    const GsfElectronCoreRef oldCoreRef = oldElectron->core() ;
+    const GsfTrackRef oldElectronGsfTrackRef = oldCoreRef->gsfTrack() ;
     unsigned int icore ;
     for ( icore=0 ; icore<newCores->size() ; ++icore )
      {
-      if (electronGsfTrackRef==(*newCores)[icore].gsfTrack())
+      if (oldElectronGsfTrackRef==(*newCores)[icore].gsfTrack())
        {
         const GsfElectronCoreRef coreRef = edm::Ref<GsfElectronCoreCollection>(eventData_->coreElectrons,icore) ;
-        eventData_->electrons->push_back(new GsfElectron(*electron,coreRef)) ;
+        eventData_->electrons->push_back(new GsfElectron(*oldElectron,coreRef)) ;
         break ;
        }
      }
@@ -781,7 +782,13 @@ void GsfElectronAlgo::addPflowInfo()
     float mva = (*eventData_->pfMva.product())[gsfTrackRef] ;
     double noCutMin = -999999999 ;
     if (mva<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<mva ; }
-    (*el)->setMva(mva) ;
+
+    // Mva Output
+    GsfElectron::MvaOutput mvaOutput ;
+    mvaOutput.mva = mva ;
+    (*el)->setMvaOutput(mvaOutput) ;
+    //(*el)->setMva(mva) ;
+
     // Preselection
     setMvaPreselectionFlag(*el) ;
    }
@@ -928,7 +935,7 @@ void GsfElectronAlgo::createElectron()
   // Candidate attributes
   //====================================================
 
-  Candidate::LorentzVector momentum = electronData_->computeMomemtum() ;
+  Candidate::LorentzVector momentum = electronData_->calculateMomentum() ;
 
 
   //====================================================
@@ -1094,11 +1101,12 @@ void GsfElectronAlgo::createElectron()
 
   GsfElectron * ele = new
     GsfElectron
-     ( momentum,eleCharge,eleChargeInfo,electronData_->coreRef,
+     ( eleCharge,eleChargeInfo,electronData_->coreRef,
        tcMatching, tkExtra, ctfInfo,
        fiducialFlags,showerShape,
        conversionVars,
        fbrem) ;
+  ele->setP4(GsfElectron::P4_FROM_SUPER_CLUSTER,momentum,0,true) ;
 
   // set corrections + classification
   ElectronClassification theClassifier;

@@ -83,6 +83,9 @@
   <class name="reco::GsfElectron::ConversionRejection"/>
   <class name="reco::GsfElectron::Corrections"/>
   <class name="reco::GsfElectron::ChargeInfo"/>
+  <class name="reco::GsfElectron::PflowIsolationVariables"/>
+  <class name="reco::GsfElectron::MvaInput"/>
+  <class name="reco::GsfElectron::MvaOutput"/>
   
   <class name="reco::GsfElectron"/>
   <class name="std::vector<reco::GsfElectron>"/>  

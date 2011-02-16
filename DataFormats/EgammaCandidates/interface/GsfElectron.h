@@ -32,7 +32,7 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.43 2011/01/14 17:45:58 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.44 2011/01/21 17:02:14 chamont Exp $
  *
  ****************************************************************************/
 
@@ -78,7 +78,7 @@ class GsfElectron : public RecoCandidate
      ) ;
     GsfElectron
      (
-      const LorentzVector & p4, int charge,
+      int charge,
       const ChargeInfo &,
       const GsfElectronCoreRef &,
       const TrackClusterMatching &,
@@ -100,9 +100,13 @@ class GsfElectron : public RecoCandidate
      ) const ;
     virtual ~GsfElectron() {} ;
 
+  private:
+
+    void init() ;
+
 
   //=======================================================
-  // Candidate methods and charge information
+  // Candidate methods and complementary information
   //
   // The gsf electron producer has tried to best evaluate
   // the four momentum and charge and given those values to
@@ -167,6 +171,7 @@ class GsfElectron : public RecoCandidate
     GsfTrackRef gsfTrack() const { return core()->gsfTrack() ; }
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
+    reco::PFCandidateRef pflowCandidate() const { return core()->pflowCandidate() ; }
     SuperClusterRef pflowSuperCluster() const { return core()->pflowSuperCluster() ; }
 
   private:
@@ -369,7 +374,7 @@ class GsfElectron : public RecoCandidate
        : sigmaEtaEta(std::numeric_limits<float>::infinity()),
 	     sigmaIetaIeta(std::numeric_limits<float>::infinity()),
 	     e1x5(0.), e2x5Max(0.), e5x5(0.),
-	     hcalDepth1OverEcal(0), hcalDepth2OverEcal(0)
+	     hcalDepth1OverEcal(0.), hcalDepth2OverEcal(0.)
        {}
      } ;
 
@@ -487,7 +492,68 @@ class GsfElectron : public RecoCandidate
 
 
   //=======================================================
-  // Preselection, Ambiguity and Pflow Information
+  // Pflow Information
+  //=======================================================
+
+  public:
+
+    struct PflowIsolationVariables
+      {
+       float chargedHadronIso ;
+       float neutralHadronIso ;
+       float photonIso ;
+       PflowIsolationVariables()
+        : chargedHadronIso(0.), neutralHadronIso(0.), photonIso(0.)
+        {}
+      } ;
+
+    struct MvaInput
+     {
+      int earlyBrem ; // Early Brem detected (-2=>unknown,-1=>could not be evaluated,0=>wrong,1=>true)
+      int lateBrem ; // Late Brem detected (-2=>unknown,-1=>could not be evaluated,0=>wrong,1=>true)
+      float sigmaEtaEta ; // Sigma-eta-eta with the PF cluster
+      float hadEnergy ; // Associated PF Had Cluster energy
+      float deltaEta ; // PF-cluster GSF track delta-eta
+      MvaInput()
+       : earlyBrem(-2), lateBrem(-2),
+         sigmaEtaEta(std::numeric_limits<float>::infinity()),
+         hadEnergy(0.),
+         deltaEta(std::numeric_limits<float>::infinity())
+       {}
+     } ;
+
+    struct MvaOutput
+     {
+      int status ; // to be defined
+      float mva ;
+      MvaOutput()
+       : status(-1), mva(-999999999.)
+       {}
+     } ;
+
+    // accessors
+    const ShowerShape & pfShowerShape() const { return pfShowerShape_ ; }
+    const PflowIsolationVariables & pfIsolationVariables() const { return pfIso_ ; }
+    const MvaInput & mvaInput() const { return mvaInput_ ; }
+    const MvaOutput & mvaOutput() const { return mvaOutput_ ; }
+    float mva() const { return (((mvaOutput_.status)!=-1)?(mvaOutput_.mva):(mva_)) ; }
+
+    // setters
+    void setPfShowerShape( const ShowerShape & shape ) { pfShowerShape_ = shape ; }
+    void setPfIsolationVariables( const PflowIsolationVariables & iso ) { pfIso_ = iso ; }
+    void setMvaInput( const MvaInput & mi ) { mvaInput_ = mi ; }
+    void setMvaOutput( const MvaOutput & mo ) { mvaOutput_ = mo ; }
+
+  private:
+
+    ShowerShape pfShowerShape_ ;
+    PflowIsolationVariables pfIso_ ;
+    MvaInput mvaInput_ ;
+    MvaOutput mvaOutput_ ;
+
+
+  //=======================================================
+  // Preselection and Ambiguity
   //=======================================================
 
   public :
@@ -497,13 +563,13 @@ class GsfElectron : public RecoCandidate
     bool passingCutBasedPreselection() const { return passCutBasedPreselection_ ; }
     bool passingMvaPreselection() const { return passMvaPreslection_ ; }
     bool ambiguous() const { return ambiguous_ ; }
-    float mva() const { return mva_ ; }
+    //float mva() const { return mva_ ; }
 
     // setters
     void setPassCutBasedPreselection( bool flag ) { passCutBasedPreselection_ = flag ; }
     void setPassMvaPreselection( bool flag ) { passMvaPreslection_ = flag ; }
     void setAmbiguous( bool flag ) { ambiguous_ = flag ; }
-    void setMva( float mva ) { mva_ = mva ; }
+    //void setMva( float mva ) { mva_ = mva ; }
 
   private:
 
@@ -511,7 +577,7 @@ class GsfElectron : public RecoCandidate
     bool passCutBasedPreselection_ ;
     bool passMvaPreslection_ ;
     bool ambiguous_ ;
-    float mva_ ; // electron ID variable from mva (tracker driven electrons)
+    float mva_ ; // FOR BACKWARD COMPATIBILITY electron ID variable from mva (tracker driven electrons)
 
 
   //=======================================================
@@ -551,7 +617,7 @@ class GsfElectron : public RecoCandidate
   // and so to store specific kind of corrections
   // 1) classify()
   // 2) correctEcalEnergy() : depending on classification and eta
-  // 3) correctMomemtum() : depending on classification and acal energy and tracker momentum errors
+  // 3) correctMomemtum() : depending on classification and ecal energy and tracker momentum errors
   //
   // Beware that correctEcalEnergy() is modifying few attributes which
   // were potentially used for preselection, whose value used in
@@ -562,44 +628,60 @@ class GsfElectron : public RecoCandidate
 
   public :
 
+    enum P4Kind { P4_UNKNOWN=-1, P4_FROM_SUPER_CLUSTER=0, P4_COMBINATION=1, P4_PFLOW_COMBINATION=2 } ;
+
     struct Corrections
      {
       bool isEcalEnergyCorrected ;  // true if ecal energy has been corrected
       float ecalEnergy ;            // ecal corrected energy (if !isEcalEnergyCorrected this value is identical to the supercluster energy)
       float ecalEnergyError ;       // error on correctedCaloEnergy
-      bool isMomentumCorrected ;    // true if E-p combination has been applied (if not the electron momentum is the ecal corrected energy)
+      bool isMomentumCorrected ;    // DEPRECATED
       float trackMomentumError ;    // track momentum error from gsf fit
-      float electronMomentumError ; // the final electron momentum error
+      //
+      LorentzVector fromSuperClusterP4 ; // for P4_FROM_SUPER_CLUSTER
+      float fromSuperClusterP4Error ;    // for P4_FROM_SUPER_CLUSTER
+      LorentzVector electronP4 ;    // for P4_COMBINATION
+      float electronMomentumError ;       // for P4_COMBINATION
+      LorentzVector pflowP4 ;       // for P4_PFLOW_COMBINATION
+      float pflowP4Error ;          // for P4_PFLOW_COMBINATION
+      P4Kind candidateP4Kind ;  // say which momentum has been stored in reco::Candidate
+      //
       Corrections()
        : isEcalEnergyCorrected(false), ecalEnergy(0.), ecalEnergyError(999.),
-  	     isMomentumCorrected(false), trackMomentumError(999.), electronMomentumError(999.)
+  	     isMomentumCorrected(false), trackMomentumError(999.),
+  	     fromSuperClusterP4Error(999.), electronMomentumError(999.), pflowP4Error(999.),
+  	     candidateP4Kind(P4_UNKNOWN)
        {}
      } ;
 
-    // correctors
-    void correctEcalEnergy( float newEnergy, float newEnergyError ) ;
-    void correctMomentum
-     ( const LorentzVector & momentum,
-       float trackMomentumError, float electronMomentumError ) ;
+    // setters
+    void setCorrectedEcalEnergy( float newEnergy, float newEnergyError ) ;
+    void setTrackMomentumError( float trackMomentumError ) ;
+    void setP4( P4Kind kind, const LorentzVector & p4, float p4Error, bool setCandidate ) ;
+    using RecoCandidate::setP4 ;
 
     // accessors
     bool isEcalEnergyCorrected() const { return corrections_.isEcalEnergyCorrected ; }
     float ecalEnergy() const { return corrections_.ecalEnergy ; }
     float ecalEnergyError() const { return corrections_.ecalEnergyError ; }
-    bool isMomentumCorrected() const { return corrections_.isMomentumCorrected ; }
     float trackMomentumError() const { return corrections_.trackMomentumError ; }
-    float electronMomentumError() const { return corrections_.electronMomentumError ; }
+    const LorentzVector & p4( P4Kind kind ) const ;
+    using RecoCandidate::p4 ;
+    float p4Error( P4Kind kind ) const ;
+    P4Kind candidateP4Kind() const { return corrections_.candidateP4Kind ; }
     const Corrections & corrections() const { return corrections_ ; }
 
     // for backward compatibility
-    float caloEnergy() const { return ecalEnergy() ; }
-    //void correctElectronEnergyScale( const float newEnergy )
-    // { correctEcalEnergy(newEnergy) ; }
-    //void correctElectronFourMomentum
-    // ( const LorentzVector & m,
-    //   float & enErr, float  & tMerr)
-    // { correctMomentum(m,enErr,tMerr,0) ; }
-    bool isEnergyScaleCorrected() const { return isEcalEnergyCorrected() ; }
+    //bool isMomentumCorrected() const { return corrections_.isMomentumCorrected ; }
+    float caloEnergy() const
+     { return ecalEnergy() ; }
+    bool isEnergyScaleCorrected() const
+     { return isEcalEnergyCorrected() ; }
+    void correctEcalEnergy( float newEnergy, float newEnergyError )
+     { setCorrectedEcalEnergy(newEnergy,newEnergyError) ; }
+    void correctMomentum( const LorentzVector & p4, float trackMomentumError, float p4Error )
+     { setTrackMomentumError(trackMomentumError) ; setP4(P4_COMBINATION,p4,p4Error,true) ; }
+
 
   private:
 
@@ -608,8 +690,6 @@ class GsfElectron : public RecoCandidate
 
  } ;
 
-  //typedef GsfElectron PixelMatchGsfElectron ;
-
- }
+ } // namespace reco
 
 #endif

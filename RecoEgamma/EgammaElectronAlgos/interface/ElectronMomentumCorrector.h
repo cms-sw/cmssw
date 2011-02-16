@@ -21,7 +21,8 @@ class ElectronMomentumCorrector
  public:
 
   //  ElectronMomentumCorrector(){newMomentum_=CLHEP::HepLorentzVector();}
-   ElectronMomentumCorrector(){newMomentum_= math::XYZTLorentzVector();}
+   // ElectronMomentumCorrector(){ newMomentum_= math::XYZTLorentzVector();}
+   ElectronMomentumCorrector() {}
    //virtual
    ~ElectronMomentumCorrector(){}
 
@@ -39,9 +40,9 @@ class ElectronMomentumCorrector
   float energyError(float E, float *par) const;
 
   //  CLHEP::HepLorentzVector newMomentum_;
-  math::XYZTLorentzVector newMomentum_;
-  float errorEnergy_;
-  float errorTrackMomentum_;
+  //math::XYZTLorentzVector newMomentum_;
+  //float errorEnergy_;
+  //float errorTrackMomentum_;
 
 };
 
