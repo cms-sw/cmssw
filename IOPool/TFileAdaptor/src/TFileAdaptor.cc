@@ -1,36 +1,28 @@
+#include "TFileAdaptor.h"
+
+#include "FWCore/Catalog/interface/SiteLocalConfig.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include <boost/shared_ptr.hpp>
+
 #include <TROOT.h>
-#include <TPluginManager.h>
 #include <TFile.h>
-#include <sstream>
-#include <iostream>
+#include <TPluginManager.h>
+
+#include <boost/shared_ptr.hpp>
+
 #include <algorithm>
-#include <vector>
-#include <string>
+#include <sstream>
 
 // Driver for configuring ROOT plug-in manager to use TStorageFactoryFile.
-class TFileAdaptor {
-private:
-  bool enabled_;
-  bool doStats_;
-  std::string cacheHint_;
-  std::string readHint_;
-  std::string tempDir_;
-  double minFree_;
-  unsigned int timeout_;
-  std::vector<std::string> native_;
-
-  static void addType(TPluginManager *mgr, char const *type) {
+  void
+  TFileAdaptor::addType(TPluginManager* mgr, char const* type) {
     mgr->AddHandler("TFile",
                     type,
                     "TStorageFactoryFile",
@@ -44,13 +36,13 @@ private:
                     "TStorageFactorySystem()");
   }
 
-  bool native(char const *proto) const {
+  bool
+  TFileAdaptor::native(char const* proto) const {
     return std::find(native_.begin(), native_.end(), "all") != native_.end()
       || std::find(native_.begin(), native_.end(), proto) != native_.end();
   }
 
-public:
-  TFileAdaptor(const edm::ParameterSet &p, edm::ActivityRegistry &ar)
+  TFileAdaptor::TFileAdaptor(edm::ParameterSet const& p, edm::ActivityRegistry& ar)
     : enabled_(true),
       doStats_(true),
       cacheHint_("application-only"),
@@ -62,7 +54,7 @@ public:
     if (!(enabled_ = p.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
 
-    StorageFactory *f = StorageFactory::get();
+    StorageFactory* f = StorageFactory::get();
     doStats_ = p.getUntrackedParameter<bool> ("stats", doStats_);
 
     // values set in the site local config or in SiteLocalConfigService override
@@ -137,7 +129,7 @@ public:
     f->setTempDir(tempDir_, minFree_);
 
     // set our own root plugins
-    TPluginManager *mgr = gROOT->GetPluginManager();
+    TPluginManager* mgr = gROOT->GetPluginManager();
     mgr->LoadHandlersFromPluginDirs();
 
     if (!native("file"))      addType(mgr, "^file:");
@@ -154,7 +146,8 @@ public:
     if (!native("storm-lcg")) addType(mgr, "^storm-lcg:");
   }
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  void
+  TFileAdaptor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.addOptionalUntracked<bool>("enable");
     desc.addOptionalUntracked<bool>("stats");
@@ -167,7 +160,8 @@ public:
   }
 
   // Write current Storage statistics on a ostream
-  void termination(void) const {
+  void
+  TFileAdaptor::termination(void) const {
     std::map<std::string, std::string> data;
     statsXML(data);
     if (!data.empty()) {
@@ -176,7 +170,8 @@ public:
     }
   }
 
-  void stats(std::ostream &o) const {
+  void
+  TFileAdaptor::stats(std::ostream& o) const {
     if (!doStats_) {
       return;
     }
@@ -191,7 +186,8 @@ public:
       << "; tfile/write=?/?/" << (TFile::GetFileBytesWritten() / oneMeg) << "MB/?ms/?ms/?ms";
   }
 
-  void statsXML(std::map<std::string, std::string> &data) const {
+  void
+  TFileAdaptor::statsXML(std::map<std::string, std::string>& data) const {
     if (!doStats_) {
       return;
     }
@@ -208,10 +204,6 @@ public:
     data.insert(std::make_pair("ROOT-tfile-read-totalMegabytes", r.str()));
     data.insert(std::make_pair("ROOT-tfile-write-totalMegabytes", w.str()));
   }
-};
-
-
-#include <iostream>
 
 /*
  * wrapper to bind TFileAdaptor to root, python etc
@@ -232,10 +224,12 @@ private:
   boost::shared_ptr<TFileAdaptor> me;
 };
 
+#include <iostream>
+
 TFileAdaptorUI::TFileAdaptorUI() {
   edm::ActivityRegistry ar;
   const edm::ParameterSet param;
-  me.reset(new TFileAdaptor(param,ar));
+  me.reset(new TFileAdaptor(param, ar));
 }
 
 TFileAdaptorUI::~TFileAdaptorUI() {}
@@ -245,4 +239,5 @@ void TFileAdaptorUI::stats() const {
 }
 
 typedef TFileAdaptor AdaptorConfig;
+
 DEFINE_FWK_SERVICE(AdaptorConfig);
