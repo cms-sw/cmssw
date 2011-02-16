@@ -21,6 +21,7 @@ class Trajectory;
 // class TsosVectorCollection;
 // class TkFittedLasBeamCollection;
 // class AliClusterValueMap;
+#include "CondCore/DBCommon/interface/Time.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 #include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
@@ -35,6 +36,8 @@ public:
 
   typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
   typedef std::vector< ConstTrajTrackPair >  ConstTrajTrackPairCollection;
+  typedef cond::RealTimeType<cond::runnumber>::type RunNumber;
+  typedef std::pair<RunNumber,RunNumber> RunRange;
 
   /// define event information passed to algorithms
   struct EventInfo {
@@ -93,6 +96,10 @@ public:
 
   /// called at end of luminosity block (no lumi block info passed yet)
   virtual void endLuminosityBlock(const edm::EventSetup &setup) {};
+
+  /// called in order to pass parameters to alignables for a specific run
+  /// range in case the algorithm supports run range dependent alignment.
+  virtual void setParametersForRunRange(const RunRange& rr) {};
 };
 
 #endif
