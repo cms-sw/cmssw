@@ -71,7 +71,7 @@ class WorkFlowRunner(Thread):
         inFile = 'file:raw.root'
         if self.wf.cmdStep1.startswith('DATAINPUT'):
             print "going to run with file input ... "
-            run      = self.wf.input.run
+            run      = str(self.wf.input.run)
             label    = self.wf.input.label
             location = self.wf.input.location.lower().strip()
             if 'caf' in location:
@@ -83,8 +83,8 @@ class WorkFlowRunner(Thread):
                 self.report+='%s_%s %s - time %s; exit: %s %s %s %s \n' % (self.wf.numId, self.wf.nameId, logStat, 0, 0,0,0,0)
                 return
                 
-            files  = self.wf.input.files
-            events = self.wf.input.events
+            files  = str(self.wf.input.files)
+            events = str(self.wf.input.events)
             if self.wf.cmdStep2 and ' -n ' not in self.wf.cmdStep2: self.wf.cmdStep2 += ' -n ' + events
             if self.wf.cmdStep3 and ' -n ' not in self.wf.cmdStep3: self.wf.cmdStep3 += ' -n ' + events
             if self.wf.cmdStep4 and ' -n ' not in self.wf.cmdStep4: self.wf.cmdStep4 += ' -n ' + events
@@ -264,17 +264,15 @@ class MatrixReader(object):
         
         return
 
-    def makeCmd(self, step, defaults):
+    def makeCmd(self, step):
 
         cmd = ''
         cfg = None
         input = None
         #print step
         #print defaults
-        for k,v in defaults.items():
+        for k,v in step.items():
             if 'no_exec' in k : continue  # we want to really run it ... 
-            if k in step.keys():
-                v = step[k]
             if k.lower() == 'cfg':
                 cfg = v
                 continue # do not append to cmd, return separately
@@ -283,10 +281,6 @@ class MatrixReader(object):
                 continue # do not append to cmd, return separately
             #print k,v
             cmd += ' ' + k + ' ' + str(v)
-        for k,v in step.items():
-            if k not in defaults:
-                v = step[k]
-                cmd += ' ' + k + ' ' + str(v)
         return cfg, input, cmd
     
     def readMatrix(self, fileNameIn, useInput=None):
@@ -317,7 +311,7 @@ class MatrixReader(object):
                     if step+'INPUT' in self.relvalModule.step1.keys():
                         stepName = step+"INPUT"
                 name += stepName
-                cfg, input, opts = self.makeCmd(self.relvalModule.stepList[stepIndex][stepName], self.relvalModule.stepDefaultsList[stepIndex])
+                cfg, input, opts = self.makeCmd(self.relvalModule.stepList[stepIndex][stepName])
                 if input and cfg :
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
                     raise msg
@@ -375,21 +369,21 @@ class MatrixReader(object):
 
             outFile.write('\n'+'\n')
             for stepName in self.relvalModule.step2.keys():
-                cfg,input,cmd = self.makeCmd(self.relvalModule.step2[stepName], self.relvalModule.step2Defaults)
+                cfg,input,cmd = self.makeCmd(self.relvalModule.step2[stepName])
                 line = 'STEP2 ++ ' +stepName + ' @@@ cmsDriver.py step2 ' +cmd
                 print line
                 outFile.write(line+'\n')
                 
             outFile.write('\n'+'\n')
             for stepName in self.relvalModule.step3.keys():
-                cfg,input,cmd = self.makeCmd(self.relvalModule.step3[stepName], self.relvalModule.step3Defaults)
+                cfg,input,cmd = self.makeCmd(self.relvalModule.step3[stepName])
                 line ='STEP3 ++ ' +stepName + ' @@@ cmsDriver.py step3_RELVAL ' +cmd 
                 print line
                 outFile.write(line+'\n')
                 
             outFile.write('\n'+'\n')
             for stepName in self.relvalModule.step4.keys():
-                cfg,input,cmd = self.makeCmd(self.relvalModule.step4[stepName], self.relvalModule.step4Defaults)
+                cfg,input,cmd = self.makeCmd(self.relvalModule.step4[stepName])
                 line = 'STEP4 ++ ' +stepName + ' @@@ cmsDriver.py step4 ' +cmd
                 print line
                 outFile.write(line+'\n')
