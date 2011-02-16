@@ -506,7 +506,7 @@ fi
 
     bsubfile.append("echo %salign.sh" % directory)
     bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
-    bsubfile.append("cd ..")
+    #bsubfile.append("cd ..")
     bsubnames = []
     last_align = "%s_align" % director
     
@@ -593,8 +593,8 @@ cp -f %(validationLabel)s_${timestamp}.tgz $ALIGNMENT_AFSDIR/
         
         bsubfile.append("echo %svalidation.sh" % directory)
         bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" -w \"ended(%s)\" validation.sh" % (director, last_align))
-        bsubfile.append("cd ..")
-        
+
+    bsubfile.append("cd ..")
     bsubfile.append("")
 
 
