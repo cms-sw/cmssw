@@ -269,6 +269,8 @@ class MatrixReader(object):
         cmd = ''
         cfg = None
         input = None
+        #print step
+        #print defaults
         for k,v in defaults.items():
             if 'no_exec' in k : continue  # we want to really run it ... 
             if k in step.keys():
@@ -279,8 +281,12 @@ class MatrixReader(object):
             if k.lower() == 'input':
                 input = v
                 continue # do not append to cmd, return separately
+            #print k,v
             cmd += ' ' + k + ' ' + str(v)
-
+        for k,v in step.items():
+            if k not in defaults:
+                v = step[k]
+                cmd += ' ' + k + ' ' + str(v)
         return cfg, input, cmd
     
     def readMatrix(self, fileNameIn, useInput=None):
