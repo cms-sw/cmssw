@@ -25,9 +25,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="4_2_0_pre2">
-<var name="VAL_REF_RELEASE" value="4_2_0_pre1">
-<var name="VAL_COMMENT" value="Electron code upgraded for new severity code.">
+<var name="VAL_NEW_RELEASE" value="4_2_0_pre2_pflow">
+<var name="VAL_REF_RELEASE" value="4_2_0_pre2">
+<var name="VAL_COMMENT" value="Try new pflow attributes.">
 
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
 
@@ -86,14 +86,15 @@ This set of targets is currently used for the validation of electrons.
   <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
   <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
   <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg.py">
-  <!--var name="DBS_RELEASE" value="LOCAL"-->
-  <!--var name="DBS_COND" value="MC"-->
+  <var name="DBS_RELEASE" value="LOCAL">
+  <var name="DBS_COND" value="MC">
 
   <environment name="FullPt35">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
     <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronStoreForce.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
     <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
   </environment>
   
@@ -105,6 +106,7 @@ This set of targets is currently used for the validation of electrons.
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
     <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronStoreForce.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
     <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
   </environment>
   
@@ -144,12 +146,16 @@ This set of targets is currently used for the validation of electrons.
   </environment>
   
   <environment name="OldFullPt35">
-    <var name="DBS_RELEASE" value="CMSSW_3_8_6">
-    <var name="DBS_COND" value="MC_38Y_V13-v1">
+    <var name="DBS_RELEASE" value="CMSSW_3_9_7">
+    <var name="DBS_COND" value="MC_39Y_V7-v1">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+    <var name="VAL_REF_RELEASE" value="397">
+    <var name="VAL_REF_FILE" value="${VAL_WEB}/397/Electrons/data/cmsRun.FullPt35.olog.electronHistos.root">
+    <var name="VAL_COMMENT" value="Check backward compatibility with 397.">
     <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronStoreForce.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
     <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE} Old_RelValSingleElectronPt35_Mc">
   </environment>
   

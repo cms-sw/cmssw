@@ -30,6 +30,13 @@
 
 #============== Comand-line arguments ==================
 
+#if ( "$1" == "-f" ) then
+#  setenv STORE_FORCE "yes"
+#  shift
+#else
+  setenv STORE_FORCE "no"
+#endif
+
 if ( "$1" != "" ) then
   setenv STORE_FILE "$1"
   shift
@@ -82,7 +89,14 @@ if ( "${STORE_LOGS}" != "" ) then
   echo "STORE_LOGS = ${STORE_LOGS}"
 endif
   
+#============== Check not already done ==================
 
+if ( ${STORE_FORCE} == "no" && -f "${OUTPUT_DIR}/${STORE_FILE}" ) then
+  echo "ERROR: ${STORE_FILE} ALREADY STORED IN ${OUTPUT_DIR} !"
+  exit 5
+endif
+
+  
 #============== Copy ==================
 
 echo cp $STORE_FILE $OUTPUT_DIR
