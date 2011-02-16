@@ -12,9 +12,10 @@
 
 namespace reco { namespace tau {
 
-RecoTauMVAHelper::RecoTauMVAHelper(const std::string &name,
-                                   const std::string eslabel):
-    name_(name), eslabel_(eslabel) {}
+RecoTauMVAHelper::RecoTauMVAHelper(const std::string& name,
+                                   const std::string& eslabel,
+                                   const edm::ParameterSet& pluginOptions):
+    name_(name), eslabel_(eslabel), pluginOptions_(pluginOptions) {}
 
 void RecoTauMVAHelper::setEvent(const edm::Event& evt,
                                 const edm::EventSetup &es) {
@@ -50,11 +51,17 @@ void RecoTauMVAHelper::loadDiscriminantPlugins(
       // If we haven't added yet, build it.
       PhysicsTools::AtomicId varId(var.name);
       if (!plugins_.count(varId)) {
-        edm::ParameterSet fakePSet;
-        fakePSet.addParameter("name", "MVA_" + var.name);
+        edm::ParameterSet options;
+        if (pluginOptions_.exists(var.name)) {
+          options = pluginOptions_.getParameter<edm::ParameterSet>(var.name);
+
+        };
+        // Make sure it has a name (required by base class)
+        if (!options.exists("name"))
+          options.addParameter("name", "MVA_" + var.name);
         plugins_.insert(
             varId, RecoTauDiscriminantPluginFactory::get()->create(
-                reco::tau::discPluginName(var.name), fakePSet));
+                reco::tau::discPluginName(var.name), options));
       }
     }
   }

@@ -15,6 +15,9 @@
  * The plugin can also be used to pass training data to the MVA framework.  See
  * RecoTauTag/TauTagTools/test/training for examples.
  *
+ * Options for the different plugins can be specified with the pluginOptions.
+ * Any entry in the pluginOptionPSet will passed to the plugin of the same name.
+ *
  * Author: Evan K. Friis (UC Davis)
  *
  * Based on code by Christophe Saoute in -
@@ -37,7 +40,8 @@ namespace reco { namespace tau {
 class RecoTauMVAHelper {
   public:
     explicit RecoTauMVAHelper(const std::string &name,
-                              const std::string eslabel="");
+                              const std::string &eslabel,
+                              const edm::ParameterSet &pluginOptions);
     ~RecoTauMVAHelper() {}
 
     // Setup event information and retrive MVA from DB
@@ -57,6 +61,9 @@ class RecoTauMVAHelper {
     std::string name_;
     // Name of label for event setup record
     std::string eslabel_;
+    // Options to pass to the plugins
+    edm::ParameterSet pluginOptions_;
+
     PhysicsTools::MVAComputerCache computer_;
     // Map our discriminant plugins to their "MVA name"
     typedef boost::ptr_map<PhysicsTools::AtomicId, RecoTauDiscriminantPlugin>

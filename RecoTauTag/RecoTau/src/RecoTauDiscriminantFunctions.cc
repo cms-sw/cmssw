@@ -19,7 +19,7 @@ const RecoTauPiZero& removeRef(const RecoTauPiZero& piZero) {
   return piZero;
 }
 
-// A PFTau member function
+// Function = A PFTau member function
 template<typename Collection, typename Function>
 VDouble extract(const Collection& cands, Function func) {
   // #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))

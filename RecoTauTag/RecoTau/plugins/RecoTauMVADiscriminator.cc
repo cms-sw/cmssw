@@ -67,6 +67,9 @@ RecoTauMVADiscriminator::RecoTauMVADiscriminator(const edm::ParameterSet& pset)
 
   remapOutput_ = pset.getParameter<bool>("remapOutput");
 
+  edm::ParameterSet discriminantOptions = pset.getParameter<edm::ParameterSet>(
+      "discriminantOptions");
+
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& mvas = pset.getParameter<VPSet>("mvas");
 
@@ -80,7 +83,8 @@ RecoTauMVADiscriminator::RecoTauMVADiscriminator(const edm::ParameterSet& pset)
       std::string computerName = mva->getParameter<std::string>("mvaLabel");
       // Add it
       mvas_.insert(
-          decayMode, new reco::tau::RecoTauMVAHelper(computerName, dbLabel));
+          decayMode, new reco::tau::RecoTauMVAHelper(
+            computerName, dbLabel, discriminantOptions));
     } else {
       edm::LogError("DecayModeNotUnique") << "The tau decay mode with "
         "nCharged/nPiZero = " << nCharged << "/" << nPiZeros << " dm: "
@@ -94,7 +98,7 @@ RecoTauMVADiscriminator::RecoTauMVADiscriminator(const edm::ParameterSet& pset)
   if (pset.exists("defaultMVA")) {
     defaultMVA_.reset(new reco::tau::RecoTauMVAHelper(
             pset.getParameter<std::string>("defaultMVA"),
-            dbLabel));
+            dbLabel, discriminantOptions));
   }
 
 }

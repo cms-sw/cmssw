@@ -40,6 +40,7 @@ combinatoricRecoTausDiscriminationByLeadPionPtCut = \
 
 combinatoricRecoTausDiscriminationByTaNC = cms.EDProducer(
     "RecoTauMVADiscriminator",
+    discriminantOptions = cms.PSet(),
     PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
     mvas = cms.VPSet(
         cms.PSet(

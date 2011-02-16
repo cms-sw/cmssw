@@ -20,7 +20,7 @@
 namespace reco { namespace tau {
 
 // Convert a MVA name (i.e. Pt, Eta) to the appropriate plugin name.
-//  Example: discPluginName("Pt") -> "RecoTauDiscriminat
+//  Example: discPluginName("Pt") -> "RecoTauDiscriminationPt"
 inline std::string discPluginName(const std::string& mvaName) {
   return "RecoTauDiscrimination" + mvaName;
 }
@@ -29,9 +29,8 @@ class RecoTauDiscriminantPlugin : public RecoTauEventHolderPlugin {
   public:
     explicit RecoTauDiscriminantPlugin(const edm::ParameterSet& pset):
       RecoTauEventHolderPlugin(pset){}
-
     virtual ~RecoTauDiscriminantPlugin() {}
-
+    virtual void beginEvent() {}
     // Get an observable
     virtual std::vector<double> operator()(const reco::PFTauRef& pfTau) const=0;
 };

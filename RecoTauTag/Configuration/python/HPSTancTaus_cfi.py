@@ -50,7 +50,8 @@ combinatoricRecoTausDiscriminationByTanc = cms.EDProducer(
             nPiZeros = cms.uint32(0),
             mvaLabel = cms.string("3prong0pi0"),
         ),
-    )
+    ),
+    discriminantOptions = cms.PSet(),
 )
 
 combinatoricTaus1prong0pi0 = cms.EDFilter(
