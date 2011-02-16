@@ -91,7 +91,6 @@ class TrackingMonitor : public edm::EDAnalyzer
  
         bool doTrackerSpecific_; 
         bool doLumiAnalysis;
-	bool doProfilesVsLS_;
 
         GenericTriggerEventFlag* genTriggerEventFlag_;
 };
