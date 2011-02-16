@@ -75,6 +75,7 @@ class WorkFlowRunner(Thread):
                 run      = str(self.wf.input.run)
             else:
                 run=None
+
             label    = self.wf.input.label
             location = self.wf.input.location.lower().strip()
             if 'caf' in location:
@@ -301,16 +302,20 @@ class MatrixReader(object):
 
         print "request for INPUT for ", useInput
 
-        for num, stepList in self.relvalModule.workflows.items():
+        for num, wfInfo in self.relvalModule.workflows.items():
+            wfName = wfInfo[0]
+            stepList = wfInfo[1]
+            # if no explicit name given for the workflow, use the name of step1
+            if wfName.strip() == '': wfName = stepList[0] 
             stepCmds = ['','','','']
             stepIndex = 0
-            name  = ''
+            name  = wfName
             inputInfo = None
             for step in stepList:
                 if len(name) > 0 : name += '+'
                 stepName = step
                 if stepIndex==0 and useInput and (str(num) in useInput or "all" in useInput):
-                    print "--> using INPUT as step1 for workflow ", num
+                    # print "--> using INPUT as step1 for workflow ", num
                     if step+'INPUT' in self.relvalModule.step1.keys():
                         stepName = step+"INPUT"
                 name += stepName
