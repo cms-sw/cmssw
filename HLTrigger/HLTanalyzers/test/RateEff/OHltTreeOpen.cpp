@@ -2820,6 +2820,40 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele8_v1") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation  
+                  999.,
+                  999., // Track iso barrel, Track iso endcap  
+                  999.,
+                  999., // Track/pT iso barrel, Track/pT iso endcap  
+                  999.,
+                  999., // H/ET iso barrel, H/ET iso endcap  
+                  999.,
+                  999., // E/ET iso barrel, E/ET iso endcap  
+                  0.15,
+                  0.1, // H/E barrel, H/E endcap  
+                  999.,
+                  999., // cluster shape barrel, cluster shape endcap  
+                  0.98,
+                  1.0, // R9 barrel, R9 endcap  
+                  999,
+                  999, // Deta barrel, Deta endcap  
+                  999,
+                  999 // Dphi barrel, Dphi endcap  
+            )>=1)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele8_CaloIdL_CaloIsoVL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -2852,7 +2886,8 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele8_v1") == 0)
+ 
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele8_CaloIdL_TrkIdVL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
       {
@@ -2869,14 +2904,14 @@ void OHltTree::CheckOpenHlt(
                   999., // E/ET iso barrel, E/ET iso endcap  
                   0.15,
                   0.1, // H/E barrel, H/E endcap  
-                  999.,
-                  999., // cluster shape barrel, cluster shape endcap  
+                  0.014,
+                  0.035, // cluster shape barrel, cluster shape endcap  
                   0.98,
                   1.0, // R9 barrel, R9 endcap  
-                  999,
-                  999, // Deta barrel, Deta endcap  
-                  999,
-                  999 // Dphi barrel, Dphi endcap  
+                  0.01,
+                  0.01, // Deta barrel, Deta endcap  
+                  0.15,
+                  0.1 // Dphi barrel, Dphi endcap  
             )>=1)
             {
                triggerBit[it] = true;
@@ -2884,6 +2919,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+
 
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_CaloIdL_CaloIsoVL_v1") == 0)
    {
