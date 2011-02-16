@@ -8,7 +8,8 @@ OutALCARECOPromptCalibProd_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOPromptCalibProd')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep *_alcaBeamSpotProducer_*_*')
+        'keep *_alcaBeamSpotProducer_*_*',
+        'keep *_MEtoEDMConvertSiStrip_*_*')
 )
 
 import copy
