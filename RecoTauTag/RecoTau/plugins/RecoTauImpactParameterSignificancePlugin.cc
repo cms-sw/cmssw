@@ -67,7 +67,8 @@ void RecoTauImpactParameterSignificancePlugin::operator()(PFTau& tau) const {
                              tau.jetRef()->pz());
       // Compute the significance
       std::pair<bool,Measurement1D> ipsig =
-          IPTools::signedTransverseImpactParameter(track, direction, *pv_);
+          //IPTools::signedTransverseImpactParameter(track, direction, *pv_);
+          IPTools::signedImpactParameter3D(track, direction, *pv_);
       if (ipsig.first)
         tau.setleadPFChargedHadrCandsignedSipt(ipsig.second.significance());
     }
