@@ -5416,6 +5416,39 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_CaloIdT_TrkIdT_CaloIsoVL_TrkIsoVL_HT220_v1") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+	 {
+	   if ( (OpenHlt1ElectronSamHarperPassed(10., 0, // ET, L1isolation 
+               999.,
+               999., // Track iso barrel, Track iso endcap 
+               0.2,
+               0.2, // Track/pT iso barrel, Track/pT iso endcap 
+               0.2,
+               0.2, // H/ET iso barrel, H/ET iso endcap 
+               0.2,
+               0.2, // E/ET iso barrel, E/ET iso endcap 
+               0.1,
+               0.075, // H/E barrel, H/E endcap 
+               0.014,
+               0.035, // cluster shape barrel, cluster shape endcap 
+               0.98,
+               1.0, // R9 barrel, R9 endcap 
+               0.008,
+               0.008, // Deta barrel, Deta endcap 
+               0.07,
+               0.05 // Dphi barrel, Dphi endcap 
+         )>=1) && (OpenHltSumCorHTPassed(220, 30)>=1))
+         {
+            if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
    /* Jet-MET/HT cross-triggers*/
 
    /****METX_CenJetXU*****/
