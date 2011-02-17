@@ -127,6 +127,7 @@ step1['QQH1352T_Tauola']=merge([{'cfg':'QQH1352T_Tauola_7TeV_cfi'},K9by100,stCon
 step1['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='MinBiasrv',location='STD')}
 step1['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='Higgs200ChargedTausrv',location='STD')}
 step1['QCD_Pt_3000_3500_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_Pt_3000_3500rv',location='STD')}
+step1['QCD_Pt_80_120_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_Pt_80_120rv',location='STD')}
 step1['JpsiMMINPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='JpsiMMrv',location='STD')}
 step1['TTbar2INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='ttbarrv',location='STD')}
 step1['WEINPUT']={'INPUT':InputInfo(dataSet='/RelValWE/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='WErv',location='STD')}
@@ -141,6 +142,21 @@ step1['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},K9by10
 
 
 
+def changeRefRelease(step1s,listOfPairs):
+    for s in step1s:
+        if ('INPUT' in step1s[s]):
+            oldD=step1[s]['INPUT'].dataSet
+            for ref,newRef in listOfPairs:
+                if  ref in oldD:
+                    step1[s]['INPUT'].dataSet=oldD.replace(ref,newRef)
+                                        
+def addForAll(steps,d):
+    for s in steps:
+        steps[s].update(d)
+    
+changeRefRelease(step1,[('CMSSW_4_2_0_pre2-START311_V1-v1','CMSSW_4_2_0_pre4-START42_V1-v1'),
+                        ('CMSSW_4_2_0_pre2-MC_311_V1-v1','CMSSW_4_2_0_pre4-MC_42_V1-v1')
+                        ])
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
@@ -164,7 +180,6 @@ step2Defaults = { 'cfg'           : 'step2',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
                   '--conditions'  : 'auto:mc',
-                  '--process'     : 'DIGI'
                   }
 
 step2 = {}
@@ -173,6 +188,8 @@ step2['DIGIPROD1']=merge([{'--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'}
 step2['DIGI1']=merge([step2Defaults])
 step2['DIGI2']=merge([stCond,step2Defaults])
 step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
+
+addForAll(step2,{'--process':'DIGI'})
 
 dataReco={'--conditions':'auto:com10',
           '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias,DQM',
@@ -194,6 +211,9 @@ step2['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseCosmicData'
                           },dataReco])
 
+
+
+
 # step3 
 step3Defaults = { 'cfg'           : 'step3',
                   '-s'            : 'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
@@ -213,6 +233,8 @@ step3['RECOMU']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCali
 step3['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu','--scenario':'cosmics'},stCond,step3Defaults])
 step3['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+EcalCalPhiSym+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},stCond,step3Defaults])
 step3['RECOQCD']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},stCond,step3Defaults])
+
+addForAll(step3,{'--hltProcess':'DIGI'})
 
 step3['ALCACOSD']={'--conditions':'auto:com10',
                    '--datatier':'ALCARECO',
