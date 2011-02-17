@@ -125,9 +125,14 @@ void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
    bool ValidTrack_ = iEvent.getByLabel(trackLabel_,tracks);
    if(!ValidTrack_)return;
 
-   edm::Handle<reco::CandidateView> trkJets;
-   bool ValidTrackJet_ = iEvent.getByLabel (chargedJetLabel_,trkJets);
+   //edm::Handle<reco::CandidateView> trkJets;
+   //bool ValidTrackJet_ = iEvent.getByLabel (chargedJetLabel_,trkJets);
+   //if(!ValidTrackJet_)return;
+
+   edm::Handle< reco::TrackJetCollection > trkJets ;
+   bool ValidTrackJet_ =  iEvent.getByLabel(chargedJetLabel_,trkJets );
    if(!ValidTrackJet_)return;
+
    
    edm::Handle<reco::CaloJetCollection> calJets;
    bool ValidCaloJet_ = iEvent.getByLabel (caloJetLabel_,calJets);
@@ -141,14 +146,15 @@ void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
    std::sort(tracks_sort.begin(), tracks_sort.end(), PtSorter()); 
 
   // get tracker geometry
-  ESHandle<TrackerGeometry> trackerHandle;
+/*  ESHandle<TrackerGeometry> trackerHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
   tgeo_ = trackerHandle.product();
   if (!tgeo_)return;
+*/
   selected_.clear(); 
-  fillHltBits(iEvent);
+  fillHltBits(iEvent,iSetup);
   // select good tracks
-  if(fillVtxPlots(vertexColl))
+  if(fillVtxPlots(beamSpot.product(),vertexColl))
   {
   fill1D(hNevts_,1);
   for(reco::TrackCollection::const_iterator Trk = tracks_sort.begin(); Trk != tracks_sort.end(); ++Trk)
@@ -160,10 +166,10 @@ void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
       
     fillpTMaxRelated(selected_);
     fillChargedJetSpectra(trkJets);  
-    fillCaloJetSpectra(calJets);
+//    fillCaloJetSpectra(calJets);
     fillUE_with_MaxpTtrack(selected_);
     if(trkJets->size() > 0)fillUE_with_ChargedJets(selected_,trkJets); 
-    if(calJets->size()>0)fillUE_with_CaloJets(selected_,calJets);
+   // if(calJets->size()>0)fillUE_with_CaloJets(selected_,calJets);
   
  }
 
@@ -229,6 +235,8 @@ void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup)
   // figure out relation of trigger name to trigger bit and store used trigger names/bits
   for(size_t i=0;i<hltTrgNames_.size();++i) {
     const string &n1(hltTrgNames_.at(i));
+    //unsigned int hlt_prescale = hltConfig.prescaleValue(iSetup, n1);
+    //cout<<"trigger=="<<n1<<"presc=="<<hlt_prescale<<endl;
     bool found = 0;
     for(size_t j=0;j<hltConfig.size();++j) {
       const string &n2(hltConfig.triggerName(j));
@@ -323,12 +331,12 @@ void QcdUeDQM::createHistos()
   // Book histograms if needed.
 
 
-  if (1) {
+/*  if (1) {
     theDbe_->setCurrentFolder("Physics/EventInfo/");
     repSumMap_  = theDbe_->book2D("reportSummaryMap","reportSummaryMap",1,0,1,1,0,1);
     repSummary_ = theDbe_->bookFloat("reportSummary");
   }
-   
+  */ 
    theDbe_->setCurrentFolder("Physics/QcdUe");
 
   if (1) {
@@ -370,9 +378,12 @@ void QcdUeDQM::createHistos()
   book1D(hGoodTrkPhi900_,"hGoodTrkPhi900","phi of all good tracks pT > 900 MeV",40,-4.,4.);
 
   book1D(hNvertices_,"hNvertices","number of vertices",5,-0.5,4.5);
-  book1D(hVertex_z_,"hVertex_z","z position of vertex; z[cm]",100,-20,20);
+  book1D(hVertex_z_,"hVertex_z","z position of vertex; z[cm]",200,-50,50);
   book1D(hVertex_y_,"hVertex_y","y position of vertex; y[cm]",100,-5,5);
   book1D(hVertex_x_,"hVertex_x","x position of vertex; x[cm]",100,-5,5);
+  book1D(hVertex_ndof_,"hVertex_ndof","ndof of vertex",100,0,100);
+  book1D(hVertex_rho_,"hVertex_rho","rho of vertex",100,0,5);
+  book1D(hVertex_z_bs_,"hVertex_z_bs","z position of vertex from beamspot; z[cm]",200,-50,50);
 
   book1D(hBeamSpot_z_,"hBeamSpot_z","z position of beamspot; z[cm]",100,-20,20);
   book1D(hBeamSpot_y_,"hBeamSpot_y","y position of beamspot; y[cm]",50,-10,10);
@@ -384,7 +395,7 @@ void QcdUeDQM::createHistos()
     const double x1 = 0.0;
     const double x2 = 50.0;
     book1D(hLeadingTrack_pTSpectrum_,"hLeadingTrack_pTSpectrum","pT spectrum of leading track;pT(GeV/c)",Nx,x1,x2);
-    book1D(hLeadingCaloJet_pTSpectrum_,"hLeadingCalo_pTSpectrum","pT spectrum of leading calo jet;pT(GeV/c)",Nx,x1,x2);
+//    book1D(hLeadingCaloJet_pTSpectrum_,"hLeadingCalo_pTSpectrum","pT spectrum of leading calo jet;pT(GeV/c)",Nx,x1,x2);
     book1D(hLeadingChargedJet_pTSpectrum_,"hLeadingChargedJet_pTSpectrum","pT spectrum of leading track jet;pT(GeV/c)",Nx,x1,x2);
     
   }
@@ -394,7 +405,7 @@ void QcdUeDQM::createHistos()
     const double x1 = -4.;
     const double x2 =  4.;
     book1D(hLeadingTrack_phiSpectrum_,"hLeadingTrack_phiSpectrum","#phi spectrum of leading track;#phi",Nx,x1,x2);
-    book1D(hLeadingCaloJet_phiSpectrum_,"hLeadingCaloJet_phiSpectrum","#phi spectrum of leading calo jet;#phi",Nx,x1,x2);
+  //  book1D(hLeadingCaloJet_phiSpectrum_,"hLeadingCaloJet_phiSpectrum","#phi spectrum of leading calo jet;#phi",Nx,x1,x2);
     book1D(hLeadingChargedJet_phiSpectrum_,"hLeadingChargedJet_phiSpectrum","#phi spectrum of leading track jet;#phi",Nx,x1,x2);
 
   }
@@ -404,7 +415,7 @@ void QcdUeDQM::createHistos()
     const double x1 = -4.;
     const double x2 =  4.;
     book1D(hLeadingTrack_etaSpectrum_,"hLeadingTrack_etaSpectrum","#eta spectrum of leading track;#eta",Nx,x1,x2);
-    book1D(hLeadingCaloJet_etaSpectrum_,"hLeadingCaloJet_etaSpectrum","#eta spectrum of leading calo jet;#eta",Nx,x1,x2);
+    //book1D(hLeadingCaloJet_etaSpectrum_,"hLeadingCaloJet_etaSpectrum","#eta spectrum of leading calo jet;#eta",Nx,x1,x2);
     book1D(hLeadingChargedJet_etaSpectrum_,"hLeadingChargedJet_etaSpectrum","#eta spectrum of leading track jet;#eta",Nx,x1,x2);
 
   }
@@ -422,14 +433,15 @@ if (1) {
                  "Average number of tracks (pT > 500 MeV) in transverse region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hdNdEtadPhi_pTMax_Away500_,"hdNdEtadPhi_pTMax_Away500", 
                  "Average number of tracks (pT > 500 MeV) in away region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
- 
+ /*
     bookProfile(hdNdEtadPhi_caloJet_Toward500_,"hdNdEtadPhi_caloJet_Toward500", 
                  "Average number of tracks (pT > 500 MeV) in toward region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hdNdEtadPhi_caloJet_Transverse500_,"hdNdEtadPhi_caloJet_Transverse500", 
                  "Average number of tracks (pT > 500 MeV) in transverse region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hdNdEtadPhi_caloJet_Away500_,"hdNdEtadPhi_caloJet_Away500", 
                  "Average number of tracks (pT > 500 MeV) in away region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);   
-  
+  */
+
     bookProfile(hdNdEtadPhi_trackJet_Toward500_,"hdNdEtadPhi_trackJet_Toward500", 
                  "Average number of tracks (pT > 500 MeV) in toward region vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2);
     bookProfile(hdNdEtadPhi_trackJet_Transverse500_,"hdNdEtadPhi_trackJet_Transverse500", 
@@ -445,13 +457,14 @@ if (1) {
                  "Average number of tracks (pT > 500 MeV) in transverse region vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hpTSumdEtadPhi_pTMax_Away500_,"hpTSumdEtadPhi_pTMax_Away500", 
                  "Average number of tracks (pT > 500 MeV) in away region vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
- 
+/* 
     bookProfile(hpTSumdEtadPhi_caloJet_Toward500_,"hpTSumdEtadPhi_caloJet_Toward500", 
                  "Average number of tracks (pT > 500 MeV) in toward region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hpTSumdEtadPhi_caloJet_Transverse500_,"hpTSumdEtadPhi_caloJet_Transverse500", 
                  "Average number of tracks (pT > 500 MeV) in transverse region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hpTSumdEtadPhi_caloJet_Away500_,"hpTSumdEtadPhi_caloJet_Away500", 
                  "Average number of tracks (pT > 500 MeV) in away region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);   
+*/
   
     bookProfile(hpTSumdEtadPhi_trackJet_Toward500_,"hpTSumdEtadPhi_trackJet_Toward500", 
                  "Average number of tracks (pT > 500 MeV) in toward region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
@@ -467,13 +480,14 @@ if (1) {
                  "Average number of tracks (pT > 900 MeV) in transverse region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hdNdEtadPhi_pTMax_Away900_,"hdNdEtadPhi_pTMax_Away900",
                  "Average number of tracks (pT > 900 MeV) in away region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-
+/*
     bookProfile(hdNdEtadPhi_caloJet_Toward900_,"hdNdEtadPhi_caloJet_Toward900",
                  "Average number of tracks (pT > 900 MeV) in toward region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hdNdEtadPhi_caloJet_Transverse900_,"hdNdEtadPhi_caloJet_Transverse900",
                  "Average number of tracks (pT > 900 MeV) in transverse region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hdNdEtadPhi_caloJet_Away900_,"hdNdEtadPhi_caloJet_Away900",
                  "Average number of tracks (pT > 900 MeV) in away region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
+*/
 
     bookProfile(hdNdEtadPhi_trackJet_Toward900_,"hdNdEtadPhi_trackJet_Toward900",
                  "Average number of tracks (pT > 900 MeV) in toward region vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2);
@@ -490,14 +504,14 @@ if (1) {
                  "Average number of tracks (pT > 900 MeV) in transverse region vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hpTSumdEtadPhi_pTMax_Away900_,"hpTSumdEtadPhi_pTMax_Away900",
                  "Average number of tracks (pT > 900 MeV) in away region vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-
+/*
     bookProfile(hpTSumdEtadPhi_caloJet_Toward900_,"hpTSumdEtadPhi_caloJet_Toward900",
                  "Average number of tracks (pT > 900 MeV) in toward region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hpTSumdEtadPhi_caloJet_Transverse900_,"hpTSumdEtadPhi_caloJet_Transverse900",
                  "Average number of tracks (pT > 900 MeV) in transverse region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hpTSumdEtadPhi_caloJet_Away900_,"hpTSumdEtadPhi_caloJet_Away900",
                  "Average number of tracks (pT > 900 MeV) in away region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-
+*/
     bookProfile(hpTSumdEtadPhi_trackJet_Toward900_,"hpTSumdEtadPhi_trackJet_Toward900",
                  "Average number of tracks (pT > 900 MeV) in toward region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hpTSumdEtadPhi_trackJet_Transverse900_,"hpTSumdEtadPhi_trackJet_Transverse900",
@@ -514,7 +528,7 @@ if (1) {
     const double x2 = 20.0;
 
         book1D(hChargedJetMulti_,"hChargedJetMulti","Charged jet multiplicity;multiplicities",Nx,x1,x2);
-        book1D(hCaloJetMulti_,"hCaloJetMulti","Calo jet multiplicity;multiplicities",Nx,x1,x2);
+        //book1D(hCaloJetMulti_,"hCaloJetMulti","Calo jet multiplicity;multiplicities",Nx,x1,x2);
 
   }
 
@@ -525,7 +539,7 @@ if (1) {
     const double x2 = 180.0;
 
         book1D(hdPhi_maxpTTrack_tracks_,"hdPhi_maxpTTrack_tracks","delta phi between leading tracks and other tracks;#Delta#phi(leading track-track)",Nx,x1,x2);
-        book1D(hdPhi_caloJet_tracks_,"hdPhi_caloJet_tracks","delta phi between leading calo jet  and tracks;#Delta#phi(leading calo jet-track)",Nx,x1,x2);
+//        book1D(hdPhi_caloJet_tracks_,"hdPhi_caloJet_tracks","delta phi between leading calo jet  and tracks;#Delta#phi(leading calo jet-track)",Nx,x1,x2);
         book1D(hdPhi_chargedJet_tracks_,"hdPhi_chargedJet_tracks","delta phi between leading charged jet  and tracks;#Delta#phi(leading charged jet-track)",Nx,x1,x2);
 
 }
@@ -547,8 +561,8 @@ void QcdUeDQM::endLuminosityBlock(const LuminosityBlock &l,
 
   // Update various histograms.
 
-  repSummary_->Fill(1.);
-  repSumMap_->Fill(0.5,0.5,1.);
+  //repSummary_->Fill(1.);
+ // repSumMap_->Fill(0.5,0.5,1.);
 
 }
 
@@ -657,9 +671,6 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
  bool goodTrk = false;
 
  if(sizevtx!=1) return 0;    //selection events with only a vertex
- if(vtx.z()-bs->z0()==0) return 0;   //selection events with good vertex
- vtxntk_=vtxntk_-1;
-    if(vtx.tracksSize()<= vtxntk_) return 0;    //selection evets with vertex recostructed with at least vtxntk  tracks
 
  //Fill basic information of all the tracks
   fill1D(hNtrackerLayer_,trk.hitPattern().trackerLayersWithMeasurement());
@@ -739,7 +750,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
 
  }
 //--------------------------------------------------------------------------------------------------
-bool  QcdUeDQM::fillVtxPlots( const edm::Handle< reco::VertexCollection > vtxColl)
+bool  QcdUeDQM::fillVtxPlots( const reco::BeamSpot* bs, const edm::Handle< reco::VertexCollection > vtxColl)
 {
   const reco::VertexCollection theVertices = *(vtxColl.product());
   bool goodVtx = false;
@@ -749,8 +760,11 @@ bool  QcdUeDQM::fillVtxPlots( const edm::Handle< reco::VertexCollection > vtxCol
 	fill1D(hVertex_z_,vertexIt->z());
         fill1D(hVertex_y_,vertexIt->y());
         fill1D(hVertex_x_,vertexIt->x());
+        fill1D(hVertex_ndof_,vertexIt->ndof());
+        fill1D(hVertex_rho_,vertexIt->position().rho()); 
+        fill1D(hVertex_z_bs_,(vertexIt->z() -bs->z0()));
 
-        if(fabs(vertexIt->z()) < diffvtxbs_)
+        if(fabs(vertexIt->z() -bs->z0()) < diffvtxbs_  && vertexIt->ndof() >= 4 && vertexIt->position().rho()<= 2.0)
          {
          goodVtx = true;
          vtx1=(*vertexIt);
@@ -786,10 +800,10 @@ void QcdUeDQM::fillpTMaxRelated(const std::vector<const reco::Track *> &track)
  }
 
 
-void QcdUeDQM::fillChargedJetSpectra(const edm::Handle<reco::CandidateView> trackJets)
+void QcdUeDQM::fillChargedJetSpectra(const edm::Handle<reco::TrackJetCollection> trackJets)
 {
   fill1D(hChargedJetMulti_,trackJets->size());
-  for( reco::CandidateView::const_iterator f  = trackJets->begin();  f != trackJets->end(); f++) 
+  for( reco::TrackJetCollection::const_iterator f  = trackJets->begin();  f != trackJets->end(); f++) 
     {
       if(f != trackJets->begin())continue;
       fill1D(hLeadingChargedJet_pTSpectrum_,f->pt());
@@ -799,6 +813,7 @@ void QcdUeDQM::fillChargedJetSpectra(const edm::Handle<reco::CandidateView> trac
 	
 }
 
+/*
 void QcdUeDQM::fillCaloJetSpectra(const edm::Handle<reco::CaloJetCollection> caloJets)
 {
   fill1D(hCaloJetMulti_,caloJets->size());
@@ -811,6 +826,10 @@ void QcdUeDQM::fillCaloJetSpectra(const edm::Handle<reco::CaloJetCollection> cal
      }
    
 }
+
+
+*/
+
 
 /*
  weight for transverse/toward/away region = 0.12
@@ -901,7 +920,7 @@ double pTSum900_TowardReg = 0;
      }
 }
 
-void QcdUeDQM::fillUE_with_ChargedJets(const std::vector<const reco::Track *>  &track, const edm::Handle<reco::CandidateView> &trackJets)
+void QcdUeDQM::fillUE_with_ChargedJets(const std::vector<const reco::Track *>  &track, const edm::Handle<reco::TrackJetCollection> &trackJets)
 {
 double w = 0.119;
 double nTrk500_TransReg = 0;
@@ -980,6 +999,7 @@ double pTSum900_TowardReg = 0;
                  fillProfile(hpTSumdEtadPhi_trackJet_Away900_, (trackJets->begin())->pt(),pTSum900_AwayReg,w);  
 }
 
+/*
 void QcdUeDQM:: fillUE_with_CaloJets(const std::vector<const reco::Track *>  &track, const edm::Handle<reco::CaloJetCollection> &caloJets)
 {
 double w = 0.119;
@@ -1057,13 +1077,32 @@ double pTSum900_TowardReg = 0;
                  
 }
 
-void QcdUeDQM::fillHltBits(const Event &iEvent)
+*/
+void QcdUeDQM::fillHltBits(const Event &iEvent,const EventSetup &iSetup)
 {
   // Fill HLT trigger bits.
 
   Handle<TriggerResults> triggerResultsHLT;
   getProduct(hltUsedResName_, triggerResultsHLT, iEvent);
+  
+/*  const unsigned int ntrigs(triggerResultsHLT.product()->size());
+  if( ntrigs != 0 ) {
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResultsHLT);
+  for (unsigned int j=0; j!=ntrigs; j++) {
+//    if(triggerResultsHLT->accept(j)){
+//    unsigned int hlt_prescale = hltConfig_.prescaleValue(iEvent, iSetup, triggerName);
+    cout<<"trigger fired"<<triggerNames.triggerName(j)<<endl;
+    for(unsigned int itrigName = 0; itrigName < hltTrgNames_.size(); itrigName++ ) {
+     unsigned int hlt_prescale = hltConfig.prescaleValue(iEvent, iSetup, hltTrgNames_[itrigName]);
 
+     if(triggerNames.triggerIndex(hltTrgNames_[itrigName]) >= (unsigned int)ntrigs ) continue; 
+//    if( triggerResultsHLT->accept(triggerNames.triggerIndex(hltTrgNames_[itrigName])) )cout<<hltTrgNames_[itrigName]<<endl;
+
+ }
+    }
+   } 
+ // }
+*/
   for(size_t i=0;i<hltTrgBits_.size();++i) {
     if (hltTrgBits_.at(i)<0) 
       continue; //ignore unknown trigger 

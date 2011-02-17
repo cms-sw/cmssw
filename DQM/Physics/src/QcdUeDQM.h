@@ -20,10 +20,15 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/TrackJetCollection.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h" 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include <TMath.h>
 #include <vector>
 #define PI 3.141592654
@@ -101,17 +106,17 @@ class QcdUeDQM : public edm::EDAnalyzer
    
 
     bool                          trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, const reco::Vertex vtx, int sizevtx);
-    void                          fillHltBits(const edm::Event &iEvent);
+    void                          fillHltBits(const edm::Event &iEvent,const edm::EventSetup &iSetup);
     
-    bool                          fillVtxPlots(const edm::Handle< reco::VertexCollection > vtxColl);
+    bool                          fillVtxPlots(const reco::BeamSpot* bs, const edm::Handle< reco::VertexCollection > vtxColl);
     void                          fillpTMaxRelated(const std::vector<const reco::Track *>  &track);
 
-    void                          fillChargedJetSpectra( const edm::Handle<reco::CandidateView> trackJets);
+    void                          fillChargedJetSpectra( const edm::Handle<reco::TrackJetCollection> trackJets);
   
-    void                          fillCaloJetSpectra(const edm::Handle<reco::CaloJetCollection> caloJets);
+    //void                          fillCaloJetSpectra(const edm::Handle<reco::CaloJetCollection> caloJets);
 
-    void                          fillUE_with_ChargedJets(const std::vector<const reco::Track *>  &track,  const edm::Handle<reco::CandidateView> &trackJets);
-    void                          fillUE_with_CaloJets(const std::vector<const reco::Track *>  &track, const edm::Handle<reco::CaloJetCollection> &caloJets);
+    void                          fillUE_with_ChargedJets(const std::vector<const reco::Track *>  &track,  const edm::Handle<reco::TrackJetCollection> &trackJets);
+    //void                          fillUE_with_CaloJets(const std::vector<const reco::Track *>  &track, const edm::Handle<reco::CaloJetCollection> &caloJets);
     void                          fillUE_with_MaxpTtrack(const std::vector<const reco::Track *>  &track ); 
 
    
@@ -168,6 +173,9 @@ class QcdUeDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hVertex_z_;            // z-position of vertex
     std::vector<MonitorElement*>  hVertex_y_;
     std::vector<MonitorElement*>  hVertex_x_;
+    std::vector<MonitorElement*>  hVertex_ndof_;
+    std::vector<MonitorElement*>  hVertex_rho_;
+    std::vector<MonitorElement*>  hVertex_z_bs_; 
 
 
     std::vector<MonitorElement*>  hBeamSpot_z_;            // z-position of vertex
@@ -187,14 +195,14 @@ class QcdUeDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>   hChargedJetConstituent_;         // Number of constituent of charged jets 
     std::vector<MonitorElement*>   hLeadingChargedJet_pTSpectrum_;         // pT spectrum of charged jets 
 
-    std::vector<MonitorElement*>   hCaloJetMulti_;         // Number of calo jets
+    /*std::vector<MonitorElement*>   hCaloJetMulti_;         // Number of calo jets
     std::vector<MonitorElement*>   hCaloJetConstituent_;         // Number of constituent of calo jets
     std::vector<MonitorElement*>   hLeadingCaloJet_pTSpectrum_;         // pT spectrum of calo jets
     std::vector<MonitorElement*>  hLeadingCaloJet_etaSpectrum_;      //eta spectrum of leading calo jet
     std::vector<MonitorElement*>  hLeadingCaloJet_phiSpectrum_;      //phi spectrum of leading calo jet
-   
+   */
     std::vector<MonitorElement*>  hdPhi_maxpTTrack_tracks_;  // delta phi between leading track and tracks
-    std::vector<MonitorElement*>  hdPhi_caloJet_tracks_;  // delta phi between leading calo jet and tracks  
+    //std::vector<MonitorElement*>  hdPhi_caloJet_tracks_;  // delta phi between leading calo jet and tracks  
     std::vector<MonitorElement*>  hdPhi_chargedJet_tracks_;  // delta phi between leading charged jet and tracks
    
 
@@ -204,9 +212,10 @@ class QcdUeDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Toward500_;    // number of tracks in toward region of leadin track (pT > 500 MeV)
     std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Transverse500_;    // number of tracks in transverse region of leadin track (pT > 500 MeV)  
     std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Away500_;    // number of tracks in away region of leadin track (pT > 500 MeV)
-    std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Toward500_;    // number of tracks in toward region of leadin calo Jet (pT > 500 MeV)
+   /* std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Toward500_;    // number of tracks in toward region of leadin calo Jet (pT > 500 MeV)
     std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Transverse500_;    // number of tracks in transverse region of leadin calo Jet (pT > 500 MeV)  
     std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Away500_;    // number of tracks in away region of leadin calo Jet (pT > 500 MeV)
+*/
     std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Toward500_;    // number of tracks in toward region of leadin calo Jet (pT > 500 MeV)
     std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Transverse500_;    // number of tracks in transverse region of leadin calo Jet (pT > 500 MeV)  
     std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Away500_;    // number of tracks in away region of leadin calo Jet (pT > 500 MeV) 
@@ -216,9 +225,10 @@ class QcdUeDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Toward500_;    // pT sum of tracks in toward region of leadin track (pT > 500 MeV)
     std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Transverse500_;    // pT sum of tracks in transverse region of leadin track (pT > 500 MeV)  
     std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Away500_;    // pT sum of tracks in away region of leadin track (pT > 500 MeV)
-    std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Toward500_;    // pT sum of tracks in toward region of leadin calo Jet (pT > 500 MeV)
+  /*  std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Toward500_;    // pT sum of tracks in toward region of leadin calo Jet (pT > 500 MeV)
     std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Transverse500_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 500 MeV)  
     std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Away500_;    // pT sum of tracks in away region of leadin calo Jet (pT > 500 MeV)
+*/
     std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Toward500_;    // pT sum of tracks in toward region of leadin calo Jet (pT > 500 MeV)
     std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Transverse500_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 500 MeV)  
     std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Away500_;    // pT sum of tracks in away region of leadin calo Jet (pT > 500 MeV)
@@ -228,9 +238,10 @@ class QcdUeDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Toward900_;    // number of tracks in toward region of leadin track (pT > 900 MeV)
     std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Transverse900_;    // number of tracks in transverse region of leadin track (pT > 900 MeV)  
     std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Away900_;    // number of tracks in away region of leadin track (pT > 900 MeV)
-    std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Toward900_;    // number of tracks in toward region of leadin calo Jet (pT > 900 MeV)
+  /*  std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Toward900_;    // number of tracks in toward region of leadin calo Jet (pT > 900 MeV)
     std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Transverse900_;    // number of tracks in transverse region of leadin calo Jet (pT > 900 MeV)  
     std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Away900_;    // number of tracks in away region of leadin calo Jet (pT > 900 MeV)
+*/
     std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Toward900_;    // number of tracks in toward region of leadin calo Jet (pT > 900 MeV)
     std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Transverse900_;    // number of tracks in transverse region of leadin calo Jet (pT > 900 MeV)  
     std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Away900_;    // number of tracks in away region of leadin calo Jet (pT > 900 MeV) 
@@ -240,9 +251,10 @@ class QcdUeDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Toward900_;    // pT sum of tracks in toward region of leadin track (pT > 900 MeV)
     std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Transverse900_;    // pT sum of tracks in transverse region of leadin track (pT > 900 MeV)  
     std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Away900_;    // pT sum of tracks in away region of leadin track (pT > 900 MeV)
-    std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Toward900_;    // pT sum of tracks in toward region of leadin calo Jet (pT > 900 MeV)
+  /*  std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Toward900_;    // pT sum of tracks in toward region of leadin calo Jet (pT > 900 MeV)
     std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Transverse900_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 900 MeV)  
     std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Away900_;    // pT sum of tracks in away region of leadin calo Jet (pT > 900 MeV)
+*/
     std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Toward900_;    // pT sum of tracks in toward region of leadin calo Jet (pT > 900 MeV)
     std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Transverse900_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 900 MeV)  
     std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Away900_;    // pT sum of tracks in away region of leadin calo Jet (pT > 900 MeV)  
