@@ -122,6 +122,9 @@ std::auto_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManager
    if(code==0)
    	cout << "Configurations successfully read from OMDS!" << endl; 
 
+   else
+       cout << "ATTENTION: wrong configuration code.... please check! " << endl;
+
    std::auto_ptr<DTConfigManager> dtConfig = std::auto_ptr<DTConfigManager>( m_manager );
 
    return dtConfig ;
@@ -266,6 +269,9 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 
 			// BTI configuration string	
 			if (buffer[2]==0x54){
+				if(m_debugDB)
+					cout << "BTI STRING found in DB" << endl;
+
 				// BTI configuration read for BTI
 				flagDBBti = true;
 				
@@ -369,6 +375,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 				
 			// TRACO configuration string 			
 			if (buffer[2]==0x15){
+				if(m_debugDB)
+					cout << "TRACO STRING found in DB" << endl;
 				// TRACO configuration read from OMDS
 				flagDBTraco = true;
 				
@@ -392,6 +400,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 			
 			// TSS configuration string	
 			if (buffer[2]==0x16){
+				if(m_debugDB)
+					cout << "TSS STRING found in DB" << endl;
 				// TSS configuration read from OMDS
 				flagDBTSS = true;
 				
@@ -403,6 +413,9 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 			
 			// TSM configuration string
                 	if (buffer[2]==0x17){
+				if(m_debugDB)
+					cout << "TSM STRING found in DB" << endl;
+			 
 				// TSM configuration read from OMDS
 				flagDBTSM = true;			 
 			 
@@ -412,6 +425,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 			
 			// LUT configuration string
 			if (buffer[2]==0xA8){
+				if(m_debugDB)
+					cout << "LUT STRING found in DB" << endl;
 
 				// LUT parameters read from OMDS
                                 flagDBLUTS = true;
@@ -457,9 +472,13 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
         cout << "*** in L1TriggerConfig/DTTPGConfigProducers/python/L1DTConfigFromDB_cfi.py" << endl;
         cout << "*** In this run LUTS are computed FROM GEOMETRY! " << endl;
         m_manager->setLutFromDB(false);
-        return -1;
+        //return -1;
   } 
   if(!flagDBBti || !flagDBTraco || !flagDBTSS || !flagDBTSM ){
+        cout << "*** ATTENTION: configuration strings not found in OMDS:" << endl;
+        cout << "*** CHECK and RE_RUN" << endl;
+        cout << "*** ... trying to configure from cfg" << endl; 
+
   	configFromCfg();
 	return 1;
   }
