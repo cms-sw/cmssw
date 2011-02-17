@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.42 2010/04/13 15:44:48 elmer Exp $
+// $Id: SMProxyServer.cc,v 1.44 2010/09/20 15:16:49 mommsen Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1166,7 +1166,6 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
   }
 
   std::string consumerName = "None provided";
-  std::string consumerPriority = "normal";
   std::string consumerRequest = "<>";
   std::string consumerHost = in->getenv("REMOTE_HOST");
 
@@ -1179,7 +1178,6 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
     in->read(&(*bufPtr)[0], contentLength);
     ConsRegRequestView requestMessage(&(*bufPtr)[0]);
     consumerName = requestMessage.getConsumerName();
-    consumerPriority = requestMessage.getConsumerPriority();
     std::string reqString = requestMessage.getRequestParameterSet();
     if (reqString.size() >= 2) consumerRequest = reqString;
   }
@@ -1301,7 +1299,7 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
   else {
     // create the local consumer interface and add it to the event server
     boost::shared_ptr<ConsumerPipe>
-      consPtr(new ConsumerPipe(consumerName, consumerPriority,
+      consPtr(new ConsumerPipe(consumerName, "normal",
 	    activeConsumerTimeout_.value_,
 	    idleConsumerTimeout_.value_,
 	    tTS_, selectionRequest,
@@ -2796,7 +2794,6 @@ void SMProxyServer::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
   { // We need to be in the enabled state
 
     std::string consumerName = "None provided";
-    std::string consumerPriority = "normal";
     std::string consumerRequest = "*";
     std::string consumerHost = in->getenv("REMOTE_HOST");
 
@@ -2809,7 +2806,6 @@ void SMProxyServer::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
       in->read(&(*bufPtr)[0], contentLength);
       ConsRegRequestView requestMessage(&(*bufPtr)[0]);
       consumerName = requestMessage.getConsumerName();
-      consumerPriority = requestMessage.getConsumerPriority();
       // for DQM consumers top folder name is stored in the "parameteSet"
       std::string reqFolder = requestMessage.getRequestParameterSet();
       if (reqFolder.size() >= 1) consumerRequest = reqFolder;
@@ -2842,7 +2838,7 @@ void SMProxyServer::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
     {
       // create the local consumer interface and add it to the event server
       boost::shared_ptr<DQMConsumerPipe>
-        consPtr(new DQMConsumerPipe(consumerName, consumerPriority,
+        consPtr(new DQMConsumerPipe(consumerName, "normal",
                                     DQMactiveConsumerTimeout_.value_,
                                     DQMidleConsumerTimeout_.value_,
                                     consumerRequest, consumerHost,

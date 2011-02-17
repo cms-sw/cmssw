@@ -1,6 +1,6 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id: DataProcessManager.h,v 1.15 2010/03/08 17:09:53 mommsen Exp $
+// $Id: DataProcessManager.h,v 1.16 2010/09/17 12:52:22 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
@@ -192,7 +192,6 @@ namespace stor
     char subscriptionurl_[2048];
 
     std::string consumerName_;
-    std::string consumerPriority_;
     std::string consumerPSetString_;
     int headerRetryInterval_; // seconds
     double maxEventRequestRate_;
@@ -203,7 +202,6 @@ namespace stor
     unsigned int DQMconsumerId_;
     LastReqTime_map lastDQMReqMap_;
     std::string DQMconsumerName_;
-    std::string DQMconsumerPriority_;
     std::string consumerTopFolderName_;
     std::string hltOutputModule_;
     Strings eventSelection_;

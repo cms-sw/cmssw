@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.41 2010/08/06 20:24:31 wmtan Exp $
+  $Id: EventStreamHttpReader.cc,v 1.42 2010/12/15 15:29:23 mommsen Exp $
 /// @file: EventStreamHttpReader.cc
 */
 
@@ -79,7 +79,6 @@ namespace edm
     // 09-Aug-2006, KAB: new parameters
     const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
     consumerName_ = ps.getUntrackedParameter<std::string>("consumerName","Unknown");
-    consumerPriority_ = ps.getUntrackedParameter<std::string>("consumerPriority","normal");
     headerRetryInterval_ = ps.getUntrackedParameter<int>("headerRetryInterval",5);
     double maxEventRequestRate = ps.getUntrackedParameter<double>("maxEventRequestRate",1.0);
     if (maxEventRequestRate < (1.0 / MAX_REQUEST_INTERVAL)) {
@@ -434,7 +433,7 @@ namespace edm
       const int BUFFER_SIZE = 2000;
       char msgBuff[BUFFER_SIZE];
       ConsRegRequestBuilder requestMessage(msgBuff, BUFFER_SIZE, consumerName_,
-                                       consumerPriority_, consumerPSetString_);
+                                           consumerPSetString_);
 
       // add the request message as a http post
       stor::setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());

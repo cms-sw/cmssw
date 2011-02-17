@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.23 2010/03/08 17:09:46 mommsen Exp $
+// $Id: DataProcessManager.cc,v 1.25 2010/09/20 15:16:49 mommsen Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -76,11 +76,7 @@ namespace stor
     DQMeventpage_ = "/getDQMeventdata";
     headerpage_ = "/getregdata";
     consumerName_ = stor::PROXY_SERVER_NAME;
-    //consumerPriority_ = "PushMode"; // this means push mode!
-    consumerPriority_ = "Normal";
     DQMconsumerName_ = stor::PROXY_SERVER_NAME;
-    //DQMconsumerPriority_ =  "PushMode"; // this means push mode!
-    DQMconsumerPriority_ =  "Normal";
 
     this->setMaxEventRequestRate(10.0); // just a default until set in config action
     consumerId_ = (time(0) & 0xffffff);  // temporary - will get from ES later
@@ -589,7 +585,7 @@ namespace stor
     const int BUFFER_SIZE = 2000;
     char msgBuff[BUFFER_SIZE];
     ConsRegRequestBuilder requestMessage(msgBuff, BUFFER_SIZE, consumerName_,
-                                         consumerPriority_, consumerPSetString_);
+                                         consumerPSetString_);
 
     // add the request message as a http post
     setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
@@ -676,7 +672,7 @@ namespace stor
     const int BUFFER_SIZE = 2000;
     char msgBuff[BUFFER_SIZE];
     ConsRegRequestBuilder requestMessage(msgBuff, BUFFER_SIZE, DQMconsumerName_,
-                                         DQMconsumerPriority_, consumerTopFolderName_);
+                                         consumerTopFolderName_);
 
     // add the request message as a http post
     setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());

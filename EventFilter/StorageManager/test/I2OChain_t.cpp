@@ -1862,7 +1862,7 @@ testI2OChain::event_msg_header()
 
     EventMsgBuilder
       eventBuilder(smMsg->dataPtr(), smMsg->dataSize, runNumber,
-                   eventNumber, lumiNumber, outputModuleId,
+                   eventNumber, lumiNumber, outputModuleId, 0,
                    l1Bits, &hltBits[0], hltBitCount, adler32_chksum, host_name);
 
     eventBuilder.setOrigDataSize(78);
@@ -2315,7 +2315,7 @@ testI2OChain::split_event_header()
 
     EventMsgBuilder
       eventBuilder(&tmpBuffer[0], bufferSize, runNumber,
-                   eventNumber, lumiNumber, outputModuleId,
+                   eventNumber, lumiNumber, outputModuleId, 0,
                    l1Bits, &hltBits[0], hltBitCount, adler32_chksum, host_name);
 
     eventBuilder.setOrigDataSize(78);

@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: DQMMessageAnalyzer.cc,v 1.10 2010/05/17 15:59:10 mommsen Exp $
+  $Id: DQMMessageAnalyzer.cc,v 1.11 2010/08/06 20:24:32 wmtan Exp $
 
 */
 
@@ -233,8 +233,8 @@ void DQMMessageAnalyzer::endJob(void)
                 << dqmEventView->hostName() << std::endl;
       std::cout << "    compression flag = "
                 << dqmEventView->compressionFlag() << std::endl;
-      std::cout << "    reserved word = "
-                << dqmEventView->reserved() << std::endl;
+      std::cout << "    merge count = "
+                << dqmEventView->mergeCount() << std::endl;
       std::cout << "    release tag = "
                 << dqmEventView->releaseTag() << std::endl;
       std::cout << "    top folder name = "

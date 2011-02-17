@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.21 2010/08/06 20:24:30 wmtan Exp $
+ *  $Id: DQMHttpSource.cc,v 1.22 2010/12/15 15:29:23 mommsen Exp $
 /// @file: DQMHttpSource.cc
  */
 
@@ -55,7 +55,6 @@ namespace edm
 
     const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
     DQMconsumerName_ = pset.getUntrackedParameter<std::string>("DQMconsumerName","Unknown");
-    DQMconsumerPriority_ = pset.getUntrackedParameter<std::string>("DQMconsumerPriority","normal");
     headerRetryInterval_ = pset.getUntrackedParameter<int>("headerRetryInterval",5);
     double maxEventRequestRate = pset.getUntrackedParameter<double>("maxDQMEventRequestRate",1.0);
     if (maxEventRequestRate < (1.0 / MAX_REQUEST_INTERVAL)) {
@@ -235,8 +234,8 @@ namespace edm
                 << dqmEventView.hostName() << std::endl;
       FDEBUG(8) << "    compression flag = "
                 << dqmEventView.compressionFlag() << std::endl;
-      FDEBUG(8) << "    reserved word = "
-                << dqmEventView.reserved() << std::endl;
+      FDEBUG(8) << "    merge count = "
+                << dqmEventView.mergeCount() << std::endl;
       FDEBUG(8) << "    release tag = "
                 << dqmEventView.releaseTag() << std::endl;
       FDEBUG(8) << "    top folder name = "
@@ -339,7 +338,7 @@ namespace edm
       const int BUFFER_SIZE = 2000;
       char msgBuff[BUFFER_SIZE];
       ConsRegRequestBuilder requestMessage(msgBuff, BUFFER_SIZE, DQMconsumerName_,
-                                       DQMconsumerPriority_, consumerTopFolderName_);
+                                       consumerTopFolderName_);
 
       // add the request message as a http post
       stor::setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());

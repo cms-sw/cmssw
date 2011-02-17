@@ -1,7 +1,7 @@
 #ifndef STREAMER_EVENTSTREAMHTTPREADER_H
 #define STREAMER_EVENTSTREAMHTTPREADER_H
 
-// $Id: EventStreamHttpReader.h,v 1.21 2009/09/03 21:10:36 biery Exp $
+// $Id: EventStreamHttpReader.h,v 1.22 2009/11/05 12:47:40 mommsen Exp $
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
@@ -41,7 +41,6 @@ namespace edm
     int hltBitCount;
     int l1BitCount;
     std::string consumerName_;
-    std::string consumerPriority_;
     std::string consumerPSetString_;
     int headerRetryInterval_;
     double minEventRequestInterval_;

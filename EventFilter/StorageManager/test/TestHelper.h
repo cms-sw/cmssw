@@ -1,4 +1,4 @@
-// $Id: TestHelper.h,v 1.6 2010/05/17 15:59:10 mommsen Exp $
+// $Id: TestHelper.h,v 1.7 2010/08/06 20:24:33 wmtan Exp $
 
 #ifndef StorageManager_TestHelper_h
 #define StorageManager_TestHelper_h
@@ -122,7 +122,7 @@ namespace stor
           I2O_SM_DATA_MESSAGE_FRAME* eventMsg =
             (I2O_SM_DATA_MESSAGE_FRAME*) smMsg;
           EventHeader* h = (EventHeader*)eventMsg->dataPtr();
-          h->protocolVersion_ = 8;
+          h->protocolVersion_ = 9;
           h->header_.code_ = Header::EVENT;
           break;
         }
@@ -298,7 +298,7 @@ namespace stor
 
       EventMsgBuilder
         eventBuilder(smEventMsg->dataPtr(), smEventMsg->dataSize, runNumber,
-                     eventNumber, lumiNumber, outputModuleId,
+                     eventNumber, lumiNumber, outputModuleId, 0,
                      l1Bits, &hltBits[0], hltBitCount, adler32_chksum, host_name);
 
       eventBuilder.setOrigDataSize(78);
