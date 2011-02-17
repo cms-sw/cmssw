@@ -16,7 +16,7 @@ jet_collection = cms.InputTag('ak5PFJets')
 kinematic_selection = cms.string('pt > 5.0 & abs(eta) < 2.5')
 
 # Lead object jet selection
-lead_object_jet_selection = cms.string("getPFConstituent(0).pt() > 5.0")
+lead_object_jet_selection = cms.string("getPFConstituent(0).pt() > 1.0")
 
 # Basic kinematic plots
 kin_plots = cms.VPSet(
