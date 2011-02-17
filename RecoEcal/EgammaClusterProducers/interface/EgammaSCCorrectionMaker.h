@@ -14,7 +14,7 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id: EgammaSCCorrectionMaker.h,v 1.9 2009/03/25 17:50:24 ferriff Exp $
+// $Id: EgammaSCCorrectionMaker.h,v 1.10 2009/03/29 02:25:55 ymaravin Exp $
 //
 //
 
@@ -41,7 +41,8 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
 
    private:
 
-     EcalClusterFunctionBaseClass* EnergyCorrection_;
+     EcalClusterFunctionBaseClass* energyCorrectionFunction_;
+     EcalClusterFunctionBaseClass* crackCorrectionFunction_;
 
      // the debug level
      EgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity_;
@@ -49,8 +50,12 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
      // pointer to the correction algo object
      EgammaSCEnergyCorrectionAlgo *energyCorrector_;
     
+     
+
      // vars for the correction algo
      bool applyEnergyCorrection_;
+     bool applyCrackCorrection_;
+
      //     bool oldEnergyScaleCorrection_;
      double sigmaElectronicNoise_;
      double etThresh_;

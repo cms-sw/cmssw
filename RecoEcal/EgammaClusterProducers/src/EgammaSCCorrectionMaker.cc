@@ -59,6 +59,8 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   
   // set correction algo parameters
   applyEnergyCorrection_ = ps.getParameter<bool>("applyEnergyCorrection");
+  applyCrackCorrection_ = ps.getParameter<bool>("applyCrackCorrection");
+
   sigmaElectronicNoise_ =  ps.getParameter<double>("sigmaElectronicNoise");
 
   etThresh_ =  ps.getParameter<double>("etThresh");
@@ -72,12 +74,18 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   
   // energy correction class
   if (applyEnergyCorrection_ )
-    EnergyCorrection_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
+    energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
+
+  if (applyCrackCorrection_ )
+    crackCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", ps);
+
+  
 }
 
 EgammaSCCorrectionMaker::~EgammaSCCorrectionMaker()
 {
-  delete energyCorrector_;
+  delete energyCorrectionFunction_;
+  delete crackCorrectionFunction_;
 }
 
 void
@@ -87,7 +95,12 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // initialize energy correction class
   if(applyEnergyCorrection_) 
-    EnergyCorrection_->init(es);
+    energyCorrectionFunction_->init(es);
+
+  // initialize energy correction class
+  if(applyCrackCorrection_) 
+    crackCorrectionFunction_->init(es);
+  
 
   // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -138,13 +151,19 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::SuperClusterCollection::const_iterator aClus;
   for(aClus = rawClusters->begin(); aClus != rawClusters->end(); aClus++)
     {
-      reco::SuperCluster newClus;
-      if(applyEnergyCorrection_) 
-        newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, EnergyCorrection_);
-      else
-	newClus=*aClus;
+      reco::SuperCluster enecorrClus,crackcorrClus;
 
-      if(newClus.energy()*sin(newClus.position().theta())>etThresh_) {
+      if(applyEnergyCorrection_) 
+        enecorrClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, energyCorrectionFunction_);
+      else
+	enecorrClus=*aClus;
+
+      if(applyCrackCorrection_)
+	crackcorrClus=energyCorrector_->applyCrackCorrection(enecorrClus,crackCorrectionFunction_);
+      else 
+	crackcorrClus=enecorrClus;
+
+      if(crackcorrClus.energy()*sin(crackcorrClus.position().theta())>etThresh_) {
 	//and corrected energy of SC before placing SCs in collection
 	//std::cout << " Check 1 " << "\n"
 	//	  << " Parameters of corrected SCs " << "\n"
@@ -152,8 +171,8 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
 	//	  << " pw = " << newClus.phiWidth() << "\n"
 	//	  << " ew = " << newClus.etaWidth() << std::endl;
 
-        newClus.rawEnergy();
-	corrClusters->push_back(newClus);
+        crackcorrClus.rawEnergy();
+	corrClusters->push_back(crackcorrClus);
       }
     }
   // Put collection of corrected SuperClusters into the event
