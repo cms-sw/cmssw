@@ -680,7 +680,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltPFlowTrackSelectionHighPurity" )
 #=== hltBLifetimeRegional:
-      self.options['modules'].append( "-hltPFlowTrackSelectionHighPurity" )
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGenerator" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidates" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracks" )
@@ -706,6 +705,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTL1IsoEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTL1NonIsoEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTEcalActivityEgammaRegionalRecoTrackerSequence" )
+      self.options['sequences'].append( "-HLTPixelMatchElectronActivityTrackingSequence" )
       self.options['sequences'].append( "-HLTL1IsoElectronsRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTL1NonIsoElectronsRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTPixelMatchLargeWindowElectronL1IsoTrackingSequence" )
@@ -781,16 +781,25 @@ if 'GlobalTag' in %%(dict)s:
 #      self.options['paths'].append( "-HLT_Mu3_TkMu0_OST_Jpsi_Tight_v*" )
 #      self.options['paths'].append( "-HLT_Mu3_Track0_Jpsi" )
 #      self.options['paths'].append( "-HLT_Mu3_Track3_Jpsi" )
-#      self.options['paths'].append( "-HLT_Mu3_Track3_Jpsi_v*" )
+      self.options['paths'].append( "-HLT_Mu3_Track3_Jpsi_v*" )
 #      self.options['paths'].append( "-HLT_Mu3_Track5_Jpsi_v*" )
 #      self.options['paths'].append( "-HLT_Mu5_TkMu0_OST_Jpsi_Tight_v*" )
 #      self.options['paths'].append( "-HLT_Mu5_Track0_Jpsi_v*" )
       self.options['paths'].append( "-HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*" )
       self.options['paths'].append( "-HLT_Mu5_Track0_Jpsi_B5Q7_v*" )
       self.options['paths'].append( "-HLT_Random_v*" )
+      self.options['paths'].append( "-HLT_Mu5_Track5_Jpsi_v*" )
+      self.options['paths'].append( "-HLT_Mu7_Track5_Jpsi_v*" )
+      self.options['paths'].append( "-HLT_Mu7_Track7_Jpsi_v*" )
 #      self.options['paths'].append( "-HLT_SelectEcalSpikesHighEt_L1R" )
 #      self.options['paths'].append( "-HLT_SelectEcalSpikes_L1R" )
+
 #
+# 5E32 paths for which a recovery should be attempted:
+#
+      self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v*" )
+      self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v*" )
+
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:
         self.options['paths'].append( "-HLTAnalyzerEndpath" )

@@ -1,13 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
-# Take all pixel tracks but the potential electrons
+# The tracks (Ttake all pixel tracks but the potential electrons):
 hltEcalActivityEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracksForPhotons"),
                                    cms.InputTag("globalPixelTrackCandidatesForPhotons"))
 )
 
-# The sequence
+hltCtfActivityWithMaterialTracks = cms.EDProducer("FastTrackMerger",
+    SaveTracksOnly = cms.untracked.bool(True),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracksForPhotons"),
+                                   cms.InputTag("globalPixelTrackCandidatesForPhotons"))
+) 
+
+
+# The sequences
 HLTEcalActivityEgammaRegionalRecoTrackerSequence = cms.Sequence(cms.SequencePlaceholder("globalPixelTracking")+
                                                             hltEcalActivityEgammaRegionalCTFFinalFitWithMaterial)
 
+HLTPixelMatchElectronActivityTrackingSequence  = cms.Sequence(cms.SequencePlaceholder("globalPixelTracking")+
+                                                            hltCtfActivityWithMaterialTracks)  
