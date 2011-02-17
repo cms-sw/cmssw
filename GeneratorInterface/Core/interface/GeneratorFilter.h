@@ -168,36 +168,9 @@ namespace edm
   bool
   GeneratorFilter<HAD, DEC>::beginRun( Run &, EventSetup const& es )
   {
-
-/*
-     // we init external decay tools first, to mimic how it was in beginRun
-     // in principle, in a big picture it shouldn't matter but in practice 
-     // the output is not identical if we change the order - the reason is
-     // that RANMAR is overriden with PYR, thus the order of calls shifts
-     // the state of the random engine
-     //
-     if ( decayer_ ) decayer_->init(es);
-
-    // Create the LHEGeneratorInfo product describing the run
-    // conditions here, and insert it into the Run object.
-
-    if ( !hadronizer_.initializeForInternalPartons() )
-       throw edm::Exception(errors::Configuration) 
-	 << "Failed to initialize hadronizer "
-	 << hadronizer_.classname()
-	 << " for internal parton generation\n";
-    
-    if ( decayer_ )
-    {
-       if ( !hadronizer_.declareStableParticles( decayer_->operatesOnParticles() ) )
-          throw edm::Exception(errors::Configuration)
-            << "Failed to declare stable particles in hadronizer "
-            << hadronizer_.classname()
-            << "\n";
-    }
-*/
     
     return true;
+
   }
 
   template <class HAD, class DEC>
@@ -224,12 +197,11 @@ namespace edm
   GeneratorFilter<HAD, DEC>::beginLuminosityBlock( LuminosityBlock &, EventSetup const& es )
   {
 
-    if ( !hadronizer_.initializeForInternalPartons() )
+    if ( !hadronizer_.readSettings(0) )
        throw edm::Exception(errors::Configuration) 
-	 << "Failed to initialize hadronizer "
-	 << hadronizer_.classname()
-	 << " for internal parton generation\n";
-    
+	 << "Failed to read settings for the hadronizer "
+	 << hadronizer_.classname() << " \n";
+        
     if ( decayer_ )
     {
        decayer_->init(es);
@@ -244,6 +216,12 @@ namespace edm
             << hadronizer_.classname()
             << "\n";
     }
+
+    if ( !hadronizer_.initializeForInternalPartons() )
+       throw edm::Exception(errors::Configuration) 
+	 << "Failed to initialize hadronizer "
+	 << hadronizer_.classname()
+	 << " for internal parton generation\n";
 
     return true;
 

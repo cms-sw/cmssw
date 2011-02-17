@@ -178,14 +178,7 @@ namespace edm
   bool
   HadronizerFilter<HAD,DEC>::beginRun(Run& run, EventSetup const& es)
   {
-    
-/*
-    // init post-generation tools
-    // we do it here to mimic the order as it was with beginJob
-    //
-    if ( decayer_ ) decayer_->init(es);
-*/    
-    
+        
     // this is run-specific
     
     // get LHE stuff and pass to hadronizer!
@@ -194,24 +187,7 @@ namespace edm
     run.getByLabel("source", product);
 
     hadronizer_.setLHERunInfo( new lhef::LHERunInfo(*product) ) ;
-   
-/*
-    if (! hadronizer_.initializeForExternalPartons())
-      throw edm::Exception(errors::Configuration) 
-	<< "Failed to initialize hadronizer "
-	<< hadronizer_.classname()
-	<< " for internal parton generation\n";
-
-    if ( decayer_ )
-      {
-        if ( !hadronizer_.declareStableParticles( decayer_->operatesOnParticles() ) )
-          throw edm::Exception(errors::Configuration)
-            << "Failed to declare stable particles in hadronizer "
-            << hadronizer_.classname()
-            << "\n";
-      }
-*/
-    
+       
     return true;
   
   }
@@ -249,11 +225,10 @@ namespace edm
   HadronizerFilter<HAD,DEC>::beginLuminosityBlock(LuminosityBlock &, EventSetup const& es)
   {
    
-    if (! hadronizer_.initializeForExternalPartons())
-      throw edm::Exception(errors::Configuration) 
-	<< "Failed to initialize hadronizer "
-	<< hadronizer_.classname()
-	<< " for internal parton generation\n";
+    if ( !hadronizer_.readSettings(1) )
+       throw edm::Exception(errors::Configuration) 
+	 << "Failed to read settings for the hadronizer "
+	 << hadronizer_.classname() << " \n";
 
     if ( decayer_ )
     {
@@ -270,10 +245,14 @@ namespace edm
             << "\n";
     }
 
-
-
+    if (! hadronizer_.initializeForExternalPartons())
+      throw edm::Exception(errors::Configuration) 
+	<< "Failed to initialize hadronizer "
+	<< hadronizer_.classname()
+	<< " for internal parton generation\n";
 
     return true;
+
   }
 
   template <class HAD, class DEC>
