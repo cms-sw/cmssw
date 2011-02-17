@@ -17,13 +17,13 @@ process.source = cms.Source ( "EmptySource" )
 process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( 3563 ) )
 
 # Input captured ascii file
-process.gctRaw = cms.OutputModule( "TextToRaw",
+process.gctRaw = cms.EDProducer( "TextToRaw",
                                    filename = cms.untracked.string ( "patternCapture_ts__2010_09_03__13h19m20s.txt" ),
                                    GctFedId = cms.untracked.int32 ( 745 )
                                    )
 
 # Settings for pattern test (corresponds to V38_FS_Int11_Tau2_AllPipes_VME key)
-process.load('gctPatternTestConfig_cff')
+process.load('L1Trigger.L1GctAnalyzer.gctPatternTestConfig_cff')
 
 # GCT emulator
 import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
