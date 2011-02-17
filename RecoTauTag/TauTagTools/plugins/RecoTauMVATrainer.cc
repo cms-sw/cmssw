@@ -39,7 +39,8 @@ class RecoTauMVATrainer : public edm::EDAnalyzer {
 
 RecoTauMVATrainer::RecoTauMVATrainer(const edm::ParameterSet &pset)
   : mva_(pset.getParameter<std::string>("computerName"),
-         pset.getParameter<std::string>("dbLabel")),
+         pset.getParameter<std::string>("dbLabel"),
+         pset.getParameter<edm::ParameterSet>("discriminantOptions")),
     signalSrc_(pset.getParameter<edm::InputTag>("signalSrc")),
     backgroundSrc_(pset.getParameter<edm::InputTag>("backgroundSrc")) {
       // Check if we want to apply weights
