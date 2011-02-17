@@ -80,6 +80,7 @@ openHltBSoftmuonL25BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftm
 
 openHltBSoftmuonL3TagInfos = copy.deepcopy(hltBSoftMuon5SelL3TagInfos)
 openHltBSoftmuonL3TagInfos.jets = cms.InputTag(BJetinputjetCollection)
+openHltBSoftmuonL3TagInfos.leptons = cms.VInputTag(cms.InputTag("hltL3Muons"))  #Feed the entire L3Muons not the filtered ones
 
 openHltBSoftmuonL3BJetTags = copy.deepcopy(hltBSoftMuon5SelL3BJetTagsByPt)
 openHltBSoftmuonL3BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftmuonL3TagInfos"))
