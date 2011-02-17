@@ -1,5 +1,5 @@
 <bin   name="testSuperCluster" file="testRunner.cpp,testSuperCluster.cppunit.cc">
- 
+  
   <use   name="DataFormats/EgammaReco"/>
   <use   name="DataFormats/Math"/>
   <use   name="cppunit"/>
