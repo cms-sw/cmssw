@@ -15,7 +15,6 @@
  */
 ConsRegRequestBuilder::ConsRegRequestBuilder(void* buf, uint32 bufSize,
                                              std::string const& consumerName,
-                                             std::string const& consumerPriority,
                                              std::string const& requestParamSet):
   buf_((uint8*)buf),bufSize_(bufSize)
 {
@@ -35,14 +34,6 @@ ConsRegRequestBuilder::ConsRegRequestBuilder(void* buf, uint32 bufSize,
   convert(len, bufPtr);
   bufPtr += sizeof(uint32);
   consumerName.copy((char *) bufPtr, len);
-  bufPtr += len;
-
-  // copy the consumer priority into the message
-  len = consumerPriority.length();
-  assert(((uint32) (bufPtr + len + sizeof(uint32) - buf_)) <= bufSize_);
-  convert(len, bufPtr);
-  bufPtr += sizeof(uint32);
-  consumerPriority.copy((char *) bufPtr, len);
   bufPtr += len;
 
   // copy the request parameter set into the message
@@ -94,15 +85,6 @@ ConsRegRequestView::ConsRegRequestView(void* buf):
   if (len <= 256) // len >= 0, since len is unsigned
   {
     consumerName_.append((char *) bufPtr, len);
-  }
-  bufPtr += len;
-
-  // determine the consumer priority
-  len = convert32(bufPtr);
-  bufPtr += sizeof(uint32);
-  if (len <= 64) // len >= 0, since len is unsigned
-  {
-    consumerPriority_.append((char *) bufPtr, len);
   }
   bufPtr += len;
 

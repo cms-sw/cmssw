@@ -21,7 +21,7 @@
  * - Compression Flag (4 bytes)   | size of data before compression
  * - Filter Unit Process ID (4 bytes)
  * - Filter Unit Unique ID [GUID] (4 bytes)
- * - Reserved Word (4 bytes)
+ * - Merge Count (4 bytes)
  * - Release Tag Length (4 bytes)
  * - Release Tag (varies)
  * - Top-level Folder Name Length (4 bytes)
@@ -63,7 +63,7 @@ class DQMEventMsgBuilder
   void setCompressionFlag(uint32);
   void setFUProcessId(uint32);
   void setFUGuid(uint32);
-  void setReserved(uint32);
+  void setMergeCount(uint32);
   uint8* eventAddress() const  { return eventAddr_; }
   void setEventLength(uint32 len);
   uint32 size() const;

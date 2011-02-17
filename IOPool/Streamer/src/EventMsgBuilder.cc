@@ -8,17 +8,19 @@
 
 EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
                                  uint32 run, uint32 event, uint32 lumi,
-                                 uint32 outModId, std::vector<bool>& l1_bits,
+                                 uint32 outModId, uint32 droppedEventsCount,
+                                 std::vector<bool>& l1_bits,
                                  uint8* hlt_bits, uint32 hlt_bit_count, 
                                  uint32 adler_chksum, const char* host_name):
   buf_((uint8*)buf),size_(size)
 {
   EventHeader* h = (EventHeader*)buf_;
-  h->protocolVersion_ = 8;
+  h->protocolVersion_ = 9;
   convert(run,h->run_);
   convert(event,h->event_);
   convert(lumi,h->lumi_);
   convert(outModId,h->outModId_);
+  convert(droppedEventsCount,h->droppedEventsCount_);
   uint8* pos = buf_ + sizeof(EventHeader);
 
   // l1 count

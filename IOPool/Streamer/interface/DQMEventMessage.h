@@ -21,7 +21,7 @@
  * - Compression Flag (4 bytes)   | size of data before compression
  * - Filter Unit Process ID (4 bytes)
  * - Filter Unit Unique ID [GUID] (4 bytes)
- * - Reserved Word (4 bytes)
+ * - Merge Count (4 bytes)
  * - Release Tag Length (4 bytes)
  * - Release Tag (varies)
  * - Top-level Folder Name Length (4 bytes)
@@ -67,7 +67,7 @@ struct DQMEventHeader
   char_uint32 compressionFlag_;
   char_uint32 fuProcessId_;
   char_uint32 fuGuid_;
-  char_uint32 reserved_;
+  char_uint32 mergeCount_;
 };
 
 class DQMEventMsgView
@@ -94,7 +94,7 @@ class DQMEventMsgView
   uint32 compressionFlag() const;
   uint32 fuProcessId() const;
   uint32 fuGuid() const;
-  uint32 reserved() const;
+  uint32 mergeCount() const;
 
   edm::Timestamp timeStamp() const;
 

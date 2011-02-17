@@ -250,12 +250,12 @@ uint32 DQMEventMsgView::fuGuid() const
 }
 
 /**
- * Returns the reserved word associated with the DQM Event.
+ * Returns the number of merges
  */
-uint32 DQMEventMsgView::reserved() const
+uint32 DQMEventMsgView::mergeCount() const
 {
   DQMEventHeader* h = (DQMEventHeader*)buf_;
-  return convert32(h->reserved_);
+  return convert32(h->mergeCount_);
 }
 
 //uint64 DQMEventMsgView::timeStamp() const

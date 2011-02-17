@@ -35,6 +35,15 @@ hlt_count 4| hltbits hlt_count/4 |
 adler32_chksum 4 | host name length 1 | host name {Fixed size}
 eventdatalength 4 | eventdata blob {variable} 
 
+Protocol Version 9:  // add dropped events counter
+code 1 | size 4 | protocol version 1 |
+run 4 | event 4 | lumi 4 | origDataSize 4 | outModId 4 |
+droppedEventsCount 4 |
+l1_count 4 | l1bits l1_count/8  | 
+hlt_count 4 | hltbits hlt_count/4 |
+adler32_chksum 4 | host name length 1 | host name {Fixed size}
+eventdatalength 4 | eventdata blob {variable} 
+
 */
 
 #ifndef IOPool_Streamer_EventMessage_h
@@ -54,6 +63,7 @@ struct EventHeader
   char_uint32 lumi_;
   char_uint32 origDataSize_;
   char_uint32 outModId_;
+  char_uint32 droppedEventsCount_;
 };
 
 class EventMsgView
@@ -75,6 +85,7 @@ public:
   uint32 lumi() const;
   uint32 origDataSize() const;
   uint32 outModId() const;
+  uint32 droppedEventsCount() const;
 
   void l1TriggerBits(std::vector<bool>& put_here) const;
   void hltTriggerBits(uint8* put_here) const;

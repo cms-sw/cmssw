@@ -262,7 +262,7 @@ namespace edm {
 
     std::auto_ptr<EventMsgBuilder>
       msg(new EventMsgBuilder(&serialize_databuffer.bufs_[0], serialize_databuffer.bufs_.size(), e.id().run(),
-                              e.id().event(), lumi_, outputModuleId_,
+                              e.id().event(), lumi_, outputModuleId_, 0,
                               l1bit_, (uint8*)&hltbits_[0], hltsize_,
                               (uint32)serialize_databuffer.adler32_chksum(), host_name_) );
     msg->setOrigDataSize(origSize_); // we need this set to zero

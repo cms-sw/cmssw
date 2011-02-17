@@ -145,8 +145,8 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
   // initialize the filter unit GUID to zero
   setFUGuid(0);
 
-  // initialize the reserved word to zero
-  setReserved(0);
+  // initialize the merge count to zero
+  setMergeCount(0);
 }
 
 /**
@@ -196,12 +196,12 @@ void DQMEventMsgBuilder::setFUGuid(uint32 value)
 }
 
 /**
- * Sets the value of the reserved word in the header.
+ * Sets the value of the merge count in the header.
  */
-void DQMEventMsgBuilder::setReserved(uint32 value)
+void DQMEventMsgBuilder::setMergeCount(uint32 value)
 {
   DQMEventHeader* evtHdr = (DQMEventHeader*) buf_;
-  convert(value, evtHdr->reserved_);
+  convert(value, evtHdr->mergeCount_);
 }
 
 /**

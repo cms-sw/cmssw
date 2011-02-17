@@ -105,7 +105,7 @@ int main()
   //host_name = "mytestnode.cms";
 
   for (uint32 eventId = 2000; eventId != 2000+NO_OF_EVENTS; ++eventId) {
-    EventMsgBuilder emb(&buf2[0],buf2.size(),45,eventId,2,0xdeadbeef,
+    EventMsgBuilder emb(&buf2[0],buf2.size(),45,eventId,2,0xdeadbeef,3,
                       l1bit,hltbits,hltsize,adler32_chksum, host_name.c_str());
     emb.setOrigDataSize(78);
     emb.setEventLength(sizeof(test_value_event));

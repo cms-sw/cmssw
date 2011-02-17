@@ -101,7 +101,7 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   //char host_name[255];
   //int got_host = gethostname(host_name, 255);
   //if(got_host != 0) strcpy(host_name, "noHostNameFoundOrTooLong");
-  EventMsgBuilder dummyMsg(&msgBuff[0], TEMP_BUFFER_SIZE, 0, 0, 0, 0,
+  EventMsgBuilder dummyMsg(&msgBuff[0], TEMP_BUFFER_SIZE, 0, 0, 0, 0, 0,
                            dummyL1Bits, (uint8*) &dummyHLTBits[0],
                            hlt_names.size(), adler32, host_name);
 

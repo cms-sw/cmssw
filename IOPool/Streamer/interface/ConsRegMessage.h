@@ -20,7 +20,6 @@ class ConsRegRequestBuilder
  public:
   ConsRegRequestBuilder(void* buf, uint32 bufSize,
                         std::string const& consumerName,
-                        std::string const& consumerPriority,
                         std::string const& requestParameterSet);
 
   uint32 bufferSize() const { return bufSize_; }
@@ -44,14 +43,12 @@ class ConsRegRequestView
   uint8* startAddress() { return buf_; }
 
   std::string getConsumerName() { return consumerName_; }
-  std::string getConsumerPriority() { return consumerPriority_; }
   std::string getRequestParameterSet() { return requestParameterSet_; }
 
  private:
   uint8* buf_;
   HeaderView head_;
   std::string consumerName_;
-  std::string consumerPriority_;
   std::string requestParameterSet_;
 };
 

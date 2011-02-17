@@ -151,7 +151,8 @@ void dumpEventHeader(const EventMsgView* eview)
        << "outModId=0x" << std::hex << eview->outModId() << std::dec << "\n"
        << "adler32 chksum= " << eview->adler32_chksum() << "\n"
        << "host name= " << eview->hostName() << "\n"
-       << "event length=" << eview->eventLength() << "\n";
+       << "event length=" << eview->eventLength() << "\n"
+       << "droppedEventsCount=" << eview->droppedEventsCount() << "\n";
 
   std::vector<bool> l1_out;
   eview->l1TriggerBits(l1_out);
@@ -218,7 +219,7 @@ void dumpDQMEventHeader(const DQMEventMsgView* dview)
        << "compressionFlag = " << dview->compressionFlag() << "\n"
        << "fuProcessId = " << dview->fuProcessId() << "\n"
        << "fuGuid = 0x" << std::hex << dview->fuGuid() << std::dec << "\n"
-       << "reserved = " << dview->reserved() << "\n"
+       << "mergeCount = " << dview->mergeCount() << "\n"
        << "release = " << dview->releaseTag() << "\n"
        << "topFolder = " << dview->topFolderName() << "\n"
        << "event length = " << dview->eventLength() << "\n";

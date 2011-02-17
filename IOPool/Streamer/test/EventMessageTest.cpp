@@ -118,7 +118,7 @@ int main()
   adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
   //host_name = "mytestnode.cms";
 
-  EventMsgBuilder emb(&buf[0],buf.size(),45,2020,2,0xdeadbeef,
+  EventMsgBuilder emb(&buf[0],buf.size(),45,2020,2,0xdeadbeef,3,
                       l1bit,hltbits,hltsize, adler32_chksum, host_name.c_str());
 
   emb.setOrigDataSize(78);
@@ -142,6 +142,7 @@ int main()
                        eview.event(),
                        eview.lumi(),
                        eview.outModId(),
+                       eview.droppedEventsCount(),
                        l1_out,
                        hlt_out,
                        hltsize,
