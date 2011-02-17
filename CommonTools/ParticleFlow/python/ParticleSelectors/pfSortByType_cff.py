@@ -9,8 +9,9 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfAllElectrons_cfi import *
 pfSortByTypeSequence = cms.Sequence(
     pfAllNeutralHadrons+
     pfAllChargedHadrons+
-    pfAllPhotons+
-    pfAllElectrons+
-    pfAllMuons
+    pfAllPhotons
+#    +
+#    pfAllElectrons+
+#    pfAllMuons
     )
 
