@@ -5977,7 +5977,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   //parameters should be checked must be rewritten
+   //parameters should be checked
    else if (menu->GetTriggerName(it).CompareTo("HLT_Mu5_Ele8_CaloIdL_TrkIdVL_Ele8_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -6004,7 +6004,18 @@ void OHltTree::CheckOpenHlt(
                         999., // Deta barrel, Deta endcap 
                         999.,
                         999. // Dphi barrel, Dphi endcap 
-                  )>=2)
+						     )>=2 &&
+	      OpenHlt1ElectronSamHarperPassed(8.,0,          // ET, L1isolation
+					       999., 999.,       // Track iso barrel, Track iso endcap
+					       999., 999.,        // Track/pT iso barrel, Track/pT iso endcap
+					       999., 999.,       // H/ET iso barrel, H/ET iso endcap
+					       999., 999.,       // E/ET iso barrel, E/ET iso endcap
+					       0.15, 0.10,       // H/E barrel, H/E endcap 
+					       0.014, 0.035,       // cluster shape barrel, cluster shape endcap 
+					       0.98, 1.,       // R9 barrel, R9 endcap
+					       0.01, 0.01,       // Deta barrel, Deta endcap 
+					       0.15, 0.10        // Dphi barrel, Dphi endcap
+					       )>=2)
             {
                //OpenHlt1ElectronPassed(8.,0,9999.,9999.)>=2){ 
                triggerBit[it] = true;
