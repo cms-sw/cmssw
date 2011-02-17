@@ -47,7 +47,7 @@ HLT_EcalCalibration
 HLT_HcalCalibration
 HLT_Random
 HLT_GlobalRunHPDNoise
-HLT_TechTrigHCALNoise
+HLT_L1Tech_HBHEHO_totalOR_v1
 HLT_L1_BPTX
 HLT_L1_BPTX_MinusOnly
 HLT_L1_BPTX_PlusOnly

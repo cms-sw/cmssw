@@ -3,7 +3,7 @@
 # generate HLT tables from master table in ConfDB
 #
 
-MASTER="/dev/CMSSW_3_11_1/HLT_fix2"     # no version, take the latest one
+MASTER="/dev/CMSSW_3_11_1/HLT_fix3"     # no version, take the latest one
 TARGET="/dev/CMSSW_3_11_1"              # directory where to store the sub-tables
 TABLES="GRun HIon"                      # which sub-tables to create
 
@@ -21,7 +21,7 @@ PWHASH="7a901914acb45efc107723c6d15c1bbf"
 }
 
 function makeCreateConfig() {
-  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || addpkg EventFilter/ConfigDB HEAD
+  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || addpkg EventFilter/ConfigDB V01-05-08
   [ -f $CMSSW_BASE/src/EventFilter/ConfigDB/classes/confdb/db/ConfDBCreateConfig.class ] || ant -f $CMSSW_BASE/src/EventFilter/ConfigDB/build.xml
 }
 
