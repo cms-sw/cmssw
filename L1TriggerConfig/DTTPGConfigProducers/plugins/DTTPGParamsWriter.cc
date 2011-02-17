@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/09 11:33:03 $
+ *  $Date: 2010/11/12 11:04:40 $
  *  $Revision: 1.1 $
  *  \author C. Battilana CIEMAT
  */
@@ -91,7 +91,7 @@ void DTTPGParamsWriter::analyze(const Event & event, const EventSetup& eventSetu
 void DTTPGParamsWriter::pharseLine(std::string &line, DTChamberId& chId, float &fine, int  &coarse) {
 
   std::vector<std::string> elements;
-  boost::algorithm::split(elements,line,boost::algorithm::is_any_of(" \t\n"));
+  boost::algorithm::split(elements,line,boost::algorithm::is_any_of(string(" \t\n")));  // making string conversion explicit (needed to cope with -Warray-bounds in slc5_ia32_gcc434  
   if (elements.size() != 5) {
     std::cout << "[DTTPGParamsWriter] wrong number of entries in line : " << line << " pleas check your input file syntax!" << std::endl;
   } else {
