@@ -5941,7 +5941,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   //parameters should be checked
+   //parameters should be checked. Compliant to /dev/CMSSW_3_11_1/GRun/V24 but H/E  should be 0.1 in endcap?
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -6203,7 +6203,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //parameters should be checked
+   //parameters should be checked. Compliant to /dev/CMSSW_3_11_1/GRun/V24 but H/E  should be 0.1 in endcap?
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu5_Ele8_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -6271,7 +6271,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //parameters should be checked
+
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
