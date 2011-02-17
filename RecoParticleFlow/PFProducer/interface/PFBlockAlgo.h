@@ -397,11 +397,15 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	// check that the seed is valid
 	if(seedRef.isAvailable() && seedRef->isEcalDriven()) {
 	  reco::SuperClusterRef scRef = seedRef->caloCluster().castTo<reco::SuperClusterRef>();
-	  if(scRef.isNonnull())   {	      
-	    superClusters_.push_back(scRef);
-	    reco::PFBlockElementSuperCluster * sce =
-	      new reco::PFBlockElementSuperCluster(scRef);
-	    elements_.push_back(sce);
+	  if(scRef.isNonnull())   {	     
+	    std::vector<reco::SuperClusterRef>::iterator itcheck=find(superClusters_.begin(),superClusters_.end(),scRef);
+	    if(itcheck==superClusters_.end())
+	      {
+		superClusters_.push_back(scRef);
+		reco::PFBlockElementSuperCluster * sce =
+		  new reco::PFBlockElementSuperCluster(scRef);
+		elements_.push_back(sce);
+	      }
 	  }
 	}
       }
