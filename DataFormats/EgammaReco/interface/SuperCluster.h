@@ -7,14 +7,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.21 2009/10/13 10:10:14 ferriff Exp $
+ * \version $Id: SuperCluster.h,v 1.22 2010/12/10 09:07:34 argiro Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include <Rtypes.h>
+
 
 namespace reco {
   class SuperCluster : public CaloCluster {
@@ -42,8 +42,9 @@ namespace reco {
 		  double Epreshower=0.,
 		  double phiWidth=0., double etaWidth=0. );
 
+
     /// raw uncorrected energy (sum of energies of component BasicClusters)
-    double rawEnergy() const;
+    double rawEnergy() const { return rawEnergy_; }
 
     /// energy deposited in preshower 
     double preshowerEnergy() const { return preshowerEnergy_; }
@@ -109,6 +110,8 @@ namespace reco {
 
   private:
 
+    void computeRawEnergy();
+
     /// reference to BasicCluster seed
     CaloClusterPtr seed_;
 
@@ -123,10 +126,10 @@ namespace reco {
 
     double preshowerEnergy_;
 
-    mutable Double32_t rawEnergy_;
+    double rawEnergy_;
     
-    Double32_t phiWidth_;
-    Double32_t etaWidth_;
+    double phiWidth_;
+    double etaWidth_;
 
   };
 

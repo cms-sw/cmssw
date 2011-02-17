@@ -1,10 +1,10 @@
-// $Id: SuperCluster.cc,v 1.15 2009/03/25 16:09:47 ferriff Exp $
+// $Id: SuperCluster.cc,v 1.16 2009/10/13 10:10:14 ferriff Exp $
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 using namespace reco;
 
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position ) :
-  CaloCluster( energy, position ), preshowerEnergy_(0), rawEnergy_(-1.), phiWidth_(0), etaWidth_(0) {
+  CaloCluster( energy, position ), preshowerEnergy_(0), rawEnergy_(0), phiWidth_(0), etaWidth_(0) {
 }
 
 
@@ -13,7 +13,7 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
                             const CaloClusterPtr & seed,
                             const CaloClusterPtrVector& clusters,
 			    double Epreshower, double phiWidth, double etaWidth) :
-  CaloCluster(energy,position), rawEnergy_(-1.)
+  CaloCluster(energy,position), rawEnergy_(0)
 {
   phiWidth_ = phiWidth;
   etaWidth_ = etaWidth;
@@ -34,7 +34,8 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
       hitsAndFractions_.push_back( (*diIt) );
     } // loop over rechits
   } // loop over basic clusters
-
+  
+  computeRawEnergy();
 }
 
 
@@ -72,18 +73,16 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
                                           ++pcit) {
     preshowerClusters_.push_back( (*pcit) );
   }
+  computeRawEnergy();
 }
 
 
 
-double SuperCluster::rawEnergy() const
-{
-  if (rawEnergy_<0) {
-    rawEnergy_ = 0.;
-    for(CaloClusterPtrVector::const_iterator bcItr = clustersBegin(); bcItr != clustersEnd(); bcItr++)
-      {
-	rawEnergy_ += (*bcItr)->energy();
-      }
+void SuperCluster::computeRawEnergy() {
+
+  rawEnergy_ = 0.;
+  for(CaloClusterPtrVector::const_iterator bcItr = clustersBegin(); 
+      bcItr != clustersEnd(); bcItr++){
+      rawEnergy_ += (*bcItr)->energy();
   }
-  return rawEnergy_;
 }
