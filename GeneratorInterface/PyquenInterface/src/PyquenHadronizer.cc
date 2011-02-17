@@ -2,7 +2,7 @@
  *
  * Generates PYQUEN HepMC events
  *
- * $Id: PyquenHadronizer.cc,v 1.10 2009/10/15 12:25:31 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.11 2010/02/24 05:05:03 wmtan Exp $
 */
 
 #include <iostream>
@@ -183,7 +183,8 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
   return true;
 }
 
-bool PyquenHadronizer::initializeForInternalPartons(){
+bool PyquenHadronizer::readSettings( int )
+{
 
    Pythia6Service::InstanceWrapper guard(pythia6Service_);
    pythia6Service_->setGeneralParams();
@@ -196,6 +197,15 @@ bool PyquenHadronizer::initializeForInternalPartons(){
 
    //initilize pyquen          
    pyquen_init(pset_);
+
+   return true;
+
+}
+
+bool PyquenHadronizer::initializeForInternalPartons(){
+
+
+   Pythia6Service::InstanceWrapper guard(pythia6Service_);
 
    // Call PYTHIA              
    call_pyinit("CMS", "p", "p", comenergy);

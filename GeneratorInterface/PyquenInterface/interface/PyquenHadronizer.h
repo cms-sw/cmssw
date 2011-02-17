@@ -4,7 +4,7 @@
 /** \class PyquenHadronizer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenHadronizer.h,v 1.9 2010/02/20 20:59:39 wmtan Exp $
+ * $Id: PyquenHadronizer.h,v 1.10 2010/12/14 22:47:47 yarba Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
@@ -32,6 +32,7 @@ namespace gen
     bool hadronize();
     bool decay();
     bool residualDecay();
+    bool readSettings( int );
     bool initializeForExternalPartons();
     bool initializeForInternalPartons();
     bool declareStableParticles( const std::vector<int> );

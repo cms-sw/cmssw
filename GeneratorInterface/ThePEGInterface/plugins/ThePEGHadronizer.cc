@@ -24,6 +24,7 @@ class ThePEGHadronizer : public ThePEGInterface, public gen::BaseHadronizer {
 	ThePEGHadronizer(const edm::ParameterSet &params);
 	virtual ~ThePEGHadronizer();
 
+	bool readSettings( int ) { return true; }
 	bool initializeForInternalPartons();
 //	bool initializeForExternalPartons();
 	bool declareStableParticles(const std::vector<int> &pdgIds);
