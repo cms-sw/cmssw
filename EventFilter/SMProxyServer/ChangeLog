@@ -1,3 +1,8 @@
+2011-02-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V01-11-00
+	* Minimal changes for modified IOPool/Streamer V07-01-00
+
 2010-10-27 William Tanenbaum <wmtan@fnal.gov>
 	* tag V01-10-02
 	* Convert BuildFiles to XML.
