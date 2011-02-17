@@ -71,7 +71,7 @@ workflows[34] = ['', ['QQH1352T_Tauola','DIGI2','RECO2']]
 workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS']]
 workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH']]
 workflows[11] = ['MinBias', ['MinBias2','DIGI2','RECOMIN','ALCAMIN']]
-workflows[15] = ['QCD_Pt_80_120', ['QCD_Pt_80_120_2','DIGI1','RECOQCD','ALCAQCD']]
+workflows[15] = ['QCD_Pt_80_120', ['QCD_Pt_80_120_2','DIGI2','RECOQCD','ALCAQCD']]
 workflows[27] = ['', ['WM','DIGI2','RECOMU','ALCAMU']]
 workflows[30] = ['', ['ZMM','DIGI2','RECOMU','ALCAMU']]
 
