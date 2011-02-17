@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.43 2010/11/14 14:21:50 innocent Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.44 2011/02/16 10:29:04 argiro Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -23,7 +23,7 @@ EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(float noise,
 reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
 								 const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, 
 								 const CaloSubdetectorGeometry* geometry,
-								 EcalClusterFunctionBaseClass* EnergyCorrection) {	
+								 EcalClusterFunctionBaseClass* energyCorrectionFunction) {	
 
 	
   // A little bit of trivial info to be sure all is well
@@ -43,16 +43,6 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     std::cout << "   Seed cluster energy... " << seedC->energy() << std::endl;
   }
 
-  // Get the constituent clusters
-  reco::CaloClusterPtrVector clusters_v;
-
-  if (verbosity_ <= pINFO) std::cout << "   Constituent cluster energies... ";
-  for(reco::CaloCluster_iterator cluster = cl.clustersBegin(); cluster != cl.clustersEnd(); cluster ++)
-  {
-    clusters_v.push_back(*cluster);
-    if (verbosity_ <= pINFO) std::cout << (*cluster)->energy() << ", ";
-  }
-  if (verbosity_ <= pINFO) std::cout << std::endl;
 
   // Find the algorithm used to construct the basic clusters making up the supercluster	
   if (verbosity_ <= pINFO) 
@@ -105,10 +95,10 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   tmp.setEtaWidth(etaWidth); 
     
   if ( theAlgo == reco::CaloCluster::hybrid || theAlgo == reco::CaloCluster::dynamicHybrid ) {
-    newEnergy = tmp.rawEnergy() + EnergyCorrection->getValue(tmp, 3);
+    newEnergy = tmp.rawEnergy() + energyCorrectionFunction->getValue(tmp, 3);
 
   } else if  ( theAlgo == reco::CaloCluster::multi5x5 ) {     
-    newEnergy = tmp.rawEnergy() + tmp.preshowerEnergy() + EnergyCorrection->getValue(tmp, 5);
+    newEnergy = tmp.rawEnergy() + tmp.preshowerEnergy() + energyCorrectionFunction->getValue(tmp, 5);
 
   } else {  
     //Apply f(nCry) correction on island algo and fixedMatrix algo 
@@ -122,16 +112,13 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
       std::cout << "   CORRECTED SC has energy... " << newEnergy << std::endl;
     }
 
-  reco::SuperCluster corrCl(newEnergy, 
-    math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
-    cl.seed(), clusters_v, cl.preshowerEnergy());
-
-  //set the flags, although we should implement a ctor in SuperCluster
-  corrCl.setFlags(cl.flags());
+  reco::SuperCluster corrCl =cl;
+  
+  corrCl.setEnergy(newEnergy);
   corrCl.setPhiWidth(phiWidth);
   corrCl.setEtaWidth(etaWidth);
-
-   return corrCl;
+  
+  return corrCl;
 }
 
 float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase) const {
@@ -247,5 +234,30 @@ int EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(reco::BasicCluster const & s
   }
  
   return nCry;
+}
+
+// apply crack correction
+
+reco::SuperCluster 
+EgammaSCEnergyCorrectionAlgo::applyCrackCorrection(const reco::SuperCluster &cl,
+						   EcalClusterFunctionBaseClass* crackCorrectionFunction){
+
+
+  double crackcor = 1.; 
+
+  for(reco::CaloCluster_iterator cIt = cl.clustersBegin(); cIt != cl.clustersEnd(); ++cIt) {
+
+    const reco::CaloClusterPtr cc = *cIt; 
+    crackcor *= ( (cl.rawEnergy() +
+		   cc->energy()*(crackCorrectionFunction->getValue(*cc)-1.)) / 
+		   cl.rawEnergy() );   
+  }// loop on BCs
+  
+
+  reco::SuperCluster corrCl=cl;
+  corrCl.setEnergy(cl.energy()*crackcor);
+  
+
+  return corrCl;
 }
 

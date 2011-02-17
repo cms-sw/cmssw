@@ -35,8 +35,12 @@ public:
 				     const EcalRecHitCollection &rhc, 
 				     reco::CaloCluster::AlgoId theAlgo, 
 				     const CaloSubdetectorGeometry* geometry,
-				     EcalClusterFunctionBaseClass* EnergyCorrectionClass);
+				     EcalClusterFunctionBaseClass* energyCorrectionFunction);
   
+  // take a SuperCluster and return a crack-corrected SuperCluster
+  reco::SuperCluster applyCrackCorrection(const reco::SuperCluster &cl,
+					  EcalClusterFunctionBaseClass* crackCorrectionFunction);
+
   // function to set the verbosity level
   void setVerbosity(VerbosityLevel verbosity)
   {
