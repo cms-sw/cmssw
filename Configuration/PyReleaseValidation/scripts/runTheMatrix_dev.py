@@ -338,11 +338,15 @@ class MatrixReader(object):
                 if input and cfg :
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
                     raise msg
+
                 if cfg:
                     cmd  = 'cmsDriver.py '+cfg+' '+opts
-                if input:
+                if stepIndex==0 and not inputInfo and input: # only if we didn't already set the input
                     inputInfo = input
                     cmd = 'DATAINPUT from '+inputInfo.dataSet
+                    
+                if stepIndex > 0:
+                    cmd  = 'cmsDriver.py step'+str(stepIndex+1)+'.py '+opts
                     
                 stepCmds[stepIndex] = cmd
                 stepIndex += 1
