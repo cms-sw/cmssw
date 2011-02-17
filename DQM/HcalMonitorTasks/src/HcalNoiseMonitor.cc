@@ -146,69 +146,15 @@ void HcalNoiseMonitor::setup()
       hTriangleRightSlopeVsTS4->setAxisTitle("Left slope", 1);
       hTriangleRightSlopeVsTS4->setAxisTitle("Peak time slice", 2);
 
-      hFailLinearEtaPhiDepth1 = dbe_->book2D("Fail_linear_Eta_Phi_Depth1",
-         "Failing linear flag, depth 1", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailLinearEtaPhiDepth1->setAxisTitle("ieta", 1);
-      hFailLinearEtaPhiDepth1->setAxisTitle("iphi", 2);
-
-      hFailLinearEtaPhiDepth2 = dbe_->book2D("Fail_linear_Eta_Phi_Depth2",
-         "Failing linear flag, depth 2", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailLinearEtaPhiDepth2->setAxisTitle("ieta", 1);
-      hFailLinearEtaPhiDepth2->setAxisTitle("iphi", 2);
-
-      hFailLinearEtaPhiDepth3 = dbe_->book2D("Fail_linear_Eta_Phi_Depth3",
-         "Failing linear flag, depth 3", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailLinearEtaPhiDepth3->setAxisTitle("ieta", 1);
-      hFailLinearEtaPhiDepth3->setAxisTitle("iphi", 2);
-
-      hFailRMSMaxEtaPhiDepth1 = dbe_->book2D("Fail_RMSMax_Eta_Phi_Depth1",
-         "Failing RMS/Max flag, depth 1", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailRMSMaxEtaPhiDepth1->setAxisTitle("ieta", 1);
-      hFailRMSMaxEtaPhiDepth1->setAxisTitle("iphi", 2);
-
-      hFailRMSMaxEtaPhiDepth2 = dbe_->book2D("Fail_RMSMax_Eta_Phi_Depth2",
-         "Failing RMS/Max flag, depth 2", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailRMSMaxEtaPhiDepth2->setAxisTitle("ieta", 1);
-      hFailRMSMaxEtaPhiDepth2->setAxisTitle("iphi", 2);
-
-      hFailRMSMaxEtaPhiDepth3 = dbe_->book2D("Fail_RMSMax_Eta_Phi_Depth3",
-         "Failing RMS/Max flag, depth 3", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailRMSMaxEtaPhiDepth3->setAxisTitle("ieta", 1);
-      hFailRMSMaxEtaPhiDepth3->setAxisTitle("iphi", 2);
-
-      hFailTriangleEtaPhiDepth1 = dbe_->book2D("Fail_Triangle_Eta_Phi_Depth1",
-         "Failing triangle flag, depth 1", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailTriangleEtaPhiDepth1->setAxisTitle("ieta", 1);
-      hFailTriangleEtaPhiDepth1->setAxisTitle("iphi", 2);
-
-      hFailTriangleEtaPhiDepth2 = dbe_->book2D("Fail_Triangle_Eta_Phi_Depth2",
-         "Failing triangle flag, depth 2", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailTriangleEtaPhiDepth2->setAxisTitle("ieta", 1);
-      hFailTriangleEtaPhiDepth2->setAxisTitle("iphi", 2);
-
-      hFailTriangleEtaPhiDepth3 = dbe_->book2D("Fail_Triangle_Eta_Phi_Depth3",
-         "Failing triangle flag, depth 3", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailTriangleEtaPhiDepth3->setAxisTitle("ieta", 1);
-      hFailTriangleEtaPhiDepth3->setAxisTitle("iphi", 2);
+      SetupEtaPhiHists(hFailLinearEtaPhi, "Fail_linear_Eta_Phi_Map", "");
+      SetupEtaPhiHists(hFailRMSMaxEtaPhi, "Fail_RMS8Max_Eta_Phi_Map", "");
+      SetupEtaPhiHists(hFailTriangleEtaPhi, "Fail_triangle_Eta_Phi_Map", "");
 
       // High-level isolation filter
       dbe_->setCurrentFolder(subdir_ + "IsolationVariable/");
 
-      hFailIsolationEtaPhiDepth1 = dbe_->book2D("Fail_Isolation_Eta_Phi_Depth1",
-         "Failing isolation flag, depth 1", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailIsolationEtaPhiDepth1->setAxisTitle("ieta", 1);
-      hFailIsolationEtaPhiDepth1->setAxisTitle("iphi", 2);
-
-      hFailIsolationEtaPhiDepth2 = dbe_->book2D("Fail_Isolation_Eta_Phi_Depth2",
-         "Failing isolation flag, depth 2", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailIsolationEtaPhiDepth2->setAxisTitle("ieta", 1);
-      hFailIsolationEtaPhiDepth2->setAxisTitle("iphi", 2);
-
-      hFailIsolationEtaPhiDepth3 = dbe_->book2D("Fail_Isolation_Eta_Phi_Depth3",
-         "Failing isolation flag, depth 3", 59, -29.5, 29.5, 72, 0.5, 72.5);
-      hFailIsolationEtaPhiDepth3->setAxisTitle("ieta", 1);
-      hFailIsolationEtaPhiDepth3->setAxisTitle("iphi", 2);
-
+      SetupEtaPhiHists(hFailIsolationEtaPhi, "Fail_isolation_Eta_Phi_Map", "");
+      
       // TS4 vs. TS5 variable
       dbe_->setCurrentFolder(subdir_ + "TS4TS5Variable/");
       
@@ -356,68 +302,16 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
       int depth = id.depth();
 
       if(iter->flagField(HcalCaloFlagLabels::HBHEFlatNoise) == 1)
-      {
-         switch(depth)
-         {
-            case 1:
-               hFailLinearEtaPhiDepth1->Fill(ieta, iphi);
-               break;
-            case 2:
-               hFailLinearEtaPhiDepth2->Fill(ieta, iphi);
-               break;
-            case 3:
-               hFailLinearEtaPhiDepth3->Fill(ieta, iphi);
-               break;
-         }
-      }
+         hFailLinearEtaPhi.depth[depth-1]->Fill(ieta, iphi);
 
       if(iter->flagField(HcalCaloFlagLabels::HBHESpikeNoise) == 1)
-      {
-         switch(depth)
-         {
-            case 1:
-               hFailRMSMaxEtaPhiDepth1->Fill(ieta, iphi);
-               break;
-            case 2:
-               hFailRMSMaxEtaPhiDepth2->Fill(ieta, iphi);
-               break;
-            case 3:
-               hFailRMSMaxEtaPhiDepth3->Fill(ieta, iphi);
-               break;
-         }
-      }
+         hFailRMSMaxEtaPhi.depth[depth-1]->Fill(ieta, iphi);
       
       if(iter->flagField(HcalCaloFlagLabels::HBHETriangleNoise) == 1)
-      {
-         switch(depth)
-         {
-            case 1:
-               hFailTriangleEtaPhiDepth1->Fill(ieta, iphi);
-               break;
-            case 2:
-               hFailTriangleEtaPhiDepth2->Fill(ieta, iphi);
-               break;
-            case 3:
-               hFailTriangleEtaPhiDepth3->Fill(ieta, iphi);
-               break;
-         }
-      }
+         hFailTriangleEtaPhi.depth[depth-1]->Fill(ieta, iphi);
 
       if(iter->flagField(HcalCaloFlagLabels::HBHEIsolatedNoise) == 1)
-      {
-         switch(depth)
-         {
-            case 1:
-               hFailIsolationEtaPhiDepth1->Fill(ieta, iphi);
-               break;
-            case 2:
-               hFailIsolationEtaPhiDepth2->Fill(ieta, iphi);
-               break;
-            case 3:
-               hFailIsolationEtaPhiDepth3->Fill(ieta, iphi);
-               break;
-         }
-      }
+         hFailIsolationEtaPhi.depth[depth-1]->Fill(ieta, iphi);
    }
 
    // Code analagous to Yifei's

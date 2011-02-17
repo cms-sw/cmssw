@@ -56,20 +56,12 @@ private:
    MonitorElement *hTriangleLeftSlopeVsTS4;
    MonitorElement *hTriangleRightSlopeVsTS4;
 
-   MonitorElement *hFailLinearEtaPhiDepth1;
-   MonitorElement *hFailLinearEtaPhiDepth2;
-   MonitorElement *hFailLinearEtaPhiDepth3;
-   MonitorElement *hFailRMSMaxEtaPhiDepth1;
-   MonitorElement *hFailRMSMaxEtaPhiDepth2;
-   MonitorElement *hFailRMSMaxEtaPhiDepth3;
-   MonitorElement *hFailTriangleEtaPhiDepth1;
-   MonitorElement *hFailTriangleEtaPhiDepth2;
-   MonitorElement *hFailTriangleEtaPhiDepth3;
+   EtaPhiHists hFailLinearEtaPhi;
+   EtaPhiHists hFailRMSMaxEtaPhi;
+   EtaPhiHists hFailTriangleEtaPhi;
    
    // Isolation Filter
-   MonitorElement *hFailIsolationEtaPhiDepth1;
-   MonitorElement *hFailIsolationEtaPhiDepth2;
-   MonitorElement *hFailIsolationEtaPhiDepth3;
+   EtaPhiHists hFailIsolationEtaPhi;
    
    // Jason variable
    MonitorElement *hTS4TS5RelativeDifference;
