@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/02/14 09:52:07 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/02/14 15:17:23 $
+ *  $Revision: 1.11 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -39,6 +39,7 @@ void TauValidation::beginJob()
     //Kinematics
     TauPt            = dbe->book1D("TauPt","Tau pT", 100 ,0,100);
     TauEta           = dbe->book1D("TauEta","Tau eta", 100 ,-2.5,2.5);
+    TauPhi           = dbe->book1D("TauPhi","Tau phi", 100 ,-3.14,3.14);
     TauProngs        = dbe->book1D("TauProngs","Tau n prongs", 7 ,0,7);
     TauDecayChannels = dbe->book1D("TauDecayChannels","Tau decay channels", 12 ,0,12);
 	TauDecayChannels->setBinLabel(1+undetermined,"?");
@@ -115,6 +116,7 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
       if(abs((*iter)->pdg_id())==15){
         TauPt->Fill((*iter)->momentum().perp());
         TauEta->Fill((*iter)->momentum().eta());
+	TauPhi->Fill((*iter)->momentum().phi());
 	int mother  = tauMother(*iter);
 	int decaychannel = tauDecayChannel(*iter);
 	tauProngs(*iter);
