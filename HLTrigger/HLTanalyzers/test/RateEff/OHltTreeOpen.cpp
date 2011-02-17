@@ -5941,7 +5941,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   //ok?
+   //parameters should be checked
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -5976,6 +5976,44 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+
+   //parameters should be checked must be rewritten
+   else if (menu->GetTriggerName(it).CompareTo("HLT_Mu5_Ele8_CaloIdL_TrkIdVL_Ele8_v1") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHlt1MuonPassed(3., 4., 5., 2., 0)>=1
+                  &&OpenHlt2ElectronsSamHarperPassed(8., 0, // ET, L1isolation 
+                        999.,
+                        999., // Track iso barrel, Track iso endcap 
+                        999.,
+                        999., // Track/pT iso barrel, Track/pT iso endcap 
+                        999.,
+                        999., // H/ET iso barrel, H/ET iso endcap 
+                        999.,
+                        999., // E/ET iso barrel, E/ET iso endcap 
+                        0.15,
+                        0.15, // H/E barrel, H/E endcap 
+                        999.,
+                        999., // cluster shape barrel, cluster shape endcap 
+                        0.98,
+                        1., // R9 barrel, R9 endcap 
+                        999.,
+                        999., // Deta barrel, Deta endcap 
+                        999.,
+                        999. // Dphi barrel, Dphi endcap 
+                  )>=2)
+            {
+               //OpenHlt1ElectronPassed(8.,0,9999.,9999.)>=2){ 
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
+
    //to be removed
    //  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8_1CaloIdL_1TrkIdVL") == 0) { 
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_DoubleEle8_1CIdL_1TIdVL") == 0)
@@ -6154,7 +6192,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //ok?
+   //parameters should be checked
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu5_Ele8_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -6222,8 +6260,8 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //to be removed
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL") == 0)
+   //parameters should be checked
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
       {
@@ -6615,7 +6653,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   //ok?
+   //parameters should be checked
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_Ele8_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -6649,7 +6687,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //ok?
+   //parameters should be checked
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu10_Ele10_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -6683,7 +6721,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //ok?
+   //parameters should be checked
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu8_Ele17_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
