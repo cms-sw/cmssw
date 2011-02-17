@@ -6664,7 +6664,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   //parameters should be checked
+   //parameters should be checked. pb with deta dphi et R9
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_Ele8_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -6698,7 +6698,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //parameters should be checked
+   //parameters should be checked pb with deta dphi et R9
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu10_Ele10_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -6732,7 +6732,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //parameters should be checked
+   //parameters should be checked pb with deta dphi et R9
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu8_Ele17_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
