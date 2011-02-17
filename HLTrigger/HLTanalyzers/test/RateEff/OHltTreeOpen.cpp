@@ -6404,17 +6404,16 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //to be removed
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160") == 0)
+
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHlt1MuonPassed(3., 3., 3., 2., 0)>=1 && OpenHltSumHTPassed(
+            if (OpenHlt1MuonPassed(3., 3., 3., 2., 0)>=1 && OpenHltSumCorHTPassed(
                   100,
-                  20,
-                  3.0)>0 && OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation
+                  30,)>0 && OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation
                   999.,
                   999., // Track iso barrel, Track iso endcap
                   999.,
