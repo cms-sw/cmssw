@@ -1,4 +1,4 @@
-
+/* for old tauola27 */
 #include <iostream>
 
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
@@ -268,6 +268,7 @@ void TauolaInterface::statistics()
    return;
 }
 
+/* */
 
 /* this is the code for the new Tauola++ 
 
@@ -356,7 +357,12 @@ void TauolaInterface::init( const edm::EventSetup& es )
    fPDGs.push_back( Tauola::getDecayingParticle() );
       
    es.getData( fPDGTable ) ;
-
+//
+//   const HepPDT::ParticleData* 
+//         PData = fPDGTable->particle(HepPDT::ParticleID( abs(Tauola::getDecayingParticle()) )) ;
+//   double lifetime = PData->lifetime().value();
+//   Tauola::setTauLifetime( lifetime );
+   
    Tauola::initialise();
    Log::LogWarning(false);
    
@@ -413,10 +419,12 @@ HepMC::GenEvent* TauolaInterface::decay( HepMC::GenEvent* evt )
     // do we also need to apply the lifetime and vtx position shift ??? 
     // (see TauolaInterface, for example)
     //
+
     for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ )
     {
        HepMC::GenVertex* GenVtx = evt->barcode_to_vertex(-iv);
        HepMC::GenParticle* GenPart = *(GenVtx->particles_in_const_begin());
+       HepMC::GenVertex* ProdVtx = GenPart->production_vertex();
        HepMC::FourVector PMom = GenPart->momentum();
        double mass = GenPart->generated_mass();
        const HepPDT::ParticleData* 
@@ -428,12 +436,16 @@ HepMC::GenEvent* TauolaInterface::decay( HepMC::GenEvent* evt )
        double ct = -lifetime * std::log(prob);
        double VxDec = GenVtx->position().x();
        VxDec += ct * (PMom.px()/mass);
+       VxDec += ProdVtx->position().x();
        double VyDec = GenVtx->position().y();
        VyDec += ct * (PMom.py()/mass);
+       VyDec += ProdVtx->position().y();
        double VzDec = GenVtx->position().z();
        VzDec += ct * (PMom.pz()/mass);
+       VzDec += ProdVtx->position().z();
        double VtDec = GenVtx->position().t();
        VtDec += ct * (PMom.e()/mass);
+       VtDec += ProdVtx->position().t();
        GenVtx->set_position( HepMC::FourVector(VxDec,VyDec,VzDec,VtDec) );       
     }
     
