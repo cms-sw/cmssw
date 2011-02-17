@@ -1,6 +1,11 @@
 import array,coral
 from RecoLuminosity.LumiDB import CommonUtil,nameDealer
 
+def lumiFromOldLumi(session,runnumber):
+    '''
+    retrieve old lumi value, divide by norm and restore to raw value
+    '''
+    pass
 def hltFromOldLumi(session,runnumber):
     '''
     select count(distinct pathname) from hlt where runnum=:runnum
@@ -551,15 +556,95 @@ def trgFromOldGT(session,runnumber):
         del session
         raise
     
-def hltFromRuninfoV2(session,schemaname,runnumber):
+def hltFromRuninfoV2(session,runnumber):
     '''
     input:
-    output: [datasource,pathnameclob,{cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}]
+    output: [pathnameclob,{cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}]
     select count(distinct PATHNAME) as npath from HLT_SUPERVISOR_LUMISECTIONS_V2 where runnr=:runnumber and lsnumber=1;
     select l.pathname,l.lsnumber,l.l1pass,l.paccept,m.psvalue from hlt_supervisor_lumisections_v2 l,hlt_supervisor_scalar_map m where l.runnr=m.runnr and l.psindex=m.psindex and l.pathname=m.pathname and l.runnr=:runnumber order by l.lsnumber
-    
     '''
-    pass
+    npaths=0
+    pathnames=[]
+    hltdict={}
+    try:
+        session.transaction().start(True)
+        hltschema=session.schema('CMS_RUNINFO')
+        bvar=coral.AttributeList()
+        bvar.extend('runnumber','unsigned int')
+        bvar.extend('lsnumber','unsigned int')
+        bvar['runnumber'].setData(int(runnumber))
+        bvar['lsnumber'].setData(1)
+        q1=hltschema.newQuery()
+        q1.addToTableList('HLT_SUPERVISOR_LUMISECTIONS_V2')
+        nls=coral.AttributeList()
+        nls.extend('npath','unsigned int')
+        q1.addToOutputList('count(distinct PATHNAME)','npath')
+        q1.setCondition('RUNNR=:runnumber AND LSNUMBER=:lsnumber',bvar)
+        q1.defineOutput(nls)
+        c=q1.execute()
+        while c.next():
+            npath=c.currentRow()['npath'].data()
+        del q1
+        if npath==0:
+            print 'request run is empty, do nothing'
+            
+        q=hltschema.newQuery()
+        bindVar=coral.AttributeList()
+        bindVar.extend('runnumber','unsigned int')
+        bindVar['runnumber'].setData(int(runnumber))
+        q.addToTableList('HLT_SUPERVISOR_LUMISECTIONS_V2','l')
+        q.addToTableList('HLT_SUPERVISOR_SCALAR_MAP','m')
+        q.addToOutputList('l.LSNUMBER','lsnumber')
+        q.addToOutputList('l.PATHNAME','pathname')
+        q.addToOutputList('l.L1PASS','hltinput')
+        q.addToOutputList('l.PACCEPT','hltaccept')
+        q.addToOutputList('m.PSVALUE','prescale')
+        q.setCondition('l.RUNNR=m.RUNNR and l.PSINDEX=m.PSINDEX and l.PATHNAME=m.PATHNAME and l.RUNNR=:runnumber',bindVar)
+        q.addToOrderList('l.LSNUMBER')
+        q.addToOrderList('l.PATHNAME')
+        q.setRowCacheSize(10692)
+        cursor=q.execute()
+        lastLumiSection=1
+        currentLumiSection=0
+        allpaths=[]
+        ipath=0
+        hltinputs=array.array('l')
+        hltaccepts=array.array('l')
+        prescales=array.array('l')
+        while cursor.next():
+            row=cursor.currentRow()
+            cmsluminr=row['lsnumber'].data()
+            hltinput=row['hltinput'].data()
+            hltaccept=row['hltaccept'].data()
+            prescale=row['prescale'].data()
+            pathname=row['pathname'].data()
+            ipath+=1
+            if cmsluminr==1:
+                pathnames.append(pathname)
+            if not hltdict.has_key(cmsluminr):
+                hltdict[cmsluminr]=[]
+            hltinputs.append(hltinput)
+            hltaccepts.append(hltaccept)
+            prescales.append(prescale)
+            if ipath==npath:
+                #pack
+                #print 'packing hltinputs ',hltinputs
+                hltinputsBlob=CommonUtil.packArraytoBlob(hltinputs)
+                #print 'packing hltaccepts ',hltaccepts
+                hltacceptsBlob=CommonUtil.packArraytoBlob(hltaccepts)
+                #print 'packing prescales ',prescales
+                prescalesBlob=CommonUtil.packArraytoBlob(prescales)
+                hltdict[cmsluminr].extend([hltinputsBlob,hltacceptsBlob,hltacceptsBlob])
+                ipath=0
+                hltinputs=array.array('l')
+                hltaccepts=array.array('l')
+                prescales=array.array('l')
+        pathnameclob=','.join(pathnames)  
+        del q
+        session.transaction().commit()
+        return [pathnameclob,hltdict]
+    except:
+        raise
 
 def hltFromRuninfoV3(session,schemaname,runnumber):
     '''
@@ -813,7 +898,10 @@ if __name__ == "__main__":
     #svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_runinfo',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
     #session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     #runsummary(session,'CMS_RUNINFO',135735,complementalOnly=True)
-    svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_gt',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
+    #svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_gt',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
+    #session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    #print trgFromOldGT(session,135735)
+    svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_runinfo',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    print trgFromOldGT(session,135735)
+    print hltFromRuninfoV2(session,135735)
     del session
