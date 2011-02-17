@@ -3,10 +3,7 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#include "DataFormats/Common/interface/RefItem.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/RefTraits.h"
-
+#include "DataFormats/Common/interface/Ref.h"
 
 //! Implement a selector given a track or vertex collection and track or vertex classifier.
 template <typename Collection, typename Classifier>
