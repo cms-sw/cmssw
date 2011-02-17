@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.64 2011/02/11 13:33:52 babar Exp $
+# $Id: InjectWorker.pl,v 1.65 2011/02/11 16:56:58 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -426,8 +426,8 @@ sub get_from_runcond {
         $sth->finish;
     }
     unless ( defined $cached ) {
-        my $delay = $args->{RetryDelay} ||= $retrydelay;
-        my $retries = ( $args->{Retries} ||= $maxretries )--;
+        my $delay = $args->{_RetryDelay} ||= $retrydelay;
+        my $retries = ( $args->{_Retries} ||= $maxretries )--;
         if ($retries) {
             $kernel->post( 'logger',
                 error =>
@@ -459,7 +459,8 @@ sub get_from_runcond {
 # Parse lines like
 #./closeFile.pl  --FILENAME Data.00133697.0135.Express.storageManager.00.0000.dat --FILECOUNTER 0 --NEVENTS 21 --FILESIZE 1508412 --STARTTIME 1271857503 --STOPTIME 1271857518 --STATUS closed --RUNNUMBER 133697 --LUMISECTION 135 --PATHNAME /store/global//02/closed/ --HOSTNAME srv-C2C06-12 --SETUPLABEL Data --STREAM Express --INSTANCE 0 --SAFETY 0 --APPVERSION CMSSW_3_5_4_onlpatch3_ONLINE --APPNAME CMSSW --TYPE streamer --DEBUGCLOSE 1 --CHECKSUM c8b5a624 --CHECKSUMIND 8912d364
 sub parse_line {
-    my ( $kernel, $heap, $callback, $line ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
+    my ( $kernel, $heap, $callback, $line, $wheelID, $offset ) =
+      @_[ KERNEL, HEAP, ARG0 .. ARG3 ];
     my @args = split / +/, $line;
     my $kind = shift @args;
 
@@ -482,6 +483,7 @@ sub parse_line {
             $args{$_} = $value if s/_//g;
         }
     }
+    $args{_WheelOffset} = { $wheelID => $offset };    # Save offset information
     $kernel->yield( get_hlt_key => $callback, \%args );
 }
 
@@ -523,6 +525,23 @@ sub update_db {
 
     my $errflag = 0;
     my $rows = $heap->{sths}->{$handler}->execute(@bind_params) or $errflag = 1;
+    if ( $args->{_WheelOffset} ) {
+        my ( $wheelID, $offset ) = %{ $args->{_WheelOffset} };
+        my $current = $heap->{offset}->{$wheelID};
+        if ( $current > $offset ) {
+            my $file = $heap->{watchlist}->{$wheelID};
+            $kernel->post( 'logger',
+                warning =>
+                  "$file was processed backwards: $offset < $current!" );
+        }
+        else {
+            $heap->{offset}->{$wheelID} =
+              $offset;    # File processed up to this offset
+        }
+    }
+    else {
+        $kernel->post( 'logger', warning => "No offset information" );
+    }
 
     $rows = 'undef' unless defined $rows;
     if ($errflag) {
@@ -709,20 +728,30 @@ sub sig_child {
 # Got a new line in a logfile
 sub got_log_line {
     my ( $kernel, $heap, $line, $wheelID ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
-    my $file = $heap->{watchlist}->{$wheelID};
+    my $file   = $heap->{watchlist}->{$wheelID};
+    my $offset = $heap->{watchlist}->{$file}->tell();
     $kernel->post( 'logger', debug => "In $file, got line: $line" );
     if ( $line =~ /(?:(insert|close)File)/i ) {
-        $kernel->yield( parse_line => $1 => $line );
+        $kernel->yield( parse_line => $1 => $line, $wheelID => $offset );
     }
     elsif ( $line =~ /^Timestamp:/ ) {
         if ( $line =~ s/\tBoR$// ) {
-            $kernel->yield( parse_lumi_line => got_begin_of_run => $line );
+            $kernel->yield(
+                parse_lumi_line => got_begin_of_run => $line,
+                $wheelID        => $offset
+            );
         }
         elsif ( $line =~ s/\tEoR$// ) {
-            $kernel->yield( parse_lumi_line => got_end_of_run => $line );
+            $kernel->yield(
+                parse_lumi_line => got_end_of_run => $line,
+                $wheelID        => $offset
+            );
         }
         else {
-            $kernel->yield( parse_lumi_line => got_end_of_lumi => $line );
+            $kernel->yield(
+                parse_lumi_line => got_end_of_lumi => $line,
+                $wheelID        => $offset
+            );
         }
     }
     else {
@@ -732,7 +761,8 @@ sub got_log_line {
 
 # Splits the line by tabs and builds a hash with the result (key:value)
 sub parse_lumi_line {
-    my ( $kernel, $heap, $callback, $line ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
+    my ( $kernel, $heap, $callback, $line, $wheelID, $offset ) =
+      @_[ KERNEL, HEAP, ARG0 .. ARG3 ];
     $kernel->post( 'logger',
         debug => "Got lumi line (callback: $callback): $line" );
     return unless $callback && $line;
@@ -741,7 +771,9 @@ sub parse_lumi_line {
         $kernel->post( 'logger', warning => "Got unknown lumi line: $line" );
         return;
     }
-    $hash{Timestamp} = gettimestamp( $hash{Timestamp} );
+    $hash{Timestamp} =
+      gettimestamp( $hash{Timestamp} );    # Change unix timestamp to string
+    $hash{_WheelOffset} = { $wheelID => $offset };    # Save offset information
     if ( $callback =~ /_of_run$/ ) {
         $kernel->yield( get_num_sm => $callback, \%hash );
     }
@@ -774,7 +806,7 @@ sub got_end_of_run {
 sub got_end_of_lumi {
     my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
     for my $stream (
-        sort grep { !/^(?:Timestamp|run|LS|instance|host)$/ }
+        sort grep { !/^(?:Timestamp|run|LS|instance|host|_.*)$/ }
         keys %$args
       )
     {
@@ -797,8 +829,9 @@ sub got_log_rollover {
 sub read_changes {
     my ( $kernel, $heap, $file ) = @_[ KERNEL, HEAP, ARG0 ];
 
+    # XXX Would be great not to use a FollowTail wheel, but to use inotify
     return if $heap->{watchlist}->{$file};    # File is already monitored
-    my $seek = $heap->{offsets}->{$file} || 0;
+    my $seek = $heap->{offset}->{$file} || 0;
     my $size = ( stat $file )[7];
     if ( $seek > $size ) {
         $kernel->post( 'logger',
@@ -813,8 +846,9 @@ sub read_changes {
         ResetEvent => "got_log_rollover",
         Seek       => $seek,
     );
-    $heap->{watchlist}->{ $wheel->ID } = $file;
-    $heap->{watchlist}->{$file} = $wheel;
+    $heap->{offset}->{ $wheel->ID }    = $seek;     # Save offset per wheel ID
+    $heap->{watchlist}->{ $wheel->ID } = $file;     # Map wheel ID => file
+    $heap->{watchlist}->{$file}        = $wheel;    # Map file => wheel object
 }
 
 # Some terminal signal got received
@@ -894,21 +928,26 @@ sub read_db_config {
 # Save the offset for each file so processing can be resumed at any time
 sub save_offsets {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    $kernel->post( 'logger', debug => "Saving offsets" );
+    my %offset;
+
+    # Call, otherwise log is lost during shutdown
+    $kernel->call( 'logger', info => "Saving offsets" );
     $kernel->delay( save_offsets => $savedelay );
+
+    # First ensure all tailors have offset sets
     for my $tailor ( grep { /^[0-9]+$/ } keys %{ $heap->{watchlist} } ) {
-        my $file   = $heap->{watchlist}->{$tailor};
-        my $wheel  = $heap->{watchlist}->{$file};
-        my $offset = $wheel->tell;
-        $heap->{offsets}->{$file} = $offset;
+        my $file  = $heap->{watchlist}->{$tailor};
+        my $wheel = $heap->{watchlist}->{$file};
+        $offset{$file} = $heap->{offset}->{$tailor} || $wheel->tell;
     }
 
-    # XXX Use a ReadWrite wheel
-    return unless keys %{ $heap->{offsets} };
+    return unless keys %offset;    # Nothing to do
+
+    # Loop over offsets, saving them to disk
     open my $save, '>', $offsetfile or die "Can't open $offsetfile: $!";
-    for my $file ( sort keys %{ $heap->{offsets} } ) {
-        my $offset = delete $heap->{offsets}->{$file};
-        $kernel->post( 'logger',
+    for my $file ( sort keys %offset ) {
+        my $offset = $offset{$file};
+        $kernel->call( 'logger',
             debug => "Saving offset information for $file: $offset" );
         print $save "$file $offset\n";
     }
@@ -922,8 +961,6 @@ sub read_offsets {
     return unless -s $offsetfile;
     $kernel->post( 'logger', debug => "Reading offset file $offsetfile..." );
 
-# XXX Use a ReadWrite wheel like on
-# http://github.com/bingos/poe/raw/22d59d963996d83a93fcb292c269ffbedd0d0965/docs/small-programs/reading-filehandle.pl
     open my $save, '<', $offsetfile or die "Can't open $offsetfile: $!";
     while (<$save>) {
         next unless /^(\S+) ([0-9]+)$/;
@@ -936,7 +973,7 @@ sub read_offsets {
                       "File $file has a different size: $offset != $fsize" );
                 $kernel->yield( read_changes => $file );
             }
-            $heap->{offsets}->{$file} = $offset;
+            $heap->{offset}->{$file} = $offset;
             $kernel->post( 'logger',
                 debug => "Setting offset information for $file: $offset" );
         }
