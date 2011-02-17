@@ -12,11 +12,19 @@ hcalNoiseMonitor=cms.EDAnalyzer("HcalNoiseMonitor",
                               skipOutOfOrderLS       = cms.untracked.bool(False),
                               NLumiBlocks            = cms.untracked.int32(4000),
 
-                              # NZS-specific parameters
+                              # parameters
                               RawDataLabel           = cms.untracked.InputTag("source"),
 
                               HLTResultsLabel        = cms.untracked.InputTag("TriggerResults","","HLT"),
                               nzsHLTnames            = cms.untracked.vstring('HLT_HcalPhiSym',
                                                                    'HLT_HcalNZS_8E29'),
                               NZSeventPeriod         = cms.untracked.int32(4096),
+
+                              E2E10MinEnergy         = cms.untracked.double(50),
+                              MinE2E10               = cms.untracked.double(0.7),
+                              MaxE2E10               = cms.untracked.double(0.96),
+                              MaxHPDHitCount         = cms.untracked.int32(17),
+                              MaxHPDNoOtherHitCount  = cms.untracked.int32(10),
+                              MaxADCZeros            = cms.untracked.int32(10),
+                              TotalZeroMinEnergy     = cms.untracked.double(10)
                               )

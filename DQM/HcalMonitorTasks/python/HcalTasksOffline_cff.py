@@ -5,6 +5,7 @@ from DQM.HcalMonitorTasks.HcalHotCellMonitor_cfi       import *
 from DQM.HcalMonitorTasks.HcalDeadCellMonitor_cfi      import *
 from DQM.HcalMonitorTasks.HcalRecHitMonitor_cfi        import *
 from DQM.HcalMonitorTasks.HcalNZSMonitor_cfi           import *
+from DQM.HcalMonitorTasks.HcalNoiseMonitor_cfi         import *
 from DQM.HcalMonitorTasks.HcalBeamMonitor_cfi          import *
 from DQM.HcalMonitorTasks.HcalRawDataMonitor_cfi       import *
 from DQM.HcalMonitorTasks.HcalTrigPrimMonitor_cfi      import *
@@ -25,6 +26,7 @@ hcalDeadCellMonitor.online        = False
 hcalBeamMonitor.online            = False
 hcalTrigPrimMonitor.online        = False
 hcalNZSMonitor.online             = False
+hcalNoiseMonitor.online           = False
 hcalLSbyLSMonitor.online          = False
 # The following tasks are not yet run online
 hcalDetDiagLEDMonitor.online      = False
@@ -41,6 +43,7 @@ hcalDeadCellMonitor.AllowedCalibTypes        =  []
 hcalBeamMonitor.AllowedCalibTypes            =  []
 hcalTrigPrimMonitor.AllowedCalibTypes        =  []
 hcalNZSMonitor.AllowedCalibTypes             =  []
+hcalNoiseMonitor.AllowedCalibTypes           =  []
 hcalLSbyLSMonitor.AllowedCalibTypes          =  []
 
 # No need to skip out of order LS in offline, I think
@@ -52,6 +55,7 @@ hcalDeadCellMonitor.skipOutOfOrderLS        =  False
 hcalBeamMonitor.skipOutOfOrderLS            =  False
 hcalTrigPrimMonitor.skipOutOfOrderLS        =  False
 hcalNZSMonitor.skipOutOfOrderLS             =  False
+hcalNoiseMonitor.skipOutOfOrderLS           =  False
 hcalLSbyLSMonitor.skipOutOfOrderLS          =  False
 
 # Make diagnostics where appropriate

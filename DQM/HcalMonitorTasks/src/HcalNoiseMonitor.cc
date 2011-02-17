@@ -54,6 +54,14 @@ HcalNoiseMonitor::HcalNoiseMonitor(const edm::ParameterSet& ps)
    hltresultsLabel_       = ps.getUntrackedParameter<edm::InputTag>("HLTResultsLabel");
 
    mTrianglePeakTS        = 4;   // for now...
+
+   mE2E10MinEnergy        = ps.getUntrackedParameter<double>("E2E10MinEnergy");
+   mMinE2E10              = ps.getUntrackedParameter<double>("MinE2E10");
+   mMaxE2E10              = ps.getUntrackedParameter<double>("MaxE2E10");
+   mMaxHPDHitCount        = ps.getUntrackedParameter<int>("MaxHPDHitCount");
+   mMaxHPDNoOtherHitCount = ps.getUntrackedParameter<int>("MaxHPDNoOtherHitCount");
+   mMaxADCZeros           = ps.getUntrackedParameter<int>("MaxADCZeros");
+   mTotalZeroMinEnergy    = ps.getUntrackedParameter<double>("TotalZeroMinEnergy");
 }
 
 HcalNoiseMonitor::~HcalNoiseMonitor() {}
@@ -98,13 +106,6 @@ void HcalNoiseMonitor::setup()
    if(dbe_)
    {
       dbe_->setCurrentFolder(subdir_);
-
-      hTotalChargeOccupancy10 = dbe_->book1D("TotalChargeOccupancy10",
-         "Number of digis with total charge > 10", 201, -0.5, 200.5);
-      hTotalChargeOccupancy15 = dbe_->book1D("TotalChargeOccupancy15",
-         "Number of digis with total charge > 15", 201, -0.5, 200.5);
-      hTotalChargeOccupancy20 = dbe_->book1D("TotalChargeOccupancy20",
-         "Number of digis with total charge > 20", 201, -0.5, 200.5);
 
       // Fit-based
       dbe_->setCurrentFolder(subdir_ + "DoubleChi2/");
@@ -245,6 +246,11 @@ void HcalNoiseMonitor::setup()
       hHcalNoiseCategory->setBinLabel(5, "RBX flash small hit count", 1);
       hHcalNoiseCategory->setBinLabel(7, "HPD discharge", 1);
       hHcalNoiseCategory->setBinLabel(8, "HPD ion feedback", 1);
+
+      hBadZeroRBX = dbe_->book1D("BadZeroRBX", "RBX with bad ADC zero counts", 72, 0.5, 72.5);
+      hBadCountHPD = dbe_->book1D("BadCountHPD", "HPD with bad hit counts", 72 * 4, 0.5, 72 * 4 + 0.5);
+      hBadNoOtherCountHPD = dbe_->book1D("BadNoOtherCountHPD", "HPD with bad \"no other\" hit counts", 72 * 4, 0.5, 72 * 4 + 0.5);
+      hBadE2E10RBX = dbe_->book1D("BadE2E10RBX", "RBX with bad E2/E10 value", 72, 0.5, 72.5);
    }
 
    ReadHcalPulse();
@@ -276,10 +282,6 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
       return;
    }
 
-   int Occupancy10 = 0;
-   int Occupancy15 = 0;
-   int Occupancy20 = 0;
-
    // loop over digis
    for(HBHEDigiCollection::const_iterator iter = hHBHEDigis->begin(); iter != hHBHEDigis->end(); iter++)
    {
@@ -306,13 +308,6 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
       for(int i = 0; i < 10; i++)
          TotalCharge = TotalCharge + Charge[i];
 
-      if(TotalCharge > 10)
-         Occupancy10 = Occupancy10 + 1;
-      if(TotalCharge > 15)
-         Occupancy15 = Occupancy15 + 1;
-      if(TotalCharge > 20)
-         Occupancy20 = Occupancy20 + 1;
-
       if(TotalCharge > 20)
       {
          double NominalChi2 = 10000000;
@@ -329,6 +324,11 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
             TS4LeftSlope = Charge[4] / fabs(TriangleResult.LeftSlope);
          if(TriangleResult.RightSlope < -1e-5)
             TS4RightSlope = Charge[4] / fabs(TriangleResult.RightSlope);
+
+         if(TS4LeftSlope < -1000 || TS4LeftSlope > 1000)
+            TS4LeftSlope = 1000;
+         if(TS4RightSlope < -1000 || TS4RightSlope > 1000)
+            TS4RightSlope = 1000;
 
          hNominalChi2->Fill(NominalChi2);
          hLinearChi2->Fill(LinearChi2);
@@ -427,7 +427,27 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
 
       int NumberRBXHits = RBX.numRecHits(1.5);
       double RBXEnergy = RBX.recHitEnergy(1.5);
+      double RBXE2 = RBX.allChargeHighest2TS();
+      double RBXE10 = RBX.allChargeTotal();
 
+      vector<HcalNoiseHPD> HPDs = RBX.HPDs();
+      
+      int RBXID = RBX.idnumber();
+
+      if(RBXEnergy > mTotalZeroMinEnergy && RBX.totalZeros() >= mMaxADCZeros)
+         hBadZeroRBX->Fill(RBXID);
+      if(RBXEnergy > mE2E10MinEnergy && (RBXE2 / RBXE10 > mMaxE2E10 || RBXE2 / RBXE10 < mMinE2E10))
+         hBadE2E10RBX->Fill(RBXID);
+      for(vector<HcalNoiseHPD>::const_iterator hpd = HPDs.begin(); hpd != HPDs.end(); hpd++)
+      {
+         HcalNoiseHPD HPD = *hpd;
+         int HPDHitCount = HPD.numRecHits(1.5);
+         if(HPDHitCount >= mMaxHPDHitCount)
+            hBadCountHPD->Fill(HPD.idnumber());
+         if(HPDHitCount == NumberRBXHits && HPDHitCount >= mMaxHPDNoOtherHitCount)
+            hBadNoOtherCountHPD->Fill(HPD.idnumber());
+      }
+      
       if(NumberRBXHits == 0 || RBXEnergy <= 10)
          continue;
 
@@ -435,12 +455,7 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
 
       hMaxZeros->Fill(RBX.maxZeros());
       hTotalZeros->Fill(RBX.totalZeros());
-
-      double RBXE2 = RBX.allChargeHighest2TS();
-      double RBXE10 = RBX.allChargeTotal();
-
-      vector<HcalNoiseHPD> HPDs = RBX.HPDs();
-
+   
       double HighestHPDEnergy = 0;
       int HighestHPDHits = 0;
 
@@ -504,10 +519,6 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
       if(IsRBXNoise == true)
          hE2OverE10RBX->Fill(RBXE2 / RBXE10);
    }
-
-   hTotalChargeOccupancy10->Fill(Occupancy10);
-   hTotalChargeOccupancy15->Fill(Occupancy15);
-   hTotalChargeOccupancy20->Fill(Occupancy20);
 
    return;
 }

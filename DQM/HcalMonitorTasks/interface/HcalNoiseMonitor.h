@@ -31,17 +31,18 @@ private:
 
 private:
    int mTrianglePeakTS;
+   double mE2E10MinEnergy;
+   double mMinE2E10;
+   double mMaxE2E10;
+   int mMaxHPDHitCount;
+   int mMaxHPDNoOtherHitCount;
+   int mMaxADCZeros;
+   double mTotalZeroMinEnergy;
 
 private:
    // Monitoring elements
    edm::InputTag rawdataLabel_;
    edm::InputTag hltresultsLabel_;
-
-   MonitorElement *hTestHistogram;
-
-   MonitorElement *hTotalChargeOccupancy10;
-   MonitorElement *hTotalChargeOccupancy15;
-   MonitorElement *hTotalChargeOccupancy20;
 
    // Double-chi2 related stuff
    MonitorElement *hNominalChi2;
@@ -83,6 +84,11 @@ private:
    MonitorElement *hHPDHitCount;
    MonitorElement *hRBXHitCount;
    MonitorElement *hHcalNoiseCategory;
+
+   MonitorElement *hBadZeroRBX;
+   MonitorElement *hBadCountHPD;
+   MonitorElement *hBadNoOtherCountHPD;
+   MonitorElement *hBadE2E10RBX;
 
    std::vector<double> CumulativeIdealPulse;
 
