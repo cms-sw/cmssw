@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.8 2010/11/23 19:20:30 borrell Exp $
+// $Id: TrackingMonitor.h,v 1.10 2011/02/16 16:06:23 verdier Exp $
 
 #include <memory>
 #include <fstream>
@@ -91,6 +91,7 @@ class TrackingMonitor : public edm::EDAnalyzer
  
         bool doTrackerSpecific_; 
         bool doLumiAnalysis;
+	bool doProfilesVsLS_;
 
         GenericTriggerEventFlag* genTriggerEventFlag_;
 };

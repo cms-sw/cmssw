@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/26 10:45:09 $
- *  $Revision: 1.20 $
+ *  $Date: 2011/02/16 16:06:23 $
+ *  $Revision: 1.22 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -57,6 +57,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , builderName( conf_.getParameter<std::string>("TTRHBuilder"))
     , doTrackerSpecific_( conf_.getParameter<bool>("doTrackerSpecific") )
     , doLumiAnalysis( conf_.getParameter<bool>("doLumiAnalysis"))
+    , doProfilesVsLS_( conf_.getParameter<bool>("doProfilesVsLS"))
     , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig))
 {
 }
@@ -161,17 +162,22 @@ void TrackingMonitor::beginJob(void)
     FractionOfGoodTracks->setAxisTitle("Fraction of High Purity Tracks (Tracks with Pt>1GeV)", 1);
     FractionOfGoodTracks->setAxisTitle("Entries", 2);
 
-    histname = "GoodTracksFractionVsLS_"+ CatagoryName;
-    GoodTracksFractionVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax,0,1.1,"");
-    GoodTracksFractionVsLS->getTH1()->SetBit(TH1::kCanRebin);
-    GoodTracksFractionVsLS->setAxisTitle("#Lumi section",1);
-    GoodTracksFractionVsLS->setAxisTitle("Fraction of Good Tracks",2);
-   
-    histname = "GoodTracksNumberOfRecHitsPerTrackVsLS_" + CatagoryName;
-    GoodTracksNumberOfRecHitsPerTrackVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax,0.,40.,"");
-    GoodTracksNumberOfRecHitsPerTrackVsLS->getTH1()->SetBit(TH1::kCanRebin);
-    GoodTracksNumberOfRecHitsPerTrackVsLS->setAxisTitle("#Lumi section",1);
-    GoodTracksNumberOfRecHitsPerTrackVsLS->setAxisTitle("Mean number of RecHits per Good track",2);
+    // book profile plots vs LS :  
+    //---------------------------  
+     
+    if ( doProfilesVsLS_ ) {
+      histname = "GoodTracksFractionVsLS_"+ CatagoryName;
+      GoodTracksFractionVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax,0,1.1,"");
+      GoodTracksFractionVsLS->getTH1()->SetBit(TH1::kCanRebin);
+      GoodTracksFractionVsLS->setAxisTitle("#Lumi section",1);
+      GoodTracksFractionVsLS->setAxisTitle("Fraction of Good Tracks",2);
+      
+      histname = "GoodTracksNumberOfRecHitsPerTrackVsLS_" + CatagoryName;
+      GoodTracksNumberOfRecHitsPerTrackVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax,0.,40.,"");
+      GoodTracksNumberOfRecHitsPerTrackVsLS->getTH1()->SetBit(TH1::kCanRebin);
+      GoodTracksNumberOfRecHitsPerTrackVsLS->setAxisTitle("#Lumi section",1);
+      GoodTracksNumberOfRecHitsPerTrackVsLS->setAxisTitle("Mean number of RecHits per Good track",2);
+    }
 
     theTrackAnalyzer->beginJob(dqmStore_);
 
@@ -313,7 +319,8 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      ++totalNumHPTracks;
 	      if ( track->pt() >= 1. ) {
 		++totalNumHPPt1Tracks;
-		GoodTracksNumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),track->recHitsSize());
+		if ( doProfilesVsLS_ )
+		  GoodTracksNumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),track->recHitsSize());
 	      }
 	    }
 	    
@@ -347,7 +354,8 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	double frac = 0.;
 	if (totalNumPt1Tracks > 0) frac = static_cast<double>(totalNumHPPt1Tracks)/static_cast<double>(totalNumPt1Tracks);
 	FractionOfGoodTracks->Fill(frac);
-	GoodTracksFractionVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),frac);
+	if ( doProfilesVsLS_ )
+	  GoodTracksFractionVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),frac);
 
         if( totalNumTracks > 0 )
         {
