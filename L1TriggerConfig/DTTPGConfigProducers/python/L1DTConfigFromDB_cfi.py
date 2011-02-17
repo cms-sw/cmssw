@@ -11,13 +11,13 @@ L1DTConfigFromDB = cms.ESProducer("DTConfigDBProducer",
     cfgConfig  = cms.bool(False),
     TracoLutsFromDB = cms.bool(True),
     UseBtiAcceptParam = cms.bool(True),
-    UseT0 = cms.bool(True),
+#    UseT0 = cms.bool(True),
 ### 110202 SV LUTs from geometry
 #    TracoLutsFromDB = cms.bool(False),
 ### 110202 SV BTI trigger acceptance from geometry
 #    UseBtiAcceptParam = cms.bool(False),
 ### 110202 SV t0i not used
-#   UseT0 = cms.bool(False),
+   UseT0 = cms.bool(False),
 ### 110202 SV CONFIGURATIONS FROM CFF files and luts and accept.from geometry
 #    cfgConfig  = cms.bool(True),
 #    TracoLutsFromDB = cms.bool(False),
