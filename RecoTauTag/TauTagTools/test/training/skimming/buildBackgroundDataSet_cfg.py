@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTauTag.TauTagTools.RecoTauCommonJetSelections_cfi as common
+import sys
 
 '''
 
@@ -20,30 +21,48 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource", fileNames = readFiles,
                             secondaryFileNames = secFiles)
-readFiles.extend([
-    '/store/relval/CMSSW_3_8_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_38Y_V12-v1/0025/E6E7A0FC-9AC2-DF11-A9C1-003048679076.root',
-    '/store/relval/CMSSW_3_8_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_38Y_V12-v1/0024/2EB50F82-7DC2-DF11-9826-0026189437E8.root',
-    '/store/relval/CMSSW_3_8_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_38Y_V12-v1/0023/CA871CF9-76C2-DF11-A962-003048678FE4.root',
-    '/store/relval/CMSSW_3_8_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_38Y_V12-v1/0023/B8E56D7E-77C2-DF11-8E09-001A928116B8.root',
-    '/store/relval/CMSSW_3_8_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_38Y_V12-v1/0023/AC27459D-78C2-DF11-9FBF-002618943974.root',
-    '/store/relval/CMSSW_3_8_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_38Y_V12-v1/0023/9882FA2D-78C2-DF11-9198-002618943934.root',
-    '/store/relval/CMSSW_3_8_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_38Y_V12-v1/0023/60808F24-7CC2-DF11-8396-002618943864.root',
-    '/store/relval/CMSSW_3_8_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_38Y_V12-v1/0023/462A277B-76C2-DF11-9F3F-00304867C0F6.root'
-])
+filterType = None
+sampleId = None
+
+if not hasattr(sys, "argv"):
+    raise ValueError, "Can't extract CLI arguments!"
+else:
+    argOffset = 0
+    if sys.argv[0] != 'cmsRun':
+        argOffset = 1
+    # Stupid crab
+    rawOptions = sys.argv[2-argOffset]
+    filterType = rawOptions.split(',')[0]
+    print "Using %s filter type!" % filterType
+    sampleId = int(rawOptions.split(',')[1])
+    print "Found %i for sample id" % sampleId
+
+print "Loading filter type"
+process.load(filterType)
 
 # Load standard services
 process.load("Configuration.StandardSequences.Services_cff")
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("background_skim_plots.root")
+    fileName = cms.string(
+        "background_skim_plots_%s.root" % process.filterConfig.name.value())
 )
 
-_HLT_PATH = 'HLT_Jet15U'
+# Check if we need to modify triggers for MC running
+if len(sys.argv) > 4 and 'mc' in sys.argv[4].lower():
+    print "Using MC mode"
+    process.filterConfig.hltPaths = cms.vstring(
+        process.filterConfig.hltPaths[0])
+
+# Get the files specified for this filter
+readFiles.extend(process.filterConfig.testFiles)
 
 # The basic HLT requirement
 from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
 process.trigger = hltHighLevel.clone()
-process.trigger.HLTPaths = cms.vstring(_HLT_PATH)
+process.trigger.HLTPaths = process.filterConfig.hltPaths # <-- defined in filterType.py
+process.trigger.throw = False
+print process.trigger.HLTPaths
 
 #################################################################
 # Select good data events - based on TauCommissinon sequence
@@ -110,7 +129,7 @@ process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 from Configuration.PyReleaseValidation.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['com10']
+process.GlobalTag.globaltag = autoCond['startup']
 
 # Local re-reco: Produce tracker rechits, pf rechits and pf clusters
 process.localReReco = cms.Sequence(process.siPixelRecHits+
@@ -149,18 +168,13 @@ process.selectedRecoJets = cms.EDFilter(
     filter = cms.bool(True)
 )
 
-# We need at least two jets (to match to the trigger)
-process.atLeastTwoRecoJets = cms.EDFilter(
-    'CandViewCountFilter',
-    src = cms.InputTag("selectedRecoJets"),
-    minNumber = cms.uint32(2)
-)
-
 # Match our selected jets to the trigger
 process.hltMatchedJets = cms.EDProducer(
     'trgMatchedCandidateProducer',
     InputProducer = cms.InputTag('selectedRecoJets'),
-    hltTag = cms.untracked.InputTag(_HLT_PATH, "", "HLT"),
+    hltTags = cms.VInputTag(
+        [cms.InputTag(path, "", "HLT")
+         for path in process.filterConfig.hltPaths]),
     triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
 )
 
@@ -174,8 +188,8 @@ process.atLeastOneHLTJet = cms.EDFilter(
 # Get all jets that are NOT matched to HLT trigger jets
 process.nonHLTMatchedJets = cms.EDProducer(
     'CandViewCleaner',
-    srcCands = cms.InputTag('selectedRecoJets'),
-    srcObjects = cms.VInputTag(
+    srcObject = cms.InputTag('selectedRecoJets'),
+    srcObjectsToRemove = cms.VInputTag(
         cms.InputTag('hltMatchedJets')
     ),
     moduleLabel = cms.string(''),
@@ -184,7 +198,6 @@ process.nonHLTMatchedJets = cms.EDProducer(
 
 process.selectAndMatchJets = cms.Sequence(
     process.selectedRecoJets *
-    process.atLeastTwoRecoJets *
     process.hltMatchedJets *
     process.atLeastOneHLTJet *
     process.nonHLTMatchedJets
@@ -204,13 +217,18 @@ process.evtcontent = cms.EDAnalyzer("EventContentAnalyzer")
 
 # Combine the non-biased trigger jets with the (unbiased) untriggered jets.
 # This a collection of Refs to what is our final output collection.
+# Depending on the filter type, we may or may not want to keep non-biased
+# trigger matched jets.
 process.backgroundJetsCandRefs = cms.EDProducer(
     "CandRefMerger",
     src = cms.VInputTag(
         cms.InputTag('nonHLTMatchedJets'),
-        cms.InputTag('nonBiasedTriggerJets')
     )
 )
+if process.filterConfig.useUnbiasedHLTMatchedJets:
+    # <-- defined in filterType.py
+    process.backgroundJetsCandRefs.src.append(
+        cms.InputTag('nonBiasedTriggerJets'))
 
 # Create a list of PFJetRefs (instead of CandidateRefs)
 process.backgroundJets = cms.EDProducer(
@@ -295,34 +313,52 @@ process.preselectBackgroundJets = cms.Sequence(
     process.plotPreselectedBackgroundJets
 )
 
+# Add a flag to the event to keep track of the event type
+process.eventSampleFlag = cms.EDProducer(
+    "RecoTauEventFlagProducer",
+    flag = cms.int32(sampleId),
+)
+
+
 # Final path
 process.selectBackground = cms.Path(
     process.trigger *
     process.dataQualityFilters *
+    process.selectEnrichedEvents * # <-- defined in filterType.py
     process.rereco *
     process.selectAndMatchJets *
     process.removeBiasedJets *
-    process.preselectBackgroundJets *
-    process.backgroundJetsRecoTauPiZeros
+    process.preselectBackgroundJets*
+    process.eventSampleFlag
+    #process.backgroundJetsRecoTauPiZeros
 )
 
+# Store the trigger stuff in the event
+from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
+switchOnTrigger(process, sequence="selectBackground", outputModule='')
 
 # Keep only a subset of data
 poolOutputCommands = cms.untracked.vstring(
     'drop *',
+    'keep patTriggerObjects_*_*_TANC',
+    'keep patTriggerFilters_*_*_TANC',
+    'keep patTriggerPaths_*_*_TANC',
+    'keep patTriggerEvent_*_*_TANC',
     'keep *_ak5PFJets_*_TANC',
     'keep *_offlinePrimaryVertices_*_TANC',
     'keep recoTracks_generalTracks_*_TANC',
     'keep recoTracks_electronGsfTracks_*_TANC',
     'keep recoPFCandidates_particleFlow_*_TANC',
     'keep *_preselectedBackgroundJets_*_TANC',
-    'keep *_backgroundJetsRecoTauPiZeros_*_TANC',
+    'keep *_eventSampleFlag_*_*'
+    #'keep *_backgroundJetsRecoTauPiZeros_*_TANC',
 )
 
 # Write output
 process.write = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string("background_training.root"),
+    fileName = cms.untracked.string(
+        "background_training_%s.root" % process.filterConfig.name.value()),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring("selectBackground"),
     ),

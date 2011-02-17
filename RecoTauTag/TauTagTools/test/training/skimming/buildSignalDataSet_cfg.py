@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTauTag.TauTagTools.RecoTauCommonJetSelections_cfi as common
+import sys
 
 '''
 
@@ -13,6 +14,22 @@ Author: Evan K. Friis (UC Davis)
 
 '''
 
+sampleId = None
+sampleName = None
+
+print sys.argv
+if not hasattr(sys, "argv"):
+    raise ValueError, "Can't extract CLI arguments!"
+else:
+    argOffset = 0
+    if sys.argv[0] != 'cmsRun':
+        argOffset = 1
+    args = sys.argv[2 - argOffset]
+    sampleId = int(args.split(',')[1])
+    sampleName = args.split(',')[0]
+    print "Found %i for sample id" % sampleId
+    print "Running on sample: %s" % sampleName
+
 process = cms.Process("TANC")
 
 maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -20,20 +37,21 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource", fileNames = readFiles,
                             secondaryFileNames = secFiles)
-readFiles.extend(
-    [ '/store/relval/CMSSW_3_8_4/RelValZTT/GEN-SIM-RECO/START38_V12-v1/0024/D65A6981-86C2-DF11-8FAE-00304867C16A.root',
-     '/store/relval/CMSSW_3_8_4/RelValZTT/GEN-SIM-RECO/START38_V12-v1/0024/CC691F0C-96C2-DF11-8C28-00261894396F.root',
-     '/store/relval/CMSSW_3_8_4/RelValZTT/GEN-SIM-RECO/START38_V12-v1/0024/AC15C30F-81C2-DF11-940E-002618943924.root',
-     '/store/relval/CMSSW_3_8_4/RelValZTT/GEN-SIM-RECO/START38_V12-v1/0024/8E51890C-82C2-DF11-B7ED-002618943949.root',
-     '/store/relval/CMSSW_3_8_4/RelValZTT/GEN-SIM-RECO/START38_V12-v1/0024/46893A0C-82C2-DF11-B8A3-003048678BAE.root'
-    ]
-)
+
+#dbs search --noheader --query="find file where primds=RelValZTT and release=$CMSSW_VERSION and tier=GEN-SIM-RECO"  | sed "s|.*|\"&\",|"
+readFiles.extend([
+    "/store/relval/CMSSW_3_11_1/RelValZTT/GEN-SIM-RECO/START311_V1_64bit-v1/0089/1E76F854-CA35-E011-8723-0026189438B9.root",
+    "/store/relval/CMSSW_3_11_1/RelValZTT/GEN-SIM-RECO/START311_V1_64bit-v1/0088/DC92B5F2-B834-E011-917E-002618943956.root",
+    "/store/relval/CMSSW_3_11_1/RelValZTT/GEN-SIM-RECO/START311_V1_64bit-v1/0088/DC0F0D71-BB34-E011-95AE-001A92810AF4.root",
+    "/store/relval/CMSSW_3_11_1/RelValZTT/GEN-SIM-RECO/START311_V1_64bit-v1/0088/A64966E6-BB34-E011-9063-0018F3D095FE.root",
+    "/store/relval/CMSSW_3_11_1/RelValZTT/GEN-SIM-RECO/START311_V1_64bit-v1/0088/1218C7DE-B934-E011-B616-0018F3D09706.root",
+])
 
 # Load standard services
 process.load("Configuration.StandardSequences.Services_cff")
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("signal_skim_plots.root")
+    fileName = cms.string("signal_skim_plots_%s.root" % sampleName)
 )
 
 #################################################################
@@ -195,8 +213,15 @@ process.backgroundJetsRecoTauPiZeros = process.signalJetsRecoTauPiZeros.clone(
 
 process.addFakeBackground = cms.Sequence(
     process.backgroundJetRefs *
-    process.preselectedBackgroundJets *
-    process.backgroundJetsRecoTauPiZeros
+    process.preselectedBackgroundJets
+    #process.backgroundJetsRecoTauPiZeros
+)
+
+
+# Add a flag to the event to keep track of event type
+process.eventSampleFlag = cms.EDProducer(
+    "RecoTauEventFlagProducer",
+    flag = cms.int32(sampleId),
 )
 
 process.selectSignal = cms.Path(
@@ -214,13 +239,22 @@ process.selectSignal = cms.Path(
     #process.signalJetsCollimationCut *
     process.preselectedSignalJets *
     process.plotPreselectedSignalJets *
-    process.signalJetsRecoTauPiZeros *
-    process.addFakeBackground
+    #process.signalJetsRecoTauPiZeros *
+    process.addFakeBackground *
+    process.eventSampleFlag
 )
+
+# Store the trigger stuff in the event
+from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
+switchOnTrigger(process, sequence="selectSignal", outputModule='')
 
 # Keep only a subset of data
 poolOutputCommands = cms.untracked.vstring(
     'drop *',
+    'keep patTriggerObjects_*_*_TANC',
+    'keep patTriggerFilters_*_*_TANC',
+    'keep patTriggerPaths_*_*_TANC',
+    'keep patTriggerEvent_*_*_TANC',
     'keep *_ak5PFJets_*_TANC',
     'keep *_offlinePrimaryVertices_*_TANC',
     'keep *_particleFlow_*_TANC',
@@ -229,16 +263,17 @@ poolOutputCommands = cms.untracked.vstring(
     'keep *_genParticles_*_*', # this product is okay, since we dont' need it in bkg
     'keep *_selectedTrueHadronicTaus_*_*',
     'keep *_preselectedSignalJets_*_*',
-    'keep *_signalJetsRecoTauPiZeros_*_*',
+    #'keep *_signalJetsRecoTauPiZeros_*_*',
     # These two products are needed to make signal content a superset
     'keep *_preselectedBackgroundJets_*_*',
-    'keep *_backgroundJetsRecoTauPiZeros_*_*',
+    'keep *_eventSampleFlag_*_*'
+    #'keep *_backgroundJetsRecoTauPiZeros_*_*',
 )
 
 # Write output
 process.write = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string("signal_training.root"),
+    fileName = cms.untracked.string("signal_training_%s.root" % sampleName),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring("selectSignal"),
     ),
