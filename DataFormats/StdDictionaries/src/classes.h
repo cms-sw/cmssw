@@ -183,5 +183,6 @@ namespace {
   std::vector<unsigned short> dummy9;
   std::vector<unsigned short>::iterator itus;
   std::vector<void *>::iterator itvp;
+  std::vector<const void *> dummyVCPtr;
   };
 }
