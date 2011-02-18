@@ -644,6 +644,36 @@ bool isMETX_HTXTrigger(TString triggerName, vector<double> &thresholds)
       return false;
 }
 
+bool isL1SingleMuXTrigger(TString triggerName)
+{
+
+  TString pattern = "(OpenHLT_L1SingleMu([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      return true;
+    }
+  else
+    return false;
+}
+
+bool isL2SingleMuXTrigger(TString triggerName, vector<double> &thresholds)
+{
+  TString pattern = "(OpenHLT_L2Mu([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdJet);
+      return true;
+    }
+  else
+    return false;
+}
+
 bool isL1SingleEGXTrigger(TString triggerName)
 {
 
@@ -1367,6 +1397,20 @@ void OHltTree::CheckOpenHlt(
    }
 
    /* Muons */
+   else if (isL1SingleMuXTrigger(triggerName))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (true)
+		 { // passthrough
+		   triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
+
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MuOpen") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -1441,6 +1485,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu20HQ") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0)
@@ -1459,6 +1504,20 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+
+   else if (isL2SingleMuXTrigger(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+         {
+           if (prescaleResponse(menu, cfg, rcounter, it))
+             {
+	       if (OpenHlt1L2MuonPassed(0.0, thresholds[0], 9999.0) > 0)
+		 triggerBit[it] = true;
+             }
+         }
+     }
+
+
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu0") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -5245,7 +5304,7 @@ void OHltTree::CheckOpenHlt(
    }
 
    /* Tau-jet/MET cross-triggers */
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet40_IsoPFTauTag") == 0)
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet40_IsoPFTau40") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
       {
