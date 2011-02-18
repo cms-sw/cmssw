@@ -159,7 +159,7 @@ void makeLine(TDirectory *bands, TString name, TString filename,  int doSyst, in
     makeBand(bands, name, in, doSyst, whichChannel, AdHoc);
     in->Close();
 }
-void makeBands(TDirectory *bands, TString name, TString filename, int channel=0) {
+void makeBands(TDirectory *bands, TString name, TString filename, int channel=0, bool quantiles=false) {
     TFile *in = TFile::Open(filename);
     if (in == 0) { std::cerr << "Filename " << filename << " missing" << std::endl; return; }
     for (int s = 0; s <= 1; ++s) {
@@ -168,21 +168,18 @@ void makeBands(TDirectory *bands, TString name, TString filename, int channel=0)
         makeBand(bands, name, in, s, channel, CountToys);
         makeBand(bands, name, in, s, channel, Observed);
     }
-}
-
-void makeQuantiles(TDirectory *bands, TString name, TString filename, int channel=0) {
-    TFile *in = TFile::Open(filename);
-    if (in == 0) { std::cerr << "Filename " << filename << " missing" << std::endl; return; }
-    double quants[5] = { 0.025, 0.16, 0.5, 0.84, 0.975 };
-    for (int i = 0; i < 5; ++i) {
-        for (int s = 0; s <= 1; ++s) {
-            TGraph *band = theBand(in, s, channel, Quantile, quants[i]);
-            TString qname = TString::Format("%s%s_quant%03d", name.Data(), (s ? "" : "_nosyst"), int(1000*quants[i]));
-            if (band != 0 && band->GetN() != 0) {
-                band->SetName(qname);
-                bands->WriteTObject(band, qname);
-            } else {
-                std::cout << "Band " << qname << " missing" << std::endl;
+    if (quantiles) {
+        double quants[5] = { 0.025, 0.16, 0.5, 0.84, 0.975 };
+        for (int i = 0; i < 5; ++i) {
+            for (int s = 0; s <= 1; ++s) {
+                TGraph *band = theBand(in, s, channel, Quantile, quants[i]);
+                TString qname = TString::Format("%s%s_quant%03d", name.Data(), (s ? "" : "_nosyst"), int(1000*quants[i]));
+                if (band != 0 && band->GetN() != 0) {
+                    band->SetName(qname);
+                    bands->WriteTObject(band, qname);
+                } else {
+                    std::cout << "Band " << qname << " missing" << std::endl;
+                }
             }
         }
     }
