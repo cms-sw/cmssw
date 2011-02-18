@@ -5416,6 +5416,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   //Name doesn't follow conventions.
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_HT220_v1") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -5449,6 +5450,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   // cluster shape cuts not CaloIdT but CaloIdL. Name doesn't follow conventions.
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_CaloIdT_TrkIdT_CaloIsoVL_TrkIsoVL_HT220_v1") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -5665,7 +5667,8 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu15_DiPhoton15_CaloIdL_v1") == 0)
+   //else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu15_DiPhoton15_CaloIdL_v1") == 0)
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu15_DoublePhoton15_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
       {
