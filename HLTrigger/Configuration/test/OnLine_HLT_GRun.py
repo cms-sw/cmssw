@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V28 (CMSSW_3_11_0_HLT5)
+# /dev/CMSSW_3_11_1/GRun/V30 (CMSSW_3_11_0_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V28')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V30')
 )
 
 process.streams = cms.PSet( 
@@ -4174,7 +4174,8 @@ process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           debug = cms.untracked.bool( False )
         ),
         maxTime = cms.double( 420.0 ),
-        tTrigMode = cms.string( "DTTTrigSyncFromDB" )
+        tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
+        stepTwoFromDigi = cms.bool( False )
       ),
       nSharedHitsMax = cms.int32( 2 ),
       hit_afterT0_resolution = cms.double( 0.03 ),
@@ -4194,7 +4195,8 @@ process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
             debug = cms.untracked.bool( False )
           ),
           maxTime = cms.double( 420.0 ),
-          tTrigMode = cms.string( "DTTTrigSyncFromDB" )
+          tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
+          stepTwoFromDigi = cms.bool( False )
         ),
         nSharedHitsMax = cms.int32( 2 ),
         AlphaMaxPhi = cms.double( 1.0 ),
@@ -16660,7 +16662,7 @@ process.HLT_Ele8_CaloIdL_CaloIsoVL_v1 = cms.Path( process.HLTBeginSequenceBPTX +
 process.HLT_Ele8_CaloIdL_TrkIdVL_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleEG5 + process.hltPreEle8CaloIdLTrkIdVL + process.HLTEle8CaloIdLTrkIdVLSequence + process.HLTEndSequence )
 process.HLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG12 + process.hltPreEle15SWCaloIdVTTrkIdTCaloIsoTTrkIsoTL1R + process.HLTEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTSequence + process.HLTEndSequence )
 process.HLT_Ele17_CaloIdL_CaloIsoVL_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleEG12 + process.hltPreEle17CaloIdLCaloIsoVL + process.HLTEle17CaloIdLCaloIsoVLSequence + process.HLTEndSequence )
-process.HLT_Ele27_CaloIdVT_CaloIsoT_TrkidT_TrkIsoT_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleEG15 + process.hltPreEle27CaloIdVTCaloIsoTTrkIdTTrkIsoT + process.HLTEle27CaloIdTCaloIsoTTrkIdTTrkIsoTSequence + process.HLTEndSequence )
+process.HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleEG15 + process.hltPreEle27CaloIdVTCaloIsoTTrkIdTTrkIsoT + process.HLTEle27CaloIdTCaloIsoTTrkIdTTrkIsoTSequence + process.HLTEndSequence )
 process.HLT_Ele45_CaloIdVT_TrkIdT_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleEG20 + process.hltPreEle45CaloIdVTTrkIdT + process.HLTEle45CaloIdVTTrkIdTSequence + process.HLTEndSequence )
 process.HLT_Ele90_NoSpikeFilter_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleEG20 + process.hltPreEle90NoSpikeFilter + process.HLTEle90NoSpikeFilterSequence + process.HLTEndSequence )
 process.HLT_Photon20_R9Id_Photon18_R9Id_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleEG12 + process.hltPrePhoton20R9IdPhoton18R9Id + process.HLTPhoton20R9IdPhoton18R9IdSequence + process.HLTEndSequence )
