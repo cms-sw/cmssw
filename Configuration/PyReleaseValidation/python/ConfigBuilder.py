@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.291 $"
+__version__ = "$Revision: 1.292 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -15,6 +15,7 @@ class Options:
 defaultOptions = Options()
 defaultOptions.datamix = 'DataOnSim'
 defaultOptions.pileup = 'NoPileUp'
+defaultOptions.pileup_input = None
 defaultOptions.geometry = 'DB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = '38T'
@@ -383,6 +384,8 @@ class ConfigBuilder(object):
 			mixingDict.update(eval(self._options.pileup[self._options.pileup.find(',')+1:]))
 		self.loadAndRemember(mixingDict['file'])
 		mixingDict.pop('file')
+		if self._options.pileup_input:
+			mixingDict['F']=self._options.pileup_input.split(',')
 		specialization=defineMixing(mixingDict,'FASTSIM' in self.stepMap)
 		for command in specialization:
 			self.executeAndRemember(command)
@@ -1372,7 +1375,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.291 $"),
+                                            (version=cms.untracked.string("$Revision: 1.292 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

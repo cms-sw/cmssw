@@ -163,6 +163,11 @@ expertSettings.add_option("--pileup",
                   default=defaultOptions.pileup,
                   dest="pileup")
 
+expertSettings.add_option("--pileup_input",
+                          help="define the pile up files to mix with",
+                          default=None,
+                          dest="pileup_input")
+
 expertSettings.add_option("--datamix",
                   help="What datamix config to use. Default=DataOnSim.",
                   default=defaultOptions.datamix,

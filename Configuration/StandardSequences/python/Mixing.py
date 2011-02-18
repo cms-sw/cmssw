@@ -104,4 +104,7 @@ def defineMixing(dict,FS=False):
         commands.append('process.mix.minBunch = cms.int32(%d)'%(dict['B'][0],))
         commands.append('process.mix.maxBunch = cms.int32(%d)'%(dict['B'][1],))
         dict.pop('B')
+    if 'F' in dict:
+        commands.append('process.mix.input.fileNames = cms.untracked.vstring(%s)'%(repr(dict['F'])))
+        dict.pop('F')
     return commands
