@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/01/31 18:40:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/02/16 09:46:11 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -150,10 +150,15 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
 
   //only in step 3
   if(step == 3){
-    if (abs(wireId.wheel()) == 2 && wireId.superLayer() != 2) {
-      const float k_param = 0.05;
+    if (abs(wireId.wheel()) == 2 && 
+	wireId.station() == 1 &&
+	wireId.superLayer() != 2) {
+      // Variation of vdrift along Y due to B field, 
+      /// cf. http://arxiv.org/PS_cache/arxiv/pdf/0911/0911.4895v2.pdf
+      // vdrift is lower  a negative Y (lower global |Z|)
+      const float k_param = 1.2e-04;
       LocalPoint local_pos = layer->toLocal(globPos);
-      vDrift = vDrift*(1. + k_param*local_pos.y());
+      vDrift = vDrift*(1. - k_param*local_pos.y());
 	} 
   }
 
