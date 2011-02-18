@@ -4101,7 +4101,9 @@ public:
    int OpenHlt1CorJetPassed(double pt);
    
    int OpenHlt1CorJetPassed(double pt, double eta);
-   
+
+   int OpenHlt1CorJetPassedNoJetID(double pt);  
+
    int OpenHltFwdJetPassed(double esum);
    
    int OpenHltFwdCorJetPassed(double esum);
@@ -4111,7 +4113,7 @@ public:
    int OpenHltDiJetAvePassed(double pt);
    
    int OpenHltCorDiJetAvePassed(double pt);
-   
+
    int OpenHltQuadJetPassed(double pt);
    
    int OpenHltQuadCorJetPassed(double pt);

@@ -50,6 +50,24 @@ bool isJetXTrigger(TString triggerName, vector<double> &thresholds)
       return false;
 }
 
+bool isJetX_NoJetIDTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_Jet([0-9]+)_NoJetID){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdJet);
+      return true;
+   }
+   else
+      return false;
+}
+
+
 bool isDiJetAveXUTrigger(TString triggerName, vector<double> &thresholds)
 {
 
@@ -83,6 +101,7 @@ bool isDiJetAveXTrigger(TString triggerName, vector<double> &thresholds)
    else
       return false;
 }
+
 
 bool isMeffXUTrigger(TString triggerName, vector<double> &thresholds)
 {
@@ -368,6 +387,65 @@ bool isQuadJetXTrigger(TString triggerName, vector<double> &thresholds)
       return false;
 }
 
+bool isQuadJetX_BTagIPTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_QuadJet([0-9]+)_BTagIP){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdQuadJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdQuadJet);
+      return true;
+   }
+   else
+      return false;
+
+}
+
+bool isQuadJetX_IsoPFTauXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_QuadJet([0-9]+)_IsoPFTau([0-9]+)){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdQuadJet  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdIsoPFTau = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdQuadJet);
+      thresholds.push_back(thresholdIsoPFTau);
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isQuadJetX_IsoPFTauX_PFMHTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_QuadJet([0-9]+)_IsoPFTau([0-9]+)_PFMHT([0-9]+)){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdQuadJet  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdIsoPFTau = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdIsoPFMHT = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      thresholds.push_back(thresholdQuadJet);
+      thresholds.push_back(thresholdIsoPFTau);
+      thresholds.push_back(thresholdIsoPFMHT);
+      return true;
+   }
+   else
+      return false;
+}
+
+
 bool isR0XU_MRXUTrigger(TString triggerName, vector<double> &thresholds)
 {
 
@@ -549,62 +627,84 @@ bool isSingleIsoTauX_TrkX_METXTrigger(
       return false;
 }
 
-bool isMETX_CenJetXUTrigger(TString triggerName, vector<double> &thresholds)
+bool isCentralJetXU_METXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_MET([0-9]+)_CenJet([0-9]+)U){1}$";
+   TString pattern = "(OpenHLT_CentralJet([0-9]+)U_MET([0-9]+)){1}$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
    {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdMET = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdCenJet = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      thresholds.push_back(thresholdMET);
+      double thresholdCenJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMET = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdCenJet);
+      thresholds.push_back(thresholdMET);
       return true;
    }
    else
       return false;
 }
 
-bool isMETX_CenJetXU_EMFTrigger(TString triggerName, vector<double> &thresholds)
+bool isCentralJetX_METXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_MET([0-9]+)_CenJet([0-9]+)U_EMF){1}$";
+   TString pattern = "(OpenHLT_CentralJet([0-9]+)_MET([0-9]+)){1}$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
    {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdMET = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdCenJet = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      thresholds.push_back(thresholdMET);
+      double thresholdCenJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMET = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdCenJet);
+      thresholds.push_back(thresholdMET);
       return true;
    }
    else
       return false;
 }
 
-bool isMETX_DiJetXUTrigger(TString triggerName, vector<double> &thresholds)
+
+
+bool isDiJetXU_METXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_MET([0-9]+)_DiJet([0-9]+)U){1}$";
+   TString pattern = "(OpenHLT_DiJet([0-9]+)U_MET([0-9]+)){1}$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
    {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdMET = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdDiJet = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      thresholds.push_back(thresholdMET);
+      double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMET = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
+      thresholds.push_back(thresholdMET);
       return true;
    }
    else
       return false;
 }
+
+bool isDiJetX_METXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_DiJet([0-9]+)_MET([0-9]+)){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMET = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdDiJet);
+      thresholds.push_back(thresholdMET);
+      return true;
+   }
+   else
+      return false;
+}
+
 
 bool isMETX_HTXUTrigger(TString triggerName, vector<double> &thresholds)
 {
@@ -643,6 +743,41 @@ bool isMETX_HTXTrigger(TString triggerName, vector<double> &thresholds)
    else
       return false;
 }
+
+bool isExclDiJetXU_HFORTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_ExclDiJet([0-9]+)U_HFOR){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdDiJet);
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isExclDiJetX_HFORTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_ExclDiJet([0-9]+)_HFOR){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdDiJet);
+      return true;
+   }
+   else
+      return false;
+}
+
 
 bool isL1SingleMuXTrigger(TString triggerName)
 {
@@ -948,6 +1083,21 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+ else if (isJetX_NoJetIDTrigger(triggerName, thresholds))
+   {
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+	   if (OpenHlt1CorJetPassedNoJetID(thresholds[0])>=1)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
+
    /* DoubleJetX(U)_ForwardBackward */
 
    else if (isDoubleJetXU_ForwardBackwardTrigger(triggerName, thresholds))
@@ -1048,6 +1198,9 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+
+
+
    /* Forward & MultiJet */
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet20U") == 0)
    {
@@ -1113,9 +1266,11 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_ExclDiJet30U_HFOR") == 0)
+
+   /*******ExclDiJetX(U)_HFOR**********/
+   else if (isExclDiJetXU_HFORTrigger(triggerName, thresholds))
    {
-      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
@@ -1127,11 +1282,11 @@ void OHltTree::CheckOpenHlt(
             // First loop over all jets and find a pair above threshold and with DeltaPhi/pi > 0.5 
             for (int i=0; i<NrecoJetCal; i++)
             {
-               if (recoJetCalPt[i]>30.0)
+               if (recoJetCalPt[i]>thresholds[0])
                { // Jet pT cut  
                   for (int j=0; j<NrecoJetCal && j!=i; j++)
                   {
-                     if (recoJetCalPt[j]>30.0)
+                     if (recoJetCalPt[j]>thresholds[0])
                      {
                         double Dphi=fabs(recoJetCalPhi[i]-recoJetCalPhi[j]);
                         if (Dphi>3.14159)
@@ -1165,6 +1320,57 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   else if (isExclDiJetX_HFORTrigger(triggerName, thresholds))
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+
+            int rcDijetCand = 0;
+            double rcHFplusEnergy = 0;
+            double rcHFminusEnergy = 0;
+
+            // First loop over all jets and find a pair above threshold and with DeltaPhi/pi > 0.5 
+            for (int i=0; i<NrecoJetCorCal; i++)
+            {
+               if (recoJetCorCalPt[i]>thresholds[0])
+               { // Jet pT cut  
+                  for (int j=0; j<NrecoJetCorCal && j!=i; j++)
+                  {
+                     if (recoJetCorCalPt[j]>thresholds[0])
+                     {
+                        double Dphi=fabs(recoJetCorCalPhi[i]-recoJetCorCalPhi[j]);
+                        if (Dphi>3.14159)
+                           Dphi=2.0*(3.14159)-Dphi;
+                        if (Dphi>0.5*3.14159)
+                        {
+                           rcDijetCand++;
+                        }
+                     }
+                  }
+               }
+            }
+
+            // Now ask for events with HF energy below threshold 
+            if (rcDijetCand > 0)
+            {
+               for (int i=0; i < NrecoTowCal; i++)
+               {
+                  if ((recoTowEta[i] > 3.0) && (recoTowE[i] > 4.0))
+                     rcHFplusEnergy += recoTowE[i];
+                  if ((recoTowEta[i] < -3.0) && (recoTowE[i] > 4.0))
+                     rcHFminusEnergy += recoTowE[i];
+               }
+            }
+
+            // Now put them together 
+            if ((rcDijetCand > 0) && ((rcHFplusEnergy < 50) || (rcHFminusEnergy
+                  < 50)))
+               triggerBit[it] = true;
+         }
+      }
+   }
    /********QuadJetX(U)********/
    else if (isQuadJetXUTrigger(triggerName, thresholds))
    {
@@ -4145,6 +4351,40 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   /****************QuadJetX_BTagIP*********************************/
+
+   else if (isQuadJetX_BTagIPTrigger(triggerName, thresholds))
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+	   if (OpenHltQuadCorJetPassed(thresholds[0])>=1) {
+            int rc = 0;
+            int max = (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected;
+            for (int i = 0; i < max; i++)
+            {
+               if (ohBJetL2CorrectedEt[i] > thresholds[0])
+               { // ET cut 
+                  if (ohBJetIPL25Tag[i] > 2.5)
+                  { // Level 2.5 b tag 
+                     if (ohBJetIPL3Tag[i] > 3.5)
+                     { // Level 3 b tag 
+                        rc++;
+                     }
+                  }
+               }
+            }
+            if (rc >= 1)
+            {
+               triggerBit[it] = true;
+            }
+	   }
+	 }
+      }
+   }
+
+
    /**********************************************/
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu15_BTagIP_CentJet20U") == 0)
    {
@@ -5305,16 +5545,33 @@ void OHltTree::CheckOpenHlt(
    }
 
    /* Tau-jet/MET cross-triggers */
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet40_IsoPFTau40") == 0)
+   else if (isQuadJetX_IsoPFTauXTrigger(triggerName, thresholds))
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
       {
-         if (OpenHltQuadJetPassedPlusTauPFId(40, 2.5, 40) == 1
+         if (OpenHltQuadJetPassedPlusTauPFId(thresholds[0], 2.5, thresholds[1]) == 1
                && OpenL1QuadJet8(10, 2.5) >= 4)
          {
             if (prescaleResponse(menu, cfg, rcounter, it))
             {
                triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
+   else if (isQuadJetX_IsoPFTauX_PFMHTXTrigger(triggerName, thresholds))
+   {
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+      {
+         if (OpenHltQuadJetPassedPlusTauPFId(thresholds[0], 2.5, thresholds[1]) == 1
+               && OpenL1QuadJet8(10, 2.5) >= 4)
+         {
+            if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+	      if (pfMHT > thresholds[2]){
+               triggerBit[it] = true;
+	      }
             }
          }
       }
@@ -5572,13 +5829,13 @@ void OHltTree::CheckOpenHlt(
 
    /* Jet-MET/HT cross-triggers*/
 
-   /****METX_CenJetXU*****/
-   else if (isMETX_CenJetXUTrigger(menu->GetTriggerName(it), thresholds))
+   /****CentralJetXU_METX*****/
+   else if (isCentralJetXU_METXTrigger(menu->GetTriggerName(it), thresholds))
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
       {
-         if (OpenHlt1JetPassed(thresholds[1], 2.6)>=1 && recoMetCal
-               >=thresholds[0])
+         if (OpenHlt1JetPassed(thresholds[0], 2.6)>=1 && recoMetCal
+               >=thresholds[1])
          {
             if (prescaleResponse(menu, cfg, rcounter, it))
             {
@@ -5587,13 +5844,14 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   /****METX_CenJetXU_EMF*****/
-   else if (isMETX_CenJetXU_EMFTrigger(menu->GetTriggerName(it), thresholds))
+  
+  /****CentralJetX_METX*****/
+  else if (isCentralJetX_METXTrigger(menu->GetTriggerName(it), thresholds))
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
       {
-         if (OpenHlt1JetPassed(thresholds[1], 2.6, 0.02, 0.98)>=1 && recoMetCal
-               >=thresholds[0])
+         if (OpenHlt1JetPassed(thresholds[0], 2.6)>=1 && recoMetCal
+               >=thresholds[1])
          {
             if (prescaleResponse(menu, cfg, rcounter, it))
             {
@@ -5602,16 +5860,17 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-
-   /**********METX_DiJetXU***********************/
-   else if (isMETX_DiJetXUTrigger(menu->GetTriggerName(it), thresholds))
+  
+ 
+   /********DiJetX(U)_METX***********************/
+   else if (isDiJetXU_METXTrigger(menu->GetTriggerName(it), thresholds))
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHlt1JetPassed(thresholds[1])>=2 && recoMetCal
-                  >=thresholds[0])
+            if (OpenHlt1JetPassed(thresholds[0])>=2 && recoMetCal
+                  >=thresholds[1])
             {
                triggerBit[it] = true;
             }
@@ -5619,6 +5878,20 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   else if (isDiJetX_METXTrigger(menu->GetTriggerName(it), thresholds))
+   {
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHlt1CorJetPassed(thresholds[0])>=2 && recoMetCal
+                  >=thresholds[1])
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
    /**DiJetX(U)_PTX(U)**/
 
    else if (isDiJetXU_PTXUTrigger(menu->GetTriggerName(it), thresholds))
@@ -11599,6 +11872,22 @@ int OHltTree::OpenHlt1JetPassed(
    return rc;
 }
 
+int OHltTree::OpenHlt1CorJetPassedNoJetID(double pt)
+{
+   int rc = 0;
+
+   // Loop over all oh corrected jets
+   for (int i=0; i<NrecoJetCorCal; i++)
+   {
+     if ( recoJetCorCalPt[i]>pt)
+      { // Jet pT cut
+         rc++;
+      }
+   }
+
+   return rc;
+}
+
 int OHltTree::OpenHlt1CorJetPassed(double pt)
 {
    int rc = 0;
@@ -11606,70 +11895,98 @@ int OHltTree::OpenHlt1CorJetPassed(double pt)
    // Loop over all oh corrected jets
    for (int i=0; i<NrecoJetCorCal; i++)
    {
-      if (recoJetCorCalPt[i]>pt)
+     bool jetID = true ; //jetID is true by default
+     if (fabs(recoJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+       jetID =  (recoJetCorCalEMF[i] > 1.0E-6) && (recoJetCorCalEMF[i] < 999.0) && recoJetCorCalN90[i]>=2;
+     }
+      if (jetID && recoJetCorCalPt[i]>pt)
       { // Jet pT cut
          rc++;
       }
-   }
+    }
 
    return rc;
 }
 
+
 int OHltTree::OpenHlt1CorJetPassed(double pt, double etamax)
 {
-   int rc = 0;
+  int rc = 0;
 
-   // Loop over all oh corrected jets
-   for (int i=0; i<NrecoJetCorCal; i++)
-   {
-      if (recoJetCorCalPt[i]>pt && fabs(recoJetCalEta[i])<etamax)
-      { // Jet pT cut
-         rc++;
-      }
-   }
-
-   return rc;
+  // Loop over all oh corrected jets
+  for (int i=0; i<NrecoJetCorCal; i++)
+    {
+   	bool jetID = true ; //jetID is true by default
+	if (fabs(recoJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+	  jetID =  (recoJetCorCalEMF[i] > 1.0E-6) && (recoJetCorCalEMF[i] < 999.0) && recoJetCorCalN90[i]>=2;
+	}
+	if (jetID && recoJetCorCalPt[i]>pt && fabs(recoJetCorCalEta[i])<etamax)
+	  { // Jet pT cut
+	    rc++;
+	  }
+    }
+  return rc;
 }
 
 int OHltTree::OpenHltDiJetAvePassed(double pt)
 {
-   int rc = 0;
+  int rc = 0;
 
-   // Loop over all oh jets, select events where the *average* pT of a pair is above threshold
-   //std::cout << "FL: NrecoJetCal = " << NrecoJetCal << std::endl;
-   for (int i=0; i<NrecoJetCal; i++)
-   {
-      for (int j=0; j<NrecoJetCal && j!=i; j++)
-      {
-         if ((recoJetCalPt[i]+recoJetCalPt[j])/2.0 > pt)
-         { // Jet pT cut 
-            //      if((recoJetCalE[i]/cosh(recoJetCalEta[i])+recoJetCalE[j]/cosh(recoJetCalEta[j]))/2.0 > pt) {
-            rc++;
-         }
+  // Loop over all oh jets, select events where the *average* pT of a pair is above threshold
+  //std::cout << "FL: NrecoJetCal = " << NrecoJetCal << std::endl;
+  for (int i=0; i<NrecoJetCal; i++)
+    {
+      bool jetID0 = true ; //jetID is true by default
+      if (fabs(recoJetCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+	jetID0 =  (recoJetCalEMF[i] > 1.0E-6) && (recoJetCalEMF[i] < 999.0) && recoJetCalN90[i]>=2;
       }
-   }
-   return rc;
+      if (!jetID0) continue;
+      for (int j=0; j<NrecoJetCal && j!=i; j++)
+	{
+	  bool jetID1 = true ; //jetID is true by default
+	  if (fabs(recoJetCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+	    jetID1 =  (recoJetCalEMF[i] > 1.0E-6) && (recoJetCalEMF[i] < 999.0) && recoJetCalN90[i]>=2;
+	  }
+	  if (jetID1 && (recoJetCalPt[i]+recoJetCalPt[j])/2.0 > pt)
+	    { // Jet pT cut 
+	      //      if((recoJetCalE[i]/cosh(recoJetCalEta[i])+recoJetCalE[j]/cosh(recoJetCalEta[j]))/2.0 > pt) {
+	      rc++;
+	    }
+	}
+    }
+  return rc;
 }
+
 
 int OHltTree::OpenHltCorDiJetAvePassed(double pt)
 {
-   int rc = 0;
+  int rc = 0;
 
-   // Loop over all oh jets, select events where the *average* pT of a pair is above threshold 
-   for (int i=0; i<NrecoJetCorCal; i++)
-   {
-      for (int j=0; j<NrecoJetCorCal && j!=i; j++)
-      {
-         //if((recoJetCorCalPt[i]+recoJetCorCalPt[j])/2.0 > pt) {  // Jet pT cut  
-         if ((recoJetCorCalE[i]/cosh(recoJetCorCalEta[i])+recoJetCorCalE[j]
-               /cosh(recoJetCorCalEta[j]))/2.0 > pt)
-         {
-            rc++;
-         }
+  // Loop over all oh jets, select events where the *average* pT of a pair is above threshold
+  //std::cout << "FL: NrecoJetCal = " << NrecoJetCal << std::endl;
+  for (int i=0; i<NrecoJetCorCal; i++)
+    {
+      bool jetID0 = true ; //jetID is true by default
+      if (fabs(recoJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+	jetID0 =  (recoJetCorCalEMF[i] > 1.0E-6) && (recoJetCorCalEMF[i] < 999.0) && recoJetCorCalN90[i]>=2;
       }
-   }
-   return rc;
+      if (!jetID0) continue;
+      for (int j=0; j<NrecoJetCal && j!=i; j++)
+	{
+	  bool jetID1 = true ; //jetID is true by default
+	  if (fabs(recoJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+	    jetID1 =  (recoJetCorCalEMF[i] > 1.0E-6) && (recoJetCorCalEMF[i] < 999.0) && recoJetCorCalN90[i]>=2;
+	  }
+	  if (jetID1 && (recoJetCorCalPt[i]+recoJetCorCalPt[j])/2.0 > pt)
+	    { // Jet pT cut 
+	      //      if((recoJetCalE[i]/cosh(recoJetCalEta[i])+recoJetCalE[j]/cosh(recoJetCalEta[j]))/2.0 > pt) {
+	      rc++;
+	    }
+	}
+    }
+  return rc;
 }
+
 
 int OHltTree::OpenHltQuadCorJetPassed(double pt)
 {
