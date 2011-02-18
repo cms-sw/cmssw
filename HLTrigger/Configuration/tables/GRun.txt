@@ -193,7 +193,7 @@ HLT_Physics_v1
 HLT_Calibration_v1
 HLT_EcalCalibration_v1
 HLT_HcalCalibration_v1
-# HLT_TrackerCalibration_v1
+HLT_TrackerCalibration_v1
 HLT_Random_v1
 HLT_L1MuOpen_AntiBPTX_v2
 HLT_L1TrackerCosmics_v2

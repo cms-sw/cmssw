@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HIon/V27 (CMSSW_3_11_0_HLT4)
+# /dev/CMSSW_3_11_1/HIon/V28 (CMSSW_3_11_0_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V27')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V28')
 )
 
 streams = cms.PSet( 
@@ -1614,7 +1614,8 @@ hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
         debug = cms.untracked.bool( False )
       ),
       maxTime = cms.double( 420.0 ),
-      tTrigMode = cms.string( "DTTTrigSyncFromDB" )
+      tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
+      stepTwoFromDigi = cms.bool( False )
     )
 )
 hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",

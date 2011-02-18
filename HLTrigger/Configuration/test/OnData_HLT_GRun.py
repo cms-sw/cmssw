@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V27 (CMSSW_3_11_0_HLT4)
+# /dev/CMSSW_3_11_1/GRun/V28 (CMSSW_3_11_0_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V27')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V28')
 )
 
 process.streams = cms.PSet( 
@@ -102,7 +102,8 @@ process.datasets = cms.PSet(
     'AlCa_RPCMuonNoTriggers_v2',
     'AlCa_RPCMuonNormalisation_v2' ),
   TestEnables = cms.vstring( 'HLT_Calibration_v1',
-    'HLT_HcalCalibration_v1' )
+    'HLT_HcalCalibration_v1',
+    'HLT_TrackerCalibration_v1' )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -1490,6 +1491,10 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltSiPixelClusters',
       'hltPixelTracks' ),
     threshold = cms.untracked.string( "INFO" )
+)
+process.MicroStateService = cms.Service( "MicroStateService",
+)
+process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
     lvl1DefaultLabel = cms.untracked.string( "" ),
@@ -4143,7 +4148,8 @@ process.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
         debug = cms.untracked.bool( False )
       ),
       maxTime = cms.double( 420.0 ),
-      tTrigMode = cms.string( "DTTTrigSyncFromDB" )
+      tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
+      stepTwoFromDigi = cms.bool( False )
     )
 )
 process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
@@ -15460,6 +15466,17 @@ process.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter",
     InputTag = cms.InputTag( "source" ),
     CalibTypes = cms.vint32( 1, 2, 3, 4, 5, 6 )
 )
+process.hltPreTrackerCalibration = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
+process.hltLaserAlignmentEventFilter = cms.EDFilter( "LaserAlignmentEventFilter",
+    FedInputTag = cms.InputTag( "source" ),
+    SIGNAL_Filter = cms.bool( True ),
+    SINGLE_CHANNEL_THRESH = cms.uint32( 11 ),
+    CHANNEL_COUNT_THRESH = cms.uint32( 8 ),
+    FED_IDs = cms.vint32( 260, 261, 262, 263, 264, 265, 266, 267, 269, 270, 273, 274, 277, 278, 281, 282, 284, 285, 288, 289, 292, 293, 294, 295, 300, 301, 304, 305, 308, 309, 310, 311, 316, 317, 324, 325, 329, 330, 331, 332, 339, 340, 341, 342, 349, 350, 351, 352, 164, 165, 172, 173, 177, 178, 179, 180, 187, 188, 189, 190, 197, 198, 199, 200, 204, 205, 208, 209, 212, 213, 214, 215, 220, 221, 224, 225, 228, 229, 230, 231, 236, 237, 238, 239, 240, 241, 242, 243, 245, 246, 249, 250, 253, 254, 257, 258, 478, 476, 477, 482, 484, 480, 481, 474, 459, 460, 461, 463, 485, 487, 488, 489, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 288, 289, 292, 293, 300, 301, 304, 305, 310, 311, 316, 317, 329, 330, 339, 340, 341, 342, 349, 350, 164, 165, 177, 178, 179, 180, 189, 190, 197, 198, 204, 205, 212, 213, 220, 221, 224, 225, 230, 231 ),
+    SIGNAL_IDs = cms.vint32( 470389128, 470389384, 470389640, 470389896, 470390152, 470390408, 470390664, 470390920, 470389192, 470389448, 470389704, 470389960, 470390216, 470390472, 470390728, 470390984, 470126984, 470127240, 470127496, 470127752, 470128008, 470128264, 470128520, 470128776, 470127048, 470127304, 470127560, 470127816, 470128072, 470128328, 470128584, 470128840, 436232506, 436232826, 436233146, 436233466, 369174604, 369174812, 369175068, 369175292, 470307468, 470307716, 470308236, 470308748, 470308996, 470045316, 470045580, 470046084, 470046596, 470046860 )
+)
 process.hltRandomEventsFilter = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 3 )
 )
@@ -16080,7 +16097,8 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Calibration_v1',
-  'HLT_HcalCalibration_v1' ) ),
+  'HLT_HcalCalibration_v1',
+  'HLT_TrackerCalibration_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
@@ -16727,6 +16745,7 @@ process.HLT_Physics_v1 = cms.Path( process.HLTBeginSequence + process.hltPrePhys
 process.HLT_Calibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreCalibration + process.HLTEndSequence )
 process.HLT_EcalCalibration_v1 = cms.Path( process.hltCalibrationEventsFilter + process.hltGtDigis + process.hltPreEcalCalibration + process.hltEcalCalibrationRaw + process.HLTEndSequence )
 process.HLT_HcalCalibration_v1 = cms.Path( process.hltCalibrationEventsFilter + process.hltGtDigis + process.hltPreHcalCalibration + process.hltHcalCalibTypeFilter + process.HLTEndSequence )
+process.HLT_TrackerCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreTrackerCalibration + process.hltLaserAlignmentEventFilter + process.HLTEndSequence )
 process.HLT_Random_v1 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreRandom + process.HLTEndSequence )
 process.HLT_L1MuOpen_AntiBPTX_v2 = cms.Path( process.HLTBeginSequenceAntiBPTX + process.hltL1sL1SingleMuOpen + process.hltPreL1MuOpenAntiBPTX + process.hltL1MuOpenL1Filtered0 + process.HLTEndSequence )
 process.HLT_L1TrackerCosmics_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreTrackerCosmics + process.hltTrackerCosmicsPattern + process.HLTEndSequence )

@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/HIon/V27 (CMSSW_3_11_0_HLT4)
+# /dev/CMSSW_3_11_1/HIon/V28 (CMSSW_3_11_0_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V27')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V28')
 )
 
 process.streams = cms.PSet( 
@@ -1482,6 +1482,10 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltPixelTracks' ),
     threshold = cms.untracked.string( "INFO" )
 )
+process.MicroStateService = cms.Service( "MicroStateService",
+)
+process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
+)
 process.PrescaleService = cms.Service( "PrescaleService",
     lvl1DefaultLabel = cms.untracked.string( "" ),
     lvl1Labels = cms.vstring( '5E32' ),
@@ -2008,7 +2012,8 @@ process.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
         debug = cms.untracked.bool( False )
       ),
       maxTime = cms.double( 420.0 ),
-      tTrigMode = cms.string( "DTTTrigSyncFromDB" )
+      tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
+      stepTwoFromDigi = cms.bool( False )
     )
 )
 process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
