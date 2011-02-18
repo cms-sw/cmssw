@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
   RooRandom::randomGenerator()->SetSeed(seed); 
 
   TString massName = TString::Format("mH%d.", iMass);
-  TString toyName  = "";  if (runToys > 0 || vm.count("saveToys")) toyName  = TString::Format("%d.", seed);
+  TString toyName  = "";  if (runToys > 0 || seed != 123456 || vm.count("saveToys")) toyName  = TString::Format("%d.", seed);
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
   TFile *test = new TFile(fileName, "RECREATE"); outputFile = test;
   TTree *t = new TTree("test", "test");
