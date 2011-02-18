@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.70 $
- *  $Date: 2011/02/14 10:46:19 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.71 $
+ *  $Date: 2011/02/16 13:11:57 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -117,7 +117,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 {
   if (muon) {
     edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-                               << "Running with AlignabeMuon not yet tested.";
+				 << "Running with AlignabeMuon not yet tested.";
   }
 
   theAlignableNavigator = new AlignableNavigator(extras, tracker, muon);
@@ -137,7 +137,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
       if ((labelerPluginCfg!="PedeLabeler" && labelerPluginCfg!="RunRangeDependentPedeLabeler") ||
 	  pedeLabelerCfg.getUntrackedParameter<edm::VParameterSet>("parameterInstances").size()>0) {
 	throw cms::Exception("BadConfig")
-	  << "MillePedeAlignmentAlgorithm::initialize\n"
+	  << "MillePedeAlignmentAlgorithm::initialize"
 	  << "both RunRangeSelection and generic labeler specified in config file. "
 	  << "Please get rid of either one of them.\n";
       }
@@ -149,10 +149,10 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   }
   
   if (!pedeLabelerCfg.exists("plugin")) {
-    pedeLabelerCfg.addParameter<std::string>("plugin", labelerPlugin);
+    pedeLabelerCfg.addUntrackedParameter<std::string>("plugin", labelerPlugin);
   }
 
-  edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize\n"
+  edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
 			    << "Using plugin '" << labelerPlugin << "' to generate labels.";
   
   thePedeLabels = PedeLabelerPluginFactory::get()->create(labelerPlugin,

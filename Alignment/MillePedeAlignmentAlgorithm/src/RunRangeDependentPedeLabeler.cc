@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.7 $
- *  $Date: 2010/10/26 20:49:42 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.1 $
+ *  $Date: 2011/02/16 13:12:41 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include <algorithm>
@@ -24,7 +24,7 @@
 
 //___________________________________________________________________________
 RunRangeDependentPedeLabeler::RunRangeDependentPedeLabeler(const PedeLabelerBase::TopLevelAlignables& alignables,
-						 const edm::ParameterSet& config)
+							   const edm::ParameterSet& config)
   :PedeLabelerBase(alignables, config)
 {
   std::vector<Alignable*> alis;
@@ -39,9 +39,9 @@ RunRangeDependentPedeLabeler::RunRangeDependentPedeLabeler(const PedeLabelerBase
   }
 
   this->buildRunRangeDependencyMap(alignables.aliTracker_,
-			      alignables.aliMuon_,
-			      alignables.aliExtras_, 
-			      config);
+				   alignables.aliMuon_,
+				   alignables.aliExtras_, 
+				   config);
   this->buildMap(alis);
 }
 
@@ -89,7 +89,7 @@ unsigned int RunRangeDependentPedeLabeler::alignableLabelFromParamAndInstance(Al
 	  throw cms::Exception("Alignment") << "@SUB=RunRangeDependentPedeLabeler::alignableLabelFromParamAndRunRange" 
 					    << "RunRangeIdx out of bounds";
 	}
-	return position->second + instance * theMaxNumParam;
+	return position->second + instance * theParamInstanceOffset;
       } else {
 	return position->second;
       }
@@ -160,7 +160,7 @@ unsigned int RunRangeDependentPedeLabeler::parameterLabel(Alignable *alignable, 
 	     iRunRange != runRanges.end();
 	     ++iRunRange) {
 	  if (iRunRange->first<=eventInfo.eventId_.run() && iRunRange->second>=eventInfo.eventId_.run()) {
-	    return position->second + offset * theMaxNumParam + parNum;
+	    return position->second + offset * theParamInstanceOffset + parNum;
 	  }
  	  offset++;
  	}
@@ -295,7 +295,7 @@ RunRangeDependentPedeLabeler::runRangeFromLabel(unsigned int label) const
     return theOpenRunRange;
   
   unsigned int firstLabel = alignableLabel(ali);
-  unsigned int runRangeIndex = (label-firstLabel)/theMaxNumParam;
+  unsigned int runRangeIndex = (label-firstLabel)/theParamInstanceOffset;
   unsigned int paramNum = this->paramNumFromLabel(label);
 
   RunRangeParamMap::const_iterator positionParam = (*positionAli).second.find(paramNum);
@@ -337,9 +337,9 @@ std::vector<unsigned int> RunRangeDependentPedeLabeler::convertParamSel(const st
 }
 
 unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableTracker *aliTracker,
-							    AlignableMuon* aliMuon,
-							    AlignableExtras *aliExtras,
-							    const edm::ParameterSet &config)
+								      AlignableMuon* aliMuon,
+								      AlignableExtras *aliExtras,
+								      const edm::ParameterSet &config)
 {
   theAlignableToRunRangeRangeMap.clear();
 
@@ -443,8 +443,7 @@ unsigned int RunRangeDependentPedeLabeler::buildMap(const std::vector<Alignable*
   for (std::vector<Alignable*>::const_iterator iter = allComps.begin();
        iter != allComps.end(); ++iter) {
     theAlignableToIdMap.insert(AlignableToIdPair(*iter, id));
-    unsigned int nInstances = this->numberOfParameterInstances(*iter, -1);
-    id += nInstances*theMaxNumParam;
+    id += theMaxNumParam;
   }
   
   // also care about las beams
@@ -481,7 +480,7 @@ unsigned int RunRangeDependentPedeLabeler::buildReverseMap()
     Alignable *ali = (*it).first;
     const unsigned int nInstances = this->numberOfParameterInstances(ali, -1);
     for (unsigned int iInstance=0;iInstance<nInstances;++iInstance) {
-      theIdToAlignableMap[key+iInstance*theMaxNumParam] = ali;
+      theIdToAlignableMap[key+iInstance*theParamInstanceOffset] = ali;
     }
   }
   
