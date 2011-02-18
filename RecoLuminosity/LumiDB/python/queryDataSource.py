@@ -1,11 +1,136 @@
 import array,coral
 from RecoLuminosity.LumiDB import CommonUtil,nameDealer
 
-def lumiFromOldLumi(session,runnumber):
+def uncalibrateLumi(runnumber,instlumi,instlumierror):
+    '''
+    input: runnumber,calibrated instlumi,calibrated instlumierror
+    output: (uncalibrated instlumi, uncalbrated instlumierror)
+    '''
+    normpp7tev=float(6370.0)
+    normpp900gev=float(16500.0)
+    normhi7tev=float(2.383)
+    oldnormpp7tev=float(6330)
+    if runnumber in [136290,136294,136297,134721,134725]:#900Gev pp runs
+        return (float(instlumi)/normpp900gev,float(instlumierror)/normpp900gev)
+    if runnumber >=150431 and runnumber<=153368 :#7TeV HI runs
+        return (float(instlumi)/normhi7tev,float(instlumierror)/normhi7tev)
+    return (float(instlumi)/normpp7tev,float(instlumierror)/normpp7tev)
+    
+def uncalibratedlumiFromOldLumi(session,runnumber):
     '''
     retrieve old lumi value, divide by norm and restore to raw value
+    select lumilsnum,cmslsnum,instlumi,instlumierror,instlumiquality,startorbit,numorbit,beamenergy,beamstatus,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2 from lumisummary where runnum=:runnumber order by lumilsnum
+    
+    select s.lumilsnum,d.bxlumivalue,d.bxlumierror,d.bxlumiquality,d.algoname from lumidetail d,lumisummary s where d.lumisummary_id=s.lumisummary_id and s.runnum=:runnumber order by s.lumilsnum
+    
+    Note:replace null with None
+    output: {lumilsnum:[cmslsnum,uncalibratedinstlumi,uncalibratedinstlumierror,intlumiquality,startorbit,numorbit,beamstatus,beamenergy,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2,{algoname:[bxlumivalue,bxlumierror,bxlumiquality]}]}
+    dict size ~ 200mb for 1000LS
     '''
-    pass
+    nTotAlgo=3
+    try:
+        datadict={}
+        session.transaction().start(True)
+        lumischema=session.nominalSchema()
+        summaryQuery=lumischema.newQuery()
+        summaryQuery.addToTableList( nameDealer.lumisummaryTableName() )
+        summaryQuery.addToOutputList( 'LUMILSNUM','lumilsnum')
+        summaryQuery.addToOutputList( 'CMSLSNUM','cmslsnum')
+        summaryQuery.addToOutputList( 'INSTLUMI','instlumi')
+        summaryQuery.addToOutputList( 'INSTLUMIERROR','instlumierror')
+        summaryQuery.addToOutputList( 'INSTLUMIQUALITY','instlumiquality')
+        summaryQuery.addToOutputList( 'STARTORBIT','startorbit')
+        summaryQuery.addToOutputList( 'NUMORBIT','numorbit')
+        summaryQuery.addToOutputList( 'BEAMENERGY','beamenergy')
+        summaryQuery.addToOutputList( 'BEAMSTATUS','beamstatus')
+        summaryQuery.addToOutputList( 'CMSBXINDEXBLOB','cmsbxindexblob')
+        summaryQuery.addToOutputList( 'BEAMINTENSITYBLOB_1','beamintensityblob_1')
+        summaryQuery.addToOutputList( 'BEAMINTENSITYBLOB_2','beamintensityblob_2')
+        summaryCondition=coral.AttributeList()
+        summaryCondition.extend('runnumber','unsigned int')
+        summaryCondition['runnumber'].setData(int(runnumber))
+        summaryResult=coral.AttributeList()
+        summaryResult.extend('lumilsnum','unsigned int')
+        summaryResult.extend('cmslsnum','unsigned int')
+        summaryResult.extend('instlumi','float')
+        summaryResult.extend('instlumierror','float')
+        summaryResult.extend('instlumiquality','short')
+        summaryResult.extend('startorbit','unsigned int')
+        summaryResult.extend('numorbit','unsigned int')
+        summaryResult.extend('beamenergy','float')
+        summaryResult.extend('beamstatus','string')
+        summaryResult.extend('cmsbxindexblob','blob')
+        summaryResult.extend('beamintensityblob_1','blob')
+        summaryResult.extend('beamintensityblob_2','blob')
+        summaryQuery.defineOutput(summaryResult)
+        summaryQuery.addToOrderList('lumilsnum')
+        summaryQuery.setCondition('RUNNUM=:runnumber',summaryCondition)
+        summarycursor=summaryQuery.execute()
+        while summarycursor.next():
+            lumilsnum=summarycursor.currentRow()['lumilsnum'].data()
+            cmslsnum=summarycursor.currentRow()['cmslsnum'].data()
+            instlumi=summarycursor.currentRow()['instlumi'].data()
+            instlumierror=summarycursor.currentRow()['instlumierror'].data()
+            instlumiquality=summarycursor.currentRow()['instlumiquality'].data()
+            (uncalibratedinstlumi,uncalibratedinstlumierror)=uncalibrateLumi(runnumber,instlumi,instlumierror)
+            startorbit=summarycursor.currentRow()['startorbit'].data()
+            numorbit=summarycursor.currentRow()['numorbit'].data()
+            beamenergy=summarycursor.currentRow()['beamenergy'].data()
+            beamstatus=summarycursor.currentRow()['beamstatus'].data()
+            cmsbxindexblob=None
+            if not summarycursor.currentRow()['cmsbxindexblob'].isNull():
+                cmsbxindexblob=summarycursor.currentRow()['cmsbxindexblob'].data()
+            beamintensityblob_1=None
+            if not summarycursor.currentRow()['beamintensityblob_1'].isNull():
+                beamintensityblob_1 =summarycursor.currentRow()['beamintensityblob_1'].data()
+            beamintensityblob_2=None
+            if not summarycursor.currentRow()['beamintensityblob_2'].isNull():
+                beamintensityblob_2 =summarycursor.currentRow()['beamintensityblob_2'].data()
+            datadict[lumilsnum]=[cmslsnum,uncalibratedinstlumi,uncalibratedinstlumierror,instlumiquality,startorbit,numorbit,beamstatus,beamenergy,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2]
+        del summaryQuery
+        #print datadict
+        detailQuery=lumischema.newQuery()
+        detailQuery.addToTableList( nameDealer.lumidetailTableName(),'d' )
+        detailQuery.addToTableList( nameDealer.lumisummaryTableName(),'s' )
+
+        detailQuery.addToOutputList('s.LUMILSNUM','lumilsnum' )
+        detailQuery.addToOutputList('d.BXLUMIVALUE','bxlumivalue' )
+        detailQuery.addToOutputList('d.BXLUMIERROR','bxlumierror' )
+        detailQuery.addToOutputList('d.BXLUMIQUALITY','bxlumiquality' )
+        detailQuery.addToOutputList('d.ALGONAME','algoname' )
+        detailCondition=coral.AttributeList()
+        detailCondition.extend('runnumber','unsigned int')
+        detailCondition['runnumber'].setData(int(runnumber))
+        detailResult=coral.AttributeList()
+        detailResult.extend('lumilsnum','unsigned int')
+        detailResult.extend('bxlumivalue','blob')
+        detailResult.extend('bxlumierror','blob')
+        detailResult.extend('bxlumiquality','blob')
+        detailResult.extend('algoname','string')
+        detailQuery.defineOutput(detailResult)
+        detailQuery.addToOrderList('lumilsnum')
+        
+        detailQuery.setCondition('s.RUNNUM=:runnumber and s.LUMISUMMARY_ID=d.LUMISUMMARY_ID',detailCondition)
+        detailcursor=detailQuery.execute()
+        perlsdetaildict={}
+        algocounter=0
+        while detailcursor.next():
+            algocounter+=1
+            lumilsnum=detailcursor.currentRow()['lumilsnum'].data()
+            bxlumivalue=detailcursor.currentRow()['bxlumivalue'].data()
+            bxlumierror=detailcursor.currentRow()['bxlumierror'].data()
+            bxlumiquality=detailcursor.currentRow()['bxlumiquality'].data()
+            algoname=detailcursor.currentRow()['algoname'].data()
+            perlsdetaildict[algoname]=[bxlumivalue,bxlumierror,bxlumiquality]
+            if algocounter==nTotAlgo:
+                datadict[lumilsnum].extend([perlsdetaildict])
+                perlsdetaildict={}
+                algocounter=0
+        del detailQuery
+        session.transaction().commit()
+        return datadict
+    except :
+        raise     
 def hltFromOldLumi(session,runnumber):
     '''
     select count(distinct pathname) from hlt where runnum=:runnum
@@ -646,13 +771,15 @@ def hltFromRuninfoV2(session,runnumber):
     except:
         raise
 
-def hltFromRuninfoV3(session,schemaname,runnumber):
+def hltFromRuninfoV3(session,runnumber):
     '''
     input:
     output: [datasource,pathnameclob,{cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}]
-    select count(distinct PATHNAME) as npath from HLT_SUPERVISOR_LUMISECTIONS_V2 where runnr=:runnumber and lsnumber=1;
-    select l.pathname,l.lsnumber,l.l1pass,l.paccept,m.psvalue from hlt_supervisor_lumisections_v2 l,hlt_supervisor_scalar_map m where l.runnr=m.runnr and l.psindex=m.psindex and l.pathname=m.pathname and l.runnr=:runnumber order by l.lsnumber
-    
+    select distinct(pathid) from HLT_SUPERVISOR_TRIGGERPATHS where runnnumber=:runnumber;
+    select count(*) from HLT_SUPERVISOR_LUMISECTIONS_V3 where runnumber=:runnumber;//total ls
+    select tr.runnumber,tr.lsnumber,tr.pathid,tr.l1pass,tr.paccept,ls.psindex,sm.psvalue from hlt_supervisor_triggerpaths tr,hlt_supervisor_lumisections_v3 ls,hlt_supervisor_scalar_map_v2 sm where tr.runnumber=ls.runnumber and tr.lsnumber=ls.lsnumber and sm.runnumber=tr.runnumber and sm.pathid=tr.pathid and sm.psindex=ls.psindex and tr.runnumber=:runnumber order by tr.lsnumber;
+    loop :
+          select pathname from cms_hlt.paths where pathid=:pathid
     '''
     pass
 
@@ -901,7 +1028,10 @@ if __name__ == "__main__":
     #svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_gt',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
     #session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     #print trgFromOldGT(session,135735)
-    svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_runinfo',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
+    #svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_runinfo',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
+    #session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    #print hltFromRuninfoV2(session,135735)
+    svc=sessionManager.sessionManager('oracle://cms_orcoff_prod/cms_lumi_prod',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    print hltFromRuninfoV2(session,135735)
+    print uncalibratedlumiFromOldLumi(session,135735)
     del session
