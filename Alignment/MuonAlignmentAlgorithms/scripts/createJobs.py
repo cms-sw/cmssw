@@ -106,13 +106,23 @@ parser.add_option("--cscparams",
 parser.add_option("--minTrackPt",
                   help="minimum allowed track transverse momentum (in GeV)",
                   type="string",
-                  default="100",
+                  default="0",
                   dest="minTrackPt")
 parser.add_option("--maxTrackPt",
                   help="maximum allowed track transverse momentum (in GeV)",
                   type="string",
-                  default="200",
+                  default="1000",
                   dest="maxTrackPt")
+parser.add_option("--minTrackP",
+                  help="minimum allowed track momentum (in GeV)",
+                  type="string",
+                  default="0",
+                  dest="minTrackP")
+parser.add_option("--maxTrackP",
+                  help="maximum allowed track momentum (in GeV)",
+                  type="string",
+                  default="1000",
+                  dest="maxTrackP")
 parser.add_option("--minTrackerHits",
                   help="minimum number of tracker hits",
                   type="int",
@@ -221,6 +231,8 @@ station4params = options.station4params
 cscparams = options.cscparams
 minTrackPt = options.minTrackPt
 maxTrackPt = options.maxTrackPt
+minTrackP = options.minTrackP
+maxTrackP = options.maxTrackP
 minTrackerHits = str(options.minTrackerHits)
 maxTrackerRedChi2 = options.maxTrackerRedChi2
 allowTIDTEC = str(options.allowTIDTEC)
@@ -355,6 +367,8 @@ export ALIGNMENT_STATION4PARAMS=%(station4params)s
 export ALIGNMENT_CSCPARAMS=%(cscparams)s
 export ALIGNMENT_MINTRACKPT=%(minTrackPt)s
 export ALIGNMENT_MAXTRACKPT=%(maxTrackPt)s
+export ALIGNMENT_MINTRACKP=%(minTrackP)s
+export ALIGNMENT_MAXTRACKP=%(maxTrackP)s
 export ALIGNMENT_MINTRACKERHITS=%(minTrackerHits)s
 export ALIGNMENT_MAXTRACKERREDCHI2=%(maxTrackerRedChi2)s
 export ALIGNMENT_ALLOWTIDTEC=%(allowTIDTEC)s
@@ -440,6 +454,8 @@ export ALIGNMENT_STATION4PARAMS=%(station4params)s
 export ALIGNMENT_CSCPARAMS=%(cscparams)s
 export ALIGNMENT_MINTRACKPT=%(minTrackPt)s
 export ALIGNMENT_MAXTRACKPT=%(maxTrackPt)s
+export ALIGNMENT_MINTRACKP=%(minTrackP)s
+export ALIGNMENT_MAXTRACKP=%(maxTrackP)s
 export ALIGNMENT_MINTRACKERHITS=%(minTrackerHits)s
 export ALIGNMENT_MAXTRACKERREDCHI2=%(maxTrackerRedChi2)s
 export ALIGNMENT_ALLOWTIDTEC=%(allowTIDTEC)s
