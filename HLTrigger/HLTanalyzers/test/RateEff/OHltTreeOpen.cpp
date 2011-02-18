@@ -4645,70 +4645,13 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_TripleCentralJet30") == 0)
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_TriCentralJet30") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
       {
          if (OpenHlt1MuonPassed(7., 7., 17., 2., 0)>=1 && OpenHlt1CorJetPassed(
                30,
                2.6)>=3)
-         {
-            if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_TripleCentralJet30_v1") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
-      {
-         if (OpenHlt1MuonPassed(7., 7., 17., 2., 0)>=1 && OpenHlt1CorJetPassed(
-               30,
-               3)>=3)
-         {
-            if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_TripleCentralJet30_v2") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
-      {
-         if (OpenHlt1MuonIsoJetPassed(7., 7., 17., 2., 0, 30., 2.6)>=1
-               && OpenHlt1CorJetPassed(30, 2.6)>=3)
-         {
-            if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_TripleCentralJet30_v3") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
-      {
-         if (OpenHlt1MuonIsoJetPassed(7., 7., 17., 2., 0, 30., 3.)>=1
-               && OpenHlt1CorJetPassed(30, 3.0)>=3)
-         {
-            if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_DiCentralJet30_v1") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
-      {
-         if (OpenHlt1MuonIsoJetPassed(7., 7., 17., 2., 0, 30., 3.)>=1
-               && OpenHlt1CorJetPassed(30, 3.0)>=2)
          {
             if (prescaleResponse(menu, cfg, rcounter, it))
             {
