@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.22 2010/12/10 09:07:34 argiro Exp $
+ * \version $Id: SuperCluster.h,v 1.23 2011/02/17 22:42:03 argiro Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -83,7 +83,10 @@ namespace reco {
     void setSeed( const CaloClusterPtr & r ) { seed_ = r; }
 
     /// add reference to constituent BasicCluster
-    void addCluster( const CaloClusterPtr & r ) { clusters_.push_back( r ); }
+    void addCluster( const CaloClusterPtr & r ) { 
+      clusters_.push_back( r ); 
+      computeRawEnergy();
+    }
 
     /// add reference to constituent BasicCluster
     void addPreshowerCluster( const CaloClusterPtr & r ) { preshowerClusters_.push_back( r ); }
