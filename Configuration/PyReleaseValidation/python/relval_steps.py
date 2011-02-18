@@ -72,7 +72,7 @@ K9by25={'--relval':'9000,25'}
 K9by50={'--relval':'9000,50'}
 K9by100={'--relval':'9000,100'}
 K9by250={'--relval':'9000,250'}
-   
+
 step1['MinBias']=merge([{'cfg':'MinBias_7TeV_cfi'},K9by100,step1Defaults])
 step1['QCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_7TeV_cfi'},K9by25,step1Defaults])
 step1['QCD_Pt_80_120']=merge([{'cfg':'QCD_Pt_80_120_7TeV_cfi'},K9by50,step1Defaults])
@@ -199,11 +199,11 @@ dataReco={'--conditions':'auto:com10',
           '--magField':'AutoFromDBCurrent',
           '--customise':'Configuration/DataProcessing/RecoTLR.customisePPData',
           '--inputCommands':'"keep *","drop *_*_*_RECO"',
-          '--process':'reRECO'
+          '--process':'reRECO',
           }
-step2['RECOD']=merge([dataReco])
-step2['RECOVALSKIM']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM','-s':'RAW2DIGI,L1Reco,RECO,DQM'},step2['RECOD']])
-step2['RECOVALSKIMALCA']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM'},step2['RECOD']])
+step2['RECOD']=merge([{'--scenario':'pp',},dataReco])
+step2['RECOVALSKIM']=merge([{'--scenario':'pp','--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM','-s':'RAW2DIGI,L1Reco,RECO,DQM'},step2['RECOD']])
+step2['RECOVALSKIMALCA']=merge([{'--scenario':'pp','--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM'},step2['RECOD']])
 
 
 step2['RECOCOSD']=merge([{'--scenario':'cosmics',
