@@ -192,7 +192,7 @@
 <LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__side__2__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
 </LINK>
-<LINK name="*TrackParameters/GeneralProperties/NumberOfTracks_GenTk">
+<LINK name="*TrackParameters/GeneralProperties/NumberOfGoodTracks_GenTk">
   <TestName activate="true">XrangeWithin:NumberOfTracks</TestName>
 </LINK>
 <LINK name="*TrackParameters/HitProperties/GoodTrackNumberOfRecHitsPerTrack_GenTk">
