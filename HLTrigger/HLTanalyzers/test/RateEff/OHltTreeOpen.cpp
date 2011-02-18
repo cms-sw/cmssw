@@ -2091,7 +2091,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_TripleMu5_1IsoMu5") == 0)
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu5_DoubleMu5") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
       {
@@ -4732,6 +4732,36 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu3_HT160") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (OpenHlt2MuonPassed(0., 0., 3., 2., 0)>=2 && OpenHltSumCorHTPassed(
+										     160., 
+										     30.)>0)
+		 {
+		   triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu3_HT200") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+         {
+           if (prescaleResponse(menu, cfg, rcounter, it))
+             {
+               if (OpenHlt2MuonPassed(0., 0., 3., 2., 0)>=2 && OpenHltSumCorHTPassed(
+                                                                                     200.,
+                                                                                     30.)>0)
+                 {
+                   triggerBit[it] = true;
+                 }
+             }
+         }
+     }
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_HT50U") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -5019,6 +5049,20 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_HT200") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (OpenHltSumCorHTPassed(200., 30.) == 1)
+		 {
+		   if (OpenHlt1MuonPassed(3., 4., 5., 2., 0)>=1)
+		     triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu8_HT50") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0)
@@ -5033,6 +5077,20 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu8_HT200") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (OpenHltSumCorHTPassed(200., 30.) == 1)
+		 {
+		   if (OpenHlt1MuonPassed(3., 4., 8., 2., 0)>=1)
+		     triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu8_HT50") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0)
