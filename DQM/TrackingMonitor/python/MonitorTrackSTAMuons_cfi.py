@@ -323,9 +323,9 @@ MonitorTrackSTAMuons = cms.EDAnalyzer("TrackingMonitor",
     TTRHBuilder = cms.string('WithTrackAngle'),
 
     # For plots vs LS
-    LSBin = cms.int32(5000),
+    LSBin = cms.int32(2000),
     LSMin = cms.double(0),
-    LSMax = cms.double(5000.),
+    LSMax = cms.double(2000.),
                                 
     # Luminosity based analysis
     doLumiAnalysis = cms.bool(False)                       
