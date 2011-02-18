@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.18 2011/01/07 19:57:00 nancy Exp $
+ * \version $Id: Conversion.h,v 1.19 2011/01/18 12:40:40 nancy Exp $
  *
  */
 
@@ -102,10 +102,10 @@ namespace reco {
       bool isConverted() const;
       /// Number of tracks= 0,1,2
       unsigned int nTracks() const {return  tracks().size(); }
-      /// set the value  of the TMVA output
-      void setMVAout(const float& mva) { theMVAout_=mva;}
       /// get the value  of the TMVA output
       double MVAout() const { return theMVAout_;}
+      /// get the MVS output from PF for one leg conversions
+      std::vector<float> const oneLegMVA() {return theOneLegMVA_;}
       /// if nTracks=2 returns the pair invariant mass. Original tracks are used here
       double pairInvariantMass() const;
       /// Delta cot(Theta) where Theta is the angle in the (y,z) plane between the two tracks. Original tracks are used
@@ -155,9 +155,13 @@ namespace reco {
       ///number of shared hits btw the two track
       uint8_t nSharedHits() const { return nSharedHits_; }
 
+
+      /// set the value  of the TMVA output
+      void setMVAout(const float& mva) { theMVAout_=mva;}
+      /// set the MVS output from PF for one leg conversions
+      void setOneLegMVA(const std::vector<float>& mva) { theOneLegMVA_=mva;}
       // Set the ptr to the Super cluster if not set in the constructor 
       void setMatchingSuperCluster ( const  reco::CaloClusterPtrVector& sc) { caloCluster_= sc;}
-      
       /// Conversion Track algorithm/provenance
       void setConversionAlgorithm(const ConversionAlgorithm a, bool set=true) { if (set) algorithm_=a; else algorithm_=undefined;}
       ConversionAlgorithm algo() const ;
@@ -200,6 +204,8 @@ namespace reco {
       uint8_t nSharedHits_;
       /// TMVA output
       float theMVAout_;
+      /// vectors of TMVA outputs from pflow for one leg conversions
+      std::vector<float>  theOneLegMVA_;
       /// conversion algorithm/provenance
       uint8_t algorithm_;
       uint16_t qualityMask_;
