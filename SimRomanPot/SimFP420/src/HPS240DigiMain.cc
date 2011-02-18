@@ -206,8 +206,8 @@ vector <HDigiFP420> HPS240DigiMain::run(const std::vector<PSimHit> &input,
   }
 
   //
-
-    if ( ( !(theApplyTofCut)  ||  ( theApplyTofCut &&   abs(tof) > tofCut && abs(tof) < (tofCut+200.)) ) && losenergy > elossCut) {
+  // tofCut for HPS240 to be equal 790 ns   ;         for 420m to be = 1390 ns
+    if ( ( !(theApplyTofCut)  ||  ( theApplyTofCut &&   abs(tof) > tofCut && abs(tof) < (tofCut+40.)) ) && losenergy > elossCut) {
  
       //    if ( abs(tof) < tofCut && losenergy > elossCut) {
       // if ( losenergy>0) {

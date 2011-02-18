@@ -16,7 +16,7 @@ FP420Digi = cms.EDProducer("DigitizerFP420",
     FedFP420HighThreshold = cms.double(6.5),    ## 4.5
     AdcFP420Threshold = cms.double(6.0),        ##   5.0
     AddNoisyPixelsFP420 = cms.bool(True),       ##
-    LowtofCutFP420 = cms.double(1350.0),        ##
+    LowtofCutFP420 = cms.double(1390.0),        ##
     ApplyTofCutFP420 = cms.bool(True),          ## False
     ApplyChargeIneffFP420 = cms.bool(False),    ## True
     NumberHPS240Detectors = cms.int32(3),         ## =3 means 2 Trackers: +HPS240 and -HPS240; =0 -> no HPS240 at all 
@@ -32,7 +32,7 @@ FP420Digi = cms.EDProducer("DigitizerFP420",
     FedHPS240HighThreshold = cms.double(6.5),     ## 4.5
     AdcHPS240Threshold = cms.double(6.0),         ##   5.0
     AddNoisyPixelsHPS240 = cms.bool(True),        ##
-    LowtofCutHPS240 = cms.double(1350.0),         ##
+    LowtofCutHPS240 = cms.double(790.0),         ##
     ApplyTofCutHPS240 = cms.bool(True),           ## False
     ApplyChargeIneffHPS240 = cms.bool(False)      ## True
 ) 
