@@ -342,10 +342,12 @@ class GenObject (object):
                 target.close()
             else:
                 print "%s exists" % filename
-            command = "echo .L %s+ | root.exe -b" % filename
-            os.system (command)
-        print "loading %s" % SO
-        ROOT.gSystem.Load(SO)
+            ## command = "echo .L %s+ | root.exe -b" % filename
+            ## os.system (command)
+            ROOT.gSystem.CompileMacro (filename,"k")
+        else:
+            print "loading %s" % SO
+            ROOT.gSystem.Load(SO)
         return
 
 
