@@ -5,7 +5,7 @@ electronIdPdfs = cms.ESSource("PoolDBESSource",
     CondDBCommon,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('ElectronLikelihoodPdfsRcd'),
-        tag = cms.string('ElectronLikelihoodPdfs_v1_offline')
+        tag = cms.string('ElectronLikelihoodPdfs_v2_offline')
     ))
 )
 
