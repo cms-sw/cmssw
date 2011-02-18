@@ -261,7 +261,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 		  ////---- fill pulse shape vs BX number 
 		  castorDigiHists.meDigi_pulseBX->Fill(static_cast<double>(bxTS),(bunch_it->tsfC[ts])/224.);
 		  ////---- fill pulse shape in sectors 
-                  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]); 
+                  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]/double(ievt_)); 
  
                   ////---- sum the signal over all TS in fC
                   sumDigi +=  bunch_it->tsfC[ts]; //std::cout<< " signal(fC) in TS:"<<ts << " =" << bunch_it->tsfC[ts] << std::endl; 	   
@@ -271,7 +271,8 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 		  ////---- check whether the channel is saturated
 		  if(bunch_it->tsAdc[ts]>126.95) {
                     saturated = true;
-		    std::cout<< "WARNING: ==> Module:" << bunch_it->detid.module() << " Sector:" << bunch_it->detid.sector() << " SATURATED !!! in TS:"<< ts <<std::endl;   
+		  if(fVerbosity>0) 
+                  std::cout<< "WARNING: ==> Module:" << bunch_it->detid.module() << " Sector:" << bunch_it->detid.sector() << " SATURATED !!! in TS:"<< ts <<std::endl;   
                  }
 
 	      } //-- end of the loop for time slices
