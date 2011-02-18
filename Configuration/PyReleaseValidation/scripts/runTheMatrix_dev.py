@@ -381,7 +381,10 @@ class MatrixReader(object):
                 if '+' in stepNames:
                     step1,otherSteps = stepNames.split('+',1)
                 line = num + ' ++ '+ wfName 
-                if otherSteps: line += ' ++ ' +otherSteps.replace('+',',')
+                if otherSteps:
+                    line += ' ++ ' +otherSteps.replace('+',',')
+                else:
+                    line += ' ++ none' 
                 if inputInfo :
                     line += ' ++ REALDATA: '+inputInfo.dataSet
                     line += ', FILES: ' +str(inputInfo.files)
