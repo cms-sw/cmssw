@@ -164,14 +164,7 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
 	crackcorrClus=enecorrClus;
 
       if(crackcorrClus.energy()*sin(crackcorrClus.position().theta())>etThresh_) {
-	//and corrected energy of SC before placing SCs in collection
-	//std::cout << " Check 1 " << "\n"
-	//	  << " Parameters of corrected SCs " << "\n"
-	//	  << " energy = " << newClus.energy() <<"\n"
-	//	  << " pw = " << newClus.phiWidth() << "\n"
-	//	  << " ew = " << newClus.etaWidth() << std::endl;
-
-        crackcorrClus.rawEnergy();
+	
 	corrClusters->push_back(crackcorrClus);
       }
     }
