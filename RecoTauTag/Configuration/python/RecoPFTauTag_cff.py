@@ -128,8 +128,7 @@ recoTauClassicHPSSequence = cms.Sequence(
 recoTauClassicShrinkingConeSequence = cms.Sequence(
     recoTauCommonSequence *
     ak5PFJetsLegacyTaNCPiZeros *
-    produceAndDiscriminateShrinkingConePFTaus *
-    produceShrinkingConeDiscriminationByTauNeuralClassifier
+    produceAndDiscriminateShrinkingConePFTaus 
 )
 
 recoTauClassicShrinkingConeMVASequence = cms.Sequence(
