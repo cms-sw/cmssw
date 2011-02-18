@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/HIon/V24 (CMSSW_3_11_0_HLT4)
+# /dev/CMSSW_3_11_1/HIon/V26 (CMSSW_3_11_0_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V24')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V26')
 )
 
 process.streams = cms.PSet( 
@@ -3900,6 +3900,28 @@ process.hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
 process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
+process.hltDQML1Scalers = cms.EDAnalyzer( "L1Scalers",
+    l1GtData = cms.InputTag( "hltGtDigis" ),
+    fedRawData = cms.InputTag( "source" ),
+    HFRecHitCollection = cms.InputTag( "hltHfreco" ),
+    maskedChannels = cms.untracked.vint32( 8137, 8141, 8146, 8149, 8150, 8153 )
+)
+process.hltDQML1SeedLogicScalers = cms.EDAnalyzer( "HLTSeedL1LogicScalers",
+    l1BeforeMask = cms.bool( False ),
+    processname = cms.string( "HLT" ),
+    L1GtDaqReadoutRecordInputTag = cms.InputTag( "hltGtDigis" ),
+    L1GtRecordInputTag = cms.InputTag( "unused" ),
+    DQMFolder = cms.untracked.string( "HLT/HLTSeedL1LogicScalers_EvF" ),
+    monitorPaths = cms.untracked.vstring( 'HLT_L1MuOpen',
+      'HLT_L1Mu',
+      'HLT_Mu3',
+      'HLT_L1SingleForJet',
+      'HLT_SingleLooseIsoTau20',
+      'HLT_MinBiasEcal' )
+)
+process.hltDQMHLTScalers = cms.EDAnalyzer( "HLTScalers",
+    triggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+)
 process.hltPreNanoDST = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
@@ -4400,7 +4422,7 @@ process.AOutput = cms.EndPath( process.hltOutputA )
 process.ALCAP0Output = cms.EndPath( process.hltOutputALCAP0 )
 process.ALCAPHISYMOutput = cms.EndPath( process.hltOutputALCAPHISYM )
 process.CalibrationOutput = cms.EndPath( process.hltOutputCalibration )
-process.DQMOutput = cms.EndPath( process.hltOutputDQM )
+process.DQMOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedLogicScalers + process.hltDQMHLTScalers + process.hltOutputDQM )
 process.EcalCalibrationOutput = cms.EndPath( process.hltOutputEcalCalibration )
 process.HLTDQMOutput = cms.EndPath( process.hltOutputHLTDQM )
 process.HLTMONOutput = cms.EndPath( process.hltOutputHLTMON )

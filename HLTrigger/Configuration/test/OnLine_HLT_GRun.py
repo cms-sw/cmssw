@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V24 (CMSSW_3_11_0_HLT4)
+# /dev/CMSSW_3_11_1/GRun/V26 (CMSSW_3_11_0_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V24')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V26')
 )
 
 process.streams = cms.PSet( 
@@ -15804,6 +15804,144 @@ process.hltLogMonitorFilter = cms.EDFilter( "HLTLogMonitorFilter",
     categories = cms.VPSet( 
     )
 )
+process.hltPreFEDIntegrity = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
+process.hltCSCMonitorModule = cms.EDAnalyzer( "CSCMonitorModule",
+    InputObjects = cms.untracked.InputTag( "rawDataCollector" ),
+    BOOKING_XML_FILE = cms.FileInPath( "DQM/CSCMonitorModule/data/emuDQMBooking.xml" ),
+    EventProcessor = cms.untracked.PSet( 
+      EFF_ERR_SIGFAIL = cms.untracked.double( 5.0 ),
+      FRAEFF_AUTO_UPDATE = cms.untracked.bool( False ),
+      EFF_NODATA_THRESHOLD = cms.untracked.double( 0.1 ),
+      FRAEFF_AUTO_UPDATE_START = cms.untracked.uint32( 5 ),
+      BINCHECK_MASK = cms.untracked.uint32( 384563190 ),
+      BINCHECKER_CRC_CLCT = cms.untracked.bool( True ),
+      EFF_COLD_SIGFAIL = cms.untracked.double( 5.0 ),
+      PROCESS_DDU = cms.untracked.bool( False ),
+      EFF_NODATA_SIGFAIL = cms.untracked.double( 5.0 ),
+      BINCHECKER_MODE_DDU = cms.untracked.bool( False ),
+      BINCHECKER_CRC_ALCT = cms.untracked.bool( True ),
+      EFF_HOT_THRESHOLD = cms.untracked.double( 0.1 ),
+      FOLDER_DDU = cms.untracked.string( "" ),
+      BINCHECKER_CRC_CFEB = cms.untracked.bool( True ),
+      EVENTS_ECHO = cms.untracked.uint32( 1000 ),
+      DDU_CHECK_MASK = cms.untracked.uint32( 4294959103 ),
+      FRAEFF_SEPARATE_THREAD = cms.untracked.bool( False ),
+      PROCESS_EFF_PARAMETERS = cms.untracked.bool( False ),
+      EFF_HOT_SIGFAIL = cms.untracked.double( 5.0 ),
+      FOLDER_PAR = cms.untracked.string( "" ),
+      FRAEFF_AUTO_UPDATE_FREQ = cms.untracked.uint32( 200 ),
+      EFF_COLD_THRESHOLD = cms.untracked.double( 0.1 ),
+      FOLDER_EMU = cms.untracked.string( "CSC/FEDIntegrity_EvF" ),
+      DDU_BINCHECK_MASK = cms.untracked.uint32( 384563190 ),
+      PROCESS_CSC = cms.untracked.bool( False ),
+      PROCESS_EFF_HISTOS = cms.untracked.bool( False ),
+      MO_FILTER = cms.untracked.vstring( '-/^.*$/',
+        '+/FEDEntries/',
+        '+/FEDFatal/',
+        '+/FEDFormatFatal/',
+        '+/FEDNonFatal/',
+        '+/^CSC_Reporting$/',
+        '+/^CSC_Format_Errors$/',
+        '+/^CSC_Format_Warnings$/',
+        '+/^CSC_L1A_out_of_sync$/',
+        '+/^CSC_wo_ALCT$/',
+        '+/^CSC_wo_CFEB$/',
+        '+/^CSC_wo_CLCT$/' ),
+      FOLDER_CSC = cms.untracked.string( "" ),
+      EFF_ERR_THRESHOLD = cms.untracked.double( 0.1 ),
+      BINCHECKER_OUTPUT = cms.untracked.bool( False )
+    )
+)
+process.hltDTDQMEvF = cms.EDProducer( "DTUnpackingModule",
+    dataType = cms.string( "DDU" ),
+    fedbyType = cms.bool( False ),
+    inputLabel = cms.InputTag( "rawDataCollector" ),
+    useStandardFEDid = cms.bool( True ),
+    dqmOnly = cms.bool( False ),
+    rosParameters = cms.PSet(  ),
+    readOutParameters = cms.PSet( 
+      debug = cms.untracked.bool( False ),
+      rosParameters = cms.PSet( 
+        writeSC = cms.untracked.bool( True ),
+        readingDDU = cms.untracked.bool( True ),
+        performDataIntegrityMonitor = cms.untracked.bool( True ),
+        readDDUIDfromDDU = cms.untracked.bool( True ),
+        debug = cms.untracked.bool( False ),
+        localDAQ = cms.untracked.bool( False )
+      ),
+      performDataIntegrityMonitor = cms.untracked.bool( True ),
+      localDAQ = cms.untracked.bool( False )
+    )
+)
+process.hltEcalRawToRecHitByproductProducer = cms.EDProducer( "EcalRawToRecHitByproductProducer",
+    workerName = cms.string( "" )
+)
+process.hltEBHltTask = cms.EDAnalyzer( "EBHltTask",
+    prefixME = cms.untracked.string( "EcalBarrel" ),
+    folderName = cms.untracked.string( "FEDIntegrity_EvF" ),
+    EBDetIdCollection0 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityDCCSizeErrors' ),
+    EBDetIdCollection1 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityGainErrors' ),
+    EBDetIdCollection2 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityChIdErrors' ),
+    EBDetIdCollection3 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityGainSwitchErrors' ),
+    EcalElectronicsIdCollection1 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityTTIdErrors' ),
+    EcalElectronicsIdCollection2 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityBlockSizeErrors' ),
+    EcalElectronicsIdCollection3 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityMemTtIdErrors' ),
+    EcalElectronicsIdCollection4 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityMemBlockSizeErrors' ),
+    EcalElectronicsIdCollection5 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityMemChIdErrors' ),
+    EcalElectronicsIdCollection6 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityMemGainErrors' ),
+    FEDRawDataCollection = cms.InputTag( "rawDataCollector" )
+)
+process.hltEEHltTask = cms.EDAnalyzer( "EEHltTask",
+    prefixME = cms.untracked.string( "EcalEndcap" ),
+    folderName = cms.untracked.string( "FEDIntegrity_EvF" ),
+    EEDetIdCollection0 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityDCCSizeErrors' ),
+    EEDetIdCollection1 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityGainErrors' ),
+    EEDetIdCollection2 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityChIdErrors' ),
+    EEDetIdCollection3 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityGainSwitchErrors' ),
+    EcalElectronicsIdCollection1 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityTTIdErrors' ),
+    EcalElectronicsIdCollection2 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityBlockSizeErrors' ),
+    EcalElectronicsIdCollection3 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityMemTtIdErrors' ),
+    EcalElectronicsIdCollection4 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityMemBlockSizeErrors' ),
+    EcalElectronicsIdCollection5 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityMemChIdErrors' ),
+    EcalElectronicsIdCollection6 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityMemGainErrors' ),
+    FEDRawDataCollection = cms.InputTag( "rawDataCollector" )
+)
+process.hltESFEDIntegrityTask = cms.EDAnalyzer( "ESFEDIntegrityTask",
+    prefixME = cms.untracked.string( "EcalPreshower" ),
+    FEDDirName = cms.untracked.string( "FEDIntegrity_EvF" ),
+    ESDCCCollections = cms.InputTag( "NotUsed" ),
+    ESKChipCollections = cms.InputTag( "NotUsed" ),
+    FEDRawDataCollection = cms.InputTag( "rawDataCollector" )
+)
+process.hltL1tfed = cms.EDAnalyzer( "L1TFED",
+    rawTag = cms.InputTag( "rawDataCollector" ),
+    DQMStore = cms.untracked.bool( True ),
+    disableROOToutput = cms.untracked.bool( True ),
+    FEDDirName = cms.untracked.string( "L1T/FEDIntegrity_EvF" ),
+    L1FEDS = cms.vint32( 745, 760, 780, 812, 813 )
+)
+process.hltSiPixelHLTSource = cms.EDAnalyzer( "SiPixelHLTSource",
+    RawInput = cms.InputTag( "rawDataCollector" ),
+    ErrorInput = cms.InputTag( "hltSiPixelDigis" ),
+    DirName = cms.untracked.string( "Pixel/FEDIntegrity_EvF" ),
+    outputFile = cms.string( "Pixel_DQM_HLT.root" )
+)
+process.hltSiStripFEDCheck = cms.EDAnalyzer( "SiStripFEDCheckPlugin",
+    RawDataTag = cms.InputTag( "rawDataCollector" ),
+    DirName = cms.untracked.string( "SiStrip/FEDIntegrity_EvF" ),
+    HistogramUpdateFrequency = cms.untracked.uint32( 1000 ),
+    DoPayloadChecks = cms.untracked.bool( False ),
+    CheckChannelLengths = cms.untracked.bool( False ),
+    CheckChannelPacketCodes = cms.untracked.bool( False ),
+    CheckFELengths = cms.untracked.bool( False ),
+    CheckChannelStatus = cms.untracked.bool( False )
+)
+process.hltRPCFEDIntegrity = cms.EDAnalyzer( "RPCFEDIntegrity",
+    RPCRawCountsInputTag = cms.untracked.InputTag( "hltMuonRPCDigis" ),
+    RPCPrefixDir = cms.untracked.string( "RPC/FEDIntegrity_EvF" )
+)
 process.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 1023 )
@@ -15823,6 +15961,28 @@ process.hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
 )
 process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+)
+process.hltDQML1Scalers = cms.EDAnalyzer( "L1Scalers",
+    l1GtData = cms.InputTag( "hltGtDigis" ),
+    fedRawData = cms.InputTag( "rawDataCollector" ),
+    HFRecHitCollection = cms.InputTag( "hltHfreco" ),
+    maskedChannels = cms.untracked.vint32( 8137, 8141, 8146, 8149, 8150, 8153 )
+)
+process.hltDQML1SeedLogicScalers = cms.EDAnalyzer( "HLTSeedL1LogicScalers",
+    l1BeforeMask = cms.bool( False ),
+    processname = cms.string( "HLT" ),
+    L1GtDaqReadoutRecordInputTag = cms.InputTag( "hltGtDigis" ),
+    L1GtRecordInputTag = cms.InputTag( "unused" ),
+    DQMFolder = cms.untracked.string( "HLT/HLTSeedL1LogicScalers_EvF" ),
+    monitorPaths = cms.untracked.vstring( 'HLT_L1MuOpen',
+      'HLT_L1Mu',
+      'HLT_Mu3',
+      'HLT_L1SingleForJet',
+      'HLT_SingleLooseIsoTau20',
+      'HLT_MinBiasEcal' )
+)
+process.hltDQMHLTScalers = cms.EDAnalyzer( "HLTScalers",
+    triggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 process.hltPreNanoDST = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -16563,13 +16723,14 @@ process.HLT_L1TrackerCosmics_v2 = cms.Path( process.HLTBeginSequence + process.h
 process.HLT_RegionalCosmicTracking_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sRegionalCosmicTracking + process.hltPreRegionalCosmicTracking + process.hltTrackerCosmicsPattern + process.hltL1sL1MuOR + process.hltL1MuORL1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleL2MuORL2PreFilteredNoVtx + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltRegionalCosmicTrackerSeeds + process.hltRegionalCosmicCkfTrackCandidates + process.hltRegionalCosmicTracks + process.hltCosmicTrackSelector + process.HLTEndSequence )
 process.HLT_L3MuonsCosmicTracking_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreL3MuonsCosmicTracking + process.hltTrackerCosmicsPattern + process.hltL1sL1MuOR + process.hltL1MuORL1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleL2MuORL2PreFilteredNoVtx + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltL3TrajectorySeedNoVtx + process.hltL3TrackCandidateFromL2NoVtx + process.hltL3TkTracksFromL2NoVtx + process.hltL3MuonsNoVtx + process.hltL3MuonCandidatesNoVtx + process.hltMu5NoVertexL3PreFiltered5 + process.HLTEndSequence )
 process.HLT_LogMonitor_v1 = cms.Path( process.hltGtDigis + process.hltPreLogMonitor + process.hltLogMonitorFilter + process.HLTEndSequence )
+process.DQM_FEDIntegrity_v2 = cms.Path( process.HLTBeginSequence + process.hltPreFEDIntegrity + process.hltCSCMonitorModule + process.hltDTDQMEvF + process.hltEcalRawToRecHitFacility + process.hltEcalRegionalRestFEDs + process.hltEcalRecHitAll + process.hltEcalRawToRecHitByproductProducer + process.hltEBHltTask + process.hltEEHltTask + process.hltESFEDIntegrityTask + process.hltHcalDigis + process.hltL1tfed + process.hltSiPixelDigis + process.hltSiPixelHLTSource + process.hltSiStripFEDCheck + process.hltMuonRPCDigis + process.hltRPCFEDIntegrity + process.hltBoolFalse )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolTrue )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport )
 process.AOutput = cms.EndPath( process.hltOutputA )
 process.ALCAP0Output = cms.EndPath( process.hltOutputALCAP0 )
 process.ALCAPHISYMOutput = cms.EndPath( process.hltOutputALCAPHISYM )
 process.CalibrationOutput = cms.EndPath( process.hltOutputCalibration )
-process.DQMOutput = cms.EndPath( process.hltOutputDQM )
+process.DQMOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedLogicScalers + process.hltDQMHLTScalers + process.hltOutputDQM )
 process.EcalCalibrationOutput = cms.EndPath( process.hltOutputEcalCalibration )
 process.HLTDQMOutput = cms.EndPath( process.hltOutputHLTDQM )
 process.HLTMONOutput = cms.EndPath( process.hltOutputHLTMON )
