@@ -1,5 +1,6 @@
 #include "HiggsAnalysis/CombinedLimit/interface/MarkovChainMC.h"
 #include <stdexcept> 
+#include <cmath> 
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooUniform.h"
@@ -48,6 +49,9 @@ MarkovChainMC::MarkovChainMC() :
         ("cropNSigmas", 
                 boost::program_options::value<float>(&cropNSigmas_)->default_value(0),
                 "crop range of all parameters to N times their uncertainty") 
+        ("hintSafetyFactor",
+                boost::program_options::value<float>(&hintSafetyFactor_)->default_value(5),
+                "set range of integration equal to this number of times the hinted limit")
     ;
 }
 
@@ -69,6 +73,7 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     runMinos_ = vm.count("runMinos");
     noReset_  = vm.count("noReset");
     updateHint_  = vm.count("updateHint");
+    maxOutlierFraction_ = vm["maxOutlierFraction"].as<float>();
 }
 
 bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
@@ -76,29 +81,48 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
 
   CloseCoutSentry coutSentry(verbose <= 0); // close standard output and error, so that we don't flood them with minuit messages
   double sum = 0, sum2 = 0, suma = 0; int num = 0;
-  double savhint = -1; const double *thehint = hint;
+  double savhint = (hint ? *hint : -1); const double *thehint = hint;
+  std::vector<double> limits;
   for (unsigned int i = 0; i < tries_; ++i) {
       if (int nacc = runOnce(w,data,limit,thehint)) {
-          ++num;
-          sum  += limit;
-          sum2 += limit * limit;
           suma += nacc;
+          if (verbose > 1) std::cout << "Limit from this run: " << limit << std::endl;
+          limits.push_back(limit);
           if (updateHint_ && tries_ > 1 && limit > savhint) { 
             if (verbose > 0) std::cout << "Updating hint from " << savhint << " to " << limit << std::endl;
             savhint = limit; thehint = &savhint; 
           }
       }
   }
+  num = limits.size();
   if (num == 0) return false;
+  // average acceptance
+  suma  = suma / (num * double(iterations_));
+  // possibly remove outliers before computing mean
+  int noutl = floor(maxOutlierFraction_ * num);
+  if (noutl >= 1) { 
+      std::sort(limits.begin(), limits.end());
+      double median = (num % 2 ? limits[num/2] : 0.5*(limits[num/2] + limits[num/2+1]));
+      for (int k = 0; k < noutl; ++k) {
+        // make sure outliers are all at the end
+        if (std::abs(limits[0]-median) > std::abs(limits[num-k-1]-median)) {
+            std::swap(limits[0], limits[num-k-1]);
+        }
+      }
+      num -= noutl;
+  }
+  // compute mean and rms
+  sum = 0;
+  for (int k = 0; k < num; k++) sum += limits[k];
+  limit = sum/num;
+  for (int k = 0; k < num; k++) sum2 += (limits[k]-limit)*(limits[k]-limit);
+  sum2 = (num > 1 ? sqrt((num*(num+1))) : 0);
   coutSentry.clear();
 
   if (verbose >= 0) {
       std::cout << "\n -- MarkovChainMC -- " << "\n";
-      limit = sum / num;
-      suma  = suma / (num * double(iterations_));
       if (num > 1) {
-          double limitErr = sqrt((sum2/num-limit*limit)/(num-1));
-          std::cout << "Limit: r < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL (" << num << " tries)" << std::endl;
+          std::cout << "Limit: r < " << limit << " +/- " << sum2 << " @ " << cl * 100 << "% CL (" << num << " tries)" << std::endl;
           if (verbose > 0) std::cout << "Average chain acceptance: " << suma << std::endl;
       } else {
           std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
@@ -112,7 +136,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, con
   RooArgSet const &obs = *w->set("observables");
 
   if ((hint != 0) && (*hint > r->getMin())) {
-    r->setMax(5*(*hint));
+    r->setMax(hintSafetyFactor_*(*hint));
   }
 
   if (withSystematics && (w->set("nuisances") == 0)) {

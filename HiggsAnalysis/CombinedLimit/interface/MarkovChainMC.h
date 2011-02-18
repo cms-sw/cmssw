@@ -24,9 +24,16 @@ private:
   std::string proposalTypeName_;
   ProposalType proposalType_;
   bool runMinos_, noReset_, updateProposalParams_, updateHint_;
+  /// Propose this number of points for the chain
   unsigned int iterations_;
-  unsigned int tries_;
+  /// Discard these points
   unsigned int burnInSteps_;
+  /// compute the limit N times
+  unsigned int tries_;
+  /// Ignore up to this fraction of results if they're too far from the median
+  float maxOutlierFraction_;
+  /// Safety factor for hint (integrate up to this number of times the hinted limit)
+  float hintSafetyFactor_;
   unsigned int numberOfBins_;
   unsigned int proposalHelperCacheSize_;
   float        proposalHelperWidthRangeDivisor_, proposalHelperUniformFraction_;
