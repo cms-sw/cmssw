@@ -376,11 +376,11 @@ class MatrixReader(object):
             stepCmds = ['','','','']
             for key in ids:
                 num, name, stepCmds[0], stepCmds[1], stepCmds[2], stepCmds[3], inputInfo = self.step1WorkFlows[key]
-                step1 = name
+                wfName,stepNames= name.split('+',1)
                 otherSteps = None
-                if '+' in name:
-                    step1,otherSteps = name.split('+',1)
-                line = num + ' ++ '+ step1
+                if '+' in stepNames:
+                    step1,otherSteps = stepNames.split('+',1)
+                line = num + ' ++ '+ wfName +' ++ '+ step1
                 if otherSteps: line += ' ++ ' +otherSteps.replace('+',',')
                 if inputInfo :
                     line += ' ++ REALDATA: '+inputInfo.dataSet
@@ -441,7 +441,8 @@ class MatrixReader(object):
             if selected and float(wf.numId) not in selected: continue
             print ''
             n1+=1
-            print fmt1 % (wf.numId, wf.nameId, (wf.cmdStep1+' ')[:maxLen])
+            wfName, stepNames = wf.nameId.split('+',1)
+            print fmt1 % (wf.numId, stepNames, (wf.cmdStep1+' ')[:maxLen])
             if wf.cmdStep2:
                 n2+=1
                 print fmt2 % ( ' ', 2, (wf.cmdStep2+' ')[:maxLen])
