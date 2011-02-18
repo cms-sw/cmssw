@@ -662,9 +662,6 @@ class Process(object):
         # alphabetical order is easier to compare with old language
         l.sort()
         parameterSet.addVString(tracked, label, l)
-    def _insertServices(self, processDesc, itemDict):
-        for name,value in itemDict.iteritems():
-           value.insertInto(processDesc)
     def _insertPaths(self, processPSet):
         scheduledPaths = []
         triggerPaths = []
@@ -736,7 +733,15 @@ class Process(object):
         for name in junk:
             delattr(self, name)
 
-    def fillProcessDesc(self, processDesc, processPSet):
+    def fillProcessDesc(self, processPSet):
+        class ServiceInjectorAdaptor(object):
+            def __init__(self,pset,label):
+                self.__pset = pset
+                self.__label = label
+            def addService(self,pset):
+                self.__pset.addPSet(False,self.__label,pset)
+            def newPSet(self):
+                return self.__pset.newPSet()
         self.validate()
         processPSet.addString(True, "@process_name", self.name_())
         all_modules = self.producers_().copy()
@@ -753,8 +758,14 @@ class Process(object):
         self._insertManyInto(processPSet, "@all_essources", self.es_sources_(), True)
         self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_(), True)
         self._insertPaths(processPSet)
-        self._insertServices(processDesc, self.services_())
-        return processDesc
+        #handle services differently
+        services = processPSet.newPSet()
+        #services = processPSet.newVPSet()
+        for n in self.services_():
+             getattr(self,n).insertInto(ServiceInjectorAdaptor(services,n))
+        processPSet.addPSet(False,"services",services)
+        #processPSet.addVPSet(False,"services",services)
+        return processPSet
 
     def validate(self):
         # check if there's some input
@@ -875,32 +886,11 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
    def _place(self,label,process):
       process._placeSubProcess('subProcess',self)
    def insertInto(self,parameterSet, newlabel):
-      class ProcessDescAdaptor(object):
-        def __init__(self,pset):
-            self.__pset = pset
-        def addService(self,*l,**d):
-            None
-        def newPSet(self):
-            return self.__pset.newPSet()
-      class ServiceInjectorAdaptor(object):
-        
-        def __init__(self,pset,label):
-            self.__pset = pset
-            self.__label = label
-        def addService(self,pset):
-            self.__pset.addPSet(False,self.__label,pset)
-        def newPSet(self):
-            return self.__pset.newPSet()
       topPSet = parameterSet.newPSet()
-      self.__process.fillProcessDesc(ProcessDescAdaptor(topPSet),topPSet)
+      self.__process.fillProcessDesc(topPSet)
       subProcessPSet = parameterSet.newPSet()
       self.__SelectEvents.insertInto(subProcessPSet,"SelectEvents")
       self.__outputCommands.insertInto(subProcessPSet,"outputCommands")
-      #handle services differently
-      services = parameterSet.newPSet()
-      for n in self.__process.services_():
-         getattr(self.__process,n).insertInto(ServiceInjectorAdaptor(services,n))
-      topPSet.addPSet(False,"services",services)
       subProcessPSet.addPSet(False,"process",topPSet)
       parameterSet.addPSet(False,self.nameInProcessDesc_("subProcess"), subProcessPSet)
 
