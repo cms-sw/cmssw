@@ -32,7 +32,7 @@ process.GlobalTag.toGet.append(
 process.GlobalTag.toGet.append(
  cms.PSet(
         record = cms.string('DTKeyedConfigListRcd'),
-        tag = cms.string('DTKeyedConfigList_V01_hlt'),
+        tag = cms.string('DTKeyedConfigList_V01_mc'),
         connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_31X_DT')
 ))
 process.GlobalTag.toGet.append(
