@@ -1,0 +1,40 @@
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("Validation")
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = 'INFO'
+
+process.load("CalibMuon.DTCalibration.dt_offlineAnalysis_common_cff")
+process.GlobalTag.globaltag = ""
+
+process.load("DQMServices.Core.DQM_cfg")
+
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring()
+)
+
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+
+process.load("CalibMuon.DTCalibration.ALCARECODtCalib_cff")
+process.load("DQM.DTMonitorModule.ALCARECODTCalibSynchDQM_cff")
+
+process.output = cms.OutputModule("PoolOutputModule",
+                  outputCommands = cms.untracked.vstring('drop *', 
+                                                         'keep *_MEtoEDMConverter_*_Validation'),
+                  fileName = cms.untracked.string('DQM.root')
+)
+
+process.load("DQMServices.Components.MEtoEDMConverter_cff")
+
+#process.pathALCARECODtCalib = cms.Path(process.seqALCARECODtCalib*process.ALCARECODTCalibSynchDQM)
+#process.pathALCARECODtCalib = cms.Path(process.muonDTDigis*
+#                                       process.seqALCARECODtCalib*process.ALCARECODTCalibSynchDQM)
+process.ALCARECODTCalibSynchDQM_step = cms.Path(process.ALCARECODTCalibSynchDQM)
+process.MEtoEDMConverter_step = cms.Path(process.MEtoEDMConverter)
+process.out_step = cms.EndPath(process.output)
+process.DQM.collectorHost = ''
