@@ -388,7 +388,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
       if( name.find("Summary_ClusterStoNCorr__OnTrack") != std::string::npos){
 	int istat =  SiStripUtility::getMEStatus((*it)); 
         if (reports[0]->getQTresult() == -1) {
-	  std::cout << name << " : entries " << me->getEntries() << std::endl;
+	  //	  std::cout << name << " : entries " << me->getEntries() << std::endl;
 	  ston_stat =-1;
         } else {
           if (istat == dqm::qstatus::ERROR) ston_stat = 0;
