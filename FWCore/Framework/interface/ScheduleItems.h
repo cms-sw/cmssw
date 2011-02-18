@@ -16,7 +16,6 @@ namespace edm {
   class CommonParams;
   class ParameterSet;
   class ProcessConfiguration;
-  class ProcessDesc;
   class ProductRegistry;
   class Schedule;
   class SignallingProductRegistry;
