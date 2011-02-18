@@ -17,3 +17,6 @@
 </bin>
 <bin   file="sign_t.cpp" name="DataFormatsSign_t">
 </bin>
+<bin   file="eta_t.cpp" name="DataFormatsEta_t">
+</bin>
+
