@@ -12,7 +12,6 @@
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cassert>
