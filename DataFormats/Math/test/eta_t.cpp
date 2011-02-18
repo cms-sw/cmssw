@@ -1,18 +1,18 @@
 #include <iostream>
 #include <cmath>
-#include<cassert>
+#include<cstdlib>
 
 namespace almostEqualDetail {
   union fasi {
     int i;
     float f;
   };
-
+  
   union dasi {
     long long i;
     double f;
   };
-
+  
 }
 
 inline int intDiff(float a, float b)
@@ -26,7 +26,7 @@ inline int intDiff(float a, float b)
   // Make bInt lexicographically ordered as a twos-complement int
   fasi fb; fb.f = b;
   if (fb.i < 0) fb.i = 0x80000000 - fb.i;
-  return std::abs(fa.i - fb.i);
+  return abs(fa.i - fb.i);
 }
 
 
@@ -39,10 +39,10 @@ inline long long intDiff(double a, double b)
   // Make bInt lexicographically ordered as a twos-complement int
   dasi fb; fb.f = b;
   if (fb.i < 0) fb.i = 0x8000000000000000LL - fb.i;
-  return std::abs(fa.i - fb.i);
+  return abs(fa.i - fb.i);
 }
 
-  template<typename T>
+template<typename T>
 inline bool almostEqual(T a, T b, int maxUlps) {
   // Make sure maxUlps is non-negative and small enough that the
   // default NAN won't compare as equal to anything.
@@ -56,45 +56,46 @@ namespace {
   inline T eta(T x, T y, T z) { T t(z/std::sqrt(x*x+y*y)); return std::log(t+std::sqrt(t*t+T(1)));} 
   template<typename T>
   inline T eta2(T x, T y, T z) { T t = (z*z)/(x*x+y*y); return copysign(std::log(std::sqrt(t)+std::sqrt(t+T(1))), z); }
-  template<typename T>
+
   inline float eta3(float x, float y, float z) { float t(z/std::sqrt(x*x+y*y)); return ::asinhf(t);} 
   inline double eta3(double x, double y, double z) { double t(z/std::sqrt(x*x+y*y)); return ::asinh(t);} 
+  
+  void look(float x) {
+    int e;
+    float r = ::frexpf(x,&e);
+    std::cout << x << " exp " << e << " res " << r << std::endl;
+    
+    union {
+      float val;
+      int bin;
+    } f;
+    
+    f.val = x;
+    printf("%e %a %x\n",  f.val,  f.val,  f.bin);
+    int log_2 = ((f.bin >> 23) & 255) - 127;  //exponent
+    f.bin &= 0x7FFFFF;                               //mantissa (aka significand)
+    
+    std::cout << "exp " << log_2 << " mant in binary "  << std::hex << f.bin 
+	      << " mant as float " <<  std::dec << (f.bin|0x800000)*::pow(2.,-23)
+	      << std::endl << std::endl;
+  }
 
-void look(float x) {
-  int e;
-  float r = ::frexpf(x,&e);
-  std::cout << x << " exp " << e << " res " << r << std::endl;
-  
-  union {
-    float val;
-    int bin;
-  } f;
-  
-  f.val = x;
-  printf("%e %a %x\n",  f.val,  f.val,  f.bin);
-  int log_2 = ((f.bin >> 23) & 255) - 127;  //exponent
-  f.bin &= 0x7FFFFF;                               //mantissa (aka significand)
-  
-  std::cout << "exp " << log_2 << " mant in binary "  << std::hex << f.bin 
-	    << " mant as float " <<  std::dec << (f.bin|0x800000)*::pow(2.,-23)
-	    << std::endl << std::endl;
+  void look(double x) {
+    // int e;
+    // float r = ::frexpf(x,&e);
+    // std::cout << x << " exp " << e << " res " << r << std::endl;
+    
+    union {
+      double val;
+      long long bin;
+    } f;
+    
+    f.val = x;
+    printf("%e %a %x\n",  f.val,  f.val,  f.bin);
+    
+  }
+
 }
-
-void look(double x) {
-  // int e;
-  // float r = ::frexpf(x,&e);
-  // std::cout << x << " exp " << e << " res " << r << std::endl;
-  
-  union {
-    double val;
-    long long bin;
-  } f;
-  
-  f.val = x;
-  printf("%e %a %x\n",  f.val,  f.val,  f.bin);
-
-}
-
 
 void peta() {
   std::cout << "T t(z/std::sqrt(x*x+y*y)); return std::log(t+std::sqrt(t*t+T(1)));" << std::endl;
