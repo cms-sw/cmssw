@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/HIon/V26 (CMSSW_3_11_0_HLT4)
+# /dev/CMSSW_3_11_1/HIon/V27 (CMSSW_3_11_0_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V26')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V27')
 )
 
 process.streams = cms.PSet( 
@@ -81,7 +81,8 @@ process.datasets = cms.PSet(
     'HLT_HIUpcMu',
     'HLT_HIZeroBias',
     'HLT_HIZeroBiasPixel_SingleTrack' ),
-  OnlineMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
+  OnlineMonitor = cms.vstring( 'HLT_EcalCalibration_v1',
+    'HLT_LogMonitor_v1' ),
   OnlineMonitorHI = cms.vstring( 'HLT_HICentralityVeto',
     'HLT_HIJet50U',
     'HLT_HIL1DoubleMuOpen',
@@ -105,7 +106,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://FrontierProd/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "TESTL1_GR_P::All" ),
+    globaltag = cms.string( "GRR311L1HLTV0::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialTimeOut = cms.untracked.int32( 60 ),
@@ -1416,6 +1417,10 @@ process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 process.DQM = cms.Service( "DQM",
 )
 process.DQMStore = cms.Service( "DQMStore",
+)
+process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
+    getSCInfo = cms.untracked.bool( True ),
+    processingMode = cms.untracked.string( "HLT" )
 )
 process.MessageLogger = cms.Service( "MessageLogger",
     destinations = cms.untracked.vstring( 'warnings',
@@ -3969,7 +3974,8 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
 process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQM.root" ),
     fastCloning = cms.untracked.bool( False ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HICentralityVeto',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_EcalCalibration_v1',
+  'HLT_HICentralityVeto',
   'HLT_HIJet50U',
   'HLT_HIL1DoubleMuOpen',
   'HLT_HIL2Mu3',

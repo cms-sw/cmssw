@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/GRun/V26 (CMSSW_3_11_0_HLT4)
+# /dev/CMSSW_3_11_1/GRun/V27 (CMSSW_3_11_0_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V26')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V27')
 )
 
 streams = cms.PSet( 
@@ -89,7 +89,10 @@ datasets = cms.PSet(
     'HLT_LogMonitor_v1',
     'HLT_Mu3_v2' ),
   OnlineHltMonitorHI = cms.vstring(  ),
-  OnlineMonitor = cms.vstring( 'HLT_IsoTrackHB_v2',
+  OnlineMonitor = cms.vstring( 'HLT_Calibration_v1',
+    'HLT_EcalCalibration_v1',
+    'HLT_HcalCalibration_v1',
+    'HLT_IsoTrackHB_v2',
     'HLT_IsoTrackHE_v3',
     'HLT_LogMonitor_v1',
     'HLT_Mu3_v2' ),
@@ -1096,6 +1099,10 @@ siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESPr
   appendToDataLabel = cms.string( "" )
 )
 
+DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
+  getSCInfo = cms.untracked.bool( True ),
+  processingMode = cms.untracked.string( "HLT" )
+)
 UpdaterService = cms.Service( "UpdaterService",
 )
 
