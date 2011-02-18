@@ -9,9 +9,12 @@ class LaserAlignmentEventFilter : public edm::EDFilter {
   ~LaserAlignmentEventFilter();
 
  private:
+
+  // Name of the FED collection
+  std::string FED_collection;
+
   // Map the std::vector<int> that is returned by edm::ParameterSet::getParameter() to internal representations (which are optimized for the Filter)
   void set_las_fed_ids(const std::vector<int>& las_feds);
-  //void set_las_det_ids(const std::vector<int>& las_dets);
   void set_las_signal_ids(const std::vector<int>& las_signal);
   
   virtual void beginRun(const edm::EventSetup&) ;
@@ -19,12 +22,9 @@ class LaserAlignmentEventFilter : public edm::EDFilter {
   virtual void endJob() ;
 
   // Filter Settings
-  //bool fed_filter; // Discard unused FEDs
-  //bool det_id_filter; // Discard unused DetIds
   bool signal_filter; // Check for LAS Signals
 
   std::vector<uint16_t> las_fed_ids; // List of FEDs used by LAS
-  //std::vector<uint32_t> las_det_ids; // List of DetIds used by LAS
   std::vector<uint32_t> las_signal_ids; // List of DetIds to probe for signal
 
   uint16_t single_channel_thresh; // Signal threshold for a single channel

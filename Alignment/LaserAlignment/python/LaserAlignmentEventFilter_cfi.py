@@ -3,12 +3,11 @@ import FWCore.ParameterSet.Config as cms
 import Alignment.LaserAlignment.LaserAlignmentDefs_cff as LasDefs
 
 LaserAlignmentEventFilter = cms.EDFilter("LaserAlignmentEventFilter",
+FedInputTag = cms.string( 'source' ),
       SIGNAL_Filter = cms.bool(True),
       SINGLE_CHANNEL_THRESH = cms.uint32(11),
       CHANNEL_COUNT_THRESH = cms.uint32(8),
-#      FED_IDs = cms.vint32(),
       FED_IDs = LasDefs.FED_ALL,
-#      DET_IDs = cms.vint32(),
       SIGNAL_IDs = LasDefs.SIGNAL_IDs_ALL
 )
 

@@ -45,10 +45,10 @@ process.MessageLogger = cms.Service(
     #destinations = cms.untracked.vstring( 'cerr' ),
     debugModules = cms.untracked.vstring( 'LaserAlignmentEventFilter' ),
     cerr = cms.untracked.PSet(
-    threshold = cms.untracked.string( 'ERROR' )
+        threshold = cms.untracked.string( 'DEBUG' )
     ),
     cout = cms.untracked.PSet(
-    threshold = cms.untracked.string( 'INFO' )
+        threshold = cms.untracked.string( 'INFO' )
     )
 )
 

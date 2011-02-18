@@ -13,6 +13,7 @@
 
 #include <algorithm>
 
+
 ///
 /// constructors and destructor
 ///
@@ -24,7 +25,8 @@ LaserAlignmentEventFilter::LaserAlignmentEventFilter( const edm::ParameterSet& i
   cabling(0),
   cacheId_(0)
 {
-  //edm::LogInfo("LasFilterConstructor");
+  // Read in FED collection Input Tag
+  FED_collection = iConfig.getParameter<std::string >("FedInputTag");
 
   // Read in Filter Lists
   std::vector<int> FED_IDs = iConfig.getParameter<std::vector<int> >("FED_IDs");
@@ -44,7 +46,9 @@ LaserAlignmentEventFilter::LaserAlignmentEventFilter( const edm::ParameterSet& i
 
   edm::LogInfo("LasFilterConstructor") << "SIGNAL_Filter: " << (signal_filter ? "true" : "false")
 				       << ", SIGNLE_CHANNEL_THRESH: " << single_channel_thresh 
-				       << ", CHANNEL_COUNT_THRESH: " << channel_count_thresh;
+				       << ", CHANNEL_COUNT_THRESH: " << channel_count_thresh
+				       << ", FED_IDs.size(): " << FED_IDs.size()
+				       << ", SIGNAL_IDs.size(): " << SIGNAL_IDs.size();
 }
 
 ///
@@ -81,6 +85,7 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetu
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
     LogDebug("LaserAlignmentEventFilter") << "Examining FED " << *ifed; 
+    //edm::LogInfo("LaserAlignmentEventFilter") << "Examining FED " << *ifed; 
 
      // Check on FEDRawData pointer
      if ( !input.data() ) {
@@ -121,6 +126,7 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetu
       if(signal_filter){
 	if ( std::binary_search(las_signal_ids.begin(), las_signal_ids.end(), iconn->detId())){ 
 	  LogDebug("LaserAlignmentEventFilter")
+	  //edm::LogInfo("LaserAlignmentEventFilter")
 	    << " Found LAS signal module in FED " 
 	    << *ifed
 	    << "  DetId: " 
