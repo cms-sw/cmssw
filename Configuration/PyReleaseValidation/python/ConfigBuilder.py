@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.290 $"
+__version__ = "$Revision: 1.291 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1140,7 +1140,7 @@ class ConfigBuilder(object):
             if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
                     self.loadAndRemember('Configuration.StandardSequences.ReMixingSeeds_cff')
             #rename the HLT process in validation steps
-            if 'HLT' in self.stepMap and not 'FASTSIM' in self.stepMap:
+	    if ('HLT' in self.stepMap and not 'FASTSIM' in self.stepMap) or self._options.hltProcess:
                     toProcess=self.process.name_()
                     if self._options.hltProcess:
                             toProcess=self._options.hltProcess
@@ -1200,7 +1200,11 @@ class ConfigBuilder(object):
                                                             if self._verbose:print "set process name %s.%s[%d] %s ==> %s " % (base, name, i, n, self._paramReplace)
                                                             setattr(n,"processName",self._paramReplace)
                                                             value[i]=n
-                                    elif type in ('cms.InputTag', 'cms.untracked.InputTag'):
+				    elif type in ('cms.vstring', 'cms.untracked.vstring'):
+					    for (i,n) in enumerate(value):
+						    if n==self._paramSearch:
+							    getattr(pset,name)[i]=self._paramReplace
+				    elif type in ('cms.InputTag', 'cms.untracked.InputTag'):
                                             if value.processName == self._paramSearch:
                                                     if self._verbose: print "set process name %s.%s %s ==> %s " % (base, name, value, self._paramReplace)
                                                     setattr(getattr(pset, name),"processName",self._paramReplace)
@@ -1368,7 +1372,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.290 $"),
+                                            (version=cms.untracked.string("$Revision: 1.291 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
