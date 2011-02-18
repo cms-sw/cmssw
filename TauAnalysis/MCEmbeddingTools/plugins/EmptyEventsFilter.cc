@@ -13,7 +13,7 @@
 //
 // Original Author:  Manuel Zeise
 //         Created:  Wed Oct 17 10:06:52 CEST 2007
-// $Id: EmptyEventsFilter.cc,v 1.5 2010/05/26 10:19:43 fruboes Exp $
+// $Id: EmptyEventsFilter.cc,v 1.6 2010/06/16 14:00:14 fruboes Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class EmptyEventsFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-      int minEvents_;
+      edm::InputTag src_;
       int target_;
 
       int evTotal_;
@@ -73,7 +73,7 @@ class EmptyEventsFilter : public edm::EDFilter {
 EmptyEventsFilter::EmptyEventsFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-   minEvents_ = iConfig.getUntrackedParameter<int>("minEvents",1);
+   src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
    target_ = iConfig.getUntrackedParameter<int>("target",0);
    evTotal_ = 0;
    evSelected_ = 0;
@@ -102,24 +102,24 @@ EmptyEventsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	using namespace std;
 //	using namespace HepMC;
 
-	int num = 0;
+	bool found = false;
 	switch (target_)
 	{
 		case 1:
 		{
-			std::vector< Handle<edm::HepMCProduct> > dataHandles ;
-			iEvent.getManyByType( dataHandles ) ;
-			num = dataHandles.size();
- //	  	cout << dataHandles.size() << " Produkte gefunden ******************* ^_^ ***\n";
+			Handle<edm::HepMCProduct> dataHandle ;
+			iEvent.getByLabel(src_, dataHandle ) ;
+			if (dataHandle.isValid())
+				found = true;	
 			break;
 		}
 		case 0:
 		default:
 		{	
-			std::vector< Handle<std::vector<reco::Muon> >  > dataHandles;
-			iEvent.getManyByType( dataHandles ) ;
-			num = dataHandles.size();
-	//  	cout << dataHandles.size() << " Produkte gefunden ******************* ^_^ ***\n";
+			Handle<std::vector<reco::Muon> > dataHandle;
+			iEvent.getByLabel(src_, dataHandle ) ;
+			if (dataHandle.isValid())
+				found = true;
 		}
 	}
 
@@ -129,7 +129,7 @@ EmptyEventsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // 	HepMC::GenEvent * evt = new HepMC::GenEvent(*(HepMCHandle->GetEvent()));
 // 	evt->print(std::cout);
 
-        if (num<minEvents_)
+        if (!found)
                 return false;
         else {
                 ++evSelected_;

@@ -26,8 +26,8 @@ if os.path.exists("/storage/6/zeise/temp/goldenZmumuEvents_RAW_RECO_9_1_EzB.root
 	source.fileNames=cms.untracked.vstring("file:/storage/6/zeise/temp/goldenZmumuEvents_RAW_RECO_9_1_EzB.root")
 
 filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
-    minEvents = cms.untracked.int32(1),
-    target =  cms.untracked.int32(1) 
+    target = cms.untracked.int32(1),
+    src = cms.untracked.InputTag("generator","","HLT2")
 )
 
 #adaptedMuonsFromDiTauCands = cms.EDProducer("CompositePtrCandidateT1T2MEtAdapter",
