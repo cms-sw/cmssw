@@ -1,4 +1,4 @@
-# $Id: qcdUeDQM_cfi.py,v 1.2 2010/04/16 12:52:59 olzem Exp $
+# $Id: qcdUeDQM_cfi.py,v 1.3 2011/02/17 14:52:07 olzem Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -36,5 +36,7 @@ QcdUeDQM = cms.EDAnalyzer("QcdUeDQM",
     ptErr_pt = cms.double(0.05),                #5%  
     bsuse = cms.bool(False),
     allowTriplets = cms.bool(False),            #change UE3 selection
-    bsPos = cms.double(0) 
+    bsPos = cms.double(0) ,
+
+    hltProcNames = cms.untracked.vstring(['HLT'])
 )

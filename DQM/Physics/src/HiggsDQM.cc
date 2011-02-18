@@ -185,7 +185,8 @@ void HiggsDQM::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   bool isConfigChanged = false;
   
   // isValidHltConfig_ used to short-circuit analyze() in case of problems
-  const std::string hltProcessName( "HLT" );
+  //  const std::string hltProcessName( "HLT" );
+  const std::string hltProcessName = theTriggerResultsCollection.process();
   isValidHltConfig_ = hltConfigProvider_.init( run, eSetup, hltProcessName, isConfigChanged );
 
 }

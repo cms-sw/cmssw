@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/25 17:09:48 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/03/12 10:25:45 $
+ *  $Revision: 1.15 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -121,7 +121,7 @@ void EwkDQM::beginRun( const edm::Run& theRun, const edm::EventSetup& theSetup )
   bool isConfigChanged = false;
   
   // isValidHltConfig_ used to short-circuit analyze() in case of problems
-  const std::string hltProcessName( "HLT" );
+  const std::string hltProcessName( theTriggerResultsCollection.process() );
   isValidHltConfig_ = hltConfigProvider_.init( theRun, theSetup, hltProcessName, isConfigChanged );
 
 }

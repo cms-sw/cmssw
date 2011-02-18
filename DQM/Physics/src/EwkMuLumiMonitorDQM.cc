@@ -90,7 +90,7 @@ void EwkMuLumiMonitorDQM::beginRun(const Run& r, const EventSetup&iSetup) {
   bool isConfigChanged = false;
 
   // isValidHltConfig_ used to short-circuit analyze() in case of problems
-  isValidHltConfig_ = hltConfigProvider_.init( r, iSetup, "HLT", isConfigChanged );
+  isValidHltConfig_ = hltConfigProvider_.init( r, iSetup, trigTag_.process(), isConfigChanged );
   //std::cout << "hlt config trigger is valid??" << isValidHltConfig_ << std::endl; 
 
   }
