@@ -19,13 +19,13 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 ##### MONTE CARLO RUNS - start
 #process.GlobalTag.globaltag = 'MC_38Y_V9::All'
-process.GlobalTag.globaltag = "START38_V12::All"
+process.GlobalTag.globaltag = "START311_V1::All"
 # include CCB tags - temporary untill they are not in GlobalTag
 process.GlobalTag.toGet = cms.VPSet()
 process.GlobalTag.toGet.append(
  cms.PSet(
         record = cms.string('DTCCBConfigRcd'),
-        tag = cms.string('DTCCBConfig_NOSingleL_V01_mc'),
+        tag = cms.string('DTCCBConfig_NOSingleL_V03_mc'),
 #        tag = cms.string('DTCCBConfig_Hanytheta_V01_mc'),
         connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_31X_DT')
 ))
@@ -38,7 +38,7 @@ process.GlobalTag.toGet.append(
 process.GlobalTag.toGet.append(
  cms.PSet(
         record = cms.string('DTKeyedConfigContainerRcd'),
-        tag = cms.string('DTKeyedConfig_V01_hlt'),
+        tag = cms.string('DTKeyedConfig_NOSingleL_V03_mc'),
         connect = cms.untracked.string('frontier://FrontierProd/CMS_COND_31X_DT')
 ))
 process.GlobalTag.toGet.append(
@@ -97,24 +97,16 @@ process.source = cms.Source("PoolSource",
 #...
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10000)
 )
 
 ### PRODUCER
 process.dtTriggerPrimitiveDigis = cms.EDProducer("DTTrigProd",
     debug = cms.untracked.bool(False),
-    tTrigModeConfig = cms.PSet(
-        debug = cms.untracked.bool(False),
-        kFactor = cms.double(-2.0),
-        vPropWire = cms.double(24.4),
-        tofCorrType = cms.int32(1),
-        tTrig = cms.double(500.0)
-    ),
 # mu digi tag for data 
 #    digiTag = cms.InputTag("hltMuonDTDigis"),
 # mu digi tag for MC 
     digiTag = cms.InputTag('simMuonDTDigis'),
-    tTrigMode = cms.string('DTTTrigSyncTOFCorr'),
     DTTFSectorNumbering = cms.bool(True),
     lutBtic = cms.untracked.int32(31),
     lutDumpFlag = cms.untracked.bool(False)
