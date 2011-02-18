@@ -1,14 +1,15 @@
 #include "TGLabel.h"
 #include "TGButtonGroup.h"
-
+#include "TG3DLine.h"
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
+#include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
-FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
+FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent,  FWJobMetadataManager* mdm):
    TGTransientFrame(gClient->GetRoot(), parent, m_width+4, m_height),
    m_applyAction(0),
    m_filterDisableAction(0),
@@ -18,12 +19,17 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    m_isOpen(false),
    m_filtersRemoved(false),
 
-   m_validator(0),
-   m_selectionFrameParent(0),
-   m_selectionFrame(0),
+   //  m_validator(0),
+   m_eventSelectionFrameParent(0),
+   m_eventSelectionFrame(0),
+   m_triggerSelectionFrameParent(0),
+   m_triggerSelectionFrame(0),
+
    m_btnGroup(0),
    m_stateLabel(0),
-   m_addBtn(0)
+   m_addBtn(0),
+
+   m_metadataManager(mdm)
 {
    SetWindowName("Event Filters");
 
@@ -52,43 +58,86 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
    }
    v1->AddFrame(headerFrame, new TGLayoutHints(kLHintsNormal, 1, 1, 1, 1));
 
-   //-------------------- selection header
-
-   m_selectionFrameParent =  new TGVerticalFrame(v1, m_width, m_entryHeight, 0);
-   v1->AddFrame(m_selectionFrameParent, new TGLayoutHints(kLHintsExpandX|kLHintsTop, 2, 2, 0,0));
-
-   // headers
-   TGHorizontalFrame* selH = new TGHorizontalFrame(m_selectionFrameParent);
-   m_selectionFrameParent->AddFrame(selH, new TGLayoutHints(kLHintsExpandX));
-
+   //----------------------- Event selection
+   v1->AddFrame(new TGHorizontal3DLine(v1),  new TGLayoutHints(kLHintsExpandX,4 ,4, 2, 2));
+  
    {
-      TGCompositeFrame *cfr = new TGHorizontalFrame(selH);
-      selH->AddFrame(cfr, new TGLayoutHints(kLHintsExpandX));
-      cfr->AddFrame(new TGLabel(cfr, "Expression:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
+      m_eventSelectionFrameParent =  new TGVerticalFrame(v1, m_width, m_entryHeight, 0);
+      v1->AddFrame(m_eventSelectionFrameParent, new TGLayoutHints(kLHintsExpandX|kLHintsTop, 2, 2, 0,0));
+
+      // headers
+      TGHorizontalFrame* selH = new TGHorizontalFrame(m_eventSelectionFrameParent);
+      m_eventSelectionFrameParent->AddFrame(selH, new TGLayoutHints(kLHintsExpandX));
+
+      {
+         TGCompositeFrame *cfr = new TGHorizontalFrame(selH);
+         selH->AddFrame(cfr, new TGLayoutHints(kLHintsExpandX));
+         cfr->AddFrame(new TGLabel(cfr, "Event Filter Expression:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 6, 4));
+      }
+      {
+         TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 122, 22, kFixedSize);
+         selH->AddFrame(cfr);
+         cfr->AddFrame(new TGLabel(cfr, "Comment:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 2, 0));
+      }
+      {
+         TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 105, 22, kFixedSize);
+         selH->AddFrame(cfr);
+         cfr->AddFrame(new TGLabel(cfr, "Pass:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 2, 0));
+      }
+
+
+      TGHorizontalFrame* addBtnFrame = new TGHorizontalFrame(v1);
+      v1->AddFrame(addBtnFrame, new TGLayoutHints(kLHintsRight));
+
+      m_addBtn = new FWCustomIconsButton(addBtnFrame, fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign.png"),
+                                         fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign-over.png"),
+                                         fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign-disabled.png"));
+
+      addBtnFrame->AddFrame(m_addBtn, new TGLayoutHints(kLHintsRight|kLHintsExpandX|kLHintsExpandY, 0, 6, 4, 1));
+      TQObject::Connect(m_addBtn, "Clicked()", "FWGUIEventFilter",  this, "newEventEntry()");
    }
+
+   //----------------------- TriggerResults selection
+
+
+   v1->AddFrame(new TGHorizontal3DLine(v1),  new TGLayoutHints(kLHintsExpandX,4 ,4, 2, 2));
    {
-      TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 122, 22, kFixedSize);
-      selH->AddFrame(cfr);
-      cfr->AddFrame(new TGLabel(cfr, "Comment:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
+      m_triggerSelectionFrameParent =  new TGVerticalFrame(v1, m_width, m_entryHeight, 0);
+      v1->AddFrame(m_triggerSelectionFrameParent, new TGLayoutHints(kLHintsExpandX|kLHintsTop, 2, 2, 0,0));
+
+      // headers
+      TGHorizontalFrame* selH = new TGHorizontalFrame(m_triggerSelectionFrameParent);
+      m_triggerSelectionFrameParent->AddFrame(selH, new TGLayoutHints(kLHintsExpandX));
+
+      {
+         TGCompositeFrame *cfr = new TGHorizontalFrame(selH);
+         selH->AddFrame(cfr, new TGLayoutHints(kLHintsExpandX));
+         cfr->AddFrame(new TGLabel(cfr, "TriggerResults Filter Expression:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 6, 04));
+      }
+      {
+         TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 122, 22, kFixedSize);
+         selH->AddFrame(cfr);
+         cfr->AddFrame(new TGLabel(cfr, "Comment:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
+      }
+      {
+         TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 105, 22, kFixedSize);
+         selH->AddFrame(cfr);
+         cfr->AddFrame(new TGLabel(cfr, "Pass:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
+      }
+
+      //-------------------- adding new selection
+
+      TGHorizontalFrame* addBtnFrame = new TGHorizontalFrame(v1);
+      v1->AddFrame(addBtnFrame, new TGLayoutHints(kLHintsRight));
+
+      m_addBtn = new FWCustomIconsButton(addBtnFrame, fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign.png"),
+                                         fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign-over.png"),
+                                         fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign-disabled.png"));
+
+      addBtnFrame->AddFrame(m_addBtn, new TGLayoutHints(kLHintsRight|kLHintsExpandX|kLHintsExpandY, 0, 6, 4, 1));
+      TQObject::Connect(m_addBtn, "Clicked()", "FWGUIEventFilter",  this, "newTriggerEntry()");
+
    }
-   {
-      TGCompositeFrame *cfr = new TGHorizontalFrame(selH, 105, 22, kFixedSize);
-      selH->AddFrame(cfr);
-      cfr->AddFrame(new TGLabel(cfr, "Pass:"), new TGLayoutHints(kLHintsLeft|kLHintsBottom, 2, 2, 0, 0));
-   }
-
-   //-------------------- adding new selection
-
-   TGHorizontalFrame* addBtnFrame = new TGHorizontalFrame(v1);
-   v1->AddFrame(addBtnFrame, new TGLayoutHints(kLHintsRight));
-
-   m_addBtn = new FWCustomIconsButton(addBtnFrame, fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign.png"),
-                                      fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign-over.png"),
-                                      fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "plus-sign-disabled.png"));
-
-   addBtnFrame->AddFrame(m_addBtn, new TGLayoutHints(kLHintsRight|kLHintsExpandX|kLHintsExpandY, 0, 6, 4, 1));
-   TQObject::Connect(m_addBtn, "Clicked()", "FWGUIEventFilter",  this, "newEntry()");
-
    //-------------------- external actions
    m_finishEditAction = new CSGAction(this, "Finish");
 
@@ -108,25 +157,24 @@ FWGUIEventFilter::FWGUIEventFilter(const TGWindow* parent):
       m_filterDisableAction = new CSGAction(this, " Disable Filtering ");
       m_filterDisableAction->createTextButton(f,new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 4, 10, 2, 4) );
 
-      m_applyBtn = new TGTextButton(f," Apply Filters");
+      m_applyBtn = new TGTextButton(f,"Apply Filters");
       f->AddFrame(m_applyBtn, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 4, 8, 2, 4));
       m_applyBtn->Connect("Clicked()","FWGUIEventFilter", this, "apply()");
       m_applyBtn->SetToolTipText("Enable filtering and apply changes.");
    }
    
-   m_validator = new FWHLTValidator();
 }
 
 FWGUIEventFilter::~FWGUIEventFilter()
 {
-   delete m_validator;
 }
 
 void
 FWGUIEventFilter::addSelector(FWEventSelector* sel)
 {
-   FWGUIEventSelector* es = new FWGUIEventSelector(m_selectionFrame, m_validator, sel);
-   m_selectionFrame->AddFrame(es, new TGLayoutHints(kLHintsExpandX));
+   TGCompositeFrame* parent = sel->m_triggerProcess.empty() ? m_eventSelectionFrame : m_triggerSelectionFrame;
+   FWGUIEventSelector* es = new FWGUIEventSelector(parent, sel, m_metadataManager->processNamesInJob() );
+   parent->AddFrame(es, new TGLayoutHints(kLHintsExpandX));
    TQObject::Connect(es, "removeSelector(FWGUIEventSelector*)", "FWGUIEventFilter",  this, "deleteEntry(FWGUIEventSelector*)");
    TQObject::Connect(es, "selectorChanged()", "FWGUIEventFilter",  this, "checkApplyButton()");
 
@@ -146,10 +194,13 @@ FWGUIEventFilter::show( std::list<FWEventSelector*>* sels, int filterMode, int f
    // Button ids run from 1
    m_btnGroup->SetButton(filterMode);
    
-   assert(m_selectionFrame == 0);
+   assert(m_eventSelectionFrame == 0);
    
-   m_selectionFrame = new TGVerticalFrame(m_selectionFrameParent);
-   m_selectionFrameParent->AddFrame(m_selectionFrame,  new TGLayoutHints(kLHintsExpandX));
+   m_eventSelectionFrame = new TGVerticalFrame(m_eventSelectionFrameParent);
+   m_eventSelectionFrameParent->AddFrame(m_eventSelectionFrame,  new TGLayoutHints(kLHintsExpandX));
+
+   m_triggerSelectionFrame = new TGVerticalFrame(m_triggerSelectionFrameParent);
+   m_triggerSelectionFrameParent->AddFrame(m_triggerSelectionFrame,  new TGLayoutHints(kLHintsExpandX));
 
    for(std::list<FWEventSelector*>::iterator i = sels->begin(); i != sels->end(); ++i)
       addSelector(*i);
@@ -165,9 +216,11 @@ void
 FWGUIEventFilter::reset()
 {
    // called on load of configuration
-   m_selectionFrameParent->RemoveFrame(m_selectionFrame);
-   m_selectionFrame = 0;
-   
+   m_eventSelectionFrameParent->RemoveFrame(m_eventSelectionFrame);
+   m_eventSelectionFrame = 0;
+   m_triggerSelectionFrameParent->RemoveFrame(m_triggerSelectionFrame);
+   m_triggerSelectionFrame = 0;
+  
    for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
       delete *i;
    
@@ -185,15 +238,30 @@ FWGUIEventFilter::deleteEntry(FWGUIEventSelector* sel)
 
    m_guiSelectors.remove(sel);
 
-   m_selectionFrame->RemoveFrame(sel);
+
+   if (sel->origSelector()->m_triggerProcess.empty())
+      m_eventSelectionFrame->RemoveFrame(sel);
+   else
+      m_triggerSelectionFrame->RemoveFrame(sel);
+
    Layout();
    gClient->NeedRedraw(this);
 }
 
 void
-FWGUIEventFilter::newEntry()
+FWGUIEventFilter::newTriggerEntry()
+{ 
+   FWEventSelector* s = new FWEventSelector;
+   s->m_triggerProcess = "HLT";
+   addSelector(s);
+   MapSubwindows();
+   Layout();
+}
+
+void
+FWGUIEventFilter::newEventEntry()
 {
-   addSelector(0);
+   addSelector(new FWEventSelector());
    MapSubwindows();
    Layout();
 }
@@ -223,8 +291,10 @@ void
 FWGUIEventFilter::CloseWindow()
 {
    m_isOpen = false;
-   m_selectionFrameParent->RemoveFrame(m_selectionFrame);
-   m_selectionFrame = 0;
+   m_eventSelectionFrameParent->RemoveFrame(m_eventSelectionFrame);
+   m_eventSelectionFrame = 0;
+   m_triggerSelectionFrameParent->RemoveFrame(m_triggerSelectionFrame);
+   m_triggerSelectionFrame = 0;
 
    FWGUIEventSelector* gs;
    for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)

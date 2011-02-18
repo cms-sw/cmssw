@@ -4,7 +4,7 @@
 
 #include "Fireworks/Core/interface/FWEventSelector.h"
 #ifndef __CINT__
-#include "Fireworks/Core/interface/FWHLTValidator.h"
+//#include "Fireworks/Core/interface/FWHLTValidator.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 #endif
 
@@ -14,6 +14,7 @@ class TGTextButton;
 class CSGAction;
 class FWCustomIconsButton;
 class FWGUIEventSelector;
+class FWJobMetadataManager;
 
 class FWGUIEventFilter: public TGTransientFrame
 #ifndef __CINT__
@@ -21,7 +22,7 @@ class FWGUIEventFilter: public TGTransientFrame
 #endif
 {
 public:
-   FWGUIEventFilter(const TGWindow* parent);
+   FWGUIEventFilter(const TGWindow*, FWJobMetadataManager*);
    virtual ~FWGUIEventFilter();
    virtual void CloseWindow();
    
@@ -34,7 +35,8 @@ public:
 
    std::list<FWGUIEventSelector*>& guiSelectors() { return m_guiSelectors; }
    
-   void newEntry();
+   void newEventEntry();
+   void newTriggerEntry();
    void addSelector(FWEventSelector* sel);
    void deleteEntry(FWGUIEventSelector*);
    bool isOpen() { return m_isOpen; }
@@ -47,23 +49,27 @@ public:
    ClassDef(FWGUIEventFilter, 0);
    
 private:   
-   static const int m_entryHeight = 20;
-   static const int m_width       = 500;
-   static const int m_height      = 300;
+   static const int m_entryHeight = 21;
+   static const int m_width       = 530;
+   static const int m_height      = 320;
    
    int               m_origFilterMode;
    bool              m_isOpen;
    bool              m_filtersRemoved;
    
    std::list<FWGUIEventSelector*> m_guiSelectors;
-#ifndef __CINT__
-   FWHLTValidator*      m_validator;
-#endif
-   TGCompositeFrame*    m_selectionFrameParent;
-   TGCompositeFrame*    m_selectionFrame;
+
+   TGCompositeFrame*    m_eventSelectionFrameParent;
+   TGCompositeFrame*    m_eventSelectionFrame;
+
+   TGCompositeFrame*    m_triggerSelectionFrameParent;
+   TGCompositeFrame*    m_triggerSelectionFrame;
+
    TGButtonGroup*       m_btnGroup;
    TGLabel*             m_stateLabel;
    TGTextButton*        m_applyBtn;
    FWCustomIconsButton* m_addBtn;
+
+   FWJobMetadataManager* m_metadataManager;
 };
 
