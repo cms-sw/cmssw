@@ -6664,7 +6664,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   //parameters should be checked. pb with deta dphi et R9
+   //parameters should be checked. pb with deta dphi
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17_Ele8_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -6685,8 +6685,8 @@ void OHltTree::CheckOpenHlt(
                         0.10, // H/E barrel, H/E endcap 
                         0.014,
                         0.035, // cluster shape barrel, cluster shape endcap 
-                        999.,
-                        999., // R9 barrel, R9 endcap 
+                        0.98,
+                        1.0, // R9 barrel, R9 endcap 
                         999.,
                         999., // Deta barrel, Deta endcap 
                         999.,
@@ -6698,7 +6698,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //parameters should be checked pb with deta dphi et R9
+   //parameters should be checked pb with deta dphi
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu10_Ele10_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -6719,8 +6719,8 @@ void OHltTree::CheckOpenHlt(
                         0.10, // H/E barrel, H/E endcap 
                         0.014,
                         0.035, // cluster shape barrel, cluster shape endcap 
-                        999.,
-                        999., // R9 barrel, R9 endcap 
+                        0.98,
+                        1.0, // R9 barrel, R9 endcap 
                         999.,
                         999., // Deta barrel, Deta endcap 
                         999.,
@@ -6732,7 +6732,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //parameters should be checked pb with deta dphi et R9
+   //parameters should be checked pb with deta dphi
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu8_Ele17_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -6753,8 +6753,8 @@ void OHltTree::CheckOpenHlt(
                         0.10, // H/E barrel, H/E endcap 
                         0.014,
                         0.035, // cluster shape barrel, cluster shape endcap 
-                        999.,
-                        999., // R9 barrel, R9 endcap 
+                        0.98,
+                        1.0, // R9 barrel, R9 endcap 
                         999.,
                         999., // Deta barrel, Deta endcap 
                         999.,
