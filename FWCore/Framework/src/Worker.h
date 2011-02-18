@@ -150,12 +150,6 @@ namespace edm {
         << " " << ip.id() << "\n";
       return iEx;
     }
-
-    cms::Exception& exceptionContext(ModuleDescription const& iMD,
-				     cms::Exception& iEx) {
-      iEx << iMD.moduleName() << "/" << iMD.moduleLabel() << "\n";
-      return iEx;
-    }
   }
 
    template <typename T>
