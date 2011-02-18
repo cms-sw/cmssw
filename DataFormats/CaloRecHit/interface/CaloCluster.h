@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.21 2010/12/10 09:07:11 argiro Exp $
+ * \version $Id: CaloCluster.h,v 1.22 2011/02/17 22:41:23 argiro Exp $
  * Comments:
  * modified AlgoId enumeration to include cleaning status flags
  * In summary:
@@ -108,7 +108,7 @@ namespace reco {
 
     void setEnergy(double energy){energy_ = energy;}
     
-    void setPosistion(const math::XYZPoint& p){position_ = p;}
+    void setPosition(const math::XYZPoint& p){position_ = p;}
 
     void setCaloId(const CaloID& id) {caloID_= id;}
 
