@@ -13,7 +13,6 @@
 
 #include <algorithm>
 
-
 ///
 /// constructors and destructor
 ///
@@ -31,11 +30,11 @@ LaserAlignmentEventFilter::LaserAlignmentEventFilter( const edm::ParameterSet& i
   // Read in Filter Lists
   std::vector<int> FED_IDs = iConfig.getParameter<std::vector<int> >("FED_IDs");
   set_las_fed_ids(FED_IDs);
-  //edm::LogInfo("LasFilterConstructor") << "las_fed_ids.size(): " << las_fed_ids.size() << std::endl;
+  std::cout << "las_fed_ids.size(): " << las_fed_ids.size() << std::endl;
 
   std::vector<int> SIGNAL_IDs = iConfig.getParameter<std::vector<int> >("SIGNAL_IDs");
   set_las_signal_ids(SIGNAL_IDs);
-  //edm::LogInfo("LasFilterConstructor") << "las_signal_ids.size(): " << las_signal_ids.size() << std::endl;
+  std::cout << "las_signal_ids.size(): " << las_signal_ids.size() << std::endl;
 
   // Read in Filter Flags
   signal_filter = iConfig.getParameter<bool>("SIGNAL_Filter");
@@ -44,11 +43,10 @@ LaserAlignmentEventFilter::LaserAlignmentEventFilter( const edm::ParameterSet& i
   single_channel_thresh =  iConfig.getParameter<unsigned>("SINGLE_CHANNEL_THRESH");
   channel_count_thresh = iConfig.getParameter<unsigned>("CHANNEL_COUNT_THRESH");
 
-  edm::LogInfo("LasFilterConstructor") << "SIGNAL_Filter: " << (signal_filter ? "true" : "false")
+  edm::LogInfo("LasFilterConstructor") << "\n" 
+				       << "\nSIGNAL_Filter: " << (signal_filter ? "true" : "false")
 				       << ", SIGNLE_CHANNEL_THRESH: " << single_channel_thresh 
-				       << ", CHANNEL_COUNT_THRESH: " << channel_count_thresh
-				       << ", FED_IDs.size(): " << FED_IDs.size()
-				       << ", SIGNAL_IDs.size(): " << SIGNAL_IDs.size();
+				       << ", CHANNEL_COUNT_THRESH: " << channel_count_thresh;
 }
 
 ///
@@ -71,13 +69,13 @@ void LaserAlignmentEventFilter::beginRun( const edm::EventSetup& iSetup) {
 bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup ) 
 {
   updateCabling( iSetup );
-  //unsigned int det_ctr=0; // Count how many modules are tested for signal
+  unsigned int det_ctr=0; // Count how many modules are tested for signal
   unsigned int sig_ctr=0; // Count how many modules have signal
-  //unsigned long buffer_sum=0; // Sum of buffer sizes
+  unsigned long buffer_sum=0; // Sum of buffer sizes
 
   // Retrieve FED raw data (by label, which is "source" by default)
   edm::Handle<FEDRawDataCollection> buffers;
-  iEvent.getByLabel( "source", buffers ); 
+  iEvent.getByLabel( FED_collection, buffers ); 
 
 
   std::vector<uint16_t>::const_iterator ifed = las_fed_ids.begin();
@@ -85,7 +83,6 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetu
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
     LogDebug("LaserAlignmentEventFilter") << "Examining FED " << *ifed; 
-    //edm::LogInfo("LaserAlignmentEventFilter") << "Examining FED " << *ifed; 
 
      // Check on FEDRawData pointer
      if ( !input.data() ) {
@@ -126,16 +123,15 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetu
       if(signal_filter){
 	if ( std::binary_search(las_signal_ids.begin(), las_signal_ids.end(), iconn->detId())){ 
 	  LogDebug("LaserAlignmentEventFilter")
-	  //edm::LogInfo("LaserAlignmentEventFilter")
 	    << " Found LAS signal module in FED " 
 	    << *ifed
 	    << "  DetId: " 
 	    << iconn->detId() << "\n"
 	    << "buffer->channel(iconn->fedCh()).size(): " << buffer->channel(iconn->fedCh()).length();
-	  //buffer_size.push_back(buffer->channel(iconn->fedCh()).length());
-	  //det_ctr ++;
+	  buffer_size.push_back(buffer->channel(iconn->fedCh()).length());
+	  det_ctr ++;
 	  if(buffer->channel(iconn->fedCh()).length() > single_channel_thresh) sig_ctr++;
-	  //buffer_sum += buffer->channel(iconn->fedCh()).length();
+	  buffer_sum += buffer->channel(iconn->fedCh()).length();
 	  if(sig_ctr > channel_count_thresh){
 	    LAS_event_count ++;
 	    LogDebug("LaserAlignmentEventFilter") << "Event identified as LAS";
@@ -150,6 +146,7 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetu
 // 			    <<sig_ctr << " channels have signal\n"
 // 			    << "Sum of buffer sizes: " << buffer_sum;
 
+
   return false;
 }
 
@@ -158,7 +155,8 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetu
 ///
 ///
 void LaserAlignmentEventFilter::endJob() {
-  edm::LogInfo("LaserAlignmentEventFilter") << "found " << LAS_event_count << " LAS events";
+  std::cout << "found " << LAS_event_count << " LAS events" << std::endl;
+  //edm::LogInfo("LaserAlignmentEventFilter") << "found " << LAS_event_count << " LAS events";
 }
 
 // Create the table of FEDs that contain LAS Modules
