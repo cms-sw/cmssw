@@ -206,7 +206,7 @@ bool isMETXTrigger(TString triggerName, vector<double> &thresholds)
 bool ispfMHTXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_pfMHT([0-9]+)){1}$";
+   TString pattern = "(OpenHLT_PFMHT([0-9]+)){1}$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
@@ -371,7 +371,7 @@ bool isQuadJetXTrigger(TString triggerName, vector<double> &thresholds)
 bool isR0XU_MRXUTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_R0.([0-9]+)U{1}_MR([0-9]+)U)$";
+   TString pattern = "(OpenHLT_R0([0-9]+)U{1}_MR([0-9]+)U)$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
@@ -1655,6 +1655,19 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu8") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (OpenHlt1MuonPassed(3., 3., 8., 2., 0)>=1)
+		 {
+		   triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3Mu0") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -1779,6 +1792,19 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu17") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (OpenHlt1MuonPassed(12., 12., 17., 2., 0)>=1)
+		 {
+		   triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu20") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -1870,7 +1896,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu4_Exclusive") == 0)
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu4_Acoplanarity03") == 0)
    {
       int rc = 0;
       float ptl2 = 3.0;
@@ -7594,7 +7620,7 @@ void OHltTree::CheckOpenHlt(
    }
    else
    {
-      if (nMissingTriggerWarnings < 10)
+      if (nMissingTriggerWarnings < 100)
          cout << "Warning: the requested trigger " << menu->GetTriggerName(it)
                << " is not implemented in OHltTreeOpen. No rate will be calculated."
                << endl;
