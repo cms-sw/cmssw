@@ -32,7 +32,7 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.44 2011/01/21 17:02:14 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.45 2011/02/16 17:42:53 chamont Exp $
  *
  ****************************************************************************/
 
@@ -171,7 +171,6 @@ class GsfElectron : public RecoCandidate
     GsfTrackRef gsfTrack() const { return core()->gsfTrack() ; }
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
-    reco::PFCandidateRef pflowCandidate() const { return core()->pflowCandidate() ; }
     SuperClusterRef pflowSuperCluster() const { return core()->pflowSuperCluster() ; }
 
   private:

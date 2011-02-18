@@ -7,7 +7,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include <vector>
 
@@ -53,8 +52,6 @@ namespace reco
        { closestCtfTrack_ = closestCtfTrack ; ctfGsfOverlap_ = ctfGsfOverlap ; }
 
       // pflow eventual additionnal info
-      const reco::PFCandidateRef & pflowCandidate() const { return pflowCandidate_ ; }
-      void setPflowCandidate( const reco::PFCandidateRef & c ) { pflowCandidate_ = c ; }
       const SuperClusterRef & pflowSuperCluster() const { return pflowSuperCluster_ ; }
       void setPflowSuperCluster( const SuperClusterRef & scl ) { pflowSuperCluster_ = scl ; }
 
@@ -65,7 +62,6 @@ namespace reco
       SuperClusterRef pflowSuperCluster_ ;
       TrackRef closestCtfTrack_ ; // best matching ctf track
       float ctfGsfOverlap_ ; // fraction of common hits between the ctf and gsf tracks
-      reco::PFCandidateRef pflowCandidate_ ;
       bool isEcalDriven_ ;
       bool isTrackerDriven_ ;
 
@@ -78,9 +74,12 @@ namespace reco
 // \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
 // \author Claude Charlot - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
 //
-// \version $Id: GsfElectronCore.h,v 1.9 2011/01/10 17:18:09 chamont Exp $
+// \version $Id: GsfElectronCore.h,v 1.10 2011/02/16 17:42:53 chamont Exp $
 //
 // $Log: GsfElectronCore.h,v $
+// Revision 1.10  2011/02/16 17:42:53  chamont
+// Extend GsfElectron(Core) with new pflow attributes, backward compatible.
+//
 // Revision 1.9  2011/01/10 17:18:09  chamont
 // so to ease the independant production of ecal-driven and tracker-driven gsf electrons
 //
