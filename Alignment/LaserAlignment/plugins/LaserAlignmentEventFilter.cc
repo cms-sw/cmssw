@@ -17,6 +17,7 @@
 /// constructors and destructor
 ///
 LaserAlignmentEventFilter::LaserAlignmentEventFilter( const edm::ParameterSet& iConfig ) :
+  FED_collection(iConfig.getParameter<edm::InputTag>("FedInputTag")),
   signal_filter(true),
   single_channel_thresh(11),
   channel_count_thresh(4),
@@ -24,9 +25,6 @@ LaserAlignmentEventFilter::LaserAlignmentEventFilter( const edm::ParameterSet& i
   cabling(0),
   cacheId_(0)
 {
-  // Read in FED collection Input Tag
-  FED_collection = iConfig.getParameter<std::string >("FedInputTag");
-
   // Read in Filter Lists
   std::vector<int> FED_IDs = iConfig.getParameter<std::vector<int> >("FED_IDs");
   set_las_fed_ids(FED_IDs);
