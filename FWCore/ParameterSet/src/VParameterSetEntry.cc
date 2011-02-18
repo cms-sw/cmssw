@@ -7,28 +7,25 @@
 
 namespace edm {
 
-  VParameterSetEntry::VParameterSetEntry()
-  : tracked(false),
-    theVPSet(),
-    theIDs()
-  {
+  VParameterSetEntry::VParameterSetEntry() :
+      tracked(false),
+      theVPSet(),
+      theIDs() {
   }
 
-  VParameterSetEntry::VParameterSetEntry(std::vector<ParameterSet> const& vpset, bool isTracked)
-  : tracked(isTracked),
-    theVPSet(new std::vector<ParameterSet>),
-    theIDs()
-  {
+  VParameterSetEntry::VParameterSetEntry(std::vector<ParameterSet> const& vpset, bool isTracked) :
+      tracked(isTracked),
+      theVPSet(new std::vector<ParameterSet>),
+      theIDs() {
     for (std::vector<ParameterSet>::const_iterator i = vpset.begin(), e = vpset.end(); i != e; ++i) {
       theVPSet->push_back(*i);
     }
   }
 
-  VParameterSetEntry::VParameterSetEntry(std::string const& rep)
-  : tracked(rep[0] == '+'),
-    theVPSet(),
-    theIDs(new std::vector<ParameterSetID>)
-  {
+  VParameterSetEntry::VParameterSetEntry(std::string const& rep) :
+      tracked(rep[0] == '+'),
+      theVPSet(),
+      theIDs(new std::vector<ParameterSetID>) {
     assert(rep[0] == '+' || rep[0] == '-');
     std::vector<std::string> temp;
     // need a substring that starts at the '{'
@@ -75,7 +72,19 @@ namespace edm {
     return *theVPSet;
   }
 
-  ParameterSet & VParameterSetEntry::psetInVector(int i) {
+  std::vector<ParameterSet>& VParameterSetEntry::vpset() {
+    if (!theVPSet) {
+      assert(theIDs);
+      theVPSet = value_ptr<std::vector<ParameterSet> >(new std::vector<ParameterSet>);
+      theVPSet->reserve(theIDs->size());
+      for (std::vector<ParameterSetID>::const_iterator i = theIDs->begin(), e = theIDs->end(); i != e; ++i) {
+        theVPSet->push_back(getParameterSet(*i));
+      }
+    }
+    return *theVPSet;
+  }
+
+  ParameterSet& VParameterSetEntry::psetInVector(int i) {
     assert(theVPSet);
     return theVPSet->at(i);
   }
@@ -92,7 +101,7 @@ namespace edm {
     }
   }
 
-  std::ostream & operator<<(std::ostream & os, VParameterSetEntry const& vpsetEntry) {
+  std::ostream& operator<<(std::ostream& os, VParameterSetEntry const& vpsetEntry) {
     std::vector<ParameterSet> const& vps = vpsetEntry.vpset();
     os << "VPSet "<<(vpsetEntry.isTracked()?"tracked":"untracked")<<" = ({" << std::endl;
     std::string start;

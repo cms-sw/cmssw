@@ -129,6 +129,16 @@ namespace edm {
     return pset;
   }
 
+  std::auto_ptr<std::vector<ParameterSet> > ParameterSet::popVParameterSet(std::string const& name) {
+    assert(!isRegistered());
+    vpsettable::iterator it = vpsetTable_.find(name);
+    assert(it != vpsetTable_.end());
+    std::auto_ptr<std::vector<ParameterSet> > vpset(new std::vector<ParameterSet>);
+    std::swap(*vpset, it->second.vpset());
+    vpsetTable_.erase(it); 
+    return vpset;
+  }
+
   void ParameterSet::calculateID() {
     // make sure contained tracked psets are updated
     for(psettable::iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {

@@ -5,7 +5,6 @@
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
 
-
 // ----------------------------------------------------------------------
 // prolog
 
@@ -241,6 +240,8 @@ namespace edm {
     ParameterSet const& registerIt();
 
     std::auto_ptr<ParameterSet> popParameterSet(std::string const& name);
+
+    std::auto_ptr<std::vector<ParameterSet> > popVParameterSet(std::string const& name);
 
     typedef std::map<std::string, Entry> table;
     table const& tbl() const {return tbl_;}
