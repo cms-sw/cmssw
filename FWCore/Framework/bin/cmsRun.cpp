@@ -163,10 +163,6 @@ int main(int argc, char* argv[]) {
   defaultServices.push_back("AdaptorConfig");
   defaultServices.push_back("SiteLocalConfigService");
 
-  // These cannot be overridden from the configuration files.
-  // JobReport is already set up, so it is not needed in forcedServices.
-  std::vector<std::string> forcedServices;
-
   std::string descString(argv[0]);
   descString += " [options] [--";
   descString += kParameterSetOpt;
@@ -287,7 +283,7 @@ int main(int argc, char* argv[]) {
     return exitCode;
   }
 
-  processDesc->addServices(defaultServices, forcedServices);
+  processDesc->addServices(defaultServices);
   //
   // Decide what mode of hardcoded MessageLogger defaults to use
   //
