@@ -37,8 +37,6 @@ using namespace std;
 //#define CBOLTZ (1.38E-23)
 //#define e_SI (1.6E-19)
 
-
-
 FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   std::cout << "Creating a FP420DigiMain" << std::endl;
   ndigis=0;
@@ -46,13 +44,13 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   theElectronPerADC  = conf_.getParameter<double>("ElectronFP420PerAdc");
   theThreshold       = conf_.getParameter<double>("AdcFP420Threshold");
   noNoise            = conf_.getParameter<bool>("NoFP420Noise");
-  addNoisyPixels     = conf_.getParameter<bool>("AddNoisyPixels");
-  thez420            = conf_.getParameter<double>("z420");
-  thezD2             = conf_.getParameter<double>("zD2");
-  thezD3             = conf_.getParameter<double>("zD3");
-  theApplyTofCut     = conf_.getParameter<bool>("ApplyTofCut");
-  tofCut             = conf_.getParameter<double>("LowtofCutAndTo200ns");
-  theApplyChargeIneff= conf_.getParameter<bool>("ApplyChargeIneff");
+  addNoisyPixels     = conf_.getParameter<bool>("AddNoisyPixelsFP420");
+  thez420            = conf_.getParameter<double>("zFP420");
+  thezD2             = conf_.getParameter<double>("zFP420D2");
+  thezD3             = conf_.getParameter<double>("zFP420D3");
+  theApplyTofCut     = conf_.getParameter<bool>("ApplyTofCutFP420");
+  tofCut             = conf_.getParameter<double>("LowtofCutFP420");
+  theApplyChargeIneff= conf_.getParameter<bool>("ApplyChargeIneffFP420");
   //  sn0              = 3;// number of stations
   // pn0              = 6;// number of superplanes
   // rn0              = 3; // number of sensors in superlayer
