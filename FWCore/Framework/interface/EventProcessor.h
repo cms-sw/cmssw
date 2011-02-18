@@ -70,7 +70,7 @@ namespace edm {
     // Also allows the attachement of pre-existing services specified  by 'token', and
     // the specification of services by name only (defaultServices and forcedServices).
     // 'defaultServices' are overridden by 'config'.
-    // 'forcedServices' cause an exception if the same service is specified in 'config'.
+    // 'forcedServices' override the 'config'.
     explicit EventProcessor(std::string const& config,
                             ServiceToken const& token = ServiceToken(),
                             serviceregistry::ServiceLegacy = serviceregistry::kOverlapIsError,
