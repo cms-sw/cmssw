@@ -588,6 +588,38 @@
      <string>0</string>
    </config>
   </config>
+  <config name="Cosmic Tracks" version="5">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::Track&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>ctfWithMaterialTracksP5</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string></string>
+   </config>
+   <config name="color" version="0">
+     <string>1000</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>27</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Tracks</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+  </config>  
  </config>
  <config name="EventNavigator" version="1">
   <config name="EventFilter0_enabled" version="0">
