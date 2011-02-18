@@ -13,8 +13,7 @@ namespace edm {
   class ProcessDesc;
 }
 
-class PythonProcessDesc
-{
+class PythonProcessDesc {
 public:
   PythonProcessDesc();
   /** This constructor will parse the given file or string
@@ -27,8 +26,6 @@ public:
   PythonProcessDesc(std::string const& config);
 
   PythonProcessDesc(std::string const& config, int argc, char * argv[]);
-
-  void addService(PythonParameterSet& pset) {theServices.push_back(pset);}
 
   PythonParameterSet newPSet() const {return PythonParameterSet();}
 
@@ -44,7 +41,6 @@ private:
   void readString(std::string const& pyConfig);
 
   PythonParameterSet theProcessPSet;
-  std::vector<PythonParameterSet> theServices;
   boost::python::object theMainModule;
   boost::python::object theMainNamespace;
 };

@@ -1,16 +1,16 @@
 #ifndef FWCore_PythonParameterSet_PythonModule_h
 #define FWCore_PythonParameterSet_PythonModule_h
 
+#include "FWCore/PythonParameterSet/interface/BoostPython.h"
 #include "FWCore/PythonParameterSet/interface/PythonParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/PythonParameterSet/interface/BoostPython.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 
@@ -62,8 +62,6 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
       .def("endLumi",   &edm::EventRange::endLumi)
       .def("endSub",    &edm::EventRange::endEvent)
   ;
-
-
 
   boost::python::class_<PythonParameterSet>("ParameterSet")
     .def("addInt32", &PythonParameterSet::addParameter<int>)
@@ -133,13 +131,10 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
     .def("dump", &PythonParameterSet::dump)
   ;
 
-
   boost::python::class_<PythonProcessDesc>("ProcessDesc", boost::python::init<>())
     .def(boost::python::init<std::string>())
-    .def("addService", &PythonProcessDesc::addService)
     .def("newPSet", &PythonProcessDesc::newPSet)
     .def("dump", &PythonProcessDesc::dump)
   ;
-
 }
 #endif

@@ -1,126 +1,94 @@
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-#include "FWCore/PythonParameterSet/src/PythonWrapper.h"
-#include "FWCore/PythonParameterSet/src/initializeModule.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/PythonParameterSet/src/initializeModule.h"
+#include "FWCore/PythonParameterSet/src/PythonWrapper.h"
 
 #include <sstream>
-#include <boost/foreach.hpp>
 
 using namespace boost::python;
 
-PythonProcessDesc::PythonProcessDesc()
-:  theProcessPSet(),
-   theServices(),
+PythonProcessDesc::PythonProcessDesc() :
+   theProcessPSet(),
    theMainModule(),
-   theMainNamespace()
-{
+   theMainNamespace() {
 }
 
-
-PythonProcessDesc::PythonProcessDesc(std::string const& config)
-:  theProcessPSet(),
-   theServices(),
+PythonProcessDesc::PythonProcessDesc(std::string const& config) :
+   theProcessPSet(),
    theMainModule(),
-   theMainNamespace()
-{
+   theMainNamespace() {
   prepareToRead();
   read(config);
   Py_Finalize();
 }
 
-PythonProcessDesc::PythonProcessDesc(std::string const& config, int argc, char * argv[])
-:  theProcessPSet(),
-   theServices(),
+PythonProcessDesc::PythonProcessDesc(std::string const& config, int argc, char* argv[]) :
+   theProcessPSet(),
    theMainModule(),
-   theMainNamespace()
-{
+   theMainNamespace() {
   prepareToRead();
   PySys_SetArgv(argc, argv);
   read(config);
   Py_Finalize();
 }
 
-
-void PythonProcessDesc::prepareToRead()
-{
+void PythonProcessDesc::prepareToRead() {
   edm::python::initializeModule();
 
-  theMainModule = object(handle<>(borrowed(PyImport_AddModule(const_cast<char *>("__main__")))));
+  theMainModule = object(handle<>(borrowed(PyImport_AddModule(const_cast<char*>("__main__")))));
 
   theMainNamespace = theMainModule.attr("__dict__");
   theMainNamespace["processDesc"] = ptr(this);
   theMainNamespace["processPSet"] = ptr(&theProcessPSet);
 }
 
-
-void PythonProcessDesc::read(std::string const& config)
-{  
+void PythonProcessDesc::read(std::string const& config) {
   try {
     // if it ends with py, it's a file
-    if(config.substr(config.size()-3) == ".py")
-    {
+    if(config.substr(config.size()-3) == ".py") {
       readFile(config);
-    }
-    else
-    {
+    } else {
       readString(config);
     }
   }
-  catch( error_already_set ) {
+  catch(error_already_set) {
      edm::pythonToCppException("Configuration");
      Py_Finalize();
   }
 }
 
-
-void PythonProcessDesc::readFile(std::string const& fileName)
-{
+void PythonProcessDesc::readFile(std::string const& fileName) {
   std::string initCommand("import FWCore.ParameterSet.Config as cms\n"
-                      "execfile('");
+                          "execfile('");
   initCommand += fileName + "')";
-
 
   handle<>(PyRun_String(initCommand.c_str(),
                         Py_file_input,
                         theMainNamespace.ptr(),
                         theMainNamespace.ptr()));
-  std::string command("process.fillProcessDesc(processDesc, processPSet)");
+  std::string command("process.fillProcessDesc(processPSet)");
   handle<>(PyRun_String(command.c_str(),
                         Py_eval_input,
                         theMainNamespace.ptr(),
                         theMainNamespace.ptr()));
 }
 
-
-void PythonProcessDesc::readString(std::string const& pyConfig)
-{
+void PythonProcessDesc::readString(std::string const& pyConfig) {
   std::string command = pyConfig;
-  command += "\nprocess.fillProcessDesc(processDesc, processPSet)";
+  command += "\nprocess.fillProcessDesc(processPSet)";
   handle<>(PyRun_String(command.c_str(),
                         Py_file_input,
                         theMainNamespace.ptr(),
                         theMainNamespace.ptr()));
 }
 
-
-boost::shared_ptr<edm::ProcessDesc> PythonProcessDesc::processDesc()
-{
+boost::shared_ptr<edm::ProcessDesc> PythonProcessDesc::processDesc() {
   boost::shared_ptr<edm::ProcessDesc> result(new edm::ProcessDesc(theProcessPSet.pset()));
-  BOOST_FOREACH(PythonParameterSet service, theServices)
-  {
-    result->addService(service.pset());
-  }
   return result;
 }
- 
 
-std::string PythonProcessDesc::dump() const
-{
+std::string PythonProcessDesc::dump() const {
   std::ostringstream os;
   os << theProcessPSet.dump();
-  BOOST_FOREACH(PythonParameterSet service, theServices)
-  {
-    os << service.dump();
-  }
   return os.str();
 }
