@@ -380,7 +380,7 @@ class MatrixReader(object):
                 otherSteps = None
                 if '+' in stepNames:
                     step1,otherSteps = stepNames.split('+',1)
-                line = num + ' ++ '+ wfName +' ++ '+ step1
+                line = num + ' ++ '+ wfName 
                 if otherSteps: line += ' ++ ' +otherSteps.replace('+',',')
                 if inputInfo :
                     line += ' ++ REALDATA: '+inputInfo.dataSet
