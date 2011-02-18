@@ -4,9 +4,10 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
-  ProcessDesc::ProcessDesc(ParameterSet& pset) :
-      pset_(new ParameterSet(pset)), services_(new std::vector<ParameterSet>) {
-    std::auto_ptr<ParameterSet> services = pset.popParameterSet(std::string("services"));
+
+  ProcessDesc::ProcessDesc(boost::shared_ptr<ParameterSet> pset) :
+      pset_(pset), services_(new std::vector<ParameterSet>) {
+    std::auto_ptr<ParameterSet> services = pset_->popParameterSet(std::string("services"));
     std::vector<std::string> serviceNames;
     services->getParameterSetNames(serviceNames);
     for(std::vector<std::string>::const_iterator it = serviceNames.begin(), itEnd = serviceNames.end();
