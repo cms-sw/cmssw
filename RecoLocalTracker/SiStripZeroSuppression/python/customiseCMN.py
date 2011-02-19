@@ -31,6 +31,9 @@ def customisePercentile(process):
 ##############################################################################
 def customiseFlatAPVRestore(process):
 
+    process.siStripZeroSuppression.doAPVRestore = cms.bool(True)
+    
+    process.siStripZeroSuppression.Algorithms.APVInspectMode = cms.string("NullFraction")
     process.siStripZeroSuppression.Algorithms.APVRestoreMode = cms.string("Flat")
     process.siStripZeroSuppression.Algorithms.restoreThreshold = cms.double(0.5)
 
@@ -39,10 +42,39 @@ def customiseFlatAPVRestore(process):
 ##############################################################################
 def customisePartialSuppress(process):
 
+    process.siStripZeroSuppression.doAPVRestore = cms.bool(True)
+    process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
+    process.siStripZeroSuppression.storeInZScollBadAPV = cms.bool(False)
+
+    process.siStripZeroSuppression.Algorithms.APVInspectMode = cms.string("AbnormalBaseline")
     process.siStripZeroSuppression.Algorithms.APVRestoreMode = cms.string("PartialSuppress")
     process.siStripZeroSuppression.Algorithms.Fraction = cms.double(0.2)
-    process.siStripZeroSuppression.Algorithms.Deviation = cms.int32(25)
+    process.siStripZeroSuppression.Algorithms.Deviation = cms.uint32(25)
+
+
+    return process
+
+##############################################################################
+def customiseTier0(process):
+
+    process.siStripZeroSuppression.Algorithms.PedestalSubtractionFedMode = cms.bool(False)
+    
+    customiseIteratedMedian(process)
+    
+    process.siStripZeroSuppression.doAPVRestore = cms.bool(True)
     process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
+    process.siStripZeroSuppression.produceCalculatedBaseline = cms.bool(True)
+
+    # these are the current defaults.
+    process.siStripZeroSuppression.Algorithms.APVInspectMode = cms.string("BaselineFollower")
+    process.siStripZeroSuppression.Algorithms.APVRestoreMode = cms.string("BaselineFollower")
+    process.siStripZeroSuppression.Algorithms.DeltaCMThreshold = cms.uint32(20)
+    process.siStripZeroSuppression.Algorithms.distortionThreshold = cms.uint32(40)
+    process.siStripZeroSuppression.Algorithms.nSigmaNoiseDerTh = cms.uint32(4)
+    process.siStripZeroSuppression.Algorithms.consecThreshold = cms.uint32(5)
+    process.siStripZeroSuppression.Algorithms.hitStripThreshold = cms.uint32(40)    
+    process.siStripZeroSuppression.Algorithms.nSmooth = cms.uint32(9)      
+    process.siStripZeroSuppression.Algorithms.minStripsToFit = cms.uint32(4)     
 
     return process
 

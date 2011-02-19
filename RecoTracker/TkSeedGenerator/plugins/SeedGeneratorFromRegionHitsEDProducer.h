@@ -26,6 +26,7 @@ private:
   SeedGeneratorFromRegionHits * theGenerator; 
   TrackingRegionProducer* theRegionProducer;
   ClusterChecker theClusterCheck;
+  bool theSilentOnClusterCheck;
 };
 
 #endif

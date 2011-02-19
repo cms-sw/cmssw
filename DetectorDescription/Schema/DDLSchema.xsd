@@ -1169,7 +1169,6 @@
    </xsd:attribute>
    <xsd:attribute name="density" type="densityT" use="required"/>
    <xsd:attribute name="densityUnit" type="densityUnitT" use="optional"/>
-   <xsd:attribute name="pork" use="optional"/>
 </xsd:attributeGroup>
 
 <xsd:attributeGroup name="MaterialFractionAttributes">

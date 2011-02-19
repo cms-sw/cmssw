@@ -208,7 +208,6 @@ void L1GctJetLeafCard::process() {
       m_jetFinderA->getEtSum() +
       m_jetFinderB->getEtSum() +
       m_jetFinderC->getEtSum();
-    if (m_etSum.overFlow()) m_etSum.setValue(etTotalMaxValue);
     m_exSum =
       ((etComponentType) m_jetFinderA->getExSum()) +
       ((etComponentType) m_jetFinderB->getExSum()) +
@@ -223,7 +222,6 @@ void L1GctJetLeafCard::process() {
       m_jetFinderA->getHtSum() +
       m_jetFinderB->getHtSum() +
       m_jetFinderC->getHtSum();
-    if (m_htSum.overFlow()) m_htSum.setValue(htTotalMaxValue);
     m_hxSum =
       ((htComponentType) m_jetFinderA->getHxSum()) +
       ((htComponentType) m_jetFinderB->getHxSum()) +

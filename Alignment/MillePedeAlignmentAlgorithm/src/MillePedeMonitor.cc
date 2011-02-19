@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.20 $
- *  $Date: 2010/02/25 18:44:13 $
- *  (last update by $Author: frmeier $)
+ *  $Revision: 1.21 $
+ *  $Date: 2010/08/03 15:47:10 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -20,6 +20,7 @@
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableBeamSpot.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 
@@ -929,14 +930,16 @@ void MillePedeMonitor::fillResiduals(const ConstRecHitPointer &recHit,
   this->fillResidualHists(histArrayVec[0], phiSensToNorm, residuum, sigma);
   this->fillResidualHitHists(hitHists, phiSensToNorm, residuum, sigma, nHit);
 
-  if (recHit->det()->geographicalId().det() == DetId::Tracker) {
+  const DetId detId(recHit->det()->geographicalId());
+  if (detId.det() == DetId::Tracker) {
     //   const GeomDet::SubDetector subDetNum = recHit->det()->subDetector();
-    unsigned int subDetNum = recHit->det()->geographicalId().subdetId();
+    unsigned int subDetNum = detId.subdetId();
     if (subDetNum < histArrayVec.size() && subDetNum > 0) {
       this->fillResidualHists(histArrayVec[subDetNum], phiSensToNorm, residuum, sigma);
     } else {
-      edm::LogWarning("Alignment") << "@SUB=MillePedeMonitor::fillResiduals"
-				   << "Expect subDetNum from 1 to 6, got " << subDetNum;
+      if (detId!=AlignableBeamSpot::detId())
+	edm::LogWarning("Alignment") << "@SUB=MillePedeMonitor::fillResiduals"
+				     << "Expect subDetNum from 1 to 6, got " << subDetNum;
     }
   }
 }
@@ -1060,7 +1063,8 @@ void MillePedeMonitor::fillCorrelations2D(float corr, const ConstRecHitPointer &
   const DetId detId(recHit->det()->geographicalId());
   if (detId.det() != DetId::Tracker) return;
 
-  if (detId.subdetId() < 1 || detId.subdetId() > 6) {
+  if ((detId.subdetId() < 1 || detId.subdetId() > 6) &&
+      detId!=AlignableBeamSpot::detId()) {
     edm::LogWarning("Alignment") << "@SUB=MillePedeMonitor::fillCorrelations2D"
                                  << "Expect subdetId from 1 to 6, got " << detId.subdetId();
     return;

@@ -71,6 +71,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , hasServiceWebRegistry_(true)
   , isRunNumberSetter_(true)
   , outprev_(true)
+  , exitOnError_(true)
   , reasonForFailedState_()
   , squidnet_(3128,"http://localhost:8000/RELEASE-NOTES.txt")
   , logRing_(logRingSize_)
@@ -401,7 +402,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     + (hasModuleWebRegistry_.value_ ? 0x2 : 0) 
     + (hasPrescaleService_.value_ ? 0x1 : 0);
 
-  LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
+  LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling...");
   if(!epInitialized_) evtProcessor_.forceInitEventProcessorMaybe();
 
   std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
@@ -423,6 +424,10 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
       if(retval==0)
 	{
 	  isChildProcess_=true;
+	  int retval = pthread_mutex_destroy(&stop_lock_);
+	  if(retval != 0) perror("error");
+	  retval = pthread_mutex_init(&stop_lock_,0);
+	  if(retval != 0) perror("error");
 	  try{
 	    pt::PeerTransport * ptr =
 	      pt::getPeerTransportAgent()->getPeerTransport("http","soap",pt::Receiver);
@@ -841,6 +846,9 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
     sq_->rcv(msg); //will receive only messages from Master
     if(msg->mtype==MSQM_MESSAGE_TYPE_STOP)
       {
+	pthread_mutex_lock(&stop_lock_);
+	fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
+	pthread_mutex_unlock(&stop_lock_);
 	try{
 	  LOG4CPLUS_DEBUG(getApplicationLogger(),
 			  "Trying to create message service presence ");
@@ -856,11 +864,7 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
 	catch(...) {
 	  LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception");
 	}
-	
-	fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
 	stopClassic(); // call the normal sequence of stopping - as this is allowed to fail provisions must be made ...@@@EM
-	// tried to cure the coredump on exit(0) for 227 by orderly halting first but it does not work...
-	//	evtProcessor_.stopAndHalt();
 	MsgBuf msg1(0,MSQS_MESSAGE_TYPE_STOP);
 	sq_->post(msg1);
 	fclose(stdout);
@@ -1035,17 +1039,22 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		      subs_[i].setParams(p);
 		      spMStates_[i] = p->Ms;
 		      spmStates_[i] = p->ms;
-		      if(p->Ms == edm::event_processor::sStopping){
-			std::ostringstream ost;
-			ost << "edm::eventprocessor slot " << i << " process id " 
-			    << subs_[i].pid() << " not in Running state : Mstate=" 
-			    << evtProcessor_.stateNameFromIndex(p->Ms) << " mstate="
-			    << evtProcessor_.moduleNameFromIndex(p->ms) 
-			    << " - this will likely cause a problem at Stop";
-			XCEPT_DECLARE(evf::Exception,
-				      sentinelException, ost.str());
-			notifyQualified("error",sentinelException);
-		      }
+		      if(!subs_[i].inInconsistentState() && 
+			 (p->Ms == edm::event_processor::sError 
+			  || p->Ms == edm::event_processor::sInvalid
+			  || p->Ms == edm::event_processor::sStopping))
+			{
+			  std::ostringstream ost;
+			  ost << "edm::eventprocessor slot " << i << " process id " 
+			      << subs_[i].pid() << " not in Running state : Mstate=" 
+			      << evtProcessor_.stateNameFromIndex(p->Ms) << " mstate="
+			      << evtProcessor_.moduleNameFromIndex(p->ms) 
+			      << " - Look into possible error messages from HLT process";
+			  XCEPT_DECLARE(evf::Exception,
+					sentinelException, ost.str());
+			  notifyQualified("error",sentinelException);
+			  subs_[i].setReportedInconsistent();
+			}
 		      ((xdata::UnsignedInteger32*)nbProcessed)->value_ += p->nbp;
 		      ((xdata::UnsignedInteger32*)nbAccepted)->value_  += p->nba;
 		      if(dqm)dqm->value_ += p->dqm;
@@ -1264,6 +1273,20 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  data->trp            = scalersUpdates_;
 	  //	  monitorInfoSpace_->unlock();  
 	  sqm_->post(msg1);
+	  if(exitOnError_.value_)
+	  { 
+	    // after each monitoring cycle check if we are in inconsistent state and exit if configured to do so  
+	    //	    std::cout << getpid() << "receivingAndMonitor: trying to acquire stop lock " << std::endl;
+	    int retval = pthread_mutex_lock(&stop_lock_);
+	    if(retval != 0) perror("error");
+	    //	    std::cout << getpid() << " stop lock acquired" << std::endl;
+	    bool running = fsm_.stateName()->toString()=="Enabled";
+	    if(!running) pthread_mutex_unlock(&stop_lock_);
+	    else if(data->Ms == edm::event_processor::sStopping || data->Ms == edm::event_processor::sError) 
+	      {::sleep(5); exit(-1); /* no need to unlock mutex after exit :-)*/}
+	    pthread_mutex_unlock(&stop_lock_);
+	    
+	  }
 	  //	  scalersUpdates_++;
 	  break;
 	}

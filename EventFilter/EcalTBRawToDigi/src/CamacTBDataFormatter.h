@@ -2,7 +2,7 @@
 #define CamacTBDataFormatter_H
 /** \class CamacTBDataFormatter
  *
- *  $Id: CamacTBDataFormatter.h,v 1.5 2006/10/16 21:52:58 franzoni Exp $
+ *  $Id: CamacTBDataFormatter.h,v 1.6 2007/04/12 08:36:46 franzoni Exp $
  *
  *  \author G. Franzoni
  */
@@ -37,7 +37,7 @@ class CamacTBDataFormatter   {
 			  EcalTBHodoscopeRawInfo& hodoRaw, EcalTBTDCRawInfo& tdcRawInfo );
   
   // for tests based on standalone file
-  /*   void  interpretRawData(ulong * buffer, ulong bufferSize, */
+  /*   void  interpretRawData(unsigned long * buffer, unsigned long bufferSize, */
   /* 			 EcalTBEventHeader& tbEventHeader,  */
   /* 			 EcalTBHodoscopeRawInfo & hodo, */
   /* 			 EcalTBTDCRawInfo & tdc); */
@@ -46,7 +46,7 @@ class CamacTBDataFormatter   {
 
  private:
 
-  bool checkStatus(ulong word, int wordNumber);
+  bool checkStatus(unsigned long word, int wordNumber);
 
   int nWordsPerEvent;    // Number of fibers per hodoscope plane   
   

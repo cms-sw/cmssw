@@ -13,6 +13,7 @@ if __name__ == "__main__":
                      help="PATH to cmsShow GUI configuration", default=None)
    parser.add_option("-g", "--geometry", dest="geometryFilename", metavar="FILENAME",
                      help="PATH to geometry file", default=None)
+   parser.add_option("-r", "--root-prompt", dest="rootPrompt", help="show root prompt", action="store_true", default=False)
    opts, args = parser.parse_args()
    
    if not len(args) == 1:
@@ -34,10 +35,10 @@ if __name__ == "__main__":
    dest.write("""
 import FWCore.ParameterSet.Config as cmsShowPrivate
 process.looper = cmsShowPrivate.Looper(%s)
-process.FWFFHelper = cmsShowPrivate.Service("FWFFHelper")
+process.FWFFHelper = cmsShowPrivate.Service("FWFFHelper", rootPrompt = cmsShowPrivate.untracked.bool(%s))
 process.add_(cmsShowPrivate.ESProducer("FWRecoGeometryESProducer"))
 process.add_(cmsShowPrivate.Service("InitRootHandlers", ResetRootErrHandler = cmsShowPrivate.untracked.bool(False)))
-""" % ",".join(serviceOpts))
+""" % (",".join(serviceOpts), opts.rootPrompt))
    dest.flush()
    if opts.debug:
       print "Temporary configuration file can be found at %s" % dest.name

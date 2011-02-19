@@ -1106,7 +1106,7 @@ StoreEcalCondition::readEcalChannelStatusFromFile(const char* inputFile)
 	      }
 	    else if (EBorEE == "EE")
 	      {
-		//		chStatus=1;
+		chStatus=1;
 		EEDetId aEEDetId=EEDetId::unhashIndex(hashedIndex);
 		status->setValue( aEEDetId, chStatus );
 	      }

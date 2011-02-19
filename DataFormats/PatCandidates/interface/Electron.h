@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.29 2010/09/07 22:43:17 rwolf Exp $
+// $Id: Electron.h,v 1.30 2010/09/29 13:24:25 wreece Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.29 2010/09/07 22:43:17 rwolf Exp $
+  \version  $Id: Electron.h,v 1.30 2010/09/29 13:24:25 wreece Exp $
 */
 
 
@@ -140,6 +140,10 @@ namespace pat {
       double dB() const;
       double edB() const;
       void setDB(double dB, double edB) { dB_ = dB; edB_ = edB; cachedDB_ = true;}
+      
+      // ---- Momentum estimate specific methods ----
+      const LorentzVector & ecalDrivenMomentum() const {return ecalDrivenMomentum_;}
+      void setEcalDrivenMomentum(const Candidate::LorentzVector& mom) {ecalDrivenMomentum_=mom;}
 
     protected:
 
@@ -162,6 +166,10 @@ namespace pat {
       /// reference to the IsolatedPFCandidate this has been built from
       /// null if this has been built from a standard electron
       reco::PFCandidateRef pfCandidateRef_;
+
+      // ---- specific members : Momentum estimates ----
+      /// ECAL-driven momentum 
+      LorentzVector ecalDrivenMomentum_;
 
       // V+Jets group selection variables. 
       bool    cachedDB_;         // have these values been cached? 

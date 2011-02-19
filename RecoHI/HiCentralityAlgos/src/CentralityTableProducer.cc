@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.9 2010/03/23 21:56:39 yilmaz Exp $
+// $Id: CentralityTableProducer.cc,v 1.11 2010/10/29 17:02:20 yilmaz Exp $
 //
 //
 
@@ -47,7 +47,7 @@
 #include "CondFormats/HIObjects/interface/CentralityTable.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
+#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
 
 #include <TFile.h>
 
@@ -71,6 +71,7 @@ class CentralityTableProducer : public edm::EDAnalyzer {
    bool makeDBFromTFile_;
    bool makeTFileFromDB_;
   bool firstRunOnly_;
+  bool debug_;
 
    edm::ESHandle<CentralityTable> inputDB_;
    TFile* inputTFile_;
@@ -83,7 +84,7 @@ class CentralityTableProducer : public edm::EDAnalyzer {
    CentralityTable* CT;
    const CentralityBins* CB;
 
-   int runnum_;
+   unsigned int runnum_;
 
 };
 
@@ -100,32 +101,26 @@ class CentralityTableProducer : public edm::EDAnalyzer {
 //
 CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfig):
    text_("bins.txt"),
-   runnum_(-1)
+   runnum_(0)
 {
    //now do what ever initialization is needed
    makeDBFromTFile_ = iConfig.getUntrackedParameter<bool>("makeDBFromTFile",1);
    makeTFileFromDB_ = iConfig.getUntrackedParameter<bool>("makeTFileFromDB",0);
-   firstRunOnly_ = iConfig.getUntrackedParameter<bool>("firstRunOnly",true);
+   firstRunOnly_ = iConfig.getUntrackedParameter<bool>("isMC",false);
+   debug_ = iConfig.getUntrackedParameter<bool>("debug",false);
    if(makeDBFromTFile_){
       inputTFileName_ = iConfig.getParameter<string>("inputTFile");
       rootTag_ = iConfig.getParameter<string>("rootTag");
-   }
-   if(makeDBFromTFile_){
       inputTFile_  = new TFile(inputTFileName_.data(),"read");
       cout<<inputTFileName_.data()<<endl;
    }
-
 }
-
 
 CentralityTableProducer::~CentralityTableProducer()
 {
- 
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
-
 
 //
 // member functions
@@ -135,26 +130,21 @@ CentralityTableProducer::~CentralityTableProducer()
 void
 CentralityTableProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if(!firstRunOnly_) runnum_ = iEvent.id().run();
-  else runnum_ = 1;
-  
-   cout<<"Adding table for run : "<<runnum_<<endl;
-   if(makeTFileFromDB_ && !inputDB_.isValid()){
-      iSetup.get<HeavyIonRcd>().get(inputDB_);
-      CB = fs->make<CentralityBins>(*(getCentralityBinsFromDB(iSetup)));
-   }
+  if(!makeTFileFromDB_) return;
+  if((!firstRunOnly_ && runnum_ != iEvent.id().run()) || (firstRunOnly_ && runnum_ == 0)){
+    runnum_ = iEvent.id().run();
+    cout<<"Adding table for run : "<<runnum_<<endl;
+    CentralityProvider cent(iSetup);
+    if(debug_) cent.print();
+    TFileDirectory subDir = fs->mkdir(Form("run%d",runnum_));
+    CB = subDir.make<CentralityBins>((CentralityBins)cent);
+  }    
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
 CentralityTableProducer::beginRun(const edm::EventSetup& iSetup)
 {
-   cout<<"Beginning Run"<<endl;
-   // Get Heavy Ion Record
-   if(makeTFileFromDB_){
-      CB = getCentralityBinsFromDB(iSetup);
-   }
-   cout<<"Centrality Values are being determined for "<<CB->getNbins()<<" HF energy bins of equal cross section."<<endl;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -162,6 +152,7 @@ void
 CentralityTableProducer::endJob() {
 
    if(makeDBFromTFile_){
+      runnum_ = 1;
       // Get values from root file
       CB = (CentralityBins*) inputTFile_->Get(Form("%s/run%d",rootTag_.data(),runnum_));
       cout<<rootTag_.data()<<endl;

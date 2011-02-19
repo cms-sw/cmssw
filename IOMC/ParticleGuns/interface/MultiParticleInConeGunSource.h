@@ -39,7 +39,7 @@ namespace edm
     double fInConeMaxEta;
     double fInConeMinPhi;
     double fInConeMaxPhi;
-    uint fInConeMaxTry;
+    unsigned int fInConeMaxTry;
 
   };
 } 

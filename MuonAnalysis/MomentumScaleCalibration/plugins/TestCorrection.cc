@@ -26,7 +26,7 @@ TestCorrection::TestCorrection(const edm::ParameterSet& iConfig) :
   // outputFile_ = new TFile(theRootFileName_.c_str(), "RECREATE");
   // outputFile_->cd();
   outputFile->cd();
-  MuScleFitUtils::resfind = iConfig.getParameter<std::vector<int> >("resfind");
+  MuScleFitUtils::resfind = iConfig.getParameter<vector<int> >("resfind");
   fillHistoMap(outputFile, 0);
   uncorrectedPt_ = new TH1F("uncorrectedPt", "uncorrected pt", 1000, 0, 100);
   uncorrectedPtVsEta_ = new TProfile("uncorrectedPtVsEta", "uncorrected pt vs eta", 1000, 0, 100, -3., 3.);
@@ -34,11 +34,11 @@ TestCorrection::TestCorrection(const edm::ParameterSet& iConfig) :
   correctedPtVsEta_ = new TProfile("correctedPtVsEta", "corrected pt vs eta", 1000, 0, 100, -3., 3.);
   eventCounter_ = 0;
   // Create the corrector and set the parameters
-  corrector_.reset(new MomentumScaleCorrector( iConfig.getUntrackedParameter<std::string>("CorrectionsIdentifier") ) );
-  std::cout << "corrector_ = " << &*corrector_ << std::endl;
-  resolution_.reset(new ResolutionFunction(iConfig.getUntrackedParameter<std::string>("ResolutionsIdentifier") ) );
-  std::cout << "resolution_ = " << &*resolution_ << std::endl;
-  background_.reset(new BackgroundFunction(iConfig.getUntrackedParameter<std::string>("BackgroundIdentifier") ) );
+  corrector_.reset(new MomentumScaleCorrector( iConfig.getUntrackedParameter<string>("CorrectionsIdentifier") ) );
+  cout << "corrector_ = " << &*corrector_ << endl;
+  resolution_.reset(new ResolutionFunction(iConfig.getUntrackedParameter<string>("ResolutionsIdentifier") ) );
+  cout << "resolution_ = " << &*resolution_ << endl;
+  background_.reset(new BackgroundFunction(iConfig.getUntrackedParameter<string>("BackgroundIdentifier") ) );
 
   // Initialize the parameters of MuScleFitUtils from those saved in the functions.
   // MuScleFitUtils::parScale = corrector_.getFunction(0)->parameters();
@@ -73,7 +73,7 @@ TestCorrection::~TestCorrection()
   writeHistoMap(0);
   theFiles_[0]->Close();
 
-  std::cout << "Total analyzed events = " << eventCounter_ << std::endl;
+  cout << "Total analyzed events = " << eventCounter_ << endl;
 }
 
 //
@@ -94,7 +94,7 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // Take the reco-muons, depending on the type selected in the cfg
   // --------------------------------------------------------------
 
-  std::vector<reco::LeafCandidate> muons;
+  vector<reco::LeafCandidate> muons;
 
   if (theMuonType_==1) { // GlobalMuons
     Handle<reco::MuonCollection> glbMuons;
@@ -114,12 +114,12 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // Find the two muons from the resonance, and set ResFound bool
   // ------------------------------------------------------------
-  std::pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes = 
+  pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes = 
     MuScleFitUtils::findBestRecoRes (muons);
   if (MuScleFitUtils::ResFound) {
-    MuScleFitUtils::SavedPair.push_back( std::make_pair (recMuFromBestRes.first, recMuFromBestRes.second) );
+    MuScleFitUtils::SavedPair.push_back (make_pair (recMuFromBestRes.first, recMuFromBestRes.second));
   } else {
-    MuScleFitUtils::SavedPair.push_back( std::make_pair (lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.)) );
+    MuScleFitUtils::SavedPair.push_back (make_pair (lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.)));
   }
 
   // If resonance found, do the hard work
@@ -159,7 +159,7 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // Loop on the recMuons
-  std::vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
+  vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
   int muonCount = 0;
   for ( ; recMuon!=muons.end(); ++recMuon, ++muonCount ) {  
 
@@ -168,9 +168,9 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     uncorrectedPtVsEta_->Fill(recMuon->pt(), recMuon->eta());
 
     // Fill the histogram with corrected pt values
-    std::cout << "correcting muon["<<muonCount<<"] with pt = " << recMuon->pt() << std::endl;
+    cout << "correcting muon["<<muonCount<<"] with pt = " << recMuon->pt() << endl;
     double corrPt = (*corrector_)(*recMuon);
-    std::cout << "to pt = " << corrPt << std::endl;
+    cout << "to pt = " << corrPt << endl;
     correctedPt_->Fill(corrPt);
     correctedPtVsEta_->Fill(corrPt, recMuon->eta());
     // correctedPt_->Fill(recMuon->pt());
@@ -184,11 +184,15 @@ lorentzVector TestCorrection::correctMuon( const lorentzVector & muon ) {
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void TestCorrection::initialize(const edm::EventSetup&)
+void 
+TestCorrection::initialize(const edm::EventSetup&)
 {
   // Read the pdf from root file. They are used by massProb when finding the muon pair, needed
   // for the mass histograms.
   readProbabilityDistributionsFromFile();
 }
+
+//define this as a plug-in
+// DEFINE_FWK_MODULE(TestCorrection);
 
 #endif // TESTCORRECTION_CC

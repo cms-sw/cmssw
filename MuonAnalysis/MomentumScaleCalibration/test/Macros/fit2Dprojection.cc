@@ -133,7 +133,7 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
       stringstream ss;
       ss << i;
       TString fitFunctionName(fitName+"Fit_"+ss.str());
-      TF1 * fitFunction = new TF1(fitFunctionName.Data(), fitName.Data(), fitXmin, fitXmax);
+      TF1 * fitFunction = new TF1(fitFunctionName.Data(), fitName.Data());
       fitFunction->SetLineColor(kRed);
       projectionsFits.push_back(fitFunction);
       // Options: M = "more": improve fit results; Q = "quiet"

@@ -24,6 +24,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <memory>
+#include <algorithm>
 #include <map>
 #include "TFile.h"
 #include "TTree.h"
@@ -31,6 +32,7 @@ namespace lumi{
   class Lumi2DB : public DataPipe{
   public:
     const static unsigned int COMMITLSINTERVAL=500; //commit interval in LS,totalrow=nls*(1+nalgo)
+    const static unsigned int NORMFACTOR=6370;
     Lumi2DB(const std::string& dest);
     virtual void retrieveData( unsigned int );
     virtual const std::string dataType() const;
@@ -58,6 +60,10 @@ namespace lumi{
       short cmsalive;
       std::string beammode;
       float beamenergy;
+      short nlivebx;
+      short* bxindex;
+      float* beamintensity_1;
+      float* beamintensity_2;
       unsigned int cmslsnr;
       unsigned int lumilsnr;
       unsigned int startorbit;
@@ -69,16 +75,325 @@ namespace lumi{
     struct beamData{
       float energy;
       std::string mode;
+      short nlivebx;
+      short* bxindex;
+      float* beamintensity_1;
+      float* beamintensity_2;
     };
     typedef std::vector<PerLumiData> LumiResult;
   private:
     void parseSourceString(lumi::Lumi2DB::LumiSource& result)const;
+    void retrieveBeamIntensity(HCAL_HLX::DIP_COMBINED_DATA* dataPtr, Lumi2DB::beamData&b)const;
+    void writeAllLumiData(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
+    void writeBeamIntensityOnly(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
+    bool isLumiDataValid(LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
+    float applyCalibration(float varToCalibrate) const;
   };//cl Lumi2DB
 }//ns lumi
 
 //
 //implementation
 //
+float
+lumi::Lumi2DB::applyCalibration(float varToCalibrate)const{
+  return float(varToCalibrate)*float(lumi::Lumi2DB::NORMFACTOR);
+}
+bool
+lumi::Lumi2DB::isLumiDataValid(lumi::Lumi2DB::LumiResult::iterator lumiBeg,lumi::Lumi2DB::LumiResult::iterator lumiEnd){
+  lumi::Lumi2DB::LumiResult::iterator lumiIt;
+  int nBad=0;
+  for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt){
+    //std::cout<<"instlumi before calib "<<lumiIt->instlumi<<std::endl;
+    if(lumiIt->instlumi<=1.0e-8){//cut before calib
+      ++nBad;
+    }
+  }
+  if(nBad==std::distance(lumiBeg,lumiEnd)){
+    return false;
+  }
+  return true;
+}
+void
+lumi::Lumi2DB::writeBeamIntensityOnly(
+                            coral::ISessionProxy* session,
+			    unsigned int irunnumber,
+			    const std::string& ilumiversion,
+                            lumi::Lumi2DB::LumiResult::iterator lumiBeg,
+			    lumi::Lumi2DB::LumiResult::iterator lumiEnd
+                            ){
+  coral::AttributeList inputData;
+  inputData.extend("bxindex",typeid(coral::Blob));
+  inputData.extend("beamintensity_1",typeid(coral::Blob));
+  inputData.extend("beamintensity_2",typeid(coral::Blob));
+  inputData.extend("runnum",typeid(unsigned int));
+  inputData.extend("startorbit",typeid(unsigned int));
+  inputData.extend("lumiversion",typeid(std::string)); 
+  coral::Blob& bxindex = inputData["bxindex"].data<coral::Blob>();
+  coral::Blob& beamintensity_1 = inputData["beamintensity_1"].data<coral::Blob>();
+  coral::Blob& beamintensity_2 = inputData["beamintensity_2"].data<coral::Blob>();
+  unsigned int& runnumber = inputData["runnum"].data<unsigned int>();
+  unsigned int& startorbit = inputData["startorbit"].data<unsigned int>();
+  std::string& lumiversion = inputData["lumiversion"].data<std::string>();
+
+  lumi::Lumi2DB::LumiResult::const_iterator lumiIt;
+  coral::IBulkOperation* summaryUpdater=0;
+  unsigned int totallumils=std::distance(lumiBeg,lumiEnd);
+  unsigned int lumiindx=0;
+  unsigned int comittedls=0;
+  std::string setClause("CMSBXINDEXBLOB=:bxindex,BEAMINTENSITYBLOB_1=:beamintensity_1,BEAMINTENSITYBLOB_2=:beamintensity_2");
+  std::string condition("RUNNUM=:runnum AND STARTORBIT=:startorbit AND LUMIVERSION=:lumiversion");
+  runnumber=irunnumber;
+  lumiversion=ilumiversion;
+  for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx){
+    if(!session->transaction().isActive()){ 
+      session->transaction().start(false);
+    }
+    startorbit=lumiIt->startorbit;
+    //std::cout<<"runnumber "<<irunnumber<<" starorbit "<<startorbit<<" lumiversion "<<lumiversion<<" totallumils "<<totallumils<<std::endl;
+    short nlivebx=lumiIt->nlivebx;
+    if(nlivebx!=0){
+      bxindex.resize(sizeof(short)*nlivebx);
+      beamintensity_1.resize(sizeof(float)*nlivebx);
+      beamintensity_2.resize(sizeof(float)*nlivebx);
+      void* bxindex_StartAddress = bxindex.startingAddress();      
+      void* beamIntensity1_StartAddress = beamintensity_1.startingAddress();
+      void* beamIntensity2_StartAddress = beamintensity_2.startingAddress();
+      std::memmove(bxindex_StartAddress,lumiIt->bxindex,sizeof(short)*nlivebx);
+      std::memmove(beamIntensity1_StartAddress,lumiIt->beamintensity_1,sizeof(float)*nlivebx);
+      std::memmove(beamIntensity2_StartAddress,lumiIt->beamintensity_2,sizeof(float)*nlivebx);
+      ::free(lumiIt->bxindex);
+      ::free(lumiIt->beamintensity_1);
+      ::free(lumiIt->beamintensity_2);
+    }else{
+      bxindex.resize(0);
+      beamintensity_1.resize(0);
+      beamintensity_2.resize(0);
+    }
+    coral::ITable& summarytable=session->nominalSchema().tableHandle(LumiNames::lumisummaryTableName());
+    summaryUpdater=summarytable.dataEditor().bulkUpdateRows(setClause,condition,inputData,totallumils);
+    summaryUpdater->processNextIteration();
+    summaryUpdater->flush();
+    ++comittedls;
+    if(comittedls==Lumi2DB::COMMITLSINTERVAL){
+      std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
+      delete summaryUpdater;
+      summaryUpdater=0;
+      session->transaction().commit();
+      comittedls=0;
+      std::cout<<"\t committed "<<std::endl; 
+    }else if( lumiindx==(totallumils-1) ){
+      std::cout<<"\t committing at the end"<<std::endl; 
+      delete summaryUpdater; summaryUpdater=0;
+      session->transaction().commit();
+      std::cout<<"\t done"<<std::endl; 
+    }
+  }
+}
+void
+lumi::Lumi2DB::writeAllLumiData(
+			    coral::ISessionProxy* session,
+			    unsigned int irunnumber,
+			    const std::string& ilumiversion,
+			    lumi::Lumi2DB::LumiResult::iterator lumiBeg,
+			    lumi::Lumi2DB::LumiResult::iterator lumiEnd	){
+  coral::AttributeList summaryData;
+  coral::AttributeList detailData;
+  summaryData.extend("LUMISUMMARY_ID",typeid(unsigned long long));
+  summaryData.extend("RUNNUM",typeid(unsigned int));
+  summaryData.extend("CMSLSNUM",typeid(unsigned int));
+  summaryData.extend("LUMILSNUM",typeid(unsigned int));
+  summaryData.extend("LUMIVERSION",typeid(std::string));
+  summaryData.extend("DTNORM",typeid(float));
+  summaryData.extend("LHCNORM",typeid(float));
+  summaryData.extend("INSTLUMI",typeid(float));
+  summaryData.extend("INSTLUMIERROR",typeid(float));
+  summaryData.extend("INSTLUMIQUALITY",typeid(short));
+  summaryData.extend("LUMISECTIONQUALITY",typeid(short));
+  summaryData.extend("CMSALIVE",typeid(short));
+  summaryData.extend("STARTORBIT",typeid(unsigned int));
+  summaryData.extend("NUMORBIT",typeid(unsigned int));
+  summaryData.extend("BEAMENERGY",typeid(float));
+  summaryData.extend("BEAMSTATUS",typeid(std::string));
+  summaryData.extend("CMSBXINDEXBLOB",typeid(coral::Blob));
+  summaryData.extend("BEAMINTENSITYBLOB_1",typeid(coral::Blob));
+  summaryData.extend("BEAMINTENSITYBLOB_2",typeid(coral::Blob));
+  
+  detailData.extend("LUMIDETAIL_ID",typeid(unsigned long long));
+  detailData.extend("LUMISUMMARY_ID",typeid(unsigned long long));
+  detailData.extend("BXLUMIVALUE",typeid(coral::Blob));
+  detailData.extend("BXLUMIERROR",typeid(coral::Blob));
+  detailData.extend("BXLUMIQUALITY",typeid(coral::Blob));
+  detailData.extend("ALGONAME",typeid(std::string));
+  
+  unsigned long long& lumisummary_id=summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
+  unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
+  std::string& lumiversion = summaryData["LUMIVERSION"].data<std::string>();
+  float& dtnorm = summaryData["DTNORM"].data<float>();
+  float& lhcnorm = summaryData["LHCNORM"].data<float>();
+  float& instlumi = summaryData["INSTLUMI"].data<float>();
+  float& instlumierror = summaryData["INSTLUMIERROR"].data<float>();
+  short& instlumiquality = summaryData["INSTLUMIQUALITY"].data<short>();
+  short& lumisectionquality = summaryData["LUMISECTIONQUALITY"].data<short>();
+  short& alive = summaryData["CMSALIVE"].data<short>();
+  unsigned int& lumilsnr = summaryData["LUMILSNUM"].data<unsigned int>();
+  unsigned int& cmslsnr = summaryData["CMSLSNUM"].data<unsigned int>();
+  unsigned int& startorbit = summaryData["STARTORBIT"].data<unsigned int>();
+  unsigned int& numorbit = summaryData["NUMORBIT"].data<unsigned int>();
+  float& beamenergy = summaryData["BEAMENERGY"].data<float>();
+  std::string& beamstatus = summaryData["BEAMSTATUS"].data<std::string>();
+  coral::Blob& bxindex = summaryData["CMSBXINDEXBLOB"].data<coral::Blob>();
+  coral::Blob& beamintensity_1 = summaryData["BEAMINTENSITYBLOB_1"].data<coral::Blob>();
+  coral::Blob& beamintensity_2 = summaryData["BEAMINTENSITYBLOB_2"].data<coral::Blob>();
+  
+  unsigned long long& lumidetail_id=detailData["LUMIDETAIL_ID"].data<unsigned long long>();
+  unsigned long long& d2lumisummary_id=detailData["LUMISUMMARY_ID"].data<unsigned long long>();
+  coral::Blob& bxlumivalue=detailData["BXLUMIVALUE"].data<coral::Blob>();
+  coral::Blob& bxlumierror=detailData["BXLUMIERROR"].data<coral::Blob>();
+  coral::Blob& bxlumiquality=detailData["BXLUMIQUALITY"].data<coral::Blob>();
+  std::string& algoname=detailData["ALGONAME"].data<std::string>();
+    
+  lumi::Lumi2DB::LumiResult::const_iterator lumiIt;
+  coral::IBulkOperation* summaryInserter=0;
+  coral::IBulkOperation* detailInserter=0;
+  //one loop for ids
+  //nested transaction doesn't work with bulk inserter
+  unsigned int totallumils=std::distance(lumiBeg,lumiEnd);
+  unsigned int lumiindx=0;
+  std::map< unsigned long long,std::vector<unsigned long long> > idallocationtable;
+  std::cout<<"\t allocating total lumisummary ids "<<totallumils<<std::endl; 
+  std::cout<<"\t allocating total lumidetail ids "<<totallumils*lumi::N_LUMIALGO<<std::endl; 
+
+  session->transaction().start(false);
+  lumi::idDealer idg(session->nominalSchema());
+  unsigned long long lumisummaryID = idg.generateNextIDForTable(LumiNames::lumisummaryTableName(),totallumils)-totallumils;
+  unsigned long long lumidetailID=idg.generateNextIDForTable(LumiNames::lumidetailTableName(),totallumils*lumi::N_LUMIALGO)-totallumils*lumi::N_LUMIALGO;
+  session->transaction().commit();
+  for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx,++lumisummaryID){
+    std::vector< unsigned long long > allIDs;
+    allIDs.reserve(1+lumi::N_LUMIALGO);
+    allIDs.push_back(lumisummaryID);
+    for( unsigned int j=0; j<lumi::N_LUMIALGO; ++j, ++lumidetailID){
+      allIDs.push_back(lumidetailID);
+    }
+    idallocationtable.insert(std::make_pair(lumiindx,allIDs));
+  }
+  std::cout<<"\t all ids allocated"<<std::endl; 
+  lumiindx=0;
+  unsigned int comittedls=0;
+  for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx){
+    if(!session->transaction().isActive()){ 
+      session->transaction().start(false);
+      coral::ITable& summarytable=session->nominalSchema().tableHandle(LumiNames::lumisummaryTableName());
+      summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
+      coral::ITable& detailtable=session->nominalSchema().tableHandle(LumiNames::lumidetailTableName());
+      detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils*lumi::N_LUMIALGO);    
+    }
+    lumisummary_id=idallocationtable[lumiindx][0];
+    lumirunnum = irunnumber;
+    lumiversion = ilumiversion;
+    dtnorm = lumiIt->dtnorm;
+    lhcnorm = lumiIt->lhcnorm;
+    //instlumi = lumiIt->instlumi;
+    //instlumierror = lumiIt->instlumierror;
+    instlumi = applyCalibration(lumiIt->instlumi);
+    instlumierror = applyCalibration(lumiIt->instlumierror);
+    instlumiquality = lumiIt->instlumiquality;
+    lumisectionquality = lumiIt->lumisectionquality;
+    alive = lumiIt->cmsalive;
+    cmslsnr = lumiIt->cmslsnr;
+      
+    lumilsnr = lumiIt->lumilsnr;
+    startorbit = lumiIt->startorbit;
+    numorbit = lumiIt->numorbit;
+    beamenergy = lumiIt->beamenergy;
+    beamstatus = lumiIt->beammode;
+
+    short nlivebx=lumiIt->nlivebx;
+    //std::cout<<"nlivebx "<<nlivebx<<std::endl;
+    if(nlivebx!=0){
+      bxindex.resize(sizeof(short)*nlivebx);
+      beamintensity_1.resize(sizeof(float)*nlivebx);
+      beamintensity_2.resize(sizeof(float)*nlivebx);
+      void* bxindex_StartAddress = bxindex.startingAddress();      
+      void* beamIntensity1_StartAddress = beamintensity_1.startingAddress();
+      void* beamIntensity2_StartAddress = beamintensity_2.startingAddress();
+      std::memmove(bxindex_StartAddress,lumiIt->bxindex,sizeof(short)*nlivebx);
+      std::memmove(beamIntensity1_StartAddress,lumiIt->beamintensity_1,sizeof(float)*nlivebx);
+      std::memmove(beamIntensity2_StartAddress,lumiIt->beamintensity_2,sizeof(float)*nlivebx);
+      ::free(lumiIt->bxindex);
+      ::free(lumiIt->beamintensity_1);
+      ::free(lumiIt->beamintensity_2);
+    }else{
+      bxindex.resize(0);
+      beamintensity_1.resize(0);
+      beamintensity_2.resize(0);
+    }
+    //insert the new row
+    summaryInserter->processNextIteration();
+    summaryInserter->flush();
+    unsigned int algoindx=1;
+    for( unsigned int j=0; j<lumi:: N_LUMIALGO; ++j,++algoindx ){
+      d2lumisummary_id=idallocationtable[lumiindx].at(0);
+      lumidetail_id=idallocationtable[lumiindx].at(algoindx);
+      std::vector<PerBXData>::const_iterator bxIt;
+      std::vector<PerBXData>::const_iterator bxBeg;
+      std::vector<PerBXData>::const_iterator bxEnd;
+      if(j==0) {
+	algoname=std::string("ET");
+	bxBeg=lumiIt->bxET.begin();
+	bxEnd=lumiIt->bxET.end();
+      }
+      if(j==1) {
+	algoname=std::string("OCC1");
+	bxBeg=lumiIt->bxOCC1.begin();
+	bxEnd=lumiIt->bxOCC1.end();
+      }
+      if(j==2) {
+	algoname=std::string("OCC2");
+	bxBeg=lumiIt->bxOCC2.begin();
+	bxEnd=lumiIt->bxOCC2.end();
+      }
+      float lumivalue[lumi::N_BX]={0.0};
+      float lumierror[lumi::N_BX]={0.0};
+      int lumiquality[lumi::N_BX]={0};
+      bxlumivalue.resize(sizeof(float)*lumi::N_BX);
+      bxlumierror.resize(sizeof(float)*lumi::N_BX);
+      bxlumiquality.resize(sizeof(short)*lumi::N_BX);
+      void* bxlumivalueStartAddress=bxlumivalue.startingAddress();
+      void* bxlumierrorStartAddress=bxlumierror.startingAddress();
+      void* bxlumiqualityStartAddress=bxlumiquality.startingAddress();
+      unsigned int k=0;
+      for( bxIt=bxBeg;bxIt!=bxEnd;++bxIt,++k  ){	    
+	lumivalue[k]=bxIt->lumivalue;
+	lumierror[k]=bxIt->lumierr;
+	lumiquality[k]=bxIt->lumiquality;
+      }
+      std::memmove(bxlumivalueStartAddress,lumivalue,sizeof(float)*lumi::N_BX);
+      std::memmove(bxlumierrorStartAddress,lumierror,sizeof(float)*lumi::N_BX);
+      std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(short)*lumi::N_BX);
+      detailInserter->processNextIteration();
+    }
+    detailInserter->flush();
+    ++comittedls;
+    if(comittedls==Lumi2DB::COMMITLSINTERVAL){
+      std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
+      delete summaryInserter;
+      summaryInserter=0;
+      delete detailInserter;
+      detailInserter=0;
+      session->transaction().commit();
+      comittedls=0;
+      std::cout<<"\t committed "<<std::endl; 
+    }else if( lumiindx==(totallumils-1) ){
+      std::cout<<"\t committing at the end"<<std::endl; 
+      delete summaryInserter; summaryInserter=0;
+      delete detailInserter; detailInserter=0;
+      session->transaction().commit();
+      std::cout<<"\t done"<<std::endl; 
+    }
+  }
+}
+
 lumi::Lumi2DB::Lumi2DB(const std::string& dest):DataPipe(dest){}
 
 void 
@@ -109,6 +424,42 @@ lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result)const{
   //std::cout<<"first section : "<< result.firstsection<<std::endl;
 }
 
+void
+lumi::Lumi2DB::retrieveBeamIntensity(HCAL_HLX::DIP_COMBINED_DATA* dataPtr, Lumi2DB::beamData&b)const{
+  if(dataPtr==0){
+    std::cout<<"HCAL_HLX::DIP_COMBINED_DATA* dataPtr=0"<<std::endl;
+    b.bxindex=0;
+    b.beamintensity_1=0;
+    b.beamintensity_2=0;
+    b.nlivebx=0;
+  }else{
+    b.bxindex=(short*)::malloc(sizeof(short)*lumi::N_BX);
+    b.beamintensity_1=(float*)::malloc(sizeof(float)*lumi::N_BX);
+    b.beamintensity_2=(float*)::malloc(sizeof(float)*lumi::N_BX);
+
+    
+    short a=0;//a is position in lumidetail array
+    for(unsigned int i=0;i<lumi::N_BX;++i){
+      if(i==0 && (dataPtr->Beam[0].averageBunchIntensities[0]>0 || dataPtr->Beam[1].averageBunchIntensities[0]>0) ){
+	b.bxindex[a]=0;
+	b.beamintensity_1[a]=dataPtr->Beam[0].averageBunchIntensities[0];
+	b.beamintensity_2[a]=dataPtr->Beam[1].averageBunchIntensities[0];
+	++a;
+	continue;
+      }
+      if(dataPtr->Beam[0].averageBunchIntensities[i-1]>0 || dataPtr->Beam[1].averageBunchIntensities[i-1]>0){
+	b.bxindex[a]=i;
+	b.beamintensity_1[a]=dataPtr->Beam[0].averageBunchIntensities[i-1];
+	b.beamintensity_2[a]=dataPtr->Beam[1].averageBunchIntensities[i-1];
+	++a;
+	//if(i!=0){
+	//  std::cout<<"beam intensity "<<dataPtr->sectionNumber<<" "<<dataPtr->timestamp-1262300400<<" "<<(i-1)*10+1<<" "<<b.beamintensity_1[a]<<" "<<b.beamintensity_2[a]<<std::endl;
+	//}
+      }
+    }
+    b.nlivebx=a;
+  }
+}
 void 
 lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   lumi::Lumi2DB::LumiResult lumiresult;
@@ -160,6 +511,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
 	b.mode=dipdata->beamMode;
       }
       b.energy=dipdata->Energy;
+      this->retrieveBeamIntensity(dipdata.get(),b);
       dipmap.insert(std::make_pair(dipls,b));
     }
   }else{
@@ -167,6 +519,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       beamData b;
       b.mode="N/A";
       b.energy=0.0;
+      this->retrieveBeamIntensity(0,b);
       dipmap.insert(std::make_pair(i,b));
     }
   }
@@ -202,9 +555,38 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     if ( beamIt!=dipmap.end() ){
       h.beammode=beamIt->second.mode;
       h.beamenergy=beamIt->second.energy;
+      h.nlivebx=beamIt->second.nlivebx;
+      if(h.nlivebx!=0){
+	h.bxindex=(short*)malloc(sizeof(short)*h.nlivebx);
+	h.beamintensity_1=(float*)malloc(sizeof(float)*h.nlivebx);
+	h.beamintensity_2=(float*)malloc(sizeof(float)*h.nlivebx);
+	if(h.bxindex==0 || h.beamintensity_1==0 || h.beamintensity_2==0){
+	  std::cout<<"malloc failed"<<std::endl;
+	}
+	//std::cout<<"h.bxindex size "<<sizeof(short)*h.nlivebx<<std::endl;
+	//std::cout<<"h.beamintensity_1 size "<<sizeof(float)*h.nlivebx<<std::endl;
+	//std::cout<<"h.beamintensity_2 size "<<sizeof(float)*h.nlivebx<<std::endl;
+
+	std::memmove(h.bxindex,beamIt->second.bxindex,sizeof(short)*h.nlivebx);
+	std::memmove(h.beamintensity_1,beamIt->second.beamintensity_1,sizeof(float)*h.nlivebx);
+	std::memmove(h.beamintensity_2,beamIt->second.beamintensity_2,sizeof(float)*h.nlivebx);
+
+	::free(beamIt->second.bxindex);beamIt->second.bxindex=0;
+	::free(beamIt->second.beamintensity_1);beamIt->second.beamintensity_1=0;
+	::free(beamIt->second.beamintensity_2);beamIt->second.beamintensity_2=0;
+      }else{
+	//std::cout<<"h.nlivebx is zero"<<std::endl;
+	h.bxindex=0;
+	h.beamintensity_1=0;
+	h.beamintensity_2=0;
+      }
     }else{
       h.beammode="N/A";
       h.beamenergy=0.0;
+      h.nlivebx=0;
+      h.bxindex=0;
+      h.beamintensity_1=0;
+      h.beamintensity_2=0;
     }
     h.startorbit=lumiheader->startOrbit;
     h.numorbit=lumiheader->numOrbits;
@@ -219,6 +601,8 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     h.lumisectionquality=lumisummary->InstantLumiQlty;
     h.dtnorm=lumisummary->DeadTimeNormalization;
     h.lhcnorm=lumisummary->LHCNormalization;
+    //unsigned int timestp=lumiheader->timestamp;
+    //std::cout<<"cmslsnum "<<ncmslumi<<"timestp "<<timestp<<std::endl;
     for(size_t i=0;i<lumi::N_BX;++i){
       lumi::Lumi2DB::PerBXData bET;
       lumi::Lumi2DB::PerBXData bOCC1;
@@ -230,8 +614,15 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       h.bxET.push_back(bET);
 
       //bOCC1.idx=i+1;
+
       bOCC1.lumivalue=lumidetail->OccLumi[0][i];
       bOCC1.lumierr=lumidetail->OccLumiErr[0][i];
+      /**if(bOCC1.lumivalue*6.370>1.0e-04){
+	if(i!=0){
+	  std::cout<<i<<" detail "<<(i-1)*10+1<<" "<<(timestp-1262300400)<<" "<<bOCC1.lumivalue*6.37<<" "<<bOCC1.lumierr*6.37<<std::endl;
+	}
+      }
+      **/
       bOCC1.lumiquality=lumidetail->OccLumiQlty[0][i]; 
       h.bxOCC1.push_back(bOCC1);
           
@@ -244,6 +635,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     lumiresult.push_back(h);
   }
   std::cout<<std::endl;
+  if ( isLumiDataValid(lumiresult.begin(),lumiresult.end()) ){
   coral::ConnectionService* svc=new coral::ConnectionService;
   lumi::DBConfig dbconf(*svc);
   if(!m_authpath.empty()){
@@ -252,181 +644,12 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
   coral::ITypeConverter& tpc=session->typeConverter();
   tpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
-
-  unsigned int totallumils=lumiresult.size();
   try{
-    coral::AttributeList summaryData;
-    summaryData.extend<unsigned long long>("LUMISUMMARY_ID");
-    summaryData.extend<unsigned int>("RUNNUM");
-    summaryData.extend<unsigned int>("CMSLSNUM");
-    summaryData.extend<unsigned int>("LUMILSNUM");
-    summaryData.extend<std::string>("LUMIVERSION");
-    summaryData.extend<float>("DTNORM");
-    summaryData.extend<float>("LHCNORM");
-    summaryData.extend<float>("INSTLUMI");
-    summaryData.extend<float>("INSTLUMIERROR");
-    summaryData.extend<short>("INSTLUMIQUALITY");
-    summaryData.extend<short>("LUMISECTIONQUALITY");
-    summaryData.extend<short>("CMSALIVE");
-    summaryData.extend<unsigned int>("STARTORBIT");
-    summaryData.extend<unsigned int>("NUMORBIT");
-    summaryData.extend<float>("BEAMENERGY");
-    summaryData.extend<std::string>("BEAMSTATUS");
-
-    coral::AttributeList detailData;
-    detailData.extend("LUMIDETAIL_ID",typeid(unsigned long long));
-    detailData.extend("LUMISUMMARY_ID",typeid(unsigned long long));
-    detailData.extend("BXLUMIVALUE",typeid(coral::Blob));
-    detailData.extend("BXLUMIERROR",typeid(coral::Blob));
-    detailData.extend("BXLUMIQUALITY",typeid(coral::Blob));
-    detailData.extend("ALGONAME",typeid(std::string));
-
-    //loop over lumi LS
-    unsigned long long& lumisummary_id=summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
-    unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
-    std::string& lumiversion = summaryData["LUMIVERSION"].data<std::string>();
-    float& dtnorm = summaryData["DTNORM"].data<float>();
-    float& lhcnorm = summaryData["LHCNORM"].data<float>();
-    float& instlumi = summaryData["INSTLUMI"].data<float>();
-    float& instlumierror = summaryData["INSTLUMIERROR"].data<float>();
-    short& instlumiquality = summaryData["INSTLUMIQUALITY"].data<short>();
-    short& lumisectionquality = summaryData["LUMISECTIONQUALITY"].data<short>();
-    short& cmsalive = summaryData["CMSALIVE"].data<short>();
-    unsigned int& lumilsnr = summaryData["LUMILSNUM"].data<unsigned int>();
-    unsigned int& cmslsnr = summaryData["CMSLSNUM"].data<unsigned int>();
-    unsigned int& startorbit = summaryData["STARTORBIT"].data<unsigned int>();
-    unsigned int& numorbit = summaryData["NUMORBIT"].data<unsigned int>();
-    float& beamenergy = summaryData["BEAMENERGY"].data<float>();
-    std::string& beamstatus = summaryData["BEAMSTATUS"].data<std::string>();
-
-    unsigned long long& lumidetail_id=detailData["LUMIDETAIL_ID"].data<unsigned long long>();
-    unsigned long long& d2lumisummary_id=detailData["LUMISUMMARY_ID"].data<unsigned long long>();
-    coral::Blob& bxlumivalue=detailData["BXLUMIVALUE"].data<coral::Blob>();
-    coral::Blob& bxlumierror=detailData["BXLUMIERROR"].data<coral::Blob>();
-    coral::Blob& bxlumiquality=detailData["BXLUMIQUALITY"].data<coral::Blob>();
-    std::string& algoname=detailData["ALGONAME"].data<std::string>();
-    
-    lumi::Lumi2DB::LumiResult::const_iterator lumiIt;
-    lumi::Lumi2DB::LumiResult::const_iterator lumiBeg=lumiresult.begin();
-    lumi::Lumi2DB::LumiResult::const_iterator lumiEnd=lumiresult.end();
-
-    coral::IBulkOperation* summaryInserter=0;
-    coral::IBulkOperation* detailInserter=0;
-    //one loop for ids
-    //nested transaction doesn't work with bulk inserter
-    std::map< unsigned long long,std::vector<unsigned long long> > idallocationtable;
-    std::cout<<"\t allocating total lumisummary ids "<<totallumils<<std::endl; 
-    std::cout<<"\t allocating total lumidetail ids "<<totallumils*lumi::N_LUMIALGO<<std::endl; 
-    session->transaction().start(false);
-    unsigned int lumiindx=0;
-    lumi::idDealer idg(session->nominalSchema());
-    unsigned long long lumisummaryID = idg.generateNextIDForTable(LumiNames::lumisummaryTableName(),totallumils)-totallumils;
-    unsigned long long lumidetailID=idg.generateNextIDForTable(LumiNames::lumidetailTableName(),totallumils*lumi::N_LUMIALGO)-totallumils*lumi::N_LUMIALGO;
-    session->transaction().commit();
-    for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx,++lumisummaryID){
-      std::vector< unsigned long long > allIDs;
-      allIDs.reserve(1+lumi::N_LUMIALGO);
-      allIDs.push_back(lumisummaryID);
-      for( unsigned int j=0; j<lumi::N_LUMIALGO; ++j, ++lumidetailID){
-	allIDs.push_back(lumidetailID);
-      }
-      idallocationtable.insert(std::make_pair(lumiindx,allIDs));
-    }
-    std::cout<<"\t all ids allocated"<<std::endl; 
-    lumiindx=0;
-    unsigned int comittedls=0;
-    for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx){
-      if(!session->transaction().isActive()){ 
-	session->transaction().start(false);
-	coral::ITable& summarytable=session->nominalSchema().tableHandle(LumiNames::lumisummaryTableName());
-	summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
-	coral::ITable& detailtable=session->nominalSchema().tableHandle(LumiNames::lumidetailTableName());
-	detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils*lumi::N_LUMIALGO);    
-      }
-      lumisummary_id=idallocationtable[lumiindx][0];
-      lumirunnum = runnumber;
-      lumiversion = std::string(filenamecontent.version);
-      dtnorm = lumiIt->dtnorm;
-      lhcnorm = lumiIt->lhcnorm;
-      instlumi = lumiIt->instlumi;
-      instlumierror = lumiIt->instlumierror;
-      instlumiquality = lumiIt->instlumiquality;
-      lumisectionquality = lumiIt->lumisectionquality;
-      cmsalive = lumiIt->cmsalive;
-      cmslsnr = lumiIt->cmslsnr;
-      
-      lumilsnr = lumiIt->lumilsnr;
-      startorbit = lumiIt->startorbit;
-      numorbit = lumiIt->numorbit;
-      beamenergy = lumiIt->beamenergy;
-      beamstatus = lumiIt->beammode;
-      //fetch a new id value 
-      //insert the new row
-      summaryInserter->processNextIteration();
-      summaryInserter->flush();
-      unsigned int algoindx=1;
-      for( unsigned int j=0; j<lumi:: N_LUMIALGO; ++j,++algoindx ){
-	d2lumisummary_id=idallocationtable[lumiindx].at(0);
-	lumidetail_id=idallocationtable[lumiindx].at(algoindx);
-	std::vector<PerBXData>::const_iterator bxIt;
-	std::vector<PerBXData>::const_iterator bxBeg;
-	std::vector<PerBXData>::const_iterator bxEnd;
-	if(j==0) {
-	  algoname=std::string("ET");
-	  bxBeg=lumiIt->bxET.begin();
-	  bxEnd=lumiIt->bxET.end();
-	}
-	if(j==1) {
-	  algoname=std::string("OCC1");
-	  bxBeg=lumiIt->bxOCC1.begin();
-	  bxEnd=lumiIt->bxOCC1.end();
-	}
-	if(j==2) {
-	  algoname=std::string("OCC2");
-	  bxBeg=lumiIt->bxOCC2.begin();
-	  bxEnd=lumiIt->bxOCC2.end();
-	}
-	float lumivalue[lumi::N_BX];
-	std::memset((void*)&lumivalue,0,sizeof(float)*lumi::N_BX );
-	float lumierror[lumi::N_BX];
-	std::memset((void*)&lumierror,0,sizeof(float)*lumi::N_BX );
-	int lumiquality[lumi::N_BX];
-	std::memset((void*)&lumiquality,0,sizeof(short)*lumi::N_BX );
-	bxlumivalue.resize(sizeof(float)*lumi::N_BX);
-	bxlumierror.resize(sizeof(float)*lumi::N_BX);
-	bxlumiquality.resize(sizeof(short)*lumi::N_BX);
-	void* bxlumivalueStartAddress=bxlumivalue.startingAddress();
-	void* bxlumierrorStartAddress=bxlumierror.startingAddress();
-	void* bxlumiqualityStartAddress=bxlumiquality.startingAddress();
-	unsigned int k=0;
-	for( bxIt=bxBeg;bxIt!=bxEnd;++bxIt,++k  ){	    
-	  lumivalue[k]=bxIt->lumivalue;
-	  lumierror[k]=bxIt->lumierr;
-	  lumiquality[k]=bxIt->lumiquality;
-	}
-	std::memmove(bxlumivalueStartAddress,lumivalue,sizeof(float)*lumi::N_BX);
-	std::memmove(bxlumierrorStartAddress,lumierror,sizeof(float)*lumi::N_BX);
-	std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(short)*lumi::N_BX);
-	detailInserter->processNextIteration();
-      }
-      detailInserter->flush();
-      ++comittedls;
-      if(comittedls==Lumi2DB::COMMITLSINTERVAL){
-	std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
-	delete summaryInserter;
-	summaryInserter=0;
-	delete detailInserter;
-	detailInserter=0;
-	session->transaction().commit();
-	comittedls=0;
-	std::cout<<"\t committed "<<std::endl; 
-      }else if( lumiindx==(totallumils-1) ){
-	std::cout<<"\t committing at the end"<<std::endl; 
-	delete summaryInserter; summaryInserter=0;
-	delete detailInserter; detailInserter=0;
-	session->transaction().commit();
-	std::cout<<"\t done"<<std::endl; 
-      }
+    const std::string lversion(filenamecontent.version);
+    if(m_mode==std::string("beamintensity_only")){
+      writeBeamIntensityOnly(session,runnumber,lversion,lumiresult.begin(),lumiresult.end());
+    }else{
+      writeAllLumiData(session,runnumber,lversion,lumiresult.begin(),lumiresult.end());     
     }
   }catch( const coral::Exception& er){
     session->transaction().rollback();
@@ -436,6 +659,10 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   }
   delete session;
   delete svc;
+  }else{
+    std::cout<<"no valid lumi data found, quit"<<std::endl;
+    throw lumi::Exception("no valid lumi data found","retrieveData","Lumi2DB");
+  }
 }
 const std::string lumi::Lumi2DB::dataType() const{
   return "LUMI";

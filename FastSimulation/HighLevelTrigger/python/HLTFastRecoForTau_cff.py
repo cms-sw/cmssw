@@ -25,12 +25,23 @@ hltL25TauCtfWithMaterialTracks = cms.EDProducer("FastTrackMerger",
                                    cms.InputTag("globalPixelTrackCandidates")),
     ptMin = cms.untracked.double(1.0)
 )
-
+hltL3TauSingleTrack15CtfWithMaterialTracks = cms.EDProducer("FastTrackMerger",
+    SaveTracksOnly = cms.untracked.bool(True),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
+                                   cms.InputTag("globalPixelTrackCandidates")),
+    ptMin = cms.untracked.double(0.9)
+)
+hltPFJetCtfWithMaterialTracks = cms.EDProducer("FastTrackMerger",
+    SaveTracksOnly = cms.untracked.bool(True),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
+                                   cms.InputTag("globalPixelTrackCandidates")),
+    ptMin = cms.untracked.double(0.2)
+)
 
 #--- Fastsim sequences replacing modules in tau paths ---#
 #hltL3TauCkfTrackCandidates = cms.Sequence(globalPixelTracking)
 HLTL3TauTrackReconstructionSequence = cms.Sequence(globalPixelTracking + hltL3TauCtfWithMaterialTracks)
 HLTL3TauHighPtTrackReconstructionSequence = cms.Sequence(globalPixelTracking + hltL3TauCtfWithMaterialHighPtTracks)
 HLTL25TauTrackReconstructionSequence = cms.Sequence(globalPixelTracking + hltL25TauCtfWithMaterialTracks)
-
-
+HLTL3TauSingleTrack15ReconstructionSequence = cms.Sequence(globalPixelTracking + hltL3TauSingleTrack15CtfWithMaterialTracks)
+HLTTrackReconstructionForJets  = cms.Sequence(globalPixelTracking + hltPFJetCtfWithMaterialTracks)

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.16 2010/06/18 12:42:18 yana Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.17 2010/09/02 18:28:12 amraktad Exp $
 //
 #include "TEveCompound.h"
 #include "TEveTrack.h"
@@ -102,22 +102,18 @@ FWElectronProxyBuilder::buildViewType(const reco::GsfElectron& electron, unsigne
    TEveElementList*   tracks = requestCommon();
    TEveElement::List_i trkIt = tracks->BeginChildren();
    std::advance(trkIt, iIndex);
+   setupAddElement(*trkIt, &oItemHolder );
 
-
-   TEveCompound* comp = createCompound();
-   comp->AddElement( *trkIt );
    if( type == FWViewType::kRhoPhi )
       fireworks::makeRhoPhiSuperCluster( this,
                                          electron.superCluster(),
                                          electron.phi(),
-                                         *comp );
+                                         oItemHolder );
    else if( type == FWViewType::kRhoZ )
       fireworks::makeRhoZSuperCluster( this,
                                        electron.superCluster(),
                                        electron.phi(),
-                                       *comp );
- 
-   setupAddElement( comp, &oItemHolder );
+                                       oItemHolder );
 }
 
 REGISTER_FWPROXYBUILDER( FWElectronProxyBuilder, reco::GsfElectron, "Electrons", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

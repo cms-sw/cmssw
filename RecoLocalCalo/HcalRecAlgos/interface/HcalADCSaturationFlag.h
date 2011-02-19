@@ -8,6 +8,8 @@
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
+#include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
+#include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 
 /** HcalADCSaturationFlag
     Class sets the Saturation status bit if the ADC count for any time slice 
@@ -16,7 +18,7 @@
     QIE's have 7 bits (for a maximum ADC value of 2^7=127).  
     Is it better to hard-code to 127, or to allow the user to change it?
        
-    $Date: 2009/03/23 10:27:23 $
+    $Date: 2009/03/27 14:46:47 $
     $Revision: 1.1 $
     \author J. Temple -- University of Maryland
 */
@@ -31,6 +33,7 @@ class HcalADCSaturationFlag {
   void setSaturationFlag(HBHERecHit& rechit, const HBHEDataFrame& digi);
   void setSaturationFlag(HORecHit&   rechit, const HODataFrame&   digi);
   void setSaturationFlag(HFRecHit&   rechit, const HFDataFrame&   digi);
+  void setSaturationFlag(ZDCRecHit&   rechit, const ZDCDataFrame&   digi);
 
  private:
   int SaturationLevel_;

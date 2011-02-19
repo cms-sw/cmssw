@@ -12,7 +12,6 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.),
-    #useUserHook = cms.bool(True),
     PythiaParameters = cms.PSet(
         pythia8_example02 = cms.vstring('HardQCD:all = on',
                                         'PhaseSpace:pTHatMin = 20.'),

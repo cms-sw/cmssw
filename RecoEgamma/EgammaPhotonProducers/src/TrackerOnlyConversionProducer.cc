@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.32 2010/09/27 18:30:46 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.34 2010/10/01 09:06:48 bendavid Exp $
 //
 //
 
@@ -301,10 +301,9 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 
     //3. pair up : to select one track from matched EBC, and select the other track to fit cot theta and phi open angle cut
     //TODO it is k-Closest pair of point problem
-    bool track1HighPurity=true;
-    bool track2HighPurity=true;
     //std::cout << " allTracks.size() " <<  allTracks.size() << std::endl;
     for(reco::ConversionTrackCollection::const_iterator ll = allTracks.begin(); ll != allTracks.end(); ++ ll ) {
+      bool track1HighPurity=true;
       //std::cout << " Loop on allTracks " << std::endl;
       const  edm::RefToBase<reco::Track> & left = ll->trackRef();
       
@@ -335,7 +334,9 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 
 
       for (reco::ConversionTrackCollection::const_iterator rr = ll+1; rr != allTracks.end(); ++ rr ) {
-
+          bool track2HighPurity = true;
+          bool highPurityPair = true;
+          
           const  edm::RefToBase<reco::Track> & right = rr->trackRef();
        
           //TODO: This is a workaround, should be fixed with a proper function in the TTBuilder
@@ -379,8 +380,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
           //track pair pass the quality cut
           if (   !( (trackQualityFilter(left, true) && trackQualityFilter(right, false))
                   || (trackQualityFilter(left, false) && trackQualityFilter(right, true)) ) ) {
-            track1HighPurity=false;
-            track2HighPurity=false; 
+            highPurityPair=false;
           }
 
           if (the_pvtx.isValid()){
@@ -396,7 +396,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
           
          
           //signature cuts, then check if vertex, then post-selection cuts
-          bool highPurityPair=  track1HighPurity &&  track2HighPurity && checkTrackPair(the_left, the_right) ;
+          highPurityPair=  highPurityPair && track1HighPurity &&  track2HighPurity && checkTrackPair(the_left, the_right) ;
           highPurityPair = highPurityPair && goodVertex && checkPhi(left, right, trackerGeom, magField, theConversionVertex) ;
 
           //if all cuts passed, go ahead to make conversion candidates

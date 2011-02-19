@@ -69,9 +69,6 @@ class Pythia8Hadronizer : public BaseHadronizer {
 
     string LHEInputFileName;
 
-    /// Switch User Hook flag
-    bool            useUserHook;
-
     std::auto_ptr<LHAupLesHouches>      lhaUP;
 
 	std::auto_ptr<Pythia>	pythia;
@@ -88,11 +85,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 	pythiaPylistVerbosity(params.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
 	pythiaHepMCVerbosity(params.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false)),
 	maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0)),
-    LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
-    useUserHook(false)
+    LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName",""))
 {
-    if( params.exists( "useUserHook" ) )
-      useUserHook = params.getParameter<bool>("useUserHook");
     randomEngine = &getEngineReference();
 }
 
@@ -108,11 +102,12 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
 	//Pythia8::Rndm::init(seed);
 
     RandomP8* RP8 = new RandomP8();
+    //UserHooks* UH = new PtHatReweightUserHook();
 
 	pythia.reset(new Pythia);
 
     pythia->setRndmEnginePtr(RP8);
-    if(useUserHook) pythia->setUserHooksPtr(new PtHatReweightUserHook());
+    //pythia->setUserHooksPtr(UH);
 
 	pythiaEvent = &pythia->event;
 
@@ -241,7 +236,6 @@ void Pythia8Hadronizer::statistics()
 	pythia->statistics();
 
 	double xsec = pythia->info.sigmaGen(); // cross section in mb
-    xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
 	runInfo().setInternalXSec(xsec);
 }
 

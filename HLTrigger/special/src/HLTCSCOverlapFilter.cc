@@ -71,8 +71,8 @@ bool HLTCSCOverlapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 	 int next = chamber + 1;
       
 	 // Some rings have 36 chambers, others have 18.  This will still be valid when ME4/2 is added.
-	 if (next == 37  &&  (abs(chamber_id.station()) == 1  ||  chamber_id.ring() == 2)) next = 1;
-	 if (next == 19  &&  (abs(chamber_id.station()) != 1  &&  chamber_id.ring() == 1)) next = 1;
+	 if (next == 37  &&  (std::abs(chamber_id.station()) == 1  ||  chamber_id.ring() == 2)) next = 1;
+	 if (next == 19  &&  (std::abs(chamber_id.station()) != 1  &&  chamber_id.ring() == 1)) next = 1;
       
 	 int next_id = CSCDetId(chamber_id.endcap(), chamber_id.station(), chamber_id.ring(), next, 0).rawId();
 

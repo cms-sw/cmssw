@@ -276,17 +276,3 @@ void DDErrorDetection::report(const DDCompactView& cpv, ostream & o)
   o << std::endl;
   //nix();
 }
-
-bool DDErrorDetection::noErrorsInTheReport(const DDCompactView& cpv)
-{
-  return lp_err::instance().empty() &&
-         ma_err::instance().empty() &&
-         so_err::instance().empty() &&
-         ro_err::instance().empty() &&
-         sp_err::instance().empty() &&
-         lp_cpv(cpv).empty() &&
-         ma().empty() &&
-         so().empty() &&
-         ma_lp().empty() &&
-         so_lp().empty();
-}

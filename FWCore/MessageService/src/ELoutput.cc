@@ -68,8 +68,6 @@
 //			unnecessary use of tprm which was preserving a moot 
 //			initial value.
 //
-//  7 9/30/10 wmtan	make formatTime() thread safe by not using statics.
-//
 // ----------------------------------------------------------------------
 
 
@@ -98,14 +96,21 @@ namespace service {
 // ----------------------------------------------------------------------
 
 
-static ELstring formatTime( const time_t t )  { // Change log 7
+static char * formatTime( const time_t t )  {
 
-  static char const dummy[] = "dd-Mon-yyyy hh:mm:ss TZN     "; // Change log 7 for length only
-  char ts[sizeof(dummy)]; // Change log 7
+static char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
 
-  struct tm timebuf; // Change log 7
 
-  strftime( ts, sizeof(dummy), "%d-%b-%Y %H:%M:%S %Z", localtime_r(&t, &timebuf) ); // Change log 7
+#ifdef AN_ALTERNATIVE_FOR_TIMEZONE
+  char * c  = ctime( &t );                      // 6/14/99 mf Can't be static!
+  strncpy( ts+ 0, c+ 8, 2 );  // dd
+  strncpy( ts+ 3, c+ 4, 3 );  // Mon
+  strncpy( ts+ 7, c+20, 4 );  // yyyy
+  strncpy( ts+12, c+11, 8 );  // hh:mm:ss
+  strncpy( ts+21, tzname[localtime(&t)->tm_isdst], 8 );  // CST
+#endif
+
+  strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
                 // mf 4-9-04
 
 #ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
@@ -115,8 +120,8 @@ static ELstring formatTime( const time_t t )  { // Change log 7
   while (ts[--b] == ' ') {ts[b] = 0;}
 #endif 
 
-  ELstring result(ts); // Change log 7
-  return result; // Change log 7
+  return ts;
+
 }  // formatTime()
 
 
@@ -240,8 +245,7 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     }
   }
   if (emitAtStart) {
-    ELstring const& ftime = formatTime(time(0)); // Change log 7
-    emitToken( ftime, true );
+    emitToken( formatTime(time(0)), true );
     emitToken( "\n=======================================================\n",
                                                                 true );
   }
@@ -312,8 +316,6 @@ ELoutput::clone() const  {
 
 } // clone()
 
-//#define THRESHTRACE
-//#define ELoutputTRACE_LOG
 
 bool ELoutput::log( const edm::ErrorObj & msg )  {
 
@@ -322,13 +324,6 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   #endif
 
   xid = msg.xid();      // Save the xid.
-
-#ifdef THRESHTRACE
-  std::cerr << "    =:=:=: Log to an ELoutput \n"
-    	    << "           severity  = " << xid.severity  << "\n"
-	    << "           threshold = " << threshold     << "\n"
-	    << "           id        = " << xid.id        << "\n";
-#endif
 
   // See if this message is to be acted upon, and add it to limits table
   // if it was not already present:
@@ -426,8 +421,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 	needAspace = false;
       }
       if (needAspace) { emitToken(ELstring(" ")); needAspace = false; }
-      ELstring const& ftime = formatTime(msg.timestamp()); // Change log 7
-      emitToken( ftime + ELstring(" ") );
+      emitToken( formatTime(msg.timestamp()) + ELstring(" ") );
     }
   }
   
@@ -695,8 +689,7 @@ void ELoutput::changeFile (std::ostream & os_) {
   os.reset(&os_, do_nothing_deleter());
   emitToken( "\n=======================================================", true );
   emitToken( "\nError Log changed to this stream\n" );
-  ELstring const& ftime = formatTime(time(0)); // Change log 7
-  emitToken( ftime, true );
+  emitToken( formatTime(time(0)), true );
   emitToken( "\n=======================================================\n", true );
 }
 
@@ -704,8 +697,7 @@ void ELoutput::changeFile (const ELstring & filename) {
   os.reset(new std::ofstream( filename.c_str(), std::ios/*_base*/::app), close_and_delete());
   emitToken( "\n=======================================================", true );
   emitToken( "\nError Log changed to this file\n" );
-  ELstring const& ftime = formatTime(time(0)); // Change log 7
-  emitToken( ftime, true );
+  emitToken( formatTime(time(0)), true );
   emitToken( "\n=======================================================\n", true );
 }
 

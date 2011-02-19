@@ -123,7 +123,6 @@ process.ecalCosmicsHists.MinRecHitAmpEB = 0.070  # for adcToGeV=0.035, gain 50
 process.ecalCosmicsHists.MinTimingAmpEE = 0.9    # for adcToGeV=0.06
 process.ecalCosmicsHists.MinRecHitAmpEE = 0.180  # for adcToGeV=0.06
 
-process.hbhereco = process.hbheprereco.clone()
 process.hbhereco.firstSample = 1
 process.hbhereco.samplesToAdd = 8
 process.hbhereco.correctForTimeslew = True

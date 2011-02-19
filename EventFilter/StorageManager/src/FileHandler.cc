@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.20 2010/09/09 08:01:16 mommsen Exp $
+// $Id: FileHandler.cc,v 1.20.2.1 2010/11/04 14:45:59 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -35,7 +35,8 @@ _lastEntry(0),
 _diskWritingParams(dwParams),
 _maxFileSize(maxFileSize),
 _cmsver(edm::getReleaseVersion()),
-_adler(0)
+_adlerstream(0),
+_adlerindex(0)
 {
   // stripp quotes if present
   if(_cmsver[0]=='"') _cmsver=_cmsver.substr(1,_cmsver.size()-2);
@@ -90,7 +91,7 @@ void FileHandler::updateDatabase() const
 {
   std::ostringstream oss;
   oss << "./closeFile.pl "
-      << " --FILENAME "     << _fileRecord->fileName()
+      << " --FILENAME "     << _fileRecord->fileName() <<  ".dat"
       << " --FILECOUNTER "  << _fileRecord->fileCounter
       << " --NEVENTS "      << events()
       << " --FILESIZE "     << fileSize()                          
@@ -109,8 +110,8 @@ void FileHandler::updateDatabase() const
       << " --APPNAME CMSSW"
       << " --TYPE streamer"               
       << " --DEBUGCLOSE "   << _fileRecord->whyClosed
-      << " --CHECKSUM "     << hex << _adler
-      << " --CHECKSUMIND "  << hex << 0
+      << " --CHECKSUM "     << hex << _adlerstream
+      << " --CHECKSUMIND "  << hex << _adlerindex
       << "\n";
 
   _dbFileHandler->writeOld( _lastEntry, oss.str() );
@@ -121,7 +122,7 @@ void FileHandler::insertFileInDatabase() const
 {
   std::ostringstream oss;
   oss << "./insertFile.pl "
-      << " --FILENAME "     << _fileRecord->fileName()
+      << " --FILENAME "     << _fileRecord->fileName() <<  ".dat"
       << " --FILECOUNTER "  << _fileRecord->fileCounter
       << " --NEVENTS "      << events()
       << " --FILESIZE "     << fileSize()
@@ -196,7 +197,7 @@ int FileHandler::events() const
 }
 
 
-const unsigned long long FileHandler::fileSize() const
+unsigned long long FileHandler::fileSize() const
 {
   return _fileRecord->fileSize;
 }
@@ -209,31 +210,42 @@ const unsigned long long FileHandler::fileSize() const
 
 void FileHandler::moveFileToClosed
 (
+  const bool& useIndexFile,
   const FilesMonitorCollection::FileRecord::ClosingReason& reason
 )
 {
   const std::string openFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::open));
+  const std::string openIndexFileName(openFileName + ".ind");
+  const std::string openStreamerFileName(openFileName + ".dat");
+
   const std::string closedFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::closed));
+  const std::string closedIndexFileName(closedFileName + ".ind");
+  const std::string closedStreamerFileName(closedFileName + ".dat");
 
-  size_t openFileSize = checkFileSizeMatch(openFileName, fileSize());
+  unsigned long long openStreamerFileSize = checkFileSizeMatch(openStreamerFileName, fileSize());
 
-  makeFileReadOnly(openFileName);
+  makeFileReadOnly(openStreamerFileName);
+  if (useIndexFile) makeFileReadOnly(openIndexFileName);
+
+  if (useIndexFile) renameFile(openIndexFileName, closedIndexFileName);
   try
   {
-    renameFile(openFileName, closedFileName);
+    renameFile(openStreamerFileName, closedStreamerFileName);
   }
   catch (stor::exception::DiskWriting& e)
   {
+    // Rename failed. Move index file back to open location
+    if (useIndexFile) renameFile(closedIndexFileName, openIndexFileName);
     XCEPT_RETHROW(stor::exception::DiskWriting, 
       "Could not move streamer file to closed area.", e);
   }
   _fileRecord->isOpen = false;
   _fileRecord->whyClosed = reason;
-  checkFileSizeMatch(closedFileName, openFileSize);
+  checkFileSizeMatch(closedStreamerFileName, openStreamerFileSize);
 }
 
 
-size_t FileHandler::checkFileSizeMatch(const std::string& fileName, const size_t& size) const
+unsigned long long FileHandler::checkFileSizeMatch(const std::string& fileName, const unsigned long long& size) const
 {
   struct stat64 statBuff;
   int statStatus = stat64(fileName.c_str(), &statBuff);
@@ -264,7 +276,7 @@ size_t FileHandler::checkFileSizeMatch(const std::string& fileName, const size_t
 }
 
 
-bool FileHandler::sizeMismatch(const double& initialSize, const double& finalSize) const
+bool FileHandler::sizeMismatch(const unsigned long long& initialSize, const unsigned long long& finalSize) const
 {
   double pctDiff = calcPctDiff(initialSize, finalSize);
   return (pctDiff > _diskWritingParams._fileSizeTolerance);
@@ -305,11 +317,11 @@ void FileHandler::checkDirectories() const
 }
 
 
-double FileHandler::calcPctDiff(const double& value1, const double& value2) const
+double FileHandler::calcPctDiff(const unsigned long long& value1, const unsigned long long& value2) const
 {
   if (value1 == value2) return 0;
-  double largerValue = std::max(value1,value2);
-  double smallerValue = std::min(value1,value2);
+  unsigned long long largerValue = std::max(value1,value2);
+  unsigned long long smallerValue = std::min(value1,value2);
   return ( largerValue > 0 ? (largerValue - smallerValue) / largerValue : 0 );
 }
 

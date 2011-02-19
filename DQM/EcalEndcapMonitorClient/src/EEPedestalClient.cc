@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2010/08/30 13:14:08 $
- * $Revision: 1.118 $
+ * $Date: 2010/08/30 13:19:12 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -539,7 +539,7 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   EcalLogicID ecid;
 
   MonPedestalsDat p;
-  map<EcalLogicID, MonPedestalsDat> dataset1;
+  std::map<EcalLogicID, MonPedestalsDat> dataset1;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -637,15 +637,15 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       if ( verbose_ ) std::cout << "Inserting MonPedestalsDat ..." << std::endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( verbose_ ) std::cout << "done." << std::endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << std::endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
     }
   }
 
   if ( verbose_ ) std::cout << std::endl;
 
   MonPNPedDat pn;
-  map<EcalLogicID, MonPNPedDat> dataset2;
+  std::map<EcalLogicID, MonPNPedDat> dataset2;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -719,8 +719,8 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       if ( verbose_ ) std::cout << "Inserting MonPNPedDat ..." << std::endl;
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
       if ( verbose_ ) std::cout << "done." << std::endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << std::endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
     }
   }
 

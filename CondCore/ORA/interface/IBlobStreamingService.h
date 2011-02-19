@@ -20,7 +20,7 @@ namespace ora {
     /// Empty destructor
     virtual ~IBlobStreamingService() {}
 
-    virtual boost::shared_ptr<coral::Blob> write( const void* addressOfInputData, const Reflex::Type& classDictionary ) = 0;
+    virtual boost::shared_ptr<coral::Blob> write( const void* addressOfInputData, const Reflex::Type& classDictionary, bool useCompression = true ) = 0;
 
     /// Reads an object from a Blob and fills-in the container
     virtual void read( const coral::Blob& blobData, void* addressOfContainer, const Reflex::Type& classDictionary ) = 0;

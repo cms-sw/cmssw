@@ -96,7 +96,7 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
   for(unsigned int i=0;i<6;i++){
     pjets += topJets[i].p4();
   }
-  double MT = sqrt(pow(pjets.mass(),2));
+  double MT = sqrt(std::pow(pjets.mass(),2));
   double Obs5 = ( MT>0 ? MT : -1);
   evtselectVarVal.push_back(std::pair<unsigned int,double>(5,Obs5));
   
@@ -166,12 +166,12 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
   //Sphericity and Aplanarity without boosting back the system to CM frame
   
   TMatrixDSym Matrix(3);
-  double PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+
-    pow(Hadj->Px(),2)+pow(Hadk->Px(),2)+pow(Hadbbar->Px(),2);
-  double PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+
-    pow(Hadj->Py(),2)+pow(Hadk->Py(),2)+pow(Hadbbar->Py(),2);
-  double PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+ 
-    pow(Hadj->Pz(),2)+pow(Hadk->Pz(),2)+pow(Hadbbar->Pz(),2);
+  double PX2 = std::pow(Hadp->Px(),2)+std::pow(Hadq->Px(),2)+std::pow(Hadb->Px(),2)+
+    std::pow(Hadj->Px(),2)+std::pow(Hadk->Px(),2)+std::pow(Hadbbar->Px(),2);
+  double PY2 = std::pow(Hadp->Py(),2)+std::pow(Hadq->Py(),2)+std::pow(Hadb->Py(),2)+
+    std::pow(Hadj->Py(),2)+std::pow(Hadk->Py(),2)+std::pow(Hadbbar->Py(),2);
+  double PZ2 = std::pow(Hadp->Pz(),2)+std::pow(Hadq->Pz(),2)+std::pow(Hadb->Pz(),2)+ 
+    std::pow(Hadj->Pz(),2)+std::pow(Hadk->Pz(),2)+std::pow(Hadbbar->Pz(),2);
   double P2  = PX2+PY2+PZ2;
   
   double PXY = Hadp->Px()*Hadp->Py()+Hadq->Px()*Hadq->Py()+Hadb->Px()*Hadb->Py()+
@@ -220,12 +220,12 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
   Hadk->Boost(BoostBackToCM);
   Hadbbar->Boost(BoostBackToCM);
   
-  double BOOST_PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+
-    pow(Hadj->Px(),2)+pow(Hadk->Px(),2)+pow(Hadbbar->Px(),2);
-  double BOOST_PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+
-    pow(Hadj->Py(),2)+pow(Hadk->Py(),2)+pow(Hadbbar->Py(),2);
-  double BOOST_PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+
-    pow(Hadj->Pz(),2)+pow(Hadk->Pz(),2)+pow(Hadbbar->Pz(),2);
+  double BOOST_PX2 = std::pow(Hadp->Px(),2)+std::pow(Hadq->Px(),2)+std::pow(Hadb->Px(),2)+
+    std::pow(Hadj->Px(),2)+std::pow(Hadk->Px(),2)+std::pow(Hadbbar->Px(),2);
+  double BOOST_PY2 = std::pow(Hadp->Py(),2)+std::pow(Hadq->Py(),2)+std::pow(Hadb->Py(),2)+
+    std::pow(Hadj->Py(),2)+std::pow(Hadk->Py(),2)+std::pow(Hadbbar->Py(),2);
+  double BOOST_PZ2 = std::pow(Hadp->Pz(),2)+std::pow(Hadq->Pz(),2)+std::pow(Hadb->Pz(),2)+
+    std::pow(Hadj->Pz(),2)+std::pow(Hadk->Pz(),2)+std::pow(Hadbbar->Pz(),2);
   
   double BOOST_P2  = BOOST_PX2+BOOST_PY2+BOOST_PZ2;
   

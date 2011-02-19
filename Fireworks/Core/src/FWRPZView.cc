@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.25 2010/09/26 19:57:21 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.27 2010/10/18 17:32:25 amraktad Exp $
 //
 
 // system include files
@@ -55,7 +55,8 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
 
    TEveProjection::EPType_e projType = (id == FWViewType::kRhoZ) ? TEveProjection::kPT_RhoZ : TEveProjection::kPT_RPhi;
 
-   m_projMgr.reset(new TEveProjectionManager(projType));
+   m_projMgr = new TEveProjectionManager(projType);
+   m_projMgr->IncDenyDestroy();
    m_projMgr->SetImportEmpty(kTRUE);
    if ( id == FWViewType::kRhoPhi) {
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 1.0);
@@ -74,10 +75,10 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    }
    geoScene()->GetGLScene()->SetSelectable(kFALSE);
 
-   m_axes.reset(new TEveProjectionAxes(m_projMgr.get()));
+   m_axes = new TEveProjectionAxes(m_projMgr);
    m_axes->SetRnrState(m_showProjectionAxes.value());
    m_showProjectionAxes.changed_.connect(boost::bind(&FWRPZView::showProjectionAxes,this));
-   eventScene()->AddElement(m_axes.get());
+   eventScene()->AddElement(m_axes);
 
    if ( id == FWViewType::kRhoPhi ) {
       m_showEndcaps = new FWBoolParameter(this,"Include EndCaps", true);
@@ -93,7 +94,8 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
 
 FWRPZView::~FWRPZView()
 {
-   m_projMgr->DestroyElements();
+   m_calo->Destroy();
+   m_projMgr->DecDenyDestroy();
 }
 
 //
@@ -191,7 +193,7 @@ FWRPZView::importElements(TEveElement* iChildren, float iLayer, TEveElement* iPr
    float oldLayer = m_projMgr->GetCurrentDepth();
    m_projMgr->SetCurrentDepth(iLayer);
    //make sure current depth is reset even if an exception is thrown
-   boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr.get(),
+   boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr,
                                                    boost::bind(&TEveProjectionManager::SetCurrentDepth,
                                                                _1,oldLayer));
    m_projMgr->ImportElements(iChildren,iProjectedParent);

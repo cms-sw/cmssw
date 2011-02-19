@@ -75,22 +75,18 @@ void FIPConfiguration::dumpFileList(void) const {
 //  Here the Xerces parser is used to process the content of the 
 //  configuration file.
 //-----------------------------------------------------------------------
-
-int FIPConfiguration::readConfig(const std::string& filename, bool fullPath)
+int FIPConfiguration::readConfig(const std::string& filename)
 {
-  std::string absoluteFileName (filename);
-  if (!fullPath) {
-    edm::FileInPath fp(filename);
-    // config file
-    absoluteFileName = fp.fullPath();
-  }
-
   DCOUT('P', "FIPConfiguration::ReadConfig(): started");
 
   // Set the parser to use the handler for the configuration file.
   // This makes sure the Parser is initialized and gets a handle to it.
   DDLParser ddlp(cpv_);
   ddlp.getXMLParser()->setContentHandler(&configHandler_);
+  edm::FileInPath fp(filename);
+  // config file
+  std::string absoluteFileName (filename);
+  absoluteFileName = fp.fullPath();
   ddlp.getXMLParser()->parse(absoluteFileName.c_str());
   const std::vector<std::string>& vURLs = configHandler_.getURLs();
   const std::vector<std::string>& vFiles = configHandler_.getFileNames();
@@ -109,9 +105,4 @@ int FIPConfiguration::readConfig(const std::string& filename, bool fullPath)
   //   for (size_t i = 0; i < fnames.size(); ++i)
   //     std::cout << "url=" << configHandler_.getURLs()[i] << " file=" << configHandler_.getFileNames()[i] << std::endl;
   return 0;
-}
-
-int FIPConfiguration::readConfig(const std::string& filename)
-{
-  return readConfig(filename, false);
 }

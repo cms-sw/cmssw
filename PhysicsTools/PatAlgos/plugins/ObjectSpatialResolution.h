@@ -1,5 +1,5 @@
 //
-// $Id: ObjectSpatialResolution.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: ObjectSpatialResolution.h,v 1.2 2010/02/20 21:00:19 wmtan Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_ObjectSpatialResolution_h
@@ -15,7 +15,7 @@
      PhysicsTools/PatAlgos/data/ObjectSpatialResolution.cfi
 
   \author   Volker Adler
-  \version  $Id: ObjectSpatialResolution.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+  \version  $Id: ObjectSpatialResolution.h,v 1.2 2010/02/20 21:00:19 wmtan Exp $
 */
 
 
@@ -132,7 +132,7 @@ void pat::ObjectSpatialResolution<T>::smearAngles(T& object)
   double finalResPhi = useWorsenResPhiByFactor_                            ?
                        (1.+fabs(1.-fabs(worsenResPhi_))) * fabs(iniResPhi_):
                        fabs(worsenResPhi_) + fabs(iniResPhi_);               // conversions as protection from "finalRes_<iniRes_"
-  double smearedPhi = normalizedPhi( gaussian_->fire(object.phi(), sqrt(pow(finalResPhi,2)-pow(iniResPhi_,2))) );
+  double smearedPhi = normalizedPhi( gaussian_->fire(object.phi(), sqrt(std::pow(finalResPhi,2)-std::pow(iniResPhi_,2))) );
   double finalResPolar = useWorsenResPolarByFactor_                              ?
                          (1.+fabs(1.-fabs(worsenResPolar_))) * fabs(iniResPolar_):
                          fabs(worsenResPolar_) + fabs(iniResPolar_);               // conversions as protection from "finalRes_<iniRes_"
@@ -141,7 +141,7 @@ void pat::ObjectSpatialResolution<T>::smearAngles(T& object)
   double smearedTheta,
          smearedEta;
   if ( usePolarTheta_ ) {
-    smearedTheta = gaussian_->fire(object.theta(), sqrt(pow(finalResPolar,2)-pow(iniResPolar_,2)));
+    smearedTheta = gaussian_->fire(object.theta(), sqrt(std::pow(finalResPolar,2)-std::pow(iniResPolar_,2)));
     // 0<theta<Pi needs to be assured to have proper calculation of eta
     while ( fabs(smearedTheta) > M_PI ) smearedTheta = smearedTheta < 0.     ?
                                                        smearedTheta + 2.*M_PI:
@@ -156,7 +156,7 @@ void pat::ObjectSpatialResolution<T>::smearAngles(T& object)
                    -ROOT::Math::etaMax<double>():
                    -log(tan(smearedTheta/2.))    ); // eta not calculable for theta=0,Pi, which could occur
   } else {
-    smearedEta = gaussian_->fire(object.eta(), sqrt(pow(finalResPolar,2)-pow(iniResPolar_,2)));
+    smearedEta = gaussian_->fire(object.eta(), sqrt(std::pow(finalResPolar,2)-std::pow(iniResPolar_,2)));
     if ( fabs(smearedEta) > ROOT::Math::etaMax<double>() ) smearedEta = smearedEta < 0.              ?
                                                                         -ROOT::Math::etaMax<double>():
                                                                          ROOT::Math::etaMax<double>();

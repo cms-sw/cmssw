@@ -1,5 +1,4 @@
 <flags   CPPDEFINES="DQMGLOBAL"/>
-<flags   CPPFLAGS="-g -O0"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>

@@ -65,7 +65,7 @@ public:
   
   /** \brief Is this module active in reconstruction? It must be both 'setActiveThisEvent' and 'setActive'. */
   bool isActive() const { return activeThisEvent_ && activeThisPeriod_; }
- 	  	 
+
   //TO BE IMPLEMENTED
   bool hasBadComponents( const TrajectoryStateOnSurface &tsos ) const {return false;}
 
@@ -98,10 +98,6 @@ public:
 
 
   bool  isEmpty() {return empty;}
-
-  unsigned int rawId() const { return id_; }
-
-
   const detset& theSet() {return detSet_;}
   int  size() {return endCluster - beginCluster ; }
 
@@ -142,32 +138,23 @@ public:
 
 private:
 
-  bool isRegional;
-
+  const StripGeomDetUnit*               theStripGDU;
+  const StripClusterParameterEstimator* theCPE;
+  detset detSet_;
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > handle_;
+  unsigned int id_;
   bool empty;
 
   bool activeThisEvent_,activeThisPeriod_;
-
-  unsigned int id_;
-
-  detset detSet_;
-  edm::Handle<edmNew::DetSetVector<SiStripCluster> > handle_;
-
-
-  const StripGeomDetUnit*               theStripGDU;
-  const StripClusterParameterEstimator* theCPE;
-
-
-
   bool bad128Strip_[6];
   bool hasAny128StripBad_, maskBad128StripBlocks_;
-
   std::vector<BadStripBlock> badStripBlocks_;  
   int totalStrips_;
   BadStripCuts badStripCuts_;
  
 
   // --- regional unpacking
+  bool isRegional;
   edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
   std::vector<SiStripCluster>::const_iterator beginCluster;
   std::vector<SiStripCluster>::const_iterator endCluster;

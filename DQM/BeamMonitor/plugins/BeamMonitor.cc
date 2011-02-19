@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/07/15 04:19:31 $
- * $Revision: 1.54 $
+ * $Date: 2010/07/20 20:25:54 $
+ * $Revision: 1.56 $
  *
  */
 
@@ -89,7 +89,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   if (fitNLumi_ <= 0) fitNLumi_ = 1;
   nFits_ = beginLumiOfBSFit_ = endLumiOfBSFit_ = beginLumiOfPVFit_ = endLumiOfPVFit_ = 0;
   refBStime[0] = refBStime[1] = refPVtime[0] = refPVtime[1] = 0;
-  maxZ_ = fabs(maxZ_);
+  maxZ_ = std::fabs(maxZ_);
   lastlumi_ = 0;
   nextlumi_ = 0;
   processed_ = false;
@@ -839,8 +839,8 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       h_sigmaZ0->Fill( bs.sigmaZ());
 
       if (nthBSTrk_ >= 2*min_Ntrks_) {
-	double amp = sqrt(bs.x0()*bs.x0()+bs.y0()*bs.y0());
-	double alpha = atan2(bs.y0(),bs.x0());
+	double amp = std::sqrt(bs.x0()*bs.x0()+bs.y0()*bs.y0());
+	double alpha = std::atan2(bs.y0(),bs.x0());
 	TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.14,3.14);
 	f1->SetParameters(amp,alpha);
 	f1->SetParLimits(1,amp-0.1,amp+0.1);
@@ -892,13 +892,13 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       }
 
       // count good fit
-      //     if (fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) { // disabled temporarily
+      //     if (std::fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[0] += 1.;
       //     }
-      //     if (fabs(refBS.y0()-bs.y0())/bs.y0Error() < deltaSigCut_) { // disabled temporarily
+      //     if (std::fabs(refBS.y0()-bs.y0())/bs.y0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[1] += 1.;
       //     }
-      //     if (fabs(refBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) { // disabled temporarily
+      //     if (std::fabs(refBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[2] += 1.;
       //     }
     } // beam fit is good

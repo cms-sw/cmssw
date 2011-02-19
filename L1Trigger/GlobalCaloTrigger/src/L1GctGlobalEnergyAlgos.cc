@@ -259,7 +259,6 @@ void L1GctGlobalEnergyAlgos::process()
     } else {
       EtMissing.phi.setValue(EtMissing.phi.value() + 36);
     }
-    if (EtMissing.mag.value() == etMissMaxValue) EtMissing.mag.setOverFlow(true);
 
     m_outputEtMiss.store    (EtMissing.mag, bxRel());
     m_outputEtMissPhi.store (EtMissing.phi, bxRel());
@@ -292,12 +291,8 @@ void L1GctGlobalEnergyAlgos::process()
     //
     //-----------------------------------------------------------------------------
     // Form the Et and Ht sums
-    etTotalType ettTemp = m_etValPlusWheel + m_etVlMinusWheel;
-    if (ettTemp.overFlow()) ettTemp.setValue(etTotalMaxValue);
-    etHadType   httTemp = m_htValPlusWheel + m_htVlMinusWheel;
-    if (httTemp.overFlow()) httTemp.setValue(etHadMaxValue);
-    m_outputEtSum.store (ettTemp, bxRel());
-    m_outputEtHad.store (httTemp, bxRel());
+    m_outputEtSum.store (m_etValPlusWheel + m_etVlMinusWheel, bxRel());
+    m_outputEtHad.store (m_htValPlusWheel + m_htVlMinusWheel, bxRel());
 
     m_hfSumProcessor->process();
   }

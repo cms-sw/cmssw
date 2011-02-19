@@ -216,6 +216,8 @@ ALCARECOTkAlMinBiasHITrackingDQM = ALCARECOTkAlMinBiasTrackingDQM.clone(
 ALCARECOTkAlMinBiasHITkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
+    ReferenceTrackProducer = 'hiSelectedTracks',
+    CaloJetCollection = 'iterativeConePu5CaloJets',
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
 # margins and settings

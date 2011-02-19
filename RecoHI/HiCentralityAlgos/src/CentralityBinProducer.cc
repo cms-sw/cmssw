@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 12 05:34:11 EDT 2010
-// $Id: CentralityBinProducer.cc,v 1.2 2010/08/17 19:39:28 yilmaz Exp $
+// $Id: CentralityBinProducer.cc,v 1.3 2010/09/06 11:40:34 vlimant Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
+#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
 
 
 //
@@ -51,11 +51,7 @@ class CentralityBinProducer : public edm::EDProducer {
       
       // ----------member data ---------------------------
 
-   const CentralityBins * cbins_;
-
-   std::string centralityBase_;
-   edm::InputTag src_;
-
+   CentralityProvider * centrality_;
 
 };
 
@@ -72,10 +68,8 @@ class CentralityBinProducer : public edm::EDProducer {
 // constructors and destructor
 //
 CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig) :
-  cbins_(0)
+  centrality_(0)
 {
-   src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("hiCentrality"));
-   centralityBase_ = iConfig.getUntrackedParameter<std::string>("base","HF");
    produces<int>();  
 }
 
@@ -98,29 +92,10 @@ void
 CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   if(!cbins_) cbins_ = getCentralityBinsFromDB(iSetup);
+   if(!centrality_) centrality_ = new CentralityProvider(iSetup);
+   centrality_->newEvent(iEvent,iSetup);
 
-   edm::Handle<reco::Centrality> cent;
-   iEvent.getByLabel(src_,cent);
-
-   double hf = cent->EtHFhitSum();
-   /*
-     double hft = cent->EtHFtowerSum();
-     double hftp = cent->EtHFtowerSumPlus();
-     double hftm = cent->EtHFtowerSumMinus();
-     double eb = cent->EtEBSum();
-     double ee = cent->EtEESum();
-     double eep = cent->EtEESumPlus();
-     double eem = cent->EtEESumMinus();
-     double zdc = cent->zdcSum();
-     double zdcm = cent->zdcSumMinus();
-     double zdcp = cent->zdcSumPlus();
-     double npix = cent->multiplicityPixel();
-     double et = cent->EtMidRapiditySum();
-   */
-
-   int bin = 0;
-   if(centralityBase_ == "HF") bin = cbins_->getBin(hf);
+   int bin = centrality_->getBin();
    std::auto_ptr<int> binp(new int(bin));
 
    iEvent.put(binp);

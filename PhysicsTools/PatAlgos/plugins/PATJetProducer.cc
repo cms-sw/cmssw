@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.51 2010/08/31 16:16:19 srappocc Exp $
+// $Id: PATJetProducer.cc,v 1.52 2010/09/03 15:41:26 hegner Exp $
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -36,6 +36,7 @@
 
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 
 using namespace pat;
@@ -217,7 +218,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   
 
-
+  bool first=true; // this is introduced to issue warnings only for the first jet
   for (edm::View<reco::Jet>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++) {
 
     // construct the Jet from the ref -> save ref to original object
@@ -273,26 +274,28 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       ajet.setPFCandidates( iparticlesRef );
     }
 
-
-    // Add Jet Energy Scale Corrections
     if (addJetCorrFactors_) {
-      // in case only one set of jet correction factors is used, clear the string
-      // that contains the name of the jcf-module, to save storage per jet:
-      if (jetCorrFactorsSrc_.size()<=1)
-        jetCorrs.front()[jetRef].clearLabel();
-      // the default jet correction is the first in the vector
-      const JetCorrFactors & jcf = jetCorrs.front()[jetRef];
-      // uncomment for debugging
-      // jcf.print();
-      //attach first (default) jet correction factors set to the jet
-      ajet.setCorrFactors(jcf);
-      // set current default which is JetCorrFactors::L3, change P4 of ajet 
-      ajet.setCorrStep(JetCorrFactors::L3);
-      
-      // add additional JetCorrs for syst. studies, if present
-      for ( size_t i = 1; i < jetCorrFactorsSrc_.size(); ++i ) {
-	const JetCorrFactors & jcf = jetCorrs[i][jetRef];
-	ajet.addCorrFactors(jcf);
+      // add additional JetCorrs to the jet 
+      for ( unsigned int i=0; i<jetCorrFactorsSrc_.size(); ++i ) {
+	const JetCorrFactors& jcf = jetCorrs[i][jetRef];
+	// uncomment for debugging
+	// jcf.print();
+	ajet.addJECFactors(jcf);
+      }
+      std::vector<std::string> levels = jetCorrs[0][jetRef].correctionLabels();
+      if(std::find(levels.begin(), levels.end(), "L2L3Residual")!=levels.end()){
+	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("L2L3Residual"));
+      }
+      else if(std::find(levels.begin(), levels.end(), "L3Absolute")!=levels.end()){
+	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("L3Absolute"));
+      }
+      else{
+	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("Uncorrected"));
+	if(first){	  
+	  edm::LogWarning("L3Absolute not found") << "L2L3Residual and L3Absolute are not part of the correction applied jetCorrFactors \n"
+						  << "of module " <<  jetCorrs[0][jetRef].jecSet() << " jets will remain"
+						  << " uncorrected."; first=false;
+	}
       }
     }
 

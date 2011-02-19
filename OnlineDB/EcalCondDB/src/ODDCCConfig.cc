@@ -204,11 +204,9 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
   throw(runtime_error)
 {
   this->checkConnection();
-  //  result->clear();
-  int idid=0;
+  result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    //    throw(runtime_error("ODDCCConfig::fetchData(): no Id defined for this ODDCCConfig "));
-    idid=result->fetchID();
+    throw(runtime_error("ODDCCConfig::fetchData(): no Id defined for this ODDCCConfig "));
   }
 
   try {
@@ -231,13 +229,8 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
     result->setNTestPatternsToLoad(rset->getInt(5));
     result->setSMHalf(rset->getInt(6));
 
+
     Clob clob = rset->getClob (7);
-    m_size = clob.length();
-    Stream *instream = clob.getStream (1,0);
-    unsigned char *buffer = new unsigned char[m_size];
-    memset (buffer, 0, m_size);
-    instream->readBuffer ((char*)buffer, m_size);
-    /*
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
     int clobLength=clob.length ();
@@ -251,7 +244,6 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
     cout << endl;
 
 
-    */
     result->setDCCClob(buffer );
 
   } catch (SQLException &e) {

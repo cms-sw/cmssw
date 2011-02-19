@@ -8,18 +8,9 @@ ttFullHadHypGenMatch = cms.EDProducer("TtFullHadHypGenMatch",
     jets  = cms.InputTag("selectedPatJets"),
     ## gen match hypothesis input
     match = cms.InputTag("ttFullHadJetPartonMatch"),
-    ## specify jet correction level as,
-    ## No Correction : raw                                     
-    ## L1Offset      : off
-    ## L2Relative    : rel
-    ## L3Absolute    : abs
-    ## L4Emf         : emf
-    ## L5Hadron      : had
-    ## L6UE          : ue
-    ## L7Parton      : part
-    ## a flavor specification will be
-    ## added automatically, when chosen                                      
-    jetCorrectionLevel = cms.string("abs")   
+    ## specify jet correction level as, Uncorrected, L1Offset, L2Relative, L3Absolute, L4Emf,
+    ## L5Hadron, L6UE, L7Parton, a flavor specification will be added automatically, when chosen                                      
+    jetCorrectionLevel = cms.string("L3Absolute")   
 )
 
 

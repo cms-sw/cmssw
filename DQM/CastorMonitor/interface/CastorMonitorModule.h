@@ -42,6 +42,7 @@
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorPSMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorEventDisplay.h"
+#include "DQM/CastorMonitor/interface/CastorHIMonitor.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h" //-- use to get/dump Calib to DB 
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h" //-- use to get/hold channel status
@@ -163,6 +164,7 @@ public:
   bool fedsListed_;
   
   //edm::InputTag inputLabelGT_;
+  edm::InputTag inputLabelRaw_;
   edm::InputTag inputLabelDigi_;
   edm::InputTag inputLabelRecHitCASTOR_;
   //edm::InputTag inputLabelCaloTower_;
@@ -193,6 +195,7 @@ public:
   CastorLEDMonitor*         LedMon_;
   CastorPSMonitor*          PSMon_;
   CastorEventDisplay*       EDMon_;
+  CastorHIMonitor*          HIMon_;
 
   MonitorElement* meEVT_;
 

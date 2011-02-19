@@ -16,7 +16,7 @@ Implementation:
 //
 // Original Author:  Frank Golf
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonTCMETValueMapProducer.cc,v 1.4 2010/09/14 19:33:25 benhoob Exp $
+// $Id: MuonTCMETValueMapProducer.cc,v 1.5 2010/09/14 21:20:16 benhoob Exp $
 //
 //
 
@@ -349,7 +349,7 @@ namespace cms {
     if( siTrack->algo() < maxTrackAlgo_ ){
       //1st 4 tracking iterations (pT-dependent d0 cut)
        
-      float d0cut = sqrt(pow(d0cuta_,2) + pow(d0cutb_/siTrack->pt(),2)); 
+      float d0cut = sqrt(std::pow(d0cuta_,2) + std::pow(d0cutb_/siTrack->pt(),2)); 
       if(d0cut > maxd0cut_) d0cut = maxd0cut_;
        
       if( fabs( d0 ) > d0cut )            return false;    
@@ -459,7 +459,7 @@ namespace cms {
     if( vertexColl->begin()->isFake()                ) return false;
     if( vertexColl->begin()->ndof() < vertexNdof_    ) return false;
     if( fabs( vertexColl->begin()->z() ) > vertexZ_  ) return false;
-    if( sqrt( pow( vertexColl->begin()->x() , 2 ) + pow( vertexColl->begin()->y() , 2 ) ) > vertexRho_ ) return false;
+    if( sqrt( std::pow( vertexColl->begin()->x() , 2 ) + std::pow( vertexColl->begin()->y() , 2 ) ) > vertexRho_ ) return false;
     
     return true;
     

@@ -1,4 +1,4 @@
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+#include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
@@ -6,7 +6,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "TEveCompound.h"
 
-class FWHBHERecHitProxyBuilder : public FWProxyBuilderBase
+class FWHBHERecHitProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWHBHERecHitProxyBuilder( void )
@@ -23,9 +23,7 @@ private:
 
    Float_t m_maxEnergy;
 
-   // Disable default copy constructor
    FWHBHERecHitProxyBuilder( const FWHBHERecHitProxyBuilder& );
-   // Disable default assignment operator
    const FWHBHERecHitProxyBuilder& operator=( const FWHBHERecHitProxyBuilder& );
 };
 
@@ -42,26 +40,21 @@ FWHBHERecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* prod
    std::vector<HBHERecHit>::const_iterator it = collection->begin();
    std::vector<HBHERecHit>::const_iterator itEnd = collection->end();
 
-   const FWGeometry *geom = iItem->getGeom();
-
    for( ; it != itEnd; ++it )
    {
       if(( *it ).energy() > m_maxEnergy )
          m_maxEnergy = ( *it ).energy();
    }
-   
-   for( it = collection->begin(); it != itEnd; ++it )
-   {
-      const float* corners = geom->getCorners(( *it ).detid());
-      if( corners == 0 )
-      {
-	 TEveCompound* compound = createCompound();
-	 setupAddElement( compound, product );
 
-	 continue;
-      }
+   TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   for (std::vector<HBHERecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
+   {  
+      const float* corners = context().getGeom()->getCorners((*it).detid());
+      std::vector<float> scaledCorners(24);
+      if (corners)
+         fireworks::energyScaledBox3DCorners(corners, (*it).energy() / m_maxEnergy, scaledCorners, true);
 
-      fireworks::drawEnergyScaledBox3D( corners, ( *it ).energy() / m_maxEnergy, product, this, true );
+      addBox(boxSet, &scaledCorners[0]);
    }
 }
 

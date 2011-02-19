@@ -186,7 +186,8 @@ bool cond::DbSession::deleteMapping( const std::string& mappingVersion ){
 bool cond::DbSession::importMapping( const std::string& sourceConnectionString,
                                      const std::string& contName ){ 
   ora::DatabaseUtility utility = storage().utility();
-  utility.importContainerSchema( sourceConnectionString, contName );
+  std::auto_ptr<cond::TechnologyProxy> technologyProxy = buildTechnologyProxy(sourceConnectionString, *(m_implementation->connection));
+  utility.importContainerSchema( (*technologyProxy).getRealConnectString(), contName );
   return true;
 }
 

@@ -4,7 +4,6 @@ rpcPointProducer = cms.EDProducer("RPCPointProducer",
   incldt = cms.untracked.bool(True),
   inclcsc = cms.untracked.bool(True),
   incltrack =  cms.untracked.bool(False),
-  inclsimhit =  cms.untracked.bool(False),
 
   debug = cms.untracked.bool(False),
 
@@ -17,11 +16,7 @@ rpcPointProducer = cms.EDProducer("RPCPointProducer",
 
   cscSegments = cms.InputTag('hltCscSegments'),
   dt4DSegments = cms.InputTag('hltDt4DSegments'),
-  #cscSegments = cms.InputTag('cscSegments'),
-  #dt4DSegments = cms.InputTag('dt4DSegments'),
-
   tracks = cms.InputTag("standAloneMuons"),
-
   TrackTransformer = cms.PSet(
       DoPredictionsOnly = cms.bool(False),
       Fitter = cms.string('KFFitterForRefitInsideOut'),
@@ -32,5 +27,7 @@ rpcPointProducer = cms.EDProducer("RPCPointProducer",
       RefitRPCHits = cms.bool(False),
       Propagator = cms.string('SmartPropagatorAnyRKOpposite')
   )
+#  cscSegments = cms.tracked.InputTag('cscSegments'),
+#  dt4DSegments = cms.tracked.InputTag('dt4DSegments'),
 
 )

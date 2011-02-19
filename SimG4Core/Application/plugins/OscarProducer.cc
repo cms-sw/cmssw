@@ -91,9 +91,7 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PCaloHitContainer>("ChamberHits"); 
     produces<edm::PCaloHitContainer>("FibreHits"); 
     produces<edm::PCaloHitContainer>("WedgeHits"); 
-
-    produces<edm::PSimHitContainer>("PLTHits");
-   
+    
     //m_runManager = RunManager::init(p);
     m_runManager = new RunManager(p);
 

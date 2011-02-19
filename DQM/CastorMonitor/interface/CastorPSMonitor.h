@@ -39,7 +39,7 @@ private:
   MonitorElement* reportSummaryMap;
   MonitorElement* overallStatus;
   MonitorElement* ChannelSummaryMap;
-
+  MonitorElement* SaturationSummaryMap;
 
   bool firstTime_;
   bool offline_;
@@ -47,16 +47,17 @@ private:
   int  numOK;
   double status;
   double statusRS;
+  double statusSaturated;
   double fraction;
   TH2F* h_reportSummaryMap;
 
   double firstRegionThreshold_;
-  double  secondRegionThreshold_;
+  double secondRegionThreshold_;
   double thirdRegionThreshold_;
+  double saturatedThreshold_;
   double sumDigiForEachChannel [14][16];
-
+  int saturatedMap [14][16];
   std::vector<NewBunch> Bunches_; //-- container for data, 1 per channel  
-
 
 };
 

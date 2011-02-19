@@ -780,7 +780,7 @@ int TrackingTruthProducer::setTrackingVertex(
     EncodedTruthId simVertexId = EncodedTruthId(simVertexEventId, eventIdCounter_[simVertexEventId]);
 
     // Calculate if the vertex is in the tracker volume (it needs to be review for other detectors)
-    bool inVolume = (position.Pt() < volumeRadius_ && std::abs(position.z()) < volumeZ_); // In or out of Tracker
+    bool inVolume = (position.Pt() < volumeRadius_ && abs(position.z()) < volumeZ_); // In or out of Tracker
 
     // Initialize the new vertex
     trackingVertex = TrackingVertex(position, inVolume, simVertexId);

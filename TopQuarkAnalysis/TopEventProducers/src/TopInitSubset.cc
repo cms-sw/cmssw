@@ -28,7 +28,7 @@ TopInitSubset::produce(edm::Event& evt, const edm::EventSetup& setup)
 void TopInitSubset::fillOutput(const reco::GenParticleCollection& src, reco::GenParticleCollection& sel)
 {
   for(reco::GenParticleCollection::const_iterator t=src.begin(); t!=src.end(); ++t){
-    if( t->status()==TopInitID::status && abs(t->pdgId())==TopInitID::tID ){ //is top
+    if( t->status()==TopInitID::status && std::abs(t->pdgId())==TopInitID::tID ){ //is top
       for(int idx=0; idx<(int)t->numberOfMothers(); ++idx){      
 	reco::GenParticle* cand = new reco::GenParticle( t->mother(idx)->threeCharge(), t->mother(idx)->p4(), 
 							 t->mother(idx)->vertex(), t->mother(idx)->pdgId(), 

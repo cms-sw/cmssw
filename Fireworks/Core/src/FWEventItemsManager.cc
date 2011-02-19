@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.38 2010/09/01 18:49:00 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.39 2010/09/16 20:30:51 amraktad Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 //
 // constants, enums and typedefs
@@ -82,11 +83,14 @@ const FWEventItem*
 FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
 {
    FWPhysicsObjectDesc temp(iItem);
+   
    if(! m_context->colorManager()->colorHasIndex(temp.displayProperties().color())) {
       FWDisplayProperties prop(temp.displayProperties());
-      prop.setColor(0);
+      fwLog(fwlog::kWarning) << Form("FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem), color index  not valid. Set Color idex to %d\n", FWColorManager::getDefaultStartColorIndex());
+      prop.setColor(FWColorManager::getDefaultStartColorIndex());
       temp.setDisplayProperties(prop);
    }
+   
    m_items.push_back(new FWEventItem(m_context,m_items.size(),m_accessorFactory->accessorFor(temp.type()),
                                      temp) );
    newItem_(m_items.back());

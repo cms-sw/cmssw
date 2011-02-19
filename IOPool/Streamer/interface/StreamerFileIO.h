@@ -3,7 +3,7 @@
 
 /**
 This file contains Class definitions for the 
-Class representing Output (Streamer) file.
+Class representing Output (Streamer/Index) file.
 */
 
 #include "IOPool/Streamer/interface/MsgTools.h"
@@ -15,7 +15,7 @@ Class representing Output (Streamer) file.
   
 class OutputFile 
   /**
-  Class representing Output (Streamer) file.
+  Class representing Output (Streamer/Index) file.
   */
   {
   public:

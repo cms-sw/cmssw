@@ -58,13 +58,13 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
   }
 
   // count how many layers on each chamber are hit
-  std::map<int, std::set<int> > layersInChamberHit;
+  std::map<int, std::list<int> > layersInChamberHit;
   for(std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin();
       hitMapItr != hitMap.end(); ++hitMapItr)
   {
     CSCDetId cscDetId(hitMapItr->first); 
     int chamberId = cscDetId.chamberId();
-    layersInChamberHit[chamberId].insert(cscDetId.layer());
+    layersInChamberHit[chamberId].push_back(cscDetId.layer());
   }
 
   // add neutron background, if needed

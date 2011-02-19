@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_plugins_PATCleaner_h
 #define PhysicsTools_PatAlgos_plugins_PATCleaner_h
 //
-// $Id: PATCleaner.h,v 1.1 2009/08/14 13:07:25 srappocc Exp $
+// $Id: PATCleaner.h,v 1.2 2010/02/20 21:00:20 wmtan Exp $
 //
 
 /**
@@ -11,7 +11,7 @@
             The same module is used for all collections.
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATCleaner.h,v 1.1 2009/08/14 13:07:25 srappocc Exp $
+  \version  $Id: PATCleaner.h,v 1.2 2010/02/20 21:00:20 wmtan Exp $
 */
 
 
@@ -95,10 +95,9 @@ pat::PATCleaner<PATObjType>::PATCleaner(const edm::ParameterSet & iConfig) :
 template <class PATObjType>
 void 
 pat::PATCleaner<PATObjType>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-  using namespace edm;
 
-  // Read the input. We use View<> in case the input happes to be something different than a std::vector<>
-  Handle<View<PATObjType> > candidates;
+  // Read the input. We use edm::View<> in case the input happes to be something different than a std::vector<>
+  edm::Handle<edm::View<PATObjType> > candidates;
   iEvent.getByLabel(src_, candidates);
 
   // Prepare a collection for the output
@@ -109,7 +108,7 @@ pat::PATCleaner<PATObjType>::produce(edm::Event & iEvent, const edm::EventSetup 
     itov->readInput(iEvent,iSetup);
   }
 
-  for (typename View<PATObjType>::const_iterator it = candidates->begin(), ed = candidates->end(); it != ed; ++it) {
+  for (typename edm::View<PATObjType>::const_iterator it = candidates->begin(), ed = candidates->end(); it != ed; ++it) {
       // Apply a preselection to the inputs and copy them in the output
       if (!preselectionCut_(*it)) continue; 
 

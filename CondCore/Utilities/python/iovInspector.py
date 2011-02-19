@@ -186,19 +186,6 @@ class PayLoad :
             vs.append(str(i))
         return self.__me.trend_plot(fname,s,vi,vf,vs)
 
-    def summary_adv(self, i, s, il, fl, sl):
-        #i = int(i)
-        vi = CondDB.VInt()
-        vf = CondDB.VFloat()
-        vs = CondDB.VString()
-        for i in il:
-            vi.append(int(i))
-        for i in fl:
-            vf.append(float(i))
-        for i in sl:
-            vs.append(str(i))
-        return self.__me.summary_adv(s,vi,vf,vs)
-
 
 
 

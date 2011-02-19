@@ -2,6 +2,7 @@
 
 #include "MuScleFitFilter.h"
 
+
 // Collaborating Class Header
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -26,28 +27,34 @@
 
 #include "TRandom.h"
 
+// Namespaces
+// ----------
+using namespace std;
+using namespace edm;
+
 // Static data member definitions
 // ------------------------------
 const double Mmu2 = 0.011163612;    // Squared muon mass
 
+
 // Constructor
 // -----------
-MuScleFitFilter::MuScleFitFilter(const edm::ParameterSet& iConfig)
-{
+MuScleFitFilter::MuScleFitFilter(const ParameterSet& iConfig) {
+
   debug = iConfig.getUntrackedParameter<bool>("debug",false);
   
   if (debug)
-    std::cout << "Constructor" << std::endl;
+    cout << "Constructor" << endl;
 
   // Parameters
   // ----------
   //ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   //theService = new MuonServiceProxy(serviceParameters);  
-  theMuonLabel = iConfig.getParameter<edm::InputTag>("MuonLabel");
+  theMuonLabel = iConfig.getParameter<InputTag>("MuonLabel");
   theMuonType = iConfig.getParameter<int>("muonType");
 
-  Mmin = iConfig.getUntrackedParameter<std::vector<double> >("Mmin");
-  Mmax = iConfig.getUntrackedParameter<std::vector<double> >("Mmax");
+  Mmin = iConfig.getUntrackedParameter<vector<double> >("Mmin");
+  Mmax = iConfig.getUntrackedParameter<vector<double> >("Mmax");
   maxWrite = iConfig.getUntrackedParameter<int>("maxWrite",100000);
 
   minimumMuonsNumber = iConfig.getUntrackedParameter<unsigned int>("minimumMuonsNumber", 2);
@@ -66,8 +73,8 @@ MuScleFitFilter::MuScleFitFilter(const edm::ParameterSet& iConfig)
 // Destructor
 // ----------
 MuScleFitFilter::~MuScleFitFilter() {
-  std::cout << "Total number of events read    = " << eventsRead << std::endl;
-  std::cout << "Total number of events written = " << eventsWritten << std::endl;
+  cout << "Total number of events read    = " << eventsRead << endl;
+  cout << "Total number of events written = " << eventsWritten << endl;
 }
 
 // Member functions
@@ -75,7 +82,7 @@ MuScleFitFilter::~MuScleFitFilter() {
 
 // Method called for each event 
 // ----------------------------
-bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
+bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
 
   // Cut the crap if we have stored enough stuff
   // -------------------------------------------
@@ -85,17 +92,17 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
   // ----------------------------------------------------------
   std::auto_ptr<reco::MuonCollection> muons(new reco::MuonCollection());
 
-  if (debug) std::cout << "Looking for muons of the right kind" << std::endl;
+  if (debug) cout << "Looking for muons of the right kind" << endl;
 
   if (theMuonType==1) { // GlobalMuons
 
     // Global muons:
     // -------------
-    edm::Handle<reco::MuonCollection> glbMuons;
-    if (debug) std::cout << "Handle defined" << std::endl;
+    Handle<reco::MuonCollection> glbMuons;
+    if (debug) cout << "Handle defined" << endl;
     event.getByLabel(theMuonLabel, glbMuons);
     if (debug)
-      std::cout << "Global muons: " << glbMuons->size() << std::endl;
+      cout << "Global muons: " << glbMuons->size() << endl;
 
     // Store the muon 
     // --------------
@@ -103,18 +110,18 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
     for (glbMuon=glbMuons->begin(); glbMuon!=glbMuons->end(); ++glbMuon) {   
       muons->push_back(*glbMuon);
       if (debug) {    
-	std::cout << "  Reconstructed muon: pT = " << glbMuon->p4().Pt()
-	     << "  Eta = " << glbMuon->p4().Eta() << std::endl;
+	cout << "  Reconstructed muon: pT = " << glbMuon->p4().Pt()
+	     << "  Eta = " << glbMuon->p4().Eta() << endl;
       } 
     }
   } else if (theMuonType==2) { // StandaloneMuons
 
     // Standalone muons:
     // -----------------
-    edm::Handle<reco::TrackCollection> saMuons;
+    Handle<reco::TrackCollection> saMuons;
     event.getByLabel(theMuonLabel, saMuons);
     if (debug)
-      std::cout << "Standalone muons: " << saMuons->size() << std::endl;
+      cout << "Standalone muons: " << saMuons->size() << endl;
 
     // Store the muon   
     // --------------
@@ -129,12 +136,12 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
     }
   } else if (theMuonType==3) { // Tracker tracks
 
-    // Tracks:
-    // -------
-    edm::Handle<reco::TrackCollection> tracks;
+  // Tracks:
+  // -------
+    Handle<reco::TrackCollection> tracks;
     event.getByLabel(theMuonLabel, tracks);
     if (debug)
-      std::cout << "Tracker tracks: " << tracks->size() << std::endl;
+      cout << "Tracker tracks: " << tracks->size() << endl;
 
     // Store the muon
     // -------------
@@ -148,7 +155,7 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
       muons->push_back(muon);
     }
   } else {
-    std::cout << "Wrong muon type! Aborting." << std::endl;
+    cout << "Wrong muon type! Aborting." << endl;
     abort();
   }
 
@@ -165,8 +172,8 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
     for (muon1=muons->begin(); muon1!=muons->end(); ++muon1) {  
 
       if (debug) {
-        std::cout << "  Reconstructed muon: pT = " << muon1->p4().Pt()
-             << "  Eta = " << muon1->p4().Eta() << std::endl;
+        cout << "  Reconstructed muon: pT = " << muon1->p4().Pt()
+             << "  Eta = " << muon1->p4().Eta() << endl;
       }
 
       // Recombine all the possible Z from reconstructed muons
@@ -179,32 +186,32 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
             // Loop on all the cuts on invariant mass.
             // If it passes at least one of the cuts, the event will be accepted.
             // ------------------------------------------------------------------
-            std::vector<double>::const_iterator mMinCut = Mmin.begin();
-            std::vector<double>::const_iterator mMaxCut = Mmax.begin();
+            vector<double>::const_iterator mMinCut = Mmin.begin();
+            vector<double>::const_iterator mMaxCut = Mmax.begin();
             for( ; mMinCut != Mmin.end(); ++mMinCut, ++mMaxCut ) {
               // When the two borders are -1 do not cut.
               if( *mMinCut == *mMaxCut && *mMaxCut == -1) {
                 resfound = true;
                 if (debug) {
-                  std::cout << "Acceptiong event because mMinCut = " << *mMinCut << " = mMaxCut = " << *mMaxCut << std::endl;
+                  cout << "Acceptiong event because mMinCut = " << *mMinCut << " = mMaxCut = " << *mMaxCut << endl;
                 }
               }
               else if (Z.mass()>*mMinCut && Z.mass()<*mMaxCut) {
                 resfound = true;
                 if (debug) {
-                  std::cout << "One particle found with mass = " << Z.mass() << std::endl;
+                  cout << "One particle found with mass = " << Z.mass() << endl;
                 }
               }
             }
           }
         }
       } else if (debug) {
-        std::cout << "Not enough reconstructed muons to make a resonance" << std::endl; 
+        cout << "Not enough reconstructed muons to make a resonance" << endl; 
       }
     }
   }
   else if (debug) {
-    std::cout << "Skipping event because muons = " << muons->size() << " < " << "minimumMuonsNumber("<<minimumMuonsNumber<<")" << std::endl;
+    cout << "Skipping event because muons = " << muons->size() << " < " << "minimumMuonsNumber("<<minimumMuonsNumber<<")" << endl;
   }
   
   // Store the event if it has a dimuon pair with mass within defined boundaries

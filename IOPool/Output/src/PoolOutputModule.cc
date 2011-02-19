@@ -13,13 +13,11 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include "TTree.h"
 #include "TBranchElement.h"
 #include "TObjArray.h"
 
-#include <fstream>
 #include <iomanip>
 #include <sstream>
 
@@ -47,15 +45,7 @@ namespace edm {
     childIndex_(0U),
     numberOfDigitsInIndex_(0U),
     overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels")),
-    rootOutputFile_(),
-    statusFileName_() {
-
-      if (pset.getUntrackedParameter<bool>("writeStatusFile")) {
-        std::ostringstream statusfilename;
-	statusfilename << moduleLabel_ << '_' << getpid();
-        statusFileName_ = statusfilename.str();
-      }
-
+    rootOutputFile_() {
       std::string dropMetaData(pset.getUntrackedParameter<std::string>("dropMetaData"));
       if(dropMetaData.empty()) dropMetaData_ = DropNone;
       else if(dropMetaData == std::string("NONE")) dropMetaData_ = DropNone;
@@ -221,11 +211,6 @@ namespace edm {
 
   void PoolOutputModule::write(EventPrincipal const& e) {
       rootOutputFile_->writeOne(e);
-      if (!statusFileName_.empty()) {
-	std::ofstream statusFile(statusFileName_.c_str());
-        statusFile << e.id() << " time: " << std::setprecision(3) << TimeOfDay() << '\n';
-	statusFile.close();
-      }
   }
 
   void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
@@ -305,12 +290,11 @@ namespace edm {
     desc.addUntracked<int>("treeMaxVirtualSize", -1);
     desc.addUntracked<bool>("fastCloning", true);
     desc.addUntracked<bool>("overrideInputFileSplitLevels", false);
-    desc.addUntracked<bool>("writeStatusFile", false);
     desc.addUntracked<std::string>("dropMetaData", defaultString);
     ParameterSetDescription dataSet;
-    dataSet.addUntracked<std::string>("dataTier", defaultString);
-    dataSet.addUntracked<std::string>("filterName", defaultString);
-    desc.addUntracked<ParameterSetDescription>("dataset", dataSet);
+    dataSet.setAllowAnything();
+    desc.addUntracked<ParameterSetDescription>("dataset", dataSet)
+     ->setComment("PSet is only used by Data Operations and not by this module.");
 
     OutputModule::fillDescription(desc);
 

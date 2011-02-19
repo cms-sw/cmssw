@@ -99,6 +99,7 @@ def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluc
     return result          
     
 def main():
+    allowedscales=['linear','log','both']
     c=constants()
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Plot integrated luminosity as function of the time variable of choice")
     # add required arguments
@@ -113,6 +114,7 @@ def main():
     parser.add_argument('-begin',dest='begin',action='store',help='begin xvalue (required)')
     parser.add_argument('-end',dest='end',action='store',help='end xvalue(optional). Default to the maximum exists DB')
     parser.add_argument('-batch',dest='batch',action='store',help='graphical mode to produce PNG file. Specify graphical file here. Default to lumiSum.png')
+    parser.add_argument('-yscale',dest='yscale',action='store',required=False,default='linear',help='y_scale')
     parser.add_argument('--interactive',dest='interactive',action='store_true',help='graphical mode to draw plot in a TK pannel.')
     parser.add_argument('-timeformat',dest='timeformat',action='store',help='specific python timeformat string (optional).  Default mm/dd/yy hh:min:ss.00')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
@@ -213,7 +215,11 @@ def main():
     #print 'runList ',runList
     #print 'runDict ', runDict               
     fig=Figure(figsize=(8,6),dpi=100)
-    m=matplotRender.matplotRender(fig)    
+    m=matplotRender.matplotRender(fig)
+
+    logfig=Figure(figsize=(8,6),dpi=100)
+    mlog=matplotRender.matplotRender(logfig)
+    
     if args.action == 'peakperday':
         l=lumiTime.lumiTime()
         lumiperls=getInstLumiPerLS(session,c,runList,selectionDict)
@@ -248,7 +254,9 @@ def main():
             result[day]=[todaysmaxrun,todaysmaxls,todaysmaxinst]
             if args.outputfile :
                 reporter.writeRow([day,todaysmaxrun,todaysmaxls,todaysmaxinst])
-        m.plotPeakPerday_Time(result,minTime,maxTime,annotateBoundaryRunnum=args.annotateboundary)
+        m.plotPeakPerday_Time(result,minTime,maxTime,annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotPeakPerday_Time(result,minTime,maxTime,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
+        
     if args.action == 'run':
         runnumber=runList[0]
         lumiperrun=getLumiPerRun(session,c,runnumber)#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,fillnum,runstarttime,runstoptime]]
@@ -275,10 +283,26 @@ def main():
         m.plotInst_RunLS(xdata,ydata)
     del session
     del svc
-    if args.batch:
+    if args.batch and args.yscale=='linear':
         m.drawPNG(args.batch)
-    if args.interactive:
+    elif  args.batch and args.yscale=='log':
+        mlog.drawPNG(args.batch)
+    elif args.batch and args.yscale=='both':
+        m.drawPNG(args.batch)
+        basename,extension=os.path.splitext(args.batch)
+        logfilename=basename+'_log'+extension        
+        mlog.drawPNG(logfilename)
+    else:
+        raise Exception('unsupported yscale for batch mode : '+args.yscale)
+    
+    if not args.interactive:
+        return
+    if args.interactive is True and args.yscale=='linear':
         m.drawInteractive()
+    elif args.interactive is True and args.yscale=='log':
+        mlog.drawInteractive()
+    else:
+        raise Exception('unsupported yscale for interactive mode : '+args.yscale)
     
 if __name__=='__main__':
     main()

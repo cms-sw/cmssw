@@ -1,3 +1,9 @@
+### -------------------------------------------------------------------
+### VarParsing allows one to specify certain parameters in the command line
+### e.g.
+### cmsRun testElectronSequence_cfg.py print maxEvents=10
+### -------------------------------------------------------------------
+
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os 
@@ -12,7 +18,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
 #global tags for conditions data: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_38Y_V8::All'
+process.GlobalTag.globaltag = 'MC_39Y_V2::All'
 
 ##################################################################################
 
@@ -22,15 +28,17 @@ options = VarParsing.VarParsing ('standard')
 # setup any defaults you want
 options.output = 'test_out.root'
 options.files = [
-'/store/relval/CMSSW_3_8_1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0013/F4EFE636-BFA3-DF11-B23A-001A92811742.root',
-'/store/relval/CMSSW_3_8_1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0013/C6C4B6A7-BEA3-DF11-90CF-001A92811748.root',
-'/store/relval/CMSSW_3_8_1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0013/C464D75B-BFA3-DF11-97E0-00304867916E.root',
-'/store/relval/CMSSW_3_8_1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0013/B6880265-C0A3-DF11-A8AD-003048678B72.root',
-'/store/relval/CMSSW_3_8_1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0013/A82B0A5B-BFA3-DF11-BF15-003048678B7E.root',
-'/store/relval/CMSSW_3_8_1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0013/988C704E-BFA3-DF11-9586-002354EF3BDE.root',
-'/store/relval/CMSSW_3_8_1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0013/5CB50765-C0A3-DF11-84B6-003048678B72.root',
-'/store/relval/CMSSW_3_8_1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0013/2830B462-C0A3-DF11-A942-001A92810AE0.root',
-'/store/relval/CMSSW_3_8_1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0013/1C7A1E65-C0A3-DF11-A16B-003048678B72.root' ] 
+    '/store/relval/CMSSW_3_9_0/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V2-v1/0052/C41EB5F8-1DD9-DF11-BDF9-003048678E92.root',
+    '/store/relval/CMSSW_3_9_0/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V2-v1/0052/C2B6CF74-1ED9-DF11-A35F-0018F3D0961A.root',
+    '/store/relval/CMSSW_3_9_0/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V2-v1/0052/A4EF86F3-1DD9-DF11-9B50-0026189438EA.root',
+    '/store/relval/CMSSW_3_9_0/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V2-v1/0052/84D2AFF7-1ED9-DF11-9945-00304867C0F6.root',
+    '/store/relval/CMSSW_3_9_0/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V2-v1/0052/80CC6AF2-1DD9-DF11-B89F-0030486790BA.root',
+    '/store/relval/CMSSW_3_9_0/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V2-v1/0052/70D088E0-22D9-DF11-A42C-003048679244.root',
+    '/store/relval/CMSSW_3_9_0/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V2-v1/0052/6AC7A36F-1ED9-DF11-9584-003048679296.root',
+    '/store/relval/CMSSW_3_9_0/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V2-v1/0052/54C85271-1ED9-DF11-9B1D-00261894395C.root',
+    '/store/relval/CMSSW_3_9_0/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V2-v1/0052/5207EDE9-1ED9-DF11-9BBB-00304867918A.root',
+    '/store/relval/CMSSW_3_9_0/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V2-v1/0052/4AFA1DFA-1AD9-DF11-BBEB-003048679046.root'
+    ] 
 options.maxEvents = 1 
 
 # get and parse the command line arguments

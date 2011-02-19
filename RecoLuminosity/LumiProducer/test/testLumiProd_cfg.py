@@ -36,7 +36,7 @@ process.lumiProducer=cms.EDProducer("LumiProducer",
    #connect=cms.string('frontier://cmsfrontier.cern.ch:8000/LumiPrep/CMS_LUMI_DEV_OFFLINE'),
    #connect=cms.string('oracle://cms_orcoff_prep/cms_lumi_dev_offline'),
    connect=cms.string('frontier://LumiPrep/CMS_LUMI_DEV_OFFLINE'),                                 
-   lumiversion=cms.string('0001') 
+   lumiversion=cms.untracked.string('0001') 
 )
 
 process.test = cms.EDAnalyzer("TestLumiProducer")

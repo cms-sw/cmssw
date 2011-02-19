@@ -64,6 +64,7 @@ namespace {
   std::pair<const std::basic_string<char>,std::pair<unsigned int,unsigned int> > newDummy09;
   std::pair<const std::basic_string<char>,std::vector<std::basic_string<char> > > newDummy10;
   std::pair<const std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > newDummy11;
+  std::pair<const std::basic_string<char>,unsigned int> newDummy11a;
   std::pair<const std::pair<int,int>,int> newDummy12;
   std::pair<const std::pair<short,short>,std::pair<short,std::vector<short> > > newDummy13;
   std::pair<const std::string,std::string> dummymss1_valuetype;

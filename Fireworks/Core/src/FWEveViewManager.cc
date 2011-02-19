@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.35 2010/09/15 11:48:42 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.36 2010/09/24 16:22:26 amraktad Exp $
 //
 
 // system include files
@@ -538,7 +538,15 @@ void
 FWEveViewManager::removeItem(const FWEventItem* item)
 {
    EveSelectionSentry();
-   for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); 
+
+   std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
+   if (it != m_interactionLists.end())
+   {
+      delete it->second;
+      m_interactionLists.erase(it);
+   }
+  
+   for (std::map<int, BuilderVec>::iterator i = m_builders.begin();
         i != m_builders.end(); ++i)
    {
       BuilderVec_it bIt = i->second.begin();
@@ -555,13 +563,6 @@ FWEveViewManager::removeItem(const FWEventItem* item)
             ++bIt;
          }
       }
-   }
-
-   std::map<const FWEventItem*, FWInteractionList*>::iterator it =  m_interactionLists.find(item);
-   if (it != m_interactionLists.end())
-   {
-      delete it->second;
-      m_interactionLists.erase(it);
    }
 }
 

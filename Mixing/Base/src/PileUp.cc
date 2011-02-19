@@ -91,7 +91,8 @@ namespace edm {
 	  n = intAverage_;
 	}else if (histoDistribution_ || probFunctionDistribution_){
 	  double d = histo_->GetRandom();
-	  n = (int) floor(d + 0.5);
+	  //n = (int) floor(d + 0.5);  // incorrect for bins with integer edges
+	  n = int(d);
 	}
 
       }

@@ -12,6 +12,8 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+using namespace std;
+
 class ResolutionFunction : public BaseFunction
 {
 public:
@@ -28,8 +30,8 @@ public:
     edm::FileInPath fileWithFullPath(identifier.Data());
     readParameters( fileWithFullPath.fullPath() );
 
-    std::vector<int>::const_iterator idIt = functionId_.begin();
-    for( ; idIt != functionId_.end(); ++idIt ) std::cout << "idIt = " << *idIt << std::endl;
+    vector<int>::const_iterator idIt = functionId_.begin();
+    for( ; idIt != functionId_.end(); ++idIt ) cout << "idIt = " << *idIt << endl;
   }
   /**
    * This constructor is used when reading parameters from the db.
@@ -39,7 +41,7 @@ public:
    */
   ResolutionFunction( const MuScleFitDBobject * dbObject ) : BaseFunction( dbObject )
   {
-    std::vector<int>::const_iterator id = functionId_.begin();
+    vector<int>::const_iterator id = functionId_.begin();
     for( ; id != functionId_.end(); ++id ) {
       resolutionFunctionVec_.push_back( resolutionFunctionService( *id ) );
     }
@@ -62,7 +64,7 @@ public:
   template <class U>
   double sigmaPt(const U & track, const int i = 0) {
     if( i > iterationNum_ || i < 0 ) {
-      std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << std::endl;
+      cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << endl;
       exit(1);
     }
     return resolutionFunction_[i]->sigmaPt(track.pt(), track.eta(), parArray_[i]);
@@ -71,7 +73,7 @@ public:
   template <class U>
   double sigmaCotgTh(const U & track, const int i = 0) {
     if( i > iterationNum_ || i < 0 ) {
-      std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << std::endl;
+      cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << endl;
       exit(1);
     }
     return resolutionFunction_[i]->sigmaCotgTh(track.pt(), track.eta(), parArray_[i]);
@@ -80,7 +82,7 @@ public:
   template <class U>
   double sigmaPhi(const U & track, const int i = 0) {
     if( i > iterationNum_ || i < 0 ) {
-      std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << std::endl;
+      cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << endl;
       exit(1);
     }
     return resolutionFunction_[i]->sigmaPhi(track.pt(), track.eta(), parArray_[i]);
@@ -96,7 +98,7 @@ protected:
   void readParameters( TString fileName );
 
   resolutionFunctionBase<double * > ** resolutionFunction_;
-  std::vector<resolutionFunctionBase<double * > * > resolutionFunctionVec_;
+  vector<resolutionFunctionBase<double * > * > resolutionFunctionVec_;
 };
 
 #endif // ResolutionFunction_h

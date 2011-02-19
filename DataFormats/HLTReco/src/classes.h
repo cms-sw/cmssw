@@ -45,6 +45,10 @@ namespace {
 
     edm::Ref<reco::CompositeCandidateCollection> rccc;
 
+    std::vector<trigger::TriggerObjectType> v_t_tot;
+    std::vector<trigger::TriggerObjectType>::const_iterator v_t_tot_ci;
+    edm::Wrapper<std::vector<trigger::TriggerObjectType> > w_v_t_tot;
+
     trigger::TriggerObjectCollection toc;
     trigger::TriggerRefsCollections trc;
     trigger::TriggerFilterObjectWithRefs tfowr;

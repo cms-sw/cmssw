@@ -14,5 +14,6 @@
 <library   file="NtupleHelper.cc" name="NtupleHelper">
 </library>
 <bin   file="BeamFit.cc" name="beamfit">
+  <flags NO_TESTRUN="1"/>
   <lib   name="NtupleHelper"/>
 </bin>

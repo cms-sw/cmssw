@@ -107,7 +107,7 @@ void HIBestVertexProducer::produce
       err(1,1)=pow(beamSpot.BeamWidthY(),2);
       err(2,2)=pow(beamSpot.sigmaZ(),2);
       reco::Vertex newVertex(beamSpot.position(), 
-			     err, 0, 1, 1);
+			     err, 0, 0, 1);
       newVertexCollection->push_back(newVertex);  
 
       LogInfo("HeavyIonVertexing") << "beam spot: \n position = (" 

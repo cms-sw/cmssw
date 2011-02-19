@@ -135,7 +135,7 @@ const CaloSubdetectorGeometry * Calorimeter::getEcalGeometry(int subdetn) const
   if(subdetn==1) return EcalBarrelGeometry_;
   if(subdetn==2) return EcalEndcapGeometry_;
   if(subdetn==3) return PreshowerGeometry_;
-  edm::LogWarning("Calorimeter") << "Requested an invalid ECAL subdetector geometry" << std::endl;
+  edm::LogWarning("Calorimeter") << "Requested an invalid ECAL subdetector geometry: " << subdetn << std::endl;
   return 0;
 }
 
@@ -143,6 +143,6 @@ const CaloSubdetectorTopology * Calorimeter::getEcalTopology(int subdetn) const
 {
   if(subdetn==1) return EcalBarrelTopology_;
   if(subdetn==2) return EcalEndcapTopology_;
-  edm::LogWarning("Calorimeter") << "Requested an invalid ECAL subdetector topology " << std::endl;
+  edm::LogWarning("Calorimeter") << "Requested an invalid ECAL subdetector topology: " << subdetn << std::endl;
   return 0;
 }

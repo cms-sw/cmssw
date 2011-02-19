@@ -30,7 +30,7 @@ namespace cond {
     
     virtual ~TBufferBlobStreamingService();
 
-    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData,  Reflex::Type const & classDictionary );
+    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData,  Reflex::Type const & classDictionary, bool useCompression=false );
 
     void read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary );
 

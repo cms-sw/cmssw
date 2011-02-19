@@ -12,6 +12,9 @@ namespace coral {
 }
 
 namespace ora {
+
+  std::string poolSchemaVersion();
+
   class IDatabaseTable {
     public:
     virtual ~IDatabaseTable(){}
@@ -23,10 +26,11 @@ namespace ora {
 
   class IMainTable: public IDatabaseTable {
     public:
-    static std::string schemaVersionParameterName();
+    static std::string versionParameterName();
     public:
     virtual ~IMainTable(){}
     virtual bool getParameters( std::map<std::string,std::string>& destination ) = 0;
+    virtual std::string schemaVersion() = 0;
   };
 
   class ISequenceTable : public IDatabaseTable{

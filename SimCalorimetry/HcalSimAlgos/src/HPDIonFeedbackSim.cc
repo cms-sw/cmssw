@@ -6,7 +6,7 @@
 //
 // Project: HPD ion feedback
 // Author: T.Yetkin University of Iowa, Feb. 16, 2010
-// $Id: HPDIonFeedbackSim.cc,v 1.3 2010/02/27 00:36:04 rpw Exp $
+// $Id: HPDIonFeedbackSim.cc,v 1.2 2010/02/24 01:58:58 rpw Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
@@ -104,8 +104,8 @@ double HPDIonFeedbackSim::correctPE(const DetId & detId, double npe) const
     double p8 = 1.59696e+01;
 
     double noise = 0.;          // fC
-    int nFirst  = (int)(theRandBinomial->fire(npe, rateInTail));
-    int nSecond = (int)(theRandBinomial->fire(npe, rateInSecondTail));
+    int nFirst = theRandBinomial->fire(npe, rateInTail);
+    int nSecond = theRandBinomial->fire(npe, rateInSecondTail);
 
     for (int j = 0; j < nFirst; ++j) {
       noise += theRandGauss->fire(p4, p5);

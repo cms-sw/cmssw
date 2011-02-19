@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff import *
-#from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPathsWithMCTruth_cff import *
 
 
 ### controll by hand that all the path are in ... :-( :-( :-(

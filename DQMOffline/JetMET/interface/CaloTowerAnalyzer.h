@@ -13,6 +13,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
+
 #include <string>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -36,6 +38,7 @@ private:
   edm::InputTag caloTowersLabel_;
   std::vector< edm::InputTag >  HLTBitLabel_ ;
   edm::InputTag HLTResultsLabel_;
+  edm::InputTag HcalNoiseSummaryTag_;
   bool debug_;
   double energyThreshold_;
   bool allhist_;

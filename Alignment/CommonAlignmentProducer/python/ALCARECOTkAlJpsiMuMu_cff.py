@@ -20,29 +20,33 @@ ALCARECOTkAlJpsiMuMuDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.c
     DebugOn      = cms.untracked.bool(False)
 )
 
+ALCARECOTkAlJpsiMuMuGoodMuonSelector = cms.EDFilter("MuonSelector",
+    src = cms.InputTag("muons"),
+    cut = cms.string('isGlobalMuon = 1'),
+    filter = cms.bool(True)                                
+)
+
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlJpsiMuMu = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
 ALCARECOTkAlJpsiMuMu.filter = True ##do not store empty events
 
 ALCARECOTkAlJpsiMuMu.applyBasicCuts = True
 ALCARECOTkAlJpsiMuMu.ptMin = 0.8 ##GeV
-
 ALCARECOTkAlJpsiMuMu.etaMin = -3.5
 ALCARECOTkAlJpsiMuMu.etaMax = 3.5
 ALCARECOTkAlJpsiMuMu.nHitMin = 0
+
+ALCARECOTkAlJpsiMuMu.GlobalSelector.muonSource = 'ALCARECOTkAlJpsiMuMuGoodMuonSelector'
 ALCARECOTkAlJpsiMuMu.GlobalSelector.applyIsolationtest = False
 ALCARECOTkAlJpsiMuMu.GlobalSelector.applyGlobalMuonFilter = True
+
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.applyMassrangeFilter = True
-ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.minXMass = 3.0 ##GeV
-
-ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.maxXMass = 3.2 ##GeV
-
+ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.minXMass = 2.7 ##GeV
+ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.maxXMass = 3.4 ##GeV
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.daughterMass = 0.105 ##GeV (Muons)
-
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.applyChargeFilter = False
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.charge = 0
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.acoplanarDistance = 1 ##radian
 
-
-seqALCARECOTkAlJpsiMuMu = cms.Sequence(ALCARECOTkAlJpsiMuMuHLT+ALCARECOTkAlJpsiMuMuDCSFilter+ALCARECOTkAlJpsiMuMu)
+seqALCARECOTkAlJpsiMuMu = cms.Sequence(ALCARECOTkAlJpsiMuMuHLT+ALCARECOTkAlJpsiMuMuDCSFilter+ALCARECOTkAlJpsiMuMuGoodMuonSelector+ALCARECOTkAlJpsiMuMu)

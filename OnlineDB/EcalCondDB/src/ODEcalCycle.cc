@@ -1,7 +1,6 @@
 #include <stdexcept>
 #include <string>
 #include "OnlineDB/Oracle/interface/Oracle.h"
-#include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 
 #include "OnlineDB/EcalCondDB/interface/ODEcalCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODCCSCycle.h"
@@ -194,94 +193,10 @@ void ODEcalCycle::clear(){
    m_ttcci=0;
    m_jbh4=0;
    m_scan=0;
-   //   m_seq_id=0;
+   m_seq_id=0;
    m_ttcf=0;
    m_srp=0;
 }
-
-int ODEcalCycle::fetchID()
-  throw(runtime_error)
-{
-  // Return from memory if available
-  if (m_ID>0) {
-    return m_ID;
-  }
-
-  this->checkConnection();
-
-
-  DateHandler dh(m_env, m_conn);
-
-  try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cycle_id from ECAL_CYCLE_DAT "
-               "WHERE sequence_id = :1 ");
-    stmt->setInt(1, m_seq_id);
-
-    ResultSet* rset = stmt->executeQuery();
-
-    if (rset->next()) {
-      m_ID = rset->getInt(1);
-    } else {
-      m_ID = 0;
-    }
-    m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(runtime_error("ODEcalCycle::fetchID:  "+e.getMessage()));
-  }
-  setByID(m_ID);
-  return m_ID;
-}
-
-void ODEcalCycle::setByID(int id)
-  throw(std::runtime_error)
-{
-   this->checkConnection();
-
-   DateHandler dh(m_env, m_conn);
-
-   try {
-     Statement* stmt = m_conn->createStatement();
-
-     stmt->setSQL("SELECT tag, version, sequence_num, cycle_num, cycle_tag, description, "
-                     "ccs_configuration_id, dcc_configuration_id, laser_configuration_id, "
-                     "ltc_configuration_id, lts_configuration_id, tcc_configuration_id, "
-                     "\"TTCci_CONFIGURATION_ID\", jbh4_configuration_id, scan_id, TTCF_configuration_id, "
-                     "srp_configuration_id, dcu_configuration_id, tcc_ee_configuration_id "
-                     "FROM ECAL_CYCLE where cycle_id = :1 " );
-     stmt->setInt(1, id);
-
-     ResultSet* rset = stmt->executeQuery();
-     if (rset->next()) {
-       m_tag = rset->getString(1);
-       m_version = rset->getInt(2);
-       m_seq_num = rset->getInt(3);
-       m_cycle_num = rset->getInt(4);
-       m_cycle_tag = rset->getString(5);
-       m_cycle_description = rset->getString(6);
-       m_ccs = rset->getInt(7);
-       m_dcc = rset->getInt(8);
-       m_laser = rset->getInt(9);
-       m_ltc = rset->getInt(10);
-       m_lts = rset->getInt(11);
-       m_tcc = rset->getInt(12);
-       m_ttcci = rset->getInt(13);
-       m_jbh4 = rset->getInt(14);
-       m_scan = rset->getInt(15);
-       m_ttcf = rset->getInt(16);
-       m_srp = rset->getInt(17);
-       m_dcu = rset->getInt(18);
-       m_tcc_ee = rset->getInt(19);
-
-     } else {
-       throw(runtime_error("ODEcalCycle::setByID:  Given config_id is not in the database"));
-     }
-     m_conn->terminateStatement(stmt);
-   } catch (SQLException &e) {
-     throw(runtime_error("ODEcalCycle::setByID:  "+e.getMessage()));
-   }
-}
-
 
 void ODEcalCycle::printout(){
 
@@ -309,21 +224,19 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
   throw(runtime_error)
 {
   this->checkConnection();
-  //  result->clear();
-  int idid=0;
+  result->clear();
   if(result->getId()==0){
-    //    throw(runtime_error("ODEcalCycle::fetchData(): no Id defined for this ODEcalCycle "));
-    idid=result->fetchID();
+    throw(runtime_error("ODEcalCycle::fetchData(): no Id defined for this ODEcalCycle "));
   }
 
   try {
 
-    m_readStmt->setSQL("SELECT tag, version, sequence_num, cycle_num, cycle_tag, description, "
-                     "ccs_configuration_id, dcc_configuration_id, laser_configuration_id, "
-                     "ltc_configuration_id, lts_configuration_id, tcc_configuration_id, "
-                     "\"TTCci_CONFIGURATION_ID\", jbh4_configuration_id, scan_id, TTCF_configuration_id, "
-                     "srp_configuration_id, dcu_configuration_id, tcc_ee_configuration_id "
-                     "FROM ECAL_CYCLE where cycle_id = :1 " );
+    m_readStmt->setSQL("SELECT d.tag, d.version, d.sequence_num, d.cycle_num, d.cycle_tag, d.description, d.ccs_configuration_id,    "
+		       " d.dcc_configuration_id, d.laser_configuration_id, d.ltc_configuration_id, d.lts_configuration_id, d.tcc_configuration_id,"
+		       " d.\"TTCci_CONFIGURATION_ID\" ,  d.jbh4_configuration_id, d.scan_id, d.TTCF_configuration_id, d.srp_configuration_id, d.dcu_configuration_id,"
+		       " d.tcc_ee_configuration_id " 
+		       "FROM ECAL_CYCLE d "
+		       " where d.cycle_id = :1 " );
     m_readStmt->setInt(1, result->getId());
     ResultSet* rset = m_readStmt->executeQuery();
 

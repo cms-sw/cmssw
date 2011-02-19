@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.16 2010/09/06 15:49:55 yana Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.17 2010/09/07 15:46:48 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -77,14 +77,14 @@ FWCSCSegmentProxyBuilder::build( const CSCSegment& iData,
      float distOut = trap->DistFromInside( localPosition, localDirectionOut );
      LocalVector vIn = unit * distIn;
      LocalVector vOut = -unit * distOut;
-     float localSegmentInnerPoint[3] = { localPosition[0] + vIn.x(),
-					 localPosition[1] + vIn.y(),
-					 localPosition[2] + vIn.z() 
+     float localSegmentInnerPoint[3] = { static_cast<float>(localPosition[0] + vIn.x()),
+					 static_cast<float>(localPosition[1] + vIn.y()),
+					 static_cast<float>(localPosition[2] + vIn.z()) 
      };
       
-     float localSegmentOuterPoint[3] = { localPosition[0] + vOut.x(),
-					 localPosition[1] + vOut.y(),
-					 localPosition[2] + vOut.z() 
+     float localSegmentOuterPoint[3] = { static_cast<float>(localPosition[0] + vOut.x()),
+					 static_cast<float>(localPosition[1] + vOut.y()),
+					 static_cast<float>(localPosition[2] + vOut.z()) 
      };
 
      float globalSegmentInnerPoint[3];

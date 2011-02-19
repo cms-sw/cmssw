@@ -9,11 +9,11 @@ phiBinSize = 0.1
 etaMax = 2.5
 etaBinSize = 0.1
 trackPtMax = 50
-trackPtBinSize = 0.1
+trackPtBinSize = 0.5
 dzMax = 20
-dzBinSize = 0.05
+dzBinSize = 0.2
 dxyMax = 10
-dxyBinSize = 0.05
+dxyBinSize = 0.2
 factorMax = 3.0
 factorBinSize = 0.1
 etMax = 200
@@ -47,14 +47,14 @@ nTracksMax = nTracksBins
 nHitsMax = nHitsBins
 nLayersMax = nLayersBins
 factorBins = int((factorMax-1.0)/factorBinSize)
-phiMin = -phiMax
+phiMin = -1.*phiMax
 phiBins = int(2*phiMax/phiBinSize)
-etaMin = -etaMax
+etaMin = -1.*etaMax
 etaBins = int(2*etaMax/etaBinSize)
 trackPtBins = int(trackPtMax/trackPtBinSize)
-dxyMin = -dxyMax
+dxyMin = -1.*dxyMax
 dxyBins = int(2*dxyMax/dxyBinSize)
-dzMin = -dzMax
+dzMin = -1.*dzMax
 dzBins = int(2*dzMax/dzBinSize)
 etBins = int(etMax/etBinSize)
 eBins = int(eMax/eBinSize)
@@ -62,9 +62,9 @@ pBins = int(pMax/pBinSize)
 ptBins = int(ptMax/ptBinSize)
 pcBins = int(pcMax/pcBinSize)
 massBins = int(massMax/massBinSize)
-deltaEtaMin = -deltaEtaMax
+deltaEtaMin = -1.*deltaEtaMax
 deltaEtaBins = int(2*deltaEtaMax/deltaEtaBinSize)
-deltaPhiMin = -deltaPhiMax
+deltaPhiMin = -1.*deltaPhiMax
 deltaPhiBins = int(2*deltaPhiMax/deltaPhiBinSize)
 sOverNBins = int(sOverNMax/sOverNBinSize)
 drBins = int(drMax/drBinSize)
@@ -76,7 +76,7 @@ theJetIDParams = RecoJets.JetProducers.JetIDParams_cfi.JetIDParams.clone()
 #plugin config
 jptDQMParameters = cms.PSet(
   #Folder in DQM Store to write histograms to
-  HistogramPath = cms.string('JetMET/Jet/JPT/'),
+  HistogramPath = cms.string('JetMET/Jet/uncJPT'),##JPT
   #Whether to dump buffer info and raw data if any error is found
   PrintDebugMessages = cms.untracked.bool(False),
   #Whether to write the DQM store to a file at the end of the run and the file name
@@ -84,11 +84,11 @@ jptDQMParameters = cms.PSet(
   WriteDQMStore = cms.untracked.bool(False),
   DQMStoreFileName = cms.untracked.string('DQMStore.root'),
   
-  #Jet ID
-  n90HitsMin = cms.int32(2),
-  fHPDMax    = cms.double(0.98),
-  resEMFMin  = cms.double(0.01),
-  correctedPtThreshold = cms.double(10.0),
+  #Jet ID #here not cleaned
+  n90HitsMin = cms.int32(0),
+  fHPDMax    = cms.double(1.),
+  resEMFMin  = cms.double(0.0),
+  correctedPtThreshold = cms.double(3.0),
   JetIDParams = theJetIDParams,
   
   #Historgram configuration
@@ -1002,3 +1002,11 @@ jptDQMParameters = cms.PSet(
     Max = cms.double(jetConeSize)
   ),
 )
+
+cleanedjptDQMParameters = jptDQMParameters.clone(
+  HistogramPath = cms.string('JetMET/Jet/JPT'),
+  n90HitsMin = cms.int32(2),
+  fHPDMax    = cms.double(0.98),
+  resEMFMin  = cms.double(0.01),
+  correctedPtThreshold = cms.double(3.0)
+    )

@@ -87,10 +87,10 @@ def main():
             print statusAndOutput[1]
             
         # applying normalization
-        command = 'applyCalibration.py -c '+args.connect+' -norm '+ args.normalization +' -r '+run+' -P '+ lumiauthpath+' run'
-        statusAndOutput = commands.getstatusoutput(command)
-        logFile.write(command+'\n')
-        logFile.write(statusAndOutput[1])
+        #command = 'applyCalibration.py -c '+args.connect+' -norm '+ args.normalization +' -r '+run+' -P '+ lumiauthpath+' run'
+        #statusAndOutput = commands.getstatusoutput(command)
+        #logFile.write(command+'\n')
+        #logFile.write(statusAndOutput[1])
         # apply default validation
         selectstring='"{'+run+':[]}"'
         command = 'lumiValidate.py -c '+args.connect+' -P '+ lumiauthpath+' -runls '+selectstring+' update' 

@@ -1,11 +1,75 @@
 #!/usr/bin/env python
 VERSION='2.00'
-import os,sys
+import os,sys,time
 import coral
 #import optparse
-from RecoLuminosity.LumiDB import inputFilesetParser,csvSelectionParser, selectionParser,csvReporter,argparse,CommonUtil,lumiQueryAPI
+from RecoLuminosity.LumiDB import lumiTime,inputFilesetParser,csvSelectionParser, selectionParser,csvReporter,argparse,CommonUtil,lumiQueryAPI
 #import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
 #from pprint import pprint
+
+def getPerLSData(dbsession,inputRange,lumiversion='0001'):
+    result={}#{run:[[cmslsnum,orbittime,orbittimestamp,delivered,recorded]]}
+    datacollector={}
+    if isinstance(inputRange, str):
+        datacollector[int(inputRange)]=[]
+    else:
+        for run in inputRange.runs():
+            datacollector[run]=[]
+    try:
+        dbsession.transaction().start(True)
+        schema=dbsession.nominalSchema()
+        for run in datacollector.keys():
+            runsummaryOut=[]  #[fillnum,sequence,hltkey,starttime,stoptime]
+            lumisummaryOut=[] #[[cmslsnum,instlumi,numorbit,startorbit,beamstatus,beamenergy,cmsalive]]
+            trgOut={} #{cmslsnum:[trgcount,deadtime,bitname,prescale]}
+            q=schema.newQuery()
+            runsummaryOut=lumiQueryAPI.runsummaryByrun(q,run)
+            del q
+            q=schema.newQuery()
+            lumisummaryOut=lumiQueryAPI.lumisummaryByrun(q,run,lumiversion)
+            del q
+            q=schema.newQuery()
+            trgOut=lumiQueryAPI.trgbitzeroByrun(q,run,)
+            del q
+            if len(runsummaryOut)!=0 and len(lumisummaryOut)!=0 and len(trgOut)!=0:
+                datacollector[run].append(runsummaryOut)
+                datacollector[run].append(lumisummaryOut)
+                datacollector[run].append(trgOut)
+        dbsession.transaction().commit()
+    except Exception, e:
+        dbsession.transaction().rollback()
+        del dbsession
+        raise Exception, 'lumiCalc.getPerLSData:'+str(e)
+    for run,perrundata in datacollector.items():
+        result[run]=[]
+        if len(perrundata)==0:
+            continue
+        runsummary=perrundata[0]
+        lumisummary=perrundata[1]
+        trg=perrundata[2]
+        starttimestr=runsummaryOut[3]
+        t=lumiTime.lumiTime()
+        for dataperls in lumisummary:
+            cmslsnum=dataperls[0]
+            instlumi=dataperls[1]
+            numorbit=dataperls[2]
+            dellumi=instlumi*float(numorbit)*3564.0*25.0e-09
+            startorbit=dataperls[3]
+            orbittime=t.OrbitToTime(starttimestr,startorbit)
+            orbittimestamp=time.mktime(orbittime.timetuple())+orbittime.microsecond/1e6
+            trgcount=0
+            deadtime=0
+            prescale=0
+            deadfrac=1.0
+            if trg.has_key(cmslsnum):
+                trgcount=trg[cmslsnum][0]
+                deadtime=trg[cmslsnum][1]
+                prescale=trg[cmslsnum][3]
+                if trgcount!=0 and prescale!=0:
+                    deadfrac=float(deadtime)/(float(trgcount)*float(prescale))
+                recordedlumi=dellumi*(1.0-deadfrac)
+            result[run].append( [cmslsnum,orbittime,orbittimestamp,dellumi,recordedlumi] )
+    return result
 
 def getValidationData(dbsession,run=None,cmsls=None):
     '''retrieve validation data per run or all
@@ -35,7 +99,7 @@ def getValidationData(dbsession,run=None,cmsls=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Lumi Calculations",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls', 'lumibylsXing','status']
+    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls','lumibylstime','lumibylsXing','status']
     beamModeChoices = [ "stable", "quiet", "either"]
     # parse arguments
     parser.add_argument('action',choices=allowedActions,help='command actions')
@@ -74,7 +138,7 @@ if __name__ == '__main__':
                                               'frontier://LumiProd/CMS_LUMI_PROD',
                                                options.siteconfpath,parameters,options.debug)
     lumiXing = False
-    if options.action in ['lumibylsXing','delivered','recorded','overview','lumibyls']:
+    if options.action in ['lumibylsXing','delivered','recorded','overview','lumibyls','lumibylstime']:
         if options.action == 'lumibylsXing':
            #action = 'lumibyls'
            parameters.lumiXing = True
@@ -129,6 +193,29 @@ if __name__ == '__main__':
                 lumiQueryAPI.dumpData (todump, options.outputfile)
 
                 # Lumi by lumisection
+        if options.action == 'lumibylstime':
+            lsdata=getPerLSData(session,inputRange)#{run:[[ls,orbittime,orbittimestamp,delivered,recorded],[]]}
+            runs=lsdata.keys()
+            runs.sort()
+            if not options.outputfile:
+                print 'run,cmslsnum, utctime, unixtimestamp, delivered, recorded'
+                for run in runs:
+                    if len(lsdata[run])==0:continue #empty or non-existing run
+                    for perlsdata in lsdata[run]:
+                        if len(perlsdata)==0:
+                            continue
+                        print run,perlsdata[0],perlsdata[1],perlsdata[2],perlsdata[3],perlsdata[4]
+                            
+            else:
+                report=csvReporter.csvReporter(options.outputfile)
+                report.writeRow(['run','cmslsnum','utctime','unixtimestamp','delivered','recorded'])
+                for run in runs:
+                    if len(lsdata[run])==0:continue #empty or non-existing run
+                    for perlsdata in lsdata[run]:
+                        if len(perlsdata)==0:
+                            continue
+                        report.writeRow([run,perlsdata[0],perlsdata[1],perlsdata[2],perlsdata[3],perlsdata[4]])
+                            
         if options.action=='lumibyls' or options.action=='lumibylsXing':
             recordeddata=lumiQueryAPI.recordedLumiForRange(session, parameters, inputRange)
             # we got it, now we got to decide what to do with it

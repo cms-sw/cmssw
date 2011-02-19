@@ -165,8 +165,6 @@
 
 namespace cscdqm {
 
-  using namespace XERCES_CPP_NAMESPACE;
-
   /** @brief MO filter Item definition (loaded from XML/PSet) */
   struct MOFilterItem {
     /** Regexp filter pattern */
@@ -436,7 +434,7 @@ namespace cscdqm {
       logger << std::setfill(' '); \
       logger << std::setiosflags(std::ios::right) << std::setw(25) << caption << " : "; \
       logger << std::setiosflags(std::ios::right) << std::setw(12); \
-      if (value < 0) { \
+      if (((double) value) < 0) { \
         logger << "NA"; \
       } else { \
         logger << value; \

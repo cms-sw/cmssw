@@ -34,6 +34,7 @@
 setenv STORE_ENV $1
 setenv STORE_OUTPUT_FILE $2
 setenv STORE_ORIGINAL_DIR $cwd
+setenv STORE_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
 
 #============== Prepare output directory ==================
 

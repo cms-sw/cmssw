@@ -25,9 +25,7 @@ struct ZSelector {                  // modify this selector in order to return a
     ptMin_(ptMin), etaDau0Min_(etaDau0Min),etaDau0Max_(etaDau0Max),  etaDau1Min_(etaDau1Min),etaDau1Max_(etaDau1Max), 
     massMin_(massMin), massMax_(massMax), massMinZMC_(massMinZMC), massMaxZMC_(massMaxZMC) { }
   int operator()(const Candidate& c) const {
-    //   std::cout << "c.numberOfDaughters(): " << c.numberOfDaughters()<< std::endl;    
-    if (c.numberOfDaughters()<2) return 0; 
-    if (c.numberOfDaughters()>=6)      return 0;
+    std::cout << "c.numberOfDaughters(): " << c.numberOfDaughters()<< std::endl;    if (c.numberOfDaughters()<2) return 0; 
     const Candidate * d0 = c.daughter(0);
     const Candidate * d1 = c.daughter(1);
     if(c.numberOfDaughters()>2) {
@@ -35,8 +33,8 @@ struct ZSelector {                  // modify this selector in order to return a
     if (d1->numberOfDaughters()>0)  d1 = mcMuDaughter(d1);
     }
     int temp_cut= 0;
-    /// allowing asymmetric cut....
-    if( ( fabs(d0->eta()) > etaDau0Min_ && fabs(d1->eta())>etaDau1Min_ && fabs(d0->eta()) < etaDau0Max_ && fabs(d1->eta()) <etaDau1Max_ ) ||  ( fabs(d0->eta()) > etaDau1Min_ && fabs(d1->eta())>etaDau0Min_ && fabs(d0->eta()) < etaDau1Max_ && fabs(d1->eta()) <etaDau0Max_ ) ) {
+
+    if( fabs(d0->eta()) > etaDau0Min_ && fabs(d1->eta())>etaDau1Min_ && fabs(d0->eta()) < etaDau0Max_ && fabs(d1->eta()) <etaDau1Max_ ) {
       temp_cut=1;
       if(d0->pt() > ptMin_ && d1->pt() > ptMin_) {
 	temp_cut=2;
@@ -58,8 +56,8 @@ private:
   void analyze(const Event&, const EventSetup&);
   void endJob();
   InputTag zToMuMu_, zToMuMuMC_, zToMuMuMatched_;
-  long nZToMuMu_, selZToMuMu_, nZToMuMuMC_, selZToMuMuMC_, nZToMuMuMCMatched_, selZToMuMuMCMatched_, nZToMuMuMCDen_;
-  ZSelector select_, select_OnlyMassCut_;
+  long nZToMuMu_, selZToMuMu_, nZToMuMuMC_, selZToMuMuMC_, nZToMuMuMCMatched_, selZToMuMuMCMatched_;
+  ZSelector select_;
 };
 
 MCAcceptanceAnalyzer::MCAcceptanceAnalyzer(const ParameterSet& cfg) :
@@ -68,10 +66,9 @@ MCAcceptanceAnalyzer::MCAcceptanceAnalyzer(const ParameterSet& cfg) :
   zToMuMuMatched_(cfg.getParameter<InputTag>("zToMuMuMatched")),
   nZToMuMu_(0), selZToMuMu_(0), 
   nZToMuMuMC_(0), selZToMuMuMC_(0),
-  nZToMuMuMCMatched_(0), selZToMuMuMCMatched_(0), nZToMuMuMCDen_(0),
-  select_(cfg.getParameter<double>("ptMin"), cfg.getParameter<double>("etaDau0Min"), cfg.getParameter<double>("etaDau0Max"), cfg.getParameter<double>("etaDau1Min"), cfg.getParameter<double>("etaDau1Max"),cfg.getParameter<double>("massMin"), cfg.getParameter<double>("massMax"), cfg.getParameter<double>("massMinZMC"), cfg.getParameter<double>("massMaxZMC")  ),
-  select_OnlyMassCut_(-1, -9999,9999 , -9999, 9999,0, 0, cfg.getParameter<double>("massMinZMC"), cfg.getParameter<double>("massMaxZMC")  )
-{
+  nZToMuMuMCMatched_(0), selZToMuMuMCMatched_(0),
+  select_(cfg.getParameter<double>("ptMin"), cfg.getParameter<double>("etaDau0Min"), cfg.getParameter<double>("etaDau0Max"), cfg.getParameter<double>("etaDau1Min"), cfg.getParameter<double>("etaDau1Max"),
+	  cfg.getParameter<double>("massMin"), cfg.getParameter<double>("massMax"), cfg.getParameter<double>("massMinZMC"), cfg.getParameter<double>("massMaxZMC")  ) {
 }
 
 void MCAcceptanceAnalyzer::analyze(const Event& evt, const EventSetup&) {
@@ -81,14 +78,12 @@ void MCAcceptanceAnalyzer::analyze(const Event& evt, const EventSetup&) {
   evt.getByLabel(zToMuMuMC_, zToMuMuMC);
   Handle<GenParticleMatch > zToMuMuMatched;
   evt.getByLabel(zToMuMuMatched_, zToMuMuMatched);
-  //  long nZToMuMu = zToMuMu->size();
+  long nZToMuMu = zToMuMu->size();
   long nZToMuMuMC = zToMuMuMC->size();
   long nZToMuMuMatched = zToMuMuMatched->size();
-  
- 
-  // cout << ">>> " << zToMuMu_ << " has " << nZToMuMu << " entries" << endl;   
-  //cout << ">>> " << zToMuMuMC_ << " has " << nZToMuMuMC << " entries" << endl;   
-  //cout << ">>> " << zToMuMuMatched_ << " has " << nZToMuMuMatched << " entries" << endl;
+  cout << ">>> " << zToMuMu_ << " has " << nZToMuMu << " entries" << endl;   
+  cout << ">>> " << zToMuMuMC_ << " has " << nZToMuMuMC << " entries" << endl;   
+  cout << ">>> " << zToMuMuMatched_ << " has " << nZToMuMuMatched << " entries" << endl;
   
 
 
@@ -96,34 +91,25 @@ void MCAcceptanceAnalyzer::analyze(const Event& evt, const EventSetup&) {
   for(long i = 0; i < nZToMuMuMC; ++i) { 
     const Candidate & z = (*zToMuMuMC)[i]; 
     if(select_(z)==4) ++selZToMuMuMC_;
-    if(select_OnlyMassCut_(z)==4) ++nZToMuMuMCDen_;
-
   }
 
   
-  for(long i = 0; i < nZToMuMuMatched; ++i) { 
+  for(long i = 0; i < nZToMuMu; ++i) { 
 
     const Candidate & z = (*zToMuMu)[i];
     CandidateBaseRef zRef = zToMuMu->refAt(i);
     GenParticleRef mcRef = (*zToMuMuMatched)[zRef];
-
-
+    
     if(mcRef.isNonnull()) {   // z candidate matched to Z MC
-    ++nZToMuMu_;
-    ++nZToMuMuMCMatched_;
-
-    int selectZ = select_(z);
-    if(selectZ==4) ++selZToMuMu_;
-
-
-
-      int selectMC = select_(*mcRef);
-     
+      ++nZToMuMu_;
+      ++nZToMuMuMCMatched_;
+      int selectZ = select_(z), selectMC = select_(*mcRef);
+      if(selectZ==4) ++selZToMuMu_;
       if(selectMC==4) ++selZToMuMuMCMatched_;
 
       if(selectZ != selectMC) {
-	cout << ">>> select reco: " << selectZ << ", select mc: " << selectMC << endl;
-        if ((selectZ * selectMC) ==0 ) break; 
+	//cout << ">>> select reco: " << selectZ << ", select mc: " << selectMC << endl;
+	/*
 	if (z.numberOfDaughters()> 1){
 	const Candidate * d0 = z.daughter(0), * d1 = z.daughter(1);
 	if (mcRef->numberOfDaughters()>1){
@@ -138,7 +124,7 @@ void MCAcceptanceAnalyzer::analyze(const Event& evt, const EventSetup&) {
 	       << ", mass = " << mcm << endl; 
 	}
 	}
-	
+	*/
       }
       // to avoid double counting 
       if ((selectZ==3) && (selectMC==3)) break;
@@ -152,22 +138,14 @@ void MCAcceptanceAnalyzer::endJob() {
   double errZToMuMu = sqrt(effZToMuMu*(1. - effZToMuMu)/nZToMuMu_);
   double effZToMuMuMC = double(selZToMuMuMC_)/double(nZToMuMuMC_);
   double errZToMuMuMC = sqrt(effZToMuMuMC*(1. - effZToMuMuMC)/nZToMuMuMC_);
-  double effZToMuMuMCDen = double(selZToMuMuMC_)/double(nZToMuMuMCDen_);
-  double errZToMuMuMCDen = sqrt(effZToMuMuMCDen*(1. - effZToMuMuMCDen)/nZToMuMuMCDen_);
   double effZToMuMuMCMatched = double(selZToMuMuMCMatched_)/double(nZToMuMuMCMatched_);
   double errZToMuMuMCMatched = sqrt(effZToMuMuMCMatched*(1. - effZToMuMuMCMatched)/nZToMuMuMCMatched_);
   cout << ">>> " << zToMuMu_ << ": " << selZToMuMu_ << "/" << nZToMuMu_ 
        << " = " << effZToMuMu << " +/- " << errZToMuMu << endl;
   cout << ">>> " << zToMuMuMC_ << " - matched: " << selZToMuMuMCMatched_ << "/" << nZToMuMuMCMatched_ 
        << " = " << effZToMuMuMCMatched << " +/- " << errZToMuMuMCMatched << endl;
-  cout << " if the two numbers above are the same we can neglete resolution effect and quote the acceptance as the number below.... " << endl; 
-  cout << "********* acceptance m>sampleMCMassCut (usually 20 or 40) ********  " << endl;
   cout << ">>> " << zToMuMuMC_ << ": " << selZToMuMuMC_ << "/" << nZToMuMuMC_ 
        << " = " << effZToMuMuMC << " +/- " << errZToMuMuMC << endl;
-  cout << "********* acceptance in the given mass range ********  " << endl;
-  cout << ">>> " << zToMuMuMC_ << ": " << selZToMuMuMC_ << "/" << nZToMuMuMCDen_ 
-       << " = " << effZToMuMuMCDen << " +/- " << errZToMuMuMCDen << endl;
-
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

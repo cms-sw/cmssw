@@ -270,7 +270,8 @@ int JetPartonMatcher::fillAlgoritDefinition( const Jet& theJet ) {
     // Look for partons before the color string to associate. 
     // Do this if we don't want to do priority matching, or if
     // we didn't find a priority object. 
-    if( !foundPriority && aParton.numberOfDaughters() > 0  && ( aParton.daughter(0)->pdgId() == 91 || aParton.daughter(0)->pdgId() == 92 ) ) {
+    
+    if( !foundPriority && aParton.status() != 3 ) {
       double dist = DeltaR( theJet.p4(), aParton.p4() );
       if( dist <= coneSizeToAssociate ) {
 	if( dist < minDr ) {
@@ -404,7 +405,7 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet ) {
 	nInTheCone++;
       }
       // Look for heavy partons in TheBiggerConeSize now
-      if( aParticle.numberOfDaughters() > 0  && ( aParticle.daughter(0)->pdgId() == 91 || aParticle.daughter(0)->pdgId() == 92 ) ) {
+      if( aParticle.numberOfDaughters() > 0 && aParticle.status() != 3 ) {
 	if( flavour ==  1 ||
 	    flavour ==  2 ||
 	    flavour ==  3 ||

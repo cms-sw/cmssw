@@ -33,10 +33,11 @@ public:
 
   /// return TRUE if both mono and stereo components are active
   bool isActive() const {return monoDet()->isActive() && stereoDet()->isActive(); }
- 	  	 
+
   /// return TRUE if at least one of the mono and stereo components has badChannels
   bool hasBadComponents( const TrajectoryStateOnSurface &tsos ) const {
-    return (monoDet()->hasBadComponents(tsos) || stereoDet()->hasBadComponents(tsos));}
+     return (monoDet()->hasBadComponents(tsos) || stereoDet()->hasBadComponents(tsos));}
+
 
 private:
   const GluedGeomDet*         theGeomDet;
@@ -44,9 +45,6 @@ private:
   const TkStripMeasurementDet*       theMonoDet;
   const TkStripMeasurementDet*       theStereoDet;
 
-
-  template<typename Collector>
-  void doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const;
 
   template<typename Collector>
   void collectRecHits(const TrajectoryStateOnSurface&, Collector &coll) const;

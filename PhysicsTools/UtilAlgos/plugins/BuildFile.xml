@@ -6,4 +6,5 @@
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="PhysicsTools/UtilAlgos"/>
   <use   name="FWCore/ServiceRegistry"/>
+  <use   name="DataFormats/CLHEP"/>
 </library>

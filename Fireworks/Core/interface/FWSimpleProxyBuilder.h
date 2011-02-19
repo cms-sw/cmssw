@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, AljaMrak-Tadel
 //         Created:  Tue March 28  2 09:46:36 EST 2010
-// $Id: FWSimpleProxyBuilder.h,v 1.8 2010/06/18 12:31:57 matevz Exp $
+// $Id: FWSimpleProxyBuilder.h,v 1.9 2010/08/16 17:59:11 amraktad Exp $
 //
 
 // system include files
@@ -46,9 +46,7 @@ protected:
    virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
    virtual void buildViewType(const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType, const FWViewContext*);
 
-   void increaseComponentTransparency(unsigned int index, TEveElement* holder,
-                                      const std::string& name, Char_t transpOffset);
-
+ 
    virtual void clean();
    FWSimpleProxyHelper m_helper;
 private:

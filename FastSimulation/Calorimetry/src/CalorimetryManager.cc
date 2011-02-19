@@ -403,16 +403,22 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 
   EMShower theShower(random,aGammaGenerator,&showerparam,&thePart);
 
+  double maxShower = theShower.getMaximumOfShower();
+  if (maxShower > 20.) maxShower = 2.; // simple pivot-searching protection 
 
-  double depth((X0depth+theShower.getMaximumOfShower())*myCalorimeter_->ecalProperties(onEcal)->radLenIncm());
-  XYZPoint meanShower=ecalentrance+myPart.Vect().Unit()*depth;
+  double depth((X0depth + maxShower) * 
+	       myCalorimeter_->ecalProperties(onEcal)->radLenIncm());
+  XYZPoint meanShower = ecalentrance + myPart.Vect().Unit()*depth;
   
   //  if(onEcal!=1) return ; 
 
   // The closest crystal
   DetId pivot(myCalorimeter_->getClosestCell(meanShower, true, onEcal==1));
 
-  //  std::cout << " After getClosestCell " << std::endl;
+  if(pivot.subdetId() == 0) {   // further protection against avbsence of pivot
+    edm::LogWarning("CalorimetryManager") <<  "Pivot for egamma  e = "  << myTrack.hcalEntrance().e() << " is not found at depth " << depth << " and meanShower coordinates = " << meanShower << std::endl; 
+    return;
+  }
   
   EcalHitMaker myGrid(myCalorimeter_,ecalentrance,pivot,onEcal,size,0,random);
   //                                             ^^^^

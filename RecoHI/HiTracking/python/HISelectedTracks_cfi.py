@@ -28,7 +28,7 @@ hiTracksWithLooseQuality = selectHighPurity.clone(
 #tight
 hiTracksWithTightQuality = hiTracksWithLooseQuality.clone(
     src = "hiTracksWithLooseQuality",
-    keepAllTracks = True,
+    keepAllTracks = False,
     qualityBit = 'tight',
     chi2n_par = 0.7,   
     d0_par2 = [30.0, 0.3],
@@ -39,7 +39,7 @@ hiTracksWithTightQuality = hiTracksWithLooseQuality.clone(
 #highPurity
 hiSelectedTracks = hiTracksWithLooseQuality.clone(
     src = "hiTracksWithTightQuality",
-    keepAllTracks = True,
+    keepAllTracks = False,
     qualityBit = 'highPurity',
     chi2n_par = 0.4,    
     d0_par2 = [5.0, 0.3],               

@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
+
 ## 299,991 QCD events as defined on WorkBookPATExampleTopQuarks
 simulationQCD = cms.untracked.vstring(
      'rfio:///castor/cern.ch/user/c/cmssup/patTuple_qcd_0.root'
@@ -68,9 +70,8 @@ simulationTtbar = cms.untracked.vstring(
 )
 
 
-ttbarRECO = cms.untracked.vstring(    
-     '/store/relval/CMSSW_3_8_4/RelValZTT/GEN-SIM-RECO/START38_V12-v1/0024/46893A0C-82C2-DF11-B8A3-003048678BAE.root'
-    ,'/store/relval/CMSSW_3_8_4/RelValZTT/GEN-SIM-RECO/START38_V12-v1/0024/8E51890C-82C2-DF11-B7ED-002618943949.root'
+ttbarRECO = cms.untracked.vstring(
+    pickRelValInputFiles( relVal = 'RelValZTT', numberOfFiles = 0 )
 )
 
 ttbarJets  = cms.untracked.vstring(
@@ -78,8 +79,7 @@ ttbarJets  = cms.untracked.vstring(
 )
 
 zjetsRECO = cms.untracked.vstring(
-     '/store/relval/CMSSW_3_8_4/RelValZMM/GEN-SIM-RECO/START38_V12-v1/0024/00ABC27B-86C2-DF11-A82D-003048678B16.root'
-    ,'/store/relval/CMSSW_3_8_4/RelValZMM/GEN-SIM-RECO/START38_V12-v1/0024/42595C94-7FC2-DF11-A952-003048678FE4.root'
+    pickRelValInputFiles( relVal = 'RelValZMM', numberOfFiles = 0 )
 )
 
 zjetsTracks  = cms.untracked.vstring(
@@ -90,4 +90,7 @@ zjetsTrigger  = cms.untracked.vstring(
     'rfio:///castor/cern.ch/user/c/cmssup/patTuple_zjets_trigger.root'
 )
 
-
+# CMSSW_3_8_5_patch3 prompt reconstruction of muon PD, run 149291, 22073 events AOD
+dataMu = cms.untracked.vstring(
+    '/store/data/Run2010B/Mu/AOD/PromptReco-v2/000/149/291/FE4109CA-D0E4-DF11-96F6-001D09F2AD7F.root'
+)

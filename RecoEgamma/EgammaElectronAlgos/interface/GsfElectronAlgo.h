@@ -38,6 +38,7 @@ class EcalClusterFunctionBaseClass ;
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
@@ -103,22 +104,40 @@ class GsfElectronAlgo {
 
   private :
 
+    // for event data
+    struct EventData
+     {
+      edm::Event * event ;
+      edm::Handle<reco::GsfElectronCoreCollection> coreElectrons ;
+      edm::Handle<EcalRecHitCollection> reducedEBRecHits ;
+      edm::Handle<EcalRecHitCollection> reducedEERecHits ;
+      edm::Handle<reco::TrackCollection> currentCtfTracks ;
+      edm::Handle<CaloTowerCollection> towers ;
+      edm::Handle<edm::ValueMap<float> > pfMva ;
+      edm::Handle<reco::ElectronSeedCollection> seeds ;
+      bool originalCtfTrackCollectionRetreived ;
+      bool originalGsfTrackCollectionRetreived ;
+      edm::Handle<reco::TrackCollection> originalCtfTracks ;
+      edm::Handle<reco::GsfTrackCollection> originalGsfTracks ;
+      EventData()
+       : event(0),
+         originalCtfTrackCollectionRetreived(false),
+         originalGsfTrackCollectionRetreived(false)
+       {}
+     } ;
+
     // for temporary collection of electrons
     typedef std::list<reco::GsfElectron *> GsfElectronPtrCollection ;
 
     // create electrons from superclusters, tracks and Hcal rechits
     void process
-     ( edm::Handle<reco::GsfElectronCoreCollection> coresH,
-       edm::Handle<reco::TrackCollection> ctfTracksH,
-       edm::Handle<edm::ValueMap<float> > pfMVAH,
-       edm::Handle<CaloTowerCollection> towersH,
-       edm::Handle<EcalRecHitCollection> reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> reducedEERecHits,
+     ( GsfElectronAlgo::EventData &,
        const reco::BeamSpot & bs,
        GsfElectronPtrCollection & outEle ) ;
 
     void createElectron
-     ( const reco::GsfElectronCoreRef & coreRef,
+     ( GsfElectronAlgo::EventData &,
+       const reco::GsfElectronCoreRef & coreRef,
        int charge, const reco::GsfElectron::ChargeInfo & chargeInfo,
        const reco::CaloClusterPtr & elbcRef,
        const reco::TrackRef & ctfTrackRef, const float shFracInnerHits,
@@ -128,7 +147,6 @@ class GsfElectronAlgo {
        EgammaTowerIsolation & had1Iso04, EgammaTowerIsolation & had2Iso04,
        EgammaRecHitIsolation & ecalBarrelIso03,EgammaRecHitIsolation & ecalEndcapsIso03,
        EgammaRecHitIsolation & ecalBarrelIso04,EgammaRecHitIsolation & ecalEndcapsIso04,
-       edm::Handle<EcalRecHitCollection> reducedEBRecHits,edm::Handle<EcalRecHitCollection> reducedEERecHits,
        float mva, const reco::BeamSpot & bs, GsfElectronPtrCollection & outEle ) ;
 
     void preselectElectrons( GsfElectronPtrCollection & inEle, GsfElectronPtrCollection & outEle, const reco::BeamSpot& ) ;
@@ -136,9 +154,8 @@ class GsfElectronAlgo {
     bool preselectMvaFlag( reco::GsfElectron * ele ) ;
 
     void resolveElectrons
-     ( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle,
-       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits,
+     ( GsfElectronAlgo::EventData &,
+       GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle,
        const reco::BeamSpot & bs ) ;
 
     // associations
@@ -152,7 +169,7 @@ class GsfElectronAlgo {
     // From Puneeth Kalavase : returns the CTF track that has the highest fraction
     // of shared hits in Pixels and the inner strip tracker with the electron Track
     std::pair<reco::TrackRef,float> getCtfTrackRef
-     ( const reco::GsfTrackRef &, edm::Handle<reco::TrackCollection> ctfTracksH ) ;
+     ( const reco::GsfTrackRef &, edm::Handle<reco::TrackCollection> ) ;
 
     // intermediate calculations
     bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus, const
@@ -188,7 +205,7 @@ class GsfElectronAlgo {
     ElectronHcalHelper * hcalHelper_, * hcalHelperPflow_ ;
     //bool useHcalTowers_ ;
     edm::InputTag hcalTowers_;      // parameter if use towers
-    double hOverEConeSize_;         // parameter if use towers
+    //double hOverEConeSize_;         // parameter if use towers
     double hOverEPtMin_;            // parameter if use towers : min tower Et for H/E evaluation
     //double maxHOverEDepth1Barrel_;  // parameter if use towers : maximum H/E for depth1
     //double maxHOverEDepth1Endcaps_; // parameter if use towers : maximum H/E for depth1
@@ -233,7 +250,7 @@ class GsfElectronAlgo {
     double maxDeltaPhiBarrelPflow_;
     double maxDeltaPhiEndcapsPflow_;
     // cone size for H/E evaluation
-    double hOverEConeSizePflow_;
+    //double hOverEConeSizePflow_;
     // min tower Et for H/E evaluation
     double hOverEPtMinPflow_;
     //// maximum H/E for depth1
@@ -356,12 +373,7 @@ class GsfElectronAlgo {
     bool ecalSeedingParametersChecked_ ;
     void checkEcalSeedingParameters( edm::ParameterSetID const & ) ;
 
-    // some values for the current event
-    edm::Event * event_ ;
-    bool originalTrackCollectionsRetreived_ ;
-    edm::Handle<reco::TrackCollection> originalCtfTracks_ ;
-    edm::Handle<reco::GsfTrackCollection> originalGsfTracks_ ;
-    void retreiveOriginalTrackCollections( const reco::TrackRef & ctfTrack,  const reco::GsfTrackRef & gsfTrack ) ;
+    void retreiveOriginalTrackCollections( const reco::TrackRef & ctfTrack,  const reco::GsfTrackRef & gsfTrack, EventData & ) ;
 
  } ;
 

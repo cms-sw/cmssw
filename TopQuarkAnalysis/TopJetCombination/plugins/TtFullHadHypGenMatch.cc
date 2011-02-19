@@ -29,13 +29,13 @@ TtFullHadHypGenMatch::buildHypo(edm::Event& evt,
     if( isValid(match[idx], jets) ){
       switch(idx){
       case TtFullHadEvtPartons::LightQ:
-	if( abs(genEvt->daughterQuarkOfWPlus()->pdgId())==4 )
+	if( std::abs(genEvt->daughterQuarkOfWPlus()->pdgId())==4 )
 	  setCandidate(jets, match[idx], lightQ_   , jetCorrectionLevel("cQuark"));
 	else
 	  setCandidate(jets, match[idx], lightQ_   , jetCorrectionLevel("udsQuark"));
 	break;
       case TtFullHadEvtPartons::LightQBar:
-	if( abs(genEvt->daughterQuarkBarOfWPlus()->pdgId())==4 )
+	if( std::abs(genEvt->daughterQuarkBarOfWPlus()->pdgId())==4 )
 	  setCandidate(jets, match[idx], lightQBar_, jetCorrectionLevel("cQuark"));
 	else
 	  setCandidate(jets, match[idx], lightQBar_, jetCorrectionLevel("udsQuark"));
@@ -43,13 +43,13 @@ TtFullHadHypGenMatch::buildHypo(edm::Event& evt,
       case TtFullHadEvtPartons::B:
 	setCandidate(jets, match[idx], b_          , jetCorrectionLevel("bQuark")); break;
       case TtFullHadEvtPartons::LightP:
-	if( abs(genEvt->daughterQuarkOfWMinus()->pdgId())==4 )
+	if( std::abs(genEvt->daughterQuarkOfWMinus()->pdgId())==4 )
 	  setCandidate(jets, match[idx], lightP_   , jetCorrectionLevel("cQuark"));
 	else
 	  setCandidate(jets, match[idx], lightP_   , jetCorrectionLevel("udsQuark"));
 	break;
       case TtFullHadEvtPartons::LightPBar:
-	if( abs(genEvt->daughterQuarkBarOfWMinus()->pdgId())==4 )
+	if( std::abs(genEvt->daughterQuarkBarOfWMinus()->pdgId())==4 )
 	  setCandidate(jets, match[idx], lightPBar_, jetCorrectionLevel("cQuark"));
 	else
 	  setCandidate(jets, match[idx], lightPBar_, jetCorrectionLevel("udsQuark"));

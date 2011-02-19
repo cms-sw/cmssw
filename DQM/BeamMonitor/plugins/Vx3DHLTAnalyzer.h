@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.12 2010/07/04 11:25:25 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.13 2010/08/05 14:06:48 dinardo Exp $
 //
 //
 
@@ -42,9 +42,6 @@
 #include <vector>
 
 
-using namespace std;
-
-
 // #################
 // # Fit variables #
 // #################
@@ -57,7 +54,7 @@ typedef struct
   double z;
   double Covariance[DIM][DIM];
 } VertexType;
-vector<VertexType> Vertices;
+std::vector<VertexType> Vertices;
 bool considerVxCovariance;
 unsigned int counterVx; // Counts the number of vertices taken into account for the fit
 double maxTransRadius;  // Max transverse radius in which the vertices must be [cm]
@@ -81,9 +78,9 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual unsigned int HitCounter(const edm::Event& iEvent);
       virtual char* formatTime(const time_t& t);
-      virtual int MyFit(vector<double>* vals);
-      virtual void reset(string ResetType);
-      virtual void writeToFile(vector<double>* vals,
+      virtual int MyFit(std::vector<double>* vals);
+      virtual void reset(std::string ResetType);
+      virtual void writeToFile(std::vector<double>* vals,
 			       edm::TimeValue_t BeginTimeOfFit,
 			       edm::TimeValue_t EndTimeOfFit,
 			       unsigned int BeginLumiOfFit,
@@ -110,7 +107,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       double yStep;
       double zRange;
       double zStep;
-      string fileName;
+      std::string fileName;
 
 
       // ##############

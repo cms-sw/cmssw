@@ -18,10 +18,10 @@ int main(){
     ::putenv(const_cast<char*>(pathenv.c_str()));
     ora::Database db;
     db.configuration().setMessageVerbosity( coral::Debug );
+    //std::string connStr( "sqlite_file:test.db" );
     std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
     ora::Serializer serializer( "ORA_TEST" );
     serializer.lock( connStr );
-    //std::string connStr( "sqlite_file:test.db" );
     db.connect( connStr );
     ora::ScopedTransaction trans0( db.transaction() );
     trans0.start( false );
@@ -42,7 +42,7 @@ int main(){
     for(int i=0;i<2;i++) v1.push_back( i );
     int oid1 = contH0.insert( v1 );
     std::vector<int> v2;
-    for(int i=0;i<10;i++) v2.push_back( i );
+    for(int i=0;i<100000;i++) v2.push_back( i );
     int oid2 = contH0.insert( v2 );
     contH0.flush();
     //
@@ -52,16 +52,16 @@ int main(){
     contH1.flush();
     //
     std::vector<std::vector<int> > v3;
-    for(int i=0;i<3;i++) {
+    for(int i=0;i<2000;i++) {
       std::vector<int> in;
-      for(int j=0;j<i;j++) in.push_back(j);
+      for(int j=0;j<50;j++) in.push_back(j);
       v3.push_back( in );
     }
     int oid3 = contH2.insert( v3 );
     std::vector<std::vector<int> > v4;
     for(int i=0;i<10;i++) {
       std::vector<int> in;
-      for(int j=0;j<i;j++) in.push_back(j);
+      for(int j=0;j<10000;j++) in.push_back(j);
       v4.push_back( in );
     }
     int oid4 = contH2.insert( v4 );
@@ -129,9 +129,9 @@ int main(){
     //
     contH2 = db.containerHandle( contId );
     std::vector<std::vector<int> > v3n;
-    for(int i=0;i<10;i++) {
+    for(int i=0;i<20;i++) {
       std::vector<int> in;
-      for(int j=i;j>0;j--) in.push_back(j);
+      for(int j=5000;j>0;j--) in.push_back(j);
       v3n.push_back( in );
     }
     contH2.update( oid3 , v3n );

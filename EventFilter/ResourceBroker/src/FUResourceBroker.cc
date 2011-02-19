@@ -206,38 +206,17 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_INFO(log_, "Start configuring ...");
     connectToBUandSM();
     frb_ = new EvffedFillerRB(this);
-    resourceTable_=new FUResourceTable(segmentationMode_.value_,
-				       nbRawCells_.value_,
-				       nbRecoCells_.value_,
-				       nbDqmCells_.value_,
-				       rawCellSize_.value_,
-				       recoCellSize_.value_,
-				       dqmCellSize_.value_,
-				       bu_,sm_,
-				       log_, 
-				       shmResourceTableTimeout_.value_, 
-				       frb_,
-				       this);
-    FUResource::doFedIdCheck(doFedIdCheck_);
-    FUResource::useEvmBoard(useEvmBoard_);
-    resourceTable_->setDoCrcCheck(doCrcCheck_);
-    resourceTable_->setDoDumpEvents(doDumpEvents_);
-    reset();
-    shmInconsistent_ = false;
-    if(resourceTable_->nbResources() != nbRawCells_.value_ || 
-       resourceTable_->nbFreeSlots() != nbRawCells_.value_){
+    configureResources();
+    if(shmInconsistent_){
       std::ostringstream ost;
       ost << "configuring FAILED: Inconsistency in ResourceTable - nbRaw=" 
 	  << nbRawCells_.value_ << " but nbResources=" << resourceTable_->nbResources()
 	  << " and nbFreeSlots=" << resourceTable_->nbFreeSlots();
-      reasonForFailed_ = ost.str();
-      fsm_.fireFailed(ost.str(),this);
-      shmInconsistent_ = true;
-    }else{
-      
-      LOG4CPLUS_INFO(log_, "Finished configuring!");
-      fsm_.fireEvent("ConfigureDone",this);
-    }
+      XCEPT_RAISE(evf::Exception,ost.str());
+    } 
+    LOG4CPLUS_INFO(log_, "Finished configuring!");
+    fsm_.fireEvent("ConfigureDone",this);
+
   }
   catch (xcept::Exception &e) {
     std::string msg  = "configuring FAILED: " + (string)e.what();
@@ -293,13 +272,14 @@ bool FUResourceBroker::stopping(toolbox::task::WorkLoop* wl)
       ::usleep(shmResourceTableTimeout_.value_*10);
       gettimeofday(&now,0);
       if ((unsigned int)(now.tv_sec-then.tv_sec) > shmResourceTableTimeout_.value_/10000) {
-	std::string msg  = "stopping FAILED: ResourceTable shutdown timed out.";
-	reasonForFailed_ = "RESOURCETABLE SHUTDOWN TIMED OUT.";
-	fsm_.fireFailed(msg,this);
+	std::cout << "times: " << now.tv_sec << " " << then.tv_sec << " " 
+		  <<  shmResourceTableTimeout_.value_/10000 << std::endl;
+	LOG4CPLUS_WARN(log_, "Some Process did not detach - going to Emergency stop!");
+	emergencyStop();
 	break;
       }
     }
-    
+
     if (resourceTable_->isReadyToShutDown()) {
       LOG4CPLUS_INFO(log_, "Finished stopping!");
       fsm_.fireEvent("StopDone",this);
@@ -657,18 +637,7 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
     unlock();
     return false;
   }
-  
-  vector<pid_t> prcids=resourceTable_->clientPrcIds();
-  for (UInt_t i=0;i<prcids.size();i++) {
-    pid_t pid   =prcids[i];
-    int   status=kill(pid,0);
-    if (status!=0) {
-      LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" died, send to error stream if processing.");
-      if(!resourceTable_->handleCrashedEP(runNumber_,pid))
-	nbTimeoutsWithoutEvent_++;
-    }
-  }
-  
+
   vector<pid_t>  evt_prcids =resourceTable_->cellPrcIds();
   vector<UInt_t> evt_numbers=resourceTable_->cellEvtNumbers();
   vector<time_t> evt_tstamps=resourceTable_->cellTimeStamps(); 
@@ -691,6 +660,18 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
       }
     }
   }
+  
+  vector<pid_t> prcids=resourceTable_->clientPrcIds();
+  for (UInt_t i=0;i<prcids.size();i++) {
+    pid_t pid   =prcids[i];
+    int   status=kill(pid,0);
+    if (status!=0) {
+      LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" died, send to error stream if processing.");
+      if(!resourceTable_->handleCrashedEP(runNumber_,pid))
+	nbTimeoutsWithoutEvent_++;
+    }
+  }
+  
   if((resourceTable_->nbResources() != nbRawCells_.value_) && !shmInconsistent_){
     std::ostringstream ost;
     ost << "Watchdog spotted inconsistency in ResourceTable - nbRaw=" 
@@ -981,6 +962,68 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
   unlock();
 }
 
+void FUResourceBroker::emergencyStop()
+{
+
+  vector<pid_t> client_prc_ids = resourceTable_->clientPrcIds();
+  for (UInt_t i=0;i<client_prc_ids.size();i++) {
+    pid_t  pid   =client_prc_ids[i];
+    std::cout << "B: killing process " << i << "pid=" << pid << std::endl;
+    if(pid!=0){
+      kill(pid,9);
+      if(!resourceTable_->handleCrashedEP(runNumber_,pid))
+	nbTimeoutsWithoutEvent_++;
+      else
+	nbTimeoutsWithEvent_++;
+    }
+  }
+  resourceTable_->shutDownClients();
+  timeval now;
+  timeval then;
+  gettimeofday(&then,0);
+  while (!resourceTable_->isReadyToShutDown()) {
+    ::usleep(shmResourceTableTimeout_.value_*10);
+    gettimeofday(&now,0);
+    if ((unsigned int)(now.tv_sec-then.tv_sec) > shmResourceTableTimeout_.value_/10000) {
+      reasonForFailed_ = "RESOURCETABLE SHUTDOWN TIMED OUT.";
+      XCEPT_RAISE(evf::Exception,reasonForFailed_);
+    }
+  }
+  lock();
+  std::cout << "delete resourcetable" <<std::endl;
+  delete resourceTable_;
+  resourceTable_=0;
+  std::cout << "cycle through resourcetable config " << std::endl;
+  configureResources();
+  unlock();
+  if(shmInconsistent_) XCEPT_RAISE(evf::Exception,"Inconsistent shm state");
+  std::cout << "done with emergency stop"  << std::endl;
+}
+
+void FUResourceBroker::configureResources()
+{
+  resourceTable_=new FUResourceTable(segmentationMode_.value_,
+				     nbRawCells_.value_,
+				     nbRecoCells_.value_,
+				     nbDqmCells_.value_,
+				     rawCellSize_.value_,
+				     recoCellSize_.value_,
+				     dqmCellSize_.value_,
+				     bu_,sm_,
+				     log_, 
+				     shmResourceTableTimeout_.value_, 
+				     frb_,
+				     this);
+  FUResource::doFedIdCheck(doFedIdCheck_);
+  FUResource::useEvmBoard(useEvmBoard_);
+  resourceTable_->setDoCrcCheck(doCrcCheck_);
+  resourceTable_->setDoDumpEvents(doDumpEvents_);
+  reset();
+  shmInconsistent_ = false;
+  if(resourceTable_->nbResources() != nbRawCells_.value_ || 
+     resourceTable_->nbFreeSlots() != nbRawCells_.value_)
+    shmInconsistent_ = true;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////

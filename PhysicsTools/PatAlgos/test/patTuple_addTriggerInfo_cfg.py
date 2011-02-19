@@ -1,14 +1,14 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-## add trigger information to the configuration
-from PhysicsTools.PatAlgos.tools.trigTools import *
-switchOnTrigger( process )
-
 ## let it run
 process.p = cms.Path(
     process.patDefaultSequence
 )
+
+## add trigger information to the configuration
+from PhysicsTools.PatAlgos.tools.trigTools import *
+switchOnTrigger( process )
 
 
 
@@ -29,4 +29,4 @@ process.p = cms.Path(
 #                                         ##
 #   process.out.fileName = ...            ##  (e.g. 'myTuple.root')
 #                                         ##
-#   process.options.wantSummary = True    ##  (to suppress the long output at the end of the job)    
+#   process.options.wantSummary = True    ##  (to suppress the long output at the end of the job)

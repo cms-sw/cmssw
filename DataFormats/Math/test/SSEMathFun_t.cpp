@@ -3,8 +3,7 @@
 #include "DataFormats/Math/interface/SSEArray.h"
 #include<iostream>
 
-#ifdef  CMS_USE_SSE
-#ifdef __SSE3__
+#if defined(CMS_USE_SSE) && __SSE3__
 
 typedef float Scalar;
 
@@ -158,6 +157,6 @@ int main() {
 int main() {
   return 0;
 }
-#endif
-#endif
+
+#endif //  CMS_USE_SSE  && SSE3
 

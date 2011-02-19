@@ -201,10 +201,6 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     //printf("\t tpeak after = %5.2f\n",tpeak);
   }
 
-  // Calculate wire time to the half bx level using time bins on
-  // Store wire Bx times two in Rec Hit so it can be stored as an int
-  int twiceWireBx = 2*findWireBx(wHit.timeBinsOn(), tpeak);
-
   /// store rechit
 
    /// Retrive the L1APhase+strips combination
@@ -215,7 +211,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
      CSCRecHit2D rechit( id, lp0, localerr, L1A_and_strips,                  /// L1A;
                       //adcMap, wgroups, tpeak, positionWithinTheStrip,
 		      adcMap, BX_and_wgroups, tpeak, positionWithinTheStrip,        /// BX
-			 sigmaWithinTheStrip/stripWidth, quality, 0, 0, twiceWireBx);
+		      sigmaWithinTheStrip/stripWidth, quality);
 
   /// To see RecHit content (L1A feature included) (to be commented out)
   // rechit.print();
@@ -250,39 +246,3 @@ void CSCMake2DRecHit::setConditions( const CSCRecoConditions* reco ) {
   recoConditions_ = reco;
 } 
 
-float CSCMake2DRecHit::findWireBx(std::vector <int> timeBinsOn, float tpeak ) {
-  // Determine the wire Bx from the vector of time bins on for the wire digi with peak time as an intial estimate.
-  // Assumes that a single hit should create either one time bin on or two consecutive time bins on
-  // so algorithm looks for bin on nearest to peak time and checks if it has a bin on consecutive with it
-  float wireBx=-1;
-  float timeGuess=tpeak/25.+8.2;   // 8.2 is the wire time bin offset
-  float diffMin=9999.;
-  int bestMatch=-9;
-  for (int j=0; j<(int)timeBinsOn.size(); j++) {
-    double diff=timeGuess-timeBinsOn[j];
-    // Find bin on closest to peak time
-    if (fabs(diff)<fabs(diffMin)) {
-      diffMin=diff;
-      bestMatch=j;
-      wireBx=timeBinsOn[j];
-    }
-  }
-  int side=diffMin/fabs(diffMin);
-  bool unchanged=true;
-  // First check if bin on the same side as peak time is on
-  if ((bestMatch+side)>-1 && (bestMatch+side)<(int)timeBinsOn.size()) {      // Make sure one next to it within vector limits
-    if (timeBinsOn[bestMatch]==(timeBinsOn[bestMatch+side]-side)) {      // See if next bin on in vector is consecutive in time
-      // Set time to the average of the two bins
-      wireBx=wireBx+(float)side/2.;
-      unchanged=false;
-    }
-  }
-  // If no match is found then check the other side
-  if ((bestMatch-side)>-1 && (bestMatch-side)<(int)timeBinsOn.size() && unchanged) {       // Make sure one next to it exists
-    if (timeBinsOn[bestMatch]==(timeBinsOn[bestMatch-side]+side)) {    // See if nextbin on is consecutive in time
-      wireBx=wireBx-(double)side/2.;
-      unchanged=false;
-    }
-  }
-  return wireBx;
-}

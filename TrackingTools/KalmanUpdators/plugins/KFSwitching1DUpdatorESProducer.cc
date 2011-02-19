@@ -28,7 +28,7 @@ KFSwitching1DUpdatorESProducer::produce(const TrackingComponentsRecord & iRecord
 //     _updator = 0;
 //   }
   
-  _updator  = boost::shared_ptr<TrajectoryStateUpdator>(new KFSwitching1DUpdator(&pset_));
+  _updator  = boost::shared_ptr<TrajectoryStateUpdator>(new KFSwitching1DUpdator());
   return _updator;
 }
 

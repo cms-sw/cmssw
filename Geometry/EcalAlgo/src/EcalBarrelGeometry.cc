@@ -177,9 +177,9 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 	    {
 	      levery = 1;
 	      if ( history[0]>0. && history[2]>0. && SS[0]<0 && SS[2]<0 &&
-		   (fabs(SS[0])+fabs(SS[2]))> (fabs(history[0])+fabs(history[2]))) levery = 0  ;
+		   (abs(SS[0])+abs(SS[2]))> (abs(history[0])+abs(history[2]))) levery = 0  ;
 	      if ( history[0]<0. && history[2]<0. && SS[0]>0 && SS[2]>0 &&
-		   (fabs(SS[0])+fabs(SS[2]))> (fabs(history[0])+fabs(history[2]))) levery = 0  ;
+		   (abs(SS[0])+abs(SS[2]))> (abs(history[0])+abs(history[2]))) levery = 0  ;
 
 
 	      if (SS[0]>0. )
@@ -214,14 +214,14 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 	      leverx = 1;
 
 	      if ( history[1]>0. && history[3]>0. && SS[1]<0 && SS[3]<0 &&
-		   (fabs(SS[1])+fabs(SS[3]))> (fabs(history[1])+fabs(history[3])) )
+		   (abs(SS[1])+abs(SS[3]))> (abs(history[1])+abs(history[3])) )
 		{
 		  leverx = 0;
 		  start = 0;
 		}
 
 	      if ( history[1]<0. && history[3]<0. && SS[1]>0 && SS[3]>0 &&
-		   (fabs(SS[1])+fabs(SS[3]))> (fabs(history[1])+fabs(history[3])) )
+		   (abs(SS[1])+abs(SS[3]))> (abs(history[1])+abs(history[3])) )
 		{
 		  leverx = 0;
 		  start = 0;

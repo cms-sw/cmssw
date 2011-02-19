@@ -115,9 +115,8 @@ int main()
   
   // DISPLAY OVERALL RESULT  
 
-  if(!unitTestPassed) { cout << "\n\n-----------------\nUnit test FAILED!\n-----------------" << endl; return(1); }
-
-  cout << "\n\n----------------\nUnit test passed\n----------------" << endl;
+  if(unitTestPassed) { cout << "\n\n----------------\nUnit test passed\n----------------" << endl; }
+  else { cout << "\n\n-----------------\nUnit test FAILED!\n-----------------" << endl; }
 
   return 0;
 }

@@ -6,8 +6,6 @@ cscNeutronWriter = cms.EDProducer("CSCNeutronWriter",
     writer = cms.string('EDM'),
     output = cms.string('CSCNeutronHits.root'),
     neutronTimeCut = cms.double(250.0),
-    # save the hits starting at 19 ns
-    t0 = cms.double(19.),
     input = cms.InputTag("g4SimHits","MuonCSCHits")
 )
 

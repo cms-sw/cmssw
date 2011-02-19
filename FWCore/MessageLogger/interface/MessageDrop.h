@@ -18,7 +18,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowski
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.h,v 1.12 2010/02/08 23:55:16 chrjones Exp $
+// $Id: MessageDrop.h,v 1.11 2008/06/20 20:55:46 fischler Exp $
 //
 
 // Framework include files
@@ -52,10 +52,6 @@
 //  8  cdj 2/08/10      Make debugEnabled, infoEnabled, warningEnabled statics
 //                      to avoid overhead of thread specific singleton access
 //                      when deciding to keep or throw away messages
-//
-//  9  mf 9/23/10	Support for situations where no thresholds are low
-//                      enough to react to LogDebug (or info, or warning)
-//
 
 // user include files
 
@@ -80,9 +76,6 @@ public:
   static bool warningEnabled;                           // change log 8
   static unsigned char messageLoggerScribeIsRunning;	// change log 7
   static edm::Exception * ex_p;				// change log 4
-  static bool debugAlwaysSuppressed;			// change log 9
-  static bool infoAlwaysSuppressed;			// change log 9
-  static bool warningAlwaysSuppressed;			// change log 9
 };
 
 static const unsigned char  MLSCRIBE_RUNNING_INDICATOR = 29; // change log 7

@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.89 2010/10/05 03:15:25 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.93 2011/01/13 11:38:28 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -6,7 +6,6 @@
 
 #include <map>
 #include <utility>
-
 
 using namespace edm;
 using namespace trigger;
@@ -194,7 +193,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
   pathsSummaryHLTCorrelationsFolder_ = iConfig.getUntrackedParameter ("hltCorrelationsFolder",std::string("HLT/FourVector/PathsSummary/HLT Correlations/"));
   pathsSummaryFilterCountsFolder_ = iConfig.getUntrackedParameter ("filterCountsFolder",std::string("HLT/FourVector/PathsSummary/Filters Counts/"));
 
-  pathsSummaryHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("individualPathsPerLSFolder",std::string("HLT/FourVector/PathsSummary/HLT LS/"));
+  pathsSummaryHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("pathsPerLSFolder",std::string("HLT/FourVector/PathsSummary/HLT LS/"));
   pathsIndividualHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("individualPathsPerLSFolder",std::string("HLT/FourVector/PathsSummary/HLT LS/Paths/"));
   pathsSummaryHLTPathsPerBXFolder_ = iConfig.getUntrackedParameter ("individualPathsPerBXFolder",std::string("HLT/FourVector/PathsSummary/HLT BX/"));
 
@@ -551,7 +550,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       //if(hasHLTPassed(fCustomBXPath,triggerNames)) {
 
-        ME_HLT_CUSTOM_BX->Fill(bx,pathBinNumber-1);
+        //ME_HLT_CUSTOM_BX->Fill(bx,pathBinNumber-1);
 
       //}
 
@@ -978,17 +977,12 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
     } // end else
 
 
-    vector<string> muonPaths;
-    vector<string> egammaPaths;
-    vector<string> tauPaths;
-    vector<string> jetmetPaths;
-    vector<string> restPaths;
     vector<string> allPaths;
     // fill vectors of Muon, Egamma, JetMet, Rest, and Special paths
     for(PathInfoCollection::iterator v = hltPathsDiagonal_.begin(); v!= hltPathsDiagonal_.end(); ++v ) {
 
       std::string pathName = v->getPath();
-      int objectType = v->getObjectType();
+      //int objectType = v->getObjectType();
 
       vector<int> tempCount(5,0);
 
@@ -997,40 +991,11 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
       allPaths.push_back(pathName);
 
-      switch (objectType) {
-        case trigger::TriggerMuon :
-          muonPaths.push_back(pathName);
-          break;
-
-        case trigger::TriggerElectron :
-        case trigger::TriggerPhoton :
-          egammaPaths.push_back(pathName);
-          break;
-
-        case trigger::TriggerTau :
-          tauPaths.push_back(pathName);
-          break;
-
-        case trigger::TriggerJet :
-        case trigger::TriggerMET :
-          jetmetPaths.push_back(pathName);
-          break;
-
-        default:
-          restPaths.push_back(pathName);
-      }
-
     }
 
     fPathTempCountPair.push_back(make_pair("HLT_Any",0));
 
     fGroupName.push_back("All");
-    fGroupName.push_back("Muon");
-    fGroupName.push_back("Egamma");
-    fGroupName.push_back("Tau");
-    fGroupName.push_back("JetMet");
-    fGroupName.push_back("Rest");
-    fGroupName.push_back("Special");
 
     for(unsigned int g=0; g<fGroupName.size(); g++) {
 
@@ -1041,21 +1006,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
   
     dbe_->setCurrentFolder(pathsSummaryFolder_.c_str());
 
-
-
     fGroupNamePathsPair.push_back(make_pair("All",allPaths));
-
-    fGroupNamePathsPair.push_back(make_pair("Muon",muonPaths));
-
-    fGroupNamePathsPair.push_back(make_pair("Egamma",egammaPaths));
-
-    fGroupNamePathsPair.push_back(make_pair("Tau",tauPaths));
-
-    fGroupNamePathsPair.push_back(make_pair("JetMet",jetmetPaths));
-
-    fGroupNamePathsPair.push_back(make_pair("Rest",restPaths));
-
-    fGroupNamePathsPair.push_back(make_pair("Special",specialPaths_));
 
     /// add dataset name and thier triggers to the list 
     vector<string> datasetNames =  hltConfig_.datasetNames() ;
@@ -1556,16 +1507,6 @@ void FourVectorHLTOffline::setupHltMatrix(const std::string& label, vector<std::
     /// add this path to the vector of 2D LS paths
     v_ME_HLTAll_LS.push_back(ME_Group_LS);
 
-    h_name= "HLT_"+label+"_L1_Total_LS";
-    h_title = label+" HLT paths total count combined per LS ";
-    MonitorElement* ME_Total_L1_LS = dbe_->book1D(h_name.c_str(), h_title.c_str(), nLS_, 0, nLS_);
-    ME_Total_L1_LS->setAxisTitle("LS");
-
-    h_name= "HLT_"+label+"_L1_LS";
-    h_title = label+" HLT L1s count per LS ";
-    MonitorElement* ME_Group_L1_LS = dbe_->book2D(h_name.c_str(), h_title.c_str(), nLS_, 0, nLS_, paths.size(), -0.5, paths.size()-0.5);
-    ME_Group_L1_LS->setAxisTitle("LS");
-
     dbe_->setCurrentFolder(pathsSummaryHLTPathsPerBXFolder_.c_str());
     h_name= "HLT_"+label+"_BX_LS";
     h_title = label+" HLT paths total count combined per BX ";
@@ -1729,18 +1670,20 @@ void FourVectorHLTOffline::setupHltBxPlots()
   ME_HLT_BX = dbe_->book2D("HLT_bx",
                          "HLT counts vs Event bx",
                          Nbx_+1, -0.5, Nbx_+1-0.5, npaths, -0.5, npaths-0.5);
+  /*
   ME_HLT_CUSTOM_BX = dbe_->book2D("HLT_Custom_bx",
                          "HLT counts vs Event bx",
                          Nbx_+1, -0.5, Nbx_+1-0.5, npaths, -0.5, npaths-0.5);
+                         */
   ME_HLT_BX->setAxisTitle("Bunch Crossing");
-  ME_HLT_CUSTOM_BX->setAxisTitle("Bunch Crossing");
+  //ME_HLT_CUSTOM_BX->setAxisTitle("Bunch Crossing");
 
 
   // Set up bin labels on Y axis continuing to cover all npaths
   for(unsigned int i = 0; i < npaths; i++){
 
     ME_HLT_BX->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPathsDiagonal_[i]).getPath().c_str());
-    ME_HLT_CUSTOM_BX->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPathsDiagonal_[i]).getPath().c_str());
+    //ME_HLT_CUSTOM_BX->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPathsDiagonal_[i]).getPath().c_str());
 
   }
 
@@ -1968,7 +1911,8 @@ void FourVectorHLTOffline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
         int binNumber = b+1; // add one to get right bin
 
         // update  the bin content  but normalized to the whole columb (BX windw +/- 2)
-        hist_All_Norm->SetBinContent(lumi+1,binNumber,float(updatedLumiCount[b])/entireBXWindowUpdatedLumiCount);
+        if(entireBXWindowUpdatedLumiCount != 0)
+         hist_All_Norm->SetBinContent(lumi+1,binNumber,float(updatedLumiCount[b])/entireBXWindowUpdatedLumiCount);
 
       } // end for bx b
     
@@ -2388,15 +2332,26 @@ void FourVectorHLTOffline::selectElectrons(const edm::Event& iEvent, const edm::
     for( reco::GsfElectronCollection::const_iterator iter = eleHandle->begin(), iend = eleHandle->end(); iter != iend; ++iter )
     {
       
-      EcalClusterLazyTools lazyTool(iEvent, iSetup, recHitsEBTag_, recHitsEETag_); 
-      const reco::CaloCluster* bc = iter->superCluster()->seed().get(); // get the basic cluster
+      edm::Handle< EcalRecHitCollection > pEBRecHits;
+      iEvent.getByLabel( recHitsEBTag_, pEBRecHits );
+
+      edm::Handle< EcalRecHitCollection > pEERecHits;
+      iEvent.getByLabel( recHitsEETag_, pEERecHits );
+
+      if(pEBRecHits.isValid() && pEERecHits.isValid()) {
       
-      float eleMaxOver3x3 = ( lazyTool.eMax(*bc) / lazyTool.e3x3(*bc)  );
+        EcalClusterLazyTools lazyTool(iEvent, iSetup, recHitsEBTag_, recHitsEETag_); 
+        const reco::CaloCluster* bc = iter->superCluster()->seed().get(); // get the basic cluster
+      
+        float eleMaxOver3x3 = ( lazyTool.eMax(*bc) / lazyTool.e3x3(*bc)  );
+
+        if(eleMaxOver3x3 > eleMaxOver3x3_) continue;
+
+      }
 
       // Only ecalDriven electrons
       if(! iter->ecalDriven() ) continue;
 
-      if(eleMaxOver3x3 > eleMaxOver3x3_) continue;
 
       // Barrel 
       if(iter->isEB()) {

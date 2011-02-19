@@ -1,27 +1,6 @@
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
-#include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
-
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
-
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
-
-#include "CondCore/ORA/interface/Database.h"
-#include "CondCore/DBCommon/interface/PoolToken.h"
-
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-
-#include "TROOT.h"
-#include "TCanvas.h"
-#include "TStyle.h"
-#include "TColor.h"
-#include "TLine.h"
-#include "TH1D.h"
-#include "TH2D.h"
-
 #include <string>
 #include <sstream>
 #include <algorithm>
@@ -30,14 +9,9 @@
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <iostream>
 #include <fstream>
-
-#include <utility>
-using std::pair;
-using std::make_pair;
 
 namespace cond {
 
@@ -166,50 +140,11 @@ namespace cond {
   std::string PayLoadInspector<RPCObTemp>::summary() const {
     std::stringstream ss;
 
-    //hardcoded values
-    std::string authPath="/afs/cern.ch/cms/DB/conddb";
-    std::string conString="oracle://cms_orcoff_prod/CMS_COND_31X_RPC";
+    std::vector<RPCObTemp::T_Item> const & imon = object().ObTemp_rpc;
 
-    //frontend sends token instead of filename
-    std::string token="[DB=00000000-0000-0000-0000-000000000000][CNT=RPCObPVSSmap][CLID=53B2D2D9-1F4E-9CA9-4D71-FFCCA123A454][TECH=00000B01][OID=0000000C-00000000]";
-
-    //make connection object
-    DbConnection dbConn;
-
-    //set in configuration object authentication path
-    dbConn.configuration().setAuthenticationPath(authPath);
-    dbConn.configure();
-
-    //create session object from connection
-    DbSession dbSes=dbConn.createSession();
-
-    //try to make connection
-    dbSes.open(conString,true);
-    
-    //start a transaction (true=readOnly)
-    dbSes.transaction().start(true);
-
-    //get the actual object
-    boost::shared_ptr<RPCObPVSSmap> pvssPtr;
-    pvssPtr=dbSes.getTypedObject<RPCObPVSSmap>(token);
-
-    //we have the object...
-    std::vector<RPCObPVSSmap::Item> pvssCont=pvssPtr->ObIDMap_rpc;
-
-    std::vector<RPCObTemp::T_Item> const & tmon = object().ObTemp_rpc;
-
-    ss <<"DetID\t\t"<<"T(C)\t"<<"Time\t"<<"Day\n";
-    for(unsigned int i = 0; i < tmon.size(); ++i ){
-      for(unsigned int p = 0; p < pvssCont.size(); ++p){
-       	if(tmon[i].dpid!=pvssCont[p].dpid || pvssCont[p].suptype!=4 || pvssCont[p].region!=0)continue;
-	RPCDetId rpcId(pvssCont[p].region,pvssCont[p].ring,pvssCont[p].station,pvssCont[p].sector,pvssCont[p].layer,pvssCont[p].subsector,1);
-	RPCGeomServ rGS(rpcId);
-	std::string chName(rGS.name().substr(0,rGS.name().find("_Backward")));
-	ss <<chName <<"\t"<<tmon[i].value<<"\t"<<tmon[i].time<<"\t"<<tmon[i].day<<"\n";
-      }
+    for(unsigned int i = 0; i < imon.size(); ++i ){
+      ss <<imon[i].dpid <<" "<<imon[i].value<<" "<<imon[i].time<<" "<<imon[i].day<<" ";
     }
-
-    dbSes.close();
 
     return ss.str();
    }
@@ -219,31 +154,10 @@ namespace cond {
   template<>
   std::string PayLoadInspector<RPCObTemp>::plot(std::string const & filename,
 						   std::string const &, std::vector<int> const&, std::vector<float> const& ) const {
-
-    TCanvas canvas("Temp","Temp",800,800);
-
-    TH1D *tDistr=new TH1D("tDistr","IOV-averaged Temperature Distribution;Average Temp(C);Entries/0.5 C ",40,10.,30.);
-
-    std::vector<RPCObTemp::T_Item> const & tmon = object().ObTemp_rpc;
-
-    std::map<int,std::pair<int,double> > dpidMap;
-    for(unsigned int i = 0;i < tmon.size(); ++i){
-      if(dpidMap.find(tmon[i].dpid)==dpidMap.end())
-	dpidMap[tmon[i].dpid]=make_pair(1,(double)tmon[i].value);
-      else {
-	dpidMap[tmon[i].dpid].first++;
-	dpidMap[tmon[i].dpid].second+=tmon[i].value;
-      }
-    }
-
-    for(std::map<int,std::pair<int,double> >::const_iterator mIt=dpidMap.begin();mIt!=dpidMap.end();mIt++)
-      tDistr->Fill(mIt->second.second/(double)mIt->second.first);
-
-    tDistr->Draw();
-
-    canvas.SaveAs(filename.c_str());
-    return filename.c_str();
-
+    std::string fname = filename + ".txt";
+    std::ofstream f(fname.c_str());
+    f << dump();
+    return fname;
   }
   
 }

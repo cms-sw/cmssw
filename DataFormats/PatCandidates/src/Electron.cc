@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.21 2010/04/20 16:07:15 srappocc Exp $
+// $Id: Electron.cc,v 1.22 2010/09/29 13:24:25 wreece Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -17,6 +17,7 @@ Electron::Electron() :
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
     embeddedPFCandidate_(false),
+    ecalDrivenMomentum_(Candidate::LorentzVector(0.,0.,0.,0.)),
     cachedDB_(false),
     dB_(0.0),
     edB_(0.0)
@@ -32,6 +33,7 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
     embeddedPFCandidate_(false),
+    ecalDrivenMomentum_(anElectron.p4()),
     cachedDB_(false),
     dB_(0.0),
     edB_(0.0)
@@ -46,6 +48,7 @@ Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
     embeddedPFCandidate_(false),
+    ecalDrivenMomentum_(anElectronRef->p4()),
     cachedDB_(false),
     dB_(0.0),
     edB_(0.0)
@@ -59,6 +62,7 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
     embeddedPFCandidate_(false),
+    ecalDrivenMomentum_(anElectronRef->p4()),
     cachedDB_(false),
     dB_(0.0),
     edB_(0.0)

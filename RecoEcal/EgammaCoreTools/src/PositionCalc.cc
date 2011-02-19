@@ -3,6 +3,7 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 PositionCalc::PositionCalc( std::map<std::string,double> providedParameters ) :
    param_LogWeighted_  ( providedParameters.find("LogWeighted")->second ) ,
@@ -112,13 +113,14 @@ PositionCalc::Calculate_Location( const std::vector< std::pair<DetId, float> >& 
 	 //Select the correct value of the T0 parameter depending on subdetector
 
 	 const CaloCellGeometry* center_cell ( iSubGeom->getGeometry( maxId ) ) ;
-	 const double ctreta ( center_cell->getPosition().eta() ) ;
+     const double ctreta (center_cell->getPosition().eta());
 
 	 // for barrel, use barrel T0; 
 	 // for endcap: if preshower present && in preshower fiducial, use preshower T0
 	 //             else use endcap only T0
 
-	 const Double32_t T0 ( 1.479 > fabs( ctreta ) ? param_T0_barl_ :
+     const int subdet = maxId.subdetId();
+	 const Double32_t T0 ( subdet == EcalBarrel ? param_T0_barl_ :
 			       ( ( ( 1.653 < fabs( ctreta ) ) &&
 				   ( ( ( 0 < ctreta ) && 
 				       m_esPlus          ) ||
@@ -128,7 +130,6 @@ PositionCalc::Calculate_Location( const std::vector< std::pair<DetId, float> >& 
 
 	 // Calculate shower depth
 	 const float maxDepth ( param_X0_ * ( T0 + log( eTot ) ) ) ;
-
 	 const float maxToFront ( center_cell->getPosition().mag() ) ; // to front face
 
 	 // Loop over hits and get weights
@@ -154,9 +155,8 @@ PositionCalc::Calculate_Location( const std::vector< std::pair<DetId, float> >& 
             } else {
                     weight = e_j/eTot;
             }
-    
-	    const CaloCellGeometry* cell ( iSubGeom->getGeometry( dId ) ) ;
 
+	    const CaloCellGeometry* cell ( iSubGeom->getGeometry( dId ) ) ;
 	    const float depth ( maxDepth + maxToFront - cell->getPosition().mag() ) ;
 
 	    const GlobalPoint pos (

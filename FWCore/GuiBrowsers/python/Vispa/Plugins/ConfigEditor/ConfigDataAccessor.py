@@ -68,7 +68,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def _readRecursive(self, mother, pth):
         """ Read cms objects recursively from path """
         entry = None
-        if isinstance(pth, (cms.Path, cms.EndPath, cms.Sequence, cms.SequencePlaceholder, cms.Source, mod._Module, cms.Service, cms.ESSource, cms.ESProducer, cms.ESPrefer, cms.PSet)):
+        if isinstance(pth, (cms.Path, cms.EndPath, cms.Sequence, cms.SequencePlaceholder, cms.Source, mod._Module, cms.Service, cms.ESSource, cms.ESProducer, cms.ESPrefer, cms.PSet, cms.VPSet)):
             entry = pth
             entry._configChildren=[]
             self._allObjects += [pth]
@@ -83,10 +83,17 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if isinstance(pth, list):
             for i in pth:
                 self._readRecursive(next_mother, i)
-        for i in dir(pth):
-            o = getattr(pth, i)
-            if isinstance(o, sqt._Sequenceable):
-                self._readRecursive(next_mother, o)
+	if hasattr(sqt,"_SequenceCollection"):
+            # since CMSSW_3_11_X
+            if isinstance(pth, (sqt._ModuleSequenceType)):
+                for o in pth._seq._collection:
+                    self._readRecursive(next_mother, o)
+	else:
+            # for backwards-compatibility with CMSSW_3_10_X
+            for i in dir(pth):
+                o = getattr(pth, i)
+                if isinstance(o, sqt._Sequenceable):
+                    self._readRecursive(next_mother, o)
  
     def readConnections(self, objects,toNeighbors=False):
         """ Read connection between objects """
@@ -103,13 +110,16 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         for connection in compareObjectList:
             if self._cancelOperationsFlag:
                 break
-            if not connection in self._connections:
+            if not connection in self._connections.keys():
                 for key, value in self.inputTags(connection[1]):
                     module = str(value).split(":")[0]
                     if module == self.label(connection[0]):
                         product = ".".join(str(value).split(":")[1:])
-                        self._connections[connection]=(product, key)
-            if connection in self._connections:
+		        try:
+                            self._connections[connection]=(product, key)
+		        except TypeError:
+		            return []
+            if connection in self._connections.keys():
                 connections[connection]=self._connections[connection]
                 if not connection[1] in self._motherRelationsDict.keys():
                     self._motherRelationsDict[connection[1]]=[]
@@ -264,13 +274,13 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def label(self, object):
         """ Get label of an object """
         text = ""
-        if hasattr(object, "label_"):
+        if hasattr(object, "label_") and (not hasattr(object,"hasLabel_") or object.hasLabel_()):
             text = str(object.label_())
         if text == "":
             if hasattr(object, "type_"):
                 text = str(object.type_())
         if text == "":
-            text = str(object)
+            text = "NoLabel"
         return text
 
     def children(self, object):
@@ -298,14 +308,20 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def motherRelations(self, object):
         """ Get motherRelations of an object """
         if object in self._motherRelationsDict.keys():
-            return self._motherRelationsDict[object]
+	    try:
+                return self._motherRelationsDict[object]
+	    except TypeError:
+	        return []
         else:
             return []
 
     def daughterRelations(self, object):
         """ Get daughterRelations of an object """
         if object in self._daughterRelationsDict.keys():
-            return self._daughterRelationsDict[object]
+	    try:
+                return self._daughterRelationsDict[object]
+	    except TypeError:
+	        return []
         else:
             return []
 
@@ -412,7 +428,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def inputTags(self, object):
         """ Make list of inputtags from parameter dict """
         if not object in self._inputTagsDict.keys():
-             self._inputTagsDict[object]=self._readInputTagsRecursive(self.parameters(object))
+	    try:
+                self._inputTagsDict[object]=self._readInputTagsRecursive(self.parameters(object))
+	    except TypeError:
+	        return []
         return self._inputTagsDict[object]
 
     def uses(self, object):
@@ -424,19 +443,25 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 product = ".".join(str(value).split(":")[1:])
                 if module not in uses:
                     uses += [module]
-            self._usesDict[object]=uses
+	    try:
+                self._usesDict[object]=uses
+	    except TypeError:
+	        return []
         return self._usesDict[object]
     
     def foundIn(self, object):
         """ Make list of all mother sequences """
-        if not str(object) in self._foundInDict.keys():
+        if not object in self._foundInDict.keys():
             foundin = []
             for entry in self._allObjects:
                 for daughter in self.children(entry):
                     if self.label(object) == self.label(daughter) and len(self.children(entry)) > 0 and not self.label(entry) in foundin:
                         foundin += [self.label(entry)]
-            self._foundInDict[str(object)]=foundin
-        return self._foundInDict[str(object)]
+	    try:
+                self._foundInDict[object]=foundin
+	    except TypeError:
+	        return []
+        return self._foundInDict[object]
 
     def usedBy(self, object):
         """ Find config objects that use this as input """
@@ -446,7 +471,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 for uses in self.uses(entry):
                     if self.label(object) == uses and not self.label(entry) in usedby:
                         usedby += [self.label(entry)]
-            self._usedByDict[object]=usedby
+	    try:
+                self._usedByDict[object]=usedby
+	    except TypeError:
+	        return []
         return self._usedByDict[object]
 
     def recursePSetProperties(self, name, object, readonly=None):

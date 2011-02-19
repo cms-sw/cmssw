@@ -12,7 +12,7 @@
 // "ff" = 1 Byte
 // 64 bits = 8 Bytes = 16 hex carachters
 // for now: event is  ( 114 words x 32 bits ) = 448 Bytes
-// size of ulong = 4 Bytes. Thus, 1 (32 bit) word = 1 (ulong) 
+// size of unsigned long = 4 Bytes. Thus, 1 (32 bit) word = 1 (unsigned long) 
 
 struct hodo_fibre_index 
 {
@@ -83,7 +83,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 {
   
 
-  const ulong * buffer = ( reinterpret_cast<ulong*>(const_cast<unsigned char*> ( fedData.data())));
+  const unsigned long * buffer = ( reinterpret_cast<unsigned long*>(const_cast<unsigned char*> ( fedData.data())));
   int fedLenght                        = fedData.size(); // in Bytes
   
   // check ultimate fed size and strip off fed-header and -trailer
@@ -98,8 +98,8 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
   
   
-  ulong a=1; // used to extract an 8 Bytes word from fed 
-  ulong b=1; // used to manipulate the 8 Bytes word and get what needed
+  unsigned long a=1; // used to extract an 8 Bytes word from fed 
+  unsigned long b=1; // used to manipulate the 8 Bytes word and get what needed
 
   // initializing array of statuses
   for (int wordNumber=0; wordNumber<nWordsPerEvent; wordNumber++)
@@ -192,7 +192,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   **********************************/
 
   // getting 16 words buffer and checking words statuses
-  ulong bufferHodo[16]; 
+  unsigned long bufferHodo[16]; 
   bool hodoAreGood = true;
   for (int hodo=0; hodo<16; hodo++)
     {
@@ -435,7 +435,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
 // given a data word with 8 msb as status, checks status
 
-bool CamacTBDataFormatter::checkStatus(ulong word, int wordNumber){
+bool CamacTBDataFormatter::checkStatus(unsigned long word, int wordNumber){
   
 
   if ( wordNumber < 1 || wordNumber > nWordsPerEvent)

@@ -7,16 +7,32 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerProducer
 //
-// $Id: PATTriggerProducer.h,v 1.11 2010/06/26 17:53:57 vadler Exp $
+// $Id: PATTriggerProducer.h,v 1.12.2.2 2010/11/05 17:33:37 vadler Exp $
 //
 /**
   \class    pat::PATTriggerProducer PATTriggerProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
-  \brief    Produces the pat::TriggerPathCollection, pat::TriggerFilterCollection and pat::TriggerObjectCollection.
+  \brief    Produces the full or stand-alone PAT trigger information collections
 
-   [...]
+   This producer extracts the trigger information from
+   - the edm::TriggerResults written by the HLT process,
+   - the corresponding trigger::TriggerEvent,
+   - the provenance information,
+   - the process history,
+   - the GlobalTrigger information in the event and the event setup and
+   - the L1 object collections ("l1extra")
+   re-arranges it and writes it either (full mode) to
+   - a pat::TriggerObjectCollection,
+   - a pat::TriggerFilterCollection,
+   - a pat::TriggerPathCollection and
+   - optionally a pat::TriggerAlgorithmCollection
+   or (stand-alone mode) to
+   - a pat::TriggerObjectStandAloneCollection
+
+   For me information, s.
+   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger
 
   \author   Volker Adler
-  \version  $Id: PATTriggerProducer.h,v 1.11 2010/06/26 17:53:57 vadler Exp $
+  \version  $Id: PATTriggerProducer.h,v 1.12.2.2 2010/11/05 17:33:37 vadler Exp $
 */
 
 
@@ -47,7 +63,9 @@ namespace pat {
       virtual void beginLuminosityBlock( edm::LuminosityBlock & iLuminosityBlock, const edm::EventSetup & iSetup );
       virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
 
-      bool onlyStandAlone_; // configuration
+      std::string nameProcess_;     // configuration
+      bool        autoProcessName_;
+      bool        onlyStandAlone_;  // configuration
       // L1
       L1GtUtils     l1GtUtils_;
       bool          addL1Algos_;        // configuration (optional with default)
@@ -59,11 +77,18 @@ namespace pat {
       edm::InputTag tagL1ExtraTauJet_;  // configuration (optional)
       edm::InputTag tagL1ExtraETM_;     // configuration (optional)
       edm::InputTag tagL1ExtraHTM_;     // configuration (optional)
+      bool          autoProcessNameL1ExtraMu_;
+      bool          autoProcessNameL1ExtraNoIsoEG_;
+      bool          autoProcessNameL1ExtraIsoEG_;
+      bool          autoProcessNameL1ExtraCenJet_;
+      bool          autoProcessNameL1ExtraForJet_;
+      bool          autoProcessNameL1ExtraTauJet_;
+      bool          autoProcessNameL1ExtraETM_;
+      bool          autoProcessNameL1ExtraHTM_;
       bool          saveL1Refs_;        // configuration (optional with default)
       // HLT
       HLTConfigProvider         hltConfig_;
       bool                      hltConfigInit_;
-      std::string               nameProcess_;           // configuration
       edm::InputTag             tagTriggerResults_;     // configuration (optional with default)
       edm::InputTag             tagTriggerEvent_;       // configuration (optional with default)
       std::string               hltPrescaleLabel_;      // configuration (optional)

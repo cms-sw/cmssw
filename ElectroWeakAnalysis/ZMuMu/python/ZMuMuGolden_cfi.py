@@ -6,9 +6,9 @@ import copy
 #              muons for ZMuMu                    #    
 ###################################################
 
-goodGlobalMuons = cms.EDFilter("MuonViewRefSelector",
+goodAODGlobalMuons = cms.EDFilter("MuonViewRefSelector",
   src = cms.InputTag("muons"),
-  cut = cms.string('isGlobalMuon = 1 & isTrackerMuon = 1 &  pt > 20 & abs(eta)<2.1 & isolationR03().sumPt<3.0 & abs(globalTrack().dxy)<0.2 & globalTrack().hitPattern().numberOfValidTrackerHits>10'),
+  cut = cms.string('isGlobalMuon = 1 & pt > 20 & abs(eta)<2.1 & isolationR03().sumPt<3.0'),
   filter = cms.bool(True)                                
 )
 
@@ -16,28 +16,29 @@ goodGlobalMuons = cms.EDFilter("MuonViewRefSelector",
 #              combiner module                    #    
 ###################################################
 
-zmmCands = cms.EDFilter("CandViewShallowCloneCombiner",
+dimuonsGlobalAOD = cms.EDFilter("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
-    cut = cms.string('mass > 60 & mass<120 &  charge=0'),
-    decay = cms.string("goodGlobalMuons@+ goodGlobalMuons@-")
+    cut = cms.string('mass > 20 & charge=0'),
+    decay = cms.string("goodAODGlobalMuons@+ goodAODGlobalMuons@-")
 )
 
 
 # dimuon filter
 dimuonsFilter = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("zmmCands"),
+    src = cms.InputTag("dimuonsGlobalAOD"),
     minNumber = cms.uint32(1)
 )
 
-### trigger filter: selection of the events which have fired the HLT trigger path given. You may want to use it or to duisegard at all add a trigger match or not....
-
+### trigger filter: selection of the events which have fired the HLT trigger path given. You may want to add a trigger match or not....
 
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 
 dimuonsHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 # Add this to access 8E29 menu
-dimuonsHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
+#dimuonsHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
+# for 8E29 menu
+#dimuonsHLTFilter.HLTPaths = ["HLT_Mu3", "HLT_DoubleMu3"]
 # for 1E31 menu
 #dimuonsHLTFilter.HLTPaths = ["HLT_Mu9", "HLT_DoubleMu3"]
 dimuonsHLTFilter.HLTPaths = ["HLT_Mu9"]
@@ -46,7 +47,7 @@ dimuonsHLTFilter.HLTPaths = ["HLT_Mu9"]
 
 
 ##################################################
-###    trigger mathching, optional         #######
+#####                selection             #######
 ##################################################
 
 zSelection = cms.PSet(
@@ -55,13 +56,13 @@ zSelection = cms.PSet(
     )
 
 
-##ZMuMu: at least one HLT trigger match
+#ZMuMu: at least one HLT trigger match
 goodZToMuMuAtLeast1HLT = cms.EDFilter(
     "ZGoldenSelectorAndFilter",
     zSelection,
     TrigTag = cms.InputTag("TriggerResults::HLT"),
     triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT" ),
-    src = cms.InputTag("zmmCands"),
+    src = cms.InputTag("dimuonsGlobalAOD"),
     condition =cms.string("atLeastOneMatched"),
     hltPath = cms.string("HLT_Mu9"),
     L3FilterName= cms.string("hltSingleMu9L3Filtered9"),
@@ -74,13 +75,11 @@ goodZToMuMuAtLeast1HLT = cms.EDFilter(
 
 
 ewkZMuMuGoldenSequence = cms.Sequence(
-    goodGlobalMuons 
-# one may want to disregard the HLT filter
-    # * dimuonsHLTFilter   
-    * zmmCands 
-    * dimuonsFilter 
-# one may want to disregard the HLT matching
-    # * goodZToMuMuAtLeast1HLT 
+   goodAODGlobalMuons *
+   dimuonsHLTFilter *  
+   dimuonsGlobalAOD *
+   dimuonsFilter *
+   goodZToMuMuAtLeast1HLT 
 )
 
 

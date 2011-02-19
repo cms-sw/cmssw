@@ -11,13 +11,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-namespace edm
- {
-  class ParameterSet ;
-  class ConfigurationDescriptions ;
- }
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
@@ -28,8 +22,6 @@ namespace edm
 class GsfElectronCoreProducer : public edm::EDProducer
  {
   public:
-
-    static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
     explicit GsfElectronCoreProducer( const edm::ParameterSet & conf ) ;
     virtual ~GsfElectronCoreProducer() ;

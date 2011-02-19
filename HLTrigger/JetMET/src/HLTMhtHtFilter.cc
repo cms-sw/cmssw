@@ -30,6 +30,17 @@ HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
    minMht_= iConfig.getParameter<double> ("minMht"); 
    minPtJet_= iConfig.getParameter<double> ("minPtJet"); 
 
+   mode_= iConfig.getParameter<int>("mode");
+   //----mode=1 for MHT only 
+   //----mode=2 for Meff
+   //----mode=3 for PT12
+   //----mode=4 for HT only
+   etaJet_= iConfig.getParameter<double> ("etaJet");
+   usePt_= iConfig.getParameter<bool>("usePt");
+   minPT12_= iConfig.getParameter<double> ("minPT12");
+   minMeff_= iConfig.getParameter<double> ("minMeff");
+   minHt_= iConfig.getParameter<double> ("minHt");
+
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
 }
@@ -56,28 +67,49 @@ HLTMhtHtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(inputJetTag_,recocalojets);
 
   // look at all candidates,  check cuts and add to filter object
-  int n(0);
+  int n(0), nj(0), flag(0);
+  double ht=0.;
+  double mhtx=0., mhty=0.;
+  double jetVar;
 
   if(recocalojets->size() > 0){
     // events with at least one jet
-
-    double mhtx=0., mhty=0.;
-
-
     for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
 	 recocalojet != recocalojets->end(); recocalojet++) {
 
-      if (recocalojet->pt() > minPtJet_) {
-	mhtx -= recocalojet->pt()*cos(recocalojet->phi());
-	mhty -= recocalojet->pt()*sin(recocalojet->phi());
+      jetVar = recocalojet->pt();
+      if (!usePt_ || mode_==3) jetVar = recocalojet->et();
+
+      if (mode_==1 || mode_==2) {//---get MHT
+	if (jetVar > minPtJet_) {
+	  mhtx -= jetVar*cos(recocalojet->phi());
+	  mhty -= jetVar*sin(recocalojet->phi());
+	}
+      }
+      if (mode_==2 || mode_==4) {//---get HT
+	if (jetVar > minPtJet_ && fabs(recocalojet->eta()) < etaJet_) ht += jetVar;
+      }
+      if (mode_==3) {//---get PT12
+	if (jetVar > minPtJet_ && fabs(recocalojet->eta()) < etaJet_) {
+	  nj++;
+	  mhtx -= jetVar*cos(recocalojet->phi());
+	  mhty -= jetVar*sin(recocalojet->phi());
+	  if (nj==2) break;
+	}
       }
     }
     
-    
-    if( sqrt(mhtx*mhtx + mhty*mhty) > minMht_){
+    if( mode_==1 && sqrt(mhtx*mhtx + mhty*mhty) > minMht_) flag=1;
+    if( mode_==2 && sqrt(mhtx*mhtx + mhty*mhty)+ht > minMeff_) flag=1;
+    if( mode_==3 && sqrt(mhtx*mhtx + mhty*mhty) > minPT12_ && nj>1) flag=1;
+    if( mode_==4 && ht > minHt_) flag=1;
 
+    if (flag==1) {
       for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); recocalojet!=recocalojets->end(); recocalojet++) {
-	if (recocalojet->pt() > minPtJet_) {
+	jetVar = recocalojet->pt();
+	if (!usePt_ || mode_==3) jetVar = recocalojet->et();
+
+	if (jetVar > minPtJet_) {
 	  ref = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
 	  filterobject->addObject(TriggerJet,ref);
 	  n++;

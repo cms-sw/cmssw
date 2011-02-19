@@ -651,11 +651,11 @@ int HLTEcalResonanceFilter::diff_neta_s(Int_t neta1, Int_t neta2){
 // Calculate the distance in xtals taking into account the periodicity of the Barrel
 int HLTEcalResonanceFilter::diff_nphi_s(Int_t nphi1,Int_t nphi2) {
    Int_t mdiff;
-   if(abs(nphi1-nphi2) < (360-abs(nphi1-nphi2))) {
+   if(std::abs(nphi1-nphi2) < (360-std::abs(nphi1-nphi2))) {
      mdiff=nphi1-nphi2;
    }
    else {
-   mdiff=360-abs(nphi1-nphi2);
+   mdiff=360-std::abs(nphi1-nphi2);
    if(nphi1>nphi2) mdiff=-mdiff;
    }
    return mdiff;
@@ -723,7 +723,7 @@ void HLTEcalResonanceFilter::calcShowerShape(const reco::BasicCluster &bc,   con
       if( idItr == vid.end()){ ///only store those not belonging to this cluster
 	rechit5x5.push_back(*rit);
       }else{ /// S4, S9 are defined inside the cluster, the same as below. 
-	if(abs(dx)<=1 && abs(dy)<=1) {
+	if(std::abs(dx)<=1 && std::abs(dy)<=1) {
 	  if(dx <= 0 && dy <=0) e2x2[0] += energy; 
 	  if(dx >= 0 && dy <=0) e2x2[1] += energy; 
 	  if(dx <= 0 && dy >=0) e2x2[2] += energy; 
@@ -758,7 +758,7 @@ void HLTEcalResonanceFilter::calcShowerShape(const reco::BasicCluster &bc,   con
       }
       
       float energy = (*rit).energy();
-      if(abs(dx)<=1 && abs(dy)<=1){
+      if(std::abs(dx)<=1 && std::abs(dy)<=1){
 	if(dx <= 0 && dy <=0) e2x2[0] += energy; 
 	if(dx >= 0 && dy <=0) e2x2[1] += energy; 
 	if(dx <= 0 && dy >=0) e2x2[2] += energy; 

@@ -600,6 +600,7 @@ public:
     this->_maxMed = 10;
     this->_minMed = 0;
     this->nBins = 0;
+    this->_statCut = 0;
     reset();
     setAlgoName( getAlgoName() );
   };
@@ -614,6 +615,7 @@ public:
   void setEmptyBins(int eB){eB > 0 ? _emptyBins = 1 : _emptyBins = 0;};
   void setMaxMedian(float max){_maxMed = max;};
   void setMinMedian(float min){_minMed = min;};
+  void setStatCut(float cut){_statCut = (cut > 0) ? cut : 0;};
 
 protected :
   void setMessage(void){
@@ -627,6 +629,7 @@ private :
   float _min, _max;      //Test values
   int _emptyBins;        //use empty bins
   float _maxMed,_minMed; //Global max for median&mean
+  float _statCut;        //Minimal number of non zero entries needed for the quality test 
 
   int nBinsX, nBinsY; //Dimensions of hystogram
 

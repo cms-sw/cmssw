@@ -12,7 +12,7 @@ process.p = cms.Path(
 #  In addition you usually want to change the following
 #  parameters:
 ## ------------------------------------------------------
-process.source.fileNames    = [ '/store/relval/CMSSW_3_6_0_pre6/RelValTTbar/GEN-SIM-RECO/MC_36Y_V4-v1/0011/060537EE-4E45-DF11-AE40-003048679012.root']                                       
+#   process.source.fileNames    = [ '...']                                       
 #                                         ##
 #   process.maxEvents.input = ...         ##  (e.g. -1 to run on all events)
 #                                         ##

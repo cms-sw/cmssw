@@ -181,7 +181,7 @@ void RPCChamberQuality::endRun(const Run& r, const EventSetup& c) {
     if(RpcOverview) {//Fill Overview ME
       for(int r = 0 ; r< 3; r++) {
 	if (summary[r] == 0 ) continue;
-	int entries = summary[r]->getEntries();
+	double entries = summary[r]->getEntries();
 	if(entries == 0) continue;
 	for (int x = 1; x <= 7; x++) {
 	  RpcOverview->setBinContent(x,r+1,(summary[r]->getBinContent(x)/entries));

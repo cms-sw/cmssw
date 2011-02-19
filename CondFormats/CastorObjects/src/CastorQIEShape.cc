@@ -47,10 +47,8 @@ float CastorQIEShape::center (unsigned fAdc) const {
 }
 
 float CastorQIEShape::highEdge (unsigned fAdc) const {
-  if (fAdc >= 128 ) return 0;
-  if (fAdc == 127 ) return mValues [fAdc+1];
-  if (fAdc % 32 == 31) return mValues [fAdc+3];
-  return mValues [fAdc+1];
+  if (fAdc < 128) return mValues [fAdc+1];
+  return 0.;
 }
 
 bool CastorQIEShape::setLowEdge (float fValue, unsigned fAdc) {
@@ -65,3 +63,4 @@ bool CastorQIEShape::setLowEdges (const float fValue [32]) {
   expand ();
   return result;
 }
+

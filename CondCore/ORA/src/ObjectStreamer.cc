@@ -31,8 +31,8 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
     for ( unsigned int j=0;j<baseType.DataMemberSize();j++){
       Reflex::Member dataMember = baseType.DataMemberAt(j);      
       DataElement& dataMemberElement = dataElement.addChild( dataMember.Offset(), base.OffsetFP() );
-      // Ignore the transients
-      if ( dataMember.IsTransient() ) continue;
+      // Ignore the transients and the statics (how to deal with non-const statics?)
+      if ( dataMember.IsTransient() || dataMember.IsStatic() ) continue;
       // Get the member type and resolve possible typedef chains
       Reflex::Type dataMemberType = ClassUtils::resolvedType( dataMember.TypeOf() );
       if ( ! dataMemberType ) {
@@ -76,8 +76,8 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
       continue;
     }
           
-    // Ignore the transients
-    if ( dataMember.IsTransient() ) continue;
+    // Ignore the transients and the statics (how to deal with non-const statics?)
+    if ( dataMember.IsTransient() || dataMember.IsStatic() ) continue;
 
     // Get the member type and resolve possible typedef chains
     Reflex::Type dataMemberType = ClassUtils::resolvedType( dataMember.TypeOf() );

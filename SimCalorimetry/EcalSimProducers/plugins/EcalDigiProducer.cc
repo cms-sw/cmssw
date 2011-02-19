@@ -504,7 +504,7 @@ EcalDigiProducer::checkCalibrations( const edm::EventSetup& eventSetup )
    const ESPedestals*           espeds     ( hesPedestals.product() ) ;
    const ESIntercalibConstants* esmips     ( hesMIPs.product()      ) ;
    const ESMIPToGeVConstant*    esMipToGeV ( hesMIPToGeV.product()  ) ;
-   const int ESGain ( 1.1 > esgain->getESGain() ? 1 : 2 ) ;  
+   const int ESGain ( esgain->getESGain() ) ;  
    const double ESMIPToGeV ( ( 1 == ESGain ) ?
 			     esMipToGeV->getESValueLow()  :
 			     esMipToGeV->getESValueHigh()   ) ; 

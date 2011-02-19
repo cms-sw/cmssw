@@ -27,8 +27,6 @@
 <use   name="DataFormats/SiStripDigi"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrajectorySeed"/>
-<use   name="DataFormats/HeavyIonEvent"/>
-<use   name="SimDataFormats/HiGenData"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
@@ -47,6 +45,5 @@
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaTools"/>
-<use   name="RecoHI/HiEgammaAlgos"/>
 <use   name="rootcore"/>
 <flags   EDM_PLUGIN="1"/>

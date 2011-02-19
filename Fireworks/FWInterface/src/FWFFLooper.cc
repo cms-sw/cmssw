@@ -133,8 +133,6 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
      m_firstTime(true),
      m_pathsGUI(0)
 {
-   printf("FWFFLooper::FWFFLooper CTOR\n");
-
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 
    eiManager()->setContext(m_context.get());
@@ -191,8 +189,6 @@ FWFFLooper::attachTo(edm::ActivityRegistry &ar)
 
 FWFFLooper::~FWFFLooper()
 {
-   printf("FWFFLooper::~FWFFLooper DTOR\n");
-
    delete m_MagField;
 }
 
@@ -210,7 +206,6 @@ FWFFLooper::startingNewLoop(unsigned int count)
       const edm::ScheduleInfo *info = scheduleInfo();
       m_pathsGUI->setup(info);
 
-      printf("FWFFLooper: starting first loop!\n");
       // We need to enter the GUI loop in order to 
       // have all the callbacks executed. The last callback will
       // be responsible for returning the control to CMSSW. 
@@ -281,6 +276,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       setupActions();
       
       guiManager()->showEventFilterGUI_.connect(boost::bind(&FWFFLooper::showPathsGUI, this, _1));
+      guiManager()->setFilterButtonText("Show paths / CMSSW configuration editor");
       guiManager()->filterButtonClicked_.connect(boost::bind(&FWGUIManager::showEventFilterGUI, guiManager()));
 
       m_firstTime = false;
@@ -325,7 +321,6 @@ FWFFLooper::duringLoop(const edm::Event &event,
       return kContinue;
    }
 
-   printf("FWFFLooper::postProcessEvent: Starting GUI loop.\n");
    m_pathsGUI->hasChanges() = false;
    m_metadataManager->update(new FWFFMetadataUpdateRequest(event));
    m_navigator->setCurrentEvent(&event);
@@ -336,7 +331,6 @@ FWFFLooper::duringLoop(const edm::Event &event,
    // it on next iteration.
    if (m_pathsGUI->hasChanges())
    {
-      std::cerr << "Reloading Event" << std::endl;
       m_nextEventId = event.id();
       return kStop;
    }
@@ -379,7 +373,6 @@ void
 FWFFLooper::quit()
 {
    gSystem->ExitLoop();
-   printf("FWFFLooper exiting on user request.\n");
 
    // Throwing exception here is bad because:
    //   a) it does not work when in a "debug step";
@@ -396,7 +389,6 @@ FWFFLooper::quit()
 edm::EDLooperBase::Status
 FWFFLooper::endOfLoop(const edm::EventSetup&, unsigned int)
 {
-   printf("FWFFLooper::endOfLoop");
    // Looks like the module changer is availble only here.
    for (ModuleChanges::iterator i = m_scheduledChanges.begin(),
                                 e = m_scheduledChanges.end();
@@ -414,9 +406,15 @@ FWFFLooper::showPathsGUI(const TGWindow *)
    if (!m_pathsGUI)
       return;
    if (m_pathsGUI->IsMapped())
+   {
+      guiManager()->setFilterButtonText("Show paths / CMSSW configuration editor");
       m_pathsGUI->UnmapWindow();
+   }
    else
+   {
+      guiManager()->setFilterButtonText("Hide paths / CMSSW configuration editor");
       m_pathsGUI->MapWindow();
+   }
 }
 
 void

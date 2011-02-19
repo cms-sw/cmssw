@@ -75,10 +75,7 @@ void LMFDat::dump(int n, int max) const {
       cout << c << " -------------------------------------------" << endl;
       cout << "   ID: " << id << endl;
       for (unsigned int j = 0; j < x.size(); j++) {
-	if (j % 4 == 0) {
-	  cout << endl << "   ";
-	}
-	cout << rm[j] << ":" << x[j] << "\t";
+	cout << "   " << rm[j] << ":" << x[j] << " ";
       }
       cout << endl;
       p++;
@@ -103,92 +100,26 @@ std::string LMFDat::buildInsertSql() {
   return sqls;
 }
 
-std::string LMFDat::buildSelectSql(int logic_id, int direction) {
+std::string LMFDat::buildSelectSql(int logic_id) {
   // create the insert statement
   // if logic_id = 0 select all channels for a given iov_id
   std::stringstream sql;
-  int count = 1;
-  if (getLMFRunIOVID() > 0) {
-    // in this case we are looking for all data collected during the same
-    // IOV. There can be many logic_ids per IOV.
-    sql << "SELECT * FROM " << getTableName() << " WHERE LMF_IOV_ID = " 
-        << getLMFRunIOVID();
-  } else {
-    // in this case we are looking for a specific logic_id whose
-    // data have been collected at a given time. There is only
-    // one record in this case.
-    std::string op = ">";
-    std::string order = "ASC";
-    if (direction < 0) {
-      op = "<";
-      order = "DESC";
-    }
-    sql << "SELECT * FROM (SELECT " << getTableName() << ".* FROM " 
-	<< getTableName() 
-	<< " JOIN LMF_RUN_IOV ON " 
-	<< "LMF_RUN_IOV.LMF_IOV_ID = " << getTableName() << ".LMF_IOV_ID "
-	<< "WHERE SUBRUN_START " << op << "= TO_DATE(:" << count;
-    count++;
-    sql << ", 'YYYY-MM-DD HH24:MI:SS') ORDER BY SUBRUN_START " 
-	<< order << ") WHERE ROWNUM <= 1";
-  }
+  sql << "SELECT * FROM " << getTableName() << " WHERE LMF_IOV_ID = " 
+      << getLMFRunIOVID();
   if (logic_id > 0) {
-    sql << " AND LOGIC_ID = :" << count;
+    sql << " AND LOGIC_ID = :1";
   }
   std::string sqls = sql.str();
-  //  if (m_debug) {
+  if (m_debug) {
     cout << m_className << "::buildSelectSqlDB: " << sqls << endl;
-    //  }
-  return sqls;
-}
-
-void LMFDat::getPrevious(LMFDat *dat)
-  throw(runtime_error)
-{
-  getNeighbour(dat, -1);
-}
-
-void LMFDat::getNext(LMFDat *dat)
-  throw(runtime_error)
-{
-  getNeighbour(dat, +1);
-}
-
-void LMFDat::getNeighbour(LMFDat *dat, int which)
-  throw(runtime_error)
-{
-  // there should be just one record in this case
-  if (m_data.size() == 1) {
-    dat->setConnection(this->getEnv(), this->getConn());
-    int logic_id = m_data.begin()->first;
-    Tm lastMeasuredOn = getSubrunStart();
-    lastMeasuredOn += which;
-    dat->fetch(logic_id, &lastMeasuredOn, which);
-    dat->setMaxDataToDump(m_max);
-  } else {
-    dump();
-    throw(runtime_error(m_className + "::getPrevious: Too many LOGIC_IDs in "
-                        "this object"));
   }
+  return sqls;
 }
 
 void LMFDat::fetch(const EcalLogicID &id) 
   throw(runtime_error)
 {
   fetch(id.getLogicID());
-}
-
-void LMFDat::fetch(const EcalLogicID &id, const Tm &tm) 
-  throw(runtime_error)
-{
-  fetch(id.getLogicID(), &tm, 1);
-}
-
-void LMFDat::fetch(const EcalLogicID &id, const Tm &tm, int direction) 
-  throw(runtime_error)
-{
-  setInt("lmfRunIOV_id", 0); /* set the LMF_IOV_ID to undefined */
-  fetch(id.getLogicID(), &tm, direction);
 }
 
 void LMFDat::fetch() 
@@ -200,36 +131,16 @@ void LMFDat::fetch()
 void LMFDat::fetch(int logic_id) 
   throw(runtime_error)
 {
-  fetch(logic_id, NULL, 0);
-}
-
-void LMFDat::fetch(int logic_id, const Tm &tm) 
-  throw(runtime_error)
-{
-  fetch(logic_id, &tm, 1);
-}
-
-void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction) 
-  throw(runtime_error)
-{
   this->checkConnection();
   bool ok = check();
-  if ((timestamp == NULL) && (getLMFRunIOVID() == 0)) {
-    throw(runtime_error(m_className + "::fetch: Cannot fetch data with "
-			"timestamp = 0 and LMFRunIOV = 0"));
-  }
   if (ok && isValid()) {
     try {
       Statement * stmt = m_conn->createStatement();
-      std::string sql = buildSelectSql(logic_id, direction);
+      std::string sql = buildSelectSql(logic_id);
       stmt->setSQL(sql);
-      int count = 1;
       if (logic_id > 0) {
-        if (timestamp != NULL) {
-	  stmt->setString(count, timestamp->str());
-	  count++;
-	}
-	stmt->setInt(count, logic_id);
+	std::cout << "LOGIC_ID = " << logic_id << std::endl;
+	stmt->setInt(1, logic_id);
       }
       ResultSet *rset = stmt->executeQuery();
       std::vector<float> x;
@@ -240,9 +151,6 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
 	  x.push_back(rset->getFloat(i + 3));
 	}
 	int id = rset->getInt(2);
-	if (timestamp != NULL) {
-	  setInt("lmfRunIOV_id", rset->getInt(1));
-	}
 	this->setData(id, x);
 	x.clear();
       }

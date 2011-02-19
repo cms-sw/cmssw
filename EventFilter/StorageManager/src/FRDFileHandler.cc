@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.cc,v 1.13 2010/09/09 08:01:15 mommsen Exp $
+// $Id: FRDFileHandler.cc,v 1.12 2010/03/19 13:24:05 mommsen Exp $
 /// @file: FRDFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/FRDFileHandler.h>
@@ -19,7 +19,7 @@ FRDFileHandler::FRDFileHandler
   const unsigned long long& maxFileSize
 ) :
 FileHandler(fileRecord, dbFileHandler, dwParams, maxFileSize),
-_writer(new FRDEventFileWriter(fileRecord->completeFileName()))
+_writer(new FRDEventFileWriter(fileRecord->completeFileName()+".dat"))
 {}
 
 
@@ -42,10 +42,10 @@ void FRDFileHandler::closeFile(const FilesMonitorCollection::FileRecord::Closing
   {
     // if writer was reset, we already closed the stream but failed to move the file to the closed position
     _writer->stop();
-    setAdler(_writer->adler32());
+    setAdler(_writer->adler32(), 0);
     _writer.reset(); // Destruct the writer to flush the file stream
   }
-  moveFileToClosed(reason);
+  moveFileToClosed(false, reason);
   writeToSummaryCatalog();
   updateDatabase();
 }

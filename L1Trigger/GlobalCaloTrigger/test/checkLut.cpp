@@ -11,7 +11,7 @@ int main(int argc, char **argv)
 {
   if (argc<2) {
     std::cout << "No filename argument supplied - exiting" << std::endl;
-    return 0;
+    return -1;
   }
 
   char* filename=argv[1];

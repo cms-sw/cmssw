@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Apr  7 17:10:11 EDT 2007
-// $Id: standard.cc,v 1.2 2007/04/12 12:51:12 wmtan Exp $
+// $Id: standard.cc,v 1.3 2010/09/01 16:02:23 chrjones Exp $
 //
 
 // system include files
@@ -23,7 +23,11 @@ namespace edmplugin {
   {
       PluginManager::Config returnValue;
       
+#ifdef __APPLE__
+      const char *path = getenv ("DYLD_LIBRARY_PATH");
+#else
       const char *path = getenv ("LD_LIBRARY_PATH");
+#endif
       if (! path) path = "";
       
       std::string spath(path);
@@ -42,7 +46,7 @@ namespace edmplugin {
   }
     
     const boost::filesystem::path& cachefileName() {
-      static const boost::filesystem::path s_path(".edmplugincache",boost::filesystem::no_check);
+      static const boost::filesystem::path s_path(".edmplugincache");
       return s_path;
     }
     

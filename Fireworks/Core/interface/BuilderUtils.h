@@ -36,9 +36,18 @@ namespace fireworks
    void addDashedArrow( double phi, double size, TEveElement* comp, FWProxyBuilderBase* pb );
    void addDashedLine( double phi, double theta, double size, TEveElement* comp, FWProxyBuilderBase* pb );
    void addDoubleLines( double phi, TEveElement* comp, FWProxyBuilderBase* pb );
-   void drawEnergyScaledBox3D( const float* corners, float scale, TEveElement*,  FWProxyBuilderBase*, bool invert = false );
-   void drawEtScaledBox3D( const float* corners, float energy, float maxEnergy, TEveElement*,  FWProxyBuilderBase*, bool invert = false );
-   void drawEnergyTower3D( const float* corners, float scale, TEveElement*, FWProxyBuilderBase*, bool reflect = false );
+
+   //
+   //  box-utilts
+   // 
+   void energyScaledBox3DCorners( const float* corners, float scale, std::vector<float>&, bool invert = false);
+   void drawEnergyScaledBox3D   ( const float* corners, float scale, TEveElement*,  FWProxyBuilderBase*, bool invert = false );
+
+   void energyTower3DCorners( const float* corners, float scale, std::vector<float>&, bool reflect = false);
+   void drawEnergyTower3D   ( const float* corners, float scale, TEveElement*, FWProxyBuilderBase*, bool reflect = false );
+ 
+   // AMT: is this needed ?
+   void drawEtScaledBox3D( const float* corners, float energy, float maxEnergy, TEveElement*,  FWProxyBuilderBase*, bool reflect = false );
    void drawEtTower3D( const float* corners, float scale, TEveElement*, FWProxyBuilderBase*, bool reflect = false );
 }
 

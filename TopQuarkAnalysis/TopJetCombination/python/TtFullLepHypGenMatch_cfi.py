@@ -9,7 +9,7 @@ ttFullLepHypGenMatch = cms.EDProducer("TtFullLepHypGenMatch",
     jets      = cms.InputTag("selectedPatJets"),    
     mets      = cms.InputTag("patMETs"),
     match     = cms.InputTag("ttFullLepJetPartonMatch"), 
-    jetCorrectionLevel = cms.string("abs")   
+    jetCorrectionLevel = cms.string("L3Absolute")   
 )
 
 

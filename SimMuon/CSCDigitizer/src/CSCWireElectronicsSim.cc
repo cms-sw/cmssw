@@ -119,15 +119,9 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
 
         float bxFloat = (fdTime - tofOffset- theBunchTimingOffsets[chamberType]) / theBunchSpacing
                            + theOffsetOfBxZero;
-        int bxInt = static_cast<int>(bxFloat);
         if(bxFloat >= 0 && bxFloat < 16)
         {
-           timeWord |= (1 << bxInt );
-           // discriminator stays high for 35 ns
-           if(bxFloat-bxInt > 0.6) 
-           {
-             timeWord |= (1 << bxInt+1 );
-           }
+           timeWord |= (1 << static_cast<int>(bxFloat) );
         }
 
         // Wire digi as of Oct-2006 adapted to real data: time word has 16 bits with set bit

@@ -136,6 +136,8 @@ private:
   edm::InputTag L1NonIsoPixelSeedsLW_;
   edm::InputTag L1IsoPixelSeedsSS_;
   edm::InputTag L1NonIsoPixelSeedsSS_;
+  edm::InputTag NonIsoR9_; 
+  edm::InputTag IsoR9_;  
 
   // AlCa OpenHLT input collections  
   edm::InputTag EERecHitTag_; 

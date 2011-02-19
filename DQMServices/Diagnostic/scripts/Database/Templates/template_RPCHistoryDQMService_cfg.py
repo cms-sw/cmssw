@@ -91,9 +91,7 @@ process.RPCHistoryDQMService = cms.Service(
     cms.PSet( keyName = cms.untracked.string("BxDistribution_"), quantitiesToExtract  = cms.untracked.vstring("stat") ),
     cms.PSet( keyName = cms.untracked.string("ClusterSize_"), quantitiesToExtract  = cms.untracked.vstring("stat") ),
     cms.PSet( keyName = cms.untracked.string("EffDistro"), quantitiesToExtract  = cms.untracked.vstring("stat") ),
-    cms.PSet( keyName = cms.untracked.string("FEDFatal"), quantitiesToExtract  = cms.untracked.vstring("stat") ),
-    cms.PSet( keyName = cms.untracked.string("NumberOfDigi_Mean_Distribution_"), quantitiesToExtract  = cms.untracked.vstring("stat") ),
-    cms.PSet( keyName = cms.untracked.string("RPCChamberQuality_Distribution_"), quantitiesToExtract  = cms.untracked.vstring("user") ),
+    cms.PSet( keyName = cms.untracked.string("FEDFatal"), quantitiesToExtract  = cms.untracked.vstring("stat") )
     )
 )
 

@@ -36,6 +36,7 @@ do
       --soft)  softflag=on ; originalOptions="${originalOptions} --soft";;
       -d|--debug) debugflag=on;;
       -di|--debug-interactive) debuginteractiveflag=on;;
+      --valgrind) valgrindflag=on;;
       --prompt) originalOptions="${originalOptions} $1 -r";;
       --eve) originalOptions="${originalOptions} --eve -r";;
       -r|--root-interactive) rootflag=on; originalOptions="${originalOptions} -r";;
@@ -69,6 +70,8 @@ if [ "X$debugflag" = Xon ] ; then
 elif [ "X$debuginteractiveflag" = Xon ] ; then
   echo $originalOptions
   gdb --args $SHELLDIR/cmsShow.exe $originalOptions
+elif [ "X$valgrindflag" = Xon ] ; then
+  valgrind --num-callers=30 --log-file=valgrind.log.$$ --freelist-vol=100000000 $CMSSW_BASE/cmsShow.exe $@
 else
    $SHELLDIR/cmsShow.exe $originalOptions
    if [ $? -gt 128 ] ; then

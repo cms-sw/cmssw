@@ -365,7 +365,6 @@ void L1GctJetFinderBase::doEtSums() {
   unsigned yfact0 = (4*m_id + 15) % 36;
   unsigned yfact1 = (4*m_id + 17) % 36;
   m_outputEtSum = etStrip0 + etStrip1;
-  if (m_outputEtSum.overFlow()) m_outputEtSum.setValue(etTotalMaxValue);
   m_outputExSum = etComponentForJetFinder<L1GctInternEtSum::kTotEtOrHtNBits,L1GctInternEtSum::kJetMissEtNBits>
     (etStrip0, xfact0, etStrip1, xfact1);
   m_outputEySum = etComponentForJetFinder<L1GctInternEtSum::kTotEtOrHtNBits,L1GctInternEtSum::kJetMissEtNBits>
@@ -410,7 +409,6 @@ void L1GctJetFinderBase::doHtSums() {
   etHadType htStrip0(ht0);
   etHadType htStrip1(ht1);
   httTotal.setOverFlow(httTotal.overFlow() || of);
-  if (httTotal.overFlow()) httTotal.setValue(htTotalMaxValue);
   htStrip0.setOverFlow(htStrip0.overFlow() || of);
   htStrip1.setOverFlow(htStrip1.overFlow() || of);
   unsigned xfact0 = (4*m_id + 10) % 36;

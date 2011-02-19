@@ -467,19 +467,14 @@ void L1TEMUEventInfoClient::endJob(){
 
 //set subsystem pv in summary map
 Float_t L1TEMUEventInfoClient::setSummary(MonitorElement* QHist) {
-
-  int ntot = 0;
-  for(int i=0; i<QHist->getNbinsX(); i++)
-    ntot += QHist->getBinContent(i+1);
-
-  bool isempty = (ntot==0);
+  bool isempty = QHist->getEntries()==0;
   //errflag bins: agree, loc agree, loc disagree, data only, emul only
   if(!isempty)
     for(int i=1; i<5; i++) 
       if(QHist->getBinContent(i)>0) 
 	{isempty=false;continue;}
   return isempty ? -1. : 
-    (QHist->getBinContent(1)) / (ntot);
+    (QHist->getBinContent(1)) / (QHist->getEntries());
 }
 
 TH1F * L1TEMUEventInfoClient::get1DHisto(string meName, DQMStore * dbi)

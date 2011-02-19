@@ -1,5 +1,5 @@
 //
-// $Id: TriggerEvent.cc,v 1.10 2010/04/21 10:04:14 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.11 2010/09/24 21:16:41 vadler Exp $
 //
 
 
@@ -213,7 +213,7 @@ bool TriggerEvent::addObjectMatchResult( const edm::OrphanHandle< TriggerObjectM
   return addObjectMatchResult( TriggerObjectMatchRefProd( trigMatches ), labelMatcher );
 }
 
-TriggerObjectRefVector TriggerEvent::objects( unsigned filterId ) const
+TriggerObjectRefVector TriggerEvent::objects( int filterId ) const
 {
   TriggerObjectRefVector theObjects;
   for ( unsigned iObject = 0; iObject < objects()->size(); ++iObject ) {

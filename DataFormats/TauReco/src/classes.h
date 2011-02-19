@@ -7,8 +7,6 @@
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
-#include "DataFormats/TauReco/interface/RecoTauPiZero.h"
-#include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorAgainstElectron.h"
@@ -18,7 +16,6 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
-#include "DataFormats/TauReco/interface/JetPiZeroAssociation.h"
 #include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
@@ -83,13 +80,6 @@ namespace {
     edm::Wrapper<edm::Association<std::vector<reco::PFTauDecayMode> > >         pftdm_assoc_v_wrapper;
     edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >                  pftau_assoc_v_wrapper;
 
-    std::vector<reco::RecoTauPiZero>                                           recoTauPiZero_v;
-    edm::Wrapper<std::vector<reco::RecoTauPiZero> >                            recoTauPiZero_w;
-    edm::Ref<std::vector<reco::RecoTauPiZero> >                                recoTauPiZero_r;
-    edm::RefProd<std::vector<reco::RecoTauPiZero> >                            recoTauPiZero_rp;
-    edm::RefVector<std::vector<reco::RecoTauPiZero> >                          recoTauPiZero_rv;
-    edm::reftobase::Holder<reco::CompositePtrCandidate, reco::RecoTauPiZeroRef>    recoTauPiZero_rb;
-
     reco::CaloTauDiscriminatorByIsolationBase                   calotdi_b;         
     reco::CaloTauDiscriminatorByIsolation                       calotdi_o;     
     reco::CaloTauDiscriminatorByIsolationRef                    calotdi_r;     
@@ -134,18 +124,6 @@ namespace {
     
     std::pair<reco::PFTauRef, float>                              pftdiscr_p;
     std::vector<std::pair<reco::PFTauRef, float> >                pftdiscr_v;    
-
-    reco::JetPiZeroAssociationBase                     jetPiZeroAssoc_b;         
-    reco::JetPiZeroAssociation                         jetPiZeroAssoc_o;     
-    reco::JetPiZeroAssociationRef                      jetPiZeroAssoc_r;     
-    reco::JetPiZeroAssociationRefProd                  jetPiZeroAssoc_rp;     
-    reco::JetPiZeroAssociationRefVector                jetPiZeroAssoc_rv;     
-    edm::Wrapper<reco::JetPiZeroAssociation>           jetPiZeroAssoc_w;     
-    
-    std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> >                              jetPiZeroAssoc_p;
-    std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >                jetPiZeroAssoc_v;    
-
-    std::vector<std::vector<reco::RecoTauPiZero> >                jetPiZeroAssoc_v_v;    
 
     reco::PFTauDecayModeAssociation                         pftdecaymodeass_o;     
     reco::PFTauDecayModeAssociationRef                      pftdecaymodeass_r;     

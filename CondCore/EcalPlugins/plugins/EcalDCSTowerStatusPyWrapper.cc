@@ -25,8 +25,6 @@
 
 #include <fstream>
 
-#include "CondCore/EcalPlugins/plugins/EcalPyWrapperFunctions.h"
-
 namespace cond {
 
   namespace ecalcond {
@@ -128,62 +126,15 @@ namespace cond {
     return ss.str();
   }
 
- 	class EcalDCSTowerStatusHelper: public EcalPyWrapperHelper<EcalChannelStatusCode>{
-	public:
-		//change me
-		EcalDCSTowerStatusHelper():EcalPyWrapperHelper<EcalObject>(6, STATUS, "-Errors total: "){}
-	protected:
-
-		//change me
-		typedef EcalChannelStatusCode EcalObject;
-
-		type_vValues getValues( const std::vector<EcalObject> & vItems)
-		{
-			//change me
-			//unsigned int totalValues = 2; 
-
-			type_vValues vValues(total_values);
-			
-			//change us
-			vValues[0].first = "LVSTATUS(0)";
-			vValues[1].first = "LVNOMINALSTATUS(1)";
-			vValues[2].first = "HVSTATUS(2)";
-			vValues[3].first = "HVNOMINALSTATUS(3)";
-			vValues[4].first = "HVEEDSTATUS(4)";
-			vValues[5].first = "HVEEDNOMINALSTATUS(5)";
-
-			
-			vValues[0].second = .0;
-			vValues[1].second = .0;
-			vValues[2].second = .0;
-			vValues[3].second = .0;
-			vValues[4].second = .0;
-			vValues[5].second = .0;
-			
-			//get info:
-			unsigned int shift = 0, mask = 1;
-			unsigned int statusCode;
-			for(std::vector<EcalObject>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems){
-				//change us
-				statusCode = iItems->getStatusCode();
-				for (shift = 0; shift < total_values; ++shift){
-					mask = 1 << (shift);
-					//std::cout << "; statuscode: " << statusCode;
-					if (statusCode & mask){
-						vValues[shift].second += 1;
-					}
-				}
-			}
-			return vValues;
-		}
-	};
-
    template<>
    std::string PayLoadInspector<EcalDCSTowerStatus>::summary() const {
-	std::stringstream ss;
-	EcalDCSTowerStatusHelper helper;
-	ss << helper.printBarrelsEndcaps(object().barrelItems(), object().endcapItems());
-	return ss.str();
+     std::cout << "***************************************"<< std::endl;
+     std::stringstream ss;
+     ss << "sizes="
+	<< object().barrelItems().size() <<","
+	<< object().endcapItems().size() <<";";
+     ss << std::endl;
+     return ss.str();
    }
 
 

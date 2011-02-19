@@ -45,7 +45,11 @@ import sys
 def customisePPData(process):
     myname=sys._getframe().f_code.co_name
     return getCustomProcess(process,myname)
-    
+
+def customiseVALSKIM(process):
+    myname=sys._getframe().f_code.co_name
+    return getCustomProcess(process,myname)
+        
 ##############################################################################
 def customisePPMC(process):
     myname=sys._getframe().f_code.co_name
@@ -68,5 +72,20 @@ def customiseExpress(process):
 
 ##############################################################################
 def customisePrompt(process):
+    myname=sys._getframe().f_code.co_name
+    return getCustomProcess(process,myname)
+
+##############################################################################
+def customiseExpressHI(process):
+    myname=sys._getframe().f_code.co_name
+    return getCustomProcess(process,myname)
+
+##############################################################################
+def customisePromptHI(process):
+    myname=sys._getframe().f_code.co_name
+    return getCustomProcess(process,myname)
+
+##############################################################################
+def customiseAlcaOnlyPromptHI(process):
     myname=sys._getframe().f_code.co_name
     return getCustomProcess(process,myname)

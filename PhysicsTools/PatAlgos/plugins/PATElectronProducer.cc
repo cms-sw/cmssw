@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.42 2010/09/03 15:41:26 hegner Exp $
+// $Id: PATElectronProducer.cc,v 1.43 2010/09/07 16:08:11 mbluj Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -341,7 +341,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 // 		       genMatches, deposits, isolationValues);
 
 	  //COLIN small warning !
-	  // we are currently choosing to take the 4-momentum of the GsfElectron. 
+	  // we are currently choosing to take the 4-momentum of the PFCandidate;
+	  // the momentum of the GsfElectron is saved though
 	  // we must therefore match the GsfElectron. 
 	  // because of this, we should not change the source of the electron matcher
 	  // to the collection of PFElectrons in the python configuration 
@@ -529,9 +530,10 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
 					 const IsoDepositMaps& deposits,
 					 const IsolationValueMaps& isolationValues) const {
   
-  //COLIN: might want to use the PFCandidate 4-mom. Which one is in use now?
-  //   if (useParticleFlow_) 
-  //     aMuon.setP4( aMuon.pfCandidateRef()->p4() );
+  //COLIN/Florian: use the PFCandidate 4-mom. 
+  anElectron.setEcalDrivenMomentum(anElectron.p4()) ;
+  anElectron.setP4( anElectron.pfCandidateRef()->p4() );
+
 
   // is the concrete elecRef needed for the efficiency loader? what is this loader?
   // how can we make it compatible with the particle flow electrons? 
