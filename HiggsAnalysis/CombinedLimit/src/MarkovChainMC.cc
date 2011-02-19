@@ -49,6 +49,10 @@ MarkovChainMC::MarkovChainMC() :
         ("cropNSigmas", 
                 boost::program_options::value<float>(&cropNSigmas_)->default_value(0),
                 "crop range of all parameters to N times their uncertainty") 
+        ("truncatedMeanFraction", 
+                boost::program_options::value<float>()->default_value(0.0), 
+                "Discard this fraction of the results before computing the mean and rms")
+        ("adaptiveTruncation", "Iteratively compute the mean and reject those outside 'truncatedMeanFraction' sigmas")
         ("hintSafetyFactor",
                 boost::program_options::value<float>(&hintSafetyFactor_)->default_value(5),
                 "set range of integration equal to this number of times the hinted limit")
@@ -73,14 +77,15 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     runMinos_ = vm.count("runMinos");
     noReset_  = vm.count("noReset");
     updateHint_  = vm.count("updateHint");
-    maxOutlierFraction_ = vm["maxOutlierFraction"].as<float>();
+    truncatedMeanFraction_ = vm["truncatedMeanFraction"].as<float>();
+    adaptiveTruncation_    = vm.count("adaptiveTruncation");
 }
 
 bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
   RooFitGlobalKillSentry silence(verbose > 0 ? RooFit::INFO : RooFit::WARNING);
 
   CloseCoutSentry coutSentry(verbose <= 0); // close standard output and error, so that we don't flood them with minuit messages
-  double sum = 0, sum2 = 0, suma = 0; int num = 0;
+  double suma = 0; int num = 0; double limitErr = 0;
   double savhint = (hint ? *hint : -1); const double *thehint = hint;
   std::vector<double> limits;
   for (unsigned int i = 0; i < tries_; ++i) {
@@ -98,31 +103,13 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
   if (num == 0) return false;
   // average acceptance
   suma  = suma / (num * double(iterations_));
-  // possibly remove outliers before computing mean
-  int noutl = floor(maxOutlierFraction_ * num);
-  if (noutl >= 1) { 
-      std::sort(limits.begin(), limits.end());
-      double median = (num % 2 ? limits[num/2] : 0.5*(limits[num/2] + limits[num/2+1]));
-      for (int k = 0; k < noutl; ++k) {
-        // make sure outliers are all at the end
-        if (std::abs(limits[0]-median) > std::abs(limits[num-k-1]-median)) {
-            std::swap(limits[0], limits[num-k-1]);
-        }
-      }
-      num -= noutl;
-  }
-  // compute mean and rms
-  sum = 0;
-  for (int k = 0; k < num; k++) sum += limits[k];
-  limit = sum/num;
-  for (int k = 0; k < num; k++) sum2 += (limits[k]-limit)*(limits[k]-limit);
-  sum2 = (num > 1 ? sqrt((num*(num+1))) : 0);
+  limitAndError(limit, limitErr, limits);
   coutSentry.clear();
 
   if (verbose >= 0) {
       std::cout << "\n -- MarkovChainMC -- " << "\n";
       if (num > 1) {
-          std::cout << "Limit: r < " << limit << " +/- " << sum2 << " @ " << cl * 100 << "% CL (" << num << " tries)" << std::endl;
+          std::cout << "Limit: r < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL (" << num << " tries)" << std::endl;
           if (verbose > 0) std::cout << "Average chain acceptance: " << suma << std::endl;
       } else {
           std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
@@ -235,5 +222,47 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, con
   limit = mcInt->UpperLimit(*r);
 
   return mcInt->GetChain()->Size();
+}
+
+void MarkovChainMC::limitAndError(double &limit, double &limitErr, std::vector<double> &limits) const {
+  int num = limits.size();
+  // possibly remove outliers before computing mean
+  if (adaptiveTruncation_ && num >= 10) {
+      std::sort(limits.begin(), limits.end());
+      // determine location and size of the sample
+      double median = (num % 2 ? limits[num/2] : 0.5*(limits[num/2] + limits[num/2+1]));
+      double iqr = limits[3*num/4] - limits[num/4];
+      // determine range of plausible values
+      double min = median - iqr, max = median + iqr; 
+      int start = 0, end = num-1; 
+      while (start < end   && limits[start] < min) ++start;
+      while (end   > start && limits[end]   > max) --end;
+      num = end-start+1;
+      // compute mean and rms of accepted part
+      limit = 0; limitErr = 0;
+      for (int k = start; k <= end; ++k) limit += limits[k];
+      limit /= num;
+      for (int k = start; k <= end; k++) limitErr += (limits[k]-limit)*(limits[k]-limit);
+      limitErr = (num > 1 ? sqrt(limitErr/(num*(num-1))) : 0);
+  } else {
+      int noutl = floor(truncatedMeanFraction_ * num);
+      if (noutl >= 1) { 
+          std::sort(limits.begin(), limits.end());
+          double median = (num % 2 ? limits[num/2] : 0.5*(limits[num/2] + limits[num/2+1]));
+          for (int k = 0; k < noutl; ++k) {
+              // make sure outliers are all at the end
+              if (std::abs(limits[0]-median) > std::abs(limits[num-k-1]-median)) {
+                  std::swap(limits[0], limits[num-k-1]);
+              }
+          }
+          num -= noutl;
+      }
+      // compute mean and rms
+      limit = 0; limitErr = 0;
+      for (int k = 0; k < num; k++) limit += limits[k];
+      limit /= num;
+      for (int k = 0; k < num; k++) limitErr += (limits[k]-limit)*(limits[k]-limit);
+      limitErr = (num > 1 ? sqrt(limitErr/(num*(num-1))) : 0);
+  }
 }
 

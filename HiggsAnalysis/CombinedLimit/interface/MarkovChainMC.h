@@ -31,7 +31,9 @@ private:
   /// compute the limit N times
   unsigned int tries_;
   /// Ignore up to this fraction of results if they're too far from the median
-  float maxOutlierFraction_;
+  float truncatedMeanFraction_;
+  /// do adaptive truncated mean
+  bool adaptiveTruncation_;
   /// Safety factor for hint (integrate up to this number of times the hinted limit)
   float hintSafetyFactor_;
   unsigned int numberOfBins_;
@@ -41,6 +43,8 @@ private:
   int          debugProposal_;
   // return number of items in chain, 0 for error
   int runOnce(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) const ;
+
+  void limitAndError(double &limit, double &limitErr, std::vector<double> &limits) const ;
 };
 
 #endif
