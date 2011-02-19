@@ -79,12 +79,20 @@ namespace edm {
 
    ServiceToken
    ServiceRegistry::createServicesFromConfig(std::string const& config) {
-      boost::shared_ptr<std::vector<ParameterSet> > pServiceSets;
       boost::shared_ptr<ParameterSet> params;
-      makeParameterSets(config, params, pServiceSets);
+      makeParameterSets(config, params);
 
+      std::vector<ParameterSet> serviceSets;
+
+      std::auto_ptr<ParameterSet> services = params->popParameterSet(std::string("services"));
+      std::vector<std::string> serviceNames;
+      services->getParameterSetNames(serviceNames);
+      for(std::vector<std::string>::const_iterator it = serviceNames.begin(), itEnd = serviceNames.end();
+          it != itEnd; ++it) {
+        serviceSets.push_back(services->getUntrackedParameter<ParameterSet>(*it));
+      }
       //create the services
-      return ServiceToken(ServiceRegistry::createSet(*pServiceSets.get()));
+      return ServiceToken(ServiceRegistry::createSet(serviceSets));
    }
 
    ServiceToken 
