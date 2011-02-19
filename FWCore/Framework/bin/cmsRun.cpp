@@ -8,6 +8,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
@@ -270,7 +271,8 @@ int main(int argc, char* argv[]) {
   std::string fileName(vm[kParameterSetOpt].as<std::string>());
   boost::shared_ptr<edm::ProcessDesc> processDesc;
   try {
-    processDesc = edm::readConfig(fileName, argc, argv);
+    boost::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, argc, argv);
+    processDesc.reset(new edm::ProcessDesc(parameterSet));
   }
   catch(cms::Exception& iException) {
     std::string shortDesc("ConfigFileReadError");

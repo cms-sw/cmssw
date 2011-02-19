@@ -396,7 +396,8 @@ namespace edm {
     numberOfSequentialEventsPerChild_(1),
     setCpuAffinity_(false),
     eventSetupDataToExcludeFromPrefetching_() {
-    boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
+    boost::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
+    boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
   }
@@ -446,7 +447,8 @@ namespace edm {
     numberOfSequentialEventsPerChild_(1),
     setCpuAffinity_(false),
     eventSetupDataToExcludeFromPrefetching_() {
-    boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
+    boost::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
+    boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
   }
@@ -544,7 +546,8 @@ namespace edm {
     setCpuAffinity_(false),
     eventSetupDataToExcludeFromPrefetching_() {
     if(isPython) {
-      boost::shared_ptr<ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
+      boost::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
+      boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(parameterSet));
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
     }
     else {
