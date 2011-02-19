@@ -64,7 +64,7 @@ TCMETAlgo::TCMETAlgo() {}
 TCMETAlgo::~TCMETAlgo() {}
 //------------------------------------------------------------------------
 
-reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, TH2D* response_function, TH2D* showerRF)
+reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, int myResponseFunctionType )
 { 
      // get configuration parameters
      usePFClusters_           = iConfig.getParameter<bool>  ("usePFClusters");
@@ -122,8 +122,16 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      trkAlgos_   = iConfig.getParameter<std::vector<int> >("track_algos"  );
 
      // remember response function
-     TCMETAlgo::response_function = response_function;
-     TCMETAlgo::showerRF          = showerRF;
+     TCMETAlgo::showerRF          = getResponseFunction_shower();
+     TCMETAlgo::response_function = 0;
+
+     if( myResponseFunctionType == 0 )
+       response_function = getResponseFunction_noshower();
+     else if( myResponseFunctionType == 1 )
+       response_function = getResponseFunction_fit();
+     else if( myResponseFunctionType == 2 )
+       response_function = getResponseFunction_mode();
+     
 
      // get input collection tags
      muonInputTag_     = iConfig.getParameter<edm::InputTag>("muonInputTag"    );

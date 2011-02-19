@@ -45,6 +45,7 @@
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "TH2D.h"
 #include "TVector3.h"
+#include "RecoMET/METProducers/interface/METProducer.h"
 
 class TCMETAlgo 
 {
@@ -52,7 +53,7 @@ class TCMETAlgo
   typedef std::vector<const reco::Candidate> InputCollection;
   TCMETAlgo();
   virtual ~TCMETAlgo();
-  reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, TH2D *response_function, TH2D *showerRF);
+  reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig,  int myResponseFunctionType );
   static TH2D* getResponseFunction_fit ( );
   static TH2D* getResponseFunction_mode ( );
   static TH2D* getResponseFunction_shower ( );

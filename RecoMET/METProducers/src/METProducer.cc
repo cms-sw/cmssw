@@ -88,22 +88,24 @@ namespace cms
     else if (METtype == "TCMET" )
       {
 	produces<METCollection>().setBranchAlias(alias.c_str());
-	//TCMETAlgo ALGO;
 
 	int rfType_               = iConfig.getParameter<int>("rf_type");
 	bool correctShowerTracks_ = iConfig.getParameter<bool>("correctShowerTracks"); 
 
 	if(correctShowerTracks_){
-		 showerRF_ =         *TCMETAlgo::getResponseFunction_shower();
-		 responseFunction_ = *TCMETAlgo::getResponseFunction_noshower();
-	} else{
+          // use 'shower' and 'noshower' response functions
+          myResponseFunctionType = 0;
+      	}else{
 	  
-	  if( rfType_ == 1 )
-		   responseFunction_ = *TCMETAlgo::getResponseFunction_fit();
-	  else if( rfType_ == 2 )
-		   responseFunction_ = *TCMETAlgo::getResponseFunction_mode();
-	  
-	}
+	  if( rfType_ == 1 ){
+            // use response function 'fit'
+            myResponseFunctionType = 1;
+          }
+	  else if( rfType_ == 2 ){
+            // use response function 'mode'
+            myResponseFunctionType = 2;
+          }
+        }
       }
     else                            
       produces<METCollection>().setBranchAlias(alias.c_str()); 
@@ -189,10 +191,10 @@ namespace cms
     //-----------------------------------
     else if( METtype == "TCMET" )
       {
-	TCMETAlgo tcmetalgorithm;
+        tcmetalgorithm = new TCMETAlgo();
 	std::auto_ptr<METCollection> tcmetcoll;
 	tcmetcoll.reset(new METCollection);
-	tcmetcoll->push_back( tcmetalgorithm.CalculateTCMET(event, setup, conf_, &responseFunction_, &showerRF_) ) ;
+	tcmetcoll->push_back( tcmetalgorithm->CalculateTCMET(event, setup, conf_, myResponseFunctionType ) ) ;
 	event.put( tcmetcoll );
       }
     //----------------------------------

@@ -35,6 +35,8 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "TH2F.h"
 
+class TCMETAlgo;
+
 namespace metsig{
     class SignAlgoResolutions;
 }
@@ -78,10 +80,8 @@ namespace cms
       //Use Pt instaed of Et
       bool usePt; 
 
-      //Temporary implementation of response function for Track Corrected MET
-      //TH2D *responseFunction_;  
-      TH2D responseFunction_;
-      TH2D showerRF_;
+      TCMETAlgo* tcmetalgorithm;
+      int myResponseFunctionType;
 
     };
 }
