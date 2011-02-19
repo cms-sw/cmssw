@@ -44,7 +44,7 @@ private:
   ParameterSetPtr pSet(char const* c) {
 
     //ParameterSetPtr result( new edm::ProcessDesc(std::string(c)) );
-    ParameterSetPtr result = PythonProcessDesc(std::string(c)).processDesc();
+    ParameterSetPtr result = PythonProcessDesc(std::string(c)).parameterSet();
     CPPUNIT_ASSERT(result->getParameter<std::string>("@process_name") == "test");
     return result;
   }

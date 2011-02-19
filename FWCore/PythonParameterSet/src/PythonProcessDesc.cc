@@ -82,7 +82,7 @@ void PythonProcessDesc::readString(std::string const& pyConfig) {
                         theMainNamespace.ptr()));
 }
 
-boost::shared_ptr<edm::ParameterSet> PythonProcessDesc::processDesc() {
+boost::shared_ptr<edm::ParameterSet> PythonProcessDesc::parameterSet() {
   boost::shared_ptr<edm::ParameterSet> result(new edm::ParameterSet(theProcessPSet.pset()));
   return result;
 }

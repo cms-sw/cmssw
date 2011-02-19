@@ -28,7 +28,7 @@ public:
   std::string dump() const;
 
   // makes a new (copy) of the ParameterSet
-  boost::shared_ptr<edm::ParameterSet> processDesc();
+  boost::shared_ptr<edm::ParameterSet> parameterSet();
 
 private:
   void prepareToRead();

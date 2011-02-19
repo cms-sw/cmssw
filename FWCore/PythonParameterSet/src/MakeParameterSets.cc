@@ -41,20 +41,20 @@ namespace edm {
   boost::shared_ptr<ParameterSet>
   readConfig(std::string const& config) {
     PythonProcessDesc pythonProcessDesc(config);
-    return pythonProcessDesc.processDesc();
+    return pythonProcessDesc.parameterSet();
   }
 
   boost::shared_ptr<ParameterSet>
   readConfig(std::string const& config, int argc, char* argv[]) {
     PythonProcessDesc pythonProcessDesc(config, argc, argv);
-    return pythonProcessDesc.processDesc();
+    return pythonProcessDesc.parameterSet();
   }
 
   void
   makeParameterSets(std::string const& configtext,
                   boost::shared_ptr<ParameterSet>& main) {
     PythonProcessDesc pythonProcessDesc(configtext);
-    main = pythonProcessDesc.processDesc();
+    main = pythonProcessDesc.parameterSet();
   }
 
   boost::shared_ptr<ParameterSet>
