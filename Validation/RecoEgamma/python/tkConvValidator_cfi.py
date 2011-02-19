@@ -1,11 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 from Validation.RecoEgamma.tpSelection_cfi import *
+
 from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
 import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
-TrackAssociatorByHits.SimToRecoDenominator = 'reco'
-TrackAssociatorByHits.Quality_SimToReco = 0.5
-TrackAssociatorByHits.Purity_SimToReco = 0.5
-TrackAssociatorByHits.Cut_RecoToSim = 0.5
+myTrackAssociatorByHits = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
+myTrackAssociatorByHits.ComponentName = cms.string('myTrackAssociatorByHits')
+myTrackAssociatorByHits.SimToRecoDenominator = 'reco'
+myTrackAssociatorByHits.Quality_SimToReco = 0.5
+myTrackAssociatorByHits.Purity_SimToReco = 0.5
+myTrackAssociatorByHits.Cut_RecoToSim = 0.5
 
 import PhysicsTools.RecoAlgos.trackingParticleSelector_cfi
 tpSelecForEfficiency = PhysicsTools.RecoAlgos.trackingParticleSelector_cfi.trackingParticleSelector.clone()
@@ -41,7 +44,7 @@ tkConversionValidation = cms.EDAnalyzer("TkConvValidator",
     conversionCollection = cms.string(''),
     trackProducer = cms.InputTag("generalTracks"),
     Verbosity = cms.untracked.int32(0),
-    mergedTracks =  cms.bool(False),
+    mergedTracks =  cms.bool(True),
 
     minPhoPtForEffic = cms.double(0.3),#when hardcoded it was 2.5
     maxPhoEtaForEffic = cms.double(2.5),

@@ -4,10 +4,12 @@ from Validation.RecoEgamma.tpSelection_cfi import *
 from Validation.RecoEgamma.photonValidator_cfi import *
 from Validation.RecoEgamma.tkConvValidator_cfi import *
 
-from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
+
 import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
-TrackAssociatorByHits.Cut_RecoToSim = 0.5
-TrackAssociatorByHits.Quality_SimToReco = 0.5
+myTrackAssociatorByHits = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
+myTrackAssociatorByHits.ComponentName = cms.string('myTrackAssociatorByHits')
+myTrackAssociatorByHits.Cut_RecoToSim = 0.5
+myTrackAssociatorByHits.Quality_SimToReco = 0.5
 
 
 
