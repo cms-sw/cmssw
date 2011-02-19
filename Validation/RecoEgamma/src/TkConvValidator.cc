@@ -93,8 +93,8 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/11/18 15:20:16 $ 
- **  $Revision: 1.8 $
+ **  $Date: 2010/11/23 14:15:25 $ 
+ **  $Revision: 1.9 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -576,7 +576,7 @@ void  TkConvValidator::beginJob() {
 
 
   edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-  theEventSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
+  theEventSetup.get<TrackAssociatorRecord>().get("myTrackAssociatorByHits",theHitsAssociator);
   theTrackAssociator_ = (TrackAssociatorBase *) theHitsAssociator.product();
 
 
@@ -796,7 +796,8 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
        
 	const reco::Conversion aConv = (*conv);
         if (  mergedTracks_ ) {
-	  if ( !( aConv.quality(reco::Conversion::arbitratedMerged) &&   aConv.quality(reco::Conversion::highPurity) )  ) continue;
+	  if ( !( aConv.quality(reco::Conversion::arbitratedEcalSeeded) &&   aConv.quality(reco::Conversion::highPurity) )  ) continue;
+	  //if ( !( aConv.quality(reco::Conversion::arbitratedMerged) &&   aConv.quality(reco::Conversion::highPurity) )  ) continue;
 	} else {
 	  if (! ( aConv.quality(reco::Conversion::generalTracksOnly)  && aConv.quality(reco::Conversion::highPurity) ) ) continue;
 	}
