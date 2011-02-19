@@ -1,4 +1,4 @@
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/PythonParameterSet/src/initializeModule.h"
 #include "FWCore/PythonParameterSet/src/PythonWrapper.h"
@@ -82,8 +82,8 @@ void PythonProcessDesc::readString(std::string const& pyConfig) {
                         theMainNamespace.ptr()));
 }
 
-boost::shared_ptr<edm::ProcessDesc> PythonProcessDesc::processDesc() {
-  boost::shared_ptr<edm::ProcessDesc> result(new edm::ProcessDesc(theProcessPSet.pset()));
+boost::shared_ptr<edm::ParameterSet> PythonProcessDesc::processDesc() {
+  boost::shared_ptr<edm::ParameterSet> result(new edm::ParameterSet(theProcessPSet.pset()));
   return result;
 }
 

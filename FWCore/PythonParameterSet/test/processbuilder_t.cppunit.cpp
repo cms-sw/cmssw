@@ -1,20 +1,14 @@
 /**
-  
+
 @file : processbuilder_t.cpp
 
 @brief test suit for process building and schedule validation
 
-@author : Stefano Argiro
-@date : 2005 06 17
-
 */
-
-
 
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/ParameterSet/interface/ProcessDesc.h>
 #include <FWCore/PythonParameterSet/interface/PythonProcessDesc.h>
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -43,11 +37,9 @@ class testProcessDesc: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
+  void setUp() {}
+  void tearDown() {}
 
-
-  void setUp(){}
-  void tearDown(){}
-  
   void trivialPathTest();
   void simplePathTest();
   void sequenceSubstitutionTest();
@@ -58,17 +50,13 @@ public:
   void multiplePathsTest();
   void inconsistentPathTest();
   void inconsistentMultiplePathTest();
-    
-
-}; 
+};
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testProcessDesc);
 
-
-void testProcessDesc::trivialPathTest(){
-
-  std::string str = 
+void testProcessDesc::trivialPathTest() {
+  std::string str =
   "import FWCore.ParameterSet.Config as cms\n"
   "process = cms.Process('X')\n"
   "process.a = cms.EDFilter('A',\n"
@@ -78,8 +66,7 @@ void testProcessDesc::trivialPathTest(){
   "process.c = cms.EDProducer('C')\n"
   "process.p = cms.Path(process.a*process.b*process.c)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).processDesc();
 
   typedef std::vector<std::string> Strs;
 
@@ -88,7 +75,7 @@ void testProcessDesc::trivialPathTest(){
   //CPPUNIT_ASSERT(b->getDependencies("a")=="");
 }
 
-void testProcessDesc::simplePathTest(){
+void testProcessDesc::simplePathTest() {
 
   std::string str =
   "import FWCore.ParameterSet.Config as cms\n"
@@ -104,8 +91,7 @@ void testProcessDesc::simplePathTest(){
   ")\n"
   "process.p = cms.Path(process.a*process.b*process.c)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).processDesc();
 
   typedef std::vector<std::string> Strs;
 
@@ -113,17 +99,15 @@ void testProcessDesc::simplePathTest(){
   CPPUNIT_ASSERT(s[0]=="a");
   CPPUNIT_ASSERT(s[1]=="b");
   CPPUNIT_ASSERT(s[2]=="c");
-  
+
   //CPPUNIT_ASSERT (b->getDependencies("a")=="");
   //CPPUNIT_ASSERT (b->getDependencies("b")=="a,");
   //CPPUNIT_ASSERT (b->getDependencies("c")=="a,b,");
-
 }
 
+void testProcessDesc:: attriggertest () {
 
-void testProcessDesc:: attriggertest (){
-
-  std::string str = 
+  std::string str =
   "import FWCore.ParameterSet.Config as cms\n"
   "process = cms.Process('test')\n"
   "process.cone1 = cms.EDFilter('PhonyConeJet',\n"
@@ -147,13 +131,11 @@ void testProcessDesc:: attriggertest (){
   "process.path1 = cms.Path(process.cones*process.jets*process.jtanalyzer)\n"
   "process.epath = cms.EndPath(process.output)\n";
 
-
   try {
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).processDesc();
 
   typedef std::vector<std::string> Strs;
-  
+
   edm::ParameterSet const& trig_pset =
    (*test).getParameterSet("@trigger_paths");
   Strs tnames = trig_pset.getParameter<Strs>("@trigger_paths");
@@ -171,24 +153,21 @@ void testProcessDesc:: attriggertest (){
   CPPUNIT_ASSERT(schedule[1] == "epath");
 
   }
-  catch (cms::Exception& exc)
-  {
-  	std::cerr << "Got an cms::Exception: " << exc.what() << "\n";
-	throw;
+  catch (cms::Exception& exc) {
+    std::cerr << "Got an cms::Exception: " << exc.what() << "\n";
+    throw;
   }
-  catch (std::exception& exc)
-  {
-  	std::cerr << "Got an std::exception: " << exc.what() << "\n";
-	throw;
+  catch (std::exception& exc) {
+    std::cerr << "Got an std::exception: " << exc.what() << "\n";
+    throw;
   }
-  catch (...)
-  {
-  	std::cerr << "Got an unknown exception: " << "\n";
-	throw;
+  catch (...) {
+    std::cerr << "Got an unknown exception: " << "\n";
+    throw;
   }
-
 }
-void testProcessDesc:: sequenceSubstitutionTest (){
+
+void testProcessDesc:: sequenceSubstitutionTest () {
 
   std::string str = "import FWCore.ParameterSet.Config as cms\n"
   "process = cms.Process('test')\n"
@@ -211,27 +190,25 @@ void testProcessDesc:: sequenceSubstitutionTest (){
   "process.jets = cms.Sequence(process.somejet1*process.somejet2)\n"
   "process.path1 = cms.Path(process.cones*process.jets*process.jtanalyzer)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).processDesc();
 
   typedef std::vector<std::string> Strs;
-  
+
   Strs s = (*test).getParameter<std::vector<std::string> >("path1");
   CPPUNIT_ASSERT(s[0]=="cone1");
   CPPUNIT_ASSERT(s[1]=="cone2");
   CPPUNIT_ASSERT(s[2]=="somejet1");
   CPPUNIT_ASSERT(s[3]=="somejet2");
   CPPUNIT_ASSERT(s[4]=="jtanalyzer");
- 
+
   //CPPUNIT_ASSERT (b->getDependencies("cone1")=="");
   //CPPUNIT_ASSERT (b->getDependencies("cone2")=="cone1,");
   //CPPUNIT_ASSERT (b->getDependencies("somejet1")=="cone1,cone2,");
   //CPPUNIT_ASSERT (b->getDependencies("somejet2")=="cone1,cone2,somejet1,");
   //CPPUNIT_ASSERT (b->getDependencies("jtanalyzer")=="cone1,cone2,somejet1,somejet2,");
-
 }
 
-void testProcessDesc::nestedSequenceSubstitutionTest(){
+void testProcessDesc::nestedSequenceSubstitutionTest() {
 
   std::string str = "import FWCore.ParameterSet.Config as cms\n"
    "process = cms.Process('test')\n"
@@ -242,29 +219,23 @@ void testProcessDesc::nestedSequenceSubstitutionTest(){
    "process.s1 = cms.Sequence( process.a+ process.b)\n"
    "process.s2 = cms.Sequence(process.s1+ process.c)\n"
    "process.path1 = cms.Path(process.s2+process.d)\n";
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).processDesc();
 
   typedef std::vector<std::string> Strs;
-  
+
   Strs s = (*test).getParameter<std::vector<std::string> >("path1");
   CPPUNIT_ASSERT(s[0]=="a");
   CPPUNIT_ASSERT(s[1]=="b");
   CPPUNIT_ASSERT(s[2]=="c");
   CPPUNIT_ASSERT(s[3]=="d");
- 
-
 
   //CPPUNIT_ASSERT (b.getDependencies("a")=="");
   //CPPUNIT_ASSERT (b.getDependencies("b")=="a,");
   //CPPUNIT_ASSERT (b.getDependencies("c")=="a,b,");
   //CPPUNIT_ASSERT (b.getDependencies("d")=="a,b,c,");
-
-
 }
 
-
-void testProcessDesc::sequenceSubstitutionTest2(){
+void testProcessDesc::sequenceSubstitutionTest2() {
 
   std::string str = "import FWCore.ParameterSet.Config as cms\n"
    "process = cms.Process('test')\n"
@@ -278,11 +249,10 @@ void testProcessDesc::sequenceSubstitutionTest2(){
    "process.jets = cms.Sequence(process.somejet1+ process.somejet2)\n"
    "process.path1 = cms.Path(process.cones+process.jets+ process.jtanalyzer)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).processDesc();
 
   typedef std::vector<std::string> Strs;
-  
+
   Strs s = (*test).getParameter<std::vector<std::string> >("path1");
   CPPUNIT_ASSERT(s[0]=="cone1");
   CPPUNIT_ASSERT(s[1]=="cone2");
@@ -290,17 +260,16 @@ void testProcessDesc::sequenceSubstitutionTest2(){
   CPPUNIT_ASSERT(s[3]=="somejet1");
   CPPUNIT_ASSERT(s[4]=="somejet2");
   CPPUNIT_ASSERT(s[5]=="jtanalyzer");
- 
 
   //CPPUNIT_ASSERT (b.getDependencies("cone1")=="");
   //CPPUNIT_ASSERT (b.getDependencies("cone2")=="cone1,");
   //CPPUNIT_ASSERT (b.getDependencies("cone3")=="cone1,cone2,");
   //CPPUNIT_ASSERT (b.getDependencies("somejet1")=="cone1,cone2,cone3,");
   //CPPUNIT_ASSERT (b.getDependencies("somejet2")=="cone1,cone2,cone3,somejet1,");
-  //CPPUNIT_ASSERT (b.getDependencies("jtanalyzer")=="cone1,cone2,cone3,somejet1,somejet2,"); 
+  //CPPUNIT_ASSERT (b.getDependencies("jtanalyzer")=="cone1,cone2,cone3,somejet1,somejet2,");
 }
 
-void testProcessDesc::sequenceSubstitutionTest3(){
+void testProcessDesc::sequenceSubstitutionTest3() {
 
    std::string str = "import FWCore.ParameterSet.Config as cms\n"
    "process = cms.Process('test')\n"
@@ -316,18 +285,17 @@ void testProcessDesc::sequenceSubstitutionTest3(){
    "process.ccc = cms.EDProducer('PhonyConeJet', i = cms.int32(7))\n"
    "process.ddd = cms.EDProducer('PhonyConeJet', i = cms.int32(7))\n"
    "process.eee = cms.EDProducer('PhonyConeJet', i = cms.int32(7))\n"
-   "process.last = cms.EDProducer('PhonyConeJet', i = cms.int32(7))\n" 
+   "process.last = cms.EDProducer('PhonyConeJet', i = cms.int32(7))\n"
 
    "process.s1 = cms.Sequence(process.a* process.b* process.c)\n"
    "process.s2 = cms.Sequence(process.aa*process.bb*cms.ignore(process.cc)*process.dd)\n"
    "process.s3 = cms.Sequence(process.aaa*process.bbb*~process.ccc*process.ddd*process.eee)\n"
    "process.path1 = cms.Path(process.s1+process.s3+process.s2+process.last)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).processDesc();
 
   typedef std::vector<std::string> Strs;
-  
+
   Strs s = (*test).getParameter<std::vector<std::string> >("path1");
   CPPUNIT_ASSERT(s[0]=="a");
   CPPUNIT_ASSERT(s[1]=="b");
@@ -342,8 +310,6 @@ void testProcessDesc::sequenceSubstitutionTest3(){
   CPPUNIT_ASSERT(s[10]=="-cc");
   CPPUNIT_ASSERT(s[11]=="dd");
   CPPUNIT_ASSERT(s[12]=="last");
-
-  
 
   //CPPUNIT_ASSERT (b.getDependencies("a")=="");
   //CPPUNIT_ASSERT (b.getDependencies("b")=="a,");
@@ -361,8 +327,7 @@ void testProcessDesc::sequenceSubstitutionTest3(){
 
 }
 
-
-void testProcessDesc::multiplePathsTest(){
+void testProcessDesc::multiplePathsTest() {
 
   std::string str = "import FWCore.ParameterSet.Config as cms\n"
     "process = cms.Process('test')\n"
@@ -379,29 +344,26 @@ void testProcessDesc::multiplePathsTest(){
     "process.path2 = cms.Path(process.jets+ process.anotherjtanalyzer)\n"
     "process.schedule = cms.Schedule(process.path2, process.path1)\n";
 
+  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).processDesc();
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
- 
   typedef std::vector<std::string> Strs;
-  
+
   Strs s = (*test).getParameter<std::vector<std::string> >("path1");
   CPPUNIT_ASSERT(s[0]=="cone1");
   CPPUNIT_ASSERT(s[1]=="cone2");
   CPPUNIT_ASSERT(s[2]=="cone3");
   CPPUNIT_ASSERT(s[3]=="jtanalyzer");
 
-
   //CPPUNIT_ASSERT (b.getDependencies("cone1")=="");
   //CPPUNIT_ASSERT (b.getDependencies("cone2")=="cone1,");
   //CPPUNIT_ASSERT (b.getDependencies("cone3")=="cone1,cone2,");
   //CPPUNIT_ASSERT (b.getDependencies("jtanalyzer")=="cone1,cone2,cone3,");
-  
+
   s = (*test).getParameter<std::vector<std::string> >("path2");
   CPPUNIT_ASSERT(s[0]=="somejet1");
   CPPUNIT_ASSERT(s[1]=="somejet2");
   CPPUNIT_ASSERT(s[2]=="anotherjtanalyzer");
- 
+
   //CPPUNIT_ASSERT (b.getDependencies("somejet1")=="");
   //CPPUNIT_ASSERT (b.getDependencies("somejet2")=="somejet1,");
   //CPPUNIT_ASSERT (b.getDependencies("anotherjtanalyzer")=="somejet1,somejet2,");
@@ -413,8 +375,7 @@ void testProcessDesc::multiplePathsTest(){
   CPPUNIT_ASSERT (schedule[1] == "path1");
 }
 
-
-void testProcessDesc::inconsistentPathTest(){
+void testProcessDesc::inconsistentPathTest() {
 
   std::string str = "import FWCore.ParameterSet.Config as cms\n"
    "process = cms.Process('test')\n"
@@ -422,13 +383,10 @@ void testProcessDesc::inconsistentPathTest(){
    "process.b = cms.EDProducer('PhonyConeJet', i = cms.int32(7))\n"
    "process.c = cms.EDProducer('PhonyJet', i = cms.int32(7))\n"
    "process.path1 = cms.Path((process.a*process.b)+ (process.c*process.b))\n";
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
-
+  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).processDesc();
 }
 
-
-void testProcessDesc::inconsistentMultiplePathTest(){
+void testProcessDesc::inconsistentMultiplePathTest() {
 
    std::string str = "import FWCore.ParameterSet.Config as cms\n"
    "process = cms.Process('test')\n"
@@ -442,9 +400,7 @@ void testProcessDesc::inconsistentMultiplePathTest(){
    "process.path1 = cms.Path(process.cones*process.jtanalyzer)\n"
    "process.path2 = cms.Path(process.jets*process.jtanalyzer)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
-
+  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).processDesc();
 }
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

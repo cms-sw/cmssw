@@ -9,10 +9,6 @@
 #include <string>
 #include <vector>
 
-namespace edm {
-  class ProcessDesc;
-}
-
 class PythonProcessDesc {
 public:
   PythonProcessDesc();
@@ -31,8 +27,8 @@ public:
 
   std::string dump() const;
 
-  // makes a new (copy) of the ProcessDesc
-  boost::shared_ptr<edm::ProcessDesc> processDesc();
+  // makes a new (copy) of the ParameterSet
+  boost::shared_ptr<edm::ParameterSet> processDesc();
 
 private:
   void prepareToRead();

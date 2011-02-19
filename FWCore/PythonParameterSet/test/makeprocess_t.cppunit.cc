@@ -3,16 +3,13 @@
  *  EDMProto
  *
  *  Created by Chris Jones on 5/18/05.
- *  Changed by Viji Sundararajan on 8-Jul-05.
- * 
+ *
  */
 
-
-#include <cppunit/extensions/HelperMacros.h>
-
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+
+#include <cppunit/extensions/HelperMacros.h>
 
 #include "boost/shared_ptr.hpp"
 
@@ -22,14 +19,12 @@
 #include <string>
 #include <vector>
 
-class testmakeprocess: public CppUnit::TestFixture
-{
+class testmakeprocess: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(testmakeprocess);
 CPPUNIT_TEST(simpleProcessTest);
 CPPUNIT_TEST(usingTest);
 CPPUNIT_TEST(pathTest);
 CPPUNIT_TEST(moduleTest);
-CPPUNIT_TEST(serviceTest);
 CPPUNIT_TEST(emptyModuleTest);
 //CPPUNIT_TEST(windowsLineEndingTest);
 //CPPUNIT_TEST_EXCEPTION(emptyPsetTest,edm::Exception);
@@ -41,38 +36,33 @@ public:
   void usingTest();
   void pathTest();
   void moduleTest();
-  void serviceTest();
   void emptyModuleTest();
   //void windowsLineEndingTest();
 private:
 
-  typedef boost::shared_ptr<edm::ProcessDesc> ProcDescPtr;
-  ProcDescPtr procDesc(const char * c) {
+  typedef boost::shared_ptr<edm::ParameterSet> ParameterSetPtr;
+  ParameterSetPtr pSet(char const* c) {
 
-    //ProcDescPtr result( new edm::ProcessDesc(std::string(c)) );
-    ProcDescPtr result = PythonProcessDesc(std::string(c)).processDesc();
-    CPPUNIT_ASSERT(result->getProcessPSet()->getParameter<std::string>("@process_name") == "test");
+    //ParameterSetPtr result( new edm::ProcessDesc(std::string(c)) );
+    ParameterSetPtr result = PythonProcessDesc(std::string(c)).processDesc();
+    CPPUNIT_ASSERT(result->getParameter<std::string>("@process_name") == "test");
     return result;
   }
   //  void emptyPsetTest();
 };
 
-
-
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testmakeprocess);
 
-void testmakeprocess::simpleProcessTest()
-{
-   const char* kTest ="import FWCore.ParameterSet.Config as cms\n"
-                      "process = cms.Process('test')\n"
-                      "dummy =  cms.PSet(b = cms.bool(True))\n";
-   ProcDescPtr test = procDesc(kTest);
+void testmakeprocess::simpleProcessTest() {
+   char const* kTest = "import FWCore.ParameterSet.Config as cms\n"
+                       "process = cms.Process('test')\n"
+                       "dummy =  cms.PSet(b = cms.bool(True))\n";
+   ParameterSetPtr test = pSet(kTest);
 }
 
-void testmakeprocess::usingTest()
-{
-   const char* kTest =  "import FWCore.ParameterSet.Config as cms\n"
+void testmakeprocess::usingTest() {
+   char const* kTest =  "import FWCore.ParameterSet.Config as cms\n"
   "process = cms.Process('test')\n"
   "process.dummy = cms.PSet(\n"
   "    b = cms.bool(True)\n"
@@ -87,17 +77,15 @@ void testmakeprocess::usingTest()
   "    process.dummy2\n"
   ")\n";
 
-   
-   ProcDescPtr test = procDesc(kTest);
+   ParameterSetPtr test = pSet(kTest);
 
-   //CPPUNIT_ASSERT(test->getProcessPSet()->getParameterSet("dummy").getBool("b") == true);   
-   CPPUNIT_ASSERT(test->getProcessPSet()->getParameterSet("m1").getParameter<bool>("b") == true);   
-   CPPUNIT_ASSERT(test->getProcessPSet()->getParameterSet("m2").getParameter<bool>("d") == true);   
+   //CPPUNIT_ASSERT(test->getParameterSet("dummy").getBool("b") == true);
+   CPPUNIT_ASSERT(test->getParameterSet("m1").getParameter<bool>("b") == true);
+   CPPUNIT_ASSERT(test->getParameterSet("m2").getParameter<bool>("d") == true);
 }
 
-void testmakeprocess::pathTest()
-{
-   const char* kTest =   "import FWCore.ParameterSet.Config as cms\n"
+void testmakeprocess::pathTest() {
+   char const* kTest =   "import FWCore.ParameterSet.Config as cms\n"
   "process = cms.Process('test')\n"
   "process.cone5 = cms.EDFilter('PhonyConeJet',\n"
   "    i = cms.int32(5)\n"
@@ -112,10 +100,10 @@ void testmakeprocess::pathTest()
   "process.atEnd = cms.EndPath(process.writer)\n";
 
 
-   ProcDescPtr test = procDesc(kTest);
+   ParameterSetPtr test = pSet(kTest);
    //CPPUNIT_ASSERT(test->pathFragments().size() == 5);
 
-   edm::ParameterSet& myparams = *(test->getProcessPSet());
+   edm::ParameterSet& myparams = *(test);
    myparams.registerIt();
 //    std::cout << "ParameterSet looks like:\n";
 //    std::cout << myparams.toString() << std::endl;
@@ -125,7 +113,7 @@ void testmakeprocess::pathTest()
 }
 
 
-edm::ParameterSet modulePSet(const std::string& iLabel, const std::string& iType) {
+edm::ParameterSet modulePSet(std::string const& iLabel, std::string const& iType) {
    edm::ParameterSet temp;
    temp.addParameter("s", 1);
    temp.addParameter("@module_label", iLabel);
@@ -133,9 +121,8 @@ edm::ParameterSet modulePSet(const std::string& iLabel, const std::string& iType
    return temp;
 }
 
-void testmakeprocess::moduleTest()
-{
-   const char* kTest =  "import FWCore.ParameterSet.Config as cms\n"
+void testmakeprocess::moduleTest() {
+   char const* kTest =  "import FWCore.ParameterSet.Config as cms\n"
   "process = cms.Process('test')\n"
   "process.cones = cms.EDFilter('Module',\n"
   "    s = cms.int32(1)\n"
@@ -157,67 +144,49 @@ void testmakeprocess::moduleTest()
   ")\n";
 
 
-   ProcDescPtr test = procDesc(kTest);
+   ParameterSetPtr test = pSet(kTest);
 
-   static const edm::ParameterSet kEmpty;
-   const edm::ParameterSet kCone(modulePSet("cones", "Module"));
+   static edm::ParameterSet const kEmpty;
+   edm::ParameterSet const kCone(modulePSet("cones", "Module"));
    std::ostringstream out;
    out << kCone.toString() << std::endl;
-   out << test->getProcessPSet()->getParameterSet("cones").toString() << std::endl;
-   
-   const edm::ParameterSet kMainInput(modulePSet("@main_input","InputSource"));
-   
-   const edm::ParameterSet kNoLabelModule(modulePSet("", "NoLabelModule"));
-   const edm::ParameterSet kLabelModule(modulePSet("labeled", "LabelModule"));
-   const edm::ParameterSet kNoLabelRetriever(modulePSet("", "NoLabelRetriever"));
-   const edm::ParameterSet kLabelRetriever(modulePSet("label", "LabelRetriever"));
-   
-   CPPUNIT_ASSERT(kEmpty != (test->getProcessPSet()->getParameterSet("cones")));
-   CPPUNIT_ASSERT(kCone == test->getProcessPSet()->getParameterSet("cones"));
-   
-   CPPUNIT_ASSERT(kEmpty != (test->getProcessPSet()->getParameterSet("@main_input")));
-   CPPUNIT_ASSERT(kMainInput == (test->getProcessPSet()->getParameterSet("@main_input")));
+   out << test->getParameterSet("cones").toString() << std::endl;
 
-   CPPUNIT_ASSERT(kEmpty != (test->getProcessPSet()->getParameterSet("NoLabelModule@")));
-   CPPUNIT_ASSERT(kNoLabelModule == test->getProcessPSet()->getParameterSet("NoLabelModule@"));
-   
-   CPPUNIT_ASSERT(kEmpty != (test->getProcessPSet()->getParameterSet("LabelModule@labeled")));
-   CPPUNIT_ASSERT(kLabelModule == test->getProcessPSet()->getParameterSet("LabelModule@labeled"));
+   edm::ParameterSet const kMainInput(modulePSet("@main_input","InputSource"));
 
-   CPPUNIT_ASSERT(kEmpty != (test->getProcessPSet()->getParameterSet("NoLabelRetriever@")));
-   CPPUNIT_ASSERT(kNoLabelRetriever == test->getProcessPSet()->getParameterSet("NoLabelRetriever@"));
+   edm::ParameterSet const kNoLabelModule(modulePSet("", "NoLabelModule"));
+   edm::ParameterSet const kLabelModule(modulePSet("labeled", "LabelModule"));
+   edm::ParameterSet const kNoLabelRetriever(modulePSet("", "NoLabelRetriever"));
+   edm::ParameterSet const kLabelRetriever(modulePSet("label", "LabelRetriever"));
 
-   CPPUNIT_ASSERT(kEmpty != (test->getProcessPSet()->getParameterSet("LabelRetriever@label")));
-   CPPUNIT_ASSERT(kLabelRetriever == test->getProcessPSet()->getParameterSet("LabelRetriever@label"));
+   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("cones")));
+   CPPUNIT_ASSERT(kCone == test->getParameterSet("cones"));
+
+   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("@main_input")));
+   CPPUNIT_ASSERT(kMainInput == (test->getParameterSet("@main_input")));
+
+   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("NoLabelModule@")));
+   CPPUNIT_ASSERT(kNoLabelModule == test->getParameterSet("NoLabelModule@"));
+
+   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("LabelModule@labeled")));
+   CPPUNIT_ASSERT(kLabelModule == test->getParameterSet("LabelModule@labeled"));
+
+   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("NoLabelRetriever@")));
+   CPPUNIT_ASSERT(kNoLabelRetriever == test->getParameterSet("NoLabelRetriever@"));
+
+   CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("LabelRetriever@label")));
+   CPPUNIT_ASSERT(kLabelRetriever == test->getParameterSet("LabelRetriever@label"));
 }
 
-void testmakeprocess::serviceTest()
-{
-   const char* kTest =
- "import FWCore.ParameterSet.Config as cms\n"
-  "process = cms.Process('test')\n"
-  "process.XService = cms.Service('XService',\n"
-  "    s = cms.int32(1)\n"
-  ")\n"
-  "process.YService = cms.Service('YService',\n"
-  "    s = cms.int32(1)\n"
-  ")\n";
-
-   ProcDescPtr test = procDesc(kTest);
-
-   CPPUNIT_ASSERT(test->getServicesPSets()->size() == 2);
-   CPPUNIT_ASSERT("XService" == test->getServicesPSets()->at(0).getParameter<std::string>("@service_type"));
-   CPPUNIT_ASSERT("YService" == test->getServicesPSets()->at(1).getParameter<std::string>("@service_type"));
-}
-void testmakeprocess::emptyModuleTest()
-{
-   const char* kTest =   "import FWCore.ParameterSet.Config as cms\n"
+void testmakeprocess::emptyModuleTest() {
+   char const* kTest =
+  "import FWCore.ParameterSet.Config as cms\n"
   "process = cms.Process('test')\n"
   "process.thing = cms.EDFilter('XX')\n";
 
-   ProcDescPtr test = procDesc(kTest);
+   ParameterSetPtr test = pSet(kTest);
 
-   edm::ParameterSet& myparams = *(test->getProcessPSet());
+   edm::ParameterSet& myparams = *(test);
    myparams.registerIt();
 //    std::cout << "ParameterSet looks like:\n";
 //    std::cout << myparams.toString() << std::endl;
@@ -226,14 +195,13 @@ void testmakeprocess::emptyModuleTest()
    CPPUNIT_ASSERT(copy == myparams);
 }
 /*
-void testmakeprocess::windowsLineEndingTest()
-{
+void testmakeprocess::windowsLineEndingTest() {
 
   std::ostringstream oss;
-  const char ret = '\r';
-  const char nl = '\n';
-  const char dquote = '"';
-  const char backsl = '\\';
+  char const ret = '\r';
+  char const nl = '\n';
+  char const dquote = '"';
+  char const backsl = '\\';
 
   oss << ret << nl
       << "import FWCore.ParameterSet.Config as cms" << ret << nl
@@ -243,22 +211,22 @@ void testmakeprocess::windowsLineEndingTest()
       << "    s1 = cms.string(" << dquote << ret << dquote <<  ')' <<ret << nl
       << "    s2 = cms.string(" << dquote << backsl << backsl << 'r' << dquote << ')' << ret << nl
       << "  )" << ret << nl;
-  const char* kTest = oss.str().c_str();
+  char const* kTest = oss.str().c_str();
   std::cerr << "\n------------------------------\n";
   std::cerr << "s1 will look funky because of the embedded return\n";
   std::cerr << "s2 shows how to get the chars backslash-r into a string\n";
   std::cerr << kTest;
   std::cerr << "\n------------------------------\n";
 
-   ProcDescPtr test = procDesc(kTest);
+   ParameterSetPtr test = pSet(kTest);
 
    edm::ParameterSet const& p = *(test->getProcessPSet());
-   
+
    edm::ParameterSet src = p.getParameterSet("@main_input");
    CPPUNIT_ASSERT(src.getParameter<int>("i") == 1);
    std::string s1 = src.getParameter<std::string>("s1");
    std::string s2 = src.getParameter<std::string>("s2");
-   
+
    std::cerr << "\nsize of s1 is: " << s1.size();
    std::cerr << "\nsize of s2 is: " << s2.size() << '\n';
 

@@ -6,24 +6,20 @@
  *
  */
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
+#include "cppunit/extensions/HelperMacros.h"
+
+#include "boost/shared_ptr.hpp"
+
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <stdlib.h> // for setenv; <cstdlib> is likely to fail
 #include <string>
 #include <unistd.h>
-
-#include <iostream>
-
-#include <stdlib.h> // for setenv; <cstdlib> is likely to fail
-
-#include "cppunit/extensions/HelperMacros.h"
-#include "boost/shared_ptr.hpp"
-
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-
-
 
 class testmakepset: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testmakepset);
@@ -49,7 +45,6 @@ class testmakepset: public CppUnit::TestFixture {
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testmakepset);
-
 
 void testmakepset::secsourceTest() {
   try { this->secsourceAux(); }
@@ -98,7 +93,7 @@ void testmakepset::secsourceAux() {
 
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.processDesc()->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> ps = builder.processDesc();
 
   CPPUNIT_ASSERT(0 != ps.get());
 
@@ -149,11 +144,10 @@ void testmakepset::usingBlockAux() {
   "    l = cms.int64(101010)\n"
   ")\n";
 
-
   std::string config(kTest);
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.processDesc()->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> ps = builder.processDesc();
 
   CPPUNIT_ASSERT(0 != ps.get());
 
@@ -202,7 +196,7 @@ void testmakepset::fileinpathAux() {
 
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.processDesc()->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> ps = builder.processDesc();
   CPPUNIT_ASSERT(0 != ps.get());
 
   edm::ParameterSet const& innerps = ps->getParameterSet("main");
@@ -260,7 +254,7 @@ void testmakepset::fileinpathAux() {
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder2(config2);
   unlink(tmpout.c_str());
-  boost::shared_ptr<edm::ParameterSet> ps2 = builder2.processDesc()->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> ps2 = builder2.processDesc();
 
   CPPUNIT_ASSERT(0 != ps2.get());
 
@@ -338,7 +332,7 @@ void testmakepset::typesTest() {
    std::string config2(kTest);
    // Create the ParameterSet object from this configuration string.
    PythonProcessDesc builder2(config2);
-   boost::shared_ptr<edm::ParameterSet> ps2 = builder2.processDesc()->getProcessPSet();
+   boost::shared_ptr<edm::ParameterSet> ps2 = builder2.processDesc();
    edm::ParameterSet const& test = ps2->getParameterSet("p");
 
    CPPUNIT_ASSERT(1 == test.getParameter<int>("i"));
@@ -423,7 +417,6 @@ void testmakepset::typesTest() {
    CPPUNIT_ASSERT("source" == inputProduct7.label());
    CPPUNIT_ASSERT("deprecatedString" == inputProduct8.label());
 
-
    // vector of InputTags
 
    std::vector<edm::InputTag> vtags = test.getParameter<std::vector<edm::InputTag> >("vinput");
@@ -484,10 +477,8 @@ void testmakepset::typesTest() {
    CPPUNIT_ASSERT(vlumis[1].run() == 95);
    CPPUNIT_ASSERT(vlumis[1].luminosityBlock() == 105);
 
-
    //CPPUNIT_ASSERT("Label2" == outputProduct.label());
    //CPPUNIT_ASSERT(""       == outputProduct.instance());
    //CPPUNIT_ASSERT("Alias2" == outputProduct.alias());
    //BOOST_CHECK_THROW(makePSet(*nodeList), std::runtime_error);
 }
-

@@ -5,13 +5,13 @@
 // of a cmsRun process, because validation code may insert
 // additional parameters into the configuration.
 
-#include <iostream>
-#include <string>
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 
 #include "boost/shared_ptr.hpp"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h" 
-#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+
+#include <iostream>
+#include <string>
 
 int main(int argc, char **argv) {
   // config can either be a name or a string
@@ -19,21 +19,18 @@ int main(int argc, char **argv) {
 
   if(argc == 1) {
     // Read input from cin into configstring..
-    {
-      std::string line;
-      while (std::getline(std::cin, line)) {
-    	config += line;
-    	config += '\n';
-      }
+    std::string line;
+    while(std::getline(std::cin, line)) {
+      config += line;
+      config += '\n';
     }
-
-  } else if (argc == 2) {
+  } else if(argc == 2) {
     config = std::string(argv[1]);
   }
 
-  boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfig(config);
-  processDesc->getProcessPSet()->registerIt();
+  boost::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(config);
+  parameterSet->registerIt();
 
-  std::cout << processDesc->getProcessPSet()->id() << std::endl;
+  std::cout << parameterSet->id() << std::endl;
   return 0;
 }
