@@ -28,11 +28,9 @@ LaserAlignmentEventFilter::LaserAlignmentEventFilter( const edm::ParameterSet& i
   // Read in Filter Lists
   std::vector<int> FED_IDs = iConfig.getParameter<std::vector<int> >("FED_IDs");
   set_las_fed_ids(FED_IDs);
-  std::cout << "las_fed_ids.size(): " << las_fed_ids.size() << std::endl;
 
   std::vector<int> SIGNAL_IDs = iConfig.getParameter<std::vector<int> >("SIGNAL_IDs");
   set_las_signal_ids(SIGNAL_IDs);
-  std::cout << "las_signal_ids.size(): " << las_signal_ids.size() << std::endl;
 
   // Read in Filter Flags
   signal_filter = iConfig.getParameter<bool>("SIGNAL_Filter");
@@ -153,7 +151,6 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetu
 ///
 ///
 void LaserAlignmentEventFilter::endJob() {
-  std::cout << "found " << LAS_event_count << " LAS events" << std::endl;
   //edm::LogInfo("LaserAlignmentEventFilter") << "found " << LAS_event_count << " LAS events";
 }
 
