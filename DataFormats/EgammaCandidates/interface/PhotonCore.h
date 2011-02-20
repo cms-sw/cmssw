@@ -10,7 +10,7 @@
  *
  * \author  N. Marinelli Univ. of Notre Dame
  * 
- * \version $Id: PhotonCore.h,v 1.3 2011/01/07 19:57:13 nancy Exp $
+ * \version $Id: PhotonCore.h,v 1.4 2011/02/14 19:27:14 nancy Exp $
  * $Log $
  */
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
@@ -19,8 +19,6 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 
 namespace reco {
@@ -57,8 +55,6 @@ namespace reco {
     void addConversion( const reco::ConversionRef & r ) { conversions_.push_back(r); }
     /// set electron pixel seed ref
     void addElectronPixelSeed( const reco::ElectronSeedRef & r ) { electronSeed_.push_back(r) ; }
-    /// set reference to PFCandidate
-    void setPFCandidate( const reco::PFCandidateRef & r ) { pfCandidate_ = r; }
     /// set the provenance
     void setPFlowPhoton( const bool prov) {  isPFlowPhoton_ = prov; }
     void setStandardPhoton( const bool prov) { isStandardPhoton_ = prov; }
@@ -78,8 +74,6 @@ namespace reco {
     reco::ConversionRefVector conversions() const {return conversions_;} 
     /// get reference to electron seed if existing
     reco::ElectronSeedRefVector electronPixelSeeds() const {return electronSeed_;}
-    /// get reference to PFlow candidate
-    reco::PFCandidateRef pfCandidate() const { return pfCandidate_;}
     bool isPFlowPhoton() const {return isPFlowPhoton_;} 
     bool isStandardPhoton() const {return isStandardPhoton_;}
 
@@ -93,8 +87,6 @@ namespace reco {
     reco::ElectronSeedRefVector  electronSeed_;
     /// reference to a Particle flow SuperCluster
     reco::SuperClusterRef pfSuperCluster_;
-    /// reference to a Particle flow candidate
-    reco::PFCandidateRef pfCandidate_;
     bool  isPFlowPhoton_;
     bool  isStandardPhoton_;
 
