@@ -22,8 +22,7 @@ mix = cms.EDProducer("MixingModule",
         averageNumber = cms.double(1.0)
     	),
 	sequential = cms.untracked.bool(True),
-        fileNames = FileNames 
- cms.untracked.vstring('file:PCFLowLumiPU.root')
+        fileNames =  cms.untracked.vstring('file:PCFLowLumiPU.root')
     ),
     
     mixObjects = cms.PSet(

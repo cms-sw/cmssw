@@ -24,7 +24,6 @@ mix = cms.EDProducer("MixingModule",
         type = cms.string('poisson'),
 	sequential = cms.untracked.bool(False),                          
         fileNames = FileNames 
- FileNames
     ),
     mixObjects = cms.PSet(
         mixCH = cms.PSet(
