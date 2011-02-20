@@ -71,6 +71,7 @@ addMixingScenario("FS_156BxLumiPileUp",{'file': 'FastSimulation.PileUpProducer.P
 addMixingScenario("FS_HighLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_HighLumiPileUp_cff'})
 addMixingScenario("FS_InitialPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_InitialPileUp_cff'})
 addMixingScenario("FS_LowLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_LowLumiPileUp_cff'})
+addMixingScenario("FS_FlatDist10_2011EarlyData_50ns",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_FlatDist10_2011EarlyData_50ns_cff'})
 
 
 
