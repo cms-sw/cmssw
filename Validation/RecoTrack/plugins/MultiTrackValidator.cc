@@ -54,6 +54,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
 					pset.getParameter<int>("minHitTP"),
 					pset.getParameter<bool>("signalOnlyTP"),
 					pset.getParameter<bool>("chargedOnlyTP"),
+					pset.getParameter<bool>("stableOnlyTP"),
 					pset.getParameter<std::vector<int> >("pdgIdTP"));
 
   cosmictpSelector = CosmicTrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
@@ -66,7 +67,6 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
 						    pset.getParameter<std::vector<int> >("pdgIdTP"));
 
   useGsf = pset.getParameter<bool>("useGsf");
-  runStandalone = pset.getParameter<bool>("runStandalone");
 
 
     
@@ -121,7 +121,6 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
 
       //Booking histograms concerning with reconstructed tracks
       histoProducerAlgo_->bookRecoHistos();
-      if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning();
 
       if (UseAssociators) {
 	edm::ESHandle<TrackAssociatorBase> theAssociator;
@@ -436,8 +435,7 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
-      if(!skipHistoFit && runStandalone) histoProducerAlgo_->finalHistoFits(w);
-      if (runStandalone) histoProducerAlgo_->fillProfileHistosFromVectors(w);
+      if(!skipHistoFit)	histoProducerAlgo_->finalHistoFits(w);
       histoProducerAlgo_->fillHistosFromVectors(w);
       w++;
     }    
