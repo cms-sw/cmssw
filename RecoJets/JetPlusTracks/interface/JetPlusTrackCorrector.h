@@ -204,7 +204,11 @@ class JetPlusTrackCorrector {
 
   /// For AA - correct in tracker
   
-  double correctAA(  const reco::Jet&, const reco::TrackRefVector&, double&) const;
+//  double correctAA(  const reco::Jet&, const reco::TrackRefVector&, double&, const reco::TrackRefVector&,const reco::TrackRefVector&, double&) const;
+  double correctAA(  const reco::Jet&, const reco::TrackRefVector&, double&, const reco::TrackRefVector&,const reco::TrackRefVector&,
+                                                           double,
+                                                           const reco::TrackRefVector&) const;
+
   
   /// Returns true
   bool eventRequired() const;

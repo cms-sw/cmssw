@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Feb 19 10:14:02 CET 2010
-// $Id: JetPlusTrackProducerAA.cc,v 1.3 2010/05/05 13:58:08 kodolova Exp $
+// $Id: JetPlusTrackProducerAA.cc,v 1.4 2010/05/05 14:00:50 kodolova Exp $
 //
 //
 
@@ -42,6 +42,23 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
+
+//=>
+#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationXtrpCalo.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+//=>
 
 #include <string>
 
@@ -72,6 +89,9 @@ JetPlusTrackProducerAA::JetPlusTrackProducerAA(const edm::ParameterSet& iConfig)
    std::string tq = iConfig.getParameter<std::string>("TrackQuality");
    trackQuality_ = reco::TrackBase::qualityByName(tq);
    mConeSize = iConfig.getParameter<double> ("coneSize");
+//=>
+   mExtrapolations = iConfig.getParameter<edm::InputTag> ("extrapolations");
+//=>
    mJPTalgo  = new JetPlusTrackCorrector(iConfig);
    mZSPalgo  = new ZSPJPTJetCorrector(iConfig);
 
@@ -102,7 +122,6 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 //  std::cout<<" RecoJets::JetPlusTrackProducerAA::produce "<<std::endl;
 
-
 // get stuff from Event
   edm::Handle <edm::View <reco::CaloJet> > jets_h;
   iEvent.getByLabel (src, jets_h);
@@ -116,6 +135,12 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
              fTracks.push_back (reco::TrackRef (tracks_h, i));
   } 
 
+//=>
+  edm::Handle <std::vector<reco::TrackExtrapolation> > extrapolations_h;
+  iEvent.getByLabel (mExtrapolations, extrapolations_h);
+
+//  std::cout<<"JetPlusTrackProducerAA::produce, extrapolations_h="<<extrapolations_h->size()<<std::endl;  
+//=>
 
   std::auto_ptr<reco::JPTJetCollection> pOut(new reco::JPTJetCollection());
   
@@ -131,6 +156,9 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
    double factorZSP = 1.;
    if(useZSP) factorZSP = mZSPalgo->correction(corrected, iEvent, iSetup);
+
+//   std::cout << " UseZSP = "<<useZSP<<std::endl;
+
 
    corrected.scaleEnergy (factorZSP);
 
@@ -167,6 +195,11 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   reco::JPTJet::Specific specific;
 
   if(ok) {
+//    std::cout<<" Size of Pion in-in "<<pions.inVertexInCalo_.size()<<" in-out "<<pions.inVertexOutOfCalo_.size()
+//             <<" out-in "<<pions.outOfVertexInCalo_.size()<<" Oldjet "<<oldjet->et()<<" factorZSP "<<factorZSP
+//             <<"  "<<corrected.et()<<" scaleJPT "<<scaleJPT<<" after JPT "<<p4.pt()<<std::endl;
+    
+
     specific.pionsInVertexInCalo = pions.inVertexInCalo_;
     specific.pionsInVertexOutCalo = pions.inVertexOutOfCalo_;
     specific.pionsOutVertexInCalo = pions.outOfVertexInCalo_;
@@ -281,25 +314,73 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   }
 
+//=======================================================================================================>
 // Correction for background
-  reco::TrackRefVector trBgOutOfVertex = calculateBGtracksJet(tmpColl,fTracks);
 
+  reco::TrackRefVector trBgOutOfCalo;
+  reco::TrackRefVector trBgOutOfVertex = calculateBGtracksJet(tmpColl,fTracks,extrapolations_h,trBgOutOfCalo);
+
+//===> Area without Jets 
+    std::map<reco::JPTJetCollection::iterator, double> AreaNonJet;
+    
+    for(reco::JPTJetCollection::iterator ij1=tmpColl.begin(); ij1!=tmpColl.end(); ij1++) 
+    {
+      int nj1 = 1;
+      for(reco::JPTJetCollection::iterator ij2=tmpColl.begin(); ij2!=tmpColl.end(); ij2++) 
+      {
+       if(ij2 == ij1) continue;
+       if(fabs((*ij1).eta() - (*ij2).eta()) > 0.5 ) continue;
+       nj1++;
+
+      }
+
+      AreaNonJet[ij1] = 4*M_PI*mConeSize - nj1*4*mConeSize*mConeSize;
+
+//      std::cout<<"+++AreaNonJet[ij1]="<<AreaNonJet[ij1]<<" nj1="<<nj1<<std::endl;
+    }
+
+//===>
+
+//  std::cout<<" The size of BG tracks: trBgOutOfVertex= "<<trBgOutOfVertex.size()
+//           <<" trBgOutOfCalo= "<<trBgOutOfCalo.size()<<std::endl;
+//
+//  std::cout<<" The size of JPT jet collection "<<tmpColl.size()<<std::endl;
+  
   for(reco::JPTJetCollection::iterator ij=tmpColl.begin(); ij!=tmpColl.end(); ij++)
   {    
 // Correct JPTjet for background tracks
-   double factorPU = mJPTalgo->correctAA(*ij,trBgOutOfVertex,mConeSize);
+
+   const reco::TrackRefVector pioninin  = (*ij).getPionsInVertexInCalo();
+   const reco::TrackRefVector pioninout = (*ij).getPionsInVertexOutCalo();
+   
+   double ja = (AreaNonJet.find(ij))->second;
+
+//    std::cout<<"+++ ja="<<ja<<" pioninout="<<pioninout.size()<<std::endl;
+
+   double factorPU = mJPTalgo->correctAA(*ij,trBgOutOfVertex,mConeSize,pioninin,pioninout,ja,trBgOutOfCalo);
+
    (*ij).scaleEnergy (factorPU);
+   
+//   std::cout<<" FactorPU "<<factorPU<<std::endl;
+   
 // Output module
     pOut->push_back(*ij);
+    
+//    std::cout<<" New JPT energy "<<(*ij).et()<<" "<<(*ij).pt()<<" "<<(*ij).eta()<<" "<<(*ij).phi()<<std::endl;
+    
   }
-  iEvent.put(pOut);
+  
+   iEvent.put(pOut);
    
 }
 // -----------------------------------------------
 // ------------ calculateBGtracksJet  ------------
 // ------------ Tracks not included in jets ------
 // -----------------------------------------------
-reco::TrackRefVector  JetPlusTrackProducerAA::calculateBGtracksJet(reco::JPTJetCollection& fJets, std::vector <reco::TrackRef>& fTracks){
+reco::TrackRefVector  JetPlusTrackProducerAA::calculateBGtracksJet(reco::JPTJetCollection& fJets, std::vector <reco::TrackRef>& fTracks,
+                                                                edm::Handle <std::vector<reco::TrackExtrapolation> > & extrapolations_h, 
+                                                                                                   reco::TrackRefVector& trBgOutOfCalo){ 
+
   
   reco::TrackRefVector trBgOutOfVertex;
   
@@ -344,13 +425,43 @@ reco::TrackRefVector  JetPlusTrackProducerAA::calculateBGtracksJet(reco::JPTJetC
       }      
     } //jets
 
-    if( track_bg == 0 ) trBgOutOfVertex.push_back (fTracks[t]);
+    if( track_bg == 0 ) 
+     {
+       trBgOutOfVertex.push_back (fTracks[t]);
     
-   // std::cout<<"------Track outside jet at vertex, track_bg="<< track_bg<<" track="<<t
-   //          <<" trackEta="<<trackEta<<" trackPhi="<<trackPhi
-   //          <<std::endl;    
+//       std::cout<<"------Track outside jet at vertex, track_bg="<< track_bg<<" track="<<t
+//               <<" trackEta="<<trackEta<<" trackPhi="<<trackPhi <<std::endl;    
+     }
 
   } //tracks    
+
+//=====> Propagate BG tracks to calo 
+    int nValid = 0;
+    for ( std::vector<reco::TrackExtrapolation>::const_iterator xtrpBegin = extrapolations_h->begin(),
+          xtrpEnd = extrapolations_h->end(), ixtrp = xtrpBegin;
+          ixtrp != xtrpEnd; ++ixtrp ) {
+
+//    std::cout<<"JetPlusTrackProducerAA::calculateBGtracksJet: initial track pt= "<<ixtrp->track()->pt()
+//             <<" eta= "<<ixtrp->track()->eta()<<" phi="<<ixtrp->track()->phi()
+//             <<" Valid? "<<ixtrp->isValid().at(0)<<std::endl;
+
+          if( ixtrp->isValid().at(0) == 0 ) continue;
+          nValid++;
+
+          reco::TrackRefVector::iterator it = find(trBgOutOfVertex.begin(),trBgOutOfVertex.end(),(*ixtrp).track() );
+
+          if ( it != trBgOutOfVertex.end() ){
+             trBgOutOfCalo.push_back (*it);
+
+//          std::cout<<"+++trBgOutOfCalo, pt= "<<ixtrp->track()->pt()<<" eta= "<<ixtrp->track()->eta()<<" phi="<<ixtrp->track()->phi()
+//                   <<" Valid? "<<ixtrp->isValid().at(0)<<std::endl;
+          }
+
+    }
+
+//     std::cout<<"calculateBGtracksJet, trBgOutOfCalo="<<trBgOutOfCalo.size()
+//              <<" trBgOutOfVertex="<<trBgOutOfVertex.size()<<" nValid="<<nValid<<endl;
+//=====>
 
   return trBgOutOfVertex;
 }
