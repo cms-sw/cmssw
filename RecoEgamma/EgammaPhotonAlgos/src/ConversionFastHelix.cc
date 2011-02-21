@@ -183,13 +183,13 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
   if(fabs(theCircle.n2()) > 0.) {
     dydx = -theCircle.n1()/theCircle.n2(); //else px = 0 
   }
+
   if ( pt==0 && dydx==0. ) {
     validStateAtVertex=false;
     return atVertex; 
   }
   px = pt/sqrt(1. + dydx*dydx);
   py = px*dydx;
- 
 
   // check sign with scalar product
   if (px*(pMid.x() - v.x()) + py*(pMid.y() - v.y()) < 0.) {
@@ -203,6 +203,7 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
   //theta = atan(1./dzdr)
   //p = pt/sin(theta)
   //pz = p*cos(theta) = pt/tan(theta) 
+
 
   FastLine flfit(theOuterHit, theMiddleHit);
 
@@ -223,12 +224,18 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
 						  mField),
 		       CartesianTrajectoryError(C));
 
-    validStateAtVertex=true;        
-    return atVertex;
-    
-  } else {
-    
+    //    std::cout << "  ConversionFastHelix::straightLineStateAtVertex curvature " << atVertex.transverseCurvature() << "   signedInverseMomentum " << atVertex.signedInverseMomentum() << std::endl;
+    if ( atVertex.transverseCurvature() == -0 ) {
       return atVertex;
+    } else {
+      validStateAtVertex=true;        
+      return atVertex;
+    }
+  
+  } else {
+
+
+    return atVertex;
   
   }
 
