@@ -51,6 +51,19 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   elHCaloIsoR03     = new float[kMaxEl];  
   elIsEcalDriven    = new bool[kMaxEl];  
   elFbrem           = new float[kMaxEl];      
+  elmishits         = new int[kMaxEl]; 
+  eldist            = new float[kMaxEl]; 
+  eldcot            = new float[kMaxEl]; 
+  eltrkiso          = new float[kMaxEl]; 
+  elecaliso         = new float[kMaxEl]; 
+  elhcaliso         = new float[kMaxEl]; 
+  elsigmaietaieta   = new float[kMaxEl]; 
+  eldeltaPhiIn      = new float[kMaxEl]; 
+  eldeltaEtaIn      = new float[kMaxEl]; 
+  elhOverE          = new float[kMaxEl]; 
+  elscEt            = new float[kMaxEl]; 
+  eld0corr          = new float[kMaxEl]; 
+  elqGsfCtfScPixConsistent = new bool[kMaxEl]; 
   
   photonpt          = new float[kMaxPhot];
   photonphi         = new float[kMaxPhot];
@@ -109,7 +122,19 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   HltTree->Branch("recoElecHCaloIsoR03",  elHCaloIsoR03,   "recoElecHCaloIsoR03[NrecoElec]/F");  
   HltTree->Branch("recoElecIsEcalDriven", elIsEcalDriven,  "recoElecIsEcalDriven[NrecoElec]/O");        
   HltTree->Branch("recoElecFbrem",        elFbrem,         "recoElecFbrem[NrecoElec]/F");  
-
+  HltTree->Branch("recoElecmishits",                  elmishits,                "recoElecmishits[NrecoElec]/I"); 
+  HltTree->Branch("recoElecdist",                     eldist,                   "recoElecdist[NrecoElec]/F"); 
+  HltTree->Branch("recoElecdcot",                     eldcot,                   "recoElecdcot[NrecoElec]/F"); 
+  HltTree->Branch("recoElectrkiso",                   eltrkiso,                 "recoElectrkiso[NrecoElec]/F"); 
+  HltTree->Branch("recoElececaliso",                  elecaliso,                "recoElececaliso[NrecoElec]/F"); 
+  HltTree->Branch("recoElechcaliso",                  elhcaliso,                "recoElechcaliso[NrecoElec]/F"); 
+  HltTree->Branch("recoElecsigmaietaieta",            elsigmaietaieta,          "recoElecsigmaietaieta[NrecoElec]/F"); 
+  HltTree->Branch("recoElecdeltaPhiIn",               eldeltaPhiIn,             "recoElecdeltaPhiIn[NrecoElec]/F"); 
+  HltTree->Branch("recoElecdeltaEtaIn",               eldeltaEtaIn,             "recoElecdeltaEtaIn[NrecoElec]/F"); 
+  HltTree->Branch("recoElechOverE",                   elhOverE,                 "recoElechOverE[NrecoElec]/F"); 
+  HltTree->Branch("recoElecscEt",                     elscEt,                   "recoElecscEt[NrecoElec]/F"); 
+  HltTree->Branch("recoElecd0corr",                   eld0corr,                 "recoElecd0corr[NrecoElec]/F"); 
+  HltTree->Branch("recoElecqGsfCtfScPixConsistent",   elqGsfCtfScPixConsistent, "recoElecqGsfCtfScPixConsistent[NrecoElec]/O");  
 
   HltTree->Branch("NrecoPhot",          &nphoton,           "NrecoPhot/I");
   HltTree->Branch("recoPhotPt",         photonpt,           "recoPhotPt[NrecoPhot]/F");
@@ -271,6 +296,21 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
       elHCaloIsoR03[iel]   = i->dr03HcalTowerSumEt();  
       elIsEcalDriven[iel]  = i->ecalDrivenSeed();  
       elFbrem[iel]         = i->fbrem();  
+      elscEt[iel] = i->superCluster()->energy()*sin((2*atan(exp(-i->superCluster()->eta())))); 
+      elhOverE[iel] = i->hadronicOverEm(); 
+      elsigmaietaieta[iel] = i->sigmaIetaIeta(); 
+      eldeltaPhiIn[iel] = i->deltaPhiSuperClusterTrackAtVtx(); 
+      eldeltaEtaIn[iel] = i->deltaEtaSuperClusterTrackAtVtx(); 
+      elmishits[iel] = i->gsfTrack()->trackerExpectedHitsInner().numberOfHits(); 
+      eltrkiso[iel] = i->dr03TkSumPt(); 
+      elecaliso[iel] = i->dr03EcalRecHitSumEt(); 
+      elhcaliso[iel] = i->dr03HcalTowerSumEt(); 
+      eld0corr[iel]= - (i->gsfTrack()->dxy(BSPosition)); 
+      elqGsfCtfScPixConsistent[iel]=i->isGsfCtfScPixChargeConsistent();; 
+ 
+      // conversion info will be available after 3_10_X 
+      eldist[iel] = 0;// fabs(i->convDist()); 
+      eldcot[iel] = 0; //fabs(i->convDcot()); 
         
       iel++;  
     }  

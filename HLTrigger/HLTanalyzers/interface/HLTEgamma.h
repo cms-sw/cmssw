@@ -168,6 +168,12 @@ private:
 
   // Tree variables
   float *elpt, *elphi, *eleta, *elet, *ele, *elIP, *elTrkChi2NDF, *elTrkIsoR03, *elECaloIsoR03, *elHCaloIsoR03, *elFbrem; 
+  float *eltrkiso, *elecaliso, *elhcaliso; 
+  float *elsigmaietaieta, *eldeltaPhiIn,  *eldeltaEtaIn, *elhOverE; 
+  float *elscEt, *eld0corr; 
+  bool *elqGsfCtfScPixConsistent; 
+  int *elmishits; 
+  float *eldist, *eldcot;  
   float *photonpt, *photonphi, *photoneta, *photonet, *photone;
 
   float *hphotet, *hphoteta, *hphotphi, *hphoteiso, *hphothiso, *hphottiso, *hphothovereh;
