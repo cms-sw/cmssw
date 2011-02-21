@@ -27,6 +27,7 @@ from Validation.RecoVertex.VertexValidation_cff import *
 from Validation.RecoEgamma.egammaValidation_cff import *
 from Validation.RecoParticleFlow.PFJetValidation_cff  import *
 from Validation.RecoParticleFlow.PFMETValidation_cff import *
+from Validation.RPCRecHits.rpcRecHitValidation_cfi import *
 
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidation = cms.Sequence( 
@@ -65,5 +66,6 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + egammaValidation
                                  + pfJetValidationSequence
                                  + pfMETValidationSequence
+                                 + rpcRecHitValidation_step
 
 )

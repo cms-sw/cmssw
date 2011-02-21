@@ -8,6 +8,8 @@ from Validation.HcalRecHits.hcalRecHitsPostProcessor_cff import *
 from Validation.EventGenerator.PostProcessor_cff import *
 from Validation.RecoEgamma.photonPostProcessor_cff import *
 from Validation.RecoParticleFlow.PFValidationClient_cff import *
+from Validation.RPCRecHits.postValidation_cfi import *
+
 
 postValidation = cms.Sequence(
       recoMuonPostProcessors
@@ -17,6 +19,7 @@ postValidation = cms.Sequence(
     + hcalrechitsPostProcessor
     + photonPostProcessor    
     + pfJetClient + pfMETClient
+    + rpcRecHitPostValidation_step
 )
 
 postValidation_preprod = cms.Sequence(
