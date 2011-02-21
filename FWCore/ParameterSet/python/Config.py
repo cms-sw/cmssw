@@ -735,13 +735,13 @@ class Process(object):
 
     def fillProcessDesc(self, processPSet):
         class ServiceInjectorAdaptor(object):
-            def __init__(self,pset,label):
-                self.__pset = pset
-                self.__label = label
+            def __init__(self,ppset,thelist):
+                self.__thelist = thelist
+                self.__processPSet = ppset
             def addService(self,pset):
-                self.__pset.addPSet(False,self.__label,pset)
+                self.__thelist.append(pset)
             def newPSet(self):
-                return self.__pset.newPSet()
+                return self.__processPSet.newPSet()
         self.validate()
         processPSet.addString(True, "@process_name", self.name_())
         all_modules = self.producers_().copy()
@@ -759,12 +759,10 @@ class Process(object):
         self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_(), True)
         self._insertPaths(processPSet)
         #handle services differently
-        services = processPSet.newPSet()
-        #services = processPSet.newVPSet()
+        services = []
         for n in self.services_():
-             getattr(self,n).insertInto(ServiceInjectorAdaptor(services,n))
-        processPSet.addPSet(False,"services",services)
-        #processPSet.addVPSet(False,"services",services)
+             getattr(self,n).insertInto(ServiceInjectorAdaptor(processPSet,services))
+        processPSet.addVPSet(False,"services",services)
         return processPSet
 
     def validate(self):
@@ -1402,6 +1400,6 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             process.subProcess.insertInto(p,"dummy")
             self.assertEqual((True,['a']),p.values["@sub_process"][1].values["process"][1].values['@all_modules'])
             self.assertEqual((True,['p']),p.values["@sub_process"][1].values["process"][1].values['@paths'])
-            self.assertEqual({'@service_type':(True,'Foo')}, p.values["@sub_process"][1].values["process"][1].values["services"][1].values['Foo'][1].values)
+            self.assertEqual({'@service_type':(True,'Foo')}, p.values["@sub_process"][1].values["process"][1].values["services"][1][0].values)
 
     unittest.main()

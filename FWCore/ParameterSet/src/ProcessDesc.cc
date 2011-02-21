@@ -6,14 +6,7 @@
 namespace edm {
 
   ProcessDesc::ProcessDesc(boost::shared_ptr<ParameterSet> pset) :
-      pset_(pset), services_(new std::vector<ParameterSet>) {
-    std::auto_ptr<ParameterSet> services = pset_->popParameterSet(std::string("services"));
-    std::vector<std::string> serviceNames;
-    services->getParameterSetNames(serviceNames);
-    for(std::vector<std::string>::const_iterator it = serviceNames.begin(), itEnd = serviceNames.end();
-        it != itEnd; ++it) {
-      services_->push_back(services->getUntrackedParameter<ParameterSet>(*it));
-    }
+      pset_(pset), services_(pset_->popVParameterSet(std::string("services")).release()) {
   }
 
   ProcessDesc::ProcessDesc(std::string const& config) :

@@ -82,17 +82,9 @@ namespace edm {
       boost::shared_ptr<ParameterSet> params;
       makeParameterSets(config, params);
 
-      std::vector<ParameterSet> serviceSets;
-
-      std::auto_ptr<ParameterSet> services = params->popParameterSet(std::string("services"));
-      std::vector<std::string> serviceNames;
-      services->getParameterSetNames(serviceNames);
-      for(std::vector<std::string>::const_iterator it = serviceNames.begin(), itEnd = serviceNames.end();
-          it != itEnd; ++it) {
-        serviceSets.push_back(services->getUntrackedParameter<ParameterSet>(*it));
-      }
+      std::auto_ptr<std::vector<ParameterSet> > serviceSets = params->popVParameterSet(std::string("services"));
       //create the services
-      return ServiceToken(ServiceRegistry::createSet(serviceSets));
+      return ServiceToken(ServiceRegistry::createSet(*serviceSets));
    }
 
    ServiceToken 

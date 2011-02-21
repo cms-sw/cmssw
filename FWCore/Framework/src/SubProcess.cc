@@ -66,24 +66,15 @@ namespace edm {
 
     boost::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*processParameterSet).release());
   
-    std::vector<ParameterSet> serviceSets;
-
     ScheduleItems items(*parentProductRegistry);
 
     //initialize the services
     ServiceToken iToken;
 
     // get any configured services.
-    std::auto_ptr<ParameterSet> services = processParameterSet->popParameterSet(std::string("services")); 
-    std::vector<std::string> serviceNames;
-    services->getParameterSetNames(serviceNames);
-    for(std::vector<std::string>::const_iterator it = serviceNames.begin(), itEnd = serviceNames.end();
-        it != itEnd; ++it) {
-      ParameterSet aService = services->getUntrackedParameter<ParameterSet>(*it);
-      serviceSets.push_back(aService);
-    }
+    std::auto_ptr<std::vector<ParameterSet> > serviceSets = processParameterSet->popVParameterSet(std::string("services")); 
 
-    ServiceToken newToken = items.initServices(serviceSets, *processParameterSet, token, iLegacy, false);
+    ServiceToken newToken = items.initServices(*serviceSets, *processParameterSet, token, iLegacy, false);
     parentActReg.connectToSubProcess(*items.actReg_);
     serviceToken_ = items.addCPRandTNS(*processParameterSet, newToken);
 
