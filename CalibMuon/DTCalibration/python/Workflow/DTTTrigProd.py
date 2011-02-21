@@ -20,6 +20,9 @@ class DTTTrigProd:
         self.process = loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = self.config.globaltag
         self.process.dtTTrigCalibration.digiLabel = self.config.digilabel
+        if hasattr(self.config,'runOnCosmics') and self.config.runOnCosmics:
+            self.process.load('RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff')
+
         if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
             prependPaths(self.process,self.config.digilabel)
 

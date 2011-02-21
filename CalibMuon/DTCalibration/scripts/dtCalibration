@@ -355,6 +355,7 @@ if __name__ == '__main__':
     parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
     parser.add_option("--inputVDriftDB", dest="inputVDriftDB", help="uses local SQLITE vDrift DB (instead of using the one in the GT)")
     parser.add_option("--inputTTrigDB", dest="inputTTrigDB", help="uses local SQLITE tTrig DB (instead of using the one in the GT)")
+    parser.add_option("--runOnCosmics", action="store_true", dest="runOnCosmics", default=False, help="set this option to run on Cosmics")
     parser.add_option("--runOnRAW", action="store_true", dest="runOnRAW", default=False, help="set this option to run on RAW")
     #parser.add_option("--templatepath", dest="templatepath", help="path to dir with template cfg files")
     parser.add_option("--no_exec", action="store_true", dest="no_exec", default=False, help="script will not execute")
@@ -419,6 +420,8 @@ if __name__ == '__main__':
 
     config.runOnRAW = False 
     if hasattr(input,'runOnRAW') and input.runOnRAW: config.runOnRAW = input.runOnRAW
+    config.runOnCosmics = False
+    if hasattr(input,'runOnCosmics') and input.runOnCosmics: config.runOnCosmics = input.runOnCosmics
 
     config.globaltag = input.globaltag + '::All'
     config.digilabel = 'muonDTDigis'

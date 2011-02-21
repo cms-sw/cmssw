@@ -10,7 +10,11 @@ class DTTTrigValid:
         self.config = config
         self.dir = dir
         self.inputdb = input_db
+
         self.pset_template = 'CalibMuon.DTCalibration.dtCalibValidation_cfg'
+        if hasattr(self.config,'runOnCosmics') and self.config.runOnCosmics:
+            self.pset_template = 'CalibMuon.DTCalibration.dtCalibValidation_cosmics_cfg'
+
         self.process = None  
         self.crab_cfg = None
         self.initProcess()
@@ -21,9 +25,12 @@ class DTTTrigValid:
         self.process = loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = self.config.globaltag
         self.process.dtCalibValidation.OutputMEsInRootFile = True
+
         if(self.inputdb):
+            label = ''
+            if hasattr(self.config,'runOnCosmics') and self.config.runOnCosmics: label = 'cosmics'
             addPoolDBESSource(process = self.process,
-                              moduleName = 'calibDB',record = 'DTTtrigRcd',tag = 'ttrig',
+                              moduleName = 'calibDB',record = 'DTTtrigRcd',tag = 'ttrig',label=label,
                               connect = 'sqlite_file:%s' % os.path.basename(self.inputdb))
 
         if hasattr(self.config,'inputVdriftDB') and self.config.inputVdriftDB:

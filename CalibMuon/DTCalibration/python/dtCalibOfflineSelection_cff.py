@@ -63,17 +63,12 @@ goodMuons = cms.EDFilter("CandViewSelector",
     cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2 & pt > 5.0'),
     filter = cms.bool(True) 
 )
-#muonFilter = cms.EDFilter("CandViewCountFilter",
-#    src = cms.InputTag("goodMuons"),
-#    minNumber = cms.uint32(1)
-#)
-#muonSelection = cms.Sequence(goodMuons * muonFilter)
 muonSelection = cms.Sequence(goodMuons)
 
-#offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + hltDTActivityFilter + muonSelection)
 offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelection)
-#offlineSelectionALCARECO = cms.Sequence(hltDTActivityFilter)
 offlineSelectionALCARECO = cms.Sequence(muonSelection)
+offlineSelectionCosmics = cms.Sequence(muonSelection)
 
 dtCalibOfflineSelection = cms.Sequence(offlineSelection)
 dtCalibOfflineSelectionALCARECO = cms.Sequence(offlineSelectionALCARECO)
+dtCalibOfflineSelectionCosmics = cms.Sequence(offlineSelectionCosmics)
