@@ -160,6 +160,7 @@ void PhotonCoreProducer::fillPhotonCollection(edm::Event& evt,
 
 	for( unsigned int icp = 0;  icp < conversionHandle->size(); icp++) {
 	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
+          if ( !cpRef->caloCluster().size()) continue; 
 	  if (!( scRef.id() == cpRef->caloCluster()[0].id() && scRef.key() == cpRef->caloCluster()[0].key() )) continue; 
 	  if ( !cpRef->isConverted() ) continue;  
 	  newCandidate.addConversion(cpRef);     
@@ -197,14 +198,11 @@ reco::ConversionRef  PhotonCoreProducer::solveAmbiguity(const edm::Handle<reco::
 
     reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
 
-    //std::cout << " cpRef " << cpRef->nTracks() << " " <<  cpRef ->caloCluster()[0]->energy() << std::endl;    
-
     if (!( scRef.id() == cpRef->caloCluster()[0].id() && scRef.key() == cpRef->caloCluster()[0].key() )) continue;    
     if ( !cpRef->isConverted() ) continue;  
     double like = cpRef->MVAout();
-    //    std::cout << " Like " << like << std::endl;
     convMap.insert ( std::make_pair(cpRef,like) );
-    //std::cout << " convMap size " << convMap.size() << std::endl;
+
   }		     
   
   
