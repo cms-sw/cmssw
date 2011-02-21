@@ -1191,4 +1191,5 @@ void PFBlockAlgo::fillFromPhoton(const reco::Photon & photon, reco::PFBlockEleme
   pfbe->setEcalIso(photon.ecalRecHitSumEtConeDR04());
   pfbe->setHcalIso(photon.hcalTowerSumEtConeDR04());
   pfbe->setHoE(photon.hadronicOverEm());
+  pfbe->setFromPhoton(true);
 }

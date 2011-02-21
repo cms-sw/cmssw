@@ -33,6 +33,7 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PhotonSelectorAlgo.h"
+#include "RecoParticleFlow/PFProducer/interface/PFBlockElementSCEqual.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -399,12 +400,29 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	  reco::SuperClusterRef scRef = seedRef->caloCluster().castTo<reco::SuperClusterRef>();
 	  if(scRef.isNonnull())   {	     
 	    std::vector<reco::SuperClusterRef>::iterator itcheck=find(superClusters_.begin(),superClusters_.end(),scRef);
+	    // not present, add it
 	    if(itcheck==superClusters_.end())
 	      {
 		superClusters_.push_back(scRef);
 		reco::PFBlockElementSuperCluster * sce =
 		  new reco::PFBlockElementSuperCluster(scRef);
+		sce->setFromGsfElectron(true);
 		elements_.push_back(sce);
+	      }
+	    else // it is already present, update the PFBE
+	      {
+		PFBlockElementSCEqual myEqual(scRef);
+		std::list<reco::PFBlockElement*>::iterator itcheck=find_if(elements_.begin(),elements_.end(),myEqual);
+		if(itcheck!=elements_.end())
+		  {
+		    reco::PFBlockElementSuperCluster* thePFBE=dynamic_cast<reco::PFBlockElementSuperCluster*>(*itcheck);
+		    thePFBE->setFromGsfElectron(true);
+		    //		    std::cout << " Updating element to add electron information" << std::endl;
+		  }
+//		else
+//		  {
+//		    std::cout << " Missing element " << std::endl;
+//		  }
 	      }
 	  }
 	}
@@ -487,10 +505,23 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	  fillFromPhoton((*egphh)[isc],sce);
 	  elements_.push_back(sce);
 	}
-//      else
-//	{
-//	  //	  	  std::cout << " but was already selected " << std::endl;
-//	}
+      else
+	{
+	  PFBlockElementSCEqual myEqual(scRef);
+	  std::list<reco::PFBlockElement*>::iterator itcheck=find_if(elements_.begin(),elements_.end(),myEqual);
+	  if(itcheck!=elements_.end())
+	    {
+	      reco::PFBlockElementSuperCluster* thePFBE=dynamic_cast<reco::PFBlockElementSuperCluster*>(*itcheck);
+	      fillFromPhoton((*egphh)[isc],thePFBE);
+	      thePFBE->setFromPhoton(true);
+	      //	      std::cout << " Updating element to add Photon information " << photonSelector_->passPhotonSelection((*egphh)[isc]) << std::endl;
+
+	    }
+//	  else
+//	    {
+//	      std::cout << " Missing element " << std::endl;
+//	    }
+	}
     }
   }
   

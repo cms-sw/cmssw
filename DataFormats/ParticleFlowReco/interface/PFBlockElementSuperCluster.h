@@ -25,7 +25,9 @@ namespace reco {
       trackIso_(0.),
       ecalIso_(0.),
       hcalIso_(0.),
-      HoE_(0.)	{}
+      HoE_(0.),
+      fromGsfElectron_(false),
+      fromPhoton_(false){}
       
     PFBlockElement* clone() const { return new PFBlockElementSuperCluster(*this); }
     
@@ -47,6 +49,12 @@ namespace reco {
     /// set H/E
     void setHoE(float val) {HoE_=val;}
 
+    /// set provenance
+    void setFromGsfElectron(bool val) {fromGsfElectron_=val;}
+
+    /// set provenance
+    void setFromPhoton(bool val) {fromPhoton_=val;}
+
     /// \return the track isolation
     float trackIso() const {return trackIso_;}
 
@@ -59,6 +67,12 @@ namespace reco {
     /// \return Hoe
     float hoverE() const {return HoE_;}
 
+    /// \return provenance
+    bool fromGsfElectron() const {return fromGsfElectron_;}
+
+    /// \return provenance
+    bool fromPhoton() const {return fromPhoton_;}
+
   private:
     /// reference to the corresponding cluster
     SuperClusterRef  superClusterRef_;
@@ -67,6 +81,9 @@ namespace reco {
     float ecalIso_;
     float hcalIso_;
     float HoE_;
+
+    bool fromGsfElectron_;
+    bool fromPhoton_;
   };
 }
 
