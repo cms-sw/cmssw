@@ -17,6 +17,12 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticleFwd.h"
+
+#include <TFile.h>
+#include <TTree.h>
+
 /**\class PFChargedHadronAnalyzer 
 \brief selects isolated charged hadrons from PF Charged Hadrons
 
@@ -45,6 +51,7 @@ class PFChargedHadronAnalyzer : public edm::EDAnalyzer {
 
   /// PFCandidates in which we'll look for pile up particles 
   edm::InputTag   inputTagPFCandidates_;
+  edm::InputTag   inputTagPFSimParticles_;
   
   /// Min pt for charged hadrons
   double ptMin_;
@@ -67,7 +74,14 @@ class PFChargedHadronAnalyzer : public edm::EDAnalyzer {
   
   // Number of tracks after cuts
   std::vector<unsigned int> nCh;
+  std::vector<unsigned int> nEv;
   
+  std::string outputfile_;
+  TFile *tf1;
+  TTree* s;
+  
+  float true_,p_,ecal_,hcal_,eta_,phi_;
+
   /// verbose ?
   bool   verbose_;
 
