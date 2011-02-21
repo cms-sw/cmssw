@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Frank Golf
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonTCMETValueMapProducer.cc,v 1.7 2011/01/14 22:29:02 benhoob Exp $
+// $Id: MuonTCMETValueMapProducer.cc,v 1.8 2011/01/20 00:03:30 fgolf Exp $
 //
 //
 
@@ -107,6 +107,7 @@ namespace cms {
     muonMinValidStaHits_ = iConfig.getParameter<int>("muonMinValidStaHits");
 
     response_function = 0;
+    tcmetAlgo_=new TCMETAlgo();
   }
 
   MuonTCMETValueMapProducer::~MuonTCMETValueMapProducer()
@@ -114,7 +115,7 @@ namespace cms {
  
     // do anything here that needs to be done at desctruction time
     // (e.g. close files, deallocate resources etc.)
-
+    delete tcmetAlgo_;
   }
 
   //
@@ -222,9 +223,9 @@ namespace cms {
   {
 
     if( rfType_ == 1 )
-		 response_function = TCMETAlgo::getResponseFunction_fit();
+		 response_function = tcmetAlgo_->getResponseFunction_fit();
     else if( rfType_ == 2 )
-		 response_function = TCMETAlgo::getResponseFunction_mode();
+		 response_function = tcmetAlgo_->getResponseFunction_mode();
   }
 
   // ------------ method called once each job just after ending the event loop  ------------

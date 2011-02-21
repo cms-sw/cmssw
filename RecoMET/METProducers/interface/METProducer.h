@@ -56,7 +56,6 @@ namespace cms
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
     private:
-      edm::ParameterSet conf_;
       METAlgo alg_; 
       edm::InputTag inputLabel;
       std::string inputType;

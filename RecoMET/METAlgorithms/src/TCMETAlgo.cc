@@ -55,18 +55,16 @@ typedef math::XYZTLorentzVector LorentzVector;
 //------------------------------------------------------------------------
 // Default Constructer
 //----------------------------------
-TCMETAlgo::TCMETAlgo() {}
-//------------------------------------------------------------------------
+TCMETAlgo::TCMETAlgo() {
+  showerRF          = 0;
+  response_function = 0;
 
-//------------------------------------------------------------------------
-// Default Destructor
-//----------------------------------
-TCMETAlgo::~TCMETAlgo() {}
-//------------------------------------------------------------------------
+}
 
-reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, int myResponseFunctionType )
-{ 
+
+void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFunctionType) {
      // get configuration parameters
+
      usePFClusters_           = iConfig.getParameter<bool>  ("usePFClusters");
      inputTagPFClustersECAL_  = iConfig.getParameter<edm::InputTag>("PFClustersECAL");
      inputTagPFClustersHCAL_  = iConfig.getParameter<edm::InputTag>("PFClustersHCAL");
@@ -121,18 +119,6 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      trkQuality_ = iConfig.getParameter<std::vector<int> >("track_quality");
      trkAlgos_   = iConfig.getParameter<std::vector<int> >("track_algos"  );
 
-     // remember response function
-     TCMETAlgo::showerRF          = getResponseFunction_shower();
-     TCMETAlgo::response_function = 0;
-
-     if( myResponseFunctionType == 0 )
-       response_function = getResponseFunction_noshower();
-     else if( myResponseFunctionType == 1 )
-       response_function = getResponseFunction_fit();
-     else if( myResponseFunctionType == 2 )
-       response_function = getResponseFunction_mode();
-     
-
      // get input collection tags
      muonInputTag_     = iConfig.getParameter<edm::InputTag>("muonInputTag"    );
      metInputTag_      = iConfig.getParameter<edm::InputTag>("metInputTag"     );
@@ -146,6 +132,34 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      // get input value map tags
      muonDepValueMap_  = iConfig.getParameter<edm::InputTag>("muonDepValueMap" );
      tcmetDepValueMap_ = iConfig.getParameter<edm::InputTag>("tcmetDepValueMap");
+
+     // remember response function
+     showerRF          = getResponseFunction_shower();
+     response_function = 0;
+
+     if( myResponseFunctionType == 0 )
+       response_function = getResponseFunction_noshower();
+     else if( myResponseFunctionType == 1 )
+       response_function = getResponseFunction_fit();
+     else if( myResponseFunctionType == 2 )
+       response_function = getResponseFunction_mode();
+     
+
+
+}
+//------------------------------------------------------------------------
+
+//------------------------------------------------------------------------
+// Default Destructor
+//----------------------------------
+TCMETAlgo::~TCMETAlgo() {
+  delete response_function;
+  delete showerRF;
+}
+//------------------------------------------------------------------------
+
+reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup )
+{ 
 
      // get input collections
      event.getByLabel( muonInputTag_    , MuonHandle    );

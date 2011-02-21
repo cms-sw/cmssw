@@ -32,6 +32,8 @@
 #include "TVector3.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+class TCMETAlgo;
+
 namespace cms {
 class MuonTCMETValueMapProducer : public edm::EDProducer {
    public:
@@ -100,6 +102,7 @@ class MuonTCMETValueMapProducer : public edm::EDProducer {
       double  muond0_;
       double  muonDeltaR_;
       double  muon_dptrel_;
+      TCMETAlgo *tcmetAlgo_;
 
       //functions
       bool isGoodMuon( const reco::Muon* );
@@ -108,7 +111,6 @@ class MuonTCMETValueMapProducer : public edm::EDProducer {
       class TVector3 propagateTrack( const reco::Muon* );
       int nLayers(const reco::TrackRef);
       bool isValidVertex();
-
   };
 }
 #endif

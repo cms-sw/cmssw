@@ -53,11 +53,12 @@ class TCMETAlgo
   typedef std::vector<const reco::Candidate> InputCollection;
   TCMETAlgo();
   virtual ~TCMETAlgo();
-  reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig,  int myResponseFunctionType );
-  static TH2D* getResponseFunction_fit ( );
-  static TH2D* getResponseFunction_mode ( );
-  static TH2D* getResponseFunction_shower ( );
-  static TH2D* getResponseFunction_noshower ( );
+  reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup);
+  TH2D* getResponseFunction_fit ( );
+  TH2D* getResponseFunction_mode ( );
+  TH2D* getResponseFunction_shower ( );
+  TH2D* getResponseFunction_noshower ( );
+  void configure(const edm::ParameterSet &iConfig, int myResponseFunctionType);
  private:
   double met_x;
   double met_y;

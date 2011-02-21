@@ -49,7 +49,7 @@ namespace cms
   //    of MET inherit from RecoCandidate and merely extend that class with
   //    extra information)
   //-----------------------------------
-  METProducer::METProducer(const edm::ParameterSet& iConfig) : conf_(iConfig), alg_() , resolutions_(0) 
+  METProducer::METProducer(const edm::ParameterSet& iConfig) : alg_() , resolutions_(0), tcmetalgorithm(0) 
   {
     inputLabel = iConfig.getParameter<edm::InputTag>("src");
     inputType  = iConfig.getParameter<std::string>("InputType");
@@ -106,6 +106,8 @@ namespace cms
             myResponseFunctionType = 2;
           }
         }
+        tcmetalgorithm = new TCMETAlgo();
+	tcmetalgorithm->configure(iConfig, myResponseFunctionType );
       }
     else                            
       produces<METCollection>().setBranchAlias(alias.c_str()); 
@@ -122,6 +124,7 @@ namespace cms
   //-----------------------------------
   METProducer::METProducer() : alg_() 
   {
+    tcmetalgorithm = 0; // why does this constructor exist?
     produces<METCollection>(); 
   }
   //--------------------------------------------------------------------------
@@ -129,7 +132,7 @@ namespace cms
   //--------------------------------------------------------------------------
   // Default Destructor
   //-----------------------------------
-  METProducer::~METProducer() {}
+  METProducer::~METProducer() { delete tcmetalgorithm;}
   //--------------------------------------------------------------------------
 
   //--------------------------------------------------------------------------
@@ -191,10 +194,9 @@ namespace cms
     //-----------------------------------
     else if( METtype == "TCMET" )
       {
-        tcmetalgorithm = new TCMETAlgo();
 	std::auto_ptr<METCollection> tcmetcoll;
 	tcmetcoll.reset(new METCollection);
-	tcmetcoll->push_back( tcmetalgorithm->CalculateTCMET(event, setup, conf_, myResponseFunctionType ) ) ;
+	tcmetcoll->push_back( tcmetalgorithm->CalculateTCMET(event, setup ) ) ;
 	event.put( tcmetcoll );
       }
     //----------------------------------
