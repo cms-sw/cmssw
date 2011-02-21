@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Validation")
+process = cms.Process("DQM")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
@@ -25,7 +25,7 @@ process.load("DQM.DTMonitorModule.ALCARECODTCalibSynchDQM_cff")
 
 process.output = cms.OutputModule("PoolOutputModule",
                   outputCommands = cms.untracked.vstring('drop *', 
-                                                         'keep *_MEtoEDMConverter_*_Validation'),
+                                                         'keep *_MEtoEDMConverter_*_DQM'),
                   fileName = cms.untracked.string('DQM.root')
 )
 

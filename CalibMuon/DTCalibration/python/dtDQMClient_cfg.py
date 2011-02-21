@@ -5,7 +5,7 @@ config.dqmAtRunEnd = False
 if config.dqmAtRunEnd: config.fileMode = 'FULLMERGE'
 else: config.fileMode = 'NOMERGE'
 
-process = cms.Process("DQM")
+process = cms.Process("DQMClient")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
