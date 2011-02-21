@@ -126,14 +126,30 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*hltresults);
     getHLTResults(*hltresults, triggerNames);
     //    trig_iter=hltTriggerMap.find(MyTrigger);
-    trig_iter=hltTriggerMap.find(_HLTPath.label());
+    //trig_iter=hltTriggerMap.find(_HLTPath.label());
+
+    //std::cout << _HLTPath.label() <<std::endl;
+
+    for( map<std::string,bool>::iterator ii=hltTriggerMap.begin(); ii!=hltTriggerMap.end(); ++ii)
+    {
+      //std::cout << (*ii).first << ": " << (*ii).second << std::endl;
+      //std::cout << (*ii).first << " : " << ((*ii).first).find(_HLTPath.label()) << " : " << string::npos << std::endl;
+
+      // if _HLTPath.label() is found in the string
+      if ( ((*ii).first).find(_HLTPath.label()) != string::npos) trig_iter=ii;
+    }
     if (trig_iter==hltTriggerMap.end()){
       //std::cout << "Could not find trigger path with name: " << _probefilter.label() << std::endl;
       //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "Could not find trigger path with name: " << _probefilter.label(); 
     }else{
       myTrig=trig_iter->second;
     }
-    trig_iter=hltTriggerMap.find(_HLTLow.label());
+    //trig_iter=hltTriggerMap.find(_HLTLow.label());
+    for( map<std::string,bool>::iterator ii=hltTriggerMap.begin(); ii!=hltTriggerMap.end(); ++ii)
+    {
+      // if _HLTPath.label() is found in the string
+      if ( ((*ii).first).find(_HLTLow.label()) != string::npos) trig_iter=ii;
+    }
     if (trig_iter==hltTriggerMap.end()){
       //std::cout << "Could not find trigger path with name: " << _probefilter.label() << std::endl;
       //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "Could not find trigger path with name: " << _probefilter.label(); 

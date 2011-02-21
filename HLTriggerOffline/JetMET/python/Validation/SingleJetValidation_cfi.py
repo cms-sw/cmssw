@@ -6,23 +6,23 @@ rootfile="relval220_ideal/ttbar_fastsim_output.root"
 calojetcoll="hltIterativeCone5CaloJets"
 
 hltlow15  ="HLT_L1Jet6U"
-hltname15="HLT_Jet15U_v3"
+hltname15="HLT_Jet15U"
 folderjet15="HLT/HLTJETMET/SingleJet15U"
 
-hltlow30  ="HLT_Jet15U_v3"
-hltname30="HLT_Jet30U_v3"
+hltlow30  ="HLT_Jet15U"
+hltname30="HLT_Jet30U"
 folderjet30="HLT/HLTJETMET/SingleJet30U"
 
-hltlow50  ="HLT_Jet30U_v3"
-hltname50="HLT_Jet50U_v3"
+hltlow50  ="HLT_Jet30U"
+hltname50="HLT_Jet50U"
 folderjet50="HLT/HLTJETMET/SingleJet50U"
 
-hltlow70="HLT_Jet50U_v3"
-hltname70="HLT_Jet70U_v3"
+hltlow70="HLT_Jet50U"
+hltname70="HLT_Jet70U"
 folderjet70="HLT/HLTJETMET/SingleJet70U"
 
-hltlow100="HLT_Jet70U_v3"
-hltname100="HLT_Jet100U_v3"
+hltlow100="HLT_Jet70U"
+hltname100="HLT_Jet100U"
 folderjet100="HLT/HLTJETMET/SingleJet100U"
 
 hltlowM35="HLT_L1MET20"
