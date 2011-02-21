@@ -375,7 +375,7 @@ LMFCorrCoefDat::getCorrections(const Tm &t, int max) {
     "LMF_CORR_COEF_DAT JOIN LMF_LMR_SUB_IOV ON "  
     "LMF_CORR_COEF_DAT.LMR_SUB_IOV_ID = LMF_LMR_SUB_IOV.LMR_SUB_IOV_ID "
     "JOIN LMF_SEQ_DAT ON LMF_CORR_COEF_DAT.SEQ_ID = LMF_SEQ_DAT.SEQ_ID "
-    "WHERE T1 > :1 AND T1 > TO_DATE('2010-11-01', 'YYYY-MM-DD') "
+    "WHERE T1 > :1 "
     "ORDER BY T1, LOGIC_ID) WHERE ROWNUM <= :2";
   try {
     DateHandler dh(m_env, m_conn);
