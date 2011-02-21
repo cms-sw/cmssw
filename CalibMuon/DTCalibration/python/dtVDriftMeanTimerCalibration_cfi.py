@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from CalibMuon.DTCalibration.dtSegmentSelection_cfi import dtSegmentSelection
 
-dtVDriftCalibration = cms.EDAnalyzer("DTVDriftCalibration",
+dtVDriftMeanTimerCalibration = cms.EDAnalyzer("DTVDriftCalibration",
     # Segment selection
     dtSegmentSelection, 
     recHits4DLabel = cms.InputTag('dt4DSegments'), 

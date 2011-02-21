@@ -7,6 +7,8 @@ from CalibMuon.DTCalibration.Workflow.DTTTrigResidualCorr import DTTTrigResidual
 from CalibMuon.DTCalibration.Workflow.DTValidSummary import DTValidSummary
 from CalibMuon.DTCalibration.Workflow.DTVDriftSegmentCalibration import DTVDriftSegmentCalibration
 from CalibMuon.DTCalibration.Workflow.DTVDriftSegmentWriter import DTVDriftSegmentWriter
+from CalibMuon.DTCalibration.Workflow.DTVDriftMeanTimerCalibration import DTVDriftMeanTimerCalibration
+from CalibMuon.DTCalibration.Workflow.DTVDriftMeanTimerWriter import DTVDriftMeanTimerWriter
 from CalibMuon.DTCalibration.Workflow.DTDqm import DTDqm
 from CalibMuon.DTCalibration.Workflow.CrabWatch import CrabWatch
 from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,listFilesLocal,haddLocal,parseInput
@@ -98,25 +100,25 @@ def runTtrigValid(run,runselection,trial,input_db,label,result_file,config,runSt
     dtTtrigValid.writeCfg()
 
     if runStep:
-        project_valid_first = dtTtrigValid.run()
+        project_valid = dtTtrigValid.run()
 
-        print "Sent validation jobs with project",project_valid_first
+        print "Sent validation jobs with project",project_valid
         print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
 
-        crabValidFirst = CrabWatch(project_valid_first)
-        crabValidFirst.setThreshold(config.jobsFinishedThreshold)
-        crabValidFirst.start()
-        crabValidFirst.join()
+        crabValid = CrabWatch(project_valid)
+        crabValid.setThreshold(config.jobsFinishedThreshold)
+        crabValid.start()
+        crabValid.join()
 
         #result_file = config.result_dir + '/DTResidualValidation_%s.root'%run
         if config.stageOutLocal:
-            output_dir = project_valid_first + "/res"
+            output_dir = project_valid + "/res"
             haddLocal(output_dir,result_file,'residuals')
         elif config.stageOutCAF:
             castor_dir = config.castorpath + "/" + config.userdircaf
             haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/','?svcClass=cmscafuser')
 
-        return project_valid_first
+        return project_valid
 
     return None
 
@@ -198,6 +200,57 @@ def runVDriftSegmentWriter(run,root_file,config,runStep=True):
 
         print "Finished processing:"
         for pset in dtVDriftSegmentWriter.configs: print "--->",pset
+
+def runVDriftMeanTimerCalib(run,runselection,trial,label,result_file,config,runStep=True):
+
+    print "Processing vDrift calibration"
+    config.runselection = runselection
+    datasetstr = getDatasetStr(config.datasetpath)
+    config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/VDriftCalibration/' + label + '/' + 'v' + str(trial)
+
+    task_dir = config.base_dir + '/' + label
+    dtVDriftMeanTimer = DTVDriftMeanTimerCalibration(run=run,
+                                                     dir=task_dir,
+                                                     config=config)
+    dtVDriftMeanTimer.writeCfg()
+
+    if runStep:
+        project_meantimer = dtVDriftMeanTimer.run()
+
+        print "Sent validation jobs with project",project_meantimer
+        print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
+
+        crabVDriftMeanTimer = CrabWatch(project_meantimer)
+        crabVDriftMeanTimer.setThreshold(config.jobsFinishedThreshold)
+        crabVDriftMeanTimer.start()
+        crabVDriftMeanTimer.join()
+
+        if config.stageOutLocal:
+            output_dir = project_meantimer + "/res"
+            haddLocal(output_dir,result_file,'DTTMaxHistos')
+        elif config.stageOutCAF:
+            castor_dir = config.castorpath + "/" + config.userdircaf
+            haddInCastor(castor_dir,result_file,'DTTMaxHistos','rfio://castorcms/','?svcClass=cmscafuser')
+
+        return project_meantimer
+
+    return None
+
+def runVDriftMeanTimerWriter(run,root_file,config,runStep=True):
+
+    print "Processing vDrift writer"
+    dtVDriftMeanTimerWriter = DTVDriftMeanTimerWriter(run=run,
+                                                  dir=config.run_dir,
+                                                  input_file=root_file,
+                                                  output_dir=config.result_dir,
+                                                  config=config)
+    dtVDriftMeanTimerWriter.writeCfg()
+
+    if runStep:
+        dtVDriftMeanTimerWriter.run()
+
+        print "Finished processing:"
+        for pset in dtVDriftMeanTimerWriter.configs: print "--->",pset
 
 def runDQMMerge(run,output_dir,config,runStep=True):
 
@@ -386,8 +439,26 @@ def runVDriftWorkflow(mode,config,execute=True):
         if not os.path.exists(vDrift_segment_db): runVDriftSegmentWriter(run,vDriftHistos,config)
         if not os.path.exists(vDrift_segment_db): raise RuntimeError,'Could not produce %s' % vDrift_segment_db
 
-    elif mode == 'meantimer': pass
-  
+    elif mode == 'meantimer':
+        vDriftTMaxHistos = os.path.abspath(result_dir + '/' + 'DTTMaxHistos_' + run + '.root')
+        vDrift_meantimer_db = os.path.abspath(result_dir + '/' + 'vDrift_meantimer_' + run + '.db')
+
+        if not execute:
+            print "Writing configuration files.."
+            runVDriftMeanTimerCalib(run,runselection,trial,'VDriftTMaxHistos',vDriftTMaxHistos,config,False)
+            runVDriftMeanTimerWriter(run,vDriftTMaxHistos,config,False)
+
+            sys.exit(0)
+
+        # Produce t_max histos
+        if not os.path.exists(vDriftTMaxHistos):
+            runVDriftMeanTimerCalib(run,runselection,trial,'VDriftTMaxHistos',vDriftTMaxHistos,config)
+        if not os.path.exists(vDriftTMaxHistos): raise RuntimeError,'Could not produce %s' % vDriftTMaxHistos
+
+        # Write vDrift DB
+        if not os.path.exists(vDrift_meantimer_db): runVDriftMeanTimerWriter(run,vDriftTMaxHistos,config)
+        if not os.path.exists(vDrift_meantimer_db): raise RuntimeError,'Could not produce %s' % vDrift_meantimer_db
+
     return 0        
 
 ############################################################ 
@@ -446,7 +517,7 @@ if __name__ == '__main__':
  
     (input, args) = parser.parse_args()
 
-    allowedTypes = ('ttrig','vdrift','noise','t0')
+    allowedTypes = ('ttrig','vdrift','noise','t0','validation')
     input.workflowType = 'ttrig'
     if len(args) > 0: 
         if args[0] not in allowedTypes: parser.error('option "%s" not allowed' % args[0])
@@ -546,6 +617,7 @@ if __name__ == '__main__':
     elif input.workflowType == 'vdrift': base_label = 'VDrift'
     elif input.workflowType == 'noise': base_label = 'Noise'
     elif input.workflowType == 't0': base_label = 'T0'
+    elif input.workflowType == 'validation': base_label = 'Valid'
 
     #base_dir = 'Run%s/Ttrig' % run
     base_dir = 'Run%s/%s' % (run,base_label)
