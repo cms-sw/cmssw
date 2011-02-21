@@ -266,7 +266,8 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
     bool Forward = false;
     if (std::abs(rec_eta) < 1.4 ) Barrel = true;
     if (std::abs (rec_eta) > 1.6 && std::abs (rec_eta) < 2.4 ) Endcap = true;
-    if (std::abs (rec_eta) > 3.3 && std::abs (rec_eta) < 4.7 ) Forward = true;
+    if (std::abs (rec_eta) > 2.5 && std::abs (rec_eta) < 2.9 ) Forward = true;
+    if (std::abs (rec_eta) > 3.1 && std::abs (rec_eta) < 4.7 ) Forward = true;
 
     // do only barrel for now
     //  if(!Barrel) continue;
@@ -276,7 +277,8 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
     if(!truth) continue;   
     double deltaR = algo_->deltaR(&pfj, truth);
     // check deltaR is small enough
-    if(deltaR < deltaRMax_ || deltaRMax_ == -1.0 ) {//start case deltaR < deltaRMax
+    if(deltaR < deltaRMax_ || abs(rec_eta)>2.5 && deltaR < 0.2 || deltaRMax_ == -1.0 ) {//start case deltaR < deltaRMax
+
       // generate histograms comparing the reco and truth candidate (truth = closest in delta-R) 
       // get the quantities to place on the denominator and/or divide by
       double pt_denom;
