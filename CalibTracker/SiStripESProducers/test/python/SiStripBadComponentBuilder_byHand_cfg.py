@@ -60,7 +60,7 @@ process.SiStripBadModuleGenerator.BadComponentList = cms.untracked.VPSet(   cms.
     detid = cms.uint32(0),         ## detid number = 0 (ALL),  specific number
 
     # This list is independent on all the rest. Any module appearing here will be masked.
-    detidList = cms.vuint32(402666125,
+    detidList = cms.untracked.vuint32(402666125,
                             402666126,
                             402666129,
                             402666130,

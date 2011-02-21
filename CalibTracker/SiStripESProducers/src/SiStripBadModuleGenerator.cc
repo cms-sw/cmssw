@@ -103,7 +103,7 @@ void SiStripBadModuleGenerator::selectDetectors(const std::vector<uint32_t>& Det
       subDet=SiStripDetId::TOB;
     else if (iBadComponent->getParameter<std::string>("SubDet")=="TEC")
       subDet=SiStripDetId::TEC;
-    std::vector<uint32_t> genericBadDetIds( iBadComponent->getParameter<std::vector<uint32_t> >("detidList") );
+    std::vector<uint32_t> genericBadDetIds( iBadComponent->getUntrackedParameter<std::vector<uint32_t> >("detidList", std::vector<uint32_t>()) );
     
     bool anySubDet = true;
     if( genericBadDetIds.empty() ) anySubDet = false;
