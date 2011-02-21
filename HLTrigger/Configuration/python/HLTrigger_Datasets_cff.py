@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_11_1/GRun/V34
+# /dev/CMSSW_3_11_1/GRun/V35
 
 import FWCore.ParameterSet.Config as cms
 
@@ -50,11 +50,11 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_BTagM
     'HLT_DoubleMu7_v1', 
     'HLT_DoublePhoton32_CaloIdL_v1', 
     'HLT_DoublePhoton5_IsoVL_CEP_v1', 
-    'HLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_HT220_v1', 
-    'HLT_Ele10_CaloIdT_TrkIdT_CaloIsoVL_TrkIsoVL_HT220_v1', 
-    'HLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_LooseIsoPFTau15_v1', 
-    'HLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_LooseIsoPFTau20_v1', 
-    'HLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_v1', 
+    'HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v1', 
+    'HLT_Ele10_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v1', 
+    'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v1', 
+    'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v1', 
+    'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1', 
     'HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v1', 
     'HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1', 
     'HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1', 
@@ -122,7 +122,7 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_BTagM
     'HLT_Meff640_v1', 
     'HLT_Mu10_Ele10_CaloIdL_v1', 
     'HLT_Mu12_v1', 
-    'HLT_Mu15_DiPhoton15_CaloIdL_v1', 
+    'HLT_Mu15_DoublePhoton15_CaloIdL_v1', 
     'HLT_Mu15_LooseIsoPFTau20_v1', 
     'HLT_Mu15_Photon20_CaloIdL_v1', 
     'HLT_Mu15_v2', 
