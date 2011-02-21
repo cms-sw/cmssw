@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/GRun/V33 (CMSSW_3_11_0_HLT6)
+# /dev/CMSSW_3_11_1/GRun/V34 (CMSSW_3_11_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V33')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V34')
 )
 
 streams = cms.PSet( 
@@ -16252,7 +16252,7 @@ hltDTDQMEvF = cms.EDProducer( "DTUnpackingModule",
     fedbyType = cms.bool( False ),
     inputLabel = cms.InputTag( "rawDataCollector" ),
     useStandardFEDid = cms.bool( True ),
-    dqmOnly = cms.bool( False ),
+    dqmOnly = cms.bool( True ),
     rosParameters = cms.PSet(  ),
     readOutParameters = cms.PSet( 
       debug = cms.untracked.bool( False ),

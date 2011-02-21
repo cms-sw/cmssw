@@ -166,14 +166,14 @@ process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
       if self.config.type in ('HIon', ):
         self.data += """
 # HIon paths in smart prescalers
-if 'hltPreHLTDQMSmart' in %(dict)s:
-    %(process)shltPreHLTDQMSmart.throw  = cms.bool( False )
-if 'hltPreHLTMONSmart' in %(dict)s:
-    %(process)shltPreHLTMONSmart.throw  = cms.bool( False )
-if 'hltPreExpressSmart' in %(dict)s:
-    %(process)shltPreExpressSmart.throw = cms.bool( False )
-if 'hltPreDQMSmart' in %(dict)s:
-    %(process)shltPreDQMSmart.throw     = cms.bool( False )
+if 'hltPreDQMOutputSmart' in %(dict)s:
+    %(process)shltPreDQMOutputSmart.throw     = cms.bool( False )
+if 'hltPreExpressOutputSmart' in %(dict)s:
+    %(process)shltPreExpressOutputSmart.throw = cms.bool( False )
+if 'hltPreHLTDQMOutputSmart' in %(dict)s:
+    %(process)shltPreHLTDQMOutputSmart.throw  = cms.bool( False )
+if 'hltPreHLTMONOutputSmart' in %(dict)s:
+    %(process)shltPreHLTMONOutputSmart.throw  = cms.bool( False )
 """
 
       # override the output modules to output root files

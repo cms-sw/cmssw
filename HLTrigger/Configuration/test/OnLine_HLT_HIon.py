@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/HIon/V33 (CMSSW_3_11_0_HLT6)
+# /dev/CMSSW_3_11_1/HIon/V34 (CMSSW_3_11_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V33')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V34')
 )
 
 process.streams = cms.PSet( 
@@ -1779,6 +1779,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_HcalCalibration_HI" ),
         prescales = cms.vuint32( 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLTDQMResultsOutput" ),
+        prescales = cms.vuint32( 10, 10 )
       ),
       cms.PSet(  pathName = cms.string( "HLTMONOutput" ),
         prescales = cms.vuint32( 100, 100 )
@@ -4451,6 +4454,22 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
 process.hltPreEcalCalibrationOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
+process.hltPreExpressOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
+process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
+    triggerConditions = cms.vstring( 'HLT_L1SingleMuOpen_v1',
+      'HLT_L1Tech_BSC_minBias_OR_v1',
+      'HLT_L1TrackerCosmics_v2 / 10',
+      'HLT_Mu24_v1',
+      'HLT_ZeroBias_v1' ),
+    hltResults = cms.InputTag( "TriggerResults" ),
+    l1tResults = cms.InputTag( "hltGtDigis" ),
+    l1tIgnoreMask = cms.bool( False ),
+    daqPartitions = cms.uint32( 1 ),
+    throw = cms.bool( True ),
+    l1techIgnorePrescales = cms.bool( False )
+)
 process.hltPreHLTDQMOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
@@ -4661,6 +4680,9 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     daqPartitions = cms.uint32( 1 ),
     throw = cms.bool( True ),
     l1techIgnorePrescales = cms.bool( False )
+)
+process.hltPreHLTDQMResultsOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 process.hltPreHLTMONOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -4876,6 +4898,9 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
 process.hltPreNanoDSTOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
+process.hltPreOnlineErrorsOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
 process.hltPreRPCMONOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
@@ -4995,6 +5020,17 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
     fastCloning = cms.untracked.bool( False ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_EcalCalibration_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputExpress.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
+    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep *_hltL1GtObjectMap_*_*',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -5170,6 +5206,14 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEventWithRefs_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputHLTDQMResults = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputHLTDQMResults.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLTriggerFinalPath' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep LumiScalerss_*_*_*',
+      'keep edmTriggerResults_*_*_*' )
 )
 process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTMON.root" ),
@@ -5380,6 +5424,17 @@ process.hltOutputNanoDST = cms.OutputModule( "PoolOutputModule",
       'keep L1MuGMTReadoutCollection_hltGtDigis_*_*',
       'keep edmTriggerResults_*_*_*' )
 )
+process.hltOutputOnlineErrors = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputOnlineErrors.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_LogMonitor_v1' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep *_hltL1GtObjectMap_*_*',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
 process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputRPCMON.root" ),
     fastCloning = cms.untracked.bool( False ),
@@ -5488,9 +5543,12 @@ process.ALCAPHISYMOutput = cms.EndPath( process.hltPreALCAPHISYMOutput + process
 process.CalibrationOutput = cms.EndPath( process.hltPreCalibrationOutput + process.hltOutputCalibration )
 process.DQMOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedLogicScalers + process.hltDQMHLTScalers + process.hltPreDQMOutput + process.hltPreDQMOutputSmart + process.hltOutputDQM )
 process.EcalCalibrationOutput = cms.EndPath( process.hltPreEcalCalibrationOutput + process.hltOutputEcalCalibration )
+process.ExpressOutput = cms.EndPath( process.hltPreExpressOutput + process.hltPreExpressOutputSmart + process.hltOutputExpress )
 process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQMOutput + process.hltPreHLTDQMOutputSmart + process.hltOutputHLTDQM )
+process.HLTDQMResultsOutput = cms.EndPath( process.hltPreHLTDQMResultsOutput + process.hltOutputHLTDQMResults )
 process.HLTMONOutput = cms.EndPath( process.hltPreHLTMONOutput + process.hltPreHLTMONOutputSmart + process.hltOutputHLTMON )
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDSTOutput + process.hltOutputNanoDST )
+process.OnlineErrorsOutput = cms.EndPath( process.hltPreOnlineErrorsOutput + process.hltOutputOnlineErrors )
 process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput + process.hltOutputRPCMON )
 
 
@@ -5533,14 +5591,14 @@ if 'PrescaleService' in process.__dict__:
     process.PrescaleService.prescaleTable = cms.VPSet( )
 
 # HIon paths in smart prescalers
-if 'hltPreHLTDQMSmart' in process.__dict__:
-    process.hltPreHLTDQMSmart.throw  = cms.bool( False )
-if 'hltPreHLTMONSmart' in process.__dict__:
-    process.hltPreHLTMONSmart.throw  = cms.bool( False )
-if 'hltPreExpressSmart' in process.__dict__:
-    process.hltPreExpressSmart.throw = cms.bool( False )
-if 'hltPreDQMSmart' in process.__dict__:
-    process.hltPreDQMSmart.throw     = cms.bool( False )
+if 'hltPreDQMOutputSmart' in process.__dict__:
+    process.hltPreDQMOutputSmart.throw     = cms.bool( False )
+if 'hltPreExpressOutputSmart' in process.__dict__:
+    process.hltPreExpressOutputSmart.throw = cms.bool( False )
+if 'hltPreHLTDQMOutputSmart' in process.__dict__:
+    process.hltPreHLTDQMOutputSmart.throw  = cms.bool( False )
+if 'hltPreHLTMONOutputSmart' in process.__dict__:
+    process.hltPreHLTMONOutputSmart.throw  = cms.bool( False )
 
 # add global options
 process.maxEvents = cms.untracked.PSet(
