@@ -35,6 +35,7 @@ namespace edm {
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize")),
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel")),
     basketSize_(pset.getUntrackedParameter<int>("basketSize")),
+    eventOptimizeBasketsSize_(pset.getUntrackedParameter<int>("eventOptimizeBasketsCompressedSize")),
     splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel") + 1, 99)),
     basketOrder_(pset.getUntrackedParameter<std::string>("sortBaskets")),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize")),
@@ -307,6 +308,7 @@ namespace edm {
         ->setComment("ROOT compression level of output file.");
     desc.addUntracked<int>("basketSize", 16384)
         ->setComment("Default ROOT basket size in output file.");
+    desc.addUntracked<int>("eventOptimizeBasketsCompressedSize",-1)->setComment("Default ROOT optimize basket size for event TTree. The value set how large the compressed buffer is allowed to get. The uncompressed buffer can be quite a bit larger than this depending on the average compression ratio. The value of -1 just uses ROOT's default value.");
     desc.addUntracked<int>("splitLevel", 99)
         ->setComment("Default ROOT branch split level in output file.");
     desc.addUntracked<std::string>("sortBaskets", std::string("sortbasketsbyoffset"))

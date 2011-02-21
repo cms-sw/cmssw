@@ -96,6 +96,9 @@ namespace edm {
       parentageIDs_(),
       branchesWithStoredHistory_() {
 
+    if (-1 != om->eventOptimizeBasketSize()) {
+      eventTree_.optimizeBaskets(om->eventOptimizeBasketSize());
+    }
     eventTree_.addAuxiliary<EventAuxiliary>(BranchTypeToAuxiliaryBranchName(InEvent),
                                             pEventAux_, om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<ProductProvenanceVector>(BranchTypeToBranchEntryInfoBranchName(InEvent),

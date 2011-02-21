@@ -33,6 +33,7 @@ namespace edm {
     std::string const& logicalFileName() const {return logicalFileName_;}
     int const& compressionLevel() const {return compressionLevel_;}
     int const& basketSize() const {return basketSize_;}
+    int const eventOptimizeBasketSize() const {return eventOptimizeBasketsSize_;}
     int const& splitLevel() const {return splitLevel_;}
     std::string const& basketOrder() const {return basketOrder_;}
     int const& treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
@@ -132,6 +133,7 @@ namespace edm {
     unsigned int const maxFileSize_;
     int const compressionLevel_;
     int const basketSize_;
+    int const eventOptimizeBasketsSize_;
     int const splitLevel_;
     std::string basketOrder_;
     int const treeMaxVirtualSize_;
