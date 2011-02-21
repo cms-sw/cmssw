@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 def customiseCommon(process):
-    ### prevent bias in pixel vertex
-    process.pixelVertices.useBeamConstraint = False
     return (process)
 
 
