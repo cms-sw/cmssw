@@ -70,8 +70,10 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
     iConfig.getParameter<bool>("HCAL_Calib");
   HF_Calib_ =
     iConfig.getParameter<bool>("HF_Calib");
-  max_Calib_ = 
-    iConfig.getParameter<double>("Max_Calib");
+  HCAL_Calib_29 = 
+    iConfig.getParameter<double>("HCAL_Calib_29");
+  HF_Calib_29 = 
+    iConfig.getParameter<double>("HF_Calib_29");
 
   shortFibre_Cut = iConfig.getParameter<double>("ShortFibre_Cut");
   longFibre_Fraction = iConfig.getParameter<double>("LongFibre_Fraction");
@@ -336,7 +338,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		*/
 
 
-		if ( HCAL_Calib_ ) energy   *= std::min(max_Calib_,myPFCorr->getValues(detid)->getValue());
+		// if ( HCAL_Calib_ ) energy   *= std::min(max_Calib_,myPFCorr->getValues(detid)->getValue());
 		//if ( rescaleFactor > 1. ) 
 		// std::cout << "Barrel HCAL energy rescaled from = " << energy << " to " << energy*rescaleFactor << std::endl;
 		if ( rescaleFactor > 1. ) { 
@@ -376,7 +378,8 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		}
 		*/
 
-		if ( HCAL_Calib_ ) energy   *= std::min(max_Calib_,myPFCorr->getValues(detid)->getValue());
+		// Apply tower 29 calibration
+		if ( HCAL_Calib_ && abs(detid.ieta()) == 29 ) energy *= HCAL_Calib_29;
 		//if ( rescaleFactor > 1. ) 
 		// std::cout << "End-cap HCAL energy rescaled from = " << energy << " to " << energy*rescaleFactor << std::endl;
 		if ( rescaleFactor > 1. ) { 
@@ -819,13 +822,12 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  energyemHF = 0.;
 		}
 
-		// Apply HCAL DPG calibration factors, if requested
-		if ( HF_Calib_ ) { 
-		  energyhadHF   *= myPFCorr->getValues(detid)->getValue();
-		  energyemHF *= myPFCorr->getValues(detid)->getValue();
+		// Apply HCAL calibration factors flor towers close to 29, if requested
+		if ( HF_Calib_ && abs(detid.ieta()) <= 32 ) { 
+		  energyhadHF *= HF_Calib_29;
+		  energyemHF *= HF_Calib_29;
 		}
-		
-		
+				
 		// Create an EM and a HAD rechit if above threshold.
 		if ( energyemHF > thresh_HF_ || energyhadHF > thresh_HF_ ) { 
 		  pfrhHFEM = createHcalRecHit( detid, 

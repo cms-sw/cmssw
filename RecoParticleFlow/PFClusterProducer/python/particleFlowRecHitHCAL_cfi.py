@@ -22,10 +22,11 @@ particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
 #   weight_HFem = cms.double(1.0),
 #   weight_HFhad = cms.double(1.0)
 
-# HCAL DPG RecHit calibration
-    HCAL_Calib = cms.bool(False),
-    HF_Calib = cms.bool(False),
-    Max_Calib = cms.double(5.00),
+# HCAL calibration for tower 29
+    HCAL_Calib = cms.bool(True),
+    HF_Calib = cms.bool(True),
+    HCAL_Calib_29 = cms.double(1.35),
+    HF_Calib_29 = cms.double(1.07),
 
 # Cut short fibres if no long fibre energy
     ShortFibre_Cut = cms.double(60.),
