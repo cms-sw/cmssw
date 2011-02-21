@@ -2,6 +2,12 @@
 '''
 central place for all the table names
 '''
+def schemaV2Tables():
+       return ['REVISIONS','LUMIDATA','LUMISUMMARYV2','LUMINORMS','TRGDATA','LSTRG', 'HLTDATA', 'LSHLT']
+def schemaV1Tables():
+       return [ 'LUMISUMMARY','LUMIDETAIL','TRG','HLT']
+def commonTables():
+       return [ 'CMSRUNSUMMARY','TRGHLTMAP','LUMIVALIDATION']
 def revisionTableName():
        return 'REVISIONS'
 
@@ -14,6 +20,8 @@ def lumidataTableName():
 def lumisummaryTableName():
 	return 'LUMISUMMARY'
 
+def lumisummaryv2TableName():
+	return 'LUMISUMMARYV2'
 def lumidetailTableName():
 	return 'LUMIDETAIL'
 def luminormTableName():

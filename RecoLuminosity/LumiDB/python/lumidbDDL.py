@@ -55,10 +55,43 @@ def createTables(schema):
             lumidataTab.setPrimaryKey( 'DATA_ID' )
             db.createTable(lumidataTab,withIdTable=True,withEntryTables=True,withRevMapTable=True)
             created.append(nameDealer.lumidataTableName())
+
+        if not schema.existsTable(nameDealer.lumisummaryv2TableName() ):
+            print 'creating lumisummaryv2 table'
+            summary=coral.TableDescription()
+            summary.setName( nameDealer.lumisummaryv2TableName() )
+            summary.insertColumn('DATA_ID','unsigned long long')
+            summary.insertColumn('RUNNUM','unsigned int')
+            summary.insertColumn('LUMILSNUM','unsigned int')
+            summary.insertColumn('CMSLSNUM','unsigned int')
+            summary.insertColumn('INSTLUMI','float')
+            summary.insertColumn('INSTLUMIERROR','float')
+            summary.insertColumn('INSTLUMIQUALITY','short')
+            summary.insertColumn('BEAMSTATUS','string')
+            summary.insertColumn('BEAMENERGY','float')
+            summary.insertColumn('NUMORBIT','unsigned int')
+            summary.insertColumn('STARTORBIT','unsigned int')
+            summary.insertColumn('CMSBXINDEXBLOB','blob')
+            summary.insertColumn('BEAMINTENSITYBLOB_1','blob')
+            summary.insertColumn('BEAMINTENSITYBLOB_2','blob')
+            summary.insertColumn('BXLUMIVALUE_OCC1','blob')
+            summary.insertColumn('BXLUMIVALUE_OCC2','blob')
+            summary.insertColumn('BXLUMIVALUE_ET','blob')
+            summary.insertColumn('BXLUMIERROR_OCC1','blob')
+            summary.insertColumn('BXLUMIERROR_OCC2','blob')
+            summary.insertColumn('BXLUMIERROR_ET','blob')
+            summary.insertColumn('BXLUMIQUALITY_OCC1','blob')
+            summary.insertColumn('BXLUMIQUALITY_OCC2','blob')
+            summary.insertColumn('BXLUMIQUALITY_ET','blob')
+            summary.setPrimaryKey(('DATA_ID','LUMILSNUM'))
+            db.createTable(summary,withIdTable=False)            
+            created.append(nameDealer.lumisummaryv2TableName())
+            
         #
         # This table exists in the old schema
         #
         if not schema.existsTable(nameDealer.cmsrunsummaryTableName()):
+            print 'creating cmsrunsummary table'
             cmsrunsummary=coral.TableDescription()
             cmsrunsummary.setName( nameDealer.cmsrunsummaryTableName() )
             cmsrunsummary.insertColumn('RUNNUM','unsigned int')
@@ -73,52 +106,23 @@ def createTables(schema):
             cmsrunsummary.setPrimaryKey('RUNNUM')
             db.createTable(cmsrunsummary,withIdTable=False)
             created.append(nameDealer.cmsrunsummaryTableName())
-            
         #
-        # This table exists in the old schema
+        #  This table exists in the old schema
         #
-        if not schema.existsTable(nameDealer.lumisummaryTableName() ):
-            summary=coral.TableDescription()
-            summary.setName( nameDealer.lumisummaryTableName() )
-            summary.insertColumn('DATA_ID','unsigned long long')
-            summary.insertColumn('RUNNUM','unsigned int')
-            summary.insertColumn('CMSLSNUM','unsigned int')
-            summary.insertColumn('LUMILSNUM','unsigned int')
-            summary.insertColumn('CMSALIVE','short')
-            summary.insertColumn('INSTLUMI','float')
-            summary.insertColumn('INSTLUMIERROR','float')
-            summary.insertColumn('INSTLUMIQUALITY','short')
-            summary.insertColumn('BEAMSTATUS','string')
-            summary.insertColumn('BEAMENERGY','float')
-            summary.insertColumn('CMSBXINDEXBLOB','blob')
-            summary.insertColumn('BEAMINTENSITYBLOB_1','blob')
-            summary.insertColumn('BEAMINTENSITYBLOB_2','blob')
-            summary.insertColumn('NUMORBIT','unsigned int')
-            summary.insertColumn('STARTORBIT','unsigned int')
-            summary.setPrimaryKey(('DATA_ID','LUMILSNUM'))
-            db.createTable(summary,withIdTable=False)            
-            created.append(nameDealer.lumisummaryTableName())
-            
-        #
-        # This table exists in the old schema
-        #    
-        if not schema.existsTable(nameDealer.lumidetailTableName() ):
-            detail=coral.TableDescription()
-            detail.setName( nameDealer.lumidetailTableName() )
-            detail.insertColumn('DATA_ID','unsigned long long')
-            detail.insertColumn('RUNNUM','unsigned int')
-            detail.insertColumn('CMSLSNUM','unsigned long long')
-            detail.insertColumn('LUMILSNUM','unsigned long long')
-            detail.insertColumn('ALGONAME','string')
-            detail.insertColumn('BXLUMIVALUE','blob')
-            detail.insertColumn('BXLUMIERROR','blob')
-            detail.insertColumn('BXLUMIQUALITY','blob')
-            detail.setPrimaryKey(('DATA_ID','LUMILSNUM','ALGONAME'))
-            db.createTable(detail,withIdTable=False)
-            created.append(nameDealer.lumidetailTableName())
-                           
+        if not schema.existsTable(nameDealer.trghltMapTableName()):
+            print 'creating trghltmap table'
+            trghlt=coral.TableDescription()
+            trghlt.setName( nameDealer.trghltMapTableName() )
+            trghlt.insertColumn( 'HLTKEY','string' )
+            trghlt.insertColumn( 'HLTPATHNAME','string' )
+            trghlt.insertColumn( 'L1SEED','string' )
+            trghlt.setNotNullConstraint('HLTKEY',True)
+            trghlt.setNotNullConstraint('HLTPATHNAME',True)
+            trghlt.setNotNullConstraint('L1SEED',True)
+            db.createTable(trghlt,withIdTable=False)
+            created.append(nameDealer.trghltMapTableName())      
         if not schema.existsTable(nameDealer.trgdataTableName()):
-            #print 'creating trgdata table'
+            print 'creating trgdata table'
             trgdataTab=coral.TableDescription()
             trgdataTab.setName( nameDealer.trgdataTableName() )
             trgdataTab.insertColumn( 'DATA_ID','unsigned long long')
@@ -131,7 +135,6 @@ def createTables(schema):
             trgdataTab.setPrimaryKey( 'DATA_ID' )
             db.createTable(trgdataTab,withIdTable=True,withEntryTables=True,withRevMapTable=True)
             created.append(nameDealer.trgdataTableName())
-
         if not schema.existsTable(nameDealer.lstrgTableName()):
             print 'creating lstrg table'
             lstrgTab=coral.TableDescription()
@@ -165,7 +168,7 @@ def createTables(schema):
             created.append(nameDealer.hltTableName())
             
         if not schema.existsTable(nameDealer.lshltTableName()):
-            print 'create lshlt table'
+            print 'creating lshlt table'
             lshltTab=coral.TableDescription()
             lshltTab.setName( nameDealer.lshltTableName() )
             lshltTab.insertColumn( 'DATA_ID','unsigned long long')
@@ -177,23 +180,10 @@ def createTables(schema):
             db.createTable(lshltTab,withIdTable=False)
             lshltTab.setPrimaryKey( ('DATA_ID','CMSLSNUM') )
             created.append(nameDealer.lshltTableName())          
-        #
-        #  This table exists in the old schema
-        #
-        if not schema.existsTable(nameDealer.trghltMapTableName()):
-            trghlt=coral.TableDescription()
-            trghlt.setName( nameDealer.trghltMapTableName() )
-            trghlt.insertColumn( 'HLTKEY','string' )
-            trghlt.insertColumn( 'HLTPATHID','string' )
-            trghlt.insertColumn( 'HLTPATHNAME','string' )
-            trghlt.insertColumn( 'L1SEED','string' )
-            trghlt.setNotNullConstraint('HLTKEY',True)
-            trghlt.setNotNullConstraint('HLTPATHNAME',True)
-            trghlt.setNotNullConstraint('L1SEED',True)
-            db.createTable(trghlt,withIdTable=False)
-            created.append(nameDealer.trghltMapTableName())  
+
             
         if not schema.existsTable(nameDealer.lumivalidationTableName()):
+            print 'creating lumivalidation  table'
             lumivalidation=coral.TableDescription()
             lumivalidation.setName( nameDealer.lumivalidationTableName() )
             lumivalidation.insertColumn( 'RUNNUM','unsigned int' )
@@ -222,7 +212,7 @@ def dropTables(schema,tablelist):
                 db.dropTable( nameDealer.idTableName(tablename) )
                 db.dropTable( nameDealer.entryTableName(tablename) )
                 db.dropTable( nameDealer.revmapTableName(tablename) )            
-            if tablename in [nameDealer.trgTableName(),nameDealer.lumisummaryTableName(),nameDealer.lumidetailTableName(),nameDealer.hltTableName()]:
+            if tablename in [nameDealer.trgTableName(),nameDealer.lumisummaryTableName(),nameDealer.lumisummaryv2TableName(),nameDealer.lumidetailTableName(),nameDealer.hltTableName()]:
                 db.dropTable( nameDealer.idTableName(tablename) )
             db.dropTable( tablename )
     except :
@@ -393,33 +383,21 @@ def createOldSchema(schema):
 #=======================================================
 def oldToNew(schema):
     '''
-    modify old tables:lumisummary,lumidetail,cmsrunsummary,trghltmap
+    modify old tables:cmsrunsummary
     alter table cmsrunsummary add column(l1key string,egev unsigned int,amodetag string)
-    alter table lumisummary add column(data_id unsigned long long)
-    alter table lumidetail add column(data_id unsigned long long,runnum unsigned int,cmslsnum unsigned int,lumilsnum unsigned int)
-    alter table trghltmap add column(hltpathid unsigned int)
     '''
     try:
         tableHandle=schema.tableHandle(nameDealer.cmsrunsummaryTableName())
         tableHandle.schemaEditor().insertColumn('L1KEY','string')
         tableHandle.schemaEditor().insertColumn('EGEV','unsigned int')
         tableHandle.schemaEditor().insertColumn('AMODETAG','string')
-        tableHandle=schema.tableHandle(nameDealer.lumisummaryTableName())
-        tableHandle.schemaEditor().insertColumn('DATA_ID','unsigned long long')
-        tableHandle=schema.tableHandle(nameDealer.lumidetailTableName())
-        tableHandle.schemaEditor().insertColumn('DATA_ID','unsigned long long')
-        tableHandle.schemaEditor().insertColumn('RUNNUM','unsigned int')
-        tableHandle.schemaEditor().insertColumn('CMSLSNUM','unsigned int')
-        tableHandle.schemaEditor().insertColumn('LUMILSNUM','unsigned int')
-        tableHandle=schema.tableHandle(nameDealer.trghltMapTableName())
-        tableHandle.schemaEditor().insertColumn('HLTPATHID','unsigned int')
         createTables(schema)
     except:
         raise
     
 def newToOld(schema):
     try:
-        dropTables(schema,['REVISIONS','LUMINORMS','LUMIDATA','TRGDATA','LSTRG','HLTDATA','LSHLT'])
+        dropTables(schema,['REVISIONS','LUMINORMS','LUMIDATA','LUMISUMMARYV2','TRGDATA','LSTRG','HLTDATA','LSHLT'])
         tableHandle=schema.tableHandle(nameDealer.cmsrunsummaryTableName())
         ncol=tableHandle.description().numberOfColumns()
         todrop=[]
@@ -429,33 +407,6 @@ def newToOld(schema):
                 todrop.append(colname)
         for colname in todrop:
             tableHandle.schemaEditor().dropColumn(colname)            
-        tableHandle=schema.tableHandle(nameDealer.lumisummaryTableName())
-        ncol=tableHandle.description().numberOfColumns()
-        todrop=[]        
-        for i in range(ncol):
-            colname=tableHandle.description().columnDescription(i).name()
-            if colname in ['DATA_ID']:
-                todrop.append(colname)
-        for colname in todrop:
-            tableHandle.schemaEditor().dropColumn(colname)
-        tableHandle=schema.tableHandle(nameDealer.lumidetailTableName())
-        ncol=tableHandle.description().numberOfColumns()
-        todrop=[]
-        for i in range(ncol):
-            colname=tableHandle.description().columnDescription(i).name()
-            if colname in ['DATA_ID','RUNNUM','CMSLSNUM','LUMILSNUM']:
-                todrop.append(colname)
-        for colname in todrop:
-            tableHandle.schemaEditor().dropColumn(colname)
-        tableHandle=schema.tableHandle(nameDealer.trghltMapTableName())
-        ncol=tableHandle.description().numberOfColumns()
-        todrop=[]
-        for i in range(ncol):
-            colname=tableHandle.description().columnDescription(i).name()
-            if colname in ['HLTPATHID']:
-                todrop.append(colname)
-        for colname in todrop:
-            tableHandle.schemaEditor().dropColumn(colname)
     except :
         raise 
 
@@ -526,15 +477,18 @@ if __name__ == "__main__":
     svc=sessionManager.sessionManager(myconstr,authpath=authpath,debugON=False)
     session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     schema=session.nominalSchema()
-    #session.transaction().start(False)
-    #tables=createTables(schema)
-    #print 'created new ',tables
+    session.transaction().start(False)
+    tables=createTables(schema)
+    if len(tables)==0:
+        dropTables(schema,nameDealer.schemaV2Tables())
+    else:
+        dropTables(schema,tables)
+        dropTables(schema,nameDealer.commonTables())
     #createUniqueConstraints(schema)
     #session.transaction().commit()
-    #session.transaction().start(False)
-    #dropTables(schema,tables)
-    #session.transaction().commit()
+   
     #print 'droped new '
+
     session.transaction().start(False)
     tables=createOldSchema(schema)
     oldToNew(schema)
