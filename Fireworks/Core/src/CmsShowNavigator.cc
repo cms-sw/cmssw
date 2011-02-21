@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.100 2010/12/15 22:27:35 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.101 2011/02/18 17:38:42 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -148,7 +148,7 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSiz
             --toErase;
          }
 
-         if (m_files.size() >= m_maxNumberOfFilesToChain)
+         if (m_files.size() > m_maxNumberOfFilesToChain)
             fwLog(fwlog::kWarning) << "  " <<  m_files.size() << " chained files more than maxNumberOfFilesToChain \n" <<  m_maxNumberOfFilesToChain << std::endl;
       }
 
