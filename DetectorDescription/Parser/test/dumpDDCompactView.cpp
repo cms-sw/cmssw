@@ -32,6 +32,7 @@
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/src/Material.h"
 
 int main(int argc, char *argv[])
 {
@@ -78,12 +79,8 @@ int main(int argc, char *argv[])
       "process.p = cms.Path(process.m1)\n"
       "process.e = cms.EndPath(process.out)\n";
 
-    boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
-    boost::shared_ptr<edm::ParameterSet>          params_;
-    edm::makeParameterSets(config, params_, pServiceSets);
-
     // D.  Create the services.
-    edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
+    edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(config));
 
     // E.  Make the services available.
     edm::ServiceRegistry::Operate operate(tempToken);
