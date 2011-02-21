@@ -34,6 +34,17 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
         else if ( (*iParam) == "CalJetMin" ) _CalJetMin =  myJetParams.getParameter<double>( *iParam );
         else if ( (*iParam) == "GenJetMin" ) _GenJetMin =  myJetParams.getParameter<double>( *iParam );
     }
+
+    const int kMaxRecoPFJet = 10000;
+    jpfrecopt=new float[kMaxRecoPFJet];
+    jpfrecophi=new float[kMaxRecoPFJet];
+    jpfrecoeta=new float[kMaxRecoPFJet];
+    jpfreconeutralHadronFraction=new float[kMaxRecoPFJet];
+    jpfreconeutralEMFraction=new float[kMaxRecoPFJet];
+    jpfrecochargedHadronFraction=new float[kMaxRecoPFJet];
+    jpfrecochargedEMFraction=new float[kMaxRecoPFJet];
+    jpfreconeutralMultiplicity=new int[kMaxRecoPFJet];
+    jpfrecochargedMultiplicity=new int[kMaxRecoPFJet];
     
     const int kMaxJetCal = 10000;
     jcalpt = new float[kMaxJetCal];
@@ -189,7 +200,18 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("pfJetPt",pfJetPt,"pfJetPt[NohPFJet]/F");
     HltTree->Branch("pfJetEta",pfJetEta,"pfJetEta[NohPFJet]/F");
     HltTree->Branch("pfJetPhi",pfJetPhi,"pfJetPhi[NohPFJet]/F");
-    
+
+    //RECO PFJets
+    HltTree->Branch("nrpj",&nrpj,"nrpj/I");
+    HltTree->Branch("recopfJetpt",                    jpfrecopt,                     "recopfJetpt[nrpj]/F");
+    HltTree->Branch("recopfJetphi",                   jpfrecophi,                    "recopfJetphi[nrpj]/F");
+    HltTree->Branch("recopfJeteta",                   jpfrecoeta,                    "recopfJeteta[nrpj]/F");
+    HltTree->Branch("recopfJetneutralHadronFraction", jpfreconeutralHadronFraction,  "recopfJetneutralHadronFraction[nrpj]/F");
+    HltTree->Branch("recopfJetneutralEMFraction",     jpfreconeutralEMFraction,      "recopfJetneutralEMFraction[nrpj]/F");
+    HltTree->Branch("recopfJetchargedHadronFraction", jpfrecochargedHadronFraction,  "recopfJetchargedHadronFraction[nrpj]/F");
+    HltTree->Branch("recopfJetchargedEMFraction",     jpfrecochargedEMFraction,      "recopfJetchargedEMFraction[nrpj]/F");
+    HltTree->Branch("recopfJetneutralMultiplicity",   jpfreconeutralMultiplicity,    "recopfJetneutralMultiplicity[nrpj]/I");
+    HltTree->Branch("recopfJetchargedMultiplicity",   jpfrecochargedMultiplicity,    "recopfJetchargedMultiplicity[nrpj]/I"); 
     
 }
 
@@ -210,7 +232,8 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
 		      const edm::Handle<reco::PFTauDiscriminator>	      & theRecoPFTauDiscrByTanCTenthPercent,			  
 		      const edm::Handle<reco::PFTauDiscriminator>	      & theRecoPFTauDiscrByIsolation,
 		      const edm::Handle<reco::PFTauDiscriminator>	      & theRecoPFTauDiscrAgainstElec,
-		      const edm::Handle<reco::PFTauDiscriminator>	      & theRecoPFTauDiscrAgainstMuon,	 
+		      const edm::Handle<reco::PFTauDiscriminator>	      & theRecoPFTauDiscrAgainstMuon,
+                      const edm::Handle<reco::PFJetCollection>        & recoPFJets,
 		      const edm::Handle<CaloTowerCollection>          & caloTowers,
                       double thresholdForSavingTowers, 
                       double		    minPtCH,
@@ -499,5 +522,29 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
         
     }
     
-        
+    //////////////// RECO Particle Flow Jets ////////////////////////////////////
+    nrpj = 0;
+    if(recoPFJets.isValid()){
+	    nrpj = recoPFJets->size();
+	    reco::PFJetCollection Jets = *recoPFJets;
+	    std::sort(Jets.begin(),Jets.end(),GetPFPtGreater());
+	    typedef reco::PFJetCollection::const_iterator pfJetit;
+	    int ipfJet=0;
+	    for(pfJetit i=Jets.begin(); i!=Jets.end(); i++){
+		    //Ask for Eta,Phi and Et of the Jet:
+		    jpfrecoeta[ipfJet] = i->eta();
+		    jpfrecophi[ipfJet] = i->phi();
+		    jpfrecopt[ipfJet] = i->pt();           
+		    jpfreconeutralHadronFraction[ipfJet] = i->neutralHadronEnergyFraction ();
+		    jpfrecochargedHadronFraction[ipfJet] = i->chargedHadronEnergyFraction ();
+		    jpfreconeutralMultiplicity[ipfJet] = i->neutralMultiplicity ();
+		    jpfrecochargedMultiplicity[ipfJet] = i->chargedMultiplicity ();
+		    jpfreconeutralEMFraction[ipfJet] = i->neutralEmEnergyFraction ();
+		    jpfrecochargedEMFraction[ipfJet] = i->chargedEmEnergyFraction ();
+
+		    ipfJet++;   
+	    } 
+
+    }
+    
 }

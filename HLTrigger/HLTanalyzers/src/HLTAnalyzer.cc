@@ -36,6 +36,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     recmet_           = conf.getParameter<edm::InputTag> ("recmet");
     genmet_           = conf.getParameter<edm::InputTag> ("genmet");
     ht_               = conf.getParameter<edm::InputTag> ("ht");
+    recoPFJets_       = conf.getParameter<edm::InputTag> ("recoPFJets"); 
     calotowers_       = conf.getParameter<edm::InputTag> ("calotowers");
     muon_             = conf.getParameter<edm::InputTag> ("muon");
     mctruth_          = conf.getParameter<edm::InputTag> ("mctruth");
@@ -210,6 +211,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::CaloMETCollection>              recmet;
     edm::Handle<reco::GenMETCollection>               genmet;
     edm::Handle<reco::METCollection>                  ht;
+    edm::Handle<reco::PFJetCollection>                recoPFJets; 
     edm::Handle<reco::CandidateView>                  mctruth;
     edm::Handle<GenEventInfoProduct>                  genEventInfo;
     edm::Handle<std::vector<SimTrack> >               simTracks;
@@ -307,7 +309,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
     
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    edm::InputTag BSProducer_(std::string("hltOfflineBeamSpot"));
+    edm::InputTag BSProducer_(std::string("hltOnlineBeamSpot"));
     
     // get EventSetup stuff needed for the AlCa pi0 path
     edm::ESHandle< EcalElectronicsMapping > ecalmapping;
@@ -339,6 +341,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, genmet,          genmet_,            kGenmet );
     getCollection( iEvent, missing, caloTowers,      calotowers_,        kCaloTowers );
     getCollection( iEvent, missing, ht,              ht_,                kHt );
+    getCollection( iEvent, missing, recoPFJets,      recoPFJets_,        kRecoPFJets );   
     getCollection( iEvent, missing, muon,            muon_,              kMuon );
     getCollection( iEvent, missing, taus,            HLTTau_,            kTaus );
     getCollection( iEvent, missing, pftaus,          PFTau_,		 kPFTaus );
@@ -473,6 +476,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			  theRecoPFTauDiscrByIsolation,
 			  theRecoPFTauDiscrAgainstMuon,
 			  theRecoPFTauDiscrAgainstElec,
+                          recoPFJets, 
                           caloTowers,
                           towerThreshold_,
                           _MinPtGammas,

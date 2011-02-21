@@ -9,6 +9,7 @@ extern const char * kRecmet;
 extern const char * kGenmet;
 extern const char * kCaloTowers;
 extern const char * kHt;
+extern const char * kRecoPFJets; 
 extern const char * kMuon;
 extern const char * kHltresults;
 extern const char * kL1extemi;

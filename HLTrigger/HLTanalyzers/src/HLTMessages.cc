@@ -8,6 +8,7 @@ const char * kRecmet                      = "reconstructed MET";
 const char * kGenmet                      = "generator MET";
 const char * kCaloTowers                  = "calo towers";
 const char * kHt                          = "HT object";
+const char * kRecoPFJets                  = "reco particle flow jets"; 
 const char * kMuon                        = "muon candidates";
 const char * kTaus                        = "tau candidates";
 const char * kPFTaus                      = "pftau candidates";

@@ -76,13 +76,14 @@ public:
                  const edm::Handle<reco::PFTauCollection>        & myHLTPFTau,
                  const edm::Handle<reco::PFJetCollection>        & myHLTPFJets,                
 		 const edm::Handle<reco::PFTauCollection>	 & myRecoPFTau,
-		 const edm::Handle<reco::PFTauDiscriminator>           & theRecoPFTauDiscrByTanCOnePercent,
-		 const edm::Handle<reco::PFTauDiscriminator>		 & theRecoPFTauDiscrByTanCHalfPercent,
-		 const edm::Handle<reco::PFTauDiscriminator>		 & theRecoPFTauDiscrByTanCQuarterPercent,
-		 const edm::Handle<reco::PFTauDiscriminator>		 & theRecoPFTauDiscrByTanCTenthPercent,
-		 const edm::Handle<reco::PFTauDiscriminator>		 & theRecoPFTauDiscrByIsolation,
-		 const edm::Handle<reco::PFTauDiscriminator>           & theRecoPFTauDiscrAgainstElec,
-		 const edm::Handle<reco::PFTauDiscriminator>           & theRecoPFTauDiscrAgainstMuon,
+		 const edm::Handle<reco::PFTauDiscriminator>     & theRecoPFTauDiscrByTanCOnePercent,
+		 const edm::Handle<reco::PFTauDiscriminator>	 & theRecoPFTauDiscrByTanCHalfPercent,
+		 const edm::Handle<reco::PFTauDiscriminator>	 & theRecoPFTauDiscrByTanCQuarterPercent,
+		 const edm::Handle<reco::PFTauDiscriminator>	 & theRecoPFTauDiscrByTanCTenthPercent,
+		 const edm::Handle<reco::PFTauDiscriminator>	 & theRecoPFTauDiscrByIsolation,
+		 const edm::Handle<reco::PFTauDiscriminator>     & theRecoPFTauDiscrAgainstElec,
+		 const edm::Handle<reco::PFTauDiscriminator>     & theRecoPFTauDiscrAgainstMuon,
+		 const edm::Handle<reco::PFJetCollection>        & recoPFJets,                
 		 const edm::Handle<CaloTowerCollection>          & caloTowers,	      
                  double thresholdForSavingTowers,
                  double                minPtCH,
@@ -119,6 +120,11 @@ private:
     float *recopfTauEta,*recopfTauPhi,*recopfTauPt,*recopfTauJetPt,*recopfTauLeadTrackPt,*recopfTauLeadPionPt;
     int   *recopfTauTrkIso, *recopfTauGammaIso;
     float *recopfTauDiscrByTancOnePercent,*recopfTauDiscrByTancHalfPercent, *recopfTauDiscrByTancQuarterPercent, *recopfTauDiscrByTancTenthPercent, *recopfTauDiscrByIso, *recopfTauDiscrAgainstMuon, *recopfTauDiscrAgainstElec;
+    //Reco PF jets
+    float *jpfrecopt, *jpfrecophi, *jpfrecoeta, *jpfreconeutralHadronFraction, *jpfreconeutralEMFraction, *jpfrecochargedHadronFraction, *jpfrecochargedEMFraction;
+    int  *jpfreconeutralMultiplicity, *jpfrecochargedMultiplicity;
+    int nrpj;
+
   
     // input variables
     bool _Monte,_Debug;
