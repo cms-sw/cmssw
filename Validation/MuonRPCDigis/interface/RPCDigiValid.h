@@ -46,6 +46,29 @@ class  RPCDigiValid: public edm::EDAnalyzer {
     MonitorElement* BxDist;
     MonitorElement* StripProf;
 
+//members for EndCap's disks:
+    MonitorElement* ResDmin1;
+    MonitorElement* ResDmin2;
+    MonitorElement* ResDmin3;
+    MonitorElement* ResDplu1;
+    MonitorElement* ResDplu2;
+    MonitorElement* ResDplu3;
+
+//members for X_vs_Y_view:
+    MonitorElement* xyvWmin2;
+    MonitorElement* xyvWmin1;
+    MonitorElement* xyvWzer0;
+    MonitorElement* xyvWplu1;
+    MonitorElement* xyvWplu2;
+
+    MonitorElement* xyvDplu1;
+    MonitorElement* xyvDplu2;
+    MonitorElement* xyvDplu3;
+
+    MonitorElement* xyvDmin1;
+    MonitorElement* xyvDmin2;
+    MonitorElement* xyvDmin3;
+
     DQMStore* dbe_;
     std::string outputFile_;
     std::string digiLabel;
