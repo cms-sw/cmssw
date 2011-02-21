@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.101 2011/02/18 17:38:42 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.102 2011/02/21 11:27:07 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -56,6 +56,8 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
    m_main(main),
    m_guiFilter(0)
 {
+   m_guiFilter = new FWGUIEventFilter(this);
+   filterStateChanged_.connect(boost::bind(&FWGUIEventFilter::updateFilterStateLabel, m_guiFilter, _1));
 }
 
 CmsShowNavigator::~CmsShowNavigator()
@@ -423,16 +425,14 @@ CmsShowNavigator::toggleFilterEnable()
    if (m_filterState == kOff)
    {
       m_filterState = kOn;
-      if (m_guiFilter)
-         m_guiFilter->m_filterDisableAction->enable();
+      m_guiFilter->setupDisableFilteringButton(true);
 
       updateFileFilters();
    }
    else
    {
       m_filterState = kOff;
-      if (m_guiFilter)
-         m_guiFilter->m_filterDisableAction->disable();
+      m_guiFilter->setupDisableFilteringButton(false);
    }
 
    filterStateChanged_.emit(m_filterState);
@@ -564,8 +564,7 @@ CmsShowNavigator::applyFiltersFromGUI()
    {
       m_filesNeedUpdate = true;
       m_filterState = kOn;
-      m_guiFilter->m_filterDisableAction->enable();
-      filterStateChanged_.emit(m_filterState);
+      m_guiFilter->setupDisableFilteringButton(true);
    }
 
    // compare changes and then call updateFileFilters
@@ -621,8 +620,10 @@ CmsShowNavigator::applyFiltersFromGUI()
 
    if ( m_filesNeedUpdate )
       updateFileFilters();
-}
 
+   filterStateChanged_.emit(m_filterState);
+
+}
 //______________________________________________________________________________
 // helpers for gui state
 
@@ -727,7 +728,8 @@ CmsShowNavigator::getNSelectedEvents()
    int sum = 0;
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
    {
-      sum += (*file)->globalSelection()->GetN();
+      if ((*file)->globalSelection())
+         sum += (*file)->globalSelection()->GetN();
    }
    return sum;
 }
@@ -785,15 +787,6 @@ CmsShowNavigator::editFiltersExternally()
 void
 CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
 {
-   if (m_guiFilter == 0)
-   {
-      m_guiFilter = new FWGUIEventFilter(p, m_main.context()->metadataManager());
-      m_guiFilter->m_applyAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::applyFiltersFromGUI));
-      m_guiFilter->m_filterDisableAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::toggleFilterEnable));
-      m_guiFilter->m_finishEditAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::editFiltersExternally));
-      filterStateChanged_.connect(boost::bind(&FWGUIEventFilter::updateFilterStateLabel, m_guiFilter, _1));
-   }
-
    if (m_guiFilter->IsMapped())
    {
       m_guiFilter->CloseWindow();
@@ -909,8 +902,6 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
    // update CmsShowMainFrame checkBoxIcon and button text
    if (oldFilterState != m_filterState)
       filterStateChanged_.emit(m_filterState);
-   
-   
 }
 
 void
@@ -946,6 +937,13 @@ CmsShowNavigator::addTo(FWConfiguration& iTo) const
    // enabled
    iTo.addKeyValue("EventFilter_enabled",FWConfiguration( m_filterState == kOn ? "1" : "0"));
 }
+
+std::vector<std::string>& 
+CmsShowNavigator::getProcessList() const
+{
+  return  m_main.context()->metadataManager()->processNamesInJob();
+}
+
 
 const edm::EventBase* 
 CmsShowNavigator::getCurrentEvent() const
