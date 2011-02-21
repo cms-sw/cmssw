@@ -21,10 +21,9 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
     retrieve old lumi value, divide by norm and restore to raw value
     select lumilsnum,cmslsnum,instlumi,instlumierror,instlumiquality,startorbit,numorbit,beamenergy,beamstatus,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2 from lumisummary where runnum=:runnumber order by lumilsnum
     
-    select s.lumilsnum,d.bxlumivalue,d.bxlumierror,d.bxlumiquality,d.algoname from lumidetail d,lumisummary s where d.lumisummary_id=s.lumisummary_id and s.runnum=:runnumber order by s.lumilsnum
+    select s.lumilsnum,d.bxlumivalue,d.bxlumierror,d.bxlumiquality from lumidetail d,lumisummary s where d.lumisummary_id=s.lumisummary_id and s.runnum=:runnumber and d.algoname=:algoname order by s.lumilsnum
     
-    Note:replace null with None
-    output: {lumilsnum:[cmslsnum,uncalibratedinstlumi,uncalibratedinstlumierror,intlumiquality,startorbit,numorbit,beamstatus,beamenergy,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2,{algoname:[bxlumivalue,bxlumierror,bxlumiquality]}]}
+    output: {lumilsnum:[cmslsnum,uncalibratedinstlumi,uncalibratedinstlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2,bxlumivalue_occ1,bxlumierror_occ1,,bxlumiquality_occ1,bxlumivalue_occ2,bxlumierror_occ2,bxlumiquality_occ2,bxlumivalue_et,bxlumierror_et,bxlumiquality_et]}]}
     dict size ~ 200mb for 1000LS
     '''
     nTotAlgo=3
@@ -39,10 +38,10 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
         summaryQuery.addToOutputList( 'INSTLUMI','instlumi')
         summaryQuery.addToOutputList( 'INSTLUMIERROR','instlumierror')
         summaryQuery.addToOutputList( 'INSTLUMIQUALITY','instlumiquality')
-        summaryQuery.addToOutputList( 'STARTORBIT','startorbit')
         summaryQuery.addToOutputList( 'NUMORBIT','numorbit')
-        summaryQuery.addToOutputList( 'BEAMENERGY','beamenergy')
+        summaryQuery.addToOutputList( 'STARTORBIT','startorbit')
         summaryQuery.addToOutputList( 'BEAMSTATUS','beamstatus')
+        summaryQuery.addToOutputList( 'BEAMENERGY','beamenergy')
         summaryQuery.addToOutputList( 'CMSBXINDEXBLOB','cmsbxindexblob')
         summaryQuery.addToOutputList( 'BEAMINTENSITYBLOB_1','beamintensityblob_1')
         summaryQuery.addToOutputList( 'BEAMINTENSITYBLOB_2','beamintensityblob_2')
@@ -55,10 +54,10 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
         summaryResult.extend('instlumi','float')
         summaryResult.extend('instlumierror','float')
         summaryResult.extend('instlumiquality','short')
-        summaryResult.extend('startorbit','unsigned int')
         summaryResult.extend('numorbit','unsigned int')
-        summaryResult.extend('beamenergy','float')
+        summaryResult.extend('startorbit','unsigned int')
         summaryResult.extend('beamstatus','string')
+        summaryResult.extend('beamenergy','float')
         summaryResult.extend('cmsbxindexblob','blob')
         summaryResult.extend('beamintensityblob_1','blob')
         summaryResult.extend('beamintensityblob_2','blob')
@@ -82,51 +81,51 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
                 cmsbxindexblob=summarycursor.currentRow()['cmsbxindexblob'].data()
             beamintensityblob_1=None
             if not summarycursor.currentRow()['beamintensityblob_1'].isNull():
-                beamintensityblob_1 =summarycursor.currentRow()['beamintensityblob_1'].data()
+                beamintensityblob_1=summarycursor.currentRow()['beamintensityblob_1'].data()
             beamintensityblob_2=None
             if not summarycursor.currentRow()['beamintensityblob_2'].isNull():
-                beamintensityblob_2 =summarycursor.currentRow()['beamintensityblob_2'].data()
+                beamintensityblob_2=summarycursor.currentRow()['beamintensityblob_2'].data()
             datadict[lumilsnum]=[cmslsnum,uncalibratedinstlumi,uncalibratedinstlumierror,instlumiquality,startorbit,numorbit,beamstatus,beamenergy,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2]
         del summaryQuery
         #print datadict
-        detailQuery=lumischema.newQuery()
-        detailQuery.addToTableList( nameDealer.lumidetailTableName(),'d' )
-        detailQuery.addToTableList( nameDealer.lumisummaryTableName(),'s' )
-
-        detailQuery.addToOutputList('s.LUMILSNUM','lumilsnum' )
-        detailQuery.addToOutputList('d.BXLUMIVALUE','bxlumivalue' )
-        detailQuery.addToOutputList('d.BXLUMIERROR','bxlumierror' )
-        detailQuery.addToOutputList('d.BXLUMIQUALITY','bxlumiquality' )
-        detailQuery.addToOutputList('d.ALGONAME','algoname' )
-        detailCondition=coral.AttributeList()
-        detailCondition.extend('runnumber','unsigned int')
-        detailCondition['runnumber'].setData(int(runnumber))
-        detailResult=coral.AttributeList()
-        detailResult.extend('lumilsnum','unsigned int')
-        detailResult.extend('bxlumivalue','blob')
-        detailResult.extend('bxlumierror','blob')
-        detailResult.extend('bxlumiquality','blob')
-        detailResult.extend('algoname','string')
-        detailQuery.defineOutput(detailResult)
-        detailQuery.addToOrderList('lumilsnum')
-        
-        detailQuery.setCondition('s.RUNNUM=:runnumber and s.LUMISUMMARY_ID=d.LUMISUMMARY_ID',detailCondition)
-        detailcursor=detailQuery.execute()
-        perlsdetaildict={}
-        algocounter=0
-        while detailcursor.next():
-            algocounter+=1
-            lumilsnum=detailcursor.currentRow()['lumilsnum'].data()
-            bxlumivalue=detailcursor.currentRow()['bxlumivalue'].data()
-            bxlumierror=detailcursor.currentRow()['bxlumierror'].data()
-            bxlumiquality=detailcursor.currentRow()['bxlumiquality'].data()
-            algoname=detailcursor.currentRow()['algoname'].data()
-            perlsdetaildict[algoname]=[bxlumivalue,bxlumierror,bxlumiquality]
-            if algocounter==nTotAlgo:
-                datadict[lumilsnum].extend([perlsdetaildict])
-                perlsdetaildict={}
-                algocounter=0
-        del detailQuery
+        bxlumivalue_occ1=None
+        bxlumierror_occ1=None
+        bxlumiquality_occ1=None
+        bxlumivalue_occ2=None
+        bxlumierror_occ2=None
+        bxlumiquality_occ2=None
+        bxlumivalue_et=None
+        bxlumierror_et=None
+        bxlumiquality_et=None
+        for algoname in ['OCC1,OCC2,ET']:
+            detailQuery=lumischema.newQuery()
+            detailQuery.addToTableList( nameDealer.lumidetailTableName(),'d' )
+            detailQuery.addToTableList( nameDealer.lumisummaryTableName(),'s' )
+            detailQuery.addToOutputList('s.LUMILSNUM','lumilsnum' )
+            detailQuery.addToOutputList('d.BXLUMIVALUE','bxlumivalue' )
+            detailQuery.addToOutputList('d.BXLUMIERROR','bxlumierror' )
+            detailQuery.addToOutputList('d.BXLUMIQUALITY','bxlumiquality' )
+            detailCondition=coral.AttributeList()
+            detailCondition.extend('runnumber','unsigned int')
+            detailCondition.extend('algoname','string')
+            detailCondition['runnumber'].setData(int(runnumber))
+            detailCondition['algoname'].setData(algoname)
+            detailResult=coral.AttributeList()
+            detailResult.extend('lumilsnum','unsigned int')
+            detailResult.extend('bxlumivalue','blob')
+            detailResult.extend('bxlumierror','blob')
+            detailResult.extend('bxlumiquality','blob')
+            detailQuery.defineOutput(detailResult)
+            detailQuery.addToOrderList('lumilsnum')
+            detailQuery.setCondition('s.RUNNUM=:runnumber and s.LUMISUMMARY_ID=d.LUMISUMMARY_ID and d.ALGONAME=:algoname',detailCondition)
+            detailcursor=detailQuery.execute()
+            while detailcursor.next():
+                lumilsnum=detailcursor.currentRow()['lumilsnum'].data()
+                bxlumivalue=detailcursor.currentRow()['bxlumivalue'].data()
+                bxlumierror=detailcursor.currentRow()['bxlumierror'].data()
+                bxlumiquality=detailcursor.currentRow()['bxlumiquality'].data()
+                datadict[lumilsnum].extend([bxlumivalue,bxlumierror,bxlumiquality])
+            del detailQuery
         session.transaction().commit()
         return datadict
     except :

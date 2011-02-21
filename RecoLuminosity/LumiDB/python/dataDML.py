@@ -46,7 +46,6 @@ def runsummary(schema,runnum,sessionflavor=''):
         qResult.extend('stoptime','string')
         qHandle.defineOutput(qResult)
         cursor=qHandle.execute()
-        print 2
         while cursor.next():
             result.append(cursor.currentRow()['l1key'].data())
             result.append(cursor.currentRow()['amodetag'].data())
@@ -899,7 +898,7 @@ def insertHltLSData(schema,runnumber,data_id,hltlsdata):
 def insertLumiLSSummary(schema,runnumber,data_id,lumilsdata):
     '''
     input:
-          lumilsdata {lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexblob,beam1intensity,beam2intensity,bxlumivalue_occ1,bxlumivalue_occ2,bxlumivalue_et,bxlumierror_occ1,bxlumierror_occ2,bxlumierror_et,bxlumiquality_occ1,bxlumiquality_occ2,bxlumiquality_et]}
+          lumilsdata {lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexblob,beam1intensity,beam2intensity,bxlumivalue_occ1,bxlumierror_occ1,bxlumiquality_occ1,bxlumivalue_occ2,bxlumierror_occ2,bxlumiquality_occ2,bxlumivalue_et,bxlumierror_et,bxlumiquality_et]}
     if None, insert Null
     output:
           nrows
@@ -907,7 +906,7 @@ def insertLumiLSSummary(schema,runnumber,data_id,lumilsdata):
     try:
         nrow=0
         bulkvalues=[]
-        lslumiDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('LUMILSNUM','unsigned int'),('CMSLSNUM','unsigned int'),('INSTLUMI','float'),('INSTLUMIERROR','float'),('INSTLUMIQUALITY','short'),('BEAMSTATUS','string'),('BEAMENERGY','float'),('NUMORBIT','unsigned int'),('STARTORBIT','unsigned int'),('CMSBXINDEXBLOB','blob'),('BEAMINTENSITYBLOB_1','blob'),('BEAMINTENSITYBLOB_2','blob'),('BXLUMIVALUE_OCC1','blob'),('BXLUMIVALUE_OCC2','blob'),('BXLUMIVALUE_ET','blob'),('BXLUMIERROR_OCC1','blob'),('BXLUMIERROR_OCC2','blob'),('BXLUMIERROR_ET','blob'),('BXLUMIQUALITY_OCC1','blob'),('BXLUMIQUALITY_OCC2','blob'),('BXLUMIQUALITY_ET','blob')]
+        lslumiDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('LUMILSNUM','unsigned int'),('CMSLSNUM','unsigned int'),('INSTLUMI','float'),('INSTLUMIERROR','float'),('INSTLUMIQUALITY','short'),('BEAMSTATUS','string'),('BEAMENERGY','float'),('NUMORBIT','unsigned int'),('STARTORBIT','unsigned int'),('CMSBXINDEXBLOB','blob'),('BEAMINTENSITYBLOB_1','blob'),('BEAMINTENSITYBLOB_2','blob'),('BXLUMIVALUE_OCC1','blob'),('BXLUMIERROR_OCC1','blob'),('BXLUMIQUALITY_OCC1','blob'),('BXLUMIVALUE_OCC2','blob'),('BXLUMIERROR_OCC2','blob'),('BXLUMIQUALITY_OCC2','blob'),('BXLUMIVALUE_ET','blob'),('BXLUMIERROR_ET','blob'),('BXLUMIQUALITY_ET','blob')]
         for lumilsnum,perlslumi in lumilsdata.items():
             cmslsnum=perlslumi[0]
             instlumi=perlslumi[1]
@@ -921,15 +920,15 @@ def insertLumiLSSummary(schema,runnumber,data_id,lumilsdata):
             beam1intensity=perlslumi[9]
             beam2intensity=perlslumi[10]
             bxlumivalue_occ1=perlslumi[11]
-            bxlumivalue_occ2=perlslumi[12]
-            bxlumivalue_et=perlslumi[13]
-            bxlumierror_occ1=perlslumi[14]
+            bxlumierror_occ1=perlslumi[12]
+            bxlumiquality_occ1=perlslumi[13]
+            bxlumivalue_occ2=perlslumi[14]
             bxlumierror_occ2=perlslumi[15]
-            bxlumierror_et=perlslumi[16]
-            bxlumiquality_occ1=perlslumi[17]
-            bxlumiquality_occ2=perlslumi[18]
+            bxlumiquality_occ2=perlslumi[16]
+            bxlumivalue_et=perlslumi[17]
+            bxlumierror_et=perlslumi[18]
             bxlumiquality_et=perlslumi[19]
-            bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('LUMILSNUM',lumilsnum),('CMSLSNUM',cmslsnum),('INSTLUMI',instlumi),('INSTLUMIERROR',instlumierror),('INSTLUMIQUALITY',instlumiquality),('BEAMSTATUS',beamstatus),('BEAMENERGY',beamenergy),('NUMORBIT',numorbit),('STARTORBIT',startorbit),('CMSBXINDEXBLOB',cmsbxindexindexblob),('BEAMINTENSITYBLOB_1',beam1intensity),('BEAMINTENSITYBLOB_2',beam2intensity),('BXLUMIVALUE_OCC1',bxlumivalue_occ1),('BXLUMIVALUE_OCC2',bxlumivalue_occ2),('BXLUMIVALUE_ET',bxlumivalue_et),('BXLUMIERROR_OCC1',bxlumierror_occ1),('BXLUMIERROR_OCC2',bxlumierror_occ2),('BXLUMIERROR_ET',bxlumierror_et),('BXLUMIQUALITY_OCC1',bxlumiquality_occ1),('BXLUMIQUALITY_OCC2',bxlumiquality_occ2),('BXLUMIQUALITY_ET',bxlumiquality_et)])
+            bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('LUMILSNUM',lumilsnum),('CMSLSNUM',cmslsnum),('INSTLUMI',instlumi),('INSTLUMIERROR',instlumierror),('INSTLUMIQUALITY',instlumiquality),('BEAMSTATUS',beamstatus),('BEAMENERGY',beamenergy),('NUMORBIT',numorbit),('STARTORBIT',startorbit),('CMSBXINDEXBLOB',cmsbxindexindexblob),('BEAMINTENSITYBLOB_1',beam1intensity),('BEAMINTENSITYBLOB_2',beam2intensity),('BXLUMIVALUE_OCC1',bxlumivalue_occ1),('BXLUMIERROR_OCC1',bxlumierror_occ1),('BXLUMIQUALITY_OCC1',bxlumiquality_occ1),('BXLUMIVALUE_OCC2',bxlumivalue_occ2),('BXLUMIERROR_OCC2',bxlumierror_occ2),('BXLUMIQUALITY_OCC2',bxlumiquality_occ2),('BXLUMIVALUE_ET',bxlumivalue_et),('BXLUMIERROR_ET',bxlumierror_et),('BXLUMIQUALITY_ET',bxlumiquality_et)])
         db=dbUtil.dbUtil(schema)
         db.bulkInsert(nameDealer.lumisummaryv2TableName(),lslumiDefDict,bulkvalues)
         return len(bulkvalues)
