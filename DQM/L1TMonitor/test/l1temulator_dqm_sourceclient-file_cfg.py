@@ -75,7 +75,7 @@ else :
     process.load("DQM.L1TMonitor.environment_file_cfi")
 
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-    process.GlobalTag.globaltag = 'GR_R_39X_V1::All'
+    process.GlobalTag.globaltag = 'GR_R_311_V1::All'
     es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
 
 
@@ -150,7 +150,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 # process.l1ExpertDataVsEmulator.remove(process.l1GtHwValidation)
 #
 
-process.l1ExpertDataVsEmulator.remove(process.l1TdeCSCTF)
+#process.l1ExpertDataVsEmulator.remove(process.l1TdeCSCTF)
 
 #
 # remove a module / sequence from l1EmulatorMonitorClient
