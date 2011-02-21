@@ -3,7 +3,7 @@ from RecoLuminosity.LumiDB import CommonUtil
 def lumiSummary(schema,nlumils):
     '''
     input:
-    output: [datasource,{lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexblob,beamintensityblob_1,beamintensitublob_2,bxlumivalue_occ1,bxlumivalue_occ2,bxlumivalue_et,bxlumierror_occ1,bxlumierror_occ2,bxlumierror_et,bxlumiquality_occ1,bxlumiquality_occ2,bxlumiquality_et]}]
+    output: [datasource,{lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexblob,beamintensityblob_1,beamintensitublob_2,bxlumivalue_occ1,bxlumierror_occ1,bxlumiquality_occ1,bxlumivalue_occ2,bxlumierror_occ2,bxlumiquality_occ2,bxlumivalue_et,bxlumierror_et,bxlumiquality_et]}]
     '''
     o=['file:fake.root']
     perlsdata={}
@@ -45,7 +45,7 @@ def lumiSummary(schema,nlumils):
         bxlumiqualityBlob=CommonUtil.packArraytoBlob(bxlumiquality)
         if not perlsdata.has_key(lumilsnum):
             perlsdata[lumilsnum]=[]
-        perlsdata[lumilsnum].extend([cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexBlob,beam1intensityBlob,beam2intensityBlob,bxlumivalueBlob,bxlumivalueBlob,bxlumivalueBlob,bxlumierrorBlob,bxlumierrorBlob,bxlumierrorBlob,bxlumiqualityBlob,bxlumiqualityBlob,bxlumiqualityBlob])
+        perlsdata[lumilsnum].extend([cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexBlob,beam1intensityBlob,beam2intensityBlob,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob])
     o.append(perlsdata)
     return o
 #def lumiDetail(schema,nlumils):
