@@ -19,6 +19,7 @@ class DTTTrigProd:
     def initProcess(self):
         self.process = loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = self.config.globaltag
+        self.process.dtTTrigCalibration.rootFileName = self.outputfile
         self.process.dtTTrigCalibration.digiLabel = self.config.digilabel
         if hasattr(self.config,'runOnCosmics') and self.config.runOnCosmics:
             self.process.load('RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff')

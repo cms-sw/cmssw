@@ -5,6 +5,8 @@ from CalibMuon.DTCalibration.Workflow.DTTTrigTimeBoxesWriter import DTTTrigTimeB
 from CalibMuon.DTCalibration.Workflow.DTTTrigValid import DTTTrigValid
 from CalibMuon.DTCalibration.Workflow.DTTTrigResidualCorr import DTTTrigResidualCorr
 from CalibMuon.DTCalibration.Workflow.DTValidSummary import DTValidSummary
+from CalibMuon.DTCalibration.Workflow.DTVDriftSegmentCalibration import DTVDriftSegmentCalibration
+from CalibMuon.DTCalibration.Workflow.DTVDriftSegmentWriter import DTVDriftSegmentWriter
 from CalibMuon.DTCalibration.Workflow.DTDqm import DTDqm
 from CalibMuon.DTCalibration.Workflow.CrabWatch import CrabWatch
 from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,listFilesLocal,haddLocal,parseInput
@@ -40,7 +42,7 @@ def runTtrigProd(run,runselection,trial,config,runStep=True):
     print "Processing tTrig production"
     config.runselection = runselection
     datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/TimeBoxes/' + 'v' + str(trial)
+    config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/TTrigCalibration/' + 'TimeBoxes' + '/' + 'v' + str(trial)
    
     task_dir = config.base_dir + '/TimeBoxes'
     dtTtrigProd = DTTTrigProd(run,task_dir,config) 
@@ -86,7 +88,7 @@ def runTtrigValid(run,runselection,trial,input_db,label,result_file,config,runSt
     print "Processing tTrig validation"
     config.runselection = runselection
     datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/' + label + '/' + 'v' + str(trial)
+    config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/TTrigValidation/' + label + '/' + 'v' + str(trial)
     
     task_dir = config.base_dir + '/' + label
     dtTtrigValid = DTTTrigValid(run=run,
@@ -135,45 +137,6 @@ def runTtrigResidualCorr(run,input_db,root_file,config,runStep=True):
         print "Finished processing:"
         for pset in dtTtrigResidualCorr.configs: print "--->",pset
 
-"""
-def runTtrigValidResidCorr(run,runselection,trial,input_db,config,runStep=True):
-
-    print "Processing tTrig final validation"
-    config.runselection = runselection
-    datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/ResidualsResidCorr/' + 'v' + str(trial)
-
-    task_dir = config.base_dir + '/ResidualsResidCorr'
-    dtTtrigValid_ResidCorr = DTTTrigValid(run=run,
-                                          dir=task_dir,
-                                          input_db=input_db,
-                                          config=config)
-    dtTtrigValid_ResidCorr.writeCfg()
-
-    if runStep:
-        project_valid_ResidCorr = dtTtrigValid_ResidCorr.run()
-
-        print "Sent validation jobs with project",project_valid_ResidCorr
-        print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
-
-        crabValidResidCorr = CrabWatch(project_valid_ResidCorr)
-        crabValidResidCorr.setThreshold(config.jobsFinishedThreshold)
-        crabValidResidCorr.start()
-        crabValidResidCorr.join()
-
-        result_file = config.result_dir + '/DTResidualValidation_ResidCorr_%s.root'%run
-        if config.stageOutLocal:
-            output_dir = project_valid_ResidCorr + "/res"
-            haddLocal(output_dir,result_file,'residuals')
-        elif config.stageOutCAF: 
-            castor_dir = config.castorpath + "/" + config.userdircaf
-            haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/','?svcClass=cmscafuser')
-
-        return project_valid_ResidCorr
-
-    return None
-"""
-
 def runTtrigValidSummary(run,input_file,output_file,config,runStep=True):
 
     print "Processing Validation Summary"
@@ -184,6 +147,57 @@ def runTtrigValidSummary(run,input_file,output_file,config,runStep=True):
         dtTtrigValidSummary.run()
  
         print "...Validation Summary finished"
+
+def runVDriftSegmentCalib(run,runselection,trial,label,result_file,config,runStep=True):
+
+    print "Processing vDrift calibration"
+    config.runselection = runselection
+    datasetstr = getDatasetStr(config.datasetpath)
+    config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/VDriftCalibration/' + label + '/' + 'v' + str(trial)
+
+    task_dir = config.base_dir + '/' + label
+    dtVDriftSegment = DTVDriftSegmentCalibration(run=run,
+                                                 dir=task_dir,
+                                                 config=config)
+    dtVDriftSegment.writeCfg()
+
+    if runStep:
+        project_segment = dtVDriftSegment.run()
+
+        print "Sent validation jobs with project",project_segment
+        print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
+
+        crabVDriftSegment = CrabWatch(project_segment)
+        crabVDriftSegment.setThreshold(config.jobsFinishedThreshold)
+        crabVDriftSegment.start()
+        crabVDriftSegment.join()
+
+        if config.stageOutLocal:
+            output_dir = project_segment + "/res"
+            haddLocal(output_dir,result_file,'DTVDriftHistos')
+        elif config.stageOutCAF:
+            castor_dir = config.castorpath + "/" + config.userdircaf
+            haddInCastor(castor_dir,result_file,'DTVDriftHistos','rfio://castorcms/','?svcClass=cmscafuser')
+
+        return project_segment
+
+    return None
+
+def runVDriftSegmentWriter(run,root_file,config,runStep=True):
+
+    print "Processing vDrift writer"
+    dtVDriftSegmentWriter = DTVDriftSegmentWriter(run=run,
+                                                  dir=config.run_dir,
+                                                  input_file=root_file,
+                                                  output_dir=config.result_dir,
+                                                  config=config)
+    dtVDriftSegmentWriter.writeCfg()
+
+    if runStep:
+        dtVDriftSegmentWriter.run()
+
+        print "Finished processing:"
+        for pset in dtVDriftSegmentWriter.configs: print "--->",pset
 
 def runDQMMerge(run,output_dir,config,runStep=True):
 
@@ -209,11 +223,14 @@ def runDQMMerge(run,output_dir,config,runStep=True):
         dqm_files = [] 
         dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
         dtDqmFinal.writeCfg()
- 
+
+############################################################ 
+# tTrig workflow
+############################################################ 
 def runTtrigWorkflow(mode,config,execute=True):
     ttrig_input_db = None
     if hasattr(config,'inputTTrigDB') and config.inputTTrigDB: ttrig_input_db = os.path.abspath(config.inputTTrigDB)
-
+    result_dir = config.result_dir
     if mode == 'timeboxes':
         timeBoxes = os.path.abspath(result_dir + '/' + 'DTTimeBoxes_' + run + '.root')
         ttrig_timeboxes_db = os.path.abspath(result_dir + '/' + 'ttrig_timeboxes_' + run + '.db')
@@ -343,12 +360,56 @@ def runTtrigWorkflow(mode,config,execute=True):
         runDQMMerge(run,dqm_output_dir,config)
 
     return 0
-        
+
+############################################################ 
+# vDrift workflow
+############################################################
+def runVDriftWorkflow(mode,config,execute=True):
+    result_dir = config.result_dir
+    if mode == 'segment':
+        vDriftHistos = os.path.abspath(result_dir + '/' + 'DTVDriftHistos_' + run + '.root')
+        vDrift_segment_db = os.path.abspath(result_dir + '/' + 'vDrift_segment_' + run + '.db')
+
+        if not execute:
+            print "Writing configuration files.."
+            runVDriftSegmentCalib(run,runselection,trial,'VDriftHistos',vDriftHistos,config,False)
+            runVDriftSegmentWriter(run,vDriftHistos,config,False)
+     
+            sys.exit(0)
+
+        # Produce vDrift histos
+        if not os.path.exists(vDriftHistos):
+            runVDriftSegmentCalib(run,runselection,trial,'VDriftHistos',vDriftHistos,config)
+        if not os.path.exists(vDriftHistos): raise RuntimeError,'Could not produce %s' % vDriftHistos
+
+        # Write vDrift DB
+        if not os.path.exists(vDrift_segment_db): runVDriftSegmentWriter(run,vDriftHistos,config)
+        if not os.path.exists(vDrift_segment_db): raise RuntimeError,'Could not produce %s' % vDrift_segment_db
+
+    elif mode == 'meantimer': pass
+  
+    return 0        
+
+############################################################ 
+# noise workflow
+############################################################
+def runNoiseWorkflow(mode,config,execute=True):
+
+    return 0
+
+############################################################ 
+# t0 workflow
+############################################################
+def runT0Workflow(mode,config,execute=True):
+
+    return 0
+
 if __name__ == '__main__':
 
     parser = optparse.OptionParser(usage="usage: %prog arg1 arg2 [options]")
     parser.add_option("-r","--run", dest="run", help="set reference run number (typically first or last run in list)")
     parser.add_option("--runselection", dest="runselection", help="run list or range")
+    parser.add_option("--label", dest="label", help="label used in the naming of output directories")
     parser.add_option("--trial", dest="trial", help="trial number used in the naming of output directories")
     parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
     parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (without the '::All' string)")
@@ -370,6 +431,7 @@ if __name__ == '__main__':
     group_additional.add_option("--email", dest="email", help="user email")
     group_additional.add_option("--castorpath", dest="castorpath", default=('/castor/cern.ch/cms/store/caf/user/%s' % os.environ['USER']), help="path to user area at CAF (default /castor/cern.ch/cms/store/caf/user/username)")
     group_additional.add_option("--useCRABServer", action="store_true", dest="useserver", default=False, help="will use CRAB server to submit jobs (default = False)")
+    group_additional.add_option("--queueAtCAF", dest="queueAtCAF", default='cmscaf1nh', help="")
     group_additional.add_option("--jobsFinishedThreshold", dest="jobsFinishedThreshold", type="float", default=100, help="percentage above or equal to which CRAB tasks will be considered completed")
 
     group_additional.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
@@ -388,11 +450,18 @@ if __name__ == '__main__':
     input.workflowType = 'ttrig'
     if len(args) > 0: 
         if args[0] not in allowedTypes: parser.error('option "%s" not allowed' % args[0])
+        input.workflowType = args[0]
  
-    allowedModes = ('timeboxes','residuals','validation')
-    input.workflowMode = 'residuals'
+    allowedTTrigModes = ('timeboxes','residuals','validation')
+    allowedVDriftModes = ('segment','meantimer')
+    input.workflowMode = None
+    if input.workflowType == 'ttrig': input.workflowMode = 'residuals'
+    elif input.workflowType == 'vdrift': input.workflowMode = 'segment'
     if len(args) > 1:
-        if args[1] not in allowedModes: parser.error('option "%s" not allowed' % args[1])
+        if input.workflowType == 'ttrig' and args[1] not in allowedTTrigModes:
+            parser.error('option "%s" not allowed' % args[1])
+        if input.workflowType == 'vdrift' and args[1] not in allowedVDriftModes:
+            parser.error('option "%s" not allowed' % args[1])
         input.workflowMode = args[1]  
     
     requiredFields = ('run','datasetpath','globaltag')
@@ -407,7 +476,7 @@ if __name__ == '__main__':
 
     trial = None
     if hasattr(input,'trial') and input.trial: trial = input.trial
-    else: trial = 1 
+    else: trial = 1
 
     if hasattr(input,'lumimask') and input.lumimask:
         if not os.path.exists(input.lumimask): parser.error('File "%s" does not exist' % input.lumimask)
@@ -442,6 +511,7 @@ if __name__ == '__main__':
         config.stageOutLocal = True
 
     config.useserver = input.useserver
+    config.queueAtCAF = input.queueAtCAF
     config.datasetpath = input.datasetpath
     config.runselection = runselection
     #config.totalnumberevents = 1000000
@@ -471,7 +541,14 @@ if __name__ == '__main__':
     #config.templatepath =  input.templatepath
     config.jobsFinishedThreshold = input.jobsFinishedThreshold
 
-    base_dir = 'Run%s/Ttrig' % run
+    base_label = ''
+    if input.workflowType == 'ttrig': base_label = 'Ttrig'
+    elif input.workflowType == 'vdrift': base_label = 'VDrift'
+    elif input.workflowType == 'noise': base_label = 'Noise'
+    elif input.workflowType == 't0': base_label = 'T0'
+
+    #base_dir = 'Run%s/Ttrig' % run
+    base_dir = 'Run%s/%s' % (run,base_label)
     if not os.path.exists(base_dir): os.makedirs(base_dir)
     config.base_dir = base_dir
 
@@ -516,9 +593,9 @@ if __name__ == '__main__':
     if input.no_exec: execute = False
 
     if input.workflowType == 'ttrig': runTtrigWorkflow(input.workflowMode,config,execute)
-    elif input.workflowType == 'vdrift': pass
-    elif input.workflowType == 'noise': pass
-    elif input.workflowType == 't0': pass
+    elif input.workflowType == 'vdrift': runVDriftWorkflow(input.workflowMode,config,execute)
+    elif input.workflowType == 'noise': runNoiseWorkflow('',config,execute)
+    elif input.workflowType == 't0': runT0Workflow('',config,execute)
 
     #sys.stdout = stdout_original
  

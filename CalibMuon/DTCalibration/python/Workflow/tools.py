@@ -210,6 +210,6 @@ def loadCrabDefault(crabCfg,config):
         crabCfg.remove_section('CAF')
     else:
         if not crabCfg.has_section('CAF'): crabCfg.add_section('CAF')
-        crabCfg.set('CAF','queue','cmscaf1nh') 
+        crabCfg.set('CAF','queue',config.queueAtCAF) 
     
     return crabCfg
