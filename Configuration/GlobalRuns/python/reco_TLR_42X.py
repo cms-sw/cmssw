@@ -65,10 +65,6 @@ def customiseExpress(process):
 ##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
-
-    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
-    
     return process
 
 ##############################################################################
