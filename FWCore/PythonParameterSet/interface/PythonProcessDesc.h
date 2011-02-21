@@ -9,6 +9,11 @@
 #include <string>
 #include <vector>
 
+namespace edm {
+  class ParameterSet;
+  class ProcessDesc;
+}
+
 class PythonProcessDesc {
 public:
   PythonProcessDesc();
@@ -29,6 +34,10 @@ public:
 
   // makes a new (copy) of the ParameterSet
   boost::shared_ptr<edm::ParameterSet> parameterSet();
+
+  // makes a new (copy) of a ProcessDesc
+  // For backward compatibility only.  Remove when no longer needed.
+  boost::shared_ptr<edm::ProcessDesc> processDesc();
 
 private:
   void prepareToRead();

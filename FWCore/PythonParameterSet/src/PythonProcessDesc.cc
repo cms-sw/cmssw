@@ -1,4 +1,5 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/PythonParameterSet/src/initializeModule.h"
 #include "FWCore/PythonParameterSet/src/PythonWrapper.h"
@@ -91,4 +92,10 @@ std::string PythonProcessDesc::dump() const {
   std::ostringstream os;
   os << theProcessPSet.dump();
   return os.str();
+}
+
+// For backward compatibility only.  Remove when no longer used.
+boost::shared_ptr<edm::ProcessDesc> PythonProcessDesc::processDesc() {
+  boost::shared_ptr<edm::ProcessDesc> result(new edm::ProcessDesc(parameterSet()));
+  return result;
 }
