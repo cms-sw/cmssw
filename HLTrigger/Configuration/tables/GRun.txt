@@ -197,9 +197,11 @@ HLT_TrackerCalibration_v1
 HLT_Random_v1
 HLT_L1MuOpen_AntiBPTX_v2
 HLT_L1TrackerCosmics_v2
-HLT_RegionalCosmicTracking_v1
+HLT_L2MuOpen_NoVertex_v1
 HLT_L3MuonsCosmicTracking_v1
+HLT_RegionalCosmicTracking_v1
 HLT_LogMonitor_v1
+HLT_DTErrors_v1
 DQM_FEDIntegrity_v2
 HLTriggerFirstPath
 HLTriggerFinalPath
@@ -210,9 +212,10 @@ ALCAPHISYMOutput
 CalibrationOutput
 DQMOutput
 EcalCalibrationOutput
+ExpressOutput
 HLTDQMOutput
-# HLTDQMResultsOutput
+HLTDQMResultsOutput
 HLTMONOutput
 NanoDSTOutput
+OnlineErrorsOutput
 RPCMONOutput
-# ExpressOutput
