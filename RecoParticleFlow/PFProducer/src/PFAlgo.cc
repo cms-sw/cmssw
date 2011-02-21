@@ -1,7 +1,8 @@
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"  //PFMuons
 #include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"  
-#include "RecoParticleFlow/PFProducer/interface/PFConversionAlgo.h"  
+#include "RecoParticleFlow/PFProducer/interface/PFConversionAlgo.h"
+#include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"    
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
@@ -60,12 +61,14 @@ PFAlgo::PFAlgo()
     algo_(1),
     debug_(false),
     pfele_(0),
+    pfpho_(0),
     useVertices_(false)
 {}
 
 PFAlgo::~PFAlgo() {
   if (usePFElectrons_) delete pfele_;
   if (usePFConversions_) delete pfConversion_;
+  if (usePFPhotons_)     delete pfpho_;
 }
 
 
@@ -147,6 +150,15 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
 			     sumPtTrackIsoForEgammaSC_endcap_,
 			     nTrackIsoForEgammaSC_,
 			     coneTrackIsoForEgammaSC_);
+}
+
+void 
+PFAlgo::setPFPhotonParameters(bool usePFPhotons) {
+
+  usePFPhotons_ = usePFPhotons;
+  pfpho_ = new PFPhotonAlgo();
+
+  return;
 }
 
 void 
@@ -242,6 +254,12 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
     pfElectronCandidates_->clear();
   else
     pfElectronCandidates_.reset( new reco::PFCandidateCollection);
+
+  // Clearing pfPhotonCandidates
+  if( pfPhotonCandidates_.get() )
+    pfPhotonCandidates_->clear();
+  else
+    pfPhotonCandidates_.reset( new reco::PFCandidateCollection);
 
   if(pfCleanedCandidates_.get() ) 
     pfCleanedCandidates_->clear();
@@ -383,6 +401,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     if (pfele_->isElectronValidCandidate(blockref,active)){
       // if there is at least a valid candidate is get the vector of pfcandidates
       const std::vector<reco::PFCandidate> & PFElectCandidates_(pfele_->getElectronCandidates());
+      
+      // (***) We're filling the ElectronCandidates into the PFCandiate collection
+      // ..... Once we let PFPhotonAlgo over-write electron-decision, we need to move this to
+      // ..... after the PhotonAlgo has run (Fabian)
       for ( std::vector<reco::PFCandidate>::const_iterator ec = PFElectCandidates_.begin();
 	    ec != PFElectCandidates_.end(); ++ec ) {
 	  pfCandidates_->push_back(*ec);
@@ -418,8 +440,30 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     }
   }
 
-
-
+  if( /* --- */ usePFPhotons_ /* --- */ ) {    
+    
+    if(debug_)
+      cout<<endl<<"--------------- entering PFPhotonAlgo ----------------"<<endl;
+    
+    if ( pfpho_->isPhotonValidCandidate(blockref,               // passing the reference to the PFBlock
+					active,                 // std::vector<bool> containing information about acitivity
+					pfPhotonCandidates_,    // pointer to candidate vector, to be filled by the routine
+					pfElectronCandidates_   // pointer to some auziliary UNTOUCHED FOR NOW
+					) ) {
+      if(debug_)
+	std::cout<< " In this PFBlock we found "<<pfPhotonCandidates_->size()<<" Photon Candidates."<<std::endl;
+      
+      // CAUTION: In case we want to allow the PhotonAlgo to 'over-write' what the ElectronAlgo did above
+      // ........ we should NOT fill the PFCandidate-vector with the electrons above (***)
+      
+      // Here we need to add all the photon cands to the pfCandidate list
+      PFCandidateCollection::const_iterator cand = pfPhotonCandidates_->begin();      
+      for( ; cand != pfPhotonCandidates_->end(); ++cand)
+	pfCandidates_->push_back(*cand);      
+      
+    } // end of 'if' in case photons are found    
+  } // end of Photon algo
+  
   if(debug_) 
     cout<<endl<<"--------------- loop 1 ------------------"<<endl;
 
@@ -2367,7 +2411,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       if( !active[iEcal] ) continue;
 
       // Check the distance (one HCALPlusECAL tower, roughly)
-      // if ( dist > 0.15 ) continue;
+      if ( dist > 0.15 ) continue;
 
       //COLINFEB16 
       // what could be done is to
@@ -2894,12 +2938,11 @@ PFAlgo::neutralHadronEnergyResolution(double clusterEnergyHCAL, double eta) cons
     resol =   fabs(eta) < 1.48 ? 
       //min(0.25,sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)):
       //min(0.30,sqrt (1.35*1.35/clusterEnergyHCAL + 0.018*0.018));
-      sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)
-      //sqrt (0.9*0.9/clusterEnergyHCAL + 0.065*0.065)
+      // sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)
+      sqrt (0.9*0.9/clusterEnergyHCAL + 0.065*0.065)
       :
       // sqrt (1.35*1.35/clusterEnergyHCAL + 0.018*0.018);
-      sqrt (1.20*1.20/clusterEnergyHCAL + 0.028*0.028);
-      //sqrt (1.10*1.10/clusterEnergyHCAL + 0.018*0.018);
+      sqrt (1.10*1.10/clusterEnergyHCAL + 0.018*0.018);
 
   return resol;
 }
@@ -2910,10 +2953,8 @@ PFAlgo::nSigmaHCAL(double clusterEnergyHCAL, double eta) const {
   if ( newCalib_ == 2 ) 
     nS =   fabs(eta) < 1.48 ? 
       nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/100.))     
-      //nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/1.))     
       :
-      //nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/200.));
-      nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/100.));     
+      nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/200.));
   else 
     nS = nSigmaHCAL_;
   

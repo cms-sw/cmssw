@@ -23,6 +23,7 @@ PFBlockAlgo::PFBlockAlgo() :
   DPtovPtCut_(std::vector<double>(4,static_cast<double>(999.))),
   NHitCut_(std::vector<unsigned int>(4,static_cast<unsigned>(0))), 
   useIterTracking_(true),
+  photonSelector_(0),
   debug_(false) {}
 
 
@@ -31,13 +32,23 @@ void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
 				 std::vector<unsigned int>& NHitCut,
 				 bool useConvBremPFRecTracks,
 				 bool useIterTracking,
-				 int nuclearInteractionsPurity) {
+				 int nuclearInteractionsPurity,
+				 bool useEGPhotons,
+				 std::vector<double>& photonSelectionCuts) {
   
   DPtovPtCut_    = DPtovPtCut;
   NHitCut_       = NHitCut;
   useIterTracking_ = useIterTracking;
   useConvBremPFRecTracks_ = useConvBremPFRecTracks;
   nuclearInteractionsPurity_ = nuclearInteractionsPurity;
+  useEGPhotons_ = useEGPhotons;
+  // Pt cut; Track iso (constant + slope), Ecal iso (constant + slope), HCAL iso (constant+slope), H/E
+  if(useEGPhotons_)
+    photonSelector_ = new PhotonSelectorAlgo(photonSelectionCuts[0],   
+					     photonSelectionCuts[1], photonSelectionCuts[2],   
+					     photonSelectionCuts[3], photonSelectionCuts[4],    
+					     photonSelectionCuts[5], photonSelectionCuts[6],    
+					     photonSelectionCuts[7]);
 }
 
 PFBlockAlgo::~PFBlockAlgo() {
@@ -47,7 +58,8 @@ PFBlockAlgo::~PFBlockAlgo() {
     cout<<"~PFBlockAlgo - number of remaining elements: "
 	<<elements_.size()<<endl;
 #endif
-  
+
+  if(photonSelector_) delete photonSelector_;
 }
 
 void 
@@ -381,8 +393,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       assert( !ecalref.isNull() );
       assert( !hcalref.isNull() );
       // PJ - 14-May-09 : A link by rechit is needed here !
-      dist = testECALAndHCAL( *ecalref, *hcalref );
-      // dist = -1.;
+      // dist = testECALAndHCAL( *ecalref, *hcalref );
+      dist = -1.;
       linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
@@ -623,6 +635,18 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       linktest = PFBlock::LINKTEST_RECHIT;
       break;
       
+    }
+  case PFBlockLink::SCandECAL:
+    {
+      PFClusterRef  clusterref = lowEl->clusterRef();
+
+      assert( !clusterref.isNull() );
+      
+      const reco::PFBlockElementSuperCluster * scEl = 
+	dynamic_cast<const reco::PFBlockElementSuperCluster*>(highEl);
+      assert (!scEl->superClusterRef().isNull());
+      dist = testSuperClusterPFCluster(scEl->superClusterRef(),
+				       clusterref);
       break;
     }
   default:
@@ -704,13 +728,13 @@ PFBlockAlgo::testECALAndHCAL(const PFCluster& ecal,
   
   //   cout<<"entering testECALAndHCAL"<<endl;
   
-  double dist = fabs(ecal.positionREP().Eta()) > 2.5 ?
-    LinkByRecHit::computeDist( ecal.positionREP().Eta(),
-			       ecal.positionREP().Phi(), 
-			       hcal.positionREP().Eta(), 
-			       hcal.positionREP().Phi() )
-    : 
-    -1.;
+  /*
+  double dist = 
+    computeDist( ecal.positionREP().Eta(),
+		 ecal.positionREP().Phi(), 
+		 hcal.positionREP().Eta(), 
+		 hcal.positionREP().Phi() );
+  */
 
 #ifdef PFLOW_DEBUG
   if(debug_) cout<<"testECALAndHCAL "<< dist <<" "<<endl;
@@ -721,8 +745,6 @@ PFBlockAlgo::testECALAndHCAL(const PFCluster& ecal,
 	<<" hcalphi " << hcal.positionREP().Phi()
   }
 #endif
-
-  if ( dist < 0.2 ) return dist; 
 
   // Need to implement a link by RecHit
   return -1.;
@@ -765,6 +787,27 @@ PFBlockAlgo::testLinkBySuperCluster(const PFClusterRef& ecal1,
 	  return dist;
 	}
     }
+  return dist;
+}
+
+
+double
+PFBlockAlgo::testSuperClusterPFCluster(const SuperClusterRef& ecal1, 
+				       const PFClusterRef& ecal2)  const {
+  
+  //  cout<<"entering testECALAndECAL "<< pfcRefSCMap_.size() << endl;
+  
+  double dist = -1;
+  
+  bool overlap=ClusterClusterMapping::overlap(*ecal1,*ecal2);
+  
+  if(overlap) 	{
+    dist=LinkByRecHit::computeDist( ecal1->position().eta(),
+				    ecal1->position().phi(), 
+				    ecal2->positionREP().Eta(), 
+				    ecal2->positionREP().Phi() );
+    return dist;
+  }
   return dist;
 }
 
@@ -889,13 +932,15 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
 			    const reco::PFClusterCollection&  hfems,
 			    const reco::PFClusterCollection&  hfhads,
 			    const reco::PFClusterCollection&  pss, 
+			    const reco::PhotonCollection&  egphh, 
 			    const Mask& trackMask, 
 			    const Mask& gsftrackMask,  
 			    const Mask& ecalMask,
 			    const Mask& hcalMask, 
 			    const Mask& hfemMask,
 			    const Mask& hfhadMask,		      
-			    const Mask& psMask ) const {
+			    const Mask& psMask,
+			    const Mask& phMask) const {
 
   if( !trackMask.empty() && 
       trackMask.size() != tracks.size() ) {
@@ -953,6 +998,14 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
     throw std::length_error( err.c_str() );
   }
   
+    if( !phMask.empty() && 
+      phMask.size() != egphh.size() ) {
+    string err = "PFBlockAlgo::setInput: ";
+    err += "The size of the photon mask is different ";
+    err += "from the size of the photon vector.";
+    throw std::length_error( err.c_str() );
+  }
+
 }
 
 
@@ -1133,4 +1186,9 @@ PFBlockAlgo::checkDisplacedVertexLinks( reco::PFBlock& block ) const {
  
 }
 
-  
+void PFBlockAlgo::fillFromPhoton(const reco::Photon & photon, reco::PFBlockElementSuperCluster * pfbe) {
+  pfbe->setTrackIso(photon.trkSumPtHollowConeDR04());
+  pfbe->setEcalIso(photon.ecalRecHitSumEtConeDR04());
+  pfbe->setHcalIso(photon.hcalTowerSumEtConeDR04());
+  pfbe->setHoE(photon.hadronicOverEm());
+}
