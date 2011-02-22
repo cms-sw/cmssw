@@ -5,6 +5,7 @@
  * \author Luca Lista, INFN
  *
  */
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "PhysicsTools/RecoUtils/interface/CandMassKinFitter.h"
 

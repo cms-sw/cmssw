@@ -3,6 +3,7 @@
  * \author Luca Lista, INFN
  *
  */
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/RecoAlgos/interface/MassKinFitterCandProducer.h"
 
 class CustomKinFitter : public CandMassKinFitter {
