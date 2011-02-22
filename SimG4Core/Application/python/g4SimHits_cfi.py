@@ -289,7 +289,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         Verbosity                      = cms.untracked.int32(0)
     ),
     CastorShowerLibrary =  cms.PSet(
-        FileName  = cms.FileInPath('SimG4CMS/Forward/data/castorShowerLibrary.root'),
+        FileName  = cms.FileInPath('SimG4CMS/Forward/data/castorShowerLibrary_QFBE.root'),
         BranchEvt = cms.untracked.string('hadShowerLibInfo.'),
         BranchEM  = cms.untracked.string('emParticles.'),
         BranchHAD = cms.untracked.string('hadParticles.'),
