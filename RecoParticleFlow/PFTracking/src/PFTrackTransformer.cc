@@ -239,9 +239,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     // --------------------------   Fill GSF Track ------------------------------------- 
     
 
-    float pfmass= (pftrack.algoType()==reco::PFRecTrack::KF_ELCAND) ? 0.0005 : 0.139; 
+    //    float pfmass= (pftrack.algoType()==reco::PFRecTrack::KF_ELCAND) ? 0.0005 : 0.139; 
     float ptot =  sqrt((p.x()*p.x())+(p.y()*p.y())+(p.z()*p.z()));
-    float pfenergy=sqrt((pfmass*pfmass)+(ptot *ptot));
+    float pfenergy= ptot;
 
     if (iTraj == iTrajFirst) {
 
@@ -525,7 +525,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 				       const reco::GsfTrack& track,
 				       const MultiTrajectoryStateTransform& mtjstate) const {
 
-  float PT= track.pt();
+  //  float PT= track.pt();
   unsigned int iTrajPos = 0;
   unsigned int iid = 0; // not anymore saved
 
@@ -553,9 +553,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     InPos = GlobalPoint(0.,0.,0.);
   }
 
-  float pfmass= (pftrack.algoType()==reco::PFRecTrack::KF_ELCAND) ? 0.0005 : 0.139; 
+  //  float pfmass= (pftrack.algoType()==reco::PFRecTrack::KF_ELCAND) ? 0.0005 : 0.139; 
   float ptot =  sqrt((InMom.x()*InMom.x())+(InMom.y()*InMom.y())+(InMom.z()*InMom.z()));
-  float pfenergy=sqrt((pfmass*pfmass)+(ptot *ptot));
+  float pfenergy= ptot;
   
   math::XYZTLorentzVector momClosest 
     = math::XYZTLorentzVector(InMom.x(), InMom.y(), 
@@ -888,7 +888,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 
     
     float ptot_out =  sqrt((OutMom.x()*OutMom.x())+(OutMom.y()*OutMom.y())+(OutMom.z()*OutMom.z()));
-    float pfenergy_out =sqrt((pfmass*pfmass)+(ptot_out *ptot_out));
+    float pTtot_out = sqrt((OutMom.x()*OutMom.x())+(OutMom.y()*OutMom.y()));
+    float pfenergy_out = ptot_out;
     BaseParticlePropagator theOutParticle = 
       BaseParticlePropagator( RawParticle(XYZTLorentzVector(OutMom.x(),
 							    OutMom.y(),
@@ -942,7 +943,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					 meanShower,
 					 math::XYZTLorentzVector(theOutParticle.momentum())));}
     else {
-      if (PT>5.)
+      if (pTtot_out>5.)
 	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
       PFTrajectoryPoint dummyECAL;
       pftrack.addPoint(dummyECAL); 
@@ -959,7 +960,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					 math::XYZPoint(theOutParticle.vertex()),
 					 math::XYZTLorentzVector(theOutParticle.momentum())));
     else{
-      if (PT>5.)
+      if (pTtot_out>5.)
 	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
       PFTrajectoryPoint dummyHCALentrance;
       pftrack.addPoint(dummyHCALentrance); 
@@ -972,7 +973,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					 math::XYZPoint(theOutParticle.vertex()),
 					 math::XYZTLorentzVector(theOutParticle.momentum())));
     else{
-      if (PT>5.)
+      if (pTtot_out>5.)
 	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL EXIT HAS FAILED";
       PFTrajectoryPoint dummyHCALexit;
       pftrack.addPoint(dummyHCALexit); 
