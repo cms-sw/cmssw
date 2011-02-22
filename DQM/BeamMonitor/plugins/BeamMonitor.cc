@@ -637,6 +637,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
      //---------Fix for Runninv average-------------
       mapLSPVStoreSize[countLumi_]= theBeamFitter->getPVvectorSize();
+
       if(StartAverage_)
       {
       size_t SizeToRemovePV=0;
@@ -894,23 +895,19 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
 
    //---Fix for Cut Flow Table for Running average in a same way//the previous code  has problem for resetting!!!
-   mapLSCF[countLumi_] = theBeamFitter->getCutFlowNumbers();
-   if(StartAverage_){  map<int, int*>::iterator  itCFbegin = mapLSCF.begin();
-                       int* tmpbeginCF  = (itCFbegin->second);
-                       int icf=0;
-                       map<int, int* >::iterator cf=mapLSCF.begin();
-                       for(std::map<int, int* >::iterator cf = mapLSCF.begin(); cf!=mapLSCF.end(); ++cf, ++icf){
-                       if(icf > 0 ){ int* tmpCountPass = cf->second;
-                                     for(unsigned int i=0; i < 9; i++)tmpCountPass[i]=tmpCountPass[i] - tmpbeginCF[i];
-
-                                     cf->second = tmpCountPass;
-                                   }//only for >1 elemnts
-                        }//loop over mapLSCF sise
-                        int* correctionCF = itCFbegin->second;
-                        theBeamFitter->setCutFlow(correctionCF);
-
-                        mapLSCF.erase(itCFbegin);
-                 }
+   mapLSCF[countLumi_] = *theBeamFitter->getCutFlow();
+   if(StartAverage_ && mapLSCF.size()){
+     const TH1F& cutFlowToSubtract = mapLSCF.begin()->second;
+     // Subtract the last cut flow from all of the others.
+     std::map<int, TH1F>::iterator cf = mapLSCF.begin();
+     // Start on second entry
+     for(; cf != mapLSCF.end(); ++cf) {
+       cf->second.Add(&cutFlowToSubtract, -1);
+     }
+     theBeamFitter->subtractFromCutFlow(&cutFlowToSubtract);
+     // Remove the obsolete lumi section
+     mapLSCF.erase(mapLSCF.begin());
+   }
 
 
 

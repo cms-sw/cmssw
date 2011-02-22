@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2011/02/22 14:34:40 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/02/22 15:12:53 $
+ *  $Revision: 1.8 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *
@@ -156,7 +156,7 @@ class BeamMonitor : public edm::EDAnalyzer {
     std::map<int, std::size_t> mapLSBSTrkSize;
     std::map<int, size_t>mapLSPVStoreSize;
     //to correct the cutFlot Table
-    std::map<int, int*> mapLSCF;
+    std::map<int, TH1F> mapLSCF;
 
     // Summary:
     Float_t reportSummary_;
