@@ -12,21 +12,21 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcTMVA.cc,v 1.1 2009/05/11 16:54:21 saout Exp $
+// $Id: ProcTMVA.cc,v 1.2 2010/01/26 19:40:04 saout Exp $
 //
 
 #include <sstream>
 #include <string>
 #include <vector>
 #include <memory>
+#include <iostream>
 
 // ROOT version magic to support TMVA interface changes in newer ROOT
 #include <RVersion.h>
 
-#include <TMVA/DataSet.h>
 #include <TMVA/Types.h>
 #include <TMVA/MethodBase.h>
-#include <TMVA/Methods.h>
+#include "TMVA/Reader.h"
 
 #include "PhysicsTools/MVAComputer/interface/memstream.h"
 #include "PhysicsTools/MVAComputer/interface/zstream.h"
@@ -52,53 +52,27 @@ class ProcTMVA : public VarProcessor {
 	virtual void eval(ValueIterator iter, unsigned int n) const;
 
     private:
-	mutable TMVA::DataSet		data;
-	std::auto_ptr<TMVA::MethodBase>	method;
-	unsigned int			nVars;
+  std::auto_ptr<TMVA::Reader>     reader;
+  std::auto_ptr<TMVA::MethodBase> method;
+  std::string   methodName;
+  unsigned int  nVars;
 };
 
 static ProcTMVA::Registry registry("ProcTMVA");
-
-#define SWITCH_METHOD(name)					\
-	case (TMVA::Types::k##name):				\
-		return new TMVA::Method##name(*data, "");
-
-static TMVA::MethodBase *methodInst(TMVA::DataSet *data, TMVA::Types::EMVA type)
-{
-	switch(type) {
-		SWITCH_METHOD(Cuts)
-		SWITCH_METHOD(SeedDistance)
-		SWITCH_METHOD(Likelihood)
-		SWITCH_METHOD(PDERS)
-		SWITCH_METHOD(HMatrix)
-		SWITCH_METHOD(Fisher)
-		SWITCH_METHOD(CFMlpANN)
-		SWITCH_METHOD(TMlpANN)
-		SWITCH_METHOD(BDT)
-		SWITCH_METHOD(RuleFit)
-		SWITCH_METHOD(SVM)
-		SWITCH_METHOD(MLP)
-		SWITCH_METHOD(BayesClassifier)
-		SWITCH_METHOD(FDA)
-		SWITCH_METHOD(Committee)
-	    default:
-		return 0;
-	}
-}
-
-#undef SWITCH_METHOD
 
 ProcTMVA::ProcTMVA(const char *name,
                    const Calibration::ProcExternal *calib,
                    const MVAComputer *computer) :
 	VarProcessor(name, calib, computer)
 {
+
+  reader = std::auto_ptr<TMVA::Reader>(new TMVA::Reader( "!Color:!Silent" ));    
+
 	ext::imemstream is(
 		reinterpret_cast<const char*>(&calib->store.front()),
 	        calib->store.size());
 	ext::izstream izs(&is);
 
-	std::string methodName;
 	std::getline(izs, methodName);
 	std::string tmp;
 	std::getline(izs, tmp);
@@ -106,16 +80,22 @@ ProcTMVA::ProcTMVA(const char *name,
 	iss >> nVars;
 	for(unsigned int i = 0; i < nVars; i++) {
 		std::getline(izs, tmp);
-		data.AddVariable(tmp.c_str());
+		reader->DataInfo().AddVariable(tmp.c_str());
 	}
 
-	TMVA::Types::EMVA methodType =
-			TMVA::Types::Instance().GetMethodType(methodName);
+  std::string weights;
+  while (izs.good()) {
+    std::string tmp;
+      izs >> tmp;
+      weights += tmp + " ";
+  }
 
-	method = std::auto_ptr<TMVA::MethodBase>(
-					methodInst(&data, methodType));
+  TMVA::Types::EMVA methodType =
+			  TMVA::Types::Instance().GetMethodType(methodName);
 
-	method->ReadStateFromStream(izs);
+  method = std::auto_ptr<TMVA::MethodBase> (
+             dynamic_cast<TMVA::MethodBase*> (
+               reader->BookMVA( methodType, weights.c_str() ))); 
 }
 
 void ProcTMVA::configure(ConfIterator iter, unsigned int n)
@@ -132,11 +112,10 @@ void ProcTMVA::configure(ConfIterator iter, unsigned int n)
 void ProcTMVA::eval(ValueIterator iter, unsigned int n) const
 {
 	for(unsigned int i = 0; i < n; i++)
-		data.GetEvent().SetVal(i, *iter++);
+		reader->DataInfo().GetDataSet()->GetEvent()->SetVal(i, *iter++);
 
-	method->GetVarTransform().GetEventRaw().CopyVarValues(data.GetEvent());
-	method->GetVarTransform().ApplyTransformation(TMVA::Types::kSignal);
-	iter(method->GetMvaValue());
+  std::cout << "\tMVA Disc: " << method->GetMvaValue() << std::endl; //for testing only
+  iter( method->GetMvaValue() );
 }
 
 } // anonymous namespace
