@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/02/22 17:36:57 $
- * $Revision: 1.64 $
+ * $Date: 2011/02/22 17:52:44 $
+ * $Revision: 1.65 $
  */
 
 
@@ -875,9 +875,9 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       mapLSBSTrkSize.erase(tmpIt);
 
       std::pair<int,int> checkfitLS = theBeamFitter->getFitLSRange();
-      time_t * checkfitTime =theBeamFitter->getRefTime();
+      std::pair<time_t,time_t> checkfitTime =theBeamFitter->getRefTime();
       theBeamFitter->setFitLSRange(beginLumiOfBSFit_, checkfitLS.second);
-      theBeamFitter->setRefTime(refBStime[0],checkfitTime[1]);
+      theBeamFitter->setRefTime(refBStime[0], checkfitTime.second);
       }
 
       //Fill the track for this fit

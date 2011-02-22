@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamFitter.h,v 1.44 2011/02/22 17:37:46 friis Exp $
+ version $Id: BeamFitter.h,v 1.45 2011/02/22 17:52:25 friis Exp $
 
  ________________________________________________________________**/
 
@@ -49,16 +49,13 @@ class BeamFitter {
   void resetTotTrk() { ftotal_tracks=0; }
   void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
   void resetRefTime() { freftime[0] = freftime[1] = 0; }
-  void setRefTime(std::time_t t0,std::time_t t1) {
+  void setRefTime(time_t t0, time_t t1) {
     freftime[0] = t0;
     freftime[1] = t1;
   }
 
-time_t* getRefTime(){
-   time_t *tmptime=new time_t[2];
-   tmptime[0]=freftime[0];
-   tmptime[1]=freftime[1];
-   return tmptime;
+  std::pair<time_t,time_t> getRefTime(){
+    return std::make_pair(freftime[0], freftime[1]);
   }
 
   void resetPVFitter() { MyPVFitter->resetAll(); }
