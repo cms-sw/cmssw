@@ -3,11 +3,11 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/07/15 04:19:31 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/02/22 14:19:45 $
+ *  $Revision: 1.6 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
- *   
+ *
  */
 // C++
 #include <string>
@@ -33,25 +33,25 @@ class BeamMonitor : public edm::EDAnalyzer {
   ~BeamMonitor();
 
  protected:
-   
+
   // BeginJob
   void beginJob();
 
   // BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
-  
+
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-  
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			    const edm::EventSetup& context) ;
-  
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			  const edm::EventSetup& c);
   // EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c);
   // Endjob
   void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-  
+
  private:
 
   void FitAndFill(const edm::LuminosityBlock& lumiSeg,int&,int&,int&);
@@ -72,11 +72,10 @@ class BeamMonitor : public edm::EDAnalyzer {
   int intervalInSec_;
   bool debug_;
   bool onlineMode_;
-  
+
   DQMStore* dbe_;
   BeamFitter * theBeamFitter;
-  PVFitter  * thePVFitter;
-  
+
   int countEvt_;       //counter
   int countLumi_;      //counter
   int beginLumiOfBSFit_;
@@ -101,10 +100,10 @@ class BeamMonitor : public edm::EDAnalyzer {
   bool StartAverage_;
   int firstAverageFit_;
   int countGapLumi_;
-         
+
   bool processed_;
   // ----------member data ---------------------------
-  
+
   //   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot refBS;
   reco::BeamSpot preBS;
@@ -133,13 +132,13 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_PVyz;
   MonitorElement * pvResults;
   std::map<TString, MonitorElement*> hs;
-  
+
   //ssc:the histo for  DQM gui
   std::map<int, std::vector<float> > mapPVx,mapPVy,mapPVz;
   //keep track of beginLuminosity block and time
   std::map<int, int> mapBeginBSLS,mapBeginPVLS;
   std::map<int, std::time_t> mapBeginBSTime, mapBeginPVTime;
-  //these maps are needed to keep track of size of theBSvector and pvStore 
+  //these maps are needed to keep track of size of theBSvector and pvStore
   std::map<int, std::size_t> mapLSBSTrkSize;
   std::map<int, size_t>mapLSPVStoreSize;
   //to correct the cutFlot Table
