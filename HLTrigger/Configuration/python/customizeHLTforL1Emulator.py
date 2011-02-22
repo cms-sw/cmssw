@@ -1,30 +1,47 @@
-from FWCore.ParameterSet import Config, Mixins 
+import FWCore.ParameterSet.Config as cms
+
+def switchToL1Emulator(process):
+  """patch the process to run the RawToDigi and SimL1Emulator sequences instead of unpacking the hltGctDigis and hltGtDigis"""
+  HLTL1UnpackerSequence = cms.Sequence( process.RawToDigi + process.SimL1Emulator + process.hltL1GtObjectMap + process.hltL1extraParticles )
+
+  for iterable in process.sequences.itervalues():
+      iterable.replace( process.HLTL1UnpackerSequence, HLTL1UnpackerSequence)
+
+  for iterable in process.paths.itervalues():
+      iterable.replace( process.HLTL1UnpackerSequence, HLTL1UnpackerSequence)
+
+  for iterable in process.endpaths.itervalues():
+      iterable.replace( process.HLTL1UnpackerSequence, HLTL1UnpackerSequence)
+
+  process.HLTL1UnpackerSequence = HLTL1UnpackerSequence
+
+  return process
 
 def switchToCustomL1Digis(process, customGmt, customGct, customGt):
   """patch the process to use custom GMT, GCT and GT results"""
 
   # explicit replacements to use "simGtDigis", "simGmtDigis" and "simGctDigis" instead of "hltGtDigis" or "hltGctDigis"
   if 'hltL1GtObjectMap' in process.__dict__:
-    process.hltL1GtObjectMap.GmtInputTag = Config.InputTag( customGmt )
-    process.hltL1GtObjectMap.GctInputTag = Config.InputTag( customGct )
+    process.hltL1GtObjectMap.GmtInputTag = cms.InputTag( customGmt )
+    process.hltL1GtObjectMap.GctInputTag = cms.InputTag( customGct )
   if 'hltL1extraParticles' in process.__dict__:
-    process.hltL1extraParticles.muonSource          = Config.InputTag( customGmt )
-    process.hltL1extraParticles.isolatedEmSource    = Config.InputTag( customGct, 'isoEm' )
-    process.hltL1extraParticles.nonIsolatedEmSource = Config.InputTag( customGct, 'nonIsoEm' )
-    process.hltL1extraParticles.centralJetSource    = Config.InputTag( customGct, 'cenJets' )
-    process.hltL1extraParticles.forwardJetSource    = Config.InputTag( customGct, 'forJets' )
-    process.hltL1extraParticles.tauJetSource        = Config.InputTag( customGct, 'tauJets' )
-    process.hltL1extraParticles.etTotalSource       = Config.InputTag( customGct )
-    process.hltL1extraParticles.etHadSource         = Config.InputTag( customGct )
-    process.hltL1extraParticles.etMissSource        = Config.InputTag( customGct )
+    process.hltL1extraParticles.muonSource          = cms.InputTag( customGmt )
+    process.hltL1extraParticles.isolatedEmSource    = cms.InputTag( customGct, 'isoEm' )
+    process.hltL1extraParticles.nonIsolatedEmSource = cms.InputTag( customGct, 'nonIsoEm' )
+    process.hltL1extraParticles.centralJetSource    = cms.InputTag( customGct, 'cenJets' )
+    process.hltL1extraParticles.forwardJetSource    = cms.InputTag( customGct, 'forJets' )
+    process.hltL1extraParticles.tauJetSource        = cms.InputTag( customGct, 'tauJets' )
+    process.hltL1extraParticles.etTotalSource       = cms.InputTag( customGct )
+    process.hltL1extraParticles.etHadSource         = cms.InputTag( customGct )
+    process.hltL1extraParticles.etMissSource        = cms.InputTag( customGct )
   if 'hltL2MuonSeeds' in process.__dict__:
-    process.hltL2MuonSeeds.GMTReadoutCollection = Config.InputTag( customGmt )
+    process.hltL2MuonSeeds.GMTReadoutCollection = cms.InputTag( customGmt )
 
   # automatic replacements to use "simGtDigis" and "simGctDigis" instead of "hltGtDigis" or "hltGctDigis"
   for module in process.__dict__.itervalues():
-    if isinstance(module, Mixins._Parameterizable):
+    if isinstance(module, cms._Parameterizable):
       for parameter in module.__dict__.itervalues():
-        if isinstance(parameter, Config.InputTag):
+        if isinstance(parameter, cms.InputTag):
           if parameter.moduleLabel == 'hltGtDigis':
             parameter.moduleLabel = customGt
           elif parameter.moduleLabel == 'hltGctDigis':
