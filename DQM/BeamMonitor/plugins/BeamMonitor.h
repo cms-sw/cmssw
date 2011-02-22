@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2011/02/22 14:19:45 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/02/22 14:34:40 $
+ *  $Revision: 1.7 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *
@@ -28,139 +28,153 @@
 //
 
 class BeamMonitor : public edm::EDAnalyzer {
- public:
-  BeamMonitor( const edm::ParameterSet& );
-  ~BeamMonitor();
+  public:
 
- protected:
+    struct LumiFitInfo {
+      // Keep track of the positions of all PVs in this lumi
+      std::vector<math::XYZPoint> pvs_;
+      int beginLS_;
+      time_t beginTime_;
+      // N Tracks added in this LS
+      size_t nTracks_;
+      // Number of primary vertices added
+      size_t nPrimaryVertices_;
+      // The track cut flow table from the beam fitter
+      TH1F cutFlow_;
+    };
 
-  // BeginJob
-  void beginJob();
+    BeamMonitor( const edm::ParameterSet& );
+    ~BeamMonitor();
 
-  // BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  protected:
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+    // BeginJob
+    void beginJob();
 
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-			    const edm::EventSetup& context) ;
+    // BeginRun
+    void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-			  const edm::EventSetup& c);
-  // EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-  // Endjob
-  void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
+    void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
- private:
+    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+        const edm::EventSetup& context) ;
 
-  void FitAndFill(const edm::LuminosityBlock& lumiSeg,int&,int&,int&);
-  void RestartFitting();
-  void scrollTH1(TH1 *, std::time_t);
-  bool testScroll(std::time_t &, std::time_t &);
-  const char * formatFitTime( const std::time_t &);
-  edm::ParameterSet parameters_;
-  std::string monitorName_;
-  edm::InputTag bsSrc_; // beam spot
-  edm::InputTag tracksLabel_;
-  edm::InputTag pvSrc_; // primary vertex
+    void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+        const edm::EventSetup& c);
+    // EndRun
+    void endRun(const edm::Run& r, const edm::EventSetup& c);
+    // Endjob
+    void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
 
-  int fitNLumi_;
-  int fitPVNLumi_;
-  int resetFitNLumi_;
-  int resetPVNLumi_;
-  int intervalInSec_;
-  bool debug_;
-  bool onlineMode_;
+  private:
 
-  DQMStore* dbe_;
-  BeamFitter * theBeamFitter;
+    void FitAndFill(const edm::LuminosityBlock& lumiSeg,int&,int&,int&);
+    void RestartFitting();
+    void scrollTH1(TH1 *, std::time_t);
+    bool testScroll(std::time_t &, std::time_t &);
+    const char * formatFitTime( const std::time_t &);
+    edm::ParameterSet parameters_;
+    std::string monitorName_;
+    edm::InputTag bsSrc_; // beam spot
+    edm::InputTag tracksLabel_;
+    edm::InputTag pvSrc_; // primary vertex
 
-  int countEvt_;       //counter
-  int countLumi_;      //counter
-  int beginLumiOfBSFit_;
-  int endLumiOfBSFit_;
-  int beginLumiOfPVFit_;
-  int endLumiOfPVFit_;
-  int lastlumi_; // previous LS processed
-  int nextlumi_; // next LS of Fit
-  std::time_t refBStime[2];
-  std::time_t refPVtime[2];
-  unsigned int nthBSTrk_;
-  int nFitElements_;
-  int nFits_;
-  double deltaSigCut_;
-  unsigned int min_Ntrks_;
-  double maxZ_;
-  unsigned int minNrVertices_;
-  double minVtxNdf_;
-  double minVtxWgt_;
+    int fitNLumi_;
+    int fitPVNLumi_;
+    int resetFitNLumi_;
+    int resetPVNLumi_;
+    int intervalInSec_;
+    bool debug_;
+    bool onlineMode_;
 
-  bool resetHistos_;
-  bool StartAverage_;
-  int firstAverageFit_;
-  int countGapLumi_;
+    DQMStore* dbe_;
+    BeamFitter * theBeamFitter;
 
-  bool processed_;
-  // ----------member data ---------------------------
+    int countEvt_;       //counter
+    int countLumi_;      //counter
+    int beginLumiOfBSFit_;
+    int endLumiOfBSFit_;
+    int beginLumiOfPVFit_;
+    int endLumiOfPVFit_;
+    int lastlumi_; // previous LS processed
+    int nextlumi_; // next LS of Fit
+    std::time_t refBStime[2];
+    std::time_t refPVtime[2];
+    unsigned int nthBSTrk_;
+    int nFitElements_;
+    int nFits_;
+    double deltaSigCut_;
+    unsigned int min_Ntrks_;
+    double maxZ_;
+    unsigned int minNrVertices_;
+    double minVtxNdf_;
+    double minVtxWgt_;
 
-  //   std::vector<BSTrkParameters> fBSvector;
-  reco::BeamSpot refBS;
-  reco::BeamSpot preBS;
+    bool resetHistos_;
+    bool StartAverage_;
+    int firstAverageFit_;
+    int countGapLumi_;
 
-  // MonitorElements:
-  MonitorElement * h_nTrk_lumi;
-  MonitorElement * h_d0_phi0;
-  MonitorElement * h_trk_z0;
-  MonitorElement * h_vx_vy;
-  MonitorElement * h_vx_dz;
-  MonitorElement * h_vy_dz;
-  MonitorElement * h_trkPt;
-  MonitorElement * h_trkVz;
-  MonitorElement * fitResults;
-  MonitorElement * h_x0;
-  MonitorElement * h_y0;
-  MonitorElement * h_z0;
-  MonitorElement * h_sigmaX0;
-  MonitorElement * h_sigmaY0;
-  MonitorElement * h_sigmaZ0;
-  MonitorElement * h_nVtx;
-  MonitorElement * h_PVx[2];
-  MonitorElement * h_PVy[2];
-  MonitorElement * h_PVz[2];
-  MonitorElement * h_PVxz;
-  MonitorElement * h_PVyz;
-  MonitorElement * pvResults;
-  std::map<TString, MonitorElement*> hs;
+    bool processed_;
+    // ----------member data ---------------------------
 
-  //ssc:the histo for  DQM gui
-  std::map<int, std::vector<float> > mapPVx,mapPVy,mapPVz;
-  //keep track of beginLuminosity block and time
-  std::map<int, int> mapBeginBSLS,mapBeginPVLS;
-  std::map<int, std::time_t> mapBeginBSTime, mapBeginPVTime;
-  //these maps are needed to keep track of size of theBSvector and pvStore
-  std::map<int, std::size_t> mapLSBSTrkSize;
-  std::map<int, size_t>mapLSPVStoreSize;
-  //to correct the cutFlot Table
-  std::map<int, int*> mapLSCF;
+    //   std::vector<BSTrkParameters> fBSvector;
+    reco::BeamSpot refBS;
+    reco::BeamSpot preBS;
 
-  // Summary:
-  Float_t reportSummary_;
-  Float_t summarySum_;
-  Float_t summaryContent_[3];
-  MonitorElement * reportSummary;
-  MonitorElement * reportSummaryContents[3];
-  MonitorElement * reportSummaryMap;
-  MonitorElement * cutFlowTable;
-  // variables for beam fit
+    // MonitorElements:
+    MonitorElement * h_nTrk_lumi;
+    MonitorElement * h_d0_phi0;
+    MonitorElement * h_trk_z0;
+    MonitorElement * h_vx_vy;
+    MonitorElement * h_vx_dz;
+    MonitorElement * h_vy_dz;
+    MonitorElement * h_trkPt;
+    MonitorElement * h_trkVz;
+    MonitorElement * fitResults;
+    MonitorElement * h_x0;
+    MonitorElement * h_y0;
+    MonitorElement * h_z0;
+    MonitorElement * h_sigmaX0;
+    MonitorElement * h_sigmaY0;
+    MonitorElement * h_sigmaZ0;
+    MonitorElement * h_nVtx;
+    MonitorElement * h_PVx[2];
+    MonitorElement * h_PVy[2];
+    MonitorElement * h_PVz[2];
+    MonitorElement * h_PVxz;
+    MonitorElement * h_PVyz;
+    MonitorElement * pvResults;
+    std::map<TString, MonitorElement*> hs;
 
-  //
-  std::time_t tmpTime;
-  std::time_t startTime;
-  std::time_t refTime;
-  edm::TimeValue_t ftimestamp;
-  int frun;//ssc
-  int lastNZbin; // last non zero bin of time histos
+    //ssc:the histo for  DQM gui
+    std::map<int, std::vector<float> > mapPVx,mapPVy,mapPVz;
+    //keep track of beginLuminosity block and time
+    std::map<int, int> mapBeginBSLS,mapBeginPVLS;
+    std::map<int, std::time_t> mapBeginBSTime, mapBeginPVTime;
+    //these maps are needed to keep track of size of theBSvector and pvStore
+    std::map<int, std::size_t> mapLSBSTrkSize;
+    std::map<int, size_t>mapLSPVStoreSize;
+    //to correct the cutFlot Table
+    std::map<int, int*> mapLSCF;
+
+    // Summary:
+    Float_t reportSummary_;
+    Float_t summarySum_;
+    Float_t summaryContent_[3];
+    MonitorElement * reportSummary;
+    MonitorElement * reportSummaryContents[3];
+    MonitorElement * reportSummaryMap;
+    MonitorElement * cutFlowTable;
+    // variables for beam fit
+
+    //
+    std::time_t tmpTime;
+    std::time_t startTime;
+    std::time_t refTime;
+    edm::TimeValue_t ftimestamp;
+    int frun;//ssc
+    int lastNZbin; // last non zero bin of time histos
 };
 
 #endif

@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/10/28 08:47:16 $
- * $Revision: 1.59 $
+ * $Date: 2011/02/22 14:34:40 $
+ * $Revision: 1.61 $
  */
 
 
@@ -517,98 +517,96 @@ if (countLumi_ == 0 ) {
 // ----------------------------------------------------------
 void BeamMonitor::analyze(const Event& iEvent,
 			  const EventSetup& iSetup ) {
-  bool readEvent_ = true;
   const int nthlumi = iEvent.luminosityBlock();
   if (onlineMode_ && (nthlumi < nextlumi_)) {
-    readEvent_ = false;
     edm::LogInfo("BeamMonitor") << "analyze::  Spilt event from previous lumi section!" << std::endl;
+    return;
   }
   if (onlineMode_ && (nthlumi > nextlumi_)) {
-    readEvent_ = false;
     edm::LogInfo("BeamMonitor") << "analyze::  Spilt event from next lumi section!!!" << std::endl;
+    return;
   }
 
-  if (readEvent_) {
-    countEvt_++;
-    theBeamFitter->readEvent(iEvent); //Remember when track fitter read the event in the same place the PVFitter read the events !!!!!!!!!
+  countEvt_++;
+  theBeamFitter->readEvent(iEvent); //Remember when track fitter read the event in the same place the PVFitter read the events !!!!!!!!!
 
-    Handle<reco::BeamSpot> recoBeamSpotHandle;
-    iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
-    refBS = *recoBeamSpotHandle;
+  Handle<reco::BeamSpot> recoBeamSpotHandle;
+  iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+  refBS = *recoBeamSpotHandle;
 
-    dbe_->setCurrentFolder(monitorName_+"Fit/");
+  dbe_->setCurrentFolder(monitorName_+"Fit/");
 
-    //------Cut Flow Table filled every event!--------------------------------------
-    const char* tmpfile;
-    TH1F * tmphisto;
-    tmpfile = (cutFlowTable->getName()).c_str();
-    tmphisto = static_cast<TH1F *>((theBeamFitter->getCutFlow())->Clone("tmphisto"));
-    cutFlowTable->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
-    if (countEvt_ == 1) // SetLabel just once
-      for(int n=0; n < tmphisto->GetNbinsX(); n++)
-	cutFlowTable->setBinLabel(n+1,tmphisto->GetXaxis()->GetBinLabel(n+1),1);
+  //------Cut Flow Table filled every event!--------------------------------------
+  std::string cutFlowTableName = cutFlowTable->getName();
+  // Make a copy of the cut flow table from the beam fitter.
+  TH1F * tmphisto =
+    static_cast<TH1F*>((theBeamFitter->getCutFlow())->Clone("tmphisto"));
+  cutFlowTable->getTH1()->SetBins(
+      tmphisto->GetNbinsX(),
+      tmphisto->GetXaxis()->GetXmin(),
+      tmphisto->GetXaxis()->GetXmax());
+  // Update the bin labels
+  if (countEvt_ == 1) // SetLabel just once
+    for(int n=0; n < tmphisto->GetNbinsX(); n++)
+      cutFlowTable->setBinLabel(n+1,tmphisto->GetXaxis()->GetBinLabel(n+1),1);
+  cutFlowTable = dbe_->book1D(cutFlowTableName, tmphisto);
+
+  //----Reco tracks -----Independent of BeamSpotProducer----------------------------
+  Handle<reco::TrackCollection> TrackCollection;
+  iEvent.getByLabel(tracksLabel_, TrackCollection);
+  const reco::TrackCollection *tracks = TrackCollection.product();
+  for ( reco::TrackCollection::const_iterator track = tracks->begin();
+      track != tracks->end(); ++track ) {
+    h_trkPt->Fill(track->pt());  //no need to change  here for average bs
+    h_trkVz->Fill(track->vz());
+  }
+
+  //------ Primary Vertices-------
+  edm::Handle< reco::VertexCollection > PVCollection;
+
+  if (iEvent.getByLabel(pvSrc_, PVCollection )) {
+    int nPVcount = 0;
+    for (reco::VertexCollection::const_iterator pv = PVCollection->begin(); pv != PVCollection->end(); ++pv) {
+      //--- vertex selection
+      if (pv->isFake() || pv->tracksSize()==0)  continue;
+      nPVcount++; // count non fake pv
+      if (pv->ndof() < minVtxNdf_ || (pv->ndof()+3.)/pv->tracksSize() < 2*minVtxWgt_)  continue;
+
+      //Fill this map to store xyx for pv so that later we can remove the first one for run aver//ssc
+      mapPVx[countLumi_].push_back(pv->x());
+      mapPVy[countLumi_].push_back(pv->y());
+      mapPVz[countLumi_].push_back(pv->z());
+
+      if(!StartAverage_){//for first N LS
+        h_PVx[0]->Fill(pv->x());
+        h_PVy[0]->Fill(pv->y());
+        h_PVz[0]->Fill(pv->z());
+        h_PVxz->Fill(pv->z(),pv->x());
+        h_PVyz->Fill(pv->z(),pv->y());
+      }//for first N LiS
+      h_PVxz->Fill(pv->z(),pv->x());
+      h_PVyz->Fill(pv->z(),pv->y());
+
+    }//loop over pvs
+    if (nPVcount>0 ) h_nVtx->Fill(nPVcount*1.); //no need to change it for average BS
+
+  }//pv collection
 
 
-        cutFlowTable = dbe_->book1D(tmpfile,tmphisto);
+  if(StartAverage_)
+  {
+    map<int, std::vector<float> >::iterator itpvx=mapPVx.begin();
+    map<int, std::vector<float> >::iterator itpvy=mapPVy.begin();
+    map<int, std::vector<float> >::iterator itpvz=mapPVz.begin();
 
-    //----Reco tracks -----Independent of BeamSpotProducer----------------------------
-    Handle<reco::TrackCollection> TrackCollection;
-    iEvent.getByLabel(tracksLabel_, TrackCollection);
-    const reco::TrackCollection *tracks = TrackCollection.product();
-    for ( reco::TrackCollection::const_iterator track = tracks->begin();
-	  track != tracks->end(); ++track ) {
-      h_trkPt->Fill(track->pt());  //no need to change  here for average bs
-      h_trkVz->Fill(track->vz());
-    }
-
-    //------ Primary Vertices-------
-    edm::Handle< reco::VertexCollection > PVCollection;
-
-    if (iEvent.getByLabel(pvSrc_, PVCollection )) {
-      int nPVcount = 0;
-      for (reco::VertexCollection::const_iterator pv = PVCollection->begin(); pv != PVCollection->end(); ++pv) {
-	//--- vertex selection
-	if (pv->isFake() || pv->tracksSize()==0)  continue;
-	nPVcount++; // count non fake pv
-	if (pv->ndof() < minVtxNdf_ || (pv->ndof()+3.)/pv->tracksSize() < 2*minVtxWgt_)  continue;
-
-        //Fill this map to store xyx for pv so that later we can remove the first one for run aver//ssc
-        mapPVx[countLumi_].push_back(pv->x());
-        mapPVy[countLumi_].push_back(pv->y());
-        mapPVz[countLumi_].push_back(pv->z());
-
-           if(!StartAverage_){//for first N LS
-                h_PVx[0]->Fill(pv->x());
-         	h_PVy[0]->Fill(pv->y());
-        	h_PVz[0]->Fill(pv->z());
-	        h_PVxz->Fill(pv->z(),pv->x());
-        	h_PVyz->Fill(pv->z(),pv->y());
-               }//for first N LiS
-                h_PVxz->Fill(pv->z(),pv->x());
-        	h_PVyz->Fill(pv->z(),pv->y());
-
-            }//loop over pvs
-             if (nPVcount>0 ) h_nVtx->Fill(nPVcount*1.); //no need to change it for average BS
-
-      }//pv collection
-
-
-     if(StartAverage_)
-      {
-      map<int, std::vector<float> >::iterator itpvx=mapPVx.begin();
-      map<int, std::vector<float> >::iterator itpvy=mapPVy.begin();
-      map<int, std::vector<float> >::iterator itpvz=mapPVz.begin();
-
-      if( (int)mapPVx.size() > resetFitNLumi_){  //sometimes the events is not there but LS is there!
+    if( (int)mapPVx.size() > resetFitNLumi_){  //sometimes the events is not there but LS is there!
       mapPVx.erase(itpvx);
       mapPVy.erase(itpvy);
       mapPVz.erase(itpvz);
-       }//loop over Last N lumi collected
-      }//StartAverage==true
+    }//loop over Last N lumi collected
+  }//StartAverage==true
 
-    processed_ = true;
-  }//end of read event
-
+  processed_ = true;
 }
 
 
