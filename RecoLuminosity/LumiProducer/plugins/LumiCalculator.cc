@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Luminosity/interface/LumiSummaryRunHeader.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -206,11 +207,8 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   edm::Handle<LumiSummary> lumiSummary;
   lumiBlock.getByLabel("lumiProducer", lumiSummary);
 
-  edm::Handle<std::vector<std::string> > hltnames;
-  lumiBlock.getRun().getByLabel("lumiProducer", "HLTTriggerNames", hltnames);
-
-  edm::Handle<std::vector<std::string> > l1names;
-  lumiBlock.getRun().getByLabel("lumiProducer", "L1TriggerNames", l1names);
+  edm::Handle<LumiSummaryRunHeader> lumiSummaryRH;
+  lumiBlock.getRun().getByLabel("lumiProducer", lumiSummaryRH);
 
   MyPerLumiInfo l;
   l.lsnum=lumiBlock.id().luminosityBlock();
@@ -248,8 +246,7 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
       for(std::multimap<std::string,std::string>::iterator mit=ppp.first; mit!=ppp.second; ++mit){
 	std::string l1name=mit->second;
 	*log_<<"    L1 name : "<<l1name;
-	unsigned int i = 0; while (i < l1names->size()) { if (l1names->at(i) == l1name) break; ++i; }
-	LumiSummary::L1 l1result=lumiSummary->l1info(i);
+	LumiSummary::L1 l1result = lumiSummary->l1info(lumiSummaryRH->getL1Index(l1name));
 	*log_<<" prescale : "<<l1result.prescale<<"\n";
 	*log_<<"\n";
       }
@@ -269,7 +266,7 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   //
   size_t n=lumiSummary->nTriggerLine();
   for(size_t i=0;i<n;++i){
-    std::string l1bitname=l1names->at(lumiSummary->l1info(i).triggernameidx);
+    std::string l1bitname = lumiSummaryRH->getL1Name(lumiSummary->l1info(i).triggernameidx);
     l1PerBitInfo t;
     if(currentlumi_==0){
       t.prescale=lumiSummary->l1info(i).prescale;

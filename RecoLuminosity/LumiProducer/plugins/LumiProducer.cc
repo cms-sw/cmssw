@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.19 2011/02/14 16:16:41 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.20 2011/02/21 18:08:45 matevz Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,6 +27,7 @@ from the configuration file, the DB is not implemented yet)
 #include "FWCore/Framework/interface/Run.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Luminosity/interface/LumiSummaryRunHeader.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -230,8 +231,7 @@ LumiProducer::
 LumiProducer::LumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_isNullRun(false),m_cachesize(0)
 {
   // register your products
-  produces<std::vector<std::string>, edm::InRun>("L1TriggerNames");
-  produces<std::vector<std::string>, edm::InRun>("HLTTriggerNames");
+  produces<LumiSummaryRunHeader, edm::InRun>();
   produces<LumiSummary, edm::InLumi>();
   produces<LumiDetails, edm::InLumi>();
   // set up cache
@@ -276,19 +276,27 @@ LumiProducer::LumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_is
 
 LumiProducer::~LumiProducer(){ 
 }
+
 //
 // member functions
 //
-void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup){ 
+void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
+{ 
 }
-void LumiProducer::beginRun(edm::Run& run,edm::EventSetup const &iSetup){
+
+void LumiProducer::beginRun(edm::Run& run,edm::EventSetup const &iSetup)
+{
   unsigned int runnumber=run.run();
   m_cachedrun=runnumber;
   fillRunCache(runnumber);
 }
-void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup){  
+
+void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup)
+{
 }
-void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::EventSetup const& iSetup){
+
+void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::EventSetup const& iSetup)
+{
   unsigned int runnumber=iLBlock.run();
   unsigned int luminum=iLBlock.luminosityBlock();
   //if is null run, fill empty values and return
@@ -310,15 +318,15 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::Event
   //here the presence of ls is guaranteed
   writeProductsForEntry(iLBlock,runnumber,luminum); 
 }
-void LumiProducer::endRun(edm::Run& run,edm::EventSetup const &iSetup){
-  std::auto_ptr<std::vector<std::string> > trgnames(new std::vector<std::string>);
-  trgnames->swap(m_runcache.TRGBitNames);
-  run.put(trgnames, "L1TriggerNames");
-  m_runcache.TRGBitNumToIndex.clear();
 
-  std::auto_ptr<std::vector<std::string> > hltnames(new std::vector<std::string>);
-  hltnames->swap(m_runcache.HLTPathNames);
-  run.put(hltnames, "HLTTriggerNames");
+void LumiProducer::endRun(edm::Run& run,edm::EventSetup const &iSetup)
+{
+  std::auto_ptr<LumiSummaryRunHeader> lsrh(new LumiSummaryRunHeader());
+  lsrh->swapL1Names(m_runcache.TRGBitNames);
+  lsrh->swapHLTNames(m_runcache.HLTPathNames);
+  run.put(lsrh);
+
+  m_runcache.TRGBitNumToIndex.clear();
 }
 
 void 
