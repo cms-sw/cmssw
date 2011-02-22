@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamFitter.h,v 1.42 2010/11/08 18:53:38 friis Exp $
+ version $Id: BeamFitter.h,v 1.43 2011/02/22 14:16:52 friis Exp $
 
  ________________________________________________________________**/
 
@@ -64,16 +64,16 @@ time_t* getRefTime(){
   void resetPVFitter() { MyPVFitter->resetAll(); }
 
   //ssc
-  std::size_t  getPVvectorSize() {return (MyPVFitter->getpvStore()).size(); } 
+  std::size_t  getPVvectorSize() {return (MyPVFitter->getpvStore()).size(); }
   //sc
   void resizeBSvector(unsigned int nsize){
     fBSvector.erase(fBSvector.begin(),fBSvector.begin()+nsize);
-   }  
+   }
 
   //ssc
   void resizePVvector(unsigned int npvsize){
        MyPVFitter->resizepvStore(npvsize);
-   } 
+   }
 
 
   void dumpTxtFile(std::string &,bool);
@@ -83,6 +83,13 @@ time_t* getRefTime(){
   std::map<int, reco::BeamSpot> getBeamSpotMap() { return fbspotPVMap; }
   std::vector<BSTrkParameters> getBSvector() { return fBSvector; }
   TH1F * getCutFlow() { return h1cutFlow; }
+  void subtractFromCutFlow(const TH1F* toSubtract) {
+    h1cutFlow->Add(toSubtract, -1.0);
+    for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++){
+      countPass[i] = h1cutFlow->GetBinContent(i+1);
+    }
+  }
+
   void resetCutFlow() {
     h1cutFlow->Reset();
     ftotal_tracks = 0;
@@ -90,28 +97,10 @@ time_t* getRefTime(){
       countPass[i]=0;
   }
 
-//ssc
-int* getCutFlowNumbers() {
-     int *tmpCF=new int[9];
-     for (unsigned int i=0; i < sizeof(countPass)/sizeof(countPass[0]); i++){
-     tmpCF[i] = countPass[i];
-     }
-     return tmpCF;
-    }
-//ssc
- int getRunNumber() {
-      return frun;
-     }
-
-//ssc
- void setCutFlow(int correction[]) {
-    h1cutFlow->Reset();
-    ftotal_tracks = ftotal_tracks- correction[0];
-    for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++){
-      countPass[i]=countPass[i]-correction[i];
-      h1cutFlow->SetBinContent(i+1,countPass[i]);}
-  }   
-
+  //ssc
+  int getRunNumber() {
+    return frun;
+  }
 
   int* getFitLSRange() {
     int *tmp=new int[2];
