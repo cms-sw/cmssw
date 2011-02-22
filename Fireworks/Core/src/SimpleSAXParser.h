@@ -123,9 +123,10 @@ public:
    SimpleSAXParser(std::istream &f)
    : m_in(f),
      m_bufferSize(1024),
-     m_buffer((char*) malloc(m_bufferSize)),
+     m_buffer(new char[m_bufferSize]),
      m_nextChar(m_in.get())
    {}
+
    virtual ~SimpleSAXParser();
    
    void parse(void);

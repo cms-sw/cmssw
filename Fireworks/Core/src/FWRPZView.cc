@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.32 2010/11/30 19:36:57 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.33 2011/02/03 17:38:40 amraktad Exp $
 //
 
 // system include files
@@ -181,7 +181,7 @@ FWRPZView::addTo(FWConfiguration& iTo) const
 {
    FWEveView::addTo(iTo);
    TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->CurrentCamera()) );
-   addToOrthoCamera(camera, iTo);
+   if (camera) addToOrthoCamera(camera, iTo);
 }
 
 void
@@ -190,7 +190,7 @@ FWRPZView::setFrom(const FWConfiguration& iFrom)
    FWEveView::setFrom(iFrom);
    
    TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->CurrentCamera()) );
-   setFromOrthoCamera(camera, iFrom);
+   if (camera) setFromOrthoCamera(camera, iFrom);
 }
 
 void

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.27 2010/11/27 22:41:40 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.28 2011/02/03 14:21:24 amraktad Exp $
 //
 
 // system include files
@@ -149,7 +149,7 @@ FWLegoViewBase::setContext(const fireworks::Context& ctx)
    eventScene()->AddElement(m_lego);
 
    TEveLegoEventHandler* eh = dynamic_cast<TEveLegoEventHandler*>( viewerGL()->GetEventHandler());
-   eh->SetLego(m_lego);
+   if (eh) eh->SetLego(m_lego);
   
    m_overlay = new TEveCaloLegoOverlay();
    m_overlay->SetCaloLego(m_lego);

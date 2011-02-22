@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.232 2011/02/13 19:57:14 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.233 2011/02/14 20:02:51 amraktad Exp $
 
 
 //
@@ -332,10 +332,8 @@ FWGUIManager::loadEvent() {
    for (TEveElement::List_i i=viewers->BeginChildren(); i!= viewers->EndChildren(); ++i)
    {
       TEveViewer* ev = dynamic_cast<TEveViewer*>(*i);
-      ev->GetGLViewer()->DeleteOverlayAnnotations();
-
-      // refresh label 
-      /// markup set run , event, time
+      if (ev)
+         ev->GetGLViewer()->DeleteOverlayAnnotations();
    }
    
    m_cmsShowMainFrame->loadEvent(*getCurrentEvent());

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.40 2010/06/18 10:17:15 yana Exp $
+// $Id: FWGlimpseView.cc,v 1.41 2010/09/16 15:42:21 yana Exp $
 //
 
 #include <boost/bind.hpp>
@@ -170,7 +170,8 @@ FWGlimpseView::addTo(FWConfiguration& iTo) const
 {
    FWEveView::addTo(iTo);   
    TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
-   addToPerspectiveCamera(camera, typeName(), iTo);
+   if (camera)
+      addToPerspectiveCamera(camera, typeName(), iTo);
 }
 
 void
@@ -178,6 +179,7 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
 {
    FWEveView::setFrom(iFrom);
    TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
-   setFromPerspectiveCamera(camera, typeName(), iFrom);
+   if (camera)
+      setFromPerspectiveCamera(camera, typeName(), iFrom);
 }
 
