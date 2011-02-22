@@ -25,7 +25,8 @@ DTLinearDriftFromDBAlgo_CosmicData = cms.PSet(
         # Forcing Step 2 to go back to digi time 
         stepTwoFromDigi = cms.bool(False),
         # The module to be used for ttrig synchronization and its set parameter
-        tTrigMode = cms.string('DTTTrigSyncFromDB')
+        tTrigMode = cms.string('DTTTrigSyncFromDB'),
+        doVdriftCorr = cms.bool(False)
     ),
     recAlgo = cms.string('DTLinearDriftFromDBAlgo')
 )
