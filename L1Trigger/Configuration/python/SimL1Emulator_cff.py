@@ -135,11 +135,11 @@ SimL1TechnicalTriggers = cms.Sequence(
     simHcalTechTrigDigis )
 
 SimL1Emulator = cms.Sequence(
-    simRctDigis * 
-    simGctDigis * 
-    SimL1MuTriggerPrimitives * 
-    SimL1MuTrackFinders * 
-    simRpcTriggerDigis * 
-    simGmtDigis * 
-    SimL1TechnicalTriggers * 
+    simRctDigis + 
+    simGctDigis + 
+    SimL1MuTriggerPrimitives + 
+    SimL1MuTrackFinders + 
+    simRpcTriggerDigis + 
+    simGmtDigis + 
+    SimL1TechnicalTriggers + 
     simGtDigis )
