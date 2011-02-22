@@ -6,11 +6,12 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.19 2011/01/18 12:40:40 nancy Exp $
+ * \version $Id: Conversion.h,v 1.20 2011/02/18 20:45:12 nancy Exp $
  *
  */
 
 #include <bitset>
+#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -134,7 +135,21 @@ namespace reco {
       double dPhiTracksAtEcal() const;
       // deltaEta tracks at ECAl
       double dEtaTracksAtEcal() const;
-      
+
+      //impact parameter and decay length computed with respect to given beamspot or vertex
+      //computed from refittedPairMomentum
+
+      //transverse impact parameter
+      double dxy(const math::XYZPoint& myBeamSpot) const;
+      //longitudinal impact parameter
+      double dz(const math::XYZPoint& myBeamSpot) const;
+      //transverse decay length
+      double lxy(const math::XYZPoint& myBeamSpot) const;
+      //longitudinal decay length
+      double lz(const math::XYZPoint& myBeamSpot) const;
+      //z position of intersection with beamspot in rz plane (possible tilt of beamspot is neglected)
+      double z0(const math::XYZPoint& myBeamSpot) const { return dz(myBeamSpot) + myBeamSpot.z(); }
+
       ///// The following are variables provided per each track
       /// positions of the track extrapolation at the ECAL front face
       const std::vector<math::XYZPoint> & ecalImpactPosition() const  {return thePositionAtEcal_;}
