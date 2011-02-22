@@ -151,6 +151,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 
     // use only segments with both phi and theta projections present (optional)
     bool bothProjections = ( ((*rechit)->hasPhi()) && ((*rechit)->hasZed()) );
+    
     if (requireBothProjections_ && !bothProjections) continue;
 
     // loop over (theta, phi) segments
@@ -178,11 +179,12 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	tsos=propag->propagateWithPath(muonFTS,dtcell->surface());
 
         double dist;            
+        double dist_straight = dtcell->toGlobal(hiti->localPosition()).mag(); 
 	if (tsos.first.isValid()) { 
 	  dist = tsos.second+posp.mag(); 
 //	  std::cout << "Propagate distance: " << dist << " ( innermost: " << posp.mag() << ")" << std::endl; 
 	} else { 
-	  dist = dtcell->toGlobal(hiti->localPosition()).mag(); 
+	  dist = dist_straight;
 //	  std::cout << "Geom distance: " << dist << std::endl; 
 	}
 
@@ -208,8 +210,13 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	  tofCorr = (tofCorr/29.979)*0.00543;
 	  if (thisHit.isLeft) tofCorr=-tofCorr;
 	  thisHit.posInLayer += tofCorr;
-	} 
-	  
+	} else {
+          // non straight-line path correction
+          float slCorr = (dist_straight-dist)/29.979*0.00543;
+  	  if (thisHit.isLeft) slCorr=-slCorr;
+  	  thisHit.posInLayer += slCorr;
+	}
+
 	tms.push_back(thisHit);
       }
     } // phi = (0,1) 	        

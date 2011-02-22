@@ -12,7 +12,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.cc,v 1.9 2010/03/25 14:08:50 jribnik Exp $
+// $Id: MuonTimingFiller.cc,v 1.10 2011/01/21 09:22:42 ptraczyk Exp $
 //
 //
 
@@ -80,10 +80,14 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTim
 {
   TimeMeasurementSequence dtTmSeq,cscTmSeq;
      
-  if ( !(muon.standAloneMuon().isNull()) ) {
-    theDTTimingExtractor_->fillTiming(dtTmSeq, muon.standAloneMuon(), iEvent, iSetup);
-    theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.standAloneMuon(), iEvent, iSetup);
-  }
+  if ( !(muon.combinedMuon().isNull()) ) {
+    theDTTimingExtractor_->fillTiming(dtTmSeq, muon.combinedMuon(), iEvent, iSetup);
+    theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.combinedMuon(), iEvent, iSetup);
+  } else
+    if ( !(muon.standAloneMuon().isNull()) ) {
+      theDTTimingExtractor_->fillTiming(dtTmSeq, muon.standAloneMuon(), iEvent, iSetup);
+      theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.standAloneMuon(), iEvent, iSetup);
+    }
   
   // Fill DT-specific timing information block     
   fillTimeFromMeasurements(dtTmSeq, dtTime);
