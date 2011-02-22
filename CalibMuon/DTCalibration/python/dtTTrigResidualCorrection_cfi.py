@@ -5,6 +5,8 @@ dtTTrigResidualCorrection = cms.EDAnalyzer("DTTTrigCorrection",
     correctionAlgo = cms.string('DTTTrigResidualCorrection'),
     correctionAlgoConfig = cms.PSet(
         residualsRootFile = cms.string(''),
+        #rootBaseDir = cms.untracked.string('/DQMData/DT/DTCalibValidation'),
+        rootBaseDir = cms.untracked.string('DTResiduals'),
         useFitToResiduals = cms.bool(True)
     )
 )

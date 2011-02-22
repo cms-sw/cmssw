@@ -2,8 +2,9 @@
 
 from CalibMuon.DTCalibration.Workflow.DTTTrigProd import DTTTrigProd
 from CalibMuon.DTCalibration.Workflow.DTTTrigTimeBoxesWriter import DTTTrigTimeBoxesWriter
+from CalibMuon.DTCalibration.Workflow.DTResidualCalibration import DTResidualCalibration
+from CalibMuon.DTCalibration.Workflow.DTTTrigResidualCorr import DTTTrigResidualCorr 
 from CalibMuon.DTCalibration.Workflow.DTTTrigValid import DTTTrigValid
-from CalibMuon.DTCalibration.Workflow.DTTTrigResidualCorr import DTTTrigResidualCorr
 from CalibMuon.DTCalibration.Workflow.DTValidSummary import DTValidSummary
 from CalibMuon.DTCalibration.Workflow.DTVDriftSegmentCalibration import DTVDriftSegmentCalibration
 from CalibMuon.DTCalibration.Workflow.DTVDriftSegmentWriter import DTVDriftSegmentWriter
@@ -85,18 +86,71 @@ def runTtrigWriter(run,config,runStep=True):
         print "Finished processing:"
         for pset in dtTtrigWriter.configs: print "--->",pset
 
+def runResidualCalib(run,runselection,trial,input_db,label,result_file,config,runStep=True):
+
+    print "Processing tTrig calibration"
+    config.runselection = runselection
+    datasetstr = getDatasetStr(config.datasetpath)
+    config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/TTrigCalibration/' + label + '/' + 'v' + str(trial)
+    
+    task_dir = config.base_dir + '/' + label
+    dtResidualCalib = DTResidualCalibration(run=run,
+                                            dir=task_dir,
+                                            input_db=input_db,
+                                            config=config) 
+    dtResidualCalib.writeCfg()
+
+    if runStep:
+        project_residualCalib = dtResidualCalib.run()
+
+        print "Sent validation jobs with project",project_residualCalib
+        print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
+
+        crabResidualCalib = CrabWatch(project_valid)
+        crabResidualCalib.setThreshold(config.jobsFinishedThreshold)
+        crabResidualCalib.start()
+        crabResidualCalib.join()
+
+        if config.stageOutLocal:
+            output_dir = project_valid + "/res"
+            haddLocal(output_dir,result_file,'residuals')
+        elif config.stageOutCAF:
+            castor_dir = config.castorpath + "/" + config.userdircaf
+            haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/','?svcClass=cmscafuser')
+
+        return project_residualCalib
+
+    return None
+
+def runTtrigResidualCorr(run,input_db,root_file,config,runStep=True):
+
+    print "Processing tTrig residual correction"
+    dtTtrigResidualCorr = DTTTrigResidualCorr(run=run,
+                                              dir=config.run_dir,
+                                              input_db=input_db,
+                                              residuals=root_file,
+                                              result_dir=config.result_dir,
+                                              config=config)
+    dtTtrigResidualCorr.writeCfg()
+
+    if runStep:  
+        dtTtrigResidualCorr.run()
+
+        print "Finished processing:"
+        for pset in dtTtrigResidualCorr.configs: print "--->",pset
+
 def runTtrigValid(run,runselection,trial,input_db,label,result_file,config,runStep=True):
 
     print "Processing tTrig validation"
     config.runselection = runselection
     datasetstr = getDatasetStr(config.datasetpath)
     config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/TTrigValidation/' + label + '/' + 'v' + str(trial)
-    
+
     task_dir = config.base_dir + '/' + label
     dtTtrigValid = DTTTrigValid(run=run,
                                 dir=task_dir,
                                 input_db=input_db,
-                                config=config) 
+                                config=config)
     dtTtrigValid.writeCfg()
 
     if runStep:
@@ -121,23 +175,6 @@ def runTtrigValid(run,runselection,trial,input_db,label,result_file,config,runSt
         return project_valid
 
     return None
-
-def runTtrigResidualCorr(run,input_db,root_file,config,runStep=True):
-
-    print "Processing tTrig residual correction"
-    dtTtrigResidualCorr = DTTTrigResidualCorr(run=run,
-                                              dir=config.run_dir,
-                                              input_db=input_db,
-                                              residuals=root_file,
-                                              result_dir=config.result_dir,
-                                              config=config)
-    dtTtrigResidualCorr.writeCfg()
-
-    if runStep:  
-        dtTtrigResidualCorr.run()
-
-        print "Finished processing:"
-        for pset in dtTtrigResidualCorr.configs: print "--->",pset
 
 def runTtrigValidSummary(run,input_file,output_file,config,runStep=True):
 
@@ -296,7 +333,8 @@ def runTtrigWorkflow(mode,config,execute=True):
             print "Writing configuration files.."
             runTtrigProd(run,runselection,trial,config,False)
             runTtrigWriter(run,config,False)
-            runTtrigValid(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config,False)
+            #runTtrigValid(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config,False)
+            runResidualCalib(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config,False)
             runTtrigResidualCorr(run,ttrig_timeboxes_db,residualsFirst,config,False)                
             runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config,False)
             runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
@@ -314,7 +352,8 @@ def runTtrigWorkflow(mode,config,execute=True):
 
         # Produce residuals
         if not os.path.exists(residualsFirst):
-            runTtrigValid(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config)
+            #runTtrigValid(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config)
+            runResidualCalib(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config)
         if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s' % residualsFirst
 
         # Correction from residuals and write tTrig DB
@@ -342,10 +381,12 @@ def runTtrigWorkflow(mode,config,execute=True):
         if not execute:
             print "Writing configuration files.."
             if ttrig_input_db:
-                runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config,False)
+                #runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config,False)
+                runResidualCalib(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config,False)
                 runTtrigResidualCorr(run,ttrig_input_db,residualsFirst,config,False)
             else:
-                runTtrigValid(run,runselection,trial,None,'Residuals',residualsFirst,config,False)
+                #runTtrigValid(run,runselection,trial,None,'Residuals',residualsFirst,config,False)
+                runResidualCalib(run,runselection,trial,None,'Residuals',residualsFirst,config,False)
                 runTtrigResidualCorr(run,None,residualsFirst,config,False)
 
             runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config,False)
@@ -356,8 +397,12 @@ def runTtrigWorkflow(mode,config,execute=True):
 
         # Produce residuals
         if not os.path.exists(residualsFirst):
-            if ttrig_input_db: runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config)
-            else: runTtrigValid(run,runselection,trial,None,'Residuals',residualsFirst,config)
+            if ttrig_input_db:
+                #runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config)
+                runResidualCalib(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config) 
+            else:
+                #runTtrigValid(run,runselection,trial,None,'Residuals',residualsFirst,config)
+                runResidualCalib(run,runselection,trial,None,'Residuals',residualsFirst,config)
         if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s' % residualsFirst
 
         # Correction from residuals and write tTrig DB
