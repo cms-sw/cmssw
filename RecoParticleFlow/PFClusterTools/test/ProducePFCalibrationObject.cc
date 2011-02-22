@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/02/22 11:05:16 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/02/22 15:47:14 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - CERN
  */
 
@@ -75,6 +75,7 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
     vector<string> formulasToWrite;
     vector<PerformanceResult::ResultType> resToWrite;
     vector<BinningVariables::BinningVariablesType> binsToWrite;
+    binsToWrite.push_back(BinningVariables::JetEt);
 
 
 
@@ -100,7 +101,6 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
       limitsToWrite.push_back(limits);
       formulasToWrite.push_back(string(function->GetExpFormula("p").Data()));
       resToWrite.push_back(functType[fType]);
-      binsToWrite.push_back(BinningVariables::JetEt);
 
     }
     
