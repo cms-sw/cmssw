@@ -6,6 +6,8 @@ conversionTrackMerger = cms.EDProducer("ConversionTrackMerger",
     TrackProducer1 = cms.string(''),
     TrackProducer2 = cms.string(''),
     allowFirstHitShare = cms.bool(True),
+    checkCharge = cms.bool(True),
+    minProb = cms.double(1e-6),
     #prefer collection settings:
     #-1: propagate output/flag from both input collections
     # 0: propagate output/flag from neither input collection

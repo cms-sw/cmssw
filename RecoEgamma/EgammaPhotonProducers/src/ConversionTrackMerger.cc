@@ -7,8 +7,8 @@
 // Original Author: J.Bendavid
 //
 // $Author: bendavid $
-// $Date: 2010/09/17 19:46:18 $
-// $Revision: 1.1 $
+// $Date: 2010/11/22 02:02:08 $
+// $Revision: 1.2 $
 //
 
 #include <memory>
@@ -37,6 +37,8 @@
 //#include "DataFormats/TrackReco/src/classes.h"
 
 #include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+
     
   ConversionTrackMerger::ConversionTrackMerger(edm::ParameterSet const& conf) : 
     conf_(conf)
@@ -58,6 +60,8 @@
 
     double shareFrac =  conf_.getParameter<double>("ShareFrac");
     bool allowFirstHitShare = conf_.getParameter<bool>("allowFirstHitShare");
+    bool checkCharge = conf_.getParameter<bool>("checkCharge");    
+    double minProb = conf_.getParameter<double>("minProb");
     
     int outputPreferCollection = conf_.getParameter<int>("outputPreferCollection");
     int trackerOnlyPreferCollection = conf_.getParameter<int>("trackerOnlyPreferCollection");
@@ -81,7 +85,7 @@
       TC1 = &s_empty1;
       edm::LogWarning("ConversionTrackMerger") << "1st TrackCollection " << trackProducer1 << " not found; will only clean 2nd TrackCollection " << trackProducer2 ;
     }
-    const reco::ConversionTrackCollection tC1 = *TC1;
+    reco::ConversionTrackCollection tC1 = *TC1;
 
     const reco::ConversionTrackCollection *TC2 = 0;
     edm::Handle<reco::ConversionTrackCollection> trackCollection2;
@@ -93,7 +97,7 @@
         TC2 = &s_empty2;
         edm::LogWarning("ConversionTrackMerger") << "2nd TrackCollection " << trackProducer2 << " not found; will only clean 1st TrackCollection " << trackProducer1 ;
     }
-    const reco::ConversionTrackCollection tC2 = *TC2;
+    reco::ConversionTrackCollection tC2 = *TC2;
 
     // Step B: create empty output collection
     outputTrks = std::auto_ptr<reco::ConversionTrackCollection>(new reco::ConversionTrackCollection);
@@ -124,13 +128,30 @@
 
    if ( (0<tC1.size())&&(0<tC2.size()) ){
     i=-1;
-    for (reco::ConversionTrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); ++track){
+    for (reco::ConversionTrackCollection::iterator track=tC1.begin(); track!=tC1.end(); ++track){
       i++; 
+        
+      //clear flags if preferCollection was set to 0
+      selected1[i] = selected1[i] && outputPreferCollection!=0;
+      track->setIsTrackerOnly ( track->isTrackerOnly() &&  trackerOnlyPreferCollection!=0 );
+      track->setIsArbitratedEcalSeeded( track->isArbitratedEcalSeeded() &&  arbitratedEcalSeededPreferCollection!=0 );
+      track->setIsArbitratedMerged( track->isArbitratedMerged() && arbitratedMergedPreferCollection!=0 );
+      track->setIsArbitratedMergedEcalGeneral( track->isArbitratedMergedEcalGeneral() && arbitratedMergedEcalGeneralPreferCollection!=0 );
+      
+
       std::vector<const TrackingRecHit*>& iHits = rh1[track]; 
       unsigned nh1 = iHits.size();
       int j=-1;
-      for (reco::ConversionTrackCollection::const_iterator track2=tC2.begin(); track2!=tC2.end(); ++track2){
+      for (reco::ConversionTrackCollection::iterator track2=tC2.begin(); track2!=tC2.end(); ++track2){
         j++;
+
+        //clear flags if preferCollection was set to 0
+        selected2[j] = selected2[j] && outputPreferCollection!=0;
+        track2->setIsTrackerOnly ( track2->isTrackerOnly() &&  trackerOnlyPreferCollection!=0 );
+        track2->setIsArbitratedEcalSeeded( track2->isArbitratedEcalSeeded() &&  arbitratedEcalSeededPreferCollection!=0 );
+        track2->setIsArbitratedMerged( track2->isArbitratedMerged() && arbitratedMergedPreferCollection!=0 );
+        track2->setIsArbitratedMergedEcalGeneral( track2->isArbitratedMergedEcalGeneral() && arbitratedMergedEcalGeneralPreferCollection!=0 );
+
 	std::vector<const TrackingRecHit*>& jHits = rh2[track2]; 
 	unsigned nh2 = jHits.size();
         int noverlap=0;
@@ -153,24 +174,38 @@
         }
 	int nhit1 = track->track()->numberOfValidHits();
 	int nhit2 = track2->track()->numberOfValidHits();
+        //if (noverlap>0) printf("noverlap = %i, firstoverlap = %i, nhit1 = %i, nhit2 = %i, algo1 = %i, algo2 = %i, q1 = %i, q2 = %i\n",noverlap,firstoverlap,nhit1,nhit2,track->track()->algo(),track2->track()->algo(),track->track()->charge(),track2->track()->charge());
 	//std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->numberOfValidHits() << " "  << track2->numberOfValidHits() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ( (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*shareFrac ) {
-          if ( nhit1 > nhit2 ){
-            selected2[j]=0; 
-	    //std::cout << " removing L2 trk in pair " << std::endl;
-          }else{
-            if ( nhit1 < nhit2 ){
-              selected1[i]=0; 
-	      //std::cout << " removing L1 trk in pair " << std::endl;
-            }else{
-              //std::cout << " removing worst chisq in pair " << track->normalizedChi2() << " " << track2->normalizedChi2() << std::endl;
-              if (track->track()->normalizedChi2() > track2->track()->normalizedChi2()) {
-		selected1[i]=0;
-	      }else {
-		selected2[j]=0;
-              }
-            }//end fi > or = fj
-          }//end fi < fj
+        if ( (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*shareFrac && (!checkCharge || track->track()->charge()*track2->track()->charge()>0) ) {
+          //printf("overlapping tracks\n");
+         //printf ("ndof1 = %5f, chisq1 = %5f, ndof2 = %5f, chisq2 = %5f\n",track->track()->ndof(),track->track()->chi2(),track2->track()->ndof(),track2->track()->chi2());
+          
+          double probFirst = ChiSquaredProbability(track->track()->chi2(), track->track()->ndof());
+          double probSecond = ChiSquaredProbability(track2->track()->chi2(), track2->track()->ndof());
+
+          //arbitrate by number of hits and reduced chisq
+          bool keepFirst = ( nhit1>nhit2 || (nhit1==nhit2 && track->track()->normalizedChi2()<track2->track()->normalizedChi2()) );
+
+          //override decision in case one track is radically worse quality than the other
+          keepFirst |= (probFirst>minProb && probSecond<=minProb);
+          keepFirst &= !(probFirst<=minProb && probSecond>minProb);
+
+          bool keepSecond = !keepFirst;
+                    
+          //set flags based on arbitration decision and precedence settings
+
+          selected1[i] =            selected1[i]            && ( (keepFirst && outputPreferCollection==3) || outputPreferCollection==-1 || outputPreferCollection==1 );
+          track->setIsTrackerOnly ( track->isTrackerOnly() && ( (keepFirst && trackerOnlyPreferCollection==3) || trackerOnlyPreferCollection==-1 || trackerOnlyPreferCollection==1 ) );
+          track->setIsArbitratedEcalSeeded( track->isArbitratedEcalSeeded() &&  ( (keepFirst && arbitratedEcalSeededPreferCollection==3) || arbitratedEcalSeededPreferCollection==-1 || arbitratedEcalSeededPreferCollection==1 ) );
+          track->setIsArbitratedMerged( track->isArbitratedMerged() && ( (keepFirst && arbitratedMergedPreferCollection==3) || arbitratedMergedPreferCollection==-1 || arbitratedMergedPreferCollection==1 ) );
+          track->setIsArbitratedMergedEcalGeneral( track->isArbitratedMergedEcalGeneral() && ( (keepFirst && arbitratedMergedEcalGeneralPreferCollection==3) || arbitratedMergedEcalGeneralPreferCollection==-1 || arbitratedMergedEcalGeneralPreferCollection==1 ) );
+          
+          selected2[j] =             selected2[j]            && ( (keepSecond && outputPreferCollection==3) || outputPreferCollection==-1 || outputPreferCollection==2 );
+          track2->setIsTrackerOnly ( track2->isTrackerOnly() && ( (keepSecond && trackerOnlyPreferCollection==3) || trackerOnlyPreferCollection==-1 || trackerOnlyPreferCollection==2 ) );
+          track2->setIsArbitratedEcalSeeded( track2->isArbitratedEcalSeeded() &&  ( (keepSecond && arbitratedEcalSeededPreferCollection==3) || arbitratedEcalSeededPreferCollection==-1 || arbitratedEcalSeededPreferCollection==2 ) );
+          track2->setIsArbitratedMerged( track2->isArbitratedMerged() && ( (keepSecond && arbitratedMergedPreferCollection==3) || arbitratedMergedPreferCollection==-1 || arbitratedMergedPreferCollection==2 ) );
+          track2->setIsArbitratedMergedEcalGeneral( track2->isArbitratedMergedEcalGeneral() && ( (keepSecond && arbitratedMergedEcalGeneralPreferCollection==3) || arbitratedMergedEcalGeneralPreferCollection==-1 || arbitratedMergedEcalGeneralPreferCollection==2 ) );
+          
         }//end got a duplicate
       }//end track2 loop
     }//end track loop
@@ -185,24 +220,11 @@
      for (reco::ConversionTrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); 
 	  ++track, ++i){
       //don't store tracks rejected as duplicates
-      if ( outputPreferCollection==0 || ( (outputPreferCollection==3 || outputPreferCollection==2) && !selected1[i]) ){
+      if (!selected1[i]){
 	continue;
       }
       //fill the TrackCollection
-      outputTrks->push_back(*track);
-      //clear flags for tracks rejected as duplicates
-      if ( trackerOnlyPreferCollection==0 || ( (trackerOnlyPreferCollection==3 || trackerOnlyPreferCollection==2) && !selected1[i]) ){
-        outputTrks->back().setIsTrackerOnly(false);
-      }
-      if ( arbitratedEcalSeededPreferCollection==0 || ( (arbitratedEcalSeededPreferCollection==3 || arbitratedEcalSeededPreferCollection==2) && !selected1[i]) ){
-        outputTrks->back().setIsArbitratedEcalSeeded(false);
-      }      
-      if ( arbitratedMergedPreferCollection==0 || ( (arbitratedMergedPreferCollection==3 || arbitratedMergedPreferCollection==2) && !selected1[i]) ){
-        outputTrks->back().setIsArbitratedMerged(false);
-      }    
-      if ( arbitratedMergedEcalGeneralPreferCollection==0 || ( (arbitratedMergedEcalGeneralPreferCollection==3 || arbitratedMergedEcalGeneralPreferCollection==2) && !selected1[i]) ){
-        outputTrks->back().setIsArbitratedMergedEcalGeneral(false);
-      }       
+      outputTrks->push_back(*track);      
     }//end faux loop over tracks
    }//end more than 0 track
 
@@ -214,28 +236,14 @@
     for (reco::ConversionTrackCollection::const_iterator track=tC2.begin(); track!=tC2.end();
 	 ++track, ++i){
       //don't store tracks rejected as duplicates
-      if ( outputPreferCollection==0 || ( (outputPreferCollection==3 || outputPreferCollection==1) && !selected2[i]) ){
+      if (!selected2[i]){
         continue;
       }
       //fill the TrackCollection
       outputTrks->push_back(*track);
-      //clear flags for tracks rejected as duplicates
-      if ( trackerOnlyPreferCollection==0 || ( (trackerOnlyPreferCollection==3 || trackerOnlyPreferCollection==1) && !selected2[i]) ){
-        outputTrks->back().setIsTrackerOnly(false);
-      }
-      if ( arbitratedEcalSeededPreferCollection==0 || ( (arbitratedEcalSeededPreferCollection==3 || arbitratedEcalSeededPreferCollection==1) && !selected2[i]) ){
-        outputTrks->back().setIsArbitratedEcalSeeded(false);
-      }      
-      if ( arbitratedMergedPreferCollection==0 || ( (arbitratedMergedPreferCollection==3 || arbitratedMergedPreferCollection==1) && !selected2[i]) ){
-        outputTrks->back().setIsArbitratedMerged(false);
-      }      
-      if ( arbitratedMergedEcalGeneralPreferCollection==0 || ( (arbitratedMergedEcalGeneralPreferCollection==3 || arbitratedMergedEcalGeneralPreferCollection==1) && !selected2[i]) ){
-        outputTrks->back().setIsArbitratedMergedEcalGeneral(false);
-      }            
-
     }//end faux loop over tracks
    }//end more than 0 track
- 
+  
     e.put(outputTrks);
     return;
 
