@@ -795,6 +795,8 @@ if 'GlobalTag' in %%(dict)s:
 #      self.options['paths'].append( "-HLT_SelectEcalSpikesHighEt_L1R" )
 #      self.options['paths'].append( "-HLT_SelectEcalSpikes_L1R" )
 
+      self.options['paths'].append( "-HLT_DTErrors_v*" )
+      
 #
 # 5E32 paths for which a recovery should be attempted:
 #
