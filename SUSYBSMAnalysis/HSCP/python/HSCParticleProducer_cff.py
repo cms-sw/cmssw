@@ -106,6 +106,7 @@ dedxNPASmi.UsePixel = cms.bool(False)
 
 from RecoMuon.MuonIdentification.muonTiming_cfi import *
 muontiming.MuonCollection = cms.InputTag("muons")
+muontiming.TimingFillerParameters.UseECAL=False
 
 ####################################################################################
 #   HSCParticle Producer

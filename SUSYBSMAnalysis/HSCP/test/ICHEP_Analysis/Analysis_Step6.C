@@ -168,9 +168,9 @@ void Analysis_Step6(){
 
    MinRange      = 75;
    Mode          = 0;   
-   stGraph tkmu = Analysis_Step6_Core("Results/dedxASmi/dt/Eta25/Type2/SplitMode0/WPPt20/WPI20/WPTOF20/");
+//   stGraph tkmu = Analysis_Step6_Core("Results/dedxASmi/dt/Eta25/Type2/SplitMode0/WPPt20/WPI20/WPTOF20/");
 //   stGraph tkmu = Analysis_Step6_Core("Results/dedxASmi/dt/Eta25/Type1/SplitMode0/WPPt35/WPI35/WPTOF00/");
-//   stGraph tkmu = Analysis_Step6_Core("Results/dedxASmi/dt/Eta25/Type0/SplitMode0/WPPt35/WPI35/WPTOF00/");
+   stGraph tkmu = Analysis_Step6_Core("Results/dedxASmi/combined/Eta25/Type0/SplitMode0/WPPt35/WPI35/WPTOF00/");
    return;
 
    MinRange = 75;

@@ -9,18 +9,16 @@
 
 string             dEdxS_Label     = "dedxASmi";
 double             dEdxS_UpLim     = 1.0;
-//bool             dEdxS_IsDiscrim = true;
 string             dEdxS_Legend    = "I_{as}";
-string             dEdxM_Label     = "dedxCNPHarm2";
+string             dEdxM_Label     = "dedxHarm2";
 double             dEdxM_UpLim     = 40.0;
-//bool             dEdxM_IsDiscrim = false;
 string             dEdxM_Legend    = "I_{h} (MeV/cm)";
-double             dEdxK_Data      = 2.5857;
-double             dEdxC_Data      = 2.5497;
-double             dEdxK_MC        = 2.5404;
-double             dEdxC_MC        = 2.6433;
+double             dEdxK_Data      = 2.43;//25857;
+double             dEdxC_Data      = 2.92;//2.5497;
+double             dEdxK_MC        = 2.40;//2.5404;
+double             dEdxC_MC        = 2.95;//2.6433;
 
-string             TOF_Label       = "dt";
+string             TOF_Label       = "combined";
 
 double             SelectionCutPt  = -1;
 double             SelectionCutI   = 1E-4;
@@ -36,13 +34,13 @@ double             CutTOF[NSUBSAMPLE];
 double             PtHistoUpperBound   = 2000;
 double             MassHistoUpperBound = 2000;
 
-float              GlobalMaxV3D  =   0.50;
+float              GlobalMaxV3D  =   2.00;
 float              GlobalMaxDZ   =   2.00;
 float              GlobalMaxDXY  =   2.00;//0.25;
-float              GlobalMaxChi2 =   1.50;
+float              GlobalMaxChi2 =   10.0;
 int                GlobalMinQual =   2;
 unsigned int       GlobalMinNOH  =   1;
-unsigned int       GlobalMinNOM  =   4;
+unsigned int       GlobalMinNOM  =   8;
 double             GlobalMinNDOF =   8;
 double             GlobalMaxPterr=   0.25;
 //double             GlobalMinPt   =   7.50;
@@ -59,5 +57,21 @@ char               SplitMode        = 2;   // 0 = No decomposition in Hit/Eta in
 
 char		   TypeMode         = 0; //0 = All Candidates
 					 //1 = Muon Candidates	
+
+
+
+void InitdEdx(string dEdxS_Label_){
+   if(dEdxS_Label_=="dedxASmi" || dEdxS_Label_=="dedxNPASmi"){
+      dEdxS_UpLim  = 1.0;
+      dEdxS_Legend = "I_{as}";
+   }else if(dEdxS_Label_=="dedxProd" || dEdxS_Label_=="dedxNPProd"){
+      dEdxS_UpLim  = 1.0;
+      dEdxS_Legend = "I_{prod}";
+   }else{
+      dEdxS_UpLim  = 40.0;
+      dEdxS_Legend = "I_{h} (MeV/cm)";
+   }
+}
+
 
 #endif

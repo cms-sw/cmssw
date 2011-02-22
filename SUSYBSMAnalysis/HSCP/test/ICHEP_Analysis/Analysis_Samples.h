@@ -119,15 +119,28 @@ void GetMCDefinition(std::vector<stMC>& MC){
 
 
 void GetInputFiles(std::vector<string>& inputFiles, string SampleName){
-   string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_3_8_6/10_01_11/";
+   string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_3_9_6/11_02_10/";
 
    if(SampleName=="Data"){
-         inputFiles.push_back(BaseDirectory + "Data_135821_141887_NoJetTrig.root");
-         inputFiles.push_back(BaseDirectory + "Data_141888_144114_NoJetTrig.root");
-         inputFiles.push_back(BaseDirectory + "Data_146240_147000_NoJetTrig.root");
-         inputFiles.push_back(BaseDirectory + "Data_147001_148000_NoJetTrig.root");
-         inputFiles.push_back(BaseDirectory + "Data_148001_149000_NoJetTrig.root");
-         inputFiles.push_back(BaseDirectory + "Data_149001_149711_NoJetTrig.root");
+      if(true){//rand()%2==0){
+         inputFiles.push_back(BaseDirectory + "Data_135821_141887.root");
+         inputFiles.push_back(BaseDirectory + "Data_141888_144114.root");
+         inputFiles.push_back(BaseDirectory + "Data_146240_147000.root");
+         inputFiles.push_back(BaseDirectory + "Data_147001_148000.root");
+         inputFiles.push_back(BaseDirectory + "Data_148001_148500.root");
+         inputFiles.push_back(BaseDirectory + "Data_148501_149000.root");
+         inputFiles.push_back(BaseDirectory + "Data_149001_149250.root");
+         inputFiles.push_back(BaseDirectory + "Data_149251_149711.root");
+       }else{
+         inputFiles.push_back(BaseDirectory + "Data_135821_141887_B.root");
+         inputFiles.push_back(BaseDirectory + "Data_141888_144114_B.root");
+         inputFiles.push_back(BaseDirectory + "Data_146240_147000_B.root");
+         inputFiles.push_back(BaseDirectory + "Data_147001_148000_B.root");
+         inputFiles.push_back(BaseDirectory + "Data_148001_148500_B.root");
+         inputFiles.push_back(BaseDirectory + "Data_148501_149000_B.root");
+         inputFiles.push_back(BaseDirectory + "Data_149001_149250_B.root");
+         inputFiles.push_back(BaseDirectory + "Data_149251_149711_B.root");
+       }
 //   }else if(SampleName=="MC_MB"){
 //      inputFiles.push_back(BaseDirectory + "MC_MB.root");
 //   }else if(SampleName=="MC_PPMUX"){
@@ -140,6 +153,8 @@ void GetInputFiles(std::vector<string>& inputFiles, string SampleName){
 //      }else{
 //         inputFiles.push_back(BaseDirectory + "MC_QCD80_B.root");
 //      }
+   }else if(SampleName=="GMStau156" || SampleName=="Gluino600N"){
+      inputFiles.push_back(BaseDirectory + SampleName + "2.root");
    }else{
       inputFiles.push_back(BaseDirectory + SampleName + ".root");
    }

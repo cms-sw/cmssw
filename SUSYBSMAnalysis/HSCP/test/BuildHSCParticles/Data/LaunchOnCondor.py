@@ -217,8 +217,8 @@ def SendCMSJobs(FarmDirectory, JobName, ConfigFile, InputFiles, NJobs, Argv):
 	SendCluster_Create(FarmDirectory, JobName)
 	NJobs = SendCluster_LoadInputFiles(InputFiles, NJobs)
 	for i in range(NJobs):
-        	LaunchOnCondor.SendCluster_Push  (["CMSSW", ConfigFile])
-	LaunchOnCondor.SendCluster_Submit()
+        	SendCluster_Push  (["CMSSW", ConfigFile])
+	SendCluster_Submit()
 
 
 def GetListOfFiles(Prefix, InputPattern, Suffix):
@@ -232,6 +232,13 @@ def ListToFile(InputList, outputFile):
         for i in range(len(InputList)):
 		out_file.write('     ' + InputList[i] + '\n')
 	out_file.close()
+
+def ListToString(InputList):
+	outString = ""
+	for i in range(len(InputList)):
+		outString += InputList[i]
+	return outString
+
 
 def SendCMSMergeJob(FarmDirectory, JobName, InputFiles, OutputFile, KeepStatement):
         SendCluster_Create(FarmDirectory, JobName)

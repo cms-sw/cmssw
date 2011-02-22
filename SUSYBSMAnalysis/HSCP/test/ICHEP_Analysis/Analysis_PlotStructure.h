@@ -118,8 +118,8 @@ void stPlots_Init(stPlots& st, string BaseName, bool SkipSelectionPlot=false)
 
    if(SkipSelectionPlot)return;
 
-   Name = BaseName + "_BS_V3D"  ; st.BS_V3D   = new TH1D(Name.c_str(), Name.c_str(),  50, 0,  2);  st.BS_V3D->Sumw2();
-   Name = BaseName + "_AS_V3D"  ; st.AS_V3D   = new TH1D(Name.c_str(), Name.c_str(),  50, 0,  2);  st.AS_V3D->Sumw2();
+   Name = BaseName + "_BS_V3D"  ; st.BS_V3D   = new TH1D(Name.c_str(), Name.c_str(),  50, 0,  5);  st.BS_V3D->Sumw2();
+   Name = BaseName + "_AS_V3D"  ; st.AS_V3D   = new TH1D(Name.c_str(), Name.c_str(),  50, 0,  5);  st.AS_V3D->Sumw2();
 
    Name = BaseName + "_BS_DZ"   ; st.BS_DZ    = new TH1D(Name.c_str(), Name.c_str(),  50, 0,  5);  st.BS_DZ->Sumw2();
    Name = BaseName + "_AS_DZ"   ; st.AS_DZ    = new TH1D(Name.c_str(), Name.c_str(),  50, 0,  5);  st.AS_DZ->Sumw2();
@@ -127,8 +127,8 @@ void stPlots_Init(stPlots& st, string BaseName, bool SkipSelectionPlot=false)
    Name = BaseName + "_BS_DXY"	; st.BS_DXY   = new TH1D(Name.c_str(), Name.c_str(),  50, 0,   1);  st.BS_DXY->Sumw2();        
    Name = BaseName + "_AS_DXY"	; st.AS_DXY   = new TH1D(Name.c_str(), Name.c_str(),  50, 0,   1);  st.AS_DXY->Sumw2();
 
-   Name = BaseName + "_BS_Chi2"	; st.BS_Chi2  = new TH1D(Name.c_str(), Name.c_str(),   50, 0,  5);  st.BS_Chi2->Sumw2();
-   Name = BaseName + "_AS_Chi2"	; st.AS_Chi2  = new TH1D(Name.c_str(), Name.c_str(),   50, 0,  5);  st.AS_Chi2->Sumw2();
+   Name = BaseName + "_BS_Chi2"	; st.BS_Chi2  = new TH1D(Name.c_str(), Name.c_str(),   50, 0,  25);  st.BS_Chi2->Sumw2();
+   Name = BaseName + "_AS_Chi2"	; st.AS_Chi2  = new TH1D(Name.c_str(), Name.c_str(),   50, 0,  25);  st.AS_Chi2->Sumw2();
 
    Name = BaseName + "_BS_Qual" ; st.BS_Qual  = new TH1D(Name.c_str(), Name.c_str(),   20, 0,  20);  st.BS_Qual->Sumw2();
    Name = BaseName + "_AS_Qual" ; st.AS_Qual  = new TH1D(Name.c_str(), Name.c_str(),   20, 0,  20);  st.AS_Qual->Sumw2();
@@ -157,8 +157,8 @@ void stPlots_Init(stPlots& st, string BaseName, bool SkipSelectionPlot=false)
    Name = BaseName + "_BS_CIsol"; st.BS_CIsol = new TH1D(Name.c_str(), Name.c_str(), 20, 0, 20); st.BS_CIsol->Sumw2();
    Name = BaseName + "_AS_CIsol"; st.AS_CIsol = new TH1D(Name.c_str(), Name.c_str(), 20, 0, 20); st.AS_CIsol->Sumw2();
 
-   Name = BaseName + "_BS_TIsol"; st.BS_TIsol = new TH1D(Name.c_str(), Name.c_str(), 100, 0, 1); st.BS_TIsol->Sumw2();
-   Name = BaseName + "_AS_TIsol"; st.AS_TIsol = new TH1D(Name.c_str(), Name.c_str(), 100, 0, 1); st.AS_TIsol->Sumw2();
+   Name = BaseName + "_BS_TIsol"; st.BS_TIsol = new TH1D(Name.c_str(), Name.c_str(), 100, 0, 25); st.BS_TIsol->Sumw2();
+   Name = BaseName + "_AS_TIsol"; st.AS_TIsol = new TH1D(Name.c_str(), Name.c_str(), 100, 0, 25); st.AS_TIsol->Sumw2();
 
    Name = BaseName + "_BS_EIsol"; st.BS_EIsol = new TH1D(Name.c_str(), Name.c_str(), 100, 0, 1.5); st.BS_EIsol->Sumw2();
    Name = BaseName + "_AS_EIsol"; st.AS_EIsol = new TH1D(Name.c_str(), Name.c_str(), 100, 0, 1.5); st.AS_EIsol->Sumw2();
@@ -791,7 +791,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, stSignal s
    Histos[0] = (TH1*)st1.BS_Chi2->Clone();        legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_Chi2->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Chi2->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#chi^{2}/ndof", "arbitrary units", 0,10, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#chi^{2}/ndof", "arbitrary units", 0,25, 0,0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
@@ -1037,7 +1037,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, stSignal s
    Histos[0] = (TH1*)st1.BS_TIsol->Clone();        legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_TIsol->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_TIsol->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Isolation: Track SumPt (GeV/c)", "arbitrary units", 0,20, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Isolation: Track SumPt (GeV/c)", "arbitrary units", 0,25, 0,0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
@@ -1282,7 +1282,7 @@ void stPlots_DrawComparison(string SavePath, string LegendTitle, stPlots* st1, s
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_Chi2->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#chi^{2}/ndof", "arbitrary units", 0,10, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#chi^{2}/ndof", "arbitrary units", 0,25, 0,0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);

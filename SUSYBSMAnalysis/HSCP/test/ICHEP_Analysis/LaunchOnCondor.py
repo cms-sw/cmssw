@@ -211,6 +211,7 @@ def SendCluster_Push(Argv):
                 os.system('sh '+Path_Shell)
                 os.system('rm '+Path_Shell)
 		print "Getting the jobs..."
+	print Argv
         CreateTheShellFile(Argv)
         AddJobToCmdFile()
 	Jobs_Count = Jobs_Count+1

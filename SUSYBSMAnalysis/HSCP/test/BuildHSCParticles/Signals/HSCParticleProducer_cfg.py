@@ -9,7 +9,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-process.GlobalTag.globaltag = 'START38_V12::All'
+process.GlobalTag.globaltag = 'START39_V8::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
@@ -43,24 +43,23 @@ process.generalTracksSkim.filter       = cms.bool(False)
 process.HSCParticleProducer.filter     = cms.bool(False)
 process.HSCPTreeBuilder.reccordGenInfo = cms.untracked.bool(True)
 
-process.dedxHarm2.calibrationPath   = cms.string("file:Gains.root")
-process.dedxTru40.calibrationPath   = cms.string("file:Gains.root")
+process.dedxHarm2.calibrationPath      = cms.string("file:Gains.root")
+process.dedxTru40.calibrationPath      = cms.string("file:Gains.root")
 process.dedxProd.calibrationPath       = cms.string("file:Gains.root")
 process.dedxASmi.calibrationPath       = cms.string("file:Gains.root")
-process.dedxNPHarm2.calibrationPath = cms.string("file:Gains.root")
-process.dedxNPTru40.calibrationPath = cms.string("file:Gains.root")
+process.dedxNPHarm2.calibrationPath    = cms.string("file:Gains.root")
+process.dedxNPTru40.calibrationPath    = cms.string("file:Gains.root")
 process.dedxNPProd.calibrationPath     = cms.string("file:Gains.root")
 process.dedxNPASmi.calibrationPath     = cms.string("file:Gains.root")
 
-process.dedxHarm2.UseCalibration    = cms.bool(True)
-process.dedxTru40.UseCalibration    = cms.bool(True)
+process.dedxHarm2.UseCalibration       = cms.bool(True)
+process.dedxTru40.UseCalibration       = cms.bool(True)
 process.dedxProd.UseCalibration        = cms.bool(True)
 process.dedxASmi.UseCalibration        = cms.bool(True)
-process.dedxNPHarm2.UseCalibration  = cms.bool(True)
-process.dedxNPTru40.UseCalibration  = cms.bool(True)
+process.dedxNPHarm2.UseCalibration     = cms.bool(True)
+process.dedxNPTru40.UseCalibration     = cms.bool(True)
 process.dedxNPProd.UseCalibration      = cms.bool(True)
 process.dedxNPASmi.UseCalibration      = cms.bool(True)
-
 
 
 ########################################################################
