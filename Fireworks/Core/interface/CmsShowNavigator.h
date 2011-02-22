@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.53 2010/09/02 19:54:03 matevz Exp $
+// $Id: CmsShowNavigator.h,v 1.54 2011/02/21 20:57:14 amraktad Exp $
 //
 
 // system include files
@@ -116,13 +116,15 @@ public:
    void resumeFilter();
    
    virtual const edm::EventBase* getCurrentEvent() const;
+
+   const char* frameTitle();
    const char* filterStatusMessage();
    int  getNSelectedEvents();
    int  getNTotalEvents();
    bool canEditFiltersExternally();
    bool filesNeedUpdate() const { return m_filesNeedUpdate; }
    int  getFilterState() { return m_filterState; }
-   
+
    void editFiltersExternally();
 
    void activateNewFileOnNextEvent() { m_newFileOnNextEvent = true; }

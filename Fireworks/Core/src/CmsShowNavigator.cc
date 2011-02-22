@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.102 2011/02/21 11:27:07 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.103 2011/02/21 20:57:15 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -944,7 +944,27 @@ CmsShowNavigator::getProcessList() const
   return  m_main.context()->metadataManager()->processNamesInJob();
 }
 
-
 const edm::EventBase* 
 CmsShowNavigator::getCurrentEvent() const
-{ return m_currentFile.isSet() ? (*m_currentFile)->event() : 0; }
+{
+   return m_currentFile.isSet() ? (*m_currentFile)->event() : 0; 
+}
+
+const char*
+CmsShowNavigator::frameTitle()
+{
+   if (m_files.empty()) return "";
+
+   int nf = 0;
+   for (FileQueue_t::const_iterator i = m_files.begin(); i!= m_files.end(); i++)
+   {
+
+      if ( i == m_currentFile) break;
+      nf++;
+   }
+
+
+   return Form("%s [%d/%d], event [%d/%d]", (*m_currentFile)->file()->GetName(),
+               nf+1,  m_files.size(),
+               m_currentEvent+1, (*m_currentFile)->lastEvent()+1);
+}

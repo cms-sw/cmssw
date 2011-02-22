@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.184 2010/11/04 10:48:44 matevz Exp $
+// $Id: CmsShowMain.cc,v 1.185 2011/01/26 11:47:07 amraktad Exp $
 //
 
 // system include files
@@ -404,13 +404,15 @@ CmsShowMain::fileChangedSlot(const TFile *file)
 {
    m_openFile = file;
    if (file)
-      guiManager()->titleChanged(m_openFile->GetName());
+      guiManager()->titleChanged(m_navigator->frameTitle());
+
    m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
 
 void
 CmsShowMain::eventChangedSlot()
 {
+   guiManager()->titleChanged(m_navigator->frameTitle());
    m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
 
@@ -450,7 +452,7 @@ void CmsShowMain::appendData()
    /* this is how things used to be done:
       fi.fIniDir = ".";
       this is bad because the destructor calls delete[] on fIniDir.
-    */
+   */
    fi.fIniDir = new char[128];
    strncpy(fi.fIniDir,  ".", 127);
    guiManager()->updateStatus("waiting for data file ...");
@@ -461,6 +463,7 @@ void CmsShowMain::appendData()
       m_loadedAnyInputFile = true;
       checkPosition();
       draw();
+      guiManager()->titleChanged(m_navigator->frameTitle());
    }
    guiManager()->clearStatus();
 }
