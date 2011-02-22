@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2011/02/22 11:05:16 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - CERN
  */
 
@@ -59,6 +59,10 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
   functType["PFfb_ENDCAP"] = PerformanceResult::PFfb_ENDCAP;
   functType["PFfc_BARREL"] = PerformanceResult::PFfc_BARREL;
   functType["PFfc_ENDCAP"] = PerformanceResult::PFfc_ENDCAP;
+  functType["PFfaEta_BARREL"] = PerformanceResult::PFfaEta_BARREL;
+  functType["PFfaEta_ENDCAP"] = PerformanceResult::PFfaEta_ENDCAP;
+  functType["PFfbEta_BARREL"] = PerformanceResult::PFfbEta_BARREL;
+  functType["PFfbEta_ENDCAP"] = PerformanceResult::PFfbEta_ENDCAP;
 
   // ---------------------------------------------------------------------------------
   // Write the payload
