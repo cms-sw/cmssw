@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/02/16 09:46:11 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/02/18 10:58:52 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -26,6 +26,8 @@ DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config) :
     minTime = config.getParameter<double>("minTime"); 
 
     maxTime = config.getParameter<double>("maxTime"); 
+
+    doVdriftCorr = config.getParameter<bool>("doVdriftCorr");
 
     // Option to force going back to digi time at Step 2 
     stepTwoFromDigi = config.getParameter<bool>("stepTwoFromDigi");
@@ -149,7 +151,7 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
 	        DTVelocityUnits::cm_per_ns);
 
   //only in step 3
-  if(step == 3){
+  if(doVdriftCorr && step == 3){
     if (abs(wireId.wheel()) == 2 && 
 	wireId.station() == 1 &&
 	wireId.superLayer() != 2) {

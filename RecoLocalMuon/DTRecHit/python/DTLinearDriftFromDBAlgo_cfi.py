@@ -25,7 +25,9 @@ DTLinearDriftFromDBAlgo = cms.PSet(
         # Forcing Step 2 to go back to digi time 
         stepTwoFromDigi = cms.bool(False),
         # The module to be used for ttrig synchronization and its set parameter
-        tTrigMode = cms.string('DTTTrigSyncFromDB')
+        tTrigMode = cms.string('DTTTrigSyncFromDB'),
+        # perform a correction to vdrift in MB1s of external wheels
+        doVdriftCorr = cms.bool(True)
     ),
     recAlgo = cms.string('DTLinearDriftFromDBAlgo')
 )

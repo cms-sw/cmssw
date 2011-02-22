@@ -6,8 +6,8 @@
  *  Compute drift distance using constant drift velocity
  *  read from database.
  *
- *  $Date: 2007/04/19 11:08:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/01/31 18:40:05 $
+ *  $Revision: 1.2 $
  *  \author S.Bolognesi - INFN Torino
  */
 
@@ -90,6 +90,9 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
   // Times above MaxTime (ns) are considered as coming from following BXs
   static float maxTime;
   
+  // Perform a correction to vDrift for the external wheels
+  bool doVdriftCorr;
+
   // Switch recalculating hit parameters from digi time in Step 2 
   // (when off, Step 2 does nothing)
   bool stepTwoFromDigi;
