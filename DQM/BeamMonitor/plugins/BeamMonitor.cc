@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/02/22 14:34:40 $
- * $Revision: 1.61 $
+ * $Date: 2011/02/22 17:36:57 $
+ * $Revision: 1.64 $
  */
 
 
@@ -874,9 +874,9 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       map<int, std::size_t >::iterator tmpIt=mapLSBSTrkSize.begin();
       mapLSBSTrkSize.erase(tmpIt);
 
-      int * checkfitLS = theBeamFitter->getFitLSRange();
+      std::pair<int,int> checkfitLS = theBeamFitter->getFitLSRange();
       time_t * checkfitTime =theBeamFitter->getRefTime();
-      theBeamFitter->setFitLSRange(beginLumiOfBSFit_,checkfitLS[1]);
+      theBeamFitter->setFitLSRange(beginLumiOfBSFit_, checkfitLS.second);
       theBeamFitter->setRefTime(refBStime[0],checkfitTime[1]);
       }
 
@@ -908,9 +908,6 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
      // Remove the obsolete lumi section
      mapLSCF.erase(mapLSCF.begin());
    }
-
-
-
 
   if (resetHistos_) {
     h_d0_phi0->Reset();
@@ -972,8 +969,8 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
   if (countFitting) {
     nFits_++;
-    int * fitLS = theBeamFitter->getFitLSRange();
-    edm::LogInfo("BeamMonitor") << "FitAndFill::  [BeamFitter] Do BeamSpot Fit for LS = " << fitLS[0] << " to " << fitLS[1] << std::endl;
+    std::pair<int,int> fitLS = theBeamFitter->getFitLSRange();
+    edm::LogInfo("BeamMonitor") << "FitAndFill::  [BeamFitter] Do BeamSpot Fit for LS = " << fitLS.first << " to " << fitLS.second << std::endl;
     edm::LogInfo("BeamMonitor") << "FitAndFill::  [BeamMonitor] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_ << " to " << endLumiOfBSFit_ << std::endl;
 
     //Now Run the PV and Track Fitter over the collected tracks and pvs
@@ -1065,9 +1062,9 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       }
 
       fitResults->Reset();
-      int * LSRange = theBeamFitter->getFitLSRange();
+      std::pair<int,int> LSRange = theBeamFitter->getFitLSRange();
       char tmpTitle[50];
-      sprintf(tmpTitle,"%s %i %s %i","Fitted Beam Spot (cm) of LS: ",LSRange[0]," to ",LSRange[1]);
+      sprintf(tmpTitle,"%s %i %s %i","Fitted Beam Spot (cm) of LS: ",LSRange.first," to ",LSRange.second);
       fitResults->setAxisTitle(tmpTitle,1);
       fitResults->setBinContent(1,8,bs.x0());
       fitResults->setBinContent(1,7,bs.y0());

@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/08/31 23:16:59 $
- * $Revision: 1.13 $
+ * $Date: 2010/10/14 23:05:23 $
+ * $Revision: 1.14 $
  *
  */
 
@@ -56,9 +56,9 @@ BeamMonitorBx::BeamMonitorBx( const ParameterSet& ps ) :
   resetFitNLumi_  = parameters_.getUntrackedParameter<int>("resetEveryNLumi",-1);
 
   dbe_            = Service<DQMStore>().operator->();
-  
+
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
-  
+
   theBeamFitter = new BeamFitter(parameters_);
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
@@ -125,7 +125,7 @@ void BeamMonitorBx::beginRun(const edm::Run& r, const EventSetup& context) {
 }
 
 //--------------------------------------------------------
-void BeamMonitorBx::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
+void BeamMonitorBx::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 					 const EventSetup& context) {
   int nthlumi = lumiSeg.luminosityBlock();
   const edm::TimeValue_t fbegintimestamp = lumiSeg.beginTime().value();
@@ -176,7 +176,7 @@ void BeamMonitorBx::analyze(const Event& iEvent,
 
 
 //--------------------------------------------------------
-void BeamMonitorBx::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
+void BeamMonitorBx::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 				       const EventSetup& iSetup) {
   int nthlumi = lumiSeg.id().luminosityBlock();
   edm::LogInfo("LS|BX|BeamMonitorBx") << "Lumi of the last event before endLuminosityBlock: " << nthlumi << endl;
@@ -344,13 +344,13 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
     theBeamFitter->resetCutFlow();
     resetHistos_ = false;
   }
-  
+
   if (fitNLumi_ > 0)
     if (currentlumi%fitNLumi_!=0) return;
 
-  int * fitLS = theBeamFitter->getFitLSRange();
-  edm::LogInfo("LS|BX|BeamMonitorBx") << " [Fitter] Do BeamSpot Fit for LS = " << fitLS[0]
-				      << " to " << fitLS[1] << endl;
+  std::pair<int,int> fitLS = theBeamFitter->getFitLSRange();
+  edm::LogInfo("LS|BX|BeamMonitorBx") << " [Fitter] Do BeamSpot Fit for LS = " << fitLS.first
+				      << " to " << fitLS.second << endl;
   edm::LogInfo("LS|BX|BeamMonitorBx") << " [BX] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_
 				      << " to " << endLumiOfBSFit_ << endl;
 
@@ -377,9 +377,9 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
       }
     }
 
-    int * LSRange = theBeamFitter->getFitLSRange();
+    std::pair<int,int> LSRange = theBeamFitter->getFitLSRange();
     char tmpTitle[50];
-    sprintf(tmpTitle,"%s %i %s %i %s"," [cm] (LS: ",LSRange[0]," to ",LSRange[1],")");
+    sprintf(tmpTitle,"%s %i %s %i %s"," [cm] (LS: ",LSRange.first," to ",LSRange.second,")");
     for (std::map<std::string,std::string>::const_iterator varName = varMap.begin();
 	 varName != varMap.end(); ++varName) {
       hs[varName->first]->setTitle(varName->second + " " + tmpTitle);
@@ -387,12 +387,12 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
     }
 
     if (countGoodFit_ == 1)
-      firstlumi_ = LSRange[0];
+      firstlumi_ = LSRange.first;
 
     if (resetFitNLumi_ > 0 ) {
       char tmpTitle1[50];
       if ( countGoodFit_ > 1)
-	sprintf(tmpTitle1,"%s %i %s %i %s"," [cm] (LS: ",firstlumi_," to ",LSRange[1],") [weighted average]");
+	sprintf(tmpTitle1,"%s %i %s %i %s"," [cm] (LS: ",firstlumi_," to ",LSRange.second,") [weighted average]");
       else
 	sprintf(tmpTitle1,"%s","Need at least two fits to calculate weighted average");
       for (std::map<std::string,std::string>::const_iterator varName = varMap.begin();
@@ -466,7 +466,7 @@ void BeamMonitorBx::FillTables(int nthbx,int nthbin_,
 }
 
 //--------------------------------------------------------
-void BeamMonitorBx::FillTrendHistos(int nthBx, int nPVs_, map<string,string> & vMap, 
+void BeamMonitorBx::FillTrendHistos(int nthBx, int nPVs_, map<string,string> & vMap,
 				    reco::BeamSpot & bs_, TString prefix_) {
   map<TString,pair<double,double> > val_;
   val_[TString(prefix_+"_x")] = pair<double,double>(bs_.x0(),bs_.x0Error());
@@ -565,7 +565,7 @@ void BeamMonitorBx::endRun(const Run& r, const EventSetup& context){
 }
 
 //--------------------------------------------------------
-void BeamMonitorBx::endJob(const LuminosityBlock& lumiSeg, 
+void BeamMonitorBx::endJob(const LuminosityBlock& lumiSeg,
 			   const EventSetup& iSetup){
 }
 

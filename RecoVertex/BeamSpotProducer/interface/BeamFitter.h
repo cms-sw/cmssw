@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamFitter.h,v 1.43 2011/02/22 14:16:52 friis Exp $
+ version $Id: BeamFitter.h,v 1.44 2011/02/22 17:37:46 friis Exp $
 
  ________________________________________________________________**/
 
@@ -102,11 +102,8 @@ time_t* getRefTime(){
     return frun;
   }
 
-  int* getFitLSRange() {
-    int *tmp=new int[2];
-    tmp[0] = fbeginLumiOfFit;
-    tmp[1] = fendLumiOfFit;
-    return tmp;
+  std::pair<int,int> getFitLSRange() {
+    return std::make_pair(fbeginLumiOfFit, fendLumiOfFit);
   }
   void setFitLSRange(int ls0,int ls1) {
     fbeginLumiOfFit = ls0;
