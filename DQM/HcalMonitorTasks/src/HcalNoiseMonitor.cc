@@ -159,7 +159,7 @@ void HcalNoiseMonitor::setup()
       hTS4TS5RelativeDifference->setAxisTitle("(TS4 - TS5) / (TS4 + TS5)", 1);
 
       hTS4TS5RelativeDifferenceVsCharge = dbe_->book2D("TS4_TS5_relative_difference_charge",
-         "(TS4-TS5)/(TS4+TS5) vs. Charge", 50, 0, 400, 25, -1, 1);
+         "(TS4-TS5)/(TS4+TS5) vs. Charge", 25, 0, 400, 75, -1, 1);
       hTS4TS5RelativeDifferenceVsCharge->setAxisTitle("Charge", 1);
       hTS4TS5RelativeDifferenceVsCharge->setAxisTitle("(TS4 - TS5) / (TS4 + TS5)", 2);
 
