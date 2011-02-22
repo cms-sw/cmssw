@@ -54,12 +54,6 @@ class  RPCDigiValid: public edm::EDAnalyzer {
     MonitorElement* ResDplu2;
     MonitorElement* ResDplu3;
 
-//members for X_vs_Y_view:
-    MonitorElement* xyvWmin2;
-    MonitorElement* xyvWmin1;
-    MonitorElement* xyvWzer0;
-    MonitorElement* xyvWplu1;
-    MonitorElement* xyvWplu2;
 
     MonitorElement* xyvDplu1;
     MonitorElement* xyvDplu2;

@@ -26,11 +26,6 @@ RPCDigiValid::RPCDigiValid(const ParameterSet& ps):dbe_(0){
     dbe_->setCurrentFolder("RPCDigisV/RPCDigis");
     
     xyview = dbe_->book2D("X_Vs_Y_View","X_Vs_Y_View",1000, -760., 760., 1000, -760., 760.);
-    xyvWmin2 = dbe_->book2D("Wmin2_XvsY","Wmin2_XvsY",1000, -760., 760., 1000, -760., 760.);
-    xyvWmin1 = dbe_->book2D("Wmin1_XvsY","Wmin1_XvsY",1000, -760., 760., 1000, -760., 760.);
-    xyvWzer0 = dbe_->book2D("Wzer0_XvsY","Wzer0_XvsY",1000, -760., 760., 1000, -760., 760.);
-    xyvWplu1 = dbe_->book2D("Wplu1_XvsY","Wplu1_XvsY",1000, -760., 760., 1000, -760., 760.);
-    xyvWplu2 = dbe_->book2D("Wplu2_XvsY","Wplu2_XvsY",1000, -760., 760., 1000, -760., 760.);
 
     xyvDplu1 = dbe_->book2D("Dplu1_XvsY","Dplu1_XvsY",1000, -760., 760., 1000, -760., 760.);
     xyvDplu2 = dbe_->book2D("Dplu2_XvsY","Dplu2_XvsY",1000, -760., 760., 1000, -760., 760.);
@@ -116,17 +111,7 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup){
     xyview->Fill(sim_x, sim_y);
 
       if (Rsid.region() == 0 ){
-	if (Rsid.ring() == -2)
-	  xyvWmin2->Fill(sim_x, sim_y);
-	else if (Rsid.ring() == -1)
-	  xyvWmin1->Fill(sim_x, sim_y);
-	else if (Rsid.ring() == 0)
-	  xyvWzer0->Fill(sim_x, sim_y);
-	else if (Rsid.ring() == 1)
-	  xyvWplu1->Fill(sim_x, sim_y);
-	else if (Rsid.ring() == 2)
-	  xyvWplu2->Fill(sim_x, sim_y);
-      }
+     }
      else if (Rsid.region() == (+1)){
         if (Rsid.station() == 1)
           xyvDplu1->Fill(sim_x, sim_y);
