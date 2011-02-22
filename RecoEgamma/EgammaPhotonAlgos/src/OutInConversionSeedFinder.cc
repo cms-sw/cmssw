@@ -32,11 +32,12 @@ OutInConversionSeedFinder::OutInConversionSeedFinder( const edm::ParameterSet& c
 
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder CTOR " << "\n";      
 
-  //the2ndHitdphi_ = 0.01; 
+  maxNumberOfOutInSeedsPerBC_ =  conf_.getParameter<int>("maxNumOfSeedsOutIn");
+   //the2ndHitdphi_ = 0.01; 
   the2ndHitdphi_ = 0.03; 
   the2ndHitdzConst_ = 5.;
   the2ndHitdznSigma_ = 2.;
-  maxNumberOfOutInSeedsPerBC_=50;    
+
    
     
 }

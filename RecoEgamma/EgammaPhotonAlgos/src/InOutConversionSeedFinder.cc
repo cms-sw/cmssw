@@ -33,12 +33,12 @@ InOutConversionSeedFinder::InOutConversionSeedFinder( const edm::ParameterSet& c
   
   // std::cout << " InOutConversionSeedFinder CTOR " << "\n";      
     
-  
+  maxNumberOfInOutSeedsPerInputTrack_ =  conf_.getParameter<int>("maxNumOfSeedsInOut");
   //the2ndHitdphi_ = 0.008; 
   the2ndHitdphi_ = 0.01; 
   the2ndHitdzConst_ = 5.;
   the2ndHitdznSigma_ = 2.;
-  maxNumberOfInOutSeedsPerInputTrack_=50; 
+ 
   
 }
 
