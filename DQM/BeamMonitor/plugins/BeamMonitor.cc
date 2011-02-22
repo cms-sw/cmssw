@@ -1,11 +1,23 @@
 /*
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
- *         Francisco Yumiceva/FNAL
- * $Date: 2010/10/28 08:46:01 $
- * $Revision: 1.58 $
- *
+ *         Francisco Yumiceva/FNAL 
+ * $Date: 2010/10/28 08:47:16 $
+ * $Revision: 1.59 $
  */
+
+
+/*
+The code has been modified for running average
+Mode, And it gives results for the last NLS which is 
+configurable. 
+Sushil S. Chauhan/UCDavis
+Evan Friis       /UCDavis
+The last tag for working versions without this change is
+V00-03-25 
+*/
+
+
 
 #include "DQM/BeamMonitor/plugins/BeamMonitor.h"
 #include "DQMServices/Core/interface/QReport.h"
@@ -60,7 +72,7 @@ const char * BeamMonitor::formatFitTime( const time_t & t )  {
 // constructors and destructor
 //
 BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
-  countEvt_(0),countLumi_(0),nthBSTrk_(0),nFitElements_(3),resetHistos_(false) {
+  countEvt_(0),countLumi_(0),nthBSTrk_(0),nFitElements_(3),resetHistos_(false),StartAverage_(false),firstAverageFit_(0),countGapLumi_(0) {
 
   parameters_     = ps;
   monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
@@ -86,6 +98,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
 
   theBeamFitter = new BeamFitter(parameters_);
+  thePVFitter = new PVFitter(parameters_);
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
   theBeamFitter->resetRefTime();
@@ -103,11 +116,13 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
 
 BeamMonitor::~BeamMonitor() {
   delete theBeamFitter;
+  delete thePVFitter;
 }
 
 
 //--------------------------------------------------------
 void BeamMonitor::beginJob() {
+
 
   // book some histograms here
   const int    dxBin = parameters_.getParameter<int>("dxBin");
@@ -390,6 +405,7 @@ void BeamMonitor::beginJob() {
 //--------------------------------------------------------
 void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
 
+  frun = r.run();
   ftimestamp = r.beginTime().value();
   tmpTime = ftimestamp >> 32;
   startTime = refTime =  tmpTime;
@@ -414,34 +430,90 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
   const edm::TimeValue_t fbegintimestamp = lumiSeg.beginTime().value();
   const std::time_t ftmptime = fbegintimestamp >> 32;
 
-  if (countLumi_ == 0) {
+
+if (countLumi_ == 0 ) {
     beginLumiOfBSFit_ = beginLumiOfPVFit_ = nthlumi;
     refBStime[0] = refPVtime[0] = ftmptime;
-  }
-  if (beginLumiOfPVFit_ == 0) beginLumiOfPVFit_ = nextlumi_;
-  if (beginLumiOfBSFit_ == 0) beginLumiOfBSFit_ = nextlumi_;
+    }
+    //store here them will need when we remove the first one of Last N LS                              
+    mapBeginBSLS[countLumi_]   = nthlumi;   
+    mapBeginPVLS[countLumi_]   = nthlumi;
+    mapBeginBSTime[countLumi_] = ftmptime;
+    mapBeginPVTime[countLumi_] = ftmptime;
+
+   if(StartAverage_ ){ 
+     //Just Make sure it get rest 
+     refBStime[0] =0; 
+     refPVtime[0] =0;
+     beginLumiOfPVFit_ =0;
+     beginLumiOfBSFit_ =0;
+    
+     if(debug_)edm::LogInfo("BeamMonitor") << " beginLuminosityBlock:  Size of mapBeginBSLS before =  "<< mapBeginBSLS.size()<<endl;
+     if(nthlumi> nextlumi_){ //this make that it does not take into account this lumi for fitting and only look forward for new lumi
+                             //as countLumi also remains the same so map value  get overwritten once return to normal running.
+     //even if few LS are misssing and DQM module do not sees them then it catchs up again 
+     map<int, int>::iterator itbs=mapBeginBSLS.begin();
+     map<int, int>::iterator itpv=mapBeginPVLS.begin();
+     map<int, std::time_t>::iterator itbstime=mapBeginBSTime.begin();
+     map<int, std::time_t>::iterator itpvtime=mapBeginPVTime.begin();
+
+     mapBeginBSLS.erase(itbs);
+     mapBeginPVLS.erase(itpv);
+     mapBeginBSTime.erase(itbstime);
+     mapBeginPVTime.erase(itpvtime);
+/*         //not sure if want this or not ??   Evan!!???-------Otherwise comment out this block
+            map<int, int>::iterator itgapb=mapBeginBSLS.begin();
+            map<int, int>::iterator itgape=mapBeginBSLS.end(); itgape--;
+            countGapLumi_ = ( (itgape->second) - (itgapb->second) );
+            //if we see Gap more than then 2*resetValue !!!!!!!
+            //for example if 10-15 is fitted and if 16-25 are missing then we next fit will be for range 11-26 but BS can change in between 
+            // so better start  as fresh  and reset everything like starting in the begining 
+            if(countGapLumi_ >= 2*resetFitNLumi_){RestartFitting(); mapBeginBSLS[countLumi_]   = nthlumi;}
+  */        //-------------------------------------------------------------------------------
+     }
+
+    if(debug_) edm::LogInfo("BeamMonitor") << " beginLuminosityBlock::  Size of mapBeginBSLS After = "<< mapBeginBSLS.size()<<endl;
+
+     map<int, int>::iterator  bbs = mapBeginBSLS.begin();
+     map<int, int>::iterator  bpv = mapBeginPVLS.begin();
+     map<int, std::time_t>::iterator bbst = mapBeginBSTime.begin();
+     map<int, std::time_t>::iterator bpvt = mapBeginPVTime.begin();
+
+
+     if (beginLumiOfPVFit_ == 0) beginLumiOfPVFit_ = bpv->second;     //new begin time after removing the LS
+     if (beginLumiOfBSFit_ == 0) beginLumiOfBSFit_ = bbs->second;     
+     if (refBStime[0] == 0) refBStime[0] = bbst->second;
+     if (refPVtime[0] == 0) refPVtime[0] = bpvt->second;
+  
+    }//same logic for average fit as above commented line
+     
+
+    map<int, std::time_t>::iterator nbbst = mapBeginBSTime.begin();                                                                                                                                                             
+    map<int, std::time_t>::iterator nbpvt = mapBeginPVTime.begin();
+
 
   if (onlineMode_ && (nthlumi < nextlumi_)) return;
 
   if (onlineMode_) {
     if (nthlumi > nextlumi_) {
-      if (countLumi_ != 0 && processed_) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+      if (countLumi_ != 0 /*&& processed_*/) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
       nextlumi_ = nthlumi;
-      edm::LogInfo("BeamMonitor") << "Next Lumi to Fit: " << nextlumi_ << endl;
-      if (refBStime[0] == 0) refBStime[0] = ftmptime;
-      if (refPVtime[0] == 0) refPVtime[0] = ftmptime;
+      edm::LogInfo("BeamMonitor") << "beginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
+      if((StartAverage_) && refBStime[0] == 0) refBStime[0] = nbbst->second;
+      if((StartAverage_) && refPVtime[0] == 0) refPVtime[0] = nbpvt->second;
     }
   }
   else{
     if (processed_) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
     nextlumi_ = nthlumi;
-    edm::LogInfo("BeamMonitor") << "Next Lumi to Fit: " << nextlumi_ << endl;
-    if (refBStime[0] == 0) refBStime[0] = ftmptime;
-    if (refPVtime[0] == 0) refPVtime[0] = ftmptime;
+    edm::LogInfo("BeamMonitor") << " beginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
+    if ((StartAverage_) && refBStime[0] == 0) refBStime[0] = nbbst->second;
+    if ((StartAverage_) && refPVtime[0] == 0) refPVtime[0] = nbpvt->second;
   }
+
   countLumi_++;
   if (processed_) processed_ = false;
-  edm::LogInfo("BeamMonitor") << "Begin of Lumi: " << nthlumi << endl;
+  edm::LogInfo("BeamMonitor") << " beginLuminosityBlock::  Begin of Lumi: " << nthlumi << endl;
 }
 
 // ----------------------------------------------------------
@@ -451,21 +523,24 @@ void BeamMonitor::analyze(const Event& iEvent,
   const int nthlumi = iEvent.luminosityBlock();
   if (onlineMode_ && (nthlumi < nextlumi_)) {
     readEvent_ = false;
-    edm::LogInfo("BeamMonitor") << "Spilt event from previous lumi section!" << std::endl;
+    edm::LogInfo("BeamMonitor") << "analyze::  Spilt event from previous lumi section!" << std::endl;
   }
   if (onlineMode_ && (nthlumi > nextlumi_)) {
     readEvent_ = false;
-    edm::LogInfo("BeamMonitor") << "Spilt event from next lumi section!!!" << std::endl;
+    edm::LogInfo("BeamMonitor") << "analyze::  Spilt event from next lumi section!!!" << std::endl;
   }
 
   if (readEvent_) {
     countEvt_++;
-    theBeamFitter->readEvent(iEvent);
+    theBeamFitter->readEvent(iEvent); //Remember when track fitter read the event in the same place the PVFitter read the events !!!!!!!!!
+
     Handle<reco::BeamSpot> recoBeamSpotHandle;
     iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
     refBS = *recoBeamSpotHandle;
 
     dbe_->setCurrentFolder(monitorName_+"Fit/");
+    
+    //------Cut Flow Table filled every event!--------------------------------------
     const char* tmpfile;
     TH1F * tmphisto;
     tmpfile = (cutFlowTable->getName()).c_str();
@@ -475,18 +550,20 @@ void BeamMonitor::analyze(const Event& iEvent,
       for(int n=0; n < tmphisto->GetNbinsX(); n++)
 	cutFlowTable->setBinLabel(n+1,tmphisto->GetXaxis()->GetBinLabel(n+1),1);
 
-    cutFlowTable = dbe_->book1D(tmpfile,tmphisto);
 
+        cutFlowTable = dbe_->book1D(tmpfile,tmphisto);
+
+    //----Reco tracks -----Independent of BeamSpotProducer---------------------------- 
     Handle<reco::TrackCollection> TrackCollection;
     iEvent.getByLabel(tracksLabel_, TrackCollection);
     const reco::TrackCollection *tracks = TrackCollection.product();
     for ( reco::TrackCollection::const_iterator track = tracks->begin();
 	  track != tracks->end(); ++track ) {
-      h_trkPt->Fill(track->pt());
+      h_trkPt->Fill(track->pt());  //no need to change  here for average bs
       h_trkVz->Fill(track->vz());
     }
 
-    //------ Primary Vertices
+    //------ Primary Vertices-------
     edm::Handle< reco::VertexCollection > PVCollection;
 
     if (iEvent.getByLabel(pvSrc_, PVCollection )) {
@@ -496,14 +573,41 @@ void BeamMonitor::analyze(const Event& iEvent,
 	if (pv->isFake() || pv->tracksSize()==0)  continue;
 	nPVcount++; // count non fake pv
 	if (pv->ndof() < minVtxNdf_ || (pv->ndof()+3.)/pv->tracksSize() < 2*minVtxWgt_)  continue;
-	h_PVx[0]->Fill(pv->x());
-	h_PVy[0]->Fill(pv->y());
-	h_PVz[0]->Fill(pv->z());
-	h_PVxz->Fill(pv->z(),pv->x());
-	h_PVyz->Fill(pv->z(),pv->y());
-      }
-      if (nPVcount>0) h_nVtx->Fill(nPVcount*1.);
-    }
+
+        //Fill this map to store xyx for pv so that later we can remove the first one for run aver//ssc
+        mapPVx[countLumi_].push_back(pv->x());
+        mapPVy[countLumi_].push_back(pv->y());
+        mapPVz[countLumi_].push_back(pv->z());
+
+           if(!StartAverage_){//for first N LS
+                h_PVx[0]->Fill(pv->x());
+         	h_PVy[0]->Fill(pv->y());
+        	h_PVz[0]->Fill(pv->z());
+	        h_PVxz->Fill(pv->z(),pv->x());
+        	h_PVyz->Fill(pv->z(),pv->y());
+               }//for first N LiS
+                h_PVxz->Fill(pv->z(),pv->x());
+        	h_PVyz->Fill(pv->z(),pv->y());
+
+            }//loop over pvs
+             if (nPVcount>0 ) h_nVtx->Fill(nPVcount*1.); //no need to change it for average BS 
+
+      }//pv collection
+ 
+
+     if(StartAverage_)
+      {
+      map<int, std::vector<float> >::iterator itpvx=mapPVx.begin();
+      map<int, std::vector<float> >::iterator itpvy=mapPVy.begin();
+      map<int, std::vector<float> >::iterator itpvz=mapPVz.begin();
+
+      if( (int)mapPVx.size() > resetFitNLumi_){  //sometimes the events is not there but LS is there!
+      mapPVx.erase(itpvx);
+      mapPVy.erase(itpvy);
+      mapPVz.erase(itpvz);
+       }//loop over Last N lumi collected
+      }//StartAverage==true
+
     processed_ = true;
   }//end of read event
 
@@ -514,7 +618,7 @@ void BeamMonitor::analyze(const Event& iEvent,
 void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 				     const EventSetup& iSetup) {
   int nthlumi = lumiSeg.id().luminosityBlock();
-  edm::LogInfo("BeamMonitor") << "Lumi of the last event before endLuminosityBlock: " << nthlumi << endl;
+  edm::LogInfo("BeamMonitor") << "endLuminosityBlock:: Lumi of the last event before endLuminosityBlock: " << nthlumi << endl;
 
   if (onlineMode_ && nthlumi < nextlumi_) return;
   const edm::TimeValue_t fendtimestamp = lumiSeg.endTime().value();
@@ -526,27 +630,73 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &nextlumi,int &nthlumi){
   if (onlineMode_ && (nthlumi <= nextlumi)) return;
 
+  //set the correct run number when no event in the LS for fake output
+  if(theBeamFitter->getRunNumber() != frun)theBeamFitter->setRun(frun);
   int currentlumi = nextlumi;
-  edm::LogInfo("BeamMonitor") << "Lumi of the current fit: " << currentlumi << endl;
+  edm::LogInfo("BeamMonitor") << "FitAndFill::  Lumi of the current fit: " << currentlumi << endl;
   lastlumi = currentlumi;
   endLumiOfBSFit_ = currentlumi;
   endLumiOfPVFit_ = currentlumi;
+
+
+     //---------Fix for Runninv average-------------
+      mapLSPVStoreSize[countLumi_]= theBeamFitter->getPVvectorSize();
+      if(StartAverage_)
+      {
+      size_t SizeToRemovePV=0;
+      std::map<int, std::size_t>::iterator rmlspv = mapLSPVStoreSize.begin();
+      SizeToRemovePV= rmlspv->second;
+      int changedAfterThisPV=0;
+      for(std::map<int, std::size_t>::iterator rmLSPV = mapLSPVStoreSize.begin(); rmLSPV!=mapLSPVStoreSize.end(); ++rmLSPV, ++changedAfterThisPV){
+         if(changedAfterThisPV > 0 ){ (rmLSPV->second)  =  (rmLSPV->second)-SizeToRemovePV;} 
+                               }
+
+      theBeamFitter->resizePVvector(SizeToRemovePV);
+
+      map<int, std::size_t >::iterator tmpItpv=mapLSPVStoreSize.begin();
+      mapLSPVStoreSize.erase(tmpItpv);
+
+      int * checkfitPVLS = thePVFitter->getFitLSRange();
+      time_t * checkfitPVTime =thePVFitter->getRefTime();
+      thePVFitter->setFitLSRange(beginLumiOfPVFit_,checkfitPVLS[1]);  
+      thePVFitter->setRefTime(refPVtime[0],checkfitPVTime[1]);
+      }  
+      if(debug_)edm::LogInfo("BeamMonitor") << "FitAndFill:: Size of thePVvector After removing the PVs = " << theBeamFitter->getPVvectorSize()<<endl; 
+
+
+      //lets filt the PV for GUI here: It was in analyzer in preivous versiton but moved here due to absence of event in some lumis, works OK
+      if((int)mapPVx.size() >= resetFitNLumi_ && (StartAverage_)){
+      h_PVx[0]->Reset();
+      h_PVy[0]->Reset();
+      h_PVz[0]->Reset();} 
+      std::map< int, std::vector<float> >::iterator mpv2=mapPVy.begin();
+      std::map< int, std::vector<float> >::iterator mpv3=mapPVz.begin();
+     for(std::map< int, std::vector<float> >::iterator mpv1=mapPVx.begin(); mpv1 != mapPVx.end(); ++mpv1, ++mpv2, ++mpv3){
+        std::vector<float>::iterator mpvs2 = (mpv2->second).begin();
+        std::vector<float>::iterator mpvs3 = (mpv3->second).begin();
+      for(std::vector<float>::iterator mpvs1=(mpv1->second).begin(); mpvs1 !=(mpv1->second).end(); ++mpvs1, ++mpvs2, ++mpvs3){
+        h_PVx[0]->Fill( *mpvs1 ); //these histogram are reset after StartAverage_ flag is ON
+        h_PVy[0]->Fill( *mpvs2 );
+        h_PVz[0]->Fill( *mpvs3 );
+       }
+     }//loop over last N lumis                     
+
 
   if (onlineMode_) { // filling LS gap
     // FIXME: need to add protection for the case if the gap is at the resetting LS!
     const int countLS_bs = hs["x0_lumi"]->getTH1()->GetEntries();
     const int countLS_pv = hs["PVx_lumi"]->getTH1()->GetEntries();
-    edm::LogInfo("BeamMonitor") << "countLS_bs = " << countLS_bs << " ; countLS_pv = " << countLS_pv << std::endl;
+    edm::LogInfo("BeamMonitor") << "FitAndFill:: countLS_bs = " << countLS_bs << " ; countLS_pv = " << countLS_pv << std::endl;
     int LSgap_bs = currentlumi/fitNLumi_ - countLS_bs;
     int LSgap_pv = currentlumi/fitPVNLumi_ - countLS_pv;
     if (currentlumi%fitNLumi_ == 0)
       LSgap_bs--;
     if (currentlumi%fitPVNLumi_ == 0)
       LSgap_pv--;
-    edm::LogInfo("BeamMonitor") << "LSgap_bs = " << LSgap_bs << " ; LSgap_pv = " << LSgap_pv << std::endl;
+    edm::LogInfo("BeamMonitor") << "FitAndFill::  LSgap_bs = " << LSgap_bs << " ; LSgap_pv = " << LSgap_pv << std::endl;
     // filling previous fits if LS gap ever exists
     for (int ig = 0; ig < LSgap_bs; ig++) {
-      hs["x0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
+      hs["x0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );//x0 , x0err, fitNLumi_;  see DQMCore....
       hs["y0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
       hs["z0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
       hs["sigmaX0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
@@ -559,11 +709,11 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       hs["PVz_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
     }
     const int previousLS = h_nTrk_lumi->getTH1()->GetEntries();
-    for (int i=1;i < (currentlumi - previousLS);i++)
+    for (int i=1;i < (currentlumi - previousLS);i++)//if (current-previoius)= 1 then never go inside the for loop!!!!!!!!!!!
       h_nTrk_lumi->ShiftFillLast(nthBSTrk_);
   }
 
-  edm::LogInfo("BeamMonitor") << "Time lapsed since last scroll = " << tmpTime - refTime << std:: endl;
+  edm::LogInfo("BeamMonitor") << "FitAndFill:: Time lapsed since last scroll = " << tmpTime - refTime << std:: endl;
 
   if (testScroll(tmpTime,refTime)) {
     scrollTH1(hs["x0_time"]->getTH1(),refTime);
@@ -591,11 +741,12 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
   else
     doPVFit = true;
 
-  if (doPVFit) {
 
-    edm::LogInfo("BeamMonitor") << "Do PV Fitting for LS = " << beginLumiOfPVFit_ << " to " << endLumiOfPVFit_ << std::endl;
+  if (doPVFit) {
+    edm::LogInfo("BeamMonitor") << "FitAndFill:: Do PV Fitting for LS = " << beginLumiOfPVFit_ << " to " << endLumiOfPVFit_ << std::endl;
     // Primary Vertex Fit:
     if (h_PVx[0]->getTH1()->GetEntries() > minNrVertices_) {
+
       pvResults->Reset();
       char tmpTitle[50];
       sprintf(tmpTitle,"%s %i %s %i","Fitted Primary Vertex (cm) of LS: ",beginLumiOfPVFit_," to ",endLumiOfPVFit_);
@@ -609,12 +760,14 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       width = fgaus->GetParameter(2);
       meanErr = fgaus->GetParError(1);
       widthErr = fgaus->GetParError(2);
+
+
       hs["PVx_lumi"]->ShiftFillLast(mean,width,fitPVNLumi_);
       hs["PVx_lumi_all"]->setBinContent(currentlumi,mean);
       hs["PVx_lumi_all"]->setBinError(currentlumi,width);
       int nthBin = tmpTime - refTime;
       if (nthBin < 0)
-	edm::LogInfo("BeamMonitor") << "Event time outside current range of time histograms!" << std::endl;
+	edm::LogInfo("BeamMonitor") << "FitAndFill::  Event time outside current range of time histograms!" << std::endl;
       if (nthBin > 0) {
 	hs["PVx_time"]->setBinContent(nthBin,mean);
 	hs["PVx_time"]->setBinError(nthBin,width);
@@ -697,45 +850,97 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       h_PVz[1] = dbe_->book1D(tmpfile,h_PVz[0]->getTH1F());
       h_PVz[1]->getTH1()->Fit("fgaus","QLM");
 
-    }
-  }
+    }//check if found min Vertices
+  }//do PVfit
 
-  if (resetPVNLumi_ > 0 &&
-      ((onlineMode_ && currentlumi%resetPVNLumi_ == 0) ||
-       (!onlineMode_ && countLumi_%resetPVNLumi_ == 0))) {
-    h_PVx[0]->Reset();
-    h_PVy[0]->Reset();
-    h_PVz[0]->Reset();
-    beginLumiOfPVFit_ = 0;
+  if ( ( resetPVNLumi_ > 0 && ((onlineMode_ && (countLumi_) == resetPVNLumi_ ) ||   (!onlineMode_ && (countLumi_) == resetPVNLumi_ ))) || (StartAverage_) ){
+    beginLumiOfPVFit_=0;
     refPVtime[0] = 0;
-  }
+    }
 
-  // Beam Spot Fit:
-  vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
-  h_nTrk_lumi->ShiftFillLast( theBSvector.size() );
+
+
+
+     //---------Readjustment of theBSvector, RefTime, beginLSofFit---------
+     vector<BSTrkParameters> theBSvector1 = theBeamFitter->getBSvector();
+     mapLSBSTrkSize[countLumi_]= (theBSvector1.size());
+      size_t PreviousRecords=0;     //needed to fill nth record of tracks in GUI
+ 
+      if(StartAverage_){//ssc
+      size_t SizeToRemove=0;
+      std::map<int, std::size_t>::iterator rmls=mapLSBSTrkSize.begin();
+      SizeToRemove = rmls->second;
+      if(debug_)edm::LogInfo("BeamMonitor")<< "  The size to remove is =  "<< SizeToRemove << endl;
+      int changedAfterThis=0;
+      for(std::map<int, std::size_t>::iterator rmLS = mapLSBSTrkSize.begin(); rmLS!=mapLSBSTrkSize.end(); ++rmLS, ++changedAfterThis){
+         if(changedAfterThis > 0 ){(rmLS->second)  = (rmLS->second)-SizeToRemove;
+                                    if((mapLSBSTrkSize.size()- (size_t)changedAfterThis) == 2 )PreviousRecords = (rmLS->second);
+                                  } }
+
+      theBeamFitter->resizeBSvector(SizeToRemove);
+
+      map<int, std::size_t >::iterator tmpIt=mapLSBSTrkSize.begin();
+      mapLSBSTrkSize.erase(tmpIt);
+      
+      int * checkfitLS = theBeamFitter->getFitLSRange();
+      time_t * checkfitTime =theBeamFitter->getRefTime();
+      theBeamFitter->setFitLSRange(beginLumiOfBSFit_,checkfitLS[1]);  
+      theBeamFitter->setRefTime(refBStime[0],checkfitTime[1]);         
+      }
+
+      //Fill the track for this fit 
+      vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
+      h_nTrk_lumi->ShiftFillLast( theBSvector.size() );   
+
+      if(debug_)edm::LogInfo("BeamMonitor")<< "FitAndFill::   Size of  theBSViector.size()  After =" << theBSvector.size() << endl;  
+
+
 
   bool countFitting = false;
-  if (theBSvector.size() > nthBSTrk_ && theBSvector.size() >= min_Ntrks_) {
-    countFitting = true;
-  }
+  if (theBSvector.size() > PreviousRecords  && theBSvector.size() >= min_Ntrks_) {
+      countFitting = true;
+     }
+
+
+   //---Fix for Cut Flow Table for Running average in a same way//the previous code  has problem for resetting!!!
+   mapLSCF[countLumi_] = theBeamFitter->getCutFlowNumbers();
+   if(StartAverage_){  map<int, int*>::iterator  itCFbegin = mapLSCF.begin();
+                       int* tmpbeginCF  = (itCFbegin->second);  
+                       int icf=0;
+                       map<int, int* >::iterator cf=mapLSCF.begin();
+                       for(std::map<int, int* >::iterator cf = mapLSCF.begin(); cf!=mapLSCF.end(); ++cf, ++icf){
+                       if(icf > 0 ){ int* tmpCountPass = cf->second;
+                                     for(unsigned int i=0; i < 9; i++)tmpCountPass[i]=tmpCountPass[i] - tmpbeginCF[i];
+                                                    
+                                     cf->second = tmpCountPass; 
+                                   }//only for >1 elemnts
+                        }//loop over mapLSCF sise
+                        int* correctionCF = itCFbegin->second;
+                        theBeamFitter->setCutFlow(correctionCF);         
+                                  
+                        mapLSCF.erase(itCFbegin);
+                 }  
+
+
+
 
   if (resetHistos_) {
-    edm::LogInfo("BeamMonitor") << "Resetting Histograms" << endl;
     h_d0_phi0->Reset();
     h_vx_vy->Reset();
     h_vx_dz->Reset();
     h_vy_dz->Reset();
     h_trk_z0->Reset();
-    theBeamFitter->resetCutFlow();
     resetHistos_ = false;
   }
 
-  edm::LogInfo("BeamMonitor") << "Fill histos, start from " << nthBSTrk_ + 1 << "th record of selected tracks" << endl;
+  if(StartAverage_) nthBSTrk_  = PreviousRecords; //after average proccess is ON//for 2-6 LS fit PreviousRecords is size from 2-5 LS
+
+  edm::LogInfo("BeamMonitor")<<" The Previous Recored for this fit is  ="<<nthBSTrk_<<endl;
+
   unsigned int itrk = 0;
   for (vector<BSTrkParameters>::const_iterator BSTrk = theBSvector.begin();
-       BSTrk != theBSvector.end();
-       ++BSTrk, ++itrk){
-    if (itrk >= nthBSTrk_){
+       BSTrk != theBSvector.end();  ++BSTrk, ++itrk){
+    if (itrk >= nthBSTrk_){//fill for this record only !!
       h_d0_phi0->Fill( BSTrk->phi0(), BSTrk->d0() );
       double vx = BSTrk->vx();
       double vy = BSTrk->vy();
@@ -743,11 +948,17 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       h_vx_vy->Fill( vx, vy );
       h_vx_dz->Fill( z0, vx );
       h_vy_dz->Fill( z0, vy );
-      h_trk_z0->Fill( z0 );
-    }
+      h_trk_z0->Fill( z0 ); 
+     }
   }
-  nthBSTrk_ = theBSvector.size(); // keep track of num of tracks filled so far
-  if (countFitting) edm::LogInfo("BeamMonitor") << "Num of tracks collected = " << nthBSTrk_ << endl;
+
+
+   nthBSTrk_ = theBSvector.size(); // keep track of num of tracks filled so far
+
+   edm::LogInfo("BeamMonitor")<<" The Current Recored for this fit is  ="<<nthBSTrk_<<endl;
+
+  if (countFitting) edm::LogInfo("BeamMonitor") << "FitAndFill::  Num of tracks collected = " << nthBSTrk_ << endl;
+
 
   if (fitNLumi_ > 0) {
     if (onlineMode_){
@@ -766,20 +977,23 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       if (countLumi_%fitNLumi_!=0) return;
   }
 
-  edm::LogInfo("BeamMonitor") << " [DebugTime] refBStime[0] = " << refBStime[0]
+  edm::LogInfo("BeamMonitor") << "FitAndFill:: [DebugTime] refBStime[0] = " << refBStime[0]
 			      << "; address =  " << &refBStime[0] << std::endl;
-  edm::LogInfo("BeamMonitor") << " [DebugTime] refBStime[1] = " << refBStime[1]
+  edm::LogInfo("BeamMonitor") << "FitAndFill:: [DebugTime] refBStime[1] = " << refBStime[1]
 			      << "; address =  " << &refBStime[1] << std::endl;
 
   if (countFitting) {
     nFits_++;
     int * fitLS = theBeamFitter->getFitLSRange();
-    edm::LogInfo("BeamMonitor") << "[BeamFitter] Do BeamSpot Fit for LS = " << fitLS[0] << " to " << fitLS[1] << std::endl;
-    edm::LogInfo("BeamMonitor") << "[BeamMonitor] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_ << " to " << endLumiOfBSFit_ << std::endl;
+    edm::LogInfo("BeamMonitor") << "FitAndFill::  [BeamFitter] Do BeamSpot Fit for LS = " << fitLS[0] << " to " << fitLS[1] << std::endl;
+    edm::LogInfo("BeamMonitor") << "FitAndFill::  [BeamMonitor] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_ << " to " << endLumiOfBSFit_ << std::endl;
+
+    //Now Run the PV and Track Fitter over the collected tracks and pvs
     if (theBeamFitter->runPVandTrkFitter()) {
       reco::BeamSpot bs = theBeamFitter->getBeamSpot();
       if (bs.type() > 0) // with good beamwidth fit
 	preBS = bs; // cache good fit results
+
       edm::LogInfo("BeamMonitor") << "\n RESULTS OF DEFAULT FIT:" << endl;
       edm::LogInfo("BeamMonitor") << bs << endl;
       edm::LogInfo("BeamMonitor") << "[BeamFitter] fitting done \n" << endl;
@@ -907,11 +1121,12 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       //     if (std::fabs(refBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[2] += 1.;
       //     }
-    } // beam fit is good
+
+    } //if (theBeamFitter->runPVandTrkFitter())
     else { // beam fit fails
       reco::BeamSpot bs = theBeamFitter->getBeamSpot();
-      edm::LogInfo("BeamMonitor") << "[BeamMonitor] Beam fit fails!!! \n" << endl;
-      edm::LogInfo("BeamMonitor") << "[BeamMonitor] Output beam spot for DIP \n" << endl;
+      edm::LogInfo("BeamMonitor") << "FitAndFill::   [BeamMonitor] Beam fit fails!!! \n" << endl;
+      edm::LogInfo("BeamMonitor") << "FitAndFill::   [BeamMonitor] Output beam spot for DIP \n" << endl;
       edm::LogInfo("BeamMonitor") << bs << endl;
 
       hs["sigmaX0_lumi"]->ShiftFillLast( bs.BeamWidthX(), bs.BeamWidthXError(), fitNLumi_ );
@@ -921,15 +1136,17 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       hs["y0_lumi"]->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
       hs["z0_lumi"]->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
     } // end of beam fit fails
-  } // end of countFitting
-  else { // no fit
+
+
+  } //-------- end of countFitting------------------------------------------
+ else { // no fit
     // Overwrite Fit LS and fit time when no event processed or no track selected
     theBeamFitter->setFitLSRange(beginLumiOfBSFit_,endLumiOfBSFit_);
     theBeamFitter->setRefTime(refBStime[0],refBStime[1]);
     if (theBeamFitter->runPVandTrkFitter()) {} // Dump fake beam spot for DIP
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
-    edm::LogInfo("BeamMonitor") << "[BeamMonitor] No fitting \n" << endl;
-    edm::LogInfo("BeamMonitor") << "[BeamMonitor] Output fake beam spot for DIP \n" << endl;
+    edm::LogInfo("BeamMonitor") << "FitAndFill::  [BeamMonitor] No fitting \n" << endl;
+    edm::LogInfo("BeamMonitor") << "FitAndFill::  [BeamMonitor] Output fake beam spot for DIP \n" << endl;
     edm::LogInfo("BeamMonitor") << bs << endl;
 
     hs["sigmaX0_lumi"]->ShiftFillLast( bs.BeamWidthX(), bs.BeamWidthXError(), fitNLumi_ );
@@ -939,6 +1156,8 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     hs["y0_lumi"]->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
     hs["z0_lumi"]->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
   }
+
+
 
   // Fill summary report
   if (countFitting) {
@@ -958,23 +1177,77 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     }
   }
 
-  if (resetFitNLumi_ > 0 &&
-      ((onlineMode_ && currentlumi%resetFitNLumi_ == 0) ||
-       (!onlineMode_ && countLumi_%resetFitNLumi_ == 0))) {
-    edm::LogInfo("BeamMonitor") << "Reset track collection for beam fit!!!" <<endl;
-    resetHistos_ = true;
-    nthBSTrk_ = 0;
-    theBeamFitter->resetTrkVector();
-    theBeamFitter->resetLSRange();
-    theBeamFitter->resetRefTime();
-    theBeamFitter->resetPVFitter();
-    beginLumiOfBSFit_ = 0;
-    refBStime[0] = 0;
-  }
+
+
+
+  if ( ( resetFitNLumi_ > 0 &&
+        ((onlineMode_ && countLumi_==resetFitNLumi_ ) ||  //OR it should be currentLumi_ (if in sequence then does not mattar)
+        (!onlineMode_ && countLumi_==resetFitNLumi_ ))
+       )  || (StartAverage_) ){
+
+    edm::LogInfo("BeamMonitor") << "FitAndFill:: The flag is ON for running average Beam Spot fit"<<endl;
+    StartAverage_    = true;
+    firstAverageFit_++;
+    resetHistos_     = true;   
+    nthBSTrk_        = 0;
+    beginLumiOfBSFit_= 0;
+    refBStime[0]     = 0;
+
+    } 
+
+
+
 }
 
 //--------------------------------------------------------
+void BeamMonitor::RestartFitting(){
+ if(debug_)edm::LogInfo("BeamMonitor") << " RestartingFitting:: Restart Beami everything to a fresh start !!! because Gap is > 10 LS" <<endl;
+                                                //track based fit reset here
+                                                resetHistos_ = true;
+                                                nthBSTrk_ = 0;
+                                                theBeamFitter->resetTrkVector();
+                                                theBeamFitter->resetLSRange();
+                                                theBeamFitter->resetRefTime();
+                                                theBeamFitter->resetPVFitter();
+                                                theBeamFitter->resetCutFlow();
+                                                beginLumiOfBSFit_ = 0;
+                                                refBStime[0] = 0;
+                                                //pv based fit iis reset here
+                                                h_PVx[0]->Reset();
+                                                h_PVy[0]->Reset();
+                                                h_PVz[0]->Reset();
+                                                beginLumiOfPVFit_ = 0;
+                                                refPVtime[0] = 0;
+                                                //Clear all the Maps here 
+                                                mapPVx.clear();
+                                                mapPVy.clear();
+                                                mapPVz.clear();
+                                                mapBeginBSLS.clear();
+                                                mapBeginPVLS.clear();
+                                                mapBeginBSTime.clear();
+                                                mapBeginPVTime.clear();
+                                                mapLSBSTrkSize.clear();
+                                                mapLSPVStoreSize.clear();
+                                                mapLSCF.clear(); countGapLumi_=0; countLumi_=0; StartAverage_=false;
+
+}
+
+//-------------------------------------------------------
 void BeamMonitor::endRun(const Run& r, const EventSetup& context){
+
+if(debug_)edm::LogInfo("BeamMonitor") << "endRun:: Clearing all the Maps "<<endl;
+//Clear all the Maps here 
+mapPVx.clear();
+mapPVy.clear();
+mapPVz.clear();                                                            
+mapBeginBSLS.clear();
+mapBeginPVLS.clear();
+mapBeginBSTime.clear();
+mapBeginPVTime.clear();
+mapLSBSTrkSize.clear();
+mapLSPVStoreSize.clear();
+mapLSCF.clear();
+
 
 }
 
@@ -1009,7 +1282,7 @@ bool BeamMonitor::testScroll(time_t & tmpTime_, time_t & refTime_){
   bool scroll_ = false;
   if (tmpTime_ - refTime_ >= intervalInSec_) {
     scroll_ = true;
-    edm::LogInfo("BeamMonitor") << "Reset Time Offset" << std::endl;
+    edm::LogInfo("BeamMonitor") << "testScroll::  Reset Time Offset" << std::endl;
     lastNZbin = intervalInSec_;
     for (int bin = intervalInSec_; bin >= 1; bin--) {
       if (hs["x0_time"]->getBinContent(bin) > 0) {
@@ -1017,14 +1290,14 @@ bool BeamMonitor::testScroll(time_t & tmpTime_, time_t & refTime_){
 	break;
       }
     }
-    edm::LogInfo("BeamMonitor") << "Last non zero bin = " << lastNZbin << std::endl;
+    edm::LogInfo("BeamMonitor") << "testScroll::  Last non zero bin = " << lastNZbin << std::endl;
     if (tmpTime_ - refTime_ >= intervalInSec_ + lastNZbin) {
-      edm::LogInfo("BeamMonitor") << "Time difference too large since last readout" << std::endl;
+      edm::LogInfo("BeamMonitor") << "testScroll::  Time difference too large since last readout" << std::endl;
       lastNZbin = 0;
       refTime_ = tmpTime_ - buffTime;
     }
     else{
-      edm::LogInfo("BeamMonitor") << "Offset to last record" << std::endl;
+      edm::LogInfo("BeamMonitor") << "testScroll::  Offset to last record" << std::endl;
       int offset = ((lastNZbin > buffTime) ? (lastNZbin - buffTime) : (lastNZbin - 1));
       refTime_ += offset;
     }

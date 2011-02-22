@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/07/06 23:37:27 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/07/15 04:19:31 $
+ *  $Revision: 1.5 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -55,6 +55,7 @@ class BeamMonitor : public edm::EDAnalyzer {
  private:
 
   void FitAndFill(const edm::LuminosityBlock& lumiSeg,int&,int&,int&);
+  void RestartFitting();
   void scrollTH1(TH1 *, std::time_t);
   bool testScroll(std::time_t &, std::time_t &);
   const char * formatFitTime( const std::time_t &);
@@ -74,6 +75,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   
   DQMStore* dbe_;
   BeamFitter * theBeamFitter;
+  PVFitter  * thePVFitter;
   
   int countEvt_;       //counter
   int countLumi_;      //counter
@@ -96,6 +98,10 @@ class BeamMonitor : public edm::EDAnalyzer {
   double minVtxWgt_;
 
   bool resetHistos_;
+  bool StartAverage_;
+  int firstAverageFit_;
+  int countGapLumi_;
+         
   bool processed_;
   // ----------member data ---------------------------
   
@@ -127,6 +133,17 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_PVyz;
   MonitorElement * pvResults;
   std::map<TString, MonitorElement*> hs;
+  
+  //ssc:the histo for  DQM gui
+  std::map<int, std::vector<float> > mapPVx,mapPVy,mapPVz;
+  //keep track of beginLuminosity block and time
+  std::map<int, int> mapBeginBSLS,mapBeginPVLS;
+  std::map<int, std::time_t> mapBeginBSTime, mapBeginPVTime;
+  //these maps are needed to keep track of size of theBSvector and pvStore 
+  std::map<int, std::size_t> mapLSBSTrkSize;
+  std::map<int, size_t>mapLSPVStoreSize;
+  //to correct the cutFlot Table
+  std::map<int, int*> mapLSCF;
 
   // Summary:
   Float_t reportSummary_;
@@ -143,6 +160,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   std::time_t startTime;
   std::time_t refTime;
   edm::TimeValue_t ftimestamp;
+  int frun;//ssc
   int lastNZbin; // last non zero bin of time histos
 };
 

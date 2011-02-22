@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: PVFitter.h,v 1.9 2010/07/12 20:35:08 yumiceva Exp $
+ version $Id: PVFitter.h,v 1.10 2010/09/01 20:19:29 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -51,12 +51,25 @@ class PVFitter {
   double getWidthXerr() { return fwidthXerr; }
   double getWidthYerr() { return fwidthYerr; }
   double getWidthZerr() { return fwidthZerr; }
-  
+  //ssc
+  std::vector<BeamSpotFitPVData> getpvStore() { return pvStore_; } 
+ 
   void FitPerBunchCrossing() { fFitPerBunchCrossing = true; }
   bool runBXFitter();
   bool runFitter(); 
   void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
   void resetRefTime() { freftime[0] = freftime[1] = 0; }
+  //ssc
+   void setRefTime(std::time_t t0,std::time_t t1) {
+    freftime[0] = t0;
+    freftime[1] = t1;
+  }
+   void setFitLSRange(int ls0,int ls1) {
+    fbeginLumiOfFit = ls0;
+    fendLumiOfFit = ls1;
+  }
+
+
   void dumpTxtFile();
   void resetAll() {
     resetLSRange();
@@ -78,6 +91,20 @@ class PVFitter {
     tmp[1] = fendLumiOfFit;
     return tmp;
   }
+ //ssc
+ time_t* getRefTime(){
+   time_t *tmptime=new time_t[2];
+   tmptime[0]=freftime[0];
+   tmptime[1]=freftime[1];
+   return tmptime;
+  }
+
+//ssc
+ void resizepvStore(unsigned int rmSize ){
+  pvStore_.erase(pvStore_.begin(), pvStore_.begin()+rmSize);
+  }
+
+ 
   /// reduce size of primary vertex cache by increasing quality limit
   void compressStore ();
   /// vertex quality measure

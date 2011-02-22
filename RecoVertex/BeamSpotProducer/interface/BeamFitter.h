@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamFitter.h,v 1.41 2010/11/03 13:44:17 friis Exp $
+ version $Id: BeamFitter.h,v 1.42 2010/11/08 18:53:38 friis Exp $
 
  ________________________________________________________________**/
 
@@ -53,7 +53,29 @@ class BeamFitter {
     freftime[0] = t0;
     freftime[1] = t1;
   }
+
+time_t* getRefTime(){
+   time_t *tmptime=new time_t[2];
+   tmptime[0]=freftime[0];
+   tmptime[1]=freftime[1];
+   return tmptime;
+  }
+
   void resetPVFitter() { MyPVFitter->resetAll(); }
+
+  //ssc
+  std::size_t  getPVvectorSize() {return (MyPVFitter->getpvStore()).size(); } 
+  //sc
+  void resizeBSvector(unsigned int nsize){
+    fBSvector.erase(fBSvector.begin(),fBSvector.begin()+nsize);
+   }  
+
+  //ssc
+  void resizePVvector(unsigned int npvsize){
+       MyPVFitter->resizepvStore(npvsize);
+   } 
+
+
   void dumpTxtFile(std::string &,bool);
   void dumpBWTxtFile(std::string &);
   void write2DB();
@@ -67,6 +89,30 @@ class BeamFitter {
     for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++)
       countPass[i]=0;
   }
+
+//ssc
+int* getCutFlowNumbers() {
+     int *tmpCF=new int[9];
+     for (unsigned int i=0; i < sizeof(countPass)/sizeof(countPass[0]); i++){
+     tmpCF[i] = countPass[i];
+     }
+     return tmpCF;
+    }
+//ssc
+ int getRunNumber() {
+      return frun;
+     }
+
+//ssc
+ void setCutFlow(int correction[]) {
+    h1cutFlow->Reset();
+    ftotal_tracks = ftotal_tracks- correction[0];
+    for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++){
+      countPass[i]=countPass[i]-correction[i];
+      h1cutFlow->SetBinContent(i+1,countPass[i]);}
+  }   
+
+
   int* getFitLSRange() {
     int *tmp=new int[2];
     tmp[0] = fbeginLumiOfFit;
