@@ -139,7 +139,8 @@ def runTtrigResidualCorr(run,input_db,root_file,config,runStep=True):
         print "Finished processing:"
         for pset in dtTtrigResidualCorr.configs: print "--->",pset
 
-def runTtrigValid(run,runselection,trial,input_db,label,result_file,config,runStep=True):
+#def runTtrigValid(run,runselection,trial,input_db,label,result_file,config,runStep=True):
+def runTtrigValid(run,runselection,trial,input_db,label,config,runStep=True):
 
     print "Processing tTrig validation"
     config.runselection = runselection
@@ -164,13 +165,14 @@ def runTtrigValid(run,runselection,trial,input_db,label,result_file,config,runSt
         crabValid.start()
         crabValid.join()
 
-        #result_file = config.result_dir + '/DTResidualValidation_%s.root'%run
+        """  
         if config.stageOutLocal:
             output_dir = project_valid + "/res"
             haddLocal(output_dir,result_file,'residuals')
         elif config.stageOutCAF:
             castor_dir = config.castorpath + "/" + config.userdircaf
             haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/','?svcClass=cmscafuser')
+        """
 
         return project_valid
 
@@ -336,7 +338,7 @@ def runTtrigWorkflow(mode,config,execute=True):
             #runTtrigValid(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config,False)
             runResidualCalib(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config,False)
             runTtrigResidualCorr(run,ttrig_timeboxes_db,residualsFirst,config,False)                
-            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config,False)
+            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config,False)
             #runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
             runDQMMerge(run,'',config,False)
 
@@ -360,10 +362,13 @@ def runTtrigWorkflow(mode,config,execute=True):
         if not os.path.exists(ttrig_residuals_db): runTtrigResidualCorr(run,ttrig_timeboxes_db,residualsFirst,config)
         if not os.path.exists(ttrig_residuals_db): raise RuntimeError,'Could not produce %s' % ttrig_residuals_db
 
-        # Validation         
+        # Validation
+        """         
         if not os.path.exists(residualsResidCorr):
-            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config)
+            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config)
         if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s' % residualsResidCorr
+        """
+        runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config)
 
         """
         # Summary of validation
@@ -391,7 +396,7 @@ def runTtrigWorkflow(mode,config,execute=True):
                 runResidualCalib(run,runselection,trial,None,'Residuals',residualsFirst,config,False)
                 runTtrigResidualCorr(run,None,residualsFirst,config,False)
 
-            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config,False)
+            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config,False)
             #runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
             runDQMMerge(run,'',config,False)
 
@@ -413,10 +418,13 @@ def runTtrigWorkflow(mode,config,execute=True):
             else: runTtrigResidualCorr(run,None,residualsFirst,config)
         if not os.path.exists(ttrig_residuals_db): raise RuntimeError,'Could not produce %s' % ttrig_residuals_db
 
-        # Validation         
+        # Validation
+        """         
         if not os.path.exists(residualsResidCorr):
-            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config)
+            runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config)
         if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s' % residualsResidCorr
+        """
+        runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config)
 
         """  
         # Summary of validation
@@ -435,9 +443,11 @@ def runTtrigWorkflow(mode,config,execute=True):
         if not execute:
             print "Writing configuration files.."
             if ttrig_input_db:
-                runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsValid,config,False)
+                #runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsValid,config,False)
+                runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',config,False)
             else:
-                runTtrigValid(run,runselection,trial,None,'Residuals',residualsValid,config,False)
+                #runTtrigValid(run,runselection,trial,None,'Residuals',residualsValid,config,False)
+                runTtrigValid(run,runselection,trial,None,'Residuals',config,False)
 
             #runTtrigValidSummary(run,residualsValid,summaryResiduals,config,False)
             runDQMMerge(run,'',config,False)
@@ -445,9 +455,17 @@ def runTtrigWorkflow(mode,config,execute=True):
             sys.exit(0)
 
         # Validation
+        """
         if not os.path.exists(residualsValid):
-            if ttrig_input_db: runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsValid,config)
-            else: runTtrigValid(run,runselection,trial,None,'Residuals',residualsValid,config)
+            if ttrig_input_db:
+                runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',residualsValid,config)
+            else:
+                runTtrigValid(run,runselection,trial,None,'Residuals',residualsValid,config)
+        """ 
+        if ttrig_input_db:
+            runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',config)
+        else:
+            runTtrigValid(run,runselection,trial,None,'Residuals',config)
 
         """
         # Summary of validation

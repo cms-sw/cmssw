@@ -1,4 +1,4 @@
-from tools import loadCmsProcess,writeCfg
+from tools import loadCmsProcess,writeCfg,dqmWorkflowName
 from CmsswTask import *
 import os
 
@@ -23,7 +23,9 @@ class DTDqm:
         self.process = loadCmsProcess(self.pset_template)
         self.process.source.fileNames = self.dqm_files
         self.process.dqmSaver.dirName = os.path.abspath(self.result_dir)
-        if self.config: self.process.dqmSaver.workflow = self.config.datasetpath
+        if self.config:
+            workflowName = dqmWorkflowName(self.config.datasetpath,'dtCalibration')
+            self.process.dqmSaver.workflow = workflowName
         if self.process.DQMStore.collateHistograms: self.process.dqmSaver.forceRunNumber = self.runnumber
 
     def writeCfg(self):
@@ -34,7 +36,7 @@ class DTDqm:
         self.task.run()
         return
 
-def runDQM(run,castor_dir,result_dir,template_path):
+def runDQM(run,castor_dir,result_dir):
     from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor
     dqm_files = listFilesInCastor(castor_dir,'DQM')
     runDir = '.'

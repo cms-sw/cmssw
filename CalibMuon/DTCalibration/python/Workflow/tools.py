@@ -12,6 +12,13 @@ def replaceTemplate(template,**opts):
 
     return result
  
+def dqmWorkflowName(datasetpath,type,rev=1):
+    workflowName = datasetpath
+    sections = workflowName.split('/')[1:]
+    workflowName = '/%s/%s-%s-rev%d/%s' % (sections[0],sections[1],type,rev,sections[2])
+    
+    return workflowName 
+   
 def listFilesInCastor(castor_dir,type = 'root',prefix = 'rfio:'):
     if not castor_dir: raise ValueError,'Please specify valid castor dir'
 
