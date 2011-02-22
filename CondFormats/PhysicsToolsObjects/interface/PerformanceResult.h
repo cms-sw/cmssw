@@ -23,7 +23,9 @@ class PerformanceResult {
     //
     PFfa_BARREL = 3001, PFfa_ENDCAP = 3002,
     PFfb_BARREL = 3003, PFfb_ENDCAP = 3004,
-    PFfc_BARREL = 3005, PFfc_ENDCAP = 3006
+    PFfc_BARREL = 3005, PFfc_ENDCAP = 3006,
+    PFfaEta_BARREL = 3007, PFfaEta_ENDCAP = 3008, 
+    PFfbEta_BARREL = 3009, PFfbEta_ENDCAP = 3010 
     
 
     
