@@ -24,8 +24,8 @@
 
     /** \class ZdcHitReconstructor
 	
-    $Date: 2010/01/18 00:00:66 $
-    $Revision: 1.6 $
+    $Date: 2010/01/21 14:36:12 $
+    $Revision: 1.1 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -56,6 +56,7 @@
       bool setTimingTrustFlags_; // turn on/off HF timing uncertainty flag 
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
+      std::vector<int> AuxTSvec_;
     };
 
 #endif
