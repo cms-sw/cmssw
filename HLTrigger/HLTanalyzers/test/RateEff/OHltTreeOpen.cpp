@@ -8373,93 +8373,84 @@ int OHltTree::OpenHlt2Tau1LegL3IsoPassed(
 }
 
 int OHltTree::OpenHlt1Ele1PFTauPassed(
-      float Et,
-      int L1iso,
-      float Tisobarrel,
-      float Tisoendcap,
-      float Tisoratiobarrel,
-      float Tisoratioendcap,
-      float HisooverETbarrel,
-      float HisooverETendcap,
-      float EisooverETbarrel,
-      float EisooverETendcap,
-      float hoverebarrel,
-      float hovereendcap,
-      float clusshapebarrel,
-      float clusshapeendcap,
-      float r9barrel,
-      float r9endcap,
-      float detabarrel,
-      float detaendcap,
-      float dphibarrel,
-      float dphiendcap,
-      float TauEt,
-      float TauEta,
-      float L25TrkPt,
-      float L3TrkIso,
-      float L3GammaIso,
-      float PFMHTCut)
+				      float Et, int L1iso,
+				      float Tisobarrel, float Tisoendcap,
+				      float Tisoratiobarrel, float Tisoratioendcap,
+				      float HisooverETbarrel, float HisooverETendcap,
+				      float EisooverETbarrel, float EisooverETendcap,
+				      float hoverebarrel, float hovereendcap,
+				      float clusshapebarrel, float clusshapeendcap,
+				      float r9barrel, float r9endcap,
+				      float detabarrel, float detaendcap,
+				      float dphibarrel, float dphiendcap,
+				      float TauEt, float TauEta, float L25TrkPt,
+				      float L3TrkIso, float L3GammaIso, float PFMHTCut)
 {
-   int rc=0;
-   // Loop over all oh electrons
-   for (int i=0; i<NohEle; i++)
-   {
+  int rc=0;
+  // Loop over all oh electrons
+  for (int i=0; i<NohEle; i++)
+    {
       float ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
       bool isBarrel, isEndCap, doTaus;
       isBarrel = isEndCap = doTaus = false;
 
       if (fabs(ohEleEta[i]) < 1.479)
-         isBarrel = true;
+	isBarrel = true;
       if (fabs(ohEleEta[i]) > 1.479 && fabs(ohEleEta[i]) < 2.65)
-         isEndCap = true;
+	isEndCap = true;
 
-      if (ohEleEt[i] > Et && (isBarrel || isEndCap) && ohEleNewSC[i] == 1
-            && ohElePixelSeeds[i] > 0 && ohEleL1iso[i] >= L1iso && // L1iso is 0 or 1
-            !ohEleL1Dupl[i])
-      { // remove double-counted L1 SCs
-         if (isBarrel)
-         {
-            if (ohEleHiso[i]/ohEleEt[i] < HisooverETbarrel && ohEleEiso[i]
-                  /ohEleEt[i] < EisooverETbarrel && ohEleHoverE < hoverebarrel
-                  && ((ohEleTiso[i] < Tisobarrel && ohEleTiso[i] != -999.)
-                        || Tisobarrel == 999.) && ohEleTiso[i]/ohEleEt[i]
-                  < Tisoratiobarrel && ohEleClusShap[i] < clusshapebarrel
-                  && ohEleR9[i] < r9barrel && fabs(ohEleDeta[i]) < detabarrel
-                  && ohEleDphi[i] < dphibarrel)
-               doTaus = true;
-         }
-         if (isEndCap)
-         {
-            if ((ohEleHiso[i]/ohEleEt[i]) < HisooverETendcap && (ohEleEiso[i]
-                  /ohEleEt[i]) < EisooverETendcap && ohEleHoverE < hovereendcap
-                  && ((ohEleTiso[i] < Tisoendcap && ohEleTiso[i] != -999.)
-                        || (Tisoendcap == 999.)) && ohEleTiso[i]/ohEleEt[i]
-                  < Tisoratioendcap && ohEleClusShap[i] < clusshapeendcap
-                  && ohEleR9[i] < r9endcap && fabs(ohEleDeta[i]) < detabarrel
-                  && ohEleDphi[i] < detaendcap)
-               doTaus = true;
-         }
+      if (ohEleEt[i] > Et && 
+          (isBarrel || isEndCap) && 
+          ohEleNewSC[i] == 1 &&
+          ohElePixelSeeds[i] > 0 &&
+          ohEleL1iso[i] >= L1iso && // L1iso is 0 or 1
+          !ohEleL1Dupl[i]) { // remove double-counted L1 SCs
+	if (isBarrel) {
+	  if (ohEleHiso[i]/ohEleEt[i] < HisooverETbarrel &&
+	      ohEleEiso[i]/ohEleEt[i] < EisooverETbarrel && 
+	      ohEleHoverE < hoverebarrel &&
+	      ((ohEleTiso[i] < Tisobarrel && ohEleTiso[i] != -999.) || Tisobarrel == 999.) && 
+	      ohEleTiso[i]/ohEleEt[i] < Tisoratiobarrel && 
+	      ohEleClusShap[i] < clusshapebarrel && 
+	      ohEleR9[i] < r9barrel && 
+	      fabs(ohEleDeta[i]) < detabarrel && 
+	      ohEleDphi[i] < dphibarrel)
+	    doTaus = true;
+	}
+	if (isEndCap) {
+	  if (ohEleHiso[i]/ohEleEt[i] < HisooverETendcap && 
+	      ohEleEiso[i]/ohEleEt[i] < EisooverETendcap && 
+	      ohEleHoverE < hovereendcap && 
+	      ((ohEleTiso[i] < Tisoendcap && ohEleTiso[i] != -999.) || (Tisoendcap == 999.)) && 
+	      ohEleTiso[i]/ohEleEt[i] < Tisoratioendcap && 
+	      ohEleClusShap[i] < clusshapeendcap &&
+	      ohEleR9[i] < r9endcap && fabs(ohEleDeta[i]) < detabarrel && 
+	      ohEleDphi[i] < detaendcap)
+	    doTaus = true;
+	}
       }
       if (doTaus)
-      {
-         for (int j=0; j < NohpfTau; j++)
-         {
-            if (ohpfTauPt[j] >= TauEt && fabs(ohpfTauEta[j]) < TauEta
-                  && ohpfTauLeadTrackPt[j] >= L25TrkPt && ohpfTauTrkIso[j]
-                  < L3TrkIso && ohpfTauGammaIso[j] < L3GammaIso && pfMHT
-                  >= PFMHTCut)
-            {
-               float dphi = fabs(ohElePhi[i] - ohpfTauPhi[j]);
-               float deta = fabs(ohEleEta[i] - ohpfTauEta[j]);
-               if (dphi > 3.14159)
-                  dphi = (2.0 * 3.14159) - dphi;
-               if (dphi > 0.3 && deta > 0.3)
-                  ++rc; // box cut, non-collinearity
-            }
-         }
-      }
-   }
-   return rc;
+	{
+	  for (int j=0; j < NohpfTau; j++)
+	    {
+	      if (ohpfTauPt[j] >= TauEt && 
+		  fabs(ohpfTauEta[j]) < TauEta && 
+		  ohpfTauLeadTrackPt[j] >= L25TrkPt && 
+		  ohpfTauTrkIso[j] < L3TrkIso && 
+		  ohpfTauGammaIso[j] < L3GammaIso && 
+		  pfMHT >= PFMHTCut)
+		{
+		  float dphi = fabs(ohElePhi[i] - ohpfTauPhi[j]);
+		  float deta = fabs(ohEleEta[i] - ohpfTauEta[j]);
+		  if (dphi > 3.14159)
+		    dphi = (2.0 * 3.14159) - dphi;
+		  if (sqrt(dphi*dphi + deta*deta) > 0.3)
+		    ++rc; 
+		}
+	    }
+	}
+    }
+  return rc;
 }
 
 int OHltTree::OpenHlt1PhotonSamHarperPassed(
