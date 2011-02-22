@@ -485,6 +485,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
                                          tpset.getParameter<int>("minHit"),
                                          tpset.getParameter<bool>("signalOnly"),
                                          tpset.getParameter<bool>("chargedOnly"),
+                                         tpset.getParameter<bool>("stableOnly"),
                                          tpset.getParameter<std::vector<int> >("pdgId"));
 
   // the service parameters

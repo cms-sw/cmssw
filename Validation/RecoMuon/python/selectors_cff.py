@@ -11,6 +11,7 @@ muonTPSet = cms.PSet(
     minRapidity = cms.double(-2.4),
     maxRapidity = cms.double(2.4),
     signalOnly = cms.bool(True),
+    stableOnly = cms.bool(False),
     chargedOnly = cms.bool(True)
 )
 
