@@ -12,8 +12,8 @@
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2011/02/03 20:56:56 $
-   $Revision: 1.11.2.1 $
+   $Date: 2011/02/09 23:07:52 $
+   $Revision: 1.12 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 
@@ -21,9 +21,7 @@ class HcalHFStatusBitFromDigis {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
   HcalHFStatusBitFromDigis();
-  HcalHFStatusBitFromDigis(int recoFirstSample,
-			   int recoSamplesToAdd,
-			   const edm::ParameterSet& HFDigiTimeParams,
+  HcalHFStatusBitFromDigis(const edm::ParameterSet& HFDigiTimeParams,
 			   const edm::ParameterSet& HFTimeInWindowParams);
   // Destructor
   ~HcalHFStatusBitFromDigis();
@@ -31,9 +29,10 @@ public:
   // The important stuff!  Methods for setting the status flag values
   void hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi,
 			 const HcalCoder& coder,
-			 const HcalCalibrations& calib);
-  // Hack for 3_11 processing of HF in both old, new runs
-  void resetTimeSamples(int firstSample, int samplesToAdd){firstSample_=firstSample; samplesToAdd_=samplesToAdd;}
+			 const HcalCalibrations& calib,
+			 int recoFirstSample,
+			 int recoSamplesToAdd);
+  void resetFlagTimeSamples(int firstSample, int samplesToAdd);
 
 private:
 

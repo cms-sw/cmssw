@@ -14,13 +14,14 @@
 class HBHEStatusBitSetter {
  public:
   HBHEStatusBitSetter();
-  HBHEStatusBitSetter(double nominalPedestal,double hitEnergyMinimum,int hitMultiplicityThreshold,std::vector<edm::ParameterSet> pulseShapeParameterSets, 
-		      int firstSample=0, 
-		      int samplesToAdd=10);
+  HBHEStatusBitSetter(double nominalPedestal,double hitEnergyMinimum,int hitMultiplicityThreshold,std::vector<edm::ParameterSet> pulseShapeParameterSets);
   ~HBHEStatusBitSetter();
   void Clear();
   void SetFlagsFromDigi(HBHERecHit& hbhe, const HBHEDataFrame& digi, const HcalCoder& coder,
-			const HcalCalibrations& calib);
+			const HcalCalibrations& calib,
+			int firstSample=3,
+			int samplesToAdd=4
+			);
   void SetFlagsFromRecHits(HBHERecHitCollection& rec);
  private:
   double hitEnergyMinimum_;

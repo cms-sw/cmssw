@@ -25,28 +25,28 @@
    has the option of correcting the reconstructed time for energy-dependent
    time slew associated with the QIE.
     
-   $Date: 2010/01/21 14:27:43 $
-   $Revision: 1.9 $
+   $Date: 2011/01/14 16:18:55 $
+   $Revision: 1.10 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
-  HcalSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew, 
+  HcalSimpleRecAlgo(bool correctForTimeslew, 
 		    bool correctForContainment, float fixedPhaseNs);
   /** Simple constructor for PMT-based detectors */
-  HcalSimpleRecAlgo(int firstSample, int samplesToAdd);
+  HcalSimpleRecAlgo();
 
-// ugly hack only for purposes of 3.11 HF treatment
-  void resetTimeSamples(int firstSample, int samplesToAdd);
+  void initPulseCorr(int toadd); 
 
-  HBHERecHit reconstruct(const HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HFRecHit reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HORecHit reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HBHERecHit reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HFRecHit reconstruct(const HFDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HORecHit reconstruct(const HODataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 private:
-  int firstSample_, samplesToAdd_;
   bool correctForTimeslew_;
+  bool correctForPulse_;
+  float phaseNS_;
   std::auto_ptr<HcalPulseContainmentCorrection> pulseCorr_;
 };
 
