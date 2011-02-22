@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V36 (CMSSW_3_11_0_HLT6)
+# /dev/CMSSW_3_11_1/GRun/V38 (CMSSW_3_11_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V36')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V38')
 )
 
 process.streams = cms.PSet( 
@@ -16026,26 +16026,15 @@ process.hltTrackerCosmicsPattern = cms.EDFilter( "HLTLevel1Pattern",
     bunchCrossings = cms.vint32( -2, -1, 0, 1, 2 ),
     triggerPattern = cms.vint32( 1, 1, 1, 0, 0 )
 )
-process.hltL1sRegionalCosmicTracking = cms.EDFilter( "HLTLevel1GTSeed",
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1TechTriggerSeeding = cms.bool( False ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_ETT180" ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
-)
 process.hltPreRegionalCosmicTracking = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
-process.hltL1sL1MuOR = cms.EDFilter( "HLTLevel1GTSeed",
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1NrBxInEvent = cms.int32( 3 ),
+process.hltL1sL1SingleMuOpenCandidate = cms.EDFilter( "HLTLevel1GTSeed",
+    L1UseL1TriggerObjectMaps = cms.bool( False ),
+    L1NrBxInEvent = cms.int32( 1 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen OR L1_SingleMu3 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu12 OR L1_SingleMu16 OR L1_SingleMu20" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -16053,7 +16042,7 @@ process.hltL1sL1MuOR = cms.EDFilter( "HLTLevel1GTSeed",
 )
 process.hltL1MuORL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     CandTag = cms.InputTag( "hltL1extraParticles" ),
-    PreviousCandTag = cms.InputTag( "hltL1sL1MuOR" ),
+    PreviousCandTag = cms.InputTag( "hltL1sL1SingleMuOpenCandidate" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
@@ -18976,8 +18965,8 @@ process.HLT_TrackerCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibratio
 process.HLT_Random_v1 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreRandom + process.HLTEndSequence )
 process.HLT_L1MuOpen_AntiBPTX_v2 = cms.Path( process.HLTBeginSequenceAntiBPTX + process.hltL1sL1SingleMuOpen + process.hltPreL1MuOpenAntiBPTX + process.hltL1MuOpenL1Filtered0 + process.HLTEndSequence )
 process.HLT_L1TrackerCosmics_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreTrackerCosmics + process.hltTrackerCosmicsPattern + process.HLTEndSequence )
-process.HLT_RegionalCosmicTracking_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sRegionalCosmicTracking + process.hltPreRegionalCosmicTracking + process.hltTrackerCosmicsPattern + process.hltL1sL1MuOR + process.hltL1MuORL1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleL2MuORL2PreFilteredNoVtx + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltRegionalCosmicTrackerSeeds + process.hltRegionalCosmicCkfTrackCandidates + process.hltRegionalCosmicTracks + process.hltCosmicTrackSelector + process.HLTEndSequence )
-process.HLT_L3MuonsCosmicTracking_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreL3MuonsCosmicTracking + process.hltTrackerCosmicsPattern + process.hltL1sL1MuOR + process.hltL1MuORL1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleL2MuORL2PreFilteredNoVtx + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltL3TrajectorySeedNoVtx + process.hltL3TrackCandidateFromL2NoVtx + process.hltL3TkTracksFromL2NoVtx + process.hltL3MuonsNoVtx + process.hltL3MuonCandidatesNoVtx + process.hltMu5NoVertexL3PreFiltered5 + process.HLTEndSequence )
+process.HLT_RegionalCosmicTracking_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreRegionalCosmicTracking + process.hltTrackerCosmicsPattern + process.hltL1sL1SingleMuOpenCandidate + process.hltL1MuORL1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleL2MuORL2PreFilteredNoVtx + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltRegionalCosmicTrackerSeeds + process.hltRegionalCosmicCkfTrackCandidates + process.hltRegionalCosmicTracks + process.hltCosmicTrackSelector + process.HLTEndSequence )
+process.HLT_L3MuonsCosmicTracking_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreL3MuonsCosmicTracking + process.hltTrackerCosmicsPattern + process.hltL1sL1SingleMuOpenCandidate + process.hltL1MuORL1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleL2MuORL2PreFilteredNoVtx + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltL3TrajectorySeedNoVtx + process.hltL3TrackCandidateFromL2NoVtx + process.hltL3TkTracksFromL2NoVtx + process.hltL3MuonsNoVtx + process.hltL3MuonCandidatesNoVtx + process.hltMu5NoVertexL3PreFiltered5 + process.HLTEndSequence )
 process.HLT_LogMonitor_v1 = cms.Path( process.hltGtDigis + process.hltPreLogMonitor + process.hltLogMonitorFilter + process.HLTEndSequence )
 process.HLT_DTErrors_v1 = cms.Path( process.hltGtDigis + process.hltPreAlCaDTErrors + process.hltDTROMonitorFilter + process.hltDynAlCaDTErrors + process.HLTEndSequence )
 process.AlCa_EcalPi0_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sAlCaEcalPi0Eta + process.hltPreAlCaEcalPi0 + process.HLTDoRegionalPi0EtaSequence + process.hltSimple3x3Clusters + process.hltAlCaPi0RecHitsFilter + process.HLTEndSequence )
