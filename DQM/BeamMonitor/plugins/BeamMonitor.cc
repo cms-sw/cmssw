@@ -844,7 +844,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     }//check if found min Vertices
   }//do PVfit
 
-  if ( ( resetPVNLumi_ > 0 && ((onlineMode_ && (countLumi_) == resetPVNLumi_ ) ||   (!onlineMode_ && (countLumi_) == resetPVNLumi_ ))) || (StartAverage_) ){
+  if ((resetPVNLumi_ > 0 && countLumi_ == resetPVNLumi_) || StartAverage_){
     beginLumiOfPVFit_=0;
     refPVtime[0] = 0;
     }
