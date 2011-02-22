@@ -13,7 +13,8 @@ class APDSimParameters
 		        double timeOffset   ,
 		        double timeOffWidth ,
 			bool   doPEStats    ,
-			const std::string& digiTag ) :
+			const std::string& digiTag,
+			const std::vector<double>& nonlParms ) :
 
 	 m_addToBarrel  ( addToBarrel  ) ,
 	 m_separateDigi ( separateDigi ) ,
@@ -22,7 +23,8 @@ class APDSimParameters
 	 m_timeOffset   ( timeOffset   ) ,
 	 m_timeOffWidth ( fabs( timeOffWidth ) ) ,
 	 m_doPEStats    ( doPEStats    ) ,
-	 m_digiTag      ( digiTag      )   {}
+	 m_digiTag      ( digiTag      ) ,
+	 m_nonlParms    ( nonlParms    )      {}
 
       virtual ~APDSimParameters() {}
 
@@ -36,6 +38,8 @@ class APDSimParameters
 
       const std::string& digiTag() const { return m_digiTag    ; }
 
+      const std::vector<double>& nonlParms() const { return m_nonlParms ; }
+
    private:
 
       bool   m_addToBarrel  ;
@@ -46,6 +50,7 @@ class APDSimParameters
       double m_timeOffWidth ;
       bool   m_doPEStats    ;
       std::string m_digiTag ;
+      std::vector<double> m_nonlParms ;
 };
 
 #endif

@@ -44,6 +44,15 @@ class EBHitResponse : public CaloHitRespoNew
 
    private:
 
+      const double nonlFunc( double enr ) const {
+	 return ( pene > enr ? nonlFunc1( enr ) : 
+		  pfac*atan( enr - pene ) + poff ) ; }
+
+      const double nonlFunc1( double enr ) const {
+	 const double enr2 ( enr*enr ) ;
+	 const double enr3 ( enr2*enr ) ;
+	 return ( pcub*enr3 + pqua*enr2 + plin*enr + pcon ) ; }
+
       const APDSimParameters* apdParameters() const ;
       const CaloVShape*       apdShape()      const ;
 
@@ -58,6 +67,8 @@ class EBHitResponse : public CaloHitRespoNew
       const EcalIntercalibConstantsMC* m_intercal ;
 
       std::vector<double> m_timeOffVec ;
+
+      const double pcub, pqua, plin, pcon, pene, pasy, poff, pfac ;
 };
 #endif
 

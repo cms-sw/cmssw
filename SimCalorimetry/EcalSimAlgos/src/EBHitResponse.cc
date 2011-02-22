@@ -20,7 +20,15 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
    m_apdOnly  ( apdOnly  ) ,
    m_apdPars  ( apdPars  ) ,
    m_apdShape ( apdShape ) ,
-   m_timeOffVec ( kNOffsets, apdParameters()->timeOffset() )
+   m_timeOffVec ( kNOffsets, apdParameters()->timeOffset() ) ,
+   pcub ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[0] ) ,
+   pqua ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[1] ) ,
+   plin ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[2] ) ,
+   pcon ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[3] ) ,
+   pene ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[4] ) ,
+   pasy ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[5] ) ,
+   poff ( 0 == apdPars ? 0 : nonlFunc1( pene ) ) ,
+   pfac ( 0 == apdPars ? 0 : ( pasy - poff )*2./M_PI ) 
 {
    for( unsigned int i ( 0 ) ; i != kNOffsets ; ++i )
    {
@@ -103,8 +111,14 @@ EBHitResponse::apdSignalAmplitude( const PCaloHit& hit ) const
    double npe ( hit.energy()*( 2 == hit.depth() ?
 			       apdParameters()->simToPELow() :
 			       apdParameters()->simToPEHigh() ) ) ;
-			       
-   // do we need to doPoisson statistics for the photoelectrons?
+
+
+   const double energyFac ( params( hit.id() )->
+			    simHitToPhotoelectrons( hit.id() ) ) ;
+
+   npe *= nonlFunc( npe*energyFac ) ;
+
+   // do we need to do Poisson statistics for the photoelectrons?
    if( apdParameters()->doPEStats() &&
        !m_apdOnly                      ) npe = ranPois()->fire( npe ) ;
 
@@ -113,6 +127,7 @@ EBHitResponse::apdSignalAmplitude( const PCaloHit& hit ) const
    findIntercalibConstant( hit.id(), fac ) ;
 
    npe *= fac ;
+
 //   edm::LogError( "EBHitResponse" ) << "--- # photoelectrons for "
 /*   std::cout << "--- # photoelectrons for "
 	     << EBDetId( hit.id() ) 
