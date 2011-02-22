@@ -10,6 +10,7 @@ apd_sim_parameters = cms.PSet(
     apdDoPEStats    = cms.bool(True),
     apdDigiTag      = cms.string("APD"),
     apdShapeTstart  = cms.double( 74.5 ),
-    apdShapeTau     = cms.double( 40.5 )
+    apdShapeTau     = cms.double( 40.5 ),
+    apdNonlParms    = cms.vdouble( 1.64e-3, -3.72e-2, 0.207, 0.812, 13.0, 0.85)
 )
 

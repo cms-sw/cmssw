@@ -101,6 +101,7 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
    const double apdTimeOffWidth ( params.getParameter<double> ("apdTimeOffWidth" ) ) ;
    const bool   apdDoPEStats    ( params.getParameter<bool>   ("apdDoPEStats"  ) ) ;
    const std::string apdDigiTag ( params.getParameter<std::string>("apdDigiTag") ) ;
+   const std::vector<double> apdNonlParms ( params.getParameter<std::vector<double> > ( "apdNonlParms" ) ) ;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -129,8 +130,8 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
 					   apdTimeOffset   ,
 					   apdTimeOffWidth ,
 					   apdDoPEStats    ,
-					   apdDigiTag        ) ;
-  
+					   apdDigiTag      ,
+					   apdNonlParms      ) ;
 
 
    if( apdSeparateDigi ) 
