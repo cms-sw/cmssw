@@ -1,5 +1,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidate.h"
 
@@ -12,6 +13,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtraFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -54,6 +56,11 @@ namespace {
     reco::PFCandidateElectronExtraRefProd ex_rp;
     reco::PFCandidateElectronExtraRefVector ex_rv;
     edm::Wrapper<std::vector<reco::PFCandidateElectronExtra> > ex_w1;
+
+    reco::PFCandidatePhotonExtraRef ph_r;
+    reco::PFCandidatePhotonExtraRefProd ph_rp;
+    //    reco::PFCandidatePhotonExtraRefVector ph_rv;
+    edm::Wrapper<std::vector<reco::PFCandidatePhotonExtra> > ph_w1;
 
   };
 }

@@ -47,5 +47,19 @@
   <class name="reco::PFCandidateElectronExtraRefProd"/>
   <class name="reco::PFCandidateElectronExtraRefVector"/>
 
+  <class name="reco::PFCandidatePhotonExtra">
+<!-- 
+  <field name="assoSingleLegRefTrack_" transient="true"/>
+  <field name="assoSingleLegMva_" transient="true"/>
+-->
+  </class>
+  <class name="std::vector<reco::PFCandidatePhotonExtra>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFCandidatePhotonExtra> >"/>
+  <class name="reco::PFCandidatePhotonExtraRef"/>
+  <class name="reco::PFCandidatePhotonExtraRefProd"/>
+<!-- 
+  <class name="reco::PFCandidatePhotonExtraRefVector"/>
+-->
+
 </lcgdict>
  

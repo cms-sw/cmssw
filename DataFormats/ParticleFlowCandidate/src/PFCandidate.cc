@@ -161,6 +161,34 @@ void PFCandidate::setGsfTrackRef(const reco::GsfTrackRef& ref) {
   gsfTrackRef_ = ref;
 }
 
+void PFCandidate::setSuperClusterRef(const reco::SuperClusterRef& scRef) {
+  if( particleId_ != gamma && particleId_ != e) {
+    string err;
+    err += "PFCandidate::setSuperClusterRef: this is not an electron neither a photon ! particleId_=";
+    char num[4];
+    sprintf( num, "%d", particleId_);
+    err += num;
+
+    throw cms::Exception("InconsistentReference",
+                         err.c_str() );
+  }
+  superClusterRef_ = scRef;
+}
+
+void PFCandidate::setPhotonRef(const reco::PhotonRef& phRef) {
+  if( particleId_ != gamma && particleId_ != e) {
+    string err;
+    err += "PFCandidate::setSuperClusterRef: this is not an electron neither a photon ! particleId_=";
+    char num[4];
+    sprintf( num, "%d", particleId_);
+    err += num;
+
+    throw cms::Exception("InconsistentReference",
+                         err.c_str() );
+  }
+  photonRef_ = phRef;
+}
+
 void PFCandidate::setMuonRef(const reco::MuonRef& ref) {
 
   if(  trackRef_ != ref->track() ) {

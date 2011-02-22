@@ -17,8 +17,10 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtraFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
@@ -173,11 +175,23 @@ namespace reco {
     /// return a reference to the corresponding GsfElectron if any
     reco::GsfElectronRef gsfElectronRef() const {return gsfElectronRef_;} 
 
+    /// set ref to the corresponding SuperCluster if any
+    void setSuperClusterRef(const reco::SuperClusterRef& scRef);
+
     /// return a reference to the corresponding SuperCluster if any
     reco::SuperClusterRef superClusterRef() const {return superClusterRef_;} 
 
+    /// set ref to the corresponding reco::Photon if any
+    void setPhotonRef(const reco::PhotonRef& phRef);
+
+    /// return a reference to the corresponding Photon if any
+    reco::PhotonRef photonRef() const {return photonRef_;}  
+
     /// return a reference to the electron extra
     reco::PFCandidateElectronExtraRef electronExtraRef() const {return pfElectronExtraRef_;}
+
+    /// return a reference to the photon extra
+    reco::PFCandidatePhotonExtraRef photonExtraRef() const {return pfPhotonExtraRef_;}
 
     /// set corrected Ecal energy 
     void setEcalEnergy( float ee ) {ecalEnergy_ = ee;}
@@ -287,6 +301,11 @@ namespace reco {
     /// set the PF Electron Extra Ref
     void setPFElectronExtraRef(const reco::PFCandidateElectronExtraRef& ref) {
       pfElectronExtraRef_=ref ;
+    }
+
+    /// set the PF Photon Extra Ref
+    void setPFPhotonExtraRef(const reco::PFCandidatePhotonExtraRef& ref) {
+      pfPhotonExtraRef_=ref ;
     }
 
     /// \return position at ECAL entrance
@@ -414,8 +433,14 @@ namespace reco {
     // Reference to the corresponding SuperCluster if any
     reco::SuperClusterRef superClusterRef_;
 
+    // Reference to the corresponding photon if any
+    reco::PhotonRef photonRef_;
+
     // Reference to the PFCandidateElectronExtra
     reco::PFCandidateElectronExtraRef pfElectronExtraRef_;
+
+    // Reference to the PFCandidateElectronExtra
+    reco::PFCandidatePhotonExtraRef pfPhotonExtraRef_;
   };
 
   /// particle ID component tag
