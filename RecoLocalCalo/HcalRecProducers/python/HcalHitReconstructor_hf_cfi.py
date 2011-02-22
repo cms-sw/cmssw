@@ -4,9 +4,7 @@ import string # use for setting flag masks based on boolean bits
 hfreco = cms.EDProducer("HcalHitReconstructor",
                         correctionPhaseNS = cms.double(0.0),
                         digiLabel = cms.InputTag("hcalDigis"),
-                        samplesToAdd = cms.int32(2),
                         Subdetector = cms.string('HF'),
-                        firstSample = cms.int32(4),
                         correctForPhaseContainment = cms.bool(False),
                         correctForTimeslew = cms.bool(False),
                         dropZSmarkedPassed = cms.bool(True),
@@ -15,9 +13,8 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         correctTiming = cms.bool(True),
                         setNoiseFlags = cms.bool(True),
 
-                        # Set offset between firstSample value and
-                        # first sample to be stored in aux word
-                        firstAuxOffset = cms.int32(-1),  # aux bit should start at TS3, one less than first sample
+                        # Set time slice for first digi to be stored in aux word 
+                        firstAuxTS = cms.int32(3),
 
                         setHSCPFlags  = cms.bool(True),
                         setSaturationFlags = cms.bool(True),

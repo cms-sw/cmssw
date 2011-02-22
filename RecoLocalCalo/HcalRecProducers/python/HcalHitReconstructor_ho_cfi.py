@@ -4,16 +4,14 @@ horeco = cms.EDProducer(
     "HcalHitReconstructor",
     correctionPhaseNS = cms.double(13.0),
     digiLabel = cms.InputTag("hcalDigis"),
-    samplesToAdd = cms.int32(4),
     Subdetector = cms.string('HO'),
-    firstSample = cms.int32(4),
     correctForPhaseContainment = cms.bool(True),
     correctForTimeslew = cms.bool(True),
     dropZSmarkedPassed = cms.bool(True),
 
-    # Set offset between firstSample value and
-    # first sample to be stored in aux word
-    firstAuxOffset = cms.int32(0),
+    # Set time slice for first digi to be stored in aux word
+    # (HO uses time slices 4-7)
+    firstAuxTS = cms.int32(4),
 
     #Tags for calculating status flags
     correctTiming = cms.bool(True),
