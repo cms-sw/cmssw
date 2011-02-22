@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.24 2010/04/13 21:47:48 nancy Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.25 2010/05/14 20:54:04 vlimant Exp $
 #
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -39,6 +39,8 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     MeasurementTrackerName = cms.string(''),
     OutInRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     InOutRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
+    maxNumOfSeedsOutIn = cms.int32(50),
+    maxNumOfSeedsInOut = cms.int32(50),                                       
     hcalTowers = cms.InputTag("towerMaker"),                                       
     minSCEt = cms.double(10.0),
     hOverEConeSize = cms.double(0.15),
