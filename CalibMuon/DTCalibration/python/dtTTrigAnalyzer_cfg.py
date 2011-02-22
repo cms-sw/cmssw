@@ -6,16 +6,16 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
-    firstRun = cms.untracked.uint32()
+    firstRun = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.dtTtrigAnalyzer = cms.EDAnalyzer("DTTTrigAnalyzer",
+process.dtTTrigAnalyzer = cms.EDAnalyzer("DTTTrigAnalyzer",
     dbLabel = cms.untracked.string(""),
     rootFileName = cms.untracked.string("") 
 )
 
-process.p = cms.Path(process.dtTtrigAnalyzer)
+process.p = cms.Path(process.dtTTrigAnalyzer)

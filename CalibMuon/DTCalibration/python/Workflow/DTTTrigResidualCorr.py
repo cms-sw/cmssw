@@ -51,6 +51,7 @@ class DTTTrigResidualCorr:
         # Change DB label if running on Cosmics
         if hasattr(self.config,'runOnCosmics') and self.config.runOnCosmics:
             self.process['dtTTrigResidualCorrection_cfg.py'].dtTTrigResidualCorrection.dbLabel = 'cosmics'
+            self.process['dtTTrigResidualCorrection_cfg.py'].dtTTrigResidualCorrection.correctionAlgoConfig.dbLabel = 'cosmics'
 
         self.process['dtTTrigResidualCorrection_cfg.py'].PoolDBOutputService.connect = 'sqlite_file:%s' % ttrig_ResidCorr_db
         self.process['dtTTrigResidualCorrection_cfg.py'].dtTTrigResidualCorrection.correctionAlgoConfig.residualsRootFile = root_file
