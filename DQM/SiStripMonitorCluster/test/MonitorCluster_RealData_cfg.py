@@ -44,8 +44,9 @@ process.GlobalTag.globaltag = "GR_R_311_V1::All"
 #-----------------------
 #  Reconstruction Modules
 #-----------------------
-process.load("EventFilter.SiStripRawToDigi.SiStripDigis_cfi")
-process.siStripDigis.ProductLabel = 'source'
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+#process.load("EventFilter.SiStripRawToDigi.SiStripDigis_cfi")
+#process.siStripDigis.ProductLabel = 'source'
 
 process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
 
@@ -91,7 +92,12 @@ process.outP = cms.OutputModule("AsciiOutputModule")
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
-process.RecoForDQM = cms.Sequence(process.siStripDigis*process.siStripZeroSuppression*process.siStripClusters)
-process.p = cms.Path(process.RecoForDQM*process.SiStripMonitorCluster)
+process.RecoForDQM = cms.Sequence(process.siStripDigis*process.gtDigis*process.siStripZeroSuppression*process.siStripClusters)
+#process.RecoForDQM = cms.Sequence(process.siStripDigis*process.siStripZeroSuppression*process.siStripClusters)
+process.p = cms.Path(
+    process.scalersRawToDigi*
+    process.APVPhases*
+    process.consecutiveHEs*
+    process.RecoForDQM*process.SiStripMonitorCluster)
 process.ep = cms.EndPath(process.outP)
 
