@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.h,v 1.1 2010/04/14 13:31:01 scooper Exp $
+// $Id: HSCPValidator.h,v 1.2 2010/04/14 18:08:23 scooper Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,11 +43,13 @@ class HSCPValidator : public edm::EDAnalyzer {
       virtual void endJob() ;
       std::string intToString(int num);
       void makeGenPlots(const edm::Event& iEvent);
+      void makeSimTrackPlots(const edm::Event& iEvent);
       void makeSimDigiPlotsECAL(const edm::Event& iEvent);
       void makeSimDigiPlotsRPC(const edm::Event& iEvent);
 
       // ----------member data ---------------------------
       bool doGenPlots_;
+      bool doSimTrackPlots_;
       bool doSimDigiPlots_;
       bool doRecoPlots_;
 
@@ -64,6 +66,13 @@ class HSCPValidator : public edm::EDAnalyzer {
       TH1F* particleStatusHist_;
       TH1F* particleBetaHist_;
       TH1F* particleBetaInverseHist_;
+
+      //SIM-Track section
+      TH1F*simTrackParticleEtaHist_ ;
+      TH1F* simTrackParticlePhiHist_;
+      TH1F* simTrackParticlePHist_;
+      TH1F*simTrackParticlePtHist_;
+      TH1F* simTrackParticleBetaHist_;
 
       // SIM-DIGI section
       edm::InputTag ebSimHitTag_;

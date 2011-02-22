@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.cc,v 1.3 2010/04/15 12:57:39 carrillo Exp $
+// $Id: HSCPValidator.cc,v 1.4 2010/06/23 17:12:36 querten Exp $
 //
 //
 
@@ -96,11 +96,12 @@ edm::Service<TFileService> fileService;
 //
 HSCPValidator::HSCPValidator(const edm::ParameterSet& iConfig) :
   doGenPlots_ (iConfig.getParameter<bool>("MakeGenPlots")),
+  doSimTrackPlots_ (iConfig.getParameter<bool>("MakeSimTrackPlots")),
   doSimDigiPlots_ (iConfig.getParameter<bool>("MakeSimDigiPlots")),
   doRecoPlots_ (iConfig.getParameter<bool>("MakeRecoPlots")),
   label_ (iConfig.getParameter<edm::InputTag>("generatorLabel")),
   particleIds_ (iConfig.getParameter< std::vector<int> >("particleIds")),
-  particleStatus_ (iConfig.getUntrackedParameter<int>("particleStatus",3)),
+  particleStatus_ (iConfig.getUntrackedParameter<int>("particleStatus",1)),
   ebSimHitTag_ (iConfig.getParameter<edm::InputTag>("EBSimHitCollection")),
   eeSimHitTag_ (iConfig.getParameter<edm::InputTag>("EESimHitCollection")),
   simTrackTag_ (iConfig.getParameter<edm::InputTag>("SimTrackCollection")),
@@ -119,6 +120,15 @@ HSCPValidator::HSCPValidator(const edm::ParameterSet& iConfig) :
   particleBetaHist_ = fileService->make<TH1F>("particleBeta","Beta of gen particle",100,0,1);
   particleBetaInverseHist_ = fileService->make<TH1F>("particleBetaInverse","1/#beta of gen particle",100,0,5);
   
+  //SIM track Info
+  simTrackParticleEtaHist_ = fileService->make<TH1F>("simTrackParticleEta","Eta of simTrackParticle",100,-5,5);
+  simTrackParticlePhiHist_ = fileService->make<TH1F>("simTrackParticlePhi","Phi of simTrackParticle",180,-3.15,3.15);
+  simTrackParticlePHist_ = fileService->make<TH1F>("simTrackParticleP","Momentum of simTrackParticle",500,0,2000);
+  simTrackParticlePtHist_ = fileService->make<TH1F>("simTrackParticlePt","P_{T} of simTrackParticle",500,0,2000);
+  simTrackParticleBetaHist_ = fileService->make<TH1F>("simTrackParticleBeta","Beta of simTrackParticle",100,0,1);
+
+
+
   // SIM-DIGI: ECAL
   simHitsEcalEnergyHistEB_ = fileService->make<TH1F>("ecalEnergyOfSimHitsEB","HSCP SimTrack-matching SimHit energy EB [GeV]",125,-1,4);
   simHitsEcalEnergyHistEE_ = fileService->make<TH1F>("ecalEnergyOfSimHitsEE","HSCP SimTrack-matching SimHit energy EE [GeV]",125,-1,4);
@@ -172,6 +182,14 @@ HSCPValidator::~HSCPValidator()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+  particleEtaHist_ = fileService->make<TH1F>("particleEta","Eta of gen particle",100,-5,5);
+  particlePhiHist_ = fileService->make<TH1F>("particlePhi","Phi of gen particle",180,-3.15,3.15);
+  particlePHist_ = fileService->make<TH1F>("particleP","Momentum of gen particle",500,0,2000);
+  particlePtHist_ = fileService->make<TH1F>("particlePt","P_{T} of gen particle",500,0,2000);
+  particleMassHist_ = fileService->make<TH1F>("particleMass","Mass of gen particle",1000,0,2000);
+  particleStatusHist_ = fileService->make<TH1F>("particleStatus","Status of gen particle",10,0,10);
+  particleBetaHist_ = fileService->make<TH1F>("particleBeta","Beta of gen particle",100,0,1);
+  particleBetaInverseHist_ = fileService->make<TH1F>("particleBetaInverse","1/#beta of gen particle",100,0,5);
 
 }
 
@@ -190,6 +208,8 @@ HSCPValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(doGenPlots_)
     makeGenPlots(iEvent);
+  if(doSimTrackPlots_)
+    makeSimTrackPlots(iEvent);
   if(doSimDigiPlots_){
     makeSimDigiPlotsECAL(iEvent);
     makeSimDigiPlotsRPC(iEvent);
@@ -273,6 +293,34 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
   delete myGenEvent; 
 }
 
+// ------------- Make SimTrack plots ---------------------------------------------------------
+void HSCPValidator::makeSimTrackPlots(const edm::Event& iEvent)
+{
+  using namespace edm;
+  //get sim track infos
+  Handle<edm::SimTrackContainer> simTracksHandle;
+  iEvent.getByLabel("g4SimHits",simTracksHandle);
+  const SimTrackContainer simTracks = *(simTracksHandle.product());
+
+  SimTrackContainer::const_iterator simTrack;
+
+  for (simTrack = simTracks.begin(); simTrack != simTracks.end(); ++simTrack){
+     // Check if the particleId is in our list
+     std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),simTrack->type());
+     if(partIdItr==particleIds_.end()) continue;
+
+     simTrackParticleEtaHist_->Fill((*simTrack).momentum().eta());
+     simTrackParticlePhiHist_->Fill((*simTrack).momentum().phi());
+     simTrackParticlePHist_->Fill((*simTrack).momentum().P());
+     
+     simTrackParticlePtHist_->Fill((*simTrack).momentum().pt());
+     
+     simTrackParticleBetaHist_->Fill((*simTrack).momentum().P()/(*simTrack).momentum().e());  
+     
+
+
+  }
+}
 // ------------- Make simDigi plots ECAL ------------------------------------------------
 void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
 {
