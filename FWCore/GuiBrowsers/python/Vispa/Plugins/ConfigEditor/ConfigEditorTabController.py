@@ -293,11 +293,7 @@ class ConfigEditorTabController(BrowserTabController):
         """ Reads in the file in a separate thread.
         """
         self._updateCenterView=False
-        thread = ThreadChain(self.dataAccessor().open, filename)
-        while thread.isRunning():
-            if not Application.NO_PROCESS_EVENTS:
-                QCoreApplication.instance().processEvents()
-        if thread.returnValue():
+        if self.dataAccessor().open(filename):
             self._dumpAction.setEnabled(self.dataAccessor().process()!=None)
             self._historyAction.setEnabled(self.dataAccessor().process()!=None)
             self._eventContentAction.setEnabled(self.dataAccessor().process()!=None)
