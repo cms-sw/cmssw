@@ -36,7 +36,7 @@ def dqmOutputDir(label,config):
         dqm_output_dir = crabdir + "/res"
     elif config.stageOutCAF:
         datasetstr = getDatasetStr(config.datasetpath)
-        dqm_output_dir = config.castorpath + '/DTCalibration/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/' + label + '/' + 'v' + str(trial)
+        dqm_output_dir = config.castorpath + '/DTCalibration/' + datasetstr + '/Run' + str(run) + '/TTrigValidation/' + label + '/' + 'v' + str(trial)
 
     return dqm_output_dir
 
@@ -54,7 +54,7 @@ def runTtrigProd(run,runselection,trial,config,runStep=True):
     if runStep:
         project_prod = dtTtrigProd.run()
 
-        print "Sent production jobs with project",project_prod
+        print "Sent calibration jobs with project",project_prod
         print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
       
         crabProd = CrabWatch(project_prod)
@@ -103,16 +103,16 @@ def runResidualCalib(run,runselection,trial,input_db,label,result_file,config,ru
     if runStep:
         project_residualCalib = dtResidualCalib.run()
 
-        print "Sent validation jobs with project",project_residualCalib
+        print "Sent calibration jobs with project",project_residualCalib
         print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
 
-        crabResidualCalib = CrabWatch(project_valid)
+        crabResidualCalib = CrabWatch(project_residualCalib)
         crabResidualCalib.setThreshold(config.jobsFinishedThreshold)
         crabResidualCalib.start()
         crabResidualCalib.join()
 
         if config.stageOutLocal:
-            output_dir = project_valid + "/res"
+            output_dir = project_residualCalib + "/res"
             haddLocal(output_dir,result_file,'residuals')
         elif config.stageOutCAF:
             castor_dir = config.castorpath + "/" + config.userdircaf
@@ -337,7 +337,7 @@ def runTtrigWorkflow(mode,config,execute=True):
             runResidualCalib(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config,False)
             runTtrigResidualCorr(run,ttrig_timeboxes_db,residualsFirst,config,False)                
             runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config,False)
-            runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
+            #runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
             runDQMMerge(run,'',config,False)
 
             sys.exit(0)
@@ -365,9 +365,11 @@ def runTtrigWorkflow(mode,config,execute=True):
             runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config)
         if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s' % residualsResidCorr
 
+        """
         # Summary of validation
         if not os.path.exists(summaryResiduals): runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config)
         if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s' % summaryResiduals
+        """
         # Produce DQM output 
         dqm_output_dir = dqmOutputDir('ResidualsResidCorr',config)
         runDQMMerge(run,dqm_output_dir,config)
@@ -390,7 +392,7 @@ def runTtrigWorkflow(mode,config,execute=True):
                 runTtrigResidualCorr(run,None,residualsFirst,config,False)
 
             runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config,False)
-            runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
+            #runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
             runDQMMerge(run,'',config,False)
 
             sys.exit(0)
@@ -416,11 +418,12 @@ def runTtrigWorkflow(mode,config,execute=True):
             runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',residualsResidCorr,config)
         if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s' % residualsResidCorr
 
+        """  
         # Summary of validation
         if not os.path.exists(summaryResiduals):
             runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config)
         if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s' % summaryResiduals
-
+        """
         # Produce DQM output 
         dqm_output_dir = dqmOutputDir('ResidualsResidCorr',config)
         runDQMMerge(run,dqm_output_dir,config)
