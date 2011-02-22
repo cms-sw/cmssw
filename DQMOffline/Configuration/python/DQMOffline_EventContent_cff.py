@@ -7,6 +7,6 @@ MEtoEDMConverterRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_MEtoEDMConverter_*_*')
 )
 MEtoEDMConverterAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_MEtoEDMConverter_*_*')
+    outputCommands = cms.untracked.vstring()
 )
 
