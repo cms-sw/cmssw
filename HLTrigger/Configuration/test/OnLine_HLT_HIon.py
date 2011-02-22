@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/HIon/V39 (CMSSW_3_11_0_HLT7)
+# /dev/CMSSW_3_11_1/HIon/V40 (CMSSW_3_11_0_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V39')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V40')
 )
 
 process.streams = cms.PSet( 
@@ -4353,6 +4353,9 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Jet370_v1',
       'HLT_Jet60_v1',
       'HLT_Jet80_v1',
+      'HLT_JetE30_NoBPTX3BX_NoHalo_v1',
+      'HLT_JetE30_NoBPTX_NoHalo_v1',
+      'HLT_JetE30_NoBPTX_v1',
       'HLT_L1DoubleMu0_v1',
       'HLT_L1MuOpen_AntiBPTX_v2',
       'HLT_L1SingleMu10_v1',
@@ -4584,6 +4587,9 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Jet370_v1',
       'HLT_Jet60_v1',
       'HLT_Jet80_v1',
+      'HLT_JetE30_NoBPTX3BX_NoHalo_v1',
+      'HLT_JetE30_NoBPTX_NoHalo_v1',
+      'HLT_JetE30_NoBPTX_v1',
       'HLT_L1DoubleMu0_v1',
       'HLT_L1MuOpen_AntiBPTX_v2',
       'HLT_L1SingleMu10_v1',
@@ -4798,6 +4804,9 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Jet370_v1',
       'HLT_Jet60_v1',
       'HLT_Jet80_v1',
+      'HLT_JetE30_NoBPTX3BX_NoHalo_v1',
+      'HLT_JetE30_NoBPTX_NoHalo_v1',
+      'HLT_JetE30_NoBPTX_v1',
       'HLT_L1DoubleMu0_v1',
       'HLT_L1MuOpen_AntiBPTX_v2',
       'HLT_L1SingleMu10_v1',

@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_11_1/GRun/V39
+# /dev/CMSSW_3_11_1/GRun/V40
 
 import FWCore.ParameterSet.Config as cms
 
@@ -101,6 +101,9 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_BTagM
     'HLT_Jet370_v1', 
     'HLT_Jet60_v1', 
     'HLT_Jet80_v1', 
+    'HLT_JetE30_NoBPTX3BX_NoHalo_v1', 
+    'HLT_JetE30_NoBPTX_NoHalo_v1', 
+    'HLT_JetE30_NoBPTX_v1', 
     'HLT_L1DoubleMu0_v1', 
     'HLT_L1SingleMu10_v1', 
     'HLT_L1SingleMu20_v1', 
