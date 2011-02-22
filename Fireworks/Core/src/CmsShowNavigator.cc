@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.103 2011/02/21 20:57:15 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.104 2011/02/22 14:29:06 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -466,19 +466,20 @@ CmsShowNavigator::updateFileFilters()
    }
    updateSelectorsInfo();
    m_filesNeedUpdate = false;
-
-   // go to nearest file
-   if (!(*m_currentFile)->isEventSelected(m_currentEvent))
-   {
-      if (!nextSelectedEvent())
-         nextSelectedEvent();
-   }
-
+ 
    int nSelected = getNSelectedEvents();
    if (nSelected)
    {
+      // go to the nearest selected event/file
+      if (!(*m_currentFile)->isEventSelected(m_currentEvent))
+      {
+         if (!nextSelectedEvent())
+            previousSelectedEvent();
+      }
+
       if (m_filterState == kWithdrawn)
          resumeFilter();
+
       postFiltering_.emit();
    }
    else
