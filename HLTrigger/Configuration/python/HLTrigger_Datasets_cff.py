@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_11_1/GRun/V40
+# /dev/CMSSW_3_11_1/GRun/V41
 
 import FWCore.ParameterSet.Config as cms
 
@@ -109,7 +109,6 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_BTagM
     'HLT_L1SingleMu20_v1', 
     'HLT_L1SingleMuOpen_v1', 
     'HLT_L1Tech_BSC_minBias_OR_v1', 
-    'HLT_L1_BeamHalo_v1', 
     'HLT_L1_Interbunch_BSC_v1', 
     'HLT_L1_PreCollisions_v1', 
     'HLT_L2DoubleMu0_v2', 
@@ -200,6 +199,7 @@ streamA_datasetCosmics_selector.throw      = cms.bool(False)
 streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_L1MuOpen_AntiBPTX_v2', 
     'HLT_L1Tech_BSC_halo_v1', 
     'HLT_L1TrackerCosmics_v2', 
+    'HLT_L1_BeamHalo_v1', 
     'HLT_L2MuOpen_NoVertex_v1', 
     'HLT_L3MuonsCosmicTracking_v1', 
     'HLT_RegionalCosmicTracking_v1')

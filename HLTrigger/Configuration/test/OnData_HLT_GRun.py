@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V40 (CMSSW_3_11_0_HLT7)
+# /dev/CMSSW_3_11_1/GRun/V41 (CMSSW_3_11_0_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V40')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V41')
 )
 
 process.streams = cms.PSet( 
@@ -135,7 +135,6 @@ process.datasets = cms.PSet(
     'HLT_L1SingleMu20_v1',
     'HLT_L1SingleMuOpen_v1',
     'HLT_L1Tech_BSC_minBias_OR_v1',
-    'HLT_L1_BeamHalo_v1',
     'HLT_L1_Interbunch_BSC_v1',
     'HLT_L1_PreCollisions_v1',
     'HLT_L2DoubleMu0_v2',
@@ -221,6 +220,7 @@ process.datasets = cms.PSet(
   Cosmics = cms.vstring( 'HLT_L1MuOpen_AntiBPTX_v2',
     'HLT_L1Tech_BSC_halo_v1',
     'HLT_L1TrackerCosmics_v2',
+    'HLT_L1_BeamHalo_v1',
     'HLT_L2MuOpen_NoVertex_v1',
     'HLT_L3MuonsCosmicTracking_v1',
     'HLT_RegionalCosmicTracking_v1' ),
@@ -862,7 +862,7 @@ process.source = cms.Source( "PoolSource",
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
     appendToDataLabel = cms.string( "" ),
     timetype = cms.string( "runnumber" ),
-    connect = cms.string( "frontier://FrontierProd/CMS_COND_31X_GLOBALTAG" ),
+    connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
     globaltag = cms.string( "GR_H_V14::All" ),
