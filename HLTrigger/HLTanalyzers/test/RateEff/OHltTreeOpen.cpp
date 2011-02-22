@@ -5818,7 +5818,6 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   //Name doesn't follow conventions.
    else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v1") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -5852,7 +5851,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   // cluster shape cuts not CaloIdT but CaloIdL. Name doesn't follow conventions.
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v1") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
@@ -5868,8 +5867,8 @@ void OHltTree::CheckOpenHlt(
                0.2, // E/ET iso barrel, E/ET iso endcap 
                0.1,
                0.075, // H/E barrel, H/E endcap 
-               0.014,
-               0.035, // cluster shape barrel, cluster shape endcap 
+               0.011,
+               0.031, // cluster shape barrel, cluster shape endcap 
                0.98,
                1.0, // R9 barrel, R9 endcap 
                0.008,
