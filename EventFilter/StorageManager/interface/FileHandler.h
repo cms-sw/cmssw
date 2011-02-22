@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.12 2010/09/09 08:01:16 mommsen Exp $
+// $Id: FileHandler.h,v 1.12.2.1 2010/11/04 14:46:00 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <sys/types.h>
 
 
 namespace stor {
@@ -24,8 +25,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2010/09/09 08:01:16 $
+   * $Revision: 1.12.2.1 $
+   * $Date: 2010/11/04 14:46:00 $
    */
 
   class FileHandler
@@ -82,7 +83,7 @@ namespace stor {
     /**
      * Return the size of the file in bytes
      */
-    const unsigned long long fileSize() const;
+    unsigned long long fileSize() const;
 
     /**
      * Close the file
@@ -105,8 +106,8 @@ namespace stor {
     /**
      * Set the adler checksum for the file
      */
-    inline void setAdler(uint32_t s)
-    { _adler = s; }
+    void setAdler(uint32_t s, uint32_t i)
+    { _adlerstream = s; _adlerindex = i; }
     
     
     //////////////////////
@@ -141,6 +142,7 @@ namespace stor {
      */
     void moveFileToClosed
     (
+      const bool& useIndexFile,
       const FilesMonitorCollection::FileRecord::ClosingReason&
     );
 
@@ -151,12 +153,12 @@ namespace stor {
      * Check that the file size matches the given size.
      * Returns the actual size.
      */
-    size_t checkFileSizeMatch(const std::string& fileName, const size_t& size) const;
+    unsigned long long checkFileSizeMatch(const std::string& fileName, const unsigned long long& size) const;
 
     /**
      * Check that the 2 sizes agree
      */
-    bool sizeMismatch(const double& initialSize, const double& finalSize) const;
+    bool sizeMismatch(const unsigned long long& initialSize, const unsigned long long& finalSize) const;
 
     /**
      * Changes the file permissions to read-only
@@ -182,7 +184,7 @@ namespace stor {
     /**
      * Return the relative difference btw to file sizes
      */
-    double calcPctDiff(const double&, const double&) const;
+    double calcPctDiff(const unsigned long long&, const unsigned long long&) const;
     
 
   private:
@@ -210,7 +212,8 @@ namespace stor {
     const std::string  _logFile;                    // log file including path
     std::string  _cmsver;                           // CMSSW version string
 
-    uint32_t _adler;                                // adler32 checksum for streamer file
+    uint32_t _adlerstream;                          // adler32 checksum for streamer file
+    uint32_t _adlerindex;                           // adler32 checksum for index file
   };
   
 } // stor namespace

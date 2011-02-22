@@ -52,8 +52,6 @@ class HBHENoiseFilterResultProducer : public edm::EDProducer {
       int minZeros_;
       double minHighEHitTime_, maxHighEHitTime_;
       double maxRBXEMF_;
-      int minNumIsolatedNoiseChannels_;
-      double minIsolatedNoiseSumE_, minIsolatedNoiseSumEt_;
 };
 
 
@@ -73,9 +71,6 @@ HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::Paramete
   minHighEHitTime_ = iConfig.getParameter<double>("minHighEHitTime");
   maxHighEHitTime_ = iConfig.getParameter<double>("maxHighEHitTime");
   maxRBXEMF_ = iConfig.getParameter<double>("maxRBXEMF");
-  minNumIsolatedNoiseChannels_ = iConfig.getParameter<int>("minNumIsolatedNoiseChannels");
-  minIsolatedNoiseSumE_ = iConfig.getParameter<double>("minIsolatedNoiseSumE");
-  minIsolatedNoiseSumEt_ = iConfig.getParameter<double>("minIsolatedNoiseSumEt");  
 
   produces<bool>("HBHENoiseFilterResult");
 }
@@ -117,9 +112,6 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
   if(summary.min25GeVHitTime()<minHighEHitTime_) result=false;
   if(summary.max25GeVHitTime()>maxHighEHitTime_) result=false;
   if(summary.minRBXEMF()<maxRBXEMF_) result=false;
-  if(summary.numIsolatedNoiseChannels()>=minNumIsolatedNoiseChannels_) result=false;
-  if(summary.isolatedNoiseSumE()>=minIsolatedNoiseSumE_) result=false;
-  if(summary.isolatedNoiseSumEt()>=minIsolatedNoiseSumEt_) result=false;
 
   std::auto_ptr<bool> pOut(new bool);
   *pOut=result;

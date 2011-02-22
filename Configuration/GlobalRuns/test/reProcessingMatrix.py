@@ -9,8 +9,41 @@ parser.add_option("--options",default="")
 parser.add_option("--optionsSkim",default="")
 parser.add_option("--output",default="RECO,DQM")
 parser.add_option("--fullPDs",default=False,action="store_true")
+parser.add_option("--PDs",default="")
+
 (options,args)=parser.parse_args()
 
+def Era_alls():
+    alcaAndSkimMap={}
+    #full list of ever existing PD to reprocess
+    PDlist=['MinimumBias',
+            'ZeroBias',
+            'Commissioning',
+            'Cosmics',
+            'Mu','MuOnia',
+            'EGMonitor','EG','Electron','Photon',
+            'JetMETtau','JetMET','Jet','METFwd','BTau',
+            'HcalNZS'
+            ]
+    if options.PDs!="":
+        PDlist=options.PDs.split(',')
+
+    from Configuration.Skimming.autoSkim import autoSkim
+    from Configuration.PyReleaseValidation.autoAlca import autoAlca
+    for PD in PDlist:
+        a=''
+        s=''
+        if PD in autoAlca:
+            a=autoAlca[PD]
+        if PD in autoSkim:
+            s=autoSkim[PD]
+        alcaAndSkimMap[PD]=(a,s)
+
+    
+    #add a generic one
+    alcaAndSkimMap['']=('','LogError')
+    
+    return alcaAndSkimMap
 
 def Era_12PDs():
     alcaAndSkimMap={}

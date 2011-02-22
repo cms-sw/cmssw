@@ -694,7 +694,7 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   double ssqq_4 = pedWidth->getSigma(3,3);
 
   // correction factors (hb,he,ho,hf)
-  static float corrfac[4]={1.39,1.32,1.53,2.91};
+  static float corrfac[4]={1.39,1.32,1.53,5.41};
 
   int sub   = detId.subdet();
   
@@ -709,12 +709,14 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   double alpha = sqrt (0.5) * term;
   double beta  = sqrt (0.5) * f / term;
 
-  double RMS1   = sqrt(sig_sq_mean) * sqrt (2.*beta*beta + alpha*alpha) ;
+  //  double RMS1   = sqrt(sig_sq_mean) * sqrt (2.*beta*beta + alpha*alpha) ;
   double RMS4   = sqrt(sig_sq_mean) * sqrt (2.*beta*beta + 2.*(alpha-beta)*(alpha-beta) + 2.*(alpha-2.*beta)*(alpha-2.*beta)) ;
 
   double noise_rms_fC;
-  if(sub == 4)  noise_rms_fC = RMS1;
-  else          noise_rms_fC = RMS4;
+
+  //  if(sub == 4)  noise_rms_fC = RMS1;
+  //  else          noise_rms_fC = RMS4;
+  noise_rms_fC = RMS4;
 
   noise_rms_fC *= corrfac[sub-1];
 

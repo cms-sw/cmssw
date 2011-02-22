@@ -48,6 +48,51 @@ class RestrictInputToAOD(ConfigToolBase):
 restrictInputToAOD=RestrictInputToAOD()
 
 
+
+class RunOnData(ConfigToolBase):
+
+    """ Remove monte carlo matching from a given collection or all PAT
+    candidate collections and adapt the JEC's:
+    """
+    _label='runOnData'
+    _defaultParameters=dicttypes.SortedKeysDict()
+    def __init__(self):
+        ConfigToolBase.__init__(self)
+        self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
+        self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
+        self.addParameter(self._defaultParameters,'outputInProcess',True, "indicate whether there is an output module specified for the process (default is True)  ")
+        self._parameters=copy.deepcopy(self._defaultParameters)
+        self._comment = ""
+
+    def getDefaultParameters(self):
+        return self._defaultParameters
+
+    def __call__(self,process,
+                 names     = None,
+                 postfix   = None,
+                 outputInProcess     = None) :
+        if  names is None:
+            names=self._defaultParameters['names'].value
+        if postfix  is None:
+            postfix=self._defaultParameters['postfix'].value
+        if  outputInProcess is None:
+            outputInProcess=self._defaultParameters['outputInProcess'].value
+        self.setParameter('names',names)
+        self.setParameter('postfix',postfix)
+        self.setParameter('outputInProcess',outputInProcess)        
+        self.apply(process) 
+        
+    def toolCode(self, process):        
+        names=self._parameters['names'].value
+        postfix=self._parameters['postfix'].value
+        outputInProcess=self._parameters['outputInProcess'].value
+        
+        removeMCMatching(process, names, postfix, outputInProcess)
+        process.patJetCorrFactors.levels = ['L2Relative', 'L3Absolute', 'L2L3Residual', 'L5Flavor', 'L7Parton']
+
+runOnData=RunOnData()
+
+
 class RemoveMCMatching(ConfigToolBase):
 
     """ Remove monte carlo matching from a given collection or all PAT
@@ -59,6 +104,7 @@ class RemoveMCMatching(ConfigToolBase):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
+        self.addParameter(self._defaultParameters,'outputInProcess',True, "indicate whether there is an output module specified for the process (default is True)  ")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -67,19 +113,24 @@ class RemoveMCMatching(ConfigToolBase):
 
     def __call__(self,process,
                  names     = None,
-                 postfix   = None) :
+                 postfix   = None,
+                 outputInProcess     = None) :
         if  names is None:
             names=self._defaultParameters['names'].value
         if postfix  is None:
             postfix=self._defaultParameters['postfix'].value
+        if  outputInProcess is None:
+            outputInProcess=self._defaultParameters['outputInProcess'].value            
         self.setParameter('names',names)
         self.setParameter('postfix',postfix)
+        self.setParameter('outputInProcess',outputInProcess)        
         self.apply(process) 
         
     def toolCode(self, process):        
         names=self._parameters['names'].value
         postfix=self._parameters['postfix'].value
-
+        outputInProcess=self._parameters['outputInProcess'].value
+        
         print "************** MC dependence removal ************"
         for obj in range(len(names)):    
             if( names[obj] == 'Photons'   or names[obj] == 'All' ):
@@ -123,7 +174,11 @@ class RemoveMCMatching(ConfigToolBase):
                 jetProducer.addGenJetMatch      = False
                 jetProducer.genJetMatch         = ''
                 jetProducer.getJetMCFlavour     = False
-                jetProducer.JetPartonMapSource  = ''       
+                jetProducer.JetPartonMapSource  = ''
+                ## adjust output
+                if outputInProcess:                
+                    process.out.outputCommands.append("drop *_selectedPatJets*_genJets_*")
+                
             if( names[obj] == 'METs'      or names[obj] == 'All' ):
                 ## remove mc extra configs for jets
                 metProducer = getattr(process, 'patMETs'+postfix)        
@@ -223,8 +278,8 @@ class RemoveSpecificPATObjects(ConfigToolBase):
         names=self._parameters['names'].value
         outputInProcess=self._parameters['outputInProcess'].value
         postfix=self._parameters['postfix'].value
+        
         ## remove pre object production steps from the default sequence
-
         for obj in range(len(names)):
             if( names[obj] == 'Photons' ):
                 removeIfInSequence(process, 'patPhotonIsolation', "patDefaultSequence", postfix)
@@ -292,12 +347,18 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                     applyPostfix(process,"cleanPatCandidateSummary",postfix).candidates.remove( 
                         cms.InputTag(jetCollectionString('clean')+postfix) )
                 else:
-                    applyPostfix(process,"patCandidateSummary",postfix).candidates.remove(
-                        cms.InputTag('pat'+names[obj]+postfix) )
-                    applyPostfix(process,"selectedPatCandidateSummary",postfix).candidates.remove( 
-                        cms.InputTag('selectedPat'+names[obj]+postfix) )
-                    getattr(process,"cleanPatCandidateSummary"+postfix).candidates.remove(
-                        cms.InputTag('cleanPat'+names[obj]+postfix) )
+                    ## check whether module is in sequence or not
+                    result = [ m.label()[:-len(postfix)] for m in listModules( getattr(process,"patDefaultSequence"+postfix))]
+                    result.extend([ m.label()[:-len(postfix)] for m in listSequences( getattr(process,"patDefaultSequence"+postfix))]  )
+                    if applyPostfix(process,"patCandidateSummary",postfix) in result :
+                        applyPostfix(process,"patCandidateSummary",postfix).candidates.remove(
+                            cms.InputTag('pat'+names[obj]+postfix) )
+                    if applyPostfix(process,"selectedPatCandidateSummary",postfix) in result :
+                        applyPostfix(process,"selectedPatCandidateSummary",postfix).candidates.remove( 
+                            cms.InputTag('selectedPat'+names[obj]+postfix) )
+                    if applyPostfix(process,"cleanPatCandidateSummary",postfix) in result :
+                        applyPostfix(process,"cleanPatCandidateSummary",postfix).candidates.remove(
+                            cms.InputTag('cleanPat'+names[obj]+postfix) )
         ## remove cleaning for the moment; in principle only the removed object
         ## could be taken out of the checkOverlaps PSet
         if ( outputInProcess ):

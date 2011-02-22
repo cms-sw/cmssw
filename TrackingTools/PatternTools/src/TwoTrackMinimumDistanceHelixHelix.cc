@@ -170,7 +170,7 @@ bool TwoTrackMinimumDistanceHelixHelix::calculate(
   double pH=0; double pG=0;
   do {
     retval=oneIteration ( pG, pH );
-    if ( !finite(pG) || !finite(pH) ) retval=true;
+    if ( std::isinf(pG) || std::isinf(pH) ) retval=true;
     if ( counter++>themaxiter ) retval=true;
   } while ( (!retval) && ( fabs(pG) > qual || fabs(pH) > qual ));
   if ( fabs ( theg * ( thepG - thepG0 ) ) > themaxjump ) retval=true;

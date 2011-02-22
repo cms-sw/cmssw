@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.17 2010/09/07 15:46:48 yana Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.19 2010/10/07 16:21:01 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -138,12 +138,12 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
     float topWidth = shape[2];
     float bottomWidth = shape[1];
     
-    const float* parameters = iItem->getGeom()->getParameters( rawid );
-    
+    // NOTE: do not use parameters right now: need to sort out what is finally needed 
+    //const float* parameters = iItem->getGeom()->getParameters( rawid );
     //float wireSpacing  = parameters[6];
     double wireSpacing = getAverageWireSpacing(cscDetId.station(), cscDetId.ring());
-    float wireAngle    = parameters[7];
-    float cosWireAngle = cos(wireAngle);
+    //float wireAngle    = parameters[7];
+    //float cosWireAngle = cos(wireAngle);
 
     double yOfFirstWire = getYOfFirstWire( cscDetId.station(), cscDetId.ring(), length ); 
   
@@ -161,14 +161,14 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
      
       float localPointLeft[3] = 
       {
-        -wireLength*0.5, yOfWire, 0.0
+        static_cast<float>(-wireLength*0.5), yOfWire, static_cast<float>(0.0)
       };
 
       // NOTE: This is only an approximation for slanted wires.
       // Need to improve the determination of the x coordinate.
       float localPointRight[3] = 
       {
-        wireLength*0.5, yOfWire, 0.0
+        static_cast<float>(wireLength*0.5), yOfWire, static_cast<float>(0.0)
         //wireLength*0.5, yOfWire + wireLength*tan(wireAngle), 0.0
       };
 

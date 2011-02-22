@@ -25,7 +25,8 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     const edm::ParameterSet& cfg) 
   : theConfig(cfg), theGenerator(0), theRegionProducer(0), theClusterCheck(cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet"))
 {
-    produces<TrajectorySeedCollection>();
+  theSilentOnClusterCheck = cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false);
+  produces<TrajectorySeedCollection>();
 }
 
 SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
@@ -73,7 +74,8 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
   //protection for big ass events...
   size_t clustsOrZero = theClusterCheck.tooManyClusters(ev);
   if (clustsOrZero){
-    edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
+    if (!theSilentOnClusterCheck)
+	edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
     ev.put(result);
     return ;
   }

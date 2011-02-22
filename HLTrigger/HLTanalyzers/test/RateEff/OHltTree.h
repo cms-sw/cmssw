@@ -164,7 +164,6 @@ public :
   Float_t         ohPhotHiso[8000];   //[NohPhot]
   Float_t         ohPhotTiso[8000];   //[NohPhot]
   Int_t           ohPhotL1iso[8000];   //[NohPhot]
-  Int_t           ohPhotR9[8000];   //[NohPhot] 
   Int_t           NohEle;
   Float_t         ohEleClusShap[8000];   //[NohEle]
   Float_t         ohEleDeta[8000];   //[NohEle]
@@ -179,7 +178,6 @@ public :
   Int_t           ohEleL1iso[8000];   //[NohEle]
   Int_t           ohElePixelSeeds[8000];   //[NohEle]
   Int_t           ohEleNewSC[8000];   //[NohEle]
-  Float_t         ohEleR9[8000];   //[NohEle] 
   Int_t           NohEleLW;
   Float_t         ohEleClusShapLW[8000];   //[NohEle]
   Float_t         ohEleDetaLW[8000];   //[NohEle]
@@ -1427,7 +1425,6 @@ public :
   TBranch        *b_ohPhotHiso;   //!
   TBranch        *b_ohPhotTiso;   //!
   TBranch        *b_ohPhotL1iso;   //!
-  TBranch        *b_ohPhotR9;   //! 
   TBranch        *b_NohEle;   //!
   TBranch        *b_ohEleClusShap;   //!
   TBranch        *b_ohEleDeta;   //!
@@ -1442,7 +1439,6 @@ public :
   TBranch        *b_ohEleL1iso;   //!
   TBranch        *b_ohElePixelSeeds;   //!
   TBranch        *b_ohEleNewSC;   //!
-  TBranch        *b_ohEleR9;   //! 
   TBranch        *b_NohEleLW;   //!
   TBranch        *b_ohEleClusShapLW;   //!
   TBranch        *b_ohEleDetaLW;   //!
@@ -3043,7 +3039,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohPhotHiso", ohPhotHiso, &b_ohPhotHiso);
   fChain->SetBranchAddress("ohPhotTiso", ohPhotTiso, &b_ohPhotTiso);
   fChain->SetBranchAddress("ohPhotL1iso", ohPhotL1iso, &b_ohPhotL1iso);
-  fChain->SetBranchAddress("ohPhotR9", ohPhotR9, &b_ohPhotR9); 
   fChain->SetBranchAddress("NohEle", &NohEle, &b_NohEle);
   fChain->SetBranchAddress("ohEleClusShap", ohEleClusShap, &b_ohEleClusShap);
   fChain->SetBranchAddress("ohEleDeta", ohEleDeta, &b_ohEleDeta);
@@ -3058,7 +3053,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohEleL1iso", ohEleL1iso, &b_ohEleL1iso);
   fChain->SetBranchAddress("ohElePixelSeeds", ohElePixelSeeds, &b_ohElePixelSeeds);
   fChain->SetBranchAddress("ohEleNewSC", ohEleNewSC, &b_ohEleNewSC);
-  fChain->SetBranchAddress("ohEleR9", ohEleR9, &b_ohEleR9); 
   fChain->SetBranchAddress("NohEleLW", &NohEleLW, &b_NohEleLW);
   fChain->SetBranchAddress("ohEleClusShapLW", ohEleClusShapLW, &b_ohEleClusShapLW);
   fChain->SetBranchAddress("ohEleDetaLW", ohEleDetaLW, &b_ohEleDetaLW);

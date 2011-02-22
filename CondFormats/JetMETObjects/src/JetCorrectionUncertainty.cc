@@ -53,6 +53,28 @@ JetCorrectionUncertainty::JetCorrectionUncertainty(const std::string& fDataFile)
   mUncertainty = new SimpleJetCorrectionUncertainty(fDataFile);
 }
 /////////////////////////////////////////////////////////////////////////
+JetCorrectionUncertainty::JetCorrectionUncertainty(const JetCorrectorParameters& fParameters)  
+{
+  mJetEta = -9999;
+  mJetPt  = -9999;
+  mJetPhi = -9999;
+  mJetE   = -9999;
+  mJetEMF = -9999;
+  mLepPx  = -9999;
+  mLepPy  = -9999;
+  mLepPz  = -9999;
+  mIsJetEset   = false;
+  mIsJetPtset  = false;
+  mIsJetPhiset = false;
+  mIsJetEtaset = false;
+  mIsJetEMFset = false;
+  mIsLepPxset  = false;
+  mIsLepPyset  = false;
+  mIsLepPzset  = false;
+  mAddLepToJet = false;
+  mUncertainty = new SimpleJetCorrectionUncertainty(fParameters);
+}
+/////////////////////////////////////////////////////////////////////////
 JetCorrectionUncertainty::~JetCorrectionUncertainty () 
 {
   delete mUncertainty;

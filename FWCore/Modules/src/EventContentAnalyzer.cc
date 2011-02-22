@@ -280,7 +280,6 @@ namespace edm {
      bool        getData_;
      int         evno_;
      std::map<std::string, int> cumulates_;
-     bool        listContent_;
   };
 
   //
@@ -293,8 +292,7 @@ namespace edm {
     verbose_(iConfig.getUntrackedParameter("verbose", false) || moduleLabels_.size()>0),
     getModuleLabels_(iConfig.getUntrackedParameter("getDataForModuleLabels", std::vector<std::string>())),
     getData_(iConfig.getUntrackedParameter("getData", false) || getModuleLabels_.size()>0),
-    evno_(1),
-    listContent_(iConfig.getUntrackedParameter("listContent",true)){
+    evno_(1) {
      //now do what ever initialization is needed
      sort_all(moduleLabels_);
   }
@@ -318,12 +316,10 @@ namespace edm {
 
      iEvent.getAllProvenance(provenances);
 
-     if(listContent_) {
-       LogAbsolute("EventContent") << "\n" << indentation_ << "Event " << std::setw(5) << evno_ << " contains "
-				   << provenances.size() << " product" << (provenances.size() == 1 ? "" : "s")
-				   << " with friendlyClassName, moduleLabel, productInstanceName and processName:"
-				   << std::endl;
-     }
+     LogAbsolute("EventContent") << "\n" << indentation_ << "Event " << std::setw(5) << evno_ << " contains "
+               << provenances.size() << " product" << (provenances.size() == 1 ? "" : "s")
+               << " with friendlyClassName, moduleLabel, productInstanceName and processName:"
+               << std::endl;
 
      std::string startIndent = indentation_+verboseIndentation_;
      for(Provenances::iterator itProv = provenances.begin(), itProvEnd = provenances.end();
@@ -342,25 +338,21 @@ namespace edm {
 
          std::string const& processName = (*itProv)->processName();
 
-	 bool doVerbose = verbose_ && (moduleLabels_.empty() ||
-				       binary_search_all(moduleLabels_, modLabel));
-
-	 if(listContent_ || doVerbose ) {
-	   LogAbsolute("EventContent") << indentation_ << friendlyName
-				       << " \"" << modLabel
-				       << "\" \"" << instanceName << "\" \""
-				       << processName << "\""
-				       << " (productId = " << (*itProv)->productID() << ")"
-				       << std::endl;
-	 }
+	 LogAbsolute("EventContent") << indentation_ << friendlyName
+           << " \"" << modLabel
+           << "\" \"" << instanceName << "\" \""
+           << processName << "\""
+           << " (productId = " << (*itProv)->productID() << ")"
+           << std::endl;
 
          std::string key = friendlyName
   	 + std::string(" + \"") + modLabel
   	 + std::string("\" + \"") + instanceName + "\" \"" + processName + "\"";
          ++cumulates_[key];
 
-         if(doVerbose) {
-
+         if(verbose_) {
+           if(moduleLabels_.empty() ||
+             binary_search_all(moduleLabels_, modLabel)) {
   	   //indent one level before starting to print
   	   printObject(iEvent,
   		       className,
@@ -370,7 +362,7 @@ namespace edm {
   		       startIndent,
   		       verboseIndentation_);
              continue;
-
+           }
          }
          if(getData_) {
            if(getModuleLabels_.empty() ||
@@ -442,10 +434,6 @@ namespace edm {
 
      np = desc.addOptionalUntracked<std::vector<std::string> >("getDataForModuleLabels", defaultVString);
      np->setComment("If this vector is not empty, then only products with module labels on this list are retrieved by getByLabel.");
-
-     np = desc.addOptionalUntracked<bool>("listContent", true);
-     np->setComment("If true then print a list of all the event content.");
-
 
      descriptions.add("printContent", desc);
   }

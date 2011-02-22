@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/09/26 10:38:11 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/09/26 10:40:31 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -149,13 +149,13 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
 	 r2=coll2_[i2];
 	 p2=r2->p4();
 
-	 double Dphi(abs(p1.phi()-p2.phi()));
+	 double Dphi(std::abs(p1.phi()-p2.phi()));
 	 if (Dphi>M_PI) Dphi=2.0*M_PI-Dphi;
 	 
-	 double Deta(abs(p1.eta()-p2.eta()));
+	 double Deta(std::abs(p1.eta()-p2.eta()));
 	 
 	 p=p1+p2;
-	 double Minv(abs(p.mass()));
+	 double Minv(std::abs(p.mass()));
 
 	 double DelR(sqrt(Dphi*Dphi+Deta*Deta));
 	 

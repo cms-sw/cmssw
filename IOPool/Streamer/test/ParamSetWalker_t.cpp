@@ -60,6 +60,8 @@ class ParamSetWalker {
                  std::cout << "FOUND WHAT WAS LOOKING FOR:::" << std::endl;
                  std::string fileName = aModInEndPathPset.getParameter<string> ("fileName");
                  std::cout << "Streamer File Name:" << fileName << std::endl; 
+                 std::string indexFileName = aModInEndPathPset.getParameter<string> ("indexFileName");
+                 std::cout << "Index File Name:" << indexFileName << std::endl;
 
                  edm::ParameterSet selectEventsPSet = aModInEndPathPset.getUntrackedParameter<edm::ParameterSet>("SelectEvents");
                  if (!selectEventsPSet.empty()) {
@@ -96,6 +98,7 @@ int main() {
           int32 compression_level = 1
 
           string fileName = \"teststreamfile.dat\"
+          string indexFileName = \"testindexfile.ind\"
           # untracked int32 numPerFile = 5
           untracked PSet SelectEvents = { vstring SelectEvents={\"p2\"}}
         }

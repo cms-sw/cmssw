@@ -61,11 +61,6 @@ public:
   typedef L1GctTwosComplement<  L1GctInternEtSum::kJetMissEtNBits > etCompInternJfType;
   typedef L1GctTwosComplement< L1GctInternHtMiss::kJetMissHtNBits > htCompInternJfType;
 
-  enum maxValues {
-    etTotalMaxValue = L1GctInternEtSum::kTotEtOrHtMaxValue,
-    htTotalMaxValue = L1GctInternEtSum::kTotEtOrHtMaxValue
-  };
-
 
   // For HF-based triggers we sum the Et in the two "inner" (large eta) rings;
   // and count towers over threshold based on the "fineGrain" bit from the RCT.

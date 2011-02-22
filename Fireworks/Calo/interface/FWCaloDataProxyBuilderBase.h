@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:19 CEST 2010
-// $Id: FWCaloDataProxyBuilderBase.h,v 1.2 2010/06/08 13:44:46 amraktad Exp $
+// $Id: FWCaloDataProxyBuilderBase.h,v 1.3 2010/06/14 16:58:15 amraktad Exp $
 //
 
 // system include files
@@ -67,10 +67,8 @@ private:
 
 
    virtual void modelChanges(const FWModelIds&, Product*);
-   virtual void applyChangesToAllModels(Product*);
 
    void clearCaloDataSelection();
-
 };
 
 

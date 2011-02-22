@@ -48,7 +48,7 @@ L2TauModularIsolationProducer::~L2TauModularIsolationProducer()
 void
 L2TauModularIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
+   edm::Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
    iEvent.getByLabel(l2CaloJets_ ,l2CaloJets);//get the handle
 
    //Create the Association
@@ -252,8 +252,8 @@ L2TauModularIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& 
   const CaloSubdetectorGeometry* EE = geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 
   //Handle To the ECAL
-  Handle<EBRecHitCollection> EBRecHits;
-  Handle<EERecHitCollection> EERecHits;
+  edm::Handle<EBRecHitCollection> EBRecHits;
+  edm::Handle<EERecHitCollection> EERecHits;
 
   //Create a container for the hits
   math::PtEtaPhiELorentzVectorCollection jetRecHits;

@@ -10,57 +10,63 @@
 using namespace reco;
 using namespace std;
 
+
+
 GsfTransientTrack::GsfTransientTrack() : 
   GsfTrack(), tkr_(), theField(0), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false)
-{
-  init();
-}
+  initialTSCPAvailable(false), blStateAvailable(false), theTIPExtrapolator()
+{}
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField* field) : 
-  GsfTrack(tk), tkr_(), theField(field), initialTSOSAvailable(false),
+  GsfTrack(tk),
+  tkr_(), theField(field), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false)
 {
-  init();
   TrajectoryStateTransform theTransform;
   initialFTS = theTransform.initialFreeState(tk, field);
 }
 
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field) : 
-  GsfTrack(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false)
+  GsfTrack(*tk), 
+  tkr_(tk), theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false),
+  theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
-  init();
   TrajectoryStateTransform theTransform;
   initialFTS = theTransform.initialFreeState(*tk, field);
 }
 
-GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  GsfTrack(tk), tkr_(), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
+GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField* field,
+				      const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  GsfTrack(tk),
+   tkr_(), theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg),
+  theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
-  init();
   TrajectoryStateTransform theTransform;
   initialFTS = theTransform.initialFreeState(tk, field);
 }
 
-GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  GsfTrack(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
+GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field, 
+				      const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  GsfTrack(*tk),
+   tkr_(tk), theField(field), initialTSOSAvailable(false),
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg),
+  theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
 {
-  init();
   TrajectoryStateTransform theTransform;
   initialFTS = theTransform.initialFreeState(*tk, field);
 }
 
 
 GsfTransientTrack::GsfTransientTrack( const GsfTransientTrack & tt ) :
-  GsfTrack(tt), tkr_(tt.persistentTrackRef()), theField(tt.field()), 
+  GsfTrack(tt),
+  tkr_(tt.persistentTrackRef()), theField(tt.field()), 
   initialFTS(tt.initialFreeState()), initialTSOSAvailable(false),
-  initialTSCPAvailable(false)
+  initialTSCPAvailable(false),
+  theTIPExtrapolator(AnalyticalPropagator(tt.field(), alongMomentum))
 {
-  init();
   if (tt.initialTSOSAvailable) {
     initialTSOS= tt.impactPointState();
     initialTSOSAvailable = true;
@@ -71,12 +77,6 @@ GsfTransientTrack::GsfTransientTrack( const GsfTransientTrack & tt ) :
   }
 }
 
-void GsfTransientTrack::init()
-{
-  thePropagator = 
-    new GsfPropagatorAdapter(AnalyticalPropagator(theField, alongMomentum));
-  theTIPExtrapolator = new TransverseImpactPointExtrapolator(*thePropagator);
-}
 
 
 void GsfTransientTrack::setES(const edm::EventSetup& setup) {
@@ -135,7 +135,7 @@ void GsfTransientTrack::calculateTSOSAtVertex() const
 TrajectoryStateOnSurface 
 GsfTransientTrack::stateOnSurface(const GlobalPoint & point) const
 {
-  return theTIPExtrapolator->extrapolate(innermostMeasurementState(), point);
+  return theTIPExtrapolator.extrapolate(innermostMeasurementState(), point);
 }
 
 

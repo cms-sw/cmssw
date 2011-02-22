@@ -16,8 +16,6 @@
 
 namespace cscdqm {
 
-using namespace std;
-
 /**
  * @class StripClusterFinder
  * @brief Object used to find Strip Clusters

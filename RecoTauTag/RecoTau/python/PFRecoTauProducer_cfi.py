@@ -65,7 +65,7 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       JetPtMin             = cms.double(0.0),
       #Filter lead charged hadron cand. by DZ to vertex?
       UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint = cms.bool(True),
-      ChargedHadrCandLeadChargedHadrCand_tksmaxDZ = cms.double(1.0),
+      ChargedHadrCandLeadChargedHadrCand_tksmaxDZ = cms.double(0.2),
 
       #Standard PV stuff
       PVProducer      = cms.InputTag('offlinePrimaryVertices'),
@@ -86,7 +86,7 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       LeadTrack_minPt               = cms.double(0.0), # This should be cut on at the discriminator level,
                                                        #  to make things consistent in the case where the tau 
                                                        #  has a leading PFGamma cand but no lead PFChargedCand
-      TrackLeadTrack_maxDZ          = cms.double(1.0),
+      TrackLeadTrack_maxDZ          = cms.double(0.2),
       UseTrackLeadTrackDZconstraint = cms.bool(True),
       Track_IsolAnnulus_minNhits    = cms.uint32(3),
       ### parameters for gammas in ellipse ###  					  

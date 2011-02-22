@@ -170,21 +170,20 @@ process.maxEvents = cms.untracked.PSet(
 
 # Suppress warnings, not actually used, except for copyNonO2OPayloads
 process.outputDB = cms.ESSource("PoolDBESSource",
-                                process.CondDBCommon,
-                                toGet = cms.VPSet(cms.PSet(
-    record = cms.string('L1TriggerKeyListRcd'),
-    tag = cms.string( "L1TriggerKeyList_" + options.tagBase )
+    process.CondDBCommon,
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('L1TriggerKeyListRcd'),
+        tag = cms.string( "L1TriggerKeyList_" + options.tagBase )
     ),
-                                                  cms.PSet(
+                      cms.PSet(
     record = cms.string('L1GtStableParametersRcd'),
     tag = cms.string( "L1GtStableParameters_" + options.tagBase )
     ),
-                                                  cms.PSet(
+                      cms.PSet(
     record = cms.string('L1CaloGeometryRecord'),
     tag = cms.string( "L1CaloGeometry_" + options.tagBase )
-    )),
-                                RefreshEachRun=cms.untracked.bool(True)
-                                )
+    ))
+)
 
 if options.copyNonO2OPayloads == 0:
     process.outputDB.connect = options.outputDBConnect

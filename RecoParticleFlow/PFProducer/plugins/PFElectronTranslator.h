@@ -97,5 +97,8 @@ class PFElectronTranslator : public edm::EDProducer
   // maps to ease the creation of the Value Maps 
   std::map<reco::GsfTrackRef,reco::SuperClusterRef> scMap_;
   std::map<reco::GsfTrackRef,float> gsfMvaMap_;
+  
+  bool emptyIsOk_;
+
 };
 #endif

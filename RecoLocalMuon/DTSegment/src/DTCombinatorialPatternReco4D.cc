@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/03/19 16:02:20 $
- * $Revision: 1.18 $
+ * $Date: 2009/03/19 17:42:27 $
+ * $Revision: 1.19 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -183,8 +183,18 @@ DTCombinatorialPatternReco4D::reconstruct() {
           // Important!!
           DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
 
-          const LocalPoint posZInCh  = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition() )) ;
-          const LocalVector dirZInCh = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
+	  // Put the theta segment poistion in its 3D place.
+	  // note: (superPhi is in the CHAMBER local frame)
+	  const DTSuperLayer* zSL = theChamber->superLayer(ZedSegSLId);
+
+	  // FIXME: should rather extrapolate for Y!
+	  LocalPoint zPos(zed->localPosition().x(), 
+			 (zSL->toLocal(theChamber->toGlobal(superPhi->localPosition()))).y(),
+			 0.);
+
+          const LocalPoint posZInCh  = theChamber->toLocal( zSL->toGlobal(zPos));
+	  // FIXME: zed->localDirection() is in 2D. Should add the phi direction in the orthogonal plane as well!!
+          const LocalVector dirZInCh = theChamber->toLocal( zSL->toGlobal(zed->localDirection()));
 
           DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,*zed,posZInCh,dirZInCh);
 
@@ -192,6 +202,8 @@ DTCombinatorialPatternReco4D::reconstruct() {
 
           /// 4d segment: I have the pos along the wire => further update!
 	  theUpdator->update(newSeg);
+          if (debug) cout << "     seg updated " <<  *newSeg << endl;
+
 
 	  if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
           if(applyT0corr) theUpdator->update(newSeg,true);

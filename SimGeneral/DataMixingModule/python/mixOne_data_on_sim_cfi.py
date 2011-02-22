@@ -40,8 +40,10 @@ mixData = cms.EDProducer("DataMixingModule",
     #
     # Input Specifications:
     #
-    SistripLabelSig = cms.InputTag("ZeroSuppressed"),
-    SistripdigiCollectionSig = cms.InputTag("simSiStripDigis"),
+    SiStripRawDigiSource = cms.string("NONE"), # rawdigi+digi->rawdigi (specify 'SIGNAL' or 'PILEUP')
+    SiStripRawInputTag = cms.InputTag("siStripDigis","VirginRaw"),               
+    #
+    SistripLabelSig = cms.InputTag("siStripDigis","ZeroSuppressed"),
                    #
     pixeldigiCollectionSig = cms.InputTag("simSiPixelDigis"),
     #
@@ -49,20 +51,15 @@ mixData = cms.EDProducer("DataMixingModule",
                    #
     pixeldigiCollectionPile = cms.InputTag("siPixelDigis"),
                    #
-    EBProducerSig = cms.InputTag("ecalRecHit"),
-    EBrechitCollectionSig = cms.InputTag("EcalRecHitsEB"),                   
-    EEProducerSig = cms.InputTag("ecalRecHit"),                   
-    EErechitCollectionSig = cms.InputTag("EcalRecHitsEE"),
-    ESProducerSig = cms.InputTag("ecalPreshowerRecHit"),
-    ESrechitCollectionSig = cms.InputTag("EcalRecHitsES"),                   
+    EBProducerSig = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    EEProducerSig = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    ESProducerSig = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
                    #
     HBHEProducerSig = cms.InputTag("hbhereco"),
-    HBHErechitCollectionSig = cms.InputTag(""),
-    HOProducerSig = cms.InputTag("horeco"),                   
-    HOrechitCollectionSig = cms.InputTag(""),
+    HOProducerSig = cms.InputTag("horeco"),
     HFProducerSig = cms.InputTag("hfreco"),
-    HFrechitCollectionSig = cms.InputTag(""),                   
-    ZDCrechitCollectionSig = cms.InputTag("zdcreco"),
+    ZDCrechitCollectionSig = cms.InputTag("wrongTag"),
+#                         ZDCrechitCollectionSig = cms.InputTag("zdcreco"),
     #
     EBPileRecHitInputTag = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
     EEPileRecHitInputTag = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
@@ -71,20 +68,25 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEPileRecHitInputTag = cms.InputTag("hbhereco", ""),
     HOPileRecHitInputTag = cms.InputTag("horeco", ""),                   
     HFPileRecHitInputTag = cms.InputTag("hfreco", ""),
-    ZDCPileRecHitInputTag = cms.InputTag("zdcreco",""),
+    ZDCPileRecHitInputTag = cms.InputTag("wrongTag",""),
+#                         ZDCPileRecHitInputTag = cms.InputTag("zdcreco",""),
     #
     # Calorimeter digis
     #
+    EBdigiCollectionSig = cms.InputTag("simEcalUnsuppressedDigis"),
+    EEdigiCollectionSig = cms.InputTag("simEcalUnsuppressedDigis"),
+    ESdigiCollectionSig = cms.InputTag("simEcalUnsuppressedDigis"),
+                         
     EBdigiProducerSig = cms.InputTag("simEcalUnsuppressedDigis"),
-    EBdigiCollectionSig = cms.InputTag(""),
     EEdigiProducerSig = cms.InputTag("simEcalUnsuppressedDigis"),
-    EEdigiCollectionSig = cms.InputTag(""),
     ESdigiProducerSig = cms.InputTag("simEcalUnsuppressedDigis"),
-    ESdigiCollectionSig = cms.InputTag(""),
     HBHEdigiCollectionSig  = cms.InputTag("simHcalUnsuppressedDigis"),
     HOdigiCollectionSig    = cms.InputTag("simHcalUnsuppressedDigis"),
     HFdigiCollectionSig    = cms.InputTag("simHcalUnsuppressedDigis"),
     ZDCdigiCollectionSig   = cms.InputTag("simHcalUnsuppressedDigis"),
+
+    # Sim Level (for Prod mode) ?
+    # hitsProducer=cms.string("g4SimHits")
     #
     EBPileInputTag = cms.InputTag("ecalDigis","ebDigis"),
     EEPileInputTag = cms.InputTag("ecalDigis","eeDigis"),
@@ -95,10 +97,9 @@ mixData = cms.EDProducer("DataMixingModule",
     ZDCPileInputTag  = cms.InputTag("hcalDigis"),
     #  Signal
                    #
-    CSCDigiTagSig = cms.InputTag("simMuonCSCDigis"),
-    CSCwiredigiCollectionSig = cms.InputTag("MuonCSCWireDigi"),
-    CSCstripdigiCollectionSig = cms.InputTag("MuonCSCStripDigi"),
-    CSCCompdigiCollectionSig = cms.InputTag("MuonCSCComparatorDigi"),
+    CSCwiredigiCollectionSig = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    CSCstripdigiCollectionSig = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
+    CSCCompdigiCollectionSig = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     RPCDigiTagSig = cms.InputTag("simMuonRPCDigis"),                   
     RPCdigiCollectionSig = cms.InputTag("simMuonRPCDigis"),
     DTDigiTagSig = cms.InputTag("simMuonDTDigis"),

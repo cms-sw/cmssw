@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.13 2010/06/02 22:35:17 chrjones Exp $
+// $Id: FWProxyBuilderBase.h,v 1.15 2010/10/20 20:09:23 amraktad Exp $
 //
 
 // system include files
@@ -105,11 +105,7 @@ public:
    int  layer() const;
 
  
-protected:
-   std::vector<FWModelIdFromEveSelector>& ids() {
-      return m_ids;
-   }
-   
+protected:   
    // Override this if visibility changes can cause (re)-creation of proxies.
    // Returns true if new proxies were created.
    virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType,
@@ -118,8 +114,6 @@ protected:
    // Override this if you need special handling of selection or other changes.
    virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
                                   FWViewType::EType viewType, const FWViewContext* vc);
-
-   virtual void applyChangesToAllModels(Product*);
 
    virtual void modelChanges(const FWModelIds&, Product*);
 
@@ -134,6 +128,9 @@ protected:
    virtual void clean();
    virtual void cleanLocal();
 
+   void increaseComponentTransparency(unsigned int index, TEveElement* holder,
+                                      const std::string& name, Char_t transpOffset);
+
    // utility
    TEveCompound* createCompound(bool set_color=true, bool propagate_color_to_all_children=false) const;
 
@@ -143,7 +140,6 @@ protected:
    std::vector<Product*> m_products;
 
 private:
-   void applyChangesToAllModels();
    void cleanProduct(Product* p);
    void setProjectionLayer(float);
 
@@ -152,8 +148,6 @@ private:
    FWInteractionList*    m_interactionList;
 
    const FWEventItem* m_item;
-
-   std::vector<FWModelIdFromEveSelector> m_ids;
 
    bool m_modelsChanged;
    bool m_haveWindow;

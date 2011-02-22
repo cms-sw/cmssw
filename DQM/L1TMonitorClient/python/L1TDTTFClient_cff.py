@@ -7,6 +7,6 @@ l1tdttfqTester = cms.EDAnalyzer("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-l1tdttpgseqClient = cms.Sequence(l1tdttfqTester*l1tdttpgClient)
+l1tdttfseqClient = cms.Sequence(l1tdttfqTester*l1tdttfClient)
 
 

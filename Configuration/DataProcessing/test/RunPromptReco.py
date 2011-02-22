@@ -22,6 +22,7 @@ class RunPromptReco:
         self.writeAlca = False
         self.writeAlcareco = False
         self.writeAod = False
+        self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
 
@@ -59,13 +60,15 @@ class RunPromptReco:
             print "Configuring to Write out Aod..."
 
         try:
-            if len(dataTiers) > 0:
-                # use command line options for data-tiers
-                process = scenario.promptReco(self.globalTag,
-                                              dataTiers)
+            if self.noOutput:
+                # get config without any output
+                process = scenario.promptReco(globalTag = self.globalTag, writeTiers = [])
+            elif len(dataTiers) > 0:
+                # get config with specified output
+                process = scenario.promptReco(globalTag = self.globalTag, writeTiers = dataTiers)
             else:
-                # use default data-tiers for current scenario
-                process = scenario.promptReco(self.globalTag)
+                # use default output data tiers
+                process = scenario.promptReco(globalTag = self.globalTag)
         except NotImplementedError, ex:
             print "This scenario does not support Prompt Reco:\n"
             return
@@ -89,7 +92,7 @@ class RunPromptReco:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "reco", "alcareco", "aod",
+    valid = ["scenario=", "reco", "alcareco", "aod", "no-output",
              "global-tag=", "lfn="]
     usage = \
 """
@@ -100,6 +103,7 @@ Where options are:
  --reco (to enable RECO output)
  --alcareco (to enable ALCARECO output)
  --aod (to enable AOD output)
+ --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
 
@@ -127,6 +131,8 @@ python2.4 RunPromptReco.py --scenario=Cosmics --reco --aod --global-tag GLOBALTA
             recoinator.writeAlcareco = True
         if opt == "--aod":
             recoinator.writeAod = True
+        if opt == "--no-output":
+            recoinator.noOutput = True
         if opt == "--global-tag":
             recoinator.globalTag = arg
         if opt == "--lfn" :

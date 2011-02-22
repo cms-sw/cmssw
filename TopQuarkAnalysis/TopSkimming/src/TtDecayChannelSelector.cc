@@ -74,13 +74,13 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
 	}
 	if( search(td, TopDecayID::WID, inputType) ){
 	  for(reco::GenParticle::const_iterator wd=td->begin(); wd!=td->end(); ++wd){
-	    if( abs(wd->pdgId())==TopDecayID::elecID ){
+	    if( std::abs(wd->pdgId())==TopDecayID::elecID ){
 	      ++iElec;
 	    }
-	    if( abs(wd->pdgId())==TopDecayID::muonID ){
+	    if( std::abs(wd->pdgId())==TopDecayID::muonID ){
 	      ++iMuon;
 	    }
-	    if( abs(wd->pdgId())==TopDecayID::tauID  ){ 
+	    if( std::abs(wd->pdgId())==TopDecayID::tauID  ){ 
 	      if(restrictTauDecays_){
 		// count as iTau if it is leptonic, one-prong
 		// or three-prong and ignore increasing iLep
@@ -170,10 +170,10 @@ bool
 TtDecayChannelSelector::search(reco::GenParticleCollection::const_iterator& part, int pdgId, std::string& inputType) const
 {
   if(inputType==kGenParticles){
-    return (abs(part->pdgId())==pdgId && part->status()==TopDecayID::unfrag) ? true : false;
+    return (std::abs(part->pdgId())==pdgId && part->status()==TopDecayID::unfrag) ? true : false;
   }
   else{
-    return (abs(part->pdgId())==pdgId) ? true : false;
+    return (std::abs(part->pdgId())==pdgId) ? true : false;
   }
 }
 
@@ -181,10 +181,10 @@ bool
 TtDecayChannelSelector::search(reco::GenParticle::const_iterator& part, int pdgId, std::string& inputType) const
 {
   if(inputType==kGenParticles){
-    return (abs(part->pdgId())==pdgId && part->status()==TopDecayID::unfrag) ? true : false;
+    return (std::abs(part->pdgId())==pdgId && part->status()==TopDecayID::unfrag) ? true : false;
   }
   else{
-    return (abs(part->pdgId())==pdgId) ? true : false;
+    return (std::abs(part->pdgId())==pdgId) ? true : false;
   }
 }
 
@@ -218,7 +218,7 @@ TtDecayChannelSelector::tauDecay(const reco::Candidate& tau) const
       return tauDecay(*daughter);
     }
     // check for leptons
-    leptonic |= (abs(daughter->pdgId())==TopDecayID::elecID || abs(daughter->pdgId())==TopDecayID::muonID);
+    leptonic |= (std::abs(daughter->pdgId())==TopDecayID::elecID || std::abs(daughter->pdgId())==TopDecayID::muonID);
     // count charged particles
     nch += countProngs(*daughter);
   }

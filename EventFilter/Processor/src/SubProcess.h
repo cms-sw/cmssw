@@ -23,6 +23,7 @@ namespace evf{
       , save_nba_(0)
       , save_ndqm_(0)
       , save_scalers_(0)
+      , reported_inconsistent_(false)
       {}
     SubProcess(int ind, pid_t pid)
       : ind_(ind)
@@ -35,6 +36,7 @@ namespace evf{
       , save_nba_(0)
       , save_ndqm_(0)
       , save_scalers_(0)
+      , reported_inconsistent_(false)
       {
 	mqm_->drain();
 	mqs_->drain();
@@ -46,6 +48,7 @@ namespace evf{
       , mqm_(b.mqm_)
       , mqs_(b.mqs_)
       , restart_countdown_(b.restart_countdown_)
+      , reported_inconsistent_(b.reported_inconsistent_)
       {
       }
     SubProcess &operator=(const SubProcess &b)
@@ -60,6 +63,7 @@ namespace evf{
 	save_ndqm_ = b.save_ndqm_;
         save_scalers_ = b.save_scalers_;
 	restart_countdown_=b.restart_countdown_;
+	reported_inconsistent_=b.reported_inconsistent_;
 	return *this;
       }
     virtual ~SubProcess()
@@ -134,6 +138,7 @@ namespace evf{
 	mqs_->drain();
 	pid_t retval = -1;
 	retval = fork();
+	reported_inconsistent_ = false;
 	if(retval>0)
 	  {
 	    pid_ = retval;
@@ -147,7 +152,9 @@ namespace evf{
 	return retval;
       }
     std::string const &reasonForFailed()const {return reasonForFailed_;}
+    bool inInconsistentState() const {return reported_inconsistent_;}
     void setReasonForFailed(std::string r){reasonForFailed_ = r;}
+    void setReportedInconsistent(){reported_inconsistent_ = true;}
     unsigned int &countdown(){return restart_countdown_;}
   private:
     int ind_;
@@ -163,6 +170,7 @@ namespace evf{
     int save_nba_;
     unsigned int save_ndqm_;
     unsigned int save_scalers_;
+    bool reported_inconsistent_;
   };
 
 

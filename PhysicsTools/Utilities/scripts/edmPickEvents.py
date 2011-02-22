@@ -223,6 +223,8 @@ if __name__ == "__main__":
                        help='Base name to use for output files (root, JSON, run and event list, etc.; default "%default")')
     parser.add_option ('--runInteractive', dest='runInteractive', action='store_true',
                        help = 'Call "cmsRun" command if possible.  Can take a long time.')
+    parser.add_option ('--printInteractive', dest='printInteractive', action='store_true',
+                       help = 'Print "cmsRun" command instead of running it.')
     parser.add_option ('--crab', dest='crab', action='store_true',
                        help = 'Force CRAB setup instead of interactive mode')
     parser.add_option ('--crabCondor', dest='crabCondor', action='store_true',
@@ -306,12 +308,18 @@ if __name__ == "__main__":
             print "No events defind.  Aborting."
             sys.exit()
         # Purge duplicate files
-        files = sorted( list( set( files ) ) )
-        source = ','.join (files) + '\n'
+        fileSet = set()
+        uniqueFiles = []
+        for filename in files:
+            if filename in fileSet:
+                continue
+            fileSet.add (filename)
+            uniqueFiles.append (filename)
+        source = ','.join (uniqueFiles) + '\n'
         eventsToProcess = ','.join(\
           sorted( [ "%d:%d" % (event.run, event.event) for event in eventList ] ) )
         command = 'edmCopyPickMerge outputFile=%s.root \\\n  eventsToProcess=%s \\\n  inputFiles=%s' \
                   % (options.base, eventsToProcess, source)
         print "\n%s" % command
-        if options.runInteractive:
+        if options.runInteractive and not options.printInteractive:
             os.system (command)

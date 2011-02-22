@@ -18,6 +18,7 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 using std::string;
 using std::ios;
@@ -177,6 +178,7 @@ void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label) 
   Handle<L1GctJetCandCollection> cenJets;
   Handle<L1GctJetCandCollection> forJets;
   Handle<L1GctJetCandCollection> tauJets;
+  Handle<L1GctJetCounts> jetCounts;
   
   L1GctJetCandCollection::const_iterator cj;
   L1GctJetCandCollection::const_iterator fj;
@@ -187,6 +189,7 @@ void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label) 
   iEvent.getByLabel(labelStr,"cenJets",cenJets);
   iEvent.getByLabel(labelStr,"forJets",forJets);
   iEvent.getByLabel(labelStr,"tauJets",tauJets);
+  iEvent.getByLabel(label, jetCounts);
   
   outFile_ << "Central jets from : " << labelStr << endl;
   for (cj=cenJets->begin(); cj!=cenJets->end(); cj++) {
@@ -204,6 +207,10 @@ void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label) 
   for (tj=tauJets->begin(); tj!=tauJets->end(); tj++) {
     outFile_ << (*tj) << endl;
   }
+  
+  outFile_ << "\nJet counts from : " << labelStr << endl; 
+  outFile_ << *(jetCounts.product()) << endl << endl;
+
 }
 
 
@@ -251,36 +258,16 @@ void DumpGctDigis::doEnergySums(const edm::Event& iEvent, const edm::InputTag& l
 {
   using namespace edm;
   
-  Handle<L1GctEtTotalCollection> etTotal;
-  Handle<L1GctEtHadCollection> etHad;
-  Handle<L1GctEtMissCollection> etMiss;
-  Handle<L1GctHtMissCollection> htMiss;
+  Handle<L1GctEtTotal> etTotal;
+  Handle<L1GctEtHad> etHad;
+  Handle<L1GctEtMiss> etMiss;
   
   iEvent.getByLabel(label, etTotal);
   iEvent.getByLabel(label, etHad);
   iEvent.getByLabel(label, etMiss);
-  iEvent.getByLabel(label, htMiss);
   
   outFile_ << "Energy sums from: " << label.label() << endl;
-  
-  L1GctEtTotalCollection::const_iterator et;
-  for (et=etTotal->begin(); et!=etTotal->end(); et++){
-    outFile_ << *(et) << endl;
-  }
-
-  L1GctEtHadCollection::const_iterator ht;
-  for (ht=etHad->begin(); ht!=etHad->end(); ht++){
-    outFile_ << *(ht) << endl;
-  }
-
-  L1GctEtMissCollection::const_iterator met;
-  for (met=etMiss->begin(); met!=etMiss->end(); met++){
-    outFile_ << *(met) << endl;
-  }
-
-  L1GctHtMissCollection::const_iterator mht;
-  for (mht=htMiss->begin(); mht!=htMiss->end(); mht++){
-    outFile_ << *(mht) << endl;
-  }
-
+  outFile_ << *(etTotal.product()) << endl;
+  outFile_ << *(etHad.product()) << endl;
+  outFile_ << *(etMiss.product()) << endl << endl;
 }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:50:32 CEST 2010
-// $Id: CmsShowCommon.cc,v 1.8 2010/09/26 19:54:57 amraktad Exp $
+// $Id: CmsShowCommon.cc,v 1.9 2010/09/27 10:46:05 amraktad Exp $
 //
 
 // system include files
@@ -28,7 +28,7 @@ CmsShowCommon::CmsShowCommon(FWColorManager* c):
    m_backgroundColor(this, "backgroundColIdx", 1l, 0l, 1000l),
    m_gamma(this, "brightness", 0l, -15l, 15l),
    m_geomTransparency2D(this, "Transparency 2D", long(c->geomTransparency(true)), 0l, 100l),
-   m_geomTransparency3D(this, "Transparency 3D", long(c->geomTransparency(true)), 0l, 100l),
+   m_geomTransparency3D(this, "Transparency 3D", long(c->geomTransparency(false)), 0l, 100l),
 
    m_energyPlotEt(this, "PlotEt", true),
    m_energyScaleMode(this, "ScaleMode", 1l, 1l, 2l),

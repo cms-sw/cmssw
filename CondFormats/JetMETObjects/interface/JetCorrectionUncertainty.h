@@ -4,12 +4,14 @@
 #include <string>
 #include <vector>
 class SimpleJetCorrectionUncertainty;
+class JetCorrectorParameters;
 
 class JetCorrectionUncertainty 
 {
   public:
     JetCorrectionUncertainty();
     JetCorrectionUncertainty(const std::string& fDataFile);
+    JetCorrectionUncertainty(const JetCorrectorParameters& fParameters);
     ~JetCorrectionUncertainty();
 
     void setParameters  (const std::string& fDataFile);

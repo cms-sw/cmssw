@@ -8,6 +8,7 @@
 namespace edmtest
 {
 
+
 void
   UnitTestClient_A::analyze( edm::Event      const & e
                            , edm::EventSetup const & /*unused*/

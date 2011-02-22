@@ -6,13 +6,14 @@
  *  Copyright 2010 FNAL. All rights reserved.
  *
  */
-#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
+#include "DataFormats/Common/interface/SortedCollection.h"
 
-class FWZDCRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<ZDCRecHit>
+class FWZDCRecHitProxyBuilder :  public FWDigitSetProxyBuilder
 {
 public:
    FWZDCRecHitProxyBuilder( void ) {}  
@@ -21,23 +22,31 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   // Disable default copy constructor
    FWZDCRecHitProxyBuilder( const FWZDCRecHitProxyBuilder& );
-   // Disable default assignment operator
-   const FWZDCRecHitProxyBuilder& operator=( const FWZDCRecHitProxyBuilder& );
 
-   void build( const ZDCRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   const FWZDCRecHitProxyBuilder& operator=( const FWZDCRecHitProxyBuilder& );
+   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
 };
 
-void
-FWZDCRecHitProxyBuilder::build( const ZDCRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
+void FWZDCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-   const float* corners = item()->getGeom()->getCorners( iData.detid());
-   if( corners == 0 ) {
+   const edm::SortedCollection<ZDCRecHit> *collection = 0;
+   iItem->get( collection );
+   if (! collection)
       return;
+
+
+   TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   for (std::vector<ZDCRecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
+   {  
+      const float* corners = item()->getGeom()->getCorners((*it).detid());
+
+      std::vector<float> scaledCorners(24);
+      if (corners == 0) 
+         fireworks::energyTower3DCorners(corners, (*it).energy(), scaledCorners);
+
+      addBox(boxSet, &scaledCorners[0]);
    }
-  
-   fireworks::drawEnergyTower3D( corners, iData.energy(), &oItemHolder, this );
 }
 
-REGISTER_FWPROXYBUILDER( FWZDCRecHitProxyBuilder, ZDCRecHit, "ZDC RecHit", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER( FWZDCRecHitProxyBuilder,  edm::SortedCollection<ZDCRecHit> , "ZDC RecHit", FWViewType::kISpyBit );

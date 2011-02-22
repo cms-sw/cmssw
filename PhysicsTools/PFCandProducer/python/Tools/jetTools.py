@@ -12,6 +12,10 @@ def jetAlgo( algo ):
         jetAlgo = RecoJets.JetProducers.ic5PFJets_cfi.iterativeCone5PFJets.clone()
     elif algo == 'AK5':
         jetAlgo = RecoJets.JetProducers.ak5PFJets_cfi.ak5PFJets.clone()
+    elif algo == 'AK7':
+        jetAlgo = RecoJets.JetProducers.ak5PFJets_cfi.ak5PFJets.clone()    
+        jetAlgo.rParam = cms.double(0.7)
+        jetAlgo.doAreaFastjet = cms.bool(False)
         
     jetAlgo.src = 'pfNoElectron'
     return jetAlgo    

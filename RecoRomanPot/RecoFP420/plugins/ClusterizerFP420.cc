@@ -21,7 +21,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-//#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 
 #include "RecoRomanPot/RecoFP420/interface/ClusterizerFP420.h"
@@ -56,13 +56,13 @@ namespace cms
     dn0   = conf_.getParameter<int>("NumberFP420Detectors");
     sn0   = conf_.getParameter<int>("NumberFP420Stations");
     pn0 = conf_.getParameter<int>("NumberFP420SPlanes");
-    rn0 = 7;
+    
     if (verbosity > 0) {
       std::cout << "Creating a ClusterizerFP420" << std::endl;
-      std::cout << "ClusterizerFP420: dn0=" << dn0 << " sn0=" << sn0 << " pn0=" << pn0 <<  " rn0=" << rn0 << std::endl;
+      std::cout << "ClusterizerFP420: sn0=" << sn0 << " pn0=" << pn0 << std::endl;
     }
     
-    sClusterizerFP420_ = new FP420ClusterMain(conf_,dn0,sn0,pn0,rn0);
+    sClusterizerFP420_ = new FP420ClusterMain(conf_,dn0,sn0,pn0);
   }
   
   // Virtual destructor needed.
@@ -162,7 +162,7 @@ namespace cms
 
 
     std::vector<HDigiFP420> input;
-    for(std::vector<HDigiFP420>::const_iterator vsim=digis->begin();
+    for(vector<HDigiFP420>::const_iterator vsim=digis->begin();
 	vsim!=digis->end(); ++vsim){
       input.push_back(*vsim);
     }
@@ -189,9 +189,13 @@ namespace cms
       for (int det=1; det<dn0; det++) {
 	for (int sector=1; sector<sn0; sector++) {
 	  for (int zmodule=1; zmodule<pn0; zmodule++) {
-	    for (int zside=1; zside<rn0; zside++) {
+	    for (int zside=1; zside<3; zside++) {
+	      // zside here defines just Left or Right planes, not their type !!!
+	      //	  int sScale = 20;
+	      int sScale = 2*(pn0-1), dScale = 2*(pn0-1)*(sn0-1);
+	      //      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
 	      // intindex is a continues numbering of FP420
-	      unsigned int detID = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	      int zScale=2;  unsigned int detID = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
 	      std::vector<ClusterFP420> collector;
 	      collector.clear();
 	      ClusterCollectionFP420::Range inputRange;

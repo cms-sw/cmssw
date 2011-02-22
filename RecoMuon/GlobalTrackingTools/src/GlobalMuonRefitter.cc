@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2010/06/18 07:40:09 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/10/20 14:23:50 $
+ *  $Revision: 1.12 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -110,8 +110,6 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");
 
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
-
-  theDYTthrs = par.getParameter< std::vector<int> >("DYTthrs");
 
   theCacheId_TRH = 0;
 
@@ -232,8 +230,11 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     }     
 
     if (theMuonHitsOption == 4 ) {
+      // here we use the single thr per subdetector (better performance can be obtained using thr as function of eta)
+	
       DynamicTruncation dytRefit(*theEvent,*theService);
-      dytRefit.setThr(*&theDYTthrs);
+      dytRefit.setThr(30,15);                                
+      //dytRefit.setThr(20,20,20,20,20,15,15,15,15,15,15,15,15);
       DYTRecHits = dytRefit.filter(globalTraj.front());
       if ((DYTRecHits.size() > 1) && (DYTRecHits.front()->globalPosition().mag() > DYTRecHits.back()->globalPosition().mag()))
         stable_sort(DYTRecHits.begin(),DYTRecHits.end(),RecHitLessByDet(alongMomentum));

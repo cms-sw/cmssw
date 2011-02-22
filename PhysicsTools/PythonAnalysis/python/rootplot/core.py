@@ -94,8 +94,6 @@ if not (re.search('--ext[ =]*C', argstring) or re.search('-e[ ]*C', argstring)):
 ROOT.gErrorIgnoreLevel = ROOT.kWarning
 if os.path.exists('rootlogon.C'):
     ROOT.gROOT.Macro('rootlogon.C')
-elif os.path.exists(os.path.expanduser('~/.rootlogon.C')):
-    ROOT.gROOT.Macro(os.path.expanduser('~/.rootlogon.C'))
 sys.argv = saved_argv[:]
 
 
@@ -118,6 +116,10 @@ class Options(dict):
         self[key] = value
     def __getattr__(self, key):
         return self[key]
+    def clean_targets(self):
+        for i in range(len(self.targets)):
+            if self.targets[i][-1] == '/':
+                self.targets[i] = self.targets[i][:-1]
     def arguments(self):
         return self.filenames + self.targets + self.configs
     def kwarg_list(self):
@@ -155,6 +157,7 @@ class Options(dict):
         for f in configs:
             myconfig = __import__(f[:-3])
             self.append_from_package(myconfig, scope)
+        self.clean_targets()
         shutil.rmtree(configdir)
 
 
@@ -697,6 +700,7 @@ def rootplot(*args, **kwargs):
     #### Loop over plots to make, building the necessary calls
     plotargs = get_plot_inputs(rootfiles, options)
     call_lists = []
+    ndigits = int(math.log10(len(plotargs))) + 1
     for i, (filenames, targets) in enumerate(plotargs):
         argstring = ', '.join(["'%s'" % x for x in (filenames + targets +
                                                     options.configs)])
@@ -714,6 +718,10 @@ def rootplot(*args, **kwargs):
             argstring = "%s, %s" % (argstring, optstring)
         plotpath, title, legentries = get_plotpath(filenames, targets)
         savepath = joined(options.output, plotpath)
+        if 'numbering' in reduced_kwargs:
+            dirs = savepath.split('/')
+            dirs[-1] = str(i + 1).zfill(ndigits) + dirs[-1]
+            savepath = '/'.join(dirs)
         call_vars = {'argstring' : argstring, 'ext' : options.ext,
                      'savepath' : savepath}
         if use_mpl:
@@ -765,34 +773,13 @@ def rootplot(*args, **kwargs):
         width, height = options.size
         if use_mpl:
             width, height = [x * options.dpi for x in options.size]
-        if (os.path.exists(joined(options.output, 'plot.' + options.ext))
-            and len(plotargs) == 1):
-            #### targets were histograms
-            make_html_index(options.output, [], ['plot'], options.ext,
+        for path, dirs, files in os.walk(options.output):
+            make_html_index(path, dirs, files, options.ext,
                             options.html_template, options.ncolumns_html,
                             width, height)
-        else:
-            for path, folders, objects in walk_rootfile('', rootfiles[0],
-                                                        options):
-                plotpath = joined(options.output, path)
-                folders = [f for f in folders
-                           if os.path.exists(joined(plotpath, f))]
-                while plotpath != options.output[:-1]:
-                    if os.path.exists(plotpath):
-                        make_html_index(plotpath, folders, objects, options.ext,
-                                        options.html_template,
-                                        options.ncolumns_html,
-                                        width, height)
-                        break
-                    plotpath = joined(options.output,
-                                      '/'.join(plotpath.split('/')[2:]))
     if options.merge:
-        if (os.path.exists(joined(options.output, 'plot.pdf'))
-            and len(plotargs) == 1):
-            merge_pdf(rootfiles[0], options,
-                      joined(options.output, 'plot.pdf'))
-        else:
-            merge_pdf(rootfiles[0], options)
+        merge_pdf(options)
+
 
 ##############################################################################
 ######## Implementation ######################################################
@@ -943,7 +930,7 @@ def plot_hists_root(hists, options):
             objects['pads'] = divide_canvas(canvas, options.ratio_fraction)
             objects['pads'][0].cd()
         else:
-            hists = make_ratio_hists(hists, options)
+            hists = make_ratio_hists(hists, options, options.ratio - 1)
             isTGraph = True
     if options.xerr:
         ROOT.gStyle.SetErrorX()
@@ -1018,6 +1005,9 @@ def plot_hists_root(hists, options):
         objects['pads'][1].cd()
         objects['ratio_multigraph'] = plot_ratio_root(
             hists, roothist.GetXaxis().GetTitle(), options)
+        xmin = hists[0].xedges[0]
+        xmax = hists[0].xedges[-1]
+        objects['ratio_multigraph'].GetXaxis().SetRangeUser(xmin, xmax)
         objects['pads'][0].cd()
     if options.logx:
         for pad in objects['pads']:
@@ -1050,7 +1040,7 @@ def plot_hists_mpl(hists, options):
             axes = objects['axes'][0]
             fig.sca(axes)
         else:
-            hists = make_ratio_hists(hists, options)
+            hists = make_ratio_hists(hists, options, options.ratio - 1)
     refhist = hists[0]
     if refhist is None:
         refhist = hists[1]
@@ -1363,16 +1353,12 @@ def report_progress(counter, nplots, output, ext, divisor=1):
               (counter, nplots, output, ext)),
         sys.stdout.flush()
 
-def merge_pdf(rootfile, options, plotpath=None):
+def merge_pdf(options):
     #### Merge together all the produced plots into one pdf file.
     destination = joined(options.output, 'allplots.pdf')
     paths = []
-    if plotpath:
-        paths.append(plotpath)
-    else:
-        for path, folders, objects in walk_rootfile('', rootfile, options):
-            for obj in objects:
-                paths.append(joined(options.output, path, obj + '.pdf'))
+    for path, dirs, files in os.walk(options.output):
+        paths += [joined(path, x) for x in files if x.endswith('.pdf')]
     if not paths:
         print "No output files, so no merged pdf was made"
         return
@@ -1432,6 +1418,7 @@ def prep_first_draw(hist, histmax, options):
         hist.SetMaximum(options.ymax)
     if options.ratio:
         if options.split:
+            hist.Draw()
             hist.GetXaxis().SetBinLabel(1, '') # Don't show tick labels
             hist.GetXaxis().SetTitle('')
             ## Avoid overlap of y-axis numbers by supressing zero
@@ -1479,13 +1466,13 @@ def divide_axes(fig, axes, ratio_fraction):
     plt.setp(upper_axes.get_xticklabels(), visible=False)
     return upper_axes, lower_axes
 
-def make_ratio_hists(hists, options):
-    denom = hists[options.ratio - 1]
+def make_ratio_hists(hists, options, ratio_index):
+    denom = hists[ratio_index]
     if options.efficiency:
         ratios = [hist.divide_wilson(denom) for hist in hists]
     else:
         ratios = [hist.divide(denom) for hist in hists]        
-    ratios[options.ratio - 1] = None
+    ratios[ratio_index] = None
     return ratios
 
 def plot_ratio_root(hists, xlabel, options):
@@ -1498,7 +1485,17 @@ def plot_ratio_root(hists, xlabel, options):
         ylabel = options.ratio_label % locals()
     multigraph = ROOT.TMultiGraph("ratio_multi",
                                   ";%s;%s" % (xlabel, ylabel))
-    for i, ratio_hist in enumerate(make_ratio_hists(hists, options)):
+    if options.stack and options.data:
+        numerator = hists[ratio_index]
+        hists = hists[:]
+        hists.pop(ratio_index)
+        denominator = hists[0]
+        for hist in hists[1:]:
+            denominator += hist
+        hists = [numerator, denominator]
+        ratio_index = 1
+    for i, ratio_hist in enumerate(make_ratio_hists(hists, options, 
+                                                    ratio_index)):
         if i == ratio_index:
             continue
         graph = ratio_hist.TGraph()
@@ -1518,7 +1515,17 @@ def plot_ratio_mpl(axes, hists, options):
     #### Plot the ratio of each hist in hists to the ratio_indexth hist.
     ratio_index = options.ratio - 1
     stack = HistStack()
-    for i, ratio_hist in enumerate(make_ratio_hists(hists, options)):
+    if options.stack and options.data:
+        numerator = hists[ratio_index]
+        hists = hists[:]
+        hists.pop(ratio_index)
+        denominator = hists[0]
+        for hist in hists[1:]:
+            denominator += hist
+        hists = [numerator, denominator]
+        ratio_index = 1
+    for i, ratio_hist in enumerate(make_ratio_hists(hists, options, 
+                                                    ratio_index)):
         if i == ratio_index:
             continue
         ratio_hist.y = [item or 0 for item in ratio_hist.y] ## Avoid gaps
@@ -1539,10 +1546,9 @@ def plot_ratio_mpl(axes, hists, options):
     axes.yaxis.set_label_position('right')
     axes.yaxis.label.set_rotation(-90)
 
-def make_html_index(path, dirs, objects, filetype, template, ncolumns,
+def make_html_index(path, dirs, files, filetype, template, ncolumns, 
                     width, height):
-    objects = [x for x in objects 
-               if os.path.exists(joined(path, '%s.%s' % (x, filetype)))]
+    files = [x for x in files if x.endswith(filetype)]
     output_file = open(joined(path, 'index.html'), 'w')
     previous_dirs = [x for x in path.split('/') if x]
     ndirs = len(previous_dirs)
@@ -1561,13 +1567,12 @@ def make_html_index(path, dirs, objects, filetype, template, ncolumns,
         imgtemplate += '<img src="%(plot)s" height=%(height)i width=%(width)i>'
     imgtemplate += '</a></a>'
     plots = '\n'
-    for obj in objects:
-        plot = '%s.%s' % (obj, filetype)
+    for plot in files:
         plots += imgtemplate % locals() + '\n'
     plots = re.sub('((\\n<a.*){%i})' % ncolumns, r'\1<br>', plots)
     output_file.write(template % locals())
     output_file.close()
-
+    
 def parse_range(xedges, expression):
     #### Returns the indices of the low and high bins indicated in expression.
     closest = lambda l,y: l.index(min(l, key=lambda x:abs(x-y)))
@@ -1850,7 +1855,8 @@ def parse_arguments(argv, scope='global'):
     addopt(g_output, '--output', metadefault='plots', 
            help="name of output directory")
     addopt(g_output, '--numbering', action='store_true', default=False,
-           help="add a page number in the upper right of each plot")
+           help="print page numbers on images and prepend them to file names; "
+           "numbering will respect the order of objects in the ROOT file")
     addopt(g_output, '--size', metadefault=figsize,
            root=opt(help="set the canvas size to 'width x height' in pixels"),
            mpl=opt(help="set the canvas size to 'width x height' in inches"))
@@ -1867,14 +1873,14 @@ def parse_arguments(argv, scope='global'):
            help="normalize all histograms by VAL, or by individual values "
            "if VAL is a comma-separated list")
     addopt(g_hist, '--normalize', metavar='NUM', type='int', default=0,
-           help="normalize to the NUMth file/target (starting with 1)")
+           help="normalize to the NUMth target (starting with 1)")
     addopt(g_hist, '--norm-range', metavar='LOWxHIGH',
            help="only use the specified data range in determining "
            "the normalization")
     addopt(g_hist, '--rebin', metavar="N", type=int,
            help="group together bins in sets of N")
     addopt(g_hist, '--ratio', type='int', default=0, metavar='NUM',
-           help="divide histograms by the NUMth file/target (starting from 1)")
+           help="divide histograms by the NUMth target (starting from 1)")
     addopt(g_hist, '--ratio-split', type='int', default=0, metavar='NUM',
            help="same as --ratio, but split the figure in two, displaying "
            "the normal figure on top and the ratio on the bottom")
@@ -1891,11 +1897,12 @@ def parse_arguments(argv, scope='global'):
                "errorbars, or 'hist' to make sure no errorbars appear")
     addopt(g_style, '--draw2D',
            root=opt(metadefault='box',
-                    help="argument to pass to TH2::Draw (2D hists only "
-                    "drawn for single files); set "
+                    help="argument to pass to TH2::Draw (ignored if multiple "
+                    "targets specified); set "
                     'to "" to turn off 2D drawing'),
            mpl=opt(metadefault='box', 
-                   help="command to use for plotting 2D hists; "
+                   help="command to use for plotting 2D hists; (ignored if "
+                   "multiple targets specified) "
                    "choose from 'contour', 'col', 'colz', and 'box'")
            )
     if not use_mpl:
@@ -1921,11 +1928,11 @@ def parse_arguments(argv, scope='global'):
     addopt(g_style, '--xerr', action="store_true", default=False,
            help="show width of bins")
     addopt(g_style, '--data', type='int', default=0, metavar='NUM',
-           root=opt(help="treat the NUMth file/target (starting from 1) "
+           root=opt(help="treat the NUMth target (starting from 1) "
                     "specially, drawing it as black datapoints; to achieve "
                     "a classic data vs. MC plot, try this along with "
                     "--stack and --fill"),
-           mpl=opt(help="treat the NUMth file/target (starting from 1) "
+           mpl=opt(help="treat the NUMth target (starting from 1) "
                    "specially, drawing it as black datapoints; to achieve "
                    "a classic data vs. MC plot, try this along with --stack"))
     addopt(g_style, '--xmax', type='float', default=None,

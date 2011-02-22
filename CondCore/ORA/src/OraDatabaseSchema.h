@@ -9,7 +9,7 @@ namespace ora {
 
   class OraMainTable: public IMainTable {
     public:
-    static std::string schemaVersion();
+    static std::string version();
     static std::string tableName();
     static std::string parameterNameColumn();
     static std::string parameterValueColumn();
@@ -17,6 +17,7 @@ namespace ora {
     explicit OraMainTable( coral::ISchema& dbSchema );
     virtual ~OraMainTable();
     bool getParameters( std::map<std::string,std::string>& destination );
+    std::string schemaVersion();
     public:
     bool exists();
     void create();

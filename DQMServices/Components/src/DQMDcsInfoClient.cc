@@ -3,9 +3,9 @@
  * \file DQMDcsInfoClient.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2010/05/04 19:03:42 $
- * $Revision: 1.4 $
- * $Author: dellaric $
+ * $Date: 2010/07/20 02:58:28 $
+ * $Revision: 1.5 $
+ * $Author: wmtan $
  *
 */
 
@@ -37,6 +37,7 @@ DQMDcsInfoClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
 {
   DCS.clear();
   DCS.resize(10);  // start with 10 LS, resize later
+  processedLS_.clear();
 }
 
 void 
@@ -51,6 +52,7 @@ DQMDcsInfoClient::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::E
   if (!dbe_) return;
 
   unsigned int nlumi = l.id().luminosityBlock() ;
+  processedLS_.insert(nlumi);
   // cout << " in lumi section " << nlumi << endl;
 
   if (nlumi+1 > DCS.size()) 
@@ -96,6 +98,11 @@ DQMDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c)
 
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap",
                      "HV and GT vs Lumi", nlsmax, 1., nlsmax+1, 25, 0., 25.);
+  unsigned int lastProcessedLS = *(--processedLS_.end());
+  meProcessedLS_ = dbe_->book1D("ProcessedLS",
+				"Processed Lumisections",
+				lastProcessedLS+1,
+				0.,lastProcessedLS+1);
   reportSummaryMap_->setBinLabel(1," CSC+",2);   
   reportSummaryMap_->setBinLabel(2," CSC-",2);   
   reportSummaryMap_->setBinLabel(3," DT0",2);    
@@ -134,4 +141,23 @@ DQMDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c)
         reportSummaryMap_->setBinContent(i,j+1,0.);
     }
   }
+
+  std::set<unsigned int>::iterator it,ite;
+  it  = processedLS_.begin();
+  ite = processedLS_.end();
+  unsigned int lastAccessed = 0;
+  
+  for (; it!=ite; it++)
+  {
+    while (lastAccessed < (*it))
+    {
+      std::cout << "Filling " << lastAccessed << " with -1" << std::endl; 
+      meProcessedLS_->Fill(lastAccessed, -1.);
+      lastAccessed++;
+    }
+    std::cout << "Filling " << *it << " with 1" << std::endl; 
+    meProcessedLS_->Fill(*it);
+    lastAccessed = (*it)+1;
+  }
+  
 }

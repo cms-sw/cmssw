@@ -8,7 +8,7 @@ generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
     src = 'generalTracks',
     filter = True,
     applyBasicCuts = True,
-    ptMin = 10.0,
+    ptMin = 2.0,
     nHitMin = 3,
     chi2nMax = 10.,
 )

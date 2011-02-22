@@ -1,5 +1,8 @@
 #include <map>
 #include <string>
+#include <iomanip>
+#include <sstream>
+#include <iostream>
 
 #include "TH1.h"
 
@@ -9,6 +12,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 /// maximal number of bins used for the jet
 /// response plots
@@ -49,6 +56,8 @@ private:
   bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
   /// fill histogram if it had been booked before
   void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
+  // print jet pt for each level of energy corrections
+  void print(edm::View<pat::Jet>::const_iterator& jet, unsigned int idx);
 
 private:  
   /// correction level for pat jet
@@ -59,7 +68,6 @@ private:
   std::map<std::string,TH1F*> hists_; 
 };
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
 
 PatJetAnalyzer::PatJetAnalyzer(const edm::ParameterSet& cfg):
   corrLevel_(cfg.getParameter<std::string>("corrLevel")),
@@ -95,6 +103,9 @@ PatJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
 
   // loop jets
   for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
+    // print jec factors
+    // print(jet, jet-jets->begin());
+
     // fill basic kinematics
     fill( "pt" , jet->correctedJet(corrLevel_).pt());
     fill( "eta", jet->eta());
@@ -112,8 +123,26 @@ PatJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
   }
   // jet multiplicity
   fill( "mult" , jets->size());
-  // invariane dijet mass
+  // invariant dijet mass for first two leading jets
   if(jets->size()>1){ fill( "mass", ((*jets)[0].p4()+(*jets)[1].p4()).mass());}
+}
+
+void
+PatJetAnalyzer::print(edm::View<pat::Jet>::const_iterator& jet, unsigned int idx)
+{
+  //edm::LogInfo log("JEC");
+  std::cout << "[" << idx << "] :: eta=" << std::setw(10) << jet->eta() << " phi=" << std::setw(10) << jet->phi() << " size: " << jet->availableJECLevels().size() << std::endl;
+  for(unsigned int idx=0; idx<jet->availableJECLevels().size(); ++idx){
+    pat::Jet correctedJet;
+    if(jet->availableJECLevels()[idx].find("L5Flavor")!=std::string::npos|| 
+       jet->availableJECLevels()[idx].find("L7Parton")!=std::string::npos ){
+      correctedJet=jet->correctedJet(idx, pat::JetCorrFactors::UDS);
+    }
+    else{
+      correctedJet=jet->correctedJet(idx, pat::JetCorrFactors::NONE );
+    }
+    std::cout << std::setw(10) << correctedJet.currentJECLevel() << " pt=" << std::setw(10) << correctedJet.pt() << std::endl;
+  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

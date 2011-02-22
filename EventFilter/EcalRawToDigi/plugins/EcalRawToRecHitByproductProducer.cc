@@ -15,6 +15,7 @@ EcalRawToRecHitByproductProducer::EcalRawToRecHitByproductProducer(const edm::Pa
   produces<EcalRawDataCollection>();
   produces<EcalPnDiodeDigiCollection>();
   produces<EcalTrigPrimDigiCollection>("EcalTriggerPrimitives");
+  produces<EcalPSInputDigiCollection>("EcalPseudoStripInputs");
   
   // Integrity for xtal data
   produces<EBDetIdCollection>("EcalIntegrityGainErrors");
@@ -92,6 +93,10 @@ EcalRawToRecHitByproductProducer::produce(edm::Event& iEvent, const edm::EventSe
   
   // create the collection for ecal trigger primitives
   std::auto_ptr<EcalTrigPrimDigiCollection> productEcalTps(worker->productTps);
+
+  // create the collection for ecal trigger primitives
+  std::auto_ptr<EcalPSInputDigiCollection> productEcalPSs(worker->productPSs);
+
   /////////////////////// collections for problems pertaining towers are already EE+EB communal
 
   // create the collection for invalid TTIds
@@ -148,6 +153,7 @@ EcalRawToRecHitByproductProducer::produce(edm::Event& iEvent, const edm::EventSe
 
   // trigger primitives 
   iEvent.put(productEcalTps,"EcalTriggerPrimitives");
+  iEvent.put(productEcalPSs,"EcalPseudoStripInputs");
 
   //make new collections.
   worker->update(iEvent);

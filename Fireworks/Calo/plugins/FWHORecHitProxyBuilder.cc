@@ -1,4 +1,4 @@
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+#include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
@@ -6,7 +6,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "TEveCompound.h"
 
-class FWHORecHitProxyBuilder : public FWProxyBuilderBase
+class FWHORecHitProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWHORecHitProxyBuilder( void ) 
@@ -23,9 +23,7 @@ private:
 
    Float_t m_maxEnergy;
 
-   // Disable default copy constructor
    FWHORecHitProxyBuilder( const FWHORecHitProxyBuilder& );
-   // Disable default assignment operator
    const FWHORecHitProxyBuilder& operator=( const FWHORecHitProxyBuilder& );
 };
 
@@ -44,23 +42,18 @@ FWHORecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* produc
    for( ; it != itEnd; ++it )
    {
       if(( *it ).energy() > m_maxEnergy)
-	m_maxEnergy = ( *it ).energy();
+         m_maxEnergy = ( *it ).energy();
    }
 
-   unsigned int index = 0;
-   for( it = collection->begin(); it != itEnd; ++it, ++index )
-   {
-      const float* corners = iItem->getGeom()->getCorners(( *it ).detid().rawId());
-      if( corners == 0 )
-      {
-	TEveCompound* compound = createCompound();
-	setupAddElement( compound, product );
+   TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   for (std::vector<HORecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
+   {  
+      const float* corners = item()->getGeom()->getCorners((*it).detid());
+      std::vector<float> scaledCorners(24);
+      if (corners)
+         fireworks::energyScaledBox3DCorners(corners, (*it).energy() / m_maxEnergy, scaledCorners, true);
 
-	continue;
-      }
-
-      Float_t energy = ( *it ).energy();
-      fireworks::drawEnergyScaledBox3D( corners, energy / m_maxEnergy, product, this, true );
+      addBox(boxSet, &scaledCorners[0]);
    }
 }
 

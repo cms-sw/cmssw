@@ -2,10 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### GEN objects
-
     mctruth                         = cms.InputTag("genParticles"),
+    # genEventScale                   = cms.InputTag("genEventScale"),
     genEventInfo                    = cms.InputTag("generator"),
-
 
     ### SIM objects
     simhits                         = cms.InputTag("g4SimHits"),
@@ -30,18 +29,16 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HLTProcessName                  = cms.string("HLT"),
     
     ### reconstructed objects
-    genjets                         = cms.InputTag("iterativeCone5HiGenJets"),
+    genjets                         = cms.InputTag("iterativeCone5GenJets"),
     genmet                          = cms.InputTag("genMet"),
     recjets                         = cms.InputTag("hltIterativeCone5CaloJets"),
-    reccorjets                      = cms.InputTag("hltMCJetCorJetIcone5"),
+    reccorjets                      = cms.InputTag("hltMCJetCorJetIcone5Regional"),
     recmet                          = cms.InputTag("hltMet"),
     ht                              = cms.InputTag("hltHtMet"),
     calotowers                      = cms.InputTag("hltTowerMakerForAll"),
     muon                            = cms.InputTag("muons"),
-    Photon                          = cms.InputTag("photons"),                          
     Electron                        = cms.InputTag("pixelMatchGsfElectrons"),
-    BarrelPhoton                    = cms.InputTag("hltIslandSuperClustersHI:islandBarrelSuperClustersHI"),
-    EndcapPhoton                    = cms.InputTag("hltIslandSuperClustersHI:islandEndcapSuperClustersHI"),
+    Photon                          = cms.InputTag("photons"),
     
     ### muon OpenHLT objects                             
     MuCandTag2                      = cms.InputTag("hltL2MuonCandidates"),
@@ -59,8 +56,11 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HcalNonIsoPho                   = cms.InputTag("hltL1NonIsolatedPhotonHcalIsol"),
     IsoPhoTrackIsol                 = cms.InputTag("hltL1IsoPhotonHollowTrackIsol"),
     NonIsoPhoTrackIsol              = cms.InputTag("hltL1NonIsoPhotonHollowTrackIsol"),
-    HcalIsoEle                      = cms.InputTag("hltL1IsolatedElectronHcalIsol"),
-    HcalNonIsoEle                   = cms.InputTag("hltL1NonIsolatedElectronHcalIsol"),
+    HcalIsoEle                      = cms.InputTag("hltL1IsolatedPhotonHcalForHE"),
+    HcalNonIsoEle                   = cms.InputTag("hltL1NonIsolatedPhotonHcalForHE"),
+    SpikeCleaningIsol               = cms.InputTag("hltL1IsoR9shape"),
+    SpikeCleaningNonIsol            = cms.InputTag("hltL1NonIsoR9shape"),            
+
     ### egamma - standard or startup windows                         
     IsoElectrons                    = cms.InputTag("hltPixelMatchElectronsL1Iso"),
     NonIsoElectrons                 = cms.InputTag("hltPixelMatchElectronsL1NonIso"),
@@ -88,7 +88,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     
     ### b-jet OpenHLT related objects
     CommonBJetsL2                   = cms.InputTag("hltIterativeCone5CaloJets"),
-    CorrectedBJetsL2                = cms.InputTag("hltMCJetCorJetIcone5"),
+    CorrectedBJetsL2                = cms.InputTag("hltMCJetCorJetIcone5Regional"),
     LifetimeBJetsL25                = cms.InputTag("openHltBLifetimeL25BJetTags"),
     LifetimeBJetsL3                 = cms.InputTag("openHltBLifetimeL3BJetTags"),
     LifetimeBJetsL25Relaxed         = cms.InputTag("openHltBLifetimeL25BJetTags"),
@@ -98,13 +98,6 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     PerformanceBJetsL25             = cms.InputTag("openHltBSoftmuonL25BJetTags"),
     PerformanceBJetsL3              = cms.InputTag("openHltBPerfMeasL3BJetTags"),
 
-
-    ### Heavy Ion OpenHLT related objects                             
-    Centrality    = cms.InputTag("hiCentrality"),
-    CentralityBin    = cms.InputTag("centralityBin"),
-    EvtPlane      = cms.InputTag("hiEvtPlane","recoLevel"),
-    HiMC          = cms.InputTag("heavyIon"),
-                             
     ### AlCa OpenHLT related objects
     EERecHits                   = cms.InputTag("hltEcalRecHitAll","EcalRecHitsEE"),
     EBRecHits                   = cms.InputTag("hltEcalRecHitAll","EcalRecHitsEB"),
@@ -152,27 +145,6 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
         CalJetMin     = cms.double(0.0),
         GenJetMin     = cms.double(0.0),
         Monte         = cms.bool(True),
-        Debug         = cms.bool(False),
-
-      ### added in 2010 ###
-      DoHeavyIon           = cms.untracked.bool(False),
-
-                ### MCTruth
-##                DoParticles          = cms.untracked.bool(True),
-##                DoRapidity           = cms.untracked.bool(False),
-##                DoVerticesByParticle = cms.untracked.bool(True),
-
-                ### Egamma
-##                DoPhotons            = cms.untracked.bool(True),
-##                DoElectrons          = cms.untracked.bool(True),
-##                DoSuperClusters      = cms.untracked.bool(False),
-
-                ### Muon
-                DoL1Muons            = cms.untracked.bool(True),
-##                DoL2Muons            = cms.untracked.bool(True),
-##                DoL3Muons            = cms.untracked.bool(True),
-##                DoOfflineMuons       = cms.untracked.bool(True),
-##                DoQuarkonia         = cms.untracked.bool(True)
-        
+        Debug         = cms.bool(False)
     )
 )

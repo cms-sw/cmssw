@@ -16,7 +16,7 @@ ModifiedPF2PATEventContent = cms.PSet(
     'keep patJets_*_*_*',
     'keep patTaus_*_*_*',
     'keep recoPFCandidates_particleFlow_*_*',   
-    'keep recoVertexs_offlinePrimaryVerticesWithBS_*_*',
+    'keep recoVertexs_offlinePrimaryVertices_*_*',
 
     # Trigger
     'keep *_TriggerResults_*_*',
@@ -42,7 +42,7 @@ PF2PATEventContent = cms.PSet(
     # taus 
     'keep *_pfTaus_*_*',
     'keep recoPFTauDiscriminator_*_*_*',
-    'keep *_offlinePrimaryVerticesWithBS_*_*',
+    'keep *_offlinePrimaryVertice_*_*',
     # MET
     'keep *_pfMET_*_*',
     # Trigger

@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2010/02/15 13:42:21 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/03/05 17:06:58 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -40,7 +40,8 @@ namespace edm {
     virtual ~DaqSource();
     
    private:
-  
+
+    void defaultWebPage(xgi::Input *in, xgi::Output *out); 
     virtual EventPrincipal* readEvent_();
     virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();

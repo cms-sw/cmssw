@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CSCDigitizerTest")
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+#untracked PSet maxEvents = {untracked int32 input = 100}
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 process.load("Configuration.StandardSequences.GeometryPilot2_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -17,20 +17,31 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 #replace muonCSCDigis.wires.doNoise = false
 #replace muonCSCDigis.strips.doCrosstalk = false
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_38Y_V9::All"
+process.GlobalTag.globaltag = "IDEAL_V9::All"
 
+
+#   include "CalibMuon/Configuration/data/CSC_FrontierConditions.cff"
+#   replace cscConditions.toGet =  {
+#        { string record = "CSCDBGainsRcd"
+#          string tag = "CSCDBGains_ideal"},
+#        {string record = "CSCNoiseMatrixRcd"
+#          string tag = "CSCNoiseMatrix_ideal"},
+#        {string record = "CSCcrosstalkRcd"
+#          string tag = "CSCCrosstalk_ideal"},
+#        {string record = "CSCPedestalsRcd"
+#         string tag = "CSCPedestals_ideal"}
+#    }
 process.load("Validation.MuonCSCDigis.cscDigiValidation_cfi")
 
 process.load("SimMuon.CSCDigitizer.muonCSCDigis_cfi")
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_3_8_0/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V7-v1/0005/62065D40-3D95-DF11-83FA-002618943976.root',
-       '/store/relval/CMSSW_3_8_0/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V7-v1/0004/F0D135F1-0995-DF11-9B08-0018F3D096A2.root',
-       '/store/relval/CMSSW_3_8_0/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V7-v1/0004/CEC41BA0-0895-DF11-B5E9-0018F3D096DA.root',
-       '/store/relval/CMSSW_3_8_0/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V7-v1/0004/521C57A2-0895-DF11-9E35-001BFCDBD160.root' )
+    debugFlag = cms.untracked.bool(True),
+    debugVebosity = cms.untracked.uint32(10),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_9/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0000/BA6DA407-A985-DD11-A0D8-000423D9A2AE.root',
+       '/store/relval/CMSSW_2_1_9/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0000/CAADA54A-AB85-DD11-95D6-000423D98F98.root',
+       '/store/relval/CMSSW_2_1_9/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/52BAB7DF-0487-DD11-95A3-000423D9989E.root')
 )
-
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(

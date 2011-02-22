@@ -135,7 +135,7 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
           ////--- fill the cumulative energy in an event
          allEnergyEvent= allEnergyEvent+energy ;
          ////--- fill the cumulative distribution
-         meCastor3Dhits->Fill(abs(Z_pos),X_pos,Y_pos, energy);
+         meCastor3Dhits->Fill(std::abs(Z_pos),X_pos,Y_pos, energy);
 	}
 
 	if(fVerbosity>0)  std::cout<<"ENERGY="<< energy <<" X_pos="<< X_pos <<" Y_pos="<< Y_pos <<" Z_pos="<< Z_pos << std::endl;   
@@ -158,7 +158,7 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
        X_pos_maxE = caloGeometry.getSubdetectorGeometry(CastorID_maxE)->getGeometry(CastorID_maxE)->getPosition().x() ;
        Y_pos_maxE = caloGeometry.getSubdetectorGeometry(CastorID_maxE)->getGeometry(CastorID_maxE)->getPosition().y() ;
        Z_pos_maxE = caloGeometry.getSubdetectorGeometry(CastorID_maxE)->getGeometry(CastorID_maxE)->getPosition().z() ;
-       meCastor3DhitsMaxEnergy->Fill(abs(Z_pos_maxE),X_pos_maxE,Y_pos_maxE, CASTORiter->energy() );
+       meCastor3DhitsMaxEnergy->Fill(std::abs(Z_pos_maxE),X_pos_maxE,Y_pos_maxE, CASTORiter->energy() );
       }
      meCastor3DhitsMaxEnergy->getTH3F()->SetOption("BOX");
      meCastor3DhitsMaxEnergy->update();

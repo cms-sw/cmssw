@@ -6,20 +6,41 @@
   <config name="brightness" version="0">
     <string>0</string>
   </config>
-  <config name="geomTransparency2D" version="0">
+  <config name="Transparency 2D" version="0">
     <string>50</string>
   </config>
-  <config name="geomTransparency3D" version="0">
+  <config name="Transparency 3D" version="0">
     <string>50</string>
   </config>
-  <config name="muonBarrelColor" version="0">
+  <config name="PlotEt" version="0">
+    <string>1</string>
+  </config>
+  <config name="ScaleMode" version="0">
+    <string>1</string>
+  </config>
+  <config name="ValueToHeight [GeV/m]" version="0">
+    <string>50</string>
+  </config>
+  <config name="MaxTowerH [m]" version="0">
+    <string>1</string>
+  </config>
+  <config name="GeometryColor 0 " version="0">
+    <string>1032</string>
+  </config>
+  <config name="GeometryColor 1 " version="0">
+    <string>1033</string>
+  </config>
+  <config name="GeometryColor 2 " version="0">
+    <string>1026</string>
+  </config>
+  <config name="GeometryColor 3 " version="0">
+    <string>1017</string>
+  </config>
+  <config name="GeometryColor 4 " version="0">
     <string>1025</string>
   </config>
-  <config name="muonEndcapColor" version="0">
+  <config name="GeometryColor 5 " version="0">
     <string>1022</string>
-  </config>
-  <config name="trackerColor" version="0">
-    <string>1026</string>
   </config>
  </config>
  <config name="EventItems" version="1">
@@ -772,10 +793,10 @@
      <string>50</string>
    </config>
    <config name="width" version="0">
-     <string>1634</string>
+     <string>947</string>
    </config>
    <config name="height" version="0">
-     <string>904</string>
+     <string>665</string>
    </config>
    <config name="leftWeight" version="0">
      <string>1.22259</string>
@@ -785,7 +806,7 @@
    </config>
   </config>
   <config name="views" version="1">
-   <config name="Rho Phi" version="5">
+   <config name="Rho Phi" version="6">
     <config name="Overlay Event Info" version="0">
       <string>0</string>
     </config>
@@ -825,12 +846,6 @@
     <config name="Compress detectors" version="0">
       <string>0</string>
     </config>
-    <config name="Calo scale (GeV/meter)" version="0">
-      <string>2</string>
-    </config>
-    <config name="Calo auto scale" version="0">
-      <string>1</string>
-    </config>
     <config name="Include EndCaps" version="0">
       <string>1</string>
     </config>
@@ -855,8 +870,23 @@
     <config name="LogoPosY" version="0">
       <string>0.98</string>
     </config>
+    <config name="UseGlobalScales" version="0">
+      <string>1</string>
+    </config>
+    <config name="ScaleMode" version="0">
+      <string>1</string>
+    </config>
+    <config name="ValueToHeight [GeV/m]" version="0">
+      <string>50</string>
+    </config>
+    <config name="MaxTowerH [m]" version="0">
+      <string>1</string>
+    </config>
+    <config name="PlotEt" version="0">
+      <string>1</string>
+    </config>
     <config name="cameraZoomRho Phi" version="0">
-      <string>4.7302</string>
+      <string>2.67839</string>
     </config>
     <config name="cameraMatrix0Rho Phi" version="0">
       <string>1</string>
@@ -907,7 +937,7 @@
       <string>1</string>
     </config>
    </config>
-   <config name="Rho Z" version="5">
+   <config name="Rho Z" version="6">
     <config name="Overlay Event Info" version="0">
       <string>0</string>
     </config>
@@ -947,12 +977,6 @@
     <config name="Compress detectors" version="0">
       <string>0</string>
     </config>
-    <config name="Calo scale (GeV/meter)" version="0">
-      <string>2</string>
-    </config>
-    <config name="Calo auto scale" version="0">
-      <string>1</string>
-    </config>
     <config name="EventInfoTextSize" version="0">
       <string>0.03</string>
     </config>
@@ -971,8 +995,23 @@
     <config name="LogoPosY" version="0">
       <string>0.98</string>
     </config>
+    <config name="UseGlobalScales" version="0">
+      <string>1</string>
+    </config>
+    <config name="ScaleMode" version="0">
+      <string>1</string>
+    </config>
+    <config name="ValueToHeight [GeV/m]" version="0">
+      <string>50</string>
+    </config>
+    <config name="MaxTowerH [m]" version="0">
+      <string>1</string>
+    </config>
+    <config name="PlotEt" version="0">
+      <string>1</string>
+    </config>
     <config name="cameraZoomRho Z" version="0">
-      <string>3.34379</string>
+      <string>1.71202</string>
     </config>
     <config name="cameraMatrix0Rho Z" version="0">
       <string>1</string>
@@ -1023,7 +1062,7 @@
       <string>1</string>
     </config>
    </config>
-   <config name="3D" version="5">
+   <config name="3D" version="6">
     <config name="Overlay Event Info" version="0">
       <string>0</string>
     </config>
@@ -1072,12 +1111,6 @@
     <config name="Show Wire Frame" version="0">
       <string>1</string>
     </config>
-    <config name="Calo scale (GeV/meter)" version="0">
-      <string>2</string>
-    </config>
-    <config name="Calo auto scale" version="0">
-      <string>1</string>
-    </config>
     <config name="EventInfoTextSize" version="0">
       <string>0.03</string>
     </config>
@@ -1095,6 +1128,21 @@
     </config>
     <config name="LogoPosY" version="0">
       <string>0.98</string>
+    </config>
+    <config name="UseGlobalScales" version="0">
+      <string>1</string>
+    </config>
+    <config name="ScaleMode" version="0">
+      <string>1</string>
+    </config>
+    <config name="ValueToHeight [GeV/m]" version="0">
+      <string>50</string>
+    </config>
+    <config name="MaxTowerH [m]" version="0">
+      <string>1</string>
+    </config>
+    <config name="PlotEt" version="0">
+      <string>1</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
       <string>0.652463</string>
@@ -1193,7 +1241,7 @@
       <string>1</string>
     </config>
     <config name="Plain3D FOV" version="0">
-      <string>5.65288</string>
+      <string>6.21817</string>
     </config>
    </config>
    <config name="Table" version="1">

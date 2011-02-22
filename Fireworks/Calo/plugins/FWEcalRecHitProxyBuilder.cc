@@ -6,48 +6,58 @@
  *  Copyright 2010 FNAL. All rights reserved.
  *
  */
-
-#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "TEveDigitSet.h"
+#include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-class FWEcalRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<EcalRecHit>
+class FWEcalRecHitProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
-   FWEcalRecHitProxyBuilder( void ) {}
-	
-   virtual ~FWEcalRecHitProxyBuilder( void ) {}
+   FWEcalRecHitProxyBuilder() {}
+   virtual ~FWEcalRecHitProxyBuilder() {}
 	
    REGISTER_PROXYBUILDER_METHODS();
 	
 private:
-   // Disable default copy constructor
    FWEcalRecHitProxyBuilder( const FWEcalRecHitProxyBuilder& );
-   // Disable default assignment operator
    const FWEcalRecHitProxyBuilder& operator=( const FWEcalRecHitProxyBuilder& );
-	
-   void build( const EcalRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+
+   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
 };
 
-void
-FWEcalRecHitProxyBuilder::build( const EcalRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
+//______________________________________________________________________________
+
+void FWEcalRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-   const float* corners = item()->getGeom()->getCorners( iData.detid());
-   if( corners == 0 ) {
+   const EcalRecHitCollection* collection = 0;
+   iItem->get( collection );
+   if (! collection)
       return;
-   }
-   Float_t scale = 10.0;
-   bool reflect = false;
-   if( EcalSubdetector( iData.detid().subdetId() ) == EcalPreshower )
+
+   TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   for (std::vector<EcalRecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
    {
-      scale = 1000.0; 	// FIXME: The scale should be taken form somewhere else
-      ( corners[2] < 0.0 ) ? reflect = true : reflect = false;
+      const float* corners = item()->getGeom()->getCorners((*it).detid());
+      if (corners == 0) 
+         continue;
+
+      Float_t scale = 10.0;
+      bool reflect = false;
+      if (EcalSubdetector( (*it).detid().subdetId() ) == EcalPreshower)
+      {
+         scale = 1000.0; 	// FIXME: The scale should be taken form somewhere else
+         reflect = corners[2] < 0;
+      }
+
+      std::vector<float> scaledCorners(24);
+      fireworks::energyTower3DCorners(corners, (*it).energy() * scale,  scaledCorners, reflect);
+
+      addBox(boxSet, &scaledCorners[0]);
    }
-   
-   fireworks::drawEnergyTower3D( corners, iData.energy() * scale, &oItemHolder, this, reflect );
 }
 
-REGISTER_FWPROXYBUILDER( FWEcalRecHitProxyBuilder, EcalRecHit, "Ecal RecHit", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER( FWEcalRecHitProxyBuilder, EcalRecHitCollection, "Ecal RecHit", FWViewType::kISpyBit );

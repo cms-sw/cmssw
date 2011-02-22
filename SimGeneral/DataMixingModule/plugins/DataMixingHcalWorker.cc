@@ -82,7 +82,7 @@ namespace edm
 
    const HBHERecHitCollection*  HBHERecHits = 0;
 
-   if( e.getByLabel( HBHErechitCollectionSig_.label(), pHBHERecHits) ) {
+   if( e.getByLabel( HBHErechitCollectionSig_, pHBHERecHits) ) {
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
      LogDebug("DataMixingHcalWorker") << "total # HBHE rechits: " << HBHERecHits->size();
    } 
@@ -111,7 +111,7 @@ namespace edm
 
    const HORecHitCollection*  HORecHits = 0;
 
-   if( e.getByLabel( HOrechitCollectionSig_.label(), pHORecHits) ){
+   if( e.getByLabel( HOrechitCollectionSig_, pHORecHits) ){
      HORecHits = pHORecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
@@ -142,7 +142,7 @@ namespace edm
 
    const HFRecHitCollection*  HFRecHits = 0;
 
-   if( e.getByLabel( HFrechitCollectionSig_.label(), pHFRecHits) ) {
+   if( e.getByLabel( HFrechitCollectionSig_, pHFRecHits) ) {
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
@@ -173,7 +173,7 @@ namespace edm
 
    const ZDCRecHitCollection*  ZDCRecHits = 0;
 
-   if( e.getByLabel( ZDCrechitCollectionSig_.label(), pZDCRecHits) ) {
+   if( e.getByLabel( ZDCrechitCollectionSig_, pZDCRecHits) ) {
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();

@@ -1,3 +1,4 @@
+#include "TEveBoxSet.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
@@ -22,17 +23,27 @@ private:
 void
 FWCaloClusterProxyBuilder::build( const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-  std::vector<std::pair<DetId, float> > clusterDetIds = iData.hitsAndFractions();
+   std::vector<std::pair<DetId, float> > clusterDetIds = iData.hitsAndFractions();
    
-  for( std::vector<std::pair<DetId, float> >::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
-       it != itEnd; ++it )
-  {
-    const float* corners = item()->getGeom()->getCorners( (*it).first );
-    if( corners == 0 ) {
-      continue;
-    }
-    fireworks::drawEnergyTower3D( corners, (*it).second, &oItemHolder, this, false );
-  }
+   TEveBoxSet* boxset = new TEveBoxSet();
+   boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
+   boxset->UseSingleColor();
+   boxset->SetPickable(1);
+
+   for( std::vector<std::pair<DetId, float> >::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
+        it != itEnd; ++it )
+   {
+      const float* corners = item()->getGeom()->getCorners( (*it).first );
+      if( corners == 0 ) {
+         continue;
+      }
+      std::vector<float> pnts(24);    
+      fireworks::energyTower3DCorners(corners, (*it).second, pnts);
+      boxset->AddBox( &pnts[0]);
+   }
+
+   boxset->RefitPlex();
+   setupAddElement(boxset, &oItemHolder);
 }
 
 REGISTER_FWPROXYBUILDER( FWCaloClusterProxyBuilder, reco::CaloCluster, "Calo Cluster", FWViewType::kISpyBit );

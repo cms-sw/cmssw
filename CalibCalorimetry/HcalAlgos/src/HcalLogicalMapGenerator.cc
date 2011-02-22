@@ -244,7 +244,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(std::vector <HBHEHFLogicalMapEntry>&
               iphi=(ieta>20)?(ihbhephis[ic]+(is%2)*4+itb*2-1)%72+1:(ihbhephis[ic]+(is%2)*4+itb*2+(ifb/2+is/2+1)%2-1)%72+1;
               ispigot=(is%2)*6+ih*2+itb;
               idcc=is<NHSETS/2?1:2;
-              idcc_sl=idcc==1?10:20;
+              idcc_sl=idcc==1?9:19;
               ifed=fedhbhenum[ic][idcc-1];
               //Aram's insert: rm variables, rbx, wedge
               //Careful here: per Pawel's map, the rm fiber is the first entry an the rm itself is the second.
@@ -485,7 +485,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(std::vector <HBHEHFLogicalMapEntry>&
               iphi=(ieta>39)?(ihfphis[ic]+(is%2)*12+ih*4-1)%72+1:(ihfphis[ic]+(is%2)*12+ih*4+(ifb/4)*2-1)%72+1;
               ispigot=(is%2)*6+ih*2+itb;
               idcc=is<NHSETS/2?1:2;
-              idcc_sl=idcc==1?10:20;
+              idcc_sl=idcc==1?9:19;
               ifed=fedhfnum[ic][idcc-1];
               
               irm_fi = irm_rmfiHF[ih][itb][ifb][0];
@@ -952,7 +952,7 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
         else if ((ieta > 15 && iside > 0) && (icrate == 7 || icrate == 13))   ispigot = 13;
         else ispigot=ihtr<9?(ihtr-2)*2+itb:(ihtr-13)*2+itb;
         idcc=ihtr<9?1:2;
-        idcc_sl = idcc == 1 ?10:20;
+        idcc_sl = idcc == 1 ? 9:19;
         
         ifed=fedhonum[ic][idcc-1];
         
@@ -1245,7 +1245,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(std::vector <CALIBLogicalMapEntry>& 
   /**/
   ihtr=8; //calibration units are housed on htr slot 8
   idcc=1;
-  idcc_sl=10;
+  idcc_sl=9;
   irm_fi = 1;// everything other than HE is on A
   det = "";
 
@@ -1358,9 +1358,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(std::vector <CALIBLogicalMapEntry>& 
         (ifc==0)?ich_type=8:(ifc==1?ich_type=0:ich_type=1);
 	//changed ch_type of fibre channel 0 from 2 to 8, as per HcalCalibDetId specification
         irm_fi = 1;
-	//Wedge has steps of 3, HF(P/M)2,5,8,11
-        //iwedge=ihtr_fi;
-	iwedge=2+(ifb*3);
+        iwedge=ihtr_fi;
         if (itb==0){
           ispigot=12;
           fpga="top";
@@ -1489,7 +1487,7 @@ void HcalLogicalMapGenerator::buildZDCMap(std::vector <ZDCLogicalMapEntry>& ZDCE
   ihtr=8;
   icrate=12;
   idcc=1;
-  idcc_sl=10;
+  idcc_sl=9;
   ispigot=12;
   /* side plus and minus */
   for(itb=0; itb<NTOPBOT; itb++){

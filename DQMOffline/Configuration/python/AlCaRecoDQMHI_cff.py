@@ -13,7 +13,7 @@ from DQMOffline.Configuration.ALCARECOTkCalDQMHI_cff import *
 # Ecal Calibration
 from DQMOffline.Configuration.ALCARECOEcalCalDQM_cff import *
 # Hcal Calibration
-from DQMOffline.Configuration.ALCARECOHcalCalDQM_cff import *
+from DQMOffline.Configuration.ALCARECOHcalCalDQMHI_cff import *
 # Muon Calibration
 from DQMOffline.Configuration.ALCARECOMuonDQM_cff import *
 

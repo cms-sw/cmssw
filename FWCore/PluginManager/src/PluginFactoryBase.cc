@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:09:50 EDT 2007
-// $Id: PluginFactoryBase.cc,v 1.5 2009/10/22 07:05:35 eulisse Exp $
+// $Id: PluginFactoryBase.cc,v 1.6 2009/10/26 14:06:47 eulisse Exp $
 //
 
 // system include files
@@ -67,7 +67,7 @@ void
 PluginFactoryBase::newPlugin(const std::string& iName)
 {
   PluginInfo info;
-  info.loadable_=boost::filesystem::path(PluginManager::loadingFile(),boost::filesystem::no_check);
+  info.loadable_=boost::filesystem::path(PluginManager::loadingFile());
   info.name_=iName;
   newPluginAdded_(category(),info);
 }

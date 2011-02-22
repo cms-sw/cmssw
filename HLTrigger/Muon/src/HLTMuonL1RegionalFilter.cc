@@ -46,7 +46,7 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
     qualityBitMasks_.push_back( 0 );
     vector<unsigned int> qualities = cuts[i].getParameter<vector<unsigned int> >("QualityBits");
     for(size_t j=0; j<qualities.size(); j++){
-      if(qualities[j] < 0 || 7 < qualities[j]){
+      if(7U < qualities[j]){ // qualities[j] >= 0, since qualities[j] is unsigned
         throw edm::Exception(errors::Configuration) << "QualityBits must be between 0 and 7 !";
       }
       qualityBitMasks_[i] |= 1 << qualities[j];

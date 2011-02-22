@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.24 2010/09/29 16:19:48 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.25 2010/10/01 09:45:19 amraktad Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
+#include "Fireworks/Calo/interface/scaleMarker.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 
@@ -54,21 +55,13 @@ private:
 
    virtual void buildViewType(const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
    
-   // scaling use struct to optimise scales
-   struct SLines
-   {
-      SLines(TEveScalableStraightLineSet* ls, float e, const FWViewContext* vc) : m_ls(ls), m_val(e), m_vc(vc) {}
-      TEveScalableStraightLineSet* m_ls;
-      double  m_val;  // et and energy are same
-      const FWViewContext* m_vc;
-   };
-   std::vector<SLines> m_lines;
+   std::vector<fireworks::scaleMarker> m_lines;
 };
 
 void
 FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
-   typedef std::vector<SLines> Lines_t;
+   typedef std::vector<fireworks::scaleMarker> Lines_t;
    FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");  
 
    // printf("MET %p -> %f\n", vc, caloScale->getValToHeight() );
@@ -77,7 +70,7 @@ FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
       if ( vc == (*i).m_vc )
       { 
          //    printf("lineset %p \n",(*i).m_ls );
-         (*i).m_ls->SetScale(caloScale->getValToHeight()*(*i).m_val);
+         (*i).m_ls->SetScale(caloScale->getValToHeight()*(*i).m_et);
 
          TEveProjectable *pable = static_cast<TEveProjectable*>((*i).m_ls);
          for (TEveProjectable::ProjList_i j = pable->BeginProjecteds(); j != pable->EndProjecteds(); ++j)
@@ -113,7 +106,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
                     (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
    
    marker->SetScale(caloScale->getValToHeight()*met.et());
-   m_lines.push_back(SLines(marker, met.et(), vc));  // register for scales
+   m_lines.push_back(fireworks::scaleMarker(marker, met.energy(), met.et(), vc));  // register for scales
    setupAddElement( marker, &oItemHolder );
       
 
@@ -139,7 +132,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
       tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), -dx,
                    0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
       
-      m_lines.push_back(SLines(tip, met.et(), vc)); //register for scaes 
+      m_lines.push_back(fireworks::scaleMarker(tip, met.energy(), met.et(), vc)); //register for scaes 
 
       tip->SetScale(caloScale->getValToHeight()*met.et());
       setupAddElement( tip, &oItemHolder );

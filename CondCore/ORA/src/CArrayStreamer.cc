@@ -4,7 +4,7 @@
 #include "MappingElement.h"
 #include "ContainerSchema.h"
 #include "RelationalBuffer.h"
-#include "RelationalOperation.h"
+#include "MultiRecordInsertOperation.h"
 #include "MultiRecordSelectOperation.h"
 #include "RelationalStreamerFactory.h"
 #include "ArrayHandlerFactory.h"
@@ -53,7 +53,7 @@ bool ora::CArrayWriter::build( DataElement& offset,
   RelationalStreamerFactory streamerFactory( m_schema );
   
   // first open the insert on the extra table...
-  m_insertOperation = &operationBuffer.newBulkInsert( m_mappingElement.tableName() );
+  m_insertOperation = &operationBuffer.newMultiRecordInsert( m_mappingElement.tableName() );
   const std::vector<std::string>& columns = m_mappingElement.columnNames();
   if( !columns.size() ){
     throwException( "Id columns not found in the mapping.",
@@ -107,20 +107,13 @@ void ora::CArrayWriter::write( int oid,
   size_t containerSize = m_arrayHandler->size( data  );
   size_t persistentSize = m_arrayHandler->persistentSize( data  );
   
-  if ( containerSize > MAXARRAYSIZE ){
-    std::stringstream ms;
-    ms << "Cannot store non-blob array with size>" << MAXARRAYSIZE;
-    throwException( ms.str(),
-                    "CArrayWriter::write" );    
-  }
-
   if ( containerSize == 0 || containerSize < persistentSize ) return;
 
   size_t startElementIndex = m_arrayHandler->startElementIndex( data );
 
   std::auto_ptr<IArrayIteratorHandler> iteratorHandler( m_arrayHandler->iterate( data ) );
 
-  coral::IBulkOperation& bulkOperation = m_insertOperation->setUp( containerSize-startElementIndex+1 );
+  InsertCache& bulkOperation = m_insertOperation->setUp( containerSize-startElementIndex+1 );
 
   for ( size_t iIndex = startElementIndex; iIndex < containerSize; ++iIndex ) {
 

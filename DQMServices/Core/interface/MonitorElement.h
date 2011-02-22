@@ -136,30 +136,26 @@ public:
   void setLumiFlag(void)
     { data_.flags |= DQMNet::DQM_PROP_LUMI; }
 
-// NOTE: we exclude MACOSX because on macosx int64_t and uint64_t are
-//       typedefs to long long and unsigned long long.
-//
-//       See:
-//
-//         /usr/include/i386/_types.h
-//
-//       on Snow Leopard.         
-#if __WORDSIZE > 32 && !defined(__APPLE__)
-  void Fill(long long x)          { Fill(static_cast<int64_t>(x)); }
-  void Fill(unsigned long long x) { Fill(static_cast<int64_t>(x)); }
-#endif
+  // A static assert to check that T actually fits in
+  // int64_t.
+  template <typename T>
+  struct fits_in_int64_t 
+  {
+    int checkArray[sizeof(int64_t) - sizeof(T) + 1];
+  };
 
-  void Fill(uint64_t x) { Fill(static_cast<int64_t>(x)); }
-  void Fill(int32_t x)  { Fill(static_cast<int64_t>(x)); }
-  void Fill(uint32_t x) { Fill(static_cast<int64_t>(x)); }
-  void Fill(int16_t x)  { Fill(static_cast<int64_t>(x)); }
-  void Fill(uint16_t x) { Fill(static_cast<int64_t>(x)); }
-  void Fill(int8_t x)	{ Fill(static_cast<int64_t>(x)); }
-  void Fill(uint8_t x)  { Fill(static_cast<int64_t>(x)); }
+  void Fill(long long x) { fits_in_int64_t<long long>(); doFill(static_cast<int64_t>(x)); }
+  void Fill(unsigned long long x) { fits_in_int64_t<unsigned long long>(); doFill(static_cast<int64_t>(x)); }
+  void Fill(unsigned long x) { fits_in_int64_t<unsigned long>(); doFill(static_cast<int64_t>(x)); }
+  void Fill(long x) { fits_in_int64_t<long>(); doFill(static_cast<int64_t>(x)); }
+  void Fill(unsigned int x) { fits_in_int64_t<unsigned int>(); doFill(static_cast<int64_t>(x)); }
+  void Fill(int x) { fits_in_int64_t<int>(); doFill(static_cast<int64_t>(x)); }
+  void Fill(short x) { fits_in_int64_t<short>(); doFill(static_cast<int64_t>(x)); }
+  void Fill(unsigned short x) { fits_in_int64_t<unsigned short>(); doFill(static_cast<int64_t>(x)); }
+  void Fill(char x) { fits_in_int64_t<char>(); doFill(static_cast<int64_t>(x)); }
+  void Fill(unsigned char x) { fits_in_int64_t<unsigned char>(); doFill(static_cast<int64_t>(x)); }
 
   void Fill(float x)	{ Fill(static_cast<double>(x)); } 
-  
-  void Fill(int64_t x);
   void Fill(double x);
   void Fill(std::string &value);
 
@@ -208,6 +204,7 @@ public:
   void runQTests(void);
 
 private:
+  void doFill(int64_t x);
   void incompatible(const char *func) const;
   TH1 *accessRootObject(const char *func, int reqdim) const;
 

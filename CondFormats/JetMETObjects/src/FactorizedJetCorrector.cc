@@ -24,15 +24,21 @@ FactorizedJetCorrector::FactorizedJetCorrector()
   mJetPhi = -9999;
   mJetE   = -9999;
   mJetEMF = -9999;
+  mJetA   = -9999;
+  mRho    = -9999;
   mLepPx  = -9999;
   mLepPy  = -9999;
   mLepPz  = -9999;
+  mNPV    = -9999;
   mAddLepToJet      = false;
+  mIsNPVset         = false;
   mIsJetEset        = false;
   mIsJetPtset       = false;
   mIsJetPhiset      = false;
   mIsJetEtaset      = false;
   mIsJetEMFset      = false;
+  mIsJetAset        = false;
+  mIsRhoset         = false;
   mIsLepPxset       = false;
   mIsLepPyset       = false;
   mIsLepPzset       = false;
@@ -48,15 +54,21 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const
   mJetPhi = -9999;
   mJetE   = -9999;
   mJetEMF = -9999;
+  mJetA   = -9999;
+  mRho    = -9999;
   mLepPx  = -9999;
   mLepPy  = -9999;
   mLepPz  = -9999;
+  mNPV    = -9999;
   mAddLepToJet      = false;
+  mIsNPVset         = false;
   mIsJetEset        = false;
   mIsJetPtset       = false;
   mIsJetPhiset      = false;
   mIsJetEtaset      = false;
   mIsJetEMFset      = false;
+  mIsJetAset        = false;
+  mIsRhoset         = false; 
   mIsLepPxset       = false;
   mIsLepPyset       = false;
   mIsLepPzset       = false;
@@ -73,15 +85,21 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
   mJetPhi = -9999;
   mJetE   = -9999;
   mJetEMF = -9999;
+  mJetA   = -9999;
+  mRho    = -9999;
   mLepPx  = -9999;
   mLepPy  = -9999;
   mLepPz  = -9999;
+  mNPV    = -9999;
   mAddLepToJet      = false;
+  mIsNPVset         = false;
   mIsJetEset        = false;
   mIsJetPtset       = false;
   mIsJetPhiset      = false;
   mIsJetEtaset      = false;
   mIsJetEMFset      = false;
+  mIsJetAset        = false;
+  mIsRhoset         = false;
   mIsLepPxset       = false;
   mIsLepPyset       = false;
   mIsLepPzset       = false;
@@ -90,6 +108,8 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
     {
       std::string ss = fParameters[i].definitions().level();
       if (ss == "L1Offset")
+        mLevels.push_back(kL1);
+      else if (ss == "L1JPTOffset")
         mLevels.push_back(kL1);
       else if (ss == "L2Relative")
         mLevels.push_back(kL2);
@@ -103,9 +123,11 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
         mLevels.push_back(kL6);
       else if (ss == "L7Parton")
         mLevels.push_back(kL7);
+      else if (ss == "L1FastJet")
+        mLevels.push_back(kL1fj);
       mCorrectors.push_back(new SimpleJetCorrector(fParameters[i]));
-      mBinTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().binVar()));
-      mParTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().parVar()));
+      mBinTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().binVar()));
+      mParTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().parVar()));
     }  
 }
 
@@ -128,6 +150,8 @@ void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const st
     {
       if (tmp[i] == "L1Offset")
         mLevels.push_back(kL1);
+      else if (tmp[i] == "L1JPTOffset")
+        mLevels.push_back(kL1);
       else if (tmp[i] == "L2Relative")
         mLevels.push_back(kL2);
       else if (tmp[i] == "L3Absolute")
@@ -140,6 +164,8 @@ void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const st
         mLevels.push_back(kL6);
       else if (tmp[i] == "L7Parton")
         mLevels.push_back(kL7);
+      else if (tmp[i] == "L1FastJet")
+        mLevels.push_back(kL1fj);
       else
         {
           std::stringstream sserr; 
@@ -157,7 +183,7 @@ void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const st
   //---- Create instances of the requested sub-correctors.
   for(unsigned i=0;i<mLevels.size();i++)
     {     	    
-      if (mLevels[i]==kL1 || mLevels[i]==kL2 || mLevels[i]==kL3 || mLevels[i]==kL4 || mLevels[i]==kL6)
+      if (mLevels[i]==kL1 || mLevels[i]==kL2 || mLevels[i]==kL3 || mLevels[i]==kL4 || mLevels[i]==kL6 || mLevels[i]==kL1fj)
         mCorrectors.push_back(new SimpleJetCorrector(Files[i])); 
       else if (mLevels[i]==kL5 && FlavorOption.length()==0) 
         handleError("FactorizedJetCorrector","must specify flavor option when requesting L5Flavor correction!");
@@ -200,6 +226,12 @@ std::vector<FactorizedJetCorrector::VarTypes> FactorizedJetCorrector::mapping(co
 	result.push_back(kRelLepPt);
       else if (ss=="PtRel")
 	result.push_back(kPtRel);
+      else if (ss=="NPV")
+        result.push_back(kNPV);
+      else if (ss=="JetA")
+        result.push_back(kJetA);
+      else if (ss=="Rho")
+        result.push_back(kRho);
       else
          {
            std::stringstream sserr; 
@@ -324,20 +356,23 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
     { 
       vx = fillVector(mBinTypes[i]);
       vy = fillVector(mParTypes[i]);
-      if (mLevels[i]==kL2||mLevels[i]==kL6)
-        mCorrectors[i]->setInterpolation(true); 
+      //if (mLevels[i]==kL2 || mLevels[i]==kL6)
+        //mCorrectors[i]->setInterpolation(true); 
       scale = mCorrectors[i]->correction(vx,vy); 	
-      if (mLevels[i]==kL6&&mAddLepToJet) scale *= 1.0 + getLepPt() / mJetPt;
+      if (mLevels[i]==kL6 && mAddLepToJet) scale *= 1.0 + getLepPt() / mJetPt;
       factor*=scale; 
       factors.push_back(factor);	
       mJetE *=scale;
       mJetPt*=scale;
     }
+  mIsNPVset    = false;
   mIsJetEset   = false;
   mIsJetPtset  = false;
   mIsJetPhiset = false;
   mIsJetEtaset = false;
   mIsJetEMFset = false;
+  mIsJetAset   = false;
+  mIsRhoset    = false;
   mIsLepPxset  = false;
   mIsLepPyset  = false;
   mIsLepPzset  = false;
@@ -357,6 +392,12 @@ std::vector<float> FactorizedJetCorrector::fillVector(std::vector<VarTypes> fVar
           if (!mIsJetEtaset) 
             handleError("FactorizedJetCorrector","jet eta is not set");
           result.push_back(mJetEta);
+        }
+      else if (fVarTypes[i] == kNPV)
+        {
+          if (!mIsNPVset)
+            handleError("FactorizedJetCorrector","number of primary vertices is not set");
+          result.push_back(mNPV);
         }
       else if (fVarTypes[i] == kJetPt) 
         {
@@ -382,6 +423,18 @@ std::vector<float> FactorizedJetCorrector::fillVector(std::vector<VarTypes> fVar
             handleError("FactorizedJetCorrector","jet EMF is not set");
           result.push_back(mJetEMF);
         } 
+      else if (fVarTypes[i] == kJetA) 
+        {
+          if (!mIsJetAset) 
+            handleError("FactorizedJetCorrector","jet area is not set");
+          result.push_back(mJetA);
+        }
+      else if (fVarTypes[i] == kRho) 
+        {
+          if (!mIsRhoset) 
+            handleError("FactorizedJetCorrector","fastjet density Rho is not set");
+          result.push_back(mRho);
+        }
       else if (fVarTypes[i] == kRelLepPt) 
         {
           if (!mIsJetPtset||!mIsAddLepToJetset||!mIsLepPxset||!mIsLepPyset) 
@@ -457,6 +510,11 @@ float FactorizedJetCorrector::getPtRel() const
 //------------------------------------------------------------------------ 
 //--- Setters ------------------------------------------------------------
 //------------------------------------------------------------------------
+void FactorizedJetCorrector::setNPV(int fNPV)
+{
+  mNPV = fNPV;
+  mIsNPVset = true;
+}
 void FactorizedJetCorrector::setJetEta(float fEta)
 {
   mJetEta = fEta;
@@ -485,6 +543,18 @@ void FactorizedJetCorrector::setJetEMF(float fEMF)
 {
   mJetEMF = fEMF;
   mIsJetEMFset = true;
+}
+//------------------------------------------------------------------------
+void FactorizedJetCorrector::setJetA(float fA)
+{
+  mJetA = fA;
+  mIsJetAset = true;
+}
+//------------------------------------------------------------------------
+void FactorizedJetCorrector::setRho(float fRho)
+{
+  mRho = fRho;
+  mIsRhoset = true;
 }
 //------------------------------------------------------------------------
 void FactorizedJetCorrector::setLepPx(float fPx)

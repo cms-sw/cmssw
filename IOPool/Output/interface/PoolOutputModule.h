@@ -145,7 +145,6 @@ namespace edm {
     unsigned int numberOfDigitsInIndex_;
     bool overrideInputFileSplitLevels_;
     boost::scoped_ptr<RootOutputFile> rootOutputFile_;
-    std::string statusFileName_;
   };
 }
 

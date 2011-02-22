@@ -7,13 +7,13 @@
 
 
   \author Salvatore Rappoccio
-  \version  $Id: FWLiteFilterWrapper.h,v 1.2 2010/07/20 19:27:36 srappocc Exp $
+  \version  $Id: FWLiteFilterWrapper.h,v 1.1 2010/07/22 16:43:55 srappocc Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/Common/interface/EventBase.h"
 
 #include <boost/shared_ptr.hpp>
 

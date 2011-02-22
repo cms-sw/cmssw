@@ -94,7 +94,7 @@ void EcalHexDumperModule::analyze( const edm::Event & e, const  edm::EventSetup&
       
       
       int length = data.size();
-      const ulong               * pData     = ( reinterpret_cast<ulong*>(const_cast<unsigned char*> ( data.data())));
+      const unsigned long               * pData     = ( reinterpret_cast<unsigned long*>(const_cast<unsigned char*> ( data.data())));
       std::cout << std::setfill('0');
       for (int words=0; words < length/4; (words+=2)  )
 	{

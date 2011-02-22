@@ -9,7 +9,7 @@ kinSolutionTtFullLepEvent = cms.EDProducer("TtFullLepKinSolutionProducer",
     # ------------------------------------------------
     # specify jet correction step and flavor correction
     # ------------------------------------------------
-    jetCorrectionLevel = cms.string("abs"),
+    jetCorrectionLevel = cms.string("L3Absolute"),
 
 
     # ------------------------------------------------

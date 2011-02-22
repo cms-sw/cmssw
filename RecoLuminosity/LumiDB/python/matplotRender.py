@@ -52,7 +52,7 @@ class matplotRender():
         self.colormap['Effective']='g'
         self.colormap['Max Inst']='r'
 
-    def plotSumX_Run(self,rawxdata,rawydata,nticks=6):
+    def plotSumX_Run(self,rawxdata,rawydata,nticks=6,yscale='linear'):
         xpoints=[]
         ypoints={}
         ytotal={}
@@ -88,6 +88,12 @@ class matplotRender():
                 ypoints[ylabel].append(sum(yvalues[0:i])/denomitor)
             ytotal[ylabel]=sum(yvalues)/denomitor  
         ax=self.__fig.add_subplot(111)
+        if yscale=='linear':
+            ax.set_yscale('linear')
+        elif yscale=='log':
+            ax.set_yscale('log')
+        else:
+            raise 'unsupported yscale ',yscale
         ax.set_xlabel(r'Run',position=(0.95,0))
         ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
         xticklabels=ax.get_xticklabels()
@@ -118,7 +124,7 @@ class matplotRender():
         ax.legend(tuple(legendlist),loc='upper left')
         self.__fig.subplots_adjust(bottom=0.18,left=0.1)
         
-    def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,nticks=6):
+    def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,nticks=6,yscale='linear'):
         #print 'plotSumX_Fill rawxdata ',rawxdata
         ytotal={}
         ypoints={}
@@ -160,6 +166,12 @@ class matplotRender():
         ax.set_xlabel(r'LHC Fill Number',position=(0.84,0))
         ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
         ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
+        if yscale=='linear':
+            ax.set_yscale('linear')
+        elif yscale=='log':
+            ax.set_yscale('log')
+        else:
+            raise 'unsupported yscale ',yscale
         xticklabels=ax.get_xticklabels()
         majorLocator=matplotlib.ticker.LinearLocator( nticks )
         majorFormatter=matplotlib.ticker.FormatStrFormatter('%d')
@@ -185,7 +197,7 @@ class matplotRender():
         ax.legend(tuple(legendlist),loc='upper left')
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
         
-    def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,hltpath='',nticks=6,annotateBoundaryRunnum=False):
+    def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,hltpath='',nticks=6,annotateBoundaryRunnum=False,yscale='linear'):
         '''
         input:
            rawxdata runDict{runnumber:[delivered,recorded,recorded_hltpath]}
@@ -225,6 +237,12 @@ class matplotRender():
                 ypoints[ylabel].append(sum(yvalue[0:i])/denomitor)
             ytotal[ylabel]=sum(yvalue)/denomitor
         ax=self.__fig.add_subplot(111)
+        if yscale=='linear':
+            ax.set_yscale('linear')
+        elif yscale=='log':
+            ax.set_yscale('log')
+        else:
+            raise 'unsupported yscale ',yscale
         dateFmt=matplotlib.dates.DateFormatter('%d/%m')
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         ax.xaxis.set_major_locator(majorLoc)
@@ -262,12 +280,18 @@ class matplotRender():
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
         
-    def plotPerdayX_Time(self,days,databyday,minTime,maxTime,boundaryInfo=[],nticks=6,annotateBoundaryRunnum=False):
+    def plotPerdayX_Time(self,days,databyday,minTime,maxTime,boundaryInfo=[],nticks=6,annotateBoundaryRunnum=False,yscale='linear'):
         '''input
             databyday {'Delivered':[lumiperday]}
             boundaryInfo [[begintime,begininfo],[endtime,endinfo]]
         '''
         ax=self.__fig.add_subplot(111)
+        if yscale=='linear':
+            ax.set_yscale('linear')
+        elif yscale=='log':
+            ax.set_yscale('log')
+        else:
+            raise 'unsupported yscale ',yscale
         dateFmt=matplotlib.dates.DateFormatter('%d/%m')
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
@@ -326,7 +350,7 @@ class matplotRender():
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.18,left=0.1)
 
-    def plotPeakPerday_Time(self,daydict,minTime,maxTime,nticks=6,annotateBoundaryRunnum=False):
+    def plotPeakPerday_Time(self,daydict,minTime,maxTime,nticks=6,annotateBoundaryRunnum=False,yscale='linear'):
         '''
         Input: daydict={}#{day:[run,lsnum,instlumi]}
         '''
@@ -366,6 +390,12 @@ class matplotRender():
             unitstring='ab$^{-1}$s$^{-1}$'
             
         ax=self.__fig.add_subplot(111)
+        if yscale=='linear':
+            ax.set_yscale('linear')
+        elif yscale=='log':
+            ax.set_yscale('log')
+        else:
+            raise 'unsupported yscale ',yscale
         dateFmt=matplotlib.dates.DateFormatter('%d/%m')
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)

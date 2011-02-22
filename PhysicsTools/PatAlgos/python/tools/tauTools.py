@@ -57,7 +57,6 @@ def switchToCaloTau(process,
 #        againstElectron     = cms.InputTag("caloRecoTauDiscriminationAgainstElectron" + postfix),
 #        againstMuon         = cms.InputTag("caloRecoTauDiscriminationAgainstMuon" + postfix)
 #    )
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).addDecayMode = False
     ## Isolation is somewhat an issue, so we start just by turning it off
     print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
     applyPostfix(process, "patTaus" + patTauLabel, postfix).isolation   = cms.PSet()
@@ -73,7 +72,7 @@ def _buildIDSourcePSet(pfTauType, idSources, postfix =""):
     """ Build a PSet defining the tau ID sources to embed into the pat::Tau """
     output = cms.PSet()
     for label, discriminator in idSources:
-        setattr(output, label, cms.InputTag(pfTauType+discriminator+postfix))
+        setattr(output, label, cms.InputTag(pfTauType + discriminator + postfix))
     return output
 
 def _switchToPFTau(process,
@@ -100,7 +99,6 @@ def _switchToPFTau(process,
     
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauSource = pfTauLabelNew
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = _buildIDSourcePSet(pfTauType, idSources, postfix)
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).decayModeSrc = cms.InputTag(pfTauType + "DecayModeProducer")
 
     applyPostfix(process, "cleanPatTaus" + patTauLabel, postfix).preselection = \
       'tauID("leadingTrackFinding") > 0.5 & tauID("leadingPionPtCut") > 0.5 & tauID("byIsolationUsingLeadingPion") > 0.5' \
@@ -130,6 +128,7 @@ tancTauIDSources = [
     ("byTaNCfrHalfPercent", "DiscriminationByTaNCfrHalfPercent"),
     ("byTaNCfrQuarterPercent", "DiscriminationByTaNCfrQuarterPercent"),
     ("byTaNCfrTenthPercent", "DiscriminationByTaNCfrTenthPercent") ]
+
 # Hadron-plus-strip(s) (HPS) Tau Discriminators
 hpsTauIDSources = [
     ("leadingTrackFinding", "DiscriminationByDecayModeFinding"),
@@ -138,6 +137,24 @@ hpsTauIDSources = [
     ("byTightIsolation", "DiscriminationByTightIsolation"),
     ("againstElectron", "DiscriminationAgainstElectron"),
     ("againstMuon", "DiscriminationAgainstMuon")]
+
+# Discriminators of new HPS + TaNC combined Tau id. algorithm
+hpsTancTauIDSources = [
+    ("leadingTrackFinding", "DiscriminationByLeadingTrackFinding"),
+    ("leadingTrackPtCut", "DiscriminationByLeadingTrackPtCut"),
+    ("leadingPionPtCut", "DiscriminationByLeadingPionPtCut"),
+    ("byTaNCraw", "DiscriminationByTancRaw"),
+    ("byTaNC", "DiscriminationByTanc"),
+    ("byTaNCloose", "DiscriminationByTancLoose"),
+    ("byTaNCmedium", "DiscriminationByTancMedium"),
+    ("byTaNCtight", "DiscriminationByTancTight"),
+    ("byDecayMode", "DiscriminationByDecayModeSelection"),
+    ("byHPSloose", "DiscriminationByLooseIsolation"),
+    ("byHPSmedium", "DiscriminationByMediumIsolation"),
+    ("byHPStight", "DiscriminationByTightIsolation"),
+    ("againstElectron", "DiscriminationAgainstElectron"),
+    ("againstMuon", "DiscriminationAgainstMuon"),
+    ("againstCaloMuon", "DiscriminationAgainstCaloMuon") ]
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
 def switchToPFTauFixedCone(process,
@@ -150,26 +167,6 @@ def switchToPFTauFixedCone(process,
 
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'fixedConePFTau', fixedConeIDSources,
                    patTauLabel = patTauLabel, postfix = postfix)
-    
-    # PFTauDecayMode objects produced only for shrinking cone reco::PFTaus
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).addDecayMode = cms.bool(False)
-
-# switch to hadron-plus-strip(s) (HPS) PFTau collection
-def switchToPFTauHPS(process, 
-                     pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
-                     pfTauLabelNew = cms.InputTag('hpsPFTauProducer'),
-                     patTauLabel = "",
-                     postfix = ""):
-    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'hpsPFTau', hpsTauIDSources,
-                   patTauLabel = patTauLabel, postfix = postfix)
-    
-    # PFTauDecayMode objects produced only for shrinking cone reco::PFTaus
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).addDecayMode = cms.bool(False)
-    
-    ## adapt cleanPatTaus
-    getattr(process, "cleanPatTaus" + patTauLabel).preselection = \
-      'tauID("leadingTrackFinding") > 0.5 & tauID("byMediumIsolation") > 0.5' \
-     + ' & tauID("againstMuon") > 0.5 & tauID("againstElectron") > 0.5'
 
 # switch to PFTau collection produced for shrinking signal cone of size dR = 5.0/Et(PFTau)
 def switchToPFTauShrinkingCone(process,
@@ -184,6 +181,34 @@ def switchToPFTauShrinkingCone(process,
     
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'shrinkingConePFTau', shrinkingIDSources,
                    patTauLabel = patTauLabel, postfix = postfix)
+
+# switch to hadron-plus-strip(s) (HPS) PFTau collection
+def switchToPFTauHPS(process, 
+                     pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                     pfTauLabelNew = cms.InputTag('hpsPFTauProducer'),
+                     patTauLabel = "",
+                     postfix = ""):
+    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'hpsPFTau', hpsTauIDSources,
+                   patTauLabel = patTauLabel, postfix = postfix)
+    
+    ## adapt cleanPatTaus
+    getattr(process, "cleanPatTaus" + patTauLabel).preselection = \
+      'tauID("leadingTrackFinding") > 0.5 & tauID("byMediumIsolation") > 0.5' \
+     + ' & tauID("againstMuon") > 0.5 & tauID("againstElectron") > 0.5'
+
+# switch to hadron-plus-strip(s) (HPS) PFTau collection
+def switchToPFTauHPSpTaNC(process, 
+                          pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                          pfTauLabelNew = cms.InputTag('hpsTancTaus'),
+                          patTauLabel = "",
+                          postfix = ""):
+    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'hpsTancTaus', hpsTancTauIDSources,
+                   patTauLabel = patTauLabel, postfix = postfix)
+    
+    ## adapt cleanPatTaus
+    getattr(process, "cleanPatTaus" + patTauLabel).preselection = \
+      'tauID("leadingPionPtCut") > 0.5 & tauID("byHPSmedium") > 0.5' \
+     + ' & tauID("againstMuon") > 0.5 & tauID("againstElectron") > 0.5'
 
 # Select switcher by string
 def switchToPFTauByType(process,

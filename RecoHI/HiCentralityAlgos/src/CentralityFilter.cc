@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Tue Jun 29 12:19:49 CEST 2010
-// $Id: CentralityFilter.cc,v 1.3 2010/06/29 12:22:20 yilmaz Exp $
+// $Id: CentralityFilter.cc,v 1.4 2010/07/12 09:37:40 edwenger Exp $
 //
 //
 
@@ -30,8 +30,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-
+#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
 
 //
 // class declaration
@@ -48,11 +47,8 @@ class CentralityFilter : public edm::EDFilter {
       virtual void endJob() ;
       
       // ----------member data ---------------------------
-  const CentralityBins * cbins_;
+   CentralityProvider * centrality_;
   std::vector<int> selectedBins_;
-  std::string centralityBase_;
-
-  edm::InputTag src_;
 };
 
 //
@@ -67,10 +63,8 @@ class CentralityFilter : public edm::EDFilter {
 // constructors and destructor
 //
 CentralityFilter::CentralityFilter(const edm::ParameterSet& iConfig) :
-  cbins_(0),
-  selectedBins_(iConfig.getParameter<std::vector<int> >("selectedBins")),
-  centralityBase_(iConfig.getParameter<std::string>("centralityBase")),
-  src_(iConfig.getParameter<edm::InputTag>("src"))
+  centrality_(0),
+  selectedBins_(iConfig.getParameter<std::vector<int> >("selectedBins"))
 {
    //now do what ever initialization is needed
 
@@ -97,27 +91,10 @@ CentralityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool result = false;
 
    using namespace edm;
-   if(!cbins_) cbins_ = getCentralityBinsFromDB(iSetup);
+   if(!centrality_) centrality_ = new CentralityProvider(iSetup);
+   centrality_->newEvent(iEvent,iSetup);
+   int bin = centrality_->getBin();
 
-   edm::Handle<reco::Centrality> cent;
-   iEvent.getByLabel(src_,cent);
-
-   double hf = cent->EtHFhitSum();
-   //double hftp = cent->EtHFtowerSumPlus();
-   //double hftm = cent->EtHFtowerSumMinus();
-   //double eb = cent->EtEBSum();
-   double ee = cent->EtEESum();
-
-   int bin = -1;
-
-   if(centralityBase_.compare("HF") == 0){
-     bin = cbins_->getBin(hf);
-   }else if(centralityBase_.compare("EE")){
-     bin = cbins_->getBin(ee);
-   }else{
-     throw cms::Exception("BadConfig") << "Centrality for "<<centralityBase_<<" not supported.";
-   }
-   
    for(unsigned int i = 0; i < selectedBins_.size(); ++i){
      if(bin == selectedBins_[i]) result = true;
    }

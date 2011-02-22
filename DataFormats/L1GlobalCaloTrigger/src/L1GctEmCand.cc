@@ -43,7 +43,7 @@ L1GctEmCand::L1GctEmCand(uint16_t rawData, bool iso) :
 
 // construct from content - used in GCT emulator
 // eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
-L1GctEmCand::L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso) : 
+L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso) : 
   m_data(0), // override below
   m_iso(iso),
   m_captureBlock(0),
@@ -56,7 +56,7 @@ L1GctEmCand::L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso) :
 
 // construct from content, with source (i.e. capBlock/capIndex); will be used in GCT emulator one day?
 // eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
-L1GctEmCand::L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso, uint16_t block, uint16_t index, int16_t bx) : 
+L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso, uint16_t block, uint16_t index, int16_t bx) : 
   m_data(0), // override below
   m_iso(iso),
   m_captureBlock(block&0xfff),

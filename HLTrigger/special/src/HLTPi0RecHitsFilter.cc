@@ -559,7 +559,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       int dy = diff_nphi_s(seed_iphi,iphi);
     
       
-      if(abs(dx)<=1 && abs(dy)<=1) {
+      if(std::abs(dx)<=1 && std::abs(dy)<=1) {
 	e3x3 += en; 
 	if(dx <= 0 && dy <=0) s4s9_tmp[0] += en; 
 	if(dx >= 0 && dy <=0) s4s9_tmp[1] += en; 
@@ -1085,7 +1085,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       int dy = iySeed - det_this.iy();
       
       float en = RecHitsInWindow[j].energy(); 
-      if( abs(dx)<=1 && abs(dy)<=1) {
+      if( std::abs(dx)<=1 && std::abs(dy)<=1) {
 	e3x3 += en; 
 	if(dx <= 0 && dy <=0) s4s9_tmp[0] += en; 
 	if(dx >= 0 && dy <=0) s4s9_tmp[1] += en; 
@@ -1699,11 +1699,11 @@ int HLTPi0RecHitsFilter::diff_neta_s(int neta1, int neta2){
 // Calculate the distance in xtals taking into account the periodicity of the Barrel
 int HLTPi0RecHitsFilter::diff_nphi_s(int nphi1,int nphi2) {
    int mdiff;
-   if(abs(nphi1-nphi2) < (360-abs(nphi1-nphi2))) {
+   if(std::abs(nphi1-nphi2) < (360-std::abs(nphi1-nphi2))) {
      mdiff=nphi1-nphi2;
    }
    else {
-   mdiff=360-abs(nphi1-nphi2);
+   mdiff=360-std::abs(nphi1-nphi2);
    if(nphi1>nphi2) mdiff=-mdiff;
    }
    return mdiff;

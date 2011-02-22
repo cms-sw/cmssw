@@ -1,21 +1,31 @@
-//
-// $Id: JetCorrFactors.h,v 1.6 2009/04/09 15:20:30 rwolf Exp $
-//
-
 #ifndef DataFormats_PatCandidates_JetCorrFactors_h
 #define DataFormats_PatCandidates_JetCorrFactors_h
 
 /**
-  \class    pat::JetCorrFactors JetCorrFactors.h "DataFormats/PatCandidates/interface/JetCorrFactors.h"
-  \brief    Class for storage of jet correction factors
+   \class    pat::JetCorrFactors JetCorrFactors.h "DataFormats/PatCandidates/interface/JetCorrFactors.h"
+   \brief    Class for the storage of jet correction factors
+   
+   Class for the storage of jet correction factors that have been calculated during pat tuple production. 
+   The class is created to deal with a flexible number and order of the JES correction factors, which are 
+   expected to be nested. I.e. each correction level implies that all previous correction have been applied 
+   in advance. This scheme corresponds to the jet energy correction scheme propagated by the JetMET PAG.
+   In dividual levels of JEC are safed as CorrectionFactor, which is a 
 
-   JetCorrFactors implements a class, basically a struct, that contains
-   all possible useful jet correction factors. These are then poduced at PAT
-   Layer-0 as assoiacted objects, and collpased back in the pat::Jet class at
-   PAT Layer-1.
+   std::pair<std::string, std::vector<float> >. 
 
-  \author   Giovanni Petrucciani
-  \version  $Id: JetCorrFactors.h,v 1.6 2009/04/09 15:20:30 rwolf Exp $
+   The std::string contains a human readable label indicating the corection level, the std::vector<float> 
+   contains the JEC factors, which are expected to have a length of 1 or 5. In this scheme the vector of 
+   length 1 is reserved for flavor independent CorrectionFactors, while the vector of length 5 corresponds 
+   to flavor dependent CorrectionFactors. The individual positions within the vector are expected to be 
+   distributed according to the Flavor enumerator of the class as: 
+
+   GLUON, UDS, CHARM, BOTTOM, NONE
+
+   The structure is checked in the constructor of the class. The function _correction_ returns potentially 
+   flavor dependent correction factor of the JES relative to an uncorrected jet. To move from one correction 
+   level to another correction level the initial correction level of the jet need to be uncorrected before
+   applying the final correction factor. The class is expected to be used from within the pat::Jet only, 
+   this is taken care of automatically. 
 */
 
 #include <vector>
@@ -24,92 +34,71 @@
 
 namespace pat {
 
-
   class JetCorrFactors {
-      public:
-          /// define a simple struct for flavour dependent corrections
-          struct FlavourCorrections { 
-	    FlavourCorrections() :  
-	      uds(-1), g(-1), c(-1), b(-1) {}
-	    FlavourCorrections(float corr_uds, float corr_g, float corr_c, float corr_b) :  
-	      uds(corr_uds), g(corr_g), c(corr_c), b(corr_b) {}
-	    float uds, g, c, b;
-	    /// check if all are different from -1 (default), or 0
-	    bool operator!=(const float f) const {return (f!=uds && f!=g && f!=c && f!=b);}   
-          };
 
-	  /// define a single enum to point to a step in the sequence of corrections
-          /// that is to say:
-	  ///  * "up to L4",
-          ///  * "up to L6, and the choice of flavour for L5 was 'uds'"
-          ///  * "up to L7, and the choice of flavour for L5 and L7 was 'b'"
-          enum CorrStep { Raw = 0x0,   L1    = 0x10, L2  = 0x20,  L3 = 0x30, L4 = 0x40,
-                          L5g = 0x50,  L5uds = 0x51, L5c = 0x54, L5b = 0x55,
-                          L6g = 0x60,  L6uds = 0x61, L6c = 0x64, L6b = 0x65,
-                          L7g = 0x70,  L7uds = 0x71, L7c = 0x74, L7b = 0x75 
-	                };
+  public:
+    // jet energy correction factor. For flavor independent jet energy corrections the
+    // std::vector<float> holds just a single entry. From the first flavor dependent entry
+    // in the chain on it holds five floats corresponding to the flavors: none, gluon, uds, 
+    // charm, bottom; in this case the entry for none will be set to -1; the std::string 
+    // indicates the correction level according to jetMET definitions.
+    typedef std::pair<std::string, std::vector<float> > CorrectionFactor;
+    // order of flavor dependent CorrectionFactors
+    enum Flavor { GLUON, UDS, CHARM, BOTTOM, NONE };
+    // number of maximally available flavor types
+    static const unsigned int MAX_FLAVORS = 4;
 
-   	  /// default Constructor
-          JetCorrFactors();
-	  /// constructor by value
-          JetCorrFactors(const std::string &label, float l1, float l2, float l3,float l4, 
-	                 FlavourCorrections l5, FlavourCorrections l6,FlavourCorrections l7, 
-			 const std::vector<float>& uncert );
+  public:
+    // default Constructor
+    JetCorrFactors() {};
+    // constructor by value
+    JetCorrFactors(const std::string& label, const std::vector<CorrectionFactor>& jec);
 
-          /// default scale factor: Raw & L1 & L2 & L3
-          float scaleDefault() const { return correction(L3); };
-          /// returns the correction for a jet up to a given step, starting from another step.
-          float correction(CorrStep step, CorrStep begin=Raw) const ;           
-          /// convert a string into a CorrStep
-          static CorrStep const corrStep(const std::string &step, const std::string &flavour="");  
-          /// convert a CorrStep into a string
-          std::string corrStep(CorrStep step) const;
-          /// return flavour string
-          std::string flavour (CorrStep step) const; 
-	  /// return label, i.e. the identifying name of this set of correction factors
-	  std::string getLabel() const { return label_; };
-	  /// clear label to save storage, if only one set of correction factors is used
-	  void clearLabel() { label_.clear(); };
-	  /// print function for debugging
-	  void print() const;
-	  
-	  enum UncertVar {up=0, down=1};
-	  ///relative jet correction factor uncertainty
-	  float uncertainty( CorrStep step, const std::string &direction ) const;
-	  ///relative jet correction factor uncertainty
-	  float uncertainty( CorrStep step, const UncertVar direction ) const;
+    // instance label of the jet energy corrections set 
+    std::string jecSet() const { return label_; }
+    // correction level from unsigned int
+    std::string jecLevel(const unsigned int& level) const { return jec_.at(level).first; };
+    // correction level from std::string
+    int jecLevel(const std::string& level) const;
+    // jet energy correction flavor from enum
+    std::string jecFlavor(const Flavor& flavor) const;
+    // jet energy correction flavor from std::string
+    Flavor jecFlavor(std::string flavor) const;
 
-      private:
-          /// vector to hold flavour independent corrections
-	  /// for L1,L2,L3,L4,L6 (in this order); if some 
-	  /// corrections are not available, it can be shorter.
-          std::vector<float> flavourIndepCorrections_;
+    // correction factor up to a given level and flavor (per default the flavor is NONE)
+    float correction(unsigned int level, Flavor flavor=NONE) const;
+    // a list of the labels of all correction levels according to jetMET definitions, separated by '\n'
+    std::string correctionLabelString() const;
+    // a vector of the labels of all correction levels according to jetMET definitions
+    std::vector<std::string> correctionLabels() const;
+    // label of a specific correction factor according to jetMET definitions; for overflow a string ERROR is returned
+    std::string correctionLabel(unsigned int level) const { return (level<jec_.size() ? jec_.at(level).first : std::string("ERROR")); };
+    // check whether CorrectionFactor is flavor independent or not
+    bool flavorDependent(unsigned int level) const { return (level<jec_.size() ? jec_.at(level).second.size()==MAX_FLAVORS : false); };
+    // number of available correction factors
+    unsigned int numberOfCorrectionLevels() const { return jec_.size(); };
+    // print function for debugging
+    void print() const;
 
-          /// vector to hold flavour dependent corrections (L5, 
-	  /// L7 in this order); if some are not available, it 
-	  /// can be shorter (or even empty)
-          std::vector<FlavourCorrections>  flavourDepCorrections_;
-
-	  /// label for this set of jet correction factors;
-	  /// different sets are distinguished by this string;
-	  /// if only one set is attached to each jet, than 
-	  /// this string is empty to save storage
-	  std::string label_;
-	  
-	  /// vector to hold the +-1 sigma relative uncertainties for all
-	  /// correction factors
-          std::vector<float> correctionUncertainties_;
-	  
-
-          /// convert a CorrStep into a number 0-7
-          static inline size_t istep(const CorrStep &cstep ) { return (static_cast<size_t>(cstep)) >> 4; }
-          /// convert a CorrStep into a flavour code 0-5
-          static inline size_t iflav(const CorrStep &cstep ) { return (static_cast<size_t>(cstep)) & 0xF; }
-          /// get a flavour correction out of a CorrStep
-          static float getFlavorCorrection(const FlavourCorrections &, const size_t& flav) ;
-          /// translate uncertainty variation "up" or "down" to 0 or 1.
-	  static UncertVar const uncertDirection(const std::string& dir);
-
+  private:
+    // check consistency of input vector
+    bool flavorDependent(const CorrectionFactor& jec) const { return (jec.second.size()==MAX_FLAVORS); }
+    // check consistency of input vector
+    bool flavorIndependent(const CorrectionFactor& jec) const { return (jec.second.size()==1); }
+    // check consistency of input vector
+    bool isValid(const CorrectionFactor& jec) const { return (flavorDependent(jec) || flavorIndependent(jec)); }    
+    
+  private:
+    // instance label of jet energy correction factors
+    std::string label_;
+    // vector of CorrectionFactors. NOTE: the correction factors are expected to appear 
+    // nested; they may appear in arbitary number and order according to the configuration 
+    // of the jetCorrFactors module. CorrectionFactors appear in two versions: as a single 
+    // float (for flavor independent corrections) or as a std::vector of four floats (for 
+    // flavor dependent corrections). Due to the nested structure of the CorrectionFactors 
+    // from the first flavor dependent CorrectionFactor in the chain on each correction is 
+    // flavor dependent. 
+    std::vector<CorrectionFactor> jec_;
   };
 }
 

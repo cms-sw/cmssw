@@ -117,13 +117,6 @@ void SiPixelErrorEstimation::beginJob()
       ttree_track_hits_->Branch("nsimhit", &nsimhit, "nsimhit/I", bufsize);
       ttree_track_hits_->Branch("pidhit" , &pidhit , "pidhit/I" , bufsize);
       ttree_track_hits_->Branch("simproc", &simproc, "simproc/I", bufsize);
-
-      ttree_track_hits_->Branch("hit_probx" , &hit_probx , "hit_probx/F" , bufsize);
-      ttree_track_hits_->Branch("hit_proby" , &hit_proby , "hit_proby/F" , bufsize);
-      ttree_track_hits_->Branch("hit_cprob0", &hit_cprob0, "hit_cprob0/F", bufsize);
-      ttree_track_hits_->Branch("hit_cprob1", &hit_cprob1, "hit_cprob1/F", bufsize);
-      ttree_track_hits_->Branch("hit_cprob2", &hit_cprob2, "hit_cprob2/F", bufsize);
-
     } // if ( include_trk_hits_ )
 
   // ----------------------------------------------------------------------
@@ -247,11 +240,8 @@ void SiPixelErrorEstimation::beginJob()
   ttree_all_hits_->Branch("gypix", all_pixgy, "gy[npix]/F", bufsize);
   ttree_all_hits_->Branch("gzpix", all_pixgz, "gz[npix]/F", bufsize);
   
-  ttree_all_hits_->Branch("all_hit_probx",  &all_hit_probx,  "all_hit_probx/F" , bufsize);
-  ttree_all_hits_->Branch("all_hit_proby",  &all_hit_proby,  "all_hit_proby/F" , bufsize);
-  ttree_all_hits_->Branch("all_hit_cprob0", &all_hit_cprob0, "all_hit_cprob0/F", bufsize);
-  ttree_all_hits_->Branch("all_hit_cprob1", &all_hit_cprob1, "all_hit_cprob1/F", bufsize);
-  ttree_all_hits_->Branch("all_hit_cprob2", &all_hit_cprob2, "all_hit_cprob2/F", bufsize);
+  ttree_all_hits_->Branch("hit_probx", &all_hit_probx, "hit_probx/F" , bufsize);
+  ttree_all_hits_->Branch("hit_proby", &all_hit_proby, "hit_proby/F" , bufsize);
 
 }
 
@@ -287,8 +277,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
   const TrackerGeometry* tracker = &(* pDD);
-
-  // cout << "...1..." << endl;
         
   // --------------------------------------- all hits -----------------------------------------------------------
   edm::Handle<SiPixelRecHitCollection> recHitColl;
@@ -297,15 +285,11 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
   Handle<edm::SimTrackContainer> simtracks;
   e.getByLabel("g4SimHits", simtracks);
 
-  // cout << "...2..." << endl;
-
   //-----Iterate over detunits
   for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) 
     {
       DetId detId = ((*it)->geographicalId());
       
-      // cout << "...3..." << endl;
-
       SiPixelRecHitCollection::const_iterator dsmatch = recHitColl->find(detId);
       if (dsmatch == recHitColl->end()) continue;
 
@@ -315,13 +299,9 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
       SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
       std::vector<PSimHit> matched;
       
-      // cout << "...4..." << endl;
-
       //----Loop over rechits for this detId
       for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) 
 	{
-	  // cout << "...5..." << endl;
-
 	  matched.clear();
 	  matched = associate.associateHit(*pixeliter);
 	  // only consider rechits that have associated simhit
@@ -333,8 +313,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      continue;
 	    }
 		
-	  // cout << "...6..." << endl;
-
 	  all_subdetid = -9999;
 	  
 	  all_layer = -9999;
@@ -459,12 +437,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 
 	  all_hit_probx = -9999;
 	  all_hit_proby = -9999;
-	  all_hit_cprob0 = -9999;
-	  all_hit_cprob1 = -9999;
-	  all_hit_cprob2 = -9999;
-
-	  // cout << "...7..." << endl;
-
+	  
 	  all_nsimhit = (int)matched.size();
 	  
 	  all_subdetid = (int)detId.subdetId();
@@ -474,8 +447,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      cout << "SiPixelErrorEstimation::analyze: Not in a pixel detector !!!!!" << endl; 
 	      continue;
 	    }
-
-	  // cout << "...8..." << endl;
 
 	  const PixelGeomDetUnit* theGeomDet 
 	    = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detId) );
@@ -488,14 +459,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  const int minPixelCol = pixeliter->cluster()->minPixelCol();
 	  const int minPixelRow = pixeliter->cluster()->minPixelRow();
 	  
-	  //all_hit_probx  = (float)pixeliter->probabilityX();
-	  //all_hit_proby  = (float)pixeliter->probabilityY();
-	  all_hit_cprob0 = (float)pixeliter->clusterProbability(0);
-	  all_hit_cprob1 = (float)pixeliter->clusterProbability(1);
-	  all_hit_cprob2 = (float)pixeliter->clusterProbability(2);
-	  
-	  // cout << "...9..." << endl;
-
 	  // check whether the cluster is at the module edge 
 	  if ( topol->isItEdgePixelInX( minPixelRow ) || 
 	       topol->isItEdgePixelInX( maxPixelRow ) )
@@ -509,8 +472,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  else 
 	    all_edgey = 0;
 	  
-	  // cout << "...10..." << endl;
-
 	  // check whether this rechit contains big pixels
 	  if ( topol->containsBigPixelInX(minPixelRow, maxPixelRow) )
 	    all_bigx = 1;
@@ -522,8 +483,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  else 
 	    all_bigy = 0;
 	  
-	  // cout << "...11..." << endl;
-
 	  if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelBarrel ) 
 	    {
 	      PXBDetId bdetid(detId);
@@ -559,8 +518,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	    } // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
 	  else std::cout << "We are not in the pixel detector" << (int)detId.subdetId() << endl;
 	  
-	  // cout << "...12..." << endl;
-
 	  all_cols = theGeomDet->specificTopology().ncolumns();
 	  all_rows = theGeomDet->specificTopology().nrows();
 	  	  
@@ -574,16 +531,12 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  all_rechiterrx = sqrt( le.xx() );
 	  all_rechiterry = sqrt( le.yy() );
 
-	  // cout << "...13..." << endl;
-
 	  bool found_hit_from_generated_particle = false;
 	  
 	  //---Loop over sim hits, fill closest
 	  float closest_dist = 99999.9;
 	  std::vector<PSimHit>::const_iterator closest_simhit = matched.begin();
 	  
-	  // cout << "...14..." << endl;
-
 	  for (std::vector<PSimHit>::const_iterator m = matched.begin(); m < matched.end(); m++) 
 	    {
 	      if ( checkType_ )
@@ -609,8 +562,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 		} 
 	    } // end sim hit loop
 	  
-	  // cout << "...15..." << endl;
-
 	  // If this recHit does not have any simHit with the same particleType as the particles generated
 	  // ignore it as most probably comes from delta rays.
 	  if ( checkType_ && !found_hit_from_generated_particle )
@@ -637,8 +588,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  all_gz1 = GP1.z();
 	  all_gz2 = GP2.z();
 	  
-	  // cout << "...16..." << endl;
-
 	  MeasurementPoint mp1 =
 	    topol->measurementPosition( LocalPoint( (*closest_simhit).entryPoint().x(),
 						    (*closest_simhit).entryPoint().y(),
@@ -652,8 +601,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  all_row2 = mp2.x();
 	  all_col2 = mp2.y();
 	  
-	  // cout << "...17..." << endl;
-
 	  all_simhitx = 0.5*(all_x1+all_x2);  
 	  all_simhity = 0.5*(all_y1+all_y2);  
 	  
@@ -663,8 +610,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  all_rechitpullx = all_rechitresx / all_rechiterrx;
 	  all_rechitpully = all_rechitresy / all_rechiterry;
 	  
-	  // cout << "...18..." << endl;
-
 	  SiPixelRecHit::ClusterRef const& clust = pixeliter->cluster();
 	  
 	  all_npix = clust->size();
@@ -687,8 +632,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  
 	  all_clust_geoid = clust->geographicalId();
   
-	  // cout << "...19..." << endl;
-
 	  all_simpx  = (*closest_simhit).momentumAtEntry().x();
 	  all_simpy  = (*closest_simhit).momentumAtEntry().y();
 	  all_simpz  = (*closest_simhit).momentumAtEntry().z();
@@ -698,8 +641,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  all_pidhit = (*closest_simhit).particleType();
 	  all_trkid = (*closest_simhit).trackId();
 	  
-	  // cout << "...20..." << endl;
-
 	  //--- Fill alpha and beta -- more useful for exploring the residuals...
 	  all_beta  = atan2(all_simpz, all_simpy);
 	  all_alpha = atan2(all_simpz, all_simpx);
@@ -715,16 +656,12 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 		all_simtrkphi = trksiter->momentum().phi();
 	      }
 	  
-	  // cout << "...21..." << endl;
-
 	  all_vtxz = theGeomDet->surface().position().z();
 	  all_vtxr = theGeomDet->surface().position().perp();
 	  
 	  //computeAnglesFromDetPosition(clust, 
 	  //		       theGeomDet, 
 	  //		       all_clust_alpha, all_clust_beta )
-
-	  // cout << "...22..." << endl;
 
 	  const std::vector<SiPixelCluster::Pixel>& pixvector = clust->pixels();
 	  for ( int i=0;  i<(int)pixvector.size(); ++i)
@@ -741,26 +678,14 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      all_pixgy[i]= GP.y();
 	      all_pixgz[i]= GP.z();
 	    }
-
-	 
-
 	  
-	  // cout << "...23..." << endl;
-
 	  ttree_all_hits_->Fill();
 	  
-	  // cout << "...24..." << endl;
-
-	} // for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter)
-
-      // cout << "...25..." << endl;
- 
+	} // for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) 
     } // for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) 
  
   // ------------------------------------------------ all hits ---------------------------------------------------------------
   
-  // cout << "...26..." << endl;
-
 
   // ------------------------------------------------ track hits only -------------------------------------------------------- 
   
@@ -833,13 +758,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 		      
 		      simhitx = -9999.9;
 		      simhity = -9999.9;
-
-		      hit_probx = -9999.9;
-		      hit_proby = -9999.9;
-		      hit_cprob0 = -9999.9;
-		      hit_cprob1 = -9999.9;
-		      hit_cprob2 = -9999.9;
-  
+		      
 		      position = (*it)->localPosition();
 		      error = (*it)->localPositionError();
 		      
@@ -853,13 +772,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 		      nxpix = matchedhit->cluster()->sizeX();
 		      nypix = matchedhit->cluster()->sizeY();
 		      charge = matchedhit->cluster()->charge();
-
-		      //hit_probx  = (float)matchedhit->probabilityX();
-		      //hit_proby  = (float)matchedhit->probabilityY();
-		      hit_cprob0 = (float)matchedhit->clusterProbability(0);
-		      hit_cprob1 = (float)matchedhit->clusterProbability(1);
-		      hit_cprob2 = (float)matchedhit->clusterProbability(2);
-		      
 		      
 		      //Association of the rechit to the simhit
 		      matched.clear();
@@ -909,8 +821,8 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 			  
 			  //if ( n_assoc_muon > 1 )
 			  //{
-			  //  // cout << " ----- This is not good: n_assoc_muon = " << n_assoc_muon << endl;
-			  //  // cout << "evt = " << evt << endl;
+			  //  cout << " ----- This is not good: n_assoc_muon = " << n_assoc_muon << endl;
+			  //  cout << "evt = " << evt << endl;
 			  //}
 			  
 			  detId = (*it)->geographicalId();
@@ -1009,7 +921,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 			      else if ( tmp_nrows == 160 ) 
 				half = 0;
 			      else 
-				// cout << "-------------------------------------------------- Wrong module size !!!" << endl;
+				cout << "-------------------------------------------------- Wrong module size !!!" << endl;
 			      
 			      float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
 			      float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
@@ -1042,7 +954,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 				flipped = 0;
 			      
 			    } // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
-			  //else std::// cout << "We are not in the pixel detector. detId.subdetId() = " << (int)detId.subdetId() << endl;
+			  //else std::cout << "We are not in the pixel detector. detId.subdetId() = " << (int)detId.subdetId() << endl;
 			  
 			  ttree_track_hits_->Fill();
 			  
@@ -1059,8 +971,6 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	} // tracks > 0.
      
     } // if ( include_trk_hits_ )
-
-  //cout << "...27..." << endl;
 
   // ----------------------------------------------- track hits only -----------------------------------------------------------
   

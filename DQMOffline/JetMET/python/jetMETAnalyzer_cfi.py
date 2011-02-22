@@ -39,23 +39,22 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     # Jet-related
     #                                                                   
-    DoPFJetAnalysis            = cms.untracked.bool(True),#True
-    DoPFJetCleaning            = cms.untracked.bool(True),#True
+    DoPFJetAnalysis            = cms.untracked.bool(False),
+    DoPFJetCleaning            = cms.untracked.bool(True),
 
-    DoJPTJetAnalysis           = cms.untracked.bool(True),
+    DoJPTJetAnalysis           = cms.untracked.bool(False),
     DoJPTJetCleaning           = cms.untracked.bool(True),
 
     DoJetAnalysis              = cms.untracked.bool(True),
     DoJetCleaning              = cms.untracked.bool(True),
-    DoIterativeCone            = cms.untracked.bool(True),
+    DoIterativeCone            = cms.untracked.bool(False),
     DoSisCone                  = cms.untracked.bool(False),                               
 
     DoJetPtAnalysis            = cms.untracked.bool(False),                           
     DoJetPtCleaning            = cms.untracked.bool(False),                           
     DoDiJetSelection           = cms.untracked.bool(True),
 
-    PFJetsCollectionLabel      = cms.InputTag("iterativeCone5PFJets"),
-    #JPTJetsCollectionLabel     = cms.InputTag("ak5CaloJets"),
+    PFJetsCollectionLabel      = cms.InputTag("ak5PFJets"),
     JPTJetsCollectionLabel     = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
     SCJetsCollectionLabel      = cms.InputTag("sisCone5CaloJets"),
     AKJetsCollectionLabel      = cms.InputTag("ak5CaloJets"),
@@ -219,12 +218,18 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     LooseNHFMax = cms.double(0.9),
     LooseCEFMax = cms.double(1.0),
     LooseNEFMax = cms.double(0.9),
+    ThisCHFMin = cms.double(-999.),
+    ThisNHFMax = cms.double(999.),
+    ThisCEFMax = cms.double(999.),
+    ThisNEFMax = cms.double(999.)
     ),
 
     #
     # For Cleaned PF jetAnalysis
     #
-    CleanedpfJetAnalysis = cleanedJetDQMParameters.clone(),
+    CleanedpfJetAnalysis = cleanedJetDQMParameters.clone(
+    ptThreshold = cms.double(3.)
+    ),
 
     #
     # For JPT jetAnalysis
@@ -235,7 +240,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     # For CleanedJPT jetAnalysis
     #
-    CleanedJPTJetAnalysis = jptDQMParameters.clone(
+    CleanedJPTJetAnalysis = cleanedjptDQMParameters.clone(
     ),
 
     #

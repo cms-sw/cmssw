@@ -126,7 +126,7 @@ class EcalClusterTools {
                 static float recHitEnergy(DetId id, const EcalRecHitCollection *recHits);
 
 		//Shower shape variables return vector <Roundness, Angle> of a photon
-		static std::vector<float> roundnessBarrelSuperClusters( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int weightedPositionMethod = 0, float energyThreshold = 0.0);
+		static std::vector<float> roundnessBarrelSuperClusters( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int weightedPositionMethod = 0);
 		static std::vector<float> roundnessBarrelSuperClustersUserExtended( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int ieta_delta=0, int iphi_delta=0, float energyRHThresh=0.00000, int weightedPositionMethod=0);
 		static std::vector<float> roundnessSelectedBarrelRecHits(std::vector<const EcalRecHit*>rhVector, int weightedPositionMethod = 0);
         private:

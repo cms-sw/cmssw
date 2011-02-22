@@ -27,6 +27,9 @@ class ElectronHcalHelper
     double hcalESumDepth2( const reco::SuperCluster & ) ;
     ~ElectronHcalHelper() ;
 
+    double hOverEConeSize() const { return hOverEConeSize_ ; }
+
+
   private:
 
     // common parameters

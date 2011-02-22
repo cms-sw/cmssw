@@ -111,10 +111,23 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
     }
 
     //Add Partons status 2
-    if(   aParticle.numberOfDaughters() > 0  && 
-        ( aParticle.daughter(0)->pdgId() == 91 || aParticle.daughter(0)->pdgId() == 92 ) ) {
-      thePartons->push_back( GenParticleRef( particles, m ) );
-      nPart++;
+    int nparton_daughters = 0;
+    if( aParticle.numberOfDaughters() > 0 && isAParton ) {
+      
+      for (unsigned int i=0; i < aParticle.numberOfDaughters(); i++){
+	
+	int daughterFlavour = abs(aParticle.daughter(i)->pdgId());
+	if( (daughterFlavour == 1 || daughterFlavour == 2 || daughterFlavour == 3 || 
+	     daughterFlavour == 4 || daughterFlavour == 5 || daughterFlavour == 6 || daughterFlavour == 21)) {
+          nparton_daughters++;
+	}
+
+      }
+      if(nparton_daughters == 0){
+	  nPart++;
+	  thePartons->push_back( GenParticleRef( particles, m ) );
+      }
+
     }
 
     //Add Leptons

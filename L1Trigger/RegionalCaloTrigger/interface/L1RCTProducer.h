@@ -51,13 +51,7 @@ class L1RCTProducer : public edm::EDProducer
   explicit L1RCTProducer(const edm::ParameterSet& ps);
   virtual ~L1RCTProducer();
   virtual void beginRun(edm::Run& r, const edm::EventSetup& c);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock& lumiSeg, 
-				    const edm::EventSetup& context) ;
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
-
-
-  void updateConfiguration(const edm::EventSetup&);
-
 
  private:
   L1RCTLookupTables* rctLookupTables;

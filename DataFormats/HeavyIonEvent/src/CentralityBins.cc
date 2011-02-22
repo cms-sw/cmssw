@@ -15,14 +15,17 @@ int CentralityBins::getBin(double value) const {
    return bin;
 }
 
-CentralityBins::RunMap getCentralityFromFile(TFile* file, const char* tag, int firstRun, int lastRun){
+CentralityBins::RunMap getCentralityFromFile(TDirectoryFile* file, const char* tag, int firstRun, int lastRun){
+  return getCentralityFromFile(file,".",tag,firstRun,lastRun);  
+}
 
-   CentralityBins::RunMap map;
-   for(int run = firstRun; run<= lastRun; ++run){
-      const CentralityBins* table = (const CentralityBins*)file->Get(Form("%s/run%d",tag,run));
-      if(table) map.insert(std::pair<int,const CentralityBins*>(run,table));
-   }
-   return map;
+CentralityBins::RunMap getCentralityFromFile(TDirectoryFile* file, const char* dir, const char* tag, int firstRun, int lastRun){
+  CentralityBins::RunMap map;
+  for(int run = firstRun; run<= lastRun; ++run){
+    const CentralityBins* table = (const CentralityBins*)file->Get(Form("%s/run%d/%s",dir,run,tag));
+    if(table) map.insert(std::pair<int,const CentralityBins*>(run,table));
+  }
+  return map;
 }
 
 ClassImp(CBin)

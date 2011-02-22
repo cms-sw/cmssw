@@ -1,4 +1,5 @@
 <lcgdict>
+  <selection>
   <class name="reco::RecoCandidate" />
   <class name="reco::RecoChargedCandidate" />
   <class name="reco::RecoChargedRefCandidateBase">
@@ -125,6 +126,16 @@
 
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate> > >" />
 
+  <class name="std::vector<reco::RecoCandidate*>"/>
+  <class name="edm::OwnVector<reco::RecoCandidate, edm::ClonePolicy<reco::RecoCandidate> >"/>
+  <class name="edm::Wrapper<edm::OwnVector<reco::RecoCandidate, edm::ClonePolicy<reco::RecoCandidate> > >"/>
+
+  </selection>
+  <exclusion>
+     <class name="edm::OwnVector<reco::RecoCandidate, edm::ClonePolicy<reco::RecoCandidate> >">
+       <method name="sort" />
+     </class>
+  </exclusion>
 
 </lcgdict>
  

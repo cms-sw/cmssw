@@ -112,7 +112,7 @@ TtSemiLepHypWMassDeltaTopMass::buildHypo(edm::Event& evt,
 	  // make sure it's not used up already from the hadronic branch
 	  if( jdx!=closestToWMassIndices[0] && jdx!=closestToWMassIndices[1] && jdx!=idx ){
 	    reco::Particle::LorentzVector lepTop = lepW + (*jets)[jdx].p4();
-	    if( deltaTop<0. || deltaTop<fabs(hadTop.mass()-lepTop.mass()) ){
+	    if( deltaTop<0. || deltaTop>fabs(hadTop.mass()-lepTop.mass()) ){
 	      deltaTop=fabs(hadTop.mass()-lepTop.mass());
 	      hadB=idx;
 	      lepB=jdx;

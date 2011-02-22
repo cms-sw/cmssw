@@ -35,26 +35,26 @@ static const int nbinsMax = 40;
 using namespace std;
 bool descend(float i,float j) { return (i<j); }
 
-void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char * tag = "HFhitBins"){
+void makeMCCentralityTable(int nbins = 10, const string label = "hf", const char * tag = "HFhitBins"){
 
    // Retrieving data
   int nFiles = 1;
-  int maxEvents = -100;
+  int maxEvents = -200;
   vector<string> infiles;
 
   if(ZS){
-     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_ZS_01/AMPT_MB_ZS_0711_runs1to50.root");
-     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_ZS_01/AMPT_MB_ZS_0711_runs51to100.root");
-     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_ZS_01/AMPT_MB_ZS_0711_runs101to150.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hidsk0001/aod/JulyExercise/AMPT_ZS_01/AMPT_MB_ZS_0711_runs1to50.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hidsk0001/aod/JulyExercise/AMPT_ZS_01/AMPT_MB_ZS_0711_runs51to100.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hidsk0001/aod/JulyExercise/AMPT_ZS_01/AMPT_MB_ZS_0711_runs101to150.root");
   }else{
-     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs1to20.root");
-     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs21to40.root");
-     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs41to60.root");
-     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs61to80.root");
-     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs81to100.root");
-     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs101to120.root");
-     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs121to140.root");
-     infiles.push_back("/net/hisrv0001/home/yetkin/hibat0007/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs141to160.root");
+     //     infiles.push_back("/net/hisrv0001/home/yetkin/hidsk0001/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs1to20.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hidsk0001/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs21to40.root");
+     //     infiles.push_back("/net/hisrv0001/home/yetkin/hidsk0001/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs41to60.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hidsk0001/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs61to80.root");
+     //     infiles.push_back("/net/hisrv0001/home/yetkin/hidsk0001/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs81to100.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hidsk0001/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs101to120.root");
+     //     infiles.push_back("/net/hisrv0001/home/yetkin/hidsk0001/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs121to140.root");
+     infiles.push_back("/net/hisrv0001/home/yetkin/hidsk0001/aod/JulyExercise/AMPT_NZS_02/AMPT_MB_ZS_0711_runs141to160.root");
   }
 
   fwlite::ChainEvent event(infiles);
@@ -65,9 +65,10 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
   vector<int> runnums;
 
   // Creating output table
-  TFile* outFile = new TFile("tables.root","update");
+  TFile* outFile = new TFile("tables10binsHalfEvents.root","update");
    TDirectory* dir = outFile->mkdir(tag);
    dir->cd();
+   TNtuple* nt = new TNtuple("nt","","hf:bin:b:npart:ncoll:nhard");
 
   TH1D::SetDefaultSumw2();
   CentralityBins* bins = new CentralityBins("noname","Test tag", nbins);
@@ -188,6 +189,10 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
      hNcoll->Fill(parameter,ncoll);
      hNhard->Fill(parameter,nhard);
      hb->Fill(parameter,b);
+     int bin = hNpart->GetXaxis()->FindBin(parameter) - 1;
+     if(bin < 0) bin = 0;
+     if(bin >= nbins) bin = nbins - 1;
+     nt->Fill(hf,bin,b,npart,ncoll,nhard);
   }
 
   // Fitting Glauber distributions in bins to get mean and sigma values
@@ -264,7 +269,7 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
   //  binsForRun->SetName(Form("run%d",runnums[i]));
   binsForRun->Write();
      //  }
-  
+  nt->Write();  
   bins->Delete();
   outFile->Write();
   

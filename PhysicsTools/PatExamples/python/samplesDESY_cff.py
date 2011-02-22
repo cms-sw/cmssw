@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-ttbarRECO = cms.untracked.vstring(    
+ttbarRECO = cms.untracked.vstring(
      '/store/mc/Spring10/TTbarJets-madgraph/AODSIM/START3X_V26_S09-v1/0005/0210B899-9C46-DF11-A10F-003048C69294.root'
     ,'/store/mc/Spring10/TTbarJets-madgraph/AODSIM/START3X_V26_S09-v1/0005/0C39D8AD-A846-DF11-8016-003048C692CA.root'
 )
@@ -54,7 +54,7 @@ simulationQCD = cms.untracked.vstring(
    ,'/store/user/rwolf/school/patTuple_qcd_26.root'
    ,'/store/user/rwolf/school/patTuple_qcd_27.root'
    ,'/store/user/rwolf/school/patTuple_qcd_28.root'
-   ,'/store/user/rwolf/school/patTuple_qcd_29.root'    
+   ,'/store/user/rwolf/school/patTuple_qcd_29.root'
 )
 
 ##  99,991 W+Jets events as defined on WorkBookPATExampleTopQuarks
@@ -167,4 +167,9 @@ muonSKIM  = cms.untracked.vstring(
     ,'/store/user/rwolf/test/patTuple_81_1.root'
     ,'/store/user/rwolf/test/patTuple_8_1.root'
     ,'/store/user/rwolf/test/patTuple_9_1.root'
+)
+
+# CMSSW_3_8_6 re-reconstruction of muon PD, run 144112, 17717 events AOD
+dataMu = cms.untracked.vstring(
+    '/store/data/Run2010A/Mu/AOD/Nov4ReReco_v1/0011/D2E5D86F-AEEC-DF11-B261-0017A4771028.root'
 )

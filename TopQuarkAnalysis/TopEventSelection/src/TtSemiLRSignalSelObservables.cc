@@ -223,9 +223,9 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
   
   TMatrixDSym Matrix(3);
   
-  double PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lept->Px(),2)+pow(Lepn->Px(),2);
-  double PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lept->Py(),2)+pow(Lepn->Py(),2);
-  double PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lept->Pz(),2)+pow(Lepn->Pz(),2);
+  double PX2 = std::pow(Hadp->Px(),2)+std::pow(Hadq->Px(),2)+std::pow(Hadb->Px(),2)+std::pow(Lepb->Px(),2)+std::pow(Lept->Px(),2)+std::pow(Lepn->Px(),2);
+  double PY2 = std::pow(Hadp->Py(),2)+std::pow(Hadq->Py(),2)+std::pow(Hadb->Py(),2)+std::pow(Lepb->Py(),2)+std::pow(Lept->Py(),2)+std::pow(Lepn->Py(),2);
+  double PZ2 = std::pow(Hadp->Pz(),2)+std::pow(Hadq->Pz(),2)+std::pow(Hadb->Pz(),2)+std::pow(Lepb->Pz(),2)+std::pow(Lept->Pz(),2)+std::pow(Lepn->Pz(),2);
   
   double P2  = PX2+PY2+PZ2;
   
@@ -271,9 +271,9 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
   Lepn->Boost(BoostBackToCM);
   
   
-  double BOOST_PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lept->Px(),2)+pow(Lepn->Px(),2);
-  double BOOST_PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lept->Py(),2)+pow(Lepn->Py(),2);
-  double BOOST_PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lept->Pz(),2)+pow(Lepn->Pz(),2);
+  double BOOST_PX2 = std::pow(Hadp->Px(),2)+std::pow(Hadq->Px(),2)+std::pow(Hadb->Px(),2)+std::pow(Lepb->Px(),2)+std::pow(Lept->Px(),2)+std::pow(Lepn->Px(),2);
+  double BOOST_PY2 = std::pow(Hadp->Py(),2)+std::pow(Hadq->Py(),2)+std::pow(Hadb->Py(),2)+std::pow(Lepb->Py(),2)+std::pow(Lept->Py(),2)+std::pow(Lepn->Py(),2);
+  double BOOST_PZ2 = std::pow(Hadp->Pz(),2)+std::pow(Hadq->Pz(),2)+std::pow(Hadb->Pz(),2)+std::pow(Lepb->Pz(),2)+std::pow(Lept->Pz(),2)+std::pow(Lepn->Pz(),2);
   
   double BOOST_P2  = BOOST_PX2+BOOST_PY2+BOOST_PZ2;
   
@@ -360,18 +360,18 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
     {
       for(unsigned int j=0;j<TopJets.size();j++)
 	{
-	  double ET_ij_over_ETSum2= TopJets[i].et()*TopJets[j].et()/(pow(HT_alljets,2));
+	  double ET_ij_over_ETSum2= TopJets[i].et()*TopJets[j].et()/(std::pow(HT_alljets,2));
 	  double cosTheta_ij = (TopJets[i].px()*TopJets[j].px()+
 				TopJets[i].py()*TopJets[j].py()+
 				TopJets[i].pz()*TopJets[j].pz())
 	    /(TopJets[i].p4().R()*TopJets[j].p4().R());
 	  FW_momentum_0 += ET_ij_over_ETSum2;
 	  FW_momentum_1 += ET_ij_over_ETSum2 * cosTheta_ij;
-	  FW_momentum_2 += ET_ij_over_ETSum2 * 0.5   * (  3*pow(cosTheta_ij,2)- 1);
-	  FW_momentum_3 += ET_ij_over_ETSum2 * 0.5   * (  5*pow(cosTheta_ij,3)-  3*cosTheta_ij);
-	  FW_momentum_4 += ET_ij_over_ETSum2 * 0.125 * ( 35*pow(cosTheta_ij,4)- 30*pow(cosTheta_ij,2)+3);
-	  FW_momentum_5 += ET_ij_over_ETSum2 * 0.125 * ( 63*pow(cosTheta_ij,5)- 70*pow(cosTheta_ij,3)+15*cosTheta_ij);
-	  FW_momentum_6 += ET_ij_over_ETSum2 * 0.0625* (231*pow(cosTheta_ij,6)-315*pow(cosTheta_ij,4)+105*pow(cosTheta_ij,2)-5);
+	  FW_momentum_2 += ET_ij_over_ETSum2 * 0.5   * (  3*std::pow(cosTheta_ij,2)- 1);
+	  FW_momentum_3 += ET_ij_over_ETSum2 * 0.5   * (  5*std::pow(cosTheta_ij,3)-  3*cosTheta_ij);
+	  FW_momentum_4 += ET_ij_over_ETSum2 * 0.125 * ( 35*std::pow(cosTheta_ij,4)- 30*std::pow(cosTheta_ij,2)+3);
+	  FW_momentum_5 += ET_ij_over_ETSum2 * 0.125 * ( 63*std::pow(cosTheta_ij,5)- 70*std::pow(cosTheta_ij,3)+15*cosTheta_ij);
+	  FW_momentum_6 += ET_ij_over_ETSum2 * 0.0625* (231*std::pow(cosTheta_ij,6)-315*std::pow(cosTheta_ij,4)+105*std::pow(cosTheta_ij,2)-5);
 	}
     }
   
@@ -496,9 +496,9 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
   
   TMatrixDSym Matrix_NoNu(3);
   
-  double PX2_NoNu = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lept->Px(),2);
-  double PY2_NoNu = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lept->Py(),2);
-  double PZ2_NoNu = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lept->Pz(),2);
+  double PX2_NoNu = std::pow(Hadp->Px(),2)+std::pow(Hadq->Px(),2)+std::pow(Hadb->Px(),2)+std::pow(Lepb->Px(),2)+std::pow(Lept->Px(),2);
+  double PY2_NoNu = std::pow(Hadp->Py(),2)+std::pow(Hadq->Py(),2)+std::pow(Hadb->Py(),2)+std::pow(Lepb->Py(),2)+std::pow(Lept->Py(),2);
+  double PZ2_NoNu = std::pow(Hadp->Pz(),2)+std::pow(Hadq->Pz(),2)+std::pow(Hadb->Pz(),2)+std::pow(Lepb->Pz(),2)+std::pow(Lept->Pz(),2);
   
   double P2_NoNu  = PX2_NoNu+PY2_NoNu+PZ2_NoNu;
   
@@ -536,9 +536,9 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
   
   TMatrixDSym Matrix_NoNuNoLep(3);
   
-  double PX2_NoNuNoLep = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2);
-  double PY2_NoNuNoLep = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2);
-  double PZ2_NoNuNoLep = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2);
+  double PX2_NoNuNoLep = std::pow(Hadp->Px(),2)+std::pow(Hadq->Px(),2)+std::pow(Hadb->Px(),2)+std::pow(Lepb->Px(),2);
+  double PY2_NoNuNoLep = std::pow(Hadp->Py(),2)+std::pow(Hadq->Py(),2)+std::pow(Hadb->Py(),2)+std::pow(Lepb->Py(),2);
+  double PZ2_NoNuNoLep = std::pow(Hadp->Pz(),2)+std::pow(Hadq->Pz(),2)+std::pow(Hadb->Pz(),2)+std::pow(Lepb->Pz(),2);
   
   double P2_NoNuNoLep  = PX2_NoNuNoLep+PY2_NoNuNoLep+PZ2_NoNuNoLep;
   

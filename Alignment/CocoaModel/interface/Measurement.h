@@ -56,7 +56,7 @@ public:
   void DumpBadOrderOptOs();
 
   // Calculate derivative of this Measurement with respect to a parameter of an Entry
-  std::vector<ALIdouble> DerivativeRespectEntry( Entry* entry );
+  ALIdouble* DerivativeRespectEntry( Entry* entry );
 
   // get the ':X' that determines how the behaviour of the OptO w.r.t. this Measurement
   ALIstring getMeasuringBehaviour( const std::vector< OpticalObject* >::const_iterator vocite);

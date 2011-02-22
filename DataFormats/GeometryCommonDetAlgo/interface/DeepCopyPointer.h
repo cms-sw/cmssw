@@ -40,15 +40,6 @@ public:
     }
   }
 
-  // assume that the replacement object is of the very same class!
-  // at the moment all the work is done by the client i.e.
-  // call the distructor
-  // new in place
-  // with c++0X a templated method can encasulate it all here... 
-  T* replaceInplace() {
-    return theData;
-  }
- 
 
   T&       operator*()       { return *theData;}
   const T& operator*() const { return *theData;}

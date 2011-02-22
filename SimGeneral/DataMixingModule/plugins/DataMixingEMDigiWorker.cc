@@ -57,9 +57,6 @@ namespace edm
     EBProducerSig_ = ps.getParameter<edm::InputTag>("EBdigiProducerSig");
     EEProducerSig_ = ps.getParameter<edm::InputTag>("EEdigiProducerSig");
     ESProducerSig_ = ps.getParameter<edm::InputTag>("ESdigiProducerSig");
-    EBdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EBdigiCollectionSig");
-    EEdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EEdigiCollectionSig");
-    ESdigiCollectionSig_ = ps.getParameter<edm::InputTag>("ESdigiCollectionSig");
 
     EBPileInputTag_ = ps.getParameter<edm::InputTag>("EBPileInputTag");
     EEPileInputTag_ = ps.getParameter<edm::InputTag>("EEPileInputTag");
@@ -98,7 +95,7 @@ namespace edm
 
    const EBDigiCollection*  EBDigis = 0;
 
-   if(e.getByLabel(EBProducerSig_.label(),EBdigiCollectionSig_.label(), pEBDigis) ){
+   if(e.getByLabel(EBProducerSig_, pEBDigis) ){
      EBDigis = pEBDigis.product(); // get a ptr to the product
      LogDebug("DataMixingEMDigiWorker") << "total # EB digis: " << EBDigis->size();
    }
@@ -128,7 +125,7 @@ namespace edm
    const EEDigiCollection*  EEDigis = 0;
 
    
-   if(e.getByLabel(EEProducerSig_.label(),EEdigiCollectionSig_.label(), pEEDigis) ){
+   if(e.getByLabel(EEProducerSig_, pEEDigis) ){
      EEDigis = pEEDigis.product(); // get a ptr to the product
      LogDebug("DataMixingEMDigiWorker") << "total # EE digis: " << EEDigis->size();
    } 
@@ -156,7 +153,7 @@ namespace edm
    const ESDigiCollection*  ESDigis = 0;
 
    
-   if(e.getByLabel( ESProducerSig_.label(),ESdigiCollectionSig_.label(), pESDigis) ){
+   if(e.getByLabel( ESProducerSig_, pESDigis) ){
      ESDigis = pESDigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMDigiWorker") << "total # ES digis: " << ESDigis->size();

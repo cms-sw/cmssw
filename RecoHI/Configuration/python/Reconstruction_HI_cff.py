@@ -9,6 +9,7 @@ from RecoHI.HiTracking.LowPtTracking_PbPb_cff import *    # above 0.9 GeV
 
 # Egamma
 from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
+from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
 
 # Jet Reconstruction
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
@@ -30,6 +31,7 @@ globalRecoPbPb = cms.Sequence(heavyIonTracking
                               * hiRecoJets
                               * muonRecoPbPb
                               * hiEgammaSequence
+                              * hiElectronSequence
                               * hiCentrality
                               * hiEvtPlane
                               * hcalnoise

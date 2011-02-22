@@ -169,17 +169,8 @@
 //       Avoiding throw when duplicate destination names are used, to let the
 //	 validation report that and abort instead.
 //
-//  36 - 8/10/09 mf, cdj
+//  35 - 8/10/09 mf, cdj
 //       Use ThreadQ in place of the singleton MessageLoggerQ to consume
-//
-//  37 - 9/24/10 mf
-//       Establish values of debugAlwaysSuppressed, infoAlwaysSuppressed
-//       and warningAlwaysSuppressed when setting up thresholds
-//
-//  38 - 9/29/10 mf, ql
-//       Limit and timespan shuold be translated from -1 input to 
-//	 2000000000.  This was being done in all cases except the 
-//	 severity limits; omission rectified.
 //
 // ----------------------------------------------------------------------
 
@@ -195,8 +186,6 @@
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
-#include "FWCore/MessageLogger/interface/MessageDrop.h"		// change log 37
-#include "FWCore/MessageLogger/interface/ELseverityLevel.h"	// change log 37
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -630,13 +619,6 @@ void
   if (dest_threshold == empty_String) dest_threshold = COMMON_DEFAULT_THRESHOLD;
   ELseverityLevel  threshold_sev(dest_threshold);
   dest_ctrl.setThreshold(threshold_sev);
-  // change log 37
-  if (threshold_sev <= ELseverityLevel::ELsev_success) 
-  	{ edm::MessageDrop::debugAlwaysSuppressed = false; }
-  if (threshold_sev <= ELseverityLevel::ELsev_info) 
-  	{ edm::MessageDrop::infoAlwaysSuppressed = false; }
-  if (threshold_sev <= ELseverityLevel::ELsev_warning) 
-  	{ edm::MessageDrop::warningAlwaysSuppressed = false; }
 
   // establish this destination's limit/interval/timespan for each category:
   for( vString::const_iterator id_it = categories.begin()
@@ -711,10 +693,7 @@ void
     if ( limit     == NO_VALUE_SET )  {				// change log 24
        limit = messageLoggerDefaults->sev_limit(filename,sevID);
     }  
-    if( limit    != NO_VALUE_SET )  {
-      if (limit < 0) limit = 2000000000;			// change log 38
-      dest_ctrl.setLimit(severity, limit   );
-    }
+    if( limit    != NO_VALUE_SET )  dest_ctrl.setLimit(severity, limit   );
     int  interval  = getAparameter<int>(sev_pset, "reportEvery", NO_VALUE_SET);
     if ( interval     == NO_VALUE_SET )  {			// change log 24
        interval = messageLoggerDefaults->sev_reportEvery(filename,sevID);
@@ -725,10 +704,8 @@ void
     if ( timespan     == NO_VALUE_SET )  {			// change log 24
        timespan = messageLoggerDefaults->sev_timespan(filename,sevID);
     }  
-    if( timespan    != NO_VALUE_SET )  {
-      if (timespan < 0) timespan = 2000000000;			// change log 38
-      dest_ctrl.setTimespan(severity, timespan   );
-    }
+    if( timespan != NO_VALUE_SET )  dest_ctrl.setTimespan(severity, timespan   );
+    						// change log 6
   }  // for
 
   // establish this destination's linebreak policy:
@@ -904,11 +881,6 @@ void
   vString  empty_vString;
   String   empty_String;
   PSet     empty_PSet;
-
-  // Initialize unversal suppression variables
-  MessageDrop::debugAlwaysSuppressed=true;		// change log 37
-  MessageDrop::infoAlwaysSuppressed=true;	 	// change log 37
-  MessageDrop::warningAlwaysSuppressed=true; 		// change log 37
 
   // grab list of destinations:
   vString  destinations

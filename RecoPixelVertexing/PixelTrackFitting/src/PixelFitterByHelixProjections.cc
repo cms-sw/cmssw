@@ -82,8 +82,13 @@ namespace {
     double phi2 = std::sqrt(r2s)*(curv*0.5f)*(1.f+r2s*(rho2/24.f));
     double z1 = pinner.z();
     double z2 = pouter.z();
-    
-    return z1 - phi1/(phi1-phi2)*(z1-z2);
+
+    if (fabs(curv)>1.e-5) 
+      return z1 - phi1/(phi1-phi2)*(z1-z2);
+    else {
+      double dr = std::max(std::sqrt(r2s)-std::sqrt(r1s),1.e-5f);
+      return z1-std::sqrt(r1s)*(z2-z1)/dr;
+    }
   }
   
   double errZip( float apt, float eta) {

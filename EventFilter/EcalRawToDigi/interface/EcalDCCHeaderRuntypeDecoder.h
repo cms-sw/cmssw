@@ -10,11 +10,11 @@ class EcalDCCHeaderRuntypeDecoder
  public:
   EcalDCCHeaderRuntypeDecoder();
   ~EcalDCCHeaderRuntypeDecoder();
-  bool Decode( ulong TrTy, ulong detTrTy, ulong runType,   EcalDCCHeaderBlock * theHeader);
+  bool Decode( unsigned long TrTy, unsigned long detTrTy, unsigned long runType,   EcalDCCHeaderBlock * theHeader);
   protected:
   bool WasDecodingOk_;
   void DecodeSetting ( int settings,  EcalDCCHeaderBlock * theHeader );
-  void DecodeSettingGlobal ( ulong TrigType, ulong detTrigType,  EcalDCCHeaderBlock * theHeader );
+  void DecodeSettingGlobal ( unsigned long TrigType, unsigned long detTrigType,  EcalDCCHeaderBlock * theHeader );
   void CleanEcalDCCSettingsInfo(  EcalDCCHeaderBlock::EcalDCCEventSettings * theEventSettings);// Re-initialize theEventSettings  before filling with the deocoded event
 
 };

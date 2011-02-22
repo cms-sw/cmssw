@@ -55,7 +55,7 @@ namespace evf{
     e.getByLabel(label_,rawdata);
     unsigned int id = fedinterface::EVFFED_ID;
     const FEDRawData& data = rawdata->FEDData(id);
-    size_t size=data.size();
+    //    size_t size=data.size();
     unsigned int rbident = *((unsigned int*)(data.data()+EVFFED_RBIDENT_OFFSET));
     uint64_t rbtime = *((uint64_t*)(data.data()+EVFFED_RBWCTIM_OFFSET));
     unsigned int s = (unsigned int)((rbtime >> 32)-(ts.value() >> 32));
@@ -72,7 +72,7 @@ namespace evf{
     //    std::cout << "BIN " <<  row*9*30+rackno*30+position_in_rack << std::endl;
     position_in_rack = position_in_rack%16 + position_in_rack/16*10;
 
-    float x = row*9*30+rackno*30+position_in_rack;
+    float x = (row*9*30+rackno*30+position_in_rack)-0.00001;
     //    std::cout << " X " << x << std::endl;
     node_usage_->Fill(x,1.);
     l1_rb_delay_->Fill(deltams,1.);

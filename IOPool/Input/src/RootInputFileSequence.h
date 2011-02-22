@@ -82,7 +82,7 @@ namespace edm {
     int remainingEvents() const;
     int remainingLuminosityBlocks() const;
     bool const primary() const;
-    void logFileAction(const char* msg, std::string const& file) const;
+    void logFileAction(const char* msg, std::string const& file);
 
     PoolSource const& input_;
     InputFileCatalog const& catalog_;

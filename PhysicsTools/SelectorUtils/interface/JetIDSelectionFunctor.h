@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio (Update: Amnon Harel)
-  \version  $Id: JetIDSelectionFunctor.h,v 1.14 2010/08/26 19:50:11 srappocc Exp $
+  \version  $Id: JetIDSelectionFunctor.h,v 1.15 2010/08/31 20:31:50 srappocc Exp $
 */
 
 
@@ -240,12 +240,12 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
     if ( version_ == CRAFT08 ) return craft08Cuts( jet.p4(), jet.emEnergyFraction(), jet.jetID(), ret );
     if ( version_ == PURE09 || version_ == DQM09 ) {
       unsigned int nHit = count_hits( jet.getCaloConstituents() );
-      if ( jet.corrStep() == "raw" ) {
+      if ( jet.currentJECLevel() == "Uncorrected" ) {
 	return fwd09Cuts( jet.p4(), jet.emEnergyFraction(), jet.etaetaMoment(), jet.phiphiMoment(), nHit,
 			  jet.jetID(), ret );
       }
       else {
-	return fwd09Cuts( jet.correctedP4(pat::JetCorrFactors::Raw), jet.emEnergyFraction(), jet.etaetaMoment(), jet.phiphiMoment(), nHit,
+	return fwd09Cuts( jet.correctedP4("Uncorrected"), jet.emEnergyFraction(), jet.etaetaMoment(), jet.phiphiMoment(), nHit,
 			  jet.jetID(), ret );
       }
     }

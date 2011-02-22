@@ -251,7 +251,7 @@ MonitorElement::Fill(double x)
 
 /// "Fill" ME method for int64_t
 void
-MonitorElement::Fill(int64_t x)
+MonitorElement::doFill(int64_t x)
 {
   update();
   if (kind() == DQM_KIND_INT)

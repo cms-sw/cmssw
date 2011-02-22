@@ -52,19 +52,25 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
     virtual std::vector<TrackingRegion* > regions(const edm::Event& e, const edm::EventSetup& es) const {
       std::vector<TrackingRegion* > result;
 
-      double originZ;
-      double deltaZVertex;
-      
+      //      double originZ;
+      double deltaZVertex, deltaRho;
+        GlobalPoint vertex;
       // get the primary vertex
       edm::Handle<reco::VertexCollection> h_vertices;
       e.getByLabel(m_vertexSrc, h_vertices);
       const reco::VertexCollection & vertices = * h_vertices;
       if (not vertices.empty()) {
-        originZ      = vertices.front().z();
-        deltaZVertex = m_halfLength;
+//        originZ      = vertices.front().z();
+	GlobalPoint myTmp(vertices.at(0).position().x(),vertices.at(0).position().y(), vertices.at(0).position().z());
+          vertex = myTmp;
+          deltaZVertex = m_halfLength;
+          deltaRho = m_originRadius;
       } else {
-        originZ      =  0.;
-        deltaZVertex = 15.;
+  //      originZ      =  0.;
+          GlobalPoint myTmp(0.,0.,0.);
+          vertex = myTmp;
+          deltaRho = 1.;
+         deltaZVertex = 15.;
       }
       
       // get the jet direction
@@ -75,11 +81,11 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	{
 	  const reco::Candidate & myJet = (*h_jets)[iJet];
           GlobalVector jetVector(myJet.momentum().x(),myJet.momentum().y(),myJet.momentum().z());
-          GlobalPoint  vertex(0, 0, originZ);
+//          GlobalPoint  vertex(0, 0, originZ);
           RectangularEtaPhiTrackingRegion* etaphiRegion = new RectangularEtaPhiTrackingRegion( jetVector,
                                                                                                vertex,
                                                                                                m_ptMin,
-                                                                                               m_originRadius,
+                                                                                               deltaRho,
                                                                                                deltaZVertex,
                                                                                                m_deltaEta,
                                                                                                m_deltaPhi );

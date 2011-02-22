@@ -6,23 +6,23 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalSimParameterMap::HcalSimParameterMap() :
-  theHBParameters(2000., std::vector<double>(16, 0.3305),
+  theHBParameters(2000., 0.3305,
 		  117, 5, 
 		  10, 5, true, true,
 		  1, std::vector<double>(16, 117.)),
-  theHEParameters(2000., std::vector<double>(16, 0.3305),
+  theHEParameters(2000., 0.3305,
 		  178, 5,
 		  10, 5, true, true,
 		  16, std::vector<double>(16, 178.)),
-  theHOParameters( 4000., std::vector<double>(16, 0.3065), 
+  theHOParameters( 4000., 0.3065, 
                    217., 5, 
                    10, 5, true, true,
                    1, std::vector<double>(16, 217.)),
-  theHOZecotekSiPMParameters( 4000., std::vector<double>(16, 3.0), // 1 mip = 15 pe = 45 fC
+  theHOZecotekSiPMParameters( 4000., 3.0, // 1 mip = 15 pe = 45 fC
                    217., 5,
                    10, 5, true, true,
                    1, std::vector<double>(16, 217.)),
-  theHOHamamatsuSiPMParameters( 4000., std::vector<double>(16, 3.0),
+  theHOHamamatsuSiPMParameters( 4000., 3.0,
                    217., 5,
                    10, 5, true, true,
                    1, std::vector<double>(16, 217.)),

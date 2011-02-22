@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import copy
 
 from RecoJets.JetPlusTracks.JetPlusTrackCorrections_cfi import *
-JPTZSPCorrectorICone5.ResponseMap   = 'CondFormats/JetMETObjects/data/CMSSW_362_resptowers.txt'
+JPTZSPCorrectorICone5.ResponseMap   = 'CondFormats/JetMETObjects/data/CMSSW_31X_resptowers.txt'
 JPTZSPCorrectorICone5.UseEfficiency = cms.bool(False)
 
 from RecoJets.JetPlusTracks.JetPlusTrackCorrections_cff import *

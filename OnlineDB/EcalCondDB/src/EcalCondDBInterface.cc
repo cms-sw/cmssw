@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.24 2010/09/17 11:46:07 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.23 2010/06/16 13:54:57 organtin Exp $
 
 #include <iostream>
 #include <string>
@@ -492,6 +492,8 @@ void EcalCondDBInterface::updateRunConfig(ODRunConfigInfo* od)
   }
   conn->commit();
 }
+
+
 
 RunIOV EcalCondDBInterface::fetchRunIOV(RunTag* tag, run_t run)
   throw(runtime_error)

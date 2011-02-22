@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Fri Jun  6 09:10:41 CDT 2008
-// $Id: TagProbeMassEDMFilter.cc,v 1.1 2010/05/04 09:42:40 azzi Exp $
+// $Id: TagProbeMassEDMFilter.cc,v 1.2 2010/08/07 14:55:55 wmtan Exp $
 //
 //
 
@@ -65,8 +65,8 @@ TagProbeMassEDMFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Pass the event if there are some TP pairs ...
    Handle< std::vector<float> > tp_mass;
 
-   try{ iEvent.getByLabel(tpMapName,"TPmass",tp_mass); }
-   catch(...)
+   iEvent.getByLabel(tpMapName,"TPmass",tp_mass);
+   if (!tp_mass.isValid())
    {
       LogWarning("TagAndProbeFilter") << "Could not extract TP pairs ";
       return false;

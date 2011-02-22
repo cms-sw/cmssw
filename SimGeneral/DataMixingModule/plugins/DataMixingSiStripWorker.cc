@@ -44,9 +44,7 @@ namespace edm
 
     // declare the products to produce
 
-    Sistripdigi_collectionSig_   = ps.getParameter<edm::InputTag>("SistripdigiCollectionSig");
     SistripLabelSig_   = ps.getParameter<edm::InputTag>("SistripLabelSig");
-
     SiStripPileInputTag_ = ps.getParameter<edm::InputTag>("SiStripPileInputTag");
 
     SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
@@ -70,7 +68,7 @@ namespace edm
 
     Handle< edm::DetSetVector<SiStripDigi> >  input;
 
-    if( e.getByLabel(Sistripdigi_collectionSig_.label(),SistripLabelSig_.label(),input) ) {
+    if( e.getByLabel(SistripLabelSig_,input) ) {
       OneDetectorMap LocalMap;
 
       //loop on all detsets (detectorIDs) inside the input collection

@@ -295,10 +295,15 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       // The next line to be then replaced by the previous line
       myVertices[vertexId] = addSimVertex(position,originId); 
 
-    // Add the track (with protection for brem'ing electrons)
+    // Add the track (with protection for brem'ing electrons and muons)
     int motherType = motherId == -1 ? 0 : simTracks[motherId].type();
 
-    if ( abs(motherType) != 11 || motherType != track.type() ) {
+    bool notBremInDetector =
+      (abs(motherType) != 11 && abs(motherType) != 13) ||
+      motherType != track.type() ||
+      position.Perp2() < lateVertexPosition ;
+
+    if ( notBremInDetector ) {
       // Momentum and position are copied until SimTrack and SimVertex
       // switch to Mathcore.
       //      RawParticle part(track.momentum(), vertex.position());
@@ -318,6 +323,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 	(*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
       }
     } else {
+
       myTracks[trackId] = myTracks[motherId];
       if ( myTracks[trackId] >= 0 ) { 
 	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
@@ -508,13 +514,15 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     }
     if ( !myFilter->accept(productionVertexPosition) ) continue;
 
+    int abspdgId = abs(p->pdg_id());
+    HepMC::GenVertex* endVertex = p->end_vertex();
+
     // Keep only: 
     // 1) Stable particles (watch out! New status code = 1001!)
     bool testStable = p->status()%1000==1;
     // Declare stable standard particles that decay after a macroscopic path length
     // (except if exotic)
-    if ( p->status() == 2 && abs(p->pdg_id()) < 1000000) {
-      HepMC::GenVertex* endVertex = p->end_vertex();
+    if ( p->status() == 2 && abspdgId < 1000000) {
       if ( endVertex ) { 
 	XYZTLorentzVector decayPosition = 
 	  XYZTLorentzVector(endVertex->position().x()/10.,
@@ -530,15 +538,28 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     bool testDaugh = false;
     if ( !testStable && 
 	 p->status() == 2 &&
-	 p->end_vertex() && 
-	 p->end_vertex()->particles_out_size() ) { 
+	 endVertex && 
+	 endVertex->particles_out_size() ) { 
       HepMC::GenVertex::particles_out_const_iterator firstDaughterIt = 
-	p->end_vertex()->particles_out_const_begin();
+	endVertex->particles_out_const_begin();
       HepMC::GenVertex::particles_out_const_iterator lastDaughterIt = 
-	p->end_vertex()->particles_out_const_end();
+	endVertex->particles_out_const_end();
       for ( ; firstDaughterIt != lastDaughterIt ; ++firstDaughterIt ) {
 	HepMC::GenParticle* daugh = *firstDaughterIt;
 	if ( daugh->status()%1000==1 ) {
+	  // Check that it is not a "prompt electron or muon brem":
+	  if (abspdgId == 11 || abspdgId == 13) {
+	    if ( endVertex ) { 
+	      XYZTLorentzVector endVertexPosition = XYZTLorentzVector(endVertex->position().x()/10.,
+								      endVertex->position().y()/10.,
+								      endVertex->position().z()/10.,
+								      endVertex->position().t()/10.);
+	      // If the particle flew enough to be beyond the beam pipe enveloppe, just declare it stable
+	      if ( endVertexPosition.Perp2() < lateVertexPosition ) {
+		break;
+	      }
+	    }
+	  }
 	  testDaugh=true;
 	  break;
 	}

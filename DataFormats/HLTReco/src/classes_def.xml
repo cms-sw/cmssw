@@ -34,6 +34,10 @@
   <class name="std::vector<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >"/>
 
+  <enum name="trigger::TriggerObjectType" />
+  <class name="std::vector<trigger::TriggerObjectType>" />
+  <class name="std::vector<trigger::TriggerObjectType>::const_iterator" />
+
   <class name="trigger::TriggerObject"/>
   <class name="trigger::TriggerObjectCollection"/>
   <class name="trigger::TriggerRefsCollections"/>

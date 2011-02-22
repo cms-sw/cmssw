@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.9 2010/06/03 17:32:30 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.10 2010/07/12 17:37:59 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -228,7 +228,7 @@ LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
     m_connectStr=connectStr;
   }
   //std::cout<<"connect string "<< m_connectStr<<std::endl;
-  m_lumiversion=iConfig.getParameter<std::string>("lumiversion");
+  m_lumiversion=iConfig.getUntrackedParameter<std::string>("lumiversion");
   m_isNullRun=false;
 }
 
@@ -485,14 +485,14 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
       const void* bxlumivalueStartAddress=bxlumivalueBlob.startingAddress();
       nValues=bxlumivalueBlob.size()/sizeof(float);
       float* bxvalue=new float[lumi::N_BX];
-      std::memmove(bxvalue,bxlumivalueStartAddress,nValues);
+      std::memmove(bxvalue,bxlumivalueStartAddress,bxlumivalueBlob.size());
       bxvaluemap.insert(std::make_pair(algoname,std::vector<float>(bxvalue,bxvalue+nValues)));
       delete [] bxvalue;
       const coral::Blob& bxlumierrorBlob=row["bxlumierror"].data<coral::Blob>();
       const void* bxlumierrorStartAddress=bxlumierrorBlob.startingAddress();
       float* bxerror=new float[lumi::N_BX];
       nValues=bxlumierrorBlob.size()/sizeof(float);
-      std::memmove(bxerror,bxlumierrorStartAddress,nValues);
+      std::memmove(bxerror,bxlumierrorStartAddress,bxlumierrorBlob.size());
       bxerrormap.insert(std::make_pair(algoname,std::vector<float>(bxerror,bxerror+nValues)));
       delete [] bxerror;
       
@@ -500,7 +500,7 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
       const coral::Blob& bxlumiqualityBlob=row["bxlumiquality"].data<coral::Blob>();
       const void* bxlumiqualityStartAddress=bxlumiqualityBlob.startingAddress();
       nValues=bxlumiqualityBlob.size()/sizeof(short);
-      std::memmove(bxquality,bxlumiqualityStartAddress,nValues);
+      std::memmove(bxquality,bxlumiqualityStartAddress,bxlumiqualityBlob.size());
       bxqualitymap.insert(std::make_pair(algoname,std::vector<short>(bxquality,bxquality+nValues)));
       delete [] bxquality;
       ++s;

@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.35 2010/09/09 08:01:16 mommsen Exp $
+// $Id: Configuration.cc,v 1.34 2010/05/11 18:02:20 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -182,6 +182,7 @@ namespace stor
     _diskWriteParamCopy._lumiSectionTimeOut = 45.0;
     _diskWriteParamCopy._fileClosingTestInterval = 5.0;
     _diskWriteParamCopy._fileSizeTolerance = 0.0;
+    _diskWriteParamCopy._useIndexFiles = true;
     _diskWriteParamCopy._faultyEventsStream = "";
 
     _previousStreamCfg = _diskWriteParamCopy._streamConfiguration;
@@ -297,6 +298,7 @@ namespace stor
     _fileClosingTestInterval =
       static_cast<int>(_diskWriteParamCopy._fileClosingTestInterval);
     _fileSizeTolerance = _diskWriteParamCopy._fileSizeTolerance;
+    _useIndexFiles = _diskWriteParamCopy._useIndexFiles;
     _faultyEventsStream = _diskWriteParamCopy._faultyEventsStream;
 
     utils::getXdataVector(_diskWriteParamCopy._otherDiskPaths, _otherDiskPaths);
@@ -318,6 +320,7 @@ namespace stor
     infoSpace->fireItemAvailable("fileClosingTestInterval",
                                  &_fileClosingTestInterval);
     infoSpace->fireItemAvailable("fileSizeTolerance", &_fileSizeTolerance);
+    infoSpace->fireItemAvailable("useIndexFiles", &_useIndexFiles);
     infoSpace->fireItemAvailable("faultyEventsStream", &_faultyEventsStream);
 
     // special handling for the stream configuration string (we
@@ -475,6 +478,7 @@ namespace stor
     _diskWriteParamCopy._lumiSectionTimeOut = _lumiSectionTimeOut;
     _diskWriteParamCopy._fileClosingTestInterval = _fileClosingTestInterval;
     _diskWriteParamCopy._fileSizeTolerance = _fileSizeTolerance;
+    _diskWriteParamCopy._useIndexFiles = _useIndexFiles;
     _diskWriteParamCopy._faultyEventsStream = _faultyEventsStream;
 
     utils::getStdVector(_otherDiskPaths, _diskWriteParamCopy._otherDiskPaths);

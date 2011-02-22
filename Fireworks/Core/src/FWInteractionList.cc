@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Apr 19 12:48:18 CEST 2010
-// $Id: FWInteractionList.cc,v 1.11 2010/07/23 11:05:35 amraktad Exp $
+// $Id: FWInteractionList.cc,v 1.12 2010/08/12 19:29:57 amraktad Exp $
 //
 
 // user include files
@@ -45,17 +45,16 @@ FWInteractionList::FWInteractionList(const FWEventItem* item)
 
 FWInteractionList::~FWInteractionList()
 {
-   for (size_t i = 0, e = m_compounds.size(); i != e; ++i)
+   for ( std::vector<TEveCompound*>::iterator i = m_compounds.begin(); i != m_compounds.end(); ++i)
    {
-      TEveCompound *compound = m_compounds[i];
       // Interaction are created only in the standard use case, where user data is FWFromEveSelectorBase.
       // This is defined with return value of virtual function FWPRoxyBuilderBase::willHandleInteraction().
 
-      if (compound->GetUserData())
-         delete reinterpret_cast<FWFromEveSelectorBase*>(compound->GetUserData());
+      if ((*i)->GetUserData())
+         delete reinterpret_cast<FWFromEveSelectorBase*>((*i)->GetUserData());
 
-      compound->RemoveElements();
-      compound->DecDenyDestroy();
+      (*i)->RemoveElements();
+      (*i)->DecDenyDestroy();
    }
 }
 
@@ -71,7 +70,7 @@ FWInteractionList::~FWInteractionList()
 void
 FWInteractionList::added(TEveElement* el, unsigned int idx)
 {
- 
+
    // In the case a compound for the given index already exists, just add 
    // the TEveElement to it, otherwise create a new one.
    if (idx < m_compounds.size())
@@ -80,7 +79,7 @@ FWInteractionList::added(TEveElement* el, unsigned int idx)
       return;
    }
 
-    // Prepare name for the tooltip on mouseover in GL viewer.Value of
+   // Prepare name for the tooltip on mouseover in GL viewer.Value of
    // tooltip is TEveElement::fTitle
    std::string name = m_item->modelName(idx);
    if (m_item->haveInterestingValue())
@@ -89,7 +88,7 @@ FWInteractionList::added(TEveElement* el, unsigned int idx)
    TEveCompound* c = new TEveCompound(name.c_str(), name.c_str());
    c->EnableListElements(m_item->defaultDisplayProperties().isVisible());
    c->SetMainColor(m_item->defaultDisplayProperties().color());
-    c->SetMainTransparency(m_item->defaultDisplayProperties().transparency());
+   c->SetMainTransparency(m_item->defaultDisplayProperties().transparency());
    
    // Set flags to propagat attributes.
    c->CSCImplySelectAllChildren();
@@ -174,11 +173,3 @@ FWInteractionList::itemChanged()
 
    }
 }
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//

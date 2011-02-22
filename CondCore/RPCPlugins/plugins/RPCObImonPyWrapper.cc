@@ -1,54 +1,19 @@
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
-#include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
-
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
-
-#include "CondCore/ORA/interface/Database.h"
-#include "CondCore/DBCommon/interface/PoolToken.h"
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
-#include "CondCore/IOVService/interface/IOVProxy.h"
-
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-
-/////////////////
-#include "TROOT.h"
-#include "TCanvas.h"
-#include "TStyle.h"
-#include "TColor.h"
-#include "TLine.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include <string>
-#include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <numeric>
 #include <iterator>
-#include <iostream>
-#include <fstream>
-#include <utility>
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/iterator/transform_iterator.hpp>
-
-using std::pair;
-using std::make_pair;
-
-#include "TROOT.h"
-#include "TCanvas.h"
-#include "TStyle.h"
-#include "TColor.h"
-#include "TH1D.h"
-#include "TH2D.h"
-
+#include <iostream>
+#include <fstream>
 
 namespace cond {
 
@@ -168,62 +133,20 @@ namespace cond {
     
   };
 
-  //   template<>
-  //   std::string
-  //   PayLoadInspector<RPCObImon>::dump() const {return std::string();}
+
+  template<>
+  std::string
+  PayLoadInspector<RPCObImon>::dump() const {return std::string();}
 
   template<>
   std::string PayLoadInspector<RPCObImon>::summary() const {
-
     std::stringstream ss;
-   
-    //hardcoded values
-    std::string authPath="/afs/cern.ch/cms/DB/conddb";
-    std::string conString="oracle://cms_orcoff_prod/CMS_COND_31X_RPC";
-    
-    //frontend sends token instead of filename
-    std::string token="[DB=00000000-0000-0000-0000-000000000000][CNT=RPCObPVSSmap][CLID=53B2D2D9-1F4E-9CA9-4D71-FFCCA123A454][TECH=00000B01][OID=0000000C-00000000]";
-    
-    //std::cout<<"make connection object"<<std::endl;
-    DbConnection dbConn;
-    
-    //std::cout<<"set in configuration object authentication path"<<std::endl;
-    dbConn.configuration().setAuthenticationPath(authPath);
-    dbConn.configure();
-    
-    //std::cout<<"create session object from connection"<<std::endl;
-    DbSession dbSes=dbConn.createSession();
-    
-    //std::cout<<"try to make connection"<<std::endl;
-    dbSes.open(conString,true);
-    
-    //std::cout<<"start a transaction (true=readOnly)"<<std::endl;
-    //cond::DbTransaction dbTr=
-    dbSes.transaction().start(true);
-    
-   //get the actual object
-    boost::shared_ptr<RPCObPVSSmap> pvssPtr;
-    pvssPtr=dbSes.getTypedObject<RPCObPVSSmap>(token);
-
-    //we have the object...
-    std::vector<RPCObPVSSmap::Item> pvssCont=pvssPtr->ObIDMap_rpc;
 
     std::vector<RPCObImon::I_Item> const & imon = object().ObImon_rpc;
-    
-    //    ss <<"DetID\t\t"<<"I(uA)\t"<<"Time\t"<<"Day\n";
-    ss <<"DetID\t\tI(uA)\tTime\tDay\n";
+
     for(unsigned int i = 0; i < imon.size(); ++i ){
-      for(unsigned int p = 0; p < pvssCont.size(); ++p){
-       	if(imon[i].dpid!=pvssCont[p].dpid || pvssCont[p].suptype!=0 || pvssCont[p].region!=0)continue;
-       	RPCDetId rpcId(pvssCont[p].region,pvssCont[p].ring,pvssCont[p].station,pvssCont[p].sector,pvssCont[p].layer,pvssCont[p].subsector,1);
-       	RPCGeomServ rGS(rpcId);
-       	std::string chName(rGS.name().substr(0,rGS.name().find("_Backward")));
-	ss <<chName <<"\t"<<imon[i].value<<"\t"<<imon[i].time<<"\t"<<imon[i].day<<"\n";
-      }
+      ss <<imon[i].dpid <<" "<<imon[i].value<<" "<<imon[i].time<<" "<<imon[i].day<<" ";
     }
-    
-    //close db session
-    dbSes.close();
 
     return ss.str();
    }
@@ -232,34 +155,11 @@ namespace cond {
   // return the real name of the file including extension...
   template<>
   std::string PayLoadInspector<RPCObImon>::plot(std::string const & filename,
-						std::string const &,
-						std::vector<int> const&,
-						std::vector<float> const& ) const {
-
-    TCanvas canvas("iC","iC",800,800);    
-
-    TH1D *iDistr=new TH1D("iDistr","IOV-averaged Imon Distribution;Average Current(uA);Entries/1uA",100,0.,100.);
-    //    TH1D *iDistr=new TH1D("iDistr","IOV-averaged Imon Distribution;Average Current(uA);Entries/1uA",100,0.,100.);
-    std::vector<RPCObImon::I_Item> const & imon = object().ObImon_rpc;
-
-    std::map<int,std::pair<int,double> > dpidMap;
-    for(unsigned int i = 0;i < imon.size(); ++i){
-      if(dpidMap.find(imon[i].dpid)==dpidMap.end())
-	dpidMap[imon[i].dpid]=make_pair(1,(double)imon[i].value);
-      else {
-	dpidMap[imon[i].dpid].first++;
-	dpidMap[imon[i].dpid].second+=imon[i].value;
-      }
-    }
-
-    for(std::map<int,std::pair<int,double> >::const_iterator mIt=dpidMap.begin();mIt!=dpidMap.end();mIt++)
-      iDistr->Fill(mIt->second.second/(double)mIt->second.first);
-
-    iDistr->Draw();
-
-    canvas.SaveAs(filename.c_str());
-    return filename.c_str();
-
+						   std::string const &, std::vector<int> const&, std::vector<float> const& ) const {
+    std::string fname = filename + ".txt";
+    std::ofstream f(fname.c_str());
+    f << dump();
+    return fname;
   }
   
 }
@@ -291,3 +191,6 @@ namespace condPython {
 }
 
 PYTHON_WRAPPER(RPCObImon,RPCObImon);
+
+
+

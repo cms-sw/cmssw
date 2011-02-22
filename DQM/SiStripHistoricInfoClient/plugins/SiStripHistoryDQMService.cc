@@ -56,9 +56,9 @@ uint32_t SiStripHistoryDQMService::returnDetComponent(const MonitorElement* ME){
   //TEC
   else if(str.find("TEC")!= std::string::npos){  
     if (str.find("side")!= std::string::npos){
-      side=atoi(str.substr(str.find("_side__")+__key_length__,1).c_str());
+      layer=atoi(str.substr(str.find("wheel__")+__key_length__,1).c_str());
       if (str.find("wheel")!= std::string::npos){
-	layer=atoi(str.substr(str.find("wheel__")+__key_length__,1).c_str());
+	side=atoi(str.substr(str.find("_side__")+__key_length__,1).c_str());
       }
     }
     return TECDetId(side,layer,0,0,0,0,0).rawId();
@@ -68,25 +68,14 @@ uint32_t SiStripHistoryDQMService::returnDetComponent(const MonitorElement* ME){
 }
 
 //Example on how to define an user function for the statistic extraction
-bool SiStripHistoryDQMService::setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent, std::string& quantity){
-  if (quantity == "user_2DYmean") {
-    userDBContent.push_back(keyName+fSep+std::string("yMean"));
-    userDBContent.push_back(keyName+fSep+std::string("yError"));
-  } else {
-    edm::LogError("SiStripHistoryDQMService") << "ERROR: quantity does not exist in SiStripHistoryDQMService::setDBValuesForUser(): " << quantity;
-    return false;
-  }
+bool SiStripHistoryDQMService::setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent){
+  userDBContent.push_back(keyName+std::string("@")+std::string("userExample_XMax"));
+  userDBContent.push_back(keyName+std::string("@")+std::string("userExample_mean"));
   return true;
 }
-bool SiStripHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values, std::string& quantity  ){
-  if (quantity == "user_2DYmean") {
-    TH2F* Hist = (TH2F*) (*iterMes)->getTH2F();
-    values.push_back( Hist->GetMean(2) );
-    values.push_back( Hist->GetRMS(2) );
-  } else {
-    edm::LogError("SiStripHistoryDQMService") << "ERROR: quantity does not exist in SiStripHistoryDQMService::setDBValuesForUser(): " << quantity;
-    return false;
-  }
+bool SiStripHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values  ){
+  values.push_back( (*iterMes)->getTH1F()->GetXaxis()->GetBinCenter((*iterMes)->getTH1F()->GetMaximumBin()));
+  values.push_back( (*iterMes)->getMean() );
   return true;
 }
 

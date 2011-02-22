@@ -5,13 +5,20 @@
 #include <sstream>
 
 
+#ifndef __APPLE__
 #include<malloc.h>
+#endif
+
 #include<cstdlib>
 #include "cxxabi.h"
 
 namespace {
   void printMem(char const * title) {
     std::cout << "\n--- " << title <<" ---"<< std::endl;
+#ifdef __APPLE__
+    std::cout << "not supported" << std::endl;
+    abort();
+#else
     struct mallinfo mi;
     mi  = mallinfo();
     int * mm = (int*)(&mi);
@@ -21,12 +28,18 @@ namespace {
     std::cout << "mmap/arena-used/arena-free " << mm[4] << " " << mm[7] << " " << mm[8] << std::endl;
     std::cout << std::endl;
     malloc_stats();
+#endif
   }
   
   
   void checkmem(char const * title){
     std::cout << "\n--- " << title <<" ---"<< std::endl;
+#ifdef __APPLE__
+    std::cout << "malloc_stats not supported\n" << std::endl;
+    abort();
+#else
     malloc_stats();
+#endif
   }
 
 }

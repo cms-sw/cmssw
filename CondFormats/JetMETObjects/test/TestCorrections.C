@@ -1,19 +1,18 @@
-void TestCorrections()
+void TestCorrections(double pt, double A, double Rho)
 {
-  gROOT->SetStyle("Plain");
-  gStyle->SetPalette(1);
   gSystem->Load("libFWCoreFWLite.so");
-  AutoLibraryLoader::enable(); 
-  TRandom *rnd = new TRandom();
-  rnd->SetSeed(0);
+  AutoLibraryLoader::enable();
   ////////////// Construct the JetCorrectorParameters objects ///////////////////////
-  string L3Tag = "../data/Summer09_7TeV_ReReco332_L3Absolute_AK5Calo.txt";
-  string L2Tag = "../data/Summer09_7TeV_ReReco332_L2Relative_AK5Calo.txt";
-  JetCorrectorParameters *L3JetPar = new JetCorrectorParameters(L3Tag);
-  JetCorrectorParameters *L2JetPar = new JetCorrectorParameters(L2Tag);
-  vector<JetCorrectorParameters> *vPar;
-  vPar.push_back(L2JetPar);
-  vPar.push_back(L3JetPar);
+  string L1Tag = "../data/Fall10_L1FastJet_AK5Calo.txt"; 
+  JetCorrectorParameters *L1Par = new JetCorrectorParameters(L1Tag);
+  vector<JetCorrectorParameters> vPar;
+  vPar.push_back(*L1Par);
   ////////////// Construct a FactorizedJetCorrector object //////////////////////
-  FactorizedJetCorrector *JetCorrector = new FactorizedJetCorrector(vPar) 
+  FactorizedJetCorrector *JetCorrector = new FactorizedJetCorrector(vPar);
+  ////////////// Loop over jets //////////////////////
+  JetCorrector->setJetEta(0.0); 
+  JetCorrector->setJetPt(pt);
+  JetCorrector->setJetA(A);
+  JetCorrector->setRho(Rho);
+  cout<<JetCorrector->getCorrection()<<endl;
 }

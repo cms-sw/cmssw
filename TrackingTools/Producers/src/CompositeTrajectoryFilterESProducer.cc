@@ -28,7 +28,7 @@ CompositeTrajectoryFilterESProducer::produce(const TrajectoryFilter::Record & re
 
    std::vector<const TrajectoryFilter*> filters;
    edm::ESHandle<TrajectoryFilter> aFilterH;
-   for (unsigned int i=0;i!=filterNames.size();++i)
+   for (uint i=0;i!=filterNames.size();++i)
      {
        record.get(filterNames[i], aFilterH);
        edm::LogInfo("CompositeTrajectoryFilterESProducer")<<"adding: "<<filterNames[i];

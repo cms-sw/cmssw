@@ -101,10 +101,11 @@ namespace reco {
     mutable TrajectoryStateClosestToPoint initialTSCP;
     TSCPBuilderNoMaterial builder;
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-    TransverseImpactPointExtrapolator* theTIPExtrapolator;
-    Propagator* thePropagator;
     reco::BeamSpot theBeamSpot;
     mutable TrajectoryStateClosestToBeamLine trajectoryStateClosestToBeamLine;
+
+    TransverseImpactPointExtrapolator theTIPExtrapolator;
+  
 
   };
 

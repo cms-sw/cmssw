@@ -13,7 +13,7 @@
 #include "RelationalAccess/IBulkOperation.h"
 #include "CoralBase/Attribute.h"
 
-std::string ora::OraMainTable::schemaVersion(){
+std::string ora::OraMainTable::version(){
   static std::string s_version("V0.0");
   return s_version;
 }
@@ -55,6 +55,11 @@ bool ora::OraMainTable::getParameters( std::map<std::string,std::string>& dest )
   return ret;
 }
 
+std::string ora::OraMainTable::schemaVersion(){
+  // could be replaced by a call to getParameters in case of needs to distinguish between ora db schema versions...
+  return version();
+}
+
 bool ora::OraMainTable::exists(){
   return m_schema.existsTable( tableName() );
 }
@@ -81,8 +86,8 @@ void ora::OraMainTable::create(){
   coral::AttributeList dataToInsert;
   dataToInsert.extend<std::string>( parameterNameColumn());
   dataToInsert.extend<std::string>( parameterValueColumn());
-  dataToInsert[ parameterNameColumn() ].data<std::string>() = IMainTable::schemaVersionParameterName();
-  dataToInsert[ parameterValueColumn() ].data<std::string>() = schemaVersion();
+  dataToInsert[ parameterNameColumn() ].data<std::string>() = IMainTable::versionParameterName();
+  dataToInsert[ parameterValueColumn() ].data<std::string>() = version();
   table.dataEditor().insertRow( dataToInsert );
 }
 

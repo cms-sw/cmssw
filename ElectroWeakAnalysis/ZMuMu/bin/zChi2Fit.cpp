@@ -341,14 +341,14 @@ int main_t(const vector<string> & v_file){
     string ZMuMu1HLTPlot = "ZMuMu1HLTFit_" + plot_string;
     root::plot<Expr>(ZMuMu1HLTPlot.c_str(), *histoZMuMu1HLT, zMuMu1HLT, fMin, fMax, 
 		     effTk, effSa, effIso, effHLT, yieldZMuMu, 
-		     kOrange-2, 2, kSolid, 100, 
+		     kRed, 2, kDashed, 100, 
 		     "Z -> #mu #mu mass", "#mu #mu invariant mass (GeV/c^{2})", 
 		     "Events");
     
     string ZMuMu2HLTPlot = "ZMuMu2HLTFit_" + plot_string;
     root::plot<Expr>(ZMuMu2HLTPlot.c_str(), *histoZMuMu2HLT, zMuMu2HLT, fMin, fMax, 
 		     effTk, effSa, effIso, effHLT, yieldZMuMu, 
-		     kOrange-2, 2, kSolid, 100, 
+		     kRed, 2, kDashed, 100, 
 		     "Z -> #mu #mu mass", "#mu #mu invariant mass (GeV/c^{2})", 
 		     "Events");
     
@@ -357,29 +357,22 @@ int main_t(const vector<string> & v_file){
     root::plot<Expr>(ZMuMuNoIsoPlot.c_str(), *histoZMuMuNoIso, zMuMuNoIso, fMin, fMax, 
 		     effTk, effSa, effIso, effHLT, yieldZMuMu,
 		     yieldBkgZMuMuNotIso, alpha, b0, b1, b2,
-		     kWhite, 2, kSolid, 100, 
+		     kRed, 2, kDashed, 100, 
 		     "Z -> #mu #mu Not Iso mass", "#mu #mu invariant mass (GeV/c^{2})", 
 		     "Events");	
     ZMuMuNoIsoPlot = "ZMuMuNoIsoFit_" + plot_string;
     TF1 funZMuMuNoIso = root::tf1_t<sig_tag, Expr>("ZMuMuNoIsoFunction", zMuMuNoIso, fMin, fMax, 
 					      effTk, effSa, effIso, effHLT, yieldZMuMu, 
-					      yieldBkgZMuMuNotIso, alpha, b0, b1, b2);
-    funZMuMuNoIso.SetLineColor(kOrange+8);
-    funZMuMuNoIso.SetLineWidth(3);
-    //funZMuMuNoIso.SetLineStyle(kDashed);
-    
-    //funZMuMuNoIso.SetFillColor(kOrange-2);
-    //funZMuMuNoIso.SetFillStyle(3325);
-
+					      yieldBkgZMuMuNotIso, lambda, a0, a1, a2);
+    funZMuMuNoIso.SetLineColor(kRed);
+    funZMuMuNoIso.SetLineWidth(2);
+    funZMuMuNoIso.SetLineStyle(kDashed);
     funZMuMuNoIso.SetNpx(10000);
     TF1 funZMuMuNoIsoBkg = root::tf1_t<bkg_tag, Expr>("ZMuMuNoIsoBack", zMuMuNoIsoBkgScaled, fMin, fMax, 
 						 yieldBkgZMuMuNotIso, alpha, b0, b1, b2);
-    funZMuMuNoIsoBkg.SetLineColor(kViolet+3);
+    funZMuMuNoIsoBkg.SetLineColor(kGreen);
     funZMuMuNoIsoBkg.SetLineWidth(2);
-    funZMuMuNoIsoBkg.SetLineStyle(kSolid);
-    funZMuMuNoIsoBkg.SetFillColor(kViolet-5);
-    funZMuMuNoIsoBkg.SetFillStyle(3357);
-
+    funZMuMuNoIsoBkg.SetLineStyle(kDashed);
     funZMuMuNoIsoBkg.SetNpx(10000);
     histoZMuMuNoIso->SetTitle("Z -> #mu #mu Not Iso mass");
     histoZMuMuNoIso->SetXTitle("#mu +  #mu invariant mass (GeV/c^{2})");
@@ -393,37 +386,26 @@ int main_t(const vector<string> & v_file){
     string logZMuMuNoIsoPlot = "log_" + ZMuMuNoIsoPlot;
     canvas->SaveAs(logZMuMuNoIsoPlot.c_str());
     
-    double IntSigMMNotIso = ((double) rebinMuMu/  (double) rebinMuMuNoIso) * funZMuMuNoIso.Integral(fMin, fMax);
-    double IntSigMMNotIsoBkg = ((double) rebinMuMu/  (double) rebinMuMuNoIso) * funZMuMuNoIsoBkg.Integral(fMin, fMax);
-    cout << "*********  ZMuMuNoIsoPlot signal yield from the fit ==> " <<  IntSigMMNotIso << endl;
-    cout << "*********  ZMuMuNoIsoPlot background yield from the fit ==> " << IntSigMMNotIsoBkg << endl;
-
-
-
     string ZMuTkPlot = "ZMuTkFit_X_" + plot_string;
     root::plot<Expr>(ZMuTkPlot.c_str(), *histoZMuTk, zMuTk, fMin, fMax,
 		     effTk, effSa, effIso, effHLT, yieldZMuMu,
 		     yieldBkgZMuTk, lambda, a0, a1, a2,
-		     kOrange+3, 2, kSolid, 100,
+		     kRed, 2, kDashed, 100,
 		     "Z -> #mu + (unmatched) track mass", "#mu #mu invariant mass (GeV/c^{2})",
 		     "Events");
     ZMuTkPlot = "ZMuTkFit_" + plot_string;
     TF1 funZMuTk = root::tf1_t<sig_tag, Expr>("ZMuTkFunction", zMuTk, fMin, fMax, 
 					      effTk, effSa, effIso, effHLT, yieldZMuMu, 
 					      yieldBkgZMuTk, lambda, a0, a1, a2);
-    funZMuTk.SetLineColor(kOrange+8);
-    funZMuTk.SetLineWidth(3);
-    funZMuTk.SetLineStyle(kSolid);
-    //  funZMuTk.SetFillColor(kOrange-2);
-    //funZMuTk.SetFillStyle(3325);
+    funZMuTk.SetLineColor(kRed);
+    funZMuTk.SetLineWidth(2);
+    funZMuTk.SetLineStyle(kDashed);
     funZMuTk.SetNpx(10000);
     TF1 funZMuTkBkg = root::tf1_t<bkg_tag, Expr>("ZMuTkBack", zMuTkBkgScaled, fMin, fMax, 
 						 yieldBkgZMuTk, lambda, a0, a1, a2);
-    funZMuTkBkg.SetLineColor(kViolet+3);
+    funZMuTkBkg.SetLineColor(kGreen);
     funZMuTkBkg.SetLineWidth(2);
-    funZMuTkBkg.SetLineStyle(kSolid);
-    funZMuTkBkg.SetFillColor(kViolet-5);
-    funZMuTkBkg.SetFillStyle(3357);
+    funZMuTkBkg.SetLineStyle(kDashed);
     funZMuTkBkg.SetNpx(10000);
     histoZMuTk->SetTitle("Z -> #mu + (unmatched) track mass");
     histoZMuTk->SetXTitle("#mu + (unmatched) track invariant mass (GeV/c^{2})");
@@ -437,42 +419,27 @@ int main_t(const vector<string> & v_file){
     string logZMuTkPlot = "log_" + ZMuTkPlot;
     canvas_->SaveAs(logZMuTkPlot.c_str());
 
-
-    double IntSigMT = ((double) rebinMuMu/  (double) rebinMuTk) * funZMuTk.Integral(fMin, fMax);
-    double IntSigMTBkg = ((double) rebinMuMu/  (double) rebinMuTk) * funZMuTkBkg.Integral(fMin, fMax);
-    cout << "*********  ZMuMuTkPlot signal yield from the fit ==> " <<  IntSigMT << endl;
-    cout << "*********  ZMuMuTkPlot background yield from the fit ==> " << IntSigMTBkg << endl;
-
-
-
     string ZMuSaPlot = "ZMuSaFit_X_" + plot_string;
     root::plot<Expr>(ZMuSaPlot.c_str(), *histoZMuSa, zMuSa, fMin, fMax, 
 		     effSa, effTk, effIso, yieldZMuMu, 
 		     yieldBkgZMuSa, beta, c0, c1, c2 ,
-		     kOrange+3, 2, kSolid, 100, 
+		     kRed, 2, kDashed, 100, 
 		     "Z -> #mu + (unmatched) standalone mass", 
 		     "#mu + (unmatched) standalone invariant mass (GeV/c^{2})", 
 		     "Events");
-
-
-
     ZMuSaPlot = "ZMuSaFit_" + plot_string;
     TF1 funZMuSa = root::tf1_t<sig_tag, Expr>("ZMuSaFunction", zMuSa, fMin, fMax, 
 					      effTk, effSa, effIso, effHLT, yieldZMuMu, 
 					      yieldBkgZMuSa, beta, c0, c1, c2);
-    funZMuSa.SetLineColor(kOrange+8);
-    funZMuSa.SetLineWidth(3);
-    funZMuSa.SetLineStyle(kSolid);
-    // funZMuSa.SetFillColor(kOrange-2);
-    // funZMuSa.SetFillStyle(3325);
+    funZMuSa.SetLineColor(kRed);
+    funZMuSa.SetLineWidth(2);
+    funZMuSa.SetLineStyle(kDashed);
     funZMuSa.SetNpx(10000);
     TF1 funZMuSaBkg = root::tf1_t<bkg_tag, Expr>("ZMuSaBack", zMuSaBkgScaled, fMin, fMax, 
 						 yieldBkgZMuSa, beta, c0, c1, c2);
-    funZMuSaBkg.SetLineColor(kViolet+3);
+    funZMuSaBkg.SetLineColor(kGreen);
     funZMuSaBkg.SetLineWidth(2);
-    funZMuSaBkg.SetLineStyle(kSolid);
-    funZMuSaBkg.SetFillColor(kViolet-5);
-    funZMuSaBkg.SetFillStyle(3357);
+    funZMuSaBkg.SetLineStyle(kDashed);
     funZMuSaBkg.SetNpx(10000);
     histoZMuSa->SetTitle("Z -> #mu + (unmatched) standalone mass");
     histoZMuSa->SetXTitle("#mu + (unmatched) standalone invariant mass (GeV/c^{2})");
@@ -485,11 +452,6 @@ int main_t(const vector<string> & v_file){
     canvas__->SetLogy();
     string logZMuSaPlot = "log_" + ZMuSaPlot;
     canvas__->SaveAs(logZMuSaPlot.c_str());
-
-    double IntSigMS = ((double) rebinMuMu/  (double) rebinMuSa) * funZMuSa.Integral(fMin, fMax);
-    double IntSigMSBkg = ((double) rebinMuMu/  (double) rebinMuSa) * funZMuSaBkg.Integral(fMin, fMax);
-    cout << "*********  ZMuMuSaPlot signal yield from the fit ==> " <<  IntSigMS << endl;
-    cout << "*********  ZMuMuSaPlot background yield from the fit ==> " << IntSigMSBkg << endl;
 
 
   }

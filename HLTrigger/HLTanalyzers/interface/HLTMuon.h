@@ -52,14 +52,14 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const edm::Handle<MuonCollection>                 & muon,
+  void analyze(const edm::Handle<reco::MuonCollection>                 & muon,
                const edm::Handle<l1extra::L1MuonParticleCollection>   & mucands1, 
-	       const edm::Handle<RecoChargedCandidateCollection> & mucands2,
+	       const edm::Handle<reco::RecoChargedCandidateCollection> & mucands2,
 	       const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
-	       const edm::Handle<RecoChargedCandidateCollection> & mucands3,
+	       const edm::Handle<reco::RecoChargedCandidateCollection> & mucands3,
 	       const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
-               const edm::Handle<RecoChargedCandidateCollection> & oniaPixelCands,
-               const edm::Handle<RecoChargedCandidateCollection> & oniaTrackCands,
+               const edm::Handle<reco::RecoChargedCandidateCollection> & oniaPixelCands,
+               const edm::Handle<reco::RecoChargedCandidateCollection> & oniaTrackCands,
                const reco::BeamSpot::Point & BSPosition,
 	       TTree* tree);
 
@@ -81,11 +81,6 @@ private:
 
   // input variables
   bool _Monte,_Debug;
-  bool _DoL1Muons;
-  bool _DoL2Muons;
-  bool _DoL3Muons;
-  bool _DoOfflineMuons;
-  bool _DoQuarkonias;
 
   int evtCounter;
 

@@ -56,13 +56,8 @@ patJets = cms.EDProducer("PATJetProducer",
     # clone tag infos ATTENTION: these take lots of space!
     # usually the discriminators from the default algos
     # are sufficient
-    addTagInfos     = cms.bool(True),
-    tagInfoSources  = cms.VInputTag(
-        cms.InputTag("secondaryVertexTagInfos"),
-        cms.InputTag("softElectronTagInfos"), 
-        cms.InputTag("softMuonTagInfos"),
-        cms.InputTag("impactParameterTagInfos"),
-    ),
+    addTagInfos     = cms.bool(False),
+    tagInfoSources  = cms.VInputTag(),
 
     # track association
     addAssociatedTracks    = cms.bool(True),

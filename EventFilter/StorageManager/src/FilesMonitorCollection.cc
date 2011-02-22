@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.cc,v 1.12 2010/05/11 17:55:22 mommsen Exp $
+// $Id: FilesMonitorCollection.cc,v 1.11 2010/01/29 15:45:47 mommsen Exp $
 /// @file: FilesMonitorCollection.cc
 
 #include <string>
@@ -114,8 +114,7 @@ std::string FilesMonitorCollection::FileRecord::fileName()
 {
   std::ostringstream fileName;
   fileName << coreFileName 
-    << "." << std::setfill('0') << std::setw(4) << fileCounter
-    << ".dat";
+    << "." << std::setfill('0') << std::setw(4) << fileCounter;
   return fileName.str();
 }
 

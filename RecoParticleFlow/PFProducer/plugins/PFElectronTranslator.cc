@@ -27,6 +27,9 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
   PFSCValueMap_ = iConfig.getParameter<std::string>("ElectronSC");
   MVACut_ = (iConfig.getParameter<edm::ParameterSet>("MVACutBlock")).getParameter<double>("MVACut");
 
+  if (iConfig.exists("emptyIsOk")) emptyIsOk_ = iConfig.getParameter<bool>("emptyIsOk");
+  else emptyIsOk_=false;
+
   produces<reco::BasicClusterCollection>(PFBasicClusterCollection_); 
   produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_); 
   produces<reco::SuperClusterCollection>(PFSuperClusterCollection_); 
@@ -182,7 +185,7 @@ bool PFElectronTranslator::fetchCandidateCollection(edm::Handle<reco::PFCandidat
 					      const edm::Event& iEvent) const {  
   bool found = iEvent.getByLabel(tag, c);
 
-  if(!found)
+  if(!found && !emptyIsOk_)
     {
       std::ostringstream  err;
       err<<" cannot get PFCandidates: "
@@ -427,7 +430,8 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
       // Set the cluster width
       mySuperCluster.setEtaWidth(pfwidth.pflowEtaWidth());
       mySuperCluster.setPhiWidth(pfwidth.pflowPhiWidth());
-
+      // Force the computation of rawEnergy_ of the reco::SuperCluster
+      mySuperCluster.rawEnergy();
       superClusters.push_back(mySuperCluster);
    }
 }

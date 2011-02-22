@@ -6,7 +6,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/09/22 20:55:27 $ by $Author: argiro $
+# last update: $Date: 2010/11/18 09:19:15 $ by $Author: argiro $
+# $Id: AlCaRecoStream_SpecialsHI_cff.py,v 1.4 2010/11/18 09:19:15 argiro Exp $
 
 # ECAL calibration with eta
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_cff import *
@@ -26,7 +27,7 @@ ALCARECOStreamEcalCalEtaCalib = cms.FilteredStream(
         )
 
 
-# last update: $Date: 2010/09/22 20:55:28 $ by $Author: argiro $
+# last update: $Date: 2010/11/18 09:19:15 $ by $Author: argiro $
 
 # ECAL calibration with pi0
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_cff import *
@@ -66,7 +67,7 @@ ALCARECOStreamEcalCalPhiSym = cms.FilteredStream(
 
 
 # HCAL calibration with min.bias
-from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBiasHI_cff import *
 
 from DQMOffline.Configuration.AlCaRecoDQMHI_cff import *
 
@@ -78,7 +79,7 @@ ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
         responsible = 'Grigory Safronov',
         name = 'ALCARECOHcalCalMinBias',
         paths  = (pathALCARECOHcalCalMinBias),
-        content = OutALCARECOHcalCalMinBias.outputCommands,
-        selectEvents = OutALCARECOHcalCalMinBias.SelectEvents,
+        content = OutALCARECOHcalCalMinBiasHI.outputCommands,
+        selectEvents = OutALCARECOHcalCalMinBiasHI.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )

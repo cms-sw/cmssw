@@ -1,3 +1,10 @@
+2010-10-13  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-15-09
+	* added emergencyStop function to handle stuck EP processes holding on to Shmem
+	* factored out resourcetable config to reuse in emergencyStop
+	* use of emergencyStop in stopping() - better order of messages for dead processes
+	
 2010-06-14  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-15-08

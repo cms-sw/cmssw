@@ -28,7 +28,8 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     cutStep = cms.double(50.0),
     numberOfSteps = cms.int32(1),
 
-                                
+                                isHeavyIon = cms.untracked.bool(False),
+
     # DBE verbosity
     Verbosity = cms.untracked.int32(0),
                                 # 1 provides basic output

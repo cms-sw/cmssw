@@ -4,30 +4,29 @@
 /*
  * \file L1TDTTF.h
  *
- * $Date: 2008/07/29 14:19:51 $
- * $Revision: 1.10 $
+ * $Date: 2010/10/27 08:08:52 $
+ * $Revision: 1.13 $
  * \author J. Berryhill
  *
  */
 
+
 // system include files
-#include <memory>
-#include <unistd.h>
+#include <string>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //
-// class decleration
+// class declaration
 //
+
+
+class DQMStore;
+class MonitorElement;
+class L1MuDTTrackCand;
+class L1MuRegionalCand;
 
 class L1TDTTF : public edm::EDAnalyzer {
 
@@ -49,126 +48,65 @@ class L1TDTTF : public edm::EDAnalyzer {
   // EndJob
   void endJob(void);
 
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+			    edm::EventSetup const& context){};
+
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+			  edm::EventSetup const& context){};
+
  private:
 
-  void setMapPhLabel(MonitorElement *me);
-  void setMapThLabel(MonitorElement *me);
+
+  void fillMEs( std::vector<L1MuDTTrackCand> * trackContainer,
+		std::vector<L1MuRegionalCand> & gmtDttfCands );
+  void setWheelLabel(MonitorElement *me);
+  void setQualLabel(MonitorElement *me, int axis);
+  void bookEta( int wh, int & nbins, float & start, float & stop );
 
   // ----------member data ---------------------------
-  DQMStore * dbe;
-  std::string l1tinfofolder;
-  std::string l1tsubsystemfolder;
-  
-  MonitorElement* dttpgphbx[8];  
-  MonitorElement* dttpgphbxcomp;
-  MonitorElement* dttpgphntrack;
-  MonitorElement* dttpgthntrack;  
+  edm::InputTag dttpgSource_;
+  edm::InputTag gmtSource_ ;
+  edm::InputTag muonCollectionLabel_;
+  std::string l1tsubsystemfolder_;
+  bool online_;
+  bool verbose_;
+  DQMStore * dbe_;
+  std::string outputFile_; //file name for ROOT ouput
+  edm::InputTag trackInputTag_;
 
-  MonitorElement* dttpgphwheel[3];
-  MonitorElement* dttpgphsector[3][5];
-  MonitorElement* dttpgphstation[3][5][12];
-  MonitorElement* dttpgphsg1phiAngle[3][5][12][5];
-  MonitorElement* dttpgphsg1phiBandingAngle[3][5][12][5];
-  MonitorElement* dttpgphsg1quality[3][5][12][5];
-  MonitorElement* dttpgphsg2phiAngle[3][5][12][5];
-  MonitorElement* dttpgphsg2phiBandingAngle[3][5][12][5];
-  MonitorElement* dttpgphsg2quality[3][5][12][5];
-  MonitorElement* dttpgphts2tag[3][5][12][5];
-  MonitorElement* dttpgphmapbx[3];
-  MonitorElement* bxnumber[5][12][5];
+  MonitorElement* dttf_nTracksPerEvent_wheel[6];
+  MonitorElement* dttf_quality_wheel_2ndTrack[6];
+  MonitorElement* dttf_quality_summary_wheel_2ndTrack[6];
+  MonitorElement* dttf_phi_eta_fine_wheel[6];
+  MonitorElement* dttf_phi_eta_coarse_wheel[6];
+  MonitorElement* dttf_phi_eta_wheel_2ndTrack[6];
+  MonitorElement* dttf_eta_wheel_2ndTrack[6];
+  MonitorElement* dttf_phi_wheel_2ndTrack[6];
+  MonitorElement* dttf_pt_wheel_2ndTrack[6];
+  MonitorElement* dttf_q_wheel_2ndTrack[6];
 
-  MonitorElement* dttpgthbx[3];  
-  MonitorElement* dttpgthwheel[3];  
-  MonitorElement* dttpgthsector[3][6];  
-  MonitorElement* dttpgthstation[3][6][12];  
-  MonitorElement* dttpgththeta[3][6][12][4];  
-  MonitorElement* dttpgthquality[3][6][12][4];   
-  MonitorElement* dttpgthmap;
-  MonitorElement* dttpgthmapbx[3];
-
-  MonitorElement* dttf_p_phi[3][6][12];
-  MonitorElement* dttf_p_eta[3][6][12];
-  MonitorElement* dttf_p_qual[3][6][12];
-  MonitorElement* dttf_p_q[3][6][12];
-  MonitorElement* dttf_p_pt[3][6][12];
+  MonitorElement* dttf_nTracksPerEv[6][12];
   MonitorElement* dttf_bx[6][12];
   MonitorElement* dttf_bx_2ndTrack[6][12];
-  MonitorElement* dttf_bx_wheel[6];
-  //MonitorElement* dttf_bx_wheel_2ndTrack[6];
-  MonitorElement* dttf_nTracks_wheel[6];
-  //MonitorElement* dttf_nTracks_wheel_2ndTrack[6];
-  MonitorElement* dttf_nTrksPerEv[3][6][12];
-  MonitorElement* dttf_nTracksPerEvent_wheel[6];
-  //MonitorElement* dttf_nTracksPerEvent_wheel_2ndTrack[6];
-
-  MonitorElement* dttf_n2ndTracks_wheel[6];
+  MonitorElement* dttf_qual[6][12];
+  MonitorElement* dttf_eta_fine_fraction[6][12];
+  MonitorElement* dttf_eta[6][12];
+  MonitorElement* dttf_phi[6][12];
+  MonitorElement* dttf_pt[6][12];
+  MonitorElement* dttf_q[6][12];
 
   MonitorElement* dttf_nTracksPerEvent_integ;
-  MonitorElement* dttf_p_phi_integ;
-  MonitorElement* dttf_p_eta_integ;
-  MonitorElement* dttf_p_pt_integ;
-  MonitorElement* dttf_p_qual_integ;
-  MonitorElement* dttf_p_q_integ;
-  MonitorElement* dttf_bx_integ;
-  //MonitorElement* dttf_nTracks_integ;
-  //MonitorElement* dttf_phys_phi_integ;
-  //MonitorElement* dttf_phys_eta_integ;
-  //MonitorElement* dttf_phys_pt_integ;
-  MonitorElement* dttf_p_phi_eta_integ;
+  MonitorElement* dttf_spare;
 
-  MonitorElement* dttf_p_phi_eta_wheel[6];
-  MonitorElement* dttf_bx_Summary;
-  MonitorElement* dttf_occupancySummary;
-  MonitorElement* dttf_occupancySummary_r;
-  MonitorElement* dttf_highQual_Summary;
-  MonitorElement* dttf_2ndTrack_Summary;
+  MonitorElement* dttf_gmt_match;
+  MonitorElement* dttf_gmt_missed;
+  MonitorElement* dttf_gmt_ghost;
+  // MonitorElement* dttf_gmt_ghost_phys;
 
-  MonitorElement* dttf_p_phi_integ_2ndTrack;
-  MonitorElement* dttf_p_eta_integ_2ndTrack;
-  MonitorElement* dttf_p_pt_integ_2ndTrack;
-  MonitorElement* dttf_p_qual_integ_2ndTrack;
-  MonitorElement* dttf_p_q_integ_2ndTrack;
-  MonitorElement* dttf_bx_integ_2ndTrack;
-  MonitorElement* dttf_nTracks_integ_2ndTrack;
-  //MonitorElement* dttf_nTracksPerEvent_integ_2ndTrack;
-  MonitorElement* dttf_p_phi_eta_integ_2ndTrack;
-  MonitorElement* dttf_bx_Summary_2ndTrack;
-  MonitorElement* dttf_occupancySummary_2ndTrack;
-  MonitorElement* dttf_highQual_Summary_2ndTrack;
-
-  MonitorElement* dttpgphmap;
-  MonitorElement* dttpgphmap2nd;
-  MonitorElement* dttpgphmapcorr;
-  MonitorElement* dttpgphbestmap;
-  MonitorElement* dttpgphbestmapcorr;
-
-
-  MonitorElement* dttpgthmaph;
-  MonitorElement* dttpgthbestmap;
-  MonitorElement* dttpgthbestmaph;
-
-
-  //int bx0,bxp1,bxn1;
   int nev_; // Number of events processed
-  bool dttf_track;
-  bool dttf_track_2;
-  int nev_dttf; //Number of events with at least one DTTF track
-  int nev_dttf_track2; //Number of events with at least one DTTF 2nd track
-  int nBx[6][3]; //Number of beam crossings for each wheel
-  int nBx_2ndTrack[6][3];//Number of beam crossings for each wheel (2nd track only)
-  int nOccupancy_integ[6][12];
-  int nOccupancy_integ_2ndTrack[6][12];
-  int nOccupancy_integ_phi_eta[64][144];
-  int nOccupancy_integ_phi_eta_2ndTrack[64][144];
-  int nOccupancy_wheel_phi_eta[64][144][6];
-  int nHighQual[6][12]; //Number of high quality tracks
-  int nHighQual_2ndTrack[6][12];//Number of high quality 2nd tracks
-  int n2ndTrack[6][12]; //Number of 2nd tracks
-  std::string outputFile_; //file name for ROOT ouput
-  bool verbose_;
-  bool monitorDaemon_;
-  ofstream logFile_;
-  edm::InputTag dttpgSource_;
+  int nev_dttf_; //Number of events with at least one DTTF track
+  int nev_dttf_track2_; //Number of events with at least one DTTF 2nd track
+  int numTracks[6][12];
 };
 
 #endif

@@ -46,8 +46,8 @@ namespace
   //----------------------------------------------------------------------
   std::string getSection(const std::string& token) 
   {
-    unsigned iFirst = token.find ('[');
-    unsigned iLast = token.find (']');
+    size_t iFirst = token.find ('[');
+    size_t iLast = token.find (']');
     if (iFirst != std::string::npos && iLast != std::string::npos && iFirst < iLast)
       return std::string (token, iFirst+1, iLast-iFirst-1); 
     return "";
@@ -78,8 +78,8 @@ namespace
   //---------------------------------------------------------------------- 
   std::string getDefinitions(const std::string& token) 
   {
-    unsigned iFirst = token.find ('{');
-    unsigned iLast = token.find ('}');
+    size_t iFirst = token.find ('{');
+    size_t iLast = token.find ('}');
     if (iFirst != std::string::npos && iLast != std::string::npos && iFirst < iLast)
       return std::string (token, iFirst+1, iLast-iFirst-1); 
     return "";

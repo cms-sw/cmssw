@@ -83,7 +83,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
       bool EcaliPhi = false;
       
       //Loose Id
-      if(iWedge-> Energy() > L_EcalPhiWedgeEnergy && iWedge->NumberOfConstituents() > L_EcalPhiWedgeConstituents && abs(iWedge->ZDirectionConfidence()) > L_EcalPhiWedgeConfidence)
+      if(iWedge-> Energy() > L_EcalPhiWedgeEnergy && iWedge->NumberOfConstituents() > L_EcalPhiWedgeConstituents && std::abs(iWedge->ZDirectionConfidence()) > L_EcalPhiWedgeConfidence)
 	{
 	  EcalLooseId = true;
 	  EcaliPhi = true;
@@ -153,14 +153,14 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     {
       bool HcaliPhi = false;
       //Loose Id
-      if( iWedge-> Energy() > L_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > L_HcalPhiWedgeConstituents && abs(iWedge->ZDirectionConfidence()) > L_HcalPhiWedgeConfidence)
+      if( iWedge-> Energy() > L_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > L_HcalPhiWedgeConstituents && std::abs(iWedge->ZDirectionConfidence()) > L_HcalPhiWedgeConfidence)
         {
           HcalLooseId = true;
           HcaliPhi = true;
         }
 
       //Tight Id
-      if( iWedge-> Energy() > T_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents && abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence)
+      if( iWedge-> Energy() > T_HcalPhiWedgeEnergy  && iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents && std::abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence)
         {
           HcalTightId = true;
           HcaliPhi = true;
@@ -201,7 +201,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     {
       if( iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents )
         GlobalTightId = true;
-      if( abs(iWedge->ZDirectionConfidence() > T_EcalPhiWedgeConfidence) )
+      if( std::abs(iWedge->ZDirectionConfidence() > T_EcalPhiWedgeConfidence) )
 	GlobalTightId = true;
     }
 
@@ -209,7 +209,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     {
       if( iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents )
         GlobalTightId = true;
-      if( abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence )
+      if( std::abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence )
 	GlobalTightId = true;
     }
 

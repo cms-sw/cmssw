@@ -111,6 +111,8 @@ namespace evf {
     void   exportParameters();
     void   reset();
     double deltaT(const struct timeval *start,const struct timeval *end);
+    void   emergencyStop();
+    void   configureResources();
     
     void   lock()   { lock_.take(); }
     void   unlock() { lock_.give(); }

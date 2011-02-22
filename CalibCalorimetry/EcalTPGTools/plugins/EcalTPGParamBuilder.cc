@@ -628,7 +628,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  //PP end
 	  double base = coeff.pedestals_[i] ;
 	  if (forcedPedestalValue_ == -3 && i==0) {
-	    double G = mult*pow(2,-(shift+2)) ;
+	    double G = mult*pow(2.,-(shift+2)) ;
 	    double g = G/sin(theta) ;
 	    // int pedestal = coeff.pedestals_[i] ;
 	    base = double(coeff.pedestals_[i]) - pedestal_offset_/g ;
@@ -659,7 +659,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  tpgFactor->Fill(theBarrelGeometry_->getGeometry(id)->getPosition().phi(), 
 			  theBarrelGeometry_->getGeometry(id)->getPosition().eta(), factor) ;			    
 	}
-	double G = lin.mult_[i]*pow(2,-(lin.shift_[i]+2)) ;
+	double G = lin.mult_[i]*pow(2.,-(lin.shift_[i]+2)) ;
 	double g = G/sin(theta) ;
 	float val[] = {i,theta,G,g,coeff.pedestals_[i],lin.pedestal_[i]} ;// first arg = gainId (0 means gain12)
 	ntupleSpike->Fill(val) ;

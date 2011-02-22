@@ -5,8 +5,8 @@
  * \class DQMDcsInfoClient
  * \author Andreas Meyer
  *
- * $Date: 2010/03/28 15:27:36 $
- * $Revision: 1.1 $
+ * $Date: 2010/03/29 18:34:06 $
+ * $Revision: 1.2 $
  * $Author: ameyer $
  *
 */
@@ -46,11 +46,13 @@ private:
   DQMStore * dbe_;
 
   std::vector<int> DCS;
+  std::set<unsigned int> processedLS_;
   
   // ---------- member data ----------
 
   MonitorElement * reportSummary_;
   MonitorElement * reportSummaryMap_;
+  MonitorElement * meProcessedLS_;
 
 };
 

@@ -1,4 +1,4 @@
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
+#include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
@@ -7,7 +7,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "TEveCompound.h"
 
-class FWHFRecHitProxyBuilder : public FWProxyBuilderBase
+class FWHFRecHitProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWHFRecHitProxyBuilder( void ) 
@@ -24,9 +24,7 @@ private:
 
    Float_t m_maxEnergy;
 
-   // Disable default copy constructor
    FWHFRecHitProxyBuilder( const FWHFRecHitProxyBuilder& );
-   // Disable default assignment operator
    const FWHFRecHitProxyBuilder& operator=( const FWHFRecHitProxyBuilder& );
 };
 
@@ -41,31 +39,30 @@ FWHFRecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* produc
       return;
    }
 
-   const FWGeometry *geom = iItem->getGeom();
-
    std::vector<HFRecHit>::const_iterator it = collection->begin();
    std::vector<HFRecHit>::const_iterator itEnd = collection->end();
    for( ; it != itEnd; ++it )
    {
       if(( *it ).energy() > m_maxEnergy )
-	m_maxEnergy = ( *it ).energy();
+         m_maxEnergy = ( *it ).energy();
    }
-   
-   for( it = collection->begin(); it != itEnd; ++it )
-   {
-      unsigned int rawid = ( *it ).detid().rawId();
-      if( ! geom->contains( rawid ))
-      {
-	 fwLog( fwlog::kInfo ) << "FWHFRecHitProxyBuilder cannot get geometry for DetId: "
-			       << rawid << ". Ignored.\n";
-	 TEveCompound* compound = createCompound();
- 	 setupAddElement( compound, product );
 
- 	 continue;
+   TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   for (std::vector<HFRecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
+   {  
+      unsigned int rawid = ( *it ).detid().rawId();
+      if( ! context().getGeom()->contains( rawid ))
+      {
+         fwLog( fwlog::kInfo ) << "FWHFRecHitProxyBuilder cannot get geometry for DetId: "
+                               << rawid << ". Ignored.\n";
       }
-      
-      const float* corners = geom->getCorners( rawid );
-      fireworks::drawEnergyScaledBox3D( corners, ( *it ).energy() / m_maxEnergy, product, this, true );
+      const float* corners = context().getGeom()->getCorners( rawid );
+
+      std::vector<float> scaledCorners(24);
+      if (corners)
+         fireworks::energyScaledBox3DCorners(corners, (*it).energy() / m_maxEnergy, scaledCorners, true);
+
+      addBox(boxSet, &scaledCorners[0]);
    }
 }
 

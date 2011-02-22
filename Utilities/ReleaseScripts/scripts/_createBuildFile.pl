@@ -733,6 +733,7 @@ sub symbolCheck()
   my $tsx=&processBinaryDeps(shift);
   foreach my $t (keys %$tsx)
   {
+    if($t eq "system"){next;}
     if (exists $data->{deps}{src}{$t}){next;}
     elsif(exists $data->{NO_USE}{$t}){next;}
     elsif(exists $data->{NO_EXPORT}{$t}){next;}

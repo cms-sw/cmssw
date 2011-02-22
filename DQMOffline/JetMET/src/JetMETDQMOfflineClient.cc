@@ -211,7 +211,7 @@ void JetMETDQMOfflineClient::runClient_()
 	    double epsilon  = tpro->GetBinContent(ibin+1);
 	    if (epsilon>1. || epsilon<0.) continue;
 	    tPassFraction->SetBinContent(ibin+1,epsilon);                        // 
-	    tPassFraction->SetBinError(ibin+1,pow(nentries*epsilon*(1.-epsilon),0.5)); // binomial error
+	    if(nentries>0) tPassFraction->SetBinError(ibin+1,pow(epsilon*(1.-epsilon)/nentries,0.5));
 	  }
 	  hPassFraction      = dbe_->book1D(tPassFraction->GetName(),tPassFraction);
 	  delete tPassFraction;

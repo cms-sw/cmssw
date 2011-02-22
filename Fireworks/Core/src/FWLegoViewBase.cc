@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.17 2010/09/26 19:57:21 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.18 2010/10/01 09:45:20 amraktad Exp $
 //
 
 // system include files
@@ -81,6 +81,7 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
 
 FWLegoViewBase::~FWLegoViewBase()
 {
+   viewerGL()->RemoveOverlayElement(m_overlay);
    m_lego->Destroy();
 }
 

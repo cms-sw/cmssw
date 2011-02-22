@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoTauTag/HLTProducers/interface/IsolatedTauJetsSelector.h"
 #include "RecoTauTag/HLTProducers/interface/PFTauToJetProducer.h"
+#include "RecoTauTag/HLTProducers/interface/PFJetToCaloProducer.h"
 #include "RecoTauTag/HLTProducers/interface/EMIsolatedTauJetsSelector.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauJetsProvider.h"
 #include "RecoTauTag/HLTProducers/interface/L1HLTJetsMatching.h"
@@ -17,6 +18,7 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauNarrowConeIsolationProducer.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauModularIsolationProducer.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauModularIsolationSelector.h"
+//#include "RecoTauTag/HLTProducers/interface/PFJetIsolator.h"
 
 
 
@@ -32,9 +34,11 @@ DEFINE_FWK_MODULE(L1HLTJetsMatching);
 DEFINE_FWK_MODULE(CaloTowerCreatorForTauHLT);
 DEFINE_FWK_MODULE(HLTTauProducer);
 DEFINE_FWK_MODULE(PFTauToJetProducer);
+DEFINE_FWK_MODULE(PFJetToCaloProducer);
 DEFINE_FWK_MODULE(L2TauIsolationProducer);
 DEFINE_FWK_MODULE(L2TauNarrowConeIsolationProducer);
 DEFINE_FWK_MODULE(L2TauModularIsolationProducer);
 DEFINE_FWK_MODULE(L2TauModularIsolationSelector);
 DEFINE_FWK_MODULE(L2TauIsolationSelector);
 DEFINE_FWK_MODULE(L2TauRelaxingIsolationSelector);
+//DEFINE_FWK_MODULE(PFJetIsolator);

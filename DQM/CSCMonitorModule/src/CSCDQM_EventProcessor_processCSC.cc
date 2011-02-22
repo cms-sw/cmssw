@@ -111,7 +111,7 @@ namespace cscdqm {
 
     unsigned long errors = binChecker.errorsForChamber(chamberID);
     if ((errors & config->getBINCHECK_MASK()) > 0 ) {
-      LOG_WARN << "Format Errors " << cscTag << ": 0x" << hex << errors << " Skipped CSC Unpacking";
+      LOG_WARN << "Format Errors " << cscTag << ": 0x" << std::hex << errors << " Skipped CSC Unpacking";
       return;
     }
 
@@ -768,7 +768,7 @@ namespace cscdqm {
     /** CLCT Found */
     if (data.nclct()) {
 
-      /** LOG_WARN << "TMB CRC calc: 0x" << hex << data.tmbData().TMBCRCcalc() << " trailer: 0x" << hex << data.tmbData().tmbTrailer().crc22(); */
+      /** LOG_WARN << "TMB CRC calc: 0x" << std::hex << data.tmbData().TMBCRCcalc() << " trailer: 0x" << std::hex << data.tmbData().tmbTrailer().crc22(); */
 
       CSCTMBData* tmbData = data.tmbData();
       if (tmbData) {
@@ -1111,7 +1111,7 @@ namespace cscdqm {
               int tbin_clct_previous = -1;
               bool CheckLayerCLCT = true;
 
-              vector<CSCComparatorDigi> compOutData = clctData->comparatorDigis(nLayer, nCFEB);
+              std::vector<CSCComparatorDigi> compOutData = clctData->comparatorDigis(nLayer, nCFEB);
 
               for (std::vector<CSCComparatorDigi>::iterator compOutDataItr = compOutData.begin(); compOutDataItr != compOutData.end(); ++compOutDataItr) {
                 /**  =VB= Fix to get right hafstrip */
@@ -1464,13 +1464,13 @@ namespace cscdqm {
             for(int nStrip = 1; nStrip <= N_Strips; ++nStrip) {
               timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]=(data.cfebData(nCFEB)->timeSlice(nSample))->timeSample(nLayer,nStrip);
               ADC = (int) ((timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]->adcCounts) & 0xFFF);
-              /**  LOG_DEBUG <<  " nStrip="<< dec << nStrip << " ADC=" << hex << ADC; */
+              /**  LOG_DEBUG <<  " nStrip="<< dec << nStrip << " ADC=" << std::hex << ADC; */
               OutOffRange = (int) ((timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]->adcOverflow) & 0x1);
 
               if(nSample == 0) { // nSample == 0
                 CellPeak[nCFEB][nLayer-1][nStrip-1] = std::make_pair(nSample,ADC);
                 Pedestal[nCFEB][nLayer-1][nStrip-1] = ADC;
-                /**  LOG_DEBUG <<  " nStrip="<< dec << nStrip << " Pedestal=" << hex << Pedestal[nCFEB][nLayer-1][nStrip-1]; */
+                /**  LOG_DEBUG <<  " nStrip="<< dec << nStrip << " Pedestal=" << std::hex << Pedestal[nCFEB][nLayer-1][nStrip-1]; */
               }
 
               if(OutOffRange == 1 && CheckOutOffRangeStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] == true) {
@@ -1509,7 +1509,7 @@ namespace cscdqm {
               /** --------------B */
               if(nSample == 1) {
                 int channel_threshold = 40;
-                if (abs(ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1]) < channel_threshold) {
+                if (std::abs(ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1]) < channel_threshold) {
                   /**  if (getCSCHisto(h::CSC_CFEB_PEDESTAL__WITHEMV__SAMPLE_01_LYXX, crateID, dmbID, nLayer, mo)) */
                   if (mo_CFEB_Pedestal_withEMV_Sample)
                     mo_CFEB_Pedestal_withEMV_Sample->Fill((int)(nCFEB * 16 + nStrip - 1), Pedestal[nCFEB][nLayer - 1][nStrip - 1]);
@@ -1615,7 +1615,9 @@ namespace cscdqm {
       /**  LOG_DEBUG <<  "***  CATHODE PART  DEBUG: Layer=" << nLayer <<"  Number of Clusters=" << Clus.size() << "      ***"; */
       /**  Number of Clusters Histograms */
       if (getCSCHisto(h::CSC_CFEB_NUMBER_OF_CLUSTERS_LY_XX, crateID, dmbID, nLayer, mo)) {
-        if(Clus.size() >= 0)  mo->Fill(Clus.size());
+        // Allways true because Clus.size() = unsigned
+        // if (Clus.size() >= 0)  
+        mo->Fill(Clus.size());
       }
 
       for(uint32_t u = 0; u < Clus.size(); u++){

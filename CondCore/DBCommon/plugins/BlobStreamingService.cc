@@ -28,7 +28,7 @@ namespace cond {
     
     virtual ~BlobStreamingService();
     
-    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData,  Reflex::Type const & classDictionary );
+    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData,  Reflex::Type const & classDictionary, bool useCompression=true );
     
     void read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary );
     
@@ -62,7 +62,7 @@ namespace cond {
   
   BlobStreamingService::~BlobStreamingService(){}
   
-  boost::shared_ptr<coral::Blob> BlobStreamingService::write( const void* addressOfInputData,  Reflex::Type const & classDictionary ) {
+  boost::shared_ptr<coral::Blob> BlobStreamingService::write( const void* addressOfInputData,  Reflex::Type const & classDictionary, bool useCompression ) {
     boost::shared_ptr<coral::Blob> blobOut;
     int const k = isVectorChar(classDictionary);
     switch (k) {
@@ -71,22 +71,34 @@ namespace cond {
 	// at the moment we write TBuffer compressed, than we see....
 	// we may wish to avoid one buffer copy...
 	boost::shared_ptr<coral::Blob> buffer = rootService->write(addressOfInputData, classDictionary);
-	blobOut = compress(buffer->startingAddress(),buffer->size());
-	*reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_TBUFFER];
+        if( useCompression ){
+          blobOut = compress(buffer->startingAddress(),buffer->size());
+       	  *reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_TBUFFER];
+	} else {
+          blobOut = buffer;
+	}
       }
       break;
     case 1 : 
       {
-	std::vector<unsigned char> const & v = *reinterpret_cast< std::vector<unsigned char> const *> (addressOfInputData);
-	blobOut = compress(&v.front(),v.size());
-	*reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_CHARS];
+        if( useCompression ){
+	  std::vector<unsigned char> const & v = *reinterpret_cast< std::vector<unsigned char> const *> (addressOfInputData);
+	  blobOut = compress(&v.front(),v.size());
+	  *reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_CHARS];
+	} else {
+          blobOut = rootService->write(addressOfInputData,classDictionary);
+	}
       }
       break;
     case 2 : 
       {
-	std::vector<char> const & v = *reinterpret_cast<std::vector<char> const *> (addressOfInputData);
-	blobOut = compress(&v.front(),v.size());
-	*reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_CHARS];
+        if( useCompression ){
+          std::vector<char> const & v = *reinterpret_cast<std::vector<char> const *> (addressOfInputData);
+	  blobOut = compress(&v.front(),v.size());
+	  *reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_CHARS];
+	} else {
+          blobOut = rootService->write(addressOfInputData,classDictionary);
+	}
       }
       break;
       

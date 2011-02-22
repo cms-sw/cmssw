@@ -15,11 +15,6 @@
 #include "RelationalAccess/IBulkOperation.h"
 #include "CoralBase/Attribute.h"
 
-std::string ora::PoolMainTable::schemaVersion(){
-  static std::string s_version("POOL");
-  return s_version;
-}
-
 std::string ora::PoolMainTable::tableName(){
   static std::string s_name("POOL_RSS_DB");
   return s_name;
@@ -34,6 +29,10 @@ ora::PoolMainTable::~PoolMainTable(){
 
 bool ora::PoolMainTable::getParameters( std::map<std::string,std::string>& ){
   return false;
+}
+
+std::string ora::PoolMainTable::schemaVersion(){
+  return poolSchemaVersion();
 }
 
 bool ora::PoolMainTable::exists(){
