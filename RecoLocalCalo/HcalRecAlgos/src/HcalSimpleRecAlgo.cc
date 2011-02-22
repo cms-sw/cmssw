@@ -6,25 +6,20 @@
 
 static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 
-HcalSimpleRecAlgo::HcalSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
-  firstSample_(firstSample), 
-  samplesToAdd_(samplesToAdd), 
-  correctForTimeslew_(correctForTimeslew) {
-  if (correctForPulse) 
-    pulseCorr_=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(samplesToAdd_,phaseNS,MaximumFractionalError));
-}
+HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
+  correctForTimeslew_(correctForTimeslew),
+  correctForPulse_(correctForPulse),
+  phaseNS_(phaseNS) { }
+  
 
-HcalSimpleRecAlgo::HcalSimpleRecAlgo(int firstSample, int samplesToAdd) : 
-  firstSample_(firstSample), 
-  samplesToAdd_(samplesToAdd), 
+HcalSimpleRecAlgo::HcalSimpleRecAlgo() : 
   correctForTimeslew_(false) {
 }
 
-
-void HcalSimpleRecAlgo::resetTimeSamples(int firstSample, int samplesToAdd)
-{
-  firstSample_ = firstSample;
-  samplesToAdd_ = samplesToAdd;
+void HcalSimpleRecAlgo::initPulseCorr(int toadd) {
+  if (correctForPulse_) {    
+    pulseCorr_=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(toadd,phaseNS_,MaximumFractionalError));
+  }
 }
 
 
@@ -99,33 +94,34 @@ namespace HcalSimpleRecAlgoImpl {
   }
 }
 
-HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,
-							       firstSample_,samplesToAdd_,correctForTimeslew_,
+							       first,toadd,correctForTimeslew_,
 							       pulseCorr_.get(),
 							       HcalTimeSlew::Medium);
 }
 
-HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HODataFrame,HORecHit>(digi,coder,calibs,
-							   firstSample_,samplesToAdd_,correctForTimeslew_,
+							   first,toadd,
+							   correctForTimeslew_,
 							   pulseCorr_.get(),
 							   HcalTimeSlew::Slow);
 }
 
-HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HcalCalibDataFrame,HcalCalibRecHit>(digi,coder,calibs,
-									 firstSample_,samplesToAdd_,correctForTimeslew_,
+									 first,toadd,correctForTimeslew_,
 									 pulseCorr_.get(),
 									 HcalTimeSlew::Fast);
 }
 
-HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   CaloSamples tool;
   coder.adc2fC(digi,tool);
   
   double ampl=0; int maxI = -1; double maxA = -1e10; float ta=0; float amp_fC=0;
-  for (int i=firstSample_; i<tool.size() && i<samplesToAdd_+firstSample_; i++) {
+  for (int i=first; i<tool.size() && i<first+toadd; i++) {
     int capid=digi[i].capid();
     ta = (tool[i]-calibs.pedestal(capid))*calibs.respcorrgain(capid);
     ampl+=ta;
@@ -142,7 +138,7 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder
       LogDebug("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
 					       << " Invalid max amplitude position, " 
 					       << " max Amplitude: "<< maxI
-					       << " first: "<<firstSample_
+					       << " first: "<< first
 					       << " last: "<<(tool.size()-1)
 					       << std::endl;
   } else {

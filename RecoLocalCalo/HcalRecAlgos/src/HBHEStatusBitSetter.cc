@@ -20,9 +20,8 @@ HBHEStatusBitSetter::HBHEStatusBitSetter()
 HBHEStatusBitSetter::HBHEStatusBitSetter(double nominalPedestal,
 					 double hitEnergyMinimum,
 					 int hitMultiplicityThreshold,
-					 std::vector<edm::ParameterSet> pulseShapeParameterSets,
-					 int firstSample, 
-					 int samplesToAdd)
+					 std::vector<edm::ParameterSet> pulseShapeParameterSets
+					 )
 {
   HcalLogicalMapGenerator gen;
   logicalMap_=new HcalLogicalMap(gen.createMap());
@@ -34,8 +33,6 @@ HBHEStatusBitSetter::HBHEStatusBitSetter(double nominalPedestal,
   nominalPedestal_=nominalPedestal;
   hitEnergyMinimum_=hitEnergyMinimum;
   hitMultiplicityThreshold_=hitMultiplicityThreshold;
-  firstSample_ = firstSample;
-  samplesToAdd_ = samplesToAdd;
 
   for (unsigned int iPSet=0;iPSet<pulseShapeParameterSets.size();iPSet++) {
     edm::ParameterSet pset=pulseShapeParameterSets.at(iPSet);
@@ -57,9 +54,15 @@ void HBHEStatusBitSetter::Clear()
 void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe, 
 					   const HBHEDataFrame& digi,
 					   const HcalCoder& coder,
-					   const HcalCalibrations& calib
+					   const HcalCalibrations& calib,
+					   int firstSample,
+					   int samplesToAdd
 					   )
 {
+  // get firstSample, samplesToAdd from database for each hit
+  firstSample_ = firstSample;
+  samplesToAdd_ = samplesToAdd;
+
   //increment hit multiplicity
   if (hbhe.energy()>hitEnergyMinimum_) {
     int index=logicalMap_->getHcalFrontEndId(hbhe.detid()).rmIndex();

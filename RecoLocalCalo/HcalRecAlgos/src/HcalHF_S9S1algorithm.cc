@@ -10,8 +10,6 @@
 #include <cmath>
 #include <iostream>
 
-using namespace std;
-
 HcalHF_S9S1algorithm::HcalHF_S9S1algorithm()
 { 
   // Default settings:  Energy > 50 GeV, slope = 0, ET = 0

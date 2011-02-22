@@ -9,11 +9,11 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
 {
   // use simple values in default constructor
   minthreshold_=40; // minimum energy threshold (in GeV)
-  recoFirstSample_=0;
-  recoSamplesToAdd_=10;
-  firstSample_=3;
+
+  firstSample_=3; // these are the firstSample, samplesToAdd value of Igor's algorithm -- not necessarily the same as the reco first, toadd values (which are supplied individually for each hit)
   samplesToAdd_=4;
   expectedPeak_=4;
+
   // Based on Igor V's algorithm:
   //TS4/(TS3+TS4+TS5+TS6) > 0.93 - exp(-0.38275-0.012667*E)
   coef0_= 0.93;
@@ -32,14 +32,9 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
   HFshortwindowMaxTime_.push_back(8);
 }
 
-HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int recoFirstSample,
-						   int recoSamplesToAdd,
-						   const edm::ParameterSet& HFDigiTimeParams,
+HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(const edm::ParameterSet& HFDigiTimeParams,
 						   const edm::ParameterSet& HFTimeInWindowParams)
 {
-  recoFirstSample_    = recoFirstSample;
-  recoSamplesToAdd_   = recoSamplesToAdd;
-
   // Specify parameters used in forming the HFDigiTime flag
   firstSample_        = HFDigiTimeParams.getParameter<int>("HFdigiflagFirstSample");
   samplesToAdd_       = HFDigiTimeParams.getParameter<int>("HFdigiflagSamplesToAdd");
@@ -60,17 +55,31 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(int recoFirstSample,
 
 HcalHFStatusBitFromDigis::~HcalHFStatusBitFromDigis(){}
 
+void HcalHFStatusBitFromDigis::resetFlagTimeSamples(int firstSample, int samplesToAdd)
+{
+  // This resets the time samples used in the HF flag.  These samples are not necessarily the same 
+  // as the flags used by the energy reconstruction
+  firstSample_  = firstSample;
+  samplesToAdd_ = samplesToAdd;
+} // void HcalHFStatusBitFromDigis
+
 void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, 
 						 const HFDataFrame& digi,
 						 const HcalCoder& coder,
-						 const HcalCalibrations& calib)
+						 const HcalCalibrations& calib,
+						 int recoFirstSample,  // read for each hit from database
+						 int recoSamplesToAdd) 
 {
+  // Parameters used in reconstruction (not necessarily the same as the flagging 'firstSample' and 'samplesToAdd')
+  recoFirstSample_ = recoFirstSample;
+  recoSamplesToAdd_ = recoSamplesToAdd;
+
   // The following 3 values are computed using the default reconstruction window (for Shuichi's algorithm)
   double maxInWindow=-10; // maximum value found in reco window
   int maxCapid=-1;
   int maxTS=-1;  // time slice where maximum is found
 
-  // The following 3 values are computed only in the window (firstSample_, firstSample_ + samplesToAdD_), which may not be the same as the default reco window  (for Igor's algorithm)
+  // The following 3 values are computed only in the window [firstSample_, firstSample_ + samplesToAdd_), which may not be the same as the default reco window  (for Igor's algorithm)
   double totalCharge=0;
   double peakCharge=0;
   double RecomputedEnergy=0;
@@ -82,7 +91,6 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
   for (int i=0;i<digi.size();++i)
     {
       int capid=digi.sample(i).capid();
-      //double value = digi.sample(i).nominal_fC()-calib.pedestal(capid);
       double value = tool[i]-calib.pedestal(capid);
       // Find largest value within reconstruction window
       if (i>=recoFirstSample_ && i <recoFirstSample_+recoSamplesToAdd_)

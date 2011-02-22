@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <fstream>
 #include <cmath>
-using namespace std;
+
 //---------------------------------------------------------------------------
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEPulseShapeFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
@@ -35,16 +35,16 @@ HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter()
 //---------------------------------------------------------------------------
 HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold,
    unsigned int TrianglePeakTS,
-   vector<double> LinearThreshold, 
-   vector<double> LinearCut,
-   vector<double> RMS8MaxThreshold, 
-   vector<double> RMS8MaxCut,
-   vector<double> LeftSlopeThreshold, 
-   vector<double> LeftSlopeCut,
-   vector<double> RightSlopeThreshold, 
-   vector<double> RightSlopeCut,
-   vector<double> RightSlopeSmallThreshold, 
-   vector<double> RightSlopeSmallCut,
+   std::vector<double> LinearThreshold, 
+   std::vector<double> LinearCut,
+   std::vector<double> RMS8MaxThreshold, 
+   std::vector<double> RMS8MaxCut,
+   std::vector<double> LeftSlopeThreshold, 
+   std::vector<double> LeftSlopeCut,
+   std::vector<double> RightSlopeThreshold, 
+   std::vector<double> RightSlopeCut,
+   std::vector<double> RightSlopeSmallThreshold, 
+   std::vector<double> RightSlopeSmallCut,
    bool UseDualFit, 
    bool TriangleIgnoreSlow)
 {
@@ -60,23 +60,23 @@ HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold
    mTriangleIgnoreSlow = TriangleIgnoreSlow;
 
    for(int i = 0; i < (int)LinearThreshold.size() && i < (int)LinearCut.size(); i++)
-      mLambdaLinearCut.push_back(pair<double, double>(LinearThreshold[i], LinearCut[i]));
+      mLambdaLinearCut.push_back(std::pair<double, double>(LinearThreshold[i], LinearCut[i]));
    sort(mLambdaLinearCut.begin(), mLambdaLinearCut.end());
 
    for(int i = 0; i < (int)RMS8MaxThreshold.size() && i < (int)RMS8MaxCut.size(); i++)
-      mLambdaRMS8MaxCut.push_back(pair<double, double>(RMS8MaxThreshold[i], RMS8MaxCut[i]));
+      mLambdaRMS8MaxCut.push_back(std::pair<double, double>(RMS8MaxThreshold[i], RMS8MaxCut[i]));
    sort(mLambdaRMS8MaxCut.begin(), mLambdaRMS8MaxCut.end());
 
    for(int i = 0; i < (int)LeftSlopeThreshold.size() && i < (int)LeftSlopeCut.size(); i++)
-      mLeftSlopeCut.push_back(pair<double, double>(LeftSlopeThreshold[i], LeftSlopeCut[i]));
+      mLeftSlopeCut.push_back(std::pair<double, double>(LeftSlopeThreshold[i], LeftSlopeCut[i]));
    sort(mLeftSlopeCut.begin(), mLeftSlopeCut.end());
 
    for(int i = 0; i < (int)RightSlopeThreshold.size() && i < (int)RightSlopeCut.size(); i++)
-      mRightSlopeCut.push_back(pair<double, double>(RightSlopeThreshold[i], RightSlopeCut[i]));
+      mRightSlopeCut.push_back(std::pair<double, double>(RightSlopeThreshold[i], RightSlopeCut[i]));
    sort(mRightSlopeCut.begin(), mRightSlopeCut.end());
 
    for(int i = 0; i < (int)RightSlopeSmallThreshold.size() && i < (int)RightSlopeSmallCut.size(); i++)
-      mRightSlopeSmallCut.push_back(pair<double, double>(RightSlopeSmallThreshold[i], RightSlopeSmallCut[i]));
+      mRightSlopeSmallCut.push_back(std::pair<double, double>(RightSlopeSmallThreshold[i], RightSlopeSmallCut[i]));
    sort(mRightSlopeSmallCut.begin(), mRightSlopeSmallCut.end());
 
    mUseDualFit = UseDualFit;
@@ -191,7 +191,7 @@ void HBHEPulseShapeFlagSetter::Initialize()
    // 2. Reserve space for vector
    //
 
-   vector<double> PulseShape;
+   std::vector<double> PulseShape;
 
    HcalPulseShapes Shapes;
    HcalPulseShapes::Shape HPDShape = Shapes.hbShape();
@@ -211,7 +211,7 @@ void HBHEPulseShapeFlagSetter::Initialize()
    mCharge.reserve(10);
 }
 //---------------------------------------------------------------------------
-TriangleFitResult HBHEPulseShapeFlagSetter::PerformTriangleFit(const vector<double> &Charge)
+TriangleFitResult HBHEPulseShapeFlagSetter::PerformTriangleFit(const std::vector<double> &Charge)
 {
    //
    // Perform a "triangle fit", and extract the slopes
@@ -337,7 +337,7 @@ TriangleFitResult HBHEPulseShapeFlagSetter::PerformTriangleFit(const vector<doub
    return result;
 }
 //---------------------------------------------------------------------------
-double HBHEPulseShapeFlagSetter::PerformNominalFit(const vector<double> &Charge)
+double HBHEPulseShapeFlagSetter::PerformNominalFit(const std::vector<double> &Charge)
 {
    //
    // Performs a fit to the ideal pulse shape.  Returns best chi2
@@ -404,7 +404,7 @@ double HBHEPulseShapeFlagSetter::PerformNominalFit(const vector<double> &Charge)
    return MinimumChi2;
 }
 //---------------------------------------------------------------------------
-double HBHEPulseShapeFlagSetter::PerformDualNominalFit(const vector<double> &Charge)
+double HBHEPulseShapeFlagSetter::PerformDualNominalFit(const std::vector<double> &Charge)
 {
    //
    // Perform dual nominal fit and returns the chi2
@@ -452,7 +452,7 @@ double HBHEPulseShapeFlagSetter::PerformDualNominalFit(const vector<double> &Cha
    return OverallMinimumChi2;
 }
 //---------------------------------------------------------------------------
-double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const vector<double> &Charge, int Offset, int Distance)
+double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const std::vector<double> &Charge, int Offset, int Distance)
 {
    //
    // Does a fit to dual signal pulse hypothesis given offset and distance of the two target pulses
@@ -471,8 +471,8 @@ double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const vector<double> &C
    if(CumulativeIdealPulse[Offset+250] - CumulativeIdealPulse[Offset] < 1e-5)
       return 1000000;
 
-   static vector<double> F1;
-   static vector<double> F2;
+   static std::vector<double> F1;
+   static std::vector<double> F2;
 
    F1.resize(DigiSize);
    F2.resize(DigiSize);
@@ -545,7 +545,7 @@ double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const vector<double> &C
    return Chi2;
 }
 //---------------------------------------------------------------------------
-double HBHEPulseShapeFlagSetter::CalculateRMS8Max(const vector<double> &Charge)
+double HBHEPulseShapeFlagSetter::CalculateRMS8Max(const std::vector<double> &Charge)
 {
    //
    // CalculateRMS8Max
@@ -560,7 +560,7 @@ double HBHEPulseShapeFlagSetter::CalculateRMS8Max(const vector<double> &Charge)
 
    if (DigiSize<=2)  return 1e-5;  // default statement when DigiSize is too small for useful RMS calculation
   // Copy Charge vector again, since we are passing references around
-   vector<double> TempCharge = Charge;
+   std::vector<double> TempCharge = Charge;
 
    // Sort TempCharge vector from smallest to largest charge
    sort(TempCharge.begin(), TempCharge.end());
@@ -588,7 +588,7 @@ double HBHEPulseShapeFlagSetter::CalculateRMS8Max(const vector<double> &Charge)
    return RMS / TempCharge[DigiSize-1];
 }
 //---------------------------------------------------------------------------
-double HBHEPulseShapeFlagSetter::PerformLinearFit(const vector<double> &Charge)
+double HBHEPulseShapeFlagSetter::PerformLinearFit(const std::vector<double> &Charge)
 {
    //
    // Performs a straight-line fit over all time slices, and returns the chi2 value
@@ -651,7 +651,7 @@ double HBHEPulseShapeFlagSetter::PerformLinearFit(const vector<double> &Charge)
 //---------------------------------------------------------------------------
 bool HBHEPulseShapeFlagSetter::CheckPassFilter(double Charge,
 					       double Discriminant,
-					       vector<pair<double, double> > &Cuts, 
+					       std::vector<std::pair<double, double> > &Cuts, 
 					       int Side)
 {
    //

@@ -9,7 +9,6 @@
 #include <algorithm> // for "max"
 #include <cmath>
 #include <iostream>
-using namespace std;
 
 HcalHF_PETalgorithm::HcalHF_PETalgorithm()
 {
