@@ -4,7 +4,7 @@
 #
 
 MASTER="/dev/CMSSW_3_11_1/HLT_fix3"                     # no version, take the latest one
-TARGET="/online/collisions/2011/ParadiseLost/v3/HLT"    # where to store the online-compliant menu
+TARGET="/online/collisions/2011/ParadiseLost/v4/HLT"    # where to store the online-compliant menu
 
 # hltdev
 DBHOST="cmsr1-v.cern.ch"
