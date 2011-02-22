@@ -1,4 +1,3 @@
-using namespace std;
 #include "HcalSimpleReconstructor.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -13,10 +12,9 @@ using namespace std;
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include <iostream>
-
     
 HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
-  reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"),
+  reco_(conf.getParameter<bool>("correctForTimeslew"),
 	conf.getParameter<bool>("correctForPhaseContainment"),conf.getParameter<double>("correctionPhaseNS")),
   det_(DetId::Hcal),
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
@@ -38,8 +36,22 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   
 }
 
-HcalSimpleReconstructor::~HcalSimpleReconstructor() {
+HcalSimpleReconstructor::~HcalSimpleReconstructor() { }
+
+void HcalSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
+
+    edm::ESHandle<HcalRecoParams> p;
+    es.get<HcalRecoParamsRcd>().get(p);
+    paramTS = new HcalRecoParams(*p.product());
+ 
 }
+
+void HcalSimpleReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
+  if (paramTS) delete paramTS;
+}
+
+
+
 
 void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
@@ -59,9 +71,11 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
       rec->reserve(digi->size());
       // run the algorithm
+      int toaddMem = 0;
       HBHEDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
+	DetId detcell=(DetId)cell;
 	// rof 27.03.09: drop ZS marked and passed digis:
 	if (dropZSmarkedPassed_)
 	  if (i->zsMarkAndPass()) continue;
@@ -69,7 +83,18 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
-	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
+	//>>> firstSample & samplesToAdd
+        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+        int first = param_ts->firstSample();    
+        int toadd = param_ts->samplesToAdd();    
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+
+	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
+
       }
       // return result
       e.put(rec);
@@ -81,9 +106,11 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       std::auto_ptr<HORecHitCollection> rec(new HORecHitCollection);
       rec->reserve(digi->size());
       // run the algorithm
+      int toaddMem = 0;
       HODigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
+	DetId detcell=(DetId)cell;
 	// rof 27.03.09: drop ZS marked and passed digis:
 	if (dropZSmarkedPassed_)
 	  if (i->zsMarkAndPass()) continue;
@@ -91,7 +118,18 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
-	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
+	//>>> firstSample & samplesToAdd
+        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+        int first = param_ts->firstSample();    
+        int toadd = param_ts->samplesToAdd();    
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+
+
+	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
       }
       // return result
       e.put(rec);    
@@ -103,9 +141,11 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);
       rec->reserve(digi->size());
       // run the algorithm
+      int toaddMem = 0;
       HFDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();	 
+	DetId detcell=(DetId)cell;
 	// rof 27.03.09: drop ZS marked and passed digis:
 	if (dropZSmarkedPassed_)
 	  if (i->zsMarkAndPass()) continue;
@@ -113,7 +153,17 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
-	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
+	//>>> firstSample & samplesToAdd
+        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+        int first = param_ts->firstSample();    
+        int toadd = param_ts->samplesToAdd();    
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+
+	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
       }
       // return result
       e.put(rec);     
@@ -125,9 +175,11 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       std::auto_ptr<HcalCalibRecHitCollection> rec(new HcalCalibRecHitCollection);
       rec->reserve(digi->size());
       // run the algorithm
+      int toaddMem = 0;
       HcalCalibDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalCalibDetId cell = i->id();	  
+	DetId detcell=(DetId)cell;
 	// rof 27.03.09: drop ZS marked and passed digis:
 	if (dropZSmarkedPassed_)
 	  if (i->zsMarkAndPass()) continue;
@@ -135,7 +187,17 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
-	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
+	//>>> firstSample & samplesToAdd
+        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+        int first = param_ts->firstSample();    
+        int toadd = param_ts->samplesToAdd();    
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+
+	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
       }
       // return result
       e.put(rec);     

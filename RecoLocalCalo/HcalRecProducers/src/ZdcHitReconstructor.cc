@@ -1,4 +1,3 @@
-using namespace std;
 #include "ZdcHitReconstructor.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -33,9 +32,12 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   setHSCPFlags_(conf.getParameter<bool>("setHSCPFlags")),
   setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
-  dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))
+  dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
+  AuxTSvec_(conf.getParameter<std::vector<int> >("AuxTSvec"))
   
-{  std::string subd=conf.getParameter<std::string>("Subdetector");
+{ 
+  std::sort(AuxTSvec_.begin(),AuxTSvec_.end()); // sort vector in ascending TS order
+  std::string subd=conf.getParameter<std::string>("Subdetector");
  
  if (setSaturationFlags_)
     {
@@ -99,6 +101,19 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
 	(rec->back()).setFlags(0);
 	if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);	
+
+	// Set auxiliary flag with subset of digi information
+	// ZDC aux flag can store non-contiguous set of values
+        int auxflag=0;
+	for (unsigned int xx=0; xx<AuxTSvec_.size() && xx<4;++xx)
+	  {
+	    if (AuxTSvec_[xx]<0 || AuxTSvec_[xx]>9) continue; // don't allow 
+	    auxflag+=(i->sample(AuxTSvec_[xx]).adc())<<(7*xx); // store the time slices in the first 28 bits of aux, a set of 4 7-bit a dc values
+	  }
+	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
+	if (AuxTSvec_.size()>0)
+	  auxflag+=((i->sample(AuxTSvec_[0]).capid())<<28);
+	(rec->back()).setAux(auxflag);
      }
      // return result
      e.put(rec);     

@@ -1,4 +1,3 @@
-//using namespace std;
 #include "HcalHitReconstructor.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -13,16 +12,13 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
-#include "CondFormats/DataRecord/interface/ConfObjectRcd.h"
-#include "CondFormats/Common/interface/ConfObject.h"
+
 #include <iostream>
 
 /*  Hcal Hit reconstructor allows for CaloRecHits with status words */
 
 HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
-  reco_(conf.getParameter<int>("firstSample"),
-	conf.getParameter<int>("samplesToAdd"),
-	conf.getParameter<bool>("correctForTimeslew"),
+  reco_(conf.getParameter<bool>("correctForTimeslew"),
 	conf.getParameter<bool>("correctForPhaseContainment"),
 	conf.getParameter<double>("correctionPhaseNS")),
   det_(DetId::Hcal),
@@ -34,11 +30,9 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   setPulseShapeFlags_(conf.getParameter<bool>("setPulseShapeFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
-  firstauxTS_(conf.getParameter<int>("firstSample")+conf.getParameter<int>("firstAuxOffset")),
-  firstSample_(conf.getParameter<int>("firstSample")),
-  samplesToAdd_(conf.getParameter<int>("samplesToAdd"))
-
+  firstAuxTS_(conf.getParameter<int>("firstAuxTS"))
 {
+
   std::string subd=conf.getParameter<std::string>("Subdetector");
   //Set all FlagSetters to 0
   /* Important to do this!  Otherwise, if the setters are turned off,
@@ -81,9 +75,8 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 	hbheFlagSetter_=new HBHEStatusBitSetter(psdigi.getParameter<double>("nominalPedestal"),
 						psdigi.getParameter<double>("hitEnergyMinimum"),
 						psdigi.getParameter<int>("hitMultiplicityThreshold"),
-						psdigi.getParameter<std::vector<edm::ParameterSet> >("pulseShapeParameterSets"),
-						conf.getParameter<int>("firstSample"),
-						conf.getParameter<int>("samplesToAdd"));
+						psdigi.getParameter<std::vector<edm::ParameterSet> >("pulseShapeParameterSets")
+	 );
       } // if (setNoiseFlags_)
     if (setHSCPFlags_)
       {
@@ -138,9 +131,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
       {
 	const edm::ParameterSet& psdigi    =conf.getParameter<edm::ParameterSet>("digistat");
 	const edm::ParameterSet& psTimeWin =conf.getParameter<edm::ParameterSet>("HFInWindowStat");
-	hfdigibit_=new HcalHFStatusBitFromDigis(conf.getParameter<int>("firstSample"),
-						conf.getParameter<int>("samplesToAdd"),
-						psdigi, psTimeWin);
+	hfdigibit_=new HcalHFStatusBitFromDigis(psdigi,psTimeWin);
 
 	const edm::ParameterSet& psS9S1   = conf.getParameter<edm::ParameterSet>("S9S1stat");
 	hfS9S1_   = new HcalHF_S9S1algorithm(psS9S1.getParameter<std::vector<double> >("short_optimumSlope"),
@@ -186,10 +177,9 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     subdetOther_=HcalCalibration;
     produces<HcalCalibRecHitCollection>();
   } else {
-    std::cout << "HcalHitReconstructor is not associated with a specific subdetector!" << std::endl;
+     std::cout << "HcalHitReconstructor is not associated with a specific subdetector!" << std::endl;
   }       
-
-  confLabel_ = conf.getParameter<std::string>("@module_label");
+  
 }
 
 HcalHitReconstructor::~HcalHitReconstructor() {
@@ -202,20 +192,21 @@ HcalHitReconstructor::~HcalHitReconstructor() {
 }
 
 void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
-  if (firstSample_<0 && samplesToAdd_<0){
-    //retrieve detector conditions for sample configuration
-    edm::ESHandle<ConfObject> samples;
-    es.get<ConfObjectRcd>().get(confLabel_,samples);
-    
-    firstSample_=samples->get<int>("firstSample");
-    samplesToAdd_=samples->get<int>("samplesToAdd");
-    
-    reco_.resetTimeSamples(firstSample_,samplesToAdd_);
-  }
+
+  edm::ESHandle<HcalRecoParams> p;
+  es.get<HcalRecoParamsRcd>().get(p);
+  paramTS = new HcalRecoParams(*p.product());
+  
 }
+
+void HcalHitReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
+  if (paramTS) delete paramTS;
+}
+
 
 void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
+
   //bool isData=e.isRealData(); // some flags should only be applied to real data
 
   // get conditions
@@ -230,8 +221,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
   eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
   const HcalSeverityLevelComputer* mySeverity = mycomputer.product();
-
+  
   if (det_==DetId::Hcal) {
+
+    // HBHE -------------------------------------------------------------------
     if (subdet_==HcalBarrel || subdet_==HcalEndcap) {
       edm::Handle<HBHEDigiCollection> digi;
       
@@ -258,6 +251,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
             favorite_capid = k;
       }
 
+      int toaddMem = 0;
+
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
@@ -271,21 +266,31 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
-	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
+	// firstSample & samplesToAdd
+	const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	int first = param_ts->firstSample();    
+	int toadd = param_ts->samplesToAdd(); 
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
 	// Set auxiliary flag
 	int auxflag=0;
-	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+        int fTS = firstAuxTS_;
+	for (int xx=fTS; xx<fTS+4 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
-	auxflag+=((i->sample(firstauxTS_).capid())<<28);
+	auxflag+=((i->sample(fTS).capid())<<28);
 	(rec->back()).setAux(auxflag);
 
 	(rec->back()).setFlags(0);  // this sets all flag bits to 0
 	if (hbheTimingShapedFlagSetter_!=0)
 	  hbheTimingShapedFlagSetter_->SetTimingShapedFlags(rec->back());
 	if (setNoiseFlags_)
-	  hbheFlagSetter_->SetFlagsFromDigi(rec->back(),*i,coder,calibrations);
+	  hbheFlagSetter_->SetFlagsFromDigi(rec->back(),*i,coder,calibrations,first,toadd);
 	if (setPulseShapeFlags_ == true)
 	  hbhePulseShapeFlagSetter_->SetPulseShapeFlags(rec->back(), *i, coder, calibrations);
 	if (setSaturationFlags_)
@@ -310,6 +315,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       if (setHSCPFlags_)  hbheHSCPFlagSetter_->hbheSetTimeFlagsFromDigi(rec.get(), HBDigis, RecHitIndex);
       // return result
       e.put(rec);
+
+      //  HO ------------------------------------------------------------------
     } else if (subdet_==HcalOuter) {
       edm::Handle<HODigiCollection> digi;
       e.getByLabel(inputLabel_,digi);
@@ -332,6 +339,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
             favorite_capid = k;
       }
 
+      int toaddMem = 0;
+
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
@@ -344,14 +353,24 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
-	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
+	// firstSample & samplesToAdd
+        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+        int first = param_ts->firstSample();    
+        int toadd = param_ts->samplesToAdd();    
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
 	// Set auxiliary flag
 	int auxflag=0;
-	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+        int fTS = firstAuxTS_;
+	for (int xx=fTS; xx<fTS+4 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
-	auxflag+=((i->sample(firstauxTS_).capid())<<28);
+	auxflag+=((i->sample(fTS).capid())<<28);
 	(rec->back()).setAux(auxflag);
 
 	(rec->back()).setFlags(0);
@@ -362,6 +381,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       }
       // return result
       e.put(rec);    
+
+      // HF -------------------------------------------------------------------
     } else if (subdet_==HcalForward) {
       edm::Handle<HFDigiCollection> digi;
       e.getByLabel(inputLabel_,digi);
@@ -386,6 +407,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
             favorite_capid = k;
       }
 
+      int toaddMem = 0;
+
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
@@ -398,20 +421,31 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
-	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
+	// firstSample & samplesToAdd
+        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	int first = param_ts->firstSample();    
+        int toadd = param_ts->samplesToAdd();    
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
 	// Set auxiliary flag
 	int auxflag=0;
-	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+        int fTS = firstAuxTS_;
+	for (int xx=fTS; xx<fTS+4 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
-	auxflag+=((i->sample(firstauxTS_).capid())<<28);
+	auxflag+=((i->sample(fTS).capid())<<28);
 	(rec->back()).setAux(auxflag);
 
 	// Clear flags
 	(rec->back()).setFlags(0);
 	// This calls the code for setting the HF noise bit determined from digi shape
-	if (setNoiseFlags_) hfdigibit_->hfSetFlagFromDigi(rec->back(),*i,coder,calibrations);
+	if (setNoiseFlags_) 
+	  hfdigibit_->hfSetFlagFromDigi(rec->back(),*i,coder,calibrations,first,toadd);
 	if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
 	if (setTimingTrustFlags_)
@@ -468,9 +502,12 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       std::auto_ptr<HcalCalibRecHitCollection> rec(new HcalCalibRecHitCollection);
       rec->reserve(digi->size());
       // run the algorithm
+      int toaddMem = 0;
+
       HcalCalibDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalCalibDetId cell = i->id();
+	//	HcalDetId cellh = i->id();
 	DetId detcell=(DetId)cell;
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
@@ -481,16 +518,26 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
-	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+
+	// firstSample & samplesToAdd
+        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+        int first = param_ts->firstSample();    
+        int toadd = param_ts->samplesToAdd();    
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
 	/*
 	  // Flag setting not available for calibration rechits
 	// Set auxiliary flag
 	int auxflag=0;
-	for (int xx=firstauxTS_;xx<firstauxTS_+4 && xx<i->size();++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-firstauxTS_)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+        int fTS = firstAuxTS_;
+	for (int xx=fTS; xx<fTS+4 && xx<i->size();++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
-	auxflag+=((i->sample(firstauxTS_).capid())<<28);
+	auxflag+=((i->sample(fTS).capid())<<28);
 	(rec->back()).setAux(auxflag);
 
 	(rec->back()).setFlags(0); // Not yet implemented for HcalCalibRecHit

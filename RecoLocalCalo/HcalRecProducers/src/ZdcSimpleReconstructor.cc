@@ -1,4 +1,3 @@
-using namespace std;
 #include "ZdcSimpleReconstructor.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
