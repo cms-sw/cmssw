@@ -110,15 +110,27 @@
 
  <class name="HcalRecoParam"/>
  <class name="std::vector<HcalRecoParam>"/>
- <class name="HcalRecoParams" class_version="0"/>
+ <class name="HcalRecoParams" class_version="0">
+   <field name="HBcontainer" mapping="blob" />
+   <field name="HEcontainer" mapping="blob" />
+   <field name="HFcontainer" mapping="blob" />
+   <field name="HOcontainer" mapping="blob" />
+ </class> 
 
  <class name="HcalLongRecoParam"/>
  <class name="std::vector<HcalLongRecoParam>"/>
- <class name="HcalLongRecoParams" class_version="0"/>
+ <class name="HcalLongRecoParams" class_version="0">
+   <field name="ZDCcontainer" mapping="blob" />
+ </class> 
 
  <class name="HcalMCParam"/>
  <class name="std::vector<HcalMCParam>"/>
- <class name="HcalMCParams" class_version="0"/>
+ <class name="HcalMCParams" class_version="0">
+   <field name="HBcontainer" mapping="blob" />
+   <field name="HEcontainer" mapping="blob" />
+   <field name="HFcontainer" mapping="blob" />
+   <field name="HOcontainer" mapping="blob" />
+ </class> 
 
  <class pattern="*HcalCondObjectContainer*"/>
 </lcgdict>   
