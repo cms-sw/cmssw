@@ -17,7 +17,16 @@ class PerformanceResult {
     //
     // MUONS
     //
-    MUEFF=2001, MUERR=2002, MUFAKE=2003, MUEFAKE=2004
+    MUEFF=2001, MUERR=2002, MUFAKE=2003, MUEFAKE=2004,
+    //
+    // PF - calibrations
+    //
+    PFfa_BARREL = 3001, PFfa_ENDCAP = 3002,
+    PFfb_BARREL = 3003, PFfb_ENDCAP = 3004,
+    PFfc_BARREL = 3005, PFfc_ENDCAP = 3006
+    
+
+    
 };
   
 };
