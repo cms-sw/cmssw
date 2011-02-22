@@ -1,7 +1,6 @@
 #include <cmath>
 #include <fstream>
 #include <algorithm>
-using namespace std;
 
 #include "DQM/HcalMonitorTasks/interface/HcalNoiseMonitor.h"
 
@@ -26,28 +25,25 @@ using namespace std;
 
 #include "FWCore/Common/interface/TriggerNames.h"
 
-using namespace edm;
-using namespace reco;
-
 HcalNoiseMonitor::HcalNoiseMonitor(const edm::ParameterSet& ps)
 {
    Online_                = ps.getUntrackedParameter<bool>("online",false);
    mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
    enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
    debug_                 = ps.getUntrackedParameter<int>("debug",0);
-   prefixME_              = ps.getUntrackedParameter<string>("subSystemFolder","Hcal/");
+   prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
    if(prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
       prefixME_.append("/");
-   subdir_                = ps.getUntrackedParameter<string>("TaskFolder","NoiseMonitor_Hcal");
+   subdir_                = ps.getUntrackedParameter<std::string>("TaskFolder","NoiseMonitor_Hcal");
    if(subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
       subdir_.append("/");
    subdir_=prefixME_+subdir_;
-   AllowedCalibTypes_     = ps.getUntrackedParameter<vector<int> > ("AllowedCalibTypes");
+   AllowedCalibTypes_     = ps.getUntrackedParameter<std::vector<int> > ("AllowedCalibTypes");
    skipOutOfOrderLS_      = ps.getUntrackedParameter<bool>("skipOutOfOrderLS","false");
    NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
    makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
 
-   triggers_=ps.getUntrackedParameter<vector<string> >("nzsHLTnames");
+   triggers_=ps.getUntrackedParameter<std::vector<std::string> >("nzsHLTnames");
       //["HLT_HcalPhiSym","HLT_HcalNoise_8E29]
    period_=ps.getUntrackedParameter<int>("NoiseeventPeriod",4096); //4096
    rawdataLabel_          = ps.getUntrackedParameter<edm::InputTag>("RawDataLabel");
@@ -82,7 +78,7 @@ void HcalNoiseMonitor::cleanup()
 void HcalNoiseMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
    if(debug_ > 1)
-      cout <<"HcalNoiseMonitor::beginRun"<<endl;
+      std::cout <<"HcalNoiseMonitor::beginRun"<< std::endl;
 
    HcalBaseDQMonitor::beginRun(run,c);
 
@@ -101,7 +97,7 @@ void HcalNoiseMonitor::setup()
    HcalBaseDQMonitor::setup();
 
    if(debug_ > 1)
-      cout << "<HcalNoiseMonitor::setup> Creating histograms" << endl;
+      std::cout << "<HcalNoiseMonitor::setup> Creating histograms" << std::endl;
 
    if(dbe_)
    {
@@ -127,22 +123,22 @@ void HcalNoiseMonitor::setup()
       hRMS8OverMaxTestStatistics->setAxisTitle("#Lambda_{RMS8/Max}", 1);
 
       hLambdaLinearVsTotalCharge = dbe_->book2D("Lambda_linear_vs_total_charge", "#Lambda_{Linear}",
-         100, -10, 10, 100, 0, 500);
+         50, -5, 5, 25, 0, 500);
       hLambdaLinearVsTotalCharge->setAxisTitle("#Lambda_{linear}", 1);
       hLambdaLinearVsTotalCharge->setAxisTitle("Total charge", 2);
 
       hLambdaRMS8MaxVsTotalCharge = dbe_->book2D("Lambda_RMS8Max_vs_total_charge", "#Lambda_{RMS8/Max}",
-         100, -30, 10, 100, 0, 500);
+         50, -15, 5, 25, 0, 500);
       hLambdaRMS8MaxVsTotalCharge->setAxisTitle("#Lambda_{RMS8/Max}", 1);
       hLambdaRMS8MaxVsTotalCharge->setAxisTitle("Total charge", 2);
 
       hTriangleLeftSlopeVsTS4 = dbe_->book2D("Triangle_fit_left_slope",
-         "Triangle fit left distance vs. TS4", 100, 0, 10, 50, 0, 500);
+         "Triangle fit left distance vs. TS4", 50, 0, 10, 25, 0, 500);
       hTriangleLeftSlopeVsTS4->setAxisTitle("Left slope", 1);
       hTriangleLeftSlopeVsTS4->setAxisTitle("Peak time slice", 2);
 
       hTriangleRightSlopeVsTS4 = dbe_->book2D("Triangle_fit_right_slope",
-         "Triangle fit right distance vs. peak time slice", 100, 0, 10, 50, 0, 500);
+         "Triangle fit right distance vs. peak time slice", 50, 0, 10, 25, 0, 500);
       hTriangleRightSlopeVsTS4->setAxisTitle("Left slope", 1);
       hTriangleRightSlopeVsTS4->setAxisTitle("Peak time slice", 2);
 
@@ -163,7 +159,7 @@ void HcalNoiseMonitor::setup()
       hTS4TS5RelativeDifference->setAxisTitle("(TS4 - TS5) / (TS4 + TS5)", 1);
 
       hTS4TS5RelativeDifferenceVsCharge = dbe_->book2D("TS4_TS5_relative_difference_charge",
-         "(TS4-TS5)/(TS4+TS5) vs. Charge", 100, 0, 400, 100, -1, 1);
+         "(TS4-TS5)/(TS4+TS5) vs. Charge", 50, 0, 400, 25, -1, 1);
       hTS4TS5RelativeDifferenceVsCharge->setAxisTitle("Charge", 1);
       hTS4TS5RelativeDifferenceVsCharge->setAxisTitle("(TS4 - TS5) / (TS4 + TS5)", 2);
 
@@ -207,24 +203,24 @@ void HcalNoiseMonitor::setup()
 
 void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup)
 {
-   Handle<HBHEDigiCollection> hHBHEDigis;
+   edm::Handle<HBHEDigiCollection> hHBHEDigis;
    iEvent.getByType(hHBHEDigis);
 
-   ESHandle<HcalDbService> hConditions;
+   edm::ESHandle<HcalDbService> hConditions;
    iSetup.get<HcalDbRecord>().get(hConditions);
 
-   Handle<HBHERecHitCollection> hRecHits;
-   iEvent.getByLabel(InputTag("hbhereco"), hRecHits);
+   edm::Handle<HBHERecHitCollection> hRecHits;
+   iEvent.getByLabel(edm::InputTag("hbhereco"), hRecHits);
 
-   Handle<HcalNoiseRBXCollection> hRBXCollection;
+   edm::Handle<reco::HcalNoiseRBXCollection> hRBXCollection;
    iEvent.getByType(hRBXCollection);
 
    HcalBaseDQMonitor::analyze(iEvent, iSetup);
 
    if(dbe_ == NULL)
    {
-      if(debug_>0)
-         cout <<"HcalNoiseMonitor::processEvent DQMStore not instantiated!!!"<<endl;
+      if(debug_ > 0)
+         std::cout << "HcalNoiseMonitor::processEvent DQMStore not instantiated!!!"<< std::endl;
       return;
    }
 
@@ -239,12 +235,9 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
       CaloSamples Tool;
       Coder.adc2fC(*iter, Tool);
 
-      int ieta = id.ieta();
-      int iphi = id.iphi();
-      int depth = id.depth();
-
-      if(ieta == 14 && iphi == 31 && depth == 1)
-         continue;
+      // int ieta = id.ieta();
+      // int iphi = id.iphi();
+      // int depth = id.depth();
 
       double Charge[10] = {0};
       for(int i = 0; i < iter->size(); i++)
@@ -288,8 +281,11 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
          hTriangleRightSlopeVsTS4->Fill(TS4RightSlope, Charge[4]);
       }
 
-      hTS4TS5RelativeDifference->Fill((Charge[4] - Charge[5]) / (Charge[4] + Charge[5]));
-      hTS4TS5RelativeDifferenceVsCharge->Fill(TotalCharge, (Charge[4] - Charge[5]) / (Charge[4] + Charge[5]));
+      if(Charge[4] + Charge[5] > 1e-5)
+      {
+         hTS4TS5RelativeDifference->Fill((Charge[4] - Charge[5]) / (Charge[4] + Charge[5]));
+         hTS4TS5RelativeDifferenceVsCharge->Fill(TotalCharge, (Charge[4] - Charge[5]) / (Charge[4] + Charge[5]));
+      }
    }
 
    // loop over rechits - noise bits (fit-based, isolation)
@@ -315,26 +311,27 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
    }
 
    // Code analagous to Yifei's
-   for(HcalNoiseRBXCollection::const_iterator rbx = hRBXCollection->begin(); rbx != hRBXCollection->end(); rbx++)
+   for(reco::HcalNoiseRBXCollection::const_iterator rbx = hRBXCollection->begin();
+      rbx != hRBXCollection->end(); rbx++)
    {
-      const HcalNoiseRBX RBX = *rbx;
+      const reco::HcalNoiseRBX RBX = *rbx;
 
       int NumberRBXHits = RBX.numRecHits(1.5);
       double RBXEnergy = RBX.recHitEnergy(1.5);
       double RBXE2 = RBX.allChargeHighest2TS();
       double RBXE10 = RBX.allChargeTotal();
 
-      vector<HcalNoiseHPD> HPDs = RBX.HPDs();
+      std::vector<reco::HcalNoiseHPD> HPDs = RBX.HPDs();
       
       int RBXID = RBX.idnumber();
 
       if(RBXEnergy > mTotalZeroMinEnergy && RBX.totalZeros() >= mMaxADCZeros)
          hBadZeroRBX->Fill(RBXID);
-      if(RBXEnergy > mE2E10MinEnergy && (RBXE2 / RBXE10 > mMaxE2E10 || RBXE2 / RBXE10 < mMinE2E10))
+      if(RBXEnergy > mE2E10MinEnergy && RBXE10 > 1e-5 && (RBXE2 / RBXE10 > mMaxE2E10 || RBXE2 / RBXE10 < mMinE2E10))
          hBadE2E10RBX->Fill(RBXID);
-      for(vector<HcalNoiseHPD>::const_iterator hpd = HPDs.begin(); hpd != HPDs.end(); hpd++)
+      for(std::vector<reco::HcalNoiseHPD>::const_iterator hpd = HPDs.begin(); hpd != HPDs.end(); hpd++)
       {
-         HcalNoiseHPD HPD = *hpd;
+         reco::HcalNoiseHPD HPD = *hpd;
          int HPDHitCount = HPD.numRecHits(1.5);
          if(HPDHitCount >= mMaxHPDHitCount)
             hBadCountHPD->Fill(HPD.idnumber());
@@ -353,9 +350,9 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
       double HighestHPDEnergy = 0;
       int HighestHPDHits = 0;
 
-      for(vector<HcalNoiseHPD>::const_iterator hpd = HPDs.begin(); hpd != HPDs.end(); hpd++)
+      for(std::vector<reco::HcalNoiseHPD>::const_iterator hpd = HPDs.begin(); hpd != HPDs.end(); hpd++)
       {
-         HcalNoiseHPD HPD = *hpd;
+         reco::HcalNoiseHPD HPD = *hpd;
 
          if(HPD.recHitEnergy(1.5) > HighestHPDEnergy)
          {
@@ -366,8 +363,10 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
          if(HPD.numRecHits(5) < 1)
             continue;
 
-         hE2OverE10Digi->Fill(HPD.bigChargeHighest2TS() / HPD.bigChargeTotal());
-         hE2OverE10Digi5->Fill(HPD.big5ChargeHighest2TS() / HPD.big5ChargeTotal());
+         if(HPD.bigChargeTotal() > 1e-5)
+            hE2OverE10Digi->Fill(HPD.bigChargeHighest2TS() / HPD.bigChargeTotal());
+         if(HPD.big5ChargeTotal() > 1e-5)
+            hE2OverE10Digi5->Fill(HPD.big5ChargeHighest2TS() / HPD.big5ChargeTotal());
 
          hHPDHitCount->Fill(HPD.numRecHits(1.5));
       }
@@ -378,7 +377,7 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
       bool IsHPDIonFeedback = false;
       bool IsHPDDischarge = false;
 
-      if(HighestHPDEnergy / RBXEnergy > 0.98)
+      if(RBXEnergy > 1e-5 && HighestHPDEnergy / RBXEnergy > 0.98)
       {
          IsHPDNoise = true;
 
@@ -398,19 +397,22 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
          IsRBXNoise = true;
          NoiseCategory = 1;
 
-         if(RBXE2 / RBXE10 < 0.33)
-            NoiseCategory = 2;
-         else if(RBXE2 / RBXE10 < 0.8)
-            NoiseCategory = 3;
-         else if(RBXE2 / RBXE10 > 0.8 && NumberRBXHits > 10)
-            NoiseCategory = 4;
-         else if(RBXE2 / RBXE10 > 0.8 && NumberRBXHits < 10)  // [hic]
-            NoiseCategory = 5;
+         if(RBXE10 > 1e-5)
+         {
+            if(RBXE2 / RBXE10 < 0.33)
+               NoiseCategory = 2;
+            else if(RBXE2 / RBXE10 < 0.8)
+               NoiseCategory = 3;
+            else if(RBXE2 / RBXE10 > 0.8 && NumberRBXHits > 10)
+               NoiseCategory = 4;
+            else if(RBXE2 / RBXE10 > 0.8 && NumberRBXHits < 10)  // [hic]
+               NoiseCategory = 5;
+         }
       }
 
       hHcalNoiseCategory->Fill(NoiseCategory);
 
-      if(IsRBXNoise == true)
+      if(IsRBXNoise == true && RBXE10 > 1e-5)
          hE2OverE10RBX->Fill(RBXE2 / RBXE10);
    }
 
@@ -529,8 +531,6 @@ double HcalNoiseMonitor::PerformDualNominalFit(double Charge[10])
    }
 
    return OverallMinimumChi2;
-
-   return 0;
 }
 
 double HcalNoiseMonitor::DualNominalFitSingleTry(double Charge[10], int Offset, int Distance)
@@ -552,8 +552,8 @@ double HcalNoiseMonitor::DualNominalFitSingleTry(double Charge[10], int Offset, 
    if(CumulativeIdealPulse[Offset+250] - CumulativeIdealPulse[Offset] < 1e-5)
       return 1000000;
 
-   static vector<double> F1;
-   static vector<double> F2;
+   static std::vector<double> F1;
+   static std::vector<double> F2;
 
    F1.resize(DigiSize);
    F2.resize(DigiSize);
@@ -695,7 +695,7 @@ double HcalNoiseMonitor::CalculateRMS8Max(double Charge[10])
    int DigiSize = 10;
 
    // Copy Charge vector again, since we are passing references around
-   vector<double> TempCharge(Charge, Charge + 10);
+   std::vector<double> TempCharge(Charge, Charge + 10);
 
    // Sort TempCharge vector from smallest to largest charge
    sort(TempCharge.begin(), TempCharge.end());
@@ -716,11 +716,13 @@ double HcalNoiseMonitor::CalculateRMS8Max(double Charge[10])
 
    double RMS = sqrt(Total2 - Total * Total / (DigiSize - 2));
 
-   double RMS8Max = RMS / TempCharge[DigiSize-1];
+   double RMS8Max = 99999;
+   if(TempCharge[DigiSize-1] > 1e-5)
+      RMS8Max = RMS / TempCharge[DigiSize-1];
    if(RMS8Max < 1e-5)   // protection against zero
       RMS8Max = 1e-5;
 
-   return RMS / TempCharge[DigiSize-1];
+   return RMS8Max;
 }
 
 TriangleFitResult HcalNoiseMonitor::PerformTriangleFit(double Charge[10])
@@ -846,7 +848,7 @@ TriangleFitResult HcalNoiseMonitor::PerformTriangleFit(double Charge[10])
 
 void HcalNoiseMonitor::ReadHcalPulse()
 {
-   vector<double> PulseShape;
+   std::vector<double> PulseShape;
 
    HcalPulseShapes Shapes;
    HcalPulseShapes::Shape HPDShape = Shapes.hbShape();
