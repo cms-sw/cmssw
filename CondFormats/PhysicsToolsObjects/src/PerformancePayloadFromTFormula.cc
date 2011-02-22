@@ -3,7 +3,7 @@
 int PerformancePayloadFromTFormula::InvalidPos=-1;
 
 #include <iostream>
-
+using namespace std;
 
 float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r ,BinningPointByMap p) const {
   check();
@@ -48,6 +48,7 @@ bool PerformancePayloadFromTFormula::isInPayload(PerformanceResult::ResultType r
   check();
   // first, let's see if it is available at all
   if (resultPos(res) == PerformancePayloadFromTFormula::InvalidPos) return false;
+  
   if ( ! isOk(point)) return false;
   return true;
 }
@@ -59,11 +60,36 @@ void PerformancePayloadFromTFormula::check() const {
   // otherwise, compile!
   //
   for (unsigned int i=0; i< pl.formulas().size(); ++i){
-    TFormula* t = new TFormula("rr",(pl.formulas()[i]).c_str());
+    TFormula* t = new TFormula("rr",(pl.formulas()[i]).c_str()); //FIXME: "rr" should be unique!
     t->Compile();
     compiledFormulas_.push_back(t);
   }
 }
+
+void PerformancePayloadFromTFormula::printFormula(PerformanceResult::ResultType res) const {
+  check();
+  //
+  // which formula to use?
+  //
+  if (resultPos(res) == PerformancePayloadFromTFormula::InvalidPos)  {
+    cout << "Warning: result not available!" << endl;
+  }
+  
+  // nice, what to do here???
+  TFormula * formula = compiledFormulas_[resultPos(res)];
+  cout << "-- Formula: " << formula->GetExpFormula("p") << endl;
+  // prepare the vector to pass, order counts!!!
+  //
+  std::vector<BinningVariables::BinningVariablesType> t = myBinning();
+  
+  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end();++it){
+    int pos = limitPos(*it);
+    std::pair<float, float> limits = (pl.limits())[pos];
+    cout << "      Variable: " << *it << " with limits: " << "from: " << limits.first  << " to: " << limits.second << endl;
+  }
+
+}
+
 
 
 #include "FWCore/Framework/interface/EventSetup.h"

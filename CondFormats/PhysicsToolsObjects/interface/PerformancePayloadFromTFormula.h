@@ -37,6 +37,9 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
   
   const PhysicsTFormulaPayload & formulaPayload() const {return pl;}
   
+  void printFormula(PerformanceResult::ResultType res) const;
+  
+
  protected:
   
   virtual std::vector<BinningVariables::BinningVariablesType> myBinning() const {return variables_;}
