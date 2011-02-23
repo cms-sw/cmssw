@@ -72,7 +72,7 @@ CmsShowMainBase::setupActions()
    // init TGSlider state before signals are connected
    m_guiManager->setDelayBetweenEvents(m_playDelay);
 
-   m_navigatorPtr->newEvent_.connect(boost::bind(&FWGUIManager::loadEvent, guiManager()));
+   m_navigatorPtr->newEvent_.connect(boost::bind(&CmsShowMainBase::eventChangedSlot, this));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
       m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::doNextEvent));
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0)
@@ -124,6 +124,18 @@ CmsShowMainBase::setupViewManagers()
    //        changes? Can that actually happer (maybe if we add support
    //        for loading plugins on the fly??).
    m_metadataManagerPtr->initReps(viewManager()->supportedTypesAndRepresentations());
+}
+
+void
+CmsShowMainBase::eventChangedSlot()
+{
+   eventChangedImp();
+}
+
+void
+CmsShowMainBase::eventChangedImp()
+{
+   guiManager()->eventChangedCallback();
 }
 
 void

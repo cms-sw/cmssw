@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.117 2011/02/13 19:57:14 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.118 2011/02/14 20:02:51 amraktad Exp $
 //
 
 // system include files
@@ -171,7 +171,7 @@ public:
    void setPlayMode(bool);
    void updateStatus(const char* status);
    void clearStatus();
-   void loadEvent();
+   void eventChangedCallback();
    
    CSGAction* getAction(const std::string name);
    

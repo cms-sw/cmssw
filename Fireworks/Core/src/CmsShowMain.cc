@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.186 2011/02/22 14:29:06 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.187 2011/02/22 16:22:33 amraktad Exp $
 //
 
 // system include files
@@ -402,8 +402,9 @@ CmsShowMain::fileChangedSlot(const TFile *file)
 }
 
 void
-CmsShowMain::eventChangedSlot()
+CmsShowMain::eventChangedImp()
 {
+   CmsShowMainBase::eventChangedImp();
    guiManager()->titleChanged(m_navigator->frameTitle());
    m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
@@ -562,12 +563,9 @@ CmsShowMain::setupDataHandling()
 {
    guiManager()->updateStatus("Setting up data handling...");
 
-   // Event / file change actions which require different response for different
-   // implementations. 
-   m_navigator->newEvent_.connect(boost::bind(&CmsShowMain::eventChangedSlot, this));
-   m_navigator->fileChanged_.connect(boost::bind(&CmsShowMain::fileChangedSlot, this, _1));
 
    // navigator filtering  ->
+   m_navigator->fileChanged_.connect(boost::bind(&CmsShowMain::fileChangedSlot, this, _1));
    m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, guiManager(), _1));
    m_navigator->filterStateChanged_.connect(boost::bind(&CmsShowMain::navigatorChangedFilterState, this, _1));
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering, this));

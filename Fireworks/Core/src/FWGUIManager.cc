@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.233 2011/02/14 20:02:51 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.234 2011/02/22 18:37:31 amraktad Exp $
 
 
 //
@@ -325,7 +325,7 @@ FWGUIManager::titleChanged(const char *subtitle)
 }
 
 void
-FWGUIManager::loadEvent() {
+FWGUIManager::eventChangedCallback() {
    // To be replaced when we can get index from fwlite::Event
    
    TEveViewerList* viewers = gEve->GetViewers();
