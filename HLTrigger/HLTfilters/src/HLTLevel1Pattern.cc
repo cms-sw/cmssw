@@ -22,9 +22,6 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 //
 // class declaration
@@ -34,7 +31,6 @@ class HLTLevel1Pattern : public HLTFilter {
 public:
   explicit HLTLevel1Pattern(const edm::ParameterSet&);
   ~HLTLevel1Pattern();
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
 
 private:
@@ -90,38 +86,6 @@ HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet & config) :
 
 HLTLevel1Pattern::~HLTLevel1Pattern()
 {
-}
-
-void
-HLTLevel1Pattern::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("L1GtReadoutRecordTag",edm::InputTag("hltGtDigis"));
-  desc.add<std::string>("triggerBit","L1Tech_RPC_TTU_pointing_Cosmics.v0");
-  {
-    std::vector<int> temp1;
-    temp1.reserve(5);
-    temp1.push_back(-2);
-    temp1.push_back(-1);
-    temp1.push_back(0);
-    temp1.push_back(1);
-    temp1.push_back(2);
-    desc.add<std::vector<int> >("bunchCrossings",temp1);
-  }
-  desc.add<unsigned int>("daqPartitions",1);
-  desc.add<bool>("ignoreL1Mask",false);
-  desc.add<bool>("invert",false);
-  desc.add<bool>("throw",true);
-  {
-    std::vector<int> temp1;
-    temp1.reserve(5);
-    temp1.push_back(1);
-    temp1.push_back(1);
-    temp1.push_back(1);
-    temp1.push_back(0);
-    temp1.push_back(0);
-    desc.add<std::vector<int> >("triggerPattern",temp1);
-  }
-  descriptions.add("hltLevel1Pattern",desc);
 }
 
 //
