@@ -1379,7 +1379,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
    m_tableWidget->Connect("Clicked()", "FWPathsPopup", this, "applyEditor()");
 
-   SetWindowName("Paths GUI");
+   SetWindowName("CMSSW Configuration Editor");
    MapSubwindows();
    editor->UnmapWindow();
    Layout();
