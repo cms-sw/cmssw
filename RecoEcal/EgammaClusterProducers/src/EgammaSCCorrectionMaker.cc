@@ -75,17 +75,21 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   // energy correction class
   if (applyEnergyCorrection_ )
     energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
-
+  else
+    energyCorrectionFunction_=0;
   if (applyCrackCorrection_ )
     crackCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", ps);
+  else
+    crackCorrectionFunction_=0;
 
   
 }
 
 EgammaSCCorrectionMaker::~EgammaSCCorrectionMaker()
 {
-  delete energyCorrectionFunction_;
-  delete crackCorrectionFunction_;
+  if (energyCorrectionFunction_) delete energyCorrectionFunction_;
+  if (crackCorrectionFunction_) delete crackCorrectionFunction_;
+  delete energyCorrector_;
 }
 
 void
