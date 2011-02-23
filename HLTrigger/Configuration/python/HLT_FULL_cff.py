@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HLT_fix3/V146 (CMSSW_3_11_0_HLT7)
+# /dev/CMSSW_3_11_1/HLT_fix3/V147 (CMSSW_3_11_0_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V146')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V147')
 )
 
 streams = cms.PSet( 
@@ -16249,7 +16249,7 @@ hltL3TrackCandidateFromL2NoVtx = cms.EDProducer( "CkfTrajectoryMaker",
     src = cms.InputTag( "hltL3TrajectorySeedNoVtx" ),
     TrajectoryBuilder = cms.string( "hltESPMuonCkfTrajectoryBuilder" ),
     TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
-    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    NavigationSchool = cms.string( "CosmicNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
     TransientInitialStateEstimatorParameters = cms.PSet( 
