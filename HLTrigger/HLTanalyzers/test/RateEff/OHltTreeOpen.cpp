@@ -6011,7 +6011,6 @@ void OHltTree::CheckOpenHlt(
 
    /*Muon-electron cross-triggers*/
 
-   //parameters should be checked. Compliant to /dev/CMSSW_3_11_1/GRun/V24 but H/E  should be 0.1 in endcap?
    else if (triggerName.CompareTo("OpenHLT_Mu5_DoubleEle8_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -6029,7 +6028,7 @@ void OHltTree::CheckOpenHlt(
                         999.,
                         999., // E/ET iso barrel, E/ET iso endcap 
                         0.15,
-                        0.15, // H/E barrel, H/E endcap 
+                        0.1, // H/E barrel, H/E endcap 
                         999.,
                         999., // cluster shape barrel, cluster shape endcap 
                         0.98,
@@ -6047,7 +6046,6 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   //parameters should be checked
    else if (triggerName.CompareTo("HLT_Mu5_Ele8_CaloIdL_TrkIdVL_Ele8_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -6065,7 +6063,7 @@ void OHltTree::CheckOpenHlt(
                         999.,
                         999., // E/ET iso barrel, E/ET iso endcap 
                         0.15,
-                        0.15, // H/E barrel, H/E endcap 
+                        0.1, // H/E barrel, H/E endcap 
                         999.,
                         999., // cluster shape barrel, cluster shape endcap 
                         0.98,
@@ -6095,7 +6093,6 @@ void OHltTree::CheckOpenHlt(
    }
 
 
-   //parameters should be checked. Compliant to /dev/CMSSW_3_11_1/GRun/V24 but H/E  should be 0.1 in endcap?
    else if (triggerName.CompareTo("OpenHLT_DoubleMu5_Ele8_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -6113,7 +6110,7 @@ void OHltTree::CheckOpenHlt(
                         999.,
                         999., // E/ET iso barrel, E/ET iso endcap 
                         0.15,
-                        0.15, // H/E barrel, H/E endcap 
+                        0.1, // H/E barrel, H/E endcap 
                         999.,
                         999., // cluster shape barrel, cluster shape endcap 
                         0.98,
@@ -6303,7 +6300,6 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   //parameters should be checked. pb with deta dphi
    else if (triggerName.CompareTo("OpenHLT_Mu17_Ele8_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -6337,7 +6333,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //parameters should be checked pb with deta dphi
+
    else if (triggerName.CompareTo("OpenHLT_Mu10_Ele10_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -6371,7 +6367,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   //parameters should be checked pb with deta dphi
+
    else if (triggerName.CompareTo("OpenHLT_Mu8_Ele17_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
