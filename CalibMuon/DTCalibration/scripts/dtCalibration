@@ -734,6 +734,7 @@ if __name__ == '__main__':
     elif input.workflowType == 'vdrift': runVDriftWorkflow(input.workflowMode,config,execute)
     elif input.workflowType == 'noise': runNoiseWorkflow('',config,execute)
     elif input.workflowType == 't0': runT0Workflow('',config,execute)
+    elif input.workflowType == 'validation': pass
 
     #sys.stdout = stdout_original
  
