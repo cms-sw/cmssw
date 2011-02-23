@@ -62,6 +62,7 @@ FWPFEcalRecHitRPProxyBuilder::calculateEt( const TEveVector &centre, float E )
 void
 FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
+   m_towers.clear(); // Bug fix required for when multiple RhoPhiPF views are active
    for( unsigned int index = 0; index < static_cast<unsigned int>( iItem->size() ); ++index )
    {
       TEveCompound *itemHolder = createCompound();
@@ -108,7 +109,6 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
          m_towers.push_back( rh );
       }
    }
-   m_towers.clear();
 }
 
 //______________________________________________________________________________________________________

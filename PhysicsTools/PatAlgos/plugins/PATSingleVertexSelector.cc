@@ -24,9 +24,7 @@ PATSingleVertexSelector::parseMode(const std::string &mode) {
 }
 
 
-PATSingleVertexSelector::PATSingleVertexSelector(const edm::ParameterSet & iConfig) 
-  : doFilterEvents_(false)
-{
+PATSingleVertexSelector::PATSingleVertexSelector(const edm::ParameterSet & iConfig) {
    using namespace std;
 
    modes_.push_back( parseMode(iConfig.getParameter<std::string>("mode")) );
@@ -49,14 +47,11 @@ PATSingleVertexSelector::PATSingleVertexSelector(const edm::ParameterSet & iConf
             string presel = iConfig.getParameter<string>("candidatePreselection");
             if (!presel.empty()) candPreselection_ = auto_ptr<CandSel>(new CandSel(presel));
         }
-   }
-   if (hasMode_(FromBeamSpot)) {
+    }
+    if (hasMode_(FromBeamSpot)) {
         beamSpot_ = iConfig.getParameter<edm::InputTag>("beamSpot");
-   }
-
-   if ( iConfig.exists("filter") ) doFilterEvents_ = iConfig.getParameter<bool>("filter");
-
-   produces<vector<reco::Vertex> >();
+    }
+    produces<vector<reco::Vertex> >();
 }
 
 
@@ -104,8 +99,10 @@ PATSingleVertexSelector::filter(edm::Event & iEvent, const edm::EventSetup & iSe
     for (std::vector<Mode>::const_iterator itm = modes_.begin(), endm = modes_.end(); itm != endm; ++itm) {
         if (filter_(*itm, iEvent, iSetup)) return true;
     }
-    if ( !doFilterEvents_ ) return true;
     return false;
+
+    // Clear
+    selVtxs_.clear(); bestCand_ = 0;
 }
 
 bool

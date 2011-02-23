@@ -10,10 +10,10 @@ import string
 
 
 ### Reference release
-RefRelease='CMSSW_3_9_0_pre2'
+RefRelease='CMSSW_3_11_0_pre5'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_9_0_pre3'
+NewRelease='CMSSW_3_11_0_pre5r52706bT2'
 
 ### startup and ideal sample list
 
@@ -24,7 +24,7 @@ startupsamples= [
     'RelValQCD_Pt_3000_3500'
 ]
 ### the list can be empty if you want to skip the validation for all the samples
-# startupsamples= []
+startupsamples= []
 
 ### This is the list of startup relvals (with PileUP)
 # startupsamples= ['RelValTTbar_Tauola']
@@ -32,12 +32,12 @@ startupsamples= [
 
 ### This is the list of IDEAL-conditions relvals 
 idealsamples= [
-'RelValMinBias',   ### list of samples to be validated for each pre-release  
+#'RelValMinBias',   ### list of samples to be validated for each pre-release  
 'RelValQCD_Pt_3000_3500',
-'RelValSingleElectronPt35', 
-'RelValTTbar', 
-'RelValSingleMuPt10', 
-'RelValSingleMuPt100',
+#'RelValSingleElectronPt35', 
+#'RelValTTbar', 
+#'RelValSingleMuPt10', 
+#'RelValSingleMuPt100',
 ### additional samples to be validated for each mayor release
 # 'RelValSingleMuPt1', 
 # 'RelValSinglePiPt1', 
@@ -60,11 +60,11 @@ Version='v1'
 #Version='BX2808-v1'
 
 ### Ideal and Statup tags
-IdealTag='MC_38Y_V9'
-StartupTag='START38_V9'
+IdealTag='MC_311_V0'
+StartupTag='START311_V0'
 
-RefIdealTag='MC_38Y_V9'
-RefStartupTag='START38_V9'
+RefIdealTag='MC_311_V0'
+RefStartupTag='START311_V0'
 ### PileUp: "PU" . No PileUp: "noPU"
 PileUp='noPU'
 #PileUp='PU'
@@ -92,8 +92,9 @@ Tracksname=''
 #   -comparison_only
 
 
-Sequence='comparison_only'
+#Sequence='comparison_only'
 #Sequence='harvesting'
+Sequence='only_validation'
 
 
 
@@ -120,7 +121,7 @@ castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal
 
 
 ### Default Nevents
-defaultNevents ='-1'
+defaultNevents ='100'
 
 ### Put here the number of event to be processed for specific samples (numbers must be strings) 
 ### if not specified is defaultNevents:
@@ -174,6 +175,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         mineff='0.5'
         maxeff='1.025'
         maxfake='0.7'
+    elif(trackalgorithm=='iter1'):
+        mineff='0.0'
+        maxeff='0.5'
+        maxfake='0.8'
     else:
         mineff='0'
         maxeff='0.1'
@@ -323,7 +328,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                                     os.system('root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map_hp[trackalgorithm]+ '\\\"\\) >& /dev/null')
 
 
-                    referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
+                    referenceSample=RefRepository+'/'+RefRelease+'_64bit/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
                     if os.path.isfile(referenceSample ):
                             replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
 

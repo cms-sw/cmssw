@@ -15,13 +15,12 @@ class JetCorrectorParameters;
 class FactorizedJetCorrector
 {
   public:
-    enum VarTypes   {kJetPt,kJetEta,kJetPhi,kJetE,kJetEMF,kRelLepPt,kPtRel,kNPV};
+    enum VarTypes   {kJetPt,kJetEta,kJetPhi,kJetE,kJetEMF,kRelLepPt,kPtRel};
     enum LevelTypes {kL1,kL2,kL3,kL4,kL5,kL6,kL7};
     FactorizedJetCorrector();
     FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags, const std::string& fOptions="");
     FactorizedJetCorrector(const std::vector<JetCorrectorParameters>& fParameters);
     ~FactorizedJetCorrector();
-    void setNPV		(int   fNPV);
     void setJetEta      (float fEta);
     void setJetPt       (float fPt); 
     void setJetE        (float fE);
@@ -50,7 +49,6 @@ class FactorizedJetCorrector
     std::vector<float> fillVector(std::vector<VarTypes> fVarTypes);
     std::vector<VarTypes> mapping(const std::vector<std::string>& fNames);
     //---- Member Data ---------
-    int   mNPV;
     float mJetE;
     float mJetEta;
     float mJetPt;
@@ -60,7 +58,6 @@ class FactorizedJetCorrector
     float mLepPy;
     float mLepPz;
     bool  mAddLepToJet;
-    bool  mIsNPVset;
     bool  mIsJetEset;
     bool  mIsJetPtset;
     bool  mIsJetPhiset;

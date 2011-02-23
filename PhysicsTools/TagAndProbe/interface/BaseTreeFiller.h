@@ -163,20 +163,12 @@ class BaseTreeFiller : boost::noncopyable {
         /// Add branches with run and lumisection number
         bool addRunLumiInfo_;
 
-        /// Add branches with event variables: met, sum ET, .. etc.
-	bool addEventVariablesInfo_;
-
         void addBranches_(TTree *tree, const edm::ParameterSet &iConfig, const std::string &branchNamePrefix="") ;
 
         //implementation notice: these two are 'mutable' because we will fill them from a 'const' method
         mutable TTree * tree_;
         mutable float weight_;
-        mutable uint32_t run_, lumi_, event_, mNPV_;
-
-        mutable float mPVx_,mPVy_,mPVz_,mBSx_,mBSy_,mBSz_; 
-
-        mutable float mMET_,mSumET_,mMETSign_,mtcMET_,mtcSumET_,
-	  mtcMETSign_,mpfMET_,mpfSumET_,mpfMETSign_;
+        mutable uint32_t run_, lumi_;
 };
 
 

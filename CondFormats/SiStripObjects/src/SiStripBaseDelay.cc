@@ -54,16 +54,13 @@ void SiStripBaseDelay::printSummary(std::stringstream & ss) const
   for( ; it != delays_.end(); ++it ) {
     summaryDelays.add(it->detId, makeDelay(it->coarseDelay, it->fineDelay));
   }
-  ss << std::endl << "Summary:" << std::endl;
-  summaryDelays.print(ss);
 }
 
 void SiStripBaseDelay::printDebug(std::stringstream & ss) const
 {
-  printSummary(ss);
   delayConstIt it = delays_.begin();
-  ss << std::endl << "All pedestal values:" << std::endl;
   for( ; it != delays_.end(); ++it ) {
     ss << "detId = " << it->detId << " delay = " << makeDelay(it->coarseDelay, it->fineDelay) << std::endl;
   }
+  printSummary(ss);
 }

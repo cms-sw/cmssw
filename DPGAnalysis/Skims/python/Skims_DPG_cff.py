@@ -149,31 +149,6 @@ SKIMStreamHSCP = cms.FilteredStream(
 
 #####################
 
-from DPGAnalysis.Skims.cosmicSPSkim_cff import *
-cosmicSPSkimPath = cms.Path( cosmicSPSkim )
-SKIMStreamCosmicSP = cms.FilteredStream(
-        responsible = '',
-        name = 'CosmicSP',
-        paths = (cosmicSPSkimPath),
-        content = skimContent.outputCommands,
-        selectEvents = cms.untracked.PSet(),
-        dataTier = cms.untracked.string('RAW-RECO')
-        )
-
-#####################
-
-from DPGAnalysis.Skims.cosmicTPSkim_cff import *
-cosmicTPSkimPath = cms.Path( cosmicTPSkim )
-SKIMStreamCosmicTP = cms.FilteredStream(
-        responsible = '',
-        name = 'CosmicTP',
-        paths = (cosmicTPSkimPath),
-        content = skimContent.outputCommands,
-        selectEvents = cms.untracked.PSet(),
-        dataTier = cms.untracked.string('RAW-RECO')
-        )
-
-#####################
 
 from DPGAnalysis.Skims.ecalrechitsSkim_cff import *
 ecalrechitSkimPath = cms.Path(ecalrechitSkim)
@@ -282,3 +257,15 @@ SKIMStreamWZMu   = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
+#####################
+
+from DPGAnalysis.Skims.TkSDSkim_cff import *
+TkSDSkimPath = cms.Path (TkSD_Seq)
+SKIMStreamTkSD = cms.FilteredStream(
+    responsible = 'Tracker DPG & Tracking POG',
+    name = 'TkSD',
+    paths = ( TkSDSkimPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW')
+    )

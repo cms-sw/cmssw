@@ -2,6 +2,7 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 
+
 ## ------------------------------------------------------
 #  NOTE: you can use a bunch of core tools of PAT to
 #  taylor your PAT configuration; for a few examples
@@ -18,10 +19,52 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 # removeSpecificPATObjects(process, ['Electrons', 'Muons', 'Taus'])
 
 
+
+## ------------------------------------------------------
+#  NOTE: you can still run PAT in the 36X version on
+#  input files produced within the 35X series. This
+#  implies some reconfigurations, example are given
+#  below.
+## ------------------------------------------------------
+#from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
+
+## uncomment this line to run on an 35X input sample
+#run36xOn35xInput(process)
+
+## uncomment the following lines to add jets from a
+## 35X input sample
+#addJetCollection35X(process,cms.InputTag('ak7CaloJets'),
+#                 'AK7', 'Calo',
+#                 doJTA        = True,
+#                 doBTagging   = False,
+#                 jetCorrLabel = ('AK7', 'Calo'),
+#                 doType1MET   = True,
+#                 doL1Cleaning = True,                 
+#                 doL1Counters = False,
+#                 genJetCollection=cms.InputTag("ak7GenJets"),
+#                 doJetID      = True,
+#                 jetIdLabel   = "ak7"
+#                 )
+
+## uncomment the following lines to switch the jet
+## collection from a 35X input sample
+#switchJetCollection35X(process,cms.InputTag('ak5PFJets'),
+#                 doJTA        = True,
+#                 doBTagging   = True,
+#                 jetCorrLabel = None,
+#                 doType1MET   = True,
+#                 genJetCollection=cms.InputTag("ak5GenJets"),
+#                 doJetID      = True
+#                 )
+
+
+
 ## let it run
 process.p = cms.Path(
     process.patDefaultSequence
     )
+
+
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

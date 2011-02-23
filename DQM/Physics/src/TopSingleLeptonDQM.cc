@@ -40,10 +40,8 @@ namespace TopSingleLepton {
       }
       // electronId is optional; in case it's not found the 
       // InputTag will remain empty
-      if( elecExtras.existsAs<edm::ParameterSet>("electronId") ){
-	edm::ParameterSet elecId=elecExtras.getParameter<edm::ParameterSet>("electronId");
-	electronId_= elecId.getParameter<edm::InputTag>("src");
-	eidPattern_= elecId.getParameter<int>("pattern");
+      if( elecExtras.existsAs<edm::InputTag>("electronId") ){
+	electronId_= elecExtras.getParameter<edm::InputTag>("electronId");
       }
     }
 
@@ -285,7 +283,7 @@ namespace TopSingleLepton {
     for(edm::View<reco::GsfElectron>::const_iterator elec=elecs->begin(); elec!=elecs->end(); ++elec){
       unsigned int idx = elec-elecs->begin();
       // restrict to electrons with good electronId
-      if( electronId_.label().empty() ? true : ((int)(*electronId)[elecs->refAt(idx)] & eidPattern_) ){
+      if( electronId_.label().empty() ? true : (*electronId)[elecs->refAt(idx)]>0.99 ){
 	if(!elecSelect_ || (*elecSelect_)(*elec)){
 	  double isolationTrk = elec->pt()/(elec->pt()+elec->dr03TkSumPt());
 	  double isolationCal = elec->pt()/(elec->pt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt());
@@ -306,7 +304,7 @@ namespace TopSingleLepton {
     }
     fill("elecMult_",    eMult   );
     fill("elecMultIso_", eMultIso);
-    
+
     /* 
     ------------------------------------------------------------
 
@@ -388,6 +386,7 @@ namespace TopSingleLepton {
     std::vector<reco::Jet> correctedJets;
     unsigned int mult=0, multBEff=0, multBPur=0, multBVtx=0;
 
+
     edm::Handle<edm::View<reco::Jet> > jets; 
     if( !event.getByLabel(jets_, jets) ) return;
 
@@ -415,12 +414,11 @@ namespace TopSingleLepton {
 	reco::Jet sel = *jet; sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
 	StringCutObjectSelector<reco::Jet> jetSelect(jetSelect_); if(!jetSelect(sel)) continue;
       }
-      // check for overlaps -- comment this to be synchronous with the selection
-      //bool overlap=false;
-      //for(std::vector<const reco::GsfElectron*>::const_iterator elec=isoElecs.begin(); elec!=isoElecs.end(); ++elec){
-      //  if(reco::deltaR((*elec)->eta(), (*elec)->phi(), jet->eta(), jet->phi())<0.4){overlap=true; break;}
-      //} if(overlap){continue;}
-
+      // check for overlaps
+      bool overlap=false;
+      for(std::vector<const reco::GsfElectron*>::const_iterator elec=isoElecs.begin(); elec!=isoElecs.end(); ++elec){
+	if(reco::deltaR((*elec)->eta(), (*elec)->phi(), jet->eta(), jet->phi())<0.4){overlap=true; break;}
+      } if(overlap){continue;}
       // prepare jet to fill monitor histograms
       reco::Jet monitorJet = *jet; monitorJet.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
       correctedJets.push_back(monitorJet);

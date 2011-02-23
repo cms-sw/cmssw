@@ -1,5 +1,4 @@
 #include <stdexcept>
-#include <sstream>
 #include <limits.h>
 #include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
@@ -191,20 +190,7 @@ void LMFSeqDat::fetchParentIDs()
 
 }
 
-std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par, 
-						  std::string sql,
-						  std::string method)
-  throw(std::runtime_error)
-{
-  std::vector<std::string> pars;
-  std::stringstream ss;
-  ss << "I" << par;
-  pars.push_back(ss.str());
-  return fetchByRunIOV(pars, sql, method);
-}
-
-std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::vector<std::string> pars, 
-						  std::string sql,
+std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par, std::string sql,
 						  std::string method)
   throw(std::runtime_error)
 {
@@ -213,16 +199,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::vector<std::string> pars,
   try {
     Statement *stmt = m_conn->createStatement();
     stmt->setSQL(sql);
-    for (unsigned int i = 0; i < pars.size(); i++) {
-      if (pars[i][0] == 'I') {
-	stmt->setInt(i + 1, atoi(pars[i].c_str() + 1));
-      } else if (pars[i][0] == 'S') {
-	stmt->setString(i + 1, pars[i].c_str() + 1);
-      } else {
-	throw(std::runtime_error(m_className + "::" + method + ": " + 
-				 "Invalid type"));
-      }
-    }
+    stmt->setInt(1, par);
     ResultSet *rset = stmt->executeQuery();
     while (rset->next()) {
       int seq_id = rset->getInt(1);
@@ -253,39 +230,4 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunNumber(int runno) {
 		       "fetchByRunNumber");
 }
 
-LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, Tm taken_at) {
-  return fetchByRunNumber(runno, taken_at.str());
-}
-
-LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, std::string taken_at) {
-  std::map<int, LMFSeqDat> l;
-  std::vector<std::string> pars;
-  std::stringstream ss;
-  ss << "I" << runno;
-  pars.push_back(ss.str());
-  ss.str(std::string());
-  ss << "S" << taken_at;
-  pars.push_back(ss.str());
-  std::string q = "SELECT SEQ_ID FROM LMF_SEQ_DAT D JOIN RUN_IOV R ON "
-    "D.RUN_IOV_ID = R.IOV_ID WHERE RUN_NUM = :1 AND "
-    "SEQ_START >= TO_DATE(:2, 'YYYY-MM-DD HH24:MI:SS') "
-    "AND SEQ_STOP <= TO_DATE(:2, 'YYYY-MM-DD HH24:MI:SS')";
-  l = fetchByRunIOV(pars, q, "fetchByRunNumberAt");
-  LMFSeqDat ret;
-  if (l.size() == 1) {
-    std::map<int, LMFSeqDat>::const_iterator x = l.begin();
-    ret = x->second;
-  } else if (l.size() > 1) {
-    std::cout << "WARNING: Your query returned more than one result. " 
-	      << std::endl;
-    std::cout << "         This was not expected. Please check the DB!!!" 
-	      << std::endl;
-    std::cout << "Your query: " << std::endl << q << std::endl;
-    std::cout << "Your parameters: " << std::endl;
-    for (unsigned int i = 0; i < pars.size(); i++) {
-      std::cout << i << ": " << pars[i] << std::endl;
-    }
-  }
-  return ret;
-}
 

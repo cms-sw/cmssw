@@ -150,7 +150,6 @@ JetMatchingMadgraph::JetMatchingMadgraph(const edm::ParameterSet &params) :
 	memain_.minjets = params.getParameter<int>("MEMAIN_minjets");
 	memain_.maxjets = params.getParameter<int>("MEMAIN_maxjets");
 	memain_.showerkt = params.getParameter<double>("MEMAIN_showerkt");
-	memain_.nqmatch = params.getParameter<int>("MEMAIN_nqmatch");
 	outtree_.flag = params.getParameter<int>("outTree_flag");
 	std::string list_excres = params.getParameter<std::string>("MEMAIN_excres");
 	std::vector<std::string> elems;
@@ -276,7 +275,6 @@ void JetMatchingMadgraph::init(const lhef::LHERunInfo* runInfo)
 	updateOrDie(mgInfoCMS, memain_.minjets, "minjets");
 	updateOrDie(mgInfoCMS, memain_.maxjets, "maxjets");
 	updateOrDie(mgInfoCMS, memain_.showerkt, "showerkt");
-	updateOrDie(mgInfoCMS, memain_.nqmatch, "nqmatch");
 
 	// run Fortran initialization code
 

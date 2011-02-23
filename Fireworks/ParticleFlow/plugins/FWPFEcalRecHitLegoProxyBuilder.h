@@ -24,6 +24,8 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
+using namespace std;
+
 class FWPFEcalRecHitLegoProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
 {
    public:
@@ -34,8 +36,6 @@ class FWPFEcalRecHitLegoProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
       static std::string typeOfBuilder() { return "simple#"; }
 
       virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
-      virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
-
 
       virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
       virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }

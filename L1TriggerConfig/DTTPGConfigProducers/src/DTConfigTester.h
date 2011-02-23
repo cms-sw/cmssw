@@ -29,25 +29,12 @@
 //
 
 class DTConfigTester : public edm::EDAnalyzer {
+   public:
+      explicit DTConfigTester(const edm::ParameterSet&);
+      ~DTConfigTester();
 
-public :
-
-  //! Constructor
-  explicit DTConfigTester(const edm::ParameterSet&);
-
-  //! Destructor
-  ~DTConfigTester();
-
-  // Analyze Method
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
-private:
-
-  int my_wh;
-  int my_sec;
-  int my_st;
-  int my_traco;
-  int my_bti;
-
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   private:
+      // ----------member data ---------------------------
 };
 

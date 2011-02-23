@@ -17,26 +17,15 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv RUNTYPE Central
-setenv STARTUP True
-setenv CMSSWver1 3_11_0
-setenv CMSSWver2 3_11_0
-setenv OLDRELEASE 3_11_0
-setenv NEWRELEASE 3_11_0
-setenv OLDPRERELEASE pre2
-setenv NEWPRERELEASE pre3
-if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START310_V3-v1
-setenv NEWGLOBALTAG START310_V3-v1
-else
-setenv OLDGLOBALTAG MC_310_V3-v1
-setenv NEWGLOBALTAG MC_310_V3-v1
-endif
+setenv CMSSWver1 3_10_0
+setenv CMSSWver2 3_10_0
+setenv OLDRELEASE 3_10_0
+setenv NEWRELEASE 3_10_0
+setenv OLDPRERELEASE pre5
+setenv NEWPRERELEASE pre7
 
 setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
-#setenv OLDRELEASE ${OLDRELEASE}
 setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
-
 
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
@@ -54,24 +43,13 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
+
 #Name of sample (affects output directory name and htmldescription only) 
+
 setenv SAMPLE QCD_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_20_30STARTUP
+#TYPE must be one ofPixelMatchGsfElectron, Photon 
 
-
-if ( $RUNTYPE == Central ) then
-setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Efficiencies
-setenv HISTOPATHNAME_Photons DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Photons
-setenv HISTOPATHNAME_Conversions DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/ConversionInfo
-setenv HISTOPATHNAME_Background DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Background
-endif
-
-if ( $RUNTYPE == Local ) then
-setenv HISTOPATHNAME_Efficiencies DQMData/EgammaV/PhotonValidator/Efficiencies
-setenv HISTOPATHNAME_Photons DQMData/EgammaV/PhotonValidator/Photons
-setenv HISTOPATHNAME_Conversions DQMData/EgammaV/PhotonValidator/ConversionInfo
-setenv HISTOPATHNAME_Background DQMData/EgammaV/PhotonValidator/Background
-endif
 #==============END BASIC CONFIGURATION==================
 
 
@@ -84,12 +62,12 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_20_30.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_20_30.root
 
 else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
-if ( $RUNTYPE == Local ) then
+
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
-else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
+
+
+
 endif
 
 
@@ -157,6 +135,16 @@ cat > scaledhistosForBkg <<EOF
   phoBkgEtAll
   phoBkgDEta
   phoBkgDPhi
+  r9BkgBarrel
+  r9BkgEndcap
+  r1BkgBarrel
+  r1BkgEndcap
+  r2BkgBarrel
+  r2BkgEndcap
+  sigmaIetaIetaBkgBarrel
+  sigmaIetaIetaBkgEndcap
+  ecalRecHitSumEtConeDR04BkgBarrel
+  ecalRecHitSumEtConeDR04BkgEndcap
   isoTrkSolidConeDR04BkgBarrel
   isoTrkSolidConeDR04BkgEndcap
   nTrkSolidConeDR04BkgBarrel
@@ -183,20 +171,10 @@ cat > scaledhistosForBkgLogScale <<EOF
   hOverEBkgEndcap
   hcalTowerSumEtConeDR04BkgBarrel
   hcalTowerSumEtConeDR04BkgEndcap
+
   EoverPtracksBkgAll
   EoverPtracksBkgBarrel 
   EoverPtracksBkgEndcap
-  r9BkgBarrel
-  r9BkgEndcap
-  r1BkgBarrel
-  r1BkgEndcap
-  r2BkgBarrel
-  r2BkgEndcap
-  sigmaIetaIetaBkgBarrel
-  sigmaIetaIetaBkgEndcap
-  ecalRecHitSumEtConeDR04BkgBarrel
-  ecalRecHitSumEtConeDR04BkgEndcap
-
 
 EOF
 
@@ -262,8 +240,7 @@ foreach i (`cat efficiencyForBkg`)
 
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-//file_old->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
-file_old->cd("$HISTOPATHNAME_Efficiencies");
+file_old->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 $i->SetStats(0);
 if ( $i==deadChVsEtaBkg ||  $i==deadChVsPhiBkg ||  $i==deadChVsEtBkg ) {
 $i->GetYaxis()->SetRangeUser(0.,0.2);
@@ -285,8 +262,7 @@ $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw("e1");
 
-//file_new->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
-file_new->cd("$HISTOPATHNAME_Efficiencies");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetMaximum(1.1);
@@ -310,12 +286,10 @@ foreach i (`cat scaledhistosForBkg`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-//file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
-file_new->cd("$HISTOPATHNAME_Background");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
 Double_t mnew=$i->GetMaximum();
 Double_t nnew=$i->GetEntries();
-//file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
-file_old->cd("$HISTOPATHNAME_Background");
+file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
 Double_t mold=$i->GetMaximum();
 Double_t nold=$i->GetEntries();
 $i->SetStats(0);
@@ -329,8 +303,7 @@ $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 //$i->SetLineWidth(3);
 $i->Draw();
-//file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
-file_new->cd("$HISTOPATHNAME_Background");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
@@ -352,8 +325,7 @@ foreach i (`cat unscaledhistosForBkg`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-//file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
-file_old->cd("$HISTOPATHNAME_Background");
+file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
 $i->SetStats(0);
 if ( $i==pEcalRecHitSumEtConeDR04VsEtaBkgAll ||  $i==pHcalTowerSumEtConeDR04VsEtaBkgAll  ) {  
 $i->GetYaxis()->SetRangeUser(0.,25.);
@@ -377,8 +349,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw();
-//file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
-file_new->cd("$HISTOPATHNAME_Background");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
@@ -399,11 +370,9 @@ foreach i (`cat scaledhistosForBkgLogScale`)
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 c$i->SetLogy(1);
-//file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
-file_new->cd("$HISTOPATHNAME_Background");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
 Double_t nnew=$i->GetEntries();
-//file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
-file_old->cd("$HISTOPATHNAME_Background");
+file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
 if ( $i==hcalTowerSumEtConeDR04BkgBarrel ||  $i==hcalTowerSumEtConeDR04BkgEndcap  ) {  
 $i->GetXaxis()->SetRangeUser(0.,10.);
 } else if ( $i==hOverEBkgBarrel || $i==hOverEBkgEndcap ) {
@@ -415,8 +384,7 @@ $i->SetStats(0);
 $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 $i->Draw();
-//file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
-file_new->cd("$HISTOPATHNAME_Background");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
@@ -439,16 +407,14 @@ foreach i (`cat 2DhistosForBkg`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-//file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
-file_old->cd("$HISTOPATHNAME_Background");
+file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
 $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(2);
 $i->SetMarkerSize(0.2);
 $i->Draw();
-//file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
-file_new->cd("$HISTOPATHNAME_Background");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
 $i->SetStats(0);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(2);

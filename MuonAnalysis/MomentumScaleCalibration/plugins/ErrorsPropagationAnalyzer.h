@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ErrorsPropagationAnalyzer.h,v 1.2 2010/08/03 10:52:00 demattia Exp $
+// $Id: ErrorsPropagationAnalyzer.h,v 1.1 2010/07/13 11:02:16 demattia Exp $
 //
 //
 
@@ -56,21 +56,9 @@ public:
 private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   void fillHistograms();
-  void drawHistograms(const TProfile* histo, const TProfile* histoPlusErr,
-		      const TProfile* histoMinusErr, const TString& type, const TString& yLabel);
+  void drawHistograms(const TProfile * histo, const TProfile * histoPlusErr, const TProfile * histoMinusErr, const TString & type);
   void fillValueError();
   virtual void endJob() {};
-  /// Modified method to take into account the error
-  double massResolution( const lorentzVector& mu1,
-			 const lorentzVector& mu2,
-                         const std::vector<double> & parval,
-		         const double & sigmaPt1,
-		         const double & sigmaPt2 );
-  double massResolution( const lorentzVector& mu1,
-			 const lorentzVector& mu2,
-			 double* parval,
-			 const double & sigmaPt1,
-			 const double & sigmaPt2);
 
   TString treeFileName_;
   int resolFitType_;
@@ -112,14 +100,6 @@ private:
   TProfile * sigmaMassVsPt_;
   TProfile * sigmaMassVsPtPlusErr_;
   TProfile * sigmaMassVsPtMinusErr_;
-
-  TProfile * sigmaMassOverMassVsEta_;
-  TProfile * sigmaMassOverMassVsEtaPlusErr_;
-  TProfile * sigmaMassOverMassVsEtaMinusErr_;
-
-  TProfile * sigmaMassOverMassVsPt_;
-  TProfile * sigmaMassOverMassVsPtPlusErr_;
-  TProfile * sigmaMassOverMassVsPtMinusErr_;
 };
 
 #endif // RESOLUTIONANALYZER_HH

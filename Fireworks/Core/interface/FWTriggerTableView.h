@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.h,v 1.5 2010/09/02 18:10:10 amraktad Exp $
+// $Id: FWTriggerTableView.h,v 1.7 2011/01/26 11:47:06 amraktad Exp $
 //
 
 // system include files
@@ -37,52 +37,47 @@ namespace fwlite {
 class FWTriggerTableView : public FWViewBase 
 {
    friend class FWTriggerTableViewTableManager;
-
 public:
    struct Column {
       std::string title;
       std::vector<std::string> values;
       Column( const std::string& s ) : title( s )
-		{}
+      {}
    };
 
-   FWTriggerTableView( TEveWindowSlot *, FWTriggerTableViewManager * );
+   FWTriggerTableView( TEveWindowSlot *, FWViewType::EType );
    virtual ~FWTriggerTableView( void );
 
    // ---------- const member functions ---------------------
-   TGFrame*       frame( void ) const;
    virtual void   addTo( FWConfiguration& ) const;
    virtual void   saveImageTo( const std::string& iName ) const;
+   Color_t backgroundColor() const { return m_backgroundColor; }
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
    virtual void setFrom( const FWConfiguration& );
    void setBackgroundColor( Color_t );
-   void resetColors( const class FWColorManager& );
+   //void resetColors( const class FWColorManager& );
    void dataChanged( void );
    void columnSelected( Int_t iCol, Int_t iButton, Int_t iKeyMod );
-   void updateFilter( void );
 
 private:
    FWTriggerTableView( const FWTriggerTableView& );      // stop default
    const FWTriggerTableView& operator=( const FWTriggerTableView& );      // stop default
-
-   void fillAverageAcceptFractions( void );
 	
 protected:
+   virtual void fillTable(fwlite::Event* event) = 0;
+
    typedef boost::unordered_map<std::string,double> acceptmap_t;
    TEveWindowFrame*                m_eveWindow;
    TGCompositeFrame*               m_vert;
-   FWTriggerTableViewManager*      m_manager;
+
    FWTriggerTableViewTableManager* m_tableManager;
    FWTableWidget*                  m_tableWidget;
-   int                             m_currentColumn;
    std::vector<Column>             m_columns;
-   fwlite::Event*                  m_event;
-   acceptmap_t                     m_averageAccept;
-   FWStringParameter               m_regex;
-   FWStringParameter               m_process;
+
+   Color_t                         m_backgroundColor;
 };
 
 

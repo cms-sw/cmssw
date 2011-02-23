@@ -30,21 +30,11 @@ bool CSCTFPtLUT::lut_read_in = false;
 #include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
-// info for getPtScale() pt scale in GeV
-// low edges of pt bins
-/*     const float ptscale[33] = {  */
-/*       -1.,   0.0,   1.5,   2.0,   2.5,   3.0,   3.5,   4.0, */
-/*       4.5,   5.0,   6.0,   7.0,   8.0,  10.0,  12.0,  14.0,   */
-/*       16.0,  18.0,  20.0,  25.0,  30.0,  35.0,  40.0,  45.0,  */
-/*       50.0,  60.0,  70.0,  80.0,  90.0, 100.0, 120.0, 140.0, 1.E6 }; */
-
-
 CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es) 
     : read_pt_lut(false),
       isBinary(false)
 {
 	pt_method = 4;
-        //std::cout << "pt_method from 4 " << std::endl; 
 	lowQualityFlag = 4;
 	isBeamStartConf = true;
 	pt_lut = new ptdat[1<<21];
@@ -97,13 +87,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
   // 2 - Cathy Yeh's chi-square minimization method
   // 3 - Hybrid
   // 4 - Anna's parameterization method
-  // 5 - Anna's parameterization method 
-         //with improvments at ME1/1a: find max pt for 3 links hypothesis
-  // 11 - Anna's: for fw 20101011 <- 2011 data taking
-  // 12 - Anna's: for fw 20101011 <- 2011 data taking 
-          //with improvments at ME1/1a: find max pt for 3 links hypothesis
   pt_method = pset.getUntrackedParameter<unsigned>("PtMethod",4);
-  //std::cout << "pt_method from pset " << std::endl; 
   // what does this mean???
   lowQualityFlag = pset.getUntrackedParameter<unsigned>("LowQualityFlag",4);
 
@@ -169,7 +153,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 {
   ptdat result;
 
-  double Pi  = acos(-1.);
   float etaR = 0, ptR_front = 0, ptR_rear = 0, dphi12R = 0, dphi23R = 0;
   int charge12, charge23;
   unsigned type, mode, eta, fr, quality, charge, absPhi12, absPhi23;
@@ -178,164 +161,18 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
   mode = address.track_mode;
   fr = address.track_fr;
   charge = address.delta_phi_sign;
-  quality = trackQuality(eta, mode, fr);
+  quality = trackQuality(eta, mode);
   unsigned front_pt, rear_pt;
-  front_pt = 0.; rear_pt = 0.;
   unsigned front_quality, rear_quality;
 
   etaR = trigger_scale->getRegionalEtaScale(2)->getLowEdge(2*eta+1);
 
   front_quality = rear_quality = quality;
 
-
-//***************************************************//
-  if(pt_method >= 11){ //here we have only pt_methods greater or equal to 11 
-                       //for fw 20101011 <- 2011 data taking
-  // mode definition you could find at page 6 & 7: 
-  // http://www.phys.ufl.edu/~madorsky/sp/2010-10-11/sp_core_interface.pdf 
-  // it is valid starting the beggining of 2011 
-  switch(mode)
-    {
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-
-      charge12 = 1;
-      absPhi12 = address.delta_phi_12;
-      absPhi23 = address.delta_phi_23;
-
-      if(charge) charge23 = 1;
-      else charge23 = -1;
-
-      dphi12R = (static_cast<float>(absPhi12<<1)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
-      dphi23R = (static_cast<float>(absPhi23<<4)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
-      if(charge12 * charge23 < 0) dphi23R = -dphi23R;
-
-      ptR_front = ptMethods.Pt3Stn2010(mode, etaR, dphi12R, dphi23R, 1, int(pt_method));
-      ptR_rear  = ptMethods.Pt3Stn2010(mode, etaR, dphi12R, dphi23R, 0, int(pt_method));    
-
-      if(pt_method == 12 && mode != 5 && etaR > 2.1)//exclude mode without ME11a
-        {
-            float dphi12Rmin = dphi12R - Pi*10/180/3; // 10/3 degrees 
-            float dphi12Rmax = dphi12R + Pi*10/180/3; // 10/3 degrees
-            float dphi23Rmin = dphi23R;
-            float dphi23Rmax = dphi23R;
-            if(dphi12Rmin*dphi12R < 0) dphi23Rmin = -dphi23R;
-            if(dphi12Rmax*dphi12R < 0) dphi23Rmax = -dphi23R;
-            float ptR_front_min = ptMethods.Pt3Stn2010(mode, etaR, dphi12Rmin, dphi23Rmin, 1, int(pt_method));
-            float ptR_rear_min = ptMethods.Pt3Stn2010(mode, etaR, dphi12Rmin, dphi23Rmin, 0, int(pt_method));
-            float ptR_front_max = ptMethods.Pt3Stn2010(mode, etaR, dphi12Rmax, dphi23Rmax, 1, int(pt_method));
-            float ptR_rear_max = ptMethods.Pt3Stn2010(mode, etaR, dphi12Rmax, dphi23Rmax, 0, int(pt_method));
-            // select max pt solution for 3 links:
-            ptR_front = std::max(ptR_front, ptR_front_min);
-            ptR_front = std::max(ptR_front, ptR_front_max);
-            ptR_rear = std::max(ptR_rear, ptR_rear_min);
-            ptR_rear = std::max(ptR_rear, ptR_rear_max);
-        }
-      break;
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-    case 13: // ME1-ME4
-      type = mode - 5;
-
-      if(charge) absPhi12 = address.delta_phi();
-      else
-	{
-	  int temp_phi = address.delta_phi();
-	  absPhi12 = static_cast<unsigned>(-temp_phi) & 0xfff;
-	}
-
-      dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
-
-      //std::cout<< " Sector_rad = " << (CSCTFConstants::SECTOR_RAD) << std::endl;
-      ptR_front = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 1, int(pt_method));
-      ptR_rear  = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0, int(pt_method));
-      if((pt_method == 12) && etaR > 2.1 && mode != 8 && mode !=9 && mode !=10)//exclude tracks without ME11a 
-        {
-           float dphi12Rmin = fabs(fabs(dphi12R) - Pi*10/180/3); // 10/3 degrees 
-           float ptR_front_min = ptMethods.Pt2Stn2010(mode, etaR, dphi12Rmin, 1, int(pt_method));
-           float ptR_rear_min = ptMethods.Pt2Stn2010(mode, etaR, dphi12Rmin, 0, int(pt_method));
-           // select max pt solution for 3 links:
-           ptR_front = std::max(ptR_front, ptR_front_min);
-           ptR_rear = std::max(ptR_rear, ptR_rear_min);
-        }
-
-      break;
-    case 11: // FR = 1 -> b1-1-3,     FR = 0 -> b1-3 
-    case 12: // FR = 1 -> b1-2-3,     FR = 0 -> b1-2 
-    case 14: // FR = 1 -> b1-1-2-(3), FR = 0 -> b1-1
-
-      if(fr == 0){ // 2 station track
-        if(charge) absPhi12 = address.delta_phi();
-        else
-          {
-	    int temp_phi = address.delta_phi();
-	    absPhi12 = static_cast<unsigned>(-temp_phi) & 0xfff;
-          }
-          dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
-          ptR_rear  = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0, int(pt_method));
-
-      }// end fr == 0
-      if(fr == 1){ // 3 station track
-        charge12 = 1;
-        absPhi12 = address.delta_phi_12;
-        absPhi23 = address.delta_phi_23;
-
-        if(charge) charge23 = 1;
-        else charge23 = -1;
-
-        dphi12R = (static_cast<float>(absPhi12<<1)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
-        dphi23R = (static_cast<float>(absPhi23<<4)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
-        if(charge12 * charge23 < 0) dphi23R = -dphi23R;
-
-        ptR_front = ptMethods.Pt3Stn2010(mode, etaR, dphi12R, dphi23R, 1, int(pt_method));
-
-        if(pt_method == 12 && mode != 5 && etaR > 2.1)//exclude mode without ME11a
-          {
-              float dphi12Rmin = dphi12R - Pi*10/180/3; // 10/3 degrees 
-              float dphi12Rmax = dphi12R + Pi*10/180/3; // 10/3 degrees
-              float dphi23Rmin = dphi23R;
-              float dphi23Rmax = dphi23R;
-              if(dphi12Rmin*dphi12R < 0) dphi23Rmin = -dphi23R;
-              if(dphi12Rmax*dphi12R < 0) dphi23Rmax = -dphi23R;
-              float ptR_front_min = ptMethods.Pt3Stn2010(mode, etaR, dphi12Rmin, dphi23Rmin, 1, int(pt_method));
-              float ptR_front_max = ptMethods.Pt3Stn2010(mode, etaR, dphi12Rmax, dphi23Rmax, 1, int(pt_method));
-              // select max pt solution for 3 links:
-              ptR_front = std::max(ptR_front, ptR_front_min);
-              ptR_front = std::max(ptR_front, ptR_front_max);
-          }
-      } // end fr == 1 
-
-      break;
-    case 15: // halo trigger
-    case 1: // tracks that fail delta phi cuts
-      ptR_front = trigger_ptscale->getPtScale()->getLowEdge(3); // 2 GeV
-      ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(3); 
-      break;
-    default: // Tracks in this category are not considered muons.
-      ptR_front = trigger_ptscale->getPtScale()->getLowEdge(0); // 0 GeV 
-      ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(0);
-    };// end switch
-
-  front_pt = trigger_ptscale->getPtScale()->getPacked(ptR_front);
-  rear_pt  = trigger_ptscale->getPtScale()->getPacked(ptR_rear);
-
-  } //end pt_methods greater or equal to 11 
-//***************************************************//
-  if(pt_method <= 5){ //here we have only pt_methods less or equal to 5
-  // mode definition you could find at https://twiki.cern.ch/twiki/pub/Main/PtLUTs/mode_codes.xls
-  // it is valid till the end 2010 
-
   //  kluge to use 2-stn track in overlap region
   //  see also where this routine is called, and encode LUTaddress, and assignPT
-  if (pt_method != 4 && pt_method !=5 
-      && (mode == 2 || mode == 3 || mode == 4) && (eta<3)) mode = 6;
-  if (pt_method != 4 && pt_method !=5 && (mode == 5)
-      && (eta<3)) mode = 8;
+  if (pt_method != 4 && (mode == 2 || mode == 3 || mode == 4) && (eta<3)) mode = 6;
+  if (pt_method != 4 && (mode == 5)                           && (eta<3)) mode = 8;
 
   switch(mode)
     {
@@ -353,33 +190,15 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 
       // now convert to real numbers for input into PT assignment algos.
 
-      if(pt_method == 4 || pt_method == 5) // param method 2010
+      if(pt_method == 4) // param method 2010
         {
           dphi12R = (static_cast<float>(absPhi12<<1)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
           dphi23R = (static_cast<float>(absPhi23<<4)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
           if(charge12 * charge23 < 0) dphi23R = -dphi23R;
 
-          ptR_front = ptMethods.Pt3Stn2010(mode, etaR, dphi12R, dphi23R, 1, int(pt_method));
-          ptR_rear  = ptMethods.Pt3Stn2010(mode, etaR, dphi12R, dphi23R, 0, int(pt_method));
+          ptR_front = ptMethods.Pt3Stn2010(mode, etaR, dphi12R, dphi23R, 1);
+          ptR_rear  = ptMethods.Pt3Stn2010(mode, etaR, dphi12R, dphi23R, 0);
 
-          if(pt_method == 5 && mode != 5 && etaR > 2.1)//exclude mode without ME11a
-            {
-                float dphi12Rmin = dphi12R - Pi*10/180/3; // 10/3 degrees 
-                float dphi12Rmax = dphi12R + Pi*10/180/3; // 10/3 degrees
-                float dphi23Rmin = dphi23R;
-                float dphi23Rmax = dphi23R;
-                if(dphi12Rmin*dphi12R < 0) dphi23Rmin = -dphi23R;
-                if(dphi12Rmax*dphi12R < 0) dphi23Rmax = -dphi23R;
-                float ptR_front_min = ptMethods.Pt3Stn2010(mode, etaR, dphi12Rmin, dphi23Rmin, 1, int(pt_method));
-                float ptR_rear_min = ptMethods.Pt3Stn2010(mode, etaR, dphi12Rmin, dphi23Rmin, 0, int(pt_method));
-                float ptR_front_max = ptMethods.Pt3Stn2010(mode, etaR, dphi12Rmax, dphi23Rmax, 1, int(pt_method));
-                float ptR_rear_max = ptMethods.Pt3Stn2010(mode, etaR, dphi12Rmax, dphi23Rmax, 0, int(pt_method));
-                // select max pt solution for 3 links:
-                ptR_front = std::max(ptR_front, ptR_front_min);
-                ptR_front = std::max(ptR_front, ptR_front_max);
-                ptR_rear = std::max(ptR_rear, ptR_rear_min);
-                ptR_rear = std::max(ptR_rear, ptR_rear_max);
-            }
         }
       else if(pt_method == 1) // param method
 	{
@@ -461,22 +280,13 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	  ptR_front = trigger_ptscale->getPtScale()->getLowEdge(1);
 	  ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(1);
 	}
-      if(pt_method == 4 || pt_method == 5) // param method 2010
+      if(pt_method == 4) // param method 2010
         {
               dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
 
               //std::cout<< " Sector_rad = " << (CSCTFConstants::SECTOR_RAD) << std::endl;
-              ptR_front = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 1, int(pt_method));
-              ptR_rear  = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0, int(pt_method));
-              if((pt_method == 5) && etaR > 2.1 && mode != 8 && mode !=9 && mode !=10)//exclude tracks without ME11a 
-                {
-                   float dphi12Rmin = fabs(fabs(dphi12R) - Pi*10/180/3); // 10/3 degrees 
-                   float ptR_front_min = ptMethods.Pt2Stn2010(mode, etaR, dphi12Rmin, 1, int(pt_method));
-                   float ptR_rear_min = ptMethods.Pt2Stn2010(mode, etaR, dphi12Rmin, 0, int(pt_method));
-                   // select max pt solution for 3 links:
-                   ptR_front = std::max(ptR_front, ptR_front_min);
-                   ptR_rear = std::max(ptR_rear, ptR_rear_min);
-                }
+              ptR_front = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 1);
+              ptR_rear  = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0);
         }
 
       break;
@@ -501,12 +311,12 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	  ptR_front = trigger_ptscale->getPtScale()->getLowEdge(1);
 	  ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(1);
 	}
-      if(pt_method == 4 || pt_method == 5) // param method 2010 
+      if(pt_method == 4) // param method 2010 
         {
               dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
 
-              ptR_front = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 1, int(pt_method));
-              ptR_rear  = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0, int(pt_method));
+              ptR_front = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 1);
+              ptR_rear  = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0);
 
               if(fabs(dphi12R)<0.01 && (ptR_rear < 10 || ptR_front < 10))
                 std::cout << "dphi12R = " << dphi12R << " ptR_rear = " << ptR_rear
@@ -534,21 +344,12 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	  ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(1);
 	}
 
-      if(pt_method == 4 || pt_method == 5) // param method 2010
+      if(pt_method == 4) // param method 2010
         {
               dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
 
-              ptR_front = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 1, int(pt_method));
-              ptR_rear  = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0, int(pt_method));
-              if((pt_method == 5) && etaR > 2.1)//mode = 13: ME1-ME4 exclude tracks without ME11a 
-                {
-                   float dphi12Rmin = fabs(fabs(dphi12R) - Pi*10/180/3); // 10/3 degrees 
-                   float ptR_front_min = ptMethods.Pt2Stn2010(mode, etaR, dphi12Rmin, 1, int(pt_method));
-                   float ptR_rear_min = ptMethods.Pt2Stn2010(mode, etaR, dphi12Rmin, 0, int(pt_method));
-                   // select max pt solution for 3 links:
-                   ptR_front = std::max(ptR_front, ptR_front_min);
-                   ptR_rear = std::max(ptR_rear, ptR_rear_min);
-                }
+              ptR_front = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 1);
+              ptR_rear  = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0);
         }
 
       break;
@@ -578,7 +379,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
   rear_pt  = trigger_ptscale->getPtScale()->getPacked(ptR_rear);
 
   // kluge to set arbitrary Pt for some tracks with lousy resolution (and no param)
-  if(pt_method != 4 && pt_method != 5) 
+  if(pt_method != 4) 
     {
       if ((front_pt==0 || front_pt==1) && (eta<3) && quality==1 && pt_method != 2) front_pt = 31;
       if ((rear_pt==0  || rear_pt==1) && (eta<3) && quality==1 && pt_method != 2) rear_pt = 31;
@@ -590,7 +391,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
     }
 
   // in order to match the pt assignement of the previous routine
-  if(isBeamStartConf && pt_method != 2 && pt_method != 4 && pt_method !=5) {
+  if(isBeamStartConf && pt_method != 2 && pt_method != 4) {
     if(quality == 3 && mode == 5) {
       
       if (front_pt < 5) front_pt = 5;
@@ -603,9 +404,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       if (rear_pt  < 5) rear_pt  = 5;
     }
   }
-
-  } // end if for pt_method less or equal to 5
-//***************************************************//
 
  
   result.front_rank = front_pt | front_quality << 5;
@@ -628,7 +426,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 }
 
 
-unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, const unsigned& fr) const
+unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) const
 {
  // eta and mode should be only 4-bits, since that is the input to the large LUT
     if (eta>15 || mode>15)
@@ -641,9 +439,10 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, con
     switch (mode) {
     case 2:
       quality = 3;
-      if(pt_method > 10 && eta < 3) quality = 2; //eta < 1.2  
       break;
     case 3:
+      quality = 3;
+      break;
     case 4:
       /// DEA try increasing quality
       //        quality = 2;
@@ -655,14 +454,13 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, con
 	quality = 3;
       break;
     case 6:
-      if (eta>=3) // eta > 1.2
+      if (eta>=3)
 	quality = 2;
       else
 	quality = 1;
       break;
     case 7:
       quality = 2;
-      if(pt_method > 10 && eta < 3) quality = 1; //eta < 1.2  
       break;
     case 8:
       quality = 1;
@@ -682,24 +480,15 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, con
     case 11:
       // single LCTs
       quality = 1;
-      // overlap region
-      if(pt_method > 10 && fr == 0) quality = 2;
-      if(pt_method > 10 && fr == 1) quality = 3;
       break;
     case 12:
       quality = 3;
-      // overlap region
-      if(pt_method > 10 && fr == 0) quality = 2;
-      if(pt_method > 10 && fr == 1) quality = 3;
       break;
     case 13:
       quality = 2;
       break;
     case 14:
       quality = 2;
-      // overlap region
-      if(pt_method > 10 && fr == 0) quality = 2;
-      if(pt_method > 10 && fr == 1) quality = 3;
       break;
     case 15:
       // halo triggers

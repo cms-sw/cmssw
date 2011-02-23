@@ -11,7 +11,6 @@
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
-#include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
@@ -113,12 +112,10 @@ CmsShowMainBase::setupViewManagers()
 
    boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager(new FWTriggerTableViewManager(guiManager()));
    configurationManager()->add(std::string("TriggerTables"), triggerTableViewManager.get());
+   configurationManager()->add(std::string("L1TriggerTables"), triggerTableViewManager.get()); // AMT: added for backward compatibilty
    viewManager()->add(triggerTableViewManager);
 
-   boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager(new FWL1TriggerTableViewManager(guiManager()));
-   configurationManager()->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
-   viewManager()->add(l1TriggerTableViewManager);
-  
+    
    // Unfortunately, due to the plugin mechanism, we need to delay
    // until here the creation of the FWJobMetadataManager, because
    // otherwise the supportedTypesAndRepresentations map is empty.
