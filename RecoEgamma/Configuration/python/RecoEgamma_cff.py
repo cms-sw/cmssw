@@ -12,10 +12,10 @@ from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 from RecoEgamma.EgammaHFProducers.hfEMClusteringSequence_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
 
-egammarecoGlobal = cms.Sequence(electronGsfTracking*conversionTrackSequence*allConversionSequence)
+egammaGlobalReco = cms.Sequence(electronGsfTracking*conversionTrackSequence*allConversionSequence)
 egammareco = cms.Sequence(electronSequence*conversionSequence*photonSequence)
-egammaEcalDrivenReco = cms.Sequence(gsfEcalDrivenElectronSequence*conversionSequence*photonSequence)
-egammarecoPostPF = cms.Sequence(gsfElectronMergingSequence*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
+egammaHighLevelRecoPrePF = cms.Sequence(gsfEcalDrivenElectronSequence*conversionSequence*photonSequence)
+egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
 egammarecoFull = cms.Sequence(egammareco*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
 egammarecoWithID = cms.Sequence(egammareco*photonIDSequence*eIdSequence)
 egammareco_woConvPhotons = cms.Sequence(electronSequence*photonSequence)
