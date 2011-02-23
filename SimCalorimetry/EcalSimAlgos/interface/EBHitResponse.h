@@ -45,8 +45,9 @@ class EBHitResponse : public CaloHitRespoNew
    private:
 
       const double nonlFunc( double enr ) const {
-	 return ( pene > enr ? nonlFunc1( enr ) : 
-		  pfac*atan( enr - pene ) + poff ) ; }
+	 return ( pelo > enr ? pext :
+		  ( pehi > enr ? nonlFunc1( enr ) : 
+		    pfac*atan( enr - pehi ) + poff ) ) ; }
 
       const double nonlFunc1( double enr ) const {
 	 const double enr2 ( enr*enr ) ;
@@ -68,7 +69,7 @@ class EBHitResponse : public CaloHitRespoNew
 
       std::vector<double> m_timeOffVec ;
 
-      const double pcub, pqua, plin, pcon, pene, pasy, poff, pfac ;
+      const double pcub, pqua, plin, pcon, pelo, pehi, pasy, pext, poff, pfac ;
 };
 #endif
 

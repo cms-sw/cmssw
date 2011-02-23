@@ -25,9 +25,11 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
    pqua ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[1] ) ,
    plin ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[2] ) ,
    pcon ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[3] ) ,
-   pene ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[4] ) ,
-   pasy ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[5] ) ,
-   poff ( 0 == apdPars ? 0 : nonlFunc1( pene ) ) ,
+   pelo ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[4] ) ,
+   pehi ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[5] ) ,
+   pasy ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[6] ) ,
+   pext ( 0 == apdPars ? 0 : nonlFunc1( pelo ) ) ,
+   poff ( 0 == apdPars ? 0 : nonlFunc1( pehi ) ) ,
    pfac ( 0 == apdPars ? 0 : ( pasy - poff )*2./M_PI ) 
 {
    for( unsigned int i ( 0 ) ; i != kNOffsets ; ++i )
