@@ -54,6 +54,10 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
+// AOD
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 //Track et al
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -101,12 +105,15 @@ public:
     cluster=-1;
     nclutrk=0;
     p4=LorentzVector(0,0,0,0) ;
-    //    event=0;
+    type=0;
+    sumpT=0;
   };
+  int type;                // 0=not defined, 1=full,  2 = from PileupSummaryInfo
   double x,y,z;
   HepMC::FourVector ptot;
   LorentzVector p4;
   double ptsq;
+  double sumpT;
   int nGenTrk;
   int nMatchedTracks;
   int cluster;
@@ -182,6 +189,7 @@ private:
   std::vector<SimPart> getSimTrkParameters( edm::Handle<edm::SimTrackContainer> & simTrks,
 					    edm::Handle<edm::SimVertexContainer> & simVtcs,
 					    double simUnit=1.0);
+  std::vector<SimPart> getSimTrkParameters( const edm::Handle<reco::GenParticleCollection>);
   void getTc(const std::vector<reco::TransientTrack>&,double &, double &, double &, double &, double&);
   void add(std::map<std::string, TH1*>& h, TH1* hist){  h[hist->GetName()]=hist; hist->StatOverflows(kTRUE);}
 
@@ -262,8 +270,8 @@ private:
   void printSimVtxs(const edm::Handle<edm::SimVertexContainer> simVtxs);
   void printSimTrks(const edm::Handle<edm::SimTrackContainer> simVtrks);
   std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> evtMC);
-  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> evt, 
-					  const edm::Handle<edm::SimVertexContainer> simVtxs, 
+  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<reco::GenParticleCollection>);
+  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::SimVertexContainer> simVtxs, 
 					  const edm::Handle<edm::SimTrackContainer> simTrks);
   std::vector<PrimaryVertexAnalyzer4PU::simPrimaryVertex> getSimPVs(const edm::Handle<TrackingVertexCollection>);
 
@@ -299,6 +307,11 @@ private:
 			       const edm::Handle<reco::TrackCollection> recTrks, 
 			 std::vector<SimEvent> & simEvt,
 			 const std::string message);
+  void printEventSummary(std::map<std::string, TH1*> & h,
+			 const reco::VertexCollection * recVtxs,
+			       const edm::Handle<reco::TrackCollection> recTrks, 
+			 std::vector<simPrimaryVertex> & simpv,
+			 const std::string message);
 
   reco::VertexCollection * vertexFilter( edm::Handle<reco::VertexCollection> , bool filter);
 
@@ -318,11 +331,13 @@ private:
 
   // ----------member data ---------------------------
   std::string recoTrackProducer_;
+  std::string trackAssociatorLabel_;
   std::string outputFile_;       // output file
   std::vector<std::string> vtxSample_;        // make this a a vector to keep cfg compatibility with PrimaryVertexAnalyzer
   double fBfield_;
   TFile*  rootFile_;             
   bool verbose_;
+  bool veryverbose_;
   bool doMatching_;
   bool printXBS_;
   edm::InputTag simG4_;
@@ -366,7 +381,7 @@ private:
   std::map<std::string, TH1*> hsimPV;
   std::map<std::string, TH1*> hTrk;
 
-  TrackAssociatorBase * associatorByHits_;
+  TrackAssociatorBase * associator_;
   reco::RecoToSimCollection r2s_;
   std::map<double, TrackingParticleRef> z2tp_;
 
@@ -375,5 +390,6 @@ private:
   double wxy2_;
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle_;
   edm::ESHandle<TransientTrackBuilder> theB_;
+  bool RECO_;
 };
 
