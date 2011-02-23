@@ -67,6 +67,7 @@ bool isJetXUTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdJet);
+      delete subStrL;
       return true;
    }
    else
@@ -84,6 +85,7 @@ bool isJetXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdJet);
+      delete subStrL;
       return true;
    }
    else
@@ -101,6 +103,7 @@ bool isJetX_NoJetIDTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdJet);
+      delete subStrL;
       return true;
    }
    else
@@ -119,6 +122,7 @@ bool isDiJetAveXUTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
+      delete subStrL;
       return true;
    }
    else
@@ -136,6 +140,7 @@ bool isDiJetAveXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
+      delete subStrL;
       return true;
    }
    else
@@ -154,6 +159,7 @@ bool isMeffXUTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdMeff = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdMeff);
+      delete subStrL;
       return true;
    }
    else
@@ -171,6 +177,7 @@ bool isMeffXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdMeff = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdMeff);
+      delete subStrL;
       return true;
    }
    else
@@ -188,6 +195,7 @@ bool isHTXUTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdHT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdHT);
+      delete subStrL;
       return true;
    }
    else
@@ -205,6 +213,7 @@ bool isHTXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdHT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdHT);
+      delete subStrL;
       return true;
    }
    else
@@ -222,6 +231,7 @@ bool isMHTXUTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdMHT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdMHT);
+      delete subStrL;
       return true;
    }
    else
@@ -239,6 +249,7 @@ bool isMHTXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdMHT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdMHT);
+      delete subStrL;
       return true;
    }
    else
@@ -256,6 +267,7 @@ bool isMETXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdMET = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdMET);
+      delete subStrL;
       return true;
    }
    else
@@ -273,6 +285,7 @@ bool ispfMHTXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdpfMHT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdpfMHT);
+      delete subStrL;
       return true;
    }
    else
@@ -292,6 +305,7 @@ bool isDiJetXU_PTXUTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdPT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
       thresholds.push_back(thresholdPT);
+      delete subStrL;
       return true;
    }
    else
@@ -311,6 +325,7 @@ bool isDiJetX_PTXTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdPT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
       thresholds.push_back(thresholdPT);
+      delete subStrL;
       return true;
    }
    else
@@ -330,6 +345,7 @@ bool isHTXU_MHTXUTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdMHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdHT);
       thresholds.push_back(thresholdMHT);
+      delete subStrL;
       return true;
    }
    else
@@ -349,6 +365,7 @@ bool isHTX_MHTXTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdMHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdHT);
       thresholds.push_back(thresholdMHT);
+      delete subStrL;
       return true;
    }
    else
@@ -368,6 +385,7 @@ bool isDoubleJetXU_ForwardBackwardTrigger(
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdDoubleJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdDoubleJet);
+      delete subStrL;
       return true;
    }
    else
@@ -387,6 +405,7 @@ bool isDoubleJetX_ForwardBackwardTrigger(
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdDoubleJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdDoubleJet);
+      delete subStrL;
       return true;
    }
    else
@@ -421,6 +440,7 @@ bool isQuadJetXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdQuadJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdQuadJet);
+      delete subStrL;
       return true;
    }
    else
@@ -438,6 +458,7 @@ bool isQuadJetX_BTagIPTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdQuadJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdQuadJet);
+      delete subStrL;
       return true;
    }
    else
@@ -458,6 +479,7 @@ bool isQuadJetX_IsoPFTauXTrigger(TString triggerName, vector<double> &thresholds
       double thresholdIsoPFTau = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdQuadJet);
       thresholds.push_back(thresholdIsoPFTau);
+      delete subStrL;
       return true;
    }
    else
@@ -479,6 +501,7 @@ bool isQuadJetX_IsoPFTauX_PFMHTXTrigger(TString triggerName, vector<double> &thr
       thresholds.push_back(thresholdQuadJet);
       thresholds.push_back(thresholdIsoPFTau);
       thresholds.push_back(thresholdIsoPFMHT);
+      delete subStrL;
       return true;
    }
    else
@@ -489,7 +512,7 @@ bool isQuadJetX_IsoPFTauX_PFMHTXTrigger(TString triggerName, vector<double> &thr
 bool isR0XU_MRXUTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_R0([0-9]+)U{1}_MR([0-9]+)U)$";
+   TString pattern = "(OpenHLT_R0([0-9]+)U_MR([0-9]+)U{1})$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
@@ -497,8 +520,64 @@ bool isR0XU_MRXUTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdR = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      thresholds.push_back(thresholdR);
+      thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
+      delete subStrL;
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isR0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_R0([0-9]+)_MR([0-9]+){1})$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdR = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdR/100.);
+      thresholds.push_back(thresholdMR);
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isR0XTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_R0([0-9]+){1})$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdR = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdR/100.);
+      delete subStrL;
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isMRXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_MR([0-9]+){1})$";
+   TPRegexp matchThreshold(pattern);
+   
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdMR = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdMR);
+      delete subStrL;
       return true;
    }
    else
@@ -516,6 +595,7 @@ bool isPT12U_XUTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdPT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdPT);
+      delete subStrL;
       return true;
    }
    else
@@ -533,6 +613,7 @@ bool isPT12_XTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdPT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdPT);
+      delete subStrL;
       return true;
    }
    else
@@ -550,6 +631,7 @@ bool isBTagMu_DiJetXUTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
+      delete subStrL;
       return true;
    }
    else
@@ -567,6 +649,7 @@ bool isBTagMu_DiJetXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
+      delete subStrL;
       return true;
    }
    else
@@ -584,6 +667,7 @@ bool isBTagMu_JetXUTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdJet);
+      delete subStrL;
       return true;
    }
    else
@@ -601,6 +685,7 @@ bool isBTagMu_JetXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdJet);
+      delete subStrL;
       return true;
    }
    else
@@ -620,6 +705,7 @@ bool isBTagMu_DiJetXU_MuXTrigger(TString triggerName, vector<double> &thresholds
       double thresholdMu = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
       thresholds.push_back(thresholdMu);
+      delete subStrL;
       return true;
    }
    else
@@ -637,6 +723,7 @@ bool isBTagIP_JetXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdJet);
+      delete subStrL;
       return true;
    }
    else
@@ -661,6 +748,7 @@ bool isSingleIsoTauX_TrkX_METXTrigger(
       thresholds.push_back(thresholdTau);
       thresholds.push_back(thresholdTrk);
       thresholds.push_back(thresholdMET);
+      delete subStrL;
       return true;
    }
    else
@@ -680,6 +768,7 @@ bool isCentralJetXU_METXTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdMET = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdCenJet);
       thresholds.push_back(thresholdMET);
+      delete subStrL;
       return true;
    }
    else
@@ -699,6 +788,7 @@ bool isCentralJetX_METXTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdMET = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdCenJet);
       thresholds.push_back(thresholdMET);
+      delete subStrL;
       return true;
    }
    else
@@ -720,6 +810,7 @@ bool isDiJetXU_METXTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdMET = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
       thresholds.push_back(thresholdMET);
+      delete subStrL;
       return true;
    }
    else
@@ -739,6 +830,7 @@ bool isDiJetX_METXTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdMET = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
       thresholds.push_back(thresholdMET);
+      delete subStrL;
       return true;
    }
    else
@@ -759,6 +851,7 @@ bool isMETX_HTXUTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdMET);
       thresholds.push_back(thresholdHT);
+      delete subStrL;
       return true;
    }
    else
@@ -778,6 +871,7 @@ bool isMETX_HTXTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdMET);
       thresholds.push_back(thresholdHT);
+      delete subStrL;
       return true;
    }
    else
@@ -795,6 +889,7 @@ bool isExclDiJetXU_HFORTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
+      delete subStrL;
       return true;
    }
    else
@@ -812,6 +907,43 @@ bool isExclDiJetX_HFORTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdDiJet);
+      delete subStrL;
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isExclDiJetXU_HFANDTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_ExclDiJet([0-9]+)U_HFAND){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdDiJet);
+      delete subStrL;
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isExclDiJetX_HFANDTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_ExclDiJet([0-9]+)_HFAND){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdDiJet);
+      delete subStrL;
       return true;
    }
    else
@@ -843,6 +975,7 @@ bool isL2SingleMuXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdJet);
+      delete subStrL;
       return true;
     }
   else
@@ -876,6 +1009,7 @@ bool isPhotonX_HTXTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdPhoton);
       thresholds.push_back(thresholdHT);
+      delete subStrL;
       return true;
    }
    else
@@ -895,6 +1029,7 @@ bool isPhotonX_MHTXTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdMHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdPhoton);
       thresholds.push_back(thresholdMHT);
+      delete subStrL;
       return true;
    }
    else
@@ -937,6 +1072,7 @@ bool isPhotonX_CaloIdL_MHTXTrigger(
       double thresholdMHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdPhoton);
       thresholds.push_back(thresholdMHT);
+      delete subStrL;
       return true;
    }
    else
@@ -1255,7 +1391,9 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   else if (triggerName.CompareTo("OpenHLT_ExclDiJet30U") == 0)
+
+   /******ExlDiJetX(U)_HFAND**********/
+   else if (isExclDiJetXU_HFANDTrigger(triggerName, thresholds))
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -1269,13 +1407,65 @@ void OHltTree::CheckOpenHlt(
             // First loop over all jets and find a pair above threshold and with DeltaPhi/pi > 0.5
             for (int i=0; i<NrecoJetCal; i++)
             {
-               if (recoJetCalPt[i]>30.0)
+               if (recoJetCalPt[i]>thresholds[0])
                { // Jet pT cut 
                   for (int j=0; j<NrecoJetCal && j!=i; j++)
                   {
-                     if (recoJetCalPt[j]>30.0)
+                     if (recoJetCalPt[j]>thresholds[0])
                      {
                         double Dphi=fabs(recoJetCalPhi[i]-recoJetCalPhi[j]);
+                        if (Dphi>3.14159)
+                           Dphi=2.0*(3.14159)-Dphi;
+                        if (Dphi>0.5*3.14159)
+                        {
+                           rcDijetCand++;
+                        }
+                     }
+                  }
+               }
+            }
+
+            // Now ask for events with HF energy below threshold
+            if (rcDijetCand > 0)
+            {
+               for (int i=0; i < NrecoTowCal; i++)
+               {
+                  if ((recoTowEta[i] > 3.0) && (recoTowE[i] > 4.0))
+                     rcHFplusEnergy += recoTowE[i];
+                  if ((recoTowEta[i] < -3.0) && (recoTowE[i] > 4.0))
+                     rcHFminusEnergy += recoTowE[i];
+               }
+            }
+
+            // Now put them together
+            if ((rcDijetCand > 0) && (rcHFplusEnergy < 50) && (rcHFminusEnergy
+                  < 50))
+               triggerBit[it] = true;
+         }
+      }
+   }
+
+   else if (isExclDiJetX_HFANDTrigger(triggerName, thresholds))
+   {
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+
+            int rcDijetCand = 0;
+            double rcHFplusEnergy = 0;
+            double rcHFminusEnergy = 0;
+
+            // First loop over all jets and find a pair above threshold and with DeltaPhi/pi > 0.5
+            for (int i=0; i<NrecoJetCorCal; i++)
+            {
+               if (recoJetCorCalPt[i]>thresholds[0])
+               { // Jet pT cut 
+                  for (int j=0; j<NrecoJetCorCal && j!=i; j++)
+                  {
+                     if (recoJetCorCalPt[j]>thresholds[0])
+                     {
+                        double Dphi=fabs(recoJetCorCalPhi[i]-recoJetCorCalPhi[j]);
                         if (Dphi>3.14159)
                            Dphi=2.0*(3.14159)-Dphi;
                         if (Dphi>0.5*3.14159)
@@ -1632,15 +1822,31 @@ void OHltTree::CheckOpenHlt(
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
-         if (prescaleResponse(menu, cfg, rcounter, it))
+         if (OpenHltRUPassed(thresholds[0], thresholds[1], false, 7, 30.)>0)
          {
-            if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 30.)>0)
+            if (prescaleResponse(menu, cfg, rcounter, it))
             {
                triggerBit[it] = true;
             }
          }
       }
    }
+
+ else if (isR0X_MRXTrigger(triggerName, thresholds))
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 56.)>0)
+         {
+            if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
+
 
    /* Muons */
    else if (isL1SingleMuXTrigger(triggerName))
@@ -9208,7 +9414,7 @@ int OHltTree::OpenHlt1BJetPassedEleRemoval(
    return rc;
 }
 
-int OHltTree::OpenHltRPassed(
+int OHltTree::OpenHltRUPassed(
       float Rmin,
       float MRmin,
       bool MRP,
@@ -9359,6 +9565,159 @@ int OHltTree::OpenHltRPassed(
 
    return 1;
 }
+
+int OHltTree::OpenHltRPassed(
+      float Rmin,
+      float MRmin,
+      bool MRP,
+      int NJmax,
+      float jetPt)
+{
+   //make a list of the vectors
+   vector<TLorentzVector*> JETS;
+
+   for (int i=0; i<NrecoJetCorCal; i++)
+   {
+      if (fabs(recoJetCorCalEta[i])>=3 || recoJetCorCalPt[i] < jetPt)
+         continue; // require jets with eta<3
+      TLorentzVector* tmp = new TLorentzVector();
+      tmp->SetPtEtaPhiE(
+            recoJetCorCalPt[i],
+            recoJetCorCalEta[i],
+            recoJetCorCalPhi[i],
+            recoJetCorCalE[i]);
+
+      JETS.push_back(tmp);
+   }
+
+   int jetsSize = 0;
+   jetsSize = JETS.size();
+
+   //Now make the hemispheres
+   //for this simulation, we will used TLorentzVectors, although this is probably not
+   //possible online
+   if (jetsSize<2)
+      return 0;
+   if (NJmax!=-1 && jetsSize > NJmax)
+      return 1;
+   int N_comb = 1; // compute the number of combinations of jets possible
+   for (int i = 0; i < jetsSize; i++)
+   { // this is code is kept as close as possible
+      N_comb *= 2; //to Chris' code for validation
+   }
+   TLorentzVector j1, j2;
+   double M_min = 9999999999.0;
+   double dHT_min = 99999999.0;
+   int j_count;
+   for (int i=0; i<N_comb; i++)
+   {
+      TLorentzVector j_temp1, j_temp2;
+      int itemp = i;
+      j_count = N_comb/2;
+      int count = 0;
+      while (j_count > 0)
+      {
+         if (itemp/j_count == 1)
+         {
+            j_temp1 += *(JETS.at(count));
+         }
+         else
+         {
+            j_temp2 += *(JETS.at(count));
+         }
+         itemp -= j_count*(itemp/j_count);
+         j_count /= 2;
+         count++;
+      }
+      double M_temp = j_temp1.M2()+j_temp2.M2();
+      if (M_temp < M_min)
+      {
+         M_min = M_temp;
+         j1= j_temp1;
+         j2= j_temp2;
+      }
+      double dHT_temp = fabs(j_temp1.E()-j_temp2.E());
+      if (dHT_temp < dHT_min)
+      {
+         dHT_min = dHT_temp;
+         //deltaHT = dHT_temp;
+      }
+   }
+
+   j1.SetPtEtaPhiM(j1.Pt(), j1.Eta(), j1.Phi(), 0.0);
+   j2.SetPtEtaPhiM(j2.Pt(), j2.Eta(), j2.Phi(), 0.0);
+
+   if (j2.Pt() > j1.Pt())
+   {
+      TLorentzVector temp = j1;
+      j1 = j2;
+      j2 = temp;
+   }
+   //Done Calculating Hemispheres
+   //Now we can check if the event is of type R or R'
+
+   double num = j1.P()-j2.P();
+   double den = j1.Pz()-j2.Pz();
+   if (fabs(num)==fabs(den))
+      return 0; //ignore if beta=1
+   if (fabs(num)<fabs(den) && MRP)
+      return 0; //num<den ==> R event
+   if (fabs(num)>fabs(den) && !MRP)
+      return 0; // num>den ==> R' event
+
+   //now we can calculate MTR
+   TVector3 met;
+   met.SetPtEtaPhi(recoMetCal, 0, recoMetCalPhi);
+   double MTR = sqrt(0.5*(met.Mag()*(j1.Pt()+j2.Pt()) - met.Dot(j1.Vect()
+         +j2.Vect())));
+
+   //calculate MR or MRP
+   double MR=0;
+   if (!MRP)
+   { //CALCULATE MR
+      double temp = (j1.P()*j2.Pz()-j2.P()*j1.Pz())*(j1.P()*j2.Pz()-j2.P()
+            *j1.Pz());
+      temp /= (j1.Pz()-j2.Pz())*(j1.Pz()-j2.Pz())-(j1.P()-j2.P())*(j1.P()
+            -j2.P());
+      MR = 2.*sqrt(temp);
+   }
+   else
+   { //CALCULATE MRP   
+      double jaP = j1.Pt()*j1.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
+      double jbP = j2.Pt()*j2.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
+      jbP *= -1.;
+      double den = sqrt((j1.P()-j2.P())*(j1.P()-j2.P())-(j1.Pz()-j2.Pz())
+            *(j1.Pz()-j2.Pz()));
+
+      jaP /= den;
+      jbP /= den;
+
+      double temp = jaP*met.Dot(j2.Vect())/met.Mag() + jbP*met.Dot(j1.Vect())
+            /met.Mag();
+      temp = temp*temp;
+
+      den = (met.Dot(j1.Vect()+j2.Vect())/met.Mag())*(met.Dot(j1.Vect()
+            +j2.Vect())/met.Mag())-(jaP-jbP)*(jaP-jbP);
+
+      if (den <= 0.0)
+         return 0.;
+
+      temp /= den;
+      temp = 2.*sqrt(temp);
+
+      double bR = (jaP-jbP)/(met.Dot(j1.Vect()+j2.Vect())/met.Mag());
+      double gR = 1./sqrt(1.-bR*bR);
+
+      temp *= gR;
+
+      MR = temp;
+   }
+   if (MR<MRmin || float(MTR)/float(MR)<Rmin)
+      return 0;
+
+   return 1;
+}
+
 
 int OHltTree::OpenHlt1MuonPassed(
       double ptl1,
@@ -9527,7 +9886,7 @@ int OHltTree::OpenHlt1MuonIsoJetPassed(
                   float minDR = 100.;
                   for (int j=0; j <NrecoJetCorCal; j++)
                   {
-                     if (recoJetCorCalPt[j]>JetPt && fabs(recoJetCalEta[j])
+                     if (recoJetCorCalPt[j]>JetPt && fabs(recoJetCorCalEta[j])
                            <JetEta)
                      { // Jet pT cut
                         double deltaphi =

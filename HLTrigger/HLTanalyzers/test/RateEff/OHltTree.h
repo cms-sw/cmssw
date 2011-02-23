@@ -4211,14 +4211,14 @@ public:
          float Hiso,
          float dr);
    
-   int OpenHltRPassed(
+   int OpenHltRUPassed(
          float Rmin,
          float MRmin,
          bool MRP,
          int NJmax,
          float jetPt);
    
-   int OpenHltCorRPassed(
+   int OpenHltRPassed(
          float Rmin,
          float MRmin,
          bool MRP,
