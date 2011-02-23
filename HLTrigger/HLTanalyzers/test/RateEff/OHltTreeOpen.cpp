@@ -4115,6 +4115,7 @@ void OHltTree::CheckOpenHlt(
     * TODO
     * - Tisobarrel=0.001, Tisoendcap=5.0 ? -- check with Mass.
     */
+   // to be removed
    else if (triggerName.CompareTo("OpenHLT_Photon65_CaloEleId_Isol") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -4148,81 +4149,8 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   /*
-    * 2011-01-26 added by Christian Hartl
-    * according to https://twiki.cern.ch/twiki/bin/view/CMS/EgammaWorkingPoints
-    * from scratch, using OpenHlt1PhotonSamHarperPassed:
-    * - guessing parameters...
-    * - dropped _L1R from name because L1 not relaxed anymore 
-    * TODO
-    * - OK but implement this in terms of OpenHlt1PhotonSamHarperPassed?
-    */
-   else if (triggerName.CompareTo("OpenHLT_Photon100") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1PhotonSamHarperPassed( 100., 0, // ET, L1isolation
-                  999.,
-                  999., // Track iso barrel, Track iso endcap ???
-                  999.,
-                  999., // Track/pT iso barrel, Track/pT iso endcap
-                  999.,
-                  999., // H iso barrel, H iso endcap
-                  999.,
-                  999., // E iso barrel, E iso endcap
-                  0.15,
-                  0.15, // H/E barrel, H/E endcap
-                  999.,
-                  999., // cluster shape barrel, cluster shape endcap
-                  0.98,
-                  1.0, // R9 barrel, R9 endcap
-                  999.,
-                  999., // Deta barrel, Deta endcap
-                  999.,
-                  999. // Dphi barrel, Dphi endcap
-            )>=1)
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
 
-   else if (triggerName.CompareTo("OpenHLT_DoublePhoton22_L1R") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1PhotonSamHarperPassed(22., 0, // ET, L1isolation
-                  999.,
-                  999., // Track iso barrel, Track iso endcap
-                  999.,
-                  999., // Track/pT iso barrel, Track/pT iso endcap
-                  999.,
-                  999., // H iso barrel, H iso endcap
-                  999.,
-                  999., // E iso barrel, E iso endcap
-                  0.15,
-                  0.15, // H/E barrel, H/E endcap
-                  999.,
-                  999., // cluster shape barrel, cluster shape endcap
-                  999.,
-                  999., // R9 barrel, R9 endcap
-                  999.,
-                  999., // Deta barrel, Deta endcap
-                  999.,
-                  999. // Dphi barrel, Dphi endcap
-            )>=2)
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_DoublePhoton32_CaloIdL") == 0)
+   else if (triggerName.CompareTo("OpenHLT_DoublePhoton32_CaloIdL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -4254,7 +4182,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   else if (triggerName.CompareTo("OpenHLT_DoublePhoton33") == 0)
+   else if (triggerName.CompareTo("OpenHLT_DoublePhoton33_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
