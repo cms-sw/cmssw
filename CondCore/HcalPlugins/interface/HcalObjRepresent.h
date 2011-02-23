@@ -24,7 +24,7 @@
 
 //functions for correct representation of data in summary and plot
 namespace HcalObjRepresent{
-	static std::string IntToBinary(unsigned int number) {
+	inline std::string IntToBinary(unsigned int number) {
 		std::stringstream ss;
 		unsigned int mask = 1<<31;
 		for (unsigned short int i = 0; i < 32; ++i){
