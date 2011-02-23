@@ -4,8 +4,8 @@
  *
  *  Original author: Andreas Mussgiller, January 2011
  *
- *  $Date: 2011/02/16 12:52:46 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/02/18 17:08:13 $
+ *  $Revision: 1.2 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -15,7 +15,8 @@
 
 // NOTE: Changing '+14' makes older binary files unreadable...
 const unsigned int PedeLabelerBase::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM + 14;
-const unsigned int PedeLabelerBase::theParamInstanceOffset = 300000;
+// NOTE: Changing the offset of '700000' makes older binary files unreadable...
+const unsigned int PedeLabelerBase::theParamInstanceOffset = 700000;
 const unsigned int PedeLabelerBase::theMinLabel = 1; // must be > 0
 
 PedeLabelerBase::PedeLabelerBase(const TopLevelAlignables &alignables,
