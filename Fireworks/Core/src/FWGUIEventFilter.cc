@@ -11,8 +11,8 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
-#include "Fireworks/Core/src/FWGUIManager.h"
-#include "Fireworks/Core/src/CmsShowMainFrame.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/CmsShowMainFrame.h"
 
 FWGUIEventFilter::FWGUIEventFilter(CmsShowNavigator* n):
    TGMainFrame(gClient->GetRoot(), 560, 300),
