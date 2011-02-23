@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/HIon/V41 (CMSSW_3_11_0_HLT7)
+# /dev/CMSSW_3_11_1/HIon/V42 (CMSSW_3_11_0_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V41')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V42')
 )
 
 process.streams = cms.PSet( 
@@ -4339,6 +4339,8 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_IsoMu15_v5',
       'HLT_IsoMu17_CentralJet40_BTagIP_v1',
       'HLT_IsoMu17_v5',
+      'HLT_IsoMu20_v1',
+      'HLT_IsoMu24_v1',
       'HLT_IsoMu30_v1',
       'HLT_IsoMu5_DoubleMu5_v1',
       'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -4573,6 +4575,8 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_IsoMu15_v5',
       'HLT_IsoMu17_CentralJet40_BTagIP_v1',
       'HLT_IsoMu17_v5',
+      'HLT_IsoMu20_v1',
+      'HLT_IsoMu24_v1',
       'HLT_IsoMu30_v1',
       'HLT_IsoMu5_DoubleMu5_v1',
       'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -4790,6 +4794,8 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_IsoMu15_v5',
       'HLT_IsoMu17_CentralJet40_BTagIP_v1',
       'HLT_IsoMu17_v5',
+      'HLT_IsoMu20_v1',
+      'HLT_IsoMu24_v1',
       'HLT_IsoMu30_v1',
       'HLT_IsoMu5_DoubleMu5_v1',
       'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -5035,6 +5041,7 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
     fastCloning = cms.untracked.bool( False ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_EcalCalibration_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep *_hltEcalCalibrationRaw_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )

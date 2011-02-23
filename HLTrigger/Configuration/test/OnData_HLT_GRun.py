@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V41 (CMSSW_3_11_0_HLT7)
+# /dev/CMSSW_3_11_1/GRun/V42 (CMSSW_3_11_0_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V41')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V42')
 )
 
 process.streams = cms.PSet( 
@@ -113,6 +113,8 @@ process.datasets = cms.PSet(
     'HLT_IsoMu15_v5',
     'HLT_IsoMu17_CentralJet40_BTagIP_v1',
     'HLT_IsoMu17_v5',
+    'HLT_IsoMu20_v1',
+    'HLT_IsoMu24_v1',
     'HLT_IsoMu30_v1',
     'HLT_IsoMu5_DoubleMu5_v1',
     'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -326,6 +328,8 @@ process.datasets = cms.PSet(
     'HLT_IsoMu15_v5',
     'HLT_IsoMu17_CentralJet40_BTagIP_v1',
     'HLT_IsoMu17_v5',
+    'HLT_IsoMu20_v1',
+    'HLT_IsoMu24_v1',
     'HLT_IsoMu30_v1',
     'HLT_IsoMu5_DoubleMu5_v1',
     'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -530,6 +534,8 @@ process.datasets = cms.PSet(
     'HLT_IsoMu15_v5',
     'HLT_IsoMu17_CentralJet40_BTagIP_v1',
     'HLT_IsoMu17_v5',
+    'HLT_IsoMu20_v1',
+    'HLT_IsoMu24_v1',
     'HLT_IsoMu30_v1',
     'HLT_IsoMu5_DoubleMu5_v1',
     'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -732,6 +738,8 @@ process.datasets = cms.PSet(
     'HLT_IsoMu15_v5',
     'HLT_IsoMu17_CentralJet40_BTagIP_v1',
     'HLT_IsoMu17_v5',
+    'HLT_IsoMu20_v1',
+    'HLT_IsoMu24_v1',
     'HLT_IsoMu30_v1',
     'HLT_IsoMu5_DoubleMu5_v1',
     'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -6774,7 +6782,7 @@ process.hltSingleMuIsoL3IsoFiltered17 = cms.EDFilter( "HLTMuonIsoFilter",
     DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
     IsolatorPSet = cms.PSet(  )
 )
-process.hltPreIsoMu30 = cms.EDFilter( "HLTPrescaler",
+process.hltPreIsoMu20 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 process.hltSingleMuIsoL2IsoFiltered12 = cms.EDFilter( "HLTMuonIsoFilter",
@@ -6783,6 +6791,52 @@ process.hltSingleMuIsoL2IsoFiltered12 = cms.EDFilter( "HLTMuonIsoFilter",
     MinN = cms.int32( 1 ),
     DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
     IsolatorPSet = cms.PSet(  )
+)
+process.hltSingleMuIsoL3PreFiltered20 = cms.EDFilter( "HLTMuonL3PreFilter",
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL2IsoFiltered12" ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.int32( 0 ),
+    MaxDr = cms.double( 2.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPt = cms.double( 20.0 ),
+    NSigmaPt = cms.double( 0.0 )
+)
+process.hltSingleMuIsoL3IsoFiltered20 = cms.EDFilter( "HLTMuonIsoFilter",
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered20" ),
+    MinN = cms.int32( 1 ),
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
+)
+process.hltPreIsoMu24 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
+process.hltSingleMuIsoL3PreFiltered24 = cms.EDFilter( "HLTMuonL3PreFilter",
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL2IsoFiltered12" ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.int32( 0 ),
+    MaxDr = cms.double( 2.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPt = cms.double( 24.0 ),
+    NSigmaPt = cms.double( 0.0 )
+)
+process.hltSingleMuIsoL3IsoFiltered24 = cms.EDFilter( "HLTMuonIsoFilter",
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered24" ),
+    MinN = cms.int32( 1 ),
+    SaveTag = cms.untracked.bool( True ),
+    DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
+    IsolatorPSet = cms.PSet(  )
+)
+process.hltPreIsoMu30 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 process.hltSingleMuIsoL3PreFiltered30 = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -17084,6 +17138,8 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_IsoMu15_v5',
       'HLT_IsoMu17_CentralJet40_BTagIP_v1',
       'HLT_IsoMu17_v5',
+      'HLT_IsoMu20_v1',
+      'HLT_IsoMu24_v1',
       'HLT_IsoMu30_v1',
       'HLT_IsoMu5_DoubleMu5_v1',
       'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -17318,6 +17374,8 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_IsoMu15_v5',
       'HLT_IsoMu17_CentralJet40_BTagIP_v1',
       'HLT_IsoMu17_v5',
+      'HLT_IsoMu20_v1',
+      'HLT_IsoMu24_v1',
       'HLT_IsoMu30_v1',
       'HLT_IsoMu5_DoubleMu5_v1',
       'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -17535,6 +17593,8 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_IsoMu15_v5',
       'HLT_IsoMu17_CentralJet40_BTagIP_v1',
       'HLT_IsoMu17_v5',
+      'HLT_IsoMu20_v1',
+      'HLT_IsoMu24_v1',
       'HLT_IsoMu30_v1',
       'HLT_IsoMu5_DoubleMu5_v1',
       'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -17750,6 +17810,8 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_IsoMu15_v5',
   'HLT_IsoMu17_CentralJet40_BTagIP_v1',
   'HLT_IsoMu17_v5',
+  'HLT_IsoMu20_v1',
+  'HLT_IsoMu24_v1',
   'HLT_IsoMu30_v1',
   'HLT_IsoMu5_DoubleMu5_v1',
   'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -17991,6 +18053,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_IsoMu15_v5',
   'HLT_IsoMu17_CentralJet40_BTagIP_v1',
   'HLT_IsoMu17_v5',
+  'HLT_IsoMu20_v1',
+  'HLT_IsoMu24_v1',
   'HLT_IsoMu30_v1',
   'HLT_IsoMu5_DoubleMu5_v1',
   'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -18119,6 +18183,7 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
     fastCloning = cms.untracked.bool( False ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_EcalCalibration_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep *_hltEcalCalibrationRaw_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -18229,6 +18294,8 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_IsoMu15_v5',
   'HLT_IsoMu17_CentralJet40_BTagIP_v1',
   'HLT_IsoMu17_v5',
+  'HLT_IsoMu20_v1',
+  'HLT_IsoMu24_v1',
   'HLT_IsoMu30_v1',
   'HLT_IsoMu5_DoubleMu5_v1',
   'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -18557,6 +18624,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_IsoMu15_v5',
   'HLT_IsoMu17_CentralJet40_BTagIP_v1',
   'HLT_IsoMu17_v5',
+  'HLT_IsoMu20_v1',
+  'HLT_IsoMu24_v1',
   'HLT_IsoMu30_v1',
   'HLT_IsoMu5_DoubleMu5_v1',
   'HLT_IsoPFTau35_Trk20_MET45_v1',
@@ -19056,6 +19125,8 @@ process.HLT_Mu30_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1S
 process.HLT_IsoMu12_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu7 + process.hltPreIsoMu12 + process.hltL1SingleMu7L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2Mu7L2Filtered7 + process.HLTL2muonisorecoSequence + process.hltSingleMuIsoL2IsoFiltered7 + process.HLTL3muonrecoSequence + process.hltSingleMuIsoL3PreFiltered12 + process.HLTL3muonisorecoSequence + process.hltSingleMuIsoL3IsoFiltered12 + process.HLTEndSequence )
 process.HLT_IsoMu15_v5 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu10 + process.hltPreIsoMu15 + process.hltL1SingleMu10L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2Mu10L2Filtered10 + process.HLTL2muonisorecoSequence + process.hltSingleMuIsoL2IsoFiltered10 + process.HLTL3muonrecoSequence + process.hltSingleMuIsoL3PreFiltered15 + process.HLTL3muonisorecoSequence + process.hltSingleMuIsoL3IsoFiltered15 + process.HLTEndSequence )
 process.HLT_IsoMu17_v5 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu10 + process.hltPreIsoMu17 + process.hltL1SingleMu10L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2Mu10L2Filtered10 + process.HLTL2muonisorecoSequence + process.hltSingleMuIsoL2IsoFiltered10 + process.HLTL3muonrecoSequence + process.hltSingleMuIsoL3PreFiltered17 + process.HLTL3muonisorecoSequence + process.hltSingleMuIsoL3IsoFiltered17 + process.HLTEndSequence )
+process.HLT_IsoMu20_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu12 + process.hltPreIsoMu20 + process.hltL1SingleMu12L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2Mu12L2Filtered12 + process.HLTL2muonisorecoSequence + process.hltSingleMuIsoL2IsoFiltered12 + process.HLTL3muonrecoSequence + process.hltSingleMuIsoL3PreFiltered20 + process.HLTL3muonisorecoSequence + process.hltSingleMuIsoL3IsoFiltered20 + process.HLTEndSequence )
+process.HLT_IsoMu24_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu12 + process.hltPreIsoMu24 + process.hltL1SingleMu12L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2Mu12L2Filtered12 + process.HLTL2muonisorecoSequence + process.hltSingleMuIsoL2IsoFiltered12 + process.HLTL3muonrecoSequence + process.hltSingleMuIsoL3PreFiltered24 + process.HLTL3muonisorecoSequence + process.hltSingleMuIsoL3IsoFiltered24 + process.HLTEndSequence )
 process.HLT_IsoMu30_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu12 + process.hltPreIsoMu30 + process.hltL1SingleMu12L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2Mu12L2Filtered12 + process.HLTL2muonisorecoSequence + process.hltSingleMuIsoL2IsoFiltered12 + process.HLTL3muonrecoSequence + process.hltSingleMuIsoL3PreFiltered30 + process.HLTL3muonisorecoSequence + process.hltSingleMuIsoL3IsoFiltered30 + process.HLTEndSequence )
 process.HLT_L2DoubleMu35_NoVertex_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMu3 + process.hltPreL2DoubleMu35NoVertex + process.hltL1DoubleMuon3L1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltL2DoubleMu35NoVertexL2PreFiltered + process.HLTEndSequence )
 process.HLT_DoubleMu3_v3 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMu0 + process.hltPreDoubleMu3 + process.hltDiMuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDiMuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDiMuonL3PreFiltered3 + process.HLTEndSequence )

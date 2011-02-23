@@ -79,6 +79,8 @@ HLT_Mu30_v1
 HLT_IsoMu12_v1
 HLT_IsoMu15_v5
 HLT_IsoMu17_v5
+HLT_IsoMu20_v1
+HLT_IsoMu24_v1
 HLT_IsoMu30_v1
 HLT_L2DoubleMu35_NoVertex_v1
 HLT_DoubleMu3_v3
