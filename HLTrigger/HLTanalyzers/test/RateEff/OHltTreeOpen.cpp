@@ -423,6 +423,7 @@ bool isQuadJetXUTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdQuadJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       thresholds.push_back(thresholdQuadJet);
+      delete subStrL;
       return true;
    }
    else
@@ -880,20 +881,20 @@ bool isMETX_HTXTrigger(TString triggerName, vector<double> &thresholds)
 
 bool isExclDiJetXU_HFORTrigger(TString triggerName, vector<double> &thresholds)
 {
-
-   TString pattern = "(OpenHLT_ExclDiJet([0-9]+)U_HFOR){1}$";
-   TPRegexp matchThreshold(pattern);
-
+  
+  TString pattern = "(OpenHLT_ExclDiJet([0-9]+)U_HFOR){1}$";
+  TPRegexp matchThreshold(pattern);
+  
    if (matchThreshold.MatchB(triggerName))
-   {
-      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      thresholds.push_back(thresholdDiJet);
-      delete subStrL;
-      return true;
-   }
+     {
+       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+       double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+       thresholds.push_back(thresholdDiJet);
+       delete subStrL;
+       return true;
+     }
    else
-      return false;
+     return false;
 }
 
 bool isExclDiJetX_HFORTrigger(TString triggerName, vector<double> &thresholds)
@@ -965,9 +966,40 @@ bool isL1SingleMuXTrigger(TString triggerName)
     return false;
 }
 
+bool isL1DoubleMuXTrigger(TString triggerName)
+{
+
+  TString pattern = "(OpenHLT_L1DoubleMu([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      return true;
+    }
+  else
+    return false;
+}
+
 bool isL2SingleMuXTrigger(TString triggerName, vector<double> &thresholds)
 {
   TString pattern = "(OpenHLT_L2Mu([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdJet);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+bool isL2DoubleMuXTrigger(TString triggerName, vector<double> &thresholds)
+{
+  TString pattern = "(OpenHLT_L2DoubleMu([0-9]+)){1}$";
   TPRegexp matchThreshold(pattern);
 
   if (matchThreshold.MatchB(triggerName))
@@ -1051,6 +1083,7 @@ bool isPhotonX_CaloIdL_HTXTrigger(
       double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdPhoton);
       thresholds.push_back(thresholdHT);
+      delete subStrL;
       return true;
    }
    else
@@ -1863,99 +1896,20 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   else if (triggerName.CompareTo("OpenHLT_L1MuOpen") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            triggerBit[it] = true;
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L1Mu") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            triggerBit[it] = true;
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L1Mu14") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            triggerBit[it] = true;
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L1Mu20") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            triggerBit[it] = true;
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L1Mu25") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            int rc = 0;
-            for (int i=0; i<NL1OpenMu; i++)
-            {
-               if (L1OpenMuPt[i] > 25.0)
-                  rc++;
-            }
-            if (rc > 0)
-               triggerBit[it] = true;
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L1Mu30") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            int rc = 0;
-            for (int i=0; i<NL1OpenMu; i++)
-            {
-               if (L1OpenMuPt[i] > 30.0)
-                  rc++;
-            }
-            if (rc > 0)
-               triggerBit[it] = true;
-         }
-      }
-   }
+   else if (isL1DoubleMuXTrigger(triggerName))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (true)
+		 { // passthrough
+		   triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
 
-   else if (triggerName.CompareTo("OpenHLT_L1Mu20HQ") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second>0)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            int rc = 0;
-            for (int i=0; i<NL1Mu; i++)
-            {
-               if (L1MuPt[i] > 20.0)
-                  if (L1MuQal[i] == 7)
-                     rc++;
-            }
-            if (rc > 0)
-               triggerBit[it] = true;
-         }
-      }
-   }
 
    else if (isL2SingleMuXTrigger(triggerName, thresholds))
    {
@@ -1969,137 +1923,18 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   else if (isL2DoubleMuXTrigger(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (OpenHlt1L2MuonPassed(0.0, thresholds[0], 9999.0) > 1)
+		 triggerBit[it] = true;
+	     }
+	 }
+     }
 
-   else if (triggerName.CompareTo("OpenHLT_L2Mu0") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1MuonPassed(0., 0., -1., 9999., 0)>=1)
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L2Mu3") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1L2MuonPassed(0.0, 3.0, 9999.0) > 0)
-               triggerBit[it] = true;
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L2Mu5") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1MuonPassed(3., 5., -1., 9999., 0)>=1)
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   // JH
-   else if (triggerName.CompareTo("OpenHLT_L2DoubleMu0") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1L2MuonPassed(0., 0., 9999.)>=2)
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L2DoubleMu20") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1L2MuonPassed(0., 20., 9999.)>=2)
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-
-   else if (triggerName.CompareTo("OpenHLT_L2Mu9") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1L2MuonPassed(7., 9., 9999.)>=1)
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L2Mu11") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1L2MuonPassed(7., 11., 9999.)>=1)
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L2Mu15") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1L2MuonPassed(7., 15., 9999.)>=1)
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L2Mu25") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1L2MuonPassed(7., 25., 9999.)>=1)
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_L2Mu30") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1L2MuonPassed(7., 30., 9999.)>=1)
-            {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
    else if (triggerName.CompareTo("OpenHLT_Mu3") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
