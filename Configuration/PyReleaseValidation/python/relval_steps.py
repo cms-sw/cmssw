@@ -220,8 +220,8 @@ step3Defaults = { 'cfg'           : 'step3',
                   '--filein'      : 'file:reco.root',
                   '--conditions'  : 'auto:mc',
                   '--no_exec'     : '',
-                  '--datatier'    : 'GEN-SIM-RECO',
-                  '--eventcontent': 'RECOSIM'
+                  '--datatier'    : 'GEN-SIM-RECO,DQM',
+                  '--eventcontent': 'RECOSIM,DQM'
                   }
 
 step3 = {}
@@ -229,8 +229,8 @@ step3 = {}
 step3['RECO1']=merge([step3Defaults])
 step3['RECO2']=merge([stCond,step3Defaults])
 step3['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
-step3['RECOMU']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib'},stCond,step3Defaults])
-step3['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu','--scenario':'cosmics'},stCond,step3Defaults])
+step3['RECOMU']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib','--datatier':'GEN-SIM-RECO','--eventcontent':'RECOSIM'},stCond,step3Defaults])
+step3['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu','--datatier':'GEN-SIM-RECO','--eventcontent':'RECOSIM','--scenario':'cosmics'},stCond,step3Defaults])
 step3['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+EcalCalPhiSym+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},stCond,step3Defaults])
 step3['RECOQCD']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},stCond,step3Defaults])
 
@@ -270,8 +270,8 @@ step4['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHal
 #### for special wfs ###
 step1['TTbar_REDIGI_RERECO']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi',
                                      '-s':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib,VALIDATION,DQM',
-                                     '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG-RECO',
-                                     '--eventcontent':'FEVTDEBUGHLT'},
+                                     '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG-RECO,DQM',
+                                     '--eventcontent':'FEVTDEBUGHLT,DQM'},
                                     K9by50,stCond,step1Defaults])
 step2['REDIGI2RECO']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                              '--customise':'Configuration/StandardSequences/DigiToRecoNoPU.customise',
@@ -279,7 +279,9 @@ step2['REDIGI2RECO']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,REC
                              '--process':'REDIGI'},
                             stCond,step3Defaults])
 step3['RECOFROMRECO']=merge([{'-s':'RECO,ALCA:MuAlCalIsolatedMu+DtCalib',
-                              '--filtername':'RECOfromRECO'},
+                              '--filtername':'RECOfromRECO',
+                              '--datatier':'GEN-SIM-RECO',
+                              '--eventcontent':'RECOSIM'},
                              stCond,step3Defaults])
 
 
