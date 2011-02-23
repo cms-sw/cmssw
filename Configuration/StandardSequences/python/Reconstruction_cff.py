@@ -76,7 +76,7 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              metrecoPlusHCALNoise*
                              btagging*
                              recoPFMET*
-                             #PFTau*
+                             PFTau*
                              regionalCosmicTracksSeq*
                              muoncosmichighlevelreco)
 
