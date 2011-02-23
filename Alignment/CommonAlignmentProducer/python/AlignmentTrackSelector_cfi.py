@@ -63,26 +63,28 @@ AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
     applyChargeCheck = cms.bool(False),
     minHitChargeStrip = cms.double(20.0),
 
+    # Settings for the global track selector
     GlobalSelector = cms.PSet(
-        #for isolation Tests
-        applyIsolationtest = cms.bool(False),
-        muonSource = cms.InputTag("muons"),
-        minIsolatedCount = cms.int32(0),
-        jetIsoSource = cms.InputTag("kt6CaloJets"),
-        minGlobalMuonCount = cms.int32(1),
-        minJetDeltaR = cms.double(0.2),
-        maxJetCount = cms.int32(3),
         #for global muon finding
         applyGlobalMuonFilter = cms.bool(False),
-        minJetPt = cms.double(40.0), ##GeV
+        muonSource = cms.InputTag("muons"),
+        maxTrackDeltaR = cms.double(0.001),
+        minGlobalMuonCount = cms.int32(1),
 
-        jetCountSource = cms.InputTag("kt6CaloJets"),
+        #for isolation Tests
+        applyIsolationtest = cms.bool(False),
+        jetIsoSource = cms.InputTag("kt6CaloJets"),
         maxJetPt = cms.double(40.0), ##GeV
+        minJetDeltaR = cms.double(0.2),
+        minIsolatedCount = cms.int32(0),
 
         #for Jet Count
         applyJetCountFilter = cms.bool(False),
-        maxTrackDeltaR = cms.double(0.001)
+        jetCountSource = cms.InputTag("kt6CaloJets"),
+        minJetPt = cms.double(40.0), ##GeV
+        maxJetCount = cms.int32(3)
     ),
+
     # Settings for the two Body Decay TrackSelector
     TwoBodyDecaySelector = cms.PSet(
         applyMassrangeFilter = cms.bool(False),
@@ -99,9 +101,7 @@ AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
 
         applyChargeFilter = cms.bool(False),
         applyAcoplanarityFilter = cms.bool(False),
-        applyMissingETFilter = cms.bool(False),
-        numberOfCandidates = cms.uint32(5),
-        PDGMass = cms.double(91.1876) #Z Mass from PDG       
+        applyMissingETFilter = cms.bool(False)
     ),
     trackQualities = cms.vstring(), # take all if empty
     iterativeTrackingSteps = cms.vstring(), # take all if empty
