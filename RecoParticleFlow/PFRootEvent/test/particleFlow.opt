@@ -5,7 +5,7 @@ root outtree 0
 //colin	mode 1
 
 //root file display.root
-root file /data/blue/fabstoec/PFPhoton/display_newClean_2.root
+root file ../../Configuration/test/display.root
 
 // Warning: no cleaning of the HF is done in fast sim, due to the absence of timing simulation and to an unreliable transverse shower shape simulation in the HF. 
 //          Thus you shall switch it off in PFRootEvent also by changing the thresholds to the following values: 
@@ -615,13 +615,13 @@ tau_benchmark cone_merge 0.0
 
 //PFJet benchmark options ---------------------------------------------------
 
-pfjet_benchmark	on/off	1
+pfjet_benchmark	on/off	0
 
 //debug yes/no
 pfjet_benchmark debug 0
 	
 //pfjet benchmark outputfile
-pfjet_benchmark outjetfile pfjetBenchmark_default_2.root
+pfjet_benchmark outjetfile pfjetBenchmark.root
 
 //PlotagainstReco  yes/no
 pfjet_benchmark PlotAgainstReco 0
