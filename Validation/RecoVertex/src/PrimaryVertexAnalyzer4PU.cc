@@ -2679,7 +2679,7 @@ void PrimaryVertexAnalyzer4PU::printEventSummary(std::map<std::string, TH1*> & h
   double zmatch=0.05;
   cout.precision(4);
 
-  cout << " rec " <<  "             "  <<  " sim " << endl;
+  cout << "  rec " <<  "             "  <<  " sim " << endl;
   while((idxrec<recVtxs->size())||(idxsim<simpv.size())){
 
     string signal=" ";
@@ -2693,7 +2693,8 @@ void PrimaryVertexAnalyzer4PU::printEventSummary(std::map<std::string, TH1*> & h
 
     if( (idxrec<recVtxs->size()) && (idxsim<simpv.size()) 
 	&& (abs(zrecv[idxrec].first-zsimv[idxsim].first)<(zmatch+recVtxs->at(zrecv[idxrec].second).zError()))
-	&& ((idxsim==simpv.size())||(abs(zrecv[idxrec].first-zsimv[idxsim].first)<abs(zrecv[idxrec].first-zsimv[idxsim+1].first)))
+	&& (((idxsim+1)==simpv.size())||(fabs(zrecv[idxrec].first-zsimv[idxsim].first)<fabs(zrecv[idxrec].first-zsimv[idxsim+1].first)))
+	&& (((idxrec+1)==recVtxs->size())||(fabs(zrecv[idxrec].first-zsimv[idxsim].first)<fabs(zrecv[idxrec+1].first-zsimv[idxsim].first)))
 	){
       cout <<  setw(8) << fixed << zrecv[idxrec].first << tag
 	   <<"   <->    " <<setw(8) << fixed <<  zsimv[idxsim].first
@@ -2712,14 +2713,14 @@ void PrimaryVertexAnalyzer4PU::printEventSummary(std::map<std::string, TH1*> & h
 
       idxrec++;
       idxsim++;
-    }else if (    ((idxrec<recVtxs->size()) && (idxsim<simpv.size()) && (zrecv[idxrec].first<zsimv[idxsim].first))
-		  || ((idxrec<recVtxs->size()) && (idxsim==simpv.size())) ){
+    }else if (   ((idxrec<recVtxs->size()) && (idxsim<simpv.size())&& (zrecv[idxrec].first<zsimv[idxsim].first))
+	      || ((idxrec<recVtxs->size()) && (idxsim==simpv.size())) ){
       cout <<  setw(8) << fixed << zrecv[idxrec].first << tag
 	   << "                      "
 	   << "   fake" << endl;
       idxrec++;
     }else if (    ((idxrec<recVtxs->size()) && (idxsim<simpv.size()) && (zrecv[idxrec].first>zsimv[idxsim].first))
-		  || ((idxrec==recVtxs->size()) && (idxsim<simpv.size())) ){
+	       || ((idxrec==recVtxs->size()) && (idxsim<simpv.size())) ){
       cout << "         " <<  "   <->    " <<  setw(8) << fixed << zsimv[idxsim].first 
 	   << signal
 	   << setw(4) <<  simpv[zsimv[idxsim].second].nGenTrk;
@@ -3412,35 +3413,20 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
       nsimtrk+=vsim->nGenTrk;
       // look for a matching reconstructed vertex
       vsim->recVtx=NULL;
-      vsim->cluster=-1;
+      //vsim->cluster=-1;
       
+
+      // find the nearest recvertex  (multiple sims may be mapped to the same rec)
       for(reco::VertexCollection::const_iterator vrec=recVtxs->begin();  vrec!=recVtxs->end(); ++vrec){
-
-	if( vrec->isFake() ) {
-	  continue;  // skip fake vertices (=beamspot)
-	  cout << "fake vertex" << endl;
-	}
-
-
-	// if the matching critera are fulfilled, accept the rec-vertex that is closest in z
-	if(    ((vsim->recVtx) && (fabs(vsim->recVtx->position().z()-vsim->z-dsimrecz)>fabs(vrec->z()-vsim->z-dsimrecz)))
-	       || (!vsim->recVtx) )
-	  {
+	if( !(vrec->isFake()) ) {
+	  if( (vsim->recVtx==NULL) ||  
+	      ( (fabs(vsim->recVtx->position().z()-vsim->z) > fabs(vrec->z()-vsim->z)))){
 	    vsim->recVtx=&(*vrec);
-
-// 	    // find the corresponding cluster
-// 	    for(unsigned int iclu=0; iclu<clusters.size(); iclu++){
-// 	      if( fabs(clusters[iclu].position().z()-vrec->position().z()) < 0.001 ){
-// 		vsim->cluster=iclu;
-// 		vsim->nclutrk=clusters[iclu].position().y();
-// 	      }
-// 	    }
-
 	  }
+	}
+      }
+      //cout << Form("sim  %10.4f  ", vsim->z);      if( vsim->recVtx==NULL ){	cout << "---"<<endl;;}else{ cout << Form(" %10.4f +/- %8.4f\n",vsim->recVtx->position().z(),vsim->recVtx->zError());}
 
-      } // recvertex loop
-
-      
 
       Fill(h,"nsimtrk",static_cast<double>(nsimtrk));
       Fill(h,"nsimtrk",static_cast<double>(nsimtrk),vsim==simpv.begin());
@@ -3605,14 +3591,20 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
     // look for rec vertices with no matching sim vertex
     for(reco::VertexCollection::const_iterator vrec=recVtxs->begin();  vrec!=recVtxs->end(); ++vrec){
       simPrimaryVertex * match=NULL;
-      double zmax=2*zmatch_;
-      if (vrec->zError()>zmatch_) zmatch_=2*vrec->zError();
+      double zmax=zmatch_;      if ((3*vrec->zError())>zmatch_) zmax=3*vrec->zError();
       if( !(vrec->isFake())){
+
 	for(std::vector<simPrimaryVertex>::iterator vsim=simpv.begin(); vsim!=simpv.end(); vsim++){
-	  if (vsim->recVtx==&(*vrec)){ match=&(*vsim);}
+	  if(  (vsim->recVtx==&(*vrec)) && 
+	    ( (match==NULL) || ( fabs(vrec->position().z()-vsim->z) < fabs(vrec->position().z()-match->z) ) )
+	       ){ 
+	  match=&(*vsim);}
 	}
 	
-	if ((match==NULL) || ( fabs(vrec->position().z()-match->z)>zmax)){
+	//cout << Form("rec %10.4f +/- %8.4f",vrec->position().z(),vrec->zError());}  if( match==NULL ){cout << "---"<<endl;}else{cout << Form(" sim  %10.4f       %10.4f  -> ", match->z,zmax)<<  (fabs(vrec->position().z()-match->z)>zmax) << endl;;
+
+
+	if ( (match==NULL) || ( fabs(vrec->position().z()-match->z)>zmax)){
 	    Fill(h,"fakeVtxZ",vrec->z());
 	    if (vrec->ndof()>=0.5) Fill(h,"fakeVtxZNdofgt05",vrec->z());
 	    if (vrec->ndof()>=2.0) Fill(h,"fakeVtxZNdofgt2",vrec->z());
