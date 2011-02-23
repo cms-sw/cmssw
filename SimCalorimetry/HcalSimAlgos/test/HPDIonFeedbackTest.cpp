@@ -1,5 +1,5 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalShapes.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CLHEP/Random/JamesRandom.h"
@@ -8,7 +8,8 @@
 int main()
 {
   edm::ParameterSet pset;
-  HPDIonFeedbackSim feedbackSim(pset);
+  HcalShapes theShapes;
+  HPDIonFeedbackSim feedbackSim(pset, &theShapes);
   CLHEP::HepJamesRandom engine;
   feedbackSim.setRandomEngine(engine);
   HcalDetId detId(HcalBarrel, 1, 1, 1);
@@ -27,9 +28,6 @@ int main()
   }
 
   // test thermal noise
-  HcalShape shape;
-  CaloShapeIntegrator integratedShape(&shape);
-  feedbackSim.setShape(&integratedShape);
 
   for(int i = 0; i < 100; ++i)
   {
