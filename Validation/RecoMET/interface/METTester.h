@@ -46,6 +46,7 @@ public:
   // Inputs from Configuration File
   std::string METType_;
   std::string FolderName_;
+  std::string sample_;
   edm::InputTag inputMETLabel_;
   edm::InputTag inputCaloMETLabel_;
   edm::InputTag inputTrackLabel_;
