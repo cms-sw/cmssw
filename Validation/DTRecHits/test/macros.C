@@ -122,6 +122,7 @@ void plotAndProfileXSpread (TH2* h2, float min, float max, bool profile=false, f
     prof->SetLineColor(1);
     prof->SetLineWidth(2);
     prof->DrawCopy("same e1");
+    delete prof;
   }
   TLine * l = new TLine(h2->GetXaxis()->GetXmin(),0,h2->GetXaxis()->GetXmax(),0);
   l->SetLineColor(3);
