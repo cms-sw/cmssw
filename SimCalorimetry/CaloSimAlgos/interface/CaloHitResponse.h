@@ -22,6 +22,7 @@
 
 
 class CaloVShape;
+class CaloShapes;
 class CaloVSimParameterMap;
 class CaloVHitCorrection;
 class CaloVHitFilter;
@@ -35,9 +36,11 @@ public:
   enum {BUNCHSPACE=25};
 
   CaloHitResponse(const CaloVSimParameterMap * parameterMap, const CaloVShape * shape);
+  CaloHitResponse(const CaloVSimParameterMap * parameterMap, const CaloShapes * shapes);
 
   /// doesn't delete the pointers passed in
   virtual ~CaloHitResponse();
+
 
   /// tells it which pileup bunches to do
   void setBunchRange(int minBunch, int maxBunch);
@@ -109,6 +112,7 @@ protected:
   AnalogSignalMap theAnalogSignalMap;
 
   const CaloVSimParameterMap * theParameterMap;
+  const CaloShapes * theShapes;
   const CaloVShape * theShape;
   const CaloVHitCorrection * theHitCorrection;
   const CaloVPECorrection * thePECorrection;
