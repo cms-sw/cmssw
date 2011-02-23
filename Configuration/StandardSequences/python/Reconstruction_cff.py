@@ -46,14 +46,39 @@ localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS
 from RecoLocalCalo.Castor.Castor_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 
-globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing+trackingGlobalReco+hcalGlobalRecoSequence+particleFlowCluster+ecalClusters+caloTowersRec*vertexreco*electronGsfTracking*egammarecoGlobal*jetGlobalReco+muonrecoComplete+muoncosmicreco+CastorFullReco)
+globalreco = cms.Sequence(offlineBeamSpot*
+                          recopixelvertexing*
+                          trackingGlobalReco*
+                          hcalGlobalRecoSequence*
+                          particleFlowCluster*
+                          ecalClusters*
+                          caloTowersRec*
+                          vertexreco*
+                          egammaGlobalReco*
+                          pfTrackingGlobalReco*
+                          jetGlobalReco*
+                          muonrecoComplete*
+                          muoncosmicreco*
+                          CastorFullReco)
+
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 
 
 reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsSequence )
 
-highlevelreco = cms.Sequence(particleFlowReco*reducedRecHits*egammarecoFull*jetHighLevelReco*tautagging*metrecoPlusHCALNoise*btagging*recoPFMET*regionalCosmicTracksSeq*muoncosmichighlevelreco)
+highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
+                             particleFlowReco*
+                             reducedRecHits*
+                             egammaHighLevelRecoPostPF*
+                             jetHighLevelReco*
+                             tautagging*
+                             metrecoPlusHCALNoise*
+                             btagging*
+                             recoPFMET*
+                             #PFTau*
+                             regionalCosmicTracksSeq*
+                             muoncosmichighlevelreco)
 
 
 from FWCore.Modules.logErrorHarvester_cfi import *
