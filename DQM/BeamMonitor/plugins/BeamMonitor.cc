@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/02/22 17:52:44 $
- * $Revision: 1.65 $
+ * $Date: 2011/02/22 17:56:56 $
+ * $Revision: 1.66 $
  */
 
 
@@ -429,15 +429,34 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
   const std::time_t ftmptime = fbegintimestamp >> 32;
 
 
-if (countLumi_ == 0 ) {
+ if (countLumi_ == 0 && (!processed_)) {   
     beginLumiOfBSFit_ = beginLumiOfPVFit_ = nthlumi;
     refBStime[0] = refPVtime[0] = ftmptime;
-    }
+    mapBeginBSLS[countLumi_]   = nthlumi;   
+    mapBeginPVLS[countLumi_]   = nthlumi;
+    mapBeginBSTime[countLumi_] = ftmptime;
+    mapBeginPVTime[countLumi_] = ftmptime;
+    }//for the first record
+
+if(nthlumi > nextlumi_){
+   if(processed_){ countLumi_++;
     //store here them will need when we remove the first one of Last N LS
     mapBeginBSLS[countLumi_]   = nthlumi;
     mapBeginPVLS[countLumi_]   = nthlumi;
     mapBeginBSTime[countLumi_] = ftmptime;
     mapBeginPVTime[countLumi_] = ftmptime;
+   }//processed passed but not the first lumi
+   if((!processed_) && countLumi_ !=0){ 
+      outdata_events<<"The countLumi_ is =  "<<countLumi_<<endl;
+       mapBeginBSLS[countLumi_]   = nthlumi;   
+       mapBeginPVLS[countLumi_]   = nthlumi;
+       mapBeginBSTime[countLumi_] = ftmptime;
+       mapBeginPVTime[countLumi_] = ftmptime;
+   }//processed fails for last lumi
+  }//nthLumi > nextlumi
+
+
+
 
    if(StartAverage_ ){
      //Just Make sure it get rest
@@ -494,7 +513,7 @@ if (countLumi_ == 0 ) {
 
   if (onlineMode_) {
     if (nthlumi > nextlumi_) {
-      if (countLumi_ != 0 /*&& processed_*/) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
+      if (countLumi_ != 0 && processed_) FitAndFill(lumiSeg,lastlumi_,nextlumi_,nthlumi);
       nextlumi_ = nthlumi;
       edm::LogInfo("BeamMonitor") << "beginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
       if((StartAverage_) && refBStime[0] == 0) refBStime[0] = nbbst->second;
@@ -509,7 +528,7 @@ if (countLumi_ == 0 ) {
     if ((StartAverage_) && refPVtime[0] == 0) refPVtime[0] = nbpvt->second;
   }
 
-  countLumi_++;
+  //countLumi_++;
   if (processed_) processed_ = false;
   edm::LogInfo("BeamMonitor") << " beginLuminosityBlock::  Begin of Lumi: " << nthlumi << endl;
 }
@@ -627,7 +646,8 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
   if (onlineMode_ && (nthlumi <= nextlumi)) return;
 
   //set the correct run number when no event in the LS for fake output
-  if(theBeamFitter->getRunNumber() != frun)theBeamFitter->setRun(frun);
+  if((processed_) && theBeamFitter->getRunNumber() != frun)theBeamFitter->setRun(frun);
+
   int currentlumi = nextlumi;
   edm::LogInfo("BeamMonitor") << "FitAndFill::  Lumi of the current fit: " << currentlumi << endl;
   lastlumi = currentlumi;
