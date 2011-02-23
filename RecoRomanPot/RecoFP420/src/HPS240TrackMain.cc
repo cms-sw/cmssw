@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-// File: FP420TrackMain.cc
+// File: HPS240TrackMain.cc
 // Date: 12.2006
-// Description: FP420TrackMain for FP420
+// Description: HPS240TrackMain for HPS240
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
 #include <vector>
 #include <iostream>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoRomanPot/RecoFP420/interface/FP420TrackMain.h"
+#include "RecoRomanPot/RecoFP420/interface/HPS240TrackMain.h"
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
 #include "DataFormats/FP420Cluster/interface/TrackFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/TrackProducerFP420.h"
@@ -19,26 +19,26 @@ using namespace std;
 
 //#define mytrackdebug0
 
-//FP420TrackMain::FP420TrackMain(){ 
-FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  { 
+//HPS240TrackMain::HPS240TrackMain(){ 
+HPS240TrackMain::HPS240TrackMain(const edm::ParameterSet& conf):conf_(conf)  { 
   
   verbosity   = conf_.getUntrackedParameter<int>("VerbosityLevel");
-  trackMode_  =  conf_.getParameter<std::string>("TrackModeFP420");
-  dn0   = conf_.getParameter<int>("NumberFP420Detectors");
-  sn0_ = conf_.getParameter<int>("NumberFP420Stations");
-  pn0_ = conf_.getParameter<int>("NumberFP420SPlanes");
+  trackMode_  =  conf_.getParameter<std::string>("TrackModeHPS240");
+  dn0   = conf_.getParameter<int>("NumberHPS240Detectors");
+  sn0_ = conf_.getParameter<int>("NumberHPS240Stations");
+  pn0_ = conf_.getParameter<int>("NumberHPS240SPlanes");
   rn0_ = 7;
-  xytype_ = conf_.getParameter<int>("NumberFP420SPTypes");
-  z420_           = conf_.getParameter<double>("zFP420");
-  zD2_            = conf_.getParameter<double>("zFP420D2");
-  zD3_            = conf_.getParameter<double>("zFP420D3");
-  dXX_ = conf_.getParameter<double>("dXXFP420");
-  dYY_ = conf_.getParameter<double>("dYYFP420");
-  chiCutX_ = conf_.getParameter<double>("chiCutXFP420");
-  chiCutY_ = conf_.getParameter<double>("chiCutYFP420");
-
+  xytype_ = conf_.getParameter<int>("NumberHPS240SPTypes");
+  z420_           = conf_.getParameter<double>("zHPS240");
+  zD2_            = conf_.getParameter<double>("zHPS240D2");
+  zD3_            = conf_.getParameter<double>("zHPS240D3");
+  dXX_ = conf_.getParameter<double>("dXXHPS240");
+  dYY_ = conf_.getParameter<double>("dYYHPS240");
+  chiCutX_ = conf_.getParameter<double>("chiCutXHPS240");
+  chiCutY_ = conf_.getParameter<double>("chiCutYHPS240");
+  
   if (verbosity > 0) {
-    std::cout << "FP420TrackMain constructor::" << std::endl;
+    std::cout << "HPS240TrackMain constructor::" << std::endl;
     std::cout << "sn0=" << sn0_ << " pn0=" << pn0_ << " xytype=" << xytype_ << std::endl;
     std::cout << "trackMode = " << trackMode_ << std::endl;
     std::cout << "dXX=" << dXX_ << " dYY=" << dYY_ << std::endl;
@@ -53,10 +53,15 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   UseHalfPitchShiftInY_= true;
   UseHalfPitchShiftInYW_= true;
 
-  pitchX_= 0.050;
-  pitchY_= 0.050;// 
-  pitchXW_= 0.400;
-  pitchYW_= 0.400;// 
+  //pitchX_= 0.050;
+  //pitchY_= 0.050;// 
+  //pitchXW_= 0.400;
+  //pitchYW_= 0.400;// 
+
+  pitchX_= 0.100;
+  pitchY_= 0.100;// 
+  pitchXW_= 0.150;
+  pitchYW_= 0.150;// 
 
   XsensorSize_=8.0;
   YsensorSize_=7.2;
@@ -72,6 +77,7 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   
   double ZBoundDet = 0.020;
   double ZSiElectr = 0.250;
+  //double ZSiElectr = 0.750;
   double ZCeramDet = 0.500;
 
   double eee1=11.;
@@ -83,7 +89,7 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   ZGapLDet_= zBlade_/2-(ZSiDet_+ZSiElectr+ZBoundDet+ZCeramDet/2);
 //
     if (verbosity > 1) {
-      std::cout << "FP420TrackMain constructor::" << std::endl;
+      std::cout << "HPS240TrackMain constructor::" << std::endl;
       std::cout << " zD2=" << zD2_ << " zD3=" << zD3_ << " zinibeg =" << zinibeg_ << std::endl;
       std::cout << " UseHalfPitchShiftInX=" << UseHalfPitchShiftInX_ << " UseHalfPitchShiftInY=" << UseHalfPitchShiftInY_ << std::endl;
       std::cout << " UseHalfPitchShiftInXW=" << UseHalfPitchShiftInXW_ << " UseHalfPitchShiftInYW=" << UseHalfPitchShiftInYW_ << std::endl;
@@ -98,16 +104,16 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
 
 
 
-      if ( trackMode_ == "TrackProducerSophisticatedFP420" ) {
+      if ( trackMode_ == "TrackProducerSophisticatedHPS240" ) {
   
   
-  //trackMode_ == "TrackProducerVar1FP420" ||
-  //trackMode_ == "TrackProducerVar2FP420" ||
+  //trackMode_ == "TrackProducerVar1HPS240" ||
+  //trackMode_ == "TrackProducerVar2HPS240" ||
 
-     // if ( trackMode_ == "TrackProducerMaxAmplitudeFP420" ||
-//	   trackMode_ == "TrackProducerMaxAmplitude2FP420"  ||
-//	   trackMode_ == "TrackProducerSophisticatedFP420"  ||
-//	   trackMode_ == "TrackProducer3DFP420" )  {
+     // if ( trackMode_ == "TrackProducerMaxAmplitudeHPS240" ||
+//	   trackMode_ == "TrackProducerMaxAmplitude2HPS240"  ||
+//	   trackMode_ == "TrackProducerSophisticatedHPS240"  ||
+//	   trackMode_ == "TrackProducer3DHPS240" )  {
 
 	finderParameters_ = new TrackProducerFP420(sn0_, pn0_, rn0_, xytype_, z420_, zD2_, zD3_,
 						   pitchX_, pitchY_,
@@ -121,12 +127,12 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
 	validTrackerizer_ = true;
       } 
       else {
-	std::cout << "ERROR:FP420TrackMain: No valid finder selected" << std::endl;
+	std::cout << "ERROR:HPS240TrackMain: No valid finder selected" << std::endl;
 	validTrackerizer_ = false;
       }
 }
 
-FP420TrackMain::~FP420TrackMain() {
+HPS240TrackMain::~HPS240TrackMain() {
   if ( finderParameters_ != 0 ) {
     delete finderParameters_;
   }
@@ -134,7 +140,7 @@ FP420TrackMain::~FP420TrackMain() {
 
 
 
-void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_ptr<TrackCollectionFP420> &toutput )
+void HPS240TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_ptr<TrackCollectionFP420> &toutput )
 {
   
   if ( validTrackerizer_ ) {
@@ -170,34 +176,36 @@ void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_p
     
     bool first = true;
     // loop over detunits
-    for (int det=1; det<dn0; det++) {
+    // det = 3 for +HPS240 , = 4 for -HPS240 
+    int detHPS240 = dn0+2;
+    for (int det=3; det<detHPS240; det++) {
       ++number_detunits;
-      int StID = 1111;
-      if(det==2) StID = 2222;
+      int StID = 3333;
+      if(det==4) StID = 4444;
       std::vector<TrackFP420> collector;
-      // 	    std::vector<TrackFP420> collector;
+      // 	    vector<TrackFP420> collector;
       collector.clear();
       
-      // if ( trackMode_ == "TrackProducerMaxAmplitudeFP420") {
+      // if ( trackMode_ == "TrackProducerMaxAmplitudeHPS240") {
       //	 collector = finderParameters_->trackFinderMaxAmplitude(input); //std::vector<TrackFP420> collector;
       // }// if ( trackMode
-      // else if (trackMode_ == "TrackProducerMaxAmplitude2FP420" ) {
+      // else if (trackMode_ == "TrackProducerMaxAmplitude2HPS240" ) {
       //	 collector = finderParameters_->trackFinderMaxAmplitude2(input); //
       //  }// if ( trackMode
       /*
-	else if (trackMode_ == "TrackProducerVar1FP420" ) {
+	else if (trackMode_ == "TrackProducerVar1HPS240" ) {
 	collector = finderParameters_->trackFinderVar1(input); //
 	}// if ( trackMode
-	else if (trackMode_ == "TrackProducerVar2FP420" ) {
+	else if (trackMode_ == "TrackProducerVar2HPS240" ) {
 	collector = finderParameters_->trackFinderVar2(input); //
 	}// if ( trackMode
       */
-      if (trackMode_ == "TrackProducerSophisticatedFP420" ) {
+      if (trackMode_ == "TrackProducerSophisticatedHPS240" ) {
 	collector = finderParameters_->trackFinderSophisticated(input,det); //
       }// if ( trackMode
       
       
-      //  else if (trackMode_ == "TrackProducer3DFP420" ) {
+      //  else if (trackMode_ == "TrackProducer3DHPS240" ) {
       //	 collector = finderParameters_->trackFinder3D(input); //
       // }// if ( trackMode
       
@@ -222,16 +230,18 @@ void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_p
     
     
     if (verbosity > 0) {
-      std::cout << "FP420TrackMain: execution in mode " << trackMode_ << " generating " << number_localelectroderechits << " tracks in  " << number_detunits << " detectors" << std::endl; 
+      std::cout << "HPS240TrackMain: execution in mode " << trackMode_ << " generating " << number_localelectroderechits << " tracks in  " << number_detunits << " detectors" << std::endl; 
     }
     
     
     if (verbosity ==-29) {
       //     check of access to the collector:
       // loop over detunits
-      for (int det=1; det<dn0; det++) {
-	int StID = 1111;
-	if(det==2) StID = 2222;
+      // det = 3 for +HPS240 , = 4 for -HPS240 
+      int detHPS240 = dn0+2;
+      for (int det=3; det<detHPS240; det++) {
+	int StID = 3333;
+	if(det==4) StID = 4444;
 	std::vector<TrackFP420> collector;
 	collector.clear();
 	TrackCollectionFP420::Range outputRange;
@@ -244,7 +254,7 @@ void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_p
 	} // for
 	std::cout <<" ===" << std::endl;
 	std::cout <<" ===" << std::endl;
-	std::cout <<"=======FP420TrackMain:check size = " << collector.size() << "  det = " << det << std::endl;
+	std::cout <<"=======HPS240TrackMain:check size = " << collector.size() << "  det = " << det << std::endl;
 	std::cout <<" ===" << std::endl;
 	std::cout <<" ===" << std::endl;
 	vector<TrackFP420>::const_iterator simHitIter = collector.begin();
@@ -253,7 +263,7 @@ void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_p
 	for (;simHitIter != simHitIterEnd; ++simHitIter) {
 	  const TrackFP420 itrack = *simHitIter;
 	  
-	  std::cout << "FP420TrackMain:check: nclusterx = " << itrack.nclusterx() << "  nclustery = " << itrack.nclustery() << std::endl;
+	  std::cout << "HPS240TrackMain:check: nclusterx = " << itrack.nclusterx() << "  nclustery = " << itrack.nclustery() << std::endl;
 	  std::cout << "  ax = " << itrack.ax() << "  bx = " << itrack.bx() << std::endl;
 	  std::cout << "  ay = " << itrack.ay() << "  by = " << itrack.by() << std::endl;
 	  std::cout << " chi2x= " << itrack.chi2x() << " chi2y= " << itrack.chi2y() << std::endl;
@@ -265,7 +275,7 @@ void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_p
 	//==================================
 	
 	//     end of check of access to the strip collection
-	std::cout <<"=======            FP420TrackMain:                    end of check     " << std::endl;
+	std::cout <<"=======            HPS240TrackMain:                    end of check     " << std::endl;
 	
       }//for det
     }// if verbosity

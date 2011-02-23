@@ -45,7 +45,6 @@ namespace cms
 
     FP420RecoMain* sFP420RecoMain_;
     int verbosity;
-    int VtxFlag;
     std::string m_genReadoutName;
 
   };
