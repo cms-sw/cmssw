@@ -154,7 +154,11 @@ HLTLevel1Pattern::filter(edm::Event& event, const edm::EventSetup& setup)
   // check the L1 algorithms results
   for (unsigned int i = 0; i < m_bunchCrossings.size(); ++i) {
     int bx = m_bunchCrossings[i];
-    bool result = m_triggerAlgo ? h_gtReadoutRecord->decisionWord(bx)[m_triggerNumber] : h_gtReadoutRecord->technicalTriggerWord(bx)[m_triggerNumber];
+    const std::vector<bool> & word = (m_triggerAlgo) ? h_gtReadoutRecord->decisionWord(bx) : h_gtReadoutRecord->technicalTriggerWord(bx);
+    if (word.empty() or m_triggerNumber >= word.size())
+      // L1 results not available, bail out
+      return m_invert;
+    bool result = word[m_triggerNumber];
     if (result != m_triggerPattern[i])
       // comparison failed, bail out
       return m_invert;
