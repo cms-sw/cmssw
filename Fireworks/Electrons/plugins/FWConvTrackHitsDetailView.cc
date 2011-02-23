@@ -546,4 +546,4 @@ FWConvTrackHitsDetailView::rnrLabels()
    gEve->Redraw3D();
 }
 
-REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Hits);
+REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion);
