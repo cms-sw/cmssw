@@ -9,32 +9,31 @@
 
 static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 
-ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int firstSample, int firstNoise, int samplesToAdd, bool correctForTimeslew, bool correctForPulse, float phaseNS, int recoMethod) : 
-  firstSample_(firstSample), 
-  firstNoise_(firstNoise),
-  samplesToAdd_(samplesToAdd),
+ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS, int recoMethod) : 
   recoMethod_(recoMethod),
-  correctForTimeslew_(correctForTimeslew) {
-  if (correctForPulse) 
-    pulseCorr_=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(samplesToAdd_,phaseNS,MaximumFractionalError));
+  correctForTimeslew_(correctForTimeslew),
+  correctForPulse_(correctForPulse) {
 }
 
-ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int firstSample, int firstNoise, int samplesToAdd, int recoMethod) : 
-  firstSample_(firstSample),
-   firstNoise_(firstNoise),
-  samplesToAdd_(samplesToAdd),
+ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int recoMethod) : 
   recoMethod_(recoMethod),
   correctForTimeslew_(false) {
 }
-
+void ZdcSimpleRecAlgo::initPulseCorr(int toadd) {
+  if (correctForPulse_) {    
+    pulseCorr_=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(toadd,phaseNS_,MaximumFractionalError));
+  }
+}
 static float timeshift_ns_zdc(float wpksamp);
 
 namespace ZdcSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco1(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
-		     int ifirst, int noiseFirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
+		      const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
+    int ifirst = mySignalTS[0];
+    int n = mySignalTS.size();
     double ampl=0; int maxI = -1; double maxA = -1e10; double ta=0;
     double fc_ampl=0;
     for (int i=ifirst; i<tool.size() && i<n+ifirst; i++) {
@@ -70,7 +69,6 @@ namespace ZdcSimpleRecAlgoImpl {
       if (corr!=0) {
 	// Apply phase-based amplitude correction:
 	ampl *= corr->getCorrection(fc_ampl);
-	//      std::cout << fc_ampl << " --> " << corr->getCorrection(fc_ampl) << std::endl;
       }
     
       if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
@@ -81,53 +79,59 @@ namespace ZdcSimpleRecAlgoImpl {
   }
 }
 
-
 namespace ZdcSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco2(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
-		     int ifirst, int noiseFirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
+		     const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
+    // Reads noiseTS and signalTS from database
+    int ifirst = mySignalTS[0];
+//    int n = mySignalTS.size();
     double ampl=0; int maxI = -1; double maxA = -1e10; double ta=0;
-    double prenoise = 0; double postnoise = 0; 
+    double Allnoise = 0; 
     int noiseslices = 0;
+    int CurrentTS = 0;
     double noise = 0;
     double fc_ampl=0;
-
-    for(int k = noiseFirst ; k < tool.size() && k < ifirst; k++){
-      prenoise += tool[k];
+    
+    for(unsigned int iv = 0; iv<myNoiseTS.size(); ++iv)
+    {
+      CurrentTS = myNoiseTS[iv];
+      Allnoise += tool[CurrentTS];
       noiseslices++;
     }
-//    for(int j = (n + ifirst + 1); j <tool.size(); j++){
-//      postnoise += tool[j];
-//      noiseslices++;
-//    }
-// removed postnoise due to significant signal seen in TS 7,8,9 (Heavy Ion run 2010)
-// Future ZdcSimpleRecAlgo will have better configurable noise calculation
-    postnoise=0;    
     if(noiseslices != 0) {
-      noise = (prenoise+postnoise)/double(noiseslices);
+      noise = (Allnoise)/double(noiseslices);
     } else {
       noise = 0;
     }
  // factor to multiply by noise to make 0 or 1 to handle negative noise situations
     double noisefactor=1.;
-    for (int i=ifirst; i<tool.size() && i<n+ifirst; i++) {
-      int capid=digi[i].capid();
+    for(unsigned int ivs = 0; ivs<mySignalTS.size(); ++ivs)
+    {
       if(noise<0){
       // flag hit as having negative noise, and don't subtract anything, because
       // it will falsely increase the energy
          noisefactor=0.;
       } 
-      ta = tool[i]-noisefactor*noise;
+      CurrentTS = mySignalTS[ivs];
+      int capid=digi[CurrentTS].capid();
+      if(noise<0){
+      // flag hit as having negative noise, and don't subtract anything, because
+      // it will falsely increase the energy
+         noisefactor=0.;
+      } 
+      ta = tool[CurrentTS]-noisefactor*noise;
       fc_ampl+=ta; 
       ta*= calibs.respcorrgain(capid) ; // fC --> GeV
       ampl+=ta;
       if(ta>maxA){
-	maxA=ta;
-	maxI=i;
-      }
-    }
+	     maxA=ta;
+	     maxI=CurrentTS;
+	  }
+    }  
+    
 //    if(ta<0){
 //      // flag hits that have negative energy
 //    }
@@ -174,16 +178,16 @@ namespace ZdcSimpleRecAlgoImpl {
   }
 }
 
-ZDCRecHit ZdcSimpleRecAlgo::reconstruct(const ZDCDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+ZDCRecHit ZdcSimpleRecAlgo::reconstruct(const ZDCDataFrame& digi, const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS,const HcalCoder& coder, const HcalCalibrations& calibs) const {
  
   if(recoMethod_ == 1)
    return ZdcSimpleRecAlgoImpl::reco1<ZDCDataFrame,ZDCRecHit>(digi,coder,calibs,
-							      firstSample_,firstNoise_,samplesToAdd_,false,
+							      myNoiseTS,mySignalTS,false,
 							      0,
 							      HcalTimeSlew::Fast);
   if(recoMethod_ == 2)
    return ZdcSimpleRecAlgoImpl::reco2<ZDCDataFrame,ZDCRecHit>(digi,coder,calibs,
-							      firstSample_,firstNoise_,samplesToAdd_,false,
+							      myNoiseTS,mySignalTS,false,
 							      0,HcalTimeSlew::Fast);
 
      edm::LogError("ZDCSimpleRecAlgoImpl::reconstruct, recoMethod was not declared");

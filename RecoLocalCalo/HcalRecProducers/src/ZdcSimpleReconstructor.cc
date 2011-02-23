@@ -15,7 +15,7 @@
 
     
 ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf):
-  reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("firstNoise"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"),
+  reco_(conf.getParameter<bool>("correctForTimeslew"),
 	conf.getParameter<bool>("correctForPhaseContainment"),conf.getParameter<double>("correctionPhaseNS"),
 	conf.getParameter<int>("recoMethod")),
   det_(DetId::Hcal),
@@ -39,13 +39,25 @@ ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf):
 
 ZdcSimpleReconstructor::~ZdcSimpleReconstructor() {
 }
+void ZdcSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
 
+   edm::ESHandle<HcalLongRecoParams> p;
+   es.get<HcalLongRecoParamsRcd>().get(p);
+   myobject = new HcalLongRecoParams(*p.product());
+}
+
+void ZdcSimpleReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
+  if (myobject) delete myobject;
+}
 void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
   const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
+  // define vectors to pass noiseTS and signalTS
+  std::vector<unsigned int> mySignalTS;
+  std::vector<unsigned int> myNoiseTS;
   
   if (det_==DetId::Calo && subdet_==HcalZDCDetId::SubdetectorId) {
     edm::Handle<ZDCDigiCollection> digi;
@@ -55,17 +67,33 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
     std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);
     rec->reserve(digi->size());
     // run the algorithm
+    unsigned int toaddMem = 0;
+    
     ZDCDigiCollection::const_iterator i;
     for (i=digi->begin(); i!=digi->end(); i++) {
       HcalZDCDetId cell = i->id();	  
+      DetId detcell=(DetId)cell;
 	// rof 27.03.09: drop ZS marked and passed digis:
 	if (dropZSmarkedPassed_)
 	  if (i->zsMarkAndPass()) continue;
 
+// get db values for signalTSs and noiseTSs
+      const HcalLongRecoParam* myParams = myobject->getValues(detcell);
+      mySignalTS.clear();
+      myNoiseTS.clear();
+      mySignalTS = myParams->signalTS();
+      myNoiseTS = myParams->noiseTS(); 
+// warning: the PulseCorrection is not used by ZDC. If it gets a non-contingious set of 
+// signal TS, it may not work properly. Assume contiguous here....
+        unsigned int toadd = mySignalTS.size();    
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}   
       const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
       const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
       HcalCoderDb coder (*channelCoder, *shape);
-      rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+      rec->push_back(reco_.reconstruct(*i,myNoiseTS,mySignalTS,coder,calibrations));
     }
     // return result
     e.put(rec);     

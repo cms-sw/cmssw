@@ -5,7 +5,8 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-
+#include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"
+#include "CondFormats/HcalObjects/interface/HcalLongRecoParam.h" 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -13,8 +14,8 @@
 
 
     /** \class HcalSimpleReconstructor	
-     $Date: 2010/01/18 00:00:66 $
-    $Revision: 1.6 $
+     $Date: 2010/01/21 14:37:40 $
+    $Revision: 1.1 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -22,6 +23,8 @@
     public:
       explicit ZdcSimpleReconstructor(const edm::ParameterSet& ps);
       virtual ~ZdcSimpleReconstructor();
+      virtual void beginRun(edm::Run&r, edm::EventSetup const & es);
+      virtual void endRun(edm::Run&r, edm::EventSetup const & es);
       virtual void produce(edm::Event& e, const edm::EventSetup& c);
     private:      
       ZdcSimpleRecAlgo reco_;
@@ -31,6 +34,8 @@
       edm::InputTag inputLabel_;
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
+      
+       HcalLongRecoParams* myobject; //noiseTS and signalTS from db
     };
 
 #endif

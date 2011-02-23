@@ -15,6 +15,8 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"
+#include "CondFormats/HcalObjects/interface/HcalLongRecoParam.h" 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimingCorrector.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimeProfileStatusBitSetter.h"
@@ -24,8 +26,8 @@
 
     /** \class ZdcHitReconstructor
 	
-    $Date: 2010/01/21 14:36:12 $
-    $Revision: 1.1 $
+    $Date: 2011/02/22 20:44:52 $
+    $Revision: 1.2 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -33,6 +35,8 @@
     public:
       explicit ZdcHitReconstructor(const edm::ParameterSet& ps);
       virtual ~ZdcHitReconstructor();
+      virtual void beginRun(edm::Run&r, edm::EventSetup const & es);
+      virtual void endRun(edm::Run&r, edm::EventSetup const & es);      
       virtual void produce(edm::Event& e, const edm::EventSetup& c);
     private:      
       ZdcSimpleRecAlgo reco_;
@@ -57,6 +61,8 @@
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
       std::vector<int> AuxTSvec_;
+      
+      HcalLongRecoParams* myobject; //noiseTS and signalTS from db
     };
 
 #endif
