@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: BeamFitter.cc,v 1.72 2010/11/03 13:44:17 friis Exp $
+   version $Id: BeamFitter.cc,v 1.73 2010/11/03 15:42:09 friis Exp $
 
 ________________________________________________________________**/
 
@@ -49,6 +49,8 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig): fPVTree_(0)
   outputTxt_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("AsciiFileName");
   appendRunTxt_      = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("AppendRunToFileName");
   writeDIPTxt_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("WriteDIPAscii");
+  // Specify whether we want to write the DIP file even if the fit is failed.
+  writeDIPBadFit_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("WriteDIPOnBadFit", true);
   outputDIPTxt_      = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
   saveNtuple_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SaveNtuple");
   saveBeamFit_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SaveFitResults");
@@ -417,7 +419,9 @@ bool BeamFitter::runPVandTrkFitter() {
 	pv_fit_ok = true;
       }
       if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
-      if(writeDIPTxt_) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
+      if(writeDIPTxt_ && (pv_fit_ok || writeDIPBadFit_)) {
+          dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
+      }
       return pv_fit_ok;
     }
 
@@ -488,7 +492,9 @@ bool BeamFitter::runPVandTrkFitter() {
     }
 
     if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
-    if(writeDIPTxt_) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
+    if(writeDIPTxt_ && ((fit_ok && pv_fit_ok) || writeDIPBadFit_)) {
+        dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
+    }
 
     return fit_ok && pv_fit_ok;
 }
@@ -571,8 +577,9 @@ bool BeamFitter::runFitter() {
     bool fit_ok = runFitterNoTxt();
 
     if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
-    if(writeDIPTxt_) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
-
+    if(writeDIPTxt_ && (fit_ok || writeDIPBadFit_)) {
+      dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
+    }
     return fit_ok;
 }
 

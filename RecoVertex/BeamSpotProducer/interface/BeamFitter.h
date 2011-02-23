@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamFitter.h,v 1.45 2011/02/22 17:52:25 friis Exp $
+ version $Id: BeamFitter.h,v 1.46 2011/02/22 17:57:06 friis Exp $
 
  ________________________________________________________________**/
 
@@ -134,6 +134,7 @@ class BeamFitter {
   edm::InputTag vertexLabel_;
   bool writeTxt_;
   bool writeDIPTxt_;
+  bool writeDIPBadFit_;
   std::string outputTxt_;
   std::string outputDIPTxt_;
   double trk_MinpT_;
