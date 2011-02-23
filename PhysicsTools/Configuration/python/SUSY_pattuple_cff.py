@@ -293,20 +293,14 @@ def loadPATTriggers(process,HLTMenu,theJetNames,electronMatches,muonMatches,tauM
     #Jets
     from PhysicsTools.PatAlgos.triggerLayer1.triggerMatcher_cfi import cleanJetTriggerMatchHLTJet15U
     process.patJetMatchAK5Calo = cleanJetTriggerMatchHLTJet15U.clone(pathNames=jetMatches,src='cleanPatJetsAK5Calo')
-    process.cleanPatJetsTriggerMatchAK5Calo = process.cleanPatJetsTriggerMatch
+    switchOnTriggerMatchEmbedding( process, ['patJetMatchAK5Calo'], hltProcess=HLTMenu)
     for jetType in theJetNames:
         setattr(process,'patJetMatch'+jetType,cleanJetTriggerMatchHLTJet15U.clone(pathNames=jetMatches,src = 'cleanPatJets'+jetType))
     process.patJetMatchPF = cleanJetTriggerMatchHLTJet15U.clone(src='selectedPatJetsPF', pathNames=jetMatches)
     process.patDefaultSequencePF += process.patJetMatchPF
-    switchOnTriggerMatchEmbedding( process, ['patJetMatchAK5Calo'], hltProcess=HLTMenu)
-    process.cleanPatJetsTriggerMatchAK5Calo.src = 'cleanPatJetsAK5Calo'
-    process.cleanPatJetsTriggerMatchAK5Calo.matches = ['patJetMatchAK5Calo']
-    process.patTriggerSequence += process.cleanPatJetsTriggerMatchAK5Calo
     for jetType in theJetNames:
         switchOnTriggerMatchEmbedding( process, ['patJetMatch'+jetType], hltProcess=HLTMenu)
-        setattr(process, 'cleanPatJetsTriggerMatch'+jetType, getattr(process,'cleanPatJetsTriggerMatchAK5Calo').clone(matches = ['patJetMatch'+jetType],src='cleanPatJets'+jetType) )
-        process.patTriggerSequence += getattr(process,'cleanPatJetsTriggerMatch'+jetType)
-    pfSwitchOnTriggerMatchEmbedding( process, ['patJetMatchPF'], 'selectedPatJetsPF', 'cleanPatJetsTriggerMatch' )
+    pfSwitchOnTriggerMatchEmbedding( process, ['patJetMatchPF'], 'selectedPatJetsPF', 'cleanPatJetsAK5CaloTriggerMatch' )
     #Taus
     from PhysicsTools.PatAlgos.triggerLayer1.triggerMatcher_cfi import cleanTauTriggerMatchHLTDoubleLooseIsoTau15
     process.patTauMatch = cleanTauTriggerMatchHLTDoubleLooseIsoTau15.clone(pathNames = tauMatches)
@@ -524,32 +518,4 @@ def getSUSY_pattuple_outputCommands( process ):
 	keepList.extend(patEventContentTriggerMatch)
 	keepList.extend(susyAddEventContent)
 	return keepList
-
-
-def run36xOnReRecoMC( process ):
-    """
-    ------------------------------------------------------------------
-    running GenJets for ak5 and ak7
-
-    process : process
-    genJets : which gen jets to run
-    ------------------------------------------------------------------    
-    """
-    print "*********************************************************************"
-    print "NOTE TO USER: when running on 31X samples re-recoed in 3.5.6         "
-    print "              with this CMSSW version of PAT                         "
-    print "              it is required to re-run the GenJet production for     "
-    print "              anti-kT since that is not part of the re-reco          "
-    print "*********************************************************************"
-    process.load("RecoJets.Configuration.GenJetParticles_cff")
-    process.load("RecoJets.JetProducers.ak5GenJets_cfi")
-    process.ak7GenJets = process.ak5GenJets.clone( rParam = 0.7 )
-    process.makePatJets.replace( process.patJetCharge, process.genParticlesForJets+process.ak5GenJets+process.ak7GenJets+process.patJetCharge)
-    #-- Remove changes for GenJets ------------------------------------------------
-    process.genParticlesForJets.ignoreParticleIDs = cms.vuint32(1000022, 1000012, 1000014, 1000016, 2000012,
-        2000014, 2000016, 1000039, 5100039, 4000012,
-        4000014, 4000016, 9900012, 9900014, 9900016,
-        39)
-    process.genParticlesForJets.excludeResonances = True
-
 
