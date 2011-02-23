@@ -279,8 +279,8 @@ double makeGifHists4 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
   int hibin=fHist->GetNbinsX()+1;
   double hiedge = fHist->GetBinLowEdge(hibin);
 
-  fRefHist->SetMaximum(1.3);
-  fRefHist->SetMinimum(0.0);
+  //fRefHist->SetMaximum(1.3);
+  //fRefHist->SetMinimum(0.0);
 
   if (lowedge==0.5 && hiedge==3.75){
     fRefHist->GetXaxis()->SetTickLength(0);

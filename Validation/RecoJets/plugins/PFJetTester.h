@@ -4,12 +4,13 @@
 // Producer for validation histograms for PFJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by Chiyoung.Jeong Feb 2, 2010
-// $Id: PFJetTester.h,v 1.6 2010/02/03 16:39:53 chjeong Exp $
+// $Id: PFJetTester.h,v 1.7 2010/04/21 16:33:57 chjeong Exp $
 
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 namespace reco {
   class PFJet;
@@ -71,6 +72,21 @@ private:
   MonitorElement* mConstituents_3000;
   MonitorElement* mHadTiming;
   MonitorElement* mEmTiming;
+
+  //Corr jets
+  MonitorElement* mCorrJetPt;
+  MonitorElement* mCorrJetPt_80;
+  MonitorElement* mCorrJetPt_3000;
+  MonitorElement* mCorrJetEta;
+  MonitorElement* mCorrJetPhi;
+  MonitorElement* mpTRatio;
+  MonitorElement* mpTRatioB_d;
+  MonitorElement* mpTRatioE_d;
+  MonitorElement* mpTRatioF_d;
+  MonitorElement* mpTRatio_60_120_d;
+  MonitorElement* mpTRatio_200_300_d;
+  MonitorElement* mpTRatio_600_900_d;
+  MonitorElement* mpTRatio_2700_3500_d;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
@@ -229,6 +245,8 @@ private:
   double mGenEnergyFractionThreshold;
   double mReverseEnergyFractionThreshold;
   double mRThreshold;
+
+  std::string JetCorrectionService;
 
   // Switch on/off unimportant histogram
   std::string  mTurnOnEverything;
