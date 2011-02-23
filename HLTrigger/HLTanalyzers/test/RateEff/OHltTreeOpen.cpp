@@ -8271,11 +8271,10 @@ int OHltTree::OpenHltTauMuonMatching(float eta, float phi)
          deltaphi = (2.0 * 3.14159) - deltaphi;
       double deltaeta = fabs(eta-ohMuL2Eta[j]);
 
-      if (deltaeta<0.3 && deltaphi<0.3)
+      if (sqrt(deltaeta*deltaeta + deltaphi*deltaphi) < 0.3)
          return 1;
    }
    return 0;
-
 }
 
 int OHltTree::OpenHltTauEleMatching(float eta, float phi)
