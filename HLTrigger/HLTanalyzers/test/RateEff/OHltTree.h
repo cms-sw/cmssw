@@ -4007,6 +4007,15 @@ public:
          double ptl3,
          double dr,
          int iso);
+
+   int OpenHlt2MuonOSMassPassed(
+	double ptl1,
+	double ptl2,
+	double ptl3,
+	double dr,
+	int iso,
+	double masslow,
+	double masshigh);
    
    int OpenHlt1L2MuonPassed(double ptl1, double ptl2, double dr);
    

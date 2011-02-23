@@ -2581,8 +2581,40 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-
+   
    /* Quarkonia */
+   else if (map_L1BitOfStandardHLTPath.find("OpenHLT_DoubleMu3_Bs_v1")->second==1)
+     {
+       if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+	   if (OpenHlt2MuonOSMassPassed(0., 0., 3., 2., 0, 4.8, 6.0)>=1)
+	     {
+               triggerBit[it] = true;
+	     }
+         }
+     }
+   else if (map_L1BitOfStandardHLTPath.find("OpenHLT_DoubleMu3_Jpsi_v1 ")->second==1)
+     {
+       if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+           if (OpenHlt2MuonOSMassPassed(0., 0., 3., 2., 0, 2.5, 4.0)>=1)
+             {
+               triggerBit[it] = true;
+             }
+         }
+     }
+   else if (map_L1BitOfStandardHLTPath.find("OpenHLT_DoubleMu3_Quarkonium_v1 ")->second==1)
+     {
+       if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+           if (OpenHlt2MuonOSMassPassed(0., 0., 3., 2., 0, 1.5, 14.0)>=1)
+             {
+               triggerBit[it] = true;
+             }
+         }
+     }
+
+
    else if (triggerName.CompareTo("OpenHLT_Onia") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -9634,6 +9666,64 @@ int OHltTree::OpenHlt1MuonPassed(
 
    return rcL1L2L3;
 }
+
+int OHltTree::OpenHlt2MuonOSMassPassed(
+      double ptl1,
+      double ptl2,
+      double ptl3,
+      double dr,
+      int iso,
+      double masslow,
+      double masshigh)
+{
+  int rc = 0;
+  TLorentzVector mu1;
+  TLorentzVector mu2;
+  TLorentzVector diMu;
+  const double muMass = 0.105658367;
+
+  for (int i=0; i<NohMuL3; i++)
+    {
+      for (int j=i+1; j<NohMuL3; j++)
+	{
+	  if (ohMuL3Pt[i] > ptl3 && ohMuL3Pt[j] > ptl3)
+	    { // L3 pT cut
+	      if (ohMuL3Dr[i] < dr && ohMuL3Dr[j] < dr)
+		{ // L3 DR cut
+		  if ((ohMuL3Chg[i] * ohMuL3Chg[j]) < 0)
+		    { // opposite charge
+
+		      mu1.SetPtEtaPhiM(
+				       ohMuL3Pt[i],
+				       ohMuL3Eta[i],
+				       ohMuL3Phi[i],
+				       muMass);
+		      mu2.SetPtEtaPhiM(
+				       ohMuL3Pt[j],
+				       ohMuL3Eta[j],
+				       ohMuL3Phi[j],
+				       muMass);
+		      diMu = mu1 + mu2;
+		      float diMuMass = diMu.M();
+
+		      if ((diMuMass <= masshigh) && (diMuMass >= masslow))
+			{
+			  int l2match1 = ohMuL3L2idx[i];
+			  int l2match2 = ohMuL3L2idx[j];
+			  
+			  if ( (ohMuL2Pt[l2match1] > ptl2)
+			       && (ohMuL2Pt[l2match2] > ptl2))
+			    { // L2 pT cut
+			      rc++;
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+}
+
 //// Separating between Jets and Muon.....
 int OHltTree::OpenHlt1MuonIsoJetPassed(
       double ptl1,
