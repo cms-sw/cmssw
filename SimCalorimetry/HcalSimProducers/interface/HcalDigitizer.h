@@ -11,10 +11,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrix.h"
-#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
 
-class CaloVShape;
 class CaloHitResponse;
 class HcalSimParameterMap;
 class HcalAmplifier;
@@ -23,6 +20,7 @@ class HcalCoderFactory;
 class HcalElectronicsSim;
 class HcalHitCorrection;
 class HcalBaseSignalGenerator;
+class HcalShapes;
 
 class HcalDigitizer
 {
@@ -32,8 +30,10 @@ public:
   virtual ~HcalDigitizer();
 
   /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
-
+  void produce(edm::Event& e, const edm::EventSetup& c);
+  void beginRun(const edm::EventSetup & es);
+  void endRun();
+  
   void setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
@@ -57,14 +57,7 @@ private:
   typedef CaloTDigitizer<ZDCDigitizerTraits> ZDCDigitizer;
  
   HcalSimParameterMap * theParameterMap;
-  CaloVShape * theHcalShape;
-  CaloVShape * theSiPMShape;
-  CaloVShape * theHFShape;
-  CaloVShape * theZDCShape;
-  CaloVShape * theHcalIntegratedShape;
-  CaloVShape * theSiPMIntegratedShape;
-  CaloVShape * theHFIntegratedShape;
-  CaloVShape * theZDCIntegratedShape;
+  HcalShapes * theShapes;
 
   CaloHitResponse * theHBHEResponse;
   CaloHitResponse * theHBHESiPMResponse;
