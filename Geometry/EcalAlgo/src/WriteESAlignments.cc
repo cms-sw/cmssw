@@ -16,12 +16,12 @@ const unsigned int WEA::k_nA = EcalPreshowerGeometry::numberOfAlignments() ;
 WEA::~WriteESAlignments(){}
 
 WEA::WriteESAlignments( const edm::EventSetup& eventSetup ,
-			WEA::DVec              alphaVec   ,
-			WEA::DVec              betaVec    ,
-			WEA::DVec              gammaVec   ,
-			WEA::DVec              xtranslVec ,
-			WEA::DVec              ytranslVec ,
-			WEA::DVec              ztranslVec  ) 
+			const WEA::DVec&       alphaVec   ,
+			const WEA::DVec&       betaVec    ,
+			const WEA::DVec&       gammaVec   ,
+			const WEA::DVec&       xtranslVec ,
+			const WEA::DVec&       ytranslVec ,
+			const WEA::DVec&       ztranslVec  ) 
 {
    assert( alphaVec.size()   == k_nA ) ;
    assert( betaVec.size()    == k_nA ) ;
@@ -30,8 +30,8 @@ WEA::WriteESAlignments( const edm::EventSetup& eventSetup ,
    assert( ytranslVec.size() == k_nA ) ;
    assert( ztranslVec.size() == k_nA ) ;
 
-   AliPtr aliPtr ( new Alignments  ) ;
-   AliVec vali   ( aliPtr->m_align ) ;
+   AliPtr  aliPtr ( new Alignments  ) ;// writeOne will take ownership!
+   AliVec& vali   ( aliPtr->m_align ) ;
 
    convert( eventSetup , 
 	    alphaVec   ,
@@ -62,12 +62,12 @@ WEA::write( WEA::AliPtr aliPtr )
 
 void 
 WEA::convert( const edm::EventSetup& eS ,
-	      WEA::DVec              a  ,
-	      WEA::DVec              b  ,
-	      WEA::DVec              g  ,
-	      WEA::DVec              x  ,
-	      WEA::DVec              y  ,
-	      WEA::DVec              z  ,
+	      const WEA::DVec&       a  ,
+	      const WEA::DVec&       b  ,
+	      const WEA::DVec&       g  ,
+	      const WEA::DVec&       x  ,
+	      const WEA::DVec&       y  ,
+	      const WEA::DVec&       z  ,
 	      WEA::AliVec&           va   ) 
 {
    edm::ESHandle<CaloGeometry>       pG   ;
@@ -78,7 +78,7 @@ WEA::convert( const edm::EventSetup& eS ,
 
    edm::ESHandle<Alignments>  pA ;
    eS.get<ESAlignmentRcd>().get( pA ) ;
-   const AliVec vaPrev ( pA->m_align ) ;
+   const AliVec& vaPrev ( pA->m_align ) ;
 
    va.reserve( k_nA ) ;
    for( unsigned int i ( 0 ) ; i != k_nA ; ++i )

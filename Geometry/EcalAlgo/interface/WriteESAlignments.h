@@ -15,35 +15,35 @@ class WriteESAlignments
 {
    public:
 
-      typedef boost::shared_ptr<Alignments> AliPtr ;
-      typedef std::vector<AlignTransform>   AliVec ;
+      typedef Alignments*                  AliPtr ;
+      typedef std::vector<AlignTransform>  AliVec ;
 
       typedef AlignTransform::Translation Trl ;
       typedef AlignTransform::Rotation    Rot ;
 
-      typedef const std::vector<double>& DVec ;
+      typedef std::vector<double> DVec ;
 
       static const unsigned int k_nA ;
 
       WriteESAlignments( const edm::EventSetup& eventSetup ,
-			 DVec                   alphaVec   ,
-			 DVec                   betaVec    ,
-			 DVec                   gammaVec   ,
-			 DVec                   xtranslVec ,
-			 DVec                   ytranslVec ,
-			 DVec                   ztranslVec  ) ;
+			 const DVec&            alphaVec   ,
+			 const DVec&            betaVec    ,
+			 const DVec&            gammaVec   ,
+			 const DVec&            xtranslVec ,
+			 const DVec&            ytranslVec ,
+			 const DVec&            ztranslVec  ) ;
 
       ~WriteESAlignments() ;
 
    private:
 
       void convert( const edm::EventSetup& eS ,
-		    DVec                   a  ,
-		    DVec                   b  ,
-		    DVec                   g  ,
-		    DVec                   x  ,
-		    DVec                   y  ,
-		    DVec                   z  ,
+		    const DVec&            a  ,
+		    const DVec&            b  ,
+		    const DVec&            g  ,
+		    const DVec&            x  ,
+		    const DVec&            y  ,
+		    const DVec&            z  ,
 		    AliVec&                va  ) ;
 
       void write( AliPtr aliPtr ) ;
