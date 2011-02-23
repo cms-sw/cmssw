@@ -3,21 +3,17 @@
 
 #include <utility>
 #include <string>
-#include <stdexcept>
 #include "DetectorDescription/Base/interface/Singleton.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Base/interface/rep_type.h"
 
-
-
 /**
-  your comment here
+   your comment here
 */
 template <class N, class C>
 class DDBase
 {
-
 public:
   template <class D>
   class iterator
@@ -27,8 +23,7 @@ public:
     typedef D value_type;
 
     explicit iterator( const typename DDI::Store<N,C>::iterator & it) : it_(it) { }
-    
-    
+        
     iterator() : it_(StoreT::instance().begin()) {  }
   
     value_type& operator*() const {
@@ -58,7 +53,7 @@ public:
     }
     
     void operator++() {
-       ++it_;
+      ++it_;
     }
     
     void end() const {
@@ -119,19 +114,19 @@ public:
   // (name*,false) if registered but not defined
   // (0,false) if not there at all
   def_type isDefined() const 
-   {
-     return prep_ ?
-                    std::make_pair(&(prep_->name()), bool(prep_->second))
-		  :
-		    std::make_pair((const N *)0,false);  
-   } 
+    {
+      return prep_ ?
+	std::make_pair(&(prep_->name()), bool(prep_->second))
+	:
+	std::make_pair((const N *)0,false);  
+    } 
    
   //! true, if the  wrapped pointer is valid
   bool isValid() const
-  {
-     return prep_ ? bool(prep_->second)
-                  : false;
-  } 
+    {
+      return prep_ ? bool(prep_->second)
+	: false;
+    } 
   
 protected: 
   prep_type prep_; 
