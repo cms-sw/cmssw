@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/02/22 17:56:56 $
- * $Revision: 1.66 $
+ * $Date: 2011/02/23 16:13:54 $
+ * $Revision: 1.67 $
  */
 
 
@@ -447,7 +447,6 @@ if(nthlumi > nextlumi_){
     mapBeginPVTime[countLumi_] = ftmptime;
    }//processed passed but not the first lumi
    if((!processed_) && countLumi_ !=0){ 
-      outdata_events<<"The countLumi_ is =  "<<countLumi_<<endl;
        mapBeginBSLS[countLumi_]   = nthlumi;   
        mapBeginPVLS[countLumi_]   = nthlumi;
        mapBeginBSTime[countLumi_] = ftmptime;
