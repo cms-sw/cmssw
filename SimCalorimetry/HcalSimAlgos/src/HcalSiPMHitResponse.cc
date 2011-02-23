@@ -2,6 +2,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMRecovery.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalShapes.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
@@ -22,8 +23,8 @@ public:
 };
 
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,
-					 const CaloVShape * shape) :
-  CaloHitResponse(parameterMap, shape), theSiPM(0), theRecoveryTime(250.) {
+					 const CaloShapes * shapes) :
+  CaloHitResponse(parameterMap, shapes), theSiPM(0), theRecoveryTime(250.) {
   theSiPM = new HcalSiPM(14000);
 }
 
@@ -94,6 +95,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(const PCaloHit & inHit,
 
   if(pixels > 0)
   {
+    const CaloVShape * shape = theShapes->shape(id);
     double jitter = hit.time() - timeOfFlight(id);
 
     const double tzero = pars.timePhase() - jitter -
@@ -101,7 +103,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(const PCaloHit & inHit,
     double binTime = tzero;
 
     for (int bin = 0; bin < result.size(); bin++) {
-      result[bin] += (*theShape)(binTime)*signal;
+      result[bin] += (*shape)(binTime)*signal;
       binTime += BUNCHSPACE;
     }
   }

@@ -10,7 +10,7 @@ class HcalSiPMHitResponse : public CaloHitResponse {
 
 public:
   HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap, 
-		      const CaloVShape * shape);
+		      const CaloShapes * shapes);
 
   virtual ~HcalSiPMHitResponse();
 

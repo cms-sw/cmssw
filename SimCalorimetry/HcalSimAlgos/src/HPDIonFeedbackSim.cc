@@ -6,11 +6,12 @@
 //
 // Project: HPD ion feedback
 // Author: T.Yetkin University of Iowa, Feb. 16, 2010
-// $Id: HPDIonFeedbackSim.cc,v 1.3 2010/02/27 00:36:04 rpw Exp $
+// $Id: HPDIonFeedbackSim.cc,v 1.4 2010/10/01 14:51:50 sunanda Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalShapes.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -28,8 +29,8 @@ using namespace std;
 // constants for simulation/parameterization
 double pe2Charge = 0.333333;    // fC/p.e.
 
-HPDIonFeedbackSim::HPDIonFeedbackSim(const edm::ParameterSet & iConfig)
-: theDbService(0), theShape(0),
+HPDIonFeedbackSim::HPDIonFeedbackSim(const edm::ParameterSet & iConfig, const CaloShapes * shapes)
+: theDbService(0), theShapes(shapes),
  theRandBinomial(0), theRandFlat(0), theRandGauss(0), theRandPoissonQ(0)
 {
 }
@@ -125,6 +126,7 @@ void HPDIonFeedbackSim::addThermalNoise(CaloSamples & samples)
   double meanPE = 0.02;
   DetId detId(samples.id());
   int nSamples = samples.size();
+  const CaloVShape * shape = theShapes->shape(detId);
   for(int i = 0; i < nSamples; ++i) 
   {
     double npe = theRandPoissonQ->fire(meanPE);
@@ -136,7 +138,7 @@ void HPDIonFeedbackSim::addThermalNoise(CaloSamples & samples)
       for(int j = i; j < nSamples; ++j)
       {
         double timeFromPE = (j-i) * 25.;
-        samples[j] += (*theShape)(timeFromPE) * npe;
+        samples[j] += (*shape)(timeFromPE) * npe;
       }
     }
   }
