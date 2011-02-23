@@ -11,3 +11,17 @@
 </bin>
 <bin   file="SmallWORMDict_t.cpp">
 </bin>
+
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="CondCore/DBCommon"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/Common"/>
+
+<use   name="root"/>
+
+<library   name="CondFormatsCommonTest" file="ProduceDropBoxMetadata.cc">
+  <flags   EDM_PLUGIN="1"/>
+</library>

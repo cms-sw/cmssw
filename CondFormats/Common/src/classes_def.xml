@@ -41,4 +41,14 @@
 
  <class name="ConfObject"/>
 
+ <class name="DropBoxMetadata" class_version="0"/>
+ <class name="DropBoxMetadata::Parameters">
+ <field name="theParameters" mapping="blob" />
+ </class>
+ <class name="std::pair<const std::basic_string<char>, DropBoxMetadata::Parameters>"/>
+ <class name="std::map<const std::basic_string<char>, DropBoxMetadata::Parameters>"/>
+ <class name="std::pair<std::string, DropBoxMetadata::Parameters>"/>
+ <class name="std::map<std::string, DropBoxMetadata::Parameters>"/>
+
+
 </lcgdict>   
