@@ -40,9 +40,9 @@ class Timestamp {
         return timeHigh_;
       }
 
-      /// Nanoseconds offset within second
+      /// Microseconds offset within second
       unsigned int
-      nanosecondOffset() const {
+      microsecondOffset() const {
         return timeLow_;
       }
 
