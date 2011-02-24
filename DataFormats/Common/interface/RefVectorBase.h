@@ -5,7 +5,7 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.14 2008/02/15 05:57:03 wmtan Exp $
+$Id: RefVectorBase.h,v 1.15.6.1 2011/02/17 03:12:58 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,15 +19,15 @@ namespace edm {
   template <typename KEY>
   class RefVectorBase {
   public:
-    typedef std::vector<RefItem<KEY> > RefItems;
+    typedef std::vector<KEY > keys_type;
     typedef KEY key_type;
-    typedef typename RefItems::size_type size_type;
+    typedef typename keys_type::size_type size_type;
     /// Default constructor needed for reading from persistent store. Not for direct use.
-    RefVectorBase() : product_(), items_() {}
+    RefVectorBase() : product_(), keys_() {}
 
     explicit RefVectorBase(ProductID const& productID, void const* prodPtr = 0,
                            EDProductGetter const* prodGetter = 0) :
-      product_(productID, prodPtr, prodGetter, false), items_() {}
+      product_(productID, prodPtr, prodGetter, false), keys_() {}
 
     /// Destructor
     ~RefVectorBase() {}
@@ -36,40 +36,40 @@ namespace edm {
     RefCore const& refCore() const {return product_;}
 
     /// Accessor for vector of keys and pointers
-    RefItems const& items() const {return items_;}
+    keys_type const& keys() const {return keys_;}
 
     /// Is vector empty?
-    bool empty() const {return items_.empty();}
+    bool empty() const {return keys_.empty();}
 
     /// Size of vector
-    size_type size() const {return items_.size();}
+    size_type size() const {return keys_.size();}
 
-    void pushBack(RefCore const& product, RefItem<KEY> const& item_) {
+    void pushBack(RefCore const& product, KEY const& key) {
       product_.pushBackItem(product, true);
-      items_.push_back(item_);
+      keys_.push_back(key);
     }
 
     /// Capacity of vector
-    size_type capacity() const {return items_.capacity();}
+    size_type capacity() const {return keys_.capacity();}
 
     /// Reserve space for vector
-    void reserve(size_type n) {items_.reserve(n);}
+    void reserve(size_type n) {keys_.reserve(n);}
 
     /// erase an element from the vector 
-    typename RefItems::iterator eraseAtIndex(size_type index) {
-      return items_.erase(items_.begin() + index);
+    typename keys_type::iterator eraseAtIndex(size_type index) {
+      return keys_.erase(keys_.begin() + index);
     }
     
     /// clear the vector
     void clear() {
-      items_.clear();
+      keys_.clear();
       product_ = RefCore();
     }
 
     /// swap two vectors
     void swap(RefVectorBase<KEY> & other) {
       product_.swap(other.product_);
-      items_.swap(other.items_);
+      keys_.swap(other.keys_);
     }
 
     /// Copy assignment
@@ -81,14 +81,14 @@ namespace edm {
 
   private:
     RefCore product_;
-    RefItems items_;
+    keys_type keys_;
   };
 
   /// Equality operator
   template<typename KEY>
   bool
   operator==(RefVectorBase<KEY> const& lhs, RefVectorBase<KEY> const& rhs) {
-    return lhs.refCore() == rhs.refCore() && lhs.items() == rhs.items();
+    return lhs.refCore() == rhs.refCore() && lhs.keys() == rhs.keys();
   }
 
   /// Inequality operator

@@ -28,6 +28,7 @@ namespace edm {
   }
   
   void setCacheStreamers() {
+#if 0    
     TClass *cl = gROOT->GetClass("edm::BoolCache");
     if (cl->GetStreamer() == 0) {
       cl->AdoptStreamer(new BoolCacheStreamer());
@@ -41,7 +42,6 @@ namespace edm {
     /*} else {
       std::cout <<"ERROR: no edm::ConstPtrCache found"<<std::endl;*/
     }
-    
+#endif    
   }
-
 }

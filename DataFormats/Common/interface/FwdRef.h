@@ -212,8 +212,6 @@ namespace edm {
 }
 
 #include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Common/interface/RefCoreGet.h"
-#include "DataFormats/Common/interface/RefItemGet.h"
 
 namespace edm {
 

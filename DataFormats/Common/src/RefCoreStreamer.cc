@@ -2,8 +2,10 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TROOT.h"
+#include "TStreamerInfo.h"
 #include <ostream>
 #include <cassert>
+#include <iostream>
 
 namespace edm {
   void 
@@ -40,34 +42,53 @@ namespace edm {
     }
   }
 
+
+  /*NOTE: This design came from Philippe Canal as the minimum storage (2bytes) we can do but still
+   have ROOT call our custom streamer. The trick is to only store the version # and not the class ID.
+   The '#if #else #endif' are there because the default choice is known to work for root 5.27-5.28 and
+   Philippe believes is unlikely to ever change but the alternate choice is slightly slower but more 
+   guaranteed to be forwards compatible.
+   */
   void 
-  RefCoreTransientStreamer::operator()(TBuffer &R__b, void *objp) {
-    typedef RefCore::RefCoreTransients RefCoreTransients;
+  RefCoreCheckTransientOnWriteStreamer::operator()(TBuffer &R__b, void *objp) {
+    typedef RefCore::CheckTransientOnWrite CheckTransientOnWrite;
     if (R__b.IsReading()) {
-      cl_->ReadBuffer(R__b, objp);
-      RefCoreTransients* obj = static_cast<RefCoreTransients *>(objp);
-      obj->setProductGetter(prodGetter_);
-      obj->setProductPtr(0);
+      //std::cout <<"reading CheckTransientOnWrite"<<std::endl;
+#if 1
+      Version_t version;
+      R__b >> version;
+#else
+      R__b.ReadVersion();
+#endif
     } else {
-      RefCoreTransients* obj = static_cast<RefCoreTransients *>(objp);
-      if (obj->isTransient()) {
+      //std::cout <<"writing CheckTransientOnWrite"<<std::endl;
+      TVirtualStreamerInfo* sinfo = cl_->GetStreamerInfo();
+      CheckTransientOnWrite* obj = static_cast<CheckTransientOnWrite *>(objp);
+      if (obj->transient_) {
         throw Exception(errors::InvalidReference,"Inconsistency")
           << "RefCoreStreamer: transient Ref or Ptr cannot be made persistent.";
       }
-      cl_->WriteBuffer(R__b, objp);
+#if 1
+      Version_t version = 3;
+      R__b << version;
+#else
+      R__b.WriteVersion(cl_, kFALSE);
+#endif
+      R__b.TagStreamerInfo(sinfo);
     }
   }
-
+  
+   
   void setRefCoreStreamer(bool resetAll) {
+    
     {
-      TClass *cl = gROOT->GetClass("edm::RefCore::RefCoreTransients");
-      RefCoreTransientStreamer *st = static_cast<RefCoreTransientStreamer *>(cl->GetStreamer());
+      TClass *cl = gROOT->GetClass("edm::RefCore::CheckTransientOnWrite");
+      TClassStreamer *st = cl->GetStreamer();
       if (st == 0) {
-        cl->AdoptStreamer(new RefCoreTransientStreamer(0));
-      } else {
-        st->setProductGetter(0);
-      }
+        cl->AdoptStreamer(new RefCoreCheckTransientOnWriteStreamer());
+      } 
     }
+    RefCore::switchProductGetter(0);
     if (resetAll) {
       TClass *cl = gROOT->GetClass("edm::RefCore");
       if (cl->GetStreamer() != 0) {
@@ -90,17 +111,16 @@ namespace edm {
         RefCoreStreamer *st = static_cast<RefCoreStreamer *>(cl->GetStreamer());
         if (st == 0) {
           cl->AdoptStreamer(new RefCoreStreamer(ep));
-        } else {
+        } else {          
           returnValue = st->setProductGetter(ep);
         }
       } else {
-        TClass *cl = gROOT->GetClass("edm::RefCore::RefCoreTransients");
-        RefCoreTransientStreamer *st = static_cast<RefCoreTransientStreamer *>(cl->GetStreamer());
+        TClass *cl = gROOT->GetClass("edm::RefCore::CheckTransientOnWrite");
+        TClassStreamer *st = cl->GetStreamer();
         if (st == 0) {
-          cl->AdoptStreamer(new RefCoreTransientStreamer(ep));
-        } else {
-          returnValue = st->setProductGetter(ep);
-        }
+          cl->AdoptStreamer(new RefCoreCheckTransientOnWriteStreamer());
+        } 
+        returnValue = edm::RefCore::switchProductGetter(ep);
       }
     }
     if (oldFormat) {

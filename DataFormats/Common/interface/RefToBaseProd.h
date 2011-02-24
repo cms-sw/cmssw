@@ -22,7 +22,7 @@ namespace edm {
     typedef View<T> product_type;
 
     /// Default constructor needed for reading from persistent store. Not for direct use.
-    RefToBaseProd() : product_(), viewCache_(0) {}
+    RefToBaseProd() : product_(){}
 
     /// General purpose constructor from handle-like object.
     // The templating is artificial.
@@ -90,10 +90,10 @@ namespace edm {
 
   private:
     View<T> const* viewPtr() const {
-      return reinterpret_cast<const View<T>*>(viewCache_.ptr_);
+      return reinterpret_cast<const View<T>*>(product_.clientCache());
     }
-    RefCore product_;
-    mutable ConstPtrCache viewCache_;
+    //needs to be mutable so we can modify the 'clientCache' it holds
+    mutable RefCore product_;
   };
 }
 
@@ -124,23 +124,23 @@ namespace edm {
   template <typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
-    product_(handle->id(), 0, handle->productGetter(), false ),
-    viewCache_( new View<T>( * handle ) ) {
+    product_(handle->id(), 0, handle->productGetter(), false ){
+    product_.mutableClientCache()=new View<T>( * handle );
     assert( handle->productGetter() == 0 );
   }
 
   template <typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd( const View<T> & view ) :
-    product_( view.id(), 0, view.productGetter(), false ),
-    viewCache_( new View<T>( view ) ) {
+    product_( view.id(), 0, view.productGetter(), false ) {
+      product_.mutableClientCache()=new View<T>( view );
   }
 
   template <typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd( const RefToBaseProd<T> & ref ) :
-    product_( ref.product_ ),
-    viewCache_( ref.viewPtr() ? (new View<T>( * ref ) ) : 0 ) {
+    product_( ref.product_ ) {
+      product_.mutableClientCache() =ref.viewPtr() ? (new View<T>( * ref ) ) : 0;
   }
 
   template <typename T>
@@ -162,7 +162,7 @@ namespace edm {
   template <typename T>
   inline
   View<T> const* RefToBaseProd<T>::operator->() const {
-    if ( viewCache_.ptr_ == 0 ) {
+    if ( product_.clientCache() == 0 ) {
       if ( product_.isNull() ) {
 	Exception::throwThis(errors::InvalidReference,
 	  "attempting get view from a null RefToBaseProd.\n");
@@ -171,7 +171,7 @@ namespace edm {
       std::vector<void const*> pointers;
       helper_vector_ptr helpers;
       product_.productGetter()->getIt(id)->fillView(id, pointers, helpers);
-      viewCache_.ptr_ =( new View<T>( pointers, helpers ) );
+      product_.mutableClientCache() =( new View<T>( pointers, helpers ) );
     }
     return viewPtr();
   }
@@ -180,7 +180,6 @@ namespace edm {
   inline
   void RefToBaseProd<T>::swap(RefToBaseProd<T> & other) {
     std::swap( product_, other.product_ );
-    std::swap( viewCache_.ptr_, other.viewCache_.ptr_);
   }
 
   template <typename T>
@@ -223,7 +222,7 @@ namespace edm {
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers( new holder_type );
     detail::reallyFillView( * ref.product(), ref.id(), pointers, * helpers );
-    viewCache_.ptr_=( new View<T>( pointers, helpers ) );
+    product_.mutableClientCache()=( new View<T>( pointers, helpers ) );
   }
 
   template <typename T>
@@ -236,7 +235,7 @@ namespace edm {
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers( new holder_type );
     detail::reallyFillView( * handle, handle.id(), pointers, * helpers );
-    viewCache_.ptr_=( new View<T>( pointers, helpers ) );
+    product_.mutableClientCache()=( new View<T>( pointers, helpers ) );
   }
 
   /// Constructor from Ref.
@@ -253,7 +252,7 @@ namespace edm {
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers( new holder_type );
     detail::reallyFillView( * ref.product(), ref.id(), pointers, * helpers );
-    viewCache_.ptr_=( new View<T>( pointers, helpers ) );
+    product_.mutableClientCache()=( new View<T>( pointers, helpers ) );
   }
 
   /// Constructor from RefToBase.
@@ -267,7 +266,7 @@ namespace edm {
     std::vector<void const*> pointers;
     helper_vector_ptr helpers( ref.holder_->makeVectorBaseHolder().release() );
     helpers->reallyFillView( ref.product(), ref.id(), pointers );
-    viewCache_.ptr_=( new View<T>( pointers, helpers ) );
+    product_.mutableClientCache()=( new View<T>( pointers, helpers ) );
   }
 
 }

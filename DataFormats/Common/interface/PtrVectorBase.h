@@ -24,6 +24,7 @@
 // system include files
 #include <typeinfo>
 #include <vector>
+#include <cassert>
 
 // forward declarations
 
@@ -139,7 +140,11 @@ namespace edm {
 
   private:
     void getProduct_() const;
-    virtual std::type_info const& typeInfo() const = 0;
+    //virtual std::type_info const& typeInfo() const = 0;
+    virtual std::type_info const& typeInfo() const {
+      assert(false);
+      return *reinterpret_cast<const std::type_info*>(0);
+    }
     // ---------- member data --------------------------------
     RefCore core_;
     std::vector<key_type> indicies_;

@@ -1,11 +1,13 @@
 #ifndef DataFormats_Common_RefItem_h
 #define DataFormats_Common_RefItem_h
 
+#error "this file should not be included anymore"
+
 /*----------------------------------------------------------------------
   
 RefItem: Index and pointer to a referenced item.
 
-$Id: RefItem.h,v 1.10 2007/06/14 04:56:29 wmtan Exp $
+$Id: RefItem.h,v 1.11.6.1 2011/02/17 03:08:31 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Common/interface/traits.h"

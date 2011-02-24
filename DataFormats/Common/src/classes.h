@@ -7,10 +7,8 @@
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/RangeMap.h"
-#include "DataFormats/Common/interface/RefBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/VectorHolder.h"
-#include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Common/interface/RefVectorBase.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -45,17 +43,6 @@ namespace {
     edm::reftobase::IndirectVectorHolder<int> dummyx21_1;
     edm::reftobase::VectorHolder<int, edm::RefVector<std::vector<int> > > dummyx21_2;
     
-    edm::RefItem<unsigned int> dummyRefItem1;
-    edm::RefItem<unsigned long> dummyRefItem1_1;
-    edm::RefItem<int> dummyRefItem3;
-    edm::RefItem<std::pair<unsigned int, unsigned int> > dummyRefItem2;
-    edm::RefItem<std::pair<unsigned int, unsigned long> > dummyRefItem2a;
-    edm::RefBase<std::vector<unsigned int>::size_type> dummRefBase1;
-    edm::RefBase<std::pair<unsigned int, unsigned int> > dummRefBase2;
-    edm::RefBase<std::pair<unsigned int, unsigned long> > dummRefBase2a;
-    edm::RefBase<int> dummyRefBase3;
-    edm::RefBase<unsigned int> dummyRefBase3_1;
-    edm::RefBase<unsigned long> dummyRefBase3_2;
     edm::RefVectorBase<std::vector<unsigned int>::size_type> dummyRefVectorBase;
     edm::RefVectorBase<int> dummyRefVectorBase2;
     edm::RefVectorBase<unsigned int> dummyRefVectorBase2_1;

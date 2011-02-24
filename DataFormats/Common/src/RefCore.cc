@@ -3,12 +3,18 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include <cassert>
 #include <ostream>
+#include <iostream>
 
 namespace edm {
 
   RefCore::RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
-      id_(theId),
-      transients_(prodPtr, prodGetter, transient) {}
+      processIndex_(theId.processIndex()),
+      productIndex_(theId.productIndex()),
+      prodPtr_(prodPtr),
+      prodGetter_(prodGetter),
+      clientCache_(0),
+      transient_(transient)
+      {}
 
   EDProduct const*
   RefCore::getProductPtr(std::type_info const& type) const {
@@ -26,8 +32,9 @@ namespace edm {
     //
     //     assert(!id_.isValid() || productGetter() || prodPtr_);
 
+    ProductID tId = id();
     assert (!isTransient());
-    if (!id_.isValid()) {
+    if (!tId.isValid()) {
       throw Exception(errors::InvalidReference,
 		      "BadRefCore")
         << "RefCore: Request to resolve a null or invalid reference to a product of type '"
@@ -41,13 +48,13 @@ namespace edm {
 		      "BadRefCore")
         << "RefCore: A request to resolve a reference to a product of type '"
         << TypeID(type)
-        << "' with ProductID '" << id_
+        << "' with ProductID '" << tId
 	<< "' cannot be satisfied.\n"
 	<< "The reference has neither a valid product pointer nor an EDProductGetter.\n"
 	<< "The calling code must be modified to establish a functioning EDProducterGetter\n"
         << "for the context in which this call is mode\n";
     }
-    EDProduct const* product = productGetter()->getIt(id_);
+    EDProduct const* product = productGetter()->getIt(tId);
     if (product == 0) {
       productNotFoundException(type);
     }
@@ -59,7 +66,7 @@ namespace edm {
     throw edm::Exception(errors::ProductNotFound)
       << "RefCore: A request to resolve a reference to a product of type '"
       << TypeID(type)
-      << "' with ProductID '" << id_ << "'"
+      << "' with ProductID '" << id() << "'"
       << "\ncan not be satisfied because the product cannot be found."
       << "\nProbably the branch containing the product is not stored in the input file.\n";
   }
@@ -70,7 +77,7 @@ namespace edm {
 	<< "RefCore: A request to convert a contained product of type '"
 	<< TypeID(actualType) << "'\n"
 	<< " to type '" << TypeID(expectedType) << "'"
-	<< "\nfor ProductID '" << id_
+  	<< "\nfor ProductID '" << id()
 	<< "' can not be satisfied\n";
   }
 
@@ -84,17 +91,13 @@ namespace edm {
 
   bool
   RefCore::isAvailable() const {
-      return productPtr() != 0 || (id_.isValid() && productGetter() != 0 && productGetter()->getIt(id_) != 0);
+    ProductID tId = id();
+    return productPtr() != 0 || (tId.isValid() && productGetter() != 0 && productGetter()->getIt(tId) != 0);
   }
 
   void
   RefCore::setProductGetter(EDProductGetter const* prodGetter) const {
-    transients_.setProductGetter(prodGetter);
-  }
-
-  void
-  RefCore::RefCoreTransients::setProductGetter(EDProductGetter const* prodGetter) const {
-    prodGetter_ = prodGetter;
+      prodGetter_ = prodGetter;
   }
 
   void
@@ -140,4 +143,22 @@ namespace edm {
       setProductPtr(productToBeInserted.productPtr());
     }
   }
+
+  static EDProductGetter const* s_productGetter=0;
+  EDProductGetter const* 
+  RefCore::switchProductGetter(EDProductGetter const* iNew) 
+  {
+    //std::cout <<"switch from "<<s_productGetter<<" to "<<iNew<<std::endl;
+    EDProductGetter const* old = s_productGetter;
+    s_productGetter = iNew;
+    return old;
+  }
+  void 
+  RefCore::assignEDProductGetter(EDProductGetter const* & iGetter)
+  {    
+    //std::cout <<"assign "<<s_productGetter<<std::endl;
+
+    iGetter = s_productGetter;
+  }
+  
 }

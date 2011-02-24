@@ -1,6 +1,7 @@
 <use   name="DataFormats/Provenance"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
+<use   name="DataFormats/StdDictionaries"/>
 <use   name="boost"/>
 <use   name="rootrflx"/>
 <export>

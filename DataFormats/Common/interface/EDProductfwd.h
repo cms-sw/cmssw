@@ -20,7 +20,6 @@ namespace edm
   template <typename C, typename T, typename F> class Ref;
   template <typename T> class RefToBase;
   template <typename K> class RefBase;
-  template <typename K> class RefItem;
   template <typename T> class RefProd;
   template <typename C, typename T, typename F> class RefVector;
   template <class T> class RefToBaseVector;

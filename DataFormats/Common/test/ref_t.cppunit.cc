@@ -73,8 +73,6 @@ void testRef::constructTest() {
 
    CPPUNIT_ASSERT(dummyRef.id() == pid);
    CPPUNIT_ASSERT(dummyRefProd.id() == pid);
-   CPPUNIT_ASSERT(dummyRef.ref().item().key() == key);
-   CPPUNIT_ASSERT(dummyRef.ref().item().ptr() == &dummyCollection[key]);
    CPPUNIT_ASSERT(dummyRef.key() == key);
    CPPUNIT_ASSERT(dummyRef.product() == &dummyCollection);
    CPPUNIT_ASSERT(&(*dummyRef) == &dummyCollection[key]);
@@ -192,16 +190,16 @@ void testRef::getTest() {
    OrphanHandle<IntCollection> handle(wptr, pid);
 
    Ref<IntCollection> ref0(handle, 0);
-   ref0.ref().refCore().setProductGetter(&tester);
-   ref0.ref().refCore().setProductPtr(0);
-   ref0.ref().item().setPtr(0);
+   ref0.refCore().setProductGetter(&tester);
+   ref0.refCore().setProductPtr(0);
+   ref0.setPtr(0);
    CPPUNIT_ASSERT( !ref0.hasProductCache());
    CPPUNIT_ASSERT( !ref0.hasCache());
 
    Ref<IntCollection> ref1(handle, 1);
-   ref1.ref().refCore().setProductGetter(&tester);
-   ref1.ref().refCore().setProductPtr(0);
-   ref1.ref().item().setPtr(0);
+   ref1.refCore().setProductGetter(&tester);
+   ref1.refCore().setProductPtr(0);
+   ref1.setPtr(0);
 
    Ref<IntCollection> ref2(pid, 1, &tester);
 
@@ -222,30 +220,30 @@ void testRef::getTest() {
    CPPUNIT_ASSERT(1 == (*refProd0)[1].value_);
    CPPUNIT_ASSERT(1 == (*refProd2)[1].value_);
 
-   std::cerr << ">>> RefToBaseProd from RefProd" << std::endl;
+   //std::cerr << ">>> RefToBaseProd from RefProd" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd0(refProd0);
-   std::cerr << ">>> RefToBaseProd from Ref" << std::endl;
+   //std::cerr << ">>> RefToBaseProd from Ref" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd1(ref0);
-   std::cerr << ">>> RefToBaseProd from Handle" << std::endl;
+   //std::cerr << ">>> RefToBaseProd from Handle" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd2(handle);
-   std::cerr << ">>> checking View from RefToBaseProd" << std::endl;
+   //std::cerr << ">>> checking View from RefToBaseProd" << std::endl;
    const View<IntValue> & vw = * refToBaseProd0;
-   std::cerr << ">>> checking View not empty" << std::endl;
+   //std::cerr << ">>> checking View not empty" << std::endl;
    CPPUNIT_ASSERT( ! vw.empty() );
-   std::cerr << ">>> checking View size" << std::endl;
+   //std::cerr << ">>> checking View size" << std::endl;
    CPPUNIT_ASSERT( vw.size() == 2 );
-   std::cerr << ">>> checking View element #0" << std::endl;
+   //std::cerr << ">>> checking View element #0" << std::endl;
    CPPUNIT_ASSERT( vw[0].value_ == ref0->value_ );
-   std::cerr << ">>> checking View element #1" << std::endl;
+   //std::cerr << ">>> checking View element #1" << std::endl;
    CPPUNIT_ASSERT( vw[1].value_ == ref1->value_ );
-   std::cerr << ">>> RefToBaseProd from View" << std::endl;
+   //std::cerr << ">>> RefToBaseProd from View" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd3(vw);
-   std::cerr << ">>> checking ref. not empty" << std::endl;
+   //std::cerr << ">>> checking ref. not empty" << std::endl;
    CPPUNIT_ASSERT( ! refToBaseProd3->empty() );
-   std::cerr << ">>> checking ref. size" << std::endl;
+   //std::cerr << ">>> checking ref. size" << std::endl;
    CPPUNIT_ASSERT( refToBaseProd3->size() == 2 );
-   std::cerr << ">>> checking ref. element #0" << std::endl;
+   //std::cerr << ">>> checking ref. element #0" << std::endl;
    CPPUNIT_ASSERT( (*refToBaseProd3)[0].value_ == ref0->value_ );
-   std::cerr << ">>> checking ref. element #1" << std::endl;
+   //std::cerr << ">>> checking ref. element #1" << std::endl;
    CPPUNIT_ASSERT( (*refToBaseProd3)[1].value_ == ref1->value_ );
 }

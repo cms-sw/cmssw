@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.38 2008/03/31 21:12:11 wmtan Exp $
+$Id: RefVector.h,v 1.39.4.2 2011/02/17 03:11:28 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,7 +18,6 @@ $Id: RefVector.h,v 1.38 2008/03/31 21:12:11 wmtan Exp $
 #include "DataFormats/Common/interface/RefVectorBase.h"
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
-#include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/RefTraits.h"
@@ -45,11 +44,10 @@ namespace edm {
 
     // key_type is the type of the key into the collection
     typedef typename value_type::key_type   key_type;
-    typedef RefItem<key_type>               RefItemType;
-    typedef std::vector<RefItemType>        RefItemVec;
+    typedef std::vector<key_type>           KeyVec;
 
     // size_type is the type of the index into the RefVector
-    typedef typename RefItemVec::size_type  size_type;
+    typedef typename KeyVec::size_type      size_type;
     typedef RefVectorBase<key_type>         contents_type;
     
     /// Default constructor needed for reading from persistent
@@ -59,20 +57,20 @@ namespace edm {
     RefVector(ProductID const& id) : refVector_(id) {}
     /// Add a Ref<C, T> to the RefVector
     void push_back(value_type const& ref) 
-    {refVector_.pushBack(ref.ref().refCore(), ref.ref().item());}
+    {refVector_.pushBack(ref.refCore(), ref.key());}
 
     /// Retrieve an element of the RefVector
     value_type const operator[](size_type idx) const {
-      RefItemType const& item = refVector_.items()[idx];
+      key_type const& key = refVector_.keys()[idx];
       RefCore const& prod = refVector_.refCore();
-      return value_type(prod, item);
+      return value_type(prod, key);
     }
 
     /// Retrieve an element of the RefVector
     value_type const at(size_type idx) const {
-      RefItemType const& item = refVector_.items().at(idx);
+      key_type const& key = refVector_.keys().at(idx);
       RefCore const& prod = refVector_.refCore();
-      return value_type(prod, item);
+      return value_type(prod, key);
     }
 
     /// Accessor for all data
@@ -225,8 +223,8 @@ namespace edm {
   inline
   typename RefVector<C, T, F>::iterator 
   RefVector<C, T, F>::erase(iterator const& pos) {
-    typename contents_type::RefItems::size_type index = pos - begin();
-    typename contents_type::RefItems::iterator newPos = 
+    typename contents_type::keys_type::size_type index = pos - begin();
+    typename contents_type::keys_type::iterator newPos = 
       refVector_.eraseAtIndex(index);
     RefCore const& prod = refVector_.refCore();
     //return typename RefVector<C, T, F>::iterator(prod, newPos);
@@ -235,12 +233,12 @@ namespace edm {
 
   template <typename C, typename T, typename F>
   typename RefVector<C, T, F>::const_iterator RefVector<C, T, F>::begin() const {
-    return iterator(refVector_.refCore(), refVector_.items().begin());
+    return iterator(refVector_.refCore(), refVector_.keys().begin());
   }
   
   template <typename C, typename T, typename F>
   typename RefVector<C, T, F>::const_iterator RefVector<C, T, F>::end() const {
-    return iterator(refVector_.refCore(), refVector_.items().end());
+    return iterator(refVector_.refCore(), refVector_.keys().end());
   }
 
   template <typename C, typename T, typename F>

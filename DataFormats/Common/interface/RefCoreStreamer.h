@@ -25,22 +25,18 @@ namespace edm {
     EDProductGetter const* prodGetter_;
   };
 
-  class RefCoreTransientStreamer : public TClassStreamer {
+  
+  class RefCoreCheckTransientOnWriteStreamer : public TClassStreamer {
   public:
-    explicit RefCoreTransientStreamer(EDProductGetter const* ep) : cl_("edm::RefCore::RefCoreTransients"), prodGetter_(ep) {}
+    explicit RefCoreCheckTransientOnWriteStreamer() : cl_("edm::RefCore::CheckTransientOnWrite"){}
 
-    EDProductGetter const* setProductGetter(EDProductGetter const* ep) {
-        EDProductGetter const* old = prodGetter_;
-	prodGetter_ = ep;
-        return old;
-    }
     void operator() (TBuffer &R__b, void *objp);
 
   private:
     TClassRef cl_;
-    EDProductGetter const* prodGetter_;
   };
-
+   
+   
   class ProductIDStreamer : public TClassStreamer {
   public:
     ProductIDStreamer(EDProductGetter const* ep, bool productIDwasLong) :
