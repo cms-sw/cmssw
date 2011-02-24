@@ -24,7 +24,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
  public:
   RecoMuonValidator(const edm::ParameterSet& pset);
   ~RecoMuonValidator();
-  
+
   virtual void beginRun(const edm::Run&, const edm::EventSetup& eventSetup);
   virtual void endRun();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
@@ -33,6 +33,9 @@ class RecoMuonValidator : public edm::EDAnalyzer
 
  protected:
   unsigned int verbose_;
+
+  //set up fractions
+  int nTrackerMu, nStandAloneMu, nGlobalMu, nCaloMu, nGlobalNotStAMu, nGlobalNotTrkMu, nTotalMu;
 
   edm::InputTag simLabel_;
   edm::InputTag muonLabel_;
