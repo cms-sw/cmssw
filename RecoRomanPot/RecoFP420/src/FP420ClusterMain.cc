@@ -75,16 +75,20 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn
   moduleThicknessX = 0.250; // mm
   Thick300 = 0.300;
 
-  //numStripsY = 200;        // Y plate number of strips:200*0.050=10mm (xytype=1)
-  //numStripsX = 400;        // X plate number of strips:400*0.050=20mm (xytype=2)
-  numStripsY = 144;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
-  numStripsX = 160;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
+  // for 50x400 um2 pixels  (FP420):
+  numFP420StripsY = 144;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
+  numFP420StripsX = 160;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
+  numFP420StripsYW = 20;        // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
+  numFP420StripsXW = 18;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
 
-  //numStripsYW = 50;        // Y plate number of W strips:50 *0.400=20mm (xytype=1) - W have ortogonal projection
-  //numStripsXW = 25;        // X plate number of W strips:25 *0.400=10mm (xytype=2) - W have ortogonal projection
-  numStripsYW = 20;        // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
-  numStripsXW = 18;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
-  
+
+  //for 100x150 um2 pixels (HPS240):
+  numHPS240StripsY = 72;        // Y plate number of strips:72*0.100=7.2mm (xytype=1)
+  numHPS240StripsX = 80;        // X plate number of strips:80*0.100=8.0mm (xytype=2)
+  numHPS240StripsYW = 53;        // Y plate number of W strips:53 *0.150=8.0mm (xytype=1) - W have ortogonal projection
+  numHPS240StripsXW = 48;        // X plate number of W strips:48 *0.150=7.2mm (xytype=2) - W have ortogonal projection
+
+
   //  sn0 = 4;
   //  pn0 = 9;
 
@@ -101,7 +105,8 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn
     std::cout << " BadElectrodeProbabilityHPS240 = " << BadElectrodeProbabilityHPS240 << std::endl;
 
     std::cout << " Thick300 = " << Thick300 << std::endl;
-    std::cout << " numStripsY = " << numStripsY << " numStripsX = " << numStripsX << std::endl;
+    std::cout << " numFP420StripsY = " << numFP420StripsY << " numFP420StripsX = " << numFP420StripsX << std::endl;
+    std::cout << " numHPS240StripsY = " << numHPS240StripsY << " numHPS240StripsX = " << numHPS240StripsX << std::endl;
     std::cout << " moduleThicknessY = " << moduleThicknessY << " moduleThicknessX = " << moduleThicknessX << std::endl;
 
     //  std::cout << " pitchY = " << pitchY << " pitchX = " << pitchX << std::endl;
@@ -196,13 +201,15 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	  }	  
 	  // Y:
 	  if (xytype ==1) {
-	    numStrips = numStripsY*numStripsYW;  
+	    numFP420Strips = numFP420StripsY*numFP420StripsYW;  
+	    numHPS240Strips = numHPS240StripsY*numHPS240StripsYW;  
 	    moduleThickness = moduleThicknessY; 
 	    //	      pitch= pitchY;
 	  }
 	  // X:
 	  if (xytype ==2) {
-	    numStrips = numStripsX*numStripsXW;  
+	    numFP420Strips = numFP420StripsX*numFP420StripsXW;  
+	    numHPS240Strips = numHPS240StripsX*numHPS240StripsXW;  
 	    moduleThickness = moduleThicknessX; 
 	    //	      pitch= pitchX;
 	  }
@@ -265,8 +272,8 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 		    ElectrodNoiseVector vnoise;
 		    ClusterNoiseFP420::ElectrodData theElectrodData;       	   
 		    
-		    if (verbosity > 0) {std::cout << " FP420ClusterMain:4 numStrips = " << numStrips  << std::endl;}	  
-		    for(int electrode=0; electrode < numStrips; ++electrode){
+		    if (verbosity > 0) {std::cout << " FP420ClusterMain:4 numFP420Strips = " << numFP420Strips  << std::endl;}	  
+		    for(int electrode=0; electrode < numFP420Strips; ++electrode){
 		      //   discard  randomly  bad  electrode with probability BadElectrodeProbabilityFP420
 		      bool badFlag= CLHEP::RandFlat::shoot(1.) < BadElectrodeProbabilityFP420 ? true : false;
 		      theElectrodData.setData(noise,badFlag);
@@ -313,8 +320,8 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 		    ElectrodNoiseVector vnoise;
 		    ClusterNoiseFP420::ElectrodData theElectrodData;       	   
 		    
-		    if (verbosity > 0) {std::cout << " HPS240ClusterMain:4 numStrips = " << numStrips  << std::endl;}	  
-		    for(int electrode=0; electrode < numStrips; ++electrode){
+		    if (verbosity > 0) {std::cout << " HPS240ClusterMain:4 numHPS240Strips = " << numHPS240Strips  << std::endl;}	  
+		    for(int electrode=0; electrode < numHPS240Strips; ++electrode){
 		      //   discard  randomly  bad  electrode with probability BadElectrodeProbabilityHPS240
 		      bool badFlag= CLHEP::RandFlat::shoot(1.) < BadElectrodeProbabilityHPS240 ? true : false;
 		      theElectrodData.setData(noise,badFlag);

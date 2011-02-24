@@ -67,9 +67,13 @@ class FP420ClusterMain
   float moduleThicknessY; // plate thicknessY 
   float moduleThickness; // plate thickness 
 
-  int numStripsX, numStripsXW;    // number of strips in the moduleX
-  int numStripsY, numStripsYW;    // number of strips in the moduleY
-  int numStrips;    // number of strips in the module
+  int numFP420StripsX, numFP420StripsXW;    // number of strips in the moduleX
+  int numFP420StripsY, numFP420StripsYW;    // number of strips in the moduleY
+  int numHPS240StripsX, numHPS240StripsXW;    // number of strips in the moduleX
+  int numHPS240StripsY, numHPS240StripsYW;    // number of strips in the moduleY
+
+  int numFP420Strips;    // number of strips in the module
+  int numHPS240Strips;    // number of strips in the module
 
   float Thick300;
 
