@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/12/03 12:57:24 $
-//  $Revision: 1.101 $
+//  $Date: 2011/02/24 16:50:18 $
+//  $Revision: 1.102 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -366,7 +366,7 @@ MuScleFit::~MuScleFit () {
       RootTreeHandler rootTreeHandler;
       if( MuScleFitUtils::speedup ) {
         // rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, 0, saveAllToTree_);
-       rootTreeHandler.writeTree(outputRootTreeFileName_, &(muonPairs_), theMuonType_, 0, saveAllToTree_);
+        rootTreeHandler.writeTree(outputRootTreeFileName_, &(muonPairs_), theMuonType_, 0, saveAllToTree_);
       }
       else {
         // rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, &(MuScleFitUtils::genPair), saveAllToTree_ );
@@ -637,15 +637,19 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
 {
   std::cout << "Reading muon pairs from Root Tree in " << treeFileName << std::endl;
   RootTreeHandler rootTreeHandler;
+  std::vector<std::pair<int, int> > evtRun;
   if( MuScleFitUtils::speedup ) {
-    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_);
+    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, &evtRun);
   }
   else {
-    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, &(MuScleFitUtils::genPair));
+    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, &evtRun, &(MuScleFitUtils::genPair));
   }
   // Now loop on all the pairs and apply any smearing and bias if needed
+  std::vector<std::pair<int, int> >::iterator evtRunIt = evtRun.begin();
   std::vector<std::pair<lorentzVector,lorentzVector> >::iterator it = MuScleFitUtils::SavedPair.begin();
-  for( ; it != MuScleFitUtils::SavedPair.end(); ++it ) {
+  std::vector<std::pair<lorentzVector,lorentzVector> >::iterator genIt;
+  if(MuScleFitUtils::speedup == false) genIt = MuScleFitUtils::genPair.begin();
+  for( ; it != MuScleFitUtils::SavedPair.end(); ++it, ++evtRunIt ) {
 
     // Apply any cut if requested
     // Note that cuts here are only applied to already selected muons. They should not be used unless
@@ -698,6 +702,14 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
       applyBias(it->first, -1);
       applySmearing(it->second);
       applyBias(it->second, 1);
+    }
+    muonPairs_.push_back(MuonPair(it->first, it->second,
+		         evtRunIt->second, evtRunIt->first));
+
+    // Fill the internal genPair tree from the external one
+    if( MuScleFitUtils::speedup == false ) {
+      genMuonPairs_.push_back(GenMuonPair(genIt->first, genIt->second, 0));
+      ++genIt;
     }
   }
   plotter->fillRec(MuScleFitUtils::SavedPair);

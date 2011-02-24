@@ -65,7 +65,8 @@ int main(int argc, char* argv[])
   // Create the RootTreeHandler to save the events in the root tree
   RootTreeHandler treeHandler;
   // treeHandler.readTree(-1, fileName, &pairVector, &genPairVector);
-  treeHandler.readTree(-1, fileName, &pairVector, -20, &genPairVector);
+  std::vector<std::pair<int, int> > evtRun;
+  treeHandler.readTree(-1, fileName, &pairVector, -20, &evtRun, &genPairVector);
 
   if( (pairVector.size() != genPairVector.size()) && genInfo ) {
     std::cout << "Error: the size of pairVector and genPairVector is different" << std::endl;
@@ -76,7 +77,8 @@ int main(int argc, char* argv[])
 
   MuonPairVector::const_iterator it = pairVector.begin();
   MuonPairVector::const_iterator genIt = genPairVector.begin();
-  for( ; it != pairVector.end(); ++it, ++genIt ) {
+  std::vector<std::pair<int, int> >::iterator evtRunIt = evtRun.begin();
+  for( ; it != pairVector.end(); ++it, ++genIt, ++evtRunIt ) {
     // Write the information to a txt file
     outputFile << it->first.pt()  << " " << it->first.eta()  << " " << it->first.phi()  << " "
                << it->second.pt() << " " << it->second.eta() << " " << it->second.phi() << " ";
@@ -84,6 +86,7 @@ int main(int argc, char* argv[])
       outputFile << genIt->first.pt()  << " " << genIt->first.eta()  << " " << genIt->first.phi()  << " "
 		 << genIt->second.pt() << " " << genIt->second.eta() << " " << genIt->second.phi() << " ";
     }
+    outputFile << " " << evtRunIt->first << " " << evtRunIt->second;
     outputFile << std::endl;
   }
   

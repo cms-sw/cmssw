@@ -8,6 +8,7 @@
 #include <MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitProvenance.h>
 #include <TH1F.h>
 #include <stdlib.h>
+#include <vector>
 
 typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
 
@@ -81,8 +82,10 @@ public:
     f1->Close();
   }
 
+  // void readTree( const int maxEvents, const TString & fileName, MuonPairVector * savedPair,
+  //           	    const int muonType, MuonPairVector * genPair = 0 )
   void readTree( const int maxEvents, const TString & fileName, MuonPairVector * savedPair,
-		 const int muonType, MuonPairVector * genPair = 0 )
+		 const int muonType, std::vector<std::pair<int, int> > * evtRun, MuonPairVector * genPair = 0 )
   {
     TFile * file = new TFile(fileName, "READ");
     if( file->IsOpen() ) {
@@ -100,6 +103,7 @@ public:
       for( Long64_t i=0; i<nentries; ++i ) {
         tree->GetEntry(i);
         savedPair->push_back(std::make_pair(muonPair->mu1, muonPair->mu2));
+	evtRun->push_back(std::make_pair(muonPair->event, muonPair->run));
         // savedPair->push_back(muonPair->getPair(muonType));
         if( genPair != 0 ) {
           genPair->push_back(std::make_pair(genMuonPair->mu1, genMuonPair->mu2));
