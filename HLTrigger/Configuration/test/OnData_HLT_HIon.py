@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/HIon/V43 (CMSSW_3_11_0_HLT7)
+# /dev/CMSSW_3_11_1/HIon/V44 (CMSSW_3_11_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V43')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V44')
 )
 
 process.streams = cms.PSet( 
@@ -4942,6 +4942,8 @@ process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
     fastCloning = cms.untracked.bool( False ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltAlCaEtaRecHitsFilter_*_*',
+      'keep *_hltAlCaPi0RecHitsFilter_*_*',
       'keep *_hltESRegionalPi0EtaRecHit_*_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
       'keep edmTriggerResults_*_*_*',
@@ -4952,6 +4954,7 @@ process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
     fastCloning = cms.untracked.bool( False ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltAlCaPhiSymStream_*_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )

@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V43 (CMSSW_3_11_0_HLT7)
+# /dev/CMSSW_3_11_1/GRun/V44 (CMSSW_3_11_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V43')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V44')
 )
 
 process.streams = cms.PSet( 
@@ -3656,7 +3656,9 @@ process.hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
     HAD_Depth = cms.double( 47.0 ),
     verbose = cms.untracked.bool( False ),
     thresh_Barrel = cms.double( 0.4 ),
-    thresh_Endcap = cms.double( 0.4 )
+    thresh_Endcap = cms.double( 0.4 ),
+    HCAL_Calib_29 = cms.double( 1.35 ),
+    HF_Calib_29 = cms.double( 1.07 )
 )
 process.hltParticleFlowRecHitPS = cms.EDProducer( "PFRecHitProducerPS",
     ecalRecHitsES = cms.InputTag( 'hltESRecHitAll','EcalRecHitsES' ),
@@ -17937,6 +17939,8 @@ process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_EcalEta_v2',
   'AlCa_EcalPi0_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltAlCaEtaRecHitsFilter_*_*',
+      'keep *_hltAlCaPi0RecHitsFilter_*_*',
       'keep *_hltESRegionalPi0EtaRecHit_*_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
       'keep edmTriggerResults_*_*_*',
@@ -17947,6 +17951,7 @@ process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
     fastCloning = cms.untracked.bool( False ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_EcalPhiSym_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltAlCaPhiSymStream_*_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
