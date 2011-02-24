@@ -24,6 +24,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 #include "TMVA/Reader.h"
 
+class PFEnergyCalibration;
 
 class ConvBremPFTrackFinder {
   
@@ -78,5 +79,7 @@ class ConvBremPFTrackFinder {
   float secR,secPout,ptRatioGsfKF,sTIP,Epout,detaBremKF,secPin;
   //int nHITS1;
   float nHITS1;
+
+  PFEnergyCalibration* pfcalib_;
 
 };

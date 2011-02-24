@@ -35,8 +35,11 @@ ConvBremPFTrackFinder::ConvBremPFTrackFinder(const TransientTrackBuilder& builde
   tmvaReader_->AddVariable("detaBremKF",&detaBremKF);
   tmvaReader_->AddVariable("ptRatioGsfKF",&ptRatioGsfKF);
   tmvaReader_->BookMVA("BDT",mvaWeightFileConvBrem.c_str());
+
+  pfcalib_ = new PFEnergyCalibration();
+
 }
-ConvBremPFTrackFinder::~ConvBremPFTrackFinder(){delete tmvaReader_;}
+ConvBremPFTrackFinder::~ConvBremPFTrackFinder(){delete tmvaReader_; delete pfcalib_; }
 
 void
 ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& thePfRecTrackCol,
@@ -69,7 +72,7 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
   const PFRecTrackCollection& PfRTkColl = *(thePfRecTrackCol.product());
   reco::PFRecTrackCollection::const_iterator pft=PfRTkColl.begin();
   reco::PFRecTrackCollection::const_iterator pftend=PfRTkColl.end();
-  PFEnergyCalibration pfcalib_;
+  //PFEnergyCalibration pfcalib_;
 
 
 
@@ -303,7 +306,7 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	  ps1=ps2=0.;
 	  if(dist < MinDist) {
 	    MinDist = dist;
-	    EE_calib = pfcalib_.energyEm(*clus,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections);
+	    EE_calib = pfcalib_->energyEm(*clus,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections);
 	  }
 	}
       }
