@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.cc,v 1.4 2010/07/01 08:48:10 ptraczyk Exp $
+// $Id: CSCTimingExtractor.cc,v 1.6 2011/01/21 08:51:40 ptraczyk Exp $
 //
 //
 
@@ -78,7 +78,6 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig)
   UseWireTime(iConfig.getParameter<bool>("UseWireTime")),
   UseStripTime(iConfig.getParameter<bool>("UseStripTime")),
   debug(iConfig.getParameter<bool>("debug"))
-
 {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
@@ -111,7 +110,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
   theService->update(iSetup);
 
   const GlobalTrackingGeometry *theTrackingGeometry = &*theService->trackingGeometry();
-
+  
   edm::ESHandle<Propagator> propagator;
   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
   const Propagator *propag = propagator.product();
@@ -131,15 +130,17 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
   // get the CSC segments that were used to construct the muon
   std::vector<const CSCSegment*> range = theMatcher->matchCSC(*muonTrack,iEvent);
 
-
   // create a collection on TimeMeasurements for the track        
   for (std::vector<const CSCSegment*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
+
     // Create the ChamberId
     DetId id = (*rechit)->geographicalId();
     CSCDetId chamberId(id.rawId());
+    int station = chamberId.station();
 
     if (!(*rechit)->specificRecHits().size()) continue;
-    const std::vector<CSCRecHit2D>& hits2d = (*rechit)->specificRecHits();
+
+    const std::vector<CSCRecHit2D> hits2d = (*rechit)->specificRecHits();
 
     // store all the hits from the segment
     for (std::vector<CSCRecHit2D>::const_iterator hiti=hits2d.begin(); hiti!=hits2d.end(); hiti++) {
@@ -156,65 +157,78 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
 
       thisHit.distIP = dist;
       if (UseStripTime) {
-	thisHit.weightInvbeta = dist*dist/(theStripError_*theStripError_*30.*30.);
-	thisHit.weightVertex = 1./(theStripError_*theStripError_*30.*30.);
-	thisHit.timeCorr = hiti->tpeak()-theStripTimeOffset_;
-	tms.push_back(thisHit);
+        thisHit.weightInvbeta = dist*dist/(theStripError_*theStripError_*30.*30.);
+        thisHit.weightVertex = 1./(theStripError_*theStripError_);
+        thisHit.timeCorr = hiti->tpeak()-theStripTimeOffset_;
+        tms.push_back(thisHit);
       }
 
       if (UseWireTime) {
 	thisHit.weightInvbeta = dist*dist/(theWireError_*theWireError_*30.*30.);
-	thisHit.weightVertex = 1./(theWireError_*theWireError_);
-	thisHit.timeCorr = hiti->wireTime()-theWireTimeOffset_;
-	tms.push_back(thisHit);
+        thisHit.weightVertex = 1./(theWireError_*theWireError_);
+        thisHit.timeCorr = hiti->wireTime()-theWireTimeOffset_;
+        tms.push_back(thisHit);
       }
 
+      
 //      std::cout << " CSC Hit. Dist= " << dist << "    Time= " << thisHit.timeCorr 
 //           << "   invBeta= " << (1.+thisHit.timeCorr/dist*30.) << std::endl;
     }
+
   } // rechit
+      
   bool modified = false;
+  std::vector <double> dstnc, dsegm, dtraj, hitWeightInvbeta, hitWeightVertex;
 
   // Now loop over the measurements, calculate 1/beta and cut away outliers
   do {    
 
     modified = false;
+    dstnc.clear();
+    dsegm.clear();
+    dtraj.clear();
+    hitWeightInvbeta.clear();
+    hitWeightVertex.clear();
+      
     totalWeightInvbeta=0;
-    totalWeightVertex=0;      
-
-    for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
-      totalWeightInvbeta+=tm->weightInvbeta;
-      totalWeightVertex+=tm->weightVertex;
-    }
-
+    totalWeightVertex=0;
+      
+	for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
+	  dstnc.push_back(tm->distIP);
+	  dsegm.push_back(tm->timeCorr);
+	  hitWeightInvbeta.push_back(tm->weightInvbeta);
+          hitWeightVertex.push_back(tm->weightVertex);
+	  totalWeightInvbeta+=tm->weightInvbeta;
+	  totalWeightVertex+=tm->weightVertex;
+	}
+          
     if (totalWeightInvbeta==0) break;        
 
     // calculate the value and error of 1/beta from the complete set of 1D hits
     if (debug)
-      std::cout << " Points for global fit: " << tms.size() << std::endl;
+      std::cout << " Points for global fit: " << dstnc.size() << std::endl;
 
     // inverse beta - weighted average of the contributions from individual hits
     invbeta=0;
-    for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) 
-      invbeta+=(1.+tm->timeCorr/tm->distIP*30.)*tm->weightInvbeta/totalWeightInvbeta;
+    for (unsigned int i=0;i<dstnc.size();i++) 
+      invbeta+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeightInvbeta.at(i)/totalWeightInvbeta;
 
     double chimax=0.;
     std::vector<TimeMeasurement>::iterator tmmax;
     
     // the dispersion of inverse beta
     double diff;
-    for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
-      diff=(1.+tm->timeCorr/tm->distIP*30.)-invbeta;
-      diff=diff*diff*tm->weightInvbeta;
+    for (unsigned int i=0;i<dstnc.size();i++) {
+      diff=(1.+dsegm.at(i)/dstnc.at(i)*30.)-invbeta;
+      diff=diff*diff*hitWeightInvbeta.at(i);
       invbetaerr+=diff;
-      if (sqrt(diff)>chimax) { 
-	tmmax=tm;
-	chimax=sqrt(diff);
+      if (diff>chimax) { 
+	tmmax=tms.begin()+i;
+	chimax=diff;
       }
     }
     
-    double cf = 1./(tms.size()-1);
-    invbetaerr=invbetaerr*cf; 
+    invbetaerr=sqrt(invbetaerr/totalWeightInvbeta); 
  
     // cut away the outliers
     if (chimax>thePruneCut_) {
@@ -229,15 +243,16 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
 
   // std::cout << " *** FINAL Measured 1/beta: " << invbeta << " +/- " << invbetaerr << std::endl;
 
-  for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
-    tmSequence.dstnc.push_back(tm->distIP);
-    tmSequence.local_t0.push_back(tm->timeCorr);
-    tmSequence.weightInvbeta.push_back(tm->weightInvbeta);
-    tmSequence.weightVertex.push_back(tm->weightVertex);
+  for (unsigned int i=0;i<dstnc.size();i++) {
+    tmSequence.dstnc.push_back(dstnc.at(i));
+    tmSequence.local_t0.push_back(dsegm.at(i));
+    tmSequence.weightInvbeta.push_back(hitWeightInvbeta.at(i));
+    tmSequence.weightVertex.push_back(hitWeightVertex.at(i));
   }
 
   tmSequence.totalWeightInvbeta=totalWeightInvbeta;
   tmSequence.totalWeightVertex=totalWeightVertex;
+
 }
 
 //define this as a plug-in

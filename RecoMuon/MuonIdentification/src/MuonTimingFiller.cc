@@ -12,16 +12,13 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.cc,v 1.9 2010/03/25 14:08:50 jribnik Exp $
+// $Id: MuonTimingFiller.cc,v 1.11 2011/02/22 08:37:58 ptraczyk Exp $
 //
 //
 
 
 // system include files
 #include <memory>
-#include <vector>
-#include <string>
-#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -40,7 +37,7 @@
 #include "RecoMuon/MuonIdentification/interface/MuonTimingFiller.h"
 #include "RecoMuon/MuonIdentification/interface/TimeMeasurementSequence.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 //
 // constructors and destructor
 //
@@ -80,18 +77,22 @@ void
 MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTime, reco::MuonTimeExtra& cscTime, reco::MuonTimeExtra& combinedTime, edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   TimeMeasurementSequence dtTmSeq,cscTmSeq;
-
-  if ( !(muon.standAloneMuon().isNull()) ) {
-    theDTTimingExtractor_->fillTiming(dtTmSeq, muon.standAloneMuon(), iEvent, iSetup);
-    theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.standAloneMuon(), iEvent, iSetup);
-  }
-
+     
+  if ( !(muon.combinedMuon().isNull()) ) {
+    theDTTimingExtractor_->fillTiming(dtTmSeq, muon.combinedMuon(), iEvent, iSetup);
+    theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.combinedMuon(), iEvent, iSetup);
+  } else
+    if ( !(muon.standAloneMuon().isNull()) ) {
+      theDTTimingExtractor_->fillTiming(dtTmSeq, muon.standAloneMuon(), iEvent, iSetup);
+      theCSCTimingExtractor_->fillTiming(cscTmSeq, muon.standAloneMuon(), iEvent, iSetup);
+    }
+  
   // Fill DT-specific timing information block     
   fillTimeFromMeasurements(dtTmSeq, dtTime);
 
   // Fill CSC-specific timing information block     
   fillTimeFromMeasurements(cscTmSeq, cscTime);
-
+       
   // Combine the TimeMeasurementSequences from all subdetectors
   TimeMeasurementSequence combinedTmSeq;
   combineTMSequences(muon,dtTmSeq,cscTmSeq,combinedTmSeq);
@@ -100,14 +101,14 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTim
 
   // Fill the master timing block
   fillTimeFromMeasurements(combinedTmSeq, combinedTime);
-
+    
   LogTrace("MuonTime") << "Global 1/beta: " << combinedTime.inverseBeta() << " +/- " << combinedTime.inverseBetaErr()<<std::endl;
   LogTrace("MuonTime") << "  Free 1/beta: " << combinedTime.freeInverseBeta() << " +/- " << combinedTime.freeInverseBetaErr()<<std::endl;
   LogTrace("MuonTime") << "  Vertex time (in-out): " << combinedTime.timeAtIpInOut() << " +/- " << combinedTime.timeAtIpInOutErr()
                        << "  # of points: " << combinedTime.nDof() <<std::endl;
   LogTrace("MuonTime") << "  Vertex time (out-in): " << combinedTime.timeAtIpOutIn() << " +/- " << combinedTime.timeAtIpOutInErr()<<std::endl;
   LogTrace("MuonTime") << "  direction: "   << combinedTime.direction() << std::endl;
-
+     
 }
 
 
@@ -138,7 +139,7 @@ MuonTimingFiller::fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco:
     diff=tmSeq.local_t0.at(i)+2*tmSeq.dstnc.at(i)/30.-vertexTimeR;
     vertexTimeRErr+=diff*diff*tmSeq.weightVertex.at(i);
   }
-
+  
   double cf = 1./(tmSeq.dstnc.size()-1);
   invbetaerr=sqrt(invbetaerr/tmSeq.totalWeightInvbeta*cf);
   vertexTimeErr=sqrt(vertexTimeErr/tmSeq.totalWeightVertex*cf);
@@ -150,6 +151,7 @@ MuonTimingFiller::fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco:
   muTime.setTimeAtIpInOutErr(vertexTimeErr);
   muTime.setTimeAtIpOutIn(vertexTimeR);
   muTime.setTimeAtIpOutInErr(vertexTimeRErr);
+      
   rawFit(freeBeta, freeBetaErr, freeTime, freeTimeErr, x, y);
 
   muTime.setFreeInverseBeta(freeBeta);
@@ -164,29 +166,24 @@ MuonTimingFiller::combineTMSequences( const reco::Muon& muon,
                                       TimeMeasurementSequence cscSeq, 
                                       TimeMeasurementSequence &cmbSeq ) {
                                         
-  if (useDT_) {
-    for (unsigned int i=0;i<dtSeq.dstnc.size();i++) {
-    
-      cmbSeq.dstnc.push_back(dtSeq.dstnc.at(i));
-      cmbSeq.local_t0.push_back(dtSeq.local_t0.at(i));
-      cmbSeq.weightInvbeta.push_back(dtSeq.weightInvbeta.at(i));
-      cmbSeq.weightVertex.push_back(dtSeq.weightVertex.at(i));
-    }
+  if (useDT_) for (unsigned int i=0;i<dtSeq.dstnc.size();i++) {
+    cmbSeq.dstnc.push_back(dtSeq.dstnc.at(i));
+    cmbSeq.local_t0.push_back(dtSeq.local_t0.at(i));
+    cmbSeq.weightVertex.push_back(dtSeq.weightVertex.at(i));
+    cmbSeq.weightInvbeta.push_back(dtSeq.weightInvbeta.at(i));
 
-    cmbSeq.totalWeightInvbeta+=dtSeq.totalWeightInvbeta;
-    cmbSeq.totalWeightVertex+=dtSeq.totalWeightVertex;
+    cmbSeq.totalWeightVertex+=dtSeq.weightVertex.at(i);
+    cmbSeq.totalWeightInvbeta+=dtSeq.weightInvbeta.at(i);
   }
 
-  if (useCSC_) {
-    for (unsigned int i=0;i<cscSeq.dstnc.size();i++) {
- 
-      cmbSeq.dstnc.push_back(cscSeq.dstnc.at(i));
-      cmbSeq.local_t0.push_back(cscSeq.local_t0.at(i));
-      cmbSeq.weightInvbeta.push_back(cscSeq.weightInvbeta.at(i));
-      cmbSeq.weightVertex.push_back(cscSeq.weightVertex.at(i));
-    }
-    cmbSeq.totalWeightInvbeta+=cscSeq.totalWeightInvbeta;
-    cmbSeq.totalWeightVertex+=cscSeq.totalWeightVertex;
+  if (useCSC_) for (unsigned int i=0;i<cscSeq.dstnc.size();i++) {
+    cmbSeq.dstnc.push_back(cscSeq.dstnc.at(i));
+    cmbSeq.local_t0.push_back(cscSeq.local_t0.at(i));
+    cmbSeq.weightVertex.push_back(cscSeq.weightVertex.at(i));
+    cmbSeq.weightInvbeta.push_back(cscSeq.weightInvbeta.at(i));
+
+    cmbSeq.totalWeightVertex+=cscSeq.weightVertex.at(i);
+    cmbSeq.totalWeightInvbeta+=cscSeq.weightInvbeta.at(i);
   }
 }
 
@@ -208,16 +205,16 @@ MuonTimingFiller::addEcalTime( const reco::Muon& muon,
   if (muonE.ecal_id.subdetId()==EcalBarrel) emErr= errorEB_/muonE.emMax; else
     emErr=errorEE_/muonE.emMax;
   double hitWeight = 1/(emErr*emErr);
-  double hitDist = muonE.ecal_position.r();        
-
+  double hitDist=muonE.ecal_position.r();
+        
   cmbSeq.local_t0.push_back(muonE.ecal_time);
-  cmbSeq.weightInvbeta.push_back(hitWeight*hitDist*hitDist/(30.*30.));
   cmbSeq.weightVertex.push_back(hitWeight);
+  cmbSeq.weightInvbeta.push_back(hitDist*hitDist*hitWeight/(30.*30.));
 
-  cmbSeq.dstnc.push_back(muonE.ecal_position.r());
+  cmbSeq.dstnc.push_back(hitDist);
   
-  cmbSeq.totalWeightInvbeta+=hitWeight*hitDist*hitDist/(30.*30.);
   cmbSeq.totalWeightVertex+=hitWeight;
+  cmbSeq.totalWeightInvbeta+=hitDist*hitDist*hitWeight/(30.*30.);
                                       
 }
 

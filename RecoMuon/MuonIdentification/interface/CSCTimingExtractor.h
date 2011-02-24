@@ -67,6 +67,7 @@ public:
    public:
      float distIP;
      float timeCorr;
+     int station;
      float weightVertex;
      float weightInvbeta;
   };
@@ -74,17 +75,17 @@ public:
   void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:
-  edm::InputTag CSCSegmentTags_; 
+  edm::InputTag CSCSegmentTags_;
   unsigned int theHitsMin_;
   double thePruneCut_;
   double theStripTimeOffset_;
   double theWireTimeOffset_;
-  double theStripError_;  
+  double theStripError_;
   double theWireError_;
   bool UseWireTime;
   bool UseStripTime;
   bool debug;
-
+  
   MuonServiceProxy* theService;
   
   MuonSegmentMatcher *theMatcher;

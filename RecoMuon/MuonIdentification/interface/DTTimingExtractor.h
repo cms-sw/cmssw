@@ -1,4 +1,3 @@
-
 #ifndef MuonIdentification_DTTimingExtractor_H
 #define MuonIdentification_DTTimingExtractor_H
 
@@ -10,7 +9,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.h,v 1.4 2010/07/01 08:48:11 ptraczyk Exp $
+// $Id: DTTimingExtractor.h,v 1.6 2011/01/21 09:30:10 ptraczyk Exp $
 //
 //
 
@@ -44,8 +43,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
 #include <vector>
-#include <TFile.h>
-#include <TH1F.h>
+
 namespace edm {
   class ParameterSet;
   class EventSetup;
@@ -84,15 +82,13 @@ private:
   edm::InputTag DTSegmentTags_; 
   unsigned int theHitsMin_;
   double thePruneCut_;
+  double theTimeOffset_;
+  double theError_;
   bool useSegmentT0_;
   bool doWireCorr_;
   bool dropTheta_;
   bool requireBothProjections_;
-  double theDTTimeOffset_;
-  double theDTError_;
   bool debug;
-  //TFile *file;
-  //TH1F *segTimes;
   
   MuonServiceProxy* theService;
   
