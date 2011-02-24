@@ -117,7 +117,8 @@ public:
    *  is as for divide-by zero, i.e. system-dependent.
    */
   // T eta() const { return -log( tan( theta()/2.));} 
-  T eta() const { T x(z()/perp()); return std::log(x+std::sqrt(x*x+T(1)));} // faster 
+  T eta() const { return detailsBasic3DVector::eta(x(),y(),z());} // correct 
+
 
   /** Unit vector parallel to this.
    *  If mag() is zero, a zero vector is returned.
