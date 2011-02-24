@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0notify.sh,v 1.4 2010/07/21 09:58:29 babar Exp $
+#$Id: t0notify.sh,v 1.6 2010/07/29 17:12:53 babar Exp $
 
 . /etc/init.d/functions
 
@@ -103,6 +103,7 @@ cleanup(){
 case "$1" in
     start)
         start
+        sleep 1
         status
     ;;
     stop)

@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.23 2010/07/22 08:22:16 babar Exp $
+#$Id: t0inject.sh,v 1.24 2010/07/29 17:12:53 babar Exp $
 
 . /etc/init.d/functions
 
@@ -108,6 +108,7 @@ cleanup(){
 case "$1" in
     start)
         start
+        sleep 1
         status
     ;;
     stop)
