@@ -83,5 +83,6 @@ class DialogFrame  : public TGMainFrame {
   virtual bool ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
   virtual void CloseWindow();
      
+  ClassDef(DialogFrame,1)
 };
 #endif 

@@ -97,7 +97,7 @@ class ResidualFitter : public TH3D, public TQObject {
   /// is not performed. set to 5 by default.
   int       minN_;
 
-  //  ClassDef(ResidualFitter,1)
+  ClassDef(ResidualFitter,1)
 };
 
 #endif
