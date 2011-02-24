@@ -47,6 +47,12 @@ struct HistoDimensions {
   //phi
   unsigned int nBinPhi;
   double minPhi, maxPhi;
+  //dxy
+  unsigned int nBinDxy;
+  double minDxy, maxDxy;
+  //dz
+  unsigned int nBinDz; 
+  double minDz, maxDz;
   //pulls
   unsigned int nBinPull;
   double wPull;
@@ -71,8 +77,8 @@ struct RecoMuonValidator::MuonME {
   typedef MonitorElement* MEP;
 
 //general kinematics
-  MEP hSimP_, hSimPt_, hSimEta_, hSimPhi_;
-  MEP hP_, hPt_, hEta_, hPhi_;
+  MEP hSimP_, hSimPt_, hSimEta_, hSimPhi_, hSimDxy_, hSimDz_;
+  MEP hP_, hPt_, hEta_, hPhi_, hDxy_, hDz_;
   MEP hNSim_, hNMuon_;
 
 //misc vars
@@ -123,11 +129,15 @@ struct RecoMuonValidator::MuonME {
     hPt_  = dqm->book1D("Pt" , "p_{T} of recoTracks", hDim.nBinPt , hDim.minPt , hDim.maxPt );
     hEta_ = dqm->book1D("Eta", "#eta of recoTracks" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
     hPhi_ = dqm->book1D("Phi", "#phi of recoTracks" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+    hDxy_ = dqm->book1D("Dxy", "Dxy of recoTracks" , hDim.nBinDxy, hDim.minDxy, hDim.maxDxy);
+    hDz_ = dqm->book1D("Dz", "Dz of recoTracks" , hDim.nBinDz, hDim.minDz, hDim.maxDz);
 
     hSimP_   = dqm->book1D("SimP"  , "p of simTracks"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
     hSimPt_  = dqm->book1D("SimPt" , "p_{T} of simTracks", hDim.nBinPt , hDim.minPt , hDim.maxPt );
     hSimEta_ = dqm->book1D("SimEta", "#eta of simTracks" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
     hSimPhi_ = dqm->book1D("SimPhi", "#phi of simTracks" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+    hSimDxy_ = dqm->book1D("SimDxy", "Dxy of simTracks" , hDim.nBinDxy, hDim.minDxy, hDim.maxDxy);
+    hSimDz_ = dqm->book1D("Dz", "Dz of simTracks" , hDim.nBinDz, hDim.minDz, hDim.maxDz);
 
     hNSim_  = dqm->book1D("NSim" , "Number of particles per event", hDim.nTrks, 0, hDim.nTrks);
     hNMuon_ = dqm->book1D("NMuon", "Number of muons per event"    , hDim.nTrks, 0, hDim.nTrks);
@@ -217,7 +227,7 @@ struct RecoMuonValidator::MuonME {
     hNTrackerHits_vs_Eta_ = dqm->book2D("NTrackerHits_vs_Eta", "Number of valid tracker hits vs #eta",
                                         hDim.nBinEta, hDim.minEta, hDim.maxEta, nTrackerHits/4, 0, nTrackerHits);
 
-    const int nMuonHits = 40;
+    const int nMuonHits = 60;
     hNMuonHits_ = dqm->book1D("NMuonHits", "Number of valid muon hits", nMuonHits, 0, nMuonHits);
     hNMuonHits_vs_Pt_  = dqm->book2D("NMuonHits_vs_Pt", "Number of valid muon hits vs p_{T}",
                                      hDim.nBinPt, hDim.minPt, hDim.maxPt, nMuonHits/4, 0, nMuonHits);
@@ -267,6 +277,8 @@ struct RecoMuonValidator::MuonME {
     hSimPt_ ->Fill(simPt );
     hSimEta_->Fill(simEta);
     hSimPhi_->Fill(simPhi);
+    hSimDxy_->Fill(simDxy);
+    hSimDz_->Fill(simDz);
     hNSimHits_->Fill(nSimHits);
 
     // Number of reco-hits
@@ -324,6 +336,8 @@ struct RecoMuonValidator::MuonME {
     hPt_ ->Fill(recoPt );
     hEta_->Fill(recoEta);   
     hPhi_->Fill(recoPhi);
+    hDxy_->Fill(recoDxy);
+    hDz_->Fill(recoDz);
 
     hErrP_  ->Fill(errP  );
     hErrPt_ ->Fill(errPt );
@@ -395,6 +409,9 @@ struct RecoMuonValidator::CommonME {
 //muon fractions
   MEP hNTrackerMuon_, hNStandAloneMuon_, hNGlobalMuon_, hNGlobalNotStAMuon_,hNGlobalNotTrkMuon_, hNCaloMuon_;
 
+//muon based momentum assignment
+  MEP hMuonP_, hMuonPt_, hMuonEta_, hMuonPhi_;
+
 };
 
 //
@@ -405,6 +422,15 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
+
+  //set up fractions
+  nTrackerMu = 0;
+  nStandAloneMu = 0;
+  nGlobalMu = 0;
+  nCaloMu = 0;
+  nGlobalNotStAMu = 0;
+  nGlobalNotTrkMu = 0;
+  nTotalMu = 0;
 
   // Set histogram dimensions from config
   HistoDimensions hDim;
@@ -422,6 +448,14 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   hDim.nBinEta  = pset.getUntrackedParameter<unsigned int>("nBinEta");
   hDim.minEta = pset.getUntrackedParameter<double>("minEta");
   hDim.maxEta = pset.getUntrackedParameter<double>("maxEta");
+
+  hDim.nBinDxy  = pset.getUntrackedParameter<unsigned int>("nBinDxy");
+  hDim.minDxy = pset.getUntrackedParameter<double>("minDxy");
+  hDim.maxDxy = pset.getUntrackedParameter<double>("maxDxy");
+
+  hDim.nBinDz  = pset.getUntrackedParameter<unsigned int>("nBinDz");
+  hDim.minDz = pset.getUntrackedParameter<double>("minDz");
+  hDim.maxDz = pset.getUntrackedParameter<double>("maxDz");
 
   hDim.nBinPhi  = pset.getUntrackedParameter<unsigned int>("nBinPhi");
   hDim.minPhi = pset.getUntrackedParameter<double>("minPhi", -TMath::Pi());
@@ -531,15 +565,21 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   commonME_->hNInvalidHitsGTHitPattern_ = theDQM->book1D("NInvalidHitsGTHitPattern", "Number of invalid hits on a global track", nHits, 0, nHits);
   commonME_->hNInvalidHitsITHitPattern_ = theDQM->book1D("NInvalidHitsITHitPattern", "Number of invalid hits on an inner track", nHits, 0, nHits);
   commonME_->hNInvalidHitsOTHitPattern_ = theDQM->book1D("NInvalidHitsOTHitPattern", "Number of invalid hits on an outer track", nHits, 0, nHits);
-  commonME_->hNDeltaInvalidHitsHitPattern_ = theDQM->book1D("hNDeltaInvalidHitsHitPattern", "The discrepancy for Number of invalid hits on an global track and inner and outer tracks", nHits, 0, nHits);
+  commonME_->hNDeltaInvalidHitsHitPattern_ = theDQM->book1D("hNDeltaInvalidHitsHitPattern", "The discrepancy for Number of invalid hits on an global track and inner and outer tracks", 2.*nHits, -nHits, nHits);
 
   // - Muon fractions          
-  commonME_->hNTrackerMuon_ = theDQM->book1D("NTrackerMuon", "Fraction of tracker muons per event"    , hDim.nTrks, 0, hDim.nTrks);
-  commonME_->hNStandAloneMuon_ = theDQM->book1D("NStandAloneMuon", "Fraction of standalone muons per event"    , hDim.nTrks, 0, hDim.nTrks);
-  commonME_->hNGlobalMuon_ = theDQM->book1D("NGlobalMuon", "Fraction of global muons per event"    , hDim.nTrks, 0, hDim.nTrks);
-  commonME_->hNGlobalNotStAMuon_ = theDQM->book1D("NGlobalNotStAMuon", "Fraction of global muons but not standalone per event"    , hDim.nTrks, 0, hDim.nTrks);
-  commonME_->hNGlobalNotTrkMuon_ = theDQM->book1D("NGlobalNotTrkMuon", "Fraction of global muons but not tracker per event"    , hDim.nTrks, 0, hDim.nTrks);
-  commonME_->hNCaloMuon_ = theDQM->book1D("NCaloMuon", "Fraction of calo muons per event"    , hDim.nTrks, 0, hDim.nTrks);
+  commonME_->hNTrackerMuon_ = theDQM->book1D("NTrackerMuon", "Fraction of tracker muons per event", 100,0.,1.);
+  commonME_->hNStandAloneMuon_ = theDQM->book1D("NStandAloneMuon", "Fraction of standalone muons per event" , 100,0.,1.);
+  commonME_->hNGlobalMuon_ = theDQM->book1D("NGlobalMuon", "Fraction of global muons per event" , 100,0.,1.);
+  commonME_->hNGlobalNotStAMuon_ = theDQM->book1D("NGlobalNotStAMuon", "Fraction of global muons but not standalone per event" , 100,0.,1.);
+  commonME_->hNGlobalNotTrkMuon_ = theDQM->book1D("NGlobalNotTrkMuon", "Fraction of global muons but not tracker per event"  , 100,0.,1.);
+  commonME_->hNCaloMuon_ = theDQM->book1D("NCaloMuon", "Fraction of calo muons per event"  , 100,0.,1.); 
+
+   //muon based kinematics
+  commonME_->hMuonP_   = theDQM->book1D("PMuon"  , "p of muon"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
+  commonME_->hMuonPt_  = theDQM->book1D("PtMuon" , "p_{T} of muon", hDim.nBinPt , hDim.minPt , hDim.maxPt );
+  commonME_->hMuonEta_ = theDQM->book1D("EtaMuon", "#eta of muon" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
+  commonME_->hMuonPhi_ = theDQM->book1D("PhiMuon", "#phi of muon" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
 
   muonME_->bookHistograms(theDQM, subDir_, hDim);
 
@@ -575,6 +615,16 @@ void RecoMuonValidator::beginRun(const edm::Run& , const EventSetup& eventSetup)
 //
 void RecoMuonValidator::endRun()
 {
+   //muon fractions per event
+  if (nTotalMu > 0) {
+    commonME_->hNTrackerMuon_->Fill(double(nTrackerMu/nTotalMu));
+    commonME_->hNStandAloneMuon_->Fill(double(nStandAloneMu/nTotalMu));
+    commonME_->hNGlobalMuon_->Fill(double(nGlobalMu/nTotalMu));
+    commonME_->hNGlobalNotStAMuon_->Fill(double(nGlobalNotStAMu/nTotalMu));
+    commonME_->hNGlobalNotTrkMuon_->Fill(double(nGlobalNotTrkMu/nTotalMu));
+    commonME_->hNCaloMuon_->Fill(double(nCaloMu/nTotalMu));
+  }
+
   if ( theDQM && ! outputFileName_.empty() ) theDQM->save(outputFileName_);
 }
 
@@ -649,11 +699,6 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     int trkNTrackerHits = 0, glbNTrackerHits = 0;
     int staNMuonHits = 0, glbNMuonHits = 0;
 
-    // for muon fractions
-    int nTrackerMu = 0, nStandAloneMu = 0;
-    int nGlobalMu = 0, nCaloMu = 0;
-    int nGlobalNotStAMu = 0, nGlobalNotTrkMu = 0;
-
   // Analyzer reco::Muon  
   for(View<Muon>::const_iterator iMuon = muonColl.begin();
       iMuon != muonColl.end(); ++iMuon) {
@@ -673,6 +718,11 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 //      muonME_->hNTrks_->Fill();
           muonME_->hNTrksEta_->Fill(trkTrack->eta());
           muonME_->hNTrksPt_->Fill(trkTrack->pt());
+
+          commonME_->hMuonP_->Fill(iMuon->p());
+          commonME_->hMuonPt_->Fill(iMuon->pt());
+          commonME_->hMuonEta_->Fill(iMuon->eta());
+          commonME_->hMuonPhi_->Fill(iMuon->phi());
        }
     }
 
@@ -691,6 +741,11 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 //      muonME_->hNTrks_->Fill();
           muonME_->hNTrksEta_->Fill(staTrack->eta());
           muonME_->hNTrksPt_->Fill(staTrack->pt());
+
+          commonME_->hMuonP_->Fill(iMuon->p());
+          commonME_->hMuonPt_->Fill(iMuon->pt());
+          commonME_->hMuonEta_->Fill(iMuon->eta());
+          commonME_->hMuonPhi_->Fill(iMuon->phi());
        }
     }
 
@@ -735,6 +790,11 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
       
          commonME_->hTrkToGlbDiffNTrackerHits_->Fill(trkNTrackerHits-glbNTrackerHits);
          commonME_->hStaToGlbDiffNMuonHits_->Fill(staNMuonHits-glbNMuonHits);
+
+         commonME_->hMuonP_->Fill(iMuon->p());
+         commonME_->hMuonPt_->Fill(iMuon->pt());
+         commonME_->hMuonEta_->Fill(iMuon->eta());
+         commonME_->hMuonPhi_->Fill(iMuon->phi());
         }
     }
    
@@ -742,16 +802,6 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
       nCaloMu++;
        }
     }
-
-    if (muonSelection_ == "isGlobalMuon" && muonColl.size()>0) {
-    //muon fractions per event
-      commonME_->hNTrackerMuon_->Fill(double(nTrackerMu/muonColl.size()));
-      commonME_->hNStandAloneMuon_->Fill(double(nStandAloneMu/muonColl.size())); 
-      commonME_->hNGlobalMuon_->Fill(double(nGlobalMu/muonColl.size()));
-      commonME_->hNGlobalNotStAMuon_->Fill(double(nGlobalNotStAMu/muonColl.size()));
-      commonME_->hNGlobalNotTrkMuon_->Fill(double(nGlobalNotTrkMu/muonColl.size()));
-      commonME_->hNCaloMuon_->Fill(double(nCaloMu/muonColl.size())); 
-  }
 
   // Associate by hits
   for(TrackingParticleCollection::size_type i=0; i<nSim; i++) {
