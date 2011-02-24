@@ -2656,6 +2656,7 @@ void PrimaryVertexAnalyzer4PU::printEventSummary(std::map<std::string, TH1*> & h
 						 std::vector<simPrimaryVertex> & simpv,
 						 const string message){
   // make a readable summary using simpv (no TrackingParticles, use simparticles or genparticles etc)
+  if (simpv.size()==0) return;
   vector< pair<double,unsigned int> >  zrecv;
   for(unsigned int idx=0; idx<recVtxs->size(); idx++){
     zrecv.push_back( make_pair(recVtxs->at(idx).z(),idx) );
@@ -3379,11 +3380,8 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 						       std::vector<simPrimaryVertex> & simpv,
 						       const std::string message)
 {
-  if(eventSummaryCounter_++ < nEventSummary_){
-    printEventSummary(h, recVtxs,recTrks,simpv,message);
-  }
 
-  //cout <<"PrimaryVertexAnalyzer4PU::analyzeVertexCollection (HepMC), simpvs=" << simpv.size() << endl;
+
   int nrectrks=recTrks->size();
   int nrecvtxs=recVtxs->size();
   int nseltrks=-1; 
@@ -3401,6 +3399,10 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
     double dsimrecy=0.;//0.0011;
     double dsimrecz=0.;//0.0012;
     
+    if(eventSummaryCounter_++ < nEventSummary_){
+      printEventSummary(h, recVtxs,recTrks,simpv,message);
+    }
+
     // vertex matching and efficiency bookkeeping
     int nsimtrk=0;
     int npu[5]={0,0,0,0,0};  // count pile-up vertices with > n tracks
@@ -3622,7 +3624,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 
 
     
-  } // simulated vertices in the event
+
 
   // compare the signal vertex with the nearest rec vertex
   double deltaznearest=9999.;
@@ -3638,6 +3640,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
   Fill(h,"abszdistancenearest",fabs(deltaznearest));
   Fill(h,"indexnearest",float(indexnearest));
   
+  } // simulated vertices in the event
 
   //******* the following code does not require MC and will/should work for data **********
 
