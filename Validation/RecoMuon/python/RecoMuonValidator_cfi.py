@@ -30,9 +30,18 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     maxPt = cms.untracked.double(200.0),
 
     doAbsEta = cms.untracked.bool(False),
+
     nBinEta = cms.untracked.uint32(50),
     minEta = cms.untracked.double(-2.5),
     maxEta = cms.untracked.double(2.5),
+
+    nBinDxy = cms.untracked.uint32(300),
+    minDxy = cms.untracked.double(-1.5),
+    maxDxy = cms.untracked.double(1.5),
+
+    nBinDz = cms.untracked.uint32(200),
+    minDz = cms.untracked.double(-25.),
+    maxDz = cms.untracked.double(25.),
 
     nBinPhi = cms.untracked.uint32(25),
 
