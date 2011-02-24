@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.35 2011/02/24 17:48:52 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.36 2011/02/24 17:59:30 amraktad Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 #include "TGLabel.h"
 
 #define protected public  //!!! TODO add get/sets for TEveCalo2D for CellIDs
-#include "TEveCalo.h"x
+#include "TEveCalo.h"
 #undef protected
 
 // user include files
