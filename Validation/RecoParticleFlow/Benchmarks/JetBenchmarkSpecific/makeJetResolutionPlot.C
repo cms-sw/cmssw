@@ -12,14 +12,46 @@ public:
 
 void GetParameters( TH1* h, Results& results) {
 
-  h->Fit( "gaus","Q0");
+  if ( h->GetEntries() > 100 ) { 
+    h->Fit( "gaus","Q0");
+    
+    TF1* gaus = h->GetFunction( "gaus" );
+    
+    results.sigma = gaus->GetParameter(2);
+    results.mean = gaus->GetParameter(1);
+    results.rms = h->GetRMS();
+    results.arithmav = h->GetMean();
 
-  TF1* gaus = h->GetFunction( "gaus" );
+  } else if ( h->GetEntries() > 20 ) { 
 
-  results.sigma = gaus->GetParameter(2);
-  results.mean = gaus->GetParameter(1);
-  results.rms = h->GetRMS();
-  results.arithmav = h->GetMean();
+    h->Rebin(2)->Fit( "gaus","Q0");
+    
+    TF1* gaus = h->GetFunction( "gaus" );
+    
+    results.sigma = gaus->GetParameter(2);
+    results.mean = gaus->GetParameter(1);
+    results.rms = h->GetRMS();
+    results.arithmav = h->GetMean();
+
+  } else if ( h->GetEntries() > 4 ) { 
+
+    h->Rebin(2)->Fit( "gaus","LQ0");
+    
+    TF1* gaus = h->GetFunction( "gaus" );
+    
+    results.sigma = gaus->GetParameter(2);
+    results.mean = gaus->GetParameter(1);
+    results.rms = h->GetRMS();
+    results.arithmav = h->GetMean();
+
+  } else {
+
+    results.sigma = 0.;
+    results.mean = 0.;
+    results.rms = 0.;
+    results.arithmav = 0.;
+
+  }    
 }
 
 
