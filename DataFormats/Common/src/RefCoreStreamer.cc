@@ -88,7 +88,7 @@ namespace edm {
         cl->AdoptStreamer(new RefCoreCheckTransientOnWriteStreamer());
       } 
     }
-    RefCore::switchProductGetter(0);
+    EDProductGetter::switchProductGetter(0);
     if (resetAll) {
       TClass *cl = gROOT->GetClass("edm::RefCore");
       if (cl->GetStreamer() != 0) {
@@ -120,7 +120,7 @@ namespace edm {
         if (st == 0) {
           cl->AdoptStreamer(new RefCoreCheckTransientOnWriteStreamer());
         } 
-        returnValue = edm::RefCore::switchProductGetter(ep);
+        returnValue = edm::EDProductGetter::switchProductGetter(ep);
       }
     }
     if (oldFormat) {

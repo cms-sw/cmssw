@@ -15,7 +15,7 @@
     ]]>
   </ioread>
  <ioread sourceClass = "edm::RefCore" version="[1-]" targetClass="edm::RefCore" source="" target="prodGetter_">
-   <![CDATA[edm::RefCore::assignEDProductGetter(prodGetter_);
+   <![CDATA[edm::EDProductGetter::assignEDProductGetter(prodGetter_);
       ]]>
  </ioread>
  <class name="edm::RefCore::CheckTransientOnWrite" ClassVersion="3"/>

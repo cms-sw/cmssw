@@ -18,6 +18,6 @@ namespace fwlite {
       } 
     }
   
-    return edm::RefCore::switchProductGetter(ep);
+    return edm::EDProductGetter::switchProductGetter(ep);
   }
 }

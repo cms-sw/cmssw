@@ -143,22 +143,5 @@ namespace edm {
       setProductPtr(productToBeInserted.productPtr());
     }
   }
-
-  static EDProductGetter const* s_productGetter=0;
-  EDProductGetter const* 
-  RefCore::switchProductGetter(EDProductGetter const* iNew) 
-  {
-    //std::cout <<"switch from "<<s_productGetter<<" to "<<iNew<<std::endl;
-    EDProductGetter const* old = s_productGetter;
-    s_productGetter = iNew;
-    return old;
-  }
-  void 
-  RefCore::assignEDProductGetter(EDProductGetter const* & iGetter)
-  {    
-    //std::cout <<"assign "<<s_productGetter<<std::endl;
-
-    iGetter = s_productGetter;
-  }
   
 }

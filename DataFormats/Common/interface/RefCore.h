@@ -70,9 +70,6 @@ namespace edm {
       explicit CheckTransientOnWrite(bool iValue=false): transient_(iValue) {}
       bool transient_;
     };
-    ///These can only be used internally by the framework
-    static EDProductGetter const* switchProductGetter(EDProductGetter const*);
-    static void assignEDProductGetter(EDProductGetter const* &);
  private:
     void setId(ProductID const& iId) {
       processIndex_ = iId.processIndex();

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:31 EST 2005
-// $Id: EDProductGetter.h,v 1.8 2010/03/23 18:02:43 chrjones Exp $
+// $Id: EDProductGetter.h,v 1.9 2010/03/23 18:50:34 chrjones Exp $
 //
 
 // system include files
@@ -45,6 +45,11 @@ namespace edm {
 	if (oldProductID.oldID() == 0) return oldProductID;
 	return oldToNewProductID_(oldProductID);
       }
+     
+     ///These can only be used internally by the framework
+     static EDProductGetter const* switchProductGetter(EDProductGetter const*);
+     static void assignEDProductGetter(EDProductGetter const* &);
+
 private:
       virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;
       // ---------- member data --------------------------------

@@ -80,5 +80,23 @@ namespace edm {
   	<< "The product getter pointer passed to the constructor must refer\n"
   	<< "to a real getter, such as an EventPrincipal.\n";
   }
+  
+  static EDProductGetter const* s_productGetter=0;
+  EDProductGetter const* 
+  EDProductGetter::switchProductGetter(EDProductGetter const* iNew) 
+  {
+    //std::cout <<"switch from "<<s_productGetter<<" to "<<iNew<<std::endl;
+    EDProductGetter const* old = s_productGetter;
+    s_productGetter = iNew;
+    return old;
+  }
+  void 
+  EDProductGetter::assignEDProductGetter(EDProductGetter const* & iGetter)
+  {    
+    //std::cout <<"assign "<<s_productGetter<<std::endl;
+    
+    iGetter = s_productGetter;
+  }
+
 
 }
