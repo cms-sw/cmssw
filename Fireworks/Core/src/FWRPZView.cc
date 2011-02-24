@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.34 2011/02/22 18:37:31 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.35 2011/02/24 17:48:52 amraktad Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 #include "TGLabel.h"
 
 #define protected public  //!!! TODO add get/sets for TEveCalo2D for CellIDs
-#include "TEveCalo.h"
+#include "TEveCalo.h"x
 #undef protected
 
 // user include files
@@ -40,7 +40,8 @@
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 FWRPZViewGeometry* FWRPZView::s_geometryList = 0;
-
+const float FWRPZView::s_distortF = 0.001;
+const float FWRPZView::s_distortFInv = 1000;
 //
 // constructors and destructor
 //

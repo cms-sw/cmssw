@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.16 2011/02/03 17:38:39 amraktad Exp $
+// $Id: FWRPZView.h,v 1.17 2011/02/24 17:48:52 amraktad Exp $
 //
 
 // system include files
@@ -70,8 +70,8 @@ private:
 
    // ---------- member data --------------------------------
    static FWRPZViewGeometry* s_geometryList;
-   static const float s_distortF = 0.001;
-   static const float s_distortFInv = 1000;
+   const  static float s_distortF;
+   const  static float s_distortFInv;
 
    TEveProjectionManager* m_projMgr;
    TEveProjectionAxes*    m_axes;
