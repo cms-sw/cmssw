@@ -1,4 +1,4 @@
-<library   name="RecoParticleFlowPFProducerPlugins" file="EFilter.cc,PFBlockProducer.cc,PFElectronTranslator.cc,PFProducer.cc, PFBlockElementSuperClusterProducer.cc,SealModule.cc">
+<library   name="RecoParticleFlowPFProducerPlugins" file="EFilter.cc,PFBlockProducer.cc,PFElectronTranslator.cc,PFProducer.cc,SealModule.cc">
   <use   name="CondFormats/DataRecord"/>
   <use   name="CondFormats/PhysicsToolsObjects"/>
   <use   name="DataFormats/CaloRecHit"/>
