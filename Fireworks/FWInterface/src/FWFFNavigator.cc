@@ -22,6 +22,13 @@ FWFFNavigator::firstEvent()
    gSystem->ExitLoop();
 }
 
+void
+FWFFNavigator::lastEvent()
+{
+   m_currentTransition = kLastEvent;
+   gSystem->ExitLoop();
+}
+
 /** API to move to a given event. Notice
     that it is also responsible for keeping registering the ID of the first
     event, so that we can stop going back.

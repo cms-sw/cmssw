@@ -278,6 +278,7 @@ void
 FWFFLooper::stopPlaying()
 {
    stopAutoLoadTimer();
+   m_autoReload = false;
    setIsPlaying(false);
    guiManager()->enableActions();
    guiManager()->getMainFrame()->enableComplexNavigation(false);
@@ -325,6 +326,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       guiManager()->filterButtonClicked_.connect(boost::bind(&FWGUIManager::showEventFilterGUI, guiManager()));
 
       m_firstTime = false;
+      m_autoReload = false;
    }
 
    float current = 18160.0f;
@@ -371,6 +373,14 @@ FWFFLooper::duringLoop(const edm::Event &event,
       m_nextEventId = edm::EventID();
       return kContinue;
    }
+   // We handle "last event" by going to the first event and then moving to the
+   // previous event.
+   if (m_navigator->currentTransition() == FWFFNavigator::kLastEvent)
+   {
+      m_navigator->resetTransition();
+      controller.setTransitionToPreviousEvent();
+      return kContinue;
+   }
 
    m_pathsGUI->hasChanges() = false;
    m_metadataManager->update(new FWFFMetadataUpdateRequest(event));
@@ -390,6 +400,11 @@ FWFFLooper::duringLoop(const edm::Event &event,
       return kStop;
    }
    else if (m_navigator->currentTransition() == FWFFNavigator::kFirstEvent)
+   {
+      m_nextEventId = m_navigator->getFirstEventID();
+      return kStop;
+   }
+   else if (m_navigator->currentTransition() == FWFFNavigator::kLastEvent)
    {
       m_nextEventId = m_navigator->getFirstEventID();
       return kStop;
