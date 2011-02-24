@@ -14,6 +14,16 @@
 #include <iosfwd>
 #include <cmath>
 
+namespace detailsBasic3DVector {
+  inline float __attribute__((always_inline)) __attribute__ ((pure))
+  eta(float x, float y, float z) { float t(z/std::sqrt(x*x+y*y)); return ::asinhf(t);} 
+  inline double __attribute__((always_inline)) __attribute__ ((pure))
+  eta(double x, double y, double z) { double t(z/std::sqrt(x*x+y*y)); return ::asinh(t);} 
+  inline long double __attribute__((always_inline)) __attribute__ ((pure))
+  eta(long double x, long double y, long double z) { long double t(z/std::sqrt(x*x+y*y)); return ::asinhl(t);} 
+}
+
+
 template < typename T> 
 class Basic3DVector {
 public:
@@ -128,7 +138,7 @@ public:
    *  is as for divide-by zero, i.e. system-dependent.
    */
   // T eta() const { return -log( tan( theta()/2.));} 
-  T eta() const { T x(z()/perp()); return std::log(x+std::sqrt(x*x+T(1)));} // faster 
+  T eta() const { return detailsBasic3DVector::eta(x(),y(),z());} // correct 
 
   /** Unit vector parallel to this.
    *  If mag() is zero, a zero vector is returned.

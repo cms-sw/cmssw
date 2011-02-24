@@ -20,7 +20,7 @@ namespace detailsBasic3DVector {
 }
 
 
-Template < typename T> 
+template < typename T> 
 class Basic3DVector {
 public:
 
