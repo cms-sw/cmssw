@@ -946,46 +946,8 @@ void PFRootEventManager::readOptions(const char* file,
   pfAlgo_.setDebug( AlgoDebug );
 
   // read PFCluster calibration parameters
-  
-
-  double e_slope = 1.0;
-  options_->GetOpt("particle_flow","calib_ECAL_slope", e_slope);
-  double e_offset = 0;
-  options_->GetOpt("particle_flow","calib_ECAL_offset", e_offset);
-  
-  double eh_eslope = 1.05;
-  options_->GetOpt("particle_flow","calib_ECAL_HCAL_eslope", eh_eslope);
-  double eh_hslope = 1.06;
-  options_->GetOpt("particle_flow","calib_ECAL_HCAL_hslope", eh_hslope);
-  double eh_offset = 6.11;
-  options_->GetOpt("particle_flow","calib_ECAL_HCAL_offset", eh_offset);
-  
-  double h_slope = 2.17;
-  options_->GetOpt("particle_flow","calib_HCAL_slope", h_slope);
-  double h_offset = 1.73;
-  options_->GetOpt("particle_flow","calib_HCAL_offset", h_offset);
-  double h_damping = 2.49;
-  options_->GetOpt("particle_flow","calib_HCAL_damping", h_damping);
-  
-
-  unsigned newCalib = 0;
-  options_->GetOpt("particle_flow", "newCalib", newCalib);  
-  std::cout << "New calib = " << newCalib << std::endl;
-
-  boost::shared_ptr<pftools::PFClusterCalibration> 
-    clusterCalibration( new pftools::PFClusterCalibration() );
-  clusterCalibration_ = clusterCalibration;
-
   boost::shared_ptr<PFEnergyCalibration> 
-    calibration( new PFEnergyCalibration( e_slope,
-                                          e_offset, 
-                                          eh_eslope,
-                                          eh_hslope,
-                                          eh_offset,
-                                          h_slope,
-                                          h_offset,
-                                          h_damping,
-					  newCalib) );
+    calibration( new PFEnergyCalibration() );
   calibration_ = calibration;
 
   bool usePFSCEleCalib;
@@ -1048,54 +1010,9 @@ void PFRootEventManager::readOptions(const char* file,
   double nSigmaHCAL = 99999;
   options_->GetOpt("particle_flow", "nsigma_HCAL", nSigmaHCAL);
 
-  // pfAlgo_.setNewCalibration(newCalib);
-
-  // Set the parameters for the brand-new calibration
-  double g0, g1, e0, e1;
-  options_->GetOpt("correction", "globalP0", g0);
-  options_->GetOpt("correction", "globalP1", g1);
-  options_->GetOpt("correction", "lowEP0", e0);
-  options_->GetOpt("correction", "lowEP1", e1);
-  clusterCalibration->setCorrections(e0, e1, g0, g1);
-  
-  int allowNegative(0);
-  options_->GetOpt("correction", "allowNegativeEnergy", allowNegative);
-  clusterCalibration->setAllowNegativeEnergy(allowNegative);
-  
-  int doCorrection(1);
-  options_->GetOpt("correction", "doCorrection", doCorrection);
-  clusterCalibration->setDoCorrection(doCorrection);
-
-  int doEtaCorrection(1);
-  options_->GetOpt("correction", "doEtaCorrection", doEtaCorrection);
-  clusterCalibration->setDoEtaCorrection(doEtaCorrection);
-  
-  double barrelEta;
-  options_->GetOpt("evolution", "barrelEndcapEtaDiv", barrelEta);
-  clusterCalibration->setBarrelBoundary(barrelEta);
-  
-  double ecalEcut;
-  options_->GetOpt("evolution", "ecalECut", ecalEcut);
-  double hcalEcut;
-  options_->GetOpt("evolution", "hcalECut", hcalEcut);
-  clusterCalibration->setEcalHcalEnergyCuts(ecalEcut,hcalEcut);
-
-  std::vector<std::string>* names = clusterCalibration->getKnownSectorNames();
-  for(std::vector<std::string>::iterator i = names->begin(); i != names->end(); ++i) {
-    std::string sector = *i;
-    std::vector<double> params;
-    options_->GetOpt("evolution", sector.c_str(), params);
-    clusterCalibration->setEvolutionParameters(sector, params);
-  }
-
-  std::vector<double> etaCorrectionParams; 
-  options_->GetOpt("evolution","etaCorrection", etaCorrectionParams);
-  clusterCalibration->setEtaCorrectionParameters(etaCorrectionParams);
-
   try {
     pfAlgo_.setParameters( nSigmaECAL, nSigmaHCAL, 
-                           calibration,
-			   clusterCalibration,thepfEnergyCalibrationHF_, newCalib);
+                           calibration, thepfEnergyCalibrationHF_);
   }
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo parameters: "
@@ -1197,6 +1114,7 @@ void PFRootEventManager::readOptions(const char* file,
 				 mvaWeightFileEleID,
 				 usePFElectrons,
 				 thePFSCEnergyCalibration,
+				 calibration,
 				 sumEtEcalIsoForEgammaSC_barrel,
 				 sumEtEcalIsoForEgammaSC_endcap,
 				 coneEcalIsoForEgammaSC,
@@ -3608,17 +3526,6 @@ PFRootEventManager::printMCCalib(ofstream& out) const {
     else if ( constituents[ic]->particleId() == 5 ) 
       pat_HCALEnergy += constituents[ic]->rawHcalEnergy();
   }
-
-  double col_ECALEnergy = rec_ECALEnergy * 1.05;
-  double col_HCALEnergy = rec_HCALEnergy;
-  if ( col_HCALEnergy > 1E-6 ) 
-    col_HCALEnergy = col_ECALEnergy > 1E-6 ? 
-    6. + 1.06*rec_HCALEnergy : (2.17*rec_HCALEnergy+1.73)/(1.+std::exp(2.49/rec_HCALEnergy));
-
-  double jam_ECALEnergy = rec_ECALEnergy;
-  double jam_HCALEnergy = rec_HCALEnergy;
-  clusterCalibration_->
-    getCalibratedEnergyEmbedAInHcal(jam_ECALEnergy, jam_HCALEnergy, true_eta, true_phi);
 
   out << true_eta << " " << true_phi << " " << true_E 
       << " " <<  rec_ECALEnergy << " " << rec_HCALEnergy

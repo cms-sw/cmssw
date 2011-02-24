@@ -478,32 +478,6 @@ particle_flow   nuclCalibFactors          0.8  0.15  0.5  0.5  0.05
 // ---------------------------------------------
 
 
-// Naive calibration
-// particle_flow   ecalib 0.108 1.050
-particle_flow   ecalib 0 1
-particle_flow 	calib_ECAL_HCAL_eslope  1.05
-particle_flow  	calib_ECAL_HCAL_hslope  1.06
-particle_flow   calib_ECAL_HCAL_offset  6.11
-  
-particle_flow	calib_HCAL_slope    2.17
-particle_flow 	calib_HCAL_offset   1.73
-particle_flow 	calib_HCAL_damping  2.49
-
-
-// Calibration ntuple -BEGIN
-// Uncomment if you want a text file with the inputs needed
-// for calibration, and also comment the corresponding six
-// lines just above
-// calib  outfile  calib_130_100_1000.txt
-// particle_flow 	calib_ECAL_HCAL_eslope  1.0
-// particle_flow  	calib_ECAL_HCAL_hslope  1.0
-// particle_flow   calib_ECAL_HCAL_offset  0.0
-//  
-// particle_flow	calib_HCAL_slope    2.00
-// particle_flow 	calib_HCAL_offset   0.00
-// particle_flow 	calib_HCAL_damping  0.00
-// Calibration ntuple -END
-
 //--------------- calibration factors for HF: Erec = a Eem + b Ehad
 //calib_calibHF_use = use these factor or not.
 particle_flow calib_calibHF_use	0 
@@ -517,42 +491,6 @@ particle_flow calib_calibHF_a_EMonly	0.96945	0.96701	0.76309	0.82268	0.87583	0.8
 particle_flow calib_calibHF_b_HADonly	1.27541	0.85361	0.86333	0.89091	0.94348	0.94348	0.94370	1.0034	1.0444	1.0444
 particle_flow calib_calibHF_a_EMHAD	1.42215	1.00496	0.68961	0.81656	0.98504	0.98504	1.00802	1.0593	1.4576	1.4576
 particle_flow calib_calibHF_b_EMHAD	1.27541	0.85361	0.86333	0.89091	0.94348	0.94348	0.94370	1.0034	1.0444	1.0444
-    
-
-
-
-
-
-particle_flow  newCalib 2
-
-// Brand-new calibration parameters
-//Apply corrections?
-correction	doCorrection		1
-correction	doEtaCorrection		1
-//Bulk correction parameters
-correction	globalP0 		-2.314808
-correction	globalP1 		1.01
-correction	globalP2 		0.0
-//Low energy correction parameters
-correction	correctionLowLimit	1.0
-correction	lowEP0			3.249189e-01
-correction	lowEP1			7.907990e-01
-correction	allowNegativeEnergy     0
-correction	maxEToCorrect		-1.0
-
-//Auto fit evolution function to data
-evolution	ecalECut		0.0
-evolution	hcalECut		0.0
-evolution	barrelEndcapEtaDiv	1.4
-
-//Use hand fitted parameters specified below
-evolution	ecalHcalEcalBarrel	0.67	3.0	1.15	0.90    -0.060	1.4
-evolution 	ecalHcalEcalEndcap	0.46	3.0	1.10	0.40	-0.020	1.4
-evolution 	ecalHcalHcalBarrel	0.46	3.0	1.15	0.30	-0.020	1.4
-evolution	ecalHcalHcalEndcap	0.460	3.0	1.10	0.30	-0.02	1.4
-
-evolution	etaCorrection		1.01   -1.02e-02 5.17e-02 0.563 -0.425 	0.110
-
 
 // print flags ------------------------------------------------------------
 // for PFRootEventManager::print()
