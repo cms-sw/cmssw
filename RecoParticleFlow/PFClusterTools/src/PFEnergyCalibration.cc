@@ -1,73 +1,39 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include <TMath.h>
 #include <math.h>
 #include <vector>
 #include <TF1.h>
+#include <map>
 
 using namespace std;
 
-PFEnergyCalibration::PFEnergyCalibration() {
-
-//--- initialize calibration parameters
-//    for energy correction applied to energy deposits of electrons 
-//    and photons in ECAL
-//  paramECAL_slope_ = 1.;
-//  paramECAL_offset_ = 0.;
-//  
-////--- initialize calibration parameters
-////    for energy correction applied to energy deposits of hadrons in HCAL
-//  paramHCAL_slope_ = 2.17;
-//  paramHCAL_offset_ = 1.73;
-//  paramHCAL_damping_ = 2.49;
-//
-////--- initialize calibration parameters
-////    for energy correction applied to combined energy deposits of hadrons in HCAL and ECAL
-//  paramECALplusHCAL_slopeECAL_ = 1.05;
-//  paramECALplusHCAL_slopeHCAL_ = 1.06;
-//  paramECALplusHCAL_offset_ = 6.11;
-	
-  paramECAL_slope_ = 1.;
-  paramECAL_offset_ = 0.;
-  
-//--- initialize calibration parameters
-//    for energy correction applied to energy deposits of hadrons in HCAL
-  paramHCAL_slope_ = 1.0;
-  paramHCAL_offset_ = 0.0;
-  paramHCAL_damping_ = 1.0;
-
-//--- initialize calibration parameters
-//    for energy correction applied to combined energy deposits of hadrons in HCAL and ECAL
-  paramECALplusHCAL_slopeECAL_ = 1.0;
-  paramECALplusHCAL_slopeHCAL_ = 1.0;
-  paramECALplusHCAL_offset_ = 0.0;
+PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(0)
+{
+  initializeCalibrationFunctions();
 }
 
-
-PFEnergyCalibration::PFEnergyCalibration( double e_slope  , 
-					  double e_offset , 
-					  double eh_eslope,
-					  double eh_hslope,
-					  double eh_offset,
-					  double h_slope  ,
-					  double h_offset ,
-					  double h_damping,
-					  unsigned newCalib):
-  
-  paramECAL_slope_(e_slope),
-  paramECAL_offset_(e_offset),
-  paramECALplusHCAL_slopeECAL_(eh_eslope),
-  paramECALplusHCAL_slopeHCAL_(eh_hslope),
-  paramECALplusHCAL_offset_(eh_offset),
-  paramHCAL_slope_(h_slope),
-  paramHCAL_offset_(h_offset),
-  paramHCAL_damping_(h_damping) 
+PFEnergyCalibration::~PFEnergyCalibration() 
 {
-  if ( newCalib == 2 ) initializeCalibrationFunctions();
+  std::cout << "delete!!!" << std::endl;
+  
+  delete faBarrel;
+  delete fbBarrel;
+  delete fcBarrel;
+  delete faEtaBarrel;
+  delete fbEtaBarrel;
+  delete faEndcap;
+  delete fbEndcap;
+  delete fcEndcap;
+  delete faEtaEndcap;
+  delete fbEtaEndcap;
+
 }
 
 void
 PFEnergyCalibration::initializeCalibrationFunctions() {
 
+  std::cout << "initialize!!!" << std::endl;
   // NEW NEW with HCAL pre-calibration
 
   threshE = 3.5;
@@ -151,14 +117,15 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
   double b = 1.;
   double etaCorrE = 1.;
   double etaCorrH = 1.;
-  t = min(1000.,max(tt,e+h));
+  t = min(999.9,max(tt,e+h));
+  if ( t < 1. ) return;
 
   // Barrel calibration
   if ( fabs(eta) < 1.48 ) { 
 
     // The energy correction
-    a = e>0. ? faBarrel->Eval(t) : 1.;
-    b = e>0. ? fbBarrel->Eval(t) : fcBarrel->Eval(t);
+    a = e>0. ? aBarrel(t) : 1.;
+    b = e>0. ? bBarrel(t) : cBarrel(t);
     double thresh = e > 0. ? threshE : threshH;
 
     // Protection against negative calibration - to be tuned
@@ -169,10 +136,10 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     }
 
     // The new estimate of the true energy
-    t = min(1000.,max(tt, thresh+a*e+b*h));
+    t = min(999.9,max(tt, thresh+a*e+b*h));
 
     // The angular correction for ECAL hadronic deposits
-    etaCorrE = 1. + faEtaBarrel->Eval(t) + fbEtaBarrel->Eval(t)*fabs(eta)*fabs(eta);
+    etaCorrE = 1. + aEtaBarrel(t) + bEtaBarrel(t)*fabs(eta)*fabs(eta);
     etaCorrH = 1.;
     // etaCorr = 1.;
     t = max(tt, thresh+etaCorrE*a*e+etaCorrH*b*h);
@@ -200,8 +167,8 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
   } else {
 
     // The energy correction
-    a = e>0. ? faEndcap->Eval(t) : 1.;
-    b = e>0. ? fbEndcap->Eval(t) : fcEndcap->Eval(t);
+    a = e>0. ? aEndcap(t) : 1.;
+    b = e>0. ? bEndcap(t) : cEndcap(t);
     double thresh = e > 0. ? threshE : threshH;
 
     if ( a < -0.25 || b < -0.25 ) { 
@@ -211,13 +178,14 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     }
 
     // The new estimate of the true energy
-    t = min(1000.,max(tt, thresh+a*e+b*h));
+    t = min(999.9,max(tt, thresh+a*e+b*h));
     
     // The angular correction
     double dEta = fabs ( fabs(eta) - 1.5 );
     double etaPow = dEta * dEta * dEta * dEta;
-    etaCorrE = 1. + faEtaEndcap->Eval(t) + 0.5*fbEtaEndcap->Eval(t)*etaPow;
-    etaCorrH = 1. + faEtaEndcap->Eval(t) + fbEtaEndcap->Eval(t)*etaPow;
+    //etaCorrE = 1. + aEtaEndcap(t) + 0.5*bEtaEndcap(t)*etaPow;
+    etaCorrE = 1. + aEtaEndcap(t) + bEtaEndcap(t)*etaPow;
+    etaCorrH = 1. + aEtaEndcap(t) + bEtaEndcap(t)*etaPow;
     /*
     if ( etaCorr > 2. || etaCorr < 0.5 ) 
       std::cout << "Warning : Angular correction ! " << std::endl
@@ -226,7 +194,7 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
 		<< std::endl;
     */
 
-    t = min(1000.,max(tt, thresh + etaCorrE*a*e + etaCorrH*b*h));
+    t = min(999.9,max(tt, thresh + etaCorrE*a*e + etaCorrH*b*h));
 
     if ( e > 0. && thresh > 0. ) 
       e = h > 0. ? threshE-threshH + etaCorrE * a * e : threshE + etaCorrE * a * e;
@@ -253,39 +221,165 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
   
 }
 
+// The calibration functions
+double 
+PFEnergyCalibration::aBarrel(double x) const { 
 
+  if ( pfCalibrations ) { 
 
-void PFEnergyCalibration::setCalibrationParametersEm(double paramECAL_slope, 
-						     double paramECAL_offset) {
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfa_BARREL,point); 
 
-//--- set calibration parameters for energy deposits of electrons 
-//    and photons in ECAL;
-//    this member function is needed by PFRootEvent
+  } else { 
 
-  paramECAL_slope_ = paramECAL_slope;
-  paramECAL_offset_ = paramECAL_offset;
+    return faBarrel->Eval(x); 
+
+  }
 }
-
-
-
-PFEnergyCalibration::~PFEnergyCalibration()
-{
-//--- nothing to be done yet  
-}
-
 
 double 
-PFEnergyCalibration::energyEm(double uncalibratedEnergyECAL, 
-			      double eta, double phi) const {
+PFEnergyCalibration::bBarrel(double x) const { 
 
-  //--- apply calibration correction
-  //    for energy deposits of electrons and photons in ECAL
-  //    (eta and phi dependence not implemented yet)
-  
-  double calibrated = paramECAL_slope_*uncalibratedEnergyECAL;
-  calibrated += paramECAL_offset_;
+  if ( pfCalibrations ) { 
 
-  return calibrated;
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfb_BARREL,point); 
+
+  } else { 
+
+    return fbBarrel->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::cBarrel(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfc_BARREL,point); 
+
+  } else { 
+
+    return fcBarrel->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::aEtaBarrel(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfaEta_BARREL,point); 
+
+  } else { 
+
+    return faEtaBarrel->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::bEtaBarrel(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfbEta_BARREL,point); 
+
+  } else { 
+
+    return fbEtaBarrel->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::aEndcap(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfa_ENDCAP,point); 
+
+  } else { 
+
+    return faEndcap->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::bEndcap(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfb_ENDCAP,point); 
+
+  } else { 
+
+    return fbEndcap->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::cEndcap(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfc_ENDCAP,point); 
+
+  } else { 
+
+    return fcEndcap->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::aEtaEndcap(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfaEta_ENDCAP,point); 
+
+  } else { 
+
+    return faEtaEndcap->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::bEtaEndcap(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfbEta_ENDCAP,point); 
+
+  } else { 
+
+    return fbEtaEndcap->Eval(x); 
+
+  }
 }
 
 
@@ -336,55 +430,56 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 }
 
 
-double 
-PFEnergyCalibration::energyHad(double uncalibratedEnergyHCAL, 
-			       double eta, double phi) const {
-  
-  //--- apply calibration correction
-  //    for energy deposits of hadrons in HCAL
-  //    (eta and phi dependence not implemented yet)
-  
-  double numerator = paramHCAL_slope_*uncalibratedEnergyHCAL;
-  numerator += paramHCAL_offset_;
-
-  double denominator = 1 + exp(paramHCAL_damping_/uncalibratedEnergyHCAL);
-
-
-  return numerator/denominator;
-}
-
-
-double 
-PFEnergyCalibration::energyEmHad(double uncalibratedEnergyECAL, 
-				 double uncalibratedEnergyHCAL, 
-				 double eta, double phi) const {
-//--- apply calibration correction
-//    for energy deposits of hadrons in ECAL and HCAL
-//    (eta and phi dependence not implemented yet)
-
-  double calibrated = paramECALplusHCAL_slopeECAL_*uncalibratedEnergyECAL;
-  calibrated += paramECALplusHCAL_slopeHCAL_*uncalibratedEnergyHCAL;
-  calibrated += paramECALplusHCAL_offset_;
-
-  return calibrated;
-}
-  
-std::ostream& operator<<(std::ostream& out, 
+std::ostream& operator<<(std::ostream& out,
 			 const PFEnergyCalibration& calib) {
 
   if(!out ) return out;
 
   out<<"PFEnergyCalibration -- "<<endl;
-  out<<"ecal      = "<<calib.paramECAL_slope_
-     <<" x E + "<< calib.paramECAL_offset_<<endl;
-  out<<"hcal only = <add formula>"
-     <<calib.paramHCAL_slope_<<","
-     <<calib.paramHCAL_offset_<<","
-     <<calib.paramHCAL_damping_<<endl;
-  out<<"ecal+hcal = "<<calib.paramECALplusHCAL_slopeECAL_<<" x E_e + "
-     <<calib.paramECALplusHCAL_slopeHCAL_<<" x E_h + "
-     <<calib.paramECALplusHCAL_offset_<<endl;
 
+  if ( calib.pfCalibrations ) { 
+
+    std::cout << "Functions taken from the global tags : " << std::endl;
+
+    static std::map<std::string, PerformanceResult::ResultType> functType;
+
+    functType["PFfa_BARREL"] = PerformanceResult::PFfa_BARREL;
+    functType["PFfa_ENDCAP"] = PerformanceResult::PFfa_ENDCAP;
+    functType["PFfb_BARREL"] = PerformanceResult::PFfb_BARREL;
+    functType["PFfb_ENDCAP"] = PerformanceResult::PFfb_ENDCAP;
+    functType["PFfc_BARREL"] = PerformanceResult::PFfc_BARREL;
+    functType["PFfc_ENDCAP"] = PerformanceResult::PFfc_ENDCAP;
+    functType["PFfaEta_BARREL"] = PerformanceResult::PFfaEta_BARREL;
+    functType["PFfaEta_ENDCAP"] = PerformanceResult::PFfaEta_ENDCAP;
+    functType["PFfbEta_BARREL"] = PerformanceResult::PFfbEta_BARREL;
+    functType["PFfbEta_ENDCAP"] = PerformanceResult::PFfbEta_ENDCAP;
+    
+    for(std::map<std::string,PerformanceResult::ResultType>::const_iterator 
+	  func = functType.begin(); 
+        func != functType.end(); 
+        ++func) {    
+      
+      cout << "Function: " << func->first << endl;
+      PerformanceResult::ResultType fType = func->second;
+      calib.pfCalibrations->printFormula(fType);
+    }
+
+  } else { 
+    
+    std::cout << "Default calibration functions : " << std::endl;
+    
+    calib.faBarrel->Print();
+    calib.fbBarrel->Print();
+    calib.fcBarrel->Print();
+    calib.faEtaBarrel->Print();
+    calib.fbEtaBarrel->Print();
+    calib.faEndcap->Print();
+    calib.fbEndcap->Print();
+    calib.fcEndcap->Print();
+    calib.faEtaEndcap->Print();
+    calib.fbEtaEndcap->Print();
+  }
+    
   return out;
 }
 

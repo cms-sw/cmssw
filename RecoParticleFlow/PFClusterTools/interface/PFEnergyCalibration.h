@@ -2,6 +2,7 @@
 #define RecoParticleFlow_PFClusterTools_PFEnergyCalibration_h 
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 
 class TF1;
 
@@ -28,7 +29,7 @@ class TF1;
 //
 // Original Author:  Christian Veelken
 //         Created:  Tue Aug  8 16:26:18 CDT 2006
-// $Id: PFEnergyCalibration.h,v 1.10 2009/05/19 18:59:33 pjanot Exp $
+// $Id: PFEnergyCalibration.h,v 1.11 2009/10/27 17:13:26 beaudett Exp $
 //
 //
 
@@ -39,25 +40,11 @@ class TF1;
 class PFEnergyCalibration 
 {
  public:
-  PFEnergyCalibration(); // default constructor;
-                         // needed by PFRootEvent
-
-  PFEnergyCalibration( double e_slope,
-		       double e_offset, 
-		       double eh_eslope,
-		       double eh_hslope,
-		       double eh_offset,
-		       double h_slope,
-		       double h_offset,
-		       double h_damping,
-		       unsigned newCalib = 0);
+  PFEnergyCalibration(); 
 
   ~PFEnergyCalibration();
 
-  // ecal calibration
-  double energyEm(double uncalibratedEnergyECAL, 
-		  double eta=0, double phi=0) const;
-  
+  // ecal calibration for photons
   double energyEm(const reco::PFCluster& clusterEcal,
 		  std::vector<double> &EclustersPS1,
 		  std::vector<double> &EclustersPS2,
@@ -69,59 +56,38 @@ class PFEnergyCalibration
 		  double &ps1,double&ps2,
 		  bool crackCorrection=true);
 
-  // HCAL only calibration
-  double energyHad(double uncalibratedEnergyHCAL, 
-		   double eta=0, double phi=0) const;
-  
-  
-  // ECAL+HCAL (abc) calibration
-  double energyEmHad(double uncalibratedEnergyECAL, 
-		     double uncalibratedEnergyHCAL, 
-		     double eta=0, double phi=0) const;
-
-  // ECAL+HCAL (abc-alpha-beta) calibration, with E and eta dependent coefficients
+  // ECAL+HCAL (abc) calibration, with E and eta dependent coefficients, for hadrons
   void energyEmHad(double t, double& e, double&h, double eta, double phi) const;
   
-  // set calibration parameters for energy deposits of electrons and photons in ECAL; this member function is needed by PFRootEvent
-  void setCalibrationParametersEm(double paramECAL_slope, 
-				  double paramECAL_offset);
-
-  // Initialize E- and eta-dependent coefficient functional form
+  // Initialize default E- and eta-dependent coefficient functional form
   void initializeCalibrationFunctions();
 
-  double paramECAL_slope() const {return  paramECAL_slope_;} 
+  // Set the run-dependent calibration functions from the global tag
+  void setCalibrationFunctions(const PerformancePayloadFromTFormula *thePFCal) {
+    pfCalibrations = thePFCal;
+  }
 
-  double paramECAL_offset() const {return paramECAL_offset_;} 
-
-  double paramECALplusHCAL_slopeECAL() const {
-    return paramECALplusHCAL_slopeECAL_;
-  } 
-
-  double paramECALplusHCAL_slopeHCAL() const {
-    return paramECALplusHCAL_slopeHCAL_;
-  } 
-
-  double paramECALplusHCAL_offset() const {return paramECALplusHCAL_offset_;} 
-
-  double paramHCAL_slope() const {return paramHCAL_slope_;} 
-  double paramHCAL_offset() const {return paramHCAL_offset_;} 
-  double paramHCAL_damping() const {return paramHCAL_damping_;} 
-
-  
   friend std::ostream& operator<<(std::ostream& out, 
 				  const PFEnergyCalibration& calib);
 
  protected:
-  double paramECAL_slope_;
-  double paramECAL_offset_;
+
+  // Calibration functions from global tag
+  const PerformancePayloadFromTFormula *pfCalibrations;
   
-  double paramECALplusHCAL_slopeECAL_;
-  double paramECALplusHCAL_slopeHCAL_;
-  double paramECALplusHCAL_offset_;
-  
-  double paramHCAL_slope_;
-  double paramHCAL_offset_;
-  double paramHCAL_damping_;
+  // Barrel calibration (eta 0.00 -> 1.48)
+  TF1* faBarrel;
+  TF1* fbBarrel; 
+  TF1* fcBarrel; 
+  TF1* faEtaBarrel; 
+  TF1* fbEtaBarrel; 
+
+  // Endcap calibration (eta 1.48 -> 3.xx)
+  TF1* faEndcap;
+  TF1* fbEndcap; 
+  TF1* fcEndcap; 
+  TF1* faEtaEndcap; 
+  TF1* fbEtaEndcap; 
 
  private:
   
@@ -142,19 +108,17 @@ class PFEnergyCalibration
   double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,bool crackCorrection=true);
   double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double&,double&,bool crackCorrection=true);
 
-  // Barrel calibration (eta 0.00 -> 1.48)
-  TF1* faBarrel;
-  TF1* fbBarrel; 
-  TF1* fcBarrel; 
-  TF1* faEtaBarrel; 
-  TF1* fbEtaBarrel; 
-
-  // Endcap calibration (eta 1.48 -> 3.xx)
-  TF1* faEndcap;
-  TF1* fbEndcap; 
-  TF1* fcEndcap; 
-  TF1* faEtaEndcap; 
-  TF1* fbEtaEndcap; 
+  // The calibration functions
+  double aBarrel(double x) const;
+  double bBarrel(double x) const;
+  double cBarrel(double x) const;
+  double aEtaBarrel(double x) const;
+  double bEtaBarrel(double x) const; 
+  double aEndcap(double x) const;
+  double bEndcap(double x) const;
+  double cEndcap(double x) const;
+  double aEtaEndcap(double x) const; 
+  double bEtaEndcap(double x) const;
 
   // Threshold correction (offset)
   double threshE, threshH;
