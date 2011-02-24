@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.33 2011/02/03 17:38:40 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.34 2011/02/22 18:37:31 amraktad Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "TEveProjections.h"
 #include "TEveProjectionManager.h"
 #include "TEveProjectionAxes.h"
+#include "TGLabel.h"
 
 #define protected public  //!!! TODO add get/sets for TEveCalo2D for CellIDs
 #include "TEveCalo.h"
@@ -46,6 +47,9 @@ FWRPZViewGeometry* FWRPZView::s_geometryList = 0;
 FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    FWEveView(iParent, id),
    m_calo(0),
+   m_fishEyeDistortion(this,"Distortion",0., 0., 100.),
+   m_fishEyeR(this,"FixedRadius",(double)fireworks::Context::caloR1(), 0.0, 150.0),
+
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
    m_showProjectionAxes(this,"Show projection axes", false),
@@ -59,15 +63,20 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_projMgr = new TEveProjectionManager(projType);
    m_projMgr->IncDenyDestroy();
    m_projMgr->SetImportEmpty(kTRUE);
+
+   m_projMgr->GetProjection()->SetDistortion(m_fishEyeDistortion.value()*s_distortF);
+   m_projMgr->GetProjection()->SetFixR(m_fishEyeR.value());
+
    if ( id == FWViewType::kRhoPhi || id == FWViewType::kRhoPhiPF) {
-      m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 1.0);
+      m_projMgr->GetProjection()->AddPreScaleEntry(0, fireworks::Context::caloR1(), 1.0);
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 300, 0.2);
    } else {
-      m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 1.0);
+      m_projMgr->GetProjection()->AddPreScaleEntry(0, fireworks::Context::caloR1(), 1.0);
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 310, 1.0);
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 370, 0.2);
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
+ 
 
    // camera  
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
@@ -88,8 +97,11 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
       m_showHF->changed_.connect(  boost::bind(&FWRPZView::setEtaRng, this) );
    }
 
-   m_caloDistortion.changed_.connect(boost::bind(&FWRPZView::doDistortion,this));
-   m_muonDistortion.changed_.connect(boost::bind(&FWRPZView::doDistortion,this));
+   m_fishEyeDistortion.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion,this));
+   m_fishEyeR.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion,this));
+
+   m_caloDistortion.changed_.connect(boost::bind(&FWRPZView::doPreScaleDistortion,this));
+   m_muonDistortion.changed_.connect(boost::bind(&FWRPZView::doPreScaleDistortion,this));
    m_compressMuon.changed_.connect(boost::bind(&FWRPZView::doCompression,this,_1));
 }
 
@@ -138,7 +150,20 @@ FWRPZView::setContext(const fireworks::Context& ctx)
 }
 
 void
-FWRPZView::doDistortion()
+FWRPZView::doFishEyeDistortion()
+{
+   TEveProjection* p = m_projMgr->GetProjection();
+    if (p->GetDistortion() != m_fishEyeDistortion.value()*s_distortFInv)
+   p->SetDistortion(m_fishEyeDistortion.value()*s_distortF);
+   if (p->GetFixR() != m_fishEyeR.value())
+      p->SetFixR(m_fishEyeR.value());
+
+   m_projMgr->ProjectChildren();
+   gEve->Redraw3D();
+}
+
+void
+FWRPZView::doPreScaleDistortion()
 {
    if ( typeId() == FWViewType::kRhoPhi || typeId() == FWViewType::kRhoPhiPF ) {
       m_projMgr->GetProjection()->ChangePreScaleEntry(0,1,m_caloDistortion.value());
@@ -254,10 +279,22 @@ FWRPZView::populateController(ViewerParameterGUI& gui) const
 {
    FWEveView::populateController(gui);
 
+   gui.requestTab("Projection");
+   TGCompositeFrame* f = gui.getTabContainer();
+
+   f->AddFrame(new TGLabel(f, "FishEye:"));
+   gui.addParam(&m_fishEyeDistortion).
+      addParam(&m_fishEyeR).
+      separator();
+
+   f->AddFrame(new TGLabel(f, "PreScales:"));
+
    gui.requestTab("Projection").
       addParam(&m_compressMuon).
       addParam(&m_muonDistortion).
-      addParam(&m_caloDistortion).
+      addParam(&m_caloDistortion).separator();
+
+   gui.requestTab("Projection").
       addParam(&m_showProjectionAxes);
 
    if (typeId() == FWViewType::kRhoPhi || typeId() == FWViewType::kRhoPhiPF) 

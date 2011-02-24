@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.15 2010/11/04 22:38:54 amraktad Exp $
+// $Id: FWRPZView.h,v 1.16 2011/02/03 17:38:39 amraktad Exp $
 //
 
 // system include files
@@ -60,7 +60,8 @@ private:
    FWRPZView(const FWRPZView&);    // stop default
    const FWRPZView& operator=(const FWRPZView&);    // stop default 
 
-   void doDistortion();
+   void doPreScaleDistortion();
+   void doFishEyeDistortion();
    void doCompression(bool);
    
    void setEtaRng();
@@ -68,17 +69,25 @@ private:
    void showProjectionAxes( );
 
    // ---------- member data --------------------------------
-  static FWRPZViewGeometry* s_geometryList;
+   static FWRPZViewGeometry* s_geometryList;
+   static const float s_distortF = 0.001;
+   static const float s_distortFInv = 1000;
 
    TEveProjectionManager* m_projMgr;
    TEveProjectionAxes*    m_axes;
    TEveCalo2D*            m_calo;
 
+
    // parameters
+
+   FWDoubleParameter  m_fishEyeDistortion;
+   FWDoubleParameter  m_fishEyeR;
+
    FWDoubleParameter  m_caloDistortion;
    FWDoubleParameter  m_muonDistortion;
    FWBoolParameter    m_showProjectionAxes;
    FWBoolParameter    m_compressMuon;
+
    FWBoolParameter*   m_showHF;
    FWBoolParameter*   m_showEndcaps;
 
