@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/11/12 17:01:55 $
-//  $Revision: 1.100 $
+//  $Date: 2010/12/03 12:57:24 $
+//  $Revision: 1.101 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -366,7 +366,7 @@ MuScleFit::~MuScleFit () {
       RootTreeHandler rootTreeHandler;
       if( MuScleFitUtils::speedup ) {
         // rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, 0, saveAllToTree_);
-        rootTreeHandler.writeTree(outputRootTreeFileName_, &(muonPairs_), theMuonType_, 0, saveAllToTree_);
+       rootTreeHandler.writeTree(outputRootTreeFileName_, &(muonPairs_), theMuonType_, 0, saveAllToTree_);
       }
       else {
         // rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, &(MuScleFitUtils::genPair), saveAllToTree_ );
@@ -621,7 +621,9 @@ void MuScleFit::selectMuons(const edm::Event & event)
   } else {
     MuScleFitUtils::SavedPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
   }
-  // Save the events also in the external tree so that it can be saved later
+  // Save the events also in the external tree so that it can be saved late
+
+  // std::cout << "SavedPair->size() " << MuScleFitUtils::SavedPair.size() << std::endl;
   muonPairs_.push_back(MuonPair(MuScleFitUtils::SavedPair.back().first,
 				MuScleFitUtils::SavedPair.back().second,
 				event.run(), event.id().event()));
@@ -749,14 +751,15 @@ void MuScleFit::duringFastLoop()
 
     //Fill histograms
     //------------------
-    mapHisto_["hRecBestMu"]->Fill(recMu1);
+   
+    mapHisto_["hRecBestMu"]->Fill(recMu1, -1,weight);
     mapHisto_["hRecBestMuVSEta"]->Fill(recMu1);
-    mapHisto_["hRecBestMu"]->Fill(recMu2);
+    mapHisto_["hRecBestMu"]->Fill(recMu2, +1,weight);
     mapHisto_["hRecBestMuVSEta"]->Fill(recMu2);
     mapHisto_["hDeltaRecBestMu"]->Fill(recMu1, recMu2);
     // Reconstructed resonance
-    mapHisto_["hRecBestRes"]->Fill(bestRecRes, weight);
-    mapHisto_["hRecBestResAllEvents"]->Fill(bestRecRes, 1.);
+    mapHisto_["hRecBestRes"]->Fill(bestRecRes,+1, weight);
+    mapHisto_["hRecBestResAllEvents"]->Fill(bestRecRes,+1, 1.);
 //     // Fill histogram of Res mass vs muon variables
 //     mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
 //     mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);

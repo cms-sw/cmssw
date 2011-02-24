@@ -45,12 +45,13 @@ public:
 	exit(1);
       }
     }
-
+    std::cout << "savedPair->size() is "<<savedPair->size()<< std::endl;
     std::vector<MuonPair>::const_iterator muonPairIt = savedPair->begin();
     unsigned int iev = 0;
     for( ; muonPairIt != savedPair->end(); ++muonPairIt, ++iev ) {
 
       if( saveAll || ( (muonPairIt->mu1 != emptyLorentzVector) && (muonPairIt->mu2 != emptyLorentzVector) ) ) {
+
 	// muonPair->setPair(muonType, std::make_pair(muonPairIt->first, muonPairIt->second));
 	muonPair->copy(*muonPairIt);
 

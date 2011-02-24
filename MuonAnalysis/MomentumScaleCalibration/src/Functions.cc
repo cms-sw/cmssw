@@ -32,6 +32,10 @@ scaleFunctionBase<double * > * scaleFunctionService( const int identifier )
   case ( 26 ): return ( new scaleFunctionType26<double * > ); break;
   case ( 27 ): return ( new scaleFunctionType27<double * > ); break;
   case ( 28 ): return ( new scaleFunctionType28<double * > ); break;
+  case ( 30 ): return ( new scaleFunctionType30<double * > ); break;
+  case ( 31 ): return ( new scaleFunctionType31<double * > ); break;
+  case ( 32 ): return ( new scaleFunctionType32<double * > ); break;
+  case ( 33 ): return ( new scaleFunctionType33<double * > ); break;
   default: std::cout << "Error: wrong identifier = " << identifier << std::endl; exit(1);
   }
 }
@@ -67,7 +71,11 @@ scaleFunctionBase<std::vector<double> > * scaleFunctionVecService( const int ide
   case ( 25 ): return ( new scaleFunctionType25<std::vector<double> > ); break;
   case ( 26 ): return ( new scaleFunctionType26<std::vector<double> > ); break;
   case ( 27 ): return ( new scaleFunctionType27<std::vector<double> > ); break;
-  case ( 28 ): return ( new scaleFunctionType28<std::vector<double> > ); break;  
+  case ( 28 ): return ( new scaleFunctionType28<std::vector<double> > ); break;
+  case ( 30 ): return ( new scaleFunctionType30<std::vector<double> > ); break;
+  case ( 31 ): return ( new scaleFunctionType31<std::vector<double> > ); break;
+  case ( 32 ): return ( new scaleFunctionType32<std::vector<double> > ); break;
+  case ( 33 ): return ( new scaleFunctionType33<std::vector<double> > ); break;  
   default: std::cout << "Error: wrong identifier = " << identifier << std::endl; exit(1);
   }
 }
@@ -111,6 +119,14 @@ resolutionFunctionBase<double *> * resolutionFunctionService( const int identifi
   case ( 19 ): return ( new resolutionFunctionType19<double *> ); break;
   case ( 20 ): return ( new resolutionFunctionType20<double *> ); break;
   case ( 30 ): return ( new resolutionFunctionType30<double *> ); break;
+
+  case ( 40 ): return ( new resolutionFunctionType40<double *> ); break;
+  case ( 41 ): return ( new resolutionFunctionType41<double *> ); break;
+  case ( 42 ): return ( new resolutionFunctionType42<double *> ); break;
+  case ( 43 ): return ( new resolutionFunctionType43<double *> ); break;
+  case ( 44 ): return ( new resolutionFunctionType44<double *> ); break;
+  case ( 45 ): return ( new resolutionFunctionType45<double *> ); break;
+
   default: std::cout << "Error: undefined resolution type = " << identifier << std::endl; exit(1); break;
   }
 }
@@ -139,7 +155,15 @@ resolutionFunctionBase<std::vector<double> > * resolutionFunctionVecService( con
   case ( 19 ): return ( new resolutionFunctionType19<std::vector<double> > ); break;
   case ( 20 ): return ( new resolutionFunctionType20<std::vector<double> > ); break;
   case ( 30 ): return ( new resolutionFunctionType30<std::vector<double> > ); break;
-  default: std::cout << "Error: undefined resolution type = " << identifier << std::endl; exit(1); break;
+
+  case ( 40 ): return ( new resolutionFunctionType40<std::vector<double> > ); break; 
+  case ( 41 ): return ( new resolutionFunctionType41<std::vector<double> > ); break;
+  case ( 42 ): return ( new resolutionFunctionType42<std::vector<double> > ); break;
+  case ( 43 ): return ( new resolutionFunctionType43<std::vector<double> > ); break;
+  case ( 44 ): return ( new resolutionFunctionType44<std::vector<double> > ); break;
+  case ( 45 ): return ( new resolutionFunctionType45<std::vector<double> > ); break;
+ 
+ default: std::cout << "Error: undefined resolution type = " << identifier << std::endl; exit(1); break;
   }
 }
 
