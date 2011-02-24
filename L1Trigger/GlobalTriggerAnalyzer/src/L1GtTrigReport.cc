@@ -380,7 +380,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
             m_globalNrErrors[m_physicsDaqPartition]++;
 
-            LogWarning("L1GtTrigReport") << "\n  L1GlobalTriggerRecord with input tag "
+            edm::LogWarning("L1GtTrigReport") << "\n  L1GlobalTriggerRecord with input tag "
                     << m_l1GtRecordInputTag.label() << " not found."
                     << "\n  Event classified as Error\n\n"
                     << std::endl;
@@ -428,7 +428,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
                     m_globalNrErrors[iDaqPartition]++;
                 }
 
-                LogWarning("L1GtTrigReport") << "\n  L1GlobalTriggerReadoutRecord with input tag "
+                edm::LogWarning("L1GtTrigReport") << "\n  L1GlobalTriggerReadoutRecord with input tag "
                         << m_l1GtRecordInputTag.label() << " has gtFdlVector of size " << fdlVecSize
                         << "\n  Invalid L1GlobalTriggerReadoutRecord!"
                         << "\n  Event classified as Error\n\n"
@@ -444,7 +444,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
                 m_globalNrErrors[iDaqPartition]++;
             }
 
-            LogWarning("L1GtTrigReport") << "\n  L1GlobalTriggerReadoutRecord with input tag "
+            edm::LogWarning("L1GtTrigReport") << "\n  L1GlobalTriggerReadoutRecord with input tag "
                     << m_l1GtRecordInputTag.label() << " not found."
                     << "\n  Event classified as Error\n\n"
                     << std::endl;
