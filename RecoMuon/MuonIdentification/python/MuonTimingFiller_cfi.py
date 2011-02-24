@@ -8,10 +8,6 @@ TimingFillerBlock = cms.PSet(
     DTTimingExtractorBlock,
     CSCTimingExtractorBlock,
     
-    # Single hit time measurement precition in ns
-    ErrorDT  = cms.double(6.0),
-    ErrorCSC = cms.double(7.4),
-    
     # Ecal minimum energy cut
     EcalEnergyCut = cms.double(0.4),
     # Ecal error parametrization

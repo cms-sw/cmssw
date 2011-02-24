@@ -16,7 +16,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.h,v 1.4 2009/10/19 13:00:45 ptraczyk Exp $
+// $Id: MuonTimingFiller.h,v 1.5 2010/03/25 14:08:48 jribnik Exp $
 //
 //
 
@@ -58,7 +58,6 @@ class MuonTimingFiller {
       
       DTTimingExtractor* theDTTimingExtractor_;
       CSCTimingExtractor* theCSCTimingExtractor_;
-      double errorDT_,errorCSC_;
       double errorEB_,errorEE_,ecalEcut_;
       bool useDT_, useCSC_, useECAL_;
 

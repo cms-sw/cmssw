@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    MuonIdentification
@@ -11,7 +12,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.11 2011/01/21 08:52:18 ptraczyk Exp $
+// $Id: DTTimingExtractor.cc,v 1.9 2010/07/01 08:48:10 ptraczyk Exp $
 //
 //
 
@@ -78,11 +79,12 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig)
   DTSegmentTags_(iConfig.getParameter<edm::InputTag>("DTsegments")),
   theHitsMin_(iConfig.getParameter<int>("HitsMin")),
   thePruneCut_(iConfig.getParameter<double>("PruneCut")),
-  theTimeOffset_(iConfig.getParameter<double>("DTTimeOffset")),
   useSegmentT0_(iConfig.getParameter<bool>("UseSegmentT0")),
   doWireCorr_(iConfig.getParameter<bool>("DoWireCorr")),
   dropTheta_(iConfig.getParameter<bool>("DropTheta")),
   requireBothProjections_(iConfig.getParameter<bool>("RequireBothProjections")),
+  theDTTimeOffset_(iConfig.getParameter<double>("DTTimeOffset")),
+  theDTError_(iConfig.getParameter<double>("DTTimeError")),
   debug(iConfig.getParameter<bool>("debug"))
 {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -91,6 +93,7 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig)
   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
 
   theMatcher = new MuonSegmentMatcher(matchParameters, theService);
+
 }
 
 
@@ -129,7 +132,8 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 
   double invbeta=0;
   double invbetaerr=0;
-  int totalWeight=0;
+  double totalWeightInvbeta=0;
+  double totalWeightVertex=0;
   std::vector<TimeMeasurement> tms;
 
   math::XYZPoint  pos=muonTrack->innerPosition();
@@ -151,7 +155,6 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 
     // use only segments with both phi and theta projections present (optional)
     bool bothProjections = ( ((*rechit)->hasPhi()) && ((*rechit)->hasZed()) );
-    
     if (requireBothProjections_ && !bothProjections) continue;
 
     // loop over (theta, phi) segments
@@ -179,13 +182,12 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	tsos=propag->propagateWithPath(muonFTS,dtcell->surface());
 
         double dist;            
-        double dist_straight = dtcell->toGlobal(hiti->localPosition()).mag(); 
 	if (tsos.first.isValid()) { 
 	  dist = tsos.second+posp.mag(); 
-//	  std::cout << "Propagate distance: " << dist << " ( innermost: " << posp.mag() << ")" << std::endl; 
+	  //  std::cout << "Propagate distance: " << dist << " ( innermost: " << posp.mag() << ")" << std::endl; 
 	} else { 
-	  dist = dist_straight;
-//	  std::cout << "Geom distance: " << dist << std::endl; 
+	  dist = dtcell->toGlobal(hiti->localPosition()).mag(); 
+	  //  std::cout << "Geom distance: " << dist << std::endl; 
 	}
 
 	thisHit.driftCell = hiti->geographicalId();
@@ -196,7 +198,6 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	thisHit.station = station;
 	if (useSegmentT0_ && segm->ist0Valid()) thisHit.timeCorr=segm->t0();
 	else thisHit.timeCorr=0.;
-	thisHit.timeCorr += theTimeOffset_;
 	  
 	// signal propagation along the wire correction for unmached theta or phi segment hits
 	if (doWireCorr_ && !bothProjections && tsos.first.isValid()) {
@@ -210,20 +211,15 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	  tofCorr = (tofCorr/29.979)*0.00543;
 	  if (thisHit.isLeft) tofCorr=-tofCorr;
 	  thisHit.posInLayer += tofCorr;
-	} else {
-          // non straight-line path correction
-          float slCorr = (dist_straight-dist)/29.979*0.00543;
-  	  if (thisHit.isLeft) slCorr=-slCorr;
-  	  thisHit.posInLayer += slCorr;
-	}
-
+	} 
+	  
 	tms.push_back(thisHit);
       }
     } // phi = (0,1) 	        
   } // rechit
       
   bool modified = false;
-  std::vector <double> dstnc, dsegm, dtraj, hitWeight, left;
+  std::vector <double> dstnc, dsegm, dtraj, hitWeightVertex, hitWeightInvbeta, left;
     
   // Now loop over the measurements, calculate 1/beta and cut away outliers
   do {    
@@ -232,17 +228,20 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
     dstnc.clear();
     dsegm.clear();
     dtraj.clear();
-    hitWeight.clear();
+    hitWeightVertex.clear();
+    hitWeightInvbeta.clear();
     left.clear();
       
     std::vector <int> hit_idx;
-    totalWeight=0;
-      
+    totalWeightInvbeta=0;
+    totalWeightVertex=0;
+
+ 
     // Rebuild segments
     for (int sta=1;sta<5;sta++)
       for (int phi=0;phi<2;phi++) {
-        std::vector <TimeMeasurement> seg;
-        std::vector <int> seg_idx;
+          std::vector <TimeMeasurement> seg;
+          std::vector <int> seg_idx;
 	int tmpos=0;
 	for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
 	  if ((tm->station==sta) && (tm->isPhi==phi)) {
@@ -251,12 +250,13 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	  }
 	  tmpos++;  
 	}
-          
+              
 	unsigned int segsize = seg.size();
+          
 	if (segsize<theHitsMin_) continue;
 
 	double a=0, b=0;
-        std::vector <double> hitxl,hitxr,hityl,hityr;
+	std::vector <double> hitxl,hitxr,hityl,hityr;
 
 	for (std::vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
  
@@ -300,17 +300,20 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	  double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543+tm->timeCorr;
             
 	  dstnc.push_back(tm->distIP);
-	  dsegm.push_back(t0_segm);
+	  dsegm.push_back(t0_segm+theDTTimeOffset_);
+
 	  left.push_back(hitSide);
-	  hitWeight.push_back(((double)seg.size()-2.)/(double)seg.size());
+          hitWeightVertex.push_back(((double)seg.size()-2.)/((double)seg.size()*theDTError_*theDTError_));
+          hitWeightInvbeta.push_back((((double)seg.size()-2.)*tm->distIP*tm->distIP)/((double)seg.size()*theDTError_*theDTError_*30.*30.));
 	  hit_idx.push_back(seg_idx.at(segidx));
 	  segidx++;
+	  totalWeightInvbeta+=(((double)seg.size()-2.)*tm->distIP*tm->distIP)/((double)seg.size()*theDTError_*theDTError_*30.*30.);
+	  totalWeightVertex+=((double)seg.size()-2.)/((double)seg.size()*theDTError_*theDTError_);
 	}
           
-	totalWeight+=seg.size()-2;
       }
-
-    if (totalWeight==0) break;        
+  
+    if (totalWeightInvbeta==0) break;        
 
     // calculate the value and error of 1/beta from the complete set of 1D hits
     if (debug)
@@ -319,7 +322,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
     // inverse beta - weighted average of the contributions from individual hits
     invbeta=0;
     for (unsigned int i=0;i<dstnc.size();i++) 
-      invbeta+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeight.at(i)/totalWeight;
+      invbeta+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeightInvbeta.at(i)/totalWeightInvbeta;
 
     double chimax=0.;
     std::vector<TimeMeasurement>::iterator tmmax;
@@ -328,15 +331,16 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
     double diff;
     for (unsigned int i=0;i<dstnc.size();i++) {
       diff=(1.+dsegm.at(i)/dstnc.at(i)*30.)-invbeta;
-      diff=diff*diff*hitWeight.at(i);
+      diff=diff*diff*hitWeightInvbeta.at(i);
       invbetaerr+=diff;
-      if (diff>chimax) { 
+      if (sqrt(diff)>chimax) { 
 	tmmax=tms.begin()+hit_idx.at(i);
-	chimax=diff;
+	chimax=sqrt(diff);
       }
     }
     
-    invbetaerr=sqrt(invbetaerr/totalWeight); 
+    double cf = 1./(tms.size()-1);
+    invbetaerr=sqrt(invbetaerr*cf); 
  
     // cut away the outliers
     if (chimax>thePruneCut_) {
@@ -352,11 +356,12 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
   for (unsigned int i=0;i<dstnc.size();i++) {
     tmSequence.dstnc.push_back(dstnc.at(i));
     tmSequence.local_t0.push_back(dsegm.at(i));
-    tmSequence.weight.push_back(hitWeight.at(i));
+    tmSequence.weightInvbeta.push_back(hitWeightInvbeta.at(i));
+    tmSequence.weightVertex.push_back(hitWeightVertex.at(i));
   }
 
-  tmSequence.totalWeight=totalWeight;
-
+  tmSequence.totalWeightInvbeta=totalWeightInvbeta;
+  tmSequence.totalWeightVertex=totalWeightVertex;
 }
 
 double

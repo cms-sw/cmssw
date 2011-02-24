@@ -9,7 +9,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.h,v 1.2 2010/03/25 14:08:48 jribnik Exp $
+// $Id: CSCTimingExtractor.h,v 1.3 2010/07/01 08:48:11 ptraczyk Exp $
 //
 //
 
@@ -67,7 +67,8 @@ public:
    public:
      float distIP;
      float timeCorr;
-     int station;
+     float weightVertex;
+     float weightInvbeta;
   };
 
   void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -76,9 +77,14 @@ private:
   edm::InputTag CSCSegmentTags_; 
   unsigned int theHitsMin_;
   double thePruneCut_;
-  double theTimeOffset_;
+  double theStripTimeOffset_;
+  double theWireTimeOffset_;
+  double theStripError_;  
+  double theWireError_;
+  bool UseWireTime;
+  bool UseStripTime;
   bool debug;
-  
+
   MuonServiceProxy* theService;
   
   MuonSegmentMatcher *theMatcher;

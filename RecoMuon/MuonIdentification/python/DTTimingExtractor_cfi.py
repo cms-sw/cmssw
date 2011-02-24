@@ -12,13 +12,14 @@ DTTimingExtractorBlock = cms.PSet(
         RPCLayers = cms.bool(True)
     ),
     DTsegments = cms.InputTag("dt4DSegments"),
-    PruneCut = cms.double(10000.),
-    DTTimeOffset = cms.double(0.),
+    PruneCut = cms.double(10000),
     HitsMin = cms.int32(3),
     UseSegmentT0 = cms.bool(False),
-    DoWireCorr = cms.bool(True),
+    DoWireCorr = cms.bool(False),
     DropTheta = cms.bool(True),
     RequireBothProjections = cms.bool(False),
+    DTTimeOffset = cms.double(0.),
+    DTTimeError = cms.double(6.0),
     debug = cms.bool(False),
   )
 )

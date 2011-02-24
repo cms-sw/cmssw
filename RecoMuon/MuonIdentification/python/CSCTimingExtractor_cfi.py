@@ -12,9 +12,15 @@ CSCTimingExtractorBlock = cms.PSet(
         RPCLayers = cms.bool(True)
     ),
     CSCsegments = cms.InputTag("csc2DSegments"),
-    PruneCut = cms.double(100.),
-    CSCTimeOffset = cms.double(0.),
-    debug = cms.bool(False),
+    PruneCut = cms.double(3.),
+    CSCStripTimeOffset = cms.double(0.32),
+    CSCWireTimeOffset = cms.double(-0.31),
+    CSCStripError = cms.double(7.0),
+    CSCWireError = cms.double(8.6),
+    # One of these next two lines must be true or no time is created
+    UseStripTime = cms.bool(True),
+    UseWireTime = cms.bool(True),
+    debug = cms.bool(False)
   )
 )
 
