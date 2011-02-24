@@ -60,6 +60,69 @@ def runsummary(schema,runnum,sessionflavor=''):
         raise
     del qHandle
     return result
+
+def mostRecentLuminorms(schema,branchfilter):
+    '''
+    this overview query should be only for norm
+    select e.name,max(n.data_id),r.revision_id , n.amodetag,n.norm_1,n.egev_1,n.norm_2,n.egev_2 from luminorms_entries e,luminorms_rev r,luminorms n where n.entry_id=e.entry_id and n.data_id=r.data_id and r.revision_id>=min(branchfilter) and r.revision_id<=max(branchfilter) group by e.entry_name,r.revision_id,n.amodetag,n.norm_1,n.egev_1,n.norm_2,n.egev_2;
+    output {norm_name:[data_id,amodetag,norm_1,egev_1,norm_2,egev_2]}
+    '''
+    print branchfilter
+    result={}
+    entry2datamap={}
+    branchmin=0
+    branchmax=0
+    if branchfilter and len(branchfilter)!=0:
+        branchmin=min(branchfilter)
+        branchmax=max(branchfilter)
+    else:
+        return result
+    qHandle=schema.newQuery()
+    try:
+        qHandle.addToTableList(nameDealer.entryTableName(nameDealer.luminormTableName()),'e')
+        qHandle.addToTableList(nameDealer.luminormTableName(),'n')
+        qHandle.addToTableList(nameDealer.revmapTableName(nameDealer.luminormTableName()),'r')
+        qHandle.addToOutputList('e.NAME','normname')
+        qHandle.addToOutputList('max(r.DATA_ID)','data_id')
+        qHandle.addToOutputList('r.REVISION_ID','revision_id')
+        qHandle.addToOutputList('n.AMODETAG','amodetag')
+        qHandle.addToOutputList('n.NORM_1','norm_1')
+        qHandle.addToOutputList('n.EGEV_1','energy_1')
+        qHandle.addToOutputList('n.NORM_2','norm_2')
+        qHandle.addToOutputList('n.EGEV_2','energy_2')
+        qCondition=coral.AttributeList()
+        qCondition.extend('branchmin','unsigned long long')
+        qCondition.extend('branchmax','unsigned long long')
+        qCondition['branchmin'].setData(branchmin)
+        qCondition['branchmax'].setData(branchmax)
+        qResult=coral.AttributeList()
+        qResult.extend('normname','string')
+        qResult.extend('data_id','unsigned long long')
+        qResult.extend('revision_id','unsigned long long')
+        qResult.extend('amodetag','string')
+        qResult.extend('norm_1','float')
+        qResult.extend('energy_1','unsigned int')
+        qResult.extend('norm_2','float')
+        qResult.extend('energy_2','unsigned int')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition('n.ENTRY_ID=e.ENTRY_ID and n.DATA_ID=r.DATA_ID AND n.DATA_ID=r.DATA_ID AND r.REVISION_ID>=:branchmin AND r.REVISION_ID<=:branchmax',qCondition)
+        qHandle.groupBy('e.name,r.revision_id,n.amodetag,n.norm_1,n.egev_1,n.norm_2,n.egev_2')
+        cursor=qHandle.execute()
+        while cursor.next():
+            normname=cursor.currentRow()['normname'].data()
+            amodetag=cursor.currentRow()['amodetag'].data()
+            norm_1=cursor.currentRow()['norm_1'].data()
+            energy_1=cursor.currentRow()['energy_1'].data()
+            norm_2=None
+            if cursor.currentRow()['norm_2'].data():
+                norm_2=cursor.currentRow()['norm_2'].data()
+            energy_2=None
+            if cursor.currentRow()['energy_2'].data():
+                energy_2=cursor.currentRow()['energy_2'].data()
+            result[normname]=[amodetag,norm_1,energy_1,norm_2,energy_2]
+    except:
+        raise
+    return result
 def luminormById(schema,dataid):
     '''
     select entry_name,amodetag,norm_1,egev_1,norm_2,egev_2 from luminorms where DATA_ID=:dataid
@@ -674,10 +737,12 @@ def latestdataIdByEntry(schema,entryid,datatype,branchfilter):
 def addNormToBranch(schema,normname,amodetag,norm1,egev1,optionalnormdata,branchinfo):
     '''
     input:
+       branchinfo(normrevisionid,branchname)
        optionalnormdata {'norm2':norm2,'egev2':egev2}
     output:
        (revision_id,entry_id,data_id)
     '''
+    print 'branchinfo ',branchinfo
     norm2=None
     if optionalnormdata.has_key('norm2'):
         norm2=optionalnormdata['norm2']
