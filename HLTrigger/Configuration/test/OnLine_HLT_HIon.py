@@ -1,16 +1,17 @@
-# /dev/CMSSW_3_11_1/HIon/V44 (CMSSW_3_11_0_HLT8)
+# /dev/CMSSW_3_11_1/HIon/V45 (CMSSW_3_11_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V44')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V45')
 )
 
 process.streams = cms.PSet( 
   A = cms.vstring( 'Commissioning',
     'Cosmics',
+    'ForwardTriggers',
     'HcalHPDNoise',
     'HcalNZS' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
@@ -19,7 +20,8 @@ process.streams = cms.PSet(
   DQM = cms.vstring( 'OnlineMonitor',
     'OnlineMonitorHI' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
+  Express = cms.vstring( 'ExpressCosmics',
+    'ExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor',
     'OnlineHltMonitorHI' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
@@ -36,8 +38,10 @@ process.datasets = cms.PSet(
   Commissioning = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v1' ),
+  ExpressCosmics = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
+  ForwardTriggers = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   L1Accept = cms.vstring( 'HLTriggerFinalPath' ),
@@ -4360,6 +4364,8 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_JetE30_NoBPTX_v1',
       'HLT_L1DoubleMu0_v1',
       'HLT_L1MuOpen_AntiBPTX_v2',
+      'HLT_L1SingleEG5_v1',
+      'HLT_L1SingleJet36_v1',
       'HLT_L1SingleMu10_v1',
       'HLT_L1SingleMu20_v1',
       'HLT_L1SingleMuOpen_v1',
@@ -4469,16 +4475,19 @@ process.hltPreExpressOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
-    triggerConditions = cms.vstring( 'HLT_L1SingleMuOpen_v1',
-      'HLT_L1Tech_BSC_minBias_OR_v1',
-      'HLT_L1TrackerCosmics_v2 / 10',
+    triggerConditions = cms.vstring( 'HLT_Ele45_CaloIdVT_TrkIdT_v1',
+      'HLT_L1MuOpen_AntiBPTX_v2 / 30',
+      'HLT_L1SingleEG5_v1',
+      'HLT_L1TrackerCosmics_v2',
       'HLT_Mu24_v1',
+      'HLT_Physics_v1 / 100',
+      'HLT_Random_v1',
       'HLT_ZeroBias_v1' ),
     hltResults = cms.InputTag( "TriggerResults" ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1tIgnoreMask = cms.bool( False ),
     daqPartitions = cms.uint32( 1 ),
-    throw = cms.bool( True ),
+    throw = cms.bool( False ),
     l1techIgnorePrescales = cms.bool( False )
 )
 process.hltPreHLTDQMOutput = cms.EDFilter( "HLTPrescaler",
@@ -4596,6 +4605,8 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_JetE30_NoBPTX_v1',
       'HLT_L1DoubleMu0_v1',
       'HLT_L1MuOpen_AntiBPTX_v2',
+      'HLT_L1SingleEG5_v1',
+      'HLT_L1SingleJet36_v1',
       'HLT_L1SingleMu10_v1',
       'HLT_L1SingleMu20_v1',
       'HLT_L1SingleMuOpen_v1',
@@ -4815,6 +4826,8 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_JetE30_NoBPTX_v1',
       'HLT_L1DoubleMu0_v1',
       'HLT_L1MuOpen_AntiBPTX_v2',
+      'HLT_L1SingleEG5_v1',
+      'HLT_L1SingleJet36_v1',
       'HLT_L1SingleMu10_v1',
       'HLT_L1SingleMu20_v1',
       'HLT_L1SingleMuOpen_v1',
@@ -5561,7 +5574,7 @@ process.HLT_HICentralityVeto = cms.Path( process.HLTBeginSequenceBPTX + process.
 process.HLT_HIRandom = cms.Path( process.hltRandomEventsFilter + process.HLTL1UnpackerSequence + process.hltPreHIRandom + process.HLTEndSequence )
 process.HLT_HcalCalibration_HI = cms.Path( process.hltCalibrationEventsFilter + process.hltGtDigis + process.hltPreHIHcalCalibration + process.hltHcalCalibTypeFilter + process.hltHcalCalibrationRaw + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolTrue )
-process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport )
+process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 process.AOutput = cms.EndPath( process.hltOutputA )
 process.ALCAP0Output = cms.EndPath( process.hltPreALCAP0Output + process.hltOutputALCAP0 )
 process.ALCAPHISYMOutput = cms.EndPath( process.hltPreALCAPHISYMOutput + process.hltOutputALCAPHISYM )

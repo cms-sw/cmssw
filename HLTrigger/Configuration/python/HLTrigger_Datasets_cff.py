@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_11_1/GRun/V44
+# /dev/CMSSW_3_11_1/GRun/V45
 
 import FWCore.ParameterSet.Config as cms
 
@@ -49,6 +49,7 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_BTagM
     'HLT_DoubleMu6_v1', 
     'HLT_DoubleMu7_v1', 
     'HLT_DoublePhoton32_CaloIdL_v1', 
+    'HLT_DoublePhoton33_v1', 
     'HLT_DoublePhoton5_IsoVL_CEP_v1', 
     'HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v1', 
     'HLT_Ele10_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v1', 
@@ -107,6 +108,8 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_BTagM
     'HLT_JetE30_NoBPTX_NoHalo_v1', 
     'HLT_JetE30_NoBPTX_v1', 
     'HLT_L1DoubleMu0_v1', 
+    'HLT_L1SingleEG5_v1', 
+    'HLT_L1SingleJet36_v1', 
     'HLT_L1SingleMu10_v1', 
     'HLT_L1SingleMu20_v1', 
     'HLT_L1SingleMuOpen_v1', 
@@ -205,6 +208,12 @@ streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_L1MuOpen_An
     'HLT_L2MuOpen_NoVertex_v1', 
     'HLT_L3MuonsCosmicTracking_v1', 
     'HLT_RegionalCosmicTracking_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetForwardTriggers_selector
+streamA_datasetForwardTriggers_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetForwardTriggers_selector.l1tResults = cms.InputTag('')
+streamA_datasetForwardTriggers_selector.throw      = cms.bool(False)
+streamA_datasetForwardTriggers_selector.triggerConditions = cms.vstring()
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
 streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

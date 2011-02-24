@@ -1,3 +1,4 @@
+HLT_L1SingleJet36_v1
 HLT_Jet30_v1
 HLT_Jet60_v1
 HLT_Jet80_v1
@@ -100,6 +101,7 @@ HLT_Mu3_Track3_Jpsi_v4
 HLT_Mu5_Track5_Jpsi_v1
 HLT_Mu7_Track5_Jpsi_v1
 HLT_Mu7_Track7_Jpsi_v1
+HLT_L1SingleEG5_v1
 HLT_Photon30_CaloIdVL_v1
 HLT_Photon30_CaloIdVL_IsoL_v1
 HLT_Photon75_CaloIdVL_v1
