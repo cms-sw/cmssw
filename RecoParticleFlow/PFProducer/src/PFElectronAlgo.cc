@@ -29,6 +29,7 @@ using namespace reco;
 PFElectronAlgo::PFElectronAlgo(const double mvaEleCut,
 			       string mvaWeightFileEleID,
 			       const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			       const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			       bool applyCrackCorrections,
 			       bool usePFSCEleCalib,
 			       bool useEGElectrons,
@@ -42,6 +43,7 @@ PFElectronAlgo::PFElectronAlgo(const double mvaEleCut,
 			       double coneTrackIsoForEgammaSC):
   mvaEleCut_(mvaEleCut),
   thePFSCEnergyCalibration_(thePFSCEnergyCalibration),
+  thePFEnergyCalibration_(thePFEnergyCalibration),
   applyCrackCorrections_(applyCrackCorrections),
   usePFSCEleCalib_(usePFSCEleCalib),
   useEGElectrons_(useEGElectrons),
@@ -130,7 +132,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
   unsigned int CutIndex = 100000;
   double CutGSFECAL = 10000. ;  
   // no other cut are not used anymore. We use the default of PFBlockAlgo
-  PFEnergyCalibration pfcalib_;  
+  //PFEnergyCalibration pfcalib_;  
   bool DebugSetLinksSummary = false;
   bool DebugSetLinksDetailed = false;
 
@@ -961,7 +963,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      vector<double> ps2Ene(0);
 	      double ps1,ps2;
 	      ps1=ps2=0.;
-	      double EE_calib = pfcalib_.energyEm(*(clustExt->clusterRef()),ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);
+	      double EE_calib = thePFEnergyCalibration_->energyEm(*(clustExt->clusterRef()),ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);
 	      double ET_calib = EE_calib*sin(theta_clust);
 	      sumEtEcalInTheCone += ET_calib;
 	    }
@@ -1402,7 +1404,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 					AssMap& associatedToGsf_,
 					AssMap& associatedToBrems_,
 					AssMap& associatedToEcal_){
-  PFEnergyCalibration pfcalib_;  
+  //PFEnergyCalibration pfcalib_;  
   const reco::PFBlock& block = *blockRef;
   PFBlock::LinkData linkData =  block.linkData();     
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
@@ -1500,7 +1502,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  double ps1,ps2;
 	  ps1=ps2=0.;
 	  //	  Ene_ecalgsf = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene);	  
-	  Ene_ecalgsf = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);	  
+	  Ene_ecalgsf = thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);	  
 	  //	  std::cout << "Test " << Ene_ecalgsf <<  " PS1 / PS2 " << ps1 << " " << ps2 << std::endl;
 	  posX += Ene_ecalgsf * clusterRef->position().X();
 	  posY += Ene_ecalgsf * clusterRef->position().Y();
@@ -1524,7 +1526,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	}
 	else {
 	  reco::PFClusterRef clusterRef = elements[(assogsf_index[ielegsf])].clusterRef();	  	  
-	  float TempClus_energy = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene,applyCrackCorrections_);	 
+	  float TempClus_energy = thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,applyCrackCorrections_);	 
 	  Ene_extraecalgsf += TempClus_energy;
 	  posX += TempClus_energy * clusterRef->position().X();
 	  posY += TempClus_energy * clusterRef->position().Y();
@@ -1566,7 +1568,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	    if( assobrem_index[ibrem] !=  ecalGsf_index) {
 	      reco::PFClusterRef clusterRef = 
 		elements[(assobrem_index[ibrem])].clusterRef();
-	      float BremClus_energy = pfcalib_.energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,applyCrackCorrections_);
+	      float BremClus_energy = thePFEnergyCalibration_->energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,applyCrackCorrections_);
 	      Ene_ecalbrem += BremClus_energy;
 	      posX +=  BremClus_energy * clusterRef->position().X();
 	      posY +=  BremClus_energy * clusterRef->position().Y();
@@ -1870,7 +1872,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
   PFBlock::LinkData linkData =  block.linkData();     
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
   PFEnergyResolution pfresol_;
-  PFEnergyCalibration pfcalib_;
+  //PFEnergyCalibration pfcalib_;
 
   bool DebugIDCandidates = false;
 //   vector<reco::PFCluster> pfClust_vec(0);
@@ -2029,7 +2031,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	double ps1,ps2;
 	ps1=ps2=0.;
 	//	float EE=pfcalib_.energyEm(cl,ps1Ene,ps2Ene);
-	float EE = pfcalib_.energyEm(cl,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);	  
+	float EE = thePFEnergyCalibration_->energyEm(cl,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);	  
 	//	float RawEE = cl.energy();
 
 	float ceta=cl.position().eta();
@@ -2143,7 +2145,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	      // to get a calibrated PS energy 
 	      double ps1=0;
 	      double ps2=0;
-	      float EE = pfcalib_.energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,ps1,ps2,applyCrackCorrections_);
+	      float EE = thePFEnergyCalibration_->energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,ps1,ps2,applyCrackCorrections_);
 	      bremEnergyVec.push_back(EE);
 	      // float RawEE  = clusterRef->energy();
 	      float ceta = clusterRef->position().eta();

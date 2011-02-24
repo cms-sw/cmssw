@@ -133,41 +133,8 @@ particleFlow = cms.EDProducer("PFProducer",
     pf_nsigma_ECAL = cms.double(0.0),
     pf_nsigma_HCAL = cms.double(1.0),
 
-    # Naive cluster calibration
-    # ECAL alone
-    pf_calib_ECAL_offset = cms.double(0.0),
-    pf_calib_ECAL_slope = cms.double(1.0),
-    # HCAL alone
-    pf_calib_HCAL_slope = cms.double(2.17),
-    pf_calib_HCAL_offset = cms.double(1.73),
-    pf_calib_HCAL_damping = cms.double(2.49),
-    # ECAL + HCAL 
-    pf_calib_ECAL_HCAL_hslope = cms.double(1.06),
-    pf_calib_ECAL_HCAL_eslope = cms.double(1.05),
-    pf_calib_ECAL_HCAL_offset = cms.double(6.11),
-
-    # ECAL/HCAL cluster calibration !
-    # Colin = 0; Jamie = 1; Newest = 2.
-    pf_newCalib = cms.uint32(2),
-   # Apply corrections?
-    pfcluster_doCorrection = cms.uint32(1),
-    # Bulk correction parameters
-    pfcluster_globalP0 = cms.double(-2.315),                              
-    pfcluster_globalP1 = cms.double(1.01),
-    # Low energy correction parameters
-    pfcluster_lowEP0 = cms.double(3.249189e-01),
-    pfcluster_lowEP1 = cms.double(7.907990e-01),
-    pfcluster_allowNegative     = cms.uint32(0),
-    pfcluster_doEtaCorrection = cms.uint32(1),
-    pfcluster_barrelEndcapEtaDiv = cms.double(1.4),
-
-    #Use hand fitted parameters specified below
-    #P1 adjusts the height of the peak
-    ecalHcalEcalBarrel = cms.vdouble(0.67,    3.0,    1.15,    0.90,  -0.060,    1.4),
-    ecalHcalEcalEndcap = cms.vdouble(0.46,    3.0,    1.10,    0.40,   -0.020,    1.4),
-    ecalHcalHcalBarrel = cms.vdouble(0.46,    3.0,    1.15,    0.30,   -0.020,    1.4),
-    ecalHcalHcalEndcap = cms.vdouble(0.460,    3.0,    1.10,   0.30,  -0.02,    1.4),
-    pfcluster_etaCorrection = cms.vdouble(1.01,   -1.02e-02,   5.17e-02,      0.563,     -0.425,     0.110),
+    # ECAL/HCAL PF cluster calibration : take it from global tag ?
+    useCalibrationsFromDB = cms.bool(True),
 
     # calibration parameters for HF:
     calibHF_use = cms.bool(False),
@@ -180,6 +147,18 @@ particleFlow = cms.EDProducer("PFProducer",
     calibHF_b_HADonly = cms.vdouble(1.27541,0.85361,0.86333,0.89091,0.94348,0.94348,0.94370,1.0034,1.0444,1.0444),
     calibHF_a_EMHAD   = cms.vdouble(1.42215,1.00496,0.68961,0.81656,0.98504,0.98504,1.00802,1.0593,1.4576,1.4576),
     calibHF_b_EMHAD   = cms.vdouble(1.27541,0.85361,0.86333,0.89091,0.94348,0.94348,0.94370,1.0034,1.0444,1.0444)
+ 
+#    toRead = cms.untracked.vstring("PFfa_BARREL",
+#                                   "PFfa_ENDCAP",
+#                                   "PFfb_BARREL",
+#                                   "PFfb_ENDCAP",
+#                                   "PFfc_BARREL",
+#                                   "PFfc_ENDCAP",
+#                                   "PFfaEta_BARREL",
+#                                   "PFfaEta_ENDCAP",
+#                                   "PFfbEta_BARREL",
+#                                   "PFfbEta_ENDCAP") # same strings as fType
+
 )
 
 

@@ -43,10 +43,6 @@ class PFElectronAlgo;
 class PFConversionAlgo;
 class PFPhotonAlgo;
 
-namespace pftools { 
-  class PFClusterCalibration;
-}
-
 class PFAlgo {
 
  public:
@@ -64,9 +60,7 @@ class PFAlgo {
   void setParameters(double nSigmaECAL,
                      double nSigmaHCAL, 
                      const boost::shared_ptr<PFEnergyCalibration>& calibration,
-                     const boost::shared_ptr<pftools::PFClusterCalibration>& clusterCalibration,
-		     const boost::shared_ptr<PFEnergyCalibrationHF>& thepfEnergyCalibrationHF,
-		     unsigned int newCalib);
+		     const boost::shared_ptr<PFEnergyCalibrationHF>& thepfEnergyCalibrationHF);
   
   void setCandConnectorParameters( const edm::ParameterSet& iCfgCandConnector ){
     connector_.setParameters(iCfgCandConnector);
@@ -93,6 +87,7 @@ class PFAlgo {
 			  std::string mvaWeightFileEleID,
 			  bool usePFElectrons,
 			  const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			  const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			  double sumEtEcalIsoForEgammaSC_barrel,
 			  double sumEtEcalIsoForEgammaSC_endcap,
 			  double coneEcalIsoForEgammaSC,
@@ -206,6 +201,11 @@ class PFAlgo {
     return connector_.connect(pfCandidates_);
   }
   
+  /// return the pointer to the calibration function
+  boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration() { 
+    return calibration_;
+  }
+
   friend std::ostream& operator<<(std::ostream& out, const PFAlgo& algo);
   
  protected:
@@ -313,11 +313,8 @@ class PFAlgo {
   double             nSigmaHCAL_;
   
   boost::shared_ptr<PFEnergyCalibration>  calibration_;
-  boost::shared_ptr<pftools::PFClusterCalibration>  clusterCalibration_;
   boost::shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF_;
   boost::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;
-
-  unsigned int newCalib_;
 
   // std::vector<unsigned> hcalBlockUsed_;
   

@@ -7,7 +7,6 @@
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h" 
 #include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
@@ -76,18 +75,13 @@ void
 PFAlgo::setParameters(double nSigmaECAL,
                       double nSigmaHCAL, 
                       const boost::shared_ptr<PFEnergyCalibration>& calibration,
-                      const boost::shared_ptr<pftools::PFClusterCalibration>& clusterCalibration,
-		      const boost::shared_ptr<PFEnergyCalibrationHF>&  thepfEnergyCalibrationHF,
-		      unsigned int newCalib) {
+		      const boost::shared_ptr<PFEnergyCalibrationHF>&  thepfEnergyCalibrationHF) {
 
   nSigmaECAL_ = nSigmaECAL;
   nSigmaHCAL_ = nSigmaHCAL;
 
   calibration_ = calibration;
-  clusterCalibration_ = clusterCalibration;
   thepfEnergyCalibrationHF_ = thepfEnergyCalibrationHF;
-  newCalib_ = newCalib;
-  // std::cout << "Cluster calibration parameters : " << *clusterCalibration_ << std::endl;
 
 }
 
@@ -97,6 +91,7 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
 			   string mvaWeightFileEleID,
 			   bool usePFElectrons,
 			   const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			   double sumEtEcalIsoForEgammaSC_barrel,
 			   double sumEtEcalIsoForEgammaSC_endcap,
 			   double coneEcalIsoForEgammaSC,
@@ -139,6 +134,7 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
   }
   pfele_= new PFElectronAlgo(mvaEleCut_,mvaWeightFileEleID_,
 			     thePFSCEnergyCalibration_,
+			     thePFEnergyCalibration,
 			     applyCrackCorrectionsElectrons_,
 			     usePFSCEleCalib_,
 			     useEGElectrons_,
@@ -972,26 +968,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	double previousSlopeEcal = slopeEcal;
 	calibEcal = std::max(totalEcal,0.);
 	calibHcal = 0.;
-	if ( newCalib_ == 1 ) { 
-	  // Warning ! This function changed the value of calibEcal and calibHcal
-	  clusterCalibration_->
-	    getCalibratedEnergyEmbedAInHcal(calibEcal, calibHcal,
-					    clusterRef->positionREP().Eta(),
-					    clusterRef->positionREP().Phi());
-	  if ( totalEcal > 0. ) slopeEcal = calibEcal/totalEcal;
-	} else if ( newCalib_ == 0 ) { 
-	  // So called "Colin's calibration" - done with FAMOS in its early times
-	  slopeEcal = calibration_->paramECALplusHCAL_slopeECAL();
-	  calibEcal *= slopeEcal; 
-	} else {
-	  // Here enters the most recent calibration 
-	  // The calibration with E+H or with E only is actually very similar.
-	  // but it certainly deserves a special look (PJ, 24-Feb-2009)
-	  calibration_->energyEmHad(trackMomentum,calibEcal,calibHcal,
-	  			    clusterRef->positionREP().Eta(),
-	  			    clusterRef->positionREP().Phi());
-	  if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
-	}
+	calibration_->energyEmHad(trackMomentum,calibEcal,calibHcal,
+				  clusterRef->positionREP().Eta(),
+				  clusterRef->positionREP().Phi());
+	if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
 
 	if ( debug_ )
 	  std::cout << "The total calibrated energy so far amounts to = " << calibEcal << std::endl;
@@ -1663,31 +1643,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       hadronAtECAL = calibHcal * hadronDirection;
 
       // Calibrate ECAL and HCAL energy under the hadron hypothesis.
-      if ( newCalib_ == 1) {
-	clusterCalibration_->
-	  getCalibratedEnergyEmbedAInHcal(calibEcal, calibHcal,
-					  hclusterref->positionREP().Eta(),
-					  hclusterref->positionREP().Phi());
-	caloEnergy = calibEcal+calibHcal;
-	if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
-      } else if ( newCalib_ == 0 ) { 
-	if( totalEcal>0) { 
-	  caloEnergy = calibration_->energyEmHad( totalEcal, totalHcal );
-	  slopeEcal = calibration_->paramECALplusHCAL_slopeECAL();
-	  calibEcal = totalEcal * slopeEcal;
-	  calibHcal = caloEnergy-calibEcal;
-	} else { 
-	  caloEnergy = calibration_->energyHad( totalHcal );
-	  calibEcal = totalEcal;
-	  calibHcal = caloEnergy-calibEcal;
-	}
-      } else { 
-	calibration_->energyEmHad(totalChargedMomentum,calibEcal,calibHcal,
-				  hclusterref->positionREP().Eta(),
-				  hclusterref->positionREP().Phi());
-	caloEnergy = calibEcal+calibHcal;
-	if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
-      }
+      calibration_->energyEmHad(totalChargedMomentum,calibEcal,calibHcal,
+				hclusterref->positionREP().Eta(),
+				hclusterref->positionREP().Phi());
+      caloEnergy = calibEcal+calibHcal;
+      if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
 
       hadronAtECAL = calibHcal * hadronDirection; 
       
@@ -2494,45 +2454,19 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     //          << std::endl;
     // Calibration
     double caloEnergy = totalHcal;
-    double slopeEcal = 1.0;
+    // double slopeEcal = 1.0;
     double calibEcal = totalEcal > 0. ? totalEcal : 0.;
     double calibHcal = std::max(0.,totalHcal);
-    if ( newCalib_ == 1 ) {
-      clusterCalibration_->
-	getCalibratedEnergyEmbedAInHcal(calibEcal, calibHcal,
-					hclusterRef->positionREP().Eta(),
-					hclusterRef->positionREP().Phi());
-      if ( calibEcal == 0. ) calibEcal = totalEcal;
-      if ( calibHcal == 0. ) calibHcal = totalHcal;
+    if  (  hclusterRef->layer() == PFLayer::HF_HAD  ||
+	   hclusterRef->layer() == PFLayer::HF_EM ) { 
+      caloEnergy = totalHcal/0.7;
+      calibEcal = totalEcal;
+      calibHcal = caloEnergy;
+    } else { 
+      calibration_->energyEmHad(-1.,calibEcal,calibHcal,
+				hclusterRef->positionREP().Eta(),
+				hclusterRef->positionREP().Phi());
       caloEnergy = calibEcal+calibHcal;
-      if ( totalEcal > 0. ) slopeEcal = calibEcal/totalEcal;
-    } else if ( newCalib_ == 0 ) { 
-      if( totalEcal>0) { 
-	caloEnergy = calibration_->energyEmHad( totalEcal, totalHcal );
-	slopeEcal = calibration_->paramECALplusHCAL_slopeECAL();
-	calibEcal = totalEcal * slopeEcal;
-	calibHcal = caloEnergy - calibEcal;
-      } else if  ((  hclusterRef->layer() != PFLayer::HF_HAD ) && (hclusterRef->layer() != PFLayer::HF_EM)){
-	caloEnergy = calibration_->energyHad( totalHcal );
-	calibEcal = totalEcal;
-	calibHcal = caloEnergy;
-      } else { 
-	caloEnergy = totalHcal/0.7;
-	calibEcal = totalEcal;
-	calibHcal = caloEnergy;
-      }
-    } else {
-      if  (  hclusterRef->layer() == PFLayer::HF_HAD  ||
-	     hclusterRef->layer() == PFLayer::HF_EM ) { 
-	caloEnergy = totalHcal/0.7;
-	calibEcal = totalEcal;
-	calibHcal = caloEnergy;
-      } else { 
-	calibration_->energyEmHad(-1.,calibEcal,calibHcal,
-				  hclusterRef->positionREP().Eta(),
-				  hclusterRef->positionREP().Phi());
-	caloEnergy = calibEcal+calibHcal;
-      }
     }
 
     // std::cout << "CalibEcal,HCal = " << calibEcal << ", " << calibHcal << std::endl;
@@ -2929,34 +2863,21 @@ PFAlgo::neutralHadronEnergyResolution(double clusterEnergyHCAL, double eta) cons
   // Add a protection
   if ( clusterEnergyHCAL < 1. ) clusterEnergyHCAL = 1.;
 
-  double resol = 0.;
-  if ( newCalib_ == 1 ) 
-    resol =   1.40/sqrt(clusterEnergyHCAL) +5.00/clusterEnergyHCAL;
-  else if ( newCalib_ == 0 ) 
-    resol =   1.50/sqrt(clusterEnergyHCAL) +3.00/clusterEnergyHCAL;
-  else
-    resol =   fabs(eta) < 1.48 ? 
-      //min(0.25,sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)):
-      //min(0.30,sqrt (1.35*1.35/clusterEnergyHCAL + 0.018*0.018));
-      // sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)
-      sqrt (0.9*0.9/clusterEnergyHCAL + 0.065*0.065)
-      :
-      // sqrt (1.35*1.35/clusterEnergyHCAL + 0.018*0.018);
-      sqrt (1.10*1.10/clusterEnergyHCAL + 0.018*0.018);
+  double resol =  fabs(eta) < 1.48 ? 
+    sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)
+    :
+    sqrt (1.20*1.20/clusterEnergyHCAL + 0.028*0.028);
 
   return resol;
+
 }
 
 double
 PFAlgo::nSigmaHCAL(double clusterEnergyHCAL, double eta) const {
-  double nS;
-  if ( newCalib_ == 2 ) 
-    nS =   fabs(eta) < 1.48 ? 
-      nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/100.))     
-      :
-      nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/200.));
-  else 
-    nS = nSigmaHCAL_;
+  double nS = fabs(eta) < 1.48 ? 
+    nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/100.))     
+    :
+    nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/100.));     
   
   return nS;
 }

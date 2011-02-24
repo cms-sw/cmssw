@@ -16,6 +16,7 @@
 
 
 class PFSCEnergyCalibration;
+class PFEnergyCalibration;
 
 namespace reco { 
 class PFCandidate;
@@ -28,6 +29,7 @@ class PFElectronAlgo {
   PFElectronAlgo(const double mvaEleCut,
 		 std::string  mvaWeightFileEleID,
 		 const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+		 const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 		 bool applyCrackCorrections,
 		 bool usePFSCEleCalib,
 		 bool useEGElectrons,
@@ -116,6 +118,7 @@ class PFElectronAlgo {
   TMVA::Reader    *tmvaReader_;
   double mvaEleCut_;
   boost::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_; 
+  boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_; 
   bool applyCrackCorrections_;
   bool usePFSCEleCalib_;
   bool useEGElectrons_;

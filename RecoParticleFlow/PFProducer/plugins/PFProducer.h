@@ -63,6 +63,11 @@ class PFProducer : public edm::EDProducer {
   // Use vertices for Neutral particles ?
   bool useVerticesForNeutral_;
 
+  // Take PF cluster calibrations from Global Tag ?
+  bool useCalibrationsFromDB_;
+
+  // Name of the calibration functions to read from the database
+  // std::vector<std::string> fToRead;
   
   /// particle flow algorithm
   std::auto_ptr<PFAlgo>      pfAlgo_;

@@ -1,10 +1,13 @@
 #include "RecoParticleFlow/PFProducer/plugins/PFProducer.h"
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
+#include "CondFormats/DataRecord/interface/PFCalibrationRcd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
@@ -23,67 +26,6 @@ using namespace edm;
 
 PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   
-  unsigned int newCalib = 
-    iConfig.getParameter<unsigned int>("pf_newCalib");
-
-  // Create a PFClusterCalbration auto_ptr
-  boost::shared_ptr<pftools::PFClusterCalibration> 
-    clusterCalibration( new pftools::PFClusterCalibration() );
-
-  // Initialise function parameters properly.
-  double lowEP0 
-    = iConfig.getParameter<double>("pfcluster_lowEP0");
-  double lowEP1 
-    = iConfig.getParameter<double>("pfcluster_lowEP1");
-  double globalP0 
-    = iConfig.getParameter<double>("pfcluster_globalP0");
-  double globalP1 
-    = iConfig.getParameter<double>("pfcluster_globalP1");
-  // 
-  clusterCalibration->setCorrections(lowEP0, lowEP1, globalP0, globalP1);
- 
-  unsigned int allowNegative    
-	= iConfig.getParameter<unsigned int>("pfcluster_allowNegative");
-  clusterCalibration->setAllowNegativeEnergy(allowNegative);
-	
-  unsigned int doCorrection
-    = iConfig.getParameter<unsigned int>("pfcluster_doCorrection");
-  clusterCalibration->setDoCorrection(doCorrection);
- 
-  double barrelEta
-    = iConfig.getParameter<double>("pfcluster_barrelEndcapEtaDiv");
-  clusterCalibration->setBarrelBoundary(barrelEta);
-	
-  /* Now obsolete 
-  double ecalEcut = 
-    iConfig.getParameter<double>("pfcluster_ecalECut");
-  double hcalEcut = 
-    iConfig.getParameter<double>("pfcluster_hcalECut");
-
-  clusterCalibration->setEcalHcalEnergyCuts(ecalEcut,hcalEcut);
-  */
- 
-  std::vector<std::string>* names = clusterCalibration->getKnownSectorNames();
-  for(std::vector<std::string>::iterator i = names->begin(); i != names->end(); ++i) {
-    std::string sector = *i;
-    std::vector<double> params
-    = iConfig.getParameter<std::vector<double> >(sector);
-    clusterCalibration->setEvolutionParameters(sector, params);
-  }
-
-  //Finally set eta correction
-  unsigned int doEtaCorrection = iConfig.getParameter<unsigned int>("pfcluster_doEtaCorrection");   
-  clusterCalibration->setDoEtaCorrection(doEtaCorrection);
-
-  std::vector<double> etaCorrectionParams = 
-    iConfig.getParameter<std::vector<double> >("pfcluster_etaCorrection");
-  clusterCalibration->setEtaCorrectionParameters(etaCorrectionParams);
-  // use configuration file to setup input/output collection names
-  //std::cout << "Finished initialisaing PFClusterCalibration: it looks like...\n";
-  //std::cout  << *clusterCalibration << std::endl;
-
-  //Done with PFClusterCalibration //
-
   //--ab: get calibration factors for HF:
   bool calibHF_use;
   std::vector<double>  calibHF_eta_step;
@@ -171,26 +113,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   double nSigmaHCAL 
     = iConfig.getParameter<double>("pf_nsigma_HCAL");
   
-  
-  double e_slope
-    = iConfig.getParameter<double>("pf_calib_ECAL_slope");
-  double e_offset 
-    = iConfig.getParameter<double>("pf_calib_ECAL_offset");
-  
-  double eh_eslope
-    = iConfig.getParameter<double>("pf_calib_ECAL_HCAL_eslope");
-  double eh_hslope 
-    = iConfig.getParameter<double>("pf_calib_ECAL_HCAL_hslope");
-  double eh_offset 
-    = iConfig.getParameter<double>("pf_calib_ECAL_HCAL_offset");
-  
-  double h_slope
-    = iConfig.getParameter<double>("pf_calib_HCAL_slope");
-  double h_offset 
-    = iConfig.getParameter<double>("pf_calib_HCAL_offset");
-  double h_damping 
-    = iConfig.getParameter<double>("pf_calib_HCAL_damping");
-
   //PFElectrons Configuration
   double mvaEleCut
     = iConfig.getParameter<double>("pf_electron_mvaCut");
@@ -232,16 +154,13 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<edm::ParameterSet>("iCfgCandConnector");
 
 
+  // fToRead =  iConfig.getUntrackedParameter<vector<string> >("toRead");
+
+  useCalibrationsFromDB_
+    = iConfig.getParameter<bool>("useCalibrationsFromDB");    
+
   boost::shared_ptr<PFEnergyCalibration> 
-    calibration( new PFEnergyCalibration( e_slope,
-					  e_offset, 
-					  eh_eslope,
-					  eh_hslope,
-					  eh_offset,
-					  h_slope,
-					  h_offset,
-					  h_damping,
-					  newCalib ) );
+    calibration( new PFEnergyCalibration() ); 
 
   int algoType 
     = iConfig.getParameter<unsigned>("algoType");
@@ -257,15 +176,14 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   pfAlgo_->setParameters( nSigmaECAL, 
 			  nSigmaHCAL,
 			  calibration,
-			  clusterCalibration,
-			  thepfEnergyCalibrationHF,
-			  newCalib);
+			  thepfEnergyCalibrationHF);
 
   //PFElectrons: call the method setpfeleparameters
   pfAlgo_->setPFEleParameters(mvaEleCut,
 			      path_mvaWeightFileEleID,
 			      usePFElectrons_,
 			      thePFSCEnergyCalibration,
+			      calibration,
 			      sumEtEcalIsoForEgammaSC_barrel,
 			      sumEtEcalIsoForEgammaSC_endcap,
 			      coneEcalIsoForEgammaSC,
@@ -384,7 +302,57 @@ PFProducer::beginJob() {}
 
 void 
 PFProducer::beginRun(edm::Run & run, 
-		     const edm::EventSetup & es) {}
+		     const edm::EventSetup & es) 
+{
+
+
+  /*
+  static map<string, PerformanceResult::ResultType> functType;
+
+  functType["PFfa_BARREL"] = PerformanceResult::PFfa_BARREL;
+  functType["PFfa_ENDCAP"] = PerformanceResult::PFfa_ENDCAP;
+  functType["PFfb_BARREL"] = PerformanceResult::PFfb_BARREL;
+  functType["PFfb_ENDCAP"] = PerformanceResult::PFfb_ENDCAP;
+  functType["PFfc_BARREL"] = PerformanceResult::PFfc_BARREL;
+  functType["PFfc_ENDCAP"] = PerformanceResult::PFfc_ENDCAP;
+  functType["PFfaEta_BARREL"] = PerformanceResult::PFfaEta_BARREL;
+  functType["PFfaEta_ENDCAP"] = PerformanceResult::PFfaEta_ENDCAP;
+  functType["PFfbEta_BARREL"] = PerformanceResult::PFfbEta_BARREL;
+  functType["PFfbEta_ENDCAP"] = PerformanceResult::PFfbEta_ENDCAP;
+  */
+
+  if ( useCalibrationsFromDB_ ) { 
+  // Read the PFCalibration functions from the global tags.
+    edm::ESHandle<PerformancePayload> perfH;
+    es.get<PFCalibrationRcd>().get(perfH);
+    
+    const PerformancePayloadFromTFormula *pfCalibrations = static_cast< const PerformancePayloadFromTFormula *>(perfH.product());
+    
+    pfAlgo_->thePFEnergyCalibration()->setCalibrationFunctions(pfCalibrations);
+  }
+  
+  /*
+  for(vector<string>::const_iterator name = fToRead.begin(); name != fToRead.end(); ++name) {    
+    
+    cout << "Function: " << *name << endl;
+    PerformanceResult::ResultType fType = functType[*name];
+    pfCalibrations->printFormula(fType);
+    
+    // evaluate it @ 10 GeV
+    float energy = 10.;
+    
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, energy);
+    
+    if(pfCalibrations->isInPayload(fType, point)) {
+      float value = pfCalibrations->getResult(fType, point);
+      cout << "   Energy before:: " << energy << " after: " << value << endl;
+    } else cout <<  "outside limits!" << endl;
+    
+  }
+  */
+
+}
 
 
 void 
