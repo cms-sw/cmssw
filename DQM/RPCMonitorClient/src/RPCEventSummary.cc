@@ -30,7 +30,7 @@ RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps ){
   
   NumberOfFeds_ =FEDRange_.second -  FEDRange_.first +1;
 
-  offlineDQM_ = ps.getUntrackedParameter<bool> ("OfflineDQM",true); 
+  offlineDQM_ = ps.getUntrackedParameter<bool> ("OfflineDQM", true); 
 
 
 }
@@ -184,12 +184,10 @@ void RPCEventSummary::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
 
   if(offlineDQM_) return;
 
-  if(init_ && (lumiCounter_%prescaleFactor_ != 0)) return;
+  if(init_ && lumiCounter_%prescaleFactor_ != 0) return;
 
   this->clientOperation();
 
-  init_ = true;
-  lumiCounter_++;
 }
 
 void RPCEventSummary::endRun(const edm::Run& r, const edm::EventSetup& c){
@@ -208,7 +206,10 @@ void RPCEventSummary::clientOperation(){
   
 
   if(rpcevents < minimumEvents_) return;
-  
+
+  init_ = true;
+  lumiCounter_++;
+
   std::stringstream meName;
   MonitorElement * myMe;
    

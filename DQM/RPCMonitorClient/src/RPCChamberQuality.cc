@@ -62,7 +62,7 @@ void RPCChamberQuality::beginRun(const edm::Run& r, const edm::EventSetup& c){
   if (0!=me)    dbe_->removeElement(me->getName());
   me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  7, 0.5, 7.5);
   
-  for (int x = 1; x <8 ; x++) me->setBinLabel(x, xLabels_[x-1]);
+  for (int x = 1; x <8 ; x++) {me->setBinLabel(x, xLabels_[x-1]);}
   }
 
 
@@ -75,7 +75,7 @@ void RPCChamberQuality::beginRun(const edm::Run& r, const edm::EventSetup& c){
   me->setBinLabel(2, "B", 2);
   me->setBinLabel(3, "E-", 2);
     
-  for (int x = 1; x <8 ; x++) me->setBinLabel(x, xLabels_[x-1]);
+  for (int x = 1; x <8 ; x++){ me->setBinLabel(x, xLabels_[x-1]);}
     
   for(int w=-2; w<3;w++){//Loop on wheels
     
@@ -139,12 +139,15 @@ void RPCChamberQuality::fillMonitorElements() {
    
   meName.str("");
   meName<<prefixDir_<<"/RPCEvents"; 
-  int rpcEvents=0;
+  int rpcEvents= minEvents;
   RpcEvents = dbe_->get(meName.str());
   
   if(RpcEvents) rpcEvents= (int)RpcEvents->getEntries();
   
   if(rpcEvents >= minEvents){
+
+    lumiCounter_++;
+    init_ = true;
     
     MonitorElement * summary[3];
     
@@ -202,9 +205,6 @@ void RPCChamberQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
   if(init_ && (lumiCounter_%prescaleFactor_ != 0) ) return;
 
   this->fillMonitorElements();
-  
-  lumiCounter_++;
-  init_ = true;
 
 }
 

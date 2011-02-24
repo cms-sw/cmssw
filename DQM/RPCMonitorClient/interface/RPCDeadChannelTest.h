@@ -43,9 +43,9 @@ public:
   void clientOperation(edm::EventSetup const& c);
   void bookHisto(std::vector<MonitorElement *> , std::vector<RPCDetId>);
 
- protected:
+  // protected:
 
-  void CalculateDeadChannelPercentage(RPCDetId & , MonitorElement *  , edm::EventSetup const& );
+  //  void CalculateDeadChannelPercentage(RPCDetId & , MonitorElement *  , edm::EventSetup const& );
    
  private:
   int prescaleFactor_;
