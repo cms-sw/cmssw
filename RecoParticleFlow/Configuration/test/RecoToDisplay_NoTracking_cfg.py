@@ -11,6 +11,13 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 # Global tag for 39X (UPDATE FOR LATER CMSSW VERSIONS)
 process.GlobalTag.globaltag = 'START311_V1A::All'
+process.GlobalTag.toGet = cms.VPSet(
+  cms.PSet(record = cms.string("PFCalibrationRcd"),
+           tag = cms.string("PFCalibration"),
+           connect = cms.untracked.string("sqlite_file:/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_11_0/src/RecoParticleFlow/Configuration/test/PFCalibration.db")
+           #connect = cms.untracked.string("sqlite_file:PFCalibration.db")
+          )
+)
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
