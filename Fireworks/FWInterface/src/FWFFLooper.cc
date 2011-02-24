@@ -389,6 +389,11 @@ FWFFLooper::duringLoop(const edm::Event &event,
       m_nextEventId = edm::EventID();
       return kStop;
    }
+   else if (m_navigator->currentTransition() == FWFFNavigator::kFirstEvent)
+   {
+      m_nextEventId = m_navigator->getFirstEventID();
+      return kStop;
+   }
    else if (m_navigator->currentTransition() == FWFFNavigator::kNextEvent)
       controller.setTransitionToNextEvent();
    else if (m_navigator->currentTransition() == FWFFNavigator::kPreviousEvent)

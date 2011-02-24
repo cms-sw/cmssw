@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.111 2011/02/11 19:56:36 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.112 2011/02/24 10:02:24 eulisse Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -615,15 +615,9 @@ void
 CmsShowMainFrame::enableComplexNavigation(bool enable)
 {
    if (enable)
-   {
-      m_goToFirst->enable();
       m_goToLast->enable();
-   }
    else
-   {
-      m_goToFirst->disable();
       m_goToLast->disable();
-   }
 }
 
 bool

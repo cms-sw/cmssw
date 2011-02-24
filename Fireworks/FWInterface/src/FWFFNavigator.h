@@ -15,7 +15,8 @@ public:
    enum FWFFNavigatorState {
       kNoTransition,
       kNextEvent,
-      kPreviousEvent
+      kPreviousEvent,
+      kFirstEvent
    };
 
    FWFFNavigator(CmsShowMainBase &main)
@@ -36,7 +37,7 @@ public:
    
    // FIXME: for the time being there is no way to go to 
    //        first / last event.
-   virtual void firstEvent() {}
+   virtual void firstEvent();
    virtual void lastEvent() {}
    // FIXME: does not do anything for the time being.
    virtual void goToRunEvent(edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t) {}
@@ -54,6 +55,7 @@ public:
 
    // Use to set the event from the framework.
    void setCurrentEvent(const edm::Event *);
+   const edm::EventID &getFirstEventID();
    enum FWFFNavigatorState currentTransition() { return m_currentTransition; }
 private:
    const edm::Event     *m_currentEvent;
