@@ -49,7 +49,7 @@ RPCSimTriv::simulate(const RPCRoll* roll,
 		       const edm::PSimHitContainer& rpcHits)
 {
 
-  _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
+  //_rpcSync->setRPCSimSetUp(getRPCSimSetUp());
   theRpcDigiSimLinks.clear();
   theDetectorHitMap.clear();
   theRpcDigiSimLinks = RPCDigiSimLinks(roll->id().rawId());
@@ -62,7 +62,9 @@ RPCSimTriv::simulate(const RPCRoll* roll,
     if (type == 13 || type == -13){
       // Here I hould check if the RPC are up side down;
       const LocalPoint& entr=_hit->entryPoint();
-      int time_hit = _rpcSync->getSimHitBx(&(*_hit));
+      //int time_hit = _rpcSync->getSimHitBx(&(*_hit));
+      // please keep hit time always 0 for this model 
+      int time_hit = 0;
       std::pair<int, int> digi(topology.channel(entr)+1,
 			       time_hit);
 
@@ -75,39 +77,7 @@ RPCSimTriv::simulate(const RPCRoll* roll,
 
 void RPCSimTriv::simulateNoise(const RPCRoll* roll)
 {
-
-  RPCDetId rpcId = roll->id();
-  int nstrips = roll->nstrips();
-  double area = 0.0;
-  
-  if ( rpcId.region() == 0 )
-    {
-      const RectangularStripTopology* top_ = dynamic_cast<const
-	RectangularStripTopology*>(&(roll->topology()));
-      float xmin = (top_->localPosition(0.)).x();
-      float xmax = (top_->localPosition((float)roll->nstrips())).x();
-      float striplength = (top_->stripLength());
-      area = striplength*(xmax-xmin);
-    }
-  else
-    {
-      const TrapezoidalStripTopology* top_=dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
-      float xmin = (top_->localPosition(0.)).x();
-      float xmax = (top_->localPosition((float)roll->nstrips())).x();
-      float striplength = (top_->stripLength());
-      area = striplength*(xmax-xmin);
-    }
-  
-
-  double ave = rate*nbxing*gate*area*1.0e-9;
-
-  N_hits = poissonDistribution->fire(ave);
-  
-  for (int i = 0; i < N_hits; i++ ){
-    int strip = static_cast<int>(flatDistribution1->fire(1,nstrips));
-    int time_hit;
-    time_hit = (static_cast<int>(flatDistribution2->fire((nbxing*gate)/gate))) - nbxing/2;
-    std::pair<int, int> digi(strip,time_hit);
-    strips.insert(digi);
-  }
+  // plase keep it empty for this model
+  return;
 }
+
