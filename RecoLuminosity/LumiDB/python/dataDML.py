@@ -847,7 +847,7 @@ def addHLTRunDataToBranch(schema,runnumber,hltrundata,branchinfo):
 def insertRunSummaryData(schema,runnumber,runsummarydata,complementalOnly=False):
     '''
     input:
-        runsummarydata [l1key,amodetag,egev,hltkey,fillnum,sequence,starttime,stoptime]
+        runsummarydata [l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime]
     output:
     '''
     l1key=runsummarydata[0]
@@ -859,15 +859,15 @@ def insertRunSummaryData(schema,runnumber,runsummarydata,complementalOnly=False)
     starttime=''
     stoptime=''
     if not complementalOnly:
-        hltkey=runsummarydata[3]
-        fillnum=runsummarydata[4]
-        sequence=runsummarydata[5]
+        sequence=runsummarydata[3]
+        hltkey=runsummarydata[4]
+        fillnum=runsummarydata[5]
         starttime=runsummarydata[6]
         stoptime=runsummarydata[7]
     try:
         if not complementalOnly:
-            tabrowDefDict={'RUNNUM':'unsigned int','L1KEY':'string','AMODETAG':'string','EGEV':'unsigned int','HLTKEY':'string','FILLNUM':'unsigned int','SEQUENCE':'string','STARTTIME':'time stamp','STOPTIME':'time stamp'}
-            tabrowValueDict={'RUNNUM':int(runnumber),'L1KEY':l1key,'AMODETAG':amodetag,'EGEV':int(egev),'HLTKEY':hltkey,'FILLNUM':int(fillnum),'SEQUENCE':sequence,'STARTTIME':starttime,'STOPTIME':stoptime}
+            tabrowDefDict={'RUNNUM':'unsigned int','L1KEY':'string','AMODETAG':'string','EGEV':'unsigned int','SEQUENCE':'string','HLTKEY':'string','FILLNUM':'unsigned int','STARTTIME':'time stamp','STOPTIME':'time stamp'}
+            tabrowValueDict={'RUNNUM':int(runnumber),'L1KEY':l1key,'AMODETAG':amodetag,'EGEV':int(egev),'SEQUENCE':sequence,'HLTKEY':hltkey,'FILLNUM':int(fillnum),'STARTTIME':starttime,'STOPTIME':stoptime}
             db=dbUtil.dbUtil(schema)
             db.insertOneRow(nameDealer.cmsrunsummaryTableName(),tabrowDefDict,tabrowValueDict)
         else:

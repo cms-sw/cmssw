@@ -38,10 +38,10 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
         summaryQuery.addToOutputList( 'INSTLUMI','instlumi')
         summaryQuery.addToOutputList( 'INSTLUMIERROR','instlumierror')
         summaryQuery.addToOutputList( 'INSTLUMIQUALITY','instlumiquality')
+        summaryQuery.addToOutputList( 'BEAMSTATUS','beamstatus')
+        summaryQuery.addToOutputList( 'BEAMENERGY','beamenergy')        
         summaryQuery.addToOutputList( 'NUMORBIT','numorbit')
         summaryQuery.addToOutputList( 'STARTORBIT','startorbit')
-        summaryQuery.addToOutputList( 'BEAMSTATUS','beamstatus')
-        summaryQuery.addToOutputList( 'BEAMENERGY','beamenergy')
         summaryQuery.addToOutputList( 'CMSBXINDEXBLOB','cmsbxindexblob')
         summaryQuery.addToOutputList( 'BEAMINTENSITYBLOB_1','beamintensityblob_1')
         summaryQuery.addToOutputList( 'BEAMINTENSITYBLOB_2','beamintensityblob_2')
@@ -54,10 +54,10 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
         summaryResult.extend('instlumi','float')
         summaryResult.extend('instlumierror','float')
         summaryResult.extend('instlumiquality','short')
-        summaryResult.extend('numorbit','unsigned int')
-        summaryResult.extend('startorbit','unsigned int')
         summaryResult.extend('beamstatus','string')
         summaryResult.extend('beamenergy','float')
+        summaryResult.extend('numorbit','unsigned int')
+        summaryResult.extend('startorbit','unsigned int')
         summaryResult.extend('cmsbxindexblob','blob')
         summaryResult.extend('beamintensityblob_1','blob')
         summaryResult.extend('beamintensityblob_2','blob')
@@ -85,22 +85,13 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
             beamintensityblob_2=None
             if not summarycursor.currentRow()['beamintensityblob_2'].isNull():
                 beamintensityblob_2=summarycursor.currentRow()['beamintensityblob_2'].data()
-            datadict[lumilsnum]=[cmslsnum,uncalibratedinstlumi,uncalibratedinstlumierror,instlumiquality,startorbit,numorbit,beamstatus,beamenergy,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2]
+            datadict[lumilsnum]=[cmslsnum,uncalibratedinstlumi,uncalibratedinstlumierror,instlumiquality,beamstatus,beamenergy,startorbit,numorbit,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2]
         del summaryQuery
         #print datadict
-        bxlumivalue_occ1=None
-        bxlumierror_occ1=None
-        bxlumiquality_occ1=None
-        bxlumivalue_occ2=None
-        bxlumierror_occ2=None
-        bxlumiquality_occ2=None
-        bxlumivalue_et=None
-        bxlumierror_et=None
-        bxlumiquality_et=None
-        for algoname in ['OCC1,OCC2,ET']:
+        for algoname in ['OCC1','OCC2','ET']:
             detailQuery=lumischema.newQuery()
-            detailQuery.addToTableList( nameDealer.lumidetailTableName(),'d' )
             detailQuery.addToTableList( nameDealer.lumisummaryTableName(),'s' )
+            detailQuery.addToTableList( nameDealer.lumidetailTableName(),'d' )
             detailQuery.addToOutputList('s.LUMILSNUM','lumilsnum' )
             detailQuery.addToOutputList('d.BXLUMIVALUE','bxlumivalue' )
             detailQuery.addToOutputList('d.BXLUMIERROR','bxlumierror' )
@@ -117,7 +108,7 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
             detailResult.extend('bxlumiquality','blob')
             detailQuery.defineOutput(detailResult)
             detailQuery.addToOrderList('lumilsnum')
-            detailQuery.setCondition('s.RUNNUM=:runnumber and s.LUMISUMMARY_ID=d.LUMISUMMARY_ID and d.ALGONAME=:algoname',detailCondition)
+            detailQuery.setCondition('s.RUNNUM=:runnumber AND s.LUMISUMMARY_ID=d.LUMISUMMARY_ID AND d.ALGONAME=:algoname',detailCondition)
             detailcursor=detailQuery.execute()
             while detailcursor.next():
                 lumilsnum=detailcursor.currentRow()['lumilsnum'].data()
@@ -1008,7 +999,6 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
             session.transaction().commit()
         else:
             session.transaction().commit()
-        print result
         return result
     except:
         raise

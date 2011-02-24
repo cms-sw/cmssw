@@ -276,7 +276,7 @@ def latestDataRevisionOfEntry(schema,datatableName,entry,revrange):
     result=dataRevisionsOfEntry(schema,datatableName,entry,revrange)
     if result and len(result)!=0: return max(result)
     return None
-
+    
 def branchInfoByName(schema,branchName):
     '''
     select (revision_id,branch_id) from revisions where name=:branchName
