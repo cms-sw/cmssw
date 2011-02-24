@@ -1,3 +1,4 @@
+#pragma GCC diagnostic ignored "-Wformat"
 #include <iostream>
 #include <cmath>
 #include<cstdlib>
@@ -73,8 +74,8 @@ namespace {
     } f;
     
     f.val = x;
-    // printf("%e %a %x\n",  f.val,  f.val,  f.bin);
-    printf("%e %x\n", f.val,  f.bin);
+    printf("%e %a %x\n",  f.val,  f.val,  f.bin);
+    // printf("%e %x\n", f.val,  f.bin);
     int log_2 = ((f.bin >> 23) & 255) - 127;  //exponent
     f.bin &= 0x7FFFFF;                               //mantissa (aka significand)
     
@@ -95,8 +96,8 @@ namespace {
     
     f.val = x;
 
-    // printf("%e %a %x\n",  f.val,  f.val,  f.bin);
-    printf("%e %x\n", f.val,  f.bin);
+    printf("%e %a %x\n",  f.val,  f.val,  f.bin);
+    // printf("%e %x\n", f.val,  f.bin);
 
   }
 
