@@ -92,6 +92,16 @@ class CaloHitRespoNew
 
       const CaloSubdetectorGeometry* geometry() const ;
 
+      bool setupFlag() const { return m_setup ; }
+
+      int minBunch() const { return m_minBunch ; }
+
+      int maxBunch() const { return m_maxBunch ; }
+
+      VecInd index() const { return m_index ; }
+
+      const CaloVHitFilter* hitFilter() const { return m_hitFilter ; }
+
    private:
 
       const CaloVSimParameterMap*    m_parameterMap  ;

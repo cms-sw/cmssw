@@ -2,6 +2,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/APDSimParameters.h" 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
@@ -59,49 +60,33 @@ EBHitResponse::apdShape() const
 }
 
 void
-EBHitResponse::putAnalogSignal( const PCaloHit& hit )
+EBHitResponse::putAPDSignal( const DetId& detId  ,
+			     double       npe    ,
+			     double       time     )
 {
-   const unsigned int depth ( hit.depth() ) ;
-   if( !m_apdOnly &&
-       0 == depth    )
+   const CaloSimParameters& parameters ( *params( detId ) ) ;
+
+   const double energyFac ( parameters.simHitToPhotoelectrons( detId ) ) ;
+
+   const double signal ( npe*nonlFunc( npe*energyFac ) ) ;
+
+   const double jitter ( time - timeOfFlight( detId ) ) ;
+
+   const double tzero ( apdShape()->timeToRise()
+			- jitter
+			- offsets()[ EBDetId( detId ).denseIndex()%kNOffsets ]
+			- BUNCHSPACE*( parameters.binOfMaximum()
+				       - phaseShift()            ) ) ;
+
+   double binTime ( tzero ) ;
+
+   CaloSamples& result ( *findSignal( detId ) );
+
+   for( int bin ( 0 ) ; bin != result.size(); ++bin )
    {
-      CaloHitResponse::putAnalogSignal( hit ) ;
+      result[bin] += (*apdShape())(binTime)*signal;
+      binTime += BUNCHSPACE;
    }
-   else
-   {
-      if( 0 != depth                           &&
-	  ( apdParameters()->addToBarrel() ||
-	    m_apdOnly                        )    ) // can digitize apd
-      {
-	 const DetId detId  ( hit.id() ) ;
-	 CaloSamples& result ( *findSignal( detId ) );
-
-//	 edm::LogError( "EBHitResponse" )<<"---APD SimHit found for "
-/*	 std::cout<<"---APD SimHit found for "
-		  << EBDetId( detId ) 
-		  <<", depth="<< depth 
-		  <<std::endl ;*/
-
-	 const double signal ( apdSignalAmplitude( hit ) ) ;
-	    
-	 const CaloSimParameters& parameters ( *params( detId ) ) ;
-
-	 const double jitter ( hit.time() - timeOfFlight( detId ) ) ;
-
-	 const double tzero ( apdShape()->timeToRise()
-			      - jitter
-			      - offsets()[ EBDetId( detId ).denseIndex()%kNOffsets ]
-			      - BUNCHSPACE*( parameters.binOfMaximum()
-					     - phaseShift()            ) ) ;
-	 double binTime ( tzero ) ;
-
-	 for( int bin ( 0 ) ; bin != result.size(); ++bin )
-	 {
-	    result[bin] += (*apdShape())(binTime)*signal;
-	    binTime += BUNCHSPACE;
-	 }
-      }
-   } 
 }
 
 double 
@@ -113,12 +98,6 @@ EBHitResponse::apdSignalAmplitude( const PCaloHit& hit ) const
    double npe ( hit.energy()*( 2 == hit.depth() ?
 			       apdParameters()->simToPELow() :
 			       apdParameters()->simToPEHigh() ) ) ;
-
-
-   const double energyFac ( params( hit.id() )->
-			    simHitToPhotoelectrons( hit.id() ) ) ;
-
-   npe *= nonlFunc( npe*energyFac ) ;
 
    // do we need to do Poisson statistics for the photoelectrons?
    if( apdParameters()->doPEStats() &&
@@ -173,4 +152,64 @@ EBHitResponse::findIntercalibConstant( const DetId& detId,
       }
    }
    icalconst = thisconst ;
+}
+
+
+void 
+EBHitResponse::run( MixCollection<PCaloHit>& hits ) 
+{
+   const EBDetId detId ( hits.begin()->id() ) ;
+
+   const unsigned int bSize ( EBDetId::kSizeForDenseIndexing ) ;
+
+   if( !setupFlag()    &&
+       0 < hits.size()    ) setupSamples( detId ) ;
+
+   if( 0 != index().size() ) blankOutUsedSamples() ;
+
+   if( 0 == m_apdNpeVec.size() ) 
+   {
+      m_apdNpeVec  = std::vector<double>( bSize ) ;
+      m_apdTimeVec = std::vector<double>( bSize ) ;
+   }
+
+   for( MixCollection<PCaloHit>::MixItr hitItr ( hits.begin() ) ;
+	hitItr != hits.end() ; ++hitItr )
+   {
+      const PCaloHit& hit ( *hitItr ) ;
+      const int bunch ( hitItr.bunch() ) ;
+      if( minBunch() <= bunch  &&
+	  maxBunch() >= bunch  &&
+	  !isnan( hit.time() ) &&
+	  ( 0 == hitFilter() ||
+	    hitFilter()->accepts( hit ) ) )
+      { 
+	 if( 0 == hit.depth() ) // for now take only nonAPD hits
+	 {
+	    if( !m_apdOnly ) putAnalogSignal( hit ) ;
+	 }
+	 else // APD hits here
+	 {
+	    if( apdParameters()->addToBarrel() ||
+		m_apdOnly                         )
+	    {
+	       const unsigned int icell ( EBDetId( hit.id() ).denseIndex() ) ;
+	       m_apdNpeVec[ icell ] += apdSignalAmplitude( hit ) ;
+	       if( 0 == m_apdTimeVec[ icell ] ) m_apdTimeVec[ icell ] = hit.time() ;
+	    }
+	 }
+      }
+   }
+   for( unsigned int i ( 0 ) ; i != bSize ; ++i )
+   {
+      if( 0 != m_apdNpeVec[i] )
+      {
+	 putAPDSignal( EBDetId::detIdFromDenseIndex( i ),
+		       m_apdNpeVec[i] ,
+		       m_apdTimeVec[i]                    ) ;
+
+	 m_apdNpeVec[i] = 0. ;
+	 m_apdTimeVec[i] = 0. ;
+      }
+   }
 }

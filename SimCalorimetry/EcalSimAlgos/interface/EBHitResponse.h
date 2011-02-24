@@ -38,9 +38,11 @@ class EBHitResponse : public CaloHitRespoNew
 
       const VecD& offsets() const { return m_timeOffVec ; }
 
+      virtual void run( MixCollection<PCaloHit>& hits ) ;
+
    protected:
 
-      virtual void putAnalogSignal( const PCaloHit & inputHit ) ;
+      void putAPDSignal( const DetId& detId, double npe, double time ) ;
 
    private:
 
@@ -68,6 +70,9 @@ class EBHitResponse : public CaloHitRespoNew
       const EcalIntercalibConstantsMC* m_intercal ;
 
       std::vector<double> m_timeOffVec ;
+
+      std::vector<double> m_apdNpeVec ;
+      std::vector<double> m_apdTimeVec ;
 
       const double pcub, pqua, plin, pcon, pelo, pehi, pasy, pext, poff, pfac ;
 };
