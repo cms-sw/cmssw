@@ -12,6 +12,7 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="RecoTracker/Record"/>
 <use   name="RecoTracker/TkDetLayers"/>
+<use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <export>

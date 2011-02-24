@@ -15,7 +15,8 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
-
+#include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 
 using namespace ctfseeding;
 using namespace std;
@@ -57,10 +58,35 @@ bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
   if (skipping) LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hit->geographicalId().rawId()<<" key: "<<find(f->begin(),f->end(),hit->cluster())->key();
   return skipping;
 }
-bool HitExtractorSTRP::skipThis(const SiStripMatchedRecHit2D * hit,
-				edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const {
-  if (skipThis(hit->stereoHit(),stripClusterRefs)) return true;
-  if (skipThis(hit->monoHit(),stripClusterRefs)) return true;
+
+
+void HitExtractorSTRP::project(TransientTrackingRecHit::ConstRecHitPointer & ptr,
+			       const SiStripRecHit2D * hit,
+			       TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const{
+  TrackingRecHitProjector<ProjectedRecHit2D> proj;
+  TransientTrackingRecHit::RecHitPointer sHit=theSLayer->hitBuilder()->build(hit);
+  replaceMe=proj.project( *sHit, *ptr->det());
+}
+
+bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & ptr,
+				edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs,
+				TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const {
+  const SiStripMatchedRecHit2D * hit = (SiStripMatchedRecHit2D *) ptr->hit();
+
+  bool rejectSt=false,rejectMono=false;
+  if (skipThis(hit->stereoHit(),stripClusterRefs))  rejectSt=true;
+  if (skipThis(hit->monoHit(),stripClusterRefs))    rejectMono=true;
+
+  if (rejectSt&&rejectMono){
+    //only skip if both hits are done
+    return true;
+  }
+  else{
+    if (rejectSt) project(ptr,hit->stereoHit(),replaceMe);
+    else if (rejectMono) project(ptr,hit->monoHit(),replaceMe);
+    if (!replaceMe) return true;
+    return false;
+  }
   return false;
 }
 
@@ -71,16 +97,18 @@ void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hi
   ev.getByLabel(theSkipClusters,stripClusterRefs);
   HitExtractor::Hits newHits;
   newHits.reserve(hits.size());
+  TransientTrackingRecHit::ConstRecHitPointer replaceMe;
   for (unsigned int iH=0;iH!=hits.size();++iH){
-    if (matched && skipThis((SiStripMatchedRecHit2D*) hits[iH]->hit(),stripClusterRefs)){
+    replaceMe=hits[iH];
+    if (matched && skipThis(hits[iH],stripClusterRefs,replaceMe)){
       LogDebug("HitExtractorSTRP")<<"skipping a matched hit on :"<<hits[iH]->hit()->geographicalId().rawId();
       continue;
     }
     if (!matched && skipThis((SiStripRecHit2D*) hits[iH]->hit(),stripClusterRefs)){
-      //LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->hit()->geographicalId().rawId()<<" key: ";
+      LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->hit()->geographicalId().rawId()<<" key: ";
       continue;
     }
-    newHits.push_back(hits[iH]);
+    newHits.push_back(replaceMe);
   }
   hits.swap(newHits);
 }
@@ -89,6 +117,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
 {
   HitExtractor::Hits result;
   TrackerLayerIdAccessor accessor;
+  theSLayer=&sl;
   //
   // TIB
   //

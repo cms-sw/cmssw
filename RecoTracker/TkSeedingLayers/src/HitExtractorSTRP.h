@@ -29,14 +29,19 @@ public:
   void useSimpleRphiHitsCleaner(bool use) {hasSimpleRphiHitsCleaner = use;}
 
   void cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits, bool matched) const;
-  bool skipThis(const SiStripMatchedRecHit2D * hit,edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const;
+  bool skipThis(TransientTrackingRecHit::ConstRecHitPointer & ptr,edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs,
+		TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
   bool skipThis(const SiStripRecHit2D * hit,edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const;
+  void project(TransientTrackingRecHit::ConstRecHitPointer & ptr,
+	       const SiStripRecHit2D * hit,
+	       TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
 
 private:
   bool ringRange(int ring) const;
 private:
   const DetLayer * theLayer;
   SeedingLayer::Side theSide;
+  mutable const SeedingLayer * theSLayer;
   int theIdLayer;
   bool hasMatchedHits; edm::InputTag theMatchedHits;
   bool hasRPhiHits;    edm::InputTag theRPhiHits;
