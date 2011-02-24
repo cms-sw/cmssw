@@ -65,23 +65,37 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   //ENC= 2160.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
   ENC= 960.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
   
-  ldriftX = 0.050;        // in mm(xytype=1)
-  ldriftY = 0.050;        // in mm(xytype=2)
+  //ldriftX = 0.050;        // in mm(xytype=1)
+  //ldriftY = 0.050;        // in mm(xytype=2)
+  //itchY= 0.050;          // in mm(xytype=1)
+  //itchX= 0.050;          // in mm(xytype=2)
+  ldriftX = 0.100;        // in mm(xytype=1)
+  ldriftY = 0.100;        // in mm(xytype=2)
+  pitchY= 0.100;          // in mm(xytype=1)
+  pitchX= 0.100;          // in mm(xytype=2)
+
+  //moduleThickness = 0.250; // mm(xytype=1)(xytype=2)
   moduleThickness = 0.250; // mm(xytype=1)(xytype=2)
-  
-  pitchY= 0.050;          // in mm(xytype=1)
-  pitchX= 0.050;          // in mm(xytype=2)
+  ////////////////////////////////////////
+  //
   //numStripsY = 200;        // Y plate number of strips:200*0.050=10mm (xytype=1)
   //numStripsX = 400;        // X plate number of strips:400*0.050=20mm (xytype=2)
-  numStripsY = 144;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
-  numStripsX = 160;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
-  
-  pitchYW= 0.400;          // in mm(xytype=1)
-  pitchXW= 0.400;          // in mm(xytype=2)
+  numStripsY = 72;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
+  numStripsX = 80;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
+  //numStripsY = 144;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
+  //numStripsX = 160;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
+  //
+  //  pitchYW= 0.400;          // in mm(xytype=1)
+  //  pitchXW= 0.400;          // in mm(xytype=2)
+  pitchYW= 0.150;          // in mm(xytype=1)
+  pitchXW= 0.150;          // in mm(xytype=2)
+  //
   //numStripsYW = 50;        // Y plate number of W strips:50 *0.400=20mm (xytype=1) - W have ortogonal projection
   //numStripsXW = 25;        // X plate number of W strips:25 *0.400=10mm (xytype=2) - W have ortogonal projection
-  numStripsYW = 20;        // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
-  numStripsXW = 18;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
+  numStripsYW = 53;        // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
+  numStripsXW = 48;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
+  //  numStripsYW = 20;        // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
+  //  numStripsXW = 18;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
   
   //  tofCut = 1350.;           // Cut on the particle TOF range  = 1380 - 1500
   elossCut = 0.00003;           // Cut on the particle TOF   = 100 or 50

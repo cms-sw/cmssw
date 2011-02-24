@@ -53,10 +53,15 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   UseHalfPitchShiftInY_= true;
   UseHalfPitchShiftInYW_= true;
 
-  pitchX_= 0.050;
-  pitchY_= 0.050;// 
-  pitchXW_= 0.400;
-  pitchYW_= 0.400;// 
+  //  pitchX_= 0.050;
+  // pitchY_= 0.050;// 
+  //pitchXW_= 0.400;
+  //pitchYW_= 0.400;// 
+
+  pitchX_= 0.100;
+  pitchY_= 0.100;// 
+  pitchXW_= 0.150;
+  pitchYW_= 0.150;// 
 
   XsensorSize_=8.0;
   YsensorSize_=7.2;

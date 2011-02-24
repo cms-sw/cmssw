@@ -76,10 +76,15 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn
   Thick300 = 0.300;
 
   // for 50x400 um2 pixels  (FP420):
-  numFP420StripsY = 144;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
-  numFP420StripsX = 160;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
-  numFP420StripsYW = 20;        // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
-  numFP420StripsXW = 18;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
+  numFP420StripsY = 72;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
+  numFP420StripsX = 80;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
+  numFP420StripsYW = 53;       // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
+  numFP420StripsXW = 48;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
+
+//  numFP420StripsY = 144;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
+//  numFP420StripsX = 160;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
+//  numFP420StripsYW = 20;        // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
+//  numFP420StripsXW = 18;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
 
 
   //for 100x150 um2 pixels (HPS240):
