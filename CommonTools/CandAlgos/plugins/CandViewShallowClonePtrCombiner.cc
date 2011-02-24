@@ -10,7 +10,7 @@
 namespace reco {
   namespace modules {
     typedef CandCombiner<
-              StringCutObjectSelector<reco::Candidate, true>,
+              StringCutObjectSelector<reco::Candidate>,
               AnyPairSelector,
               combiner::helpers::ShallowClonePtr
             > CandViewShallowClonePtrCombiner;

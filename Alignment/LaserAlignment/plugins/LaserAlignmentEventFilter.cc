@@ -17,6 +17,7 @@
 /// constructors and destructor
 ///
 LaserAlignmentEventFilter::LaserAlignmentEventFilter( const edm::ParameterSet& iConfig ) :
+  FED_collection(iConfig.getParameter<edm::InputTag>("FedInputTag")),
   signal_filter(true),
   single_channel_thresh(11),
   channel_count_thresh(4),
@@ -24,16 +25,12 @@ LaserAlignmentEventFilter::LaserAlignmentEventFilter( const edm::ParameterSet& i
   cabling(0),
   cacheId_(0)
 {
-  edm::LogInfo("LasFilterConstructor");
-
   // Read in Filter Lists
   std::vector<int> FED_IDs = iConfig.getParameter<std::vector<int> >("FED_IDs");
   set_las_fed_ids(FED_IDs);
-  std::cout << "las_fed_ids.size(): " << las_fed_ids.size() << std::endl;
 
   std::vector<int> SIGNAL_IDs = iConfig.getParameter<std::vector<int> >("SIGNAL_IDs");
   set_las_signal_ids(SIGNAL_IDs);
-  std::cout << "las_signal_ids.size(): " << las_signal_ids.size() << std::endl;
 
   // Read in Filter Flags
   signal_filter = iConfig.getParameter<bool>("SIGNAL_Filter");
@@ -74,7 +71,7 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetu
 
   // Retrieve FED raw data (by label, which is "source" by default)
   edm::Handle<FEDRawDataCollection> buffers;
-  iEvent.getByLabel( "source", buffers ); 
+  iEvent.getByLabel( FED_collection, buffers ); 
 
 
   std::vector<uint16_t>::const_iterator ifed = las_fed_ids.begin();
@@ -154,7 +151,6 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetu
 ///
 ///
 void LaserAlignmentEventFilter::endJob() {
-  std::cout << "found " << LAS_event_count << " LAS events" << std::endl;
   //edm::LogInfo("LaserAlignmentEventFilter") << "found " << LAS_event_count << " LAS events";
 }
 

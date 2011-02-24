@@ -1,12 +1,6 @@
 ./BeamSpotWorkflow.py -c BeamSpotWorkflow_run.cfg -z -u 
-./BeamSpotWorkflow.py -c BeamSpotWorkflow_run_sigmaz.cfg -u 
 ./BeamSpotWorkflow.py -c BeamSpotWorkflow_lumi16.cfg -z -u  
-./BeamSpotWorkflow.py -c BeamSpotWorkflow_lumi16_sigmaz.cfg -u  
-./BeamSpotWorkflow.py -c BeamSpotWorkflow_lumi17.cfg -z -u  
-./BeamSpotWorkflow.py -c BeamSpotWorkflow_lumi17_sigmaz.cfg -u  
-
-
-
+./BeamSpotWorkflow.py -c BeamSpotWorkflow_run_sigmaz.cfg -u 
 ./BeamSpotWorkflow.py -c BeamSpotWorkflow_lumi.cfg -z -u  
 ./BeamSpotWorkflow.py -c BeamSpotWorkflow_lumi_sigmaz.cfg -u
 

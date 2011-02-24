@@ -39,10 +39,12 @@ hltL3SingleTauPixelSeedsRelaxed = FastSimulation.HighLevelTrigger.DummyModule_cf
 hltL3SingleTauMETPixelSeeds = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltL3SingleTauMETPixelSeedsRelaxed = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltL3TauHighPtPixelSeeds = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
-hltBLifetimeRegionalPixelSeedGeneratorStartupU = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
-hltBLifetimeRegionalPixelSeedGeneratorStartup = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltPFJetPixelSeeds = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+
 hltBLifetimeRegionalPixelSeedGenerator = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
-hltBLifetimeRegionalPixelSeedGeneratorRelaxed = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixelSeedGeneratorSingleTop = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixelSeedGeneratorEleJetSingleTop = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+
 hltMumuPixelSeedFromL2Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltMumukPixelSeedFromL2Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRegionalPi0FEDs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
@@ -63,4 +65,9 @@ from FastSimulation.HighLevelTrigger.EcalRegionalReco_cff import *
 # Specific reconstruction sequences for FastSimulation
 from FastSimulation.HighLevelTrigger.HLTFastReco_cff import *
 HLTDoLocalPixelSequence = cms.Sequence(pixeltrackerlocalreco)
+hltSiPixelDigis = cms.Sequence(pixeltrackerlocalreco)
+hltSiPixelClusters = cms.Sequence(pixeltrackerlocalreco)
+hltSiPixelRecHits = cms.Sequence(pixeltrackerlocalreco)
 HLTDoLocalStripSequence = cms.Sequence(striptrackerlocalreco)
+
+HLTTrackReconstructionForJets = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltPFJetCtfWithMaterialTracks)

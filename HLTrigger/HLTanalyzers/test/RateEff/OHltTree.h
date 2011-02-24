@@ -83,15 +83,15 @@ public :
   Int_t           ohTauL25Tiso[5000];   //[NohTau]
   Float_t         ohTauL3Tpt[5000];   //[NohTau]
   Int_t           ohTauL3Tiso[5000];   //[NohTau]
-  Int_t           NohPFTau; 
-  Float_t         pfTauEta[500]; 
-  Float_t         pfTauPhi[500]; 
-  Float_t         pfTauPt[500]; 
-  Float_t         pfTauJetPt[500]; 
-  Float_t         pfTauLeadTrackPt[500]; 
-  Float_t         pfTauLeadPionPt[500]; 
-  Int_t           pfTauTrkIso[500]; 
-  Int_t           pfTauGammaIso[500]; 
+  Int_t           NohpfTau; 
+  Float_t         ohpfTauEta[500]; 
+  Float_t         ohpfTauPhi[500]; 
+  Float_t         ohpfTauPt[500]; 
+  Float_t         ohpfTauJetPt[500]; 
+  Float_t         ohpfTauLeadTrackPt[500]; 
+  Float_t         ohpfTauLeadPionPt[500]; 
+  Float_t         ohpfTauTrkIso[500]; 
+  Float_t         ohpfTauGammaIso[500]; 
   Int_t           NohBJetL2;     //
   Float_t         ohBJetL2Et[5000];  //[NohBJetL2] 
   Float_t         ohBJetL2Energy[5000];  //[NohBJetL2]  
@@ -747,6 +747,7 @@ public :
   Int_t           OpenL1_Mu3EG5; 
   Int_t           OpenL1_EG5_HTT100; 
   Int_t           OpenL1_SingleMu30;  
+  Int_t           OpenL1_SingleMu5_Eta1pt5_Qal7;
 
   // 5E32 menu
   Int_t           OpenL1_DoubleEG8;
@@ -756,6 +757,7 @@ public :
   Int_t           OpenL1_ETT220;
   Int_t           OpenL1_SingleJet20_FwdVeto;
   Int_t           OpenL1_DoubleEG2_FwdVeto;
+  Int_t           OpenL1_QuadJet8U; 
 
   // 8E29 and 1E31 MC menus
   Int_t           HLT_L1Jet15; 
@@ -2008,15 +2010,15 @@ public :
   TBranch        *b_ohAlcapi0etaClusAll;   //! 
   TBranch        *b_ohAlcapi0phiClusAll;   //! 
   TBranch        *b_ohAlcapi0s4s9ClusAll;   //! 
-  TBranch        *b_NohPFTau;   //! 
-  TBranch        *b_pfTauPt;   //! 
-  TBranch        *b_pfTauEta;   //! 
-  TBranch        *b_pfTauPhi;   //! 
-  TBranch        *b_pfTauLeadTrackPt;   //! 
-  TBranch        *b_pfTauLeadPionPt;   //! 
-  TBranch        *b_pfTauTrkIso;   //! 
-  TBranch        *b_pfTauGammaIso;   //! 
-  TBranch        *b_pfTauJetPt;   //! 
+  TBranch        *b_NohpfTau;   //! 
+  TBranch        *b_ohpfTauPt;   //! 
+  TBranch        *b_ohpfTauEta;   //! 
+  TBranch        *b_ohpfTauPhi;   //! 
+  TBranch        *b_ohpfTauLeadTrackPt;   //! 
+  TBranch        *b_ohpfTauLeadPionPt;   //! 
+  TBranch        *b_ohpfTauTrkIso;   //! 
+  TBranch        *b_ohpfTauGammaIso;   //! 
+  TBranch        *b_ohpfTauJetPt;   //! 
   TBranch        *b_pfMHT;   //! 
   TBranch        *b_NohPFJet;   //! 
   TBranch        *b_pfJetPt;   //! 
@@ -3590,13 +3592,13 @@ public :
   void PlotOHltEffCurves(OHltConfig *cfg,TString hlteffmode,TString ohltobject,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4);
   void CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rc,int it);
   void PrintOhltVariables(int level, int type);
-  int OpenHltPFTauPassedNoMuon(float Et,float L25TrkPt, int L3TrkIso, int L3GammaIso);
+  int OpenHltPFTauPassedNoMuon(float Et, float L25TrkPt, float L3TrkIso, float L3GammaIso);
   int OpenHltPFTauPassedNoEle(float Et,float L25TrkPt, int L3TrkIso, int L3GammaIso);
   int OpenHltTauMuonMatching(float eta, float phi);
   int OpenHltTauEleMatching(float eta, float phi);
   int OpenHltTauPFToCaloMatching(float eta, float phi);
-
-  int OpenHltL1L2TauMatching(float eta, float phi, float tauThr, float jetThre);  int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso, float L1TauEtThr, float L1CenJetThr);
+  int OpenHltL1L2TauMatching(float eta, float phi, float tauThr, float jetThre);
+  int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso, float L1TauEtThr, float L1CenJetThr);
   int OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso,
 			   float L1TauEtThr, float L1CenJetThr);
   int OpenHltTauL2SCMETPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso, float met,
@@ -3607,6 +3609,18 @@ public :
   int OpenHltElecTauL2SCPassed(float elecEt, int elecL1iso, float elecTiso, float elecHiso,
 			       float tauEt,float tauL25Tpt, int tauL25Tiso, float tauL3Tpt, int tauL3Tiso);
   int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
+  int OpenHlt1Ele1PFTauPassed(float Et, int L1iso, float Tisobarrel, float Tisoendcap,
+                                      float Tisoratiobarrel, float Tisoratioendcap, float HisooverETbarrel, float HisooverETendcap,
+                                      float EisooverETbarrel, float EisooverETendcap, float hoverebarrel, float hovereendcap,
+                                      float clusshapebarrel, float clusshapeendcap, float r9barrel, float r9endcap,
+                                      float detabarrel, float detaendcap, float dphibarrel, float dphiendcap,
+                                      float TauEt, float TauEta, float L25TrkPt, float L3TrkIso, float L3GammaIso, float PFMHTCut);
+
+  /**
+   * tells if single electron with given threshold and R9 cut passes
+   */
+  bool OpenHLT_EleX_R9cut(const float& Et, const float& r9barrel);
+
   int OpenHlt1ElectronSamHarperPassed(float Et, int L1iso,  
 				      float Tisobarrel, float Tisoendcap,  
 				      float Tisoratiobarrel, float Tisoratioendcap,  
@@ -3626,6 +3640,16 @@ public :
 				       float clusshapebarrel, float clusshapeendcap,   
 				       float r9barrel, float r9endcap,  
 				       float detabarrel, float detaendcap,  
+				       float dphibarrel, float dphiendcap); 
+  int OpenHlt3ElectronsSamHarperPassed(float Et, int L1iso, 
+				       float Tisobarrel, float Tisoendcap, 
+				       float Tisoratiobarrel, float Tisoratioendcap, 
+				       float HisooverETbarrel, float HisooverETendcap, 
+				       float EisooverETbarrel, float EisooverETendcap, 
+				       float hoverebarrel, float hovereendcap, 
+				       float clusshapebarrel, float clusshapeendcap, 
+				       float r9barrel, float r9endcap, 
+				       float detabarrel, float detaendcap, 
 				       float dphibarrel, float dphiendcap); 
   int OpenHltGetElectronsSamHarperPassed(int* Passed,
                                          float Et, int L1iso,
@@ -3673,6 +3697,7 @@ public :
 			      float EisooverETbarrel, float EisooverETendcap,
 			      float hoverebarrel, float hovereendcap,
 			      float r9barrel, float r9endcap);
+  int OpenHltPhoCuts(float e_t, float he_eb, float he_ee, float shape_eb, float shape_ee, float cal_iso, float trk_iso);
   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   std::vector<int> VectorOpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC,float HoverE=999, 
 					      float R9=999, float ClusShapEB=999, float ClusShapEC=999); 
@@ -3693,12 +3718,19 @@ public :
   int OpenHlt1JetPassed(double pt, double eta);
   int OpenHlt1JetPassed(double pt, double eta, double emfmin, double emfmax);
   int OpenHlt1CorJetPassed(double pt);
+  int OpenHlt1CorJetPassed(double pt, double eta);
   int OpenHltFwdJetPassed(double esum);
   int OpenHltFwdCorJetPassed(double esum);
+  int OpenL1QuadJet8(double jetPt, double jetEta); 
   int OpenHltDiJetAvePassed(double pt);
   int OpenHltCorDiJetAvePassed(double pt);
   int OpenHltQuadJetPassed(double pt);
   int OpenHltQuadCorJetPassed(double pt);
+  int OpenHlt1MuonIsoJetPassed(double ptl1, double ptl2, double ptl3, double dr, int iso, double JetPt, double JetEta);
+  int OpenHlt1BJetPassedMuRemoval(float jetEt, float jetEta, float drcut,
+				  float discL25, float discL3,
+				  double ptl1, double ptl2, double ptl3, double dr, int iso);
+  int OpenHltQuadJetPassedPlusTauPFId(double pt, double etaJet, double ptTau); 
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) ;
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold, double etajetthreshold) ;
@@ -3707,11 +3739,26 @@ public :
   int OpenHltMHTU(double MHTthreshold, double jetthreshold) ;
   int OpenHltMeffU(double Meffthreshold, double jetthreshold);
   int OpenHltPT12U(double PT12threshold, double jetthreshold);
+  int OpenHltMhtOverHTPassed(double HardJetThreshold,double HtJetThreshold, double MhtJetThreshold, double MHTovHT,int NJets);
+  int OpenHltMhtOverHTPassedHTthresh(double HT,double MHTovHT);
   int OpenHlt1PixelTrackPassed(float minpt, float minsep, float miniso);
   int OpenHltHTJetNJPassed(double HTthreshold, double jetthreshold, double etamax, int nj);
   int OpenHlt1ElectronHTPassed(float Et, float HT,float jetThreshold, int L1iso, float Tiso, float Hiso, float dr); 
   int OpenHlt1ElectronEleIDHTPassed(float Et, float HT,float jetThreshold, int L1iso, float Tiso, float Hiso, float dr); 
   int OpenHltRPassed(float Rmin, float MRmin,bool MRP, int NJmax, float jetPt);
+  int OpenHlt1BJetPassedEleRemoval(float jetEt, float jetEta, float drcut, 
+                                   float discL25, float discL3, 
+                                   float Et, int L1iso,  
+                                   float Tisobarrel, float Tisoendcap,  
+                                   float Tisoratiobarrel, float Tisoratioendcap,  
+                                   float HisooverETbarrel, float HisooverETendcap,  
+                                   float EisooverETbarrel, float EisooverETendcap, 
+                                   float hoverebarrel, float hovereendcap, 
+                                   float clusshapebarrel, float clusshapeendcap,  
+                                   float r9barrel, float r9endcap, 
+                                   float detabarrel, float detaendcap, 
+                                   float dphibarrel, float dphiendcap); 
+
   int readRefPrescaleFromFile(TString st); 
 
   int OpenL1SetSingleJetBit(const float& thresh);
@@ -4192,15 +4239,15 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohOniaTrackDz", ohOniaTrackDz, &b_ohOniaTrackDz); 
   fChain->SetBranchAddress("ohOniaTrackHits", ohOniaTrackHits, &b_ohOniaTrackHits); 
   fChain->SetBranchAddress("ohOniaTrackNormChi2", ohOniaTrackNormChi2, &b_ohOniaTrackNormChi2); 
-  fChain->SetBranchAddress("NohPFTau", &NohPFTau, &b_NohPFTau); 
-  fChain->SetBranchAddress("pfTauPt", pfTauPt, &b_pfTauPt); 
-  fChain->SetBranchAddress("pfTauEta", pfTauEta, &b_pfTauEta); 
-  fChain->SetBranchAddress("pfTauPhi", pfTauPhi, &b_pfTauPhi); 
-  fChain->SetBranchAddress("pfTauLeadTrackPt", pfTauLeadTrackPt, &b_pfTauLeadTrackPt); 
-  fChain->SetBranchAddress("pfTauLeadPionPt", pfTauLeadPionPt, &b_pfTauLeadPionPt); 
-  fChain->SetBranchAddress("pfTauTrkIso", pfTauTrkIso, &b_pfTauTrkIso); 
-  fChain->SetBranchAddress("pfTauGammaIso", pfTauGammaIso, &b_pfTauGammaIso); 
-  fChain->SetBranchAddress("pfTauJetPt", pfTauJetPt, &b_pfTauJetPt); 
+  fChain->SetBranchAddress("NohpfTau", &NohpfTau, &b_NohpfTau); 
+  fChain->SetBranchAddress("ohpfTauPt", ohpfTauPt, &b_ohpfTauPt); 
+  fChain->SetBranchAddress("ohpfTauEta", ohpfTauEta, &b_ohpfTauEta); 
+  fChain->SetBranchAddress("ohpfTauPhi", ohpfTauPhi, &b_ohpfTauPhi); 
+  fChain->SetBranchAddress("ohpfTauLeadTrackPt", ohpfTauLeadTrackPt, &b_ohpfTauLeadTrackPt); 
+  fChain->SetBranchAddress("ohpfTauLeadPionPt", ohpfTauLeadPionPt, &b_ohpfTauLeadPionPt); 
+  fChain->SetBranchAddress("ohpfTauTrkIso", ohpfTauTrkIso, &b_ohpfTauTrkIso); 
+  fChain->SetBranchAddress("ohpfTauGammaIso", ohpfTauGammaIso, &b_ohpfTauGammaIso); 
+  fChain->SetBranchAddress("ohpfTauJetPt", ohpfTauJetPt, &b_ohpfTauJetPt); 
   fChain->SetBranchAddress("pfMHT", &pfMHT, &b_pfMHT); 
   fChain->SetBranchAddress("NohPFJet", &NohPFJet, &b_NohPFJet); 
   fChain->SetBranchAddress("pfJetPt", pfJetPt, &b_pfJetPt); 
@@ -7182,6 +7229,8 @@ void OHltTree::SetOpenL1Bits()
   OpenL1_SingleJet20_FwdVeto = 0;
   OpenL1_DoubleEG2_FwdVeto = 0;
   OpenL1_ETT220 = 0;
+  OpenL1_SingleMu5_Eta1pt5_Qal7 = 0;
+  OpenL1_QuadJet8U = 0; 
 
   if(L1GoodSingleMuPt[0] > 3.0 && (L1NIsolEmEt[0] > 5.0 || L1IsolEmEt[0] > 5.0)) 
     OpenL1_Mu3EG5 = 1; 
@@ -7219,6 +7268,23 @@ void OHltTree::SetOpenL1Bits()
   if(rc5 >= 2)
     OpenL1_DoubleMu5 = 1;
 
+  Int_t rc = 0;
+  for(Int_t i = 0; i < NL1Mu; i++)
+    {
+      if(L1MuQal[i] == 7)
+        {
+          if(fabs(L1MuEta[i]) < 1.5)
+            {
+              if(L1MuPt[i] > 5)
+		{
+		  rc++;
+		}
+            }
+        }
+    }
+  if(rc >= 1)
+    OpenL1_SingleMu5_Eta1pt5_Qal7 = 1;
+
   if(L1CenJetEt[0] >= 20.0 || L1ForJetEt[0] >= 20.0 || L1TauEt[0] >= 20.0)
     {
       if((L1HfTowerCountNegativeEtaRing1 < 2) &&
@@ -7240,6 +7306,20 @@ void OHltTree::SetOpenL1Bits()
   if(L1EtTot > 220)
     OpenL1_ETT220 = 1;  
 
+  Int_t njetsforquad = 0; 
+  for(Int_t j = 0; j < NL1ForJet;j++)  
+    {  
+      if(L1ForJetEt[j] > 8.0) 
+        njetsforquad++;  
+    } 
+  for(Int_t k = 0;k < NL1CenJet;k++)  
+    { 
+      if(L1CenJetEt[k] > 8.0)  
+        njetsforquad++;   
+    } 
+  if(njetsforquad >= 4) 
+    OpenL1_QuadJet8U = 1; 
+
   map_BitOfStandardHLTPath["OpenL1_ZeroBias"] = OpenL1_ZeroBias;
   map_BitOfStandardHLTPath["OpenL1_Mu3EG5"] = OpenL1_Mu3EG5;
   map_BitOfStandardHLTPath["OpenL1_EG5_HTT100"] = OpenL1_EG5_HTT100;
@@ -7250,6 +7330,8 @@ void OHltTree::SetOpenL1Bits()
   map_BitOfStandardHLTPath["OpenL1_SingleJet20_FwdVeto"] = OpenL1_SingleJet20_FwdVeto;
   map_BitOfStandardHLTPath["OpenL1_DoubleEG2_FwdVeto"] = OpenL1_DoubleEG2_FwdVeto;
   map_BitOfStandardHLTPath["OpenL1_ETT220"] = OpenL1_ETT220; 
+  map_BitOfStandardHLTPath["OpenL1_SingleMu5_Eta1pt5_Qal7"] = OpenL1_SingleMu5_Eta1pt5_Qal7;
+  map_BitOfStandardHLTPath["OpenL1_QuadJet8U"] = OpenL1_QuadJet8U;    
 
   map_BitOfStandardHLTPath["OpenL1_SingleJet6"]  = OpenL1SetSingleJetBit(6)>=1;
   map_BitOfStandardHLTPath["OpenL1_SingleJet10"] = OpenL1SetSingleJetBit(10)>=1;

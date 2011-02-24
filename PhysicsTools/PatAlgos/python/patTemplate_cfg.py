@@ -20,11 +20,96 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string( 'START39_V7::All' )
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )
 process.load("Configuration.StandardSequences.MagneticField_cff")
+# DB access for JEC
+import CondCore.DBCommon.CondDBCommon_cfi
+process.dbJetCorrections = cms.ESSource( "PoolDBESSource"
+, CondCore.DBCommon.CondDBCommon_cfi.CondDBCommon
+, toGet   = cms.VPSet(
+    cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Spring10_V8_KT4PF' )
+    , label   = cms.untracked.string( 'KT4PF' )
+    )
+  , cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Spring10_V8_KT4Calo' )
+    , label   = cms.untracked.string( 'KT4Calo' )
+    )
+  , cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Spring10_V8_AK7Calo' )
+    , label   = cms.untracked.string( 'AK7Calo' )
+    )
+  , cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Spring10_V8_KT6PF' )
+    , label   = cms.untracked.string( 'KT6PF' )
+    )
+  , cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Spring10_V8_AK7PF' )
+    , label   = cms.untracked.string( 'AK7PF' )
+    )
+  , cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Spring10_V8_AK5TRK' )
+    , label   = cms.untracked.string( 'AK5TRK' )
+    )
+  , cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Spring10_V8_KT6Calo' )
+    , label   = cms.untracked.string( 'KT6Calo' )
+    )
+  , cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Spring10_V8_IC5PF' )
+    , label   = cms.untracked.string( 'IC5PF' )
+    )
+  , cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Spring10_V8_AK5Calo' )
+    , label   = cms.untracked.string( 'AK5Calo' )
+    )
+  , cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Spring10_V8_AK5PF' )
+    , label   = cms.untracked.string( 'AK5PF' )
+    )
+  , cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Summer10_V8_AK5JPT' )
+    , label   = cms.untracked.string( 'AK5JPT' )
+    )
+  , cms.PSet(
+      connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
+    , record  = cms.string( 'JetCorrectionsRecord' )
+    , tag     = cms.string( 'JetCorrectorParametersCollection_Spring10_V8_IC5Calo' )
+    , label   = cms.untracked.string( 'IC5Calo' )
+    )
+  )
+)
+process.preferJetCorrections = cms.ESPrefer( "PoolDBESSource", "dbJetCorrections" )
 
 ## Standard PAT Configuration File
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
+
+## internediate step to get the taus working untill they are part of RECO
+process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+process.p0 = cms.Path(process.PFTau)
 
 ## Output Module Configuration (expects a path 'p')
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent

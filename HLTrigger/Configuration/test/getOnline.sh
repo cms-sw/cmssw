@@ -1,11 +1,11 @@
 #! /bin/bash
 
-HLT='/dev/CMSSW_3_11_0/GRun'
-L1T='L1Menu_Collisions2010_v0'
+HLT='/online/collisions/2011/5e32/v4/HLT'
+L1T='L1GtTriggerMenu_L1Menu_Collisions2011_v0a_mc'
 
-hltGetConfiguration $HLT --process TEST --full --offline --mc   --l1 $L1T --unprescale > offline_mc.py
-hltGetConfiguration $HLT --process TEST --full --offline --data --l1 $L1T --unprescale > offline_data.py
-hltGetConfiguration $HLT --process TEST --full --online  --data --l1 $L1T --unprescale > online_data.py
+hltGetConfiguration $HLT --process TEST --full --offline --mc   --unprescale > offline_mc.py
+hltGetConfiguration $HLT --process TEST --full --offline --data --unprescale > offline_data.py
+hltGetConfiguration $HLT --process TEST --full --online  --data --unprescale > online_data.py
 
 {
   TABLE=$(echo $HLT | cut -d: -f2)

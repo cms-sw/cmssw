@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/11/13 19:32:23 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/02/16 22:31:10 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -195,7 +195,7 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (trh.isValid()) {
     LogDebug("HLTHighLevel") << "TriggerResults found, number of HLT paths: " << trh->size();
   } else {
-    LogDebug("HLTHighLevel") << "TriggerResults product not found - returning result=false!";
+    LogError("HLTHighLevel") << "TriggerResults product " << inputTag_.encode() << " not found - returning result=false!";
     return false;
   }
 

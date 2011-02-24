@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 #define PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 //
-// $Id: PATSingleVertexSelector.h,v 1.3 2010/02/20 21:00:27 wmtan Exp $
+// $Id: PATSingleVertexSelector.h,v 1.2 2009/03/26 20:44:37 vadler Exp $
 //
 
 /**
@@ -10,7 +10,7 @@
 
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATSingleVertexSelector.h,v 1.3 2010/02/20 21:00:27 wmtan Exp $
+  \version  $Id: PATSingleVertexSelector.h,v 1.2 2009/03/26 20:44:37 vadler Exp $
 */
 
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -52,10 +52,6 @@ namespace pat {
       std::vector<const reco::Vertex *> selVtxs_;
       const reco::Candidate *           bestCand_;
       
-      // flag to enable/disable EDFilter functionality:
-      // if set to false, PATSingleVertexSelector selects the "one" event vertex,
-      // but does not reject any events
-      bool doFilterEvents_;
   };
 
 }

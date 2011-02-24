@@ -57,6 +57,7 @@ addMixingScenario("NoPileUp",{'file': 'SimGeneral.MixingModule.mixNoPU_cfi'})
 addMixingScenario("E7TeV_ProbDist_2010Data_BX156",{'file': 'SimGeneral.MixingModule.mix_E7TeV_ProbDist_2010Data_BX156_cfi'})
 addMixingScenario("E8TeV_ProbDist_2011EarlyData_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_ProbDist_2011EarlyData_50ns_cfi'})
 addMixingScenario("E8TeV_FlatDist_2011EarlyData_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_FlatDist_2011EarlyData_50ns_cfi'})
+addMixingScenario("E7TeV_FlatDist10_2011EarlyData_50ns",{'file': 'SimGeneral.MixingModule.mix_E7TeV_FlatDist10_2011EarlyData_50ns_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 
 ##fastsim section

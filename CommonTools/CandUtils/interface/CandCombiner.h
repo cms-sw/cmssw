@@ -27,13 +27,19 @@ namespace combiner {
     struct ShallowClone {
       typedef reco::CandidateBaseRef CandPtr;
       static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidateBaseRef & c, const std::string name = "") {
-        cmp.addDaughter(reco::ShallowCloneCandidate(c), name);
+	if(c->numberOfDaughters()==0)
+	  cmp.addDaughter(reco::ShallowCloneCandidate(c), name);
+	else
+	  cmp.addDaughter(*c, name);
       }
     };
     struct ShallowClonePtr {
       typedef reco::CandidatePtr CandPtr;
       static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidatePtr & c, const std::string name = "") {
-	cmp.addDaughter(reco::ShallowClonePtrCandidate(c), name);
+	if(c->numberOfDaughters()==0)
+	  cmp.addDaughter(reco::ShallowClonePtrCandidate(c), name);
+	else
+	  cmp.addDaughter(*c, name);
       }
     };
  }
@@ -122,8 +128,8 @@ public:
     base(true, dauCharge), select_(), selectPair_(), setup_() { }
   /// constructor from a selector, specifying optionally to check for charge
   CandCombiner(const Selector & select, const PairSelector & selectPair, const Setup & setup,
-	       bool checkCharge, bool checkOverlap, const std::vector <int> & dauCharge) : 
-    base(checkCharge, checkOverlap, dauCharge), 
+	       bool checkCharge, const std::vector <int> & dauCharge) : 
+    base(checkCharge, dauCharge), 
     select_(select), selectPair_(selectPair), setup_(setup) { }
   /// return reference to setup object to allow its initialization
   Setup & setup() { return setup_; }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.12 2010/11/24 10:16:52 amraktad Exp $
+// $Id: FWTabularWidget.cc,v 1.13 2010/11/24 16:10:08 amraktad Exp $
 //
 
 // system include files
@@ -56,7 +56,6 @@ m_backgroundGC(ULONG_MAX)
    Resize();
    
    gVirtualX->GrabButton(fId,kAnyButton, kAnyModifier, kButtonPressMask|kButtonReleaseMask,kNone,kNone);
-   m_table->Connect("dataChanged()","FWTabularWidget",this,"dataChanged()");
    m_table->Connect("visualPropertiesChanged()","FWTabularWidget",this,"needToRedraw()");
 }
 
@@ -67,7 +66,6 @@ m_backgroundGC(ULONG_MAX)
 
 FWTabularWidget::~FWTabularWidget()
 {
-   m_table->Disconnect("dataChanged()", this, "dataChanged()");
    m_table->Disconnect("visualPropertiesChanged()", this, "needToRedraw()");
 }
 

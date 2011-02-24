@@ -21,14 +21,19 @@
 //
 
 #include "boost/mpl/vector.hpp"
+//#include "Geometry/Records/interface/MuonGeometryRecord.h"
+//#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
 
-class DTT0Rcd;
-class DTTPGParametersRcd;
+
+//class DTConfigManagerRcd : public edm::eventsetup::DependentRecordImplementation<DTConfigManagerRcd, boost::mpl::vector<MuonGeometryRecord> > {};
+//class DTConfigManagerRcd : public edm::eventsetup::EventSetupRecordImplementation<DTConfigManagerRcd> {};
 
 class DTConfigManagerRcd : public
-edm::eventsetup::DependentRecordImplementation<DTConfigManagerRcd,boost::mpl::vector<DTCCBConfigRcd,DTKeyedConfigListRcd,DTT0Rcd,DTTPGParametersRcd> > {};
+// @@@ add another record to dependence list
+//edm::eventsetup::DependentRecordImplementation<DTConfigManagerRcd,boost::mpl::vector<DTCCBConfigRcd> > {};
+edm::eventsetup::DependentRecordImplementation<DTConfigManagerRcd,boost::mpl::vector<DTCCBConfigRcd,DTKeyedConfigListRcd> > {};
 
 #endif

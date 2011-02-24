@@ -137,10 +137,8 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
   }
   else {
     bool success = CosMuoGen->nextMultiEvent();
-    if (!success) {
-      std::cout << "CosMuoGenProducer.cc: CosMuoGen->nextMultiEvent() failed!" << std::endl;
-      return; //skip event, either bad or no more events in file
-    }
+    if (!success) std::cout << "CosMuoGenProducer.cc: CosMuoGen->nextMultiEvent() failed!" 
+			    << std::endl;
   }
 
   if (Debug) {

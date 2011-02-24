@@ -235,7 +235,6 @@ g4SimHits = cms.EDProducer("OscarProducer",
         OnlyLong        = cms.bool(True),
         LambdaMean      = cms.double(350.0),
         CheckSurvive    = cms.bool(False),
-        ApplyFiducialCut= cms.bool(True),
         ParametrizeLast = cms.untracked.bool(False)
     ),
     HFShowerLibrary = cms.PSet(
