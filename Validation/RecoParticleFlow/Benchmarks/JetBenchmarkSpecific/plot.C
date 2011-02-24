@@ -12,8 +12,8 @@ Resolution(1,"JetBenchmark_Fast_3110pre3.root","JetBenchmark_Fast_Barrel.png","F
  Resolution(1,"JetBenchmark_Full_3110pre3.root","JetBenchmark_Full_Barrel.png","Full simulation - Barrel resolution");
 Resolution(2,"JetBenchmark_Fast_3110pre3.root","JetBenchmark_Fast_Endcap.png","Fast simulation - Endcap resolution");
  Resolution(2,"JetBenchmark_Full_3110pre3.root","JetBenchmark_Full_Endcap.png","Full simulation - Endcap resolution");
-//Resolution(3,"JetBenchmark_Fast_3110pre3.root","JetBenchmark_Fast_Forward_3110pre3.png");
-//Resolution(3,"JetBenchmark_Fast_3110pre3.root","JetBenchmark_Fast_Forward_3110pre3.png");
+Resolution(3,"JetBenchmark_Fast_3110pre3.root","JetBenchmark_Fast_Forward.png","Fast simulation - Forward resolution");
+Resolution(3,"JetBenchmark_Fast_3110pre3.root","JetBenchmark_Full_Forward.png","Full simulation - Forward resolution");
 
 
 gROOT->ProcessLine(".L Compare.C");
