@@ -44,7 +44,7 @@ double threshH = 2.5;  // End-caps
 // Barrel
 //double etamin = 0.0;
 //double etamax = 1.2;
-/*
+/* */
 bool endcap = false;
 double etamin = 0.0;
 double etamax = 1.6;
@@ -54,9 +54,9 @@ double etamin_FitE = 0.0;
 double etamax_FitE = 1.0;
 double etamin_FitEta = 0.0;
 double etamax_FitEta = 1.3;
-*/
-// Endcap
 /* */
+// Endcap
+/*
 bool endcap = true;
 double etamin = 1.5;
 double etamax = 3.0;
@@ -66,7 +66,7 @@ double etamin_FitE = 1.6;
 double etamax_FitE = 2.2;
 double etamin_FitEta = 1.6;
 double etamax_FitEta = 2.8;
-/* */
+*/
 //double etamin = 1.3;
 //double etamax = 3.0;
 // Endcap - HF border
@@ -1378,25 +1378,17 @@ computeBarrelCoefficients(const char* calibFile) {
   //TF1* faEta = new TF1("faEta","[0]+[1]*exp(-x/[2])+[3]*[3]*exp(-x*x/([4]*[4]))",0,1000);
   TF1* faEta = new TF1("faEta","[0]+[1]*exp(-x/[2])",0,1000);
   faEta->SetParameters(0.02,-0.1,200);
-  if (etamin<0.1) { 
-    // faEta->FixParameter(0,0.02);
-  } else { 
-  }
 
   graEta0->Fit("faEta","","",2.0,1000);  
   graEta0->Fit("faEta","","",2.0,1000);
 
-  TF1* fbEta = new TF1("fbEta","[0]+[1]*exp(-x/[2])+[3]*[3]*exp(-x*x/([4]*[4]))",0,1000);
-  //TF1* fbEta = new TF1("fbEta","[0]+[1]*exp(-x/[2])",0,1000);
-  if ( etamin < 0.1 ) {
-    //fbEta->SetParameters(-0.02,0.4,200,-0.1,5.);
-    fbEta->SetParameters(-0.02,0.4,200,0.,0.);
-    fbEta->FixParameter(3,0.);
-    fbEta->FixParameter(4,0.);
-    //fbEta->FixParameter(0,-0.02);
-  } else {
+  TF1* fbEta; 
+  if ( endcap ) {
+    fbEta = new TF1("fbEta","[0]+[1]*exp(-x/[2])+[3]*[3]*exp(-x*x/([4]*[4]))",0,1000);
     fbEta->SetParameters(0.07,-2.5,6.0,0.3,175.);
-    //fbEta->SetParameters(0.07,-2.5,6.0);
+  } else {
+    fbEta = new TF1("fbEta","[0]+[1]*exp(-x/[2])",0,1000);
+    fbEta->SetParameters(-0.02,0.4,200);
   }
 
   grbEta0->Fit("fbEta","","",2.0,1000);  
@@ -1528,6 +1520,53 @@ computeBarrelCoefficients(const char* calibFile) {
   const char* fc_expression = fc->GetTitle();
   const char* faEta_expression = faEta->GetTitle();
   const char* fbEta_expression = fbEta->GetTitle();
+  std::vector<TF1*> functions;
+  std::vector<const char*> expressions;
+  std::vector<std::string> funcnames;
+  functions.push_back(fa);
+  functions.push_back(fb);
+  functions.push_back(fc);
+  functions.push_back(faEta);
+  functions.push_back(fbEta);
+  expressions.push_back(fa->GetTitle());
+  expressions.push_back(fb->GetTitle());
+  expressions.push_back(fc->GetTitle());
+  expressions.push_back(faEta->GetTitle());
+  expressions.push_back(fbEta->GetTitle());
+  if ( endcap ) { 
+    funcnames.push_back(std::string("PFfa_ENDCAP"));
+    funcnames.push_back(std::string("PFfb_ENDCAP"));
+    funcnames.push_back(std::string("PFfc_ENDCAP"));
+    funcnames.push_back(std::string("PFfaEta_ENDCAP"));
+    funcnames.push_back(std::string("PFfbEta_ENDCAP"));
+  } else { 
+    funcnames.push_back(std::string("PFfa_BARREL"));
+    funcnames.push_back(std::string("PFfb_BARREL"));
+    funcnames.push_back(std::string("PFfc_BARREL"));
+    funcnames.push_back(std::string("PFfaEta_BARREL"));
+    funcnames.push_back(std::string("PFfbEta_BARREL"));
+  }
+    
+  std::cout << "  toWrite = cms.VPSet(" << std::endl;
+  for ( unsigned iex=0; iex < expressions.size(); ++iex ) { 
+    std::cout << "            cms.PSet(fType      = cms.untracked.string(\"" << funcnames[iex] << "\"), " << std::endl; 
+    std::cout << "                     formula    = cms.untracked.string(\"" << expressions[iex] << "\")," << std::endl;
+    std::cout << "                     limits     = cms.untracked.vdouble(1., 1000.)," << std::endl;
+    std::cout << "                     parameters = cms.untracked.vdouble("; 
+    for ( unsigned ip=0; ip < 10 ; ++ip ) { 
+      double param = functions[iex]->GetParameter(ip);
+      if ( param != 0. ) { 
+	std::cout << param << ", ";
+      } else { 
+	std::cout << " ) " << std::endl;
+	break;
+      }
+    }
+    std::cout << "                    )," << std::endl;
+  }
+  std::cout << "            )," << std::endl;
+
+
 
   cout << "  threshE = " << threshE << ";" << endl; 
   cout << "  threshH = " << threshH << ";" << endl; 
