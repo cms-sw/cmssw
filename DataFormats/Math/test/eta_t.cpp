@@ -59,6 +59,8 @@ namespace {
 
   inline float eta3(float x, float y, float z) { float t(z/std::sqrt(x*x+y*y)); return ::asinhf(t);} 
   inline double eta3(double x, double y, double z) { double t(z/std::sqrt(x*x+y*y)); return ::asinh(t);} 
+  inline long double eta3(long double x, long double y, long double z) { long double t(z/std::sqrt(x*x+y*y)); return ::asinhl(t);} 
+
   
   void look(float x) {
     int e;
@@ -71,7 +73,8 @@ namespace {
     } f;
     
     f.val = x;
-    printf("%e %a %x\n",  f.val,  f.val,  f.bin);
+    // printf("%e %a %x\n",  f.val,  f.val,  f.bin);
+    printf("%e %x\n", f.val,  f.bin);
     int log_2 = ((f.bin >> 23) & 255) - 127;  //exponent
     f.bin &= 0x7FFFFF;                               //mantissa (aka significand)
     
@@ -91,8 +94,10 @@ namespace {
     } f;
     
     f.val = x;
-    printf("%e %a %x\n",  f.val,  f.val,  f.bin);
-    
+
+    // printf("%e %a %x\n",  f.val,  f.val,  f.bin);
+    printf("%e %x\n", f.val,  f.bin);
+
   }
 
 }
