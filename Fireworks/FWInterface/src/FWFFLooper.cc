@@ -235,11 +235,12 @@ FWFFLooper::checkPosition()
       return;
   
    guiManager()->getMainFrame()->enableNavigatorControls();
+   guiManager()->getMainFrame()->enableComplexNavigation(false);
 
-   if (m_navigator->isFirstEvent())
+   if (m_isFirstEvent)
       guiManager()->disablePrevious();
 
-   if (m_navigator->isLastEvent())
+   if (m_isLastEvent)
    {
       guiManager()->disableNext();
       // force enable play events action in --port mode
@@ -247,6 +248,43 @@ FWFFLooper::checkPosition()
          guiManager()->playEventsAction()->enable();
    }
 }
+
+/** This actually needs to be different from the standalone
+    case because nextEvent() / previousEvent() will immediately
+    interrupt the GUI event loop and fall back to the looper.
+  */
+void
+FWFFLooper::autoLoadNewEvent()
+{
+   stopAutoLoadTimer();
+   bool reachedEnd = (forward() && m_isLastEvent) || (!forward() && m_isFirstEvent);
+
+   if (!reachedEnd || loop())
+   {
+      // Will exit the loop here!
+      m_autoReload = true;
+      forward() ? m_navigator->nextEvent() : m_navigator->previousEvent();
+   }
+   else
+   {
+      m_autoReload = false;
+      setIsPlaying(false);
+      guiManager()->enableActions();
+      guiManager()->getMainFrame()->enableComplexNavigation(false);
+   }
+}
+
+void
+FWFFLooper::stopPlaying()
+{
+   stopAutoLoadTimer();
+   setIsPlaying(false);
+   guiManager()->enableActions();
+   guiManager()->getMainFrame()->enableComplexNavigation(false);
+   checkPosition();
+}
+
+
 //------------------------------------------------------------------------------
 
 void
@@ -323,6 +361,8 @@ FWFFLooper::duringLoop(const edm::Event &event,
                        const edm::EventSetup&es, 
                        edm::ProcessingController &controller)
 {
+   m_isLastEvent = controller.forwardState() == edm::ProcessingController::kAtLastEvent;
+   m_isFirstEvent = controller.reverseState() == edm::ProcessingController::kAtFirstEvent;
    // If the next event id is valid, set the transition so 
    // that we go to it go to to it.
    if (m_nextEventId != edm::EventID())
@@ -335,8 +375,12 @@ FWFFLooper::duringLoop(const edm::Event &event,
    m_pathsGUI->hasChanges() = false;
    m_metadataManager->update(new FWFFMetadataUpdateRequest(event));
    m_navigator->setCurrentEvent(&event);
+   if (m_autoReload == true)
+      startAutoLoadTimer();
+
    checkPosition();
    draw();
+      
    m_Rint->Run(kTRUE);
    // If the GUI changed the PSet, save the current event to reload
    // it on next iteration.

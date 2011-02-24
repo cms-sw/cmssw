@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.110.2.1 2011/02/11 19:42:16 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.111 2011/02/11 19:56:36 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -605,6 +605,24 @@ CmsShowMainFrame::enableNext(bool enable)
          m_playEvents->disable();
          m_playEvents->stop();
       }
+   }
+}
+
+/** To disable GUI to jump from event to another,
+    when this is not possible (i.e. when in full framework mode).
+  */
+void
+CmsShowMainFrame::enableComplexNavigation(bool enable)
+{
+   if (enable)
+   {
+      m_goToFirst->enable();
+      m_goToLast->enable();
+   }
+   else
+   {
+      m_goToFirst->disable();
+      m_goToLast->disable();
    }
 }
 

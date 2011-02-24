@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.104 2011/02/22 14:29:06 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.105 2011/02/22 15:23:08 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -966,6 +966,6 @@ CmsShowNavigator::frameTitle()
 
 
    return Form("%s [%d/%d], event [%d/%d]", (*m_currentFile)->file()->GetName(),
-               nf+1,  m_files.size(),
+               nf+1,  (int) m_files.size(),
                m_currentEvent+1, (*m_currentFile)->lastEvent()+1);
 }
