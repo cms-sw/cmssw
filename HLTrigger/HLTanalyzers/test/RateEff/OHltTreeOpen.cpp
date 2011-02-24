@@ -3004,6 +3004,73 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   else if (triggerName.CompareTo("OpenHLT_Mu3_Track3_Jpsi") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       //       cout << "checking for Onia " << endl;
+	       //variables for pixel cuts
+	       double ptPix = 0.;
+	       double pPix = 3.;
+	       double etaPix = 999.;
+	       double DxyPix = 999.;
+	       double DzPix = 999.;
+	       int NHitsPix = 3;
+	       double normChi2Pix = 999999999.;
+	       double massMinPix[1] = { 2.6 };
+	       double massMaxPix[1] = { 3.6 };
+	       double DzMuonPix = 999.;
+	       bool checkChargePix = false;
+	       //variables for tracker track cuts
+	       double ptTrack = 3.;
+	       double pTrack = 5.;
+	       double etaTrack = 999.;
+	       double DxyTrack = 999.;
+	       double DzTrack = 999.;
+	       int NHitsTrack = 5;
+	       double normChi2Track = 999999999.;
+	       double massMinTrack[1] = { 2.8 };
+	       double massMaxTrack[1] = { 3.4 };
+	       double DzMuonTrack = 0.5;
+	       bool checkChargeTrack = true;
+	       if ((OpenHlt1MuonPassed(0., 3., 3., 2., 0)>=1) && //check the L3 muon
+		   OpenHltMuPixelPassed_JPsi(
+					     ptPix,
+					     pPix,
+					     etaPix,
+					     DxyPix,
+					     DzPix,
+					     NHitsPix,
+					     normChi2Pix,
+					     massMinPix,
+					     massMaxPix,
+					     DzMuonPix,
+					     checkChargePix,
+					     5) && //check the L3Mu + pixel
+		   OpenHltMuTrackPassed_JPsi(
+					     ptTrack,
+					     pTrack,
+					     etaTrack,
+					     DxyTrack,
+					     DzTrack,
+					     NHitsTrack,
+					     normChi2Track,
+					     massMinTrack,
+					     massMaxTrack,
+					     DzMuonTrack,
+					     checkChargeTrack,
+					     5))
+		 {
+		   //check the L3Mu + tracker track
+		   triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
+
+
    else if (triggerName.CompareTo("OpenHLT_Mu3_Track5_Jpsi") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -3134,6 +3201,206 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+
+   else if (triggerName.CompareTo("OpenHLT_Mu5_Track5_Jpsi") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       //       cout << "checking for Onia " << endl;
+	       //variables for pixel cuts
+	       double ptPix = 0.;
+	       double pPix = 3.;
+	       double etaPix = 999.;
+	       double DxyPix = 999.;
+	       double DzPix = 999.;
+	       int NHitsPix = 3;
+	       double normChi2Pix = 999999999.;
+	       double massMinPix[1] = { 2.6 };
+	       double massMaxPix[1] = { 3.6 };
+	       double DzMuonPix = 999.;
+	       bool checkChargePix = false;
+	       //variables for tracker track cuts
+	       double ptTrack = 5.;
+	       double pTrack = 3.;
+	       double etaTrack = 999.;
+	       double DxyTrack = 999.;
+	       double DzTrack = 999.;
+	       int NHitsTrack = 5;
+	       double normChi2Track = 999999999.;
+	       double massMinTrack[1] = { 2.8 };
+	       double massMaxTrack[1] = { 3.4 };
+	       double DzMuonTrack = 0.5;
+	       bool checkChargeTrack = true;
+	       if ((OpenHlt1MuonPassed(3., 4., 5., 2., 0)>=1) && //check the L3 muon
+		   OpenHltMuPixelPassed_JPsi(
+					     ptPix,
+					     pPix,
+					     etaPix,
+					     DxyPix,
+					     DzPix,
+					     NHitsPix,
+					     normChi2Pix,
+					     massMinPix,
+					     massMaxPix,
+					     DzMuonPix,
+					     checkChargePix,
+					     6) && //check the L3Mu + pixel
+		   OpenHltMuTrackPassed_JPsi(
+					     ptTrack,
+					     pTrack,
+					     etaTrack,
+					     DxyTrack,
+					     DzTrack,
+					     NHitsTrack,
+					     normChi2Track,
+					     massMinTrack,
+					     massMaxTrack,
+					     DzMuonTrack,
+					     checkChargeTrack,
+					     6))
+		 {
+		   //check the L3Mu + tracker track
+		   triggerBit[it] = true;
+		 }
+	     }
+         }
+     }
+
+   else if (triggerName.CompareTo("OpenHLT_Mu7_Track5_Jpsi") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+         {
+           if (prescaleResponse(menu, cfg, rcounter, it))
+             {
+               //       cout << "checking for Onia " << endl;
+               //variables for pixel cuts
+               double ptPix = 0.;
+               double pPix = 3.;
+               double etaPix = 999.;
+               double DxyPix = 999.;
+               double DzPix = 999.;
+               int NHitsPix = 3;
+               double normChi2Pix = 999999999.;
+               double massMinPix[1] = { 2.6 };
+               double massMaxPix[1] = { 3.6 };
+               double DzMuonPix = 999.;
+               bool checkChargePix = false;
+               //variables for tracker track cuts
+               double ptTrack = 5.;
+               double pTrack = 3.;
+               double etaTrack = 999.;
+               double DxyTrack = 999.;
+               double DzTrack = 999.;
+               int NHitsTrack = 5;
+               double normChi2Track = 999999999.;
+               double massMinTrack[1] = { 2.8 };
+               double massMaxTrack[1] = { 3.4 };
+               double DzMuonTrack = 0.5;
+               bool checkChargeTrack = true;
+               if ((OpenHlt1MuonPassed(3., 4., 7., 2., 0)>=1) && //check the L3 muon
+                   OpenHltMuPixelPassed_JPsi(
+                                             ptPix,
+                                             pPix,
+                                             etaPix,
+                                             DxyPix,
+                                             DzPix,
+                                             NHitsPix,
+                                             normChi2Pix,
+                                             massMinPix,
+                                             massMaxPix,
+                                             DzMuonPix,
+                                             checkChargePix,
+                                             6) && //check the L3Mu + pixel
+                   OpenHltMuTrackPassed_JPsi(
+                                             ptTrack,
+                                             pTrack,
+                                             etaTrack,
+                                             DxyTrack,
+                                             DzTrack,
+                                             NHitsTrack,
+                                             normChi2Track,
+                                             massMinTrack,
+                                             massMaxTrack,
+                                             DzMuonTrack,
+                                             checkChargeTrack,
+                                             6))
+                 {
+                   //check the L3Mu + tracker track
+                   triggerBit[it] = true;
+                 }
+             }
+         }
+     }
+
+   else if (triggerName.CompareTo("OpenHLT_Mu7_Track7_Jpsi") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+         {
+           if (prescaleResponse(menu, cfg, rcounter, it))
+             {
+               //       cout << "checking for Onia " << endl;
+               //variables for pixel cuts
+               double ptPix = 0.;
+               double pPix = 3.;
+               double etaPix = 999.;
+               double DxyPix = 999.;
+               double DzPix = 999.;
+               int NHitsPix = 3;
+               double normChi2Pix = 999999999.;
+               double massMinPix[1] = { 2.6 };
+               double massMaxPix[1] = { 3.6 };
+               double DzMuonPix = 999.;
+               bool checkChargePix = false;
+               //variables for tracker track cuts
+               double ptTrack = 7.;
+               double pTrack = 3.;
+               double etaTrack = 999.;
+               double DxyTrack = 999.;
+               double DzTrack = 999.;
+               int NHitsTrack = 5;
+               double normChi2Track = 999999999.;
+               double massMinTrack[1] = { 2.8 };
+               double massMaxTrack[1] = { 3.4 };
+               double DzMuonTrack = 0.5;
+               bool checkChargeTrack = true;
+               if ((OpenHlt1MuonPassed(3., 4., 7., 2., 0)>=1) && //check the L3 muon
+                   OpenHltMuPixelPassed_JPsi(
+                                             ptPix,
+                                             pPix,
+                                             etaPix,
+                                             DxyPix,
+                                             DzPix,
+                                             NHitsPix,
+                                             normChi2Pix,
+                                             massMinPix,
+                                             massMaxPix,
+                                             DzMuonPix,
+                                             checkChargePix,
+                                             6) && //check the L3Mu + pixel
+                   OpenHltMuTrackPassed_JPsi(
+                                             ptTrack,
+                                             pTrack,
+                                             etaTrack,
+                                             DxyTrack,
+                                             DzTrack,
+                                             NHitsTrack,
+                                             normChi2Track,
+                                             massMinTrack,
+                                             massMaxTrack,
+                                             DzMuonTrack,
+                                             checkChargeTrack,
+                                             6))
+                 {
+		   {
+		     //check the L3Mu + tracker track
+		     triggerBit[it] = true;
+		   }
+		 }
+	     }
+	 }
+     }
 
    else if (triggerName.CompareTo("OpenHLT_DoubleMu0_Quarkonium") == 0)
    {
