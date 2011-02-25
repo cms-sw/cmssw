@@ -13,8 +13,8 @@
 
 /** \class CaloTower
     
-$Date: 2010/01/12 20:26:52 $
-$Revision: 1.16 $
+$Date: 2010/09/23 07:16:56 $
+$Revision: 1.17 $
 \author J. Mans - Minnesota
 */
 
@@ -187,9 +187,9 @@ private:
    int ecalTime_;
    int hcalTime_;
 
-  Double32_t emE_, hadE_, outerE_;
+  float emE_, hadE_, outerE_;
   // for Jet ID use: hottest cell (ECAl or HCAL)
-  Double32_t hottestCellE_;
+  float hottestCellE_;
 
   int emLvl1_,hadLvl1_;
   std::vector<DetId> constituents_;

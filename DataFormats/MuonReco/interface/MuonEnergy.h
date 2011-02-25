@@ -40,8 +40,8 @@ namespace reco {
        float hcal_timeError;
        
        /// Trajectory position at the calorimeter
-       math::XYZPoint ecal_position;
-       math::XYZPoint hcal_position;
+       math::XYZPointF ecal_position;
+       math::XYZPointF hcal_position;
        
        /// DetId of the central ECAL crystal
        DetId ecal_id;
