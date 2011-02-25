@@ -11,3 +11,5 @@
 </library>
 <library   file="HiGenCleaner.cc" name="HiGenJetPlugins">
 </library>
+<library   file="ParticleTowerProducer.cc" name="HiParticleTowerProducerPlugins">
+</library>
