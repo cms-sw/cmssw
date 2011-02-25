@@ -18,13 +18,13 @@ using namespace reco;
 
 Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
 			 const std::vector<reco::TrackRef> tr, 
-			 const std::vector<math::XYZPoint> trackPositionAtEcal, 
+			 const std::vector<math::XYZPointF> trackPositionAtEcal, 
 			 const reco::Vertex  & convVtx,
 			 const std::vector<reco::CaloClusterPtr> & matchingBC,
                          const float DCA,
-			 const std::vector<math::XYZPoint> & innPoint,
-			 const std::vector<math::XYZVector> & trackPin,
-			 const std::vector<math::XYZVector> & trackPout,
+			 const std::vector<math::XYZPointF> & innPoint,
+			 const std::vector<math::XYZVectorF> & trackPin,
+			 const std::vector<math::XYZVectorF> & trackPout,
                          const float mva,
 			 ConversionAlgorithm algo):  
 			 
@@ -50,13 +50,13 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 
 Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
 			 const std::vector<edm::RefToBase<reco::Track> > tr, 
-			 const std::vector<math::XYZPoint> trackPositionAtEcal, 
+			 const std::vector<math::XYZPointF> trackPositionAtEcal, 
 			 const reco::Vertex  & convVtx,
 			 const std::vector<reco::CaloClusterPtr> & matchingBC,
                          const float DCA,
-			 const std::vector<math::XYZPoint> & innPoint,
-			 const std::vector<math::XYZVector> & trackPin,
-			 const std::vector<math::XYZVector> & trackPout,
+			 const std::vector<math::XYZPointF> & innPoint,
+			 const std::vector<math::XYZVectorF> & trackPin,
+			 const std::vector<math::XYZVectorF> & trackPout,
                          const std::vector<uint8_t> nHitsBeforeVtx,                  
                          const std::vector<Measurement1DFloat> & dlClosestHitToVtx,
                          uint8_t nSharedHits,
@@ -99,14 +99,14 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 
   theMinDistOfApproach_ = 9999.;
   theMVAout_ = 9999.;
-  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
-  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
-  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
-  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
-  theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
-  theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
-  theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
-  theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
+  thePositionAtEcal_.push_back(math::XYZPointF(0.,0.,0.));
+  thePositionAtEcal_.push_back(math::XYZPointF(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPointF(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPointF(0.,0.,0.));
+  theTrackPin_.push_back(math::XYZVectorF(0.,0.,0.));
+  theTrackPin_.push_back(math::XYZVectorF(0.,0.,0.));
+  theTrackPout_.push_back(math::XYZVectorF(0.,0.,0.));
+  theTrackPout_.push_back(math::XYZVectorF(0.,0.,0.));
 
    
  }
@@ -126,14 +126,14 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 
   theMinDistOfApproach_ = 9999.;
   theMVAout_ = 9999.;
-  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
-  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
-  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
-  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
-  theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
-  theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
-  theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
-  theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
+  thePositionAtEcal_.push_back(math::XYZPointF(0.,0.,0.));
+  thePositionAtEcal_.push_back(math::XYZPointF(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPointF(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPointF(0.,0.,0.));
+  theTrackPin_.push_back(math::XYZVectorF(0.,0.,0.));
+  theTrackPin_.push_back(math::XYZVectorF(0.,0.,0.));
+  theTrackPout_.push_back(math::XYZVectorF(0.,0.,0.));
+  theTrackPout_.push_back(math::XYZVectorF(0.,0.,0.));
 
    
  }
@@ -147,14 +147,14 @@ Conversion::Conversion() {
   theMinDistOfApproach_ = 9999.;
   nSharedHits_ = 0;
   theMVAout_ = 9999.;
-  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
-  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
-  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
-  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
-  theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
-  theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
-  theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
-  theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
+  thePositionAtEcal_.push_back(math::XYZPointF(0.,0.,0.));
+  thePositionAtEcal_.push_back(math::XYZPointF(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPointF(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPointF(0.,0.,0.));
+  theTrackPin_.push_back(math::XYZVectorF(0.,0.,0.));
+  theTrackPin_.push_back(math::XYZVectorF(0.,0.,0.));
+  theTrackPout_.push_back(math::XYZVectorF(0.,0.,0.));
+  theTrackPout_.push_back(math::XYZVectorF(0.,0.,0.));
     
 }
 
@@ -249,21 +249,21 @@ double  Conversion::pairCotThetaSeparation() const  {
 }
 
 
-math::XYZVector  Conversion::pairMomentum() const  {
+math::XYZVectorF  Conversion::pairMomentum() const  {
   
   if ( nTracks()==2 ) {
     return this->tracksPin()[0] +  this->tracksPin()[1];
   }
-  return math::XYZVector(0.,0.,0.);
+  return math::XYZVectorF(0.,0.,0.);
 
 
 
 }
 
 
-math::XYZTLorentzVectorD Conversion::refittedPair4Momentum() const  {
+math::XYZTLorentzVectorF Conversion::refittedPair4Momentum() const  {
 
-  math::XYZTLorentzVectorD p4;
+  math::XYZTLorentzVectorF p4;
   if ( this->conversionVertex().isValid() ) 
     p4 = this->conversionVertex().p4( 0.000511, 0.5);
 
@@ -274,12 +274,12 @@ math::XYZTLorentzVectorD Conversion::refittedPair4Momentum() const  {
 
 
 
-math::XYZVector  Conversion::refittedPairMomentum() const  {
+math::XYZVectorF  Conversion::refittedPairMomentum() const  {
 
   if (  this->conversionVertex().isValid() ) {
     return this->refittedPair4Momentum().Vect();
   }
-  return math::XYZVector(0.,0.,0.);
+  return math::XYZVectorF(0.,0.,0.);
 
 }
 

@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.20 2011/02/18 20:45:12 nancy Exp $
+ * \version $Id: Conversion.h,v 1.21 2011/02/22 22:03:06 bendavid Exp $
  *
  */
 
@@ -48,13 +48,13 @@ namespace reco {
       
       Conversion( const reco::CaloClusterPtrVector clu, 
 		  const std::vector<edm::RefToBase<reco::Track> > tr,
-		  const std::vector<math::XYZPoint> trackPositionAtEcal , 
+		  const std::vector<math::XYZPointF> trackPositionAtEcal , 
 		  const reco::Vertex  &  convVtx,
 		  const std::vector<reco::CaloClusterPtr> & matchingBC,
 		  const float DCA,        
-		  const std::vector<math::XYZPoint> & innPoint,
-		  const std::vector<math::XYZVector> & trackPin ,
-		  const std::vector<math::XYZVector> & trackPout,
+		  const std::vector<math::XYZPointF> & innPoint,
+		  const std::vector<math::XYZVectorF> & trackPin ,
+		  const std::vector<math::XYZVectorF> & trackPout,
                   const std::vector<uint8_t> nHitsBeforeVtx,
                   const std::vector<Measurement1DFloat> & dlClosestHitToVtx,
                   uint8_t nSharedHits,
@@ -64,13 +64,13 @@ namespace reco {
 
       Conversion( const reco::CaloClusterPtrVector clu, 
 		  const std::vector<reco::TrackRef> tr,
-		  const std::vector<math::XYZPoint> trackPositionAtEcal , 
+		  const std::vector<math::XYZPointF> trackPositionAtEcal , 
 		  const reco::Vertex  &  convVtx,
 		  const std::vector<reco::CaloClusterPtr> & matchingBC,
 		  const float DCA,        
-		  const std::vector<math::XYZPoint> & innPoint,
-		  const std::vector<math::XYZVector> & trackPin ,
-		  const std::vector<math::XYZVector> & trackPout,
+		  const std::vector<math::XYZPointF> & innPoint,
+		  const std::vector<math::XYZVectorF> & trackPin ,
+		  const std::vector<math::XYZVectorF> & trackPout,
                   const float mva,
 		  ConversionAlgorithm=undefined);
       
@@ -112,11 +112,11 @@ namespace reco {
       /// Delta cot(Theta) where Theta is the angle in the (y,z) plane between the two tracks. Original tracks are used
       double pairCotThetaSeparation() const;
       /// Conversion tracks momentum from the tracks inner momentum
-      math::XYZVector  pairMomentum() const;
+      math::XYZVectorF  pairMomentum() const;
       /// Conversion track pair 4-momentum from the tracks refitted with vertex constraint
-      math::XYZTLorentzVectorD   refittedPair4Momentum() const;
+      math::XYZTLorentzVectorF   refittedPair4Momentum() const;
       /// Conversion tracks momentum from the tracks refitted with vertex constraint
-      math::XYZVector  refittedPairMomentum() const;
+      math::XYZVectorF  refittedPairMomentum() const;
       /// Super Cluster energy divided by track pair momentum if Standard seeding method. If a pointer to two (or more clusters)
       /// is stored in the conversion, this method returns the energy sum of clusters divided by the track pair momentum
       /// Track innermost momentum is used here
@@ -152,17 +152,17 @@ namespace reco {
 
       ///// The following are variables provided per each track
       /// positions of the track extrapolation at the ECAL front face
-      const std::vector<math::XYZPoint> & ecalImpactPosition() const  {return thePositionAtEcal_;}
+      const std::vector<math::XYZPointF> & ecalImpactPosition() const  {return thePositionAtEcal_;}
       //  pair of BC matching a posteriori the tracks
       const std::vector<reco::CaloClusterPtr>&  bcMatchingWithTracks() const { return theMatchingBCs_;}
       /// signed transverse impact parameter for each track
       std::vector<double> tracksSigned_d0() const ;
       /// Vector containing the position of the innermost hit of each track
-      const std::vector<math::XYZPoint>& tracksInnerPosition() const {return theTrackInnerPosition_;}
+      const std::vector<math::XYZPointF>& tracksInnerPosition() const {return theTrackInnerPosition_;}
       /// Vector of track momentum measured at the outermost hit
-      const std::vector<math::XYZVector>& tracksPout() const {return theTrackPout_;}
+      const std::vector<math::XYZVectorF>& tracksPout() const {return theTrackPout_;}
       /// Vector of track momentum measured at the innermost hit
-      const std::vector<math::XYZVector>& tracksPin() const  {return theTrackPin_;}
+      const std::vector<math::XYZVectorF>& tracksPin() const  {return theTrackPin_;}
       ///Vector of the number of hits before the vertex along each track trajector
       const std::vector<uint8_t> &nHitsBeforeVtx() const { return nHitsBeforeVtx_; }
       ///Vector of signed decay length with uncertainty from nearest hit on track to the conversion vtx positions
@@ -198,7 +198,7 @@ namespace reco {
       /// vector Track RefToBase
       mutable std::vector<edm::RefToBase<reco::Track> >  trackToBaseRefs_;
       /// position at the ECAl surface of the track extrapolation
-      std::vector<math::XYZPoint>  thePositionAtEcal_;
+      std::vector<math::XYZPointF>  thePositionAtEcal_;
       /// Fitted Kalman conversion vertex
       reco::Vertex theConversionVertex_;
       /// Clusters mathing the tracks (these are not the seeds)
@@ -206,11 +206,11 @@ namespace reco {
       /// Distance of min approach of the two tracks
       float theMinDistOfApproach_;
       /// P_in of tracks
-      std::vector<math::XYZPoint> theTrackInnerPosition_;    
+      std::vector<math::XYZPointF> theTrackInnerPosition_;    
       /// P_in of tracks
-      std::vector<math::XYZVector> theTrackPin_;    
+      std::vector<math::XYZVectorF> theTrackPin_;    
       /// P_out of tracks
-      std::vector<math::XYZVector> theTrackPout_;    
+      std::vector<math::XYZVectorF> theTrackPout_;    
       ///number of hits before the vertex on each trackerOnly
       std::vector<uint8_t> nHitsBeforeVtx_;
       ///signed decay length and uncertainty from nearest hit on track to conversion vertex

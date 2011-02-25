@@ -93,8 +93,8 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/11/23 14:15:25 $ 
- **  $Revision: 1.9 $
+ **  $Date: 2011/02/19 03:53:22 $ 
+ **  $Revision: 1.10 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -931,7 +931,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     
     math::XYZVector convMom =  tk1->momentum() + tk2->momentum(); 
-    math::XYZVector refittedMom =  aConv.refittedPairMomentum();
+    math::XYZVectorF refittedMom =  aConv.refittedPairMomentum();
 
     
     if (fabs(refittedMom.eta())< 1.479 ) {

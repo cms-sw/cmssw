@@ -45,7 +45,7 @@ public:
 
   ~ConversionTrackEcalImpactPoint();
 
-  std::vector<math::XYZPoint> find( const std::vector<reco::TransientTrack>& tracks, 
+  std::vector<math::XYZPointF> find( const std::vector<reco::TransientTrack>& tracks, 
 				    const edm::Handle<edm::View<reco::CaloCluster> >&  bcHandle );
 
   std::vector<reco::CaloClusterPtr> matchingBC() const {return matchingBC_;}

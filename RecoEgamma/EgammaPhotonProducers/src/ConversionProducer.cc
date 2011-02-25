@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.3 2011/02/01 20:08:25 nancy Exp $
+// $Id: ConversionProducer.cc,v 1.4 2011/02/07 17:20:51 sani Exp $
 //
 //
 
@@ -292,7 +292,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
   const TrackerGeometry* trackerGeom = trackerGeomHandle.product();
   const MagneticField* magField = magFieldHandle.product();
   
-  std::vector<math::XYZPoint> trackImpactPosition;
+  std::vector<math::XYZPointF> trackImpactPosition;
   trackImpactPosition.reserve(allTracks.size());//track impact position at ECAL
   std::vector<bool> trackValidECAL;//Does this track reach ECAL basic cluster (reach ECAL && match with BC)
   trackValidECAL.assign(allTracks.size(), false);
@@ -319,7 +319,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
     
     if (allowTrackBC_){
       //check impact position then match with BC
-      math::XYZPoint ew;
+      math::XYZPointF ew;
       if ( getTrackImpactPosition(tk, trackerGeom, magField, ew) ){
         trackImpactPosition.push_back(ew);
         
@@ -446,19 +446,19 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
       trackPairRef.push_back(left);//left track
       trackPairRef.push_back(right);//right track
 
-      std::vector<math::XYZVector> trackPin;
-      std::vector<math::XYZVector> trackPout;
-      std::vector<math::XYZPoint> trackInnPos;
+      std::vector<math::XYZVectorF> trackPin;
+      std::vector<math::XYZVectorF> trackPout;
+      std::vector<math::XYZPointF> trackInnPos;
       std::vector<uint8_t> nHitsBeforeVtx;
       std::vector<Measurement1DFloat> dlClosestHitToVtx;
 
       if (left->extra().isNonnull() && right->extra().isNonnull()){//only available on TrackExtra
-        trackInnPos.push_back(  left->innerPosition());
-        trackInnPos.push_back(  right->innerPosition());
-        trackPin.push_back(left->innerMomentum());
-        trackPin.push_back(right->innerMomentum());
-        trackPout.push_back(left->outerMomentum());
-        trackPout.push_back(right->outerMomentum());
+        trackInnPos.push_back(  toFConverterP(left->innerPosition()));
+        trackInnPos.push_back(  toFConverterP(right->innerPosition()));
+        trackPin.push_back(toFConverterV(left->innerMomentum()));
+        trackPin.push_back(toFConverterV(right->innerMomentum()));
+        trackPout.push_back(toFConverterV(left->outerMomentum()));
+	trackPout.push_back(toFConverterV(right->outerMomentum()));
       }
           
       if (ll->trajRef().isNonnull() && rr->trajRef().isNonnull()) {
@@ -480,7 +480,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
       }
 
       //std::cout << "  highPurityPair after vertex cut " <<  highPurityPair << std::endl;
-      std::vector<math::XYZPoint> trkPositionAtEcal;
+      std::vector<math::XYZPointF> trkPositionAtEcal;
       std::vector<reco::CaloClusterPtr> matchingBC;
 
       if (allowTrackBC_){//TODO find out the BC ptrs if not doing matching, otherwise, leave it empty
@@ -505,7 +505,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
       /// match the track pair with a SC. If at least one track matches, store the SC
       /*
         for ( std::vector<edm::RefToBase<reco::Track> >::iterator iTk=trackPairRef.begin();  iTk!=trackPairRef.end(); iTk++) {
-        math::XYZPoint impPos;
+        math::XYZPointF impPos;
         if ( getTrackImpactPosition(*iTk, trackerGeom, magField, impPos) ) {
 	       
         }
@@ -580,7 +580,7 @@ inline bool ConversionProducer::trackD0Cut(const edm::RefToBase<reco::Track>&  r
 
 bool ConversionProducer::getTrackImpactPosition(const reco::Track* tk_ref,
                                                 const TrackerGeometry* trackerGeom, const MagneticField* magField,
-                                                math::XYZPoint& ew){
+                                                math::XYZPointF& ew){
 
   PropagatorWithMaterial propag( alongMomentum, 0.000511, magField );
   TrajectoryStateTransform transformer;
@@ -655,7 +655,7 @@ bool ConversionProducer::matchingSC(const std::multimap<double, reco::CaloCluste
 }
 
 bool ConversionProducer::getMatchedBC(const std::multimap<double, reco::CaloClusterPtr>& bcMap, 
-                                      const math::XYZPoint& trackImpactPosition,
+                                      const math::XYZPointF& trackImpactPosition,
                                       reco::CaloClusterPtr& closestBC){
   const double track_eta = trackImpactPosition.eta();
   const double track_phi = trackImpactPosition.phi();
@@ -871,6 +871,4 @@ double ConversionProducer::etaTransformation(  float EtaParticle , float Zvertex
   return ETA;
   //---end
 }
-
-
 

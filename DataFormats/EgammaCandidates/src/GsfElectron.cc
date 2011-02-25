@@ -40,7 +40,7 @@ GsfElectron::GsfElectron
   init() ;
   fbrem_ = fbrem ;
   setCharge(charge) ;
-  setVertex(te.positionAtVtx) ;
+  setVertex(math::XYZPoint(te.positionAtVtx.x(),te.positionAtVtx.y(),te.positionAtVtx.z())) ;
   setPdgId(-11*charge) ;
   /*if (ecalDrivenSeed())*/ corrections_.ecalEnergy = superCluster()->energy() ;
  }

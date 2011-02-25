@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2011/01/26 11:27:08 $
- **  $Revision: 1.28 $
+ **  $Date: 2011/01/26 17:03:30 $
+ **  $Revision: 1.1 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -79,7 +79,7 @@ class ConversionProducer : public edm::EDProducer {
       // ----------member data ---------------------------
       std::string algoName_;
 
-      typedef math::XYZPointD Point;
+      typedef math::XYZPointF Point;
       typedef std::vector<Point> PointCollection;
 
       edm::InputTag src_; 
@@ -140,7 +140,7 @@ class ConversionProducer : public edm::EDProducer {
       //track impact point at ECAL wall, returns validity to access position ew
       bool getTrackImpactPosition(const reco::Track* tk_ref, 
 	      const TrackerGeometry* trackerGeom, const MagneticField* magField, 
-	      math::XYZPoint& ew);
+	      math::XYZPointF& ew);
 
       //distance at min approaching point, returns distance
       //      double getMinApproach(const edm::RefToBase<reco::Track>& ll, const edm::RefToBase<reco::Track>& rr, 
@@ -163,7 +163,7 @@ class ConversionProducer : public edm::EDProducer {
 
       //check the closest BC, returns true for found a BC
       bool getMatchedBC(const std::multimap<double, reco::CaloClusterPtr>& bcMap, 
-	      const math::XYZPoint& trackImpactPosition,
+	      const math::XYZPointF& trackImpactPosition,
 	      reco::CaloClusterPtr& closestBC);
 
       // finds the super cluster matching with at least one track in the pair
@@ -174,6 +174,15 @@ class ConversionProducer : public edm::EDProducer {
      
 
       double etaTransformation(  float EtaParticle , float Zvertex);
+
+
+      math::XYZPointF toFConverterP( const math::XYZPoint &val) {
+	return math::XYZPointF(val.x(),val.y(),val.z());
+      }
+      
+      math::XYZVectorF toFConverterV( const math::XYZVector &val) {
+	return math::XYZVectorF(val.x(),val.y(),val.z());
+      }
 
 
 };

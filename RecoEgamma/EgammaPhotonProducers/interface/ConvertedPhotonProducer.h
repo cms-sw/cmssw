@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.32 2010/01/15 18:25:53 nancy Exp $ 
- **  $Date: 2010/01/15 18:25:53 $ 
- **  $Revision: 1.32 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.33 2010/12/09 17:03:01 nancy Exp $ 
+ **  $Date: 2010/12/09 17:03:01 $ 
+ **  $Revision: 1.33 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -114,6 +114,14 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   ConversionLikelihoodCalculator* theLikelihoodCalc_;
   std::string likelihoodWeights_;
 
+  math::XYZPointF toFConverterP( const math::XYZPoint &val) {
+    return math::XYZPointF(val.x(),val.y(),val.z());
+  }
+  
+  math::XYZVectorF toFConverterV( const math::XYZVector &val) {
+    return math::XYZVectorF(val.x(),val.y(),val.z());
+  }
+  
 
 
 };

@@ -342,9 +342,9 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 
 
     std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
-    std::vector<math::XYZPoint> trackInnPos;
-    std::vector<math::XYZVector> trackPin;
-    std::vector<math::XYZVector> trackPout;
+    std::vector<math::XYZPointF> trackInnPos;
+    std::vector<math::XYZVectorF> trackPin;
+    std::vector<math::XYZVectorF> trackPout;
     float minAppDist=-99;
 
     //LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer SC energy " << aClus->energy() << " eta " <<  aClus->eta() << " phi " <<  aClus->phi() << "\n";
@@ -373,7 +373,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
         scPtrVec.push_back(aClus);     
 	nFound++;
 
-	std::vector<math::XYZPoint> trkPositionAtEcal = theEcalImpactPositionFinder.find(  iPair->first, bcHandle );
+	std::vector<math::XYZPointF> trkPositionAtEcal = theEcalImpactPositionFinder.find(  iPair->first, bcHandle );
 	std::vector<reco::CaloClusterPtr>  matchingBC = theEcalImpactPositionFinder.matchingBC();
 	
 
@@ -427,9 +427,9 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 	  
 	  //LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";  
 	  if ( myTkRef->extra().isNonnull() ) {
-	    trackInnPos.push_back(  myTkRef->innerPosition());
-	    trackPin.push_back(  myTkRef->innerMomentum());
-	    trackPout.push_back(  myTkRef->outerMomentum());
+	    trackInnPos.push_back(  toFConverterP(myTkRef->innerPosition()));
+	    trackPin.push_back(  toFConverterV( myTkRef->innerMomentum()));
+	    trackPout.push_back(  toFConverterV(myTkRef->outerMomentum()));
 	  }
 	  trackPairRef.push_back(myTkRef);
 	  
@@ -476,9 +476,9 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 	    const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
 	    reco::TrackRef myTk= ttt->persistentTrackRef(); 
 	    if ( myTk->extra().isNonnull() ) {
-	      trackInnPos.push_back(  myTk->innerPosition());
-	      trackPin.push_back(  myTk->innerMomentum());
-	      trackPout.push_back(  myTk->outerMomentum());
+	      trackInnPos.push_back(  toFConverterP(myTk->innerPosition()));
+	      trackPin.push_back(  toFConverterV(myTk->innerMomentum()));
+	      trackPout.push_back(  toFConverterV(myTk->outerMomentum()));
 	    }
 	    trackPairRef.push_back(myTk);
 	    //std::cout << " Provenance " << myTk->algoName() << std::endl;
@@ -512,9 +512,9 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 		
 		// std::cout << "  ConvertedPhotonProducer chosen dCotTheta " <<  fabs(dCotTheta) << std::endl;
 		if ( fabs(dCotTheta) < deltaCotCut_ && minAppDist > minApproachDisCut_ ) {
-		  trackInnPos.push_back(  goodRef->innerPosition());	
-		  trackPin.push_back(  goodRef->innerMomentum());
-		  trackPout.push_back(  goodRef->outerMomentum());
+		  trackInnPos.push_back(  toFConverterP(goodRef->innerPosition()));	
+		  trackPin.push_back(  toFConverterV(goodRef->innerMomentum()));
+		  trackPout.push_back(  toFConverterV(goodRef->outerMomentum()));
 		  trackPairRef.push_back( goodRef );
 		  //	    std::cout << " ConvertedPhotonProducer adding opposite charge track from generalTrackCollection charge " <<  goodRef ->charge() << " pt " << sqrt(goodRef->innerMomentum().perp2())  << " trackPairRef size " << trackPairRef.size() << std::endl;            
 		  //std::cout << " Track Provenenance " << goodRef->algoName() << std::endl; 

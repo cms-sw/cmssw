@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.36 2011/02/14 19:27:09 nancy Exp $
+ * \version $Id: Photon.h,v 1.37 2011/02/20 23:11:10 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -69,7 +69,7 @@ namespace reco {
 
  
     /// position in ECAL: this is th SC position if r9<0.93. If r8>0.93 is position of seed BasicCluster taking shower depth for unconverted photon
-    math::XYZPoint caloPosition() const {return caloPosition_;}
+    math::XYZPointF caloPosition() const {return caloPosition_;}
     /// set primary event vertex used to define photon direction
     void setVertex(const Point & vertex);
     /// Implement Candidate method for particle species
@@ -286,7 +286,7 @@ namespace reco {
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
     /// position of seed BasicCluster for shower depth of unconverted photon
-    math::XYZPoint caloPosition_;
+    math::XYZPointF caloPosition_;
     /// reference to the PhotonCore
     reco::PhotonCoreRef photonCore_;
     //

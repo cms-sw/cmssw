@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.20 2009/03/24 18:03:39 nancy Exp $
+// $Id: Photon.cc,v 1.21 2010/11/15 21:31:48 dlange Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 
@@ -45,9 +45,9 @@ bool Photon::overlap( const Candidate & c ) const {
 }
 
 void Photon::setVertex(const Point & vertex) {
-  math::XYZVector direction = caloPosition() - vertex;
+  math::XYZVectorF direction = caloPosition() - vertex;
   double energy = this->energy();
-  math::XYZVector momentum = direction.unit() * energy;
+  math::XYZVectorF momentum = direction.unit() * energy;
   math::XYZTLorentzVector lv(momentum.x(), momentum.y(), momentum.z(), energy );
   setP4(lv);
   vertex_ = vertex;

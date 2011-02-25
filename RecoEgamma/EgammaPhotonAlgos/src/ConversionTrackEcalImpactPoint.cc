@@ -39,10 +39,10 @@ ConversionTrackEcalImpactPoint::~ConversionTrackEcalImpactPoint() {
     
 }
 
-std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vector<reco::TransientTrack>&  tracks,  const edm::Handle<edm::View<reco::CaloCluster> >&  bcHandle )   {
+std::vector<math::XYZPointF> ConversionTrackEcalImpactPoint::find( const std::vector<reco::TransientTrack>&  tracks,  const edm::Handle<edm::View<reco::CaloCluster> >&  bcHandle )   {
 
   
-  std::vector<math::XYZPoint> result;
+  std::vector<math::XYZPointF> result;
   // 
   matchingBC_.clear();   
 
@@ -56,7 +56,7 @@ std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vec
   int iTrk=0;
   for (    std::vector<reco::TransientTrack>::const_iterator iTk=tracks.begin(); iTk!=tracks.end(); ++iTk) {
 
-    math::XYZPoint ecalImpactPosition(0.,0.,0.);
+    math::XYZPointF ecalImpactPosition(0.,0.,0.);
     const TrajectoryStateOnSurface myTSOS=(*iTk).innermostMeasurementState();
     if ( !( myTSOS.isValid() ) ) continue; 
 

@@ -32,7 +32,7 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.45 2011/02/16 17:42:53 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.46 2011/02/18 15:26:05 chamont Exp $
  *
  ****************************************************************************/
 
@@ -233,28 +233,28 @@ class GsfElectron : public RecoCandidate
 
     struct TrackExtrapolations
      {
-      math::XYZPoint  positionAtVtx ;     // the track PCA to the beam spot
-      math::XYZPoint  positionAtCalo ;    // the track PCA to the supercluster position
-      math::XYZVector momentumAtVtx ;     // the track momentum at the PCA to the beam spot
-      math::XYZVector momentumAtCalo ;    // the track momentum extrapolated at the supercluster position from the innermost track state
-      math::XYZVector momentumOut ;       // the track momentum extrapolated at the seed cluster position from the outermost track state
-      math::XYZVector momentumAtEleClus ; // the track momentum extrapolated at the ele cluster position from the outermost track state
-      math::XYZVector momentumAtVtxWithConstraint ;     // the track momentum at the PCA to the beam spot using bs constraint
+      math::XYZPointF  positionAtVtx ;     // the track PCA to the beam spot
+      math::XYZPointF  positionAtCalo ;    // the track PCA to the supercluster position
+      math::XYZVectorF momentumAtVtx ;     // the track momentum at the PCA to the beam spot
+      math::XYZVectorF momentumAtCalo ;    // the track momentum extrapolated at the supercluster position from the innermost track state
+      math::XYZVectorF momentumOut ;       // the track momentum extrapolated at the seed cluster position from the outermost track state
+      math::XYZVectorF momentumAtEleClus ; // the track momentum extrapolated at the ele cluster position from the outermost track state
+      math::XYZVectorF momentumAtVtxWithConstraint ;     // the track momentum at the PCA to the beam spot using bs constraint
      } ;
 
     // accessors
-    math::XYZPoint trackPositionAtVtx() const { return trackExtrapolations_.positionAtVtx ; }
-    math::XYZPoint trackPositionAtCalo() const { return trackExtrapolations_.positionAtCalo ; }
-    math::XYZVector trackMomentumAtVtx() const { return trackExtrapolations_.momentumAtVtx ; }
-    math::XYZVector trackMomentumAtCalo() const { return trackExtrapolations_.momentumAtCalo ; }
-    math::XYZVector trackMomentumOut() const { return trackExtrapolations_.momentumOut ; }
-    math::XYZVector trackMomentumAtEleClus() const { return trackExtrapolations_.momentumAtEleClus ; }
-    math::XYZVector trackMomentumAtVtxWithConstraint() const { return trackExtrapolations_.momentumAtVtxWithConstraint ; }
+    math::XYZPointF trackPositionAtVtx() const { return trackExtrapolations_.positionAtVtx ; }
+    math::XYZPointF trackPositionAtCalo() const { return trackExtrapolations_.positionAtCalo ; }
+    math::XYZVectorF trackMomentumAtVtx() const { return trackExtrapolations_.momentumAtVtx ; }
+    math::XYZVectorF trackMomentumAtCalo() const { return trackExtrapolations_.momentumAtCalo ; }
+    math::XYZVectorF trackMomentumOut() const { return trackExtrapolations_.momentumOut ; }
+    math::XYZVectorF trackMomentumAtEleClus() const { return trackExtrapolations_.momentumAtEleClus ; }
+    math::XYZVectorF trackMomentumAtVtxWithConstraint() const { return trackExtrapolations_.momentumAtVtxWithConstraint ; }
     const TrackExtrapolations & trackExtrapolations() const { return trackExtrapolations_ ; }
 
     // for backward compatibility
-    math::XYZPoint TrackPositionAtVtx() const { return trackPositionAtVtx() ; }
-    math::XYZPoint TrackPositionAtCalo() const { return trackPositionAtCalo() ; }
+    math::XYZPointF TrackPositionAtVtx() const { return trackPositionAtVtx() ; }
+    math::XYZPointF TrackPositionAtCalo() const { return trackPositionAtCalo() ; }
 
 
   private:
