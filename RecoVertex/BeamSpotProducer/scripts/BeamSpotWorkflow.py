@@ -198,8 +198,7 @@ def getLastClosedRun(DBSListOfFiles):
     
 ########################################################################
 def getRunNumberFromFileName(fileName):
-#    regExp = re.search('(\D+)_(\d+)_(\d+)_(\d+)',fileName)
-    regExp = re.search('(\D+)_(\d+)_(\d+)_',fileName)
+    regExp = re.search('(\D+)_(\d+)_(\d+)_(\d+)',fileName)
     if not regExp:
         return -1
     return long(regExp.group(3))

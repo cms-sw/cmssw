@@ -98,12 +98,13 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	}
 
       // Sum all charge within flagging window, find charge in expected peak time slice
-      if (i >=firstSample_ && i < firstSample_+samplesToAdd_)
+      //if (i >=firstSample_ && i < firstSample_+samplesToAdd_)
+      // Hard code time slices to look only at TS3-5
+      if (i>=3 && i<=5)
 	{
 	  totalCharge+=value;
 	  RecomputedEnergy+=value*calib.respcorrgain(capid);
 	  if (i==expectedPeak_) peakCharge=value;
-
 	}
     }
 

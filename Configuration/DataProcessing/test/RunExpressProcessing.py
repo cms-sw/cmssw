@@ -18,10 +18,6 @@ class RunExpressProcessing:
 
     def __init__(self):
         self.scenario = None
-        self.writeRaw = False
-        self.writeReco = False
-        self.writeFevt = False
-        self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
 
@@ -47,27 +43,8 @@ class RunExpressProcessing:
         print "Retrieved Scenario: %s" % self.scenario
         print "Using Global Tag: %s" % self.globalTag
 
-        dataTiers = []
-        if self.writeRaw:
-            dataTiers.append("RAW")
-            print "Configuring to Write out Raw..."
-        if self.writeReco:
-            dataTiers.append("RECO")
-            print "Configuring to Write out Reco..."
-        if self.writeFevt:
-            dataTiers.append("FEVT")
-            print "Configuring to Write out Fevt..."
-
         try:
-            if self.noOutput:
-                # get config without any output
-                process = scenario.expressProcessing(globalTag = self.globalTag, writeTiers = [])
-            elif len(dataTiers) > 0:
-                # get config with specified output
-                process = scenario.expressProcessing(globalTag = self.globalTag, writeTiers = dataTiers)
-            else:
-                # use default output data tiers
-                process = scenario.expressProcessing(self.globalTag)
+            process = scenario.expressProcessing(self.globalTag, writeTiers = ['RECO'])
         except NotImplementedError, ex:
             print "This scenario does not support Express Processing:\n"
             return
@@ -91,18 +68,13 @@ class RunExpressProcessing:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "raw", "reco", "fevt", "no-output",
-             "global-tag=", "lfn="]
+    valid = ["scenario=", "global-tag=", "lfn="]
     usage = \
 """
 RunExpressProcessing.py <options>
 
 Where options are:
  --scenario=ScenarioName
- --raw (to enable RAW output)
- --reco (to enable RECO output)
- --fevt (to enable FEVT output)
- --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
 
@@ -124,14 +96,6 @@ python2.4 RunPromptReco.py --scenario=Cosmics --global-tag GLOBALTAG::ALL --lfn=
     for opt, arg in opts:
         if opt == "--scenario":
             expressinator.scenario = arg
-        if opt == "--raw":
-            expressinator.writeRaw = True
-        if opt == "--reco":
-            expressinator.writeReco = True
-        if opt == "--fevt":
-            expressinator.writeFevt = True
-        if opt == "--no-output":
-            expressinator.noOutput = True
         if opt == "--global-tag":
             expressinator.globalTag = arg
         if opt == "--lfn" :

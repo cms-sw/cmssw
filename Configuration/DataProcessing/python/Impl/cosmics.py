@@ -40,7 +40,6 @@ class cosmics(Scenario):
                  'MuAlBeamHaloOverlaps',
                  'MuAlBeamHalo',
                  'TkAlCosmics0T',
-                 'MuAlStandAloneCosmics',
                  'MuAlGlobalCosmics',
                  'MuAlCalIsolatedMu',
                  'HcalCalHOCosmics',

@@ -2367,7 +2367,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       if( !active[iEcal] ) continue;
 
       // Check the distance (one HCALPlusECAL tower, roughly)
-      if ( dist > 0.15 ) continue;
+      // if ( dist > 0.15 ) continue;
 
       //COLINFEB16 
       // what could be done is to
@@ -2894,11 +2894,12 @@ PFAlgo::neutralHadronEnergyResolution(double clusterEnergyHCAL, double eta) cons
     resol =   fabs(eta) < 1.48 ? 
       //min(0.25,sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)):
       //min(0.30,sqrt (1.35*1.35/clusterEnergyHCAL + 0.018*0.018));
-      // sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)
-      sqrt (0.9*0.9/clusterEnergyHCAL + 0.065*0.065)
+      sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)
+      //sqrt (0.9*0.9/clusterEnergyHCAL + 0.065*0.065)
       :
       // sqrt (1.35*1.35/clusterEnergyHCAL + 0.018*0.018);
-      sqrt (1.10*1.10/clusterEnergyHCAL + 0.018*0.018);
+      sqrt (1.20*1.20/clusterEnergyHCAL + 0.028*0.028);
+      //sqrt (1.10*1.10/clusterEnergyHCAL + 0.018*0.018);
 
   return resol;
 }
@@ -2909,8 +2910,10 @@ PFAlgo::nSigmaHCAL(double clusterEnergyHCAL, double eta) const {
   if ( newCalib_ == 2 ) 
     nS =   fabs(eta) < 1.48 ? 
       nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/100.))     
+      //nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/1.))     
       :
-      nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/200.));
+      //nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/200.));
+      nSigmaHCAL_ * (1. + exp(-clusterEnergyHCAL/100.));     
   else 
     nS = nSigmaHCAL_;
   

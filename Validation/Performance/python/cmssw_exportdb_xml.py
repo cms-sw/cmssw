@@ -64,12 +64,6 @@ def xml_export_EventVsizeRecord(evt_time_data, curr_stat_node, xml_doc):
 def xml_export_EdmRecord(data, curr_stat_node, xml_doc):
 	event_node =createNode(xml_doc, "EdmSize", values = data, parent = curr_stat_node)
 
-def xml_export_IgSummary(data, curr_stat_node, xml_doc):
-	event_node =createNode(xml_doc, "IgSummary", values = data, parent = curr_stat_node)
-
-def xml_export_Memcheck(data, curr_stat_node, xml_doc):
-	event_node =createNode(xml_doc, "Memcheck", values = data, parent = curr_stat_node)	
-
 
 def xml_export_SequenceRecord(data, curr_seq_node, xml_doc):
 	seq_node =createNode(xml_doc, "Sequence", values = data, parent = curr_seq_node)
@@ -173,40 +167,6 @@ def export_xml(release, jobID, timelog_result, xml_doc, metadata = None, edmSize
 		for edmItem in edmSize_result:
 			xml_export_EdmRecord(edmItem, jobStatsNode, xml_doc)		
 
-def export_xml_ig(release, jobID, igprof_result, xml_doc, metadata = None, parentNode = None):
-	""" jobID is a dictionary now ! """
-
-	if not parentNode:
-		#get the root XML node
-		parentNode = _getXMLNode(xml_doc)
-
-	#create jobStats node
-	values=jobID
-	values.update({"release": release})
-	if (metadata):
-		values.update(metadata)
-
-	# we create a new XML element having all the statistics data for our candle, step, release
-	jobStatsNode = createNode(node_name= "jobStats", xml_doc=xml_doc, parent=parentNode, 
-		values=values)
-
-	for igsumm in igprof_result:
-		xml_export_IgSummary(igsumm, jobStatsNode, xml_doc)		
-
-def export_xml_memcheck(release, jobID, memcheck_errors, xml_doc, metadata = None, parentNode = None):
-	if not parentNode:
-		parentNode = _getXMLNode(xml_doc)
-
-	values=jobID
-	values.update({"release": release})
-	if (metadata):
-		values.update(metadata)
-
-	# we create a new XML element having all the statistics data for our candle, step, release
-	jobStatsNode = createNode(node_name= "jobStats", xml_doc=xml_doc, parent=parentNode, 
-		values=values)
-
-	xml_export_Memcheck(memcheck_errors, jobStatsNode, xml_doc)		
 
 def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 	node_xml = _getXMLNode(xml_doc)
@@ -228,7 +188,7 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 		#either we have one node or multiple ones (if list)
 		if type(result) == types.ListType:
 			for result_item in result:
-				result_item.update({"testname": testName})
+				result_item.update({"testName": testName})
 
 				#We have JOBS so FAR only for TimeSize which we represent as a list
 				jobs = []
@@ -242,33 +202,19 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 
 				for job in jobs:
 					 #print job
-					 if testName == "TimeSize":
-						 export_xml(xml_doc = xml_doc, parentNode = testNode, **job)
-					 elif testName == "IgProf_Mem":
-						 export_xml_ig(xml_doc = xml_doc, parentNode = testNode, **job)
-					 elif testName == "IgProf_Perf":
-						 export_xml_ig(xml_doc = xml_doc, parentNode = testNode, **job)
-					 elif testName == "Memcheck":
-						 export_xml_memcheck(xml_doc = xml_doc, parentNode = testNode, **job)
+					 export_xml(xml_doc = xml_doc, parentNode = testNode, **job)
 		else:
-			result.update({"testname": testName})
+			result.update({"testName": testName})
 			createNode(node_name="testResult", xml_doc=xml_doc, parent=runInfoNode, values=result)
 
 	#DO we have some unrecognized JOBS?
 	if len(run_info['unrecognized_jobs']):
 		unrecognizedJobsNode = createNode(node_name="Unrecognized_JOBS", xml_doc=xml_doc, parent=runInfoNode, values={}) 
 
+
 		for job in run_info['unrecognized_jobs']:
 			 #print job
-			 testName = job["metadata"]["testname"]
-			 if testName == "TimeSize":
-				 export_xml(xml_doc = xml_doc, parentNode = unrecognizedJobsNode, **job)
-			 elif testName == "IgProf_Mem":
-				 export_xml_ig(xml_doc = xml_doc, parentNode = unrecognizedJobsNode, **job)		
-			 elif testName == "IgProf_Perf":
-				 export_xml_ig(xml_doc = xml_doc, parentNode = unrecognizedJobsNode, **job)
-			 elif testName == "Memcheck":
-				 export_xml_memcheck(xml_doc = xml_doc, parentNode = unrecognizedJobsNode, **job)
+			 export_xml(xml_doc = xml_doc, parentNode = unrecognizedJobsNode, **job)		
 
 		
 	#cmsSciMark
@@ -276,6 +222,13 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 	for csiMark in run_info["cmsSciMark"]:
 		#print csiMark
 		createNode(node_name="cmsSciMark", xml_doc=xml_doc, parent=cmsSciMarkNode, values=csiMark)
+	if print_out:
+		print xml_doc.toprettyxml(indent="\t")
+
+	#IgSummary
+	IgSummaryNode = createNode(node_name="IgSummaries", xml_doc=xml_doc, parent=runInfoNode, values = {})
+	for iginfo in run_info["IgSummary"]:
+		createNode(node_name="IgSummary", xml_doc=xml_doc, parent=IgSummaryNode, values=iginfo)
 	if print_out:
 		print xml_doc.toprettyxml(indent="\t")
 

@@ -27,9 +27,7 @@ FactorizedJetCorrector::FactorizedJetCorrector()
   mLepPx  = -9999;
   mLepPy  = -9999;
   mLepPz  = -9999;
-  mNPV    = -9999;
   mAddLepToJet      = false;
-  mIsNPVset         = false;
   mIsJetEset        = false;
   mIsJetPtset       = false;
   mIsJetPhiset      = false;
@@ -53,9 +51,7 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const
   mLepPx  = -9999;
   mLepPy  = -9999;
   mLepPz  = -9999;
-  mNPV    = -9999;
   mAddLepToJet      = false;
-  mIsNPVset         = false;
   mIsJetEset        = false;
   mIsJetPtset       = false;
   mIsJetPhiset      = false;
@@ -80,9 +76,7 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
   mLepPx  = -9999;
   mLepPy  = -9999;
   mLepPz  = -9999;
-  mNPV    = -9999;
   mAddLepToJet      = false;
-  mIsNPVset         = false;
   mIsJetEset        = false;
   mIsJetPtset       = false;
   mIsJetPhiset      = false;
@@ -210,8 +204,6 @@ std::vector<FactorizedJetCorrector::VarTypes> FactorizedJetCorrector::mapping(co
 	result.push_back(kRelLepPt);
       else if (ss=="PtRel")
 	result.push_back(kPtRel);
-      else if (ss=="NPV")
-        result.push_back(kNPV);
       else
          {
            std::stringstream sserr; 
@@ -345,7 +337,6 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
       mJetE *=scale;
       mJetPt*=scale;
     }
-  mIsNPVset    = false;
   mIsJetEset   = false;
   mIsJetPtset  = false;
   mIsJetPhiset = false;
@@ -370,12 +361,6 @@ std::vector<float> FactorizedJetCorrector::fillVector(std::vector<VarTypes> fVar
           if (!mIsJetEtaset) 
             handleError("FactorizedJetCorrector","jet eta is not set");
           result.push_back(mJetEta);
-        }
-      else if (fVarTypes[i] == kNPV)
-        {
-          if (!mIsNPVset)
-            handleError("FactorizedJetCorrector","number of primary vertices is not set");
-          result.push_back(mNPV);
         }
       else if (fVarTypes[i] == kJetPt) 
         {
@@ -476,11 +461,6 @@ float FactorizedJetCorrector::getPtRel() const
 //------------------------------------------------------------------------ 
 //--- Setters ------------------------------------------------------------
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setNPV(int fNPV)
-{
-  mNPV = fNPV;
-  mIsNPVset = true;
-}
 void FactorizedJetCorrector::setJetEta(float fEta)
 {
   mJetEta = fEta;

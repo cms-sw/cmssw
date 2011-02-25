@@ -26,25 +26,6 @@ LMFLmrSubIOV::LMFLmrSubIOV(oracle::occi::Environment* env,
 LMFLmrSubIOV::~LMFLmrSubIOV() {
 }
 
-LMFLmrSubIOV& LMFLmrSubIOV::setLMFIOV(const LMFIOV &iov) {
-  m_lmfIOV = iov.getID();
-  return *this;
-}
-
-LMFLmrSubIOV& LMFLmrSubIOV::setTimes(Tm *t) {
-  m_t[0] = t[0];
-  m_t[1] = t[1];
-  m_t[2] = t[2];
-  return *this;
-}
-
-LMFLmrSubIOV& LMFLmrSubIOV::setTimes(Tm t1, Tm t2, Tm t3) {
-  m_t[0] = t1;
-  m_t[1] = t2;
-  m_t[2] = t3;
-  return *this;
-}
-
 std::string LMFLmrSubIOV::fetchIdSql(Statement *stmt) {
   if (!m_lmfIOV) {
     if (m_debug) {
@@ -91,7 +72,7 @@ std::string LMFLmrSubIOV::writeDBSql(Statement *stmt) {
   if (m_lmfIOV == 0) {
     throw(std::runtime_error(m_className + "::writeDB: LMFIOV not set"));
   }
-  std::string sql = "INSERT INTO LMF_LMR_SUB_IOV (LMR_SUB_IOV_ID, "
+  std::string sql = "INSERT INTO LMF_LMR_SUB_IOV (LMF_LMR_SUB_IOV_ID, "
     "IOV_ID, T1, T2, T3) "
     "VALUES (LMF_LMR_SUB_IOV_ID_SQ.NextVal, :1, :2, :3, :4)";
   stmt->setSQL(sql);
@@ -111,34 +92,5 @@ void LMFLmrSubIOV::getParameters(ResultSet *rset) {
   }
 }
 
-std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &t) 
-  throw(std::runtime_error) {
-  std::string sql = "SELECT LMR_SUB_IOV_ID FROM LMF_LMR_SUB_IOV WHERE T3 > :1";
-  std::list<int> ret; 
-  if (m_conn != NULL) {
-    try {
-      DateHandler dh(m_env, m_conn);
-      Statement *stmt = m_conn->createStatement();
-      stmt->setPrefetchRowCount(131072);
-      stmt->setSQL(sql);
-      stmt->setDate(1, dh.tmToDate(t));
-      ResultSet *rset = stmt->executeQuery();
-      while (rset->next()) {
-	ret.push_back(rset->getInt(1));
-      }
-      stmt->setPrefetchRowCount(0);
-      m_conn->terminateStatement(stmt);
-    }
-    catch (oracle::occi::SQLException e) {
-      throw(std::runtime_error(m_className + "::getLmrSubIOVLaterThan: " +
-			       e.getMessage()));
-    }
-  } else {
-    throw(std::runtime_error(m_className + "::getLmrSubIOVLaterThan: " +
-			     "Connection not set"));
-  }
-  ret.sort();
-  return ret;
-}
 
 

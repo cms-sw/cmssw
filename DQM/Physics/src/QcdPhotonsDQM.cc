@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/08/31 19:29:45 $
- *  $Revision: 1.26 $
+ *  $Date: 2010/06/16 15:53:52 $
+ *  $Revision: 1.25 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -33,10 +33,8 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
 //geometry
@@ -239,7 +237,9 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   Handle<EcalRecHitCollection> EEReducedRecHits;
   iEvent.getByLabel("reducedEcalRecHitsEE", EEReducedRecHits); 
   EcalClusterLazyTools lazyTool(iEvent, iSetup, InputTag("reducedEcalRecHitsEB"), InputTag("reducedEcalRecHitsEE") );
-  
+  // get the channel status from the DB
+  ESHandle<EcalChannelStatus> chStatus;
+  iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
   // Find the highest et "decent" photon
   float photon_et  = -9.0;
@@ -267,10 +267,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       outOfTimeChi2 = it->outOfTimeChi2();
       chi2 = it->chi2();
       flags = it->recoFlag();
-
-      edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-      iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-      severity = sevlv->severityLevel( id, rechits);
+      severity = EcalSeverityLevelAlgo::severityLevel( id, rechits, *chStatus );
     }
     bool isNotSpike = ((recoPhoton->isEB() && (severity!=3 && severity!=4 ) && (flags != 2) ) || recoPhoton->isEE());
     if (!isNotSpike) continue;  // move on to next photon

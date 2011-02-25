@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2010/05/14 12:57:28 $
- *   $Revision: 1.16 $
+ *   $Date: 2009/11/12 14:33:27 $
+ *   $Revision: 1.15 $
  *
  *   \author C. Battilana
  *
@@ -53,9 +53,8 @@ DTTrigProd::DTTrigProd(const ParameterSet& pset) : my_trig(0) {
   my_DTTFnum = pset.getParameter<bool>("DTTFSectorNumbering");
   my_params = pset;
 
-  my_lut_dump_flag = pset.getUntrackedParameter<bool>("lutDumpFlag");
-  my_lut_btic = pset.getUntrackedParameter<int>("lutBtic");
-
+  my_lut_dump_flag = pset.getUntrackedParameter<bool>("lut_dump_flag");
+  my_lut_btic = pset.getUntrackedParameter<int>("lut_btic");
 }
 
 DTTrigProd::~DTTrigProd(){
@@ -64,26 +63,61 @@ DTTrigProd::~DTTrigProd(){
 
 }
 
+// void DTTrigProd::beginJob(const EventSetup & iEventSetup){
+
+
+//   // get DTConfigManager
+//   // ESHandle< DTConfigManager > confManager ;
+//   // iEventSetup.get< DTConfigManagerRcd >().get( confManager ) ;
+//   // my_BXoffset = confManager->getBXOffset();
+
+//   if (my_debug)
+//     cout << "[DTTrigProd] DTTrig istance Created" << endl;
+
+// }
+
 void DTTrigProd::beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup) {
 
-  if(my_debug)
-    cout << "DTTrigProd::beginRun  " << iRun.id().run() << endl;
-  
-  ESHandle< DTConfigManager > dtConfig ;
-  iEventSetup.get< DTConfigManagerRcd >().get( dtConfig ) ;
-  
+   if(my_debug)
+   	cout << "DTTrigProd::beginRun  " << iRun.id().run() << endl;
+
+   using namespace edm;
+
+   ESHandle< DTConfigManager > dtConfig ;
+   iEventSetup.get< DTConfigManagerRcd >().get( dtConfig ) ;
+
+   if(my_debug)
+   {
+   	cout << "DTConfigManagerRcd : Print some Config stuff" << endl;
+   	DTBtiId btiid(1,1,1,1,1);
+   	DTTracoId tracoid(1,1,1,1);
+   	DTChamberId chid(1,1,1);
+   	DTSectCollId scid(1,1);
+   	cout 	<< "BtiMap & TracoMap Size for chamber (1,1,1):" << dtConfig->getDTConfigBtiMap(chid).size() 
+		<< " " << dtConfig->getDTConfigTracoMap(chid).size() << endl;
+
+   	dtConfig->getDTConfigBti(btiid)->print();
+   	dtConfig->getDTConfigTraco(tracoid)->print();
+   	dtConfig->getDTConfigTSTheta(chid)->print();
+   	dtConfig->getDTConfigTSPhi(chid)->print();
+        // 100511 SV LUTs will NOT be configurated from cfg if not found in DB
+        //dtConfig->getDTConfigLUTs(chid)->print(); 
+  }
+
+
   if (!my_trig) {
     my_trig = new DTTrig(my_params);
     my_trig->createTUs(iEventSetup);
     if (my_debug)
       cout << "[DTTrigProd] TU's Created" << endl;
-    
+
+    //SV 090903 check luts
     if(my_lut_dump_flag) {
-      cout << "Dumping luts...." << endl;
-      my_trig->dumpLuts(my_lut_btic, dtConfig.product());
+    	cout << "Dumping luts...." << endl;
+    	my_trig->dumpLuts(my_lut_btic, dtConfig.product());
     }	
   }
-  
+
 }
 
 
