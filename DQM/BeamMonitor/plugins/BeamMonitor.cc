@@ -2,17 +2,17 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/02/23 16:13:54 $
- * $Revision: 1.67 $
+ * $Date: 2011/02/23 16:20:25 $
+ * $Revision: 1.68 $
  */
 
 
 /*
 The code has been modified for running average
-Mode, And it gives results for the last NLS which is
+mode, and it gives results for the last NLS which is
 configurable.
-Sushil S. Chauhan/UCDavis
-Evan Friis       /UCDavis
+Sushil S. Chauhan /UCDavis
+Evan Friis        /UCDavis
 The last tag for working versions without this change is
 V00-03-25
 */
@@ -455,8 +455,6 @@ if(nthlumi > nextlumi_){
   }//nthLumi > nextlumi
 
 
-
-
    if(StartAverage_ ){
      //Just Make sure it get rest
      refBStime[0] =0;
@@ -465,7 +463,7 @@ if(nthlumi > nextlumi_){
      beginLumiOfBSFit_ =0;
 
      if(debug_)edm::LogInfo("BeamMonitor") << " beginLuminosityBlock:  Size of mapBeginBSLS before =  "<< mapBeginBSLS.size()<<endl;
-     if(nthlumi> nextlumi_){ //this make that it does not take into account this lumi for fitting and only look forward for new lumi
+     if(nthlumi> nextlumi_){ //this make sure that it does not take into account this lumi for fitting and only look forward for new lumi
                              //as countLumi also remains the same so map value  get overwritten once return to normal running.
      //even if few LS are misssing and DQM module do not sees them then it catchs up again
      map<int, int>::iterator itbs=mapBeginBSLS.begin();
@@ -477,15 +475,16 @@ if(nthlumi > nextlumi_){
      mapBeginPVLS.erase(itpv);
      mapBeginBSTime.erase(itbstime);
      mapBeginPVTime.erase(itpvtime);
-/*         //not sure if want this or not ??   Evan!!???-------Otherwise comment out this block
+
+            /*//not sure if want this or not ??  
             map<int, int>::iterator itgapb=mapBeginBSLS.begin();
             map<int, int>::iterator itgape=mapBeginBSLS.end(); itgape--;
             countGapLumi_ = ( (itgape->second) - (itgapb->second) );
-            //if we see Gap more than then 2*resetValue !!!!!!!
+            //if we see Gap more than then 2*resetNFitLumi !!!!!!!
             //for example if 10-15 is fitted and if 16-25 are missing then we next fit will be for range 11-26 but BS can change in between
-            // so better start  as fresh  and reset everything like starting in the begining
+            // so better start  as fresh  and reset everything like starting in the begining!
             if(countGapLumi_ >= 2*resetFitNLumi_){RestartFitting(); mapBeginBSLS[countLumi_]   = nthlumi;}
-  */        //-------------------------------------------------------------------------------
+            */        
      }
 
     if(debug_) edm::LogInfo("BeamMonitor") << " beginLuminosityBlock::  Size of mapBeginBSLS After = "<< mapBeginBSLS.size()<<endl;
@@ -590,7 +589,7 @@ void BeamMonitor::analyze(const Event& iEvent,
       nPVcount++; // count non fake pv
       if (pv->ndof() < minVtxNdf_ || (pv->ndof()+3.)/pv->tracksSize() < 2*minVtxWgt_)  continue;
 
-      //Fill this map to store xyx for pv so that later we can remove the first one for run aver//ssc
+      //Fill this map to store xyx for pv so that later we can remove the first one for run aver
       mapPVx[countLumi_].push_back(pv->x());
       mapPVy[countLumi_].push_back(pv->y());
       mapPVz[countLumi_].push_back(pv->z());
@@ -877,7 +876,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
      mapLSBSTrkSize[countLumi_]= (theBSvector1.size());
       size_t PreviousRecords=0;     //needed to fill nth record of tracks in GUI
 
-      if(StartAverage_){//ssc
+      if(StartAverage_){
       size_t SizeToRemove=0;
       std::map<int, std::size_t>::iterator rmls=mapLSBSTrkSize.begin();
       SizeToRemove = rmls->second;
