@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V45 (CMSSW_3_11_0_HLT8)
+# /dev/CMSSW_3_11_1/GRun/V46 (CMSSW_3_11_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V45')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V46')
 )
 
 process.streams = cms.PSet( 
@@ -889,7 +889,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR_H_V14::All" ),
+    globaltag = cms.string( "GR_H_V15::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialTimeOut = cms.untracked.int32( 60 ),
@@ -5132,7 +5132,8 @@ process.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
       ),
       maxTime = cms.double( 420.0 ),
       tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
-      stepTwoFromDigi = cms.bool( False )
+      stepTwoFromDigi = cms.bool( False ),
+      doVdriftCorr = cms.bool( False )
     )
 )
 process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
@@ -5158,7 +5159,8 @@ process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
         ),
         maxTime = cms.double( 420.0 ),
         tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
-        stepTwoFromDigi = cms.bool( False )
+        stepTwoFromDigi = cms.bool( False ),
+        doVdriftCorr = cms.bool( False )
       ),
       nSharedHitsMax = cms.int32( 2 ),
       hit_afterT0_resolution = cms.double( 0.03 ),
@@ -5179,7 +5181,8 @@ process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           ),
           maxTime = cms.double( 420.0 ),
           tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
-          stepTwoFromDigi = cms.bool( False )
+          stepTwoFromDigi = cms.bool( False ),
+          doVdriftCorr = cms.bool( False )
         ),
         nSharedHitsMax = cms.int32( 2 ),
         AlphaMaxPhi = cms.double( 1.0 ),

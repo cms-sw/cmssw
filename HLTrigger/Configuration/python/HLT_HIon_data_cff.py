@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HIon/V45 (CMSSW_3_11_0_HLT8)
+# /dev/CMSSW_3_11_1/HIon/V46 (CMSSW_3_11_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V45')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V46')
 )
 
 streams = cms.PSet( 
@@ -1740,7 +1740,8 @@ hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
       ),
       maxTime = cms.double( 420.0 ),
       tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
-      stepTwoFromDigi = cms.bool( False )
+      stepTwoFromDigi = cms.bool( False ),
+      doVdriftCorr = cms.bool( False )
     )
 )
 hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
@@ -1766,7 +1767,8 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
         ),
         maxTime = cms.double( 420.0 ),
         tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
-        stepTwoFromDigi = cms.bool( False )
+        stepTwoFromDigi = cms.bool( False ),
+        doVdriftCorr = cms.bool( False )
       ),
       nSharedHitsMax = cms.int32( 2 ),
       hit_afterT0_resolution = cms.double( 0.03 ),
@@ -1787,7 +1789,8 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           ),
           maxTime = cms.double( 420.0 ),
           tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
-          stepTwoFromDigi = cms.bool( False )
+          stepTwoFromDigi = cms.bool( False ),
+          doVdriftCorr = cms.bool( False )
         ),
         nSharedHitsMax = cms.int32( 2 ),
         AlphaMaxPhi = cms.double( 1.0 ),
