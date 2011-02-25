@@ -13,7 +13,7 @@ from RecoLuminosity.LumiDB import dataDML,revisionDML,argparse,sessionManager
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Normalization factor",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions=['add','get','overview','createBranch']
+    allowedActions=['add','get','overview']
     amodetagChoices=['PROTPHYS','HIPHYS']
     egevChoices=['3500','450']
     parser.add_argument('action',choices=allowedActions,help='command actions')
@@ -52,22 +52,22 @@ if __name__ == '__main__':
         (revision_id,branch_id)=revisionDML.branchInfoByName(schema,'NORM')
         dataDML.addNormToBranch(schema,options.name,options.amodetag,float(options.input),int(options.egev),{},(revision_id,'NORM'))
         session.transaction().commit()
-    elif options.action=='createBranch':
-        #
-        # create norm branch
-        #        
-        if not options.authpath:
-            raise 'argument -P authpath is required for createBranch action'
-        if not options.name:
-            raise  RuntimeError('argument -name name is required for createBranch action')
-        session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')]) 
-        session.transaction().start(False)
-        schema=session.nominalSchema()
-        trunk_rev_id,trunk_branch_id=revisionDML.branchInfoByName(schema,'TRUNK')
-        if not trunk_rev_id and not trunk_branch_id:
-            revisionDML.createBranch(schema,'TRUNK',None,comment='main')
-        revisionDML.createBranch(schema,'NORM','TRUNK',comment='hold normalization factor')
-        session.transaction().commit()
+    #elif options.action=='createBranch':
+    #    #
+    #    # create norm branch
+    #    #        
+    #    if not options.authpath:
+    #        raise 'argument -P authpath is required for createBranch action'
+    #    if not options.name:
+    #        raise  RuntimeError('argument -name name is required for createBranch action')
+    #    session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')]) 
+    #    session.transaction().start(False)
+    #    schema=session.nominalSchema()
+    #    trunk_rev_id,trunk_branch_id=revisionDML.branchInfoByName(schema,'TRUNK')
+    #    if not trunk_rev_id and not trunk_branch_id:
+    #        revisionDML.createBranch(schema,'TRUNK',None,comment='main')
+    #    revisionDML.createBranch(schema,'NORM','TRUNK',comment='hold normalization factor')
+    #    session.transaction().commit()
     elif options.action=='get':
         session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
         session.transaction().start(True)

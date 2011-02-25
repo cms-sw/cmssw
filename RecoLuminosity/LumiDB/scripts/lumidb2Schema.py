@@ -2,7 +2,7 @@
 VERSION='2.00'
 import os,sys
 import coral
-from RecoLuminosity.LumiDB import argparse,dbUtil,nameDealer,lumidbDDL,dataDML
+from RecoLuminosity.LumiDB import argparse,dbUtil,nameDealer,lumidbDDL,dataDML,revisionDML
 
 def createLumi(dbsession):
     print 'creating lumidb2 schema...'
@@ -31,7 +31,13 @@ def createIndex(dbsession):
     
 def dropIndex(dbsession):
     pass
-    
+
+def createBranch(dbsession,branchname,parentname,comment):
+    print 'creating branch ',branchname
+    dbsession.transaction().start(False)
+    (branchid,parentid,parentname)=revisionDML.createBranch(dbsession.nominalSchema(),branchname,parentname,comment)
+    dbsession.transaction().commit()
+    print 'branchid ',branchid,' parentname ',parentname,' parentid ',parentid
 def main():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi DB schema operations.")
     # add the arguments
@@ -52,6 +58,9 @@ def main():
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     if args.action == 'create':
         createLumi(session)
+        createBranch(session,'TRUNK',None,'root')
+        createBranch(session,'NORM','TRUNK','hold normalization factor')
+        createBranch(session,'DATA','TRUNK','hold data')
     if args.action == 'drop':
        dropLumi(session)
     if args.action == 'describe':

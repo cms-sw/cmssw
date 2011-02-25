@@ -30,29 +30,31 @@ def main():
     runinfosession=runinfosvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     
     lumisession=lumisvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-
-    [l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime]=queryDataSource.runsummary(runinfosession,'CMS_RUNINFO',runnumber,complementalOnly=False)
-    print 'runsummary ',[l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime]
-    lumidata=queryDataSource.uncalibratedlumiFromOldLumi(lumisession,runnumber)
-    #print 'lumidata ',lumidata
-    [bitnames,trglsdata]=queryDataSource.trgFromOldLumi(lumisession,runnumber)
-    #print 'trg data ',bitnames,trglsdata 
-    [pathnames,hltlsdata]=queryDataSource.hltFromOldLumi(lumisession,runnumber)
-    #print 'hlt data ',pathnames,hltlsdata
-    lumisession.transaction().commit()
-    runinfosession.transaction().commit()
-    del lumisession
-    del lumisvc
-    del runinfosession
-    del runinfosvc
-    destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    destsession.transaction().start(False)
-    #dataDML.insertRunSummaryData(destsession.nominalSchema(),runnumber,[l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime],complementalOnly=False)
-    (datarevid,dataparentid,dataparentname)=revisionDML.createBranch(destsession.nominalSchema(),'DATA','TRUNK',comment='hold data')
-    (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(destsession.nominalSchema(),runnumber,[args.lumisource],(datarevid,'DATA'))
-    dataDML.insertLumiLSSummary(destsession.nominalSchema(),runnumber,lumidataid,lumidata)
-    destsession.transaction().rollback()
-    #
+    try:
+        [l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime]=queryDataSource.runsummary(runinfosession,'CMS_RUNINFO',runnumber,complementalOnly=False)
+        print 'runsummary ',[l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime]
+        lumidata=queryDataSource.uncalibratedlumiFromOldLumi(lumisession,runnumber)
+       #print 'lumidata ',lumidata
+        [bitnames,trglsdata]=queryDataSource.trgFromOldLumi(lumisession,runnumber)
+       #print 'trg data ',bitnames,trglsdata 
+        [pathnames,hltlsdata]=queryDataSource.hltFromOldLumi(lumisession,runnumber)
+       #print 'hlt data ',pathnames,hltlsdata
+        lumisession.transaction().commit()
+        runinfosession.transaction().commit()
+        del lumisession
+        del lumisvc
+        del runinfosession
+        del runinfosvc
+        destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+        destsession.transaction().start(False)
+        (branchrevision_id,branchbranch_id)=revisionDML.branchInfoByName(destsession.nominalSchema(),'DATA')
+        #dataDML.insertRunSummaryData(destsession.nominalSchema(),runnumber,[l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime],complementalOnly=False)
+        #(datarevid,dataparentid,dataparentname)=revisionDML.createBranch(destsession.nominalSchema(),'DATA','TRUNK',comment='hold data')
+        (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(destsession.nominalSchema(),runnumber,[args.lumisource],(branchrevision_id,'DATA'))
+        destsession.transaction().commit()
+        dataDML.bulkInsertLumiLSSummary(destsession,runnumber,lumidataid,lumidata,500)
+       
+       #
     #bitzeroname=bitnames.split(',')[0]
     #trgrundata=[args.connect,bitzeroname,bitnames]
     #(trgrevid,trgentryid,trgdataid)=dataDML.addTrgRunDataToBranch(schema,runnumber,trgrundata,(datarevid,'DATA'))
@@ -60,9 +62,11 @@ def main():
     #hltrundata=[pathnames,args.connect]
     #(hltrevid,hltentryid,hltdataid)=dataDML.addHLTRunDataToBranch(schema,runnumber,hltrundata,(datarevid,'DATA'))
     #dataDML.insertHltLSData(schema,runnumber,hltdataid,hltlsdata)
-    del destsession
-    del destsvc
-    
+        del destsession
+        del destsvc
+    except:
+        raise
+        
 if __name__=='__main__':
     main()
     

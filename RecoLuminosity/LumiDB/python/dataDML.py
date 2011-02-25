@@ -960,18 +960,17 @@ def insertHltLSData(schema,runnumber,data_id,hltlsdata):
     except Exception,e :
         raise RuntimeError(' dataDML.addHltLSData: '+str(e))
     
-def insertLumiLSSummary(schema,runnumber,data_id,lumilsdata):
+def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,bulksize=500):
     '''
     input:
           lumilsdata {lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexblob,beam1intensity,beam2intensity,bxlumivalue_occ1,bxlumierror_occ1,bxlumiquality_occ1,bxlumivalue_occ2,bxlumierror_occ2,bxlumiquality_occ2,bxlumivalue_et,bxlumierror_et,bxlumiquality_et]}
-    if None, insert Null
-    output:
-          nrows
     '''
+    lslumiDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('LUMILSNUM','unsigned int'),('CMSLSNUM','unsigned int'),('INSTLUMI','float'),('INSTLUMIERROR','float'),('INSTLUMIQUALITY','short'),('BEAMSTATUS','string'),('BEAMENERGY','float'),('NUMORBIT','unsigned int'),('STARTORBIT','unsigned int'),('CMSBXINDEXBLOB','blob'),('BEAMINTENSITYBLOB_1','blob'),('BEAMINTENSITYBLOB_2','blob'),('BXLUMIVALUE_OCC1','blob'),('BXLUMIERROR_OCC1','blob'),('BXLUMIQUALITY_OCC1','blob'),('BXLUMIVALUE_OCC2','blob'),('BXLUMIERROR_OCC2','blob'),('BXLUMIQUALITY_OCC2','blob'),('BXLUMIVALUE_ET','blob'),('BXLUMIERROR_ET','blob'),('BXLUMIQUALITY_ET','blob')]
+    print 'total number of rows ',len(lumilsdata)
     try:
-        nrow=0
+        committedrows=0
+        nrows=0
         bulkvalues=[]
-        lslumiDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('LUMILSNUM','unsigned int'),('CMSLSNUM','unsigned int'),('INSTLUMI','float'),('INSTLUMIERROR','float'),('INSTLUMIQUALITY','short'),('BEAMSTATUS','string'),('BEAMENERGY','float'),('NUMORBIT','unsigned int'),('STARTORBIT','unsigned int'),('CMSBXINDEXBLOB','blob'),('BEAMINTENSITYBLOB_1','blob'),('BEAMINTENSITYBLOB_2','blob'),('BXLUMIVALUE_OCC1','blob'),('BXLUMIERROR_OCC1','blob'),('BXLUMIQUALITY_OCC1','blob'),('BXLUMIVALUE_OCC2','blob'),('BXLUMIERROR_OCC2','blob'),('BXLUMIQUALITY_OCC2','blob'),('BXLUMIVALUE_ET','blob'),('BXLUMIERROR_ET','blob'),('BXLUMIQUALITY_ET','blob')]
         for lumilsnum,perlslumi in lumilsdata.items():
             cmslsnum=perlslumi[0]
             instlumi=perlslumi[1]
@@ -994,9 +993,22 @@ def insertLumiLSSummary(schema,runnumber,data_id,lumilsdata):
             bxlumierror_et=perlslumi[18]
             bxlumiquality_et=perlslumi[19]
             bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('LUMILSNUM',lumilsnum),('CMSLSNUM',cmslsnum),('INSTLUMI',instlumi),('INSTLUMIERROR',instlumierror),('INSTLUMIQUALITY',instlumiquality),('BEAMSTATUS',beamstatus),('BEAMENERGY',beamenergy),('NUMORBIT',numorbit),('STARTORBIT',startorbit),('CMSBXINDEXBLOB',cmsbxindexindexblob),('BEAMINTENSITYBLOB_1',beam1intensity),('BEAMINTENSITYBLOB_2',beam2intensity),('BXLUMIVALUE_OCC1',bxlumivalue_occ1),('BXLUMIERROR_OCC1',bxlumierror_occ1),('BXLUMIQUALITY_OCC1',bxlumiquality_occ1),('BXLUMIVALUE_OCC2',bxlumivalue_occ2),('BXLUMIERROR_OCC2',bxlumierror_occ2),('BXLUMIQUALITY_OCC2',bxlumiquality_occ2),('BXLUMIVALUE_ET',bxlumivalue_et),('BXLUMIERROR_ET',bxlumierror_et),('BXLUMIQUALITY_ET',bxlumiquality_et)])
-        db=dbUtil.dbUtil(schema)
-        db.bulkInsert(nameDealer.lumisummaryv2TableName(),lslumiDefDict,bulkvalues)
-        return len(bulkvalues)
+            nrows+=1
+            committedrows+=1
+            if nrows==bulksize:
+                print 'committing in LS chunck ',nrows
+                db=dbUtil.dbUtil(session.nominalSchema())
+                session.transaction().start(False)
+                db.bulkInsert(nameDealer.lumisummaryv2TableName(),lslumiDefDict,bulkvalues)
+                session.transaction().commit()
+                nrows=0
+                bulkvalues=[]
+            elif committedrows==len(lumilsdata):
+                print 'committing at the end '
+                db=dbUtil.dbUtil(session.nominalSchema())
+                session.transaction().start(False)
+                db.bulkInsert(nameDealer.lumisummaryv2TableName(),lslumiDefDict,bulkvalues)
+                session.transaction().commit()
     except :
         raise
 
