@@ -52,6 +52,9 @@ PFRecHitProducerECAL::PFRecHitProducerECAL(const edm::ParameterSet& iConfig)
   timingCleaning_ = 
     iConfig.getParameter<bool>("timing_Cleaning");
 
+  topologicalCleaning_ = 
+    iConfig.getParameter<bool>("topological_Cleaning");
+
   threshCleaning_ = 
     iConfig.getParameter<double>("thresh_Cleaning");
 
@@ -144,7 +147,7 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
       const EcalRecHit& erh = (*rhcHandle)[i];
       const DetId& detid = erh.detid();
       double energy = erh.energy();
-      uint32_t flag = erh.recoFlag();
+      // uint32_t flag = erh.recoFlag();
       double time = erh.time();
 
       EcalSubdetector esd=(EcalSubdetector)detid.subdetId();
@@ -153,13 +156,19 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
       if(energy < thresh_Barrel_ ) continue;
           
       // Check and skip the TT recovered rechits
-      if ( flag == EcalRecHit::kTowerRecovered ) { 
+      //if ( flag == EcalRecHit::kTowerRecovered ) { 
+      if ( erh.checkFlag(EcalRecHit::kTowerRecovered) ) { 
 	// std::cout << "Rechit was recovered with energy " << energy << std::endl;
 	continue;
       }
 
       // Just clean ECAL Barrel rechits out of time by more than 5 sigma.
-      if ( timingCleaning_ && energy > threshCleaning_ && flag == EcalRecHit::kOutOfTime ) { 
+      // if ( timingCleaning_ && energy > threshCleaning_ && flag == EcalRecHit::kOutOfTime ) { 
+      if ( ( timingCleaning_ && energy > threshCleaning_ && 
+	     erh.checkFlag(EcalRecHit::kOutOfTime) ) ||
+	   ( topologicalCleaning_ && 
+	     ( erh.checkFlag(EcalRecHit::kWeird) || 
+	       erh.checkFlag(EcalRecHit::kDiWeird) ) ) ) { 
 	reco::PFRecHit *pfrhCleaned = createEcalRecHit(detid, energy,  
 						       PFLayer::ECAL_BARREL,
 						       ecalBarrelGeometry);

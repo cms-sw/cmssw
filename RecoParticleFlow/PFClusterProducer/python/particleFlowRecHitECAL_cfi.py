@@ -13,7 +13,9 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducerECAL",
     thresh_Endcap = cms.double(0.3),
     # Cleaning with timing
     timing_Cleaning = cms.bool(True),
-    thresh_Cleaning = cms.double(2.0)
+    thresh_Cleaning = cms.double(2.0),
+    # Cleaning with topology
+    topological_Cleaning = cms.bool(True)
 )
 
 

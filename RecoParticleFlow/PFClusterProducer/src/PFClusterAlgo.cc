@@ -771,7 +771,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	    seedStates_[rhj] = CLEAN;
 	    mask_[rhj] = false;
 	    reco::PFRecHit theCleanedNeighbour(wannaBeSeed);
-	    pfRecHitsCleaned_->push_back(theCleanedNeighbour);
+	    pfRecHitsCleaned_->push_back(neighbouri);
 	  }
 	}
       } else { 
