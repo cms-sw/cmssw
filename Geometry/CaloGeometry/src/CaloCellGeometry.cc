@@ -89,7 +89,7 @@ CaloCellGeometry::checkParmPtr(
       bool same ( true ) ;
       for( unsigned int j ( 0 ) ; j != vv.size() ; ++j )
       {
-	 same = same && ( fabs( vv[j] - v[j] )<1.e-5 ) ;
+	 same = same && ( fabs( vv[j] - v[j] )<1.e-6 ) ;
 	 if( !same ) break ;
       }
       if( same )
