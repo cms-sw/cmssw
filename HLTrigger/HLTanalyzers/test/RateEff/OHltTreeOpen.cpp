@@ -6666,6 +6666,7 @@ void OHltTree::CheckOpenHlt(
                      999,
                      999,
                      999,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -6677,6 +6678,7 @@ void OHltTree::CheckOpenHlt(
                         999,
                         999,
                         999,
+                        0.1,
                         0.15,
                         0.98);
                   if (secondVector.size()>=1)
@@ -6700,6 +6702,7 @@ void OHltTree::CheckOpenHlt(
                      999,
                      999,
                      999,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -6711,6 +6714,7 @@ void OHltTree::CheckOpenHlt(
                         6.0,
                         4.0,
                         4.0,
+                        0.1,
                         0.15,
                         0.98,
                         0.014,
@@ -6739,6 +6743,7 @@ void OHltTree::CheckOpenHlt(
                      6.0,
                      4.0,
                      4.0,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -6750,6 +6755,7 @@ void OHltTree::CheckOpenHlt(
                         6.0,
                         4.0,
                         4.0,
+                        0.1,
                         0.15,
                         0.98);
                   if (secondVector.size()>=1)
@@ -6777,6 +6783,7 @@ void OHltTree::CheckOpenHlt(
                      6.0,
                      4.0,
                      4.0,
+                     0.1,
                      0.15,
                      0.98,
                      0.014,
@@ -6790,6 +6797,7 @@ void OHltTree::CheckOpenHlt(
                         6.0,
                         4.0,
                         4.0,
+                        0.1,
                         0.15,
                         0.98,
                         0.014,
@@ -6816,6 +6824,7 @@ void OHltTree::CheckOpenHlt(
                      999,
                      999,
                      999,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -6827,6 +6836,7 @@ void OHltTree::CheckOpenHlt(
                         5,
                         3,
                         3,
+                        0.1,
                         0.15,
                         0.98);
                   if (secondVector.size()>=1)
@@ -6850,6 +6860,7 @@ void OHltTree::CheckOpenHlt(
                      999,
                      999,
                      999,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -6861,6 +6872,7 @@ void OHltTree::CheckOpenHlt(
                         5.5,
                         3.5,
                         3.5,
+                        0.1,
                         0.15,
                         0.98);
                   if (secondVector.size()>=1)
@@ -6884,6 +6896,7 @@ void OHltTree::CheckOpenHlt(
                      999,
                      999,
                      999,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -6895,6 +6908,7 @@ void OHltTree::CheckOpenHlt(
                         6.0,
                         4.0,
                         4.0,
+                        0.1,
                         0.15,
                         0.98);
                   if (secondVector.size()>=1)
@@ -6918,6 +6932,7 @@ void OHltTree::CheckOpenHlt(
                      999,
                      999,
                      999,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -6930,6 +6945,7 @@ void OHltTree::CheckOpenHlt(
                         5,
                         3,
                         3,
+                        0.1,
                         0.15,
                         0.98,
                         0.014,
@@ -6955,6 +6971,7 @@ void OHltTree::CheckOpenHlt(
                      999,
                      999,
                      999,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -6967,6 +6984,7 @@ void OHltTree::CheckOpenHlt(
                         5,
                         3,
                         3,
+                        0.1,
                         0.15,
                         999.98,
                         0.014,
@@ -6992,6 +7010,7 @@ void OHltTree::CheckOpenHlt(
                      5,
                      3,
                      3,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -7003,6 +7022,7 @@ void OHltTree::CheckOpenHlt(
                         5,
                         3,
                         3,
+                        0.1,
                         0.15,
                         0.98);
                   if (secondVector.size()>=1)
@@ -7026,6 +7046,7 @@ void OHltTree::CheckOpenHlt(
                      5,
                      3,
                      3,
+                     0.1,
                      0.15,
                      0.98,
                      0.014,
@@ -7039,6 +7060,7 @@ void OHltTree::CheckOpenHlt(
                         5,
                         3,
                         3,
+                        0.1,
                         0.15,
                         0.98,
                         0.014,
@@ -7066,6 +7088,7 @@ void OHltTree::CheckOpenHlt(
                      999,
                      999,
                      999,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -7077,6 +7100,7 @@ void OHltTree::CheckOpenHlt(
                         5,
                         3,
                         3,
+                        0.1,
                         0.15,
                         0.98);
                   if (secondVector.size()>=1)
@@ -7130,6 +7154,7 @@ void OHltTree::CheckOpenHlt(
                      999,
                      999,
                      999,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -7141,6 +7166,7 @@ void OHltTree::CheckOpenHlt(
                         5,
                         3,
                         3,
+                        0.1,
                         0.15,
                         0.98,
                         0.014,
@@ -7196,6 +7222,7 @@ void OHltTree::CheckOpenHlt(
                      5,
                      3,
                      3,
+                     0.1,
                      0.15,
                      0.98);
                if (firstVector.size()>=2)
@@ -7207,6 +7234,7 @@ void OHltTree::CheckOpenHlt(
                         5,
                         3,
                         3,
+                        0.1,
                         0.15,
                         0.98);
                   if (secondVector.size()>=1)
@@ -7260,6 +7288,7 @@ void OHltTree::CheckOpenHlt(
                      5,
                      3,
                      3,
+                     0.1,
                      0.15,
                      0.98,
                      0.014,
@@ -7273,6 +7302,7 @@ void OHltTree::CheckOpenHlt(
                         5,
                         3,
                         3,
+                        0.1,
                         0.15,
                         0.98,
                         0.014,
@@ -12184,7 +12214,8 @@ vector<int> OHltTree::VectorOpenHlt1PhotonPassed(
       float Eiso,
       float HisoBR,
       float HisoEC,
-      float HoverE,
+      float HoverEEB,
+      float HoverEEC,
       float R9,
       float ClusShapEB,
       float ClusShapEC)
@@ -12213,7 +12244,8 @@ vector<int> OHltTree::VectorOpenHlt1PhotonPassed(
                      {
                         float EcalEnergy = ohPhotEt[i]/(sin(2*atan(exp(0
                               -ohPhotEta[i]))));
-                        if (ohPhotHforHoverE[i]/EcalEnergy < HoverE)
+                        if ( (TMath::Abs(ohPhotEta[i]) < 1.479 && ohPhotHforHoverE[i]/EcalEnergy < HoverEEB) || 
+                             ((1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 &&) && ohPhotHforHoverE[i]/EcalEnergy < HoverEEC))
                            if (ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs   
                               rc.push_back(i);
                      }
