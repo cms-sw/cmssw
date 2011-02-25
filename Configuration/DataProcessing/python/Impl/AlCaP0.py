@@ -157,7 +157,7 @@ class AlCaP0(Scenario):
         """
         options = defaultOptions
         options.scenario = "pp"
-        options.step = "HARVESTING:dqmHarvesting"
+        options.step = "HARVESTING:alcaHarvesting"
         options.isMC = False
         options.isData = True
         options.beamspot = None
