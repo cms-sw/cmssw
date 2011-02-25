@@ -8,7 +8,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue Feb 26 15:13:10 CET 2008
-// $Id: RPCStripsRing.cc,v 1.1 2009/06/01 13:58:17 fruboes Exp $
+// $Id: RPCStripsRing.cc,v 1.2 2009/09/15 13:49:41 fruboes Exp $
 //
 
 // system include files
@@ -317,11 +317,12 @@ void RPCStripsRing::createRefConnections(TOtherConnStructVec & otherRings, int l
          << " called for non-reference ring \n";
    }
    
+   /*
    if (logplaneSize!=8) {
      throw cms::Exception("RPCInternal") << " RPCStripsRing::createRefConnections "
          << " called for lpSize " << logplaneSize << " \n";
      
-   }
+   }*/
    const float pi = 3.141592654;
    const float offset = (5./360.)*2*pi; // XXX
    

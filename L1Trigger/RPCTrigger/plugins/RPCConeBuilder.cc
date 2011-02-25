@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Feb 22 13:57:06 CET 2008
-// $Id: RPCConeBuilder.cc,v 1.1 2009/06/01 13:58:16 fruboes Exp $
+// $Id: RPCConeBuilder.cc,v 1.2 2009/09/15 13:49:41 fruboes Exp $
 //
 //
 
@@ -232,9 +232,17 @@ void RPCConeBuilder::buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom ){
       //  << it->second.size() << std::endl;
     
     // In reference plane we should have 144*8 = 1152 strips
+    //int plane = it->first/1000;
+    int etaPart =  it->first%100; 
     if (it->second.isReferenceRing() && (it->second.size() != 1152)){
-      throw cms::Exception("RPCInternal") << "Problem: refring " << it->first 
+
+      if (std::abs(etaPart)>=14 || std::abs(etaPart)<=17 ) {
+        //std::cout << "etaPart "  << etaPart << " size " << it->second.size() << std::endl;
+      }
+      else {
+        throw cms::Exception("RPCInternal") << "Problem: refring " << it->first 
           << " has " << it->second.size() << " strips \n";
+      }
     }
     
     
@@ -301,6 +309,8 @@ void RPCConeBuilder::buildConnections(){
         throw cms::Exception("RPCConfig") << " Cannot determine logplane for reference ring "
             << itRef->first << "\n ";
       }
+
+      /*&
       if (prRef.second != 8){
         // XXX        
         throw cms::Exception("RPCConfig") << " logplaneSize for reference ring "
@@ -310,7 +320,7 @@ void RPCConeBuilder::buildConnections(){
             << " tower: " << itRef->second.getTowerForRefRing()
             << " hwPlane: " << itRef->second.getHwPlane()
             << " strips " << prRef.second << "\n";
-      }
+      }*/
       
       itRef->second.createRefConnections(ringsToConnect, prRef.first, prRef.second);
       

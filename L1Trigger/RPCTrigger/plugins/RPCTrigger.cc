@@ -61,6 +61,8 @@ void
 RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
  
+  //static int ev=1;
+  //std::cout << "----------------------------------- "  << ev++ << std::endl;
   if ( m_triggerDebug == 1)  MuonsGrabber::Instance().startNewEvent(iEvent.id().event(), iEvent.bunchCrossing());  
 
   if (m_firstRun){

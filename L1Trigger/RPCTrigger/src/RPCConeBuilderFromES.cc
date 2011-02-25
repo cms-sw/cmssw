@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:20 CET 2008
-// $Id: RPCConeBuilderFromES.cc,v 1.9 2010/04/30 12:49:51 fruboes Exp $
+// $Id: RPCConeBuilderFromES.cc,v 1.10 2010/05/04 11:04:52 fruboes Exp $
 //
 
 // system include files
@@ -214,7 +214,7 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
       }
     }
   }
-  */
+  // */
   
   return ActiveCones;
   

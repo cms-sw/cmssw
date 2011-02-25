@@ -133,6 +133,22 @@ RPCPac::runEnergeticPatternsGroups(const RPCLogCone & cone) const
            logPlane < RPCConst::m_USED_PLANES_COUNT[std::abs(m_ConeCrdnts.m_Tower)];
            logPlane++)
         {                       //or po paskach ze stozka
+
+          if (cone.getHitsCnt(logPlane)>0 ) {
+            RPCLogCone::TLogPlane lp = cone.getLogPlane(logPlane);
+            RPCLogCone::TLogPlane::const_iterator itLP = lp.begin();
+            RPCLogCone::TLogPlane::const_iterator itLPE = lp.end();
+            for(; itLP!=itLPE; ++itLP){
+               int strip=itLP->first;
+               if(iEGroup->m_GroupShape.getLogStripState(logPlane, strip)){
+                  firedPlanes = firedPlanes | one;
+                  firedPlanesCount++;
+                  break;
+               }
+            }
+
+          }
+          /*
           for(unsigned int bitNum = 0;
                bitNum <
                RPCConst::
@@ -147,6 +163,7 @@ RPCPac::runEnergeticPatternsGroups(const RPCLogCone & cone) const
                   break;
                 }
             }
+           */
           one = one << 1;
         }
 
