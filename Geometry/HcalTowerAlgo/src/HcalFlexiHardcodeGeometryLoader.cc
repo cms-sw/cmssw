@@ -272,8 +272,7 @@ namespace {
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (0.5 * (param.rMax - param.rMin) * cosh (etaCenter)); // dr_half
-	  // FIXME: GlobalPoint eta does not give identical values for -z and +z
-	  cellParams.push_back ( fabs( -log( tan( 0.5 * refPoint.theta()))));
+	  cellParams.push_back ( fabs( refPoint.eta()));
 	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHBHO-> " << hid << hid.ieta() << '/' << hid.iphi() << '/' << hid.depth()
@@ -313,8 +312,7 @@ namespace {
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (-0.5 * (param.zMax - param.zMin) / tanh (etaCenter)); // dz_half, "-" means edges in Z
-	  // FIXME: GlobalPoint eta does not give identical values for -z and +z
-	  cellParams.push_back ( fabs( -log( tan( 0.5 * refPoint.theta()))));
+	  cellParams.push_back ( fabs( refPoint.eta()));
 	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHE-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
@@ -342,10 +340,8 @@ namespace {
 	  float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
 	  GlobalPoint inner (param.rMin, 0., param.zMin);
 	  GlobalPoint outer (param.rMax, 0., param.zMin);
-	  // FIXME: GlobalPoint eta does not give identical values for -z and +z
-	  float iEta = -log( tan( 0.5 * inner.theta()));
-	  // FIXME: GlobalPoint eta does not give identical values for -z and +z
-	  float oEta = -log( tan( 0.5 * outer.theta()));
+	  float iEta = inner.eta();
+	  float oEta = outer.eta();
 	  float etaCenter = 0.5 * ( iEta + oEta );
 
 	  float perp = param.zMin / sinh (etaCenter);
@@ -359,8 +355,7 @@ namespace {
 	  cellParams.push_back (0.5 * ( iEta - oEta )); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (0.5 * (param.zMax - param.zMin)); // dz_half
-	  // FIXME: GlobalPoint eta does not give identical values for -z and +z
-	  cellParams.push_back ( fabs( -log( tan( 0.5 * refPoint.theta())))) ;
+	  cellParams.push_back ( fabs( refPoint.eta()));
 	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHF-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
