@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="reco::Vertex" />
+  <class name="reco::Vertex" >
+  </class>
   <class name="std::vector<reco::Vertex>" />
   <class name="edm::Wrapper<std::vector<reco::Vertex> >" />
   <class name="edm::Ref<std::vector<reco::Vertex>, reco::Vertex, edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>, reco::Vertex> >" />

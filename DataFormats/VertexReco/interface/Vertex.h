@@ -15,7 +15,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.37 2010/11/15 21:32:22 dlange Exp $
+ * \version $Id: Vertex.h,v 1.38 2010/11/17 17:13:42 dlange Exp $
  *
  */
 #include <Rtypes.h>
@@ -150,18 +150,18 @@ namespace reco {
 	const Track & track_;
     };
     /// chi-sqared
-    Double32_t chi2_;
+    float chi2_;
     /// number of degrees of freedom
-    Double32_t ndof_;
+    float ndof_;
     /// position
     Point position_;
     /// covariance matrix (3x3) as vector
-    Double32_t covariance_[ size ];
+    float covariance_[ size ];
     /// reference to tracks
     std::vector<TrackBaseRef > tracks_;
     /// The vector of refitted tracks
     std::vector<Track> refittedTracks_;
-    std::vector<float> weights_;
+    std::vector<uint8_t> weights_;
     /// tells wether the vertex is really valid.
     bool validity_;
 
