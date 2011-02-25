@@ -10,6 +10,7 @@
 #define gen_GeneratorFilter_h
 
 #include <memory>
+#include <string>
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -54,10 +55,9 @@ namespace edm
     virtual void respondToCloseOutputFiles(FileBlock const& fb);
 
   private:
-    Hadronizer hadronizer_;
+    Hadronizer            hadronizer_;
     //gen::ExternalDecayDriver* decayer_;
-    Decayer* decayer_;
-    
+    Decayer*              decayer_;
   };
 
   //------------------------------------------------------------------------
@@ -85,10 +85,11 @@ namespace edm
        ParameterSet ps1 = ps.getParameter<ParameterSet>("ExternalDecays");
        decayer_ = new Decayer(ps1);
     }
-
+    
     produces<edm::HepMCProduct>();
     produces<GenEventInfoProduct>();
     produces<GenRunInfoProduct, edm::InRun>();
+ 
   }
 
   template <class HAD, class DEC>
@@ -99,63 +100,75 @@ namespace edm
   bool
   GeneratorFilter<HAD, DEC>::filter(Event& ev, EventSetup const& /* es */)
   {
-    hadronizer_.setEDMEvent(ev);
-
-    if ( !hadronizer_.generatePartonsAndHadronize() ) return false;
-
-    //  this is "fake" stuff
-    // in principle, decays are done as part of full event generation,
-    // except for particles that are marked as to be kept stable
-    // but we currently keep in it the design, because we might want
-    // to use such feature for other applications
-    //
-    if ( !hadronizer_.decay() ) return false;
-    
-    std::auto_ptr<HepMC::GenEvent> event(hadronizer_.getGenEvent());
-    if ( !event.get() ) return false; 
-
-    // The external decay driver is being added to the system,
-    // it should be called here
-    //
-    if ( decayer_ ) 
-    {
-      event.reset( decayer_->decay( event.get() ) );
-    }
-    if ( !event.get() ) return false;
-
+    //added for selecting/filtering gen events, in the case of hadronizer+externalDecayer
+      
+    bool passEvtGenSelector = false;
+    std::auto_ptr<HepMC::GenEvent> event(0);
+   
+    while(!passEvtGenSelector)
+      {
+	event.reset();
+	hadronizer_.setEDMEvent(ev);
+	
+	if ( !hadronizer_.generatePartonsAndHadronize() ) return false;
+	
+	//  this is "fake" stuff
+	// in principle, decays are done as part of full event generation,
+	// except for particles that are marked as to be kept stable
+	// but we currently keep in it the design, because we might want
+	// to use such feature for other applications
+	//
+	if ( !hadronizer_.decay() ) return false;
+	
+	event = std::auto_ptr<HepMC::GenEvent>(hadronizer_.getGenEvent());
+	if ( !event.get() ) return false; 
+	
+	// The external decay driver is being added to the system,
+	// it should be called here
+	//
+	if ( decayer_ ) 
+	  {
+	    event.reset( decayer_->decay( event.get() ) );
+	  }
+	if ( !event.get() ) return false;
+	
+	passEvtGenSelector = hadronizer_.select( event.get() );
+	
+      }
     // check and perform if there're any unstable particles after 
     // running external decay packages
     //
     // fisrt of all, put back modified event tree (after external decay)
     //
     hadronizer_.resetEvent( event.release() );
+	
     //
     // now run residual decays
     //
     if ( !hadronizer_.residualDecay() ) return false;
-
+    	
     hadronizer_.finalizeEvent();
-
+    
     event.reset( hadronizer_.getGenEvent() );
     if ( !event.get() ) return false;
-
+    
     event->set_event_number( ev.id().event() );
-
+    
     //
     // tutto bene - finally, form up EDM products !
     //
     std::auto_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());
     if (!genEventInfo.get())
-    { 
-      // create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
-      genEventInfo.reset(new GenEventInfoProduct(event.get()));
-    }
+      { 
+	// create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
+	genEventInfo.reset(new GenEventInfoProduct(event.get()));
+      }
     ev.put(genEventInfo);
-
+   
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
     bare_product->addHepMCData( event.release() );
     ev.put(bare_product);
-
+    
     return true;
   }
 
