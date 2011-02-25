@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.5 2008/06/07 19:46:08 apana Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.6 2011/02/09 06:38:58 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -29,7 +29,9 @@ HLTJetVBFFilter::HLTJetVBFFilter(const edm::ParameterSet& iConfig)
    saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag",false);
    minEtLow_    = iConfig.getParameter<double> ("minEtLow");
    minEtHigh_   = iConfig.getParameter<double> ("minEtHigh");
+   etaOpposite_ = iConfig.getParameter<bool>   ("etaOpposite"); 
    minDeltaEta_ = iConfig.getParameter<double> ("minDeltaEta"); 
+   minInvMass_  = iConfig.getParameter<double> ("minInvMass"); 
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -58,9 +60,18 @@ HLTJetVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // events with two or more jets
   if(recocalojets->size() > 1){
     
+    double ejet1 = 0.;
+    double pxjet1 = 0.;
+    double pyjet1 = 0.;
+    double pzjet1 = 0.;
     double etjet1 = 0.;
-    double etjet2 = 0.;
     double etajet1 = 0.;
+    
+    double ejet2 = 0.;
+    double pxjet2 = 0.;
+    double pyjet2 = 0.;
+    double pzjet2 = 0.;
+    double etjet2 = 0.;
     double etajet2 = 0.;
     
     // loop on all jets
@@ -74,19 +85,33 @@ HLTJetVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         if( recocalojet2->et() < minEtLow_ ) break;
         
+        ejet1 = recocalojet1->energy();
+        pxjet1 = recocalojet1->px();
+        pyjet1 = recocalojet1->py();
+        pzjet1 = recocalojet1->pz();
         etjet1 = recocalojet1->et();
 	etajet1 = recocalojet1->eta();
-        
+
+        ejet2 = recocalojet2->energy();
+        pxjet2 = recocalojet2->px();
+        pyjet2 = recocalojet2->py();
+        pzjet2 = recocalojet2->pz();
         etjet2 = recocalojet2->et();
         etajet2 = recocalojet2->eta();
         
         float deltaetajet = etajet1 - etajet2;
         
+        float invmassjet = sqrt( (ejet1  + ejet2)  * (ejet1  + ejet2) - 
+      	                         (pxjet1 + pxjet2) * (pxjet1 + pxjet2) - 
+                                 (pyjet1 + pyjet2) * (pyjet1 + pyjet2) - 
+                                 (pzjet1 + pzjet2) * (pzjet1 + pzjet2) );
+        
         // VBF cuts
         if ( (etjet1 > minEtHigh_) &&
              (etjet2 > minEtLow_) &&
-             (etajet1*etajet2 < 0 ) &&
-             (fabs(deltaetajet) > minDeltaEta_) ){
+             ( (etaOpposite_ == true && etajet1*etajet2 < 0) || (etaOpposite_ == false) ) &&
+             (fabs(deltaetajet) > minDeltaEta_) &&
+	     (fabs(invmassjet) > minInvMass_) ){
           
    	  ++n;
           reco::CaloJetRef ref1(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet1)));

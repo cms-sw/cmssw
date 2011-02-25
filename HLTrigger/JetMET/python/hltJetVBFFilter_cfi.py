@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 hltJetVBFFilter = cms.EDFilter("HLTJetVBFFilter",
-    minDeltaEta = cms.double(2.0),
+    inputTag = cms.InputTag("iterativeCone5CaloJets"),
+    saveTag = cms.untracked.bool( False ),
     minEtLow = cms.double(20.0),
     minEtHigh = cms.double(20.0),                               
-    saveTag = cms.untracked.bool( False ),
-    inputTag = cms.InputTag("iterativeCone5CaloJets")
+    etaOpposite = cms.bool(False),
+    minDeltaEta = cms.double(2.0),
+    minInvMass = cms.double(0.)
 )
-
-
