@@ -29,8 +29,8 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2011/01/18 12:21:24 $
-    $Revision: 1.11 $
+    $Date: 2011/02/22 20:44:52 $
+    $Revision: 1.12 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -68,7 +68,13 @@
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
 
       int firstAuxTS_;
-
+ 
+      // legacy parameters for config-set values compatibility 
+      // to be removed after 4_2_0...
+      int firstSample_;
+      int samplesToAdd_;
+      bool tsFromDB_;
+      
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
     };
 

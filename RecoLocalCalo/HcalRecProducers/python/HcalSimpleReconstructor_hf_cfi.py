@@ -6,7 +6,10 @@ hfreco = cms.EDProducer("HcalSimpleReconstructor",
     Subdetector = cms.string('HF'),
     correctForPhaseContainment = cms.bool(False),
     correctForTimeslew = cms.bool(False),
-    dropZSmarkedPassed = cms.bool(True)
+    dropZSmarkedPassed = cms.bool(True),
+    firstSample = cms.int32(4),
+    samplesToAdd = cms.int32(2),
+    tsFromDB = cms.untracked.bool(True)
 )
 
 

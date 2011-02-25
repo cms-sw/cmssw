@@ -8,6 +8,9 @@ horeco = cms.EDProducer(
     correctForPhaseContainment = cms.bool(True),
     correctForTimeslew = cms.bool(True),
     dropZSmarkedPassed = cms.bool(True),
+    firstSample = cms.int32(4),
+    samplesToAdd = cms.int32(4),
+    tsFromDB = cms.untracked.bool(True),
 
     # Set time slice for first digi to be stored in aux word
     # (HO uses time slices 4-7)

@@ -6,7 +6,10 @@ hbheprereco = cms.EDProducer("HcalSimpleReconstructor",
     Subdetector = cms.string('HBHE'),
     correctForPhaseContainment = cms.bool(True),
     correctForTimeslew = cms.bool(True),
-    dropZSmarkedPassed = cms.bool(True)
+    dropZSmarkedPassed = cms.bool(True),
+    firstSample = cms.int32(4),
+    samplesToAdd = cms.int32(4),
+    tsFromDB = cms.untracked.bool(True)
 )
 
 

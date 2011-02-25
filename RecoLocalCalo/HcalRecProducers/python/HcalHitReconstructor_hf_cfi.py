@@ -8,7 +8,10 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         correctForPhaseContainment = cms.bool(False),
                         correctForTimeslew = cms.bool(False),
                         dropZSmarkedPassed = cms.bool(True),
-
+   		        firstSample = cms.int32(4),
+                        samplesToAdd = cms.int32(2),	
+                        tsFromDB = cms.untracked.bool(True),
+	
                         # Tags for calculating status flags
                         correctTiming = cms.bool(True),
                         setNoiseFlags = cms.bool(True),

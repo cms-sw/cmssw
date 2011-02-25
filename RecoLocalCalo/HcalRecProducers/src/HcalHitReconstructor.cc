@@ -30,8 +30,12 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   setPulseShapeFlags_(conf.getParameter<bool>("setPulseShapeFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
-  firstAuxTS_(conf.getParameter<int>("firstAuxTS"))
+  firstAuxTS_(conf.getParameter<int>("firstAuxTS")),
+  firstSample_(conf.getParameter<int>("firstSample")),
+  samplesToAdd_(conf.getParameter<int>("samplesToAdd"))
 {
+
+  tsFromDB_ = conf.getUntrackedParameter<bool>("tsFromDB",true);// ! default 
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
   //Set all FlagSetters to 0
@@ -252,6 +256,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       }
 
       int toaddMem = 0;
+      int first = firstSample_;
+      int toadd = samplesToAdd_;
 
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
@@ -268,13 +274,16 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	// firstSample & samplesToAdd
-	const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-	int first = param_ts->firstSample();    
-	int toadd = param_ts->samplesToAdd(); 
-        if(toaddMem != toadd) {
+        if(tsFromDB_) {
+	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	  first = param_ts->firstSample();    
+	  toadd = param_ts->samplesToAdd(); 
+	}
+	if(toaddMem != toadd) {
 	  reco_.initPulseCorr(toadd);
           toaddMem = toadd;
 	}
+
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
 	// Set auxiliary flag
@@ -340,6 +349,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       }
 
       int toaddMem = 0;
+      int first = firstSample_;
+      int toadd = samplesToAdd_;
 
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
@@ -355,9 +366,11 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	// firstSample & samplesToAdd
-        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-        int first = param_ts->firstSample();    
-        int toadd = param_ts->samplesToAdd();    
+        if(tsFromDB_) {
+	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	  first = param_ts->firstSample();    
+	  toadd = param_ts->samplesToAdd();    
+	}
         if(toaddMem != toadd) {
 	  reco_.initPulseCorr(toadd);
           toaddMem = toadd;
@@ -408,6 +421,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       }
 
       int toaddMem = 0;
+      int first = firstSample_;
+      int toadd = samplesToAdd_;
 
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
@@ -423,9 +438,11 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	// firstSample & samplesToAdd
-        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-	int first = param_ts->firstSample();    
-        int toadd = param_ts->samplesToAdd();    
+        if(tsFromDB_) {
+	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	  first = param_ts->firstSample();    
+	  toadd = param_ts->samplesToAdd();    
+	}
         if(toaddMem != toadd) {
 	  reco_.initPulseCorr(toadd);
           toaddMem = toadd;
@@ -503,6 +520,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       rec->reserve(digi->size());
       // run the algorithm
       int toaddMem = 0;
+      int first = firstSample_;
+      int toadd = samplesToAdd_;
 
       HcalCalibDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
@@ -520,9 +539,11 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	// firstSample & samplesToAdd
-        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-        int first = param_ts->firstSample();    
-        int toadd = param_ts->samplesToAdd();    
+        if(tsFromDB_) {
+	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	  first = param_ts->firstSample();    
+	  toadd = param_ts->samplesToAdd();    
+	}
         if(toaddMem != toadd) {
 	  reco_.initPulseCorr(toadd);
           toaddMem = toadd;

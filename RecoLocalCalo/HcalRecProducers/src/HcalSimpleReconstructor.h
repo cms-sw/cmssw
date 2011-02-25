@@ -15,8 +15,8 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2009/03/27 17:38:31 $
-    $Revision: 1.3 $
+    $Date: 2011/02/22 20:44:52 $
+    $Revision: 1.4 $
     \author J. Mans - Minnesota
     */
     class HcalSimpleReconstructor : public edm::EDProducer {
@@ -34,6 +34,12 @@
       edm::InputTag inputLabel_;
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
+
+      // legacy parameters for config-set values compatibility 
+      // to be removed after 4_2_0...
+      int firstSample_;
+      int samplesToAdd_;
+      bool tsFromDB_;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
 

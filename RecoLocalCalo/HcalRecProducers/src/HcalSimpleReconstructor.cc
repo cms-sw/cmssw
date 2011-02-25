@@ -18,8 +18,13 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
 	conf.getParameter<bool>("correctForPhaseContainment"),conf.getParameter<double>("correctionPhaseNS")),
   det_(DetId::Hcal),
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
-  dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))
+  dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
+  firstSample_(conf.getParameter<int>("firstSample")),
+  samplesToAdd_(conf.getParameter<int>("samplesToAdd"))
 {
+
+  tsFromDB_ = conf.getUntrackedParameter<bool>("tsFromDB",true);// ! default 
+
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(),"HBHE")) {
     subdet_=HcalBarrel;
@@ -72,6 +77,8 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       rec->reserve(digi->size());
       // run the algorithm
       int toaddMem = 0;
+      int first = firstSample_;
+      int toadd = samplesToAdd_;
       HBHEDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
@@ -85,9 +92,11 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	//>>> firstSample & samplesToAdd
-        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-        int first = param_ts->firstSample();    
-        int toadd = param_ts->samplesToAdd();    
+        if(tsFromDB_) {
+	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	  first = param_ts->firstSample();    
+	  toadd = param_ts->samplesToAdd();
+	}    
         if(toaddMem != toadd) {
 	  reco_.initPulseCorr(toadd);
           toaddMem = toadd;
@@ -107,6 +116,8 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       rec->reserve(digi->size());
       // run the algorithm
       int toaddMem = 0;
+      int first = firstSample_;
+      int toadd = samplesToAdd_;
       HODigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
@@ -118,16 +129,18 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
+       
 
 	//>>> firstSample & samplesToAdd
-        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-        int first = param_ts->firstSample();    
-        int toadd = param_ts->samplesToAdd();    
+        if(tsFromDB_) {
+	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	  first = param_ts->firstSample();    
+	  toadd = param_ts->samplesToAdd();    
+	}
         if(toaddMem != toadd) {
 	  reco_.initPulseCorr(toadd);
           toaddMem = toadd;
 	}
-
 
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
       }
@@ -142,6 +155,8 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       rec->reserve(digi->size());
       // run the algorithm
       int toaddMem = 0;
+      int first = firstSample_;
+      int toadd = samplesToAdd_;
       HFDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();	 
@@ -155,9 +170,11 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	//>>> firstSample & samplesToAdd
-        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-        int first = param_ts->firstSample();    
-        int toadd = param_ts->samplesToAdd();    
+        if(tsFromDB_) {
+	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	  first = param_ts->firstSample();    
+	  toadd = param_ts->samplesToAdd();    
+	}
         if(toaddMem != toadd) {
 	  reco_.initPulseCorr(toadd);
           toaddMem = toadd;
@@ -176,6 +193,8 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       rec->reserve(digi->size());
       // run the algorithm
       int toaddMem = 0;
+      int first = firstSample_;
+      int toadd = samplesToAdd_;
       HcalCalibDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalCalibDetId cell = i->id();	  
@@ -189,9 +208,11 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	//>>> firstSample & samplesToAdd
-        const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-        int first = param_ts->firstSample();    
-        int toadd = param_ts->samplesToAdd();    
+        if(tsFromDB_) {
+	  const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
+	  first = param_ts->firstSample();    
+	  toadd = param_ts->samplesToAdd();    
+	}
         if(toaddMem != toadd) {
 	  reco_.initPulseCorr(toadd);
           toaddMem = toadd;
