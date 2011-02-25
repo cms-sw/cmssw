@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.292 $"
+__version__ = "$Revision: 1.293 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -42,7 +42,7 @@ defaultOptions.hltProcess = ''
 defaultOptions.inlineEventContent = True
 defaultOptions.inlineObjets =''
 defaultOptions.hideGen=False
-defaultOptions.beamspot='Realistic7TeVCollision'
+defaultOptions.beamspot='Realistic7TeV2011Collision'
 defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
 defaultOptions.inputEventContent = None
@@ -1375,7 +1375,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.292 $"),
+                                            (version=cms.untracked.string("$Revision: 1.293 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
