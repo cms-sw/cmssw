@@ -9,7 +9,7 @@ hfreco = cms.EDProducer("HcalSimpleReconstructor",
     dropZSmarkedPassed = cms.bool(True),
     firstSample = cms.int32(4),
     samplesToAdd = cms.int32(2),
-    tsFromDB = cms.untracked.bool(True)
+    tsFromDB = cms.bool(True)
 )
 
 

@@ -20,10 +20,9 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
   firstSample_(conf.getParameter<int>("firstSample")),
-  samplesToAdd_(conf.getParameter<int>("samplesToAdd"))
+  samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
+  tsFromDB_(conf.getParameter<bool>("tsFromDB"))
 {
-
-  tsFromDB_ = conf.getUntrackedParameter<bool>("tsFromDB",true);// ! default 
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(),"HBHE")) {

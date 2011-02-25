@@ -32,10 +32,9 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
   firstAuxTS_(conf.getParameter<int>("firstAuxTS")),
   firstSample_(conf.getParameter<int>("firstSample")),
-  samplesToAdd_(conf.getParameter<int>("samplesToAdd"))
+  samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
+  tsFromDB_(conf.getParameter<bool>("tsFromDB"))
 {
-
-  tsFromDB_ = conf.getUntrackedParameter<bool>("tsFromDB",true);// ! default 
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
   //Set all FlagSetters to 0
