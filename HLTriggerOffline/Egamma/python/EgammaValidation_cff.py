@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # whether to use the old or newer (automatically adapting
 # to the MC menu) method of configuring the monitoring
 # modules for the HLT paths
-use_new_method = True
+use_new_method = False
 
 
 if not use_new_method:
