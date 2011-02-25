@@ -15,8 +15,7 @@ PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(0)
 
 PFEnergyCalibration::~PFEnergyCalibration() 
 {
-  std::cout << "delete!!!" << std::endl;
-  
+
   delete faBarrel;
   delete fbBarrel;
   delete fcBarrel;
@@ -33,7 +32,6 @@ PFEnergyCalibration::~PFEnergyCalibration()
 void
 PFEnergyCalibration::initializeCalibrationFunctions() {
 
-  std::cout << "initialize!!!" << std::endl;
   // NEW NEW with HCAL pre-calibration
 
   threshE = 3.5;
