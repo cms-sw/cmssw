@@ -1879,6 +1879,34 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+ else if (isR0XTrigger(triggerName, thresholds))
+   {
+     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+       {
+         if (OpenHltRPassed(thresholds[0], 0., false, 7, 56.)>0)
+	   {
+	     if (prescaleResponse(menu, cfg, rcounter, it))
+	       {
+		 triggerBit[it] = true;
+	       }
+	   }
+       }
+   }
+
+ else if (isMRXTrigger(triggerName, thresholds))
+   {
+     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+       {
+         if (OpenHltRPassed(0., thresholds[0], false, 7, 56.)>0)
+	   {
+	     if (prescaleResponse(menu, cfg, rcounter, it))
+	       {
+		 triggerBit[it] = true;
+	       }
+	   }
+       }
+   }
+
 
 
    /* Muons */
