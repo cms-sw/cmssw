@@ -9989,6 +9989,7 @@ int OHltTree::OpenHlt2MuonOSMassPassed(
 	    }
 	}
     }
+  return rc;
 }
 
 //// Separating between Jets and Muon.....
