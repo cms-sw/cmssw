@@ -915,7 +915,7 @@ def insertTrgHltMap(schema,hltkey,trghltmap):
         return nrows
     except :
         raise
-def insertTrgLSData(schema,runnumber,data_id,trglsdata):
+def bulkInsertTrgLSData(session,runnumber,data_id,trglsdata,bulksize=500):
     '''
     insert trg per-LS data for given run and data_id, this operation can be split in transaction chuncks 
     input:
@@ -923,10 +923,12 @@ def insertTrgLSData(schema,runnumber,data_id,trglsdata):
     result nrows inserted
     if nrows==0, then this insertion failed
     '''
+    print 'total number of trg rows ',len(trglsdata)
+    lstrgDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('CMSLSNUM','unsigned int'),('DEADTIMECOUNT','unsigned long long'),('BITZEROCOUNT','unsigned int'),('BITZEROPRESCALE','unsigned int'),('PRESCALEBLOB','blob'),('TRGCOUNTBLOB','blob')]
+    committedrows=0
+    nrows=0
+    bulkvalues=[]
     try:
-        nrows=0
-        bulkvalues=[]   
-        lstrgDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('CMSLSNUM','unsigned int'),('DEADTIMECOUNT','unsigned long long'),('BITZEROCOUNT','unsigned int'),('BITZEROPRESCALE','unsigned int'),('PRESCALEBLOB','blob'),('TRGCOUNTBLOB','blob')]
         for cmslsnum,perlstrg in trglsdata.items():
             deadtimecount=perlstrg[0]           
             bitzerocount=perlstrg[1]
@@ -934,31 +936,59 @@ def insertTrgLSData(schema,runnumber,data_id,trglsdata):
             trgcountblob=perlstrg[3]
             trgprescaleblob=perlstrg[4]
             bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('CMSLSNUM',cmslsnum),('DEADTIMECOUNT',deadtimecount),('BITZEROCOUNT',bitzerocount),('BITZEROPRESCALE',bitzeroprescale),('PRESCALEBLOB',trgprescaleblob),('TRGCOUNTBLOB',trgcountblob)])
-        db=dbUtil.dbUtil(schema)
-        db.bulkInsert(nameDealer.lstrgTableName(),lstrgDefDict,bulkvalues)
-        nrows=len(bulkvalues)
-        return nrows
+            nrows+=1
+            committedrows+=1
+            if nrows==bulksize:
+                print 'committing in LS chunck ',nrows
+                db=dbUtil.dbUtil(session.nominalSchema())
+                session.transaction().start(False)
+                db.bulkInsert(nameDealer.lstrgTableName(),lstrgDefDict,bulkvalues)
+                session.transaction().commit()
+                nrows=0
+                bulkvalues=[]
+            elif committedrows==len(trglsdata):
+                print 'committing at the end '
+                db=dbUtil.dbUtil(session.nominalSchema())
+                session.transaction().start(False)
+                db.bulkInsert(nameDealer.lstrgTableName(),lstrgDefDict,bulkvalues)
+                session.transaction().commit()
     except :
         raise 
-def insertHltLSData(schema,runnumber,data_id,hltlsdata):
+def bulkInsertHltLSData(session,runnumber,data_id,hltlsdata,bulksize=500):
     '''
     input:
-         hltlsdata {cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}
+    hltlsdata {cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}
     '''
-    try:
-        nrow=0
-        bulkvalues=[]
-        lshltDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('CMSLSNUM','unsigned int'),('PRESCALEBLOB','blob'),('HLTCOUNTBLOB','blob'),('HLTACCEPTBLOB','blob')]
+    print 'total number of hlt rows ',len(hltlsdata)
+    lshltDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('CMSLSNUM','unsigned int'),('PRESCALEBLOB','blob'),('HLTCOUNTBLOB','blob'),('HLTACCEPTBLOB','blob')]
+    committedrows=0
+    nrow=0
+    bulkvalues=[]   
+    try:             
         for cmslsnum,perlshlt in hltlsdata.items():
             inputcountblob=perlshlt[0]
             acceptcountblob=perlshlt[1]
             prescaleblob=perlshlt[2]
             bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('CMSLSNUM',cmslsnum),('PRESCALEBLOB',prescaleblob),('HLTCOUNTBLOB',inputcountblob),('HLTACCEPTBLOB',acceptcountblob)])
-        db=dbUtil.dbUtil(schema)
-        db.bulkInsert(nameDealer.lshltTableName(),lshltDefDict,bulkvalues)
-        return len(bulkvalues)
-    except Exception,e :
-        raise RuntimeError(' dataDML.addHltLSData: '+str(e))
+            
+            nrows+=1
+            committedrows+=1
+            if nrows==bulksize:
+                print 'committing in LS chunck ',nrows
+                db=dbUtil.dbUtil(session.nominalSchema())
+                session.transaction().start(False)
+                db.bulkInsert(nameDealer.lshltTableName(),lshltDefDict,bulkvalues)
+                session.transaction().commit()
+                nrows=0
+                bulkvalues=[]
+            elif committedrows==len(hltlsdata):
+                print 'committing at the end '
+                db=dbUtil.dbUtil(session.nominalSchema())
+                session.transaction().start(False)
+                db.bulkInsert(nameDealer.lshltTableName(),lshltDefDict,bulkvalues)
+                session.transaction().commit()
+    except  :
+        raise 
     
 def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,bulksize=500):
     '''

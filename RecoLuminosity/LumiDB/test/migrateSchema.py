@@ -47,21 +47,20 @@ def main():
         del runinfosvc
         destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
         destsession.transaction().start(False)
-        (branchrevision_id,branchbranch_id)=revisionDML.branchInfoByName(destsession.nominalSchema(),'DATA')
+        #(branchrevision_id,branchbranch_id)=revisionDML.branchInfoByName(destsession.nominalSchema(),'DATA')
         #dataDML.insertRunSummaryData(destsession.nominalSchema(),runnumber,[l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime],complementalOnly=False)
         #(datarevid,dataparentid,dataparentname)=revisionDML.createBranch(destsession.nominalSchema(),'DATA','TRUNK',comment='hold data')
-        (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(destsession.nominalSchema(),runnumber,[args.lumisource],(branchrevision_id,'DATA'))
+        #(lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(destsession.nominalSchema(),runnumber,[args.lumisource],(branchrevision_id,'DATA'))
+        bitzeroname=bitnames.split(',')[0]
+        trgrundata=[args.lumisource,bitzeroname,bitnames]
+        (trgrevid,trgentryid,trgdataid)=dataDML.addTrgRunDataToBranch(destsession.nominalSchema(),runnumber,trgrundata,(branchrevision_id,'DATA'))
+        hltrundata=[pathnames,args.lumisource]
+        (hltrevid,hltentryid,hltdataid)=dataDML.addHLTRunDataToBranch(destsession.nominalSchema(),runnumber,hltrundata,(branchrevision_id,'DATA'))
         destsession.transaction().commit()
-        dataDML.bulkInsertLumiLSSummary(destsession,runnumber,lumidataid,lumidata,500)
-       
-       #
-    #bitzeroname=bitnames.split(',')[0]
-    #trgrundata=[args.connect,bitzeroname,bitnames]
-    #(trgrevid,trgentryid,trgdataid)=dataDML.addTrgRunDataToBranch(schema,runnumber,trgrundata,(datarevid,'DATA'))
-    #dataDML.insertTrgLSData(schema,runnumber,trgdataid,trglsdata)
-    #hltrundata=[pathnames,args.connect]
-    #(hltrevid,hltentryid,hltdataid)=dataDML.addHLTRunDataToBranch(schema,runnumber,hltrundata,(datarevid,'DATA'))
-    #dataDML.insertHltLSData(schema,runnumber,hltdataid,hltlsdata)
+        #dataDML.bulkInsertLumiLSSummary(destsession,runnumber,lumidataid,lumidata,500)
+        #
+        dataDML.bulkInsertTrgLSData(destsession,runnumber,trgdataid,trglsdata,500)
+        dataDML.bulkInsertHltLSData(destsession,runnumber,hltdataid,hltlsdata,500)
         del destsession
         del destsvc
     except:
