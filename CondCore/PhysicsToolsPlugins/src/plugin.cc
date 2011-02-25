@@ -27,6 +27,14 @@ REGISTER_PLUGIN(SiStripDeDxKaon_3D_Rcd, PhysicsTools::Calibration::HistogramD3D)
 REGISTER_PLUGIN(SiStripDeDxElectron_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
 
 
+#include "CondFormats/DataRecord/interface/DropBoxMetadataRcd.h"
+#include "CondFormats/Common/interface/DropBoxMetadata.h"
+
+
+REGISTER_PLUGIN(DropBoxMetadataRcd,DropBoxMetadata);
+
+
+
 
 
 
