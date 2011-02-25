@@ -105,7 +105,7 @@ print "New Severity Levels:"
 for i in process.hcalRecAlgos.SeverityLevels:
     print i
 
-print process.hbhereco.firstSample, "  FIRST"
+#print process.hbhereco.firstSample, "  FIRST"
 
 process.reflagging_step = cms.Path(process.hcalrechitReflagger)
 process.reconstruction_step = cms.Path(process.towerMakerPET*(process.metPET+process.ak5CaloJetsPET))
