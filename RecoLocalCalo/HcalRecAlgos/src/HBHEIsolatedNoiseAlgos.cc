@@ -181,13 +181,12 @@ PhysicsTowerOrganizer::PhysicsTowerOrganizer(const edm::Event& iEvent,
     // validate track
     if(!objectvalidator.validTrack(*track)) continue;
     
-    // need a valid extrapolation point
-    if(extrap->positions().size()<=0 || !(extrap->isValid().front())) continue;
-    
     // get the point
+    if ( extrap->positions().size()==0 ) continue; 
     const GlobalPoint point(extrap->positions().front().x(),
 			    extrap->positions().front().y(),
-			    extrap->positions().front().z());
+ 			    extrap->positions().front().z());
+
     
     if(std::fabs(point.eta())<1.479) {
       EBDetId cell = gEB->getClosestCell(point);
