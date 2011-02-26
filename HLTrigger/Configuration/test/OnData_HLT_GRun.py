@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V46 (CMSSW_3_11_0_HLT8)
+# /dev/CMSSW_3_11_1/GRun/V47 (CMSSW_3_11_0_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V46')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V47')
 )
 
 process.streams = cms.PSet( 
@@ -19143,7 +19143,7 @@ process.HLT_HT240_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1
 process.HLT_HT260_MHT60_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1HTT100 + process.hltPreHT260MHT60 + process.HLTRecoJetSequenceAK5Corrected + process.HLTDoJet30HTRecoSequence + process.hltHT260 + process.hltMHT60 + process.HLTEndSequence )
 process.HLT_HT300_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1HTT100 + process.hltPreHT300 + process.HLTRecoJetSequenceAK5Corrected + process.HLTDoJet30HTRecoSequence + process.hltHT300 + process.HLTEndSequence )
 process.HLT_HT300_MHT75_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1HTT100 + process.hltPreHT300MHT75 + process.HLTRecoJetSequenceAK5Corrected + process.HLTDoJet30HTRecoSequence + process.hltHT300 + process.hltMHT75 + process.HLTEndSequence )
-process.HLT_HT360_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1HTT100 + process.hltPreHT360 + process.HLTRecoJetSequenceAK5Corrected + process.HLTDoJet30HTRecoSequence + process.hltHT360 )
+process.HLT_HT360_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1HTT100 + process.hltPreHT360 + process.HLTRecoJetSequenceAK5Corrected + process.HLTDoJet30HTRecoSequence + process.hltHT360 + process.HLTEndSequence )
 process.HLT_HT440_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1HTT100 + process.hltPreHT440 + process.HLTRecoJetSequenceAK5Corrected + process.HLTDoJet30HTRecoSequence + process.hltHT440 + process.HLTEndSequence )
 process.HLT_HT520_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1HTT100 + process.hltPreHT520 + process.HLTRecoJetSequenceAK5Corrected + process.HLTDoJet30HTRecoSequence + process.hltHT520 + process.HLTEndSequence )
 process.HLT_PFMHT80_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1ETM30 + process.hltPrePFMHT80 + process.HLTRecoJetSequencePrePF + process.HLTTrackReconstructionForJets + process.HLTParticleFlowSequence + process.HLTPFJetsSequence + process.hltPFMHT80Filter + process.HLTEndSequence )

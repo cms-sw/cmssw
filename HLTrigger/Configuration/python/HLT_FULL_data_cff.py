@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HLT_fix3/V164 (CMSSW_3_11_0_HLT8)
+# /dev/CMSSW_3_11_1/HLT_fix3/V166 (CMSSW_3_11_0_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V164')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V166')
 )
 
 streams = cms.PSet( 
@@ -17905,7 +17905,7 @@ HLT_HT240_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT50 + hltPreHT240 + HL
 HLT_HT260_MHT60_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT260MHT60 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT260 + hltMHT60 + HLTEndSequence )
 HLT_HT300_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT300 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT300 + HLTEndSequence )
 HLT_HT300_MHT75_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT300MHT75 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT300 + hltMHT75 + HLTEndSequence )
-HLT_HT360_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT360 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT360 )
+HLT_HT360_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT360 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT360 + HLTEndSequence )
 HLT_HT440_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT440 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT440 + HLTEndSequence )
 HLT_HT520_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT520 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT520 + HLTEndSequence )
 HLT_PFMHT80_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1ETM30 + hltPrePFMHT80 + HLTRecoJetSequencePrePF + HLTTrackReconstructionForJets + HLTParticleFlowSequence + HLTPFJetsSequence + hltPFMHT80Filter + HLTEndSequence )
