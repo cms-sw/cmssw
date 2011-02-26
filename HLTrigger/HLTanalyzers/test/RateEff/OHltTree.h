@@ -4096,7 +4096,8 @@ public:
          float Eiso,
          float HisoBR,
          float HisoEC,
-         float HoverE=999,
+         float HoverEEB=999,
+         float HoverEEC=999,
          float R9=999,
          float ClusShapEB=999,
          float ClusShapEC=999);

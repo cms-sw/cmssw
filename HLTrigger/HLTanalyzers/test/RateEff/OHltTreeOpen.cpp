@@ -12244,8 +12244,8 @@ vector<int> OHltTree::VectorOpenHlt1PhotonPassed(
                      {
                         float EcalEnergy = ohPhotEt[i]/(sin(2*atan(exp(0
                               -ohPhotEta[i]))));
-                        if ( (TMath::Abs(ohPhotEta[i]) < 1.479 && ohPhotHforHoverE[i]/EcalEnergy < HoverEEB) || 
-                             ((1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 &&) && ohPhotHforHoverE[i]/EcalEnergy < HoverEEC))
+                        if ((TMath::Abs(ohPhotEta[i]) < 1.479 && ohPhotHforHoverE[i]/EcalEnergy < HoverEEB) || 
+                            ((1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65) && ohPhotHforHoverE[i]/EcalEnergy < HoverEEC))
                            if (ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs   
                               rc.push_back(i);
                      }
