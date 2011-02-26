@@ -713,6 +713,27 @@ bool isBTagMu_DiJetXU_MuXTrigger(TString triggerName, vector<double> &thresholds
       return false;
 }
 
+bool isBTagMu_DiJetX_MuXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+  TString pattern = "(OpenHLT_BTagMu_DiJet([0-9]+)_Mu([0-9]+){1})$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdDiJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMu = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdDiJet);
+      thresholds.push_back(thresholdMu);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+
 bool isBTagIP_JetXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
@@ -2611,37 +2632,45 @@ void OHltTree::CheckOpenHlt(
    }
    
    /* Quarkonia */
-   else if (map_L1BitOfStandardHLTPath.find("OpenHLT_DoubleMu3_Bs_v1")->second==1)
+   else if (triggerName.CompareTo("OpenHLT_DoubleMu3_Bs_v1") == 0)
      {
-       if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-	   if (OpenHlt2MuonOSMassPassed(0., 0., 3., 2., 0, 4.8, 6.0)>=1)
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
 	     {
-               triggerBit[it] = true;
+	       if (OpenHlt2MuonOSMassPassed(0., 0., 3., 2., 0, 4.8, 6.0)>=1)
+		 {
+		   triggerBit[it] = true;
+		 }
 	     }
-         }
+	 }
      }
-   else if (map_L1BitOfStandardHLTPath.find("OpenHLT_DoubleMu3_Jpsi_v1 ")->second==1)
+   else if (triggerName.CompareTo("OpenHLT_DoubleMu3_Jpsi_v1") == 0)
      {
-       if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-           if (OpenHlt2MuonOSMassPassed(0., 0., 3., 2., 0, 2.5, 4.0)>=1)
-             {
-               triggerBit[it] = true;
-             }
-         }
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (OpenHlt2MuonOSMassPassed(0., 0., 3., 2., 0, 2.5, 4.0)>=1)
+		 {
+		   triggerBit[it] = true;
+		 }
+	     }
+	 }
      }
-   else if (map_L1BitOfStandardHLTPath.find("OpenHLT_DoubleMu3_Quarkonium_v1 ")->second==1)
+   else if (triggerName.CompareTo("OpenHLT_DoubleMu3_Quarkonium_v1") == 0)
      {
-       if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-           if (OpenHlt2MuonOSMassPassed(0., 0., 3., 2., 0, 1.5, 14.0)>=1)
-             {
-               triggerBit[it] = true;
-             }
-         }
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (OpenHlt2MuonOSMassPassed(0., 0., 3., 2., 0, 1.5, 14.0)>=1)
+		 {
+		   triggerBit[it] = true;
+		 }
+	     }
+	 }
      }
-
 
    else if (triggerName.CompareTo("OpenHLT_Onia") == 0)
    {
@@ -4536,6 +4565,46 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+
+   else if (isBTagMu_DiJetX_MuXTrigger(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       int rc = 0;
+	       int njets = 0;
+
+	       // apply L2 cut on jets
+	       for (int i = 0; i < NohBJetL2Corrected; i++)
+		 if (ohBJetL2CorrectedEt[i] > thresholds[0] && abs(ohBJetL2Eta[i]) < 3.0)
+		   njets++;
+
+	       // apply b-tag cut
+	       for (int i = 0; i < NohBJetL2Corrected; i++)
+		 {
+		   if (ohBJetL2CorrectedEt[i] > 10.)
+		     { // keep this at 10 even for all btag mu paths
+		       if (ohBJetMuL25Tag[i] > 0.5)
+			 { // Level 2.5 b tag
+			   if (OpenHlt1L3MuonPassed(thresholds[1], 5.0) >=1)
+			     {//require at least one L3 muon
+			       if (ohBJetPerfL3Tag[i] > 0.5)
+				 { // Level 3 b tag
+				   rc++;
+				 }
+			     }
+			 }
+		     }
+		 }
+	       if (rc >= 1 && njets>=2)
+		 {
+		   triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
+
    /****************BTagIP_JetX*********************************/
 
    else if (isBTagIP_JetXTrigger(triggerName, thresholds))
