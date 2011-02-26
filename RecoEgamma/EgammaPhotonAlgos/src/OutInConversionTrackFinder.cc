@@ -187,7 +187,6 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   for (std::vector<Trajectory>::const_iterator it =  unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
     if( !it->isValid() ) continue;
 
-
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
     //  LogDebug("OutInConversionTrackFinder") << " Initial state parameters " << initState.first << "\n";    
     
@@ -216,17 +215,34 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
   // Converted to track candidates  
   for (std::vector<Trajectory>::const_iterator it =  result.begin(); it != result.end(); it++) {
-    if( !it->isValid() ) continue;
+    //    if( !it->isValid() ) continue;
 
     edm::OwnVector<TrackingRecHit> recHits;
-    Trajectory::RecHitContainer thits = it->recHits();
+    Trajectory::RecHitContainer thits;
+    it->recHitsV(thits,useSplitHits_);
+    recHits.reserve(thits.size());
     for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin(); hitIt != thits.end(); hitIt++) {
       recHits.push_back( (**hitIt).hit()->clone());
     }
     
     
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
-    PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first, initState.second->geographicalId().rawId());
+    // temporary protection againt invalid initial states
+    if (! initState.first.isValid() || initState.second == 0) {
+      //cout << "invalid innerState, will not make TrackCandidate" << endl;
+      continue;
+    }
+
+    PTrajectoryStateOnDet* state = 0;
+    if(useSplitHits_ && (initState.second != thits.front()->det()) && thits.front()->det() ){ 
+      TrajectoryStateOnSurface propagated = thePropagator_->propagate(initState.first,thits.front()->det()->surface());
+      if (!propagated.isValid()) continue;
+      state = TrajectoryStateTransform().persistentState(propagated,
+							 thits.front()->det()->geographicalId().rawId());
+    }
+    if(!state) state = TrajectoryStateTransform().persistentState( initState.first,
+								   initState.second->geographicalId().rawId());
+
     LogDebug("OutInConversionTrackFinder")<< "OutInConversionTrackFinder  Number of hits for the track candidate " << recHits.size() << " TSOS charge " << initState.first.charge() << "\n";  
     output_p.push_back(TrackCandidate(recHits, it->seed(),*state ) );
     delete state;

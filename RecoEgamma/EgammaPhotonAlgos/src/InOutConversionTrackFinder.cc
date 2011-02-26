@@ -25,9 +25,9 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es
 						       const edm::ParameterSet& conf ) : ConversionTrackFinder (es,  conf ) 
 { 
 
- theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits(conf);
  
- 
+  theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits(conf);
+
  // get the seed cleaner
  std::string cleaner = conf_.getParameter<std::string>("InOutRedundantSeedCleaner");
  if (cleaner == "SeedCleanerByHitPosition") {
@@ -35,7 +35,6 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es
  } else if (cleaner == "CachingSeedCleanerByHitPosition") {
    theSeedCleaner_ = new CachingSeedCleanerByHitPosition();
  } else if (cleaner == "CachingSeedCleanerBySharedInput") {
-   
    theSeedCleaner_ = new CachingSeedCleanerBySharedInput();
  } else if (cleaner == "none") {
    theSeedCleaner_ = 0;
@@ -156,10 +155,12 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
   // Convert to TrackCandidates and fill in the output_p
   for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
 
-    if( !it->isValid() ) continue;
+    // if( !it->isValid() ) continue;
     
     edm::OwnVector<TrackingRecHit> recHits;
-    Trajectory::RecHitContainer thits = it->recHits();
+    Trajectory::RecHitContainer thits;
+    it->recHitsV(thits,useSplitHits_);
+    recHits.reserve(thits.size());
     for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin(); hitIt != thits.end(); hitIt++) {
       recHits.push_back( (**hitIt).hit()->clone());
     }
@@ -173,14 +174,21 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
       continue;
     }
     
-    PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first, initState.second->geographicalId().rawId());
-
+    PTrajectoryStateOnDet* state = 0;
+    if(useSplitHits_ && (initState.second != thits.front()->det()) && thits.front()->det() ){ 
+      TrajectoryStateOnSurface propagated = thePropagator_->propagate(initState.first,thits.front()->det()->surface());
+      if (!propagated.isValid()) continue;
+      state = TrajectoryStateTransform().persistentState(propagated,
+							 thits.front()->det()->geographicalId().rawId());
+    }
+    if(!state) state = TrajectoryStateTransform().persistentState( initState.first,
+								   initState.second->geographicalId().rawId());
+    
     LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track Making the result: seed position " << it->seed().startingState().parameters().position()  << " seed momentum " <<  it->seed().startingState().parameters().momentum() << " charge " <<  it->seed().startingState().parameters().charge () << "\n";
     LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track TSOS charge  " << initState.first.charge() << "\n";
     
     LogDebug("InOutConversionTrackFinder") <<   " InOutConversionTrackFinder::track  PTrajectoryStateOnDet* state position  " << state->parameters().position() << " momentum " << state->parameters().momentum() << " charge " <<   state->parameters().charge () << "\n";
     
-
     result.push_back(*it);  
     
     output_p.push_back(TrackCandidate(recHits, it->seed(),*state ) );

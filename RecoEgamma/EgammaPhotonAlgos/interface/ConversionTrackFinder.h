@@ -4,9 +4,9 @@
 /** \class ConversionTrackFinder
  **  
  **
- **  $Id: ConversionTrackFinder.h,v 1.7 2008/02/15 16:45:35 nancy Exp $ 
- **  $Date: 2008/02/15 16:45:35 $ 
- **  $Revision: 1.7 $
+ **  $Id: ConversionTrackFinder.h,v 1.8 2008/05/08 20:40:44 nancy Exp $ 
+ **  $Date: 2008/05/08 20:40:44 $ 
+ **  $Revision: 1.8 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -65,6 +65,9 @@ class ConversionTrackFinder {
   const TrackerGeometry* theTrackerGeom_;
   KFUpdator*                          theUpdator_;
 
+  edm::ESHandle<Propagator> thePropagator_;
+
+  bool useSplitHits_;
 
 struct ExtractNumOfHits {
   typedef int result_type;

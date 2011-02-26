@@ -26,13 +26,14 @@ ConversionTrackFinder::ConversionTrackFinder(const edm::EventSetup& es,
   theCkfTrajectoryBuilder_(0), 
   theInitialState_(0),
   theTrackerGeom_(0),
-  theUpdator_(0) 
+  theUpdator_(0),
+  thePropagator_(0) 
 {
   //  std::cout << " ConversionTrackFinder base CTOR " << std::endl;
 
   edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
   theInitialState_       = new TransientInitialStateEstimator( es,  tise_params);
-
+  useSplitHits_ =  conf_.getParameter<bool>("useHitsSplitting");
 
 
 }
@@ -62,6 +63,9 @@ void ConversionTrackFinder::setEventSetup(const edm::EventSetup& es )   {
   edm::ESHandle<TrackerGeometry> trackerHandle;
   es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
   theTrackerGeom_= trackerHandle.product();
+
+  es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",
+					thePropagator_);
 
   theInitialState_->setEventSetup( es );
 }
