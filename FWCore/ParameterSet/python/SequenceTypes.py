@@ -97,6 +97,10 @@ class _SequenceCollection(_Sequenceable):
     def resolve(self, processDict):
         self._collection = [x.resolve(processDict) for x in self._collection]
         return self
+    def index(self,item):
+        return self._collection.index(item)
+    def insert(self,index,item):
+        self._collection.insert(index,item)
 
 
 
@@ -211,7 +215,16 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             self.visit(v)
             if v.didReplace():
                 self._seq = v.result()
-            return v.didReplace()           
+            return v.didReplace()
+    def index(self,item):
+        """Returns the index at which the item is found or raises an exception"""
+        if self._seq is not None:
+            return self._seq.index(item)
+        raise ValueError(str(item)+" is not in the sequence")
+    def insert(self,index,item):
+        """Inserts the item at the index specified"""
+        _checkIfSequenceable(self, item)
+        self._seq.insert(index,item)
     def remove(self, something):
         """Remove the first occurrence of 'something' (a sequence or a module)
            Returns 'True' if the module has been removed, False if it was not found"""
@@ -896,7 +909,27 @@ if __name__=="__main__":
             l[:] = []
             s3.visit(namesVisitor)
             self.assertEqual(l,['m1','m2','m5','m4'])
+        def testIndex(self):
+            m1 = DummyModule("a")
+            m2 = DummyModule("b")
+            m3 = DummyModule("c")
+        
+            s = Sequence(m1+m2+m3)
+            self.assertEqual(s.index(m1),0)
+            self.assertEqual(s.index(m2),1)        
+            self.assertEqual(s.index(m3),2)
 
+        def testInsert(self):
+            m1 = DummyModule("a")
+            m2 = DummyModule("b")
+            m3 = DummyModule("c")
+            s = Sequence(m1+m3)
+            s.insert(1,m2)
+            self.assertEqual(s.index(m1),0)
+            self.assertEqual(s.index(m2),1)        
+            self.assertEqual(s.index(m3),2)
+            
+        
         def testExpandAndClone(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
@@ -1082,6 +1115,16 @@ if __name__=="__main__":
             def testRaise2():
                 s2 = Sequence(m1*None)
             self.assertRaises(TypeError,testRaise2)
+        def testCopy(self):
+            a = DummyModule("a")
+            b = DummyModule("b")
+            c = DummyModule("c")
+            p1 = Path(a+b+c)
+            p2 = p1.copy()
+            e = DummyModule("e")
+            p2.replace(b,e)
+            self.assertEqual(p1.dumpPython(None),"cms.Path(process.a+process.b+process.c)\n")
+            self.assertEqual(p2.dumpPython(None),"cms.Path(process.a+process.e+process.c)\n")
         def testInsertInto(self):
             from FWCore.ParameterSet.Types import vstring
             class TestPSet(object):
