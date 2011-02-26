@@ -400,7 +400,7 @@ double Conversion::dxy(const math::XYZPoint& myBeamSpot) const {
   const reco::Vertex &vtx = conversionVertex();
   if (!vtx.isValid()) return -9999.;
 
-  math::XYZVector mom = refittedPairMomentum();
+  math::XYZVectorF mom = refittedPairMomentum();
   
   double dxy = (-(vtx.x() - myBeamSpot.x())*mom.y() + (vtx.y() - myBeamSpot.y())*mom.x())/mom.rho();
   return dxy;  
@@ -412,7 +412,7 @@ double Conversion::dz(const math::XYZPoint& myBeamSpot) const {
   const reco::Vertex &vtx = conversionVertex();
   if (!vtx.isValid()) return -9999.;
 
-  math::XYZVector mom = refittedPairMomentum();
+  math::XYZVectorF mom = refittedPairMomentum();
   
   double dz = (vtx.z()-myBeamSpot.z()) - ((vtx.x()-myBeamSpot.x())*mom.x()+(vtx.y()-myBeamSpot.y())*mom.y())/mom.rho() * mom.z()/mom.rho();
   return dz;  
@@ -424,7 +424,7 @@ double Conversion::lxy(const math::XYZPoint& myBeamSpot) const {
   const reco::Vertex &vtx = conversionVertex();
   if (!vtx.isValid()) return -9999.;
 
-  math::XYZVector mom = refittedPairMomentum();
+  math::XYZVectorF mom = refittedPairMomentum();
   
   double dbsx = vtx.x() - myBeamSpot.x();
   double dbsy = vtx.y() - myBeamSpot.y();
@@ -438,7 +438,7 @@ double Conversion::lz(const math::XYZPoint& myBeamSpot) const {
   const reco::Vertex &vtx = conversionVertex();
   if (!vtx.isValid()) return -9999.;
 
-  math::XYZVector mom = refittedPairMomentum();
+  math::XYZVectorF mom = refittedPairMomentum();
   
   double lz = (vtx.z() - myBeamSpot.z())*mom.z()/std::abs(mom.z());
   return lz;  
