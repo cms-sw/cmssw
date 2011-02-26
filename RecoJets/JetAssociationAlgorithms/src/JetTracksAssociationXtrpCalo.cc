@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationXtrpCalo.cc,v 1.2 2010/04/08 09:04:53 kodolova Exp $
+// $Id: JetTracksAssociationXtrpCalo.cc,v 1.3 2011/02/16 17:36:31 stadie Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationXtrpCalo.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
@@ -72,6 +72,7 @@ void JetTracksAssociationXtrpCalo::associateInputTracksToJet( reco::TrackRefVect
 	  xtrpEnd = fExtrapolations.end(), ixtrp = xtrpBegin;
 	ixtrp != xtrpEnd; ++ixtrp ) {
 	
+    if ( ixtrp->positions().size()==0 ) continue;
     reco::TrackBase::Point const & point = ixtrp->positions().at(0);
     
     
