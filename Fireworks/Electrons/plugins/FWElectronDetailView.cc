@@ -2,7 +2,7 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.56 2010/06/22 17:21:24 matevz Exp $
+// $Id: FWElectronDetailView.cc,v 1.57 2010/06/23 13:46:47 matevz Exp $
 //
 
 // ROOT includes
@@ -118,7 +118,7 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    setTextInfo( id, iElectron );
 }
 
-math::XYZPoint
+math::XYZPointF
 FWElectronDetailView::trackPositionAtCalo( const reco::GsfElectron &electron )
 {
    return electron.TrackPositionAtCalo();
