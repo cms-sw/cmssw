@@ -284,7 +284,7 @@ namespace {
     edm::Wrapper<std::vector<reco::TrackExtrapolation> > wv_xtrp;
     edm::Wrapper<edm::Ref<std::vector<reco::TrackExtrapolation> > > wr_xtrp;
     edm::Wrapper<edm::RefVector<std::vector<reco::TrackExtrapolation> > > wrv_xtrp;
-    edm::Wrapper<edm::RefProd<std::vector<reco::TrackExtrapolation> > > wrp_xtrp;
+    edm::Wrapper<edm::RefProd<std::vector<reco::TrackExtrapolation> > > wrp_xtrp;   
 
     // FFTJet interface
     reco::FFTJet<float> fftjet_float;
