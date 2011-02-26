@@ -914,6 +914,7 @@ def insertTrgHltMap(schema,hltkey,trghltmap):
             nrows=len(bulkvalues)
         return nrows
     except :
+        print 'error in insertTrgHltMap '
         raise
 def bulkInsertTrgLSData(session,runnumber,data_id,trglsdata,bulksize=500):
     '''
@@ -939,7 +940,7 @@ def bulkInsertTrgLSData(session,runnumber,data_id,trglsdata,bulksize=500):
             nrows+=1
             committedrows+=1
             if nrows==bulksize:
-                print 'committing in LS chunck ',nrows
+                print 'committing trg in LS chunck ',nrows
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(nameDealer.lstrgTableName(),lstrgDefDict,bulkvalues)
@@ -947,12 +948,13 @@ def bulkInsertTrgLSData(session,runnumber,data_id,trglsdata,bulksize=500):
                 nrows=0
                 bulkvalues=[]
             elif committedrows==len(trglsdata):
-                print 'committing at the end '
+                print 'committing trg at the end '
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(nameDealer.lstrgTableName(),lstrgDefDict,bulkvalues)
                 session.transaction().commit()
     except :
+        print 'error in bulkInsertTrgLSData'
         raise 
 def bulkInsertHltLSData(session,runnumber,data_id,hltlsdata,bulksize=500):
     '''
@@ -962,7 +964,7 @@ def bulkInsertHltLSData(session,runnumber,data_id,hltlsdata,bulksize=500):
     print 'total number of hlt rows ',len(hltlsdata)
     lshltDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('CMSLSNUM','unsigned int'),('PRESCALEBLOB','blob'),('HLTCOUNTBLOB','blob'),('HLTACCEPTBLOB','blob')]
     committedrows=0
-    nrow=0
+    nrows=0
     bulkvalues=[]   
     try:             
         for cmslsnum,perlshlt in hltlsdata.items():
@@ -974,7 +976,7 @@ def bulkInsertHltLSData(session,runnumber,data_id,hltlsdata,bulksize=500):
             nrows+=1
             committedrows+=1
             if nrows==bulksize:
-                print 'committing in LS chunck ',nrows
+                print 'committing hlt in LS chunck ',nrows
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(nameDealer.lshltTableName(),lshltDefDict,bulkvalues)
@@ -982,12 +984,13 @@ def bulkInsertHltLSData(session,runnumber,data_id,hltlsdata,bulksize=500):
                 nrows=0
                 bulkvalues=[]
             elif committedrows==len(hltlsdata):
-                print 'committing at the end '
+                print 'committing hlt at the end '
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(nameDealer.lshltTableName(),lshltDefDict,bulkvalues)
                 session.transaction().commit()
     except  :
+        print 'error in bulkInsertHltLSData'
         raise 
     
 def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,bulksize=500):
@@ -996,7 +999,7 @@ def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,bulksize=500):
           lumilsdata {lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexblob,beam1intensity,beam2intensity,bxlumivalue_occ1,bxlumierror_occ1,bxlumiquality_occ1,bxlumivalue_occ2,bxlumierror_occ2,bxlumiquality_occ2,bxlumivalue_et,bxlumierror_et,bxlumiquality_et]}
     '''
     lslumiDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('LUMILSNUM','unsigned int'),('CMSLSNUM','unsigned int'),('INSTLUMI','float'),('INSTLUMIERROR','float'),('INSTLUMIQUALITY','short'),('BEAMSTATUS','string'),('BEAMENERGY','float'),('NUMORBIT','unsigned int'),('STARTORBIT','unsigned int'),('CMSBXINDEXBLOB','blob'),('BEAMINTENSITYBLOB_1','blob'),('BEAMINTENSITYBLOB_2','blob'),('BXLUMIVALUE_OCC1','blob'),('BXLUMIERROR_OCC1','blob'),('BXLUMIQUALITY_OCC1','blob'),('BXLUMIVALUE_OCC2','blob'),('BXLUMIERROR_OCC2','blob'),('BXLUMIQUALITY_OCC2','blob'),('BXLUMIVALUE_ET','blob'),('BXLUMIERROR_ET','blob'),('BXLUMIQUALITY_ET','blob')]
-    print 'total number of rows ',len(lumilsdata)
+    print 'total number of lumi rows ',len(lumilsdata)
     try:
         committedrows=0
         nrows=0
@@ -1026,7 +1029,7 @@ def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,bulksize=500):
             nrows+=1
             committedrows+=1
             if nrows==bulksize:
-                print 'committing in LS chunck ',nrows
+                print 'committing lumi in LS chunck ',nrows
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(nameDealer.lumisummaryv2TableName(),lslumiDefDict,bulkvalues)
@@ -1034,7 +1037,7 @@ def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,bulksize=500):
                 nrows=0
                 bulkvalues=[]
             elif committedrows==len(lumilsdata):
-                print 'committing at the end '
+                print 'committing lumi at the end '
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(nameDealer.lumisummaryv2TableName(),lslumiDefDict,bulkvalues)

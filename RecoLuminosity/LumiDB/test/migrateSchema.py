@@ -9,7 +9,7 @@ from RecoLuminosity.LumiDB import argparse,idDealer,nameDealer,CommonUtil,lumidb
 #
 # can be used for data copy program
 #
-
+DATABRANCH_ID=3
 def main():
     from RecoLuminosity.LumiDB import sessionManager,queryDataSource    
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="migrate lumidb schema",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -47,17 +47,17 @@ def main():
         del runinfosvc
         destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
         destsession.transaction().start(False)
-        #(branchrevision_id,branchbranch_id)=revisionDML.branchInfoByName(destsession.nominalSchema(),'DATA')
-        #dataDML.insertRunSummaryData(destsession.nominalSchema(),runnumber,[l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime],complementalOnly=False)
-        #(datarevid,dataparentid,dataparentname)=revisionDML.createBranch(destsession.nominalSchema(),'DATA','TRUNK',comment='hold data')
-        #(lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(destsession.nominalSchema(),runnumber,[args.lumisource],(branchrevision_id,'DATA'))
+        branchrevision_id=DATABRANCH_ID
+        #print 'data branchid ',branchrevision_id
+        dataDML.insertRunSummaryData(destsession.nominalSchema(),runnumber,[l1key,amodetag,egev,sequence,hltkey,fillnum,starttime,stoptime],complementalOnly=False)
+        (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(destsession.nominalSchema(),runnumber,[args.lumisource],(branchrevision_id,'DATA'))
         bitzeroname=bitnames.split(',')[0]
         trgrundata=[args.lumisource,bitzeroname,bitnames]
         (trgrevid,trgentryid,trgdataid)=dataDML.addTrgRunDataToBranch(destsession.nominalSchema(),runnumber,trgrundata,(branchrevision_id,'DATA'))
         hltrundata=[pathnames,args.lumisource]
         (hltrevid,hltentryid,hltdataid)=dataDML.addHLTRunDataToBranch(destsession.nominalSchema(),runnumber,hltrundata,(branchrevision_id,'DATA'))
         destsession.transaction().commit()
-        #dataDML.bulkInsertLumiLSSummary(destsession,runnumber,lumidataid,lumidata,500)
+        dataDML.bulkInsertLumiLSSummary(destsession,runnumber,lumidataid,lumidata,500)
         #
         dataDML.bulkInsertTrgLSData(destsession,runnumber,trgdataid,trglsdata,500)
         dataDML.bulkInsertHltLSData(destsession,runnumber,hltdataid,hltlsdata,500)
