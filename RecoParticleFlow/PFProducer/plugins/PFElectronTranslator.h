@@ -9,6 +9,8 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
@@ -26,6 +28,9 @@ class PFElectronTranslator : public edm::EDProducer
   
   virtual void produce(edm::Event &, const edm::EventSetup&);
   virtual void beginRun(edm::Run & run,const edm::EventSetup & c);
+
+  typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
+
 
  private:
   // to retrieve the collection from the event
@@ -51,6 +56,9 @@ class PFElectronTranslator : public edm::EDProducer
   void createSuperClusters(const reco::PFCandidateCollection &,
 			  reco::SuperClusterCollection &superClusters) const;
 
+  // make GsfElectronCores from ingredients
+  void createGsfElectronCores(reco::GsfElectronCoreCollection &) const;
+
   // create the basic cluster Ptr
   void createBasicClusterPtrs(const edm::OrphanHandle<reco::BasicClusterCollection> & basicClustersHandle );
 
@@ -60,26 +68,45 @@ class PFElectronTranslator : public edm::EDProducer
   // create the super cluster Refs
   void createSuperClusterGsfMapRefs(const edm::OrphanHandle<reco::SuperClusterCollection> & superClustersHandle );
 
+  // create the GsfElectronCore Refs
+  void createGsfElectronCoreRefs(const edm::OrphanHandle<reco::GsfElectronCoreCollection> & gsfElectronCoreHandle);
+
+  // create the GsfElectrons
+  void createGsfElectrons(const reco::PFCandidateCollection &,
+			  const IsolationValueMaps& isolationValues,
+			  reco::GsfElectronCollection &);
+
   // The following methods are used to fill the value maps
   void fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<float>::Filler & filler) const;
   void fillValueMap(edm::Event& iEvent, edm::ValueMap<float>::Filler & filler) const;
   void fillSCRefValueMap(edm::Event& iEvent, 
 			 edm::ValueMap<reco::SuperClusterRef>::Filler & filler) const;
+  void getAmbiguousGsfTracks(const reco::PFBlockElement & PFBE, std::vector<reco::GsfTrackRef>& ) const ; 
+
 
   const reco::PFCandidate & correspondingDaughterCandidate(const reco::PFCandidate & cand, const reco::PFBlockElement & pfbe) const;
  private:
   edm::InputTag inputTagPFCandidates_;
   edm::InputTag inputTagGSFTracks_;
+  std::vector<edm::InputTag> inputTagIsoVals_;
   std::string PFBasicClusterCollection_;
   std::string PFPreshowerClusterCollection_;
   std::string PFSuperClusterCollection_;
   std::string PFMVAValueMap_;
   std::string PFSCValueMap_;
+  std::string GsfElectronCoreCollection_;
+  std::string GsfElectronCollection_;
   double MVACut_;
 
   // The following vectors correspond to a GSF track, but the order is not 
   // the order of the tracks in the GSF track collection
-  std::vector<reco::GsfTrackRef> GsfTrackRef_;
+  std::vector<reco::GsfTrackRef> GsfTrackRef_;  
+  // the list of candidatePtr
+  std::vector<reco::CandidatePtr> CandidatePtr_;
+  //the list of KfTrackRef
+  std::vector<reco::TrackRef> kfTrackRef_;
+  // the list of ambiguous tracks
+  std::vector<std::vector<reco::GsfTrackRef> > ambiguousGsfTracks_;
   // the collection of basic clusters associated to a GSF track
   std::vector<reco::BasicClusterCollection> basicClusters_;
   // the correcsponding PFCluster ref
@@ -92,12 +119,14 @@ class PFElectronTranslator : public edm::EDProducer
   std::vector<reco::CaloClusterPtrVector> basicClusterPtr_;
   // the references to the basic clusters associated to a GSF track
   std::vector<reco::CaloClusterPtrVector> preshowerClusterPtr_;
+  // the references to the GsfElectonCore associated to a GSF track
+  std::vector<reco::GsfElectronCoreRef> gsfElectronCoreRefs_;
   // keep track of the index of the PF Candidate
   std::vector<int> gsfPFCandidateIndex_;
   // maps to ease the creation of the Value Maps 
   std::map<reco::GsfTrackRef,reco::SuperClusterRef> scMap_;
   std::map<reco::GsfTrackRef,float> gsfMvaMap_;
-  
+
   bool emptyIsOk_;
 
 };

@@ -5,13 +5,17 @@
 #include "RecoParticleFlow/PFProducer/plugins/PFElectronTranslator.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 
 
 PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
@@ -20,9 +24,17 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
   inputTagGSFTracks_
     = iConfig.getParameter<edm::InputTag>("GSFTracks");
 
+  edm::ParameterSet isoVals  = iConfig.getParameter<edm::ParameterSet> ("isolationValues");
+  inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfChargedHadrons"));
+  inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfPhotons"));
+  inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfNeutralHadrons"));
+
   PFBasicClusterCollection_ = iConfig.getParameter<std::string>("PFBasicClusters");
   PFPreshowerClusterCollection_ = iConfig.getParameter<std::string>("PFPreshowerClusters");
   PFSuperClusterCollection_ = iConfig.getParameter<std::string>("PFSuperClusters");
+  GsfElectronCoreCollection_ = iConfig.getParameter<std::string>("PFGsfElectronCore");
+  GsfElectronCollection_ = iConfig.getParameter<std::string>("PFGsfElectron");
+  
   PFMVAValueMap_ = iConfig.getParameter<std::string>("ElectronMVA");
   PFSCValueMap_ = iConfig.getParameter<std::string>("ElectronSC");
   MVACut_ = (iConfig.getParameter<edm::ParameterSet>("MVACutBlock")).getParameter<double>("MVACut");
@@ -33,6 +45,8 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
   produces<reco::BasicClusterCollection>(PFBasicClusterCollection_); 
   produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_); 
   produces<reco::SuperClusterCollection>(PFSuperClusterCollection_); 
+  produces<reco::GsfElectronCoreCollection>(GsfElectronCoreCollection_);
+  produces<reco::GsfElectronCollection>(GsfElectronCollection_);
   produces<edm::ValueMap<float> >(PFMVAValueMap_);
   produces<edm::ValueMap<reco::SuperClusterRef> >(PFSCValueMap_);
 }
@@ -44,6 +58,12 @@ void PFElectronTranslator::beginRun(edm::Run& run,const edm::EventSetup & es) {}
 void PFElectronTranslator::produce(edm::Event& iEvent,  
 				    const edm::EventSetup& iSetup) { 
   
+  std::auto_ptr<reco::GsfElectronCoreCollection>
+    gsfElectronCores_p(new reco::GsfElectronCoreCollection);
+
+  std::auto_ptr<reco::GsfElectronCollection>
+    gsfElectrons_p(new reco::GsfElectronCollection);
+
   std::auto_ptr<reco::SuperClusterCollection> 
     superClusters_p(new reco::SuperClusterCollection);
 
@@ -65,9 +85,18 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   bool status=fetchCandidateCollection(pfCandidates, 
 				       inputTagPFCandidates_, 
 				       iEvent );
-  
+
+  IsolationValueMaps isolationValues(inputTagIsoVals_.size());
+  for (size_t j = 0; j<inputTagIsoVals_.size(); ++j) {
+    iEvent.getByLabel(inputTagIsoVals_[j], isolationValues[j]);
+  }
+
+
   // clear the vectors
   GsfTrackRef_.clear();
+  CandidatePtr_.clear();
+  ambiguousGsfTracks_.clear();
+  kfTrackRef_.clear();
   basicClusters_.clear();
   pfClusters_.clear();
   preshowerClusters_.clear();
@@ -75,6 +104,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   basicClusterPtr_.clear();
   preshowerClusterPtr_.clear();
   gsfPFCandidateIndex_.clear();
+  gsfElectronCoreRefs_.clear();
   scMap_.clear();
   gsfMvaMap_.clear();
  
@@ -96,11 +126,17 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
     if(cand.mva_e_pi()<MVACut_) continue;
 
     GsfTrackRef_.push_back(cand.gsfTrackRef());
+    kfTrackRef_.push_back(cand.trackRef());
     gsfPFCandidateIndex_.push_back(i);
-    
+
+    reco::PFCandidatePtr ptrToPFElectron(pfCandidates,i);
+    //CandidatePtr_.push_back(ptrToPFElectron->sourceCandidatePtr(0));
+    CandidatePtr_.push_back(ptrToPFElectron);    
+
     basicClusters_.push_back(reco::BasicClusterCollection());
     pfClusters_.push_back(std::vector<const reco::PFCluster *>());
     preshowerClusters_.push_back(reco::PreshowerClusterCollection());
+    ambiguousGsfTracks_.push_back(std::vector<reco::GsfTrackRef>());
 
     for(unsigned iele=0; iele<cand.elementsInBlocks().size(); ++iele) {
       // first get the block 
@@ -131,7 +167,11 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
 	{
 	  createPreshowerCluster(pfbe,preshowerClusters_[iGSF],2);
 	}      
-	  
+      if(pfbe.type()==reco::PFBlockElement::GSF)
+	{
+	  getAmbiguousGsfTracks(pfbe,ambiguousGsfTracks_[iGSF]);
+	}
+
     }   // loop on the elements
 
     // save the basic clusters
@@ -164,8 +204,20 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd = iEvent.put(superClusters_p,PFSuperClusterCollection_); 
   // create the super cluster Ref
   createSuperClusterGsfMapRefs(scRefProd);
-  
-  
+
+  // Now create the GsfElectronCoers
+  createGsfElectronCores(*gsfElectronCores_p);
+  // Put them in the as to get to be able to build a Ref
+  const edm::OrphanHandle<reco::GsfElectronCoreCollection> gsfElectronCoreRefProd = 
+    iEvent.put(gsfElectronCores_p,GsfElectronCoreCollection_);
+
+  // now create the Refs 
+  createGsfElectronCoreRefs(gsfElectronCoreRefProd);
+
+  // now make the GsfElectron
+  createGsfElectrons(*pfCandidates,isolationValues,*gsfElectrons_p);
+  iEvent.put(gsfElectrons_p,GsfElectronCollection_);
+
   fillMVAValueMap(iEvent,mvaFiller);
   mvaFiller.fill();
 
@@ -176,6 +228,9 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   iEvent.put(mvaMap_p,PFMVAValueMap_);
   // Gsf-SC map
   iEvent.put(scMap_p,PFSCValueMap_);
+
+
+  
 }
 
 
@@ -461,3 +516,85 @@ const reco::PFCandidate & PFElectronTranslator::correspondingDaughterCandidate(c
   return cand;
 }
 
+void PFElectronTranslator::createGsfElectronCores(reco::GsfElectronCoreCollection & gsfElectronCores) const {
+  unsigned nGSF=GsfTrackRef_.size();
+  for(unsigned iGSF=0;iGSF<nGSF;++iGSF)
+    {
+      reco::GsfElectronCore myElectronCore(GsfTrackRef_[iGSF]);
+      myElectronCore.setCtfTrack(kfTrackRef_[iGSF],-1.);
+      std::map<reco::GsfTrackRef,reco::SuperClusterRef>::const_iterator 
+	itcheck=scMap_.find(GsfTrackRef_[iGSF]);
+      if(itcheck!=scMap_.end())
+	myElectronCore.setPflowSuperCluster(itcheck->second);
+      gsfElectronCores.push_back(myElectronCore);
+    }
+}
+
+void PFElectronTranslator::createGsfElectronCoreRefs(const edm::OrphanHandle<reco::GsfElectronCoreCollection> & gsfElectronCoreHandle) {
+  unsigned size=GsfTrackRef_.size();
+  
+  for(unsigned iGSF=0;iGSF<size;++iGSF) // loop on tracks
+    {
+      edm::Ref<reco::GsfElectronCoreCollection> elecCoreRef(gsfElectronCoreHandle,iGSF);
+      gsfElectronCoreRefs_.push_back(elecCoreRef);
+    }  
+}
+
+void PFElectronTranslator::getAmbiguousGsfTracks(const reco::PFBlockElement & PFBE, std::vector<reco::GsfTrackRef>& tracks) const {
+  const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(&PFBE);
+  if(GsfEl==0) return;
+  const std::vector<reco::GsfPFRecTrackRef>& ambPFRecTracks(GsfEl->GsftrackRefPF()->convBremGsfPFRecTrackRef());
+  unsigned ntracks=ambPFRecTracks.size();
+  for(unsigned it=0;it<ntracks;++it) {
+    tracks.push_back(ambPFRecTracks[it]->gsfTrackRef());
+  }
+}
+
+
+void PFElectronTranslator::createGsfElectrons(const reco::PFCandidateCollection & pfcand, 
+					      const IsolationValueMaps& isolationValues,
+					      reco::GsfElectronCollection &gsfelectrons) {
+  unsigned size=GsfTrackRef_.size();
+  
+  for(unsigned iGSF=0;iGSF<size;++iGSF) // loop on tracks
+    {
+      const reco::PFCandidate& pfCandidate(pfcand[gsfPFCandidateIndex_[iGSF]]);
+      // Electron
+      reco::GsfElectron myElectron(gsfElectronCoreRefs_[iGSF]);
+      // Warning set p4 error ! 
+      myElectron.setP4(reco::GsfElectron::P4_PFLOW_COMBINATION, pfCandidate.p4(),pfCandidate.deltaP(), true);
+      
+      // MVA inputs
+      reco::GsfElectron::MvaInput myMvaInput;
+      myMvaInput.earlyBrem = pfCandidate.electronExtraRef()->mvaVariable(reco::PFCandidateElectronExtra::MVA_FirstBrem);
+      myMvaInput.lateBrem = pfCandidate.electronExtraRef()->mvaVariable(reco::PFCandidateElectronExtra::MVA_LateBrem);
+      myMvaInput.deltaEta = pfCandidate.electronExtraRef()->mvaVariable(reco::PFCandidateElectronExtra::MVA_DeltaEtaTrackCluster);
+      myMvaInput.sigmaEtaEta = pfCandidate.electronExtraRef()->sigmaEtaEta();
+      myMvaInput.hadEnergy = pfCandidate.electronExtraRef()->hadEnergy();
+      myElectron.setMvaInput(myMvaInput);
+
+      // MVA output
+      reco::GsfElectron::MvaOutput myMvaOutput;
+      myMvaOutput.status = pfCandidate.electronExtraRef()->electronStatus();
+      myMvaOutput.mva = pfCandidate.mva_e_pi();
+      myElectron.setMvaOutput(myMvaOutput);
+      
+      // ambiguous tracks
+      unsigned ntracks=ambiguousGsfTracks_[iGSF].size();
+      for(unsigned it=0;it<ntracks;++it) {
+	myElectron.addAmbiguousGsfTrack(ambiguousGsfTracks_[iGSF][it]);
+      }
+
+      // isolation
+      reco::GsfElectron::PflowIsolationVariables myPFIso;
+      myPFIso.chargedHadronIso=(*isolationValues[0])[CandidatePtr_[iGSF]];
+      myPFIso.photonIso=(*isolationValues[1])[CandidatePtr_[iGSF]];
+      myPFIso.neutralHadronIso=(*isolationValues[2])[CandidatePtr_[iGSF]];      
+      myElectron.setPfIsolationVariables(myPFIso);
+      
+      gsfelectrons.push_back(myElectron);
+    }
+
+}
+
+  
