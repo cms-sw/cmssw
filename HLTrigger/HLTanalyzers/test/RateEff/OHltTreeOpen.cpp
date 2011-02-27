@@ -11844,13 +11844,13 @@ int OHltTree::OpenHltHTJetNJPassed(
    return rc;
 }
 
-int OHltTree::OpenHltMHT(double MHTthreshold, double jetthreshold)
+int OHltTree::OpenHltMHT(double MHTthreshold, double jetthreshold, double etathreshold)
 {
    int rc = 0;
    double mhtx=0., mhty=0.;
    for (int i=0; i<NrecoJetCorCal; ++i)
    {
-      if (recoJetCorCalPt[i] >= jetthreshold)
+      if (recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
       {
          mhtx-=recoJetCorCalPt[i]*cos(recoJetCorCalPhi[i]);
          mhty-=recoJetCorCalPt[i]*sin(recoJetCorCalPhi[i]);
@@ -11863,13 +11863,13 @@ int OHltTree::OpenHltMHT(double MHTthreshold, double jetthreshold)
    //std::cout << "sqrt(mhtx*mhtx+mhty*mhty) = " << sqrt(mhtx*mhtx+mhty*mhty) << std::endl;
    return rc;
 }
-int OHltTree::OpenHltMHTU(double MHTthreshold, double jetthreshold)
+int OHltTree::OpenHltMHTU(double MHTthreshold, double jetthreshold, double etathreshold)
 {
    int rc = 0;
    double mhtx=0., mhty=0.;
    for (int i=0; i<NrecoJetCal; ++i)
    {
-      if (recoJetCalPt[i] >= jetthreshold)
+      if (recoJetCalPt[i] >= jetthreshold && fabs(recoJetCalEta[i]) < etathreshold)
       {
          mhtx-=recoJetCalPt[i]*cos(recoJetCalPhi[i]);
          mhty-=recoJetCalPt[i]*sin(recoJetCalPhi[i]);
@@ -11956,7 +11956,7 @@ int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold)
    return rc;
 }
 
-int OHltTree::OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold)
+int OHltTree::OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold, double etathreshold)
 {
    int rc = 0;
    double sumHT = 0.;
@@ -11964,7 +11964,7 @@ int OHltTree::OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold)
    // Loop over all oh jets, sum up the energy  
    for (int i=0; i<NrecoJetCorCal; ++i)
    {
-      if (recoJetCorCalPt[i] >= jetthreshold)
+		 if (recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
       {
          //sumHT+=recoJetCorCorCalPt[i];
 
@@ -11978,65 +11978,49 @@ int OHltTree::OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold)
    return rc;
 }
 
-int OHltTree::OpenHltMeffU(double Meffthreshold, double jetthreshold)
+int OHltTree::OpenHltMeffU(double Meffthreshold, double jetthreshold, double etathreshold)
 {
    int rc = 0;
    //MHT
    double mhtx=0., mhty=0.;
-   for (int i=0; i<NrecoJetCorCal; ++i)
-   {
-      if (recoJetCorCalPt[i] >= jetthreshold)
-      {
-         mhtx-=recoJetCorCalPt[i]*cos(recoJetCorCalPhi[i]);
-         mhty-=recoJetCorCalPt[i]*sin(recoJetCorCalPhi[i]);
-      }
-   }
    //HT
-   double sumHT = 0.;
-   // Loop over all oh jets, sum up the energy  
+   double sumHT = 0.;  
+   
    for (int i=0; i<NrecoJetCal; ++i)
-   {
-      if (recoJetCalPt[i] >= jetthreshold)
-      {
-         //sumHT+=recoJetCorCalPt[i];
-
-         sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
-      }
-   }
+     {
+       if (recoJetCalPt[i] >= jetthreshold && fabs(recoJetCalEta[i]) < etathreshold)
+	 {
+	   mhtx-=recoJetCalPt[i]*cos(recoJetCalPhi[i]);
+	   mhty-=recoJetCalPt[i]*sin(recoJetCalPhi[i]);
+	   sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+	 }
+     }
 
    if (sqrt(mhtx*mhtx+mhty*mhty)+sumHT>Meffthreshold)
-      rc = 1;
+     rc = 1;
    else
-      rc = 0;
+     rc = 0;
    //std::cout << "sqrt(mhtx*mhtx+mhty*mhty) = " << sqrt(mhtx*mhtx+mhty*mhty) << std::endl;
    return rc;
 }
 
-int OHltTree::OpenHltMeff(double Meffthreshold, double jetthreshold)
+int OHltTree::OpenHltMeff(double Meffthreshold, double jetthreshold, double etathreshold)
 {
    int rc = 0;
    //MHT
    double mhtx=0., mhty=0.;
-   for (int i=0; i<NrecoJetCorCal; ++i)
-   {
-      if (recoJetCorCalPt[i] >= jetthreshold)
-      {
-         mhtx-=recoJetCorCalPt[i]*cos(recoJetCorCalPhi[i]);
-         mhty-=recoJetCorCalPt[i]*sin(recoJetCorCalPhi[i]);
-      }
-   }
    //HT
-   double sumHT = 0.;
-   // Loop over all oh jets, sum up the energy  
+   double sumHT = 0.;   
    for (int i=0; i<NrecoJetCorCal; ++i)
-   {
-      if (recoJetCorCalPt[i] >= jetthreshold)
-      {
-         //sumHT+=recoJetCorCorCalPt[i];
-
-         sumHT+=(recoJetCorCalE[i]/cosh(recoJetCorCalEta[i]));
-      }
-   }
+     {
+       if (recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
+	 {
+	   mhtx-=recoJetCorCalPt[i]*cos(recoJetCorCalPhi[i]);
+	   mhty-=recoJetCorCalPt[i]*sin(recoJetCorCalPhi[i]);
+	   //sumHT+=recoJetCorCorCalPt[i];
+	   sumHT+=(recoJetCorCalE[i]/cosh(recoJetCorCalEta[i]));
+	 }
+     }
 
    if (sqrt(mhtx*mhtx+mhty*mhty)+sumHT>Meffthreshold)
       rc = 1;

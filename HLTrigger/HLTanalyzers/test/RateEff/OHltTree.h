@@ -5212,15 +5212,15 @@ public:
          double etajetthreshold,
          int Njetthreshjold);
    
-   int OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold);
+   int OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold, double etathreshold=3.0);
    
-   int OpenHltMHT(double MHTthreshold, double jetthreshold);
+   int OpenHltMHT(double MHTthreshold, double jetthreshold, double etathreshold=3.0);
    
-   int OpenHltMHTU(double MHTthreshold, double jetthreshold);
+   int OpenHltMHTU(double MHTthreshold, double jetthreshold, double etathreshold=3.0);
    
-   int OpenHltMeffU(double Meffthreshold, double jetthreshold);
+   int OpenHltMeffU(double Meffthreshold, double jetthreshold, double etathreshold=3.0);
    
-   int OpenHltMeff(double Meffthreshold, double jetthreshold);
+   int OpenHltMeff(double Meffthreshold, double jetthreshold, double etathreshold=3.0);
    
    int OpenHltPT12U(double PT12threshold, double jetthreshold);
    
