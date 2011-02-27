@@ -5332,6 +5332,20 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+   else if (triggerName.CompareTo("OpenHLT_Mu8_Jet40_v1") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second>0)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (OpenHlt1JetPassed(40.)>=1)
+		 {
+		   if (OpenHlt1MuonPassed(3., 4., 8., 2., 0)>=1)
+		     triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
    else if (triggerName.CompareTo("OpenHLT_Mu5_Jet70") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second>0)
