@@ -95,6 +95,9 @@ namespace reco {
     /// access to the status
     bool electronStatus(StatusFlag) const ;
 
+    /// access to the status
+    int electronStatus() const {return status_;}
+
     /// access to mva variable status
     bool mvaStatus(MvaVariable flag) const;
 
@@ -103,6 +106,11 @@ namespace reco {
 
     /// access to any variable
     float mvaVariable(MvaVariable var) const;
+
+    /// access to specific variables
+    float hadEnergy() const {return hadEnergy_;}
+    float sigmaEtaEta() const {return sigmaEtaEta_;}
+
 
  private:
     void  setVariable(MvaVariable type,float var);
