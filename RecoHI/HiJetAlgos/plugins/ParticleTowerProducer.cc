@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Thu Jan 20 19:53:58 CET 2011
-// $Id: ParticleTowerProducer.cc,v 1.1 2011/02/25 15:57:21 mnguyen Exp $
+// $Id: ParticleTowerProducer.cc,v 1.2 2011/02/27 09:42:34 mnguyen Exp $
 //
 //
 
@@ -171,7 +171,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       const reco::Candidate & particle = (*inputsHandle)[i];
 
       // put a cutoff if you want
-      if(particle.et() < 0.5) continue;      
+      //if(particle.et() < 0.5) continue;      
 
       double eta  = particle.eta();
       double phi  = particle.phi();
