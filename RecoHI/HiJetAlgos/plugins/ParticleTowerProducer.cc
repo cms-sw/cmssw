@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Thu Jan 20 19:53:58 CET 2011
-// $Id$
+// $Id: ParticleTowerProducer.cc,v 1.1 2011/02/25 15:57:21 mnguyen Exp $
 //
 //
 
@@ -280,12 +280,14 @@ DetId ParticleTowerProducer::getNearestTower(const reco::Candidate & in) const {
       // which layer is irrelevant for an eta-phi map, no?
 
       if( hid.depth() != 1 ) continue;
-      if(abs((hid).ieta()) > 20 && (hid).iphi()%2 == 0) continue;
+
       GlobalPoint pos =geo_->getGeometry(hid)->getPosition();
       
       
       double hcalEta = pos.eta();
       double hcalPhi = pos.phi();
+
+      //std::cout<<" ieta "<<(hid).ieta()<<" iphi "<<(hid).iphi()<<" hcalEta "<<hcalEta<<" hcalPhi "<<hcalPhi<<std::endl;
 
       double deltaR = reco::deltaR(eta,phi,hcalEta,hcalPhi);
 
