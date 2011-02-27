@@ -74,6 +74,23 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
   recoFirstSample_ = recoFirstSample;
   recoSamplesToAdd_ = recoSamplesToAdd;
 
+  //This is an UGLY UGLY hack that should be removed once we 
+  // are reading flag parameters from a database.  It forces
+  // the samples used in the flag to be set based on the 
+  // sample used in energy reconstruction, so that 2010
+  // data flags can be properly reproduced -- Jeff, 27 Feb 2011
+  if (recoFirstSample_==4 && recoSamplesToAdd_==2)
+    {
+      firstSample_=3;
+      samplesToAdd_=3;
+    }
+  else if (recoFirstSample_==3 && recoSamplesToAdd_==4)
+    {
+      firstSample_=3;
+      samplesToAdd_=4;
+    }
+
+
   // The following 3 values are computed using the default reconstruction window (for Shuichi's algorithm)
   double maxInWindow=-10; // maximum value found in reco window
   int maxCapid=-1;
