@@ -38,7 +38,7 @@ bool triggerNamePatternMatch(
       // retrieve matches as object array
       TObjArray *objArrMatches = re.MatchS(triggerName);
       
-      // retrieve match objects from array (skip index 0 = whole match)
+      // extract match objects from array (skip index 0 = whole match)
       // convert each into a string and push back into a vector
       for (int i= 1; i <= objArrMatches->GetLast(); ++i)
       {
@@ -1501,7 +1501,7 @@ void OHltTree::CheckOpenHlt(
 
    else if (isExclDiJetX_HFANDTrigger(triggerName, thresholds))
    {
-      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1)
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
@@ -6609,6 +6609,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+
    else if (triggerName.BeginsWith("OpenHLT_Photon26")==1)
    {
       // Photon Paths (V. Rekovic)
@@ -7422,8 +7423,94 @@ void OHltTree::CheckOpenHlt(
 
                         }
                      }
-
                   }
+               }
+            }
+         }
+      }
+   }
+
+   else if (triggerName.CompareTo("OpenHLT_Photon20_R9Id_Photon18_R9Id_v1") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            std::vector<int> firstVector = VectorOpenHlt1PhotonPassedR9ID(
+                  18,
+                  0.8,
+                  0,
+                  999,
+                  999,
+                  999,
+                  999,
+                  0.05,
+                  0.98);
+
+            if (firstVector.size()>=2)
+            {
+               std::vector<int> secondVector =
+                     VectorOpenHlt1PhotonPassedR9ID(
+                           20,
+                           0.8,
+                           0,
+                           999,
+                           999,
+                           999,
+                           999,
+                           0.05,
+                           0.98);
+
+               if (secondVector.size()>=1)
+               {
+                  triggerBit[it] = true;
+               }
+            }
+         }
+      }
+   }
+   
+   // to be removed?
+   // (added by Hartl when merging in new paths from V. Rekovic; most were obsolete but two using R9ID where new... including this)
+   else if (triggerName.CompareTo("OpenHLT_Photon20_R9ID_Photon18_Isol_CaloId_L1R") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(
+                  18,
+                  0,
+                  3,
+                  5,
+                  3,
+                  3,
+                  0.05,
+                  0.98,
+                  0.014,
+                  0.035);
+            if (firstVector.size()>=1)
+            {
+               std::vector<int> secondVector =
+                     VectorOpenHlt1PhotonPassedR9ID(
+                           20,
+                           0.8,
+                           0,
+                           999,
+                           999,
+                           999,
+                           999,
+                           0.05,
+                           0.98);
+               if (secondVector.size()>=1)
+               {
+                  if ((firstVector.size() == 1)&&(secondVector.size()==1))
+                  {
+                     if (firstVector.front() != secondVector.front())
+                        triggerBit[it] = true;
+                  }
+                  else
+                     triggerBit[it] = true;
                }
             }
          }
@@ -12325,6 +12412,60 @@ vector<int> OHltTree::VectorOpenHlt1PhotonPassed(
 
    return rc;
 }
+
+
+vector<int> OHltTree::VectorOpenHlt1PhotonPassedR9ID(
+      float Et,
+      float R9ID,
+      int L1iso,
+      float Tiso,
+      float Eiso,
+      float HisoBR,
+      float HisoEC,
+      float HoverE,
+      float R9,
+      float ClusShapEB,
+      float ClusShapEC)
+{
+   vector<int> rc;
+   for (int i=0; i<NohPhot; i++)
+   {
+      if (ohPhotEt[i] > Et)
+      {
+         if (TMath::Abs(ohPhotEta[i]) < 2.65)
+         {
+            if (ohPhotL1iso[i] >= L1iso)
+            {
+               if (ohPhotTiso[i] < Tiso + 0.001*ohPhotEt[i])
+               {
+                  if (ohPhotEiso[i] < Eiso + 0.012*ohPhotEt[i])
+                  {
+                     if ((TMath::Abs(ohPhotEta[i]) < 1.479
+                           && ohPhotHiso[i] < HisoBR + 0.005*ohPhotEt[i]
+                           && ohEleClusShap[i] < ClusShapEB
+                           && ohPhotR9[i] < R9) 
+                           || 
+                           (1.479 < TMath::Abs(ohPhotEta[i]) 
+                           && TMath::Abs(ohPhotEta[i]) < 2.65 
+                           && ohPhotHiso[i] < HisoEC + 0.005*ohPhotEt[i] 
+                           && ohEleClusShap[i] < ClusShapEC))
+                     {
+                        float EcalEnergy = ohPhotEt[i]/(sin(2*atan(exp(0-ohPhotEta[i]))));
+                        if (ohPhotHforHoverE[i]/EcalEnergy < HoverE)
+                           if (ohPhotR9ID[i] > R9ID)
+                              if (ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs  
+                                 rc.push_back(i);
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   return rc;
+}
+
 
 int OHltTree::OpenL1SetSingleJetBit(const float& thresh)
 {

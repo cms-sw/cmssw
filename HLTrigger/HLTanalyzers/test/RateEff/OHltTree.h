@@ -204,6 +204,7 @@ public:
    Float_t ohPhotTiso[8000]; //[NohPhot]
    Int_t ohPhotL1iso[8000]; //[NohPhot]
    Float_t ohPhotR9[8000]; //[NohPhot] 
+   Float_t ohPhotR9ID[8000]; //[NohPhot] 
    Float_t ohPhotHforHoverE[8000]; //[NohPhot] 
    Float_t ohPhotClusShap[8000]; //[NohPhot]
    Int_t NohEle;
@@ -2466,6 +2467,7 @@ public:
    TBranch *b_ohPhotTiso; //!
    TBranch *b_ohPhotL1iso; //!
    TBranch *b_ohPhotR9; //!
+   TBranch *b_ohPhotR9ID; //!
    TBranch *b_ohPhotHforHoverE; //! 
    TBranch *b_ohPhotClusShap; //!
    TBranch *b_NohEle; //!
@@ -5009,7 +5011,20 @@ public:
          float R9=999,
          float ClusShapEB=999,
          float ClusShapEC=999);
-   
+
+   std::vector<int> VectorOpenHlt1PhotonPassedR9ID(
+         float Et,
+         float R9ID,
+         int L1iso,
+         float Tiso,
+         float Eiso,
+         float HisoBR,
+         float HisoEC,
+         float HoverE=999,
+         float R9=999,
+         float ClusShapEB=999,
+         float ClusShapEC=999);
+
    int OpenHlt2PhotonMassWinPassed(
          float Et,
          int L1iso,
@@ -5718,6 +5733,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohPhotTiso", ohPhotTiso, &b_ohPhotTiso);
    fChain->SetBranchAddress("ohPhotL1iso", ohPhotL1iso, &b_ohPhotL1iso);
    fChain->SetBranchAddress("ohPhotR9", ohPhotR9, &b_ohPhotR9);
+   fChain->SetBranchAddress("ohPhotR9ID", ohPhotR9ID, &b_ohPhotR9ID);
    fChain->SetBranchAddress("ohPhotHforHoverE", ohPhotHforHoverE, &b_ohPhotHforHoverE);
    fChain->SetBranchAddress("ohPhotClusShap", ohPhotClusShap, &b_ohPhotClusShap);
    fChain->SetBranchAddress("NohEle", &NohEle, &b_NohEle);
