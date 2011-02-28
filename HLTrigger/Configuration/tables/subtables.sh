@@ -98,7 +98,7 @@ function createSubtables() {
 
   # extract each subtable
   for TABLE in $TABLES; do
-    runCreateConfig "$DATABSE" "$PASSWORD" "$MASTER" "$TABLE.paths" "$TARGET/$TABLE"
+    runCreateConfig "$DATABASE" "$PASSWORD" "$MASTER" "$TABLE.paths" "$TARGET/$TABLE"
     # clean up
     rm -f "$TABLE.paths"
   done
