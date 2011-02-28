@@ -201,3 +201,5 @@ if __name__ == "__main__":
             continue
         branchList.append (branch)
     Branch.printList (branchList)
+    rootfile.Close()
+    del rootfile

@@ -9,7 +9,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     saveFileName = cms.untracked.string(''),
     generator = cms.PSet(
-       initialSeed = cms.untracked.uint32(123456789),      
+        initialSeed = cms.untracked.uint32(123456789),      
         engineName = cms.untracked.string('HepJamesRandom') 
     ),                                                      
     VtxSmeared = cms.PSet(
@@ -38,7 +38,7 @@ process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(25)
 )
 
 #Geometry
@@ -147,8 +147,7 @@ process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetrieverTB
 
 # Test beam unsuppressed digis
 
-process.load("SimCalorimetry.EcalTestBeam.ecaldigi_testbeam_cfi")
-process.simEcalUnsuppressedDigis.doReadout = False
+process.load("SimCalorimetry.EcalTestBeam.ecaldigi_eetestbeam_cfi")
 
 # Output
 

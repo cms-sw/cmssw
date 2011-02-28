@@ -75,8 +75,7 @@ private:
   /// in 2007 format the max number of frames is 1860
   int nAFEBs_;
   int nTimeBins_;
-  std::vector<CSCALCTDigi> theALCTDigis; /// To account BX in wire digis
-  std::vector<int> alctBX_; /// To account BX in wire digis
+  unsigned int alctBX_; /// To account BX in wire digis
 };
 
 #endif

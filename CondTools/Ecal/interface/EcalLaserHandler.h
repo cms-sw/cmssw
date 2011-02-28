@@ -74,8 +74,8 @@ namespace popcon
 			std::string m_user;
 			std::string m_pass;
 			std::string m_locationsource;
+
 			std::string m_name;
-			bool        m_debug;
 
 	};
 }

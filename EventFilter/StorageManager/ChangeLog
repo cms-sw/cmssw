@@ -1,3 +1,8 @@
+2011-02-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-07-02
+	* Fix missing update of 'stateName' in the infospaces.
+
 2011-01-14 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-07-01

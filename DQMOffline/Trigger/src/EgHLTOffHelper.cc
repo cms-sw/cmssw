@@ -14,8 +14,6 @@
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTTrackIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 #include "DQMOffline/Trigger/interface/EgHLTTrigCodes.h"
 #include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
@@ -157,7 +155,6 @@ int OffHelper::getHandles(const edm::Event& event,const edm::EventSetup& setup)
   try { 
     setup.get<CaloGeometryRecord>().get(caloGeom_);
     setup.get<CaloTopologyRecord>().get(caloTopology_);
-    setup.get<EcalSeverityLevelAlgoRcd>().get(ecalSeverityLevel_);
   }catch(...){
     return errCodes::Geom;
   }
@@ -245,8 +242,7 @@ void OffHelper::fillIsolData(const reco::GsfElectron& ele,OffEle::IsolData& isol
     else isolData.hltTrksPho=hltPhoTrkIsolAlgo_->photonPtSum(&ele,isolTrks_.product(),false);
   }
   else isolData.hltTrksPho = 0.;
-  if(calHLTEmIsol_) isolData.hltEm = ecalIsolAlgoEB.getEtSum(&ele,ecalSeverityLevel_.product()) + 
-                                     ecalIsolAlgoEE.getEtSum(&ele,ecalSeverityLevel_.product());
+  if(calHLTEmIsol_) isolData.hltEm = ecalIsolAlgoEB.getEtSum(&ele) + ecalIsolAlgoEE.getEtSum(&ele);
   else isolData.hltEm = 0.;
   
 }
@@ -369,8 +365,7 @@ void OffHelper::fillIsolData(const reco::Photon& pho,OffPho::IsolData& isolData)
     else isolData.hltTrks=hltPhoTrkIsolAlgo_->photonPtSum(&pho,isolTrks_.product(),false);
   }
   else isolData.hltTrks = 0.;
-  if(calHLTEmIsol_) isolData.hltEm = ecalIsolAlgoEB.getEtSum(&pho,ecalSeverityLevel_.product()) + 
-                                     ecalIsolAlgoEE.getEtSum(&pho,ecalSeverityLevel_.product());
+  if(calHLTEmIsol_) isolData.hltEm = ecalIsolAlgoEB.getEtSum(&pho) + ecalIsolAlgoEE.getEtSum(&pho);
   else isolData.hltEm = 0.;
   
 }

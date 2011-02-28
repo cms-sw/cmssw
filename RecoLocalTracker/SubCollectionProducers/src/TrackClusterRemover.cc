@@ -75,11 +75,6 @@ class TrackClusterRemover : public edm::EDProducer {
 
         // Carries in full removal info about a given det from oldRefs
         void mergeOld(reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices &oldRefs) ;
-
-  bool makeProducts_;
-  std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRef > > collectedStrip;
-  std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRegionalRef > > collectedRegStrip;
-  std::map<uint32_t, std::vector< SiPixelRecHit::ClusterRef  > > collectedPixel;
 };
 
 
@@ -113,14 +108,11 @@ TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
     stripClusters_(doStrip_ ? iConfig.getParameter<InputTag>("stripClusters") : InputTag("NONE")),
     pixelClusters_(doPixel_ ? iConfig.getParameter<InputTag>("pixelClusters") : InputTag("NONE")),
     mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
-    oldRemovalInfo_(mergeOld_ ? iConfig.getParameter<InputTag>("oldClusterRemovalInfo") : InputTag("NONE")),
-    makeProducts_(true)
+    oldRemovalInfo_(mergeOld_ ? iConfig.getParameter<InputTag>("oldClusterRemovalInfo") : InputTag("NONE"))
 {
-  if (iConfig.exists("iterativeHLT"))
-    makeProducts_=!iConfig.getParameter<bool>("iterativeHLT");
-  if (doPixel_ && makeProducts_) produces< edmNew::DetSetVector<SiPixelCluster> >();
-  if (doStrip_ && makeProducts_) produces< edmNew::DetSetVector<SiStripCluster> >();
-  if (makeProducts_) produces< ClusterRemovalInfo >();
+    if (doPixel_) produces< edmNew::DetSetVector<SiPixelCluster> >();
+    if (doStrip_) produces< edmNew::DetSetVector<SiStripCluster> >();
+    produces< ClusterRemovalInfo >();
 
     fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
@@ -146,12 +138,6 @@ TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
             throw cms::Exception("Configuration Error") << "TrackClusterRemover: Configuration for subDetID = " << (i+1) << " uses cluster charge, which is not enabled.";
         }
     }
-
-    if (!makeProducts_){
-      produces<edmNew::DetSetVector<SiPixelClusterRefNew> >();
-      produces<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> >();
-      produces<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> >();
-    }
 }
 
 
@@ -171,7 +157,7 @@ void TrackClusterRemover::mergeOld(ClusterRemovalInfo::Indices &refs,
 template<typename T> 
 auto_ptr<edmNew::DetSetVector<T> >
 TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
-			     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs){
+                                reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs) {  
     typedef typename edmNew::DetSetVector<T>             DSV;
     typedef typename edmNew::DetSetVector<T>::FastFiller DSF;
     typedef typename edmNew::DetSet<T>                   DS;
@@ -195,43 +181,16 @@ TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const s
                 refs.push_back(index); 
                 //std::cout << "TrackClusterRemover::cleanup " << typeid(T).name() << " reference " << index << " to " << (refs.size() - 1) << std::endl;
             }
-
-	}
+        }
         if (outds.empty()) outds.abort(); // not write in an empty DSV
     }
     if (oldRefs != 0) mergeOld(refs, *oldRefs);
     return output;
 }
 
-
 void TrackClusterRemover::process(const SiStripRecHit2D *hit, uint32_t subdet) {
-  SiStripRecHit2D::ClusterRef cluster = hit->cluster();
-  if (cluster.isNull())
-    {
-      SiStripRecHit2D::ClusterRegionalRef cluster = hit->cluster_regional();
-      collectedRegStrip[cluster->geographicalId()].push_back(cluster);
-    }
-  else{
-  if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
-    "TrackClusterRemover: strip cluster ref from Product ID = " << cluster.id() <<
-    " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
-  
-  assert(cluster.id() == stripSourceProdID);
-  if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
+    SiStripRecHit2D::ClusterRef cluster = hit->cluster();
 
-  strips[cluster.key()] = false;  
-  collectedStrip[cluster->geographicalId()].push_back(cluster);
-  }
-}
-
-void TrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet) {
-    SiStripRecHit1D::ClusterRef cluster = hit->cluster();
-    if (cluster.isNull())
-      {
-	SiStripRecHit2D::ClusterRegionalRef cluster = hit->cluster_regional();
-	collectedRegStrip[cluster->geographicalId()].push_back(cluster);
-      }
-    else{
     if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") << 
             "TrackClusterRemover: strip cluster ref from Product ID = " << cluster.id() << 
             " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
@@ -241,9 +200,20 @@ void TrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet) {
 
 //DBG// cout << "Individual HIT " << cluster.key().first << ", INDEX = " << cluster.key().second << endl;
     strips[cluster.key()] = false;
+}
 
-    collectedStrip[cluster->geographicalId()].push_back(cluster);
-    }
+void TrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet) {
+    SiStripRecHit1D::ClusterRef cluster = hit->cluster();
+
+    if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") << 
+            "TrackClusterRemover: strip cluster ref from Product ID = " << cluster.id() << 
+            " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
+
+    assert(cluster.id() == stripSourceProdID);
+    if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
+
+//DBG// cout << "Individual HIT " << cluster.key().first << ", INDEX = " << cluster.key().second << endl;
+    strips[cluster.key()] = false;
 }
 
 
@@ -276,8 +246,6 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
 
         // mark as used
         pixels[cluster.key()] = false;
-	
-	collectedPixel[detid.rawId()].push_back(cluster);
     } else { // aka Strip
         if (!doStrip_) return;
         const type_info &hitType = typeid(*hit);
@@ -384,15 +352,14 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
         }
     }
 
-    
-    if (doPixel_ && makeProducts_) {
+    if (doPixel_) {
         auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
                     cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);
         OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
 //DBG// std::cout << "TrackClusterRemover: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
         cri->setNewPixelClusters(newPixels);
     }
-    if (doStrip_ && makeProducts_) {
+    if (doStrip_) {
         auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters = cleanup(*stripClusters, strips, 
                     cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0);
         OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(newStripClusters); 
@@ -401,54 +368,9 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     }
 
 
-    if (makeProducts_) iEvent.put(cri);
+    iEvent.put(cri);
 
     pixels.clear(); strips.clear(); 
-
-    if (!makeProducts_){
-    auto_ptr<edmNew::DetSetVector<SiPixelClusterRefNew> > removedPixelClsuterRefs(new edmNew::DetSetVector<SiPixelClusterRefNew>());
-    auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > removedStripClsuterRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>());
-    auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> > removedStripClsuterRegRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>());
-
-    for (std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRef > >::iterator itskiped= collectedStrip.begin();
-	 itskiped!=collectedStrip.end();++itskiped){
-      edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>::FastFiller fill(*removedStripClsuterRefs, itskiped->first);
-      for (std::vector< SiStripRecHit1D::ClusterRef >::iterator topush = itskiped->second.begin();
-	   topush!=itskiped->second.end();++topush){
-	fill.push_back(*topush);
-      }
-      if (fill.empty()) fill.abort();
-    }
-    if (collectedStrip.size()!=0)
-      iEvent.put( removedStripClsuterRefs );
-    else{
-      for (std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRegionalRef > >::iterator itskiped= collectedRegStrip.begin();
-	   itskiped!=collectedRegStrip.end();++itskiped){
-	edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>::FastFiller fill(*removedStripClsuterRegRefs, itskiped->first);
-	for (std::vector< SiStripRecHit1D::ClusterRegionalRef >::iterator topush = itskiped->second.begin();
-	     topush!=itskiped->second.end();++topush){
-	  fill.push_back(*topush);
-	}
-	if (fill.empty()) fill.abort();
-      }
-      iEvent.put( removedStripClsuterRegRefs );
-    }
-
-    for (std::map<uint32_t, std::vector< SiPixelRecHit::ClusterRef  > >::iterator itskiped= collectedPixel.begin();
-	 itskiped!=collectedPixel.end();++itskiped){  
-      edmNew::DetSetVector<SiPixelClusterRefNew>::FastFiller fill(*removedPixelClsuterRefs, itskiped->first);
-      for (std::vector< SiPixelRecHit::ClusterRef  >::iterator topush = itskiped->second.begin(); 
-	   topush!=itskiped->second.end();++topush){ 
-	fill.push_back(*topush); 
-      }
-      if (fill.empty()) fill.abort();   
-    }
-    iEvent.put( removedPixelClsuterRefs );
-    }
-    collectedStrip.clear();
-    collectedRegStrip.clear();
-    collectedPixel.clear();
-
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

@@ -20,5 +20,6 @@ HLTMuonDimuonL3Filter = cms.EDFilter( "HLTMuonDimuonL3Filter",
                     MinPtBalance = cms.double( -1.0 ),
                     MaxPtBalance = cms.double( 999999.0 ),
                     NSigmaPt = cms.double( 0.0 ),
+                    MaxDzMuMu = cms.double( 999999.0 ),
                     SaveTag = cms.untracked.bool( False )
                 )

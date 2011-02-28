@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.29 2010/11/04 22:38:55 amraktad Exp $
+// $Id: FWTableView.cc,v 1.30 2010/12/02 20:03:09 amraktad Exp $
 //
 
 // system include files
@@ -329,18 +329,7 @@ void FWTableView::resetColors (const FWColorManager &manager)
 //
 // const member functions
 //
-TGFrame*
-FWTableView::frame() const
-{
-     return 0;
-//    return m_embeddedViewer->GetFrame();
-}
 
-const std::string&
-FWTableView::typeName() const
-{
-   return staticTypeName();
-}
 
 void
 FWTableView::addTo(FWConfiguration& iTo) const
@@ -674,12 +663,3 @@ void FWTableView::modifyColumn ()
      m_manager->dataChanged();
 }
 
-//
-// static member functions
-//
-const std::string&
-FWTableView::staticTypeName()
-{
-   static std::string s_name("Table");
-   return s_name;
-}

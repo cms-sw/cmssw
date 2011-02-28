@@ -49,12 +49,13 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
    max_Acop_    (iConfig.getParameter<double> ("MaxAcop")),
    min_PtBalance_ (iConfig.getParameter<double> ("MinPtBalance")),
    max_PtBalance_ (iConfig.getParameter<double> ("MaxPtBalance")),
-										   nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")), 
+   nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")), 
+   max_DzMuMu_  (iConfig.getParameter<double>("MaxDzMuMu")),
    saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false)) 
 {
 
    LogDebug("HLTMuonDimuonL3Filter")
-      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt : " 
+      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt/MaxDzMuMu : " 
       << candTag_.encode()
       << " " << fast_Accept_
       << " " << max_Eta_
@@ -66,7 +67,8 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
       << " " << min_InvMass_ << " " << max_InvMass_
       << " " << min_Acop_ << " " << max_Acop_
       << " " << min_PtBalance_ << " " << max_PtBalance_
-      << " " << nsigma_Pt_;
+      << " " << nsigma_Pt_
+      << " " << max_DzMuMu_;
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -244,6 +246,10 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if (invmass<min_InvMass_) continue;
 	      if (invmass>max_InvMass_) continue;
 
+        // Delta Z between the two muons
+        double DeltaZMuMu = fabs(tk2->dz(beamSpot.position())-tk1->dz(beamSpot.position()));
+        if ( DeltaZMuMu > max_DzMuMu_) continue;
+              
 	      // Add this pair
 	      n++;
 	      LogDebug("HLTMuonDimuonL3Filter") << " Track1 passing filter: pt= " << tk1->pt() << ", eta: " << tk1->eta();

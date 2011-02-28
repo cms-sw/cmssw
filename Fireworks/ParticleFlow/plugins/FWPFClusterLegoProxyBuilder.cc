@@ -1,6 +1,6 @@
 #include "FWPFClusterLegoProxyBuilder.h"
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 float
 FWPFClusterLegoProxyBuilder::calculateEt( const reco::PFCluster &iData, float E )
 {
@@ -18,7 +18,7 @@ FWPFClusterLegoProxyBuilder::calculateEt( const reco::PFCluster &iData, float E 
     return et;
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFClusterLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElement *parent, FWViewType::EType viewType, const FWViewContext *vc )
 {
@@ -35,7 +35,7 @@ FWPFClusterLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElemen
     }
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFClusterLegoProxyBuilder::scaleProduct( TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc )
 {
@@ -50,7 +50,7 @@ FWPFClusterLegoProxyBuilder::scaleProduct( TEveElementList* parent, FWViewType::
    }
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFClusterLegoProxyBuilder::sharedBuild( const reco::PFCluster &iData, TEveCompound *itemHolder, const FWViewContext *vc )
 {
@@ -67,7 +67,7 @@ FWPFClusterLegoProxyBuilder::sharedBuild( const reco::PFCluster &iData, TEveComp
    setupAddElement( cluster, itemHolder );
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________ECAL____________________________________________
 void
 FWPFEcalClusterLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
@@ -85,7 +85,7 @@ FWPFEcalClusterLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementLis
    }
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________HCAL____________________________________________
 void
 FWPFHcalClusterLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
@@ -103,6 +103,6 @@ FWPFHcalClusterLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementLis
    }
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 REGISTER_FWPROXYBUILDER( FWPFEcalClusterLegoProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kLegoPFECALBit );
 REGISTER_FWPROXYBUILDER( FWPFHcalClusterLegoProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kLegoBit );

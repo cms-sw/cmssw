@@ -7,21 +7,10 @@
 CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header)
   : nAFEBs_(header.nLCTChipRead()), nTimeBins_(header.NTBins())
 {
-  //std::cout << "Constructor 1" << std::endl;
   init(header);
-  // comes after, because need to fetch sizeInWords()
   bzero(theDataFrames, sizeInWords()*2);
   /// To get BX from ALCT digis
-  theALCTDigis=header.ALCTDigis();
-  alctBX_.clear();
-  for(unsigned int k=0; k<theALCTDigis.size(); k++){
-           alctBX_.push_back(theALCTDigis[k].getFullBX());
-     }
-
-  //for(unsigned int k=0; k<alctBX_.size(); k++)
-  //   std::cout << alctBX_[k] << " | ";
-  //std::cout << std::endl;
-
+  alctBX_= header.BXNCount();
 }
 
 
@@ -29,20 +18,10 @@ CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header ,
                                    const unsigned short *buf) 
   : nAFEBs_(header.nLCTChipRead()), nTimeBins_(header.NTBins())
 {
-    //std::cout << "Constructor 2" << std::endl;
     init(header);
     memcpy(theDataFrames, buf, sizeInWords()*2);///dont memcpy if not 2006 or 2007
     /// To get BX from ALCT digis
-  theALCTDigis=header.ALCTDigis();
-  alctBX_.clear();
-  for(unsigned int k=0; k<theALCTDigis.size(); k++){
-           alctBX_.push_back(theALCTDigis[k].getFullBX());
-     }
-
-  //for(unsigned int k=0; k<alctBX_.size(); k++)
-  //   std::cout << std::dec << alctBX_[k] << " | ";
-  //std::cout << std::endl;
-
+   alctBX_= header.BXNCount();
 }
 
 
@@ -61,7 +40,6 @@ void CSCAnodeData2007::init(const CSCALCTHeader & header) {
 
 
 std::vector<CSCWireDigi> CSCAnodeData2007::wireDigis(int layer) const {
-  //std::cout << " wireDigi Fill AnodeData2007 " << std::endl;
   std::vector<CSCWireDigi> digis;
   uint32_t tbinbits=0;
   uint32_t wireGroup=0;
@@ -82,7 +60,7 @@ std::vector<CSCWireDigi> CSCAnodeData2007::wireDigis(int layer) const {
       if (tbinbits !=0 ) {
 	wireGroup = (layerPart*12+j)+1;
 	/// BX from ACT incoded in wireGroup
-	uint32_t wireGroupBX=alctBX_[0];
+	uint32_t wireGroupBX=alctBX_;
 	wireGroup = wireGroup | (wireGroupBX << 16);
 	CSCWireDigi digi(wireGroup, tbinbits);
 	LogTrace ("CSCAnodeData|CSCRawToDigi") << "Layer " << layer << " " << digi;
