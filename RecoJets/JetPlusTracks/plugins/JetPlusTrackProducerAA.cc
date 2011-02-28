@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Feb 19 10:14:02 CET 2010
-// $Id: JetPlusTrackProducerAA.cc,v 1.4 2010/05/05 14:00:50 kodolova Exp $
+// $Id: JetPlusTrackProducerAA.cc,v 1.5 2011/02/20 10:06:25 kodolova Exp $
 //
 //
 
@@ -445,7 +445,8 @@ reco::TrackRefVector  JetPlusTrackProducerAA::calculateBGtracksJet(reco::JPTJetC
 //             <<" eta= "<<ixtrp->track()->eta()<<" phi="<<ixtrp->track()->phi()
 //             <<" Valid? "<<ixtrp->isValid().at(0)<<std::endl;
 
-          if( ixtrp->isValid().at(0) == 0 ) continue;
+          //if( ixtrp->isValid().at(0) == 0 ) continue;
+          //in DF change in 4.2, all entries are valid.
           nValid++;
 
           reco::TrackRefVector::iterator it = find(trBgOutOfVertex.begin(),trBgOutOfVertex.end(),(*ixtrp).track() );
