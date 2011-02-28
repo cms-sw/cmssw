@@ -19,6 +19,25 @@ ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gStyle.SetOptStat(0)
 
+def make_perf_curve2(signal, background, signal_denom, background_denom):
+    signal_integral = signal.GetIntegral()
+    print signal_integral
+    background_integral = background.GetIntegral()
+    signal_total = signal.Integral()
+    background_total = background.Integral()
+    points = set([])
+    for bin in range(1, signal.GetNbinsX()):
+        signal_passing = int(signal_total*(1-signal_integral[bin]))
+        background_passing = int(background_total*(1-background_integral[bin]))
+        points.add((signal_passing, background_passing))
+    points_sorted = sorted(points)
+    # Take all but first and last points
+    points_to_plot = points_sorted[1:-1]
+    output = ROOT.TGraph(len(points_to_plot))
+    for index, (sig, bkg) in enumerate(points_to_plot):
+        output.SetPoint(index, sig*1.0/signal_denom, bkg*1.0/background_denom)
+    return output
+
 def make_perf_curve(signal, background, signal_denom, background_denom):
     signal_bins = []
     background_bins = []
@@ -124,7 +143,9 @@ disc_to_plot = ['shrinkingConePFTauProducer', 'hpsPFTauProducer', 'hpsTancTaus']
 #disc_to_plot = ['shrinkingConePFTauProducer', 'hpsPFTauProducer', ]
 #good_colors = [ROOT.EColor.kRed, ROOT.EColor.kBlue, ROOT.EColor.kBlack]
 
+_PT_CUT = 15
 
+canvas = ROOT.TCanvas("blah", "blah", 800, 1200)
 if __name__ == "__main__":
     steering = {}
     steering['signal'] = { 'file' : ROOT.TFile(signal_input, 'READ') }
@@ -137,18 +158,35 @@ if __name__ == "__main__":
         for producer in discriminators.keys():
             sample_info['algos'][producer] = {}
             for discriminator in discriminators[producer]:
-                to_get = "plot" + producer + "/" + discriminator
+                to_get = "plot" + producer + "/" + discriminator + "_pt"
                 print "Getting:", to_get
-                sample_info['algos'][producer][discriminator] = \
-                        sample_info['file'].Get(to_get)
+                raw_histo = sample_info['file'].Get(to_get)
+                print "Raw entries:", raw_histo.Integral()
+                print "Mean X:", raw_histo.GetMean(1)
+                min_pt_bin = raw_histo.GetYaxis().FindBin(_PT_CUT)
+                projection = raw_histo.ProjectionX(
+                    sample + raw_histo.GetName()+"_px", min_pt_bin,
+                    raw_histo.GetNbinsY()+1)
+                print "Mean X Proj:", projection.GetMean(1)
+                print "Post cut entries:", projection.Integral()
+                sample_info['algos'][producer][discriminator] = projection
+                projection.Draw()
+                canvas.SaveAs("hpstanc/eval/" +sample + "_"+ discriminator + ".png")
 
     print "Loading normalizations"
     for sample, sample_info in steering.iteritems():
-        sample_info["denominator"] = \
-                sample_info["file"].Get("plotAK5PFJets/pt").GetEntries()
+        sample_info["denominator_histo"] = \
+                sample_info["file"].Get("plotAK5PFJets/pt")
+        start_bin = sample_info['denominator_histo'].FindBin(_PT_CUT)
+        end_bin = sample_info['denominator_histo'].GetNbinsX()+1
+        denominator = sample_info['denominator_histo'].Integral(
+            start_bin, end_bin)
+        sample_info['denominator'] = denominator
+        print "%s denominator: %0.2f, %0.2f" % (
+            sample, sample_info['denominator_histo'].Integral(), denominator)
 
     # Build the master canvas and the sub pads
-    canvas = ROOT.TCanvas("blah", "blah", 800, 1200)
+    #canvas = ROOT.TCanvas("blah", "blah", 800, 1200)
     # Workaround so it isn't rotated..
     canvas.Divide(1, 2)
     canvas.cd(1)
@@ -179,7 +217,7 @@ if __name__ == "__main__":
         for marker, discriminator in zip(good_markers,
                                          discriminators[producer]):
             print "Building graph:", producer, discriminator
-            new_graph = make_perf_curve(
+            new_graph = make_perf_curve2(
                 steering['signal']['algos'][producer][discriminator],
                 steering['background']['algos'][producer][discriminator],
                 steering['signal']['denominator'],
