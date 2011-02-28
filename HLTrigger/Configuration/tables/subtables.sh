@@ -67,7 +67,7 @@ function createSubtables() {
   local LIST=$(getPathList $MASTER)
   local FAIL=0
   for TABLE in $TABLES; do
-    echo "Parsing table $TABLE ..."
+    echo "Parsing table: $TABLE ..."
     rm -f $TABLE.paths
     cat "$TABLE.txt" | while read LINE; do
       PATTERN=$(echo $LINE | sed -e's/ *#.*//' -e's/^/\\</' -e's/$/\\>/' -e's/?/./g' -e's/\*/.*/g')
