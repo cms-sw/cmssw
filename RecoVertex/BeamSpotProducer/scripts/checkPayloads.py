@@ -38,44 +38,94 @@ def getUploadedIOVs(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSP
     return runs
 
 #####################################################################################
-def getListOfRunsAndLumiFromRR(lastRun=-1,runErrors={}):
-    RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
-    #RunReg  = "http://localhost:40010/runregistry"
+def getListOfRunsAndLumiFromFile(firstRun=-1,fileName=""):
+    file = open(fileName);
+    jsonFile = file.read();
+    file.close()
+    jsonList=json.loads(jsonFile);
+
+    selected_dcs = {};
+    for element in jsonList:
+        selected_dcs[long(element)]=jsonList[element]
+    return selected_dcs
+
+#####################################################################################
+def getListOfRunsAndLumiFromRR(firstRun=-1,error=""):
+    #RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
+    RunReg  = "http://localhost:40010/runregistry"
     #Dataset=%Online%
     Group   = "Collisions10"
 
     # get handler to RR XML-RPC server
     FULLADDRESS=RunReg + "/xmlrpc"
     #print "RunRegistry from: ",FULLADDRESS
+    #firstRun = 153000
     server = xmlrpclib.ServerProxy(FULLADDRESS)
-    #sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun) + " and {datasetName} LIKE '" + Dataset + "'"
-    sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun)
-    sel_dcstable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun) + " and {parDcsBpix} = 1 and {parDcsFpix} = 1 and {parDcsTibtid} = 1 and {parDcsTecM} = 1 and {parDcsTecP} = 1 and {parDcsTob} = 1 and {parDcsEbminus} = 1 and {parDcsEbplus} = 1 and {parDcsEeMinus} = 1 and {parDcsEePlus} = 1 and {parDcsEsMinus} = 1 and {parDcsEsPlus} = 1 and {parDcsHbheA} = 1 and {parDcsHbheB} = 1 and {parDcsHbheC} = 1 and {parDcsH0} = 1 and {parDcsHf} = 1"
+    #sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(firstRun) + " and {datasetName} LIKE '" + Dataset + "'"
+    sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(firstRun)
 
     tries = 0;
-    while tries<10:
+    maxAttempts = 3
+    while tries<maxAttempts:
         try:
-            run_data = server.DataExporter.export('RUN'           , 'GLOBAL', 'csv_runs', sel_runtable)
-            dcs_data = server.DataExporter.export('RUNLUMISECTION', 'GLOBAL', 'json'    , sel_dcstable)
-            #print run_data
-            #print dcs_data
+            run_data = server.DataExporter.export('RUN', 'GLOBAL', 'csv_runs', sel_runtable)
             break
         except:
-            print "Something wrong in accessing runregistry, retrying in 5s...."
             tries += 1
-            time.sleep(5)
-        if tries==10:
-            error = "Run registry unaccessible.....exiting now"
-            sys.exit(error)
-                
-                
+            print "Trying to get run data. This fails only 2-3 times so don't panic yet...", tries, "/", maxAttempts
+            time.sleep(1)
+	    print "Exception type: ", sys.exc_info()[0]
+        if tries==maxAttempts:
+            error = "Ok, now panic...run registry unaccessible...I'll get the runs from a json file!"
+            print error;
+            return {};
+
     listOfRuns=[]
+    runErrors = {}
     for line in run_data.split("\n"):
         run=line.split(',')[0]
         if run.isdigit():
             listOfRuns.append(run)
-            runErrors[long(run)] = line.split(',')[19:27]
-                        
+
+    tries = 0
+    maxAttempts = 3
+    firstRun = listOfRuns[len(listOfRuns)-1];
+    lastRun  = listOfRuns[0];
+    sel_dcstable="{groupName} ='" + Group + "' and {runNumber} >= " + str(firstRun) + " and {runNumber} <= " + str(lastRun) + " and {parDcsBpix} = 1 and {parDcsFpix} = 1 and {parDcsTibtid} = 1 and {parDcsTecM} = 1 and {parDcsTecP} = 1 and {parDcsTob} = 1 and {parDcsEbminus} = 1 and {parDcsEbplus} = 1 and {parDcsEeMinus} = 1 and {parDcsEePlus} = 1 and {parDcsEsMinus} = 1 and {parDcsEsPlus} = 1 and {parDcsHbheA} = 1 and {parDcsHbheB} = 1 and {parDcsHbheC} = 1 and {parDcsH0} = 1 and {parDcsHf} = 1"
+    while tries<maxAttempts:
+        try:
+            dcs_data = server.DataExporter.export('RUNLUMISECTION', 'GLOBAL', 'json'    , sel_dcstable)
+            break
+        except:
+            tries += 1
+            print "I was able to get the list of runs and now I am trying to access the detector status", tries, "/", maxAttempts
+            time.sleep(1)
+	    print "Exception type: ", sys.exc_info()[0]
+
+        if tries==maxAttempts:
+            error = "Ok, now panic...run registry unaccessible...I'll get the runs from a json file!"
+            print error;
+            return {};
+
+    #This is the original and shold work in the furture as soon as the server will be moved to a more powerfull PC
+    #while tries<maxAttempts:
+    #    try:
+    #        run_data = server.DataExporter.export('RUN'           , 'GLOBAL', 'csv_runs', sel_runtable)
+    #        dcs_data = server.DataExporter.export('RUNLUMISECTION', 'GLOBAL', 'json'    , sel_dcstable)
+    #        #print run_data
+    #        #print dcs_data
+    #        break
+    #    except:
+    #        print "Something wrong in accessing runregistry, retrying in 5s...."
+    #        tries += 1
+    #        time.sleep(2)
+    #        print "Exception type: ", sys.exc_info()[0]
+    #
+    #    if tries==maxAttempts:
+    #        error = "Run registry unaccessible.....exiting now"
+    #        sys.exit(error)
+                
+                
                         
     selected_dcs={}
     jsonList=json.loads(dcs_data)
@@ -141,8 +191,10 @@ def main():
     knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562,139455,140133,140182,142461,142465,142503,142653,143977,148859]
     tagName = "BeamSpotObjects_2009" + dbBase + sigmaZ + "_v" + tagNumber + "_offline"
     print "Checking payloads for tag " + tagName
-    runErrors = {}
-    listOfRunsAndLumiFromRR = getListOfRunsAndLumiFromRR(-1,runErrors)
+    listOfRunsAndLumi = {};
+    listOfRunsAndLumi = getListOfRunsAndLumiFromRR(-1);
+    if(not listOfRunsAndLumi):
+        listOfRunsAndLumi = getListOfRunsAndLumiFromFile(-1,"/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions10/7TeV/StreamExpress/Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON_v3.txt");
     tmpListOfIOVs = []
     if(destDB != ""):
         tmpListOfIOVs = getUploadedIOVs(tagName,destDB) 
@@ -157,13 +209,13 @@ def main():
         for iov in tmpListOfIOVs:
             if((iov >> 32) not in listOfIOVs):
                 listOfIOVs.append(iov >>32)
-    RRRuns = listOfRunsAndLumiFromRR.keys()
+    RRRuns = listOfRunsAndLumi.keys()
     RRRuns.sort()
     for run in RRRuns:
         #print listOfRunsAndLumiFromRR[run]
         if run not in listOfIOVs:
             extraMsg = ""
-            if listOfRunsAndLumiFromRR[run] == [[]]:
+            if listOfRunsAndLumi[run] == [[]]:
                 extraMsg = " but it is empty in the RR"
                 if not printExtra: continue
             if run in knownMissingRunList :

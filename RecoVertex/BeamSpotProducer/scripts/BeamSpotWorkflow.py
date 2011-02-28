@@ -131,8 +131,20 @@ def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
 #    exit("ok")
     return runsAndLumis
 
+#####################################################################################
+def getListOfRunsAndLumiFromFile(firstRun=-1,fileName=""):
+    file = open(fileName);
+    jsonFile = file.read();
+    file.close()
+    jsonList=json.loads(jsonFile);
+
+    selected_dcs = {};
+    for element in jsonList:
+        selected_dcs[long(element)]=jsonList[element]
+    return selected_dcs
+
 ########################################################################
-def getListOfRunsAndLumiFromRR(lastRun=-1):
+def getListOfRunsAndLumiFromRR(firstRun=-1):
     RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
     #RunReg  = "http://localhost:40010/runregistry"
     #Dataset=%Online%
@@ -142,23 +154,24 @@ def getListOfRunsAndLumiFromRR(lastRun=-1):
     FULLADDRESS=RunReg + "/xmlrpc"
     #print "RunRegistry from: ",FULLADDRESS
     server = xmlrpclib.ServerProxy(FULLADDRESS)
-    #sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun) + " and {datasetName} LIKE '" + Dataset + "'"
-    sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun) 
-    sel_dcstable="{groupName} ='" + Group + "' and {runNumber} > " + str(lastRun) + " and {parDcsBpix} = 1 and {parDcsFpix} = 1 and {parDcsTibtid} = 1 and {parDcsTecM} = 1 and {parDcsTecP} = 1 and {parDcsTob} = 1 and {parDcsEbminus} = 1 and {parDcsEbplus} = 1 and {parDcsEeMinus} = 1 and {parDcsEePlus} = 1 and {parDcsEsMinus} = 1 and {parDcsEsPlus} = 1 and {parDcsHbheA} = 1 and {parDcsHbheB} = 1 and {parDcsHbheC} = 1 and {parDcsH0} = 1 and {parDcsHf} = 1"
+    #sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(firstRun) + " and {datasetName} LIKE '" + Dataset + "'"
+    sel_runtable="{groupName} ='" + Group + "' and {runNumber} > " + str(firstRun) 
+    #sel_dcstable="{groupName} ='" + Group + "' and {runNumber} > " + str(firstRun) + " and {parDcsBpix} = 1 and {parDcsFpix} = 1 and {parDcsTibtid} = 1 and {parDcsTecM} = 1 and {parDcsTecP} = 1 and {parDcsTob} = 1 and {parDcsEbminus} = 1 and {parDcsEbplus} = 1 and {parDcsEeMinus} = 1 and {parDcsEePlus} = 1 and {parDcsEsMinus} = 1 and {parDcsEsPlus} = 1 and {parDcsHbheA} = 1 and {parDcsHbheB} = 1 and {parDcsHbheC} = 1 and {parDcsH0} = 1 and {parDcsHf} = 1"
 
+    maxAttempts = 3;
     tries = 0;
-    while tries<10:
+    while tries<maxAttempts:
         try:
             run_data = server.DataExporter.export('RUN'           , 'GLOBAL', 'csv_runs', sel_runtable)
-            dcs_data = server.DataExporter.export('RUNLUMISECTION', 'GLOBAL', 'json'    , sel_dcstable)
+            #dcs_data = server.DataExporter.export('RUNLUMISECTION', 'GLOBAL', 'json'    , sel_dcstable)
             break
         except:
-            print "Something wrong in accessing runregistry, retrying in 5s...."
+            print "Something wrong in accessing runregistry, retrying in 2s....", tries, "/", maxAttempts
             tries += 1
-            time.sleep(5)
-        if tries==10:
+            time.sleep(2)
+        if tries==maxAttempts:
             error = "Run registry unaccessible.....exiting now"
-            exit(error)
+            return {};
     
 
     listOfRuns=[]
@@ -167,6 +180,24 @@ def getListOfRunsAndLumiFromRR(lastRun=-1):
         if run.isdigit():
             listOfRuns.append(run)
 
+    
+    firstRun = listOfRuns[len(listOfRuns)-1];
+    lastRun  = listOfRuns[0];
+    sel_dcstable="{groupName} ='" + Group + "' and {runNumber} >= " + str(firstRun) + " and {runNumber} <= " + str(lastRun) + " and {parDcsBpix} = 1 and {parDcsFpix} = 1 and {parDcsTibtid} = 1 and {parDcsTecM} = 1 and {parDcsTecP} = 1 and {parDcsTob} = 1 and {parDcsEbminus} = 1 and {parDcsEbplus} = 1 and {parDcsEeMinus} = 1 and {parDcsEePlus} = 1 and {parDcsEsMinus} = 1 and {parDcsEsPlus} = 1 and {parDcsHbheA} = 1 and {parDcsHbheB} = 1 and {parDcsHbheC} = 1 and {parDcsH0} = 1 and {parDcsHf} = 1"
+
+    tries = 0;
+    while tries<maxAttempts:
+        try:
+            #run_data = server.DataExporter.export('RUN'           , 'GLOBAL', 'csv_runs', sel_runtable)
+            dcs_data = server.DataExporter.export('RUNLUMISECTION', 'GLOBAL', 'json'    , sel_dcstable)
+            break
+        except:
+            print "I was able to get the list of runs and now I am trying to access the detector status, retrying in 2s....", tries, "/", maxAttempts
+            tries += 1
+            time.sleep(2)
+        if tries==maxAttempts:
+            error = "Run registry unaccessible.....exiting now"
+            return {};
 
     selected_dcs={}
     jsonList=json.loads(dcs_data)
@@ -599,6 +630,10 @@ def main():
        exit("There are no files in DBS to process") 
     print "Getting list of files from RR"
     listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromRR(lastUploadedIOV) 
+    if(not listOfRunsAndLumiFromRR):
+        jsonFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions10/7TeV/StreamExpress/Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON_v3.txt"
+        print "Looks like I can't get anything from the run registry so I'll get the data from the json file " + jsonFileName
+        listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromFile(lastUploadedIOV,jsonFileName) 
     ######### Get list of files to process for DB
     #selectedFilesToProcess = selectFilesToProcess(listOfFilesToProcess,copiedFiles)
     #completeProcessedRuns = removeUncompleteRuns(copiedFiles,dataSet)
