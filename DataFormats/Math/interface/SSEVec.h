@@ -112,7 +112,8 @@ namespace mathSSE {
   inline __m256d _mm256_dot_pd(__m256d v1, __m256d v2) {
     __m256d mul = _mm256_mul_pd(v1, v2);
     mul = _mm256_hadd_pd(mul,mul);
-    return _mm256_hadd_pd(mul,mul);
+    __m256d tmp = _mm256_permute2f128_pd(mul,mul,1);
+    return _mm256_add_pd(mul,tmp);
   }
 
   inline __m256d _mm256_cross_pd(__m256d v1, __m256d v2) {
