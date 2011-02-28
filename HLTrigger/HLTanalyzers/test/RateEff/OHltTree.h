@@ -5162,6 +5162,8 @@ public:
    int OpenHlt1JetPassed(double pt, double eta);
    
    int OpenHlt1JetPassed(double pt, double eta, double emfmin, double emfmax);
+
+   bool OpenJetID(int jetindex);
    
    int OpenHlt1CorJetPassed(double pt);
    

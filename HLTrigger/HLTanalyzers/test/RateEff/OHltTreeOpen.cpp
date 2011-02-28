@@ -1788,7 +1788,7 @@ void OHltTree::CheckOpenHlt(
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHltMeff(thresholds[0], 20.)==1)
+            if (OpenHltMeff(thresholds[0], 40.)==1)
             {
                triggerBit[it] = true;
             }
@@ -1848,7 +1848,7 @@ void OHltTree::CheckOpenHlt(
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHltSumCorHTPassed(thresholds[0], 20.) == 1)
+            if (OpenHltSumCorHTPassed(thresholds[0], 40.) == 1)
             {
                triggerBit[it] = true;
             }
@@ -6068,7 +6068,7 @@ void OHltTree::CheckOpenHlt(
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHltSumCorHTPassed(thresholds[1], 20)>=1 && recoMetCal
+            if (OpenHltSumCorHTPassed(thresholds[1], 40)>=1 && recoMetCal
                   >=thresholds[0])
             {
                triggerBit[it] = true;
@@ -6101,9 +6101,9 @@ void OHltTree::CheckOpenHlt(
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHltMHT(thresholds[1], 20.)==1 && (OpenHltSumCorHTPassed(
+            if (OpenHltMHT(thresholds[1], 30.)==1 && (OpenHltSumCorHTPassed(
                   thresholds[0],
-                  20.) == 1))
+                  40.) == 1))
             {
                triggerBit[it] = true;
             }
@@ -11586,6 +11586,18 @@ int OHltTree::OpenHltMuTrackPassed_Ups(
    return iNTrack;
 }
 
+bool OHltTree::OpenJetID(int jetindex)
+{
+	if (jetindex>=NrecoJetCorCal) return false;
+	bool jetID = true ; //jetID is true by default
+	if (fabs(recoJetCorCalEta[jetindex])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+       jetID =  (recoJetCorCalEMF[jetindex] > 1.0E-6) && (recoJetCorCalEMF[jetindex] < 999.0) && recoJetCorCalN90[jetindex]>=2;
+     }
+	return jetID;
+
+}
+
+
 int OHltTree::OpenHlt1JetPassed(double pt)
 {
    int rc = 0;
@@ -11662,11 +11674,7 @@ int OHltTree::OpenHlt1CorJetPassed(double pt)
    // Loop over all oh corrected jets
    for (int i=0; i<NrecoJetCorCal; i++)
    {
-     bool jetID = true ; //jetID is true by default
-     if (fabs(recoJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-       jetID =  (recoJetCorCalEMF[i] > 1.0E-6) && (recoJetCorCalEMF[i] < 999.0) && recoJetCorCalN90[i]>=2;
-     }
-      if (jetID && recoJetCorCalPt[i]>pt)
+     if (OpenJetID(i) && recoJetCorCalPt[i]>pt)
       { // Jet pT cut
          rc++;
       }
@@ -11683,11 +11691,7 @@ int OHltTree::OpenHlt1CorJetPassed(double pt, double etamax)
   // Loop over all oh corrected jets
   for (int i=0; i<NrecoJetCorCal; i++)
     {
-   	bool jetID = true ; //jetID is true by default
-	if (fabs(recoJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-	  jetID =  (recoJetCorCalEMF[i] > 1.0E-6) && (recoJetCorCalEMF[i] < 999.0) && recoJetCorCalN90[i]>=2;
-	}
-	if (jetID && recoJetCorCalPt[i]>pt && fabs(recoJetCorCalEta[i])<etamax)
+      if (OpenJetID(i) && recoJetCorCalPt[i]>pt && fabs(recoJetCorCalEta[i])<etamax)
 	  { // Jet pT cut
 	    rc++;
 	  }
@@ -11937,7 +11941,7 @@ int OHltTree::OpenHltMHT(double MHTthreshold, double jetthreshold, double etathr
    double mhtx=0., mhty=0.;
    for (int i=0; i<NrecoJetCorCal; ++i)
    {
-      if (recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
+      if (OpenJetID(i) && recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
       {
          mhtx-=recoJetCorCalPt[i]*cos(recoJetCorCalPhi[i]);
          mhty-=recoJetCorCalPt[i]*sin(recoJetCorCalPhi[i]);
@@ -12051,7 +12055,7 @@ int OHltTree::OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold, 
    // Loop over all oh jets, sum up the energy  
    for (int i=0; i<NrecoJetCorCal; ++i)
    {
-		 if (recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
+		 if (OpenJetID(i) && recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
       {
          //sumHT+=recoJetCorCorCalPt[i];
 
@@ -12100,12 +12104,11 @@ int OHltTree::OpenHltMeff(double Meffthreshold, double jetthreshold, double etat
    double sumHT = 0.;   
    for (int i=0; i<NrecoJetCorCal; ++i)
      {
-       if (recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
+       if (OpenJetID(i) && recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
 	 {
 	   mhtx-=recoJetCorCalPt[i]*cos(recoJetCorCalPhi[i]);
 	   mhty-=recoJetCorCalPt[i]*sin(recoJetCorCalPhi[i]);
-	   //sumHT+=recoJetCorCorCalPt[i];
-	   sumHT+=(recoJetCorCalE[i]/cosh(recoJetCorCalEta[i]));
+	   sumHT+=recoJetCorCalPt[i];
 	 }
      }
 
