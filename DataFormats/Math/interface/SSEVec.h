@@ -412,6 +412,7 @@ namespace mathSSE {
 #ifdef  CMS_USE_AVX
 }// namespace mathSSE
 #include "AVXVec.h"
+
 namespace mathSSE {
 #else
   template<>
@@ -657,9 +658,11 @@ inline float cross(mathSSE::Vec2F a, mathSSE::Vec2F b) {
 ///
 // double op 2d
 //
+
 inline  mathSSE::Vec2D::Vec2(Vec4D v4) {
-  vec = v4.vec[0];
+  vec = v4.xy();
 }
+
 
 inline  mathSSE::Vec2D::Vec2(Vec2F ivec) {
   arr[0] = ivec.arr[0]; arr[1] = ivec.arr[1];

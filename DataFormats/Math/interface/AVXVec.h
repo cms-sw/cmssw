@@ -82,7 +82,7 @@ namespace mathSSE {
   
   inline Vec4<float>::Vec4(Vec4<double> ivec) {
     vec = _mm256_cvtpd_ps(ivec.vec);
-
+  }
 } // namespace mathSSE
 
 
@@ -100,9 +100,9 @@ inline mathSSE::Vec4<double> cross(mathSSE::Vec4<double> a, mathSSE::Vec4<double
 
 
 inline bool operator==(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
-  return _mm256_movemask_pd(_mm256_cmp_pd(a.vec,b.ve,_CMP_EQ_OS))==0xf;
+  return _mm256_movemask_pd(_mm256_cmp_pd(a.vec,b.vec,_CMP_EQ_OS))==0xf;
 }
-
+  
 inline mathSSE::Vec4<double> cmpeq(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
   return _mm256_cmp_pd(a.vec,b.vec,_CMP_EQ_OS);
 }
