@@ -76,8 +76,7 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset )
        << " Vectorial" << std::endl
        << "  UseTracksAndResponse : " << ( ( vectorial_ && vecResponse_ ) ? "true" : "false" ) << std::endl
        << "  UseTracksOnly        : " << ( ( vectorial_ && !vecResponse_ ) ? "true" : "false" );
-    LogDebug("JetPlusTrackCorrector") << ss.str();
-    std::cout << ss.str() << std::endl;
+    edm::LogInfo("JetPlusTrackCorrector") << ss.str();
   }
 
   if ( !useInConeTracks_ || 
