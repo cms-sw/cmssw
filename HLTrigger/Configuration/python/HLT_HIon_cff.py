@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HIon/V47 (CMSSW_3_11_0_HLT9)
+# /dev/CMSSW_3_11_1/HIon/V48 (CMSSW_3_11_0_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V47')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V48')
 )
 
 streams = cms.PSet( 
@@ -3745,5 +3745,4 @@ ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
   timeThresh = cms.double( 2.0 )
 )
-#
 

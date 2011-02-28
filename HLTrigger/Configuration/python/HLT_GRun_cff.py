@@ -3222,7 +3222,8 @@ hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducerECAL",
     thresh_Cleaning = cms.double( 2.0 ),
     verbose = cms.untracked.bool( False ),
     thresh_Barrel = cms.double( 0.08 ),
-    thresh_Endcap = cms.double( 0.3 )
+    thresh_Endcap = cms.double( 0.3 ),
+    topological_Cleaning = cms.bool( True )
 )
 hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
     hcalRecHitsHBHE = cms.InputTag( "hltHbhereco" ),
@@ -3439,7 +3440,8 @@ hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
     pf_DPtoverPt_Cut = cms.vdouble( -1.0, -1.0, -1.0, -1.0 ),
     pf_NHit_Cut = cms.vuint32( 0, 0, 0, 0 ),
     useRecMuons = cms.bool( False ),
-    useGsfRecTracks = cms.bool( False )
+    useGsfRecTracks = cms.bool( False ),
+    useEGPhotons = cms.bool( False )
 )
 hltParticleFlow = cms.EDProducer( "PFProducer",
     pf_newCalib = cms.uint32( 2 ),
@@ -3522,7 +3524,11 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     ecalHcalEcalEndcap = cms.vdouble( 0.46, 3.0, 1.1, 0.4, -0.02, 1.4 ),
     ecalHcalEcalBarrel = cms.vdouble( 0.67, 3.0, 1.15, 0.9, -0.06, 1.4 ),
     ecalHcalHcalBarrel = cms.vdouble( 0.46, 3.0, 1.15, 0.3, -0.02, 1.4 ),
-    ecalHcalHcalEndcap = cms.vdouble( 0.46, 3.0, 1.1, 0.3, -0.02, 1.4 )
+    ecalHcalHcalEndcap = cms.vdouble( 0.46, 3.0, 1.1, 0.3, -0.02, 1.4 ),
+    useCalibrationsFromDB = cms.bool( True ),
+    usePFPhotons = cms.bool( False ),
+    calibPFSCEle_Fbrem_barrel = cms.vdouble( 0.6, 6.0, -0.0255975, 0.0576727, 0.975442, -5.46394E-4, 1.26147, 25.0, -0.02025, 0.04537, 0.9728, -8.962E-4, 1.172 ),
+    calibPFSCEle_Fbrem_endcap = cms.vdouble( 0.9, 6.5, -0.0692932, 0.101776, 0.995338, -0.00236548, 0.874998, 1.653, -0.0750184, 0.147, 0.923165, 4.74665E-4, 1.10782 )
 )
 hltAntiKT5PFJets = cms.EDProducer( "FastjetJetProducer",
     UseOnlyVertexTracks = cms.bool( False ),
@@ -16972,5 +16978,12 @@ ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
   timeThresh = cms.double( 2.0 )
 )
+
+#
+# Add for CMSSW 42X+ only
+hltParticleFlowRecHitHCAL.HCAL_Calib = True
+hltParticleFlowRecHitHCAL.HF_Calib = True
+hltParticleFlow.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
+hltParticleFlow.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
 #
 
