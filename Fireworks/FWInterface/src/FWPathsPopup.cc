@@ -1,8 +1,10 @@
 #include "Fireworks/FWInterface/src/FWPathsPopup.h"
 #include "Fireworks/FWInterface/src/FWPSetTableManager.h"
+#include "Fireworks/FWInterface/src/FWPSetCellEditor.h"
 
 #include "Fireworks/FWInterface/interface/FWFFLooper.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
+
 
 #include "Fireworks/Core/src/FWDialogBuilder.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -12,12 +14,16 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
+#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
+
+
 #include "TGLabel.h"
-#include "TGTextEntry.h"
 #include "KeySymbols.h"
 
 void
@@ -53,7 +59,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
           .addTable(m_psTable, &m_tableWidget).expand(true, true)
           .addTextButton("Apply changes and reload", &m_apply);
 
-   TGTextEntry *editor = new TGTextEntry(m_tableWidget->body(), "");
+   FWPSetCellEditor *editor = new  FWPSetCellEditor(m_tableWidget->body(), "");
    editor->SetBackgroundColor(gVirtualX->GetPixel(kYellow-7));
    m_psTable->setCellValueEditor(editor);
    editor->Connect("ReturnPressed()", "FWPathsPopup", this, "applyEditor()");
@@ -234,10 +240,6 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
    m_tableWidget->body()->DoRedraw();
 }
 
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-using namespace boost::python;
 
 
 /** Modifies the module and asks the looper to reload the event.

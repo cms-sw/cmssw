@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:50 CET 2011
-// $Id: FWPSetTableManager.h,v 1.1 2011/02/28 18:47:35 amraktad Exp $
+// $Id: FWPSetTableManager.h,v 1.2 2011/02/28 19:24:05 amraktad Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Fireworks/TableWidget/interface/FWTextTreeCellRenderer.h"
 
-class TGTextEntry;
+class FWPSetCellEditor;
 namespace edm 
 {
    class ScheduleInfo;
@@ -167,7 +167,7 @@ private:
    template <class T> void createScalarString(PSetData &data, T v);
    template <typename T> void createVectorString(FWPSetTableManager::PSetData &data, const T &v, bool quotes);
 
-   void setCellValueEditor(TGTextEntry *editor);
+   void setCellValueEditor(FWPSetCellEditor *editor);
 
    void handleEntry(const edm::Entry &entry,const std::string &key);
    void handlePSetEntry(const edm::ParameterSetEntry& entry, const std::string& key);
@@ -184,7 +184,7 @@ private:
    int                             m_selectedRow;
    int                             m_selectedColumn;
    std::string                     m_filter;
-   TGTextEntry                    *m_editor;
+   FWPSetCellEditor               *m_editor;
    std::vector<std::string>        m_availablePaths;
 
    TGGC*  m_greenGC;

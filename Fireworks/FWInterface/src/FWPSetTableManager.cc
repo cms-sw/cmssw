@@ -8,25 +8,21 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.1 2011/02/28 18:47:35 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.2 2011/02/28 19:24:05 amraktad Exp $
 //
 
-#include <iostream>
-#include <sstream>
-#include <cstring>
 #include <map>
 
 #include "Fireworks/FWInterface/src/FWPSetTableManager.h"
+#include "Fireworks/FWInterface/src/FWPSetCellEditor.h"
 #include "Fireworks/TableWidget/src/FWTabularWidget.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/Parse.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "TGTextEntry.h"
 
 
 // FIXME: copied from Entry.cc should find a way to use the original
@@ -81,218 +77,6 @@ TypeTrans::TypeTrans():table_(255) {
 static TypeTrans const sTypeTranslations;
 
 
-//==============================================================================
-//==============================================================================
-//================== ENTRY EDITOR ==============================================
-//==============================================================================
-//==============================================================================
-
-
-template <class T>
-bool editNumericParameter(edm::ParameterSet &ps, bool tracked, 
-                          const std::string &label, 
-                          const std::string &value) 
-{
-   std::stringstream  str(value);
-   T v;
-   str >> v;
-   bool fail = str.fail();
-   if (tracked)
-      ps.addParameter(label, v);
-   else
-      ps.addUntrackedParameter(label, v);
-         
-   return fail;
-}
-
-void editStringParameter(edm::ParameterSet &ps, bool tracked,
-                         const std::string &label,
-                         const std::string &value)
-{
-   if (tracked)
-      ps.addParameter(label, value);
-   else
-      ps.addUntrackedParameter(label, value);
-}
-
-void editFileInPath(edm::ParameterSet &ps, bool tracked,
-                    const std::string &label,
-                    const std::string &value)
-{
-   if (tracked)
-      ps.addParameter(label, edm::FileInPath(value));
-   else
-      ps.addUntrackedParameter(label, edm::FileInPath(value));
-}
-
-bool editVInputTag(edm::ParameterSet &ps, bool tracked,
-                   const std::string &label,
-                   const std::string &value)
-{ 
-   std::vector<edm::InputTag> inputTags;
-   std::stringstream iss(value);
-   std::string vitem;
-   bool fail = false;
-   size_t fst, lst;
-
-   while (getline(iss, vitem, ','))
-   {
-      fst = vitem.find("[");
-      lst = vitem.find("]");
-        
-      if ( fst != std::string::npos )
-         vitem.erase(fst,1);
-      if ( lst != std::string::npos )
-         vitem.erase(lst,1);
-        
-      std::vector<std::string> tokens = edm::tokenize(vitem, ":");
-      size_t nwords = tokens.size();
-        
-      if ( nwords > 3 )
-      {
-         fail = true;
-         return fail;
-      }
-      else 
-      {
-         std::string it_label("");
-         std::string it_instance("");
-         std::string it_process("");
-
-         if ( nwords > 0 ) 
-            it_label = tokens[0];
-         if ( nwords > 1 ) 
-            it_instance = tokens[1];
-         if ( nwords > 2 ) 
-            it_process  = tokens[2];
-        
-         inputTags.push_back(edm::InputTag(it_label, it_instance, it_process));
-      }
-   }
-     
-   if (tracked)
-      ps.addParameter(label, inputTags);
-   else
-      ps.addUntrackedParameter(label, inputTags);
-
-   return fail;
-}
-  
-
-bool editInputTag(edm::ParameterSet &ps, bool tracked,
-                  const std::string &label,
-                  const std::string &value)
-{
-   std::vector<std::string> tokens = edm::tokenize(value, ":");
-   size_t nwords = tokens.size();
-     
-   bool fail;
-
-   if ( nwords > 3 ) 
-   {
-      fail = true;
-   }
-   else
-   {           
-      std::string it_label("");
-      std::string it_instance("");
-      std::string it_process("");
-
-      if ( nwords > 0 ) 
-         it_label = tokens[0];
-      if ( nwords > 1 ) 
-         it_instance = tokens[1];
-      if ( nwords > 2 ) 
-         it_process  = tokens[2];
-
-      if ( tracked )
-         ps.addParameter(label, edm::InputTag(it_label, it_instance, it_process));
-      else
-         ps.addUntrackedParameter(label, edm::InputTag(it_label, it_instance, it_process));
-            
-      fail = false;
-   }
-           
-   return fail;
-}
-
-bool editESInputTag(edm::ParameterSet &ps, bool tracked,
-                    const std::string &label,
-                    const std::string &value)
-{
-   std::vector<std::string> tokens = edm::tokenize(value, ":");
-   size_t nwords = tokens.size();
-      
-   bool fail;
-  
-   if ( nwords > 2 )
-   {
-      fail = true;    
-   }
-   else
-   {             
-      std::string it_module("");
-      std::string it_data("");
-
-      if ( nwords > 0 ) 
-         it_module = tokens[0];
-      if ( nwords > 1 ) 
-         it_data = tokens[1];
-
-      if ( tracked )
-         ps.addParameter(label, edm::ESInputTag(it_module, it_data));
-      else
-         ps.addUntrackedParameter(label, edm::ESInputTag(it_module, it_data));
-        
-      fail = false;
-   }
-
-   return fail;
-}
-  
-template <typename T>
-void editVectorParameter(edm::ParameterSet &ps, bool tracked,
-                         const std::string &label,
-                         const std::string &value)
-{
-   std::vector<T> valueVector;
-      
-   std::stringstream iss(value);
-   std::string vitem;
-      
-   size_t fst, lst;
-
-   while (getline(iss, vitem, ','))
-   {
-      fst = vitem.find("[");
-      lst = vitem.find("]");
-        
-      if ( fst != std::string::npos )
-         vitem.erase(fst,1);
-      if ( lst != std::string::npos )
-         vitem.erase(lst,1);
-        
-      std::stringstream oss(vitem);
-      T on;
-      oss >> on;
-
-      valueVector.push_back(on);
-   }
-     
-   if (tracked)
-      ps.addParameter(label, valueVector);
-   else
-      ps.addUntrackedParameter(label, valueVector);
-}
-  
-
-//==============================================================================
-//==============================================================================
-//==============================================================================
-//==============================================================================
-//==============================================================================
-//==============================================================================
-
 void FWPSetTableManager::handlePSetEntry(const edm::ParameterSetEntry& entry, const std::string& key)
 {
    FWPSetTableManager::PSetData data;
@@ -314,7 +98,7 @@ void FWPSetTableManager::handlePSetEntry(const edm::ParameterSetEntry& entry, co
 
 void FWPSetTableManager::handleVPSetEntry(const edm::VParameterSetEntry& entry, const std::string& key)                     
 {
-   FWPSetTableManager::PSetData data;
+   PSetData data;
    data.label = key;
    data.tracked = entry.isTracked();
    data.level = m_parentStack.size();
@@ -399,7 +183,7 @@ void FWPSetTableManager::sortWithFilter(const char *filter)
    dataChanged();
 }
 
-void FWPSetTableManager::setCellValueEditor(TGTextEntry *editor)
+void FWPSetTableManager::setCellValueEditor(FWPSetCellEditor *editor)
 {
    m_editor = editor;
    m_renderer.setCellEditor(editor);
@@ -841,7 +625,7 @@ void FWPSetTableManager::update(std::vector<PathUpdate> &pathUpdates)
       std::map<std::string, size_t>::const_iterator index = m_pathIndex.find(update.pathName);
       if (index == m_pathIndex.end())
       {
-         std::cerr << "Path " << update.pathName << "cannot be found!" << std::endl;
+         fwLog(fwlog::kError) << "Path " << update.pathName << "cannot be found!" << std::endl;
          continue;
       }
       PathInfo &pathInfo = m_paths[index->second];
@@ -1116,61 +900,7 @@ bool FWPSetTableManager::applyEditor()
    PSetData &parent = m_entries[data.parent];
    try
    {
-      switch (data.type)
-      {
-         case 'I':
-            editNumericParameter<int32_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'U':
-            editNumericParameter<uint32_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'D':
-            editNumericParameter<double>(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'L':
-            editNumericParameter<long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'X':
-            editNumericParameter<unsigned long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'S':
-            editStringParameter(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'i':
-            editVectorParameter<int32_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'u':
-            editVectorParameter<uint32_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'l':
-            editVectorParameter<long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'x':
-            editVectorParameter<unsigned long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'd':
-            editVectorParameter<double>(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 's':
-            editVectorParameter<std::string>(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break; 
-         case 't':
-            editInputTag(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'g':
-            editESInputTag(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'v':
-            editVInputTag(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         case 'F':
-            editFileInPath(parent.pset, data.tracked, data.label, m_editor->GetText());
-            break;
-         default:
-            std::cerr << "unsupported parameter" << std::endl;
-            m_editor->UnmapWindow();
-            return false;
-      }
+      m_editor->apply(data, parent);
       data.value = m_editor->GetText();
       m_modules[data.module].dirty = true;
       m_editor->UnmapWindow();
