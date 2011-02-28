@@ -3,7 +3,6 @@
 
 #include "TGFrame.h"
 #include <string>
-#include <map>
 
 namespace edm 
 {
@@ -11,10 +10,6 @@ namespace edm
    class ModuleDescription;
    class Event;
    class EventSetup;
-   class ParameterSet;
-   class Entry;
-   class ParameterSetEntry;
-   class VParameterSetEntry;
 }
 
 class FWFFLooper;
@@ -56,7 +51,7 @@ private:
    bool                     m_hasChanges;
 
    TGLabel                  *m_moduleLabel;   
-  TGLabel                  *m_moduleName;
+   TGLabel                   *m_moduleName;
    
    TGTextButton             *m_apply;
    FWPSetTableManager       *m_psTable;
