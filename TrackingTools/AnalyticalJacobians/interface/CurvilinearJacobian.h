@@ -9,7 +9,7 @@
 class CurvilinearJacobian {
 public:
 
-  CurvilinearJacobian() {}
+  CurvilinearJacobian()  : theJacobian(AlgebraicMatrixID()){}
 
   virtual ~CurvilinearJacobian() {}
 

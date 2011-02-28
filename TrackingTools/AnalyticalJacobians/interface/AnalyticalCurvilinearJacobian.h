@@ -21,7 +21,7 @@ class GlobalTrajectoryParameters;
 class AnalyticalCurvilinearJacobian : public CurvilinearJacobian {
  public:
   /// default constructor (for tests)
-  AnalyticalCurvilinearJacobian() : theJacobian(AlgebraicMatrixID()) {}
+  AnalyticalCurvilinearJacobian()  {}
 
   /// get Field at starting state (internally)
   AnalyticalCurvilinearJacobian(const GlobalTrajectoryParameters& globalParameters,

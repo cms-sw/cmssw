@@ -5,7 +5,7 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
 (const GlobalTrajectoryParameters& globalParameters,
  const GlobalPoint& x, 
  const GlobalVector& p, 
- const double& s) : theJacobian(AlgebraicMatrixID()) 
+ const double& s)
 {
   //
   // helix: calculate full jacobian
@@ -29,7 +29,7 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
  const GlobalPoint& x, 
  const GlobalVector& p, 
  const GlobalVector& h, // h is the magnetic Field in Inverse GeV
- const double& s) : theJacobian(AlgebraicMatrixID()) 
+ const double& s)
 {
   //
   // helix: calculate full jacobian
