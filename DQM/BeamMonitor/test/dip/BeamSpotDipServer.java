@@ -22,7 +22,7 @@ implements Runnable,DipPublicationErrorHandler
   public static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
   public static String sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt";
   public static String sourceFile1 = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults_TkStatus.txt";
-  public static int[] timeoutLS = {5,10}; //LumiSections
+  public static int[] timeoutLS = {1,2}; //LumiSections
 
   // Static variables
   public final static String[] qualities = {"Uncertain","Bad","Good"};
@@ -31,7 +31,7 @@ implements Runnable,DipPublicationErrorHandler
   public final static int rad2urad = 1000000;
   public final static int cm2um = 10000;
   public final static int cm2mm = 10;
-  public final static int intLS = 5; //For CMS scaler
+  public final static int intLS = 1; //For CMS scaler
 
   // Coordinate transformation from CMS RF to LHC RF (ref. CMS-TK-UR-0059)
   public final static double[] trans = {-0.09,-0.11,-0.12}; //cm
