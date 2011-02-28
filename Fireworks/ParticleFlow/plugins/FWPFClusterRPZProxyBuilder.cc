@@ -1,25 +1,17 @@
 #include "FWPFClusterRPZProxyBuilder.h"
 
-//-----------------------------------------------------------------------------
-// FWPFClusterRPZProxyBuilder
-//-----------------------------------------------------------------------------
+//______________________________________________________________________________
+FWPFClusterRPZProxyBuilder::FWPFClusterRPZProxyBuilder()
+{
+   m_pfUtils = new FWPFUtils();
+   m_clusterUtils = new FWPFClusterRPZUtils();
+}
 
 //______________________________________________________________________________
-float
-FWPFClusterRPZProxyBuilder::calculateEt( const reco::PFCluster &cluster, float e )
+FWPFClusterRPZProxyBuilder::~FWPFClusterRPZProxyBuilder()
 {
-   float et = 0.f;
-   TEveVector vec;
-
-   vec.fX = cluster.x();
-   vec.fY = cluster.y();
-   vec.fZ = cluster.z();
-
-   vec.Normalize();
-   vec *= e;
-   et = vec.Perp();
-
-   return et;
+   delete m_pfUtils;
+   delete m_clusterUtils;
 }
 
 //______________________________________________________________________________
@@ -43,33 +35,20 @@ FWPFClusterRPZProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::E
 
 //______________________________________________________________________________
 void
-FWPFClusterRPZProxyBuilder::sharedBuild( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc, float R )
+FWPFClusterRPZProxyBuilder::sharedBuild( const reco::PFCluster &iData, unsigned int iIndex, 
+                                         TEveElement &oItemHolder, const FWViewContext *vc, float r )
 {
-   float et, energy, phi;
-   float size = 1.f;       // Stored in scale
-   float ecalR = R;
-   TEveVector vec;
-
+   /* Handles RhoPhi view */
+   TEveScalableStraightLineSet *ls;
+   const FWDisplayProperties &dp = item()->defaultDisplayProperties();
+   float energy, et;
+   
    energy = iData.energy();
-   et = calculateEt( iData, energy );
+   et = m_clusterUtils->calculateEt( iData, energy );
    context().voteMaxEtAndEnergy( et, energy );
 
-   vec.fX = iData.x();
-   vec.fY = iData.y();
-   vec.fZ = iData.z();
-   phi = vec.Phi();
-
-   const FWDisplayProperties &dp = item()->defaultDisplayProperties();
-   FWViewEnergyScale *caloScale = vc->getEnergyScale();
-
-   TEveScalableStraightLineSet *ls = new TEveScalableStraightLineSet( "rhophiCluster" );
-   ls->SetLineWidth( 4 );
+   ls = m_clusterUtils->buildRhoPhiClusterLineSet( iData, vc, energy, et, r );
    ls->SetLineColor( dp.color() );
-   
-   ls->SetScaleCenter( ecalR * cos( phi ), ecalR * sin( phi ), 0 );
-   ls->AddLine( ecalR * cos( phi ), ecalR * sin( phi ), 0, ( ecalR + size ) * cos( phi ), ( ecalR + size ) * sin( phi ), 0 );
-   ls->SetScale( caloScale->getScaleFactor3D() * ( caloScale->getPlotEt() ? et : energy ) );
-
    m_clusters.push_back( ScalableLines( ls, et, energy, vc ) );
    setupAddElement( ls, &oItemHolder );
 }
@@ -79,59 +58,23 @@ void
 FWPFClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, 
                                                 TEveElement &oItemHolder, const FWViewContext *vc )
 {
-   const FWEventItem::ModelInfo &info = item()->modelInfo( iIndex );
-   if( info.displayProperties().isVisible() )
-   {
-      float et, energy;
-      float size = 1.f;       // Stored in scale
-      //float ecalR = m_pfUtils->getCaloR1();
-      //float ecalZ = m_pfUtils->getCaloZ1();
-      float ecalR = context().caloR1();
-      float ecalZ = context().caloZ1() / tan( context().caloTransAngle() );
-      double theta, phi;
-      double r(0);
-      TEveVector vec;
+   /* Handles RhoZ view */
+   float energy, et;
+   float ecalR = context().caloR1();
+   float ecalZ = context().caloZ1();
+   const FWDisplayProperties &dp = item()->defaultDisplayProperties();
+   TEveScalableStraightLineSet *ls;
 
-      energy = iData.energy();
-      et = calculateEt( iData, energy );
-      context().voteMaxEtAndEnergy( et, energy );
+   energy = iData.energy();
+   et = m_clusterUtils->calculateEt( iData, energy );
+   context().voteMaxEtAndEnergy( et, energy );
 
-      vec.fX = iData.x();
-      vec.fY = iData.y();
-      vec.fZ = iData.z();
-      phi = vec.Phi();
-      theta =  vec.Theta();
+   ls = m_clusterUtils->buildRhoZClusterLineSet( iData, vc, context().caloTransAngle(), energy, et, ecalR, ecalZ );
+   ls->SetLineColor( dp.color() );
 
-      const FWDisplayProperties &dp = item()->defaultDisplayProperties();
-      FWViewEnergyScale *caloScale = vc->getEnergyScale();
-
-      TEveScalableStraightLineSet *ls = new TEveScalableStraightLineSet( "rhophiCluster" );
-      ls->SetLineWidth( 4 );
-      ls->SetLineColor( dp.color() );
-
-      static const float_t offr = 4;
-
-      if ( theta < context().caloTransAngle() || TMath::Pi() - theta < context().caloTransAngle())
-      {
-         ecalZ = context().caloZ2() + offr / tan( context().caloTransAngle() );
-         r = ecalZ / fabs( cos( theta ) );
-      }
-      else
-         r = ecalR / sin( theta );
-
-      ls->SetScaleCenter( 0., ( phi > 0 ? r * fabs( sin( theta ) ) : -r * fabs( sin( theta ) ) ), r * cos( theta ) );
-      ls->AddLine( 0., ( phi > 0 ? r * fabs( sin( theta ) ) : -r * fabs( sin( theta ) ) ), r * cos( theta ),
-                   0., ( phi > 0 ? ( r + size ) * fabs( sin ( theta ) ) : -( r + size ) * fabs( sin( theta) ) ), ( r + size ) * cos( theta ) );
-      ls->SetScale( caloScale->getScaleFactor3D() * ( caloScale->getPlotEt() ? et : energy ) );
-
-      m_clusters.push_back( ScalableLines( ls, et, energy, vc ) );
-      setupAddElement( ls, &oItemHolder );
-   }
+   m_clusters.push_back( ScalableLines( ls, et, energy, vc ) );
+   setupAddElement( ls, &oItemHolder ); 
 }
-
-//-----------------------------------------------------------------------------
-// FWPFEcalClusterRPZProxyBuilder
-//-----------------------------------------------------------------------------
 
 //______________________________________________________________________________
 void
@@ -144,13 +87,9 @@ FWPFEcalClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned in
       if( layer < 0 )
          sharedBuild( iData, iIndex, oItemHolder, vc, m_pfUtils->getCaloR1() );
       else
-         sharedBuild( iData, iIndex, oItemHolder, vc, m_pfUtils->getCaloZ2() );
+         sharedBuild( iData, iIndex, oItemHolder, vc, m_pfUtils->getCaloR2() );
    }
 }
-
-//-----------------------------------------------------------------------------
-// FWPFHcalClusterRPZProxyBuilder
-//-----------------------------------------------------------------------------
 
 //______________________________________________________________________________
 void

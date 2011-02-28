@@ -21,7 +21,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "Fireworks/ParticleFlow/plugins/FWPFLegoCandidate.h"
-#include "Fireworks/Core/interface/FWProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/Context.h"
 
@@ -29,7 +29,7 @@
 // FWPFClusterLegoProxyBuilder
 //-----------------------------------------------------------------------------
 
-class FWPFClusterLegoProxyBuilder : public FWProxyBuilderTemplate<reco::PFCluster>
+class FWPFClusterLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFCluster>
 {
     public:
       static std::string typeOfBuilder() { return "simple#"; }
@@ -48,7 +48,7 @@ class FWPFClusterLegoProxyBuilder : public FWProxyBuilderTemplate<reco::PFCluste
 
    protected:
    // --------------------- Member Functions --------------------------
-      void  sharedBuild( const reco::PFCluster &iData, TEveCompound *itemHolder, const FWViewContext *vc );
+      void sharedBuild( const reco::PFCluster&, TEveElement&, const FWViewContext* );
       float calculateEt( const reco::PFCluster &cluster, float E );
 
    private:
@@ -71,7 +71,7 @@ class FWPFEcalClusterLegoProxyBuilder : public FWPFClusterLegoProxyBuilder
       virtual ~FWPFEcalClusterLegoProxyBuilder(){}
 
    // --------------------- Member Functions --------------------------
-      virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
+      virtual void build( const reco::PFCluster&, unsigned int, TEveElement&, const FWViewContext* );
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -93,7 +93,7 @@ class FWPFHcalClusterLegoProxyBuilder : public FWPFClusterLegoProxyBuilder
       virtual ~FWPFHcalClusterLegoProxyBuilder(){}
 
    // --------------------- Member Functions --------------------------
-      virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
+      virtual void build( const reco::PFCluster&, unsigned int, TEveElement&, const FWViewContext* );
 
       REGISTER_PROXYBUILDER_METHODS();
 

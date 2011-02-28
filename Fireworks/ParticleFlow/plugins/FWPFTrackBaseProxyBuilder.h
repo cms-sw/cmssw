@@ -19,10 +19,9 @@
 // User include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Tracks/interface/estimate_field.h"
-#include "Fireworks/ParticleFlow/interface/FWPFUtils.h"
+#include "Fireworks/ParticleFlow/interface/FWPFTrackUtils.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -33,14 +32,14 @@ class FWPFTrackBaseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Trac
 {
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
-      FWPFTrackBaseProxyBuilder(){ m_trackUtils = new FWPFUtils(); m_trackUtils->initPropagator(); }
+      FWPFTrackBaseProxyBuilder(){ m_trackUtils = new FWPFTrackUtils(); }
       virtual ~FWPFTrackBaseProxyBuilder(){ delete m_trackUtils; }
 
       REGISTER_PROXYBUILDER_METHODS();
 
    protected:
    // ----------------------- Data Members ----------------------------
-      FWPFUtils *m_trackUtils;
+      FWPFTrackUtils *m_trackUtils;
 
    private:
       FWPFTrackBaseProxyBuilder( const FWPFTrackBaseProxyBuilder& );

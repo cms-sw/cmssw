@@ -19,9 +19,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
-#include "Fireworks/ParticleFlow/interface/FWLegoEvePFCandidate.h"
-
+#include "Fireworks/ParticleFlow/plugins/FWPFLegoCandidate.h"
 #include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"
 
 
@@ -46,7 +44,7 @@ class FWPFPatJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
       const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&);  //stop default
 
    // --------------------- Member Functions --------------------------
-      void build(const T&, unsigned int, TEveElement&, const FWViewContext*);
+      void build( const T&, unsigned int, TEveElement&, const FWViewContext* );
 
 };
 #endif

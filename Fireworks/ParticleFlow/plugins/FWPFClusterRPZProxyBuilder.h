@@ -12,16 +12,11 @@
 // Original Author:  Simon Harris
 //
 
-// System include files
-#include "TEveScalableStraightLineSet.h"
-
 // User include files
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWViewEnergyScale.h"
-#include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/ParticleFlow/interface/FWPFUtils.h"
+#include "Fireworks/ParticleFlow/interface/FWPFClusterRPZUtils.h"
 
 //-----------------------------------------------------------------------------
 // FWPFClusterRPZProxyBuilder
@@ -31,8 +26,8 @@ class FWPFClusterRPZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFC
 {
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
-      FWPFClusterRPZProxyBuilder(){ m_pfUtils = new FWPFUtils(); }
-      virtual ~FWPFClusterRPZProxyBuilder(){ delete m_pfUtils; }
+      FWPFClusterRPZProxyBuilder();
+      virtual ~FWPFClusterRPZProxyBuilder();
 
    // --------------------- Member Functions --------------------------
       virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
@@ -44,21 +39,13 @@ class FWPFClusterRPZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFC
 
    protected:
    // ----------------------- Data Members ----------------------------
-      struct ScalableLines
-      {
-         ScalableLines( TEveScalableStraightLineSet *ls, float et, float e, const FWViewContext *vc ) :
-         m_ls(ls), m_et(et), m_energy(e), m_vc(vc){}
-
-         TEveScalableStraightLineSet *m_ls;
-         float m_et, m_energy;
-         const FWViewContext *m_vc;
-      };
       std::vector<ScalableLines> m_clusters;
-      FWPFUtils *m_pfUtils;
+      FWPFUtils                  *m_pfUtils;
+      FWPFClusterRPZUtils        *m_clusterUtils;
 
    // --------------------- Member Functions --------------------------
-      float calculateEt( const reco::PFCluster &cluster, float E );
-      virtual void sharedBuild( const reco::PFCluster &cluster, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc, float radius );
+      virtual void sharedBuild( const reco::PFCluster &cluster, unsigned int iIndex, TEveElement &oItemHolder, 
+                                const FWViewContext *vc, float radius );
 
    private:
       FWPFClusterRPZProxyBuilder( const FWPFClusterRPZProxyBuilder& );                    // Disable default
