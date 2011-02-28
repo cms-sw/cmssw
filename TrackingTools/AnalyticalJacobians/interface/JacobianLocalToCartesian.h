@@ -25,9 +25,7 @@ class JacobianLocalToCartesian {
   /** Access to Jacobian.
    */
   
-  const AlgebraicMatrix65& jacobian() const;
-  const AlgebraicMatrix jacobian_old() const;
-
+  const AlgebraicMatrix65& jacobian() const { return theJacobian;}
 
  private:
   
