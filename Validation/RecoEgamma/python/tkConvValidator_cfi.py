@@ -43,8 +43,16 @@ tkConversionValidation = cms.EDAnalyzer("TkConvValidator",
     convProducer = cms.string('allConversions'),
     conversionCollection = cms.string(''),
     trackProducer = cms.InputTag("generalTracks"),
+    dqmpath = cms.string('EgammaV/ConversionValidator/'),
     Verbosity = cms.untracked.int32(0),
-    mergedTracks =  cms.bool(True),
+    generalTracksOnly = cms.bool(True),
+    arbitratedMerged =  cms.bool(False),
+    arbitratedEcalSeeded = cms.bool(False),
+    ecalalgotracks = cms.bool(False),
+    highPurity = cms.bool(True),
+    minProb = cms.double(-99.9),
+    maxHitsBeforeVtx = cms.uint32(999),
+    minLxy = cms.double(-9999.9),
 
     minPhoPtForEffic = cms.double(0.3),#when hardcoded it was 2.5
     maxPhoEtaForEffic = cms.double(2.5),
@@ -95,9 +103,9 @@ tkConversionValidation = cms.EDAnalyzer("TkConvValidator",
     dPhiMin = cms.double(-0.05),
     dPhiMax = cms.double(0.05),
 #
-    rBin = cms.int32(40), 
+    rBin = cms.int32(60), 
     rMin = cms.double(0.),
-    rMax = cms.double(80),
+    rMax = cms.double(120),
 #
     zBin = cms.int32(100),
     zMin = cms.double(-220.),
@@ -118,7 +126,7 @@ tkConversionValidation = cms.EDAnalyzer("TkConvValidator",
     zBinForXray = cms.int32(100),
     zBin2ForXray = cms.int32(560),
     zMinForXray = cms.double(0.),
-    zMaxForXray = cms.double(280.)                               
+    zMaxForXray = cms.double(280.),                               
                                   
 )
 

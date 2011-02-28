@@ -21,6 +21,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+
 //
 #include <map>
 #include <vector>
@@ -37,8 +38,8 @@ class SimTrack;
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/11/04 19:18:37 $ 
- **  $Revision: 1.3 $
+ **  $Date: 2010/11/18 15:12:36 $ 
+ **  $Revision: 1.4 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -91,6 +92,8 @@ class TkConvValidator : public edm::EDAnalyzer
   std::string conversionCollection_;
   std::string conversionTrackProducer_;
 
+  std::string dqmpath_;
+
   edm::InputTag label_tp_;
 
   PhotonMCTruthFinder*  thePhotonMCTruthFinder_;
@@ -115,7 +118,14 @@ class TkConvValidator : public edm::EDAnalyzer
   bool dCotCutOn_;
   double dCotCutValue_;
   double dCotHardCutValue_;
-  bool mergedTracks_;
+  bool generalTracksOnly_;
+  bool arbitratedMerged_;
+  bool arbitratedEcalSeeded_;
+  bool ecalalgotracks_;
+  bool highPurity_;
+  double minProb_;
+  uint maxHitsBeforeVtx_;
+  double minLxy_;
   
 
   /// global variable for the MC photon
@@ -174,6 +184,12 @@ class TkConvValidator : public edm::EDAnalyzer
   MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0_[5];
   MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0005_[5];
   MonitorElement*   h_SimConvTwoMTracksAndVtxPGT01_[5];
+  // Numerator for double-counting quantification
+  MonitorElement*   h_SimRecConvOneTracks_[5];
+  MonitorElement*   h_SimRecConvOneMTracks_[5];
+  MonitorElement*   h_SimRecConvTwoTracks_[5];
+  MonitorElement*   h_SimRecConvTwoMTracks_[5];
+  
   // Denominators for conversion fake rate
   MonitorElement*   h_RecoConvTwoTracks_[5];
   // Numerators for conversion fake rate
@@ -269,6 +285,18 @@ class TkConvValidator : public edm::EDAnalyzer
   MonitorElement* h2_dzPVVsR_;
   MonitorElement* p_dzPVVsR_;
 
+  MonitorElement* h_lxybs_[3][3];
+  MonitorElement* h_maxNHitsBeforeVtx_[3][3];
+  MonitorElement* h_leadNHitsBeforeVtx_[3][3];
+  MonitorElement* h_trailNHitsBeforeVtx_[3][3]; 
+  MonitorElement* h_sumNHitsBeforeVtx_[3][3];  
+  MonitorElement* h_deltaExpectedHitsInner_[3][3];  
+  MonitorElement* h_leadExpectedHitsInner_[3][3];      
+  MonitorElement* h_maxDlClosestHitToVtx_[3][3];
+  MonitorElement* h_maxDlClosestHitToVtxSig_[3][3];
+  MonitorElement* h_nSharedHits_[3][3];
+
+
 
   //////////// info per track
   MonitorElement* nHits_[3]; 
@@ -294,6 +322,10 @@ class TkConvValidator : public edm::EDAnalyzer
   MonitorElement* h_match_;
 
   MonitorElement* p2_effRZ_; 
+
+  MonitorElement* h_nHitsBeforeVtx_[3];
+  MonitorElement* h_dlClosestHitToVtx_[3];
+  MonitorElement* h_dlClosestHitToVtxSig_[3];
 
 };
 
