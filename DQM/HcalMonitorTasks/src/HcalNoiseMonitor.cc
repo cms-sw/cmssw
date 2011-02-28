@@ -204,7 +204,7 @@ void HcalNoiseMonitor::setup()
 void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup)
 {
    edm::Handle<HBHEDigiCollection> hHBHEDigis;
-   iEvent.getByType(hHBHEDigis);
+   iEvent.getByLabel(edm::InputTag("hcalDigis"),hHBHEDigis);
 
    edm::ESHandle<HcalDbService> hConditions;
    iSetup.get<HcalDbRecord>().get(hConditions);
@@ -213,7 +213,7 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
    iEvent.getByLabel(edm::InputTag("hbhereco"), hRecHits);
 
    edm::Handle<reco::HcalNoiseRBXCollection> hRBXCollection;
-   iEvent.getByType(hRBXCollection);
+   iEvent.getByLabel(edm::InputTag("hcalnoise"),hRBXCollection);
 
    HcalBaseDQMonitor::analyze(iEvent, iSetup);
 
