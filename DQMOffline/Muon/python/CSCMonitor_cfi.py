@@ -6,6 +6,8 @@ cscMonitor = cms.EDAnalyzer("CSCOfflineMonitor",
     cscRecHitTag = cms.InputTag("csc2DRecHits"),
     saveHistos = cms.bool(False),
     wireDigiTag = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
+    alctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCALCTDigi"),
+    clctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCCLCTDigi"),
     cscSegTag = cms.InputTag("cscSegments")
 )
 

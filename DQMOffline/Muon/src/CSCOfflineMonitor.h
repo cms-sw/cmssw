@@ -27,6 +27,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Utilities/interface/InputTag.h>
 
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
@@ -53,6 +57,20 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
+#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
+#include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
+
 class CSCOfflineMonitor : public edm::EDAnalyzer {
 public:
   /// Constructor
@@ -63,8 +81,10 @@ public:
 
   // Operations
   void beginJob(void);
-  void endJob(void); 
- 
+  void finalize(); 
+  virtual void endRun( edm::Run const &, edm::EventSetup const & ) ; // call finialize() 
+  virtual void endJob() ; // call finalize()
+
 
   /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
@@ -74,9 +94,13 @@ protected:
 
 private: 
 
+  bool finalizedHistograms_;
+
   edm::ParameterSet param;
   edm::InputTag stripDigiTag_;
   edm::InputTag wireDigiTag_;
+  edm::InputTag alctDigiTag_;
+  edm::InputTag clctDigiTag_;
   edm::InputTag cscRecHitTag_;
   edm::InputTag cscSegTag_; 
 
@@ -85,7 +109,8 @@ private:
 
   // modules:
   void  doOccupancies(edm::Handle<CSCStripDigiCollection> strips, edm::Handle<CSCWireDigiCollection> wires,
-                      edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
+                      edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
+		      edm::Handle<CSCCLCTDigiCollection> clcts);
   void  doStripDigis(edm::Handle<CSCStripDigiCollection> strips);
   void  doWireDigis(edm::Handle<CSCWireDigiCollection> wires);
   void  doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,edm::Handle<CSCStripDigiCollection> strips,
@@ -96,6 +121,8 @@ private:
   void  doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm::Handle<CSCStripDigiCollection> strips,
                        edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
                        edm::ESHandle<CSCGeometry> cscGeom);
+  void  doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, edm::Handle<CSCCLCTDigiCollection> clcts, const edm::Event & event, const edm::EventSetup& eventSetup);
+
 
   // used by modules:
   float      fitX(CLHEP::HepMatrix sp, CLHEP::HepMatrix ep);
@@ -119,7 +146,9 @@ private:
   bool withinSensitiveRegion(LocalPoint localPos, const std::vector<float> layerBounds,
                              int station, int ring, float shiftFromEdge, float shiftFromDeadZone);
 
-
+  // for BX monitor plots
+  void harvestChamberMeans(MonitorElement* meMean1D, MonitorElement *meMean2D, TH2F *hNum, MonitorElement *meDenom);
+  void normalize(MonitorElement* me);
 
   // DQM
   DQMStore* dbe;
@@ -139,6 +168,7 @@ private:
   std::vector<MonitorElement*> hRHGlobal;
   std::vector<MonitorElement*> hRHSumQ;
   std::vector<MonitorElement*> hRHTiming;
+  std::vector<MonitorElement*> hRHTimingAnode;
   std::vector<MonitorElement*> hRHRatioQ;
   std::vector<MonitorElement*> hRHstpos;
   std::vector<MonitorElement*> hRHsterr;
@@ -153,13 +183,19 @@ private:
   std::vector<MonitorElement*> hSChiSqProb;
   MonitorElement *hSGlobalTheta;
   MonitorElement *hSGlobalPhi;
+  MonitorElement *hSTimeCathode;
+  MonitorElement *hSTimeCombined;
+  MonitorElement *hSTimeVsZ;
+  MonitorElement *hSTimeVsTOF;
 
   // Resolution
   std::vector<MonitorElement*> hSResid;
 
   // occupancy histos
   MonitorElement *hOWires;
+  MonitorElement *hOWiresAndCLCT;
   MonitorElement *hOStrips;
+  MonitorElement *hOStripsAndWiresAndCLCT;
   MonitorElement *hORecHits;
   MonitorElement *hOSegments;
   MonitorElement *hOWireSerial;
@@ -181,9 +217,31 @@ private:
   MonitorElement *hRHEff2;
   MonitorElement *hStripEff2;
   MonitorElement *hWireEff2;
+  MonitorElement *hStripReadoutEff2;
   TH2F *hEffDenominator;
   MonitorElement *hSensitiveAreaEvt;
 
+  // BX monitor
+  MonitorElement *hALCTgetBX;
+  MonitorElement *hALCTgetBXSerial;
+  MonitorElement *hALCTgetBXChamberMeans;
+  MonitorElement *hALCTgetBX2DMeans;
+  MonitorElement *hALCTgetBX2Denominator;
+  TH2F *hALCTgetBX2DNumerator;
+
+  MonitorElement *hALCTMatch;
+  MonitorElement *hALCTMatchSerial;
+  MonitorElement *hALCTMatchChamberMeans;
+  MonitorElement *hALCTMatch2DMeans;
+  MonitorElement *hALCTMatch2Denominator;
+  TH2F *hALCTMatch2DNumerator;
+  
+  MonitorElement *hCLCTL1A;
+  MonitorElement *hCLCTL1ASerial;
+  MonitorElement *hCLCTL1AChamberMeans;
+  MonitorElement *hCLCTL1A2DMeans;
+  MonitorElement *hCLCTL1A2Denominator;
+  TH2F *hCLCTL1A2DNumerator;
 
 
 };

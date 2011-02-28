@@ -20,14 +20,18 @@ CSCOfflineMonitor::CSCOfflineMonitor(const ParameterSet& pset){
 
   stripDigiTag_  = pset.getParameter<edm::InputTag>("stripDigiTag");
   wireDigiTag_   = pset.getParameter<edm::InputTag>("wireDigiTag"); 
+  alctDigiTag_   = pset.getParameter<edm::InputTag>("alctDigiTag");
+  clctDigiTag_   = pset.getParameter<edm::InputTag>("clctDigiTag"); 
   cscRecHitTag_  = pset.getParameter<edm::InputTag>("cscRecHitTag");
   cscSegTag_     = pset.getParameter<edm::InputTag>("cscSegTag");
+
+  finalizedHistograms_=false;
 
 }
 
 void CSCOfflineMonitor::beginJob(void){
       dbe = Service<DQMStore>().operator->();
-
+  
       // Occupancies
       dbe->setCurrentFolder("CSC/CSCOfflineMonitor/Occupancy");
       hCSCOccupancy = dbe->book1D("hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5);
@@ -37,6 +41,28 @@ void CSCOfflineMonitor::beginJob(void){
       hCSCOccupancy->setBinLabel(8,"# Events with Wires&Strips");
       hCSCOccupancy->setBinLabel(10,"# Events with Rechits");
       hCSCOccupancy->setBinLabel(12,"# Events with Segments");
+      hOWiresAndCLCT = dbe->book2D("hOWiresAndCLCT","Wire and CLCT Digi Occupancy ",36,0.5,36.5,20,0.5,20.5);
+      hOWiresAndCLCT->setAxisTitle("Chamber #");
+      hOWiresAndCLCT->setBinLabel(1,"ME -4/2",2);
+      hOWiresAndCLCT->setBinLabel(2,"ME -4/1",2);
+      hOWiresAndCLCT->setBinLabel(3,"ME -3/2",2);
+      hOWiresAndCLCT->setBinLabel(4,"ME -2/1",2);
+      hOWiresAndCLCT->setBinLabel(5,"ME -2/2",2);
+      hOWiresAndCLCT->setBinLabel(6,"ME -2/1",2);
+      hOWiresAndCLCT->setBinLabel(7,"ME -1/3",2);
+      hOWiresAndCLCT->setBinLabel(8,"ME -1/2",2);
+      hOWiresAndCLCT->setBinLabel(9,"ME -1/1b",2);
+      hOWiresAndCLCT->setBinLabel(10,"ME -1/1a",2);
+      hOWiresAndCLCT->setBinLabel(11,"ME +1/1a",2);
+      hOWiresAndCLCT->setBinLabel(12,"ME +1/1b",2);
+      hOWiresAndCLCT->setBinLabel(13,"ME +1/2",2);
+      hOWiresAndCLCT->setBinLabel(14,"ME +1/3",2);
+      hOWiresAndCLCT->setBinLabel(15,"ME +2/1",2);
+      hOWiresAndCLCT->setBinLabel(16,"ME +2/2",2);
+      hOWiresAndCLCT->setBinLabel(17,"ME +3/1",2);
+      hOWiresAndCLCT->setBinLabel(18,"ME +3/2",2);
+      hOWiresAndCLCT->setBinLabel(19,"ME +4/1",2);
+      hOWiresAndCLCT->setBinLabel(20,"ME +4/2",2);
       hOWires = dbe->book2D("hOWires","Wire Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
       hOWires->setAxisTitle("Chamber #");
       hOWires->setBinLabel(1,"ME -4/2",2);
@@ -85,6 +111,28 @@ void CSCOfflineMonitor::beginJob(void){
       hOStrips->setBinLabel(20,"ME +4/2",2);
       hOStripSerial = dbe->book1D("hOStripSerial","Strip Occupancy by Chamber Serial",601,-0.5,600.5);
       hOStripSerial->setAxisTitle("Chamber Serial Number");
+      hOStripsAndWiresAndCLCT = dbe->book2D("hOStripsAndWiresAndCLCT","Strip And Wire And CLCT Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
+      hOStripsAndWiresAndCLCT->setAxisTitle("Chamber #");
+      hOStripsAndWiresAndCLCT->setBinLabel(1,"ME -4/2",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(2,"ME -4/1",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(3,"ME -3/2",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(4,"ME -2/1",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(5,"ME -2/2",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(6,"ME -2/1",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(7,"ME -1/3",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(8,"ME -1/2",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(9,"ME -1/1b",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(10,"ME -1/1a",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(11,"ME +1/1a",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(12,"ME +1/1b",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(13,"ME +1/2",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(14,"ME +1/3",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(15,"ME +2/1",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(16,"ME +2/2",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(17,"ME +3/1",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(18,"ME +3/2",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(19,"ME +4/1",2);
+      hOStripsAndWiresAndCLCT->setBinLabel(20,"ME +4/2",2);
       hORecHits = dbe->book2D("hORecHits","RecHit Occupancy",36,0.5,36.5,20,0.5,20.5);
       hORecHits->setAxisTitle("Chamber #");
       hORecHits->setBinLabel(1,"ME -4/2",2);
@@ -295,6 +343,26 @@ void CSCOfflineMonitor::beginJob(void){
       hRHTiming.push_back(dbe->book1D("hRHTimingp32","recHit Time (ME +3/2); ns",200,-500.,500.));
       hRHTiming.push_back(dbe->book1D("hRHTimingp41","recHit Time (ME +4/1); ns",200,-500.,500.));
       hRHTiming.push_back(dbe->book1D("hRHTimingp42","recHit Time (ME +4/2); ns",200,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem42","Anode recHit Time (ME -4/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem41","Anode recHit Time (ME -4/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem32","Anode recHit Time (ME -3/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem31","Anode recHit Time (ME -3/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem22","Anode recHit Time (ME -2/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem21","Anode recHit Time (ME -2/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem11a","Anode recHit Time (ME -1/1a); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem13","Anode recHit Time (ME -1/3); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem12","Anode recHit Time (ME -1/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem11b","Anode recHit Time (ME -1/1b); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep11b","Anode recHit Time (ME +1/1b); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep12","Anode recHit Time (ME +1/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep13","Anode recHit Time (ME +1/3); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep11a","Anode recHit Time (ME +1/1a); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep21","Anode recHit Time (ME +2/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep22","Anode recHit Time (ME +2/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep31","Anode recHit Time (ME +3/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep32","Anode recHit Time (ME +3/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep41","Anode recHit Time (ME +4/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep42","Anode recHit Time (ME +4/2); ns",80,-500.,500.));
       hRHstpos.push_back(dbe->book1D("hRHstposm42","Reconstructed Position on Strip (ME -4/2); Strip Widths",120,-0.6,0.6));
       hRHstpos.push_back(dbe->book1D("hRHstposm41","Reconstructed Position on Strip (ME -4/1); Strip Widths",120,-0.6,0.6));
       hRHstpos.push_back(dbe->book1D("hRHstposm32","Reconstructed Position on Strip (ME -3/2); Strip Widths",120,-0.6,0.6));
@@ -405,7 +473,10 @@ void CSCOfflineMonitor::beginJob(void){
       hSChiSqProb.push_back(dbe->book1D("hSChiSqProbp42","Segment chi2 Probability (ME +4/2); Probability",110,-0.05,1.05));
       hSGlobalTheta = dbe->book1D("hSGlobalTheta","Segment Direction (Global Theta); Global Theta (radians)",136,-0.1,3.3);
       hSGlobalPhi   = dbe->book1D("hSGlobalPhi","Segment Direction (Global Phi); Global Phi (radians)",  128,-3.2,3.2);
-
+      hSTimeCathode  = dbe->book1D("hSTimeCathode", "Cathode Only Segment Time  [ns]",200,-200,200);
+      hSTimeCombined = dbe->book1D("hSTimeCombined", "Segment Time (anode+cathode times) [ns]",200,-200,200);
+      hSTimeVsZ	  = dbe->book2D("hSTimeVsZ","Segment Time vs. Z; [ns] vs. [cm]",200,-1200,1200,200,-200,200);
+      hSTimeVsTOF = dbe->book2D("hSTimeVsTOF","Segment Time vs. Distance from IP; [ns] vs. [cm]",180,500,1400, 200,-200,200);
       // Resolution
       dbe->setCurrentFolder("CSC/CSCOfflineMonitor/Resolution");
       hSResid.push_back(dbe->book1D("hSResidm42","Fitted Position on Strip - Reconstructed for Layer 3 (ME -4/2); Strip Widths",100,-0.5,0.5));
@@ -520,6 +591,28 @@ void CSCOfflineMonitor::beginJob(void){
       hRHEff2->setBinLabel(16,"ME +3/1",2);
       hRHEff2->setBinLabel(17,"ME +3/2",2);
       hRHEff2->setBinLabel(18,"ME +4/1",2);
+      hStripReadoutEff2 = dbe->book2D("hStripReadoutEff2","strip readout ratio [(strip+clct+wires)/(clct+wires)] 2D",36,0.5,36.5, 20, 0.5, 20.5);
+      hStripReadoutEff2->setAxisTitle("Chamber #");
+      hStripReadoutEff2->setBinLabel(1,"ME -4/2",2);
+      hStripReadoutEff2->setBinLabel(2,"ME -4/1",2);
+      hStripReadoutEff2->setBinLabel(3,"ME -3/2",2);
+      hStripReadoutEff2->setBinLabel(4,"ME -2/1",2);
+      hStripReadoutEff2->setBinLabel(5,"ME -2/2",2);
+      hStripReadoutEff2->setBinLabel(6,"ME -2/1",2);
+      hStripReadoutEff2->setBinLabel(7,"ME -1/3",2);
+      hStripReadoutEff2->setBinLabel(8,"ME -1/2",2);
+      hStripReadoutEff2->setBinLabel(9,"ME -1/1b",2);
+      hStripReadoutEff2->setBinLabel(10,"ME -1/1a",2);
+      hStripReadoutEff2->setBinLabel(11,"ME +1/1a",2);
+      hStripReadoutEff2->setBinLabel(12,"ME +1/1b",2);
+      hStripReadoutEff2->setBinLabel(13,"ME +1/2",2);
+      hStripReadoutEff2->setBinLabel(14,"ME +1/3",2);
+      hStripReadoutEff2->setBinLabel(15,"ME +2/1",2);
+      hStripReadoutEff2->setBinLabel(16,"ME +2/2",2);
+      hStripReadoutEff2->setBinLabel(17,"ME +3/1",2);
+      hStripReadoutEff2->setBinLabel(18,"ME +3/2",2);
+      hStripReadoutEff2->setBinLabel(19,"ME +4/1",2);
+      hStripReadoutEff2->setBinLabel(20,"ME +4/2",2);
       hStripEff2 = dbe->book2D("hStripEff2","strip Efficiency 2D",36,0.5,36.5, 18, 0.5, 18.5);
       hStripEff2->setAxisTitle("Chamber #");
       hStripEff2->setBinLabel(1,"ME -4/1",2);
@@ -581,6 +674,93 @@ void CSCOfflineMonitor::beginJob(void){
       hSensitiveAreaEvt->setBinLabel(17,"ME +3/2",2);
       hSensitiveAreaEvt->setBinLabel(18,"ME +4/1",2);
 
+      // BX Monitor for trigger synchronization
+      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/BXMonitor");
+      hALCTgetBX = dbe->book1D("hALCTgetBX","ALCT position in ALCT-L1A match window [BX]",7,-0.5,6.5);
+      hALCTgetBXChamberMeans = dbe->book1D("hALCTgetBXChamberMeans","Chamber Mean ALCT position in ALCT-L1A match window [BX]",60,0,6);
+      hALCTgetBXSerial = dbe->book2D("hALCTgetBXSerial","ALCT position in ALCT-L1A match window [BX]",601,-0.5,600.5,7,-0.5,6.5);
+      hALCTgetBXSerial->setAxisTitle("Chamber Serial Number");
+      hALCTgetBX2DNumerator = new TH2F("hALCTgetBX2DNumerator","ALCT position in ALCT-L1A match window [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
+      hALCTgetBX2DMeans = dbe->book2D("hALCTgetBX2DMeans","ALCT position in ALCT-L1A match window [BX]",36,0.5,36.5,20,0.5,20.5);
+      hALCTgetBX2Denominator = dbe->book2D("hALCTgetBX2Denominator","Number of ALCT Digis checked",36,0.5,36.5,20,0.5,20.5);
+      hALCTgetBX2DMeans->setAxisTitle("Chamber #");
+      hALCTgetBX2DMeans->setBinLabel(1,"ME -4/2",2);
+      hALCTgetBX2DMeans->setBinLabel(2,"ME -4/1",2);
+      hALCTgetBX2DMeans->setBinLabel(3,"ME -3/2",2);
+      hALCTgetBX2DMeans->setBinLabel(4,"ME -2/1",2);
+      hALCTgetBX2DMeans->setBinLabel(5,"ME -2/2",2);
+      hALCTgetBX2DMeans->setBinLabel(6,"ME -2/1",2);
+      hALCTgetBX2DMeans->setBinLabel(7,"ME -1/3",2);
+      hALCTgetBX2DMeans->setBinLabel(8,"ME -1/2",2);
+      hALCTgetBX2DMeans->setBinLabel(9,"ME -1/1b",2);
+      hALCTgetBX2DMeans->setBinLabel(10,"ME -1/1a",2);
+      hALCTgetBX2DMeans->setBinLabel(11,"ME +1/1a",2);
+      hALCTgetBX2DMeans->setBinLabel(12,"ME +1/1b",2);
+      hALCTgetBX2DMeans->setBinLabel(13,"ME +1/2",2);
+      hALCTgetBX2DMeans->setBinLabel(14,"ME +1/3",2);
+      hALCTgetBX2DMeans->setBinLabel(15,"ME +2/1",2);
+      hALCTgetBX2DMeans->setBinLabel(16,"ME +2/2",2);
+      hALCTgetBX2DMeans->setBinLabel(17,"ME +3/1",2);
+      hALCTgetBX2DMeans->setBinLabel(18,"ME +3/2",2);
+      hALCTgetBX2DMeans->setBinLabel(19,"ME +4/1",2);
+      hALCTgetBX2DMeans->setBinLabel(20,"ME +4/2",2);
+      hALCTMatch = dbe->book1D("hALCTMatch","ALCT position in ALCT-CLCT match window [BX]",7,-0.5,6.5);
+      hALCTMatchChamberMeans = dbe->book1D("hALCTMatchChamberMeans","Chamber Mean ALCT position in ALCT-CLCT match window [BX]",60,0,6);
+      hALCTMatchSerial = dbe->book2D("hALCTMatchSerial","ALCT position in ALCT-CLCT match window [BX]",601,-0.5,600.5,7,-0.5,6.5);
+      hALCTMatchSerial->setAxisTitle("Chamber Serial Number");
+      hALCTMatch2DNumerator = new TH2F("hALCTMatch2DNumerator","ALCT position in ALCT-CLCT match window [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
+      hALCTMatch2DMeans = dbe->book2D("hALCTMatch2DMeans","ALCT position in ALCT-CLCT match window [BX]",36,0.5,36.5,20,0.5,20.5);
+      hALCTMatch2Denominator = dbe->book2D("hALCTMatch2Denominator","Number of ALCT-CLCT matches checked",36,0.5,36.5,20,0.5,20.5);
+      hALCTMatch2DMeans->setAxisTitle("Chamber #");
+      hALCTMatch2DMeans->setBinLabel(1,"ME -4/2",2);
+      hALCTMatch2DMeans->setBinLabel(2,"ME -4/1",2);
+      hALCTMatch2DMeans->setBinLabel(3,"ME -3/2",2);
+      hALCTMatch2DMeans->setBinLabel(4,"ME -2/1",2);
+      hALCTMatch2DMeans->setBinLabel(5,"ME -2/2",2);
+      hALCTMatch2DMeans->setBinLabel(6,"ME -2/1",2);
+      hALCTMatch2DMeans->setBinLabel(7,"ME -1/3",2);
+      hALCTMatch2DMeans->setBinLabel(8,"ME -1/2",2);
+      hALCTMatch2DMeans->setBinLabel(9,"ME -1/1b",2);
+      hALCTMatch2DMeans->setBinLabel(10,"ME -1/1a",2);
+      hALCTMatch2DMeans->setBinLabel(11,"ME +1/1a",2);
+      hALCTMatch2DMeans->setBinLabel(12,"ME +1/1b",2);
+      hALCTMatch2DMeans->setBinLabel(13,"ME +1/2",2);
+      hALCTMatch2DMeans->setBinLabel(14,"ME +1/3",2);
+      hALCTMatch2DMeans->setBinLabel(15,"ME +2/1",2);
+      hALCTMatch2DMeans->setBinLabel(16,"ME +2/2",2);
+      hALCTMatch2DMeans->setBinLabel(17,"ME +3/1",2);
+      hALCTMatch2DMeans->setBinLabel(18,"ME +3/2",2);
+      hALCTMatch2DMeans->setBinLabel(19,"ME +4/1",2);
+      hALCTMatch2DMeans->setBinLabel(20,"ME +4/2",2);
+      hCLCTL1A = dbe->book1D("hCLCTL1A","L1A - CLCTpreTrigger at TMB [BX]",10,149.5,159.5);
+      hCLCTL1AChamberMeans = dbe->book1D("hCLCTL1AChamberMeans","Chamber Mean L1A - CLCTpreTrigger at TMB [BX]",90,150,159);
+      hCLCTL1ASerial = dbe->book2D("hCLCTL1ASerial","L1A - CLCTpreTrigger at TMB [BX]",601,-0.5,600.5,10,149.5,159.5);
+      hCLCTL1ASerial->setAxisTitle("Chamber Serial Number");
+      hCLCTL1A2DNumerator = new TH2F("hCLCTL1A2DNumerator","L1A - CLCTpreTrigger at TMB [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
+      hCLCTL1A2DMeans = dbe->book2D("hCLCTL1A2DMeans","L1A - CLCTpreTrigger at TMB [BX]",36,0.5,36.5,20,0.5,20.5);
+      hCLCTL1A2Denominator = dbe->book2D("hCLCTL1A2Denominator","Number of TMB CLCTs checked",36,0.5,36.5,20,0.5,20.5);
+      hCLCTL1A2DMeans->setAxisTitle("Chamber #");
+      hCLCTL1A2DMeans->setBinLabel(1,"ME -4/2",2);
+      hCLCTL1A2DMeans->setBinLabel(2,"ME -4/1",2);
+      hCLCTL1A2DMeans->setBinLabel(3,"ME -3/2",2);
+      hCLCTL1A2DMeans->setBinLabel(4,"ME -2/1",2);
+      hCLCTL1A2DMeans->setBinLabel(5,"ME -2/2",2);
+      hCLCTL1A2DMeans->setBinLabel(6,"ME -2/1",2);
+      hCLCTL1A2DMeans->setBinLabel(7,"ME -1/3",2);
+      hCLCTL1A2DMeans->setBinLabel(8,"ME -1/2",2);
+      hCLCTL1A2DMeans->setBinLabel(9,"ME -1/1b",2);
+      hCLCTL1A2DMeans->setBinLabel(10,"ME -1/1a",2);
+      hCLCTL1A2DMeans->setBinLabel(11,"ME +1/1a",2);
+      hCLCTL1A2DMeans->setBinLabel(12,"ME +1/1b",2);
+      hCLCTL1A2DMeans->setBinLabel(13,"ME +1/2",2);
+      hCLCTL1A2DMeans->setBinLabel(14,"ME +1/3",2);
+      hCLCTL1A2DMeans->setBinLabel(15,"ME +2/1",2);
+      hCLCTL1A2DMeans->setBinLabel(16,"ME +2/2",2);
+      hCLCTL1A2DMeans->setBinLabel(17,"ME +3/1",2);
+      hCLCTL1A2DMeans->setBinLabel(18,"ME +3/2",2);
+      hCLCTL1A2DMeans->setBinLabel(19,"ME +4/1",2);
+      hCLCTL1A2DMeans->setBinLabel(20,"ME +4/2",2);
+
 }
 
 //////////////////
@@ -590,22 +770,20 @@ CSCOfflineMonitor::~CSCOfflineMonitor(){
 
 }
 
-void CSCOfflineMonitor::endJob(void) {
+void CSCOfflineMonitor::endRun( edm::Run const &, edm::EventSetup const & ){
+  
+  if (!finalizedHistograms_){
+    finalize() ;
+    finalizedHistograms_ = true ;
+  }
 
-  hRHEff = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hRHEff");
-  hSEff = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hSEff");
-  hSEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hSEff2");
-  hRHEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hRHEff2");
-  hStripEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hStripEff2");
-  hWireEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hWireEff2");
+}
 
-  if (hRHEff) histoEfficiency(hRHSTE,hRHEff);
-  if (hSEff) histoEfficiency(hSSTE,hSEff);
-  if (hSEff2) hSEff2->getTH2F()->Divide(hSSTE2,hEffDenominator,1.,1.,"B");
-  if (hRHEff2) hRHEff2->getTH2F()->Divide(hRHSTE2,hEffDenominator,1.,1.,"B");
-  if (hStripEff2) hStripEff2->getTH2F()->Divide(hStripSTE2,hEffDenominator,1.,1.,"B");
-  if (hWireEff2) hWireEff2->getTH2F()->Divide(hWireSTE2,hEffDenominator,1.,1.,"B");
-
+void CSCOfflineMonitor::endJob(){
+  
+  finalize() ;
+  finalizedHistograms_ = true ;
+  
   bool saveHistos = param.getParameter<bool>("saveHistos");
   string outputFileName = param.getParameter<string>("outputFileName");
   if(saveHistos){
@@ -614,6 +792,95 @@ void CSCOfflineMonitor::endJob(void) {
 
 }
 
+
+void CSCOfflineMonitor::finalize() {
+
+  hRHEff = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hRHEff");
+  hSEff = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hSEff");
+  hSEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hSEff2");
+  hRHEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hRHEff2");
+  hStripEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hStripEff2");
+  hWireEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hWireEff2");
+  hStripReadoutEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hStripReadoutEff2");
+
+  hALCTgetBX2DMeans = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTgetBX2DMeans");
+  hALCTMatch2DMeans = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTMatch2DMeans");
+  hCLCTL1A2DMeans   = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hCLCTL1A2DMeans");
+
+  hALCTgetBXSerial = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTgetBXSerial");
+  hALCTMatchSerial = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTMatchSerial");
+  hCLCTL1ASerial   = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hCLCTL1ASerial");
+
+  hALCTgetBXChamberMeans = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTgetBXChamberMeans");
+  hALCTMatchChamberMeans = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTMatchChamberMeans");
+  hCLCTL1AChamberMeans   = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hCLCTL1AChamberMeans");
+
+  if (hRHEff) histoEfficiency(hRHSTE,hRHEff);
+  if (hSEff) histoEfficiency(hSSTE,hSEff);
+  if (hSEff2) hSEff2->getTH2F()->Divide(hSSTE2,hEffDenominator,1.,1.,"B");
+  if (hRHEff2) hRHEff2->getTH2F()->Divide(hRHSTE2,hEffDenominator,1.,1.,"B");
+  if (hStripEff2) hStripEff2->getTH2F()->Divide(hStripSTE2,hEffDenominator,1.,1.,"B");
+  if (hWireEff2) hWireEff2->getTH2F()->Divide(hWireSTE2,hEffDenominator,1.,1.,"B");
+  if (hStripReadoutEff2) hStripReadoutEff2->getTH2F()->Divide(hOStripsAndWiresAndCLCT->getTH2F(),hOWiresAndCLCT->getTH2F(),1.,1.,"B");
+  if (hALCTMatch2DMeans){ 
+    harvestChamberMeans(hALCTMatchChamberMeans, hALCTMatch2DMeans, hALCTMatch2DNumerator,hALCTMatch2Denominator );
+  }
+  if (hALCTgetBX2DMeans) {
+    harvestChamberMeans(hALCTgetBXChamberMeans, hALCTgetBX2DMeans, hALCTgetBX2DNumerator, hALCTgetBX2Denominator );
+  }
+  if (hCLCTL1A2DMeans) {
+    harvestChamberMeans(hCLCTL1AChamberMeans, hCLCTL1A2DMeans, hCLCTL1A2DNumerator, hCLCTL1A2Denominator );
+  }
+
+  if(hALCTgetBXSerial)  normalize(hALCTgetBXSerial);
+  if(hALCTMatchSerial)  normalize(hALCTMatchSerial);
+  if(hCLCTL1ASerial)    normalize(hCLCTL1ASerial);
+
+
+}
+
+void CSCOfflineMonitor::harvestChamberMeans(MonitorElement* meMean1D, MonitorElement *meMean2D, TH2F *hNum, MonitorElement *meDenom){
+
+
+  if (hNum->GetNbinsY()!= meDenom->getNbinsY() || hNum->GetNbinsX()!= meDenom->getNbinsX())
+    return;
+  if (meMean2D->getNbinsY()!= meDenom->getNbinsY() || meMean2D->getNbinsX()!= meDenom->getNbinsX())
+    return;
+
+  float mean;
+  for (int biny = 0; biny < hNum->GetNbinsY()+1 ; biny++){
+    for (int binx = 0; binx < hNum->GetNbinsX()+1 ; binx++){
+      if ( meDenom->getBinContent(binx,biny) > 0){
+	mean = hNum->GetBinContent(binx,biny)/meDenom->getBinContent(binx,biny);
+	meMean1D->Fill(mean);
+	meMean2D->setBinContent(binx,biny,mean);
+      }
+    }
+  }
+
+  return;
+}
+
+void CSCOfflineMonitor::normalize(MonitorElement* me){
+    
+  TH2F* h = me->getTH2F();
+  TH1D* hproj = h->ProjectionX("hproj");
+
+  for (int binx = 0; binx < h->GetNbinsX()+1 ; binx++){
+    Double_t entries = hproj->GetBinContent(binx);
+    for (Int_t biny=1;biny <= h->GetNbinsY();biny++) {
+      Double_t cxy = h->GetBinContent(binx,biny);
+      if (cxy > 0 && entries>0) h->SetBinContent(binx,biny,cxy/entries);
+    }
+  }
+
+
+    return;
+
+}
+
+
+
 ////////////////
 //  Analysis  //
 ////////////////
@@ -621,8 +888,12 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
 
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
-  event.getByLabel(stripDigiTag_,strips);
-  event.getByLabel(wireDigiTag_,wires);
+  edm::Handle<CSCALCTDigiCollection> alcts;
+  edm::Handle<CSCCLCTDigiCollection> clcts;
+  event.getByLabel(stripDigiTag_, strips);
+  event.getByLabel(wireDigiTag_, wires);
+  event.getByLabel(alctDigiTag_, alcts);
+  event.getByLabel(clctDigiTag_, clcts);
 
   // Get the CSC Geometry :
   ESHandle<CSCGeometry> cscGeom;
@@ -637,7 +908,7 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
   event.getByLabel(cscSegTag_, cscSegments);
 
 
-  doOccupancies(strips,wires,recHits,cscSegments);
+  doOccupancies(strips,wires,recHits,cscSegments,clcts);
   doStripDigis(strips);
   doWireDigis(wires);
   doRecHits(recHits,strips,cscGeom);
@@ -645,7 +916,7 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
   doResolution(cscSegments,cscGeom);
   doPedestalNoise(strips);
   doEfficiencies(wires,strips, recHits, cscSegments,cscGeom);
-
+  doBXMonitor(alcts, clcts, event, eventSetup);
 }
 
 // ==============================================
@@ -655,8 +926,10 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
 // ==============================================
 
 void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, edm::Handle<CSCWireDigiCollection> wires,
-                                      edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments){
+                                      edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
+				      edm::Handle<CSCCLCTDigiCollection> clcts){
 
+  bool clcto[2][4][4][36];
   bool wireo[2][4][4][36];
   bool stripo[2][4][4][36];
   bool rechito[2][4][4][36];
@@ -671,11 +944,31 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
     for (int s = 0; s < 4; s++){
       for (int r = 0; r < 4; r++){
         for (int c = 0; c < 36; c++){
+          clcto[e][s][r][c] = false;
           wireo[e][s][r][c] = false;
           stripo[e][s][r][c] = false;
           rechito[e][s][r][c] = false;
           segmento[e][s][r][c] = false;
         }
+      }
+    }
+  }
+
+  //clcts
+  for (CSCCLCTDigiCollection::DigiRangeIterator j=clcts->begin(); j!=clcts->end(); j++) {
+    CSCDetId id = (CSCDetId)(*j).first;
+    int kEndcap  = id.endcap();
+    int kRing    = id.ring();
+    int kStation = id.station();
+    int kChamber = id.chamber();
+    const CSCCLCTDigiCollection::Range& range =(*j).second;
+    for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
+      // Valid digi in the chamber (or in neighbouring chamber) 
+      if((*digiIt).isValid()){
+      //Check whether this CLCT came from ME11a
+	if( kStation ==1 && kRing==1 && (*digiIt).getKeyStrip()>128)
+	  kRing = 4;
+	clcto[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
       }
     }
   }
@@ -695,8 +988,15 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
         hOWires->Fill(kChamber,typeIndex(id,2));
         hOWireSerial->Fill(chamberSerial(id));
         hasWires = true;
+	if( clcto[kEndcap-1][kStation-1][kRing-1][kChamber-1])
+	  hOWiresAndCLCT->Fill(kChamber,typeIndex(id,2));
+	//Also check for a CLCT in ME11a if you're in ME11 already
+	if (kStation==1 && kRing==1 && clcto[kEndcap-1][kStation-1][3][kChamber-1]){
+	  CSCDetId idME11a = CSCDetId(kEndcap, kStation, 4, kChamber);
+	  hOWiresAndCLCT->Fill(kChamber,typeIndex(idME11a,2));
+	} 
       }
-    }
+    }//end for loop
   }
   
   //strips
@@ -724,8 +1024,15 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
           hOStrips->Fill(kChamber,typeIndex(id,2));
           hOStripSerial->Fill(chamberSerial(id));
           hasStrips = true;
+	  if (clcto[kEndcap-1][kStation-1][kRing-1][kChamber-1]){
+	    // check if there is a wire digi in this chamber too
+	    // for ME 1/4 check for a wire in ME 1/1
+	    if(wireo[kEndcap-1][kStation-1][kRing-1][kChamber-1] || (kRing==4 && wireo[kEndcap-1][kStation-1][0][kChamber-1]) ){
+	      hOStripsAndWiresAndCLCT->Fill(kChamber,typeIndex(id,2));
+	    }
+	  }//end clct and wire digi check
         }
-      }
+      }//end if (thisStripFired)
     }
   }
 
@@ -769,7 +1076,7 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
   if (hasSegments) hCSCOccupancy->Fill(11);
 
 
-}
+  }
 
 
 // ==============================================
@@ -890,7 +1197,7 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
 
   // Get the RecHits collection :
   int nRecHits = recHits->size();
- 
+  
   // ---------------------
   // Loop over rechits 
   // ---------------------
@@ -927,8 +1234,9 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
     if (adcsize != 12) rHratioQ = -99;
 
     // Get the signal timing of this hit
-    float rHtime = (*dRHIter).tpeak();
- 
+    float rHtime = (*dRHIter).tpeak(); //calculated from cathode SCA bins
+    float rHtimeAnode = (*dRHIter).wireTime(); // calculated from anode wire bx
+
     // Get pointer to the layer:
     const CSCLayer* csclayer = cscGeom->layer( idrec );
 
@@ -945,6 +1253,7 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
     hRHstpos[tIndex-1]->Fill(stpos);
     hRHsterr[tIndex-1]->Fill(sterr);
     hRHTiming[tIndex-1]->Fill(rHtime);
+    hRHTimingAnode[tIndex-1]->Fill(rHtimeAnode);
     hRHGlobal[sIndex-1]->Fill(grecx,grecy);
 
   } //end rechit loop
@@ -974,19 +1283,73 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
     int nDOF       = 2*nhits-4;
     float nChi2    = chisq/nDOF;
     double chisqProb = ChiSquaredProbability( (double)chisq, nDOF );
-    //LocalPoint localPos = (*dSiter).localPosition();
+    LocalPoint localPos = (*dSiter).localPosition();
     LocalVector segDir = (*dSiter).localDirection();
 
+    // prepare to calculate segment times 
+    float timeCathode = 0;  //average from cathode information alone
+    float timeAnode = 0;  //average from pruned anode information alone
+    float timeCombined = 0; //average from cathode hits and pruned anode list
+    std::vector<float> cathodeTimes;
+    std::vector<float> anodeTimes;
+    // Get the CSC recHits that contribute to this segment.
+    std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
+    for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+      if ( !((*iRH).isValid()) ) continue;  // only interested in valid hits
+      cathodeTimes.push_back((*iRH).tpeak());
+      anodeTimes.push_back((*iRH).wireTime());
+    }//end rechit loop
+    
+    // Calculate cathode average
+    for (unsigned int i=0; i<cathodeTimes.size(); i++) 
+	timeCathode+=cathodeTimes[i]/cathodeTimes.size();
+    
+    // Prune the anode list to deal with the late tail 
+    float anodeMaxDiff;
+    bool modified;
+    std::vector<float>::iterator anodeMaxHit;
+    do {
+      if (anodeTimes.size()==0) continue;
+      timeAnode=0;
+      anodeMaxDiff=0;
+      modified=false;
+
+      // Find the average
+      for (unsigned int j=0; j<anodeTimes.size(); j++) timeAnode+=anodeTimes[j]/anodeTimes.size();
+
+      // Find the maximum outlier hit
+      for (unsigned int j=0; j<anodeTimes.size(); j++) {
+	if (fabs(anodeTimes[j]-timeAnode)>anodeMaxDiff) {
+	  anodeMaxHit=anodeTimes.begin()+j;
+	  anodeMaxDiff=fabs(anodeTimes[j]-timeAnode);
+	}
+      }
+      
+      // Cut hit if its greater than some time away
+      if (anodeMaxDiff>26) {
+	modified=true;
+	anodeTimes.erase(anodeMaxHit);
+      }
+    } while (modified);
+
+    // Calculate combined anode and cathode time average
+    if(cathodeTimes.size()+anodeTimes.size() >0 )
+      timeCombined = (timeCathode*cathodeTimes.size() + timeAnode*anodeTimes.size())/(cathodeTimes.size()+anodeTimes.size());
+
     // global transformation
-    //float globX = 0.;
-    //float globY = 0.;
+    float globX = 0.;
+    float globY = 0.;
+    float globZ = 0.;
+    float globTOF = 0.;
     float globTheta = 0.;
     float globPhi   = 0.;
     const CSCChamber* cscchamber = cscGeom->chamber(id);
     if (cscchamber) {
-      //GlobalPoint globalPosition = cscchamber->toGlobal(localPos);
-      //globX = globalPosition.x();
-      //globY = globalPosition.y();
+      GlobalPoint globalPosition = cscchamber->toGlobal(localPos);
+      globX = globalPosition.x();
+      globY = globalPosition.y();
+      globZ = globalPosition.z();
+      globTOF = sqrt(globX*globX+globY*globY+globZ*globZ);
       GlobalVector globalDirection = cscchamber->toGlobal(segDir);
       globTheta = globalDirection.theta();
       globPhi   = globalDirection.phi();
@@ -1002,7 +1365,10 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
     hSChiSqProb[tIndex-1]->Fill(chisqProb);
     hSGlobalTheta->Fill(globTheta);
     hSGlobalPhi->Fill(globPhi);
-
+    hSTimeCathode->Fill(timeCathode);
+    hSTimeCombined->Fill(timeCombined);
+    hSTimeVsZ->Fill(globZ, timeCombined);
+    hSTimeVsTOF->Fill(globTOF, timeCombined);
 
   } // end segment loop
 
@@ -1475,6 +1841,182 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
 
 
 }
+
+// ==============================================
+//
+// Look at BX level trigger synchronization
+//
+// ==============================================
+
+void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, edm::Handle<CSCCLCTDigiCollection> clcts, const edm::Event & event, const EventSetup& eventSetup){
+
+  // Loop over ALCTDigis
+
+  for (CSCALCTDigiCollection::DigiRangeIterator j=alcts->begin(); j!=alcts->end(); j++) {
+    const CSCDetId& idALCT = (*j).first;
+    const CSCALCTDigiCollection::Range& range =(*j).second;
+    for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
+      // Valid digi in the chamber (or in neighbouring chamber)  
+      if((*digiIt).isValid()){
+	hALCTgetBX->Fill((*digiIt).getBX());
+	hALCTgetBXSerial->Fill(chamberSerial(idALCT),(*digiIt).getBX());
+	hALCTgetBX2DNumerator->Fill(idALCT.chamber(),typeIndex(idALCT,2),(*digiIt).getBX());
+	hALCTgetBX2Denominator->Fill(idALCT.chamber(),typeIndex(idALCT,2));
+      }
+    }
+  }// end ALCT Digi loop
+
+
+  // Loop over raw data to get TMBHeader information
+  // Taking code from EventFilter/CSCRawToDigis/CSCDCCUnpacker.cc
+  edm::ESHandle<CSCCrateMap> hcrate;
+  eventSetup.get<CSCCrateMapRcd>().get(hcrate); 
+  const CSCCrateMap* pcrate = hcrate.product();
+
+  edm::Handle<FEDRawDataCollection> rawdata;
+  event.getByType(rawdata);
+  bool goodEvent = false;
+  unsigned long dccBinCheckMask = 0x06080016;
+  unsigned int examinerMask = 0x1FEBF3F6;
+  unsigned int errorMask = 0x0;
+
+  for (int id=FEDNumbering::MINCSCFEDID;
+       id<=FEDNumbering::MAXCSCFEDID; ++id) { // loop over DCCs
+    /// uncomment this for regional unpacking
+    /// if (id!=SOME_ID) continue;
+     
+    /// Take a reference to this FED's data
+    const FEDRawData& fedData = rawdata->FEDData(id);
+    unsigned long length =  fedData.size();
+   
+    if (length>=32){ ///if fed has data then unpack it
+      CSCDCCExaminer* examiner = NULL;
+      std::stringstream examiner_out, examiner_err;
+      goodEvent = true;
+      examiner = new CSCDCCExaminer();
+      examiner->output1().redirect(examiner_out);
+      examiner->output2().redirect(examiner_err);
+      if( examinerMask&0x40000 ) examiner->crcCFEB(1);
+      if( examinerMask&0x8000  ) examiner->crcTMB (1);
+      if( examinerMask&0x0400  ) examiner->crcALCT(1);
+      examiner->output1().show();
+      examiner->output2().show();
+      examiner->setMask(examinerMask);
+      const short unsigned int *data = (short unsigned int *)fedData.data();
+ 
+      int res = examiner->check(data,long(fedData.size()/2));
+      if( res < 0 )   {
+	goodEvent=false;
+      } 
+      else {    
+	goodEvent=!(examiner->errors()&dccBinCheckMask);
+      }
+ 
+                 
+      if (goodEvent) {
+	///get a pointer to data and pass it to constructor for unpacking
+ 
+	CSCDCCExaminer * ptrExaminer = examiner;
+	CSCDCCEventData dccData((short unsigned int *) fedData.data(), ptrExaminer);
+        ///get a reference to dduData
+        const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
+        
+        /// set default detid to that for E=+z, S=1, R=1, C=1, L=1
+        CSCDetId layer(1, 1, 1, 1, 1);
+        for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  // loop over DDUs
+           /// skip the DDU if its data has serious errors
+           /// define a mask for serious errors 
+	  if (dduData[iDDU].trailer().errorstat()&errorMask) {
+	    LogTrace("CSCDCCUnpacker|CSCRawToDigi") << "DDU# " << iDDU << " has serious error - no digis unpacked! " <<
+	      std::hex << dduData[iDDU].trailer().errorstat();
+	    continue; // to next iteration of DDU loop
+	  }
+	  
+	  ///get a reference to chamber data
+	  const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
+	  
+	  
+	  for (unsigned int iCSC=0; iCSC<cscData.size(); ++iCSC) { // loop over CSCs
+	    
+	    ///first process chamber-wide digis such as LCT
+	    int vmecrate = cscData[iCSC].dmbHeader()->crateID();
+	    int dmb = cscData[iCSC].dmbHeader()->dmbID();
+	    
+	    int icfeb = 0;  /// default value for all digis not related to cfebs
+	    int ilayer = 0; /// layer=0 flags entire chamber
+	    
+             if ((vmecrate>=1)&&(vmecrate<=60) && (dmb>=1)&&(dmb<=10)&&(dmb!=6)) {
+               layer = pcrate->detId(vmecrate, dmb,icfeb,ilayer );
+             } 
+             else{
+               LogTrace ("CSCOfflineMonitor") << " detID input out of range!!! ";
+               LogTrace ("CSCOfflineMonitor")
+                 << " skipping chamber vme= " << vmecrate << " dmb= " << dmb;
+               continue; // to next iteration of iCSC loop
+             }
+
+
+   	    /// check alct data integrity 
+  	    int nalct = cscData[iCSC].dmbHeader()->nalct();
+  	    bool goodALCT=false;
+  	    //if (nalct&&(cscData[iCSC].dataPresent>>6&0x1)==1) {
+  	    if (nalct&&cscData[iCSC].alctHeader()) {  
+  	      if (cscData[iCSC].alctHeader()->check()){
+  		goodALCT=true;
+  	      }
+  	    }
+	    
+	    ///check tmb data integrity
+	    int nclct = cscData[iCSC].dmbHeader()->nclct();
+	    bool goodTMB=false;
+	    if (nclct&&cscData[iCSC].tmbData()) {
+	      if (cscData[iCSC].tmbHeader()->check()){
+		if (cscData[iCSC].clctData()->check()) goodTMB=true; 
+	      }
+	    }
+	    
+ 	    if (goodTMB && goodALCT) { 
+	      const CSCTMBHeader *tmbHead = cscData[iCSC].tmbHeader();
+	      std::vector<CSCCLCTDigi> clcts = cscData[iCSC].tmbHeader()->CLCTDigis(layer.rawId());
+	      if (clcts.size()==0 || !(clcts[0].isValid()))
+		continue;
+	      // Check if the CLCT was in ME11a (ring 4)
+	      if(layer.station()==1 && layer.ring() ==1 && clcts[0].getKeyStrip()>128){
+		layer = CSCDetId(layer.endcap(),layer.station(),4, layer.chamber()); 
+	      }
+	      hALCTMatch->Fill(tmbHead->ALCTMatchTime());
+	      hALCTMatchSerial->Fill(chamberSerial(layer),tmbHead->ALCTMatchTime());
+	      // Only fill big 2D display if ALCTMatchTime !=6, since this bin is polluted by the CLCT only triggers
+	      // One will have to look at the serial plots to see if the are a lot of entries here
+	      if(tmbHead->ALCTMatchTime()!=6){
+		hALCTMatch2DNumerator->Fill(layer.chamber(),typeIndex(layer,2),tmbHead->ALCTMatchTime());
+		hALCTMatch2Denominator->Fill(layer.chamber(),typeIndex(layer,2));	      
+	      }
+
+	      int TMB_CLCTpre_rel_L1A = tmbHead->BXNCount()-clcts[0].getFullBX();
+	      if (TMB_CLCTpre_rel_L1A > 3563)
+		TMB_CLCTpre_rel_L1A = TMB_CLCTpre_rel_L1A - 3564;
+	      if (TMB_CLCTpre_rel_L1A < 0)
+		TMB_CLCTpre_rel_L1A = TMB_CLCTpre_rel_L1A + 3564;
+
+	      hCLCTL1A->Fill(TMB_CLCTpre_rel_L1A);
+	      hCLCTL1ASerial->Fill(chamberSerial(layer),TMB_CLCTpre_rel_L1A);
+	      hCLCTL1A2DNumerator->Fill(layer.chamber(),typeIndex(layer,2),TMB_CLCTpre_rel_L1A);
+	      hCLCTL1A2Denominator->Fill(layer.chamber(),typeIndex(layer,2));	      
+	      
+	    }// end if goodTMB and goodALCT
+	  }// end loop CSCData
+	}// end loop DDU
+      }// end if good event
+      if (examiner!=NULL) delete examiner;
+    }// end if non-zero fed data
+  }// end DCC loop for NON-REFERENCE
+
+  return;
+
+}
+
+
 
 void CSCOfflineMonitor::getEfficiency(float bin, float Norm, std::vector<float> &eff){
   //---- Efficiency with binomial error
