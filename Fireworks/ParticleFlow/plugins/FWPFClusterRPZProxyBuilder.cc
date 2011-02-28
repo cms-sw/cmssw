@@ -1,9 +1,10 @@
 #include "FWPFClusterRPZProxyBuilder.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Base ProxyBuilder
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//______________________________________________________________________________________________________________________________________________
+//-----------------------------------------------------------------------------
+// FWPFClusterRPZProxyBuilder
+//-----------------------------------------------------------------------------
+
+//______________________________________________________________________________
 float
 FWPFClusterRPZProxyBuilder::calculateEt( const reco::PFCluster &cluster, float e )
 {
@@ -21,7 +22,7 @@ FWPFClusterRPZProxyBuilder::calculateEt( const reco::PFCluster &cluster, float e
    return et;
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFClusterRPZProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType viewType, const FWViewContext *vc )
 {
@@ -40,7 +41,7 @@ FWPFClusterRPZProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::E
    }
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFClusterRPZProxyBuilder::sharedBuild( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc, float R )
 {
@@ -73,7 +74,7 @@ FWPFClusterRPZProxyBuilder::sharedBuild( const reco::PFCluster &iData, unsigned 
    setupAddElement( ls, &oItemHolder );
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, 
                                                 TEveElement &oItemHolder, const FWViewContext *vc )
@@ -83,6 +84,8 @@ FWPFClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned int iI
    {
       float et, energy;
       float size = 1.f;       // Stored in scale
+      //float ecalR = m_pfUtils->getCaloR1();
+      //float ecalZ = m_pfUtils->getCaloZ1();
       float ecalR = context().caloR1();
       float ecalZ = context().caloZ1() / tan( context().caloTransAngle() );
       double theta, phi;
@@ -114,9 +117,7 @@ FWPFClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned int iI
          r = ecalZ / fabs( cos( theta ) );
       }
       else
-      {
-         r = ecalR/sin(theta);
-      }
+         r = ecalR / sin( theta );
 
       ls->SetScaleCenter( 0., ( phi > 0 ? r * fabs( sin( theta ) ) : -r * fabs( sin( theta ) ) ), r * cos( theta ) );
       ls->AddLine( 0., ( phi > 0 ? r * fabs( sin( theta ) ) : -r * fabs( sin( theta ) ) ), r * cos( theta ),
@@ -128,10 +129,11 @@ FWPFClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned int iI
    }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ECAL
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//______________________________________________________________________________________________________________________________________________
+//-----------------------------------------------------------------------------
+// FWPFEcalClusterRPZProxyBuilder
+//-----------------------------------------------------------------------------
+
+//______________________________________________________________________________
 void
 FWPFEcalClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc )
 {
@@ -140,25 +142,26 @@ FWPFEcalClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned in
    if( info.displayProperties().isVisible() )
    {
       if( layer < 0 )
-         sharedBuild( iData, iIndex, oItemHolder, vc, context().caloR1() );
+         sharedBuild( iData, iIndex, oItemHolder, vc, m_pfUtils->getCaloR1() );
       else
-         sharedBuild( iData, iIndex, oItemHolder, vc, 177.f );
+         sharedBuild( iData, iIndex, oItemHolder, vc, m_pfUtils->getCaloZ2() );
    }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-// HCAL
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//______________________________________________________________________________________________________________________________________________
+//-----------------------------------------------------------------------------
+// FWPFHcalClusterRPZProxyBuilder
+//-----------------------------------------------------------------------------
+
+//______________________________________________________________________________
 void
 FWPFHcalClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc )
 {
    const FWEventItem::ModelInfo &info = item()->modelInfo( iIndex );
    if( info.displayProperties().isVisible() )
-      sharedBuild( iData, iIndex, oItemHolder, vc, context().caloR1() );
+      sharedBuild( iData, iIndex, oItemHolder, vc, m_pfUtils->getCaloR1() );
 }
 
-//______________________________________________________________________________________________________________________________________________
+//______________________________________________________________________________
 REGISTER_FWPROXYBUILDER( FWPFClusterRPZProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kRhoZBit );
 REGISTER_FWPROXYBUILDER( FWPFEcalClusterRPZProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kRhoPhiPFBit );
 REGISTER_FWPROXYBUILDER( FWPFHcalClusterRPZProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kRhoPhiBit );

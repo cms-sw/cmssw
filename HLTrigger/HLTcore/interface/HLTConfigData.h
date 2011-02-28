@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/12/23 11:43:31 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/12/23 12:37:32 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -77,7 +77,7 @@ class HLTConfigData {
   const edm::ParameterSet& processPSet() const;
 
   /// ParameterSet of module
-  const edm::ParameterSet modulePSet(const std::string& module) const;
+  const edm::ParameterSet& modulePSet(const std::string& module) const;
 
 
   /// HLTLevel1GTSeed module

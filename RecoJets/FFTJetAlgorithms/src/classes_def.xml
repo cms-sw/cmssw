@@ -1,4 +1,0 @@
-<lcgdict>
-   <class name="fftjetcms::DiscretizedEnergyFlow"/>
-   <class name="edm::Wrapper<fftjetcms::DiscretizedEnergyFlow>"/>
-</lcgdict>

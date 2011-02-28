@@ -23,9 +23,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -206,8 +206,8 @@ void EETimingTask::setup(void){
 
     sprintf(histo, "EETMT timing EE+ vs EE-");
     meTimeDelta2D_ = dqmStore_->book2D(histo, histo, 50, -50., 50., 50, -50., 50.);
-    meTimeDelta2D_->setAxisTitle("EE- average time (ns)", 1);
-    meTimeDelta2D_->setAxisTitle("EE+ average time (ns)", 2);
+    meTimeDelta2D_->setAxisTitle("EE+ average time (ns)", 1);
+    meTimeDelta2D_->setAxisTitle("EE- average time (ns)", 2);
 
   }
 
@@ -309,6 +309,11 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
+  // channel status
+  edm::ESHandle<EcalChannelStatus> pChannelStatus;
+  c.get<EcalChannelStatusRcd>().get(pChannelStatus);
+  const EcalChannelStatus* chStatus = pChannelStatus.product();
+
   float sumTime_hithr[2] = {0.,0.};
   int n_hithr[2] = {0,0};
 
@@ -357,10 +362,7 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float yval = hitItr->time();
 
       uint32_t flag = hitItr->recoFlag();
-
-      edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-      c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-      uint32_t sev = sevlv->severityLevel(id, *hits );
+      uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
 
       const GlobalPoint& pos = pGeometry_->getGeometry(id)->getPosition();
 

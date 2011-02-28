@@ -145,12 +145,10 @@ hpsTancTauIDSources = [
     ("leadingPionPtCut", "DiscriminationByLeadingPionPtCut"),
     ("byTaNCraw", "DiscriminationByTancRaw"),
     ("byTaNC", "DiscriminationByTanc"),
-    ("byTaNCvloose", "DiscriminationByTancVLoose"),
     ("byTaNCloose", "DiscriminationByTancLoose"),
     ("byTaNCmedium", "DiscriminationByTancMedium"),
     ("byTaNCtight", "DiscriminationByTancTight"),
     ("byDecayMode", "DiscriminationByDecayModeSelection"),
-    ("byHPSvloose", "DiscriminationByVLooseIsolation"),
     ("byHPSloose", "DiscriminationByLooseIsolation"),
     ("byHPSmedium", "DiscriminationByMediumIsolation"),
     ("byHPStight", "DiscriminationByTightIsolation"),
@@ -222,8 +220,7 @@ def switchToPFTauByType(process,
     mapping = { 'shrinkingConePFTau' : switchToPFTauShrinkingCone,
                 'fixedConePFTau' : switchToPFTauFixedCone,
                 'hpsPFTau' : switchToPFTauHPS,
-                'caloRecoTau' : switchToCaloTau,
-                'hpsTancPFTau' : switchToPFTauHPSpTaNC }
+                'caloRecoTau' : switchToCaloTau }
     mapping[pfTauType](process, pfTauLabelOld = pfTauLabelOld, pfTauLabelNew = pfTauLabelNew,
                        patTauLabel = patTauLabel, postfix = postfix)
 

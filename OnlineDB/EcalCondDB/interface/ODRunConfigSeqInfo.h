@@ -32,8 +32,6 @@ class ODRunConfigSeqInfo : public IODConfig {
   inline  void setEcalConfigId(int x){ m_ecal_config_id = x; }
   inline  int getEcalConfigId()const{ return m_ecal_config_id;}
   inline  void setNumberOfCycles(int x){ m_cycles = x; }
-  inline  void setSequenceId(int x){ m_ID = x; }
-  inline  int getSequenceId()const{ return m_ID;}
   inline  int getNumberOfCycles() const{return m_cycles;}
   inline  void setSequenceNumber(int x){m_seq_num=x;}
   inline  int getSequenceNumber() const{return m_seq_num;}
@@ -49,7 +47,6 @@ class ODRunConfigSeqInfo : public IODConfig {
   int m_ID;
   int m_ecal_config_id;
   int m_seq_num;
-  int m_sequence_id;
   int m_cycles;
   RunSeqDef m_run_seq;
   std::string m_description;

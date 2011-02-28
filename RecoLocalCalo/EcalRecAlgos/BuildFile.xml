@@ -3,11 +3,7 @@
 <use   name="root"/>
 <use   name="rootminuit"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Framework"/>
 <use   name="CondFormats/ESObjects"/>
-<use   name="CondFormats/EcalObjects"/>
-<use   name="CondFormats/DataRecord"/>
 <export>
   <lib   name="1"/>
 </export>

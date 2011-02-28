@@ -23,6 +23,7 @@ ODFEWeightsInfo::ODFEWeightsInfo()
 
 
 void ODFEWeightsInfo::clear(){
+   m_num=0;
 
 }
 
@@ -68,8 +69,8 @@ void ODFEWeightsInfo::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO "+getTable()+" ( rec_id, tag, version ) " 
-			" VALUES ( :1, :2, :3 ) " );
+    m_writeStmt->setSQL("INSERT INTO "+getTable()+" ( rec_id, tag, version, number_of_groups ) " 
+			" VALUES ( :1, :2, :3 , :4) " );
 
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
@@ -90,6 +91,7 @@ void ODFEWeightsInfo::setParameters(std::map<string,string> my_keys_map){
     
     if(ci->first==  "VERSION") setVersion(atoi(ci->second.c_str()) );
     if(ci->first==  "TAG") setConfigTag(ci->second);
+    if(ci->first==  "NUMBER_OF_GROUPS") setNumberOfGroups(atoi(ci->second.c_str()) );
     
   }
   
@@ -106,6 +108,8 @@ void ODFEWeightsInfo::writeDB()
     // number 1 is the id 
     m_writeStmt->setString(2, this->getConfigTag());
     m_writeStmt->setInt(3, this->getVersion());
+    m_writeStmt->setInt(4, this->getNumberOfGroups());
+
     m_writeStmt->executeUpdate();
 
 
@@ -162,6 +166,7 @@ void ODFEWeightsInfo::fetchData(ODFEWeightsInfo * result)
     result->setId(rset->getInt(1));
     result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
+    result->setNumberOfGroups(rset->getInt(4));
 
   } catch (SQLException &e) {
     throw(std::runtime_error("ODFEWeightsInfo::fetchData():  "+e.getMessage()));

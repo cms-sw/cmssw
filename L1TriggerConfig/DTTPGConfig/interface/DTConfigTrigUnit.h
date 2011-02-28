@@ -49,18 +49,31 @@ class DTConfigTrigUnit : public DTConfig {
   //! Debug flag
   inline bool debug() const { return m_debug; }
 
+  //! Digi-to-bti-input offset 500 (tdc units) --> wait to solve with Nicola Amapane
+  inline int MCDigiOffset() const { return m_digioffset; }
+
+  //! Minicrate "fine" sincronization parameter [0,25] ns
+  inline int MCSetupTime() const { return  m_setuptime; }
+
   //! Print the setup
   void print() const ;
 
+ /*  //! Return pointer to parameter set */
+/*   const edm::ParameterSet* getParameterSet() { return m_ps; } */
+
   //! Set debug flag
-  inline void setDebug(bool debug) { m_debug = debug; }
+  inline void setDebug(bool debug) { m_debug=debug; }
 
   private:
 
   //! Load pset values into class variables
   void setDefaults(const edm::ParameterSet& m_ps);
 
+  //const edm::ParameterSet* m_ps;
+
   bool m_debug;
+  int m_digioffset;
+  int m_setuptime;
 
 };
 

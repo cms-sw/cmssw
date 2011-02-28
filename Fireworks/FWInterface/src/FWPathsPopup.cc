@@ -95,11 +95,29 @@ static TypeTrans const sTypeTranslations;
 struct PSetData
 {
    PSetData()
-   : type(-1)
+   : 
+      level(-1),
+      tracked(false),
+
+      type(-1),
+   
+      parent(-1),
+
+      module(-1),
+      path(-1),
+
+      expanded(false),
+      visible(false),
+
+      matches(false),
+      childMatches(false),
+
+      editable(false)
    {}
 
    std::string label;
    std::string value;
+
    int         level;
    bool        tracked;
    char        type;
@@ -107,13 +125,14 @@ struct PSetData
    
    size_t      module;
    size_t      path;
-   // Whether or not it matches the filter.
-   bool        matches;
+
    // Whether or not it is expanded.
    bool        expanded;
    // Whether or not it is visibile.  Being visible is given by either matching
    // a non-null filter, or  or the parent being visibible and expanded.
    bool        visible;
+   // Whether or not it matches the filter.
+   bool        matches;
    // Whether or not any of the children matches the filter.
    bool        childMatches;
    // Whether or not the contents of the GUI can be edited.
@@ -518,11 +537,6 @@ public:
            renderer = &m_pathPassedRenderer;
          else 
            renderer = &m_pathFailedRenderer;
-         if( 0 == iCol ) {
-           renderer->setIsParent(true);
-         } else {
-           renderer->setIsParent(false);
-         }
       }
       else if (data.level == 1)
       {
@@ -537,11 +551,6 @@ public:
            renderer = &m_modulePassedRenderer;
          else
            renderer = &m_moduleFailedRenderer;
-         if( 0 == iCol ) {
-           renderer->setIsParent(true);
-         } else {
-           renderer->setIsParent(false);
-         }
       }
       else
       {
@@ -557,6 +566,22 @@ public:
             renderer = &m_editingDisabledRenderer;
       }
 
+      // set isParent state for expand icon
+      bool isParent = false;
+      if (iCol == 0)
+      { 
+         if (m_filter.empty())
+         {
+            size_t nextIdx =  unsortedRow + 1;
+            isParent = (nextIdx < m_entries.size() &&  m_entries[nextIdx].parent == (size_t)unsortedRow);
+         }
+         else 
+         {
+            isParent = data.childMatches;
+         }
+      } 
+      renderer->setIsParent(isParent);
+
       renderer->setIndentation(0);
       if(data.expanded) {
         renderer->setIsOpen(true);
@@ -566,7 +591,11 @@ public:
 
       if (iCol == 0)
       {
-         renderer->setIndentation(data.level * 10);
+         if (isParent)
+             renderer->setIndentation(data.level * 10 );
+         else
+             renderer->setIndentation(data.level * 10 + 12);
+
          renderer->setData(label, false);
       }
       else if (iCol == 1)
@@ -1349,6 +1378,8 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
                           "FWPathsPopup",this,
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
    m_tableWidget->Connect("Clicked()", "FWPathsPopup", this, "applyEditor()");
+
+   SetWindowName("CMSSW Configuration Editor");
    MapSubwindows();
    editor->UnmapWindow();
    Layout();
