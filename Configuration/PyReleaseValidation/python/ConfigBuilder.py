@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.295 $"
+__version__ = "$Revision: 1.296 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -205,13 +205,12 @@ class ConfigBuilder(object):
 			self.process.source.inputCommands.append(command)
 
 	if self._options.inputEventContent:
+		import copy
 		theEventContent = getattr(self.process, self._options.inputEventContent+"EventContent")
-		for p in theEventContent.parameters_():
-			#convert output commands in inputCommands
-			if p=='outputCommands':
-				setattr(self.process.source,'inputCommands',getattr(theEventContent,p))
-			else:
-				setattr(self.process.source,p,getattr(theEventContent,p))
+		if hasattr(theEventContent,'outputCommands'):
+			self.process.source.inputCommands=copy.copy(theEventContent.outputCommands)
+		if hasattr(theEventContent,'inputCommands'):
+			self.process.source.inputCommands=copy.copy(theEventContent.inputCommands)
 		
         if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
@@ -1369,7 +1368,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.295 $"),
+                                            (version=cms.untracked.string("$Revision: 1.296 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
