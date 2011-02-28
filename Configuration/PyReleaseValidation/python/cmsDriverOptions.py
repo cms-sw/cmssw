@@ -70,10 +70,6 @@ parser.add_option("--data",
                   default=False,
                   dest="isData")
 
-parser.add_option("--cust_function",
-                  help="Specify the customise function to be called from the customise fragment.",
-                  default='',
-                  dest='cust_function')
 
 parser.add_option("--no_exec",
                   help="Do not exec cmsRun. Just prepare the python config file.",

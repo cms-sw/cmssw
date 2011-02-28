@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.293 $"
+__version__ = "$Revision: 1.294 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -485,60 +485,51 @@ class ConfigBuilder(object):
     def addCustomise(self):
         """Include the customise code """
 
-        custFiles=self._options.customisation_file.split(",")
-        for i in range(len(custFiles)):
-                custFiles[i]=custFiles[i].replace('.py','')
-        custFcn=self._options.cust_function.split(",")
-
-        #do a check
-        if len(custFiles)!=len(custFcn) or self._options.cust_function=="":
-                custFcn=[]
-                custFilesNew=[]
-                #try to do something smart
-                for spec in custFiles:
-                        spl=spec.split(".")
-                        if len(spl)==2:
-                                custFilesNew.append(spl[0])
-                                custFcn.append(spl[1])
-                        else:
-                                custFilesNew.append(spl[0])
-                                custFcn.append("customise")
-                custFiles=custFilesNew
-
-        if custFcn.count("customise")>=2:
-                raise Exception("more than one customise function specified with name customise")
-
-        if len(custFiles)==0:
+        custOpt=self._options.customisation_file.split(",")
+	custMap={}
+	for opt in custOpt:
+		if opt.count('.')>1:
+			raise Exception("more than . in the specification:"+opt)
+		fileName=opt.split('.')[0]
+		if opt.count('.')==0:	rest='customise'
+		else:	                rest=opt.split('.')[1]
+		custMap[fileName]=rest.split('+')
+		
+        if len(custMap)==0:
                 final_snippet='\n'
         else:
-                final_snippet='\n# customisation of the process\n'
+                final_snippet='\n# customisation of the process.\n'
 
-        for test in custFcn:
-                if custFcn.count(test)!=1:
-                        raise Exception("cannot specify twice "+test+" as a customisation method")
+	allFcn=[]
+	for opt in custMap:
+		allFcn.extend(custMap[opt])
+	for fcn in allFcn:
+		if allFcn.count(fcn)!=1:
+			raise Exception("cannot specify twice "+fcn+" as a customisation method") 
 
-        for i,(f,fcn) in enumerate(zip(custFiles,custFcn)):
-                print "customising the process with",fcn,"from",f
-                # let python search for that package and do syntax checking at the same time
+	for f in custMap:
+		# let python search for that package and do syntax checking at the same time
                 packageName = f.replace(".py","").replace("/",".")
                 __import__(packageName)
                 package = sys.modules[packageName]
 
-                if not hasattr(package,fcn):
-                        #bound to fail at run time
-                        raise Exception("config "+f+" has no function "+fcn)
-
                 # now ask the package for its definition and pick .py instead of .pyc
                 customiseFile = re.sub(r'\.pyc$', '.py', package.__file__)
 
-                final_snippet+='\n\n# Automatic addition of the customisation function from '+packageName+'\n'
+                final_snippet+='\n# Automatic addition of the customisation function from '+packageName+'\n'
                 for line in file(customiseFile,'r'):
                         if "import FWCore.ParameterSet.Config" in line:
                                 continue
                         final_snippet += line
-                final_snippet += "\n\nprocess = %s(process)\n"%(fcn,)
+		for fcn in custMap[f]:
+			print "customising the process with",fcn,"from",f
+			if not hasattr(package,fcn):
+				#bound to fail at run time
+				raise Exception("config "+f+" has no function "+fcn)
+			final_snippet += "\n#call to customisation function "+fcn+" imported from "+packageName
+			final_snippet += "\nprocess = %s(process)\n"%(fcn,)
 
-        final_snippet += '\n\n# End of customisation functions\n'
+        final_snippet += '\n# End of customisation functions\n'
 
         return final_snippet
 
@@ -1375,7 +1366,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.293 $"),
+                                            (version=cms.untracked.string("$Revision: 1.294 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
