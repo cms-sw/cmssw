@@ -52,6 +52,7 @@ function runCreateConfig() {
 function createSubtables() {
   local DATABASE="$1"; shift
   local MASTER="$1"; shift
+  local TARGET="$1"; shift
   local TABLES="$@"
 
   # load defaults for the selected database
