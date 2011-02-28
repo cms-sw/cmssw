@@ -130,11 +130,11 @@ Realistic7TeV2011CollisionVtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.3929),
     Z0 = cms.double(0.4145)
 )
-# 2.76 TeV estimated collisions, based on 7 TeV parameters
-# normalized emittance 2.5 microns, transverse beam size is 50 microns
+# 2.76 TeV estimated collisions, 11m beta*
+# normalized emittance 2.5 microns, transverse beam size is 140 microns
 Realistic2p76TeV2011CollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
-    BetaStar = cms.double(150.0),
+    BetaStar = cms.double(1100.0),
     Emittance = cms.double(1.70e-07),
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(5.22),
