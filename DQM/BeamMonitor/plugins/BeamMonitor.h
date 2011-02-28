@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2011/02/22 15:12:53 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/02/22 17:36:57 $
+ *  $Revision: 1.9 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *
@@ -147,7 +147,7 @@ class BeamMonitor : public edm::EDAnalyzer {
     MonitorElement * pvResults;
     std::map<TString, MonitorElement*> hs;
 
-    //ssc:the histo for  DQM gui
+    // The histo of the primary vertex for  DQM gui
     std::map<int, std::vector<float> > mapPVx,mapPVy,mapPVz;
     //keep track of beginLuminosity block and time
     std::map<int, int> mapBeginBSLS,mapBeginPVLS;
@@ -173,7 +173,8 @@ class BeamMonitor : public edm::EDAnalyzer {
     std::time_t startTime;
     std::time_t refTime;
     edm::TimeValue_t ftimestamp;
-    int frun;//ssc
+    // Current run
+    int frun;
     int lastNZbin; // last non zero bin of time histos
 };
 

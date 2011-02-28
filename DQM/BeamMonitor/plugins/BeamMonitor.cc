@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/02/23 16:20:25 $
- * $Revision: 1.68 $
+ * $Date: 2011/02/25 15:10:57 $
+ * $Revision: 1.69 $
  */
 
 
@@ -429,10 +429,10 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
   const std::time_t ftmptime = fbegintimestamp >> 32;
 
 
- if (countLumi_ == 0 && (!processed_)) {   
+ if (countLumi_ == 0 && (!processed_)) {
     beginLumiOfBSFit_ = beginLumiOfPVFit_ = nthlumi;
     refBStime[0] = refPVtime[0] = ftmptime;
-    mapBeginBSLS[countLumi_]   = nthlumi;   
+    mapBeginBSLS[countLumi_]   = nthlumi;
     mapBeginPVLS[countLumi_]   = nthlumi;
     mapBeginBSTime[countLumi_] = ftmptime;
     mapBeginPVTime[countLumi_] = ftmptime;
@@ -446,8 +446,8 @@ if(nthlumi > nextlumi_){
     mapBeginBSTime[countLumi_] = ftmptime;
     mapBeginPVTime[countLumi_] = ftmptime;
    }//processed passed but not the first lumi
-   if((!processed_) && countLumi_ !=0){ 
-       mapBeginBSLS[countLumi_]   = nthlumi;   
+   if((!processed_) && countLumi_ !=0){
+       mapBeginBSLS[countLumi_]   = nthlumi;
        mapBeginPVLS[countLumi_]   = nthlumi;
        mapBeginBSTime[countLumi_] = ftmptime;
        mapBeginPVTime[countLumi_] = ftmptime;
@@ -476,7 +476,7 @@ if(nthlumi > nextlumi_){
      mapBeginBSTime.erase(itbstime);
      mapBeginPVTime.erase(itpvtime);
 
-            /*//not sure if want this or not ??  
+            /*//not sure if want this or not ??
             map<int, int>::iterator itgapb=mapBeginBSLS.begin();
             map<int, int>::iterator itgape=mapBeginBSLS.end(); itgape--;
             countGapLumi_ = ( (itgape->second) - (itgapb->second) );
@@ -484,7 +484,7 @@ if(nthlumi > nextlumi_){
             //for example if 10-15 is fitted and if 16-25 are missing then we next fit will be for range 11-26 but BS can change in between
             // so better start  as fresh  and reset everything like starting in the begining!
             if(countGapLumi_ >= 2*resetFitNLumi_){RestartFitting(); mapBeginBSLS[countLumi_]   = nthlumi;}
-            */        
+            */
      }
 
     if(debug_) edm::LogInfo("BeamMonitor") << " beginLuminosityBlock::  Size of mapBeginBSLS After = "<< mapBeginBSLS.size()<<endl;
