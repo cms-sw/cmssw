@@ -1437,11 +1437,11 @@ void Map::clear() {
 double Map::eta( uint32_t eta_bin ) const {
   if ( !eta_.empty() && eta_bin < eta_.size() ) { return eta_[eta_bin]; }
   else { 
-    edm::LogWarning("JetPlusTrackCorrector") 
-      << "[jpt::Map::" << __func__ << "]"
-      << " Trying to access element " << eta_bin
-      << " of a vector with size " << eta_.size()
-      << "!";
+//    edm::LogWarning("JetPlusTrackCorrector") 
+//      << "[jpt::Map::" << __func__ << "]"
+//      << " Trying to access element " << eta_bin
+//      << " of a vector with size " << eta_.size()
+//      << "!";
     return eta_[eta_.size()-1]; 
   }
 }
@@ -1451,11 +1451,11 @@ double Map::eta( uint32_t eta_bin ) const {
 double Map::pt( uint32_t pt_bin ) const {
   if ( !pt_.empty() && pt_bin < pt_.size() ) { return pt_[pt_bin]; }
   else { 
-    edm::LogWarning("JetPlusTrackCorrector") 
-      << "[jpt::Map::" << __func__ << "]"
-      << " Trying to access element " << pt_bin
-      << " of a vector with size " << pt_.size()
-      << "!";
+//    edm::LogWarning("JetPlusTrackCorrector") 
+//      << "[jpt::Map::" << __func__ << "]"
+//      << " Trying to access element " << pt_bin
+//      << " of a vector with size " << pt_.size()
+//      << "!";
     return pt_[pt_.size()-1]; 
   }
 }
@@ -1466,11 +1466,11 @@ double Map::binCenterEta( uint32_t eta_bin ) const {
   if ( !eta_.empty() && eta_bin+1 < eta_.size() ) { 
     return eta_[eta_bin] + ( eta_[eta_bin+1] - eta_[eta_bin] ) / 2.; 
   } else { 
-    edm::LogWarning("JetPlusTrackCorrector") 
-      << "[jpt::Map::" << __func__ << "]"
-      << " Trying to access element " << eta_bin+1
-      << " of a vector with size " << eta_.size()
-      << "!";
+//    edm::LogWarning("JetPlusTrackCorrector") 
+//      << "[jpt::Map::" << __func__ << "]"
+//      << " Trying to access element " << eta_bin+1
+//      << " of a vector with size " << eta_.size()
+//      << "!";
     return eta_[eta_.size()-1]; 
   }
 }
@@ -1481,11 +1481,11 @@ double Map::binCenterPt( uint32_t pt_bin ) const {
   if ( !pt_.empty() && pt_bin+1 < pt_.size() ) { 
     return pt_[pt_bin] + ( pt_[pt_bin+1] - pt_[pt_bin] ) / 2.; 
   } else { 
-    edm::LogWarning("JetPlusTrackCorrector") 
-      << "[jpt::Map::" << __func__ << "]"
-      << " Trying to access element " << pt_bin+1
-      << " of a vector with size " << pt_.size()
-      << "!";
+//    edm::LogWarning("JetPlusTrackCorrector") 
+//      << "[jpt::Map::" << __func__ << "]"
+//      << " Trying to access element " << pt_bin+1
+//      << " of a vector with size " << pt_.size()
+//      << "!";
     return pt_[pt_.size()-1]; 
   }
 }
@@ -1516,11 +1516,11 @@ double Map::value( uint32_t eta_bin, uint32_t pt_bin ) const {
   if ( eta_bin < data_.size() && 
        pt_bin < ( data_.empty() ? 0 : data_[0].size() ) ) { return data_[eta_bin][pt_bin]; }
   else { 
-    edm::LogWarning("JetPlusTrackCorrector") 
-      << "[jpt::Map::" << __func__ << "]"
-      << " Trying to access element (" << eta_bin << "," << pt_bin << ")"
-      << " of a vector with size (" << data_.size() << "," << ( data_.empty() ? 0 : data_[0].size() ) << ")"
-      << "!";
+//    edm::LogWarning("JetPlusTrackCorrector") 
+//      << "[jpt::Map::" << __func__ << "]"
+//      << " Trying to access element (" << eta_bin << "," << pt_bin << ")"
+//      << " of a vector with size (" << data_.size() << "," << ( data_.empty() ? 0 : data_[0].size() ) << ")"
+//      << "!";
     return 1.; 
   }
 }
@@ -1668,11 +1668,11 @@ void Efficiency::addE( uint32_t eta_bin, uint32_t pt_bin, double energy ) {
 bool Efficiency::check( uint32_t eta_bin, uint32_t pt_bin, std::string method ) const {
   if ( eta_bin < data_.size() && pt_bin < ( data_.empty() ? 0 : data_[0].size() ) ) { return true; }
   else { 
-    edm::LogWarning("JetPlusTrackCorrector") 
-      << "[jpt::Efficiency::" << method << "]"
-      << " Trying to access element (" << eta_bin << "," << pt_bin << ")"
-      << " of a vector with size (" << data_.size() << "," << ( data_.empty() ? 0 : data_[0].size() ) << ")"
-      << "!";
+//    edm::LogWarning("JetPlusTrackCorrector") 
+//      << "[jpt::Efficiency::" << method << "]"
+//      << " Trying to access element (" << eta_bin << "," << pt_bin << ")"
+//      << " of a vector with size (" << data_.size() << "," << ( data_.empty() ? 0 : data_[0].size() ) << ")"
+//      << "!";
     return false; 
   }
 }
