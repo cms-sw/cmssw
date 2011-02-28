@@ -128,7 +128,7 @@ namespace mathSSE {
     v3 = _mm256_permute2f128_pd(v1, v2, (2<<4)+1);
     v3 = _mm256_permute_pd(v3,0);
     
-    __m256d v4 = _mm256_permute2f128_pd(v2, v1, (2<<4));
+    v4 = _mm256_permute2f128_pd(v2, v1, (2<<4));
     v4 = _mm256_permute_pd(v4,5);
     
     v3 = _mm256_mul_pd(v3, v4);
@@ -410,6 +410,9 @@ namespace mathSSE {
 
 
 #ifdef  CMS_USE_AVX
+}
+#include "AVXVec.h"
+namespace mathSSE {
 #else
   template<>
   union Vec4<double> {
