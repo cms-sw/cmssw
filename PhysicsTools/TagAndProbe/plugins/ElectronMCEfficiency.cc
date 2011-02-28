@@ -390,7 +390,7 @@ bool ElectronMCEfficiency::boolResults( const edm::Event& iEvent,
      float convDcot = fabs(elec->convDcot()); 
     
      bool select = true;
-     if( !(elec->ecalDrivenSeed==1) )  select = false; 
+     if( !(elec->ecalDrivenSeed()==1) )  select = false; 
      if(convDist<MIN_Dist && convDcot<MIN_Dcot) select = false;
      if(elec->gsfTrack()->trackerExpectedHitsInner().numberOfHits()>MAX_MissingHits) select = false;
      if( elec->isEB() ) {
