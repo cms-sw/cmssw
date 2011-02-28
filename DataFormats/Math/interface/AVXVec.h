@@ -76,7 +76,7 @@ namespace mathSSE {
     }
     
     Vec2<double> xy() const { return  Vec2<double>(_mm256_castpd256_pd128(vec));}
-	Vec2<double> zw() const { return  Vec2<double>(_mm256_castpd256_pd128(_mm256_permute2f128_pd(vec,vec,1));}
+    Vec2<double> zw() const { return  Vec2<double>(_mm256_castpd256_pd128(_mm256_permute2f128_pd(vec,vec,1)));}
 
   };
   
