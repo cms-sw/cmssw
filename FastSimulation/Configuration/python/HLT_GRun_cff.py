@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V46 (CMSSW_3_11_0_HLT8)
+# /dev/CMSSW_3_11_1/GRun/V47 (CMSSW_3_11_0_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V46')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V47')
 )
 
 hltESSAK5CaloL2L3 = cms.ESSource( "JetCorrectionServiceChain",
@@ -1690,7 +1690,8 @@ hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducerECAL",
     thresh_Cleaning = cms.double( 2.0 ),
     verbose = cms.untracked.bool( False ),
     thresh_Barrel = cms.double( 0.08 ),
-    thresh_Endcap = cms.double( 0.3 )
+    thresh_Endcap = cms.double( 0.3 ),
+    topological_Cleaning = cms.bool( True )
 )
 hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
     hcalRecHitsHBHE = cms.InputTag( "hltHbhereco" ),
@@ -1907,7 +1908,8 @@ hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
     pf_DPtoverPt_Cut = cms.vdouble( -1.0, -1.0, -1.0, -1.0 ),
     pf_NHit_Cut = cms.vuint32( 0, 0, 0, 0 ),
     useRecMuons = cms.bool( False ),
-    useGsfRecTracks = cms.bool( False )
+    useGsfRecTracks = cms.bool( False ),
+    useEGPhotons = cms.bool( False )
 )
 hltParticleFlow = cms.EDProducer( "PFProducer",
     pf_newCalib = cms.uint32( 2 ),
@@ -1990,7 +1992,11 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     ecalHcalEcalEndcap = cms.vdouble( 0.46, 3.0, 1.1, 0.4, -0.02, 1.4 ),
     ecalHcalEcalBarrel = cms.vdouble( 0.67, 3.0, 1.15, 0.9, -0.06, 1.4 ),
     ecalHcalHcalBarrel = cms.vdouble( 0.46, 3.0, 1.15, 0.3, -0.02, 1.4 ),
-    ecalHcalHcalEndcap = cms.vdouble( 0.46, 3.0, 1.1, 0.3, -0.02, 1.4 )
+    ecalHcalHcalEndcap = cms.vdouble( 0.46, 3.0, 1.1, 0.3, -0.02, 1.4 ),
+    useCalibrationsFromDB = cms.bool( True ),
+    usePFPhotons = cms.bool( False ),
+    calibPFSCEle_Fbrem_barrel = cms.vdouble( 0.6, 6.0, -0.0255975, 0.0576727, 0.975442, -5.46394E-4, 1.26147, 25.0, -0.02025, 0.04537, 0.9728, -8.962E-4, 1.172 ),
+    calibPFSCEle_Fbrem_endcap = cms.vdouble( 0.9, 6.5, -0.0692932, 0.101776, 0.995338, -0.00236548, 0.874998, 1.653, -0.0750184, 0.147, 0.923165, 4.74665E-4, 1.10782 )
 )
 hltAntiKT5PFJets = cms.EDProducer( "FastjetJetProducer",
     UseOnlyVertexTracks = cms.bool( False ),
@@ -12559,7 +12565,7 @@ HLT_HT240_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT50 + hltPreHT240 + HL
 HLT_HT260_MHT60_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT260MHT60 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT260 + hltMHT60 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_HT300_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT300 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT300 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_HT300_MHT75_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT300MHT75 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT300 + hltMHT75 + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_HT360_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT360 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT360 )
+HLT_HT360_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT360 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT360 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_HT440_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT440 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT440 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_HT520_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1HTT100 + hltPreHT520 + HLTRecoJetSequenceAK5Corrected + HLTDoJet30HTRecoSequence + hltHT520 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_PFMHT80_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1ETM30 + hltPrePFMHT80 + HLTRecoJetSequencePrePF + HLTTrackReconstructionForJets + HLTParticleFlowSequence + HLTPFJetsSequence + hltPFMHT80Filter + cms.SequencePlaceholder( "HLTEndSequence" ) )
