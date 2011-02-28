@@ -410,7 +410,7 @@ namespace mathSSE {
 
 
 #ifdef  CMS_USE_AVX
-}
+}// namespace mathSSE
 #include "AVXVec.h"
 namespace mathSSE {
 #else
@@ -525,7 +525,7 @@ namespace mathSSE {
   template<typename T>
   inline As3D<T> as3D(Vec4<T> const &v ) { return v;}
 
-}
+} // namespace mathSSE
 
 #ifdef CMS_USE_SSE
 

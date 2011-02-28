@@ -1,4 +1,4 @@
-#ifndef DataFormat_Math_SSEVec_H
+#ifndef DataFormat_Math_AVXVec_H
 #define DataFormat_Math_AVXVec_H
 
 // in principle it should not be used alone
@@ -22,7 +22,7 @@ namespace mathSSE {
 
 
     inline Vec4(Vec4<float> ivec) {
-      vec = _mm256_cvtps_pd(_mm256_castps128_ps256(ivec.vec));
+      vec = _mm256_cvtps_pd(ivec.vec);
     }
 
     explicit Vec4(double f1) {
@@ -75,8 +75,8 @@ namespace mathSSE {
       return arr[n];
     }
     
-    Vec2<double> xy() const { return  Vec2<double>(_mm256_castpd256_pd128(vec);}
-	Vec2<double> zw() const { return  Vec2<double>(_mm256_castpd256_pd128(vec_mm256_permute2f128_pd(vec,vec,1));}
+    Vec2<double> xy() const { return  Vec2<double>(_mm256_castpd256_pd128(vec));}
+	Vec2<double> zw() const { return  Vec2<double>(_mm256_castpd256_pd128(_mm256_permute2f128_pd(vec,vec,1));}
 
   };
   
@@ -100,11 +100,11 @@ inline mathSSE::Vec4<double> cross(mathSSE::Vec4<double> a, mathSSE::Vec4<double
 
 
 inline bool operator==(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
-  return _mm256_movemask_pd(_mm256_cmpeq_pd(a.vec,b.vec))==0xf;
+  return _mm256_movemask_pd(_mm256_cmp_pd(a.vec,b.ve,_CMP_EQ_OS))==0xf;
 }
 
 inline mathSSE::Vec4<double> cmpeq(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
-  return _mm256_cmp_pd(a.vec,b.vec,_CMP_WQ_OS);
+  return _mm256_cmp_pd(a.vec,b.vec,_CMP_EQ_OS);
 }
 
 inline mathSSE::Vec4<double> cmpgt(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
@@ -159,3 +159,5 @@ inline mathSSE::Vec4<double> operator*(double a, mathSSE::Vec4<double> b) {
 inline mathSSE::Vec4<double> operator*(mathSSE::Vec4<double> b,double a) {
   return  _mm256_mul_pd(_mm256_set1_pd(a),b.vec);
 }
+
+#endif
