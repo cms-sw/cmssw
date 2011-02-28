@@ -660,9 +660,12 @@ inline float cross(mathSSE::Vec2F a, mathSSE::Vec2F b) {
 //
 
 inline  mathSSE::Vec2D::Vec2(Vec4D v4) {
-  vec = v4.xy();
+#ifdef  CMS_USE_AVX
+  vec = _mm256_castpd256_pd128(v4.vec));
+#else
+  vec = v4.arr[0];
+#endif
 }
-
 
 inline  mathSSE::Vec2D::Vec2(Vec2F ivec) {
   arr[0] = ivec.arr[0]; arr[1] = ivec.arr[1];
