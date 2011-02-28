@@ -65,9 +65,3 @@ JacobianCurvilinearToLocal(const Surface& surface,
   // end of TRSCSD
   //dbg::dbg_trace(1,"Cu2L", localParameters.vector(),di,dj,dk,theJacobian);
 }
-const AlgebraicMatrix55& JacobianCurvilinearToLocal::jacobian() const {
-  return theJacobian;
-}
-const AlgebraicMatrix JacobianCurvilinearToLocal::jacobian_old() const {
-  return asHepMatrix(theJacobian);
-}

@@ -1,7 +1,8 @@
 #ifndef JacobianCurvilinearToLocal_H
 #define JacobianCurvilinearToLocal_H
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+
 
 class Surface;
 class LocalTrajectoryParameters;
@@ -28,8 +29,7 @@ class JacobianCurvilinearToLocal {
   /** Access to Jacobian.
    */
   
-  const AlgebraicMatrix55& jacobian() const;
-  const AlgebraicMatrix jacobian_old() const;
+  const AlgebraicMatrix55& jacobian() const { return  theJacobian; }
 
 
  private:
