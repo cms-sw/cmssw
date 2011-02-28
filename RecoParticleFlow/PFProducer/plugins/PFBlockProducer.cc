@@ -300,7 +300,7 @@ PFBlockProducer::produce(Event& iEvent,
   found = iEvent.getByLabel(inputTagEGPhotons_,
 			    egPhotons);
 
-  if(!found )
+  if(!found && useEGPhotons_ )
     LogError("PFBlockProducer")<<" cannot get photons" 
 			       << inputTagEGPhotons_ << endl;
 
