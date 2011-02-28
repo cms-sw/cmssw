@@ -6620,83 +6620,83 @@ void OHltTree::CheckOpenHlt(
       // Names of Photon Paths With Mass Cut
       // -------------------------------------
 
-      // No isol
+      // No special cuts
       char pathName_Photon_Photon[100];
       sprintf(
             pathName_Photon_Photon,
-            "OpenHLT_Photon%d_Photon%d",
+            "OpenHLT_Photon%d_Photon%d_v1",
             upperEt,
             lowerEt);
       
-      // Both legs Isol
+      // Both legs IsoVL
       char pathName_Photon_IsoVL_Photon_IsoVL[100];
       sprintf(
             pathName_Photon_IsoVL_Photon_IsoVL,
-            "OpenHLT_Photon%d_IsoVL_Photon%d_IsoVL",
+            "OpenHLT_Photon%d_IsoVL_Photon%d_IsoVL_v1",
             upperEt,
             lowerEt);
       
-      // One leg Looser Isol
+      // One leg IsoVL
       char pathName_Photon_IsoVL_Photon[100];
       sprintf(
             pathName_Photon_IsoVL_Photon,
-            "OpenHLT_Photon%d_IsoVL_Photon%d",
+            "OpenHLT_Photon%d_IsoVL_Photon%d_v1",
             upperEt,
             lowerEt);
       
-      // One leg Isol + Mass>60
+      // One leg IsoT + Mass>60
       char pathName_Photon_IsoT_Photon_Mass60[100];
       sprintf(
             pathName_Photon_IsoT_Photon_Mass60,
-            "OpenHLT_Photon%d_IsoT_Photon%d_Mass60",
+            "OpenHLT_Photon%d_IsoT_Photon%d_Mass60_v1",
             upperEt,
             lowerEt);
       
-      // Both legs Isol  + Mass>60
+      // Both legs IsoT  + Mass>60
       char pathName_Photon_IsoT_Photon_IsoT_Mass60[100];
       sprintf(
             pathName_Photon_IsoT_Photon_IsoT_Mass60,
-            "OpenHLT_Photon%d_IsoT_Photon%d_IsoT_Mass60",
+            "OpenHLT_Photon%d_IsoT_Photon%d_IsoT_Mass60_v1",
             upperEt,
             lowerEt);
       
-      // Both legs Isol
+      // Both legs IsoT
       char pathName_Photon_IsoT_Photon_IsoT[100];
       sprintf(
             pathName_Photon_IsoT_Photon_IsoT,
-            "OpenHLT_Photon%d_IsoT_Photon%d_IsoT",
+            "OpenHLT_Photon%d_IsoT_Photon%d_IsoT_v1",
             upperEt,
             lowerEt);
       
-      // One leg Isol
+      // One leg IsoT
       char pathName_Photon_IsoT_Photon[100];
       sprintf(
             pathName_Photon_IsoT_Photon,
-            "OpenHLT_Photon%d_IsoT_Photon%d",
+            "OpenHLT_Photon%d_IsoT_Photon%d_v1",
             upperEt,
             lowerEt);
 
-      // One leg Loose Isol
+      // One leg IsoL
       char pathName_Photon_IsoL_Photon[100];
       sprintf(
             pathName_Photon_IsoL_Photon,
-            "OpenHLT_Photon%d_IsoL_Photon%d",
+            "OpenHLT_Photon%d_IsoL_Photon%d_v1",
             upperEt,
             lowerEt);
       
-      // One leg CaloId
+      // One leg CaloIdL
       char pathName_Photon_CaloIdL_Photon[100];
       sprintf(
             pathName_Photon_CaloIdL_Photon,
-            "OpenHLT_Photon%d_CaloIdL_Photon%d",
+            "OpenHLT_Photon%d_CaloIdL_Photon%d_v1",
             upperEt,
             lowerEt);
       
-      // Two leg VLIsol + CaloIdL
+      // Both legs CaloIdL + IsoVL
       char pathName_Photon_CaloIdL_IsoVL_Photon_CaloIdL_IsoVL[100];
       sprintf(
             pathName_Photon_CaloIdL_IsoVL_Photon_CaloIdL_IsoVL,
-            "OpenHLT_Photon%d_CaloIdL_IsoVL_Photon%d_CaloIdL_IsoVL",
+            "OpenHLT_Photon%d_CaloIdL_IsoVL_Photon%d_CaloIdL_IsoVL_v1",
             upperEt,
             lowerEt);
       
@@ -6704,39 +6704,39 @@ void OHltTree::CheckOpenHlt(
       char pathName_Photon_CaloIdL_IsoVL_Photon[100];
       sprintf(
             pathName_Photon_CaloIdL_IsoVL_Photon,
-            "OpenHLT_Photon%d_CaloIdL_IsoVL_Photon%d",
+            "OpenHLT_Photon%d_CaloIdL_IsoVL_Photon%d_v1",
             upperEt,
             lowerEt);
       
-      // One leg Isol + CaloId + Mass>60
+      // One leg CaloIdL + IsoT + Mass>60
       char pathName_Photon_CaloIdL_IsoT_Photon_Mass60[100];
       sprintf(
             pathName_Photon_CaloIdL_IsoT_Photon_Mass60,
-            "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d_Mass60",
+            "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d_Mass60_v1",
             upperEt,
             lowerEt);
       
-      // Both legs Isol + CaloId + Mass>60
+      // Both legs CaloIdL + IsoT + Mass>60
       char pathName_Photon_CaloIdL_IsoT_Photon_CaloIdL_IsoT_Mass60[100];
       sprintf(
             pathName_Photon_CaloIdL_IsoT_Photon_CaloIdL_IsoT_Mass60,
-            "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d_CaloIdL_IsoT_Mass60",
+            "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d_CaloIdL_IsoT_Mass60_v1",
             upperEt,
             lowerEt);
 
-      // Both legs Isol + CaloId
+      // Both legs CaloIdL + IsoT
       char pathName_Photon_CaloIdL_IsoT_Photon_CaloIdL_IsoT[100];
       sprintf(
             pathName_Photon_CaloIdL_IsoT_Photon_CaloIdL_IsoT,
-            "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d_CaloIdL_IsoT",
+            "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d_CaloIdL_IsoT_v1",
             upperEt,
             lowerEt);
       
-      // One leg Isol + CaloId
+      // One leg CaloIdL + IsoT
       char pathName_Photon_CaloIdL_IsoT_Photon[100];
       sprintf(
             pathName_Photon_CaloIdL_IsoT_Photon,
-            "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d",
+            "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d_v1",
             upperEt,
             lowerEt);
 
