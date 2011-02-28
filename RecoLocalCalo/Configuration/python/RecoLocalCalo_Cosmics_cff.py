@@ -37,8 +37,12 @@ hfreco.samplesToAdd = 8
 hfreco.correctForTimeslew = True
 hfreco.correctForPhaseContainment = True
 hfreco.correctionPhaseNS = 10.
-zdcreco.firstSample = 1
-zdcreco.samplesToAdd = 8
+#--- special temporary DB-usage unsetting 
+hbheprereco.tsFromDB = False
+hfreco.tsFromDB = False
+horeco.tsFromDB = False
+#zdcreco.firstSample = 1
+#zdcreco.samplesToAdd = 8
 zdcreco.correctForTimeslew = True
 zdcreco.correctForPhaseContainment = True
 zdcreco.correctionPhaseNS = 10.

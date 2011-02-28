@@ -17,10 +17,11 @@ from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
 #HCAL reconstruction
 from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
-
+#
 hfreco.firstSample = 3
 hfreco.samplesToAdd = 4
-
+#--- special temporary DB-usage unsetting
+hfreco.tsFromDB = False
 #
 # sequence CaloLocalReco and CaloGlobalReco
 #
