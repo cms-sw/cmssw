@@ -4,7 +4,9 @@
 #if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
 #include <x86intrin.h>
 #define CMS_USE_SSE
-
+#ifdef __AVX__
+#define CMS_USE_AVX
+#endif
 #else
 
 #ifdef __SSE2__
@@ -87,25 +89,64 @@ namespace mathSSE {
 
   // cross (just 3x3) 
   inline __m128 _mm_cross_ps(__m128 v1, __m128 v2) {
+    // same order is  _MM_SHUFFLE(3,2,1,0)
+    //                                               x2, z1,z1
     __m128 v3 = _mm_shuffle_ps(v2, v1, _MM_SHUFFLE(3, 0, 2, 2));
+    //                                               y1, x2,y1
     __m128 v4 = _mm_shuffle_ps(v1, v2, _MM_SHUFFLE(3, 1, 0, 1));
     
     __m128 v5 = _mm_mul_ps(v3, v4);
     
+    //                                         x1, z2,z2
     v3 = _mm_shuffle_ps(v1, v2, _MM_SHUFFLE(3, 0, 2, 2));
+    //                                        y2, x1,y1
     v4 = _mm_shuffle_ps(v2, v1, _MM_SHUFFLE(3, 1, 0, 1));
     
     v3 = _mm_mul_ps(v3, v4);
     const  __m128 neg = _mm_set_ps(0.0f,0.0f,-0.0f,0.0f);
     return _mm_xor_ps(_mm_sub_ps(v5, v3), neg);
   }
-
-
 #endif // CMS_USE_SSE
+
+#ifdef  CMS_USE_AVX
+  inline __m256d _mm256_dot_pd(__m256d v1, __m256d v2) {
+    __m256d mul = _mm256_mul_pd(v1, v2);
+    mul = _mm256_hadd_pd(mul,mul);
+    return _mm256_hadd_pd(mul,mul);
+  }
+
+  inline __m256d _mm256_cross_pd(__m256d v1, __m256d v2) {
+    
+    __m256d v3 = _mm256_permute2f128_pd(v2, v1, (2<<4)+1);
+    v3 = _mm256_permute_pd(v3,0);
+    
+    __m256d v4 = _mm256_permute2f128_pd(v1, v2, (2<<4));
+    v4 = _mm256_permute_pd(v4,5);
+    
+    __m256d v5 = _mm256_mul_pd(v3, v4);
+    
+    v3 = _mm256_permute2f128_pd(v1, v2, (2<<4)+1);
+    v3 = _mm256_permute_pd(v3,0);
+    
+    __m256d v4 = _mm256_permute2f128_pd(v2, v1, (2<<4));
+    v4 = _mm256_permute_pd(v4,5);
+    
+    v3 = _mm256_mul_pd(v3, v4);
+    const  __m256d neg = _mm256_set_pd(0.0,0.0,-0.0,0.0);
+    return _mm256_xor_pd(_mm256_sub_pd(v5, v3), neg);
+ 
+  }
+
+#endif //  CMS_USE_AVX
+
 
 
   template<typename T>
   struct OldVec { T  theX; T  theY; T  theZ; T  theW;}  __attribute__ ((aligned (16)));
+#ifdef  CMS_USE_AVX
+  template<>
+  struct OldVec<double> { double  theX; double  theY; double  theZ; double  theW;}  __attribute__ ((aligned (32)));
+#endif
   
   template<typename T> union Vec4;
 
@@ -203,6 +244,19 @@ namespace mathSSE {
     }
   };
   
+#ifdef  CMS_USE_AVX
+  template<>
+  union Mask4<double> {
+    __m256d vec;
+    unsigned long long __attribute__ ((aligned(32))) mask[4];
+    Mask4() {
+      vec = _mm256_setzero_pd();
+     }
+    Mask4(unsigned long long m1, unsigned long long m2, unsigned long long m3, unsigned long long m4) {
+      mask[0]=m1;  mask[1]=m2;  mask[2]=m3;  mask[3]=m4; 
+    }
+  };
+#else
   template<>
   union Mask4<double> {
     __m128d vec[2];
@@ -215,7 +269,7 @@ namespace mathSSE {
       mask[0]=m1;  mask[1]=m2;  mask[2]=m3;  mask[3]=m4; 
     }
   };
-
+#endif
 
   template<>
   union Mask2<double> {
@@ -353,6 +407,10 @@ namespace mathSSE {
   };
  
 
+
+
+#ifdef  CMS_USE_AVX
+#else
   template<>
   union Vec4<double> {
     __m128d vec[2];
@@ -443,6 +501,7 @@ namespace mathSSE {
     __m128 v2 = _mm_cvtpd_ps(ivec.vec[1]);
     vec = _mm_shuffle_ps(vec, v2, _MM_SHUFFLE(1, 0, 1, 0));
   }
+#endif  // CMS_USE_AVX
 
 
 #endif // CMS_USE_SSE
@@ -669,6 +728,7 @@ inline double cross(mathSSE::Vec2D a, mathSSE::Vec2D b) {
 }
 
 
+#ifndef  CMS_USE_AVX
 // double op 3d
 
 inline bool operator==(mathSSE::Vec4D a, mathSSE::Vec4D b) {
@@ -755,6 +815,7 @@ inline mathSSE::Vec4D cross(mathSSE::Vec4D a, mathSSE::Vec4D b) {
   return  mathSSE::Vec4D( m1 , m2 );
 }
 
+#endif   // CMS_USE_AVX
 
 
 // sqrt
@@ -762,9 +823,13 @@ namespace mathSSE {
   template<> inline Vec4F sqrt(Vec4F v) { return _mm_sqrt_ps(v.vec);}
   template<> inline Vec2F sqrt(Vec2F v) { return sqrt(Vec4F(v));}
   template<> inline Vec2D sqrt(Vec2D v) { return _mm_sqrt_pd(v.vec);}
+#ifdef  CMS_USE_AVX
+  template<> inline Vec4D sqrt(Vec4D v) { return _mm256_sqrt_pd(v.vec);}
+#else
   template<> inline Vec4D sqrt(Vec4D v) { 
     return Vec4D(_mm_sqrt_pd(v.vec[0]),_mm_sqrt_pd(v.vec[1]));
   }
+#endif
 }
 
 // chephes func
