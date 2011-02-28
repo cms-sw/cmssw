@@ -17,6 +17,8 @@ PFClient::PFClient(const edm::ParameterSet& parameterSet)
 {
   folderNames_ = parameterSet.getParameter< std::vector<std::string> >( "FolderNames" );
   histogramNames_  = parameterSet.getParameter< std::vector<std::string> >( "HistogramNames" );
+  efficiencyFlag_ =  parameterSet.getParameter< bool> ("CreateEfficiencyPlots" );
+  effHistogramNames_  = parameterSet.getParameter< std::vector<std::string> >( "HistogramNamesForEfficiencyPlots" );
 }
 //
 // -- BeginJob
@@ -30,6 +32,7 @@ void PFClient::beginJob() {
 // 
 void PFClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   doSummaries();
+  if (efficiencyFlag_) doEfficiency();
 }
 //
 // -- EndJob
@@ -50,6 +53,21 @@ void PFClient::doSummaries() {
        ihist != histogramNames_.end(); ihist++) {
       std::string hname = (*ihist); 
       createResolutionPlots(path, hname);
+    }
+  }
+}
+//
+// -- Create Summaries
+//
+void PFClient::doEfficiency() {
+  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin();
+                                    ifolder != folderNames_.end(); ifolder++) {
+    std::string path  = "ParticleFlow/"+(*ifolder);
+
+    for (std::vector<std::string>::const_iterator ihist = effHistogramNames_.begin();
+	 ihist != effHistogramNames_.end(); ihist++) {
+      std::string hname = (*ihist);
+      createEfficiencyPlots(path, hname);
     }
   }
 }
@@ -131,6 +149,39 @@ void PFClient::getHistogramParameters(MonitorElement* me_slice, double& average,
 	sigma = gaus->GetParameter(2);
         mean  = gaus->GetParameter(1);
       }
+    }
+  }
+}
+//
+// -- Create Resolution Plots
+//
+void PFClient::createEfficiencyPlots(std::string& folder, std::string& name) {     
+  MonitorElement* me1 = dqmStore_->get(folder+"/"+name);
+  MonitorElement* me2 = dqmStore_->get(folder+"/"+name+"ref_");
+  if (!me1 || !me2) return;
+  MonitorElement* me_eff;
+  if ( (me1->kind() == MonitorElement::DQM_KIND_TH1F) &&
+       (me1->kind() == MonitorElement::DQM_KIND_TH1F) ) {
+    TH1* th1 = me1->getTH1F();
+    size_t nbinx = me1->getNbinsX();
+    
+    float xmin = th1->GetXaxis()->GetXmin();
+    float xmax = th1->GetXaxis()->GetXmax();
+    std::string xtit = me1->getAxisTitle(1);
+    std::string tit_new;
+    tit_new = ";"+xtit+";Efficiency"; 
+
+    dqmStore_->setCurrentFolder(folder);
+    me_eff = dqmStore_->book1D("efficiency_"+name,tit_new, nbinx, xmin, xmax); 
+				 
+    double  efficiency;
+    me_eff->Reset();
+    for (size_t ix = 1; ix < nbinx+1; ++ix) {
+      float val1 = me1->getBinContent(ix);
+      float val2 = me2->getBinContent(ix);
+      if (val2 > 0.0) efficiency = val1/val2;
+      else efficiency = 0;   
+      me_eff->setBinContent(ix,efficiency);
     }
   }
 }
