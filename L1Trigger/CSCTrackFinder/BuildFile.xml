@@ -14,3 +14,4 @@
 <use   name="boost"/>
 
 <flags ADD_SUBDIR="1"/>
+<flags CXXFLAGS="-O1"/>
