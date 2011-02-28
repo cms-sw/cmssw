@@ -296,9 +296,10 @@ std::string LMFRunIOV::writeDBSql(Statement *stmt)
   int seq_id = getInt("seq_id");
   int color_id = getInt("color_id");
   int tt = getInt("trigType_id");
+  std::string sp = sequencePostfix(getSubRunStart());
   std::string sql = "INSERT INTO LMF_RUN_IOV (LMF_IOV_ID, TAG_ID, SEQ_ID, "
     "LMR, COLOR_ID, TRIG_TYPE, SUBRUN_START, SUBRUN_END, SUBRUN_TYPE) VALUES "
-    "(lmf_run_iov_sq.NextVal, :1, :2, :3, :4, :5, :6, :7, :8)";
+    "(lmf_run_iov_" + sp + "_sq.NextVal, :1, :2, :3, :4, :5, :6, :7, :8)";
   stmt->setSQL(sql);
   DateHandler dm(m_env, m_conn);
   stmt->setInt(1, tag_id);

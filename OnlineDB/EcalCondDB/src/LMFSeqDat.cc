@@ -163,9 +163,10 @@ std::string LMFSeqDat::writeDBSql(Statement *stmt)
   if (runIOVID == 0) {
     throw(std::runtime_error("LMFSeqDat::writeDB: RunIOV not set"));
   }
+  std::string sp = sequencePostfix(getSequenceStart());
   std::string sql = "INSERT INTO LMF_SEQ_DAT (SEQ_ID, RUN_IOV_ID, SEQ_NUM, "
     "SEQ_START, SEQ_STOP, VMIN, VMAX) "
-    "VALUES (SEQ_ID_SQ.NextVal, :1, :2, :3, :4, :5, :6)";
+    "VALUES (SEQ_ID_" + sp + "_SQ.NextVal, :1, :2, :3, :4, :5, :6)";
   cout << sql << endl;
   stmt->setSQL(sql);
   stmt->setInt(1, runIOVID);

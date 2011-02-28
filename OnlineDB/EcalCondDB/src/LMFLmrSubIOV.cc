@@ -95,9 +95,10 @@ std::string LMFLmrSubIOV::writeDBSql(Statement *stmt) {
   if (m_lmfIOV == 0) {
     throw(std::runtime_error(m_className + "::writeDB: LMFIOV not set"));
   }
+  std::string sp = sequencePostfix(m_t[0]);
   std::string sql = "INSERT INTO LMF_LMR_SUB_IOV (LMR_SUB_IOV_ID, "
     "IOV_ID, T1, T2, T3) "
-    "VALUES (LMF_LMR_SUB_IOV_ID_SQ.NextVal, :1, :2, :3, :4)";
+    "VALUES (LMF_LMR_SUB_IOV_ID_" + sp + "_SQ.NextVal, :1, :2, :3, :4)";
   stmt->setSQL(sql);
   stmt->setInt(1, m_lmfIOV);
   for (int i = 0; i < 3; i++) {

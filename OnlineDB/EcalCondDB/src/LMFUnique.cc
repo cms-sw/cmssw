@@ -7,6 +7,11 @@ using namespace oracle::occi;
 LMFUnique::~LMFUnique() {
 }
 
+std::string LMFUnique::sequencePostfix(Tm t) {
+  std::string ts = t.str();
+  return ts.substr(2, 2);
+}
+
 LMFUnique& LMFUnique::setString(std::string key, std::string value) {
   // check if this key exists
   std::map<std::string, std::string>::const_iterator i = 
