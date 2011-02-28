@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:50 CET 2011
-// $Id$
+// $Id: FWPSetTableManager.h,v 1.1 2011/02/28 18:47:35 amraktad Exp $
 //
 
 // system include files
@@ -186,6 +186,11 @@ private:
    std::string                     m_filter;
    TGTextEntry                    *m_editor;
    std::vector<std::string>        m_availablePaths;
+
+   TGGC*  m_greenGC;
+   TGGC*  m_redGC;
+   TGGC*  m_grayGC;
+   TGGC*  m_bgGC;
 
    mutable FWTextTreeCellRenderer m_renderer;  
    mutable FWTextTreeCellRenderer m_italicRenderer;

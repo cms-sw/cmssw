@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id$
+// $Id: FWPSetTableManager.cc,v 1.1 2011/02/28 18:47:35 amraktad Exp $
 //
 
 #include <iostream>
@@ -28,62 +28,6 @@
 
 #include "TGTextEntry.h"
 
-const TGGC &
-pathBackgroundGC()
-{
-   static TGGC s_pathBackgroundGC(*gClient->GetResourcePool()->GetFrameGC());
-   s_pathBackgroundGC.SetBackground(gVirtualX->GetPixel(kGray));
-   return s_pathBackgroundGC;
-}
-
-
-// Is there a simpler way to handle colors?   
-const TGGC &
-boldRedGC()
-{
-   static TGGC s_boldRedGC(fireworks::boldGC());
-   s_boldRedGC.SetForeground(gVirtualX->GetPixel(kRed-5));
-   return s_boldRedGC;
-}
-
-const TGGC &
-italicRedGC()
-{
-   static TGGC s_italicRedGC(fireworks::italicGC());
-   s_italicRedGC.SetForeground(gVirtualX->GetPixel(kRed-5));
-   return s_italicRedGC;
-}
-
-const TGGC&
-italicGray()
-{
-   static TGGC s_italicGrayGC(fireworks::italicGC());
-   s_italicGrayGC.SetForeground(gVirtualX->GetPixel(kGray+1));
-   return s_italicGrayGC;
-}
-  
- 
-const TGGC&
-boldGreenGC()
-{
-   static TGGC s_boldGreenGC(fireworks::boldGC());
-   s_boldGreenGC.SetForeground(gVirtualX->GetPixel(kGreen-5));
-   return s_boldGreenGC;
-}
- 
-const TGGC &
-italicGreenGC()
-{
-   static TGGC s_italicGreenGC(fireworks::italicGC());
-   s_italicGreenGC.SetForeground(gVirtualX->GetPixel(kGreen-5));
-   return s_italicGreenGC;
-}
-
-  
-//==============================================================================
-//==============================================================================
-//==============================================================================
-//==============================================================================
 
 // FIXME: copied from Entry.cc should find a way to use the original
 //        table.
@@ -689,27 +633,44 @@ void FWPSetTableManager::handleEntry(const edm::Entry &entry,const std::string &
 //
 
 FWPSetTableManager::FWPSetTableManager()
-   : m_selectedRow(-1)
+   : m_selectedRow(-1),
+     m_greenGC(0),
+     m_redGC(0),
+     m_grayGC(0),
+     m_bgGC(0)
 {  
    m_boldRenderer.setGraphicsContext(&fireworks::boldGC());
    m_italicRenderer.setGraphicsContext(&fireworks::italicGC());
 
-   m_pathPassedRenderer.setGraphicsContext(&boldGreenGC());
-   m_pathPassedRenderer.setHighlightContext(&pathBackgroundGC());
+   m_greenGC = new TGGC(fireworks::boldGC());
+   m_greenGC->SetForeground(gVirtualX->GetPixel(kGreen-5));
+
+   m_redGC = new TGGC(fireworks::boldGC());
+   m_redGC->SetForeground(gVirtualX->GetPixel(kRed-5));
+
+   m_grayGC = new TGGC(fireworks::italicGC());
+   m_grayGC->SetForeground(gVirtualX->GetPixel(kGray+1));
+
+   m_bgGC = new TGGC(*gClient->GetResourcePool()->GetFrameGC());
+   m_bgGC->SetBackground(gVirtualX->GetPixel(kGray));
+
+  
+   m_pathPassedRenderer.setGraphicsContext(m_greenGC);
+   m_pathPassedRenderer.setHighlightContext(m_bgGC);
    m_pathPassedRenderer.setIsParent(true);
 
-   m_pathFailedRenderer.setGraphicsContext(&boldRedGC());
-   m_pathFailedRenderer.setHighlightContext(&pathBackgroundGC());
+   m_pathFailedRenderer.setGraphicsContext(m_redGC);
+   m_pathFailedRenderer.setHighlightContext(m_bgGC);
    m_pathFailedRenderer.setIsParent(true);
       
-   m_editingDisabledRenderer.setGraphicsContext(&italicGray());
-   m_editingDisabledRenderer.setHighlightContext(&pathBackgroundGC());
+   m_editingDisabledRenderer.setGraphicsContext(m_grayGC);
+   m_editingDisabledRenderer.setHighlightContext(m_bgGC);
 
    // Italic color doesn't seem to show up well event though
    // modules are displayed in italic
-   m_modulePassedRenderer.setGraphicsContext(&boldGreenGC());
+   m_modulePassedRenderer.setGraphicsContext(m_greenGC);
    m_modulePassedRenderer.setIsParent(true);
-   m_moduleFailedRenderer.setGraphicsContext(&boldRedGC());
+   m_moduleFailedRenderer.setGraphicsContext(m_redGC);
    m_moduleFailedRenderer.setIsParent(true);
 
    // Debug stuff to dump font list.
