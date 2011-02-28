@@ -58,6 +58,11 @@ function createSubtables() {
   # load defaults for the selected database
   loadConfiguration "$DATABASE"
 
+  # dump the requested configuration
+  echo "ConfDB master: $DATABASE:$MASTER"
+  echo "Subtables:     $TABLES"
+  echo "Created under: $DATABASE:$TARGET/"
+
   # expand the wildcards in the path names in each subtables
   local LIST=$(getPathList $MASTER)
   local FAIL=0
