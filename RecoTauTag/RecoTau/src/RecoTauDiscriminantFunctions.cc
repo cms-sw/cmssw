@@ -1,5 +1,6 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauDiscriminantFunctions.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/angle.h"
 #include <algorithm>
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -67,6 +68,13 @@ PFCandidateRefVector notMainTrack(Tau tau)
   return output;
 }
 
+double Pt(Tau tau) { return tau.pt(); }
+double Eta(Tau tau) { return tau.eta(); }
+double AbsEta(Tau tau) { return std::abs(tau.eta()); }
+double Mass(Tau tau) { return tau.mass(); }
+double DecayMode(Tau tau) { return tau.decayMode(); }
+double InvariantMassOfSignal(Tau tau) { return tau.mass(); }
+
 /*
  * HPStanc variables
  */
@@ -87,6 +95,10 @@ double JetWidth(Tau tau) {
   return std::sqrt(
       std::abs(tau.jetRef()->etaetaMoment()) +
       std::abs(tau.jetRef()->phiphiMoment()));
+}
+
+double JetTauDR(Tau tau) {
+  return reco::deltaR(tau.p4(), tau.jetRef()->p4());
 }
 
 double SignalPtFraction(Tau tau) {
@@ -112,6 +124,30 @@ double IsolationNeutralHadronPtFraction(Tau tau) {
 double ScaledEtaJetCollimation(Tau tau) {
   return tau.jetRef()->pt()*sqrt(std::abs(
           tau.jetRef()->etaetaMoment()));
+}
+
+double OpeningDeltaR(Tau tau) {
+  double sumEt = 0;
+  double weightedDeltaR = 0;
+  BOOST_FOREACH(const reco::PFCandidateRef& cand, tau.signalPFCands()) {
+    double candEt = cand->et();
+    double candDeltaR = reco::deltaR(cand->p4(), tau.p4());
+    sumEt += candEt;
+    weightedDeltaR += candDeltaR*candEt;
+  }
+  return (sumEt > 0) ? weightedDeltaR/sumEt : 0.0;
+}
+
+double OpeningAngle3D(Tau tau) {
+  double sumE = 0;
+  double weightedAngle = 0;
+  BOOST_FOREACH(const reco::PFCandidateRef& cand, tau.signalPFCands()) {
+    double candE = cand->energy();
+    double candAngle = angle(cand->p4(), tau.p4());
+    sumE += candE;
+    weightedAngle += candAngle*candE;
+  }
+  return (sumE > 0) ? weightedAngle/sumE : 0.0;
 }
 
 double ScaledOpeningDeltaR(Tau tau) {

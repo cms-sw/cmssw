@@ -34,6 +34,8 @@ double JetPt(Tau tau);
 double JetEta(Tau tau);
 double AbsJetEta(Tau tau);
 double JetWidth(Tau tau);
+// Delta R between tau and jet axis
+double JetTauDR(Tau tau);
 
 double SignalPtFraction(Tau tau);
 double IsolationChargedPtFraction(Tau tau);
@@ -41,6 +43,8 @@ double IsolationECALPtFraction(Tau tau);
 double IsolationNeutralHadronPtFraction(Tau tau);
 double MainTrackPtFraction(Tau tau);
 double IsolationChargedAveragePtFraction(Tau tau);
+double OpeningDeltaR(Tau tau);
+double OpeningAngle3D(Tau tau);
 double ScaledEtaJetCollimation(Tau tau);
 double ScaledPhiJetCollimation(Tau tau);
 double ScaledOpeningDeltaR(Tau tau);
@@ -64,11 +68,11 @@ double EMFraction(Tau tau);
 // Absolute significance of impact parameter
 double ImpactParameterSignificance(Tau tau);
 
-double Pt(Tau tau) { return tau.pt(); }
-double Eta(Tau tau) { return tau.eta(); }
-double AbsEta(Tau tau) { return std::abs(tau.eta()); }
-double Mass(Tau tau) { return tau.mass(); }
-double DecayMode(Tau tau) { return tau.decayMode(); }
+double Pt(Tau tau);
+double Eta(Tau tau);
+double AbsEta(Tau tau);
+double Mass(Tau tau);
+double DecayMode(Tau tau);
 
 // Number of objects in isolation cone
 double OutlierN(Tau);
@@ -88,7 +92,7 @@ double MainTrackEta(Tau);
 double MainTrackAngle(Tau);
 
 // Exactly the same as "Mass", needed for backwards compatability
-double InvariantMassOfSignal(Tau tau) { return tau.mass(); }
+double InvariantMassOfSignal(Tau tau);
 
 // Quanitites of tracks
 VDouble TrackPt(Tau);
