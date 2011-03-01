@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.297 $"
+__version__ = "$Revision: 1.298 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -792,6 +792,33 @@ class ConfigBuilder(object):
                     raise
             return l
 
+    def scheduleSequence(self,seq,prefix,what='Path'):
+	    if '*' in seq:
+		    #create only one path with all sequences in it
+		    for i,s in enumerate(seq.split('*')):
+			    if i==0:
+				    setattr(self.process,prefix,getattr(cms,what)( getattr(self.process, s) ))
+			    else:
+				    p=getattr(self.process,prefix)
+				    p+=getattr(self.process, s)
+		    self.schedule.append(getattr(self.process,prefix))
+		    return
+	    else:
+		    #create as many path as many sequences
+		    if not '+' in seq:
+			    setattr(self.process,prefix,getattr(cms,what)( getattr(self.process, seq) ))
+			    self.schedule.append(getattr(self.process,prefix))
+		    else:
+			    for i,s in enumerate(seq.split('+')):
+				    sn=prefix+'%d'%(i)
+				    setattr(self.process,sn,getattr(cms,what)( getattr(self.process, s) ))
+				    self.schedule.append(getattr(self.process,sn))
+		    return
+    
+    def scheduleSequenceAtEnd(self,seq,prefix):
+	    self.scheduleSequence(seq,prefix,what='EndPath')
+	    return
+	    
     def prepare_ALCA(self, sequence = None, workflow = 'full'):
         """ Enrich the process with alca streams """
         alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
@@ -909,9 +936,7 @@ class ConfigBuilder(object):
         """ Enrich the schedule with the summary of the filter step """
         #the gen filter in the endpath
         self.loadAndRemember("GeneratorInterface/Core/genFilterSummary_cff")
-        self.process.genfiltersummary_step = cms.EndPath( self.process.genFilterSummary )
-        self.schedule.append(self.process.genfiltersummary_step)
-
+	self.scheduleSequenceAtEnd('genFilterSummary','genfiltersummary_step')
         return
 
     def prepare_SIM(self, sequence = None):
@@ -929,8 +954,7 @@ class ConfigBuilder(object):
                 else:
                         self.loadAndRemember("SimGeneral/MixingModule/himixSIMIdeal_cff")
 
-        self.process.simulation_step = cms.Path( self.process.psim )
-        self.schedule.append(self.process.simulation_step)
+	self.scheduleSequence('psim','simulation_step')
         return
 
     def prepare_DIGI(self, sequence = None):
@@ -943,49 +967,43 @@ class ConfigBuilder(object):
         if self._options.himix==True:
             self.loadAndRemember("SimGeneral/MixingModule/himixDIGI_cff")
 
-        self.process.digitisation_step = cms.Path(getattr(self.process,sequence.split('.')[-1]))
-        self.schedule.append(self.process.digitisation_step)
+	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
 
     def prepare_CFWRITER(self, sequence = None):
-        """ Enrich the schedule with the crossing frame writer step"""
-        self.loadAndRemember(self.CFWRITERDefaultCFF)
-
-        self.process.cfwriter_step = cms.Path(self.process.pcfw)
-        self.schedule.append(self.process.cfwriter_step)
-        return
+	    """ Enrich the schedule with the crossing frame writer step"""
+	    self.loadAndRemember(self.CFWRITERDefaultCFF)
+	    self.scheduleSequence('pcfw','cfwriter_step')
+	    return
 
     def prepare_DATAMIX(self, sequence = None):
-        """ Enrich the schedule with the digitisation step"""
-        self.loadAndRemember(self.DATAMIXDefaultCFF)
-        self.process.datamixing_step = cms.Path(self.process.pdatamix)
-        self.schedule.append(self.process.datamixing_step)
-        return
+	    """ Enrich the schedule with the digitisation step"""
+	    self.loadAndRemember(self.DATAMIXDefaultCFF)
+	    self.scheduleSequence('pdatamix','datamixing_step')
+	    return
 
     def prepare_DIGI2RAW(self, sequence = None):
             self.loadDefaultOrSpecifiedCFF(sequence,self.DIGI2RAWDefaultCFF)
-            self.process.digi2raw_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
-            self.schedule.append(self.process.digi2raw_step)
+	    self.scheduleSequence(sequence.split('.')[-1],'digi2raw_step')
             return
 
     def prepare_REPACK(self, sequence = None):
             self.loadDefaultOrSpecifiedCFF(sequence,self.REPACKDefaultCFF)
-            self.process.digi2repack_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
-            self.schedule.append( self.process.digi2repack_step )
+	    self.scheduleSequence(sequence.split('.')[-1],'digi2repack_step')
             return
 
     def prepare_L1(self, sequence = None):
-        """ Enrich the schedule with the L1 simulation step"""
-        if not sequence:
-            self.loadAndRemember(self.L1EMDefaultCFF)
-        else:
-            # let the L1 package decide for the scenarios available
-            from L1Trigger.Configuration.ConfigBuilder import getConfigsForScenario
-            listOfImports = getConfigsForScenario(sequence)
-            for file in listOfImports:
-                self.loadAndRemember(file)
-        self.process.L1simulation_step = cms.Path(self.process.SimL1Emulator)
-        self.schedule.append(self.process.L1simulation_step)
+	    """ Enrich the schedule with the L1 simulation step"""
+	    if not sequence:
+		    self.loadAndRemember(self.L1EMDefaultCFF)
+	    else:
+		    # let the L1 package decide for the scenarios available
+		    from L1Trigger.Configuration.ConfigBuilder import getConfigsForScenario
+		    listOfImports = getConfigsForScenario(sequence)
+		    for file in listOfImports:
+			    self.loadAndRemember(file)
+	    self.scheduleSequence('SimL1Emulator','L1simulation_step')
+	    return
 
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
@@ -1026,40 +1044,31 @@ class ConfigBuilder(object):
             else:
                     print "RAW2RECO requires two specifications",sequence,"insufficient"
 
-            self.loadDefaultOrSpecifiedCFF(seqDigi,self.RAW2DIGIDefaultCFF)
-            self.process.raw2digi_step = cms.Path( getattr(self.process, seqDigi.split('.')[-1]) )
-            self.schedule.append(self.process.raw2digi_step)
-
-            self.loadDefaultOrSpecifiedCFF(seqReco,self.RECODefaultCFF)
-            self.process.reconstruction_step = cms.Path( getattr(self.process, seqReco.split('.')[-1]) )
-            self.schedule.append(self.process.reconstruction_step)
+	    self.prepare_RAW2DIGI(seqDigi)
+	    self.prepare_RECO(seqReco)
             return
 
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
             self.loadDefaultOrSpecifiedCFF(sequence,self.RAW2DIGIDefaultCFF)
-            self.process.raw2digi_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
-            self.schedule.append(self.process.raw2digi_step)
+	    self.scheduleSequence(sequence.split('.')[-1],'raw2digi_step')
             return
 
     def prepare_L1HwVal(self, sequence = 'L1HwVal'):
         ''' Enrich the schedule with L1 HW validation '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.L1HwValDefaultCFF)
-        self.process.l1hwval_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
-        self.schedule.append( self.process.l1hwval_step )
+	self.scheduleSequence(sequence.split('.')[-1],'l1hwval_step')
         return
 
     def prepare_L1Reco(self, sequence = "L1Reco"):
         ''' Enrich the schedule with L1 reconstruction '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.L1RecoDefaultCFF)
-        self.process.L1Reco_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
-        self.schedule.append(self.process.L1Reco_step)
+	self.scheduleSequence(sequence.split('.')[-1],'L1Reco_step')
         return
 
     def prepare_RECO(self, sequence = "reconstruction"):
         ''' Enrich the schedule with reconstruction '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.RECODefaultCFF)
-        self.process.reconstruction_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
-        self.schedule.append(self.process.reconstruction_step)
+	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
         return
 
     def prepare_SKIM(self, sequence = "all"):
@@ -1115,8 +1124,7 @@ class ConfigBuilder(object):
     def prepare_POSTRECO(self, sequence = None):
         """ Enrich the schedule with the postreco step """
         self.loadAndRemember(self.POSTRECODefaultCFF)
-        self.process.postreco_step = cms.Path( self.process.postreco_generator )
-        self.schedule.append(self.process.postreco_step)
+	self.scheduleSequence('postreco_generator','postreco_step')
         return
 
 
@@ -1258,8 +1266,7 @@ class ConfigBuilder(object):
         """ Enrich the process with harvesting step """
         self.EDMtoMECFF='Configuration/StandardSequences/EDMtoME'+self._options.harvesting+'_cff'
         self.loadAndRemember(self.EDMtoMECFF)
-        self.process.edmtome_step = cms.Path(self.process.EDMtoME)
-        self.schedule.append(self.process.edmtome_step)
+	self.scheduleSequence('EDMtoME','edmtome_step')
 
         harvestingConfig = self.loadDefaultOrSpecifiedCFF(sequence,self.HARVESTINGDefaultCFF)
         sequence = sequence.split('.')[-1]
@@ -1287,9 +1294,8 @@ class ConfigBuilder(object):
             print "The following harvesting could not be found : ", harvestingList
             raise
 
-        self.process.dqmsave_step = cms.Path(self.process.DQMSaver)
-        self.schedule.append(self.process.dqmsave_step)
-
+        self.scheduleSequence('DQMSaver','dqmsave_step')
+	return
 
     def prepare_ALCAHARVEST(self, sequence = None):
         """ Enrich the process with AlCaHarvesting step """
@@ -1316,10 +1322,9 @@ class ConfigBuilder(object):
 
 
     def prepare_ENDJOB(self, sequence = 'endOfProcess'):
-        self.loadDefaultOrSpecifiedCFF(sequence,self.ENDJOBDefaultCFF)
-        sequence=sequence.split('.')[-1]
-        self.process.endjob_step = cms.EndPath( getattr(self.process, sequence) )
-        self.schedule.append(self.process.endjob_step)
+	    self.loadDefaultOrSpecifiedCFF(sequence,self.ENDJOBDefaultCFF)
+	    self.scheduleSequenceAtEnd(sequence.split('.')[-1],'endjob_step')
+	    return
 
     def finalizeFastSimHLT(self):
             self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
@@ -1372,7 +1377,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.297 $"),
+                                            (version=cms.untracked.string("$Revision: 1.298 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
