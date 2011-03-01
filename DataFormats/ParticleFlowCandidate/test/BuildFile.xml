@@ -1,0 +1,4 @@
+<bin name="testDataFormatsParticleFlowCandidate" file="pfcandidate_t.cppunit.cpp">
+	<use name="cppunit"/>
+	<use name="DataFormats/ParticleFlowCandidate"/>
+</bin>
