@@ -38,7 +38,7 @@ private:
   std::vector<edm::InputTag> tracksContainers_;
   edm::InputTag gsfTrackLabel_;  
   edm::InputTag muonColl_;
-
+  edm::InputTag vtx_h;
   ///TRACK QUALITY
   bool useQuality_;
   reco::TrackBase::TrackQuality trackQuality_;

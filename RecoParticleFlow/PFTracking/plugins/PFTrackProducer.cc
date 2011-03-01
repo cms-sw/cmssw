@@ -15,7 +15,11 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 using namespace std;
 using namespace edm;
@@ -24,12 +28,12 @@ PFTrackProducer::PFTrackProducer(const ParameterSet& iConfig):
   pfTransformer_(0)
 {
   produces<reco::PFRecTrackCollection>();
-
+  
   tracksContainers_ = 
     iConfig.getParameter< vector < InputTag > >("TkColList");
-
+  
   useQuality_   = iConfig.getParameter<bool>("UseQuality");
-
+  
   gsfTrackLabel_ = iConfig.getParameter<InputTag>
     ("GsfTrackModuleLabel");  
 
@@ -38,9 +42,9 @@ PFTrackProducer::PFTrackProducer(const ParameterSet& iConfig):
   muonColl_ = iConfig.getParameter< InputTag >("MuColl");
   
   trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
-
+  
   gsfinev_ = iConfig.getParameter<bool>("GsfTracksInEvents");
-
+  vtx_h=iConfig.getParameter<edm::InputTag>("PrimaryVertexLabel");
 }
 
 PFTrackProducer::~PFTrackProducer()
@@ -51,7 +55,7 @@ PFTrackProducer::~PFTrackProducer()
 void
 PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
-
+  
   //create the empty collections 
   auto_ptr< reco::PFRecTrackCollection > 
     PfTrColl (new reco::PFRecTrackCollection);
@@ -60,6 +64,30 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
   Handle<GsfTrackCollection> gsftrackcoll;
   bool foundgsf = iEvent.getByLabel(gsfTrackLabel_,gsftrackcoll);
   GsfTrackCollection gsftracks;
+  //Get PV for STIP calculation, if there is none then take the dummy  
+  Handle<reco::VertexCollection> vertex;
+  iEvent.getByLabel(vtx_h, vertex);
+  reco::Vertex dummy;
+  const reco::Vertex* pv=&dummy;  
+  if (vertex.isValid()) 
+    {
+      pv = &*vertex->begin();    
+    } 
+  else 
+    { // create a dummy PV
+      reco::Vertex::Error e;
+      e(0, 0) = 0.0015 * 0.0015;
+      e(1, 1) = 0.0015 * 0.0015;
+      e(2, 2) = 15. * 15.;
+      reco::Vertex::Point p(0, 0, 0);
+      dummy = reco::Vertex(p, e, 0, 0, 0);   
+    } 
+  
+  edm::ESHandle<TransientTrackBuilder> builder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  TransientTrackBuilder thebuilder = *(builder.product());
+  
+  
   if(gsfinev_) {
     if(!foundgsf )
       LogError("PFTrackProducer")
@@ -68,12 +96,12 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
     else
       gsftracks  = *(gsftrackcoll.product());
   }  
-
+  
   // read muon collection
   Handle< reco::MuonCollection > recMuons;
   iEvent.getByLabel(muonColl_, recMuons);
-	   
-
+  
+  
   for (unsigned int istr=0; istr<tracksContainers_.size();istr++){
     
     //Track collection
@@ -86,25 +114,25 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
       //Trajectory collection
       Handle<vector<Trajectory> > tjCollection;
       bool found = iEvent.getByLabel(tracksContainers_[istr], tjCollection);
-      if(!found )
-	LogError("PFTrackProducer")
-	  <<" cannot get Trajectories of: "
-	  <<  tracksContainers_[istr]
-	  << " please set TrajInEvents = False in RecoParticleFlow/PFTracking/python/pfTrack_cfi.py" << endl;
-      
-      Tj =*(tjCollection.product());
+	if(!found )
+	  LogError("PFTrackProducer")
+	    <<" cannot get Trajectories of: "
+	    <<  tracksContainers_[istr]
+	    << " please set TrajInEvents = False in RecoParticleFlow/PFTracking/python/pfTrack_cfi.py" << endl;
+	
+	Tj =*(tjCollection.product());
     }
-
-
+    
+    
     for(unsigned int i=0;i<Tk.size();i++){
-
+      
       reco::TrackRef trackRef(tkRefCollection, i);
-       
+	
       if (useQuality_ &&
 	  (!(Tk[i].quality(trackQuality_)))){
 	
 	bool isMuCandidate = false;
-
+	
 	//TrackRef trackRef(tkRefCollection, i);
 	
 	if(recMuons.isValid() ) {
@@ -119,13 +147,13 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  }
 	}
 
-	if(!isMuCandidate){
-	  continue;	  
-	}
+	if(!isMuCandidate)
+	  {
+	    continue;	  
+	  }
 	
       }
-
-     
+           
       // find the pre-id kf track
       bool preId = false;
       if(foundgsf) {
@@ -143,7 +171,7 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	reco::PFRecTrack pftrack( trackRef->charge(), 
 				  reco::PFRecTrack::KF_ELCAND, 
 				  i, trackRef );
-
+	
 	bool valid = false;
 	if(trajinev_) {
 	  valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i]);
@@ -153,9 +181,19 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  valid = pfTransformer_->addPoints( pftrack, *trackRef, FakeTraj);
 	}
 	if(valid) {
+	  //calculate STIP
+	  double stip=-999;
+	  const reco::PFTrajectoryPoint& atECAL=pftrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance);
+	  if(atECAL.isValid()) //if track extrapolates to ECAL
+	    {
+	      GlobalVector direction(pftrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().x(),
+				     pftrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().y(), 
+				     pftrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().z());
+	      stip = IPTools::signedTransverseImpactParameter(thebuilder.build(*trackRef), direction, *pv).second.significance();
+	    }
+	  pftrack.setSTIP(stip);
 	  PfTrColl->push_back(pftrack);
 	}		
-
       }
       else {
 	reco::PFRecTrack pftrack( trackRef->charge(), 
@@ -169,8 +207,18 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  Trajectory FakeTraj;
 	  valid = pfTransformer_->addPoints( pftrack, *trackRef, FakeTraj);
 	}
-
+	
 	if(valid) {
+	  double stip=-999;
+	  const reco::PFTrajectoryPoint& atECAL=pftrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance);
+	  if(atECAL.isValid())
+	    {
+	      GlobalVector direction(pftrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().x(),
+				     pftrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().y(), 
+				     pftrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().z());
+	      stip = IPTools::signedTransverseImpactParameter(thebuilder.build(*trackRef), direction, *pv).second.significance();
+	    }
+	  pftrack.setSTIP(stip);
 	  PfTrColl->push_back(pftrack);
 	}
       }
