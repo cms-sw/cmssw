@@ -23,6 +23,8 @@ from RecoTauTag.Configuration.RecoTauMVAConfiguration_cfi \
         import TauTagMVAComputerRecord
 
 # Build the tanc discriminates
+from RecoTauTag.RecoTau.RecoTauDiscriminantConfiguration import \
+        discriminantConfiguration
 combinatoricRecoTausDiscriminationByTanc = cms.EDProducer(
     "RecoTauMVADiscriminator",
     PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
@@ -51,7 +53,7 @@ combinatoricRecoTausDiscriminationByTanc = cms.EDProducer(
             mvaLabel = cms.string("3prong0pi0"),
         ),
     ),
-    discriminantOptions = cms.PSet(),
+    discriminantOptions = discriminantConfiguration,
 )
 
 combinatoricTaus1prong0pi0 = cms.EDFilter(
@@ -255,11 +257,26 @@ hpsTancTausDiscriminationByTightIsolation = \
             Prediscriminants = hpsTancRequireDecayMode
         )
 
+hpsTancTausDiscriminationByTancPrecut = cms.EDProducer(
+    "PFRecoTauDiscriminationByStringCut",
+    PFTauProducer = cms.InputTag("hpsTancTaus"),
+    cut = cms.string("mass < 3 & isolationPFChargedHadrCandsPtSum < 7"),
+    Prediscriminants = _leadPionPrediscriminant,
+)
+
+_tancPrediscriminants = _leadPionPrediscriminant.clone(
+    precut = cms.PSet(
+        Producer = cms.InputTag(
+            'hpsTancTausDiscriminationByTancPrecut'),
+        cut = cms.double(0.5)
+    )
+)
+
 # Rerun the TaNC on our clean taus - in the future, rekey.
 hpsTancTausDiscriminationByTancRaw = \
         combinatoricRecoTausDiscriminationByTanc.clone(
             PFTauProducer = cms.InputTag("hpsTancTaus"),
-            Prediscriminants = _leadPionPrediscriminant
+            Prediscriminants = _tancPrediscriminants,
         )
 
 # Rerun the transformation
@@ -268,7 +285,7 @@ hpsTancTausDiscriminationByTanc = \
             PFTauProducer = cms.InputTag("hpsTancTaus"),
             toTransform = cms.InputTag("hpsTancTausDiscriminationByTancRaw"),
             transforms = transforms,
-            Prediscriminants = _leadPionPrediscriminant
+            Prediscriminants = _tancPrediscriminants,
         )
 
 hpsTancTausDiscriminationByTancLoose = cms.EDProducer(
@@ -322,6 +339,7 @@ hpsTancTauSequence = cms.Sequence(
     + hpsTancTausDiscriminationAgainstElectron
     + hpsTancTausDiscriminationAgainstMuon
     #+ hpsTancTausDiscriminationAgainstCaloMuon
+    + hpsTancTausDiscriminationByTancPrecut
     + hpsTancTausDiscriminationByTancRaw
     + hpsTancTausDiscriminationByTanc
     + hpsTancTausDiscriminationByTancVLoose
