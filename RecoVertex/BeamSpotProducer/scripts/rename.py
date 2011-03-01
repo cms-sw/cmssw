@@ -2,11 +2,11 @@
 import sys,os,commands,re
 from CommonMethods import *
 def main():
-    sourcePath = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/381_patch3/express_T0_v1"
-#    sourcePath = "/uscms/home/uplegger/resilient/BeamSpot/"
+#    sourcePath = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/Repro_2011Feb24/"
+    sourcePath = "LatestRuns/"
 #    sourcePath = "Files/"
-    sourceDirList = [sourcePath]
-    destDirList   = ["Original"]
+    sourceDirList = [sourcePath+"2010A",sourcePath+"2010B",sourcePath+"Commissioning10_old"]
+    destDirList   = ["2010A","2010B","Commissioning10_old"]
     path = "LatestRuns/"
     finalDir = path + "Results/"
 
@@ -39,8 +39,8 @@ def main():
         #    exit(error)
 #        exit("ok")
         for fileName in copiedFiles:
-            regExp = re.search('(\D+)(\d+)_(\d+)_.txt',fileName)
-            #regExp = re.search('(\D+)(\d+)_(\d+)_[a-zA-Z0-9]+.txt',fileName)
+            #regExp = re.search('(\D+)(\d+)_(\d+)_.txt',fileName)
+            regExp = re.search('(\D+)(\d+)_(\d+)_[a-zA-Z0-9]+.txt',fileName)
             #if regExp:
                 #print regExp.group(1) + regExp.group(2) + "_" + str(1) + "_" + regExp.group(3) + ".txt" 
                 

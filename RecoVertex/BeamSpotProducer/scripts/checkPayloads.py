@@ -51,8 +51,8 @@ def getListOfRunsAndLumiFromFile(firstRun=-1,fileName=""):
 
 #####################################################################################
 def getListOfRunsAndLumiFromRR(firstRun=-1,error=""):
-    #RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
-    RunReg  = "http://localhost:40010/runregistry"
+    RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
+    #RunReg  = "http://localhost:40010/runregistry"
     #Dataset=%Online%
     Group   = "Collisions10"
 

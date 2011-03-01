@@ -556,7 +556,7 @@ def main():
     print 'Reading configuration from ', configurationFile
     configuration.read(configurationFile)
 
-    sourceDir           = configuration.get('Common','SOURCE_DIR')
+    sourceDir             = configuration.get('Common','SOURCE_DIR')
     archiveDir            = configuration.get('Common','ARCHIVE_DIR')
     workingDir            = configuration.get('Common','WORKING_DIR')
     databaseTag           = configuration.get('Common','DBTAG')
@@ -568,6 +568,7 @@ def main():
     rrTolerance           = float(configuration.get('Common','RR_TOLERANCE'))
     missingFilesTolerance = float(configuration.get('Common','MISSING_FILES_TOLERANCE'))
     missingLumisTimeout   = float(configuration.get('Common','MISSING_LUMIS_TIMEOUT'))
+    jsonFileName          = configuration.get('Common','JSON_FILE')
     mailList              = configuration.get('Common','EMAIL')
 
     ######### DIRECTORIES SETUP #################
@@ -631,7 +632,6 @@ def main():
     print "Getting list of files from RR"
     listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromRR(lastUploadedIOV) 
     if(not listOfRunsAndLumiFromRR):
-        jsonFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions10/7TeV/StreamExpress/Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON_v3.txt"
         print "Looks like I can't get anything from the run registry so I'll get the data from the json file " + jsonFileName
         listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromFile(lastUploadedIOV,jsonFileName) 
     ######### Get list of files to process for DB
