@@ -15,6 +15,7 @@ shrinkingConePFTauDiscriminationByTaNC = cms.EDProducer(
     "RecoTauMVADiscriminator",
     PFTauProducer     = cms.InputTag("shrinkingConePFTauProducer"),
     Prediscriminants  = shrinkingConeLeadTrackFinding,
+    discriminantOptions = cms.PSet(),
     dbLabel           = cms.string(""),      # Allow multiple record types
     remapOutput       = cms.bool(True),
     mvas = cms.VPSet(
@@ -44,5 +45,5 @@ shrinkingConePFTauDiscriminationByTaNC = cms.EDProducer(
             mvaLabel = cms.string("ThreeProngOnePiZero"),
         ),
     ),
-    prefailValue      = cms.double(-2.0),    
+    prefailValue      = cms.double(-2.0),
 )
