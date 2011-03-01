@@ -35,6 +35,7 @@
 #include "DataFormats/Common/interface/Association.h"
 
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 class RecoTauPiZeroProducer : public edm::EDProducer {
   public:
@@ -61,6 +62,10 @@ class RecoTauPiZeroProducer : public edm::EDProducer {
     rankerList rankers_;
     std::auto_ptr<PiZeroPredicate> predicate_;
     double piZeroMass_;
+
+    // Output selector
+    std::auto_ptr<StringCutObjectSelector<reco::RecoTauPiZero> >
+      outputSelector_;
 };
 
 RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
@@ -95,6 +100,15 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
 
   // Build the sorting predicate
   predicate_ = std::auto_ptr<PiZeroPredicate>(new PiZeroPredicate(rankers_));
+
+  // Check if we want to apply a final output selection
+  if (pset.exists("outputSelection")) {
+    std::string selection = pset.getParameter<std::string>("outputSelection");
+    if (selection != "") {
+      outputSelector_.reset(
+          new StringCutObjectSelector<reco::RecoTauPiZero>(selection));
+    }
+  }
 
   produces<reco::JetPiZeroAssociation>();
 }
@@ -150,6 +164,10 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
       // Pull our candidate pi zero from the front of the list
       std::auto_ptr<reco::RecoTauPiZero> toAdd(
           dirtyPiZeros.pop_front().release());
+      // If this doesn't pass our basic selection, discard it.
+      if (!(*outputSelector_)(*toAdd)) {
+        continue;
+      }
       // Find the sub-gammas that are not already in the cleaned collection
       std::vector<reco::CandidatePtr> uniqueGammas;
       std::set_difference(toAdd->daughterPtrVector().begin(),
