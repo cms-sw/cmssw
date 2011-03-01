@@ -158,7 +158,7 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
   add(h, new TH1F("vtxndfIso","degrees of freedom (isolated vertex)",   5000,0.,1000.));
 
 
-  add(h, new TH2F("vtxndfvsntk","ndof vs #tracks",20,0.,100, 20, 0., 200.));
+  add(h, new TH2F("vtxndfvsntk","ndof vs #tracks",40,0.,200, 40, 0., 400.));
   add(h, new TH1F("vtxndfoverntk","ndof / #tracks",40,0.,2.));
   add(h, new TH1F("vtxndf2overntk","(ndof+2) / #tracks",40,0.,2.));
   add(h, new TH1F("tklinks","Usable track links",2,-0.5,1.5));
@@ -326,25 +326,25 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
 
   add(h, new TProfile("zvsls","z vs ls",200, 0., 2000., -20., 20.));
 
-
-  add(h, new TH1F("zdiffrec","z-distance between vertices",200,-20., 20.));
-  add(h, new TH1F("zdiffrec2","z-distance between ndof>2 vertices",200,-20., 20.));
-  add(h, new TH1F("zdiffrec3","z-distance between ndof>3 vertices",200,-20., 20.));
-  add(h, new TH1F("zdiffrec4","z-distance between ndof>4 vertices",200,-20., 20.));
-  add(h, new TH1F("zdiffrec5","z-distance between ndof>5 vertices",200,-20., 20.));
-  add(h, new TH1F("zdiffrec6","z-distance between ndof>6 vertices",200,-20., 20.));
-  add(h, new TH1F("zdiffrec7","z-distance between ndof>7 vertices",200,-20., 20.));
-  add(h, new TH1F("zdiffrec8","z-distance between ndof>8 vertices",200,-20., 20.));
-  add(h, new TH1F("zdiffrec12","z-distance between ndof>12 vertices",200,-20., 20.));
-  add(h, new TH1F("zdiffrecp","normalized z-distance between vertices",200,-20., 20.));
-  add(h, new TH1F("zdiffrec2p","normalized z-distance between ndof>2 vertices",200,-5., 5.));
-  add(h, new TH1F("zdiffrec3p","normalized z-distance between ndof>3 vertices",200,-5., 5.));
-  add(h, new TH1F("zdiffrec4p","normalized z-distance between ndof>4 vertices",200,-5., 5.));
-  add(h, new TH1F("zdiffrec5p","normalized z-distance between ndof>5 vertices",200,-5., 5.));
-  add(h, new TH1F("zdiffrec6p","normalized z-distance between ndof>6 vertices",200,-5., 5.));
-  add(h, new TH1F("zdiffrec7p","normalized z-distance between ndof>7 vertices",200,-5., 5.));
-  add(h, new TH1F("zdiffrec8p","normalized z-distance between ndof>8 vertices",200,-5., 5.));
-  add(h, new TH1F("zdiffrec12p","z-distance between ndof>12p vertices",200,-20., 20.));
+  const int nbinzdiffrec=400.;
+  add(h, new TH1F("zdiffrec","z-distance between vertices",nbinzdiffrec,-20., 20.));
+  add(h, new TH1F("zdiffrec2","z-distance between ndof>2 vertices",nbinzdiffrec,-20., 20.));
+  add(h, new TH1F("zdiffrec3","z-distance between ndof>3 vertices",nbinzdiffrec,-20., 20.));
+  add(h, new TH1F("zdiffrec4","z-distance between ndof>4 vertices",nbinzdiffrec,-20., 20.));
+  add(h, new TH1F("zdiffrec5","z-distance between ndof>5 vertices",nbinzdiffrec,-20., 20.));
+  add(h, new TH1F("zdiffrec6","z-distance between ndof>6 vertices",nbinzdiffrec,-20., 20.));
+  add(h, new TH1F("zdiffrec7","z-distance between ndof>7 vertices",nbinzdiffrec,-20., 20.));
+  add(h, new TH1F("zdiffrec8","z-distance between ndof>8 vertices",nbinzdiffrec,-20., 20.));
+  add(h, new TH1F("zdiffrec12","z-distance between ndof>12 vertices",nbinzdiffrec,-20., 20.));
+  add(h, new TH1F("zdiffrecp","normalized z-distance between vertices",nbinzdiffrec,-20., 20.));
+  add(h, new TH1F("zdiffrec2p","normalized z-distance between ndof>2 vertices",nbinzdiffrec,-5., 5.));
+  add(h, new TH1F("zdiffrec3p","normalized z-distance between ndof>3 vertices",nbinzdiffrec,-5., 5.));
+  add(h, new TH1F("zdiffrec4p","normalized z-distance between ndof>4 vertices",nbinzdiffrec,-5., 5.));
+  add(h, new TH1F("zdiffrec5p","normalized z-distance between ndof>5 vertices",nbinzdiffrec,-5., 5.));
+  add(h, new TH1F("zdiffrec6p","normalized z-distance between ndof>6 vertices",nbinzdiffrec,-5., 5.));
+  add(h, new TH1F("zdiffrec7p","normalized z-distance between ndof>7 vertices",nbinzdiffrec,-5., 5.));
+  add(h, new TH1F("zdiffrec8p","normalized z-distance between ndof>8 vertices",nbinzdiffrec,-5., 5.));
+  add(h, new TH1F("zdiffrec12p","z-distance between ndof>12p vertices",nbinzdiffrec,-20., 20.));
   add(h, new TH2F("zvszrec2","z positions of multiple vertices",200,-20., 20., 200,-20., 20.));
   add(h, new TH2F("pzvspz2","prob(z) of multiple vertices",100, 0.,1.,100,0., 1.));
   add(h, new TH2F("zvszrec4","z positions of multiple vertices",100,-20., 20., 100,-20., 20.));
@@ -352,8 +352,9 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
 
   const int nbinzdiff=150;
   const float zdiffrange=20.;
-  add(h, new TH1F("zrec8r","reconstructed (z-z0)/sqrt2 (ndof>8)",nbinzdiff,-zdiffrange,zdiffrange));
-  add(h, new TH1F("zrec12r","reconstructed (z-z0)/sqrt2 (ndof>12)",nbinzdiff,-zdiffrange,zdiffrange));
+  add(h, new TH1F("zrec8r","reconstructed (z-z0)*sqrt2 (ndof>8)",nbinzdiff,-zdiffrange,zdiffrange));
+  add(h, new TH1F("zrec12r","reconstructed (z-z0)*sqrt2 (ndof>12)",nbinzdiff,-zdiffrange,zdiffrange));
+  add(h, new TH1F("zrec12q","reconstructed (z-z0)/sqrt2 (ndof>12)",nbinzdiff,-zdiffrange,zdiffrange));
 
   add(h, new TH2F("zdiffvszNv2","z-distance vs z (nv=2)",nbinzdiff,-zdiffrange,zdiffrange,30,-15.,15.));
   add(h, new TH1F("zbarFakeEnriched","zbar fake enriched",100,-20.,20.));
@@ -2473,7 +2474,7 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
     simpv=getSimPVs(evtMC);
 
     if (bPuInfo) {
-      cout << "PileupSummaryInfo  nPU=" << puInfoH->getPU_NumInteractions() << endl;
+      //cout << "PileupSummaryInfo  nPU=" << puInfoH->getPU_NumInteractions() << endl;
       for(int i=0; i<puInfoH->getPU_NumInteractions(); i++){
 //  	cout << "pile-up " << i << ")"
 //  	     << " z= " << puInfoH->getPU_zpositions()[i]
@@ -2504,9 +2505,9 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
     simpv=getSimPVs(genParticles);
     tsim=getSimTrkParameters(genParticles);
     MC_=true;
-    cout << "Signal vertex  z=" << simpv[0].z << "  n=" << simpv[0].nGenTrk << endl;
+    if(verbose_) {cout << "Signal vertex  z=" << simpv[0].z << "  n=" << simpv[0].nGenTrk << endl;}
     if (bPuInfo) {
-      cout << "PileupSummaryInfo  nPU=" << puInfoH->getPU_NumInteractions() << endl;
+      if(verbose_) {cout << "PileupSummaryInfo  nPU=" << puInfoH->getPU_NumInteractions() << endl;}
       for(int i=0; i<puInfoH->getPU_NumInteractions(); i++){
 //  	cout << "pile-up " << i << ")"
 //  	     << " z= " << puInfoH->getPU_zpositions()[i]
@@ -3520,33 +3521,6 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 	  if(plapper){std::cout << "type 2b, no vertex at all" << std::endl;}
 	}
 	
-	if(mistype==2){
-	  int selstat=-3;
-	  // no matching vertex found, is there a cluster?
-	  for(unsigned int iclu=0; iclu<clusters.size(); iclu++){
-	    if( fabs(clusters[iclu].position().z()-vsim->z*simUnit_) < 0.1 ){
-	      selstat=int(clusters[iclu].position().x()+0.1);
-	      if(verbose_){std::cout << "matching cluster found with selstat=" << clusters[iclu].position().x() << std::endl;}
-	    }
-	  }
-	  if (selstat==0){
-	    if(plapper){std::cout << "vertex rejected (distance to beam)" << std::endl;}
-	    Fill(h,"zlost3", vsim->z*simUnit_,1.);
-	  }else if(selstat==-1){
-	    if(plapper) {std::cout << "vertex invalid" << std::endl;}
-	    Fill(h,"zlost4", vsim->z*simUnit_,1.);
-	  }else if(selstat==1){
-	    if(plapper){std::cout << "vertex accepted, this cannot be right!!!!!!!!!!" << std::endl;}
-	  }else if(selstat==-2){
-	    if(plapper){std::cout << "dont know what this means !!!!!!!!!!" << std::endl;}
-	  }else if(selstat==-3){
-	    if(plapper){std::cout << "no matching cluster found " << std::endl;}
-	    Fill(h,"zlost2", vsim->z*simUnit_,1.);
-	  }else{
-	    if(plapper){std::cout << "dont know what this means either !!!!!!!!!!" << selstat << std::endl;}
-	  }
-	}//
-	
 	
 	Fill(h,"eff", 0.);
 	if(simpv.size()==1){ Fill(h,"efftag", 0.); }
@@ -3630,11 +3604,16 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
   double deltaznearest=9999.;
   int indexnearest=-1,  idx=0;
   for(reco::VertexCollection::const_iterator vrec=recVtxs->begin();  vrec!=recVtxs->end(); ++vrec){
-    if( !(vrec->isFake()) && (vrec->ndof()>4) ) {
+    //if( !(vrec->isFake()) && (vrec->ndof()>4) ) {
+    if( !(vrec->isFake()) && (vrec->ndof()>0) ) {
       Double_t dz=vrec->z() - (*simpv.begin()).z*simUnit_;
       if (abs(dz)<abs(deltaznearest)){ deltaznearest=dz; indexnearest=idx;}
     }
     idx++;
+  }
+
+  if(fabs(deltaznearest)>0.1){ 
+    cout << message << "deltaznearest = " << deltaznearest << endl;
   }
   Fill(h,"zdistancenearest",deltaznearest);
   Fill(h,"abszdistancenearest",fabs(deltaznearest));
@@ -3774,23 +3753,12 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
     }
   }
 
-  //TTTT
-//   // bachelor tracks (only available through clusters right now)
-//   for(unsigned int iclu=0; iclu<clusters.size(); iclu++){
-//     if (clusters[iclu].tracksSize()==1){
-//       for(trackit_t t = clusters[iclu].tracks_begin(); 
-// 	  t!=clusters[iclu].tracks_end(); t++){
-// 	fillTrackHistos(h,"bachelor",**t);
-//       }
-//     }
-//   }
 
 
   // -----------------  reconstructed vertices  ------------------------
 
   // event 
   Fill(h,"szRecVtx",recVtxs->size());
-  Fill(h,"nclu",clusters.size());
   Fill(h,"nseltrk",nseltrks);
   Fill(h,"nrectrk",nrectrks);
 
@@ -3824,7 +3792,6 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
   if((nrec==0)||(recVtxs->begin()->isFake())){
     Fill(h,"nrectrk0vtx",nrectrks);
     Fill(h,"nseltrk0vtx",nseltrks);
-    Fill(h,"nclu0vtx",clusters.size());
   }
 
 
@@ -3894,8 +3861,10 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
     Fill(h,"vtxndf",v->ndof());
     Fill(h,"vtxprob",ChiSquaredProbability(v->chi2() ,v->ndof()));
     Fill(h,"vtxndfvsntk",v->tracksSize(), v->ndof());
-    Fill(h,"vtxndfoverntk",v->ndof()/v->tracksSize());
-    Fill(h,"vtxndf2overntk",(v->ndof()+2)/v->tracksSize());
+    if(v->ndof()>4){
+      Fill(h,"vtxndfoverntk",v->ndof()/v->tracksSize());
+      Fill(h,"vtxndf2overntk",(v->ndof()+2)/v->tracksSize());
+    }
     Fill(h,"zrecvsnt",v->position().z(),float(nrectrks));
     if(nrectrks>100){
       Fill(h,"zrecNt100",v->position().z());
@@ -3984,6 +3953,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
       Fill(h,"yrec12",v->position().y());
       Fill(h,"zrec12",v->position().z());
       Fill(h,"zrec12r",(v->position().z()-vertexBeamSpot_.position().z())*sqrt(2.));
+      Fill(h,"zrec12q",(v->position().z()-vertexBeamSpot_.position().z())/sqrt(2.));
       if (v==recVtxs->begin()){
       Fill(h,"zrec12tag",v->position().z());
       }
@@ -4012,12 +3982,6 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
     
 
 
-    // cluster properties (if available)
-    for(unsigned int iclu=0; iclu<clusters.size(); iclu++){
-      if( fabs(clusters[iclu].position().z()-v->position().z()) < 0.0001 ){
-	Fill(h,"nclutrkvtx",clusters[iclu].tracksSize());
-      }
-    }
     
 
         
@@ -4050,8 +4014,9 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
       Fill(h,"zdiffvszp",z1-z0,zbarp);
 
       if (nrec==2) Fill(h,"zdiffvszNv2",z1-z0,zbar);
-      if((fabs(z1-z0)<2.0)&&((v->ndof()<20)||(v1->ndof()<20))){
-	Fill(h,"zbarFakeEnriched",zbar); // should contain all fakes + some real
+      //if((fabs(z1-z0)<2.0)&&((v->ndof()<20)||(v1->ndof()<20))){
+      if(fabs(z1-z0)<0.2){
+	Fill(h,"zbarFakeEnriched",zbar);
 	if(ndoflow>5) Fill(h,"zbarFakeEnriched5",zbar);
 	if(ndoflow>2) Fill(h,"zbarFakeEnriched2",zbar);
       }
