@@ -462,11 +462,13 @@ int LMFDat::writeDB()
       } catch (oracle::occi::SQLException &e) {
 	throw(std::runtime_error(m_className + "::writeDB: " + 
 				 e.getMessage()));
+	dump();
 	m_conn->rollback();
       }
     } else {
       cout << m_className << "::writeDB: Cannot write because " << 
 	m_Error << endl;
+      dump();
     }
   }
   return ret;
