@@ -105,7 +105,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
       //std::cout<<" SuperCluster is NOT active.... "<<std::endl;
       continue;
     }
-    
+    elemsToLock.push_back(ele-elements.begin()); //add SC to elements to lock
     // loop over its constituent ECAL cluster
     std::multimap<double, unsigned int> ecalAssoPFClusters;
     blockRef->associatedElements( ele-elements.begin(), 
@@ -568,8 +568,9 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     photonCand.setRawEcalEnergy(RawEcalEne);
     photonCand.setRawHcalEnergy(0);
     photonCand.set_mva_nothing_gamma(1.);
- 
-   if(hasConvTrack || hasSingleleg)photonCand.setFlag( reco::PFCandidate::GAMMA_TO_GAMMACONV, true);
+    photonCand.setSuperClusterRef(sc->superClusterRef());
+    
+    if(hasConvTrack || hasSingleleg)photonCand.setFlag( reco::PFCandidate::GAMMA_TO_GAMMACONV, true);
     //photonCand.setPositionAtECALEntrance(math::XYZPointF(photonMom_.position()));
     
     // set isvalid_ to TRUE since we've found at least one photon candidate
