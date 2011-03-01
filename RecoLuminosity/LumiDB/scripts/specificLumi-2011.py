@@ -164,11 +164,9 @@ def specificlumiTofile(fillnum,filldata,outdir):
             beam2intensity=perlsdata[5]
             speclumi=perlsdata[6]
             speclumierror= perlsdata[7]
-            if lscounter==0:
-                f=open(os.path.join(outdir,filename),'w')
-            if lumi<=0 or speclumi<0 or speclumierror<=0:
-                print >>f, '%d\t%e\t%e\t%e\t%e\t%e\n'%(ts,0.0,0.0,0.0,0.0,0.0)
-            else:
+            if lumi>0 and lumierror>0 and speclumi>0:
+                if lscounter==0:
+                    f=open(os.path.join(outdir,filename),'w')
                 print >>f, '%d\t%e\t%e\t%e\t%e\t%e\n'%(ts,beamstatusfrac,lumi,lumierror,speclumi,speclumierror)
             if not timedict.has_key(ts):
                 timedict[ts]=[]
@@ -196,7 +194,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
         specificerrs=transposedvalues[4]
         specifictoterr=math.sqrt(sum(map(lambda x:x**2,specificerrs)))
         specificerravg=specifictoterr/float(len(specificvals))
-        print >>f,'%d\t%e\t%e\t%e\t%e\n'%(lstime,lumitot,lumierrortot,specificavg,specificerravg)
+        print >>f,'%d\t%e\t%e\t%e\t%e\t%e\n'%(lstime,bstatfrac,lumitot,lumierrortot,specificavg,specificerravg)
     f.close()
     print 'writing summary file'
     previoustime=lstimes[0]
