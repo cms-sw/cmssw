@@ -9,9 +9,9 @@
  *  transverse impact parameter (signed), longitudinal i.p.
  */
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/Math/interface/Vector.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 class PerigeeTrajectoryParameters
 {

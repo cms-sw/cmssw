@@ -1,8 +1,8 @@
 #ifndef PerigeeTrajectoryError_H
 #define PerigeeTrajectoryError_H
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 /**
  *  Class providing access to the <i> Perigee</i> parameters of a trajectory.
@@ -31,8 +31,6 @@ public:
   /**
    * The covariance matrix
    */
-
-  const AlgebraicSymMatrix covarianceMatrix_old() const {return asHepMatrix(thePerigeeError);}
   const AlgebraicSymMatrix55 & covarianceMatrix() const {return thePerigeeError;}
 
 
@@ -40,16 +38,6 @@ public:
    * The weight matrix (inverse of the covariance matrix)
    * The error variable is 0 in case of success.
    */
-  const AlgebraicSymMatrix weightMatrix_old(int & error) const {
-    if (!weightIsAvailable) calculateWeightMatrix();
-    error = inverseError;
-    return asHepMatrix(thePerigeeWeight);
-  }
-  /**
-   * The weight matrix (inverse of the covariance matrix)
-   * The error variable is 0 in case of success.
-   */
- 
   const AlgebraicSymMatrix55 &weightMatrix(int & error) const
   {
     if (!weightIsAvailable) calculateWeightMatrix();

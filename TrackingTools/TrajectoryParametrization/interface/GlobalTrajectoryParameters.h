@@ -3,8 +3,8 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 class MagneticField;
 
@@ -104,12 +104,7 @@ public:
     return AlgebraicVector6(theX.x(),theX.y(),theX.z(),theP.x(),theP.y(),theP.z());
   }
 
-  /** Vector whose first three elements are the global position coordinates and
-   *  whose last three elements are the global momentum coordinates.
-   */
-
-  AlgebraicVector vector_old() const { return asHepVector(vector());  }
-
+ 
   GlobalVector magneticFieldInInverseGeV( const GlobalPoint& x) const; 
   const MagneticField& magneticField() const {return *theField;}
 
