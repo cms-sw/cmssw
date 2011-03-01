@@ -56,7 +56,7 @@ print _computer_name
     #minGammaEt = PFTauQualityCuts.isolationQualityCuts.minGammaEt,
 #)
 
-_KIN_CUT = 'jetRef.pt > 20 & abs(eta) < 2.5'
+_KIN_CUT = 'jetRef.pt > 10 & abs(eta) < 2.5'
 
 process = cms.Process("TrainTaNC")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -86,13 +86,12 @@ process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
 ))
 process.MessageLogger.statistics.append('cout')
 
-# Load PiZero algorithm
-process.load("RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi")
+# Load tau algorithms
+process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 
 #######################################################
 # Database BS
 #######################################################
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.PoolDBOutputService = cms.Service(
     "PoolDBOutputService",
@@ -128,7 +127,7 @@ process.looper = cms.Looper(
 
 # Build a combinatoric tau producer that only builds the desired decay modes
 from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi \
-        import _combinatoricTauConfig, combinatoricRecoTaus
+        import _combinatoricTauConfig
 
 selectedDecayModes = cms.VPSet()
 for decayMode in _combinatoricTauConfig.decayModes:
@@ -156,6 +155,7 @@ process.signalSelectEvents= cms.EDFilter(
 )
 
 process.signalSequence = cms.Sequence(process.signalSelectEvents)
+process.signalSequence += process.recoTauCommonSequence
 
 decay_mode_translator = {
     (1, 0) : 'oneProng0Pi0',
@@ -206,18 +206,20 @@ process.signalPiZeros = process.ak5PFJetsRecoTauPiZeros.clone(
 process.signalSequence += process.signalPiZeros
 
 # Tau production step
-process.signalRawTaus = combinatoricRecoTaus.clone(
+process.signalRawTaus = process.combinatoricRecoTaus.clone(
     jetSrc = cms.InputTag("signalJetsDMMatched"),
     piZeroSrc = cms.InputTag("signalPiZeros"),
     buildNullTaus = cms.bool(False),
     builders = cms.VPSet(_combinatoricTauConfig),
     modifiers = cms.VPSet(
-        #cms.PSet(
-            #name = cms.string("sipt"),
-            #plugin = cms.string("RecoTauImpactParameterSignificancePlugin"),
-            #pvSrc = cms.InputTag("offlinePrimaryVertices"),
-        #)
-    )
+        cms.PSet(
+            name = cms.string("sipt"),
+            plugin = cms.string("RecoTauImpactParameterSignificancePlugin"),
+            pvSrc = cms.InputTag("offlinePrimaryVertices"),
+        )
+    ),
+    outputSelection = cms.string(
+        'mass() < 3 & isolationPFChargedHadrCandsPtSum() < 7'),
 )
 process.signalSequence += process.signalRawTaus
 
@@ -225,7 +227,8 @@ process.signalSequence += process.signalRawTaus
 process.signalRawTausLeadPionPt = cms.EDFilter(
     "PFTauViewRefSelector",
     src = cms.InputTag("signalRawTaus"),
-    cut = cms.string('leadPFCand().pt() > 5.0'),
+    cut = cms.string(
+        'leadPFChargedHadrCand().muonRef().isNull() &leadPFCand().pt() > 5.0'),
     # We can skip events where no taus pass this requirement
     filter = cms.bool(True),
 )
@@ -233,7 +236,8 @@ process.signalSequence += process.signalRawTausLeadPionPt
 
 # Match these taus to the desired truth objects
 process.signalTausDMTruthMatching = process.signalJetsDMTruthMatching.clone(
-    src = cms.InputTag("signalRawTausLeadPionPt")
+    src = cms.InputTag("signalRawTausLeadPionPt"),
+    resolveAmbiguities = cms.bool(False),
 )
 process.signalSequence += process.signalTausDMTruthMatching
 
@@ -310,6 +314,7 @@ process.backgroundRawTausKinematicCut = cms.EDFilter(
 
 process.backgroundSequence = cms.Sequence(
     process.backgroundSelectEvents *
+    process.recoTauCommonSequence *
     process.backgroundPiZeros *
     process.backgroundRawTaus *
     process.backgroundRawTausLeadPionPt *
@@ -319,15 +324,20 @@ process.backgroundSequence = cms.Sequence(
 process.backgroundPath = cms.Path(process.backgroundSequence)
 
 # Finally, pass our selected sig/bkg taus to the MVA trainer
+from RecoTauTag.RecoTau.RecoTauDiscriminantConfiguration import \
+        discriminantConfiguration
 process.trainer = cms.EDAnalyzer(
     "RecoTauMVATrainer",
     signalSrc = cms.InputTag("signalTaus"),
     backgroundSrc = cms.InputTag("backgroundRawTausKinematicCut"),
     computerName = cms.string(_computer_name),
     dbLabel = cms.string("trainer"),
+    discriminantOptions = discriminantConfiguration
 )
 
-process.trainPath = cms.Path(process.trainer)
+process.trainPath = cms.Path(
+    process.recoTauCommonSequence*
+    process.trainer)
 
 process.outpath = cms.EndPath(process.MVATrainerSave)
 

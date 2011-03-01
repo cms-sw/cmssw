@@ -81,18 +81,18 @@ discriminators['hpsPFTauProducer'] = [
     #'hpsPFTauDiscriminationByDecayModeFinding',
     'hpsPFTauDiscriminationByLooseIsolation',
     'hpsPFTauDiscriminationByMediumIsolation',
-    'hpsPFTauDiscriminationByTightIsolation',
+    #'hpsPFTauDiscriminationByTightIsolation',
 ]
 
 discriminators['shrinkingConePFTauProducer'] = [
     #'shrinkingConePFTauDiscriminationByLeadingPionPtCut',
-    'shrinkingConePFTauDiscriminationByIsolation',
+    #'shrinkingConePFTauDiscriminationByIsolation',
     #'shrinkingConePFTauDiscriminationByTrackIsolation',
     #'shrinkingConePFTauDiscriminationByECALIsolation',
     'shrinkingConePFTauDiscriminationByTaNC',
-    'shrinkingConePFTauDiscriminationByTaNCfrOnePercent',
+    #'shrinkingConePFTauDiscriminationByTaNCfrOnePercent',
     'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent',
-    'shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent',
+    #'shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent',
     #'shrinkingConePFTauDiscriminationByTaNCfrTenthPercent'
 ]
 
@@ -100,8 +100,8 @@ discriminators['hpsTancTaus'] = [
     #'hpsTancTausDiscriminationByTancRaw',
     'hpsTancTausDiscriminationByTanc',
     #'hpsTancTausDiscriminationByTancLoose',
-    #'hpsTancTausDiscriminationByTancMedium',
-    #'hpsTancTausDiscriminationByTancTight',
+    'hpsTancTausDiscriminationByTancMedium',
+    'hpsTancTausDiscriminationByTancTight',
 ]
 
 #del discriminators['shrinkingConePFTauProducer']
@@ -140,10 +140,26 @@ disc_to_plot = discriminators.keys()
 good_colors = [ROOT.EColor.kRed-9, ROOT.EColor.kBlue-9, ROOT.EColor.kBlack]
 disc_to_plot = ['shrinkingConePFTauProducer', 'hpsPFTauProducer', 'hpsTancTaus']
 
-#disc_to_plot = ['shrinkingConePFTauProducer', 'hpsPFTauProducer', ]
-#good_colors = [ROOT.EColor.kRed, ROOT.EColor.kBlue, ROOT.EColor.kBlack]
+pt_curves_to_plot = [
+    ('shrinkingConePFTauProducer',
+     'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent'),
+    ('hpsPFTauProducer',
+     'hpsPFTauDiscriminationByLooseIsolation'),
+    ('hpsTancTaus',
+     'hpsTancTausDiscriminationByTancTight'),
+    ('hpsTancTaus',
+     'hpsTancTausDiscriminationByTanc'),
+]
 
 _PT_CUT = 15
+_DENOM_CUT = {
+    'signal' : 15,
+    'background' : 20
+}
+_DENOM_PLOT_TYPE = {
+    'signal' : '_pt_embedPt', # compare to generator level pt ('embedded')
+    'background' : '_pt_jetPt', # compare to reconstructed total jet pt
+}
 
 canvas = ROOT.TCanvas("blah", "blah", 800, 1200)
 if __name__ == "__main__":
@@ -158,32 +174,52 @@ if __name__ == "__main__":
         for producer in discriminators.keys():
             sample_info['algos'][producer] = {}
             for discriminator in discriminators[producer]:
-                to_get = "plot" + producer + "/" + discriminator + "_pt"
-                print "Getting:", to_get
+                to_get = "plot" + producer + "/" + discriminator + \
+                        _DENOM_PLOT_TYPE[sample]
                 raw_histo = sample_info['file'].Get(to_get)
-                print "Raw entries:", raw_histo.Integral()
-                print "Mean X:", raw_histo.GetMean(1)
-                min_pt_bin = raw_histo.GetYaxis().FindBin(_PT_CUT)
-                projection = raw_histo.ProjectionX(
-                    sample + raw_histo.GetName()+"_px", min_pt_bin,
-                    raw_histo.GetNbinsY()+1)
-                print "Mean X Proj:", projection.GetMean(1)
-                print "Post cut entries:", projection.Integral()
-                sample_info['algos'][producer][discriminator] = projection
-                projection.Draw()
-                canvas.SaveAs("hpstanc/eval/" +sample + "_"+ discriminator + ".png")
 
-    print "Loading normalizations"
-    for sample, sample_info in steering.iteritems():
-        sample_info["denominator_histo"] = \
-                sample_info["file"].Get("plotAK5PFJets/pt")
-        start_bin = sample_info['denominator_histo'].FindBin(_PT_CUT)
-        end_bin = sample_info['denominator_histo'].GetNbinsX()+1
-        denominator = sample_info['denominator_histo'].Integral(
-            start_bin, end_bin)
-        sample_info['denominator'] = denominator
-        print "%s denominator: %0.2f, %0.2f" % (
-            sample, sample_info['denominator_histo'].Integral(), denominator)
+                min_denom_bin = raw_histo.GetZaxis().FindBin(_DENOM_CUT[sample])
+
+                # Get the minimum bin corresponding to the reco pt cut
+                min_pt_bin = raw_histo.GetYaxis().FindBin(_PT_CUT)
+
+                raw_histo.GetYaxis().SetRange(
+                    min_pt_bin, raw_histo.GetNbinsY()+1)
+                raw_histo.GetZaxis().SetRange(
+                    min_denom_bin, raw_histo.GetNbinsZ()+1)
+
+                projection = raw_histo.Project3D("x")
+
+                denom = raw_histo.Integral(
+                    0, raw_histo.GetNbinsX()+1,
+                    0, raw_histo.GetNbinsY()+1,
+                    min_denom_bin, raw_histo.GetNbinsZ()+1)
+
+                # Now make projection for PT efficiency
+                raw_histo.GetXaxis().SetRange(0, raw_histo.GetNbinsX()+1)
+                raw_histo.GetYaxis().SetRange(0, raw_histo.GetNbinsY()+1)
+                pt_eff_denom = raw_histo.Project3D("denom_z")
+
+                raw_histo.GetXaxis().SetRange(
+                    raw_histo.GetXaxis().FindBin(0.995),
+                    raw_histo.GetNbinsX()+1)
+                raw_histo.GetYaxis().SetRange(
+                    min_pt_bin, raw_histo.GetNbinsY()+1)
+                pt_eff_numerator = raw_histo.Project3D("numerator_z")
+
+
+                #print "Mean X Proj:", projection.GetMean(1)
+                #print "Post cut entries:", projection.Integral()
+                sample_info['algos'][producer][discriminator] = {
+                    'disc' : projection,
+                    'denominator' : denom,
+                    'pt_eff_num' : pt_eff_numerator,
+                    'pt_eff_denom' : pt_eff_denom,
+                }
+                #sample_info['algos'][producer][discriminator + '_denominator']\
+                #        = projection.Integral()
+                #projection.Draw()
+                #canvas.SaveAs("hpstanc/eval/" +sample + "_"+ discriminator + ".png")
 
     # Build the master canvas and the sub pads
     #canvas = ROOT.TCanvas("blah", "blah", 800, 1200)
@@ -214,14 +250,14 @@ if __name__ == "__main__":
     graphs = {}
     for color, producer in zip(good_colors, disc_to_plot):
         graphs[producer] = {}
-        for marker, discriminator in zip(good_markers,
-                                         discriminators[producer]):
-            print "Building graph:", producer, discriminator
+        for marker, discriminator in zip(
+            good_markers, discriminators[producer]):
+            print "Building perf curve graph:", producer, discriminator
             new_graph = make_perf_curve2(
-                steering['signal']['algos'][producer][discriminator],
-                steering['background']['algos'][producer][discriminator],
-                steering['signal']['denominator'],
-                steering['background']['denominator'],
+                steering['signal']['algos'][producer][discriminator]['disc'],
+                steering['background']['algos'][producer][discriminator]['disc'],
+                steering['signal']['algos'][producer][discriminator]['denominator'],
+                steering['background']['algos'][producer][discriminator]['denominator'],
             )
             new_graph.SetMarkerStyle(marker)
             new_graph.SetMarkerColor(color)
@@ -249,3 +285,45 @@ if __name__ == "__main__":
     legend.Draw()
     ROOT.gPad.Update()
     ROOT.gPad.SaveAs(output_file)
+
+    pt_canvas = ROOT.TCanvas('pt', 'pt', 1000, 500)
+    pt_canvas.Divide(2)
+    signal_frame = ROOT.TH1F("sigbkg", "Signal efficiency", 10, 0, 100)
+    signal_frame.SetMaximum(1)
+    background_frame = ROOT.TH1F("bkgbkg", "Fake Rate", 10, 0, 100)
+    background_frame.SetMaximum(1e-1)
+    background_frame.SetMinimum(1e-3)
+    pt_canvas.cd(1)
+    signal_frame.Draw()
+    pt_canvas.cd(2)
+    ROOT.gPad.SetLogy(True)
+    background_frame.Draw()
+    keep = []
+    #pt_canvas.SaveAs(output_file.replace('.pdf', '_pt_eff.pdf'))
+
+    for color, (producer, discriminator) in zip(good_colors, pt_curves_to_plot):
+        signal_algos = steering['signal']['algos'][producer]
+        background_algos = steering['background']['algos'][producer]
+        signal_num = signal_algos[discriminator]['pt_eff_num']
+        signal_denom = signal_algos[discriminator]['pt_eff_denom']
+        signal_num.Rebin(5)
+        signal_denom.Rebin(5)
+        pt_canvas.cd(1)
+        signal_eff = ROOT.TGraphAsymmErrors(signal_num, signal_denom)
+        signal_eff.Draw("p")
+        signal_eff.SetMarkerColor(color)
+        signal_eff.SetMarkerStyle(20)
+        keep.append(signal_eff)
+        background_num = background_algos[discriminator]['pt_eff_num']
+        background_denom = background_algos[discriminator]['pt_eff_denom']
+        background_num.Rebin(5)
+        background_denom.Rebin(5)
+        background_eff = ROOT.TGraphAsymmErrors(background_num, background_denom)
+        background_eff.SetMarkerColor(color)
+        background_eff.SetMarkerStyle(20)
+        pt_canvas.cd(2)
+        background_eff.Draw("p")
+        keep.append(background_eff)
+
+    pt_canvas.SaveAs(output_file.replace('.pdf', '_pt_eff.pdf'))
+

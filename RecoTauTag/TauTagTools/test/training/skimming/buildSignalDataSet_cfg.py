@@ -255,6 +255,7 @@ poolOutputCommands = cms.untracked.vstring(
     'keep patTriggerFilters_*_*_TANC',
     'keep patTriggerPaths_*_*_TANC',
     'keep patTriggerEvent_*_*_TANC',
+    'keep PileupSummaryInfo_*_*_*',
     'keep *_ak5PFJets_*_TANC',
     'keep *_offlinePrimaryVertices_*_TANC',
     'keep *_particleFlow_*_TANC',

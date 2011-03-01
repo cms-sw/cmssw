@@ -60,7 +60,7 @@ if options.signal == 1:
 
 process = cms.Process("Eval")
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(40000) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(40000) )
 
 # DQM store, PDT sources etc
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
@@ -83,15 +83,15 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(options.inputFiles),
     # Don't use any of the same events used to evaluate the modes
-    skipEvents = cms.untracked.uint32(20000)
+    #skipEvents = cms.untracked.uint32(20000)
 )
 
-_KIN_CUT = "pt > 20 & abs(eta) < 2.5"
+_KIN_CUT = "pt > 10 & abs(eta) < 2.5"
 
 # For signal, select jets that match a hadronic decaymode
 process.kinematicSignalJets = cms.EDFilter(
     "CandViewRefSelector",
-    src = cms.InputTag("ak5PFJets"),
+    src = cms.InputTag("preselectedSignalJets"),
     cut = cms.string(_KIN_CUT),
 )
 process.signalSpecific = cms.Sequence(process.kinematicSignalJets)
@@ -131,7 +131,7 @@ process.ak5PFJets = cms.EDFilter(
 
 process.kinematicBackgroundJets = cms.EDFilter(
     "CandViewRefSelector",
-    src = cms.InputTag("ak5PFJets"),
+    src = cms.InputTag("preselectedBackgroundJets"),
     cut = cms.string(_KIN_CUT)
 )
 process.backgroundSpecific = cms.Sequence(process.kinematicBackgroundJets)
@@ -297,7 +297,7 @@ discriminators['hpsTancTaus'] = [
     'hpsTancTausDiscriminationByTancLoose',
     'hpsTancTausDiscriminationByTancMedium',
     'hpsTancTausDiscriminationByTancTight',
-    #'hpsTancTausDiscriminationByTancRaw'
+    'hpsTancTausDiscriminationByTancRaw'
 ]
 
 process.plothpsTancTaus = cms.EDAnalyzer(
@@ -335,3 +335,7 @@ process.plots = cms.Sequence(
 process.main += process.plots
 
 process.path = cms.Path(process.main)
+process.schedule = cms.Schedule(
+    process.path
+)
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

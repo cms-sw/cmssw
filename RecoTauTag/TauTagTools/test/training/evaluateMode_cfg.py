@@ -113,7 +113,7 @@ process.source = cms.Source(
 )
 
 # Load PiZero algorithm
-process.load("RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi")
+process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 
 decay_mode_translator = {
     (1, 0) : 'oneProng0Pi0',
@@ -123,7 +123,7 @@ decay_mode_translator = {
     (3, 1) : 'threeProng1Pi0',
 }
 
-_KIN_CUT = "pt > 20 & abs(eta) < 2.5"
+_KIN_CUT = "pt > 10 & abs(eta) < 2.5"
 
 # For signal, select jets that match a hadronic decaymode
 process.kinematicSignalJets = cms.EDFilter(
@@ -149,7 +149,7 @@ process.signalJetsDMTruthMatching = cms.EDProducer(
 )
 process.signalSpecific += process.signalJetsDMTruthMatching
 
-process.inputJets = cms.EDFilter(
+process.inputJetRefs = cms.EDFilter(
     "CandViewGenJetMatchRefSelector",
     src = cms.InputTag("kinematicSignalJets"),
     matching = cms.InputTag("signalJetsDMTruthMatching"),
@@ -169,14 +169,28 @@ if _SIGNAL:
     process.specific = process.signalSpecific
 else:
     process.specific = process.backgroundSpecific
-    process.inputJets = cms.EDFilter(
+    process.inputJetRefs = cms.EDFilter(
         "CandViewRefSelector",
         src = cms.InputTag("kinematicBackgroundJets"),
         cut = cms.string("pt > 0"), # take everything
         filter = cms.bool(False)
     )
 
-process.main = cms.Sequence(process.specific*process.inputJets)
+# Convert to PFJetRefs, instead of candidate
+process.castedInputJets = cms.EDProducer(
+    "PFJetRefsCastFromCandView",
+    src = cms.InputTag("inputJetRefs"),
+)
+
+# Cast the jet refs to real PFJets
+process.inputJets = cms.EDProducer(
+    "PFJetCopyProducer",
+    src = cms.InputTag("castedInputJets"),
+)
+
+process.main = cms.Sequence(
+    process.specific*process.inputJetRefs*
+    process.castedInputJets*process.inputJets)
 
 # Plot the input jets to use in weighting the transformation
 process.plotInputJets = cms.EDAnalyzer(
@@ -188,13 +202,18 @@ process.main += process.plotInputJets
 
 # Build our taus
 process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
-process.ak5PFJetsRecoTauPiZeros.src = "inputJets"
+process.recoTauAK5PFJets08Region.src = cms.InputTag("inputJets")
+process.ak5PFJetsRecoTauPiZeros.jetSrc = "inputJets"
 process.combinatoricRecoTaus.jetSrc = "inputJets"
+process.combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros")
+process.combinatoricRecoTaus.jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region")
+process.combinatoricRecoTaus.outputSelection = cms.string(
+        'mass() < 3 & isolationPFChargedHadrCandsPtSum() < 7')
+
 #process.combinatoricRecoTaus.builders = cms.VPSet(_combinatoricTauConfig)
 # Add PFTauTagInfo workaround
-process.main += process.ak5PFJetTracksAssociatorAtVertex
-process.main += process.pfRecoTauTagInfoProducer
 process.main += process.ak5PFJetsRecoTauPiZeros
+process.main += process.recoTauCommonSequence
 process.main += process.combinatoricRecoTaus
 process.main += process.hpsTancTauSequence
 print process.hpsTancTauSequence.remove(
@@ -211,10 +230,12 @@ process.load("RecoTauTag.TauTagTools.TancConditions_cff")
 process.TauTagMVAComputerRecord.connect = cms.string(
     'sqlite:%s' % options.db)
 
-process.es_prefer_tanc = cms.ESPrefer("PoolDBESSource",
-                                      "TauTagMVAComputerRecord")
+#process.es_prefer_tanc = cms.ESPrefer("PoolDBESSource",
+#                                      "TauTagMVAComputerRecord")
+#
 
 process.TauTagMVAComputerRecord.toGet[0].tag = cms.string('Tanc')
+process.TauTagMVAComputerRecord.appendToDataLabel = cms.string("hpstanc")
 #mvaLabel = os.path.splitext(os.path.basename(options.db))[0]
 
 

@@ -10,6 +10,12 @@ Authors: Christian Veelken, Evan Friis (UC Davis)
 
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cff import *
 
+# Turn off MC matching
+patMuons.addGenMatch = False
+patMuons.embedGenMatch = False
+patMuons.genParticleMatch = ''
+makePatMuons.remove(muonMatch)
+
 transverse_mass_str = 'sqrt(abs(daughter(0).et*daughter(1).et -'\
         'daughter(0).px*daughter(1).px -'\
         'daughter(0).py*daughter(1).py))'
@@ -107,9 +113,9 @@ selectEnrichedEvents = cms.Sequence(
 
 #  dbs search --query="find file where primds=RelValWM and release=CMSSW_3_11_1 and tier=GEN-SIM-RECO"
 filterConfig.testFiles = cms.vstring([
-    "/store/relval/CMSSW_3_11_1/RelValWM/GEN-SIM-RECO/START311_V1_64bit-v1/0091/AC7AF0AE-DB35-E011-9349-002618943836.root",
-    "/store/relval/CMSSW_3_11_1/RelValWM/GEN-SIM-RECO/START311_V1_64bit-v1/0088/6EC0961F-CD34-E011-9BE2-001A92971B88.root",
-    "/store/relval/CMSSW_3_11_1/RelValWM/GEN-SIM-RECO/START311_V1_64bit-v1/0088/388F36F5-CD34-E011-ABC1-0026189438B3.root",
-    "/store/relval/CMSSW_3_11_1/RelValWM/GEN-SIM-RECO/START311_V1_64bit-v1/0088/369D9AF0-CB34-E011-B8F8-0018F3D096A2.root",
-    "/store/relval/CMSSW_3_11_1/RelValWM/GEN-SIM-RECO/START311_V1_64bit-v1/0088/3664FF6F-CB34-E011-B815-0018F3D0968E.root",
+    "/store/relval/CMSSW_3_9_7/RelValWM/GEN-SIM-RECO/START39_V8-v1/0049/C2E8B8D7-BB0D-E011-B921-003048678FF8.root",
+    "/store/relval/CMSSW_3_9_7/RelValWM/GEN-SIM-RECO/START39_V8-v1/0047/B623FFAD-7A0D-E011-8682-0026189438A5.root",
+    "/store/relval/CMSSW_3_9_7/RelValWM/GEN-SIM-RECO/START39_V8-v1/0047/52D3C519-750D-E011-B04D-0030486792B6.root",
+    "/store/relval/CMSSW_3_9_7/RelValWM/GEN-SIM-RECO/START39_V8-v1/0047/50EB02AE-790D-E011-9D30-001BFCDBD154.root",
+    "/store/relval/CMSSW_3_9_7/RelValWM/GEN-SIM-RECO/START39_V8-v1/0047/483D8456-740D-E011-A1C5-0018F3D0967A.root",
 ])

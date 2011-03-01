@@ -23,6 +23,7 @@ process.source = cms.Source("PoolSource", fileNames = readFiles,
                             secondaryFileNames = secFiles)
 filterType = None
 sampleId = None
+conditions=None
 
 if not hasattr(sys, "argv"):
     raise ValueError, "Can't extract CLI arguments!"
@@ -36,6 +37,7 @@ else:
     print "Using %s filter type!" % filterType
     sampleId = int(rawOptions.split(',')[1])
     print "Found %i for sample id" % sampleId
+    conditions = rawOptions.split(',')[2]
 
 print "Loading filter type"
 process.load(filterType)
@@ -49,7 +51,7 @@ process.TFileService = cms.Service(
 )
 
 # Check if we need to modify triggers for MC running
-if len(sys.argv) > 4 and 'mc' in sys.argv[4].lower():
+if 'GR' not in conditions:
     print "Using MC mode"
     process.filterConfig.hltPaths = cms.vstring(
         process.filterConfig.hltPaths[0])
@@ -128,8 +130,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-from Configuration.PyReleaseValidation.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['startup']
+process.GlobalTag.globaltag = '%s::All' % conditions
 
 # Local re-reco: Produce tracker rechits, pf rechits and pf clusters
 process.localReReco = cms.Sequence(process.siPixelRecHits+
@@ -344,6 +345,7 @@ poolOutputCommands = cms.untracked.vstring(
     'keep patTriggerFilters_*_*_TANC',
     'keep patTriggerPaths_*_*_TANC',
     'keep patTriggerEvent_*_*_TANC',
+    'keep PileupSummaryInfo_*_*_*',
     'keep *_ak5PFJets_*_TANC',
     'keep *_offlinePrimaryVertices_*_TANC',
     'keep recoTracks_generalTracks_*_TANC',
