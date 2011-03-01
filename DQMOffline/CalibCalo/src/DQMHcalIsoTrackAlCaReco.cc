@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
-// $Id: DQMHcalIsoTrackAlCaReco.cc,v 1.7 2010/01/19 13:20:51 safronov Exp $
+// $Id: DQMHcalIsoTrackAlCaReco.cc,v 1.8 2010/06/13 17:42:00 safronov Exp $
 //
 //
 
@@ -179,7 +179,7 @@ DQMHcalIsoTrackAlCaReco::DQMHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfi
   l1FilterTag_=iConfig.getParameter<std::string>("l1FilterLabel");
   hltFilterTag_=iConfig.getParameter<std::vector<std::string> >("hltL3FilterLabels");
   nameLength_=iConfig.getUntrackedParameter<int>("filterNameLength",27);
-  l1nameLength_=iConfig.getUntrackedParameter<int>("l1filterNameLength",14);
+  l1nameLength_=iConfig.getUntrackedParameter<int>("l1filterNameLength",11);
   arITrLabel_=iConfig.getParameter<edm::InputTag>("alcarecoIsoTracksLabel");
   recoTrLabel_=iConfig.getParameter<edm::InputTag>("recoTracksLabel");
   pThr_=iConfig.getUntrackedParameter<double>("pThrL3",0);
