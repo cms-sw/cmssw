@@ -29,6 +29,7 @@
 TAU_DISC_PLUGIN(JetEta);
 TAU_DISC_PLUGIN(AbsJetEta);
 TAU_DISC_PLUGIN(JetWidth);
+TAU_DISC_PLUGIN(JetTauDR);
 
 // HPStanc variables
 TAU_DISC_PLUGIN(JetPt);
