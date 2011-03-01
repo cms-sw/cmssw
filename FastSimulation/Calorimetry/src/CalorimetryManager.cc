@@ -30,6 +30,9 @@
 // New headers for Muon Mip Simulation
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 #include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
+// Muon Brem
+#include "FastSimulation/MaterialEffects/interface/MuonBremsstrahlungSimulator.h"
+
 //Gflash Hadronic Model
 #include "SimGeneral/GFlash/interface/GflashHadronShowerProfile.h"
 #include "SimGeneral/GFlash/interface/GflashPiKShowerProfile.h"
@@ -137,6 +140,7 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
 
   if ( fastMuECAL.getParameter<bool>("PairProduction") || 
        fastMuECAL.getParameter<bool>("Bremsstrahlung") ||
+       fastMuECAL.getParameter<bool>("MuonBremsstrahlung") ||
        fastMuECAL.getParameter<bool>("EnergyLoss") || 
        fastMuECAL.getParameter<bool>("MultipleScattering") )
     theMuonEcalEffects = new MaterialEffects(fastMuECAL,random);
@@ -145,6 +149,7 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
 
   if ( fastMuHCAL.getParameter<bool>("PairProduction") || 
        fastMuHCAL.getParameter<bool>("Bremsstrahlung") ||
+       fastMuHCAL.getParameter<bool>("MuonBremsstrahlung") ||
        fastMuHCAL.getParameter<bool>("EnergyLoss") || 
        fastMuHCAL.getParameter<bool>("MultipleScattering") )
     theMuonHcalEffects = new MaterialEffects(fastMuHCAL,random);
@@ -1095,7 +1100,12 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
   int ifirstHcal=-1;
   int ilastEcal=-1;
   EnergyLossSimulator* energyLossECAL = 0;
+ //New muon brem effect  in Calorimetry 16th Jan 2011 (Sandro Fonseca de Souza and Andre Sznajder UERJ/Brazil)
+  MuonBremsstrahlungSimulator* muonBremECAL = 0;
+ 
   if (theMuonEcalEffects) energyLossECAL = theMuonEcalEffects->energyLossSimulator();
+  // Muon brem in ECAL
+  if (theMuonEcalEffects) muonBremECAL = theMuonEcalEffects->muonBremsstrahlungSimulator();
 
   for(unsigned iseg=0;iseg<nsegments&&ifirstHcal<0;++iseg)
     {
@@ -1161,7 +1171,14 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
   int ilastHcal=-1;
   float mipenergy=0.0;
   EnergyLossSimulator* energyLossHCAL = 0;
+  // Implementation of Muon Brem Effect in HCAL (Sandro Fonseca de Souza and Andre Sznajder UERJ/Brazil)
+  //Date 01/16/2011
+  MuonBremsstrahlungSimulator* muonBremHCAL = 0;
+ 
   if (theMuonHcalEffects) energyLossHCAL = theMuonHcalEffects->energyLossSimulator();
+  // Muon Brem effect
+  if (theMuonHcalEffects) muonBremHCAL = theMuonHcalEffects->muonBremsstrahlungSimulator(); 
+ 
   if(ifirstHcal>0 && energyLossHCAL){
     for(unsigned iseg=ifirstHcal;iseg<nsegments;++iseg)
       {
@@ -1194,7 +1211,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
 
 
 
-  // Copy the muon SimTrack
+  // Copy the muon SimTrack (Only for Energy loss)
   FSimTrack muonTrack(myTrack);
   if(energyLossHCAL) {
     muonTrack.setTkPosition(hcalExit);

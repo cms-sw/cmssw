@@ -1,3 +1,4 @@
+
 //Framework Headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -14,6 +15,7 @@
 #include "FastSimulation/MaterialEffects/interface/BremsstrahlungSimulator.h"
 #include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
+#include "FastSimulation/MaterialEffects/interface/MuonBremsstrahlungSimulator.h"
 
 #include <list>
 #include <map>
@@ -21,7 +23,7 @@
 
 MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
 				 const RandomEngine* engine)
-  : PairProduction(0), Bremsstrahlung(0), 
+  : PairProduction(0), Bremsstrahlung(0),MuonBremsstrahlung(0),
     MultipleScattering(0), EnergyLoss(0), 
     NuclearInteraction(0),
     pTmin(999.), random(engine)
@@ -33,6 +35,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
   bool doEnergyLoss         = matEff.getParameter<bool>("EnergyLoss");
   bool doMultipleScattering = matEff.getParameter<bool>("MultipleScattering");
   bool doNuclearInteraction = matEff.getParameter<bool>("NuclearInteraction");
+  bool doMuonBremsstrahlung = matEff.getParameter<bool>("MuonBremsstrahlung");
 
   double A = matEff.getParameter<double>("A");
   double Z = matEff.getParameter<double>("Z");
@@ -58,6 +61,18 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
 						 random);
 
   }
+//muon Brem+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ if ( doMuonBremsstrahlung ) {
+
+    double bremEnergy = matEff.getParameter<double>("bremEnergy");
+    double bremEnergyFraction = matEff.getParameter<double>("bremEnergyFraction");
+    MuonBremsstrahlung = new MuonBremsstrahlungSimulator(random,A,Z,density,radLen,bremEnergy,
+                                                 bremEnergyFraction);
+
+  }
+
+
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   if ( doEnergyLoss ) { 
 
@@ -204,7 +219,8 @@ MaterialEffects::~MaterialEffects() {
   if ( EnergyLoss ) delete EnergyLoss;
   if ( MultipleScattering ) delete MultipleScattering;
   if ( NuclearInteraction ) delete NuclearInteraction;
-
+//Muon Brem
+  if ( MuonBremsstrahlung ) delete MuonBremsstrahlung;
 }
 
 void MaterialEffects::interact(FSimEvent& mySimEvent, 
@@ -290,7 +306,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
   if ( myTrack.charge() == 0 ) return;
 
-  if ( !Bremsstrahlung && !EnergyLoss && !MultipleScattering ) return;
+  if ( !MuonBremsstrahlung && !Bremsstrahlung && !EnergyLoss && !MultipleScattering ) return;
 
 //----------------
 //  Bremsstrahlung
@@ -318,6 +334,32 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
     
   } 
 
+//---------------------------
+//  Muon_Bremsstrahlung
+//--------------------------
+
+  if (  MuonBremsstrahlung && abs(myTrack.pid())==13 ) {
+       
+    MuonBremsstrahlung->updateState(myTrack,radlen);
+
+    if ( MuonBremsstrahlung->nDaughters() ) {
+
+      // Add a vertex, but do not attach it to the muon, because it 
+      // continues its way...
+      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+                                            FSimVertexType::BREM_VERTEX);
+      for ( DaughterIter = MuonBremsstrahlung->beginDaughters();
+            DaughterIter != MuonBremsstrahlung->endDaughters();
+            ++DaughterIter) {
+
+        mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	//        std::cout << "adding a new photon to the vertex (Muon_Bremsstrahlung) " << std::endl;
+
+      }
+
+    }
+
+  }
 
 ////--------------
 ////  Energy loss 

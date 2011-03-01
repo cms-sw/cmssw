@@ -9,13 +9,14 @@
 
  Implementation:
      <Notes on implementation>
+
 */
 //
 // Original Author:  Martijn Mulders/Matthew Jones
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.33 2010/05/20 15:03:51 aperrott Exp $
+// $Id: MuonSimHitProducer.cc,v 1.34 2010/07/26 14:07:00 aperrott Exp $
 //
 //
 
@@ -31,6 +32,7 @@
 #include "FastSimulation/MaterialEffects/interface/MultipleScatteringSimulator.h"
 #include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
+#include "FastSimulation/MaterialEffects/interface/MuonBremsstrahlungSimulator.h"
 
 // SimTrack
 #include "SimDataFormats/Track/interface/SimTrack.h"
@@ -575,6 +577,7 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
   theMaterialEffects = 0;
   if ( matEff.getParameter<bool>("PairProduction") || 
        matEff.getParameter<bool>("Bremsstrahlung") ||
+       matEff.getParameter<bool>("MuonBremsstrahlung") ||
        matEff.getParameter<bool>("EnergyLoss") || 
        matEff.getParameter<bool>("MultipleScattering") )
     theMaterialEffects = new MaterialEffects(matEff,random);
@@ -591,6 +594,10 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
 
   // The multiple scattering simulator
   MultipleScatteringSimulator* multipleScattering = theMaterialEffects->multipleScatteringSimulator();
+  
+  // The Muon Bremsstrahlung simulator
+  MuonBremsstrahlungSimulator* bremsstrahlung = theMaterialEffects->muonBremsstrahlungSimulator();
+
 
   // Initialize the Particle position, momentum and energy
   const Surface& nextSurface = tsos.surface();
@@ -648,6 +655,13 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
     multipleScattering->updateState(theMuon,radPath);
   }
   
+  // Muon Bremsstrahlung
+  if ( bremsstrahlung ) {
+    // Compute the amount of Muon Bremsstrahlung after given path length
+    bremsstrahlung->updateState(theMuon,radPath);
+  }
+
+
   // Fill the propagated state
   GlobalPoint propagatedPosition(theMuon.X(),theMuon.Y(),theMuon.Z());
   GlobalVector propagatedMomentum(theMuon.Px(),theMuon.Py(),theMuon.Pz());

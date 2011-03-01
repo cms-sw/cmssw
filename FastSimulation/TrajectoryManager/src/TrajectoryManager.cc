@@ -75,10 +75,11 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
     myDecayEngine = new Pythia6Decays();
     distCut = decays.getParameter<double>("DistCut");
   }
-
+   // new improvement: Muon brem effects 27-Fev-2011-S.Fonseca UERJ/Brazil
   // Initialize the Material Effects updator, if needed
   if ( matEff.getParameter<bool>("PairProduction") || 
        matEff.getParameter<bool>("Bremsstrahlung") ||
+       matEff.getParameter<bool>("MuonBremsstrahlung") ||
        matEff.getParameter<bool>("EnergyLoss") || 
        matEff.getParameter<bool>("MultipleScattering") || 
        matEff.getParameter<bool>("NuclearInteraction")

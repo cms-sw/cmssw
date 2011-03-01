@@ -10,7 +10,8 @@
  *  - Bremsstrahlung
  *  - Energy loss by ionization
  *  - Multiple scattering
- *
+ *  - Muon Bremsstrahlung
+
  * but no synchrotron radiation (well, this is not really a material 
  * effect, but might be dealt with here as well), no nuclear interactions, 
  * no delta-rays.
@@ -21,7 +22,7 @@
  * electron and one for the positron, with the same parent vertex.
  *
  * \author: Stephan Wynhoff, Florian Beaudette, Patrick Janot
- * $Date: Last modification (after severe clean-up). 08-Jan-2004
+ * $Date: Last modification (after severe clean-up). 27-Fev-2011- Sandro Fonseca and Andre Sznajder  (UERJ/Brazil)
  */
 
 //Framework Headers
@@ -35,11 +36,12 @@ class FSimEvent;
 class TrackerLayer;
 class ParticlePropagator;
 class PairProductionSimulator;
-class MultipleScatteringSimulator;
 class BremsstrahlungSimulator;
 class EnergyLossSimulator;
 class NuclearInteractionSimulator;
 class RandomEngine;
+class MultipleScatteringSimulator;
+class MuonBremsstrahlungSimulator;
 
 namespace edm {
   class ParameterSet;
@@ -83,6 +85,10 @@ class MaterialEffects
     return EnergyLoss;
   }
 
+/// Return the Muon Bremsstrahlung engine
+  inline MuonBremsstrahlungSimulator* muonBremsstrahlungSimulator() const {
+    return MuonBremsstrahlung;
+  }
 
  private:
 
@@ -98,6 +104,8 @@ class MaterialEffects
 
   PairProductionSimulator* PairProduction;
   BremsstrahlungSimulator* Bremsstrahlung;
+////// Muon Brem
+  MuonBremsstrahlungSimulator* MuonBremsstrahlung;
   MultipleScatteringSimulator* MultipleScattering;
   EnergyLossSimulator* EnergyLoss;
   NuclearInteractionSimulator* NuclearInteraction;
