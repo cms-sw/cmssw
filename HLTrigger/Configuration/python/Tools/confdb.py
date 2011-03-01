@@ -122,7 +122,7 @@ ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   timeThresh = cms.double( 2.0 )
 )
 """
-      if self.config.type in ('GRun', ):
+      if not(self.config.type in ('HIon', )):
         self.data += """
 #
 # Add for CMSSW 42X+ only
@@ -159,7 +159,7 @@ process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
 )
 #
 """
-      if self.config.type in ('GRun', ):
+      if not(self.config.type in ('HIon', )):
         self.data += """
 #
 # Add for CMSSW 42X+ only
