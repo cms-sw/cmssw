@@ -9,7 +9,6 @@
   <use   name="PhysicsTools/IsolationUtils"/>
   <use   name="PhysicsTools/MVAComputer"/>
   <use   name="PhysicsTools/MVATrainer"/>
-  <use   name="PhysicsTools/JetMCUtils"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/MessageLogger"/>
