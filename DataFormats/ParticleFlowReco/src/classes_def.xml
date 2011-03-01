@@ -37,6 +37,7 @@
   <class name="std::vector<reco::PFTrajectoryPoint>"/>
   <class name="edm::Wrapper<std::vector<reco::PFTrajectoryPoint> >"/>
 
+  <class name="edm::RefVector<std::vector<reco::PFBlock>,reco::PFBlock,edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock> >"/>
   <class name="reco::PFRecTrack">
     <field name="doPropagation_" transient="true"/>
     <field name="color_" transient="true"/>

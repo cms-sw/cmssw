@@ -210,5 +210,8 @@ namespace {
     reco::PFBlockElementSuperCluster dummy333;
     std::vector<reco::PFBlockElementSuperCluster> dummy334;
     edm::Wrapper<std::vector<reco::PFBlockElementSuperCluster> > dummy335;
+
+    edm::RefVector<std::vector<reco::PFBlock>, reco::PFBlock, edm::refhelper::FindUsingAdvance< std::vector<reco::PFBlock>, reco::PFBlock> > dummy336;
+
   };
 }

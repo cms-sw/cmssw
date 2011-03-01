@@ -329,8 +329,8 @@ void PFConversionAlgo::setCandidates(const reco::PFBlockRef& blockRef,
       
       aCandidate.setFlag( reco::PFCandidate::GAMMA_TO_GAMMACONV, true);
       aCandidate.setConversionRef(origConv);
-      aCandidate.setEcalEnergy(EcalEne);
-      aCandidate.setHcalEnergy(0.); 
+      aCandidate.setEcalEnergy(EcalEne,EcalEne);
+      aCandidate.setHcalEnergy(0.,0.); 
       aCandidate.setPs1Energy(0.); 
       aCandidate.setPs2Energy(0.); 
       
