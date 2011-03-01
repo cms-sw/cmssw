@@ -1,6 +1,26 @@
+#include <map>
+#include <boost/assign.hpp>
 #include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 
 namespace reco { namespace tau {
+
+namespace {
+  // Convert the string decay mode from PhysicsTools to the
+  // PFTau::hadronicDecayMode format
+  static std::map<std::string, reco::PFTau::hadronicDecayMode> dmTranslator =
+    boost::assign::map_list_of
+    ("oneProng0Pi0", reco::PFTau::kOneProng0PiZero)
+    ("oneProng1Pi0", reco::PFTau::kOneProng1PiZero)
+    ("oneProng2Pi0", reco::PFTau::kOneProng2PiZero)
+    ("oneProngOther", reco::PFTau::kOneProngNPiZero)
+    ("threeProng0Pi0", reco::PFTau::kThreeProng0PiZero)
+    ("threeProng1Pi0", reco::PFTau::kThreeProng1PiZero)
+    ("threeProngOther", reco::PFTau::kThreeProngNPiZero)
+    ("electron", reco::PFTau::kNull)
+    ("muon", reco::PFTau::kNull);
+}
 
 unsigned int chargedHadronsInDecayMode(PFTau::hadronicDecayMode mode) {
    int modeAsInt = static_cast<int>(mode);
@@ -25,6 +45,22 @@ PFTau::hadronicDecayMode translateDecayMode(
 
    nPiZeros = (nPiZeros <= maxPiZeros) ? nPiZeros : maxPiZeros;
    return static_cast<PFTau::hadronicDecayMode>(trackIndex + nPiZeros);
+}
+
+PFTau::hadronicDecayMode translateGenDecayModeToReco(
+    const std::string& name) {
+  std::map<std::string, reco::PFTau::hadronicDecayMode>::const_iterator
+    found = dmTranslator.find(name);
+  if (found != dmTranslator.end()) {
+    return found->second;
+  } else
+    return reco::PFTau::kRareDecayMode;
+}
+
+PFTau::hadronicDecayMode getDecayMode(const reco::GenJet* genJet) {
+  if (!genJet)
+    return reco::PFTau::kNull;
+  return translateGenDecayModeToReco(JetMCTagUtils::genTauDecayMode(*genJet));
 }
 
 }} // end namespace reco::tau

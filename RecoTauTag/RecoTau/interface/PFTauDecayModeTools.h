@@ -11,6 +11,11 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 
+// Forward declaration
+namespace reco {
+  class GenJet;
+}
+
 namespace reco { namespace tau {
 
 /// Reverse mapping of decay modes into multiplicities
@@ -22,6 +27,12 @@ unsigned int piZerosInDecayMode(
 
 PFTau::hadronicDecayMode translateDecayMode(
     unsigned int nCharged, unsigned int nPiZero);
+
+/// Convert a genTau decay mode string ('oneProng0Pi0') to the RECO enum
+PFTau::hadronicDecayMode translateGenDecayModeToReco(
+    const std::string& genName);
+
+PFTau::hadronicDecayMode getDecayMode(const reco::GenJet* genJet);
 
 }}
 
