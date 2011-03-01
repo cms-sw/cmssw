@@ -25,6 +25,7 @@
 
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TH3F.h>
 
 class RecoTauPlotDiscriminator : public edm::EDAnalyzer {
   public:
@@ -55,11 +56,35 @@ RecoTauPlotDiscriminator::RecoTauPlotDiscriminator(const edm::ParameterSet &pset
         fs->make<TH1F>(tag.label().c_str(), tag.label().c_str(),
                        nbins, min, max);
 
-    // Make correlation plots
+    // Make correlation plots w.r.t tau pt
     std::string vs_pt_name = tag.label()+"_pt";
     discMap["vs_pt"] =
         fs->make<TH2F>(vs_pt_name.c_str(), vs_pt_name.c_str(),
                        nbins, min, max, 100, 0, 100);
+
+    // W.r.t. jet pt
+    std::string vs_jetpt_name = tag.label()+"_jetPt";
+    discMap["vs_jetPt"] =
+        fs->make<TH2F>(vs_jetpt_name.c_str(), vs_jetpt_name.c_str(),
+                       nbins, min, max, 100, 0, 100);
+
+    // W.r.t. embedded pt in alternat lorentz vector (used to hold gen tau pt)
+    std::string vs_embedpt_name = tag.label()+"_embedPt";
+    discMap["vs_embedPt"] =
+        fs->make<TH2F>(vs_embedpt_name.c_str(), vs_embedpt_name.c_str(),
+                       nbins, min, max, 100, 0, 100);
+
+    // 3D histogram with tau pt & jet pt
+    std::string vs_pt_jetPt_name = tag.label()+"_pt_jetPt";
+    discMap["vs_pt_jetPt"] =
+        fs->make<TH3F>(vs_pt_jetPt_name.c_str(), vs_pt_jetPt_name.c_str(),
+                       nbins, min, max, 100, 0, 100, 100, 0, 100);
+
+    std::string vs_pt_embedPt_name = tag.label()+"_pt_embedPt";
+    discMap["vs_pt_embedPt"] =
+        fs->make<TH3F>(vs_pt_embedPt_name.c_str(), vs_pt_embedPt_name.c_str(),
+                       nbins, min, max, 100, 0, 100, 100, 0, 100);
+
 
     std::string vs_eta_name = tag.label()+"_eta";
     discMap["vs_eta"] =
@@ -96,6 +121,12 @@ RecoTauPlotDiscriminator::analyze(const edm::Event &evt,
       HistoMap& mymap = histos_[tag.label()];
       mymap["plain"]->Fill(result);
       mymap["vs_pt"]->Fill(result, tau->pt());
+      mymap["vs_jetPt"]->Fill(result, tau->jetRef()->pt());
+      mymap["vs_embedPt"]->Fill(result, tau->alternatLorentzVect().pt());
+      dynamic_cast<TH3F*>(mymap["vs_pt_jetPt"])->Fill(
+          result, tau->pt(), tau->jetRef()->pt());
+      dynamic_cast<TH3F*>(mymap["vs_pt_embedPt"])->Fill(
+          result, tau->pt(), tau->alternatLorentzVect().pt());
       mymap["vs_eta"]->Fill(result, tau->eta());
       mymap["vs_dm"]->Fill(result, tau->decayMode());
     }
