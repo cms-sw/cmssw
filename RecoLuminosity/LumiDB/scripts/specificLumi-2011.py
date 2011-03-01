@@ -221,8 +221,8 @@ def specificlumiTofile(fillnum,filldata,outdir):
         startts=bts
         tsdatainseg=summaryls[bts]
         stopts=tsdatainseg[-1][0]
-        plu=max(CommonUtil.transposed(tsdatainseg,0.0)[1])
-        lui=sum(CommonUtil.transposed(tsdatainseg,0.0)[1])
+        plu=max(CommonUtil.transposed(tsdatainseg,0.0)[1])*23.357
+        lui=sum(CommonUtil.transposed(tsdatainseg,0.0)[1])*23.357
         print >>f,'%d\t%d\t%e\t%e\n'%(startts,stopts,plu,lui)
     f.close()
         
