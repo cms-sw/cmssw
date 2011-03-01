@@ -68,11 +68,11 @@ function createSubtables() {
   local FAIL=0
   for TABLE in $TABLES; do
     echo "Parsing table: $TABLE ..."
-    rm -f $TABLE.paths
+    rm -f ${TABLE}_expanded.txt
     cat "$TABLE.txt" | while read LINE; do
       PATTERN=$(echo $LINE | sed -e's/ *#.*//' -e's/^/\\</' -e's/$/\\>/' -e's/?/./g' -e's/\*/.*/g')
       [ "$PATTERN" == "\<\>" ] && continue
-      echo "$LIST" | grep "$PATTERN" >> "$TABLE.paths"
+      echo "$LIST" | grep "$PATTERN" >> "${TABLE}_expanded.txt"
       if (( $? != 0 )); then
         echo "Error: pattern \"$LINE\" does not match any paths" 1>&2
         FAIL=1
@@ -93,7 +93,7 @@ function createSubtables() {
     echo "Incorrect password, exiting." 1>&2
     for TABLE in $TABLES; do
       # clean up 
-      rm -f "$TABLE.paths"
+      rm -f "${TABLE}_expanded.txt"
     done
     exit 1
   fi
@@ -103,8 +103,9 @@ function createSubtables() {
 
   # extract each subtable
   for TABLE in $TABLES; do
-    runCreateConfig "$DATABASE" "$PASSWORD" "$MASTER" "$TABLE.paths" "$TARGET/$TABLE"
+    echo runCreateConfig "$DATABASE" "$PASSWORD" "$MASTER" "${TABLE}_expanded.txt" "$TARGET/$TABLE"
+    runCreateConfig "$DATABASE" "$PASSWORD" "$MASTER" "${TABLE}_expanded.txt" "$TARGET/$TABLE"
     # clean up
-    rm -f "$TABLE.paths"
+    rm -f "${TABLE}_expanded.txt"
   done
 }

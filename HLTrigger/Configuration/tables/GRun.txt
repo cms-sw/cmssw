@@ -43,6 +43,7 @@ HLT_JetE30_NoBPTX_NoHalo_v*
 HLT_JetE30_NoBPTX_v*
 HLT_HT160_v*
 HLT_HT240_v*
+HLT_HT260_v*
 HLT_HT260_MHT60_v*
 HLT_HT300_v*
 HLT_HT300_MHT75_v*
@@ -127,6 +128,11 @@ HLT_Photon26_IsoVL_Photon18_IsoVL_v*
 HLT_Photon26_CaloIdL_IsoVL_Photon18_v*
 HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v*
 HLT_Photon32_CaloIdL_Photon26_CaloIdL_v*
+HLT_Photon60_CaloIdL_HT200_v*
+HLT_Photon70_CaloIdL_HT200_v*
+HLT_Photon70_CaloIdL_HT300_v*
+HLT_Photon70_CaloIdL_MHT30_v*
+HLT_Photon70_CaloIdL_MHT50_v*
 HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v*
 HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v*
 HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v*
