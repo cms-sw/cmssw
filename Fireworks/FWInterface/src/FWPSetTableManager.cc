@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.2 2011/02/28 19:24:05 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.3 2011/02/28 20:37:39 amraktad Exp $
 //
 
 #include <map>
@@ -740,11 +740,13 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
    renderer->setIsParent(isParent);
 
    renderer->setIndentation(0);
-   if(data.expanded) {
-      renderer->setIsOpen(true);
-   } else {
-      renderer->setIsOpen(false);        
-   }
+
+   if (m_filter.empty())
+      renderer->setIsOpen(data.expanded);
+   else
+      renderer->setIsOpen(data.childMatches);
+
+
 
    if (iCol == 0)
    {
@@ -815,11 +817,6 @@ void FWPSetTableManager::recalculateVisibility()
          data.visible = data.childMatches || data.matches || m_filter.empty();
       else
          data.visible = data.matches || data.childMatches || (m_filter.empty() && m_entries[data.parent].expanded && m_entries[data.parent].visible);
-
-      if (!m_filter.empty())
-      {
-         //  data.expanded = data.childMatches;
-      }
    }
 
    // Put in the index only the entries which are visible.
@@ -835,7 +832,11 @@ void FWPSetTableManager::setExpanded(int row)
    // We do not want to handle expansion
    // events while in filtering mode.
    if (!m_filter.empty())
+   {
+      fwLog(fwlog::kError) << "Collapse/Expand not allowed when filters applied" << std::endl;
       return;
+   }
+
    int index = rowToIndex()[row];
    PSetData& data = m_entries[index];
 
