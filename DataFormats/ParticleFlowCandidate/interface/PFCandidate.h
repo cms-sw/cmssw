@@ -96,13 +96,14 @@ namespace reco {
       kRefSuperClusterMask=kRefPFPhotonExtraMask+kRefPFPhotonExtraBit
     };
 
-    enum PFMVABits {
-      kRef_e_pi=0x1,
-      kRef_e_mu=0x2,
-      kRef_pi_mu=0x4,
-      kRef_nothing_gamma=0x8,
-      kRef_nothing_nh=0x10,
-      kRef_gamma_nh=0x20
+    enum PFMVAType {
+      kRef_none=0,
+      kRef_e_pi=1,
+      kRef_e_mu=2,
+      kRef_pi_mu=3,
+      kRef_nothing_gamma=4,
+      kRef_nothing_nh=5,
+      kRef_gamma_nh=6
     };
 
     enum PFVertexType {
@@ -294,9 +295,6 @@ namespace reco {
     ///   to 1 otherwise
     /// For neutral particles, it is set to the default value
 
-    void set_mva(float mva, PFMVABits bit);
-    float get_mva(PFMVABits bit) const;
-
 
     void set_mva_e_pi( float mva ){ set_mva(mva,kRef_e_pi); } 
     
@@ -388,10 +386,10 @@ namespace reco {
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFCandidate& c );
 
-    void setVertexSource( PFVertexType vt) { verMVAPack_ &= 0xfff; verMVAPack_ |= (vt<<12); }
+    void setVertexSource( PFVertexType vt) { vertexPack_=vt; }
 
     virtual void setVertex( math::XYZPoint p) {
-      vertex_=p; verMVAPack_ &= 0xfff;
+      vertex_=p; vertexPack_ = kCandVertex;
     }
 
     virtual const Point & vertex() const;
@@ -443,7 +441,9 @@ namespace reco {
     /// uncertainty on 3-momentum
     float      deltaP_;
 
-    unsigned short verMVAPack_;
+    PFVertexType vertexPack_;
+    PFMVAType mvaPack_;
+
     float mva_;
 
     /// mva for electron-pion discrimination
@@ -480,6 +480,9 @@ namespace reco {
     unsigned short m_storedRefs;
     std::vector<unsigned long long> m_refsInfo;
     std::vector<const void *> m_refsAdd;
+    void set_mva(float mva, PFMVAType bit);
+    float get_mva(PFMVAType bit) const;
+
 
   };
 

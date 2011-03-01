@@ -19,7 +19,7 @@ using namespace std;
 
 
 
-const float PFCandidate::bigMva_ = 999.;
+const float PFCandidate::bigMva_ = -999.;
 
 namespace {
 
@@ -94,7 +94,6 @@ static const unsigned int s_refsBefore[]={CountBits<0>::value,CountBits<1>::valu
   edm::ProductID prodID; size_t index, aIndex; \
   typedef edm::Ref<std::vector<_class_> > RefType;	  \
   if(getRefInfo(_mask_, _bit_, prodID, index, aIndex) ) { \
-    std::cout << "getting ref " << m_getter<< std::endl;			\
     if (m_refsAdd.size()==0 || m_refsAdd[aIndex]==0) return RefType(prodID, index, m_getter); \
     else { \
       const vector<_class_> *t=reinterpret_cast< const vector<_class_>* >(m_refsAdd[aIndex]);\
@@ -114,7 +113,8 @@ PFCandidate::PFCandidate() :
   ps2Energy_(0.),
   flags_(0), 
   deltaP_(0.), 
-  verMVAPack_(0),
+  vertexPack_(kCandVertex),
+  mvaPack_(kRef_none),
   mva_(-PFCandidate::bigMva_),
   m_getter(0),m_storedRefs(0)
 {
@@ -145,7 +145,8 @@ PFCandidate::PFCandidate( Charge charge,
   ps2Energy_(0.),
   flags_(0),
   deltaP_(0.),
-  verMVAPack_(0),
+  vertexPack_(kCandVertex),
+  mvaPack_(kRef_none),
   mva_(-PFCandidate::bigMva_),
   m_getter(0),m_storedRefs(0)
 {
@@ -590,27 +591,24 @@ void PFCandidate::setPFPhotonExtraRef(const reco::PFCandidatePhotonExtraRef& iRe
 
 
     
-void PFCandidate::set_mva(float mva, PFMVABits bit) {
-  unsigned short tmp=(verMVAPack_ & 0xFF);
-  if (tmp!=0 and tmp!=bit) {
+void PFCandidate::set_mva(float mva, PFMVAType bit) {
+  if (mvaPack_!=kRef_none && mvaPack_!=bit) {
     throw cms::Exception("PFCandidate",
                          "only one type of mva value allowed" );
   }
   mva_=mva;
-  verMVAPack_=(verMVAPack_ | bit);
+  mvaPack_= bit;
 }
 
-float PFCandidate::get_mva(PFMVABits bit) const {
-  unsigned short tmp=(verMVAPack_ & 0xFF);
-  if ( tmp!=bit)
+float PFCandidate::get_mva(PFMVAType var) const {
+  if ( var!=mvaPack_)
     return bigMva_;
   return mva_; 
 }
 
 
 const math::XYZPoint & PFCandidate::vertex() const {
-  unsigned short d=verMVAPack_ >> 12;
-  switch (d) {
+  switch (vertexPack_) {
   case kCandVertex:
     return vertex_;
     break;
