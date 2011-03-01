@@ -13,8 +13,17 @@ isoHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 
 )
 
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
+TkAlIsoProd = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
+TkAlIsoProd.filter = False
+TkAlIsoProd.applyBasicCuts = False
+TkAlIsoProd.applyMultiplicityFilter = False
+TkAlIsoProd.applyNHighestPt = False
+TkAlIsoProd.applyIsolationCut = False
+TkAlIsoProd.applyChargeCheck = False
+TkAlIsoProd.src = 'IsoProd:IsoTrackTracksCollection'
 
-seqALCARECOHcalCalIsoTrk = cms.Sequence(isoHLT*IsoProd)
+seqALCARECOHcalCalIsoTrk = cms.Sequence(isoHLT*IsoProd*TkAlIsoProd)
 
 
 
