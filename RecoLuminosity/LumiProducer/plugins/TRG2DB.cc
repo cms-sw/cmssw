@@ -40,14 +40,14 @@ namespace lumi{
     //per run information
     typedef std::vector<std::string> TriggerNameResult_Algo;
     typedef std::vector<std::string> TriggerNameResult_Tech;
-    typedef std::vector<unsigned int> PrescaleResult_Algo;
-    typedef std::vector<unsigned int> PrescaleResult_Tech;
     //per lumisection information
     typedef unsigned long long DEADCOUNT;
     typedef std::vector<DEADCOUNT> TriggerDeadCountResult;
     typedef std::vector<unsigned int> BITCOUNT;
     typedef std::vector<BITCOUNT> TriggerCountResult_Algo;
     typedef std::vector<BITCOUNT> TriggerCountResult_Tech;
+    typedef std::map< unsigned int, std::vector<unsigned int> > PrescaleResult_Algo;
+    typedef std::map< unsigned int, std::vector<unsigned int> > PrescaleResult_Tech;
   };//cl TRG2DB
   //
   //implementation
@@ -77,7 +77,8 @@ namespace lumi{
     std::string techviewname("GT_MON_TRIG_TECH_VIEW");
     std::string deadviewname("GT_MON_TRIG_DEAD_VIEW");
     std::string celltablename("GT_CELL_LUMISEG");
-    
+    std::string lstablename("LUMI_SECTIONS");
+
     std::string gtschema("CMS_GT");
     std::string runtechviewname("GT_RUN_TECH_VIEW");
     std::string runalgoviewname("GT_RUN_ALGO_VIEW");
@@ -85,6 +86,8 @@ namespace lumi{
     std::string runpresctechviewname("GT_RUN_PRESC_TECH_VIEW");
 
     //data exchange format
+    lumi::TRG2DB::PrescaleResult_Algo algoprescale;
+    lumi::TRG2DB::PrescaleResult_Tech techprescale;
     lumi::TRG2DB::BITCOUNT mybitcount_algo;
     mybitcount_algo.reserve(lumi::N_TRGALGOBIT);
     lumi::TRG2DB::BITCOUNT mybitcount_tech; 
@@ -93,10 +96,6 @@ namespace lumi{
     algonames.reserve(lumi::N_TRGALGOBIT);
     lumi::TRG2DB::TriggerNameResult_Tech technames;
     technames.reserve(lumi::N_TRGTECHBIT);
-    lumi::TRG2DB::PrescaleResult_Algo algoprescale;
-    algoprescale.reserve(lumi::N_TRGALGOBIT);
-    lumi::TRG2DB::PrescaleResult_Tech techprescale;
-    techprescale.reserve(lumi::N_TRGTECHBIT);
     lumi::TRG2DB::TriggerCountResult_Algo algocount;
     algocount.reserve(400);
     lumi::TRG2DB::TriggerCountResult_Tech techcount;
@@ -280,6 +279,72 @@ namespace lumi{
       return;
     }
     delete Querydeadview;
+
+    //
+    //select distinct(prescale_index) from cms_gt_mon.lumi_sections where run_number=:runnumber;
+    //
+    std::vector< int > prescidx;
+    coral::IQuery* allpsidxQuery=gtmonschemaHandle.newQuery();
+    allpsidxQuery->addToTableList(lstablename);
+    coral::AttributeList allpsidxOutput;
+    allpsidxOutput.extend("psidx",typeid(int));
+    allpsidxQuery->addToOutputList("distinct PRESCALE_INDEX","psidx");
+    coral::AttributeList bindVariablesAllpsidx;
+    bindVariablesAllpsidx.extend("runnumber",typeid(int));
+    bindVariablesAllpsidx["runnumber"].data<int>()=runnumber;
+    allpsidxQuery->setCondition("RUN_NUMBER =:runnumber",bindVariablesAllpsidx);
+    allpsidxQuery->defineOutput(allpsidxOutput);
+    coral::ICursor& allpsidxCursor=allpsidxQuery->execute();
+    while( allpsidxCursor.next() ){
+      const coral::AttributeList& row = allpsidxCursor.currentRow();     
+      int psidx=row["psidx"].data<int>();
+      prescidx.push_back(psidx);
+    }
+    delete allpsidxQuery;
+    std::map< int, std::vector<unsigned int> > algoprescMap;
+    std::map< int, std::vector<unsigned int> > techprescMap;
+    std::vector< int >::iterator prescidxIt;
+    std::vector< int >::iterator prescidxItBeg=prescidx.begin();
+    std::vector< int >::iterator prescidxItEnd=prescidx.end();
+    for(prescidxIt=prescidxItBeg;prescidxIt!=prescidxItEnd;++prescidxIt){
+      std::vector<unsigned int> algopres; algopres.reserve(lumi::N_TRGALGOBIT);
+      std::vector<unsigned int> techpres; techpres.reserve(lumi::N_TRGTECHBIT);
+      algoprescMap.insert(std::make_pair(*prescidxIt,algopres));
+      techprescMap.insert(std::make_pair(*prescidxIt,techpres));
+    }
+    //
+    //select lumi_section,prescale_index from cms_gt_mon.lumi_sections where run_number=:runnumber
+    // {ls:prescale_index}
+    //
+    std::map< unsigned int, int > lsprescmap;
+    coral::IQuery* lstoprescQuery=gtmonschemaHandle.newQuery();
+    lstoprescQuery->addToTableList(lstablename);
+    coral::AttributeList lstoprescOutput;
+    lstoprescOutput.extend("lumisection",typeid(unsigned int));
+    lstoprescOutput.extend("psidx",typeid(int));
+    lstoprescQuery->addToOutputList("LUMI_SECTION","lumisection");
+    lstoprescQuery->addToOutputList("PRESCALE_INDEX","psidx");
+    coral::AttributeList bindVariablesLstopresc;
+    bindVariablesLstopresc.extend("runnumber",typeid(int));
+    bindVariablesLstopresc["runnumber"].data<int>()=runnumber;
+    lstoprescQuery->setCondition("RUN_NUMBER =:runnumber",bindVariablesLstopresc);
+    lstoprescQuery->defineOutput(lstoprescOutput);
+    coral::ICursor& lstoprescCursor=lstoprescQuery->execute();
+    while( lstoprescCursor.next() ){
+      const coral::AttributeList& row = lstoprescCursor.currentRow();     
+      unsigned int lumisection=row["lumisection"].data< unsigned int>();
+      int psidx=row["psidx"].data< int>();
+      lsprescmap.insert(std::make_pair(lumisection,psidx));
+    }
+    delete lstoprescQuery ;
+
+    for(prescidxIt=prescidxItBeg;prescidxIt!=prescidxItEnd;++prescidxIt){
+      std::vector<unsigned int> algopres; algopres.reserve(lumi::N_TRGALGOBIT);
+      std::vector<unsigned int> techpres; techpres.reserve(lumi::N_TRGTECHBIT);
+      algoprescMap.insert(std::make_pair(*prescidxIt,algopres));
+      techprescMap.insert(std::make_pair(*prescidxIt,techpres));
+    }
+    //prefill lsprescmap
     //transaction.commit();
     /**
        Part II
@@ -299,7 +364,7 @@ namespace lumi{
       throw lumi::Exception(std::string("non-existing view ")+runpresctechviewname,"str2int","TRG2DB");
     }
     //
-    //select algo_index,alias from cms_gt.gt_run_algo_view where runnumber=:runnumber order by algo_index;
+    //select algo_index,alias from cms_gt.gt_run_algo_view where runnumber=:runnumber //order by algo_index;
     //
     std::map<unsigned int,std::string> triggernamemap;
     coral::IQuery* QueryName=gtschemaHandle.newQuery();
@@ -310,7 +375,7 @@ namespace lumi{
     QueryName->addToOutputList("algo_index");
     QueryName->addToOutputList("alias");
     QueryName->setCondition("runnumber =:runnumber",bindVariableList);
-    QueryName->addToOrderList("algo_index");
+    //QueryName->addToOrderList("algo_index");
     QueryName->defineOutput(qAlgoNameOutput);
     coral::ICursor& algonamecursor=QueryName->execute();
     while( algonamecursor.next() ){
@@ -321,8 +386,9 @@ namespace lumi{
       triggernamemap.insert(std::make_pair(algo_index,algo_name));
     }
     delete QueryName;
+    
     //
-    //select techtrig_index,name from cms_gt.gt_run_tech_view where runnumber=:runnumber order by techtrig_index;
+    //select techtrig_index,name from cms_gt.gt_run_tech_view where runnumber=:runnumber //order by techtrig_index;
     //
     std::map<unsigned int,std::string> techtriggernamemap;
     coral::IQuery* QueryTechName=gtschemaHandle.newQuery();
@@ -333,7 +399,7 @@ namespace lumi{
     QueryTechName->addToOutputList("techtrig_index");
     QueryTechName->addToOutputList("name");
     QueryTechName->setCondition("runnumber =:runnumber",bindVariableList);
-    QueryTechName->addToOrderList("techtrig_index");
+    //QueryTechName->addToOrderList("techtrig_index");
     QueryTechName->defineOutput(qTechNameOutput);
     coral::ICursor& technamecursor=QueryTechName->execute();
     while( technamecursor.next() ){
@@ -345,71 +411,92 @@ namespace lumi{
     }
     delete QueryTechName;
     //
-    //select prescale_factor_algo_000,prescale_factor_algo_001..._127 from cms_gt.gt_run_presc_algo_view where runr=:runnumber and prescale_index=0;
-    //    
-    coral::IQuery* QueryAlgoPresc=gtschemaHandle.newQuery();
-    QueryAlgoPresc->addToTableList(runprescalgoviewname);
-    coral::AttributeList qAlgoPrescOutput;
-    std::string algoprescBase("PRESCALE_FACTOR_ALGO_");
-    for(unsigned int bitidx=0;bitidx<lumi::N_TRGALGOBIT;++bitidx){
-      std::string algopresc=algoprescBase+int2str(bitidx,3);
-      qAlgoPrescOutput.extend(algopresc,typeid(unsigned int));
-    }
-    for(unsigned int bitidx=0;bitidx<lumi::N_TRGALGOBIT;++bitidx){
-      std::string algopresc=algoprescBase+int2str(bitidx,3);
-      QueryAlgoPresc->addToOutputList(algopresc);
-    }
-    coral::AttributeList PrescbindVariable;
-    PrescbindVariable.extend("runnumber",typeid(int));
-    PrescbindVariable.extend("prescaleindex",typeid(int));
-    PrescbindVariable["runnumber"].data<int>()=runnumber;
-    PrescbindVariable["prescaleindex"].data<int>()=0;
-    QueryAlgoPresc->setCondition("runnr =:runnumber AND prescale_index =:prescaleindex",PrescbindVariable);
-    QueryAlgoPresc->defineOutput(qAlgoPrescOutput);
-    coral::ICursor& algopresccursor=QueryAlgoPresc->execute();
-    while( algopresccursor.next() ){
-      const coral::AttributeList& row = algopresccursor.currentRow();     
-      //row.toOutputStream( std::cout ) << std::endl;  
-      for(unsigned int bitidx=0;bitidx<128;++bitidx){
+    //loop over all prescale_index
+    //
+    //select prescale_factor_algo_000,prescale_factor_algo_001..._127 from cms_gt.gt_run_presc_algo_view where runr=:runnumber and prescale_index=:prescale_index;
+    // {prescale_index:[pres]}
+    //
+    std::vector< int >::iterator presIt;
+    std::vector< int >::iterator presItBeg=prescidx.begin();
+    std::vector< int >::iterator presItEnd=prescidx.end();
+    for( presIt=presItBeg; presIt!=presItEnd; ++presIt ){
+      coral::IQuery* QueryAlgoPresc=gtschemaHandle.newQuery();
+      QueryAlgoPresc->addToTableList(runprescalgoviewname);
+      coral::AttributeList qAlgoPrescOutput;
+      std::string algoprescBase("PRESCALE_FACTOR_ALGO_");
+      for(unsigned int bitidx=0;bitidx<lumi::N_TRGALGOBIT;++bitidx){
 	std::string algopresc=algoprescBase+int2str(bitidx,3);
-	algoprescale.push_back(row[algopresc].data<unsigned int>());
+	qAlgoPrescOutput.extend(algopresc,typeid(unsigned int));
       }
+      for(unsigned int bitidx=0;bitidx<lumi::N_TRGALGOBIT;++bitidx){
+	std::string algopresc=algoprescBase+int2str(bitidx,3);
+	QueryAlgoPresc->addToOutputList(algopresc);
+      }
+      coral::AttributeList PrescbindVariable;
+      PrescbindVariable.extend("runnumber",typeid(int));
+      PrescbindVariable.extend("prescaleindex",typeid(int));
+      PrescbindVariable["runnumber"].data<int>()=runnumber;
+      PrescbindVariable["prescaleindex"].data<int>()=*presIt;
+      QueryAlgoPresc->setCondition("runnr =:runnumber AND prescale_index =:prescaleindex",PrescbindVariable);
+      QueryAlgoPresc->defineOutput(qAlgoPrescOutput);
+      coral::ICursor& algopresccursor=QueryAlgoPresc->execute();
+      while( algopresccursor.next() ){
+	const coral::AttributeList& row = algopresccursor.currentRow();     
+	for(unsigned int bitidx=0;bitidx<lumi::N_TRGALGOBIT;++bitidx){
+	  std::string algopresc=algoprescBase+int2str(bitidx,3);
+	  algoprescMap[*presIt].push_back(row[algopresc].data<unsigned int>());
+	}
+      }
+      delete QueryAlgoPresc;
     }
-    delete QueryAlgoPresc;
     //
     //select prescale_factor_tt_000,prescale_factor_tt_001..._63 from cms_gt.gt_run_presc_tech_view where runr=:runnumber and prescale_index=0;
     //    
-    coral::IQuery* QueryTechPresc=gtschemaHandle.newQuery();
-    QueryTechPresc->addToTableList(runpresctechviewname);
-    coral::AttributeList qTechPrescOutput;
-    std::string techprescBase("PRESCALE_FACTOR_TT_");
-    for(unsigned int bitidx=0;bitidx<lumi::N_TRGTECHBIT;++bitidx){
-      std::string techpresc=techprescBase+this->int2str(bitidx,3);
-      qTechPrescOutput.extend(techpresc,typeid(unsigned int));
-    }
-    for(unsigned int bitidx=0;bitidx<lumi::N_TRGTECHBIT;++bitidx){
-      std::string techpresc=techprescBase+int2str(bitidx,3);
-      QueryTechPresc->addToOutputList(techpresc);
-    }
-    coral::AttributeList TechPrescbindVariable;
-    TechPrescbindVariable.extend("runnumber",typeid(int));
-    TechPrescbindVariable.extend("prescaleindex",typeid(int));
-    TechPrescbindVariable["runnumber"].data<int>()=runnumber;
-    TechPrescbindVariable["prescaleindex"].data<int>()=0;
-    QueryTechPresc->setCondition("runnr =:runnumber AND prescale_index =:prescaleindex",TechPrescbindVariable);
-    QueryTechPresc->defineOutput(qTechPrescOutput);
-    coral::ICursor& techpresccursor=QueryTechPresc->execute();
-    while( techpresccursor.next() ){
-      const coral::AttributeList& row = techpresccursor.currentRow();     
-      //row.toOutputStream( std::cout ) << std::endl;
+    for( presIt=presItBeg; presIt!=presItEnd; ++presIt ){
+      coral::IQuery* QueryTechPresc=gtschemaHandle.newQuery();
+      QueryTechPresc->addToTableList(runpresctechviewname);
+      coral::AttributeList qTechPrescOutput;
+      std::string techprescBase("PRESCALE_FACTOR_TT_");
+      for(unsigned int bitidx=0;bitidx<lumi::N_TRGTECHBIT;++bitidx){
+	std::string techpresc=techprescBase+this->int2str(bitidx,3);
+	qTechPrescOutput.extend(techpresc,typeid(unsigned int));
+      }
       for(unsigned int bitidx=0;bitidx<lumi::N_TRGTECHBIT;++bitidx){
 	std::string techpresc=techprescBase+int2str(bitidx,3);
-	techprescale.push_back(row[techpresc].data<unsigned int>());
+	QueryTechPresc->addToOutputList(techpresc);
       }
+      coral::AttributeList TechPrescbindVariable;
+      TechPrescbindVariable.extend("runnumber",typeid(int));
+      TechPrescbindVariable.extend("prescaleindex",typeid(int));
+      TechPrescbindVariable["runnumber"].data<int>()=runnumber;
+      TechPrescbindVariable["prescaleindex"].data<int>()=*presIt;
+      QueryTechPresc->setCondition("runnr =:runnumber AND prescale_index =:prescaleindex",TechPrescbindVariable);
+      QueryTechPresc->defineOutput(qTechPrescOutput);
+      coral::ICursor& techpresccursor=QueryTechPresc->execute();
+      while( techpresccursor.next() ){
+	const coral::AttributeList& row = techpresccursor.currentRow();     
+	//row.toOutputStream( std::cout ) << std::endl;
+	for(unsigned int bitidx=0;bitidx<lumi::N_TRGTECHBIT;++bitidx){
+	  std::string techpresc=techprescBase+int2str(bitidx,3);
+	  techprescMap[*presIt].push_back(row[techpresc].data<unsigned int>());
+	}
+      }
+      delete QueryTechPresc;
     }
-    delete QueryTechPresc;
     transaction.commit();
     delete trgsession;
+
+    std::map< unsigned int, int >::iterator lsprescmapIt;
+    std::map< unsigned int, int >::iterator lsprescmapItBeg=lsprescmap.begin();
+    std::map< unsigned int, int >::iterator lsprescmapItEnd=lsprescmap.end();
+    for( lsprescmapIt=lsprescmapItBeg; lsprescmapIt!=lsprescmapItEnd; ++lsprescmapIt ){
+      unsigned int ls=lsprescmapIt->first;
+      int preidx=lsprescmapIt->second;
+      algoprescale.insert(std::make_pair(ls,algoprescMap[preidx]));
+      techprescale.insert(std::make_pair(ls,techprescMap[preidx]));
+    }
+    algoprescMap.clear();
+    techprescMap.clear();
     //
     //reprocess Algo name result filling unallocated trigger bit with string "False"
     //
@@ -437,9 +524,9 @@ namespace lumi{
     if(algonames.size()!=lumi::N_TRGALGOBIT || technames.size()!=lumi::N_TRGTECHBIT){
       throw lumi::Exception("wrong number of bits","retrieveData","TRG2DB");
     }
-    if(algoprescale.size()!=lumi::N_TRGALGOBIT || techprescale.size()!=lumi::N_TRGTECHBIT){
-      throw lumi::Exception("wrong number of prescale","retrieveData","TRG2DB");
-    }
+    //if(algoprescale.size()!=lumi::N_TRGALGOBIT || techprescale.size()!=lumi::N_TRGTECHBIT){
+    //  throw lumi::Exception("wrong number of prescale","retrieveData","TRG2DB");
+    //}
     if(deadtimeresult.size()!=algocount.size() || deadtimeresult.size()!=techcount.size()){
       throw lumi::Exception("inconsistent number of LS","retrieveData","TRG2DB");
     }
@@ -529,7 +616,8 @@ namespace lumi{
 	  bitnum=trgbitcount;
 	  bitname=algonames[trgbitcount];
 	  count=*algoBitIt;
-	  prescale=algoprescale[trgbitcount];
+	  prescale=algoprescale[cmslsnum][trgbitcount];
+	  //std::cout<<"cmslsnum "<<cmslsnum<<" bitnum "<<bitnum<<" bitname "<<bitname<<" prescale "<< prescale<<" count "<<count<<std::endl;
 	  trgInserter->processNextIteration();	
 	}
 	BITCOUNT::const_iterator techBitIt;
@@ -543,7 +631,7 @@ namespace lumi{
 	  bitnum=trgbitcount;
 	  bitname=technames[trgbitcount-lumi::N_TRGALGOBIT];
 	  count=*techBitIt;
-	  prescale=techprescale[trgbitcount-lumi::N_TRGALGOBIT];
+	  prescale=techprescale[cmslsnum][trgbitcount-lumi::N_TRGALGOBIT];
 	  trgInserter->processNextIteration();	
 	}
 	trgInserter->flush();
