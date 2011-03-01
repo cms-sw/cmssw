@@ -3980,6 +3980,10 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   /* 
+    * this is only a proxy to the HLT implementation 
+    * - should use SC variable once available in ntuples */
+/*   
    else if (triggerName.CompareTo("OpenHLT_Ele32_CaloIdL_CaloIsoVL_SC17_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -4037,7 +4041,7 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-
+*/
    /* Photons */
    else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVL_v1") == 0)
    {
