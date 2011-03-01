@@ -207,7 +207,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
     for [lstime,lumitot] in fillseg:
         if lstime-previoustime>30.0:
             boundarytime=lstime
-            print 'found new boundary ',boundarytime
+            #print 'found new boundary ',boundarytime
             summaryls[boundarytime]=[]
      #   print 'appending ',boundarytime,lstime,lumitot
         summaryls[boundarytime].append([lstime,lumitot])
