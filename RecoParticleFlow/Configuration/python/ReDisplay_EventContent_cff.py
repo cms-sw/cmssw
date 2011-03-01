@@ -15,6 +15,7 @@ DisplayEventContent = cms.PSet(
         'keep recoCandidatesOwned_*_*_REPROD', 
         'keep recoPFSimParticles_*_*_REPROD', 
         'keep recoTracks_*_*_REPROD',
+        'keep recoTrackExtras_*_*_REPROD',                                    
         'keep *_electronGsfTracks_*_REPROD', 
         'keep *_electronMergedSeeds_*_REPROD', 
         'keep recoCaloJets_*_*_REPROD', 
@@ -40,7 +41,9 @@ DisplayEventContent = cms.PSet(
         'keep recoPFDisplacedVertexs_*_*_REPROD',                      
         'keep recoPFDisplacedTrackerVertexs_*_*_REPROD',
         'keep *_correctedHybridSuperClusters_*_*',
-        'keep *_correctedMulti5x5SuperClustersWithPreshower_*_*'                             
+        'keep *_correctedMulti5x5SuperClustersWithPreshower_*_*',
+        'keep recoPhotons_photons_*_REPROD',
+        'keep recoPhotonCores_photonCore_*_REPROD'
    )
 )
 

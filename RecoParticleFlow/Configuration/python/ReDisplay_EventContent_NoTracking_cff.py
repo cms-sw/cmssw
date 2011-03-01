@@ -15,6 +15,7 @@ DisplayEventContent = cms.PSet(
         'keep recoCandidatesOwned_*_*_REPROD', 
         'keep recoPFSimParticles_*_*_REPROD', 
         'keep recoTracks_*_*_*',
+        'keep recoTrackExtras_*_*_*', 
         'keep *_electronGsfTracks_*_*', 
         'keep *_electronMergedSeeds_*_*', 
         'keep recoCaloJets_*_*_*', 
