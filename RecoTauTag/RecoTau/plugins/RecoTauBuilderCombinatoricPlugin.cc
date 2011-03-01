@@ -181,7 +181,8 @@ RecoTauBuilderCombinatoricPlugin::operator()(
         PFCandPtrDRFilter isolationConeFilter(tau.p4(), 0, isolationConeSize_);
 
         // Cross cleaning predicate.  Remove any PFCandidatePtrs that are
-        // contained within existing PiZeros
+        // contained within existing PiZeros.  This predicate will return false
+        // for any object that overlaps with cleanPiZeros.
         xclean::CrossCleanPtrs pfCandXCleaner(cleanPiZeros);
         // And this cleaning filter predicate with our Iso cone filter
         xclean::PredicateAND<PFCandPtrDRFilter, xclean::CrossCleanPtrs>
