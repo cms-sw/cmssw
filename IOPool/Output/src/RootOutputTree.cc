@@ -6,9 +6,9 @@
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Services/src/InitRootHandlers.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/RootHandlers.h"
 
 #include "TBranch.h"
 #include "TBranchElement.h"
@@ -180,7 +180,7 @@ namespace edm {
       }
       tree_->SetEntries(tree_->GetEntries() + in->GetEntries());
       Service<RootHandlers> rootHandler;
-      rootHandler->disableErrorHandler();
+      rootHandler->enableErrorHandlerWithoutWarnings();
       cloner.Exec();
       rootHandler->enableErrorHandler();
       if (!fastCloneAuxBranches_) {

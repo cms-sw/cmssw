@@ -19,6 +19,7 @@ namespace edm {
     private:
       virtual void disableErrorHandler_();
       virtual void enableErrorHandler_();
+      virtual void enableErrorHandlerWithoutWarnings_();
       bool unloadSigHandler_;
       bool resetErrHandler_;
       bool autoLibraryLoader_;

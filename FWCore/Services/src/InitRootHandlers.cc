@@ -1,32 +1,35 @@
 #include "FWCore/Services/src/InitRootHandlers.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/PluginManager/interface/PluginCapabilities.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
-#include "DataFormats/Provenance/interface/TransientStreamer.h"
+
 #include "DataFormats/Common/interface/CacheStreamers.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
+#include "DataFormats/Provenance/interface/TransientStreamer.h"
+#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/PluginCapabilities.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
-#include <string.h>
 #include <sstream>
+#include <string.h>
 
-#include "TSystem.h"
-#include "TError.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TROOT.h"
 #include "Cintex/Cintex.h"
-#include "TH1.h"
 #include "G__ci.h"
 #include "Reflex/Type.h"
+#include "TROOT.h"
+#include "TError.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TSystem.h"
+#include "TTree.h"
 
 namespace {
 
-  void RootErrorHandler(int level, bool die, char const* location, char const* message) {
+  void RootErrorHandlerImpl(int level, char const* location, char const* message, bool ignoreWarnings) {
+
+  bool die = false;
 
   // Translate ROOT severity level to MessageLogger severity level
 
@@ -39,7 +42,7 @@ namespace {
     } else if (level >= kError) {
       el_severity = edm::ELseverityLevel::ELsev_error;
     } else if (level >= kWarning) {
-      el_severity = edm::ELseverityLevel::ELsev_warning;
+      el_severity = ignoreWarnings ? edm::ELseverityLevel::ELsev_info : edm::ELseverityLevel::ELsev_warning;
     }
 
   // Adapt C-strings to std::strings
@@ -137,8 +140,16 @@ namespace {
     } else if (el_severity == edm::ELseverityLevel::ELsev_info) {
       edm::LogInfo("Root_Information") << el_location << el_message ;
     }
-
   }
+
+  void RootErrorHandler(int level, bool, char const* location, char const* message) {
+    RootErrorHandlerImpl(level, location, message, false);
+  }
+
+  void RootErrorHandlerWithoutWarnings(int level, bool, char const* location, char const* message) {
+    RootErrorHandlerImpl(level, location, message, true);
+  }
+
 }  // end of unnamed namespace
 
 namespace edm {
@@ -225,5 +236,11 @@ namespace edm {
     InitRootHandlers::enableErrorHandler_() {
         SetErrorHandler(RootErrorHandler);
     }
+
+    void
+    InitRootHandlers::enableErrorHandlerWithoutWarnings_() {
+        SetErrorHandler(RootErrorHandlerWithoutWarnings);
+    }
+
   }  // end of namespace service
 }  // end of namespace edm
