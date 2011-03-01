@@ -1,21 +1,22 @@
 
 #include "RootOutputTree.h"
 
-#include "TFile.h"
-#include "TBranch.h"
-#include "TBranchElement.h"
-#include "TTreeCloner.h"
-#include "TCollection.h"
-#include "Rtypes.h"
-#include "RVersion.h"
-
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Services/src/InitRootHandlers.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+
+#include "TBranch.h"
+#include "TBranchElement.h"
+#include "TCollection.h"
+#include "TFile.h"
+#include "TTreeCloner.h"
+#include "Rtypes.h"
+#include "RVersion.h"
 
 #include "boost/bind.hpp"
 #include <limits>
@@ -178,7 +179,10 @@ namespace edm {
 #endif
       }
       tree_->SetEntries(tree_->GetEntries() + in->GetEntries());
+      Service<RootHandlers> rootHandler;
+      rootHandler->disableErrorHandler();
       cloner.Exec();
+      rootHandler->enableErrorHandler();
       if (!fastCloneAuxBranches_) {
         for (std::map<Int_t, TBranch *>::const_iterator it = auxIndexes.begin(), itEnd = auxIndexes.end();
              it != itEnd; ++it) {
