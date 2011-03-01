@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V51 (CMSSW_3_11_0_HLT9)
+# /dev/CMSSW_3_11_1/GRun/V52 (CMSSW_3_11_0_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V51')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V52')
 )
 
 process.streams = cms.PSet( 
@@ -17541,7 +17541,7 @@ process.hltPreHLTDQMOutput = cms.EDFilter( "HLTPrescaler",
 process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring( 'AlCa_EcalEta_v2 / 100',
       'AlCa_EcalPhiSym_v2 / 100',
-      'AlCa_EcalPi0_v2 / 100',
+      'AlCa_EcalPi0_v3 / 100',
       'AlCa_RPCMuonNoHits_v2 / 100',
       'AlCa_RPCMuonNoTriggers_v2 / 100',
       'AlCa_RPCMuonNormalisation_v2 / 100',
@@ -17767,7 +17767,7 @@ process.hltPreHLTMONOutput = cms.EDFilter( "HLTPrescaler",
 process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring( 'AlCa_EcalEta_v2 / 100',
       'AlCa_EcalPhiSym_v2 / 100',
-      'AlCa_EcalPi0_v2 / 100',
+      'AlCa_EcalPi0_v3 / 100',
       'AlCa_RPCMuonNoHits_v2 / 100',
       'AlCa_RPCMuonNoTriggers_v2 / 100',
       'AlCa_RPCMuonNormalisation_v2 / 100',
