@@ -13,7 +13,7 @@
 //
 // Original Author:  Eduardo Luiggi
 //         Created:  Fri Apr  4 16:37:44 CDT 2008
-// $Id: L25TauAnalyzer.h,v 1.6 2008/10/03 19:09:11 bachtis Exp $
+// $Id: L25TauAnalyzer.h,v 1.9 2011/02/28 23:18:49 eluiggi Exp $
 //
 //
 
@@ -66,6 +66,8 @@ class L25TauAnalyzer : public edm::EDAnalyzer {
       reco::PFTau match(const reco::Jet&, const reco::PFTauCollection&);
       reco::CaloJet matchedToPFTau(const reco::PFTau&, const reco::L2TauInfoAssociation&);
       void printInfo(const reco::PFTau& thePFTau, const reco::IsolatedTauTagInfo& theTauTagInfo);
+      void clearVectors();
+      void initializeVectors();
       edm::InputTag _l25JetSource;
       edm::InputTag _l2TauInfoAssoc;
       edm::InputTag _pfTauSource;
@@ -85,37 +87,51 @@ class L25TauAnalyzer : public edm::EDAnalyzer {
       int _nTrkIso;
 
       TTree *l25tree;
-
+      
       int numPixTrkInJet;
       int numQPixTrkInJet;
       int numQPixTrkInSignalCone;
       int numQPixTrkInAnnulus;
       int myNtrkIso;
-      float l25SignalTrkPt;
-      float l25SignalTrkChi2NdF;
-      float l25SignalTrkChi2;
-      int l25SignalTrkNValidHits;
-      int l25SignalTrkNRecHits;
-      int l25SignalTrkNValidPixelHits;
-      int l25SignalTrkNLostHits;
-      float l25SignalTrkDxy;
-      float l25SignalTrkDz;
-      float l25SignalTrkEta;
-      float l25SignalTrkPhi;
-      float l25IsoTrkPt;
-      float l25IsoTrkChi2NdF;
-      float l25IsoTrkChi2;
-      int l25IsoTrkNValidHits;
-      int l25IsoTrkNRecHits;
-      int l25IsoTrkNValidPixelHits;
-      int l25IsoTrkNLostHits;
-      float l25IsoTrkDxy;
-      float l25IsoTrkDz;
-      float l25IsoTrkEta;
-      float l25IsoTrkPhi;
+      
       float l25JetEt;
       float l25JetEta;
       float l25JetPhi;
+      
+      std::vector<float> *l25TrkPt;
+      std::vector<float> *l25TrkEta;
+      std::vector<float> *l25TrkPhi;
+      std::vector<float> *l25TrkDz;
+      std::vector<float> *l25TrkDxy;
+      std::vector<float> *l25TrkChi2;
+      std::vector<float> *l25TrkChi2NdF;
+      std::vector<float> *l25TrkNRecHits;
+      std::vector<float> *l25TrkNValidPixelHits;
+      
+      std::vector<float> *l25SignalTrkPt;
+      std::vector<float> *l25SignalTrkChi2NdF;
+      std::vector<float> *l25SignalTrkChi2;
+      std::vector<float> *l25SignalTrkDxy;
+      std::vector<float> *l25SignalTrkDz;
+      std::vector<float> *l25SignalTrkEta;
+      std::vector<float> *l25SignalTrkPhi;
+      std::vector<int> *l25SignalTrkNValidHits;
+      std::vector<int> *l25SignalTrkNRecHits;
+      std::vector<int> *l25SignalTrkNValidPixelHits;
+      std::vector<int> *l25SignalTrkNLostHits;
+      
+      std::vector<float> *l25IsoTrkPt;
+      std::vector<float> *l25IsoTrkChi2NdF;
+      std::vector<float> *l25IsoTrkChi2;
+      std::vector<float> *l25IsoTrkDxy;
+      std::vector<float> *l25IsoTrkDz;
+      std::vector<float> *l25IsoTrkEta;
+      std::vector<float> *l25IsoTrkPhi;
+      std::vector<int> *l25IsoTrkNValidHits;
+      std::vector<int> *l25IsoTrkNRecHits;
+      std::vector<int> *l25IsoTrkNValidPixelHits;
+      std::vector<int> *l25IsoTrkNLostHits;
+
       bool hasLeadTrk;
       float leadSignalTrackPt;
       float leadTrkJetDeltaR;

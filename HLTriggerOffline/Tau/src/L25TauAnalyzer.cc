@@ -13,7 +13,7 @@
 //
 // Original Author:  Eduardo Luiggi
 //         Created:  Mon Apr 19 16:09:13 CDT 2010
-// $Id$
+// $Id: L25TauAnalyzer.cc,v 1.10 2011/02/28 23:18:49 eluiggi Exp $
 //
 //
 
@@ -46,20 +46,12 @@ L25TauAnalyzer::L25TauAnalyzer(const edm::ParameterSet& iConfig){
   _l25Dz = iConfig.getParameter<double>("L25DzCut");
   _nTrkIso = iConfig.getParameter<int>("NTrkIso");
   _l25LeadTkPtMin = iConfig.getParameter<double>("L25LeadTkMinPt");
+  
      
   l25JetEt=0.;
   l25JetEta=10.;
   l25JetPhi=10.;
   hasLeadTrk=0;
-  l25IsoTrkChi2NdF = 150.;
-  l25IsoTrkChi2 = 150;
-  l25IsoTrkNValidHits = -1;
-  l25IsoTrkNRecHits = -1;
-  l25IsoTrkNValidPixelHits = -1;
-  l25IsoTrkDxy = 5.;
-  l25IsoTrkDz = 25.;
-  l25IsoTrkEta = 10.;
-  l25IsoTrkPhi = 10.;
   leadSignalTrackPt = 0.;
   leadTrkJetDeltaR = 0.;
   numPixTrkInJet = 0;
@@ -83,41 +75,9 @@ L25TauAnalyzer::L25TauAnalyzer(const edm::ParameterSet& iConfig){
   L2MatchedToPFtau = 0;
   L25MatchedToL2 = 0;
   
+  initializeVectors();
   edm::Service<TFileService> fs;
   l25tree = fs->make<TTree>("l25tree","Level 2.5 Tau Tree");
-  
-  l25tree->Branch("l25JetEt", &l25JetEt, "l25JetEt/F");
-  l25tree->Branch("l25JetEta", &l25JetEta, "l25JetEta/F");
-  l25tree->Branch("l25JetPhi", &l25JetPhi, "l25JetPhi/F");
-  l25tree->Branch("hasLeadTrack", &hasLeadTrk, "hasLeadTrack/B");
-  l25tree->Branch("leadTrackPt", &leadSignalTrackPt, "leadTrackPt/F");
-  l25tree->Branch("nTracks", &numPixTrkInJet, "nTracks/I");
-  l25tree->Branch("nQTracks", &numQPixTrkInJet, "nQTracks/I");
-  l25tree->Branch("nQTracksInSignal", &numQPixTrkInSignalCone, "nQTracksInSignal/I");
-  l25tree->Branch("nQTracksInAnnulus", &numQPixTrkInAnnulus, "nQTracksInAnnulus/I");
-  l25tree->Branch("l25SignalTrkPt", &l25SignalTrkPt, "l25SignalTrkPt/F");
-  l25tree->Branch("l25SignalTrkChi2NdF", &l25SignalTrkChi2NdF, "l25SignalTrkChi2NdF/F");
-  l25tree->Branch("l25SignalTrkChi2", &l25SignalTrkChi2, "l25SignalTrkChi2/F");
-  l25tree->Branch("l25SignalTrkNValidHits", &l25SignalTrkNValidHits, "l25SignalTrkNValidHits/I");
-  l25tree->Branch("l25SignalTrkNRecHits", &l25SignalTrkNRecHits, "l25SignalTrkNRecHits/I");
-  l25tree->Branch("l25SignalTrkNValidPixelHits", &l25SignalTrkNValidPixelHits, "l25SignalTrkNValidPixelHits/I");
-  l25tree->Branch("l25SignalTrkNLostHits", &l25SignalTrkNLostHits, "l25SignalTrkNLostHits/I");
-  l25tree->Branch("l25SignalTrkDxy", &l25SignalTrkDxy, "l25SignalTrkDxy/F");
-  l25tree->Branch("l25SignalTrkDz", &l25SignalTrkDz, "l25SignalTrkDz/F");
-  l25tree->Branch("l25SignalTrkEta", &l25SignalTrkEta, "l25SignalTrkEta/F");
-  l25tree->Branch("l25SignalTrkPhi", &l25SignalTrkPhi, "l25SignalTrkPhi/F");
-  l25tree->Branch("myNtrkIso", &myNtrkIso, "myNtrkIso/I");
-  l25tree->Branch("l25IsoTrkPt", &l25IsoTrkPt, "l25IsoTrkPt/F");
-  l25tree->Branch("l25IsoTrkChi2NdF", &l25IsoTrkChi2NdF, "l25IsoTrkChi2NdF/F");
-  l25tree->Branch("l25IsoTrkChi2", &l25IsoTrkChi2, "l25IsoTrkChi2/F");
-  l25tree->Branch("l25IsoTrkNValidHits", &l25IsoTrkNValidHits, "l25IsoTrkNValidHits/I");
-  l25tree->Branch("l25IsoTrkNRecHits", &l25IsoTrkNRecHits, "l25IsoTrkNRecHits/I");
-  l25tree->Branch("l25IsoTrkNValidPixelHits", &l25IsoTrkNValidPixelHits, "l25IsoTrkNValidPixelHits/I");
-  l25tree->Branch("l25IsoTrkNLostHits", &l25IsoTrkNLostHits, "l25IsoTrkNLostHits/I");
-  l25tree->Branch("l25IsoTrkDxy", &l25IsoTrkDxy, "l25IsoTrkDxy/F");
-  l25tree->Branch("l25IsoTrkDz", &l25IsoTrkDz, "l25IsoTrkDz/F");
-  l25tree->Branch("l25IsoTrkEta", &l25IsoTrkEta, "l25IsoTrkEta/F");
-  l25tree->Branch("l25IsoTrkPhi", &l25IsoTrkPhi, "l25IsoTrkPhi/F");
   
   l25tree->Branch("pfTauHasLeadTrk", &pfTauHasLeadTrk, "pfTauHasLeadTrk/B");
   l25tree->Branch("pfTauInBounds", &pfTauInBounds, "pfTauInBounds/B");
@@ -133,6 +93,7 @@ L25TauAnalyzer::L25TauAnalyzer(const edm::ParameterSet& iConfig){
   l25tree->Branch("pfTauNTrkIso", &pfTauNTrkIso, "pfTauNTrkIso/I");
   l25tree->Branch("pfTauIsoTrkPt", &pfTauIsoTrkPt, "pfTauIsoTrkPt/F");
   l25tree->Branch("pfTauGammaIso", &pfTauGammaIso, "pfTauGammaIso/F");
+  
   l25tree->Branch("pftauL25DeltaR", &pftauL25DeltaR, "pftauL25DeltaR/F");
   l25tree->Branch("pftauSignalTrkDeltaR", &pftauSignalTrkDeltaR, "pftauSignalTrkDeltaR/F");
   l25tree->Branch("pftauIsoTrkDeltaR", &pftauIsoTrkDeltaR, "pftauIsoTrkDeltaR/F");
@@ -150,6 +111,52 @@ L25TauAnalyzer::L25TauAnalyzer(const edm::ParameterSet& iConfig){
   l25tree->Branch("l25MatchedToPFTau", &l25MatchedToPFTau, "l25MatchedToPFTau/B");
   l25tree->Branch("L2MatchedToPFtau", &L2MatchedToPFtau, "L2MatchedToPFtau/B");
   l25tree->Branch("L25MatchedToL2", &L25MatchedToL2, "L25MatchedToL2/B");
+  
+  l25tree->Branch("l25JetEt", &l25JetEt, "l25JetEt/F");
+  l25tree->Branch("l25JetEta", &l25JetEta, "l25JetEta/F");
+  l25tree->Branch("l25JetPhi", &l25JetPhi, "l25JetPhi/F");
+  l25tree->Branch("hasLeadTrack", &hasLeadTrk, "hasLeadTrack/B");
+  l25tree->Branch("leadTrackPt", &leadSignalTrackPt, "leadTrackPt/F");
+  l25tree->Branch("nTracks", &numPixTrkInJet, "nTracks/I");
+  l25tree->Branch("nQTracks", &numQPixTrkInJet, "nQTracks/I");
+  l25tree->Branch("nQTracksInSignal", &numQPixTrkInSignalCone, "nQTracksInSignal/I");
+  l25tree->Branch("nQTracksInAnnulus", &numQPixTrkInAnnulus, "nQTracksInAnnulus/I");
+  
+  l25tree->Branch("l25TrkPt", &l25TrkPt);
+  l25tree->Branch("l25TrkEta", &l25TrkEta);
+  l25tree->Branch("l25TrkPhi", &l25TrkPhi);
+  l25tree->Branch("l25TrkDz", &l25TrkDz);
+  l25tree->Branch("l25TrkDxy", &l25TrkDxy);
+  l25tree->Branch("l25TrkChi2", &l25TrkChi2);
+  l25tree->Branch("l25TrkChi2NdF", &l25TrkChi2NdF);
+  l25tree->Branch("l25TrkNRecHits", &l25TrkNRecHits);
+  l25tree->Branch("l25TrkNValidPixelHits", &l25TrkNValidPixelHits);
+  
+  l25tree->Branch("l25SignalTrkPt", &l25SignalTrkPt);
+  l25tree->Branch("l25SignalTrkEta", &l25SignalTrkEta);
+  l25tree->Branch("l25SignalTrkPhi", &l25SignalTrkPhi);
+  l25tree->Branch("l25SignalTrkDz", &l25SignalTrkDz);
+  l25tree->Branch("l25SignalTrkDxy", &l25SignalTrkDxy);
+  l25tree->Branch("l25SignalTrkChi2", &l25SignalTrkChi2);
+  l25tree->Branch("l25SignalTrkChi2NdF", &l25SignalTrkChi2NdF);
+  l25tree->Branch("l25SignalTrkNRecHits", &l25SignalTrkNRecHits);
+  l25tree->Branch("l25SignalTrkNValidHits", &l25SignalTrkNValidHits);
+  l25tree->Branch("l25SignalTrkNValidPixelHits", &l25SignalTrkNValidPixelHits);
+  l25tree->Branch("l25SignalTrkNLostHits", &l25SignalTrkNLostHits);
+  
+  l25tree->Branch("l25IsoTrkPt", &l25IsoTrkPt);
+  l25tree->Branch("l25IsoTrkEta", &l25IsoTrkEta);
+  l25tree->Branch("l25IsoTrkPhi", &l25IsoTrkPhi);
+  l25tree->Branch("l25IsoTrkDz", &l25IsoTrkDz);
+  l25tree->Branch("l25IsoTrkDxy", &l25IsoTrkDxy);
+  l25tree->Branch("l25IsoTrkChi2", &l25IsoTrkChi2);
+  l25tree->Branch("l25IsoTrkChi2NdF", &l25IsoTrkChi2NdF);
+  l25tree->Branch("l25IsoTrkNRecHits", &l25IsoTrkNRecHits);
+  l25tree->Branch("l25IsoTrkNValidHits", &l25IsoTrkNValidHits);
+  l25tree->Branch("l25IsoTrkNValidPixelHits", &l25IsoTrkNValidPixelHits);
+  l25tree->Branch("l25IsoTrkNLostHits", &l25IsoTrkNLostHits);
+  
+  l25tree->Branch("myNtrkIso", &myNtrkIso, "myNtrkIso/I");
 }
 
 
@@ -191,7 +198,6 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(thePFTaus.isValid()){
     edm::LogInfo("L25Analysis")  << "Inside PFTau\n";
     for(unsigned int pfTauIt = 0; pfTauIt < thePFTaus->size(); ++pfTauIt){
-      
       const PFTauRef thisTauRef(thePFTaus,pfTauIt);
       pfTauIsoDisc = 0;
       pfTauMuonDisc = 0;
@@ -203,7 +209,6 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         const PFTauDiscriminator& disc = *(thePFTauDiscriminatorAgainstMuon.product());
 	pfTauMuonDisc = disc[thisTauRef];
       }
-      
       
       L2MatchedToPFtau = false;      
       pfTauHasLeadTrk = false;
@@ -286,12 +291,25 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	pftauL25DeltaR = ROOT::Math::VectorUtil::DeltaR(thePFTaus->at(pfTauIt).p4(), theMatchedL25TauTagInfo.jet()->p4());
 	if(pftauL25DeltaR < _l2l25MatchingCone)l25MatchedToPFTau = true;
 	
-    	l25JetEt = theMatchedL25TauTagInfo.jet()->et();   													     
+ 	const TrackRefVector theTauTagTracks = theMatchedL25TauTagInfo.allTracks();
+	
+   	l25JetEt = theMatchedL25TauTagInfo.jet()->et();   													     
      	l25JetEta = theMatchedL25TauTagInfo.jet()->eta();
      	l25JetPhi = theMatchedL25TauTagInfo.jet()->phi();
-	numPixTrkInJet = theMatchedL25TauTagInfo.allTracks().size();										    	     
+	numPixTrkInJet = theTauTagTracks.size();										    	     
      	numQPixTrkInJet = theMatchedL25TauTagInfo.selectedTracks().size();
-	
+	//get info for all tracks in tauTagInfo
+	for(TrackRefVector::const_iterator trkIt = theTauTagTracks.begin(); trkIt != theTauTagTracks.end(); ++trkIt){
+	  l25TrkPt->push_back((*trkIt)->pt());
+      	  l25TrkEta->push_back((*trkIt)->eta());
+      	  l25TrkPhi->push_back((*trkIt)->phi());
+      	  l25TrkDz->push_back((*trkIt)->dz(theVertexPosition));
+      	  l25TrkDxy->push_back((*trkIt)->dxy(theVertexPosition));
+	  l25TrkChi2->push_back((*trkIt)->chi2());
+	  l25TrkChi2NdF->push_back((*trkIt)->normalizedChi2());
+	  l25TrkNRecHits->push_back((*trkIt)->recHitsSize());
+	  l25TrkNValidPixelHits->push_back((*trkIt)->hitPattern().numberOfValidPixelHits());
+	}
 	const TrackRef leadTk = theMatchedL25TauTagInfo.leadingSignalTrack(_l25JetLeadTkMacthingCone, _minTrackPt);									 
       	if(!leadTk){															 	    
      	  hasLeadTrk=false;	   													    
@@ -320,60 +338,37 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  float l25LeadIsoPt = 0.;
 	  Track theL25LeadIsoTrk;
 	  
-	  l25SignalTrkPt = 0.;
-  	  l25SignalTrkChi2NdF = 150.;
-  	  l25SignalTrkChi2 = 150;
-  	  l25SignalTrkNValidHits = -1;
-  	  l25SignalTrkNRecHits = -1;
-  	  l25SignalTrkNValidPixelHits = -1;
-	  l25SignalTrkNLostHits = -1;
-  	  l25SignalTrkDxy = 5.;
-  	  l25SignalTrkDz = 25.;
-  	  l25SignalTrkEta = 10.;
-  	  l25SignalTrkPhi = 10.;
-	  
 	  myNtrkIso = 0;
-	  l25IsoTrkPt = 0.;
-  	  l25IsoTrkChi2NdF = 150.;
-  	  l25IsoTrkChi2 = 150;
-  	  l25IsoTrkNValidHits = -1;
-  	  l25IsoTrkNRecHits = -1;
-  	  l25IsoTrkNValidPixelHits = -1;
-	  l25IsoTrkNLostHits = -1;
-  	  l25IsoTrkDxy = 5.;
-  	  l25IsoTrkDz = 25.;
-  	  l25IsoTrkEta = 10.;
-  	  l25IsoTrkPhi = 10.;
-	  
 	  for(TrackRefVector::const_iterator isoIt = theIsoTracks.begin(); isoIt != theIsoTracks.end(); ++isoIt){
 	    if(ROOT::Math::VectorUtil::DeltaR(leadTk->momentum(), (*isoIt)->momentum()) <= _signalCone){
-	      l25SignalTrkPt = (*isoIt)->pt();
-	      l25SignalTrkChi2NdF = (*isoIt)->normalizedChi2();
-	      l25SignalTrkChi2 = (*isoIt)->chi2();
-	      l25SignalTrkNValidHits = (*isoIt)->numberOfValidHits();
-	      l25SignalTrkNRecHits = (*isoIt)->recHitsSize();
-	      l25SignalTrkNValidPixelHits = (*isoIt)->hitPattern().numberOfValidPixelHits();
-	      l25SignalTrkNLostHits = (*isoIt)->lost();
-	      l25SignalTrkDxy = (*isoIt)->d0();
-	      l25SignalTrkDz = (*isoIt)->dz();
-	      l25SignalTrkEta = (*isoIt)->eta();
-	      l25SignalTrkPhi = (*isoIt)->phi();
+	  
+	      l25SignalTrkPt->push_back((*isoIt)->pt());
+	      l25SignalTrkEta->push_back((*isoIt)->eta());
+	      l25SignalTrkPhi->push_back((*isoIt)->phi());
+	      l25SignalTrkDz->push_back((*isoIt)->dz(theVertexPosition));
+	      l25SignalTrkDxy->push_back((*isoIt)->dxy(theVertexPosition));
+	      l25SignalTrkChi2->push_back((*isoIt)->chi2());
+	      l25SignalTrkChi2NdF->push_back((*isoIt)->normalizedChi2());
+	      l25SignalTrkNRecHits->push_back((*isoIt)->recHitsSize());
+	      l25SignalTrkNValidHits->push_back((*isoIt)->numberOfValidHits());
+	      l25SignalTrkNValidPixelHits->push_back((*isoIt)->hitPattern().numberOfValidPixelHits());
+	      l25SignalTrkNLostHits->push_back((*isoIt)->lost());
+
 	    }
 	    else{
 	      myNtrkIso++;
-	      //const math::XYZPoint& theTrkVtx = (*isoIt)->referencePoint();
-	      //cout << "Vtx \t" <<  theTrkVtx.x() << "\t" << theTrkVtx.y() << "\t" << theTrkVtx.z() << endl;
-	      l25IsoTrkPt = (*isoIt)->pt();
-	      l25IsoTrkChi2NdF = (*isoIt)->normalizedChi2();
-	      l25IsoTrkChi2 = (*isoIt)->chi2();
-	      l25IsoTrkNValidHits = (*isoIt)->numberOfValidHits();
-	      l25IsoTrkNRecHits = (*isoIt)->recHitsSize();
-	      l25IsoTrkNValidPixelHits = (*isoIt)->hitPattern().numberOfValidPixelHits();
-	      l25IsoTrkNLostHits = (*isoIt)->lost();
-	      l25IsoTrkDxy = (*isoIt)->d0();
-	      l25IsoTrkDz = (*isoIt)->dz();
-	      l25IsoTrkEta = (*isoIt)->eta();
-	      l25IsoTrkPhi = (*isoIt)->phi();
+
+	      l25IsoTrkPt->push_back((*isoIt)->pt());
+	      l25IsoTrkChi2NdF->push_back((*isoIt)->normalizedChi2());
+	      l25IsoTrkChi2->push_back((*isoIt)->chi2());
+	      l25IsoTrkNValidHits->push_back((*isoIt)->numberOfValidHits());
+	      l25IsoTrkNRecHits->push_back((*isoIt)->recHitsSize());
+	      l25IsoTrkNValidPixelHits->push_back((*isoIt)->hitPattern().numberOfValidPixelHits());
+	      l25IsoTrkNLostHits->push_back((*isoIt)->lost());
+	      l25IsoTrkDxy->push_back((*isoIt)->dxy(theVertexPosition));
+	      l25IsoTrkDz->push_back((*isoIt)->dz(theVertexPosition));
+	      l25IsoTrkEta->push_back((*isoIt)->eta());
+	      l25IsoTrkPhi->push_back((*isoIt)->phi());
 	      if((*isoIt)->pt() > l25LeadIsoPt){
 	        theL25LeadIsoTrk = **isoIt;
 	        l25LeadIsoPt = (*isoIt)->pt();
@@ -383,15 +378,13 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  //if((nIsoTraks > numQPixTrkInAnnulus) ? std::cout << "FUCK \n" : std::cout << "GREAT\n" );
 	  if(thePFTauLeadIsoTrk.pt() != 0) leadIsoTrkPtRes = (theL25LeadIsoTrk.pt() - thePFTauLeadIsoTrk.pt()) /thePFTauLeadIsoTrk.pt();
 	  leadIsoTrkDeltaR = ROOT::Math::VectorUtil::DeltaR(theL25LeadIsoTrk.momentum(), thePFTauLeadIsoTrk.momentum());
-	  
 	  l25Disc_LeadTkDir = theMatchedL25TauTagInfo.discriminator(leadTk->momentum(), _l25JetLeadTkMacthingCone, _signalCone, _isolationCone, _l25LeadTkPtMin, _minTrackPt, _nTrkIso, _l25Dz);
 	  l25Disc_JetDir = theMatchedL25TauTagInfo.discriminator(theMatchedL25TauTagInfo.jet()->momentum(), _l25JetLeadTkMacthingCone, _signalCone, _isolationCone, _l25LeadTkPtMin, _minTrackPt, _nTrkIso, _l25Dz);
      	}
-	
-	
       }
       //Fill here per pfTau ...
      l25tree->Fill();
+     clearVectors();
     }
   }
   else std::cout << "Invalid PFTau Collection\n"; 
@@ -479,7 +472,78 @@ void L25TauAnalyzer::printInfo(const reco::PFTau& thePFTau, const reco::Isolated
 	 << (*isoIt)->eta() << "\t" 
 	 << (*isoIt)->phi() << "\n";
   }
+}
 
+void L25TauAnalyzer::clearVectors(){
+ l25TrkPt->clear();
+ l25TrkEta->clear();
+ l25TrkPhi->clear();
+ l25TrkDz->clear();
+ l25TrkDxy->clear();
+ l25TrkChi2->clear();
+ l25TrkChi2NdF->clear();
+ l25TrkNRecHits->clear();
+ l25TrkNValidPixelHits->clear();
+ 
+ l25SignalTrkPt->clear();
+ l25SignalTrkEta->clear();
+ l25SignalTrkPhi->clear();
+ l25SignalTrkDz->clear();
+ l25SignalTrkDxy->clear();
+ l25SignalTrkChi2NdF->clear();
+ l25SignalTrkChi2->clear();
+ l25SignalTrkNRecHits->clear();
+ l25SignalTrkNValidHits->clear();
+ l25SignalTrkNValidPixelHits->clear();
+ l25SignalTrkNLostHits->clear();
+ 
+ l25IsoTrkPt->clear();
+ l25IsoTrkEta->clear();
+ l25IsoTrkPhi->clear();
+ l25IsoTrkDz->clear();
+ l25IsoTrkDxy->clear();
+ l25IsoTrkChi2->clear();
+ l25IsoTrkChi2NdF->clear();
+ l25IsoTrkNRecHits->clear();
+ l25IsoTrkNValidHits->clear();
+ l25IsoTrkNValidPixelHits->clear();
+ l25IsoTrkNLostHits->clear();
+}
+
+void L25TauAnalyzer::initializeVectors(){
+ l25TrkPt = NULL;
+ l25TrkEta= NULL;
+ l25TrkPhi= NULL;
+ l25TrkDz= NULL;
+ l25TrkDxy= NULL;
+ l25TrkChi2= NULL;
+ l25TrkChi2NdF= NULL;
+ l25TrkNRecHits= NULL;
+ l25TrkNValidPixelHits= NULL;
+ 
+ l25SignalTrkPt= NULL;
+ l25SignalTrkEta= NULL;
+ l25SignalTrkPhi= NULL;
+ l25SignalTrkDz= NULL;
+ l25SignalTrkDxy= NULL;
+ l25SignalTrkChi2= NULL;
+ l25SignalTrkChi2NdF= NULL;
+ l25SignalTrkNRecHits= NULL;
+ l25SignalTrkNValidHits= NULL;
+ l25SignalTrkNValidPixelHits= NULL;
+ l25SignalTrkNLostHits= NULL;
+ 
+ l25IsoTrkPt= NULL;
+ l25IsoTrkChi2NdF= NULL;
+ l25IsoTrkChi2= NULL;
+ l25IsoTrkNValidHits= NULL;
+ l25IsoTrkNRecHits= NULL;
+ l25IsoTrkNValidPixelHits= NULL;
+ l25IsoTrkNLostHits= NULL;
+ l25IsoTrkDxy= NULL;
+ l25IsoTrkDz= NULL;
+ l25IsoTrkEta= NULL;
+ l25IsoTrkPhi= NULL;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
