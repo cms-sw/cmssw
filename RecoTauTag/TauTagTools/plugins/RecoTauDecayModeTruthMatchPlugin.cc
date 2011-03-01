@@ -20,27 +20,10 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Common/interface/Association.h"
 
-#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
+#include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
 
 #include <boost/foreach.hpp>
-#include <boost/assign.hpp>
-#include <map>
 
-namespace {
-  // Convert the string decay mode from PhysicsTools to the
-  // PFTau::hadrondicDecayMode format
-  static std::map<std::string, reco::PFTau::hadronicDecayMode> dmTranslator =
-    boost::assign::map_list_of
-    ("oneProng0Pi0", reco::PFTau::kOneProng0PiZero)
-    ("oneProng1Pi0", reco::PFTau::kOneProng1PiZero)
-    ("oneProng2Pi0", reco::PFTau::kOneProng2PiZero)
-    ("oneProngOther", reco::PFTau::kOneProngNPiZero)
-    ("threeProng0Pi0", reco::PFTau::kThreeProng0PiZero)
-    ("threeProng1Pi0", reco::PFTau::kThreeProng1PiZero)
-    ("threeProngOther", reco::PFTau::kThreeProngNPiZero)
-    ("electron", reco::PFTau::kNull)
-    ("muon", reco::PFTau::kNull);
-}
 
 namespace tautools {
 
@@ -80,7 +63,7 @@ double RecoTauDecayModeTruthMatchPlugin::operator()(const reco::PFTauRef& tau)
   // Get the difference in decay mode.  The closer to zero, the more the decay
   // mode is matched.
   return std::abs(
-      dmTranslator[JetMCTagUtils::genTauDecayMode(*truth)] - tau->decayMode());
+      reco::tau::getDecayMode(truth.get()) - tau->decayMode());
 }
 
 } // end tautools namespace
