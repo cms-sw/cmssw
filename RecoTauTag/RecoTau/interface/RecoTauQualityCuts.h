@@ -48,10 +48,11 @@ class RecoTauQualityCuts {
     bool filterRef(const PFCandRefType& cand) const { return filter(*cand); }
 
     /// Filter a ref vector of PFCandidates
-    template<typename Coll> Coll filterRefs(const Coll& refcoll) const {
+    template<typename Coll> Coll filterRefs(
+        const Coll& refcoll, bool invert=false) const {
       Coll output;
       BOOST_FOREACH(const typename Coll::value_type cand, refcoll) {
-        if (filterRef(cand))
+        if (filterRef(cand)^invert)
           output.push_back(cand);
       }
       return output;
