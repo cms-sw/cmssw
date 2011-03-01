@@ -479,7 +479,7 @@ namespace reco {
     const edm::EDProductGetter* m_getter; //transient
     unsigned short m_storedRefs;
     std::vector<unsigned long long> m_refsInfo;
-    std::vector<void *> m_refsAdd;
+    std::vector<const void *> m_refsAdd;
 
   };
 
