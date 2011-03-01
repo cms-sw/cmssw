@@ -54,14 +54,23 @@ void RecoTauMVAHelper::loadDiscriminantPlugins(
         edm::ParameterSet options;
         if (pluginOptions_.exists(var.name)) {
           options = pluginOptions_.getParameter<edm::ParameterSet>(var.name);
-
         };
         // Make sure it has a name (required by base class)
         if (!options.exists("name"))
           options.addParameter("name", "MVA_" + var.name);
+        // Check if we want to specify the plugin name manually.  This is
+        // required for things like the discriminant from discriminators, which
+        // take an InputTag.  If we want to have more than one, we have to be
+        // able take the MVA name (like FlightPathSig) and map it to
+        // RecoTauDiscriminantFromDiscriminator[disc input tag = flight path sig]
+        // Otherwise we just keep our regular plugin mapping.
+        std::string pluginName = reco::tau::discPluginName(var.name);
+        if (options.exists("plugin")) {
+          pluginName = options.getParameter<std::string>("plugin");
+        }
         plugins_.insert(
             varId, RecoTauDiscriminantPluginFactory::get()->create(
-                reco::tau::discPluginName(var.name), options));
+                pluginName, options));
       }
     }
   }
