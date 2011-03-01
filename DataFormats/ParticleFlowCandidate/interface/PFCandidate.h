@@ -17,15 +17,12 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtraFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
-// to be removed
-#include "DataFormats/VertexReco/interface/NuclearInteractionFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 namespace reco {
   /**\class PFCandidate
      \brief Particle reconstructed by the particle flow algorithm.
@@ -69,6 +66,53 @@ namespace reco {
       GAMMA_TO_GAMMACONV
     };
     
+
+    enum PFRefBits {
+      kRefTrackBit=0x1,
+      kRefGsfTrackBit=0x2,
+      kRefMuonBit=0x4,
+      kRefDisplacedVertexDauBit=0x8,
+      kRefDisplacedVertexMotBit=0x10,
+      kRefConversionBit=0x20,
+      kRefV0Bit=0x40,
+      kRefGsfElectronBit=0x80,
+      kRefPFElectronExtraBit=0x100,
+      kRefPhotonBit=0x200,
+      kRefPFPhotonExtraBit=0x400,
+      kRefSuperClusterBit=0x800
+    };
+    enum PFRefMasks {
+      kRefTrackMask=0,
+      kRefGsfTrackMask=kRefTrackMask+kRefTrackBit,
+      kRefMuonMask=kRefGsfTrackMask+kRefGsfTrackBit,
+      kRefDisplacedVertexDauMask=kRefMuonMask+kRefMuonBit,
+      kRefDisplacedVertexMotMask=kRefDisplacedVertexDauMask+kRefDisplacedVertexDauBit,
+      kRefConversionMask=kRefDisplacedVertexMotMask+kRefDisplacedVertexMotBit,
+      kRefV0Mask=kRefConversionMask+kRefConversionBit,
+      kRefGsfElectronMask=kRefV0Mask+kRefV0Bit,
+      kRefPFElectronExtraMask=kRefGsfElectronMask+kRefGsfElectronBit,
+      kRefPhotonMask=kRefPFElectronExtraMask+kRefPFElectronExtraBit,
+      kRefPFPhotonExtraMask=kRefPhotonMask+kRefPhotonBit,
+      kRefSuperClusterMask=kRefPFPhotonExtraMask+kRefPFPhotonExtraBit
+    };
+
+    enum PFMVABits {
+      kRef_e_pi=0x1,
+      kRef_e_mu=0x2,
+      kRef_pi_mu=0x4,
+      kRef_nothing_gamma=0x8,
+      kRef_nothing_nh=0x10,
+      kRef_gamma_nh=0x20
+    };
+
+    enum PFVertexType {
+      kCandVertex=0, 
+      kTrkVertex=1,
+      kComMuonVertex=2,
+      kSAMuonVertex=3,
+      kTrkMuonVertex=4,
+      kGSFVertex=5
+    };
 
 
     /// default constructor
@@ -133,92 +177,87 @@ namespace reco {
 
     /// return a reference to the corresponding track, if charged. 
     /// otherwise, return a null reference
-    reco::TrackRef trackRef() const { return trackRef_; }
+    reco::TrackRef trackRef() const;
 
     /// set gsftrack reference 
     void setGsfTrackRef(const reco::GsfTrackRef& ref);   
 
     /// return a reference to the corresponding GSF track, if an electron. 
     /// otherwise, return a null reference 
-    reco::GsfTrackRef gsfTrackRef() const { return gsfTrackRef_; }     
+    reco::GsfTrackRef gsfTrackRef() const;
 
     /// set muon reference
     void setMuonRef(const reco::MuonRef& ref);
 
     /// return a reference to the corresponding muon, if a muon. 
     /// otherwise, return a null reference
-    reco::MuonRef muonRef() const { return muonRef_; }    
+    reco::MuonRef muonRef() const;
 
     /// set displaced vertex reference
     void setDisplacedVertexRef(const reco::PFDisplacedVertexRef& ref, Flags flag);
 
     /// return a reference to the corresponding displaced vertex,
     /// otherwise, return a null reference
-    reco::PFDisplacedVertexRef displacedVertexRef(Flags type) const { 
-      if (type == T_TO_DISP) return displacedVertexDaughterRef_; 
-      else if (type == T_FROM_DISP) return displacedVertexMotherRef_; 
-      return reco::PFDisplacedVertexRef();
-    }
+    reco::PFDisplacedVertexRef displacedVertexRef(Flags type) const;
 
     /// set ref to original reco conversion
     void setConversionRef(const reco::ConversionRef& ref);
 
     /// return a reference to the original conversion
-    reco::ConversionRef conversionRef() const { return conversionRef_; }
+    reco::ConversionRef conversionRef() const;
 
     /// set ref to original reco conversion
     void setV0Ref(const reco::VertexCompositeCandidateRef& ref);
 
     /// return a reference to the original conversion
-    reco::VertexCompositeCandidateRef v0Ref() const { return v0Ref_; }
+    reco::VertexCompositeCandidateRef v0Ref() const;
 
     /// return a reference to the corresponding GsfElectron if any
-    reco::GsfElectronRef gsfElectronRef() const {return gsfElectronRef_;} 
-
-    /// set ref to the corresponding SuperCluster if any
-    void setSuperClusterRef(const reco::SuperClusterRef& scRef);
-
-    /// return a reference to the corresponding SuperCluster if any
-    reco::SuperClusterRef superClusterRef() const {return superClusterRef_;} 
-
-    /// set ref to the corresponding reco::Photon if any
-    void setPhotonRef(const reco::PhotonRef& phRef);
-
-    /// return a reference to the corresponding Photon if any
-    reco::PhotonRef photonRef() const {return photonRef_;}  
+    reco::GsfElectronRef gsfElectronRef() const;
 
     /// return a reference to the electron extra
-    reco::PFCandidateElectronExtraRef electronExtraRef() const {return pfElectronExtraRef_;}
-
-    /// return a reference to the photon extra
-    reco::PFCandidatePhotonExtraRef photonExtraRef() const {return pfPhotonExtraRef_;}
+    reco::PFCandidateElectronExtraRef electronExtraRef() const;
 
     /// set corrected Ecal energy 
-    void setEcalEnergy( float ee ) {ecalEnergy_ = ee;}
+    void setEcalEnergy( float eeRaw, float eeCorr ) {
+      rawEcalEnergy_ = eeRaw; ecalERatio_= std::abs(eeRaw)<1.e-6 ? 1.0 : eeCorr/eeRaw;}
 
     /// return corrected Ecal energy
-    double ecalEnergy() const { return ecalEnergy_;}
-    
-    /// set corrected Hcal energy 
-    void setHcalEnergy( float eh ) {hcalEnergy_ = eh;}
-
-    /// return corrected Hcal energy
-    double hcalEnergy() const { return hcalEnergy_;}
-
-    /// set corrected Ecal energy 
-    void setRawEcalEnergy( float ee ) {rawEcalEnergy_ = ee;}
+    double ecalEnergy() const { return ecalERatio_*rawEcalEnergy_;}
 
     /// return corrected Ecal energy
     double rawEcalEnergy() const { return rawEcalEnergy_;}
     
     /// set corrected Hcal energy 
-    void setRawHcalEnergy( float eh ) {rawHcalEnergy_ = eh;}
-
-    /// set GsfElectronRef 
-    void setGsfElectronRef (const reco::GsfElectronRef & ref) {gsfElectronRef_ = ref; }
+    void setHcalEnergy( float ehRaw, float ehCorr ) {
+      rawHcalEnergy_ = ehRaw; hcalERatio_= std::abs(ehRaw)<1.e-6 ? 1.0 : ehCorr/ehRaw;}
 
     /// return corrected Hcal energy
+    double hcalEnergy() const { return hcalERatio_*rawHcalEnergy_;}
+
+    /// return raw Hcal energy
     double rawHcalEnergy() const { return rawHcalEnergy_;}
+
+    /// set GsfElectronRef 
+    void setGsfElectronRef (const reco::GsfElectronRef & ref);
+
+    void setSuperClusterRef (const reco::SuperClusterRef& scRef);
+
+    /// return a reference to the corresponding SuperCluster if any
+    reco::SuperClusterRef superClusterRef() const; 
+
+    /// set ref to the corresponding reco::Photon if any
+    void setPhotonRef(const reco::PhotonRef& phRef);
+    
+    /// return a reference to the corresponding Photon if any
+    reco::PhotonRef photonRef() const; 
+
+    /// set the PF Photon Extra Ref
+    void setPFPhotonExtraRef(const reco::PFCandidatePhotonExtraRef& ref);
+
+    /// return a reference to the photon extra
+    reco::PFCandidatePhotonExtraRef photonExtraRef() const;
+
 
     /// set corrected PS1 energy
     void setPs1Energy( float e1 ) {ps1Energy_ = e1;}
@@ -246,52 +285,57 @@ namespace reco {
 
     /// uncertainty on 3-momentum
     double deltaP() const { return deltaP_;}
-    
+
+    int pdgId() const { return translateTypeToPdgId( particleId_ ); } 
 
     /// set mva for electron-pion discrimination. 
     /// For charged particles, this variable is set 
     ///   to 0 for particles that are not preided 
     ///   to 1 otherwise
     /// For neutral particles, it is set to the default value
-    void set_mva_e_pi( float mva ) { mva_e_pi_ = mva; } 
+
+    void set_mva(float mva, PFMVABits bit);
+    float get_mva(PFMVABits bit) const;
+
+
+    void set_mva_e_pi( float mva ){ set_mva(mva,kRef_e_pi); } 
     
     /// mva for electron-pion discrimination
-    float mva_e_pi() const { return mva_e_pi_;}
+    float mva_e_pi() const { return get_mva(kRef_e_pi);}
 
     
     /// set mva for electron-muon discrimination
-    void set_mva_e_mu( float mva ) { mva_e_mu_ = mva; } 
+    void set_mva_e_mu( float mva ) { set_mva(mva,kRef_e_mu); } 
     
     /// mva for electron-muon discrimination
-    float mva_e_mu() const { return mva_e_mu_;}
-
+    float mva_e_mu() const { return get_mva(kRef_e_mu);}
 
     /// set mva for pi-muon discrimination
-    void set_mva_pi_mu( float mva ) { mva_pi_mu_ = mva; } 
+    void set_mva_pi_mu( float mva ) { set_mva(mva, kRef_pi_mu);}
 
     /// mva for pi-muon discrimination
-    float mva_pi_mu() const { return mva_pi_mu_;}
+    float mva_pi_mu() const { return get_mva(kRef_pi_mu);}
     
 
     /// set mva for gamma detection
-    void set_mva_nothing_gamma( float mva ) { mva_nothing_gamma_ = mva; } 
+    void set_mva_nothing_gamma( float mva ) {set_mva(mva,kRef_nothing_gamma);}
 
     /// mva for gamma detection
-    float mva_nothing_gamma() const { return mva_nothing_gamma_;}
+    float mva_nothing_gamma() const { return get_mva(kRef_nothing_gamma);}
 
-
+    
     /// set mva for neutral hadron detection
-    void set_mva_nothing_nh( float mva ) { mva_nothing_nh_ = mva; } 
+    void set_mva_nothing_nh( float mva ) { set_mva(mva, kRef_nothing_nh);}
 
     /// mva for neutral hadron detection
-    float mva_nothing_nh() const { return mva_nothing_nh_;}
-
-
+    float mva_nothing_nh() const { return get_mva(kRef_nothing_nh);}
+    
+    
     /// set mva for neutral hadron - gamma discrimination
-    void set_mva_gamma_nh( float mva ) { mva_gamma_nh_ = mva; } 
-
+    void set_mva_gamma_nh( float mva ) { set_mva(mva, kRef_gamma_nh);}
+	
     /// mva for neutral hadron - gamma discrimination
-    float mva_gamma_nh() const { return mva_gamma_nh_;}
+    float mva_gamma_nh() const { return get_mva(kRef_gamma_nh);}
 
     /// set position at ECAL entrance
     void setPositionAtECALEntrance(const math::XYZPointF& pos) {
@@ -299,14 +343,7 @@ namespace reco {
     } 
     
     /// set the PF Electron Extra Ref
-    void setPFElectronExtraRef(const reco::PFCandidateElectronExtraRef& ref) {
-      pfElectronExtraRef_=ref ;
-    }
-
-    /// set the PF Photon Extra Ref
-    void setPFPhotonExtraRef(const reco::PFCandidatePhotonExtraRef& ref) {
-      pfPhotonExtraRef_=ref ;
-    }
+    void setPFElectronExtraRef(const reco::PFCandidateElectronExtraRef& ref);
 
     /// \return position at ECAL entrance
     const math::XYZPointF& positionAtECALEntrance() const {
@@ -328,9 +365,19 @@ namespace reco {
 
     /// return elements in blocks
     typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
-
     typedef std::vector< ElementInBlock > ElementsInBlocks;
+
+    typedef edm::RefVector<reco::PFBlockCollection> Blocks;
+    typedef std::vector<unsigned> Elements;
+
     const ElementsInBlocks& elementsInBlocks() const { 
+      
+      if (elementsInBlocks_.size()!=blocksStorage_.size())
+	{
+	  elementsInBlocks_.resize(blocksStorage_.size());
+	  for(unsigned int icopy=0;icopy!=blocksStorage_.size();++icopy)
+	    elementsInBlocks_[icopy]=std::make_pair(blocksStorage_[icopy],elementsStorage_[icopy]);
+	}
       return elementsInBlocks_;
     }
     
@@ -340,7 +387,18 @@ namespace reco {
 
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFCandidate& c );
-  
+
+    void setVertexSource( PFVertexType vt) { verMVAPack_ &= 0xfff; verMVAPack_ |= (vt<<12); }
+
+    virtual void setVertex( math::XYZPoint p) {
+      vertex_=p; verMVAPack_ &= 0xfff;
+    }
+
+    virtual const Point & vertex() const;
+    virtual double vx() const {return vertex().x();}
+    virtual double vy() const {return vertex().y();}
+    virtual double vz() const {return vertex().z();}
+
   private:
     /// Polymorphic overlap
     virtual bool overlap( const Candidate & ) const;
@@ -352,30 +410,20 @@ namespace reco {
     /// particle identification
     ParticleType  particleId_; 
     
-  
-    ElementsInBlocks elementsInBlocks_;
+    mutable ElementsInBlocks elementsInBlocks_;
+    Blocks blocksStorage_;
+    Elements elementsStorage_;
 
     /// reference to the source PFCandidate, if any
     /*     PFCandidateRef sourceRef_; */
     PFCandidatePtr sourcePtr_;
 
-    reco::TrackRef trackRef_;
-    
-    reco::GsfTrackRef gsfTrackRef_;  
 
-    reco::MuonRef  muonRef_;
+    /// corrected ECAL energy ratio (corrected/raw)
+    float       ecalERatio_;
 
-    // unused data member only here for backward compatibility
-    reco::NuclearInteractionRef nuclearRef_;
-
-    // unused data member only here for backward compatibility
-    reco::ConversionRef conversionRef_;
-
-    /// corrected ECAL energy
-    float       ecalEnergy_;
-
-    /// corrected HCAL energy
-    float       hcalEnergy_;
+    /// corrected HCAL energy ratio (corrected/raw)
+    float       hcalERatio_;
 
     /// raw ECAL energy
     float       rawEcalEnergy_;
@@ -393,54 +441,46 @@ namespace reco {
     unsigned    flags_;
 
     /// uncertainty on 3-momentum
-    double      deltaP_;
+    float      deltaP_;
+
+    unsigned short verMVAPack_;
+    float mva_;
 
     /// mva for electron-pion discrimination
-    float       mva_e_pi_;
+    //float       mva_e_pi_;
 
     /// mva for electron-muon discrimination
-    float       mva_e_mu_;
+    //float       mva_e_mu_;
 
     /// mva for pi-muon discrimination
-    float       mva_pi_mu_;
+    //float       mva_pi_mu_;
     
     /// mva for gamma detection
-    float       mva_nothing_gamma_;
+    //float       mva_nothing_gamma_;
 
     /// mva for neutral hadron detection
-    float       mva_nothing_nh_;
+    //float       mva_nothing_nh_;
 
     /// mva for neutral hadron - gamma discrimination
-    float       mva_gamma_nh_;
+    //float       mva_gamma_nh_;
 
     /// position at ECAL entrance, from the PFRecTrack
     math::XYZPointF   positionAtECALEntrance_;
 
 
-    /// reference to the corresponding pf displaced vertex where this track was created
-    reco::PFDisplacedVertexRef displacedVertexMotherRef_;
+    //more efficiently stored refs
+    void storeRefInfo(unsigned int iMask, unsigned int iBit, bool iIsValid, 
+		      const edm::RefCore& iCore, size_t iKey, 
+		      const edm::EDProductGetter*);
+    bool getRefInfo(unsigned int iMask, unsigned int iBit, 
+		    edm::ProductID& oProdID, size_t& oIndex, size_t& aIndex ) const;
+    
 
-    /// reference to the corresponding pf displaced vertex which this track was created
-    reco::PFDisplacedVertexRef displacedVertexDaughterRef_;
+    const edm::EDProductGetter* m_getter; //transient
+    unsigned short m_storedRefs;
+    std::vector<unsigned long long> m_refsInfo;
+    std::vector<void *> m_refsAdd;
 
-
-    // Reference to a mother V0
-    reco::VertexCompositeCandidateRef v0Ref_;
-
-    // Reference to the corresponding GsfElectron if any
-    reco::GsfElectronRef gsfElectronRef_;
-
-    // Reference to the corresponding SuperCluster if any
-    reco::SuperClusterRef superClusterRef_;
-
-    // Reference to the corresponding photon if any
-    reco::PhotonRef photonRef_;
-
-    // Reference to the PFCandidateElectronExtra
-    reco::PFCandidateElectronExtraRef pfElectronExtraRef_;
-
-    // Reference to the PFCandidateElectronExtra
-    reco::PFCandidatePhotonExtraRef pfPhotonExtraRef_;
   };
 
   /// particle ID component tag
@@ -455,6 +495,8 @@ namespace reco {
   GET_CANDIDATE_COMPONENT( PFCandidate, PFCandidate::ParticleType, particleId, PFParticleIdTag );
 
   std::ostream& operator<<( std::ostream& out, const PFCandidate& c );
+
+  
 }
 
 #endif

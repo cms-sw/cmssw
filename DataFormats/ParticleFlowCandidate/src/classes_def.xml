@@ -1,6 +1,15 @@
 <lcgdict>
 
-  <class name="reco::PFCandidate" />
+   <class name="reco::PFCandidate" >
+     <field name="elementsInBlocks_" transient="true"/>
+     <field name="m_getter" transient="true"/>
+     <field name="m_refsAdd" transient="true"/>
+   </class>
+  <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="" target="m_getter">
+    <![CDATA[edm::EDProductGetter::assignEDProductGetter(m_getter); ]]>
+  </ioread>
+
+
   <class name="std::vector<reco::PFCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCandidate> >"/>
   <class name="reco::PFCandidateRef"/>
