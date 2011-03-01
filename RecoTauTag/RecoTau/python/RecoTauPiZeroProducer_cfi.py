@@ -3,11 +3,26 @@ import FWCore.ParameterSet.Config as cms
 import RecoTauTag.RecoTau.RecoTauPiZeroBuilderPlugins_cfi as builders
 import RecoTauTag.RecoTau.RecoTauPiZeroQualityPlugins_cfi as ranking
 
+ak5PFJetsRecoTauGreedyPiZeros = cms.EDProducer(
+    "RecoTauPiZeroProducer",
+    jetSrc = cms.InputTag("ak5PFJets"),
+    jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
+    massHypothesis = cms.double(0.136),
+    outputSelection = cms.string('pt > 1.5'),
+    builders = cms.VPSet(
+        builders.comboStrips,
+    ),
+    ranking = cms.VPSet(
+        ranking.greedy,
+    ),
+)
+
 ak5PFJetsRecoTauPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
     jetSrc = cms.InputTag("ak5PFJets"),
     jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     massHypothesis = cms.double(0.136),
+    outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
         builders.combinatoricPhotonPairs,
         builders.strips,
@@ -24,6 +39,7 @@ ak5PFJetsLegacyTaNCPiZeros = cms.EDProducer(
     jetSrc = cms.InputTag("ak5PFJets"),
     jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     massHypothesis = cms.double(0.136),
+    outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
         builders.allSinglePhotons,
         builders.combinatoricPhotonPairs,
@@ -38,6 +54,7 @@ ak5PFJetsLegacyHPSPiZeros = cms.EDProducer(
     jetSrc = cms.InputTag("ak5PFJets"),
     jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     massHypothesis = cms.double(0.136),
+    outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
         builders.strips,
     ),
