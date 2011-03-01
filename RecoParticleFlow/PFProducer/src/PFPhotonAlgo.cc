@@ -130,10 +130,10 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
       reco::PFClusterRef clusterRef = elements[itecal->second].clusterRef();	
       
       // from the clusterRef get the energy, direction, etc
-      float ClustRawEnergy = clusterRef->energy();
-      float ClustEta = clusterRef->position().eta();
-      float ClustPhi = clusterRef->position().phi();
-
+      //       float ClustRawEnergy = clusterRef->energy();
+      //       float ClustEta = clusterRef->position().eta();
+      //       float ClustPhi = clusterRef->position().phi();
+      
       // initialize the vectors for the PS energies
       vector<double> ps1Ene(0);
       vector<double> ps2Ene(0);
@@ -567,8 +567,9 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     //photonCand.setRawEcalEnergy(photonEnergy_-ps1TotEne-ps2TotEne);
     photonCand.setRawEcalEnergy(RawEcalEne);
     photonCand.setRawHcalEnergy(0);
-    if(hasSingleleg)photonCand.set_mva_nothing_gamma(mvaValue);
-    if(hasConvTrack || hasSingleleg)photonCand.setFlag( reco::PFCandidate::GAMMA_TO_GAMMACONV, true);
+    photonCand.set_mva_nothing_gamma(1.);
+ 
+   if(hasConvTrack || hasSingleleg)photonCand.setFlag( reco::PFCandidate::GAMMA_TO_GAMMACONV, true);
     //photonCand.setPositionAtECALEntrance(math::XYZPointF(photonMom_.position()));
     
     // set isvalid_ to TRUE since we've found at least one photon candidate
