@@ -55,8 +55,8 @@ hbherecoNoise.dropZSmarkedPassed = cms.bool(False)
 hfrecoNoise.dropZSmarkedPassed = cms.bool(False)
 horecoNoise.dropZSmarkedPassed = cms.bool(False)
 hfrecoMBspecial.dropZSmarkedPassed = cms.bool(False)
-hbherecoNoise.tsFromDB = False
-hfrecoNoise.tsFromDB = False
-hfrecoMBspecial.tsFromDB = False
-horecoNoise.tsFromDB = False
+hbherecoNoise.tsFromDB = cms.bool(False)
+hfrecoNoise.tsFromDB = cms.bool(False)
+hfrecoMBspecial.tsFromDB = cms.bool(False)
+horecoNoise.tsFromDB = cms.bool(False)
 
