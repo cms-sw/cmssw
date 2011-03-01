@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V52 (CMSSW_3_11_0_HLT9)
+# /dev/CMSSW_3_11_1/GRun/V53 (CMSSW_3_11_0_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V52')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V53')
 )
 
 process.streams = cms.PSet( 
@@ -17709,7 +17709,7 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Mu7_Track7_Jpsi_v1',
       'HLT_Mu8_Ele17_CaloIdL_v1',
       'HLT_Mu8_HT200_v2',
-      'HLT_Mu8_Jet40_v2',
+      'HLT_Mu8_Jet40_v1',
       'HLT_Mu8_Photon20_CaloIdVT_IsoT_v1',
       'HLT_Mu8_v1',
       'HLT_PFMHT150_v1',
