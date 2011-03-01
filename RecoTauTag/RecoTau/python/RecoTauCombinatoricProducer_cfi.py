@@ -81,6 +81,7 @@ _combinatoricTauConfig = cms.PSet(
 combinatoricRecoTaus = cms.EDProducer(
     "RecoTauProducer",
     jetSrc = cms.InputTag("ak5PFJets"),
+    jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros"),
     buildNullTaus = cms.bool(True),
     # Make maximum size from which to collect isolation cone objects, w.r.t to
