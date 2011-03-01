@@ -98,7 +98,7 @@ namespace lumi{
       hltpathmap.insert(std::make_pair(hid,""));
     }
     delete q1;
-    unsigned int npath=hltpathmap.size();
+    //unsigned int npath=hltpathmap.size();
     //std::cout<<"npath "<<npath<<std::endl;
     std::map< unsigned int, std::string >::iterator mpit;
     std::map< unsigned int, std::string >::iterator mpitBeg=hltpathmap.begin();
@@ -138,12 +138,23 @@ namespace lumi{
     }
     delete nq;
     //std::cout<<"nls "<<nls<<std::endl; 
-    std::vector< std::vector<HLTV32DB::hltinfo> > hltresult;
+    std::vector< std::map<unsigned int , HLTV32DB::hltinfo> > hltresult;
     hltresult.reserve(nls);
     //fix all size
     for(unsigned int i=1;i<=nls;++i){
-      std::vector<hltinfo> allpaths;
-      allpaths.reserve(npath);
+      std::map<unsigned int, HLTV32DB::hltinfo> allpaths;
+      std::map<unsigned int, std::string>::iterator aIt;
+      std::map<unsigned int, std::string>::iterator aItBeg=hltpathmap.begin();
+      std::map<unsigned int, std::string>::iterator aItEnd=hltpathmap.end();
+      for(aIt=aItBeg;aIt!=aItEnd;++aIt){
+	HLTV32DB::hltinfo ct;
+	ct.cmsluminr=i;
+        ct.pathname=aIt->second;
+        ct.hltinput=0;
+        ct.hltaccept=0;
+        ct.prescale=0;	
+	allpaths.insert(std::make_pair(aIt->first,ct));
+      }
       hltresult.push_back(allpaths);
     }
     coral::IQuery* jq=hltSchemaHandle.newQuery();
@@ -173,69 +184,28 @@ namespace lumi{
     while( jqcursor.next() ){
       const coral::AttributeList& row=jqcursor.currentRow();
       unsigned int currentLumiSection=row["lsnumber"].data<unsigned int>();
-      std::vector<hltinfo>& allpathinfo=hltresult.at(currentLumiSection-1);
-      hltinfo pathcontent;
-      pathcontent.cmsluminr=currentLumiSection;
+      std::map<unsigned int,hltinfo>& allpathinfo=hltresult.at(currentLumiSection-1);
+      unsigned int pathid=row["pathid"].data<unsigned int>();
+      hltinfo& pathcontent=allpathinfo[pathid];
       pathcontent.hltinput=row["l1pass"].data<unsigned int>();
       pathcontent.hltaccept=row["paccept"].data<unsigned int>();
-      unsigned int pathid=row["pathid"].data<unsigned int>();
-      pathcontent.pathname=hltpathmap[pathid];
       pathcontent.prescale=row["psvalue"].data<unsigned int>();
-      allpathinfo.push_back(pathcontent);
     }
     delete jq;
     srcsession->transaction().commit();
     delete srcsession;
     std::cout<<"result size "<<hltresult.size()<<std::endl;
-    /**
-    coral::IQuery* q2=confdbSchemaHandle.newQuery();
-    coral::AttributeList q2bindVariableList;
-    q2bindVariableList.extend("runnumber",typeid(unsigned int));
-    q2bindVariableList["runnumber"].data<unsigned int>()=runnumber;
-    q2->addToTableList(tabname,"l");
-    q2->addToTableList(maptabname,"m");
-    q2->addToOutputList("l.LSNUMBER","lsnumber");
-    q2->addToOutputList("l.PATHNAME","pathname");
-    q2->addToOutputList("l.L1PASS","hltinput");
-    q2->addToOutputList("l.PACCEPT","hltratecounter");
-    q2->addToOutputList("m.PSVALUE","prescale");
-    q2->addToOutputList("m.HLTKEY","hltconfigid");
-    q2->setCondition("l.RUNNR=m.RUNNR and l.PSINDEX=m.PSINDEX and l.PATHNAME=m.PATHNAME and l.RUNNR =:runnumber",q2bindVariableList);   
-    q2->addToOrderList("lsnumber");
-    q2->setRowCacheSize(10692);
-    coral::ICursor& cursor2=q2->execute();
-    //unsigned int currentPath=0;
-    unsigned int lastLumiSection=1;
-    unsigned int currentLumiSection=0;
-    // unsigned int counter=0;
-    std::vector<hltinfo> allpaths;
-    allpaths.reserve(200);
-    while( cursor2.next() ){
-      hltinfo pathcontent;
-      const coral::AttributeList& row=cursor2.currentRow();
-      currentLumiSection=row["lsnumber"].data<unsigned int>();
-      pathcontent.cmsluminr=currentLumiSection;
-      pathcontent.hltinput=row["hltinput"].data<unsigned int>();
-      pathcontent.hltaccept=row["hltratecounter"].data<unsigned int>();
-      pathcontent.pathname=row["pathname"].data<std::string>();
-      pathcontent.prescale=row["prescale"].data<unsigned int>();
-      pathcontent.hltconfigid=row["hltconfigid"].data<unsigned int>();
-      if(currentLumiSection != lastLumiSection){
-	hltresult.push_back(allpaths);
-	//npath=allpaths.size();
-	allpaths.clear();
+    std::vector< std::map<unsigned int, HLTV32DB::hltinfo> >::iterator hltIt;
+    std::vector< std::map<unsigned int, HLTV32DB::hltinfo> >::iterator hltItBeg=hltresult.begin();
+    std::vector< std::map<unsigned int, HLTV32DB::hltinfo> >::iterator hltItEnd=hltresult.end();
+    for(hltIt=hltItBeg;hltIt!=hltItEnd;++hltIt){
+      std::map<unsigned int,HLTV32DB::hltinfo>::iterator pathIt;
+      std::map<unsigned int,HLTV32DB::hltinfo>::iterator pathItBeg=hltIt->begin();
+      std::map<unsigned int,HLTV32DB::hltinfo>::iterator pathItEnd=hltIt->end();
+      for(pathIt=pathItBeg;pathIt!=pathItEnd;++pathIt){
+	std::cout<<"cmslsnr "<<pathIt->second.cmsluminr<<" "<<pathIt->second.pathname<<" "<<pathIt->second.hltinput<<" "<<pathIt->second.hltaccept<<" "<<pathIt->second.prescale<<std::endl;
       }
-      lastLumiSection=currentLumiSection;
-      allpaths.push_back(pathcontent);
-      npath=allpaths.size();
     }
-    hltresult.push_back(allpaths);
-    cursor2.close();
-    delete q2;
-    srcsession->transaction().commit();
-    delete srcsession;
-    **/
-    //
     // Write into DB
     //
     /**
