@@ -109,9 +109,17 @@ tautagInfoModifer = cms.PSet(
 shrinkingConePFTauProducer.modifiers.append(tautagInfoModifer)
 combinatoricRecoTaus.modifiers.append(tautagInfoModifer)
 
+recoTauPileUpVertices = cms.EDFilter(
+    "RecoTauPileUpVertexSelector",
+    src = cms.InputTag("offlinePrimaryVertices"),
+    minTrackSumPt = cms.double(5),
+    filter = cms.bool(False),
+)
+
 recoTauCommonSequence = cms.Sequence(
     ak5PFJetTracksAssociatorAtVertex *
     recoTauAK5PFJets08Region*
+    recoTauPileUpVertices*
     pfRecoTauTagInfoProducer
 )
 
