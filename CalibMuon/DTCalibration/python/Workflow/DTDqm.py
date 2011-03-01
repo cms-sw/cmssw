@@ -24,7 +24,7 @@ class DTDqm:
         self.process.source.fileNames = self.dqm_files
         self.process.dqmSaver.dirName = os.path.abspath(self.result_dir)
         if self.config:
-            workflowName = dqmWorkflowName(self.config.datasetpath,'dtCalibration')
+            workflowName = dqmWorkflowName(self.config.datasetpath,'dtCalibration',self.config.trial)
             self.process.dqmSaver.workflow = workflowName
         if self.process.DQMStore.collateHistograms: self.process.dqmSaver.forceRunNumber = self.runnumber
 

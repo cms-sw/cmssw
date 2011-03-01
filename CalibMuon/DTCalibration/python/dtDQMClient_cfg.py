@@ -7,7 +7,19 @@ else: config.fileMode = 'NOMERGE'
 
 process = cms.Process("DQMClient")
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.debugModules = cms.untracked.vstring('')
+process.MessageLogger.destinations = cms.untracked.vstring('cerr')
+process.MessageLogger.categories.append('DTDQM')
+process.MessageLogger.categories.append('resolution')
+process.MessageLogger.cerr =  cms.untracked.PSet(
+    threshold = cms.untracked.string('DEBUG'),
+    noLineBreaks = cms.untracked.bool(False),
+    DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+    INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+    DTDQM = cms.untracked.PSet(limit = cms.untracked.int32(-1)), 
+    resolution = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+)
 
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
