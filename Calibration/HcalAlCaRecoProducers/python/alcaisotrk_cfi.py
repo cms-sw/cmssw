@@ -28,7 +28,7 @@ IsoProd = cms.EDProducer("AlCaIsoTracksProducer",
     hltMatchingCone=cms.double(0.2),
     ClusterECALasMatrix	= cms.bool (False),
     ECALMatrixFullSize	= cms.int32(7),
-    l1FilterLabel = cms.string("hltL1sIsoTrack"),
+    l1FilterLabel = cms.string("hltL1sJet52"),
     l1JetVetoCone = cms.double (1.2)
 )
 
