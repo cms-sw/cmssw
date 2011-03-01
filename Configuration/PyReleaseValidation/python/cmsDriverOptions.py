@@ -88,6 +88,11 @@ expertSettings.add_option("--customise",
                           default="",
                           dest="customisation_file")
 
+expertSettings.add_option("--inline_custom",
+                          help="inline the customisation file",
+                          default=False,
+                          dest="inline_custom")
+
 expertSettings.add_option("--datatier",
                           help="What data tier to use.",
                           default='',

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.296 $"
+__version__ = "$Revision: 1.297 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -31,6 +31,7 @@ defaultOptions.evt_type = ""
 defaultOptions.filein = []
 defaultOptions.secondfilein = ""
 defaultOptions.customisation_file = ""
+defaultOptions.inline_custom=False
 defaultOptions.particleTable = 'pythiapdt'
 defaultOptions.particleTableList = ['pythiapdt','pdt']
 defaultOptions.dirout = ''
@@ -519,10 +520,13 @@ class ConfigBuilder(object):
                 customiseFile = re.sub(r'\.pyc$', '.py', package.__file__)
 
                 final_snippet+='\n# Automatic addition of the customisation function from '+packageName+'\n'
-                for line in file(customiseFile,'r'):
-                        if "import FWCore.ParameterSet.Config" in line:
-                                continue
-                        final_snippet += line
+		if self._options.inline_custom:
+			for line in file(customiseFile,'r'):
+				if "import FWCore.ParameterSet.Config" in line:
+					continue
+				final_snippet += line
+		else:
+			final_snippet += 'from %s import %s \n'%(packageName,','.join(custMap[f]))
 		for fcn in custMap[f]:
 			print "customising the process with",fcn,"from",f
 			if not hasattr(package,fcn):
@@ -1368,7 +1372,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.296 $"),
+                                            (version=cms.untracked.string("$Revision: 1.297 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
