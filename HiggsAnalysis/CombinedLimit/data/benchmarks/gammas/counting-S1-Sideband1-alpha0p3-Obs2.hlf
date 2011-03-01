@@ -11,7 +11,8 @@ POI = set(r);
 S[1];
 
 /// ----- nuisances -----
-nuisancePdf = Gamma(B[0,100], 1, 0.3, 0);
+//--- first param of Gamma is N+1 where N=events in sideband
+nuisancePdf = Gamma(B[0,100], 2, 0.3, 0);
 nuisances   = set( B );
 
 modelObs_s = Poisson(n_obs, sum(prod(r,S), B));
