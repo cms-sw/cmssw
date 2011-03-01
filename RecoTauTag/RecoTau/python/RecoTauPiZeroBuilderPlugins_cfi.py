@@ -40,4 +40,19 @@ strips = cms.PSet(
     stripCandidatesParticleIds   = cms.vint32(2, 4),
     stripEtaAssociationDistance  = cms.double(0.05),
     stripPhiAssociationDistance  = cms.double(0.2),
+    makeCombinatoricStrips = cms.bool(False)
+)
+
+comboStrips = cms.PSet(
+    name = cms.string("cs"),
+    plugin = cms.string("RecoTauPiZeroStripPlugin"),
+    qualityCuts = PFTauQualityCuts.signalQualityCuts,
+    primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
+    # Clusterize photons and electrons (PF numbering)
+    stripCandidatesParticleIds   = cms.vint32(2, 4),
+    stripEtaAssociationDistance  = cms.double(0.05),
+    stripPhiAssociationDistance  = cms.double(0.2),
+    makeCombinatoricStrips = cms.bool(True),
+    maxInputStrips = cms.int32(5),
+    stripMassWhenCombining = cms.double(0.0), # assume photon like
 )
