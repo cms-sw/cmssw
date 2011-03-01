@@ -139,12 +139,10 @@ void HLTDisplacedmumuVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 			
 			 KalmanVertexFitter kvf;
 			 TransientVertex tv = kvf.vertex(t_tks);
-			 GlobalPoint sv = tv.position();			 
 
 			 if (!tv.isValid()) continue;
 			 
 			 Vertex vertex = tv;
-			 GlobalError err = tv.positionError();
 
 			 // put vertex in the event
 			 vertexCollection->push_back(vertex);
