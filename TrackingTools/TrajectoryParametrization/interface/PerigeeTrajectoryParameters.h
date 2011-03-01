@@ -20,6 +20,7 @@ public:
 
   PerigeeTrajectoryParameters() {}
 
+  /*
   explicit PerigeeTrajectoryParameters(const AlgebraicVector &aVector, bool charged = true):
        theCurv(aVector[0]), theTheta(aVector[1]), thePhi(aVector[2]),
        theTip(aVector[3]), theLip(aVector[4]), theVector(asSVector<5>(aVector)), 
@@ -30,6 +31,7 @@ public:
     else
       theCharge = 0;
   }
+  */
 
   explicit PerigeeTrajectoryParameters(const AlgebraicVector5 &aVector, bool charged = true):
        theCurv(aVector[0]), theTheta(aVector[1]), thePhi(aVector[2]),
@@ -95,9 +97,7 @@ public:
    *  transverse curvature (signed), theta, phi,
    *  transverse impact parameter (signed), longitudinal i.p.
    */
-  const AlgebraicVector  vector_old() const { return asHepVector(theVector); }
-
-  const AlgebraicVector5 & vector() const
+   const AlgebraicVector5 & vector() const
   {
     if (!vectorIsAvailable) {
       //theVector = AlgebraicVector5();

@@ -17,11 +17,12 @@ class PerigeeTrajectoryError
 public:
 
   PerigeeTrajectoryError() {}
-  ~PerigeeTrajectoryError() {}
+  // ~PerigeeTrajectoryError() {}
 
+  /*
   PerigeeTrajectoryError(AlgebraicSymMatrix aPerigeeError):
     thePerigeeError(asSMatrix<5>(aPerigeeError)), weightIsAvailable(false) {}
-
+  */
   PerigeeTrajectoryError(const AlgebraicSymMatrix55 &aPerigeeError):
     thePerigeeError(aPerigeeError), weightIsAvailable(false) {
          
