@@ -149,11 +149,41 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
 }
 
 void 
-PFAlgo::setPFPhotonParameters(bool usePFPhotons) {
+PFAlgo::setPFPhotonParameters(bool usePFPhotons,  std::string mvaWeightFileConvID, double mvaConvCut) {
 
   usePFPhotons_ = usePFPhotons;
-  pfpho_ = new PFPhotonAlgo();
+    //for MVA pass PV if there is one in the collection otherwise pass a dummy
+  reco::Vertex dummy;
+  const reco::Vertex* pv=&dummy;  
+  if(useVertices_) 
+    {
+      dummy = primaryVertex_;
+    } 
+  else { // create a dummy PV
+    reco::Vertex::Error e;
+    e(0, 0) = 0.0015 * 0.0015;
+    e(1, 1) = 0.0015 * 0.0015;
+    e(2, 2) = 15. * 15.;
+    reco::Vertex::Point p(0, 0, 0);
+    dummy = reco::Vertex(p, e, 0, 0, 0);   
+  } 
+  
+  if(! usePFPhotons_) return;
+  FILE * filePhotonConvID = fopen(mvaWeightFileConvID.c_str(), "r");
+  if (filePhotonConvID) {
+    fclose(filePhotonConvID);
+  }
+  else {
+    string err = "PFAlgo: cannot open weight file '";
+    err += mvaWeightFileConvID;
+    err += "'";
+    throw invalid_argument( err );
+  }
 
+
+  pfpho_ = new PFPhotonAlgo(mvaWeightFileConvID, mvaConvCut, *pv);
+  
+  
   return;
 }
 
@@ -457,7 +487,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       for( ; cand != pfPhotonCandidates_->end(); ++cand)
 	pfCandidates_->push_back(*cand);      
       
-    } // end of 'if' in case photons are found    
+    } // end of 'if' in case photons are found  
+        pfPhotonCandidates_->clear(); 
   } // end of Photon algo
   
   if(debug_) 

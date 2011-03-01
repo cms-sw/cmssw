@@ -547,9 +547,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
 	elements_.push_back( trkFromConversionElement );
 
-	trkFromConversionElement = new reco::PFBlockElementTrack(convRef->pfTracks()[iTk]);
-	trkFromConversionElement->setConversionRef( convRef->originalConversion(), reco::PFBlockElement::T_FROM_GAMMACONV);
-	elements_.push_back( trkFromConversionElement );
 
 	if (debug_){
 	  std::cout << "PF Block Element from Conversion electron " << 

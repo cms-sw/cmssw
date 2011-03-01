@@ -1135,15 +1135,19 @@ void PFRootEventManager::readOptions(const char* file,
     }
   }
 
-  bool usePFPhotons = false;   // set true to use PFElectrons
+  bool usePFPhotons = true;   
+  string mvaWeightFileConvID = "";
+  double mvaConvCut=-1.;
   options_->GetOpt("particle_flow", "usePFPhotons", usePFPhotons);
-  cout<<"use PFPhotons "<<usePFPhotons<<endl;
+  options_->GetOpt("particle_flow", "conv_mvaCut", mvaConvCut);
+  options_->GetOpt("particle_flow", "convID_mvaWeightFile", mvaWeightFileConvID);  
+  // cout<<"use PFPhotons "<<usePFPhotons<<endl;
 
   if( usePFPhotons ) { 
     // PFPhoton options -----------------------------
     
     try { 
-      pfAlgo_.setPFPhotonParameters(usePFPhotons);
+      pfAlgo_.setPFPhotonParameters(usePFPhotons, mvaWeightFileConvID, mvaConvCut);
     }
 
     catch( std::exception& err ) {
@@ -1153,6 +1157,7 @@ void PFRootEventManager::readOptions(const char* file,
       exit(1);
     }
   }
+
 
 
   bool rejectTracks_Bad = true;

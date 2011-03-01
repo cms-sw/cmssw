@@ -6,7 +6,6 @@ root outtree 0
 
 //root file display.root
 root file ../../Configuration/test/display.root
-
 // Warning: no cleaning of the HF is done in fast sim, due to the absence of timing simulation and to an unreliable transverse shower shape simulation in the HF. 
 //          Thus you shall switch it off in PFRootEvent also by changing the thresholds to the following values: 
 //                                                             clustering thresh_Clean_HFEM            1E5 
@@ -404,7 +403,11 @@ particle_flow   calibPFSCEle_endcap  1.153 -16.5975 5.668 -0.1772 16.22 7.326 0.
 //particle_flow   calibPFSCEle_endcap  0.9995 -12.313 2.8784 -1.057e-04 10.282 3.059 1.3502e-03 -2.2185 3.4206
 
 // PFPhotons
-particle_flow   usePFPhotons      0
+particle_flow   usePFPhotons      1
+particle_flow   conv_mvaCut	  0.00
+// Daniele and Rishi: To be changed
+particle_flow   convID_mvaWeightFile   /afs/cern.ch/user/r/rpatel/public/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt
+
 
 // EG photons  Et cut; Track iso (cste;slope), Ecal iso (cste, slope), Hcal iso (cste, slope), H/E
 particle_flow   useEGPhotons 1

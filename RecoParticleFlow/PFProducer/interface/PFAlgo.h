@@ -100,7 +100,7 @@ class PFAlgo {
 			  bool useEGElectrons=false,
 			  bool useEGammaSupercluster = true);
 
-  void setPFPhotonParameters(bool usePFElectrons);
+  void setPFPhotonParameters(bool usePFPhoton, std::string mvaWeightFileConvID, double mvaConvCut);  
 
   void setPostHFCleaningParameters(bool postHFCleaning,
 				   double minHFCleaningPt,
