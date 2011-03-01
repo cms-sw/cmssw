@@ -89,6 +89,7 @@ ${EVAL}/%/correlations.png: ./training_control_plots.py ${DB}/%.db
 #################################################################
 ${DB}/%.db: ${XML}/%.xml signalfiles.list backgroundfiles.list trainMVA_cfg.py
 	mkdir -p ${DB}
+	mkdir -p ${LOG}
 	rm -f ${LOG}/${@F}.log
 	nice cmsRun trainMVA_cfg.py xml=$< \
 	  tracks=`echo $< | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0.*.xml|\1|"` \
