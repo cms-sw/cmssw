@@ -28,8 +28,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2011/01/24 16:21:06 $ 
- **  $Revision: 1.37 $
+ **  $Date: 2011/02/01 17:02:35 $ 
+ **  $Revision: 1.38 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -146,8 +146,8 @@ class PhotonValidator : public edm::EDAnalyzer
   double mcJetEta_;
   double mcJetPhi_;
 
-
-  std::vector<TrackingParticleRef> theConvTP_;
+  edm::RefVector<TrackingParticleCollection> theConvTP_;
+ //  std::vector<TrackingParticleRef> theConvTP_;
   
   double simMinPt_;
   double simMaxPt_;

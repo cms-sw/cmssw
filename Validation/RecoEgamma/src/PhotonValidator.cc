@@ -79,8 +79,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2011/02/01 17:02:29 $ 
- **  $Revision: 1.71 $
+ **  $Date: 2011/02/19 04:09:05 $ 
+ **  $Revision: 1.72 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1717,7 +1717,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	
 	
 	  if ( useTP ) { 
-	    for ( vector<TrackingParticleRef>::iterator iTrk=theConvTP_.begin(); iTrk!=theConvTP_.end(); ++iTrk) {
+	    for ( edm::RefVector<TrackingParticleCollection>::iterator iTrk=theConvTP_.begin(); iTrk!=theConvTP_.end(); ++iTrk) {
 	      h_simTkPt_ -> Fill ( (*iTrk)->pt() );
 	      h_simTkEta_ -> Fill ( (*iTrk)->eta() );
 	    }
@@ -2083,6 +2083,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_nConv_[type][0]->Fill(float( matchingPho.conversions().size()));          
 	////////////////// plot quantities related to conversions
 	reco::ConversionRefVector conversions = matchingPho.conversions();
+	
 	for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
 	  reco::ConversionRef aConv=conversions[iConv];
 	  double like = aConv->MVAout();
@@ -2116,17 +2117,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  
 	  nRecConv_++;
 	  
-	  
-	  std::map<reco::TrackRef,TrackingParticleRef> myAss;
-	  std::map<reco::TrackRef,TrackingParticleRef>::const_iterator itAss;
+	  std::map<const reco::Track*,TrackingParticleRef> myAss;
+	  std::map<const reco::Track*,TrackingParticleRef>::const_iterator itAss;
 	  std::map<reco::TrackRef,TrackingParticleRef>::const_iterator itAssMin;
 	  std::map<reco::TrackRef,TrackingParticleRef>::const_iterator itAssMax;
 	  //     
-	  
+
 	  int nAssT2=0;
-	  // unused      int nAssT1=0;
 	  for (unsigned int i=0; i<tracks.size(); i++) {
-	    reco::TrackRef track = tracks[i].castTo<reco::TrackRef>();
+	    //	    reco::TrackRef track = tracks[i].castTo<reco::TrackRef>();
 	    
 	    type =0;
 	    if ( ! isRunCentrally_ ) nHitsVsEta_[type] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits())-0.0001 );
@@ -2134,7 +2133,35 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    p_nHitsVsEta_[type] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits()) );
 	    p_nHitsVsR_[type] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()) );
 	    h_tkChi2_[type] ->Fill (tracks[i]->normalizedChi2() ); 
+	    
+	    
+	    RefToBase<reco::Track> tfrb = tracks[i];
+	    RefToBaseVector<reco::Track> tc;
+            tc.push_back(tfrb);
+	    // reco::RecoToSimCollection q = theTrackAssociator_->associateRecoToSim(tc,theConvTP_,&e);
+	    reco::SimToRecoCollection q = theTrackAssociator_->associateSimToReco(tc,theConvTP_,&e);
+	    std::vector<std::pair<RefToBase<reco::Track>, double> >  trackV;
+	    int tpI = 0;
+	    
+	    if (q.find(theConvTP_[0])!=q.end()){
+	      trackV = (std::vector<std::pair<RefToBase<reco::Track>, double> >) q[theConvTP_[0]];
+	    } else if (q.find(theConvTP_[1])!=q.end()){
+	      trackV = (std::vector<std::pair<RefToBase<reco::Track>, double> >) q[theConvTP_[1]];
+	      tpI = 1;
+	    }
+	    
+            if ( !trackV.size() ) continue;
+	    edm::RefToBase<reco::Track> tr = trackV.front().first;
+	    myAss.insert( std::make_pair (tr.get(),theConvTP_[tpI] ) );
+	    nAssT2++;
+	    
+	  }
 	  
+	  
+	  
+
+
+	    /*	  	  
 	    /////////// fill my local track - trackingparticle association map
 	    TrackingParticleRef myTP;
 	    for (size_t j = 0; j < RtoSCollPtrs.size(); j++) {          
@@ -2153,7 +2180,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      }
 	    }
 	  }
-	  
+	  */
 	  
 	  
 	  type=0;
@@ -2304,7 +2331,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      
 	      if ( ! isRunCentrally_ ) h2_etaVsRsim_[0]->Fill (mcEta_,mcConvR_);         
 	      
-	      
+	      /*
 	      reco::TrackRef track1 = tracks[0].castTo<reco::TrackRef>();
 	      reco::TrackRef track2 = tracks[1].castTo<reco::TrackRef>();
 	      reco::TransientTrack tt1 = (*theTTB).build( &track1);
@@ -2318,7 +2345,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		nInvalidPCA_++;
 		
 	      }
-
+	      */
 	      	      
 	      //  here original tracks and their inner momentum is considered
 	      float  dPhiTracksAtVtx =  aConv->dPhiTracksAtVtx();
@@ -2483,8 +2510,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      
 	      ///////////  Quantities per track
 	      for (unsigned int i=0; i<tracks.size(); i++) {
-		reco::TrackRef track = tracks[i].castTo<reco::TrackRef>();
-		itAss= myAss.find(  track );
+		RefToBase<reco::Track> tfrb(tracks[i] );
+		itAss= myAss.find( tfrb.get() );
 		if ( itAss == myAss.end()  ) continue;
 		
 		float trkProvenance=3;
@@ -2581,6 +2608,12 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	const std::vector<edm::RefToBase<reco::Track> > tracks = aConv->tracks();
 	if (tracks.size() < 2 ) continue;
 
+	RefToBase<reco::Track> tk1 = aConv->tracks().front();
+	RefToBase<reco::Track> tk2 = aConv->tracks().back();
+	RefToBaseVector<reco::Track> tc1, tc2;
+	tc1.push_back(tk1);
+	tc2.push_back(tk2);
+
 	bool  phoIsInBarrel=false;
 	bool  phoIsInEndcap=false;
 	if ( fabs(aConv->caloCluster()[0]->eta() ) < 1.479 ) {
@@ -2606,11 +2639,87 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       
       
 	int  nAssT2=0;
+	for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
+	  // mcConvPt_= (*mcPho).fourMomentum().et();     
+	  float mcPhi= (*mcPho).fourMomentum().phi();
+	  //simPV_Z = (*mcPho).primaryVertex().z();
+	  mcPhi_= phiNormalization(mcPhi);
+	  mcEta_= (*mcPho).fourMomentum().pseudoRapidity();   
+	  mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z() ); 
+	  //mcConvR_= (*mcPho).vertex().perp();   
+	  //mcConvX_= (*mcPho).vertex().x();    
+	  //mcConvY_= (*mcPho).vertex().y();    
+	  //mcConvZ_= (*mcPho).vertex().z();  
+	  //mcConvEta_= (*mcPho).vertex().eta();    
+	  //mcConvPhi_= (*mcPho).vertex().phi();
+	  if ( fabs(mcEta_) > END_HI ) continue;
+	  //	    if (mcConvPt_<minPhoPtForPurity) continue;
+	  //if (fabs(mcEta_)>maxPhoEtaForPurity) continue;
+	  //if (fabs(mcConvZ_)>maxPhoZForPurity) continue;
+	  //if (mcConvR_>maxPhoRForEffic) continue;
+	  
+	  if (  (*mcPho).isAConversion() != 1 ) continue;
+	  if (!( ( fabs(mcEta_) <= BARL && mcConvR_ <85 )  || 
+		 ( fabs(mcEta_) > BARL && fabs(mcEta_) <=END_HI && fabs( (*mcPho).vertex().z() ) < 210 )  ) )
+	    continue;
+	  
+	  
+	  theConvTP_.clear();
+	  for(size_t i = 0; i <  trackingParticles.size(); ++i){
+	    TrackingParticleRef tp (ElectronTPHandle,i);	     
+	    if ( fabs( tp->vx() - (*mcPho).vertex().x() ) < 0.0001   &&
+		 fabs( tp->vy() - (*mcPho).vertex().y() ) < 0.0001   &&
+		 fabs( tp->vz() - (*mcPho).vertex().z() ) < 0.0001) {
+	      theConvTP_.push_back( tp );	
+	    }
+	  }
 
-	std::map<reco::TrackRef,TrackingParticleRef> myAss;
-	for (unsigned int i=0; i<tracks.size(); i++) {
-	  reco::TrackRef track = tracks[i].castTo<reco::TrackRef>();
-	
+	  //std::cout << " ciao 5.3 " << std::endl;	      	            	  
+	  if ( theConvTP_.size() < 2 )   continue;
+	  
+	  reco::RecoToSimCollection p1 =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e);
+	  reco::RecoToSimCollection p2 =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e);
+	  std::vector<std::pair<RefToBase<reco::Track>, double> > trackV1, trackV2;
+          try {
+	  std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1[tk1];
+	  std::vector<std::pair<TrackingParticleRef, double> > tp2 = p2[tk2];
+	  
+	  if (tp1.size()&&tp2.size()) {
+	    TrackingParticleRef tpr1 = tp1.front().first;
+	    TrackingParticleRef tpr2 = tp2.front().first;
+
+	    if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11) {
+	      if ( (tpr1->parentVertex()->sourceTracks_end()-tpr1->parentVertex()->sourceTracks_begin()==1) && 
+		   (tpr2->parentVertex()->sourceTracks_end()-tpr2->parentVertex()->sourceTracks_begin()==1)) {
+		if (tpr1->parentVertex().key()==tpr2->parentVertex().key() && ((*tpr1->parentVertex()->sourceTracks_begin())->pdgId()==22)) {
+		  //		  std::cout << " ciao 5.6 " << std::endl;	      	            
+		  //		mcConvR_ = sqrt(tpr1->parentVertex()->position().Perp2());
+		  //mcConvZ_ = tpr1->parentVertex()->position().z();
+		  //mcConvX_ = tpr1->parentVertex()->position().x();
+		  //mcConvY_ = tpr1->parentVertex()->position().y();
+		  //mcConvEta_ = tpr1->parentVertex()->position().eta();
+		  //mcConvPhi_ = tpr1->parentVertex()->position().phi();
+		  //mcConvPt_ = sqrt((*tpr1->parentVertex()->sourceTracks_begin())->momentum().Perp2());
+		  //std::cout << " Reco to Sim mcconvpt " << mcConvPt_ << std::endl;
+		  //cout << "associated track1 to " << tpr1->pdgId() << " with p=" << tpr1->p4() << " with pT=" << tpr1->pt() << endl;
+		  //cout << "associated track2 to " << tpr2->pdgId() << " with p=" << tpr2->p4() << " with pT=" << tpr2->pt() << endl;
+		  nAssT2 = 2;
+		  break;
+		}
+	      }
+	    }
+	  }
+
+	  } catch (Exception event) {
+	    //cout << "do not continue: " << event.what()  << endl;
+	    //continue;
+	  }
+	  
+	} // end loop over simulated photons
+
+
+
+	  /*
 	  TrackingParticleRef myTP;
 	  for (size_t j = 0; j < RtoSCollPtrs.size(); j++) {          
 	    reco::RecoToSimCollection q = *(RtoSCollPtrs[j]);
@@ -2627,6 +2736,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      }
 	    }
 	  }
+	  */
 	
 	  if ( nAssT2 == 2) {
 	  
@@ -2638,7 +2748,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    h_RecoConvTwoMTracks_[4]->Fill( aPho.et() ) ;
 	  
 	  }
-	}
+	
 
 	///////////////////////////// xray
 	if ( aConv->conversionVertex().isValid() ) {
