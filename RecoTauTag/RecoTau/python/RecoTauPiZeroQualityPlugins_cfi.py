@@ -11,6 +11,18 @@ Author: Evan K. Friis, UC Davis
 
 DELTA_M_PIZERO = 'abs(mass() - 0.13579)'
 
+greedy = cms.PSet(
+    name = cms.string('Greedy'),
+    plugin = cms.string('RecoTauPiZeroStringQuality'),
+    selection = cms.string(
+        'algoIs("kStrips") || ' +
+        '(abs(eta()) < 1.5 & %s < 0.05) || ' % DELTA_M_PIZERO +
+        '(abs(eta()) > 1.5 & mass < 0.2)'),
+    selectionPassFunction = cms.string('-1*numberOfDaughters()'),
+    selectionFailValue = cms.double(1000)
+)
+
+
 isInStrip = cms.PSet(
     name = cms.string('InStrip'),
     plugin = cms.string('RecoTauPiZeroStringQuality'),
