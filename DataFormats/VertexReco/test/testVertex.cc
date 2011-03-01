@@ -19,7 +19,7 @@ void testVertex::checkAll() {
   const double ndof = 10;
   const size_t size = 0; // can't test refs at the moment
   const double x = 1.0, y = 2.0, z = 3.0;
-  const double ee[ reco::Vertex::Error::kSize ] = { 1.1, 1.2, 1.3, 
+  const float ee[ reco::Vertex::Error::kSize ] = { 1.1, 1.2, 1.3, 
 					                 2.2, 2.3, 
                                                               3.3 };
   reco::Vertex::Error err;
@@ -37,10 +37,11 @@ void testVertex::checkAll() {
   CPPUNIT_ASSERT( t.y() == y );
   CPPUNIT_ASSERT( t.z() == z );
   const reco::Vertex::Error e = t.covariance();
-  const double 
+  const float
     e00 = e( 0, 0 ), e01 = e( 0, 1 ), e02 = e( 0, 2 ), 
     e10 = e( 1, 0 ), e11 = e( 1, 1 ), e12 = e( 1, 2 ), 
     e20 = e( 2, 0 ), e21 = e( 2, 1 ), e22 = e( 2, 2 );
+
   CPPUNIT_ASSERT( e00 == ee[ 0 ] );
   CPPUNIT_ASSERT( e01 == ee[ 1 ] );
   CPPUNIT_ASSERT( e02 == ee[ 2 ] );
