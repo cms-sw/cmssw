@@ -74,8 +74,8 @@ def getSpecificLumi(dbsession,parameters,fillnum,inputdir):
     beamstatusDict={}#{runnum:{(startorbit,cmslsnum):beamstatus}}
     t=lumiTime.lumiTime()
     fillbypos={}#{bxidx:(lstime,beamstatusfrac,lumi,lumierror,specificlumi,specificlumierror)}
-    referencetime=time.mktime(datetime.datetime(2010,1,1,0,0,0).timetuple())
-    
+    #referencetime=time.mktime(datetime.datetime(2010,1,1,0,0,0).timetuple())
+    referencetime=0
     if fillnum and len(runtimesInFill)==0:
         runtimesInFill=getFillFromDB(dbsession,parameters,fillnum)#{runnum:starttimestr}
     #precheck
@@ -167,7 +167,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
             if lumi>0 and lumierror>0 and speclumi>0:
                 if lscounter==0:
                     f=open(os.path.join(outdir,filename),'w')
-                print >>f, '%d\t%e\t%e\t%e\t%e\t%e\n'%(ts,beamstatusfrac,lumi,lumierror,speclumi,speclumierror)
+                print >>f, '%d\t%e\t%e\t%e\t%e\t%e'%(ts,beamstatusfrac,lumi,lumierror,speclumi,speclumierror)
             if not timedict.has_key(ts):
                 timedict[ts]=[]
             timedict[ts].append([beamstatusfrac,lumi,lumierror,speclumi,speclumierror])
@@ -194,7 +194,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
         specificerrs=transposedvalues[4]
         specifictoterr=math.sqrt(sum(map(lambda x:x**2,specificerrs)))
         specificerravg=specifictoterr/float(len(specificvals))
-        print >>f,'%d\t%e\t%e\t%e\t%e\t%e\n'%(lstime,bstatfrac,lumitot,lumierrortot,specificavg,specificerravg)
+        print >>f,'%d\t%e\t%e\t%e\t%e\t%e'%(lstime,bstatfrac,lumitot,lumierrortot,specificavg,specificerravg)
     f.close()
     print 'writing summary file'
     previoustime=lstimes[0]
@@ -221,7 +221,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
         stopts=tsdatainseg[-1][0]
         plu=max(CommonUtil.transposed(tsdatainseg,0.0)[1])*23.357
         lui=sum(CommonUtil.transposed(tsdatainseg,0.0)[1])*23.357
-        print >>f,'%d\t%d\t%e\t%e\n'%(startts,stopts,plu,lui)
+        print >>f,'%d\t%d\t%e\t%e'%(startts,stopts,plu,lui)
     f.close()
         
 if __name__ == '__main__':
