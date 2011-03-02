@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.7 2011/03/02 15:48:50 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.8 2011/03/02 18:37:21 amraktad Exp $
 //
 
 #include <map>
@@ -493,7 +493,8 @@ void FWPSetTableManager::updateSchedule(const edm::ScheduleInfo *info)
 
    // Nothing is expanded by default.
    for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-      m_entries[i].expanded = false;
+      m_entries[i].expandedUser = false;
+
    m_filter = "";
 
    recalculateVisibility();
@@ -691,7 +692,11 @@ void FWPSetTableManager::setExpanded(int row)
    if (m_filter.empty() == false && data.childMatches == false)
       return;
 
-   data.expanded = !data.expanded;
+   if (m_filter.empty())
+      data.expandedUser = !data.expandedUser;
+   else
+      data.expandedFilter = !data.expandedFilter;
+
    recalculateVisibility();
    dataChanged();
    visualPropertiesChanged();
@@ -788,12 +793,12 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
       {
          size_t nextIdx =  unsortedRow + 1;
          isParent = (nextIdx < m_entries.size() &&  m_entries[nextIdx].parent == (size_t)unsortedRow);
-         isOpen = data.expanded;
+         isOpen = data.expandedUser;
       }
       else 
       {
          isParent = data.childMatches;
-         isOpen = data.expanded && data.childMatches;
+         isOpen = data.expandedFilter && data.childMatches;
       }
 
       indent =  data.level * 10 ;
@@ -829,7 +834,7 @@ void FWPSetTableManager::updateFilter(const char *filter)
    { 
       // collapse entries when filter is removed
       for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-         m_entries[i].expanded = false;
+         m_entries[i].expandedFilter = false;
    }
    else
    {
@@ -896,7 +901,7 @@ void FWPSetTableManager::updateFilter(const char *filter)
    
       // expand to matching children
       for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-         m_entries[i].expanded = m_entries[i].childMatches;
+         m_entries[i].expandedFilter = m_entries[i].childMatches;
 
    }
  
@@ -928,11 +933,11 @@ void FWPSetTableManager::recalculateVisibility()
       {
          if (m_filter.empty())
          {
-            data.visible = m_entries[data.parent].expanded && m_entries[data.parent].visible;
+            data.visible = m_entries[data.parent].expandedUser && m_entries[data.parent].visible;
          }
          else
          {
-            data.visible = m_entries[data.parent].expanded && m_entries[data.parent].visible && (data.matches || data.childMatches);
+            data.visible = m_entries[data.parent].expandedFilter && m_entries[data.parent].visible && (data.matches || data.childMatches);
          }
       }
    }

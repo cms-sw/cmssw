@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:50 CET 2011
-// $Id: FWPSetTableManager.h,v 1.4 2011/03/02 11:50:09 amraktad Exp $
+// $Id: FWPSetTableManager.h,v 1.5 2011/03/02 15:48:50 amraktad Exp $
 //
 
 // system include files
@@ -53,7 +53,9 @@ public:
          module(-1),
          path(-1),
 
-         expanded(false),
+         expandedUser(false),
+         expandedFilter(false),
+
          visible(false),
 
          matches(false),
@@ -72,7 +74,9 @@ public:
       size_t      module;
       size_t      path;
 
-      bool        expanded;
+      bool        expandedUser;
+      bool        expandedFilter;
+
       bool        visible;
       bool        matches;
       bool        childMatches;
@@ -187,16 +191,6 @@ private:
    FWPSetCellEditor               *m_editor;
    std::vector<std::string>        m_availablePaths;
 
-   /*
-   TGGC*  m_greenGC;
-   TGGC*  m_redGC;
-   TGGC*  m_grayGC;
-   TGGC*  m_bgGC;
-
-   TGGC*  m_italicGC;
-   TGGC*  m_boldGC;
-
-   */
    mutable FWTextTreeCellRenderer m_renderer;  
 };
 
