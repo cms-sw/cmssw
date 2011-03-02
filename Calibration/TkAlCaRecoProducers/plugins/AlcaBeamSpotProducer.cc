@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
    Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: AlcaBeamSpotProducer.cc,v 1.1 2010/06/21 18:02:20 yumiceva Exp $
+   version $Id: AlcaBeamSpotProducer.cc,v 1.2 2010/07/20 02:58:20 wmtan Exp $
 
    ________________________________________________________________**/
 
@@ -99,7 +99,7 @@ void AlcaBeamSpotProducer::endLuminosityBlock(edm::LuminosityBlock& lumiSeg, con
   theBeamFitter->setRefTime(refBStime[0],refBStime[1]);
   theBeamFitter->setRun(ftmprun0);
     
-  int * LSRange = theBeamFitter->getFitLSRange();
+  std::pair<int,int> LSRange = theBeamFitter->getFitLSRange();
 
   reco::BeamSpot bs;
   if (theBeamFitter->runPVandTrkFitter()){
@@ -107,7 +107,7 @@ void AlcaBeamSpotProducer::endLuminosityBlock(edm::LuminosityBlock& lumiSeg, con
     edm::LogInfo("AlcaBeamSpotProducer")
         << "\n RESULTS OF DEFAULT FIT " << std::endl
         << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl
-        << " for lumi blocks : " << LSRange[0] << " - " << LSRange[1] << std::endl
+        << " for lumi blocks : " << LSRange.first << " - " << LSRange.second << std::endl
         << " lumi counter # " << countLumi_ << std::endl
         << bs << std::endl
         << "fit done. \n" << std::endl;	
@@ -117,7 +117,7 @@ void AlcaBeamSpotProducer::endLuminosityBlock(edm::LuminosityBlock& lumiSeg, con
     edm::LogInfo("AlcaBeamSpotProducer")
         << "\n Empty Beam spot fit" << std::endl
         << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl
-        << " for lumi blocks : " << LSRange[0] << " - " << LSRange[1] << std::endl
+        << " for lumi blocks : " << LSRange.first << " - " << LSRange.second << std::endl
         << " lumi counter # " << countLumi_ << std::endl
         << bs << std::endl
         << "fit failed \n" << std::endl;
