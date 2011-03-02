@@ -39,6 +39,15 @@ class RefToBaseBuilder {
     }
 };
 
+class RefVectorBuilder {
+  public:
+    typedef reco::PFTauRefVector OutputType;
+    static OutputType::value_type make(const reco::PFTauRef& ref) {
+      return ref;
+    }
+};
+
+
 template<typename T>
 class RecoTauDiscriminatorRefSelectorImpl : public edm::EDFilter {
   public:
@@ -91,7 +100,7 @@ bool RecoTauDiscriminatorRefSelectorImpl<T>::filter(edm::Event& evt,
   return (!filter_ || selected);
 }
 
-typedef RecoTauDiscriminatorRefSelectorImpl<RefToBaseBuilder> RecoTauDiscriminatorRefSelector;
+typedef RecoTauDiscriminatorRefSelectorImpl<RefVectorBuilder> RecoTauDiscriminatorRefSelector;
 typedef RecoTauDiscriminatorRefSelectorImpl<ConcreteTauBuilder> RecoTauDiscriminatorSelector;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
