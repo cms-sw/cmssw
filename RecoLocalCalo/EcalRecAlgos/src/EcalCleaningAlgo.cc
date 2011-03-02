@@ -1,6 +1,6 @@
 /* Implementation of class EcalCleaningAlgo
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.cc,v 1.2 2011/01/13 13:50:09 argiro Exp $
+   \version $Id: EcalCleaningAlgo.cc,v 1.3 2011/01/31 15:03:56 argiro Exp $
    \date 20 Dec 2010
 */    
 
@@ -20,6 +20,9 @@ EcalCleaningAlgo::EcalCleaningAlgo(const edm::ParameterSet&  p){
   e4e1_b_barrel_       = p.getParameter<double>("e4e1_b_barrel");
   e4e1_a_endcap_       = p.getParameter<double>("e4e1_a_endcap");
   e4e1_b_endcap_       = p.getParameter<double>("e4e1_b_endcap");
+  e4e1Treshold_barrel_ = p.getParameter<double>("e4e1Threshold_barrel");
+  e4e1Treshold_endcap_ = p.getParameter<double>("e4e1Threshold_endcap");
+
   cThreshold_double_   = p.getParameter<double>("cThreshold_double"); 
 
   ignoreOutOfTimeThresh_   =p.getParameter<double>("ignoreOutOfTimeThresh");  
@@ -30,6 +33,7 @@ EcalCleaningAlgo::EcalCleaningAlgo(const edm::ParameterSet&  p){
   e6e2thresh_=              p.getParameter<double>("e6e2thresh");
 
 
+  
 }
 
 
@@ -188,6 +192,9 @@ float EcalCleaningAlgo::recHitE( const DetId id,
   if ( id.rawId() == 0 ) return 0;
   
 
+  float threshold = e4e1Treshold_barrel_;
+  if ( id.subdetId() == EcalEndcap) threshold = e4e1Treshold_endcap_; 
+
   EcalRecHitCollection::const_iterator it = recHits.find( id );
   if ( it != recHits.end() ){
     float ene= (*it).energy();
@@ -196,6 +203,9 @@ float EcalCleaningAlgo::recHitE( const DetId id,
     if (id.subdetId()==EcalBarrel &&
 	it->checkFlag(EcalRecHit::kOutOfTime) 
 	&& ene>ignoreOutOfTimeThresh_) return 0;
+
+    // ignore hits below threshold
+    if (ene < threshold) return 0;
 
     // else return the energy of this hit
     return ene;

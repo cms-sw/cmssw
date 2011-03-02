@@ -3,7 +3,7 @@
    Declaration of class EcalCleaningAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.h,v 1.1 2011/01/12 21:39:37 argiro Exp $
+   \version $Id: EcalCleaningAlgo.h,v 1.2 2011/01/31 15:03:56 argiro Exp $
    \date 20 Dec 2010
 */
 
@@ -69,6 +69,9 @@ private:
   float e4e1_b_barrel_;
   float e4e1_a_endcap_;
   float e4e1_b_endcap_;
+  // when calculating e4/e1, ignore hits below this threshold
+  float e4e1Treshold_barrel_;
+  float e4e1Treshold_endcap_;
   float tightenCrack_e1_single_;
   float tightenCrack_e4e1_single_;
   float cThreshold_double_;

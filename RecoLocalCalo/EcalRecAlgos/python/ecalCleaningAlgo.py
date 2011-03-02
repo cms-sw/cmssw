@@ -13,6 +13,11 @@ cleaningAlgoConfig = cms.PSet(
   # ditto for EE
   e4e1_a_endcap=cms.double(0.02),
   e4e1_b_endcap=cms.double(-0.0125),
+
+  #when calculating e4/e1, ignore hits below this threshold
+  e4e1Threshold_barrel= cms.double(0.080),
+  e4e1Threshold_endcap= cms.double(0.300),
+  
   # near cracks raise the energy threshold by this factor
   tightenCrack_e1_single=cms.double(2),
   # near cracks, divide the e4e1 threshold by this factor
