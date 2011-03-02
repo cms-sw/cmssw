@@ -40,7 +40,7 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Event.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <boost/shared_ptr.hpp>
 
