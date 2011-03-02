@@ -9,9 +9,11 @@ from RecoParticleFlow.PFProducer.particleFlowBlock_cff import *
 
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
 from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
+from RecoParticleFlow.PFProducer.pfPhotonTranslator_cff import *
 
 particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
                                  particleFlowBlock*
                                  particleFlow*
-                                 pfElectronTranslatorSequence)
+                                 pfElectronTranslatorSequence*
+                                 pfPhotonTranslatorSequence)
 
