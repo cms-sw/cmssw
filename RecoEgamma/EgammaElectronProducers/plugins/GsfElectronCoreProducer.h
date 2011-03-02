@@ -2,6 +2,9 @@
 #define GsfElectronCoreProducer_h
 
 #include "GsfElectronCoreBaseProducer.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 class GsfElectronCoreProducer : public GsfElectronCoreBaseProducer
  {
@@ -18,6 +21,12 @@ class GsfElectronCoreProducer : public GsfElectronCoreBaseProducer
     edm::InputTag edCoresTag_ ;
     edm::InputTag pfSuperClustersTag_ ;
     edm::InputTag pfSuperClusterTrackMapTag_ ;
+
+    edm::Handle<reco::GsfElectronCoreCollection> edCoresH_ ;
+    edm::Handle<reco::SuperClusterCollection> pfClustersH_ ;
+    edm::Handle<edm::ValueMap<reco::SuperClusterRef> > pfClusterTracksH_ ;
+
+    void produceTrackerDrivenCore( const reco::GsfTrackRef & gsfTrackRef, reco::GsfElectronCoreCollection * electrons ) ;
 
  } ;
 

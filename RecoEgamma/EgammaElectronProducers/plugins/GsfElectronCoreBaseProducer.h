@@ -25,6 +25,7 @@ namespace edm
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -42,13 +43,16 @@ class GsfElectronCoreBaseProducer : public edm::EDProducer
 
     // to be called by derived producers at the beginning of each new event
     void initEvent( edm::Event & event, const edm::EventSetup & setup ) ;
+    edm::Handle<reco::GsfPFRecTrackCollection> gsfPfRecTracksH_ ;
     edm::Handle<reco::GsfTrackCollection> gsfTracksH_ ;
     edm::Handle<reco::TrackCollection> ctfTracksH_ ;
+    bool useGsfPfRecTracks_ ;
 
     void fillElectronCore( reco::GsfElectronCore * ) ;
 
   private:
 
+    edm::InputTag gsfPfRecTracksTag_ ;
     edm::InputTag gsfTracksTag_ ;
     edm::InputTag ctfTracksTag_ ;
 

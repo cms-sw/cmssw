@@ -28,6 +28,7 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
  {
   // input collections
   desc.add<edm::InputTag>("previousGsfElectronsTag",edm::InputTag("ecalDrivenGsfElectrons")) ;
+  desc.add<edm::InputTag>("pflowGsfElectronsTag",edm::InputTag("pflowGsfElectrons")) ;
   desc.add<edm::InputTag>("gsfElectronCoresTag",edm::InputTag("gsfElectronCores")) ;
   desc.add<edm::InputTag>("hcalTowers",edm::InputTag("towerMaker")) ;
   desc.add<edm::InputTag>("reducedBarrelRecHitCollectionTag",edm::InputTag("ecalRecHit","EcalRecHitsEB")) ;
@@ -35,12 +36,14 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
   //desc.add<edm::InputTag>("pfMvaTag",edm::InputTag("pfElectronTranslator:pf")) ;
   desc.add<edm::InputTag>("seedsTag",edm::InputTag("ecalDrivenElectronSeeds")) ;
   desc.add<edm::InputTag>("beamSpotTag",edm::InputTag("offlineBeamSpot")) ;
+  desc.add<edm::InputTag>("gsfPfRecTracksTag",edm::InputTag("pfTrackElec")) ;
 
   // backward compatibility mechanism for ctf tracks
   desc.add<bool>("ctfTracksCheck",true) ;
   desc.add<edm::InputTag>("ctfTracksTag",edm::InputTag("generalTracks")) ;
 
   // steering
+  desc.add<bool>("useGsfPfRecTracks",true) ;
   desc.add<bool>("applyPreselection",false) ;
   desc.add<bool>("applyEtaCorrection",false) ;
   desc.add<bool>("applyAmbResolution",false) ;
@@ -143,6 +146,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   produces<GsfElectronCollection>();
 
   inputCfg_.previousGsfElectrons = cfg.getParameter<edm::InputTag>("previousGsfElectronsTag");
+  inputCfg_.pflowGsfElectronsTag = cfg.getParameter<edm::InputTag>("pflowGsfElectronsTag");
   inputCfg_.gsfElectronCores = cfg.getParameter<edm::InputTag>("gsfElectronCoresTag");
   inputCfg_.hcalTowersTag = cfg.getParameter<edm::InputTag>("hcalTowers") ;
   //inputCfg_.tracks_ = cfg.getParameter<edm::InputTag>("tracks");
@@ -152,7 +156,9 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   inputCfg_.ctfTracks = cfg.getParameter<edm::InputTag>("ctfTracksTag");
   inputCfg_.seedsTag = cfg.getParameter<edm::InputTag>("seedsTag"); // used to check config consistency with seeding
   inputCfg_.beamSpotTag = cfg.getParameter<edm::InputTag>("beamSpotTag") ;
+  inputCfg_.gsfPfRecTracksTag = cfg.getParameter<edm::InputTag>("gsfPfRecTracksTag") ;
 
+  strategyCfg_.useGsfPfRecTracks = cfg.getParameter<bool>("useGsfPfRecTracks") ;
   strategyCfg_.applyPreselection = cfg.getParameter<bool>("applyPreselection") ;
   strategyCfg_.applyEtaCorrection = cfg.getParameter<bool>("applyEtaCorrection") ;
   strategyCfg_.applyAmbResolution = cfg.getParameter<bool>("applyAmbResolution") ;

@@ -7,6 +7,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
@@ -43,36 +44,36 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
   // output
   std::auto_ptr<GsfElectronCoreCollection> electrons(new GsfElectronCoreCollection) ;
 
-  // additional input
-  edm::Handle<GsfElectronCoreCollection> edCoresH ;
-  event.getByLabel(edCoresTag_,edCoresH) ;
-  edm::Handle<SuperClusterCollection> pfClustersH ;
-  event.getByLabel(pfSuperClustersTag_,pfClustersH) ;
-  edm::Handle<edm::ValueMap<reco::SuperClusterRef> > pfClusterTracksH ;
-  event.getByLabel(pfSuperClusterTrackMapTag_,pfClusterTracksH) ;
+  // event input
+  event.getByLabel(edCoresTag_,edCoresH_) ;
+  event.getByLabel(pfSuperClustersTag_,pfClustersH_) ;
+  event.getByLabel(pfSuperClusterTrackMapTag_,pfClusterTracksH_) ;
 
   // loop on pure tracker driven tracks
-  const GsfTrackCollection * gsfTrackCollection = gsfTracksH_.product() ;
-  for ( unsigned int i=0 ; i<gsfTrackCollection->size() ; ++i )
+  if (useGsfPfRecTracks_)
    {
-    const GsfTrackRef gsfTrackRef = edm::Ref<GsfTrackCollection>(gsfTracksH_,i) ;
-    GsfElectronCore * ele = new GsfElectronCore(gsfTrackRef) ;
-
-    if (ele->ecalDrivenSeed())
-     { delete ele ; continue ; }
-
-    GsfElectronCoreBaseProducer::fillElectronCore(ele) ;
-
-    ele->setPflowSuperCluster((*pfClusterTracksH)[gsfTrackRef]) ;
-    if (!(ele->superCluster().isNull()))
-     { electrons->push_back(*ele) ; }
-    else
-     { LogDebug("GsfElectronCoreProducer")<<"GsfTrack with no associated CaloCluster." ; }
-    delete ele ;
+    const GsfPFRecTrackCollection * gsfPfRecTrackCollection = gsfPfRecTracksH_.product() ;
+    GsfPFRecTrackCollection::const_iterator gsfPfRecTrack ;
+    for ( gsfPfRecTrack=gsfPfRecTrackCollection->begin() ;
+          gsfPfRecTrack!=gsfPfRecTrackCollection->end() ;
+          ++gsfPfRecTrack )
+     {
+      const GsfTrackRef gsfTrackRef = gsfPfRecTrack->gsfTrackRef() ;
+      produceTrackerDrivenCore(gsfTrackRef,electrons.get()) ;
+     }
+   }
+  else
+   {
+    const GsfTrackCollection * gsfTrackCollection = gsfTracksH_.product() ;
+    for ( unsigned int i=0 ; i<gsfTrackCollection->size() ; ++i )
+     {
+      const GsfTrackRef gsfTrackRef = edm::Ref<GsfTrackCollection>(gsfTracksH_,i) ;
+      produceTrackerDrivenCore(gsfTrackRef,electrons.get()) ;
+     }
    }
 
   // clone and complete ecal driven electrons
-  const GsfElectronCoreCollection * edCoresCollection = edCoresH.product() ;
+  const GsfElectronCoreCollection * edCoresCollection = edCoresH_.product() ;
   GsfElectronCoreCollection::const_iterator edCoreIter ;
   for
    ( edCoreIter = edCoresCollection->begin() ;
@@ -81,12 +82,29 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
    {
     GsfElectronCore * eleCore = edCoreIter->clone() ;
     const GsfTrackRef & gsfTrackRef = eleCore->gsfTrack() ;
-    eleCore->setPflowSuperCluster((*pfClusterTracksH)[gsfTrackRef]) ;
+    eleCore->setPflowSuperCluster((*pfClusterTracksH_)[gsfTrackRef]) ;
     electrons->push_back(*eleCore) ;
     delete eleCore ;
    }
 
   event.put(electrons) ;
+ }
+
+void GsfElectronCoreProducer::produceTrackerDrivenCore( const GsfTrackRef & gsfTrackRef, GsfElectronCoreCollection * electrons )
+ {
+  GsfElectronCore * eleCore = new GsfElectronCore(gsfTrackRef) ;
+
+  if (eleCore->ecalDrivenSeed())
+   { delete eleCore ; return ; }
+
+  GsfElectronCoreBaseProducer::fillElectronCore(eleCore) ;
+
+  eleCore->setPflowSuperCluster((*pfClusterTracksH_)[gsfTrackRef]) ;
+  if (eleCore->superCluster().isNull())
+   { LogDebug("GsfElectronCoreProducer")<<"GsfTrack with no associated SuperCluster at all." ; }
+  else
+   { electrons->push_back(*eleCore) ; }
+  delete eleCore ;
  }
 
 GsfElectronCoreProducer::~GsfElectronCoreProducer()

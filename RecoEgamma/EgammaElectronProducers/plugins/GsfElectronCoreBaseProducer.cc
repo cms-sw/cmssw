@@ -7,8 +7,8 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 //#include "DataFormats/Common/interface/ValueMap.h"
@@ -19,15 +19,19 @@ using namespace reco ;
 
 void GsfElectronCoreBaseProducer::fillDescription( edm::ParameterSetDescription & desc )
  {
+  desc.add<edm::InputTag>("gsfPfRecTracks",edm::InputTag("pfTrackElec")) ;
   desc.add<edm::InputTag>("gsfTracks",edm::InputTag("electronGsfTracks")) ;
   desc.add<edm::InputTag>("ctfTracks",edm::InputTag("generalTracks")) ;
+  desc.add<bool>("useGsfPfRecTracks",true) ;
  }
 
 GsfElectronCoreBaseProducer::GsfElectronCoreBaseProducer( const edm::ParameterSet & config )
  {
   produces<GsfElectronCoreCollection>() ;
+  gsfPfRecTracksTag_ = config.getParameter<edm::InputTag>("gsfPfRecTracks") ;
   gsfTracksTag_ = config.getParameter<edm::InputTag>("gsfTracks") ;
-  ctfTracksTag_ = config.getParameter<edm::InputTag>("ctfTracks");
+  ctfTracksTag_ = config.getParameter<edm::InputTag>("ctfTracks") ;
+  useGsfPfRecTracks_ = config.getParameter<bool>("useGsfPfRecTracks") ;
  }
 
 GsfElectronCoreBaseProducer::~GsfElectronCoreBaseProducer()
@@ -41,6 +45,7 @@ GsfElectronCoreBaseProducer::~GsfElectronCoreBaseProducer()
 // to be called at the beginning of each new event
 void GsfElectronCoreBaseProducer::initEvent( edm::Event & event, const edm::EventSetup & setup )
  {
+  event.getByLabel(gsfPfRecTracksTag_,gsfPfRecTracksH_) ;
   event.getByLabel(gsfTracksTag_,gsfTracksH_) ;
   event.getByLabel(ctfTracksTag_,ctfTracksH_) ;
  }

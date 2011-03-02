@@ -13,6 +13,7 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
 
     # input collections
     previousGsfElectronsTag = cms.InputTag(""),
+    pflowGsfElectronsTag = cms.InputTag(""),
     gsfElectronCoresTag = cms.InputTag("ecalDrivenGsfElectronCores"),
     reducedBarrelRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     reducedEndcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
@@ -20,12 +21,14 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     pfMvaTag =  cms.InputTag("pfElectronTranslator:pf"),
     seedsTag = cms.InputTag("ecalDrivenElectronSeeds"),
     beamSpotTag = cms.InputTag("offlineBeamSpot"),
+    gsfPfRecTracksTag = cms.InputTag("pfTrackElec"),
     
     # backward compatibility mechanism for ctf tracks
     ctfTracksCheck = cms.bool(True),
     ctfTracksTag = cms.InputTag("generalTracks"),
     
     # steering
+    useGsfPfRecTracks = cms.bool(True),
     applyPreselection = cms.bool(False),
     applyEtaCorrection = cms.bool(False),
     applyAmbResolution = cms.bool(False),
@@ -150,6 +153,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
 
     # input collections
     previousGsfElectronsTag = cms.InputTag("ecalDrivenGsfElectrons"),
+    pflowGsfElectronsTag = cms.InputTag("pflowGsfElectrons"),
     gsfElectronCoresTag = cms.InputTag("gsfElectronCores"),
     hcalTowers = cms.InputTag("towerMaker"),
     reducedBarrelRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
@@ -157,12 +161,14 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     pfMvaTag =  cms.InputTag("pfElectronTranslator:pf"),
     seedsTag = cms.InputTag("ecalDrivenElectronSeeds"),
     beamSpotTag = cms.InputTag("offlineBeamSpot"),
+    gsfPfRecTracksTag = cms.InputTag("pfTrackElec"),
     
     # backward compatibility mechanism for ctf tracks
     ctfTracksCheck = cms.bool(True),
     ctfTracksTag = cms.InputTag("generalTracks"),
     
     # steering
+    useGsfPfRecTracks = cms.bool(True),
     applyPreselection = cms.bool(True),
     applyEtaCorrection = cms.bool(False),
     applyAmbResolution = cms.bool(True),
@@ -201,7 +207,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     isFiducial = cms.bool(False),
     seedFromTEC = cms.bool(True),
     maxTIP = cms.double(999999999.),
-    minMVA = cms.double(-0.4),
+    minMVA = cms.double(-0.1),
 
     # preselection parameters (tracker driven only electrons)    
     minSCEtBarrelPflow = cms.double(0.0),
@@ -231,7 +237,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     isEndcapsPflow = cms.bool(False),
     isFiducialPflow = cms.bool(False),
     maxTIPPflow = cms.double(999999999.),
-    minMVAPflow = cms.double(-0.4),
+    minMVAPflow = cms.double(-0.1),
     
     # Isolation algos configuration
     intRadiusBarrelTk = cms.double(0.015), 

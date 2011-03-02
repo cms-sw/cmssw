@@ -123,8 +123,8 @@ void GsfElectronProducer::checkPfTranslatorParameters( edm::ParameterSetID const
     // For pure tracker seeded electrons, if MVA is under translatorMinMva, there is no supercluster
     // of any kind available, so GsfElectronCoreProducer has already discarded the electron.
     edm::LogWarning("GsfElectronAlgo|MvaCutTooLow")
-      <<"Parameter minMVAPflow will have no effect on purely tracker seeded electrons."
-      <<" It is inferior to the cut already applied by PFlow translator." ;
+      <<"Parameter minMVAPflow ("<<cutsCfgPflow_.minMVA<<") will have no effect on purely tracker seeded electrons."
+      <<" It is inferior to the cut already applied by PFlow translator ("<<pfTranslatorMinMva<<")." ;
    }
   if (strategyCfg_.applyPreselection&&(cutsCfg_.minMVA<pfTranslatorMinMva))
    {
@@ -134,7 +134,7 @@ void GsfElectronProducer::checkPfTranslatorParameters( edm::ParameterSetID const
     if (cutsCfg_.minMVA>pfTranslatorUndefined)
      {
       edm::LogWarning("GsfElectronAlgo|IncompletePflowInformation")
-        <<"Parameter minMVA is inferior to the cut applied by PFlow translator."
+        <<"Parameter minMVA  ("<<cutsCfg_.minMVA<<")is inferior to the cut applied by PFlow translator ("<<pfTranslatorMinMva<<")."
         <<" Some ecal (and eventually tracker) seeded electrons may lack their MVA value and PFlow supercluster." ;
      }
     else
