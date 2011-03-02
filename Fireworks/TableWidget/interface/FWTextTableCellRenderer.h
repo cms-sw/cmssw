@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:50 EST 2009
-// $Id: FWTextTableCellRenderer.h,v 1.4.8.1 2011/02/11 19:42:16 amraktad Exp $
+// $Id: FWTextTableCellRenderer.h,v 1.5 2011/02/11 19:56:36 amraktad Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ class FWTextTableCellRenderer : public FWTableCellRendererBase {
    
 public:
    static const TGGC&  getDefaultGC();
-   static const TGGC&  getHighlightGC();  
+   static const TGGC&  getDefaultHighlightGC();  
    
    enum Justify {
       kJustifyLeft,
@@ -43,7 +43,7 @@ public:
    };
    
    FWTextTableCellRenderer(const TGGC* iContext=&(getDefaultGC()), 
-                           const TGGC* iHighlightContext=&(getHighlightGC()),
+                           const TGGC* iHighlightContext=&(getDefaultHighlightGC()),
                            Justify iJustify=kJustifyLeft);
    virtual ~FWTextTableCellRenderer();
    

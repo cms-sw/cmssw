@@ -19,7 +19,7 @@ protected:
 public:
 
    FWTextTreeCellRenderer(const TGGC* iContext = &(getDefaultGC()),
-                          const TGGC* iHighlightContext = &(getHighlightGC()),
+                          const TGGC* iHighlightContext = &(getDefaultHighlightGC()),
                           Justify iJustify = kJustifyLeft)
       : FWTextTableCellRenderer(iContext, iHighlightContext, iJustify),
         m_indentation(0),

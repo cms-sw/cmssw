@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:54 EST 2009
-// $Id: FWTextTableCellRenderer.cc,v 1.3.10.2 2011/02/11 19:42:16 amraktad Exp $
+// $Id: FWTextTableCellRenderer.cc,v 1.4 2011/02/11 19:56:37 amraktad Exp $
 //
 
 // system include files
@@ -154,7 +154,7 @@ FWTextTableCellRenderer::getDefaultGC()
 }
 
 const TGGC &
-FWTextTableCellRenderer::getHighlightGC()
+FWTextTableCellRenderer::getDefaultHighlightGC()
 {
    // Return graphics context for highlighted frame background.
    static const TGGC* s_default = 0;
