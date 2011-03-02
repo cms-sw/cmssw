@@ -158,7 +158,7 @@ def main():
             exit(usage)
         else:
             dbBase = "_LumiBased"
-    if len(sys.argv) == 4:
+    if len(sys.argv) >= 4:
         if not sys.argv[3] == "z":
             exit(usage)
         else:
@@ -192,7 +192,7 @@ def main():
     tagName = "BeamSpotObjects_2009" + dbBase + sigmaZ + "_v" + tagNumber + "_offline"
     print "Checking payloads for tag " + tagName
     listOfRunsAndLumi = {};
-    listOfRunsAndLumi = getListOfRunsAndLumiFromRR(-1);
+    #listOfRunsAndLumi = getListOfRunsAndLumiFromRR(-1);
     if(not listOfRunsAndLumi):
         listOfRunsAndLumi = getListOfRunsAndLumiFromFile(-1,"/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions10/7TeV/StreamExpress/Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON_v3.txt");
     tmpListOfIOVs = []

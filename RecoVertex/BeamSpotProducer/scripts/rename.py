@@ -2,8 +2,8 @@
 import sys,os,commands,re
 from CommonMethods import *
 def main():
-    sourcePath = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/Repro_2011Feb24/"
-#    sourcePath = "LatestRuns/"
+#    sourcePath = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/Repro_2011Feb24/"
+    sourcePath = "LatestRuns/"
 #    sourcePath = "Files/"
     sourceDirList = [sourcePath+"2010A",sourcePath+"2010B",sourcePath+"Commissioning10"]
     destDirList   = ["2010A","2010B","Commissioning10"]
