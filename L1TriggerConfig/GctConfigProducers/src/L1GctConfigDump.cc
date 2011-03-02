@@ -44,8 +44,8 @@ void L1GctConfigDump::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   edm::ESHandle< L1GctJetFinderParams > jfParams;
   iSetup.get< L1GctJetFinderParamsRcd >().get( jfParams ) ;
 
-//   edm::ESHandle< L1GctChannelMask > chanMask;
-//   iSetup.get< L1GctChannelMaskRcd >().get( chanMask ) ;
+  edm::ESHandle< L1GctChannelMask > chanMask;
+  iSetup.get< L1GctChannelMaskRcd >().get( chanMask ) ;
 
   edm::ESHandle< L1CaloEtScale > jetScale;
   iSetup.get< L1JetEtScaleRcd >().get( jetScale ) ;
@@ -56,11 +56,11 @@ void L1GctConfigDump::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   edm::ESHandle< L1CaloEtScale > hfRingScale;
   iSetup.get< L1HfRingEtScaleRcd >().get( hfRingScale ) ;
   
-  LogDebug("L1GctConfigDump") << (*jfParams) << std::endl;
-  //  LogDebug("L1GctConfigDump") << (*chanMask) << std::endl;
-  LogDebug("L1GctConfigDump") << "GCT jet Et scale : " << std::endl << (*jetScale) << std::endl;
-  LogDebug("L1GctConfigDump") << "GCT HtMiss scale : " << std::endl << (*htmScale) << std::endl;
-  LogDebug("L1GctConfigDump") << "GCT HF ring scale : " << std::endl << (*hfRingScale) << std::endl;
+  edm::LogInfo("L1GctConfigDump") << (*jfParams) << std::endl;
+  edm::LogInfo("L1GctConfigDump") << (*chanMask) << std::endl;
+  edm::LogInfo("L1GctConfigDump") << "GCT jet Et scale : " << std::endl << (*jetScale) << std::endl;
+  edm::LogInfo("L1GctConfigDump") << "GCT HtMiss scale : " << std::endl << (*htmScale) << std::endl;
+  edm::LogInfo("L1GctConfigDump") << "GCT HF ring scale : " << std::endl << (*hfRingScale) << std::endl;
 
 }
 
