@@ -10,6 +10,8 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
@@ -188,6 +190,7 @@ struct GsfElectronAlgo::EventData
 
   // input collections
   edm::Handle<reco::GsfElectronCollection> previousElectrons ;
+  edm::Handle<reco::GsfElectronCollection> pflowElectrons ;
   edm::Handle<reco::GsfElectronCoreCollection> coreElectrons ;
   edm::Handle<EcalRecHitCollection> reducedEBRecHits ;
   edm::Handle<EcalRecHitCollection> reducedEERecHits ;
@@ -195,6 +198,7 @@ struct GsfElectronAlgo::EventData
   edm::Handle<CaloTowerCollection> towers ;
   edm::Handle<edm::ValueMap<float> > pfMva ;
   edm::Handle<reco::ElectronSeedCollection> seeds ;
+  edm::Handle<reco::GsfPFRecTrackCollection> gsfPfRecTracks ;
   bool originalCtfTrackCollectionRetreived ;
   bool originalGsfTrackCollectionRetreived ;
   edm::Handle<reco::TrackCollection> originalCtfTracks ;
@@ -518,6 +522,41 @@ Candidate::LorentzVector GsfElectronAlgo::ElectronData::calculateMomentum()
      superClusterRef->energy() ) ;
  }
 
+void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClus, bool pflow, reco::GsfElectron::ShowerShape & showerShape )
+ {
+  const reco::CaloCluster & seedCluster = *(theClus->seed()) ;
+  // temporary, till CaloCluster->seed() is made available
+  DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
+  int detector = seedXtalId.subdetId() ;
+
+  const CaloTopology * topology = eventSetupData_->caloTopo.product() ;
+  const CaloGeometry * geometry = eventSetupData_->caloGeom.product() ;
+  const EcalRecHitCollection * reducedRecHits = 0 ;
+  if (detector==EcalBarrel)
+   { reducedRecHits = eventData_->reducedEBRecHits.product() ; }
+  else
+   { reducedRecHits = eventData_->reducedEERecHits.product() ; }
+
+  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,reducedRecHits,topology,geometry) ;
+  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,reducedRecHits,topology) ;
+  showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
+  showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
+  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,reducedRecHits,topology)  ;
+  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,reducedRecHits,topology)  ;
+  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,reducedRecHits,topology) ;
+
+  if (pflow)
+   {
+    showerShape.hcalDepth1OverEcal = generalData_->hcalHelperPflow->hcalESumDepth1(*theClus)/theClus->energy() ;
+    showerShape.hcalDepth2OverEcal = generalData_->hcalHelperPflow->hcalESumDepth2(*theClus)/theClus->energy() ;
+   }
+  else
+   {
+    showerShape.hcalDepth1OverEcal = generalData_->hcalHelper->hcalESumDepth1(*theClus)/theClus->energy() ;
+    showerShape.hcalDepth2OverEcal = generalData_->hcalHelper->hcalESumDepth2(*theClus)/theClus->energy() ;
+   }
+ }
+
 
 //===================================================================
 // GsfElectronAlgo
@@ -618,6 +657,7 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
   // init the handles linked to the current event
   eventData_->event = &event ;
   event.getByLabel(generalData_->inputCfg.previousGsfElectrons,eventData_->previousElectrons) ;
+  event.getByLabel(generalData_->inputCfg.pflowGsfElectronsTag,eventData_->pflowElectrons) ;
   event.getByLabel(generalData_->inputCfg.gsfElectronCores,eventData_->coreElectrons) ;
   event.getByLabel(generalData_->inputCfg.ctfTracks,eventData_->currentCtfTracks) ;
   event.getByLabel(generalData_->inputCfg.reducedBarrelRecHitCollection,eventData_->reducedEBRecHits) ;
@@ -625,6 +665,7 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
   event.getByLabel(generalData_->inputCfg.hcalTowersTag,eventData_->towers) ;
   event.getByLabel(generalData_->inputCfg.pfMVA,eventData_->pfMva) ;
   event.getByLabel(generalData_->inputCfg.seedsTag,eventData_->seeds) ;
+  event.getByLabel(generalData_->inputCfg.gsfPfRecTracksTag,eventData_->gsfPfRecTracks) ;
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle ;
@@ -787,10 +828,19 @@ void GsfElectronAlgo::addPflowInfo()
     GsfElectron::MvaOutput mvaOutput ;
     mvaOutput.mva = mva ;
     (*el)->setMvaOutput(mvaOutput) ;
-    //(*el)->setMva(mva) ;
 
     // Preselection
     setMvaPreselectionFlag(*el) ;
+
+    // Shower Shape of pflow cluster
+    if (!((*el)->pflowSuperCluster().isNull()))
+     {
+      reco::GsfElectron::ShowerShape pflowShowerShape ;
+      calculateShowerShape((*el)->pflowSuperCluster(),true,pflowShowerShape) ;
+      (*el)->setPfShowerShape(pflowShowerShape) ;
+     }
+    else if ((*el)->passingMvaPreselection())
+    { edm::LogError("GsfElectronCoreProducer")<<"Preselected tracker driven GsfTrack with no associated pflow SuperCluster." ; }
    }
  }
 
@@ -1029,32 +1079,7 @@ void GsfElectronAlgo::createElectron()
   //====================================================
 
   reco::GsfElectron::ShowerShape showerShape ;
-  const CaloTopology * topology = eventSetupData_->caloTopo.product() ;
-  const CaloGeometry * geometry = eventSetupData_->caloGeom.product() ;
-  const EcalRecHitCollection * reducedRecHits = 0 ;
-  if (fiducialFlags.isEB)
-   { reducedRecHits = eventData_->reducedEBRecHits.product() ; }
-  else
-   { reducedRecHits = eventData_->reducedEERecHits.product() ; }
-  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,reducedRecHits,topology,geometry) ;
-  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,reducedRecHits,topology) ;
-  showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
-  showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
-  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,reducedRecHits,topology)  ;
-  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,reducedRecHits,topology)  ;
-  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,reducedRecHits,topology) ;
-
-  reco::SuperClusterRef theClus = electronData_->superClusterRef ;
-  if (electronData_->coreRef->ecalDrivenSeed())
-   {
-    showerShape.hcalDepth1OverEcal = generalData_->hcalHelper->hcalESumDepth1(*theClus)/theClus->energy() ;
-    showerShape.hcalDepth2OverEcal = generalData_->hcalHelper->hcalESumDepth2(*theClus)/theClus->energy() ;
-   }
-  else
-   {
-    showerShape.hcalDepth1OverEcal = generalData_->hcalHelperPflow->hcalESumDepth1(*theClus)/theClus->energy() ;
-    showerShape.hcalDepth2OverEcal = generalData_->hcalHelperPflow->hcalESumDepth2(*theClus)/theClus->energy() ;
-   }
+  calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;
 
 
   //====================================================
@@ -1167,7 +1192,24 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
    {
     (*e1)->clearAmbiguousGsfTracks() ;
     (*e1)->setAmbiguous(false) ;
+    // eventually get ambiguous from GsfPfRecTracks
+    if (generalData_->strategyCfg.useGsfPfRecTracks)
+     {
+      const GsfPFRecTrackCollection * gsfPfRecTrackCollection = eventData_->gsfPfRecTracks.product() ;
+      GsfPFRecTrackCollection::const_iterator gsfPfRecTrack ;
+      for ( gsfPfRecTrack=gsfPfRecTrackCollection->begin() ;
+            gsfPfRecTrack!=gsfPfRecTrackCollection->end() ;
+            ++gsfPfRecTrack )
+       {
+        const GsfTrackRef gsfTrackRef = gsfPfRecTrack->gsfTrackRef() ;
+        if (gsfTrackRef==(*e1)->gsfTrack())
+         {
+          std::cout<<"FOUND for "<<(*e1)<<": "<<(&*gsfPfRecTrack)<<std::endl ;
+         }
+       }
+     }
    }
+
 
   // resolve when e/g SC is found
   for
