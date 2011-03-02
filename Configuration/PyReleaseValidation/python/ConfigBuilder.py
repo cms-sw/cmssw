@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.299 $"
+__version__ = "$Revision: 1.300 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -775,12 +775,6 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def prepare_ALCAPRODUCER(self, sequence = None):
-        self.prepare_ALCA(sequence, workflow = "producers")
-
-    def prepare_ALCAOUTPUT(self, sequence = None):
-        self.prepare_ALCA(sequence, workflow = "output")
-
     def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF):
             if ( len(sequence.split('.'))==1 ):
                     l=self.loadAndRemember(defaultCFF)
@@ -820,22 +814,32 @@ class ConfigBuilder(object):
 	    self.scheduleSequence(seq,prefix,what='EndPath')
 	    return
 	    
+    def prepare_ALCAPRODUCER(self, sequence = None):
+        self.prepare_ALCA(sequence, workflow = "producers")
+
+    def prepare_ALCAOUTPUT(self, sequence = None):
+        self.prepare_ALCA(sequence, workflow = "output")
+
     def prepare_ALCA(self, sequence = None, workflow = 'full'):
         """ Enrich the process with alca streams """
         alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
         sequence = sequence.split('.')[-1]
 
         # decide which ALCA paths to use
-        alcaList = []
-        for specifiedCommand in sequence.split("+"):
-                if specifiedCommand[0]=="@":
-                        from Configuration.PyReleaseValidation.autoAlca import autoAlca
-                        location=specifiedCommand[1:]
-                        alcaSequence = autoAlca[location]
-                        alcaList.extend(alcaSequence.split('+'))
-                else:
-                        alcaList.append(specifiedCommand)
-
+        alcaList = sequence.split("+")
+	maxLevel=0
+	from Configuration.PyReleaseValidation.autoAlca import autoAlca
+	# support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
+	while '@' in repr(alcaList) and maxLevel<10:
+		maxLevel+=1
+		for specifiedCommand in alcaList:
+			if specifiedCommand[0]=="@":
+				location=specifiedCommand[1:]
+				alcaSequence = autoAlca[location]
+				alcaList.remove(specifiedCommand)
+				alcaList.extend(alcaSequence.split('+'))
+				break
+	
         for name in alcaConfig.__dict__:
             alcastream = getattr(alcaConfig,name)
             shortName = name.replace('ALCARECOStream','')
@@ -848,12 +852,13 @@ class ConfigBuilder(object):
 				output.outputCommands.append("keep *_MEtoEDMConverter_*_*")
 			
                 #rename the HLT process name in the alca modules
-                if self._options.hltProcess:
+                if self._options.hltProcess or 'HLT' in self.stepMap:
                         if isinstance(alcastream.paths,tuple):
                                 for path in alcastream.paths:
-                                        self.renameHLTprocessInSequence(path.label(),self._options.hltProcess)
+                                        self.renameHLTprocessInSequence(path.label())
                         else:
-                                self.renameHLTprocessInSequence(alcastream.paths.label(),self._options.hltProcess)
+                                self.renameHLTprocessInSequence(alcastream.paths.label())
+				
                 for i in range(alcaList.count(shortName)):
                         alcaList.remove(shortName)
 
@@ -1150,12 +1155,9 @@ class ConfigBuilder(object):
                     self.loadAndRemember('Configuration.StandardSequences.ReMixingSeeds_cff')
             #rename the HLT process in validation steps
 	    if ('HLT' in self.stepMap and not 'FASTSIM' in self.stepMap) or self._options.hltProcess:
-                    toProcess=self.process.name_()
-                    if self._options.hltProcess:
-                            toProcess=self._options.hltProcess
-                    self.renameHLTprocessInSequence(valSeqName, toProcess)
+		    self.renameHLTprocessInSequence(valSeqName)
                     if prevalSeqName:
-                            self.renameHLTprocessInSequence(prevalSeqName, toProcess)
+                            self.renameHLTprocessInSequence(prevalSeqName)
 
             if prevalSeqName:
                     self.process.prevalidation_step = cms.Path( getattr(self.process, prevalSeqName ) )
@@ -1232,7 +1234,12 @@ class ConfigBuilder(object):
                     pass
 
     #change the process name used to address HLT results in any sequence
-    def renameHLTprocessInSequence(self,sequence,proc,HLTprocess='HLT'):
+    def renameHLTprocessInSequence(self,sequence,proc=None,HLTprocess='HLT'):
+	    if self._options.hltProcess:
+		    proc=self._options.hltProcess
+	    else:
+		    proc=self.process.name_()
+	    if proc==HLTprocess:    return
             # look up all module in dqm sequence
             print "replacing %s process name - sequence %s will use '%s'" % (HLTprocess,sequence, proc)
             getattr(self.process,sequence).visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor(HLTprocess,proc,whitelist = ("subSystemFolder",)))
@@ -1247,12 +1254,8 @@ class ConfigBuilder(object):
         self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
         sequence=sequence.split('.')[-1]
 
-        if self._options.hltProcess:
-                # if specified, change the process name used to acess the HLT results in the [HLT]DQM sequence
-                self.renameHLTprocessInSequence(sequence, self._options.hltProcess)
-        elif 'HLT' in self.stepMap.keys():
-                # otherwise, if both HLT and DQM are run in the same process, change the DQM process name to the current process name
-                self.renameHLTprocessInSequence(sequence, self.process.name_())
+	if 'HLT' in self.stepMap.keys() or self._options.hltProcess:
+		self.renameHLTprocessInSequence(sequence)
 
         # if both HLT and DQM are run in the same process, schedule [HLT]DQM in an EndPath
         if 'HLT' in self.stepMap.keys():
@@ -1378,7 +1381,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.299 $"),
+                                            (version=cms.untracked.string("$Revision: 1.300 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
