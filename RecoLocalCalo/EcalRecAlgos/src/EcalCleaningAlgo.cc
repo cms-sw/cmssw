@@ -1,6 +1,6 @@
 /* Implementation of class EcalCleaningAlgo
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.cc,v 1.3 2011/01/31 15:03:56 argiro Exp $
+   \version $Id: EcalCleaningAlgo.cc,v 1.4 2011/03/02 14:37:50 argiro Exp $
    \date 20 Dec 2010
 */    
 
@@ -107,6 +107,9 @@ EcalCleaningAlgo::checkTopology(const DetId& id,
 
 
   // now for double spikes
+ 
+  // no checking for double spikes in EE
+  if( id.subdetId() == EcalEndcap) return EcalRecHit::kGood;
 
   float e6e2value = e6e2(id,rhs);
   float e6e2thresh = e6e2thresh_ ;
