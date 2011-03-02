@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:50 CET 2011
-// $Id: FWPSetTableManager.h,v 1.2 2011/02/28 19:24:05 amraktad Exp $
+// $Id: FWPSetTableManager.h,v 1.3 2011/02/28 20:37:39 amraktad Exp $
 //
 
 // system include files
@@ -98,7 +98,7 @@ public:
 
    virtual void implSort(int, bool);
 
-   virtual void sortWithFilter(const char *filter);
+   virtual void updateFilter(const char *filter);
 
    std::vector<PSetData> &data()  { return m_entries; }
    std::vector<int> &rowToIndex() { return m_row_to_index; }

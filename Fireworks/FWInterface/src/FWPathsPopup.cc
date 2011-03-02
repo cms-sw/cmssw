@@ -166,7 +166,7 @@ FWPathsPopup::newIndexSelected(int iSelectedRow, int iSelectedColumn)
    if (iSelectedRow == -1)
       return;
 
-   m_psTable->sortWithFilter(m_search->GetText());
+   //   m_psTable->sortWithFilter(m_search->GetText()); AMT commeted out
    m_psTable->dataChanged();
 }
 
@@ -175,7 +175,7 @@ FWPathsPopup::updateFilterString(const char *str)
 {
    m_psTable->applyEditor();
    m_psTable->setSelection(-1, -1, 0);
-   m_psTable->sortWithFilter(str);
+   m_psTable->updateFilter(str);
 }
 
 /** Finish the setup of the GUI */

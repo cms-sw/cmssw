@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.4 2011/03/01 12:06:34 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.5 2011/03/02 11:17:26 amraktad Exp $
 //
 
 #include <map>
@@ -245,10 +245,65 @@ void FWPSetTableManager::createVectorString(FWPSetTableManager::PSetData &data, 
    m_entries.push_back(data);
 }
 
-void FWPSetTableManager::sortWithFilter(const char *filter)
+void FWPSetTableManager::updateFilter(const char *filter)
 {
    m_filter = filter;
-   sort(-1, true);
+
+   // Decide whether or not items match the filter.
+   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+   {
+      PSetData &data = m_entries[i];
+
+      // First of all decide whether or not we match
+      // the filter.
+      if (strstr(data.label.c_str(), m_filter.c_str()))
+         data.matches = true;
+      else
+         data.matches = false;
+   }
+
+   // We reset whether or not a given parent has children that match the
+   // filter, and we recompute the whole information by checking all the
+   // children.
+   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+      m_entries[i].childMatches = false;
+
+   std::vector<int> stack;
+   int previousLevel = 0;
+   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+   {
+      PSetData &data = m_entries[i];
+      // Top level.
+      if (data.parent == (size_t)-1)
+      {
+         previousLevel = 0;
+         continue;
+      }
+      // If the level is greater than the previous one,
+      // it means we are among the children of the 
+      // previous level, hence we push the parent to
+      // the stack.
+      // If the level is not greater than the previous
+      // one it means we have popped out n levels of
+      // parents, where N is the difference between the 
+      // new and the old level. In this case we
+      // pop up N parents from the stack.
+      if (data.level > previousLevel)
+         stack.push_back(data.parent);
+      else
+         for (size_t pi = 0, pe = previousLevel - data.level; pi != pe; ++pi)
+            stack.pop_back();
+ 
+      if (data.matches)
+         for (size_t pi = 0, pe = stack.size(); pi != pe; ++pi)
+            m_entries[stack[pi]].childMatches = true;
+
+      previousLevel = data.level;
+   }
+       
+   recalculateVisibility();
+
+
    dataChanged();
 }
 
@@ -543,6 +598,8 @@ void FWPSetTableManager::updateSchedule(const edm::ScheduleInfo *info)
    for (size_t i = 0, e = m_entries.size(); i != e; ++i)
       m_entries[i].expanded = false;
    m_filter = "";
+
+   recalculateVisibility();
 }
 
 
@@ -639,7 +696,7 @@ bool FWPSetTableManager::applyEditor()
 
 //==============================================================================
 //==============================================================================
-//========  TABLE UI MNG (virutals FWViewManagerBase virtuals, etc.)   =========
+//========  TABLE UI MNG (virutals FWTableManagerBase virtuals, etc.)   =========
 //==============================================================================
 //==============================================================================
 
@@ -690,7 +747,11 @@ std::vector<std::string> FWPSetTableManager::getTitles() const
    returnValue.push_back("Value");
    return returnValue;
 }
-  
+
+void FWPSetTableManager::implSort(int, bool)
+{
+}
+
 FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, int iCol) const
 {
    // If the index is outside the table, we simply return an empty cell.
@@ -798,65 +859,6 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
 
    return renderer;
 }
-
-void FWPSetTableManager::implSort(int, bool)
-{
-   // Decide whether or not items match the filter.
-   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-   {
-      PSetData &data = m_entries[i];
-      // First of all decide whether or not we match
-      // the filter.
-      if (m_filter.empty())
-         data.matches = false;
-      else if (strstr(data.label.c_str(), m_filter.c_str()))
-         data.matches = true;
-      else
-         data.matches = false;
-   }
-
-   // We reset whether or not a given parent has children that match the
-   // filter, and we recompute the whole information by checking all the
-   // children.
-   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-      m_entries[i].childMatches = false;
-
-   std::vector<int> stack;
-   int previousLevel = 0;
-   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-   {
-      PSetData &data = m_entries[i];
-      // Top level.
-      if (data.parent == (size_t)-1)
-      {
-         previousLevel = 0;
-         continue;
-      }
-      // If the level is greater than the previous one,
-      // it means we are among the children of the 
-      // previous level, hence we push the parent to
-      // the stack.
-      // If the level is not greater than the previous
-      // one it means we have popped out n levels of
-      // parents, where N is the difference between the 
-      // new and the old level. In this case we
-      // pop up N parents from the stack.
-      if (data.level > previousLevel)
-         stack.push_back(data.parent);
-      else
-         for (size_t pi = 0, pe = previousLevel - data.level; pi != pe; ++pi)
-            stack.pop_back();
- 
-      if (data.matches)
-         for (size_t pi = 0, pe = stack.size(); pi != pe; ++pi)
-            m_entries[stack[pi]].childMatches = true;
-
-      previousLevel = data.level;
-   }
-       
-   recalculateVisibility();
-}
-
 
 void FWPSetTableManager::recalculateVisibility()
 {
