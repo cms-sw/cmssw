@@ -87,13 +87,11 @@ ${EVAL}/%/correlations.png: ./training_control_plots.py ${DB}/%.db
 #################################################################
 #  Running the actual training - depends on MVA definition and samples
 #################################################################
-${DB}/%.db: ${XML}/%.xml signalfiles.list backgroundfiles.list trainMVA_cfg.py
+${DB}/%.db: ${XML}/%.xml signalfiles.list backgroundfiles.list train_cfg.py
 	mkdir -p ${DB}
 	mkdir -p ${LOG}
 	rm -f ${LOG}/${@F}.log
-	nice cmsRun trainMVA_cfg.py xml=$< \
-	  tracks=`echo $< | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0.*.xml|\1|"` \
-	  pizeros=`echo $< | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0.*.xml|\2|"` \
+	nice cmsRun train_cfg.py xml=$< \
 	  inputFiles_load=signalfiles.list \
 	  inputFiles_load=backgroundfiles.list \
 	  outputFile=${DB}/$(@F).temp.db >& ${LOG}/$(@F).log

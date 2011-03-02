@@ -26,6 +26,14 @@ options.parseArguments()
 _computer_name = os.path.basename(os.path.splitext(options.xml)[0])
 print _computer_name
 
+decay_mode_map = {
+    '1prong0pi0' : 0,
+    '1prong1pi0' : 1,
+    '1prong2pi0' : 2,
+    '3prong0pi0' : 10,
+}
+_decay_mode = decay_mode_map[_computer_name]
+
 process = cms.Process("TrainMVA")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -84,8 +92,10 @@ from RecoTauTag.RecoTau.RecoTauDiscriminantConfiguration import \
 
 process.trainer = cms.EDAnalyzer(
     "RecoTauMVATrainer",
-    signalSrc = cms.InputTag("signalTaus"),
-    backgroundSrc = cms.InputTag("backgroundTaus"),
+    signalSrc = cms.InputTag(
+        "selectedHpsTancTrainTausDecayMode%iSignal" % _decay_mode),
+    backgroundSrc = cms.InputTag(
+        "selectedHpsTancTrainTausDecayMode%iBackground" % _decay_mode),
     computerName = cms.string(_computer_name),
     dbLabel = cms.string("trainer"),
     discriminantOptions = discriminantConfiguration
