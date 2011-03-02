@@ -199,7 +199,7 @@ recoMuonVMuAssoc_trk.muonLabel = 'muons'
 recoMuonVMuAssoc_trk.simLabel = 'mergedtruth:MergedTrackTruth'
 recoMuonVMuAssoc_trk.muAssocLabel = 'muonAssociatorByHits_NoSimHits_tracker'
 recoMuonVMuAssoc_trk.trackType = 'inner'
-recoMuonVMuAssoc_trk.muonSelection = 'isTrackerMuon'
+recoMuonVMuAssoc_trk.selection = "isTrackerMuon"
 
 #tracker from PF
 muonAssociatorByHitsESProducerNoSimHits_trkPF = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
@@ -212,7 +212,7 @@ recoMuonVMuAssoc_trkPF.muonLabel = 'recoMuonFromPFProducer'
 recoMuonVMuAssoc_trkPF.simLabel = 'mergedtruth:MergedTrackTruth'
 recoMuonVMuAssoc_trkPF.muAssocLabel = 'muonAssociatorByHits_NoSimHits_trackerPF'
 recoMuonVMuAssoc_trkPF.trackType = 'inner'
-recoMuonVMuAssoc_trkPF.muonSelection = 'isTrackerMuon'
+recoMuonVMuAssoc_trkPF.selection = "isTrackerMuon"
 
 #standalone
 muonAssociatorByHitsESProducerNoSimHits_sta = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
@@ -225,7 +225,7 @@ recoMuonVMuAssoc_sta.muonLabel = 'muons'
 recoMuonVMuAssoc_sta.simLabel = 'mergedtruth:MergedTrackTruth'
 recoMuonVMuAssoc_sta.muAssocLabel = 'muonAssociatorByHits_NoSimHits_standalone'
 recoMuonVMuAssoc_sta.trackType = 'outer'
-recoMuonVMuAssoc_sta.muonSelection = 'isStandAloneMuon'
+recoMuonVMuAssoc_sta.selection = "isStandAloneMuon"
 
 #standalone from PF
 muonAssociatorByHitsESProducerNoSimHits_staPF = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
@@ -238,7 +238,7 @@ recoMuonVMuAssoc_staPF.muonLabel = 'recoMuonFromPFProducer'
 recoMuonVMuAssoc_staPF.simLabel = 'mergedtruth:MergedTrackTruth'
 recoMuonVMuAssoc_staPF.muAssocLabel = 'muonAssociatorByHits_NoSimHits_standalonePF'
 recoMuonVMuAssoc_staPF.trackType = 'outer'
-recoMuonVMuAssoc_staPF.muonSelection = 'isStandAloneMuon'
+recoMuonVMuAssoc_staPF.selection = "isStandAloneMuon"
 
 #global
 muonAssociatorByHitsESProducerNoSimHits_glb = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
@@ -251,7 +251,7 @@ recoMuonVMuAssoc_glb.muonLabel = 'muons'
 recoMuonVMuAssoc_glb.simLabel = 'mergedtruth:MergedTrackTruth'
 recoMuonVMuAssoc_glb.muAssocLabel = 'muonAssociatorByHits_NoSimHits_global'
 recoMuonVMuAssoc_glb.trackType = 'global'
-recoMuonVMuAssoc_glb.muonSelection = 'isGlobalMuon'
+recoMuonVMuAssoc_glb.selection = "isGlobalMuon"
 
 #global from PF
 muonAssociatorByHitsESProducerNoSimHits_glbPF = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
@@ -264,8 +264,7 @@ recoMuonVMuAssoc_glbPF.muonLabel = 'recoMuonFromPFProducer'
 recoMuonVMuAssoc_glbPF.simLabel = 'mergedtruth:MergedTrackTruth'
 recoMuonVMuAssoc_glbPF.muAssocLabel = 'muonAssociatorByHits_NoSimHits_globalPF'
 recoMuonVMuAssoc_glbPF.trackType = 'global'
-recoMuonVMuAssoc_glbPF.muonSelection = 'isGlobalMuon'
-
+recoMuonVMuAssoc_glbPF.selection = "isGlobalMuon"
 
 # Muon validation sequence
 muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc
