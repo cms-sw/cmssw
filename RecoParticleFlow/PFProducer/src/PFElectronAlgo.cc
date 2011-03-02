@@ -2410,11 +2410,6 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	  temp_Candidate.addElementInBlock(blockRef,elementsToAdd[elad]);
 	}
 
-	if(BDToutput_[cgsf] >=  mvaEleCut_) 
-	  elCandidate_.push_back(temp_Candidate);
-
-	// now the special candidate for e/gamma & taus 
-	reco::PFCandidate extendedElCandidate(temp_Candidate);
 	// now add the photons to this candidate
 	std::map<unsigned int, std::vector<reco::PFCandidate> >::const_iterator itcluster=
 	  electronConstituents_.find(cgsf);
@@ -2425,15 +2420,13 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	    //	    std::cout << " PFElectronAlgo " << nclus << " daugthers to add" << std::endl;
 	    for(unsigned iclus=0;iclus<nclus;++iclus)
 	      {
-		extendedElCandidate.addDaughter(theClusters[iclus]);
+		temp_Candidate.addDaughter(theClusters[iclus]);
 	      }
 	  }
-//	else
-//	  {
-//	    std::cout << " Did not find any photon connected to " <<cgsf << std::endl;
-//	  }
 	
-	allElCandidate_.push_back(extendedElCandidate);
+	if(BDToutput_[cgsf] >=  mvaEleCut_)
+	  elCandidate_.push_back(temp_Candidate);
+	allElCandidate_.push_back(temp_Candidate);
 	
       }
       else {
