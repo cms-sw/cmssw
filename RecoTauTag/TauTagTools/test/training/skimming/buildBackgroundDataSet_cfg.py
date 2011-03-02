@@ -287,9 +287,14 @@ process.backgroundJetsCollimationCut = cms.EDFilter(
     filter = cms.bool(True),
 )
 
-process.preselectedBackgroundJets = cms.EDProducer(
+process.preselectedBackgroundJetRefs = cms.EDProducer(
     "PFJetRefsCastFromCandView",
     src = cms.InputTag("backgroundJetsLeadObject"),
+)
+
+process.preselectedBackgroundJets = cms.EDProducer(
+    "PFJetCopyProducer",
+    src = cms.InputTag("preselectedBackgroundJetRefs"),
 )
 
 # Build pizeros for our final jet collection
@@ -310,6 +315,7 @@ process.preselectBackgroundJets = cms.Sequence(
     process.backgroundJetsLeadObject *
     process.plotBackgroundJetsLeadObject *
     #process.backgroundJetsCollimationCut *
+    process.preselectedBackgroundJetRefs *
     process.preselectedBackgroundJets *
     process.plotPreselectedBackgroundJets
 )
@@ -333,32 +339,44 @@ process.buildTaus = cms.Sequence(process.recoTauPileUpVertices)
 # Remove all the extra discriminants from the HPS tanc tau sequence
 process.recoTauHPSTancSequence.remove(process.hpsTancTauDiscriminantSequence)
 process.recoTauHPSTancSequence.remove(process.recoTauPileUpVertices)
+process.recoTauHPSTancSequence.remove(process.pfRecoTauTagInfoProducer)
+process.recoTauHPSTancSequence.remove(process.ak5PFJetTracksAssociatorAtVertex)
+
+nModifiers = len(process.combinatoricRecoTaus.modifiers)
+for iMod in range(nModifiers):
+    if process.combinatoricRecoTaus.modifiers[iMod].name.value() == "TTIworkaround":
+        del process.combinatoricRecoTaus.modifiers[iMod]
+        break
+process.hpsTancTaus.src = "combinatoricRecoTaus"
+
+# Select taus that pass the decay mode finding
+process.hpsTancTausPassingDecayMode = cms.EDFilter(
+    "RecoTauDiscriminatorRefSelector",
+    src = cms.InputTag("hpsTancTaus"),
+    discriminator = cms.InputTag(
+        "hpsTancTausDiscriminationByDecayModeSelection"),
+    cut = cms.double(0.5),
+    filter = cms.bool(False)
+)
+process.recoTauHPSTancSequence += process.hpsTancTausPassingDecayMode
 
 # Add selectors for the different decay modes
 for decayMode in [0, 1, 2, 10]:
-    selectorName = "selectedHpsTancTausDecayMode%i" % decayMode
+    selectorName = "selectedHpsTancTrainTausDecayMode%i" % decayMode
     setattr(process, selectorName, cms.EDFilter(
         "PFTauViewRefSelector",
-        src = cms.InputTag("hpsTancTaus"),
+        src = cms.InputTag("hpsTancTausPassingDecayMode"),
         cut = cms.string("decayMode = %i" % decayMode),
         filter = cms.bool(False)
     ))
     process.recoTauHPSTancSequence += getattr(process, selectorName)
 
-# Make copies of the signal and background tau production sequences
-configtools.cloneProcessingSnippet(
-    process, process.recoTauHPSTancSequence, "Signal")
-configtools.massSearchReplaceAnyInputTag(
-    process.recoTauHPSTancSequenceSignal,
-    cms.InputTag("ak5PFJets"), cms.InputTag("preselectedSignalJets")
-)
 configtools.cloneProcessingSnippet(
     process, process.recoTauHPSTancSequence, "Background")
 configtools.massSearchReplaceAnyInputTag(
-    process.recoTauHPSTancSequenceSignal,
+    process.recoTauHPSTancSequenceBackground,
     cms.InputTag("ak5PFJets"), cms.InputTag("preselectedBackgroundJets")
 )
-process.buildTaus += process.recoTauHPSTancSequenceSignal
 process.buildTaus += process.recoTauHPSTancSequenceBackground
 
 # Final path

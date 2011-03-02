@@ -40,10 +40,12 @@ process.source = cms.Source("PoolSource", fileNames = readFiles,
 
 #dbs search --noheader --query="find file where primds=RelValZTT and release=$CMSSW_VERSION and tier=GEN-SIM-RECO"  | sed "s|.*|\"&\",|"
 readFiles.extend([
-    "/store/relval/CMSSW_4_2_0_pre5/RelValZTT/GEN-SIM-RECO/START42_V3-v1/0012/660F19A0-EE3C-E011-98EB-00304867BFF2.root",
-    "/store/relval/CMSSW_4_2_0_pre5/RelValZTT/GEN-SIM-RECO/START42_V3-v1/0009/D69C93FC-603C-E011-9361-003048678FE4.root",
-    "/store/relval/CMSSW_4_2_0_pre5/RelValZTT/GEN-SIM-RECO/START42_V3-v1/0009/6878D54B-7B3C-E011-8CB0-003048678DD6.root",
-    "/store/relval/CMSSW_4_2_0_pre5/RelValZTT/GEN-SIM-RECO/START42_V3-v1/0009/560FF905-5F3C-E011-A09A-001A92811726.root",
+"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0001/22F9F1AF-9B3D-E011-BCE8-001A928116D0.root",
+"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/AE9602D6-593D-E011-A106-0030486790FE.root",
+"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/74B5926B-543D-E011-A7B9-0026189438AC.root",
+"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/223E536A-543D-E011-BED7-003048678B3C.root",
+"/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/00E71A68-533D-E011-97EE-002618943934.root",
+
 ])
 
 # Load standard services
@@ -174,9 +176,13 @@ process.signalJetsCollimationCut = cms.EDFilter(
     filter = cms.bool(True),
 )
 
-process.preselectedSignalJets = cms.EDProducer(
+process.preselectedSignalJetRefs = cms.EDProducer(
     "PFJetRefsCastFromCandView",
     src = cms.InputTag("signalJetsLeadObject"),
+)
+process.preselectedSignalJets = cms.EDProducer(
+    "PFJetCopyProducer",
+    src = cms.InputTag("preselectedSignalJetRefs")
 )
 
 process.plotPreselectedSignalJets = cms.EDAnalyzer(
@@ -201,9 +207,14 @@ process.backgroundJetRefs = cms.EDFilter(
     filter = cms.bool(False)
 )
 
-process.preselectedBackgroundJets = cms.EDProducer(
+process.preselectedBackgroundJetRefs = cms.EDProducer(
     "PFJetRefsCastFromCandView",
     src = cms.InputTag("backgroundJetRefs"),
+)
+
+process.preselectedBackgroundJets = cms.EDProducer(
+    "PFJetCopyProducer",
+    src = cms.InputTag("preselectedBackgroundJetRefs"),
 )
 
 process.backgroundJetsRecoTauPiZeros = process.signalJetsRecoTauPiZeros.clone(
@@ -212,8 +223,8 @@ process.backgroundJetsRecoTauPiZeros = process.signalJetsRecoTauPiZeros.clone(
 
 process.addFakeBackground = cms.Sequence(
     process.backgroundJetRefs *
+    process.preselectedBackgroundJetRefs*
     process.preselectedBackgroundJets
-    #process.backgroundJetsRecoTauPiZeros
 )
 
 # Add a flag to the event to keep track of event type
@@ -235,13 +246,33 @@ process.buildTaus = cms.Sequence(process.recoTauPileUpVertices)
 # Remove all the extra discriminants from the HPS tanc tau sequence
 process.recoTauHPSTancSequence.remove(process.hpsTancTauDiscriminantSequence)
 process.recoTauHPSTancSequence.remove(process.recoTauPileUpVertices)
+process.recoTauHPSTancSequence.remove(process.pfRecoTauTagInfoProducer)
+process.recoTauHPSTancSequence.remove(process.ak5PFJetTracksAssociatorAtVertex)
+
+nModifiers = len(process.combinatoricRecoTaus.modifiers)
+for iMod in range(nModifiers):
+    if process.combinatoricRecoTaus.modifiers[iMod].name.value() == "TTIworkaround":
+        del process.combinatoricRecoTaus.modifiers[iMod]
+        break
+process.hpsTancTaus.src = "combinatoricRecoTaus"
+
+# Select taus that pass the decay mode finding
+process.hpsTancTausPassingDecayMode = cms.EDFilter(
+    "RecoTauDiscriminatorRefSelector",
+    src = cms.InputTag("hpsTancTaus"),
+    discriminator = cms.InputTag(
+        "hpsTancTausDiscriminationByDecayModeSelection"),
+    cut = cms.double(0.5),
+    filter = cms.bool(False)
+)
+process.recoTauHPSTancSequence += process.hpsTancTausPassingDecayMode
 
 # Add selectors for the different decay modes
 for decayMode in [0, 1, 2, 10]:
-    selectorName = "selectedHpsTancTausDecayMode%i" % decayMode
+    selectorName = "selectedHpsTancTrainTausDecayMode%i" % decayMode
     setattr(process, selectorName, cms.EDFilter(
         "PFTauViewRefSelector",
-        src = cms.InputTag("hpsTancTaus"),
+        src = cms.InputTag("hpsTancTausPassingDecayMode"),
         cut = cms.string("decayMode = %i" % decayMode),
         filter = cms.bool(False)
     ))
@@ -257,7 +288,7 @@ configtools.massSearchReplaceAnyInputTag(
 configtools.cloneProcessingSnippet(
     process, process.recoTauHPSTancSequence, "Background")
 configtools.massSearchReplaceAnyInputTag(
-    process.recoTauHPSTancSequenceSignal,
+    process.recoTauHPSTancSequenceBackground,
     cms.InputTag("ak5PFJets"), cms.InputTag("preselectedBackgroundJets")
 )
 process.buildTaus += process.recoTauHPSTancSequenceSignal
@@ -276,6 +307,7 @@ process.selectSignal = cms.Path(
     process.signalJetsLeadObject *
     process.plotSignalJetsLeadObject *
     #process.signalJetsCollimationCut *
+    process.preselectedSignalJetRefs *
     process.preselectedSignalJets *
     process.plotPreselectedSignalJets *
     #process.signalJetsRecoTauPiZeros *
