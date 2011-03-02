@@ -78,7 +78,8 @@ columns:
           trgcount(uint32),     NOT NULL
           deadtime(uint64),     NOT NULL //deadtimebeamactive 
           prescale(uint32),     NOT NULL
-
+	  
+	  alter table trg add constraint trg_unique UNIQUE( runnum,cmslsnum,bitnum);
 ======
 table 5: HLT (insert n-hltpath rows per run+cmsls/populate from RunInfo-HLT)
          hlt_id(uint64, PK),    NOT NULL
