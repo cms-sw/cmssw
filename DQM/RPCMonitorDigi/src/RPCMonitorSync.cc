@@ -7,7 +7,10 @@
  *
  * \author Piotr Traczyk
  */
+
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorSync.h>
+
+
 
 // RPC Digi
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
@@ -266,7 +269,7 @@ void RPCMonitorSync::readRPCDAQStrips(const edm::Event& iEvent) {
 
 void RPCMonitorSync::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
   
-   edm::LogInfo (nameInLog) << "Beginning analyzing event " << counter++;
+  edm::LogInfo (nameInLog) << "Beginning analyzing event " << counter++;
 
    //   time_t aTime = iEvent.time().value();
 

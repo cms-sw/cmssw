@@ -1,9 +1,9 @@
 /** \class RPCEfficiency
  *
- * Class for RPC Monitoring: uses RPCDigi and DT and CSC Segments.
+ * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2010/09/20 14:39:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/13 11:25:57 $
+ *  $Revision: 1.2 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -15,26 +15,28 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/DTGeometry/interface/DTGeometry.h>
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
 #include<string>
 #include<map>
 #include<fstream>
 
-class RPCDetId;
-class TFile;
-class TH1F;
-class TFile;
-class TCanvas;
-class TH2F;
-class TString;
+//class RPCDetId;
+/* class TFile; */
+/* class TH1F; */
+/* class TFile; */
+/* class TCanvas; */
+/* class TH2F; */
+/* class TString; */
 
 
 class DTStationIndex{
@@ -101,6 +103,7 @@ private:
   int _chamber;
 };
 
+
 class RPCEfficiency : public edm::EDAnalyzer {
    public:
       explicit RPCEfficiency(const edm::ParameterSet&);
@@ -113,12 +116,13 @@ class RPCEfficiency : public edm::EDAnalyzer {
       virtual void endRun(const edm::Run& r, const edm::EventSetup& iSetup);
       std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
       std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
-      edm::ESHandle<RPCGeometry> rpcGeo;
-      edm::ESHandle<DTGeometry> dtGeo;
-      edm::ESHandle<CSCGeometry> cscGeo;
+   
+   /*    edm::ESHandle<RPCGeometry> rpcGeo; */
+/*       edm::ESHandle<DTGeometry> dtGeo; */
+/*       edm::ESHandle<CSCGeometry> cscGeo; */
 
       MonitorElement * statistics;
-      edm::InputTag RPCRecHitLabel_;
+
       //Distance Strip
       MonitorElement * DistBorderClu1La1;
       MonitorElement * DistBorderClu1La2;
@@ -224,9 +228,10 @@ class RPCEfficiency : public edm::EDAnalyzer {
       double MaxD;
       double MaxDrb4;
       int dupli;
-      std::string muonRPCDigis;
-      std::string cscSegments;
-      std::string dt4DSegments;
+      //      std::string muonRPCDigis;
+      edm::InputTag cscSegments;
+      edm::InputTag dt4DSegments;
+      edm::InputTag RPCRecHitLabel_;
       std::string folderPath;
       std::string rejected;
       std::string rollseff;

@@ -32,9 +32,9 @@ std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & 
     sprintf(meTitle,"RPCDataOccupancyFromDT_for_%d",rawId);
     meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     
-    sprintf(meId,"BXDistribution_%d",rawId);
-    sprintf(meTitle,"BXDistribution_for_%d",rawId);
-    meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
+  //   sprintf(meId,"BXDistribution_%d",rawId);
+//     sprintf(meTitle,"BXDistribution_for_%d",rawId);
+//     meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
   }else{
     //std::cout<<"Booking for the EndCap"<<detUnitLabel<<std::endl;
 
@@ -46,9 +46,9 @@ std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & 
     sprintf(meTitle,"RPCDataOccupancyFromCSC_for_%d",rawId);
     meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     
-    sprintf(meId,"BXDistribution_%d",rawId);
-    sprintf(meTitle,"BXDistribution_for_%d",rawId);
-    meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
+   //  sprintf(meId,"BXDistribution_%d",rawId);
+//     sprintf(meTitle,"BXDistribution_for_%d",rawId);
+//     meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
   }
   return meMap;
 }

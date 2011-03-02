@@ -22,19 +22,20 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 process.source = cms.Source("PoolSource",
-   fileNames = cms.untracked.vstring('/store/data/Commissioning10/Cosmics/RECO/v3/000/127/337/122E1F96-F416-DF11-B529-000423D6CAF2.root')
+   fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/2EB74417-51AF-DF11-8773-001617E30D00.root')
 )
 
 process.load("DQM.RPCMonitorDigi.RPCEfficiency_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('/tmp/carrillo/RPCEfficiency.log')
+#    destinations = cms.untracked.vstring('/tmp/cimmino/RPCEfficiency.log')
+                                    destinations = cms.untracked.vstring('cout')
 )
 
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('keep *_MEtoEDMConverter_*_*'),
-    fileName = cms.untracked.string('/tmp/carrillo/first.root')
+                                outputCommands = cms.untracked.vstring('keep *_MEtoEDMConverter_*_*'),
+                                fileName = cms.untracked.string('/tmp/cimmino/first.root')
 )
 
 process.p = cms.Path(process.rpcEfficiency*process.MEtoEDMConverter)
