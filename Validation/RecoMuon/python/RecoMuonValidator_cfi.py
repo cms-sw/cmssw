@@ -15,9 +15,10 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
 
     outputFileName = cms.untracked.string(''),
     subDir = cms.untracked.string('Muons/RecoMuonV/'),
-
     trackType = cms.string("global"),
-    muonSelection = cms.string("isGlobalMuon"), 
+    #string cut selection
+    selection = cms.string("isTrackerMuon && muonID('TMLastStationAngTight')"),
+
     #
     # Histogram dimensions     #
     #
@@ -85,4 +86,3 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     # Number of sim,reco Tracks     #
     nTrks = cms.untracked.uint32(50)
 )
-
