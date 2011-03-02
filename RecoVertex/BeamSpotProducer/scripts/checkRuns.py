@@ -103,7 +103,7 @@ def main():
     if(not listOfRunsAndLumi):
         listOfRunsAndLumi = getListOfRunsAndLumiFromFile(-1,"/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions10/7TeV/StreamExpress/Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON_v3.txt");
 
-    runKeys = listOfRunsAndLumi.keys();
+    runKeys = listOfRunsAndLumi.keys();            
     runKeys.sort();
     runFiles = [];
     for fileName in fileList:
@@ -113,11 +113,57 @@ def main():
             exit(error);
         runFiles.append(long(regExp.group(3)));    
 
+    #for run in runKeys:
+    #    if(run not in runFiles):   
+    #        print "Can't find run", run, "in the files!"        
+
+    runsAndLumisInRR = {};        
     for run in runKeys:
-        if(run not in runFiles):   
-            print "Can't find run", run, "in the files!"        
+        RRList = [];
+        for lumiRange in listOfRunsAndLumi[run]:
+            if lumiRange != []:
+                for l in range(lumiRange[0],lumiRange[1]+1):
+                    RRList.append(long(l));
+        #print run, "->", RRList;            
+        runsAndLumisInRR[run] = RRList;
 
+    runsAndLumisProcessed = {}
+    for fileName in fileList:
+        file = open(filesDir+fileName)
+        for line in file:
+            if line.find("Runnumber") != -1:
+                run = long(line.replace('\n','').split(' ')[1])
+            elif line.find("LumiRange") != -1:
+                lumiLine = line.replace('\n','').split(' ')
+                begLumi = long(lumiLine[1])
+                endLumi = long(lumiLine[3])
+                if begLumi != endLumi:
+                    error = "The lumi range is greater than 1 for run " + str(run) + " " + line + " in file: " + runListDir + fileName
+                    exit(error)
+                else:
+                    if not run in runsAndLumisProcessed:
+                        runsAndLumisProcessed[run] = []
+                    if begLumi in runsAndLumisProcessed[run]:
+                        print "Lumi " + str(begLumi) + " in event " + str(run) + " already exist. This MUST not happen but right now I will ignore this lumi!"
+                    else:
+                        runsAndLumisProcessed[run].append(begLumi)
+        file.close()
+        #print run, "->", runsAndLumisProcessed[run];            
 
+    for run in runKeys:               
+        missingLumis = [];    
+        for lumi in runsAndLumisInRR[run]:
+            #print str(counter) + "->" + str(lumi)
+            #counter += 1
+            if(run not in runFiles):   
+                print "Can't find run", run, "in the files!"        
+                break ;
+            elif( not lumi in runsAndLumisProcessed[run]):
+                missingLumis.append(lumi)
+        if(len(missingLumis) != 0):        
+            print "In run", run, "these lumis are missing ->", missingLumis          
+                                                     
+                            
 if __name__ == "__main__":
         main()
     
