@@ -320,6 +320,46 @@ process.eventSampleFlag = cms.EDProducer(
     flag = cms.int32(sampleId),
 )
 
+################################################################################
+#  Build PF taus to be used in training
+################################################################################
+
+import PhysicsTools.PatAlgos.tools.helpers as configtools
+# Build tau collections
+process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+# The pileup vertex selection is common between both algorithms
+process.buildTaus = cms.Sequence(process.recoTauPileUpVertices)
+
+# Remove all the extra discriminants from the HPS tanc tau sequence
+process.recoTauHPSTancSequence.remove(process.hpsTancTauDiscriminantSequence)
+process.recoTauHPSTancSequence.remove(process.recoTauPileUpVertices)
+
+# Add selectors for the different decay modes
+for decayMode in [0, 1, 2, 10]:
+    selectorName = "selectedHpsTancTausDecayMode%i" % decayMode
+    setattr(process, selectorName, cms.EDFilter(
+        "PFTauViewRefSelector",
+        src = cms.InputTag("hpsTancTaus"),
+        cut = cms.string("decayMode = %i" % decayMode),
+        filter = cms.bool(False)
+    ))
+    process.recoTauHPSTancSequence += getattr(process, selectorName)
+
+# Make copies of the signal and background tau production sequences
+configtools.cloneProcessingSnippet(
+    process, process.recoTauHPSTancSequence, "Signal")
+configtools.massSearchReplaceAnyInputTag(
+    process.recoTauHPSTancSequenceSignal,
+    cms.InputTag("ak5PFJets"), cms.InputTag("preselectedSignalJets")
+)
+configtools.cloneProcessingSnippet(
+    process, process.recoTauHPSTancSequence, "Background")
+configtools.massSearchReplaceAnyInputTag(
+    process.recoTauHPSTancSequenceSignal,
+    cms.InputTag("ak5PFJets"), cms.InputTag("preselectedBackgroundJets")
+)
+process.buildTaus += process.recoTauHPSTancSequenceSignal
+process.buildTaus += process.recoTauHPSTancSequenceBackground
 
 # Final path
 process.selectBackground = cms.Path(
@@ -330,7 +370,8 @@ process.selectBackground = cms.Path(
     process.selectAndMatchJets *
     process.removeBiasedJets *
     process.preselectBackgroundJets*
-    process.eventSampleFlag
+    process.eventSampleFlag*
+    process.buildTaus
     #process.backgroundJetsRecoTauPiZeros
 )
 
@@ -355,6 +396,13 @@ poolOutputCommands = cms.untracked.vstring(
     'keep *_eventSampleFlag_*_*'
     #'keep *_backgroundJetsRecoTauPiZeros_*_TANC',
 )
+# Make a list of all the tau products (skipping combinatoric stuff to save
+# space)
+tau_products = [m.label() for m in configtools.listModules(process.buildTaus)
+                if 'combinatoric' not in m.label()]
+# Add all our tau products
+for product in tau_products:
+    poolOutputCommands.append('keep *_%s_*_TANC' % product)
 
 # Write output
 process.write = cms.OutputModule(

@@ -40,11 +40,10 @@ process.source = cms.Source("PoolSource", fileNames = readFiles,
 
 #dbs search --noheader --query="find file where primds=RelValZTT and release=$CMSSW_VERSION and tier=GEN-SIM-RECO"  | sed "s|.*|\"&\",|"
 readFiles.extend([
-    "/store/relval/CMSSW_3_11_1/RelValZTT/GEN-SIM-RECO/START311_V1_64bit-v1/0089/1E76F854-CA35-E011-8723-0026189438B9.root",
-    "/store/relval/CMSSW_3_11_1/RelValZTT/GEN-SIM-RECO/START311_V1_64bit-v1/0088/DC92B5F2-B834-E011-917E-002618943956.root",
-    "/store/relval/CMSSW_3_11_1/RelValZTT/GEN-SIM-RECO/START311_V1_64bit-v1/0088/DC0F0D71-BB34-E011-95AE-001A92810AF4.root",
-    "/store/relval/CMSSW_3_11_1/RelValZTT/GEN-SIM-RECO/START311_V1_64bit-v1/0088/A64966E6-BB34-E011-9063-0018F3D095FE.root",
-    "/store/relval/CMSSW_3_11_1/RelValZTT/GEN-SIM-RECO/START311_V1_64bit-v1/0088/1218C7DE-B934-E011-B616-0018F3D09706.root",
+    "/store/relval/CMSSW_4_2_0_pre5/RelValZTT/GEN-SIM-RECO/START42_V3-v1/0012/660F19A0-EE3C-E011-98EB-00304867BFF2.root",
+    "/store/relval/CMSSW_4_2_0_pre5/RelValZTT/GEN-SIM-RECO/START42_V3-v1/0009/D69C93FC-603C-E011-9361-003048678FE4.root",
+    "/store/relval/CMSSW_4_2_0_pre5/RelValZTT/GEN-SIM-RECO/START42_V3-v1/0009/6878D54B-7B3C-E011-8CB0-003048678DD6.root",
+    "/store/relval/CMSSW_4_2_0_pre5/RelValZTT/GEN-SIM-RECO/START42_V3-v1/0009/560FF905-5F3C-E011-A09A-001A92811726.root",
 ])
 
 # Load standard services
@@ -217,12 +216,52 @@ process.addFakeBackground = cms.Sequence(
     #process.backgroundJetsRecoTauPiZeros
 )
 
-
 # Add a flag to the event to keep track of event type
 process.eventSampleFlag = cms.EDProducer(
     "RecoTauEventFlagProducer",
     flag = cms.int32(sampleId),
 )
+
+################################################################################
+#  Build PF taus to be used in training
+################################################################################
+
+import PhysicsTools.PatAlgos.tools.helpers as configtools
+# Build tau collections
+process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+# The pileup vertex selection is common between both algorithms
+process.buildTaus = cms.Sequence(process.recoTauPileUpVertices)
+
+# Remove all the extra discriminants from the HPS tanc tau sequence
+process.recoTauHPSTancSequence.remove(process.hpsTancTauDiscriminantSequence)
+process.recoTauHPSTancSequence.remove(process.recoTauPileUpVertices)
+
+# Add selectors for the different decay modes
+for decayMode in [0, 1, 2, 10]:
+    selectorName = "selectedHpsTancTausDecayMode%i" % decayMode
+    setattr(process, selectorName, cms.EDFilter(
+        "PFTauViewRefSelector",
+        src = cms.InputTag("hpsTancTaus"),
+        cut = cms.string("decayMode = %i" % decayMode),
+        filter = cms.bool(False)
+    ))
+    process.recoTauHPSTancSequence += getattr(process, selectorName)
+
+# Make copies of the signal and background tau production sequences
+configtools.cloneProcessingSnippet(
+    process, process.recoTauHPSTancSequence, "Signal")
+configtools.massSearchReplaceAnyInputTag(
+    process.recoTauHPSTancSequenceSignal,
+    cms.InputTag("ak5PFJets"), cms.InputTag("preselectedSignalJets")
+)
+configtools.cloneProcessingSnippet(
+    process, process.recoTauHPSTancSequence, "Background")
+configtools.massSearchReplaceAnyInputTag(
+    process.recoTauHPSTancSequenceSignal,
+    cms.InputTag("ak5PFJets"), cms.InputTag("preselectedBackgroundJets")
+)
+process.buildTaus += process.recoTauHPSTancSequenceSignal
+process.buildTaus += process.recoTauHPSTancSequenceBackground
 
 process.selectSignal = cms.Path(
     process.tauGenJets *
@@ -241,7 +280,8 @@ process.selectSignal = cms.Path(
     process.plotPreselectedSignalJets *
     #process.signalJetsRecoTauPiZeros *
     process.addFakeBackground *
-    process.eventSampleFlag
+    process.eventSampleFlag *
+    process.buildTaus
 )
 
 # Store the trigger stuff in the event
@@ -270,6 +310,14 @@ poolOutputCommands = cms.untracked.vstring(
     'keep *_eventSampleFlag_*_*'
     #'keep *_backgroundJetsRecoTauPiZeros_*_*',
 )
+
+# Make a list of all the tau products (skipping combinatoric stuff to save
+# space)
+tau_products = [m.label() for m in configtools.listModules(process.buildTaus)
+                if 'combinatoric' not in m.label()]
+# Add all our tau products
+for product in tau_products:
+    poolOutputCommands.append('keep *_%s_*_TANC' % product)
 
 # Write output
 process.write = cms.OutputModule(
