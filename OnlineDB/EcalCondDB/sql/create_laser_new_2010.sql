@@ -19,6 +19,9 @@
  * GO 20101020: LMF_CLS_XXX tables modified to move the REF field after
  *              LOGIC_ID (needed to use only one class in C++) 
  * GO 20101124: modified Corr coeff table
+ * GO 20110301: final (hopefully) version with pre-partitioned 
+ *              tables and local indices, as well as with
+ *              splitted DB sequences.
  */
 
 PROMPT "Starting creating laser tables: "
@@ -269,6 +272,9 @@ CREATE TABLE LMF_PRIM_VERS
 
 INSERT INTO LMF_PRIM_VERS VALUES (0, DEFAULT, 'none');
 INSERT INTO LMF_PRIM_VERS VALUES (1, DEFAULT, 'default');
+INSERT INTO LMF_PRIM_VERS VALUES (2, DEFAULT, 'vers. 2');
+INSERT INTO LMF_PRIM_VERS VALUES (3, DEFAULT, 'vers. 3');
+INSERT INTO LMF_PRIM_VERS VALUES (4, DEFAULT, 'vers. 4');
 
 /*  LMF_CLS_XXX_DAT  */
 CREATE TABLE LMF_CLS_BLUE_DAT
