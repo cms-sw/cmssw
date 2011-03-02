@@ -89,14 +89,43 @@ static const unsigned int s_refsBefore[]={CountBits<0>::value,CountBits<1>::valu
 };
 
 
+enum PFRefBits {
+  kRefTrackBit=0x1,
+  kRefGsfTrackBit=0x2,
+  kRefMuonBit=0x4,
+  kRefDisplacedVertexDauBit=0x8,
+  kRefDisplacedVertexMotBit=0x10,
+  kRefConversionBit=0x20,
+  kRefV0Bit=0x40,
+  kRefGsfElectronBit=0x80,
+  kRefPFElectronExtraBit=0x100,
+  kRefPhotonBit=0x200,
+  kRefPFPhotonExtraBit=0x400,
+  kRefSuperClusterBit=0x800
+};
+enum PFRefMasks {
+  kRefTrackMask=0,
+  kRefGsfTrackMask=kRefTrackMask+kRefTrackBit,
+  kRefMuonMask=kRefGsfTrackMask+kRefGsfTrackBit,
+  kRefDisplacedVertexDauMask=kRefMuonMask+kRefMuonBit,
+  kRefDisplacedVertexMotMask=kRefDisplacedVertexDauMask+kRefDisplacedVertexDauBit,
+  kRefConversionMask=kRefDisplacedVertexMotMask+kRefDisplacedVertexMotBit,
+  kRefV0Mask=kRefConversionMask+kRefConversionBit,
+  kRefGsfElectronMask=kRefV0Mask+kRefV0Bit,
+  kRefPFElectronExtraMask=kRefGsfElectronMask+kRefGsfElectronBit,
+  kRefPhotonMask=kRefPFElectronExtraMask+kRefPFElectronExtraBit,
+  kRefPFPhotonExtraMask=kRefPhotonMask+kRefPhotonBit,
+  kRefSuperClusterMask=kRefPFPhotonExtraMask+kRefPFPhotonExtraBit
+};
+
 
 #define GETREF( _class_, _mask_,_bit_) \
   edm::ProductID prodID; size_t index, aIndex; \
   typedef edm::Ref<std::vector<_class_> > RefType;	  \
   if(getRefInfo(_mask_, _bit_, prodID, index, aIndex) ) { \
-    if (m_refsAdd.size()==0 || m_refsAdd[aIndex]==0) return RefType(prodID, index, m_getter); \
+    if (refsCollectionCache_.size()==0 || refsCollectionCache_[aIndex]==0) return RefType(prodID, index, getter_); \
     else { \
-      const vector<_class_> *t=reinterpret_cast< const vector<_class_>* >(m_refsAdd[aIndex]);\
+      const vector<_class_> *t=reinterpret_cast< const vector<_class_>* >(refsCollectionCache_[aIndex]);\
       return RefType(prodID, &((*t)[aIndex]),index,t);\
     } } \
   return RefType() 
@@ -113,15 +142,15 @@ PFCandidate::PFCandidate() :
   ps2Energy_(0.),
   flags_(0), 
   deltaP_(0.), 
-  vertexPack_(kCandVertex),
-  mvaPack_(kRef_none),
+  vertexType_(kCandVertex),
+  mvaType_(kRef_none),
   mva_(-PFCandidate::bigMva_),
-  m_getter(0),m_storedRefs(0)
+  getter_(0),storedRefsBitPattern_(0)
 {
   
   //setPdgId( translateTypeToPdgId( particleId_ ) );
   setPdgId(0);
-  m_refsInfo.reserve(3);
+  refsInfo_.reserve(3);
 }
 
 
@@ -145,12 +174,12 @@ PFCandidate::PFCandidate( Charge charge,
   ps2Energy_(0.),
   flags_(0),
   deltaP_(0.),
-  vertexPack_(kCandVertex),
-  mvaPack_(kRef_none),
+  vertexType_(kCandVertex),
+  mvaType_(kRef_none),
   mva_(-PFCandidate::bigMva_),
-  m_getter(0),m_storedRefs(0)
+  getter_(0),storedRefsBitPattern_(0)
 {
-  m_refsInfo.reserve(3);
+  refsInfo_.reserve(3);
   blocksStorage_.reserve(10);
   elementsStorage_.reserve(10);
 
@@ -322,33 +351,33 @@ void PFCandidate::storeRefInfo(unsigned int iMask, unsigned int iBit, bool iIsVa
 			   const edm::RefCore& iCore, size_t iKey, 
 			   const edm::EDProductGetter* iGetter) {
 
-  size_t index = s_refsBefore[m_storedRefs & iMask];
-  if ( 0 == m_getter) {
-    m_getter = iGetter;
+  size_t index = s_refsBefore[storedRefsBitPattern_ & iMask];
+  if ( 0 == getter_) {
+    getter_ = iGetter;
   }
 
   if(iIsValid) {
-    if(0 == (m_storedRefs & iBit) ) {
-      m_refsInfo.insert(m_refsInfo.begin()+index, bitPackRefInfo(iCore,iKey));
+    if(0 == (storedRefsBitPattern_ & iBit) ) {
+      refsInfo_.insert(refsInfo_.begin()+index, bitPackRefInfo(iCore,iKey));
       if (iGetter==0)
-	m_refsAdd.insert(m_refsAdd.begin()+index,(void*)iCore.productPtr());
+	refsCollectionCache_.insert(refsCollectionCache_.begin()+index,(void*)iCore.productPtr());
       else
-	m_refsAdd.insert(m_refsAdd.begin()+index,0);
+	refsCollectionCache_.insert(refsCollectionCache_.begin()+index,0);
     } else {
-      assert(m_refsInfo.size()>index);
-      *(m_refsInfo.begin()+index)=bitPackRefInfo(iCore,iKey);
+      assert(refsInfo_.size()>index);
+      *(refsInfo_.begin()+index)=bitPackRefInfo(iCore,iKey);
       if (iGetter==0)
-	*(m_refsAdd.begin()+index)=(void*)iCore.productPtr();
+	*(refsCollectionCache_.begin()+index)=(void*)iCore.productPtr();
       else
-	*(m_refsAdd.begin()+index)=0;
+	*(refsCollectionCache_.begin()+index)=0;
 
     }
-    m_storedRefs |= iBit;
+    storedRefsBitPattern_ |= iBit;
   } else{
-    if( m_storedRefs & iBit) {
-      m_refsInfo.erase(m_refsInfo.begin()+index);
-      m_refsAdd.erase(m_refsAdd.begin()+index);
-      m_storedRefs ^= iBit;
+    if( storedRefsBitPattern_ & iBit) {
+      refsInfo_.erase(refsInfo_.begin()+index);
+      refsCollectionCache_.erase(refsCollectionCache_.begin()+index);
+      storedRefsBitPattern_ ^= iBit;
     }
   }
 
@@ -357,11 +386,11 @@ void PFCandidate::storeRefInfo(unsigned int iMask, unsigned int iBit, bool iIsVa
 bool PFCandidate::getRefInfo(unsigned int iMask, unsigned int iBit, 
 			     edm::ProductID& oProductID, size_t& oIndex, size_t& aIndex) const {
 
-  if( 0 == (iBit & m_storedRefs) ) {
+  if( 0 == (iBit & storedRefsBitPattern_) ) {
     return false;
   }
-  aIndex = s_refsBefore[m_storedRefs & iMask];
-  unsigned long long bitPacked = m_refsInfo[aIndex];
+  aIndex = s_refsBefore[storedRefsBitPattern_ & iMask];
+  unsigned long long bitPacked = refsInfo_[aIndex];
   oIndex = bitPacked & 0xFFFFFFFFULL; //low 32 bits are the index
   unsigned short productIndex = (bitPacked & 0x0000FFFF00000000ULL)>>32;
   unsigned short processIndex = (bitPacked & 0xFFFF000000000000ULL)>>48;
@@ -592,23 +621,23 @@ void PFCandidate::setPFPhotonExtraRef(const reco::PFCandidatePhotonExtraRef& iRe
 
     
 void PFCandidate::set_mva(float mva, PFMVAType bit) {
-  if (mvaPack_!=kRef_none && mvaPack_!=bit) {
+  if (mvaType_!=kRef_none && mvaType_!=bit) {
     throw cms::Exception("PFCandidate",
                          "only one type of mva value allowed" );
   }
   mva_=mva;
-  mvaPack_= bit;
+  mvaType_= bit;
 }
 
 float PFCandidate::get_mva(PFMVAType var) const {
-  if ( var!=mvaPack_)
+  if ( var!=mvaType_)
     return bigMva_;
   return mva_; 
 }
 
 
 const math::XYZPoint & PFCandidate::vertex() const {
-  switch (vertexPack_) {
+  switch (vertexType_) {
   case kCandVertex:
     return vertex_;
     break;

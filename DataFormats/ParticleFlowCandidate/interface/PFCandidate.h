@@ -67,34 +67,6 @@ namespace reco {
     };
     
 
-    enum PFRefBits {
-      kRefTrackBit=0x1,
-      kRefGsfTrackBit=0x2,
-      kRefMuonBit=0x4,
-      kRefDisplacedVertexDauBit=0x8,
-      kRefDisplacedVertexMotBit=0x10,
-      kRefConversionBit=0x20,
-      kRefV0Bit=0x40,
-      kRefGsfElectronBit=0x80,
-      kRefPFElectronExtraBit=0x100,
-      kRefPhotonBit=0x200,
-      kRefPFPhotonExtraBit=0x400,
-      kRefSuperClusterBit=0x800
-    };
-    enum PFRefMasks {
-      kRefTrackMask=0,
-      kRefGsfTrackMask=kRefTrackMask+kRefTrackBit,
-      kRefMuonMask=kRefGsfTrackMask+kRefGsfTrackBit,
-      kRefDisplacedVertexDauMask=kRefMuonMask+kRefMuonBit,
-      kRefDisplacedVertexMotMask=kRefDisplacedVertexDauMask+kRefDisplacedVertexDauBit,
-      kRefConversionMask=kRefDisplacedVertexMotMask+kRefDisplacedVertexMotBit,
-      kRefV0Mask=kRefConversionMask+kRefConversionBit,
-      kRefGsfElectronMask=kRefV0Mask+kRefV0Bit,
-      kRefPFElectronExtraMask=kRefGsfElectronMask+kRefGsfElectronBit,
-      kRefPhotonMask=kRefPFElectronExtraMask+kRefPFElectronExtraBit,
-      kRefPFPhotonExtraMask=kRefPhotonMask+kRefPhotonBit,
-      kRefSuperClusterMask=kRefPFPhotonExtraMask+kRefPFPhotonExtraBit
-    };
 
     enum PFMVAType {
       kRef_none=0,
@@ -386,10 +358,10 @@ namespace reco {
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFCandidate& c );
 
-    void setVertexSource( PFVertexType vt) { vertexPack_=vt; }
+    void setVertexSource( PFVertexType vt) { vertexType_=vt; }
 
     virtual void setVertex( math::XYZPoint p) {
-      vertex_=p; vertexPack_ = kCandVertex;
+      vertex_=p; vertexType_ = kCandVertex;
     }
 
     virtual const Point & vertex() const;
@@ -441,8 +413,8 @@ namespace reco {
     /// uncertainty on 3-momentum
     float      deltaP_;
 
-    PFVertexType vertexPack_;
-    PFMVAType mvaPack_;
+    PFVertexType vertexType_;
+    PFMVAType mvaType_;
 
     float mva_;
 
@@ -476,10 +448,10 @@ namespace reco {
 		    edm::ProductID& oProdID, size_t& oIndex, size_t& aIndex ) const;
     
 
-    const edm::EDProductGetter* m_getter; //transient
-    unsigned short m_storedRefs;
-    std::vector<unsigned long long> m_refsInfo;
-    std::vector<const void *> m_refsAdd;
+    const edm::EDProductGetter* getter_; //transient
+    unsigned short storedRefsBitPattern_;
+    std::vector<unsigned long long> refsInfo_;
+    std::vector<const void *> refsCollectionCache_;
     void set_mva(float mva, PFMVAType bit);
     float get_mva(PFMVAType bit) const;
 
