@@ -233,16 +233,27 @@ void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) 
     CLSDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5); 
     rpcUtils.labelXAxisSegment(CLSDisk[d+offset]);
     rpcUtils.labelYAxisRing(CLSDisk[d+offset], numberOfRings_);
-        
-    histoName.str("");
-    histoName<<"ClusterSizeIn1Bin_Distribution_Disk"<<d;       //  ClusterSize in first bin, distribution
-    me = 0;
-    me = dbe_->get(globalFolder_ + histoName.str()) ;
-    if ( 0!=me){
-      dbe_->removeElement(me->getName());
+   
+    if(testMode_){
+      histoName.str("");
+      histoName<<"ClusterSizeIn1Bin_Distribution_Disk"<<d;       //  ClusterSize in first bin, distribution
+      me = 0;
+      me = dbe_->get(globalFolder_ + histoName.str()) ;
+      if ( 0!=me){
+	dbe_->removeElement(me->getName());
+      }
+      CLSDDisk[d+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.0, 1.0);
+      
+      histoName.str("");
+      histoName<<"ClusterSizeMean_Distribution_Disk"<<d;       //  Avarage ClusterSize Distribution
+      me = 0;
+      me = dbe_->get(globalFolder_ + histoName.str()) ;
+      if ( 0!=me){
+	dbe_->removeElement(me->getName());
+      }
+      MEANDDisk[d+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 10.5);
+      
     }
-    CLSDDisk[d+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, 0.0, 1.0);
-    
     
     histoName.str("");
     histoName<<"ClusterSizeMean_Ring_vs_Segment_Disk"<<d;       // Avarage ClusterSize (2D Roll vs Sector)   
@@ -255,15 +266,7 @@ void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) 
     MEANDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
     rpcUtils.labelXAxisSegment(MEANDisk[d+offset]);
     rpcUtils.labelYAxisRing(MEANDisk[d+offset], numberOfRings_);
-    
-    histoName.str("");
-    histoName<<"ClusterSizeMean_Distribution_Disk"<<d;       //  Avarage ClusterSize Distribution
-    me = 0;
-    me = dbe_->get(globalFolder_ + histoName.str()) ;
-    if ( 0!=me){
-      dbe_->removeElement(me->getName());
-    }
-    MEANDDisk[d+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  100, 0.5, 10.5);
+ 
  }
 
 
