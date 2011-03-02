@@ -45,7 +45,6 @@ readFiles.extend([
 "/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/74B5926B-543D-E011-A7B9-0026189438AC.root",
 "/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/223E536A-543D-E011-BED7-003048678B3C.root",
 "/store/relval/CMSSW_3_9_9/RelValZTT/GEN-SIM-RECO/START39_V9-v1/0000/00E71A68-533D-E011-97EE-002618943934.root",
-
 ])
 
 # Load standard services
@@ -293,6 +292,10 @@ configtools.massSearchReplaceAnyInputTag(
 )
 process.buildTaus += process.recoTauHPSTancSequenceSignal
 process.buildTaus += process.recoTauHPSTancSequenceBackground
+
+################################################################################
+#  Define signal path
+################################################################################
 
 process.selectSignal = cms.Path(
     process.tauGenJets *
