@@ -171,7 +171,8 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
         std::auto_ptr<RecoTauPiZero> combinedStrips(
             new RecoTauPiZero(0, totalP4,
               Candidate::Point(0, 0, 0),
-              111, 10001, true, RecoTauPiZero::kCombinatoricStrips));
+              //111, 10001, true, RecoTauPiZero::kCombinatoricStrips));
+              111, 10001, true, RecoTauPiZero::kUndefined));
 
         // Now loop over the strip members
         BOOST_FOREACH(const RecoTauPiZero::daughters::value_type& gamma,
