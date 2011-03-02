@@ -346,10 +346,11 @@ int LMFUnique::writeDB()
     this->checkConnection();
     
     // write new tag to the DB
+    std::string sql = "";
     try {
       Statement* stmt = m_conn->createStatement();
       
-      std::string sql = writeDBSql(stmt);
+      sql = writeDBSql(stmt);
       if (sql != "") {
 	if (m_debug) {
 	  cout << m_className + ": " + sql << endl;
@@ -358,7 +359,8 @@ int LMFUnique::writeDB()
       }
       m_conn->terminateStatement(stmt);
     } catch (SQLException &e) {
-      throw(std::runtime_error(m_className + "::writeDB:  " + e.getMessage()));
+      throw(std::runtime_error(m_className + "::writeDB:  " + e.getMessage() +
+			       " while executing query " + sql));
     }
     // now get the id
     if (this->fetchID() == 0) {
