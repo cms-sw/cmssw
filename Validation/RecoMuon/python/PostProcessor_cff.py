@@ -79,90 +79,84 @@ postProcessorMuonMultiTrackCompFS = cms.EDAnalyzer("DQMGenericClient",
 
 postProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc"),
-
-    efficiency = cms.vstring("Trk/EffP   'Efficiency vs p'     Trk/P   Muons/SimP  ",
-                             "Trk/EffPt  'Efficiency vs p_{T}' Trk/Pt  Muons/SimPt ",
-                             "Trk/EffEta 'Efficiency vs #eta'  Trk/Eta Muons/SimEta",
-                             "Trk/EffPhi 'Efficiency vs #phi'  Trk/Phi Muons/SimPhi",
-                             "Trk/MisQProbPt  'Charge Mis-identification probability vs p_{T}' Trk/MisQPt  Muons/SimPt ",
-                             "Trk/MisQProbEta 'Charge Mis-identification probability vs #eta'  Trk/MisQEta Muons/SimEta",
-                             "Sta/EffP   'Efficiency vs p'     Sta/P   Muons/SimP  ",
-                             "Sta/EffPt  'Efficiency vs p_{T}' Sta/Pt  Muons/SimPt ",
-                             "Sta/EffEta 'Efficiency vs #eta'  Sta/Eta Muons/SimEta",
-                             "Sta/EffPhi 'Efficiency vs #phi'  Sta/Phi Muons/SimPhi",
-                             "Sta/MisQProbPt  'Charge Mis-identification probability vs p_{T}' Sta/MisQPt  Muons/SimPt ",
-                             "Sta/MisQProbEta 'Charge Mis-identification probability vs #eta'  Sta/MisQEta Muons/SimEta",
-
-                             "Glb/EffP   'Efficiency vs p'     Glb/P   Muons/SimP  ",
-                             "Glb/EffPt  'Efficiency vs p_{T}' Glb/Pt  Muons/SimPt ",
-                             "Glb/EffEta 'Efficiency vs #eta'  Glb/Eta Muons/SimEta",
-                             "Glb/EffPhi 'Efficiency vs #phi'  Glb/Phi Muons/SimPhi",
-                             "Glb/MisQProbPt  'Charge Mis-identification probability vs p_{T}' Glb/MisQPt  Muons/SimPt ",
-                             "Glb/MisQProbEta 'Charge Mis-identification probability vs #eta'  Glb/MisQEta Muons/SimEta",
+    #efficiencies and fractions
+    efficiency = cms.vstring("EffP   'Efficiency vs p'     P   SimP  ",
+                             "EffPt  'Efficiency vs p_{T}' Pt  SimPt ",
+                             "EffEta 'Efficiency vs #eta'  Eta SimEta",
+                             "EffPhi 'Efficiency vs #phi'  Phi SimPhi",
+                             "MisQProbPt  'Charge Mis-identification probability vs p_{T}' MisQPt  SimPt ",
+                             "MisQProbEta 'Charge Mis-identification probability vs #eta'  MisQEta SimEta",
+                             #fractions
+                             "FractP   'Muontype fraction vs p'     PMuon   PMuonAll",
+                             "FractPt  'Muontype fraction  vs p_{T}' PtMuon PtMuonAll",
+                             "FractEta 'Muontype fraction vs #eta'  EtaMuon EtaMuonAll",
+                             "FractPhi 'Muontype fraction vs #phi'  PhiMuon PhiMuonAll",
                              ),
 
-    resolution = cms.vstring("Trk/ErrP_vs_P      '#sigma(p) vs p'           Trk/ErrP_vs_P     ",
-                             "Trk/ErrP_vs_Eta    '#sigma(p) vs #eta'        Trk/ErrP_vs_Eta   ",
-                             "Trk/ErrPt_vs_Pt    '#sigma(p) vs p_{T}'       Trk/ErrPt_vs_Pt   ",
-                             "Trk/ErrPt_vs_Eta   '#sigma(p) vs #eta'        Trk/ErrPt_vs_Eta  ",
-                             "Trk/ErrEta_vs_Eta  '#sigma(#eta) vs #eta '    Trk/ErrEta_vs_Eta ",
-                             "Trk/ErrQPt_vs_Pt   '#sigma(q/p_{T}) vs p_{T}' Trk/ErrQPt_vs_Pt  ",
-                             "Trk/ErrQPt_vs_Eta  '#sigma(q/p_{T}) vs #eta'  Trk/ErrQPt_vs_Eta ",
-                             "Trk/PullEta_vs_Pt  'Pull of #eta vs p_{T}'    Trk/PullEta_vs_Pt ",
-                             "Trk/PullEta_vs_Eta 'Pull of #eta vs #eta'     Trk/PullEta_vs_Eta",
-                             "Trk/PullPhi_vs_Eta 'Pull of #phi vs #eta'     Trk/PullPhi_vs_Eta",
-                             "Trk/PullPt_vs_Pt   'Pull of p_{T} vs p_{T}'   Trk/PullPt_vs_Pt  ",
-                             "Trk/PullPt_vs_Eta  'Pull of p_{T} vs #eta'    Trk/PullPt_vs_Eta ",
-
-                             "Sta/ErrP_vs_P      '#sigma(p) vs p'           Sta/ErrP_vs_P     ",
-                             "Sta/ErrP_vs_Eta    '#sigma(p) vs #eta'        Sta/ErrP_vs_Eta   ",
-                             "Sta/ErrPt_vs_Pt    '#sigma(p) vs p_{T}'       Sta/ErrPt_vs_Pt   ",
-                             "Sta/ErrPt_vs_Eta   '#sigma(p) vs #eta'        Sta/ErrPt_vs_Eta  ",
-                             "Sta/ErrEta_vs_Eta  '#sigma(#eta) vs #eta '    Sta/ErrEta_vs_Eta ",
-                             "Sta/ErrQPt_vs_Pt   '#sigma(q/p_{T}) vs p_{T}' Sta/ErrQPt_vs_Pt  ",
-                             "Sta/ErrQPt_vs_Eta  '#sigma(q/p_{T}) vs #eta'  Sta/ErrQPt_vs_Eta ",
-                             "Sta/PullEta_vs_Pt  'Pull of #eta vs p_{T}'    Sta/PullEta_vs_Pt ",
-                             "Sta/PullEta_vs_Eta 'Pull of #eta vs #eta'     Sta/PullEta_vs_Eta",
-                             "Sta/PullPhi_vs_Eta 'Pull of #phi vs #eta'     Sta/PullPhi_vs_Eta",
-                             "Sta/PullPt_vs_Pt   'Pull of p_{T} vs p_{T}'   Sta/PullPt_vs_Pt  ",
-                             "Sta/PullPt_vs_Eta  'Pull of p_{T} vs #eta'    Sta/PullPt_vs_Eta ",
-
-                             "Glb/ErrP_vs_P      '#sigma(p) vs p'           Glb/ErrP_vs_P     ",
-                             "Glb/ErrP_vs_Eta    '#sigma(p) vs #eta'        Glb/ErrP_vs_Eta   ",
-                             "Glb/ErrPt_vs_Pt    '#sigma(p) vs p_{T}'       Glb/ErrPt_vs_Pt   ",
-                             "Glb/ErrPt_vs_Eta   '#sigma(p) vs #eta'        Glb/ErrPt_vs_Eta  ",
-                             "Glb/ErrEta_vs_Eta  '#sigma(#eta) vs #eta '    Glb/ErrEta_vs_Eta ",
-                             "Glb/ErrQPt_vs_Pt   '#sigma(q/p_{T}) vs p_{T}' Glb/ErrQPt_vs_Pt  ",
-                             "Glb/ErrQPt_vs_Eta  '#sigma(q/p_{T}) vs #eta'  Glb/ErrQPt_vs_Eta ",
-                             "Glb/PullEta_vs_Pt  'Pull of #eta vs p_{T}'    Glb/PullEta_vs_Pt ",
-                             "Glb/PullEta_vs_Eta 'Pull of #eta vs #eta'     Glb/PullEta_vs_Eta",
-                             "Glb/PullPhi_vs_Eta 'Pull of #phi vs #eta'     Glb/PullPhi_vs_Eta",
-                             "Glb/PullPt_vs_Pt   'Pull of p_{T} vs p_{T}'   Glb/PullPt_vs_Pt  ",
-                             "Glb/PullPt_vs_Eta  'Pull of p_{T} vs #eta'    Glb/PullPt_vs_Eta ",
-                             ),
+    resolution = cms.vstring("ErrP_vs_P      '#sigma(p) vs p'           ErrP_vs_P     ",
+                             "ErrP_vs_Eta    '#sigma(p) vs #eta'        ErrP_vs_Eta   ",
+                             "ErrPt_vs_Pt    '#sigma(p) vs p_{T}'       ErrPt_vs_Pt   ",
+                             "ErrPt_vs_Eta   '#sigma(p) vs #eta'        ErrPt_vs_Eta  ",
+                             "ErrEta_vs_Eta  '#sigma(#eta) vs #eta '    ErrEta_vs_Eta ",
+                             "ErrQPt_vs_Pt   '#sigma(q/p_{T}) vs p_{T}' ErrQPt_vs_Pt  ",
+                             "ErrQPt_vs_Eta  '#sigma(q/p_{T}) vs #eta'  ErrQPt_vs_Eta ",
+                             "PullEta_vs_Pt  'Pull of #eta vs p_{T}'    PullEta_vs_Pt ",
+                             "PullEta_vs_Eta 'Pull of #eta vs #eta'     PullEta_vs_Eta",
+                             "PullPhi_vs_Eta 'Pull of #phi vs #eta'     PullPhi_vs_Eta",
+                             "PullPt_vs_Pt   'Pull of p_{T} vs p_{T}'   PullPt_vs_Pt  ",
+                             "PullPt_vs_Eta  'Pull of p_{T} vs #eta'    PullPt_vs_Eta ",
+                             ),    
     outputFileName = cms.untracked.string("")
 )
 
+# for each type monitored
+postProcessorRecoMuon_Glb = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_Glb.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Glb")
+
+postProcessorRecoMuon_Trk = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_Trk.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Trk")
+
+postProcessorRecoMuon_Sta = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_Sta.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Sta")
+
+postProcessorRecoMuon_GlbPF = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_GlbPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbPF")
+
+postProcessorRecoMuon_TrkPF = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_TrkPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_TrkPF")
+
+postProcessorRecoMuon_StaPF = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_StaPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_StaPF")
+
+
+#not sure about this one, which types are monitored
 postProcessorRecoMuonComp = cms.EDAnalyzer(
     "DQMGenericClient",
-    subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc"),
+    subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
     efficiency = cms.vstring(
-    "Eff_GlbTrk_Eta 'Eff_{GLB,TK} vs #eta' Glb/EffEta Trk/EffEta",
-    "Eff_GlbTrk_P 'Eff_{GLB,TK} vs p' Glb/EffP Trk/EffP",
-    "Eff_GlbTrk_Phi 'Eff_{GLB,TK} vs #phi' Glb/EffPhi Trk/EffPhi",
-    "Eff_GlbTrk_Pt 'Eff_{GLB,TK} vs p_{T}' Glb/EffPt Trk/EffPt",
-    
-    "Eff_GlbSta_Eta 'Eff_{GLB,TK} vs #eta' Glb/EffEta Sta/EffEta",
-    "Eff_GlbSta_P 'Eff_{GLB,TK} vs p' Glb/EffP Sta/EffP",
-    "Eff_GlbSta_Phi 'Eff_{GLB,TK} vs #phi' Glb/EffPhi Sta/EffPhi",
-    "Eff_GlbSta_Pt 'Eff_{GLB,TK} vs p_{T}' Glb/EffPt Sta/EffPt",
+    "Eff_GlbSta_Eta 'Eff_{GLB,TK} vs #eta' RecoMuon_MuonAssoc_Glb/EffEta RecoMuon_MuonAssoc_Sta/EffEta",
+    "Eff_GlbSta_P 'Eff_{GLB,TK} vs p' RecoMuon_MuonAssoc_Glb/EffP RecoMuon_MuonAssoc_Sta/EffP",
+    "Eff_GlbSta_Phi 'Eff_{GLB,TK} vs #phi' RecoMuon_MuonAssoc_Glb/EffPhi RecoMuon_MuonAssoc_Sta/EffPhi",
+    "Eff_GlbSta_Pt 'Eff_{GLB,TK} vs p_{T}' RecoMuon_MuonAssoc_Glb/EffPt RecoMuon_MuonAssoc_Sta/EffPt",
     ),
     resolution = cms.vstring(""),
     outputFileName = cms.untracked.string("")
 )
 
+postProcessorRecoMuonCompPF = cms.EDAnalyzer(
+    "DQMGenericClient",
+    subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
+    efficiency = cms.vstring(
+    "Eff_GlbSta_EtaPF 'Eff_{GLB,TK} vs #eta' RecoMuon_MuonAssoc_GlbPF/EffEta RecoMuon_MuonAssoc_StaPF/EffEta",
+    "Eff_GlbSta_PPF 'Eff_{GLB,TK} vs p' RecoMuon_MuonAssoc_GlbPF/EffP RecoMuon_MuonAssoc_StaPF/EffP",
+    "Eff_GlbSta_PhiPF 'Eff_{GLB,TK} vs #phi' RecoMuon_MuonAssoc_GlbPF/EffPhi RecoMuon_MuonAssoc_StaPF/EffPhi",
+    "Eff_GlbSta_PtPF 'Eff_{GLB,TK} vs p_{T}' RecoMuon_MuonAssoc_GlbPF/EffPt RecoMuon_MuonAssoc_StaPF/EffPt",
+    ),
+    resolution = cms.vstring(""),
+    outputFileName = cms.untracked.string("")
+)
         
 
-recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp)
+recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon_Glb*postProcessorRecoMuon_Trk*postProcessorRecoMuon_Sta*postProcessorRecoMuon_GlbPF*postProcessorRecoMuon_TrkPF*postProcessorRecoMuon_StaPF*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp*postProcessorRecoMuonCompPF)
 
-recoMuonPostProcessorsFastSim = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon*postProcessorMuonMultiTrackCompFS*postProcessorRecoMuonComp)
+recoMuonPostProcessorsFastSim = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon_Glb*postProcessorRecoMuon_Trk*postProcessorRecoMuon_Sta*postProcessorRecoMuon_GlbPF*postProcessorRecoMuon_TrkPF*postProcessorRecoMuon_StaPF*postProcessorMuonMultiTrackCompFS*postProcessorRecoMuonComp*postProcessorRecoMuonCompPF)
