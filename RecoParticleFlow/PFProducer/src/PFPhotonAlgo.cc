@@ -65,7 +65,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 
   if(elements.size() != active.size()) {
     // throw excpetion...
-    std::cout<<" WARNING: Size of collection and active-vectro don't agree!"<<std::endl;
+    //std::cout<<" WARNING: Size of collection and active-vectro don't agree!"<<std::endl;
     return;
   }
   
@@ -98,7 +98,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     std::multimap<unsigned int, unsigned int>ClusterAddPS2;
 
     isActive = *(actIter);
-    cout << " Found a SuperCluster.  Energy " ;
+    //cout << " Found a SuperCluster.  Energy " ;
     const reco::PFBlockElementSuperCluster *sc = dynamic_cast<const reco::PFBlockElementSuperCluster*>(&(*ele));
     //std::cout << sc->superClusterRef()->energy () << " Track/Ecal/Hcal Iso " << sc->trackIso()<< " " << sc->ecalIso() ;
     //std::cout << " " << sc->hcalIso() <<std::endl;
@@ -110,7 +110,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
       //std::cout<<" SuperCluster is NOT active.... "<<std::endl;
       continue;
     }
-    
+    elemsToLock.push_back(ele-elements.begin()); //add SC to elements to lock
     // loop over its constituent ECAL cluster
     std::multimap<double, unsigned int> ecalAssoPFClusters;
     blockRef->associatedElements( ele-elements.begin(), 
@@ -165,7 +165,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
       // TODO: do some tests on the ECAL cluster itself, deciding to use it or not for the Photons
       // ..... ??? Do we need this?
       if ( false ) {
-	// This is DUMMY
+	// Check if there are a large number tracks that do not pass pre-ID around this ECAL cluster
 	bool useIt = true;
 	int mva_reject=0;  
 	bool isClosest=false;  
@@ -541,8 +541,8 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
       photonX_      +=  EE * clusterRef->position().X();
       photonY_      +=  EE * clusterRef->position().Y();
       photonZ_      +=  EE * clusterRef->position().Z();	        
-      ps1TotEne     +=  ps1;
-      ps2TotEne     +=  ps2;
+      ps1TotEne     +=  ps1+addedps1;
+      ps2TotEne     +=  ps2+addedps2;
     } // end of loop over all ECAL cluster within this SC
     
     // we've looped over all ECAL clusters, ready to generate PhotonCandidate
@@ -593,6 +593,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	if(active[*it])photonCand.addElementInBlock(blockRef,*it);
 	active[*it] = false;
       }
+    pfCandidates->push_back(photonCand);
     // ... and reset the vector
     elemsToLock.resize(0);
     hasConvTrack=false;
