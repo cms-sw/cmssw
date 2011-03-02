@@ -32,7 +32,6 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include <FWCore/Framework/interface/Frameworkfwd.h>
-#include "CondCore/DBCommon/interface/Time.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 
@@ -59,11 +58,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   typedef std::vector<Alignable*> Alignables;
   typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
   typedef std::vector<ConstTrajTrackPair>  ConstTrajTrackPairCollection;
-
-  typedef AlignmentAlgorithmBase::RunNumber            RunNumber;
-  typedef AlignmentAlgorithmBase::RunRange             RunRange;
-  typedef std::vector<RunRange>                        RunRanges;
-
+  
   /// Constructor
   AlignmentProducer( const edm::ParameterSet& iConfig );
   
@@ -128,8 +123,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// Takes over ownership of alignments and alignmentErrrors.
   void writeDB(Alignments *alignments, const std::string &alignRcd,
 	       AlignmentErrors *alignmentErrors, const std::string &errRcd,
-	       const AlignTransform *globalCoordinates,
-	       cond::Time_t time = cond::timeTypeSpecs[cond::runnumber].beginValue) const;
+	       const AlignTransform *globalCoordinates) const;
   /// Write surface deformations (bows & kinks) to DB for given record name
   /// Takes over ownership of alignmentsurfaceDeformations.
   void writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDeformations,
@@ -140,8 +134,6 @@ class AlignmentProducer : public edm::ESProducerLooper
 	
   /// read in survey records
   void readInSurveyRcds( const edm::EventSetup& );
-
-  RunRanges makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet);
 
   // private data members
 
@@ -172,7 +164,7 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   const int stNFixAlignables_;
   const double stRandomShift_,stRandomRotation_;
-  const bool applyDbAlignment_,applyDbDeformations_,doMisalignmentScenario_;
+  const bool applyDbAlignment_,doMisalignmentScenario_;
   const bool saveToDB_, saveApeToDB_,saveDeformationsToDB_;
   const bool doTracker_,doMuon_,useExtras_;
   const bool useSurvey_; // true to read survey info from DB
