@@ -359,6 +359,8 @@ int LMFUnique::writeDB()
       }
       m_conn->terminateStatement(stmt);
     } catch (SQLException &e) {
+      debug();
+      dump();
       throw(std::runtime_error(m_className + "::writeDB:  " + e.getMessage() +
 			       " while executing query " + sql));
     }
