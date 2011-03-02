@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.6 2011/03/02 11:50:09 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.7 2011/03/02 15:48:50 amraktad Exp $
 //
 
 #include <map>
@@ -91,6 +91,12 @@ static TypeTrans const sTypeTranslations;
 FWPSetTableManager::FWPSetTableManager()
    : m_selectedRow(-1)
 {  
+
+   TGGC* hc =  new TGGC(FWTextTableCellRenderer::getDefaultHighlightGC());
+   hc->SetForeground(0xeeeeee);
+
+   m_renderer.setHighlightContext(hc);
+
    setGrowInWidth(false);
    reset();
 }
@@ -202,73 +208,6 @@ void FWPSetTableManager::createVectorString(FWPSetTableManager::PSetData &data, 
    ss << "]";
    data.value = ss.str();
    m_entries.push_back(data);
-}
-
-void FWPSetTableManager::updateFilter(const char *filter)
-{
-   m_filter = filter;
-
-   // Decide whether or not items match the filter.
-   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-   {
-      PSetData &data = m_entries[i];
-
-      // First of all decide whether or not we match
-      // the filter.
-      if (strstr(data.label.c_str(), m_filter.c_str()))
-         data.matches = true;
-      else
-         data.matches = false;
-   }
-
-   // We reset whether or not a given parent has children that match the
-   // filter, and we recompute the whole information by checking all the
-   // children.
-   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-      m_entries[i].childMatches = false;
-
-   std::vector<int> stack;
-   int previousLevel = 0;
-   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-   {
-      PSetData &data = m_entries[i];
-      // Top level.
-      if (data.parent == (size_t)-1)
-      {
-         previousLevel = 0;
-         continue;
-      }
-      // If the level is greater than the previous one,
-      // it means we are among the children of the 
-      // previous level, hence we push the parent to
-      // the stack.
-      // If the level is not greater than the previous
-      // one it means we have popped out n levels of
-      // parents, where N is the difference between the 
-      // new and the old level. In this case we
-      // pop up N parents from the stack.
-      if (data.level > previousLevel)
-         stack.push_back(data.parent);
-      else
-         for (size_t pi = 0, pe = previousLevel - data.level; pi != pe; ++pi)
-            stack.pop_back();
- 
-      if (data.matches)
-         for (size_t pi = 0, pe = stack.size(); pi != pe; ++pi)
-            m_entries[stack[pi]].childMatches = true;
-
-      previousLevel = data.level;
-   }
-       
-   recalculateVisibility();
-
-
-   dataChanged();
-}
-
-void FWPSetTableManager::setCellValueEditor(FWPSetCellEditor *editor)
-{
-   m_editor = editor;
 }
 
 void FWPSetTableManager::handleEntry(const edm::Entry &entry,const std::string &key)
@@ -602,6 +541,11 @@ void FWPSetTableManager::update(std::vector<PathUpdate> &pathUpdates)
 //==============================================================================
 //==============================================================================
 
+void FWPSetTableManager::setCellValueEditor(FWPSetCellEditor *editor)
+{
+   m_editor = editor;
+}
+
 
 /** Does not apply changes and closes window. */
 void FWPSetTableManager::cancelEditor()
@@ -691,7 +635,7 @@ int FWPSetTableManager::selectedRow() const {
 int FWPSetTableManager::selectedColumn() const {
    return m_selectedColumn;
 }
-   //virtual void sort (int col, bool reset = false);
+
 bool FWPSetTableManager::rowIsSelected(int row) const 
 {
    return m_selectedRow == row;
@@ -710,6 +654,51 @@ void FWPSetTableManager::implSort(int, bool)
 {
 }
 
+void FWPSetTableManager::reset() 
+{
+   changeSelection(-1, -1);
+   recalculateVisibility();
+   dataChanged();
+   visualPropertiesChanged();
+}
+
+void FWPSetTableManager::changeSelection(int iRow, int iColumn)
+{
+   // Nothing changes if we clicked selected
+   // twice the same cell.
+   if (iRow == m_selectedRow && iColumn == m_selectedColumn)
+      return;
+
+   // Otherwise update the selection information
+   // and notify observers.
+   m_selectedRow = iRow;
+   m_selectedColumn = iColumn;
+
+   indexSelected_(iRow, iColumn);
+   visualPropertiesChanged();
+}
+
+//______________________________________________________________________________
+
+void FWPSetTableManager::setExpanded(int row)
+{
+   if (row == -1)
+      return;
+
+   int index = rowToIndex()[row];
+   PSetData& data = m_entries[index];
+
+   if (m_filter.empty() == false && data.childMatches == false)
+      return;
+
+   data.expanded = !data.expanded;
+   recalculateVisibility();
+   dataChanged();
+   visualPropertiesChanged();
+}
+
+//______________________________________________________________________________
+
 FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, int iCol) const
 {
    static size_t maxSize = 512; // maximum string length
@@ -725,7 +714,6 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
    // return in case if nothing maches filter
    if (static_cast<int>(m_row_to_index.size()) <= iSortedRowNumber)
    {
-      // std::cout << "FWPSetTableManager::cellRenderer() m_row_to_index.size " <<m_row_to_index.size() << "<= iSortedRowNumber" << iSortedRowNumber << std::endl;
       m_renderer.setData(std::string(), false);
       return &m_renderer;
    }
@@ -782,13 +770,17 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
       gc->SetForeground(gVirtualX->GetPixel(kMagenta));
    }
 
+   // debug
+   // label = Form("%s m[%d] childm[%d] ", label.c_str(), data.matches, data.childMatches);
+
    // set text attributes
    m_renderer.setGraphicsContext(gc);
-   m_renderer.setData(iCol ?  value : label, false);
-      
+   bool selected = data.matches && (m_filter.empty() == false);
+   m_renderer.setData(iCol ?  value : label, selected);
+
    // set  tree attributes
    bool isParent = false;
-   bool open = false;
+   bool isOpen = false;
    int indent = 0;
    if (iCol == 0)
    { 
@@ -796,25 +788,22 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
       {
          size_t nextIdx =  unsortedRow + 1;
          isParent = (nextIdx < m_entries.size() &&  m_entries[nextIdx].parent == (size_t)unsortedRow);
+         isOpen = data.expanded;
       }
       else 
       {
          isParent = data.childMatches;
+         isOpen = data.expanded && data.childMatches;
       }
 
       indent =  data.level * 10 ;
       if (!isParent) indent += FWTextTreeCellRenderer::iconWidth();
-
-      if (m_filter.empty())
-         open = data.expanded;
-      else
-         open = data.childMatches;
    }
    m_renderer.setIsParent(isParent);
-   m_renderer.setIsOpen(open);
+   m_renderer.setIsOpen(isOpen);
    m_renderer.setIndentation(indent);
 
-
+   
    // If we are rendering the selected cell,
    // we show the editor.
    if (iCol == 1 && iSortedRowNumber == m_selectedRow && iCol == m_selectedColumn && value.size() < maxSize)
@@ -828,7 +817,95 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
    }
 
    return &m_renderer;
-}
+} // cellRender()
+
+//______________________________________________________________________________
+
+void FWPSetTableManager::updateFilter(const char *filter)
+{
+   m_filter = filter;
+
+   if (m_filter.empty())
+   { 
+      // collapse entries when filter is removed
+      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+         m_entries[i].expanded = false;
+   }
+   else
+   {
+      // Decide whether or not items match the filter.
+      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+      {
+         PSetData &data = m_entries[i];
+
+         // First of all decide whether or not we match
+         // the filter.
+         if (strstr(data.label.c_str(), m_filter.c_str()) || strstr(data.value.c_str(), m_filter.c_str()) )
+            data.matches = true;
+         else
+            data.matches = false;
+      }
+
+      // We reset whether or not a given parent has children that match the
+      // filter, and we recompute the whole information by checking all the
+      // children.
+      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+         m_entries[i].childMatches = false;
+
+      std::vector<int> stack;
+      int previousLevel = 0;
+      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+      {
+         PSetData &data = m_entries[i];
+         // Top level.
+         if (data.parent == (size_t)-1)
+         {
+            previousLevel = 0;
+            // std::cout << "reset stack for top level " << data.label << std::endl;
+            stack.clear();
+            continue;
+         }
+         // If the level is greater than the previous one,
+         // it means we are among the children of the 
+         // previous level, hence we push the parent to
+         // the stack.
+         // If the level is not greater than the previous
+         // one it means we have popped out n levels of
+         // parents, where N is the difference between the 
+         // new and the old level. In this case we
+         // pop up N parents from the stack.
+         if (data.level > previousLevel)
+            stack.push_back(data.parent);
+         else
+            for (size_t pi = 0, pe = previousLevel - data.level; pi != pe; ++pi)
+               stack.pop_back();
+ 
+         if (data.matches && m_entries[stack.back()].childMatches == false)
+         {
+            //  printf("match for %s with level %d\n",data.label.c_str(), data.level );
+            for (size_t pi = 0, pe = stack.size(); pi != pe; ++pi)
+            {
+               //    printf("set child match to parent %s with level %d \n",m_entries[stack[pi]].label.c_str(), m_entries[stack[pi]].level);
+               m_entries[stack[pi]].childMatches = true;
+               
+            }
+         }
+
+         previousLevel = data.level;
+      }
+   
+      // expand to matching children
+      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+         m_entries[i].expanded = m_entries[i].childMatches;
+
+   }
+ 
+   recalculateVisibility();
+
+   dataChanged();
+} // updateFilter()
+
+//______________________________________________________________________________
 
 void FWPSetTableManager::recalculateVisibility()
 {
@@ -841,12 +918,23 @@ void FWPSetTableManager::recalculateVisibility()
    //   is visible.
    // * If the filter is empty and the parent is expanded.
    for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-   {
+   { 
       PSetData &data = m_entries[i];
       if (data.parent == ((size_t) -1))
+      {
          data.visible = data.childMatches || data.matches || m_filter.empty();
+      }
       else
-         data.visible = data.matches || data.childMatches || (m_filter.empty() && m_entries[data.parent].expanded && m_entries[data.parent].visible);
+      {
+         if (m_filter.empty())
+         {
+            data.visible = m_entries[data.parent].expanded && m_entries[data.parent].visible;
+         }
+         else
+         {
+            data.visible = m_entries[data.parent].expanded && m_entries[data.parent].visible && (data.matches || data.childMatches);
+         }
+      }
    }
 
    // Put in the index only the entries which are visible.
@@ -855,47 +943,3 @@ void FWPSetTableManager::recalculateVisibility()
          m_row_to_index.push_back(i);
 }
 
-void FWPSetTableManager::setExpanded(int row)
-{
-   if (row == -1)
-      return;
-   // We do not want to handle expansion
-   // events while in filtering mode.
-   if (!m_filter.empty())
-   {
-      fwLog(fwlog::kError) << "Collapse/Expand not allowed when filters applied" << std::endl;
-      return;
-   }
-
-   int index = rowToIndex()[row];
-   PSetData& data = m_entries[index];
-
-   data.expanded = !data.expanded;
-   recalculateVisibility();
-   dataChanged();
-   visualPropertiesChanged();
-}
-
-void FWPSetTableManager::reset() 
-{
-   changeSelection(-1, -1);
-   recalculateVisibility();
-   dataChanged();
-   visualPropertiesChanged();
-}
-
-void FWPSetTableManager::changeSelection(int iRow, int iColumn)
-{
-   // Nothing changes if we clicked selected
-   // twice the same cell.
-   if (iRow == m_selectedRow && iColumn == m_selectedColumn)
-      return;
-
-   // Otherwise update the selection information
-   // and notify observers.
-   m_selectedRow = iRow;
-   m_selectedColumn = iColumn;
-
-   indexSelected_(iRow, iColumn);
-   visualPropertiesChanged();
-}
