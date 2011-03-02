@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.3 2011/02/28 20:37:39 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.4 2011/03/01 12:06:34 amraktad Exp $
 //
 
 #include <map>
@@ -23,6 +23,13 @@
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+//
+// constants, enums and typedefs
+//
+
+//
+// static data member definitions
+//
 
 
 // FIXME: copied from Entry.cc should find a way to use the original
@@ -76,6 +83,68 @@ TypeTrans::TypeTrans():table_(255) {
 
 static TypeTrans const sTypeTranslations;
 
+
+//
+// constructors and destructor
+//
+
+FWPSetTableManager::FWPSetTableManager()
+   : m_selectedRow(-1),
+     m_greenGC(0),
+     m_redGC(0),
+     m_grayGC(0),
+     m_bgGC(0)
+{  
+   m_boldRenderer.setGraphicsContext(&fireworks::boldGC());
+   m_italicRenderer.setGraphicsContext(&fireworks::italicGC());
+
+   m_greenGC = new TGGC(fireworks::boldGC());
+   m_greenGC->SetForeground(gVirtualX->GetPixel(kGreen-5));
+
+   m_redGC = new TGGC(fireworks::boldGC());
+   m_redGC->SetForeground(gVirtualX->GetPixel(kRed-5));
+
+   m_grayGC = new TGGC(fireworks::italicGC());
+   m_grayGC->SetForeground(gVirtualX->GetPixel(kGray+1));
+
+   m_bgGC = new TGGC(*gClient->GetResourcePool()->GetFrameGC());
+   m_bgGC->SetBackground(gVirtualX->GetPixel(kGray));
+
+  
+   m_pathPassedRenderer.setGraphicsContext(m_greenGC);
+   m_pathPassedRenderer.setHighlightContext(m_bgGC);
+   m_pathPassedRenderer.setIsParent(true);
+
+   m_pathFailedRenderer.setGraphicsContext(m_redGC);
+   m_pathFailedRenderer.setHighlightContext(m_bgGC);
+   m_pathFailedRenderer.setIsParent(true);
+      
+   m_editingDisabledRenderer.setGraphicsContext(m_grayGC);
+   m_editingDisabledRenderer.setHighlightContext(m_bgGC);
+
+   // Italic color doesn't seem to show up well event though
+   // modules are displayed in italic
+   m_modulePassedRenderer.setGraphicsContext(m_greenGC);
+   m_modulePassedRenderer.setIsParent(true);
+   m_moduleFailedRenderer.setGraphicsContext(m_redGC);
+   m_moduleFailedRenderer.setIsParent(true);
+
+   // Debug stuff to dump font list.
+   //      std::cout << "Available fonts: " << std::endl;
+   //      gClient->GetFontPool()->Print();
+       
+   reset();
+}
+
+FWPSetTableManager::~FWPSetTableManager()
+{
+}
+
+//==============================================================================
+//==============================================================================
+//========== IMPORT CMSSW CONFIG TO TABLE ======================================
+//==============================================================================
+//==============================================================================
 
 void FWPSetTableManager::handlePSetEntry(const edm::ParameterSetEntry& entry, const std::string& key)
 {
@@ -396,135 +465,6 @@ void FWPSetTableManager::handleEntry(const edm::Entry &entry,const std::string &
       }
    }
 }
-//==============================================================================
-//==============================================================================
-//==============================================================================
-//==============================================================================
-//==============================================================================
-//==============================================================================
-//==============================================================================
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-
-FWPSetTableManager::FWPSetTableManager()
-   : m_selectedRow(-1),
-     m_greenGC(0),
-     m_redGC(0),
-     m_grayGC(0),
-     m_bgGC(0)
-{  
-   m_boldRenderer.setGraphicsContext(&fireworks::boldGC());
-   m_italicRenderer.setGraphicsContext(&fireworks::italicGC());
-
-   m_greenGC = new TGGC(fireworks::boldGC());
-   m_greenGC->SetForeground(gVirtualX->GetPixel(kGreen-5));
-
-   m_redGC = new TGGC(fireworks::boldGC());
-   m_redGC->SetForeground(gVirtualX->GetPixel(kRed-5));
-
-   m_grayGC = new TGGC(fireworks::italicGC());
-   m_grayGC->SetForeground(gVirtualX->GetPixel(kGray+1));
-
-   m_bgGC = new TGGC(*gClient->GetResourcePool()->GetFrameGC());
-   m_bgGC->SetBackground(gVirtualX->GetPixel(kGray));
-
-  
-   m_pathPassedRenderer.setGraphicsContext(m_greenGC);
-   m_pathPassedRenderer.setHighlightContext(m_bgGC);
-   m_pathPassedRenderer.setIsParent(true);
-
-   m_pathFailedRenderer.setGraphicsContext(m_redGC);
-   m_pathFailedRenderer.setHighlightContext(m_bgGC);
-   m_pathFailedRenderer.setIsParent(true);
-      
-   m_editingDisabledRenderer.setGraphicsContext(m_grayGC);
-   m_editingDisabledRenderer.setHighlightContext(m_bgGC);
-
-   // Italic color doesn't seem to show up well event though
-   // modules are displayed in italic
-   m_modulePassedRenderer.setGraphicsContext(m_greenGC);
-   m_modulePassedRenderer.setIsParent(true);
-   m_moduleFailedRenderer.setGraphicsContext(m_redGC);
-   m_moduleFailedRenderer.setIsParent(true);
-
-   // Debug stuff to dump font list.
-   //      std::cout << "Available fonts: " << std::endl;
-   //      gClient->GetFontPool()->Print();
-       
-   reset();
-}
-
-FWPSetTableManager::~FWPSetTableManager()
-{
-}
-
-void FWPSetTableManager::implSort(int, bool)
-{
-   // Decide whether or not items match the filter.
-   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-   {
-      PSetData &data = m_entries[i];
-      // First of all decide whether or not we match
-      // the filter.
-      if (m_filter.empty())
-         data.matches = false;
-      else if (strstr(data.label.c_str(), m_filter.c_str()))
-         data.matches = true;
-      else
-         data.matches = false;
-   }
-
-   // We reset whether or not a given parent has children that match the
-   // filter, and we recompute the whole information by checking all the
-   // children.
-   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-      m_entries[i].childMatches = false;
-
-   std::vector<int> stack;
-   int previousLevel = 0;
-   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-   {
-      PSetData &data = m_entries[i];
-      // Top level.
-      if (data.parent == (size_t)-1)
-      {
-         previousLevel = 0;
-         continue;
-      }
-      // If the level is greater than the previous one,
-      // it means we are among the children of the 
-      // previous level, hence we push the parent to
-      // the stack.
-      // If the level is not greater than the previous
-      // one it means we have popped out n levels of
-      // parents, where N is the difference between the 
-      // new and the old level. In this case we
-      // pop up N parents from the stack.
-      if (data.level > previousLevel)
-         stack.push_back(data.parent);
-      else
-         for (size_t pi = 0, pe = previousLevel - data.level; pi != pe; ++pi)
-            stack.pop_back();
- 
-      if (data.matches)
-         for (size_t pi = 0, pe = stack.size(); pi != pe; ++pi)
-            m_entries[stack[pi]].childMatches = true;
-
-      previousLevel = data.level;
-   }
-       
-   recalculateVisibility();
-}
 
 /* the actual structure of the model will not change, only
    its contents, because of the way CMSSW is designed,
@@ -641,6 +581,67 @@ void FWPSetTableManager::update(std::vector<PathUpdate> &pathUpdates)
    implSort(-1, true);
 }
 
+//==============================================================================
+//==============================================================================
+//=============== CELL EDITOR ACTIONS ==========================================
+//==============================================================================
+//==============================================================================
+
+
+/** Does not apply changes and closes window. */
+void FWPSetTableManager::cancelEditor()
+{
+   if (!m_editor)
+      return;
+         
+   m_editor->UnmapWindow(); 
+         
+}
+
+ /** This is invoked every single time the
+       editor contents must be applied to the selected entry in the pset. 
+       @return true on success. 
+*/
+bool FWPSetTableManager::applyEditor()
+{
+   if (!m_editor)
+      return false;
+         
+   if (m_selectedRow == -1)
+      return false;
+   if (m_selectedColumn != 1)
+   {
+      m_editor->UnmapWindow();
+      return false;
+   }
+         
+   PSetData &data = m_entries[m_row_to_index[m_selectedRow]];
+   PSetData &parent = m_entries[data.parent];
+   bool success = false;
+   try
+   {
+      success = m_editor->apply(data, parent);
+      if (success)
+      {
+         data.value = m_editor->GetText();
+         m_modules[data.module].dirty = true;
+         m_editor->UnmapWindow();
+      }
+   }
+   // catch(/*cms::Exception*/ std::exception &e)
+   catch(cms::Exception &e)
+   {
+      m_editor->SetForegroundColor(gVirtualX->GetPixel(kRed));
+   }
+   return success;
+}
+
+
+//==============================================================================
+//==============================================================================
+//========  TABLE UI MNG (virutals FWViewManagerBase virtuals, etc.)   =========
+//==============================================================================
+//==============================================================================
 
 int FWPSetTableManager::unsortedRowNumber(int unsorted) const
 {
@@ -654,7 +655,33 @@ int FWPSetTableManager::numberOfRows() const {
 int FWPSetTableManager::numberOfColumns() const {
    return 2;
 }
-   
+
+void FWPSetTableManager::setSelection (int row, int column, int mask) {
+   if(mask == 4) {
+      if( row == m_selectedRow) {
+         row = -1;
+      }
+   }
+   changeSelection(row, column);
+}
+
+const std::string FWPSetTableManager::title() const {
+   return "Modules & their parameters";
+}
+
+int FWPSetTableManager::selectedRow() const {
+   return m_selectedRow;
+}
+
+int FWPSetTableManager::selectedColumn() const {
+   return m_selectedColumn;
+}
+   //virtual void sort (int col, bool reset = false);
+bool FWPSetTableManager::rowIsSelected(int row) const 
+{
+   return m_selectedRow == row;
+}
+  
 std::vector<std::string> FWPSetTableManager::getTitles() const 
 {
    std::vector<std::string> returnValue;
@@ -772,31 +799,62 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
    return renderer;
 }
 
-
-void FWPSetTableManager::setSelection (int row, int column, int mask) {
-   if(mask == 4) {
-      if( row == m_selectedRow) {
-         row = -1;
-      }
-   }
-   changeSelection(row, column);
-}
-
-const std::string FWPSetTableManager::title() const {
-   return "Modules & their parameters";
-}
-
-int FWPSetTableManager::selectedRow() const {
-   return m_selectedRow;
-}
-
-int FWPSetTableManager::selectedColumn() const {
-   return m_selectedColumn;
-}
-   //virtual void sort (int col, bool reset = false);
-bool FWPSetTableManager::rowIsSelected(int row) const 
+void FWPSetTableManager::implSort(int, bool)
 {
-   return m_selectedRow == row;
+   // Decide whether or not items match the filter.
+   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+   {
+      PSetData &data = m_entries[i];
+      // First of all decide whether or not we match
+      // the filter.
+      if (m_filter.empty())
+         data.matches = false;
+      else if (strstr(data.label.c_str(), m_filter.c_str()))
+         data.matches = true;
+      else
+         data.matches = false;
+   }
+
+   // We reset whether or not a given parent has children that match the
+   // filter, and we recompute the whole information by checking all the
+   // children.
+   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+      m_entries[i].childMatches = false;
+
+   std::vector<int> stack;
+   int previousLevel = 0;
+   for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+   {
+      PSetData &data = m_entries[i];
+      // Top level.
+      if (data.parent == (size_t)-1)
+      {
+         previousLevel = 0;
+         continue;
+      }
+      // If the level is greater than the previous one,
+      // it means we are among the children of the 
+      // previous level, hence we push the parent to
+      // the stack.
+      // If the level is not greater than the previous
+      // one it means we have popped out n levels of
+      // parents, where N is the difference between the 
+      // new and the old level. In this case we
+      // pop up N parents from the stack.
+      if (data.level > previousLevel)
+         stack.push_back(data.parent);
+      else
+         for (size_t pi = 0, pe = previousLevel - data.level; pi != pe; ++pi)
+            stack.pop_back();
+ 
+      if (data.matches)
+         for (size_t pi = 0, pe = stack.size(); pi != pe; ++pi)
+            m_entries[stack[pi]].childMatches = true;
+
+      previousLevel = data.level;
+   }
+       
+   recalculateVisibility();
 }
 
 
@@ -868,48 +926,4 @@ void FWPSetTableManager::changeSelection(int iRow, int iColumn)
 
    indexSelected_(iRow, iColumn);
    visualPropertiesChanged();
-}
-
-/** Does not apply changes and closes window. */
-void FWPSetTableManager::cancelEditor()
-{
-   if (!m_editor)
-      return;
-         
-   m_editor->UnmapWindow(); 
-         
-}
-
- /** This is invoked every single time the
-       editor contents must be applied to the selected entry in the pset. 
-       @return true on success. 
-*/
-bool FWPSetTableManager::applyEditor()
-{
-   if (!m_editor)
-      return false;
-         
-   if (m_selectedRow == -1)
-      return false;
-   if (m_selectedColumn != 1)
-   {
-      m_editor->UnmapWindow();
-      return false;
-   }
-         
-   PSetData &data = m_entries[m_row_to_index[m_selectedRow]];
-   PSetData &parent = m_entries[data.parent];
-   try
-   {
-      m_editor->apply(data, parent);
-      data.value = m_editor->GetText();
-      m_modules[data.module].dirty = true;
-      m_editor->UnmapWindow();
-   }
-   // catch(/*cms::Exception*/ std::exception &e)
-   catch(cms::Exception &e)
-   {
-      m_editor->SetForegroundColor(gVirtualX->GetPixel(kRed));
-   }
-   return true;
 }
