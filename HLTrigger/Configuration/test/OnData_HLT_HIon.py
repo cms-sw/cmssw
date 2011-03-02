@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/HIon/V53 (CMSSW_3_11_0_HLT9)
+# /dev/CMSSW_3_11_1/HIon/V54 (CMSSW_3_11_0_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V53')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V54')
 )
 
 process.streams = cms.PSet( 
@@ -2924,7 +2924,9 @@ process.hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
       long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
       isS8S1 = cms.bool( False )
     ),
-    firstAuxOffset = cms.int32( 0 )
+    firstAuxOffset = cms.int32( 0 ),
+    firstAuxTS = cms.int32( 4 ),
+    tsFromDB = cms.bool( True )
 )
 process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     firstSample = cms.int32( 4 ),
@@ -3027,7 +3029,9 @@ process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
       long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
       isS8S1 = cms.bool( False )
     ),
-    firstAuxOffset = cms.int32( 0 )
+    firstAuxOffset = cms.int32( 0 ),
+    firstAuxTS = cms.int32( 4 ),
+    tsFromDB = cms.bool( True )
 )
 process.hltHoreco = cms.EDProducer( "HcalHitReconstructor",
     firstSample = cms.int32( 4 ),
@@ -3115,7 +3119,9 @@ process.hltHoreco = cms.EDProducer( "HcalHitReconstructor",
       long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
       isS8S1 = cms.bool( False )
     ),
-    firstAuxOffset = cms.int32( 0 )
+    firstAuxOffset = cms.int32( 0 ),
+    firstAuxTS = cms.int32( 4 ),
+    tsFromDB = cms.bool( True )
 )
 process.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     EBThreshold = cms.double( 0.07 ),

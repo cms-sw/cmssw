@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/GRun/V53 (CMSSW_3_11_0_HLT9)
+# /dev/CMSSW_3_11_1/GRun/V54 (CMSSW_3_11_0_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V53')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V54')
 )
 
 streams = cms.PSet( 
@@ -2135,7 +2135,9 @@ hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
       long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
       isS8S1 = cms.bool( False )
     ),
-    firstAuxOffset = cms.int32( 0 )
+    firstAuxOffset = cms.int32( 0 ),
+    firstAuxTS = cms.int32( 4 ),
+    tsFromDB = cms.bool( True )
 )
 hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     firstSample = cms.int32( 4 ),
@@ -2238,7 +2240,9 @@ hltHfreco = cms.EDProducer( "HcalHitReconstructor",
       long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
       isS8S1 = cms.bool( False )
     ),
-    firstAuxOffset = cms.int32( 0 )
+    firstAuxOffset = cms.int32( 0 ),
+    firstAuxTS = cms.int32( 4 ),
+    tsFromDB = cms.bool( True )
 )
 hltHoreco = cms.EDProducer( "HcalHitReconstructor",
     firstSample = cms.int32( 4 ),
@@ -2326,7 +2330,9 @@ hltHoreco = cms.EDProducer( "HcalHitReconstructor",
       long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
       isS8S1 = cms.bool( False )
     ),
-    firstAuxOffset = cms.int32( 0 )
+    firstAuxOffset = cms.int32( 0 ),
+    firstAuxTS = cms.int32( 4 ),
+    tsFromDB = cms.bool( True )
 )
 hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     EBThreshold = cms.double( 0.07 ),
@@ -10949,7 +10955,7 @@ hltL1NonIsoHLTNonIsoSinglePhotonEt60CaloIdLL1MatchFilterRegional = cms.EDFilter(
     l1IsolatedTag = cms.InputTag( 'hltL1extraParticles','Isolated' ),
     candNonIsolatedTag = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
     l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
-    L1SeedFilterTag = cms.InputTag( "hltL1sL1SingleEG12" ),
+    L1SeedFilterTag = cms.InputTag( "hltL1sL1SingleEG15" ),
     ncandcut = cms.int32( 1 ),
     doIsolated = cms.bool( False ),
     region_eta_size = cms.double( 0.522 ),
@@ -17101,11 +17107,11 @@ HLT_Photon26_IsoVL_Photon18_IsoVL_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1
 HLT_Photon26_CaloIdL_IsoVL_Photon18_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG12 + hltPrePhoton26CaloIdLIsoVLPhoton18 + HLTPhoton26CaloIdLIsoVLPhoton18Sequence + HLTEndSequence )
 HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG12 + hltPrePhoton26CaloIdLIsoVLPhoton18CaloIdLIsoVL + HLTPhoton26CaloIdLIsoVLPhoton18CaloIdLIsoVLSequence + HLTEndSequence )
 HLT_Photon32_CaloIdL_Photon26_CaloIdL_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG20 + hltPrePhoton32CaloIdLPhoton26CaloIdL + HLTPhoton32CaloIdLPhoton26CaloIdLSequence + HLTEndSequence )
-HLT_Photon60_CaloIdL_HT200_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG12 + hltPrePho60CaloIdLHT200 + HLTSinglePhoton60CaloIdLSequence + HLTRecoJetSequenceAK5Corrected + HLTDoJet40HTRecoSequence + hltHT200 + HLTEndSequence )
-HLT_Photon70_CaloIdL_HT200_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG12 + hltPrePho70CaloIdLHT200 + HLTSinglePhoton70CaloIdLSequence + HLTRecoJetSequenceAK5Corrected + HLTDoJet40HTRecoSequence + hltHT200 + HLTEndSequence )
-HLT_Photon70_CaloIdL_HT300_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG12 + hltPrePho70CaloIdLHT300 + HLTSinglePhoton70CaloIdLSequence + HLTRecoJetSequenceAK5Corrected + HLTDoJet40HTRecoSequence + hltHT300 + HLTEndSequence )
-HLT_Photon70_CaloIdL_MHT30_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG12 + hltPrePho70CaloIdLMHT30 + HLTSinglePhoton70CaloIdLSequence + HLTRecoJetSequenceAK5Corrected + hltMHT30 + HLTEndSequence )
-HLT_Photon70_CaloIdL_MHT50_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG12 + hltPrePho70CaloIdLMHT50 + HLTSinglePhoton70CaloIdLSequence + HLTRecoJetSequenceAK5Corrected + hltMHT50 + HLTEndSequence )
+HLT_Photon60_CaloIdL_HT200_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG20 + hltPrePho60CaloIdLHT200 + HLTSinglePhoton60CaloIdLSequence + HLTRecoJetSequenceAK5Corrected + HLTDoJet40HTRecoSequence + hltHT200 + HLTEndSequence )
+HLT_Photon70_CaloIdL_HT200_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG20 + hltPrePho70CaloIdLHT200 + HLTSinglePhoton70CaloIdLSequence + HLTRecoJetSequenceAK5Corrected + HLTDoJet40HTRecoSequence + hltHT200 + HLTEndSequence )
+HLT_Photon70_CaloIdL_HT300_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG20 + hltPrePho70CaloIdLHT300 + HLTSinglePhoton70CaloIdLSequence + HLTRecoJetSequenceAK5Corrected + HLTDoJet40HTRecoSequence + hltHT300 + HLTEndSequence )
+HLT_Photon70_CaloIdL_MHT30_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG20 + hltPrePho70CaloIdLMHT30 + HLTSinglePhoton70CaloIdLSequence + HLTRecoJetSequenceAK5Corrected + hltMHT30 + HLTEndSequence )
+HLT_Photon70_CaloIdL_MHT50_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG20 + hltPrePho70CaloIdLMHT50 + HLTSinglePhoton70CaloIdLSequence + HLTRecoJetSequenceAK5Corrected + hltMHT50 + HLTEndSequence )
 HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG12 + hltPreEle17CaloIdLCaloIsoVLEle8CaloIdLCaloIsoVL + HLTEle17CaloIdIsoEle8CaloIdIsoSequence + HLTEndSequence )
 HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG12 + hltPreEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8Mass30 + HLTEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC8Mass30Sequence + HLTEndSequence )
 HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG12 + hltPreEle17CaloIdLCaloIsoVLEle15HFL + HLTSingleElectronEt17CaloIdIsoSequence + HLTHFEM15Sequence + HLTEndSequence )
