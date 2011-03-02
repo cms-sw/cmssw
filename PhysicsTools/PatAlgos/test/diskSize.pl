@@ -105,13 +105,14 @@ foreach my $item (keys(%survey)) { $survey{$item}->{'num'} = $events if $survey{
 
 foreach (grep( /^PROVENANCE\s+(\S+)/, @lines)) { /^PROVENANCE\s+(\S+)/ and $provenance = $1/1024.0; }
 
+my $totalavg = sprintf("%.1f",$grandtotal/$events);
 print <<_END_;
 <html>
 <head>
     <title>$filename : PAT Size</title>
     <link rel="stylesheet" type="text/css" href="patsize.css" />
 </head>
-<h1>Summary</h1>
+<h1>Summary ($totalavg kb/event)</h1>
 <table>
 _END_
 print "<tr class='header'><th>".join("</th><th>", "Collection", "items/event", "kb/event", "kb/item", "plot", "%") . "</th></tr>\n";
