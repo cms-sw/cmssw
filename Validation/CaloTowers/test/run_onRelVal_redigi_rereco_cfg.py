@@ -10,7 +10,7 @@ process = cms.Process("RelValValidation")
 ### process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 process.load("Configuration.StandardSequences.Simulation_cff")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 #process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
