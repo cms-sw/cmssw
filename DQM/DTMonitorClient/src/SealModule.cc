@@ -64,6 +64,9 @@ DEFINE_FWK_MODULE(DTDAQInfo);
 #include <DQM/DTMonitorClient/src/DTDCSSummary.h>
 DEFINE_FWK_MODULE(DTDCSSummary);
 
+#include <DQM/DTMonitorClient/src/DTDCSByLumiSummary.h>
+DEFINE_FWK_MODULE(DTDCSByLumiSummary);
+
 #include <DQM/DTMonitorClient/src/DTCertificationSummary.h>
 DEFINE_FWK_MODULE(DTCertificationSummary);
 
