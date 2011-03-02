@@ -2243,26 +2243,26 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
-   else if (triggerName.CompareTo("OpenHLT_Mu20_NoVertex") == 0)
+   else if (triggerName.CompareTo("OpenHLT_L2Mu0_NoVertex") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHlt1MuonPassed(7., 15., 20., 9999., 0)>=1)
+            if (OpenHlt1L2MuonNoVertexPassed(0., 0., 9999.)>=1)
             {
                triggerBit[it] = true;
             }
          }
       }
    }
-   else if (triggerName.CompareTo("OpenHLT_Mu30_NoVertex") == 0)
+   else if (triggerName.CompareTo("OpenHLT_L2DoubleMu35_NoVertex_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHlt1MuonPassed(7., 15., 30., 9999., 0)>=1)
+            if (OpenHlt1L2MuonNoVertexPassed(0., 35., 9999.)>=2)
             {
                triggerBit[it] = true;
             }
@@ -10688,6 +10688,75 @@ int OHltTree::OpenHlt1L2MuonPassed(double ptl1, double ptl2, double dr)
    } // End L2 loop over muons 
    return rcL1L2L3;
 }
+
+int OHltTree::OpenHlt1L2MuonNoVertexPassed(double ptl1, double ptl2, double dr) 
+{ 
+  // This is a modification of the standard Hlt1Muon code, which does not consider L3 information  
+ 
+  int rcL1 = 0; 
+  int rcL2 = 0; 
+  int rcL1L2L3 = 0; 
+  int NL1Mu = 8; 
+  int L1MinimalQuality = 3; 
+  int L1MaximalQuality = 7; 
+  int doL1L2NoVtxmatching = 0; 
+ 
+  // Loop over all oh L2NoVtx muons and apply cuts  
+  for (int j=0; j<NohMuL2NoVtx; j++) 
+    { 
+      int bestl1l2drmatchind = -1; 
+      double bestl1l2drmatch = 999.0; 
+ 
+      if (fabs(ohMuL2NoVtxEta[j])>=2.5) 
+	continue; // L2NoVtx eta cut  
+      if (ohMuL2NoVtxPt[j] <= ptl2) 
+	continue; // L2NoVtx pT cut  
+      rcL2++; 
+ 
+      // Begin L1 muons here.  
+      // Require there be an L1Extra muon Delta-R  
+      // matched to the L2NoVtx candidate, and that it have   
+      // good quality and pass nominal L1 pT cuts   
+      for (int k = 0; k < NL1Mu; k++) 
+	{ 
+	  if ( (L1MuPt[k] < ptl1)) 
+            continue; // L1 pT cut  
+ 
+	  double deltaphi = fabs(ohMuL2NoVtxPhi[j]-L1MuPhi[k]); 
+	  if (deltaphi > 3.14159) 
+            deltaphi = (2.0 * 3.14159) - deltaphi; 
+	  double deltarl1l2 = sqrt((ohMuL2NoVtxEta[j]-L1MuEta[k])*(ohMuL2NoVtxEta[j] 
+							      -L1MuEta[k]) + (deltaphi*deltaphi)); 
+	  if (deltarl1l2 < bestl1l2drmatch) 
+	    { 
+	      bestl1l2drmatchind = k; 
+	      bestl1l2drmatch = deltarl1l2; 
+	    } 
+	} // End loop over L1Extra muons  
+      if (doL1L2NoVtxmatching == 1) 
+	{ 
+	  // Cut on L1<->L2NoVtx matching and L1 quality  
+	  if ((bestl1l2drmatch > 0.3) || (L1MuQal[bestl1l2drmatchind] 
+					  < L1MinimalQuality) || (L1MuQal[bestl1l2drmatchind] 
+								  > L1MaximalQuality)) 
+	    { 
+	      rcL1 = 0; 
+	    } 
+	  else 
+	    { 
+	      cout << "Passed L1-L2NoVtx match/quality" << endl; 
+	      rcL1++; 
+	      rcL1L2L3++; 
+	    } // End L1 matching and quality cuts             
+	} 
+      else 
+	{ 
+	  rcL1L2L3++; 
+	} 
+    } // End L2 loop over muons  
+  return rcL1L2L3; 
+} 
+
 
 int OHltTree::OpenHltMuPixelPassed(
       double ptPix,

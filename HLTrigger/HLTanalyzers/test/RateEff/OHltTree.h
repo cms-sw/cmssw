@@ -5090,6 +5090,8 @@ public:
 	double masshigh);
    
    int OpenHlt1L2MuonPassed(double ptl1, double ptl2, double dr);
+
+   int OpenHlt1L2MuonNoVertexPassed(double ptl1, double ptl2, double dr); 
    
    int OpenHltMuTrackPassed(
          double ptTrack,
