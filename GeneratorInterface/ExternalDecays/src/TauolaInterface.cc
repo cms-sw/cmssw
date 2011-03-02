@@ -282,6 +282,9 @@ void TauolaInterface::statistics()
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "CLHEP/Random/RandomEngine.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_HEPEVT.h"
@@ -289,48 +292,132 @@ void TauolaInterface::statistics()
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
+// #include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
+
+
+extern "C" {
+
+  void gen::ranmar_( float *rvec, int *lenv )
+  {
+      TauolaInterface* instance = TauolaInterface::getInstance();
+      for(int i = 0; i < *lenv; i++)
+         // *rvec++ = decayRandomEngine->flat();
+	 *rvec++ = instance->flat();
+      return;
+  }
+  
+  void gen::rmarin_( int*, int*, int* )
+  {
+     return;
+  }
+
+}
 
 using namespace gen;
 using namespace edm;
 using namespace std;
 
-extern "C" {
+TauolaInterface* TauolaInterface::fInstance = 0;
 
-  void ranmar_( float *rvec, int *lenv )
-  {
 
-      for(int i = 0; i < *lenv; i++)
-         *rvec++ = decayRandomEngine->flat();
-
-      return;
-
-  }
-  
-  void rmarin_( int*, int*, int* )
-  {
-
-     return;
-
-  }
+TauolaInterface::TauolaInterface()
+   : fPolarization(false), fPSet(0), fIsInitialized(false)
+{
+   
+   Service<RandomNumberGenerator> rng;
+   if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+       << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+          "which appears to be absent.  Please add that service to your configuration\n"
+          "or remove the modules that require it." << std::endl;
+   }
+   
+   fRandomEngine = &rng->getEngine();
 
 }
 
-TauolaInterface::TauolaInterface( const ParameterSet& pset )
-   : fIsInitialized(false)
+
+//TauolaInterface::TauolaInterface( const ParameterSet& pset )
+//   : fIsInitialized(false)
+//{
+//
+//   Tauola::setDecayingParticle(15);
+//   // --> ??? Tauola::setRadiation(false);
+//
+//   // polarization switch 
+//   //
+//   // fPolarization = pset.getParameter<bool>("UseTauolaPolarization") ? 1 : 0 ;
+//   fPolarization = pset.getParameter<bool>("UseTauolaPolarization");
+//   
+//   // read tau decay mode switches
+//   //
+//   ParameterSet cards = pset.getParameter< ParameterSet >("InputCards");
+//   Tauola::setSameParticleDecayMode( cards.getParameter< int >( "pjak1" ) ) ;
+//   Tauola::setOppositeParticleDecayMode( cards.getParameter< int >( "pjak2" ) ) ;
+//
+//   Tauola::setTauLifetime(0.0);
+//   Tauola::spin_correlation.setAll(fPolarization);
+//
+//   // some more options, copied over from an example 
+//   // - maybe will use later...
+//   //
+//   //Tauola::setEtaK0sPi(0,0,0); // switches to decay eta K0_S and pi0 1/0 on/off. 
+//   //
+//
+//} 
+
+
+TauolaInterface* TauolaInterface::getInstance()
 {
+
+   if ( fInstance == 0 ) fInstance = new TauolaInterface() ;
+   return fInstance;
+
+}
+
+
+TauolaInterface::~TauolaInterface()
+{
+
+   if ( fPSet != 0 ) delete fPSet;
+   if ( fInstance == this ) fInstance = 0;
+
+}
+
+void TauolaInterface::setPSet( const ParameterSet& pset )
+{
+
+   if ( fPSet != 0 ) return; // need to throw a warning or maybe even an exception 
+                             // on the attempt to reset existing PSet
+   fPSet = new ParameterSet(pset);
+   
+   return;
+
+}
+
+void TauolaInterface::init( const edm::EventSetup& es )
+{
+   
+   if ( fIsInitialized ) return; // do init only once
+   
+   if ( fPSet == 0 ) 
+   {
+      return; // need to throw !!!
+   }
+      
+   es.getData( fPDGTable ) ;
 
    Tauola::setDecayingParticle(15);
    // --> ??? Tauola::setRadiation(false);
 
    // polarization switch 
    //
-   // fPolarization = pset.getParameter<bool>("UseTauolaPolarization") ? 1 : 0 ;
-   fPolarization = pset.getParameter<bool>("UseTauolaPolarization");
+   // fPolarization = fPSet->getParameter<bool>("UseTauolaPolarization") ? 1 : 0 ;
+   fPolarization = fPSet->getParameter<bool>("UseTauolaPolarization");
    
    // read tau decay mode switches
    //
-   ParameterSet cards = pset.getParameter< ParameterSet >("InputCards");
+   ParameterSet cards = fPSet->getParameter< ParameterSet >("InputCards");
    Tauola::setSameParticleDecayMode( cards.getParameter< int >( "pjak1" ) ) ;
    Tauola::setOppositeParticleDecayMode( cards.getParameter< int >( "pjak2" ) ) ;
 
@@ -343,32 +430,37 @@ TauolaInterface::TauolaInterface( const ParameterSet& pset )
    //Tauola::setEtaK0sPi(0,0,0); // switches to decay eta K0_S and pi0 1/0 on/off. 
    //
 
-} 
-
-TauolaInterface::~TauolaInterface()
-{
-}
-
-void TauolaInterface::init( const edm::EventSetup& es )
-{
-   
-   if ( fIsInitialized ) return; // do init only once
-      
-   fPDGs.push_back( Tauola::getDecayingParticle() );
-      
-   es.getData( fPDGTable ) ;
 //
 //   const HepPDT::ParticleData* 
 //         PData = fPDGTable->particle(HepPDT::ParticleID( abs(Tauola::getDecayingParticle()) )) ;
 //   double lifetime = PData->lifetime().value();
 //   Tauola::setTauLifetime( lifetime );
-   
+
+   fPDGs.push_back( Tauola::getDecayingParticle() );
+         
    Tauola::initialise();
    Log::LogWarning(false);
    
    fIsInitialized = true;
    
    return;
+}
+
+float TauolaInterface::flat()
+{
+
+   if ( !fPSet )
+   {
+      // throw
+   }
+   
+   if ( !fIsInitialized ) 
+   {
+      // throw
+   }
+   
+   return fRandomEngine->flat();
+
 }
 
 HepMC::GenEvent* TauolaInterface::decay( HepMC::GenEvent* evt )

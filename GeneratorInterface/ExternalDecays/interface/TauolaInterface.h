@@ -14,10 +14,14 @@ namespace HepMC
 class GenEvent;
 }
 
+namespace CLHEP
+{
+class HepRandomEngine;
+}
+
 namespace gen {
 
-   //class Pythia6Service;
-
+/* for old tauola27 */
    class TauolaInterface
    {
       public:
@@ -46,17 +50,25 @@ namespace gen {
       //CLHEP::RandFlat*                         fRandomGenerator;
        
    };
+/* */
 
 /* this is the code for new Tauola++ 
+
+   extern "C" {
+      void ranmar_( float *rvec, int *lenv );
+      void rmarin_( int*, int*, int* );
+   }
 
    class TauolaInterface
    {
       public:
       
       // ctor & dtor
-      TauolaInterface( const edm::ParameterSet& );
+      // TauolaInterface( const edm::ParameterSet& );
+      static TauolaInterface* getInstance() ;
       ~TauolaInterface();
       
+      void setPSet( const edm::ParameterSet& );
       void enablePolarization()  { fPolarization = true; return; }
       void disablePolarization() { fPolarization = false; return; }
       void init( const edm::EventSetup& );
@@ -66,11 +78,23 @@ namespace gen {
       
       private: 
       
-      //            
+      friend void gen::ranmar_( float *rvec, int *lenv );
+      
+      // ctor
+      TauolaInterface();
+      
+      // member function(s)
+      float flat();
+      
+      //
+      CLHEP::HepRandomEngine*                  fRandomEngine;            
       std::vector<int>                         fPDGs;
       bool                                     fPolarization;      
       edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
+      edm::ParameterSet*                       fPSet;
       bool                                     fIsInitialized;
+      
+      static TauolaInterface*                  fInstance;
        
    };
 
