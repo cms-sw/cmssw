@@ -4,8 +4,8 @@
 /** \class DropBoxMetadata
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2011/02/23 16:55:18 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - CERN
  */
 
@@ -40,6 +40,8 @@ public:
   void addRecordParameters(const std::string& record, const Parameters& params);
   
   const Parameters& getRecordParameters(const std::string& record) const;
+
+  bool knowsRecord(const std::string& record) const;
 
 protected:
 

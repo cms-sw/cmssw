@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/02/22 11:05:16 $
+ *  $Date: 2011/02/23 16:55:18 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - CERN
  */
@@ -97,21 +97,22 @@ void ProduceDropBoxMetadata::beginRun(const edm::Run& run, const edm::EventSetup
     eSetup.get<DropBoxMetadataRcd>().get(mdPayload);
 
     const DropBoxMetadata *metadata = mdPayload.product();
-    
+      
+    // loop 
     for(vector<string>::const_iterator name = fToRead.begin();
 	name != fToRead.end(); ++name) {
-      
-      // loop 
-      for(vector<string>::const_iterator name = fToRead.begin();
-	  name != fToRead.end(); ++name) {
-	cout << "--- record: " << *name << endl;
+      cout << "--- record: " << *name << endl;
+      if(metadata->knowsRecord(*name)) {
 	const map<string, string>  & params = metadata->getRecordParameters(*name).getParameterMap();
 	for(map<string, string>::const_iterator par = params.begin();
 	    par != params.end(); ++ par) {
 	  cout << "           key: " << par->first << " value: " << par->second << endl;
 	}
+      } else {
+	cout << "     not in the payload!" << endl;
       }
     }
+
   }
   
 

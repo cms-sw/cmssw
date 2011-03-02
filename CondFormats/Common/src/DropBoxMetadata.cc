@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2011/02/23 16:55:18 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - CERN
  */
 
@@ -23,7 +23,12 @@ void DropBoxMetadata::Parameters::addParameter(const string& key, const string& 
 }
 
 string DropBoxMetadata::Parameters::getParameter(const string& key) const {
-  return (*(theParameters.find(key))).second;
+  string ret;
+  map<string, string>::const_iterator thePair = theParameters.find(key);
+  if(thePair != theParameters.end()) {
+    ret = (*thePair).second;
+  }
+  return ret;
 }
 
 const map<string, string> & DropBoxMetadata::Parameters::getParameterMap() const {
@@ -41,3 +46,8 @@ const DropBoxMetadata::Parameters& DropBoxMetadata::getRecordParameters(const st
   return recordSet.find(record)->second;
 }
 
+bool DropBoxMetadata::knowsRecord(const std::string& record) const {
+  if(recordSet.find(record) != recordSet.end()) return true;
+
+  return false;
+}
