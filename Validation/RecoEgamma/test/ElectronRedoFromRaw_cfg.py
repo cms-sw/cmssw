@@ -20,7 +20,6 @@ process.RECOSIMoutput.outputCommands = cms.untracked.vstring('drop *',
   'keep recoGsfTrack*_*_*_*', 
   'keep *_iterativeCone5GenJets_*_*', 
   'keep *_iterativeCone5CaloJets_*_*', 
-#  'keep *_ecalDrivenGsfElectronCores_*_*', 
   'keep *_gsfElectronCores_*_*', 
   'keep *_gsfElectrons_*_*'
 )
@@ -29,24 +28,16 @@ process.RECOSIMoutput.outputCommands = cms.untracked.vstring('drop *',
 #process.GlobalTag.globaltag = autoCond['mc']
 process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
 
-#
-#process.out = cms.OutputModule("PoolOutputModule",
-#    outputCommands = cms.untracked.vstring('drop *', 
-#        'keep recoBeamSpot*_*_*_*',
-#        'keep recoGenParticle*_*_*_*',
-#        'keep *HepMCProduct_*_*_*',
-#        'keep recoElectronSeed*_*_*_*', 
-#        'keep recoSuperCluster*_*_*_*', 
-#        'keep recoTrack*_*_*_*', 
-#        'keep recoGsfTrack*_*_*_*', 
-#        'keep *_iterativeCone5GenJets_*_*', 
-#        'keep *_iterativeCone5CaloJets_*_*', 
-#        'keep *_gsfElectronCores_*_*', 
-#        'keep *_gsfElectrons_*_*'
-#    ),
-#    fileName = cms.untracked.string(os.environ['TEST_OUTPUT_FILE'])
-#)
-#
+process.pfElectronTranslator.MVACutBlock.MVACut = cms.double(-0.4)
+#process.pfElectronTranslator.PFCandidate=cms.InputTag("particleFlow:electrons")
+process.ecalDrivenGsfElectronCores.useGsfPfRecTracks = cms.bool(False)
+process.gsfElectronCores.useGsfPfRecTracks = cms.bool(False)
+process.ecalDrivenGsfElectrons.useGsfPfRecTracks = cms.bool(False)
+process.gsfElectrons.useGsfPfRecTracks = cms.bool(False)
+process.gsfElectrons.minMVA = cms.double(-0.4)
+process.gsfElectrons.minMVAPflow = cms.double(-0.4)
+process.particleFlow.useCalibrationsFromDB = cms.bool(False)
+
 #process.gsfElectrons.ctfTracksCheck = cms.bool(False)
-#
+
 
