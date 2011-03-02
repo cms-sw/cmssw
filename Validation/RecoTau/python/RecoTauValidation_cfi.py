@@ -468,47 +468,6 @@ plotTauValidation = cms.Sequence(
       +plotHPSEfficiencies
       )
 
-if options.eventType == 'QCD':
-   from Validation.RecoTau.ValidateTausOnQCD_cff import ValueMapTypeList
-
-   for name in ValueMapTypeList:
-      if name == 'DiJetHighPt':
-         plotTauValidation += plotSCEstimatedBGDiJetHighPt
-         plotTauValidation += plotSCLPEstimatedBGDiJetHighPt      
-      if name == 'DiJetSecondPt':
-         plotTauValidation += plotSCEstimatedBGDiJetSecondPt
-         plotTauValidation += plotSCLPEstimatedBGDiJetSecondPt
-      if name == 'MuEnrichedQCD':
-         plotTauValidation += plotSCEstimatedBGMuEnrichedQCD
-         plotTauValidation += plotSCLPEstimatedBGMuEnrichedQCD
-      if name == 'WJets':
-         plotTauValidation += plotSCEstimatedBGWJets
-         plotTauValidation += plotSCLPEstimatedBGWJets      
-
-      
-   
-if options.eventType == 'RealData':
-   from Validation.RecoTau.ValidateTausOnRealData_cff import ValueMapTypeList
-
-   for name in ValueMapTypeList:
-      if name == 'DiJetHighPt':
-         plotTauValidation += plotSCEstimatedBGDiJetHighPt
-         plotTauValidation += plotSCLPEstimatedBGDiJetHighPt      
-      if name == 'DiJetSecondPt':
-         plotTauValidation += plotSCEstimatedBGDiJetSecondPt
-         plotTauValidation += plotSCLPEstimatedBGDiJetSecondPt
-      if name == 'MuEnrichedQCD':
-         plotTauValidation += plotSCEstimatedBGMuEnrichedQCD
-         plotTauValidation += plotSCLPEstimatedBGMuEnrichedQCD
-      if name == 'WJets':
-         plotTauValidation += plotSCEstimatedBGWJets
-         plotTauValidation += plotSCLPEstimatedBGWJets      
-      
-   
-#if options.eventType == 'ZTT':      
-#   plotTauValidation += plotSCEstimatedEffZTT
-#   plotTauValidation += plotSCLPEstimatedEffZTT
-      
 
 loadAndPlotTauValidation = cms.Sequence(
       loadTau
@@ -597,9 +556,14 @@ def SetYmodulesToLog(matchingNames = []):
          attrNames = dir(module.drawJobs)
          for subModuleName, subModule in zip(attrNames, map(drawJobParamGetter, attrNames)):
             matchedNames = [name for name in matchingNames if subModuleName.find( name) > -1] # matching sub strings
+            if len(matchingNames) == 0:
+               matchedNames = ['take','everything','and','dont','bother']
             if hasattr(subModule, "yAxis") and len(matchedNames):
                print "Setting drawJob: ", subModuleName, " to log scale."
                subModule.yAxis = cms.string('fakeRate') #'fakeRate' configuration specifies the log scaling
+         if len(matchingNames) == 0: 
+            module.yAxes.efficiency.maxY_log = 40
+            module.yAxes.fakeRate.maxY_log = 40
    return yLogger
 
 
