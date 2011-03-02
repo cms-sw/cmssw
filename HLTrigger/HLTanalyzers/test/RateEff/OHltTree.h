@@ -249,6 +249,14 @@ public:
    Float_t ohMuL3Dr[1000]; //[NohMuL3]
    Float_t ohMuL3Dz[1000]; //[NohMuL3]
    Int_t ohMuL3L2idx[1000]; //[NohMuL3]
+   Int_t NohMuL2NoVtx; 
+   Float_t ohMuL2NoVtxPt[2000]; //[NohMuL2NoVtx] 
+   Float_t ohMuL2NoVtxPhi[2000]; //[NohMuL2NoVtx] 
+   Float_t ohMuL2NoVtxEta[2000]; //[NohMuL2NoVtx] 
+   Int_t ohMuL2NoVtxChg[2000]; //[NohMuL2NoVtx] 
+   Float_t ohMuL2NoVtxPtErr[2000]; //[NohMuL2NoVtx] 
+   Float_t ohMuL2NoVtxDr[2000]; //[NohMuL2NoVtx] 
+   Float_t ohMuL2NoVtxDz[2000]; //[NohMuL2NoVtx] 
    Int_t NohOniaPixel;
    Float_t ohOniaPixelPt[200]; //[NohOniaPixel]
    Float_t ohOniaPixelPhi[200]; //[NohOniaPixel]
@@ -2512,6 +2520,14 @@ public:
    TBranch *b_ohMuL3Dr; //!
    TBranch *b_ohMuL3Dz; //!
    TBranch *b_ohMuL3L2idx; //!
+   TBranch *b_NohMuL2NoVtx; //! 
+   TBranch *b_ohMuL2NoVtxPt; //! 
+   TBranch *b_ohMuL2NoVtxPhi; //! 
+   TBranch *b_ohMuL2NoVtxEta; //! 
+   TBranch *b_ohMuL2NoVtxChg; //! 
+   TBranch *b_ohMuL2NoVtxPtErr; //! 
+   TBranch *b_ohMuL2NoVtxDr; //! 
+   TBranch *b_ohMuL2NoVtxDz; //! 
    TBranch *b_NohOniaPixel; //!
    TBranch *b_ohOniaPixelPt; //!
    TBranch *b_ohOniaPixelPhi; //!
@@ -5780,6 +5796,14 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohMuL3Dr", ohMuL3Dr, &b_ohMuL3Dr);
    fChain->SetBranchAddress("ohMuL3Dz", ohMuL3Dz, &b_ohMuL3Dz);
    fChain->SetBranchAddress("ohMuL3L2idx", ohMuL3L2idx, &b_ohMuL3L2idx);
+   fChain->SetBranchAddress("NohMuL2NoVtx", &NohMuL2NoVtx, &b_NohMuL2NoVtx); 
+   fChain->SetBranchAddress("ohMuL2NoVtxPt", ohMuL2NoVtxPt, &b_ohMuL2NoVtxPt); 
+   fChain->SetBranchAddress("ohMuL2NoVtxPhi", ohMuL2NoVtxPhi, &b_ohMuL2NoVtxPhi); 
+   fChain->SetBranchAddress("ohMuL2NoVtxEta", ohMuL2NoVtxEta, &b_ohMuL2NoVtxEta); 
+   fChain->SetBranchAddress("ohMuL2NoVtxChg", ohMuL2NoVtxChg, &b_ohMuL2NoVtxChg); 
+   fChain->SetBranchAddress("ohMuL2NoVtxPtErr", ohMuL2NoVtxPtErr, &b_ohMuL2NoVtxPtErr); 
+   fChain->SetBranchAddress("ohMuL2NoVtxDr", ohMuL2NoVtxDr, &b_ohMuL2NoVtxDr); 
+   fChain->SetBranchAddress("ohMuL2NoVtxDz", ohMuL2NoVtxDz, &b_ohMuL2NoVtxDz); 
    fChain->SetBranchAddress("ohHighestEnergyEERecHit", &ohHighestEnergyEERecHit, &b_ohHighestEnergyEERecHit);
    fChain->SetBranchAddress("ohHighestEnergyEBRecHit", &ohHighestEnergyEBRecHit, &b_ohHighestEnergyEBRecHit);
    fChain->SetBranchAddress("ohHighestEnergyHBHERecHit", &ohHighestEnergyHBHERecHit, &b_ohHighestEnergyHBHERecHit);
