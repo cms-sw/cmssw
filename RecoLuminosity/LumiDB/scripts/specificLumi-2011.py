@@ -148,6 +148,13 @@ def filltofiles(allfills,runsperfill,runtimes,dirname):
             
 def specificlumiTofile(fillnum,filldata,outdir):
     timedict={}#{lstime:[[stablebeamfrac,lumi,lumierr,speclumi,speclumierr]]}
+    #
+    #check outdir/fillnum subdir exists; if not, create it; else outdir=outdir/fillnum
+    #
+    filloutdir=os.path.join(outdir,str(fillnum))
+    print 'filloutdir ',filloutdir
+    if not os.path.exists(filloutdir):
+        os.mkdir(filloutdir)
     for cmsbxidx,perbxdata in filldata.items():
         lhcbucket=0
         if cmsbxidx!=0:
@@ -166,16 +173,16 @@ def specificlumiTofile(fillnum,filldata,outdir):
             speclumierror= perlsdata[7]
             if lumi>0 and lumierror>0 and speclumi>0:
                 if lscounter==0:
-                    f=open(os.path.join(outdir,filename),'w')
+                    f=open(os.path.join(filloutdir,filename),'w')
                 print >>f, '%d\t%e\t%e\t%e\t%e\t%e'%(ts,beamstatusfrac,lumi,lumierror,speclumi,speclumierror)
             if not timedict.has_key(ts):
                 timedict[ts]=[]
             timedict[ts].append([beamstatusfrac,lumi,lumierror,speclumi,speclumierror])
             lscounter+=1
         f.close()
-    print 'writing avg file'
+    #print 'writing avg file'
     summaryfilename=str(fillnum)+'_lumi_CMS.txt'
-    f=open(os.path.join(outdir,summaryfilename),'w')
+    f=open(os.path.join(filloutdir,summaryfilename),'w')
     lstimes=timedict.keys()
     lstimes.sort()
     fillseg=[]
@@ -196,7 +203,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
         specificerravg=specifictoterr/float(len(specificvals))
         print >>f,'%d\t%e\t%e\t%e\t%e\t%e'%(lstime,bstatfrac,lumitot,lumierrortot,specificavg,specificerravg)
     f.close()
-    print 'writing summary file'
+    #print 'writing summary file'
     previoustime=lstimes[0]
     boundarytime=lstimes[0]
     #print 'boundary time ',boundarytime
@@ -212,7 +219,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
         previoustime=lstime
     #print summaryls
     fillsummaryfilename=str(fillnum)+'_summary_CMS.txt'
-    f=open(os.path.join(outdir,fillsummaryfilename),'w')
+    f=open(os.path.join(filloutdir,fillsummaryfilename),'w')
     summarylstimes=summaryls.keys()
     summarylstimes.sort()
     for bts in summarylstimes:
@@ -246,7 +253,7 @@ if __name__ == '__main__':
     ##
     #query DB for all fills and compare with allfills.txt
     #if found newer fills, store  in mem fill number
-    #reprocess anyway the last 5 fills in the dir
+    #reprocess anyway the last 1 fill in the dir
     #redo specific lumi for all marked fills
     ##
  
