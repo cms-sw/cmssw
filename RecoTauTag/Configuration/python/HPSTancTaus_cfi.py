@@ -175,10 +175,18 @@ hpsTancRequireDecayMode.decayMode.Producer = cms.InputTag(
 
 hpsTancTausDiscriminationByFlightPath = cms.EDProducer(
     "PFRecoTauDiscriminationByFlight",
-    Producer = cms.InputTag("hpsTancTaus"),
+    PFTauProducer = cms.InputTag("hpsTancTaus"),
     vertexSource = cms.InputTag("offlinePrimaryVertices"),
     beamspot = cms.InputTag("offlineBeamSpot"),
     refitPV = cms.bool(True),
+    Prediscriminants = cms.PSet(
+        BooleanOperator = cms.string("and"),
+        leadTrack = cms.PSet(
+            Producer = cms.InputTag(
+                "hpsTancTausDiscriminationByLeadingTrackFinding"),
+            cut = cms.double(0.5),
+        )
+    )
 )
 
 # Build the isolation discriminators
