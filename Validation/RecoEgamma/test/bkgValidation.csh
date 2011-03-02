@@ -19,32 +19,38 @@
 setenv TYPE Photons
 setenv RUNTYPE Central
 setenv STARTUP True
-setenv CMSSWver1 3_11_0
+setenv CMSSWver1 4_2_0
 setenv CMSSWver2 4_2_0
-setenv OLDRELEASE 3_11_0
+setenv OLDRELEASE 4_2_0
 setenv NEWRELEASE 4_2_0
-setenv OLDPRERELEASE 
-setenv NEWPRERELEASE pre1
+setenv OLDPRERELEASE pre4
+setenv NEWPRERELEASE pre5
+
+
+
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START311_V1_64bit-v2
-setenv NEWGLOBALTAG START311_V1-v1
+setenv OLDGLOBALTAG START42_V1-v1
+setenv NEWGLOBALTAG START42_V3-v1
 else
-setenv OLDGLOBALTAG MC_311_V0_64bit-v2
-setenv NEWGLOBALTAG MC_311_V1-v1
+setenv OLDGLOBALTAG MC_42_V1-v1
+setenv NEWGLOBALTAG MC_42_V3-v1
 endif
 
-#setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
-setenv OLDRELEASE ${OLDRELEASE}
+
+
+
+setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
+#setenv OLDRELEASE ${OLDRELEASE}
 setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
 
 
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-
-
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+
+
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
