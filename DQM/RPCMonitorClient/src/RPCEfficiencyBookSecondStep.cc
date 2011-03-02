@@ -16,6 +16,7 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
   std::map<std::string, MonitorElement*> meMap;
    
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
+
   std::string folder = folderPath+ "RollByRoll/" +  folderStr->folderStructure(detId);
 
   delete folderStr;
@@ -52,9 +53,9 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
     meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     //std::cout<<"Booking "<<folder<<meId<<std::endl;
 
-    sprintf(meId,"BXDistribution_%s",detUnitLabel);
-    sprintf(meTitle,"BXDistribution_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
+//     sprintf(meId,"BXDistribution_%s",detUnitLabel);
+//     sprintf(meTitle,"BXDistribution_for_%s",layerLabel);
+//     meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
     
   }else{
     //std::cout<<"Booking for the EndCap"<<detUnitLabel<<std::endl;
@@ -74,10 +75,10 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
     sprintf(meTitle,"Profile_for_%s",layerLabel);
     meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     
-    //std::cout<<"Booking "<<meId<<std::endl;
-    sprintf(meId,"BXDistribution_%s",detUnitLabel);
-    sprintf(meTitle,"BXDistribution_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
+//     //std::cout<<"Booking "<<meId<<std::endl;
+//     sprintf(meId,"BXDistribution_%s",detUnitLabel);
+//     sprintf(meTitle,"BXDistribution_for_%s",layerLabel);
+//     meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
   }
   return meMap;
 }

@@ -1,31 +1,14 @@
 #ifndef RPCEventSummary_H
 #define RPCEventSummary_H
 
-
-/** \class RPCEventSummary
- * *
- *  DQM Event Summary module for RPCs
- *
- *  $Date: 2010/06/25 14:46:41 $
- *  $Revision: 1.19 $
- *  \author Anna Cimmino
- *   
- */
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
-
-#include <memory>
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
-
-
-class DQMStore;
-class RPCDetId;
 
 
 class RPCEventSummary:public edm::EDAnalyzer {
@@ -56,12 +39,11 @@ public:
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
  
 
-  
  private:
   void clientOperation();
   std::string eventInfoPath_, prefixDir_;
 
-  bool tier0_;  
+  //  bool tier0_;  
   bool enableReportSummary_;
   int prescaleFactor_, minimumEvents_;
   MonitorElement *  RPCEvents ;
@@ -69,7 +51,7 @@ public:
   DQMStore* dbe_;
   bool offlineDQM_;
   int lumiCounter_;
-  std::string globalFolder_;
+  std::string globalFolder_, prefixFolder_;
   
   int numberDisk_;
   bool   doEndcapCertification_;

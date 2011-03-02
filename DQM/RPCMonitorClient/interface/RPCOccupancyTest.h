@@ -18,7 +18,7 @@ public:
   RPCOccupancyTest(const edm::ParameterSet& ps);
   virtual ~RPCOccupancyTest();
 
-  void beginJob(DQMStore *);
+  void beginJob(DQMStore *, std::string);
   void endRun(const edm::Run& , const edm::EventSetup& ); 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
@@ -26,15 +26,15 @@ public:
   void beginRun(const edm::Run& , const edm::EventSetup& ); 		
   void endJob();
   void clientOperation(edm::EventSetup const& c);
-  void bookHisto(std::vector<MonitorElement *> , std::vector<RPCDetId>);
+  void getMonitorElements(std::vector<MonitorElement *> & , std::vector<RPCDetId>& );
  protected:
   // void OccupancyDist();
   void fillGlobalME(RPCDetId & , MonitorElement *);
  
 private:
   
-  std::string globalFolder_;
-
+  std::string globalFolder_, prefixDir_;
+  bool testMode_;
  
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;

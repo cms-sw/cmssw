@@ -3,18 +3,12 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-//#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "DQM/RPCMonitorClient/interface/RPCClient.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-#include <memory>
 #include <string>
-#include <map>
-
-class DQMStore;
 
 class RPCChamberQuality:public edm::EDAnalyzer {
 public:
@@ -39,12 +33,12 @@ public:
 
   int lumiCounter_;
 
-
+  bool  enableDQMClients_;
   bool offlineDQM_;
 
   void performeClientOperation(std::string , int , MonitorElement *);
   
-  std::string prefixDir_;
+  std::string prefixDir_, summaryDir_;
   static const std::string xLabels_[7];
   static const std::string regions_[3];
 

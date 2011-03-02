@@ -2,7 +2,19 @@ import FWCore.ParameterSet.Config as cms
 
 rpcdqmclient = cms.EDAnalyzer("RPCDqmClient",                               
                               RPCDqmClientList = cms.untracked.vstring("RPCMultiplicityTest", "RPCDeadChannelTest", "RPCClusterSizeTest", "RPCOccupancyTest","RPCNoisyStripTest"),
-                              DiagnosticPrescale = cms.untracked.int32(1),
+                              DiagnosticPrescale = cms.untracked.int32(5),
                               MinimumRPCEvents  = cms.untracked.int32(10000),
-                              OfflineDQM = cms.untracked.bool(True)
+                              RecHitTypeFolder = cms.untracked.string("Noise"),
+                              OfflineDQM = cms.untracked.bool(True),
+                              EnableRPCDqmClient  = cms.untracked.bool(True)
+                              )
+
+
+rpcdqmMuonclient = cms.EDAnalyzer("RPCDqmClient",                               
+                                  RPCDqmClientList = cms.untracked.vstring("RPCMultiplicityTest", "RPCDeadChannelTest", "RPCClusterSizeTest", "RPCOccupancyTest","RPCNoisyStripTest"),
+                                  DiagnosticPrescale = cms.untracked.int32(5),
+                                  MinimumRPCEvents  = cms.untracked.int32(10000),
+                                  RecHitTypeFolder = cms.untracked.string("Muon"),
+                                  OfflineDQM = cms.untracked.bool(True),
+                                  EnableRPCDqmClient  = cms.untracked.bool(True)
                               )

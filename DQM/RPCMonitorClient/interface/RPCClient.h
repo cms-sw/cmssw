@@ -2,8 +2,8 @@
 /*!
   \file RPCClient.h
    \author A. Cimmino
-  \version $Revision: 1.4 $
-  \date $Date: 2009/10/29 22:50:23 $
+  \version $Revision: 1.5 $
+  \date $Date: 2011/02/07 13:54:38 $
 */
 
 
@@ -35,23 +35,23 @@ class RPCClient {
   //RPCClient(const edm::ParameterSet& ps) {}
   virtual ~RPCClient(void) {}
 
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)=0 ;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& )=0 ;
 
   virtual void clientOperation(edm::EventSetup const& c)=0;
 
-  virtual void bookHisto(std::vector<MonitorElement *> , std::vector<RPCDetId>)= 0;
+  virtual void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &)= 0;
 
-  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c)=0;
+  virtual void endLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& )=0;
   
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& c)      = 0;		       
+  virtual void analyze(const edm::Event & , const edm::EventSetup& )      = 0;		       
 		       
-  virtual void beginJob(DQMStore* dbe)     = 0;
+  virtual void beginJob(DQMStore * , std::string )     = 0;
   
   virtual void endJob(void)       = 0;
   
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& c)     = 0;
+  virtual void beginRun(const edm::Run& , const edm::EventSetup& )     = 0;
   
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& c)       = 0;  
+  virtual void endRun(const edm::Run& , const edm::EventSetup& )       = 0;  
 
 
   //  private:

@@ -10,9 +10,8 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//DQM Services
-#include "DQMServices/Core/interface/DQMStore.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 
 RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps ){
   edm::LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Constructor";
@@ -20,7 +19,15 @@ RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps ){
   enableReportSummary_ = ps.getUntrackedParameter<bool>("EnableSummaryReport",true);
   prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 1);
   eventInfoPath_ = ps.getUntrackedParameter<std::string>("EventInfoPath", "RPC/EventInfo");
-  globalFolder_ = ps.getUntrackedParameter<std::string>("RPCSummaryFolder", "RPC/RecHits/SummaryHistograms");
+
+
+  std::string subsystemFolder = ps.getUntrackedParameter<std::string>("RPCFolder", "RPC");
+  std::string recHitTypeFolder = ps.getUntrackedParameter<std::string>("RecHitTypeFolder", "Noise");
+  std::string summaryFolder = ps.getUntrackedParameter<std::string>("SummaryFolder", "SummaryHistograms");
+
+  globalFolder_  =  subsystemFolder +"/"+  recHitTypeFolder +"/"+ summaryFolder ;
+  prefixFolder_  =  subsystemFolder +"/"+  recHitTypeFolder ;
+
   minimumEvents_= ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
   numberDisk_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   doEndcapCertification_ = ps.getUntrackedParameter<bool>("EnableEndcapSummary", false);
@@ -30,7 +37,7 @@ RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps ){
   
   NumberOfFeds_ =FEDRange_.second -  FEDRange_.first +1;
 
-  offlineDQM_ = ps.getUntrackedParameter<bool> ("OfflineDQM", true); 
+  offlineDQM_ = ps.getUntrackedParameter<bool> ("OfflineDQM",true); 
 
 
 }
@@ -184,10 +191,12 @@ void RPCEventSummary::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
 
   if(offlineDQM_) return;
 
-  if(init_ && lumiCounter_%prescaleFactor_ != 0) return;
+  if(init_ && (lumiCounter_%prescaleFactor_ != 0)) return;
 
   this->clientOperation();
 
+  init_ = true;
+  lumiCounter_++;
 }
 
 void RPCEventSummary::endRun(const edm::Run& r, const edm::EventSetup& c){
@@ -198,18 +207,15 @@ void RPCEventSummary::endRun(const edm::Run& r, const edm::EventSetup& c){
 void RPCEventSummary::clientOperation(){
 
   float  rpcevents = minimumEvents_;
-  RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+  RPCEvents = dbe_->get( prefixFolder_  +"/RPCEvents");  
 
   if(RPCEvents) {
-    rpcevents = RPCEvents -> getEntries();
+    rpcevents = RPCEvents -> getIntValue();
   }
   
 
   if(rpcevents < minimumEvents_) return;
-
-  init_ = true;
-  lumiCounter_++;
-
+  
   std::stringstream meName;
   MonitorElement * myMe;
    
@@ -326,10 +332,10 @@ void RPCEventSummary::clientOperation(){
        endcapFactor=endcapFactor/ (numberDisk_ * 2);
        
      } 
-    
+     
      //Fill repor summary
      float rpcFactor = barrelFactor;
-     if(doEndcapCertification_)	{ rpcFactor = (barrelFactor + endcapFactor)/2;}
+     if(doEndcapCertification_){ rpcFactor =  ( barrelFactor + endcapFactor)/2; }
      
      globalMe = dbe_->get(eventInfoPath_ +"/reportSummary"); 
      if(globalMe) globalMe->Fill(rpcFactor);

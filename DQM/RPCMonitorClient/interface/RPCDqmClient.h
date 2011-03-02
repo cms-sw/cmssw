@@ -8,7 +8,6 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -45,7 +44,7 @@ public:
 
  protected:
   void makeClientMap(void);
-    void getMonitorElements(const edm::Run&, const edm::EventSetup& );
+  void getMonitorElements(const edm::Run&, const edm::EventSetup& );
  private:
 
     bool offlineDQM_;
@@ -58,6 +57,7 @@ public:
   int lumiCounter_;
   MonitorElement * RPCEvents_; 
 
+  //  std::string  subsystemFolder_,   recHitTypeFolder_,  summaryFolder_;
   std::vector<std::string> clientNames_,clientHisto_; 
   std::vector<RPCClient*> clientModules_;
 

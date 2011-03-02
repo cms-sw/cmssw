@@ -20,7 +20,7 @@ public:
   virtual ~RPCMultiplicityTest();
 
   /// BeginJob
-  void beginJob(DQMStore * );
+  void beginJob(DQMStore * , std::string);
 
   //Begin Run
    void endRun(const edm::Run& , const edm::EventSetup& );
@@ -42,7 +42,7 @@ public:
   void endJob();
 
   void clientOperation(edm::EventSetup const& c);
-  void bookHisto(std::vector<MonitorElement *> , std::vector<RPCDetId>);
+  void getMonitorElements(std::vector<MonitorElement *>& , std::vector<RPCDetId>&);
 
  protected:
   void fillGlobalME(RPCDetId & detId, MonitorElement * myMe);
@@ -55,7 +55,7 @@ public:
  
   std::vector<MonitorElement *>  myNumDigiMe_;
   std::vector<RPCDetId>   myDetIds_;
-
+  bool testMode_;
   MonitorElement * MULTWheel[5];
   MonitorElement * MULTDWheel[5];
   MonitorElement * MULTDisk[10]; 

@@ -32,14 +32,19 @@ DEFINE_FWK_MODULE(RPCDataCertification);
 #include <DQM/RPCMonitorClient/interface/ReadMeFromFile.h>
 DEFINE_FWK_MODULE(ReadMeFromFile);
 
+#include <DQM/RPCMonitorClient/interface/SaveDQMFile.h>
+DEFINE_FWK_MODULE(SaveDQMFile);
+
+
 //General Client
 #include <DQM/RPCMonitorClient/interface/RPCDqmClient.h>
 DEFINE_FWK_MODULE(RPCDqmClient);
 
+#include <DQM/RPCMonitorClient/interface/RPCRecHitProbabilityClient.h>
+DEFINE_FWK_MODULE(RPCRecHitProbabilityClient);
 
 #include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
 DEFINE_FWK_MODULE(RPCChamberQuality);
-
 
 #include <DQM/RPCMonitorClient/interface/RPCEfficiencySecond.h>
 DEFINE_FWK_MODULE(RPCEfficiencySecond);

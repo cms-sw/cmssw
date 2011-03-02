@@ -4,7 +4,7 @@
 
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+//#include "DQMServices/Core/interface/DQMStore.h"
 
 
 class RPCDeadChannelTest:public RPCClient{
@@ -19,7 +19,7 @@ public:
   virtual ~RPCDeadChannelTest();
 
   /// BeginJob
-  void beginJob(DQMStore *);
+  void beginJob(DQMStore *, std::string);
 
   //Begin Run
    void endRun(const edm::Run& , const edm::EventSetup& );
@@ -41,11 +41,11 @@ public:
   void endJob();
 
   void clientOperation(edm::EventSetup const& c);
-  void bookHisto(std::vector<MonitorElement *> , std::vector<RPCDetId>);
+  void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &);
 
-  // protected:
+ protected:
 
-  //  void CalculateDeadChannelPercentage(RPCDetId & , MonitorElement *  , edm::EventSetup const& );
+  // void CalculateDeadChannelPercentage(RPCDetId & , MonitorElement *  , edm::EventSetup const& );
    
  private:
   int prescaleFactor_;

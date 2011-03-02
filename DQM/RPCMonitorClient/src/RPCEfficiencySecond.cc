@@ -70,51 +70,51 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   dbe->setCurrentFolder(folderPath+"ResidualsBarrel/");
  
   //Barrel
-  hGlobal2ResClu1La1 = dbe->book1D("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",101,-10.,10.);
-  hGlobal2ResClu1La2 = dbe->book1D("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",101,-10.,10.);
-  hGlobal2ResClu1La3 = dbe->book1D("GlobalResidualsClu1La3","RPC Residuals Layer 3 Cluster Size 1",101,-10.,10.);
-  hGlobal2ResClu1La4 = dbe->book1D("GlobalResidualsClu1La4","RPC Residuals Layer 4 Cluster Size 1",101,-10.,10.);
-  hGlobal2ResClu1La5 = dbe->book1D("GlobalResidualsClu1La5","RPC Residuals Layer 5 Cluster Size 1",101,-10.,10.);
-  hGlobal2ResClu1La6 = dbe->book1D("GlobalResidualsClu1La6","RPC Residuals Layer 6 Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1La1 = dbe->book1D("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1La2 = dbe->book1D("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1La3 = dbe->book1D("GlobalResidualsClu1La3","RPC Residuals Layer 3 Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1La4 = dbe->book1D("GlobalResidualsClu1La4","RPC Residuals Layer 4 Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1La5 = dbe->book1D("GlobalResidualsClu1La5","RPC Residuals Layer 5 Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1La6 = dbe->book1D("GlobalResidualsClu1La6","RPC Residuals Layer 6 Cluster Size 1",101,-10.,10.);
 
-  hGlobal2ResClu2La1 = dbe->book1D("GlobalResidualsClu2La1","RPC Residuals Layer 1 Cluster Size 2",101,-10.,10.);
-  hGlobal2ResClu2La2 = dbe->book1D("GlobalResidualsClu2La2","RPC Residuals Layer 2 Cluster Size 2",101,-10.,10.);
-  hGlobal2ResClu2La3 = dbe->book1D("GlobalResidualsClu2La3","RPC Residuals Layer 3 Cluster Size 2",101,-10.,10.);
-  hGlobal2ResClu2La4 = dbe->book1D("GlobalResidualsClu2La4","RPC Residuals Layer 4 Cluster Size 2",101,-10.,10.);
-  hGlobal2ResClu2La5 = dbe->book1D("GlobalResidualsClu2La5","RPC Residuals Layer 5 Cluster Size 2",101,-10.,10.);
-  hGlobal2ResClu2La6 = dbe->book1D("GlobalResidualsClu2La6","RPC Residuals Layer 6 Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2La1 = dbe->book1D("GlobalResidualsClu2La1","RPC Residuals Layer 1 Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2La2 = dbe->book1D("GlobalResidualsClu2La2","RPC Residuals Layer 2 Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2La3 = dbe->book1D("GlobalResidualsClu2La3","RPC Residuals Layer 3 Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2La4 = dbe->book1D("GlobalResidualsClu2La4","RPC Residuals Layer 4 Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2La5 = dbe->book1D("GlobalResidualsClu2La5","RPC Residuals Layer 5 Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2La6 = dbe->book1D("GlobalResidualsClu2La6","RPC Residuals Layer 6 Cluster Size 2",101,-10.,10.);
 
-  hGlobal2ResClu3La1 = dbe->book1D("GlobalResidualsClu3La1","RPC Residuals Layer 1 Cluster Size 3",101,-10.,10.);
-  hGlobal2ResClu3La2 = dbe->book1D("GlobalResidualsClu3La2","RPC Residuals Layer 2 Cluster Size 3",101,-10.,10.);
-  hGlobal2ResClu3La3 = dbe->book1D("GlobalResidualsClu3La3","RPC Residuals Layer 3 Cluster Size 3",101,-10.,10.);
-  hGlobal2ResClu3La4 = dbe->book1D("GlobalResidualsClu3La4","RPC Residuals Layer 4 Cluster Size 3",101,-10.,10.);
-  hGlobal2ResClu3La5 = dbe->book1D("GlobalResidualsClu3La5","RPC Residuals Layer 5 Cluster Size 3",101,-10.,10.);
-  hGlobal2ResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3La1 = dbe->book1D("GlobalResidualsClu3La1","RPC Residuals Layer 1 Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3La2 = dbe->book1D("GlobalResidualsClu3La2","RPC Residuals Layer 2 Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3La3 = dbe->book1D("GlobalResidualsClu3La3","RPC Residuals Layer 3 Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3La4 = dbe->book1D("GlobalResidualsClu3La4","RPC Residuals Layer 4 Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3La5 = dbe->book1D("GlobalResidualsClu3La5","RPC Residuals Layer 5 Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",101,-10.,10.);
 
   if(debug) std::cout<<"Booking Residuals EndCaps"<<std::endl;
   dbe->setCurrentFolder(folderPath+"ResidualsEndCaps/");
 
   //Endcap  
-  hGlobal2ResClu1R3C = dbe->book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
-  hGlobal2ResClu1R3B = dbe->book1D("GlobalResidualsClu1R3B","RPC Residuals Ring 3 Roll B Cluster Size 1",101,-10.,10.);
-  hGlobal2ResClu1R3A = dbe->book1D("GlobalResidualsClu1R3A","RPC Residuals Ring 3 Roll A Cluster Size 1",101,-10.,10.);
-  hGlobal2ResClu1R2C = dbe->book1D("GlobalResidualsClu1R2C","RPC Residuals Ring 2 Roll C Cluster Size 1",101,-10.,10.);
-  hGlobal2ResClu1R2B = dbe->book1D("GlobalResidualsClu1R2B","RPC Residuals Ring 2 Roll B Cluster Size 1",101,-10.,10.);
-  hGlobal2ResClu1R2A = dbe->book1D("GlobalResidualsClu1R2A","RPC Residuals Ring 2 Roll A Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1R3C = dbe->book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1R3B = dbe->book1D("GlobalResidualsClu1R3B","RPC Residuals Ring 3 Roll B Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1R3A = dbe->book1D("GlobalResidualsClu1R3A","RPC Residuals Ring 3 Roll A Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1R2C = dbe->book1D("GlobalResidualsClu1R2C","RPC Residuals Ring 2 Roll C Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1R2B = dbe->book1D("GlobalResidualsClu1R2B","RPC Residuals Ring 2 Roll B Cluster Size 1",101,-10.,10.);
+//   hGlobal2ResClu1R2A = dbe->book1D("GlobalResidualsClu1R2A","RPC Residuals Ring 2 Roll A Cluster Size 1",101,-10.,10.);
   
-  hGlobal2ResClu2R3C = dbe->book1D("GlobalResidualsClu2R3C","RPC Residuals Ring 3 Roll C Cluster Size 2",101,-10.,10.);
-  hGlobal2ResClu2R3B = dbe->book1D("GlobalResidualsClu2R3B","RPC Residuals Ring 3 Roll B Cluster Size 2",101,-10.,10.);
-  hGlobal2ResClu2R3A = dbe->book1D("GlobalResidualsClu2R3A","RPC Residuals Ring 3 Roll A Cluster Size 2",101,-10.,10.);
-  hGlobal2ResClu2R2C = dbe->book1D("GlobalResidualsClu2R2C","RPC Residuals Ring 2 Roll C Cluster Size 2",101,-10.,10.);
-  hGlobal2ResClu2R2B = dbe->book1D("GlobalResidualsClu2R2B","RPC Residuals Ring 2 Roll B Cluster Size 2",101,-10.,10.);
-  hGlobal2ResClu2R2A = dbe->book1D("GlobalResidualsClu2R2A","RPC Residuals Ring 2 Roll A Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2R3C = dbe->book1D("GlobalResidualsClu2R3C","RPC Residuals Ring 3 Roll C Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2R3B = dbe->book1D("GlobalResidualsClu2R3B","RPC Residuals Ring 3 Roll B Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2R3A = dbe->book1D("GlobalResidualsClu2R3A","RPC Residuals Ring 3 Roll A Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2R2C = dbe->book1D("GlobalResidualsClu2R2C","RPC Residuals Ring 2 Roll C Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2R2B = dbe->book1D("GlobalResidualsClu2R2B","RPC Residuals Ring 2 Roll B Cluster Size 2",101,-10.,10.);
+//   hGlobal2ResClu2R2A = dbe->book1D("GlobalResidualsClu2R2A","RPC Residuals Ring 2 Roll A Cluster Size 2",101,-10.,10.);
   
-  hGlobal2ResClu3R3C = dbe->book1D("GlobalResidualsClu3R3C","RPC Residuals Ring 3 Roll C Cluster Size 3",101,-10.,10.);
-  hGlobal2ResClu3R3B = dbe->book1D("GlobalResidualsClu3R3B","RPC Residuals Ring 3 Roll B Cluster Size 3",101,-10.,10.);
-  hGlobal2ResClu3R3A = dbe->book1D("GlobalResidualsClu3R3A","RPC Residuals Ring 3 Roll A Cluster Size 3",101,-10.,10.);
-  hGlobal2ResClu3R2C = dbe->book1D("GlobalResidualsClu3R2C","RPC Residuals Ring 2 Roll C Cluster Size 3",101,-10.,10.);
-  hGlobal2ResClu3R2B = dbe->book1D("GlobalResidualsClu3R2B","RPC Residuals Ring 2 Roll B Cluster Size 3",101,-10.,10.);
-  hGlobal2ResClu3R2A = dbe->book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3R3C = dbe->book1D("GlobalResidualsClu3R3C","RPC Residuals Ring 3 Roll C Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3R3B = dbe->book1D("GlobalResidualsClu3R3B","RPC Residuals Ring 3 Roll B Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3R3A = dbe->book1D("GlobalResidualsClu3R3A","RPC Residuals Ring 3 Roll A Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3R2C = dbe->book1D("GlobalResidualsClu3R2C","RPC Residuals Ring 2 Roll C Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3R2B = dbe->book1D("GlobalResidualsClu3R2B","RPC Residuals Ring 2 Roll B Cluster Size 3",101,-10.,10.);
+//   hGlobal2ResClu3R2A = dbe->book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
 
   if(debug) std::cout<<"Booking EffDistros"<<std::endl;
   dbe->setCurrentFolder(folderPath);
@@ -130,8 +130,8 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   EffDistroWm2far=dbe->book1D("EffDistroWheel_-2far","Efficiency Distribution for Far Side Wheel -2 ",20,0.5,100.5);
   EffGlobWm2=dbe->book1D("GlobEfficiencyWheel_-2near","Efficiency Near Side Wheel -2 ",101,0.5,101.5);
   EffGlobWm2far=dbe->book1D("GlobEfficiencyWheel_-2far","Efficiency Far Side Wheel -2",105,0.5,105.5);
-  BXGlobWm2= dbe->book1D("GlobBXWheel_-2near","BX Near Side Wheel -2",101,0.5,101.5);
-  BXGlobWm2far= dbe->book1D("GlobBXWheel_-2far","BX Far Side Wheel -2",105,0.5,105.5);
+  // BXGlobWm2= dbe->book1D("GlobBXWheel_-2near","BX Near Side Wheel -2",101,0.5,101.5);
+  // BXGlobWm2far= dbe->book1D("GlobBXWheel_-2far","BX Far Side Wheel -2",105,0.5,105.5);
   MaskedGlobWm2= dbe->book1D("GlobMaskedWheel_-2near","Masked Near Side Wheel -2",101,0.5,101.5);
   MaskedGlobWm2far= dbe->book1D("GlobMaskedWheel_-2far","Masked Far Side Wheel -2",105,0.5,105.5);
   AverageEffWm2=dbe->book1D("AverageEfficiencyWheel_-2near","Average Efficiency Near Side Wheel -2 ",101,0.5,101.5);
@@ -144,8 +144,8 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   EffDistroWm1far=dbe->book1D("EffDistroWheel_-1far","Efficiency Distribution for Far Side Wheel -1 ",20,0.5,100.5);
   EffGlobWm1= dbe->book1D("GlobEfficiencyWheel_-1near","Efficiency Near Side Wheel -1",101,0.5,101.5);
   EffGlobWm1far=dbe->book1D("GlobEfficiencyWheel_-1far","Efficiency Far Side Wheel -1",105,0.5,105.5);
-  BXGlobWm1= dbe->book1D("GlobBXWheel_-1near","BX Near Side Wheel -1",101,0.5,101.5);
-  BXGlobWm1far= dbe->book1D("GlobBXWheel_-1far","BX Far Side Wheel -1",105,0.5,105.5);
+  // BXGlobWm1= dbe->book1D("GlobBXWheel_-1near","BX Near Side Wheel -1",101,0.5,101.5);
+  // BXGlobWm1far= dbe->book1D("GlobBXWheel_-1far","BX Far Side Wheel -1",105,0.5,105.5);
   MaskedGlobWm1= dbe->book1D("GlobMaskedWheel_-1near","Masked Near Side Wheel -1",101,0.5,101.5);
   MaskedGlobWm1far= dbe->book1D("GlobMaskedWheel_-1far","Masked Far Side Wheel -1",105,0.5,105.5);
   AverageEffWm1=dbe->book1D("AverageEfficiencyWheel_-1near","Average Efficiency Near Side Wheel -1 ",101,0.5,101.5);
@@ -158,8 +158,8 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   EffDistroW0far=dbe->book1D("EffDistroWheel_0far","Efficiency Distribution for Far Side Wheel 0 ",20,0.5,100.5);
   EffGlobW0 = dbe->book1D("GlobEfficiencyWheel_0near","Efficiency Near Side Wheel 0",101,0.5,101.5);
   EffGlobW0far =dbe->book1D("GlobEfficiencyWheel_0far","Efficiency Far Side Wheel 0",105,0.5,105.5);
-  BXGlobW0 = dbe->book1D("GlobBXWheel_0near","BX Near Side Wheel 0",101,0.5,101.5);
-  BXGlobW0far = dbe->book1D("GlobBXWheel_0far","BX Far Side Wheel 0",105,0.5,105.5);
+  //  BXGlobW0 = dbe->book1D("GlobBXWheel_0near","BX Near Side Wheel 0",101,0.5,101.5);
+  // BXGlobW0far = dbe->book1D("GlobBXWheel_0far","BX Far Side Wheel 0",105,0.5,105.5);
   MaskedGlobW0 = dbe->book1D("GlobMaskedWheel_0near","Masked Near Side Wheel 0",101,0.5,101.5);
   MaskedGlobW0far = dbe->book1D("GlobMaskedWheel_0far","Masked Far Side Wheel 0",105,0.5,105.5);
   AverageEffW0=dbe->book1D("AverageEfficiencyWheel_0near","Average Efficiency Near Side Wheel 0 ",101,0.5,101.5);
@@ -172,8 +172,8 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   EffDistroW1far=dbe->book1D("EffDistroWheel_1far","Efficiency Distribution for Far Side Wheel 1 ",20,0.5,100.5);
   EffGlobW1 = dbe->book1D("GlobEfficiencyWheel_1near","Efficiency Near Side Wheel 1",101,0.5,101.5);
   EffGlobW1far =dbe->book1D("GlobEfficiencyWheel_1far","Efficiency Far Side Wheel 1",105,0.5,105.5);  
-  BXGlobW1 = dbe->book1D("GlobBXWheel_1near","BX Near Side Wheel 1",101,0.5,101.5);
-  BXGlobW1far = dbe->book1D("GlobBXWheel_1far","BX Far Side Wheel 1",105,0.5,105.5);
+  //  BXGlobW1 = dbe->book1D("GlobBXWheel_1near","BX Near Side Wheel 1",101,0.5,101.5);
+  //  BXGlobW1far = dbe->book1D("GlobBXWheel_1far","BX Far Side Wheel 1",105,0.5,105.5);
   MaskedGlobW1 = dbe->book1D("GlobMaskedWheel_1near","Masked Near Side Wheel 1",101,0.5,101.5);
   MaskedGlobW1far = dbe->book1D("GlobMaskedWheel_1far","Masked Far Side Wheel 1",105,0.5,105.5);
   AverageEffW1=dbe->book1D("AverageEfficiencyWheel_1near","Average Efficiency Near Side Wheel 1 ",101,0.5,101.5);
@@ -186,8 +186,8 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   EffDistroW2far=dbe->book1D("EffDistroWheel_2far","Efficiency Distribution for Far Side Wheel 2 ",20,0.5,100.5);
   EffGlobW2 = dbe->book1D("GlobEfficiencyWheel_2near","Efficiency Near Side Wheel 2",101,0.5,101.5);
   EffGlobW2far =dbe->book1D("GlobEfficiencyWheel_2far","Efficiency Far Side Wheel 2",105,0.5,105.5);
-  BXGlobW2 = dbe->book1D("GlobBXWheel_2near","BX Near Side Wheel 2",101,0.5,101.5);
-  BXGlobW2far = dbe->book1D("GlobBXWheel_2far","BX Far Side Wheel 2",105,0.5,105.5);
+  //  BXGlobW2 = dbe->book1D("GlobBXWheel_2near","BX Near Side Wheel 2",101,0.5,101.5);
+  //  BXGlobW2far = dbe->book1D("GlobBXWheel_2far","BX Far Side Wheel 2",105,0.5,105.5);
   MaskedGlobW2 = dbe->book1D("GlobMaskedWheel_2near","Masked Near Side Wheel 2",101,0.5,101.5);
   MaskedGlobW2far = dbe->book1D("GlobMaskedWheel_2far","Masked Far Side Wheel 2",105,0.5,105.5);
   AverageEffW2=dbe->book1D("AverageEfficiencyWheel_2near","Average Efficiency Near Side Wheel 2 ",101,0.5,101.5);
@@ -202,8 +202,8 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   EffDistroD3far=dbe->book1D("EffDistroDisk_3far","Efficiency Distribution Far Side Disk 3 ",20,0.5,100.5);
   EffGlobD3 = dbe->book1D("GlobEfficiencyDisk_3near","Efficiency Near Side Disk 3",109,0.5,109.5);
   EffGlobD3far =dbe->book1D("GlobEfficiencyDisk_3far","Efficiency Far Side Disk 3",109,0.5,109.5);
-  BXGlobD3 = dbe->book1D("GlobBXDisk_3near","BX Near Side Disk 3",109,0.5,109.5);
-  BXGlobD3far = dbe->book1D("GlobBXDisk_3far","BX Far Side Disk 3",109,0.5,109.5);
+  //  BXGlobD3 = dbe->book1D("GlobBXDisk_3near","BX Near Side Disk 3",109,0.5,109.5);
+  //  BXGlobD3far = dbe->book1D("GlobBXDisk_3far","BX Far Side Disk 3",109,0.5,109.5);
   MaskedGlobD3 = dbe->book1D("GlobMaskedDisk_3near","Masked Near Side Disk 3",109,0.5,109.5);
   MaskedGlobD3far = dbe->book1D("GlobMaskedDisk_3far","Masked Far Side Disk 3",109,0.5,109.5);
   AverageEffD3=dbe->book1D("AverageEfficiencyDisk_3near","Average Efficiency Near Side Disk 3 ",109,0.5,109.5);
@@ -216,8 +216,8 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   EffDistroD2far=dbe->book1D("EffDistroDisk_2far","Efficiency Distribution Far Side Disk 2 ",20,0.5,100.5);
   EffGlobD2 = dbe->book1D("GlobEfficiencyDisk_2near","Efficiency Near Side Disk 2",109,0.5,109.5);
   EffGlobD2far =dbe->book1D("GlobEfficiencyDisk_2far","Efficiency Far Side Disk 2",109,0.5,109.5);
-  BXGlobD2 = dbe->book1D("GlobBXDisk_2near","BX Near Side Disk 2",109,0.5,109.5);
-  BXGlobD2far = dbe->book1D("GlobBXDisk_2far","BX Far Side Disk 2",109,0.5,109.5);
+  //  BXGlobD2 = dbe->book1D("GlobBXDisk_2near","BX Near Side Disk 2",109,0.5,109.5);
+  //  BXGlobD2far = dbe->book1D("GlobBXDisk_2far","BX Far Side Disk 2",109,0.5,109.5);
   MaskedGlobD2 = dbe->book1D("GlobMaskedDisk_2near","Masked Near Side Disk 2",109,0.5,109.5);
   MaskedGlobD2far = dbe->book1D("GlobMaskedDisk_2far","Masked Far Side Disk 2",109,0.5,109.5);
   AverageEffD2=dbe->book1D("AverageEfficiencyDisk_2near","Average Efficiency Near Side Disk 2 ",109,0.5,109.5);
@@ -230,8 +230,8 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   EffDistroD1far=dbe->book1D("EffDistroDisk_1far","Efficiency Distribution Far Side Disk 1 ",20,0.5,100.5);
   EffGlobD1 = dbe->book1D("GlobEfficiencyDisk_1near","Efficiency Near Side Disk 1",109,0.5,109.5);
   EffGlobD1far =dbe->book1D("GlobEfficiencyDisk_1far","Efficiency Far Side Disk 1",109,0.5,109.5);
-  BXGlobD1 = dbe->book1D("GlobBXDisk_1near","BX Near Side Disk 1",109,0.5,109.5);
-  BXGlobD1far = dbe->book1D("GlobBXDisk_1far","BX Far Side Disk 1",109,0.5,109.5);
+  //  BXGlobD1 = dbe->book1D("GlobBXDisk_1near","BX Near Side Disk 1",109,0.5,109.5);
+  //  BXGlobD1far = dbe->book1D("GlobBXDisk_1far","BX Far Side Disk 1",109,0.5,109.5);
   MaskedGlobD1 = dbe->book1D("GlobMaskedDisk_1near","Masked Near Side Disk 1",109,0.5,109.5);
   MaskedGlobD1far = dbe->book1D("GlobMaskedDisk_1far","Masked Far Side Disk 1",109,0.5,109.5);
   AverageEffD1=dbe->book1D("AverageEfficiencyDisk_1near","Average Efficiency Near Side Disk 1 ",109,0.5,109.5);
@@ -244,8 +244,8 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   EffDistroDm1far=dbe->book1D("EffDistroDisk_m1far","Efficiency Distribution Far Side Disk - 1 ",20,0.5,100.5);
   EffGlobDm1 = dbe->book1D("GlobEfficiencyDisk_m1near","Efficiency Near Side Disk -1",109,0.5,109.5);
   EffGlobDm1far =dbe->book1D("GlobEfficiencyDisk_m1far","Efficiency Far Side Disk -1",109,0.5,109.5);
-  BXGlobDm1 = dbe->book1D("GlobBXDisk_m1near","BX Near Side Disk -1",109,0.5,109.5);
-  BXGlobDm1far = dbe->book1D("GlobBXDisk_m1far","BX Far Side Disk -1",109,0.5,109.5);
+  //  BXGlobDm1 = dbe->book1D("GlobBXDisk_m1near","BX Near Side Disk -1",109,0.5,109.5);
+  //  BXGlobDm1far = dbe->book1D("GlobBXDisk_m1far","BX Far Side Disk -1",109,0.5,109.5);
   MaskedGlobDm1 = dbe->book1D("GlobMaskedDisk_m1near","Masked Near Side Disk -1",109,0.5,109.5);
   MaskedGlobDm1far = dbe->book1D("GlobMaskedDisk_m1far","Masked Far Side Disk -1",109,0.5,109.5);
   AverageEffDm1=dbe->book1D("AverageEfficiencyDisk_m1near","Average Efficiency Near Side Disk -1 ",109,0.5,109.5);
@@ -258,8 +258,8 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   EffDistroDm2far=dbe->book1D("EffDistroDisk_m2far","Efficiency Distribution Far Side Disk - 2 ",20,0.5,100.5);
   EffGlobDm2 = dbe->book1D("GlobEfficiencyDisk_m2near","Efficiency Near Side Disk -2",109,0.5,109.5);
   EffGlobDm2far =dbe->book1D("GlobEfficiencyDisk_m2far","Efficiency Far Side Disk -2",109,0.5,109.5);
-  BXGlobDm2 = dbe->book1D("GlobBXDisk_m2near","BX Near Side Disk -2",109,0.5,109.5);
-  BXGlobDm2far = dbe->book1D("GlobBXDisk_m2far","BX Far Side Disk -2",109,0.5,109.5);
+  //  BXGlobDm2 = dbe->book1D("GlobBXDisk_m2near","BX Near Side Disk -2",109,0.5,109.5);
+  //  BXGlobDm2far = dbe->book1D("GlobBXDisk_m2far","BX Far Side Disk -2",109,0.5,109.5);
   MaskedGlobDm2 = dbe->book1D("GlobMaskedDisk_m2near","Masked Near Side Disk -2",109,0.5,109.5);
   MaskedGlobDm2far = dbe->book1D("GlobMaskedDisk_m2far","Masked Far Side Disk -2",109,0.5,109.5);
   AverageEffDm2=dbe->book1D("AverageEfficiencyDisk_m2near","Average Efficiency Near Side Disk -2 ",109,0.5,109.5);
@@ -272,8 +272,8 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   EffDistroDm3far=dbe->book1D("EffDistroDisk_m3far","Efficiency Distribution Far Side Disk - 3 ",20,0.5,100.5);
   EffGlobDm3 = dbe->book1D("GlobEfficiencyDisk_m3near","Efficiency Near Side Disk -3",109,0.5,109.5);
   EffGlobDm3far =dbe->book1D("GlobEfficiencyDisk_m3far","Efficiency Far Side Disk -3",109,0.5,109.5);
-  BXGlobDm3 = dbe->book1D("GlobBXDisk_m3near","BX Near Side Disk -3",109,0.5,109.5);
-  BXGlobDm3far = dbe->book1D("GlobBXDisk_m3far","BX Far Side Disk -3",109,0.5,109.5);
+  //  BXGlobDm3 = dbe->book1D("GlobBXDisk_m3near","BX Near Side Disk -3",109,0.5,109.5);
+   // BXGlobDm3far = dbe->book1D("GlobBXDisk_m3far","BX Far Side Disk -3",109,0.5,109.5);
   MaskedGlobDm3 = dbe->book1D("GlobMaskedDisk_m3near","Masked Near Side Disk -3",109,0.5,109.5);
   MaskedGlobDm3far = dbe->book1D("GlobMaskedDisk_m3far","Masked Far Side Disk -3",109,0.5,109.5);
   AverageEffDm3=dbe->book1D("AverageEfficiencyDisk_m3near","Average Efficiency Near Side Disk -3 ",109,0.5,109.5);
@@ -357,18 +357,19 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
 void RPCEfficiencySecond::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ }
 
 void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
-
+  
   if(debug) std::cout <<"\t Getting the RPC Geometry"<<std::endl;
+
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  
+   
   std::string label,folder;
   folder = folderPath;
   label = folder + "MuonSegEff/Statistics";
   if(debug) std::cout<<"Getting statistcs="<<label<<std::endl;
   statistics = dbe->get(label);
   if(!statistics){
-
+ 
     std::cout<<"Statistics Doesn't exist Not access to a monitor element"<<std::endl;
     std::cout<<label<<std::endl;
     edm::LogWarning("Missing rpcSource in the sequence") << " Statistics Doesn't exist.";
@@ -379,7 +380,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     if(debug) std::cout<<statistics->getBinContent(i)<<std::endl;
     statistics2->setBinContent(i,statistics->getBinContent(i));
   }
-  
+   
   statistics2->setBinLabel(1,"Events ",1);
   statistics2->setBinLabel(2,"Events with DT seg",1);
   statistics2->setBinLabel(3,"1 DT seg",1);
@@ -413,11 +414,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   statistics2->setBinLabel(16+15,"13 CSC seg",1);
   statistics2->setBinLabel(16+16,"14 CSC seg",1);
   statistics2->setBinLabel(16+17,"15 CSC seg",1);
-  
+   
   //Cloning Residuals.
-
+ 
   folder = folderPath+"MuonSegEff/Residuals/Barrel/";
-  
+   
   label = folder + "GlobalResidualsClu1La1"; hGlobalResClu1La1 = dbe->get(label);
   label = folder + "GlobalResidualsClu1La2"; hGlobalResClu1La2 = dbe->get(label);
   label = folder + "GlobalResidualsClu1La3"; hGlobalResClu1La3 = dbe->get(label);
@@ -438,37 +439,37 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   label = folder + "GlobalResidualsClu3La4"; hGlobalResClu3La4 = dbe->get(label);
   label = folder + "GlobalResidualsClu3La5"; hGlobalResClu3La5 = dbe->get(label);
   label = folder + "GlobalResidualsClu3La6"; hGlobalResClu3La6 = dbe->get(label);
- 
-  if(debug) std::cout<<"Clonning for Barrel"<<std::endl;
   
-  for(int i=1;i<=101;i++){
-    if(debug) std::cout<<"Global Residual"<<hGlobalResClu1La1->getBinContent(i)<<std::endl;
-    hGlobal2ResClu1La1->setBinContent(i,hGlobalResClu1La1->getBinContent(i));
-    hGlobal2ResClu1La2->setBinContent(i,hGlobalResClu1La2->getBinContent(i));
-    hGlobal2ResClu1La3->setBinContent(i,hGlobalResClu1La3->getBinContent(i));
-    hGlobal2ResClu1La4->setBinContent(i,hGlobalResClu1La4->getBinContent(i));
-    hGlobal2ResClu1La5->setBinContent(i,hGlobalResClu1La5->getBinContent(i));
-    hGlobal2ResClu1La6->setBinContent(i,hGlobalResClu1La6->getBinContent(i));
+  if(debug) std::cout<<"Clonning for Barrel"<<std::endl;
+   
+ //  for(int i=1;i<=101;i++){
+//     if(debug) std::cout<<"Global Residual"<<hGlobalResClu1La1->getBinContent(i)<<std::endl;
+//     hGlobal2ResClu1La1->setBinContent(i,hGlobalResClu1La1->getBinContent(i));
+//     hGlobal2ResClu1La2->setBinContent(i,hGlobalResClu1La2->getBinContent(i));
+//     hGlobal2ResClu1La3->setBinContent(i,hGlobalResClu1La3->getBinContent(i));
+//     hGlobal2ResClu1La4->setBinContent(i,hGlobalResClu1La4->getBinContent(i));
+//     hGlobal2ResClu1La5->setBinContent(i,hGlobalResClu1La5->getBinContent(i));
+//     hGlobal2ResClu1La6->setBinContent(i,hGlobalResClu1La6->getBinContent(i));
 
-    hGlobal2ResClu2La1->setBinContent(i,hGlobalResClu2La1->getBinContent(i));
-    hGlobal2ResClu2La2->setBinContent(i,hGlobalResClu2La2->getBinContent(i));
-    hGlobal2ResClu2La3->setBinContent(i,hGlobalResClu2La3->getBinContent(i));
-    hGlobal2ResClu2La4->setBinContent(i,hGlobalResClu2La4->getBinContent(i));
-    hGlobal2ResClu2La5->setBinContent(i,hGlobalResClu2La5->getBinContent(i));
-    hGlobal2ResClu2La6->setBinContent(i,hGlobalResClu2La6->getBinContent(i));
+//     hGlobal2ResClu2La1->setBinContent(i,hGlobalResClu2La1->getBinContent(i));
+//     hGlobal2ResClu2La2->setBinContent(i,hGlobalResClu2La2->getBinContent(i));
+//     hGlobal2ResClu2La3->setBinContent(i,hGlobalResClu2La3->getBinContent(i));
+//     hGlobal2ResClu2La4->setBinContent(i,hGlobalResClu2La4->getBinContent(i));
+//     hGlobal2ResClu2La5->setBinContent(i,hGlobalResClu2La5->getBinContent(i));
+//     hGlobal2ResClu2La6->setBinContent(i,hGlobalResClu2La6->getBinContent(i));
 
-    hGlobal2ResClu3La1->setBinContent(i,hGlobalResClu3La1->getBinContent(i));
-    hGlobal2ResClu3La2->setBinContent(i,hGlobalResClu3La2->getBinContent(i));
-    hGlobal2ResClu3La3->setBinContent(i,hGlobalResClu3La3->getBinContent(i));
-    hGlobal2ResClu3La4->setBinContent(i,hGlobalResClu3La4->getBinContent(i));
-    hGlobal2ResClu3La5->setBinContent(i,hGlobalResClu3La5->getBinContent(i));
-    hGlobal2ResClu3La6->setBinContent(i,hGlobalResClu3La6->getBinContent(i));
-  }
-
+//     hGlobal2ResClu3La1->setBinContent(i,hGlobalResClu3La1->getBinContent(i));
+//     hGlobal2ResClu3La2->setBinContent(i,hGlobalResClu3La2->getBinContent(i));
+//     hGlobal2ResClu3La3->setBinContent(i,hGlobalResClu3La3->getBinContent(i));
+//     hGlobal2ResClu3La4->setBinContent(i,hGlobalResClu3La4->getBinContent(i));
+//     hGlobal2ResClu3La5->setBinContent(i,hGlobalResClu3La5->getBinContent(i));
+//     hGlobal2ResClu3La6->setBinContent(i,hGlobalResClu3La6->getBinContent(i));
+//   }
+ 
   if(debug) std::cout<<"Clonning the EndCap"<<std::endl;
   folder = folderPath+"MuonSegEff/Residuals/EndCap/";
   if(debug) std::cout<<folder<<std::endl;
-  
+   
   label = folder + "GlobalResidualsClu1R3C"; hGlobalResClu1R3C = dbe->get(label); 
   //if(!hGlobalResClu1R3C)std::cout<<"hGlobal2ResClu1R3C dont exist"<<std::endl;
   //std::cout<<label<<std::endl;
@@ -479,21 +480,21 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   label = folder + "GlobalResidualsClu1R2C"; hGlobalResClu1R2C = dbe->get(label); 
   label = folder + "GlobalResidualsClu1R2B"; hGlobalResClu1R2B = dbe->get(label); 
   label = folder + "GlobalResidualsClu1R2A"; hGlobalResClu1R2A = dbe->get(label); 
-  										   	   
+  		 								   	   
   label = folder + "GlobalResidualsClu2R3C"; hGlobalResClu2R3C = dbe->get(label); 
   label = folder + "GlobalResidualsClu2R3B"; hGlobalResClu2R3B = dbe->get(label); 
   label = folder + "GlobalResidualsClu2R3A"; hGlobalResClu2R3A = dbe->get(label); 
   label = folder + "GlobalResidualsClu2R2C"; hGlobalResClu2R2C = dbe->get(label); 
   label = folder + "GlobalResidualsClu2R2B"; hGlobalResClu2R2B = dbe->get(label); 
   label = folder + "GlobalResidualsClu2R2A"; hGlobalResClu2R2A = dbe->get(label); 
-										   	   
+	 									   	   
   label = folder + "GlobalResidualsClu3R3C"; hGlobalResClu3R3C = dbe->get(label); 
   label = folder + "GlobalResidualsClu3R3B"; hGlobalResClu3R3B = dbe->get(label); 
   label = folder + "GlobalResidualsClu3R3A"; hGlobalResClu3R3A = dbe->get(label); 
   label = folder + "GlobalResidualsClu3R2C"; hGlobalResClu3R2C = dbe->get(label); 
   label = folder + "GlobalResidualsClu3R2B"; hGlobalResClu3R2B = dbe->get(label); 
   label = folder + "GlobalResidualsClu3R2A"; hGlobalResClu3R2A = dbe->get(label); 
-
+ 
 
   if(debug) std::cout<<"Going for!"<<std::endl;
   /*for(int i=1;i<=101;i++){
@@ -522,9 +523,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
    
   //Setting Labels in Summary Label.
   std::stringstream binLabel;
-
+ 
   if(debug) std::cout<<"Putting Labels"<<std::endl;
-
+ 
   for(int i=1;i<=12;i++){
     binLabel.str("");
     binLabel<<"Sec "<<i;
@@ -535,7 +536,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     Wheel2Summary->setBinLabel(i,binLabel.str(),1);
   }
   binLabel.str("");
-
+ 
   if(debug) std::cout<<"Default -1 for Barrel GUI"<<std::endl;
   
   for(int x = 1;x<=12;x++){
@@ -547,7 +548,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
       Wheel2Summary->setBinContent(x,y,-1);
     }
   }
-  
+   
   for(int i=1;i<=36;i++){
     binLabel.str("");
     binLabel<<i;
@@ -575,9 +576,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
       Disk3Summary->setBinLabel((ri-2)*3+roll,binLabel.str(),2);
     }
   }
-
+ 
   if(debug) std::cout<<"Default -1 for EndCap GUI"<<std::endl;
-
+ 
   for(int x = 1;x<=36;x++){
     for(int y = 1;y<=6;y++){
       Diskm3Summary->setBinContent(x,y,-1);
@@ -588,11 +589,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
       Disk3Summary->setBinContent(x,y,-1);
     }
   }
-
+ 
   binLabel.str("");
-
+ 
   std::vector<std::string> rollNamesInter (22);
-
+ 
   rollNamesInter[1]="RB1in B";
   rollNamesInter[2]="RB1in F";
   rollNamesInter[3]="RB1out B";
@@ -614,65 +615,65 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   rollNamesInter[19]="RB4-+ F";
   rollNamesInter[20]="RB4+- B";
   rollNamesInter[21]="RB4+- F";
-
+ 
   std::vector<std::string> rollNamesExter (22);
-  
+   
   for(int i=1;i<22;i++){
     rollNamesExter[i]=rollNamesInter[i];
   }
-
+ 
   rollNamesExter[6]="RB2in F";
   rollNamesExter[7]="RB2out B";
   rollNamesExter[8]="RB2out M";
-
+ 
   //for(int i=1;i<22;i++){
   //  std::cout<<rollNamesExter[i]<<std::endl;
   // }
-
+ 
   for(int i=1;i<22;i++){
     Wheelm1Summary->setBinLabel(i,rollNamesInter[i],2);
     Wheel0Summary->setBinLabel(i,rollNamesInter[i],2);
     Wheel1Summary->setBinLabel(i,rollNamesInter[i],2); 
   }
-
+ 
   for(int i=1;i<22;i++){
     Wheelm2Summary->setBinLabel(i,rollNamesExter[i],2);
     Wheel2Summary->setBinLabel(i,rollNamesExter[i],2);
   }
-
+ 
   int indexWheel[5];
   for(int j=0;j<5;j++){
     indexWheel[j]=0;
   }
-  
+   
   int indexWheelf[5];
   for(int j=0;j<5;j++){
     indexWheelf[j]=0;
   }
-
+ 
   int indexDisk[6];
   for(int j=0;j<6;j++){
     indexDisk[j]=0;
   }
-  
+   
   int indexDiskf[6];
   for(int j=0;j<6;j++){
     indexDiskf[j]=0;
   }
 
-  for(TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	RPCGeomServ rpcsrv(rpcId);
-	std::string nameRoll = rpcsrv.name();
-	if(debug) std::cout<<"Booking for "<<nameRoll<<std::endl;
-	meCollection[rpcId.rawId()] = bookDetUnitSeg(rpcId,(*r)->nstrips(),folderPath);
-      }
-    }
-  }
+//   for(TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+//     if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
+//       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+//       std::vector< const RPCRoll*> roles = (ch->rolls());
+//       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+// 	RPCDetId rpcId = (*r)->id();
+// 	RPCGeomServ rpcsrv(rpcId);
+// 	std::string nameRoll = rpcsrv.name();
+// 	if(debug) std::cout<<"Booking for "<<nameRoll<<std::endl;
+// 	meCollection[rpcId.rawId()] = bookDetUnitSeg(rpcId,(*r)->nstrips(),folderPath);
+//       }
+//     }
+//   }
 
   //if(debug) dbe->showDirStructure();
 
@@ -685,18 +686,18 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	RPCGeomServ rpcsrv(rpcId);
 	int sector = rpcId.sector();	
 	std::string nameRoll = rpcsrv.name();
-	std::map<std::string, MonitorElement*> meMap=meCollection[rpcId.rawId()];
-	if(debug){
-	  std::map<std::string, MonitorElement*>::const_iterator it;
-	  for (it = meMap.begin(); it != meMap.end(); ++it){
-	    std::cout<<"Histo name:" <<it->first<<std::endl;
-	  }
-	}
-	
+	// std::map<std::string, MonitorElement*> meMap=meCollection[rpcId.rawId()];
+// 	if(debug){
+// 	  std::map<std::string, MonitorElement*>::const_iterator it;
+// 	  for (it = meMap.begin(); it != meMap.end(); ++it){
+// 	    std::cout<<"Histo name:" <<it->first<<std::endl;
+// 	  }
+// 	}
+	 
 	if(meCollection.find(rpcId.rawId())==meCollection.end()){
-	  std::cout<<"WARNING!!! Empty RecHit collection map"<<std::endl;
+	 	if(debug) std::cout<<"WARNING!!! Empty RecHit collection map"<<std::endl;
 	}
-
+ 
 	if(debug){
 	  std::cout<<rpcId<<std::endl;
 	  //printing indexes
@@ -723,8 +724,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	}
   	
 	if(rpcId.region()==0){
-	  std::stringstream meIdRPC,  meIdDT,  bxDistroId;
-	  std::string      meIdPRO, meIdRPC2, meIdDT2, bxDistroId2;
+	  std::stringstream meIdRPC,  meIdDT; //,  bxDistroId;
+	  std::string      meIdPRO, meIdRPC2, meIdDT2; //, bxDistroId2;
 	  
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
 	  
@@ -734,28 +735,28 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 
 	  meIdRPC<<folder<<"/RPCDataOccupancyFromDT_"<<rpcId.rawId();
 	  meIdDT<<folder<<"/ExpectedOccupancyFromDT_"<<rpcId.rawId();
-	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
+	  //	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
       
-	  std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId); 
+	  // std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId); 
 
 	  delete folderStr;
 
 	  meIdRPC2 = "RPCDataOccupancyFromDT_" + rpcsrv.name();	
 	  meIdDT2 =  "ExpectedOccupancyFromDT_"+ rpcsrv.name();
-	  bxDistroId2 = "BXDistribution_"+ rpcsrv.name();
+	  // bxDistroId2 = "BXDistribution_"+ rpcsrv.name();
 	  
 	  meIdPRO = "Profile_"+ rpcsrv.name();
 	  
-	  histoRPC= dbe->get(meIdRPC.str());
-	  histoDT= dbe->get(meIdDT.str());
-	  histoPRO=dbe->get(meIdPRO);
-	  BXDistribution = dbe->get(bxDistroId.str());
+	  histoRPC = dbe->get(meIdRPC.str());
+	  histoDT = dbe->get(meIdDT.str());
+	  histoPRO = dbe->get(meIdPRO);
+	  // BXDistribution = dbe->get(bxDistroId.str());
 
 	  int NumberWithOutPrediction=0;
 	  double p = 0.;
 	  double o = 0.;
-	  float mybxhisto = 0.;
-	  float mybxerror = 0.;
+// 	  float mybxhisto = 0.;
+// 	  float mybxerror = 0.;
 	  float ef = 0.;
 	  float er = 0.;
 	  float buffef = 0.;
@@ -766,32 +767,32 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  float averageerr = 0.;
 	  int NumberStripsPointed = 0;
 	  
-	  if(debug) std::cout<<"Cloning BX"<<std::endl; //problema con sector 9 y sector 11
+	  //	  if(debug) std::cout<<"Cloning BX"<<std::endl; //problema con sector 9 y sector 11
 
-	  for(int i=1;i<=11;i++){
-	    if(debug) std::cout<<i<<"-"<<BXDistribution->getBinContent(i)<<std::endl;
-	    meMap[bxDistroId2]->setBinContent(i,BXDistribution->getBinContent(i));
-	  }
+	  //	  for(int i=1;i<=11;i++){
+// 	    if(debug) std::cout<<i<<"-"<<BXDistribution->getBinContent(i)<<std::endl;
+// 	    meMap[bxDistroId2]->setBinContent(i,BXDistribution->getBinContent(i));
+// 	  }
 	  
-	  if(histoRPC && histoDT && BXDistribution){
+	  if(histoRPC && histoDT){ // && BXDistribution){
 	    if(debug) std::cout <<rpcsrv.name()<<std::endl;
 	    
 	    for(int i=1;i<=int((*r)->nstrips());++i){
-	      if(debug) std::cout<<"Cloning histoDT "<<meIdDT2<<std::endl;
-	      meMap[meIdDT2]->setBinContent(i,histoDT->getBinContent(i));
-	      if(debug) std::cout<<"Cloning histoRPC:"<<meIdRPC2<<std::endl;
-	      meMap[meIdRPC2]->setBinContent(i,histoRPC->getBinContent(i));
+	    //   if(debug) std::cout<<"Cloning histoDT "<<meIdDT2<<std::endl;
+// 	      meMap[meIdDT2]->setBinContent(i,histoDT->getBinContent(i));
+// 	      if(debug) std::cout<<"Cloning histoRPC:"<<meIdRPC2<<std::endl;
+// 	      meMap[meIdRPC2]->setBinContent(i,histoRPC->getBinContent(i));
 	      
-	      if(meMap.find(meIdPRO)==meMap.end()){
-		std::cout<<"Empty Map"<<std::endl;
-	      }
+// 	      if(meMap.find(meIdPRO)==meMap.end()){
+// 		std::cout<<"Empty Map"<<std::endl;
+// 	      }
 
 	      if(histoDT->getBinContent(i)!=0){
 		if(debug) std::cout<<"Inside the If"<<std::endl;
 		buffef = float(histoRPC->getBinContent(i))/float(histoDT->getBinContent(i));
-		meMap[meIdPRO]->setBinContent(i,buffef); 
+		//	meMap[meIdPRO]->setBinContent(i,buffef); 
 		buffer = sqrt(buffef*(1.-buffef)/float(histoDT->getBinContent(i)));
-		meMap[meIdPRO]->setBinError(i,buffer);
+		//	meMap[meIdPRO]->setBinError(i,buffer);
 		sumbuffef=sumbuffef+buffef;
 		sumbuffer = sumbuffer + buffer*buffer;
 		NumberStripsPointed++;
@@ -809,10 +810,10 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
 	    }
 	    
-	    mybxhisto = 50.+BXDistribution->getMean()*10;
-	    mybxerror = BXDistribution->getRMS()*10;
+// 	    mybxhisto = 50.+BXDistribution->getMean()*10;
+// 	    mybxerror = BXDistribution->getRMS()*10;
 	    
-	  }
+	  } //////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	  
 	  int Ring = rpcId.ring();
 	  
@@ -882,9 +883,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobWm2->setBinError(indexWheel[0],er);  
 	      EffGlobWm2->setBinLabel(indexWheel[0],camera,1);
 
-	      BXGlobWm2->setBinContent(indexWheel[0],mybxhisto);  
-	      BXGlobWm2->setBinError(indexWheel[0],mybxerror);  
-	      BXGlobWm2->setBinLabel(indexWheel[0],camera,1);
+	    //   BXGlobWm2->setBinContent(indexWheel[0],mybxhisto);  
+// 	      BXGlobWm2->setBinError(indexWheel[0],mybxerror);  
+// 	      BXGlobWm2->setBinLabel(indexWheel[0],camera,1);
 	      
 	      MaskedGlobWm2->setBinContent(indexWheel[0],maskedratio);  
 	      MaskedGlobWm2->setBinLabel(indexWheel[0],camera,1);
@@ -902,9 +903,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobWm1->setBinError(indexWheel[1],er);  
 	      EffGlobWm1->setBinLabel(indexWheel[1],camera,1);  
 	      
-	      BXGlobWm1->setBinContent(indexWheel[1],mybxhisto);  
-	      BXGlobWm1->setBinError(indexWheel[1],mybxerror);  
-	      BXGlobWm1->setBinLabel(indexWheel[1],camera,1);
+// 	      BXGlobWm1->setBinContent(indexWheel[1],mybxhisto);  
+// 	      BXGlobWm1->setBinError(indexWheel[1],mybxerror);  
+// 	      BXGlobWm1->setBinLabel(indexWheel[1],camera,1);
 	      
 	      MaskedGlobWm1->setBinContent(indexWheel[1],maskedratio);  
 	      MaskedGlobWm1->setBinLabel(indexWheel[1],camera,1);
@@ -923,9 +924,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobW0->setBinError(indexWheel[2],er);  
 	      EffGlobW0->setBinLabel(indexWheel[2],camera,1);  
 	      
-	      BXGlobW0->setBinContent(indexWheel[2],mybxhisto);  
-	      BXGlobW0->setBinError(indexWheel[2],mybxerror);  
-	      BXGlobW0->setBinLabel(indexWheel[2],camera,1);
+// 	      BXGlobW0->setBinContent(indexWheel[2],mybxhisto);  
+// 	      BXGlobW0->setBinError(indexWheel[2],mybxerror);  
+// 	      BXGlobW0->setBinLabel(indexWheel[2],camera,1);
 
 	      MaskedGlobW0->setBinContent(indexWheel[2],maskedratio);  
 	      MaskedGlobW0->setBinLabel(indexWheel[2],camera,1);
@@ -943,9 +944,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobW1->setBinError(indexWheel[3],er);  
 	      EffGlobW1->setBinLabel(indexWheel[3],camera,1);  
 	      
-	      BXGlobW1->setBinContent(indexWheel[3],mybxhisto);  
-	      BXGlobW1->setBinError(indexWheel[3],mybxerror);  
-	      BXGlobW1->setBinLabel(indexWheel[3],camera,1);
+	   //    BXGlobW1->setBinContent(indexWheel[3],mybxhisto);  
+// 	      BXGlobW1->setBinError(indexWheel[3],mybxerror);  
+// 	      BXGlobW1->setBinLabel(indexWheel[3],camera,1);
 
 	      MaskedGlobW1->setBinContent(indexWheel[3],maskedratio);  
 	      MaskedGlobW1->setBinLabel(indexWheel[3],camera,1);
@@ -963,9 +964,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobW2->setBinError(indexWheel[4],er);
 	      EffGlobW2->setBinLabel(indexWheel[4],camera,1);
 
-	      BXGlobW2->setBinContent(indexWheel[4],mybxhisto);  
-	      BXGlobW2->setBinError(indexWheel[4],mybxerror);  
-	      BXGlobW2->setBinLabel(indexWheel[4],camera,1);
+	  //     BXGlobW2->setBinContent(indexWheel[4],mybxhisto);  
+// 	      BXGlobW2->setBinError(indexWheel[4],mybxerror);  
+// 	      BXGlobW2->setBinLabel(indexWheel[4],camera,1);
 	      
 	      MaskedGlobW2->setBinContent(indexWheel[4],maskedratio);  
 	      MaskedGlobW2->setBinLabel(indexWheel[4],camera,1);
@@ -985,9 +986,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobWm2far->setBinError(indexWheelf[0],er);  
 	      EffGlobWm2far->setBinLabel(indexWheelf[0],camera,1);
 
-	      BXGlobWm2far->setBinContent(indexWheelf[0],mybxhisto);  
-	      BXGlobWm2far->setBinError(indexWheelf[0],mybxerror);  
-	      BXGlobWm2far->setBinLabel(indexWheelf[0],camera);
+// 	      BXGlobWm2far->setBinContent(indexWheelf[0],mybxhisto);  
+// 	      BXGlobWm2far->setBinError(indexWheelf[0],mybxerror);  
+// 	      BXGlobWm2far->setBinLabel(indexWheelf[0],camera);
 	      
 	      MaskedGlobWm2far->setBinContent(indexWheelf[0],maskedratio);
 	      MaskedGlobWm2far->setBinLabel(indexWheelf[0],camera,1);
@@ -1006,9 +1007,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobWm1far->setBinError(indexWheelf[1],er);  
 	      EffGlobWm1far->setBinLabel(indexWheelf[1],camera,1);  
 	      
-	      BXGlobWm1far->setBinContent(indexWheelf[1],mybxhisto);  
-	      BXGlobWm1far->setBinError(indexWheelf[1],mybxerror);  
-	      BXGlobWm1far->setBinLabel(indexWheelf[1],camera,1);
+	  //     BXGlobWm1far->setBinContent(indexWheelf[1],mybxhisto);  
+// 	      BXGlobWm1far->setBinError(indexWheelf[1],mybxerror);  
+// 	      BXGlobWm1far->setBinLabel(indexWheelf[1],camera,1);
 	      
 	      MaskedGlobWm1far->setBinContent(indexWheelf[1],maskedratio);
 	      MaskedGlobWm1far->setBinLabel(indexWheelf[1],camera,1);
@@ -1027,9 +1028,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobW0far->setBinError(indexWheelf[2],er);  
 	      EffGlobW0far->setBinLabel(indexWheelf[2],camera,1);  
 	      
-	      BXGlobW0far->setBinContent(indexWheelf[2],mybxhisto);  
-	      BXGlobW0far->setBinError(indexWheelf[2],mybxerror);  
-	      BXGlobW0far->setBinLabel(indexWheelf[2],camera,1);
+// 	      BXGlobW0far->setBinContent(indexWheelf[2],mybxhisto);  
+// 	      BXGlobW0far->setBinError(indexWheelf[2],mybxerror);  
+// 	      BXGlobW0far->setBinLabel(indexWheelf[2],camera,1);
 
 	      MaskedGlobW0far->setBinContent(indexWheelf[2],maskedratio);
 	      MaskedGlobW0far->setBinLabel(indexWheelf[2],camera,1);
@@ -1047,9 +1048,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobW1far->setBinError(indexWheelf[3],er);  
 	      EffGlobW1far->setBinLabel(indexWheelf[3],camera,1);  
 	      
-	      BXGlobW1far->setBinContent(indexWheelf[3],mybxhisto);  
-	      BXGlobW1far->setBinError(indexWheelf[3],mybxerror);  
-	      BXGlobW1far->setBinLabel(indexWheelf[3],camera,1);
+	//       BXGlobW1far->setBinContent(indexWheelf[3],mybxhisto);  
+// 	      BXGlobW1far->setBinError(indexWheelf[3],mybxerror);  
+// 	      BXGlobW1far->setBinLabel(indexWheelf[3],camera,1);
 
 	      MaskedGlobW1far->setBinContent(indexWheelf[3],maskedratio);
 	      MaskedGlobW1far->setBinLabel(indexWheelf[3],camera,1);
@@ -1068,9 +1069,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobW2far->setBinError(indexWheelf[4],er);
 	      EffGlobW2far->setBinLabel(indexWheelf[4],camera,1);
 
-	      BXGlobW2far->setBinContent(indexWheelf[4],mybxhisto);  
-	      BXGlobW2far->setBinError(indexWheelf[4],mybxerror);  
-	      BXGlobW2far->setBinLabel(indexWheelf[4],camera,1);
+	 //      BXGlobW2far->setBinContent(indexWheelf[4],mybxhisto);  
+// 	      BXGlobW2far->setBinError(indexWheelf[4],mybxerror);  
+// 	      BXGlobW2far->setBinLabel(indexWheelf[4],camera,1);
 	      
 	      MaskedGlobW2far->setBinContent(indexWheelf[4],maskedratio);
 	      MaskedGlobW2far->setBinLabel(indexWheelf[4],camera,1);
@@ -1085,8 +1086,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  }
 	}else{//EndCap
 
-	  std::stringstream meIdRPC,meIdCSC, bxDistroId;
-	  std::string      meIdPRO, meIdRPC2, meIdCSC2, bxDistroId2;
+	  std::stringstream meIdRPC,meIdCSC; //, bxDistroId;
+	  std::string      meIdPRO, meIdRPC2, meIdCSC2; //, bxDistroId2;
 	  
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
 
@@ -1094,27 +1095,27 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  
 	  meIdRPC<<folder<<"/RPCDataOccupancyFromCSC_"<<rpcId.rawId();
 	  meIdCSC<<folder<<"/ExpectedOccupancyFromCSC_"<<rpcId.rawId();
-	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
+	  //  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
 		
-	  std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId); 
+	  // std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId); 
 	  
 	  delete folderStr;
 
 	  meIdRPC2 = "RPCDataOccupancyFromCSC_" + rpcsrv.name();	
 	  meIdCSC2 =  "ExpectedOccupancyFromCSC_"+ rpcsrv.name();
-	  bxDistroId2 = "BXDistribution_"+ rpcsrv.name();
+	  //	  bxDistroId2 = "BXDistribution_"+ rpcsrv.name();
 
 	  meIdPRO = "Profile_"+ rpcsrv.name();
 
 	  histoRPC= dbe->get(meIdRPC.str());
 	  histoCSC= dbe->get(meIdCSC.str());
-	  BXDistribution = dbe->get(bxDistroId.str());
+	  //BXDistribution = dbe->get(bxDistroId.str());
 	  		  
 	  int NumberWithOutPrediction=0;
 	  double p = 0;
 	  double o = 0;
-	  float mybxhisto = 0;
-	  float mybxerror = 0;
+	  //	  float mybxhisto = 0;
+	  //float mybxerror = 0;
 	  float ef =0;
 	  float er =0;
 	  float buffef = 0;
@@ -1125,32 +1126,32 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  float averageerr = 0;
 	  int NumberStripsPointed = 0;
 
-	  if(debug) std::cout<<"Cloning BX"<<std::endl;
+	  //	  if(debug) std::cout<<"Cloning BX"<<std::endl;
 
-	  for(int i=1;i<=11;i++){
-	    if(debug) std::cout<<i<<"-"<<BXDistribution->getBinContent(i)<<std::endl;
-	    meMap[bxDistroId2]->setBinContent(i,BXDistribution->getBinContent(i));
-	  }
+// 	  for(int i=1;i<=11;i++){
+// 	    if(debug) std::cout<<i<<"-"<<BXDistribution->getBinContent(i)<<std::endl;
+// 	    meMap[bxDistroId2]->setBinContent(i,BXDistribution->getBinContent(i));
+// 	  }
 
-	  if(histoRPC && histoCSC && BXDistribution){
+	  if(histoRPC && histoCSC) {// && BXDistribution){
 	    if(debug) std::cout <<rpcsrv.name()<<std::endl;
 	    
 	    for(int i=1;i<=int((*r)->nstrips());++i){
-	      if(debug) std::cout<<"Cloning histoCSC "<<meIdCSC2<<std::endl;
-	      meMap[meIdCSC2]->setBinContent(i,histoCSC->getBinContent(i));
-	      if(debug) std::cout<<"Cloning histoRPC:"<<meIdRPC2<<std::endl;
-	      meMap[meIdRPC2]->setBinContent(i,histoRPC->getBinContent(i));
+// 	      if(debug) std::cout<<"Cloning histoCSC "<<meIdCSC2<<std::endl;
+// 	      meMap[meIdCSC2]->setBinContent(i,histoCSC->getBinContent(i));
+// 	      if(debug) std::cout<<"Cloning histoRPC:"<<meIdRPC2<<std::endl;
+// 	      meMap[meIdRPC2]->setBinContent(i,histoRPC->getBinContent(i));
 	      
-	      if(meMap.find(meIdPRO)==meMap.end()){
-		std::cout<<"Empty Map"<<std::endl;
-	      }
+// 	      if(meMap.find(meIdPRO)==meMap.end()){
+// 		std::cout<<"Empty Map"<<std::endl;
+// 	      }
 
 	      if(histoCSC->getBinContent(i)!=0){
 		if(debug) std::cout<<"Inside the If"<<std::endl;
 		buffef = float(histoRPC->getBinContent(i))/float(histoCSC->getBinContent(i));
-		meMap[meIdPRO]->setBinContent(i,buffef); 
+		//	meMap[meIdPRO]->setBinContent(i,buffef); 
 		buffer = sqrt(buffef*(1.-buffef)/float(histoCSC->getBinContent(i)));
-		meMap[meIdPRO]->setBinError(i,buffer);
+		//	meMap[meIdPRO]->setBinError(i,buffer);
 		sumbuffef=sumbuffef+buffef;
 		sumbuffer = sumbuffer + buffer*buffer;
 		NumberStripsPointed++;
@@ -1168,8 +1169,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
 	    }
 	    
-	    mybxhisto = 50.+BXDistribution->getMean()*10;
-	    mybxerror = BXDistribution->getRMS()*10;
+	   //  mybxhisto = 50.+BXDistribution->getMean()*10;
+// 	    mybxerror = BXDistribution->getRMS()*10;
 	  }
 	  
 	  int Disk = rpcId.station()*rpcId.region();
@@ -1235,9 +1236,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobDm3->setBinError(indexDisk[0],er);  
 	      EffGlobDm3->setBinLabel(indexDisk[0],camera,1);
 
-	      BXGlobDm3->setBinContent(indexDisk[0],mybxhisto);  
-	      BXGlobDm3->setBinError(indexDisk[0],mybxerror);  
-	      BXGlobDm3->setBinLabel(indexDisk[0],camera,1);
+	   //    BXGlobDm3->setBinContent(indexDisk[0],mybxhisto);  
+// 	      BXGlobDm3->setBinError(indexDisk[0],mybxerror);  
+// 	      BXGlobDm3->setBinLabel(indexDisk[0],camera,1);
 	      
 	      MaskedGlobDm3->setBinContent(indexDisk[0],maskedratio);  
 	      MaskedGlobDm3->setBinLabel(indexDisk[0],camera,1);
@@ -1255,9 +1256,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobDm2->setBinError(indexDisk[1],er);  
 	      EffGlobDm2->setBinLabel(indexDisk[1],camera,1);
 
-	      BXGlobDm2->setBinContent(indexDisk[1],mybxhisto);  
-	      BXGlobDm2->setBinError(indexDisk[1],mybxerror);  
-	      BXGlobDm2->setBinLabel(indexDisk[1],camera,1);
+// 	      BXGlobDm2->setBinContent(indexDisk[1],mybxhisto);  
+// 	      BXGlobDm2->setBinError(indexDisk[1],mybxerror);  
+// 	      BXGlobDm2->setBinLabel(indexDisk[1],camera,1);
 	      
 	      MaskedGlobDm2->setBinContent(indexDisk[1],maskedratio);  
 	      MaskedGlobDm2->setBinLabel(indexDisk[1],camera,1);
@@ -1275,9 +1276,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobDm1->setBinError(indexDisk[2],er);  
 	      EffGlobDm1->setBinLabel(indexDisk[2],camera,1);  
 	      
-	      BXGlobDm1->setBinContent(indexDisk[2],mybxhisto);  
-	      BXGlobDm1->setBinError(indexDisk[2],mybxerror);  
-	      BXGlobDm1->setBinLabel(indexDisk[2],camera,1);
+// 	      BXGlobDm1->setBinContent(indexDisk[2],mybxhisto);  
+// 	      BXGlobDm1->setBinError(indexDisk[2],mybxerror);  
+// 	      BXGlobDm1->setBinLabel(indexDisk[2],camera,1);
 	      
 	      MaskedGlobDm1->setBinContent(indexDisk[2],maskedratio);  
 	      MaskedGlobDm1->setBinLabel(indexDisk[2],camera,1);
@@ -1296,9 +1297,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobD1->setBinError(indexDisk[3],er);  
 	      EffGlobD1->setBinLabel(indexDisk[3],camera,1);  
 	      
-	      BXGlobD1->setBinContent(indexDisk[3],mybxhisto);  
-	      BXGlobD1->setBinError(indexDisk[3],mybxerror);  
-	      BXGlobD1->setBinLabel(indexDisk[3],camera,1);
+// 	      BXGlobD1->setBinContent(indexDisk[3],mybxhisto);  
+// 	      BXGlobD1->setBinError(indexDisk[3],mybxerror);  
+// 	      BXGlobD1->setBinLabel(indexDisk[3],camera,1);
 
 	      MaskedGlobD1->setBinContent(indexDisk[3],maskedratio);  
 	      MaskedGlobD1->setBinLabel(indexDisk[3],camera,1);
@@ -1316,9 +1317,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobD2->setBinError(indexDisk[4],er);
 	      EffGlobD2->setBinLabel(indexDisk[4],camera,1);
 
-	      BXGlobD2->setBinContent(indexDisk[4],mybxhisto);  
-	      BXGlobD2->setBinError(indexDisk[4],mybxerror);  
-	      BXGlobD2->setBinLabel(indexDisk[4],camera,1);
+	    //   BXGlobD2->setBinContent(indexDisk[4],mybxhisto);  
+// 	      BXGlobD2->setBinError(indexDisk[4],mybxerror);  
+// 	      BXGlobD2->setBinLabel(indexDisk[4],camera,1);
 	      
 	      MaskedGlobD2->setBinContent(indexDisk[4],maskedratio);  
 	      MaskedGlobD2->setBinLabel(indexDisk[4],camera,1);
@@ -1336,9 +1337,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobD3->setBinError(indexDisk[5],er);
 	      EffGlobD3->setBinLabel(indexDisk[5],camera,1);
 
-	      BXGlobD3->setBinContent(indexDisk[5],mybxhisto);  
-	      BXGlobD3->setBinError(indexDisk[5],mybxerror);  
-	      BXGlobD3->setBinLabel(indexDisk[5],camera,1);
+// 	      BXGlobD3->setBinContent(indexDisk[5],mybxhisto);  
+// 	      BXGlobD3->setBinError(indexDisk[5],mybxerror);  
+// 	      BXGlobD3->setBinLabel(indexDisk[5],camera,1);
 	      
 	      MaskedGlobD3->setBinContent(indexDisk[5],maskedratio);  
 	      MaskedGlobD3->setBinLabel(indexDisk[5],camera,1);
@@ -1359,9 +1360,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobDm3far->setBinError(indexDiskf[0],er);  
 	      EffGlobDm3far->setBinLabel(indexDiskf[0],camera,1);
 
-	      BXGlobDm3far->setBinContent(indexDiskf[0],mybxhisto);  
-	      BXGlobDm3far->setBinError(indexDiskf[0],mybxerror);  
-	      BXGlobDm3far->setBinLabel(indexDiskf[0],camera);
+	 //      BXGlobDm3far->setBinContent(indexDiskf[0],mybxhisto);  
+// 	      BXGlobDm3far->setBinError(indexDiskf[0],mybxerror);  
+// 	      BXGlobDm3far->setBinLabel(indexDiskf[0],camera);
 	      
 	      MaskedGlobDm3far->setBinContent(indexDiskf[0],maskedratio);
 	      MaskedGlobDm3far->setBinLabel(indexDiskf[0],camera,1);
@@ -1381,9 +1382,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobDm2far->setBinError(indexDiskf[1],er);  
 	      EffGlobDm2far->setBinLabel(indexDiskf[1],camera,1);
 
-	      BXGlobDm2far->setBinContent(indexDiskf[1],mybxhisto);  
-	      BXGlobDm2far->setBinError(indexDiskf[1],mybxerror);  
-	      BXGlobDm2far->setBinLabel(indexDiskf[1],camera);
+	     //  BXGlobDm2far->setBinContent(indexDiskf[1],mybxhisto);  
+// 	      BXGlobDm2far->setBinError(indexDiskf[1],mybxerror);  
+// 	      BXGlobDm2far->setBinLabel(indexDiskf[1],camera);
 	      
 	      MaskedGlobDm2far->setBinContent(indexDiskf[1],maskedratio);
 	      MaskedGlobDm2far->setBinLabel(indexDiskf[1],camera,1);
@@ -1402,9 +1403,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobDm1far->setBinError(indexDiskf[2],er);  
 	      EffGlobDm1far->setBinLabel(indexDiskf[2],camera,1);  
 	      
-	      BXGlobDm1far->setBinContent(indexDiskf[2],mybxhisto);  
-	      BXGlobDm1far->setBinError(indexDiskf[2],mybxerror);  
-	      BXGlobDm1far->setBinLabel(indexDiskf[2],camera,1);
+// 	      BXGlobDm1far->setBinContent(indexDiskf[2],mybxhisto);  
+// 	      BXGlobDm1far->setBinError(indexDiskf[2],mybxerror);  
+// 	      BXGlobDm1far->setBinLabel(indexDiskf[2],camera,1);
 	      
 	      MaskedGlobDm1far->setBinContent(indexDiskf[2],maskedratio);
 	      MaskedGlobDm1far->setBinLabel(indexDiskf[2],camera,1);
@@ -1423,9 +1424,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobD1far->setBinError(indexDiskf[3],er);  
 	      EffGlobD1far->setBinLabel(indexDiskf[3],camera,1);  
 	      
-	      BXGlobD1far->setBinContent(indexDiskf[3],mybxhisto);  
-	      BXGlobD1far->setBinError(indexDiskf[3],mybxerror);  
-	      BXGlobD1far->setBinLabel(indexDiskf[3],camera,1);
+// 	      BXGlobD1far->setBinContent(indexDiskf[3],mybxhisto);  
+// 	      BXGlobD1far->setBinError(indexDiskf[3],mybxerror);  
+// 	      BXGlobD1far->setBinLabel(indexDiskf[3],camera,1);
 
 	      MaskedGlobD1far->setBinContent(indexDiskf[3],maskedratio);
 	      MaskedGlobD1far->setBinLabel(indexDiskf[3],camera,1);
@@ -1444,9 +1445,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobD2far->setBinError(indexDiskf[4],er);
 	      EffGlobD2far->setBinLabel(indexDiskf[4],camera,1);
 
-	      BXGlobD2far->setBinContent(indexDiskf[4],mybxhisto);  
-	      BXGlobD2far->setBinError(indexDiskf[4],mybxerror);  
-	      BXGlobD2far->setBinLabel(indexDiskf[4],camera,1);
+// 	      BXGlobD2far->setBinContent(indexDiskf[4],mybxhisto);  
+// 	      BXGlobD2far->setBinError(indexDiskf[4],mybxerror);  
+// 	      BXGlobD2far->setBinLabel(indexDiskf[4],camera,1);
 	      
 	      MaskedGlobD2far->setBinContent(indexDiskf[4],maskedratio);
 	      MaskedGlobD2far->setBinLabel(indexDiskf[4],camera,1);
@@ -1464,9 +1465,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      EffGlobD3far->setBinError(indexDiskf[5],er);
 	      EffGlobD3far->setBinLabel(indexDiskf[5],camera,1);
 
-	      BXGlobD3far->setBinContent(indexDiskf[5],mybxhisto);  
-	      BXGlobD3far->setBinError(indexDiskf[5],mybxerror);  
-	      BXGlobD3far->setBinLabel(indexDiskf[5],camera,1);
+// 	      BXGlobD3far->setBinContent(indexDiskf[5],mybxhisto);  
+// 	      BXGlobD3far->setBinError(indexDiskf[5],mybxerror);  
+// 	      BXGlobD3far->setBinLabel(indexDiskf[5],camera,1);
 	      
 	      MaskedGlobD3far->setBinContent(indexDiskf[5],maskedratio);
 	      MaskedGlobD3far->setBinLabel(indexDiskf[5],camera,1);
@@ -1603,19 +1604,19 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     EffGlobD2far->setAxisRange(-4.,100.,2);
     EffGlobD3far->setAxisRange(-4.,100.,2);
 
-    BXGlobDm3->setAxisRange(-4.,100.,2);
-    BXGlobDm2->setAxisRange(-4.,100.,2);
-    BXGlobDm1->setAxisRange(-4.,100.,2);
-    BXGlobD1->setAxisRange(-4.,100.,2);
-    BXGlobD2->setAxisRange(-4.,100.,2);
-    BXGlobD3->setAxisRange(-4.,100.,2);
+//     BXGlobDm3->setAxisRange(-4.,100.,2);
+//     BXGlobDm2->setAxisRange(-4.,100.,2);
+//     BXGlobDm1->setAxisRange(-4.,100.,2);
+//     BXGlobD1->setAxisRange(-4.,100.,2);
+//     BXGlobD2->setAxisRange(-4.,100.,2);
+//     BXGlobD3->setAxisRange(-4.,100.,2);
   
-    BXGlobDm3far->setAxisRange(-4.,100.,2);
-    BXGlobDm2far->setAxisRange(-4.,100.,2);
-    BXGlobDm1far->setAxisRange(-4.,100.,2);
-    BXGlobD1far->setAxisRange(-4.,100.,2);
-    BXGlobD2far->setAxisRange(-4.,100.,2);
-    BXGlobD3far->setAxisRange(-4.,100.,2);
+//     BXGlobDm3far->setAxisRange(-4.,100.,2);
+//     BXGlobDm2far->setAxisRange(-4.,100.,2);
+//     BXGlobDm1far->setAxisRange(-4.,100.,2);
+//     BXGlobD1far->setAxisRange(-4.,100.,2);
+//     BXGlobD2far->setAxisRange(-4.,100.,2);
+//     BXGlobD3far->setAxisRange(-4.,100.,2);
 
     MaskedGlobDm3->setAxisRange(-4.,100.,2);
     MaskedGlobDm2->setAxisRange(-4.,100.,2);
@@ -1729,19 +1730,19 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     EffGlobD2far->setAxisTitle("%",2);
     EffGlobD3far->setAxisTitle("%",2);
 
-    BXGlobDm3->setAxisTitle("%",2);
-    BXGlobDm2->setAxisTitle("%",2);
-    BXGlobDm1->setAxisTitle("%",2);
-    BXGlobD1->setAxisTitle("%",2);
-    BXGlobD2->setAxisTitle("%",2);
-    BXGlobD3->setAxisTitle("%",2);
+//     BXGlobDm3->setAxisTitle("%",2);
+//     BXGlobDm2->setAxisTitle("%",2);
+//     BXGlobDm1->setAxisTitle("%",2);
+//     BXGlobD1->setAxisTitle("%",2);
+//     BXGlobD2->setAxisTitle("%",2);
+//     BXGlobD3->setAxisTitle("%",2);
   
-    BXGlobDm3far->setAxisTitle("%",2);
-    BXGlobDm2far->setAxisTitle("%",2);
-    BXGlobDm1far->setAxisTitle("%",2);
-    BXGlobD1far->setAxisTitle("%",2);
-    BXGlobD2far->setAxisTitle("%",2);
-    BXGlobD3far->setAxisTitle("%",2);
+//     BXGlobDm3far->setAxisTitle("%",2);
+//     BXGlobDm2far->setAxisTitle("%",2);
+//     BXGlobDm1far->setAxisTitle("%",2);
+//     BXGlobD1far->setAxisTitle("%",2);
+//     BXGlobD2far->setAxisTitle("%",2);
+//     BXGlobD3far->setAxisTitle("%",2);
 
     MaskedGlobDm3->setAxisTitle("%",2);
     MaskedGlobDm2->setAxisTitle("%",2);
@@ -1800,19 +1801,19 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   EffGlobD2far->setAxisTitle("%",2);
   EffGlobD3far->setAxisTitle("%",2);
 
-  BXGlobDm3->setAxisTitle("%",2);
-  BXGlobDm2->setAxisTitle("%",2);
-  BXGlobDm1->setAxisTitle("%",2);
-  BXGlobD1->setAxisTitle("%",2);
-  BXGlobD2->setAxisTitle("%",2);
-  BXGlobD3->setAxisTitle("%",2);
+//   BXGlobDm3->setAxisTitle("%",2);
+//   BXGlobDm2->setAxisTitle("%",2);
+//   BXGlobDm1->setAxisTitle("%",2);
+//   BXGlobD1->setAxisTitle("%",2);
+//   BXGlobD2->setAxisTitle("%",2);
+//   BXGlobD3->setAxisTitle("%",2);
   
-  BXGlobDm3far->setAxisTitle("%",2);
-  BXGlobDm2far->setAxisTitle("%",2);
-  BXGlobDm1far->setAxisTitle("%",2);
-  BXGlobD1far->setAxisTitle("%",2);
-  BXGlobD2far->setAxisTitle("%",2);
-  BXGlobD3far->setAxisTitle("%",2);
+//   BXGlobDm3far->setAxisTitle("%",2);
+//   BXGlobDm2far->setAxisTitle("%",2);
+//   BXGlobDm1far->setAxisTitle("%",2);
+//   BXGlobD1far->setAxisTitle("%",2);
+//   BXGlobD2far->setAxisTitle("%",2);
+//   BXGlobD3far->setAxisTitle("%",2);
 
   MaskedGlobDm3->setAxisTitle("%",2);
   MaskedGlobDm2->setAxisTitle("%",2);

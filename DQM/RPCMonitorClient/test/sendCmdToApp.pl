@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
                                                                                                                              
 die "Usage sendCmdToApp.pl host port cmdFile\n" if @ARGV != 3;
                                                                                                                              

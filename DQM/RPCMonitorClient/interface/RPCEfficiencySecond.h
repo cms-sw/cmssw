@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring: use RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2010/08/16 10:16:09 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/01/11 13:28:50 $
+ *  $Revision: 1.8 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -91,57 +91,57 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
   MonitorElement * hGlobalResClu3R2B;
   MonitorElement * hGlobalResClu3R2A;
 
-  MonitorElement * hGlobal2ResClu1La1;
-  MonitorElement * hGlobal2ResClu1La2;
-  MonitorElement * hGlobal2ResClu1La3;
-  MonitorElement * hGlobal2ResClu1La4;
-  MonitorElement * hGlobal2ResClu1La5;
-  MonitorElement * hGlobal2ResClu1La6;
+/*   MonitorElement * hGlobal2ResClu1La1; */
+/*   MonitorElement * hGlobal2ResClu1La2; */
+/*   MonitorElement * hGlobal2ResClu1La3; */
+/*   MonitorElement * hGlobal2ResClu1La4; */
+/*   MonitorElement * hGlobal2ResClu1La5; */
+/*   MonitorElement * hGlobal2ResClu1La6; */
 
-  //SecondHistograms
+/*   //SecondHistograms */
 
-  MonitorElement * hGlobal2ResClu2La1;
-  MonitorElement * hGlobal2ResClu2La2;
-  MonitorElement * hGlobal2ResClu2La3;
-  MonitorElement * hGlobal2ResClu2La4;
-  MonitorElement * hGlobal2ResClu2La5;
-  MonitorElement * hGlobal2ResClu2La6;
+/*   MonitorElement * hGlobal2ResClu2La1; */
+/*   MonitorElement * hGlobal2ResClu2La2; */
+/*   MonitorElement * hGlobal2ResClu2La3; */
+/*   MonitorElement * hGlobal2ResClu2La4; */
+/*   MonitorElement * hGlobal2ResClu2La5; */
+/*   MonitorElement * hGlobal2ResClu2La6; */
 
-  MonitorElement * hGlobal2ResClu3La1;
-  MonitorElement * hGlobal2ResClu3La2;
-  MonitorElement * hGlobal2ResClu3La3;
-  MonitorElement * hGlobal2ResClu3La4;
-  MonitorElement * hGlobal2ResClu3La5;
-  MonitorElement * hGlobal2ResClu3La6;
+/*   MonitorElement * hGlobal2ResClu3La1; */
+/*   MonitorElement * hGlobal2ResClu3La2; */
+/*   MonitorElement * hGlobal2ResClu3La3; */
+/*   MonitorElement * hGlobal2ResClu3La4; */
+/*   MonitorElement * hGlobal2ResClu3La5; */
+/*   MonitorElement * hGlobal2ResClu3La6; */
 
-  //Endcap  
-  MonitorElement * hGlobal2ResClu1R3C;
-  MonitorElement * hGlobal2ResClu1R3B;
-  MonitorElement * hGlobal2ResClu1R3A;
-  MonitorElement * hGlobal2ResClu1R2C;
-  MonitorElement * hGlobal2ResClu1R2B; 
-  MonitorElement * hGlobal2ResClu1R2A;
+/*   //Endcap   */
+/*   MonitorElement * hGlobal2ResClu1R3C; */
+/*   MonitorElement * hGlobal2ResClu1R3B; */
+/*   MonitorElement * hGlobal2ResClu1R3A; */
+/*   MonitorElement * hGlobal2ResClu1R2C; */
+/*   MonitorElement * hGlobal2ResClu1R2B;  */
+/*   MonitorElement * hGlobal2ResClu1R2A; */
 
-  MonitorElement * hGlobal2ResClu2R3C;
-  MonitorElement * hGlobal2ResClu2R3B;
-  MonitorElement * hGlobal2ResClu2R3A;
-  MonitorElement * hGlobal2ResClu2R2C;
-  MonitorElement * hGlobal2ResClu2R2B;
-  MonitorElement * hGlobal2ResClu2R2A;
+/*   MonitorElement * hGlobal2ResClu2R3C; */
+/*   MonitorElement * hGlobal2ResClu2R3B; */
+/*   MonitorElement * hGlobal2ResClu2R3A; */
+/*   MonitorElement * hGlobal2ResClu2R2C; */
+/*   MonitorElement * hGlobal2ResClu2R2B; */
+/*   MonitorElement * hGlobal2ResClu2R2A; */
 
-  MonitorElement * hGlobal2ResClu3R3C;
-  MonitorElement * hGlobal2ResClu3R3B;
-  MonitorElement * hGlobal2ResClu3R3A;
-  MonitorElement * hGlobal2ResClu3R2C;
-  MonitorElement * hGlobal2ResClu3R2B;
-  MonitorElement * hGlobal2ResClu3R2A;
+/*   MonitorElement * hGlobal2ResClu3R3C; */
+/*   MonitorElement * hGlobal2ResClu3R3B; */
+/*   MonitorElement * hGlobal2ResClu3R3A; */
+/*   MonitorElement * hGlobal2ResClu3R2C; */
+/*   MonitorElement * hGlobal2ResClu3R2B; */
+/*   MonitorElement * hGlobal2ResClu3R2A; */
 
   //Histograms to use
   MonitorElement * histoRPC;
   MonitorElement * histoDT;
   MonitorElement * histoRealRPC;
   MonitorElement * histoCSC;
-  MonitorElement * BXDistribution;
+  //  MonitorElement * BXDistribution;
 
   MonitorElement * histoPRO;
   MonitorElement * histoeffIdRPC_DT;
@@ -152,7 +152,7 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
   MonitorElement * histoDT2;
   MonitorElement * histoRealRPC2;
   MonitorElement * histoCSC2;
-  MonitorElement * BXDistribution2;
+  //  MonitorElement * BXDistribution2;
 
 
   //Eff Global Barrel
@@ -168,18 +168,18 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
   MonitorElement * EffGlobW1far;
   MonitorElement * EffGlobW2far;
 
-  //BX Barrel 
-  MonitorElement * BXGlobWm2;
-  MonitorElement * BXGlobWm1;
-  MonitorElement * BXGlobW0;
-  MonitorElement * BXGlobW1;
-  MonitorElement * BXGlobW2;
+ /*  //BX Barrel  */
+/*   MonitorElement * BXGlobWm2; */
+/*   MonitorElement * BXGlobWm1; */
+/*   MonitorElement * BXGlobW0; */
+/*   MonitorElement * BXGlobW1; */
+/*   MonitorElement * BXGlobW2; */
   
-  MonitorElement * BXGlobWm2far;
-  MonitorElement * BXGlobWm1far;
-  MonitorElement * BXGlobW0far;
-  MonitorElement * BXGlobW1far;
-  MonitorElement * BXGlobW2far;
+/*   MonitorElement * BXGlobWm2far; */
+/*   MonitorElement * BXGlobWm1far; */
+/*   MonitorElement * BXGlobW0far; */
+/*   MonitorElement * BXGlobW1far; */
+/*   MonitorElement * BXGlobW2far; */
   
   //Masked Barrel
   MonitorElement * MaskedGlobWm2;
@@ -251,19 +251,19 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
   MonitorElement * EffGlobD3far;
 
   //BX EndCap
-  MonitorElement * BXGlobDm3;
-  MonitorElement * BXGlobDm2;
-  MonitorElement * BXGlobDm1;
-  MonitorElement * BXGlobD1;
-  MonitorElement * BXGlobD2;
-  MonitorElement * BXGlobD3;
+/*   MonitorElement * BXGlobDm3; */
+/*   MonitorElement * BXGlobDm2; */
+/*   MonitorElement * BXGlobDm1; */
+/*   MonitorElement * BXGlobD1; */
+/*   MonitorElement * BXGlobD2; */
+/*   MonitorElement * BXGlobD3; */
   
-  MonitorElement * BXGlobDm3far;
-  MonitorElement * BXGlobDm2far;
-  MonitorElement * BXGlobDm1far;
-  MonitorElement * BXGlobD1far;
-  MonitorElement * BXGlobD2far;
-  MonitorElement * BXGlobD3far;
+/*   MonitorElement * BXGlobDm3far; */
+/*   MonitorElement * BXGlobDm2far; */
+/*   MonitorElement * BXGlobDm1far; */
+/*   MonitorElement * BXGlobD1far; */
+/*   MonitorElement * BXGlobD2far; */
+/*   MonitorElement * BXGlobD3far; */
 
   //Masked EndCap
   MonitorElement * MaskedGlobDm3;

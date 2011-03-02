@@ -6,5 +6,6 @@ rpcEventSummary = cms.EDAnalyzer("RPCEventSummary",
                                  MinimumRPCEvents = cms.untracked.int32(10000),
                                  NumberOfEndcapDisks = cms.untracked.int32(3),
                                  EnableEndcapSummary = cms.untracked.bool(True),
-                                 OfflineDQM = cms.untracked.bool(True)
+                                 OfflineDQM = cms.untracked.bool(True),
+                                 RecHitTypeFolder = cms.untracked.string("Noise")
                                  )

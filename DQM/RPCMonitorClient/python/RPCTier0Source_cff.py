@@ -1,12 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.RPCMonitorDigi.RPCDigiMonitoring_cfi import *
-rpcdigidqm.DigiEventsInterval = 100
-rpcdigidqm.dqmshifter = True
-rpcdigidqm.dqmexpert = True
-rpcdigidqm.dqmsuperexpert = False
-rpcdigidqm.DigiDQMSaveRootFile = False
+from DQM.RPCMonitorDigi.RPCDigiMonitoring_cfi import rpcdigidqm
+rpcdigidqm.UseMuon =  cms.untracked.bool(True)
 
+from DQM.RPCMonitorDigi.RPCRecHitProbability_cfi import rpcrechitprobability
 
 # FED integrity
 from DQM.RPCMonitorClient.RPCFEDIntegrity_cfi import rpcFEDIntegrity
@@ -24,5 +21,6 @@ rpcEventInfo = cms.EDAnalyzer("DQMEventInfo",
 # DCS
 from DQM.RPCMonitorDigi.RPCDcsInfo_cfi import *
 
-rpcTier0Source = cms.Sequence(rpcdigidqm*rpcDcsInfo*rpcEventInfo*rpcFEDIntegrity*rpcefficiency)
+
+rpcTier0Source = cms.Sequence(rpcdigidqm*rpcrechitprobability*rpcDcsInfo*rpcefficiency*rpcEventInfo*rpcFEDIntegrity)
 

@@ -20,7 +20,7 @@ class RPCClusterSizeTest:public RPCClient{
   virtual ~RPCClusterSizeTest();
 
   /// BeginJob
-  void beginJob(DQMStore *);
+  void beginJob(DQMStore *, std::string);
 
   //Begin Run
   void endRun(const edm::Run& r, const edm::EventSetup& c );
@@ -41,7 +41,7 @@ class RPCClusterSizeTest:public RPCClient{
 
   void  clientOperation(edm::EventSetup const& c);
 
-  void  bookHisto(std::vector<MonitorElement *> , std::vector<RPCDetId>);
+  void  getMonitorElements(std::vector<MonitorElement *> & , std::vector<RPCDetId> &);
 
  private:
   
@@ -49,7 +49,7 @@ class RPCClusterSizeTest:public RPCClient{
   int numberOfDisks_;
   int numberOfRings_;
   int prescaleFactor_;
- 
+  bool testMode_;
   DQMStore* dbe_;
    
   std::vector<MonitorElement *>  myClusterMe_;
