@@ -136,7 +136,7 @@ recoTauClassicHPSSequence = cms.Sequence(
 recoTauClassicShrinkingConeSequence = cms.Sequence(
     recoTauCommonSequence *
     ak5PFJetsLegacyTaNCPiZeros *
-    produceAndDiscriminateShrinkingConePFTaus 
+    produceAndDiscriminateShrinkingConePFTaus
 )
 
 recoTauClassicShrinkingConeMVASequence = cms.Sequence(
@@ -148,7 +148,8 @@ recoTauHPSTancSequence = cms.Sequence(
     recoTauCommonSequence *
     ak5PFJetsLegacyHPSPiZeros *
     combinatoricRecoTaus *
-    hpsTancTauSequence
+    hpsTancTauInitialSequence *
+    hpsTancTauDiscriminantSequence
 )
 
 PFTau = cms.Sequence(

@@ -25,6 +25,7 @@ from RecoTauTag.Configuration.RecoTauMVAConfiguration_cfi \
 # Build the tanc discriminates
 from RecoTauTag.RecoTau.RecoTauDiscriminantConfiguration import \
         discriminantConfiguration
+
 combinatoricRecoTausDiscriminationByTanc = cms.EDProducer(
     "RecoTauMVADiscriminator",
     PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
@@ -56,61 +57,6 @@ combinatoricRecoTausDiscriminationByTanc = cms.EDProducer(
     discriminantOptions = discriminantConfiguration,
 )
 
-combinatoricTaus1prong0pi0 = cms.EDFilter(
-    "PFTauViewRefSelector",
-    src = cms.InputTag("combinatoricRecoTaus"),
-    cut = cms.string("decayMode = 0"),
-)
-
-combinatoricTaus1prong1pi0 = cms.EDFilter(
-    "PFTauViewRefSelector",
-    src = cms.InputTag("combinatoricRecoTaus"),
-    cut = cms.string("decayMode = 1"),
-)
-
-combinatoricTaus1prong2pi0 = cms.EDFilter(
-    "PFTauViewRefSelector",
-    src = cms.InputTag("combinatoricRecoTaus"),
-    cut = cms.string("decayMode = 2"),
-)
-
-combinatoricTaus3prong0pi0 = cms.EDFilter(
-    "PFTauViewRefSelector",
-    src = cms.InputTag("combinatoricRecoTaus"),
-    cut = cms.string("decayMode = 10"),
-)
-
-# Clean each collection separately using TaNC
-selected1prong0pi0TancTaus = cms.EDProducer(
-    "RecoTauRefCleaner",
-    src = cms.InputTag("combinatoricTaus1prong0pi0"),
-    cleaners = cms.VPSet(
-        # Prefer taus that don't have charge == 3
-        cleaners.unitCharge,
-        # Prefer taus that pass the lead pion requirement
-        cms.PSet(
-            name = cms.string("lead pion"),
-            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
-            src = cms.InputTag(
-                "combinatoricRecoTausDiscriminationByLeadingPionPtCut")
-        ),
-        # Finally rank taus according to their transformed TaNC output
-        cms.PSet(
-            name = cms.string("TaNC transform"),
-            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
-            src = cms.InputTag("combinatoricRecoTausDiscriminationByTanc")
-        ),
-    )
-)
-selected1prong1pi0TancTaus = selected1prong0pi0TancTaus.clone(
-    src = cms.InputTag("combinatoricTaus1prong1pi0")
-)
-selected1prong2pi0TancTaus = selected1prong0pi0TancTaus.clone(
-    src = cms.InputTag("combinatoricTaus1prong2pi0")
-)
-selected3prong0pi0TancTaus = selected1prong0pi0TancTaus.clone(
-    src = cms.InputTag("combinatoricTaus3prong0pi0")
-)
 
 #Produce the transformed TaNC output
 combinatoricRecoTausTancTransform = cms.EDProducer(
@@ -123,19 +69,10 @@ combinatoricRecoTausTancTransform = cms.EDProducer(
 
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import \
         hpsSelectionDiscriminator
-combinatoricRecoTausHPSSelector = hpsSelectionDiscriminator.clone(
-    src = cms.InputTag("combinatoricRecoTaus"))
 
-# Merge are the decay modes back together.  Each decay mode has had it's best
-# candidate selected.
-hpsTancTausDecayModeClean = cms.EDProducer(
-    "PFTauViewRefMerger",
-    src = cms.VInputTag(
-        "selected1prong0pi0TancTaus",
-        "selected1prong1pi0TancTaus",
-        "selected1prong2pi0TancTaus",
-        "selected3prong0pi0TancTaus",
-    )
+combinatoricRecoTausHPSSelector = hpsSelectionDiscriminator.clone(
+    src = cms.InputTag("combinatoricRecoTaus"),
+    minTauPt = cms.double(5.),
 )
 
 # Clean the taus according to the transformed output
@@ -186,6 +123,7 @@ _leadPionPrediscriminant = cms.PSet(
 # Build the HPS selection discriminator
 hpsTancTausDiscriminationByDecayModeSelection = hpsSelectionDiscriminator.clone(
     PFTauProducer = cms.InputTag("hpsTancTaus"),
+    minTauPt = cms.double(5)
 )
 
 from RecoTauTag.Configuration.HPSPFTaus_cfi import requireDecayMode,\
@@ -235,6 +173,14 @@ hpsTancRequireDecayMode = requireDecayMode.clone()
 hpsTancRequireDecayMode.decayMode.Producer = cms.InputTag(
     "hpsTancTausDiscriminationByDecayModeSelection")
 
+hpsTancTausDiscriminationByFlightPath = cms.EDProducer(
+    "PFRecoTauDiscriminationByFlight",
+    Producer = cms.InputTag("hpsTancTaus"),
+    vertexSource = cms.InputTag("offlinePrimaryVertices"),
+    beamspot = cms.InputTag("offlineBeamSpot"),
+    refitPV = cms.bool(True),
+)
+
 # Build the isolation discriminators
 hpsTancTausDiscriminationByVLooseIsolation = \
         hpsPFTauDiscriminationByVLooseIsolation.clone(
@@ -257,17 +203,10 @@ hpsTancTausDiscriminationByTightIsolation = \
             Prediscriminants = hpsTancRequireDecayMode
         )
 
-hpsTancTausDiscriminationByTancPrecut = cms.EDProducer(
-    "PFRecoTauDiscriminationByStringCut",
-    PFTauProducer = cms.InputTag("hpsTancTaus"),
-    cut = cms.string("mass < 3 & isolationPFChargedHadrCandsPtSum < 7"),
-    Prediscriminants = _leadPionPrediscriminant,
-)
-
 _tancPrediscriminants = _leadPionPrediscriminant.clone(
-    precut = cms.PSet(
+    hpsSelect = cms.PSet(
         Producer = cms.InputTag(
-            'hpsTancTausDiscriminationByTancPrecut'),
+            'hpsTancTausDiscriminationByDecayModeSelection'),
         cut = cms.double(0.5)
     )
 )
@@ -317,36 +256,28 @@ hpsTancTausDiscriminationByTancTight = \
         hpsTancTausDiscriminationByTancLoose.clone()
 hpsTancTausDiscriminationByTancTight.Prediscriminants.tancCut.cut = 0.985
 
-hpsTancTauSequence = cms.Sequence(
-    combinatoricRecoTausDiscriminationByTanc
-    + combinatoricRecoTausDiscriminationByLeadingPionPtCut
-    + combinatoricRecoTausTancTransform
+hpsTancTauInitialSequence = cms.Sequence(
+    combinatoricRecoTausDiscriminationByLeadingPionPtCut
     + combinatoricRecoTausHPSSelector
     # select & clean each decay mode
-    + combinatoricTaus1prong0pi0
-    + combinatoricTaus1prong1pi0
-    + combinatoricTaus1prong2pi0
-    + combinatoricTaus3prong0pi0
-    + selected1prong0pi0TancTaus
-    + selected1prong1pi0TancTaus
-    + selected1prong2pi0TancTaus
-    + selected3prong0pi0TancTaus
-    + hpsTancTausDecayModeClean
     + hpsTancTaus
     + hpsTancTausDiscriminationByLeadingTrackFinding
     + hpsTancTausDiscriminationByLeadingPionPtCut
     + hpsTancTausDiscriminationByLeadingTrackPtCut
-    + hpsTancTausDiscriminationAgainstElectron
+    + hpsTancTausDiscriminationByDecayModeSelection
+    + hpsTancTausDiscriminationByFlightPath
+)
+
+hpsTancTauDiscriminantSequence = cms.Sequence(
+    hpsTancTausDiscriminationAgainstElectron
     + hpsTancTausDiscriminationAgainstMuon
     #+ hpsTancTausDiscriminationAgainstCaloMuon
-    + hpsTancTausDiscriminationByTancPrecut
     + hpsTancTausDiscriminationByTancRaw
     + hpsTancTausDiscriminationByTanc
     + hpsTancTausDiscriminationByTancVLoose
     + hpsTancTausDiscriminationByTancLoose
     + hpsTancTausDiscriminationByTancMedium
     + hpsTancTausDiscriminationByTancTight
-    + hpsTancTausDiscriminationByDecayModeSelection
     + hpsTancTausDiscriminationByVLooseIsolation
     + hpsTancTausDiscriminationByLooseIsolation
     + hpsTancTausDiscriminationByMediumIsolation
