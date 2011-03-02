@@ -29,7 +29,8 @@ namespace edm {
   }
 
   void ProcessDesc::addService(ParameterSet& pset) {
-    services_->push_back(pset);
+    // The standard services should be initialized first.
+    services_->insert(services_->begin(), pset);
   }
 
   void ProcessDesc::addService(std::string const& service) {
@@ -39,11 +40,15 @@ namespace edm {
   }
 
   void ProcessDesc::addDefaultService(std::string const& service) {
-    typedef std::vector<edm::ParameterSet>::iterator Iter;
+    typedef std::vector<ParameterSet>::iterator Iter;
     for(Iter it = services_->begin(), itEnd = services_->end(); it != itEnd; ++it) {
       std::string name = it->getParameter<std::string>("@service_type");
       if (name == service) {
         // Use the configured service.  Don't add a default.
+        // However, the service needs to be moved to the front because it is a standard service.
+        ParameterSet pset = *it;
+        services_->erase(it);
+        addService(pset);
         return;
       }
     }
@@ -51,7 +56,7 @@ namespace edm {
   }
 
   void ProcessDesc::addForcedService(std::string const& service) {
-    typedef std::vector<edm::ParameterSet>::iterator Iter;
+    typedef std::vector<ParameterSet>::iterator Iter;
     for(Iter it = services_->begin(), itEnd = services_->end(); it != itEnd; ++it) {
       std::string name = it->getParameter<std::string>("@service_type");
       if (name == service) {
@@ -65,15 +70,15 @@ namespace edm {
 
   void ProcessDesc::addServices(std::vector<std::string> const& defaultServices,
                                 std::vector<std::string> const& forcedServices) {
-    // Add the forced services to services_.
-    for(std::vector<std::string>::const_iterator i = forcedServices.begin(), iEnd = forcedServices.end();
-         i != iEnd; ++i) {
-      addForcedService(*i);
-    }
     // Add the default services to services_.
     for(std::vector<std::string>::const_iterator i = defaultServices.begin(), iEnd = defaultServices.end();
          i != iEnd; ++i) {
       addDefaultService(*i);
+    }
+    // Add the forced services to services_.
+    for(std::vector<std::string>::const_iterator i = forcedServices.begin(), iEnd = forcedServices.end();
+         i != iEnd; ++i) {
+      addForcedService(*i);
     }
   }
 
