@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.5 2011/03/02 11:17:26 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.6 2011/03/02 11:50:09 amraktad Exp $
 //
 
 #include <map>
@@ -89,50 +89,9 @@ static TypeTrans const sTypeTranslations;
 //
 
 FWPSetTableManager::FWPSetTableManager()
-   : m_selectedRow(-1),
-     m_greenGC(0),
-     m_redGC(0),
-     m_grayGC(0),
-     m_bgGC(0)
+   : m_selectedRow(-1)
 {  
-   m_boldRenderer.setGraphicsContext(&fireworks::boldGC());
-   m_italicRenderer.setGraphicsContext(&fireworks::italicGC());
-
-   m_greenGC = new TGGC(fireworks::boldGC());
-   m_greenGC->SetForeground(gVirtualX->GetPixel(kGreen-5));
-
-   m_redGC = new TGGC(fireworks::boldGC());
-   m_redGC->SetForeground(gVirtualX->GetPixel(kRed-5));
-
-   m_grayGC = new TGGC(fireworks::italicGC());
-   m_grayGC->SetForeground(gVirtualX->GetPixel(kGray+1));
-
-   m_bgGC = new TGGC(*gClient->GetResourcePool()->GetFrameGC());
-   m_bgGC->SetBackground(gVirtualX->GetPixel(kGray));
-
-  
-   m_pathPassedRenderer.setGraphicsContext(m_greenGC);
-   m_pathPassedRenderer.setHighlightContext(m_bgGC);
-   m_pathPassedRenderer.setIsParent(true);
-
-   m_pathFailedRenderer.setGraphicsContext(m_redGC);
-   m_pathFailedRenderer.setHighlightContext(m_bgGC);
-   m_pathFailedRenderer.setIsParent(true);
-      
-   m_editingDisabledRenderer.setGraphicsContext(m_grayGC);
-   m_editingDisabledRenderer.setHighlightContext(m_bgGC);
-
-   // Italic color doesn't seem to show up well event though
-   // modules are displayed in italic
-   m_modulePassedRenderer.setGraphicsContext(m_greenGC);
-   m_modulePassedRenderer.setIsParent(true);
-   m_moduleFailedRenderer.setGraphicsContext(m_redGC);
-   m_moduleFailedRenderer.setIsParent(true);
-
-   // Debug stuff to dump font list.
-   //      std::cout << "Available fonts: " << std::endl;
-   //      gClient->GetFontPool()->Print();
-       
+   setGrowInWidth(false);
    reset();
 }
 
@@ -310,7 +269,6 @@ void FWPSetTableManager::updateFilter(const char *filter)
 void FWPSetTableManager::setCellValueEditor(FWPSetCellEditor *editor)
 {
    m_editor = editor;
-   m_renderer.setCellEditor(editor);
 }
 
 void FWPSetTableManager::handleEntry(const edm::Entry &entry,const std::string &key)
@@ -754,48 +712,45 @@ void FWPSetTableManager::implSort(int, bool)
 
 FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, int iCol) const
 {
-   // If the index is outside the table, we simply return an empty cell.
-   // FIXME: how is this actually possible???
+   static size_t maxSize = 512; // maximum string length
+
+   static TGGC boldGC(fireworks::boldGC()); 
+   static TGGC italicGC(fireworks::italicGC()); 
+   static TGGC defaultGC(FWTextTableCellRenderer::getDefaultGC()); 
+   
+   const static Pixel_t gray  = gVirtualX->GetPixel(kGray+1);
+   const static Pixel_t red   = gVirtualX->GetPixel(kRed-5);
+   const static Pixel_t green = gVirtualX->GetPixel(kGreen-5);
+
+   // return in case if nothing maches filter
    if (static_cast<int>(m_row_to_index.size()) <= iSortedRowNumber)
    {
+      // std::cout << "FWPSetTableManager::cellRenderer() m_row_to_index.size " <<m_row_to_index.size() << "<= iSortedRowNumber" << iSortedRowNumber << std::endl;
       m_renderer.setData(std::string(), false);
       return &m_renderer;
    }
 
-   // Do the actual rendering.
-   FWTextTreeCellRenderer* renderer;
 
    int unsortedRow =  m_row_to_index[iSortedRowNumber];
    const PSetData& data = m_entries[unsortedRow];
 
    std::string value;
    std::string label;
-
+   TGGC* gc = 0;
    if (data.level == 0)
    {
       const PathInfo &path = m_paths[data.path];
       label = data.label + " (" + data.value + ")";
-       
-      value = "";
-
-      if (path.passed)
-         renderer = &m_pathPassedRenderer;
-      else 
-         renderer = &m_pathFailedRenderer;
+      gc = &boldGC;
+      gc->SetForeground(path.passed ? green: red);
    }
    else if (data.level == 1)
-   {
-      const ModuleInfo &module = m_modules[m_paths[data.path].moduleStart + data.module];
-
-      label = data.label + " (" + data.value + ")";
-      value = "";
-
+   { 
       // "passed" means if module made decision on path 
-      // passing or failing
-      if (module.passed)
-         renderer = &m_modulePassedRenderer;
-      else
-         renderer = &m_moduleFailedRenderer;
+      const ModuleInfo &module = m_modules[m_paths[data.path].moduleStart + data.module];
+      label = data.label + " (" + data.value + ")";
+      gc = (TGGC*)&boldGC;
+      gc->SetForeground(module.passed ? green : red);
    }
    else
    {
@@ -806,13 +761,35 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
       value = data.value;
          
       if (data.editable)
-         renderer = &m_renderer;
+      {
+         gc = &defaultGC;
+      }
       else
-         renderer = &m_editingDisabledRenderer;
+      {
+         gc = &italicGC;
+         gc->SetForeground(gray);
+      }
    }
 
-   // set isParent state for expand icon
+   // check string size and cut it if necessary (problems with X11)
+   if (iCol == 1 && value.size() >= maxSize)
+   { 
+      if (iSortedRowNumber == m_selectedRow)
+         fwLog(fwlog::kWarning) << "label: " << label << " has too long value " << value << std::endl << std::endl;  
+
+      value = value.substr(0, maxSize);
+      value += "[truncated]";
+      gc->SetForeground(gVirtualX->GetPixel(kMagenta));
+   }
+
+   // set text attributes
+   m_renderer.setGraphicsContext(gc);
+   m_renderer.setData(iCol ?  value : label, false);
+      
+   // set  tree attributes
    bool isParent = false;
+   bool open = false;
+   int indent = 0;
    if (iCol == 0)
    { 
       if (m_filter.empty())
@@ -824,40 +801,33 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
       {
          isParent = data.childMatches;
       }
-   } 
-   renderer->setIsParent(isParent);
 
-   renderer->setIndentation(0);
+      indent =  data.level * 10 ;
+      if (!isParent) indent += FWTextTreeCellRenderer::iconWidth();
 
-   if (m_filter.empty())
-      renderer->setIsOpen(data.expanded);
-   else
-      renderer->setIsOpen(data.childMatches);
-
-
-
-   if (iCol == 0)
-   {
-      if (isParent)
-         renderer->setIndentation(data.level * 10 );
+      if (m_filter.empty())
+         open = data.expanded;
       else
-         renderer->setIndentation(data.level * 10 + 12);
-
-      renderer->setData(label, false);
+         open = data.childMatches;
    }
-   else if (iCol == 1)
-      renderer->setData(value, false);
-   else
-      renderer->setData(std::string(), false);
+   m_renderer.setIsParent(isParent);
+   m_renderer.setIsOpen(open);
+   m_renderer.setIndentation(indent);
+
 
    // If we are rendering the selected cell,
    // we show the editor.
-   if (iCol == 1 && iSortedRowNumber == m_selectedRow && iCol == m_selectedColumn)
-      renderer->showEditor(data.editable);
+   if (iCol == 1 && iSortedRowNumber == m_selectedRow && iCol == m_selectedColumn && value.size() < maxSize)
+   {
+      m_renderer.showEditor(data.editable);
+      m_renderer.setCellEditor(m_editor);
+   }
    else
-      renderer->showEditor(false);
+   {
+      m_renderer.showEditor(false);
+   }
 
-   return renderer;
+   return &m_renderer;
 }
 
 void FWPSetTableManager::recalculateVisibility()

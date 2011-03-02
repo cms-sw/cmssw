@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:50 CET 2011
-// $Id: FWPSetTableManager.h,v 1.3 2011/02/28 20:37:39 amraktad Exp $
+// $Id: FWPSetTableManager.h,v 1.4 2011/03/02 11:50:09 amraktad Exp $
 //
 
 // system include files
@@ -187,23 +187,17 @@ private:
    FWPSetCellEditor               *m_editor;
    std::vector<std::string>        m_availablePaths;
 
+   /*
    TGGC*  m_greenGC;
    TGGC*  m_redGC;
    TGGC*  m_grayGC;
    TGGC*  m_bgGC;
 
+   TGGC*  m_italicGC;
+   TGGC*  m_boldGC;
+
+   */
    mutable FWTextTreeCellRenderer m_renderer;  
-   mutable FWTextTreeCellRenderer m_italicRenderer;
-   mutable FWTextTreeCellRenderer m_boldRenderer;
-
-   mutable FWTextTreeCellRenderer m_pathPassedRenderer;
-   mutable FWTextTreeCellRenderer m_pathFailedRenderer;
-
-   // To be used to renderer cells that should appear as disabled.
-   mutable FWTextTreeCellRenderer m_editingDisabledRenderer;
-
-   mutable FWTextTreeCellRenderer m_modulePassedRenderer;
-   mutable FWTextTreeCellRenderer m_moduleFailedRenderer;
 };
 
 
