@@ -12,8 +12,8 @@ ALCARECODtCalibHLTFilter = copy.deepcopy(hltHighLevel)
 ALCARECODtCalibHLTFilter.throw = False ## dont throw on unknown path names
 ALCARECODtCalibHLTFilter.eventSetupPathsKey = 'MuAlcaDtCalibMu'
 
-from RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDriftFromDB_cfi import dt4DSegments
-dt4DSegmentsNoWire = dt4DSegments.clone()
+import RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDriftFromDB_cfi as dt4DSegmentsCfiRef
+dt4DSegmentsNoWire = dt4DSegmentsCfiRef.dt4DSegments.clone()
 dt4DSegmentsNoWire.Reco4DAlgoConfig.recAlgoConfig.tTrigModeConfig.doWirePropCorrection = False
 dt4DSegmentsNoWire.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.tTrigModeConfig.doWirePropCorrection = False
 
