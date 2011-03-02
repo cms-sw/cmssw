@@ -14,6 +14,9 @@
 
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 
+// for selection cut
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
 class DQMStore;
 class MonitorElement;
 class MuonServiceProxy;
@@ -33,9 +36,6 @@ class RecoMuonValidator : public edm::EDAnalyzer
 
  protected:
   unsigned int verbose_;
-
-  //set up fractions
-  int nTrackerMu, nStandAloneMu, nGlobalMu, nCaloMu, nGlobalNotStAMu, nGlobalNotTrkMu, nTotalMu;
 
   edm::InputTag simLabel_;
   edm::InputTag muonLabel_;
@@ -63,6 +63,10 @@ class RecoMuonValidator : public edm::EDAnalyzer
 
   struct CommonME;
   CommonME * commonME_;
+
+ private:
+  StringCutObjectSelector<reco::Muon> selector_;
+
 };
 
 #endif
