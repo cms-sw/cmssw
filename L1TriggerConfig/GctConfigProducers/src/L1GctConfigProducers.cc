@@ -155,10 +155,10 @@ L1GctConfigProducers::produceChanMask(const L1GctChannelMaskRcd&) {
   L1GctChannelMask* mask = new L1GctChannelMask;
 
   for (unsigned ieta=0; ieta<22; ++ieta) {
-    mask->maskMissingEt((m_metEtaMask>>ieta)&0x1);
-    mask->maskTotalEt((m_tetEtaMask>>ieta)&0x1);
-    mask->maskMissingHt((m_mhtEtaMask>>ieta)&0x1);
-    mask->maskTotalHt((m_thtEtaMask>>ieta)&0x1);
+    if (((m_metEtaMask>>ieta)&0x1)==1) mask->maskMissingEt(ieta);
+    if (((m_tetEtaMask>>ieta)&0x1)==1) mask->maskTotalEt(ieta);
+    if (((m_mhtEtaMask>>ieta)&0x1)==1) mask->maskMissingHt(ieta);
+    if (((m_thtEtaMask>>ieta)&0x1)==1) mask->maskTotalHt(ieta);
   }
 
   return boost::shared_ptr<L1GctChannelMask>(mask);
