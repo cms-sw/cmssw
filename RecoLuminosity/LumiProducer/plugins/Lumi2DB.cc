@@ -100,11 +100,14 @@ lumi::Lumi2DB::applyCalibration(float varToCalibrate)const{
 }
 bool
 lumi::Lumi2DB::isLumiDataValid(lumi::Lumi2DB::LumiResult::iterator lumiBeg,lumi::Lumi2DB::LumiResult::iterator lumiEnd){
+  //
+  // validate lumidata: all ls has lumi less than 0.5e-08 before calibration, then invalid data
+  //
   lumi::Lumi2DB::LumiResult::iterator lumiIt;
   int nBad=0;
   for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt){
     //std::cout<<"instlumi before calib "<<lumiIt->instlumi<<std::endl;
-    if(lumiIt->instlumi<=1.0e-8){//cut before calib
+    if(lumiIt->instlumi<=0.5e-8){//cut before calib
       ++nBad;
     }
   }
@@ -635,7 +638,9 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     lumiresult.push_back(h);
   }
   std::cout<<std::endl;
-  if ( isLumiDataValid(lumiresult.begin(),lumiresult.end()) ){
+  if( !m_novalidate && !isLumiDataValid(lumiresult.begin(),lumiresult.end()) ){
+    throw lumi::invalidDataException("all lumi values are <0.5e-08","isLumiDataValid","Lumi2DB");
+  }
   coral::ConnectionService* svc=new coral::ConnectionService;
   lumi::DBConfig dbconf(*svc);
   if(!m_authpath.empty()){
@@ -651,17 +656,13 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     }else{
       writeAllLumiData(session,runnumber,lversion,lumiresult.begin(),lumiresult.end());     
     }
+    delete session;
+    delete svc;
   }catch( const coral::Exception& er){
     session->transaction().rollback();
     delete session;
     delete svc;
     throw er;
-  }
-  delete session;
-  delete svc;
-  }else{
-    std::cout<<"no valid lumi data found, quit"<<std::endl;
-    throw lumi::Exception("no valid lumi data found","retrieveData","Lumi2DB");
   }
 }
 const std::string lumi::Lumi2DB::dataType() const{
