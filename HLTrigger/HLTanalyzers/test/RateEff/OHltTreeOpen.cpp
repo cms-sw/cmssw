@@ -3704,8 +3704,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   else if (triggerName.CompareTo("OpenHLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_v1")
-         == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -5752,8 +5751,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-  else if (triggerName.CompareTo("OpenHLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_LooseIsoPFTau15_v1")
-         == 0)
+  else if (triggerName.CompareTo("OpenHLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -5791,8 +5789,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   else if (triggerName.CompareTo("OpenHLT_Ele15_CaloIdVT_TrkIdT_CaloIsoT_TrkIsoT_LooseIsoPFTau20_v1")
-         == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -5940,7 +5937,7 @@ void OHltTree::CheckOpenHlt(
 
    /* Electron-MET cross-triggers */
    
-   else if (triggerName.CompareTo("OpenHLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_HT220_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -5967,7 +5964,7 @@ void OHltTree::CheckOpenHlt(
                   0.10 // Dphi barrel, Dphi endcap 
             )>=1)
             && 
-            (OpenHltSumCorHTPassed(220, 30)>=1))
+            (OpenHltSumCorHTPassed(200, 30)>=1))
             {
                triggerBit[it] = true;
             }
@@ -5975,7 +5972,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   else if (triggerName.CompareTo("OpenHLT_Ele10_CaloIdT_TrkIdT_CaloIsoVL_TrkIsoVL_HT220_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele10_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -6002,7 +5999,7 @@ void OHltTree::CheckOpenHlt(
                   0.05 // Dphi barrel, Dphi endcap 
             )>=1)
             && 
-            (OpenHltSumCorHTPassed(220, 30)>=1))
+            (OpenHltSumCorHTPassed(200, 30)>=1))
             {
                triggerBit[it] = true;
             }
