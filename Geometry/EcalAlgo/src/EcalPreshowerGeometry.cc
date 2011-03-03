@@ -48,8 +48,8 @@ EcalPreshowerGeometry::alignmentTransformIndexLocal( const DetId& id )
    const bool second ( 1 == pl ) ;
    const bool top   ( 19 < jy ) ;
    const bool negz  ( 0 == jz ) ;
-   const int lrl    ( 20>jx ? 0 : 1 ) ;
-   const int lrr    ( 22>jx ? 0 : 1 ) ;
+   const int lrl    ( 19>jx ? 0 : 1 ) ;
+   const int lrr    ( 21>jx ? 0 : 1 ) ;
 
    return ( second ? jx/20 + 3*jz :  // 2nd plane split along middle
 	    ( negz && !top ? lrl + 2 :  // 1st plane at neg z and bottom half split at six=19&20
