@@ -85,15 +85,30 @@ bool L1GctChannelMask::missingHtMask(unsigned ieta) const {
 
 std::ostream& operator << (std::ostream& os, const L1GctChannelMask obj) {
   os << "L1GctChannelMask :" << std::endl;
-//   os << "  EM crate mask    = " << obj.emCrateMask_ << std::endl;
-//   os << "  EtTot mask       = " << obj.tetMask_ << std::endl;
-//   os << "  EtMiss mask      = " << obj.metMask_ << std::endl;
-//   os << "  HtTot mask       = " << obj.htMask_ << std::endl;
-//   os << "  HtMiss mask      = " << obj.mhtMask_ << std::endl;
-  for (unsigned ieta=0; ieta<22; ++ieta) {
+
+  // get masks without changing interface, sigh
+  unsigned emCrateMask(0), tetMask(0), metMask(0), htMask(0), mhtMask(0);
+  for (unsigned i=0; i<18; ++i) {
+    emCrateMask |= ((obj.emCrateMask(i)?1:0)<<i);
+  }
+
+  for (unsigned i=0; i<22; ++i) {
+    tetMask |= ((obj.totalEtMask(i)?1:0)<<i);
+    metMask |= ((obj.missingEtMask(i)?1:0)<<i);
+    htMask |= ((obj.totalHtMask(i)?1:0)<<i);
+    mhtMask |= ((obj.missingHtMask(i)?1:0)<<i);
+  }
+
+   os << "  EM crate mask    = " << std::hex << emCrateMask << std::endl;
+   os << "  EtTot mask       = " << std::hex << tetMask << std::endl;
+   os << "  EtMiss mask      = " << std::hex << metMask << std::endl;
+   os << "  HtTot mask       = " << std::hex << htMask << std::endl;
+   os << "  HtMiss mask      = " << std::hex << mhtMask << std::endl;
+  
+   for (unsigned ieta=0; ieta<22; ++ieta) {
     for (unsigned iphi=0; iphi<18; ++iphi) {
       if ( obj.regionMask(ieta, iphi) )  {
-	os << "  Region mask      : " << ieta << ", " << iphi << std::endl;
+	os << "  Region mask      : " << std::dec << ieta << ", " << iphi << std::endl;
       }
     }
   }
