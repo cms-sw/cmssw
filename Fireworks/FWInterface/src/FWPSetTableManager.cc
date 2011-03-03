@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.8 2011/03/02 18:37:21 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.9 2011/03/02 19:05:22 amraktad Exp $
 //
 
 #include <map>
@@ -93,7 +93,7 @@ FWPSetTableManager::FWPSetTableManager()
 {  
 
    TGGC* hc =  new TGGC(FWTextTableCellRenderer::getDefaultHighlightGC());
-   hc->SetForeground(0xeeeeee);
+   hc->SetForeground(0xdddddd);
 
    m_renderer.setHighlightContext(hc);
 
@@ -569,6 +569,7 @@ bool FWPSetTableManager::applyEditor()
          
    if (m_selectedRow == -1)
       return false;
+
    if (m_selectedColumn != 1)
    {
       m_editor->UnmapWindow();
@@ -712,7 +713,7 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
    static TGGC italicGC(fireworks::italicGC()); 
    static TGGC defaultGC(FWTextTableCellRenderer::getDefaultGC()); 
    
-   const static Pixel_t gray  = gVirtualX->GetPixel(kGray+1);
+   const static Pixel_t gray  = 0x777777;
    const static Pixel_t red   = gVirtualX->GetPixel(kRed-5);
    const static Pixel_t green = gVirtualX->GetPixel(kGreen-5);
 
