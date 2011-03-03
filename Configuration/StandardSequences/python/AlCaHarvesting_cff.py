@@ -31,14 +31,14 @@ ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.
 
 
 ALCAHARVESTBeamSpotByRun_metadata = cms.PSet(record              = cms.untracked.string('BeamSpotObjectsRcdByRun'),
-                                             destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT"),
-                                             destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"),
-                                             tag                 = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_offline"),
-                                             Timetype            = cms.untracked.string("runnumber"),
-                                             IOVCheck            = cms.untracked.string("All"),
-                                             DuplicateTagHLT     = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_hlt"),
-                                             DuplicateTagEXPRESS = cms.untracked.string(""),
-                                             DuplicateTagPROMPT  = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_prompt"),
+#                                              destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT"),
+#                                              destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"),
+#                                              tag                 = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_offline"),
+#                                              Timetype            = cms.untracked.string("runnumber"),
+#                                              IOVCheck            = cms.untracked.string("All"),
+#                                              DuplicateTagHLT     = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_hlt"),
+#                                              DuplicateTagEXPRESS = cms.untracked.string(""),
+#                                              DuplicateTagPROMPT  = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_prompt"),
                                              )
 
 
@@ -53,14 +53,14 @@ ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = cms
 
 
 ALCAHARVESTBeamSpotByLumi_metadata = cms.PSet(record              = cms.untracked.string('BeamSpotObjectsRcdByLumi'),
-                                              destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT"),
-                                              destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"),
-                                              tag                 = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_offline"),
-                                              Timetype            = cms.untracked.string("lumiid"),
-                                              IOVCheck            = cms.untracked.string("All"),
-                                              DuplicateTagHLT     = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_hlt"),
-                                              DuplicateTagEXPRESS = cms.untracked.string(""),
-                                              DuplicateTagPROMPT  = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_prompt"),
+#                                               destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT"),
+#                                               destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"),
+#                                               tag                 = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_offline"),
+#                                               Timetype            = cms.untracked.string("lumiid"),
+#                                               IOVCheck            = cms.untracked.string("All"),
+#                                               DuplicateTagHLT     = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_hlt"),
+#                                               DuplicateTagEXPRESS = cms.untracked.string(""),
+#                                               DuplicateTagPROMPT  = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_prompt"),
                                               )
 
 ALCAHARVESTBeamSpotByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObjectsRcdByLumi'),
@@ -69,14 +69,14 @@ ALCAHARVESTBeamSpotByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObjec
 
 
 ALCAHARVESTSiStripQuality_metadata = cms.PSet(record              = cms.untracked.string('SiStripBadStripRcd'),
-                                              destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_STRIP"),
-                                              destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_STRIP"),
-                                              tag                 = cms.untracked.string("SiStripBadChannel_PCL_v0_offline"),
-                                              Timetype            = cms.untracked.string("runnumber"),
-                                              IOVCheck            = cms.untracked.string("All"),
-                                              DuplicateTagHLT     = cms.untracked.string("SiStripBadChannel_PCL_v0_hlt"),
-                                              DuplicateTagEXPRESS = cms.untracked.string(""),
-                                              DuplicateTagPROMPT  = cms.untracked.string("SiStripBadChannel_PCL_v0_prompt"),
+#                                               destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_STRIP"),
+#                                               destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_STRIP"),
+#                                               tag                 = cms.untracked.string("SiStripBadChannel_PCL_v0_offline"),
+#                                               Timetype            = cms.untracked.string("runnumber"),
+#                                               IOVCheck            = cms.untracked.string("All"),
+#                                               DuplicateTagHLT     = cms.untracked.string("SiStripBadChannel_PCL_v0_hlt"),
+#                                               DuplicateTagEXPRESS = cms.untracked.string(""),
+#                                               DuplicateTagPROMPT  = cms.untracked.string("SiStripBadChannel_PCL_v0_prompt"),
                                               )
 
 
