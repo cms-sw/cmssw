@@ -1,6 +1,7 @@
 #!/usr/bin/env cmsRun
 
 import shutil
+import sys
 
 from Validation.RecoTau.ValidationOptions_cfi import *
 
@@ -11,14 +12,14 @@ options.parseArguments()
 
 checkOptionsForBadInput()
 
-if not calledBycmsRun():
+if not calledBycmsRun() and not options.gridJob:
    print "Run 'cmsRun RunTauValidation_cfg.py help' for options."
    # quit here so we dont' create a bunch of directories
    #  if the user only wants the help
-   #sys.exit()
+   sys.exit()
 
 # Make sure we dont' clobber another directory! Skip in batch mode (runs from an LSF machine)
-if not CMSSWEnvironmentIsCurrent() and options.batchNumber == -1:
+if not CMSSWEnvironmentIsCurrent() and options.batchNumber == -1 and not options.gridJob:
    print "CMSSW_BASE points to a different directory, please rerun cmsenv!"
    sys.exit()
 
@@ -35,7 +36,7 @@ process.load("Configuration.StandardSequences.Services_cff")
 """
    Data is stored in
 
-   TauID/[EventType]_[DataSource]_[Conditions]_[label]
+   TauID/[EventType]_[DataSource]_[Conditions][label]
 
 """
 
@@ -62,7 +63,7 @@ outputDir = os.path.join(outputDir, subDirName)
 # Store configuration, showtags, etc in a sub directory
 configDir = os.path.join(outputDir, "Config")
 
-if os.path.exists(outputDir) and options.batchNumber < 0:
+if os.path.exists(outputDir) and options.batchNumber < 0:# and not options.gridJob:
    print "Output directory %s already exists!  OK to overwrite?" % outputDir
    while True:
       input = raw_input("Please enter [y/n] ")
@@ -71,43 +72,12 @@ if os.path.exists(outputDir) and options.batchNumber < 0:
       elif (input == 'n'):
          print " ...exiting."
          sys.exit()
-         
-         
+
 if not os.path.exists(outputDir):
    os.makedirs(outputDir)
 
 if not os.path.exists(configDir):
    os.makedirs(configDir)
-
-try:
-   os.makedirs('./TauID/%s_recoFiles/Plots' % options.eventType)
-except OSError:
-   pass
-
-try:
-   os.makedirs('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducer' % options.eventType)
-except OSError:
-   pass
-
-try:
-   os.makedirs('./TauID/%s_recoFiles/Plots/fixedConePFTauProducer' % options.eventType)
-except OSError:
-   pass
-
-try:
-   os.makedirs('./TauID/%s_recoFiles/Plots/caloRecoTauProducer' % options.eventType)
-except OSError:
-   pass
-
-try:
-   os.makedirs('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducerTanc' % options.eventType)
-except OSError:
-   pass
-
-try:
-   os.makedirs('./TauID/%s_recoFiles/Plots/shrinkingConePFTauProducerLeadingPion' % options.eventType)
-except OSError:
-   pass
 
 ######################################
 #                                    #
@@ -182,6 +152,7 @@ elif options.dataSource == 'fullsim':
 
 # Specify conditions if desired
 if options.conditions != "whatever":
+   process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
    process.GlobalTag.globaltag = options.conditions
 
 # have to set max events here, since it may get written by the 
@@ -196,59 +167,6 @@ if options.batchNumber >= 0 and options.dataSource.find('Files') != -1:
 
 ######################################
 #                                    #
-#          Test luminosity           #
-#                                    #
-######################################
-
-#
-# getLumi.py - Copyright 2010 Mario Kadastik
-#
-# Version 1.0, date 12 April 2010
-#
-# This is a temporary tool to calculate the integrated luminosity of CMS based on a JSON file
-#
-# Usage: python getLumi.py in.json
-#
-# Where the in.json is either a JSON file you get from CRAB by e.g. crab -report or a JSON listing the good runs from some other source
-#
-# The code requires lumi_by_LS.csv present in the current working directory. You can get the file from:
-#  https://twiki.cern.ch/twiki/bin/view/CMS/LumiWiki2010Data
-#
-
-#import json, csv, sys
-#
-#my_lumi_json=file(sys.argv[1],'r')
-#my_lumi_dict = json.load(my_lumi_json)
-#
-#lumi_list_csv = open('lumi_by_LS.csv','rb')
-# Skip first 5 lines, which are comments
-#for i in range(5):
-#   lumi_list_csv.next()
-#   
-#   lumi_dict = csv.DictReader(lumi_list_csv,delimiter=',',fieldnames=['Run','LS','HFC','VTXC','HFL','VTXL'])
-#   lumi = {}
-#   for l in lumi_dict:
-#      kw="%d_%d" % (int(l['Run']),int(l['LS']))
-#      lumi[kw]=float(l['VTXL'])
-#      
-#      tot=1e-30
-#      
-#      for k, v in my_lumi_dict.items():
-#         for lumis in v:
-#            if type(lumis) == type([]) and len(lumis) == 2:
-#               
-#               for i in range(lumis[0], lumis[1] + 1):
-#                  kw="%d_%d" % (int(k),int(i))
-#                  if kw in lumi:
-#                     tot+=lumi[kw]
-#                     
-#                     ll = tot / 4.29e+28
-#                     
-#                     print "Total luminosity: %1.2f /ub, %1.2f /nb, %1.2e /pb, %1.2e /fb" % (ll,ll/1000,ll/1e+6,ll/1e+9)
-
-
-######################################
-#                                    #
 #       Validation Setup             #
 #                                    #
 ######################################
@@ -256,7 +174,7 @@ if options.batchNumber >= 0 and options.dataSource.find('Files') != -1:
 # Store the tags and CVS diff to the tags, and the current release
 #  only do this once in a batch job.  The additional tar file is a fail safe - 
 #  the parameters shouldn't change in outputDir.
-if options.batchNumber <= 0:
+if (options.batchNumber <= 0 ):#and not options.gridJob):
    os.system("cd $CMSSW_BASE/src; \
               showtags -t -r > showtags.txt; \
               cvs -q diff >& diffToTags.patch;\
@@ -282,48 +200,44 @@ if options.batchNumber >= 0:
    outputFileNameBase += "_%i" % options.batchNumber
    options.writeEDMFile = options.writeEDMFile.replace(".root", "_%i.root" % options.batchNumber)
 outputFileNameBase += ".root"
-outputFileName = os.path.join(outputDir, outputFileNameBase)
+
+if options.gridJob:
+   outputFileName = outputFileNameBase
+else:
+   outputFileName = os.path.join(outputDir, outputFileNameBase)
 
 process.saveTauEff = cms.EDAnalyzer("DQMSimpleFileSaver",
   outputFileName = cms.string(outputFileName)
 )
 
 process.load("Validation.RecoTau.ValidateTausOn%s_cff" % options.eventType)
+process.validation = cms.Path(process.produceDenominator)
 
-
-
-process.load("RecoTauTag.TauAnalysisTools.PFTauEfficiencyAssociator_cfi")
-process.validation = cms.Path(process.associateTauFakeRates)
-
-process.validation *= process.produceDenominator
-
-if options.batchNumber >= 0:
+if options.batchNumber >= 0 or options.gridJob:
    process.validation *= process.runTauValidationBatchMode #in batch mode, the efficiencies are not computed - only the num/denom
 else:
    process.validation *= process.runTauValidation
 
 process.validation *= process.saveTauEff #save the output
 
-process.validation *= process.plotTauValidation
-
 process.schedule.append(process.validation)
 
 if options.batchNumber >= 0:
-    newSeed = process.RandomNumberGeneratorService.generator.initialSeed.value() + options.batchNumber 
-    process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(newSeed)
-    print "I'm setting the random seed to ", newSeed
+   newSeed = process.RandomNumberGeneratorService.theSource.initialSeed.value() + options.batchNumber 
+   process.RandomNumberGeneratorService.theSource.initialSeed = cms.untracked.uint32(newSeed)
+   process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(newSeed)
+   print "I'm setting the random seed to ", newSeed
 
 
 process.load("RecoTauTag.Configuration.RecoTauTag_EventContent_cff")
 
 TauTagValOutputCommands = cms.PSet(
-      outputCommands = cms.untracked.vstring('keep *'
-         # 'drop *'
-         #,'keep recoPFCandidates_*_*_*'
-         #,'keep *_genParticles*_*_*'
-         #,'keep *_iterativeCone5GenJets_*_*'
-         #,'keep *_tauGenJets*_*_*'
-         #,'keep *_selectedGenTauDecays*_*_*'
+      outputCommands = cms.untracked.vstring('drop *',
+         'keep recoPFCandidates_*_*_*',
+         'keep *_genParticles*_*_*',
+         'keep *_iterativeCone5GenJets_*_*',
+         'keep *_tauGenJets*_*_*',
+         'keep *_selectedGenTauDecays*_*_*'
          )
       )
 
@@ -351,9 +265,6 @@ if options.myModifications != ['none']:
    for aModifier in options.myModifications:
       process.load(aModifier.replace('.py',''))
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
-
 
 ######################################
 #                                    #
@@ -367,16 +278,17 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 #         useJobReport = cms.untracked.bool(True)
 #	 )
 
-dumpFileName = "cfgDump"
-if options.batchNumber >= 0:
-   dumpFileName += "_"
-   dumpFileName += str(options.batchNumber)
+#if grid job end here
+if not options.gridJob:
 
-dumpFileName += ".py"
-
-processDumpFile = open('%s/%s' % (configDir, dumpFileName), 'w')
-
-print >> processDumpFile, process.dumpPython()
-
-
+   dumpFileName = "cfgDump"
+   if options.batchNumber >= 0:
+      dumpFileName += "_"
+      dumpFileName += str(options.batchNumber)
+      
+   dumpFileName += ".py"
+   
+   processDumpFile = open('%s/%s' % (configDir, dumpFileName), 'w')
+   
+   print >> processDumpFile, process.dumpPython()
 
