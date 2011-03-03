@@ -31,24 +31,24 @@ public:
   };
 
 protected:
-  std::string minimizerAlgo_;
-  float       minimizerTolerance_;
+  static std::string minimizerAlgo_;
+  static float       minimizerTolerance_;
 
   // ----- options for handling cases where the likelihood fit misbihaves ------
   /// compute the limit N times
-  int         tries_;
+  static int         tries_;
   /// trying up to M times from different points
-  int         maxTries_;
+  static int         maxTries_;
   /// maximum relative deviation of the different points from the median to accept 
-  float       maxRelDeviation_;
+  static float       maxRelDeviation_;
   /// Ignore up to this fraction of results if they're too far from the median
-  float       maxOutlierFraction_;
+  static float       maxOutlierFraction_;
   /// Stop trying after finding N outliers
-  int         maxOutliers_;
+  static int         maxOutliers_;
   /// Try first a plain fit
-  bool        preFit_;
+  static bool        preFit_;
 
-  std::string plot_;
+  static std::string plot_;
 
   bool runSignificance(RooWorkspace *w, RooAbsData &data, double &limit);
   bool runLimit(RooWorkspace *w, RooAbsData &data, double &limit);

@@ -18,6 +18,20 @@
 
 using namespace RooStats;
 
+unsigned int Hybrid::nToys_;
+double Hybrid::clsAccuracy_;
+double Hybrid::rAbsAccuracy_;
+double Hybrid::rRelAccuracy_;
+std::string Hybrid::rule_;
+std::string Hybrid::testStat_;
+unsigned int Hybrid::fork_;
+bool Hybrid::rInterval_;
+double Hybrid::rValue_;
+bool Hybrid::CLs_;
+bool Hybrid::saveHybridResult_;
+bool Hybrid::readHybridResults_; 
+bool Hybrid::singlePointScan_; 
+
 Hybrid::Hybrid() : 
 LimitAlgo("Hybrid specific options") {
     options_.add_options()
@@ -36,22 +50,22 @@ LimitAlgo("Hybrid specific options") {
 }
 
 void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
-    if (rule_ == "CLs") {
-        CLs_ = true;
-    } else if (rule_ == "CLsplusb") {
-        CLs_ = false;
-    } else {
-        throw std::invalid_argument("Hybrid: Rule should be one of 'CLs' or 'CLsplusb'");
-    }
-    rInterval_ = vm.count("rInterval");
-    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "Atlas") {
-        throw std::invalid_argument("Hybrid: Test statistics should be one of 'LEP' or 'TEV' or 'Atlas'");
-    }
-    saveHybridResult_ = vm.count("saveHybridResult");
-    readHybridResults_ = vm.count("readHybridResults");
-    if ((singlePointScan_ = vm.count("singlePoint"))) {
-        rValue_ = vm["singlePoint"].as<float>();
-    }
+  if (rule_ == "CLs") {
+    CLs_ = true;
+  } else if (rule_ == "CLsplusb") {
+    CLs_ = false;
+  } else {
+    throw std::invalid_argument("Hybrid: Rule should be one of 'CLs' or 'CLsplusb'");
+  }
+  rInterval_ = vm.count("rInterval");
+  if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "Atlas") {
+    throw std::invalid_argument("Hybrid: Test statistics should be one of 'LEP' or 'TEV' or 'Atlas'");
+  }
+  saveHybridResult_ = vm.count("saveHybridResult");
+  readHybridResults_ = vm.count("readHybridResults");
+  if ((singlePointScan_ = vm.count("singlePoint"))) {
+    rValue_ = vm["singlePoint"].as<float>();
+  }
 }
 
 bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {

@@ -20,6 +20,21 @@
 
 using namespace RooStats;
 
+std::string MarkovChainMC::proposalTypeName_;
+MarkovChainMC::ProposalType MarkovChainMC::proposalType_;
+bool MarkovChainMC::runMinos_, MarkovChainMC::noReset_, MarkovChainMC::updateProposalParams_, MarkovChainMC::updateHint_;
+unsigned int MarkovChainMC::iterations_;
+unsigned int MarkovChainMC::burnInSteps_;
+unsigned int MarkovChainMC::tries_;
+float MarkovChainMC::truncatedMeanFraction_;
+bool MarkovChainMC::adaptiveTruncation_;
+float MarkovChainMC::hintSafetyFactor_;
+unsigned int MarkovChainMC::numberOfBins_;
+unsigned int MarkovChainMC::proposalHelperCacheSize_;
+float        MarkovChainMC::proposalHelperWidthRangeDivisor_, MarkovChainMC::proposalHelperUniformFraction_;
+float        MarkovChainMC::cropNSigmas_;
+int          MarkovChainMC::debugProposal_;
+
 MarkovChainMC::MarkovChainMC() : 
     LimitAlgo("Markov Chain MC specific options") 
 {

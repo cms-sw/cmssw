@@ -21,9 +21,9 @@ public:
     return name;
   }
 private:
-  double toysFactor_;
-  double rAbsAccuracy_, rRelAccuracy_;
-  bool lowerLimit_;
+  static double toysFactor_;
+  static double rAbsAccuracy_, rRelAccuracy_;
+  static bool lowerLimit_;
 };
 
 #endif

@@ -12,8 +12,6 @@
 
 using namespace RooStats;
 
-
-
 bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
   RooRealVar *r = w->var("r");
   RooAbsPdf *prior = w->pdf("prior"); if (prior == 0) { throw std::logic_error("Missing prior"); }

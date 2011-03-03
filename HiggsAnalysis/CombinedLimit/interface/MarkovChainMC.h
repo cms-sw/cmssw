@@ -21,26 +21,26 @@ public:
   }
 private:
   enum ProposalType { FitP, UniformP, MultiGaussianP, TestP };
-  std::string proposalTypeName_;
-  ProposalType proposalType_;
-  bool runMinos_, noReset_, updateProposalParams_, updateHint_;
+  static std::string proposalTypeName_;
+  static ProposalType proposalType_;
+  static bool runMinos_, noReset_, updateProposalParams_, updateHint_;
   /// Propose this number of points for the chain
-  unsigned int iterations_;
+  static unsigned int iterations_;
   /// Discard these points
-  unsigned int burnInSteps_;
+  static unsigned int burnInSteps_;
   /// compute the limit N times
-  unsigned int tries_;
+  static unsigned int tries_;
   /// Ignore up to this fraction of results if they're too far from the median
-  float truncatedMeanFraction_;
+  static float truncatedMeanFraction_;
   /// do adaptive truncated mean
-  bool adaptiveTruncation_;
+  static bool adaptiveTruncation_;
   /// Safety factor for hint (integrate up to this number of times the hinted limit)
-  float hintSafetyFactor_;
-  unsigned int numberOfBins_;
-  unsigned int proposalHelperCacheSize_;
-  float        proposalHelperWidthRangeDivisor_, proposalHelperUniformFraction_;
-  float        cropNSigmas_;
-  int          debugProposal_;
+  static float hintSafetyFactor_;
+  static unsigned int numberOfBins_;
+  static unsigned int proposalHelperCacheSize_;
+  static float        proposalHelperWidthRangeDivisor_, proposalHelperUniformFraction_;
+  static float        cropNSigmas_;
+  static int          debugProposal_;
   // return number of items in chain, 0 for error
   int runOnce(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) const ;
 

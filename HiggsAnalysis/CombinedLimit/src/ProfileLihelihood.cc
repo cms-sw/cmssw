@@ -17,6 +17,16 @@
 
 using namespace RooStats;
 
+std::string ProfileLikelihood::minimizerAlgo_;
+float       ProfileLikelihood::minimizerTolerance_;
+int         ProfileLikelihood::tries_;
+int         ProfileLikelihood::maxTries_;
+float       ProfileLikelihood::maxRelDeviation_;
+float       ProfileLikelihood::maxOutlierFraction_;
+int         ProfileLikelihood::maxOutliers_;
+bool        ProfileLikelihood::preFit_;
+std::string ProfileLikelihood::plot_;
+
 ProfileLikelihood::ProfileLikelihood() :
     LimitAlgo("Profile Likelihood specific options")
 {

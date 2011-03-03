@@ -10,9 +10,12 @@
 #include <RooStats/FeldmanCousins.h>
 #include <RooStats/PointSetInterval.h>
 
+double FeldmanCousins::toysFactor_;
+double FeldmanCousins::rAbsAccuracy_, FeldmanCousins::rRelAccuracy_;
+bool FeldmanCousins::lowerLimit_;
+
 FeldmanCousins::FeldmanCousins() :
-    LimitAlgo("FeldmanCousins specific options") 
-{
+    LimitAlgo("FeldmanCousins specific options") {
     options_.add_options()
         ("lowerLimit", "Compute the lower limit instead of the upper limit")
         ("toysFactor", boost::program_options::value<float>()->default_value(1),  "Increase the toys per point by this factor w.r.t. the minimum from adaptive sampling")
@@ -21,10 +24,10 @@ FeldmanCousins::FeldmanCousins() :
 
 void FeldmanCousins::applyOptions(const boost::program_options::variables_map &vm) 
 {
-    lowerLimit_ = vm.count("lowerLimit");
-    rAbsAccuracy_ = vm.count("rAbsAcc") ? vm["rAbsAcc"].as<double>() : 0.1;
-    rRelAccuracy_ = vm.count("rRelAcc") ? vm["rRelAcc"].as<double>() : 0.05;
-    toysFactor_ = vm.count("toysFactor") ? vm["toysFactor"].as<float>() : 1.0;
+  lowerLimit_ = vm.count("lowerLimit");
+  rAbsAccuracy_ = vm.count("rAbsAcc") ? vm["rAbsAcc"].as<double>() : 0.1;
+  rRelAccuracy_ = vm.count("rRelAcc") ? vm["rRelAcc"].as<double>() : 0.05;
+  toysFactor_ = vm.count("toysFactor") ? vm["toysFactor"].as<float>() : 1.0;
 }
 
 bool FeldmanCousins::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
