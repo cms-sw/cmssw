@@ -64,12 +64,12 @@ void GsfElectronCoreEcalDrivenProducer::produce( edm::Event & event, const edm::
 
 void GsfElectronCoreEcalDrivenProducer::produceEcalDrivenCore( const GsfTrackRef & gsfTrackRef, GsfElectronCoreCollection * electrons )
  {
-  GsfElectronCore * ele = new GsfElectronCore(gsfTrackRef) ;
+  GsfElectronCore * eleCore = new GsfElectronCore(gsfTrackRef) ;
 
-  if (!ele->ecalDrivenSeed())
-   { delete ele ; return ; }
+  if (!eleCore->ecalDrivenSeed())
+   { delete eleCore ; return ; }
 
-  GsfElectronCoreBaseProducer::fillElectronCore(ele) ;
+  GsfElectronCoreBaseProducer::fillElectronCore(eleCore) ;
 
   edm::RefToBase<TrajectorySeed> seed = gsfTrackRef->extra()->seedRef() ;
   ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>() ;
@@ -77,13 +77,13 @@ void GsfElectronCoreEcalDrivenProducer::produceEcalDrivenCore( const GsfTrackRef
   SuperClusterRef scRef = caloCluster.castTo<SuperClusterRef>() ;
   if (!scRef.isNull())
    {
-    ele->setSuperCluster(scRef) ;
-    electrons->push_back(*ele) ;
+    eleCore->setSuperCluster(scRef) ;
+    electrons->push_back(*eleCore) ;
    }
   else
    { edm::LogWarning("GsfElectronCoreEcalDrivenProducer")<<"Seed CaloCluster is not a SuperCluster, unexpected..." ; }
 
-  delete ele ;
+  delete eleCore ;
  }
 
 GsfElectronCoreEcalDrivenProducer::~GsfElectronCoreEcalDrivenProducer()

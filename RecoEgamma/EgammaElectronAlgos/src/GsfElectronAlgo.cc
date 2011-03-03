@@ -665,7 +665,8 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
   event.getByLabel(generalData_->inputCfg.hcalTowersTag,eventData_->towers) ;
   event.getByLabel(generalData_->inputCfg.pfMVA,eventData_->pfMva) ;
   event.getByLabel(generalData_->inputCfg.seedsTag,eventData_->seeds) ;
-  event.getByLabel(generalData_->inputCfg.gsfPfRecTracksTag,eventData_->gsfPfRecTracks) ;
+  if (generalData_->strategyCfg.useGsfPfRecTracks)
+   { event.getByLabel(generalData_->inputCfg.gsfPfRecTracksTag,eventData_->gsfPfRecTracks) ; }
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle ;
@@ -1192,86 +1193,110 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
    {
     (*e1)->clearAmbiguousGsfTracks() ;
     (*e1)->setAmbiguous(false) ;
-    // eventually get ambiguous from GsfPfRecTracks
-    if (generalData_->strategyCfg.useGsfPfRecTracks)
+   }
+
+  // get ambiguous from GsfPfRecTracks
+  if (generalData_->strategyCfg.useGsfPfRecTracks)
+   {
+    for
+     ( e1 = eventData_->electrons->begin() ;
+       e1 != eventData_->electrons->end() ;
+       ++e1 )
      {
+      std::cout<<"ELE "<<*e1<<" with core "<<(&*((*e1)->core()))<<" and track "<<(&*((*e1)->gsfTrack())) ;
+      bool found = false ;
       const GsfPFRecTrackCollection * gsfPfRecTrackCollection = eventData_->gsfPfRecTracks.product() ;
       GsfPFRecTrackCollection::const_iterator gsfPfRecTrack ;
       for ( gsfPfRecTrack=gsfPfRecTrackCollection->begin() ;
             gsfPfRecTrack!=gsfPfRecTrackCollection->end() ;
             ++gsfPfRecTrack )
        {
-        const GsfTrackRef gsfTrackRef = gsfPfRecTrack->gsfTrackRef() ;
-        if (gsfTrackRef==(*e1)->gsfTrack())
+        if (gsfPfRecTrack->gsfTrackRef()==(*e1)->gsfTrack())
          {
-          std::cout<<"FOUND for "<<(*e1)<<": "<<(&*gsfPfRecTrack)<<std::endl ;
+          if (found)
+           {
+            edm::LogWarning("GsfElectronAlgo")<<"associated gsfPfRecTrack already found" ;
+           }
+          else
+           {
+            std::cout<<" MATCHES pf track "<<(&*gsfPfRecTrack) ;
+            found = true ;
+            const std::vector<reco::GsfPFRecTrackRef> & duplicates(gsfPfRecTrack->convBremGsfPFRecTrackRef()) ;
+            std::vector<reco::GsfPFRecTrackRef>::const_iterator duplicate ;
+            for ( duplicate = duplicates.begin() ; duplicate != duplicates.end() ; duplicate ++ )
+             { (*e1)->addAmbiguousGsfTrack((*duplicate)->gsfTrackRef()) ; }
+           }
          }
        }
+      std::cout<<std::endl ;
      }
    }
-
-
-  // resolve when e/g SC is found
-  for
-   ( e1 = eventData_->electrons->begin() ;
-     e1 != eventData_->electrons->end() ;
-     ++e1 )
+  // or search overlapping clusters
+  else
    {
-    if ((*e1)->ambiguous()) continue ;
-    if ( ignoreNotPreselected && !isPreselected(*e1) ) continue ;
-
-    SuperClusterRef scRef1 = (*e1)->superCluster();
-    CaloClusterPtr eleClu1 = (*e1)->electronCluster();
-    LogDebug("GsfElectronAlgo")
-      << "Blessing electron with E/P " << (*e1)->eSuperClusterOverP()
-      << ", cluster " << scRef1.get()
-      << " & track " << (*e1)->gsfTrack().get() ;
-
     for
-     ( e2 = e1, ++e2 ;
-       e2 != eventData_->electrons->end() ;
-       ++e2 )
+     ( e1 = eventData_->electrons->begin() ;
+       e1 != eventData_->electrons->end() ;
+       ++e1 )
      {
-      if ((*e2)->ambiguous()) continue ;
-      if ( ignoreNotPreselected && !isPreselected(*e2) ) continue ;
+      std::cout<<"ELE "<<*e1<<" with core "<<(&*((*e1)->core()))<<" and track "<<(&*((*e1)->gsfTrack()))<<std::endl ;
 
-      SuperClusterRef scRef2 = (*e2)->superCluster();
-      CaloClusterPtr eleClu2 = (*e2)->electronCluster();
+      if ((*e1)->ambiguous()) continue ;
+      if ( ignoreNotPreselected && !isPreselected(*e1) ) continue ;
 
-      // search if same cluster
-      bool sameCluster = false ;
-      if (generalData_->strategyCfg.ambClustersOverlapStrategy==0)
-       { sameCluster = (scRef1==scRef2) ; }
-      else if (generalData_->strategyCfg.ambClustersOverlapStrategy==1)
-       {
-        float eMin = 1. ;
-        float threshold = eMin*cosh(EleRelPoint(scRef1->position(),eventData_->beamspot->position()).eta()) ;
-        sameCluster =
-         ( (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*eleClu2),eventData_->reducedEBRecHits,eventData_->reducedEERecHits)>=threshold) ||
-           (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*eleClu2),eventData_->reducedEBRecHits,eventData_->reducedEERecHits)>=threshold) ||
-           (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*scRef2->seed()),eventData_->reducedEBRecHits,eventData_->reducedEERecHits)>=threshold) ||
-           (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*scRef2->seed()),eventData_->reducedEBRecHits,eventData_->reducedEERecHits)>=threshold) ) ;
-       }
-      else
-       { throw cms::Exception("GsfElectronAlgo|UnknownAmbiguityClustersOverlapStrategy")<<"value of generalData_->strategyCfg.ambClustersOverlapStrategy is : "<<generalData_->strategyCfg.ambClustersOverlapStrategy ; }
+      SuperClusterRef scRef1 = (*e1)->superCluster();
+      CaloClusterPtr eleClu1 = (*e1)->electronCluster();
+      LogDebug("GsfElectronAlgo")
+        << "Blessing electron with E/P " << (*e1)->eSuperClusterOverP()
+        << ", cluster " << scRef1.get()
+        << " & track " << (*e1)->gsfTrack().get() ;
 
-      // main instructions
-      if (sameCluster)
+      for
+       ( e2 = e1, ++e2 ;
+         e2 != eventData_->electrons->end() ;
+         ++e2 )
        {
-        LogDebug("GsfElectronAlgo")
-          << "Discarding electron with E/P " << (*e2)->eSuperClusterOverP()
-          << ", cluster " << scRef2.get()
-          << " and track " << (*e2)->gsfTrack().get() ;
-        (*e1)->addAmbiguousGsfTrack((*e2)->gsfTrack()) ;
-        (*e2)->setAmbiguous(true) ;
-       }
-      else if ((*e1)->gsfTrack()==(*e2)->gsfTrack())
-       {
-        LogDebug("GsfElectronAlgo")
-          << "Forgetting electron with E/P " << (*e2)->eSuperClusterOverP()
-          << ", cluster " << scRef2.get()
-          << " and track " << (*e2)->gsfTrack().get() ;
-        (*e2)->setAmbiguous(true) ;
+        if ((*e2)->ambiguous()) continue ;
+        if ( ignoreNotPreselected && !isPreselected(*e2) ) continue ;
+
+        SuperClusterRef scRef2 = (*e2)->superCluster();
+        CaloClusterPtr eleClu2 = (*e2)->electronCluster();
+
+        // search if same cluster
+        bool sameCluster = false ;
+        if (generalData_->strategyCfg.ambClustersOverlapStrategy==0)
+         { sameCluster = (scRef1==scRef2) ; }
+        else if (generalData_->strategyCfg.ambClustersOverlapStrategy==1)
+         {
+          float eMin = 1. ;
+          float threshold = eMin*cosh(EleRelPoint(scRef1->position(),eventData_->beamspot->position()).eta()) ;
+          sameCluster =
+           ( (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*eleClu2),eventData_->reducedEBRecHits,eventData_->reducedEERecHits)>=threshold) ||
+             (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*eleClu2),eventData_->reducedEBRecHits,eventData_->reducedEERecHits)>=threshold) ||
+             (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*scRef2->seed()),eventData_->reducedEBRecHits,eventData_->reducedEERecHits)>=threshold) ||
+             (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*scRef2->seed()),eventData_->reducedEBRecHits,eventData_->reducedEERecHits)>=threshold) ) ;
+         }
+        else
+         { throw cms::Exception("GsfElectronAlgo|UnknownAmbiguityClustersOverlapStrategy")<<"value of generalData_->strategyCfg.ambClustersOverlapStrategy is : "<<generalData_->strategyCfg.ambClustersOverlapStrategy ; }
+
+        // main instructions
+        if (sameCluster)
+         {
+          LogDebug("GsfElectronAlgo")
+            << "Discarding electron with E/P " << (*e2)->eSuperClusterOverP()
+            << ", cluster " << scRef2.get()
+            << " and track " << (*e2)->gsfTrack().get() ;
+          (*e1)->addAmbiguousGsfTrack((*e2)->gsfTrack()) ;
+          (*e2)->setAmbiguous(true) ;
+         }
+        else if ((*e1)->gsfTrack()==(*e2)->gsfTrack())
+         {
+          edm::LogWarning("GsfElectronAlgo")
+            << "Forgetting electron with E/P " << (*e2)->eSuperClusterOverP()
+            << ", cluster " << scRef2.get()
+            << " and track " << (*e2)->gsfTrack().get() ;
+          (*e2)->setAmbiguous(true) ;
+         }
        }
      }
    }

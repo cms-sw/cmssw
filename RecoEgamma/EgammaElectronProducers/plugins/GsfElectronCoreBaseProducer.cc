@@ -45,7 +45,8 @@ GsfElectronCoreBaseProducer::~GsfElectronCoreBaseProducer()
 // to be called at the beginning of each new event
 void GsfElectronCoreBaseProducer::initEvent( edm::Event & event, const edm::EventSetup & setup )
  {
-  event.getByLabel(gsfPfRecTracksTag_,gsfPfRecTracksH_) ;
+  if (useGsfPfRecTracks_)
+   { event.getByLabel(gsfPfRecTracksTag_,gsfPfRecTracksH_) ; }
   event.getByLabel(gsfTracksTag_,gsfTracksH_) ;
   event.getByLabel(ctfTracksTag_,ctfTracksH_) ;
  }
