@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////
 //
-// first version of 'CL95 with RooStats ' macro 
+// first version of 'CL95 with RooStats' macro 
 // authors: Stefan A. Schmitz, Gregory Schott
 // date: July 2010
 //
@@ -21,6 +21,7 @@
 #include "RooWorkspace.h"
 #include "RooDataSet.h"
 
+#include "RooStats/ModelConfig.h"
 #include "RooStats/SimpleInterval.h"
 #include "RooStats/BayesianCalculator.h"
 
@@ -34,11 +35,9 @@ void roostats_cl95_bc(double Lumi, double Lumi_err_rel, double eff, double eff_e
    // Lumi_err_rel : relative error on Integrated Luminosity
    // eff : signal efficiency
    // eff_err_rel : relative error on signal efficiency
-   // Nb : expected signal cross section
+   // Nb : expected number of background events
    // Nb_err_rel : relative error on Nb
    // obs : observed number of events
-
-   cout << "Hei-ho" << endl;
 
    RooRealVar roo_Lumi("_Lumi","",Lumi);
    RooRealVar roo_Lumi_err_rel("_Lumi_err","",Lumi_err_rel*Lumi);
