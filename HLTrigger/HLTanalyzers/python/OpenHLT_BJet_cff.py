@@ -2,7 +2,7 @@
 import copy
 import FWCore.ParameterSet.Config as cms
 
-from HLTrigger.Configuration.HLT_FULL_cff import *
+from HLTrigger.HLTanalyzers.HLT_FULL_cff import *
 
 ### lifetime-based b-tag OpenHLT ######################################
 # L1 filter is skipped

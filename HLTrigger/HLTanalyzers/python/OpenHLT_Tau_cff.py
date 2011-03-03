@@ -1,9 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-#from HLTrigger.Configuration.HLT_8E29_cff import *
-#from HLTrigger.Configuration.HLT_1E31_cff import *
-from HLTrigger.Configuration.HLT_FULL_cff import *
+from HLTrigger.HLTanalyzers.HLT_FULL_cff import *
 
 hltTauL1SeedFilter = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),

@@ -1,42 +1,23 @@
 import FWCore.ParameterSet.Config as cms
  
 # import the whole HLT menu
-#from HLTrigger.Configuration.HLT_8E29_cff import *
-#from HLTrigger.Configuration.HLT_1E31_cff import *
-from HLTrigger.Configuration.HLT_FULL_cff import *
+from HLTrigger.HLTanalyzers.HLT_FULL_cff import *
 
-
-#
-# Temporarily add EGamma R9-ID here until it goes in the full HLT configuration
-# 
-hltL1IsoR9ID = cms.EDProducer( "EgammaHLTR9IDProducer",
-                                          recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
-                                          ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-                                          ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
-                               )
-hltL1NonIsoR9ID = cms.EDProducer( "EgammaHLTR9IDProducer",
-                                             recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
-                                             ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
-                                             ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' )
-                                )
-
-HLTEgammaR9IDSequence  = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1IsolatedEcalClustersSequence +
-                                       HLTL1NonIsolatedEcalClustersSequence + hltL1IsoRecoEcalCandidate + hltL1NonIsoRecoEcalCandidate +
-                                       hltL1IsoR9ID + hltL1NonIsoR9ID ) 
 
 # create the jetMET HLT reco path
 DoHLTJets = cms.Path(HLTBeginSequence + 
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Corrected +
-    HLTRegionalRecoJetSequenceAK5Corrected +
+    # HLTRegionalRecoJetSequenceAK5Corrected +
     HLTRecoMETSequence +                 
-    HLTDoJet40HTRecoSequence
+    HLTDoJet30HTRecoSequence
 )
 DoHLTJetsU = cms.Path(HLTBeginSequence +
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Uncorrected +
-    hltMet +
-    HLTDoJet40HTRecoSequence
+    # HLTRegionalRecoJetSequenceAK5Corrected +
+    HLTRecoMETSequence +
+    HLTDoJet30HTRecoSequence
 )
 
 # create the muon HLT reco path
@@ -142,7 +123,6 @@ DoHLTBTag = cms.Path(
         OpenHLTBLifetimeL25recoSequence +
         OpenHLTBSoftMuonL25recoSequence +
         OpenHLTBLifetimeL3recoSequence +
-        OpenHLTBLifetimeL3recoSequenceStartup +
         OpenHLTBSoftMuonL3recoSequence +
         HLTEndSequence )
 
@@ -167,10 +147,12 @@ DoHLTAlCaECALPhiSym = cms.Path(
 
 DoHLTMinBiasPixelTracks = cms.Path(
     HLTBeginSequence +
-    HLTDoLocalPixelSequence +
+    # HLTDoLocalPixelSequence +
+    HLTDoHILocalPixelSequence +
     HLTPixelTrackingForHITrackTrigger + 
     hltPixelCandsForHITrackTrigger +
     hltPixelTracks +
     hltPixelVertices)
 
-hltPixelVertices.beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
+## Thers is no need to do this as by default 5E32 menu makes use of "hltOnlineBeamSpot" for all the modules
+# hltPixelVertices.beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
