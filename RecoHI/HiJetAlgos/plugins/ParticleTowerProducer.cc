@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Thu Jan 20 19:53:58 CET 2011
-// $Id: ParticleTowerProducer.cc,v 1.2 2011/02/27 09:42:34 mnguyen Exp $
+// $Id: ParticleTowerProducer.cc,v 1.3 2011/02/27 10:07:13 mnguyen Exp $
 //
 //
 
@@ -171,7 +171,7 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       const reco::Candidate & particle = (*inputsHandle)[i];
 
       // put a cutoff if you want
-      //if(particle.et() < 0.5) continue;      
+      //if(particle.et() < 0.3) continue;      
 
       double eta  = particle.eta();
       double phi  = particle.phi();
@@ -181,7 +181,6 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       towers_[hid] += particle.et();      
    }
 
-   // Now one would need to figure out how to turn this map into a calo tower collection
    
    std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
 
@@ -191,19 +190,17 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      CaloTowerDetId newTowerId(iter->first.rawId());
      double et = iter->second;
 
-     GlobalPoint pos =geo_->getGeometry(newTowerId)->getPosition();
-     
-     
+     if(et>0){
 
-     double scale = et/pos.perp();
-
-     //reco::Particle::LorentzVector p4(scale*pos.x(),scale*pos.y(),scale*pos.z(),0);
-     // currently sets et =  pt, mass to zero
-      // pt, eta , phi, mass
-     reco::Particle::PolarLorentzVector p4(et,pos.eta(),pos.phi(),0.);
-
-      CaloTower newTower(newTowerId,et,0,0,0,0,p4,pos,pos);
-      prod->push_back(newTower);     
+       GlobalPoint pos =geo_->getGeometry(newTowerId)->getPosition();
+       
+       // currently sets et =  pt, mass to zero
+       // pt, eta , phi, mass
+       reco::Particle::PolarLorentzVector p4(et,pos.eta(),pos.phi(),0.);
+       
+       CaloTower newTower(newTowerId,et,0,0,0,0,p4,pos,pos);
+       prod->push_back(newTower);     
+     }
    }
 
    
@@ -282,8 +279,7 @@ DetId ParticleTowerProducer::getNearestTower(const reco::Candidate & in) const {
       if( hid.depth() != 1 ) continue;
 
       GlobalPoint pos =geo_->getGeometry(hid)->getPosition();
-      
-      
+            
       double hcalEta = pos.eta();
       double hcalPhi = pos.phi();
 
