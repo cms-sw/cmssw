@@ -443,11 +443,22 @@ void TriggerReportHelpers::sumAndPackTriggerReport(MsgBuf &buf)
   }
   //get total paths in the menu
   if(trs->trigPathsInMenu != trp->trigPathsInMenu) 
-    XCEPT_RAISE(evf::Exception,"trig summary inconsistency");
+    {
+      std::ostringstream ost;
+      ost << "trig path summary inconsistency " 
+	  << trs->trigPathsInMenu << " vs. " << trp->trigPathsInMenu;
+      std::cout << ost.str() << std::endl;
+      XCEPT_RAISE(evf::Exception,ost.str());
+    }
   if(trs->endPathsInMenu != trp->endPathsInMenu)
-    XCEPT_RAISE(evf::Exception,"trig summary inconsistency");
+    {
+      std::ostringstream ost;
+      ost << "trig endpath summary inconsistency " 
+	  << trs->endPathsInMenu << " vs. " << trp->endPathsInMenu;
+      std::cout << ost.str() << std::endl;
+      XCEPT_RAISE(evf::Exception,ost.str());
+    }
   trs->addToReport(trp,lumiSectionIndex_);
-
   
 }  
 

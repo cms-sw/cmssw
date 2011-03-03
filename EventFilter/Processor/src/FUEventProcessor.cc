@@ -339,9 +339,18 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 	if(cpustat_) delete cpustat_;
 	cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
 			       iDieUrl_.value_);
+	if(iDieStatisticsGathering_.value_){
+	  try{
+	    cpustat_->sendLegenda(evtProcessor_.getmicromap());
+	  }
+	  catch(evf::Exception &e){
+	    LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
+			   << e.what());
+	  }
+	}
 	if(ratestat_) delete ratestat_;
 	ratestat_ = new RateStat(iDieUrl_.value_);
-
+	
 	fsm_.fireEvent("ConfigureDone",this);
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
 	localLog("-I- Configuration completed");
@@ -402,23 +411,22 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     if(cpustat_) delete cpustat_;
     cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
 			   iDieUrl_.value_);
-    if(ratestat_) delete ratestat_;
-    ratestat_ = new RateStat(iDieUrl_.value_);
-    epInitialized_ = true;
-  }
-  if(iDieStatisticsGathering_.value_){
-    try{
-      cpustat_->sendLegenda(evtProcessor_.getmicromap());
+    if(iDieStatisticsGathering_.value_){
+      try{
+	cpustat_->sendLegenda(evtProcessor_.getmicromap());
 //       xdata::Serializable *legenda = scalersInfoSpace_->find("scalersLegenda");
 //       if(legenda !=0){
 // 	std::string slegenda = ((xdata::String*)legenda)->value_;
 // 	ratestat_->sendLegenda(slegenda);
-//       }
+      }
+      catch(evf::Exception &e){
+	LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
+		       << e.what());
+      }
     }
-    catch(evf::Exception &e){
-      LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
-		     << e.what());
-    }
+    if(ratestat_) delete ratestat_;
+    ratestat_ = new RateStat(iDieUrl_.value_);
+    epInitialized_ = true;
   }
   configuration_ = evtProcessor_.configuration(); // get it again after init has been carried out...
   evtProcessor_.resetLumiSectionReferenceIndex();
@@ -861,7 +869,6 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
       {
 	pthread_mutex_lock(&stop_lock_);
 	fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
-	pthread_mutex_unlock(&stop_lock_);
 	try{
 	  LOG4CPLUS_DEBUG(getApplicationLogger(),
 			  "Trying to create message service presence ");
@@ -880,6 +887,7 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
 	stopClassic(); // call the normal sequence of stopping - as this is allowed to fail provisions must be made ...@@@EM
 	MsgBuf msg1(0,MSQS_MESSAGE_TYPE_STOP);
 	myProcess_->postSlave(msg1,false);
+	pthread_mutex_unlock(&stop_lock_);
 	fclose(stdout);
 	fclose(stderr);
 	exit(EXIT_SUCCESS);
@@ -948,6 +956,10 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		    {
 		      myProcess_=&subs_[i];
 		      scalersUpdates_ = 0;
+		      int retval = pthread_mutex_destroy(&stop_lock_);
+		      if(retval != 0) perror("error");
+		      retval = pthread_mutex_init(&stop_lock_,0);
+		      if(retval != 0) perror("error");
 		      try{
 			pt::PeerTransport * ptr =
 			  pt::getPeerTransportAgent()->getPeerTransport("http","soap",pt::Receiver);
@@ -1315,10 +1327,16 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	    if(retval != 0) perror("error");
 	    //	    std::cout << getpid() << " stop lock acquired" << std::endl;
 	    bool running = fsm_.stateName()->toString()=="Enabled";
-	    if(!running) pthread_mutex_unlock(&stop_lock_);
-	    else if(data->Ms == edm::event_processor::sStopping || data->Ms == edm::event_processor::sError) 
-	      {::sleep(5); exit(-1); /* no need to unlock mutex after exit :-)*/}
 	    pthread_mutex_unlock(&stop_lock_);
+	    if(data->Ms == edm::event_processor::sStopping || data->Ms == edm::event_processor::sError) 
+	      {    
+		::usleep(10000); 
+		//check the state again in case stop signal has arrived 
+		pthread_mutex_lock(&stop_lock_);
+		running = fsm_.stateName()->toString()=="Enabled";
+		pthread_mutex_unlock(&stop_lock_);
+		if(running){::sleep(5); exit(-1);}
+	      }
 	    
 	  }
 	  //	  scalersUpdates_++;
@@ -1770,7 +1788,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.116 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.117 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
