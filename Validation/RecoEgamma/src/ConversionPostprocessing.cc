@@ -9,7 +9,7 @@
  **  
  **
  **  $Id: ConversionPostprocessing
- **  $Date: 2010/10/20 12:33:14 $ 
+ **  $Date: 2010/11/17 18:18:19 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -152,7 +152,7 @@ void ConversionPostprocessing::runPostprocessing()
 
 
   // fake rate
-  dividePlots(dbe_->get(effPathName+"convFakeRateVsEtaTwoTracks"),dbe_->get(convPathName+"convEtaAss"),dbe_->get(convPathName+"convEta"),"fakerate");
+  dividePlots(dbe_->get(effPathName+"convFakeRateVsEtaTwoTracks"),dbe_->get(convPathName+"convEtaAss"),dbe_->get(convPathName+"convEta2"),"fakerate");
   dividePlots(dbe_->get(effPathName+"convFakeRateVsPhiTwoTracks"),dbe_->get(convPathName+"convPhiAss"),dbe_->get(convPathName+"convPhi"),"fakerate");
   dividePlots(dbe_->get(effPathName+"convFakeRateVsRTwoTracks"),dbe_->get(convPathName+"convRAss"),dbe_->get(convPathName+"convR"),"fakerate");
   dividePlots(dbe_->get(effPathName+"convFakeRateVsZTwoTracks"),dbe_->get(convPathName+"convZAss"),dbe_->get(convPathName+"convZ"),"fakerate");

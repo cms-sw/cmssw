@@ -38,8 +38,8 @@ class SimTrack;
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/11/18 15:12:36 $ 
- **  $Revision: 1.4 $
+ **  $Date: 2011/02/28 20:08:46 $ 
+ **  $Revision: 1.5 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -199,6 +199,7 @@ class TkConvValidator : public edm::EDAnalyzer
   /// info per conversion
   MonitorElement* h_nConv_[3][3];
   MonitorElement* h_convEta_[3][3];
+  MonitorElement* h_convEta2_[3][3];
   MonitorElement* h_convPhi_[3][3];
   MonitorElement* h_convR_[3][3];
   MonitorElement* h_convZ_[3][3];

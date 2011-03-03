@@ -96,8 +96,8 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2011/02/19 03:53:22 $ 
- **  $Revision: 1.10 $
+ **  $Date: 2011/02/28 20:08:39 $ 
+ **  $Revision: 1.12 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -330,18 +330,19 @@ void  TkConvValidator::beginJob() {
     h_nConv_[1][0] = dbe_->book1D(histname+"All_Ass","Number Of associated Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
 
     h_convEta_[0][0] = dbe_->book1D("convEta"," converted Photon  Eta ",etaBin,etaMin, etaMax) ;
+    h_convEta2_[0][0] = dbe_->book1D("convEta2"," converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
     h_convPhi_[0][0] = dbe_->book1D("convPhi"," converted Photon  Phi ",phiBin,phiMin,phiMax) ;
     h_convR_[0][0]  =  dbe_->book1D("convR"," converted photon R",rBin,rMin, rMax);
     h_convZ_[0][0] =  dbe_->book1D("convZ"," converted photon Z",zBin,zMin, zMax);
     h_convPt_[0][0] = dbe_->book1D("convPt","  conversions Transverse Energy: all eta ", etBin,etMin, etMax);
 
-    h_convEta_[1][0] = dbe_->book1D("convEtaAss"," Matched converted Photon  Eta ",etaBin,etaMin, etaMax) ;
+    h_convEta_[1][0] = dbe_->book1D("convEtaAss"," Matched converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
     h_convPhi_[1][0] = dbe_->book1D("convPhiAss"," Matched converted Photon  Phi ",phiBin,phiMin,phiMax) ;
     h_convR_[1][0]  =  dbe_->book1D("convRAss"," Matched converted photon R",rBin,rMin, rMax);
     h_convZ_[1][0] =  dbe_->book1D("convZAss"," Matched converted photon Z",zBin,zMin, zMax);
     h_convPt_[1][0] = dbe_->book1D("convPtAss","Matched conversions Transverse Energy: all eta ", etBin,etMin, etMax);
 
-    h_convEta_[2][0] = dbe_->book1D("convEtaFake"," Fake converted Photon  Eta ",etaBin,etaMin, etaMax) ;
+    h_convEta_[2][0] = dbe_->book1D("convEtaFake"," Fake converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
     h_convPhi_[2][0] = dbe_->book1D("convPhiFake"," Fake converted Photon  Phi ",phiBin,phiMin,phiMax) ;
     h_convR_[2][0]  =  dbe_->book1D("convRFake"," Fake converted photon R",rBin,rMin, rMax);
     h_convZ_[2][0] =  dbe_->book1D("convZFake"," Fake converted photon Z",zBin,zMin, zMax);
@@ -1167,6 +1168,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
     h_convEta_[match][0]->Fill( refittedMom.eta() );		
+    h_convEta2_[match][0]->Fill( refittedMom.eta() );		
     h_convPhi_[match][0]->Fill( refittedMom.phi() );		
     h_convR_[match][0]->Fill( sqrt(aConv.conversionVertex().position().perp2()) );
     h_convRplot_->Fill( sqrt(aConv.conversionVertex().position().perp2()) );
