@@ -2,7 +2,7 @@
 #include <Math/GenVector/PxPyPzE4D.h>                                                                                                   
 #include <Math/GenVector/PxPyPzM4D.h>       
 
-// $Id: Vertex.cc,v 1.18 2010/04/16 08:13:07 arizzi Exp $
+// $Id: Vertex.cc,v 1.19 2011/02/25 22:05:09 dlange Exp $
 using namespace reco;
 using namespace std;
 
@@ -52,16 +52,14 @@ Vertex::trackRef_iterator Vertex::tracks_end() const
 void Vertex::add ( const TrackBaseRef & r, float w )
 {
   tracks_.push_back ( r );
-  if (w>1.) std::cout << "huh? " << w << std::endl; 
-  weights_.push_back(w*256);
+  weights_.push_back(w*255);
 }
 
 void Vertex::add ( const TrackBaseRef & r, const Track & refTrack, float w )
 {
   tracks_.push_back ( r );
   refittedTracks_.push_back ( refTrack );
-  if (w>1.) std::cout << "huh? " << w << std::endl; 
-  weights_.push_back(w*256);
+  weights_.push_back(w*255);
 }
 
 void Vertex::removeTracks()
@@ -76,7 +74,7 @@ float Vertex::trackWeight ( const TrackBaseRef & track ) const
   trackRef_iterator it = find(tracks_begin(), tracks_end(), track);
   if (it==tracks_end()) return 0.0;
   size_t pos = it - tracks_begin();
-  return weights_[pos]/256.;
+  return weights_[pos]/255.;
 }
 
 float Vertex::trackWeight ( const TrackRef & track ) const
