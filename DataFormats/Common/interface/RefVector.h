@@ -6,12 +6,13 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.39.4.2 2011/02/17 03:11:28 chrjones Exp $
+$Id: RefVector.h,v 1.40 2011/02/24 20:20:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 #include <stdexcept>
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/FillView.h"
@@ -139,6 +140,8 @@ namespace edm {
 		  std::vector<void const*>& pointers,		 
 		  helper_vector& helpers) const;
 
+    //Needed for ROOT storage
+    CMS_CLASS_VERSION(10)
   private:
     contents_type refVector_;
   };

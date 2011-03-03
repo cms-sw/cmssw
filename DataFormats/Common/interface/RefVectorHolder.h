@@ -1,5 +1,7 @@
 #ifndef DataFormats_Common_RefVectorHolder_h
 #define DataFormats_Common_RefVectorHolder_h
+
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -33,6 +35,9 @@ namespace edm {
       void setRefs(REFV const& refs);
       virtual void reallyFillView(void const*, ProductID const&, std::vector<void const*> &);
       virtual size_t keyForIndex(size_t idx) const;
+
+      //Needed for ROOT storage
+      CMS_CLASS_VERSION(10)
 
     private:
       typedef typename RefVectorHolderBase::const_iterator_imp const_iterator_imp;

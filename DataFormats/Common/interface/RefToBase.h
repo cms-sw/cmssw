@@ -37,6 +37,8 @@ reference type.
 #include "boost/shared_ptr.hpp"
 #include "boost/static_assert.hpp"
 #include "boost/type_traits/is_base_of.hpp"
+
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/BaseHolder.h"
@@ -108,6 +110,9 @@ namespace edm {
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
     bool isAvailable() const { return holder_->isAvailable(); }
+    
+    //Needed for ROOT storage
+    CMS_CLASS_VERSION(10)
   private:
     value_type const* getPtrImpl() const;
     reftobase::BaseHolder<value_type>* holder_;

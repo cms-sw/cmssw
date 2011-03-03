@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.19 2008/05/29 21:13:15 wmtan Exp $
+$Id: RefProd.h,v 1.20 2009/11/04 15:30:20 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -37,6 +37,7 @@ $Id: RefProd.h,v 1.19 2008/05/29 21:13:15 wmtan Exp $
     bool operator!() const;			// equivalent to !isNonnull()
 ----------------------------------------------------------------------*/ 
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/RefCore.h"
@@ -157,6 +158,9 @@ namespace edm {
     bool isTransient() const {return product_.isTransient();}
 
     void swap(RefProd<C> &);
+
+    //Needed for ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
     // Compile time check that the argument is a C* or C const*

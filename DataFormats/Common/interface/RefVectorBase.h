@@ -5,10 +5,11 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.15.6.1 2011/02/17 03:12:58 chrjones Exp $
+$Id: RefVectorBase.h,v 1.16 2011/02/24 20:20:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include <vector>
@@ -78,6 +79,9 @@ namespace edm {
       this->swap(temp);
       return *this;
     }
+
+    //Needed for ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
     RefCore product_;

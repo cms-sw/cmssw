@@ -5,7 +5,7 @@
  * \author Luca Lista, INFN
  *
  */
-
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "boost/shared_ptr.hpp"
 #include <vector>
@@ -67,6 +67,10 @@ namespace edm {
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
     bool isAvailable() const { return holder_->isAvailable(); }
+    
+    //Needed for ROOT storage
+    CMS_CLASS_VERSION(10)
+
   private:
     holder_type * holder_;
   };

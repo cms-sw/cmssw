@@ -6,6 +6,7 @@
  * \author Luca Lista, INFN
  *
  */
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
@@ -88,6 +89,8 @@ namespace edm {
 
     void swap(RefToBaseProd<T> &);
 
+    //Needed for ROOT storage
+    CMS_CLASS_VERSION(10)
   private:
     View<T> const* viewPtr() const {
       return reinterpret_cast<const View<T>*>(product_.clientCache());

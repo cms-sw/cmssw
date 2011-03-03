@@ -1,5 +1,7 @@
 #ifndef DataFormats_Common_RefHolder__h
 #define DataFormats_Common_RefHolder__h
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "Reflex/Object.h"
@@ -41,6 +43,8 @@ namespace edm {
       /// in the Event. No type checking is done.
       virtual bool isAvailable() const { return ref_.isAvailable(); }
 
+      //Needed for ROOT storage
+      CMS_CLASS_VERSION(10)
     private:
       virtual void const* pointerToType(Reflex::Type const& iToType) const;
       REF ref_;

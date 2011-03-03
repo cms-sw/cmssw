@@ -109,6 +109,7 @@ Ref: A template for a interproduct reference to a member of a product_.
 #include "boost/mpl/has_xxx.hpp"
 #include "boost/utility/enable_if.hpp"
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
@@ -284,6 +285,9 @@ namespace edm {
     void setPtr(T const* iPtr) {
       product_.mutableClientCache() = iPtr;
     }
+    
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
   private:
     // Constructor from member of RefVector
     Ref(RefCore const& refCore, key_type const& key) : 

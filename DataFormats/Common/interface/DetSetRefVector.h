@@ -31,6 +31,7 @@ to be returned, *not* the ordinal number of the T to be returned.
 #include "boost/concept_check.hpp"
 #include "boost/iterator/indirect_iterator.hpp"
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -188,6 +189,9 @@ namespace edm {
     /// This function will be called by the edm::Event after the
     /// DetSetVector has been inserted into the Event.
     //void post_insert();
+
+    //Needed for ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
     collection_type   sets_;
