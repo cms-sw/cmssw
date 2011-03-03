@@ -387,8 +387,13 @@ TauolaInterface::~TauolaInterface()
 void TauolaInterface::setPSet( const ParameterSet& pset )
 {
 
-   if ( fPSet != 0 ) return; // need to throw a warning or maybe even an exception 
-                             // on the attempt to reset existing PSet
+   if ( fPSet != 0 ) 
+   {
+      throw cms::Exception("TauolaInterfaceError")
+         << "Attempt to override Tauola an existing ParameterSet\n"
+         << std::endl;   
+   }
+   
    fPSet = new ParameterSet(pset);
    
    return;
@@ -402,8 +407,13 @@ void TauolaInterface::init( const edm::EventSetup& es )
    
    if ( fPSet == 0 ) 
    {
-      return; // need to throw !!!
+
+      throw cms::Exception("TauolaInterfaceError")
+         << "Attempt to initialize Tauola with an empty ParameterSet\n"
+         << std::endl;   
    }
+   
+   fIsInitialized = true;
       
    es.getData( fPDGTable ) ;
 
@@ -441,8 +451,6 @@ void TauolaInterface::init( const edm::EventSetup& es )
    Tauola::initialise();
    Log::LogWarning(false);
    
-   fIsInitialized = true;
-   
    return;
 }
 
@@ -452,11 +460,17 @@ float TauolaInterface::flat()
    if ( !fPSet )
    {
       // throw
+      throw cms::Exception("TauolaInterfaceError")
+         << "Attempt to run random number generator of un-initialized Tauola\n"
+         << std::endl;   
    }
    
    if ( !fIsInitialized ) 
    {
       // throw
+      throw cms::Exception("TauolaInterfaceError")
+         << "Attempt to run random number generator of un-initialized Tauola\n"
+         << std::endl;   
    }
    
    return fRandomEngine->flat();
@@ -549,6 +563,5 @@ void TauolaInterface::statistics()
 {
    return;
 }
-
 
 */
