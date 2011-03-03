@@ -66,7 +66,11 @@ EBHitResponse::putAPDSignal( const DetId& detId  ,
 {
    const CaloSimParameters& parameters ( *params( detId ) ) ;
 
-   const double energyFac ( parameters.simHitToPhotoelectrons( detId ) ) ;
+   const double energyFac ( 1./parameters.simHitToPhotoelectrons( detId ) ) ;
+
+//   std::cout<<"******** Input APD Npe="<<npe<<", Efactor="<<energyFac
+//	    <<", Energy="<<npe*energyFac
+//	    <<", nonlFunc="<<nonlFunc( npe*energyFac )<<std::endl ;
 
    const double signal ( npe*nonlFunc( npe*energyFac ) ) ;
 
@@ -158,19 +162,16 @@ EBHitResponse::findIntercalibConstant( const DetId& detId,
 void 
 EBHitResponse::run( MixCollection<PCaloHit>& hits ) 
 {
-   const EBDetId detId ( hits.begin()->id() ) ;
-
-   const unsigned int bSize ( EBDetId::kSizeForDenseIndexing ) ;
-
-   if( !setupFlag()    &&
-       0 < hits.size()    ) setupSamples( detId ) ;
+   if( !setupFlag() ) setupSamples( EBDetId(1,1) ) ;
 
    if( 0 != index().size() ) blankOutUsedSamples() ;
 
+   const unsigned int bSize ( EBDetId::kSizeForDenseIndexing ) ;
+
    if( 0 == m_apdNpeVec.size() ) 
    {
-      m_apdNpeVec  = std::vector<double>( bSize ) ;
-      m_apdTimeVec = std::vector<double>( bSize ) ;
+      m_apdNpeVec  = std::vector<double>( bSize, (double)0.0 ) ;
+      m_apdTimeVec = std::vector<double>( bSize, (double)0.0 ) ;
    }
 
    for( MixCollection<PCaloHit>::MixItr hitItr ( hits.begin() ) ;
@@ -200,16 +201,22 @@ EBHitResponse::run( MixCollection<PCaloHit>& hits )
 	 }
       }
    }
-   for( unsigned int i ( 0 ) ; i != bSize ; ++i )
-   {
-      if( 0 != m_apdNpeVec[i] )
-      {
-	 putAPDSignal( EBDetId::detIdFromDenseIndex( i ),
-		       m_apdNpeVec[i] ,
-		       m_apdTimeVec[i]                    ) ;
 
-	 m_apdNpeVec[i] = 0. ;
-	 m_apdTimeVec[i] = 0. ;
+   if( apdParameters()->addToBarrel() ||
+       m_apdOnly                         )
+   {
+      for( unsigned int i ( 0 ) ; i != bSize ; ++i )
+      {
+	 if( 0 < m_apdNpeVec[i] )
+	 {
+	    putAPDSignal( EBDetId::detIdFromDenseIndex( i ),
+			  m_apdNpeVec[i] ,
+			  m_apdTimeVec[i]                    ) ;
+
+	    // now zero out for next time
+	    m_apdNpeVec[i] = 0. ;
+	    m_apdTimeVec[i] = 0. ;
+	 }
       }
    }
 }
