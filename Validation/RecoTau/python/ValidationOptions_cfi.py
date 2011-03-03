@@ -16,14 +16,14 @@ options = VarParsing.VarParsing ()
 allowedOptions = {}
 
 options.register( 'maxEvents',
-                   100,
+                   -1,
                    VarParsing.VarParsing.multiplicity.singleton,
                    VarParsing.VarParsing.varType.int,
                    "Specify events to run."
                 )
 
 options.register( 'eventType',
-                  "RealData",
+                  "ZTT",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   #"If true, generate and validate Z-TauTau (hadronic only) events. Otherwise, generate QCD FlatPt 15-3000 events."
@@ -32,12 +32,10 @@ options.register( 'eventType',
                         \n\t\t\tZTT\
                         \n\t\t\tQCD\
                         \n\t\t\tZEE\
-                        \n\t\t\tZMM\
-                        \n\t\t\tRealData\n"
+                        \n\t\t\tZMM\n"
                  )
 
-allowedOptions['eventType'] = [ 'ZTT', 'QCD', 'ZEE', 'ZMM', 'RealData' ]
-
+allowedOptions['eventType'] = [ 'ZTT', 'QCD', 'ZEE', 'ZMM' ]
 
 options.register( 'label',
                   "none",
@@ -106,6 +104,13 @@ options.register( 'edmFileContents',
                   "Specify event content. Not yet implemented"
                 )
 
+options.register( 'gridJob',
+                  False,
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.bool,
+                  "Set to true makes some modifications to enable to run on grid. On the analysis has the same effect of running in batch, but has also other features."
+                )
+
 ################################
 #
 #        Batchmode options
@@ -152,7 +157,7 @@ def calledBycmsRun():
       return True
 
 def CMSSWEnvironmentIsCurrent():
-   ''' Make sure that our CMSSW environment doesn t point ot another release!'''
+   ''' Make sure that our CMSSW environment doesn't point ot another release!'''
    if ReleaseBase != os.path.commonprefix([ReleaseBase, os.getcwd()]):
       return False
    else:
