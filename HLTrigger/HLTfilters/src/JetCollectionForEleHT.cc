@@ -13,7 +13,7 @@
 //
 // Original Author:  Massimiliano Chiorboli,40 4-A01,+41227671535,
 //         Created:  Mon Oct  4 11:57:35 CEST 2010
-// $Id: JetCollectionForEleHT.cc,v 1.2 2011/01/14 09:03:18 eperez Exp $
+// $Id: JetCollectionForEleHT.cc,v 1.4 2011/03/03 14:20:14 gruen Exp $
 //
 //
 
@@ -131,14 +131,11 @@ JetCollectionForEleHT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     if(!isOverlapping) theFilteredCaloJetCollection->push_back((*theCaloJetCollection)[j]);
   }
   
-  std::cout << std::endl;
-
-
   //do the filtering
-
 
   iEvent.put(theFilteredCaloJetCollection);
 
+  return;
 
 }
 
