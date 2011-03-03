@@ -62,16 +62,16 @@ LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c, int color,
 
 void LMFPnPrimDat::init() {
   m_className = "LMFPnPrimDat";
-  m_keys["MEAN"] = 0;
-  m_keys["RMS"] = 1;
-  m_keys["M3"] = 2;
-  m_keys["PNABMEAN"] = 3;
-  m_keys["PNABRMS"] = 4;
-  m_keys["PNABM3"] = 5;
-  m_keys["FLAG"] = 6;
-  m_keys["VMIN"] = 7;
-  m_keys["VMAX"] = 8;
-  m_keys["SHAPECORRPN"] = 9;
+  m_keys["SHAPECORRPN"] = 0;
+  m_keys["MEAN"] = 1;
+  m_keys["RMS"] = 2;
+  m_keys["M3"] = 3;
+  m_keys["PNABMEAN"] = 4;
+  m_keys["PNABRMS"] = 5;
+  m_keys["PNABM3"] = 6;
+  m_keys["FLAG"] = 7;
+  m_keys["VMIN"] = 8;
+  m_keys["VMAX"] = 9;
 
   m_type.resize(10);
   for (int i = 0; i < 10; i++) {
