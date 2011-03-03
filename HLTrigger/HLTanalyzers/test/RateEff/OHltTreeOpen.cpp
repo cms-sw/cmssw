@@ -4040,6 +4040,103 @@ void OHltTree::CheckOpenHlt(
       }
    }
    
+   // FIXME:
+   // - CaloIsoVT not defined in WPv3?
+   // - TrkIsoVT not defined in WPv3?
+   // - mass condition?
+/*   else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v1") == 0)
+      // actually implemented:     OpenHLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoVT_SC8
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHlt1ElectronSamHarperPassed(
+                  17., 
+                  0, // ET, L1isolation  
+                  999.,
+                  999., // Track iso barrel, Track iso endcap  
+                  0.125,
+                  0.075, // Track/pT iso barrel, Track/pT iso endcap  
+                  0.125,
+                  0.075, // H/ET iso barrel, H/ET iso endcap  
+                  0.125,
+                  0.075, // E/ET iso barrel, E/ET iso endcap  
+                  0.05,
+                  0.05, // H/E barrel, H/E endcap  
+                  0.011,
+                  0.031, // cluster shape barrel, cluster shape endcap  
+                  0.98,
+                  1.0, // R9 barrel, R9 endcap  
+                  0.008,
+                  0.008, // Deta barrel, Deta endcap  
+                  0.07,
+                  0.05 // Dphi barrel, Dphi endcap  
+            ) >=1
+            && 
+            OpenHlt1PhotonSamHarperPassed(
+                  8., 
+                  0, // ET, L1isolation
+                  999.,
+                  999., // Track iso barrel, Track iso endcap
+                  999.,
+                  999., // Track/pT iso barrel, Track/pT iso endcap
+                  999.,
+                  999., // H iso barrel, H iso endcap
+                  999.,
+                  999., // E iso barrel, E iso endcap
+                  999.,
+                  999., // H/E barrel, H/E endcap
+                  999.,
+                  999., // cluster shape barrel, cluster shape endcap
+                  0.98,
+                  1.0, // R9 barrel, R9 endcap
+                  999.,
+                  999., // Deta barrel, Deta endcap
+                  999.,
+                  999. // Dphi barrel, Dphi endcap
+                  ) >= 2)
+            {
+               triggerBit[it] = true;
+            }
+
+
+            // mass condition
+            TLorentzVector e1;
+            TLorentzVector e2;
+            TLorentzVector meson;
+            float mass = 0.;
+            for (unsigned int i=0; i<firstVector.size(); i++)
+            {
+               for (unsigned int j=0; j<secondVector.size() ; j++)
+               {
+
+                  if (firstVector[i] == secondVector[j])
+                     continue;
+                  e1.SetPtEtaPhiM(
+                        ohPhotEt[firstVector[i]],
+                        ohPhotEta[firstVector[i]],
+                        ohPhotPhi[firstVector[i]],
+                        0.);
+                  e2.SetPtEtaPhiM(
+                        ohPhotEt[secondVector[j]],
+                        ohPhotEta[secondVector[j]],
+                        ohPhotPhi[secondVector[j]],
+                        0.);
+                  meson = e1 + e2;
+                  mass = meson.M();
+
+                  if (mass>30)
+                     triggerBit[it] = true;
+
+               }
+            }
+
+         }
+      }
+   }
+*/
+   
    /* Photons */
    else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVL_v1") == 0)
    {
