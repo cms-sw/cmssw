@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2010/11/11 09:12:17 $
- * $Revision: 1.58 $
+ * $Date: 2011/03/03 22:05:50 $
+ * $Revision: 1.59 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -153,13 +153,13 @@ void EESelectiveReadoutTask::beginRun(const edm::Run& r, const edm::EventSetup& 
     
     std::vector<std::vector<float> > dccs = settings_->dccNormalizedWeights_;
     int nws = dccs.size();
-    std::cout << "EESelectiveReadoutTask ---> size of dccNormalizedWeights_ : " << nws << std::endl;
-    std::cout << "weights : ";
-    for(std::vector<float>::const_iterator it = dccs[0].begin(); it != dccs[0].end(); it++) {
-      std::cout << " " << *it;
-      wsFromDB.push_back(*it);
+    if(nws == 1) {
+      for(std::vector<float>::const_iterator it = dccs[0].begin(); it != dccs[0].end(); it++) {
+	wsFromDB.push_back(*it);
+      }
     }
-    std::cout << std::endl;
+    else edm::LogWarning("EESelectiveReadoutTask") << "DCC weight set is not exactly 1.";
+
     configFirWeights(wsFromDB);
   }
 
