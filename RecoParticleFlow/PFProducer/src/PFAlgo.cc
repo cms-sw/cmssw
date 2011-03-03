@@ -149,7 +149,10 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
 }
 
 void 
-PFAlgo::setPFPhotonParameters(bool usePFPhotons,  std::string mvaWeightFileConvID, double mvaConvCut) {
+PFAlgo::setPFPhotonParameters(bool usePFPhotons,  
+			      std::string mvaWeightFileConvID, 
+			      double mvaConvCut,
+			      const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration) {
 
   usePFPhotons_ = usePFPhotons;
 
@@ -182,7 +185,10 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,  std::string mvaWeightFileConvI
   }  
    
    
-  pfpho_ = new PFPhotonAlgo(mvaWeightFileConvID, mvaConvCut, *pv);
+  pfpho_ = new PFPhotonAlgo(mvaWeightFileConvID, 
+			    mvaConvCut, 
+			    *pv,
+			    thePFEnergyCalibration);
   return;
 }
 

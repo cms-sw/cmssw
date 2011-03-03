@@ -14,7 +14,7 @@
 #include <iostream>
 
 
-class PFSCEnergyCalibration;
+class PFEnergyCalibration;
 
 namespace reco {
   class PFCandidate;
@@ -25,7 +25,10 @@ class PFPhotonAlgo {
  public:
   
   //constructor
-  PFPhotonAlgo(std::string mvaweightfile,  double mvaConvCut, const reco::Vertex& primary); 
+  PFPhotonAlgo(std::string mvaweightfile,  
+	       double mvaConvCut, 
+	       const reco::Vertex& primary,
+	       const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration); 
 
   //destructor
   ~PFPhotonAlgo(){delete tmvaReader_;};
@@ -67,6 +70,7 @@ private:
   double MVACUT;
   reco::Vertex       primaryVertex_;
   TMVA::Reader *tmvaReader_;
+  boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_; 
 
   float nlost, nlayers;
   float chi2, STIP, del_phi,HoverPt, EoverPt, track_pt;

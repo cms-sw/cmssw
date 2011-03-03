@@ -406,7 +406,7 @@ particle_flow   calibPFSCEle_endcap  1.153 -16.5975 5.668 -0.1772 16.22 7.326 0.
 particle_flow   usePFPhotons      1
 particle_flow   conv_mvaCut	  0.00
 // Daniele and Rishi: To be changed
-particle_flow   convID_mvaWeightFile   /afs/cern.ch/user/r/rpatel/public/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt
+particle_flow   convID_mvaWeightFile   /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt
 
 
 // EG photons  Et cut; Track iso (cste;slope), Ecal iso (cste, slope), Hcal iso (cste, slope), H/E

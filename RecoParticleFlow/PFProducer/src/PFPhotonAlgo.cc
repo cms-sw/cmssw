@@ -20,8 +20,14 @@ using namespace std;
 using namespace reco;
 
 
-PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,  double mvaConvCut, const reco::Vertex& primary) 
-  : isvalid_(false), verbosityLevel_(Silent), MVACUT(mvaConvCut) 
+PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,  
+			   double mvaConvCut, 
+			   const reco::Vertex& primary,
+			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration) : 
+  isvalid_(false), 
+  verbosityLevel_(Silent), 
+  MVACUT(mvaConvCut),
+  thePFEnergyCalibration_(thePFEnergyCalibration)
 {  
     primaryVertex_=primary;  
     //Book MVA  
@@ -53,8 +59,6 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
   // ... will be setable via CFG file parameter
   verbosityLevel_ = Chatty;          // Chatty mode.
   
-  // needed for calibration
-  PFEnergyCalibration pfcalib_;
 
   // loop over all elements in the Block
   const edm::OwnVector< reco::PFBlockElement >&          elements         = blockRef->elements();
@@ -411,10 +415,11 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 					convEcal,
 					reco::PFBlockElement::ECAL,
 					reco::PFBlock::LINKTEST_ALL);
-	  float p_in=sqrt(elements[track->second].trackRef()->innerMomentum().x() * 
-			  elements[track->second].trackRef()->innerMomentum().x() +
+	  float p_in=sqrt(elements[track->second].trackRef()->innerMomentum().x()*elements[track->second].trackRef()->innerMomentum().x()+
 			  elements[track->second].trackRef()->innerMomentum().y()*elements[track->second].trackRef()->innerMomentum().y()+  
 			  elements[track->second].trackRef()->innerMomentum().z()*elements[track->second].trackRef()->innerMomentum().z());  
+
+
 	  float linked_E=0;
 	  for(std::multimap<double, unsigned int>::iterator itConvEcal = convEcal.begin();
 	      itConvEcal != convEcal.end(); ++itConvEcal) {
@@ -527,13 +532,14 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	      }  
 	  }  
 	  reco::PFClusterRef AddclusterRef = elements[AddClusters[i]].clusterRef();  
-	  addedRawEne=AddclusterRef->energy()+addedRawEne;  
-	  addedCalibEne=pfcalib_.energyEm(*AddclusterRef,AddedPS1,AddedPS2,false)+addedCalibEne;  
-	  AddedPS2.clear(); AddedPS1.clear();  
+	  addedRawEne = AddclusterRef->energy()+addedRawEne;  
+	  addedCalibEne = thePFEnergyCalibration_->energyEm(*AddclusterRef,AddedPS1,AddedPS2,false)+addedCalibEne;  
+	  AddedPS2.clear(); 
+	  AddedPS1.clear();  
 	  elemsToLock.push_back(AddClusters[i]);  
 	}  
       AddClusters.clear();
-      float EE=pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene,false)+addedCalibEne;  
+      float EE = thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false)+addedCalibEne;  
       //cout<<"Original Energy "<<EE<<"Added Energy "<<addedCalibEne<<endl;
       
       photonEnergy_ +=  EE;
@@ -550,8 +556,8 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     float sum_track_pt=0;
     //Now check if there are tracks failing isolation outside of the Jurassic isolation region  
     for(unsigned int i=0; i<IsoTracks.size(); i++)sum_track_pt=sum_track_pt+elements[IsoTracks[i]].trackRef()->pt();  
-    float Et=sqrt(photonX_ * photonX_ + photonY_ * photonY_);  
-    if(sum_track_pt>(2+ 0.001* Et))continue;//THIS SC is not a Photon it fails track Isolation
+    
+
 
     math::XYZVector photonPosition(photonX_,
 				   photonY_,
@@ -563,12 +569,18 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 					   photonEnergy_* photonDirection.Y(),
 					   photonEnergy_* photonDirection.Z(),
 					   photonEnergy_           );
-    /*
+
+    if(sum_track_pt>(2+ 0.001* photonMomentum.pt()))
+      continue;//THIS SC is not a Photon it fails track Isolation
+
+    
     std::cout<<" Created Photon with energy = "<<photonEnergy_<<std::endl;
     std::cout<<"                         pT = "<<photonMomentum.pt()<<std::endl;
-    std::cout<<"                       Mass = "<<photonMomentum.mag()<<std::endl;
+    std::cout<<"                     RawEne = "<<RawEcalEne<<std::endl;
     std::cout<<"                          E = "<<photonMomentum.e()<<std::endl;
-    */
+    std::cout<<"                        eta = "<<photonMomentum.eta()<<std::endl;
+    std::cout<<"             TrackIsolation = "<< sum_track_pt <<std::endl;
+    
     reco::PFCandidate photonCand(0,photonMomentum, reco::PFCandidate::gamma);
     
     photonCand.setPs1Energy(ps1TotEne);

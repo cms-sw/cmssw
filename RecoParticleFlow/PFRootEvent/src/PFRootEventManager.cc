@@ -1147,7 +1147,10 @@ void PFRootEventManager::readOptions(const char* file,
     // PFPhoton options -----------------------------
     
     try { 
-      pfAlgo_.setPFPhotonParameters(usePFPhotons, mvaWeightFileConvID, mvaConvCut);
+      pfAlgo_.setPFPhotonParameters(usePFPhotons,
+				    mvaWeightFileConvID,
+				    mvaConvCut,
+				    calibration);
     }
 
     catch( std::exception& err ) {
