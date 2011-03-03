@@ -23,10 +23,23 @@
 
 using namespace RooStats;
 
+unsigned int HybridNew::nToys_;
+double HybridNew::clsAccuracy_, HybridNew::rAbsAccuracy_, HybridNew::rRelAccuracy_;
+bool HybridNew::rInterval_;
+bool HybridNew::CLs_;
+bool HybridNew::saveHybridResult_, HybridNew::readHybridResults_; 
+std::string HybridNew::rule_, HybridNew::testStat_;
+bool HybridNew::singlePointScan_; 
+double HybridNew::rValue_;
+unsigned int HybridNew::nCpu_, HybridNew::fork_;
+bool HybridNew::importanceSamplingNull_, HybridNew::importanceSamplingAlt_;
+ 
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
     // NOTE: we do NOT re-declare options which are in common with Hybrid method
     options_.add_options()
+      ("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(false), "Enable importance sampling for null hypothesis (background only)") 
+      ("importanceSamplingAlt", boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(false), "Enable importance sampling for alternative hypothesis (signal plus background)") 
     /*
         ("toysH", boost::program_options::value<unsigned int>()->default_value(500),    "Number of Toy MC extractions to compute CLs+b, CLb and CLs")
         ("clsAcc",  boost::program_options::value<double>( )->default_value(0.005), "Absolute accuracy on CLs to reach to terminate the scan")
@@ -188,58 +201,86 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooAbsData &data, Roo
 }
 
 std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, HybridNew::Setup &setup) {
-    using namespace RooStats;
-
-    const RooArgSet &obs = *w->set("observables");
-    const RooArgSet &poi = *w->set("POI");
-
-    r->setVal(rVal); 
-    setup.modelConfig = ModelConfig("sb_model", w);
-    setup.modelConfig.SetPdf(*w->pdf("model_s"));
-    setup.modelConfig.SetObservables(obs);
-    setup.modelConfig.SetParametersOfInterest(poi);
-    if (withSystematics) setup.modelConfig.SetNuisanceParameters(*w->set("nuisances"));
-    setup.modelConfig.SetSnapshot(poi);
-
-    setup.modelConfig_bonly = ModelConfig("b_model", w);
-    setup.modelConfig_bonly.SetPdf(*w->pdf("model_b"));
-    setup.modelConfig_bonly.SetObservables(obs);
-    setup.modelConfig_bonly.SetParametersOfInterest(poi);
-    if (withSystematics) setup.modelConfig_bonly.SetNuisanceParameters(*w->set("nuisances"));
-    setup.modelConfig_bonly.SetSnapshot(poi);
-
-    if (testStat_ == "LEP") {
-        setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf()));
-        ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetNullParameters(*setup.modelConfig_bonly.GetSnapshot());
-        ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetAltParameters( *setup.modelConfig.GetSnapshot());
-    } else if (testStat_ == "TEV") {
-        setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), setup.modelConfig.GetSnapshot()));
-        ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
-    } else if (testStat_ == "Atlas") {
-        setup.modelConfig_bonly.SetPdf(*w->pdf("model_s"));
-        RooArgSet nullPOI; nullPOI.addClone(*r); 
-        ((RooRealVar &)nullPOI["r"]).setVal(0);
-        setup.modelConfig_bonly.SetSnapshot(nullPOI);
-        setup.qvar.reset(new ProfileLikelihoodTestStat(*setup.modelConfig_bonly.GetPdf()));
-    }
-
-    setup.toymcsampler.reset(new ToyMCSampler(*setup.qvar, nToys_));
-    if (!w->pdf("model_b")->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
-
+  using namespace RooStats;
+  
+  const RooArgSet &obs = *w->set("observables");
+  const RooArgSet &poi = *w->set("POI");
+  
+  r->setVal(rVal); 
+  setup.modelConfig = ModelConfig("sb_model", w);
+  setup.modelConfig.SetPdf(*w->pdf("model_s"));
+  setup.modelConfig.SetObservables(obs);
+  setup.modelConfig.SetParametersOfInterest(poi);
+  if (withSystematics) setup.modelConfig.SetNuisanceParameters(*w->set("nuisances"));
+  setup.modelConfig.SetSnapshot(poi);
+  
+  setup.modelConfig_bonly = ModelConfig("b_model", w);
+  setup.modelConfig_bonly.SetPdf(*w->pdf("model_b"));
+  setup.modelConfig_bonly.SetObservables(obs);
+  setup.modelConfig_bonly.SetParametersOfInterest(poi);
+  if (withSystematics) setup.modelConfig_bonly.SetNuisanceParameters(*w->set("nuisances"));
+  setup.modelConfig_bonly.SetSnapshot(poi);
+  
+  if (testStat_ == "LEP") {
+    setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf()));
+    ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetNullParameters(*setup.modelConfig_bonly.GetSnapshot());
+    ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetAltParameters( *setup.modelConfig.GetSnapshot());
+  } else if (testStat_ == "TEV") {
+    setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), setup.modelConfig.GetSnapshot()));
+    ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
+  } else if (testStat_ == "Atlas") {
+    setup.modelConfig_bonly.SetPdf(*w->pdf("model_s"));
+    RooArgSet nullPOI; nullPOI.addClone(*r); 
+    ((RooRealVar &)nullPOI["r"]).setVal(0);
+    setup.modelConfig_bonly.SetSnapshot(nullPOI);
+    setup.qvar.reset(new ProfileLikelihoodTestStat(*setup.modelConfig_bonly.GetPdf()));
+  }
+  
+  setup.toymcsampler.reset(new ToyMCSampler(*setup.qvar, nToys_));
+  if (!w->pdf("model_b")->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
+  
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,28,0)
-    if (nCpu_ > 0) {
-        if (verbose > 1) std::cout << "  Will use " << nCpu_ << " CPUs." << std::endl;
-        setup.pc.reset(new ProofConfig(*w, nCpu_, "", kFALSE)); 
-        setup.toymcsampler->SetProofConfig(setup.pc.get());
-    }   
+  if (nCpu_ > 0) {
+    if (verbose > 1) std::cout << "  Will use " << nCpu_ << " CPUs." << std::endl;
+    setup.pc.reset(new ProofConfig(*w, nCpu_, "", kFALSE)); 
+    setup.toymcsampler->SetProofConfig(setup.pc.get());
+  }   
 #endif
+  
+  std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data,setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
+  if (withSystematics) {
+    hc->ForcePriorNuisanceNull(*w->pdf("nuisancePdf"));
+    hc->ForcePriorNuisanceAlt(*w->pdf("nuisancePdf"));
+  }
 
-    std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data,setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
-    if (withSystematics) {
-        hc->ForcePriorNuisanceNull(*w->pdf("nuisancePdf"));
-        hc->ForcePriorNuisanceAlt(*w->pdf("nuisancePdf"));
+  static const char * istr = "__HybridNew__importanceSamplingDensity";
+  if(importanceSamplingNull_) {
+    if(verbose > 1) std::cout << ">>> Enabling importance sampling for null hyp." << std::endl;
+    if(!withSystematics) {
+      throw std::invalid_argument("Importance sampling is not available without systematics");
     }
-    return hc;
+    RooArgSet importanceSnapshot;
+    importanceSnapshot.addClone(poi);
+    importanceSnapshot.addClone(*w->set("nuisances"));
+    importanceSnapshot.Print("V");
+    hc->SetNullImportanceDensity(w->pdf("model_b"), &importanceSnapshot);
+  }
+  if(importanceSamplingAlt_) {
+    if(verbose > 1) std::cout << ">>> Enabling importance sampling for alt. hyp." << std::endl;
+    if(!withSystematics) {
+      throw std::invalid_argument("Importance sampling is not available without systematics");
+    }
+    if (w->pdf(istr) == 0) {
+      w->factory((std::string("SUM::") + istr + "(0.5*model_b, 0.5*model_s)").c_str());
+    }
+    RooArgSet importanceSnapshot;
+    importanceSnapshot.addClone(poi);
+    importanceSnapshot.addClone(*w->set("nuisances"));
+    importanceSnapshot.Print("V");
+    hc->SetAltImportanceDensity(w->pdf(istr), &importanceSnapshot);
+  }
+
+  return hc;
 }
 
 std::pair<double,double> 

@@ -21,27 +21,26 @@ extern bool doSignificance_;
 extern float cl;
 
 class Combine {
-    public:
-        Combine() ;
-
-        const boost::program_options::options_description & options() const { return options_; }    
-        void applyOptions(const boost::program_options::variables_map &vm) ;
-
-        void run(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys);
-
-    private:
-        bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit) ;
-
-        boost::program_options::options_description options_;
-
-        float rMin_, rMax_;
-        bool compiledExpr_;
-        std::string prior_;
-        bool hintUsesStatOnly_;
-        bool saveWorkspace_;
-        std::string workspaceName_;
-        bool toysNoSystematics_;
+public:
+  Combine() ;
+  
+  const boost::program_options::options_description & options() const { return options_; }    
+  void applyOptions(const boost::program_options::variables_map &vm) ;
+  
+  void run(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys);
+  
+private:
+  bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit) ;
+  
+  boost::program_options::options_description options_;
+  
+  float rMin_, rMax_;
+  bool compiledExpr_;
+  std::string prior_;
+  bool hintUsesStatOnly_;
+  bool saveWorkspace_;
+  std::string workspaceName_;
+  bool toysNoSystematics_;
 };
-
 
 #endif

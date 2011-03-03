@@ -137,7 +137,6 @@ int main(int argc, char **argv) {
     return 1002;
   }
 
-
   for (vector<string>::const_iterator lib = librariesToLoad.begin(), endlib = librariesToLoad.end(); lib != endlib; ++lib) {
     gSystem->Load(lib->c_str());
   }
@@ -171,27 +170,27 @@ int main(int argc, char **argv) {
   cout << ">>> method used to compute upper limit is " << whichMethod << endl;
 
   if (!whichHintMethod.empty()) {
-      for(i = methods.begin(); i != methods.end(); ++i) {
-          if(whichHintMethod == i->first) {
-              hintAlgo = i->second;
-              try {
-                  hintAlgo->applyOptions(vm);
-              } catch (std::exception &ex) {
-                  cerr << "Error when configuring the algorithm " << whichHintMethod << ":\n\t" << ex.what() << std::endl;
-                  return 2002;
-              }
-              break;
-          }
+    for(i = methods.begin(); i != methods.end(); ++i) {
+      if(whichHintMethod == i->first) {
+	hintAlgo = i->second;
+	try {
+	  hintAlgo->applyOptions(vm);
+	} catch (std::exception &ex) {
+	  cerr << "Error when configuring the algorithm " << whichHintMethod << ":\n\t" << ex.what() << std::endl;
+	  return 2002;
+	}
+	break;
       }
-      if(i == methods.end()) {
-          cerr << "Unsupported hint method: " << whichHintMethod << endl;
-          cout << "Usage: options_description [options]\n";
-          cout << desc;
-          return 1003;
-      }
-      cout << ">>> method used to hint where the upper limit is " << whichHintMethod << endl;
+    }
+    if(i == methods.end()) {
+      cerr << "Unsupported hint method: " << whichHintMethod << endl;
+      cout << "Usage: options_description [options]\n";
+      cout << desc;
+      return 1003;
+    }
+    cout << ">>> method used to hint where the upper limit is " << whichHintMethod << endl;
   }
-
+  
   std::cout << ">>> random number generator seed is " << seed << std::endl;
   RooRandom::randomGenerator()->SetSeed(seed); 
 

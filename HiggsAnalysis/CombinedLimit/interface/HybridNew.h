@@ -30,17 +30,18 @@ public:
     static const std::string name("HybridNew");
     return name;
   }
-
   
 private:
-  unsigned int nToys_;
-  double clsAccuracy_, rAbsAccuracy_, rRelAccuracy_;
-  bool   rInterval_;
-  bool CLs_;
-  bool saveHybridResult_, readHybridResults_; 
-  std::string rule_, testStat_;
-  bool singlePointScan_; double rValue_;
-  unsigned int nCpu_, fork_;
+  static unsigned int nToys_;
+  static double clsAccuracy_, rAbsAccuracy_, rRelAccuracy_;
+  static bool   rInterval_;
+  static bool CLs_;
+  static bool saveHybridResult_, readHybridResults_; 
+  static std::string rule_, testStat_;
+  static bool singlePointScan_; 
+  static double rValue_;
+  static unsigned int nCpu_, fork_;
+  static bool importanceSamplingNull_, importanceSamplingAlt_;
 
   struct Setup {
     RooStats::ModelConfig modelConfig, modelConfig_bonly;

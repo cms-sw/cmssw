@@ -65,27 +65,24 @@ float cl = 0.95;
 Combine::Combine() :
     options_("Common options"), 
     rMin_(std::numeric_limits<float>::quiet_NaN()), 
-    rMax_(std::numeric_limits<float>::quiet_NaN())
-{
+    rMax_(std::numeric_limits<float>::quiet_NaN()) {
     namespace po = boost::program_options;
-
     options_.add_options()
-        ("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Add systematic uncertainties")
-        ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
-        ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength")
-        ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength")
-        ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
-        ("compile", "Compile expressions instead of interpreting them")
-        ("significance", "Compute significance instead of upper limit")
-        ("hintStatOnly", "Ignore systematics when computing the hint")
-        ("saveWorkspace", "Save workspace to output root file")
-        ("toysNoSystematics", "Generate all toys with the central value of the nuisance parameters, without fluctuating them")
-        ("workspaceName,w", po::value<std::string>(&workspaceName_)->default_value("w"), "Workspace name, when reading it from or writing it to a rootfile.")
-    ;
+      ("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Add systematic uncertainties")
+      ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
+      ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength")
+      ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength")
+      ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
+      ("compile", "Compile expressions instead of interpreting them")
+      ("significance", "Compute significance instead of upper limit")
+      ("hintStatOnly", "Ignore systematics when computing the hint")
+      ("saveWorkspace", "Save workspace to output root file")
+      ("toysNoSystematics", "Generate all toys with the central value of the nuisance parameters, without fluctuating them")
+      ("workspaceName,w", po::value<std::string>(&workspaceName_)->default_value("w"), "Workspace name, when reading it from or writing it to a rootfile.")
+      ;
 }
 
-void Combine::applyOptions(const boost::program_options::variables_map &vm) 
-{
+void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   if(withSystematics) {
     std::cout << ">>> including systematics" << std::endl;
   } else {
