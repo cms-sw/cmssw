@@ -29,14 +29,15 @@ process.RECOSIMoutput.outputCommands = cms.untracked.vstring('drop *',
 process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
 
 process.pfElectronTranslator.MVACutBlock.MVACut = cms.double(-0.4)
-#process.pfElectronTranslator.PFCandidate=cms.InputTag("particleFlow:electrons")
+process.gsfElectrons.minMVA = cms.double(-0.4)
+process.gsfElectrons.minMVAPflow = cms.double(-0.4)
+
 process.ecalDrivenGsfElectronCores.useGsfPfRecTracks = cms.bool(False)
 process.gsfElectronCores.useGsfPfRecTracks = cms.bool(False)
 process.ecalDrivenGsfElectrons.useGsfPfRecTracks = cms.bool(False)
 process.gsfElectrons.useGsfPfRecTracks = cms.bool(False)
-process.gsfElectrons.minMVA = cms.double(-0.4)
-process.gsfElectrons.minMVAPflow = cms.double(-0.4)
-process.particleFlow.useCalibrationsFromDB = cms.bool(False)
+
+#process.particleFlow.useCalibrationsFromDB = cms.bool(False)
 
 #process.gsfElectrons.ctfTracksCheck = cms.bool(False)
 
