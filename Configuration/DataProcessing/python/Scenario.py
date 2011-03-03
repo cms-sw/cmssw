@@ -109,7 +109,7 @@ class Scenario(object):
         raise NotImplementedError, msg
 
 
-    def alcaHarvesting(self, globalTag, **options):
+    def alcaHarvesting(self, globalTag, datasetName, **options):
         """
         _alcaHarvesting_
 

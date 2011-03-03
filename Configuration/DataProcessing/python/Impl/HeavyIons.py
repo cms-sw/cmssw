@@ -218,7 +218,7 @@ class HeavyIons(Scenario):
         """
         options = defaultOptions
         options.scenario = "HeavyIons"
-        options.step = "ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi"
+        options.step = "ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality"
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -240,6 +240,7 @@ class HeavyIons(Scenario):
         process.source.processingMode = cms.untracked.string('RunsAndLumis')
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
-
+        process.dqmSaver.workflow = datasetName
+        
         return process
 

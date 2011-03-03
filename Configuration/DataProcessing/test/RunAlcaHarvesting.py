@@ -18,9 +18,9 @@ class RunAlcaHarvesting:
 
     def __init__(self):
         self.scenario = None
-#         self.dataset = None
+        self.dataset = None
 #         self.run = None
-        self.globalTag = 'UNSPECIFIED::All'
+        self.globalTag = None
         self.inputLFN = None
 
     def __call__(self):
@@ -35,10 +35,13 @@ class RunAlcaHarvesting:
 #             msg = "No --run specified"
 #             raise RuntimeError, msg
         
-#         if self.dataset == None:
-#             msg = "No --dataset specified"
-#             raise RuntimeError, msg
+        if self.dataset == None:
+            msg = "No --dataset specified"
+            raise RuntimeError, msg
         
+        if self.globalTag == None:
+            msg = "No --global-tag specified"
+            raise RuntimeError, msg
 
         
         try:
@@ -51,12 +54,12 @@ class RunAlcaHarvesting:
 
         print "Retrieved Scenario: %s" % self.scenario
         print "Using Global Tag: %s" % self.globalTag
-#         print "Dataset: %s" % self.dataset
+        print "Dataset: %s" % self.dataset
 #         print "Run: %s" % self.run
         
         
         try:
-            process = scenario.alcaHarvesting(self.globalTag)
+            process = scenario.alcaHarvesting(self.globalTag, self.dataset)
             
         except Exception, ex:
             msg = "Error creating AlcaHarvesting config:\n"
@@ -76,7 +79,7 @@ class RunAlcaHarvesting:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "global-tag=", "lfn="]
+    valid = ["scenario=", "global-tag=", "lfn=", "dataset="]
     usage = """RunAlcaHarvesting.py <options>"""
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
@@ -95,5 +98,7 @@ if __name__ == '__main__':
             harvester.globalTag = arg
         if opt == "--lfn" :
             harvester.inputLFN = arg
+        if opt == "--dataset" :
+            harvester.dataset = arg
 
     harvester()
