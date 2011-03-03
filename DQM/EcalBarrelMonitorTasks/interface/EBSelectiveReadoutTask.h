@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2010/08/12 09:05:47 $
- * $Revision: 1.17 $
+ * $Date: 2010/11/10 10:43:29 $
+ * $Revision: 1.18 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -15,8 +15,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+
 class MonitorElement;
 class DQMStore;
+class EcalSRSettings;
 
 class EBSelectiveReadoutTask: public edm::EDAnalyzer{
 
@@ -361,6 +363,9 @@ MonitorElement* EBHighInterestZsFIR_;
 MonitorElement* EBLowInterestZsFIR_;
 
 bool init_;
+
+bool useCondDb_;
+const EcalSRSettings* settings_;
 
 };
 

@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2010/11/11 08:40:48 $
- * $Revision: 1.50 $
+ * $Date: 2010/11/11 09:12:17 $
+ * $Revision: 1.51 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -36,6 +36,11 @@
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBSelectiveReadoutTask.h"
 
+
+#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
+
+
 EBSelectiveReadoutTask::EBSelectiveReadoutTask(const edm::ParameterSet& ps){
 
   init_ = false;
@@ -56,7 +61,10 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const edm::ParameterSet& ps){
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
   firstFIRSample_ = ps.getParameter<int>("ecalDccZs1stSample");
 
-  configFirWeights(ps.getParameter<std::vector<double> >("dccWeights"));
+  useCondDb_ = ps.getParameter<bool>("configFromCondDB");
+
+  if(!useCondDb_) configFirWeights(ps.getParameter<std::vector<double> >("dccWeights"));
+
 
   // histograms...
   EBTowerSize_ = 0;
@@ -125,6 +133,25 @@ void EBSelectiveReadoutTask::beginRun(const edm::Run& r, const edm::EventSetup& 
       nEvtLowInterest[iptindex][ietindex] = 0;
       nEvtAnyInterest[iptindex][ietindex] = 0;
     }
+  }
+
+  //getting selective readout configuration
+  if(useCondDb_) {
+    edm::ESHandle<EcalSRSettings> hSr;
+    c.get<EcalSRSettingsRcd>().get(hSr);
+    settings_ = hSr.product();
+    std::vector<double> wsFromDB;
+
+    std::vector<std::vector<float> > dccs = settings_->dccNormalizedWeights_;
+    int nws = dccs.size();
+    std::cout << "EBSelectiveReadoutTask ---> size of dccNormalizedWeights_ : " << nws << std::endl;
+    std::cout << "weights : ";
+    for(std::vector<float>::const_iterator it = dccs[0].begin(); it != dccs[0].end(); it++) {
+      std::cout << " " << *it;
+      wsFromDB.push_back(*it);
+    }
+    std::cout << std::endl;
+    configFirWeights(wsFromDB);
   }
 
 }
