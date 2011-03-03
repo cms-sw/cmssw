@@ -80,7 +80,8 @@ namespace evf{
       if(endPathsInMenu==0) endPathsInMenu = trp->endPathsInMenu;
       // set LS and PS
       lumiSection = lumisection;
-      prescaleIndex = trp->prescaleIndex;
+      if(trp->eventSummary.totalEvents!=0) //do not update PS if no events seen
+	prescaleIndex = trp->prescaleIndex;
 
       //add to the event summary
       eventSummary.totalEvents += trp->eventSummary.totalEvents;
