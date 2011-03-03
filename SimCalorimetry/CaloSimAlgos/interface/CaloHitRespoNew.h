@@ -98,7 +98,7 @@ class CaloHitRespoNew
 
       int maxBunch() const { return m_maxBunch ; }
 
-      VecInd index() const { return m_index ; }
+      VecInd& index() { return m_index ; }
 
       const CaloVHitFilter* hitFilter() const { return m_hitFilter ; }
 
