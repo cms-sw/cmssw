@@ -9,6 +9,7 @@ ecalDrivenGsfElectronCores = cms.EDProducer("GsfElectronCoreEcalDrivenProducer",
 
 gsfElectronCores = cms.EDProducer("GsfElectronCoreProducer",
     ecalDrivenGsfElectronCoresTag = cms.InputTag("ecalDrivenGsfElectronCores"),
+    pflowGsfElectronCoresTag = cms.InputTag("pflowGsfElectronCores"),
     gsfPfRecTracks = cms.InputTag("pfTrackElec"),
     gsfTracks = cms.InputTag("electronGsfTracks"),
     ctfTracks = cms.InputTag("generalTracks"),

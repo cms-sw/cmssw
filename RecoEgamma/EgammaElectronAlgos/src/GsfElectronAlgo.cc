@@ -811,24 +811,50 @@ void GsfElectronAlgo::clonePreviousElectrons()
 
 void GsfElectronAlgo::addPflowInfo()
  {
+  bool found ;
+  const GsfElectronCollection * pfElectrons = eventData_->pflowElectrons.product() ;
+  GsfElectronCollection::const_iterator pfElectron ;
+
   GsfElectronPtrCollection::iterator el ;
   for
    ( el = eventData_->electrons->begin() ;
      el != eventData_->electrons->end() ;
      el++ )
    {
-    // MVA
-    // we check that the value is never inferior to the no-cut value
-    // we generally use in the configuration file for minMVA.
-    GsfTrackRef gsfTrackRef = (*el)->gsfTrack() ;
-    float mva = (*eventData_->pfMva.product())[gsfTrackRef] ;
-    double noCutMin = -999999999 ;
-    if (mva<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<mva ; }
+//    // MVA
+//    // we check that the value is never inferior to the no-cut value
+//    // we generally use in the configuration file for minMVA.
+//    GsfTrackRef gsfTrackRef = (*el)->gsfTrack() ;
+//    float mva = (*eventData_->pfMva.product())[gsfTrackRef] ;
+//    if (mva<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<mva ; }
+//
+//    // Mva Output
+//    GsfElectron::MvaOutput mvaOutput ;
+//    mvaOutput.mva = mva ;
+//    (*el)->setMvaOutput(mvaOutput) ;
 
-    // Mva Output
-    GsfElectron::MvaOutput mvaOutput ;
-    mvaOutput.mva = mva ;
-    (*el)->setMvaOutput(mvaOutput) ;
+    // Retreive info from pflow electrons
+    found = false ;
+    for
+     ( pfElectron = pfElectrons->begin() ; pfElectron != pfElectrons->end() ; pfElectron++ )
+     {
+      if (pfElectron->gsfTrack()==(*el)->gsfTrack())
+       {
+        if (found)
+         {
+          edm::LogWarning("GsfElectronProducer")<<"associated pfGsfElectron already found" ;
+         }
+        else
+         {
+          found = true ;
+          (*el)->setPfIsolationVariables(pfElectron->pfIsolationVariables()) ;
+          (*el)->setMvaInput(pfElectron->mvaInput()) ;
+          (*el)->setMvaOutput(pfElectron->mvaOutput()) ;
+          double noCutMin = -999999999 ;
+          if ((*el)->mva()<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<(*el)->mva() ; }
+         }
+       }
+     }
 
     // Preselection
     setMvaPreselectionFlag(*el) ;
