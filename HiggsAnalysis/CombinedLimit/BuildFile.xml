@@ -2,6 +2,7 @@
 <use name="rootmath"/>
 <use name="roofit"/>
 <use name="roostats"/>
+<use name="histfactory"/>
 <use   name="boost_program_options"/>
 <use   name="boost_filesystem"/>
 <export>
