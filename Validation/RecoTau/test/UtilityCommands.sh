@@ -10,6 +10,7 @@ export PastResults=/afs/cern.ch/cms/Physics/particleflow/Validation/cms-project-
 cmsenv
 
 alias MergeBatchJob='cmsRun ${VALTOOLS}/MergeFilesAndCalculateEfficiencies_cfg.py `ls BatchJobs/*_0.root | sed "s|_0.root|.root|" | sed "s|BatchJobs/||"` BatchJobs/*root'
+alias MergeGridJob='cmsRun ${VALTOOLS}/MergeFilesAndCalculateEfficiencies_cfg.py'
 alias Compare='cmsRun ${VALTOOLS}/Compare_cfg.py'
 alias Summarize='cmsRun ${VALTOOLS}/SummaryPlots_cfg.py'
 alias PerformanceCurves='python ${VALTOOLS}/PlotPerformanceCurves.py'
