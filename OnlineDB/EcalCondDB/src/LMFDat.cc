@@ -460,10 +460,12 @@ int LMFDat::writeDB()
 	m_conn->commit();
 	ret = nData;
       } catch (oracle::occi::SQLException &e) {
-	throw(std::runtime_error(m_className + "::writeDB: " + 
-				 e.getMessage()));
+	debug();
+	setMaxDataToDump(nData);
 	dump();
 	m_conn->rollback();
+	throw(std::runtime_error(m_className + "::writeDB: " + 
+				 e.getMessage()));
       }
     } else {
       cout << m_className << "::writeDB: Cannot write because " << 
