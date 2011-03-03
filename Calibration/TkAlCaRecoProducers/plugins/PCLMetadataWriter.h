@@ -4,8 +4,8 @@
 /** \class PCLMetadataWriter
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2011/02/16 12:40:30 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - CERN
  */
 
@@ -38,7 +38,7 @@ public:
 protected:
 
 private:
-
+  bool readFromDB;
   std::map<std::string,  std::map<std::string, std::string> > recordMap;
   
 

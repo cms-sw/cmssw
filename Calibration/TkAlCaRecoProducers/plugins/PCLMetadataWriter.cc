@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2011/02/16 12:40:30 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - CERN
  */
 
@@ -14,13 +14,19 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "CondFormats/DataRecord/interface/DropBoxMetadataRcd.h"
+#include "CondFormats/Common/interface/DropBoxMetadata.h"
 
 
 using namespace std;
 using namespace edm;
 
 PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet& pSet){
-
+  
+  readFromDB = pSet.getParameter<bool>("readFromDB");
+  
 
   vector<ParameterSet> recordsToMap = pSet.getParameter<vector<ParameterSet> >("recordsToMap");
   for(vector<ParameterSet>::const_iterator recordPset = recordsToMap.begin();
@@ -28,19 +34,19 @@ PCLMetadataWriter::PCLMetadataWriter(const edm::ParameterSet& pSet){
       ++recordPset) {
     
     string record = (*recordPset).getUntrackedParameter<string>("record");
-    
     map<string, string> jrInfo;
-    jrInfo["Source"] = "AlcaHarvesting";
-    jrInfo["FileClass"] = "ALCA";
-    jrInfo["destDB"] = (*recordPset).getUntrackedParameter<string>("destDB");
-    jrInfo["destDBValidation"] = (*recordPset).getUntrackedParameter<string>("destDBValidation");
-    jrInfo["tag"] = (*recordPset).getUntrackedParameter<string>("tag");
-    jrInfo["Timetype"] = (*recordPset).getUntrackedParameter<string>("Timetype");
-    jrInfo["IOVCheck"] = (*recordPset).getUntrackedParameter<string>("IOVCheck");
-    jrInfo["DuplicateTagHLT"] = (*recordPset).getUntrackedParameter<string>("DuplicateTagHLT");
-    jrInfo["DuplicateTagEXPRESS"] = (*recordPset).getUntrackedParameter<string>("DuplicateTagEXPRESS");
-    jrInfo["DuplicateTagPROMPT"] = (*recordPset).getUntrackedParameter<string>("DuplicateTagPROMPT");
-
+    if(!readFromDB) {
+      vector<string> paramKeys = (*recordPset).getParameterNames();
+      for(vector<string>::const_iterator key = paramKeys.begin();
+	  key != paramKeys.end();
+	  ++key) {
+	jrInfo["Source"] = "AlcaHarvesting";
+	jrInfo["FileClass"] = "ALCA";
+	if(*key != "record") {
+	  jrInfo[*key] = (*recordPset).getUntrackedParameter<string>(*key);
+	}
+      }
+    }
     recordMap[record] = jrInfo;
 
   }
@@ -56,7 +62,17 @@ void PCLMetadataWriter::analyze(const edm::Event& event, const edm::EventSetup& 
 void PCLMetadataWriter::beginRun(const edm::Run& run, const edm::EventSetup& eSetup) {} 
 
 void PCLMetadataWriter::endRun(const edm::Run& run, const edm::EventSetup& eSetup) {
-  
+
+  const DropBoxMetadata *metadata = 0;
+
+  if(readFromDB) {
+    // Read the objects
+    edm::ESHandle<DropBoxMetadata> mdPayload;
+    eSetup.get<DropBoxMetadataRcd>().get(mdPayload);
+    
+    metadata = mdPayload.product();
+  }
+
   // get the PoolDBOutputService
   Service<cond::service::PoolDBOutputService> poolDbService;
   if(poolDbService.isAvailable() ) {
@@ -73,8 +89,13 @@ void PCLMetadataWriter::endRun(const edm::Run& run, const edm::EventSetup& eSetu
 	string record = (*recordAndMap).first;
 	// this is the map of metadata that we write in the JR
 	map<string, string> jrInfo = (*recordAndMap).second;
+	if(readFromDB) {
+	  if(metadata->knowsRecord(record)) {
+	    jrInfo = metadata->getRecordParameters(record).getParameterMap();
+	  }
+	}
 	jrInfo["inputtag"] = poolDbService->tag(record);
-
+	
 	
 	// actually write in the job report
 	jr->reportAnalysisFile(filename, jrInfo);
