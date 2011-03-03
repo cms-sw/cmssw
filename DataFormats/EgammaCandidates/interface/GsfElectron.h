@@ -32,7 +32,7 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.46 2011/02/18 15:26:05 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.47 2011/02/25 22:13:38 dlange Exp $
  *
  ****************************************************************************/
 
@@ -164,7 +164,7 @@ class GsfElectron : public RecoCandidate
   public:
 
     // accessors
-    virtual GsfElectronCoreRef core() const { return core_ ; }
+    virtual GsfElectronCoreRef core() const ;
 
     // forward core methods
     SuperClusterRef superCluster() const { return core()->superCluster() ; }

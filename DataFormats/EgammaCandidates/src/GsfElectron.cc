@@ -5,6 +5,8 @@
 
 using namespace reco ;
 
+GsfElectronCoreRef GsfElectron::core() const { return core_ ; }
+
 void GsfElectron::init()
  {
   passCutBasedPreselection_ = false ;
