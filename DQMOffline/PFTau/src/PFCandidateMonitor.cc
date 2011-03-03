@@ -133,7 +133,7 @@ void PFCandidateMonitor::setDirectory(TDirectory* dir) {
 //
 // -- fill histograms for a given Jet pair
 //
-void PFCandidateMonitor::fillOne(const reco::PFCandidate& cand) {
+void PFCandidateMonitor::fillOne(const reco::Candidate& cand) {
 
   if (createReferenceHistos_ && histogramBooked_) {
  

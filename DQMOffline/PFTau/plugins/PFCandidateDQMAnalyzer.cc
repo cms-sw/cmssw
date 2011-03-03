@@ -7,8 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -45,10 +45,10 @@ void PFCandidateDQMAnalyzer::beginJob() {
 //
 void PFCandidateDQMAnalyzer::analyze(edm::Event const& iEvent, 
 				      edm::EventSetup const& iSetup) {
-  edm::Handle<reco::PFCandidateCollection> candCollection;
+  edm::Handle< edm::View<reco::Candidate> > candCollection;
   iEvent.getByLabel( inputLabel_, candCollection);
-  
-  edm::Handle<reco::PFCandidateCollection> matchedCandCollection;
+
+  edm::Handle< edm::View<reco::Candidate> > matchedCandCollection;
   iEvent.getByLabel( matchLabel_, matchedCandCollection);
 
   float maxRes = 0.0;

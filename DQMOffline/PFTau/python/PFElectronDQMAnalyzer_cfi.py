@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pfElectronDQMAnalyzer = cms.EDAnalyzer("PFCandidateDQMAnalyzer",
-    InputCollection = cms.InputTag('PFlowElectrons'),
+    InputCollection = cms.InputTag('pfAllElectrons'),
     MatchCollection = cms.InputTag('gensource'),
     BenchmarkLabel  = cms.string('PFElectronValidation/PFElecVsGenElec'),
     deltaRMax = cms.double(0.2),

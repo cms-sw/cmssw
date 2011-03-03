@@ -6,8 +6,8 @@
 #include "DQMOffline/PFTau/interface/CandidateBenchmark.h"
 #include "DQMOffline/PFTau/interface/MatchCandidateBenchmark.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include <vector>
 class PFCandidateMonitor : public Benchmark {
@@ -43,7 +43,7 @@ class PFCandidateMonitor : public Benchmark {
 	    const C& matchedCandCollection, float& minVal, float& maxVal);
 
 
-  void fillOne(const reco::PFCandidate& cand);
+  void fillOne(const reco::Candidate& cand);
 
  protected:
   CandidateBenchmark      candBench_;
@@ -71,7 +71,7 @@ void PFCandidateMonitor::fill(const T& candCollection,
 	      matchCharge_, dRMax_ );
 
   for (unsigned int i = 0; i < (candCollection).size(); i++) {
-     const reco::PFCandidate& cand = candCollection[i];
+     const reco::Candidate& cand = candCollection[i];
 
     if( !isInRange(cand.pt(), cand.eta(), cand.phi() ) ) continue;
     
@@ -79,7 +79,7 @@ void PFCandidateMonitor::fill(const T& candCollection,
     assert(iMatch< static_cast<int>(matchedCandCollection.size()));
 
     if( iMatch!=-1 ) {
-      const reco::PFCandidate& matchedCand = matchedCandCollection[ iMatch ];
+      const reco::Candidate& matchedCand = matchedCandCollection[ iMatch ];
       if(!isInRange(matchedCand.pt(),matchedCand.eta(),matchedCand.phi() ) ) continue;
       float ptRes = (cand.pt() - matchedCand.pt())/matchedCand.pt();
       
