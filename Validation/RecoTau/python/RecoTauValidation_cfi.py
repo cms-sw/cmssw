@@ -468,6 +468,47 @@ plotTauValidation = cms.Sequence(
       +plotHPSEfficiencies
       )
 
+if options.eventType == 'QCD':
+   from Validation.RecoTau.ValidateTausOnQCD_cff import ValueMapTypeList
+
+   for name in ValueMapTypeList:
+      if name == 'DiJetHighPt':
+         plotTauValidation += plotSCEstimatedBGDiJetHighPt
+         plotTauValidation += plotSCLPEstimatedBGDiJetHighPt      
+      if name == 'DiJetSecondPt':
+         plotTauValidation += plotSCEstimatedBGDiJetSecondPt
+         plotTauValidation += plotSCLPEstimatedBGDiJetSecondPt
+      if name == 'MuEnrichedQCD':
+         plotTauValidation += plotSCEstimatedBGMuEnrichedQCD
+         plotTauValidation += plotSCLPEstimatedBGMuEnrichedQCD
+      if name == 'WJets':
+         plotTauValidation += plotSCEstimatedBGWJets
+         plotTauValidation += plotSCLPEstimatedBGWJets      
+
+      
+   
+if options.eventType == 'RealData':
+   from Validation.RecoTau.ValidateTausOnRealData_cff import ValueMapTypeList
+
+   for name in ValueMapTypeList:
+      if name == 'DiJetHighPt':
+         plotTauValidation += plotSCEstimatedBGDiJetHighPt
+         plotTauValidation += plotSCLPEstimatedBGDiJetHighPt      
+      if name == 'DiJetSecondPt':
+         plotTauValidation += plotSCEstimatedBGDiJetSecondPt
+         plotTauValidation += plotSCLPEstimatedBGDiJetSecondPt
+      if name == 'MuEnrichedQCD':
+         plotTauValidation += plotSCEstimatedBGMuEnrichedQCD
+         plotTauValidation += plotSCLPEstimatedBGMuEnrichedQCD
+      if name == 'WJets':
+         plotTauValidation += plotSCEstimatedBGWJets
+         plotTauValidation += plotSCLPEstimatedBGWJets      
+      
+   
+#if options.eventType == 'ZTT':      
+#   plotTauValidation += plotSCEstimatedEffZTT
+#   plotTauValidation += plotSCLPEstimatedEffZTT
+      
 
 loadAndPlotTauValidation = cms.Sequence(
       loadTau
