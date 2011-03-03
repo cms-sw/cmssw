@@ -51,6 +51,7 @@ bool HLTTrackerHaloFilter::filter(edm::Event& event, const edm::EventSetup& iSet
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
   if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  event.put(filterobject);
   
   // get hold of products from Event
   edm::Handle<edm::RefGetter<SiStripCluster> > refgetter;
