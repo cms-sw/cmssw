@@ -202,9 +202,17 @@ if options.batchNumber >= 0:
 outputFileNameBase += ".root"
 
 if options.gridJob:
-   outputFileName = outputFileNameBase
+   outputFileName = 'TauVal_GridJob.root'
 else:
    outputFileName = os.path.join(outputDir, outputFileNameBase)
+
+print 'The output file will be: '+outputFileName
+if options.gridJob:
+   cfg=open('./crab.cfg', 'r')
+   cfgContent=cfg.read()
+   if cfgContent.find(outputFileName) == -1:
+      print "ERROR: CRAB output file not matching the grid one!\nexiting..."
+      sys.exit()
 
 process.saveTauEff = cms.EDAnalyzer("DQMSimpleFileSaver",
   outputFileName = cms.string(outputFileName)
