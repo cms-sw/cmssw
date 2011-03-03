@@ -94,10 +94,10 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		QualityEnableME4b  = cms.uint32(65535),
 		QualityEnableME4c  = cms.uint32(65535),
 
-		firmwareSP = cms.uint32(20110118),
-		firmwareFA = cms.uint32(20090521),
-		firmwareDD = cms.uint32(20090521),
-		firmwareVM = cms.uint32(20090521),
+		firmwareSP = cms.uint32(20110204),
+		firmwareFA = cms.uint32(20091026),
+		firmwareDD = cms.uint32(20091026),
+		firmwareVM = cms.uint32(20091026),
 
                 isCoreVerbose = cms.bool(False),
                                    
