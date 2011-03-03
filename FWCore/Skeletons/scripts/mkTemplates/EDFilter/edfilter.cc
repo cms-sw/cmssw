@@ -39,11 +39,18 @@ class fltrname : public edm::EDFilter {
       explicit fltrname(const edm::ParameterSet&);
       ~fltrname();
 
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
+
    private:
       virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
+      virtual bool beginRun(Run&, EventSetup const&);
+      virtual bool endRun(Run&, EventSetup const&);
+      virtual bool beginLuminosityBlock(LuminosityBlock&, EventSetup const&);
+      virtual bool endLuminosityBlock(LuminosityBlock&, EventSetup const&);
+
       // ----------member data ---------------------------
 };
 
@@ -106,5 +113,42 @@ void
 fltrname::endJob() {
 }
 
+// ------------ method called when starting to processes a run  ------------
+bool 
+fltrname::beginRun(Run&, EventSetup const&)
+{ 
+  return true;
+}
+
+// ------------ method called when ending the processing of a run  ------------
+bool 
+fltrname::endRun(Run&, EventSetup const&)
+{
+  return true;
+}
+
+// ------------ method called when starting to processes a luminosity block  ------------
+bool 
+fltrname::beginLuminosityBlock(LuminosityBlock&, EventSetup const&)
+{
+  return true;
+}
+
+// ------------ method called when ending the processing of a luminosity block  ------------
+bool 
+fltrname::endLuminosityBlock(LuminosityBlock&, EventSetup const&)
+{
+  return true;
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void
+fltrname::fillDescriptions(ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(fltrname);
