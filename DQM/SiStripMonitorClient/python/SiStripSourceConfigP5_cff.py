@@ -9,6 +9,7 @@ SiStripMonitorDigi.TProfTotalNumberOfDigis.subdetswitchon = True
 SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 SiStripMonitorDigi.TProfTotalNumberOfDigisVsLS.subdetswitchon = True
 SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = True
+SiStripMonitorDigi.xLumiProf = 3
 
 # SiStripMonitorCluster ####
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
