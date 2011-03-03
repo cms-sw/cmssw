@@ -15,6 +15,6 @@ simEcalUnsuppressedDigis = cms.EDProducer( "EcalDigiProducer",
     ecal_cosmics_sim,
     ecal_sim_parameter_map,
     ecal_notCont_sim,
-    es_electronics_sim,
+    es_electronics_sim
 )
 

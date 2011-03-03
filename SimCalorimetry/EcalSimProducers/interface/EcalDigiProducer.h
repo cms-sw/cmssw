@@ -60,44 +60,53 @@ class EcalDigiProducer : public edm::EDProducer
 
       void checkCalibrations(const edm::EventSetup& eventSetup) ;
 
-      EBDigitizer*      m_APDDigitizer ;
-      EBDigitizer*      m_BarrelDigitizer ;
-      EEDigitizer*      m_EndcapDigitizer ;
-      ESDigitizer*      m_ESDigitizer ;
-      ESFastTDigitizer* m_ESDigitizerFast ;
 
-      const EcalSimParameterMap* m_ParameterMap ;
-      const APDShape             m_APDShape ;
-      const EBShape              m_EBShape ;
-      const EEShape              m_EEShape ;
-      ESShape*                   m_ESShape ;
+
+      const APDShape m_APDShape ;
+      const EBShape  m_EBShape  ;
+      const EEShape  m_EEShape  ;
+      ESShape        m_ESShape  ; // no const because gain must be set
+
+      const std::string m_EBdigiCollection ;
+      const std::string m_EEdigiCollection ;
+      const std::string m_ESdigiCollection ;
+      const std::string m_hitsProducerTag  ;
+
+      const bool m_apdSeparateDigi ;
+
+      const double m_EBs25notCont ;
+      const double m_EEs25notCont ;
+
+      const unsigned int         m_readoutFrameSize ;
+      const EcalSimParameterMap* m_ParameterMap  ;
+      const std::string          m_apdDigiTag    ;
+      const APDSimParameters*    m_apdParameters ;
 
       EBHitResponse*   m_APDResponse ;
       EBHitResponse*   m_EBResponse ;
       CaloHitRespoNew* m_EEResponse ;
       CaloHitResponse* m_ESResponse ;
 
-      EcalElectronicsSim*   m_ElectronicsSim ;
-      ESElectronicsSim*     m_ESElectronicsSim ;
+      const bool m_addESNoise ;
+
+      const bool m_doFastES   ;
+
+      ESElectronicsSim*     m_ESElectronicsSim     ;
+      ESDigitizer*          m_ESDigitizer          ;
       ESElectronicsSimFast* m_ESElectronicsSimFast ;
+      ESFastTDigitizer*     m_ESDigitizerFast      ;
+
+      EBDigitizer*          m_APDDigitizer ;
+      EBDigitizer*          m_BarrelDigitizer ;
+      EEDigitizer*          m_EndcapDigitizer ;
+
+      EcalElectronicsSim*   m_ElectronicsSim ;
       EcalCoder*            m_Coder ;
 
       EcalElectronicsSim*   m_APDElectronicsSim ;
       EcalCoder*            m_APDCoder ;
 
-      const CaloGeometry* m_Geometry ;
-
-      std::string m_EBdigiCollection ;
-      std::string m_EEdigiCollection ;
-      std::string m_ESdigiCollection ;
-
-      std::string m_hitsProducerTag ;
-
-      double m_EBs25notCont ;
-      double m_EEs25notCont ;
-      bool   m_doFast       ; 
-
-      APDSimParameters* m_apdParameters ;
+      const CaloGeometry*   m_Geometry ;
 
       CorrelatedNoisifier<EcalCorrMatrix>* m_EBCorrNoise[3] ;
       CorrelatedNoisifier<EcalCorrMatrix>* m_EECorrNoise[3] ;
