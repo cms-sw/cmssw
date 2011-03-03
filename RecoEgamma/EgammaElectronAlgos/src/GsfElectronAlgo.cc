@@ -1203,7 +1203,6 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
        e1 != eventData_->electrons->end() ;
        ++e1 )
      {
-      std::cout<<"ELE "<<*e1<<" with core "<<(&*((*e1)->core()))<<" and track "<<(&*((*e1)->gsfTrack())) ;
       bool found = false ;
       const GsfPFRecTrackCollection * gsfPfRecTrackCollection = eventData_->gsfPfRecTracks.product() ;
       GsfPFRecTrackCollection::const_iterator gsfPfRecTrack ;
@@ -1219,7 +1218,6 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
            }
           else
            {
-            std::cout<<" MATCHES pf track "<<(&*gsfPfRecTrack) ;
             found = true ;
             const std::vector<reco::GsfPFRecTrackRef> & duplicates(gsfPfRecTrack->convBremGsfPFRecTrackRef()) ;
             std::vector<reco::GsfPFRecTrackRef>::const_iterator duplicate ;
@@ -1228,7 +1226,6 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
            }
          }
        }
-      std::cout<<std::endl ;
      }
    }
   // or search overlapping clusters
@@ -1239,8 +1236,6 @@ void GsfElectronAlgo::setAmbiguityData( bool ignoreNotPreselected )
        e1 != eventData_->electrons->end() ;
        ++e1 )
      {
-      std::cout<<"ELE "<<*e1<<" with core "<<(&*((*e1)->core()))<<" and track "<<(&*((*e1)->gsfTrack()))<<std::endl ;
-
       if ((*e1)->ambiguous()) continue ;
       if ( ignoreNotPreselected && !isPreselected(*e1) ) continue ;
 

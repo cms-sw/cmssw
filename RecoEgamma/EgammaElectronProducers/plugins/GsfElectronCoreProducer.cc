@@ -93,7 +93,6 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
 void GsfElectronCoreProducer::produceTrackerDrivenCore( const GsfTrackRef & gsfTrackRef, GsfElectronCoreCollection * electrons )
  {
   GsfElectronCore * eleCore = new GsfElectronCore(gsfTrackRef) ;
-
   if (eleCore->ecalDrivenSeed())
    { delete eleCore ; return ; }
 
@@ -103,7 +102,9 @@ void GsfElectronCoreProducer::produceTrackerDrivenCore( const GsfTrackRef & gsfT
   if (eleCore->superCluster().isNull())
    { LogDebug("GsfElectronCoreProducer")<<"GsfTrack with no associated SuperCluster at all." ; }
   else
-   { electrons->push_back(*eleCore) ; }
+   {
+    electrons->push_back(*eleCore) ;
+   }
   delete eleCore ;
  }
 
