@@ -573,14 +573,15 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     if(sum_track_pt>(2+ 0.001* photonMomentum.pt()))
       continue;//THIS SC is not a Photon it fails track Isolation
 
-    
+    /*
     std::cout<<" Created Photon with energy = "<<photonEnergy_<<std::endl;
     std::cout<<"                         pT = "<<photonMomentum.pt()<<std::endl;
     std::cout<<"                     RawEne = "<<RawEcalEne<<std::endl;
     std::cout<<"                          E = "<<photonMomentum.e()<<std::endl;
     std::cout<<"                        eta = "<<photonMomentum.eta()<<std::endl;
     std::cout<<"             TrackIsolation = "<< sum_track_pt <<std::endl;
-    
+    */
+
     reco::PFCandidate photonCand(0,photonMomentum, reco::PFCandidate::gamma);
     
     photonCand.setPs1Energy(ps1TotEne);
