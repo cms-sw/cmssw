@@ -38,6 +38,7 @@
 
 #include <RooStats/HLFactory.h>
 #include <RooStats/RooStatsUtils.h>
+#include <RooStats/ModelConfig.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -79,6 +80,7 @@ Combine::Combine() :
         ("hintStatOnly", "Ignore systematics when computing the hint")
         ("saveWorkspace", "Save workspace to output root file")
         ("toysNoSystematics", "Generate all toys with the central value of the nuisance parameters, without fluctuating them")
+        ("workspaceName,w", po::value<std::string>(&workspaceName_)->default_value("w"), "Workspace name, when reading it from or writing it to a rootfile.")
     ;
 }
 
@@ -178,9 +180,37 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   std::auto_ptr<RooStats::HLFactory> hlf(0);
   if (isBinary) {
     TFile *fIn = TFile::Open(fileToLoad);
-    w = dynamic_cast<RooWorkspace *>(fIn->Get("w"));
-    if (w == 0) {  std::cerr << "Could not find workspace 'w' in file " << fileToLoad << std::endl; fIn->ls(); return; }
-    w = dynamic_cast<RooWorkspace *>(w->Clone());
+    w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
+    if (w == 0) {  std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); return; }
+    RooStats::ModelConfig *mc = dynamic_cast<RooStats::ModelConfig *>(w->genobj("ModelConfig"));
+    if (mc != 0) {
+        if (verbose > 1) { std::cout << "Workspace has a ModelConfig called 'ModelConfig', with contents:\n"; mc->Print("V"); }
+        const RooArgSet *mc_observables = mc->GetObservables();
+        if (mc_observables != 0 && mc_observables->GetName() != std::string("observables")) {
+            w->defineSet("observables", *mc_observables);
+            if (verbose > 1) std::cout << "Importing " << mc_observables->GetName() << " -> observables" << std::endl;
+        }
+        const RooArgSet *mc_nuisances = mc->GetNuisanceParameters();
+        if (mc_nuisances != 0 && mc_nuisances->GetName() != std::string("nuisances")) {
+            w->defineSet("nuisances", *mc_nuisances);
+            if (verbose > 1) std::cout << "Importing " << mc_nuisances->GetName() << " -> nuisances" << std::endl;
+        }
+        const RooArgSet *mc_POI = mc->GetParametersOfInterest();
+        if (mc_POI != 0 && mc_POI->GetName() != std::string("POI")) {
+            w->defineSet("POI", *mc_POI);
+            if (verbose > 1) std::cout << "Importing " << mc_POI->GetName() << " -> POI" << std::endl;
+        }
+        RooAbsPdf *mc_model_s = mc->GetPdf();
+        if (mc_model_s != 0 && mc_model_s->GetName() != std::string("model_s")) {
+            RooAbsPdf *model_s = (RooAbsPdf *) mc_model_s->Clone("model_s");
+            w->import(*model_s);
+            if (verbose > 1) std::cout << "Importing " << mc_model_s->GetName() << " -> model_s" << std::endl;
+            w->factory("_zero_[0];");
+            w->factory("EDIT::model_b(model_s, r=_zero_)");
+            if (verbose > 1) std::cout << "Importing " << mc_model_s->GetName() << "[r=0] -> model_b" << std::endl;
+        }
+        if (verbose > 2) w->Print("V");
+    }
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
     gSystem->cd(pwd);
@@ -267,7 +297,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   w->saveSnapshot("clean", w->allVars());
 
   if (saveWorkspace_) {
-    outputFile->WriteTObject(w,"w");
+    w->SetName(workspaceName_.c_str());
+    outputFile->WriteTObject(w,workspaceName_.c_str());
   }
 
   if (nToys <= 0) { // observed or asimov

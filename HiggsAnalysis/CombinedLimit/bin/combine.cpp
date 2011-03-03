@@ -29,6 +29,7 @@
 //#include "higgsCombine_Common.cxx"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include <TString.h>
+#include <TSystem.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <RooRandom.h>
@@ -59,6 +60,8 @@ int main(int argc, char **argv) {
   int runToys;
   int    seed;
   string toysFile;
+
+  vector<string> librariesToLoad;
 
   Combine combiner;
 
@@ -91,6 +94,7 @@ int main(int argc, char **argv) {
     ("saveToys,w", "Save results of toy MC")
     ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "Toy MC input file")
     ("igpMem", "Setup support for memory profiling using IgProf")
+    ("LoadLibrary,L", po::value<vector<string> >(&librariesToLoad), "Load library through gSystem->Load(...). Can specify multiple libraries using this option multiple times")
     ;
   desc.add(combiner.options());
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
@@ -131,6 +135,11 @@ int main(int argc, char **argv) {
     cout << "Usage: combine [options]\n";
     cout << desc;
     return 1002;
+  }
+
+
+  for (vector<string>::const_iterator lib = librariesToLoad.begin(), endlib = librariesToLoad.end(); lib != endlib; ++lib) {
+    gSystem->Load(lib->c_str());
   }
 
   try {
