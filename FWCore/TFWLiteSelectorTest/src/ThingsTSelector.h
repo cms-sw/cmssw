@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: ThingsTSelector.h,v 1.2 2006/07/07 15:55:38 chrjones Exp $
+ * $Id: ThingsTSelector.h,v 1.1 2006/08/02 22:52:54 wmtan Exp $
  */
 #include <TH1.h>
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
@@ -28,6 +28,8 @@ private:
 
   ThingsTSelector(ThingsTSelector const&);
   ThingsTSelector operator=(ThingsTSelector const&);
+  
+  ClassDef(ThingsTSelector,2)
 };
 }
 #endif

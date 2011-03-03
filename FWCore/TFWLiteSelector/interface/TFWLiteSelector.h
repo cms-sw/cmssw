@@ -86,6 +86,7 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
       
       // ---------- member data --------------------------------
       boost::shared_ptr<TWorker> worker_;
+      ClassDef(TFWLiteSelector,2)
 };
 
 #endif

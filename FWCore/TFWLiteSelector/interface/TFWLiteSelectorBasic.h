@@ -98,6 +98,8 @@ class TFWLiteSelectorBasic : public TSelector
       // ---------- member data --------------------------------
       boost::shared_ptr<edm::root::TFWLiteSelectorMembers> m_;
       bool everythingOK_;
+  
+  ClassDef(TFWLiteSelectorBasic,2)
 };
 
 
