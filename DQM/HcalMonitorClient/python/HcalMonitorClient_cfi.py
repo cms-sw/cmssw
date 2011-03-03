@@ -35,7 +35,7 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             # online running -- require only 1 event (offline will require more)
                             minevents            = cms.untracked.int32(250),
                             # minerrorrate         = cms.untracked.double(0.05),
-                            # BadChannelStatusMask = cms.untracked.int32(0),
+                            BadChannelStatusMask   = cms.untracked.int32(32770), # 32770 = 0x2+0x8000 = new dead cells mask, masked at rechit and trigger
 
                             # dead cell min events controlled by task in online running
                             DeadCell_minerrorrate = cms.untracked.double(0.05),

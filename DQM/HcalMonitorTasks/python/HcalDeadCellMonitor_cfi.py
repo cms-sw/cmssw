@@ -12,7 +12,7 @@ hcalDeadCellMonitor=cms.EDAnalyzer("HcalDeadCellMonitor",
                                    skipOutOfOrderLS       = cms.untracked.bool(True),
                                    NLumiBlocks            = cms.untracked.int32(4000),
                                    makeDiagnostics        = cms.untracked.bool(False),
-                                   BadChannelStatusMask   = cms.untracked.int32(32), # 32 = 0x20 = dead mask
+                                   BadChannelStatusMask   = cms.untracked.int32(32770), # 32770 = 0x2+0x8000 = new dead cells mask, masked at rechit and trigger
                                    # Dead Cell Monitor-specific Info
                                    
                                    # Input collections
