@@ -347,6 +347,7 @@ cat > efficiencyForConvertedPhotons <<EOF
   convEffVsZTwoTracks
   convEffVsEtTwoTracks
   convEffVsEtaTwoTracksAndVtxProbGT0
+  convEffVsRTwoTracksAndVtxProbGT0
 
 EOF
 
