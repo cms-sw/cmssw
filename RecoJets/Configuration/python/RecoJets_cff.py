@@ -35,6 +35,10 @@ gk7CaloJetsPUCorr           =gk7CaloJets.clone           (doPUOffsetCorr = doPil
 ca4CaloJetsPUCorr           =ca4CaloJets.clone           (doPUOffsetCorr = doPileup)
 ca6CaloJetsPUCorr           =ca6CaloJets.clone           (doPUOffsetCorr = doPileup)
 
+#compute areas for Fastjet PU subtraction  
+kt6CaloJets.doRhoFastjet = cms.bool(True)
+ak5CaloJets.doAreaFastjet = cms.bool(True)
+
 
 recoJets   =cms.Sequence(kt4CaloJets+kt6CaloJets+
                          iterativeCone5CaloJets+
