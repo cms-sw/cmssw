@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/GRun/V56 (CMSSW_3_11_0_HLT10)
+# /dev/CMSSW_3_11_1/GRun/V57 (CMSSW_3_11_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V56')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V57')
 )
 
 streams = cms.PSet( 
@@ -6672,6 +6672,7 @@ hltDoubleMu3BsL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MaxDzMuMu = cms.double( 999999.0 ),
+    MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
 hltPreDoubleMu0Jpsi = cms.EDFilter( "HLTPrescaler",
@@ -6698,6 +6699,7 @@ hltDoubleMu3JpsiL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MaxDzMuMu = cms.double( 999999.0 ),
+    MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
 hltPreDoubleMu0Quarkonium = cms.EDFilter( "HLTPrescaler",
@@ -6724,6 +6726,7 @@ hltDoubleMu3QuarkoniumL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MaxDzMuMu = cms.double( 999999.0 ),
+    MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
 hltPreDoubleMu4Excl = cms.EDFilter( "HLTPrescaler",
@@ -6788,6 +6791,7 @@ hltDoubleMu4ExclL3PreFiltered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
     MaxDzMuMu = cms.double( 999999.0 ),
+    MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
 hltPreTripleMu3 = cms.EDFilter( "HLTPrescaler",
