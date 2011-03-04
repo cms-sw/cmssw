@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet
 //         Created:  Thu Mar 13 12:00:56 CET 2008
-// $Id: CastorFastTowerProducer.cc,v 1.1 2009/03/27 21:59:06 hvanhaev Exp $
+// $Id: CastorFastTowerProducer.cc,v 1.2 2009/03/28 08:25:19 hvanhaev Exp $
 //
 //
 
@@ -40,7 +40,8 @@
 
 // Castorobject includes
 #include "DataFormats/CastorReco/interface/CastorTower.h"
-#include "DataFormats/CastorReco/interface/CastorCell.h"
+#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 
 // genCandidate particle includes
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -329,7 +330,7 @@ CastorFastTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	    
 	    
 	    //std::vector<CastorCell> usedCells;
-	    CastorCellRefVector refvector;
+	    edm::RefVector<edm::SortedCollection<CastorRecHit> > refvector;
 	    CastorTowers->push_back(reco::CastorTower(castorplus[0][j],pt2,castorplus[1][j],castorplus[2][j],fem,depth_mean,fhot_mean,refvector));	
 	}
    }
@@ -356,7 +357,7 @@ CastorFastTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	    
 	    
 	    //std::vector<CastorCell> usedCells;
-	    CastorCellRefVector refvector;
+	    edm::RefVector<edm::SortedCollection<CastorRecHit> > refvector;
 	    CastorTowers->push_back(reco::CastorTower(castormin[0][j],pt2,castormin[1][j],castormin[2][j],fem,depth_mean,fhot_mean,refvector));	
 	}
    }
