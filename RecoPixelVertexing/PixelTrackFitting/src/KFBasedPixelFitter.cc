@@ -35,9 +35,14 @@
 template <class T> inline T sqr( T t) {return t*t;}
 
 KFBasedPixelFitter::KFBasedPixelFitter( const edm::ParameterSet& cfg)
- :  theTTRHBuilderName(cfg.getParameter<std::string>("TTRHBuilder")), 
-    thePropagatorLabel(cfg.getParameter<std::string>("propagator"))
-    { }
+ :  
+    thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
+    thePropagatorOppositeLabel(cfg.getParameter<std::string>("propagatorOpposite")),
+    theUseBeamSpot(cfg.getParameter<bool>("useBeamSpotConstraint")),
+    theTTRHBuilderName(cfg.getParameter<std::string>("TTRHBuilder")) 
+{ 
+  if (theUseBeamSpot) theBeamSpot = cfg.getParameter<edm::InputTag>("beamSpotConstraint");
+}
 
 reco::Track* KFBasedPixelFitter::run(
     const edm::EventSetup& es,
@@ -57,7 +62,8 @@ reco::Track* KFBasedPixelFitter::run(
   es.get<TransientRecHitRecord>().get( theTTRHBuilderName, ttrhb);
 
   float ptMin = region.ptMin();
-  const GlobalPoint& vertexPos = region.origin();
+
+  const GlobalPoint vertexPos = region.origin();
   GlobalError vertexErr( sqr(region.originRBound()), 0, sqr(region.originRBound()), 0, 0, sqr(region.originZBound()));
 
   std::vector<GlobalPoint> points(nhits);
@@ -119,12 +125,28 @@ reco::Track* KFBasedPixelFitter::run(
   const TrackingRecHit* hit = 0;
   for ( unsigned int iHit = 0; iHit < hits.size(); iHit++) {
     hit = hits[iHit];
-    TrajectoryStateOnSurface state = (iHit==0) ?
-      propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
-      : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
+    if (iHit==0) updatedState = propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface());
+    TrajectoryStateOnSurface state = propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
+    if (!state.isValid()) return 0;
+//    TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
+    TransientTrackingRecHit::RecHitPointer recHit =  (ttrhb->build(hit));
+    updatedState =  updator.update(state, *recHit);
+    if (!updatedState.isValid()) return 0;
+  }
+
+
+  // get propagator
+  edm::ESHandle<Propagator>  opropagator;
+  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeLabel, opropagator);
+  updatedState.rescaleError(100000.);
+  for ( int iHit = 2; iHit >= 0; --iHit) {
+    hit = hits[iHit];
+    TrajectoryStateOnSurface state = 
+       opropagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
     if (!state.isValid()) return 0;
 
-    TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
+//    TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
+    TransientTrackingRecHit::RecHitPointer recHit = ttrhb->build(hit);
     updatedState =  updator.update(state, *recHit);
     if (!updatedState.isValid()) return 0;
   }
@@ -132,6 +154,8 @@ reco::Track* KFBasedPixelFitter::run(
   TrajectoryStateOnSurface  impactPointState =  
       TransverseImpactPointExtrapolator(&*field).extrapolate( updatedState, vertexPos);
   if (!impactPointState.isValid()) return 0;
+
+
 
   int ndof = 2*hits.size()-5;
   GlobalPoint vv = impactPointState.globalPosition();
@@ -143,5 +167,6 @@ reco::Track* KFBasedPixelFitter::run(
   reco::Track * track = new reco::Track( chi2, ndof, pos, mom,
         impactPointState.charge(), impactPointState.curvilinearError());
 
+  std::cout <<"TRACK CREATED" << std::endl;
   return track;
 }

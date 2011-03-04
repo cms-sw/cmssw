@@ -2,6 +2,7 @@
 #define KFBasedPixelFitter_H
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
 
 namespace edm {class ParameterSet; class EventSetup;}
@@ -24,12 +25,12 @@ public:
       const TrackingRegion& region) const;
 private:
 
-  std::string theTTRHBuilderName;
   std::string thePropagatorLabel;
+  std::string thePropagatorOppositeLabel;
+  bool theUseBeamSpot; 
+  edm::InputTag theBeamSpot;
+  std::string theTTRHBuilderName;
   
-//  mutable const TrackerGeometry * theTracker;
-//  mutable const MagneticField * theField;
-//  mutable const TransientTrackingRecHitBuilder * theTTRecHitBuilder;
 
 };
 #endif
