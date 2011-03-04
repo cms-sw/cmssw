@@ -44,6 +44,7 @@ int main(int argc, char** argv){
     ("without-runsummary","exclude runsummary loading")
     ("without-hltconf","exclude hltconf loading")
     ("use-wbm","use wbmdb for trigger info")
+    ("collision-only","load collision/physics run only")
     ("novalidate","do not validate lumi data")
     ("dryrun","dryrun print parameter only")
     ("debug","switch on debug mode")
@@ -67,6 +68,7 @@ int main(int argc, char** argv){
   bool use_wbm=false;
   bool debug=false;
   bool novalidate=false;
+  bool collision_only=false;
   bool dryrun=false;
   boost::program_options::variables_map vm;
   try{
@@ -137,10 +139,13 @@ int main(int argc, char** argv){
     if(vm.count("novalidate") ){
       novalidate=true;
     }
+    if(vm.count("collision-only") ){
+       collision_only=true;
+    }
     if(vm.count("dryrun") ){
       dryrun=true;
     }
-    if(vm.count("debug")){
+    if(vm.count("debug") ){
       debug=true;
     }
     if(!without_lumi && lumipath.size()==0){
@@ -177,6 +182,8 @@ int main(int argc, char** argv){
     std::cout<<"using wbm as trigger source? "<<answer<<std::endl;    
     (novalidate)?(answer=std::string("No")):(answer=std::string("Yes"));
     std::cout<<"validate data? "<<answer<<std::endl;
+    (collision_only)?(answer=std::string("Yes")):(answer=std::string("No"));
+    std::cout<<"collision only ? "<<answer<<std::endl;
     (dryrun)?(answer=std::string("Yes")):(answer=std::string("No"));
     std::cout<<"dryrun? "<<answer<<std::endl;
   }
@@ -186,6 +193,37 @@ int main(int argc, char** argv){
   time_t t1,t2;
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
+  std::cout<<"=========="<<std::endl;
+  if(!without_runsummary){
+     std::cout<<"Loading runsummary from "<<runinfodb<<" to "<<destconnect <<" run "<<runnumber<<std::endl;
+     try{
+	std::auto_ptr<lumi::DataPipe> runptr(lumi::DataPipeFactory::get()->create("CMSRunSummary2DB",destconnect));
+	runptr->setSource(runinfodb);
+	runptr->setAuthPath(authpath);
+	if(!collision_only){
+	   runptr->setNoValidate();
+	}
+	startClock=clock();
+	time(&t1);
+	runptr->retrieveData(runnumber);
+	time(&t2);
+	endClock=clock();
+	runptr.release();
+     }catch(const lumi::invalidDataException& er){   
+	std::cout<<"\t [ERROR], run is not collision run, stop loading immediately";
+	std::cout<<"\t"<<er.what()<<std::endl;	
+	return 1;
+     }catch(const coral::Exception& er){
+	std::cout<<"\t Database error "<<er.what()<<std::endl;
+	throw;
+     }catch(...){
+	std::cout<<"\tproblem in loading runsummary "<<runnumber<<" SKIP "<<std::endl;
+	throw;
+     }
+     printf("\tElaspsed time %fs\n",difftime(t2,t1));
+     elapsedTime=((double) (endClock - startClock)) / CLOCKS_PER_SEC;
+     std::cout<<"\tCPU Time taken in seconds : "<<elapsedTime<<std::endl;
+  }
   if(!without_lumi){
     std::cout<<"Loading lumi from "<<lumipath<<" to "<< destconnect <<" run "<<runnumber<<std::endl;
     try{
@@ -207,38 +245,15 @@ int main(int argc, char** argv){
       //	std::cout<<"\t [WARNING]lumi data for this run is not valid, load anyway\n";
       //	std::cout<<"\t"<<er.what()<<std::endl;
       //}else{
-      std::cout<<"\t [ERROR]lumi data for this run is not valid, stop loading";
+      std::cout<<"\t [ERROR]lumi data for this run is not valid, stop loading immediately";
       std::cout<<"\t"<<er.what()<<std::endl;
-      throw;
+      return 1;
       //}
     }catch(const coral::Exception& er){
       std::cout<<"\t Database error "<<er.what()<<std::endl;
       throw;
     }catch(...){
       std::cout<<"\tproblem in loading lumi  "<<runnumber<<" SKIP "<<std::endl;
-      throw;
-    }
-    printf("\tElaspsed time %fs\n",difftime(t2,t1));
-    elapsedTime=((double) (endClock - startClock)) / CLOCKS_PER_SEC;
-    std::cout<<"\tCPU Time taken in seconds : "<<elapsedTime<<std::endl;
-  }
-  if(!without_runsummary){
-    std::cout<<"Loading runsummary from "<<runinfodb<<" to "<<destconnect <<" run "<<runnumber<<std::endl;
-    try{
-      std::auto_ptr<lumi::DataPipe> runptr(lumi::DataPipeFactory::get()->create("CMSRunSummary2DB",destconnect));
-      runptr->setSource(runinfodb);
-      runptr->setAuthPath(authpath);
-      startClock=clock();
-      time(&t1);
-      runptr->retrieveData(runnumber);
-      time(&t2);
-      endClock=clock();
-      runptr.release();
-    }catch(const coral::Exception& er){
-      std::cout<<"\t Database error "<<er.what()<<std::endl;
-      throw;
-    }catch(...){
-      std::cout<<"\tproblem in loading runsummary "<<runnumber<<" SKIP "<<std::endl;
       throw;
     }
     printf("\tElaspsed time %fs\n",difftime(t2,t1));
