@@ -45,7 +45,7 @@ namespace lumi{
 	struct cmsrunsum{
 	      std::string l1key;
 	      std::string amodetag;	      
-	      std::string egev;
+	      int egev;
 	      std::string hltkey;
 	      std::string fillnumber; //convert to number when write into lumi
 	      std::string sequence;
@@ -78,7 +78,8 @@ namespace lumi{
       /**
 	 //select distinct name from runsession_parameter
 	 l1key: select string_value from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.TRG:TSC_KEY';
-	 amodetag: select distinct(string_value),session_id from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.SCAL:EGEV' 
+	 amodetag: select distinct(string_value),session_id from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.SCAL:AMODEtag' 
+	 egev: select distinct(string_value) from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.SCAL:EGEV'
 	 hltkey: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:HLT_KEY_DESCRIPTION';
 	 fillnumber: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.SCAL:FILLN' and rownum<=1;
 	 sequence: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:SEQ_NAME'
@@ -105,6 +106,7 @@ namespace lumi{
 	 if(!runinfoschemaHandle.existsTable(runsessionParamTable)){
 	    throw lumi::Exception(std::string("non-existing table "+runsessionParamTable),"CMSRunSummary2DB","retrieveData");
 	 }
+	 
 	 coral::IQuery* amodetagQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
 	 coral::AttributeList amodetagOutput;
 	 amodetagOutput.extend("amodetag",typeid(std::string));
@@ -124,6 +126,30 @@ namespace lumi{
 	    result.amodetag=row["amodetag"].data<std::string>();
 	 }
 	 delete amodetagQuery;
+	 
+	 coral::IQuery* egevQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
+	 coral::AttributeList egevOutput;
+	 egevOutput.extend("egev",typeid(std::string));
+	 coral::AttributeList egevCondition;
+	 egevCondition=coral::AttributeList();
+	 egevCondition.extend("name",typeid(std::string));
+	 egevCondition.extend("runnumber",typeid(unsigned int));
+	 egevCondition["name"].data<std::string>()=std::string("CMS.SCAL:EGEV");
+	 egevCondition["runnumber"].data<unsigned int>()=runnumber;
+	 egevQuery->addToOutputList("distinct(STRING_VALUE)");
+	 egevQuery->setCondition("NAME=:name AND RUNNUMBER=:runnumber",egevCondition);
+	 egevQuery->defineOutput(egevOutput);
+	 coral::ICursor& egevCursor=egevQuery->execute();
+	 result.egev=0;
+	 while (egevCursor.next()){
+	    const coral::AttributeList& row=egevCursor.currentRow();
+	    std::string egevstr=row["egev"].data<std::string>();
+	    int tmpgev=str2int(egevstr);
+	    if(tmpgev>result.egev){
+	       result.egev=tmpgev;
+	    }
+	 }
+	 delete egevQuery;
 
 	 coral::IQuery* seqQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
 	 coral::AttributeList seqBindVariableList;

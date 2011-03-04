@@ -483,7 +483,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   if(!hlxtree){
     throw lumi::Exception(std::string("non-existing HLXData "),"retrieveData","Lumi2DB");
   }
-  hlxtree->Print();
+  //hlxtree->Print();
   std::auto_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
   HCAL_HLX::LUMI_SECTION_HEADER* lumiheader = &(localSection->hdr);
   HCAL_HLX::LUMI_SUMMARY* lumisummary = &(localSection->lumiSummary);
@@ -494,7 +494,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   hlxtree->SetBranchAddress("Detail.",&lumidetail);
    
   size_t nentries=hlxtree->GetEntries();
-  source->GetListOfKeys()->Print();
+  //source->GetListOfKeys()->Print();
   std::map<unsigned int, Lumi2DB::beamData> dipmap;
   TTree *diptree= (TTree*)source->Get("DIPCombined");
   if(diptree){
@@ -505,20 +505,17 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     for(size_t i=0;i<ndipentries;++i){
       diptree->GetEntry(i);
       beamData b;
-      std::cout<<"Beam Mode : "<<dipdata->beamMode<<"\n";
-      std::cout<<"Beam Energy : "<<dipdata->Energy<<"\n";
-      std::cout<<"sectionUmber : "<<dipdata->sectionNumber<<"\n";
+      //std::cout<<"Beam Mode : "<<dipdata->beamMode<<"\n";
+      //std::cout<<"Beam Energy : "<<dipdata->Energy<<"\n";
+      //std::cout<<"sectionUmber : "<<dipdata->sectionNumber<<"\n";
       unsigned int dipls=dipdata->sectionNumber;
       if (std::string(dipdata->beamMode).empty()){
 	b.mode="N/A";
       }else{
 	b.mode=dipdata->beamMode;
       }
-      std::cout<<1<<std::endl;
       b.energy=dipdata->Energy;
-      std::cout<<2<<std::endl;
       this->retrieveBeamIntensity(dipdata.get(),b);
-      std::cout<<3<<std::endl;
       dipmap.insert(std::make_pair(dipls,b));
     }
   }else{
@@ -530,7 +527,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       dipmap.insert(std::make_pair(i,b));
     }
   }
-  diptree->Print();
+  //diptree->Print();
  
   size_t ncmslumi=0;
   std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
@@ -540,6 +537,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   //
   //hardcode the first LS is always alive
   //
+  float bgev=0.0;
   for(size_t i=0;i<nentries;++i){
     lumi::Lumi2DB::PerLumiData h;
     h.cmsalive=1;
@@ -595,6 +593,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       h.beamintensity_1=0;
       h.beamintensity_2=0;
     }
+    bgev+=h.beamenergy;
     h.startorbit=lumiheader->startOrbit;
     h.numorbit=lumiheader->numOrbits;
     if(h.cmsalive==0){
@@ -642,6 +641,10 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     lumiresult.push_back(h);
   }
   std::cout<<std::endl;
+  if(nentries!=0){
+     bgev=bgev/nentries;
+  }
+  std::cout<<"nominal energy "<<bgev<<std::endl;
   if( !m_novalidate && !isLumiDataValid(lumiresult.begin(),lumiresult.end()) ){
     throw lumi::invalidDataException("all lumi values are <0.5e-08","isLumiDataValid","Lumi2DB");
   }
@@ -658,7 +661,6 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     if(m_mode==std::string("beamintensity_only")){
       writeBeamIntensityOnly(session,runnumber,lversion,lumiresult.begin(),lumiresult.end());
     }else{
-       std::cout<<"about to write in db"<<std::endl;
        writeAllLumiData(session,runnumber,lversion,lumiresult.begin(),lumiresult.end());     
     }
     delete session;
