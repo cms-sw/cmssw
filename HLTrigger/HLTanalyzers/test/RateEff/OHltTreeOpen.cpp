@@ -6438,7 +6438,7 @@ void OHltTree::CheckOpenHlt(
 					       0.98, 1.,       // R9 barrel, R9 endcap
 					       0.01, 0.01,       // Deta barrel, Deta endcap 
 					       0.15, 0.10        // Dphi barrel, Dphi endcap
-					       )>=2)
+					       )>=1)
             {
                //OpenHlt1ElectronPassed(8.,0,9999.,9999.)>=2){ 
                triggerBit[it] = true;
