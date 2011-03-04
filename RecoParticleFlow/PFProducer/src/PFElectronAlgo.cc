@@ -14,6 +14,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
+#include "RecoParticleFlow/PFProducer/interface/GsfElectronEqual.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
@@ -2423,11 +2424,31 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 		temp_Candidate.addDaughter(theClusters[iclus]);
 	      }
 	  }
+
+	// By-pass the mva is the electron has been pre-selected 
+	bool bypassmva=false;
+	if(useEGElectrons_) {
+	  GsfElectronEqual myEqual(RefGSF);
+	  std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(theGsfElectrons_->begin(),theGsfElectrons_->end(),myEqual);
+	  if(itcheck!=theGsfElectrons_->end())
+	    bypassmva=true;
+	}
 	
-	if(BDToutput_[cgsf] >=  mvaEleCut_)
-	  elCandidate_.push_back(temp_Candidate);
+	bool mvaSelected = (BDToutput_[cgsf] >=  mvaEleCut_);
+	if( mvaSelected || bypassmva ) 	  {
+	    elCandidate_.push_back(temp_Candidate);
+	    itextra->setStatus(PFCandidateElectronExtra::Selected,true);
+	  }
+	else 	  {
+	  itextra->setStatus(PFCandidateElectronExtra::Rejected,true);
+	  }
 	allElCandidate_.push_back(temp_Candidate);
 	
+	// save the status information
+	itextra->setStatus(PFCandidateElectronExtra::ECALDrivenPreselected,bypassmva);
+	itextra->setStatus(PFCandidateElectronExtra::MVASelected,mvaSelected);
+	
+
       }
       else {
 	BDToutput_[cgsf] = -1.;   // if the momentum is < 0.5 ID = false, but not sure
