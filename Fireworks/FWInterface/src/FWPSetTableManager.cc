@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.11 2011/03/04 16:30:16 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.12 2011/03/04 18:53:10 amraktad Exp $
 //
 
 #include <map>
@@ -678,8 +678,8 @@ std::vector<unsigned int> FWPSetTableManager::maxWidthForColumns() const
    std::vector<unsigned int> ww = FWTableManagerBase::maxWidthForColumns();
    if (ww.size() > 1 && ww[1] > 0) 
    {
-      printf("dim W %d \n",ww[1]);
-      printf("dim H %d \n",cellHeight());
+      // printf("dim W %d \n",ww[1]);
+      // printf("dim H %d \n",cellHeight());
       if (m_editor)
          m_editor->MoveResize(m_editor->GetX(),m_editor->GetY(),  ww[1], cellHeight());
    }
