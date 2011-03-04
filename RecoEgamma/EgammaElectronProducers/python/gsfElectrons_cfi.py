@@ -153,7 +153,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
 
     # input collections
     previousGsfElectronsTag = cms.InputTag("ecalDrivenGsfElectrons"),
-    pflowGsfElectronsTag = cms.InputTag("pflowGsfElectrons"),
+    pflowGsfElectronsTag = cms.InputTag("pfElectronTranslator:pf"),
     gsfElectronCoresTag = cms.InputTag("gsfElectronCores"),
     hcalTowers = cms.InputTag("towerMaker"),
     reducedBarrelRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
