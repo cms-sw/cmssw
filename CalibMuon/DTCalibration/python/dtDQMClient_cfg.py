@@ -13,7 +13,7 @@ process.MessageLogger.destinations = cms.untracked.vstring('cerr')
 process.MessageLogger.categories.append('DTDQM')
 process.MessageLogger.categories.append('resolution')
 process.MessageLogger.cerr =  cms.untracked.PSet(
-    threshold = cms.untracked.string('DEBUG'),
+    threshold = cms.untracked.string('WARNING'),
     noLineBreaks = cms.untracked.bool(False),
     DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
     INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
@@ -52,7 +52,21 @@ process.qTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('CalibMuon/DTCalibration/data/QualityTests_ttrig.xml')
 )
 
-process.load("DQM.DTMonitorClient.dtResolutionTestFinalCalib_cfi")
+#process.load("DQM.DTMonitorClient.dtResolutionTestFinalCalib_cfi")
+process.load("DQM.DTMonitorClient.dtResolutionTest_cfi")
+process.resolutionTest.calibModule = True
+process.resolutionTest.histoTag2D = 'hResDistVsDist_STEP3'
+process.resolutionTest.histoTag  = 'hResDist_STEP3'
+process.resolutionTest.STEP = 'STEP3'
+process.resolutionTest.meanMaxLimit = 0.02
+process.resolutionTest.sigmaTest = True
+process.resolutionTest.slopeTest = False
+process.resolutionTest.meanWrongHisto = cms.untracked.bool(False)
+process.resolutionTest.sigmaWrongHisto = cms.untracked.bool(False)
+process.resolutionTest.readFile = cms.untracked.bool(False) 
+process.resolutionTest.OutputMEsInRootFile = cms.bool(False)
+#process.resolutionTest.inputFile = cms.untracked.string('')
+#process.resolutionTest.OutputFileName = cms.string('')
 
 workflowName = '/Mu/Calibration-v1/DQM'
 if config.dqmAtRunEnd:

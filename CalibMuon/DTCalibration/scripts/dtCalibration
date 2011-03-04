@@ -589,7 +589,7 @@ if __name__ == '__main__':
     parser = optparse.OptionParser(usage="usage: %prog arg1 arg2 [options]")
     parser.add_option("-r","--run", dest="run", help="set reference run number (typically first or last run in list)")
     parser.add_option("--runselection", dest="runselection", help="run list or range")
-    parser.add_option("--label", dest="label", help="label used in the naming of output directories")
+    parser.add_option("--label", dest="label", default="dtCalibration", help="label used in the naming of workflow output")
     parser.add_option("--trial", dest="trial", type="int", help="trial number used in the naming of output directories")
     parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
     parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (without the '::All' string)")
@@ -658,6 +658,10 @@ if __name__ == '__main__':
     if hasattr(input,'trial') and input.trial: trial = input.trial
     else: trial = 1
 
+    label = None
+    if hasattr(input,'label') and input.label: label = input.label
+    else: label = 'dtCalibration'
+
     if hasattr(input,'lumimask') and input.lumimask:
         if not os.path.exists(input.lumimask): parser.error('File "%s" does not exist' % input.lumimask)
  
@@ -665,6 +669,7 @@ if __name__ == '__main__':
     class config: pass
 
     config.trial = trial
+    config.label = label
     config.datasetpath = input.datasetpath
     config.runselection = runselection
     if hasattr(input,'inputVdriftDB') and input.inputVdriftDB: config.inputVdriftDB = os.path.abspath(input.inputVdriftDB)
