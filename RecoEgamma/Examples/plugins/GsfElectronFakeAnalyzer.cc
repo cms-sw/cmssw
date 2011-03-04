@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.cc,v 1.30 2010/09/21 17:06:15 chamont Exp $
+// $Id: GsfElectronFakeAnalyzer.cc,v 1.31 2010/10/19 17:34:56 wmtan Exp $
 //
 //
 
@@ -1569,7 +1569,7 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   h_ele_eta->Fill(std::abs(bestGsfElectron.eta()));
   if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(std::abs(bestGsfElectron.eta()));
   if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(std::abs(bestGsfElectron.eta()));
-  if (bestGsfElectron.classification() == GsfElectron::OLDNARROW) h_ele_eta_narrow ->Fill(std::abs(bestGsfElectron.eta()));
+  //if (bestGsfElectron.classification() == GsfElectron::OLDNARROW) h_ele_eta_narrow ->Fill(std::abs(bestGsfElectron.eta()));
   if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(std::abs(bestGsfElectron.eta()));
 
 	//fbrem

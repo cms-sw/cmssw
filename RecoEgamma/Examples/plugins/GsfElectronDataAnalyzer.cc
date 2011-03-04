@@ -14,7 +14,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.38 2010/09/21 17:06:15 chamont Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.39 2010/10/19 17:34:56 wmtan Exp $
 //
 //
 
@@ -1284,7 +1284,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   h_ele_eta->Fill(std::abs(gsfIter->eta()));
   if (gsfIter->classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(std::abs(gsfIter->eta()));
   if (gsfIter->classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(std::abs(gsfIter->eta()));
-  if (gsfIter->classification() == GsfElectron::OLDNARROW) h_ele_eta_narrow ->Fill(std::abs(gsfIter->eta()));
+  //if (gsfIter->classification() == GsfElectron::OLDNARROW) h_ele_eta_narrow ->Fill(std::abs(gsfIter->eta()));
   if (gsfIter->classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(std::abs(gsfIter->eta()));
 
 	//fbrem
@@ -1344,17 +1344,17 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    if (gsfIter->charge()*gsfIter2->charge()<0.) {
 	      h_ele_mee_os -> Fill(sqrt(mee2));
 	      if (gsfIter->isEB() && gsfIter2->isEB()) h_ele_mee_os_ebeb -> Fill(sqrt(mee2));
-	      if ((gsfIter->isEB() && gsfIter2->isEE()) || (gsfIter->isEE() && gsfIter2->isEB())) h_ele_mee_os_ebee -> Fill(sqrt(mee2));	
+	      if ((gsfIter->isEB() && gsfIter2->isEE()) || (gsfIter->isEE() && gsfIter2->isEB())) h_ele_mee_os_ebee -> Fill(sqrt(mee2));
 	      if (gsfIter->isEE() && gsfIter2->isEE()) h_ele_mee_os_eeee -> Fill(sqrt(mee2));
 	      if ((gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) ||
 		 (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::BIGBREM) ||
-		 (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::OLDNARROW) ||
+		 //(gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::OLDNARROW) ||
 		 (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::GOLDEN) ||
-		 (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::BIGBREM) ||
+		 (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::BIGBREM)/* ||
 		 (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::OLDNARROW) ||
 		 (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::GOLDEN) ||
 		 (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::BIGBREM) ||
-		 (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::OLDNARROW))
+		 (gsfIter->classification()==GsfElectron::OLDNARROW && gsfIter2->classification()==GsfElectron::OLDNARROW)*/)
 	       { h_ele_mee_os_gg -> Fill(sqrt(mee2));}
 	      else if (
 		 (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->classification()==GsfElectron::SHOWERING) ||
