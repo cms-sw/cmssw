@@ -312,7 +312,7 @@ lumi::Lumi2DB::writeAllLumiData(
     beamstatus = lumiIt->beammode;
 
     short nlivebx=lumiIt->nlivebx;
-    std::cout<<"nlivebx "<<nlivebx<<std::endl;
+    //std::cout<<"nlivebx "<<nlivebx<<std::endl;
     if(nlivebx!=0){
       bxindex.resize(sizeof(short)*nlivebx);
       beamintensity_1.resize(sizeof(float)*nlivebx);
@@ -429,40 +429,40 @@ lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result)const{
 
 void
 lumi::Lumi2DB::retrieveBeamIntensity(HCAL_HLX::DIP_COMBINED_DATA* dataPtr, Lumi2DB::beamData&b)const{
-  if(dataPtr==0){
-    std::cout<<"HCAL_HLX::DIP_COMBINED_DATA* dataPtr=0"<<std::endl;
-    b.bxindex=0;
-    b.beamintensity_1=0;
-    b.beamintensity_2=0;
-    b.nlivebx=0;
-  }else{
-    b.bxindex=(short*)::malloc(sizeof(short)*lumi::N_BX);
-    b.beamintensity_1=(float*)::malloc(sizeof(float)*lumi::N_BX);
-    b.beamintensity_2=(float*)::malloc(sizeof(float)*lumi::N_BX);
-    
-    short a=0;//a is position in lumidetail array
-    std::cout<<"a "<<a<<std::endl;
-    for(unsigned int i=0;i<lumi::N_BX;++i){
-       std::cout<<" i "<<i<<std::endl;
-      if(i==0 && (dataPtr->Beam[0].averageBunchIntensities[0]>0 || dataPtr->Beam[1].averageBunchIntensities[0]>0) ){
-	b.bxindex[a]=0;
-	b.beamintensity_1[a]=dataPtr->Beam[0].averageBunchIntensities[0];
-	b.beamintensity_2[a]=dataPtr->Beam[1].averageBunchIntensities[0];
-	++a;
-	continue;
+   if(dataPtr==0){
+      std::cout<<"HCAL_HLX::DIP_COMBINED_DATA* dataPtr=0"<<std::endl;
+      b.bxindex=0;
+      b.beamintensity_1=0;
+      b.beamintensity_2=0;
+      b.nlivebx=0;
+   }else{
+      b.bxindex=(short*)::malloc(sizeof(short)*lumi::N_BX);
+      b.beamintensity_1=(float*)::malloc(sizeof(float)*lumi::N_BX);
+      b.beamintensity_2=(float*)::malloc(sizeof(float)*lumi::N_BX);
+      
+      short a=0;//a is position in lumidetail array
+      for(unsigned int i=0;i<lumi::N_BX;++i){
+	 if( i==0 ){
+	    if(dataPtr->Beam[0].averageBunchIntensities[0]>0 || dataPtr->Beam[1].averageBunchIntensities[0]>0 ){
+	       b.bxindex[a]=0;
+	       b.beamintensity_1[a]=dataPtr->Beam[0].averageBunchIntensities[0];
+	       b.beamintensity_2[a]=dataPtr->Beam[1].averageBunchIntensities[0];
+	       ++a;
+	    }
+	    continue;
+	 }
+	 if(dataPtr->Beam[0].averageBunchIntensities[i-1]>0 || dataPtr->Beam[1].averageBunchIntensities[i-1]>0){
+	    b.bxindex[a]=i;
+	    b.beamintensity_1[a]=dataPtr->Beam[0].averageBunchIntensities[i-1];
+	    b.beamintensity_2[a]=dataPtr->Beam[1].averageBunchIntensities[i-1];
+	    ++a;
+	    //if(i!=0){
+	    // std::cout<<"beam intensity "<<dataPtr->sectionNumber<<" "<<dataPtr->timestamp-1262300400<<" "<<(i-1)*10+1<<" "<<b.beamintensity_1[a]<<" "<<b.beamintensity_2[a]<<std::endl;
+	    //}
+	 }
       }
-      if(dataPtr->Beam[0].averageBunchIntensities[i-1]>0 || dataPtr->Beam[1].averageBunchIntensities[i-1]>0){
-	b.bxindex[a]=i;
-	b.beamintensity_1[a]=dataPtr->Beam[0].averageBunchIntensities[i-1];
-	b.beamintensity_2[a]=dataPtr->Beam[1].averageBunchIntensities[i-1];
-	++a;
-	//if(i!=0){
-	//  std::cout<<"beam intensity "<<dataPtr->sectionNumber<<" "<<dataPtr->timestamp-1262300400<<" "<<(i-1)*10+1<<" "<<b.beamintensity_1[a]<<" "<<b.beamintensity_2[a]<<std::endl;
-	//}
-      }
-    }
-    b.nlivebx=a;
-  }
+      b.nlivebx=a;
+   }
 }
 void 
 lumi::Lumi2DB::retrieveData( unsigned int runnumber){
@@ -514,8 +514,11 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       }else{
 	b.mode=dipdata->beamMode;
       }
+      std::cout<<1<<std::endl;
       b.energy=dipdata->Energy;
+      std::cout<<2<<std::endl;
       this->retrieveBeamIntensity(dipdata.get(),b);
+      std::cout<<3<<std::endl;
       dipmap.insert(std::make_pair(dipls,b));
     }
   }else{
