@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet
 //         Created:  Thu Mar 13 12:00:56 CET 2008
-// $Id: CastorFastClusterProducer.cc,v 1.1 2008/11/30 15:57:20 beaudett Exp $
+// $Id: CastorFastClusterProducer.cc,v 1.1 2009/03/27 21:59:37 hvanhaev Exp $
 //
 //
 
@@ -40,7 +40,8 @@
 
 // Castorobject includes
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
-#include "DataFormats/CastorReco/interface/CastorCell.h"
+#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 
 // genCandidate particle includes
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -305,8 +306,7 @@ CastorFastClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	    cout << "computed depth/fhot" << endl;
 	    
 	    
-	    //std::vector<CastorCell> usedCells;
-	    CastorCellRefVector refvector;
+	    edm::RefVector<edm::SortedCollection<CastorRecHit> > refvector;
 	    CastorClusters->push_back(reco::CastorCluster(castorplus[0][j],pt2,castorplus[1][j],castorplus[2][j],fem,depth_mean,fhot_mean,refvector));	
 	}
    }
@@ -335,8 +335,7 @@ CastorFastClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	    fhot_mean = fhot_mean/sum_energy;
 	    
 	    
-	    //std::vector<CastorCell> usedCells;
-	    CastorCellRefVector refvector;
+	    edm::RefVector<edm::SortedCollection<CastorRecHit> > refvector;
 	    CastorClusters->push_back(reco::CastorCluster(castormin[0][j],pt2,castormin[1][j],castormin[2][j],fem,depth_mean,fhot_mean,refvector));	
 	}
    }

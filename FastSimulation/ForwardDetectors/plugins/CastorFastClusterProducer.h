@@ -3,7 +3,6 @@
 
 // Castorobject includes
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
-#include "DataFormats/CastorReco/interface/CastorCell.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
