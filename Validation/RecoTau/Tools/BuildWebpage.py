@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 from string import Template
 
@@ -40,7 +41,13 @@ cfgdump        = 'cfgDump.py'
 if not os.path.isfile(cfgdumplink):
    cfgdumplink = 'Config/cfgDump_0.py'
    cfgdump        = 'cfgDump_0.py (batch job)'
+if os.path.isfile('Config/crab.cfg') and not os.path.isfile(cfgdumplink):
+   cfgdumplink = 'Config/crab.cfg'
+   cfgdump     = 'crab.cfg (grid job)'
+else:
+   print 'Did you forget to copy the crab.cfg in Config/ ?'
 
+print cfgdumplink
 CheckFile(cfgdumplink)
 
 if title.find('fastsim') != -1:
