@@ -4044,98 +4044,94 @@ void OHltTree::CheckOpenHlt(
    // - CaloIsoVT not defined in WPv3?
    // - TrkIsoVT not defined in WPv3?
    // - mass condition?
-/*   else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v1") == 0)
-      // actually implemented:     OpenHLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoVT_SC8
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            if (OpenHlt1ElectronSamHarperPassed(
-                  17., 
-                  0, // ET, L1isolation  
-                  999.,
-                  999., // Track iso barrel, Track iso endcap  
-                  0.125,
-                  0.075, // Track/pT iso barrel, Track/pT iso endcap  
-                  0.125,
-                  0.075, // H/ET iso barrel, H/ET iso endcap  
-                  0.125,
-                  0.075, // E/ET iso barrel, E/ET iso endcap  
-                  0.05,
-                  0.05, // H/E barrel, H/E endcap  
-                  0.011,
-                  0.031, // cluster shape barrel, cluster shape endcap  
-                  0.98,
-                  1.0, // R9 barrel, R9 endcap  
-                  0.008,
-                  0.008, // Deta barrel, Deta endcap  
-                  0.07,
-                  0.05 // Dphi barrel, Dphi endcap  
-            ) >=1
-            && 
-            OpenHlt1PhotonSamHarperPassed(
-                  8., 
-                  0, // ET, L1isolation
-                  999.,
-                  999., // Track iso barrel, Track iso endcap
-                  999.,
-                  999., // Track/pT iso barrel, Track/pT iso endcap
-                  999.,
-                  999., // H iso barrel, H iso endcap
-                  999.,
-                  999., // E iso barrel, E iso endcap
-                  999.,
-                  999., // H/E barrel, H/E endcap
-                  999.,
-                  999., // cluster shape barrel, cluster shape endcap
-                  0.98,
-                  1.0, // R9 barrel, R9 endcap
-                  999.,
-                  999., // Deta barrel, Deta endcap
-                  999.,
-                  999. // Dphi barrel, Dphi endcap
-                  ) >= 2)
-            {
-               triggerBit[it] = true;
-            }
+   else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v1") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       std::vector<int> firstVector = VectorOpenHlt1ElectronSamHarperPassed(
+										    17., 
+										    0, // ET, L1isolation  
+										    999.,
+										    999., // Track iso barrel, Track iso endcap  
+										    0.125,
+										    0.075, // Track/pT iso barrel, Track/pT iso endcap  
+										    0.125,
+										    0.075, // H/ET iso barrel, H/ET iso endcap  
+										    0.125,
+										    0.075, // E/ET iso barrel, E/ET iso endcap  
+										    0.05,
+										    0.05, // H/E barrel, H/E endcap  
+										    0.011,
+										    0.031, // cluster shape barrel, cluster shape endcap  
+										    0.98,
+										    1.0, // R9 barrel, R9 endcap  
+										    0.008,
+										    0.008, // Deta barrel, Deta endcap  
+										    0.07,
+										    0.05 );// Dphi barrel, Dphi endcap  
+		 if (firstVector.size()>=1){
+		   std::vector<int> secondVector = VectorOpenHlt1PhotonSamHarperPassed(
+										       8., 
+										       0, // ET, L1isolation
+										       999.,
+										       999., // Track iso barrel, Track iso endcap
+										       999.,
+										       999., // Track/pT iso barrel, Track/pT iso endcap
+										       999.,
+										       999., // H iso barrel, H iso endcap
+										       999.,
+										       999., // E iso barrel, E iso endcap
+										       999.,
+										       999., // H/E barrel, H/E endcap
+										       999.,
+										       999., // cluster shape barrel, cluster shape endcap
+										       0.98,
+										       1.0, // R9 barrel, R9 endcap
+										       999.,
+										       999., // Deta barrel, Deta endcap
+										       999.,
+										       999.); // Dphi barrel, Dphi endcap
+		   if (secondVector.size()>=2){
 
 
-            // mass condition
-            TLorentzVector e1;
-            TLorentzVector e2;
-            TLorentzVector meson;
-            float mass = 0.;
-            for (unsigned int i=0; i<firstVector.size(); i++)
-            {
-               for (unsigned int j=0; j<secondVector.size() ; j++)
-               {
+		     // mass condition
+		     TLorentzVector ele;
+		     TLorentzVector pho;
+		     TLorentzVector sum;
+		     float mass = 0.;
+		     for (unsigned int i=0; i<firstVector.size(); i++)
+		       {
+			 for (unsigned int j=0; j<secondVector.size() ; j++)
+			   {
 
-                  if (firstVector[i] == secondVector[j])
-                     continue;
-                  e1.SetPtEtaPhiM(
-                        ohPhotEt[firstVector[i]],
-                        ohPhotEta[firstVector[i]],
-                        ohPhotPhi[firstVector[i]],
-                        0.);
-                  e2.SetPtEtaPhiM(
-                        ohPhotEt[secondVector[j]],
-                        ohPhotEta[secondVector[j]],
-                        ohPhotPhi[secondVector[j]],
-                        0.);
-                  meson = e1 + e2;
-                  mass = meson.M();
+			     //                  if (firstVector[i] == secondVector[j]) continue;
+			     ele.SetPtEtaPhiM(
+					     ohEleEt[firstVector[i]],
+					     ohEleEta[firstVector[i]],
+					     ohElePhi[firstVector[i]],
+					     0.);
+			     pho.SetPtEtaPhiM(
+					     ohPhotEt[secondVector[j]],
+					     ohPhotEta[secondVector[j]],
+					     ohPhotPhi[secondVector[j]],
+					     0.);
+			     sum = ele + pho;
+			     mass = sum.M();
 
-                  if (mass>30)
-                     triggerBit[it] = true;
+			     if (mass>30)
+			       triggerBit[it] = true;
 
-               }
-            }
+			   }
+		       }
 
-         }
-      }
-   }
-*/
+		   }
+		 }
+	     }
+	 }
+     }
+
    
    /* Photons */
    else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVL_v1") == 0)
@@ -8283,6 +8279,94 @@ int OHltTree::OpenHlt1PhotonSamHarperPassed(
                                        || (isendcap && ohPhotR9[i] < r9endcap))
                                  {
                                     rc++;
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   return rc;
+}
+
+vector<int> OHltTree::VectorOpenHlt1PhotonSamHarperPassed(
+      float Et,
+      int L1iso,
+      float Tisobarrel,
+      float Tisoendcap,
+      float Tisoratiobarrel,
+      float Tisoratioendcap,
+      float HisooverETbarrel,
+      float HisooverETendcap,
+      float EisooverETbarrel,
+      float EisooverETendcap,
+      float hoverebarrel,
+      float hovereendcap,
+      float clusshapebarrel,
+      float clusshapeendcap,
+      float r9barrel,
+      float r9endcap,
+      float detabarrel,
+      float detaendcap,
+      float dphibarrel,
+      float dphiendcap)
+{
+   float barreleta = 1.479;
+   float endcapeta = 2.65;
+
+   vector<int> rc;
+   // Loop over all oh electrons
+   for (int i=0; i<NohPhot; i++)
+   {
+      float ohPhotE = ohPhotEt[i] / (sin(2*atan(exp(-1.0*ohPhotEta[i]))));
+      float ohPhotHoverE = ohPhotHforHoverE[i]/ohPhotE;
+      int isbarrel = 0;
+      int isendcap = 0;
+      if (TMath::Abs(ohPhotEta[i]) < barreleta)
+         isbarrel = 1;
+      if (barreleta < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i])
+            < endcapeta)
+         isendcap = 1;
+
+      float quadraticEcalIsol = ohPhotEiso[i] + (0.012 * ohPhotEt[i]);
+      float quadraticHcalIsol = ohPhotHiso[i] + (0.005 * ohPhotEt[i]);
+      float quadraticTrackIsol = ohPhotTiso[i] + (0.002 * ohPhotEt[i]);
+
+      if (ohPhotEt[i] > Et)
+      {
+         if (TMath::Abs(ohPhotEta[i]) < endcapeta)
+         {
+            if (ohPhotL1iso[i] >= L1iso)
+            { // L1iso is 0 or 1 
+               if (ohPhotL1Dupl[i] == false)
+               { // remove double-counted L1 SCs 
+                  if ( (isbarrel && (quadraticHcalIsol < HisooverETbarrel))
+                        || (isendcap && (quadraticHcalIsol < HisooverETendcap)))
+                  {
+                     if ( (isbarrel && (quadraticEcalIsol < EisooverETbarrel))
+                           || (isendcap && (quadraticEcalIsol
+                                 < EisooverETendcap)))
+                     {
+                        if ( ((isbarrel) && (ohPhotHoverE < hoverebarrel))
+                              || ((isendcap) && (ohPhotHoverE < hovereendcap)))
+                        {
+                           if (((isbarrel) && (quadraticTrackIsol < Tisobarrel))
+                                 || ((isendcap) && (quadraticTrackIsol
+                                       < Tisoendcap)))
+                           {
+                              if ( (isbarrel && ohPhotClusShap[i]
+                                    < clusshapebarrel) || (isendcap
+                                    && ohPhotClusShap[i] < clusshapeendcap))
+                              {
+                                 if ( (isbarrel && ohPhotR9[i] < r9barrel)
+                                       || (isendcap && ohPhotR9[i] < r9endcap))
+                                 {
+				   rc.push_back(i);
                                  }
                               }
                            }
@@ -12650,6 +12734,125 @@ vector<int> OHltTree::VectorOpenHlt1PhotonPassed(
    return rc;
 }
 
+
+vector<int> OHltTree::VectorOpenHlt1ElectronSamHarperPassed(
+      float Et,
+      int L1iso,
+      float Tisobarrel,
+      float Tisoendcap,
+      float Tisoratiobarrel,
+      float Tisoratioendcap,
+      float HisooverETbarrel,
+      float HisooverETendcap,
+      float EisooverETbarrel,
+      float EisooverETendcap,
+      float hoverebarrel,
+      float hovereendcap,
+      float clusshapebarrel,
+      float clusshapeendcap,
+      float r9barrel,
+      float r9endcap,
+      float detabarrel,
+      float detaendcap,
+      float dphibarrel,
+      float dphiendcap)
+{
+   float barreleta = 1.479;
+   float endcapeta = 2.65;
+
+   vector<int> rc;
+  // Loop over all oh electrons
+   for (int i=0; i<NohEle; i++)
+   {
+      float ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
+      int isbarrel = 0;
+      int isendcap = 0;
+      if (TMath::Abs(ohEleEta[i]) < barreleta)
+         isbarrel = 1;
+      if (barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i])
+            < endcapeta)
+         isendcap = 1;
+
+      if (ohEleEt[i] > Et)
+      {
+         if (TMath::Abs(ohEleEta[i]) < endcapeta)
+         {
+            if (ohEleNewSC[i]<=1)
+            {
+               if (ohElePixelSeeds[i]>0)
+               {
+                  if (ohEleL1iso[i] >= L1iso)
+                  { // L1iso is 0 or 1 
+                     if (ohEleL1Dupl[i] == false)
+                     { // remove double-counted L1 SCs 
+                        if ( (isbarrel && ((ohEleHiso[i]/ohEleEt[i])
+                              < HisooverETbarrel))
+                              || (isendcap && ((ohEleHiso[i]/ohEleEt[i])
+                                    < HisooverETendcap)))
+                        {
+                           if ( (isbarrel && ((ohEleEiso[i]/ohEleEt[i])
+                                 < EisooverETbarrel)) || (isendcap
+                                 && ((ohEleEiso[i]/ohEleEt[i])
+                                       < EisooverETendcap)))
+                           {
+                              if ( ((isbarrel) && (ohEleHoverE < hoverebarrel))
+                                    || ((isendcap) && (ohEleHoverE
+                                          < hovereendcap)))
+                              {
+                                 if ( (isbarrel && (((ohEleTiso[i] < Tisobarrel
+                                       && ohEleTiso[i] != -999.) || (Tisobarrel
+                                       == 999.)))) || (isendcap
+                                       && (((ohEleTiso[i] < Tisoendcap
+                                             && ohEleTiso[i] != -999.)
+                                             || (Tisoendcap == 999.)))))
+                                 {
+                                    if (((isbarrel) && (ohEleTiso[i]/ohEleEt[i]
+                                          < Tisoratiobarrel)) || ((isendcap)
+                                          && (ohEleTiso[i]/ohEleEt[i]
+                                                < Tisoratioendcap)))
+                                    {
+                                       if ( (isbarrel && ohEleClusShap[i]
+                                             < clusshapebarrel) || (isendcap
+                                             && ohEleClusShap[i]
+                                                   < clusshapeendcap))
+                                       {
+                                          if ( (isbarrel && ohEleR9[i]
+                                                < r9barrel) || (isendcap
+                                                && ohEleR9[i] < r9endcap))
+                                          {
+                                             if ( (isbarrel
+                                                   && TMath::Abs(ohEleDeta[i])
+                                                         < detabarrel)
+                                                   || (isendcap
+                                                         && TMath::Abs(ohEleDeta[i])
+                                                               < detaendcap))
+                                             {
+                                                if ( (isbarrel && ohEleDphi[i]
+                                                      < dphibarrel)
+                                                      || (isendcap
+                                                            && ohEleDphi[i]
+                                                                  < dphiendcap))
+                                                {
+						  rc.push_back(i);
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   return rc;
+}
 
 vector<int> OHltTree::VectorOpenHlt1PhotonPassedR9ID(
       float Et,
