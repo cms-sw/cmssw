@@ -79,10 +79,33 @@ public:
    {      
       if (m_showEditor && m_editor)
       {
-         m_editor->MoveResize(iX-FWTabularWidget::kTextBuffer , iY-FWTabularWidget::kTextBuffer, width(), height() + 2*FWTabularWidget::kTextBuffer);
-         m_editor->SetCursorPosition( data().size());
-         gClient->NeedRedraw(m_editor);
-         return;
+         //  printf("renderer draw editor %d %d %d %d \n", iX, iY, m_editor->GetWidth(), m_editor->GetHeight());
+
+         // fill to cover buffer offset
+         static TGGC editGC(FWTextTableCellRenderer::getDefaultGC()); 
+         editGC.SetForeground(m_editor->GetBackground());
+         gVirtualX->FillRectangle(iID, editGC(), iX - FWTabularWidget::kTextBuffer, iY - FWTabularWidget::kTextBuffer,
+                                  iWidth + 2*FWTabularWidget::kTextBuffer, iHeight + 2*FWTabularWidget::kTextBuffer);
+
+         if ( iY > -2)
+         {
+            // redraw editor
+            if (!m_editor->IsMapped())
+            {
+               m_editor->MapWindow();
+               m_editor->SetFocus();
+            }
+            m_editor->MoveResize(iX , iY, m_editor->GetWidth(), m_editor->GetHeight());
+            m_editor->SetCursorPosition( data().size());
+            gClient->NeedRedraw(m_editor);
+       
+            return;
+         }
+         else
+         {
+            // hide editor if selected entry scrolled away
+            if (m_editor->IsMapped()) m_editor->UnmapWindow();
+         }
       }
 
       if (selected())
@@ -116,6 +139,7 @@ private:
    bool           m_showEditor;
    bool           m_isParent;
    bool           m_isOpen;
+   const TGGC*    m_editContext;
 };
 
 #endif

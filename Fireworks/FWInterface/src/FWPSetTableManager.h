@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:50 CET 2011
-// $Id: FWPSetTableManager.h,v 1.6 2011/03/02 19:05:22 amraktad Exp $
+// $Id: FWPSetTableManager.h,v 1.7 2011/03/04 16:30:16 amraktad Exp $
 //
 
 // system include files
@@ -103,6 +103,8 @@ public:
    virtual void implSort(int, bool);
 
    virtual void updateFilter(const char *filter);
+
+   virtual std::vector<unsigned int> maxWidthForColumns() const;
 
    std::vector<PSetData> &data()  { return m_entries; }
    std::vector<int> &rowToIndex() { return m_row_to_index; }

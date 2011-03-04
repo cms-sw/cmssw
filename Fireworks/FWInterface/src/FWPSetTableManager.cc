@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.10 2011/03/03 18:02:04 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.11 2011/03/04 16:30:16 amraktad Exp $
 //
 
 #include <map>
@@ -658,8 +658,8 @@ void FWPSetTableManager::setSelection (int iRow, int iColumn, int mask)
    {
       int unsortedRow =  m_row_to_index[iRow];
       const PSetData& data = m_entries[unsortedRow];
-      if (m_editor) {
-         m_editor->MoveResize(0, cellHeight()*iRow + 2,100 , cellHeight()+4);
+      if (m_editor && data.editable) {
+         m_editor->MoveResize(0, cellHeight()*iRow, m_editor->GetWidth() , m_editor->GetHeight());
          m_editor->MapWindow();
          m_editor->SetText(data.value.c_str());
          m_editor->SetFocus();
@@ -673,6 +673,19 @@ void FWPSetTableManager::setSelection (int iRow, int iColumn, int mask)
    visualPropertiesChanged();
 }
   
+std::vector<unsigned int> FWPSetTableManager::maxWidthForColumns() const 
+{
+   std::vector<unsigned int> ww = FWTableManagerBase::maxWidthForColumns();
+   if (ww.size() > 1 && ww[1] > 0) 
+   {
+      printf("dim W %d \n",ww[1]);
+      printf("dim H %d \n",cellHeight());
+      if (m_editor)
+         m_editor->MoveResize(m_editor->GetX(),m_editor->GetY(),  ww[1], cellHeight());
+   }
+   return ww;
+
+}
 
 void FWPSetTableManager::implSort(int, bool)
 {
