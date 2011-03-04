@@ -297,7 +297,7 @@ void PhotonsWithConversionsAnalyzer::analyze( const edm::Event& e, const edm::Ev
 
       for (unsigned int i=0; i<conversions.size(); i++) {
 	//std::cout << " Conversion candidate Energy " << (*iPho).energy() << " number of tracks " << conversions[i]->nTracks() << std::endl;
-        std::vector<reco::TrackRef> tracks = conversions[i]->tracks();
+        std::vector< edm::RefToBase<reco::Track> > tracks = conversions[i]->tracks();
 
 	for (unsigned int i=0; i<tracks.size(); i++) {
 
