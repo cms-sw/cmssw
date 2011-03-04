@@ -24,18 +24,18 @@ process.RECOSIMoutput.outputCommands = cms.untracked.vstring('drop *',
   'keep *_gsfElectrons_*_*'
 )
 
-#from Configuration.PyReleaseValidation.autoCond import autoCond
-#process.GlobalTag.globaltag = autoCond['mc']
-process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
+#process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
 
-process.pfElectronTranslator.MVACutBlock.MVACut = cms.double(-0.4)
-process.gsfElectrons.minMVA = cms.double(-0.4)
-process.gsfElectrons.minMVAPflow = cms.double(-0.4)
+#process.pfElectronTranslator.MVACutBlock.MVACut = cms.double(-0.4)
+#process.gsfElectrons.minMVA = cms.double(-0.4)
+#process.gsfElectrons.minMVAPflow = cms.double(-0.4)
 
-process.ecalDrivenGsfElectronCores.useGsfPfRecTracks = cms.bool(False)
-process.gsfElectronCores.useGsfPfRecTracks = cms.bool(False)
-process.ecalDrivenGsfElectrons.useGsfPfRecTracks = cms.bool(False)
-process.gsfElectrons.useGsfPfRecTracks = cms.bool(False)
+#process.ecalDrivenGsfElectronCores.useGsfPfRecTracks = cms.bool(False)
+#process.gsfElectronCores.useGsfPfRecTracks = cms.bool(False)
+#process.ecalDrivenGsfElectrons.useGsfPfRecTracks = cms.bool(False)
+#process.gsfElectrons.useGsfPfRecTracks = cms.bool(False)
 
 #process.particleFlow.useCalibrationsFromDB = cms.bool(False)
 
