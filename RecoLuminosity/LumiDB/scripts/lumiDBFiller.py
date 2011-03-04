@@ -49,9 +49,10 @@ def getRunsToBeUploaded(connectionString, dropbox, authpath=''):
     runsToBeAnalyzed = {}
     if lastRecordedRun != lastAnalyzedRunNumber:
         for file in files:
+            if len(file.split('_'))!=7: continue
             thisrun=getRunnumberFromFileName(file)
             #print 'this run ',thisrun
-            if  thisrun>lastAnalyzedRunNumber and isCollisionRun(thisrun,authpath): 
+            if  thisrun>lastAnalyzedRunNumber and isCollisionRun(str(thisrun),authpath): 
                     runsToBeAnalyzed[str(thisrun)] = file
     return runsToBeAnalyzed
 
