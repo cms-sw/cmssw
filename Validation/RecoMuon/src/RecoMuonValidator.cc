@@ -704,6 +704,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
      TrackRef Track = iMuon->track();
 
+     if (Track.isNonnull()) {
      commonME_->hMuonTrackP_->Fill(Track->p());
      commonME_->hMuonTrackPt_->Fill(Track->pt());
      commonME_->hMuonTrackEta_->Fill(Track->eta());
@@ -712,6 +713,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
           //ip histograms
      commonME_->hMuonTrackDxy_->Fill(Track->dxy());
      commonME_->hMuonTrackDz_->Fill(Track->dz());
+    }
 
     if (iMuon->isGlobalMuon()) {
           Track = iMuon->combinedMuon();
@@ -815,6 +817,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
         reco::TrackRef muonTrack = Mu->track();
 
+        if (muonTrack.isNonnull()) 
         muonME_->fill(&*simTP, &*muonTrack);
       }
     }
