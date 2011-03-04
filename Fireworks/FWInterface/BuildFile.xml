@@ -1,3 +1,6 @@
+
+<Flags CXXFLAGS="-g">
+
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Framework"/>
 <use name="DataFormats/Provenance"/>

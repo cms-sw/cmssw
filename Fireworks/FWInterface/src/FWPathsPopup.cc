@@ -75,31 +75,28 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
    m_tableWidget->Connect("cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)",
                           "FWPathsPopup",this,
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
-   // m_tableWidget->Connect("Clicked()", "FWPathsPopup", this, "applyEditor()");
-
+ 
    SetWindowName("CMSSW Configuration Editor");
    MapSubwindows();
    editor->UnmapWindow();
+
    Layout();
 }
 
-/** Handle pressing of esc.
-    FIXME: this still does not work if the cursor is on the editor widget.
+/** Handle pressing of esc. 
  */
 Bool_t
-FWPathsPopup::HandleEvent(Event_t*event)
+FWPathsPopup::HandleKey(Event_t*event)
 {
-   if (event->fType != (int) kGKeyPress)
-      return TGMainFrame::HandleEvent(event);
-
    UInt_t keysym = event->fCode;
 
    if (keysym == (UInt_t) gVirtualX->KeysymToKeycode(kKey_Escape))
    {
+      // called from FWPSetCellEditor
       m_psTable->cancelEditor();
       m_psTable->setSelection(-1, -1, 0);
    }
-   return TGMainFrame::HandleEvent(event);
+   return TGMainFrame::HandleKey(event);
 }
 
 /** Proxies the applyEditor() method in the model so that it can be connected to GUI, signals.

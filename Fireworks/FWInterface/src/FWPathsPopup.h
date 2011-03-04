@@ -39,7 +39,7 @@ public:
    void updateFilterString(const char *str);
    void windowIsClosing();
 
-   virtual Bool_t HandleEvent(Event_t* event);
+   virtual Bool_t HandleKey(Event_t* event);
 
 private:
    const edm::ScheduleInfo  *m_info;

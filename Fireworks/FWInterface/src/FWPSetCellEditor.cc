@@ -8,10 +8,11 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 20:44:59 CET 2011
-// $Id$
+// $Id: FWPSetCellEditor.cc,v 1.1 2011/02/28 20:37:39 amraktad Exp $
 //
 
-// system include files
+#include <sstream>
+#include "KeySymbols.h"
 
 // user include files
 #include "Fireworks/FWInterface/src/FWPSetCellEditor.h"
@@ -19,8 +20,6 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "FWCore/Utilities/interface/Parse.h"
-
-#include <sstream>
 
 //______________________________________________________________________________
 
@@ -290,4 +289,28 @@ bool FWPSetCellEditor::apply(FWPSetTableManager::PSetData &data, FWPSetTableMana
          return false;
    }
    return true;
+}
+
+//______________________________________________________________________________
+
+bool FWPSetCellEditor::HandleKey(Event_t*event)
+{
+   UInt_t keysym = event->fCode;
+
+   if (keysym == (UInt_t) gVirtualX->KeysymToKeycode(kKey_Escape))
+   {
+      TGFrame *p = dynamic_cast<TGFrame*>(const_cast<TGWindow*>(GetParent()));
+      while (p)
+      {
+         TGMainFrame *mp = dynamic_cast<TGMainFrame*>(p);
+         //   printf("editor find parent %p, %s, %p\n", p, p->ClassName(), mp);
+         if (mp)
+         {
+            return mp->HandleKey(event);
+         }
+         p = dynamic_cast<TGFrame*>(const_cast<TGWindow*>(p->GetParent()));
+      }
+   }
+
+   return TGTextEntry::HandleKey(event);
 }
