@@ -11,7 +11,7 @@ pfMETClient.FolderNames = cms.vstring("PFMETValidation/CompWithGenMET")
 pfMETClient.HistogramNames = cms.vstring( "delta_et_Over_et_VS_et_")
 
 pfElectronClient = pfClient.clone()
-pfElectronClient.FolderNames = cms.vstring("PFMElectronValidation/CompWithGenElectron")
+pfElectronClient.FolderNames = cms.vstring("PFElectronValidation/CompWithGenElectron")
 pfElectronClient.HistogramNames = cms.vstring( "delta_et_Over_et_VS_et_")
 pfElectronClient.CreateEfficiencyPlots = cms.bool(True)
 pfElectronClient.HistogramNamesForEfficiencyPlots = cms.vstring("pt_", "eta_", "phi_")

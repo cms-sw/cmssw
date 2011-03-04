@@ -37,11 +37,16 @@ process.EDM = cms.OutputModule("PoolOutputModule",
 #--------------------------------------------------
 # PFElectron Specific
 #--------------------------------------------------
+process.pfAllElectrons = cms.EDFilter("PdgIdPFCandidateSelector",
+                                 pdgId = cms.vint32(11, -11),
+                                 src = cms.InputTag("pfNoPileUp")
+)
+
 process.gensource = cms.EDProducer("GenParticlePruner",
               src = cms.InputTag("genParticles"),
               select = cms.vstring('drop *',
-                     ' keep pdgId = {e-}',
-                     'keep pdgId = {e+}')
+                     'keep pdgId = 11',
+                     'keep pdgId = -11')
 )
 process.pfNoPileUp = cms.EDProducer("TPPileUpPFCandidatesOnPFCandidates",
                                         bottomCollection = cms.InputTag("particleFlow"),
@@ -56,10 +61,6 @@ process.pfPileUp = cms.EDProducer("PFPileUp",
                                       verbose = cms.untracked.bool(False),
                                       Vertices = cms.InputTag("offlinePrimaryVertices")
 )
-process.pfAllElectrons = cms.EDFilter("PdgIdPFCandidateSelector",
-                                 pdgId = cms.vint32(11, -11),
-                                 src = cms.InputTag("pfNoPileUp")
-)
 process.pfElectronSequence = cms.Sequence(process.pfPileUp+process.pfNoPileUp+process.pfAllElectrons+process.gensource)
 #--------------------------------------------
 # PFDQM modules to book/fill actual histograms
@@ -70,6 +71,7 @@ process.load("Validation.RecoParticleFlow.PFElectronValidation_cff")
 
 
 process.p =cms.Path(
+    process.pfElectronSequence  +  
     process.pfJetValidationSequence +
     process.pfMETValidationSequence +
     process.pfElectronValidationSequence +    
@@ -81,6 +83,6 @@ process.outpath = cms.EndPath(process.EDM)
 # List File names here
 #---------------------------------------
 process.PoolSource.fileNames = [
-    '/store/relval/CMSSW_3_10_0/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/MC_310_V3_FastSim-v1/0051/04AEC6D1-C40E-E011-A6AD-002618943834.root'
+    '/store/relval/CMSSW_4_2_0_pre5/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_42_V3-v1/0008/AE8048D3-3C3C-E011-9696-00304867BFAE.root'
 ]
 
