@@ -99,6 +99,8 @@ public:
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IDNonIsoMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDIsoMap,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDNonIsoMap,
+      const edm::Handle<reco::SuperClusterCollection>        & electronHFClusterHandle, 
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & electronHFElectronHandle,  
       TTree* tree);
 
 private:
@@ -184,9 +186,9 @@ private:
   int *eleId, *elNLostHits;//eleId = RL  + 2*RT + 4*L +  4*T  //elNLostHits = conversion rejection  
   bool *elIsEcalDriven;  
   int *heleNewSC;
-  int nele, nphoton, nhltgam, nhltele;
+  int nele, nphoton, nhltgam, nhltele, nhlthfele, nhlthfeclus;
 
-
+  float *hhfelept, *hhfeleeta, *hhfclustere9e25, *hhfcluster2Dcut; 
 
 
   struct OpenHLTPhoton {

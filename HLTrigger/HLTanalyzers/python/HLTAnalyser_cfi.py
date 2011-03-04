@@ -67,6 +67,8 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HcalForHoverENonIsol            = cms.InputTag("hltL1NonIsolatedPhotonHcalForHE"),
     R9IDIsol                        = cms.InputTag("hltL1IsoR9ID"),
     R9IDNonIsol                     = cms.InputTag("hltL1NonIsoR9ID"),
+    HFElectrons                     = cms.InputTag("hltHFRecoEcalCandidate"),
+    HFECALClusters                  = cms.InputTag("hltHFEMClusters"),
                              
     ### egamma - standard or startup windows                         
     IsoElectrons                    = cms.InputTag("hltPixelMatchElectronsL1Iso"),

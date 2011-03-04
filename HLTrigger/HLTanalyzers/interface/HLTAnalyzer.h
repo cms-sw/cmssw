@@ -142,6 +142,8 @@ private:
   edm::InputTag IsoR9ID_;
   edm::InputTag IsoHoverEH_;
   edm::InputTag NonIsoHoverEH_; 
+  edm::InputTag HFECALClusters_; 
+  edm::InputTag HFElectrons_; 
 
   // AlCa OpenHLT input collections  
   edm::InputTag EERecHitTag_; 

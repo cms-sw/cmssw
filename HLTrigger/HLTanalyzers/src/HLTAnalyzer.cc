@@ -132,6 +132,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     NonIsoHoverEH_            = conf.getParameter<edm::InputTag> ("HcalForHoverENonIsol"); 
     IsoR9ID_                  = conf.getParameter<edm::InputTag> ("R9IDIsol");
     NonIsoR9ID_               = conf.getParameter<edm::InputTag> ("R9IDNonIsol");
+    HFECALClusters_           = conf.getParameter<edm::InputTag> ("HFECALClusters"); 
+    HFElectrons_              = conf.getParameter<edm::InputTag> ("HFElectrons"); 
 
     // AlCa OpenHLT input collections  
     EERecHitTag_              = conf.getParameter<edm::InputTag> ("EERecHits"); 
@@ -283,6 +285,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::RecoEcalCandidateIsolationMap>  HcalNonIsolMap;
     edm::Handle<reco::RecoEcalCandidateIsolationMap>  TrackIsolMap;
     edm::Handle<reco::RecoEcalCandidateIsolationMap>  TrackNonIsolMap;
+    edm::Handle<reco::SuperClusterCollection>         electronHFClusterHandle; 
+    edm::Handle<reco::RecoEcalCandidateCollection>    electronHFElectronHandle;  
     
     // AlCa OpenHLT input collections   
     edm::Handle<EBRecHitCollection>             ebrechits;  
@@ -426,6 +430,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, electronR9NonIsoHandle,   NonIsoR9_,                  kNonIsoR9);   
     getCollection( iEvent, missing, electronR9IDIsoHandle,    IsoR9ID_,                   kIsoR9ID);
     getCollection( iEvent, missing, electronR9IDNonIsoHandle, NonIsoR9ID_,                kNonIsoR9ID);
+    getCollection( iEvent, missing, electronHFClusterHandle,  HFECALClusters_,            kHFECALClusters); 
+    getCollection( iEvent, missing, electronHFElectronHandle, HFElectrons_,               kHFElectrons); 
     getCollection( iEvent, missing, eerechits,                EERecHitTag_,               kEErechits ); 
     getCollection( iEvent, missing, ebrechits,                EBRecHitTag_,               kEBrechits );  
     getCollection( iEvent, missing, pi0eerechits,             pi0EERecHitTag_,            kpi0EErechits );  
@@ -529,6 +535,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                           photonR9IDNonIsoHandle,
                           electronR9IDIsoHandle,
                           electronR9IDNonIsoHandle,
+			  electronHFClusterHandle,
+			  electronHFElectronHandle,
                           HltTree);
     
     mct_analysis_.analyze(

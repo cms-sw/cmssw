@@ -101,10 +101,17 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   helehovereh       = new float[kMaxhEle];
   heleR9ID          = new float[kMaxhEle];
 
-  nele      = 0;
-  nphoton   = 0;
-  nhltgam   = 0;
-  nhltele   = 0;
+  hhfelept         = new float[kMaxhEle];
+  hhfeleeta        = new float[kMaxhEle]; 
+  hhfclustere9e25  = new float[kMaxhEle]; 
+  hhfcluster2Dcut  = new float[kMaxhEle]; 
+
+  nele        = 0;
+  nphoton     = 0;
+  nhltgam     = 0;
+  nhltele     = 0;
+  nhlthfele   = 0;
+  nhlthfeclus = 0;
 
   // Egamma-specific branches of the tree
   HltTree->Branch("NrecoElec",          & nele,             "NrecoElec/I");
@@ -174,6 +181,13 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   HltTree->Branch("ohEleR9",            heleR9,             "ohEleR9[NohEle]/F");  
   HltTree->Branch("ohEleHforHoverE",    helehovereh,        "ohEleHforHoverE[NohEle]/F");    
   HltTree->Branch("ohEleR9ID",          heleR9ID,           "ohEleR9ID[NohEle]/F");
+  HltTree->Branch("NohHFEle",           &nhlthfele ,        "NohHFEle/I"); 
+  HltTree->Branch("ohHFElePt",          hhfelept,           "ohHFElePt[NohHFEle]/F");
+  HltTree->Branch("ohHFEleEta",         hhfeleeta,          "ohHFElePt[NohHFEle]/F");  
+  HltTree->Branch("NohHFECALClus",      &nhlthfeclus,       "NohHFECALClus/I"); 
+  HltTree->Branch("ohHFElee9e25",       hhfclustere9e25,    "ohHFElePt[NohHFECALClus]/F");  
+  HltTree->Branch("ohHFEle2Dcut",       hhfcluster2Dcut,    "ohHFElePt[NohHFECALClus]/F");  
+ 
 }
 
 void HLTEgamma::clear(void)
@@ -224,10 +238,18 @@ void HLTEgamma::clear(void)
   std::memset(heleDeta,         '\0', kMaxhEle  * sizeof(float));
   std::memset(heleDphi,         '\0', kMaxhEle  * sizeof(float));
 
+  std::memset(hhfelept,         '\0', kMaxhEle  * sizeof(float));
+  std::memset(hhfeleeta,        '\0', kMaxhEle  * sizeof(float));
+  std::memset(hhfclustere9e25,  '\0', kMaxhEle  * sizeof(float));
+  std::memset(hhfcluster2Dcut,  '\0', kMaxhEle  * sizeof(float));
+
+
   nele      = 0;
   nphoton   = 0;
   nhltgam   = 0;
   nhltele   = 0;
+  nhlthfele   = 0; 
+  nhlthfeclus = 0; 
 }
 
 /* **Analyze the event** */
@@ -263,6 +285,8 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
 			const edm::Handle<reco::RecoEcalCandidateIsolationMap> & photonR9IDNonIsoMap,
 			const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDIsoMap,
 			const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDNonIsoMap,
+			const edm::Handle<reco::SuperClusterCollection>        & electronHFECALClusters,  
+			const edm::Handle<reco::RecoEcalCandidateCollection>   & electronHFElectrons,   
                         TTree* HltTree)
 {
   // reset the tree variables
@@ -429,6 +453,23 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
     heleR9[u]         = theHLTElectrons[u].r9;  
     helehovereh[u]    = theHLTElectrons[u].hovereh;
     heleR9ID[u]       = theHLTElectrons[u].r9ID;
+  }
+
+  if(electronHFElectrons.isValid()) {
+    for (reco::RecoEcalCandidateCollection::const_iterator hfelecand = electronHFElectrons->begin(); 
+         hfelecand!= electronHFElectrons->end(); hfelecand++) { 
+      hhfelept[nhlthfele] = hfelecand->pt();
+      hhfeleeta[nhlthfele] = hfelecand->eta(); 
+      nhlthfele++;
+    }
+  }
+  if(electronHFECALClusters.isValid()) { 
+    for(reco::SuperClusterCollection::const_iterator hfeleclus = electronHFECALClusters->begin();
+	hfeleclus!= electronHFECALClusters->end(); hfeleclus++) {
+      hhfclustere9e25[nhlthfeclus] = -999.;
+      hhfcluster2Dcut[nhlthfeclus] = -999.;
+      nhlthfeclus++;
+    }
   }
 }
 
