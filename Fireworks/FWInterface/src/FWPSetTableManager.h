@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:50 CET 2011
-// $Id: FWPSetTableManager.h,v 1.5 2011/03/02 15:48:50 amraktad Exp $
+// $Id: FWPSetTableManager.h,v 1.6 2011/03/02 19:05:22 amraktad Exp $
 //
 
 // system include files
@@ -107,7 +107,6 @@ public:
    std::vector<PSetData> &data()  { return m_entries; }
    std::vector<int> &rowToIndex() { return m_row_to_index; }
   
-   sigc::signal<void,int,int> indexSelected_;
    //______________________________________________________________________________
 
 protected:
@@ -165,8 +164,6 @@ private:
    const FWPSetTableManager& operator=(const FWPSetTableManager&); // stop default
 
    void recalculateVisibility();
-   void reset();
-   void changeSelection(int iRow, int iColumn);
 
    template <class T> void createScalarString(PSetData &data, T v);
    template <typename T> void createVectorString(FWPSetTableManager::PSetData &data, const T &v, bool quotes);

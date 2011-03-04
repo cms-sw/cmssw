@@ -36,7 +36,6 @@ public:
    void setup(const edm::ScheduleInfo *info);
    void applyEditor();
    void cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
-   void newIndexSelected(int,int);
    void updateFilterString(const char *str);
    void windowIsClosing();
 

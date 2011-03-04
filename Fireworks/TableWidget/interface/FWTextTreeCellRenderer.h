@@ -10,6 +10,7 @@
 #include "TGTextEntry.h"
 #include "TGPicture.h"
 #include "TSystem.h"
+#include "TGClient.h"
 
 class FWTextTreeCellRenderer : public FWTextTableCellRenderer
 {
@@ -75,12 +76,12 @@ public:
    }
 
    virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
-   {
+   {      
       if (m_showEditor && m_editor)
       {
-         m_editor->MoveResize(iX-3, iY-3, iWidth + 6 , iHeight + 6);
-         m_editor->MapWindow();
-         m_editor->SetText(data().c_str());
+         m_editor->MoveResize(iX-FWTabularWidget::kTextBuffer , iY-FWTabularWidget::kTextBuffer, width(), height() + 2*FWTabularWidget::kTextBuffer);
+         m_editor->SetCursorPosition( data().size());
+         gClient->NeedRedraw(m_editor);
          return;
       }
 
@@ -88,13 +89,7 @@ public:
       {
          GContext_t c = highlightContext()->GetGC();
          gVirtualX->FillRectangle(iID, c, iX - FWTabularWidget::kTextBuffer, iY - FWTabularWidget::kTextBuffer,
-                               iWidth + 2*FWTabularWidget::kTextBuffer, iHeight + 2*FWTabularWidget::kTextBuffer);
-         /* 
-         gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY-1,iX-1,iY+iHeight);
-         gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX+iWidth,iY-1,iX+iWidth,iY+iHeight);
-         gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY-1,iX+iWidth,iY-1);
-         gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY+iHeight,iX+iWidth,iY+iHeight);
-         */
+                                  iWidth + 2*FWTabularWidget::kTextBuffer, iHeight + 2*FWTabularWidget::kTextBuffer);
       } 
       int xOffset = 0;
       if(m_isParent) {

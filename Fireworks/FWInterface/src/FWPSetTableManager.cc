@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.9 2011/03/02 19:05:22 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.10 2011/03/03 18:02:04 amraktad Exp $
 //
 
 #include <map>
@@ -98,7 +98,8 @@ FWPSetTableManager::FWPSetTableManager()
    m_renderer.setHighlightContext(hc);
 
    setGrowInWidth(false);
-   reset();
+   recalculateVisibility();
+   visualPropertiesChanged();
 }
 
 FWPSetTableManager::~FWPSetTableManager()
@@ -498,7 +499,7 @@ void FWPSetTableManager::updateSchedule(const edm::ScheduleInfo *info)
    m_filter = "";
 
    recalculateVisibility();
-}
+} //updateSchedule
 
 
 /** Update the status of a given path. This is the information 
@@ -545,6 +546,7 @@ void FWPSetTableManager::update(std::vector<PathUpdate> &pathUpdates)
 void FWPSetTableManager::setCellValueEditor(FWPSetCellEditor *editor)
 {
    m_editor = editor;
+   m_renderer.setCellEditor(m_editor);
 }
 
 
@@ -553,9 +555,10 @@ void FWPSetTableManager::cancelEditor()
 {
    if (!m_editor)
       return;
-         
-   m_editor->UnmapWindow(); 
-         
+     
+   //  printf("FWPSetTableManager::cancelEditor() \n");  
+   setSelection(-1, -1, 0);
+   m_editor->UnmapWindow();      
 }
 
  /** This is invoked every single time the
@@ -567,15 +570,11 @@ bool FWPSetTableManager::applyEditor()
    if (!m_editor)
       return false;
          
-   if (m_selectedRow == -1)
+   if (m_selectedRow == -1 ||m_selectedColumn != 1 )
       return false;
 
-   if (m_selectedColumn != 1)
-   {
-      m_editor->UnmapWindow();
-      return false;
-   }
          
+   //  printf("FWPSetTableManager::applyEditor() \n"); 
    PSetData &data = m_entries[m_row_to_index[m_selectedRow]];
    PSetData &parent = m_entries[data.parent];
    bool success = false;
@@ -586,10 +585,10 @@ bool FWPSetTableManager::applyEditor()
       {
          data.value = m_editor->GetText();
          m_modules[data.module].dirty = true;
+         setSelection(-1, -1, 0); 
          m_editor->UnmapWindow();
       }
    }
-   // catch(/*cms::Exception*/ std::exception &e)
    catch(cms::Exception &e)
    {
       m_editor->SetForegroundColor(gVirtualX->GetPixel(kRed));
@@ -603,31 +602,17 @@ bool FWPSetTableManager::applyEditor()
 //========  TABLE UI MNG (virutals FWTableManagerBase virtuals, etc.)   =========
 //==============================================================================
 //==============================================================================
-
-int FWPSetTableManager::unsortedRowNumber(int unsorted) const
-{
-   return unsorted;
-}
-
-int FWPSetTableManager::numberOfRows() const {
-   return m_row_to_index.size();
-}
-
-int FWPSetTableManager::numberOfColumns() const {
-   return 2;
-}
-
-void FWPSetTableManager::setSelection (int row, int column, int mask) {
-   if(mask == 4) {
-      if( row == m_selectedRow) {
-         row = -1;
-      }
-   }
-   changeSelection(row, column);
-}
-
 const std::string FWPSetTableManager::title() const {
    return "Modules & their parameters";
+}
+
+std::vector<std::string> FWPSetTableManager::getTitles() const 
+{
+   std::vector<std::string> returnValue;
+   returnValue.reserve(numberOfColumns());
+   returnValue.push_back("Label");
+   returnValue.push_back("Value");
+   return returnValue;
 }
 
 int FWPSetTableManager::selectedRow() const {
@@ -642,30 +627,24 @@ bool FWPSetTableManager::rowIsSelected(int row) const
 {
    return m_selectedRow == row;
 }
+
+int FWPSetTableManager::unsortedRowNumber(int unsorted) const
+{
+   return unsorted;
+}
+
+int FWPSetTableManager::numberOfRows() const {
+   return m_row_to_index.size();
+}
+
+int FWPSetTableManager::numberOfColumns() const {
+   return 2;
+}
+
+void FWPSetTableManager::setSelection (int iRow, int iColumn, int mask) 
+{     
+   // printf("set selection %d %d mode %d\n", iRow, iColumn, mask);
   
-std::vector<std::string> FWPSetTableManager::getTitles() const 
-{
-   std::vector<std::string> returnValue;
-   returnValue.reserve(numberOfColumns());
-   returnValue.push_back("Label");
-   returnValue.push_back("Value");
-   return returnValue;
-}
-
-void FWPSetTableManager::implSort(int, bool)
-{
-}
-
-void FWPSetTableManager::reset() 
-{
-   changeSelection(-1, -1);
-   recalculateVisibility();
-   dataChanged();
-   visualPropertiesChanged();
-}
-
-void FWPSetTableManager::changeSelection(int iRow, int iColumn)
-{
    // Nothing changes if we clicked selected
    // twice the same cell.
    if (iRow == m_selectedRow && iColumn == m_selectedColumn)
@@ -675,11 +654,29 @@ void FWPSetTableManager::changeSelection(int iRow, int iColumn)
    // and notify observers.
    m_selectedRow = iRow;
    m_selectedColumn = iColumn;
-
-   indexSelected_(iRow, iColumn);
+   if (iColumn == 1 && iRow > 0 )
+   {
+      int unsortedRow =  m_row_to_index[iRow];
+      const PSetData& data = m_entries[unsortedRow];
+      if (m_editor) {
+         m_editor->MoveResize(0, cellHeight()*iRow + 2,100 , cellHeight()+4);
+         m_editor->MapWindow();
+         m_editor->SetText(data.value.c_str());
+         m_editor->SetFocus();
+         m_editor->SetCursorPosition(data.value.size()-1);
+      }
+   }
+   else
+   {
+      if (m_editor) m_editor->UnmapWindow();
+   }
    visualPropertiesChanged();
 }
+  
 
+void FWPSetTableManager::implSort(int, bool)
+{
+}
 //______________________________________________________________________________
 
 void FWPSetTableManager::setExpanded(int row)
@@ -812,15 +809,8 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
    
    // If we are rendering the selected cell,
    // we show the editor.
-   if (iCol == 1 && iSortedRowNumber == m_selectedRow && iCol == m_selectedColumn && value.size() < maxSize)
-   {
-      m_renderer.showEditor(data.editable);
-      m_renderer.setCellEditor(m_editor);
-   }
-   else
-   {
-      m_renderer.showEditor(false);
-   }
+   bool showEdit =  (iCol == 1 && iSortedRowNumber == m_selectedRow && iCol == m_selectedColumn && value.size() < maxSize);
+   m_renderer.showEditor(data.editable && showEdit);
 
    return &m_renderer;
 } // cellRender()

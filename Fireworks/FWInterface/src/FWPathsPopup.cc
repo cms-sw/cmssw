@@ -45,24 +45,24 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
      m_guiManager(guiManager)
 {
    gVirtualX->SelectInput(GetId(), kKeyPressMask | kKeyReleaseMask | kExposureMask |
-                                   kPointerMotionMask | kStructureNotifyMask | kFocusChangeMask |
-                                   kEnterWindowMask | kLeaveWindowMask);
-   m_psTable->indexSelected_.connect(boost::bind(&FWPathsPopup::newIndexSelected,this,_1,_2));
+                          kPointerMotionMask | kStructureNotifyMask | kFocusChangeMask |
+                          kEnterWindowMask | kLeaveWindowMask);
    this->Connect("CloseWindow()","FWPathsPopup",this,"windowIsClosing()");
 
    FWDialogBuilder builder(this);
    builder.indent(4)
-          .spaceDown(10)
-          .addLabel("Filter:").floatLeft(4).expand(false, false)
-          .addTextEntry("", &m_search).expand(true, false)
-          .spaceDown(10)
-          .addTable(m_psTable, &m_tableWidget).expand(true, true)
-          .addTextButton("Apply changes and reload", &m_apply);
+      .spaceDown(10)
+      .addLabel("Filter:").floatLeft(4).expand(false, false)
+      .addTextEntry("", &m_search).expand(true, false)
+      .spaceDown(10)
+      .addTable(m_psTable, &m_tableWidget).expand(true, true)
+      .addTextButton("Apply changes and reload", &m_apply);
 
    FWPSetCellEditor *editor = new  FWPSetCellEditor(m_tableWidget->body(), "");
    editor->SetBackgroundColor(gVirtualX->GetPixel(kYellow-7));
+   editor->SetFrameDrawn(false);
    m_psTable->setCellValueEditor(editor);
-   editor->Connect("ReturnPressed()", "FWPathsPopup", this, "applyEditor()");
+   m_psTable->m_editor->Connect("ReturnPressed()", "FWPathsPopup", this, "applyEditor()");
 
    m_apply->Connect("Clicked()", "FWPathsPopup", this, "scheduleReloadEvent()");
    m_apply->SetEnabled(false);
@@ -75,7 +75,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
    m_tableWidget->Connect("cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)",
                           "FWPathsPopup",this,
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
-   m_tableWidget->Connect("Clicked()", "FWPathsPopup", this, "applyEditor()");
+   // m_tableWidget->Connect("Clicked()", "FWPathsPopup", this, "applyEditor()");
 
    SetWindowName("CMSSW Configuration Editor");
    MapSubwindows();
@@ -108,7 +108,6 @@ void
 FWPathsPopup::applyEditor()
 {
    bool applied = m_psTable->applyEditor();
-   m_psTable->setSelection(-1, -1, 0);
    if (applied)
       m_apply->SetEnabled(true);
 }
@@ -125,10 +124,9 @@ FWPathsPopup::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMo
    if (iButton != kButton1)
       return;
    
-   if (iColumn == 0)
-   {
-      m_psTable->setExpanded(iRow);
 
+   if (iColumn == 0 || iColumn == 1)
+   {
       // Save and close the previous editor, if required.
       if (m_psTable->selectedColumn() == 1
           && m_psTable->selectedRow() != -1)
@@ -141,33 +139,10 @@ FWPathsPopup::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMo
       }
 
       m_psTable->setSelection(iRow, iColumn, iKeyMod);
-   }
-   else if (iColumn == 1)
-   {
-      // If we selected a new cell, save the previous, if required.
-      if (m_psTable->selectedColumn() == 1 
-          && m_psTable->selectedRow() != -1)
-      {
-         int oldIndex = m_psTable->rowToIndex()[m_psTable->selectedRow()];
-         FWPSetTableManager::PSetData& oldData = m_psTable->data()[oldIndex];
-         if (oldData.editable)
-            applyEditor();
-      }
-         
-      // Clear text on new row click
-      // FIXME: int index = m_psTable->rowToIndex()[iRow];
-      m_psTable->setSelection(iRow, iColumn, iKeyMod);
-   }
-}
 
-void
-FWPathsPopup::newIndexSelected(int iSelectedRow, int iSelectedColumn)
-{
-   if (iSelectedRow == -1)
-      return;
-
-   //   m_psTable->sortWithFilter(m_search->GetText()); AMT commeted out
-   m_psTable->dataChanged();
+      if (iColumn == 0)
+         m_psTable->setExpanded(iRow);
+   }
 }
 
 void
