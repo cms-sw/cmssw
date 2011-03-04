@@ -42,6 +42,7 @@ void
 PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
   
+
   //create the empty collections 
   auto_ptr< reco::PFConversionCollection > 
     pfConversionColl (new reco::PFConversionCollection);
@@ -78,29 +79,39 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
       dummy = reco::Vertex(p, e, 0, 0, 0);   
     } 
   
+
   int idx = 0; //index of track in PFRecTrack collection 
   BlockMap trackmap; //Map of Collections and tracks  
   
   //Fill MAP OF ALL CONVERSIONS
-  for( uint icoll=0; icoll < convColl.size(); icoll++) //loop over Conversion collections (track pairs)
+  for( unsigned int icoll=0; icoll < convColl.size(); icoll++) //loop over Conversion collections (track pairs)
     {   
       std::vector<unsigned> track_container(0); 
       //take only high purity tracks in merged collection of Ecal-Seeded and general tracks
-      if (!( convColl[icoll].quality(reco::Conversion::arbitratedMergedEcalGeneral))||(!convColl[icoll].quality(reco::Conversion::highPurity))) continue;           
+      if (!( convColl[icoll].quality(reco::Conversion::arbitratedMergedEcalGeneral))||
+	  (!convColl[icoll].quality(reco::Conversion::highPurity))) continue;           
       std::vector<edm::RefToBase<reco::Track> > tracksRefColl = convColl[icoll].tracks();   
-      for(unsigned it = 0; it < tracksRefColl.size(); it++)track_container.push_back(it);	
+
+      for(unsigned it = 0; it < tracksRefColl.size(); it++)
+	track_container.push_back(it);	
+
       //Fill map of collection indices and track indices
       trackmap.insert(make_pair(icoll, track_container)); 
     }
   
+
   // CLEAN CONVERSION COLLECTION FOR DUPLICATES     
-  for( uint icoll=0; icoll < convColl.size(); icoll++) 
+  for( unsigned int icoll=0; icoll < convColl.size(); icoll++) 
     { 
-      if (( !convColl[icoll].quality(reco::Conversion::arbitratedMergedEcalGeneral)) || (!convColl[icoll].quality(reco::Conversion::highPurity))) continue;
+      if (( !convColl[icoll].quality(reco::Conversion::arbitratedMergedEcalGeneral)) || 
+	  (!convColl[icoll].quality(reco::Conversion::highPurity))) continue;
       
+
       std::vector<edm::RefToBase<reco::Track> > tracksRefColl = convColl[icoll].tracks();      
+
       for(unsigned it = 0; it < tracksRefColl.size(); it++)
 	{
+	  
 	  reco::TrackRef trackRef = (tracksRefColl[it]).castTo<reco::TrackRef>();	
 	  for(std::multimap< unsigned, std::vector<unsigned> >::iterator i=trackmap.begin(); i!=trackmap.end(); i++){
 	    for(unsigned int j=0; j<(i->second).size(); j++)
@@ -108,8 +119,11 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		//comparing Collection to itself
 		//if(i->first==icoll)continue; 
 		if(i->first==icoll && it==i->second[j])continue; 
-		uint check=i->second[j];
-		reco::TrackRef trackcheck = (tracksRefColl[check]).castTo<reco::TrackRef>();
+		
+		std::vector<edm::RefToBase<reco::Track> > tracksRefColl_Check = convColl[i->first].tracks();      
+		unsigned int check=i->second[j];
+		reco::TrackRef trackcheck = (tracksRefColl_Check[check]).castTo<reco::TrackRef>();
+
 		double like1=-999;
 		double like2=-999;
 		//number of shared hits
@@ -135,8 +149,10 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		if(frac>0.9)
 		  {
 		    //Calculate Chi^2/ndof Probability for each collection
-		    like1=ChiSquaredProbability(convColl[icoll].conversionVertex().chi2(), convColl[icoll].conversionVertex().ndof());
-		    like2=ChiSquaredProbability(convColl[i->first].conversionVertex().chi2(), convColl[i->first].conversionVertex().ndof());
+		    like1=ChiSquaredProbability(convColl[icoll].conversionVertex().chi2(), 
+						convColl[icoll].conversionVertex().ndof());
+		    like2=ChiSquaredProbability(convColl[i->first].conversionVertex().chi2(), 
+						convColl[i->first].conversionVertex().ndof());
 		    
 		    //delete collection with smaller Probability
 		    if(like1>like2)
@@ -145,12 +161,14 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 			//find iterator to collection
 			iter=trackmap.find(i->first);
 			//if found then delete
-			if(iter!=trackmap.end())trackmap.erase(iter->first);    	      	      }
+			if(iter!=trackmap.end())
+			  trackmap.erase(iter->first);    	      	      }
 		    else 
 		      { 
 			std::multimap< unsigned, std::vector<unsigned> >::iterator iter;
 			iter=trackmap.find(icoll);
-			if(iter!=trackmap.end())trackmap.erase(iter->first);
+			if(iter!=trackmap.end())
+			  trackmap.erase(iter->first);
 			
 		      }
 		  } //end if(frac>0.9)				
@@ -158,7 +176,7 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  } //end loop over collections in Map
 	} //end loop over tracks in collection
     }//end loop over collections
-  
+
   //Finally fill empty collections
   for(std::multimap< unsigned, std::vector<unsigned> >::iterator i=trackmap.begin(); i!=trackmap.end(); i++)//looping over Collections in map
     {
@@ -183,7 +201,9 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      //if extrapolation to ECAL is valid then calculate STIP
 	      if(atECAL.isValid())
 		{
-		  GlobalVector direction(pfRecTrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().x(),pfRecTrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().y(), pfRecTrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().z());
+		  GlobalVector direction(pfRecTrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().x(),
+					 pfRecTrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().y(), 
+					 pfRecTrack.extrapolatedPoint(reco::PFTrajectoryPoint::ECALEntrance).position().z());
 		  stip = IPTools::signedTransverseImpactParameter(thebuilder.build(*trackRef), direction, *pv).second.significance();
 		}
 	      pfRecTrack.setSTIP(stip);	    
@@ -195,6 +215,7 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
       reco::ConversionRef niRef(convCollH, i->first);
       pfConversionColl->push_back( reco::PFConversion( niRef, pfRecTkcoll ));
     }//end loop over collections
+
   iEvent.put(pfRecTrackColl);
   iEvent.put(pfConversionColl);  
 }
