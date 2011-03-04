@@ -75,6 +75,7 @@ class TH2Analyzer : public TObject {
   TH1D*      meanXslice_;
 
   //std::vector< TH1D* > parameters_; // if we are not fitting with a gauss function
+  ClassDef(TH2Analyzer, 1);
 
 };
 
