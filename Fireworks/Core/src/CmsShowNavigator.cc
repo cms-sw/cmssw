@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.105 2011/02/22 15:23:08 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.106 2011/02/24 10:02:24 eulisse Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -964,8 +964,12 @@ CmsShowNavigator::frameTitle()
       nf++;
    }
 
+   TString name = (*m_currentFile)->file()->GetName();
+   int l = name.Last('/');
+   if (l != kNPOS)
+      name.Remove(0, l+1);
 
-   return Form("%s [%d/%d], event [%d/%d]", (*m_currentFile)->file()->GetName(),
+   return Form("%s [%d/%d], event [%d/%d]", name.Data(),
                nf+1,  (int) m_files.size(),
                m_currentEvent+1, (*m_currentFile)->lastEvent()+1);
 }
