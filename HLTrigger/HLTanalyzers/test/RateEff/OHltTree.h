@@ -4855,6 +4855,29 @@ public:
          float dphibarrel,
          float dphiendcap);
    
+   std::vector<int> VectorOpenHlt1ElectronSamHarperPassed(
+      float Et,
+      int L1iso,
+      float Tisobarrel,
+      float Tisoendcap,
+      float Tisoratiobarrel,
+      float Tisoratioendcap,
+      float HisooverETbarrel,
+      float HisooverETendcap,
+      float EisooverETbarrel,
+      float EisooverETendcap,
+      float hoverebarrel,
+      float hovereendcap,
+      float clusshapebarrel,
+      float clusshapeendcap,
+      float r9barrel,
+      float r9endcap,
+      float detabarrel,
+      float detaendcap,
+      float dphibarrel,
+      float dphiendcap);
+
+
    int OpenHlt2ElectronsSamHarperPassed(
          float Et,
          int L1iso,
@@ -4986,6 +5009,28 @@ public:
          float dphibarrel,
          float dphiendcap);
    
+   std::vector<int> VectorOpenHlt1PhotonSamHarperPassed(
+         float Et,
+         int L1iso,
+         float Tisobarrel,
+         float Tisoendcap,
+         float Tisoratiobarrel,
+         float Tisoratioendcap,
+         float HisooverETbarrel,
+         float HisooverETendcap,
+         float EisooverETbarrel,
+         float EisooverETendcap,
+         float hoverebarrel,
+         float hovereendcap,
+         float clusshapebarrel,
+         float clusshapeendcap,
+         float r9barrel,
+         float r9endcap,
+         float detabarrel,
+         float detaendcap,
+         float dphibarrel,
+         float dphiendcap);
+
    int OpenHlt1PhotonPassedRA3(
          float Et,
          int L1iso,
