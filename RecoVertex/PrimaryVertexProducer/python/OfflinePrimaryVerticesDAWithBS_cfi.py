@@ -25,8 +25,10 @@ offlinePrimaryVerticesDA = cms.EDProducer("PrimaryVertexProducer",
         TkDAClusParameters = cms.PSet( 
             coolingFactor = cms.double(0.8),  #  rather slow annealing for now
             Tmin = cms.double(9.),            #  end of annealing
-            vertexSize = cms.double(0.05)     #  ~ resolution
-        )
+            vertexSize = cms.double(0.05),    #  ~ resolution
+            d0CutOff = cms.double(3.),        # downweight high IP tracks 
+            dzCutOff = cms.double(4.)         # outlier rejection after freeze-out
+            )
     )
 )
 
