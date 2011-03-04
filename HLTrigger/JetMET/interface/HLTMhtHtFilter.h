@@ -13,6 +13,7 @@ namespace edm {
    class ConfigurationDescriptions;
 }
 
+
 //
 // class declaration
 //
@@ -37,7 +38,7 @@ class HLTMhtHtFilter : public HLTFilter {
       double minPT12_;
       double minMeff_;
       double minHt_;
-      double minMht2Ht_;
+      double minAlphaT_;
 };
 
 #endif //HLTMhtHtFilter_h
