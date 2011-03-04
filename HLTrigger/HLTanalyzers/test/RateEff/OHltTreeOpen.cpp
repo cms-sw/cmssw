@@ -4083,12 +4083,12 @@ void OHltTree::CheckOpenHlt(
 										       999., // H iso barrel, H iso endcap
 										       999.,
 										       999., // E iso barrel, E iso endcap
-										       999.,
-										       999., // H/E barrel, H/E endcap
+										       0.15,
+										       0.1, // H/E barrel, H/E endcap
 										       999.,
 										       999., // cluster shape barrel, cluster shape endcap
-										       0.98,
-										       1.0, // R9 barrel, R9 endcap
+										       999.,
+										       999., // R9 barrel, R9 endcap
 										       999.,
 										       999., // Deta barrel, Deta endcap
 										       999.,
