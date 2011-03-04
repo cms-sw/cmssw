@@ -46,7 +46,8 @@ create table lumidata(             #versionable data table
      entry_id    uint64 not null references lumidata_entries(entry_id),
      entry_name string,
      source     string,
-     runnum     uint32
+     runnum     uint32,
+     nominalegev float
 )
 create index lumidata_entry_id on lumidata(entry_id);
 
