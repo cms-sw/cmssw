@@ -47,9 +47,7 @@ private:
     RooStats::ModelConfig modelConfig, modelConfig_bonly;
     std::auto_ptr<RooStats::TestStatistic> qvar;
     std::auto_ptr<RooStats::ToyMCSampler>  toymcsampler;
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,28,0)
     std::auto_ptr<RooStats::ProofConfig> pc;
-#endif
   };
 
   std::pair<double,double> eval(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, bool adaptive=false, double clsTarget=-1) ;

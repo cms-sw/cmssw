@@ -49,9 +49,7 @@ LimitAlgo("HybridNew specific options") {
         ("testStat",boost::program_options::value<std::string>()->default_value("LEP"),"Test statistics: LEP, TEV, Atlas.")
         ("rInterval", "Always try to compute an interval on r even after having found a point satisfiying the CL")
     */
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,28,0)
-        ("nCPU", boost::program_options::value<unsigned int>()->default_value(0), "Use N CPUs with PROOF Lite")
-#endif
+        ("nCPU", boost::program_options::value<unsigned int>()->default_value(0), "Use N CPUs with PROOF Lite (experimental!)")
     ;
 }
 
@@ -231,7 +229,9 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   } else if (testStat_ == "Atlas") {
     setup.modelConfig_bonly.SetPdf(*w->pdf("model_s"));
     RooArgSet nullPOI; nullPOI.addClone(*r); 
-    ((RooRealVar &)nullPOI["r"]).setVal(0);
+    ((RooRealVar &)nullPOI["r"]).setVal(rVal);
+    ((RooRealVar &)nullPOI["r"]).setMin(0);
+    ((RooRealVar &)nullPOI["r"]).setMax(rVal);
     setup.modelConfig_bonly.SetSnapshot(nullPOI);
     setup.qvar.reset(new ProfileLikelihoodTestStat(*setup.modelConfig_bonly.GetPdf()));
   }
@@ -239,13 +239,11 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   setup.toymcsampler.reset(new ToyMCSampler(*setup.qvar, nToys_));
   if (!w->pdf("model_b")->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
   
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,28,0)
   if (nCpu_ > 0) {
     if (verbose > 1) std::cout << "  Will use " << nCpu_ << " CPUs." << std::endl;
     setup.pc.reset(new ProofConfig(*w, nCpu_, "", kFALSE)); 
     setup.toymcsampler->SetProofConfig(setup.pc.get());
   }   
-#endif
   
   std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data,setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
   if (withSystematics) {
@@ -295,11 +293,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, bool adaptive, double clsTarget)
     double clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
     if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
     if (adaptive) {
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,28,0)
         hc.SetToys(nToys_, 4*nToys_);
-#else
-        static_cast<ToyMCSampler*>(hc.GetTestStatSampler())->SetNToys(4*nToys_);
-#endif
         while (clsMidErr >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
             std::auto_ptr<HypoTestResult> more(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
             hcResult->Append(more.get());
