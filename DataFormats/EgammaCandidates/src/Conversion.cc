@@ -201,21 +201,6 @@ bool Conversion::isConverted() const {
     return false;
 }
 
-
-double  Conversion::zOfPrimaryVertexFromTracks()  const  {
-  double theZOfPrimaryVertexFromTracks=-9999.;
-  
-  if ( this->conversionVertex().isValid() && sqrt(this->conversionVertex().position().perp2()) !=0 ) {
-    float theta=this->pairMomentum().Theta();
-    theZOfPrimaryVertexFromTracks = this->conversionVertex().position().z()  - sqrt(this->conversionVertex().position().perp2())*(1./tan(theta));
-    
-  }
-
-  return  theZOfPrimaryVertexFromTracks;
-
-}
-
-
 double Conversion::pairInvariantMass() const{
   double invMass=-99.;
   const float mElec= 0.000511;

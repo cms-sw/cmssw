@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.21 2011/02/22 22:03:06 bendavid Exp $
+ * \version $Id: Conversion.h,v 1.22 2011/02/25 22:13:38 dlange Exp $
  *
  */
 
@@ -125,8 +125,6 @@ namespace reco {
       /// is stored in the conversion, this method returns the energy sum of clusters divided by the track pair momentum
       ///  Track momentum refitted with vertex constraint is used
       double EoverPrefittedTracks() const;
-      /// z coordinate of the photon origin calculated from the track-pair direction and the position of the vertex
-      double zOfPrimaryVertexFromTracks() const;
       // Dist of minimum approach between tracks
       double distOfMinimumApproach() const {return  theMinDistOfApproach_;}
       // deltaPhi tracks at innermost point
@@ -140,15 +138,15 @@ namespace reco {
       //computed from refittedPairMomentum
 
       //transverse impact parameter
-      double dxy(const math::XYZPoint& myBeamSpot) const;
+      double dxy(const math::XYZPoint& myBeamSpot = math::XYZPoint()) const;
       //longitudinal impact parameter
-      double dz(const math::XYZPoint& myBeamSpot) const;
+      double dz(const math::XYZPoint& myBeamSpot = math::XYZPoint()) const;
       //transverse decay length
-      double lxy(const math::XYZPoint& myBeamSpot) const;
+      double lxy(const math::XYZPoint& myBeamSpot = math::XYZPoint()) const;
       //longitudinal decay length
-      double lz(const math::XYZPoint& myBeamSpot) const;
+      double lz(const math::XYZPoint& myBeamSpot = math::XYZPoint()) const;
       //z position of intersection with beamspot in rz plane (possible tilt of beamspot is neglected)
-      double z0(const math::XYZPoint& myBeamSpot) const { return dz(myBeamSpot) + myBeamSpot.z(); }
+      double zOfPrimaryVertexFromTracks(const math::XYZPoint& myBeamSpot = math::XYZPoint()) const { return dz(myBeamSpot) + myBeamSpot.z(); }
 
       ///// The following are variables provided per each track
       /// positions of the track extrapolation at the ECAL front face
