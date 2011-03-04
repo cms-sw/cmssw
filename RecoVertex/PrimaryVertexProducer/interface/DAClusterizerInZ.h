@@ -95,7 +95,8 @@ private:
   double coolingFactor_;
   float betamax_;
   float betastop_;
-  double mu0_;
+  double dzCutOff_;
+  double d0CutOff_;
 };
 
 #endif

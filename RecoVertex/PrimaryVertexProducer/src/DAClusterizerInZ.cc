@@ -31,8 +31,12 @@ vector<DAClusterizerInZ::track_t> DAClusterizerInZ::fill(
     t.dz2= pow((*it).track().dzError(),2)          // track errror
       + (pow(beamspot.BeamWidthX(),2)+pow(beamspot.BeamWidthY(),2))/pow(tantheta,2)  // beam-width induced
       + pow(vertexSize_,2);                        // intrinsic vertex size, safer for outliers and short lived decays
-    Measurement1D IP=(*it).stateAtBeamLine().transverseImpactParameter();// error constains beamspot
-    t.pi=1./(1.+exp(pow(IP.value()/IP.error(),2)-pow(3.,2)));  // reduce weight for high ip tracks  
+    if (d0CutOff_>0){
+      Measurement1D IP=(*it).stateAtBeamLine().transverseImpactParameter();// error constains beamspot
+      t.pi=1./(1.+exp(pow(IP.value()/IP.error(),2)-pow(d0CutOff_ ,2)));  // reduce weight for high ip tracks  
+    }else{
+      t.pi=1.;
+    }
     t.tt=&(*it);
     t.Z=1.;
     tks.push_back(t);
@@ -155,7 +159,7 @@ double DAClusterizerInZ::update(
   for(unsigned int i=0; i<nt; i++){
 
     // update pik and Zi
-    double Zi=rho0*exp(-beta*mu0_*mu0_);// cut-off
+    double Zi=rho0*exp(-beta*dzCutOff_*dzCutOff_);// cut-off
     for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
       k->ei=exp(-beta*Eik(tks[i],*k));// cache exponential for one track at a time
       Zi += k->pk * k->ei;
@@ -164,7 +168,7 @@ double DAClusterizerInZ::update(
 
     // normalization
     if (tks[i].Z>0){
-      //double pi0=exp(-beta*mu0_*mu0_)/tks[i].Z;
+      //double pi0=exp(-beta*dzCutOff_*dzCutOff_)/tks[i].Z;
       //sumpi += tks[i].pi*(1.-pi0*rho0);  // exclude rho0 from the normalization of the cluster "mass"
        // accumulate weighted z and weights for vertex update
       for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
@@ -233,7 +237,7 @@ bool DAClusterizerInZ::purge(vector<vertex_t> & y, vector<track_t> & tks, double
   for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){ 
     int nUnique=0;
     double sump=0;
-    double pmax=k->pk/(k->pk+rho0*exp(-beta*mu0_*mu0_));
+    double pmax=k->pk/(k->pk+rho0*exp(-beta*dzCutOff_*dzCutOff_));
     for(unsigned int i=0; i<nt; i++){
       if(tks[i].Z>0){
 	//double p=pik(beta,tks[i],*k);
@@ -350,13 +354,15 @@ DAClusterizerInZ::DAClusterizerInZ(const edm::ParameterSet& conf)
   coolingFactor_=0.8;
   maxIterations_=100;
   vertexSize_=0.05;  // 0.5 mm
-  mu0_=4.0;   // Adaptive Fitter uses 3.0 but that appears to be a bit tight here sometimes
+  dzCutOff_=4.0;   // Adaptive Fitter uses 3.0 but that appears to be a bit tight here sometimes
 
   // configure
 
   double Tmin = conf.getParameter<double>("Tmin");
   vertexSize_ = conf.getParameter<double>("vertexSize");
   coolingFactor_ = conf.getParameter<double>("coolingFactor");
+  d0CutOff_  =  conf.getParameter<double>("d0CutOff");
+  dzCutOff_  =  conf.getParameter<double>("dzCutOff");
   maxIterations_=100;
   if (Tmin==0){
     cout << "DAClusterizerInZ: invalid Tmin" << Tmin << "  reset do default " << 1./betamax_ << endl;
@@ -485,7 +491,7 @@ const
 
 
   // switch on outlier rejection
-  //rho0=exp(beta*mu0_*mu0_)/nt; if(rho0>0.1) rho0=0.1;
+  //rho0=exp(beta*dzCutOff_*dzCutOff_)/nt; if(rho0>0.1) rho0=0.1;
   rho0=1./nt; for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){ k->pk =1.; }  // democratic
   niter=0; while((update(beta, tks,y,rho0) > 1.e-8)  && (niter++ < maxIterations_)){  }
   if(verbose_  ){ cout << "rho0=" << rho0 <<   " niter=" << niter <<  endl; dump(beta,y,tks,2);}
