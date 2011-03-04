@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V55 (CMSSW_3_11_0_HLT9)
+# /dev/CMSSW_3_11_1/GRun/V56 (CMSSW_3_11_0_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V55')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V56')
 )
 
 process.streams = cms.PSet( 
@@ -141,6 +141,7 @@ process.datasets = cms.PSet(
     'HLT_L1SingleJet36_v1',
     'HLT_L1SingleMu10_v1',
     'HLT_L1SingleMu20_v1',
+    'HLT_L1SingleMuOpen_DT_v1',
     'HLT_L1SingleMuOpen_v1',
     'HLT_L1Tech_BSC_minBias_OR_v1',
     'HLT_L1_Interbunch_BSC_v1',
@@ -240,9 +241,11 @@ process.datasets = cms.PSet(
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v1' ),
   ExpressCosmics = cms.vstring( 'HLT_L1MuOpen_AntiBPTX_v2',
     'HLT_L1SingleEG5_v1',
+    'HLT_L1SingleMuOpen_DT_v1',
     'HLT_L1TrackerCosmics_v2',
     'HLT_Random_v1' ),
   ExpressPhysics = cms.vstring( 'HLT_Ele45_CaloIdVT_TrkIdT_v1',
+    'HLT_L1SingleMuOpen_DT_v1',
     'HLT_Mu24_v1',
     'HLT_Physics_v1',
     'HLT_ZeroBias_v1' ),
@@ -252,7 +255,7 @@ process.datasets = cms.PSet(
     'HLT_L1Tech_HBHEHO_totalOR_v1' ),
   HcalNZS = cms.vstring( 'HLT_HcalNZS_v2',
     'HLT_HcalPhiSym_v2' ),
-  L1Accept = cms.vstring( 'HLTriggerFinalPath' ),
+  L1Accept = cms.vstring( 'HLT_Physics_NanoDST_v1' ),
   LogMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
   OfflineMonitor = cms.vstring( 'AlCa_EcalEta_v2',
     'AlCa_EcalPhiSym_v2',
@@ -370,6 +373,7 @@ process.datasets = cms.PSet(
     'HLT_L1SingleJet36_v1',
     'HLT_L1SingleMu10_v1',
     'HLT_L1SingleMu20_v1',
+    'HLT_L1SingleMuOpen_DT_v1',
     'HLT_L1SingleMuOpen_v1',
     'HLT_L1Tech_BSC_halo_v1',
     'HLT_L1Tech_BSC_minBias_OR_v1',
@@ -584,6 +588,7 @@ process.datasets = cms.PSet(
     'HLT_L1SingleJet36_v1',
     'HLT_L1SingleMu10_v1',
     'HLT_L1SingleMu20_v1',
+    'HLT_L1SingleMuOpen_DT_v1',
     'HLT_L1SingleMuOpen_v1',
     'HLT_L1Tech_BSC_halo_v1',
     'HLT_L1Tech_BSC_minBias_OR_v1',
@@ -796,6 +801,7 @@ process.datasets = cms.PSet(
     'HLT_L1SingleJet36_v1',
     'HLT_L1SingleMu10_v1',
     'HLT_L1SingleMu20_v1',
+    'HLT_L1SingleMuOpen_DT_v1',
     'HLT_L1SingleMuOpen_v1',
     'HLT_L1Tech_BSC_halo_v1',
     'HLT_L1Tech_BSC_minBias_OR_v1',
@@ -2300,6 +2306,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
     prescaleTable = cms.VPSet( 
       cms.PSet(  pathName = cms.string( "HLT_Physics_v1" ),
         prescales = cms.vuint32( 5000, 10 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_Physics_NanoDST_v1" ),
+        prescales = cms.vuint32( 10, 10 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Random_v1" ),
         prescales = cms.vuint32( 600, 600 )
@@ -5039,6 +5048,20 @@ process.hltL1MuOpenL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     CandTag = cms.InputTag( "hltL1extraParticles" ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMuOpen" ),
     MaxEta = cms.double( 2.5 ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    ExcludeSingleSegmentCSC = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "unused" ),
+    SaveTag = cms.untracked.bool( True ),
+    SelectQualities = cms.vint32(  )
+)
+process.hltPreL1SingleMuOpenDT = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
+process.hltL1MuOpenL1FilteredDT = cms.EDFilter( "HLTMuonL1Filter",
+    CandTag = cms.InputTag( "hltL1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltL1sL1SingleMuOpen" ),
+    MaxEta = cms.double( 1.25 ),
     MinPt = cms.double( 0.0 ),
     MinN = cms.int32( 1 ),
     ExcludeSingleSegmentCSC = cms.bool( False ),
@@ -16426,6 +16449,9 @@ process.hltPreZeroBias = cms.EDFilter( "HLTPrescaler",
 process.hltPrePhysics = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
+process.hltPrePhysicsNanoDST = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
 process.hltCalibrationEventsFilter = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 2 )
 )
@@ -17394,6 +17420,7 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_L1SingleMu10_v1',
       'HLT_L1SingleMu20_v1',
       'HLT_L1SingleMuOpen_v1',
+      'HLT_L1SingleMuOpen_DT_v1',
       'HLT_L1Tech_BSC_halo_v1',
       'HLT_L1Tech_BSC_minBias_OR_v1',
       'HLT_L1Tech_HBHEHO_totalOR_v1',
@@ -17470,7 +17497,7 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Photon70_CaloIdL_MHT30_v1',
       'HLT_Photon75_CaloIdVL_IsoL_v1',
       'HLT_Photon75_CaloIdVL_v1',
-      'HLT_Physics_v1',
+      'HLT_Physics_v1 / 500',
       'HLT_PixelTracks_Multiplicity110_v1',
       'HLT_PixelTracks_Multiplicity125_v1',
       'HLT_QuadJet20_IsoPFTau20_PFMHT30_v1',
@@ -17504,7 +17531,8 @@ process.hltPreExpressOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
-    triggerConditions = cms.vstring( 'HLT_Ele45_CaloIdVT_TrkIdT_v1',
+    triggerConditions = cms.vstring( 'HLT_L1SingleMuOpen_DT_v1',
+      'HLT_Ele45_CaloIdVT_TrkIdT_v1',
       'HLT_Mu24_v1',
       'HLT_Physics_v1 / 100',
       'HLT_ZeroBias_v1' ),
@@ -17636,6 +17664,7 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_L1SingleMu10_v1',
       'HLT_L1SingleMu20_v1',
       'HLT_L1SingleMuOpen_v1',
+      'HLT_L1SingleMuOpen_DT_v1',
       'HLT_L1Tech_BSC_halo_v1',
       'HLT_L1Tech_BSC_minBias_OR_v1',
       'HLT_L1Tech_HBHEHO_totalOR_v1',
@@ -17712,7 +17741,7 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Photon70_CaloIdL_MHT30_v1',
       'HLT_Photon75_CaloIdVL_IsoL_v1',
       'HLT_Photon75_CaloIdVL_v1',
-      'HLT_Physics_v1',
+      'HLT_Physics_v1 / 500',
       'HLT_PixelTracks_Multiplicity110_v1',
       'HLT_PixelTracks_Multiplicity125_v1',
       'HLT_QuadJet20_IsoPFTau20_PFMHT30_v1',
@@ -17862,6 +17891,7 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_L1SingleMu10_v1',
       'HLT_L1SingleMu20_v1',
       'HLT_L1SingleMuOpen_v1',
+      'HLT_L1SingleMuOpen_DT_v1',
       'HLT_L1Tech_BSC_halo_v1',
       'HLT_L1Tech_BSC_minBias_OR_v1',
       'HLT_L1Tech_HBHEHO_totalOR_v1',
@@ -17938,7 +17968,7 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Photon70_CaloIdL_MHT30_v1',
       'HLT_Photon75_CaloIdVL_IsoL_v1',
       'HLT_Photon75_CaloIdVL_v1',
-      'HLT_Physics_v1',
+      'HLT_Physics_v1 / 500',
       'HLT_PixelTracks_Multiplicity110_v1',
       'HLT_PixelTracks_Multiplicity125_v1',
       'HLT_QuadJet20_IsoPFTau20_PFMHT30_v1',
@@ -18086,6 +18116,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_L1SingleJet36_v1',
   'HLT_L1SingleMu10_v1',
   'HLT_L1SingleMu20_v1',
+  'HLT_L1SingleMuOpen_DT_v1',
   'HLT_L1SingleMuOpen_v1',
   'HLT_L1Tech_BSC_halo_v1',
   'HLT_L1Tech_BSC_minBias_OR_v1',
@@ -18340,6 +18371,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_L1SingleJet36_v1',
   'HLT_L1SingleMu10_v1',
   'HLT_L1SingleMu20_v1',
+  'HLT_L1SingleMuOpen_DT_v1',
   'HLT_L1SingleMuOpen_v1',
   'HLT_L1Tech_BSC_halo_v1',
   'HLT_L1Tech_BSC_minBias_OR_v1',
@@ -18460,6 +18492,7 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputExpress.root" ),
     fastCloning = cms.untracked.bool( False ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Ele45_CaloIdVT_TrkIdT_v1',
+  'HLT_L1SingleMuOpen_DT_v1',
   'HLT_Mu24_v1',
   'HLT_Physics_v1',
   'HLT_ZeroBias_v1' ) ),
@@ -18589,6 +18622,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_L1SingleJet36_v1',
   'HLT_L1SingleMu10_v1',
   'HLT_L1SingleMu20_v1',
+  'HLT_L1SingleMuOpen_DT_v1',
   'HLT_L1SingleMuOpen_v1',
   'HLT_L1Tech_BSC_halo_v1',
   'HLT_L1Tech_BSC_minBias_OR_v1',
@@ -18927,6 +18961,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_L1SingleJet36_v1',
   'HLT_L1SingleMu10_v1',
   'HLT_L1SingleMu20_v1',
+  'HLT_L1SingleMuOpen_DT_v1',
   'HLT_L1SingleMuOpen_v1',
   'HLT_L1Tech_BSC_halo_v1',
   'HLT_L1Tech_BSC_minBias_OR_v1',
@@ -19167,7 +19202,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
 process.hltOutputNanoDST = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputNanoDST.root" ),
     fastCloning = cms.untracked.bool( False ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLTriggerFinalPath' ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Physics_NanoDST_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltFEDSelector_*_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
@@ -19395,6 +19430,7 @@ process.HLT_R032_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1D
 process.HLT_R032_MR100_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleJet36Central + process.hltPreR032MR100 + process.HLTRSequence + process.hltR032MR100 + process.HLTEndSequence )
 process.HLT_R035_MR100_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleJet36Central + process.hltPreR035MR100 + process.HLTRSequence + process.hltR035MR100 + process.HLTEndSequence )
 process.HLT_L1SingleMuOpen_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMuOpen + process.hltPreL1SingleMuOpen + process.hltL1MuOpenL1Filtered0 + process.HLTEndSequence )
+process.HLT_L1SingleMuOpen_DT_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMuOpen + process.hltPreL1SingleMuOpenDT + process.hltL1MuOpenL1FilteredDT + process.HLTEndSequence )
 process.HLT_L1SingleMu10_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu10 + process.hltPreL1Mu10 + process.hltL1SingleMu10L1Filtered0 + process.HLTEndSequence )
 process.HLT_L1SingleMu20_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu20 + process.hltPreL1Mu20 + process.hltL1SingleMu20L1Filtered0 + process.HLTEndSequence )
 process.HLT_L1DoubleMu0_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMu0 + process.hltPreL1DoubleMu0 + process.hltDiMuonL1Filtered0 + process.HLTEndSequence )
@@ -19530,6 +19566,7 @@ process.HLT_GlobalRunHPDNoise_v2 = cms.Path( process.HLTBeginSequence + process.
 process.HLT_L1Tech_HBHEHO_totalOR_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sTechTrigHCALNoise + process.hltPreTechTrigHCALNoise + process.HLTEndSequence )
 process.HLT_ZeroBias_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
 process.HLT_Physics_v1 = cms.Path( process.HLTBeginSequence + process.hltPrePhysics + process.HLTEndSequence )
+process.HLT_Physics_NanoDST_v1 = cms.Path( process.HLTBeginSequence + process.hltPrePhysicsNanoDST + process.HLTEndSequence )
 process.HLT_Calibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreCalibration + process.HLTEndSequence )
 process.HLT_EcalCalibration_v1 = cms.Path( process.hltCalibrationEventsFilter + process.hltGtDigis + process.hltPreEcalCalibration + process.hltEcalCalibrationRaw + process.HLTEndSequence )
 process.HLT_HcalCalibration_v1 = cms.Path( process.hltCalibrationEventsFilter + process.hltGtDigis + process.hltPreHcalCalibration + process.hltHcalCalibTypeFilter + process.HLTEndSequence )

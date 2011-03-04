@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_11_1/GRun/V55
+# /dev/CMSSW_3_11_1/GRun/V56
 
 import FWCore.ParameterSet.Config as cms
 
@@ -113,6 +113,7 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_BTagM
     'HLT_L1SingleJet36_v1', 
     'HLT_L1SingleMu10_v1', 
     'HLT_L1SingleMu20_v1', 
+    'HLT_L1SingleMuOpen_DT_v1', 
     'HLT_L1SingleMuOpen_v1', 
     'HLT_L1Tech_BSC_minBias_OR_v1', 
     'HLT_L1_Interbunch_BSC_v1', 

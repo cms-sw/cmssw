@@ -63,6 +63,7 @@ HLT_R032_v*
 HLT_R032_MR100_v*
 HLT_R035_MR100_v*
 HLT_L1SingleMuOpen_v*
+HLT_L1SingleMuOpen_DT_v*
 HLT_L1SingleMu10_v*
 HLT_L1SingleMu20_v*
 HLT_L1DoubleMu0_v*
@@ -203,6 +204,7 @@ HLT_GlobalRunHPDNoise_v*
 HLT_L1Tech_HBHEHO_totalOR_v*
 HLT_ZeroBias_v*
 HLT_Physics_v*
+HLT_Physics_NanoDST_v*
 HLT_Calibration_v*
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*

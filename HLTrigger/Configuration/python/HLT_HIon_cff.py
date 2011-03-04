@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HIon/V55 (CMSSW_3_11_0_HLT9)
+# /dev/CMSSW_3_11_1/HIon/V56 (CMSSW_3_11_0_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V55')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V56')
 )
 
 streams = cms.PSet( 
@@ -43,7 +43,7 @@ datasets = cms.PSet(
   ForwardTriggers = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  L1Accept = cms.vstring( 'HLTriggerFinalPath' ),
+  L1Accept = cms.vstring(  ),
   LogMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
   OfflineMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
   OfflineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
