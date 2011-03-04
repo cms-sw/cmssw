@@ -23,6 +23,9 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
 
   FEDRawDataCollection_  = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection");
   digiLabel_             = ps.getUntrackedParameter<edm::InputTag>("digiLabel");
+
+  excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
+
   //inputLabelReport_      = ps.getUntrackedParameter<edm::InputTag>("UnpackerReport");
   
   // Initialize an array of MonitorElements
@@ -1324,6 +1327,12 @@ void HcalRawDataMonitor::mapDCCproblem(int dcc) {
 	(myphi-1)>=0 && (myphi-1)<72 &&
 	(mydepth-1)>=0 && (mydepth-1)<4){
       problemfound[myeta][myphi-1][mydepth-1] = true;
+
+      //exlcude the decommissioned HO ring2, except SiPMs 
+      if(mydepth==4 && excludeHORing2_==true)
+	if (abs(HDI.ieta())>=11 && abs(HDI.ieta())<=15  && !isSiPM(HDI.ieta(),HDI.iphi(),mydepth))
+	  problemfound[myeta][myphi-1][mydepth-1] = false;
+      
       if (debug_>0)
 	std::cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }
@@ -1352,6 +1361,12 @@ void HcalRawDataMonitor::mapHTRproblem(int dcc, int spigot) {
 	(myphi-1)>=0 && (myphi-1)<72 &&
 	(mydepth-1)>=0 && (mydepth-1)<4){
       problemfound[myeta][myphi-1][mydepth-1] = true;
+      
+      //exlcude the decommissioned HO ring2, except SiPMs 
+      if(mydepth==4 && excludeHORing2_==true)
+	if (abs(HDI.ieta())>=11 && abs(HDI.ieta())<=15  && !isSiPM(HDI.ieta(),HDI.iphi(),mydepth))
+	  problemfound[myeta][myphi-1][mydepth-1] = false;
+      
       if (debug_>0)
 	std::cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }
@@ -1380,6 +1395,12 @@ void HcalRawDataMonitor::mapChannproblem(int dcc, int spigot, int htrchan) {
       (myphi-1)>=0 && (myphi-1)<72 &&
       (mydepth-1)>=0 && (mydepth-1)<4){
     problemfound[myeta][myphi-1][mydepth-1] = true;
+
+    //exlcude the decommissioned HO ring2, except SiPMs 
+    if(mydepth==4 && excludeHORing2_==true)
+      if (abs(HDI.ieta())>=11 && abs(HDI.ieta())<=15  && !isSiPM(HDI.ieta(),HDI.iphi(),mydepth))
+	  problemfound[myeta][myphi-1][mydepth-1] = false;
+
     if (debug_>0)
       std::cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
   }

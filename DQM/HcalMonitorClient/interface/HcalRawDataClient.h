@@ -75,6 +75,8 @@ class HcalRawDataClient : public HcalBaseDQClient {
   void mapChannproblem(int dcc, int spigot, int htrchan, float n); // Take maximum problem counters for affected cell.
 
   void normalizeHardwareSpaceHistos(void);
+
+  bool excludeHORing2_;
 };
 
 #endif

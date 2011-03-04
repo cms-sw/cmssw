@@ -41,7 +41,9 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             DeadCell_minerrorrate = cms.untracked.double(0.05),
                             #DeadCell_minevents    = cms.untracked.int32(10),
                             HotCell_minerrorrate  = cms.untracked.double(0.10),
-                            
+
+                            RawData_excludeHORing2         = cms.untracked.bool(True),                                  
+
                             # Specify all clients to be run (name = prefix+"Monitor")
 
                             enabledClients = cms.untracked.vstring(["DeadCellMonitor",

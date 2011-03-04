@@ -16,8 +16,8 @@
 /*
  * \file HcalRawDataClient.cc
  * 
- * $Date: 2010/11/10 20:01:34 $
- * $Revision: 1.7 $
+ * $Date: 2010/11/17 19:17:43 $
+ * $Revision: 1.8 $
  * \author J. St. John
  * \brief Hcal Raw Data Client class
  */
@@ -49,6 +49,9 @@ HcalRawDataClient::HcalRawDataClient(std::string myname, const edm::ParameterSet
 						   ps.getUntrackedParameter<double>("minerrorrate",0.01));
   minevents_    = ps.getUntrackedParameter<int>("RawData_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
+
+  excludeHORing2_       = ps.getUntrackedParameter<bool>("RawData_excludeHORing2",false);
+
   ProblemCells=0;
   ProblemCellsByDepth=0;
 }
@@ -131,6 +134,7 @@ void HcalRawDataClient::calculateProblems()
 	    {
 	      problemvalue=0;
 	      problemvalue=((uint64_t) problemcount[eta][phi][d] );
+
 	      if (problemvalue==0) continue;
 	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
 	      problemvalue = std::min(1.,problemvalue);
@@ -142,6 +146,7 @@ void HcalRawDataClient::calculateProblems()
 	      if (debug_>0) std::cout <<"problemvalue = "<<problemvalue<<"  ieta = "<<zside<<"  iphi = "<<phi+1<<"  d = "<<d+1<<std::endl;
 	      // For problem cells that exceed our allowed rate,
 	      // set the values to -1 if the cells are already marked in the status database
+
 	      if (problemvalue>minerrorrate_)
 		{
 		  HcalSubdetector subdet=HcalEmpty;
@@ -540,6 +545,12 @@ void HcalRawDataClient::mapDCCproblem(int dcc, float n) {
 	(mydepth-1)>=0 && (mydepth-1)<4){
       if (problemcount[myeta][myphi-1][mydepth-1]< n)
 	problemcount[myeta][myphi-1][mydepth-1]=n;
+
+      //exlcude the decommissioned HO ring2, except SiPMs 
+      if(mydepth==4 && excludeHORing2_==true)
+	if (abs(HDI.ieta())>=11 && abs(HDI.ieta())<=15  && !isSiPM(HDI.ieta(),HDI.iphi(),mydepth))
+	  problemcount[myeta][myphi-1][mydepth-1] = 0.0;
+
       if (debug_>0)
 	std::cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }
@@ -568,6 +579,12 @@ void HcalRawDataClient::mapHTRproblem(int dcc, int spigot, float n) {
 	(mydepth-1)>=0 && (mydepth-1)<4){
       if (problemcount[myeta][myphi-1][mydepth-1]< n)
 	problemcount[myeta][myphi-1][mydepth-1]=n;
+      
+      //exlcude the decommissioned HO ring2, except SiPMs 
+      if(mydepth==4 && excludeHORing2_==true)
+	if (abs(HDI.ieta())>=11 && abs(HDI.ieta())<=15  && !isSiPM(HDI.ieta(),HDI.iphi(),mydepth))
+	  problemcount[myeta][myphi-1][mydepth-1] = 0.0;
+
       if (debug_>0)
 	std::cout<<" mapHTRproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }    
@@ -590,11 +607,18 @@ void HcalRawDataClient::mapChannproblem(int dcc, int spigot, int htrchan, float 
   myeta = CalcEtaBin(HDI.subdet(),
 		     HDI.ieta(),
 		     mydepth);
+
   if (myeta>=0 && myeta<85 &&
       (myphi-1)>=0 && (myphi-1)<72 &&
       (mydepth-1)>=0 && (mydepth-1)<4){
     if (problemcount[myeta][myphi-1][mydepth-1]< n) {
       problemcount[myeta][myphi-1][mydepth-1]=n;
+
+      //exlcude the decommissioned HO ring2, except SiPMs 
+      if(mydepth==4 && excludeHORing2_==true)
+	if (abs(HDI.ieta())>=11 && abs(HDI.ieta())<=15  && !isSiPM(HDI.ieta(),HDI.iphi(),mydepth))
+	  problemcount[myeta][myphi-1][mydepth-1] = 0.0;
+
       if (debug_>0)
 	std::cout<<" mapChannproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }
