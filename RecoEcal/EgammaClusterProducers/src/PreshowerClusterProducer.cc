@@ -36,6 +36,7 @@
 #include "CondFormats/DataRecord/interface/ESGainRcd.h"
 #include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
 #include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
 #include <fstream>
 
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterProducer.h"
@@ -97,8 +98,9 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<CaloGeometryRecord>().get(geoHandle);
 
-  // retrieve ES-EE intercalibration constants
+  // retrieve ES-EE intercalibration constants and channel status
   set(es);
+  const ESChannelStatus *channelStatus = esChannelStatus_.product();
 
   const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   const CaloSubdetectorGeometry *& geometry_p = geometry;
@@ -159,51 +161,67 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
        		                                       << " superPHI = " << it_super->phi() << std::endl;
        if ( debugL == PreshowerClusterAlgo::pINFO ) std::cout << " This SC contains " << it_super->clustersSize() << " BCs" << std::endl;
 
+       int nBC = 0;
+       int condP1 = 1; // 0: dead channel; 1: active channel
+       int condP2 = 1;
        reco::CaloCluster_iterator bc_iter = it_super->clustersBegin();
        for ( ; bc_iter !=it_super->clustersEnd(); ++bc_iter ) {  
-	 if (geometry)
-	   {
-	     // Get strip position at intersection point of the line EE - Vertex:
-	     double X = (*bc_iter)->x();
-	     double Y = (*bc_iter)->y();
-	     double Z = (*bc_iter)->z();        
-	     const GlobalPoint point(X,Y,Z);    
-	     
-	     DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 1);
-	     DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 2);
-	     ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
-	     ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
-	     
-	     if ( debugL <= PreshowerClusterAlgo::pINFO ) {
-	       if ( strip1 != ESDetId(0) && strip2 != ESDetId(0) ) {
-		 std::cout << " Intersected preshower strips are: " << std::endl;
-		 std::cout << strip1 << std::endl;
-		 std::cout << strip2 << std::endl;
-	       }
-	       else if ( strip1 == ESDetId(0) )
-		 std::cout << " No intersected strip in plane 1 " << std::endl;
-	       else if ( strip2 == ESDetId(0) )
-		 std::cout << " No intersected strip in plane 2 " << std::endl;
-	     }        
-	     
-	     // Get a vector of ES clusters (found by the PreshSeeded algorithm) associated with a given EE basic cluster.           
-	     for (int i=0; i<preshNclust_; i++) {
-	       reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&rechits_map,geometry_p,topology_p);   
-	       cl1.setBCRef(*bc_iter);
-	       if ( cl1.energy() > preshClustECut) {
-		 clusters1.push_back(cl1);
-		 e1 += cl1.energy();       
-	       }
-	       reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,geometry_p,topology_p); 
-	       cl2.setBCRef(*bc_iter);
-	       
-	       if ( cl2.energy() > preshClustECut) {
-		 clusters2.push_back(cl2);
-		 e2 += cl2.energy();
-	       }	                               
-	     } // end of cycle over ES clusters
+	 if (geometry) {
+	   
+	   // Get strip position at intersection point of the line EE - Vertex:
+	   double X = (*bc_iter)->x();
+	   double Y = (*bc_iter)->y();
+	   double Z = (*bc_iter)->z();        
+	   const GlobalPoint point(X,Y,Z);    
+	   
+	   DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 1);
+	   DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 2);
+	   ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
+	   ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
+	   
+	   if (nBC == 0) {
+	     if (strip1 != ESDetId(0) && strip2 != ESDetId(0)) {
+	       ESChannelStatusMap::const_iterator status_p1 = channelStatus->getMap().find(strip1);
+	       ESChannelStatusMap::const_iterator status_p2 = channelStatus->getMap().find(strip2);
+	       if (status_p1->getStatusCode() == 1) condP1 = 0;
+	       if (status_p2->getStatusCode() == 1) condP2 = 0;
+	     } else if (strip1 == ESDetId(0))
+	       condP1 = 0;
+	     else if (strip2 == ESDetId(0))
+	       condP2 = 0;
 	   }
+	   
+	   if ( debugL <= PreshowerClusterAlgo::pINFO ) {
+	     if ( strip1 != ESDetId(0) && strip2 != ESDetId(0) ) {
+	       std::cout << " Intersected preshower strips are: " << std::endl;
+	       std::cout << strip1 << std::endl;
+	       std::cout << strip2 << std::endl;
+	     } else if ( strip1 == ESDetId(0) )
+	       std::cout << " No intersected strip in plane 1 " << std::endl;
+	     else if ( strip2 == ESDetId(0) )
+	       std::cout << " No intersected strip in plane 2 " << std::endl;
+	   }        
+	   
+	   // Get a vector of ES clusters (found by the PreshSeeded algorithm) associated with a given EE basic cluster.           
+	   for (int i=0; i<preshNclust_; i++) {
+	     reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&rechits_map,geometry_p,topology_p);   
+	     cl1.setBCRef(*bc_iter);
+	     if (cl1.energy() > preshClustECut) {
+	       clusters1.push_back(cl1);
+	       e1 += cl1.energy();       
+	     }
+	     reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,geometry_p,topology_p); 
+	     cl2.setBCRef(*bc_iter);
+	     
+	     if ( cl2.energy() > preshClustECut) {
+	       clusters2.push_back(cl2);
+	       e2 += cl2.energy();
+	     }	                               
+	   } // end of cycle over ES clusters
+	 }
+
 	 new_BC.push_back(*bc_iter);
+	 nBC++;
        }  // end of cycle over BCs
        
        if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << " For SC #" << isc-1 << ", containing " << it_super->clustersSize() 
@@ -216,23 +234,29 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
 	 // GeV to #MIPs
 	 e1 = e1 / mip_;
 	 e2 = e2 / mip_;
-	 deltaE = gamma_*(e1+alpha_*e2);       
+
+	 if (condP1 == 1 && condP2 == 1) deltaE = gamma0_*(e1 + alpha0_*e2);       
+	 else if (condP1 == 1 && condP2 == 0) deltaE = gamma1_*(e1 + alpha1_*e2);       
+	 else if (condP1 == 0 && condP2 == 1) deltaE = gamma2_*(e1 + alpha2_*e2);       
+	 else if (condP1 == 0 && condP2 == 0) deltaE = gamma3_*(e1 + alpha3_*e2);       
        }
        
        //corrected Energy
        float E = it_super->energy() + deltaE;
        
-       if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << " Creating corrected SC " << std::endl;
-       reco::SuperCluster sc( E, it_super->position(), it_super->seed(), new_BC, deltaE);
- 
-      if(sc.energy()*sin(sc.position().theta())>etThresh_)
+       if (debugL == PreshowerClusterAlgo::pDEBUG) std::cout << " Creating corrected SC " << std::endl;
+       reco::SuperCluster sc(E, it_super->position(), it_super->seed(), new_BC, deltaE);
+       if (condP1 == 1 && condP2 == 1) sc.setPreshowerPlanesStatus(0);
+       else if (condP1 == 1 && condP2 == 0) sc.setPreshowerPlanesStatus(1);
+       else if (condP1 == 0 && condP2 == 1) sc.setPreshowerPlanesStatus(2);
+       else if (condP1 == 0 && condP2 == 0) sc.setPreshowerPlanesStatus(3);
+       
+       if (sc.energy()*sin(sc.position().theta())>etThresh_)
 	 new_SC.push_back(sc);
-       if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << " SuperClusters energies: new E = " << sc.energy() 
+       if (debugL <= PreshowerClusterAlgo::pINFO) std::cout << " SuperClusters energies: new E = " << sc.energy() 
                                         << " vs. old E =" << it_super->energy() << std::endl;
 
    } // end of cycle over SCs
-  
-
 
    // copy the preshower clusters into collections and put in the Event:
    clusters_p1->assign(clusters1.begin(), clusters1.end());
@@ -259,14 +283,32 @@ void PreshowerClusterProducer::set(const edm::EventSetup& es) {
   es.get<ESGainRcd>().get(esgain_);
   const ESGain *gain = esgain_.product();
 
+  double ESGain = gain->getESGain();
+
   es.get<ESMIPToGeVConstantRcd>().get(esMIPToGeV_);
   const ESMIPToGeVConstant *mipToGeV = esMIPToGeV_.product();
+
+  mip_ = (ESGain == 1) ? mipToGeV->getESValueLow() : mipToGeV->getESValueHigh(); 
+
+  es.get<ESChannelStatusRcd>().get(esChannelStatus_);
 
   es.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalib_);
   const ESEEIntercalibConstants *esEEInterCalib = esEEInterCalib_.product();
 
-  double ESGain = gain->getESGain();
-  mip_ = (ESGain == 1) ? mipToGeV->getESValueLow() : mipToGeV->getESValueHigh(); 
-  gamma_ = (ESGain == 1) ? esEEInterCalib->getGammaLow0() : esEEInterCalib->getGammaHigh0();
-  alpha_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow0() : esEEInterCalib->getAlphaHigh0();
+  // both planes work
+  gamma0_ = (ESGain == 1) ? esEEInterCalib->getGammaLow0() : esEEInterCalib->getGammaHigh0();
+  alpha0_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow0() : esEEInterCalib->getAlphaHigh0();
+
+  // only first plane works 
+  gamma1_ = (ESGain == 1) ? esEEInterCalib->getGammaLow1() : esEEInterCalib->getGammaHigh1();
+  alpha1_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow1() : esEEInterCalib->getAlphaHigh1();
+
+  // only second plane works
+  gamma2_ = (ESGain == 1) ? esEEInterCalib->getGammaLow2() : esEEInterCalib->getGammaHigh2();
+  alpha2_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow2() : esEEInterCalib->getAlphaHigh2();
+
+  // both planes do not work
+  gamma3_ = (ESGain == 1) ? esEEInterCalib->getGammaLow3() : esEEInterCalib->getGammaHigh3();
+  alpha3_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow3() : esEEInterCalib->getAlphaHigh3();
+
 }
