@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.4 2011/02/07 17:20:51 sani Exp $
+// $Id: ConversionProducer.cc,v 1.5 2011/02/25 22:16:56 dlange Exp $
 //
 //
 
@@ -92,6 +92,10 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
 
   allowVertex_ = iConfig.getParameter<bool>("AllowVertex");
 
+  bypassPreselGsf_ = iConfig.getParameter<bool>("bypassPreselGsf");
+  bypassPreselEcal_ = iConfig.getParameter<bool>("bypassPreselEcal");
+  
+  
   halfWayEta_ = iConfig.getParameter<double>("HalfwayEta");//open angle to search track matches with BC
 
   if (allowD0_)
@@ -403,8 +407,12 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
           
           
       double approachDist = -999.;
-      //apply preselection to track pair, unless one or both tracks are gsf
-      if (!preselectTrackPair(ttk_l,ttk_r, approachDist) && left->algo()!=29 && right->algo()!=29) {
+      //apply preselection to track pair, overriding preselection for gsf+X or ecalseeded+X pairs if so configured
+      bool preselected = preselectTrackPair(ttk_l,ttk_r, approachDist);
+      preselected = preselected || (bypassPreselGsf_ && (left->algo()==29 || right->algo()==29));
+      preselected = preselected || (bypassPreselEcal_ && (left->algo()==15 || right->algo()==15 || left->algo()==16 || right->algo()==16));
+      
+      if (!preselected) {
         continue;
       }
           

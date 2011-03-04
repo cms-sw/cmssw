@@ -53,6 +53,8 @@ allConversions = cms.EDProducer('ConversionProducer',
     AllowMinApproach = cms.bool(True), #Allow pairing using min approach cut
     AllowOppCharge = cms.bool(True), #use opposite charge tracks to pair
     AllowVertex = cms.bool(True),
+    bypassPreselGsf = cms.bool(True), #bypass preselection for gsf + X pairs
+    bypassPreselEcal = cms.bool(False), #bypass preselection for ecal-seeded + X pairs
     AllowSingleLeg = cms.bool(False), #Allow single track conversion
     AllowRightBC = cms.bool(False) #Require second leg matching basic cluster
 )
