@@ -220,7 +220,7 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
      ptstats->SetParent(f2_hist1[i]->GetListOfFunctions());
          
      f1_hist1[i]->Draw(""); // "stat"   
-     f2_hist1[i]->Draw("hist sames");   
+     f2_hist1[i]->Draw("histsames");   
      
      leg->Draw();   
      
@@ -247,19 +247,19 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
     f1_prof[i]->SetLineWidth(1); 
     f1_prof[i]->SetMarkerColor(41);
     f1_prof[i]->SetMarkerStyle(21);
-    f1_prof[i]->SetMarkerSize(0.8);  
+    f1_prof[i]->SetMarkerSize(1.0);  
 
     f2_prof[i]->SetLineColor(43);
     f2_prof[i]->SetLineStyle(2);  
-    f2_prof[i]->SetLineWidth(1); 
+    f2_prof[i]->SetLineWidth(2); 
     f2_prof[i]->SetMarkerColor(43);
-    f2_prof[i]->SetMarkerStyle(22);
-    f2_prof[i]->SetMarkerSize(1.0);  
+    f2_prof[i]->SetMarkerStyle(20);
+    f2_prof[i]->SetMarkerSize(0.8);  
 
     myc->SetGrid();
 
-    f1_prof[i]->Draw("hist pl");   
-    f2_prof[i]->Draw("hist pl same"); // esame   
+    f1_prof[i]->Draw("histpl");   
+    f2_prof[i]->Draw("histplsame"); // esame   
 
     TLegend *leg = new TLegend(0.40, 0.91, 0.74, 0.99, "","brNDC");    
      leg->SetBorderSize(2);
