@@ -14,7 +14,7 @@ PhotonSelectorAlgo::PhotonSelectorAlgo(
   c_iso_track_a_(c_iso_track_a),  c_iso_track_b_(c_iso_track_b),
   c_iso_ecal_a_(c_iso_ecal_a),  c_iso_ecal_b_(c_iso_ecal_b),
   c_iso_hcal_a_(c_iso_hcal_a), c_iso_hcal_b_(c_iso_hcal_b),
-  c_hoe_(c_hoe_)
+  c_hoe_(c_hoe)
 {
   ;
 }
