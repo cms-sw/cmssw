@@ -4003,8 +4003,8 @@ void OHltTree::CheckOpenHlt(
                   0.10, // H/E barrel, H/E endcap  
                   0.014,
                   0.035, // cluster shape barrel, cluster shape endcap  
-                  0.98,
-                  1.0, // R9 barrel, R9 endcap  
+                  999.,
+                  999., // R9 barrel, R9 endcap  
                   999,
                   999, // Deta barrel, Deta endcap  
                   999,
@@ -4022,12 +4022,12 @@ void OHltTree::CheckOpenHlt(
                   999., // H iso barrel, H iso endcap
                   999.,
                   999., // E iso barrel, E iso endcap
-                  999.,
-                  999., // H/E barrel, H/E endcap
+                  0.15,
+                  0.1, // H/E barrel, H/E endcap
                   999.,
                   999., // cluster shape barrel, cluster shape endcap
-                  0.98,
-                  1.0, // R9 barrel, R9 endcap
+                  999,
+                  999, // R9 barrel, R9 endcap
                   999.,
                   999., // Deta barrel, Deta endcap
                   999.,
@@ -4040,10 +4040,6 @@ void OHltTree::CheckOpenHlt(
       }
    }
    
-   // FIXME:
-   // - CaloIsoVT not defined in WPv3?
-   // - TrkIsoVT not defined in WPv3?
-   // - mass condition?
    else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v1") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -4055,12 +4051,12 @@ void OHltTree::CheckOpenHlt(
 										    0, // ET, L1isolation  
 										    999.,
 										    999., // Track iso barrel, Track iso endcap  
-										    0.125,
-										    0.075, // Track/pT iso barrel, Track/pT iso endcap  
-										    0.125,
-										    0.075, // H/ET iso barrel, H/ET iso endcap  
-										    0.125,
-										    0.075, // E/ET iso barrel, E/ET iso endcap  
+										    0.05,
+										    0.05, // Track/pT iso barrel, Track/pT iso endcap  
+										    0.05,
+										    0.05, // H/ET iso barrel, H/ET iso endcap  
+										    0.05,
+										    0.05, // E/ET iso barrel, E/ET iso endcap  
 										    0.05,
 										    0.05, // H/E barrel, H/E endcap  
 										    0.011,
