@@ -9,7 +9,7 @@ zdcMonitor = cms.EDAnalyzer("ZDCMonitorModule",
                           
                           # number of luminosity blocks to check
                           Nlumiblocks = cms.untracked.int32(1000),
-                          AllowedCalibTypes = cms.untracked.vint32(),
+                          AllowedCalibTypes = cms.untracked.vint32([0,1,2,3,4,5,6,7]),
                           BadCells = cms.untracked.vstring(),
                           
                           # Determine whether or not to check individual subdetectors

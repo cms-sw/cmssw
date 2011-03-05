@@ -35,16 +35,16 @@ hcalDetDiagLaserMonitor.online    = False
 hcalDetDiagNoiseMonitor.online    = False
 
 # Offline tasks should look at all events, I think
-hcalRawDataMonitor.AllowedCalibTypes         =  []
-hcalDigiMonitor.AllowedCalibTypes            =  []
-hcalRecHitMonitor.AllowedCalibTypes          =  []
-hcalHotCellMonitor.AllowedCalibTypes         =  []
-hcalDeadCellMonitor.AllowedCalibTypes        =  []
-hcalBeamMonitor.AllowedCalibTypes            =  []
-hcalTrigPrimMonitor.AllowedCalibTypes        =  []
-hcalNZSMonitor.AllowedCalibTypes             =  []
-hcalNoiseMonitor.AllowedCalibTypes           =  []
-hcalLSbyLSMonitor.AllowedCalibTypes          =  []
+hcalRawDataMonitor.AllowedCalibTypes         =  [0,1,2,3,4,5,6,7]
+hcalDigiMonitor.AllowedCalibTypes            =  [0,1,2,3,4,5,6,7]
+hcalRecHitMonitor.AllowedCalibTypes          =  [0,1,2,3,4,5,6,7]
+hcalHotCellMonitor.AllowedCalibTypes         =  [0,1,2,3,4,5,6,7]
+hcalDeadCellMonitor.AllowedCalibTypes        =  [0,1,2,3,4,5,6,7]
+hcalBeamMonitor.AllowedCalibTypes            =  [0,1,2,3,4,5,6,7]
+hcalTrigPrimMonitor.AllowedCalibTypes        =  [0,1,2,3,4,5,6,7]
+hcalNZSMonitor.AllowedCalibTypes             =  [0,1,2,3,4,5,6,7]
+hcalNoiseMonitor.AllowedCalibTypes           =  [0,1,2,3,4,5,6,7]
+hcalLSbyLSMonitor.AllowedCalibTypes          =  [0,1,2,3,4,5,6,7]
 
 # No need to skip out of order LS in offline, I think
 hcalRawDataMonitor.skipOutOfOrderLS         =  False
