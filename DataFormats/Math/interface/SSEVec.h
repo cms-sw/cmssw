@@ -534,26 +534,6 @@ namespace mathSSE {
 
 //float op
 
-inline float dot(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  using  mathSSE::_mm_dot_ps;
-  float s;
-  _mm_store_ss(&s,_mm_dot_ps(a.vec,b.vec));
-  return s;
-}
-
-inline mathSSE::Vec4F cross(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  using  mathSSE::_mm_cross_ps;
-  return _mm_cross_ps(a.vec,b.vec);
-}
-
-
-inline float dotxy(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  mathSSE::Vec4F mul = a*b;
-  mul = hadd(mul,mul);
-  float s;
-  _mm_store_ss(&s,mul.vec);
-  return s;
-}
 
 inline bool operator==(mathSSE::Vec4F a, mathSSE::Vec4F b) {
   return _mm_movemask_ps(_mm_cmpeq_ps(a.vec,b.vec))==0xf;
@@ -616,6 +596,29 @@ inline mathSSE::Vec4F operator*(float a, mathSSE::Vec4F b) {
 inline mathSSE::Vec4F operator*(mathSSE::Vec4F b,float a) {
   return  _mm_mul_ps(_mm_set1_ps(a),b.vec);
 }
+
+
+inline float dot(mathSSE::Vec4F a, mathSSE::Vec4F b) {
+  using  mathSSE::_mm_dot_ps;
+  float s;
+  _mm_store_ss(&s,_mm_dot_ps(a.vec,b.vec));
+  return s;
+}
+
+inline mathSSE::Vec4F cross(mathSSE::Vec4F a, mathSSE::Vec4F b) {
+  using  mathSSE::_mm_cross_ps;
+  return _mm_cross_ps(a.vec,b.vec);
+}
+
+
+inline float dotxy(mathSSE::Vec4F a, mathSSE::Vec4F b) {
+  mathSSE::Vec4F mul = a*b;
+  mul = hadd(mul,mul);
+  float s;
+  _mm_store_ss(&s,mul.vec);
+  return s;
+}
+
 
 //
 // float op 2d (use the 4d one...)
