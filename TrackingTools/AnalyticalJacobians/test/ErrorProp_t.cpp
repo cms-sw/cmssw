@@ -64,6 +64,8 @@ int main(int argc, char** argv) {
 
   double totalStep(0.);
   double singleStep(1.);
+  edm::HRTimeType timeFull;
+  edm::HRTimeType timeInf;
   for (int i=0; i<10;++i) {
     double s = singleStep;
     totalStep += singleStep;
@@ -87,10 +89,14 @@ int main(int argc, char** argv) {
     std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
     AnalyticalCurvilinearJacobian full;
     AnalyticalCurvilinearJacobian delta;
+    edm::HRTimeType sf= edm::hrRealTime();
     full.computeFullJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
+    timeFull + =(edm::hrRealTime()-sf);
     std::cout <<  full.jacobian() << std::endl;
     std::cout << std::endl;
+    edm::HRTimeType si= edm::hrRealTime();
     delta.computeInfinitesimalJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
+    timeInf + =(edm::hrRealTime()-si);
     std::cout << delta.jacobian() << std::endl;
     std::cout << std::endl;
     tpg = tpg2;
@@ -100,13 +106,18 @@ int main(int argc, char** argv) {
   std::cout << "---------------------------" << std::endl;
   std::cout << std::endl;
   std::cout << std::endl;
+  std::cout << "fullJacobian " << timeFull << std::endl;
   std::cout <<  fullJacobian << std::endl;
   std::cout << std::endl;
+  std::cout << "deltaJacobian " << timeInf << std::endl;
   std::cout << deltaJacobian << std::endl;
   std::cout << std::endl;
   AnalyticalCurvilinearJacobian full;
   GlobalVector h = tpg0.magneticFieldInInverseGeV(tpg0.position());
+  edm::HRTimeType s= edm::hrRealTime();
   full.computeFullJacobian(tpg0,tpg.position(),tpg.momentum(),h,totalStep);
+  edm::HRTimeType e = edm::hrRealTime();
+  std::cout << "one step fullJacobian " << e-s << std::endl;
   std::cout <<  full.jacobian() << std::endl;
   std::cout << std::endl;
 
