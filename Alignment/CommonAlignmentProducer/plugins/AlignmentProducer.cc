@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.48 $
-///  last update: $Date: 2011/02/16 12:45:59 $
+///  Revision   : $Revision: 1.50 $
+///  last update: $Date: 2011/03/02 20:17:17 $
 ///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
@@ -874,7 +874,7 @@ AlignmentProducer::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRang
 	 iLast!=uniqueLastRunNumbers.end();
 	 ++iLast) {
       if ((*iLast).first>(*iFirst).first) {
-	uniqueRunRanges.push_back(std::make_pair<RunNumber,RunNumber>((*iFirst).first, (*iLast).first));
+	uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>((*iFirst).first, (*iLast).first));
 	break;
       }
     }
