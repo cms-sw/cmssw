@@ -92,7 +92,7 @@ namespace mathSSE {
     // same order is  _MM_SHUFFLE(3,2,1,0)
     //                                               x2, z1,z1
     __m128 v3 = _mm_shuffle_ps(v2, v1, _MM_SHUFFLE(3, 0, 2, 2));
-    //                                               y1, x2,y1
+    //                                               y1, x2,y2
     __m128 v4 = _mm_shuffle_ps(v1, v2, _MM_SHUFFLE(3, 1, 0, 1));
     
     __m128 v5 = _mm_mul_ps(v3, v4);
@@ -731,7 +731,11 @@ inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b)  __attribute__((always_inl
 
 inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b){
   __m128d res = _mm_mul_pd ( a.vec, b.vec);
+#ifdef __SSE3__
+    res = _mm_hadd_pd(res,res);
+#else
   res = _mm_add_sd (  _mm_shuffle_pd ( res , res, 1 ), res );
+#endif
   double s;
   _mm_store_sd(&s,res);
   return s;
