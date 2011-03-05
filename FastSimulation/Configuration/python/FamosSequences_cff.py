@@ -101,7 +101,7 @@ famosParticleFlowSequence = cms.Sequence(
     particleFlowTrackWithDisplacedVertex+
     particleFlowBlock+
     particleFlow+
-    pfElectronTranslatorSequence    
+    pfElectronTranslatorSequence
 )
 
 # Reco Jets and MET
@@ -537,6 +537,7 @@ reconstructionWithFamos = cms.Sequence(
     famosMuonSequence+
     famosMuonIdAndIsolationSequence+
     famosConversionSequence+
+    particleFlowTrackWithDisplacedVertex+
     famosEcalDrivenElectronSequence+
     famosPhotonSequence+
     famosParticleFlowSequence+
