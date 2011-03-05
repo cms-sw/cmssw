@@ -2437,16 +2437,20 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	bool mvaSelected = (BDToutput_[cgsf] >=  mvaEleCut_);
 	if( mvaSelected || bypassmva ) 	  {
 	    elCandidate_.push_back(temp_Candidate);
-	    itextra->setStatus(PFCandidateElectronExtra::Selected,true);
+	    if(itextra!=electronExtra_.end()) 
+	      itextra->setStatus(PFCandidateElectronExtra::Selected,true);
 	  }
 	else 	  {
-	  itextra->setStatus(PFCandidateElectronExtra::Rejected,true);
-	  }
+	  if(itextra!=electronExtra_.end()) 
+	    itextra->setStatus(PFCandidateElectronExtra::Rejected,true);
+	}
 	allElCandidate_.push_back(temp_Candidate);
 	
 	// save the status information
-	itextra->setStatus(PFCandidateElectronExtra::ECALDrivenPreselected,bypassmva);
-	itextra->setStatus(PFCandidateElectronExtra::MVASelected,mvaSelected);
+	if(itextra!=electronExtra_.end()) {
+	  itextra->setStatus(PFCandidateElectronExtra::ECALDrivenPreselected,bypassmva);
+	  itextra->setStatus(PFCandidateElectronExtra::MVASelected,mvaSelected);
+	}
 	
 
       }
