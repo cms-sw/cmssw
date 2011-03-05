@@ -513,8 +513,8 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 		}  
 	    }  
 	   
-	  for(std::multimap<double, unsigned int>::iterator iteps = PS1Elems_conv.begin();  
-	      iteps != PS1Elems_conv.end(); ++iteps) {  
+	  for(std::multimap<double, unsigned int>::iterator iteps = PS2Elems_conv.begin();  
+	      iteps != PS2Elems_conv.end(); ++iteps) {  
 	    if(!active[iteps->second])continue;  
 	    std::multimap<double, unsigned int> PS2Elems_check;  
 	    blockRef->associatedElements(iteps->second,  
