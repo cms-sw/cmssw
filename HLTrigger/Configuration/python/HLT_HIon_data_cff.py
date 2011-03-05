@@ -1,18 +1,35 @@
-# /dev/CMSSW_3_11_1/HIon/V57 (CMSSW_3_11_0_HLT11)
+# /dev/CMSSW_3_11_1/HIon/V58 (CMSSW_3_11_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V57')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V58')
 )
 
 streams = cms.PSet( 
   A = cms.vstring( 'Commissioning',
     'Cosmics',
+    'DoubleElectron',
+    'DoubleMu',
+    'ElectronHad',
     'ForwardTriggers',
+    'HT',
     'HcalHPDNoise',
-    'HcalNZS' ),
+    'HcalNZS',
+    'Jet',
+    'METBTag',
+    'MinimumBias',
+    'MuEG',
+    'MuHad',
+    'MuOnia',
+    'MultiJet',
+    'Photon',
+    'PhotonHad',
+    'SingleElectron',
+    'SingleMu',
+    'Tau',
+    'TauPlusX' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -36,15 +53,26 @@ datasets = cms.PSet(
   AlCaPhiSym = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
+  DoubleElectron = cms.vstring(  ),
+  DoubleMu = cms.vstring(  ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v1' ),
+  ElectronHad = cms.vstring(  ),
   ExpressCosmics = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
   ForwardTriggers = cms.vstring(  ),
+  HT = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
+  Jet = cms.vstring(  ),
   L1Accept = cms.vstring(  ),
   LogMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
+  METBTag = cms.vstring(  ),
+  MinimumBias = cms.vstring(  ),
+  MuEG = cms.vstring(  ),
+  MuHad = cms.vstring(  ),
+  MuOnia = cms.vstring(  ),
+  MultiJet = cms.vstring(  ),
   OfflineMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
   OfflineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
     'HLT_HIActivityHF_Single3',
@@ -216,7 +244,13 @@ datasets = cms.PSet(
     'HLT_HIZeroBiasPixel_SingleTrack',
     'HLT_HIZeroBiasXOR',
     'HLT_HcalCalibration_HI' ),
+  Photon = cms.vstring(  ),
+  PhotonHad = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
+  SingleElectron = cms.vstring(  ),
+  SingleMu = cms.vstring(  ),
+  Tau = cms.vstring(  ),
+  TauPlusX = cms.vstring(  ),
   TestEnables = cms.vstring(  )
 )
 

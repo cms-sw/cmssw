@@ -95,7 +95,6 @@ HLT_DoubleMu3_Quarkonium_v*
 HLT_DoubleMu4_Acoplanarity03_v*
 HLT_TripleMu5_v*
 HLT_IsoMu5_DoubleMu5_v*
-HLT_Mu5_Track0_Jpsi_B5Q7_v*
 HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*
 HLT_Mu5_L2Mu2_v*
 HLT_Mu5_L2Mu2_Jpsi_v*
