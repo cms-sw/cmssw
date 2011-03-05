@@ -9,7 +9,8 @@ using namespace reco;
 PFRecTrack::PFRecTrack() :
   PFTrack(),
   algoType_(PFRecTrack::Unknown),
-  trackId_(-1)
+  trackId_(-1),
+  STIP_(-99.)
 {}
 
 
@@ -21,7 +22,8 @@ PFRecTrack::PFRecTrack(double charge,
   PFTrack(charge), 
   algoType_(algoType),
   trackId_(trackId), 
-  trackRef_(trackRef)
+  trackRef_(trackRef),
+  STIP_(-99.)
 {}
 
 
@@ -29,7 +31,8 @@ PFRecTrack::PFRecTrack(double charge,
 PFRecTrack::PFRecTrack(double charge, AlgoType_t algoType) : 
   PFTrack(charge), 
   algoType_(algoType),
-  trackId_(-1)
+  trackId_(-1),
+  STIP_(-99.)
 {}
   
 
