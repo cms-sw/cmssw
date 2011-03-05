@@ -98,8 +98,8 @@ inline mathSSE::Vec4<double> cross(mathSSE::Vec4<double> a, mathSSE::Vec4<double
   return _mm256_cross_pd(a.vec,b.vec);
 }
 
-inline double dotxy(mathSSE::Vec4D a, mathSSE::Vec4D b) {
-  mathSSE::Vec4D mul = a*b;
+inline double dotxy(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
+  mathSSE::Vec4<double> mul = a*b;
   mul = hadd(mul,mul);
   return ret.arr[0];
 }

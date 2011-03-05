@@ -549,8 +549,9 @@ inline mathSSE::Vec4F cross(mathSSE::Vec4F a, mathSSE::Vec4F b) {
 
 inline float dotxy(mathSSE::Vec4F a, mathSSE::Vec4F b) {
   mathSSE::Vec4F mul = a*b;
+  mul = hadd(mul,mul);
   float s;
-  _mm_store_ss(&s,hadd(mul,mul).vec);
+  _mm_store_ss(&s,mul.vec);
   return s;
 }
 
