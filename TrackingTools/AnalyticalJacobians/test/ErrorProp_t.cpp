@@ -64,8 +64,8 @@ int main(int argc, char** argv) {
 
   double totalStep(0.);
   double singleStep(1.);
-  edm::HRTimeType timeFull;
-  edm::HRTimeType timeInf;
+  edm::HRTimeType timeFull=0;
+  edm::HRTimeType timeInf=0;
   for (int i=0; i<10;++i) {
     double s = singleStep;
     totalStep += singleStep;
@@ -91,12 +91,12 @@ int main(int argc, char** argv) {
     AnalyticalCurvilinearJacobian delta;
     edm::HRTimeType sf= edm::hrRealTime();
     full.computeFullJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
-    timeFull + =(edm::hrRealTime()-sf);
+    timeFull += (edm::hrRealTime()-sf);
     std::cout <<  full.jacobian() << std::endl;
     std::cout << std::endl;
     edm::HRTimeType si= edm::hrRealTime();
     delta.computeInfinitesimalJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
-    timeInf + =(edm::hrRealTime()-si);
+    timeInf += (edm::hrRealTime()-si);
     std::cout << delta.jacobian() << std::endl;
     std::cout << std::endl;
     tpg = tpg2;
