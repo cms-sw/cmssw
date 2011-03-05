@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V58 (CMSSW_3_11_0_HLT11)
+# /dev/CMSSW_3_11_1/GRun/V59 (CMSSW_3_11_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V58')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V59')
 )
 
 process.streams = cms.PSet( 
@@ -17454,7 +17454,6 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Mu5_L2Mu2_Jpsi_v1',
       'HLT_Mu5_L2Mu2_v1',
       'HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v1',
-      'HLT_Mu5_Track0_Jpsi_B5Q7_v1',
       'HLT_Mu5_Track5_Jpsi_v1',
       'HLT_Mu5_v2',
       'HLT_Mu7_Track5_Jpsi_v1',
@@ -17698,7 +17697,6 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Mu5_L2Mu2_Jpsi_v1',
       'HLT_Mu5_L2Mu2_v1',
       'HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v1',
-      'HLT_Mu5_Track0_Jpsi_B5Q7_v1',
       'HLT_Mu5_Track5_Jpsi_v1',
       'HLT_Mu5_v2',
       'HLT_Mu7_Track5_Jpsi_v1',
@@ -17925,7 +17923,6 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Mu5_L2Mu2_Jpsi_v1',
       'HLT_Mu5_L2Mu2_v1',
       'HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v1',
-      'HLT_Mu5_Track0_Jpsi_B5Q7_v1',
       'HLT_Mu5_Track5_Jpsi_v1',
       'HLT_Mu5_v2',
       'HLT_Mu7_Track5_Jpsi_v1',
