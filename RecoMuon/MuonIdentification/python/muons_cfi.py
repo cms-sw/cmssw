@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.MuonIdentification.isolation_cff import *
 from RecoMuon.MuonIdentification.caloCompatibility_cff import *
 from RecoMuon.MuonIdentification.MuonTimingFiller_cfi import *
+from RecoMuon.MuonIdentification.TrackerKinkFinder_cfi import *
 from TrackingTools.TrackAssociator.default_cfi import *
 muons = cms.EDProducer("MuonIdProducer",
     # MuonCaloCompatibility
@@ -14,6 +15,9 @@ muons = cms.EDProducer("MuonIdProducer",
     MIdIsoExtractorPSetBlock,
     # MuonTiming
     TimingFillerBlock,
+    # Kink finder
+    TrackerKinkFinderParametersBlock,
+
     fillEnergy = cms.bool(True),
     # OR
     maxAbsPullX = cms.double(4.0),
@@ -52,6 +56,9 @@ muons = cms.EDProducer("MuonIdProducer",
     # global quality
     fillGlobalTrackQuality = cms.bool(False), #input depends on external module output --> set to True where the sequence is defined
     globalTrackQualityInputTag = cms.InputTag('glbTrackQual'),
+
+    # tracker kink finding
+    fillTrackerKink = cms.bool(True),
     
     # calo muons
     minCaloCompatibility = cms.double(0.6),

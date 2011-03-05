@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.59 2010/07/04 16:48:41 slava77 Exp $
+// $Id: MuonIdProducer.cc,v 1.60 2010/09/26 15:54:05 slava77 Exp $
 //
 //
 
@@ -53,6 +53,8 @@
 
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
+
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
 muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 {
@@ -78,6 +80,10 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    fillIsolation_           = iConfig.getParameter<bool>("fillIsolation");
    writeIsoDeposits_        = iConfig.getParameter<bool>("writeIsoDeposits");
    fillGlobalTrackQuality_  = iConfig.getParameter<bool>("fillGlobalTrackQuality");
+   //SK: (maybe temporary) run it only if the global is also run
+   fillTrackerKink_         = false;
+   if (fillGlobalTrackQuality_)  fillTrackerKink_ =  iConfig.getParameter<bool>("fillTrackerKink");
+
    ptThresholdToFillCandidateP4WithGlobalFit_    = iConfig.getParameter<double>("ptThresholdToFillCandidateP4WithGlobalFit");
    sigmaThresholdToFillCandidateP4WithGlobalFit_ = iConfig.getParameter<double>("sigmaThresholdToFillCandidateP4WithGlobalFit");
    caloCut_ = iConfig.getParameter<double>("minCaloCompatibility"); //CaloMuons
@@ -141,6 +147,10 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
      globalTrackQualityInputTag_ = iConfig.getParameter<edm::InputTag>("globalTrackQualityInputTag");
    }
 
+   if (fillTrackerKink_) {
+     trackerKinkFinder_.reset(new MuonKinkFinder(iConfig.getParameter<edm::ParameterSet>("TrackerKinkFinderParameters")));
+   }
+   
    //create mesh holder
    meshAlgo_ = new MuonMesh(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
 }
@@ -170,6 +180,8 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::ESHandle<Propagator> propagator;
    iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
    trackAssociator_.setPropagator(propagator.product());
+
+   if (fillTrackerKink_) trackerKinkFinder_->init(iSetup);
    
    // timers.pop_and_push("MuonIdProducer::produce::init::getInputCollections");
    for ( unsigned int i = 0; i < inputCollectionLabels_.size(); ++i ) {
@@ -607,6 +619,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  fillGlbQuality(iEvent, iSetup, *muon);
 	}
 	LogDebug("MuonIdentification");
+
+        if (fillTrackerKink_) {
+            fillTrackerKink(*muon);
+        }
 
 	// timers.push("MuonIdProducer::produce::fillCaloCompatibility");
 	if ( fillCaloCompatibility_ ) muon->setCaloCompatibility( muonCaloCompatibility_.evaluate(*muon) );
@@ -1105,6 +1121,16 @@ void MuonIdProducer::fillGlbQuality(edm::Event& iEvent, const edm::EventSetup& i
 
 }
 
+void MuonIdProducer::fillTrackerKink( reco::Muon& aMuon ) {
+    // skip muons with no tracks
+    if (aMuon.innerTrack().isNull()) return;
+    // get quality from muon if already there, otherwise make empty one
+    reco::MuonQuality quality = (aMuon.isQualityValid() ? aMuon.combinedQuality() : reco::MuonQuality());
+    // fill it
+    bool filled = trackerKinkFinder_->fillTrkKink(quality, *aMuon.innerTrack());
+    // if quality was there, or if we filled it, commit to the muon 
+    if (filled || aMuon.isQualityValid()) aMuon.setCombinedQuality(quality);
+}
 
 bool MuonIdProducer::checkLinks(const reco::MuonTrackLinks* links) const {
   bool trackBAD = links->trackerTrack().isNull();

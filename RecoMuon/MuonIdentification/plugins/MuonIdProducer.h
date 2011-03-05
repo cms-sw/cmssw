@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.23 2010/06/28 08:47:42 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.24 2010/09/26 15:54:05 slava77 Exp $
 //
 //
 
@@ -49,6 +49,7 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
 class MuonMesh;
+class MuonKinkFinder;
 
 class MuonIdProducer : public edm::EDProducer {
  public:
@@ -71,6 +72,7 @@ class MuonIdProducer : public edm::EDProducer {
 				    reco::IsoDeposit& trackDep, reco::IsoDeposit& ecalDep, reco::IsoDeposit& hcalDep, reco::IsoDeposit& hoDep,
 				    reco::IsoDeposit& jetDep);
    void          fillGlbQuality( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
+   void          fillTrackerKink( reco::Muon& aMuon ); 
    void          init( edm::Event&, const edm::EventSetup& );
    
    // make a muon based on a track ref
@@ -149,6 +151,10 @@ class MuonIdProducer : public edm::EDProducer {
 
    bool          fillGlobalTrackQuality_;
    edm::InputTag globalTrackQualityInputTag_;
+
+   bool fillTrackerKink_;
+   std::auto_ptr<MuonKinkFinder> trackerKinkFinder_;
+
    double caloCut_;
    
    bool arbClean_;
