@@ -547,6 +547,13 @@ inline mathSSE::Vec4F cross(mathSSE::Vec4F a, mathSSE::Vec4F b) {
 }
 
 
+inline float dotxy(mathSSE::Vec4F a, mathSSE::Vec4F b) {
+  mathSSE::Vec4F mul = a*b;
+  float s;
+  _mm_store_ss(&s,hadd(mul,mul).vec);
+  return s;
+}
+
 inline bool operator==(mathSSE::Vec4F a, mathSSE::Vec4F b) {
   return _mm_movemask_ps(_mm_cmpeq_ps(a.vec,b.vec))==0xf;
 }
@@ -823,6 +830,11 @@ inline mathSSE::Vec4D cross(mathSSE::Vec4D a, mathSSE::Vec4D b) {
   __m128d m2 = _mm_sub_sd ( l1 , _mm_unpackhi_pd ( l1 , l1 ) );
 
   return  mathSSE::Vec4D( m1 , m2 );
+}
+
+
+inline double dotxy(mathSSE::Vec4D a, mathSSE::Vec4D b) {
+  return dot(a.xy(),b.xy());
 }
 
 #endif   // CMS_USE_AVX

@@ -98,6 +98,11 @@ inline mathSSE::Vec4<double> cross(mathSSE::Vec4<double> a, mathSSE::Vec4<double
   return _mm256_cross_pd(a.vec,b.vec);
 }
 
+inline double dotxy(mathSSE::Vec4D a, mathSSE::Vec4D b) {
+  mathSSE::Vec4D mul = a*b;
+  mul = hadd(mul,mul);
+  return ret.arr[0];
+}
 
 inline bool operator==(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
   return _mm256_movemask_pd(_mm256_cmp_pd(a.vec,b.vec,_CMP_EQ_OS))==0xf;
