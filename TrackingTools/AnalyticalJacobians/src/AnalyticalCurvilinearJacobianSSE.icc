@@ -52,14 +52,14 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   //  t = _mm_sqrt_pd(_mm_add_pd(t,_mm_shuffle_pd(t,t,1)));
   t = _mm_sqrt_pd(_mm_hadd_pd(t,t));
   Vec2D u1(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t1.xy().vec,t1.xy().vec,1),t)));
-  Vec3D u13(u1.vec, _mm_setzero_pd());
+  Vec3D u13(u1.vec);
   Vec3D v1 = cross(t1,u13);
 
   t = _mm_mul_pd(t2.xy().vec,t2.xy().vec);
   //  t = _mm_sqrt_pd(_mm_add_pd(t,_mm_shuffle_pd(t,t,1)));
   t = _mm_sqrt_pd(_mm_hadd_pd(t,t));
   Vec2D u2(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t2.xy().vec,t2.xy().vec,1),t)));
-  Vec3D u23(u2.vec, _mm_setzero_pd());
+  Vec3D u23(u2.vec);
   Vec3D v2 = cross(t2,u23);
 
 
