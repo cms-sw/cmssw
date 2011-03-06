@@ -841,7 +841,9 @@ inline mathSSE::Vec4D cross(mathSSE::Vec4D a, mathSSE::Vec4D b) {
 }
 
 
-inline double dotxy(mathSSE::Vec4D a, mathSSE::Vec4D b) {
+inline double  
+__attribute__((always_inline)) __attribute__ ((pure)) 
+dotxy(mathSSE::Vec4D a, mathSSE::Vec4D b) {
   return dot(a.xy(),b.xy());
 }
 
