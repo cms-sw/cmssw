@@ -55,6 +55,7 @@ allConversions = cms.EDProducer('ConversionProducer',
     AllowVertex = cms.bool(True),
     bypassPreselGsf = cms.bool(True), #bypass preselection for gsf + X pairs
     bypassPreselEcal = cms.bool(False), #bypass preselection for ecal-seeded + X pairs
+    bypassPreselEcalEcal = cms.bool(True), #bypass preselection for ecal-seeded + ecal-seeded pairs    
     AllowSingleLeg = cms.bool(False), #Allow single track conversion
     AllowRightBC = cms.bool(False) #Require second leg matching basic cluster
 )

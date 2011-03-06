@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.5 2011/02/25 22:16:56 dlange Exp $
+// $Id: ConversionProducer.cc,v 1.6 2011/03/04 20:13:20 bendavid Exp $
 //
 //
 
@@ -94,7 +94,7 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
 
   bypassPreselGsf_ = iConfig.getParameter<bool>("bypassPreselGsf");
   bypassPreselEcal_ = iConfig.getParameter<bool>("bypassPreselEcal");
-  
+  bypassPreselEcalEcal_ = iConfig.getParameter<bool>("bypassPreselEcalEcal");
   
   halfWayEta_ = iConfig.getParameter<double>("HalfwayEta");//open angle to search track matches with BC
 
@@ -411,6 +411,7 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
       bool preselected = preselectTrackPair(ttk_l,ttk_r, approachDist);
       preselected = preselected || (bypassPreselGsf_ && (left->algo()==29 || right->algo()==29));
       preselected = preselected || (bypassPreselEcal_ && (left->algo()==15 || right->algo()==15 || left->algo()==16 || right->algo()==16));
+      preselected = preselected || (bypassPreselEcalEcal_ && (left->algo()==15 || left->algo()==16) && (right->algo()==15 || right->algo()==16));
       
       if (!preselected) {
         continue;

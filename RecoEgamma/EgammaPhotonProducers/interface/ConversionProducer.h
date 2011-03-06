@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2011/02/25 22:16:56 $
- **  $Revision: 1.2 $
+ **  $Date: 2011/03/04 20:13:20 $
+ **  $Revision: 1.3 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -92,7 +92,7 @@ class ConversionProducer : public edm::EDProducer {
 
       bool allowD0_, allowDeltaPhi_, allowTrackBC_, allowDeltaCot_, allowMinApproach_, allowOppCharge_, allowVertex_;
 
-      bool bypassPreselGsf_, bypassPreselEcal_;
+      bool bypassPreselGsf_, bypassPreselEcal_, bypassPreselEcalEcal_;
       
       bool usePvtx_;//if use primary vertices
       std::string vertexProducer_;
