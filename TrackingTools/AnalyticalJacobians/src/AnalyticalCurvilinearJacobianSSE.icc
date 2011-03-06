@@ -46,8 +46,6 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   double gamma = dot(hn,t2);
   Vec3D an = cross(hn,t2);
 
-  const __m128d neg = _mm_set_pd ( 0.0 , -0.0 ); // mind: set not setr
-
   Vec4D t(t1.xy(),t2.xy());
   Vec4D tt = t*t;
   tt = mathSSE::sqrt(hadd(tt,tt));
