@@ -8,6 +8,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
  const double& s)
 {    
 
+  using mathSSE::Vec4D;
   using mathSSE::Vec3D;
   using mathSSE::Vec2D;
 
