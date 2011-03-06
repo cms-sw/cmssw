@@ -36,7 +36,7 @@ namespace mathSSE {
 
     Vec4( Vec2<double> ivec0,   Vec2<double> ivec1) {
      vec = _mm256_insertf128_pd(vec,ivec0.vec,0);
-     vec = _mm256_insertf128_pd(vec,ivec0.vec,1);
+     vec = _mm256_insertf128_pd(vec,ivec1.vec,1);
 
      }
     
