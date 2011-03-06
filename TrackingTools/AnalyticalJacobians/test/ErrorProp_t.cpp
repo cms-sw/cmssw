@@ -92,10 +92,10 @@ int main(int argc, char** argv) {
       AnalyticalCurvilinearJacobian delta;
       edm::HRTimeType sf= edm::hrRealTime();
       full.computeFullJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
-      timeFull + =(edm::hrRealTime()-sf);
+      timeFull +=(edm::hrRealTime()-sf);
       edm::HRTimeType si= edm::hrRealTime();
       delta.computeInfinitesimalJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
-      timeInf + =(edm::hrRealTime()-si);
+      timeInf +=(edm::hrRealTime()-si);
       std::cout <<  full.jacobian() << std::endl;
       std::cout << std::endl;
       std::cout << delta.jacobian() << std::endl;
@@ -176,10 +176,10 @@ int main(int argc, char** argv) {
       AnalyticalCurvilinearJacobian delta;
       edm::HRTimeType sf= edm::hrRealTime();
       full.computeFullJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
-      timeFull + =(edm::hrRealTime()-sf);
+      timeFull +=(edm::hrRealTime()-sf);
       edm::HRTimeType si= edm::hrRealTime();
       delta.computeInfinitesimalJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
-      timeInf + =(edm::hrRealTime()-si);
+      timeInf +=(edm::hrRealTime()-si);
       tpg = tpg2;
       fullJacobian *=full.jacobian();
       deltaJacobian *=delta.jacobian();
