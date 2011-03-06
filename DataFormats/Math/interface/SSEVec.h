@@ -69,7 +69,9 @@ namespace mathSSE {
 namespace mathSSE {
 #ifdef  CMS_USE_SSE
   //dot
-  inline __m128 _mm_dot_ps(__m128 v1, __m128 v2) {
+  inline __m128 
+  __attribute__((always_inline)) __attribute__ ((pure))
+  _mm_dot_ps(__m128 v1, __m128 v2) {
 #ifdef __SSE4_1__
     return _mm_dp_ps(v1, v2, 0xff);
 #else
@@ -88,7 +90,9 @@ namespace mathSSE {
   
 
   // cross (just 3x3) 
-  inline __m128 _mm_cross_ps(__m128 v1, __m128 v2) {
+  inline __m128 
+  __attribute__((always_inline)) __attribute__ ((pure))
+  _mm_cross_ps(__m128 v1, __m128 v2) {
     // same order is  _MM_SHUFFLE(3,2,1,0)
     //                                               x2, z1,z1
     __m128 v3 = _mm_shuffle_ps(v2, v1, _MM_SHUFFLE(3, 0, 2, 2));
@@ -109,14 +113,18 @@ namespace mathSSE {
 #endif // CMS_USE_SSE
 
 #ifdef  CMS_USE_AVX
-  inline __m256d _mm256_dot_pd(__m256d v1, __m256d v2) {
+  inline __m256d  
+  __attribute__((always_inline)) __attribute__ ((pure))
+  _mm256_dot_pd(__m256d v1, __m256d v2) {
     __m256d mul = _mm256_mul_pd(v1, v2);
     mul = _mm256_hadd_pd(mul,mul);
     __m256d tmp = _mm256_permute2f128_pd(mul,mul,1);
     return _mm256_add_pd(mul,tmp);
   }
 
-  inline __m256d _mm256_cross_pd(__m256d v1, __m256d v2) {
+  inline __m256d  
+  __attribute__((always_inline)) __attribute__ ((pure))
+  _mm256_cross_pd(__m256d v1, __m256d v2) {
     
     __m256d v3 = _mm256_permute2f128_pd(v2, v1, (2<<4)+1);
     v3 = _mm256_permute_pd(v3,0);

@@ -148,7 +148,9 @@ inline mathSSE::Vec4<double> operator*(mathSSE::Vec4<double> b,double a) {
   return  _mm256_mul_pd(_mm256_set1_pd(a),b.vec);
 }
 
-inline double  __attribute__((always_inline)) __attribute__ ((pure)) dot(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
+inline double  
+__attribute__((always_inline)) __attribute__ ((pure)) 
+dot(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
   using  mathSSE::_mm256_dot_pd;
   mathSSE::Vec4<double> ret;
   ret.vec = _mm256_dot_pd(a.vec,b.vec);
