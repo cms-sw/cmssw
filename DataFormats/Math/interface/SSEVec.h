@@ -710,6 +710,11 @@ inline mathSSE::Vec2D andnot(mathSSE::Vec2D a, mathSSE::Vec2D b) {
   return  _mm_andnot_pd(a.vec,b.vec);
 }
 
+#ifdef __SSE3__
+inline mathSSE::Vec4F hadd(mathSSE::Vec2D a, mathSSE::Vec2D b) {
+  return _mm_hadd_pd(a.vec,b.vec);
+}
+#endif
 
 inline mathSSE::Vec2D operator+(mathSSE::Vec2D a, mathSSE::Vec2D b) {
   return  _mm_add_pd(a.vec,b.vec);
@@ -763,6 +768,15 @@ inline double cross(mathSSE::Vec2D a, mathSSE::Vec2D b) {
 
 #ifndef  CMS_USE_AVX
 // double op 3d
+
+
+#ifdef __SSE3__
+// consistent with AVX...
+inline mathSSE::Vec4D hadd(mathSSE::Vec4D a, mathSSE::Vec4D b) {
+  return  mathSSE::Vec4D(hadd(a.vec[0],b.vec[0]),hadd(a.vec[1],b.vec[1]) );
+}
+#endif
+
 
 inline bool operator==(mathSSE::Vec4D a, mathSSE::Vec4D b) {
   return 
