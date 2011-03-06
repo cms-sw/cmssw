@@ -218,8 +218,6 @@ process.signalRawTaus = process.combinatoricRecoTaus.clone(
             pvSrc = cms.InputTag("offlinePrimaryVertices"),
         )
     ),
-    outputSelection = cms.string(
-        'mass() < 3 & isolationPFChargedHadrCandsPtSum() < 7'),
 )
 process.signalSequence += process.signalRawTaus
 

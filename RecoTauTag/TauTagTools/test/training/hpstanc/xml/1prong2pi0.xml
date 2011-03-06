@@ -144,15 +144,16 @@
       <var source="IsoVars" name="IsoMaskedEcal0"/>
       <var source="IsoVars" name="IsoMaskedEcal1"/>
       <var source="IsoVars" name="IsoMaskedEcal2"/>
-      <var source="IsoVars" name="IsoMaskedHcal0"/>
-      <var source="IsoVars" name="IsoMaskedHcal1"/>
-      <var source="IsoVars" name="IsoMaskedHcal2"/>
+      <!--<var source="IsoVars" name="IsoMaskedHcal0"/>-->
+      <!--<var source="IsoVars" name="IsoMaskedHcal1"/>-->
+      <!--<var source="IsoVars" name="IsoMaskedHcal2"/>-->
       <var source="DalitzDefault" name="M12"/>
       <var source="DalitzDefault" name="M13"/>
     </input>
     <config>
-      <method type="MLP" name="MLP">VerbosityLevel=Verbose:NCycles=800:HiddenLayers=11,21:TestRate=10</method>
-      <setup cuts="" options="VarTransform=G_Signal,D_Signal,G_Signal,D_Signal:NormMode=EqualNumEvents:NSigTrain=0:NBkgTrain=0"/>
+      <method type="MLP" name="MLP">VarTransform=G_Signal,D_Signal,G_Signal,D_Signal:ConvergenceTests=20:VerbosityLevel=Verbose:NCycles=800:HiddenLayers=11,21:TestRate=10</method>
+      <!--<setup cuts="" options="VarTransform=G_Signal,D_Signal,G_Signal,D_Signal:NormMode=EqualNumEvents:NSigTrain=0:NBkgTrain=0"/>-->
+      <setup cuts="" options="NormMode=EqualNumEvents:nTrain_Signal=0:nTrain_Background=0"/>
     </config>
     <output>
       <var name="MVAOutput"/>

@@ -90,6 +90,11 @@ process.looper = cms.Looper(
 from RecoTauTag.RecoTau.RecoTauDiscriminantConfiguration import \
         discriminantConfiguration
 
+discriminantConfiguration.FlightPathSignificance.discSrc = cms.VInputTag(
+    "hpsTancTausDiscriminationByFlightPathSignal",
+    "hpsTancTausDiscriminationByFlightPathBackground",
+)
+
 process.trainer = cms.EDAnalyzer(
     "RecoTauMVATrainer",
     signalSrc = cms.InputTag(

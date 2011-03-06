@@ -9,7 +9,9 @@ EVAL=${DIR}/eval
 XML=${DIR}/xml
 DATADIR=/data2/friis/MVATraining/
 
-all: ${EVAL}/eval.pdf ${EVAL}/1prong0pi0/correlations.png ${EVAL}/1prong1pi0/correlations.png ${EVAL}/1prong2pi0/correlations.png ${EVAL}/3prong0pi0/correlations.png
+all: ${EVAL}/eval.pdf traincontrol
+
+traincontrol: ${EVAL}/1prong0pi0/correlations.png ${EVAL}/1prong1pi0/correlations.png ${EVAL}/1prong2pi0/correlations.png ${EVAL}/3prong0pi0/correlations.png
 
 clean:
 	rm -f ${DB}/*

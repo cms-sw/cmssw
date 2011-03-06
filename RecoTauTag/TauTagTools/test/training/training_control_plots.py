@@ -60,8 +60,15 @@ if __name__ == "__main__":
         output_dir, "correlations.png"))
 
     input_var_dir = file.Get("InputVariables_NoTransform")
+    if not input_var_dir:
+        input_var_dir = file.Get("InputVariables_Id")
 
-    matcher = re.compile("(?P<name>[^_]*)__(?P<type>[SB])_NoTransform")
+    matcher = re.compile("(?P<name>[^_]*)__(?P<type>[A-Za-z0-9]*)_Id")
+
+    colors = {
+        'Signal' : ROOT.EColor.kRed,
+        'Background' : ROOT.EColor.kBlue,
+    }
 
     input_distributions = {}
     for histo in get_by_type(input_var_dir, ROOT.TH1F):
@@ -69,20 +76,22 @@ if __name__ == "__main__":
         match = matcher.match(rawname)
         name = match.group('name')
         type = match.group('type')
+        histo.Scale(1.0/histo.Integral())
+        histo.SetLineColor(colors[type])
         histo_info = input_distributions.setdefault(name, {})
         histo_info[type] = histo
 
     variable_canvas = ROOT.TCanvas("var", "var", 1000, 1000)
     for variable, histograms in input_distributions.iteritems():
-        maximum = max(histograms[type].GetMaximum() for type in 'SB')
-        for type in 'SB':
+        maximum = max(histograms[type].GetMaximum()
+                      for type in ['Signal', 'Background'])
+        for type in ['Signal', 'Background']:
             histograms[type].SetLineWidth(2)
         # Tgraph integral not in ROOT 5.27?
-        #gini = gini_index(histograms['S'], histograms['B'])
-        gini = 0
-        histograms['S'].SetMaximum(1.2*maximum)
-        histograms['S'].SetTitle(variable + " gini: %0.2f" % gini)
-        histograms['S'].Draw()
-        histograms['B'].Draw('same')
+        gini = gini_index(histograms['Signal'], histograms['Background'])
+        histograms['Signal'].SetMaximum(1.2*maximum)
+        histograms['Signal'].SetTitle(variable + " gini: %0.2f" % gini)
+        histograms['Signal'].Draw()
+        histograms['Background'].Draw('same')
         variable_canvas.SaveAs(os.path.join(
             output_dir, variable + ".png"))

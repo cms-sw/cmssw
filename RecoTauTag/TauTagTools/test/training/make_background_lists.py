@@ -6,7 +6,7 @@ import random
 
 random.seed(1)
 
-LOCAL_DIR = '/tmp/friis/MVATraining/background'
+LOCAL_DIR = '/data2/friis/MVATraining/background'
 if not os.path.exists(LOCAL_DIR):
     os.makedirs(LOCAL_DIR)
 

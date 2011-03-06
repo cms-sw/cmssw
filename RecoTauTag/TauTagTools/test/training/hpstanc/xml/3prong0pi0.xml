@@ -7,9 +7,10 @@
     <!--Common inputs-->
     <var name="Pt" multiple="false" optional="false"/>
     <var name="JetPt" multiple="false" optional="false"/>
+    <var name="AbsEta" multiple="false" optional="false"/>
     <var name="MainTrackPtFraction" multiple="false" optional="false"/>
     <var name="JetTauDR" multiple="false" optional="false"/>
-    <!--<var name="FlightPathSignificance" multiple="false" optional="false"/>-->
+    <var name="FlightPathSignificance" multiple="false" optional="false"/>
     <var name="ImpactParameterSignificance" multiple="false" optional="false"/>
     <var name="Mass" multiple="false" optional="false"/>
     <var name="InvariantOpeningAngle" multiple="false" optional="false"/>
@@ -135,11 +136,12 @@
   <!--MVA defintion-->
   <processor id="3prong0pi0_hpstanc" name="ProcTMVA">
     <input>
-      <var source="input" name="Pt"/>
+      <!--<var source="input" name="Pt"/>-->
+      <var source="input" name="AbsEta"/>
       <var source="input" name="MainTrackPtFraction"/>
-      <!--<var source="input" name="FlightPathSignificance"/>-->
-      <var source="input" name="JetTauDR"/>
-      <var source="input" name="ImpactParameterSignificance"/>
+      <!--<var source="input" name="JetTauDR"/>-->
+      <var source="input" name="FlightPathSignificance"/>
+      <!--<var source="input" name="ImpactParameterSignificance"/>-->
       <var source="input" name="Mass"/>
       <var source="input" name="InvariantOpeningAngle"/>
       <var source="IsoVars" name="IsoTrack0"/>
@@ -148,15 +150,16 @@
       <var source="IsoVars" name="IsoMaskedEcal0"/>
       <var source="IsoVars" name="IsoMaskedEcal1"/>
       <var source="IsoVars" name="IsoMaskedEcal2"/>
-      <var source="IsoVars" name="IsoMaskedHcal0"/>
-      <var source="IsoVars" name="IsoMaskedHcal1"/>
-      <var source="IsoVars" name="IsoMaskedHcal2"/>
+      <!--<var source="IsoVars" name="IsoMaskedHcal0"/>-->
+      <!--<var source="IsoVars" name="IsoMaskedHcal1"/>-->
+      <!--<var source="IsoVars" name="IsoMaskedHcal2"/>-->
       <var source="DalitzDefault" name="M12"/>
       <var source="DalitzDefault" name="M13"/>
     </input>
     <config>
-      <method type="MLP" name="MLP">VerbosityLevel=Verbose:NCycles=800:HiddenLayers=11,21:TestRate=10</method>
-      <setup cuts="" options="VarTransform=G_Signal,D_Signal,G_Signal,D_Signal:NormMode=EqualNumEvents:NSigTrain=0:NBkgTrain=0"/>
+      <method type="MLP" name="MLP">VarTransform=G_Signal,D_Signal,G_Signal,D_Signal:ConvergenceTests=20:VerbosityLevel=Verbose:NCycles=800:HiddenLayers=11,21:TestRate=10</method>
+      <setup cuts="" options="NormMode=EqualNumEvents:nTrain_Signal=0:nTrain_Background=0"/>
+      <!--<setup cuts="" options="VarTransform=G_Signal,D_Signal,G_Signal,D_Signal:NormMode=EqualNumEvents:NSigTrain=0:NBkgTrain=0"/>-->
     </config>
     <output>
       <var name="MVAOutput"/>
