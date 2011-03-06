@@ -177,7 +177,8 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   theJacobian(4,4) = dot(v1,v2);
 
   //double cutCriterion = abs(s/fts.momentum().mag());
-  double cutCriterion = fabs(s/globalParameters.momentum().mag());
+  //  double cutCriterion = fabs(s/globalParameters.momentum().mag());
+  double cutCriterion = std::abs(s*qbp);
   const double limit = 5.; // valid for propagations with effectively float precision
 
   if (cutCriterion > limit) {
