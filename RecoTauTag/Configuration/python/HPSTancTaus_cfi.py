@@ -78,7 +78,7 @@ combinatoricRecoTausHPSSelector = hpsSelectionDiscriminator.clone(
 # Clean the taus according to the transformed output
 hpsTancTaus = cms.EDProducer(
     "RecoTauCleaner",
-    src = cms.InputTag("hpsTancTausDecayModeClean"),
+    src = cms.InputTag("combinatoricRecoTaus"),
     cleaners = cms.VPSet(
         # Prefer taus that don't have charge == 3
         cleaners.unitCharge,
@@ -96,12 +96,6 @@ hpsTancTaus = cms.EDProducer(
             plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
             src = cms.InputTag("combinatoricRecoTausHPSSelector")
         ),
-        # Finally rank taus according to their transformed TaNC output
-        #cms.PSet(
-            #name = cms.string("TaNC transform"),
-            #plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
-            #src = cms.InputTag("combinatoricRecoTausTancTransform")
-        #),
         cleaners.combinedIsolation
     )
 )
@@ -183,7 +177,7 @@ hpsTancTausDiscriminationByFlightPath = cms.EDProducer(
         BooleanOperator = cms.string("and"),
         leadTrack = cms.PSet(
             Producer = cms.InputTag(
-                "hpsTancTausDiscriminationByLeadingTrackFinding"),
+                "hpsTancTausDiscriminationByDecayModeSelection"),
             cut = cms.double(0.5),
         )
     )
