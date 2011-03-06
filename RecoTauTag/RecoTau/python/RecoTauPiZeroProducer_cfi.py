@@ -54,7 +54,7 @@ ak5PFJetsLegacyHPSPiZeros = cms.EDProducer(
     jetSrc = cms.InputTag("ak5PFJets"),
     jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     massHypothesis = cms.double(0.136),
-    outputSelection = cms.string('pt > 1.5'),
+    outputSelection = cms.string('pt > 0'),
     builders = cms.VPSet(
         builders.strips,
     ),

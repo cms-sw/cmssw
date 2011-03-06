@@ -34,7 +34,7 @@ hpsSelectionDiscriminator = cms.EDProducer(
             minPi0Mass = cms.double(0.05),
             maxPi0Mass = cms.double(0.2),
             # Here the strips are assumed to correspond to photons
-            assumeStripMass = cms.double(0.0),
+            assumeStripMass = cms.double(0.1349),
         ),
         cms.PSet(
             nCharged = cms.uint32(3),
