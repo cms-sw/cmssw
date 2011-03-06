@@ -143,6 +143,39 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   //   yt
 
+
+  double overQ = 1./q;
+
+  theJacobian(3,1) = (sint*dot(v1.xy(),u2) +
+		      omcost*dot(hv.xy(),u2) +
+		      tmsint*dot(hn,v1)*dot(hn.xy(),u2)
+		      )*overQ;
+
+  theJacobian(3,2) = (sint*dot(u1,u2) +
+		      omcost*dot(hu.xy(),u2) +
+		      tmsint*dot(hn.xy(),u1)*dot(hn.xy(),u2) 
+		      )*(cosl0*overQ);
+
+  theJacobian(3,3) = dot(u1,u2);
+  
+  theJacobian(3,4) = dot(v1.xy(),u2);
+
+  //   zt
+
+  theJacobian(4,1) = (sint*dot(v1,v2) +
+		      omcost*dot(hv,v2) +
+		      tmsint*dot(hn,v1)*dot(hn,v2)
+		      )*overQ;
+
+  theJacobian(4,2) = (sint*dot(u1,v2.xy()) +
+		      omcost*dot(hu,v2) +
+		      tmsint*dot(hn.xy(),u1)*dot(hn,v2)
+		      )*(cosl0*overQ);
+
+  theJacobian(4,3) = dot(u1,v2.xy()); 
+
+  theJacobian(4,4) = dot(v1,v2);
+
   //double cutCriterion = abs(s/fts.momentum().mag());
   double cutCriterion = fabs(s/globalParameters.momentum().mag());
   const double limit = 5.; // valid for propagations with effectively float precision
@@ -177,36 +210,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     theJacobian(4,0) = secondOrder51 + (thirdOrder51 + fourthOrder51);
   }
 
-  double overQ = 1./q;
 
-  theJacobian(3,1) = (sint*dot(v1.xy(),u2) +
-		      omcost*dot(hv.xy(),u2) +
-		      tmsint*dot(hn,v1)*dot(hn.xy(),u2)
-		      )*overQ;
 
-  theJacobian(3,2) = (sint*dot(u1,u2) +
-		      omcost*dot(hu.xy(),u2) +
-		      tmsint*dot(hn.xy(),u1)*dot(hn.xy(),u2) 
-		      )*(cosl0*overQ);
-
-  theJacobian(3,3) = dot(u1,u2);
-  
-  theJacobian(3,4) = dot(v1.xy(),u2);
-
-  //   zt
-
-  theJacobian(4,1) = (sint*dot(v1,v2) +
-		      omcost*dot(hv,v2) +
-		      tmsint*dot(hn,v1)*dot(hn,v2)
-		      )*overQ;
-
-  theJacobian(4,2) = (sint*dot(u1,v2.xy()) +
-		      omcost*dot(hu,v2) +
-		      tmsint*dot(hn.xy(),u1)*dot(hn,v2)
-		      )*(cosl0*overQ);
-
-  theJacobian(4,3) = dot(u1,v2.xy()); 
-
-  theJacobian(4,4) = dot(v1,v2);
   // end of TRPRFN
 }
