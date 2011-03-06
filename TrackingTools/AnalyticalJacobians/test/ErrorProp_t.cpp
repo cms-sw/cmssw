@@ -149,6 +149,7 @@ int main(int argc, char** argv) {
 
   fullJacobian = AlgebraicMatrixID();
   deltaJacobian = AlgebraicMatrixID();
+  tpg = tpg0;
   {
     double totalStep(0.);
     double singleStep(1.);
