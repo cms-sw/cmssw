@@ -65,8 +65,8 @@ int main(int argc, char** argv) {
   {
     double totalStep(0.);
     double singleStep(1.);
-    edm::HRTimeType timeFull;
-    edm::HRTimeType timeInf;
+    edm::HRTimeType timeFull=0;
+    edm::HRTimeType timeInf=0;
     for (int i=0; i<10;++i) {
       double s = singleStep;
       totalStep += singleStep;
@@ -152,8 +152,8 @@ int main(int argc, char** argv) {
   {
     double totalStep(0.);
     double singleStep(1.);
-    edm::HRTimeType timeFull;
-    edm::HRTimeType timeInf;
+    edm::HRTimeType timeFull=0;
+    edm::HRTimeType timeInf=0;
     for (int i=0; i<10;++i) {
       double s = singleStep;
       totalStep += singleStep;
