@@ -65,7 +65,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   //  t = _mm_sqrt_pd(_mm_add_pd(t,_mm_shuffle_pd(t,t,1)));
   //t = _mm_sqrt_pd(_mm_hadd_pd(t,t));
  
-  Vec2D u2(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t2.xy().vec,t2.xy().vec,1),t.yz().vec)));
+  Vec2D u2(_mm_xor_pd(neg,_mm_div_pd(_mm_shuffle_pd(t2.xy().vec,t2.xy().vec,1),t.zw().vec)));
   Vec3D u23(u2.vec);
   Vec3D v2 = cross(t2,u23);
 
