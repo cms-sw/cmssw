@@ -58,6 +58,12 @@ addMixingScenario("E7TeV_ProbDist_2010Data_BX156",{'file': 'SimGeneral.MixingMod
 addMixingScenario("E8TeV_ProbDist_2011EarlyData_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_ProbDist_2011EarlyData_50ns_cfi'})
 addMixingScenario("E8TeV_FlatDist_2011EarlyData_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_FlatDist_2011EarlyData_50ns_cfi'})
 addMixingScenario("E7TeV_FlatDist10_2011EarlyData_50ns",{'file': 'SimGeneral.MixingModule.mix_E7TeV_FlatDist10_2011EarlyData_50ns_cfi'})
+addMixingScenario("E7TeV_FlatDist10_2011EarlyData_75ns",{'file': 'SimGeneral.MixingModule.mix_E7TeV_FlatDist10_2011EarlyData_75ns_cfi'})
+addMixingScenario("E7TeV_FlatDist10_2011EarlyData_inTimeOnly",{'file': 'SimGeneral.MixingModule.mix_E7TeV_FlatDist10_2011EarlyData_inTimeOnly_cfi'})
+addMixingScenario("E7TeV_Flat20_AllEarly_75ns",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Flat20_AllEarly_75ns_cfi'})
+addMixingScenario("E7TeV_Flat20_AllLate_75ns",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Flat20_AllLate_75ns_cfi'})
+addMixingScenario("E7TeV_Flat20_AllEarly_50ns",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Flat20_AllEarly_50ns_cfi'})
+addMixingScenario("E7TeV_Flat20_AllLate_50ns",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Flat20_AllLate_50ns_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 
 ##fastsim section
