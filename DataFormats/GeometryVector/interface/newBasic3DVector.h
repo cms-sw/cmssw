@@ -139,9 +139,7 @@ public:
    */
   Basic3DVector unit() const {
     T my_mag = mag2();
-    if (my_mag==0) return *this;
-    my_mag = T(1)/std::sqrt(my_mag);
-    return *this * my_mag;
+    return (0!=my_mag) ? (*this)*(T(1)/std::sqrt(my_mag)) : *this;
   }
 
   /** Operator += with a Basic3DVector of possibly different precision.
