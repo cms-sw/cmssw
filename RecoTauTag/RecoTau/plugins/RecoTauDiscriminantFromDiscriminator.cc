@@ -9,6 +9,7 @@
  */
 
 #include <boost/foreach.hpp>
+#include <sstream>
 #include "RecoTauTag/RecoTau/interface/RecoTauDiscriminantPlugins.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
@@ -54,16 +55,28 @@ std::vector<double> RecoTauDiscriminantFromDiscriminator::operator()(
     const reco::PFTauRef& tau) const {
   edm::ProductID tauProdId = tau.id();
   for (size_t i = 0; i < discriminators_.size(); ++i) {
+    // Check if the discriminator actually exists
+    if (!discriminators_[i].second.isValid())
+      continue;
     const reco::PFTauDiscriminator& disc = *(discriminators_[i].second);
     if (tauProdId == disc.keyProduct().id())
       return std::vector<double>(1, (disc)[tau]);
   }
   // Can only reach this point if not appropriate discriminator is defined for
   // the passed tau.
-  throw cms::Exception("NoDefinedDiscriminator")
-    << "Couldn't find a PFTauDiscriminator usable with given tau."
-    << " Input tau has product id: " << tau.id();
-
+  std::stringstream error;
+  error << "Couldn't find a PFTauDiscriminator usable with given tau."
+    << std::endl << " Input tau has product id: " << tau.id() << std::endl;
+  for (size_t i = 0; i < discriminators_.size(); ++i ) {
+    error << "disc: " << discriminators_[i].first;
+    error << " isValid: " << discriminators_[i].second.isValid();
+    if (discriminators_[i].second.isValid()) {
+      error << " product: " << discriminators_[i].second->keyProduct().id();
+    }
+    error << std::endl;
+  }
+  edm::LogError("BadDiscrinatorConfiguration") << error.str();
+  return std::vector<double>(1,-999);
 }
 
 }} // end namespace reco::tau
