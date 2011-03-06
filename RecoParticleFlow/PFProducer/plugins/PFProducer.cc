@@ -129,15 +129,16 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
       path_mvaWeightFileEleID = edm::FileInPath ( mvaWeightFileEleID.c_str() ).fullPath();
      }
 
-  //PFPhoton Configurtion
-  string mvaWeightFileConvID
-    =iConfig.getParameter<string>("pf_convID_mvaWeightFile");
-  
-  double mvaConvCut
-    = iConfig.getParameter<double>("pf_conv_mvaCut");
+  //PFPhoton Configuration
+
   string path_mvaWeightFileConvID;
+  string mvaWeightFileConvID;
+  double mvaConvCut=-99.;
   if(usePFPhotons_)
     {
+      mvaWeightFileConvID =iConfig.getParameter<string>("pf_convID_mvaWeightFile");
+      
+      mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");
       path_mvaWeightFileConvID = edm::FileInPath ( mvaWeightFileConvID.c_str() ).fullPath();      
     }
   
