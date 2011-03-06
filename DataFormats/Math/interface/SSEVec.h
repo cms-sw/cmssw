@@ -711,7 +711,7 @@ inline mathSSE::Vec2D andnot(mathSSE::Vec2D a, mathSSE::Vec2D b) {
 }
 
 #ifdef __SSE3__
-inline mathSSE::Vec4F hadd(mathSSE::Vec2D a, mathSSE::Vec2D b) {
+inline mathSSE::Vec2D hadd(mathSSE::Vec2D a, mathSSE::Vec2D b) {
   return _mm_hadd_pd(a.vec,b.vec);
 }
 #endif
