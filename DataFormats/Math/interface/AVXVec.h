@@ -35,18 +35,19 @@ namespace mathSSE {
 
 
     Vec4( Vec2<double> ivec0,   Vec2<double> ivec1) {
-      arr[0] = ivec0.arr[0]; arr[1]=ivec0.arr[1];
-      arr[2] = ivec1.arr[0]; arr[3]=ivec1.arr[1];
-    }
+     vec = _mm256_insertf128_pd(vec,ivec0.vec,0);
+     vec = _mm256_insertf128_pd(vec,ivec0.vec,1);
+
+     }
     
     Vec4( Vec2<double> ivec0,  double f3, double f4=0) {
-      arr[0] = ivec0.arr[0]; arr[1]=ivec0.arr[1];
-      arr[2] = f3; arr[3] = f4;
+    vec = _mm256_insertf128_pd(vec,ivec0.vec,0);
+    arr[2] = f3; arr[3] = f4;
     }
 
    Vec4( Vec2<double> ivec0) {
      vec = _mm256_setzero_pd();
-     arr[0] = ivec0.arr[0]; arr[1]=ivec0.arr[1];
+     vec = _mm256_insertf128_pd(vec,ivec0.vec,0);
     }
 
 
