@@ -1,7 +1,7 @@
 #ifndef AnalyticalCurvilinearJacobian_H
 #define AnalyticalCurvilinearJacobian_H
 
-#include "TrackingTools/AnalyticalJacobians/interface/CurvilinearJacobian.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h" 
 
@@ -18,7 +18,7 @@
 
 class GlobalTrajectoryParameters;
 
-class AnalyticalCurvilinearJacobian : public CurvilinearJacobian {
+class AnalyticalCurvilinearJacobian  {
  public:
   /// default constructor (for tests)
   AnalyticalCurvilinearJacobian()  {}
@@ -35,7 +35,6 @@ class AnalyticalCurvilinearJacobian : public CurvilinearJacobian {
 				const GlobalVector& theFieldInInverseGeV, 
 				const double& s);
   
-  virtual ~AnalyticalCurvilinearJacobian() {}
   
 public:
   /// result for non-vanishing curvature
@@ -50,6 +49,14 @@ public:
   void computeStraightLineJacobian (const GlobalTrajectoryParameters&,
 				    const GlobalPoint&, const GlobalVector&, 
 				    const double& s);
+
+
+
+  const AlgebraicMatrix55& jacobian() const {return theJacobian;}
+
+private:
+  
+  AlgebraicMatrix55 theJacobian;
 
 };  
 
