@@ -6025,7 +6025,7 @@ void OHltTree::CheckOpenHlt(
 
    /* Electron-MET cross-triggers */
    
-   else if (triggerName.CompareTo("OpenHLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v2") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -6052,7 +6052,7 @@ void OHltTree::CheckOpenHlt(
                   0.10 // Dphi barrel, Dphi endcap 
             )>=1)
             && 
-            (OpenHltSumCorHTPassed(200, 30)>=1))
+            (OpenHltSumCorHTPassed(200, 40)>=1))
             {
                triggerBit[it] = true;
             }
@@ -6060,7 +6060,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   else if (triggerName.CompareTo("OpenHLT_Ele10_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele10_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v2") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -6087,7 +6087,7 @@ void OHltTree::CheckOpenHlt(
                   0.05 // Dphi barrel, Dphi endcap 
             )>=1)
             && 
-            (OpenHltSumCorHTPassed(200, 30)>=1))
+            (OpenHltSumCorHTPassed(200, 40)>=1))
             {
                triggerBit[it] = true;
             }
@@ -6516,15 +6516,15 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   else if (triggerName.CompareTo("OpenHLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v2") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
             if (OpenHlt1MuonPassed(3., 3., 3., 2., 0)>=1 && OpenHltSumCorHTPassed(
-                  100,
-                  30)>0 && OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation
+                  160,
+                  40)>0 && OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation
                   999.,
                   999., // Track iso barrel, Track iso endcap
                   999.,
@@ -6551,15 +6551,15 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   else if (triggerName.CompareTo("OpenHLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v2") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
             if (OpenHlt1MuonPassed(3., 3., 3., 2., 0)>=1 && OpenHltSumCorHTPassed(
-                  100,
-                  30)>0 && OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation
+                  160,
+                  40)>0 && OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation
                   999.,
                   999., // Track iso barrel, Track iso endcap
                   999.,
@@ -6586,13 +6586,13 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdL_TrkIdVL_HT160_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdL_TrkIdVL_HT160_v2") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHltSumCorHTPassed(160, 30)>0
+            if (OpenHltSumCorHTPassed(160, 40)>0
                   && OpenHlt2ElectronsSamHarperPassed(8., 0, // ET, L1isolation
                         999.,
                         999., // Track iso barrel, Track iso endcap
@@ -6621,13 +6621,13 @@ void OHltTree::CheckOpenHlt(
    }
 
 
-   else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdVL_HT160_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdVL_HT160_v2") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHltSumCorHTPassed(160, 30)>0
+            if (OpenHltSumCorHTPassed(160, 40)>0
                   && OpenHlt2ElectronsSamHarperPassed(8., 0, // ET, L1isolation
                         999.,
                         999., // Track iso barrel, Track iso endcap
