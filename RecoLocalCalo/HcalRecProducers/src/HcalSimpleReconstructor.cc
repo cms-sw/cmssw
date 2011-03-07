@@ -47,7 +47,7 @@ void HcalSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
     edm::ESHandle<HcalRecoParams> p;
     es.get<HcalRecoParamsRcd>().get(p);
     paramTS = new HcalRecoParams(*p.product());
- 
+
 }
 
 void HcalSimpleReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
@@ -63,7 +63,10 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
   const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
-  
+
+  // HACK related to HB- corrections
+  if(e.isRealData()) reco_.setForData();
+ 
   
   if (det_==DetId::Hcal) {
     if (subdet_==HcalBarrel || subdet_==HcalEndcap) {

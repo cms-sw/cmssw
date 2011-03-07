@@ -199,7 +199,7 @@ void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
   edm::ESHandle<HcalRecoParams> p;
   es.get<HcalRecoParamsRcd>().get(p);
   paramTS = new HcalRecoParams(*p.product());
-  
+
 }
 
 void HcalHitReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
@@ -210,13 +210,13 @@ void HcalHitReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
 void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
 
-  //bool isData=e.isRealData(); // some flags should only be applied to real data
-
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
   const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
-  
+  // HACK related to HB- corrections
+  if(e.isRealData()) reco_.setForData();
+    
   edm::ESHandle<HcalChannelQuality> p;
   eventSetup.get<HcalChannelQualityRcd>().get(p);
   HcalChannelQuality* myqual = new HcalChannelQuality(*p.product());

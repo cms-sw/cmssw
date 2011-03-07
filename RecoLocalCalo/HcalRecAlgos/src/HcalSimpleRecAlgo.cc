@@ -3,18 +3,19 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include <algorithm> // for "max"
 #include <math.h>
+//--- temporary for printouts
+#include<iostream>
 
 static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   correctForTimeslew_(correctForTimeslew),
   correctForPulse_(correctForPulse),
-  phaseNS_(phaseNS) { }
+  phaseNS_(phaseNS), setForData_(false) { }
   
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo() : 
-  correctForTimeslew_(false) {
-}
+  correctForTimeslew_(false), setForData_(false) { }
 
 void HcalSimpleRecAlgo::initPulseCorr(int toadd) {
   if (correctForPulse_) {    
@@ -22,6 +23,7 @@ void HcalSimpleRecAlgo::initPulseCorr(int toadd) {
   }
 }
 
+void HcalSimpleRecAlgo::setForData () { setForData_ = true;}
 
 ///Timeshift correction for HPDs based on the position of the peak ADC measurement.
 ///  Allows for an accurate determination of the relative phase of the pulse shape from
@@ -33,12 +35,14 @@ static float timeshift_ns_hbheho(float wpksamp);
 ///Same as above, but for the HF PMTs.
 static float timeshift_ns_hf(float wpksamp);
 
+/// Ugly hack to apply energy corrections to some HB- cells
+static float eCorr(int ieta, int iphi, double ampl);
 
 namespace HcalSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
 		     int ifirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr,
-		     HcalTimeSlew::BiasSetting slewFlavor) {
+		     HcalTimeSlew::BiasSetting slewFlavor, bool forData) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
 
@@ -90,6 +94,15 @@ namespace HcalSimpleRecAlgoImpl {
       time=time-calibs.timecorr(); // time calibration
     }
 
+    // Temoprary Ugly Hack to apply energy-dependent corrections on some
+    // HB- cells
+    //    if(forData) {
+      HcalDetId cell(digi.id());
+      int ieta  = cell.ieta();
+      int iphi  = cell.iphi();
+      ampl *= eCorr(ieta,iphi,ampl);
+      //    }
+
     return RecHit(digi.id(),ampl,time);    
   }
 }
@@ -98,7 +111,8 @@ HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, 
   return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,
 							       first,toadd,correctForTimeslew_,
 							       pulseCorr_.get(),
-							       HcalTimeSlew::Medium);
+							       HcalTimeSlew::Medium,
+                                                               setForData_);
 }
 
 HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
@@ -106,14 +120,16 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 							   first,toadd,
 							   correctForTimeslew_,
 							   pulseCorr_.get(),
-							   HcalTimeSlew::Slow);
+							   HcalTimeSlew::Slow,
+                                                           setForData_);
 }
 
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HcalCalibDataFrame,HcalCalibRecHit>(digi,coder,calibs,
 									 first,toadd,correctForTimeslew_,
 									 pulseCorr_.get(),
-									 HcalTimeSlew::Fast);
+									 HcalTimeSlew::Fast,
+                                                                         setForData_ );
 }
 
 HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
@@ -178,6 +194,50 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int 
 
   return HFRecHit(digi.id(),ampl,time); 
 }
+
+/// Ugly hack to apply energy corrections to some HB- cells
+float eCorr(int ieta, int iphi, double energy) {
+// return energy correction factor for HBM channels 
+// iphi=6 ieta=(-1,-15) and iphi=32 ieta=(-1,-7)
+// I.Vodopianov 28 Feb. 2011
+  static const float low32[7]  = {0.741,0.721,0.730,0.698,0.708,0.751,0.861};
+  static const float high32[7] = {0.973,0.925,0.900,0.897,0.950,0.935,1};
+  static const float low6[15]  = {0.635,0.623,0.670,0.633,0.644,0.648,0.600,
+				  0.570,0.595,0.554,0.505,0.513,0.515,0.561,0.579};
+  static const float high6[15] = {0.875,0.937,0.942,0.900,0.922,0.925,0.901,
+				  0.850,0.852,0.818,0.731,0.717,0.782,0.853,0.778};
+
+  
+  double slope, mid, en;
+  double corr = 1.0;
+
+  if (!(iphi==6 && ieta<0 && ieta>-16) && !(iphi==32 && ieta<0 && ieta>-8)) 
+    return corr;
+
+  int jeta = -ieta-1;
+  double xeta = (double) ieta;
+  if (energy > 0.) en=energy;
+  else en = 0.;
+
+  if (iphi == 32) {
+    slope = 0.2272;
+    mid = 17.14 + 0.7147*xeta;
+    if (en > 100.) corr = high32[jeta];
+    else corr = low32[jeta]+(high32[jeta]-low32[jeta])/(1.0+exp(-(en-mid)*slope));
+  }
+  else if (iphi == 6) {
+    slope = 0.1956;
+    mid = 15.96 + 0.3075*xeta;
+    if (en > 100.0) corr = high6[jeta];
+    else corr = low6[jeta]+(high6[jeta]-low6[jeta])/(1.0+exp(-(en-mid)*slope));
+  }
+
+  //  std::cout << "HBHE cell:  ieta, iphi = " << ieta << "  " << iphi 
+  //	    << "  ->  energy = " << en << "   corr = " << corr << std::endl;
+
+  return corr;
+}
+
 
 // timeshift implementation
 
