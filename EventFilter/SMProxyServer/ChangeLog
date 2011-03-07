@@ -1,5 +1,8 @@
-2011-02-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
+2011-03-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V02-00-00
+	* Rewrite of SMPS (from SMPSdev_branch)
 
+2011-02-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
 	* tag V01-11-00
 	* Minimal changes for modified IOPool/Streamer V07-01-00
 
