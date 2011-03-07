@@ -9,9 +9,14 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 ## Source
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      '/store/relval/CMSSW_3_9_5/RelValTTbar/GEN-SIM-RECO/START39_V6-v1/0008/0AEEDFA4-88FA-DF11-B6FF-001A92811718.root'
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_0_pre6'
+                        , relVal        = 'RelValTTbar'
+                        , globalTag     = 'START42_V4'
+                        , numberOfFiles = 1
+                        )
     )
 )
 ## Maximal Number of Events
@@ -27,6 +32,10 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ## Standard PAT Configuration File
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 ##process.load("PhysicsTools.PatAlgos.patTestJEC_cfi")
+
+## internediate step to get the taus working untill they are part of RECO (again)
+process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+process.p0 = cms.Path(process.PFTau)
 
 ## Output Module Configuration (expects a path 'p')
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
