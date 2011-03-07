@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.32 2010/11/26 20:24:48 amraktad Exp $
+// $Id: Context.cc,v 1.33 2011/03/07 18:23:28 matevz Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@ using namespace fireworks;
 // static data member definitions
 //
 
+#include <boost/bind.hpp>
 const float Context::s_caloTransEta = 1.479; 
 const float Context::s_caloTransAngle = 2*atan(exp(-s_caloTransEta));
 
@@ -81,9 +82,10 @@ Context::Context(FWModelChangeManager* iCM,
   m_caloData(0),
   m_caloDataHF(0)
 {
-  if (iColorM)
-    m_commonPrefs = new CmsShowCommon(iColorM);
+   if (iColorM) // unit test
+     m_commonPrefs = new CmsShowCommon(this);
 }
+
 
 Context::~Context()
 {

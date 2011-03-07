@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:51:07 CEST 2010
-// $Id: CmsShowCommon.h,v 1.8 2010/11/21 19:36:19 amraktad Exp $
+// $Id: CmsShowCommon.h,v 1.9 2010/11/26 20:24:47 amraktad Exp $
 //
 
 #include <sigc++/signal.h>
@@ -33,13 +33,17 @@
 
 class CmsShowCommonPopup;
 class FWColorManager;
+namespace fireworks
+{
+class Context;
+}
 
 class CmsShowCommon : public FWConfigurableParameterizable
 {
    friend class CmsShowCommonPopup;
 
 public:
-   CmsShowCommon(FWColorManager*);
+   CmsShowCommon(fireworks::Context*);
    virtual ~CmsShowCommon();
 
    // ---------- const member functions ---------------------
@@ -50,8 +54,11 @@ public:
    // ---------- member functions ---------------------------
    virtual void setFrom(const FWConfiguration&);
 
-   int gamma() { return m_gamma.value(); }
-   void setGamma(int);
+   void setTrackBreakMode();
+   void setDrawBreakMarkers();
+
+   int  gamma() { return m_gamma.value(); }
+   void setGamma();
    void switchBackground();
 
    void setGeomColor(FWGeomColorIndex, Color_t);
@@ -59,12 +66,17 @@ public:
 
    FWViewEnergyScale* getEnergyScale() const { return m_energyScale.get(); }
 
+   // ---------- member data --------------------------------
+   FWEnumParameter         m_trackBreak;
+   FWBoolParameter         m_drawBreakPoints;
+
 protected:
-   const FWColorManager*   colorManager() const { return m_colorManager;}
+   const FWColorManager*   colorManager() const;
 
    // ---------- member data --------------------------------
 
-   FWColorManager*     m_colorManager;
+ 
+   fireworks::Context*        m_context;
 
    // general colors
    mutable FWLongParameter   m_backgroundColor; // can be set via Ctr+b key binding
