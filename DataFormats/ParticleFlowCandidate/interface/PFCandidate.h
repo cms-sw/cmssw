@@ -67,17 +67,6 @@ namespace reco {
     };
     
 
-
-    enum PFMVAType {
-      kRef_none=0,
-      kRef_e_pi=1,
-      kRef_e_mu=2,
-      kRef_pi_mu=3,
-      kRef_nothing_gamma=4,
-      kRef_nothing_nh=5,
-      kRef_gamma_nh=6
-    };
-
     enum PFVertexType {
       kCandVertex=0, 
       kTrkVertex=1,
@@ -268,44 +257,43 @@ namespace reco {
     /// For neutral particles, it is set to the default value
 
 
-    void set_mva_e_pi( float mva ){ set_mva(mva,kRef_e_pi); } 
+    void set_mva_e_pi( float mva ){ mva_e_pi_=mva;}
     
     /// mva for electron-pion discrimination
-    float mva_e_pi() const { return get_mva(kRef_e_pi);}
+    float mva_e_pi() const { return mva_e_pi_;}
 
     
     /// set mva for electron-muon discrimination
-    void set_mva_e_mu( float mva ) { set_mva(mva,kRef_e_mu); } 
+    void set_mva_e_mu( float mva ) { mva_e_mu_=mva;}
     
     /// mva for electron-muon discrimination
-    float mva_e_mu() const { return get_mva(kRef_e_mu);}
+    float mva_e_mu() const { return mva_e_mu_;}
 
     /// set mva for pi-muon discrimination
-    void set_mva_pi_mu( float mva ) { set_mva(mva, kRef_pi_mu);}
+    void set_mva_pi_mu( float mva ) { mva_pi_mu_=mva;}
 
     /// mva for pi-muon discrimination
-    float mva_pi_mu() const { return get_mva(kRef_pi_mu);}
+    float mva_pi_mu() const { return mva_pi_mu_;}
     
 
     /// set mva for gamma detection
-    void set_mva_nothing_gamma( float mva ) {set_mva(mva,kRef_nothing_gamma);}
+    void set_mva_nothing_gamma( float mva ) { mva_nothing_gamma_=mva;}
 
     /// mva for gamma detection
-    float mva_nothing_gamma() const { return get_mva(kRef_nothing_gamma);}
+    float mva_nothing_gamma() const { return mva_nothing_gamma_;}
 
-    
     /// set mva for neutral hadron detection
-    void set_mva_nothing_nh( float mva ) { set_mva(mva, kRef_nothing_nh);}
+    void set_mva_nothing_nh( float mva ) { mva_nothing_nh_=mva;}
 
     /// mva for neutral hadron detection
-    float mva_nothing_nh() const { return get_mva(kRef_nothing_nh);}
+    float mva_nothing_nh() const { return mva_nothing_nh_;}
     
     
     /// set mva for neutral hadron - gamma discrimination
-    void set_mva_gamma_nh( float mva ) { set_mva(mva, kRef_gamma_nh);}
+    void set_mva_gamma_nh( float mva ) { mva_gamma_nh_=mva;}
 	
     /// mva for neutral hadron - gamma discrimination
-    float mva_gamma_nh() const { return get_mva(kRef_gamma_nh);}
+    float mva_gamma_nh() const { return mva_gamma_nh_;}
 
     /// set position at ECAL entrance
     void setPositionAtECALEntrance(const math::XYZPointF& pos) {
@@ -414,27 +402,24 @@ namespace reco {
     float      deltaP_;
 
     PFVertexType vertexType_;
-    PFMVAType mvaType_;
-
-    float mva_;
 
     /// mva for electron-pion discrimination
-    //float       mva_e_pi_;
+    float       mva_e_pi_;
 
     /// mva for electron-muon discrimination
-    //float       mva_e_mu_;
+    float       mva_e_mu_;
 
     /// mva for pi-muon discrimination
-    //float       mva_pi_mu_;
+    float       mva_pi_mu_;
     
     /// mva for gamma detection
-    //float       mva_nothing_gamma_;
+    float       mva_nothing_gamma_;
 
     /// mva for neutral hadron detection
-    //float       mva_nothing_nh_;
+    float       mva_nothing_nh_;
 
     /// mva for neutral hadron - gamma discrimination
-    //float       mva_gamma_nh_;
+    float       mva_gamma_nh_;
 
     /// position at ECAL entrance, from the PFRecTrack
     math::XYZPointF   positionAtECALEntrance_;
@@ -452,9 +437,6 @@ namespace reco {
     unsigned short storedRefsBitPattern_;
     std::vector<unsigned long long> refsInfo_;
     std::vector<const void *> refsCollectionCache_;
-    void set_mva(float mva, PFMVAType bit);
-    float get_mva(PFMVAType bit) const;
-
 
   };
 

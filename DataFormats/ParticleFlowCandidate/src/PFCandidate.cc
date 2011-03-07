@@ -143,8 +143,12 @@ PFCandidate::PFCandidate() :
   flags_(0), 
   deltaP_(0.), 
   vertexType_(kCandVertex),
-  mvaType_(kRef_none),
-  mva_(-PFCandidate::bigMva_),
+  mva_e_pi_(bigMva_),
+  mva_e_mu_(bigMva_),
+  mva_pi_mu_(bigMva_),
+  mva_nothing_gamma_(bigMva_),
+  mva_nothing_nh_(bigMva_),
+  mva_gamma_nh_(bigMva_),
   getter_(0),storedRefsBitPattern_(0)
 {
   
@@ -175,8 +179,12 @@ PFCandidate::PFCandidate( Charge charge,
   flags_(0),
   deltaP_(0.),
   vertexType_(kCandVertex),
-  mvaType_(kRef_none),
-  mva_(-PFCandidate::bigMva_),
+  mva_e_pi_(bigMva_),
+  mva_e_mu_(bigMva_),
+  mva_pi_mu_(bigMva_),
+  mva_nothing_gamma_(bigMva_),
+  mva_nothing_nh_(bigMva_),
+  mva_gamma_nh_(bigMva_),
   getter_(0),storedRefsBitPattern_(0)
 {
   refsInfo_.reserve(3);
@@ -620,21 +628,6 @@ void PFCandidate::setPFPhotonExtraRef(const reco::PFCandidatePhotonExtraRef& iRe
 
 
     
-void PFCandidate::set_mva(float mva, PFMVAType bit) {
-  if (mvaType_!=kRef_none && mvaType_!=bit) {
-    throw cms::Exception("PFCandidate",
-                         "only one type of mva value allowed" );
-  }
-  mva_=mva;
-  mvaType_= bit;
-}
-
-float PFCandidate::get_mva(PFMVAType var) const {
-  if ( var!=mvaType_)
-    return bigMva_;
-  return mva_; 
-}
-
 
 const math::XYZPoint & PFCandidate::vertex() const {
   switch (vertexType_) {
