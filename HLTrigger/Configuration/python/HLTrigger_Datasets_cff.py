@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_11_1/GRun/V61
+# /dev/CMSSW_3_11_1/GRun/V63
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,6 +13,7 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_BeamG
     'HLT_IsoTrackHB_v2', 
     'HLT_IsoTrackHE_v3', 
     'HLT_L1SingleEG5_v1', 
+    'HLT_L1SingleJet36_v1', 
     'HLT_L1SingleMuOpen_DT_v1', 
     'HLT_L1SingleMuOpen_v1', 
     'HLT_L1_Interbunch_BSC_v1', 
@@ -57,8 +58,8 @@ streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_
     'HLT_DoubleMu6_v1', 
     'HLT_DoubleMu7_v1', 
     'HLT_L2DoubleMu35_NoVertex_v1', 
-    'HLT_Mu8_Jet40_v1', 
-    'HLT_TripleMu5_v1')
+    'HLT_Mu8_Jet40_v2', 
+    'HLT_TripleMu5_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetElectronHad_selector
 streamA_datasetElectronHad_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -174,16 +175,16 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMuEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuEG_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuEG_selector.throw      = cms.bool(False)
-streamA_datasetMuEG_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v1', 
-    'HLT_DoubleMu5_Ele8_v1', 
-    'HLT_Mu10_Ele10_CaloIdL_v1', 
-    'HLT_Mu15_DoublePhoton15_CaloIdL_v1', 
-    'HLT_Mu15_Photon20_CaloIdL_v1', 
+streamA_datasetMuEG_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v2', 
+    'HLT_DoubleMu5_Ele8_v2', 
+    'HLT_Mu10_Ele10_CaloIdL_v2', 
+    'HLT_Mu15_DoublePhoton15_CaloIdL_v2', 
+    'HLT_Mu15_Photon20_CaloIdL_v2', 
     'HLT_Mu17_Ele8_CaloIdL_v1', 
-    'HLT_Mu5_DoubleEle8_v1', 
-    'HLT_Mu5_Ele8_CaloIdL_TrkIdVL_Ele8_v1', 
+    'HLT_Mu5_DoubleEle8_v2', 
+    'HLT_Mu5_Ele8_CaloIdL_TrkIdVL_Ele8_v2', 
     'HLT_Mu8_Ele17_CaloIdL_v1', 
-    'HLT_Mu8_Photon20_CaloIdVT_IsoT_v1')
+    'HLT_Mu8_Photon20_CaloIdVT_IsoT_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuHad_selector
 streamA_datasetMuHad_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -198,7 +199,7 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_HT1
     'HLT_Mu17_TriCentralJet30_v1', 
     'HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v2', 
     'HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v2', 
-    'HLT_Mu5_HT200_v2', 
+    'HLT_Mu5_HT200_v3', 
     'HLT_Mu8_HT200_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOnia_selector
@@ -286,8 +287,8 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu12_v1
     'HLT_Mu20_v1', 
     'HLT_Mu24_v1', 
     'HLT_Mu30_v1', 
-    'HLT_Mu3_v2', 
-    'HLT_Mu5_v2', 
+    'HLT_Mu3_v3', 
+    'HLT_Mu5_v3', 
     'HLT_Mu8_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTau_selector
