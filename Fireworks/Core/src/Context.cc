@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.31 2010/10/29 18:23:25 amraktad Exp $
+// $Id: Context.cc,v 1.32 2010/11/26 20:24:48 amraktad Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWMagField.h"
+#include "Fireworks/Core/interface/FWBeamSpot.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 
 using namespace fireworks;
@@ -73,6 +74,7 @@ Context::Context(FWModelChangeManager* iCM,
   m_trackerPropagator(0),
   m_muonPropagator(0),
   m_magField(0),
+  m_beamSpot(0),
   m_commonPrefs(0),
   m_maxEt(1.f),
   m_maxEnergy(1.f),
@@ -92,6 +94,8 @@ void
 Context::initEveElements()
 {
    m_magField = new FWMagField();
+   m_beamSpot = new FWBeamSpot();
+   
 
    float propagatorOffR = 5;
    float propagatorOffZ = propagatorOffR*caloZ1(false)/caloR1(false);

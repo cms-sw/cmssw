@@ -13,6 +13,7 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWMagField.h"
+#include "Fireworks/Core/interface/FWBeamSpot.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWNavigatorBase.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
@@ -184,7 +185,10 @@ CmsShowMainBase::draw()
    m_guiManager->updateStatus("loading event ...");
 
    if (m_contextPtr->getField()->getSource() != FWMagField::kUser)
-      m_contextPtr->getField()->checkFiledInfo(m_navigatorPtr->getCurrentEvent());
+   {
+      m_contextPtr->getField()->checkFieldInfo(m_navigatorPtr->getCurrentEvent());
+   }
+   m_contextPtr->getBeamSpot()->checkBeamSpot(m_navigatorPtr->getCurrentEvent());
 
    TStopwatch sw;
    m_viewManager->eventBegin();
