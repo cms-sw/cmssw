@@ -13,7 +13,7 @@ patTrigger = cms.EDProducer( "PATTriggerProducer"
 # , l1ExtraTauJet                  = cms.InputTag( "l1extraParticles", "Tau"         ) # default; change only, if you know exactly, what you are doing!
 # , l1ExtraETM                     = cms.InputTag( "l1extraParticles", "MET"         ) # default; change only, if you know exactly, what you are doing!
 # , l1ExtraHTM                     = cms.InputTag( "l1extraParticles", "MHT"         ) # default; change only, if you know exactly, what you are doing!
-# , mainBxOnly                     = cms.bool( True )                                  # default; setting this to False might spoil the x-links between L1 conditions and objects
+# , mainBxOnly                     = cms.bool( True )                                  # default
 # , saveL1Refs                     = cms.bool( False )                                 # default; setting this to True requires to keep '*_l1extraParticles_*_[processName]' and '*_gctDigis_*_[processName]' in the event
 ## HLT (L3)
 , processName    = cms.string( "HLT" )                    # default; change only, if you know exactly, what you are doing!
