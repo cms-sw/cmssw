@@ -250,8 +250,8 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
     f1_prof[i]->SetMarkerSize(1.0);  
 
     f2_prof[i]->SetLineColor(43);
-    f2_prof[i]->SetLineStyle(2);  
-    f2_prof[i]->SetLineWidth(2); 
+    f2_prof[i]->SetLineStyle(1);  
+    f2_prof[i]->SetLineWidth(1); 
     f2_prof[i]->SetMarkerColor(43);
     f2_prof[i]->SetMarkerStyle(20);
     f2_prof[i]->SetMarkerSize(0.8);  
