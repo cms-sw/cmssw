@@ -29,9 +29,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   
   // calculate transport matrix
   // Origin: TRPRFN
-  Vec3D t1(p1.basicVector().v);
-  Vec3D t2(p2.basicVector().v);
-  double cosl0 = p1.perp(); double cosl1 = 1./p2.perp();
+   double cosl0 = p1.perp(); double cosl1 = 1./p2.perp();
 
   // define average magnetic field and gradient 
   // at initial point - inlike TRPRFN
@@ -41,6 +39,9 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   double q = qp*qbp;
 
   double theta = q*absS; double sint = sin(theta); double cost = cos(theta);
+
+  Vec3D t1(p1.basicVector().v);
+  Vec3D t2(p2.basicVector().v);
 
   Vec3D hn(hnf.basicVector().v);
   Vec3D dx(dxf.basicVector().v);
@@ -199,7 +200,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   if (cutCriterion > limit) {
     double pp = 1./qbp;
     theJacobian(3,0) = pp*dot(u2,dx.xy());
-    theJacobian(4,0) = pp*dot(v2,dx);
+    theJacobian(4,0) = -pp*dot(v2,dx);  // was wrong sign???
   }
   else {
     Vec3D hp1 = cross(hn,t1);
