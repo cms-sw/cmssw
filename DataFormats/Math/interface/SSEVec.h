@@ -26,6 +26,22 @@
 
 #include<cmath>
 
+// needed fro gcc < 4.6
+namespace mathSSE {
+  struct ZeroUpper {
+    ZeroUpper() {
+#ifdef __AVX__
+    _mm256_zeroupper();
+#endif
+    }
+   ~ZeroUpper() {
+#ifdef __AVX__
+    _mm256_zeroupper();
+#endif
+    }
+  };
+}
+
 namespace mathSSE {
   template<typename T> inline T sqrt(T t) { return std::sqrt(t);}
 }
