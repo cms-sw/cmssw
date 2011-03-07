@@ -28,13 +28,11 @@ HLT_DiJet60_MET45_v*
 HLT_DiJet70_PT70_v*
 HLT_DiJet100_PT100_v*
 HLT_DiJet130_PT130_v*
-HLT_QuadJet20_IsoPFTau20_PFMHT30_v*
 HLT_QuadJet40_v*
 HLT_QuadJet40_IsoPFTau40_v*
 HLT_QuadJet50_BTagIP_v*
 HLT_QuadJet50_Jet40_v*
 HLT_QuadJet60_v*
-HLT_QuadJet65_v*
 HLT_QuadJet70_v*
 HLT_ExclDiJet60_HFOR_v*
 HLT_ExclDiJet60_HFAND_v*
@@ -50,7 +48,6 @@ HLT_HT300_MHT75_v*
 HLT_HT360_v*
 HLT_HT440_v*
 HLT_HT520_v*
-HLT_PFMHT80_v*
 HLT_PFMHT150_v*
 HLT_MET100_v*
 HLT_MET120_v*
@@ -75,14 +72,12 @@ HLT_Mu5_v*
 HLT_Mu8_v*
 HLT_Mu12_v*
 HLT_Mu15_v*
-HLT_Mu17_v*
 HLT_Mu20_v*
 HLT_Mu24_v*
 HLT_Mu30_v*
 HLT_IsoMu12_v*
 HLT_IsoMu15_v*
 HLT_IsoMu17_v*
-HLT_IsoMu20_v*
 HLT_IsoMu24_v*
 HLT_IsoMu30_v*
 HLT_L2DoubleMu35_NoVertex_v*
@@ -122,7 +117,6 @@ HLT_Ele90_NoSpikeFilter_v*
 HLT_Photon20_R9Id_Photon18_R9Id_v*
 HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v*
 HLT_Photon26_Photon18_v*
-HLT_Photon26_IsoL_Photon18_v*
 HLT_Photon26_IsoVL_Photon18_v*
 HLT_Photon26_IsoVL_Photon18_IsoVL_v*
 HLT_Photon26_CaloIdL_IsoVL_Photon18_v*
