@@ -233,7 +233,6 @@ namespace edm {
       return;
     }
     tree_->LoadTree(0);
-    tree_->SetCacheSize(cacheSize_);
     assert(treeCache_);
     filePtr_->SetCacheRead(treeCache_.get());
     assert(treeCache_->GetOwner() == tree_);
