@@ -7,6 +7,8 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
+
 #include <iostream>
 #include <Reflex/Object.h>
 #include <Reflex/Type.h>
@@ -15,6 +17,7 @@
 
 class testExpressionParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testExpressionParser);
+  CPPUNIT_TEST(testStringToEnum);
   CPPUNIT_TEST(checkAll);
   CPPUNIT_TEST_SUITE_END();
 
@@ -22,6 +25,7 @@ public:
   void setUp() {}
   void tearDown() {}
   void checkAll(); 
+  void testStringToEnum();
   void checkTrack(const std::string &, double);
   void checkCandidate(const std::string &, double, bool lazy=false);
   void checkJet(const std::string &, double);
@@ -89,6 +93,18 @@ void testExpressionParser::checkMuon(const std::string & expression, double x) {
   CPPUNIT_ASSERT(fabs(f(muon) - res) < 1.e-6);
   CPPUNIT_ASSERT(fabs(f(muon) - x) < 1.e-6);
   }
+}
+
+void testExpressionParser::testStringToEnum() {
+    std::cout << "Testing reco::Muon::ArbitrationType SegmentArbitration"  << std::endl;
+    CPPUNIT_ASSERT_EQUAL(StringToEnumValue<reco::Muon::ArbitrationType>("SegmentArbitration"),  int(reco::Muon::SegmentArbitration));
+    std::cout << "Testing reco::TrackBase::TrackQuality (tight, highPurity)"  << std::endl;
+    std::vector<std::string> algos;
+    algos.push_back("tight"); algos.push_back("highPurity");
+    std::vector<int> algoValues = StringToEnumValue<reco::TrackBase::TrackQuality>(algos);
+    CPPUNIT_ASSERT(algoValues.size() == 2);
+    CPPUNIT_ASSERT_EQUAL(algoValues[0], int(reco::TrackBase::tight));
+    CPPUNIT_ASSERT_EQUAL(algoValues[1], int(reco::TrackBase::highPurity));
 }
 
 
