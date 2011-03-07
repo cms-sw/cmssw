@@ -6,7 +6,9 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
  const GlobalVector& p, 
  const GlobalVector& h, 
  const double& s)
-{    
+{ 
+  // needed fro gcc < 4.6    
+  mathSSE::ZeroUpper zu;
 
   using mathSSE::Vec4D;
   using mathSSE::Vec3D;
@@ -206,21 +208,21 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     double temp2 = dot(ghnmp.xy(),u2);
 
     double qps = qp*s;
-    double h2 = qps;
-    double h3 = (-1./8.) * qps * qbp;
+    double h2 = qps*qbp;
+    double h3 = (-1./8.) * h2;
 
     double secondOrder41 = 0.5 * temp1;
-    double thirdOrder41  =  temp2;
+    double thirdOrder41  =  (1./3.) *temp2;
     double fourthOrder41 = h3 * temp1;
-    theJacobian(3,0) = (s*qps)*(secondOrder41 + (qbp*h2*(1./3.) *(thirdOrder41 + fourthOrder41)));
+    theJacobian(3,0) = (s*qps)*(secondOrder41 + h2*(thirdOrder41 + fourthOrder41));
 
     double temp3 = dot(hp1,v2);
     double temp4 = dot(ghnmp,v2);
 
-    double secondOrder51 = 0.5 * qps  * temp3;
-    double thirdOrder51  = temp4;
+    double secondOrder51 = 0.5 * temp3;
+    double thirdOrder51  = (1./3.) *temp4;
     double fourthOrder51 =  h3 * temp3;
-    theJacobian(4,0) = (s*qps)*(secondOrder51 + (qbp*h2*(1./3.) *(thirdOrder51 + fourthOrder51)));
+    theJacobian(4,0) = (s*qps)*(secondOrder51 + h2*(thirdOrder51 + fourthOrder51));
   }
 
 

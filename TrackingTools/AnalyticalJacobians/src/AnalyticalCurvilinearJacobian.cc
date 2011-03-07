@@ -195,7 +195,9 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     double h2 = h1 * h1;
     double h3 = h2 * h1;
     double qbp2 = qbp * qbp;
+    //                           s*qp*s* (qp*s *qbp)
     double thirdOrder41 = 1./3 * h2 * s3 * qbp * temp2;
+    //                           -qp * s * qbp  * above
     double fourthOrder41 = 1./8 * h3 * s4 * qbp2 * temp1;
     theJacobian(3,0) = secondOrder41 + (thirdOrder41 + fourthOrder41);
 
