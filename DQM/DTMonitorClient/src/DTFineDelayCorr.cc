@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/15 14:03:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/07 10:51:14 $
+ *  $Revision: 1.3 $
  *  \author M. Giunta, C. Battilana 
  */
 
@@ -126,9 +126,11 @@ void DTFineDelayCorr::runClientDiagnostic() {
 
     // **  Retrieve Delays Loaded in MiniCrates ** 
     if(readOldFromDb) {    // read from db 
-      DTConfigTrigUnit *trUnit = dtConfig->getDTConfigTrigUnit(chId);
-      coarseDelay = trUnit->MCDigiOffset();
-      oldFineDelay = trUnit-> MCSetupTime();
+      DTConfigPedestals *pedestals = dtConfig->getDTConfigPedestals();
+      const DTLayer *layer = muonGeom->layer(DTLayerId(chId,1,1));
+      float delay = pedestals->getOffset(DTWireId(layer->id(),layer->specificTopology().firstChannel())); 
+      coarseDelay = int(delay/25.);
+      oldFineDelay = delay - coarseDelay * 25.;
     }
     else {                 // read from map created from txt file
       coarseDelay = oldDelayMap[chId].first;
