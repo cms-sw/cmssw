@@ -34,7 +34,7 @@ process.l1GctHwDigis.unpackInternEm = cms.untracked.bool ( True )
 process.l1GctHwDigis.unpackInternJets = cms.untracked.bool ( True )
 
 # GCT emulator
-process.load('L1Trigger.L1GctAnalyzer.gctPatternTestLabConfig_cff')
+process.load('L1Trigger.L1GctAnalyzer.gctPatternTestConfig_cff')
 #process.load('L1TriggerConfig.GctConfigProducers.l1GctConfig_cfi')
 #process.load('L1Trigger.Configuration.L1StartupConfig_cff')
 import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
