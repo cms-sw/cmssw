@@ -58,7 +58,7 @@ patTaus = cms.EDProducer("PATTauProducer",
     #
     # (set Pt thresholds for PFChargedHadrons (PFGammas) to 1.0 (1.5) GeV,
     # matching the thresholds used when computing the tau iso. discriminators
-    # in RecoTauTag/RecoTau/python/PFRecoTauDiscriminationByIsolation_cfi.py)        
+    # in RecoTauTag/RecoTau/python/PFRecoTauDiscriminationByIsolation_cfi.py)
     userIsolation = cms.PSet(
         pfAllParticles = cms.PSet(
             src = cms.InputTag("tauIsoDepositPFCandidates"),
@@ -89,21 +89,21 @@ patTaus = cms.EDProducer("PATTauProducer",
         # you can comment out those you don't want to save some
         # disk space
         leadingTrackFinding = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),
-        leadingTrackPtCut = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackPtCut"),
+        #leadingTrackPtCut = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackPtCut"),
         leadingPionPtCut = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),
-        trackIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolation"),
-        trackIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion"),
-        ecalIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolation"),
-        ecalIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion"),
-        byIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByIsolation"),
+        #trackIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolation"),
+        #trackIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion"),
+        #ecalIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolation"),
+        #ecalIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion"),
+        #byIsolation = cms.InputTag("shrinkingConePFTauDiscriminationByIsolation"),
         byIsolationUsingLeadingPion = cms.InputTag("shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion"),
         againstElectron = cms.InputTag("shrinkingConePFTauDiscriminationAgainstElectron"),
         againstMuon = cms.InputTag("shrinkingConePFTauDiscriminationAgainstMuon"),
-        byTaNC = cms.InputTag("shrinkingConePFTauDiscriminationByTaNC"),
-        byTaNCfrOnePercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrOnePercent"),
-        byTaNCfrHalfPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrHalfPercent"),
-        byTaNCfrQuarterPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
-        byTaNCfrTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent")
+        #byTaNC = cms.InputTag("shrinkingConePFTauDiscriminationByTaNC"),
+        #byTaNCfrOnePercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrOnePercent"),
+        #byTaNCfrHalfPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrHalfPercent"),
+        #byTaNCfrQuarterPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
+        #byTaNCfrTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent")
     ),
 
     # mc matching configurables
@@ -111,7 +111,7 @@ patTaus = cms.EDProducer("PATTauProducer",
     embedGenMatch    = cms.bool(True),
     genParticleMatch = cms.InputTag("tauMatch"),
     addGenJetMatch   = cms.bool(True),
-    embedGenJetMatch = cms.bool(True),    
+    embedGenJetMatch = cms.bool(True),
     genJetMatch      = cms.InputTag("tauGenJetMatch"),
 
     # efficiencies
