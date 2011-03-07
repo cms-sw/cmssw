@@ -19581,23 +19581,18 @@ process.OnlineErrorsOutput = cms.EndPath( process.hltPreOnlineErrorsOutput + pro
 process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput + process.hltOutputRPCMON )
 
 
-#
-# Add for CMSSW 42X+ only
+# Extra customisation for CMSSW 42X+ only
 process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
-  appendToDataLabel = cms.string( "" ),
-  flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
-  dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
-  timeThresh = cms.double( 2.0 )
+    appendToDataLabel = cms.string( "" ),
+    flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
+    dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
+    timeThresh = cms.double( 2.0 )
 )
-#
 
-#
-# Add for CMSSW 42X+ only
 process.hltParticleFlowRecHitHCAL.HCAL_Calib = True
 process.hltParticleFlowRecHitHCAL.HF_Calib = True
 process.hltParticleFlow.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
 process.hltParticleFlow.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
-#
 
 # override the process name
 process.setName_('HLTGRun')

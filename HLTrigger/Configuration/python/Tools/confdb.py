@@ -111,27 +111,24 @@ class HLTProcess(object):
 
   # customize the configuration according to the options
   def customize(self):
-    if self.config.fragment:
-      self.data += """
-#
-# Add for CMSSW 42X+ only
-ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
-  appendToDataLabel = cms.string( "" ),
-  flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
-  dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
-  timeThresh = cms.double( 2.0 )
+    self.data += """
+# Extra customisation for CMSSW 42X+ only
+%(process)secalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
+    appendToDataLabel = cms.string( "" ),
+    flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
+    dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
+    timeThresh = cms.double( 2.0 )
 )
 """
-      if not(self.config.type in ('HIon', )):
-        self.data += """
-#
-# Add for CMSSW 42X+ only
-hltParticleFlowRecHitHCAL.HCAL_Calib = True
-hltParticleFlowRecHitHCAL.HF_Calib = True
-hltParticleFlow.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
-hltParticleFlow.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
-#
+    if not(self.config.type in ('HIon', )):
+      self.data += """
+%(process)shltParticleFlowRecHitHCAL.HCAL_Calib = True
+%(process)shltParticleFlowRecHitHCAL.HF_Calib = True
+%(process)shltParticleFlow.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
+%(process)shltParticleFlow.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
 """
+
+    if self.config.fragment:
       # if running on MC, adapt the configuration accordingly
       self.fixForMC()
 
@@ -148,27 +145,6 @@ hltParticleFlow.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7
       self.instrumentTiming()
 
     else:
-      self.data += """
-#
-# Add for CMSSW 42X+ only
-process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
-  appendToDataLabel = cms.string( "" ),
-  flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
-  dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
-  timeThresh = cms.double( 2.0 )
-)
-#
-"""
-      if not(self.config.type in ('HIon', )):
-        self.data += """
-#
-# Add for CMSSW 42X+ only
-process.hltParticleFlowRecHitHCAL.HCAL_Calib = True
-process.hltParticleFlowRecHitHCAL.HF_Calib = True
-process.hltParticleFlow.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
-process.hltParticleFlow.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
-#
-"""
       # if running on MC, adapt the configuration accordingly
       self.fixForMC()
 

@@ -5645,15 +5645,13 @@ process.OnlineErrorsOutput = cms.EndPath( process.hltPreOnlineErrorsOutput + pro
 process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput + process.hltOutputRPCMON )
 
 
-#
-# Add for CMSSW 42X+ only
+# Extra customisation for CMSSW 42X+ only
 process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
-  appendToDataLabel = cms.string( "" ),
-  flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
-  dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
-  timeThresh = cms.double( 2.0 )
+    appendToDataLabel = cms.string( "" ),
+    flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
+    dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
+    timeThresh = cms.double( 2.0 )
 )
-#
 
 # override the process name
 process.setName_('HLTHIon')
