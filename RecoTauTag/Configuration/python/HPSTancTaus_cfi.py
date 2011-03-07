@@ -73,6 +73,8 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import \
 combinatoricRecoTausHPSSelector = hpsSelectionDiscriminator.clone(
     src = cms.InputTag("combinatoricRecoTaus"),
     minTauPt = cms.double(5.),
+    # Turn off narrowness req.
+    coneSizeFormula = cms.string('0.3'),
 )
 
 # Clean the taus according to the transformed output
