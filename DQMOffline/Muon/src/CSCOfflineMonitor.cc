@@ -24,6 +24,7 @@ CSCOfflineMonitor::CSCOfflineMonitor(const ParameterSet& pset){
   clctDigiTag_   = pset.getParameter<edm::InputTag>("clctDigiTag"); 
   cscRecHitTag_  = pset.getParameter<edm::InputTag>("cscRecHitTag");
   cscSegTag_     = pset.getParameter<edm::InputTag>("cscSegTag");
+  FEDRawDataCollectionTag_  = pset.getParameter<edm::InputTag>("FEDRawDataCollectionTag");
 
   finalizedHistograms_=false;
 
@@ -1873,8 +1874,16 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
   eventSetup.get<CSCCrateMapRcd>().get(hcrate); 
   const CSCCrateMap* pcrate = hcrate.product();
 
+
+  // Try to get raw data
   edm::Handle<FEDRawDataCollection> rawdata;
-  event.getByType(rawdata);
+  if (!(event.getByLabel(FEDRawDataCollectionTag_,rawdata)) ){
+    edm::LogWarning("CSCOfflineMonitor")<<" raw data with label "<<FEDRawDataCollectionTag_ <<" not available";
+    return;
+  }
+
+
+
   bool goodEvent = false;
   unsigned long dccBinCheckMask = 0x06080016;
   unsigned int examinerMask = 0x1FEBF3F6;

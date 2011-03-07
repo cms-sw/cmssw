@@ -103,7 +103,7 @@ private:
   edm::InputTag clctDigiTag_;
   edm::InputTag cscRecHitTag_;
   edm::InputTag cscSegTag_; 
-
+  edm::InputTag FEDRawDataCollectionTag_; 
 
   // some useful functions
 
