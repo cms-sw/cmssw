@@ -289,6 +289,9 @@ namespace lumi{
 	 runData["HLTKEY"].data<std::string>()=result.hltkey;
 	 runData["STARTTIME"].data<coral::TimeStamp>()=result.startT;
 	 runData["STOPTIME"].data<coral::TimeStamp>()=result.stopT;
+	 runData["EGEV"].data<unsigned int>()=result.egev;
+	 runData["AMODETAG"].data<std::string>()=result.amodetag;
+	 runData["L1KEY"].data<std::string>()=result.l1key;
 	 destruntable.dataEditor().insertRow(runData);
       }catch( const coral::Exception& er){
 	 std::cout<<"database problem "<<er.what()<<std::endl;
