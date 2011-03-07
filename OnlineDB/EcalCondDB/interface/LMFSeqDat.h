@@ -8,6 +8,7 @@
 #include <map>
 
 #include "OnlineDB/EcalCondDB/interface/LMFUnique.h"
+#include "OnlineDB/EcalCondDB/interface/LMFColor.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
 class LMFSeqDat : public LMFUnique {
@@ -61,6 +62,7 @@ class LMFSeqDat : public LMFUnique {
 
   bool operator!=(const LMFSeqDat &m) const { return !(*this == m); }
   std::map<int, LMFSeqDat> fetchByRunIOV(RunIOV &iov);
+  std::map<int, LMFSeqDat> fetchByRunIOV(RunIOV &iov, const LMFColor &col);
   LMFSeqDat fetchByRunIOV(RunIOV &iov, int seq_num) {
     return fetchByRunIOV(iov)[seq_num];
   }

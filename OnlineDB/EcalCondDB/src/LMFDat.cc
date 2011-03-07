@@ -456,8 +456,8 @@ int LMFDat::writeDB()
 	  free(*bi);
 	  bi++;
 	}
-	m_conn->terminateStatement(stmt);
 	m_conn->commit();
+	m_conn->terminateStatement(stmt);
 	ret = nData;
       } catch (oracle::occi::SQLException &e) {
 	debug();

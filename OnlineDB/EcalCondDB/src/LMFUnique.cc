@@ -357,6 +357,7 @@ int LMFUnique::writeDB()
 	}
 	stmt->executeUpdate();
       }
+      m_conn->commit();
       m_conn->terminateStatement(stmt);
     } catch (SQLException &e) {
       debug();

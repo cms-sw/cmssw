@@ -270,6 +270,24 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(RunIOV &iov) {
 		       "fetchByRunIOV");
 }
 
+std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(RunIOV &iov, 
+						  const LMFColor &col) {
+  int runIOVID = iov.getID();
+  int colorId  = col.getID();
+  std::vector<std::string> pars;
+  std::stringstream ss;
+  ss << "I" << runIOVID;
+  pars.push_back(ss.str());
+  ss.str(std::string());
+  ss << "I" << colorId;
+  pars.push_back(ss.str());
+  return fetchByRunIOV(pars, 
+		       "SELECT SEQ_ID FROM LMF_SEQ_DAT S JOIN LMF_RUN_IOV R"
+		       " ON S.SEQ_ID = R.SEQ_ID WHERE RUN_IOV_ID = :1 AND "
+		       " COLOR_ID = :2",
+		       "fetchByRunIOVAndColor");
+}
+
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunNumber(int runno) {
   return fetchByRunIOV(runno, 
 		       "SELECT SEQ_ID FROM LMF_SEQ_DAT D JOIN RUN_IOV R ON "
