@@ -75,7 +75,7 @@ std::vector<double> RecoTauDiscriminantFromDiscriminator::operator()(
     }
     error << std::endl;
   }
-  edm::LogError("BadDiscrinatorConfiguration") << error.str();
+  edm::LogError("BadDiscriminatorConfiguration") << error.str();
   return std::vector<double>(1,-999);
 }
 
