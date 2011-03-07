@@ -16,7 +16,6 @@ void FWBeamSpot::checkBeamSpot(const edm::EventBase* event)
    {
       m_beamspot = 0;
    }
-   printf("Yebo Te BeamSpot %p: %f, %f, %f\n", m_beamspot, x0(), y0(), z0());
 }
 
 double FWBeamSpot::x0() const
