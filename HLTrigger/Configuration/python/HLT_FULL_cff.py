@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HLT_fix3/V240 (CMSSW_3_11_0_HLT11)
+# /dev/CMSSW_3_11_1/HLT_fix3/V247 (CMSSW_3_11_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V240')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V247')
 )
 
 streams = cms.PSet( 
@@ -57,6 +57,7 @@ datasets = cms.PSet(
     'HLT_IsoTrackHB_v2',
     'HLT_IsoTrackHE_v3',
     'HLT_L1SingleEG5_v1',
+    'HLT_L1SingleJet36_v1',
     'HLT_L1SingleMuOpen_DT_v1',
     'HLT_L1SingleMuOpen_v1',
     'HLT_L1_Interbunch_BSC_v1',
@@ -197,8 +198,10 @@ datasets = cms.PSet(
     'HLT_DoubleMu3_Jpsi_v1',
     'HLT_DoubleMu3_Quarkonium_v1',
     'HLT_Mu3_Track3_Jpsi_v4',
+    'HLT_Mu5_L2Mu2_Jpsi_v1',
     'HLT_Mu5_L2Mu2_v1',
-    'HLT_Mu7_Track5_Jpsi_v1' ),
+    'HLT_Mu7_Track5_Jpsi_v1',
+    'HLT_Mu7_Track7_Jpsi_v1' ),
   MultiJet = cms.vstring( 'HLT_DoubleJet30_ForwardBackward_v1',
     'HLT_DoubleJet60_ForwardBackward_v1',
     'HLT_DoubleJet70_ForwardBackward_v1',
@@ -2046,6 +2049,7 @@ siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESPr
 
 DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
   getSCInfo = cms.untracked.bool( True ),
+  fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
   processingMode = cms.untracked.string( "HLT" )
 )
 UpdaterService = cms.Service( "UpdaterService",

@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/HIon/V60 (CMSSW_3_11_0_HLT11)
+# /dev/CMSSW_3_11_1/HIon/V61 (CMSSW_3_11_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V60')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V61')
 )
 
 process.streams = cms.PSet( 
@@ -1579,6 +1579,7 @@ process.DQMStore = cms.Service( "DQMStore",
 )
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     getSCInfo = cms.untracked.bool( True ),
+    fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
     processingMode = cms.untracked.string( "HLT" )
 )
 process.MessageLogger = cms.Service( "MessageLogger",
@@ -1829,7 +1830,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 100, 100, 100, 100, 100, 100 )
       ),
       cms.PSet(  pathName = cms.string( "NanoDSTOutput" ),
-        prescales = cms.vuint32( 100, 100, 100, 100, 100, 100 )
+        prescales = cms.vuint32( 10, 10, 10, 10, 10, 10 )
       )
     )
 )
