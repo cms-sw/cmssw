@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V60 (CMSSW_3_11_0_HLT11)
+# /dev/CMSSW_3_11_1/GRun/V61 (CMSSW_3_11_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V60')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V61')
 )
 
 hltESSAK5CaloL2L3 = cms.ESSource( "JetCorrectionServiceChain",
@@ -983,6 +983,7 @@ DQMStore = cms.Service( "DQMStore",
 )
 DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
   getSCInfo = cms.untracked.bool( True ),
+  fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
   processingMode = cms.untracked.string( "HLT" )
 )
 
