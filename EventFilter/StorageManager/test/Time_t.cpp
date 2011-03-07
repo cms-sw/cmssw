@@ -29,7 +29,7 @@ public:
 
 void testTime::testDifference()
 {
-  utils::time_point_t utilsTime = utils::getCurrentTime();
+  utils::TimePoint_t utilsTime = utils::getCurrentTime();
   struct tm utils_tm = boost::posix_time::to_tm(utilsTime);
   time_t raw = time(0);
   struct tm* raw_tm = gmtime(&raw);

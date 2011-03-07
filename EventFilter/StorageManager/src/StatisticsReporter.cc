@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.19 2010/12/10 14:31:52 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.20.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -19,374 +19,375 @@
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
-using namespace stor;
 
-
-StatisticsReporter::StatisticsReporter
-(
-  xdaq::Application *app,
-  SharedResourcesPtr sr
-) :
-_app(app),
-_alarmHandler(new AlarmHandler(app)),
-_sharedResources(sr),
-_monitoringSleepSec(sr->_configuration->
-  getWorkerThreadParams()._monitoringSleepSec),
-_runMonCollection(_monitoringSleepSec, _alarmHandler, sr),
-_fragMonCollection(_monitoringSleepSec),
-_filesMonCollection(_monitoringSleepSec*5),
-_streamsMonCollection(_monitoringSleepSec),
-_dataSenderMonCollection(_monitoringSleepSec, _alarmHandler),
-_dqmEventMonCollection(_monitoringSleepSec*5),
-_resourceMonCollection(_monitoringSleepSec*600, _alarmHandler),
-_stateMachineMonCollection(_monitoringSleepSec),
-_eventConsumerMonCollection(_monitoringSleepSec),
-_dqmConsumerMonCollection(_monitoringSleepSec),
-_throughputMonCollection(_monitoringSleepSec,
-  sr->_configuration->getWorkerThreadParams()._throuphputAveragingCycles),
-_monitorWL(0),
-_doMonitoring(_monitoringSleepSec>boost::posix_time::seconds(0))
-{
-  reset();
-  createMonitoringInfoSpace();
-  collectInfoSpaceItems();
-  addRunInfoQuantitiesToApplicationInfoSpace();
-}
-
-
-void StatisticsReporter::startWorkLoop(std::string workloopName)
-{
-  if ( !_doMonitoring ) return;
-
-  try
-  {
-    std::string identifier = utils::getIdentifier(_app->getApplicationDescriptor());
-
-    _monitorWL=
-      toolbox::task::getWorkLoopFactory()->getWorkLoop(
-        identifier + workloopName, "waiting");
-
-    if ( ! _monitorWL->isActive() )
-    {
-      toolbox::task::ActionSignature* monitorAction = 
-        toolbox::task::bind(this, &StatisticsReporter::monitorAction, 
-          identifier + "MonitorAction");
-      _monitorWL->submit(monitorAction);
-
-      _lastMonitorAction = utils::getCurrentTime();
-      _monitorWL->activate();
-    }
-  }
-  catch (xcept::Exception& e)
-  {
-    std::string msg = "Failed to start workloop 'StatisticsReporter' with 'MonitorAction'.";
-    XCEPT_RETHROW(stor::exception::Monitoring, msg, e);
-  }
-}
-
-
-StatisticsReporter::~StatisticsReporter()
-{
-  // Stop the monitoring activity
-  _doMonitoring = false;
-
-  // Cancel the workloop (will wait until the action has finished)
-  if ( _monitorWL && _monitorWL->isActive() ) _monitorWL->cancel();
-}
-
-
-
-void StatisticsReporter::createMonitoringInfoSpace()
-{
-  // Create an infospace which can be monitored.
-  // The naming follows the old SM scheme.
-  // In future, the instance number should be included.
-    
-  std::ostringstream oss;
-  oss << "urn:xdaq-monitorable-" << _app->getApplicationDescriptor()->getClassName();
+namespace stor {
   
-  std::string errorMsg =
-    "Failed to create monitoring info space " + oss.str();
+  StatisticsReporter::StatisticsReporter
+  (
+    xdaq::Application *app,
+    SharedResourcesPtr sr
+  ) :
+  app_(app),
+  alarmHandler_(new AlarmHandler(app)),
+  sharedResources_(sr),
+  monitoringSleepSec_(sr->configuration_->
+    getWorkerThreadParams().monitoringSleepSec_),
+  runMonCollection_(monitoringSleepSec_, alarmHandler_, sr),
+  fragMonCollection_(monitoringSleepSec_),
+  filesMonCollection_(monitoringSleepSec_*5),
+  streamsMonCollection_(monitoringSleepSec_),
+  dataSenderMonCollection_(monitoringSleepSec_, alarmHandler_),
+  dqmEventMonCollection_(monitoringSleepSec_*5),
+  resourceMonCollection_(monitoringSleepSec_*600, alarmHandler_),
+  stateMachineMonCollection_(monitoringSleepSec_),
+  eventConsumerMonCollection_(monitoringSleepSec_),
+  dqmConsumerMonCollection_(monitoringSleepSec_),
+  throughputMonCollection_(monitoringSleepSec_,
+    sr->configuration_->getWorkerThreadParams().throuphputAveragingCycles_),
+  monitorWL_(0),
+  doMonitoring_(monitoringSleepSec_>boost::posix_time::seconds(0))
+  {
+    reset();
+    createMonitoringInfoSpace();
+    collectInfoSpaceItems();
+    addRunInfoQuantitiesToApplicationInfoSpace();
+  }
   
-  try
-  {
-    toolbox::net::URN urn = _app->createQualifiedInfoSpace(oss.str());
-    xdata::getInfoSpaceFactory()->lock();
-    _infoSpace = xdata::getInfoSpaceFactory()->get(urn.toString());
-    xdata::getInfoSpaceFactory()->unlock();
-  }
-  catch(xdata::exception::Exception &e)
-  {
-    xdata::getInfoSpaceFactory()->unlock();
-    
-    XCEPT_RETHROW(stor::exception::Infospace, errorMsg, e);
-  }
-  catch (...)
-  {
-    xdata::getInfoSpaceFactory()->unlock();
-    
-    errorMsg += " : unknown exception";
-    XCEPT_RAISE(stor::exception::Infospace, errorMsg);
-  }
-}
-
-
-void StatisticsReporter::collectInfoSpaceItems()
-{
-  MonitorCollection::InfoSpaceItems infoSpaceItems;
-  _infoSpaceItemNames.clear();
-
-  _runMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _fragMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _filesMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _streamsMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _dataSenderMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _dqmEventMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _resourceMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _stateMachineMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _eventConsumerMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _dqmConsumerMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _throughputMonCollection.appendInfoSpaceItems(infoSpaceItems);
-
-  putItemsIntoInfoSpace(infoSpaceItems);
-}
-
-
-void StatisticsReporter::putItemsIntoInfoSpace(MonitorCollection::InfoSpaceItems& items)
-{
   
-  for ( MonitorCollection::InfoSpaceItems::const_iterator it = items.begin(),
-          itEnd = items.end();
-        it != itEnd;
-        ++it )
+  void StatisticsReporter::startWorkLoop(std::string workloopName)
   {
+    if ( !doMonitoring_ ) return;
+    
     try
     {
-      // fireItemAvailable locks the infospace internally
-      _infoSpace->fireItemAvailable(it->first, it->second);
+      std::string identifier = utils::getIdentifier(app_->getApplicationDescriptor());
+      
+      monitorWL_=
+        toolbox::task::getWorkLoopFactory()->getWorkLoop(
+          identifier + workloopName, "waiting");
+      
+      if ( ! monitorWL_->isActive() )
+      {
+        toolbox::task::ActionSignature* monitorAction = 
+          toolbox::task::bind(this, &StatisticsReporter::monitorAction, 
+            identifier + "MonitorAction");
+        monitorWL_->submit(monitorAction);
+        
+        lastMonitorAction_ = utils::getCurrentTime();
+        monitorWL_->activate();
+      }
+    }
+    catch (xcept::Exception& e)
+    {
+      const std::string msg =
+        "Failed to start workloop 'StatisticsReporter' with 'MonitorAction'.";
+      XCEPT_RETHROW(stor::exception::Monitoring, msg, e);
+    }
+  }
+  
+  
+  StatisticsReporter::~StatisticsReporter()
+  {
+    // Stop the monitoring activity
+    doMonitoring_ = false;
+    
+    // Cancel the workloop (will wait until the action has finished)
+    if ( monitorWL_ && monitorWL_->isActive() ) monitorWL_->cancel();
+  }
+  
+  
+  void StatisticsReporter::createMonitoringInfoSpace()
+  {
+    // Create an infospace which can be monitored.
+    // The naming follows the old SM scheme.
+    // In future, the instance number should be included.
+    
+    std::ostringstream oss;
+    oss << "urn:xdaq-monitorable-" << app_->getApplicationDescriptor()->getClassName();
+    
+    std::string errorMsg =
+      "Failed to create monitoring info space " + oss.str();
+    
+    try
+    {
+      toolbox::net::URN urn = app_->createQualifiedInfoSpace(oss.str());
+      xdata::getInfoSpaceFactory()->lock();
+      infoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
+      xdata::getInfoSpaceFactory()->unlock();
     }
     catch(xdata::exception::Exception &e)
     {
-      std::stringstream oss;
+      xdata::getInfoSpaceFactory()->unlock();
       
-      oss << "Failed to put " << it->first;
-      oss << " into info space " << _infoSpace->name();
-      
-      XCEPT_RETHROW(stor::exception::Monitoring, oss.str(), e);
+      XCEPT_RETHROW(stor::exception::Infospace, errorMsg, e);
     }
-
-    // keep a list of info space names for the fireItemGroupChanged
-    _infoSpaceItemNames.push_back(it->first);
-  }
-}
-
-
-void StatisticsReporter::addRunInfoQuantitiesToApplicationInfoSpace()
-{
-  xdata::InfoSpace *infoSpace = _app->getApplicationInfoSpace();
-
-  // bind the local xdata variables to the infospace
-  infoSpace->fireItemAvailable("stateName", &_stateName);
-  infoSpace->fireItemAvailable("storedEvents", &_storedEvents);
-  infoSpace->fireItemAvailable("closedFiles", &_closedFiles);
-
-  // spacial handling for the monitoring values requested by the HLTSFM
-  // we want to assure that the values are current when they are queried
-  infoSpace->addItemRetrieveListener("stateName", this);
-  infoSpace->addItemRetrieveListener("storedEvents", this);
-  infoSpace->addItemRetrieveListener("closedFiles", this);
-}
-
-
-bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
-{
-  utils::sleepUntil(_lastMonitorAction + _monitoringSleepSec);
-  _lastMonitorAction = utils::getCurrentTime();
-
-  std::string errorMsg = "Failed to update the monitoring information";
-
-  try
-  {
-    calculateStatistics();
-    updateInfoSpace();
-  }
-  catch(exception::DiskSpaceAlarm &e)
-  {
-    _sharedResources->moveToFailedState(e);
-  }
-  catch(xcept::Exception &e)
-  {
-    LOG4CPLUS_ERROR(_app->getApplicationLogger(),
-      errorMsg << xcept::stdformat_exception_history(e));
-
-    XCEPT_DECLARE_NESTED(stor::exception::Monitoring,
-      sentinelException, errorMsg, e);
-    _app->notifyQualified("error", sentinelException);
-  }
-  catch(std::exception &e)
-  {
-    errorMsg += ": ";
-    errorMsg += e.what();
-
-    LOG4CPLUS_ERROR(_app->getApplicationLogger(),
-      errorMsg);
-    
-    XCEPT_DECLARE(stor::exception::Monitoring,
-      sentinelException, errorMsg);
-    _app->notifyQualified("error", sentinelException);
-  }
-  catch(...)
-  {
-    errorMsg += ": Unknown exception";
-
-    LOG4CPLUS_ERROR(_app->getApplicationLogger(),
-      errorMsg);
-    
-    XCEPT_DECLARE(stor::exception::Monitoring,
-      sentinelException, errorMsg);
-    _app->notifyQualified("error", sentinelException);
-  }
-
-  return _doMonitoring;
-}
-
-
-void StatisticsReporter::calculateStatistics()
-{
-  const utils::time_point_t now = utils::getCurrentTime();
-
-  _runMonCollection.calculateStatistics(now);
-  _fragMonCollection.calculateStatistics(now);
-  _filesMonCollection.calculateStatistics(now);
-  _streamsMonCollection.calculateStatistics(now);
-  _dataSenderMonCollection.calculateStatistics(now);
-  _dqmEventMonCollection.calculateStatistics(now);
-  _resourceMonCollection.calculateStatistics(now);
-  _stateMachineMonCollection.calculateStatistics(now);
-  _eventConsumerMonCollection.calculateStatistics(now);
-  _dqmConsumerMonCollection.calculateStatistics(now);
-  _throughputMonCollection.calculateStatistics(now);
-}
-
-
-void StatisticsReporter::updateInfoSpace()
-{
-  std::string errorMsg =
-    "Failed to update values of items in info space " + _infoSpace->name();
-
-  // Lock the infospace to assure that all items are consistent
-  try
-  {
-    _infoSpace->lock();
-
-    _runMonCollection.updateInfoSpaceItems();
-    _fragMonCollection.updateInfoSpaceItems();
-    _filesMonCollection.updateInfoSpaceItems();
-    _streamsMonCollection.updateInfoSpaceItems();
-    _dataSenderMonCollection.updateInfoSpaceItems();
-    _dqmEventMonCollection.updateInfoSpaceItems();
-    _resourceMonCollection.updateInfoSpaceItems();
-    _stateMachineMonCollection.updateInfoSpaceItems();
-    _eventConsumerMonCollection.updateInfoSpaceItems();
-    _dqmConsumerMonCollection.updateInfoSpaceItems();
-    _throughputMonCollection.updateInfoSpaceItems();
-
-    _infoSpace->unlock();
-  }
-  catch(std::exception &e)
-  {
-    _infoSpace->unlock();
-    
-    errorMsg += ": ";
-    errorMsg += e.what();
-    XCEPT_RAISE(stor::exception::Monitoring, errorMsg);
-  }
-  catch (...)
-  {
-    _infoSpace->unlock();
-    
-    errorMsg += " : unknown exception";
-    XCEPT_RAISE(stor::exception::Monitoring, errorMsg);
+    catch (...)
+    {
+      xdata::getInfoSpaceFactory()->unlock();
+      
+      errorMsg += " : unknown exception";
+      XCEPT_RAISE(stor::exception::Infospace, errorMsg);
+    }
   }
   
-  try
+  
+  void StatisticsReporter::collectInfoSpaceItems()
   {
-    // The fireItemGroupChanged locks the infospace
-    _infoSpace->fireItemGroupChanged(_infoSpaceItemNames, this);
+    MonitorCollection::InfoSpaceItems infoSpaceItems;
+    infoSpaceItemNames_.clear();
+    
+    runMonCollection_.appendInfoSpaceItems(infoSpaceItems);
+    fragMonCollection_.appendInfoSpaceItems(infoSpaceItems);
+    filesMonCollection_.appendInfoSpaceItems(infoSpaceItems);
+    streamsMonCollection_.appendInfoSpaceItems(infoSpaceItems);
+    dataSenderMonCollection_.appendInfoSpaceItems(infoSpaceItems);
+    dqmEventMonCollection_.appendInfoSpaceItems(infoSpaceItems);
+    resourceMonCollection_.appendInfoSpaceItems(infoSpaceItems);
+    stateMachineMonCollection_.appendInfoSpaceItems(infoSpaceItems);
+    eventConsumerMonCollection_.appendInfoSpaceItems(infoSpaceItems);
+    dqmConsumerMonCollection_.appendInfoSpaceItems(infoSpaceItems);
+    throughputMonCollection_.appendInfoSpaceItems(infoSpaceItems);
+    
+    putItemsIntoInfoSpace(infoSpaceItems);
   }
-  catch (xdata::exception::Exception &e)
+  
+  
+  void StatisticsReporter::putItemsIntoInfoSpace(MonitorCollection::InfoSpaceItems& items)
   {
-    XCEPT_RETHROW(stor::exception::Monitoring, errorMsg, e);
-  }
-}
-
-
-void StatisticsReporter::reset()
-{
-  const utils::time_point_t now = utils::getCurrentTime();
-
-  // do not reset the stateMachineMonCollection, as we want to
-  // keep the state machine history
-  _runMonCollection.reset(now);
-  _fragMonCollection.reset(now);
-  _filesMonCollection.reset(now);
-  _streamsMonCollection.reset(now);
-  _dataSenderMonCollection.reset(now);
-  _dqmEventMonCollection.reset(now);
-  _resourceMonCollection.reset(now);
-  _eventConsumerMonCollection.reset(now);
-  _dqmConsumerMonCollection.reset(now);
-  _throughputMonCollection.reset(now);
-
-  _alarmHandler->clearAllAlarms();
-}
-
-
-void StatisticsReporter::actionPerformed(xdata::Event& ispaceEvent)
-{
-  if (ispaceEvent.type() == "ItemRetrieveEvent")
-  {
-    std::string item =
-      dynamic_cast<xdata::ItemRetrieveEvent&>(ispaceEvent).itemName();
-    if (item == "closedFiles")
+    
+    for ( MonitorCollection::InfoSpaceItems::const_iterator it = items.begin(),
+            itEnd = items.end();
+          it != itEnd;
+          ++it )
     {
-      _filesMonCollection.updateInfoSpaceItems();
       try
       {
-        _closedFiles.setValue( *(_infoSpace->find("closedFiles")) );
+        // fireItemAvailable locks the infospace internally
+        infoSpace_->fireItemAvailable(it->first, it->second);
       }
-      catch(xdata::exception::Exception& e)
+      catch(xdata::exception::Exception &e)
       {
-        _closedFiles = 0;
+        std::stringstream oss;
+        
+        oss << "Failed to put " << it->first;
+        oss << " into info space " << infoSpace_->name();
+        
+        XCEPT_RETHROW(stor::exception::Monitoring, oss.str(), e);
       }
+      
+      // keep a list of info space names for the fireItemGroupChanged
+      infoSpaceItemNames_.push_back(it->first);
     }
-    else if (item == "storedEvents")
-    {
-      _streamsMonCollection.updateInfoSpaceItems();
-      try
-      {
-        _storedEvents.setValue( *(_infoSpace->find("storedEvents")) );
-      }
-      catch(xdata::exception::Exception& e)
-      {
-        _storedEvents = 0;
-      }
-    } 
-    else if (item == "stateName")
-    {
-      _stateMachineMonCollection.updateInfoSpaceItems();
-      try
-      {
-        _stateName.setValue( *(_infoSpace->find("stateName")) );
-      }
-      catch(xdata::exception::Exception& e)
-      {
-        _stateName = "unknown";
-      }
-    } 
   }
-}
-
+  
+  
+  void StatisticsReporter::addRunInfoQuantitiesToApplicationInfoSpace()
+  {
+    xdata::InfoSpace *infoSpace = app_->getApplicationInfoSpace();
+    
+    // bind the local xdata variables to the infospace
+    infoSpace->fireItemAvailable("stateName", &stateName_);
+    infoSpace->fireItemAvailable("storedEvents", &storedEvents_);
+    infoSpace->fireItemAvailable("closedFiles", &closedFiles_);
+    
+    // spacial handling for the monitoring values requested by the HLTSFM
+    // we want to assure that the values are current when they are queried
+    infoSpace->addItemRetrieveListener("stateName", this);
+    infoSpace->addItemRetrieveListener("storedEvents", this);
+    infoSpace->addItemRetrieveListener("closedFiles", this);
+  }
+  
+  
+  bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
+  {
+    utils::sleepUntil(lastMonitorAction_ + monitoringSleepSec_);
+    lastMonitorAction_ = utils::getCurrentTime();
+    
+    std::string errorMsg = "Failed to update the monitoring information";
+    
+    try
+    {
+      calculateStatistics();
+      updateInfoSpace();
+    }
+    catch(exception::DiskSpaceAlarm &e)
+    {
+      sharedResources_->moveToFailedState(e);
+    }
+    catch(xcept::Exception &e)
+    {
+      LOG4CPLUS_ERROR(app_->getApplicationLogger(),
+        errorMsg << xcept::stdformat_exception_history(e));
+      
+      XCEPT_DECLARE_NESTED(stor::exception::Monitoring,
+        sentinelException, errorMsg, e);
+      app_->notifyQualified("error", sentinelException);
+    }
+    catch(std::exception &e)
+    {
+      errorMsg += ": ";
+      errorMsg += e.what();
+      
+      LOG4CPLUS_ERROR(app_->getApplicationLogger(),
+        errorMsg);
+      
+      XCEPT_DECLARE(stor::exception::Monitoring,
+        sentinelException, errorMsg);
+      app_->notifyQualified("error", sentinelException);
+    }
+    catch(...)
+    {
+      errorMsg += ": Unknown exception";
+      
+      LOG4CPLUS_ERROR(app_->getApplicationLogger(),
+        errorMsg);
+      
+      XCEPT_DECLARE(stor::exception::Monitoring,
+        sentinelException, errorMsg);
+      app_->notifyQualified("error", sentinelException);
+    }
+    
+    return doMonitoring_;
+  }
+  
+  
+  void StatisticsReporter::calculateStatistics()
+  {
+    const utils::TimePoint_t now = utils::getCurrentTime();
+    
+    runMonCollection_.calculateStatistics(now);
+    fragMonCollection_.calculateStatistics(now);
+    filesMonCollection_.calculateStatistics(now);
+    streamsMonCollection_.calculateStatistics(now);
+    dataSenderMonCollection_.calculateStatistics(now);
+    dqmEventMonCollection_.calculateStatistics(now);
+    resourceMonCollection_.calculateStatistics(now);
+    stateMachineMonCollection_.calculateStatistics(now);
+    eventConsumerMonCollection_.calculateStatistics(now);
+    dqmConsumerMonCollection_.calculateStatistics(now);
+    throughputMonCollection_.calculateStatistics(now);
+  }
+  
+  
+  void StatisticsReporter::updateInfoSpace()
+  {
+    std::string errorMsg =
+      "Failed to update values of items in info space " + infoSpace_->name();
+    
+    // Lock the infospace to assure that all items are consistent
+    try
+    {
+      infoSpace_->lock();
+      
+      runMonCollection_.updateInfoSpaceItems();
+      fragMonCollection_.updateInfoSpaceItems();
+      filesMonCollection_.updateInfoSpaceItems();
+      streamsMonCollection_.updateInfoSpaceItems();
+      dataSenderMonCollection_.updateInfoSpaceItems();
+      dqmEventMonCollection_.updateInfoSpaceItems();
+      resourceMonCollection_.updateInfoSpaceItems();
+      stateMachineMonCollection_.updateInfoSpaceItems();
+      eventConsumerMonCollection_.updateInfoSpaceItems();
+      dqmConsumerMonCollection_.updateInfoSpaceItems();
+      throughputMonCollection_.updateInfoSpaceItems();
+      
+      infoSpace_->unlock();
+    }
+    catch(std::exception &e)
+    {
+      infoSpace_->unlock();
+      
+      errorMsg += ": ";
+      errorMsg += e.what();
+      XCEPT_RAISE(stor::exception::Monitoring, errorMsg);
+    }
+    catch (...)
+    {
+      infoSpace_->unlock();
+      
+      errorMsg += " : unknown exception";
+      XCEPT_RAISE(stor::exception::Monitoring, errorMsg);
+    }
+    
+    try
+    {
+      // The fireItemGroupChanged locks the infospace
+      infoSpace_->fireItemGroupChanged(infoSpaceItemNames_, this);
+    }
+    catch (xdata::exception::Exception &e)
+    {
+      XCEPT_RETHROW(stor::exception::Monitoring, errorMsg, e);
+    }
+  }
+  
+  
+  void StatisticsReporter::reset()
+  {
+    const utils::TimePoint_t now = utils::getCurrentTime();
+    
+    // do not reset the stateMachineMonCollection, as we want to
+    // keep the state machine history
+    runMonCollection_.reset(now);
+    fragMonCollection_.reset(now);
+    filesMonCollection_.reset(now);
+    streamsMonCollection_.reset(now);
+    dataSenderMonCollection_.reset(now);
+    dqmEventMonCollection_.reset(now);
+    resourceMonCollection_.reset(now);
+    eventConsumerMonCollection_.reset(now);
+    dqmConsumerMonCollection_.reset(now);
+    throughputMonCollection_.reset(now);
+    
+    alarmHandler_->clearAllAlarms();
+  }
+  
+  
+  void StatisticsReporter::actionPerformed(xdata::Event& ispaceEvent)
+  {
+    if (ispaceEvent.type() == "ItemRetrieveEvent")
+    {
+      std::string item =
+        dynamic_cast<xdata::ItemRetrieveEvent&>(ispaceEvent).itemName();
+      if (item == "closedFiles")
+      {
+        filesMonCollection_.updateInfoSpaceItems();
+        try
+        {
+          closedFiles_.setValue( *(infoSpace_->find("closedFiles")) );
+        }
+        catch(xdata::exception::Exception& e)
+        {
+          closedFiles_ = 0;
+        }
+      }
+      else if (item == "storedEvents")
+      {
+        streamsMonCollection_.updateInfoSpaceItems();
+        try
+        {
+          storedEvents_.setValue( *(infoSpace_->find("storedEvents")) );
+        }
+        catch(xdata::exception::Exception& e)
+        {
+          storedEvents_ = 0;
+        }
+      } 
+      else if (item == "stateName")
+      {
+        stateMachineMonCollection_.updateInfoSpaceItems();
+        try
+        {
+          stateName_.setValue( *(infoSpace_->find("stateName")) );
+        }
+        catch(xdata::exception::Exception& e)
+        {
+          stateName_ = "unknown";
+        }
+      } 
+    }
+  }
+  
+} // namespace stor
 
 /// emacs configuration
 /// Local Variables: -

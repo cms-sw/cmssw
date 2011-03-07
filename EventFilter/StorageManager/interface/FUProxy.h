@@ -1,8 +1,8 @@
-// $Id: StateMachine.h,v 1.7 2009/07/14 10:34:44 dshpakov Exp $
+// $Id: FUProxy.h,v 1.6.16.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: FUProxy.h 
 
-#ifndef StorageManager_FUProxy_h
-#define StorageManager_FUProxy_h
+#ifndef EventFilter_StorageManager_FUProxy_h
+#define EventFilter_StorageManager_FUProxy_h
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 #include "EventFilter/Utilities/interface/Exception.h"
@@ -20,8 +20,8 @@ namespace stor
    * Following the example in EventFilter/ResourceBroker for BUProxy and SMProxy.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/07/13 14:42:07 $
+   * $Revision: 1.6.16.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class FUProxy
@@ -49,7 +49,7 @@ namespace stor
 
 } // namespace stor
 
-#endif // StorageManager_FUProxy_h
+#endif // EventFilter_StorageManager_FUProxy_h
 
 
 /// emacs configuration

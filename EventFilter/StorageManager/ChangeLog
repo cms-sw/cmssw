@@ -1,3 +1,10 @@
+2011-03-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-00-00
+	* Complete rework of event server part (from SMPSdev_branch)
+	* Conform to CMSSW naming conventions.
+	* Major cleanup of code and old files.
+
 2011-02-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-08-00

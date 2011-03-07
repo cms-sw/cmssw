@@ -1,8 +1,8 @@
-// $Id: MonitoredQuantity.h,v 1.8 2010/12/15 10:09:14 mommsen Exp $
+// $Id: MonitoredQuantity.h,v 1.9.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: MonitoredQuantity.h 
 
-#ifndef StorageManager_MonitoredQuantity_h
-#define StorageManager_MonitoredQuantity_h
+#ifndef EventFilter_StorageManager_MonitoredQuantity_h
+#define EventFilter_StorageManager_MonitoredQuantity_h
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
@@ -22,8 +22,8 @@ namespace stor
    * and provides timing information on the samples.
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2010/12/15 10:09:14 $
+   * $Revision: 1.9.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class MonitoredQuantity
@@ -37,8 +37,8 @@ namespace stor
 
     explicit MonitoredQuantity
     (
-      utils::duration_t expectedCalculationInterval,
-      utils::duration_t timeWindowForRecentResults
+      utils::Duration_t expectedCalculationInterval,
+      utils::Duration_t timeWindowForRecentResults
     );
 
     /**
@@ -89,7 +89,7 @@ namespace stor
      * will be called once per interval specified by
      * expectedCalculationInterval
      */
-    void calculateStatistics(const utils::time_point_t& currentTime = 
+    void calculateStatistics(const utils::TimePoint_t& currentTime = 
                              utils::getCurrentTime());
 
     /**
@@ -112,13 +112,13 @@ namespace stor
     /**
      * Tests whether the monitor is currently enabled.
      */
-    bool isEnabled() const {return _enabled;}
+    bool isEnabled() const {return enabled_;}
 
     /**
      * Specifies a new time interval to be used when calculating
      * "recent" statistics.
      */
-    void setNewTimeWindowForRecentResults(const utils::duration_t& interval);
+    void setNewTimeWindowForRecentResults(const utils::Duration_t& interval);
 
     /**
      * Returns the length of the time window that has been specified
@@ -128,14 +128,14 @@ namespace stor
      * a getDuration(RECENT) call to determine the actual recent
      * time window.)
      */
-    utils::duration_t getTimeWindowForRecentResults() const
+    utils::Duration_t getTimeWindowForRecentResults() const
     {
-      return _intervalForRecentStats;
+      return intervalForRecentStats_;
     }
 
-    utils::duration_t ExpectedCalculationInterval() const
+    utils::Duration_t ExpectedCalculationInterval() const
     {
-      return _expectedCalculationInterval;
+      return expectedCalculationInterval_;
     }
 
     /**
@@ -150,58 +150,58 @@ namespace stor
     MonitoredQuantity& operator=(MonitoredQuantity const&);
 
     // Helper functions.
-    void _reset_accumulators();
-    void _reset_results();
+    void resetAccumulators();
+    void resetResults();
 
-    utils::time_point_t _lastCalculationTime;
-    uint64_t _workingSampleCount;
-    double _workingValueSum;
-    double _workingValueSumOfSquares;
-    double _workingValueMin;
-    double _workingValueMax;
-    double _workingLastSampleValue;
+    utils::TimePoint_t lastCalculationTime_;
+    uint64_t workingSampleCount_;
+    double workingValueSum_;
+    double workingValueSumOfSquares_;
+    double workingValueMin_;
+    double workingValueMax_;
+    double workingLastSampleValue_;
 
-    mutable boost::mutex _accumulationMutex;
+    mutable boost::mutex accumulationMutex_;
 
-    uint32_t _binCount;
-    uint32_t _workingBinId;
-    std::vector<uint64_t> _binSampleCount;
-    std::vector<double> _binValueSum;
-    std::vector<double> _binValueSumOfSquares;
-    std::vector<double> _binValueMin;
-    std::vector<double> _binValueMax;
-    std::vector<utils::duration_t> _binDuration;
-    std::vector<utils::time_point_t> _binSnapshotTime;
+    uint32_t binCount_;
+    uint32_t workingBinId_;
+    std::vector<uint64_t> binSampleCount_;
+    std::vector<double> binValueSum_;
+    std::vector<double> binValueSumOfSquares_;
+    std::vector<double> binValueMin_;
+    std::vector<double> binValueMax_;
+    std::vector<utils::Duration_t> binDuration_;
+    std::vector<utils::TimePoint_t> binSnapshotTime_;
 
-    uint64_t _fullSampleCount;
-    double _fullSampleRate;
-    double _fullValueSum;
-    double _fullValueSumOfSquares;
-    double _fullValueAverage;
-    double _fullValueRMS;
-    double _fullValueMin;
-    double _fullValueMax;
-    double _fullValueRate;
-    utils::duration_t _fullDuration;
+    uint64_t fullSampleCount_;
+    double fullSampleRate_;
+    double fullValueSum_;
+    double fullValueSumOfSquares_;
+    double fullValueAverage_;
+    double fullValueRMS_;
+    double fullValueMin_;
+    double fullValueMax_;
+    double fullValueRate_;
+    utils::Duration_t fullDuration_;
 
-    uint64_t _recentSampleCount;
-    double _recentSampleRate;
-    double _recentValueSum;
-    double _recentValueSumOfSquares;
-    double _recentValueAverage;
-    double _recentValueRMS;
-    double _recentValueMin;
-    double _recentValueMax;
-    double _recentValueRate;
-    utils::duration_t _recentDuration;
-    double _lastLatchedSampleValue;
-    double _lastLatchedValueRate;
+    uint64_t recentSampleCount_;
+    double recentSampleRate_;
+    double recentValueSum_;
+    double recentValueSumOfSquares_;
+    double recentValueAverage_;
+    double recentValueRMS_;
+    double recentValueMin_;
+    double recentValueMax_;
+    double recentValueRate_;
+    utils::Duration_t recentDuration_;
+    double lastLatchedSampleValue_;
+    double lastLatchedValueRate_;
 
-    mutable boost::mutex _resultsMutex;
+    mutable boost::mutex resultsMutex_;
 
-    bool _enabled;
-    utils::duration_t _intervalForRecentStats;  // seconds
-    const utils::duration_t _expectedCalculationInterval;  // seconds
+    bool enabled_;
+    utils::Duration_t intervalForRecentStats_;  // seconds
+    const utils::Duration_t expectedCalculationInterval_;  // seconds
   };
 
   struct MonitoredQuantity::Stats
@@ -216,7 +216,7 @@ namespace stor
     double fullValueMax;
     double fullValueRate;
     double fullSampleLatency;
-    utils::duration_t fullDuration;
+    utils::Duration_t fullDuration;
 
     uint64_t recentSampleCount;
     double recentSampleRate;
@@ -228,11 +228,11 @@ namespace stor
     double recentValueMax;
     double recentValueRate;
     double recentSampleLatency;
-    utils::duration_t recentDuration;
+    utils::Duration_t recentDuration;
     std::vector<uint64_t> recentBinnedSampleCounts;
     std::vector<double> recentBinnedValueSums;
-    std::vector<utils::duration_t> recentBinnedDurations;
-    std::vector<utils::time_point_t> recentBinnedSnapshotTimes;
+    std::vector<utils::Duration_t> recentBinnedDurations;
+    std::vector<utils::TimePoint_t> recentBinnedSnapshotTimes;
 
     double lastSampleValue;
     double lastValueRate;
@@ -245,7 +245,7 @@ namespace stor
     double getValueRMS(DataSetType t = FULL) const { return t == RECENT ? recentValueRMS : fullValueRMS; }
     double getValueMin(DataSetType t = FULL) const { return t == RECENT ? recentValueMin : fullValueMin; }
     double getValueMax(DataSetType t = FULL) const { return t == RECENT ? recentValueMax : fullValueMax; }
-    utils::duration_t getDuration(DataSetType t = FULL) const { return t == RECENT ? recentDuration : fullDuration; }
+    utils::Duration_t getDuration(DataSetType t = FULL) const { return t == RECENT ? recentDuration : fullDuration; }
     double getSampleRate(DataSetType t = FULL) const { return t == RECENT ? recentSampleRate : fullSampleRate; }
     double getSampleLatency(DataSetType t = FULL) const { double v=getSampleRate(t); return v  ? 1e6/v : INFINITY;}
     double getLastSampleValue() const { return lastSampleValue; }
@@ -253,9 +253,11 @@ namespace stor
     bool   isEnabled() const { return enabled; }
   };
 
+  typedef boost::shared_ptr<MonitoredQuantity> MonitoredQuantityPtr;
+
 } // namespace stor
 
-#endif // StorageManager_MonitoredQuantity_h
+#endif // EventFilter_StorageManager_MonitoredQuantity_h
 
 
 

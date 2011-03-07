@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.cc,v 1.13 2010/05/17 15:59:10 mommsen Exp $
+// $Id: InitMsgCollection.cc,v 1.14.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: InitMsgCollection.cc
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -169,14 +169,14 @@ void InitMsgCollection::clear()
 }
 
 
-int InitMsgCollection::size() const
+size_t InitMsgCollection::size() const
 {
   boost::mutex::scoped_lock sl(listLock_);
   return initMsgList_.size();
 }
 
 
-uint32_t InitMsgCollection::initMsgCount(const std::string& outputModuleLabel) const
+size_t InitMsgCollection::initMsgCount(const std::string& outputModuleLabel) const
 {
   boost::mutex::scoped_lock sl(listLock_);
 
@@ -198,11 +198,11 @@ uint32_t InitMsgCollection::initMsgCount(const std::string& outputModuleLabel) c
 }
 
 
-uint32_t InitMsgCollection::maxMsgCount() const
+size_t InitMsgCollection::maxMsgCount() const
 {
   boost::mutex::scoped_lock sl(listLock_);
 
-  uint32_t maxCount = 0;
+  size_t maxCount = 0;
 
   for (InitMsgList::const_iterator msgIter = initMsgList_.begin(),
          msgIterEnd = initMsgList_.end();
