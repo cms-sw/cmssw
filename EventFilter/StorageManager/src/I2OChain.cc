@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.21 2010/05/17 15:59:10 mommsen Exp $
+// $Id: I2OChain.cc,v 1.22 2010/12/14 12:56:52 mommsen Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -399,6 +399,17 @@ namespace stor
         return tmpList;
       }
     return _data->getDQMEventConsumerTags();
+  }
+
+  void I2OChain::addDroppedEventsCount(unsigned int count)
+  {
+    if (!_data)
+      {
+        std::stringstream msg;
+        msg << "A dropped event count cannot be added to an empty chain";
+        XCEPT_RAISE(stor::exception::I2OChain, msg.str());
+      }
+    _data->addDroppedEventsCount(count);
   }
 
   size_t I2OChain::memoryUsed() const

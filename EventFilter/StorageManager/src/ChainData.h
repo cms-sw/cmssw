@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.13 2010/05/17 15:59:09 mommsen Exp $
+// $Id: ChainData.h,v 1.14 2010/09/24 10:55:16 mommsen Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H
@@ -89,6 +89,7 @@ namespace stor
       void resetStaleWindowStartTime() {
         _staleWindowStartTime = utils::getCurrentTime();
       }
+      void addDroppedEventsCount(unsigned int);
       size_t memoryUsed() const;
       unsigned long totalDataSize() const;
       unsigned long dataSize(int fragmentIndex) const;
@@ -200,6 +201,7 @@ namespace stor
       virtual void do_hltTriggerNames(Strings& nameList) const;
       virtual void do_hltTriggerSelections(Strings& nameList) const;
       virtual void do_l1TriggerNames(Strings& nameList) const;
+      virtual void do_addDroppedEventsCount(unsigned int);
 
       virtual std::string do_topFolderName() const;
       virtual DQMKey do_dqmKey() const;
@@ -288,6 +290,8 @@ namespace stor
       uint32_t do_runNumber() const;
       uint32_t do_lumiSection() const;
       uint32_t do_eventNumber() const;
+
+      void do_addDroppedEventsCount(unsigned int);
 
     private:
 

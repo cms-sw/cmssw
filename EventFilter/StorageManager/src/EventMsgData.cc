@@ -1,4 +1,4 @@
-// $Id: EventMsgData.cc,v 1.6 2010/05/12 12:22:06 mommsen Exp $
+// $Id: EventMsgData.cc,v 1.7 2010/05/17 15:59:10 mommsen Exp $
 /// @file: EventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -104,6 +104,21 @@ namespace stor
 
       if (! _headerFieldsCached) {cacheHeaderFields();}
       bitList = _hltTriggerBits;
+    }
+
+    void
+    EventMsgData::do_addDroppedEventsCount(unsigned int count)
+    {
+      if ( headerOkay() )
+      {
+        const unsigned long firstFragSize = dataSize(0);
+        
+        // This should always be the case:
+        assert( firstFragSize > sizeof(EventHeader) );
+
+        EventHeader* header = (EventHeader*)dataLocation(0);
+        convert(count,header->droppedEventsCount_);
+      }
     }
 
     void 
