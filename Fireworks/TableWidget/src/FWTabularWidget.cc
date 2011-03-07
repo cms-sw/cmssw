@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.14.2.1 2011/02/04 20:16:08 amraktad Exp $
+// $Id: FWTabularWidget.cc,v 1.15 2011/02/11 19:56:37 amraktad Exp $
 //
 
 // system include files
@@ -44,7 +44,8 @@ m_widthOfTextInColumns(m_table->numberOfColumns(),static_cast<unsigned int>(0)),
 m_vOffset(0),
 m_hOffset(0),
 m_normGC(context),
-m_backgroundGC(ULONG_MAX)
+m_backgroundGC(ULONG_MAX),
+m_growInWidth(true)
 {
 
    m_textHeight = iTable->cellHeight();
@@ -107,7 +108,7 @@ FWTabularWidget::setWidthOfTextInColumns(const std::vector<unsigned int>& iNew)
    assert(iNew.size() == static_cast<unsigned int>(m_table->numberOfColumns()));
 
    m_widthOfTextInColumns=iNew;
-   if (m_table->growInWidth())
+   if (m_growInWidth)
    {
       // with of columns grow to prevent resizing/flickering on next event
       m_widthOfTextInColumnsMax.resize(iNew.size());

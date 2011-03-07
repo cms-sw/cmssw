@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.6 2011/02/14 20:02:51 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.7 2011/02/14 22:27:59 amraktad Exp $
 //
 
 //#define PERFTOOL
@@ -56,6 +56,7 @@ FWGeometryTableManager::ColorBoxRenderer::ColorBoxRenderer():
    gval.fGraphicsExposures = kFALSE;
    gval.fBackground = gVirtualX->GetPixel(kGray);
    m_colorContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gval,kTRUE);
+
 }
 
 FWGeometryTableManager::ColorBoxRenderer::~ColorBoxRenderer()

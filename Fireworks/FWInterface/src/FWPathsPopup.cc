@@ -75,7 +75,8 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
    m_tableWidget->Connect("cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)",
                           "FWPathsPopup",this,
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
- 
+   m_tableWidget->disableGrowInWidth();
+
    SetWindowName("CMSSW Configuration Editor");
    MapSubwindows();
    editor->UnmapWindow();

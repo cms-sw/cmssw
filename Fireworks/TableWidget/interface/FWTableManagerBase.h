@@ -28,7 +28,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTableManagerBase.h,v 1.4.10.1 2011/02/04 20:16:08 amraktad Exp $
+// $Id: FWTableManagerBase.h,v 1.5 2011/02/11 19:56:36 amraktad Exp $
 //
 
 // system include files
@@ -103,9 +103,6 @@ class FWTableManagerBase : public TQObject
       /// The current sort column
       int sortColumn(void) { return m_sortColumn; }
 
-      bool growInWidth() const { return m_growInWidth; }  
-      void setGrowInWidth(bool x) { m_growInWidth = x; }
-
    protected:
       ///Called by 'sort' method to actually handle the sorting of the rows. Arguments are the same as 'sort'
       virtual void implSort(int iCol, bool iSortOrder) = 0;
@@ -118,8 +115,6 @@ class FWTableManagerBase : public TQObject
       // ---------- member data --------------------------------
       int  m_sortColumn;
       bool m_sortOrder;
-
-      bool m_growInWidth;
 };
 
 

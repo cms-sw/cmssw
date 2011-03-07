@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.21 2010/12/02 20:03:10 amraktad Exp $
+// $Id: FWTableWidget.cc,v 1.22 2010/12/03 15:39:21 amraktad Exp $
 //
 
 // system include files
@@ -516,6 +516,14 @@ FWTableWidget::GetDefaultSize() const
    returnValue.fWidth += m_vSlider->GetDefaultWidth();
    
    return returnValue;
+}
+
+void
+FWTableWidget::disableGrowInWidth()
+{
+   m_body->disableGrowInWidth();
+   if (m_header) m_header->disableGrowInWidth();
+   if (m_rowHeader) m_rowHeader->disableGrowInWidth();
 }
 
 void

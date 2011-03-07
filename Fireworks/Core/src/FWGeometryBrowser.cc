@@ -51,6 +51,7 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
    m_tableWidget->Connect("cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)",
                           "FWGeometryBrowser",this,
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
+   m_tableWidget->disableGrowInWidth();
    resetSetters();
 
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);

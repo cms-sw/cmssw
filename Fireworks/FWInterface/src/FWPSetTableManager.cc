@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.12 2011/03/04 18:53:10 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.13 2011/03/04 20:05:10 amraktad Exp $
 //
 
 #include <map>
@@ -97,7 +97,6 @@ FWPSetTableManager::FWPSetTableManager()
 
    m_renderer.setHighlightContext(hc);
 
-   setGrowInWidth(false);
    recalculateVisibility();
    visualPropertiesChanged();
 }
