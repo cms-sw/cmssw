@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.cc,v 1.6 2011/01/21 08:51:40 ptraczyk Exp $
+// $Id: CSCTimingExtractor.cc,v 1.8 2011/02/24 15:41:53 farrell3 Exp $
 //
 //
 
@@ -136,7 +136,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
     // Create the ChamberId
     DetId id = (*rechit)->geographicalId();
     CSCDetId chamberId(id.rawId());
-    int station = chamberId.station();
+    //    int station = chamberId.station();
 
     if (!(*rechit)->specificRecHits().size()) continue;
 
