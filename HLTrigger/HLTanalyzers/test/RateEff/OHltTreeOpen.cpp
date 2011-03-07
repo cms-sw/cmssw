@@ -5231,6 +5231,64 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   /*Photon-electron cross-triggers*/
+   // Not finished yet. 
+
+
+//   else if (triggerName.CompareTo("OpenHLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v1") == 0)
+//    {
+//       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+//       {
+//          if (prescaleResponse(menu, cfg, rcounter, it))
+//          {
+// 	   if ((OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation  
+//                   999.,
+//                   999., // Track iso barrel, Track iso endcap  
+//                   999,
+//                   999, // Track/pT iso barrel, Track/pT iso endcap  
+//                   0.2,
+//                   0.2, // H/ET iso barrel, H/ET iso endcap  
+//                   0.2,
+//                   0.2, // E/ET iso barrel, E/ET iso endcap  
+//                   0.15,
+//                   0.1, // H/E barrel, H/E endcap  
+//                   0.014,
+//                   0.035, // cluster shape barrel, cluster shape endcap  
+//                   0.98,
+//                   1.0, // R9 barrel, R9 endcap  
+//                   999,
+//                   999, // Deta barrel, Deta endcap  
+//                   999,
+//                   999) // Dphi barrel, Dphi endcap  
+// 		)>=1
+//                   && OpenHlt1PhotonSamHarperPassed(20., 0, // ET, L1isolation
+//                         999.,
+//                         999., // Track iso barrel, Track iso endcap
+//                         3.0,
+//                         3.0, // Track/pT iso barrel, Track/pT iso endcap
+//                         3.0,
+//                         3.0, // H/ET iso barrel, H/ET iso endcap
+//                         5.0,
+//                         5.0, // E/ET iso barrel, E/ET iso endcap
+//                         0.05,
+//                         0.05, // H/E barrel, H/E endcap  
+//                         0.011,
+//                         0.031, // cluster shape barrel, cluster shape endcap  
+//                         0.98,
+//                         999., // R9 barrel, R9 endcap
+//                         999.,
+//                         999., // Deta barrel, Deta endcap
+//                         999.,
+//                         999. // Dphi barrel, Dphi endcap
+//                         )>=1)
+//             {
+//                triggerBit[it] = true;
+//             }
+//          }
+//       }
+//    }
+
+
    /* muon-jet/MET/HT cross-triggers */
    else if (triggerName.CompareTo("OpenHLT_Mu17_CentralJet30") == 0)
    {
