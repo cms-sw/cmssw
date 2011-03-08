@@ -48,15 +48,16 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalLaserAnalyzer",
     record = cms.string('EcalLaserAPDPNRatiosRcd'),
     loggingOn = cms.untracked.bool(True),
     Source = cms.PSet(
+        sequences = cms.string("8"),  
         GenTag = cms.string('LOCAL'),
         firstRun = cms.string('65934'),
         lastRun = cms.string('65936'),
         LocationSource = cms.string('P5'),
-        OnlineDBUser = cms.string('CMS_ECAL_R'),
+        OnlineDBUser = cms.string('CMS_ECAL_LASER_COND'),
         debug = cms.bool(True),
         Location = cms.string('P5_Co'),
-        OnlineDBPassword = cms.string('********'),
-        OnlineDBSID = cms.string('CMSR')
+        OnlineDBPassword = cms.string('XXXXX'),
+        OnlineDBSID = cms.string('CMS_OMDS_LB')
     )
 )
 
