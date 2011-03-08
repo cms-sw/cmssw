@@ -173,6 +173,8 @@ process.selectedRecoJets = cms.EDFilter(
 process.hltMatchedJets = cms.EDProducer(
     'trgMatchedCandidateProducer',
     InputProducer = cms.InputTag('selectedRecoJets'),
+    matchUnprescaledTriggerOnly = cms.untracked.bool(False),
+    allowMultipleTriggers_ = cms.untracked.bool(True),
     hltTags = cms.VInputTag(
         [cms.InputTag(path, "", "HLT")
          for path in process.filterConfig.hltPaths]),
