@@ -61,6 +61,9 @@ namespace {
   typedef std::deque<Dummy> DummyDeque;
   
   struct Dummy2 : public Dummy {
+    Dummy2() {}
+    virtual ~Dummy2() {}
+
   };
 
   typedef std::vector<Dummy2> DummyCollection2;
