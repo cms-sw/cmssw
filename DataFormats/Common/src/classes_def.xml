@@ -33,7 +33,7 @@
     <![CDATA[isCached_=0;
     ]]>
  </ioread>
- <class name="edm::reftobase::RefHolderBase"/>
+ <class name="edm::reftobase::RefHolderBase" ClassVersion="10"/>
  <class name="edm::RefVectorBase<unsigned int>"/>
  <class name="edm::RefVectorBase<unsigned long>"/>
  <class name="edm::RefVectorBase<int>"/>
@@ -43,7 +43,7 @@
  <class name="edm::PtrVector<int>"/>
  <class name="edm::Ptr<int>"/>
  <class name="edm::reftobase::BaseVectorHolder<int>"/>
- <class name="edm::reftobase::RefVectorHolderBase"/>
+ <class name="edm::reftobase::RefVectorHolderBase" ClassVersion="10"/>
  <class name="edm::reftobase::IndirectVectorHolder<int>"/>
  <class name="edm::reftobase::VectorHolder<int, edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> > >"/>
  <class name="edm::Wrapper<edm::RefToBaseVector<int> >" splitLevel="0"/>
@@ -58,25 +58,25 @@
     ]]>
   </ioread>
    <!-- -->
-<class name="edmNew::dstvdetails::DetSetVectorTrans">
+<class name="edmNew::dstvdetails::DetSetVectorTrans" ClassVersion="10">
    <field name="filling" transient="true"/>
    <field name="getter" transient="true"/>
 </class>
-<class name="edmNew::dstvdetails::DetSetVectorTrans::Item"/>
+<class name="edmNew::dstvdetails::DetSetVectorTrans::Item" ClassVersion="10"/>
 <class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
 
 
-<class name="edm::DataFrame"/>
-<class name="edm::DataFrameContainer"/>
+<class name="edm::DataFrame" ClassVersion="10"/>
+<class name="edm::DataFrameContainer" ClassVersion="10"/>
 <class name="edm::Wrapper<edm::DataFrameContainer>" splitLevel="0"/>
 
- <class name="edm::HLTPathStatus"/>
+ <class name="edm::HLTPathStatus" ClassVersion="10"/>
  <class name="edm::Wrapper<edm::HLTPathStatus>" splitLevel="0"/>
  <class name="std::vector<edm::HLTPathStatus>"/>
  <class name="edm::Wrapper<std::vector<edm::HLTPathStatus> >" splitLevel="0"/>
- <class name="edm::HLTGlobalStatus"/>
+ <class name="edm::HLTGlobalStatus" ClassVersion="10"/>
  <class name="edm::Wrapper<edm::HLTGlobalStatus>" splitLevel="0"/>
- <class name="edm::TriggerResults"/>
+ <class name="edm::TriggerResults" ClassVersion="10"/>
  <class name="edm::Wrapper<edm::TriggerResults>" splitLevel="0"/>
  <class name="edm::Other"/>
  <class name="edm::DoNotSortUponInsertion"/>
@@ -99,12 +99,12 @@
  <class name="std::vector<edm::EventAuxiliary>"/>
  <class name="edm::Wrapper<std::vector<edm::EventAuxiliary> >"/>
  <class name="edm::Wrapper<std::vector<edm::ErrorSummaryEntry> >"/>
- <class name="edm::MergeableCounter"/>
+ <class name="edm::MergeableCounter" ClassVersion="10"/>
  <class name="edm::Wrapper<edm::MergeableCounter>"/>
 
- <class name="edm::ConditionsInEventBlock"/>
- <class name="edm::ConditionsInRunBlock"/>
- <class name="edm::ConditionsInLumiBlock"/>
+ <class name="edm::ConditionsInEventBlock" ClassVersion="10"/>
+ <class name="edm::ConditionsInRunBlock" ClassVersion="10"/>
+ <class name="edm::ConditionsInLumiBlock" ClassVersion="10"/>
  <class name="edm::Wrapper<edm::ConditionsInEventBlock>"/>
  <class name="edm::Wrapper<edm::ConditionsInRunBlock>"/>
  <class name="edm::Wrapper<edm::ConditionsInLumiBlock>"/>

@@ -4,10 +4,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.17 2009/11/04 15:30:20 wmtan Exp $
+ * \version $Id: ValueMap.h,v 1.18 2010/09/01 19:48:30 chrjones Exp $
  *
  */
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <vector>
@@ -199,6 +200,10 @@ namespace edm {
     const id_offset_vector & ids() const { return ids_; }
     /// meant to be used in AssociativeIterator, not by the ordinary user
     const_reference_type get(size_t idx) const { return values_[idx]; }
+    
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
+
   protected:
     container values_;
     id_offset_vector ids_;

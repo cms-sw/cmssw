@@ -6,6 +6,7 @@
 #include "boost/concept_check.hpp"
 #include "boost/iterator/transform_iterator.hpp"
 #include "boost/shared_ptr.hpp"
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -74,6 +75,9 @@ namespace edm {
 
     /// Get range of T on on det
     pair_iterator find(uint32_t id) const;
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
     private:
 
@@ -352,6 +356,9 @@ namespace edm {
 
     /// Swap contents of class
     void swap(LazyGetter& other);
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
 

@@ -1,6 +1,7 @@
 #ifndef DataFormats_Common_BaseHolder_h
 #define DataFormats_Common_BaseHolder_h
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include <string>
 #include <memory>
@@ -65,6 +66,9 @@ namespace edm {
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
       virtual bool isAvailable() const = 0;
+
+      //Used by ROOT storage
+      CMS_CLASS_VERSION(10)
 
     protected:
       // We want the following called only by derived classes.

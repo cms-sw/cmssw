@@ -1,6 +1,7 @@
 #ifndef DataFormats_Common_OwnVector_h
 #define DataFormats_Common_OwnVector_h
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/fillPtrVector.h"
 #include "DataFormats/Common/interface/PostReadFixupTrait.h"
@@ -160,6 +161,9 @@ namespace edm {
                        std::vector<unsigned long> const& indices,
                        std::vector<void const*>& ptrs) const;
 
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
     void destroy();

@@ -25,6 +25,7 @@ unreliable if such duplicate entries are made.
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/fillPtrVector.h"
 #include "DataFormats/Common/interface/FillView.h"
@@ -155,6 +156,9 @@ namespace edm {
     void fillPtrVector(std::type_info const& toType,
                        std::vector<unsigned long> const& indices,
                        std::vector<void const*>& ptrs) const;
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
 

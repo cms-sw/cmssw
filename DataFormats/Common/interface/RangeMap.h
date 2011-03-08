@@ -16,14 +16,15 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.36 $
+ * \version $Revision: 1.37 $
  *
- * $Id: RangeMap.h,v 1.36 2008/07/23 22:50:16 wmtan Exp $
+ * $Id: RangeMap.h,v 1.37 2009/11/04 15:30:20 wmtan Exp $
  *
  */
 #include <map>
 #include <vector>
 #include <ext/functional>
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
@@ -190,6 +191,9 @@ namespace edm {
 
     /// copy assignment
     RangeMap& operator=(RangeMap const& rhs);
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
     /// stored collection

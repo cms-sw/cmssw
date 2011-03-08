@@ -44,6 +44,7 @@ behavior (usually a core dump).
 #include "boost/bind.hpp"
 
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -181,6 +182,9 @@ namespace edm {
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
 		  helper_vector& helpers) const;
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
     collection_type   _sets;

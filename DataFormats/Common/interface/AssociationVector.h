@@ -11,6 +11,7 @@
  *
  */
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "DataFormats/Common/interface/traits.h"
@@ -96,6 +97,9 @@ namespace edm {
 
     const_iterator begin() const { return transientVector().begin(); }
     const_iterator end() const { return transientVector().end(); }
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
     CVal data_;

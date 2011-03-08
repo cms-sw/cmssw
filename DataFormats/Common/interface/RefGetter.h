@@ -6,6 +6,7 @@
 #include <utility>
 #include "boost/concept_check.hpp"
 #include "boost/iterator/indirect_iterator.hpp"
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/LazyGetter.h"
@@ -61,6 +62,9 @@ namespace edm {
 
     /// Returns true if region already defined. 
     bool find(uint32_t) const;
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(5)
 
   private:
 

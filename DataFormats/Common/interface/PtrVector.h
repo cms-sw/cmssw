@@ -19,6 +19,7 @@
 //
 
 // user include files
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVectorBase.h"
 
@@ -159,6 +160,9 @@ namespace edm {
     }
 
     void fillView(std::vector<void const*>& pointers) const;
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(8)
 
   private:
 

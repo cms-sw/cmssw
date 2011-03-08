@@ -4,10 +4,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Association.h,v 1.7 2008/04/30 17:07:50 gpetrucc Exp $
+ * \version $Id: Association.h,v 1.8 2009/11/04 15:30:19 wmtan Exp $
  *
  */
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -89,6 +90,10 @@ namespace edm {
     const id_offset_vector & ids() const { return ids_; }
     /// meant to be used in AssociativeIterator, not by the ordinary user
     using base::id_offset_vector;
+    
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
+
   private:
     refprod_type ref_;
     void throwIndexMapBound() const {

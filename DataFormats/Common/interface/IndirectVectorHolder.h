@@ -1,5 +1,6 @@
 #ifndef DataFormats_Common_IndirectVectorHolder_h
 #define DataFormats_Common_IndirectVectorHolder_h
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 #include "DataFormats/Common/interface/IndirectHolder.h"
@@ -50,6 +51,9 @@ namespace edm {
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
       virtual bool isAvailable() const { return helper_->isAvailable(); }
+
+      //Used by ROOT storage
+      CMS_CLASS_VERSION(10)
 
     private:
       typedef typename base_type::const_iterator_imp const_iterator_imp;

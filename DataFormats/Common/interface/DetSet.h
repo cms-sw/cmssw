@@ -8,12 +8,13 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.13 2010/12/17 14:22:51 innocent Exp $
+$Id: DetSet.h,v 1.14 2011/03/08 14:01:16 innocent Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 #include <stdint.h>
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
 namespace edm {
   typedef uint32_t det_id_type;
@@ -68,6 +69,9 @@ namespace edm {
     void swap(DetSet<T> & other);
 
     det_id_type detId() const { return id; }
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
     det_id_type      id;
     collection_type  data;

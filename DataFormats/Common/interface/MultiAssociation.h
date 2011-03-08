@@ -45,7 +45,7 @@
  * With respect to ValueMap / Association, there is one extra int32 for each key (but we don't store null values)
  *
  * Its backbone is given by edm::helper::IndexRangeAssociation, that maps keys to ranges, and is not templated.
- * \version $Id: MultiAssociation.h,v 1.7 2008/04/30 17:07:50 gpetrucc Exp $
+ * \version $Id: MultiAssociation.h,v 1.1 2009/03/03 09:14:59 gpetrucc Exp $
  *
  */
 
@@ -54,6 +54,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>
 #include <boost/range.hpp>
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
 namespace edm {
@@ -275,6 +276,9 @@ namespace edm {
 
     template<typename HandleType>
     LazyFiller lazyFiller(const HandleType &h, bool fillOnExit=false) { return LazyFiller(*this, h, fillOnExit); }
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
     typedef helper::IndexRangeAssociation Indices;

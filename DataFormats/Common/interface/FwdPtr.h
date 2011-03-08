@@ -23,6 +23,7 @@
 #include "boost/utility/enable_if.hpp"
 
 // user include files
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/traits.h"
@@ -122,6 +123,10 @@ namespace edm {
     
     Ptr<value_type> const & ptr() const { return ptr_;}
     Ptr<value_type> const & backPtr() const { return backPtr_;}
+      
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
+
   private:
     Ptr<value_type> ptr_;
     Ptr<value_type> backPtr_;

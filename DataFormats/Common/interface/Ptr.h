@@ -23,6 +23,7 @@
 #include "boost/utility/enable_if.hpp"
 
 // user include files
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/GetProduct.h"
@@ -178,6 +179,10 @@ namespace edm {
     // ---------- member functions ---------------------------
 
     void const* product() const {return 0;}
+    
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
+
   private:
     //Ptr(Ptr const&); // stop default
 

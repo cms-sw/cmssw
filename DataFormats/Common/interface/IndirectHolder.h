@@ -1,5 +1,6 @@
 #ifndef DataFormats_Common_IndirectHolder_h
 #define DataFormats_Common_IndirectHolder_h
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -51,6 +52,9 @@ namespace edm {
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
       virtual bool isAvailable() const { return helper_->isAvailable(); }
+
+      //Used by ROOT storage
+      CMS_CLASS_VERSION(10)
 
     private:
       friend class RefToBase<T>;

@@ -112,7 +112,7 @@ FwdRef: A template for a interproduct reference to a member of a product.
     bool operator!() const;			// equivalent to !isNonnull()
     ----------------------------------------------------------------------*/ 
 
-
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 namespace edm {
@@ -204,6 +204,9 @@ namespace edm {
 
     /// Checks if this ref is transient (i.e. not persistable).
     bool isTransient() const {return ref_.isTransient();}
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
     Ref<C,T,F> ref_;

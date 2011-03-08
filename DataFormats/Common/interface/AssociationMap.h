@@ -6,9 +6,10 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.39 2009/11/04 15:30:19 wmtan Exp $
+ * $Id: AssociationMap.h,v 1.40 2010/09/01 19:48:30 chrjones Exp $
  *
  */
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/OneToValue.h"
 #include "DataFormats/Common/interface/OneToOne.h"
@@ -145,6 +146,9 @@ namespace edm {
 	return &(*c.find(i));
       }
     };
+
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(10)
 
   private:
     /// reference set
