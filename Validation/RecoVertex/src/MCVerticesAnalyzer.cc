@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Thu Dec 16 16:32:56 CEST 2010
-// $Id: MCVerticesAnalyzer.cc,v 1.1 2011/02/19 16:20:21 venturia Exp $
+// $Id: MCVerticesAnalyzer.cc,v 1.1 2011/03/08 17:11:26 venturia Exp $
 //
 //
 
@@ -78,6 +78,8 @@ private:
   TH1F* m_hnvtx;
   TH1F* m_hnvtxweight;
   TProfile* m_hnvtxweightprof;
+  TH1F* m_hmainvtxx;
+  TH1F* m_hmainvtxy;
   TH1F* m_hmainvtxz;
   TH1F* m_hpileupvtxz;
 
@@ -118,6 +120,10 @@ MCVerticesAnalyzer::MCVerticesAnalyzer(const edm::ParameterSet& iConfig):
     m_hnvtxweightprof->GetXaxis()->SetTitle("Number of Vertices");
   }
 
+  m_hmainvtxx = tfserv->make<TH1F>("mainvtxx","Main vertex x position",200,-.5,.5);
+  m_hmainvtxx->GetXaxis()->SetTitle("X (cm)");
+  m_hmainvtxy = tfserv->make<TH1F>("mainvtxy","Main vertex y position",200,-.5,.5);
+  m_hmainvtxy->GetXaxis()->SetTitle("Y (cm)");
   m_hmainvtxz = tfserv->make<TH1F>("mainvtxz","Main vertex z position",600,-30.,30.);
   m_hmainvtxz->GetXaxis()->SetTitle("Z (cm)");
   m_hpileupvtxz = tfserv->make<TH1F>("pileupvtxz","PileUp vertices z position",600,-30.,30.);
@@ -155,23 +161,26 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    }
 
+
    Handle<PileupSummaryInfo> pileupinfo;
    iEvent.getByLabel(m_pileupcollection,pileupinfo);
 
    //
 
-   m_hnvtx->Fill(pileupinfo->getPU_NumInteractions(),weight);
-   if(m_useweight) {
-     m_hnvtxweight->Fill(pileupinfo->getPU_NumInteractions(),1.-weight);
-     m_hnvtxweightprof->Fill(pileupinfo->getPU_NumInteractions(),1.-weight);
-   }
-
-   const std::vector<float>& zpositions = pileupinfo->getPU_zpositions();
-   
-   for(std::vector<float>::const_iterator zpos = zpositions.begin() ; zpos != zpositions.end() ; ++zpos) {
+   if(pileupinfo.isValid()) {
+     m_hnvtx->Fill(pileupinfo->getPU_NumInteractions(),weight);
+     if(m_useweight) {
+       m_hnvtxweight->Fill(pileupinfo->getPU_NumInteractions(),1.-weight);
+       m_hnvtxweightprof->Fill(pileupinfo->getPU_NumInteractions(),1.-weight);
+     }
      
-     m_hpileupvtxz->Fill(*zpos,weight);
+     const std::vector<float>& zpositions = pileupinfo->getPU_zpositions();
      
+     for(std::vector<float>::const_iterator zpos = zpositions.begin() ; zpos != zpositions.end() ; ++zpos) {
+       
+       m_hpileupvtxz->Fill(*zpos,weight);
+       
+     }
    }
    
    // main interaction part
@@ -185,6 +194,8 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    if(Evt->vertices_begin() != Evt->vertices_end()) {
 
+     m_hmainvtxx->Fill((*Evt->vertices_begin())->point3d().x()/10.,weight);
+     m_hmainvtxy->Fill((*Evt->vertices_begin())->point3d().y()/10.,weight);
      m_hmainvtxz->Fill((*Evt->vertices_begin())->point3d().z()/10.,weight);
 
    }
