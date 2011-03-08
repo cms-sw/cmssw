@@ -380,20 +380,18 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
       if( name.find("Summary_ClusterStoNCorr__OnTrack") != std::string::npos){
 	int istat =  SiStripUtility::getMEStatus((*it)); 
         if (reports[0]->getQTresult() == -1) {
-	  //	  std::cout << name << " : entries " << me->getEntries() << std::endl;
 	  ston_stat =-1;
         } else {
           if (istat == dqm::qstatus::ERROR) ston_stat = 0;
           else if (istat == dqm::qstatus::STATUS_OK) ston_stat = 1;
         }
-	//	if (me->getEntries() > 100 && istat == dqm::qstatus::ERROR) ston_stat = 0;
       }
     }
     if (ndet > 0) {
       float eff_fac = 1 - (errdet*1.0/ndet);
       fillStatusHistogram(SToNReportMap,        xbin, ybin, ston_stat);
       fillStatusHistogram(DetFractionReportMap, xbin, ybin, eff_fac);
-      if (ston_stat < 0) fillStatusHistogram(SummaryReportMap, xbin, ybin, ston_stat);
+      if (ston_stat < 0) fillStatusHistogram(SummaryReportMap, xbin, ybin, eff_fac);
       else       fillStatusHistogram(SummaryReportMap, xbin, ybin, ston_stat*eff_fac);
 
       tot_ndet      += ndet;
