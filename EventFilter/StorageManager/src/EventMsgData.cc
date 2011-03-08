@@ -1,4 +1,4 @@
-// $Id: EventMsgData.cc,v 1.9 2011/03/07 15:31:32 mommsen Exp $
+// $Id: EventMsgData.cc,v 1.10 2011/03/08 16:01:50 mommsen Exp $
 /// @file: EventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -122,7 +122,7 @@ namespace stor
      }
 
     void
-    EventMsgData::do_addDroppedEventsCount(unsigned int count)
+    EventMsgData::do_setDroppedEventsCount(unsigned int count)
     {
       if ( headerOkay() )
       {

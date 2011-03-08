@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.16 2011/03/07 15:31:32 mommsen Exp $
+// $Id: ChainData.h,v 1.17 2011/03/08 16:01:50 mommsen Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H
@@ -90,7 +90,7 @@ namespace stor
         staleWindowStartTime_ = utils::getCurrentTime();
       }
       unsigned int droppedEventsCount() const;
-      void addDroppedEventsCount(unsigned int);
+      void setDroppedEventsCount(unsigned int);
       size_t memoryUsed() const;
       unsigned long totalDataSize() const;
       unsigned long dataSize(int fragmentIndex) const;
@@ -203,7 +203,7 @@ namespace stor
       virtual void do_hltTriggerSelections(Strings& nameList) const;
       virtual void do_l1TriggerNames(Strings& nameList) const;
       virtual unsigned int do_droppedEventsCount() const;
-      virtual void do_addDroppedEventsCount(unsigned int);
+      virtual void do_setDroppedEventsCount(unsigned int);
 
       virtual std::string do_topFolderName() const;
       virtual DQMKey do_dqmKey() const;
@@ -294,7 +294,7 @@ namespace stor
       uint32_t do_eventNumber() const;
 
       unsigned int do_droppedEventsCount() const;
-      void do_addDroppedEventsCount(unsigned int);
+      void do_setDroppedEventsCount(unsigned int);
 
     private:
 

@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.24 2011/03/07 15:31:32 mommsen Exp $
+// $Id: I2OChain.cc,v 1.25 2011/03/08 16:01:50 mommsen Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -412,7 +412,7 @@ namespace stor
     return data_->droppedEventsCount();
   }
 
-  void I2OChain::addDroppedEventsCount(unsigned int count)
+  void I2OChain::setDroppedEventsCount(unsigned int count)
   {
     if (!data_)
       {
@@ -420,7 +420,7 @@ namespace stor
         msg << "A dropped event count cannot be added to an empty chain";
         XCEPT_RAISE(stor::exception::I2OChain, msg.str());
       }
-    data_->addDroppedEventsCount(count);
+    data_->setDroppedEventsCount(count);
   }
 
   size_t I2OChain::memoryUsed() const

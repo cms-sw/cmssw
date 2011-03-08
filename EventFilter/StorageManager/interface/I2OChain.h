@@ -1,4 +1,4 @@
-// $Id: I2OChain.h,v 1.12 2011/03/07 15:31:32 mommsen Exp $
+// $Id: I2OChain.h,v 1.13 2011/03/08 16:01:50 mommsen Exp $
 /// @file: I2OChain.h 
 
 #ifndef EventFilter_StorageManager_I2OChain_h
@@ -28,8 +28,8 @@ namespace stor {
    * the last instance of I2OChain goes out of scope.
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2011/03/07 15:31:32 $
+   * $Revision: 1.13 $
+   * $Date: 2011/03/08 16:01:50 $
    */
 
 
@@ -273,7 +273,7 @@ namespace stor {
         Add the number of dropped (skipped) events to the EVENT message
         header.
     */
-    void addDroppedEventsCount(unsigned int);
+    void setDroppedEventsCount(unsigned int);
 
     /**
        Returns the message code for the chain. Valid values

@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.16 2011/03/07 15:31:32 mommsen Exp $
+// $Id: ChainData.cc,v 1.17 2011/03/08 16:01:50 mommsen Exp $
 /// @file: ChainData.cc
 
 #include "IOPool/Streamer/interface/HLTInfo.h"
@@ -681,9 +681,9 @@ unsigned int detail::ChainData::droppedEventsCount() const
   return do_droppedEventsCount();
 }
 
-void detail::ChainData::addDroppedEventsCount(unsigned int count)
+void detail::ChainData::setDroppedEventsCount(unsigned int count)
 {
-  do_addDroppedEventsCount(count);
+  do_setDroppedEventsCount(count);
 }
 
 bool detail::ChainData::isEndOfLumiSectionMessage() const
@@ -935,7 +935,7 @@ detail::ChainData::do_droppedEventsCount() const
 }
 
 void 
-detail::ChainData::do_addDroppedEventsCount(unsigned int count)
+detail::ChainData::do_setDroppedEventsCount(unsigned int count)
 {
   std::stringstream msg;
   msg << "Dropped events count can only be added to a valid, ";
