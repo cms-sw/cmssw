@@ -79,7 +79,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
 
    {
       TGLabel* xx = new TGLabel(vf2, "DetectorColors       ", fTextGC->GetGC());
-      vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft,2,2,8,2));
+      vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft,2,2,8,0));
    }
 
    TGFont* smallFont = 0;
@@ -100,18 +100,18 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    TGHSlider* transpWidget2D = 0;
    TGHSlider* transpWidget3D = 0;
    TGCompositeFrame* top  = new TGVerticalFrame(vf2);
-   vf2->AddFrame(top, new TGLayoutHints(kLHintsNormal, 2, 2, 2, 2));
+   vf2->AddFrame(top, new TGLayoutHints(kLHintsNormal, 2, 2, 2, 0));
 
    {
       TGHorizontalFrame* hf = new TGHorizontalFrame(top); 
-      hf->AddFrame(new TGLabel(hf, "Tansparency 2D:"), new TGLayoutHints(kLHintsNormal, 2,  2, 3, 3));
+      hf->AddFrame(new TGLabel(hf, "Tansparency 2D:"), new TGLayoutHints(kLHintsBottom, 2,  2, 3, 3));
       transpWidget2D = new TGHSlider(hf, 100, kSlider1);
       hf->AddFrame( transpWidget2D);
       top->AddFrame(hf,new TGLayoutHints( kLHintsNormal, 0, 0, 2, 2));
    }
    {
       TGHorizontalFrame* hf = new TGHorizontalFrame(top); 
-      hf->AddFrame(new TGLabel(hf, "Tansparency 3D:") , new TGLayoutHints(kLHintsNormal,2, 2, 2, 2 ));
+      hf->AddFrame(new TGLabel(hf, "Tansparency 3D:") , new TGLayoutHints(kLHintsBottom,2, 2, 2, 2 ));
       transpWidget3D = new TGHSlider(hf, 100, kSlider1);
       hf->AddFrame( transpWidget3D);
       top->AddFrame(hf, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 10));
@@ -144,6 +144,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
          ++i;
       }
    }
+   //==============================================================================
 
    m_backgroundButton->Connect("Clicked()", "CmsShowCommonPopup", this, "switchBackground()");
 

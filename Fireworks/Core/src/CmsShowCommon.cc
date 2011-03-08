@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:50:32 CEST 2010
-// $Id: CmsShowCommon.cc,v 1.12 2010/11/27 22:08:24 amraktad Exp $
+// $Id: CmsShowCommon.cc,v 1.13 2011/03/07 20:57:03 amraktad Exp $
 //
 
 // system include files
@@ -29,9 +29,9 @@
 //
 CmsShowCommon::CmsShowCommon(fireworks::Context* c):
    FWConfigurableParameterizable(2),
-   m_trackBreak(this, "     ", 1l, 0l, 2l), // do not want to render text at setter
+   m_context(c),  
+   m_trackBreak(this, "     ", 2l, 0l, 2l), // do not want to render text at setter
    m_drawBreakPoints(this, "Show y=0 points as markers", true),
-   m_context(c),
    m_backgroundColor(this, "backgroundColIdx", 1l, 0l, 1000l),
    m_gamma(this, "Brightness", 0l, -15l, 15l),
    m_geomTransparency2D(this, "Transparency 2D", long(colorManager()->geomTransparency(true)), 0l, 100l),
@@ -69,22 +69,30 @@ const FWColorManager* CmsShowCommon::colorManager() const
 // member functions
 //
 
-void
-CmsShowCommon::setDrawBreakMarkers()
-{
-   m_context->getTrackPropagator()->SetRnrPTBMarkers(m_drawBreakPoints.value());
-   m_context->getTrackerTrackPropagator()->SetRnrPTBMarkers(m_drawBreakPoints.value());
-   m_context->getMuonTrackPropagator()->SetRnrPTBMarkers(m_drawBreakPoints.value());
-   gEve->Redraw3D();
-}
 
 void
 CmsShowCommon::setTrackBreakMode()
+{ 
+   if (m_context->getTrackPropagator()->GetProjTrackBreaking() != m_trackBreak.value())
+   {
+      m_context->getTrackPropagator()->SetProjTrackBreaking(m_trackBreak.value());
+      m_context->getTrackerTrackPropagator()->SetProjTrackBreaking(m_trackBreak.value());
+      m_context->getMuonTrackPropagator()->SetProjTrackBreaking(m_trackBreak.value());
+      gEve->Redraw3D();
+   }
+}
+
+
+void
+CmsShowCommon::setDrawBreakMarkers()
 {
-   m_context->getTrackPropagator()->SetProjTrackBreaking(m_trackBreak.value());
-   m_context->getTrackerTrackPropagator()->SetProjTrackBreaking(m_trackBreak.value());
-   m_context->getMuonTrackPropagator()->SetProjTrackBreaking(m_trackBreak.value());
-   gEve->Redraw3D();
+   if (m_context->getTrackPropagator()->GetRnrPTBMarkers() != m_drawBreakPoints.value())
+   {
+      m_context->getTrackPropagator()->SetRnrPTBMarkers(m_drawBreakPoints.value());
+      m_context->getTrackerTrackPropagator()->SetRnrPTBMarkers(m_drawBreakPoints.value());
+      m_context->getMuonTrackPropagator()->SetRnrPTBMarkers(m_drawBreakPoints.value());
+      gEve->Redraw3D();
+   }
 }
 
 void

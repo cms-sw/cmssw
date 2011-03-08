@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.33 2011/03/07 18:23:28 matevz Exp $
+// $Id: Context.cc,v 1.34 2011/03/07 20:57:03 amraktad Exp $
 //
 
 // system include files
@@ -108,8 +108,8 @@ Context::initEveElements()
    m_propagator->SetMaxR(caloR2()-propagatorOffR);
    m_propagator->SetMaxZ(caloZ2()-propagatorOffZ);
    m_propagator->SetDelta(0.01);
-   m_propagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
-   m_propagator->SetRnrPTBMarkers(kTRUE);
+   m_propagator->SetProjTrackBreaking(m_commonPrefs->getProjTrackBreaking());
+   m_propagator->SetRnrPTBMarkers(m_commonPrefs->getRnrPTBMarkers());
    m_propagator->IncDenyDestroy();
    // tracker propagator
    m_trackerPropagator = new TEveTrackPropagator();
@@ -118,8 +118,8 @@ Context::initEveElements()
    m_trackerPropagator->SetDelta(0.01);
    m_trackerPropagator->SetMaxR(caloR1()-propagatorOffR);
    m_trackerPropagator->SetMaxZ(caloZ2()-propagatorOffZ);
-   m_trackerPropagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
-   m_trackerPropagator->SetRnrPTBMarkers(kTRUE);
+   m_trackerPropagator->SetProjTrackBreaking(m_commonPrefs->getProjTrackBreaking());
+   m_trackerPropagator->SetRnrPTBMarkers(m_commonPrefs->getRnrPTBMarkers());
    m_trackerPropagator->IncDenyDestroy();
    // muon propagator
    m_muonPropagator = new TEveTrackPropagator();
@@ -128,8 +128,8 @@ Context::initEveElements()
    m_muonPropagator->SetDelta(0.05);
    m_muonPropagator->SetMaxR(850.f);
    m_muonPropagator->SetMaxZ(1100.f);
-   m_muonPropagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
-   m_muonPropagator->SetRnrPTBMarkers(kTRUE);
+   m_muonPropagator->SetProjTrackBreaking(m_commonPrefs->getProjTrackBreaking());
+   m_muonPropagator->SetRnrPTBMarkers(m_commonPrefs->getRnrPTBMarkers());
    m_muonPropagator->IncDenyDestroy();
 
    // general calo data
