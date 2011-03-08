@@ -41,7 +41,8 @@ namespace reco {
       Base(std::forward<Base>(rh)){}
     
     TransientTrack & operator=(TransientTrack && rh) {
-      Base::swap(rh);
+      this->Base::operator=(std::forward<Base>(rh));
+      //      Base::swap(rh);
       return *this;
     }
     
