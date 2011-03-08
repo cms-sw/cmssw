@@ -135,6 +135,7 @@ HLT_DoubleIsoPFTau20_Trk5_v*
 HLT_BTagMu_DiJet20_Mu5_v*
 HLT_BTagMu_DiJet60_Mu7_v*
 HLT_BTagMu_DiJet80_Mu9_v*
+HLT_BTagMu_DiJet100_Mu9_v*
 HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v*
 HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v*
 HLT_Mu5_Ele8_CaloIdL_TrkIdVL_Ele8_v*
@@ -177,7 +178,7 @@ HLT_PixelTracks_Multiplicity110_v*
 HLT_PixelTracks_Multiplicity125_v*
 HLT_BeamGas_HF_v*
 HLT_BeamGas_BSC_v*
-HLT_L1_BeamHalo_v*
+HLT_BeamHalo_v*
 HLT_L1Tech_BSC_minBias_OR_v*
 HLT_L1Tech_BSC_halo_v*
 HLT_L1_PreCollisions_v*

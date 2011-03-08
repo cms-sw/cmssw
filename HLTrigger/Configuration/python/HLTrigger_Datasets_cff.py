@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_11_1/GRun/V63
+# /dev/CMSSW_3_11_1/GRun/V64
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,8 +8,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
 streamA_datasetCommissioning_selector.throw      = cms.bool(False)
-streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_BeamGas_BSC_v1', 
-    'HLT_BeamGas_HF_v1', 
+streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_BeamGas_BSC_v2', 
+    'HLT_BeamGas_HF_v2', 
     'HLT_IsoTrackHB_v2', 
     'HLT_IsoTrackHE_v3', 
     'HLT_L1SingleEG5_v1', 
@@ -24,10 +24,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetCosmics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetCosmics_selector.l1tResults = cms.InputTag('')
 streamA_datasetCosmics_selector.throw      = cms.bool(False)
-streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_L1MuOpen_AntiBPTX_v2', 
+streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_BeamHalo_v2', 
+    'HLT_L1MuOpen_AntiBPTX_v2', 
     'HLT_L1Tech_BSC_halo_v1', 
     'HLT_L1TrackerCosmics_v2', 
-    'HLT_L1_BeamHalo_v1', 
     'HLT_L2MuOpen_NoVertex_v1', 
     'HLT_L3MuonsCosmicTracking_v1', 
     'HLT_RegionalCosmicTracking_v1')
@@ -144,9 +144,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMETBTag_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMETBTag_selector.l1tResults = cms.InputTag('')
 streamA_datasetMETBTag_selector.throw      = cms.bool(False)
-streamA_datasetMETBTag_selector.triggerConditions = cms.vstring('HLT_BTagMu_DiJet20_Mu5_v1', 
-    'HLT_BTagMu_DiJet60_Mu7_v1', 
-    'HLT_BTagMu_DiJet80_Mu9_v1', 
+streamA_datasetMETBTag_selector.triggerConditions = cms.vstring('HLT_BTagMu_DiJet100_Mu9_v2', 
+    'HLT_BTagMu_DiJet20_Mu5_v2', 
+    'HLT_BTagMu_DiJet60_Mu7_v2', 
+    'HLT_BTagMu_DiJet80_Mu9_v2', 
     'HLT_CentralJet80_MET100_v1', 
     'HLT_CentralJet80_MET160_v1', 
     'HLT_CentralJet80_MET65_v1', 
