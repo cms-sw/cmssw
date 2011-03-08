@@ -409,6 +409,7 @@ poolOutputCommands = cms.untracked.vstring(
     'keep PileupSummaryInfo_*_*_*',
     'keep *_ak5PFJets_*_TANC',
     'keep *_offlinePrimaryVertices_*_TANC',
+    'keep *_offlineBeamSpot_*_TANC',
     'keep recoTracks_generalTracks_*_TANC',
     'keep recoTracks_electronGsfTracks_*_TANC',
     'keep recoPFCandidates_particleFlow_*_TANC',
