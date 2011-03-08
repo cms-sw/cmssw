@@ -17,6 +17,7 @@ class EcalTriggerPrimitiveSample {
   EcalTriggerPrimitiveSample();
   EcalTriggerPrimitiveSample(uint16_t data);
   EcalTriggerPrimitiveSample(int encodedEt, bool finegrain, int triggerFlag);
+  EcalTriggerPrimitiveSample(int encodedEt, bool finegrain, int stripFGVB, int triggerFlag);
 
   ///Set data
   void setValue(uint16_t data){ theSample = data;}
