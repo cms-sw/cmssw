@@ -4,6 +4,18 @@
 # Alex Tapper 8/9/10
 #
 
+import FWCore.ParameterSet.Config as cms
+
+# options
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register('file',
+                 'patternCaptureOrbit_giles__2011_02_23__14h02m08s.txt', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Input File")
+
+
 process = cms.Process('GctPatternTester')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -19,7 +31,7 @@ process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( 3563 ) )
 
 # Input captured ascii file
 process.gctRaw = cms.EDProducer( "TextToRaw",
-                                   filename = cms.untracked.string ("patternCaptureOrbit_giles__2011_02_23__14h02m08s.txt"),
+                                   filename = cms.untracked.string (options.file),
                                    GctFedId = cms.untracked.int32 ( 745 )
                                    )
 
@@ -37,12 +49,6 @@ process.valGctDigis.writeInternalData = cms.bool(True)
 process.valGctDigis.preSamples = cms.uint32(0)
 process.valGctDigis.postSamples = cms.uint32(0)
 process.valGctDigis.useImprovedTauAlgorithm = cms.bool(True)
-
-## HF masking
-process.L1GctConfigProducers.MEtEtaMask = cms.uint32(0x0)#3C000F)
-process.L1GctConfigProducers.TEtEtaMask = cms.uint32(0x0)#3C000F)
-process.L1GctConfigProducers.MHtEtaMask = cms.uint32(0x0)#3E001F)
-process.L1GctConfigProducers.HtEtaMask = cms.uint32(0x0)#3E001F)
 
 # GCT unpacker
 process.load('EventFilter.GctRawToDigi.l1GctHwDigis_cfi')
@@ -72,30 +78,31 @@ process.dumpGctDigis.outFile = cms.untracked.string('gctDigis.txt')
 # GCTErrorAnalyzer
 process.load('L1Trigger.L1GctAnalyzer.gctErrorAnalyzer_cfi')
 
-## Jet corrections are set by : 
-#process.load('L1TriggerConfig.GctConfigProducers.l1GctConfig_cfi')
-#process.L1GctConfigProducers.CalibrationStyle =  cms.string('PiecewiseCubic')
-
 # Output ROOT file
 process.TFileService = cms.Service("TFileService",
    fileName = cms.string( 'gctErrorAnalyzer.root' )
 )
 
-process.p = cms.Path(process.gctRaw*
-                     process.l1GctHwDigis*
-                     process.valGctDigis*
-                     process.l1compare*
-                     process.dumpGctDigis*
-                     process.gctErrorAnalyzer)#*
-#                     process.l1GctConfigDump)
+process.p = cms.Path(
+    process.gctRaw*
+    process.l1GctHwDigis*
+    process.valGctDigis*
+    process.l1compare*
+    process.dumpGctDigis*
+    process.gctErrorAnalyzer#*
+    #process.l1GctConfigDump
+    )
 
 
-process.output = cms.OutputModule( "PoolOutputModule",
-                                   outputCommands = cms.untracked.vstring (
-    "drop *",
-    "keep *_*_*_GctPatternTester",
+process.output = cms.OutputModule(
+    "PoolOutputModule",
+    outputCommands = cms.untracked.vstring (
+        "drop *",
+        "keep *_*_*_GctPatternTester",
     ),
-                                   fileName = cms.untracked.string( "gctPatternTester.root" ),
-                                   )
+    fileName = cms.untracked.string( "gctPatternTester.root" ),
+    )
 
-process.out = cms.EndPath( process.output )
+process.out = cms.EndPath(
+    process.output
+    )
