@@ -3,6 +3,8 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
+#include "CoralBase/Blob.h"
+#include "CoralBase/Blob.h"
 #include "CoralBase/Exception.h"
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
@@ -21,6 +23,9 @@
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
+#include "RecoLuminosity/LumiProducer/interface/RevisionDML.h"
+#include <cstring>
+#include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <map>
@@ -28,15 +33,13 @@ namespace lumi{
   class TRG2DB : public DataPipe{
   public:
     const static unsigned int COMMITLSINTERVAL=150; //commit interval in LS, totalrow=nsl*192
+    const static unsigned int COMMITLSTRGINTERVAL=550; //commit interval in LS of schema2
     explicit TRG2DB(const std::string& dest);
     virtual void retrieveData( unsigned int runnumber);
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
-    virtual ~TRG2DB();
-  private:
-    std::string int2str(unsigned int t,unsigned int width);
-    unsigned int str2int(const std::string& s);
-  private:
+    virtual ~TRG2DB();													  
+
     //per run information
     typedef std::vector<std::string> TriggerNameResult_Algo;
     typedef std::vector<std::string> TriggerNameResult_Tech;
@@ -48,6 +51,33 @@ namespace lumi{
     typedef std::vector<BITCOUNT> TriggerCountResult_Tech;
     typedef std::map< unsigned int, std::vector<unsigned int> > PrescaleResult_Algo;
     typedef std::map< unsigned int, std::vector<unsigned int> > PrescaleResult_Tech;
+
+    std::string int2str(unsigned int t,unsigned int width);
+    unsigned int str2int(const std::string& s);
+    void writeTrgData(coral::ISessionProxy* session,
+		      unsigned int runnumber,
+		      const std::string& source,
+		      TriggerDeadCountResult::iterator deadtimesBeg,
+		      TriggerDeadCountResult::iterator deadtimesEnd,
+		      TriggerNameResult_Algo& algonames, 
+		      TriggerNameResult_Tech& technames,
+		      TriggerCountResult_Algo& algocounts,
+		      TriggerCountResult_Tech& techcounts,
+		      PrescaleResult_Algo& prescalealgo,
+		      PrescaleResult_Tech& prescaletech,
+		      unsigned int commitintv);
+    void writeTrgDataToSchema2(coral::ISessionProxy* session,
+			       unsigned int runnumber,
+			       const std::string& source,
+			       TriggerDeadCountResult::iterator deadtimesBeg,
+			       TriggerDeadCountResult::iterator deadtimesEnd,
+			       TriggerNameResult_Algo& algonames,
+			       TriggerNameResult_Tech& technames,
+			       TriggerCountResult_Algo& algocounts,
+			       TriggerCountResult_Tech& techcounts,
+			       PrescaleResult_Algo& prescalealgo, 
+			       PrescaleResult_Tech& prescaletech,
+			       unsigned int commitintv);
   };//cl TRG2DB
   //
   //implementation
@@ -97,9 +127,9 @@ namespace lumi{
     lumi::TRG2DB::TriggerNameResult_Tech technames;
     technames.reserve(lumi::N_TRGTECHBIT);
     lumi::TRG2DB::TriggerCountResult_Algo algocount;
-    algocount.reserve(400);
+    //algocount.reserve(400);
     lumi::TRG2DB::TriggerCountResult_Tech techcount;
-    techcount.reserve(400);
+    //techcount.reserve(400);
     lumi::TRG2DB::TriggerDeadCountResult deadtimeresult;
     deadtimeresult.reserve(400);
     coral::ITransaction& transaction=trgsession->transaction();
@@ -533,132 +563,295 @@ namespace lumi{
     //    
     //write data into lumi db
     //
+    
     coral::ISessionProxy* lumisession=svc->connect(m_dest,coral::Update);
     coral::ITypeConverter& lumitpc=lumisession->typeConverter();
     lumitpc.setCppTypeForSqlType("unsigned int","NUMBER(7)");
     lumitpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
     lumitpc.setCppTypeForSqlType("unsigned long long","NUMBER(20)");
-
-    TriggerDeadCountResult::const_iterator deadIt;
-    TriggerDeadCountResult::const_iterator deadBeg=deadtimeresult.begin();
-    TriggerDeadCountResult::const_iterator deadEnd=deadtimeresult.end();
-
-    unsigned int totalcmsls=deadtimeresult.size();
-    std::cout<<"inserting totalcmsls "<<totalcmsls<<std::endl;
-    std::map< unsigned long long, std::vector<unsigned long long> > idallocationtable;
     try{
-      std::cout<<"\t allocating total ids "<<totalcmsls*lumi::N_TRGBIT<<std::endl; 
-      lumisession->transaction().start(false);
-      lumi::idDealer idg(lumisession->nominalSchema());
-      unsigned long long trgID = idg.generateNextIDForTable(LumiNames::trgTableName(),totalcmsls*lumi::N_TRGBIT)-totalcmsls*lumi::N_TRGBIT;
-      lumisession->transaction().commit();
-      unsigned int trglscount=0;
-      for(deadIt=deadBeg;deadIt!=deadEnd;++deadIt,++trglscount){
-	std::vector<unsigned long long> bitvec;
-	bitvec.reserve(lumi::N_TRGBIT);
-	BITCOUNT& algoinbits=algocount[trglscount];
-	BITCOUNT& techinbits=techcount[trglscount];
-	BITCOUNT::const_iterator algoBitIt;
-	BITCOUNT::const_iterator algoBitBeg=algoinbits.begin();
-	BITCOUNT::const_iterator algoBitEnd=algoinbits.end();	
-	for(algoBitIt=algoBitBeg;algoBitIt!=algoBitEnd;++algoBitIt,++trgID){
-	  bitvec.push_back(trgID);
-	}
-	BITCOUNT::const_iterator techBitIt;
-	BITCOUNT::const_iterator techBitBeg=techinbits.begin();
-	BITCOUNT::const_iterator techBitEnd=techinbits.end();
-	for(techBitIt=techBitBeg;techBitIt!=techBitEnd;++techBitIt,++trgID){
-	  bitvec.push_back(trgID);
-	}
-	idallocationtable.insert(std::make_pair(trglscount,bitvec));
-      }
-      std::cout<<"\t all ids allocated"<<std::endl; 
-      coral::AttributeList trgData;
-      trgData.extend<unsigned long long>("TRG_ID");
-      trgData.extend<unsigned int>("RUNNUM");
-      trgData.extend<unsigned int>("CMSLSNUM");
-      trgData.extend<unsigned int>("BITNUM");
-      trgData.extend<std::string>("BITNAME");
-      trgData.extend<unsigned int>("TRGCOUNT");
-      trgData.extend<unsigned long long>("DEADTIME");
-      trgData.extend<unsigned int>("PRESCALE");
-
-      unsigned long long& trg_id=trgData["TRG_ID"].data<unsigned long long>();
-      unsigned int& trgrunnum=trgData["RUNNUM"].data<unsigned int>();
-      unsigned int& cmslsnum=trgData["CMSLSNUM"].data<unsigned int>();
-      unsigned int& bitnum=trgData["BITNUM"].data<unsigned int>();
-      std::string& bitname=trgData["BITNAME"].data<std::string>();
-      unsigned int& count=trgData["TRGCOUNT"].data<unsigned int>();
-      unsigned long long& deadtime=trgData["DEADTIME"].data<unsigned long long>();
-      unsigned int& prescale=trgData["PRESCALE"].data<unsigned int>();
-
-      trglscount=0;
-      coral::IBulkOperation* trgInserter=0; 
-      unsigned int comittedls=0;
-      for(deadIt=deadBeg;deadIt!=deadEnd;++deadIt,++trglscount ){
-	unsigned int cmslscount=trglscount+1;
-	BITCOUNT& algoinbits=algocount[trglscount];
-	BITCOUNT& techinbits=techcount[trglscount];
-	unsigned int trgbitcount=0;
-	BITCOUNT::const_iterator algoBitIt;
-	BITCOUNT::const_iterator algoBitBeg=algoinbits.begin();
-	BITCOUNT::const_iterator algoBitEnd=algoinbits.end();
-	if(!lumisession->transaction().isActive()){ 
-	  lumisession->transaction().start(false);
-	  coral::ITable& trgtable=lumisession->nominalSchema().tableHandle(LumiNames::trgTableName());
-	  trgInserter=trgtable.dataEditor().bulkInsert(trgData,2048);
-	}
-	for(algoBitIt=algoBitBeg;algoBitIt!=algoBitEnd;++algoBitIt,++trgbitcount){
-	  trg_id = idallocationtable[trglscount].at(trgbitcount);
-	  deadtime=*deadIt;
-	  trgrunnum = runnumber;
-	  cmslsnum = cmslscount;
-	  bitnum=trgbitcount;
-	  bitname=algonames[trgbitcount];
-	  count=*algoBitIt;
-	  prescale=algoprescale[cmslsnum][trgbitcount];
-	  //std::cout<<"cmslsnum "<<cmslsnum<<" bitnum "<<bitnum<<" bitname "<<bitname<<" prescale "<< prescale<<" count "<<count<<std::endl;
-	  trgInserter->processNextIteration();	
-	}
-	BITCOUNT::const_iterator techBitIt;
-	BITCOUNT::const_iterator techBitBeg=techinbits.begin();
-	BITCOUNT::const_iterator techBitEnd=techinbits.end();
-	for(techBitIt=techBitBeg;techBitIt!=techBitEnd;++techBitIt,++trgbitcount){
-	  trg_id = idallocationtable[trglscount].at(trgbitcount);
-	  deadtime=*deadIt;
-	  trgrunnum = runnumber;
-	  cmslsnum = cmslscount;
-	  bitnum=trgbitcount;
-	  bitname=technames[trgbitcount-lumi::N_TRGALGOBIT];
-	  count=*techBitIt;
-	  prescale=techprescale[cmslsnum][trgbitcount-lumi::N_TRGALGOBIT];
-	  trgInserter->processNextIteration();	
-	}
-	trgInserter->flush();
-	++comittedls;
-	if(comittedls==TRG2DB::COMMITLSINTERVAL){
-	  std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
-	  delete trgInserter; trgInserter=0;
-	  lumisession->transaction().commit();
-	  comittedls=0;
-	  std::cout<<"\t committed "<<std::endl; 
-	}else if( trglscount==( totalcmsls-1) ){
-	  std::cout<<"\t committing at the end"<<std::endl; 
-	  delete trgInserter; trgInserter=0;
-	  lumisession->transaction().commit();
-	  std::cout<<"\t done"<<std::endl; 
-	}
-      }
+      std::cout<<"writing trg data to old trg table "<<std::endl;
+      writeTrgData(lumisession,runnumber,m_source,deadtimeresult.begin(),deadtimeresult.end(),algonames,technames,algocount,techcount,algoprescale,techprescale,COMMITLSINTERVAL);
+      std::cout<<"done"<<std::endl;
+      std::cout<<"writing trg data to new lstrg table "<<std::endl;
+      writeTrgDataToSchema2(lumisession,runnumber,m_source,deadtimeresult.begin(),deadtimeresult.end(),algonames,technames,algocount,techcount,algoprescale,techprescale,COMMITLSTRGINTERVAL);
+      std::cout<<"done"<<std::endl;
+      delete lumisession;
+      delete svc;
     }catch( const coral::Exception& er){
+      std::cout<<"database error "<<er.what()<<std::endl;
       lumisession->transaction().rollback();
       delete lumisession;
       delete svc;
       throw er;
     }
-    //delete detailInserter;
-    lumisession->transaction().commit();
-    delete lumisession;
-    delete svc;
+  }
+  void  
+  TRG2DB::writeTrgData(coral::ISessionProxy* lumisession,
+		       unsigned int runnumber,
+		       const std::string& source,
+		       TRG2DB::TriggerDeadCountResult::iterator deadtimesBeg,TRG2DB::TriggerDeadCountResult::iterator deadtimesEnd,
+		       TRG2DB::TriggerNameResult_Algo& algonames,
+		       TRG2DB::TriggerNameResult_Tech& technames,
+		       TRG2DB::TriggerCountResult_Algo& algocounts,
+		       TRG2DB::TriggerCountResult_Tech& techcounts,
+		       TRG2DB::PrescaleResult_Algo& prescalealgo,
+		       TRG2DB::PrescaleResult_Tech& prescaletech,
+		       unsigned int commitintv){    
+    TRG2DB::TriggerDeadCountResult::iterator deadIt;
+    //unsigned int totalcmsls=deadtimes.size();
+    unsigned int totalcmsls=std::distance(deadtimesBeg,deadtimesEnd);
+    std::cout<<"inserting totalcmsls "<<totalcmsls<<std::endl;
+    std::map< unsigned long long, std::vector<unsigned long long> > idallocationtable;
+
+    std::cout<<"\t allocating total ids "<<totalcmsls*lumi::N_TRGBIT<<std::endl; 
+    lumisession->transaction().start(false);
+    lumi::idDealer idg(lumisession->nominalSchema());
+    unsigned long long trgID = idg.generateNextIDForTable(LumiNames::trgTableName(),totalcmsls*lumi::N_TRGBIT)-totalcmsls*lumi::N_TRGBIT;
+    //lumisession->transaction().commit();
+    unsigned int trglscount=0;
+    for(deadIt=deadtimesBeg;deadIt!=deadtimesEnd;++deadIt,++trglscount){
+      std::vector<unsigned long long> bitvec;
+      bitvec.reserve(lumi::N_TRGBIT);
+      const BITCOUNT& algoinbits=algocounts[trglscount];
+      const BITCOUNT& techinbits=techcounts[trglscount];
+      BITCOUNT::const_iterator algoBitIt;
+      BITCOUNT::const_iterator algoBitBeg=algoinbits.begin();
+      BITCOUNT::const_iterator algoBitEnd=algoinbits.end();	
+      for(algoBitIt=algoBitBeg;algoBitIt!=algoBitEnd;++algoBitIt,++trgID){
+	bitvec.push_back(trgID);
+      }
+      BITCOUNT::const_iterator techBitIt;
+      BITCOUNT::const_iterator techBitBeg=techinbits.begin();
+      BITCOUNT::const_iterator techBitEnd=techinbits.end();
+      for(techBitIt=techBitBeg;techBitIt!=techBitEnd;++techBitIt,++trgID){
+	bitvec.push_back(trgID);
+      }
+      idallocationtable.insert(std::make_pair(trglscount,bitvec));
+    }
+    std::cout<<"\t all ids allocated"<<std::endl; 
+    coral::AttributeList trgData;
+    trgData.extend<unsigned long long>("TRG_ID");
+    trgData.extend<unsigned int>("RUNNUM");
+    trgData.extend<unsigned int>("CMSLSNUM");
+    trgData.extend<unsigned int>("BITNUM");
+    trgData.extend<std::string>("BITNAME");
+    trgData.extend<unsigned int>("TRGCOUNT");
+    trgData.extend<unsigned long long>("DEADTIME");
+    trgData.extend<unsigned int>("PRESCALE");
+    
+    unsigned long long& trg_id=trgData["TRG_ID"].data<unsigned long long>();
+    unsigned int& trgrunnum=trgData["RUNNUM"].data<unsigned int>();
+    unsigned int& cmslsnum=trgData["CMSLSNUM"].data<unsigned int>();
+    unsigned int& bitnum=trgData["BITNUM"].data<unsigned int>();
+    std::string& bitname=trgData["BITNAME"].data<std::string>();
+    unsigned int& count=trgData["TRGCOUNT"].data<unsigned int>();
+    unsigned long long& deadtime=trgData["DEADTIME"].data<unsigned long long>();
+    unsigned int& prescale=trgData["PRESCALE"].data<unsigned int>();
+    
+    trglscount=0;
+    coral::IBulkOperation* trgInserter=0; 
+    unsigned int comittedls=0;
+    for(deadIt=deadtimesBeg;deadIt!=deadtimesEnd;++deadIt,++trglscount ){
+      unsigned int cmslscount=trglscount+1;
+      const BITCOUNT& algoinbits=algocounts[trglscount];
+      const BITCOUNT& techinbits=techcounts[trglscount];
+      unsigned int trgbitcount=0;
+      BITCOUNT::const_iterator algoBitIt;
+      BITCOUNT::const_iterator algoBitBeg=algoinbits.begin();
+      BITCOUNT::const_iterator algoBitEnd=algoinbits.end();
+      if(!lumisession->transaction().isActive()){ 
+	lumisession->transaction().start(false);
+	coral::ITable& trgtable=lumisession->nominalSchema().tableHandle(LumiNames::trgTableName());
+	trgInserter=trgtable.dataEditor().bulkInsert(trgData,2048);
+      }else{
+	if(deadIt==deadtimesBeg){
+	  coral::ITable& trgtable=lumisession->nominalSchema().tableHandle(LumiNames::trgTableName());
+	  trgInserter=trgtable.dataEditor().bulkInsert(trgData,2048);
+	}
+      }
+      for(algoBitIt=algoBitBeg;algoBitIt!=algoBitEnd;++algoBitIt,++trgbitcount){
+	trg_id = idallocationtable[trglscount].at(trgbitcount);
+	deadtime=*deadIt;
+	trgrunnum = runnumber;
+	cmslsnum = cmslscount;
+	bitnum=trgbitcount;
+	bitname=algonames[trgbitcount];
+	count=*algoBitIt;
+	prescale=prescalealgo[cmslscount].at(trgbitcount);
+	//std::cout<<"cmslsnum "<<cmslsnum<<" bitnum "<<bitnum<<" bitname "<<bitname<<" prescale "<< prescale<<" count "<<count<<std::endl;
+	trgInserter->processNextIteration();	
+      }
+      BITCOUNT::const_iterator techBitIt;
+      BITCOUNT::const_iterator techBitBeg=techinbits.begin();
+      BITCOUNT::const_iterator techBitEnd=techinbits.end();
+      for(techBitIt=techBitBeg;techBitIt!=techBitEnd;++techBitIt,++trgbitcount){
+	trg_id = idallocationtable[trglscount].at(trgbitcount);
+	deadtime=*deadIt;
+	trgrunnum = runnumber;
+	cmslsnum = cmslscount;
+	bitnum=trgbitcount;
+	bitname=technames[trgbitcount-lumi::N_TRGALGOBIT];
+	count=*techBitIt;
+	prescale=prescaletech[cmslsnum][trgbitcount-lumi::N_TRGALGOBIT];
+	trgInserter->processNextIteration();	
+      }
+      trgInserter->flush();
+      ++comittedls;
+      if(comittedls==commitintv){
+	std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
+	delete trgInserter; trgInserter=0;
+	lumisession->transaction().commit();
+	comittedls=0;
+	std::cout<<"\t committed "<<std::endl; 
+      }else if( trglscount==( totalcmsls-1) ){
+	std::cout<<"\t committing at the end"<<std::endl; 
+	delete trgInserter; trgInserter=0;
+	lumisession->transaction().commit();
+	std::cout<<"\t done"<<std::endl; 
+      }
+    }
+  }
+  void  
+  TRG2DB::writeTrgDataToSchema2(coral::ISessionProxy* lumisession,
+				unsigned int irunnumber,
+				const std::string& source,
+			        TriggerDeadCountResult::iterator deadtimesBeg,
+				TriggerDeadCountResult::iterator deadtimesEnd,
+				TRG2DB::TriggerNameResult_Algo& algonames, 
+				TRG2DB::TriggerNameResult_Tech& technames,
+				TRG2DB::TriggerCountResult_Algo& algocounts,
+				TRG2DB::TriggerCountResult_Tech& techcounts,
+				TRG2DB::PrescaleResult_Algo& prescalealgo,
+				TRG2DB::PrescaleResult_Tech& prescaletech,
+				unsigned int commitintv){
+    TRG2DB::TriggerDeadCountResult::iterator deadIt;
+    unsigned int totalcmsls=std::distance(deadtimesBeg,deadtimesEnd);
+    std::cout<<"inserting totalcmsls "<<totalcmsls<<std::endl;
+    coral::AttributeList lstrgData;
+    lstrgData.extend<unsigned long long>("DATA_ID");
+    lstrgData.extend<unsigned int>("RUNNUM");
+    lstrgData.extend<unsigned int>("CMSLSNUM");
+    lstrgData.extend<unsigned long long>("DEADTIMECOUNT");
+    lstrgData.extend<unsigned int>("BITZEROCOUNT");
+    lstrgData.extend<unsigned int>("BITZEROPRESCALE");
+    lstrgData.extend<float>("DEADFRAC");
+    lstrgData.extend<coral::Blob>("PRESCALEBLOB");
+    lstrgData.extend<coral::Blob>("TRGCOUNTBLOB");
+
+    unsigned long long& data_id=lstrgData["DATA_ID"].data<unsigned long long>();
+    unsigned int& trgrunnum=lstrgData["RUNNUM"].data<unsigned int>();
+    unsigned int& cmslsnum=lstrgData["CMSLSNUM"].data<unsigned int>();
+    unsigned long long& deadtime=lstrgData["DEADTIMECOUNT"].data<unsigned long long>();
+    unsigned int& bitzerocount=lstrgData["BITZEROCOUNT"].data<unsigned int>();
+    unsigned int& bitzeroprescale=lstrgData["BITZEROPRESCALE"].data<unsigned int>();
+    float& deadfrac=lstrgData["DEADFRAC"].data<float>();
+    coral::Blob& prescaleblob=lstrgData["PRESCALEBLOB"].data<coral::Blob>();
+    coral::Blob& trgcountblob=lstrgData["TRGCOUNTBLOB"].data<coral::Blob>();
+
+    unsigned long long branch_id=3;
+    std::string branch_name("DATA");
+    lumi::RevisionDML revisionDML;
+    lumi::RevisionDML::TrgEntry trgrundata;
+    std::stringstream op;
+    op<<irunnumber;
+    std::string runnumberStr=op.str();
+    lumisession->transaction().start(false);
+    trgrundata.entry_name=runnumberStr;
+    trgrundata.source=source;
+    trgrundata.runnumber=irunnumber;
+    trgrundata.bitzeroname=algonames[0];
+    std::string bitnames;
+    TriggerNameResult_Algo::iterator bitnameIt;
+    TriggerNameResult_Algo::iterator bitnameItBeg=algonames.begin();
+    TriggerNameResult_Algo::iterator bitnameItEnd=algonames.end();
+    for (bitnameIt=bitnameItBeg;bitnameIt!=bitnameItEnd;++bitnameIt){
+      bitnames+=*bitnameIt;
+    }
+    TriggerNameResult_Tech::iterator techbitnameIt;
+    TriggerNameResult_Tech::iterator techbitnameItBeg=technames.begin();
+    TriggerNameResult_Tech::iterator techbitnameItEnd=technames.end();
+    for(techbitnameIt=techbitnameItBeg;techbitnameIt!=techbitnameItEnd;++techbitnameIt){
+      bitnames+=*techbitnameIt;
+    }
+    std::cout<<"bitnames "<<bitnames<<std::endl;
+    trgrundata.bitnames=bitnames;
+    trgrundata.entry_id=revisionDML.getEntryInBranchByName(lumisession->nominalSchema(),lumi::LumiNames::trgdataTableName(),runnumberStr,branch_name);
+    if(trgrundata.entry_id==0){
+      revisionDML.bookNewEntry(lumisession->nominalSchema(),LumiNames::trgdataTableName(),trgrundata);
+      std::cout<<"trgrundata revision_id "<<trgrundata.revision_id<<" entry_id "<<trgrundata.entry_id<<" data_id "<<trgrundata.data_id<<std::endl;
+      revisionDML.addEntry(lumisession->nominalSchema(),LumiNames::trgdataTableName(),trgrundata,branch_id,branch_name);
+  }else{
+      revisionDML.bookNewRevision(lumisession->nominalSchema(),LumiNames::trgdataTableName(),trgrundata);
+      std::cout<<"trgrundata revision_id "<<trgrundata.revision_id<<" entry_id "<<trgrundata.entry_id<<" data_id "<<trgrundata.data_id<<std::endl;
+      revisionDML.addRevision(lumisession->nominalSchema(),LumiNames::trgdataTableName(),trgrundata,branch_id,branch_name);
+    }
+    std::cout<<"inserting trgrundata "<<std::endl;
+    revisionDML.insertTrgRunData(lumisession->nominalSchema(),trgrundata);
+    std::cout<<"inserting lstrg data"<<std::endl;
+ 
+    unsigned int trglscount=0;   
+    trglscount=0;
+    coral::IBulkOperation* lstrgInserter=0; 
+    unsigned int comittedls=0;
+    for(deadIt=deadtimesBeg;deadIt!=deadtimesEnd;++deadIt,++trglscount ){
+      unsigned int cmslscount=trglscount+1;
+      if(!lumisession->transaction().isActive()){ 
+	lumisession->transaction().start(false);
+	coral::ITable& lstrgtable=lumisession->nominalSchema().tableHandle(LumiNames::lstrgTableName());
+	lstrgInserter=lstrgtable.dataEditor().bulkInsert(lstrgData,2048);
+      }else{
+	if(deadIt==deadtimesBeg){
+	  coral::ITable& lstrgtable=lumisession->nominalSchema().tableHandle(LumiNames::lstrgTableName());
+	  lstrgInserter=lstrgtable.dataEditor().bulkInsert(lstrgData,2048);
+	}
+      }
+      data_id = trgrundata.data_id;
+      trgrunnum = irunnumber;
+      cmslsnum = cmslscount;
+      deadtime = *deadIt;
+      bitzerocount = algocounts[trglscount][0];
+      bitzeroprescale = prescalealgo[cmslsnum][0];
+      if( (bitzerocount*bitzeroprescale )!=0.0){
+	deadfrac = deadtime/(bitzerocount*bitzeroprescale);
+      }else{
+	deadfrac=0.0;
+      }
+      std::vector<unsigned int> fullprescales;
+      fullprescales.reserve(prescalealgo[cmslsnum].size()+prescaletech[cmslsnum].size());
+      fullprescales.insert(fullprescales.end(),prescalealgo[cmslsnum].begin(),prescalealgo[cmslsnum].end());
+      fullprescales.insert(fullprescales.end(),prescaletech[cmslsnum].begin(),prescaletech[cmslsnum].end());
+
+      prescaleblob.resize(sizeof(unsigned int)*(fullprescales.size()));
+      void* prescaleblob_StartAddress = prescaleblob.startingAddress();
+      std::memmove(prescaleblob_StartAddress,&fullprescales[0],sizeof(unsigned int)*(fullprescales.size()));
+      
+      std::vector<unsigned int> fullcounts;
+      fullcounts.reserve(algocounts[trglscount].size()+techcounts[trglscount].size());
+      fullcounts.insert(fullcounts.end(),algocounts[trglscount].begin(),algocounts[trglscount].end());
+      fullcounts.insert(fullcounts.end(),techcounts[trglscount].begin(),techcounts[trglscount].end());
+      trgcountblob.resize(sizeof(unsigned int)*(fullcounts.size()));
+      void* trgcountblob_StartAddress = trgcountblob.startingAddress();
+      std::memmove(trgcountblob_StartAddress,&fullcounts[0],sizeof(unsigned int)*(fullcounts.size()));
+
+      lstrgInserter->processNextIteration();	
+      lstrgInserter->flush();
+      ++comittedls;
+      if(comittedls==commitintv){
+	std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
+	delete lstrgInserter; lstrgInserter=0;
+	lumisession->transaction().commit();
+	comittedls=0;
+	std::cout<<"\t committed "<<std::endl; 
+      }else if( trglscount==( totalcmsls-1) ){
+	std::cout<<"\t committing at the end"<<std::endl; 
+	delete lstrgInserter; lstrgInserter=0;
+	lumisession->transaction().commit();
+	std::cout<<"\t done"<<std::endl; 
+      }
+    }
+
+
   }
   const std::string TRG2DB::dataType() const{
     return "TRG";
