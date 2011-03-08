@@ -51,7 +51,8 @@ protected:
     unsigned int i=0;
     unsigned int n=filters.size();
     for (;i<n;i++){ if (!filters[i].second->toBeContinued(traj)) return false; }
-    return true;}
+    return true;
+  }
 
   template <class T> bool QF(const T& traj)const{
     bool condition=true;
@@ -67,9 +68,10 @@ protected:
 	condition= condition || lcondition;
       else if (filters[i].first==AND)
 	condition= condition && lcondition;
-      
-    return condition;}
+    }  
+    return condition;   
   }
+
  protected:
   std::vector< std::pair< logic, const TrajectoryFilter *> > filters;
 };
