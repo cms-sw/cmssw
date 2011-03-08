@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.17 2011/02/24 17:48:52 amraktad Exp $
+// $Id: FWRPZView.h,v 1.18 2011/02/24 17:59:30 amraktad Exp $
 //
 
 // system include files
@@ -54,8 +54,11 @@ public:
    virtual void setFrom(const FWConfiguration&);
    virtual void voteCaloMaxVal();
 
+   virtual void eventBegin();
+
    //returns the new element created from this import
    void importElements(TEveElement* iProjectableChild, float layer, TEveElement* iProjectedParent=0);
+ 
 private:
    FWRPZView(const FWRPZView&);    // stop default
    const FWRPZView& operator=(const FWRPZView&);    // stop default 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.36 2011/02/24 17:59:30 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.37 2011/02/24 19:15:31 matevz Exp $
 //
 
 // system include files
@@ -22,18 +22,22 @@
 #include "TEveElement.h"
 #include "TEveScene.h"
 #include "TEveProjections.h"
-#include "TEveProjectionManager.h"
 #include "TEveProjectionAxes.h"
 #include "TGLabel.h"
 
-#define protected public  //!!! TODO add get/sets for TEveCalo2D for CellIDs
+//!!! FIXME add get/sets for TEveCalo2D for CellIDs
+//          add option in FWEveProjectionManager::SetCenter()
+#define protected public  
 #include "TEveCalo.h"
+#include "TEveProjectionManager.h"
 #undef protected
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZView.h"
 #include "Fireworks/Core/interface/FWRPZViewGeometry.h"
+#include "Fireworks/Core/interface/FWBeamSpot.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
@@ -148,6 +152,35 @@ FWRPZView::setContext(const fireworks::Context& ctx)
    m_calo->SetEndCapPos(context().caloZ1(false));
    m_calo->SetAutoRange(false);
    m_calo->SetScaleAbs(true);
+}
+
+void
+FWRPZView::eventBegin()
+{  
+   if (context().getBeamSpot())
+   {
+      FWBeamSpot& b = *(context().getBeamSpot());
+
+      // AMT: should call directly TEveProjectionManager::SetCenter()
+      // and add an option to skip EveProjectionManager::ProjectChildren() 
+    
+      fwLog(fwlog::kDebug) << Form("%s::eventBegin Set projection center (%f, %f, %f) \n", typeName().c_str(), b.x0(), b.y0(), b.z0());
+      m_projMgr->fCenter.Set(b.x0(), b.y0(), b.z0());
+      m_projMgr->fProjection->SetCenter(m_projMgr->fCenter);
+
+      // camera move
+      TGLCamera& cam = viewerGL()->CurrentCamera();
+      cam.SetExternalCenter(true);
+      if (typeId() != FWViewType::kRhoZ)
+      {
+         double r = TMath::Sqrt( b.x0()*b.x0() +  b.y0()*b.y0());
+         cam.SetCenterVec(b.z0(), TMath::Sign(r, b.y0()), 0);
+      }
+      else
+      {
+         cam.SetCenterVec(b.x0(), b.y0(), b.z0());
+      }
+   }
 }
 
 void
