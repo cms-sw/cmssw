@@ -1,6 +1,6 @@
 /* Implementation of class EcalCleaningAlgo
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.cc,v 1.4 2011/03/02 14:37:50 argiro Exp $
+   \version $Id: EcalCleaningAlgo.cc,v 1.5 2011/03/02 20:58:59 argiro Exp $
    \date 20 Dec 2010
 */    
 
@@ -90,10 +90,12 @@ EcalCleaningAlgo::checkTopology(const DetId& id,
 
   // for energies below threshold, we don't apply e4e1 cut
   float energy = recHitE(id,rhs);
+ 
+  if (energy< ethresh) return EcalRecHit::kGood;
   if (isNearCrack(id) && energy < ethresh*tightenCrack_e1_single_) 
     return EcalRecHit::kGood;
-  if (energy< ethresh) return EcalRecHit::kGood;
-    
+
+
   float e4e1value = e4e1(id,rhs);
   e4e1thresh = a* log10(energy) + b;
 
@@ -245,10 +247,11 @@ const std::vector<DetId> EcalCleaningAlgo::neighbours(const DetId& id){
 
 bool EcalCleaningAlgo::isNearCrack(const DetId& id){
 
-  if (id.subdetId() == EcalEndcap) return false;
-  
-  return EBDetId::isNextToBoundary(EBDetId(id));
-  
+  if (id.subdetId() == EcalEndcap) { 
+    return EEDetId::isNextToRingBoundary(id);
+  } else {
+    return EBDetId::isNextToBoundary(id);
+  }
 }
 
 
