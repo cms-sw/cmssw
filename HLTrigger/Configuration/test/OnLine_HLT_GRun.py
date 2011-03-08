@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V66 (CMSSW_3_11_0_HLT12)
+# /dev/CMSSW_3_11_1/GRun/V67 (CMSSW_3_11_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V66')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V67')
 )
 
 process.streams = cms.PSet( 
@@ -2496,9 +2496,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "AlCa_RPCMuonNormalisation_v2" ),
         prescales = cms.vuint32( 30, 10, 3, 1, 1, 1 )
-      ),
-      cms.PSet(  pathName = cms.string( "DQM_FEDIntegrity_v2" ),
-        prescales = cms.vuint32( 10, 10, 10, 10, 10, 10 )
       ),
       cms.PSet(  pathName = cms.string( "HLTDQMResultsOutput" ),
         prescales = cms.vuint32( 10, 10, 10, 10, 10, 10 )
@@ -17325,6 +17322,12 @@ process.hltESFEDIntegrityTask = cms.EDAnalyzer( "ESFEDIntegrityTask",
     ESKChipCollections = cms.InputTag( "NotUsed" ),
     FEDRawDataCollection = cms.InputTag( "rawDataCollector" )
 )
+process.hltHcalDataIntegrityMonitor = cms.EDAnalyzer( "HcalDataIntegrityTask",
+    TaskFolder = cms.untracked.string( "FEDIntegrity_EvF" ),
+    RawDataLabel = cms.untracked.InputTag( "rawDataCollector" ),
+    UnpackerReportLabel = cms.untracked.InputTag( "hltHcalDigis" ),
+    AllowedCalibTypes = cms.untracked.vint32( 0, 1, 2, 3, 4, 5, 6, 7 )
+)
 process.hltL1tfed = cms.EDAnalyzer( "L1TFED",
     rawTag = cms.InputTag( "rawDataCollector" ),
     DQMStore = cms.untracked.bool( True ),
@@ -19626,7 +19629,7 @@ process.AlCa_EcalPhiSym_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hl
 process.AlCa_RPCMuonNoTriggers_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sAlCaRPC + process.hltPreRPCMuonNoTriggers + process.hltRPCMuonNoTriggersL1Filtered0 + process.HLTmuonlocalrecoSequence + process.HLTEndSequence )
 process.AlCa_RPCMuonNoHits_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sAlCaRPC + process.hltPreRPCMuonNoHits + process.HLTmuonlocalrecoSequence + process.hltRPCPointProducer + process.hltRPCFilter + process.HLTEndSequence )
 process.AlCa_RPCMuonNormalisation_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sAlCaRPC + process.hltPreRPCMuonNorma + process.hltRPCMuonNormaL1Filtered0 + process.HLTmuonlocalrecoSequence + process.HLTEndSequence )
-process.DQM_FEDIntegrity_v2 = cms.Path( process.HLTBeginSequence + process.hltPreFEDIntegrity + process.hltCSCMonitorModule + process.hltDTDQMEvF + process.hltEcalRawToRecHitFacility + process.hltEcalRegionalRestFEDs + process.hltEcalRecHitAll + process.hltEcalRawToRecHitByproductProducer + process.hltEBHltTask + process.hltEEHltTask + process.hltESFEDIntegrityTask + process.hltHcalDigis + process.hltL1tfed + process.hltSiPixelDigis + process.hltSiPixelHLTSource + process.hltSiStripFEDCheck + process.hltMuonRPCDigis + process.hltRPCFEDIntegrity + process.hltBoolFalse )
+process.DQM_FEDIntegrity_v3 = cms.Path( process.HLTBeginSequence + process.hltPreFEDIntegrity + process.hltCSCMonitorModule + process.hltDTDQMEvF + process.hltEcalRawToRecHitFacility + process.hltEcalRegionalRestFEDs + process.hltEcalRecHitAll + process.hltEcalRawToRecHitByproductProducer + process.hltEBHltTask + process.hltEEHltTask + process.hltESFEDIntegrityTask + process.hltHcalDigis + process.hltHcalDataIntegrityMonitor + process.hltL1tfed + process.hltSiPixelDigis + process.hltSiPixelHLTSource + process.hltSiStripFEDCheck + process.hltMuonRPCDigis + process.hltRPCFEDIntegrity + process.hltBoolFalse )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolTrue )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 process.AOutput = cms.EndPath( process.hltOutputA )
