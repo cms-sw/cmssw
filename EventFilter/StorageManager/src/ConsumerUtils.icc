@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.icc,v 1.1.4.2 2011/03/07 11:33:04 mommsen Exp $
+// $Id: ConsumerUtils.icc,v 1.1.2.14 2011/03/08 18:34:11 mommsen Exp $
 /// @file: ConsumerUtils.icc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
@@ -185,12 +185,15 @@ namespace stor
       return;
     }
     
-    const typename EventQueueCollection_t::ValueType event =
+    typename EventQueueCollection_t::ValueType event =
       eventQueueCollection_->popEvent( cid );
     if( event.first.empty() || event.first.faulty() )
       writeEmptyBuffer( out );
     else
-    {   
+    {
+      const unsigned int droppedEventsCount =
+        event.first.droppedEventsCount() + event.second;
+      event.first.setDroppedEventsCount( droppedEventsCount );
       writeConsumerEvent( out, event.first );
     }
   }
