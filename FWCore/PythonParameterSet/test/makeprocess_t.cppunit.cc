@@ -113,11 +113,12 @@ void testmakeprocess::pathTest() {
 }
 
 
-edm::ParameterSet modulePSet(std::string const& iLabel, std::string const& iType) {
+edm::ParameterSet modulePSet(std::string const& iLabel, std::string const& iType, std::string const& iCppType) {
    edm::ParameterSet temp;
    temp.addParameter("s", 1);
    temp.addParameter("@module_label", iLabel);
    temp.addParameter("@module_type", iType);
+   temp.addParameter("@module_edm_type", iCppType);
    return temp;
 }
 
@@ -147,17 +148,17 @@ void testmakeprocess::moduleTest() {
    ParameterSetPtr test = pSet(kTest);
 
    static edm::ParameterSet const kEmpty;
-   edm::ParameterSet const kCone(modulePSet("cones", "Module"));
+   edm::ParameterSet const kCone(modulePSet("cones", "Module","EDFilter"));
    std::ostringstream out;
    out << kCone.toString() << std::endl;
    out << test->getParameterSet("cones").toString() << std::endl;
 
-   edm::ParameterSet const kMainInput(modulePSet("@main_input","InputSource"));
+   edm::ParameterSet const kMainInput(modulePSet("@main_input","InputSource","Source"));
 
-   edm::ParameterSet const kNoLabelModule(modulePSet("", "NoLabelModule"));
-   edm::ParameterSet const kLabelModule(modulePSet("labeled", "LabelModule"));
-   edm::ParameterSet const kNoLabelRetriever(modulePSet("", "NoLabelRetriever"));
-   edm::ParameterSet const kLabelRetriever(modulePSet("label", "LabelRetriever"));
+   edm::ParameterSet const kNoLabelModule(modulePSet("", "NoLabelModule","ESProducer"));
+   edm::ParameterSet const kLabelModule(modulePSet("labeled", "LabelModule","ESProducer"));
+   edm::ParameterSet const kNoLabelRetriever(modulePSet("", "NoLabelRetriever","ESSource"));
+   edm::ParameterSet const kLabelRetriever(modulePSet("label", "LabelRetriever","ESSource"));
 
    CPPUNIT_ASSERT(kEmpty != (test->getParameterSet("cones")));
    CPPUNIT_ASSERT(kCone == test->getParameterSet("cones"));
