@@ -25,8 +25,8 @@
    has the option of correcting the reconstructed time for energy-dependent
    time slew associated with the QIE.
     
-   $Date: 2011/02/22 20:39:32 $
-   $Revision: 1.11 $
+   $Date: 2011/03/07 19:25:31 $
+   $Revision: 1.12 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
@@ -49,9 +49,9 @@ public:
 private:
   bool correctForTimeslew_;
   bool correctForPulse_;
-  bool setForData_;
   float phaseNS_;
   std::auto_ptr<HcalPulseContainmentCorrection> pulseCorr_;
+  bool setForData_;
 };
 
 #endif
