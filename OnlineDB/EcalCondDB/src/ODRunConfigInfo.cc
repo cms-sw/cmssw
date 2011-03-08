@@ -11,7 +11,6 @@ using namespace oracle::occi;
 
 ODRunConfigInfo::ODRunConfigInfo()
 {
-  m_env = NULL;
   m_conn = NULL;
   m_ID = 0;
   //
@@ -94,6 +93,7 @@ int ODRunConfigInfo::fetchID()
     stmt->setInt(2, m_version);
 
     ResultSet* rset = stmt->executeQuery();
+
     if (rset->next()) {
       m_ID = rset->getInt(1);
     } else {
@@ -152,6 +152,8 @@ void ODRunConfigInfo::setByID(int id)
    this->checkConnection();
 
    DateHandler dh(m_env, m_conn);
+
+   cout<< "ODRunConfigInfo::setByID called for id "<<id<<endl;
 
    try {
      Statement* stmt = m_conn->createStatement();
@@ -291,54 +293,3 @@ int ODRunConfigInfo::updateDefaultCycle()
   return m_ID;
 }
 
-void ODRunConfigInfo::clear(){
-  m_num_seq = 0;
-  m_runTypeDef = RunTypeDef();
-  m_runModeDef = RunModeDef();
-  m_defaults = 0;
-  m_trigger_mode = "";
-  m_num_events = 0;
-}
-
-void ODRunConfigInfo::fetchData(ODRunConfigInfo * result)
-  throw(std::runtime_error)
-{
-  this->checkConnection();
-  DateHandler dh(m_env, m_conn);
-  //  result->clear();
-  int idid=0;
-
-  if(result->getId()==0){
-    //throw(std::runtime_error("FEConfigMainInfo::fetchData(): no Id defined for this FEConfigMainInfo "));
-    idid=result->fetchID();
-  }
-  try {
-    m_readStmt->setSQL("SELECT config_id, tag, version, run_type_def_id, run_mode_def_id, \
-      num_of_sequences, description, defaults, trg_mode, num_of_events, db_timestamp, usage_status \
-      FROM ECAL_RUN_CONFIGURATION_DAT WHERE config_id = :1 ");
-    m_readStmt->setInt(1, result->getId());
-
-    ResultSet* rset = m_readStmt->executeQuery();
-    rset->next();
-
-    result->setId(               rset->getInt(1) );
-    result->setTag(              rset->getString(2) );
-    result->setVersion(          rset->getInt(3) );
-    //    RunTypeDef myRunType = rset->getInt(4);
-    //    result->setRunTypeDef( myRunType );
-    //    RunModeDef myRunMode = rset->getInt(5);
-    //    result->setRunModeDef( myRunMode );
-    result->setNumberOfSequences(rset->getInt(6) );
-    result->setDescription(      rset->getString(7) );
-    result->setDefaults(         rset->getInt(8) );
-    result->setTriggerMode(      rset->getString(9) );
-    result->setNumberOfEvents(   rset->getInt(10) );
-    Date dbdate = rset->getDate(11);
-    result->setDBTime(dh.dateToTm( dbdate ));
-    result->setUsageStatus(      rset->getString(12) );
-
-  } catch (SQLException &e) {
-    cout << " ODRunConfigInfo::fetchData():  " << e.getMessage() << endl;
-    throw(std::runtime_error("ODRunConfigInfo::fetchData():  "+e.getMessage()));
-  }
-}

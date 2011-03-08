@@ -16,14 +16,12 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
-
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <vector>
 #include <set>
-
-class EcalSeverityLevelAlgo;
 
 //Less than operator for sorting EcalRecHits according to energy.
 struct less_mag : public std::binary_function<EcalRecHit, EcalRecHit, bool> {
@@ -98,13 +96,14 @@ class HybridClusterAlgo
 
   //algo to calulate position of clusters
   PositionCalc posCalculator_;
-  
+
   // channels not to be used for seeding 
   std::vector<int> v_chstatus_; 
 
   // severity levels to discriminate against
   std::vector<int> v_severitylevel_;
   float severityRecHitThreshold_;
+  EcalSeverityLevelAlgo::SpikeId spId_;
   float severitySpikeThreshold_;
 
   bool excludeFromCluster_;
@@ -154,10 +153,9 @@ class HybridClusterAlgo
   void makeClusters(const EcalRecHitCollection*,
 		    const CaloSubdetectorGeometry * geometry,
 		    reco::BasicClusterCollection &basicClusters,
-                    const EcalSeverityLevelAlgo * sevLv,
 		    bool regional = false,
-		    const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>()
-		    );
+		    const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>(),
+		    const EcalChannelStatus *chStatus = new EcalChannelStatus());
 
   //Make superclusters from the references to the BasicClusters in the event.
   reco::SuperClusterCollection makeSuperClusters(const reco::CaloClusterPtrVector&);

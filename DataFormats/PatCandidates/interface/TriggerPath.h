@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerPath
 //
-// $Id: TriggerPath.h,v 1.9 2010/12/15 19:44:27 vadler Exp $
+// $Id: TriggerPath.h,v 1.6 2010/06/16 15:40:52 vadler Exp $
 //
 /**
   \class    pat::TriggerPath TriggerPath.h "DataFormats/PatCandidates/interface/TriggerPath.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerPath
 
   \author   Volker Adler
-  \version  $Id: TriggerPath.h,v 1.9 2010/12/15 19:44:27 vadler Exp $
+  \version  $Id: TriggerPath.h,v 1.6 2010/06/16 15:40:52 vadler Exp $
 */
 
 
@@ -33,123 +33,70 @@
 
 namespace pat {
 
-  /// Pair to store decision and name of L1 seeds
   typedef std::pair< bool, std::string > L1Seed;
-  /// Collection of L1Seed
   typedef std::vector< L1Seed >          L1SeedCollection;
 
   class TriggerPath {
 
-      /// Data Members
-
-      /// Path name
-      std::string name_;
-      /// Path index in trigger table
-      unsigned index_;
-      /// Pre-scale
-      unsigned prescale_;
-      /// Was path run?
-      bool run_;
-      /// Did path succeed?
-      bool accept_;
-      /// Was path in error?
-      bool error_;
-      /// List of all module labels in the path
-      /// filled in correct order by PATTriggerProducer;
-      /// modules not necessarily in filter collection;
-      /// consumes disc space
-      std::vector< std::string > modules_;
-      /// Indeces of trigger filters in pat::TriggerFilterCollection in event
-      /// as produced together with the pat::TriggerPathCollection;
-      /// also filled in correct order by PATTriggerProducer;
-      /// indices of active filters in filter collection;
-      /// needed, if the module labels are kept empty
-      std::vector< unsigned > filterIndices_;
-      /// Index of the last active filter in the list of modules
-      unsigned lastActiveFilterSlot_;
-      /// List of L1 seeds and their decisions
-      L1SeedCollection l1Seeds_;
+      /// data members
+      std::string                name_;
+      unsigned                   index_;                // in trigger table
+      unsigned                   prescale_;
+      bool                       run_;
+      bool                       accept_;
+      bool                       error_;
+      std::vector< std::string > modules_;              // filled in correct order by PATTriggerProducer; not necessarily in filter collection; consumes disc space
+      std::vector< unsigned >    filterIndices_;        // also filled in correct order by PATTriggerProducer; indices of active filters in filter collection; needed, if 'modules_' kept empty
+      unsigned                   lastActiveFilterSlot_; // index as from modules_
+      L1SeedCollection           l1Seeds_;
 
     public:
 
-      /// Constructors and Desctructor
-
-      /// Default constructor
+      /// constructors and desctructor
       TriggerPath();
-      /// Constructor from path name only
       TriggerPath( const std::string & name );
-      /// Constructor from values
       TriggerPath( const std::string & name, unsigned index, unsigned prescale, bool run, bool accept, bool error, unsigned lastActiveFilterSlot );
-
-      /// Destructor
       virtual ~TriggerPath() {};
 
-      /// Methods
-
-      /// Set the path name
-      void setName( const std::string & name ) { name_ = name; };
-      /// Set the path index
-      void setIndex( unsigned index ) { index_ = index; };
-      /// Set the path pre-scale
-      void setPrescale( unsigned prescale ) { prescale_ = prescale; };
-      /// Set the run flag
-      void setRun( bool run ) { run_ = run; };
-      /// Set the success flag
-      void setAccept( bool accept ) { accept_ = accept; };
-      /// Set the error flag
-      void setError( bool error ) { error_ = error; };
-      /// Set the index of the last active filter
-      void setLastActiveFilterSlot( unsigned lastActiveFilterSlot ) { lastActiveFilterSlot_ = lastActiveFilterSlot; };
-      /// Add a new module label
-      void addModule( const std::string & name ) { modules_.push_back( name ); };
-      /// Add a new trigger fillter collection index
-      void addFilterIndex( const unsigned index ) { filterIndices_.push_back( index ); };
-      /// Add a new L1 seed
+      /// setters & getters
+      void setName( const std::string & name )                        { name_                 = name; };
+      void setIndex( unsigned index )                                 { index_                = index; };
+      void setPrescale( unsigned prescale )                           { prescale_             = prescale; };
+      void setRun( bool run )                                         { run_                  = run; };
+      void setAccept( bool accept )                                   { accept_               = accept; };
+      void setError( bool error )                                     { error_                = error; };
+      void setLastActiveFilterSlot( unsigned lastActiveFilterSlot )   { lastActiveFilterSlot_ = lastActiveFilterSlot; };
+      void addModule( const std::string & name )                      { modules_.push_back( name ); };
+      void addFilterIndex( const unsigned index )                     { filterIndices_.push_back( index ); };
       void addL1Seed( const L1Seed & seed )                           { l1Seeds_.push_back( seed ); };
       void addL1Seed( bool decision, const std::string & expression ) { l1Seeds_.push_back( L1Seed( decision, expression ) ); };
-      /// Get the path name
-      std::string name() const { return name_; };
-      /// Get the path index
-      unsigned index() const { return index_; };
-      /// Get the path pre-scale
-      unsigned prescale() const { return prescale_; };
-      /// Get the run flag
-      bool wasRun() const { return run_; };
-      /// Get the success flag
-      bool wasAccept() const { return accept_; };
-      /// Get the error flag
-      bool wasError() const { return error_; };
-      /// Get the index of the last active filter
-      unsigned lastActiveFilterSlot() const { return lastActiveFilterSlot_; };
-      /// Get all module labels
-      std::vector< std::string > modules() const { return modules_; };
-      /// Get all trigger fillter collection indeces
-      std::vector< unsigned > filterIndices() const { return filterIndices_; };
-      /// Get the index of a certain module;
-      /// returns size of 'modules_' ( modules().size() ) if name is unknown
-      /// and -1 if list of modules is not filled
-      int indexModule( const std::string & name ) const;
-      /// Get all L1 seeds
-      L1SeedCollection l1Seeds() const { return l1Seeds_; };
-      /// Get names of all L1 seeds with a certain decision
+      std::string                name() const                 { return name_; };
+      unsigned                   index() const                { return index_; };
+      unsigned                   prescale() const             { return prescale_; };
+      bool                       wasRun() const               { return run_; };
+      bool                       wasAccept() const            { return accept_; };
+      bool                       wasError() const             { return error_; };
+      unsigned                   lastActiveFilterSlot() const { return lastActiveFilterSlot_; };
+      std::vector< std::string > modules() const              { return modules_; };
+      std::vector< unsigned >    filterIndices() const        { return filterIndices_; };
+      int                        indexModule( const std::string & name ) const;           // returns size of 'modules_' ( modules().size() ) if name unknown and -1 if 'modules_' not filled
+      L1SeedCollection           l1Seeds() const              { return l1Seeds_; };
       std::vector< std::string > l1Seeds( const bool decision ) const;
-      /// Get names of all succeeding L1 seeds
-      std::vector< std::string > acceptedL1Seeds() const { return l1Seeds( true ); };
-      /// Get names of all failing L1 seeds
-      std::vector< std::string > failedL1Seeds() const { return l1Seeds( false ); };
+      std::vector< std::string > acceptedL1Seeds() const      { return l1Seeds( true ); };
+      std::vector< std::string > failedL1Seeds() const        { return l1Seeds( false ); };
 
   };
 
 
-  /// Collection of TriggerPath
+  /// collection of TriggerPath
   typedef std::vector< TriggerPath >                      TriggerPathCollection;
-  /// Persistent reference to an item in a TriggerPathCollection
+  /// persistent reference to an item in a TriggerPathCollection
   typedef edm::Ref< TriggerPathCollection >               TriggerPathRef;
-  /// Persistent reference to a TriggerPathCollection product
+  /// persistent reference to a TriggerPathCollection product
   typedef edm::RefProd< TriggerPathCollection >           TriggerPathRefProd;
-  /// Vector of persistent references to items in the same TriggerPathCollection
+  /// vector of persistent references to items in the same TriggerPathCollection
   typedef edm::RefVector< TriggerPathCollection >         TriggerPathRefVector;
-  /// Const iterator over vector of persistent references to items in the same TriggerPathCollection
+  /// const iterator over vector of persistent references to items in the same TriggerPathCollection
   typedef edm::RefVectorIterator< TriggerPathCollection > TriggerPathRefVectorIterator;
 
 }

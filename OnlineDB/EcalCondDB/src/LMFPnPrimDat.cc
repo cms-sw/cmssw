@@ -71,10 +71,9 @@ void LMFPnPrimDat::init() {
   m_keys["FLAG"] = 6;
   m_keys["VMIN"] = 7;
   m_keys["VMAX"] = 8;
-  m_keys["SHAPECORRPN"] = 9;
 
-  m_type.resize(10);
-  for (int i = 0; i < 10; i++) {
+  m_type.resize(9);
+  for (int i = 0; i < 9; i++) {
     m_type[i] = "NUMBER";
   }
 
@@ -123,10 +122,6 @@ LMFPnPrimDat& LMFPnPrimDat::setPN(EcalLogicID &id, float mean, float rms,
   setM3(id, m3);
   return *this;
 }
-LMFPnPrimDat& LMFPnPrimDat::setShapeCorr(EcalLogicID &id, float v ) {
-  LMFDat::setData(id, "SHAPECORRPN", v);
-  return *this;
-}
 
 LMFPnPrimDat& LMFPnPrimDat::setPNAoverBM3(EcalLogicID &id, float v) {
   LMFDat::setData(id, "PNABM3", v);
@@ -157,10 +152,6 @@ LMFPnPrimDat& LMFPnPrimDat::setFlag(EcalLogicID &id, int v) {
 
 float LMFPnPrimDat::getMean(EcalLogicID &id) {
   return getData(id, "MEAN");
-}
-
-float LMFPnPrimDat::getShapeCor(EcalLogicID &id) {
-  return getData(id, "SHAPECORRPN");
 }
 
 float LMFPnPrimDat::getRMS(EcalLogicID &id) {

@@ -354,35 +354,43 @@
   </config>
  </config>
  <config name="EventNavigator" version="1">
-  <config name="EventFilter0_enabled" version="0">
-    <string>1</string>
-  </config>
-  <config name="EventFilter0_selection" version="0">
-    <string>$Tracks.pt()&gt;1</string>
-  </config>
-  <config name="EventFilter0_comment" version="0">
-    <string></string>
-  </config>
-  <config name="EventFilter1_enabled" version="0">
-    <string>0</string>
-  </config>
-  <config name="EventFilter1_selection" version="0">
-    <string>$Jets.pt()&gt;100</string>
-  </config>
-  <config name="EventFilter1_comment" version="0">
-    <string></string>
-  </config>
-  <config name="EventFilter2_enabled" version="0">
-    <string>0</string>
-  </config>
-  <config name="EventFilter2_selection" version="0">
-    <string>HLT_Mu9</string>
-  </config>
-  <config name="EventFilter2_comment" version="0">
-    <string></string>
-  </config>
-  <config name="EventFilter_total" version="0">
-    <string>3</string>
+  <config name="EventFilters" version="1">
+   <config name="------Filter[0]------" version="1">
+    <config name="expression" version="0">
+      <string>$Tracks.pt()&gt;1</string>
+    </config>
+    <config name="enabled" version="0">
+      <string>1</string>
+    </config>
+    <config name="comment" version="0">
+      <string></string>
+    </config>
+   </config>
+   <config name="------Filter[1]------" version="1">
+    <config name="expression" version="0">
+      <string>$Jets.pt()&gt;100</string>
+    </config>
+    <config name="enabled" version="0">
+      <string>0</string>
+    </config>
+    <config name="comment" version="0">
+      <string></string>
+    </config>
+   </config>
+   <config name="------Filter[2]------" version="1">
+    <config name="expression" version="0">
+      <string>HLT_Mu9</string>
+    </config>
+    <config name="enabled" version="0">
+      <string>0</string>
+    </config>
+    <config name="comment" version="0">
+      <string></string>
+    </config>
+    <config name="triggerProcess" version="0">
+      <string>HLT</string>
+    </config>
+   </config>
   </config>
   <config name="EventFilter_enabled" version="0">
     <string>0</string>

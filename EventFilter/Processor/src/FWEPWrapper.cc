@@ -639,13 +639,17 @@ namespace evf{
     xdata::Table::iterator it = scalersComplete_.begin();
     try{
       xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
-      xdata::Serializable *psid = applicationInfoSpace_->find("prescaleSetIndex");
+      xdata::Serializable *psid = applicationInfoSpace_->find("lastLumiPrescaleIndex");
+      xdata::Serializable *fpsid = applicationInfoSpace_->find("prescaleSetIndex");
       if(psid) {
 	ps = ((xdata::UnsignedInteger32*)(psid))->value_;
 	if(prescaleSvc_ != 0) prescaleSvc_->setIndex(ps);
 	it->setField("psid",*psid);
       }
-
+      if(fpsid) {
+	psid_ = ((xdata::UnsignedInteger32*)(fpsid))->value_;
+	if(prescaleSvc_ != 0) prescaleSvc_->setIndex(psid_);
+      }
       if(lsid) {
 	ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
 	localLsIncludingTimeOuts_.value_ = ls;
@@ -1152,7 +1156,6 @@ namespace evf{
     lsTriplet lst;
     lst.ls = tr->lumiSection;
     lsid_ = tr->lumiSection;
-    psid_ = tr->prescaleIndex;
     lst.proc = tr->eventSummary.totalEvents;
     lst.acc = tr->eventSummary.totalEventsPassed;
     xdata::Serializable *psid = 0;
@@ -1165,10 +1168,11 @@ namespace evf{
 	lsp = ((xdata::UnsignedInteger32*)lsid); 
 	lsp->value_= tr->lumiSection;
       }
-      psid = applicationInfoSpace_->find("prescaleSetIndex");
+      psid = applicationInfoSpace_->find("lastLumiPrescaleIndex");
       if(psid!=0) {
 	psp = ((xdata::UnsignedInteger32*)psid);
-	psp->value_ = tr->prescaleIndex;
+	if(tr->eventSummary.totalEvents != 0)
+	  psp->value_ = tr->prescaleIndex;
       }
       nbs  = applicationInfoSpace_->find("nbSubProcesses");
       nbsr = applicationInfoSpace_->find("nbSubProcessesReporting");
