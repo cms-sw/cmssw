@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V67 (CMSSW_3_11_0_HLT12)
+# /dev/CMSSW_3_11_1/GRun/V68 (CMSSW_3_11_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V67')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V68')
 )
 
 process.streams = cms.PSet( 
@@ -2496,6 +2496,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "AlCa_RPCMuonNormalisation_v2" ),
         prescales = cms.vuint32( 30, 10, 3, 1, 1, 1 )
+      ),
+      cms.PSet(  pathName = cms.string( "DQM_FEDIntegrity_v3" ),
+        prescales = cms.vuint32( 10, 10, 10, 10, 10, 10 )
       ),
       cms.PSet(  pathName = cms.string( "HLTDQMResultsOutput" ),
         prescales = cms.vuint32( 10, 10, 10, 10, 10, 10 )
