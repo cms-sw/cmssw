@@ -107,7 +107,35 @@ public:
 
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
-  TempTrajectory(TempTrajectory && rh) : 
+
+  TempTrajectory(TempTrajectory const & rh) : 
+    theData(rh.theData),
+    theChiSquared(rh.theChiSquared), theValid(rh.theValid),
+    theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
+    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
+    theSeed(rh.theSeed)
+  {}
+
+  
+  TempTrajectory & operator=(TempTrajectory const & rh) {
+    DataContainer aData(rh.theData);
+    using std::swap;
+    swap(theData,aData);
+
+    theChiSquared=rh.theChiSquared;
+    theValid=rh.theValid;
+    theNumberOfFoundHits=rh.theNumberOfFoundHits;
+    theNumberOfLostHits=rh.theNumberOfLostHits;
+    theDirection=rh.theDirection; 
+    theDirectionValidity=rh.theDirectionValidity;
+    theSeed = rh.theSeed;
+ 
+    return *this;
+
+  }
+  
+
+  TempTrajectory(TempTrajectory && rh) :
     theData(std::move(rh.theData)),
     theChiSquared(rh.theChiSquared), theValid(rh.theValid),
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
@@ -122,13 +150,14 @@ public:
     theValid=rh.theValid;
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
-    theDirection=rh.theDirection; 
+    theDirection=rh.theDirection;
     theDirectionValidity=rh.theDirectionValidity;
     swap(theSeed,rh.theSeed);
- 
+
     return *this;
 
   }
+
 
 #endif
 
