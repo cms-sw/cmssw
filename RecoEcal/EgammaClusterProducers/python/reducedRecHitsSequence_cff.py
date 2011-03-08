@@ -8,6 +8,14 @@ interestingEcalDetIdEB = cms.EDProducer("InterestingDetIdCollectionProducer",
     phiSize = cms.int32(5)
 )
 
+interestingEcalDetIdEBU = cms.EDProducer("InterestingDetIdCollectionProducer",
+    basicClustersLabel = cms.InputTag("hybridSuperClusters","uncleanOnlyHybridBarrelBasicClusters"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    etaSize = cms.int32(5),
+    interestingDetIdCollection = cms.string(''),
+    phiSize = cms.int32(5)
+)
+
 interestingEcalDetIdEE = cms.EDProducer("InterestingDetIdCollectionProducer",
     basicClustersLabel = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
@@ -32,6 +40,7 @@ reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
     interestingDetIdCollections = cms.VInputTag(
             # ecal
             cms.InputTag("interestingEcalDetIdEB"),
+            cms.InputTag("interestingEcalDetIdEBU"),
             # egamma
             cms.InputTag("interestingEleIsoDetIdEB"),
             cms.InputTag("interestingGamIsoDetIdEB"),
@@ -71,4 +80,4 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
 #selected digis
 from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 
-reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEE*interestingTrackEcalDetIds*reducedEcalRecHitsEB*reducedEcalRecHitsEE*seldigis)
+reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*interestingEcalDetIdEE*interestingTrackEcalDetIds*reducedEcalRecHitsEB*reducedEcalRecHitsEE*seldigis)
