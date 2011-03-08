@@ -1,6 +1,6 @@
 /* Implementation of class EcalCleaningAlgo
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.cc,v 1.5 2011/03/02 20:58:59 argiro Exp $
+   \version $Id: EcalCleaningAlgo.cc,v 1.6 2011/03/08 08:55:41 argiro Exp $
    \date 20 Dec 2010
 */    
 
@@ -100,8 +100,9 @@ EcalCleaningAlgo::checkTopology(const DetId& id,
   e4e1thresh = a* log10(energy) + b;
 
   // near cracks the cut is tighter by a factor 
-  if (id.subdetId() == EcalBarrel && isNearCrack(id)) 
+  if (isNearCrack(id)) {
     e4e1thresh/=tightenCrack_e4e1_single_;
+  }
 
   // identify spike
   if (e4e1value < e4e1thresh) return EcalRecHit::kWeird; 
