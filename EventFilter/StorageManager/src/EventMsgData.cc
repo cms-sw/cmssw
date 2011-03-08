@@ -1,4 +1,4 @@
-// $Id: EventMsgData.cc,v 1.8 2011/03/07 14:54:51 mommsen Exp $
+// $Id: EventMsgData.cc,v 1.9 2011/03/07 15:31:32 mommsen Exp $
 /// @file: EventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -105,6 +105,21 @@ namespace stor
       if (! headerFieldsCached_) {cacheHeaderFields();}
       bitList = hltTriggerBits_;
     }
+
+    unsigned int
+    EventMsgData::do_droppedEventsCount() const
+    {
+      if ( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "The dropped events count cannot be determined from a ";
+        msg << "faulty or incomplete Event message.";
+        XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
+      }
+
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return droppedEventsCount_;
+     }
 
     void
     EventMsgData::do_addDroppedEventsCount(unsigned int count)
@@ -263,6 +278,7 @@ namespace stor
       lumiSection_ = msgView->lumi();
       eventNumber_ = msgView->event();
       adler32_ = msgView->adler32_chksum();
+      droppedEventsCount_ = msgView->droppedEventsCount();
 
       headerFieldsCached_ = true;
 

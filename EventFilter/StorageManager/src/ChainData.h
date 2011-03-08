@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.15 2011/03/07 14:54:51 mommsen Exp $
+// $Id: ChainData.h,v 1.16 2011/03/07 15:31:32 mommsen Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H
@@ -89,6 +89,7 @@ namespace stor
       void resetStaleWindowStartTime() {
         staleWindowStartTime_ = utils::getCurrentTime();
       }
+      unsigned int droppedEventsCount() const;
       void addDroppedEventsCount(unsigned int);
       size_t memoryUsed() const;
       unsigned long totalDataSize() const;
@@ -201,6 +202,7 @@ namespace stor
       virtual void do_hltTriggerNames(Strings& nameList) const;
       virtual void do_hltTriggerSelections(Strings& nameList) const;
       virtual void do_l1TriggerNames(Strings& nameList) const;
+      virtual unsigned int do_droppedEventsCount() const;
       virtual void do_addDroppedEventsCount(unsigned int);
 
       virtual std::string do_topFolderName() const;
@@ -291,6 +293,7 @@ namespace stor
       uint32_t do_lumiSection() const;
       uint32_t do_eventNumber() const;
 
+      unsigned int do_droppedEventsCount() const;
       void do_addDroppedEventsCount(unsigned int);
 
     private:
@@ -309,6 +312,7 @@ namespace stor
       mutable uint32_t lumiSection_;
       mutable uint32_t eventNumber_;
       mutable uint32_t adler32_;
+      mutable unsigned int droppedEventsCount_;
 
     }; // EventMsgData
 
