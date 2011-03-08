@@ -1,13 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 
-from RecoJets.JetPlusTracks.JetPlusTrackCorrections_cfi import *
-JPTZSPCorrectorICone5.ResponseMap   = 'CondFormats/JetMETObjects/data/CMSSW_362_resptowers.txt'
-JPTZSPCorrectorICone5.UseEfficiency = cms.bool(False)
-
 from RecoJets.JetPlusTracks.JetPlusTrackCorrections_cff import *
 TCTauJetPlusTrackZSPCorJetAntiKt5 = copy.deepcopy(JetPlusTrackZSPCorJetAntiKt5)
 TCTauJetPlusTrackZSPCorJetAntiKt5.UseZSP = cms.bool(False)
+TCTauJetPlusTrackZSPCorJetAntiKt5.ResponseMap   = 'CondFormats/JetMETObjects/data/CMSSW_362_resptowers.txt'
+TCTauJetPlusTrackZSPCorJetAntiKt5.UseEfficiency = cms.bool(False)
 
 from RecoTauTag.RecoTau.CaloRecoTauTagInfoProducer_cfi import *
 from RecoTauTag.RecoTau.CaloRecoTauProducer_cfi import *
