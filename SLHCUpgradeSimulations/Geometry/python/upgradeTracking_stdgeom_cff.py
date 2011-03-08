@@ -120,6 +120,8 @@ fourthPLSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 fifthSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 
 # avoid 'number of triples exceed maximum'
+pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
+newSeedFromTriplets.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
 stepOneSeedFromTriplets.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
 secTriplets.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
 thTripletsA.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
