@@ -766,6 +766,9 @@ namespace lumi{
     TriggerNameResult_Algo::iterator bitnameItBeg=algonames.begin();
     TriggerNameResult_Algo::iterator bitnameItEnd=algonames.end();
     for (bitnameIt=bitnameItBeg;bitnameIt!=bitnameItEnd;++bitnameIt){
+      if(bitnameIt!=bitnameItBeg){
+	bitnames+=std::string(",");
+      }
       bitnames+=*bitnameIt;
     }
     TriggerNameResult_Tech::iterator techbitnameIt;
