@@ -117,10 +117,10 @@ _leadPionPrediscriminant = cms.PSet(
 )
 
 # Build the HPS selection discriminator
-hpsTancTausDiscriminationByDecayModeSelection = hpsSelectionDiscriminator.clone(
-    PFTauProducer = cms.InputTag("hpsTancTaus"),
-    minTauPt = cms.double(5)
-)
+hpsTancTausDiscriminationByDecayModeSelection = \
+        combinatoricRecoTausHPSSelector.clone(
+            PFTauProducer = cms.InputTag("hpsTancTaus"),
+        )
 
 from RecoTauTag.Configuration.HPSPFTaus_cfi import requireDecayMode,\
         hpsPFTauDiscriminationByVLooseIsolation,\
