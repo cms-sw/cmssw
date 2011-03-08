@@ -367,16 +367,12 @@ LMFCorrCoefDat::getCorrections(const Tm &t, int max) {
     }
     max = MAX_NUMBER_OF_SEQUENCES_TO_FETCH;
   }
-  // we must define some criteria to select the right rows (REMOVE 
-  // CONSTRAINT T1>2002)
+  // we must define some criteria to select the right rows 
   std::map<int, std::map<int, LMFSextuple> > ret;
   std::string sql = "SELECT * FROM (SELECT LOGIC_ID, T1, T2, T3, P1, P2, P3, "
-    "LMF_SEQ_DAT.SEQ_ID SEQ_ID FROM " 
-    "LMF_CORR_COEF_DAT JOIN LMF_LMR_SUB_IOV ON "  
+    "SEQ_ID FROM LMF_LMR_SUB_IOV JOIN LMF_CORR_COEF_DAT ON "  
     "LMF_CORR_COEF_DAT.LMR_SUB_IOV_ID = LMF_LMR_SUB_IOV.LMR_SUB_IOV_ID "
-    "JOIN LMF_SEQ_DAT ON LMF_CORR_COEF_DAT.SEQ_ID = LMF_SEQ_DAT.SEQ_ID "
-    "WHERE T1 > :1 "
-    "ORDER BY T1, LOGIC_ID) WHERE ROWNUM <= :2";
+    "WHERE T1 > :1 ORDER BY T1) WHERE ROWNUM <= :2";
   try {
     DateHandler dh(m_env, m_conn);
     oracle::occi::Statement * stmt = m_conn->createStatement();
@@ -387,7 +383,9 @@ LMFCorrCoefDat::getCorrections(const Tm &t, int max) {
     stmt->setPrefetchRowCount(toFetch);
     if (m_debug) {
       std::cout << "[LMFCorrCoefDat::getCorrections] executing query" 
-		<< std::endl << sql << std::endl << std::flush;
+		<< std::endl << sql << std::endl 
+		<< "Prefetching " << toFetch << " rows " 
+		<< std::endl << std::flush;
     }
     oracle::occi::ResultSet *rset = stmt->executeQuery();
     if (m_debug) {
@@ -429,6 +427,7 @@ LMFCorrCoefDat::getCorrections(const Tm &t, int max) {
       }
       for (int i = 0; i <3; i++) {
 	s.p[i] = rset->getDouble(i + 5);
+	// TODO: NEED TO CHECK VALUES!!!!!!!!!!!
       }
       theMap[logic_id] = s;
       // verify that the sequence of time is correct
