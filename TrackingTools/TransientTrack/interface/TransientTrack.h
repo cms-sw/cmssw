@@ -25,7 +25,35 @@ namespace reco {
   public:
 
     // constructor from persistent track
-    TransientTrack(); 
+    TransientTrack() {}
+
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+
+    TransientTrack(TransientTrack const & rh) :
+      Base(rh){}
+    
+    
+    TransientTrack(TransientTrack && rh) :
+      Base(std::forward<Base>(rh)){}
+    
+    TransientTrack & operator=(TransientTrack && rh) {
+      Base::swap(rh);
+      return *this;
+    }
+    
+    TransientTrack & operator=(TransientTrack const & rh) {
+      Base::operator=(rh);
+      return *this;
+    }
+    
+    
+#endif
+    
+    void swap(TransientTrack & rh) {
+      Base::swap(rh);
+    }
+
+
     TransientTrack( const Track & tk , const MagneticField* field); 
     TransientTrack( const TrackRef & tk , const MagneticField* field); 
 
