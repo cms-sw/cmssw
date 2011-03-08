@@ -24,6 +24,7 @@ def createTables(schema):
             revisionsTab.insertColumn( 'COMMENT', 'string')
             revisionsTab.insertColumn( 'CTIME', 'time stamp',6)
             revisionsTab.setPrimaryKey( 'REVISION_ID' )
+            revisionsTab.setUniqueConstraint(('NAME'))
             db.createTable(revisionsTab,withIdTable=True)
             created.append(nameDealer.revisionTableName())
             
