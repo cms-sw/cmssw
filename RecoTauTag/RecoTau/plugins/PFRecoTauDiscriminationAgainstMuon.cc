@@ -9,6 +9,10 @@
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
+
 #include <string>
 
 using namespace reco;
@@ -65,6 +69,10 @@ double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTau
          if(fabs(muonref->eta()) > 2.3 || (fabs(muonref->eta()) > 1.4 && fabs(muonref->eta()) < 1.6)) eta_veto = true;
          if(muonref->phi() < 0.1 && muonref->phi() > -0.1) phi_veto = true;
          if( muType != 1 || muonref ->numberOfMatches() > 0 || eta_veto || phi_veto || muonEnergyFraction > 0.9 ) decision = false; // as place holder
+      }
+      else if (discriminatorOption_ == "noAllArbitrated") { // One used in H->tautau 2010
+	if(muon::isGoodMuon(*muonref,muon::AllArbitrated))
+	  decision = false;
       }
       else{
          throw edm::Exception(edm::errors::UnimplementedFeature) << " Invalid Discriminator Option! Please check cfi file \n";

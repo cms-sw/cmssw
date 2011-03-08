@@ -42,7 +42,14 @@ pfRecoTauDiscriminationAgainstElectron = cms.EDProducer("PFRecoTauDiscrimination
     ApplyCut_PFElectronMVA = cms.bool(True),
     PFElectronMVA_maxValue = cms.double(-0.1),
 
-    ApplyCut_EcalCrackCut = cms.bool(False)
+    ApplyCut_EcalCrackCut = cms.bool(False),
+
+   ApplyCut_BremCombined = cms.bool(False),
+   BremCombined_Fraction  = cms.double(0.99),
+   BremCombined_HOP       = cms.double(0.1),
+   BremCombined_Mass      = cms.double(0.55),
+   BremCombined_StripSize = cms.double(0.03)
+
 
 )
 

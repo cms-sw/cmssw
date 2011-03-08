@@ -43,7 +43,16 @@ class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProduce
          applyCut_PFElectronMVA_           = iConfig.getParameter<bool>("ApplyCut_PFElectronMVA");
          pfelectronMVA_maxValue_           = iConfig.getParameter<double>("PFElectronMVA_maxValue");
 
+	 
+
          applyCut_ecalCrack_               = iConfig.getParameter<bool>("ApplyCut_EcalCrackCut");
+
+         applyCut_bremCombined_            = iConfig.getParameter<bool>("ApplyCut_BremCombined");
+         bremCombined_fraction_            = iConfig.getParameter<double>("BremCombined_Fraction");
+         bremCombined_maxHOP_              = iConfig.getParameter<double>("BremCombined_HOP"); 
+         bremCombined_minMass_             = iConfig.getParameter<double>("BremCombined_Mass");
+         bremCombined_stripSize_           = iConfig.getParameter<double>("BremCombined_StripSize");
+
       }
 
       double discriminate(const PFTauRef& pfTau);
@@ -80,12 +89,24 @@ class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProduce
       bool applyCut_PFElectronMVA_;
       double pfelectronMVA_maxValue_; 
       bool applyCut_ecalCrack_;
+  
+      bool   applyCut_bremCombined_;
+      double bremCombined_fraction_;
+      double bremCombined_maxHOP_;
+      double bremCombined_minMass_;
+      double bremCombined_stripSize_;
+
+
 
 };
 
 double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& thePFTauRef)
 {
+
+
+
     // ensure tau has at least one charged object
+
     if( (*thePFTauRef).leadPFChargedHadrCand().isNull() )
     {
        return 0.;
@@ -95,7 +116,6 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
        TrackRef myleadTk;
        myleadTk=(*thePFTauRef).leadPFChargedHadrCand()->trackRef();
        math::XYZPointF myleadTkEcalPos = (*thePFTauRef).leadPFChargedHadrCand()->positionAtECALEntrance();
-
        if(myleadTk.isNonnull())
        { 
           if (applyCut_ecalCrack_ && isInEcalCrack(myleadTkEcalPos.eta())) 
@@ -109,7 +129,7 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
     bool emfPass = true, htotPass = true, hmaxPass = true; 
     bool h3x3Pass = true, estripPass = true, erecovPass = true;
     bool epreidPass = true, epreid2DPass = true;
-    bool mvaPass = true;
+    bool mvaPass = true, bremCombinedPass = true;
 
     if (applyCut_emFraction_) {
       if ((*thePFTauRef).emFraction() > emFraction_maxValue_) {
@@ -176,9 +196,32 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
 	mvaPass = false;
       }  
     }
+    if (applyCut_bremCombined_) {
+      if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().size()==0) {
+	if(thePFTauRef->leadPFChargedHadrCand()->hcalEnergy()/thePFTauRef->leadPFChargedHadrCand()->trackRef()->p()>bremCombined_maxHOP_)
+	  bremCombinedPass = false;
+      }
+      else if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().size()>0) {
+	//calculate the brem ratio energy 
+	float bremEnergy=0.;
+	float emEnergy=0.;
+	for(unsigned int Nc = 0 ;Nc < thePFTauRef->signalPFGammaCands().size();++Nc) 
+	  {
+	    PFCandidateRef cand = thePFTauRef->signalPFGammaCands().at(Nc);
+	    if(fabs(thePFTauRef->leadPFChargedHadrCand()->trackRef()->eta()-cand->eta())<bremCombined_stripSize_)
+	      bremEnergy+=cand->energy();
+	    emEnergy+=cand->energy();
+
+	    if(bremEnergy/emEnergy>bremCombined_fraction_&&thePFTauRef->mass()<bremCombined_minMass_)
+	      bremCombinedPass = false;
+	  }
+	  
+
+      }
+    }
 
     decision = emfPass && htotPass && hmaxPass && 
-      h3x3Pass && estripPass && erecovPass && epreidPass && epreid2DPass && mvaPass;
+      h3x3Pass && estripPass && erecovPass && epreidPass && epreid2DPass && mvaPass &&bremCombinedPass;
 
     return (decision ? 1. : 0.);
 }

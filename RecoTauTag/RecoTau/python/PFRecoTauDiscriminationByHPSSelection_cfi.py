@@ -7,8 +7,8 @@ hpsSelectionDiscriminator = cms.EDProducer(
     PFTauProducer = cms.InputTag('combinatoricRecoTaus'),
     Prediscriminants = noPrediscriminants,
     matchingCone = cms.double(0.1),
-    minTauPt = cms.double(15.),
-    coneSizeFormula = cms.string("max(min(0.1, 2.8/et()),0.05)"),
+    minTauPt = cms.double(0.0),
+    coneSizeFormula = cms.string("max(min(0.5, 2.8/pt()),0.05)"),
     decayModes = cms.VPSet(
         cms.PSet(
             nCharged = cms.uint32(1),
@@ -34,7 +34,7 @@ hpsSelectionDiscriminator = cms.EDProducer(
             minPi0Mass = cms.double(0.05),
             maxPi0Mass = cms.double(0.2),
             # Here the strips are assumed to correspond to photons
-            assumeStripMass = cms.double(0.1349),
+            assumeStripMass = cms.double(0.0),
         ),
         cms.PSet(
             nCharged = cms.uint32(3),
