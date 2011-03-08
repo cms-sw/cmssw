@@ -202,6 +202,11 @@ process.ele_sequence = cms.Sequence(
 ##     |_| \___/\/_|     |_|   \__,_|_|_|  |___/
 ##                                              
 ##   
+import copy
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+process.ZEEHltFilter = copy.deepcopy(hltHighLevel)
+process.ZEEHltFilter.throw = cms.bool(False)
+process.ZEEHltFilter.HLTPaths = ["HLT_Ele*"]
 
 process.tagPhoton = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("Tag goodPhotons"), # charge coniugate states are implied
@@ -213,7 +218,7 @@ process.tagPhotonCounter = cms.EDFilter("CandViewCountFilter",
                                     minNumber = cms.uint32(1)
                                     )
 process.tagPhotonFilter = cms.Sequence(process.tagPhoton * process.tagPhotonCounter)
-process.tagPhotonPath = cms.Path( (process.photon_sequence + process.ele_sequence) * process.tagPhotonFilter )
+process.tagPhotonPath = cms.Path( process.ZEEHltFilter *(process.photon_sequence + process.ele_sequence) * process.tagPhotonFilter )
 
 process.tagTrack = process.tagPhoton.clone()
 process.tagTrack.decay = cms.string("Tag goodTracks")
@@ -221,14 +226,14 @@ process.tagTrack.cut   = cms.string("mass > " + str(MASS_TAGTRACK_CUT_MIN)+ ' &&
 process.tagTrackCounter = process.tagPhotonCounter.clone()
 process.tagTrackCounter.src = cms.InputTag("tagTrack")
 process.tagTrackFilter = cms.Sequence(process.tagTrack * process.tagTrackCounter)
-process.tagTrackPath = cms.Path( (process.track_sequence + process.ele_sequence) * process.tagTrackFilter )
+process.tagTrackPath = cms.Path( process.ZEEHltFilter * (process.track_sequence + process.ele_sequence) * process.tagTrackFilter )
 
 process.tagGsf = process.tagPhoton.clone()
 process.tagGsf.decay = cms.string("Tag goodElectrons")
 process.tagGsfCounter = process.tagPhotonCounter.clone()
 process.tagGsfCounter.src = cms.InputTag("tagGsf")
 process.tagGsfFilter = cms.Sequence(process.tagGsf * process.tagGsfCounter)
-process.tagGsfPath = cms.Path( (process.ele_sequence) * process.tagGsfFilter )  
+process.tagGsfPath = cms.Path( process.ZEEHltFilter * (process.ele_sequence) * process.tagGsfFilter )  
 
 process.outZfilter = cms.OutputModule("PoolOutputModule",
                                        # splitLevel = cms.untracked.int32(0),

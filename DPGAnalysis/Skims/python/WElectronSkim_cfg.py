@@ -177,9 +177,13 @@ process.elecMetCounter = cms.EDFilter("CandViewCountFilter",
                                     )
 process.elecMetFilter = cms.Sequence(process.elecMet * process.elecMetCounter)
 
+import copy
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+process.WEnuHltFilter = copy.deepcopy(hltHighLevel)
+process.WEnuHltFilter.throw = cms.bool(False)
+process.WEnuHltFilter.HLTPaths = ["HLT_Ele*"]
 
-
-process.elecMetPath = cms.Path( (process.ele_sequence) * process.elecMetFilter )
+process.elecMetPath = cms.Path( process.WEnuHltFilter * (process.ele_sequence) * process.elecMetFilter )
 
 process.outWfilter = cms.OutputModule("PoolOutputModule",
                                        # splitLevel = cms.untracked.int32(0),
