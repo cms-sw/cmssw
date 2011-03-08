@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HLT_fix3/V260 (CMSSW_3_11_0_HLT12)
+# /dev/CMSSW_3_11_1/HLT_fix3/V262 (CMSSW_3_11_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V260')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V262')
 )
 
 streams = cms.PSet( 
@@ -103,11 +103,9 @@ datasets = cms.PSet(
     'HLT_L1SingleMuOpen_DT_v1',
     'HLT_L1TrackerCosmics_v2',
     'HLT_Random_v1' ),
-  ExpressPhysics = cms.vstring( 'HLT_Ele45_CaloIdVT_TrkIdT_v1',
-    'HLT_L1SingleMuOpen_DT_v1',
+  ExpressPhysics = cms.vstring( 'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1',
     'HLT_L1Tech_BSC_minBias_OR_v1',
-    'HLT_Mu24_v1',
-    'HLT_Physics_v1',
+    'HLT_Mu15_v2',
     'HLT_ZeroBias_v1' ),
   FEDMonitor = cms.vstring( 'HLT_DTErrors_v1' ),
   ForwardTriggers = cms.vstring( 'HLT_L1Tech_CASTOR_HaloMuon_v1' ),

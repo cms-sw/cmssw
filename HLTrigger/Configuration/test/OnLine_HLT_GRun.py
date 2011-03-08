@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V65 (CMSSW_3_11_0_HLT12)
+# /dev/CMSSW_3_11_1/GRun/V66 (CMSSW_3_11_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V65')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V66')
 )
 
 process.streams = cms.PSet( 
@@ -104,11 +104,9 @@ process.datasets = cms.PSet(
     'HLT_L1SingleMuOpen_DT_v1',
     'HLT_L1TrackerCosmics_v2',
     'HLT_Random_v1' ),
-  ExpressPhysics = cms.vstring( 'HLT_Ele45_CaloIdVT_TrkIdT_v1',
-    'HLT_L1SingleMuOpen_DT_v1',
+  ExpressPhysics = cms.vstring( 'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1',
     'HLT_L1Tech_BSC_minBias_OR_v1',
-    'HLT_Mu24_v1',
-    'HLT_Physics_v1',
+    'HLT_Mu15_v2',
     'HLT_ZeroBias_v1' ),
   FEDMonitor = cms.vstring( 'HLT_DTErrors_v1' ),
   ForwardTriggers = cms.vstring(  ),
@@ -17627,11 +17625,9 @@ process.hltPreExpressOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
-    triggerConditions = cms.vstring( 'HLT_L1SingleMuOpen_DT_v1',
-      'HLT_L1Tech_BSC_minBias_OR_v1 / 4',
-      'HLT_Ele45_CaloIdVT_TrkIdT_v1',
-      'HLT_Mu24_v1',
-      'HLT_Physics_v1 / 100',
+    triggerConditions = cms.vstring( 'HLT_L1Tech_BSC_minBias_OR_v1 / 4',
+      'HLT_Mu15_v2',
+      'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1',
       'HLT_ZeroBias_v1 / 8' ),
     hltResults = cms.InputTag( "TriggerResults" ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
@@ -18557,11 +18553,9 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
 process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputExpress.root" ),
     fastCloning = cms.untracked.bool( False ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Ele45_CaloIdVT_TrkIdT_v1',
-  'HLT_L1SingleMuOpen_DT_v1',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1',
   'HLT_L1Tech_BSC_minBias_OR_v1',
-  'HLT_Mu24_v1',
-  'HLT_Physics_v1',
+  'HLT_Mu15_v2',
   'HLT_ZeroBias_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltL1GtObjectMap_*_*',
