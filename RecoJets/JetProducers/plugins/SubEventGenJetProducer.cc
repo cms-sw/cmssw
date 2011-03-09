@@ -51,7 +51,7 @@ void SubEventGenJetProducer::inputTowers( )
       inEnd = inputs_.end(), i = inBegin;
    for (; i != inEnd; ++i ) {
       reco::CandidatePtr input = inputs_[i - inBegin];
-      if (isnan(input->pt()))           continue;
+      if (std::isnan(input->pt()))           continue;
       if (input->et()    <inputEtMin_)  continue;
       if (input->energy()<inputEMin_)   continue;
       if (isAnomalousTower(input))      continue;
