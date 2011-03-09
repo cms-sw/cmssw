@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.TauTagTools.PFTauSelector_cfi  import pfTauSelector
 
+from CommonTools.ParticleFlow.pfJets_cff import pfJets
+
 ''' 
 
 pfTaus_cff
@@ -50,6 +52,19 @@ pfJetTracksAssociatorAtVertex = cms.EDProducer(
     j2tParametersVX,
     jets = cms.InputTag("pfJets")
     )
+shrinkingConePFTauProducer.jetSrc = pfJetTracksAssociatorAtVertex.jets
+# is it correct collection w/o good leptons
+shrinkingConePFTauProducer.builders[0].pfCandSrc = pfJets.src
+
+# PiZeroProducers
+pfJetsLegacyTaNCPiZeros = ak5PFJetsLegacyTaNCPiZeros.clone()
+pfJetsLegacyTaNCPiZeros.jetSrc = pfJetTracksAssociatorAtVertex.jets
+pfTauPFJets08Region = recoTauAK5PFJets08Region.clone()
+pfTauPFJets08Region.src = pfJetTracksAssociatorAtVertex.jets
+pfTauPFJets08Region.pfSrc = pfJets.src
+pfJetsLegacyTaNCPiZeros.jetRegionSrc = 'pfTauPFJets08Region'
+shrinkingConePFTauProducer.piZeroSrc = "pfJetsLegacyTaNCPiZeros"
+shrinkingConePFTauProducer.jetRegionSrc = pfJetsLegacyTaNCPiZeros.jetRegionSrc
 
 # Select taus from given collection that pass cloned discriminants
 pfTaus = pfTauSelector.clone()
@@ -59,12 +74,14 @@ pfTaus.discriminators = cms.VPSet(
     cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByIsolation"),selectionCut=cms.double(0.5) )
     )
 
-pfRecoTauTagInfoProducer.PFCandidateProducer = 'pfNoElectron'
+pfRecoTauTagInfoProducer.PFCandidateProducer = pfJets.src
 pfRecoTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 pfTauSequence = cms.Sequence(
     pfJetTracksAssociatorAtVertex + 
     pfRecoTauTagInfoProducer + 
+    pfTauPFJets08Region +
+    pfJetsLegacyTaNCPiZeros +
     pfTausBaseSequence + 
     pfTaus 
     )
