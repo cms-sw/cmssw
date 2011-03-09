@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.22 2010/12/03 15:39:21 amraktad Exp $
+// $Id: FWTableWidget.cc,v 1.23 2011/03/07 13:13:51 amraktad Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ static const UInt_t kColOptions = kLHintsExpandY|kLHintsFillY|kLHintsShrinkY;
 FWTableWidget::FWTableWidget(FWTableManagerBase* iManager,const TGWindow* p):
 TGCompositeFrame(p),
    m_bodyTable(iManager),
-   m_headerTable(iManager->numberOfColumns()?new FWAdapterHeaderTableManager(iManager): static_cast<FWTableManagerBase*>(0)),
+   m_headerTable(iManager->hasLabelHeaders()?new FWAdapterHeaderTableManager(iManager): static_cast<FWTableManagerBase*>(0)),
    m_rowHeaderTable(iManager->hasRowHeaders()?new FWAdapterRowHeaderTableManager(iManager): static_cast<FWTableManagerBase*>(0)),
    m_header(0),
    m_rowHeader(0),

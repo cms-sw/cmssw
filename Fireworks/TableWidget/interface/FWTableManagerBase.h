@@ -28,7 +28,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTableManagerBase.h,v 1.5 2011/02/11 19:56:36 amraktad Exp $
+// $Id: FWTableManagerBase.h,v 1.6 2011/03/07 13:13:51 amraktad Exp $
 //
 
 // system include files
@@ -74,6 +74,8 @@ class FWTableManagerBase : public TQObject
       ///for each column in the table this returns the present maximum width for that column
       virtual std::vector<unsigned int> maxWidthForColumns() const;
 
+       virtual bool hasLabelHeaders() const ;
+    
       ///Returns 'true' if this table has row headers. Defaults return value is false.
       virtual bool hasRowHeaders() const ;
       ///Returns the renderer for the row header for the sorted row number iSortedRowNumber
