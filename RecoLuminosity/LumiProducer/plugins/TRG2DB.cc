@@ -4,7 +4,6 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Blob.h"
-#include "CoralBase/Blob.h"
 #include "CoralBase/Exception.h"
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
