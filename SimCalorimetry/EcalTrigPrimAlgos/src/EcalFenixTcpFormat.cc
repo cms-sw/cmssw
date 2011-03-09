@@ -106,7 +106,7 @@ void EcalFenixTcpFormat::setParameters(uint32_t towid,const EcalTPGLutGroup *eca
   }
 
   const EcalTPGGroups::EcalTPGGroupsMap & groupmap = ecaltpgLutGroup -> getMap();
-  EcalTPGGroups::EcalTPGG1roupsMapItr it=groupmap.find(towid);
+  EcalTPGGroups::EcalTPGGroupsMapItr it=groupmap.find(towid);
   if (it!=groupmap.end()) {
     uint32_t lutid=(*it).second;
     const EcalTPGLutIdMap::EcalTPGLutMap &lutmap = ecaltpgLut-> getMap();
