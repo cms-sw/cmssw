@@ -372,6 +372,29 @@ bool isHTX_MHTXTrigger(TString triggerName, vector<double> &thresholds)
       return false;
 }
 
+bool isAlphaTTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+  TString pattern = "(OpenHLT_Jet([0-9]+)_HT([0-9]+)_B([0-9]+))$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double JetThreshold = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double HtThreshold = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double BetaThreshold = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      thresholds.push_back(JetThreshold);
+      thresholds.push_back(HtThreshold);
+      thresholds.push_back(BetaThreshold);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+
 bool isDoubleJetXU_ForwardBackwardTrigger(
       TString triggerName,
       vector<double> &thresholds)
@@ -12577,6 +12600,40 @@ int OHltTree::OpenHltSumHTPassed(
    return rc;
 }
 
+int OHltTree::OpenHltHT_AlphaT(double HT,double betaT, double Jet){
+  int rc = 0;
+  double ht = 0.;
+  double mhtx = 0., mhty = 0.;
+  int nJets = 0;
+  double dht = 0.;
+  if(betaT < 10.){betaT /= 10.;}
+  if(betaT >10.){betaT /= 100.;}
+  // cout << "Beta Value is " << betaT << endl;
+  for (int i=0; i<NrecoJetCorCal; i++){
+    double mHT = 0.;
+    double aT = 0.;
+    if(recoJetCorCalEta[i] < 3.0 && (recoJetCorCalE[i]/cosh(recoJetCorCalEta[i])) > Jet ){ // Make ht and mHT for each jet in loop
+      ht += (recoJetCorCalE[i]/cosh(recoJetCorCalEta[i])); // HT
+      mhtx-=((recoJetCorCalE[i]/cosh(recoJetCorCalEta[i]))*cos(recoJetCorCalPhi[i]));
+      mhty-=((recoJetCorCalE[i]/cosh(recoJetCorCalEta[i]))*sin(recoJetCorCalPhi[i]));
+      mHT = sqrt(mhty*mhty + mhtx*mhtx); // Make MHT
+      nJets++;
+      dht += ( nJets < 2 ? (recoJetCorCalE[i]/cosh(recoJetCorCalEta[i])) : -1.* (recoJetCorCalE[i]/cosh(recoJetCorCalEta[i])) ); // Ripped from rob for DHT
+  if ( nJets == 2 || nJets == 3 ) {
+    aT = ( ht - fabs(dht) ) / ( 2. * sqrt( ( ht*ht ) - ( mHT*mHT ) ) ); // calc alphaT
+  } else if ( nJets > 3 ) {
+    aT =  ( ht ) / ( 2. * sqrt( ( ht*ht ) - ( mHT*mHT ) ) ); // Calc Beta T if more jets
+  }
+ if(aT > betaT && ht > HT){
+   rc++; // set RC to passed
+   return rc; // return RC if any event passes trigger
+ }
+    }
+  }
+  return rc; // if no pass this returns zero
+}
+
+
 int OHltTree::OpenHlt1PixelTrackPassed(float minpt, float minsep, float miniso)
 {
    int rc = 0;
@@ -13337,6 +13394,8 @@ int OHltTree::OpenHlt1ElectronVbfEleIDPassed(
 
    return rc;
 }
+
+
 
 float OHltTree::deltaPhi(const float& phi1, const float& phi2)
 {

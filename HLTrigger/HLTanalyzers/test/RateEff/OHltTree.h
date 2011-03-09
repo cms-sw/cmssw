@@ -5382,6 +5382,12 @@ public:
          float dphibarrel,
          float dphiendcap);
 
+   int OpenHltHT_AlphaT(
+		double HT, 
+		double Beta , 
+		double Jet);
+
+
    int readRefPrescaleFromFile(TString st);
 
    int OpenL1SetSingleJetBit(const float& thresh);
