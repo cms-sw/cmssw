@@ -8,12 +8,12 @@ namespace coral{
 namespace lumi{
   class RevisionDML{
   public:
-    class Revision{
-    public:
-      Revision():revision_id(0),data_id(0){}
-      unsigned long long revision_id;
-      unsigned long long data_id;
-    };
+    //class Revision{
+    //public:
+    //  Revision():revision_id(0),data_id(0){}
+    //  unsigned long long revision_id;
+    //  unsigned long long data_id;
+    //};
     class Entry{
     public:
       Entry():revision_id(0),entry_id(0),data_id(0),entry_name(""){}
