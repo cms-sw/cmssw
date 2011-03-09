@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.106 2011/02/24 10:02:24 eulisse Exp $
+// $Id: CmsShowNavigator.cc,v 1.107 2011/03/04 21:11:41 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -817,16 +817,18 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
    if (sConf)
    {
       const FWConfiguration::KeyValues* keyVals = sConf->keyValues();
-      for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
-      {
-         const FWConfiguration& conf = (*it).second;
-         FWEventSelector* selector = new FWEventSelector();
-         selector->m_expression   = conf.valueForKey("expression")->value();
-         selector->m_description  = conf.valueForKey("comment")->value();
-         selector->m_enabled      = atoi(conf.valueForKey("enabled")->value().c_str());
-         if (conf.valueForKey("triggerProcess"))
-            selector->m_triggerProcess = conf.valueForKey("triggerProcess")->value();
-         m_selectors.push_back(selector);
+      if (keyVals) {
+         for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
+         {
+            const FWConfiguration& conf = (*it).second;
+            FWEventSelector* selector = new FWEventSelector();
+            selector->m_expression   = conf.valueForKey("expression")->value();
+            selector->m_description  = conf.valueForKey("comment")->value();
+            selector->m_enabled      = atoi(conf.valueForKey("enabled")->value().c_str());
+            if (conf.valueForKey("triggerProcess"))
+               selector->m_triggerProcess = conf.valueForKey("triggerProcess")->value();
+            m_selectors.push_back(selector);
+         }
       }
    }
    else
