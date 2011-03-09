@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # esmodule creating  records + corresponding empty essource
 EcalTrigPrimSpikeESProducer = cms.ESProducer("EcalTrigPrimSpikeESProducer",
-    TCCZeroingThreshold = cms.untracked.uint32(0)
+    TCCZeroingThreshold = cms.untracked.uint32(1023)
 )
 
 tpspikeparms = cms.ESSource("EmptyESSource",
