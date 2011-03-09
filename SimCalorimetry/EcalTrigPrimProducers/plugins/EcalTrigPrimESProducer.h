@@ -22,6 +22,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGLinearizationConstRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGSlidingWindowRcd.h"
@@ -36,6 +37,7 @@
 #include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
 
 #include "zlib.h"
 
@@ -62,7 +64,8 @@ class EcalTrigPrimESProducer : public edm::ESProducer {
   std::auto_ptr<EcalTPGPhysicsConst> producePhysicsConst(const EcalTPGPhysicsConstRcd &) ;
   std::auto_ptr<EcalTPGCrystalStatus> produceBadX(const EcalTPGCrystalStatusRcd &) ;
   std::auto_ptr<EcalTPGTowerStatus> produceBadTT(const EcalTPGTowerStatusRcd &) ;
-  
+  std::auto_ptr<EcalTPGSpike> produceSpike(const EcalTPGSpikeRcd &) ;
+
  private:
 
   void parseTextFile() ;

@@ -64,6 +64,7 @@ class EcalFenixStrip {
   std::vector<int> peak_out_;
   std::vector<int> format_out_;
   std::vector<int> fgvb_out_;
+  std::vector<int> fgvb_out_temp_;
 
   const EcalTPGPedestals * ecaltpPed_;
   const EcalTPGLinearizationConst *ecaltpLin_;
@@ -98,7 +99,7 @@ class EcalFenixStrip {
   //   the second part is slightly different for barrel/endcap
   template <class T> 
   void process(const edm::EventSetup&, std::vector<const T> &, int nrxtals, std::vector<int> & out);
-  void process_part2_barrel(uint32_t stripid,const EcalTPGSlidingWindow * ecaltpgSlidW);
+  void process_part2_barrel(uint32_t stripid,const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE);
 
   void process_part2_endcap(uint32_t stripid, const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE);
 
@@ -127,7 +128,7 @@ class EcalFenixStrip {
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(samples[0].id());
     uint32_t stripid=elId.rawId() & 0xfffffff8;   //from Pascal
     process_part1(samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_,ecaltpgBadX_);//templated part
-    process_part2_barrel(stripid,ecaltpgSlidW_);//part different for barrel/endcap
+    process_part2_barrel(stripid,ecaltpgSlidW_,ecaltpgFgStripEE_);//part different for barrel/endcap
     out=format_out_;
   }
 
@@ -182,7 +183,20 @@ class EcalFenixStrip {
     
 	std::cout<<std::endl;
       }
-  
+ 
+      // Now call the sFGVB - this is common between EB and EE!
+      getFGVB()->setParameters(stripid,ecaltpgFgStripEE_);
+      getFGVB()->process(lin_out_,fgvb_out_temp_);
+
+      if(debug_)
+      {
+        std::cout << "output of strip fgvb is a vector of size: " <<std::dec<<fgvb_out_temp_.size()<<std::endl;
+        for (unsigned int i =0; i<fgvb_out_temp_.size();i++){
+          std::cout << " " << std::dec << (fgvb_out_temp_[i]);
+        }
+        std::cout<<std::endl;
+      }
+ 
       // call adder
       this->getAdder()->process(lin_out_,nrXtals,add_out_);  //add_out is of size SIZEMAX=maxNrSamples
  
@@ -202,7 +216,7 @@ class EcalFenixStrip {
       }else {
 	// call amplitudefilter
 	this->getFilter()->setParameters(stripid,ecaltpgWeightMap,ecaltpgWeightGroup); 
-	this->getFilter()->process(add_out_,filt_out_); 
+	this->getFilter()->process(add_out_,filt_out_,fgvb_out_temp_,fgvb_out_); 
 
 	if(debug_){
 	  std::cout<< "output of filter is a vector of size: "<<std::dec<<filt_out_.size()<<std::endl; 
@@ -210,6 +224,12 @@ class EcalFenixStrip {
 	    std::cout<< "cryst: "<<ix<<"  value : "<<std::dec<<filt_out_[ix]<<std::endl;
 	  }
 	  std::cout<<std::endl;
+
+          std::cout<< "output of sfgvb after filter is a vector of size: "<<std::dec<<fgvb_out_.size()<<std::endl;
+          for (unsigned int ix=0;ix<fgvb_out_.size();ix++){
+            std::cout<< "cryst: "<<ix<<"  value : "<<std::dec<<fgvb_out_[ix]<<std::endl;
+          }
+          std::cout<<std::endl;
 	}
 
 	// call peakfinder

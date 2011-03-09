@@ -7,6 +7,7 @@
 class EcalTPGLutGroup ;
 class EcalTPGLutIdMap;
 class EcalTPGTowerStatus;
+class EcalTPGSpike;
 
 /** 
     \class EcalFenixStripFormat
@@ -24,8 +25,8 @@ class EcalFenixTcpFormat  {
   EcalFenixTcpFormat(bool tccFormat, bool debug, bool famos, int binOfMax); 
   virtual ~EcalFenixTcpFormat();
   virtual std::vector<int> process(std::vector<int>,std::vector<int>) {  std::vector<int> v;return v;}
-  void process(std::vector<int> &Et, std::vector<int> &fgvb,  int eTTotShift, std::vector<EcalTriggerPrimitiveSample> & out, std::vector<EcalTriggerPrimitiveSample> & outTcc, bool isInInnerRings) ;
-  void setParameters(uint32_t towid,const EcalTPGLutGroup *ecaltpgLutGroup,const EcalTPGLutIdMap *ecaltpgLut, const EcalTPGTowerStatus *ecaltpgbadTT);
+  void process(std::vector<int> &Et, std::vector<int> &fgvb, std::vector<int> &sfgvb, int eTTotShift, std::vector<EcalTriggerPrimitiveSample> & out, std::vector<EcalTriggerPrimitiveSample> & outTcc, bool isInInnerRings) ;
+  void setParameters(uint32_t towid,const EcalTPGLutGroup *ecaltpgLutGroup,const EcalTPGLutIdMap *ecaltpgLut, const EcalTPGTowerStatus *ecaltpgbadTT, const EcalTPGSpike * ecaltpgSpike);
 
  private:
   const unsigned int * lut_ ;
@@ -35,6 +36,7 @@ class EcalFenixTcpFormat  {
   bool debug_;
   bool famos_;
   unsigned int binOfMax_;
+  uint16_t spikeZeroThresh_;
 };
 
 #endif

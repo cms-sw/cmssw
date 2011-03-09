@@ -2,6 +2,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
@@ -18,7 +19,8 @@ EcalFenixTcpFormat::~EcalFenixTcpFormat() {
 }
 
  
-void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, int eTTotShift,
+void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
+                                 std::vector<int> &sfgvb,int eTTotShift,
 				 std::vector<EcalTriggerPrimitiveSample> & out,
 				 std::vector<EcalTriggerPrimitiveSample> & out2, bool isInInnerRings){
   // put TP-s in the output
@@ -44,7 +46,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
 	
 	int ttFlag = (lut_out & 0x700) >> 8 ;
 	myEt = lut_out & 0xff ;
-	out[i]=EcalTriggerPrimitiveSample( myEt,fgvb[0],ttFlag); 
+	out[i]=EcalTriggerPrimitiveSample( myEt,fgvb[0],sfgvb[0],ttFlag); 
       }
       else out[i]=EcalTriggerPrimitiveSample( );
     }
@@ -52,6 +54,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
   else {
     for (unsigned int i=0; i<Et.size();++i) {
       int myFgvb=fgvb[i];
+      int mysFgvb=sfgvb[i];
       //myEt=Et[i]>>eTTotShift;
       //if (myEt>0x3ff) myEt=0x3ff ;
       //if (isInInnerRings) myEt = myEt /2 ;  
@@ -65,6 +68,12 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
       myEt >>= eTTotShift ;
       if (myEt>0x3ff) myEt=0x3ff ;
 
+      // Spike killing
+      if((myEt > spikeZeroThresh_) && (mysFgvb == 0))
+      {
+        myEt = 0;
+      }
+
 	int lut_out;
 	if (*badTTStatus_!=0){
 	  lut_out = 0;
@@ -77,13 +86,25 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
 	out2[i]=EcalTriggerPrimitiveSample( ((ttFlag&0x7)<<11) | ((myFgvb & 0x1)<<10) |  (myEt & 0x3ff));
       }
       myEt = lut_out & 0xff ;
-      out[i]=EcalTriggerPrimitiveSample( myEt,myFgvb,ttFlag); 
+      out[i]=EcalTriggerPrimitiveSample( myEt,myFgvb,mysFgvb,ttFlag); 
     }
   }
 }
 
-void EcalFenixTcpFormat::setParameters(uint32_t towid,const EcalTPGLutGroup *ecaltpgLutGroup, const EcalTPGLutIdMap *ecaltpgLut, const EcalTPGTowerStatus *ecaltpgbadTT)
+void EcalFenixTcpFormat::setParameters(uint32_t towid,const EcalTPGLutGroup *ecaltpgLutGroup, const EcalTPGLutIdMap *ecaltpgLut, const EcalTPGTowerStatus *ecaltpgbadTT,const EcalTPGSpike * ecaltpgSpike)
 {
+  // Get TP zeroing threshold - defaut to 0 for old data (no record found or EE)
+  spikeZeroThresh_ = 0;
+  if(ecaltpgSpike != 0)
+  {
+    const EcalTPGSpike::EcalTPGSpikeMap &spikeMap = ecaltpgSpike->getMap();
+    EcalTPGSpike:: EcalTPGSpikeMapIterator sit = spikeMap.find(towid);
+    if(sit != spikeMap.end())
+    {
+      spikeZeroThresh_ = sit->second;
+    }
+  }
+
   const EcalTPGGroups::EcalTPGGroupsMap & groupmap = ecaltpgLutGroup -> getMap();
   EcalTPGGroups::EcalTPGGroupsMapItr it=groupmap.find(towid);
   if (it!=groupmap.end()) {

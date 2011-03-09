@@ -78,6 +78,7 @@ EcalTrigPrimESProducer::EcalTrigPrimESProducer(const edm::ParameterSet& iConfig)
   setWhatProduced(this, &EcalTrigPrimESProducer::producePhysicsConst) ;
   setWhatProduced(this, &EcalTrigPrimESProducer::produceBadX) ;
   setWhatProduced(this, &EcalTrigPrimESProducer::produceBadTT) ;
+  setWhatProduced(this, &EcalTrigPrimESProducer::produceSpike) ;
   //now do what ever other initialization is needed
 }
 
@@ -156,8 +157,16 @@ std::auto_ptr<EcalTPGFineGrainStripEE> EcalTrigPrimESProducer::produceFineGrainE
 {
   std::auto_ptr<EcalTPGFineGrainStripEE> prod(new EcalTPGFineGrainStripEE());
   parseTextFile() ;
+  // EE Strips
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
   for (it = mapStrip_[1].begin() ; it != mapStrip_[1].end() ; it++) {
+    EcalTPGFineGrainStripEE::Item item ;
+    item.threshold = (it->second)[2] ;
+    item.lut  = (it->second)[3] ;
+    prod->setValue(it->first,item) ;
+  }
+  // EB Strips
+  for (it = mapStrip_[0].begin() ; it != mapStrip_[0].end() ; it++) {
     EcalTPGFineGrainStripEE::Item item ;
     item.threshold = (it->second)[2] ;
     item.lut  = (it->second)[3] ;
@@ -299,6 +308,19 @@ std::auto_ptr<EcalTPGTowerStatus> EcalTrigPrimESProducer::produceBadTT(const Eca
   return prod; 
 }
 
+std::auto_ptr<EcalTPGSpike> EcalTrigPrimESProducer::produceSpike(const EcalTPGSpikeRcd &iRecord)
+{
+  std::auto_ptr<EcalTPGSpike> prod(new EcalTPGSpike());
+  parseTextFile();
+  // Only need to do barrel
+  std::map<uint32_t, std::vector<uint32_t> >::const_iterator it;
+  for(it = mapTower_[0].begin(); it != mapTower_[0].end(); ++it)
+  {
+    prod->setValue(it->first, (it->second)[2]);
+  }
+  return prod;
+}
+
 void EcalTrigPrimESProducer::parseTextFile()
 {
   if (mapXtal_.size() != 0) return ; // just parse the file once!
@@ -309,7 +331,7 @@ void EcalTrigPrimESProducer::parseTextFile()
   std::ifstream infile ; 
   std::vector<unsigned int> param ;
   std::vector<float> paramF ;
-  int NBstripparams[2] = {2, 4} ;
+  int NBstripparams[2] = {4, 4} ;
   unsigned int data ;
   float dataF ;
 
@@ -383,8 +405,7 @@ void EcalTrigPrimESProducer::parseTextFile()
       //std::cout<<std::endl ;
       mapStrip_[1][id] = param ;
     }
-
-    if (dataCard == "TOWER_EB" || dataCard == "TOWER_EE") {
+    if(dataCard == "TOWER_EE"){
       gis>>std::dec>>id ;
       //std::cout<<dataCard<<" "<<std::dec<<id ;
       param.clear() ;
@@ -394,8 +415,20 @@ void EcalTrigPrimESProducer::parseTextFile()
         param.push_back(data) ;
       }
       //std::cout<<std::endl ;
-      if (dataCard == "TOWER_EB") mapTower_[0][id] = param ;
-      if (dataCard == "TOWER_EE") mapTower_[1][id] = param ;
+      mapTower_[1][id] = param ;
+    }
+
+    if (dataCard == "TOWER_EB") {
+      gis>>std::dec>>id ;
+      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      param.clear() ;
+      for (int i=0 ; i <3 ; i++) {
+        gis>>std::dec>>data ;
+        //std::cout<<", "<<std::hex<<data ;
+        param.push_back(data) ;
+      }
+      //std::cout<<std::endl ;
+      mapTower_[0][id] = param ;
     }
 
     if (dataCard == "WEIGHT") {

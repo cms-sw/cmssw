@@ -29,6 +29,7 @@ EcalFenixStrip::EcalFenixStrip(const edm::EventSetup & setup, const EcalElectron
   peak_out_.resize(maxNrSamples);
   format_out_.resize(maxNrSamples);
   fgvb_out_.resize(maxNrSamples);
+  fgvb_out_temp_.resize(maxNrSamples);
 }
 
 //-------------------------------------------------------------------------------------
@@ -43,11 +44,15 @@ EcalFenixStrip::~EcalFenixStrip() {
 }
 
 //----------------------------------------------------------------------------------
-void EcalFenixStrip::process_part2_barrel(uint32_t stripid,const EcalTPGSlidingWindow * ecaltpgSlidW) {
+void EcalFenixStrip::process_part2_barrel(uint32_t stripid,const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE) {
   
+  // call  Fgvb
+  //this->getFGVB()->setParameters(stripid,ecaltpgFgStripEE);
+  //this->getFGVB()->process(lin_out_,fgvb_out_);
+
   // call formatter
   this->getFormatterEB()->setParameters(stripid,ecaltpgSlidW) ; 
-  this->getFormatterEB()->process(peak_out_,filt_out_,format_out_);     
+  this->getFormatterEB()->process(fgvb_out_,peak_out_,filt_out_,format_out_);     
   //this is a test:
   if (debug_) {
     std::cout<< "output of formatter is a vector of size: "<<format_out_.size()<<std::endl; 
@@ -65,8 +70,8 @@ void EcalFenixStrip::process_part2_barrel(uint32_t stripid,const EcalTPGSlidingW
 void  EcalFenixStrip::process_part2_endcap(uint32_t stripid,const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE) {
    
   // call  Fgvb
-  this->getFGVB()->setParameters(stripid,ecaltpgFgStripEE); 
-  this->getFGVB()->process(lin_out_,fgvb_out_);
+  //this->getFGVB()->setParameters(stripid,ecaltpgFgStripEE); 
+  //this->getFGVB()->process(lin_out_,fgvb_out_);
 
   // call formatter
   this->getFormatterEE()->setParameters(stripid,ecaltpgSlidW) ;

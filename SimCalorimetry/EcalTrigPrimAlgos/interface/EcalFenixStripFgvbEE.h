@@ -21,6 +21,7 @@ class EEDataFrame ;
 class EcalFenixStripFgvbEE  {
 
  private:
+  int id_;
   // std::vector<unsigned int> const * params_ ;
   const EcalTPGFineGrainStripEE::Item *fgparams_ ;
  public:
