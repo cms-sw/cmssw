@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/01/24 14:48:32 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/03/09 13:56:41 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -85,7 +85,7 @@ void HLTConfigData::extract()
    const unsigned int n(size());
    moduleLabels_.reserve(n);
    for (unsigned int i=0;i!=n; ++i) {
-     if (processPSet_->existsAs<vector<string> >(triggerNames_[i]),true) {
+     if (processPSet_->existsAs<vector<string> >(triggerNames_[i],true)) {
        moduleLabels_.push_back(processPSet_->getParameter<vector<string> >(triggerNames_[i]));
      }
    }
