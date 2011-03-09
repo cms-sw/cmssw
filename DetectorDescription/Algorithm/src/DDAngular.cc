@@ -28,6 +28,8 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
   radius      = nArgs["Radius"];
   center      = vArgs["Center"];
   rotateSolid = vArgs["RotateSolid"];
+
+  solidRot_   = DDRotationMatrix();
   
   if( fabs( rangeAngle - 360.0 * CLHEP::deg ) < 0.001 * CLHEP::deg )
   { 
@@ -52,8 +54,30 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
 			    << " Radius " << radius << " Centre " << center[0] 
 			    << ", " << center[1] << ", "<<center[2];
   
-  if( rotationSolid.size()%3 )
-    LogError( "DDAlgorithm" ) << "DDAngular error: rotateSolid must occur 3*n times (defining n subsequent rotations)\n";
+  //======= collect data concerning the rotation of the solid 
+  typedef parE_type::mapped_type::size_type sz_type;
+  sz_type sz = rotateSolid.size();
+  rotateSolid.clear();
+  rotateSolid.resize( sz );
+  if( sz%3 )
+  {
+    LogDebug( "DDAlgorithm" ) << "\trotateSolid must occur 3*n times (defining n subsequent rotations)\n"
+			      << "\t  currently it appears " << sz << " times!\n";
+  }
+  for( sz_type i = 0; i < sz; i += 3 )
+  {
+    if(( rotateSolid[i] > 180. * deg ) || ( rotateSolid[i] < 0. ))
+    {
+      LogDebug( "DDAlgorithm" ) << "\trotateSolid \'theta\' must be in range [0,180*deg]\n"
+				<< "\t  currently it is " << rotateSolid[i]/deg 
+				<< "*deg in rotateSolid[" << double(i) << "]!\n";
+    }
+    
+    DDAxisAngle temp( fUnitVector( rotateSolid[i], rotateSolid[i + 1] ),
+		      rotateSolid[i + 2] );
+    LogDebug( "DDAlgorithm" ) << "  rotsolid[" << i <<  "] axis=" << temp.Axis() << " rot.angle=" << temp.Angle()/deg;
+    solidRot_ = temp * solidRot_;			  
+  }
   
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
@@ -72,37 +96,52 @@ DDAngular::execute( DDCompactView& cpv )
   double theta  = 90.*CLHEP::deg;
   int    copy   = startCopyNo;
   double phi    = startAngle;
-  for (int i=0; i<n; i++) {
+  for( int i = 0; i < n; ++i )
+  {
     double phix = phi;
-    double phiy = phix + 90.*CLHEP::deg;
-    double phideg = phix/CLHEP::deg;
+    double phiy = phix + 90. * CLHEP::deg;
+    double phideg = phix / CLHEP::deg;
 
     DDRotation rotation;
+    DDRotationMatrix rotm1 = *DDcreateRotationMatrix( theta, phix, theta, phiy,
+						      0., 0. ); // *rotation.rotation();
+    DDRotationMatrix rotm2 = solidRot_;
+    rotm2 = rotm1 * rotm2;
+
     if( phideg != 0 )
     {
-      std::string rotstr = DDSplit( childName ).first+dbl_to_string( phideg*10.);
+      std::string rotstr = DDSplit( childName ).first + dbl_to_string( phideg * 10.);
       rotation = DDRotation( DDName( rotstr, idNameSpace ));
       if( !rotation )
       {
 	LogDebug( "DDAlgorithm" ) << "DDAngular test: Creating a new "
 				  << "rotation: " << rotstr << "\t90., " 
-				  << phix/CLHEP::deg << ", 90.," 
-				  << phiy/CLHEP::deg <<", 0, 0";
-	rotation = DDrot( DDName( rotstr, idNameSpace), theta, phix, theta, phiy,
-			 0., 0.);
+				  << phix / CLHEP::deg << ", 90.," 
+				  << phiy / CLHEP::deg << ", 0, 0";
+	
+	rotation = DDrot( DDName( rotstr, idNameSpace), &rotm2 ); //theta, phix, theta, phiy,
+	//0., 0. );
       }
     }
-    
-    double xpos = radius*cos(phi) + center[0];
-    double ypos = radius*sin(phi) + center[1];
+      
+    double xpos = radius*cos( phi ) + center[0];
+    double ypos = radius*sin( phi ) + center[1];
     double zpos = center[2];
     DDTranslation tran( xpos, ypos, zpos );
     
     cpv.position( child, mother, copy, tran, rotation );
     LogDebug( "DDAlgorithm" ) << "DDAngular test " << child << " number " 
 			      << copy << " positioned in " << mother << " at "
-			      << tran  << " with " << rotation;
+			      << tran << " with " << rotation;
     copy += incrCopyNo;
     phi  += delta;
   }
+}
+
+DD3Vector
+DDAngular::fUnitVector( double theta, double phi )
+{
+  return DD3Vector( cos( phi ) * sin( theta ),
+		    sin( phi ) * sin( theta ),
+		    cos( theta ));
 }
