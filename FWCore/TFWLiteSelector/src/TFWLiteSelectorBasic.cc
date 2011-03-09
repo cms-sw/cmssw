@@ -94,32 +94,17 @@ namespace edm {
         return std::auto_ptr<EDProduct>();
       }
 
-      //We can't use reflex to create the instance since Reflex uses 'malloc' instead of new
-      /*
       //use reflex to create an instance of it
       Reflex::Object wrapperObj = classType.Construct();
       if(0 == wrapperObj.Address()) {
         throw cms::Exception("FailedToCreate") <<"could not create an instance of '"<<fullName<<"'";
       }
       void* address  = wrapperObj.Address();
-      */
-      TClass* rootClassType=TClass::GetClass(classType.TypeInfo());
-      if(0 == rootClassType) {
-        throw cms::Exception("MissingRootDictionary")
-        <<"could not find a ROOT dictionary for type '"<<fullName<<"'"
-        <<"\n Please make sure all the necessary libraries are available.";
-        return std::auto_ptr<EDProduct>();
-      }
-      void* address = rootClassType->New();
       branch->SetAddress(&address);
 
-      /*
       Reflex::Object edProdObj = wrapperObj.CastObject(Reflex::Type::ByName("edm::EDProduct"));
 
       EDProduct* prod = reinterpret_cast<EDProduct*>(edProdObj.Address());
-      */
-      static TClass* edproductTClass = TClass::GetClass(typeid(EDProduct));
-      EDProduct* prod = reinterpret_cast<EDProduct*>(rootClassType->DynamicCast(edproductTClass,address,true));
 
       if(0 == prod) {
         throw cms::Exception("FailedConversion")
