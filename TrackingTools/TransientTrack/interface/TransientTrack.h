@@ -26,7 +26,7 @@ namespace reco {
 
     TransientTrack() {}
 
-    TransientTrack( BasicTransientTrack * btt ) : Base(btt) {}
+    explicit TransientTrack( BasicTransientTrack * btt ) : Base(btt) {}
 
     ~TransientTrack() {}
 
@@ -38,10 +38,10 @@ namespace reco {
     
     
     TransientTrack(TransientTrack && rh) :
-      Base(std::forward<Base>(rh)){}
+      Base(std::move(rh)){}
     
     TransientTrack & operator=(TransientTrack && rh) {
-      this->Base::operator=(std::forward<Base>(rh));
+      this->Base::operator=(std::move(rh));
       //      Base::swap(rh);
       return *this;
     }
@@ -52,12 +52,12 @@ namespace reco {
     }
     
     
-#endif
+#else
     
     void swap(TransientTrack & rh) {
       Base::swap(rh);
     }
-
+#endif
 
     TransientTrack( const Track & tk , const MagneticField* field); 
     TransientTrack( const TrackRef & tk , const MagneticField* field); 
