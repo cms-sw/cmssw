@@ -774,9 +774,10 @@ namespace lumi{
     TriggerNameResult_Tech::iterator techbitnameItBeg=technames.begin();
     TriggerNameResult_Tech::iterator techbitnameItEnd=technames.end();
     for(techbitnameIt=techbitnameItBeg;techbitnameIt!=techbitnameItEnd;++techbitnameIt){
+      bitnames+=std::string(",");
       bitnames+=*techbitnameIt;
     }
-    std::cout<<"bitnames "<<bitnames<<std::endl;
+    std::cout<<"\tbitnames "<<bitnames<<std::endl;
     trgrundata.bitnames=bitnames;
     trgrundata.entry_id=revisionDML.getEntryInBranchByName(lumisession->nominalSchema(),lumi::LumiNames::trgdataTableName(),runnumberStr,branch_name);
     if(trgrundata.entry_id==0){

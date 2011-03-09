@@ -395,6 +395,7 @@ namespace lumi{
      }     
      pathnames+=hltpathmapIt->second;
    }
+   std::cout<<"\tpathnames "<<pathnames<<std::endl;
    hltrundata.pathnames=pathnames;
    hltrundata.entry_id=revisionDML.getEntryInBranchByName(lumisession->nominalSchema(),lumi::LumiNames::hltdataTableName(),runnumberStr,branch_name);
    if(hltrundata.entry_id==0){
