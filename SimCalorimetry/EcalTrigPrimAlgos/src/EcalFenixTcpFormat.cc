@@ -93,8 +93,8 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
 
 void EcalFenixTcpFormat::setParameters(uint32_t towid,const EcalTPGLutGroup *ecaltpgLutGroup, const EcalTPGLutIdMap *ecaltpgLut, const EcalTPGTowerStatus *ecaltpgbadTT,const EcalTPGSpike * ecaltpgSpike)
 {
-  // Get TP zeroing threshold - defaut to 0 for old data (no record found or EE)
-  spikeZeroThresh_ = 0;
+  // Get TP zeroing threshold - defaut to 1023 for old data (no record found or EE)
+  spikeZeroThresh_ = 1023;
   if(ecaltpgSpike != 0)
   {
     const EcalTPGSpike::EcalTPGSpikeMap &spikeMap = ecaltpgSpike->getMap();
@@ -106,7 +106,7 @@ void EcalFenixTcpFormat::setParameters(uint32_t towid,const EcalTPGLutGroup *eca
   }
 
   const EcalTPGGroups::EcalTPGGroupsMap & groupmap = ecaltpgLutGroup -> getMap();
-  EcalTPGGroups::EcalTPGGroupsMapItr it=groupmap.find(towid);
+  EcalTPGGroups::EcalTPGG1roupsMapItr it=groupmap.find(towid);
   if (it!=groupmap.end()) {
     uint32_t lutid=(*it).second;
     const EcalTPGLutIdMap::EcalTPGLutMap &lutmap = ecaltpgLut-> getMap();
