@@ -61,14 +61,14 @@ void ThingsTSelector::process( const edm::Event& iEvent ) {
   } catch (cms::Exception& x) {
     std::cout << std::endl << "Failed with cms::Exception: " << std::endl;
     std::cout << x.what() << std::endl;
-    exit(10);
+    abort();
   } catch (std::exception& x) {
     std::cout << std::endl << "Failed with std::exception" << std::endl;
     std::cout << x.what() << std::endl;
-    exit(10);
+    abort();
   } catch (...) {
     std::cout << std::endl << "Failed with unknown exception" << std::endl;
-    exit(10);
+    abort();
   }
 
 }
