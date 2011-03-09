@@ -60,7 +60,8 @@ GzInputStream & operator>>( GzInputStream & gis, T & var )
 //
 
 EcalTrigPrimESProducer::EcalTrigPrimESProducer(const edm::ParameterSet& iConfig) :
-  dbFilename_(iConfig.getUntrackedParameter<std::string>("DatabaseFile",""))
+  dbFilename_(iConfig.getUntrackedParameter<std::string>("DatabaseFile","")),
+  flagPrint_(iConfig.getParameter<bool>("WriteInFile"))
 {
   //the following line is needed to tell the framework what
   // data is being produced
@@ -351,122 +352,336 @@ void EcalTrigPrimESProducer::parseTextFile()
   }
 
 
+  int k=0;
+
   GzInputStream gis(finalFileName.c_str()) ;
   while (gis>>dataCard) {
 
     if (dataCard == "PHYSICS_EB" || dataCard == "PHYSICS_EE") {
       gis>>std::dec>>id ;
-      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      
+      if (flagPrint_){
+        std::cout<<dataCard<<" "<<std::dec<<id <<std::endl;
+      }
+      
       paramF.clear() ;
+      
+      std::string st1;
+      std::string st2;
+      
       for (int i=0 ; i <7 ; i++) {
         gis>>std::dec>>dataF ;
         paramF.push_back(dataF) ;
+	
         //std::cout<<", "<<std::dec<<dataF ;
+        if (flagPrint_){
+	//---------------------------------
+	  if (i < 3){
+	    std::ostringstream oss;
+	    oss << dataF; 
+	    std::string result1 = oss.str();
+
+            st1.append(result1);
+	    if (i != 2)
+              st1.append(" ");
+	  }
+
+	  if (i > 2){
+	    std::ostringstream oss;
+	    oss << dataF; 
+	    std::string result2 = oss.str();
+ 
+            st2.append(result2);
+            if (i != 6)  
+	      st2.append(" ");
+	  }
+	//----------------------------------     
+	}
       }
+      
+      if (flagPrint_){
+        std::cout << "" << st1 << std::endl;
+	std::cout << "" << st2 << std::endl;
+	std::cout << " "<< std::endl;  
+      }
+      
       //std::cout<<std::endl ;
       mapPhys_[id] = paramF ;
     }
 
     if (dataCard == "CRYSTAL") {
+      
       gis>>std::dec>>id ;
-      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      //std::cout<<dataCard<<" "<<std::dec<<id;
+      std::string st3;
+      std::string st4;
+      std::string st5;      
+      
+      if(flagPrint_){
+      //Print this comment only one time 
+        if(k==0)
+          std::cout << "COMMENT ====== barrel crystals ====== " <<std::endl;
+      
+        if (k==61200)
+          std::cout << "COMMENT ====== endcap crystals ====== " <<std::endl;
+        
+	k=k+1;
+
+        std::cout<<dataCard<<" "<<std::dec<<id << std::endl;
+      }
+      
       param.clear() ;
       for (int i=0 ; i <9 ; i++) {
         gis>>std::hex>>data ;
         //std::cout<<", "<<std::hex<<data ;
-        param.push_back(data) ;
+        param.push_back(data);
+	
+	if(flagPrint_){
+	  if (i<3){
+	    std::ostringstream oss;
+	    oss << std::hex<< data; 
+	    std::string result1 = oss.str();
+           
+	    st3.append("0x"); 
+            st3.append(result1);
+            if (i !=2)
+	      st3.append(" ");
+	
+	  }else if(i>2 && i<6){
+	    std::ostringstream oss;
+	    oss << std::hex << data; 
+	    std::string result2 = oss.str();
+          
+	    st4.append("0x");
+            st4.append(result2);
+            if (i != 5) 
+              st4.append(" ");
+	  }else if(i>5 && i<9){
+	    std::ostringstream oss;
+	    oss << std::hex<< data; 
+	    std::string result3 = oss.str();
+	  
+	    st5.append("0x");
+            st5.append(result3);
+            if (i != 8)
+	      st5.append(" ");
+	  }
+	}
+	
+      }//end for
+      
+      if(flagPrint_){
+        std::cout << " " << st3 << std::endl;
+        std::cout << " " << st4 << std::endl;
+        std::cout << " " << st5 << std::endl;
       }
+      
       //std::cout<<std::endl ;
       mapXtal_[id] = param ;
     }
 
     if (dataCard == "STRIP_EB") {
       gis>>std::dec>>id ;
-      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      
+      if(flagPrint_)
+        std::cout<<dataCard<<" "<<std::dec<<id <<std::endl;
+
       param.clear() ;
       for (int i=0 ; i <NBstripparams[0] ; i++) {
         gis>>std::hex>>data ;
-        //std::cout<<", "<<std::hex<<data ;
-        param.push_back(data) ;
+        param.push_back(data);
+	
+	if(flagPrint_){
+	  if (i==0){
+	    std::cout<<"0x"<<std::hex<<data << std::endl;
+	  }else if (i==1){
+	    std::cout<<" "<<std::hex<<data << std::endl;
+	  }
+	}
       }
+      
       //std::cout<<std::endl ;
       mapStrip_[0][id] = param ;
     }
 
     if (dataCard == "STRIP_EE") {
       gis>>std::dec>>id ;
-      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      
+      std::string st6;
+      
+      if(flagPrint_){
+        std::cout<<dataCard<<" "<<std::dec<<id << std::endl;
+      }
+      
       param.clear() ;
       for (int i=0 ; i <NBstripparams[1] ; i++) {
         gis>>std::hex>>data ;
-        //std::cout<<", "<<std::hex<<data ;
-        param.push_back(data) ;
+        param.push_back(data);
+        
+	if(flagPrint_){
+	  if (i==0){
+	    std::cout<<"0x"<<std::hex<<data << std::endl;
+	  }else if (i==1){
+	    std::cout<<" "<<std::hex<<data<< std::endl;
+	  }else if (i>1){
+	    std::ostringstream oss;
+	    if (i==2){
+	      oss<<"0x"<<std::hex<<data;
+	      std::string result4 = oss.str();
+	      st6.append(result4);
+	    }else if(i==3){
+	      std::ostringstream oss;
+	      oss<<" 0x"<<std::hex<<data;
+	      std::string result5 = oss.str();
+	  
+	      st6.append(result5);
+	      std::cout<< "" << st6 << std::endl;
+	   }
+	  }
+        }
       }
+      
       //std::cout<<std::endl ;
       mapStrip_[1][id] = param ;
     }
+    
     if(dataCard == "TOWER_EE"){
       gis>>std::dec>>id ;
-      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      
+      if(flagPrint_)
+        std::cout<<dataCard<<" "<<std::dec<<id <<std::endl;
+
       param.clear() ;
       for (int i=0 ; i <2 ; i++) {
         gis>>std::hex>>data ;
-        //std::cout<<", "<<std::hex<<data ;
-        param.push_back(data) ;
+        param.push_back(data);
+      
+        if(flagPrint_){
+	  if(i==1){
+	    std::cout << "0x" <<std::dec<<data << std::endl;
+	  }else{
+	    std::cout << " " <<std::dec<<data << std::endl;
+	  }
+	}
       }
+      
       //std::cout<<std::endl ;
       mapTower_[1][id] = param ;
     }
 
     if (dataCard == "TOWER_EB") {
       gis>>std::dec>>id ;
-      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      
+      if(flagPrint_)
+        std::cout<<dataCard<<" "<<std::dec<<id << std::endl;
+
       param.clear() ;
       for (int i=0 ; i <3 ; i++) {
         gis>>std::dec>>data ;
-        //std::cout<<", "<<std::hex<<data ;
+        
+	if(flagPrint_){	
+          std::cout << " " << std::hex <<  data << std::endl;
+        }
+	
         param.push_back(data) ;
       }
+      
       //std::cout<<std::endl ;
       mapTower_[0][id] = param ;
     }
 
     if (dataCard == "WEIGHT") {
-      gis>>std::hex>>id ;
-      //std::cout<<dataCard<<" "<<std::dec<<id ;
+          
+      if(flagPrint_) 
+        std::cout<<std::endl;
+     
+      gis>>std::hex>>id ;  
+      if(flagPrint_){
+        std::cout<<dataCard<<" "<<std::dec<<id <<std::endl;
+      }
+      
       param.clear() ;
+     
+      std::string st6;
       for (int i=0 ; i <5 ; i++) {
         gis>>std::hex>>data ;
-        //std::cout<<", "<<std::hex<<data ;
-        param.push_back(data) ;
+        param.push_back(data);
+        
+	if(flagPrint_){
+	  std::ostringstream oss;
+	  oss << std::hex<< data; 
+	  std::string result4 = oss.str();
+
+          st6.append("0x");
+          st6.append(result4);
+	  st6.append(" ");
+	}
+        
       }
+      
+      if(flagPrint_){
+        std::cout << st6 << std::endl;
+      }
+       
       //std::cout<<std::endl ;
       mapWeight_[id] = param ;
     }
 
     if (dataCard == "FG") {
-      gis>>std::hex>>id ;
-      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      
+      if(flagPrint_)
+        std::cout <<std::endl;
+      
+      gis>>std::hex>>id ;      
+      if(flagPrint_)
+        std::cout<<dataCard<<" "<<std::dec<<id <<std::endl;
+
       param.clear() ;
+      std::string st7;
       for (int i=0 ; i <5 ; i++) {
         gis>>std::hex>>data ;
-        //std::cout<<", "<<std::hex<<data ;
-        param.push_back(data) ;
+        param.push_back(data);
+	
+       	if(flagPrint_){
+	  std::ostringstream oss;
+	  oss << std::hex<< data; 
+	
+	  std::string result5 = oss.str();
+
+          st7.append("0x");
+          st7.append(result5);
+          if (i != 4)
+	    st7.append(" ");
+	}
       }
-      //std::cout<<std::endl ;
+      
+      if(flagPrint_){
+        std::cout << st7 << std::endl;
+        std::cout<<std::endl ;
+      }
+      
       mapFg_[id] = param ;
     }
  
     if (dataCard == "LUT") {
       gis>>std::hex>>id ;
-      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      
+      if(flagPrint_)
+        std::cout<<dataCard<<" "<<std::dec<<id <<std::endl;
+
       param.clear() ;
       for (int i=0 ; i <1024 ; i++) {
         gis>>std::hex>>data ;
-        //std::cout<<", "<<std::hex<<data ;
-        param.push_back(data) ;
+        param.push_back(data);
+       
+        if(flagPrint_){
+	  std::cout<<"0x"<<std::hex<<data <<std::endl;
+	}
       }
-      //std::cout<<std::endl ;
+      
+      if(flagPrint_)
+        std::cout<<std::endl ;
+      
       mapLut_[id] = param ;
     }
   }

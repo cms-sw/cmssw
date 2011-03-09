@@ -72,6 +72,7 @@ class EcalTrigPrimESProducer : public edm::ESProducer {
   std::vector<int> getRange(int subdet, int smNb, int towerNbInSm, int stripNbInTower=0, int xtalNbInStrip=0) ;
 
   // ----------member data ---------------------------
+  bool flagPrint_;
   std::string dbFilename_;
   std::map<uint32_t, std::vector<uint32_t> > mapXtal_ ;
   std::map<uint32_t, std::vector<uint32_t> > mapStrip_[2] ;
@@ -80,6 +81,7 @@ class EcalTrigPrimESProducer : public edm::ESProducer {
   std::map<uint32_t, std::vector<uint32_t> > mapFg_ ;
   std::map<uint32_t, std::vector<uint32_t> > mapLut_ ;
   std::map<uint32_t, std::vector<float> > mapPhys_ ;
+
 
 //   typedef voidp gzFile;
 //   bool getNextString(gzFile &gzf);
