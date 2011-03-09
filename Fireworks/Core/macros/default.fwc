@@ -1225,7 +1225,7 @@
       <string>3</string>
       <string>ndof</string>
       <string>ndof</string>
-      <string>0</string>
+      <string>3</string>
     </config>
     <config name="typeNames" version="1">
       <string>CaloRecHit</string>
