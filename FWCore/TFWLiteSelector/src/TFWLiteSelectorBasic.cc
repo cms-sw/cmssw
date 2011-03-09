@@ -31,6 +31,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -133,24 +134,20 @@ namespace edm {
     struct TFWLiteSelectorMembers {
       TFWLiteSelectorMembers():
       tree_(0),
-      metaTree_(0),
       reg_(new ProductRegistry()),
       processNames_(),
       reader_(new FWLiteDelayedReader),
       productMap_(),
       prov_(),
-      pointerToBranchBuffer_()
+      pointerToBranchBuffer_(),
+      mapper_(new edm::BranchMapper)
       {
         reader_->set(reg_);}
       void setTree(TTree* iTree) {
         tree_ = iTree;
         reader_->setTree(iTree);
       }
-      void setMetaTree(TTree* iTree) {
-        metaTree_ = iTree;
-      }
       TTree* tree_;
-      TTree* metaTree_;
       boost::shared_ptr<ProductRegistry> reg_;
       ProcessHistory processNames_;
       boost::shared_ptr<FWLiteDelayedReader> reader_;
@@ -159,6 +156,11 @@ namespace edm {
       std::vector<EventEntryDescription> prov_;
       std::vector<EventEntryDescription*> pointerToBranchBuffer_;
       FileFormatVersion fileFormatVersion_;
+
+      boost::shared_ptr<edm::BranchMapper> mapper_;
+      edm::ProcessConfiguration pc_;
+      boost::shared_ptr<edm::EventPrincipal> ep_;
+      edm::ModuleDescription md_;
     };
   }
 }
@@ -304,24 +306,19 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 
       try {
          m_->reader_->setEntry(iEntry);
-         edm::ProcessConfiguration pc;
-         boost::shared_ptr<edm::ProductRegistry const> reg(m_->reg_);
          boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(aux.run(), aux.time(), aux.time()));
-         boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, reg, pc));
+         boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, m_->reg_, m_->pc_));
          boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(
                 new edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
          boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(
-            new edm::LuminosityBlockPrincipal(lumiAux, reg, pc, rp));
-         boost::shared_ptr<edm::BranchMapper> mapper(new edm::BranchMapper);
-         edm::EventPrincipal ep(reg, pc);
-         ep.fillEventPrincipal(eaux, lbp, eventSelectionIDs_, branchListIndexes_, mapper, m_->reader_);
-         m_->processNames_ = ep.processHistory();
+            new edm::LuminosityBlockPrincipal(lumiAux, m_->reg_, m_->pc_, rp));
+         m_->ep_->fillEventPrincipal(eaux, lbp, eventSelectionIDs_, branchListIndexes_, m_->mapper_, m_->reader_);
+         m_->processNames_ = m_->ep_->processHistory();
 
-         edm::ModuleDescription md;
-         edm::Event event(ep,md);
+         edm::Event event(*m_->ep_, m_->md_);
 
          //Make the event principal accessible to edm::Ref's
-         Operate sentry(ep.prodGetter());
+         Operate sentry(m_->ep_->prodGetter());
          process(event);
       } catch(std::exception const& iEx) {
          std::cout << "While processing entry "<<iEntry<<" the following exception was caught \n"
@@ -330,7 +327,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
          std::cout <<"While processing entry "<<iEntry<<" an unknown exception was caught" << std::endl;
       }
   }
-  return kTRUE;
+  return everythingOK_ ? kTRUE: kFALSE;
 }
 
 void
@@ -365,6 +362,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   metaDataTree->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(), &(pReg));
 
   m_->reg_->setFrozen();
+
   typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
   PsetMap psetMap;
   PsetMap *psetMapPtr = &psetMap;
@@ -407,14 +405,6 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
 
   metaDataTree->GetEntry(0);
 
-  m_->metaTree_ = dynamic_cast<TTree*>(iFile.Get(edm::poolNames::eventMetaDataTreeName().c_str()));
-      //provBranch->GetEntry(iEntry);
-  if(0 == m_->metaTree_) {
-    std::cout <<"could not find TTree "<<edm::poolNames::eventMetaDataTreeName() <<std::endl;
-    everythingOK_ = false;
-    return;
-  }
-
   // Merge into the registries. For now, we do NOT merge the product registry.
   edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
   for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
@@ -436,7 +426,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
 
 
   edm::ProductRegistry::ProductList const& prodList = m_->reg_->productList();
-{
+  {
      for(edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
             it != itEnd; ++it) {
          edm::BranchDescription const& prod = it->second;
@@ -461,7 +451,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
 
     newReg->setFrozen();
     m_->reg_.reset(newReg.release());
- }
+  }
 
   edm::ProductRegistry::ProductList const& prodList2 = m_->reg_->productList();
   std::vector<edm::EventEntryDescription> temp(prodList2.size(), edm::EventEntryDescription());
@@ -488,7 +478,8 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       //m_->metaTree_->SetBranchAddress(prod.branchName().c_str(), tmp);
     }
   }
-
+  edm::BranchIDListHelper::updateFromInput(*branchIDListsAPtr, "");
+  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->pc_));
   everythingOK_ = true;
 }
 
