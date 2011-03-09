@@ -3,6 +3,7 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
+#include "CoralBase/Blob.h"
 #include "CoralBase/Exception.h"
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
@@ -22,11 +23,12 @@
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
+#include "RecoLuminosity/LumiProducer/interface/RevisionDML.h"
 #include <iostream>
 #include <map>
 #include <vector>
 #include <string>
-
+#include <cstring>
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 namespace lumi{
   class HLTV32DB : public DataPipe{
@@ -47,8 +49,8 @@ namespace lumi{
       unsigned int hltaccept;
       unsigned int prescale;
     };
-    typedef std::map< unsigned int, std::string > HltPathMap;
-    typedef std::vector< std::map<unsigned int,HLTV32DB::hltinfo> > HltResult;
+    typedef std::map< unsigned int, std::string , std::less<unsigned int> > HltPathMap; //order by hltpathid
+    typedef std::vector< std::map<unsigned int,HLTV32DB::hltinfo,std::less<unsigned int> > > HltResult;
     
     void writeHltData(coral::ISessionProxy* lumisession,
 		      unsigned int irunnumber,
@@ -63,6 +65,7 @@ namespace lumi{
 			       unsigned int npath,
 			       HltResult::iterator hltBeg,
 			       HltResult::iterator hltEnd,
+                               HltPathMap& hltpathmap,
 			       unsigned int commitintv);
   };//cl HLTV32DB
   
@@ -246,7 +249,7 @@ namespace lumi{
       writeHltData(destsession,runnumber,m_source,npath,hltresult.begin(),hltresult.end(),COMMITINTERVAL);
       std::cout<<"done"<<std::endl;
       std::cout<<"writing hlt data to new lshlt table"<<std::endl;
-      writeHltDataToSchema2(destsession,runnumber,m_source,npath,hltresult.begin(),hltresult.end(),COMMITLSINTERVAL);
+      writeHltDataToSchema2(destsession,runnumber,m_source,npath,hltresult.begin(),hltresult.end(), hltpathmap,COMMITLSINTERVAL);
       std::cout<<"done"<<std::endl;
       delete destsession;
       delete svc;
@@ -351,7 +354,121 @@ namespace lumi{
 			unsigned int npath,
 			HltResult::iterator hltItBeg,
 			HltResult::iterator hltItEnd,
-			unsigned int commitintv){}
+			HltPathMap& hltpathmap,
+			unsigned int commitintv){
+   HltResult::iterator hltIt;
+   unsigned int totalcmsls=std::distance(hltItBeg,hltItEnd);
+   std::cout<<"inserting totalcmsls "<<totalcmsls<<std::endl;
+   coral::AttributeList lshltData;
+   lshltData.extend("DATA_ID",typeid(unsigned long long));
+   lshltData.extend("RUNNUM",typeid(unsigned int));
+   lshltData.extend("CMSLSNUM",typeid(unsigned int));
+   lshltData.extend("PRESCALEBLOB",typeid(coral::Blob));
+   lshltData.extend("HLTCOUNTBLOB",typeid(coral::Blob));
+   lshltData.extend("HLTACCEPTBLOB",typeid(coral::Blob));
+   unsigned long long& data_id=lshltData["DATA_ID"].data<unsigned long long>();
+   unsigned int& hltrunnum=lshltData["RUNNUM"].data<unsigned int>();
+   unsigned int& cmslsnum=lshltData["CMSLSNUM"].data<unsigned int>();
+   coral::Blob& prescaleblob=lshltData["PRESCALEBLOB"].data<coral::Blob>();
+   coral::Blob& hltcountblob=lshltData["HLTCOUNTBLOB"].data<coral::Blob>();
+   coral::Blob& hltacceptblob=lshltData["HLTACCEPTBLOB"].data<coral::Blob>();
+
+   unsigned long long branch_id=3;
+   std::string branch_name("DATA");
+   lumi::RevisionDML revisionDML;
+   lumi::RevisionDML::HltEntry hltrundata;
+   std::stringstream op;
+   op<<irunnumber;
+   std::string runnumberStr=op.str();
+   lumisession->transaction().start(false);
+   hltrundata.entry_name=runnumberStr;
+   hltrundata.source=source;
+   hltrundata.runnumber=irunnumber;
+   hltrundata.npath=npath;
+   std::string pathnames;
+   HltPathMap::iterator hltpathmapIt;
+   HltPathMap::iterator hltpathmapItBeg=hltpathmap.begin();
+   HltPathMap::iterator hltpathmapItEnd=hltpathmap.end();
+   for(hltpathmapIt=hltpathmapItBeg;hltpathmapIt!=hltpathmapItEnd;++hltpathmapIt){
+     if(hltpathmapIt!=hltpathmapItBeg){
+       pathnames+=std::string(",");
+     }     
+     pathnames+=hltpathmapIt->second;
+   }
+   hltrundata.pathnames=pathnames;
+   hltrundata.entry_id=revisionDML.getEntryInBranchByName(lumisession->nominalSchema(),lumi::LumiNames::hltdataTableName(),runnumberStr,branch_name);
+   if(hltrundata.entry_id==0){
+     revisionDML.bookNewEntry(lumisession->nominalSchema(),LumiNames::hltdataTableName(),hltrundata);
+     std::cout<<"hltrundata revision_id "<<hltrundata.revision_id<<" entry_id "<<hltrundata.entry_id<<" data_id "<<hltrundata.data_id<<std::endl;
+     revisionDML.addEntry(lumisession->nominalSchema(),LumiNames::hltdataTableName(),hltrundata,branch_id,branch_name);
+   }else{
+     revisionDML.bookNewRevision(lumisession->nominalSchema(),LumiNames::hltdataTableName(),hltrundata);
+     std::cout<<"hltrundata revision_id "<<hltrundata.revision_id<<" entry_id "<<hltrundata.entry_id<<" data_id "<<hltrundata.data_id<<std::endl;
+     revisionDML.addRevision(lumisession->nominalSchema(),LumiNames::hltdataTableName(),hltrundata,branch_id,branch_name);
+   }
+   std::cout<<"inserting hltrundata"<<std::endl;
+   revisionDML.insertHltRunData(lumisession->nominalSchema(),hltrundata);
+   std::cout<<"inserting lshlt data"<<std::endl;
+
+   unsigned int hltlscount=0;
+   coral::IBulkOperation* hltInserter=0; 
+   unsigned int comittedls=0;
+   for(HltResult::iterator hltIt=hltItBeg;hltIt!=hltItEnd;++hltIt,++hltlscount){
+     unsigned int cmslscount=hltlscount+1;
+     std::map<unsigned int,HLTV32DB::hltinfo,std::less<unsigned int> >::const_iterator pathIt;
+     std::map<unsigned int,HLTV32DB::hltinfo,std::less<unsigned int> >::const_iterator pathBeg=hltIt->begin();
+     std::map<unsigned int,HLTV32DB::hltinfo,std::less<unsigned int> >::const_iterator pathEnd=hltIt->end();
+     if(!lumisession->transaction().isActive()){ 
+       lumisession->transaction().start(false);
+       coral::ITable& hlttable=lumisession->nominalSchema().tableHandle(LumiNames::hltTableName());
+       hltInserter=hlttable.dataEditor().bulkInsert(lshltData,npath);
+     }else{
+       if(hltIt==hltItBeg){
+	 coral::ITable& hlttable=lumisession->nominalSchema().tableHandle(LumiNames::hltTableName());
+	 hltInserter=hlttable.dataEditor().bulkInsert(lshltData,npath);
+       }
+     }
+     data_id = hltrundata.data_id;
+     hltrunnum = irunnumber;
+     cmslsnum = cmslscount;
+     std::vector<unsigned int> hltcounts; hltcounts.reserve(npath);
+     std::vector<unsigned int> hltaccepts; hltaccepts.reserve(npath);
+     std::vector<unsigned int> prescales; prescales.reserve(npath);
+     for(pathIt=pathBeg;pathIt!=pathEnd;++pathIt){
+       unsigned int hltcount=pathIt->second.hltinput;
+       hltcounts.push_back(hltcount);
+       unsigned int hltaccept=pathIt->second.hltaccept;
+       hltaccepts.push_back(hltaccept);
+       unsigned int prescale=pathIt->second.prescale;
+       prescales.push_back(prescale);
+     }
+     prescaleblob.resize(sizeof(unsigned int)*npath);
+     void* prescaleblob_StartAddress = prescaleblob.startingAddress();
+     std::memmove(prescaleblob_StartAddress,&prescales[0],sizeof(unsigned int)*npath);
+     hltcountblob.resize(sizeof(unsigned int)*npath);
+     void* hltcountblob_StartAddress = hltcountblob.startingAddress();
+     std::memmove(hltcountblob_StartAddress,&hltcounts[0],sizeof(unsigned int)*npath);
+     hltacceptblob.resize(sizeof(unsigned int)*npath);
+     void* hltacceptblob_StartAddress = hltacceptblob.startingAddress();
+     std::memmove(hltacceptblob_StartAddress,&hltaccepts[0],sizeof(unsigned int)*npath);
+
+     hltInserter->processNextIteration();
+     hltInserter->flush();
+     ++comittedls;
+     if(comittedls==commitintv){
+       std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
+       delete hltInserter; hltInserter=0;
+       lumisession->transaction().commit();
+       comittedls=0;
+       std::cout<<"\t committed "<<std::endl; 
+     }else if( hltlscount==(totalcmsls-1) ){
+       std::cout<<"\t committing at the end"<<std::endl; 
+       delete hltInserter; hltInserter=0;
+       lumisession->transaction().commit();
+       std::cout<<"\t done"<<std::endl; 
+     }
+   }
+ }
   const std::string HLTV32DB::dataType() const{
     return "HLTV3";
   }
