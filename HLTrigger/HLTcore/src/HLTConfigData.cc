@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/01/24 14:23:01 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/01/24 14:48:32 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -85,7 +85,7 @@ void HLTConfigData::extract()
    const unsigned int n(size());
    moduleLabels_.reserve(n);
    for (unsigned int i=0;i!=n; ++i) {
-     if (processPSet_->existsAs<vector<string> >(triggerNames_[i])) {
+     if (processPSet_->existsAs<vector<string> >(triggerNames_[i]),true) {
        moduleLabels_.push_back(processPSet_->getParameter<vector<string> >(triggerNames_[i]));
      }
    }
@@ -357,8 +357,16 @@ unsigned int HLTConfigData::moduleIndex(const std::string& trigger, const std::s
 }
 
 const std::string HLTConfigData::moduleType(const std::string& module) const {
-  if (processPSet_->exists(module)) {
+  if (modulePSet(module).existsAs<std::string>("@module_type",true)) {
     return modulePSet(module).getParameter<std::string>("@module_type");
+  } else {
+    return "";
+  }
+}
+
+const std::string HLTConfigData::moduleEDMType(const std::string& module) const {
+  if (modulePSet(module).existsAs<std::string>("@module_edm_type",true)) {
+    return modulePSet(module).getParameter<std::string>("@module_edm_type");
   } else {
     return "";
   }

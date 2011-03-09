@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/12/22 15:47:25 $
- *  $Revision: 1.35 $
+ *  $Date: 2011/01/24 14:23:01 $
+ *  $Revision: 1.36 $
  *
  *  \author Martin Grunewald
  *
@@ -119,6 +119,11 @@ class HLTConfigProvider {
   /// C++ class name of module
   const std::string moduleType(const std::string& module) const {
     return hltConfigData_->moduleType(module);
+  }
+
+  /// C++ base class name of module
+  const std::string moduleEDMType(const std::string& module) const {
+    return hltConfigData_->moduleEDMType(module);
   }
 
   /// ParameterSet of process
