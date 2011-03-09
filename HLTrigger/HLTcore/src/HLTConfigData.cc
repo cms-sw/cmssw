@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/03/09 13:56:41 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/03/09 13:58:06 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -234,7 +234,8 @@ void HLTConfigData::dump(const std::string& what) const {
        for (unsigned int j=0; j!=m; ++j) {
 	 const string& label(moduleLabels_[i][j]);
 	 const string  type(moduleType(label));
-	 cout << " " << j << ":" << label << "/" << type ;
+	 const string  edmtype(moduleEDMType(label));
+	 cout << " " << j << ":" << label << "/" << type << "/" << edmtype;
 	 if (type=="HLTPrescaler") nHLTPrescalers++;
 	 if (type=="HLTLevel1GTSeed") nHLTLevel1GTSeed++;
        }
