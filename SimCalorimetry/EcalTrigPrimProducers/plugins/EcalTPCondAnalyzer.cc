@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Wed Oct 15  11:38:38 CEST 2008
-// $Id: EcalTPCondAnalyzer.cc,v 1.2 2009/10/28 00:09:26 ebecheva Exp $
+// $Id: EcalTPCondAnalyzer.cc,v 1.3 2010/07/07 10:06:28 ebecheva Exp $
 //
 //
 //
@@ -43,6 +43,8 @@
 #include "CondFormats/DataRecord/interface/EcalTPGFineGrainStripEERcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
 
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
@@ -136,14 +138,19 @@ unsigned long long  EcalTPCondAnalyzer::getRecords(edm::EventSetup const& setup)
   edm::ESHandle<EcalTPGFineGrainEBGroup> theEcalTPGFineGrainEBGroup_handle;
   setup.get<EcalTPGFineGrainEBGroupRcd>().get(theEcalTPGFineGrainEBGroup_handle);
   const EcalTPGFineGrainEBGroup * ecaltpgFgEBGroup = theEcalTPGFineGrainEBGroup_handle.product();
-  printTOWEREB(ecaltpgFgEBGroup,ecaltpgLutGroup);
+  edm::ESHandle<EcalTPGSpike> theEcalTPGSpike_handle;
+  setup.get<EcalTPGSpikeRcd>().get(theEcalTPGSpike_handle);
+  const EcalTPGSpike * ecaltpgSpikeTh = theEcalTPGSpike_handle.product();
+
+  printTOWEREB(ecaltpgSpikeTh, ecaltpgFgEBGroup,ecaltpgLutGroup);
   edm::ESHandle<EcalTPGFineGrainTowerEE> theEcalTPGFineGrainTowerEE_handle;
   setup.get<EcalTPGFineGrainTowerEERcd>().get(theEcalTPGFineGrainTowerEE_handle);
   const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE = theEcalTPGFineGrainTowerEE_handle.product();
-  printTOWEREE(ecaltpgFineGrainTowerEE,ecaltpgLutGroup);
+
+  printTOWEREE(ecaltpgFineGrainTowerEE, ecaltpgLutGroup);
 
   // get parameters for BadX
-  edm::ESHandle<EcalTPGCrystalStatus> theEcalTPGCrystalStatus_handle;
+/*  edm::ESHandle<EcalTPGCrystalStatus> theEcalTPGCrystalStatus_handle;
   setup.get<EcalTPGCrystalStatusRcd>().get(theEcalTPGCrystalStatus_handle);
   const EcalTPGCrystalStatus * ecaltpgBadX = theEcalTPGCrystalStatus_handle.product();
   printBadX(ecaltpgBadX);
@@ -153,6 +160,15 @@ unsigned long long  EcalTPCondAnalyzer::getRecords(edm::EventSetup const& setup)
   setup.get<EcalTPGTowerStatusRcd>().get(theEcalTPGTowerStatus_handle);
   const EcalTPGTowerStatus * ecaltpgBadTT = theEcalTPGTowerStatus_handle.product();
   printBadTT(ecaltpgBadTT);
+*/  
+  
+  // get parameters for BadStrip
+/*  edm::ESHandle<EcalTPGStripStatus> theEcalTPGStripStatus_handle;
+  setup.get<EcalTPGStripStatusRcd>().get(theEcalTPGStripStatus_handle);
+  const EcalTPGStripStatus * ecaltpgBadStrip = theEcalTPGStripStatus_handle.product();
+  printBadStrip(ecaltpgBadStrip);
+*/
+
   
   std::cout<<"EOF"<<std::endl;
 
@@ -318,6 +334,7 @@ void EcalTPCondAnalyzer::printComment() const {
   "COMMENT\n"<<
   "COMMENT  sliding_window\n"<<
   "COMMENT  weightGroupId\n"<<
+  "COMMENT  threshold_sfg lut_sfg\n"<<
   "COMMENT =================================\n"<<
   "COMMENT\n"<<
   "COMMENT =================================\n"<<
@@ -325,7 +342,7 @@ void EcalTPCondAnalyzer::printComment() const {
   "COMMENT\n"<<
   "COMMENT  sliding_window\n"<<
   "COMMENT  weightGroupId\n"<<
-  "COMMENT  threshold_fg strip_lut_fg\n"<<
+  "COMMENT  threshold_fg lut_fg\n"<<
   "COMMENT =================================\n"<<
   "COMMENT\n"<<
   "COMMENT =================================\n"<<
@@ -333,6 +350,7 @@ void EcalTPCondAnalyzer::printComment() const {
   "COMMENT\n"<<
   "COMMENT  LUTGroupId\n"<<
   "COMMENT  FgGroupId\n"<<
+  "COMMENT  spike_killing_threshold\n"<<
   "COMMENT =================================\n"<<
   "COMMENT\n"<<
   "COMMENT =================================\n"<<
@@ -365,19 +383,41 @@ void EcalTPCondAnalyzer::printComment() const {
   "COMMENT"<<std::endl;
 }
 
-void EcalTPCondAnalyzer::printTOWEREB(const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,const EcalTPGLutGroup *ecaltpgLutGroup) const {
+/*void EcalTPCondAnalyzer::printTOWEREB(const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,const EcalTPGLutGroup *ecaltpgLutGroup) const {
 
     const EcalTPGGroups::EcalTPGGroupsMap &lutMap=ecaltpgLutGroup->getMap();
     EcalTPGGroups::EcalTPGGroupsMapItr lutGroupId;
     const EcalTPGGroups::EcalTPGGroupsMap &fgMap=ecaltpgFgEBGroup->getMap();
     EcalTPGGroups::EcalTPGGroupsMapItr it;
-
+    
     std::cout<<std::endl;
     for (it=fgMap.begin();it!=fgMap.end();++it) {
       std::cout <<"TOWER_EB "<<std::dec<<(*it).first<<std::endl;
       lutGroupId=lutMap.find((*it).first);
       std::cout <<" "<<(*it).second<<std::endl;
       std::cout <<" "<<(*lutGroupId).second<<std::endl;
+    }
+}
+*/
+
+void EcalTPCondAnalyzer::printTOWEREB(const EcalTPGSpike *ecaltpgSpikeTh, const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,const EcalTPGLutGroup *ecaltpgLutGroup) const {
+ 
+    const EcalTPGGroups::EcalTPGGroupsMap &lutMap=ecaltpgLutGroup->getMap();
+    EcalTPGGroups::EcalTPGGroupsMapItr lutGroupId;
+    const EcalTPGGroups::EcalTPGGroupsMap &fgMap=ecaltpgFgEBGroup->getMap();
+    EcalTPGGroups::EcalTPGGroupsMapItr it;
+    
+    const EcalTPGSpike::EcalTPGSpikeMap spikeThMap = ecaltpgSpikeTh->getMap();
+    EcalTPGSpike::EcalTPGSpikeMapIterator itSpikeTh;
+    
+    std::cout<<std::endl;
+    for (it=fgMap.begin();it!=fgMap.end();++it) {
+      std::cout <<"TOWER_EB "<<std::dec<<(*it).first<<std::endl;
+      lutGroupId=lutMap.find((*it).first);
+      itSpikeTh=spikeThMap.find((*it).first);
+      std::cout <<std::hex<<" "<<(*it).second<<std::endl;
+      std::cout <<std::hex<<" "<<(*lutGroupId).second<<std::endl;
+      std::cout <<std::hex<<" "<<(*itSpikeTh).second<<std::endl; 
     }
 }
 
@@ -397,7 +437,7 @@ void EcalTPCondAnalyzer::printTOWEREE(const EcalTPGFineGrainTowerEE *ecaltpgFine
     }
 }
 
-void EcalTPCondAnalyzer::printBadX(const EcalTPGCrystalStatus *ecaltpgBadX) const {
+/*void EcalTPCondAnalyzer::printBadX(const EcalTPGCrystalStatus *ecaltpgBadX) const {
   
   std::ofstream myfile;
   myfile.open("badXvalues.txt");
@@ -439,9 +479,10 @@ void EcalTPCondAnalyzer::printBadX(const EcalTPGCrystalStatus *ecaltpgBadX) cons
   
   myfile.close();
 }
+*/
 
 
-void EcalTPCondAnalyzer::printBadTT(const EcalTPGTowerStatus *ecaltpgBadTT) const {
+/*void EcalTPCondAnalyzer::printBadTT(const EcalTPGTowerStatus *ecaltpgBadTT) const {
   std::ofstream myfilebadTT;
   myfilebadTT.open("badTTvalues.txt");
   int ieta = 0;
@@ -472,3 +513,4 @@ void EcalTPCondAnalyzer::printBadTT(const EcalTPGTowerStatus *ecaltpgBadTT) cons
   myfilebadTT.close();
 
 }
+*/
