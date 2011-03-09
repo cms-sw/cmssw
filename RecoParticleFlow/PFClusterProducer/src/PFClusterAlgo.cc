@@ -685,7 +685,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	  double eta = wannaBeSeed.position().eta();
 	  double phi = wannaBeSeed.position().phi();
 	  std::pair<double,double> dcr = dCrack(phi,eta);
-	  double dcrmin = std::min(dcr.first, dcr.second);
+	  double dcrmin = layer == PFLayer::ECAL_BARREL ? std::min(dcr.first, dcr.second) : dcr.second;
 	  eta = fabs(eta);
 	  if (   eta < 5.0 &&                         // No cleaning for the HF border 
 		 ( ( eta < 2.85 && dcrmin > 1. ) || 
@@ -749,7 +749,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	  double eta = wannaBeSeed.position().eta();
 	  double phi = wannaBeSeed.position().phi();
 	  std::pair<double,double> dcr = dCrack(phi,eta);
-	  double dcrmin = std::min(dcr.first, dcr.second);
+	  double dcrmin = layer == PFLayer::ECAL_BARREL ? std::min(dcr.first, dcr.second) : dcr.second;
 	  eta = fabs(eta);
 	  if (  ( eta < 5.0 && dcrmin > 1. ) ||
 		( wannaBeSeed.energy() > tighterE*doubleSpikeThresh &&
