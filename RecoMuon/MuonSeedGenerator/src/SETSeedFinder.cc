@@ -42,8 +42,8 @@ void SETSeedFinder::seeds(const MuonRecHitContainer & cluster,
 
 // there is an existing sorter somewhere in the CMSSW code (I think) - delete that
 struct sorter{
-  bool operator() (MuonTransientTrackingRecHit::MuonRecHitPointer hit_1,
-                   MuonTransientTrackingRecHit::MuonRecHitPointer hit_2){
+  bool operator() (MuonTransientTrackingRecHit::MuonRecHitPointer const & hit_1,
+                   MuonTransientTrackingRecHit::MuonRecHitPointer const & hit_2){
     return (hit_1->globalPosition().mag2()<hit_2->globalPosition().mag2());
 
   }
