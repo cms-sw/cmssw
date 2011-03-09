@@ -24,7 +24,7 @@
 #include <sys/stat.h>
 #include <cmath>
 
-PileUpProducer::PileUpProducer(edm::ParameterSet const & p)  
+PileUpProducer::PileUpProducer(edm::ParameterSet const & p) : hprob(0)
 {    
 
   // This producer produces a HepMCProduct, with all pileup vertices/particles
