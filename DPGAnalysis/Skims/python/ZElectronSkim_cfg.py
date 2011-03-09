@@ -26,7 +26,7 @@ PHOTON_CUTS = "hadronicOverEm<0.2 && (abs(superCluster.eta)<2.5)  && ((isEB && s
 TRACK_ET_CUT_MIN = 25.0
 
 #mass cuts (for T&P)
-MASS_CUT_MIN = 40.
+MASS_CUT_MIN = 30.
 MASS_TAGTRACK_CUT_MIN = 60.
 MASS_TAGTRACK_CUT_MAX = 120.
 
@@ -142,7 +142,7 @@ process.GsfMatchedPhotonCands = cms.EDProducer("ElectronMatchedCandidateProducer
 process.PassingWP90 = process.goodElectrons.clone()
 process.PassingWP90.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits<=1 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" #wrt std WP90 allowing 1 numberOfMissingExpectedHits 
     " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
@@ -183,15 +183,15 @@ process.PassingHLT = cms.EDProducer("trgMatchGsfElectronProducer",
 ##     |_|\__,_|\__, | |____/ \___|_| |_|_| |_|_|\__|_|\___/|_| |_|
 ##              |___/
 ## 
-process.Tag = process.PassingHLT.clone()
+process.TagHLT = process.PassingHLT.clone()
 #process.Tag = process.PassingWP90.clone()
-process.Tag.InputProducer = cms.InputTag( "PassingWP90" )
+process.TagHLT.InputProducer = cms.InputTag( "PassingWP90" )
 
 process.ele_sequence = cms.Sequence(
     process.goodElectrons +
     process.PassingWP90 +
-    process.PassingHLT +
-    process.Tag
+ #   process.PassingHLT +
+    process.TagHLT
     )
 
 
@@ -209,7 +209,7 @@ process.ZEEHltFilter.throw = cms.bool(False)
 process.ZEEHltFilter.HLTPaths = ["HLT_Ele*"]
 
 process.tagPhoton = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag goodPhotons"), # charge coniugate states are implied
+    decay = cms.string("TagHLT goodPhotons"), # charge coniugate states are implied
     checkCharge = cms.bool(False),                           
     cut   = cms.string("mass > " + str(MASS_CUT_MIN))
 )
@@ -221,7 +221,7 @@ process.tagPhotonFilter = cms.Sequence(process.tagPhoton * process.tagPhotonCoun
 process.tagPhotonPath = cms.Path( process.ZEEHltFilter *(process.photon_sequence + process.ele_sequence) * process.tagPhotonFilter )
 
 process.tagTrack = process.tagPhoton.clone()
-process.tagTrack.decay = cms.string("Tag goodTracks")
+process.tagTrack.decay = cms.string("TagHLT goodTracks")
 process.tagTrack.cut   = cms.string("mass > " + str(MASS_TAGTRACK_CUT_MIN)+ ' && mass < ' + str(MASS_TAGTRACK_CUT_MAX))
 process.tagTrackCounter = process.tagPhotonCounter.clone()
 process.tagTrackCounter.src = cms.InputTag("tagTrack")
@@ -229,7 +229,7 @@ process.tagTrackFilter = cms.Sequence(process.tagTrack * process.tagTrackCounter
 process.tagTrackPath = cms.Path( process.ZEEHltFilter * (process.track_sequence + process.ele_sequence) * process.tagTrackFilter )
 
 process.tagGsf = process.tagPhoton.clone()
-process.tagGsf.decay = cms.string("Tag goodElectrons")
+process.tagGsf.decay = cms.string("PassingWP90 goodElectrons")
 process.tagGsfCounter = process.tagPhotonCounter.clone()
 process.tagGsfCounter.src = cms.InputTag("tagGsf")
 process.tagGsfFilter = cms.Sequence(process.tagGsf * process.tagGsfCounter)

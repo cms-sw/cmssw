@@ -104,7 +104,7 @@ process.GsfMatchedPhotonCands = cms.EDProducer("ElectronMatchedCandidateProducer
 process.PassingWP90 = process.goodElectrons.clone()
 process.PassingWP90.cut = cms.string(
     process.goodElectrons.cut.value() +
-    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits<=1 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" #wrt std WP90 allowing 1 numberOfMissingExpectedHits 
     " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
@@ -145,15 +145,15 @@ process.PassingHLT = cms.EDProducer("trgMatchGsfElectronProducer",
 ##     |_|\__,_|\__, | |____/ \___|_| |_|_| |_|_|\__|_|\___/|_| |_|
 ##              |___/
 ## 
-process.Tag = process.PassingHLT.clone()
+process.TagHLT = process.PassingHLT.clone()
 #process.Tag = process.PassingWP90.clone()
-process.Tag.InputProducer = cms.InputTag( "PassingWP90" )
+process.TagHLT.InputProducer = cms.InputTag( "PassingWP90" )
 
 process.ele_sequence = cms.Sequence(
     process.goodElectrons +
     process.PassingWP90 +
-    process.PassingHLT +
-    process.Tag
+#    process.PassingHLT +
+    process.TagHLT
     )
 
 
@@ -167,7 +167,7 @@ process.ele_sequence = cms.Sequence(
 
 MT="sqrt(2*daughter(0).pt*daughter(1).pt*(1 - cos(daughter(0).phi - daughter(1).phi)))"
 process.elecMet = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("pfMet Tag"), # charge coniugate states are implied
+    decay = cms.string("pfMet TagHLT"), # charge coniugate states are implied
     checkCharge = cms.bool(False),                           
     cut   = cms.string(("daughter(0).pt > %f && daughter(0).pt > %f && "+MT+" > %f") % (MET_CUT_MIN, W_ELECTRON_ET_CUT_MIN, MT_CUT_MIN))
 )
