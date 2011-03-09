@@ -411,7 +411,7 @@ particle_flow   convID_mvaWeightFile   /afs/cern.ch/cms/data/CMSSW/RecoParticleF
 
 // EG photons  Et cut; Track iso (cste;slope), Ecal iso (cste, slope), Hcal iso (cste, slope), H/E
 particle_flow   useEGPhotons 1
-particle_flow   photonSelection 10 2.0 0.001 4.2 0.003 2.2 0.001 0.005
+particle_flow   photonSelection 10 2.0 0.001 4.2 0.003 2.2 0.001 0.05
 
 
 // Max sumET in ECAL in the block and in the cone to allow the use of the egamma supercluser
