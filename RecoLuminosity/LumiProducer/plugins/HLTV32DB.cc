@@ -420,26 +420,30 @@ namespace lumi{
      std::map<unsigned int,HLTV32DB::hltinfo,std::less<unsigned int> >::const_iterator pathEnd=hltIt->end();
      if(!lumisession->transaction().isActive()){ 
        lumisession->transaction().start(false);
-       coral::ITable& hlttable=lumisession->nominalSchema().tableHandle(LumiNames::hltTableName());
+       coral::ITable& hlttable=lumisession->nominalSchema().tableHandle(LumiNames::lshltTableName());
        hltInserter=hlttable.dataEditor().bulkInsert(lshltData,npath);
      }else{
        if(hltIt==hltItBeg){
-	 coral::ITable& hlttable=lumisession->nominalSchema().tableHandle(LumiNames::hltTableName());
+	 coral::ITable& hlttable=lumisession->nominalSchema().tableHandle(LumiNames::lshltTableName());
 	 hltInserter=hlttable.dataEditor().bulkInsert(lshltData,npath);
        }
      }
      data_id = hltrundata.data_id;
      hltrunnum = irunnumber;
      cmslsnum = cmslscount;
+     std::vector<unsigned int> prescales; prescales.reserve(npath);
      std::vector<unsigned int> hltcounts; hltcounts.reserve(npath);
      std::vector<unsigned int> hltaccepts; hltaccepts.reserve(npath);
-     std::vector<unsigned int> prescales; prescales.reserve(npath);
+
      for(pathIt=pathBeg;pathIt!=pathEnd;++pathIt){
        unsigned int hltcount=pathIt->second.hltinput;
+       //std::cout<<"hltcount "<<hltcount<<std::endl;
        hltcounts.push_back(hltcount);
        unsigned int hltaccept=pathIt->second.hltaccept;
+       //std::cout<<"hltaccept "<<hltaccept<<std::endl;       
        hltaccepts.push_back(hltaccept);
        unsigned int prescale=pathIt->second.prescale;
+       //std::cout<<"prescale "<<prescale<<std::endl;
        prescales.push_back(prescale);
      }
      prescaleblob.resize(sizeof(unsigned int)*npath);
