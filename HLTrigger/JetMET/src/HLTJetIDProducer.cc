@@ -7,6 +7,7 @@ HLTJetIDProducer::HLTJetIDProducer(const edm::ParameterSet& iConfig)
 {
   jetsInput_ = iConfig.getParameter<edm::InputTag>("jetsInput");
   min_EMF_ = iConfig.getParameter<double>("min_EMF");
+  max_EMF_ = iConfig.getParameter<double>("max_EMF");
   min_N90_ = iConfig.getParameter<int>("min_N90");
 
 
@@ -37,7 +38,7 @@ void HLTJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       
     if (fabs(calojetc->eta()) >= 2.6) {
       result->push_back(*calojetc);
-    } else if ((calojetc->emEnergyFraction() >= min_EMF_) && (calojetc->n90() >= min_N90_)) {
+    } else if ((calojetc->emEnergyFraction() >= min_EMF_) && (calojetc->n90() >= min_N90_) && (calojetc->emEnergyFraction() <= max_EMF_)) {
       result->push_back(*calojetc);
     }
 

@@ -98,6 +98,8 @@ void TriggerReportHelpers::fillPathIndexTable(std::string &pathstring)
       }
     }
     for(; i<paths_.size(); i++) {
+      if(pathIndexMap_.find(paths_[i])==pathIndexMap_.end())
+	pathIndexMap_[paths_[i]] = i;
       xdata::Table::iterator it = triggerReportAsTableWithNames_.append();
       it->setField("pathIndex",pathIndexMap_[paths_[i]]);
     }
@@ -440,7 +442,8 @@ void TriggerReportHelpers::sumAndPackTriggerReport(MsgBuf &buf)
     return;
   }
   trs->lumiSection = lumiSectionIndex_;
-  trs->prescaleIndex = trp->prescaleIndex;
+  if(trp->eventSummary.totalEvents!=0)
+    trs->prescaleIndex = trp->prescaleIndex;
 
   //add to the event summary
   trs->eventSummary.totalEvents += trp->eventSummary.totalEvents;
@@ -449,10 +452,21 @@ void TriggerReportHelpers::sumAndPackTriggerReport(MsgBuf &buf)
 
   //get total paths in the menu
   if(trs->trigPathsInMenu != trp->trigPathsInMenu) 
-    XCEPT_RAISE(evf::Exception,"trig summary inconsistency");
+    {
+      std::ostringstream ost;
+      ost << "trig path summary inconsistency " 
+	  << trs->trigPathsInMenu << " vs. " << trp->trigPathsInMenu;
+      std::cout << ost.str() << std::endl;
+      XCEPT_RAISE(evf::Exception,ost.str());
+    }
   if(trs->endPathsInMenu != trp->endPathsInMenu)
-    XCEPT_RAISE(evf::Exception,"trig summary inconsistency");
-
+    {
+      std::ostringstream ost;
+      ost << "trig endpath summary inconsistency " 
+	  << trs->endPathsInMenu << " vs. " << trp->endPathsInMenu;
+      std::cout << ost.str() << std::endl;
+      XCEPT_RAISE(evf::Exception,ost.str());
+    }
   //traverse the trigger report and sum relevant parts, check otherwise
   // loop on paths
   for(int i = 0; i < trp->trigPathsInMenu; i++)

@@ -32,8 +32,6 @@ public:
    virtual void CloseWindow() { UnmapWindow(); }
 
    void switchBackground();
-   void setGamma(int);
-   void resetGamma();
    void changeGeomColor(Color_t);
    void changeGeomTransparency2D(int);
    void changeGeomTransparency3D(int);
@@ -45,6 +43,7 @@ private:
    CmsShowCommonPopup(const CmsShowCommonPopup&);
    const CmsShowCommonPopup& operator=(const CmsShowCommonPopup&);
 
+   void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
    // ---------- member data --------------------------------
 
    CmsShowCommon  *m_common;

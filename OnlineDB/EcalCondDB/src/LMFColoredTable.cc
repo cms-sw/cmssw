@@ -35,22 +35,12 @@ LMFColoredTable::LMFColoredTable(oracle::occi::Environment* env,
   SYSTEM[1] = "LED";
 }
 
-std::string LMFColoredTable::getColor() const {
-  std::string ret = "";
-  std::map<int, std::string>::const_iterator i = COLOR.find(m_color);
-  if (i != COLOR.end()) {
-    ret = i->second;
-  }
-  return ret;
+std::string LMFColoredTable::getColor() {
+  return COLOR[m_color];
 }
 
-std::string LMFColoredTable::getSystem() const {
-  std::string ret = "";
-  std::map<int, std::string>::const_iterator i = SYSTEM.find(m_system);
-  if (i != SYSTEM.end()) {
-    ret = i->second;
-  }
-  return ret;
+std::string LMFColoredTable::getSystem() {
+  return SYSTEM[m_system];
 }
 
 LMFColoredTable& LMFColoredTable::setColor(std::string color) {
@@ -94,13 +84,5 @@ int LMFColoredTable::writeDB()
     }
     i++;
   }
-  int ret = 0;
-  try {
-    ret = LMFDat::writeDB();
-  }
-  catch (std::runtime_error &e) {
-    m_conn->rollback();
-    throw(e);
-  }
-  return ret;
+  return LMFDat::writeDB();
 }

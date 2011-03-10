@@ -41,31 +41,18 @@
 
 class DTConfigTrivialProducer : public edm::ESProducer {
 public:
-  
-  //! Constructor
   DTConfigTrivialProducer(const edm::ParameterSet&);
-
-  //! destructor
   ~DTConfigTrivialProducer();
+  
+  std::auto_ptr<DTConfigManager> produce (const DTConfigManagerRcd&);
 
-  //! ES produce method
-  std::auto_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
-
-private:
-
-  //! Build Config Manager
   void buildManager();
 
-  //! Build Config Pedestals
-  DTConfigPedestals buildPedestals();
-
+private:
   std::string mapEntryName(const DTChamberId & chambid) const;
-
-  bool m_debug;
+  // ----------member data ---------------------------
   edm::ParameterSet m_ps;
   DTConfigManager* m_manager;
-  DTTPGParameters* m_tpgParams;
-
 };
 
 #endif

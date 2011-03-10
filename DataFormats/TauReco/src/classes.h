@@ -97,9 +97,6 @@ namespace {
     edm::Wrapper<edm::Association<std::vector<reco::PFTauDecayMode> > >         pftdm_assoc_v_wrapper;
     edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >                  pftau_assoc_v_wrapper;
 
-    edm::Association<std::vector<reco::PFJet> >                                 pfjet_assoc_v; // used for matching
-    edm::Wrapper<edm::Association<std::vector<reco::PFJet> > >                  pfjet_assoc_v_wrapper;
-
     std::vector<reco::RecoTauPiZero>                                           recoTauPiZero_v;
     edm::Wrapper<std::vector<reco::RecoTauPiZero> >                            recoTauPiZero_w;
     edm::Ref<std::vector<reco::RecoTauPiZero> >                                recoTauPiZero_r;

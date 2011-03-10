@@ -36,7 +36,7 @@ void filterCellsInCone     (std::vector<TCell>& selectCells, const GlobalPoint h
 
 // Jim's implementation fo the cone
 
-//double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
+double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
 
 
 

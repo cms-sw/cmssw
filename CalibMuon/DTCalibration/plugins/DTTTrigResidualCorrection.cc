@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/08/17 23:05:35 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/06/29 15:42:03 $
+ *  $Revision: 1.5 $
  *  \author A. Vilela Pereira
  */
 
@@ -17,8 +17,6 @@
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
-
-#include "CalibMuon/DTCalibration/interface/DTResidualFitter.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -52,26 +50,37 @@ DTTTrigResidualCorrection::DTTTrigResidualCorrection(const ParameterSet& pset) {
   if(useSlopesCalib_){ 
      ifstream fileSlopes; 
      fileSlopes.open( pset.getParameter<FileInPath>("slopesFileName").fullPath().c_str() );
+     //fin.open("slopesDB.txt");
 
-     int tmp_wheel = 0, tmp_sector = 0, tmp_station = 0, tmp_SL = 0;
-     double tmp_ttrig = 0., tmp_t0 = 0., tmp_kfact = 0.;
-     int tmp_a = 0, tmp_b = 0, tmp_c = 0, tmp_d = 0;
+     int tmp_wheel = 0;
+     int tmp_sector = 0;
+     int tmp_station = 0;
+     int tmp_SL = 0;
+     double tmp_ttrig = 0.;
+     double tmp_t0 = 0.;
+     double tmp_kfact = 0.;
+     int tmp_a = 0;
+     int tmp_b = 0;
+     int tmp_c = 0;
+     int tmp_d = 0;
      double tmp_v_eff = 0.;
+
      while(!fileSlopes.eof()){
+
         fileSlopes >> tmp_wheel >> tmp_sector >> tmp_station >> tmp_SL  >> tmp_a >> tmp_b >>
                       tmp_ttrig >> tmp_t0 >> tmp_kfact >> tmp_c >> tmp_d >> tmp_v_eff;
+
         vDriftEff_[tmp_wheel+2][tmp_sector-1][tmp_station-1][tmp_SL-1] = -tmp_v_eff;
+
      }
+
      fileSlopes.close();
   } 
 
-  bool debug = pset.getUntrackedParameter<bool>("debug",false);
-  fitter_ = new DTResidualFitter(debug);
 }
 
 DTTTrigResidualCorrection::~DTTTrigResidualCorrection() {
   delete rootFile_;
-  delete fitter_;
 }
 
 void DTTTrigResidualCorrection::setES(const EventSetup& setup) {
@@ -100,59 +109,64 @@ DTTTrigData DTTTrigResidualCorrection::correction(const DTSuperLayerId& slId) {
   if(status != 0) throw cms::Exception("[DTTTrigResidualCorrection]") << "Could not find vDrift entry in DB for"
                                                                       << slId << endl;
   TH1F residualHisto = *(getHisto(slId));
-  LogTrace("Calibration") << "[DTTTrigResidualCorrection]: \n"
-                          << "   Mean, RMS     = " << residualHisto.GetMean() << ", " << residualHisto.GetRMS();
-
   double fitMean = -1.;
-  double fitSigma = -1.;
+
   if(useFit_){
-    LogTrace("Calibration") << "[DTTTrigResidualCorrection]: Fitting histogram " << residualHisto.GetName(); 
-    const bool originalFit = false; // FIXME: Include this option in fitter class
-    if(originalFit){
-       RooRealVar x("x","residual",-1.,1.);
-       RooRealVar mean("mean","mean",residualHisto.GetMean(),-0.3,0.3);
-       RooRealVar sigma1("sigma1","sigma1",0.,0.5);
-       RooRealVar sigma2("sigma2","sigma2",0.,0.5);
 
-       RooRealVar frac("frac","frac",0.,1.);
+    RooRealVar x("x","residual",-1.,1.);
+    RooRealVar mean("mean","mean",residualHisto.GetMean(),-0.3,0.3);
+    RooRealVar sigma1("sigma1","sigma1",0.,0.5);
+    RooRealVar sigma2("sigma2","sigma2",0.,0.5);
 
-       RooGaussian myg1("myg1","Gaussian distribution",x,mean,sigma1);
-       RooGaussian myg2("myg2","Gaussian distribution",x,mean,sigma2);
+    RooRealVar frac("frac","frac",0.,1.);
 
-       RooAddPdf myg("myg","myg",RooArgList(myg1,myg2),RooArgList(frac));
+    RooGaussian myg1("myg1","Gaussian distribution",x,mean,sigma1);
+    RooGaussian myg2("myg2","Gaussian distribution",x,mean,sigma2);
 
-       RooDataHist hdata("hdata","Binned data",RooArgList(x),&residualHisto);
-       myg.fitTo(hdata,RooFit::Minos(0),RooFit::Range(-0.2,0.2));
+    RooAddPdf myg("myg","myg",RooArgList(myg1,myg2),RooArgList(frac));
 
-       fitMean = mean.getVal();
-       fitSigma = sigma1.getVal();
-    } else{
-       int nSigmas = 2;
-       DTResidualFitResult fitResult = fitter_->fitResiduals(residualHisto,nSigmas);
-       fitMean = fitResult.fitMean;
-       fitSigma = fitResult.fitSigma;  
-    }
+    RooDataHist hdata("hdata","Binned data",RooArgList(x),&residualHisto);
+    myg.fitTo(hdata,RooFit::Minos(0),RooFit::Range(-0.2,0.2));
+
+    fitMean = mean.getVal();
     LogTrace("Calibration") << "[DTTTrigResidualCorrection]: \n"
-                            << "   Fit Mean      = " << fitMean << "\n"
-                            << "   Fit Sigma     = " << fitSigma;
+                            << "                             Mean, Fit Mean    = " << residualHisto.GetMean()
+			    << ", " << fitMean << "\n"
+                            << "                             RMS, Fit RMS      = " << residualHisto.GetRMS()
+                            << ", " << sigma1.getVal();
+
+    //static int count = 0;
+    /*
+    if(count == 0){
+      RooPlot *xframe = x.frame();
+      hdata.plotOn(xframe);
+      myg.plotOn(xframe);
+      TCanvas c1;
+      c1.cd();
+      xframe->Draw();
+      c1.SaveAs("prova.eps");
+      count++;
+    }
+    */
+
   }
-  double resMean = (useFit_) ? fitMean : residualHisto.GetMean();
 
   int wheel = slId.wheel();
   int sector = slId.sector();
   int station = slId.station();
   int superLayer = slId.superLayer();
+
   double resTime = 0.;
   if(useSlopesCalib_){
      double vdrift_eff = vDriftEff_[wheel+2][sector-1][station-1][superLayer-1];
      if(vdrift_eff == 0) vdrift_eff = vDrift;
 
-     if(vdrift_eff) resTime = resMean/vdrift_eff;
+     if(vdrift_eff) resTime = ( (useFit_) ? fitMean : residualHisto.GetMean() )/vdrift_eff;
 
      LogTrace("Calibration") << "[DTTTrigResidualCorrection]: Effective vDrift, correction to tTrig = "
                              << vdrift_eff << ", " << resTime;
   } else{
-     if(vDrift) resTime = resMean/vDrift;
+     if(vDrift) resTime = ( (useFit_) ? fitMean : residualHisto.GetMean() )/vDrift;
 
      LogTrace("Calibration") << "[DTTTrigResidualCorrection]: vDrift from DB, correction to tTrig = "
                              << vDrift << ", " << resTime;
@@ -195,3 +209,5 @@ string DTTTrigResidualCorrection::getHistoName(const DTSuperLayerId& slId) {
 
   return histoName;
 }
+
+

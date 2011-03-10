@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.4 2007/12/09 23:22:11 apana Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.5 2008/06/07 19:46:08 apana Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -27,7 +27,8 @@ HLTJetVBFFilter::HLTJetVBFFilter(const edm::ParameterSet& iConfig)
 {
    inputTag_    = iConfig.getParameter< edm::InputTag > ("inputTag");
    saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag",false);
-   minEt_       = iConfig.getParameter<double> ("minEt");
+   minEtLow_    = iConfig.getParameter<double> ("minEtLow");
+   minEtHigh_   = iConfig.getParameter<double> ("minEtHigh");
    minDeltaEta_ = iConfig.getParameter<double> ("minDeltaEta"); 
 
    //register your products
@@ -50,49 +51,60 @@ HLTJetVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputTag_,recocalojets);
 
-  // look at all candidates,  check cuts and add to filter object
+  // look at all candidates, check cuts and add to filter object
   int n(0);
-
+  
+  
+  // events with two or more jets
   if(recocalojets->size() > 1){
-    // events with two or more jets
-
-    double etjet1=0.;
-    double etjet2=0.;
-    double etajet1=0.;
-    double etajet2=0.;
-    int countjets =0;
-
-    for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
-	 recocalojet<=(recocalojets->begin()+1); recocalojet++) {
+    
+    double etjet1 = 0.;
+    double etjet2 = 0.;
+    double etajet1 = 0.;
+    double etajet2 = 0.;
+    
+    // loop on all jets
+    for (reco::CaloJetCollection::const_iterator recocalojet1 = recocalojets->begin(); 
+         recocalojet1 != recocalojets->end(); ++recocalojet1) {
       
-      if(countjets==0) {
-	etjet1 = recocalojet->et();
-	etajet1 = recocalojet->eta();
+      if( recocalojet1->et() < minEtHigh_ ) break;
+      
+      for (reco::CaloJetCollection::const_iterator recocalojet2 = recocalojet1+1; 
+           recocalojet2 != recocalojets->end(); ++recocalojet2) {
+        
+        if( recocalojet2->et() < minEtLow_ ) break;
+        
+        etjet1 = recocalojet1->et();
+	etajet1 = recocalojet1->eta();
+        
+        etjet2 = recocalojet2->et();
+        etajet2 = recocalojet2->eta();
+        
+        float deltaetajet = etajet1 - etajet2;
+        
+        // VBF cuts
+        if ( (etjet1 > minEtHigh_) &&
+             (etjet2 > minEtLow_) &&
+             (etajet1*etajet2 < 0 ) &&
+             (fabs(deltaetajet) > minDeltaEta_) ){
+          
+   	  ++n;
+          reco::CaloJetRef ref1(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet1)));
+          filterobject->addObject(TriggerJet,ref1);
+          reco::CaloJetRef ref2(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet2)));
+          filterobject->addObject(TriggerJet,ref2);
+        
+        } // VBF cuts
+      
       }
-      if(countjets==1) {
-	etjet2 = recocalojet->et();
-	etajet2 = recocalojet->eta();
-      }
-      countjets++;
-    }
-    float deltaetajet = etajet1 - etajet2;
-
-    if(etjet1>minEt_ && etjet2>minEt_ && (etajet1*etajet2)<0 && fabs(deltaetajet)>minDeltaEta_){
-
-      for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
-	   recocalojet<=(recocalojets->begin()+1); recocalojet++) {
-	reco::CaloJetRef ref(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
-	filterobject->addObject(TriggerJet,ref);
-	n++;
-      }
-    }
+    } // loop on all jets
     
   } // events with two or more jets
   
   
   
   // filter decision
-  bool accept(n>=2);
+  bool accept(n>=1);
   
   // put filter object into the Event
   iEvent.put(filterobject);

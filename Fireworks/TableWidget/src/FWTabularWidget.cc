@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.12 2010/11/24 10:16:52 amraktad Exp $
+// $Id: FWTabularWidget.cc,v 1.15 2011/02/11 19:56:37 amraktad Exp $
 //
 
 // system include files
@@ -31,6 +31,9 @@
 // static data member definitions
 //
 
+const int FWTabularWidget::kTextBuffer = 2;
+const int FWTabularWidget::kSeperatorWidth = 1;
+
 //
 // constructors and destructor
 //
@@ -41,7 +44,8 @@ m_widthOfTextInColumns(m_table->numberOfColumns(),static_cast<unsigned int>(0)),
 m_vOffset(0),
 m_hOffset(0),
 m_normGC(context),
-m_backgroundGC(ULONG_MAX)
+m_backgroundGC(ULONG_MAX),
+m_growInWidth(true)
 {
 
    m_textHeight = iTable->cellHeight();
@@ -56,7 +60,6 @@ m_backgroundGC(ULONG_MAX)
    Resize();
    
    gVirtualX->GrabButton(fId,kAnyButton, kAnyModifier, kButtonPressMask|kButtonReleaseMask,kNone,kNone);
-   m_table->Connect("dataChanged()","FWTabularWidget",this,"dataChanged()");
    m_table->Connect("visualPropertiesChanged()","FWTabularWidget",this,"needToRedraw()");
 }
 
@@ -67,7 +70,6 @@ m_backgroundGC(ULONG_MAX)
 
 FWTabularWidget::~FWTabularWidget()
 {
-   m_table->Disconnect("dataChanged()", this, "dataChanged()");
    m_table->Disconnect("visualPropertiesChanged()", this, "needToRedraw()");
 }
 
@@ -106,16 +108,18 @@ FWTabularWidget::setWidthOfTextInColumns(const std::vector<unsigned int>& iNew)
    assert(iNew.size() == static_cast<unsigned int>(m_table->numberOfColumns()));
 
    m_widthOfTextInColumns=iNew;
-   // with of columns grow to prevent resizing/flickering on next event
-   m_widthOfTextInColumnsMax.resize(iNew.size());
-   std::vector<unsigned int>::iterator k =  m_widthOfTextInColumnsMax.begin();
-   for(std::vector<unsigned int>::iterator it = m_widthOfTextInColumns.begin(); it != m_widthOfTextInColumns.end(); ++it, ++k)
+   if (m_growInWidth)
    {
-      if ( *it < *k ) 
-         *it = *k;
-      else
-         *k = *it;
-
+      // with of columns grow to prevent resizing/flickering on next event
+      m_widthOfTextInColumnsMax.resize(iNew.size());
+      std::vector<unsigned int>::iterator k =  m_widthOfTextInColumnsMax.begin();
+      for(std::vector<unsigned int>::iterator it = m_widthOfTextInColumns.begin(); it != m_widthOfTextInColumns.end(); ++it, ++k)
+      {
+         if ( *it < *k ) 
+            *it = *k;
+         else
+            *k = *it;
+      }
    }
 
    m_tableWidth=0;

@@ -40,10 +40,6 @@ hpsPFTauDiscriminationByLooseIsolation = copy.deepcopy(pfRecoTauDiscriminationBy
 setTauSource(hpsPFTauDiscriminationByLooseIsolation, 'hpsPFTauProducer')
 hpsPFTauDiscriminationByLooseIsolation.Prediscriminants = requireDecayMode
 
-hpsPFTauDiscriminationByVLooseIsolation = hpsPFTauDiscriminationByLooseIsolation.clone()
-hpsPFTauDiscriminationByVLooseIsolation.qualityCuts.isolationQualityCuts.minTrackPt = 1.25
-hpsPFTauDiscriminationByVLooseIsolation.qualityCuts.isolationQualityCuts.minGammaEt = 1.5
-
 #Define a discriminator By Medium Isolation!
 #You need to loosen qualityCuts for this
 mediumPFTauQualityCuts = cms.PSet(
@@ -131,10 +127,6 @@ hpsLooseIsolationCleaner = hpsPFTauDiscriminationByLooseIsolation.clone(
     Prediscriminants = noPrediscriminants,
     PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
 )
-hpsVLooseIsolationCleaner = hpsPFTauDiscriminationByVLooseIsolation.clone(
-    Prediscriminants = noPrediscriminants,
-    PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
-)
 
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 
@@ -167,11 +159,6 @@ hpsPFTauProducer = cms.EDProducer(
             plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
             src = cms.InputTag("hpsLooseIsolationCleaner"),
         ),
-        cms.PSet(
-            name = cms.string("VLooseIso"),
-            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
-            src = cms.InputTag("hpsVLooseIsolationCleaner"),
-        ),
         # Finally, if all this passes, take the one with less stuff in the
         # isolation cone.
         cleaners.combinedIsolation
@@ -183,14 +170,12 @@ produceHPSPFTaus = cms.Sequence(
     *hpsTightIsolationCleaner
     *hpsMediumIsolationCleaner
     *hpsLooseIsolationCleaner
-    *hpsVLooseIsolationCleaner
     *hpsPFTauProducer
 )
 
 produceAndDiscriminateHPSPFTaus = cms.Sequence(
     produceHPSPFTaus*
     hpsPFTauDiscriminationByDecayModeFinding*
-    hpsPFTauDiscriminationByVLooseIsolation*
     hpsPFTauDiscriminationByLooseIsolation*
     hpsPFTauDiscriminationByMediumIsolation*
     hpsPFTauDiscriminationByTightIsolation*

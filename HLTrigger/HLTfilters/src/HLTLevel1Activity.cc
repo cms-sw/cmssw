@@ -8,8 +8,8 @@
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: 2010/03/15 11:06:10 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/04/18 11:28:37 $
+ *  $Revision: 1.8 $
  *
  *  \author Andrea Bocci
  *
@@ -24,6 +24,7 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+// FIXME: these should come form the L1 configuration at runtime
 #define PHYSICS_BITS_SIZE    128
 #define TECHNICAL_BITS_SIZE   64
 
@@ -134,10 +135,16 @@ HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
   // compare the results with the requested bits, and return true as soon as the first match is found
   BOOST_FOREACH(int bx, m_bunchCrossings) {
     const std::vector<bool> & physics = h_gtReadoutRecord->decisionWord(bx);
+    if (physics.size() != PHYSICS_BITS_SIZE)
+      // error in L1 results
+      return m_invert;
     for (unsigned int i = 0; i < PHYSICS_BITS_SIZE; ++i)
       if (m_maskedPhysics[i] and physics[i])
         return not m_invert;
     const std::vector<bool> & technical = h_gtReadoutRecord->technicalTriggerWord(bx);
+    if (technical.size() != TECHNICAL_BITS_SIZE)
+      // error in L1 results
+      return m_invert;
     for (unsigned int i = 0; i < TECHNICAL_BITS_SIZE; ++i)
       if (m_maskedTechnical[i] and technical[i])
         return not m_invert;
