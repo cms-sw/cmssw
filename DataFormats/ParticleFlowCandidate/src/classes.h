@@ -17,6 +17,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 namespace {
   struct dictionary {
@@ -29,6 +30,9 @@ namespace {
     edm::reftobase::RefHolder<reco::PFCandidateRef> bla2; 
     reco::PFCandidatePtr bla3;     
     std::vector<reco::PFCandidatePtr> bla33;     
+    edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > bla333;
+    edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >  bla334;
+    std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > bla335;
 
     reco::PFCandidate::ElementInBlock jo1;
     reco::PFCandidate::ElementsInBlocks jo2;  
