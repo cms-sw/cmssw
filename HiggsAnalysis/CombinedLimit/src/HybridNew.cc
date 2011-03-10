@@ -8,6 +8,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/HybridNew.h"
 #include <TFile.h>
 #include <TKey.h>
+#include <TCanvas.h>
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooAbsPdf.h"
@@ -18,38 +19,31 @@
 #include <RooStats/RatioOfProfiledLikelihoodsTestStat.h>
 #include <RooStats/ProfileLikelihoodTestStat.h>
 #include <RooStats/ToyMCSampler.h>
+#include <RooStats/HypoTestPlot.h>
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
 
 using namespace RooStats;
 
+HybridNew::WorkingMode HybridNew::workingMode_;
 unsigned int HybridNew::nToys_;
 double HybridNew::clsAccuracy_, HybridNew::rAbsAccuracy_, HybridNew::rRelAccuracy_;
 bool HybridNew::rInterval_;
 bool HybridNew::CLs_;
 bool HybridNew::saveHybridResult_, HybridNew::readHybridResults_; 
 std::string HybridNew::rule_, HybridNew::testStat_;
-bool HybridNew::singlePointScan_; 
 double HybridNew::rValue_;
 unsigned int HybridNew::nCpu_, HybridNew::fork_;
 bool HybridNew::importanceSamplingNull_, HybridNew::importanceSamplingAlt_;
+std::string HybridNew::plot_;
  
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
-    // NOTE: we do NOT re-declare options which are in common with Hybrid method
     options_.add_options()
+      ("onlyTestStat", "Just compute test statistics, not actual p-values (works only with --singlePoint)")
       ("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(false), "Enable importance sampling for null hypothesis (background only)") 
       ("importanceSamplingAlt", boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(false), "Enable importance sampling for alternative hypothesis (signal plus background)") 
-    /*
-        ("toysH", boost::program_options::value<unsigned int>()->default_value(500),    "Number of Toy MC extractions to compute CLs+b, CLb and CLs")
-        ("clsAcc",  boost::program_options::value<double>( )->default_value(0.005), "Absolute accuracy on CLs to reach to terminate the scan")
-        ("rAbsAcc", boost::program_options::value<double>()->default_value(0.1),   "Absolute accuracy on r to reach to terminate the scan")
-        ("rRelAcc", boost::program_options::value<double>()->default_value(0.05),  "Relative accuracy on r to reach to terminate the scan")
-        ("rule",    boost::program_options::value<std::string>()->default_value("CLs"),    "Rule to use: CLs, CLsplusb")
-        ("testStat",boost::program_options::value<std::string>()->default_value("LEP"),"Test statistics: LEP, TEV, Atlas.")
-        ("rInterval", "Always try to compute an interval on r even after having found a point satisfiying the CL")
-    */
-        ("nCPU", boost::program_options::value<unsigned int>()->default_value(0), "Use N CPUs with PROOF Lite (experimental!)")
+      ("nCPU", boost::program_options::value<unsigned int>()->default_value(0), "Use N CPUs with PROOF Lite (experimental!)")
     ;
 }
 
@@ -70,19 +64,34 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
         throw std::invalid_argument("HybridNew: Rule must be either 'CLs' or 'CLsplusb'");
     }
     rInterval_ = vm.count("rInterval");
-    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "Atlas") {
-        throw std::invalid_argument("HybridNew: Test statistics should be one of 'LEP' or 'TEV' or 'Atlas'");
+    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "Atlas" && testStat_ != "Profile") {
+        throw std::invalid_argument("HybridNew: Test statistics should be one of 'LEP' or 'TEV' or 'Atlas' or 'Profile'");
     }
-    if ((singlePointScan_ = vm.count("singlePoint"))) {
+
+    if (vm.count("singlePoint")) {
+        if (doSignificance_) throw std::invalid_argument("HybridNew: Can't use --significance and --singlePoint at the same time");
         rValue_ = vm["singlePoint"].as<float>();
+        workingMode_ = ( vm.count("onlyTestStat") ? MakeTestStatistics : MakePValues );
+        rValue_ = vm["singlePoint"].as<float>();
+    } else if (vm.count("onlyTestStat")) {
+        throw std::invalid_argument("HybridNew: --onlyTestStat works only with --singlePoint");
+    } else if (doSignificance_) {
+        workingMode_ = MakeSignificance;
+    } else {
+        workingMode_ = MakeLimit;
     }
+    plot_ = vm.count("plot") ? vm["plot"].as<std::string>() : std::string();
 }
 
 bool HybridNew::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
-    RooFitGlobalKillSentry silence(RooFit::WARNING);
-    if (singlePointScan_) return runSinglePoint(w, data, limit, hint);
-    bool ret = doSignificance_ ? runSignificance(w, data, limit, hint) : runLimit(w, data, limit, hint);
-    return ret;
+    RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::WARNING : RooFit::DEBUG);
+    switch (workingMode_) {
+        case MakeLimit:            return runLimit(w, data, limit, hint);
+        case MakeSignificance:     return runSignificance(w, data, limit, hint);
+        case MakePValues:          return runSinglePoint(w, data, limit, hint);
+        case MakeTestStatistics:   return runTestStatistics(w, data, limit, hint);
+    }
+    assert("Shouldn't get here" == 0);
 }
 
 bool HybridNew::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
@@ -100,7 +109,13 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
-    hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+1e-9); // issue with < vs <= in discrete models
+    if (testStat_ == "Atlas" || testStat_ == "Profile") {
+        // I need to flip the P-values
+        hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
+        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-1e-9); // issue with < vs <= in discrete models
+    } else {
+        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+1e-9); // issue with < vs <= in discrete models
+    }
     limit = hcResult->Significance();
     double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - limit;
     double sigLo = RooStats::PValueToSignificance( 1 - (hcResult->CLb() - hcResult->CLbError()) ) - limit;
@@ -188,7 +203,17 @@ bool HybridNew::runSinglePoint(RooWorkspace *w, RooAbsData &data, double &limit,
     return true;
 }
 
-
+bool HybridNew::runTestStatistics(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+    RooRealVar *r = w->var("r"); 
+    HybridNew::Setup setup;
+    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, data, r, rValue_, setup));
+    RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
+    limit = -2 * setup.qvar->Evaluate(data, nullPOI);
+    if (testStat_ == "Atlas" || testStat_ == "Profile") limit = -limit; // there's a sign flip for these two
+    std::cout << "\n -- Hybrid New -- \n";
+    std::cout << "-2 ln Q_{"<< testStat_<<"} = " << limit << std::endl;
+    return true;
+}
 
 std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, bool adaptive, double clsTarget) {
     HybridNew::Setup setup;
@@ -226,17 +251,17 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   } else if (testStat_ == "TEV") {
     setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), setup.modelConfig.GetSnapshot()));
     ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
-  } else if (testStat_ == "Atlas") {
-    setup.modelConfig_bonly.SetPdf(*w->pdf("model_s"));
-    RooArgSet nullPOI; nullPOI.addClone(*r); 
-    ((RooRealVar &)nullPOI["r"]).setVal(rVal);
-    ((RooRealVar &)nullPOI["r"]).setMin(0);
-    ((RooRealVar &)nullPOI["r"]).setMax(rVal);
-    setup.modelConfig_bonly.SetSnapshot(nullPOI);
-    setup.qvar.reset(new ProfileLikelihoodTestStat(*setup.modelConfig_bonly.GetPdf()));
+  } else if (testStat_ == "Atlas" || testStat_ == "Profile") {
+    r->setConstant(false); r->setMin(0);
+    if (testStat_ == "Atlas") r->setMax(rVal);
+    RooArgSet altPOI; altPOI.addClone(*r); 
+    setup.modelConfig.SetSnapshot(altPOI);
+    setup.modelConfig_bonly.SetSnapshot(altPOI);
+    setup.qvar.reset(new ProfileLikelihoodTestStat(*w->pdf("model_s")));
   }
   
   setup.toymcsampler.reset(new ToyMCSampler(*setup.qvar, nToys_));
+
   if (!w->pdf("model_b")->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
   
   if (nCpu_ > 0) {
@@ -251,6 +276,18 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     hc->ForcePriorNuisanceAlt(*w->pdf("nuisancePdf"));
   }
 
+  // we need less B toys than S toys
+  if (workingMode_ == MakeSignificance) {
+      // need only B toys. just keep a few S+B ones to avoid possible divide-by-zero errors somewhere
+      hc->SetToys(nToys_, int(0.01*nToys_)+1);
+  } else if (!CLs_) {
+      // we need only S+B toys to compute CLs+b
+      hc->SetToys(int(0.01*nToys_)+1, nToys_);
+  } else {
+      // need both, but more S+B than B 
+      hc->SetToys(int(0.25*nToys_)+1, nToys_);
+  }
+
   static const char * istr = "__HybridNew__importanceSamplingDensity";
   if(importanceSamplingNull_) {
     if(verbose > 1) std::cout << ">>> Enabling importance sampling for null hyp." << std::endl;
@@ -260,7 +297,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     RooArgSet importanceSnapshot;
     importanceSnapshot.addClone(poi);
     importanceSnapshot.addClone(*w->set("nuisances"));
-    importanceSnapshot.Print("V");
+    if (verbose > 2) importanceSnapshot.Print("V");
     hc->SetNullImportanceDensity(w->pdf("model_b"), &importanceSnapshot);
   }
   if(importanceSamplingAlt_) {
@@ -274,7 +311,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     RooArgSet importanceSnapshot;
     importanceSnapshot.addClone(poi);
     importanceSnapshot.addClone(*w->set("nuisances"));
-    importanceSnapshot.Print("V");
+    if (verbose > 2) importanceSnapshot.Print("V");
     hc->SetAltImportanceDensity(w->pdf(istr), &importanceSnapshot);
   }
 
@@ -288,14 +325,21 @@ HybridNew::eval(RooStats::HybridCalculator &hc, bool adaptive, double clsTarget)
         std::cerr << "Hypotest failed" << std::endl;
         return std::pair<double, double>(-1,-1);
     }
-    hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+1e-9); // issue with < vs <= in discrete models
+    if (testStat_ == "Atlas" || testStat_ == "Profile") {
+        // I need to flip the P-values
+        hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
+        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-1e-9); // issue with < vs <= in discrete models
+    } else {
+        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+1e-9); // issue with < vs <= in discrete models
+    }
     double clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
     double clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
     if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
     if (adaptive) {
-        hc.SetToys(nToys_, 4*nToys_);
+        hc.SetToys(CLs_ ? nToys_ : 1, 4*nToys_);
         while (clsMidErr >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
             std::auto_ptr<HypoTestResult> more(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
+            if (testStat_ == "Atlas" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
             clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
@@ -308,6 +352,13 @@ HybridNew::eval(RooStats::HybridCalculator &hc, bool adaptive, double clsTarget)
             "\tCLb      = " << hcResult->CLb()      << " +/- " << hcResult->CLbError()      << "\n" <<
             "\tCLsplusb = " << hcResult->CLsplusb() << " +/- " << hcResult->CLsplusbError() << "\n" <<
             std::endl;
+    }
+    if (!plot_.empty()) {
+        HypoTestPlot plot(*hcResult, 30);
+        TCanvas *c1 = new TCanvas("c1","c1");
+        plot.Draw();
+        c1->Print(plot_.c_str());
+        delete c1;
     }
     return std::pair<double, double>(clsMid, clsMidErr);
 } 
