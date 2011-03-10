@@ -7,8 +7,11 @@ parser.add_option("-s", "--stat",     dest="stat",     default=False, action="st
 parser.add_option("-S", "--signal",   dest="signal",   default=False, action="store_true")
 parser.add_option("-a", "--asimov",   dest="asimov",   default=False, action="store_true")
 parser.add_option("-F", "--floor",    dest="floor",    default=False, action="store_true")
-parser.add_option("-o", "--optimize", dest="optimize", default=False, action="store_true")
+parser.add_option("-o", "--optimize", dest="optimize", default=False, action="store_true", help="Remove processes or systematics that don't contribute")
+parser.add_option("-g", "--gamma", dest="gamma", default=False, action="store_true", help="Use gammas for statistical uncertainties")
+parser.add_option("--gmM",   dest="gmM",  type="string", action="append", default=[], help="Use multiplicative gamma for this systematics (can use multiple times)")
 parser.add_option("-l", "--label",    dest="label",    type="string", default="hww")
+parser.add_option("-L", "--label-syst",    dest="labelSyst", default=False, action="store_true", help="Give names to systematics")
 parser.add_option("-4", "--4th-gen",  dest="sm4",      default=False, action="store_true")
 parser.add_option("-n", "--nch",      dest="nch",      type="int",    default=1)
 parser.add_option("-B", "--b-fluct",  dest="bfluct",   type="float",  default=0)
@@ -20,6 +23,18 @@ file = open(args[0], "r")
 
 data = {} 
 
+def iddify(x):
+    id = x
+    slang = { "[Cc]ross[ -][Ss]ection":"xs", 
+              "[Tt]rigger(\s+[Ef]f(s|ic(ienc(y|ies))?))":"trig",
+              "([Ii]ntegrated\s+)[Ll]umi(nosity)":"lumi",
+              "[Ef]f(s|ic(ienc(y|ies))?)":"eff",
+              "[Nn]orm(alization)":"norm",
+              "[Rr]eco(nstruction)":"reco",
+              "[Ss]stat(istics?)":"stat"}
+    for s,r in slang.items(): id = re.sub(s,r,id)
+    return re.sub("[^A-Za-z0-9_]", "", re.sub("\s+|-|/","_", re.sub("^\s+|\s+$","",id)))
+     
 header = file.readline() # skip header
 processnames = header.split()[2:]
 nproc = len(processnames)
@@ -99,7 +114,8 @@ if options.optimize:
         data[mh]['processnames'] = [  x for i,x in enumerate(data[mh]['processnames']) if hasrate[i%nproc] ]
         data[mh]['exp']          = [  x for i,x in enumerate(data[mh]['exp'])          if hasrate[i%nproc] ]
         # step 2: strip nuisances with no non-zero value
-        data[mh]['nuis'] = [ n for n in data[mh]['nuis'] if sum(n) > 0 ]
+        data[mh]['nuisname'] = [ data[mh]['nuisname'][i] for i,n in enumerate(data[mh]['nuis']) if sum(n) > 0 ]
+        data[mh]['nuis']     = [ n                       for i,n in enumerate(data[mh]['nuis']) if sum(n) > 0 ]
         
 print "Generating datacards: " 
 for mh,D in  data.items():
@@ -120,10 +136,33 @@ for mh,D in  data.items():
         fout.write( "---------------------------------------------------------------------------------------------------------------\n" );
         fout.write( "Observation " + (" ".join( "%7.3f" % X for X in D['obs'])) + "\n" )
         fout.write( "---------------------------------------------------------------------------------------------------------------\n" );
-        fout.write( "bin      " + ("  ".join("%6d" % (X/nproc+1) for X in range(nproc*options.nch)) ) + "\n" )
-        fout.write( "process  " + ("  ".join("%6.6s" % X for X in D['processnames'])) + "\n" )
-        fout.write( "process  " + ("  ".join("%6d" % (i%nproc) for i in range(nproc*options.nch))) + "\n")
-        fout.write( "rate     " + ("  ".join("%6.2f" % f for f in D['exp'])) + "\n")
+        pad = " "*27 if options.labelSyst else "";
+        fout.write( "bin      " + pad + ("  ".join("%6d" % (X/nproc+1) for X in range(nproc*options.nch)) ) + "\n" )
+        fout.write( "process  " + pad + ("  ".join("%6.6s" % X for X in D['processnames'])) + "\n" )
+        fout.write( "process  " + pad + ("  ".join("%6d" % (i%nproc) for i in range(nproc*options.nch))) + "\n")
+        fout.write( "rate     " + pad + ("  ".join("%6.2f" % f for f in D['exp'])) + "\n")
         fout.write( "---------------------------------------------------------------------------------------------------------------\n" );
+        used_syst_labels = {}
         for (inuis,N) in enumerate(D['nuis']):
-            fout.write( "%-3d  lnN " % (inuis+1) + ("  ".join(["%6.3f" % (1.0+X) for X in N])) + "     " + D['nuisname'][inuis] +  "\n")
+            name = "%-3d"  % (inuis+1); id = name
+            isStat = (D['nuisname'][inuis] == "Statistics in MC or control sample")
+            if options.labelSyst: 
+                id = iddify(D['nuisname'][inuis])
+                if isStat: id = "Stat%d" % inuis 
+                if id in used_syst_labels: id += "_%d" % inuis
+                used_syst_labels[id] = True
+                name = "%-30s" % id
+            if options.gamma and isStat:
+                # make some room for label
+                name = "%-22s" % id
+                # have to guess N
+                sumN = sum([1.0/(X*X) for X in N if X > 0]); ## people filling error matrix uses the naive 1/sqrt(N) errors
+                nN   = sum([1         for X in N if X > 0]);
+                realN = int(floor(sumN/nN+1.5)) if nN else 1
+                alphas = [ (D['exp'][i]/(realN) if X else 0) for i,X in enumerate(N) ]
+                fout.write( name+"  gmN %7d " % realN  + (" ".join([("%7.5f" % X if X else "   0   ") for X in alphas])) + "     " + D['nuisname'][inuis] +  "\n")
+            else:
+                if id in options.gmM:
+                    fout.write( name+"  gmM "  + ("  ".join(["%6.3f" % (0.0+X) for X in N])) + "     " + D['nuisname'][inuis] +  "\n")
+                else:
+                    fout.write( name+"  lnN "  + ("  ".join(["%6.3f" % (1.0+X) for X in N])) + "     " + D['nuisname'][inuis] +  "\n")

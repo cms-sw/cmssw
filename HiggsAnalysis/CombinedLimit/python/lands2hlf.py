@@ -123,7 +123,7 @@ for b in range(bins):
                 strexpr += " * theta_%s" % n
             elif pdf == "gmN":
                 strexpr += " * %g " % errline[b][p]
-                if abs(errline[b][p] * args[0] - exp[b][p]) > 1e-3:
+                if abs(errline[b][p] * args[0] - exp[b][p]) > max(0.02 * max(exp[b][p],1), errline[b][p]):
                     raise RuntimeError, "Values of N = %d, alpha = %g don't match with expected rate %g for systematics %s " % (
                                             args[0], errline[b][p], exp[b][p], n)
                 if gammaNorm != None:
