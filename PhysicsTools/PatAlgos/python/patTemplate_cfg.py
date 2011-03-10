@@ -31,7 +31,6 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Standard PAT Configuration File
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-##process.load("PhysicsTools.PatAlgos.patTestJEC_cfi")
 
 ## internediate step to get the taus working untill they are part of RECO (again)
 process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
