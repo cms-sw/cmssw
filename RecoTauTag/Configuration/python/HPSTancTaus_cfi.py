@@ -145,17 +145,47 @@ adaptTauDiscriminator(hpsTancTausDiscriminationByLeadingTrackPtCut,
 
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi import \
         pfRecoTauDiscriminationAgainstElectron
-hpsTancTausDiscriminationAgainstElectron = copy.deepcopy(
-    pfRecoTauDiscriminationAgainstElectron)
-adaptTauDiscriminator(hpsTancTausDiscriminationAgainstElectron,
-                      "hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
+#hpsTancTausDiscriminationAgainstElectron = copy.deepcopy(
+    #pfRecoTauDiscriminationAgainstElectron)
+#adaptTauDiscriminator(hpsTancTausDiscriminationAgainstElectron,
+                      #"hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
 
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi import \
         pfRecoTauDiscriminationAgainstMuon
-hpsTancTausDiscriminationAgainstMuon = copy.deepcopy(
-    pfRecoTauDiscriminationAgainstMuon)
-adaptTauDiscriminator(hpsTancTausDiscriminationAgainstMuon,
-                      "hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
+#hpsTancTausDiscriminationAgainstMuon = copy.deepcopy(
+    #pfRecoTauDiscriminationAgainstMuon)
+#adaptTauDiscriminator(hpsTancTausDiscriminationAgainstMuon,
+                      #"hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
+
+# Build lepton discriminants
+def _setupDiscriminator(disc):
+    adaptTauDiscriminator(
+        disc, "hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
+
+hpsTancTausDiscriminationByLooseElectronRejection = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
+_setupDiscriminator(hpsTancTausDiscriminationByLooseElectronRejection)
+hpsTancTausDiscriminationByLooseElectronRejection.Prediscriminants = noPrediscriminants
+hpsTancTausDiscriminationByLooseElectronRejection.PFElectronMVA_maxValue = cms.double(0.6)
+
+hpsTancTausDiscriminationByMediumElectronRejection = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
+_setupDiscriminator(hpsTancTausDiscriminationByMediumElectronRejection)
+hpsTancTausDiscriminationByMediumElectronRejection.Prediscriminants = noPrediscriminants
+hpsTancTausDiscriminationByMediumElectronRejection.ApplyCut_EcalCrackCut = cms.bool(True)
+
+hpsTancTausDiscriminationByTightElectronRejection = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
+_setupDiscriminator(hpsTancTausDiscriminationByTightElectronRejection)
+hpsTancTausDiscriminationByTightElectronRejection.Prediscriminants = noPrediscriminants
+hpsTancTausDiscriminationByTightElectronRejection.ApplyCut_EcalCrackCut = cms.bool(True)
+hpsTancTausDiscriminationByTightElectronRejection.ApplyCut_BremCombined = cms.bool(True)
+
+hpsTancTausDiscriminationByLooseMuonRejection = copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
+_setupDiscriminator(hpsTancTausDiscriminationByLooseMuonRejection)
+hpsTancTausDiscriminationByLooseMuonRejection.Prediscriminants = noPrediscriminants
+
+hpsTancTausDiscriminationByTightMuonRejection = copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
+_setupDiscriminator(hpsTancTausDiscriminationByTightMuonRejection)
+hpsTancTausDiscriminationByTightMuonRejection.Prediscriminants = noPrediscriminants
+hpsTancTausDiscriminationByTightMuonRejection.discriminatorOption = cms.string('noAllArbitrated')
 
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstCaloMuon_cfi import \
         pfRecoTauDiscriminationAgainstCaloMuon
@@ -273,10 +303,8 @@ hpsTancTauInitialSequence = cms.Sequence(
 )
 
 hpsTancTauDiscriminantSequence = cms.Sequence(
-    hpsTancTausDiscriminationAgainstElectron
-    + hpsTancTausDiscriminationAgainstMuon
     #+ hpsTancTausDiscriminationAgainstCaloMuon
-    + hpsTancTausDiscriminationByTancRaw
+    hpsTancTausDiscriminationByTancRaw
     + hpsTancTausDiscriminationByTanc
     + hpsTancTausDiscriminationByTancVLoose
     + hpsTancTausDiscriminationByTancLoose
@@ -286,4 +314,9 @@ hpsTancTauDiscriminantSequence = cms.Sequence(
     + hpsTancTausDiscriminationByLooseIsolation
     + hpsTancTausDiscriminationByMediumIsolation
     + hpsTancTausDiscriminationByTightIsolation
+    + hpsTancTausDiscriminationByLooseElectronRejection
+    + hpsTancTausDiscriminationByMediumElectronRejection
+    + hpsTancTausDiscriminationByTightElectronRejection
+    + hpsTancTausDiscriminationByLooseMuonRejection
+    + hpsTancTausDiscriminationByTightMuonRejection
 )
