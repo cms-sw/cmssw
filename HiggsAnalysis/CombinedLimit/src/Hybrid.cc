@@ -44,7 +44,7 @@ LimitAlgo("Hybrid specific options") {
         ("rInterval",  "Always try to compute an interval on r even after having found a point satisfiying the CL")
         ("saveHybridResult",  "Save result in the output file  (option saveToys must be enabled)")
         ("readHybridResults", "Read and merge results from file (option toysFile must be enabled)")
-        ("singlePoint", boost::program_options::value<float>(),                   "Just compute CLs for the given value of r")
+        ("singlePoint",  boost::program_options::value<float>(),                   "Just compute CLs for the given value of r")
         ("fork", boost::program_options::value<unsigned int>(&fork_)->default_value(0), "Fork to N processes before running the toys (experimental debug hack)")
     ;
 }
@@ -58,8 +58,8 @@ void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
     throw std::invalid_argument("Hybrid: Rule should be one of 'CLs' or 'CLsplusb'");
   }
   rInterval_ = vm.count("rInterval");
-  if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "Atlas") {
-    throw std::invalid_argument("Hybrid: Test statistics should be one of 'LEP' or 'TEV' or 'Atlas'");
+  if (testStat_ != "LEP" && testStat_ != "TEV"/* && testStat_ != "Atlas"*/) { // no Atlas for this, it has bugs.
+    throw std::invalid_argument("Hybrid: Test statistics should be one of 'LEP' or 'TEV'"); //or 'Atlas'
   }
   saveHybridResult_ = vm.count("saveHybridResult");
   readHybridResults_ = vm.count("readHybridResults");
