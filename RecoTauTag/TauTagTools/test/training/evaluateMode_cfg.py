@@ -61,7 +61,7 @@ decay_mode_map = {
 _decay_mode_name = decay_mode_map[_decay_mode]
 
 process = cms.Process("Eval")
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(40000) )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 2000
@@ -92,6 +92,17 @@ process.selectedBaseTaus = cms.EDFilter(
     src = cms.InputTag("hpsTancTaus" + _TYPE_LABEL),
     cut = cms.string(_KIN_CUT)
 )
+
+# Select those passing the decay mode cut
+process.selectedBaseDecayModeTaus = cms.EDFilter(
+    "RecoTauDiscriminatorSelector",
+    src = cms.InputTag("selectedBaseTaus"),
+    discriminator = cms.InputTag(
+        "hpsTancTausDiscriminationByDecayModeSelection" + _TYPE_LABEL),
+    filter = cms.bool(False),
+    cut = cms.double(0.5),
+)
+
 process.selectedDecayModeTaus = cms.EDFilter(
     "PFTauViewRefSelector",
     src = cms.InputTag(
@@ -101,12 +112,13 @@ process.selectedDecayModeTaus = cms.EDFilter(
 
 process.main = cms.Sequence(
     process.selectedBaseTaus*
+    process.selectedBaseDecayModeTaus*
     process.selectedDecayModeTaus)
 
 # Plot the input jets to use in weighting the transformation
 process.plotInputJets = cms.EDAnalyzer(
     "CandViewHistoAnalyzer",
-    src = cms.InputTag("selectedBaseTaus"),
+    src = cms.InputTag("selectedBaseDecayModeTaus"),
     histograms = common.tau_histograms
 )
 process.main += process.plotInputJets
@@ -171,13 +183,14 @@ process.cleanTauPlots = cms.EDAnalyzer(
     src = cms.InputTag("selectedDecayModeTaus"),
     plotPU = cms.bool(True),
     pileupInfo = cms.InputTag("addPileupInfo"),
+    pileupTauPtCut = cms.double(15),
     pileupVertices = cms.InputTag("recoTauPileUpVertices"),
     discriminators = cms.VInputTag(
         cms.InputTag("hpsTancTausDiscriminationByTancRaw")
     ),
     nbins = cms.uint32(900),
-    min = cms.double(-1),
-    max = cms.double(2),
+    min = cms.double(-1.5),
+    max = cms.double(1.5),
 )
 
 process.main += process.cleanTauPlots
