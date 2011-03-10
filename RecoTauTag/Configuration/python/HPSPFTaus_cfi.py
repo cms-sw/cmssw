@@ -142,6 +142,7 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByLooseIsolation*
     hpsPFTauDiscriminationByMediumIsolation*
     hpsPFTauDiscriminationByTightIsolation*
+
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
