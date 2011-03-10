@@ -25,13 +25,13 @@ data = {}
 
 def iddify(x):
     id = x
-    slang = { "[Cc]ross[ -][Ss]ection":"xs", 
-              "[Tt]rigger(\s+[Ef]f(s|ic(ienc(y|ies))?))":"trig",
-              "([Ii]ntegrated\s+)[Ll]umi(nosity)":"lumi",
-              "[Ef]f(s|ic(ienc(y|ies))?)":"eff",
-              "[Nn]orm(alization)":"norm",
-              "[Rr]eco(nstruction)":"reco",
-              "[Ss]stat(istics?)":"stat"}
+    slang = { "[Cc]ross[ -][Ss]ection":"XS", 
+              "[Tt]rigger(\s+[Ee]ff(s|ic(ienc(y|ies))?))?":"Trig",
+              "([Ii]ntegrated\s+)?[Ll]umi(nosity)":"Lumi",
+              "[Ee]ff(s|ic(ienc(y|ies))?)":"Eff",
+              "[Nn]orm(alization)":"Norm",
+              "[Rr]eco(nstruction)":"Reco",
+              "[Ss]stat(istics?)":"Stat"}
     for s,r in slang.items(): id = re.sub(s,r,id)
     return re.sub("[^A-Za-z0-9_]", "", re.sub("\s+|-|/","_", re.sub("^\s+|\s+$","",id)))
      
