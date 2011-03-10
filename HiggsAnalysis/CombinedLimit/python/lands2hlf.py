@@ -83,10 +83,12 @@ POI = set(r);
 
 if nuisances: 
     print "/// ----- nuisances -----"
+    globalobs = []
     for (n,pdf,args,errline) in systs: 
         if pdf == "lnN":
             #print "thetaPdf_%s = Gaussian(theta_%s[-5,5], 0, 1);" % (n,n)
             print "thetaPdf_%s = Gaussian(theta_%s[-5,5], thetaIn_%s[0], 1);" % (n,n,n)
+            globalobs.append("thetaIn_%s" % n)
         elif pdf == "gmM":
             val = 0;
             for v in sum(errline,[]): # concatenate all numbers
@@ -99,8 +101,11 @@ if nuisances:
             print "thetaPdf_%s = Gamma(theta_%s[1,%f,%f], %g, %g, 0);" % (n, n, max(0.01,1-5*val), 1+5*val, kappa, theta)
         elif pdf == "gmN":
             print "thetaPdf_%s = Poisson(thetaIn_%s[%d], theta_%s[0,%d]);" % (n,n,args[0],n,2*args[0]+5)
+            globalobs.append("thetaIn_%s" % n)
     print "nuisances   =  set(", ",".join(["theta_%s"    % n for (n,p,a,e) in systs]),");"
     print "nuisancePdf = PROD(", ",".join(["thetaPdf_%s" % n for (n,p,a,e) in systs]),");"
+    if globalobs:
+        print "globalObservables =  set(", ",".join(globalobs),");"
 
 print "/// --- Expected events in each bin, for each process ----"
 for b in range(bins):
