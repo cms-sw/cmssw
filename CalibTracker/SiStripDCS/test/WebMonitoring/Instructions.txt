@@ -14,3 +14,7 @@ The RunCheckAllIOVs.sh script does the following:
 - runs the DCSTrend.py macro to generate the json file with all the values
 - runs the DCSLastTrend.py macro which produces the json file for the last
 month of data.
+
+Note that the script requires a lastIOV.txt file to be in the same directory.
+The one committed in this package contains the date "01/01/2000 10:00:00"
+meaning that it will run over all the IOVs of the tag.
