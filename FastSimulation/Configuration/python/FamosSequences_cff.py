@@ -67,6 +67,7 @@ from RecoParticleFlow.PFProducer.particleFlowSimParticle_cff import *
 from RecoParticleFlow.PFProducer.particleFlowBlock_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
 from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
+from RecoParticleFlow.PFProducer.pfPhotonTranslator_cff import *
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
 
 particleFlowSimParticle.sim = 'famosSimHits'
