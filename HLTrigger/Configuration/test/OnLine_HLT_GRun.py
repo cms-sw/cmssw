@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V70 (CMSSW_3_11_0_HLT12)
+# /dev/CMSSW_3_11_1/GRun/V71 (CMSSW_3_11_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V70')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V71')
 )
 
 process.streams = cms.PSet( 
@@ -19599,8 +19599,8 @@ process.HLT_IsoMu17_CentralJet40_BTagIP_v1 = cms.Path( process.HLTBeginSequenceB
 process.HLT_IsoMu12_LooseIsoPFTau10_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu7 + process.hltPreIsoMu12IsoPFTau10 + process.hltL1SingleMu7L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2Mu7L2Filtered7 + process.HLTL2muonisorecoSequence + process.hltSingleMuIsoL2IsoFiltered7 + process.HLTL3muonrecoSequence + process.hltSingleMuIsoL3PreFiltered12 + process.HLTL3muonisorecoSequence + process.hltSingleMuIsoL3IsoFiltered12 + process.HLTRecoJetSequencePrePF + process.hltTauJet5 + process.HLTPFJetTriggerSequence + process.hltPFJet10 + process.HLTPFTauSequence + process.hltPFTau10Track + process.hltFilterIsoMu12IsoPFTau10LooseIsolation + process.hltOverlapFilterIsoMu12IsoPFTau10 + process.HLTEndSequence )
 process.HLT_DoubleMu3_HT160_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1Mu0HTT50 + process.hltPreDoubleMu3HT160 + process.hltL1Mu0HTT50L1DiMuFiltered0 + process.HLTL2muonrecoSequence + process.hltL1Mu0HTT50L2DiMuFiltered0 + process.HLTL3muonrecoSequence + process.hltL1Mu0HTT50L3DiMuFiltered3 + process.HLTRecoJetSequenceAK5Corrected + process.HLTDoJet40HTRecoSequence + process.hltHT160 + process.HLTEndSequence )
 process.HLT_DoubleMu3_HT200_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1Mu0HTT50 + process.hltPreDoubleMu3HT160 + process.hltL1Mu0HTT50L1DiMuFiltered0 + process.HLTL2muonrecoSequence + process.hltL1Mu0HTT50L2DiMuFiltered0 + process.HLTL3muonrecoSequence + process.hltL1Mu0HTT50L3DiMuFiltered3 + process.HLTRecoJetSequenceAK5Corrected + process.HLTDoJet40HTRecoSequence + process.hltHT200 + process.HLTEndSequence )
-process.HLT_DoubleMu5_Ele8_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1Mu3EG5 + process.hltPreDoubleMu5Ele8 + process.hltL1Mu3EG5L1DiMuFiltered3 + process.HLTL2muonrecoSequence + process.hltL1Mu3EG5L2DiMuFiltered3 + process.HLTL3muonrecoSequence + process.hltL1Mu3EG5L3DiMuFiltered5 + process.HLTDoubleMu5Ele8L1NonIsoHLTnonIsoSequence + process.HLTEndSequence )
-process.HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1Mu3EG5 + process.hltPreDoubleMu5Ele8CaloIdLTrkIdVL + process.hltL1Mu3EG5L1DiMuFiltered3 + process.HLTL2muonrecoSequence + process.hltL1Mu3EG5L2DiMuFiltered3 + process.HLTL3muonrecoSequence + process.hltL1Mu3EG5L3DiMuFiltered5 + process.HLTDoubleMu5Ele8L1NonIsoHLTCaloIdLTrkIdVLSequence + process.HLTEndSequence )
+process.HLT_DoubleMu5_Ele8_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Mu3EG5 + process.hltPreDoubleMu5Ele8 + process.hltL1Mu3EG5L1DiMuFiltered3 + process.HLTL2muonrecoSequence + process.hltL1Mu3EG5L2DiMuFiltered3 + process.HLTL3muonrecoSequence + process.hltL1Mu3EG5L3DiMuFiltered5 + process.HLTDoubleMu5Ele8L1NonIsoHLTnonIsoSequence + process.HLTEndSequence )
+process.HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Mu3EG5 + process.hltPreDoubleMu5Ele8CaloIdLTrkIdVL + process.hltL1Mu3EG5L1DiMuFiltered3 + process.HLTL2muonrecoSequence + process.hltL1Mu3EG5L2DiMuFiltered3 + process.HLTL3muonrecoSequence + process.hltL1Mu3EG5L3DiMuFiltered5 + process.HLTDoubleMu5Ele8L1NonIsoHLTCaloIdLTrkIdVLSequence + process.HLTEndSequence )
 process.HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5 + process.hltPreEle8CaloIdLCaloIsoVLJet40 + process.HLTEle8CaloIdLCaloIsoVLSequence + process.HLTRecoJetSequenceAK5Corrected + process.hltAntiKT5L2L3CaloJetsEle8CaloIdLCaloIsoVLRemoved + process.hltJet40Ele8CaloIdLCaloIsoVLRemoved + process.HLTEndSequence )
 process.HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1EG5HTT75 + process.hltPreEle10CaloIdLCaloIsoVLTrkIdVLTrkIsoVLHT200 + process.HLTRecoJetSequenceAK5Corrected + process.HLTDoJet40HTRecoSequence + process.hltHT200 + process.HLTSingleElectronEt10HT200L1NonIsoHLTCaloIdLTrkIdVLCaloIsolVLTrkIsolVLSequence + process.HLTEndSequence )
 process.HLT_Ele10_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1EG5HTT75 + process.hltPreEle10CaloIdTCaloIsoVLTrkIdTTrkIsoVLHT200 + process.HLTRecoJetSequenceAK5Corrected + process.HLTDoJet40HTRecoSequence + process.hltHT200 + process.HLTSingleElectronEt10HT200L1NonIsoHLTCaloIdTTrkIdTCaloIsolVLTrkIsolVLSequence + process.HLTEndSequence )

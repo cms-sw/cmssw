@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HLT_fix3/V272 (CMSSW_3_11_0_HLT12)
+# /dev/CMSSW_3_11_1/HLT_fix3/V273 (CMSSW_3_11_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V272')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V273')
 )
 
 streams = cms.PSet( 
@@ -18379,8 +18379,8 @@ HLT_IsoMu17_CentralJet40_BTagIP_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1Mu
 HLT_IsoMu12_LooseIsoPFTau10_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu7 + hltPreIsoMu12IsoPFTau10 + hltL1SingleMu7L1Filtered0 + HLTL2muonrecoSequence + hltL2Mu7L2Filtered7 + HLTL2muonisorecoSequence + hltSingleMuIsoL2IsoFiltered7 + HLTL3muonrecoSequence + hltSingleMuIsoL3PreFiltered12 + HLTL3muonisorecoSequence + hltSingleMuIsoL3IsoFiltered12 + HLTRecoJetSequencePrePF + hltTauJet5 + HLTPFJetTriggerSequence + hltPFJet10 + HLTPFTauSequence + hltPFTau10Track + hltFilterIsoMu12IsoPFTau10LooseIsolation + hltOverlapFilterIsoMu12IsoPFTau10 + HLTEndSequence )
 HLT_DoubleMu3_HT160_v2 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1Mu0HTT50 + hltPreDoubleMu3HT160 + hltL1Mu0HTT50L1DiMuFiltered0 + HLTL2muonrecoSequence + hltL1Mu0HTT50L2DiMuFiltered0 + HLTL3muonrecoSequence + hltL1Mu0HTT50L3DiMuFiltered3 + HLTRecoJetSequenceAK5Corrected + HLTDoJet40HTRecoSequence + hltHT160 + HLTEndSequence )
 HLT_DoubleMu3_HT200_v2 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1Mu0HTT50 + hltPreDoubleMu3HT160 + hltL1Mu0HTT50L1DiMuFiltered0 + HLTL2muonrecoSequence + hltL1Mu0HTT50L2DiMuFiltered0 + HLTL3muonrecoSequence + hltL1Mu0HTT50L3DiMuFiltered3 + HLTRecoJetSequenceAK5Corrected + HLTDoJet40HTRecoSequence + hltHT200 + HLTEndSequence )
-HLT_DoubleMu5_Ele8_v2 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1Mu3EG5 + hltPreDoubleMu5Ele8 + hltL1Mu3EG5L1DiMuFiltered3 + HLTL2muonrecoSequence + hltL1Mu3EG5L2DiMuFiltered3 + HLTL3muonrecoSequence + hltL1Mu3EG5L3DiMuFiltered5 + HLTDoubleMu5Ele8L1NonIsoHLTnonIsoSequence + HLTEndSequence )
-HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v2 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1Mu3EG5 + hltPreDoubleMu5Ele8CaloIdLTrkIdVL + hltL1Mu3EG5L1DiMuFiltered3 + HLTL2muonrecoSequence + hltL1Mu3EG5L2DiMuFiltered3 + HLTL3muonrecoSequence + hltL1Mu3EG5L3DiMuFiltered5 + HLTDoubleMu5Ele8L1NonIsoHLTCaloIdLTrkIdVLSequence + HLTEndSequence )
+HLT_DoubleMu5_Ele8_v2 = cms.Path( HLTBeginSequence + hltL1sL1Mu3EG5 + hltPreDoubleMu5Ele8 + hltL1Mu3EG5L1DiMuFiltered3 + HLTL2muonrecoSequence + hltL1Mu3EG5L2DiMuFiltered3 + HLTL3muonrecoSequence + hltL1Mu3EG5L3DiMuFiltered5 + HLTDoubleMu5Ele8L1NonIsoHLTnonIsoSequence + HLTEndSequence )
+HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v2 = cms.Path( HLTBeginSequence + hltL1sL1Mu3EG5 + hltPreDoubleMu5Ele8CaloIdLTrkIdVL + hltL1Mu3EG5L1DiMuFiltered3 + HLTL2muonrecoSequence + hltL1Mu3EG5L2DiMuFiltered3 + HLTL3muonrecoSequence + hltL1Mu3EG5L3DiMuFiltered5 + HLTDoubleMu5Ele8L1NonIsoHLTCaloIdLTrkIdVLSequence + HLTEndSequence )
 HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5 + hltPreEle8CaloIdLCaloIsoVLJet40 + HLTEle8CaloIdLCaloIsoVLSequence + HLTRecoJetSequenceAK5Corrected + hltAntiKT5L2L3CaloJetsEle8CaloIdLCaloIsoVLRemoved + hltJet40Ele8CaloIdLCaloIsoVLRemoved + HLTEndSequence )
 HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v2 = cms.Path( HLTBeginSequence + hltL1sL1EG5HTT75 + hltPreEle10CaloIdLCaloIsoVLTrkIdVLTrkIsoVLHT200 + HLTRecoJetSequenceAK5Corrected + HLTDoJet40HTRecoSequence + hltHT200 + HLTSingleElectronEt10HT200L1NonIsoHLTCaloIdLTrkIdVLCaloIsolVLTrkIsolVLSequence + HLTEndSequence )
 HLT_Ele10_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v2 = cms.Path( HLTBeginSequence + hltL1sL1EG5HTT75 + hltPreEle10CaloIdTCaloIsoVLTrkIdTTrkIsoVLHT200 + HLTRecoJetSequenceAK5Corrected + HLTDoJet40HTRecoSequence + hltHT200 + HLTSingleElectronEt10HT200L1NonIsoHLTCaloIdTTrkIdTCaloIsolVLTrkIsolVLSequence + HLTEndSequence )
