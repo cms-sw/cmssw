@@ -50,7 +50,7 @@ class DTConfigBti : DTConfig {
   DTConfigBti() {;}
 
   //! Constructor from string
-  DTConfigBti(unsigned short int * buffer); 
+  DTConfigBti(int debug, unsigned short int * buffer); 
    
   //! Destructor 
   ~DTConfigBti();

@@ -55,7 +55,7 @@ class DTConfigTraco : public DTConfig {
   DTConfigTraco() {};
 
   //! Constructor from string
-  DTConfigTraco(unsigned short int * buffer);
+  DTConfigTraco(int debug, unsigned short int * buffer);
 
   //! Destructor 
   ~DTConfigTraco();

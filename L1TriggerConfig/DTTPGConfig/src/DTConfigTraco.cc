@@ -43,7 +43,9 @@ DTConfigTraco::DTConfigTraco(const edm::ParameterSet& ps) {
 
 }
 
-DTConfigTraco::DTConfigTraco(unsigned short int * buffer) {
+DTConfigTraco::DTConfigTraco(int debugTRACO, unsigned short int * buffer) {
+
+        m_debug = debugTRACO;
 
         // check if this is a TRACO configuration string
         if (buffer[2]!=0x15){

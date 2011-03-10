@@ -43,7 +43,9 @@ DTConfigBti::DTConfigBti(const edm::ParameterSet& ps) {
   
 }
 
-DTConfigBti::DTConfigBti(unsigned short int * buffer) {
+DTConfigBti::DTConfigBti(int debugBTI, unsigned short int * buffer) {
+
+        m_debug = debugBTI;
 
  	// check if this is a BTI configuration string
 	if (buffer[2]!=0x54){

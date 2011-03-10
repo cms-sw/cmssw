@@ -35,7 +35,9 @@ DTConfigLUTs::DTConfigLUTs(const edm::ParameterSet& ps) {
   setDefaults(ps);
 }
 
-DTConfigLUTs::DTConfigLUTs(unsigned short int * buffer) {
+DTConfigLUTs::DTConfigLUTs(bool debugLUTS, unsigned short int * buffer) {
+
+  m_debug = debugLUTS;
 
   // check if this is a LUT configuration string
   if (buffer[2]!=0xA8){

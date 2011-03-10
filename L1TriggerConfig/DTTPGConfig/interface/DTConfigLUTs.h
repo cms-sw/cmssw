@@ -44,7 +44,7 @@ class DTConfigLUTs : public DTConfig {
   DTConfigLUTs() {};
 
   //! Constructor from string
-  DTConfigLUTs(unsigned short int * buffer);
+  DTConfigLUTs(bool debug, unsigned short int * buffer);
 
   //! Destructor
   ~DTConfigLUTs();

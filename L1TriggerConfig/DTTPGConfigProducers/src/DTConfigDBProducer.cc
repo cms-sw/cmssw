@@ -360,8 +360,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 				}		 
 			
 				// BTI config constructor from strings	
-			        DTConfigBti bticonf(buffer);
-				bticonf.setDebug(m_debugBti);					
+			        DTConfigBti bticonf(m_debugBti,buffer);
+				//bticonf.setDebug(m_debugBti);					
                                  
 				m_manager->setDTConfigBti(DTBtiId(chambid,isl,ibti+1),bticonf);
 			    	
@@ -384,8 +384,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 			        int traco_brd = buffer[3]; 	// Board Nr.;
   				int traco_chip = buffer[4]; 	// Chip Nr.;
 				int itraco = traco_brd * 4 + traco_chip + 1;
-				DTConfigTraco tracoconf(buffer);
-				tracoconf.setDebug(m_debugTraco);
+				DTConfigTraco tracoconf(m_debugTraco,buffer);
+				//tracoconf.setDebug(m_debugTraco);
           			m_manager->setDTConfigTraco(DTTracoId(chambid,itraco),tracoconf);
 				
 				if(m_debugDB)
@@ -430,8 +430,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 
 				// LUT parameters read from OMDS
                                 flagDBLUTS = true;
-				DTConfigLUTs lutconf(buffer);
-				lutconf.setDebug(m_debugLUTs);
+				DTConfigLUTs lutconf(m_debugLUTs,buffer);
+				//lutconf.setDebug(m_debugLUTs);
 				m_manager->setDTConfigLUTs(chambid,lutconf);
 			}
 			
