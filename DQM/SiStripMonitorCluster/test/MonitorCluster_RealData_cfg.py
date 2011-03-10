@@ -69,8 +69,9 @@ process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
 
 # APV Phase Producer
-#nwe one process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts_cfi")
-process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi")
+#nwe one
+process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts_cfi")
+APVPhases = cms.EDProducer("APVCyclePhaseProducerFromL1TS", magicOffset = cms.untracked.int32(258))
 
 #--------------------------
 # SiStrip MonitorCluster
