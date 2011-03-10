@@ -85,17 +85,18 @@ if nuisances:
     print "/// ----- nuisances -----"
     for (n,pdf,args,errline) in systs: 
         if pdf == "lnN":
-            #print "thetaPdf_%s = Gaussian(theta_%s[-1,1], 0, 1);" % (n,n)
-            print "thetaPdf_%s = Gaussian(theta_%s[-1,1], thetaIn_%s[0], 1);" % (n,n,n)
+            #print "thetaPdf_%s = Gaussian(theta_%s[-5,5], 0, 1);" % (n,n)
+            print "thetaPdf_%s = Gaussian(theta_%s[-5,5], thetaIn_%s[0], 1);" % (n,n,n)
         elif pdf == "gmM":
             val = 0;
             for v in sum(errline,[]): # concatenate all numbers
                 if v != 0:
-                    if val != 0: raise RuntimeError, "Error: line %s contains two different uncertainties %g, %g, which is not supported for gmM" % (n,v,val)
+                    if val != 0 and v != val: 
+                        raise RuntimeError, "Error: line %s contains two different uncertainties %g, %g, which is not supported for gmM" % (n,v,val)
                     val = v;
             if val == 0: raise RuntimeError, "Error: line %s contains all zeroes"
             theta = val*val; kappa = 1/theta
-            print "thetaPdf_%s = Gamma(theta_%s[%f,%f], %g, %g, 0);" % (n, n, max(0,1-5*val), 1+5*val, theta, kappa)
+            print "thetaPdf_%s = Gamma(theta_%s[1,%f,%f], %g, %g, 0);" % (n, n, max(0.01,1-5*val), 1+5*val, kappa, theta)
         elif pdf == "gmN":
             print "thetaPdf_%s = Poisson(thetaIn_%s[%d], theta_%s[0,%d]);" % (n,n,args[0],n,2*args[0]+5)
     print "nuisances   =  set(", ",".join(["theta_%s"    % n for (n,p,a,e) in systs]),");"
@@ -111,8 +112,10 @@ for b in range(bins):
             if errline[b][p] == 0.0: continue
             if pdf == "lnN" and errline[b][p] == 1.0: continue
             strargs += ", theta_%s" % n
-            if pdf == "lnN" or pdf == "gmM":
+            if pdf == "lnN":
                 strexpr += " * pow(%f,theta_%s)" % (errline[b][p], n)
+            elif pdf == "gmM":
+                strexpr += " * theta_%s" % n
             elif pdf == "gmN":
                 strexpr += " * %g " % errline[b][p]
                 if abs(errline[b][p] * args[0] - exp[b][p]) > 1e-3:
