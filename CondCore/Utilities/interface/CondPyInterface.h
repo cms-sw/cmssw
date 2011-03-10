@@ -74,6 +74,9 @@ namespace cond {
     void setLogger(std::string const & connstr);
 
     CondDB getDB(std::string const & db);
+    
+    CondDB getReadOnlyDB(std::string const & db);
+    
     GlobalTag const & globalTag(std::string const & connstr, 
 				std::string const & gname,
 				std::string const & prefix, 

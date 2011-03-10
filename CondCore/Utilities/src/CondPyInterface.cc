@@ -235,6 +235,12 @@ namespace cond {
     dbSession.open( db );
     return CondDB(dbSession,logger);
   }
+
+  CondDB RDBMS::getReadOnlyDB(std::string const & db) {
+    DbSession dbSession = connection->createSession();
+    dbSession.open( db, true );
+    return CondDB(dbSession,logger);
+  }
   
   GlobalTag const &  RDBMS::globalTag(std::string const & connstr, 
 				      std::string const & gname,
