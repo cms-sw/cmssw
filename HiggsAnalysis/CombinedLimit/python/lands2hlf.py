@@ -112,23 +112,26 @@ for b in range(bins):
     for p in range(processes):
         # collect multiplicative corrections
         strexpr = ""; strargs = ""
-        gammaNorm = None
+        gammaNorm = None; iSyst=-1
         for (n,pdf,args,errline) in systs:
             if errline[b][p] == 0.0: continue
             if pdf == "lnN" and errline[b][p] == 1.0: continue
-            strargs += ", theta_%s" % n
+            iSyst += 1
             if pdf == "lnN":
-                strexpr += " * pow(%f,theta_%s)" % (errline[b][p], n)
+                strexpr += " * pow(%f,@%d)" % (errline[b][p], iSyst)
+                strargs += ", theta_%s" % n
             elif pdf == "gmM":
-                strexpr += " * theta_%s" % n
+                strexpr += " * @%d " % iSyst
+                strargs += ", theta_%s" % n
             elif pdf == "gmN":
-                strexpr += " * %g " % errline[b][p]
+                strexpr += " * @%d " % iSyst
+                strargs += ", theta_%s" % n
                 if abs(errline[b][p] * args[0] - exp[b][p]) > max(0.02 * max(exp[b][p],1), errline[b][p]):
                     raise RuntimeError, "Values of N = %d, alpha = %g don't match with expected rate %g for systematics %s " % (
                                             args[0], errline[b][p], exp[b][p], n)
                 if gammaNorm != None:
-                    raise RuntimeError, "More than one gmN uncertainty for the same bin and process (theta_%s, %s) " % (n, gammaNorm)
-                gammaNorm = "theta_"+n
+                    raise RuntimeError, "More than one gmN uncertainty for the same bin and process (second one is %s)" % n
+                gammaNorm = "%g" % errline[b][p]
         # set base term (fixed or gamma)
         if gammaNorm != None:
             strexpr = gammaNorm + strexpr
@@ -139,12 +142,8 @@ for b in range(bins):
             print "n_exp_bin%d_proc%d = %s('%s'%s);" % (b, p, ROOFIT_EXPR, strexpr, strargs)
         else:
             print "n_exp_bin%d_proc%d[%g];" % (b, p, exp[b][p])
-    expr_sb = "+".join(["n_exp_bin%d_proc%d" % (b,p) for p in range(0,processes)])
-    expr_b  = "+".join(["n_exp_bin%d_proc%d" % (b,p) for p in range(1,processes)])
-    args_sb = ",".join(["n_exp_bin%d_proc%d" % (b,p) for p in range(0,processes)]) 
-    args_b  = ",".join(["n_exp_bin%d_proc%d" % (b,p) for p in range(1,processes)]) 
-    print "n_exp_bin%d       = %s('@0*%s',r, %s);" % (b, ROOFIT_EXPR, expr_sb, args_sb);
-    print "n_exp_bin%d_bonly = %s('   %s',   %s);" % (b, ROOFIT_EXPR, expr_b,  args_b );
+    print "n_exp_bin%d_bonly  = sum(" % b + ", ".join(["n_exp_bin%d_proc%d" % (b,p) for p in range(1,processes)]) + ");";
+    print "n_exp_bin%d        = sum(prod(r, n_exp_bin%d_proc0), n_exp_bin%d_bonly);" % (b,b,b);
 
 print "/// --- Expected events in each bin, total (S+B and B) ----"
 for b in range(bins):
