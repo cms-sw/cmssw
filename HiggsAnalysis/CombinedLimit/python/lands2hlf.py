@@ -2,7 +2,7 @@ import re
 from sys import argv
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true")
+parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true")  # ignore systematic uncertainties to consider statistical uncertainties only
 parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true")
 parser.add_option("-c", "--compiled", dest="cexpr", default=False, action="store_true")
 (options, args) = parser.parse_args()
@@ -75,9 +75,9 @@ print "observables = set(", ",".join(["n_obs_bin%d" % b for b in range(bins)]),"
 
 print """
 /// ----- parameters of interest -----
-// signal strenght
+// signal strength
 r[0,20];
-// set of all paramers of interest
+// set of all parameters of interest
 POI = set(r);
 """
 
