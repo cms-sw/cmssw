@@ -28,8 +28,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2011/02/01 17:02:35 $ 
- **  $Revision: 1.38 $
+ **  $Date: 2011/03/01 15:36:58 $ 
+ **  $Revision: 1.39 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -402,6 +402,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_dzPVFromTracks_[5]; 
   MonitorElement* h2_dzPVVsR_;
   MonitorElement* p_dzPVVsR_;
+  MonitorElement* p_dzPVVsEta_;
 
 
   //////////// info per track

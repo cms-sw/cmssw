@@ -79,8 +79,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2011/02/19 04:09:05 $ 
- **  $Revision: 1.72 $
+ **  $Date: 2011/03/01 15:37:16 $ 
+ **  $Revision: 1.73 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1174,6 +1174,7 @@ void  PhotonValidator::beginJob() {
     h_dzPVFromTracks_[3] =  dbe_->book1D(histname+"EndcapP"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
     h_dzPVFromTracks_[4] =  dbe_->book1D(histname+"EndcapM"," Photons: PV Z_rec - Z_true from conversion tracks",100, -10., 10.);
     p_dzPVVsR_ =  dbe_->bookProfile("pdzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax, 100, -3.,3.,"");
+    p_dzPVVsEta_ =  dbe_->bookProfile("pdzPVVsEta","Photon Reco conversions: dz(PV) vs Eta" ,etaBin,etaMin, etaMax, 100, -3.,3.,"");
 
     if ( ! isRunCentrally_ ) {
       h2_dzPVVsR_ =  dbe_->book2D("h2dzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax,100, -3.,3.);
@@ -2461,6 +2462,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		}		
 
 		p_dzPVVsR_ ->Fill(mcConvR_, zPV - (*mcPho).primaryVertex().z() );
+		p_dzPVVsEta_ ->Fill(mcConvEta_, zPV - (*mcPho).primaryVertex().z() );
 		if ( ! isRunCentrally_ ) h2_dzPVVsR_ ->Fill(mcConvR_, zPV - (*mcPho).primaryVertex().z() );   
 		
 	      }
