@@ -75,7 +75,7 @@ process.source = cms.Source(
     #skipEvents = cms.untracked.uint32(20000)
 )
 
-_KIN_CUT = "pt > 15 & abs(eta) < 2.5"
+_KIN_CUT = "pt > 10 & abs(eta) < 2.5"
 
 # For signal, select jets that match a hadronic decaymode
 process.kinematicSignalJets = cms.EDFilter(
@@ -303,7 +303,7 @@ discriminators['shrinkingConePFTauProducer'] = [
 
 discriminators['hpsTancTaus'] = [
     'hpsTancTausDiscriminationByTanc',
-    #'hpsTancTausDiscriminationByTancLoose',
+    'hpsTancTausDiscriminationByTancLoose',
     #'hpsTancTausDiscriminationByTancMedium',
     #'hpsTancTausDiscriminationByTancTight',
     'hpsTancTausDiscriminationByTancRaw'
@@ -315,6 +315,7 @@ process.plothpsTancTaus = cms.EDAnalyzer(
     plotPU = cms.bool(True),
     pileupInfo = cms.InputTag("addPileupInfo"),
     pileupVertices = cms.InputTag("recoTauPileUpVertices"),
+    pileupTauPtCut = cms.double(15),
     discriminators = cms.VInputTag(
         discriminators['hpsTancTaus']
     ),
