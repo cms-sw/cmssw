@@ -10,6 +10,7 @@
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 #include "boost/mpl/vector.hpp"
 
+
 class  TkStripCPERecord: public edm::eventsetup::DependentRecordImplementation<TkStripCPERecord,
   boost::mpl::vector<  TrackerDigiGeometryRecord,
                        IdealMagneticFieldRecord,
