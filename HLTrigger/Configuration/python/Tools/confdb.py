@@ -122,10 +122,12 @@ class HLTProcess(object):
 """
     if not(self.config.type in ('HIon', )):
       self.data += """
-%(process)shltParticleFlowRecHitHCAL.HCAL_Calib = True
-%(process)shltParticleFlowRecHitHCAL.HF_Calib = True
-%(process)shltParticleFlow.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
-%(process)shltParticleFlow.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
+if 'hltParticleFlowRecHitHCAL' in %(dict)s:
+    %(process)shltParticleFlowRecHitHCAL.HCAL_Calib = True
+    %(process)shltParticleFlowRecHitHCAL.HF_Calib = True
+if 'hltParticleFlow' in %(dict)s:
+    %(process)shltParticleFlow.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
+    %(process)shltParticleFlow.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
 """
 
     if self.config.fragment:
