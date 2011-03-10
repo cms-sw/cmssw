@@ -173,9 +173,7 @@ void PFTau::setMuonDecision(const bool& x) {muonDecision_ = x;}
 
 CandidatePtr PFTau::sourceCandidatePtr( size_type i ) const {
     if( i!=0 ) return CandidatePtr();
-
-    const PFJetRef& pfJetRef = pfTauTagInfoRef()->pfjetRef();
-    return  refToPtr( pfJetRef );
+    return  refToPtr( jetRef() );
 }
 
 
