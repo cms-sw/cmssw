@@ -39,12 +39,12 @@ MarkovChainMC::MarkovChainMC() :
     LimitAlgo("Markov Chain MC specific options") 
 {
     options_.add_options()
-        ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(20000), "Number of iterations")
-        ("tries", boost::program_options::value<unsigned int>(&tries_)->default_value(1), "Number of times to run the MCMC on the same data")
-        ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(50), "Burn in steps")
+        ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(10000), "Number of iterations")
+        ("tries", boost::program_options::value<unsigned int>(&tries_)->default_value(10), "Number of times to run the MCMC on the same data")
+        ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(200), "Burn in steps")
         ("nBins,B", boost::program_options::value<unsigned int>(&numberOfBins_)->default_value(1000), "Number of bins")
-        ("proposal", boost::program_options::value<std::string>(&proposalTypeName_)->default_value("gaus"), 
-                              "Proposal function to use: 'fit', 'uniform', 'gaus'")
+        ("proposal", boost::program_options::value<std::string>(&proposalTypeName_)->default_value("ortho"), 
+                              "Proposal function to use: 'fit', 'uniform', 'gaus', 'ortho' (also known as 'test')")
         ("runMinos",          "Run MINOS when fitting the data")
         ("noReset",           "Don't reset variable state after fit")
         ("updateHint",        "Update hint with the results")
@@ -67,7 +67,8 @@ MarkovChainMC::MarkovChainMC() :
         ("truncatedMeanFraction", 
                 boost::program_options::value<float>()->default_value(0.0), 
                 "Discard this fraction of the results before computing the mean and rms")
-        ("adaptiveTruncation", "Iteratively compute the mean and reject those outside 'truncatedMeanFraction' sigmas")
+        ("adaptiveTruncation", boost::program_options::value<bool>(&adaptiveTruncation_)->default_value(true),
+                            "When averaging multiple runs, ignore results that are more far away from the median than the inter-quartile range")
         ("hintSafetyFactor",
                 boost::program_options::value<float>(&hintSafetyFactor_)->default_value(5),
                 "set range of integration equal to this number of times the hinted limit")
@@ -78,6 +79,7 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     if      (proposalTypeName_ == "fit")     proposalType_ = FitP;
     else if (proposalTypeName_ == "uniform") proposalType_ = UniformP;
     else if (proposalTypeName_ == "gaus")    proposalType_ = MultiGaussianP;
+    else if (proposalTypeName_ == "ortho")   proposalType_ = TestP;
     else if (proposalTypeName_ == "test")    proposalType_ = TestP;
     else {
         std::cerr << "MarkovChainMC: proposal type " << proposalTypeName_ << " not known." << "\n" << options_ << std::endl;
@@ -93,7 +95,7 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     noReset_  = vm.count("noReset");
     updateHint_  = vm.count("updateHint");
     truncatedMeanFraction_ = vm["truncatedMeanFraction"].as<float>();
-    adaptiveTruncation_    = vm.count("adaptiveTruncation");
+    //adaptiveTruncation_    = vm.count("adaptiveTruncation");
 }
 
 bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
