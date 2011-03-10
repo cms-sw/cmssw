@@ -64,6 +64,7 @@ addMixingScenario("E7TeV_Flat20_AllEarly_75ns",{'file': 'SimGeneral.MixingModule
 addMixingScenario("E7TeV_Flat20_AllLate_75ns",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Flat20_AllLate_75ns_cfi'})
 addMixingScenario("E7TeV_Flat20_AllEarly_50ns",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Flat20_AllEarly_50ns_cfi'})
 addMixingScenario("E7TeV_Flat20_AllLate_50ns",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Flat20_AllLate_50ns_cfi'})
+addMixingScenario("mix_E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix_E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 
 ##fastsim section
