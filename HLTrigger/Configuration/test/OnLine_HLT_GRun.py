@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_11_1/GRun/V69 (CMSSW_3_11_0_HLT12)
+# /dev/CMSSW_3_11_1/GRun/V70 (CMSSW_3_11_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V69')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V70')
 )
 
 process.streams = cms.PSet( 
@@ -7678,7 +7678,7 @@ process.hltL1sL1DoubleMu05 = cms.EDFilter( "HLTLevel1GTSeed",
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
-process.hltPreMu5L2Mu0 = cms.EDFilter( "HLTPrescaler",
+process.hltPreMu5L2Mu2 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 process.hltMu5L2Mu2L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
@@ -7717,6 +7717,9 @@ process.hltMu5L2Mu0L3Filtered5 = cms.EDFilter( "HLTMuonL3PreFilter",
     MinPt = cms.double( 5.0 ),
     NSigmaPt = cms.double( 0.0 ),
     SaveTag = cms.untracked.bool( True )
+)
+process.hltPreMu5L2Mu2Jpsi = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 process.hltMu5L2Mu2JpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -19529,8 +19532,8 @@ process.HLT_DoubleMu4_Acoplanarity03_v1 = cms.Path( process.HLTBeginSequenceBPTX
 process.HLT_TripleMu5_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMu3 + process.hltPreTripleMu3 + process.hltL1DoubleMu3L1TriMuFiltered3 + process.HLTL2muonrecoSequence + process.hltL1DoubleMu3L2TriMuFiltered3 + process.HLTL3muonrecoSequence + process.hltL1DoubleMu3L3TriMuFiltered5 + process.HLTEndSequence )
 process.HLT_IsoMu5_DoubleMu5_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMu3 + process.hltPreTripleMu3 + process.hltL1DoubleMu3L1TriMuFiltered3 + process.HLTL2muonrecoSequence + process.hltL1DoubleMu3L2TriMuFiltered3 + process.HLTL2muonisorecoSequence + process.hltL1DoubleMu3L2SingleMuIsoFiltered4 + process.HLTL3muonrecoSequence + process.hltL1DoubleMu3L3TriMuFiltered5 + process.HLTL3muonisorecoSequence + process.hltL1DoubleMu3L3SingleMuIsoFiltered5 + process.HLTEndSequence )
 process.HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu5BQ7 + process.hltPreMu5TkMu0JpsiTightB5Q7 + process.hltMu5TrackJpsiL1Filtered0Eta15 + process.HLTL2muonrecoSequence + process.hltMu5TrackJpsiL2Filtered5Eta15 + process.HLTL3muonrecoSequence + process.hltMu5TrackJpsiL3Filtered5Eta15 + process.HLTMuTrackJpsiPixelRecoSequence + process.hltMu5TrackJpsiPixelMassFilteredEta15 + process.HLTMuTrackJpsiTrackRecoSequence + process.hltMu5TkMuJpsiTrackMassFiltered + process.HLTMuTkMuJpsiTkMuRecoSequence + process.hltMu5TkMuJpsiTkMuMassFilteredTight + process.HLTEndSequence )
-process.HLT_Mu5_L2Mu2_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMu05 + process.hltPreMu5L2Mu0 + process.hltMu5L2Mu2L1Filtered0 + process.HLTL2muonrecoSequence + process.hltMu5L2Mu2L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltMu5L2Mu0L3Filtered5 + process.HLTEndSequence )
-process.HLT_Mu5_L2Mu2_Jpsi_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMu05 + process.hltPreMu5L2Mu0 + process.hltMu5L2Mu2L1Filtered0 + process.HLTL2muonrecoSequence + process.hltMu5L2Mu2L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltMu5L2Mu0L3Filtered5 + process.hltMu5L2Mu2JpsiTrackMassFiltered + process.HLTEndSequence )
+process.HLT_Mu5_L2Mu2_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMu05 + process.hltPreMu5L2Mu2 + process.hltMu5L2Mu2L1Filtered0 + process.HLTL2muonrecoSequence + process.hltMu5L2Mu2L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltMu5L2Mu0L3Filtered5 + process.HLTEndSequence )
+process.HLT_Mu5_L2Mu2_Jpsi_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMu05 + process.hltPreMu5L2Mu2Jpsi + process.hltMu5L2Mu2L1Filtered0 + process.HLTL2muonrecoSequence + process.hltMu5L2Mu2L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltMu5L2Mu0L3Filtered5 + process.hltMu5L2Mu2JpsiTrackMassFiltered + process.HLTEndSequence )
 process.HLT_Mu3_Track3_Jpsi_v4 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu3 + process.hltPreMu3Track3Jpsi + process.hltL1SingleMu3L1Filtered0 + process.HLTL2muonrecoSequence + process.hltMu3TrackJpsiL2Filtered3 + process.HLTL3muonrecoSequence + process.hltMu3TrackJpsiL3Filtered3 + process.HLTMuTrackJpsiPixelRecoSequence + process.hltMu3TrackJpsiPixelMassFiltered + process.HLTMuTrackJpsiTrackRecoSequence + process.hltMu3Track3JpsiTrackMassFiltered + process.HLTEndSequence )
 process.HLT_Mu7_Track5_Jpsi_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu7 + process.hltPreMu7Track5Jpsi + process.hltL1SingleMu7L1Filtered0 + process.HLTL2muonrecoSequence + process.hltMu7TrackJpsiL2Filtered3 + process.HLTL3muonrecoSequence + process.hltMu7TrackJpsiL3Filtered3 + process.HLTMuTrackJpsiPixelRecoSequence + process.hltMu7TrackJpsiPixelMassFiltered + process.HLTMuTrackJpsiTrackRecoSequence + process.hltMu7Track5JpsiTrackMassFiltered + process.HLTEndSequence )
 process.HLT_Mu7_Track7_Jpsi_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu7 + process.hltPreMu7Track7Jpsi + process.hltL1SingleMu7L1Filtered0 + process.HLTL2muonrecoSequence + process.hltMu7TrackJpsiL2Filtered3 + process.HLTL3muonrecoSequence + process.hltMu7TrackJpsiL3Filtered3 + process.HLTMuTrackJpsiPixelRecoSequence + process.hltMu7TrackJpsiPixelMassFiltered + process.HLTMuTrackJpsiTrackRecoSequence + process.hltMu7Track7JpsiTrackMassFiltered + process.HLTEndSequence )

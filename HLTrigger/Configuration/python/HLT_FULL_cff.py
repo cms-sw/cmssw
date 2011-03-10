@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HLT_fix3/V271 (CMSSW_3_11_0_HLT12)
+# /dev/CMSSW_3_11_1/HLT_fix3/V272 (CMSSW_3_11_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V271')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V272')
 )
 
 streams = cms.PSet( 
@@ -7294,7 +7294,7 @@ hltL1sL1DoubleMu05 = cms.EDFilter( "HLTLevel1GTSeed",
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
-hltPreMu5L2Mu0 = cms.EDFilter( "HLTPrescaler",
+hltPreMu5L2Mu2 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 hltMu5L2Mu2L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
@@ -7333,6 +7333,9 @@ hltMu5L2Mu0L3Filtered5 = cms.EDFilter( "HLTMuonL3PreFilter",
     MinPt = cms.double( 5.0 ),
     NSigmaPt = cms.double( 0.0 ),
     SaveTag = cms.untracked.bool( True )
+)
+hltPreMu5L2Mu2Jpsi = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 hltMu5L2Mu2JpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -18307,8 +18310,8 @@ HLT_DoubleMu4_Acoplanarity03_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1Doubl
 HLT_TripleMu5_v2 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1DoubleMu3 + hltPreTripleMu3 + hltL1DoubleMu3L1TriMuFiltered3 + HLTL2muonrecoSequence + hltL1DoubleMu3L2TriMuFiltered3 + HLTL3muonrecoSequence + hltL1DoubleMu3L3TriMuFiltered5 + HLTEndSequence )
 HLT_IsoMu5_DoubleMu5_v2 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1DoubleMu3 + hltPreTripleMu3 + hltL1DoubleMu3L1TriMuFiltered3 + HLTL2muonrecoSequence + hltL1DoubleMu3L2TriMuFiltered3 + HLTL2muonisorecoSequence + hltL1DoubleMu3L2SingleMuIsoFiltered4 + HLTL3muonrecoSequence + hltL1DoubleMu3L3TriMuFiltered5 + HLTL3muonisorecoSequence + hltL1DoubleMu3L3SingleMuIsoFiltered5 + HLTEndSequence )
 HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu5BQ7 + hltPreMu5TkMu0JpsiTightB5Q7 + hltMu5TrackJpsiL1Filtered0Eta15 + HLTL2muonrecoSequence + hltMu5TrackJpsiL2Filtered5Eta15 + HLTL3muonrecoSequence + hltMu5TrackJpsiL3Filtered5Eta15 + HLTMuTrackJpsiPixelRecoSequence + hltMu5TrackJpsiPixelMassFilteredEta15 + HLTMuTrackJpsiTrackRecoSequence + hltMu5TkMuJpsiTrackMassFiltered + HLTMuTkMuJpsiTkMuRecoSequence + hltMu5TkMuJpsiTkMuMassFilteredTight + HLTEndSequence )
-HLT_Mu5_L2Mu2_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1DoubleMu05 + hltPreMu5L2Mu0 + hltMu5L2Mu2L1Filtered0 + HLTL2muonrecoSequence + hltMu5L2Mu2L2PreFiltered0 + HLTL3muonrecoSequence + hltMu5L2Mu0L3Filtered5 + HLTEndSequence )
-HLT_Mu5_L2Mu2_Jpsi_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1DoubleMu05 + hltPreMu5L2Mu0 + hltMu5L2Mu2L1Filtered0 + HLTL2muonrecoSequence + hltMu5L2Mu2L2PreFiltered0 + HLTL3muonrecoSequence + hltMu5L2Mu0L3Filtered5 + hltMu5L2Mu2JpsiTrackMassFiltered + HLTEndSequence )
+HLT_Mu5_L2Mu2_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1DoubleMu05 + hltPreMu5L2Mu2 + hltMu5L2Mu2L1Filtered0 + HLTL2muonrecoSequence + hltMu5L2Mu2L2PreFiltered0 + HLTL3muonrecoSequence + hltMu5L2Mu0L3Filtered5 + HLTEndSequence )
+HLT_Mu5_L2Mu2_Jpsi_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1DoubleMu05 + hltPreMu5L2Mu2Jpsi + hltMu5L2Mu2L1Filtered0 + HLTL2muonrecoSequence + hltMu5L2Mu2L2PreFiltered0 + HLTL3muonrecoSequence + hltMu5L2Mu0L3Filtered5 + hltMu5L2Mu2JpsiTrackMassFiltered + HLTEndSequence )
 HLT_Mu3_Track3_Jpsi_v4 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu3 + hltPreMu3Track3Jpsi + hltL1SingleMu3L1Filtered0 + HLTL2muonrecoSequence + hltMu3TrackJpsiL2Filtered3 + HLTL3muonrecoSequence + hltMu3TrackJpsiL3Filtered3 + HLTMuTrackJpsiPixelRecoSequence + hltMu3TrackJpsiPixelMassFiltered + HLTMuTrackJpsiTrackRecoSequence + hltMu3Track3JpsiTrackMassFiltered + HLTEndSequence )
 HLT_Mu5_Track5_Jpsi_v2 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu3 + hltPreMu5Track5Jpsi + hltL1SingleMu3L1Filtered0 + HLTL2muonrecoSequence + hltMu5TrackJpsiL2Filtered3 + HLTL3muonrecoSequence + hltMu5TrackJpsiL3Filtered5 + HLTMuTrackJpsiPixelRecoSequence + hltMu5TrackJpsiPixelMassFiltered + HLTMuTrackJpsiTrackRecoSequence + hltMu5Track5JpsiTrackMassFiltered + HLTEndSequence )
 HLT_Mu7_Track5_Jpsi_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu7 + hltPreMu7Track5Jpsi + hltL1SingleMu7L1Filtered0 + HLTL2muonrecoSequence + hltMu7TrackJpsiL2Filtered3 + HLTL3muonrecoSequence + hltMu7TrackJpsiL3Filtered3 + HLTMuTrackJpsiPixelRecoSequence + hltMu7TrackJpsiPixelMassFiltered + HLTMuTrackJpsiTrackRecoSequence + hltMu7Track5JpsiTrackMassFiltered + HLTEndSequence )
