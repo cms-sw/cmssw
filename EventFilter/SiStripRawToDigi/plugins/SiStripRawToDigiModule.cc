@@ -43,8 +43,9 @@ namespace sistrip {
     bool quiet = pset.getUntrackedParameter<bool>("Quiet",true);
     extractCm_ = pset.getParameter<bool>("UnpackCommonModeValues");
     doFullCorruptBufferChecks_ = pset.getParameter<bool>("DoAllCorruptBufferChecks");
+    uint32_t errorThreshold = pset.getParameter<unsigned int>("ErrorThreshold");
 
-    rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key, unpack_bad_channels, mark_missing_feds);
+    rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key, unpack_bad_channels, mark_missing_feds, errorThreshold);
     rawToDigi_->quiet(quiet);
     rawToDigi_->useDaqRegister( use_daq_register ); 
     rawToDigi_->extractCm(extractCm_);
