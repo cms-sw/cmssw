@@ -48,7 +48,7 @@ void GsfElectronLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     cand.setSourceCandidatePtr(candPtr);
     
     // if not an electron or not GsfTrackRef
-    if( (cand.particleId()!=reco::PFCandidate::e) && ( cand.gsfTrackRef().isNonnull() )) {
+    if( (cand.particleId()!=reco::PFCandidate::e) ) {
       pfCandidates_p->push_back(cand);
       continue; // Watch out ! Continue
     }

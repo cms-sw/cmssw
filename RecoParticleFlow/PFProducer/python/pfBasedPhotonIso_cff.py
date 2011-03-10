@@ -7,8 +7,8 @@ from CommonTools.ParticleFlow.Isolation.pfPhotonIsolationFromDeposits_cff import
 pfSelectedPhotons = cms.EDFilter(
     "GenericPFCandidateSelector",
     src = cms.InputTag("particleFlow"),
-#    cut = cms.string("pdgId()==22 && mva_nothing_gamma>0")
-    cut = cms.string("pdgId()==22")
+    cut = cms.string("pdgId()==22 && mva_nothing_gamma>0")
+#    cut = cms.string("pdgId()==22")
 )
 
 pfBasedPhotonIsoSequence = cms.Sequence(

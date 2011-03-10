@@ -1,4 +1,4 @@
-<library   name="RecoParticleFlowPFProducerPlugins" file="EFilter.cc,PFBlockProducer.cc,PFElectronTranslator.cc,PFProducer.cc,SealModule.cc">
+<library   name="RecoParticleFlowPFProducerPlugins" file="EFilter.cc,PFBlockProducer.cc,PFElectronTranslator.cc,PFPhotonTranslator.cc,PFProducer.cc,GsfElectronLinker.cc,SealModule.cc">
   <use   name="CondFormats/DataRecord"/>
   <use   name="CondFormats/PhysicsToolsObjects"/>
   <use   name="DataFormats/CaloRecHit"/>
@@ -15,5 +15,9 @@
   <use   name="FWCore/Utilities"/>
   <use   name="RecoParticleFlow/PFClusterTools"/>
   <use   name="RecoParticleFlow/PFProducer"/>
+  <use   name="RecoEcal/EgammaCoreTools"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="RecoEgamma/EgammaIsolationAlgos"/>
+  <use   name="RecoEgamma/PhotonIdentification"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
