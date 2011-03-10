@@ -223,6 +223,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   const RooArgSet * observables = w->set("observables");
   if (observables == 0) throw std::invalid_argument("The model must define a RooArgSet 'observables'");
 
+  if (w->pdf("model_b") == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_b'");
   if (w->pdf("model_s") == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_s'");
 
   if (w->var("r") == 0 || w->set("POI") == 0) {
@@ -292,6 +293,31 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   }
 
   w->saveSnapshot("clean", w->allVars());
+
+  RooStats::ModelConfig *mc = dynamic_cast<RooStats::ModelConfig *>(w->genobj("ModelConfig"));
+  RooStats::ModelConfig *mc_b = dynamic_cast<RooStats::ModelConfig *>(w->genobj("ModelConfig_b"));
+  if (mc == 0) {
+    mc = new RooStats::ModelConfig("ModelConfig","signal",w);
+    mc->SetPdf(*w->pdf("model_s"));
+    mc->SetObservables(*w->set("observables"));
+    mc->SetParametersOfInterest(*w->set("POI"));
+    if (w->set("nuisances"))         mc->SetNuisanceParameters(*w->set("nuisances"));
+    if (w->set("globalObservables")) mc->SetNuisanceParameters(*w->set("globalObservables"));
+    if (w->pdf("prior")) mc->SetNuisanceParameters(*w->pdf("prior"));
+    // if (w->pdf("nuisancePdf")) mc->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
+    w->import(*mc, "ModelConfig");
+  }
+  if (mc_b == 0) {
+    mc_b = new RooStats::ModelConfig("ModelConfig_b","background",w);
+    mc_b->SetPdf(*w->pdf("model_b"));
+    mc_b->SetObservables(*w->set("observables"));
+    mc_b->SetParametersOfInterest(*w->set("POI"));
+    if (w->set("nuisances"))         mc_b->SetNuisanceParameters(*w->set("nuisances"));
+    if (w->set("globalObservables")) mc_b->SetNuisanceParameters(*w->set("globalObservables"));
+    if (w->pdf("prior")) mc_b->SetNuisanceParameters(*w->pdf("prior"));
+    // if (w->pdf("nuisancePdf")) mc_b->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
+    w->import(*mc_b, "ModelConfig_b");
+  }
 
   if (saveWorkspace_) {
     w->SetName(workspaceName_.c_str());
