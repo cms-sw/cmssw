@@ -5,7 +5,6 @@ parser = OptionParser()
 parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true")
 parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true")
 parser.add_option("-c", "--compiled", dest="cexpr", default=False, action="store_true")
-parser.add_option("-u", "--uniform",  dest="uniform", default=False, action="store_true")
 (options, args) = parser.parse_args()
 
 file = open(args[0], "r")
@@ -14,14 +13,14 @@ ROOFIT_EXPR = "cexpr" if options.cexpr else "expr"  # change to cexpr to use com
 N_OBS_MAX = 10000
 bins      = 1
 processes = 1
-nuisances = 0
+nuisances = -1;
 obs = []; exp = []; systs = []
 for l in file:
     f = l.split();
     if len(f) < 1: continue
     if f[0] == "imax": bins      = int(f[1])
     if f[0] == "jmax": processes = int(f[1])+1
-    if f[0] == "kmax": nuisances = int(f[1])
+    if f[0] == "kmax": nuisances = int(f[1]) if f[1] != "*" else -1;
     if f[0] == "Observation": 
         obs = [ float(x) for x in f[1:] ]
         if len(obs) != bins: raise RuntimeError, "Found %d observations but %d bins" % (len(obs), bins)
@@ -38,15 +37,20 @@ for l in file:
         break
 for l in file:
     if l.startswith("--"): continue
+    l = re.sub("\\s-+(\\s|$)"," 0\\1",l);
     f = l.split();
-    isyst = int(f[0]); pdf   = f[1];
-    if isyst != len(systs)+1: raise RuntimeError, "Unexpected systematic %d" % isyst
-    if pdf != "lnN": raise RuntimeError, "Unsupported pdf %s" % f[1]
-    if len(f[1:]) < bins * processes: raise RuntimeError, "Malformed rate line: %d, while bins*processes = %d*%d" % (len(f[1:]), bins,processes)
+    lsyst = f[0]; pdf = f[1]; args = []; numbers = f[2:];
+    if pdf == "lnN" or pdf == "gmM":
+        pass # nothing special to do
+    elif pdf == "gmN":
+        args = [int(f[2])]; numbers = f[3:];
+    else:
+        raise RuntimeError, "Unsupported pdf %s" % pdf
+    if len(numbers) < bins * processes: raise RuntimeError, "Malformed rate line: %d, while bins*processes = %d*%d" % (len(f[1:]), bins,processes)
     errline = []
     for b in range(bins):
-        errline.append([float(f[2+(b*processes + p)]) for p in range(processes)])
-    systs.append(errline)
+        errline.append([float(numbers[b*processes + p]) for p in range(processes)])
+    systs.append((lsyst,pdf,args,errline))
 
 if options.stat: 
     nuisances = 0
@@ -55,7 +59,10 @@ if options.stat:
 if options.asimov:
     obs = [sum(r[1:]) for r in exp]
 
-if len(systs) != nuisances: raise RuntimeError, "Found %d systematics, expected %d" % (len(systs), nuisances)
+if nuisances == -1: 
+    nuisances = len(systs)
+elif len(systs) != nuisances: 
+    raise RuntimeError, "Found %d systematics, expected %d" % (len(systs), nuisances)
 
 
 if len(obs):
@@ -76,34 +83,60 @@ POI = set(r);
 
 if nuisances: 
     print "/// ----- nuisances -----"
-    if options.uniform:
-        for n in range(nuisances): print "thetaPdf_%d = Uniform(theta_%d[-1,1]);" % (n,n)
-    else:
-        for n in range(nuisances): print "thetaPdf_%d = Gaussian(theta_%d[-5,5], 0, 1);" % (n,n)
-    print "nuisances   =  set(", ",".join(["theta_%d"    % n for n in range(nuisances)]),");"
-    print "nuisancePdf = PROD(", ",".join(["thetaPdf_%d" % n for n in range(nuisances)]),");"
+    for (n,pdf,args,errline) in systs: 
+        if pdf == "lnN":
+            #print "thetaPdf_%s = Gaussian(theta_%s[-1,1], 0, 1);" % (n,n)
+            print "thetaPdf_%s = Gaussian(theta_%s[-1,1], thetaIn_%s[0], 1);" % (n,n,n)
+        elif pdf == "gmM":
+            val = 0;
+            for v in sum(errline,[]): # concatenate all numbers
+                if v != 0:
+                    if val != 0: raise RuntimeError, "Error: line %s contains two different uncertainties %g, %g, which is not supported for gmM" % (n,v,val)
+                    val = v;
+            if val == 0: raise RuntimeError, "Error: line %s contains all zeroes"
+            theta = val*val; kappa = 1/theta
+            print "thetaPdf_%s = Gamma(theta_%s[%f,%f], %g, %g, 0);" % (n, n, max(0,1-5*val), 1+5*val, theta, kappa)
+        elif pdf == "gmN":
+            print "thetaPdf_%s = Poisson(thetaIn_%s[%d], theta_%s[0,%d]);" % (n,n,args[0],n,2*args[0]+5)
+    print "nuisances   =  set(", ",".join(["theta_%s"    % n for (n,p,a,e) in systs]),");"
+    print "nuisancePdf = PROD(", ",".join(["thetaPdf_%s" % n for (n,p,a,e) in systs]),");"
 
 print "/// --- Expected events in each bin, for each process ----"
 for b in range(bins):
     for p in range(processes):
-        strexpr = '%g ' % exp[b][p]; args = ""
-        for n in range(nuisances):
-            if systs[n][b][p] != 1.0:
-                if options.uniform:
-                    strexpr += " * pow(%f,ErfInverse(theta_%d))" % (systs[n][b][p], n)
-                else:
-                    strexpr += " * pow(%f,theta_%d)" % (systs[n][b][p], n)
-                args    += ", theta_%d" % n
-        if args != "":
-            print "n_exp_bin%d_proc%d = %s('%s'%s);" % (b, p, ROOFIT_EXPR, strexpr, args)
+        # collect multiplicative corrections
+        strexpr = ""; strargs = ""
+        gammaNorm = None
+        for (n,pdf,args,errline) in systs:
+            if errline[b][p] == 0.0: continue
+            if pdf == "lnN" and errline[b][p] == 1.0: continue
+            strargs += ", theta_%s" % n
+            if pdf == "lnN" or pdf == "gmM":
+                strexpr += " * pow(%f,theta_%s)" % (errline[b][p], n)
+            elif pdf == "gmN":
+                strexpr += " * %g " % errline[b][p]
+                if abs(errline[b][p] * args[0] - exp[b][p]) > 1e-3:
+                    raise RuntimeError, "Values of N = %d, alpha = %g don't match with expected rate %g for systematics %s " % (
+                                            args[0], errline[b][p], exp[b][p], n)
+                if gammaNorm != None:
+                    raise RuntimeError, "More than one gmN uncertainty for the same bin and process (theta_%s, %s) " % (n, gammaNorm)
+                gammaNorm = "theta_"+n
+        # set base term (fixed or gamma)
+        if gammaNorm != None:
+            strexpr = gammaNorm + strexpr
+        else:
+            strexpr = str(exp[b][p]) + strexpr
+        # optimize constants
+        if strargs != "":
+            print "n_exp_bin%d_proc%d = %s('%s'%s);" % (b, p, ROOFIT_EXPR, strexpr, strargs)
         else:
             print "n_exp_bin%d_proc%d[%g];" % (b, p, exp[b][p])
     expr_sb = "+".join(["n_exp_bin%d_proc%d" % (b,p) for p in range(0,processes)])
     expr_b  = "+".join(["n_exp_bin%d_proc%d" % (b,p) for p in range(1,processes)])
     args_sb = ",".join(["n_exp_bin%d_proc%d" % (b,p) for p in range(0,processes)]) 
     args_b  = ",".join(["n_exp_bin%d_proc%d" % (b,p) for p in range(1,processes)]) 
-    print "n_exp_bin%d       = %s('r*%s',r, %s);" % (b, ROOFIT_EXPR, expr_sb, args_sb);
-    print "n_exp_bin%d_bonly = %s('  %s',   %s);" % (b, ROOFIT_EXPR, expr_b,  args_b );
+    print "n_exp_bin%d       = %s('@0*%s',r, %s);" % (b, ROOFIT_EXPR, expr_sb, args_sb);
+    print "n_exp_bin%d_bonly = %s('   %s',   %s);" % (b, ROOFIT_EXPR, expr_b,  args_b );
 
 print "/// --- Expected events in each bin, total (S+B and B) ----"
 for b in range(bins):
