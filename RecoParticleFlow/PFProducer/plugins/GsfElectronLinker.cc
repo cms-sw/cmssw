@@ -23,6 +23,7 @@ GsfElectronLinker::~GsfElectronLinker() {;}
 void GsfElectronLinker::beginRun(edm::Run& run,const edm::EventSetup & es) {;}
 
 void GsfElectronLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  electronCandidateMap_.clear();
   std::auto_ptr<reco::PFCandidateCollection>
     pfCandidates_p(new reco::PFCandidateCollection);
 

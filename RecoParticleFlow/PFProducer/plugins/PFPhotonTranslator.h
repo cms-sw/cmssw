@@ -137,6 +137,8 @@ class PFPhotonTranslator : public edm::EDProducer
   std::vector<int> photPFCandidateIndex_;
   // the list of candidatePtr
   std::vector<reco::CandidatePtr> CandidatePtr_;
+  // the e/g SC associated
+  std::vector<reco::SuperClusterRef> egSCRef_;
 
   edm::ESHandle<CaloTopology> theCaloTopo_;
   edm::ESHandle<CaloGeometry> theCaloGeom_;

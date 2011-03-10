@@ -147,7 +147,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   basicClusterPtr_.clear();
   preshowerClusterPtr_.clear();
   CandidatePtr_.clear();
-
+  egSCRef_.clear();
 
 
 
@@ -173,7 +173,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 
     reco::PFCandidatePtr ptrToPFPhoton(pfCandidates,i);
     CandidatePtr_.push_back(ptrToPFPhoton);  
-
+    egSCRef_.push_back(cand.superClusterRef());
     //std::cout << "PFPhoton cand " << iphot << std::endl;
 
     //std::cout << "Cand elements in blocks : " << cand.elementsInBlocks().size() << std::endl;
@@ -538,11 +538,11 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
       reco::PhotonCore myPhotonCore;
 
       reco::SuperClusterRef SCref(reco::SuperClusterRef(superClustersHandle, iphot));
- 
+      
       myPhotonCore.setPFlowPhoton(true);
       myPhotonCore.setStandardPhoton(false);
       myPhotonCore.setPflowSuperCluster(SCref);
-
+      myPhotonCore.setSuperCluster(egSCRef_[iphot]);
       photonCores.push_back(myPhotonCore);
       
     }
