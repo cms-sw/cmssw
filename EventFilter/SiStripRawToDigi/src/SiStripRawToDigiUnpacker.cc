@@ -20,7 +20,7 @@
 namespace sistrip {
 
   RawToDigiUnpacker::RawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id,
-                                        bool using_fed_key, bool unpack_bad_channels, bool mark_missing_feds ) :
+                                        bool using_fed_key, bool unpack_bad_channels, bool mark_missing_feds, const uint32_t errorThreshold ) :
     headerBytes_( appended_bytes ),
     fedBufferDumpFreq_( fed_buffer_dump_freq ),
     fedEventDumpFreq_( fed_event_dump_freq ),
@@ -34,7 +34,8 @@ namespace sistrip {
     useDaqRegister_(false),
     quiet_(true),
     extractCm_(false),
-    doFullCorruptBufferChecks_(false)
+    doFullCorruptBufferChecks_(false),
+    errorThreshold_(errorThreshold)
   {
     if ( edm::isDebugEnabled() ) {
       LogTrace("SiStripRawToDigi")
@@ -450,12 +451,16 @@ namespace sistrip {
     } // fed loop
 
     // bad channels warning
-    if ( edm::isDebugEnabled() && detids.size() ) {
+    unsigned int detIdsSize = detids.size();
+    if ( edm::isDebugEnabled() && detIdsSize ) {
       std::ostringstream ss;
       ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
-         << " Problems were found in data and " << detids.size() << " channels could not be unpacked. "
+         << " Problems were found in data and " << detIdsSize << " channels could not be unpacked. "
          << "See output of FED Hardware monitoring for more information. ";
       edm::LogWarning(sistrip::mlRawToDigi_) << ss.str();
+    }
+    if( (errorThreshold_ != 0) && (detIdsSize > errorThreshold_) ) {
+      edm::LogError(sistrip::mlRawToDigi_) << "Total number of errors = " << detIdsSize;
     }
 
     // update DetSetVectors
