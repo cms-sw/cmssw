@@ -637,7 +637,12 @@ inline mathSSE::Vec4F cross(mathSSE::Vec4F a, mathSSE::Vec4F b) {
 
 inline float dotxy(mathSSE::Vec4F a, mathSSE::Vec4F b) {
   mathSSE::Vec4F mul = a*b;
-  mul = hadd(mul,mul);
+#ifdef __SSE3__
+   mul = hadd(mul,mul);
+#else
+   __m128 swp = _mm_shuffle_ps(mul.vec, mul.vec, _MM_SHUFFLE(2, 3, 0, 1));
+   mul.vec = _mm_add_ps(mul.vec, swp);
+#endif
   float s;
   _mm_store_ss(&s,mul.vec);
   return s;

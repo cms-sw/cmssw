@@ -10,8 +10,7 @@ JacobianCurvilinearToLocal(const Surface& surface,
  
   // Origin: TRSCSD
   GlobalPoint  x = surface.toGlobal(localParameters.position());
-  //  GlobalVector h = MagneticField::inInverseGeV(x);
-  GlobalVector h  = magField.inTesla(x) * 2.99792458e-3;
+  GlobalVector h  = magField.inInverseGeV(x);
   GlobalVector  hdir =  h.unit();
 
   LocalVector tnl = localParameters.momentum().unit();
