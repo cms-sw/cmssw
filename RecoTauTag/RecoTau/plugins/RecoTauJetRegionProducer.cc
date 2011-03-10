@@ -14,6 +14,7 @@
 #include "DataFormats/Common/interface/Association.h"
 
 #include "RecoTauTag/RecoTau/interface/ConeTools.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -57,15 +58,42 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
   }
 
   // Get the jets
-  edm::Handle<reco::PFJetCollection> jetHandle;
-  evt.getByLabel(inputJets_, jetHandle);
+  edm::Handle<reco::CandidateView> jetView;
+  evt.getByLabel(inputJets_, jetView);
+  // Convert to a vector of PFJetRefs
+  reco::PFJetRefVector jets =
+      reco::tau::castView<reco::PFJetRefVector>(jetView);
+  size_t nJets = jets.size();
+
+  // Get the original product, so we can match against it - otherwise the
+  // indices don't match up.
+  edm::ProductID originalId = jets.id();
+  edm::Handle<reco::PFJetCollection> originalJets;
+  size_t nOriginalJets = 0;
+  // We have to make sure that we have some selected jets, otherwise we don't
+  // actually have a valid product ID to the original jets.
+  if (nJets) {
+    try {
+      evt.get(originalId, originalJets);
+    } catch(const cms::Exception &e) {
+      edm::LogError("MissingOriginalCollection")
+        << "Can't get the original jets that made: " << inputJets_
+        << " that have product ID: " << originalId
+        << " from the event!!";
+      throw e;
+    }
+    nOriginalJets = originalJets->size();
+  }
 
   std::auto_ptr<reco::PFJetCollection> newJets(new reco::PFJetCollection);
 
-  size_t nJets = jetHandle->size();
+  // Keep track of the indices of the current jet and the old (original) jet
+  // -1 indicats no match.
+  std::vector<int> matchInfo(nOriginalJets, -1);
+
   for (size_t ijet = 0; ijet < nJets; ++ijet) {
     // Get a ref to jet
-    reco::PFJetRef jetRef(jetHandle, ijet);
+    reco::PFJetRef jetRef = jets[ijet];
     // Make an initial copy.
     reco::PFJet newJet(*jetRef);
     // Clear out all the constituents
@@ -84,6 +112,9 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
         // For the ones that do, call newJet.addDaughter(..) on them
         boost::bind(&reco::PFJet::addDaughter, boost::ref(newJet), _1));
     newJets->push_back(newJet);
+    // Match the index of the jet we just made to the index into the original
+    // collection.
+    matchInfo[jetRef.key()] = ijet;
   }
 
   // Put our new jets into the event
@@ -92,16 +123,11 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
 
   // Create a matching between original jets -> extra collection
   std::auto_ptr<PFJetMatchMap> matching(new PFJetMatchMap(newJetsInEvent));
-  PFJetMatchMap::Filler filler(*matching);
-
-  // Create a matchign between indices of the two collections
-  // This is trivial, as they are one to one.
-  std::vector<int> matchInfo(nJets);
-  for (size_t i = 0; i < nJets; ++i) {
-    matchInfo[i] = i;
+  if (nJets) {
+    PFJetMatchMap::Filler filler(*matching);
+    filler.insert(originalJets, matchInfo.begin(), matchInfo.end());
+    filler.fill();
   }
-  filler.insert(jetHandle, matchInfo.begin(), matchInfo.end());
-  filler.fill();
   evt.put(matching);
 }
 
