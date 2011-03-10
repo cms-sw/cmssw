@@ -51,32 +51,37 @@ signal_scale = signal_histo.Integral()/signal_denominator_histo.Integral()
 background_scale = \
         background_histo.Integral()/background_denominator_histo.Integral()
 
-signal_integral = signal_histo.GetIntegral()
-background_integral = background_histo.GetIntegral()
-
 min = signal_histo.GetBinCenter(1)
 max = signal_histo.GetBinCenter(signal_histo.GetNbinsX())
-
-transform_values = []
-
-last_value = -1
-for bin in range(1, signal_histo.GetNbinsX()+1):
-    bin_center = signal_histo.GetBinCenter(bin)
-    signal_passing = 1.0 - signal_integral[bin]
-    background_passing = 1.0 - background_integral[bin]
-    transform_value = last_value
-    if signal_passing > 0:
-        transform_value = ((signal_passing*signal_scale) /
-                           (signal_passing*signal_scale +
-                            background_passing*background_scale))
-        last_value = transform_value
-    transform_values.append(transform_value)
 
 output_object = cms.PSet(
     min = cms.double(min),
     max = cms.double(max),
-    transform = cms.vdouble(transform_values)
 )
+
+transform_values = []
+
+if signal_scale or background_scale:
+    signal_integral = signal_histo.GetIntegral()
+    background_integral = background_histo.GetIntegral()
+    last_value = -1
+    for bin in range(1, signal_histo.GetNbinsX()+1):
+        bin_center = signal_histo.GetBinCenter(bin)
+        signal_passing = 1.0 - signal_integral[bin]
+        background_passing = 1.0 - background_integral[bin]
+        transform_value = last_value
+        if signal_passing > 0:
+            transform_value = ((signal_passing*signal_scale) /
+                               (signal_passing*signal_scale +
+                                background_passing*background_scale))
+            last_value = transform_value
+        transform_values.append(transform_value)
+
+else:
+    transform_values = [0.0, 0.0, 0.0]
+
+output_object.transform = cms.vdouble(transform_values)
+
 output_file = open(options.o, 'w')
 output_file.write('import FWCore.ParameterSet.Config as cms\n')
 output_file.write("transform = %s\n" % output_object.dumpPython())

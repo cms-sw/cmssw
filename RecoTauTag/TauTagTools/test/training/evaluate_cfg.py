@@ -45,22 +45,12 @@ _SIGNAL = False
 if options.signal == 1:
     _SIGNAL = True
 
-# We need to turn off the track based quality cuts, since we don't save them
-# in the skim.
-#from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
-#PFTauQualityCuts.signalQualityCuts = cms.PSet(
-    #minTrackPt = PFTauQualityCuts.signalQualityCuts.minTrackPt,
-    #minGammaEt = PFTauQualityCuts.signalQualityCuts.minGammaEt,
-#)
-#PFTauQualityCuts.isolationQualityCuts = cms.PSet(
-    #minTrackPt = PFTauQualityCuts.isolationQualityCuts.minTrackPt,
-    #minGammaEt = PFTauQualityCuts.isolationQualityCuts.minGammaEt,
-#)
-
-
 process = cms.Process("Eval")
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(40000) )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(40000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 2000
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
 # DQM store, PDT sources etc
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
@@ -68,7 +58,6 @@ process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-# Shit, is this okay?
 from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
@@ -86,7 +75,7 @@ process.source = cms.Source(
     #skipEvents = cms.untracked.uint32(20000)
 )
 
-_KIN_CUT = "pt > 10 & abs(eta) < 2.5"
+_KIN_CUT = "pt > 15 & abs(eta) < 2.5"
 
 # For signal, select jets that match a hadronic decaymode
 process.kinematicSignalJets = cms.EDFilter(
@@ -165,29 +154,9 @@ else:
     process.ak5PFJets = cms.EDFilter(
         "CandViewRefSelector",
         src = cms.InputTag("kinematicBackgroundJets"),
-        cut = cms.string(_KIN_CUT), # take everything
+        cut = cms.string(_KIN_CUT),
         filter = cms.bool(False)
     )
-
-print "Adding kinematic selection to cleaners"
-# Only add the pt threshold for signal
-#if _SIGNAL:
-    #process.hpsPFTauProducer.outputSelection = cms.string(_KIN_CUT)
-    #process.hpsTancTaus.outputSelection = cms.string(_KIN_CUT)
-    #process.shrinkingConePFTauProducer.outputSelection = cms.string(_KIN_CUT)
-
-#process.hpsPFTauProducer.outputSelection = cms.string('pt > 15 & abs(eta) < 2.5')
-#process.hpsTancTaus.outputSelection = cms.string('pt > 15 & abs(eta) < 2.5')
-#process.shrinkingConePFTauProducer.outputSelection = cms.string('pt > 15 & abs(eta) < 2.5')
-
-#EK apply cut on true pt
-#if _SIGNAL:
-    #for producer in [process.hpsPFTauProducer, process.hpsTancTaus,
-                     #process.shrinkingConePFTauProducer]:
-        #current_selection = producer.outputSelection.value()
-        #producer.outputSelection = current_selection + " && alternatLorentzVect.pt() > 20 "
-
-
 
 # For signal, make some plots of the matching information
 process.mediumShrinkingTaus = cms.EDFilter(
@@ -236,6 +205,46 @@ if _SIGNAL:
     process.main += process.mediumHPSTancTaus
     process.main += process.plotHPSTancRes
 
+################################################################################
+##         Rekey flight path discriminators from skimming                    ###
+################################################################################
+# We don't save the vertex, beamspot stuff, so we need to rekey our
+# discriminators for the flight path significance from the ones we made in the
+# skim
+process.load("RecoTauTag.TauTagTools.PFTauMatching_cfi")
+process.matchForRekeying = process.pfTauMatcher.clone(
+    src = cms.InputTag("hpsTancTaus"),
+    matched = cms.InputTag(
+        _SIGNAL and "hpsTancTausSignal" or "hpsTancTausBackground"),
+    resolveAmbiguities = cms.bool(True),
+    resolveByMatchQuality = cms.bool(True),
+)
+
+from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
+
+process.hpsTancTausDiscriminationByFlightPathRekey = cms.EDProducer(
+    "RecoTauRekeyDiscriminator",
+    PFTauProducer = cms.InputTag("hpsTancTaus"),
+    Prediscriminants = noPrediscriminants,
+    otherDiscriminator = cms.InputTag(
+        _SIGNAL and "hpsTancTausDiscriminationByFlightPathSignal"
+        or "hpsTancTausDiscriminationByFlightPathBackground"),
+    matching = cms.InputTag("matchForRekeying"),
+    verbose = cms.untracked.bool(False)
+)
+process.rekeyFlight = cms.Sequence(
+    process.matchForRekeying*process.hpsTancTausDiscriminationByFlightPathRekey)
+
+process.PFTau.replace(
+    process.hpsTancTausDiscriminationByFlightPath,
+    process.rekeyFlight
+)
+process.hpsTancTausDiscriminationByTancRaw.discriminantOptions.\
+        FlightPathSignificance.discSrc = cms.InputTag(
+            "hpsTancTausDiscriminationByFlightPathRekey"
+        )
+process.hpsTancTausDiscriminationByTancRaw.remapOutput = False
+
 # Plot the input jets to use in weighting the transformation
 process.plotAK5PFJets = cms.EDAnalyzer(
     "CandViewHistoAnalyzer",
@@ -281,34 +290,37 @@ discriminators['hpsPFTauProducer'] = [
 ]
 
 discriminators['shrinkingConePFTauProducer'] = [
-    'shrinkingConePFTauDiscriminationByLeadingPionPtCut',
-    'shrinkingConePFTauDiscriminationByIsolation',
-    'shrinkingConePFTauDiscriminationByTrackIsolation',
-    'shrinkingConePFTauDiscriminationByECALIsolation',
+    #'shrinkingConePFTauDiscriminationByLeadingPionPtCut',
+    #'shrinkingConePFTauDiscriminationByIsolation',
+    #'shrinkingConePFTauDiscriminationByTrackIsolation',
+    #'shrinkingConePFTauDiscriminationByECALIsolation',
     'shrinkingConePFTauDiscriminationByTaNC',
-    'shrinkingConePFTauDiscriminationByTaNCfrOnePercent',
+    #'shrinkingConePFTauDiscriminationByTaNCfrOnePercent',
     'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent',
-    'shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent',
-    'shrinkingConePFTauDiscriminationByTaNCfrTenthPercent'
+    #'shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent',
+    #'shrinkingConePFTauDiscriminationByTaNCfrTenthPercent'
 ]
 
 discriminators['hpsTancTaus'] = [
     'hpsTancTausDiscriminationByTanc',
-    'hpsTancTausDiscriminationByTancLoose',
-    'hpsTancTausDiscriminationByTancMedium',
-    'hpsTancTausDiscriminationByTancTight',
+    #'hpsTancTausDiscriminationByTancLoose',
+    #'hpsTancTausDiscriminationByTancMedium',
+    #'hpsTancTausDiscriminationByTancTight',
     'hpsTancTausDiscriminationByTancRaw'
 ]
 
 process.plothpsTancTaus = cms.EDAnalyzer(
     "RecoTauPlotDiscriminator",
     src = cms.InputTag("hpsTancTaus"),
+    plotPU = cms.bool(True),
+    pileupInfo = cms.InputTag("addPileupInfo"),
+    pileupVertices = cms.InputTag("recoTauPileUpVertices"),
     discriminators = cms.VInputTag(
         discriminators['hpsTancTaus']
     ),
-    nbins = cms.uint32(900),
-    min = cms.double(-1),
-    max = cms.double(2),
+    nbins = cms.uint32(580),
+    min = cms.double(-1.2),
+    max = cms.double(1.2),
 )
 
 process.plotshrinkingConePFTauProducer = process.plothpsTancTaus.clone(

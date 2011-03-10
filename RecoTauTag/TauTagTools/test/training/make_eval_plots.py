@@ -80,7 +80,7 @@ discriminators['hpsPFTauProducer'] = [
     #'hpsPFTauDiscriminationByDecayModeFinding',
     'hpsPFTauDiscriminationByLooseIsolation',
     'hpsPFTauDiscriminationByMediumIsolation',
-    #'hpsPFTauDiscriminationByTightIsolation',
+    'hpsPFTauDiscriminationByTightIsolation',
 ]
 
 discriminators['shrinkingConePFTauProducer'] = [
@@ -96,11 +96,11 @@ discriminators['shrinkingConePFTauProducer'] = [
 ]
 
 discriminators['hpsTancTaus'] = [
-    #'hpsTancTausDiscriminationByTancRaw',
+    'hpsTancTausDiscriminationByTancRaw',
     'hpsTancTausDiscriminationByTanc',
     #'hpsTancTausDiscriminationByTancLoose',
-    'hpsTancTausDiscriminationByTancMedium',
-    'hpsTancTausDiscriminationByTancTight',
+    #'hpsTancTausDiscriminationByTancMedium',
+    #'hpsTancTausDiscriminationByTancTight',
 ]
 
 #del discriminators['shrinkingConePFTauProducer']
@@ -136,18 +136,22 @@ discriminator_translator = {
 
 disc_to_plot = discriminators.keys()
 
-good_colors = [ROOT.EColor.kRed-9, ROOT.EColor.kBlue-9, ROOT.EColor.kBlack]
+good_colors = [ROOT.EColor.kRed-9, ROOT.EColor.kBlue-9, ROOT.EColor.kBlack, ROOT.EColor.kGreen-9, ROOT.EColor.kViolet]
 disc_to_plot = ['shrinkingConePFTauProducer', 'hpsPFTauProducer', 'hpsTancTaus']
 
 pt_curves_to_plot = [
-    ('shrinkingConePFTauProducer',
-     'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent'),
+    #('shrinkingConePFTauProducer',
+     #'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent'),
     ('hpsPFTauProducer',
      'hpsPFTauDiscriminationByLooseIsolation'),
+    ('hpsPFTauProducer',
+     'hpsPFTauDiscriminationByMediumIsolation'),
     ('hpsTancTaus',
-     'hpsTancTausDiscriminationByTancTight'),
-    ('hpsTancTaus',
-     'hpsTancTausDiscriminationByTanc'),
+    'hpsTancTausDiscriminationByTanc'),
+    #('hpsTancTaus',
+    #'hpsTancTausDiscriminationByTancMedium'),
+    #('hpsTancTaus',
+     #'hpsTancTausDiscriminationByTanc'),
 ]
 
 _PT_CUT = 15
@@ -200,7 +204,7 @@ if __name__ == "__main__":
                 pt_eff_denom = raw_histo.Project3D("denom_z")
 
                 raw_histo.GetXaxis().SetRange(
-                    raw_histo.GetXaxis().FindBin(0.995),
+                    raw_histo.GetXaxis().FindBin(0.9799),
                     raw_histo.GetNbinsX()+1)
                 raw_histo.GetYaxis().SetRange(
                     min_pt_bin, raw_histo.GetNbinsY()+1)
@@ -232,7 +236,7 @@ if __name__ == "__main__":
     good_markers = [20, 21, 24, 26, 22, 26, 20, 21, 24, 26, 22 ]
     #good_colors = [ROOT.EColor.kRed, ROOT.EColor.kBlue, ROOT.EColor.kGreen + 2]
     # The background histogram
-    histo = ROOT.TH1F("blank", "blank", 100, 0, 1.0)
+    histo = ROOT.TH1F("blank", "blank", 200, 0, 1.0)
     histo.SetMinimum(8e-4)
     histo.SetMaximum(0.5)
     histo.GetXaxis().SetTitle("Signal efficiency")
@@ -285,6 +289,9 @@ if __name__ == "__main__":
     ROOT.gPad.Update()
     ROOT.gPad.SaveAs(output_file)
 
+    pt_legend = ROOT.TLegend(0.15, 0.6, 0.65, 0.85)
+    pt_legend.SetFillStyle(0)
+    pt_legend.SetBorderSize(0)
     pt_canvas = ROOT.TCanvas('pt', 'pt', 1000, 500)
     pt_canvas.Divide(2)
     signal_frame = ROOT.TH1F("sigbkg", "Signal efficiency", 10, 0, 100)
@@ -312,6 +319,7 @@ if __name__ == "__main__":
         signal_eff.Draw("p")
         signal_eff.SetMarkerColor(color)
         signal_eff.SetMarkerStyle(20)
+        pt_legend.AddEntry(signal_eff, discriminator, "p")
         keep.append(signal_eff)
         background_num = background_algos[discriminator]['pt_eff_num']
         background_denom = background_algos[discriminator]['pt_eff_denom']
@@ -324,5 +332,6 @@ if __name__ == "__main__":
         background_eff.Draw("p")
         keep.append(background_eff)
 
+    pt_legend.Draw()
     pt_canvas.SaveAs(output_file.replace('.pdf', '_pt_eff.pdf'))
 

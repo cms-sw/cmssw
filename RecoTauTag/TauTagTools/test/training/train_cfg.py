@@ -9,7 +9,6 @@ Author: Evan K. Friis (UC Davis)
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
-import sys
 
 options = VarParsing.VarParsing ('analysis')
 
@@ -43,6 +42,9 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(options.inputFiles),
     skipBadFiles = cms.untracked.bool(True),
 )
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #######################################################
 # Database BS
@@ -95,22 +97,62 @@ discriminantConfiguration.FlightPathSignificance.discSrc = cms.VInputTag(
     "hpsTancTausDiscriminationByFlightPathBackground",
 )
 
+_MIN_PT = 15
+
+process.signalExists = cms.EDFilter(
+    "CandCollectionExistFilter",
+    src = cms.InputTag(
+        "selectedHpsTancTrainTausDecayMode%iSignal" % _decay_mode),
+)
+
+process.selectedSignal = cms.EDFilter(
+    "PFTauViewRefSelector",
+    src = cms.InputTag(
+        "selectedHpsTancTrainTausDecayMode%iSignal" % _decay_mode),
+    cut = cms.string("pt > %f" % _MIN_PT),
+    filter = cms.bool(False)
+)
+
+process.backgroundExists = cms.EDFilter(
+    "CandCollectionExistFilter",
+    src = cms.InputTag(
+        "selectedHpsTancTrainTausDecayMode%iBackground" % _decay_mode),
+)
+process.selectedBackground = cms.EDFilter(
+    "PFTauViewRefSelector",
+    src = cms.InputTag(
+        "selectedHpsTancTrainTausDecayMode%iBackground" % _decay_mode),
+    cut = cms.string("pt > %f" % _MIN_PT),
+    filter = cms.bool(False)
+)
+
+process.signalPath = cms.Path(
+    process.signalExists*
+    process.selectedSignal
+)
+
+process.backgroundPath = cms.Path(
+    process.backgroundExists*
+    process.selectedBackground
+)
+
 process.trainer = cms.EDAnalyzer(
     "RecoTauMVATrainer",
-    signalSrc = cms.InputTag(
-        "selectedHpsTancTrainTausDecayMode%iSignal" % _decay_mode),
-    backgroundSrc = cms.InputTag(
-        "selectedHpsTancTrainTausDecayMode%iBackground" % _decay_mode),
+    signalSrc = cms.InputTag("selectedSignal"),
+    backgroundSrc = cms.InputTag("selectedBackground"),
     computerName = cms.string(_computer_name),
     dbLabel = cms.string("trainer"),
     discriminantOptions = discriminantConfiguration
 )
 
-process.trainPath = cms.Path(process.trainer)
+process.trainPath = cms.Path(
+    process.trainer)
 
 process.outpath = cms.EndPath(process.MVATrainerSave)
 
 process.schedule = cms.Schedule(
+    process.signalPath,
+    process.backgroundPath,
     process.trainPath,
     process.outpath
 )

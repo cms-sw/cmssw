@@ -77,12 +77,16 @@ ${DB}/computers.db: ${DB}/1prong0pi0.mva ${DB}/1prong1pi0.mva ${DB}/1prong2pi0.m
 	rm -f $@
 	./merge_dbs.py $@ $^
 
+${DB}/1prong2pi0.mva: ${DB}/1prong1pi0.mva
+	echo "TWO PRONG HACK"
+	cp ${DB}/1prong1pi0.mva ${DB}/1prong2pi0.mva
+
 # Switch formats
 ${DB}/%.mva: ${DB}/%.db
 	mkdir -p ${DB}
 	./dump_db.py $^
 
-${EVAL}/%/correlations.png: ./training_control_plots.py ${DB}/%.db
+${EVAL}/%/correlations.png: ./training_control_plots.py ${DB}/%.mva
 	mkdir -p ${EVAL}
 	./training_control_plots.py train/train_$*_${DIR}_output.root ${EVAL}/$*
 
@@ -102,6 +106,9 @@ ${DB}/%.db: ${XML}/%.xml signalfiles.list backgroundfiles.list train_cfg.py
 #################################################################
 #  Defining sample lists
 #################################################################
+
+# Or do it on the command line
+#  cat files.list | perl -MList::Util -e 'print List::Util::shuffle <>' | grep bkg  | awk 'NR % 5 == 0' >!  backgroundfiles.test
 
 signalfiles.list:
 	ls ${DATADIR}/signal/signal_training*.root \

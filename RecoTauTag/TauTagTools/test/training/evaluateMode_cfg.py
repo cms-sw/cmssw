@@ -61,7 +61,10 @@ decay_mode_map = {
 _decay_mode_name = decay_mode_map[_decay_mode]
 
 process = cms.Process("Eval")
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20000) )
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 2000
 
 # DQM store, PDT sources etc
 process.load("Configuration.StandardSequences.Services_cff")
@@ -81,7 +84,7 @@ process.source = cms.Source(
 # Load PiZero algorithm
 process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 
-_KIN_CUT = "pt > 10 & abs(eta) < 2.5"
+_KIN_CUT = "pt > 15 & abs(eta) < 2.5"
 _TYPE_LABEL = options.signal==1 and "Signal" or "Background"
 
 process.selectedBaseTaus = cms.EDFilter(
@@ -166,6 +169,9 @@ process.TauTagMVAComputerRecord.appendToDataLabel = cms.string("hpstanc")
 process.cleanTauPlots = cms.EDAnalyzer(
     "RecoTauPlotDiscriminator",
     src = cms.InputTag("selectedDecayModeTaus"),
+    plotPU = cms.bool(True),
+    pileupInfo = cms.InputTag("addPileupInfo"),
+    pileupVertices = cms.InputTag("recoTauPileUpVertices"),
     discriminators = cms.VInputTag(
         cms.InputTag("hpsTancTausDiscriminationByTancRaw")
     ),
