@@ -46,6 +46,7 @@ void ProfileLikelihood::applyOptions(const boost::program_options::variables_map
 {
     tries_    = vm.count("tries")    ? vm["tries"].as<unsigned int>() : 1;
     maxTries_ = vm["maxTries"].as<int>();
+    if (tries_ > maxTries_) tries_ = maxTries_;
     maxRelDeviation_ = vm["maxRelDeviation"].as<float>();
     maxOutlierFraction_ = vm["maxOutlierFraction"].as<float>();
     maxOutliers_        = vm["maxOutliers"].as<int>();
