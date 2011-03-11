@@ -66,16 +66,12 @@ namespace popcon
     
   private:
     const EcalLaserAPDPNRatios * myapdpns;
-    unsigned long m_firstRun ;
-    unsigned long m_lastRun ;
     unsigned long m_sequences;
-    std::string m_location;
-    std::string m_gentag;
     std::string m_sid;
     std::string m_user;
     std::string m_pass;
-    std::string m_locationsource;
     std::string m_name;
+    std::string m_maxtime; 
     bool        m_debug;
     
   };

@@ -19,14 +19,11 @@ popcon::EcalLaserHandler::EcalLaserHandler(const edm::ParameterSet & ps)
   m_sid= ps.getParameter<std::string>("OnlineDBSID");
   m_user= ps.getParameter<std::string>("OnlineDBUser");
   m_pass= ps.getParameter<std::string>("OnlineDBPassword");
-  m_locationsource= ps.getParameter<std::string>("LocationSource");
-  m_location=ps.getParameter<std::string>("Location");
-  m_gentag=ps.getParameter<std::string>("GenTag");
   m_debug=ps.getParameter<bool>("debug");
   m_sequences=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("sequences").c_str()));
+  m_maxtime=ps.getParameter<std::string>("maxtime").c_str();
   std::cout << "Starting O2O process on DB: " << m_sid
-	    << " User: "<< m_user << " Location: " << m_location 
-	    << " Tag: " << m_gentag << std::endl;
+	    << " User: "<< m_user << std::endl;
 }
 
 popcon::EcalLaserHandler::~EcalLaserHandler()
@@ -131,8 +128,8 @@ void popcon::EcalLaserHandler::getNewObjects()
     int iPhi = ieb->getID2();
     count++;
     EBDetId ebdetid(iEta,iPhi);
-    unsigned int hieb = ebdetid.hashedIndex();    
-    detids[ieb->getLogicID()] = hieb;
+    //    unsigned int hieb = ebdetid.hashedIndex();    
+    detids[ieb->getLogicID()] = ebdetid;
     ieb++;
   }
   std::cout << "Validated " << count << " logic ID's for EB" << std::endl;
@@ -148,8 +145,8 @@ void popcon::EcalLaserHandler::getNewObjects()
     int iX    = iee->getID2();
     int iY    = iee->getID3();
     EEDetId eedetidpos(iX,iY,iSide);
-    int hi = eedetidpos.hashedIndex();
-    detids[iee->getLogicID()] = hi;
+    //    int hi = eedetidpos.hashedIndex();
+    detids[iee->getLogicID()] = eedetidpos;
     count ++;
     iee++;
   }
@@ -167,8 +164,10 @@ void popcon::EcalLaserHandler::getNewObjects()
   // get all data in the database taken after the last available time in ORCOFF
   // we associate another map, whose key is the crystal ID and whose value is a
   // sextuple (p1, p2, p3, t1, t2, t3)
+  Tm tmax;
+  tmax.setToString(m_maxtime);
   std::map<int, std::map<int, LMFSextuple> > d = 
-    data.getCorrections(Tm(t_min.value()), m_sequences);
+    data.getCorrections(Tm(t_min.value()), tmax, m_sequences);
   // sice must be equal to the number of different SEQ_ID's found
   std::cout << "Data organized into " << d.size() << " sequences" << std::endl;
   // iterate over sequences

@@ -349,6 +349,11 @@ void LMFCorrCoefDat::checkTriplets(int logic_id, const LMFSextuple &s,
 
 std::map<int, std::map<int, LMFSextuple> > 
 LMFCorrCoefDat::getCorrections(const Tm &t, int max) {
+  return getCorrections(t, Tm().plusInfinity(), max);
+}
+
+std::map<int, std::map<int, LMFSextuple> > 
+LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
   // returns a map whose key is the sequence_id and whose value is another
   // map. The latter has the logic_id of a crystal as key and the corresponding
   // sextuple p1, p2, p3, t1, t2, t3 as value.
@@ -372,14 +377,15 @@ LMFCorrCoefDat::getCorrections(const Tm &t, int max) {
   std::string sql = "SELECT * FROM (SELECT LOGIC_ID, T1, T2, T3, P1, P2, P3, "
     "SEQ_ID FROM LMF_LMR_SUB_IOV JOIN LMF_CORR_COEF_DAT ON "  
     "LMF_CORR_COEF_DAT.LMR_SUB_IOV_ID = LMF_LMR_SUB_IOV.LMR_SUB_IOV_ID "
-    "WHERE T1 > :1 ORDER BY T1) WHERE ROWNUM <= :2";
+    "WHERE T1 > :1 AND T1 <= :2 ORDER BY T1) WHERE ROWNUM <= :3";
   try {
     DateHandler dh(m_env, m_conn);
     oracle::occi::Statement * stmt = m_conn->createStatement();
     stmt->setSQL(sql);
     int toFetch = max * (61200 + 14648);
     stmt->setDate(1, dh.tmToDate(t));
-    stmt->setInt(2, toFetch);
+    stmt->setDate(2, dh.tmToDate(t2));
+    stmt->setInt(3, toFetch);
     stmt->setPrefetchRowCount(toFetch);
     if (m_debug) {
       std::cout << "[LMFCorrCoefDat::getCorrections] executing query" 

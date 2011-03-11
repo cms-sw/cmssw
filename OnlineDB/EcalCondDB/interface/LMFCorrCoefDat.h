@@ -51,6 +51,9 @@ class LMFCorrCoefDat {
   std::map<int, std::map<int, LMFSextuple> > getCorrections(const Tm &t);
   std::map<int, std::map<int, LMFSextuple> > getCorrections(const Tm &t, 
 							    int max);
+  std::map<int, std::map<int, LMFSextuple> > getCorrections(const Tm &t,
+							    const Tm &t2,
+							    int max);
   std::list<std::vector<float> > getParameters(int id);
   std::list<std::vector<float> > getParameters(const EcalLogicID &id);
   std::vector<float> getParameters(const LMFLmrSubIOV &iov, 
