@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 
-from RecoTauTag.RecoTau.PFRecoTauProducer_cfi import *
+from RecoTauTag.RecoTau.RecoTauFixedConeProducer_cfi import fixedConeRecoTaus
 
 """
         Defines producers and discriminants for the "FixedCone" PFTau
 
         The sequence provided @ the end of the file,
 
-                ProduceAndDiscriminateFixedConePFTaus 
+                ProduceAndDiscriminateFixedConePFTaus
 
         produces the fixed cone PFTau and all its associated discriminants
 
@@ -16,25 +16,9 @@ from RecoTauTag.RecoTau.PFRecoTauProducer_cfi import *
            SignalCone for tracks           - 0.07 in DR from lead object
            SignalCone for ECAL/HCAL        - 0.07 in DR from lead object
            Isolation cone (all types)      - 0.50 in DR from lead object
-        
+
 """
-fixedConePFTauProducer = copy.deepcopy(pfRecoTauProducer)
-
-fixedConePFTauProducer.LeadPFCand_minPt      = cms.double(5.0)  #cut on lead object (can be track, or gamma)
-
-#Signal Cone parameters
-fixedConePFTauProducer.TrackerSignalConeSizeFormula = cms.string('0.07') ## **
-#Important: the four-vector energy for the PFTau is defined as the candidates
-# within the maximum tracker signal cone size (TrackerSignalConeSize_max_).
-# For fixed cone taus, this should be set to the fixed cone size.
-fixedConePFTauProducer.TrackerSignalConeSize_max    = cms.double(0.07) 
-
-fixedConePFTauProducer.ECALSignalConeSizeFormula    = cms.string('0.15') ## **
-fixedConePFTauProducer.HCALSignalConeSizeFormula    = cms.string('0.10') ## **
-#Isolation Cone parameters
-fixedConePFTauProducer.TrackerIsolConeSizeFormula   = cms.string('0.50') ## **
-fixedConePFTauProducer.ECALIsolConeSizeFormula      = cms.string('0.50') ## **
-fixedConePFTauProducer.HCALIsolConeSizeFormula      = cms.string('0.50') ## **
+fixedConePFTauProducer = copy.deepcopy(fixedConeRecoTaus)
 
 # Get the decay mode reconstruction producer
 from RecoTauTag.RecoTau.PFRecoTauDecayModeDeterminator_cfi                          import *

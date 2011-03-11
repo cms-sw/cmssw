@@ -51,8 +51,6 @@ from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
 
 ak5PFJetsLegacyTaNCPiZeros.jetSrc = cms.InputTag("ak5PFJets")
 
-shrinkingConePFTauProducer.jetRegionSrc = cms.InputTag(
-    "recoTauAK5PFJets08Region")
 shrinkingConePFTauProducer.piZeroSrc = cms.InputTag(
     "ak5PFJetsLegacyTaNCPiZeros")
 
@@ -67,7 +65,6 @@ from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import \
         combinatoricRecoTaus
 
 combinatoricRecoTaus.jetSrc = cms.InputTag("ak5PFJets")
-combinatoricRecoTaus.jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region")
 combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros")
 
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi import \
@@ -123,6 +120,11 @@ recoTauCommonSequence = cms.Sequence(
     pfRecoTauTagInfoProducer
 )
 
+# Not run in RECO, but included for the benefit of PAT
+recoTauClassicFixedConeSequence = cms.Sequence(
+    recoTauCommonSequence *
+    produceAndDiscriminateFixedConePFTaus
+)
 
 # Produce only classic HPS taus
 recoTauClassicHPSSequence = cms.Sequence(
