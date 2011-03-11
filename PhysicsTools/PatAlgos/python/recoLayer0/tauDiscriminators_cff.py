@@ -17,12 +17,15 @@ patFixedConePFTauDiscrimination = cms.Sequence(
     fixedConePFTauDiscriminationAgainstMuon
 )
 patHPSPFTauDiscrimination = cms.Sequence(
-    hpsPFTauDiscriminationByDecayModeFinding+
-    hpsPFTauDiscriminationByLooseIsolation+
-    hpsPFTauDiscriminationByMediumIsolation+
-    hpsPFTauDiscriminationByTightIsolation+
-    hpsPFTauDiscriminationAgainstElectron+
-    hpsPFTauDiscriminationAgainstMuon
+    hpsPFTauDiscriminationByDecayModeFinding +
+    hpsPFTauDiscriminationByLooseIsolation +
+    hpsPFTauDiscriminationByMediumIsolation +
+    hpsPFTauDiscriminationByTightIsolation +
+    hpsPFTauDiscriminationByLooseElectronRejection +
+    hpsPFTauDiscriminationByMediumElectronRejection +
+    hpsPFTauDiscriminationByTightElectronRejection +
+    hpsPFTauDiscriminationByLooseMuonRejection +
+    hpsPFTauDiscriminationByTightMuonRejection
 )
 patShrinkingConePFTauDiscrimination = cms.Sequence(
     shrinkingConePFTauDiscriminationByLeadingTrackFinding +
