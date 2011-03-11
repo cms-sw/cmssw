@@ -83,7 +83,7 @@ def main():
         logFile=open(os.path.join(lumilogpath,'loadDB_run'+run+'.log'),'w',0)
 
         # filling the DB
-        command = '$LOCALRT/test/$SCRAM_ARCH/cmmdloadLumiDB -r '+run+' -L "file:'+runsToBeAnalyzed[run]+'"'+' -f '+loaderconf+' --debug'
+        command = '$LOCALRT/test/$SCRAM_ARCH/cmmdLoadLumiDB -r '+run+' -L "file:'+runsToBeAnalyzed[run]+'"'+' -f '+loaderconf+' --debug'
         statusAndOutput = commands.getstatusoutput(command)
         logFile.write(command+'\n')
         logFile.write(statusAndOutput[1])
