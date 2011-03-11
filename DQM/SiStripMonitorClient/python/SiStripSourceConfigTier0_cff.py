@@ -92,17 +92,7 @@ SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
 from  DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 
 # APV Phase Producer
-from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts_cfi import *
-APVPhases = cms.EDProducer("APVCyclePhaseProducerFromL1TS",
-                           defaultPartitionNames = cms.vstring("TI",
-                           "TO",
-                           "TP",
-                           "TM"
-                           ),
-                           defaultPhases = cms.vint32(60,60,60,60),
-                           magicOffset = cms.untracked.int32(258),
-                           l1TSCollection = cms.InputTag("scalersRawToDigi"),
-                           )
+from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi import *
 
 # Sequence
 SiStripDQMTier0 = cms.Sequence(APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack*MonitorTrackResiduals*TrackerCollisionTrackMon*dqmInfoSiStrip)
