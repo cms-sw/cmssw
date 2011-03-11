@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFlow Jets
  *
- *  $Date: 2010/10/15 13:49:54 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/12/06 12:18:23 $
+ *  $Revision: 1.7 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -39,6 +39,9 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   /// Inizialize parameters for histo binning
   void beginJob(DQMStore * dbe);
 
+  /// Finish up a job
+  void endJob();
+
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::PFJetCollection& pfJets);
   //
@@ -63,11 +66,16 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
 
  private:
   // ----------member data ---------------------------
-
   int   _JetLoPass;
   int   _JetHiPass;
   int   _leadJetFlag;
   double _ptThreshold;
+
+  double _asymmetryThirdJetCut;
+  double _balanceThirdJetCut;
+
+  int makedijetselection;
+
   //histo binning parameters
   int    etaBin;
   double etaMin;
@@ -361,5 +369,8 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   MonitorElement* mTightJIDPassFractionVSeta;
   MonitorElement* mTightJIDPassFractionVSpt;
 
+  //dijet analysis quantities
+  MonitorElement* mDijetBalance;
+  MonitorElement* mDijetAsymmetry;
 };
 #endif

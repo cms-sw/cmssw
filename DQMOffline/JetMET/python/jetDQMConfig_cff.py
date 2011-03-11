@@ -22,6 +22,8 @@ jetDQMParameters = cms.PSet(
     ptMin       = cms.double(0.0),
 
     ptThreshold = cms.double(3.),
+    asymmetryThirdJetCut = cms.double(30),
+    balanceThirdJetCut   = cms.double(0.2),
     n90HitsMin  = cms.int32(-1),
     fHPDMax     = cms.double(1.),
     resEMFMin   = cms.double(0.),
@@ -68,6 +70,8 @@ jetDQMParameters = cms.PSet(
 cleanedJetDQMParameters = jetDQMParameters.clone(
     fillJIDPassFrac   = cms.int32(0),
     ptThreshold = cms.double(10.),
+    asymmetryThirdJetCut = cms.double(30),
+    balanceThirdJetCut   = cms.double(0.2),
     n90HitsMin  = cms.int32(2),
     fHPDMax     = cms.double(0.98),
     resEMFMin   = cms.double(0.01),

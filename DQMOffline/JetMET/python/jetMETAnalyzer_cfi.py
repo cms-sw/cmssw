@@ -192,6 +192,8 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DijetAnalysis = cleanedJetDQMParameters.clone(
         makedijetselection = cms.int32(1),
         ptThreshold = cms.double(8.),
+        asymmetryThirdJetCut = cms.double(30),
+        balanceThirdJetCut   = cms.double(0.2),
         fillJIDPassFrac   = cms.int32(1)
     ),
 
@@ -229,6 +231,14 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     CleanedpfJetAnalysis = cleanedJetDQMParameters.clone(
     ptThreshold = cms.double(3.)
+    ),
+
+    PFDijetAnalysis = cleanedJetDQMParameters.clone(
+        makedijetselection = cms.int32(1),
+        ptThreshold = cms.double(3.),
+        asymmetryThirdJetCut = cms.double(30),
+        balanceThirdJetCut   = cms.double(0.2),
+        fillpfJIDPassFrac   = cms.int32(1)
     ),
 
     #
