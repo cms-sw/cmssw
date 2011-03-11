@@ -97,23 +97,23 @@ class HLTTauDQML1Plotter  {
   MonitorElement* l1jetPhiEffNum_;
   MonitorElement* l1jetPhiEffDenom_;
 
-/*   MonitorElement* l1electronEtEffNum_; */
-/*   MonitorElement* l1electronEtEffDenom_; */
-
-/*   MonitorElement* l1electronEtaEffNum_; */
-/*   MonitorElement* l1electronEtaEffDenom_; */
-
-/*   MonitorElement* l1electronPhiEffNum_; */
-/*   MonitorElement* l1electronPhiEffDenom_; */
-
-/*   MonitorElement* l1muonEtEffNum_; */
-/*   MonitorElement* l1muonEtEffDenom_; */
-
-/*   MonitorElement* l1muonEtaEffNum_; */
-/*   MonitorElement* l1muonEtaEffDenom_; */
-
-/*   MonitorElement* l1muonPhiEffNum_; */
-/*   MonitorElement* l1muonPhiEffDenom_; */
+//   MonitorElement* l1electronEtEffNum_;
+//   MonitorElement* l1electronEtEffDenom_;
+// 
+//   MonitorElement* l1electronEtaEffNum_;
+//   MonitorElement* l1electronEtaEffDenom_;
+// 
+//   MonitorElement* l1electronPhiEffNum_;
+//   MonitorElement* l1electronPhiEffDenom_;
+// 
+//   MonitorElement* l1muonEtEffNum_;
+//   MonitorElement* l1muonEtEffDenom_;
+// 
+//   MonitorElement* l1muonEtaEffNum_;
+//   MonitorElement* l1muonEtaEffDenom_;
+// 
+//   MonitorElement* l1muonPhiEffNum_;
+//   MonitorElement* l1muonPhiEffDenom_;
 
   MonitorElement* l1doubleTauPath_;
   MonitorElement* l1electronTauPath_;
