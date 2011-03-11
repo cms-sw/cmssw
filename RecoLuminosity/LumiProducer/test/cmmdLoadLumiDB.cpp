@@ -194,36 +194,6 @@ int main(int argc, char** argv){
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
   std::cout<<"=========="<<std::endl;
-  if(!without_runsummary){
-     std::cout<<"Loading runsummary from "<<runinfodb<<" to "<<destconnect <<" run "<<runnumber<<std::endl;
-     try{
-	std::auto_ptr<lumi::DataPipe> runptr(lumi::DataPipeFactory::get()->create("CMSRunSummary2DB",destconnect));
-	runptr->setSource(runinfodb);
-	runptr->setAuthPath(authpath);
-	if(!collision_only){
-	   runptr->setNoValidate();
-	}
-	startClock=clock();
-	time(&t1);
-	runptr->retrieveData(runnumber);
-	time(&t2);
-	endClock=clock();
-	runptr.release();
-     }catch(const lumi::invalidDataException& er){   
-	std::cout<<"\t [ERROR], run is not collision run, stop loading immediately";
-	std::cout<<"\t"<<er.what()<<std::endl;	
-	return 1;
-     }catch(const coral::Exception& er){
-	std::cout<<"\t Database error "<<er.what()<<std::endl;
-	throw;
-     }catch(...){
-	std::cout<<"\tproblem in loading runsummary "<<runnumber<<" SKIP "<<std::endl;
-	throw;
-     }
-     printf("\tElaspsed time %fs\n",difftime(t2,t1));
-     elapsedTime=((double) (endClock - startClock)) / CLOCKS_PER_SEC;
-     std::cout<<"\tCPU Time taken in seconds : "<<elapsedTime<<std::endl;
-  }
   if(!without_lumi){
     std::cout<<"Loading lumi from "<<lumipath<<" to "<< destconnect <<" run "<<runnumber<<std::endl;
     try{
@@ -259,6 +229,36 @@ int main(int argc, char** argv){
     printf("\tElaspsed time %fs\n",difftime(t2,t1));
     elapsedTime=((double) (endClock - startClock)) / CLOCKS_PER_SEC;
     std::cout<<"\tCPU Time taken in seconds : "<<elapsedTime<<std::endl;
+  }
+  if(!without_runsummary){
+     std::cout<<"Loading runsummary from "<<runinfodb<<" to "<<destconnect <<" run "<<runnumber<<std::endl;
+     try{
+	std::auto_ptr<lumi::DataPipe> runptr(lumi::DataPipeFactory::get()->create("CMSRunSummary2DB",destconnect));
+	runptr->setSource(runinfodb);
+	runptr->setAuthPath(authpath);
+	if(!collision_only){
+	   runptr->setNoValidate();
+	}
+	startClock=clock();
+	time(&t1);
+	runptr->retrieveData(runnumber);
+	time(&t2);
+	endClock=clock();
+	runptr.release();
+     }catch(const lumi::invalidDataException& er){   
+	std::cout<<"\t [ERROR], run is not collision run, stop loading immediately";
+	std::cout<<"\t"<<er.what()<<std::endl;	
+	return 1;
+     }catch(const coral::Exception& er){
+	std::cout<<"\t Database error "<<er.what()<<std::endl;
+	throw;
+     }catch(...){
+	std::cout<<"\tproblem in loading runsummary "<<runnumber<<" SKIP "<<std::endl;
+	throw;
+     }
+     printf("\tElaspsed time %fs\n",difftime(t2,t1));
+     elapsedTime=((double) (endClock - startClock)) / CLOCKS_PER_SEC;
+     std::cout<<"\tCPU Time taken in seconds : "<<elapsedTime<<std::endl;
   }
   if(!without_hltconf){
     try{
