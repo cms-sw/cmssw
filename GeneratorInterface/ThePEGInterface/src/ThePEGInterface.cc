@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.15 2009/05/19 12:42:00 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.16 2009/05/19 17:38:54 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -317,12 +317,10 @@ double ThePEGInterface::pthat(const ThePEG::EventPtr &event)
 		return -1.0;
 
 	tSubProPtr sub = event->primaryCollision()->primarySubProcess();
-	TmpTransform<tSubProPtr> tmp(sub, Utilities::getBoostToCM(
-							sub->incoming()));
+	TmpTransform<tSubProPtr> tmp(sub, Utilities::getBoostToCM(sub->incoming()));
 
 	double pthat = (*sub->outgoing().begin())->momentum().perp();
-	for(PVector::const_iterator it = sub->outgoing().begin();
-	    it != sub->outgoing().end(); ++it)
+	for (PVector::const_iterator it = sub->outgoing().begin(); it != sub->outgoing().end(); ++it)
 		pthat = std::min(pthat, (*it)->momentum().perp());
 
 	return pthat / ThePEG::GeV;
