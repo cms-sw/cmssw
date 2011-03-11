@@ -48,6 +48,9 @@ private:
 	MonitorElement* pt1Comp, *pt2Comp, *pt3Comp, *pt4Comp, *pt5Comp, *pt6Comp;
 	MonitorElement* dtStubPhi, *badDtStubSector;
 	
+        MonitorElement* phiComp_1d, *etaComp_1d, *occComp_1d, *ptComp_1d, *qualComp_1d;
+	MonitorElement* pt1Comp_1d, *pt2Comp_1d, *pt3Comp_1d, *pt4Comp_1d, *pt5Comp_1d, *pt6Comp_1d;
+	MonitorElement* dtStubPhi_1d;
 	
 	// dqm folder name
 	//////////////////

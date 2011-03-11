@@ -1,6 +1,14 @@
 /*
  * L1TdeCSCTF.cc v1.0
  * written by J. Gartner
+ *
+ * 2011.03.11 expanded by GP Di Giovanni
+ * 
+ * There is quality test allowing to check elements outside the
+ * diagonal, so I need to add the 1D plot with all elements in the diagonal
+ * in the first bin and all elements outside the diagonal in the second bin
+ * 
+ * In such way we can run the ContentsXRange quality test...
  */
  
 #include "DQM/L1TMonitor/interface/L1TdeCSCTF.h"
@@ -151,6 +159,70 @@ void L1TdeCSCTF::beginJob()
 		badDtStubSector = dbe->book2D("badDtStubSector","Dt Sector for bad Dt stub #phi",6,1,7,2,1,3);
 		badDtStubSector->setAxisTitle("Dt stub sector, subsector",1);
 		badDtStubSector->setAxisTitle("Dt Stub Endcap",2);
+
+                //***********************************//
+                //* F O R   Q U A L I T Y   T E S T *//
+                //***********************************//
+                //1D plots for the quality test
+		//Monitor Elements for Pt Lut Address Field
+		pt1Comp_1d = dbe->book1D("pt1Comp_1d","Hardware Vs. Emulator #Delta #phi_{12}",2,0,2);
+		pt1Comp_1d->setAxisTitle("#Delta #phi_{12}",1);
+                pt1Comp_1d->setBinLabel(1, "Agree", 1);
+                pt1Comp_1d->setBinLabel(2, "Disagree", 1);
+
+		pt2Comp_1d = dbe->book1D("pt2Comp_1d","Hardware Vs. Emulator #Delta #phi_{23}",2,0,2);
+		pt2Comp_1d->setAxisTitle("#Delta #phi_{23}",1);
+                pt2Comp_1d->setBinLabel(1, "Agree", 1);
+                pt2Comp_1d->setBinLabel(2, "Disagree", 1);
+
+		pt3Comp_1d = dbe->book1D("pt3Comp_1d","Hardware Vs. Emulator #eta",2,0,2);
+		pt3Comp_1d->setAxisTitle("#eta",1);
+                pt3Comp_1d->setBinLabel(1, "Agree", 1);
+                pt3Comp_1d->setBinLabel(2, "Disagree", 1);
+
+		pt4Comp_1d = dbe->book1D("pt4Comp_1d","Hardware Vs. Emulator Mode",2,0,2);
+		pt4Comp_1d->setAxisTitle("Mode",1);
+                pt4Comp_1d->setBinLabel(1, "Agree", 1);
+                pt4Comp_1d->setBinLabel(2, "Disagree", 1);
+
+		pt5Comp_1d = dbe->book1D("pt5Comp_1d","Hardware Vs. Emulator Sign, FR",2,0,2);
+		pt5Comp_1d->setAxisTitle("Sign<<1|FR",1);
+                pt5Comp_1d->setBinLabel(1, "Agree", 1);
+                pt5Comp_1d->setBinLabel(2, "Disagree", 1);
+               
+		
+		//Monitor Elements for track variables
+		phiComp_1d = dbe->book1D("phiComp_1d","Hardware Vs. Emulator Track #phi",2,0,2);
+		phiComp_1d->setAxisTitle("#phi",1);
+                phiComp_1d->setBinLabel(1, "Agree", 1);
+                phiComp_1d->setBinLabel(2, "Disagree", 1);
+
+		etaComp_1d = dbe->book1D("etaComp_1d","Hardware Vs. Emulator Track #eta",2,0,2);
+		etaComp_1d->setAxisTitle("#eta",1);
+                etaComp_1d->setBinLabel(1, "Agree", 1);
+                etaComp_1d->setBinLabel(2, "Disagree", 1);
+
+		occComp_1d = dbe->book1D("occComp_1d","Hardware Vs. Emulator Track Occupancy",2,0,2);
+		occComp_1d->setAxisTitle("Occupancy",1);
+                occComp_1d->setBinLabel(1, "Agree", 1);
+                occComp_1d->setBinLabel(2, "Disagree", 1);
+
+		ptComp_1d  = dbe->book1D("ptComp_1d","Hardware Vs. Emulator Pt",2,0,2);
+		ptComp_1d->setAxisTitle("P_{t}",1);
+                ptComp_1d->setBinLabel(1, "Agree", 1);
+                ptComp_1d->setBinLabel(2, "Disagree", 1);
+
+		qualComp_1d= dbe->book1D("qualComp_1d","Hardware Vs. Emulator Quality",2,0,2);
+		qualComp_1d->setAxisTitle("Quality",1);
+                qualComp_1d->setBinLabel(1, "Agree", 1);
+                qualComp_1d->setBinLabel(2, "Disagree", 1);
+
+		//Monitor Elemens for Dt Stubs
+		dtStubPhi_1d = dbe->book1D("dtStubPhi_1d","Hardware Vs. Emulator DT Stub #phi",2,0,2);
+		dtStubPhi_1d->setAxisTitle("DT Stub #phi",1);
+                dtStubPhi_1d->setBinLabel(1, "Agree", 1);
+                dtStubPhi_1d->setBinLabel(2, "Disagree", 1);
+
 	}
 	
 }
@@ -346,7 +418,10 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 		}
 	}
 	//Fill Occupancy M.E.
-	if( (nDataMuons!=0)||(nEmulMuons!=0) ) occComp->Fill(nDataMuons,nEmulMuons);
+	if( (nDataMuons!=0)||(nEmulMuons!=0) ) {
+          occComp->Fill(nDataMuons,nEmulMuons);
+          (nDataMuons==nEmulMuons) ? occComp_1d->Fill(0) : occComp_1d->Fill(1);
+        }
 	// Match Tracks by sector & mode in the case of multiple tracks
 	///////////////////////////////////////////////////////////////
 	if(nDataMuons==nEmulMuons)
@@ -420,22 +495,26 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 				
 				//Fill mode M.E., one of (the most important) PtLUT address field
 				pt4Comp->Fill(datMode,emuMode);
+                                (datMode==emuMode) ? pt4Comp_1d->Fill(0) : pt4Comp_1d->Fill(1);
 				//To disentagle problems, only fill histograms if mode matches
 				if(emuMode==datMode)
 				{
 					//Fill Pt LUT address field M.E.
-					pt1Comp->Fill(datPhi12,emuPhi12);
-					pt2Comp->Fill(datPhi23,emuPhi23);
-					pt3Comp->Fill(datEta,emuEta);
-					pt5Comp->Fill(datFrSin,emuFrSin);
+					pt1Comp->Fill(datPhi12,emuPhi12); (datPhi12==emuPhi12) ? pt1Comp_1d->Fill(0) : pt1Comp_1d->Fill(1);
+					pt2Comp->Fill(datPhi23,emuPhi23); (datPhi23==emuPhi23) ? pt2Comp_1d->Fill(0) : pt2Comp_1d->Fill(1);
+					pt3Comp->Fill(datEta,emuEta);     (datEta==emuEta)     ? pt3Comp_1d->Fill(0) : pt3Comp_1d->Fill(1);
+					pt5Comp->Fill(datFrSin,emuFrSin); (datFrSin==emuFrSin) ? pt5Comp_1d->Fill(0) : pt5Comp_1d->Fill(1);
 					//Fill Track value M.E.
 					if(dataMuonArray[mapping][8]==1) //Rank Comparison available for Link 1 only due to readout limitation
 					{
-						ptComp->Fill(datPt,emuPt);
-						qualComp->Fill(datQual,emuQual);
+						ptComp->Fill(datPt,emuPt);      (datPt==emuPt)     ? ptComp_1d->Fill(0)   : ptComp_1d->Fill(1);
+						qualComp->Fill(datQual,emuQual);(datQual==datQual) ? qualComp_1d->Fill(0) : ptComp_1d->Fill(1);
 					}
 					phiComp->Fill(dataMuonArray[mapping][6],emuMuonArray[mu3][6]);
 					etaComp->Fill(dataMuonArray[mapping][7],emuMuonArray[mu3][7]);
+
+					(dataMuonArray[mapping][6]==emuMuonArray[mu3][6]) ? phiComp_1d->Fill(0) : phiComp_1d->Fill(1); 
+                                        (dataMuonArray[mapping][7]==emuMuonArray[mu3][7]) ? etaComp_1d->Fill(0) : etaComp_1d->Fill(1);
 				}
 			}
 		}
@@ -605,6 +684,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 			{
 				int indexFil = eDtStub[3][phil]*2+eDtStub[4][phil]-1;
 				dtStubPhi->Fill(eDtStub[0][phil],  dDtStub[0][ eDtStub[5][phil] ]);
+				(eDtStub[0][phil] ==  dDtStub[0][ eDtStub[5][phil] ]) ? dtStubPhi_1d->Fill(0) : dtStubPhi_1d->Fill(1);
 				if( eDtStub[0][phil] != dDtStub[0][ eDtStub[5][phil] ])
 					badDtStubSector->Fill(indexFil,eDtStub[2][phil]);
 			}
