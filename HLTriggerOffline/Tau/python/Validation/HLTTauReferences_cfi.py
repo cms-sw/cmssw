@@ -16,13 +16,12 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
 
                                 PFTaus = cms.untracked.PSet(
                                    PFTauDiscriminators = cms.untracked.VInputTag(
-                                                    cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),
-                                                    cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackPtCut"),
-                                                    cms.InputTag("shrinkingConePFTauDiscriminationByIsolation")
+                                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
+                                                    cms.InputTag("hpsPFTauDiscriminationByLooseIsolation")
                                    ),
                                    doPFTaus = cms.untracked.bool(True),
                                    ptMin = cms.untracked.double(10.0),
-                                   PFTauProducer = cms.untracked.InputTag("shrinkingConePFTauProducer")
+                                   PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
                                    ),
                                 Electrons = cms.untracked.PSet(
                                    ElectronCollection = cms.untracked.InputTag("gsfElectrons"),
