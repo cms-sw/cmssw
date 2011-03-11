@@ -123,6 +123,7 @@ recoTauCommonSequence = cms.Sequence(
 # Not run in RECO, but included for the benefit of PAT
 recoTauClassicFixedConeSequence = cms.Sequence(
     recoTauCommonSequence *
+    ak5PFJetsRecoTauPiZeros *
     produceAndDiscriminateFixedConePFTaus
 )
 
