@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2010/09/27 13:39:24 $
- *  $Revision: 1.49 $
- *  $Date: 2010/09/27 13:39:24 $
- *  $Revision: 1.49 $
+ *  $Date: 2011/01/09 18:04:55 $
+ *  $Revision: 1.50 $
+ *  $Date: 2011/01/09 18:04:55 $
+ *  $Revision: 1.50 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -184,10 +184,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
        ( muonRecHits.front()->globalPosition().mag() >
 	 muonRecHits.back()->globalPosition().mag() ) ) {
     LogTrace(theCategory)<< "   reverse order: ";
-    stable_sort(muonRecHits.begin(),muonRecHits.end(),RecHitLessByDet(alongMomentum));
   }
-
-  stable_sort(muonRecHits.begin(),muonRecHits.end(),ComparatorInOut());
 
   for ( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); it++ ) {
 
