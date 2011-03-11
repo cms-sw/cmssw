@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ProcessOne")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-# process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_ECAL'
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
-process.CondDBCommon.connect = 'sqlite_file:DB.db'
+process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_311X_ECAL_LAS'
+process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
+#process.CondDBCommon.connect = 'sqlite_file:DB.db'
 
 
 
@@ -39,7 +39,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-#    logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_21X_POPCONLOG'),
+logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
 
 
 
@@ -48,15 +48,11 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalLaserAnalyzer",
     record = cms.string('EcalLaserAPDPNRatiosRcd'),
     loggingOn = cms.untracked.bool(True),
     Source = cms.PSet(
-        sequences = cms.string("8"),  
-        GenTag = cms.string('LOCAL'),
-        firstRun = cms.string('65934'),
-        lastRun = cms.string('65936'),
-        LocationSource = cms.string('P5'),
+        maxtime = cms.string("2011-02-28 00:00:00"),
+        sequences = cms.string("16"),  
         OnlineDBUser = cms.string('CMS_ECAL_LASER_COND'),
         debug = cms.bool(True),
-        Location = cms.string('P5_Co'),
-        OnlineDBPassword = cms.string('XXXXX'),
+        OnlineDBPassword = cms.string('XXX'),
         OnlineDBSID = cms.string('CMS_OMDS_LB')
     )
 )
