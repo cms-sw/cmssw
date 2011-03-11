@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcTMVA.cc,v 1.3 2011/02/22 18:40:31 kukartse Exp $
+// $Id: ProcTMVA.cc,v 1.4 2011/03/05 06:37:19 kukartse Exp $
 //
 
 #include <sstream>
@@ -33,6 +33,7 @@
 
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace PhysicsTools;
 
@@ -69,7 +70,7 @@ ProcTMVA::ProcTMVA(const char *name,
 	VarProcessor(name, calib, computer)
 {
 
-  reader = std::auto_ptr<TMVA::Reader>(new TMVA::Reader( "!Color:!Silent" ));    
+  reader = std::auto_ptr<TMVA::Reader>(new TMVA::Reader( "!Color:Silent" ));
   
   ext::imemstream is(
 		     reinterpret_cast<const char*>(&calib->store.front()),
@@ -77,6 +78,7 @@ ProcTMVA::ProcTMVA(const char *name,
   ext::izstream izs(&is);
   
   std::getline(izs, methodName);
+
   std::string tmp;
   std::getline(izs, tmp);
   std::istringstream iss(tmp);
@@ -86,6 +88,39 @@ ProcTMVA::ProcTMVA(const char *name,
     reader->DataInfo().AddVariable(tmp.c_str());
   }
   
+  // The rest of the gzip blob is the weights file
+  std::string weight_text;
+  std::string line;
+  while (std::getline(izs, line)) {
+    weight_text += line;
+    weight_text += "\n";
+  }
+
+
+  // Build our reader
+  TMVA::Types::EMVA methodType =
+    TMVA::Types::Instance().GetMethodType(methodName);
+  // Check if xml format
+  if (weight_text.find("<?xml") != std::string::npos) {
+   method = std::auto_ptr<TMVA::MethodBase>
+     ( dynamic_cast<TMVA::MethodBase*>
+       ( reader->BookMVA( methodType, weight_text.c_str() ) ) );
+  } else {
+    // Write to a temporary file
+    TString weight_file_name(std::tmpnam(NULL));
+    std::ofstream weight_file;
+    weight_file.open(weight_file_name.Data());
+    weight_file << weight_text;
+    weight_file.close();
+    edm::LogInfo("LegacyMVA") << "Building legacy TMVA plugin - "
+      << "the weights are being stored in " << weight_file_name << std::endl;
+    methodName_t.Append(methodName.c_str());
+    method = std::auto_ptr<TMVA::MethodBase>
+      ( dynamic_cast<TMVA::MethodBase*>
+        ( reader->BookMVA( methodName_t, weight_file_name ) ) );
+  }
+
+  /*
   bool isXml = false; // weights in XML (TMVA 4) or plain text
   bool isFirstPass = true;
   TString weight_file_name(tmpnam(0));
@@ -96,8 +131,8 @@ ProcTMVA::ProcTMVA(const char *name,
   while (izs.good()) {
     std::string tmp;
 
-    std::getline(izs, tmp);
     if (isFirstPass){
+      std::getline(izs, tmp);
       isFirstPass = false;
       if ( tmp.find("<?xml") != std::string::npos ){ //xml
 	isXml = true;
@@ -147,6 +182,7 @@ ProcTMVA::ProcTMVA(const char *name,
        ( reader->BookMVA( methodName_t, weight_file_name ) ) );
  }
 
+  */
 }
 
 void ProcTMVA::configure(ConfIterator iter, unsigned int n)
@@ -162,13 +198,16 @@ void ProcTMVA::configure(ConfIterator iter, unsigned int n)
 
 void ProcTMVA::eval(ValueIterator iter, unsigned int n) const
 {
+  std::vector<Float_t> inputs;
+  inputs.reserve(n);
 	for(unsigned int i = 0; i < n; i++)
-		reader->DataInfo().GetDataSet()->GetEvent()->SetVal(i, *iter++);
+    inputs.push_back(*iter++);
+  std::auto_ptr<TMVA::Event> evt(new TMVA::Event(inputs, 2));
 
-  std::cout << "\tMVA Disc: " << method->GetMvaValue() << std::endl; //for testing only
-  iter( method->GetMvaValue() );
+  double result = method->GetMvaValue(evt.get());
+
+  iter(result);
 }
 
 } // anonymous namespace
-
 MVA_COMPUTER_DEFINE_PLUGIN(ProcTMVA);
