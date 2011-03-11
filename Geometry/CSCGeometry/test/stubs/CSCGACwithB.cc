@@ -1,6 +1,6 @@
 // Modified version of CSCGeometryAsChambers.cc which just adds value of magnetic field
 // at centre of each CSC (Nikolai Terentiev needed the values for CSC gain studies.)
-// Tim Cox 09.03.2011
+// Tim Cox 11.03.2011 - drop ME1/A 
 
 #include <memory>
 
@@ -72,7 +72,9 @@ void
    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
 
    std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
-   int icount = 0;
+
+   int icount = 0; // non-ME1/A chambers
+   int jcount = 0; // all chambers
 
    std::vector<CSCChamber*> vc = pDD->chambers();
    std::cout << "No. of chambers stored = " << vc.size() << std::endl;
@@ -87,10 +89,16 @@ void
       const CSCChamber* chamber = *it;
 
       if( chamber ){
-        ++icount;
+        ++jcount;
 
         CSCDetId detId = chamber->id();
         int id = detId(); // or detId.rawId()
+
+
+	// *** Nikolai doesn't want ME1/A polluting the values ***
+
+        if ( detId.ring() == 4 ) continue;
+        ++ icount;
 
 	// There's going to be a lot of messing with field width (and precision) so
 	// save input values...
@@ -205,6 +213,7 @@ void
   }	
 
    std::cout << dashedLine_ << " end" << std::endl;
+   std::cout << "processed " << jcount << " chambers, and dumped values for " << icount << " chambers." << std::endl;
 }
 
 //define this as a plug-in
