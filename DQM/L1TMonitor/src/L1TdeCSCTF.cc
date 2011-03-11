@@ -508,7 +508,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 					if(dataMuonArray[mapping][8]==1) //Rank Comparison available for Link 1 only due to readout limitation
 					{
 						ptComp->Fill(datPt,emuPt);      (datPt==emuPt)     ? ptComp_1d->Fill(0)   : ptComp_1d->Fill(1);
-						qualComp->Fill(datQual,emuQual);(datQual==emuQual) ? qualComp_1d->Fill(0) : ptComp_1d->Fill(1);
+						qualComp->Fill(datQual,emuQual);(datQual==emuQual) ? qualComp_1d->Fill(0) : qualComp_1d->Fill(1);
 					}
 					phiComp->Fill(dataMuonArray[mapping][6],emuMuonArray[mu3][6]);
 					etaComp->Fill(dataMuonArray[mapping][7],emuMuonArray[mu3][7]);
