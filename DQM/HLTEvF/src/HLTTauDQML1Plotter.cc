@@ -79,13 +79,13 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps,int etbins,in
       l1doubleTauPath_->getTH2F()->GetXaxis()->SetTitle("first L1 #tau p_{T}");
       l1doubleTauPath_->getTH2F()->GetYaxis()->SetTitle("second L1 #tau p_{T}");
 
-      l1electronTauPath_   = store->book2D("L1MuonTau","L1 Muon Tau Path Et",binsEt_,0,maxEt_,binsEt_,0,maxEt_);
-      l1electronTauPath_->getTH2F()->GetXaxis()->SetTitle("first L1 #tau p_{T}");
-      l1electronTauPath_->getTH2F()->GetYaxis()->SetTitle("first L1 #gamma p_{T}");
+      l1muonTauPath_   = store->book2D("L1MuonTau","L1 Muon Tau Path Et",binsEt_,0,maxEt_,binsEt_,0,maxEt_);
+      l1muonTauPath_->getTH2F()->GetXaxis()->SetTitle("first L1 #tau p_{T}");
+      l1muonTauPath_->getTH2F()->GetYaxis()->SetTitle("first L1 #gamma p_{T}");
 
-      l1muonTauPath_       = store->book2D("L1ElectronTau","L1 Electron Tau Path Et",binsEt_,0,maxEt_,binsEt_,0,maxEt_);
-      l1muonTauPath_->getTH2F()->GetXaxis()->SetTitle("first L1 #mu p_{T}");
-      l1muonTauPath_->getTH2F()->GetYaxis()->SetTitle("second L1 #mu p_{T}");
+      l1electronTauPath_       = store->book2D("L1ElectronTau","L1 Electron Tau Path Et",binsEt_,0,maxEt_,binsEt_,0,maxEt_);
+      l1electronTauPath_->getTH2F()->GetXaxis()->SetTitle("first L1 #mu p_{T}");
+      l1electronTauPath_->getTH2F()->GetYaxis()->SetTitle("second L1 #mu p_{T}");
 
       firstTauEt_   = store->book1D("L1LeadTauEt","L1 lead #tau ET",binsEt_,0,maxEt_);
       firstTauEt_->getTH1F()->Sumw2();

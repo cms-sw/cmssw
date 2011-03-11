@@ -65,8 +65,6 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   using namespace l1extra;
   using namespace trigger;
 
-
-
   bool tau_ok=true;
   bool lepton_ok=true;
 
@@ -99,24 +97,34 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	}
       //lepton reference
       if(refC.size()>1) {
-	if(refC[1].size()<nTriggeredLeptons_[0])
+	if(refC[1].size()<nTriggeredLeptons_[0] && refC[2].size()<nTriggeredLeptons_[0])
 	  {
 	    lepton_ok = false;
 	  }
 	else  {
-	  unsigned int highPtLeptons=0;
+	  unsigned int highPtElectrons=0;
+	  unsigned int highPtMuons=0;
 	  for(size_t j = 0;j<refC[1].size();++j)
 	    {
 	      if((refC[1])[j].Et()>refLeptonPt_)
-		highPtLeptons++;
+	      
+		highPtElectrons++;
 	    }
-	  if(highPtLeptons<nTriggeredLeptons_[0])
+	  for(size_t j = 0;j<refC[2].size();++j)
+	    {
+	      if((refC[2])[j].Et()>refLeptonPt_)
+	      
+		highPtMuons++;
+	    }
+	  if(highPtElectrons<nTriggeredLeptons_[0]&&LeptonType_[1]==82)
 	    {
 	      lepton_ok = false;
 	    }
-	  
+	  if(highPtMuons<nTriggeredLeptons_[0]&&LeptonType_[1]==83)
+	    {
+	      lepton_ok = false;
+	    }
 	}
-	  
 	if(lepton_ok&&tau_ok)
 	  {
 	    accepted_events_matched->Fill(0.5);
@@ -139,15 +147,14 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 	  //Loop through the filters
 	  for(size_t i=0;i<filter_.size();++i)
-	    {
-	
+	    {		
 	      size_t ID =trigEv->filterIndex(filter_[i]);
+	      
 	      if(ID!=trigEv->size())
 		{
 		      LVColl leptons = getFilterCollection(ID,LeptonType_[i],*trigEv);
 		      LVColl taus = getFilterCollection(ID,TauType_[i],*trigEv);
 		      //Fired
-  
 		      if(leptons.size()>=nTriggeredLeptons_[i+1] && taus.size()>=nTriggeredTaus_[i+1])
 			{
 			  accepted_events->Fill(i+0.5);
@@ -155,7 +162,7 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 			  if(doRefAnalysis_)
 			  if(isGoodReferenceEvent)
 			    {
-			      
+
 			      size_t nT=0;
 				for(size_t j=0;j<taus.size();++j)
 				  {
@@ -166,10 +173,19 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 			      size_t nL=0;
 				for(size_t j=0;j<leptons.size();++j)
 				  {
-				    if(match(leptons[j],refC[1],matchDeltaR_[i]))
-				      nL++;
+			  		if(refC[1].size()>0){
+			  			
+				    	if(match(leptons[j],refC[1],matchDeltaR_[i]))
+				      	nL++;
+				    }
+    
+				    if(refC[2].size()>0){
+				    	if(match(leptons[j],refC[2],matchDeltaR_[i]))
+				      	nL++;
+				    }
 
 				  }
+
 				if(nT>=nTriggeredTaus_[i+1]&&nL>=nTriggeredLeptons_[i+1])
 				  accepted_events_matched->Fill(i+1.5);
 			}

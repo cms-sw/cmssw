@@ -29,20 +29,23 @@ HLTTauDQMLitePathPlotter::HLTTauDQMLitePathPlotter(const edm::ParameterSet& ps,i
 
   //Declare DQM Store
   DQMStore* store = &*edm::Service<DQMStore>();
-
+  
   if(store)
     {
+      
       //Create the histograms
       store->setCurrentFolder(triggerTag_);
       accepted_events = store->book1D("PathTriggerBits","Accepted Events per path",filter_.size(),0,filter_.size());
+      
       for(size_t k=0;k<filter_.size();++k)
 	{
+	
 	  accepted_events->setBinLabel(k+1,name_[k],1);
-	    if( nTriggeredTaus_[k]>=2 ||(nTriggeredTaus_[k]>=1 && nTriggeredLeptons_[k]>=1))  
-	    mass_distribution.push_back(store->book1D(("mass_"+name_[k]),("Mass Distribution for "+name_[k]),100,0,500)); 
+	  if( nTriggeredTaus_[k]>=2 || (nTriggeredTaus_[k]>=1 && nTriggeredLeptons_[k]>=1)){ 
+	  	mass_distribution.push_back(store->book1D(("mass_"+name_[k]),("Mass Distribution for "+name_[k]),100,0,500)); 
+	  }
 	}
       
-
       if(doRefAnalysis_)
 	{
 	  accepted_events_matched = store->book1D("MatchedPathTriggerBits","Accepted +Matched Events per path",filter_.size(),0,filter_.size());
@@ -87,6 +90,7 @@ HLTTauDQMLitePathPlotter::HLTTauDQMLitePathPlotter(const edm::ParameterSet& ps,i
 	}
     }
 }
+
 
 HLTTauDQMLitePathPlotter::~HLTTauDQMLitePathPlotter()
 {
@@ -144,19 +148,29 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   
       //lepton reference
-	if(refC[1].size()<nTriggeredLeptons_[i])
+	if(refC[1].size()<nTriggeredLeptons_[i]&&refC[2].size()<nTriggeredLeptons_[i])
 	  {
 	    lepton_ok = false;
 	  }
 	else
 	  {
-	    unsigned int highPtLeptons=0;
+	  unsigned int highPtElectrons=0;
+	  unsigned int highPtMuons=0;
 	    for(size_t j = 0;j<refC[1].size();++j)
 	      {
 		if((refC[1])[j].Et()>refLeptonPt_)
-		  highPtLeptons++;
+		  highPtElectrons++;
+		  }
+	    for(size_t j = 0;j<refC[2].size();++j)
+	      {
+		if((refC[2])[j].Et()>refLeptonPt_)
+		  highPtMuons++;
+	      }	    
+	    if(highPtElectrons<nTriggeredLeptons_[i]&&LeptonType_[i]==11)
+	      {
+		lepton_ok = false;
 	      }
-	    if(highPtLeptons<nTriggeredLeptons_[i])
+	    if(highPtMuons<nTriggeredLeptons_[i]&&LeptonType_[i]==13)
 	      {
 		lepton_ok = false;
 	      }
@@ -218,18 +232,32 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 				    }
 				  size_t nL=0;
 				  for(size_t j=0;j<leptons.size();++j)
-				    {
+				  {
+				    if(refC[1].size()>0){
 				      if(match(leptons[j],refC[1],matchDeltaR_).first)
-					nL++;
-				      
-				    }
+						nL++;
+					}
+				    if(refC[2].size()>0){
+				      if(match(leptons[j],refC[2],matchDeltaR_).first)
+						nL++;
+					}
+				  }
 				  if(nT>=nTriggeredTaus_[i]&&nL>=nTriggeredLeptons_[i])
 				    {
+				      
 				      accepted_events_matched->Fill(i+0.5);
-				      if(nTriggeredTaus_[i]>=2)
-					  mass_distribution[i]->Fill(((refC[0])[0]+(refC[0])[1]).M());
+				      if(nTriggeredTaus_[i]>=2&&refC[0].size()>=2)
+				      {
+				      	
+					  	mass_distribution[i]->Fill(((refC[0])[0]+(refC[0])[1]).M());
+					  }
 				      else if(nTriggeredTaus_[i]>=1 && nTriggeredLeptons_[i]>=1)
-					mass_distribution[i]->Fill(((refC[0])[0]+(refC[1])[0]).M());
+				      {
+				      	
+						if(LeptonType_[i]==11&&refC[1].size()>=1) {mass_distribution[i]->Fill(((refC[0])[0]+(refC[1])[0]).M());}				      
+						if(LeptonType_[i]==13&&refC[2].size()>=1) {mass_distribution[i]->Fill(((refC[0])[0]+(refC[2])[0]).M());}
+						
+					  }
 				    }
 				}
 
