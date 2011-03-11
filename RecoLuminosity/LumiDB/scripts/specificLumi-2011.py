@@ -204,13 +204,19 @@ def specificlumiTofile(fillnum,filldata,outdir):
         print >>f,'%d\t%e\t%e\t%e\t%e\t%e'%(lstime,bstatfrac,lumitot,lumierrortot,specificavg,specificerravg)
     f.close()
     #print 'writing summary file'
-    previoustime=lstimes[0]
-    boundarytime=lstimes[0]
+    fillsummaryfilename=str(fillnum)+'_summary_CMS.txt'
+    f=open(os.path.join(filloutdir,fillsummaryfilename),'w')    
+    if len(fillseg)==0:
+        print >>f,'%s'%('#no stable beams')
+        f.close()
+        return
+    previoustime=fillseg[0][0]
+    boundarytime=fillseg[0][0]
     #print 'boundary time ',boundarytime
     summaryls={}
     summaryls[boundarytime]=[]
-    for [lstime,lumitot] in fillseg:
-        if lstime-previoustime>30.0:
+    for [lstime,lumitot] in fillseg:#fillseg is everything with stable beam flag
+        if lstime-previoustime>50.0:
             boundarytime=lstime
             #print 'found new boundary ',boundarytime
             summaryls[boundarytime]=[]
@@ -218,13 +224,13 @@ def specificlumiTofile(fillnum,filldata,outdir):
         summaryls[boundarytime].append([lstime,lumitot])
         previoustime=lstime
     #print summaryls
-    fillsummaryfilename=str(fillnum)+'_summary_CMS.txt'
-    f=open(os.path.join(filloutdir,fillsummaryfilename),'w')
+   
     summarylstimes=summaryls.keys()
     summarylstimes.sort()
     for bts in summarylstimes:
         startts=bts
         tsdatainseg=summaryls[bts]
+        #print 'tsdatainseg ',tsdatainseg
         stopts=tsdatainseg[-1][0]
         plu=max(CommonUtil.transposed(tsdatainseg,0.0)[1])*23.357
         lui=sum(CommonUtil.transposed(tsdatainseg,0.0)[1])*23.357
