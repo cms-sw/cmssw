@@ -2,9 +2,9 @@
 
 #include "DataFormats/JetReco/interface/Jet.h"
 
-pat::tau::TauPFSpecific::TauPFSpecific(const reco::PFTau &tau) :
-    // Tau tag ingo
-    PFTauTagInfoRef_(tau.pfTauTagInfoRef()),
+pat::tau::TauPFSpecific::TauPFSpecific(const reco::PFTau& tau) :
+    // reference to PFJet from which PFTau was made
+    pfJetRef_(tau.jetRef()),
     // Leading track/charged candidate
     leadPFChargedHadrCand_(tau.leadPFChargedHadrCand()),    
     leadPFChargedHadrCandsignedSipt_(tau.leadPFChargedHadrCandsignedSipt()),
@@ -41,8 +41,10 @@ pat::tau::TauPFSpecific::TauPFSpecific(const reco::PFTau &tau) :
     segComp_(tau.segComp()),
     muonDecision_(tau.muonDecision())
 {
-  reco::Jet::EtaPhiMoments etaPhiStatistics = tau.pfTauTagInfoRef()->pfjetRef()->etaPhiStatistics();
-  etaetaMoment_ = etaPhiStatistics.etaEtaMoment;
-  phiphiMoment_ = etaPhiStatistics.phiPhiMoment;
-  etaphiMoment_ = etaPhiStatistics.etaPhiMoment;
+  if ( tau.jetRef().isAvailable() && tau.jetRef().isNonnull() ) { // CV: add protection to ease transition to new CMSSW 4_2_x RecoTauTags
+    reco::Jet::EtaPhiMoments etaPhiStatistics = tau.jetRef()->etaPhiStatistics();
+    etaetaMoment_ = etaPhiStatistics.etaEtaMoment;
+    phiphiMoment_ = etaPhiStatistics.phiPhiMoment;
+    etaphiMoment_ = etaPhiStatistics.etaPhiMoment;
+  }
 }
