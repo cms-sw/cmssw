@@ -10,6 +10,7 @@
 
 #include <boost/foreach.hpp>
 #include <sstream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauDiscriminantPlugins.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
