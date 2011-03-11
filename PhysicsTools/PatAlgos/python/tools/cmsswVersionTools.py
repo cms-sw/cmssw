@@ -21,8 +21,26 @@ def run42xOn3yzMcInput(process
   """
   """
   # Remove special PFTauTagInfo path again, since its output is still available in 3YZ
+  producerLabel = 'pfRecoTauTagInfoProducer'
   if hasattr( process, pfTauTagPath ):
-    process.__delattr__( pfTauTagPath )
+    if pfTauTagPath in process.pathNames():
+      if producerLabel in getattr( process, pfTauTagPath ).moduleNames():
+        process.__delattr__( pfTauTagPath )
+      else:
+        print 'run42xOn3yzMcInput():'
+        print '  %s does not contain the module %s'%( pfTauTagPath, producerLabel )
+        print '  ==> skipped'
+        print '---------------------------------------------------------------------'
+    else:
+      print 'run42xOn3yzMcInput():'
+      print '  %s is not a cms.Path in process %s'%( pfTauTagPath, process.name_() )
+      print '  ==> skipped'
+      print '---------------------------------------------------------------------'
+  else:
+    print 'run42xOn3yzMcInput():'
+    print '  %s is not an attribute of process %s'%( pfTauTagPath, process.name_() )
+    print '  ==> skipped'
+    print '---------------------------------------------------------------------'
   # Use correct L1 trigger menu
   import CondCore.DBCommon.CondDBCommon_cfi
   process.l1GtTriggerMenu = cms.ESSource( "PoolDBESSource"
