@@ -319,7 +319,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     mc->SetObservables(*w->set("observables"));
     mc->SetParametersOfInterest(*w->set("POI"));
     if (w->set("nuisances"))         mc->SetNuisanceParameters(*w->set("nuisances"));
-    if (w->set("globalObservables")) mc->SetNuisanceParameters(*w->set("globalObservables"));
+    if (w->set("globalObservables")) mc->SetGlobalObservables(*w->set("globalObservables"));
     if (w->pdf("prior")) mc->SetNuisanceParameters(*w->pdf("prior"));
     // if (w->pdf("nuisancePdf")) mc->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
     w->import(*mc, modelConfigName_.c_str());
@@ -330,7 +330,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     mc_b->SetObservables(*w->set("observables"));
     mc_b->SetParametersOfInterest(*w->set("POI"));
     if (w->set("nuisances"))         mc_b->SetNuisanceParameters(*w->set("nuisances"));
-    if (w->set("globalObservables")) mc_b->SetNuisanceParameters(*w->set("globalObservables"));
+    if (w->set("globalObservables")) mc_b->SetGlobalObservables(*w->set("globalObservables"));
     if (w->pdf("prior")) mc_b->SetNuisanceParameters(*w->pdf("prior"));
     // if (w->pdf("nuisancePdf")) mc_b->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
     w->import(*mc_b, (modelConfigName_+"_b").c_str());
