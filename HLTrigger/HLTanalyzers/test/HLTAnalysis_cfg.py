@@ -38,7 +38,8 @@ if (isData):
     # GLOBAL_TAG='GR_R_311_V0::All' # Temporary tag for running in CMSSW_3_11_X
 ##    GLOBAL_TAG='L1HLTST311_V0::All'
     ## Use the same GLOBAL TAG as in the master table
-    GLOBAL_TAG='TESTL1_GR_P::All'    
+#    GLOBAL_TAG='TESTL1_GR_P::All'    
+    GLOBAL_TAG='GR_H_V15::All'
 else:
     GLOBAL_TAG='START39_V8::All'
     if (MENU == "GRun"): GLOBAL_TAG= 'START39_V8::All'
@@ -57,7 +58,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/Run2010B/Jet/RAW/v1/000/149/181/326E0028-28E2-DF11-8EF5-001D09F2546F.root'
+        '/store/data/Commissioning11/Commissioning/RAW/v3/000/160/285/86825A00-FB4B-E011-97C0-0030487C8E00.root'
     )
 )
 
