@@ -8,14 +8,16 @@
  *  lenght of the data is a multiple of the S-Link64 word lenght (8 byte).
  *  The FED data should include the standard FED header and trailer.
  *
- *  $Date: 2005/10/06 18:25:22 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/10/18 13:28:12 $
+ *  $Revision: 1.6 $
  *  \author G. Bruno - CERN, EP Division
  *  \author S. Argiro - CERN and INFN - 
  *                      Refactoring and Modifications to fit into CMSSW
  */   
 
+
 #include <vector>
+#include <cstddef>
 
 class FEDRawData {
 
