@@ -40,6 +40,7 @@ private:
   bool hintUsesStatOnly_;
   bool saveWorkspace_;
   std::string workspaceName_;
+  std::string modelConfigName_;
   bool toysNoSystematics_;
 };
 

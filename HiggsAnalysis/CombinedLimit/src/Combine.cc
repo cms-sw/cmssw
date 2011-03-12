@@ -79,6 +79,7 @@ Combine::Combine() :
       ("saveWorkspace", "Save workspace to output root file")
       ("toysNoSystematics", "Generate all toys with the central value of the nuisance parameters, without fluctuating them")
       ("workspaceName,w", po::value<std::string>(&workspaceName_)->default_value("w"), "Workspace name, when reading it from or writing it to a rootfile.")
+      ("modelConfigName,w", po::value<std::string>(&modelConfigName_)->default_value("ModelConfig"), "ModelConfig name, when reading it from or writing it to a rootfile.")
       ;
 }
 
@@ -179,7 +180,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     TFile *fIn = TFile::Open(fileToLoad);
     w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
     if (w == 0) {  std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); return; }
-    RooStats::ModelConfig *mc = dynamic_cast<RooStats::ModelConfig *>(w->genobj("ModelConfig"));
+    RooStats::ModelConfig *mc = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
     if (mc != 0) {
         if (verbose > 1) { std::cout << "Workspace has a ModelConfig called 'ModelConfig', with contents:\n"; mc->Print("V"); }
         const RooArgSet *mc_observables = mc->GetObservables();
@@ -193,18 +194,34 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
             if (verbose > 1) std::cout << "Importing " << mc_nuisances->GetName() << " -> nuisances" << std::endl;
         }
         const RooArgSet *mc_POI = mc->GetParametersOfInterest();
-        if (mc_POI != 0 && mc_POI->GetName() != std::string("POI")) {
-            w->defineSet("POI", *mc_POI);
-            if (verbose > 1) std::cout << "Importing " << mc_POI->GetName() << " -> POI" << std::endl;
+        if (mc_POI == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not contain parameters of interest.");
+        if (mc_POI->getSize() != 1)  throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' doesn't have exactly 1 parameter of interest.");
+        std::string poiName = mc_POI->first()->GetName(); 
+        if (verbose > 1) std::cout << "Parameter of interest in modelConfig: " << poiName << std::endl;
+        if (poiName != "r") {  
+            w->import(*((RooAbsArg*)mc_POI->first()->Clone("r"))); 
+            if (verbose > 1) std::cout << "  renaming " << poiName << " -> r " << std::endl;
         }
+        w->defineSet("POI", "r");
         RooAbsPdf *mc_model_s = mc->GetPdf();
-        if (mc_model_s != 0 && mc_model_s->GetName() != std::string("model_s")) {
-            RooAbsPdf *model_s = (RooAbsPdf *) mc_model_s->Clone("model_s");
-            w->import(*model_s);
-            if (verbose > 1) std::cout << "Importing " << mc_model_s->GetName() << " -> model_s" << std::endl;
-            w->factory("_zero_[0];");
-            w->factory("EDIT::model_b(model_s, r=_zero_)");
-            if (verbose > 1) std::cout << "Importing " << mc_model_s->GetName() << "[r=0] -> model_b" << std::endl;
+        if (mc_model_s == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not contain model_s.");
+        if (poiName == "r") {
+            if (mc_model_s->GetName() != std::string("model_s")) {
+                RooAbsPdf *model_s = (RooAbsPdf *) mc_model_s->Clone("model_s");
+                w->import(*model_s);
+                if (verbose > 1) std::cout << "Importing " << mc_model_s->GetName() << " -> model_s" << std::endl;
+                if (w->var("_zero_") == 0) w->factory("_zero_[0]");
+                w->factory("EDIT::model_b(model_s, r=_zero_)");
+                if (verbose > 1) std::cout << "Importing " << mc_model_s->GetName() << "[r=0] -> model_b" << std::endl;
+            } 
+        } else {
+            if (mc_model_s->GetName() != std::string("model_s")) {
+                w->factory(TString::Format("EDIT::model_s(%s, %s=r)", mc_model_s->GetName(), poiName.c_str()));
+                if (w->var("_zero_") == 0) w->factory("_zero_[0]");
+                w->factory("EDIT::model_b(model_s, r=_zero_)");
+                if (verbose > 1) std::cout << "Importing " << mc_model_s->GetName() << "[r=0] -> model_b" << std::endl;
+            } 
+            else throw std::invalid_argument("ModelConfig '"+modelConfigName_+"': model_s is called model_s but POI is not r. Not implemented.");
         }
         if (verbose > 2) w->Print("V");
     }
@@ -294,10 +311,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
 
   w->saveSnapshot("clean", w->allVars());
 
-  RooStats::ModelConfig *mc = dynamic_cast<RooStats::ModelConfig *>(w->genobj("ModelConfig"));
-  RooStats::ModelConfig *mc_b = dynamic_cast<RooStats::ModelConfig *>(w->genobj("ModelConfig_b"));
+  RooStats::ModelConfig *mc = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
+  RooStats::ModelConfig *mc_b = dynamic_cast<RooStats::ModelConfig *>(w->genobj((modelConfigName_+"_b").c_str()));
   if (mc == 0) {
-    mc = new RooStats::ModelConfig("ModelConfig","signal",w);
+    mc = new RooStats::ModelConfig(modelConfigName_.c_str(),"signal",w);
     mc->SetPdf(*w->pdf("model_s"));
     mc->SetObservables(*w->set("observables"));
     mc->SetParametersOfInterest(*w->set("POI"));
@@ -305,10 +322,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     if (w->set("globalObservables")) mc->SetNuisanceParameters(*w->set("globalObservables"));
     if (w->pdf("prior")) mc->SetNuisanceParameters(*w->pdf("prior"));
     // if (w->pdf("nuisancePdf")) mc->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
-    w->import(*mc, "ModelConfig");
+    w->import(*mc, modelConfigName_.c_str());
   }
   if (mc_b == 0) {
-    mc_b = new RooStats::ModelConfig("ModelConfig_b","background",w);
+    mc_b = new RooStats::ModelConfig((modelConfigName_+"_b").c_str(),"background",w);
     mc_b->SetPdf(*w->pdf("model_b"));
     mc_b->SetObservables(*w->set("observables"));
     mc_b->SetParametersOfInterest(*w->set("POI"));
@@ -316,7 +333,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     if (w->set("globalObservables")) mc_b->SetNuisanceParameters(*w->set("globalObservables"));
     if (w->pdf("prior")) mc_b->SetNuisanceParameters(*w->pdf("prior"));
     // if (w->pdf("nuisancePdf")) mc_b->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
-    w->import(*mc_b, "ModelConfig_b");
+    w->import(*mc_b, (modelConfigName_+"_b").c_str());
   }
 
   if (saveWorkspace_) {
