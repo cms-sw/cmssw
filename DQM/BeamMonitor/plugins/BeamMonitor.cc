@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/02/25 15:10:57 $
- * $Revision: 1.69 $
+ * $Date: 2011/02/28 16:44:29 $
+ * $Revision: 1.70 $
  */
 
 
@@ -907,7 +907,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
 
   bool countFitting = false;
-  if (theBSvector.size() > PreviousRecords  && theBSvector.size() >= min_Ntrks_) {
+  if (theBSvector.size() >= PreviousRecords  && theBSvector.size() >= min_Ntrks_) {
       countFitting = true;
      }
 
@@ -1066,8 +1066,8 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 	double alpha = std::atan2(bs.y0(),bs.x0());
 	TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.14,3.14);
 	f1->SetParameters(amp,alpha);
-	f1->SetParLimits(1,amp-0.1,amp+0.1);
-	f1->SetParLimits(2,alpha-0.577,alpha+0.577);
+	f1->SetParLimits(0,amp-0.1,amp+0.1);
+	f1->SetParLimits(1,alpha-0.577,alpha+0.577);
 	f1->SetLineColor(4);
 	h_d0_phi0->getTProfile()->Fit("f1","QR");
 
