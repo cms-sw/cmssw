@@ -107,7 +107,6 @@ PFPileUp::chargedHadronVertex( const Handle<VertexCollection>& vertices, const P
   
   reco::TrackBaseRef trackBaseRef( pfcand.trackRef() );
   
-  unsigned nFoundVertex = 0;
   size_t  iVertex = 0;
   unsigned index=0;
   typedef reco::VertexCollection::const_iterator IV;
