@@ -44,7 +44,7 @@ namespace {
 }
 
 template<typename T, IndexType N>
-void go( edm::HRTimeType & s1, edm::HRTimeType & s2,  edm::HRTimeType & s3, bool print) {
+void go( edm::HRTimeType & s1, edm::HRTimeType & s2,  edm::HRTimeType & s3,  edm::HRTimeType & s4, bool print) {
   typedef ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepStd<T,N> > Matrix;
   typedef ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > SymMatrix;
 
@@ -71,33 +71,40 @@ void go( edm::HRTimeType & s1, edm::HRTimeType & s2,  edm::HRTimeType & s3, bool
   m = mrh*mlh;
   s3 =  edm::hrRealTime() -s3;
 
+  SymMatrix sm;
+  s4 = edm::hrRealTime();
+  ROOT::Math::AssignSym::Evaluate(sm,mrh*mlh);
+  s4 =  edm::hrRealTime() -s4;
 
-  SymMatrix sm; ROOT::Math::AssignSym::Evaluate(sm,m);
+  SymMatrix smm; ROOT::Math::AssignSym::Evaluate(smm,m);
 
   if (print) {
-    if (sm!=b) std::cout << "problem with SMatrix *" << std::endl;
+    if (smm!=b) std::cout << "problem with SMatrix *" << std::endl;
+    if (sm!=b) std::cout << "problem with SMatrix evaluate" << std::endl;
     if (a!=b) std::cout << "problem with MulSymMatrix" << std::endl;
-    if (a!=sm) std::cout << "problem with MulSymMatrix twice" << std::endl;
+    if (a!=smm) std::cout << "problem with MulSymMatrix twice" << std::endl;
     
-    std::cout << "sym mult " << s1 << std::endl;
-    std::cout << "sym    * " << s2 << std::endl;
-    std::cout << "mat    * " << s3 << std::endl;
+    std::cout << "sym mult   " << s1 << std::endl;
+    std::cout << "sym    *   " << s2 << std::endl;
+    std::cout << "mat    *   " << s3 << std::endl;
+    std::cout << "mat as sym " << s4 << std::endl;
   }
 
 }
  
 int main() {
-  edm::HRTimeType s1=0, s2=0, s3=0;
-  go<double,15>(s1,s2,s3,true);
+  edm::HRTimeType s1=0, s2=0, s3=0, s4=0;
+  go<double,15>(s1,s2,s3,s4,true);
 
-  edm::HRTimeType t1=0; edm::HRTimeType t2=0;  edm::HRTimeType t3=0;
+  edm::HRTimeType t1=0; edm::HRTimeType t2=0;  edm::HRTimeType t3=0; edm::HRTimeType t4=0;
   for (int  i=0; i!=100; ++i) {
-    go<double,15>(s1,s2,s3, false);
-    t1+=s1; t2+=s2; t3+=s3;
+    go<double,15>(s1,s2,s3,s4, false);
+    t1+=s1; t2+=s2; t3+=s3; t4+=s4;
   }
-  std::cout << "sym mult " << t1 << std::endl;
-  std::cout << "sym    * " << t2 << std::endl;
-  std::cout << "mat    * " << t3 << std::endl;
+  std::cout << "sym mult   " << t1 << std::endl;
+  std::cout << "sym    *   " << t2 << std::endl;
+  std::cout << "mat    *   " << t3 << std::endl;
+  std::cout << "mat as sym " << t4 << std::endl;
 
   return 0;
 }
