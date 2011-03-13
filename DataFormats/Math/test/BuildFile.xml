@@ -19,4 +19,6 @@
 </bin>
 <bin   file="eta_t.cpp" name="DataFormatsEta_t">
 </bin>
+<bin   file="MulSymMatrix_t.cpp" name="DataFormatsMatMult_t">
+</bin>
 
