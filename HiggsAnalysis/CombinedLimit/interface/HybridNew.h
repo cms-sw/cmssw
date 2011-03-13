@@ -15,6 +15,7 @@
 #include <RooStats/ToyMCSampler.h>
 
 class RooRealVar;
+class TGraphErrors;
 
 class HybridNew : public LimitAlgo {
 public:
@@ -45,7 +46,14 @@ private:
   static double rValue_;
   static unsigned int nCpu_, fork_;
   static bool importanceSamplingNull_, importanceSamplingAlt_;
+  static std::string algo_;
   static std::string plot_;
+ 
+  // plot
+  std::auto_ptr<TGraphErrors> limitPlot_;
+ 
+  // performance counter: remember how many toys have been thrown
+  unsigned int perf_totalToysRun_;
 
   struct Setup {
     RooStats::ModelConfig modelConfig, modelConfig_bonly;

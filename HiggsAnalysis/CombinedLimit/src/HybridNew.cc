@@ -7,8 +7,11 @@
 
 #include "HiggsAnalysis/CombinedLimit/interface/HybridNew.h"
 #include <TFile.h>
+#include <TF1.h>
 #include <TKey.h>
+#include <TLine.h>
 #include <TCanvas.h>
+#include <TGraphErrors.h>
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooAbsPdf.h"
@@ -35,11 +38,13 @@ std::string HybridNew::rule_, HybridNew::testStat_;
 double HybridNew::rValue_;
 unsigned int HybridNew::nCpu_, HybridNew::fork_;
 bool HybridNew::importanceSamplingNull_, HybridNew::importanceSamplingAlt_;
+std::string HybridNew::algo_;
 std::string HybridNew::plot_;
  
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
     options_.add_options()
+      ("searchAlgo", boost::program_options::value<std::string>(&algo_)->default_value("bisection"), "Algorithm to use to search for the limit")
       ("onlyTestStat", "Just compute test statistics, not actual p-values (works only with --singlePoint)")
       ("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(false), "Enable importance sampling for null hypothesis (background only)") 
       ("importanceSamplingAlt", boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(false), "Enable importance sampling for alternative hypothesis (signal plus background)") 
@@ -85,6 +90,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
 
 bool HybridNew::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
     RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::WARNING : RooFit::DEBUG);
+    perf_totalToysRun_ = 0; // reset performance counter
     switch (workingMode_) {
         case MakeLimit:            return runLimit(w, data, limit, hint);
         case MakeSignificance:     return runSignificance(w, data, limit, hint);
@@ -127,70 +133,138 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit
 bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
   RooRealVar *r = w->var("r"); r->setConstant(true);
   w->loadSnapshot("clean");
+  if (!plot_.empty()) limitPlot_.reset(new TGraphErrors());
 
   if ((hint != 0) && (*hint > r->getMin())) {
-    r->setMax(std::min<double>(3*(*hint), r->getMax()));
+    r->setMax(std::min<double>(3.0 * (*hint), r->getMax()));
+    r->setMin(std::max<double>(0.3 * (*hint), r->getMin()));
   }
   
   typedef std::pair<double,double> CLs_t;
 
   double clsTarget = 1 - cl; 
-  CLs_t clsMin(1,0), clsMax(0,0);
-  double rMin = 0, rMax = r->getMax();
+  CLs_t clsMin(1,0), clsMax(0,0), clsMid(0,0);
+  double rMin = r->getMin(), rMax = r->getMax(), rError = 0.5*(rMax - rMin);
 
   std::cout << "Search for upper limit to the limit" << std::endl;
-  for (;;) {
-    CLs_t clsMax = eval(w, data, r, r->getMax());
-    if (clsMax.first == 0 || clsMax.first + 3 * fabs(clsMax.second) < cl ) break;
-    r->setMax(r->getMax()*2);
-    if (r->getVal()/rMax >= 20) { 
-      std::cerr << "Cannot set higher limit: at r = " << r->getVal() << " still get " << (CLs_ ? "CLs" : "CLsplusb") << " = " << clsMax.first << std::endl;
+  for (int tries = 0; tries < 6; ++tries) {
+    clsMax = eval(w, data, r, rMax);
+    if (clsMax.first == 0 || clsMax.first + 3 * fabs(clsMax.second) < clsTarget ) break;
+    rMax += rMax;
+    if (tries == 5) { 
+      std::cerr << "Cannot set higher limit: at r = " << rMax << " still get " << (CLs_ ? "CLs" : "CLsplusb") << " = " << clsMax.first << std::endl;
       return false;
     }
   }
-  rMax = r->getMax();
+  std::cout << "Search for lower limit to the limit" << std::endl;
+  clsMin = eval(w, data, r, rMin);
+  if (clsMin.first != 1 && clsMin.first - 3 * fabs(clsMin.second) < clsTarget) {
+      rMin = -rMax / 4;
+      for (int tries = 0; tries < 6; ++tries) {
+          clsMin = eval(w, data, r, rMin);
+          if (clsMin.first == 1 || clsMin.first - 3 * fabs(clsMin.second) > clsTarget) break;
+          rMin += rMin;
+          if (tries == 5) { 
+              std::cerr << "Cannot set lower limit: at r = " << rMin << " still get " << (CLs_ ? "CLs" : "CLsplusb") << " = " << clsMin.first << std::endl;
+              return false;
+          }
+      }
+  }
   
   std::cout << "Now doing proper bracketing & bisection" << std::endl;
-  bool lucky = false;
+  bool done = false;
   do {
-    CLs_t clsMid = eval(w, data, r, 0.5*(rMin+rMax), true, clsTarget);
+    // determine point by bisection or interpolation
+    limit = 0.5*(rMin+rMax); rError = 0.5*(rMax-rMin);
+    if (algo_ == "logSecant" && clsMax.first != 0) {
+        double logMin = log(clsMin.first), logMax = log(clsMax.first), logTarget = log(clsTarget);
+        limit = rMin + (rMax-rMin) * (logTarget - logMin)/(logMax - logMin);
+        if (clsMax.second != 0 && clsMin.second != 0) {
+            rError = hypot((logTarget-logMax) * (clsMin.second/clsMin.first), (logTarget-logMin) * (clsMax.second/clsMax.first));
+            rError *= (rMax-rMin)/((logMax-logMin)*(logMax-logMin));
+        }
+    }
+    r->setError(rError);
+
+    // exit if reached accuracy on r 
+    if (rError < std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
+        if (verbose > 1) std::cout << "  reached accuracy " << rError << " below " << std::max(rAbsAccuracy_, rRelAccuracy_ * limit) << std::endl;
+        done = true; break;
+    }
+
+    // evaluate point 
+    clsMid = eval(w, data, r, limit, true, clsTarget);
     if (clsMid.second == -1) {
       std::cerr << "Hypotest failed" << std::endl;
       return false;
     }
-    if (fabs(clsMid.first-clsTarget) <= clsAccuracy_) {
-      std::cout << "reached accuracy." << std::endl;
-      lucky = true;
-      break;
-    }
-    if ((clsMid.first>clsTarget) == (clsMax.first>clsTarget)) {
-      rMax = r->getVal(); clsMax = clsMid;
+
+    // if sufficiently far away, drop one of the points
+    if (fabs(clsMid.first-clsTarget) >= 2*clsMid.second) {
+        if ((clsMid.first>clsTarget) == (clsMax.first>clsTarget)) {
+          rMax = limit; clsMax = clsMid;
+        } else {
+          rMin = limit; clsMin = clsMid;
+        }
     } else {
-      rMin = r->getVal(); clsMin = clsMid;
+        // try to reduce the size of the interval 
+        while (clsMin.second == 0 || fabs(rMin-limit) > std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
+            rMin = 0.5*(rMin+limit); 
+            clsMin = eval(w, data, r, rMin, true, clsTarget); 
+            if (fabs(clsMid.first-clsTarget) <= 2*clsMid.second) break;
+        } 
+        while (clsMax.second == 0 || fabs(rMax-limit) > std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
+            rMax = 0.5*(rMax+limit); 
+            clsMax = eval(w, data, r, rMax, true, clsTarget); 
+            if (fabs(clsMid.first-clsTarget) <= 2*clsMid.second) break;
+        } 
+        break;
     }
-  } while (rMax-rMin > std::max(rAbsAccuracy_, rRelAccuracy_ * r->getVal()));
+  } while (true);
 
-  if (lucky) {
-    limit = r->getVal();
-    if (rInterval_) {
-      std::cout << "\n -- HypoTestInverter (before determining interval) -- \n";
-      std::cout << "Limit: r < " << limit << " +/- " << 0.5*(rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
 
-      double rBoundLow  = limit - 0.5*std::max(rAbsAccuracy_, rRelAccuracy_ * limit);
-      for (r->setVal(rMin); r->getVal() < rBoundLow  && (fabs(clsMin.first-clsTarget) >= clsAccuracy_); rMin = r->getVal()) {
-        clsMax = eval(w, data, r, 0.5*(r->getVal()+limit), true, clsTarget);
+  if (!done) {
+      std::cout << "\n -- HybridNew, before fit -- \n";
+      std::cout << "Limit: r < " << limit << " +/- " << rError << " @ " <<cl * 100<<"% CL\n";
+
+      TF1 expoFit("expoFit","[0]*exp([1]*(x-[2]))", rMin, rMax);
+      expoFit.FixParameter(0,clsTarget);
+      expoFit.SetParameter(1,log(clsMax.first/clsMin.first)/(rMax-rMin));
+      expoFit.SetParameter(2,limit);
+      TGraphErrors graph(3);
+      graph.SetPoint(0, rMin,  clsMin.first); graph.SetPointError(0, 0, clsMin.second);
+      graph.SetPoint(1, limit, clsMid.first); graph.SetPointError(1, 0, clsMid.second);
+      graph.SetPoint(2, rMax,  clsMax.first); graph.SetPointError(2, 0, clsMax.second);
+      graph.Fit(&expoFit,(verbose <= 1 ? "QNR EX0" : "NR EXO"));
+     
+      if ((rMin < expoFit.GetParameter(2))  && (expoFit.GetParameter(2) < rMax) && 
+          (expoFit.GetParError(2) < rError) && (expoFit.GetParError(2) < 0.5*(rMax-rMin))) { 
+          // sanity check fit result
+          limit = expoFit.GetParameter(2);
+          rError = expoFit.GetParError(2);
+      } else if (0.5*(rMax - rMin) < rError) {
+          limit  = 0.5*(rMax-rMin);
+          rError = 0.5*(rMax+rMin);
       }
-
-      double rBoundHigh = limit + 0.5*std::max(rAbsAccuracy_, rRelAccuracy_ * limit);
-      for (r->setVal(rMax); r->getVal() > rBoundHigh && (fabs(clsMax.first-clsTarget) >= clsAccuracy_); rMax = r->getVal()) {
-        clsMax = eval(w, data, r, 0.5*(r->getVal()+limit), true, clsTarget);
-      }
-    }
-  } else {
-    limit = 0.5*(rMax+rMin);
   }
-  std::cout << "\n -- HypoTestInverter -- \n";
-  std::cout << "Limit: r < " << limit << " +/- " << 0.5*(rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
+
+  if (limitPlot_.get()) {
+      TCanvas *c1 = new TCanvas("c1","c1");
+      limitPlot_->Sort();
+      limitPlot_->SetLineWidth(2);
+      limitPlot_->Draw("APL");
+      TLine line(limitPlot_->GetX()[0], clsTarget, limitPlot_->GetX()[limitPlot_->GetN()-1], clsTarget);
+      line.SetLineColor(kRed); line.SetLineWidth(2); line.Draw();
+      line.DrawLine(limit, 0, limit, limitPlot_->GetY()[0]);
+      line.SetLineWidth(1); line.SetLineStyle(2);
+      line.DrawLine(limit-rError, 0, limit-rError, limitPlot_->GetY()[0]);
+      line.DrawLine(limit+rError, 0, limit+rError, limitPlot_->GetY()[0]);
+      c1->Print(plot_.c_str());
+  }
+
+  std::cout << "\n -- Hybrid New -- \n";
+  std::cout << "Limit: r < " << limit << " +/- " << rError << " @ " << cl * 100 << "% CL\n";
+  if (verbose > 1) std::cout << "Total toys: " << perf_totalToysRun_ << std::endl;
   return true;
 }
 
@@ -218,8 +292,16 @@ bool HybridNew::runTestStatistics(RooWorkspace *w, RooAbsData &data, double &lim
 std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, bool adaptive, double clsTarget) {
     HybridNew::Setup setup;
     std::auto_ptr<RooStats::HybridCalculator> hc(create(w, data, r, rVal, setup));
-    if (verbose) std::cout << "  r = " << rVal << std::endl;
+    if (verbose) std::cout << "  r = " << rVal << " +/- " << r->getError() << std::endl;
     std::pair<double, double> ret = eval(*hc, adaptive, clsTarget);
+
+    // add to plot 
+    if (limitPlot_.get()) { 
+        limitPlot_->Set(limitPlot_->GetN()+1);
+        limitPlot_->SetPoint(limitPlot_->GetN()-1, rVal, ret.first); 
+        limitPlot_->SetPointError(limitPlot_->GetN()-1, 0, ret.second);
+    }
+
     return ret;
 }
 
@@ -353,7 +435,9 @@ HybridNew::eval(RooStats::HybridCalculator &hc, bool adaptive, double clsTarget)
             "\tCLsplusb = " << hcResult->CLsplusb() << " +/- " << hcResult->CLsplusbError() << "\n" <<
             std::endl;
     }
-    if (!plot_.empty()) {
+    perf_totalToysRun_ += (hcResult->GetAltDistribution()->GetSize() + hcResult->GetNullDistribution()->GetSize());
+
+    if (!plot_.empty() && workingMode_ != MakeLimit) {
         HypoTestPlot plot(*hcResult, 30);
         TCanvas *c1 = new TCanvas("c1","c1");
         plot.Draw();
