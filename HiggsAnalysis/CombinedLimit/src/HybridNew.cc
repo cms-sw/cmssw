@@ -272,7 +272,7 @@ bool HybridNew::runSinglePoint(RooWorkspace *w, RooAbsData &data, double &limit,
     RooRealVar *r = w->var("r"); r->setConstant(true);
     std::pair<double, double> result = eval(w, data, r, rValue_, true);
     std::cout << "\n -- Hybrid New -- \n";
-    std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << result.first << " +/- " << result.second << std::endl;
+    std::cout << (CLs_ ? "CLs = " : "CLsplusb = ") << result.first << " +/- " << result.second << std::endl;
     limit = result.first;
     return true;
 }
