@@ -130,7 +130,7 @@ class dbUtil(object):
             bulkOperation=dataEditor.bulkInsert(insertdata,len(bulkinput))
             for valuelist in bulkinput:
                 for (columnname,columnvalue) in valuelist:
-                    print 'columnname ',columnname,' columnvalue ',columnvalue
+#                    print 'columnname ',columnname,' columnvalue ',columnvalue
                     insertdata[columnname].setData(columnvalue)
                 bulkOperation.processNextIteration()
             bulkOperation.flush()
