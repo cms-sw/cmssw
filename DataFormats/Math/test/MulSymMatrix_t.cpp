@@ -1,8 +1,8 @@
 // #include "DataFormats/Math/interface/MulSymMatrix.h"
 #include "Math/SMatrix.h"
 
-typedef unsigned int IndexType;
-// typedef unsigned long long IndexType;
+// typedef unsigned int IndexType;
+typedef unsigned long long IndexType;
 template<typename T, IndexType N>
 inline void
 mult(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & a, 
@@ -97,14 +97,14 @@ int main() {
   go<double,15>(s1,s2,s3,s4,true);
 
   edm::HRTimeType t1=0; edm::HRTimeType t2=0;  edm::HRTimeType t3=0; edm::HRTimeType t4=0;
-  for (int  i=0; i!=100; ++i) {
+  for (int  i=0; i!=50000; ++i) {
     go<double,15>(s1,s2,s3,s4, false);
     t1+=s1; t2+=s2; t3+=s3; t4+=s4;
   }
-  std::cout << "sym mult   " << t1 << std::endl;
-  std::cout << "sym    *   " << t2 << std::endl;
-  std::cout << "mat    *   " << t3 << std::endl;
-  std::cout << "mat as sym " << t4 << std::endl;
+  std::cout << "sym mult   " << t1/50000 << std::endl;
+  std::cout << "sym    *   " << t2/50000 << std::endl;
+  std::cout << "mat    *   " << t3/50000 << std::endl;
+  std::cout << "mat as sym " << t4/50000 << std::endl;
 
   return 0;
 }
