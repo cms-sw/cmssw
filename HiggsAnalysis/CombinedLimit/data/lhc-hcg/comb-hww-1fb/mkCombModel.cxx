@@ -61,7 +61,44 @@ void importData(TString dataName, RooWorkspace *comb, const RooArgSet *atlas, co
     obs.Print("V");
 }
 
-
+void mkNuisancePdf(RooWorkspace *w) {
+    RooArgList pdfs;
+    std::cout << "Will try to collect pdf for nuisances:" << std::endl;
+    TIterator *it = w->set("nuisances")->createIterator();
+    RooAbsArg *arg; 
+    while ((arg = (RooAbsArg *) it->Next()) != 0) {
+        TString name = arg->GetName(), tryname;
+        std::cout << " - " << name << ": ";
+        RooAbsPdf *pdf = 0;
+        if (name.Contains("_cms")) {
+            tryname = name.Copy().ReplaceAll("theta_","thetaPdf_");
+            pdf = w->pdf(tryname);
+            std::cout << tryname << " ";
+        } else if (name.Contains("_atlas")) {
+            TString tryname_gaus  = name.Copy().ReplaceAll("_atlas","_gaus_atlas");
+            TString tryname_Gamma = name.Copy().ReplaceAll("_atlas","_Gamma_atlas");
+            bool hasGaus  = (w->pdf(tryname_gaus)  != 0);
+            bool hasGamma = (w->pdf(tryname_Gamma) != 0);
+            if (hasGaus && hasGamma) { 
+                std::cout << " ERROR: both " << tryname_gaus << " and " << tryname_Gamma << " exits!" << std::endl; 
+                continue; 
+            } else if (hasGaus) {
+                pdf = w->pdf(tryname_gaus);
+            } else if (hasGamma) {
+                pdf = w->pdf(tryname_Gamma);
+            }
+        } else {
+            tryname = name.Copy().ReplaceAll("theta_","thetaPdf_")+"_cms";
+            pdf = w->pdf(tryname);
+            std::cout << tryname << " ";
+        } 
+        std::cout << (pdf == 0 ? "NOT FOUND!" : pdf->ClassName()) << std::endl;
+        if (pdf) pdfs.add(*pdf);
+    }
+    RooProdPdf *prod = new RooProdPdf("nuisancePdf","nuisancePdf",pdfs);
+    w->import(*prod);
+    delete it;
+}
 void mkCombModel(int mass=140) {
     TFile *atlas = TFile::Open(TString::Format("atlas/atlas.mH%d.root",mass));
     TFile *cms   = TFile::Open(TString::Format("cms/higgsCombineHWW.ProfileLikelihood.mH%d.root",mass));
@@ -99,6 +136,8 @@ void mkCombModel(int mass=140) {
 
     RooConstVar *zorro = new RooConstVar("__zero__","Zero", 0); w->import(*zorro);
     w->factory("EDIT::model_b(model_s,r=__zero__)");
+
+    mkNuisancePdf(w);
 
     ModelConfig *m = new ModelConfig("ModelConfig", w);
     m->SetPdf(*model_s);
