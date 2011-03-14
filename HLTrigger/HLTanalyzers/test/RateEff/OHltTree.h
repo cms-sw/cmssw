@@ -1294,6 +1294,7 @@ public:
    Int_t HLT_Ele10_SW_L1R_v2;
    Int_t HLT_Ele12_SW_TighterEleId_L1R_v2;
    Int_t HLT_Ele17_SW_L1R_v2;
+   Int_t HLT_Ele17_SW_L1R_v2_OldMenu;
    Int_t HLT_Ele17_SW_Isol_L1R_v2;
    Int_t HLT_Ele17_SW_TighterEleIdIsol_L1R_v3;
    Int_t HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2;
@@ -1520,6 +1521,7 @@ public:
    Int_t HLT_Photon10_Cleaned_L1R;
    Int_t HLT_Photon15_Cleaned_L1R;
    Int_t HLT_Photon20_Cleaned_L1R;
+   Int_t HLT_Photon20_Cleaned_L1R_OldMenu;
    Int_t HLT_L1Tech_BSC_HighMultiplicity;
    Int_t HLT_PixelTracks_Multiplicity40;
    Int_t HLT_L1SingleForJet_BPTX;
@@ -1983,6 +1985,7 @@ public:
    Int_t HLT_Ele10_SW_L1R_v2_Prescl;
    Int_t HLT_Ele12_SW_TighterEleId_L1R_v2_Prescl;
    Int_t HLT_Ele17_SW_L1R_v2_Prescl;
+   Int_t HLT_Ele17_SW_L1R_v2_OldMenu_Prescl;
    Int_t HLT_Ele17_SW_Isol_L1R_v2_Prescl;
    Int_t HLT_Ele17_SW_TighterEleIdIsol_L1R_v3_Prescl;
    Int_t HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2_Prescl;
@@ -2258,6 +2261,7 @@ public:
    Int_t HLT_Photon15_TrackIso_Cleaned_L1R_Prescl;
    Int_t HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl;
    Int_t HLT_Photon20_Cleaned_L1R_Prescl;
+   Int_t HLT_Photon20_Cleaned_L1R_OldMenu_Prescl;
    Int_t HLT_Photon30_L1R_Prescl;
    Int_t HLT_DoublePhoton4_eeRes_L1R_Prescl;
    Int_t HLT_DoublePhoton4_Jpsi_L1R_Prescl;
@@ -3548,6 +3552,7 @@ public:
    TBranch *b_HLT_Ele10_SW_L1R_v2; //!
    TBranch *b_HLT_Ele12_SW_TighterEleId_L1R_v2; //!
    TBranch *b_HLT_Ele17_SW_L1R_v2; //!
+   TBranch *b_HLT_Ele17_SW_L1R_v2_OldMenu; //!
    TBranch *b_HLT_Ele17_SW_Isol_L1R_v2; //!
    TBranch *b_HLT_Ele17_SW_TighterEleIdIsol_L1R_v3; //!
    TBranch *b_HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2; //!
@@ -3774,6 +3779,7 @@ public:
    TBranch *b_HLT_Photon10_Cleaned_L1R; //!
    TBranch *b_HLT_Photon15_Cleaned_L1R; //!
    TBranch *b_HLT_Photon20_Cleaned_L1R; //!
+   TBranch *b_HLT_Photon20_Cleaned_L1R_OldMenu; //!
    TBranch *b_HLT_L1Tech_BSC_HighMultiplicity; //!
    TBranch *b_HLT_PixelTracks_Multiplicity40; //!
    TBranch *b_HLT_L1SingleForJet_BPTX; //!
@@ -4239,6 +4245,7 @@ public:
    TBranch *b_HLT_Ele10_SW_L1R_v2_Prescl; //!
    TBranch *b_HLT_Ele12_SW_TighterEleId_L1R_v2_Prescl; //!
    TBranch *b_HLT_Ele17_SW_L1R_v2_Prescl; //!
+   TBranch *b_HLT_Ele17_SW_L1R_v2_OldMenu_Prescl; //!
    TBranch *b_HLT_Ele17_SW_Isol_L1R_v2_Prescl; //!
    TBranch *b_HLT_Ele17_SW_TighterEleIdIsol_L1R_v3_Prescl; //!
    TBranch *b_HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2_Prescl; //!
@@ -4514,6 +4521,7 @@ public:
    TBranch *b_HLT_Photon15_TrackIso_Cleaned_L1R_Prescl; //!
    TBranch *b_HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl; //!
    TBranch *b_HLT_Photon20_Cleaned_L1R_Prescl; //!
+   TBranch *b_HLT_Photon20_Cleaned_L1R_OldMenu_Prescl; //!
    TBranch *b_HLT_Photon30_L1R_Prescl; //!
    TBranch *b_HLT_DoublePhoton4_eeRes_L1R_Prescl; //!
    TBranch *b_HLT_DoublePhoton4_Jpsi_L1R_Prescl; //!
@@ -6900,6 +6908,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_Ele10_SW_L1R_v2", &HLT_Ele10_SW_L1R_v2, &b_HLT_Ele10_SW_L1R_v2);
    fChain->SetBranchAddress("HLT_Ele12_SW_TighterEleId_L1R_v2", &HLT_Ele12_SW_TighterEleId_L1R_v2, &b_HLT_Ele12_SW_TighterEleId_L1R_v2);
    fChain->SetBranchAddress("HLT_Ele17_SW_L1R_v2", &HLT_Ele17_SW_L1R_v2, &b_HLT_Ele17_SW_L1R_v2);
+   fChain->SetBranchAddress("HLT_Ele17_SW_L1R_v2_OldMenu", &HLT_Ele17_SW_L1R_v2_OldMenu, &b_HLT_Ele17_SW_L1R_v2_OldMenu);
    fChain->SetBranchAddress("HLT_Ele17_SW_Isol_L1R_v2", &HLT_Ele17_SW_Isol_L1R_v2, &b_HLT_Ele17_SW_Isol_L1R_v2);
    fChain->SetBranchAddress("HLT_Ele17_SW_TighterEleIdIsol_L1R_v3", &HLT_Ele17_SW_TighterEleIdIsol_L1R_v3, &b_HLT_Ele17_SW_TighterEleIdIsol_L1R_v3);
    fChain->SetBranchAddress("HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2", &HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2, &b_HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2);
@@ -7126,6 +7135,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_Photon10_Cleaned_L1R", &HLT_Photon10_Cleaned_L1R, &b_HLT_Photon10_Cleaned_L1R);
    fChain->SetBranchAddress("HLT_Photon15_Cleaned_L1R", &HLT_Photon15_Cleaned_L1R, &b_HLT_Photon15_Cleaned_L1R);
    fChain->SetBranchAddress("HLT_Photon20_Cleaned_L1R", &HLT_Photon20_Cleaned_L1R, &b_HLT_Photon20_Cleaned_L1R);
+   fChain->SetBranchAddress("HLT_Photon20_Cleaned_L1R_OldMenu", &HLT_Photon20_Cleaned_L1R_OldMenu, &b_HLT_Photon20_Cleaned_L1R_OldMenu);
    fChain->SetBranchAddress("HLT_L1Tech_BSC_HighMultiplicity", &HLT_L1Tech_BSC_HighMultiplicity, &b_HLT_L1Tech_BSC_HighMultiplicity);
    fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity40", &HLT_PixelTracks_Multiplicity40, &b_HLT_PixelTracks_Multiplicity40);
    fChain->SetBranchAddress("HLT_L1SingleForJet_BPTX", &HLT_L1SingleForJet_BPTX, &b_HLT_L1SingleForJet_BPTX);
@@ -7591,6 +7601,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_Ele10_SW_L1R_v2_Prescl", &HLT_Ele10_SW_L1R_v2_Prescl, &b_HLT_Ele10_SW_L1R_v2_Prescl);
    fChain->SetBranchAddress("HLT_Ele12_SW_TighterEleId_L1R_v2_Prescl", &HLT_Ele12_SW_TighterEleId_L1R_v2_Prescl, &b_HLT_Ele12_SW_TighterEleId_L1R_v2_Prescl);
    fChain->SetBranchAddress("HLT_Ele17_SW_L1R_v2_Prescl", &HLT_Ele17_SW_L1R_v2_Prescl, &b_HLT_Ele17_SW_L1R_v2_Prescl);
+   fChain->SetBranchAddress("HLT_Ele17_SW_L1R_v2_OldMenu_Prescl", &HLT_Ele17_SW_L1R_v2_OldMenu_Prescl, &b_HLT_Ele17_SW_L1R_v2_OldMenu_Prescl);
    fChain->SetBranchAddress("HLT_Ele17_SW_Isol_L1R_v2_Prescl", &HLT_Ele17_SW_Isol_L1R_v2_Prescl, &b_HLT_Ele17_SW_Isol_L1R_v2_Prescl);
    fChain->SetBranchAddress("HLT_Ele17_SW_TighterEleIdIsol_L1R_v3_Prescl", &HLT_Ele17_SW_TighterEleIdIsol_L1R_v3_Prescl, &b_HLT_Ele17_SW_TighterEleIdIsol_L1R_v3_Prescl);
    fChain->SetBranchAddress("HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2_Prescl", &HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2_Prescl, &b_HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2_Prescl);
@@ -7866,6 +7877,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_Photon15_TrackIso_Cleaned_L1R_Prescl", &HLT_Photon15_TrackIso_Cleaned_L1R_Prescl, &b_HLT_Photon15_TrackIso_Cleaned_L1R_Prescl);
    fChain->SetBranchAddress("HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl", &HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl, &b_HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl);
    fChain->SetBranchAddress("HLT_Photon20_Cleaned_L1R_Prescl", &HLT_Photon20_Cleaned_L1R_Prescl, &b_HLT_Photon20_Cleaned_L1R_Prescl);
+   fChain->SetBranchAddress("HLT_Photon20_Cleaned_L1R_OldMenu_Prescl", &HLT_Photon20_Cleaned_L1R_OldMenu_Prescl, &b_HLT_Photon20_Cleaned_L1R_OldMenu_Prescl);
    fChain->SetBranchAddress("HLT_Photon30_L1R_Prescl", &HLT_Photon30_L1R_Prescl, &b_HLT_Photon30_L1R_Prescl);
    fChain->SetBranchAddress("HLT_DoublePhoton4_eeRes_L1R_Prescl", &HLT_DoublePhoton4_eeRes_L1R_Prescl, &b_HLT_DoublePhoton4_eeRes_L1R_Prescl);
    fChain->SetBranchAddress("HLT_DoublePhoton4_Jpsi_L1R_Prescl", &HLT_DoublePhoton4_Jpsi_L1R_Prescl, &b_HLT_DoublePhoton4_Jpsi_L1R_Prescl);
@@ -8730,6 +8742,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_Ele10_SW_L1R_v2", &map_BitOfStandardHLTPath["HLT_Ele10_SW_L1R_v2"], &b_HLT_Ele10_SW_L1R_v2);
    fChain->SetBranchAddress("HLT_Ele12_SW_TighterEleId_L1R_v2", &map_BitOfStandardHLTPath["HLT_Ele12_SW_TighterEleId_L1R_v2"], &b_HLT_Ele12_SW_TighterEleId_L1R_v2);
    fChain->SetBranchAddress("HLT_Ele17_SW_L1R_v2", &map_BitOfStandardHLTPath["HLT_Ele17_SW_L1R_v2"], &b_HLT_Ele17_SW_L1R_v2);
+   fChain->SetBranchAddress("HLT_Ele17_SW_L1R_v2_OldMenu", &map_BitOfStandardHLTPath["HLT_Ele17_SW_L1R_v2_OldMenu"], &b_HLT_Ele17_SW_L1R_v2_OldMenu);
    fChain->SetBranchAddress("HLT_Ele17_SW_Isol_L1R_v2", &map_BitOfStandardHLTPath["HLT_Ele17_SW_Isol_L1R_v2"], &b_HLT_Ele17_SW_Isol_L1R_v2);
    fChain->SetBranchAddress("HLT_Ele17_SW_TighterEleIdIsol_L1R_v3", &map_BitOfStandardHLTPath["HLT_Ele17_SW_TighterEleIdIsol_L1R_v3"], &b_HLT_Ele17_SW_TighterEleIdIsol_L1R_v3);
    fChain->SetBranchAddress("HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2", &map_BitOfStandardHLTPath["HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2"], &b_HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2);
@@ -8956,6 +8969,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_Photon10_Cleaned_L1R", &map_BitOfStandardHLTPath["HLT_Photon10_Cleaned_L1R"], &b_HLT_Photon10_Cleaned_L1R);
    fChain->SetBranchAddress("HLT_Photon15_Cleaned_L1R", &map_BitOfStandardHLTPath["HLT_Photon15_Cleaned_L1R"], &b_HLT_Photon15_Cleaned_L1R);
    fChain->SetBranchAddress("HLT_Photon20_Cleaned_L1R", &map_BitOfStandardHLTPath["HLT_Photon20_Cleaned_L1R"], &b_HLT_Photon20_Cleaned_L1R);
+   fChain->SetBranchAddress("HLT_Photon20_Cleaned_L1R_OldMenu", &map_BitOfStandardHLTPath["HLT_Photon20_Cleaned_L1R_OldMenu"], &b_HLT_Photon20_Cleaned_L1R_OldMenu);
    fChain->SetBranchAddress("HLT_L1Tech_BSC_HighMultiplicity", &map_BitOfStandardHLTPath["HLT_L1Tech_BSC_HighMultiplicity"], &b_HLT_L1Tech_BSC_HighMultiplicity);
    fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity40", &map_BitOfStandardHLTPath["HLT_PixelTracks_Multiplicity40"], &b_HLT_PixelTracks_Multiplicity40);
    fChain->SetBranchAddress("HLT_L1SingleForJet_BPTX", &map_BitOfStandardHLTPath["HLT_L1SingleForJet_BPTX"], &b_HLT_L1SingleForJet_BPTX);
@@ -9421,6 +9435,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_Ele10_SW_L1R_v2_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele10_SW_L1R_v2"], &b_HLT_Ele10_SW_L1R_v2_Prescl);
    fChain->SetBranchAddress("HLT_Ele12_SW_TighterEleId_L1R_v2_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele12_SW_TighterEleId_L1R_v2"], &b_HLT_Ele12_SW_TighterEleId_L1R_v2_Prescl);
    fChain->SetBranchAddress("HLT_Ele17_SW_L1R_v2_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele17_SW_L1R_v2"], &b_HLT_Ele17_SW_L1R_v2_Prescl);
+   fChain->SetBranchAddress("HLT_Ele17_SW_L1R_v2_OldMenu_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele17_SW_L1R_v2_OldMenu"], &b_HLT_Ele17_SW_L1R_v2_OldMenu_Prescl);
    fChain->SetBranchAddress("HLT_Ele17_SW_Isol_L1R_v2_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele17_SW_Isol_L1R_v2"], &b_HLT_Ele17_SW_Isol_L1R_v2_Prescl);
    fChain->SetBranchAddress("HLT_Ele17_SW_TighterEleIdIsol_L1R_v3_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele17_SW_TighterEleIdIsol_L1R_v3"], &b_HLT_Ele17_SW_TighterEleIdIsol_L1R_v3_Prescl);
    fChain->SetBranchAddress("HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2"], &b_HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2_Prescl);
@@ -9696,6 +9711,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_Photon15_TrackIso_Cleaned_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon15_TrackIso_Cleaned_L1R"], &b_HLT_Photon15_TrackIso_Cleaned_L1R_Prescl);
    fChain->SetBranchAddress("HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon15_LooseEcalIso_Cleaned_L1R"], &b_HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl);
    fChain->SetBranchAddress("HLT_Photon20_Cleaned_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon20_Cleaned_L1R"], &b_HLT_Photon20_Cleaned_L1R_Prescl);
+   fChain->SetBranchAddress("HLT_Photon20_Cleaned_L1R_OldMenu_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon20_Cleaned_L1R_OldMenu"], &b_HLT_Photon20_Cleaned_L1R_OldMenu_Prescl);
    fChain->SetBranchAddress("HLT_Photon30_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon30_L1R"], &b_HLT_Photon30_L1R_Prescl);
    fChain->SetBranchAddress("HLT_DoublePhoton4_eeRes_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton4_eeRes_L1R"], &b_HLT_DoublePhoton4_eeRes_L1R_Prescl);
    fChain->SetBranchAddress("HLT_DoublePhoton4_Jpsi_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton4_Jpsi_L1R"], &b_HLT_DoublePhoton4_Jpsi_L1R_Prescl);
