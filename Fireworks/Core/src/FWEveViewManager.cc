@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.43 2011/01/26 11:47:07 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.44 2011/01/31 16:36:20 matevz Exp $
 //
 
 // system include files
@@ -129,12 +129,8 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    eveSelection->Connect("SelectionRemoved(TEveElement*)","FWEveViewManager",this,"selectionRemoved(TEveElement*)");
    eveSelection->Connect("SelectionCleared()","FWEveViewManager",this,"selectionCleared()");
 
-
-
-#ifdef TEVEVIEW_TQSENDER_SIGNALS_FIX
    gEve->GetHighlight()->Connect("SelectionAdded(TEveElement*)","FWEveViewManager",this,"highlightAdded(TEveElement*)");
    gEve->GetHighlight()->Connect("SelectionRepeated(TEveElement*)","FWEveViewManager",this,"highlightAdded(TEveElement*)");
-#endif
 }
 
 FWEveViewManager::~FWEveViewManager()
