@@ -1,91 +1,112 @@
-#!/usr/bin/env python
+import FWCore.ParameterSet.Config as cms
 
-"""
-_recoTLR_
+def customiseCommon(process):
+    return (process)
 
-Util to retrieve the appropriate set of reco top-level patches
-from the Configuration/GlobalRuns package based on the release name
-
-"""
-
-
-# two helper functions
-def getRelease():
-    import os
-
-    try:
-        release=os.environ['CMSSW_VERSION']
-    except:
-        msg='No CMSSW_VERSION envvar defined'
-        raise RuntimeError,msg
-
-    sp=release.split('_')
-    if len(sp)<2:
-        raise RuntimeError,'Unexpected release name'+release
-    
-    return ''.join(sp[1:3])+'X'
-
-    #__import__(moduleName,globals(),locals(),[scenarioName])
-    #except ImportError, ex:
-
-
-def getCustomProcess(process,myname):
-    rel=getRelease()
-    try:
-        _temp=__import__('Configuration.GlobalRuns.reco_TLR_'+rel,globals(),locals(),[myname])
-    except ImportError,ex:
-        msg= 'Unable to import reco TLR configuration ' + str(ex)
-        raise RuntimeError,msg
-    
-    return getattr(_temp,myname)(process)
-    
 
 ##############################################################################
-import sys
 def customisePPData(process):
-    myname=sys._getframe().f_code.co_name
-    return getCustomProcess(process,myname)
+    process= customiseCommon(process)
 
-def customiseVALSKIM(process):
-    myname=sys._getframe().f_code.co_name
-    return getCustomProcess(process,myname)
-        
+    ## particle flow HF cleaning
+    process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
+    process.particleFlowRecHitHCAL.ApplyPulseDPG = True
+
+    ## HF cleaning for data only
+    process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
+    process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
+
+    ##beam-halo-id for data only
+    process.CSCHaloData.ExpectedBX = cms.int32(3)
+
+    ## hcal hit flagging
+    process.hfreco.PETstat.flagsToSkip  = 2
+    process.hfreco.S8S1stat.flagsToSkip = 18
+    process.hfreco.S9S1stat.flagsToSkip = 26
+
+    ##Ecal time bias correction
+    process.ecalGlobalUncalibRecHit.doEBtimeCorrection = True
+    process.ecalGlobalUncalibRecHit.doEEtimeCorrection = True
+    
+    return process
+
+
 ##############################################################################
 def customisePPMC(process):
-    myname=sys._getframe().f_code.co_name
-    return getCustomProcess(process,myname)
+    process=customiseCommon(process)
+    
+    return process
 
 ##############################################################################
 def customiseCosmicData(process):
-    myname=sys._getframe().f_code.co_name
-    return getCustomProcess(process,myname)
+
+    return process
 
 ##############################################################################
 def customiseCosmicMC(process):
-    myname=sys._getframe().f_code.co_name
-    return getCustomProcess(process,myname)
-
+    
+    return process
+        
+##############################################################################
+def customiseVALSKIM(process):
+    process= customisePPData(process)
+    process.reconstruction.remove(process.lumiProducer)
+    return process
+                
 ##############################################################################
 def customiseExpress(process):
-    myname=sys._getframe().f_code.co_name
-    return getCustomProcess(process,myname)
+    process= customisePPData(process)
+
+    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    
+    return process
 
 ##############################################################################
 def customisePrompt(process):
-    myname=sys._getframe().f_code.co_name
-    return getCustomProcess(process,myname)
+    process= customisePPData(process)
+    return process
+
+##############################################################################
+##############################################################################
+
+def customiseCommonHI(process):
+    
+    ###############################################################################################
+    ####
+    ####  Top level replaces for handling strange scenarios of early HI collisions
+    ####
+
+    ## Offline Silicon Tracker Zero Suppression
+    process.siStripZeroSuppression.Algorithms.CommonModeNoiseSubtractionMode = cms.string("IteratedMedian")
+    process.siStripZeroSuppression.Algorithms.CutToAvoidSignal = cms.double(2.0)
+    process.siStripZeroSuppression.Algorithms.Iterations = cms.int32(3)
+    process.siStripZeroSuppression.storeCM = cms.bool(True)
+
+
+    ###
+    ###  end of top level replacements
+    ###
+    ###############################################################################################
+
+    return process
 
 ##############################################################################
 def customiseExpressHI(process):
-    myname=sys._getframe().f_code.co_name
-    return getCustomProcess(process,myname)
+    process= customiseCommonHI(process)
+
+    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    
+    return process
 
 ##############################################################################
 def customisePromptHI(process):
-    myname=sys._getframe().f_code.co_name
-    return getCustomProcess(process,myname)
+    process= customiseCommonHI(process)
+
+    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    
+    return process
 
 ##############################################################################
-def customiseAlcaOnlyPromptHI(process):
-    myname=sys._getframe().f_code.co_name
-    return getCustomProcess(process,myname)
