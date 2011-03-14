@@ -32,6 +32,8 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
+         {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
+         {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
          {'PatCandidates'         : ['pat::PATObject','pat::Lepton']},
          {'BTauReco'              : ['reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo']},
          {'CastorReco'            : ['reco::CastorJet']},
