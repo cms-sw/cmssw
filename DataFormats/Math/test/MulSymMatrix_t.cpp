@@ -1,8 +1,8 @@
 // #include "DataFormats/Math/interface/MulSymMatrix.h"
 #include "Math/SMatrix.h"
 
-// typedef unsigned int IndexType;
-typedef unsigned long long IndexType;
+typedef unsigned int IndexType;
+//typedef unsigned long long IndexType;
 template<typename T, IndexType N>
 inline void
 mult(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & a, 
@@ -26,6 +26,40 @@ mult(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & a,
   }
 }
 
+
+template<typename T, IndexType N>
+inline void
+mult(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepStd<T,N> > & a, 
+     ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepStd<T,N> > const & rh,
+     ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepStd<T,N> > const & lh) {
+  // a(i,j) = r(i,k)*l(k,j)
+  for (IndexType i=0; i!=N; ++i) {
+    for (IndexType j=0; j<=i; ++j) {
+      a(i,j)=0;
+	//	a(i,j) += rh(i,k)*lh(k,j);
+      for (IndexType k=0; k!=N; ++k) 
+	a(i,j) += rh(i,k)*lh(j,k);
+    }
+    
+  }
+  
+  for (IndexType i=0; i!=N-1; ++i) 
+    for (IndexType j=i+1; j!=N; ++j)
+      a(i,j)=a(j,i);
+ 
+}
+
+template<typename M1, typename M2>
+double eps(M1 const & m1, M2 const & m2) {
+  IndexType N = M1::kRows;
+  double ret=0.;
+  for (IndexType i=0; i!=N; ++i)
+    for (IndexType j=0; j!=N; ++j) 
+      ret = std::max(ret,std::abs(m1(i,j)-m2(i,j)));
+  return ret;
+}
+
+
 #include<iostream>
 #include "FWCore/Utilities/interface/HRRealTime.h"
 
@@ -38,13 +72,16 @@ namespace {
   inline void
   fillRandom(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & a) {
     for (IndexType k=0; k!=N; ++k)
-      for (IndexType j=0; j!=(k+1); ++j)
+      for (IndexType j=0; j<=k; ++j)
 	a(k,j) =  rgen(eng);
   }
 }
 
 template<typename T, IndexType N>
-void go( edm::HRTimeType & s1, edm::HRTimeType & s2,  edm::HRTimeType & s3,  edm::HRTimeType & s4, bool print) {
+void go( edm::HRTimeType & s1, edm::HRTimeType & s2,  
+	 edm::HRTimeType & s3,  edm::HRTimeType & s4,  
+	 edm::HRTimeType & s5,
+	 bool print) {
   typedef ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepStd<T,N> > Matrix;
   typedef ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > SymMatrix;
 
@@ -55,6 +92,9 @@ void go( edm::HRTimeType & s1, edm::HRTimeType & s2,  edm::HRTimeType & s3,  edm
   Matrix mrh = rh;
   Matrix mlh = lh;
 
+
+
+
   SymMatrix a; 
   s1 = edm::hrRealTime();
   mult(a,rh,lh);
@@ -64,6 +104,8 @@ void go( edm::HRTimeType & s1, edm::HRTimeType & s2,  edm::HRTimeType & s3,  edm
   s2 = edm::hrRealTime();
   ROOT::Math::AssignSym::Evaluate(b, rh*lh);
   s2 =  edm::hrRealTime() -s2;
+
+  Matrix m0 = b;
 
 
   Matrix m;
@@ -76,35 +118,59 @@ void go( edm::HRTimeType & s1, edm::HRTimeType & s2,  edm::HRTimeType & s3,  edm
   ROOT::Math::AssignSym::Evaluate(sm,mrh*mlh);
   s4 =  edm::hrRealTime() -s4;
 
+  Matrix m2;
+  s5 = edm::hrRealTime();
+  mult(m2,mrh,mlh);
+  s5 =  edm::hrRealTime() -s5;
+
+
   SymMatrix smm; ROOT::Math::AssignSym::Evaluate(smm,m);
+  SymMatrix smm2; ROOT::Math::AssignSym::Evaluate(smm2,m2);
 
   if (print) {
-    if (smm!=b) std::cout << "problem with SMatrix *" << std::endl;
-    if (sm!=b) std::cout << "problem with SMatrix evaluate" << std::endl;
-    if (a!=b) std::cout << "problem with MulSymMatrix" << std::endl;
-    if (a!=smm) std::cout << "problem with MulSymMatrix twice" << std::endl;
+    std::cout << "eps s m " << eps(rh,mrh) << std::endl;
+    std::cout << "eps s m " << eps(lh,mlh) << std::endl;
+    std::cout << "eps s m " << eps(m,b) << std::endl;
+    std::cout << "eps s m " << eps(m2,b) << std::endl;
+
+    std::cout << b << std::endl;
+    std::cout << m << std::endl;
+
+    if (m!=m0) std::cout << "problem with SMatrix Assign " << eps(m,m0) << std::endl;
+    if (smm!=b) std::cout << "problem with SMatrix * " << eps(smm,b) << std::endl;
+    if (sm!=b) std::cout << "problem with SMatrix evaluate " << eps(sm,b) << std::endl;
+    if (a!=b) std::cout << "problem with MulSymMatrix " << eps(a,b) << std::endl;
+    if (a!=smm) std::cout << "problem with MulSymMatrix twice " << eps(a,smm) << std::endl;
+    if (m!=m2) std::cout << "problem with MulMatrix " << eps(m,m2) << std::endl;
+    if (smm!=smm2) std::cout << "problem with MulMatrix twice " << eps(smm,smm2) << std::endl;
     
     std::cout << "sym mult   " << s1 << std::endl;
     std::cout << "sym    *   " << s2 << std::endl;
     std::cout << "mat    *   " << s3 << std::endl;
     std::cout << "mat as sym " << s4 << std::endl;
+    std::cout << "mat mult   " << s5 << std::endl;
+  
   }
 
 }
  
 int main() {
-  edm::HRTimeType s1=0, s2=0, s3=0, s4=0;
-  go<double,15>(s1,s2,s3,s4,true);
+  edm::HRTimeType s1=0, s2=0, s3=0, s4=0, s5=0;
+ go<double,3>(s1,s2,s3,s4,s5, true);
+ 
 
-  edm::HRTimeType t1=0; edm::HRTimeType t2=0;  edm::HRTimeType t3=0; edm::HRTimeType t4=0;
+ go<double,15>(s1,s2,s3,s4,s5, true);
+
+  edm::HRTimeType t1=0; edm::HRTimeType t2=0;  edm::HRTimeType t3=0; edm::HRTimeType t4=0; edm::HRTimeType t5=0;
   for (int  i=0; i!=50000; ++i) {
-    go<double,15>(s1,s2,s3,s4, false);
-    t1+=s1; t2+=s2; t3+=s3; t4+=s4;
+    go<double,15>(s1,s2,s3,s4,s5, false);
+    t1+=s1; t2+=s2; t3+=s3; t4+=s4; t5+=s5;
   }
   std::cout << "sym mult   " << t1/50000 << std::endl;
   std::cout << "sym    *   " << t2/50000 << std::endl;
   std::cout << "mat    *   " << t3/50000 << std::endl;
   std::cout << "mat as sym " << t4/50000 << std::endl;
-
+  std::cout << "mat mult   " << t5/50000 << std::endl;
+ 
   return 0;
 }
