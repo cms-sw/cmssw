@@ -204,7 +204,6 @@ HLT_TrackerCalibration_v*
 HLT_Random_v*
 HLT_L1MuOpen_AntiBPTX_v*
 HLT_L1TrackerCosmics_v*
-HLT_L2MuOpen_NoVertex_v*
 HLT_L3MuonsCosmicTracking_v*
 HLT_RegionalCosmicTracking_v*
 HLT_LogMonitor_v*
