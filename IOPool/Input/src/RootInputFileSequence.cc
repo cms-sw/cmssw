@@ -563,6 +563,9 @@ namespace edm {
 
   void
   RootInputFileSequence::readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
+    if(0 != number && (fileIterEnd_ == fileIterBegin_) ) {
+      throw edm::Exception(edm::errors::Configuration) << "RootInputFileSequence::readManyRandom(): no input files specified.\n";
+    }
     result.reserve(number);
     if (!flatDistribution_) {
       Service<RandomNumberGenerator> rng;
@@ -602,6 +605,9 @@ namespace edm {
 
   void
   RootInputFileSequence::readManySequential(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
+    if(0 != number && (fileIterEnd_ == fileIterBegin_) ) {
+      throw edm::Exception(edm::errors::Configuration) << "RootInputFileSequence::readManySequential(): no input files specified.\n";
+    }
     result.reserve(number);
     skipBadFiles_ = false;
     if (fileIter_ == fileIterEnd_ || !rootFile_) {
