@@ -42,7 +42,7 @@ standAloneMuons = cms.EDProducer(
                                                        RescaleErrorFactor = cms.double(100.0),
                                                        Granularity = cms.int32(0),
                                                        UseInvalidHits = cms.bool(True),
-                                                       ExcludeRPCFromFit = cms.bool(True)
+                                                       ExcludeRPCFromFit = cms.bool(False)
                                                        )
             ),
         
@@ -64,7 +64,7 @@ standAloneMuons = cms.EDProducer(
                                                        RescaleErrorFactor = cms.double(100.0),
                                                        Granularity = cms.int32(2),
                                                        UseInvalidHits = cms.bool(True),
-                                                       ExcludeRPCFromFit = cms.bool(True)
+                                                       ExcludeRPCFromFit = cms.bool(False)
                                                        )
             ),
         DoRefit = cms.bool(False),
