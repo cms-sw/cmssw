@@ -227,7 +227,7 @@ void TrackClusterRemover::process(const SiStripRecHit2D *hit, uint32_t subdet) {
   if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
 
   strips[cluster.key()] = false;  
-  collectedStrip[hit->geographicalId()].insert(cluster);
+  if (!clusterWasteSolution_) collectedStrip[hit->geographicalId()].insert(cluster);
 }
 
 void TrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet) {
@@ -241,8 +241,7 @@ void TrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet) {
 
 //DBG// cout << "Individual HIT " << cluster.key().first << ", INDEX = " << cluster.key().second << endl;
     strips[cluster.key()] = false;
-
-    collectedStrip[hit->geographicalId()].insert(cluster);
+    if (clusterWasteSolution_) collectedStrip[hit->geographicalId()].insert(cluster);
 }
 
 
@@ -277,7 +276,7 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
         // mark as used
         pixels[cluster.key()] = false;
 	
-	collectedPixel[detid.rawId()].insert(cluster);
+	if(clusterWasteSolution_) collectedPixel[detid.rawId()].insert(cluster);
     } else { // aka Strip
         if (!doStrip_) return;
         const type_info &hitType = typeid(*hit);
