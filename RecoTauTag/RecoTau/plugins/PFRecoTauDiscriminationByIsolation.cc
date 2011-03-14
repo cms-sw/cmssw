@@ -135,16 +135,16 @@ double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
 
   //--- Sum PT requirement
   if( applySumPtCut_ || applyRelativeSumPtCut_ ) {
-    reco::Particle::LorentzVector totalP4;
+    double totalPt = 0.0;
     BOOST_FOREACH(const LeafCandidate& isoObject, isoObjects) {
-      totalP4 += isoObject.p4();
+      totalPt += isoObject.pt();
     }
 
-    failsSumPtCut = (totalP4.pt() > maximumSumPt_);
+    failsSumPtCut = (totalPt > maximumSumPt_);
 
     //--- Relative Sum PT requirement
     failsRelativeSumPtCut = (
-        (pfTau->pt() > 0 ? totalP4.pt()/pfTau->pt() : 0 )
+        (pfTau->pt() > 0 ? totalPt/pfTau->pt() : 0 )
         > maximumRelativeSumPt_ );
   }
 
