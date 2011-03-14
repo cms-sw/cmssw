@@ -88,6 +88,7 @@ def searchClassDefXml (srcDir):
     spacesRE       = re.compile (r'\s+')
     stdRE          = re.compile (r'std::')
     srcClassNameRE = re.compile (r'(\w+)/src/classes_def.xml')
+    ignoreSrcRE    = re.compile (r'.*/FWCore/Skeletons/scripts/mkTemplates/.+')
     braketRE       = re.compile (r'<.+>')
     # get the source directory we want
     if not len (srcDir):
@@ -116,10 +117,9 @@ def searchClassDefXml (srcDir):
                 explicitREs.append( (re.compile(r'\b' + equiv + r'\b'),pack))
     if options.lostDefs:
         for filename in xmlFiles:
-            if not filename: continue
+            if (not filename) or (ignoreSrcRE.match(filename)): continue
             match = srcClassNameRE.search (filename)
-	    if not match:
-                continue
+            if not match: continue
             packageName = match.group(1)
             xmlPackages.append (packageName)
             matchString = r'\b' + packageName + r'\b'
@@ -134,7 +134,7 @@ def searchClassDefXml (srcDir):
     classDict = {}
     ncdict = {'class' : 'className'}
     for filename in xmlFiles:
-        if not filename: continue
+        if (not filename) or (ignoreSrcRE.match(filename)): continue
         dupProblems     = ''
         exceptName      = ''
         regexList       = []
