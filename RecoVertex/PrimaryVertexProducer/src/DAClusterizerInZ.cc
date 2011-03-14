@@ -519,18 +519,30 @@ const
 
   // select significant tracks and use a TransientVertex as a container
   GlobalError dummyError; 
+
+
+  // ensure correct normalization of probabilities, should makes double assginment reasonably impossible
+  for(unsigned int i=0; i<nt; i++){  
+    tks[i].Z=0;
+    for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){ 
+      tks[i].Z+=k->pk * exp(-beta*Eik(tks[i],*k));
+    }
+  }
+
+
   for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){ 
     GlobalPoint pos(0, 0, k->z);
     vector< reco::TransientTrack > vertexTracks;
     for(unsigned int i=0; i<nt; i++){
       if(tks[i].Z>0){
 	double p=k->pk * exp(-beta*Eik(tks[i],*k)) / tks[i].Z;
-	if( (tks[i].pi>0) && ( p > 0.5 ) ){ vertexTracks.push_back(*(tks[i].tt));}
+	if( (tks[i].pi>0) && ( p > 0.5 ) ){ vertexTracks.push_back(*(tks[i].tt)); tks[i].Z=0; } // setting Z=0 excludes double assignment
       }
     }
     TransientVertex v(pos, dummyError, vertexTracks, 0);
     clusters.push_back(v);
   }
+
 
   return clusters;
 
