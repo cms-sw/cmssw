@@ -71,16 +71,11 @@ public:
   
  protected:
 
-
-  std::string barrelecalCollection_;
-  std::string barrelecalProducer_;
-  std::string endcapecalCollection_;
-  std::string endcapecalProducer_;
-  std::string hcalCollection_;
-  std::string hcalProducer_;
+  edm::InputTag barrelecalCollection_;
+  edm::InputTag endcapecalCollection_;
+  edm::InputTag hcalCollection_;
 
   edm::InputTag trackInputTag_;
-  //  edm::InputTag gsfRecoInputTag_;
   edm::InputTag beamSpotProducerTag_;
   double modulePhiBoundary_;
   std::vector<double> moduleEtaBoundary_;

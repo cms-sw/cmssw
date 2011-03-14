@@ -48,12 +48,9 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
 
   trackInputTag_ = conf.getParameter<edm::InputTag>("trackProducer");
   beamSpotProducerTag_ = conf.getParameter<edm::InputTag>("beamSpotProducer");
-  barrelecalCollection_ = conf.getParameter<std::string>("barrelEcalRecHitCollection");
-  barrelecalProducer_ = conf.getParameter<std::string>("barrelEcalRecHitProducer");
-  endcapecalCollection_ = conf.getParameter<std::string>("endcapEcalRecHitCollection");
-  endcapecalProducer_ = conf.getParameter<std::string>("endcapEcalRecHitProducer");
-  hcalCollection_ = conf.getParameter<std::string>("HcalRecHitCollection");
-  hcalProducer_ = conf.getParameter<std::string>("HcalRecHitProducer");
+  barrelecalCollection_ = conf.getParameter<edm::InputTag>("barrelEcalRecHitCollection");
+  endcapecalCollection_ = conf.getParameter<edm::InputTag>("endcapEcalRecHitCollection");
+  hcalCollection_ = conf.getParameter<edm::InputTag>("HcalRecHitCollection");
 
   //  gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
   modulePhiBoundary_ = conf.getParameter<double>("modulePhiBoundary");
@@ -536,9 +533,9 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   edm::Handle<EcalRecHitCollection> ecalhitsCollEB;
   edm::Handle<EcalRecHitCollection> ecalhitsCollEE;
 
-  iEvent.getByLabel(endcapecalProducer_,endcapecalCollection_, ecalhitsCollEE);
+  iEvent.getByLabel(endcapecalCollection_, ecalhitsCollEE);
   
-  iEvent.getByLabel(barrelecalProducer_,barrelecalCollection_, ecalhitsCollEB);
+  iEvent.getByLabel(barrelecalCollection_, ecalhitsCollEB);
  
   const EcalRecHitCollection* rechitsCollectionEE_ = ecalhitsCollEE.product();
   const EcalRecHitCollection* rechitsCollectionEB_ = ecalhitsCollEB.product();
@@ -610,7 +607,7 @@ double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* phot
 
   edm::Handle<CaloTowerCollection> hcalhitsCollH;
  
-  iEvent.getByLabel(hcalProducer_,hcalCollection_, hcalhitsCollH);
+  iEvent.getByLabel(hcalCollection_, hcalhitsCollH);
   
   const CaloTowerCollection *toww = hcalhitsCollH.product();
 
@@ -618,9 +615,9 @@ double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* phot
   
   //std::cout << "before iso call" << std::endl;
   EgammaTowerIsolation phoIso(RCone,
-			      RConeInner,
-			      eMin,depth,
-			      toww);
+                              RConeInner,
+                              eMin,depth,
+                              toww);
   ecalIsol = phoIso.getTowerEtSum(photon);
   //  delete phoIso;
   //std::cout << "after call" << std::endl;

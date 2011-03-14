@@ -7,16 +7,11 @@ from RecoEcal.EgammaClusterProducers.ecalSeverityLevelFlags_cfi import *
 isolationSumsCalculator = cms.PSet(
     #required inputs
     ComponentName = cms.string('isolationSumsCalculator'),
-    #What collection of photons do I run on?
-    #What labels do I use for my products?
-    #What rechit collection do I use for ECAL iso?                          
-    barrelEcalRecHitProducer = cms.string('ecalRecHit'),
-    barrelEcalRecHitCollection = cms.string('EcalRecHitsEB'),
-    endcapEcalRecHitProducer = cms.string('ecalRecHit'),
-    endcapEcalRecHitCollection = cms.string('EcalRecHitsEE'),
-    #What tower collection do I use for HCAL iso?
-    HcalRecHitProducer = cms.string('towerMaker'),
-    HcalRecHitCollection = cms.string(''),
+
+    barrelEcalRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEB'),
+    endcapEcalRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEE'),
+    HcalRecHitCollection = cms.InputTag('towerMaker'),
+    
     # Photon will be marked as being near phi module boundary if
     #  it is closer than this.  Currently half a crystal.
     #  1 Ecal Crystal = 0.0174 radians = 1 degree
