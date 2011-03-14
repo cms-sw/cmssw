@@ -14,13 +14,16 @@ Author: Evan K. Friis (UC Davis)
 
 '''
 
-sampleId = None
-sampleName = None
+# We have to put working defaults here since multicrab doesn't respect the fact
+# that we require good argv to be passed
+sampleId = -999
+sampleName = "ErrorParsingCLI"
 
-print sys.argv
 if not hasattr(sys, "argv"):
-    raise ValueError, "Can't extract CLI arguments!"
+    #raise ValueError, "Can't extract CLI arguments!"
+    print "ERROR: Can't extract CLI arguments!"
 else:
+    print sys.argv
     argOffset = 0
     if sys.argv[0] != 'cmsRun':
         argOffset = 1

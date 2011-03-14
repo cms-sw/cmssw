@@ -21,12 +21,15 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource", fileNames = readFiles,
                             secondaryFileNames = secFiles)
-filterType = None
-sampleId = None
-conditions=None
+
+# We have to put working defaults here since multicrab doesn't respect the fact
+# that we require good argv to be passed
+filterType ="filterWJets_cfi"
+sampleId = -999
+conditions="ErrorParsingCLI"
 
 if not hasattr(sys, "argv"):
-    raise ValueError, "Can't extract CLI arguments!"
+    print "ERROR: Can't extract CLI arguments!"
 else:
     argOffset = 0
     if sys.argv[0] != 'cmsRun':
@@ -40,6 +43,7 @@ else:
     conditions = rawOptions.split(',')[2]
 
 print "Loading filter type"
+
 process.load(filterType)
 
 # Load standard services
