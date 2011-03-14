@@ -135,7 +135,7 @@ namespace edm {
       // nint.push_back( 1 );
       } 
       else if(manage_OOT_) {
-	if(i==0) nint.push_back(nzero_crossing);
+	if(i==0 && !poisson_OOT_) nint.push_back(nzero_crossing);
 	else{
 	  if(poisson_OOT_) {
 	    nint.push_back( poissonDistr_OOT_->fire(float(nzero_crossing)) );
