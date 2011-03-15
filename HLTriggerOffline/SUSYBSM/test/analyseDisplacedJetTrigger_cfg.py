@@ -11,7 +11,8 @@ hltTriggerProcess = "HLT"
 
 # Only analyse events passing this control trigger, chosen to selected an unbiased event sample for the
 # displaced jet trigger. If empty, then all events are used.
-skimTriggers =  ['HLT_HT240_v1']
+skimTriggers =  ['HLT_HT240_v2']
+#skimTriggers = ['HLT_2DisplacedHT240']
 #skimTriggers =  [] 
 
 #########################
@@ -24,13 +25,13 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 
 if DATA:
   print "Reading real data"
-  process.GlobalTag.globaltag = 'GR_R_311_V1::All'
+  process.GlobalTag.globaltag = 'GRP311L1HLTV0::All'
 #  Don't use MC truth if real data ...
   runOnData(process)
 
 else:
   print "Reading MC"
-  process.GlobalTag.globaltag = 'START311_V1::All'
+  process.GlobalTag.globaltag = 'L1HLTST311_V0::All'
 
 # Kill all PAT objects except jets.
 removeAllPATObjectsBut(process, ['Jets','METs'] )
@@ -42,6 +43,10 @@ process.selectedPatJets.cut = cms.string("et > 30 && abs(eta) < 3.0")
 process.patJets.trackAssociationSource = cms.InputTag("displacedJetAssociator")
 process.patJets.discriminatorSources = cms.VInputTag(
         cms.InputTag("displacedJetTags"),
+)
+process.patJets.addTagInfos = cms.bool(True)
+process.patJets.tagInfoSources = cms.VInputTag(
+        cms.InputTag("displacedJetTagInfos"),
 )
 
 # Disable cleaning
@@ -67,16 +72,17 @@ process.load("HLTriggerOffline.SUSYBSM.displacedJetTagger_cff")
 #########################
                                          
 process.source.fileNames = [          
-    'file:/opt/ppd/cms/users/tomalin/sim_reco.root'
+    'file:/opt/ppd/cms/users/tomalin/mc_reco_taufix.root'
 
-#    'file:/opt/ppd/cms/users/tomalin/data_reco1.root',
+#    'file:/opt/ppd/cms/users/tomalin/data_reco_taufix1.root',
+#    'file:/opt/ppd/cms/users/tomalin/data_reco_taufix2.root'
 ]
 
 process.maxEvents.input = -1
 
 process.outpath.remove(process.out)
 
-process.MessageLogger.cerr.INFO.limit = 10
+process.MessageLogger.cerr.INFO.limit = 1000
 #process.MessageLogger.categories = cms.untracked.vstring('AnalyseDisplacedJetTrigger')
 
 process.options.SkipEvent = cms.untracked.vstring('ProductNotFound')
