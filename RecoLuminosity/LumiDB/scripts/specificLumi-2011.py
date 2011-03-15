@@ -115,7 +115,7 @@ def getSpecificLumi(dbsession,parameters,fillnum,inputdir):
             beamstatusfrac=0.0
             if beamstatusflag=='STABLE BEAMS':
                 beamstatusfrac=1.0
-            lstimestamp=t.OrbitToTimestamp(starttime,startorbit)
+            lstimestamp=t.OrbitToUTCTimestamp(starttime,startorbit)
             if beamintensitydata.has_key(startorbit) and len(beamintensitydata[startorbit])>0:
                 for lumidata in lumilist:
                     bxidx=lumidata[0]
