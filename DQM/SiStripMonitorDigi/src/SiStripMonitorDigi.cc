@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.62 2010/07/30 16:48:59 wmtan Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.63 2011/03/03 08:21:15 borrell Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -44,11 +44,11 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
 
   // Detector Partitions
   SubDetPhasePartMap["TIB"]        = "TI";
-  SubDetPhasePartMap["TID_side_1"] = "TI";
-  SubDetPhasePartMap["TID_side_2"] = "TI";
+  SubDetPhasePartMap["TID__side__1"] = "TI";
+  SubDetPhasePartMap["TID__side__2"] = "TI";
   SubDetPhasePartMap["TOB"]        = "TO";
-  SubDetPhasePartMap["TEC_side_1"] = "TM";
-  SubDetPhasePartMap["TEC_side_2"] = "TP";
+  SubDetPhasePartMap["TEC__side__1"] = "TM";
+  SubDetPhasePartMap["TEC__side__2"] = "TP";
 
   // get Digi Producer List   
   digiProducerList = conf_.getParameter<std::vector<edm::InputTag> >("DigiProducersList");
