@@ -55,6 +55,12 @@ inline void
 similarity(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepStd<T,N> > & b, 
 	   ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepStd<T,N> > const & u,
 	   ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepStd<T,N> > const & a) {
+  for (IndexType i=0; i!=N; ++i) 
+    for (IndexType j=0; j<=i; ++j) 
+      for (IndexType k=0; k!=N; ++k) 
+	for (IndexType l=0; l!=N; ++l) 
+	  b(i,j) += u(i,k)*a(k,l)*u(j,l);
+  /*
   T s[N];
   for (IndexType i=0; i!=N; ++i) 
     for (IndexType j=0; j<=i; ++j) { 
@@ -66,6 +72,7 @@ similarity(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepStd<T,N> > & b,
       for (IndexType k=0; k!=N; ++k)
 	b(i,j) += u(i,k)*s[k];
     }
+  */
 }
 
 // U(k,i) * A(k,l) * U(l,j)
@@ -129,15 +136,15 @@ void go( edm::HRTimeType & s1, edm::HRTimeType & s2,
 
   SymMatrix rh;
   s6 = edm::hrRealTime();
-  rh =  ROOT::Math::Similarity(j1, is);
+  rh =  ROOT::Math::SimilarityT(j1, is);
   s6 =  edm::hrRealTime() -s6;
 
   Matrix mlh;
   s7 = edm::hrRealTime();
-  similarity(mlh,j2,im);
+  similarityT(mlh,j2,im);
   s7 =  edm::hrRealTime() -s7;
 
-  SymMatrix lh = ROOT::Math::Similarity(j2, is);
+  SymMatrix lh = ROOT::Math::SimilarityT(j2, is);
 
   Matrix mrh = rh;
 
