@@ -8,6 +8,7 @@
   <use   name="DataFormats/BeamSpot"/>
   <use   name="DataFormats/BTauReco"/>
   <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/Math"/>
   <use   name="DataFormats/EgammaCandidates"/>
   <use   name="DataFormats/EgammaReco"/>
   <use   name="DataFormats/HLTReco"/>
