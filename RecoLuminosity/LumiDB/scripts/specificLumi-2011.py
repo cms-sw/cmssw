@@ -160,8 +160,8 @@ def specificlumiTofile(fillnum,filldata,outdir):
         if cmsbxidx!=0:
             lhcbucket=(cmsbxidx-1)*10+1
         a=sorted(perbxdata,key=lambda x:x[0])
-        lscounter=0
         filename=str(fillnum)+'_lumi_'+str(lhcbucket)+'_CMS.txt'
+        linedata=[]
         for perlsdata in a:
             ts=int(perlsdata[0])
             beamstatusfrac=perlsdata[1]
@@ -172,20 +172,22 @@ def specificlumiTofile(fillnum,filldata,outdir):
             speclumi=perlsdata[6]
             speclumierror= perlsdata[7]
             if lumi>0 and lumierror>0 and speclumi>0:
-                if lscounter==0:
-                    f=open(os.path.join(filloutdir,filename),'w')
-                print >>f, '%d\t%e\t%e\t%e\t%e\t%e'%(ts,beamstatusfrac,lumi,lumierror,speclumi,speclumierror)
+                linedata.append([ts,beamstatusfrac,lumi,lumierror,speclumi,speclumierror])
             if not timedict.has_key(ts):
-                timedict[ts]=[]
+                  timedict[ts]=[]
             timedict[ts].append([beamstatusfrac,lumi,lumierror,speclumi,speclumierror])
-            lscounter+=1
-        f.close()
+        if len(linedata)>10:#at least 10 good ls
+            f=open(os.path.join(filloutdir,filename),'w')
+            for line in linedata:
+                print >>f, '%d\t%e\t%e\t%e\t%e\t%e'%(line[0],line[1],line[2],line[3],line[4],line[5])
+            f.close()
     #print 'writing avg file'
     summaryfilename=str(fillnum)+'_lumi_CMS.txt'
-    f=open(os.path.join(filloutdir,summaryfilename),'w')
+    f=None
     lstimes=timedict.keys()
     lstimes.sort()
     fillseg=[]
+    lscounter=0
     for lstime in lstimes:
         allvalues=timedict[lstime]
         transposedvalues=CommonUtil.transposed(allvalues,0.0)
@@ -201,8 +203,12 @@ def specificlumiTofile(fillnum,filldata,outdir):
         specificerrs=transposedvalues[4]
         specifictoterr=math.sqrt(sum(map(lambda x:x**2,specificerrs)))
         specificerravg=specifictoterr/float(len(specificvals))
+        if lscounter==0:
+            f=open(os.path.join(filloutdir,summaryfilename),'w')
+        lscounter+=1
         print >>f,'%d\t%e\t%e\t%e\t%e\t%e'%(lstime,bstatfrac,lumitot,lumierrortot,specificavg,specificerravg)
-    f.close()
+    if f is not None:
+        f.close()
     #print 'writing summary file'
     fillsummaryfilename=str(fillnum)+'_summary_CMS.txt'
     f=open(os.path.join(filloutdir,fillsummaryfilename),'w')    
