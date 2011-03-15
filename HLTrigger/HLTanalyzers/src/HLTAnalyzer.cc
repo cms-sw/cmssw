@@ -308,6 +308,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::InputTag ecalRechitEBTag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
     edm::InputTag ecalRechitEETag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
     EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
+
+    edm::Handle<reco::HFEMClusterShapeAssociationCollection> electronHFClusterAssociation;   
+    iEvent.getByLabel(edm::InputTag("hltHFEMClusters"),electronHFClusterAssociation);
     
     edm::ESHandle<MagneticField>                theMagField;
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
@@ -537,6 +540,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                           electronR9IDNonIsoHandle,
 			  electronHFClusterHandle,
 			  electronHFElectronHandle,
+			  electronHFClusterAssociation,  
                           HltTree);
     
     mct_analysis_.analyze(

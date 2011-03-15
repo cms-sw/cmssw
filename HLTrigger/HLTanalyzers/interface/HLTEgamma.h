@@ -43,6 +43,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
+#include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
+#include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -101,6 +103,7 @@ public:
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDNonIsoMap,
       const edm::Handle<reco::SuperClusterCollection>        & electronHFClusterHandle, 
       const edm::Handle<reco::RecoEcalCandidateCollection>   & electronHFElectronHandle,  
+      const edm::Handle<reco::HFEMClusterShapeAssociationCollection> & electronHFClusterAssociation,  
       TTree* tree);
 
 private:
@@ -188,7 +191,7 @@ private:
   int *heleNewSC;
   int nele, nphoton, nhltgam, nhltele, nhlthfele, nhlthfeclus;
 
-  float *hhfelept, *hhfeleeta, *hhfclustere9e25, *hhfcluster2Dcut; 
+  float *hhfelept, *hhfeleeta, *hhfclustere9e25, *hhfcluster2Dcut, *hhfclustereta, *hhfclusterphi; 
 
 
   struct OpenHLTPhoton {

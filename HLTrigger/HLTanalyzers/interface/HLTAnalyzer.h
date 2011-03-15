@@ -36,6 +36,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
+#include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 
 /** \class HLTAnalyzer
   *  
