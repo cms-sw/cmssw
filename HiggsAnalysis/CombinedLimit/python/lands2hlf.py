@@ -31,18 +31,13 @@ for l in file:
         obs = [ float(x) for x in f[1:] ]
         if nbins == -1: nbins = len(obs)
         if len(obs) != nbins: raise RuntimeError, "Found %d observations but %d bins have been declared" % (len(obs), nbins)
-        if bins != []:
+        if binline != []:
+            if len(binline) != len(obs): raise RuntimeError, "Found %d bins (%s) but %d bins have been declared" % (len(bins), bins, nbins)
+            bins = binline
             obs = dict([(b,obs[i]) for i,b in enumerate(bins)])
+            binline = []
     if f[0] == "bin": 
-        if obs == []: # (optional) bin line before observation
-            bins = f[1:]
-            if nbins == -1: nbins = len(bins)
-            if len(bins) != nbins: raise RuntimeError, "Found %d bins (%s) but %d bins have been declared" % (len(bins), bins, nbins)
-        else: 
-            binline = f[1:] # binline before processes
-        #if len(f[1:]) != nbins * nprocesses: raise RuntimeError, "Malformed bin line: len %d, while nbins*nprocesses = %d*%d" % (len(f[1:]), nbins,nprocesses)
-        #for (i,x) in enumerate(f[1:]):
-        #    if x != str(i/nprocesses+1): raise RuntimeError, "Malformed bin line for %d nprocesses: %s" % (nprocesses, line)
+        binline = f[1:] 
     if f[0] == "process": 
         if processline == []: # first line contains names
             processline = f[1:]
@@ -66,7 +61,7 @@ for l in file:
         if nbins      != len(bins):      raise RuntimeError, "Found %d bins (%s), declared jmax = %d" % (len(bins),bins,nbins)
         exp = dict([(b,{}) for b in bins])
         isSignal = dict([(p,None) for p in processes])
-        if type(obs) == list: # still as list, must change into map with bin names
+        if obs != [] and type(obs) == list: # still as list, must change into map with bin names
             obs = dict([(b,obs[i]) for i,b in enumerate(bins)])
         for (b,p,s) in keyline:
             if isSignal[p] == None: 
