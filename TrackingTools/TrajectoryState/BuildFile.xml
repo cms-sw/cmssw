@@ -3,6 +3,7 @@
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrajectoryState"/>
+<use   name="DataFormats/BeamSpot"/>
 <use   name="TrackingTools/AnalyticalJacobians"/>
 <use   name="TrackingTools/TrajectoryParametrization"/>
 <export>

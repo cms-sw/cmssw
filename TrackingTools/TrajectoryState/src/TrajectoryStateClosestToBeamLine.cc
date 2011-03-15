@@ -11,7 +11,7 @@ Measurement1D TrajectoryStateClosestToBeamLine::transverseImpactParameter() cons
 {
   if (!isValid()) throw TrajectoryStateException(
     "TrajectoryStateClosestToBeamLine is invalid.");
-  AlgebraicSymMatrix33 error = theBeamSpot.covariance3D() +
+  AlgebraicSymMatrix33 error = theBeamSpot.rotatedCovariance3D() +
 	theFTS.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(0,0);
 
   GlobalPoint impactPoint=theFTS.position();
