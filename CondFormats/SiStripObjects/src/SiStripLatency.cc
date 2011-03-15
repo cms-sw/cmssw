@@ -152,6 +152,20 @@ void SiStripLatency::allModes(std::vector<uint16_t> & allModesVector) const
   allModesVector.erase( unique( allModesVector.begin(), allModesVector.end() ), allModesVector.end() );
 }
 
+bool SiStripLatency::allPeak() const
+{
+  if( (singleMode() & 8) == 8 ) return true;
+  // If we are here the Tracker is not in single mode. Check if it is in single Read-out mode.
+  bool allInPeakMode = true;
+  std::vector<uint16_t> allModesVector;
+  allModes(allModesVector);
+  std::vector<uint16_t>::const_iterator it = allModesVector.begin();
+  for( ; it != allModesVector.end(); ++it ) {
+    if( ((*it) & 8) == 0 ) allInPeakMode = false;
+  }
+  return allInPeakMode;
+}
+
 void SiStripLatency::allLatencies(std::vector<uint16_t> & allLatenciesVector) const
 {
 //   if( !(latencies_.empty()) ) {

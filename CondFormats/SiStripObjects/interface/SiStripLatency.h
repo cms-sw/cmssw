@@ -11,11 +11,12 @@
  * The latency is stored per apv and the information is compressed by reducing
  * sequences of apvs with the same latency to a single value plus information on the
  * start and end of the sequence. <br>
- * The mode is a single value, stored as a char defined as: <br>
- * - mode == 37 : deconvolution mode <br>
- * - mode == 47 : peak mode <br>
- * See here http://www.id.clrc.ac.uk/INS/Electronic_Systems/Microelectronics_Design/Projects/High_Energy_Physics/CMS/APV25-S1/files/User_Guide_2.0.pdf
- * page 13 section 6.5 table 7 for the definition of possible modes. <br>
+ * The mode is a single value, stored as a char. The actual operation mode bit is bit number
+ * 3 starting from 0. The bitmask to retrieve the information in the number 8 (1000). <br>
+ * - (mode & 8) == 0 : deconvolution mode <br>
+ * - (mode & 8) == 8 : peak mode <br>
+ * See here http://cdsweb.cern.ch/record/1069892
+ * page 13 section 5.5 table 7 for the definition of possible modes. <br>
  * The put method requires the latency and mode values for a given apv and detId. <br>
  * <br>
  * The internal Latency object stores the detId and apv value in a compressed
@@ -37,6 +38,7 @@
  * The method allLatencyAndModes() returns the internal vector<Latency> (by value).
  * <br>
  * The method allUniqueLatencyAndModes() returns all the combinations of latency and mode present. <br>
+ * The method allPeak() returns a bool true if all the modes are in peak. <br>
  * ATTENTION: This method assumes that latency and mode are stored in a unsinged short.
  * <br>
  * The method allModes (allLatencies) fill the passed vector with all different modes
@@ -91,6 +93,7 @@ class SiStripLatency
   void allLatencies(std::vector<uint16_t> & allLatenciesVector) const;
   /// Fills the passed vector with all the possible modes in the Tracker
   void allModes(std::vector<uint16_t> & allModesVector) const;
+  bool allPeak() const;
 
   std::vector<Latency> allUniqueLatencyAndModes();
 
