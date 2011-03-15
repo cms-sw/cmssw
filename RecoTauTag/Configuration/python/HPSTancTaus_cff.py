@@ -122,7 +122,7 @@ hpsTancTausDiscriminationByDecayModeSelection = \
             PFTauProducer = cms.InputTag("hpsTancTaus"),
         )
 
-from RecoTauTag.Configuration.HPSPFTaus_cfi import requireDecayMode,\
+from RecoTauTag.Configuration.HPSPFTaus_cff import requireDecayMode,\
         hpsPFTauDiscriminationByVLooseIsolation,\
         hpsPFTauDiscriminationByLooseIsolation,\
         hpsPFTauDiscriminationByMediumIsolation,\

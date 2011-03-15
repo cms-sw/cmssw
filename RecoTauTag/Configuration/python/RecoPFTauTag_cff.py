@@ -39,12 +39,12 @@ ak5PFJetsRecoTauPiZeros.jetSrc = cms.InputTag("ak5PFJets")
 #-------------------------------------------------------------------------------
 #------------------ Fixed Cone Taus --------------------------------------------
 #-------------------------------------------------------------------------------
-from RecoTauTag.Configuration.FixedConePFTaus_cfi import *
+from RecoTauTag.Configuration.FixedConePFTaus_cff import *
 
 #-------------------------------------------------------------------------------
 #------------------ Shrinking Cone Taus ----------------------------------------
 #-------------------------------------------------------------------------------
-from RecoTauTag.Configuration.ShrinkingConePFTaus_cfi import *
+from RecoTauTag.Configuration.ShrinkingConePFTaus_cff import *
 # Use the legacy PiZero reconstruction for shrinking cone taus
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
         ak5PFJetsLegacyTaNCPiZeros, ak5PFJetsLegacyHPSPiZeros
@@ -79,8 +79,8 @@ combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
 #------------------ HPS Taus ---------------------------------------------------
 #-------------------------------------------------------------------------------
 
-from RecoTauTag.Configuration.HPSPFTaus_cfi import *
-from RecoTauTag.Configuration.HPSTancTaus_cfi import *
+from RecoTauTag.Configuration.HPSPFTaus_cff import *
+from RecoTauTag.Configuration.HPSTancTaus_cff import *
 ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
 
 # FIXME remove this once final pi zero reco is decided
