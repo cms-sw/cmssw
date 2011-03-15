@@ -11,30 +11,83 @@ file = open(args[0], "r")
 ROOFIT_EXPR = "cexpr" if options.cexpr else "expr"  # change to cexpr to use compiled expressions (faster, but takes more time to start up)
 
 N_OBS_MAX = 10000
-bins      = 1
-processes = 1
+nbins      = 1; bins = []
+nprocesses = 1; processes = []
 nuisances = -1;
 obs = []; exp = []; systs = []
+keyline = [];  # line that maps each column into bin and process. list of pairs (bin,process,signalT)
+binline = []; processline = []; sigline = []
+isSignal = {}; signals = [];
 for l in file:
     f = l.split();
     if len(f) < 1: continue
-    if f[0] == "imax": bins      = int(f[1])
-    if f[0] == "jmax": processes = int(f[1])+1
-    if f[0] == "kmax": nuisances = int(f[1]) if f[1] != "*" else -1;
-    if f[0] == "Observation": 
+    if f[0] == "imax": 
+        nbins = int(f[1]) if f[1] != "*" else -1
+    if f[0] == "jmax": 
+        nprocesses = int(f[1])+1 if f[1] != "*" else -1
+    if f[0] == "kmax": 
+        nuisances = int(f[1]) if f[1] != "*" else -1
+    if f[0] == "Observation" or f[0] == "observation": 
         obs = [ float(x) for x in f[1:] ]
-        if len(obs) != bins: raise RuntimeError, "Found %d observations but %d bins" % (len(obs), bins)
+        if nbins == -1: nbins = len(obs)
+        if len(obs) != nbins: raise RuntimeError, "Found %d observations but %d bins have been declared" % (len(obs), nbins)
+        if bins != []:
+            obs = dict([(b,obs[i]) for i,b in enumerate(bins)])
     if f[0] == "bin": 
-        if len(f[1:]) != bins * processes: raise RuntimeError, "Malformed bin line: len %d, while bins*processes = %d*%d" % (len(f[1:]), bins,processes)
-        for (i,x) in enumerate(f[1:]):
-            if x != str(i/processes+1): raise RuntimeError, "Malformed bin line for %d processes: %s" % (processes, line)
+        if obs == []: # (optional) bin line before observation
+            bins = f[1:]
+            if nbins == -1: nbins = len(bins)
+            if len(bins) != nbins: raise RuntimeError, "Found %d bins (%s) but %d bins have been declared" % (len(bins), bins, nbins)
+        else: 
+            binline = f[1:] # binline before processes
+        #if len(f[1:]) != nbins * nprocesses: raise RuntimeError, "Malformed bin line: len %d, while nbins*nprocesses = %d*%d" % (len(f[1:]), nbins,nprocesses)
+        #for (i,x) in enumerate(f[1:]):
+        #    if x != str(i/nprocesses+1): raise RuntimeError, "Malformed bin line for %d nprocesses: %s" % (nprocesses, line)
     if f[0] == "process": 
-        if len(f[1:]) < bins * processes: raise RuntimeError, "Malformed process line: len %d, while bins*processes = %d*%d" % (len(f[1:]), bins,processes)
+        if processline == []: # first line contains names
+            processline = f[1:]
+            if len(binline) != len(processline): raise RuntimeError, "'bin' line has a different length than 'process' line."
+            continue
+        sigline = f[1:] # second line contains ids
+        if len(sigline) != len(processline): raise RuntimeError, "'bin' line has a different length than 'process' line."
+        hadBins = (len(bins) > 0)
+        for i,b in enumerate(binline):
+            p = processline[i];
+            s = (int(sigline[i]) <= 0) # <=0 for signals, >0 for backgrounds
+            keyline.append((b, processline[i], s))
+            if hadBins:
+                if b not in bins: raise RuntimeError, "Bin %s not among the declared bins %s" % (b, bins)
+            else:
+                if b not in bins: bins.append(b)
+            if p not in processes: processes.append(p)
+        if nprocesses == -1: nprocesses = len(processes)
+        if nbins      == -1: nbins      = len(bins)
+        if nprocesses != len(processes): raise RuntimeError, "Found %d processes (%s), declared jmax = %d" % (len(processes),processes,nprocesses)
+        if nbins      != len(bins):      raise RuntimeError, "Found %d bins (%s), declared jmax = %d" % (len(bins),bins,nbins)
+        exp = dict([(b,{}) for b in bins])
+        isSignal = dict([(p,None) for p in processes])
+        if type(obs) == list: # still as list, must change into map with bin names
+            obs = dict([(b,obs[i]) for i,b in enumerate(bins)])
+        for (b,p,s) in keyline:
+            if isSignal[p] == None: 
+                isSignal[p] = s
+            elif isSignal[p] != s:
+                raise RuntimeError, "Process %s is declared as signal in some bin and as background in some other bin" % p
+        signals = [p for p,s in isSignal.items() if s == True]
+        if len(signals) == 0: raise RuntimeError, "You must have at least one signal process (id <= 0)"
     if f[0] == "rate":
-        if len(f[1:]) < bins * processes: raise RuntimeError, "Malformed rate line: %d, while bins*processes = %d*%d" % (len(f[1:]), bins,processes)
-        for b in range(bins):
-            exp.append([float(f[1+(b*processes + p)]) for p in range(processes)])
-        break
+        if len(f[1:]) != len(keyline): raise RuntimeError, "Malformed rate line: length %d, while bins and process lines have length %d" % (len(f[1:]), len(keyline))
+        for (b,p,s),r in zip(keyline,f[1:]):
+            exp[b][p] = float(r)
+        for b in bins:
+            np_bin = sum([exp[b][p] for (b1,p,s) in keyline if b1 == b])
+            ns_bin = sum([exp[b][p] for (b1,p,s) in keyline if b1 == b and s == True])
+            nb_bin = sum([exp[b][p] for (b1,p,s) in keyline if b1 == b and s != True])
+            if np_bin == 0: raise RuntimeError, "Bin %s has no processes contributing to it" % b
+            if ns_bin == 0: raise RuntimeError, "Bin %s has no signal processes contributing to it" % b
+            if nb_bin == 0: raise RuntimeError, "Bin %s has no background processes contributing to it" % b
+        break # rate is the last line before nuisances
+    
 for l in file:
     if l.startswith("--"): continue
     l = re.sub("\\s-+(\\s|$)"," 0\\1",l);
@@ -46,10 +99,10 @@ for l in file:
         args = [int(f[2])]; numbers = f[3:];
     else:
         raise RuntimeError, "Unsupported pdf %s" % pdf
-    if len(numbers) < bins * processes: raise RuntimeError, "Malformed rate line: %d, while bins*processes = %d*%d" % (len(f[1:]), bins,processes)
-    errline = []
-    for b in range(bins):
-        errline.append([float(numbers[b*processes + p]) for p in range(processes)])
+    if len(numbers) < len(keyline): raise RuntimeError, "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(keyline))
+    errline = dict([(b,{}) for b in bins])
+    for (b,p,s),r in zip(keyline,numbers):
+        errline[b][p] = float(r) 
     systs.append((lsyst,pdf,args,errline))
 
 if options.stat: 
@@ -57,7 +110,9 @@ if options.stat:
     systs = []
 
 if options.asimov:
-    obs = [sum(r[1:]) for r in exp]
+    obs = dict([(b,0) for b in bins])
+    for (b,p,s) in keyline: 
+        if s == False: obs[b] += exp[b][p]
 
 if nuisances == -1: 
     nuisances = len(systs)
@@ -67,11 +122,11 @@ elif len(systs) != nuisances:
 
 if len(obs):
     print "/// ----- observables (already set to asimov values) -----"
-    for b in range(bins): print "n_obs_bin%d[%f,0,%d];" % (b,obs[b],N_OBS_MAX)
+    for b in bins: print "n_obs_bin%s[%f,0,%d];" % (b,obs[b],N_OBS_MAX)
 else:
     print "/// ----- observables -----"
-    for b in range(bins): print "n_obs_bin%d[0,%d];" % (b,N_OBS_MAX)
-print "observables = set(", ",".join(["n_obs_bin%d" % b for b in range(bins)]),");"
+    for b in bins: print "n_obs_bin%s[0,%d];" % (b,N_OBS_MAX)
+print "observables = set(", ",".join(["n_obs_bin%s" % b for b in bins]),");"
 
 print """
 /// ----- parameters of interest -----
@@ -108,12 +163,13 @@ if nuisances:
         print "globalObservables =  set(", ",".join(globalobs),");"
 
 print "/// --- Expected events in each bin, for each process ----"
-for b in range(bins):
-    for p in range(processes):
+for b in bins:
+    for p in exp[b].keys(): # so that we get only processes contributing to this bin
         # collect multiplicative corrections
         strexpr = ""; strargs = ""
         gammaNorm = None; iSyst=-1
         for (n,pdf,args,errline) in systs:
+            if not errline[b].has_key(p): continue
             if errline[b][p] == 0.0: continue
             if pdf == "lnN" and errline[b][p] == 1.0: continue
             iSyst += 1
@@ -139,30 +195,34 @@ for b in range(bins):
             strexpr = str(exp[b][p]) + strexpr
         # optimize constants
         if strargs != "":
-            print "n_exp_bin%d_proc%d = %s('%s'%s);" % (b, p, ROOFIT_EXPR, strexpr, strargs)
+            print "n_exp_bin%s_proc_%s = %s('%s'%s);" % (b, p, ROOFIT_EXPR, strexpr, strargs)
         else:
-            print "n_exp_bin%d_proc%d[%g];" % (b, p, exp[b][p])
-    print "n_exp_bin%d_bonly  = sum(" % b + ", ".join(["n_exp_bin%d_proc%d" % (b,p) for p in range(1,processes)]) + ");";
-    print "n_exp_bin%d        = sum(prod(r, n_exp_bin%d_proc0), n_exp_bin%d_bonly);" % (b,b,b);
+            print "n_exp_bin%s_proc_%s[%g];" % (b, p, exp[b][p])
+    print "n_exp_bin%s_bonly  = sum(" % b + ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in exp[b].keys() if isSignal[p] == False]) + ");";
+    if len(signals) == 1:
+        print "n_exp_bin%s        = sum(prod(r, n_exp_bin%s_proc_%s), n_exp_bin%s_bonly);" % (b,b,signals[0],b);
+    else:
+        sigsum = ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in exp[b].keys() if isSignal[p] == True])  
+        print "n_exp_bin%s        = sum(prod(r, sum(%s)), n_exp_bin%s_bonly);" % (b,sigsum,b);
 
 print "/// --- Expected events in each bin, total (S+B and B) ----"
-for b in range(bins):
-    print "pdf_bin%d       = Poisson(n_obs_bin%d, n_exp_bin%d);"       % (b,b,b);
-    print "pdf_bin%d_bonly = Poisson(n_obs_bin%d, n_exp_bin%d_bonly);" % (b,b,b);
+for b in bins:
+    print "pdf_bin%s       = Poisson(n_obs_bin%s, n_exp_bin%s);"       % (b,b,b);
+    print "pdf_bin%s_bonly = Poisson(n_obs_bin%s, n_exp_bin%s_bonly);" % (b,b,b);
 
 prefix = "modelObs"
 if not nuisances: prefix = "model" # we can make directly the model
-if bins > 50:
+if nbins > 50:
     from math import ceil
-    nblocks = int(ceil(bins/10.))
+    nblocks = int(ceil(nbins/10.))
     for i in range(nblocks):
-        print prefix+"_s_%d = PROD("%i, ",".join(["pdf_bin%d"       % b for b in range(10*i,min(bins,10*i+10))]),");"
-        print prefix+"_b_%d = PROD("%i, ",".join(["pdf_bin%d_bonly" % b for b in range(10*i,min(bins,10*i+10))]),");"
-    print prefix+"_s = PROD(", ",".join([prefix+"_s_%d" % b for b in range(nblocks)]),");"
-    print prefix+"_b = PROD(", ",".join([prefix+"_b_%d" % b for b in range(nblocks)]),");"
+        print prefix+"_s_%d = PROD("%i, ",".join(["pdf_bin%s"       % bins[j] for j in range(10*i,min(nbins,10*i+10))]),");"
+        print prefix+"_b_%d = PROD("%i, ",".join(["pdf_bin%s_bonly" % bins[j] for j in range(10*i,min(nbins,10*i+10))]),");"
+    print prefix+"_s = PROD(", ",".join([prefix+"_s_%d" % i for i in range(nblocks)]),");"
+    print prefix+"_b = PROD(", ",".join([prefix+"_b_%d" % i for i in range(nblocks)]),");"
 else: 
-    print prefix+"_s = PROD({", ",".join(["pdf_bin%d"       % b for b in range(min(50,bins))]),"});"
-    print prefix+"_b = PROD({", ",".join(["pdf_bin%d_bonly" % b for b in range(min(50,bins))]),"});"
+    print prefix+"_s = PROD({", ",".join(["pdf_bin%s"       % b for b in bins]),"});"
+    print prefix+"_b = PROD({", ",".join(["pdf_bin%s_bonly" % b for b in bins]),"});"
 
 if nuisances: # multiply by nuisances if needed
     print "model_s = PROD(modelObs_s, nuisancePdf);"
