@@ -80,7 +80,7 @@ addMixingScenario("FS_InitialPileUp",{'file': 'FastSimulation.PileUpProducer.Pil
 addMixingScenario("FS_LowLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_LowLumiPileUp_cff'})
 addMixingScenario("FS_FlatDist10_2011EarlyData_50ns",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_FlatDist10_2011EarlyData_50ns_cff'})
 
-
+MixingDefaultKey = 'NoPileUp'
 
 def printMe():
     global Mixing

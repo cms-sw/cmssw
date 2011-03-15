@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.300 $"
+__version__ = "$Revision: 1.301 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -14,7 +14,8 @@ class Options:
 # the canonical defaults
 defaultOptions = Options()
 defaultOptions.datamix = 'DataOnSim'
-defaultOptions.pileup = 'NoPileUp'
+from Configuration.StandardSequences.Mixing import MixingDefaultKey
+defaultOptions.pileup=MixingDefaultKey
 defaultOptions.pileup_input = None
 defaultOptions.geometry = 'DB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
@@ -1381,7 +1382,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.300 $"),
+                                            (version=cms.untracked.string("$Revision: 1.301 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
