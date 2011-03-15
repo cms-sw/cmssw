@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from FastSimulation.Configuration.CommonInputs_cff import *
-
 # Particle Flow
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 #from RecoParticleFlow.PFTracking.particleFlowTrack_cff import *
@@ -9,9 +7,11 @@ from RecoParticleFlow.PFTracking.particleFlowTrackWithDisplacedVertex_cff import
 from RecoParticleFlow.PFProducer.particleFlowSimParticle_cff import *
 from RecoParticleFlow.PFProducer.particleFlowBlock_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
-from FastSimulation.ParticleFlow.FSparticleFlow_cfi import *
 from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
+from RecoParticleFlow.PFProducer.pfPhotonTranslator_cff import *
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
+from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
+from FastSimulation.ParticleFlow.FSparticleFlow_cfi import *
 
 particleFlowSimParticle.sim = 'famosSimHits'
 
@@ -41,20 +41,20 @@ particleFlowClusterHFHAD.thresh_Clean_Endcap = cms.double(1E5)
 
 famosParticleFlowSequence = cms.Sequence(
     caloTowersRec+
-    #    pfTrackElec+
+#    pfTrackElec+
     particleFlowTrackWithDisplacedVertex+
     particleFlowBlock+
     particleFlow+
     FSparticleFlow+
-    pfElectronTranslatorSequence    
+    pfElectronTranslatorSequence+
+    pfPhotonTranslatorSequence
 )
 
-# Reco Jets and MET
+# PF Reco Jets and MET
 
 from RecoJets.JetProducers.PFJetParameters_cfi import PFJetParameters
 PFJetParameters.src = cms.InputTag("FSparticleFlow")
-from RecoJets.Configuration.RecoJetsGlobal_cff import *
-from RecoMET.Configuration.RecoMET_cff import *
+from RecoJets.Configuration.RecoPFJets_cff import *
 from RecoMET.METProducers.PFMET_cfi import *
 pfMet.src = cms.InputTag("FSparticleFlow")
 from RecoMET.Configuration.RecoPFMET_cff import *
@@ -66,28 +66,9 @@ PFJetMet = cms.Sequence(
 
 
 
-#PFTau tagging
-from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
-from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi import *
-ic5JetTracksAssociatorAtVertex.tracks = 'generalTracks'
-ic5PFJetTracksAssociatorAtVertex.tracks = 'generalTracks'
-from RecoTauTag.Configuration.RecoTauTag_cff import *
+# Tau tagging
 
-famosTauTaggingSequence = cms.Sequence(tautagging)
-
-from RecoTauTag.Configuration.RecoPFTauTag_cff import recoTauAK5PFJets08Region
-recoTauAK5PFJets08Region.pfSrc = cms.InputTag("FSparticleFlow")
-from RecoTauTag.RecoTau.RecoTauShrinkingConeProducer_cfi import _shrinkingConeRecoTausConfig
-_shrinkingConeRecoTausConfig.pfCandSrc = cms.InputTag("FSparticleFlow")
-from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import pfRecoTauTagInfoProducer
-pfRecoTauTagInfoProducer.PFCandidateProducer = cms.InputTag("FSparticleFlow")
-from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import _combinatoricTauConfig
-_combinatoricTauConfig.pfCandSrc = cms.InputTag("FSparticleFlow")
-
-from RecoTauTag.Configuration.RecoPFTauTag_cff import *
-
-famosPFTauTaggingSequence = cms.Sequence(PFTau)
-    
+from FastSimulation.ParticleFlow.TauTaggingFastSimNeutralHadron_cff import *
 
 
 
