@@ -13,7 +13,7 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
 		    const SiStripLorentzAngle& LorentzAngle,
 		    const SiStripConfObject& confObj,
 		    const SiStripLatency& latency)
-  : peakMode_( 47==latency.singleMode() ), 
+  : peakMode_(latency.allPeak()),
     geom_(geom),
     magfield_(mag),
     LorentzAngleMap_(LorentzAngle)
