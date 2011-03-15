@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.37 2011/02/24 19:15:31 matevz Exp $
+// $Id: FWRPZView.cc,v 1.38 2011/03/08 11:42:27 amraktad Exp $
 //
 
 // system include files
@@ -71,6 +71,10 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
 
    m_projMgr->GetProjection()->SetDistortion(m_fishEyeDistortion.value()*s_distortF);
    m_projMgr->GetProjection()->SetFixR(m_fishEyeR.value());
+	 
+#ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
+   m_projMgr->GetProjection()->SetDisplaceOrigin(true);
+#endif
 
    if ( id == FWViewType::kRhoPhi || id == FWViewType::kRhoPhiPF) {
       m_projMgr->GetProjection()->AddPreScaleEntry(0, fireworks::Context::caloR1(), 1.0);
