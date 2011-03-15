@@ -29,7 +29,7 @@ parser.add_option("-s", "--step",
                    dest="step")
 
 parser.add_option("--conditions",
-                  help="What conditions to use. Default are frontier conditions 'STARTUP_V4::All' ",
+                  help="What conditions to use. This has to be specified",
                   default=None,
                   dest="conditions")
 
