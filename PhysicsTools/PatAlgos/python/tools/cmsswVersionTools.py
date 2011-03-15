@@ -10,37 +10,14 @@ from subprocess import *
 
 
 ## ------------------------------------------------------
-## Deal with backweard incompatibilities in event content
-## and conditions
+## Deal with backweard incompatibilities of conditions
 ## ------------------------------------------------------
 
-def run42xOn3yzMcInput(process
-                      , pfTauTagPath = 'p0'
+def run42xOn3yzMcInput( process
                       , l1MenuTag    = 'L1GtTriggerMenu_L1Menu_Commissioning2010_v4_mc' # L1 menu for Fall10 REDIGI (CMSSW_3_8_7)
                       ):
   """
   """
-  # Remove special PFTauTagInfo path again, since its output is still available in 3YZ
-  producerLabel = 'pfRecoTauTagInfoProducer'
-  if hasattr( process, pfTauTagPath ):
-    if pfTauTagPath in process.pathNames():
-      if producerLabel in getattr( process, pfTauTagPath ).moduleNames():
-        process.__delattr__( pfTauTagPath )
-      else:
-        print 'run42xOn3yzMcInput():'
-        print '  %s does not contain the module %s'%( pfTauTagPath, producerLabel )
-        print '  ==> skipped'
-        print '---------------------------------------------------------------------'
-    else:
-      print 'run42xOn3yzMcInput():'
-      print '  %s is not a cms.Path in process %s'%( pfTauTagPath, process.name_() )
-      print '  ==> skipped'
-      print '---------------------------------------------------------------------'
-  else:
-    print 'run42xOn3yzMcInput():'
-    print '  %s is not an attribute of process %s'%( pfTauTagPath, process.name_() )
-    print '  ==> skipped'
-    print '---------------------------------------------------------------------'
   # Use correct L1 trigger menu
   import CondCore.DBCommon.CondDBCommon_cfi
   process.l1GtTriggerMenu = cms.ESSource( "PoolDBESSource"
