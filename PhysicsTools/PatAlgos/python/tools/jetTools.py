@@ -160,7 +160,6 @@ class RunBTagging(ConfigToolBase):
             action=self.__copy__()
             process.addAction(action)
         return (seq, labels)
-
       
 runBTagging=RunBTagging()
 
@@ -359,7 +358,7 @@ class AddJetCollection(ConfigToolBase):
             ## add jet track association module to processes
             jtaLabel = 'jetTracksAssociatorAtVertex'+algoLabel+typeLabel
             setattr( process, jtaLabel, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection) )
-            process.makePatJets.replace(process.patJetCharge, getattr(process,jtaLabel)+process.patJetCharge)
+            process.patDefaultSequence.replace(process.patJetCharge, getattr(process,jtaLabel)+process.patJetCharge)
             l1Jets.trackAssociationSource = cms.InputTag(jtaLabel)
             addClone('patJetCharge', src=cms.InputTag(jtaLabel)),
             fixInputTag(l1Jets.jetChargeSource)
@@ -375,7 +374,7 @@ class AddJetCollection(ConfigToolBase):
             ## add b tagging sequence
             (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel)
             ## add b tagging sequence before running the allLayer1Jets modules
-            process.makePatJets.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
+            process.patDefaultSequence.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
             ## replace corresponding tags for pat jet production
             l1Jets.trackAssociationSource = cms.InputTag(btagLabels['jta'])
             l1Jets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
