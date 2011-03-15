@@ -330,6 +330,10 @@ void VirtualJetProducer::inputTowers( )
     if (input->et()    <inputEtMin_)  continue;
     if (input->energy()<inputEMin_)   continue;
     if (isAnomalousTower(input))      continue;
+    if (input->pt() == 0) {
+      edm::LogError("NullTransverseMomentum") << "dropping input candidate with pt=0";
+      continue;
+    }
     if (makeCaloJet(jetTypeE)&&doPVCorrection_) {
       const CaloTower* tower=dynamic_cast<const CaloTower*>(input.get());
       math::PtEtaPhiMLorentzVector ct(tower->p4(vertex_));
