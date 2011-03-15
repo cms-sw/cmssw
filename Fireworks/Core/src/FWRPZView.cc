@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.38 2011/03/08 11:42:27 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.39 2011/03/15 15:06:33 amraktad Exp $
 //
 
 // system include files
@@ -96,6 +96,7 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
 
    m_axes = new TEveProjectionAxes(m_projMgr);
    m_axes->SetRnrState(m_showProjectionAxes.value());
+   m_axes->SetLabelSize(0.015);
    m_showProjectionAxes.changed_.connect(boost::bind(&FWRPZView::showProjectionAxes,this));
    eventScene()->AddElement(m_axes);
 
