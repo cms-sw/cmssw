@@ -148,7 +148,7 @@ PATSingleVertexSelector::filter_(Mode mode, edm::Event & iEvent, const edm::Even
         case FromBeamSpot: {
             Handle<reco::BeamSpot> beamSpot;
             iEvent.getByLabel(beamSpot_, beamSpot);
-            reco::Vertex bs(beamSpot->position(), beamSpot->covariance3D(), 0, 0, 0);
+            reco::Vertex bs(beamSpot->position(), beamSpot->rotatedCovariance3D(), 0, 0, 0);
             auto_ptr<vector<reco::Vertex> > result(new vector<reco::Vertex>(1, bs));
             iEvent.put(result);
             return true;

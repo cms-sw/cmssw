@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.40 2010/09/03 15:41:26 hegner Exp $
+// $Id: PATMuonProducer.cc,v 1.41 2010/09/14 15:20:20 kukartse Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -620,7 +620,7 @@ void PATMuonProducer::embedHighLevel( pat::Muon & aMuon,
 
   // Correct to beam spot
   // make a fake vertex out of beam spot
-  reco::Vertex vBeamspot(beamspot.position(), beamspot.covariance3D());
+  reco::Vertex vBeamspot(beamspot.position(), beamspot.rotatedCovariance3D());
   
   // BS2D
   result =
