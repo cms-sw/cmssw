@@ -140,7 +140,8 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
             Fed9U::Fed9UAddress addr( ichan, iapv, istr );
             Fed9U::Fed9UStripDescription temp = (*ifed)->getFedStrips().getStrip( addr );
 						if(temp.getDisable()) {
-            	std::cout<<"Already Disabled: "<<conn.fecCrate()
+             	// std::cout<<"Already Disabled: "<<conn.fecCrate()
+            	LogTrace(mlDqmClient_)<<"Already Disabled: "<<conn.fecCrate()
 							<<" "<<conn.fecSlot()
 							<<" "<<conn.fecRing()
 							<<" "<<conn.ccuAddr()
