@@ -8,7 +8,7 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 #Need this next one to put the transientTrackRecord in and avoid crashes 
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 
-from RecoTauTag.Configuration.ShrinkingConePFTaus_cfi import *
+from RecoTauTag.Configuration.ShrinkingConePFTaus_cff import *
 looseShrikingConePFTaus = copy.deepcopy(shrinkingConePFTauProducer)
 looseShrikingConePFTaus.LeadPFCand_minPt = cms.double(3.0)
 
