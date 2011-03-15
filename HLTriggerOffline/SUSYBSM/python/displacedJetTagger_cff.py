@@ -4,30 +4,47 @@ import FWCore.ParameterSet.Config as cms
 # This is based on the displaced jet trigger path, but using offline quantities.
 # It uses the b tag software framework.
 
+# If you configure the following to use HLT objects as input, you will need to ensure that they
+# were stored in the input file, and configure CMSSW to skip events where these products are
+# not present (because the HLT path did not fully run).
+
+
 displacedJetAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
+
     jets = cms.InputTag( "ak5CaloJets" ),
+# or use the same jets as used in the trigger.
+#    jets = cms.InputTag( "hltAntiKT5L2L3CorrCaloJetsPt80Eta2"),
+                                         
 # use offline tracks
     tracks = cms.InputTag( "generalTracks" ),
 # or use same tracks as used in trigger
-# (only works if you stored them in input file and skip events where this product
-# is missing).
 #    tracks = cms.InputTag( "hltPixelTracks" ),
 #    tracks = cms.InputTag( "hltDisplacedHT240RegionalCtfWithMaterialTracks" ),
+# These are not used in HLT, but available in RECO.
+#    tracks = cms.InputTag( "pixelTracks" ),
     coneSize = cms.double( 0.5 )
 )
 
 from RecoBTag.ImpactParameter.impactParameter_cff import *
 displacedJetTagInfos = impactParameterTagInfos.clone (
     jetTracks = cms.InputTag( "displacedJetAssociator" ),
+    primaryVertex = cms.InputTag("offlinePrimaryVertices"),
+# or use same priamry vertex as used in trigger
+#    primaryVertex = cms.InputTag( "hltPixelVertices" ),    
+# These are not the ones used in HLT, but are available in RECO.
+#    primaryVertex = cms.InputTag( "pixelVertices" ),    
     computeProbabilities = cms.bool( False ),
     computeGhostTrack = cms.bool( False ),
 #    maximumChiSquared = cms.double( 20.0 ),
-    maximumTransverseImpactParameter = cms.double( 0.2 ),
-    maximumLongitudinalImpactParameter = cms.double( 0.2 ),
-# The following are needed only if running on L25 hltPixelTracks
+    maximumTransverseImpactParameter = cms.double( 0.1 ),
+    maximumLongitudinalImpactParameter = cms.double( 0.1 ),
     minimumNumberOfPixelHits = cms.int32( 2 ),
-    minimumNumberOfHits = cms.int32( 3 ),
-    maximumChiSquared = cms.double( 5.0 ),
+# The following are needed if running on pixel tracks
+#    minimumNumberOfHits = cms.int32( 3 ),
+#    maximumChiSquared = cms.double( 5.0 )
+# Whereas the following are needed if running on pixel + strip tracks.
+    minimumNumberOfHits = cms.int32( 8 ),
+    maximumChiSquared = cms.double( 20.0 )
 )
 
 hltESPPromptTrackCounting = cms.ESProducer("PromptTrackCountingESProducer",
