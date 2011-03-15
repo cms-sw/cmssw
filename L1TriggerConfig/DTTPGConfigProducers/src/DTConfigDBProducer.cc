@@ -439,8 +439,10 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
       	}//end brick iteration
 	
  	//TSS + TSM configurations are set in DTConfigTSPhi constructor
-	DTConfigTSPhi tsphiconf(m_debugTSP,tss_buffer,ntss,tsm_buffer);
-	m_manager->setDTConfigTSPhi(chambid,tsphiconf);
+	if(flagDBTSM && flagDBTSS) {
+	  DTConfigTSPhi tsphiconf(m_debugTSP,tss_buffer,ntss,tsm_buffer);
+	  m_manager->setDTConfigTSPhi(chambid,tsphiconf);
+	}
 
  	// get configuration for TSTheta, SC and TU from .cfg
         edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");  
