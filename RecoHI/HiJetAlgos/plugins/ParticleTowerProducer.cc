@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Thu Jan 20 19:53:58 CET 2011
-// $Id: ParticleTowerProducer.cc,v 1.3 2011/02/27 10:07:13 mnguyen Exp $
+// $Id: ParticleTowerProducer.cc,v 1.4 2011/03/03 13:30:51 mnguyen Exp $
 //
 //
 
@@ -279,13 +279,34 @@ DetId ParticleTowerProducer::getNearestTower(const reco::Candidate & in) const {
       if( hid.depth() != 1 ) continue;
 
       GlobalPoint pos =geo_->getGeometry(hid)->getPosition();
-            
+      
       double hcalEta = pos.eta();
       double hcalPhi = pos.phi();
 
       //std::cout<<" ieta "<<(hid).ieta()<<" iphi "<<(hid).iphi()<<" hcalEta "<<hcalEta<<" hcalPhi "<<hcalPhi<<std::endl;
 
       double deltaR = reco::deltaR(eta,phi,hcalEta,hcalPhi);
+      
+      // need to factor in the size of the tower
+      double towersize = 0.087;
+     
+      int ieta  = (hid).ieta();
+      
+      if(ieta>21){
+	if(ieta>29) towersize=0.175;
+	else{
+	  if(ieta==22) towersize=0.1;
+	  if(ieta==23) towersize=0.113;
+	  if(ieta==24) towersize=0.129;
+	  if(ieta==25) towersize=0.16;
+	  if(ieta==26) towersize=0.168;
+	  if(ieta==27) towersize=0.15;
+	  if(ieta==28) towersize=0.218;
+	  if(ieta==29) towersize=0.132;
+	}
+      }
+
+      deltaR /= towersize;
 
       if(deltaR<minDeltaR){
 	 returnId = DetId(*did);
