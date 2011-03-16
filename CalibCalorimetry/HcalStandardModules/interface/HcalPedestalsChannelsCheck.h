@@ -1,3 +1,5 @@
+// $Id: HcalPedestalsChannelsCheck.h,v 1.6 2009/11/04 08:08:11 devildog Exp $                  
+
 #ifndef HcalPedestalsChannelsCheck_h
 #define HcalPedestalsChannelsCheck_h
 
@@ -8,6 +10,7 @@
 
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <map>

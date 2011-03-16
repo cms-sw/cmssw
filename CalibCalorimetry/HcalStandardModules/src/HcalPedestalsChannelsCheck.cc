@@ -1,17 +1,21 @@
+// $Id: HcalPedestalsChannelsCheck.cc,v 1.6 2009/11/12 10:35:08 devildog Exp $
+
 #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalsChannelsCheck.h"
+#include <ios>
 
 HcalPedestalsChannelsCheck::HcalPedestalsChannelsCheck(edm::ParameterSet const& ps)
 {
-   epsilon = .1;
-   runnum = ps.getUntrackedParameter<int>("runNumber",0);
-   difhist[0] = new TH1F("Difference in pedestals HB","Each CapId (HB)",100,0,1.5);
-   difhist[1] = new TH1F("Difference in pedestals HE","Each CapId (HE)",100,0,1.5);
-   difhist[2] = new TH1F("Difference in pedestals HO","Each CapId (HO)",100,0,1.5);
-   difhist[3] = new TH1F("Difference in pedestals HF","Each CapId (HF)",100,0,1.5);
-   etaphi[0] = new TH2F("Average difference per channel d1","Depth 1",89, -44, 44, 72, .5, 72.5);
-   etaphi[1] = new TH2F("Average difference per channel d2","Depth 2",89, -44, 44, 72, .5, 72.5);
-   etaphi[2] = new TH2F("Average difference per channel d3","Depth 3",89, -44, 44, 72, .5, 72.5);
-   etaphi[3] = new TH2F("Average difference per channel d4","Depth 4",89, -44, 44, 72, .5, 72.5);
+  epsilon = ps.getUntrackedParameter<double>("epsilon",0.2);
+  //epsilon = 0.002;
+  runnum = ps.getUntrackedParameter<int>("runNumber",0);
+  difhist[0] = new TH1F("Difference in pedestals HB","Each CapId (HB)",100,0,1.5);
+  difhist[1] = new TH1F("Difference in pedestals HE","Each CapId (HE)",100,0,1.5);
+  difhist[2] = new TH1F("Difference in pedestals HO","Each CapId (HO)",100,0,1.5);
+  difhist[3] = new TH1F("Difference in pedestals HF","Each CapId (HF)",100,0,1.5);
+  etaphi[0] = new TH2F("Average difference per channel d1","Depth 1",89, -44, 44, 72, .5, 72.5);
+  etaphi[1] = new TH2F("Average difference per channel d2","Depth 2",89, -44, 44, 72, .5, 72.5);
+  etaphi[2] = new TH2F("Average difference per channel d3","Depth 3",89, -44, 44, 72, .5, 72.5);
+  etaphi[3] = new TH2F("Average difference per channel d4","Depth 4",89, -44, 44, 72, .5, 72.5);
 }
 
 HcalPedestalsChannelsCheck::~HcalPedestalsChannelsCheck()
@@ -87,12 +91,12 @@ HcalPedestalsChannelsCheck::~HcalPedestalsChannelsCheck()
 void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
    using namespace edm::eventsetup;
-   // get fake pedestals from file ("new pedestals")
+   // get pedestals from file ("new pedestals")
    edm::ESHandle<HcalPedestals> newPeds;
    es.get<HcalPedestalsRcd>().get("update",newPeds);
    const HcalPedestals* myNewPeds = newPeds.product();
- 
-   // get DB pedestals from Frontier/OrcoX ("reference")
+
+   // get older pedestals ("reference") 
    edm::ESHandle<HcalPedestals> refPeds;
    es.get<HcalPedestalsRcd>().get("reference",refPeds);
    const HcalPedestals* myRefPeds = refPeds.product();
@@ -107,9 +111,13 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
    std::vector<DetId>::iterator cell;
    bool failflag = false;
 
+   std::cout<<"Size of listNewChan: "<<listNewChan.size()<<std::endl;
+   std::cout<<"Size of listRefChan: "<<listRefChan.size()<<std::endl;
+
    if(myRefPeds->isADC() != myNewPeds->isADC()) throw cms::Exception("Peds not in same units!");
 
    // store channels which have changed by more that epsilon
+
    HcalPedestals *changedchannels = new HcalPedestals(myRefPeds->isADC());
    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
       {
@@ -117,6 +125,19 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
  	 HcalGenericDetId mygenid(it->rawId());
          if(!mygenid.isHcalDetId()) continue;
          HcalDetId hocheck(mydetid);
+         double thresh = epsilon;
+         if(hocheck.subdet()==3)
+	 {
+	    if((hocheck.iphi() >= 47) && (hocheck.iphi() <= 58))
+	    {
+	       if((hocheck.ieta() >= 5) && (hocheck.ieta() <= 10)) thresh = epsilon * 2;
+	    }
+	    if((hocheck.iphi() >= 59) && (hocheck.iphi() <= 70))
+	    {
+	       if((hocheck.ieta() >= 11) && (hocheck.ieta() <= 15)) thresh = epsilon *2;
+	    }
+         }
+
          cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
          if (cell == listNewChan.end())
             {
@@ -126,16 +147,22 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
             { 
                const float* values = (myNewPeds->getValues( mydetid ))->getValues();
                const float* oldvalue = (myRefPeds->getValues( mydetid ))->getValues();
-               double avgchange = ( (*oldvalue-*values)
+               double avgchange = 0.25 * ( (*oldvalue-*values)
                                    +(*(oldvalue+1)-*(values+1)) 
                                    +(*(oldvalue+2)-*(values+2))
-                                   +(*(oldvalue+3)-*(values+3)) ) / 4;
-               if(fabs(avgchange) > epsilon){
+                                   +(*(oldvalue+3)-*(values+3)) );
+	       if(hocheck.iphi()==2 && hocheck.ieta()>-9 && hocheck.ieta()<-5 )
+		 {
+		   std::cout<<std::dec << HcalGenericDetId(mydetid.rawId())<<" "<<*oldvalue<<"  "<<*values<<std::endl;
+		   std::cout<<std::dec << HcalGenericDetId(mydetid.rawId())<<" "<<*(oldvalue+1)<<"  "<<*(values+1)<<std::endl;
+		 }
+
+               if(fabs(avgchange) > thresh){
                etaphi[hocheck.depth()-1]->Fill(hocheck.ieta(),hocheck.iphi(),avgchange);
                difhist[hocheck.subdet()-1]->Fill(fabs(avgchange));
 //               if(hocheck.subdet()==3) continue;
 // 	       throw cms::Exception("DataDoesNotMatch") << "Values differ by more than deltaP";
-               std::cout << HcalGenericDetId(mydetid.rawId()) << " has changed by "<< avgchange << std::endl;
+               std::cout << std::dec << HcalGenericDetId(mydetid.rawId()) << " has changed by "<< avgchange * -1 << " " << std::hex  << std::uppercase << mydetid.rawId() <<"    threshold: "<<thresh<< std::endl;
                failflag = true;
                const HcalPedestal* item = myNewPeds->getValues(mydetid);
                changedchannels->addValues(*item);
@@ -156,13 +183,13 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
            {
              //   bool addValue (DetId fId, const float fValues [4]);
  	    const HcalPedestal* item = myRefPeds->getValues(mydetid);
-             std::cout << "o";
+//             std::cout << "o";
              resultPeds->addValues(*item);
            }
          else // present in new list, take new pedestals
            {
              const HcalPedestal* item = myNewPeds->getValues(mydetid);
-             std::cout << "n";
+//             std::cout << "n";
              resultPeds->addValues(*item);
              // compare the values of the pedestals for valid channels between update and reference
              listChangedChan.erase(cell);  // fix 25.02.08
@@ -195,7 +222,7 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
      if(failflag)
      {
         std::ofstream outStream3("dump.txt");//outfile.c_str());
-        std::cout << "--- Dumping Pedestals - thei merged ones ---" << std::endl;
+//        std::cout << "--- Dumping Pedestals - the merged ones ---" << std::endl;
         HcalDbASCIIIO::dumpObject (outStream3, (*resultPeds) );
      }
   
