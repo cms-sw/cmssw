@@ -81,6 +81,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### tau OpenHLT related objects
     HLTTau                          = cms.InputTag("TauOpenHLT"),
     HLTPFTau                        = cms.InputTag("hltPFTaus"),
+    HLTPFTauTightCone               = cms.InputTag("hltPFTausTightCone"),
     minPtChargedHadronsForTaus      = cms.double(1.5),
     minPtGammassForTaus             = cms.double(1.5),
 
@@ -120,7 +121,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     IsoPixelTrackVertices       = cms.InputTag("hltPixelVertices"),    
 
     ### Track settings
-    PixelTracksL3               = cms.InputTag("hltPixelCands"),                         
+    PixelTracksL3               = cms.InputTag("hltPixelCandsForMinBias"),                         
 
     ### Calo tower settings
     caloTowerThreshold          = cms.double( 2.0 ),

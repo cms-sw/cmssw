@@ -109,6 +109,9 @@ process.EcalBarrelGeometryEP.applyAlignment = True
 process.EcalEndcapGeometryEP.applyAlignment = True
 process.EcalPreshowerGeometryEP.applyAlignment = True
 
+# Add tight isolation PF taus
+process.HLTPFTauSequence += process.hltPFTausTightCone
+
 if (MENU == "GRun"):
     # get the objects associated with the menu
     process.hltanalysis.IsoPixelTracksL3 = "hltHITIPTCorrector8E29"

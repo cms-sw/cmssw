@@ -36,8 +36,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
-#include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 
 /** \class HLTAnalyzer
   *  
@@ -95,7 +93,7 @@ private:
 
   edm::InputTag MuCandTag2_,MuIsolTag2_,MuNoVtxCandTag2_,MuCandTag3_,MuIsolTag3_;
   edm::InputTag oniaPixelTag_,oniaTrackTag_;
-  edm::InputTag HLTTau_, PFTau_;
+  edm::InputTag HLTTau_, PFTau_, PFTauTightCone_;
   edm::InputTag PFJets_;
   
   //offline reco tau collection and discriminators

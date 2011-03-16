@@ -81,6 +81,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     oniaTrackTag_        = conf.getParameter<edm::InputTag> ("OniaTrackTag");
     HLTTau_              = conf.getParameter<edm::InputTag> ("HLTTau");
     PFTau_               = conf.getParameter<edm::InputTag> ("HLTPFTau");
+    PFTauTightCone_      = conf.getParameter<edm::InputTag> ("HLTPFTauTightCone");
     _MinPtChargedHadrons = conf.getParameter<double>("minPtChargedHadronsForTaus");
     _MinPtGammas         = conf.getParameter<double>("minPtGammassForTaus");
 
@@ -233,6 +234,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3;
     edm::Handle<reco::HLTTauCollection>               taus;
     edm::Handle<reco::PFTauCollection>               pftaus;
+    edm::Handle<reco::PFTauCollection>               pftausTightCone;
     edm::Handle<reco::PFJetCollection>               pfjets;
     
     // offline reco tau collection and discriminators
@@ -308,10 +310,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::InputTag ecalRechitEBTag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
     edm::InputTag ecalRechitEETag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
     EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
-
+    
     edm::Handle<reco::HFEMClusterShapeAssociationCollection> electronHFClusterAssociation;   
     iEvent.getByLabel(edm::InputTag("hltHFEMClusters"),electronHFClusterAssociation);
-    
+
     edm::ESHandle<MagneticField>                theMagField;
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
     
@@ -352,6 +354,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, muon,            muon_,              kMuon );
     getCollection( iEvent, missing, taus,            HLTTau_,            kTaus );
     getCollection( iEvent, missing, pftaus,          PFTau_,		 kPFTaus );
+    getCollection( iEvent, missing, pftausTightCone, PFTauTightCone_,    kPFTausTightCone );
     getCollection( iEvent, missing, pfjets,          PFJets_,		 kPFJets );  
     getCollection( iEvent, missing, recoPftaus,                            RecoPFTau_,                          kRecoPFTaus );
     getCollection( iEvent, missing, theRecoPFTauDiscrByTanCOnePercent,     RecoPFTauDiscrByTanCOnePercent_,     ktheRecoPFTauDiscrByTanCOnePercent); 
@@ -476,6 +479,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                           ht,
                           taus,
                           pftaus,
+                          pftausTightCone,
                           pfjets,
 			  recoPftaus,
 			  theRecoPFTauDiscrByTanCOnePercent,
