@@ -27,7 +27,6 @@ public:
   virtual bool runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
   virtual bool runSinglePoint(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
   virtual bool runTestStatistics(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
-  virtual RooStats::HypoTestResult *readToysFromFile();
   virtual const std::string & name() const {
     static const std::string name("HybridNew");
     return name;
@@ -48,6 +47,9 @@ private:
   static bool importanceSamplingNull_, importanceSamplingAlt_;
   static std::string algo_;
   static std::string plot_;
+
+  static bool optimizeProductPdf_;
+  static bool optimizeTestStatistics_;
  
   // plot
   std::auto_ptr<TGraphErrors> limitPlot_;
@@ -64,8 +66,9 @@ private:
 
   std::pair<double,double> eval(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, bool adaptive=false, double clsTarget=-1) ;
   std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, Setup &setup);
-  std::pair<double,double> eval(RooStats::HybridCalculator &hc, bool adaptive=false, double clsTarget=-1) ;
+  std::pair<double,double> eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive=false, double clsTarget=-1) ;
   RooStats::HypoTestResult *evalWithFork(RooStats::HybridCalculator &hc);
+  RooStats::HypoTestResult *readToysFromFile(double rValue=0);
 
 };
 

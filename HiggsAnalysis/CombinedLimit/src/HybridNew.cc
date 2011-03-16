@@ -25,6 +25,7 @@
 #include <RooStats/HypoTestPlot.h>
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/SimplerLikelihoodRatioTestStat.h"
 
 using namespace RooStats;
 
@@ -40,6 +41,8 @@ unsigned int HybridNew::nCpu_, HybridNew::fork_;
 bool HybridNew::importanceSamplingNull_, HybridNew::importanceSamplingAlt_;
 std::string HybridNew::algo_;
 std::string HybridNew::plot_;
+bool HybridNew::optimizeProductPdf_;
+bool HybridNew::optimizeTestStatistics_;
  
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
@@ -49,6 +52,8 @@ LimitAlgo("HybridNew specific options") {
       ("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(false), "Enable importance sampling for null hypothesis (background only)") 
       ("importanceSamplingAlt", boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(false), "Enable importance sampling for alternative hypothesis (signal plus background)") 
       ("nCPU", boost::program_options::value<unsigned int>()->default_value(0), "Use N CPUs with PROOF Lite (experimental!)")
+      ("optimizeTestStatistics", boost::program_options::value<bool>(&optimizeTestStatistics_)->default_value(false), "Use optimized test statistics if the likelihood is not extended.")
+      ("optimizeProductPdf", boost::program_options::value<bool>(&optimizeProductPdf_)->default_value(false), "Optimize the code assuming model_s = modelObs_s(obs,r,nuis) * (other pdf not dependent on obs)")
     ;
 }
 
@@ -85,6 +90,8 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     } else {
         workingMode_ = MakeLimit;
     }
+    saveHybridResult_ = vm.count("saveHybridResult");
+    readHybridResults_ = vm.count("readHybridResults");
     plot_ = vm.count("plot") ? vm["plot"].as<std::string>() : std::string();
 }
 
@@ -111,7 +118,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit
     }
     if (saveHybridResult_) {
         if (writeToysHere == 0) throw std::logic_error("Option saveToys must be enabled to turn on saveHypoTestResult");
-        TString name = TString::Format("HypoTestResult_%u", RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
+        TString name = TString::Format("HypoTestResult_r%g_%u", 0., RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
@@ -290,10 +297,22 @@ bool HybridNew::runTestStatistics(RooWorkspace *w, RooAbsData &data, double &lim
 }
 
 std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, bool adaptive, double clsTarget) {
+    if (readHybridResults_) {
+        std::auto_ptr<RooStats::HypoTestResult> result(readToysFromFile(rVal));
+        std::pair<double, double> ret(-1,-1);
+        if (result.get() == 0) { 
+            std::cerr << "HypoTestResults for r = " << rVal << " not found in file" << std::endl;
+        } else {
+            ret.first  = CLs_ ? result->CLs()      : result->CLsplusb();
+            ret.second = CLs_ ? result->CLsError() : result->CLsplusbError();
+        }
+        return ret;
+    }
+
     HybridNew::Setup setup;
     std::auto_ptr<RooStats::HybridCalculator> hc(create(w, data, r, rVal, setup));
     if (verbose) std::cout << "  r = " << rVal << " +/- " << r->getError() << std::endl;
-    std::pair<double, double> ret = eval(*hc, adaptive, clsTarget);
+    std::pair<double, double> ret = eval(*hc, rVal, adaptive, clsTarget);
 
     // add to plot 
     if (limitPlot_.get()) { 
@@ -304,6 +323,8 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooAbsData &data, Roo
 
     return ret;
 }
+
+
 
 std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, HybridNew::Setup &setup) {
   using namespace RooStats;
@@ -316,20 +337,45 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   setup.modelConfig.SetPdf(*w->pdf("model_s"));
   setup.modelConfig.SetObservables(obs);
   setup.modelConfig.SetParametersOfInterest(poi);
+  //setup.modelConfig.SetGlobalObservables(*w->pdf("globalObservables"); // NOT for Hybrid
   if (withSystematics) setup.modelConfig.SetNuisanceParameters(*w->set("nuisances"));
   setup.modelConfig.SetSnapshot(poi);
   
   setup.modelConfig_bonly = ModelConfig("b_model", w);
-  setup.modelConfig_bonly.SetPdf(*w->pdf("model_b"));
+  setup.modelConfig_bonly.SetPdf(*w->pdf("model_s")); // note the model_s!
   setup.modelConfig_bonly.SetObservables(obs);
   setup.modelConfig_bonly.SetParametersOfInterest(poi);
+  //setup.modelConfig_bonly.SetGlobalObservables(*w->pdf("globalObservables"); // NOT for Hybrid
   if (withSystematics) setup.modelConfig_bonly.SetNuisanceParameters(*w->set("nuisances"));
-  setup.modelConfig_bonly.SetSnapshot(poi);
-  
+  RooArgSet poiZero; poiZero.addClone(poi); poiZero.setRealValue(r->GetName(), 0.0);
+  setup.modelConfig_bonly.SetSnapshot(poiZero);
+
   if (testStat_ == "LEP") {
-    setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf()));
-    ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetNullParameters(*setup.modelConfig_bonly.GetSnapshot());
-    ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetAltParameters( *setup.modelConfig.GetSnapshot());
+      //SLR is evaluated using the central value of the nuisance parameters, so I believe we have to put them in the snapshots
+      RooArgSet snapS; snapS.addClone(poi); 
+      if (withSystematics) snapS.addClone(*w->set("nuisances"));
+      RooArgSet snapB; snapB.addClone(snapS);
+      snapS.setRealValue(r->GetName(), rVal);
+      snapB.setRealValue(r->GetName(),    0);
+      if (optimizeTestStatistics_ && !w->pdf("model_s")->canBeExtended()) {
+          if (withSystematics && optimizeProductPdf_) {
+              if (w->pdf("modelObs_b") == 0 || w->pdf("modelObs_s") == 0) 
+                  throw std::invalid_argument("HybridNew: you can't use 'optimizeProduct' if the module does not define 'modelObs_s', 'modelObs_b'");
+              setup.qvar.reset(new SimplerLikelihoodRatioTestStat(*w->pdf("modelObs_b"), *w->pdf("modelObs_s"), snapB, snapS));
+          } else {
+              setup.qvar.reset(new SimplerLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), snapB, snapS));
+          }
+      } else {
+          if (withSystematics && optimizeProductPdf_) {
+              if (w->pdf("modelObs_b") == 0 || w->pdf("modelObs_s") == 0) 
+                  throw std::invalid_argument("HybridNew: you can't use 'optimizeProduct' if the module does not define 'modelObs_s', 'modelObs_b'");
+              setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*w->pdf("modelObs_b"), *w->pdf("modelObs_s")));
+          } else {
+              setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf()));
+          }
+          ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetNullParameters(snapB); // Null is B
+          ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetAltParameters(snapS);
+      }
   } else if (testStat_ == "TEV") {
     setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), setup.modelConfig.GetSnapshot()));
     ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
@@ -342,6 +388,13 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     setup.qvar.reset(new ProfileLikelihoodTestStat(*w->pdf("model_s")));
   }
   
+  if (withSystematics && optimizeProductPdf_) {
+      if (w->pdf("modelObs_b") == 0 || w->pdf("modelObs_s") == 0) 
+          throw std::invalid_argument("HybridNew: you can't use 'optimizeProduct' if the module does not define 'modelObs_s', 'modelObs_b'");
+     setup.modelConfig.SetPdf(*w->pdf("modelObs_s"));
+     setup.modelConfig_bonly.SetPdf(*w->pdf("modelObs_b"));
+  } 
+
   setup.toymcsampler.reset(new ToyMCSampler(*setup.qvar, nToys_));
 
   if (!w->pdf("model_b")->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
@@ -401,7 +454,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 }
 
 std::pair<double,double> 
-HybridNew::eval(RooStats::HybridCalculator &hc, bool adaptive, double clsTarget) {
+HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, double clsTarget) {
     std::auto_ptr<HypoTestResult> hcResult(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
@@ -444,6 +497,13 @@ HybridNew::eval(RooStats::HybridCalculator &hc, bool adaptive, double clsTarget)
         c1->Print(plot_.c_str());
         delete c1;
     }
+    if (saveHybridResult_) {
+        if (writeToysHere == 0) throw std::logic_error("Option saveToys must be enabled to turn on saveHypoTestResult");
+        TString name = TString::Format("HypoTestResult_r%g_%u", rVal, RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
+        writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
+        if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
+    }
+
     return std::pair<double, double>(clsMid, clsMidErr);
 } 
 
@@ -493,16 +553,16 @@ RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &h
     return result.release();
 }
 
-RooStats::HypoTestResult * HybridNew::readToysFromFile() {
+RooStats::HypoTestResult * HybridNew::readToysFromFile(double rValue) {
     if (!readToysFromHere) throw std::logic_error("Cannot use readHypoTestResult: option toysFile not specified, or input file empty");
     TDirectory *toyDir = readToysFromHere->GetDirectory("toys");
     if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: option toysFile not specified, or input file empty");
-    if (verbose) std::cout << "Reading toys" << std::endl;
-
+    if (verbose) std::cout << "Reading toys for r = " << rValue << std::endl;
+    TString prefix = TString::Format("HypoTestResult_r%g_",rValue);
     std::auto_ptr<RooStats::HypoTestResult> ret;
     TIter next(toyDir->GetListOfKeys()); TKey *k;
     while ((k = (TKey *) next()) != 0) {
-        if (TString(k->GetName()).Index("HypoTestResult_") != 0) continue;
+        if (TString(k->GetName()).Index(prefix) != 0) continue;
         RooStats::HypoTestResult *toy = dynamic_cast<RooStats::HypoTestResult *>(toyDir->Get(k->GetName()));
         if (toy == 0) continue;
         if (verbose) std::cout << " - " << k->GetName() << std::endl;
