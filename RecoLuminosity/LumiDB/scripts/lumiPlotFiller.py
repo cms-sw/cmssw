@@ -73,7 +73,7 @@ def createRunList(c,p='.',o='.',dryrun=False):
     else:
         print allruns
         
-def totalLumi2011vstime(c,p='.',i='',o='.',begTime="03/14/11 06:00:00.00",endTime="",selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
+def totalLumi2011vstime(c,p='.',i='',o='.',begTime="03/14/11 09:00:00.00",endTime="",selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
     plotoutname='totallumivstime-2011.png'
     textoutname='totallumivstime-2011.csv'
     elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'-yscale both','time']
@@ -242,7 +242,7 @@ def lumi2010PerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime="11/
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
         
-def lumi2011PerDay(c,p='.',i='',o='',begTime="03/14/11 06:00:00.00",endTime="",selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
+def lumi2011PerDay(c,p='.',i='',o='',begTime="03/14/11 09:00:00.00",endTime="",selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
     plotoutname='lumiperday-2011.png'
     textoutname='lumiperday-2011.csv'
     elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'-yscale both','perday']
@@ -518,7 +518,7 @@ def instPeak2010Perday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime="11/
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
         
-def instPeak2011Perday(c,p='.',o='.',begTime="03/14/11 06:00:00.00",endTime="",dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
+def instPeak2011Perday(c,p='.',o='.',begTime="03/14/11 09:00:00.00",endTime="",dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
     plotoutname='lumipeak-2011.png'
     textoutname='lumipeak-2011.csv'
     elements=['lumiInstPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'-yscale both','peakperday']
