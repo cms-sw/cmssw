@@ -16,7 +16,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman (fblekman)
 //         Created:  Fri Mar 11 13:20:18 CET 2011
-// $Id$
+// $Id: HLTMonSimpleBTag.h,v 1.1 2011/03/15 18:53:43 fblekman Exp $
 //
 //
 
@@ -176,6 +176,5 @@ private:
   PathInfoCollection hltEfficiencies_;
   
   std::vector<std::pair<std::string,std::string> > triggerMap_; // maps multiple trigger objects in hltPaths_ to each other so they can be used as reference triggers (used by hltEfficiencies_ vector)
-
 };
 #endif

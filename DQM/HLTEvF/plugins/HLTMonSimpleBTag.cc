@@ -1,4 +1,4 @@
-// $Id: HLTMonSimpleBTag.cc,v 1.13 2010/02/17 22:53:25 wdd Exp $
+// $Id: HLTMonSimpleBTag.cc,v 1.1 2011/03/15 18:53:43 fblekman Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -48,31 +48,7 @@ HLTMonSimpleBTag::HLTMonSimpleBTag(const edm::ParameterSet& iConfig):
   dRTrigObjMatch_ = iConfig.getUntrackedParameter<double>("dRMatch",0.3);
   refresheff_ = iConfig.getUntrackedParameter<unsigned int>("Nrefresh",10);
  
-  // this is the list of HLT debug objects to look at
-  std::vector<edm::ParameterSet> hltobjects = 
-    iConfig.getParameter<std::vector<edm::ParameterSet> >("hltobjects");
-  for(std::vector<edm::ParameterSet>::iterator 
-	objectconf = hltobjects.begin() ; objectconf != hltobjects.end(); 
-      objectconf++) {
-    std::string me  = objectconf->getParameter<std::string>("name");
-    std::string denom = objectconf->getParameter<std::string>("refname");
-    // only fill if both triggers are not there yet.
-    if(hltPaths_.find(me)==hltPaths_.end())
-      hltPaths_.push_back(PathInfo(me,ptMin_, ptMax_));
-    if(hltPaths_.find(denom)==hltPaths_.end())
-      hltPaths_.push_back(PathInfo(denom, ptMin_, ptMax_));
-    
-    std::string effname = makeEffName(me,denom);
-    std::string numername=makeEffNumeratorName(me,denom);
-    std::pair<std::string,std::string> trigpair(me,denom);
-    if(find(triggerMap_.begin(),triggerMap_.end(),trigpair)==triggerMap_.end())
-      triggerMap_.push_back(trigpair);
-    if(hltEfficiencies_.find(effname)==hltEfficiencies_.end())
-      hltEfficiencies_.push_back(PathInfo(effname,ptMin_,ptMax_));
-    if(hltEfficiencies_.find(numername)==hltEfficiencies_.end())
-      hltEfficiencies_.push_back(PathInfo(numername,ptMin_,ptMax_));
-
-  }
+ 
 
   // this is the list of paths to look at.
   std::vector<edm::ParameterSet> filters = 
@@ -149,7 +125,7 @@ HLTMonSimpleBTag::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       name = fullname;
     }
     
-    LogDebug("Parameter")  << "filter " << ia << ", full name = " << fullname
+    LogDebug("Parameter") << "filter " << ia << ", full name = " << fullname
 			  << ", p = " << p 
 			  << ", abbreviated = " << name ;
     // check that trigger is in 'watch list'
@@ -161,7 +137,7 @@ HLTMonSimpleBTag::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     
     const trigger::Keys & k = triggerObj->filterKeys(ia);
     for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-      LogDebug("Parameters") << name << "(" << ki-k.begin() << "): pt, eta, phi = " 
+      LogDebug("Parameters")  << name << "(" << ki-k.begin() << "): pt, eta, phi = " 
 			     << toc[*ki].pt() << ", "
 			     << toc[*ki].eta() << ", "
 			      << toc[*ki].phi()  <<","
