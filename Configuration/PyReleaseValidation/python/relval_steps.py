@@ -72,23 +72,28 @@ K9by25={'--relval':'9000,25'}
 K9by50={'--relval':'9000,50'}
 K9by100={'--relval':'9000,100'}
 K9by250={'--relval':'9000,250'}
+K25by250={'--relval':'25000,250'}
 
-step1['MinBias']=merge([{'cfg':'MinBias_7TeV_cfi'},K9by100,step1Defaults])
-step1['QCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_7TeV_cfi'},K9by25,step1Defaults])
-step1['QCD_Pt_80_120']=merge([{'cfg':'QCD_Pt_80_120_7TeV_cfi'},K9by50,step1Defaults])
-step1['SingleElectronPt10']=merge([{'cfg':'SingleElectronPt10_cfi'},K9by250,step1Defaults])
-step1['SingleElectronPt35']=merge([{'cfg':'SingleElectronPt35_cfi'},K9by250,step1Defaults])
-step1['SingleGammaPt10']=merge([{'cfg':'SingleGammaPt10_cfi'},K9by100,step1Defaults])
-step1['SingleGammaPt35']=merge([{'cfg':'SingleGammaPt35_cfi'},K9by100,step1Defaults])
-step1['SingleMuPt10']=merge([{'cfg':'SingleMuPt10_cfi','--relval':'25000,250'},step1Defaults])
-step1['SingleMuPt100']=merge([{'cfg':'SingleMuPt100_cfi','--relval':'9000,250'},step1Defaults])
-step1['SingleMuPt1000']=merge([{'cfg':'SingleMuPt1000_cfi'},K9by100,step1Defaults])
-step1['TTbar']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi'},K9by50,step1Defaults])
-step1['ZEE']=merge([{'cfg':'ZEE_7TeV_cfi'},K9by100,step1Defaults])
-step1['Wjet_Pt_80_120']=merge([{'cfg':'Wjet_Pt_80_120_7TeV_cfi'},K9by100,step1Defaults])
-step1['Wjet_Pt_3000_3500']=merge([{'cfg':'Wjet_Pt_3000_3500_7TeV_cfi'},K9by100,step1Defaults])
-step1['LM1_sfts']=merge([{'cfg':'LM1_sfts_7TeV_cfi'},K9by100,step1Defaults])
-step1['QCD_FlatPt_15_3000']=merge([{'cfg':'QCDForPF_7TeV_cfi'},K9by100,step1Defaults])
+def gen(fragment,howMuch):
+    global step1Defaults
+    return merge([{'cfg':fragment},howMuch,step1Defaults])
+
+step1['MinBias']=gen('MinBias_7TeV_cfi',K9by100)
+step1['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_7TeV_cfi',K9by25)
+step1['QCD_Pt_80_120']=gen('QCD_Pt_80_120_7TeV_cfi',K9by50)
+step1['SingleElectronPt10']=gen('SingleElectronPt10_cfi',K9by250)
+step1['SingleElectronPt35']=gen('SingleElectronPt35_cfi',K9by250)
+step1['SingleGammaPt10']=gen('SingleGammaPt10_cfi',K9by100)
+step1['SingleGammaPt35']=gen('SingleGammaPt35_cfi',K9by100)
+step1['SingleMuPt10']=gen('SingleMuPt10_cfi',K25by250)
+step1['SingleMuPt100']=gen('SingleMuPt100_cfi',K9by250)
+step1['SingleMuPt1000']=gen('SingleMuPt1000_cfi',K9by100)
+step1['TTbar']=gen('TTbar_Tauola_7TeV_cfi',K9by50)
+step1['ZEE']=gen('ZEE_7TeV_cfi',K9by100)
+step1['Wjet_Pt_80_120']=gen('Wjet_Pt_80_120_7TeV_cfi',K9by100)
+step1['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_7TeV_cfi',K9by100)
+step1['LM1_sfts']=gen('LM1_sfts_7TeV_cfi',K9by100)
+step1['QCD_FlatPt_15_3000']=gen('QCDForPF_7TeV_cfi',K9by100)
 
 step1['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='MinBiasrv',location='STD')}
 step1['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_Pt_3000_3500rv',location='STD')}
@@ -107,21 +112,44 @@ step1['Wjet_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_
 step1['LM1_sftsINPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='LM1_sftsrv',location='STD')}
 step1['QCD_FlatPt_15_3000INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_FlatPt_15_3000rv',location='STD')}
 
-   
-step1['MinBias2']=merge([{'cfg':'MinBias_7TeV_cfi'},stCond,K9by100,step1Defaults])
-step1['Higgs200ChargedTaus']=merge([{'cfg':'H200ChargedTaus_Tauola_7TeV_cfi'},stCond,K9by100,step1Defaults])
-step1['QCD_Pt_3000_3500_2']=merge([{'cfg':'QCD_Pt_3000_3500_7TeV_cfi'},K9by25,stCond,step1Defaults])
-step1['QCD_Pt_80_120_2']=merge([{'cfg':'QCD_Pt_80_120_7TeV_cfi'},K9by50,stCond,step1Defaults])
-step1['JpsiMM']=merge([{'cfg':'JpsiMM_7TeV_cfi','--relval':'65250,725'},stCond,step1Defaults])
-step1['TTbar2']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi'},K9by50,stCond,step1Defaults])
-step1['WE']=merge([{'cfg':'WE_7TeV_cfi'},K9by100,stCond,step1Defaults])
-step1['WM']=merge([{'cfg':'WM_7TeV_cfi'},K9by100,stCond,step1Defaults])
-step1['ZEE2']=merge([{'cfg':'ZEE_7TeV_cfi'},K9by100,stCond,step1Defaults])
-step1['ZMM']=merge([{'cfg':'ZMM_7TeV_cfi','--relval':'18000,200'},stCond,step1Defaults])
-step1['ZTT']=merge([{'cfg':'ZTT_Tauola_All_hadronic_7TeV_cfi'},K9by100,stCond,step1Defaults])
-step1['H130GGgluonfusion']=merge([{'cfg':'H130GGgluonfusion_7TeV_cfi'},K9by100,stCond,step1Defaults])
-step1['PhotonJets_Pt_10']=merge([{'cfg':'PhotonJet_Pt_10_7TeV_cfi'},K9by100,stCond,step1Defaults])
-step1['QQH1352T_Tauola']=merge([{'cfg':'QQH1352T_Tauola_7TeV_cfi'},K9by100,stCond,step1Defaults])
+## high stat step1
+K700by280={'--relval': '70000,280'}
+K250by100={'--relval': '25000,100'}
+K3250000by1300000={'--relval': '325000000,1300000'}
+K250by250={'--relval': '25000,250'}
+K110000by45000={'--relval': '11000000,45000'}
+K562by225={'--relval': '56250,225'}
+
+step1['InclusiveppMuX']=gen('InclusiveppMuX_7TeV_cfi',K110000by45000)
+step1['SingleElectronFlatPt5To100']=gen('SingleElectronFlatPt5To100_cfi',K250by250)
+step1['SinglePiPt1']=gen('SinglePiPt1_cfi',K250by250)
+step1['SingleMuPt1']=gen('SingleMuPt1_cfi',K250by250)
+step1['ZPrime5000Dijet']=gen('ZPrime5000JJ_7TeV_cfi',K250by100)
+step1['SinglePi0E10']=gen('SinglePi0E10_cfi',K250by100)
+step1['SinglePiPt10']=gen('SinglePiPt10_cfi',K250by250)
+step1['SingleGammaFlatPt10To100']=gen('SingleGammaFlatPt10To100_cfi',K250by250)
+step1['SingleTauPt50Pythia']=gen('SingleTaupt_50_cfi',K250by100)
+step1['SinglePiPt100']=gen('SinglePiPt100_cfi',K250by250)
+
+
+def genS(fragment,howMuch):
+    global step1Defaults,stCond
+    return merge([{'cfg':fragment},stCond,howMuch,step1Defaults])
+
+step1['MinBias2']=genS('MinBias_7TeV_cfi',K9by100)
+step1['Higgs200ChargedTaus']=genS('H200ChargedTaus_Tauola_7TeV_cfi',K9by100)
+step1['QCD_Pt_3000_3500_2']=genS('QCD_Pt_3000_3500_7TeV_cfi',K9by25)
+step1['QCD_Pt_80_120_2']=genS('QCD_Pt_80_120_7TeV_cfi',K9by50)
+step1['JpsiMM']=genS('JpsiMM_7TeV_cfi',{'--relval':'65250,725'})
+step1['TTbar2']=genS('TTbar_Tauola_7TeV_cfi',K9by50)
+step1['WE']=genS('WE_7TeV_cfi',K9by100)
+step1['WM']=genS('WM_7TeV_cfi',K9by100)
+step1['ZEE2']=genS('ZEE_7TeV_cfi',K9by100)
+step1['ZMM']=genS('ZMM_7TeV_cfi',{'--relval':'18000,200'})
+step1['ZTT']=genS('ZTT_Tauola_All_hadronic_7TeV_cfi',K9by100)
+step1['H130GGgluonfusion']=genS('H130GGgluonfusion_7TeV_cfi',K9by100)
+step1['PhotonJets_Pt_10']=genS('PhotonJet_Pt_10_7TeV_cfi',K9by100)
+step1['QQH1352T_Tauola']=genS('QQH1352T_Tauola_7TeV_cfi',K9by100)
 
 step1['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='MinBiasrv',location='STD')}
 step1['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='Higgs200ChargedTausrv',location='STD')}
@@ -138,6 +166,25 @@ step1['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola
 
 step1['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--relval':'666000,7400','--scenario':'cosmics'},step1Defaults])
 step1['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},K9by100,step1Defaults])
+
+step1['QCD_Pt_50_80']=genS('QCD_Pt_50_80_7TeV_cfi',K250by100)
+step1['QCD_Pt_15_20']=genS('QCD_Pt_15_20_7TeV_cfi',K250by100)
+step1['ZTTHS']=merge([K250by100,step1['ZTT']])
+step1['QQH120Inv']=genS('QQH120Inv_7TeV_cfi',K250by100)
+step1['TTbarHS']=merge([K250by100,step1['TTbar2']])
+step1['JpsiMM_Pt_20_inf']=genS('JpsiMM_Pt_20_inf_7TeV_cfi',K700by280)
+step1['QCD_Pt_120_170']=genS('QCD_Pt_120_170_7TeV_cfi',K250by100)
+step1['H165WW2L']=genS('H165WW2L_Tauola_7TeV_cfi',K250by100)
+step1['UpsMM']=genS('UpsMM_7TeV_cfi',K562by225)
+step1['RSGrav']=genS('RS750_quarks_and_leptons_7TeV_cff',K250by100)
+step1['QCD_Pt_80_120_2HS']=merge([K250by100,step1['QCD_Pt_80_120_2']])
+step1['bJpsiX']=genS('bJpsiX_7TeV_cfi',K3250000by1300000)
+step1['QCD_Pt_30_50']=genS('QCD_Pt_30_50_7TeV_cfi',K250by100)
+step1['H200ZZ4L']=genS('H200ZZ4L_Tauola_7TeV_cfi',K250by100)
+step1['LM9p']=genS('LM9p_7TeV_cff',K250by100)
+step1['QCD_Pt_20_30']=genS('QCD_Pt_20_30_7TeV_cfi',K250by100)
+step1['QCD_Pt_170_230']=genS('QCD_Pt_170_230_7TeV_cfi',K250by100)
+
 
 
 
