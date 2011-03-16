@@ -58,7 +58,7 @@ semaphoreFile=/nfshome0/popcondev/L1Job/${release}/validate-l1Key.lock
 if [ -f ${semaphoreFile} ]
     then
     echo "`date` : validate-l1Key.sh" >> ${logFile}
-    echo "$0 already running.  Aborting process."  | tee -a ${logFile}
+    echo "$0 already running.  Aborting process.  Check for hung jobs from previous call of validate-l1Key.sh."  | tee -a ${logFile}
     tail -3 ${logFile} >> /nfshome0/popcondev/L1Job/o2o.summary
     exit 50
 else
