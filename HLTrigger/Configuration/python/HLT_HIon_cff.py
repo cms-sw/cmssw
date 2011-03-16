@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HIon/V71 (CMSSW_3_11_0_HLT12)
+# /dev/CMSSW_3_11_1/HIon/V73 (CMSSW_3_11_0_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V71')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HIon/V73')
 )
 
 streams = cms.PSet( 
@@ -1005,6 +1005,16 @@ hltESPPixelLayerTripletsHITHE = cms.ESProducer( "SeedingLayersESProducer",
   ),
   TEC = cms.PSet(  )
 )
+hltESPPromptTrackCountingESProducer = cms.ESProducer( "PromptTrackCountingESProducer",
+  appendToDataLabel = cms.string( "" ),
+  impactParameterType = cms.int32( 0 ),
+  maximumDistanceToJetAxis = cms.double( 999999.0 ),
+  deltaR = cms.double( -1.0 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  maxImpactParameterSig = cms.double( 999999.0 ),
+  trackQualityClass = cms.string( "any" ),
+  nthTrack = cms.int32( -1 )
+)
 hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   ComponentName = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
@@ -1251,7 +1261,6 @@ siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESPr
 
 DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
   getSCInfo = cms.untracked.bool( True ),
-  fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
   processingMode = cms.untracked.string( "HLT" )
 )
 UpdaterService = cms.Service( "UpdaterService",
@@ -1637,8 +1646,8 @@ hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( False ),
     physicsLoBits = cms.uint64( 0x1 ),
-    physicsHiBits = cms.uint64( 0x40000 ),
-    technicalBits = cms.uint64( 0x1 ),
+    physicsHiBits = cms.uint64( 0x0 ),
+    technicalBits = cms.uint64( 0x7f ),
     bunchCrossings = cms.vint32( 0, -1, 1 )
 )
 hltL1sL1SingleMu3BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
@@ -1757,7 +1766,6 @@ hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     )
 )
 hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
-    debug = cms.untracked.bool( False ),
     dtDigiLabel = cms.InputTag( "hltMuonDTDigis" ),
     recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
     recAlgoConfig = cms.PSet( 
@@ -3465,9 +3473,9 @@ hltBPTXAntiCoincidence = cms.EDFilter( "HLTLevel1Activity",
     daqPartitions = cms.uint32( 1 ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( True ),
-    physicsLoBits = cms.uint64( 1 ),
-    physicsHiBits = cms.uint64( 262144 ),
-    technicalBits = cms.uint64( 1 ),
+    physicsLoBits = cms.uint64( 0x1 ),
+    physicsHiBits = cms.uint64( 0x0 ),
+    technicalBits = cms.uint64( 0x11 ),
     bunchCrossings = cms.vint32( 0, 1, -1 )
 )
 hltL1sL1SingleJet20UNotBptxOR = cms.EDFilter( "HLTLevel1GTSeed",
