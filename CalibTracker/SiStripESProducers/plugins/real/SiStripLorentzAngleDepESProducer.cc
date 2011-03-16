@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Segala and Rebeca Gonzalez Suarez 
 //         Created:  15/02/2011
-// $Id: SiStripLorentzAngleDepESProducer.cc,v 1.1 2011/02/15 2:22:22 msegala Exp $
+// $Id: SiStripLorentzAngleDepESProducer.cc,v 1.1 2011/03/02 15:47:07 rebeca Exp $
 //
 //
 
@@ -42,19 +42,18 @@ boost::shared_ptr<SiStripLorentzAngle> SiStripLorentzAngleDepESProducer::produce
   
   std::string latencyRecordName = getLatency.getParameter<std::string>("record");
   std::string latencyLabel = getLatency.getUntrackedParameter<std::string>("label");
-  int mode = 0;
+  bool peakMode = false;
   
   if( latencyRecordName == "SiStripLatencyRcd" ) {      
     edm::ESHandle<SiStripLatency> latency;  
     iRecord.getRecord<SiStripLatencyRcd>().get( latencyLabel, latency);
-    mode = latency -> singleMode();
-    edm::LogInfo("SiStripLorentzAngleDepESProducer") << " Getting mode " << mode << std::endl;
+    if(latency -> singleReadOutMode() == 1) peakMode = true;
   } else edm::LogError("SiStripLorentzAngleDepESProducer") << "[SiStripLorentzAngleDepESProducer::produce] No Latency Record found " << std::endl;
  
   std::string lorentzAngleRecordName;
   std::string lorentzAngleLabel;
   	 
-  if (mode == 47){
+  if (peakMode){
     lorentzAngleRecordName = getPeak.getParameter<std::string>("record");
     lorentzAngleLabel = getPeak.getUntrackedParameter<std::string>("label"); 
   } else {
