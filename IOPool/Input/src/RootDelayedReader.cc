@@ -14,7 +14,7 @@ namespace edm {
   RootDelayedReader::RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
       RootTree const& tree,
-      boost::shared_ptr<TFile> filePtr,
+      boost::shared_ptr<InputFile> filePtr,
       FileFormatVersion const& fileFormatVersion) :
    entryNumber_(entry),
    branches_(bMap),

@@ -5,7 +5,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-#include "TFile.h"
+#include "InputFile.h"
 #include "TTree.h"
 #include "TTreeIndex.h"
 #include "TTreeCache.h"
@@ -30,7 +30,7 @@ namespace edm {
       return branch; // backward compatibility
     } // backward compatibility
   }
-  RootTree::RootTree(boost::shared_ptr<TFile> filePtr,
+  RootTree::RootTree(boost::shared_ptr<InputFile> filePtr,
                      BranchType const& branchType,
                      unsigned int maxVirtualSize,
                      unsigned int cacheSize,
@@ -272,7 +272,7 @@ namespace edm {
     }
 
     std::auto_ptr<TTreeCache>
-    trainCache(TTree* tree, TFile& file, unsigned int cacheSize, char const* branchNames) {
+    trainCache(TTree* tree, InputFile& file, unsigned int cacheSize, char const* branchNames) {
       tree->LoadTree(0);
       tree->SetCacheSize(cacheSize);
       std::auto_ptr<TTreeCache> treeCache(dynamic_cast<TTreeCache*>(file.GetCacheRead()));

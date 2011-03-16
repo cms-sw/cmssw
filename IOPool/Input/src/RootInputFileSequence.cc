@@ -15,14 +15,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CLHEP/Random/RandFlat.h"
-#include "TFile.h"
+#include "InputFile.h"
 #include "TSystem.h"
-#include <iomanip>
 
 namespace edm {
   RootInputFileSequence::RootInputFileSequence(
@@ -128,12 +126,11 @@ namespace edm {
   void RootInputFileSequence::closeFile_() {
     // close the currently open file, if any, and delete the RootFile object.
     if(rootFile_) {
-      assert(rootFile_.unique() || !primary());
-      if (rootFile_.unique()) {
+      if (primary()) {
+        assert(rootFile_.unique());
         std::auto_ptr<InputSource::FileCloseSentry>
         sentry((primaryFiles_) ? new InputSource::FileCloseSentry(input_) : 0);
         rootFile_->close();
-        logFileAction("  Closed file ", rootFile_->file());
         if(duplicateChecker_) duplicateChecker_->inputFileClosed();
       }
       rootFile_.reset();
@@ -167,12 +164,11 @@ namespace edm {
     std::string fallbackName = fileIter_->fallbackFileName();
     bool hasFallbackUrl = (!fallbackName.empty()) || (fallbackName == fileIter_->fileName());
 
-    boost::shared_ptr<TFile> filePtr;
+    boost::shared_ptr<InputFile> filePtr;
     try {
-      logFileAction("  Initiating request to open file ", fileIter_->fileName());
       std::auto_ptr<InputSource::FileOpenSentry>
         sentry(primaryFiles_ ? new InputSource::FileOpenSentry(input_) : 0);
-      filePtr.reset(TFile::Open(gSystem->ExpandPathName(fileIter_->fileName().c_str())));
+      filePtr.reset(new InputFile(gSystem->ExpandPathName(fileIter_->fileName().c_str()), "  Initiating request to open file "));
     }
     catch (cms::Exception const& e) {
       if(!skipBadFiles  && !hasFallbackUrl) {
@@ -180,12 +176,11 @@ namespace edm {
            "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
     }
-    if(!(filePtr && !filePtr->IsZombie()) && (hasFallbackUrl)) {
+    if(!filePtr && (hasFallbackUrl)) {
       try {
-        logFileAction("  Fallback request to file ", fallbackName);
         std::auto_ptr<InputSource::FileOpenSentry>
           sentry(primaryFiles_ ? new InputSource::FileOpenSentry(input_) : 0);
-        filePtr.reset(TFile::Open(gSystem->ExpandPathName(fallbackName.c_str())));
+        filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file "));
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
@@ -194,8 +189,7 @@ namespace edm {
         }
       }
     }
-    if(filePtr && !filePtr->IsZombie()) {
-      logFileAction("  Successfully opened file ", fileIter_->fileName());
+    if(filePtr) {
       std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile = fileIter_ - fileIterBegin_;
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(),
           processConfiguration(), fileIter_->logicalFileName(), filePtr,
@@ -663,11 +657,6 @@ namespace edm {
       assert(ev == ep.get());
       result.push_back(ep);
     }
-  }
-
-  void RootInputFileSequence::logFileAction(const char* msg, std::string const& file) const {
-    LogAbsolute("fileAction") << std::setprecision(0) << TimeOfDay() << msg << file;
-    FlushMessageLog();
   }
 
   void

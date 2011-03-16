@@ -24,13 +24,13 @@ RootTree.h // used by ROOT input sources
 
 class TBranch;
 class TClass;
-class TFile;
 class TTree;
 class TTreeCache;
 
 namespace edm {
   struct BranchKey;
   class FileFormatVersion;
+  class InputFile;
   class RootDelayedReader;
   class RootFile;
   class RootTree;
@@ -57,14 +57,14 @@ namespace edm {
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
     Int_t getEntry(TTree* tree, EntryNumber entryNumber);
-    std::auto_ptr<TTreeCache> trainCache(TTree* tree, TFile& file, unsigned int cacheSize, char const* branchNames);
+    std::auto_ptr<TTreeCache> trainCache(TTree* tree, InputFile& file, unsigned int cacheSize, char const* branchNames);
   }
 
   class RootTree : private boost::noncopyable {
   public:
     typedef roottree::BranchMap BranchMap;
     typedef roottree::EntryNumber EntryNumber;
-    RootTree(boost::shared_ptr<TFile> filePtr,
+    RootTree(boost::shared_ptr<InputFile> filePtr,
              BranchType const& branchType,
              unsigned int maxVirtualSize,
              unsigned int cacheSize,
@@ -132,7 +132,7 @@ namespace edm {
     void startTraining();
     void stopTraining();
 
-    boost::shared_ptr<TFile> filePtr_;
+    boost::shared_ptr<InputFile> filePtr_;
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.

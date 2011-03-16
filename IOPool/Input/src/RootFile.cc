@@ -4,6 +4,7 @@
 #include "RootFile.h"
 #include "BranchMapperWithReader.h"
 #include "DuplicateChecker.h"
+#include "InputFile.h"
 #include "ProvenanceAdaptor.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -48,7 +49,6 @@
 #include "TROOT.h"
 #include "Rtypes.h"
 #include "TClass.h"
-#include "TFile.h"
 #include "TTree.h"
 #include "TTreeCache.h"
 
@@ -99,7 +99,7 @@ namespace edm {
   RootFile::RootFile(std::string const& fileName,
                      ProcessConfiguration const& processConfiguration,
                      std::string const& logicalFileName,
-                     boost::shared_ptr<TFile> filePtr,
+                     boost::shared_ptr<InputFile> filePtr,
                      boost::shared_ptr<EventSkipperByID> eventSkipperByID,
                      bool skipAnyEvents,
                      int remainingEvents,
@@ -137,7 +137,6 @@ namespace edm {
       whyNotFastClonable_(0),
       hasNewlyDroppedBranch_(),
       branchListIndexesUnchanged_(false),
-      reportToken_(0),
       eventAux_(),
       eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries),
       lumiTree_(filePtr_, InLumi, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
@@ -980,21 +979,18 @@ namespace edm {
     // Report file opened.
     std::string const label = "source";
     std::string moduleName = "PoolSource";
-    std::string catalogName; // No more catalog
-    Service<JobReport> reportSvc;
-    reportToken_ = reportSvc->inputFileOpened(file_,
-               logicalFile_,
-               catalogName,
-               inputType,
-               moduleName,
-               label,
-               fid_.fid(),
-               eventTree_.branchNames());
+    filePtr_->inputFileOpened(
+              logicalFile_,
+              inputType,
+              moduleName,
+              label,
+              fid_.fid(),
+              eventTree_.branchNames());
   }
 
   void
   RootFile::close() {
-    // Just to play it safe, zero all pointers to objects in the TFile to be closed.
+    // Just to play it safe, zero all pointers to objects in the InputFile to be closed.
     eventHistoryTree_ = 0;
     for(RootTreePtrArray::iterator it = treePointers_.begin(), itEnd = treePointers_.end(); it != itEnd; ++it) {
       (*it)->close();
@@ -1002,8 +998,6 @@ namespace edm {
     }
     filePtr_->Close();
     filePtr_.reset();
-    Service<JobReport> reportSvc;
-    reportSvc->inputFileClosed(reportToken_);
   }
 
   void
@@ -1269,8 +1263,7 @@ namespace edm {
                              eventTree_.makeDelayedReader(fileFormatVersion()));
 
     // report event read from file
-    Service<JobReport> reportSvc;
-    reportSvc->eventReadFromFile(reportToken_, eventID().run(), eventID().event());
+    filePtr_->eventReadFromFile(eventID().run(), eventID().event());
     return &cache;
   }
 
@@ -1301,8 +1294,7 @@ namespace edm {
     boost::shared_ptr<RunAuxiliary> runAuxiliary = fillRunAuxiliary();
     assert(runAuxiliary->run() == indexIntoFileIter_.run());
     overrideRunNumber(runAuxiliary->id());
-    Service<JobReport> reportSvc;
-    reportSvc->reportInputRunNumber(runAuxiliary->run());
+    filePtr_->reportInputRunNumber(runAuxiliary->run());
     if(runAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
       // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
       if(eventTree_.next()) {
@@ -1361,8 +1353,7 @@ namespace edm {
     assert(lumiAuxiliary->run() == indexIntoFileIter_.run());
     assert(lumiAuxiliary->luminosityBlock() == indexIntoFileIter_.lumi());
     overrideRunNumber(lumiAuxiliary->id());
-    Service<JobReport> reportSvc;
-    reportSvc->reportInputLumiSection(lumiAuxiliary->run(), lumiAuxiliary->luminosityBlock());
+    filePtr_->reportInputLumiSection(lumiAuxiliary->run(), lumiAuxiliary->luminosityBlock());
 
     if(lumiAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
       // LuminosityBlockAuxiliary did not contain a timestamp. Take it from the next event.
