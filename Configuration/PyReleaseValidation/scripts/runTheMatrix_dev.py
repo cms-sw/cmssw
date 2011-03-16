@@ -783,11 +783,15 @@ if __name__ == '__main__':
         print "unknown option", str(e)
         sys.exit(2)
         
-# check command line parameter
+# check command line parameters
 
+    # set this to None if you want fromScratch as default, set it to 'all' to set the default to from input files.
+    useInput = None  # step1 default is cmsDriver (i.e. "from scratch")
+    # useInput = 'all' # step1 default is reading from input files
+
+    
     np=4 # default: four threads
     sel = None
-    useInput = 'all'
     fromScratch = None
     show = False
     only = None
@@ -820,7 +824,7 @@ if __name__ == '__main__':
             raw = True
             
     # some sanity checking:
-    if useInput != 'all' :
+    if useInput and useInput != 'all' :
         for item in useInput:
             if fromScratch and item in fromScratch:
                 print "FATAL error: request to run workflow ",item,'from scratch and using input. '
