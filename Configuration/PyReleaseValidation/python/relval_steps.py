@@ -120,6 +120,17 @@ K250by250={'--relval': '25000,250'}
 K110000by45000={'--relval': '11000000,45000'}
 K562by225={'--relval': '56250,225'}
 
+ecalHcal={
+    '-s':'GEN,SIM,DIGI,DIGI2RAW,RAW2DIGI,L1Reco,RECO',
+    '--datatier':'GEN-SIM-DIGI-RAW-RECO',
+    '--geometry':'ECALHCAL',
+    '--eventcontent':'FEVTDEBUG',
+    '--customise':'Validation/Configuration/ECALHCAL.customise',
+    '--beamspot':'NoSmear'}
+step1['SingleElectronE120EHCAL']=merge([{'cfg':'SingleElectronE120EHCAL_cfi'},ecalHcal,K25by250,step1Defaults])
+step1['SinglePiE50HCAL']=merge([{'cfg':'SinglePiE50HCAL_cfi'},ecalHcal,K25by250,step1Defaults])
+
+step1['MinBiasHS']=gen('MinBias_7TeV_cfi',K25by250)
 step1['InclusiveppMuX']=gen('InclusiveppMuX_7TeV_cfi',K110000by45000)
 step1['SingleElectronFlatPt5To100']=gen('SingleElectronFlatPt5To100_cfi',K250by250)
 step1['SinglePiPt1']=gen('SinglePiPt1_cfi',K250by250)
@@ -260,7 +271,6 @@ step2['RECOCOSD']=merge([{'--scenario':'cosmics',
 
 
 
-
 # step3 
 step3Defaults = { 'cfg'           : 'step3',
                   '-s'            : 'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
@@ -298,9 +308,7 @@ step4Defaults = { 'cfg'           : 'step4',
                   '-n'            : 1000,
                   '--filein'      : 'file:reco.root',
                   '--conditions'  : 'auto:mc',
-                  '--no_exec'     : '',
                   '--datatier'    : 'ALCARECO',
-                  '--oneoutput'   : '',
                   '--eventcontent': 'ALCARECO',
                   }
 step4 = {}
@@ -312,6 +320,8 @@ step4['ALCAQCD']=merge([{'-s':'ALCA:HcalCalIsoTrk+HcalCalDijets+HcalCalHO'},stCo
 step4['ALCAMU']=merge([{'-s':'ALCA:MuAlOverlaps+TkAlMuonIsolated+TkAlZMuMu'},stCond,step4Defaults])
 step4['ALCACOS']=merge([{'-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics'},stCond,step4Defaults])
 step4['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},stCond,step4Defaults])
+
+step2['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','cfg':'step2'},step4Defaults])
 
 
 #### for special wfs ###

@@ -23,12 +23,12 @@ workflows[144.14] = ['', ['RunElectron2010B','RECOD']]
 workflows[144.15] = ['', ['RunPhoton2010B','RECOD']]
 workflows[144.16] = ['', ['RunJet2010B','RECOD']]
 
-#workflows[101]
-#workflows[102]
+workflows[101] = [ '', ['SingleElectronE120EHCAL']]
+workflows[102] = [ '', ['SinglePiE50HCAL']]
 
 workflows[103]=['',['InclusiveppMuX','DIGI1','RECO1']]
 
-#workflows[105]
+workflows[105]=['MinBiasHcalNZS',['MinBiasHS','ALCANZS']]
 
 workflows[106]=['',['bJpsiX','DIGI2','RECO2']]
 workflows[107]=['',['QQH120Inv','DIGI2','RECO2']]
