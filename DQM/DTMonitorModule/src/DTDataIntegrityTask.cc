@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2010/10/07 09:15:49 $
- * $Revision: 1.71 $
+ * $Date: 2011/03/02 11:28:32 $
+ * $Revision: 1.72 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -51,8 +51,9 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
   // Plot quantities about SC
   getSCInfo = ps.getUntrackedParameter<bool>("getSCInfo", false);
 
-  fedIntegrityFolder    = ps.getUntrackedParameter<string>("fedIntegrityFolder"); 
-  string processingMode = ps.getUntrackedParameter<string>("processingMode","Online");
+  fedIntegrityFolder    = ps.getUntrackedParameter<string>("fedIntegrityFolder","DT/FEDIntegrity"); 
+  
+string processingMode = ps.getUntrackedParameter<string>("processingMode","Online");
 
   // processing mode flag to select plots to be produced and basedirs CB vedi se farlo meglio...
   if (processingMode == "Online") {
