@@ -3,9 +3,17 @@ import FWCore.ParameterSet.Config as cms
 # HLT analysis
 from  HiggsAnalysis.Skimming.higgsToZZ4LeptonsHLTAnalysis_cfi import *
 
-# HZZ4l producer
-from HiggsAnalysis.Skimming.higgsToZZ4LeptonsSkimProducer_cfi import *
-import HiggsAnalysis.Skimming.higgsToZZ4LeptonsSkimProducer_cfi 
+# leptons producer
+from HiggsAnalysis.Skimming.higgsToZZ4LeptonsBuildLeptons_cfi import *
+#import HiggsAnalysis.Skimming.higgsToZZ4LeptonsBuildLeptons
+
+# DiLeptons
+from HiggsAnalysis.Skimming.higgsToZZ4LeptonsSkimDiLeptonProducer_cfi import *
+#import HiggsAnalysis.Skimming.higgsToZZ4LeptonsSkimDiLeptonProducer
+
+# TriLeptons
+from HiggsAnalysis.Skimming.higgsToZZ4LeptonsSkimTriLeptonProducer_cfi import *
+#import HiggsAnalysis.Skimming.higgsToZZ4LeptonsSkimTriLeptonProducer_cfi
 
 # HZZ4l filter
 from HiggsAnalysis.Skimming.higgsToZZ4LeptonsSkimFilter_cfi import *
@@ -19,8 +27,9 @@ hltReport.HLTriggerResults = cms.InputTag("TriggerResults","","HLT8E29")
 
 higgsToZZ4LeptonsSequence = cms.Sequence(
         higgsToZZ4LeptonsHLTAnalysis  +
-	higgsToZZ4LeptonsSkimProducer +
-        higgsToZZ4LeptonsSkimFilter   +
-        hltReport 
+        higgsToZZ4LeptonsBuildLeptons          +
+	higgsToZZ4LeptonsSkimDiLeptonProducer  +
+        higgsToZZ4LeptonsSkimTriLeptonProducer +
+        higgsToZZ4LeptonsSkimFilter   
 	)
 
