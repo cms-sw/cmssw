@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/GRun/V74 (CMSSW_3_11_0_HLT18)
+# /dev/CMSSW_3_11_1/GRun/V76 (CMSSW_3_11_0_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V74')
+  tableName = cms.string('/dev/CMSSW_3_11_1/GRun/V76')
 )
 
 streams = cms.PSet( 
@@ -1904,6 +1904,7 @@ siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESPr
 
 DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
   getSCInfo = cms.untracked.bool( True ),
+  fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
   processingMode = cms.untracked.string( "HLT" )
 )
 UpdaterService = cms.Service( "UpdaterService",
@@ -5076,6 +5077,7 @@ hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     )
 )
 hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
+    debug = cms.untracked.bool( False ),
     dtDigiLabel = cms.InputTag( "hltMuonDTDigis" ),
     recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
     recAlgoConfig = cms.PSet( 
