@@ -56,9 +56,7 @@ class SiStripLatency
 {
  public:
 
-  SiStripLatency() :
-    readModeMask_(8)
-  {}
+  SiStripLatency() {}
 
   // Defined as public for genreflex
   struct Latency
