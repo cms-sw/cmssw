@@ -90,6 +90,11 @@ options.register('rpcHsb1Mask',
                  VarParsing.VarParsing.multiplicity.list,
                  VarParsing.VarParsing.varType.int,
                  "Replacement value of l1RPCHsbConfig.hsb1Mask; no replacement by default")
+options.register('gmtVersionSortRankEtaQLUT',
+                 -999, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Replacement value of L1MuGMTParameters.VersionSortRankEtaQLUT; no replacement by default")
 options.parseArguments()
 
 # Define CondDB tags
@@ -155,6 +160,9 @@ if options.genFromOMDS == 0:
     if options.rpcHsb1Mask != [[-999]]:
         process.l1RPCHsbConfig.hsb1Mask = options.rpcHsb1Mask
         print "New l1RPCHsbConfig.hsb1Mask =", process.l1RPCHsbConfig.hsb1Mask
+    if options.gmtVersionSortRankEtaQLUT != -999:
+        process.L1MuGMTParameters.VersionSortRankEtaQLUT = options.gmtVersionSortRankEtaQLUT
+        print "New L1MuGMTParameters.VersionSortRankEtaQLUT =", options.gmtVersionSortRankEtaQLUT
 else:
     # Generate configuration data from OMDS
     process.load("CondTools.L1Trigger.L1ConfigTSCPayloads_cff")
