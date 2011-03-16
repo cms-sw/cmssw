@@ -45,7 +45,7 @@ HLT_HT150_AlphaT0p60_v*
 HLT_HT150_AlphaT0p70_v*
 HLT_HT200_v*
 HLT_HT200_AlphaT0p60_v*
-HLT_HT200_AlphaT0p70_v*
+HLT_HT200_AlphaT0p65_v*
 HLT_HT250_v*
 HLT_HT250_AlphaT0p55_v*
 HLT_HT250_AlphaT0p62_v*
@@ -99,7 +99,7 @@ HLT_L2DoubleMu23_NoVertex_v*
 HLT_DoubleMu3_v*
 HLT_DoubleMu6_v*
 HLT_DoubleMu7_v*
-HLT_DoubleMu3_Bs_v*
+HLT_DoubleMu2_Bs_v*
 HLT_DoubleMu3_Jpsi_v*
 HLT_DoubleMu3_Quarkonium_v*
 HLT_DoubleMu3_Upsilon_v*
@@ -149,7 +149,7 @@ HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*
 HLT_Ele17_CaloIdL_CaloIsoVL_v*
 HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v*
 HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v*
-HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*
+# HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v* requires non-existing hltESPCkf3HitTrajectoryBuilder
 HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v*
 HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*
 HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*

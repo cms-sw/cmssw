@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HLT_fix3/V321 (CMSSW_3_11_0_HLT18)
+# /dev/CMSSW_3_11_1/HLT_fix3/V322 (CMSSW_3_11_0_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V321')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V322')
 )
 
 streams = cms.PSet( 
@@ -7166,7 +7166,7 @@ hltDoubleMu2BsL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 0.5 ),
+    MaxDzMuMu = cms.double( 999999.0 ),
     MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -7220,7 +7220,7 @@ hltDoubleMu3JpsiL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 0.5 ),
+    MaxDzMuMu = cms.double( 999999.0 ),
     MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -7260,7 +7260,7 @@ hltDoubleMu3QuarkoniumL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 0.5 ),
+    MaxDzMuMu = cms.double( 999999.0 ),
     MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -7300,7 +7300,7 @@ hltDoubleMu3UpsilonL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 0.5 ),
+    MaxDzMuMu = cms.double( 999999.0 ),
     MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -7340,7 +7340,7 @@ hltDoubleMu3LowMassL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 0.5 ),
+    MaxDzMuMu = cms.double( 999999.0 ),
     MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
