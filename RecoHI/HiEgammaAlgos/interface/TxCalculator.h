@@ -1,37 +1,37 @@
-#ifndef TxyCalculator_h
-#define TxyCalculator_h
+#ifndef TxCalculator_h
+#define TxCalculator_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 #define PI 3.141592653
 
-class TxyCalculator
+class TxCalculator
 {
-public:  
-   TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel);
-   double getTxy(const reco::SuperClusterRef p, double x, double y);
-   int getNumAllTracks(double ptCut);
-   int getNumLocalTracks(const reco::SuperClusterRef p, double detaCut, double ptCut);
-   
-private:
+  public:
+  
+   TxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel) ;
+  
+   double getTx(const reco::SuperClusterRef clus, double i,double threshold);
+   double getCTx(const reco::SuperClusterRef clus, double i,double threshold); // background subtracted Cx
 
+  private:
+   
+   edm::Handle<reco::TrackCollection>  recCollection;
+  
    double dRDistance(double eta1,double phi1,double eta2,double phi2)
    {
       double deta = eta1 - eta2;
@@ -53,9 +53,7 @@ private:
       }
       return dphi;
    }
-
-   edm::Handle<reco::TrackCollection>  recCollection;
+   
 };
 
 #endif
-
