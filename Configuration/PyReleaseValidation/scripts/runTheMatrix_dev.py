@@ -303,7 +303,7 @@ class MatrixReader(object):
             cmd += ' ' + k + ' ' + str(v)
         return cfg, input, cmd
     
-    def readMatrix(self, fileNameIn, useInput=None):
+    def readMatrix(self, fileNameIn, useInput=None, refRel='CMSSW_4_2_0_pre2'):
         
         prefix = self.filesPrefMap[fileNameIn]
 
@@ -344,6 +344,8 @@ class MatrixReader(object):
                     cmd  = 'cmsDriver.py '+cfg+' '+opts
                 if stepIndex==0 and not inputInfo and input: # only if we didn't already set the input
                     inputInfo = input
+                    # map input dataset to the one from the reference release:
+                    inputInfo.dataSet = inputInfo.dataSet.replace('CMSSW_4_2_0_pre4', refRel)
                     cmd = 'DATAINPUT from '+inputInfo.dataSet
                     
                 if stepIndex > 0:
@@ -512,11 +514,11 @@ class MatrixReader(object):
 
         return
 
-    def prepare(self, useInput=None):
+    def prepare(self, useInput=None, refRel=''):
         
         for matrixFile in self.files:
             try:
-                self.readMatrix(matrixFile, useInput)
+                self.readMatrix(matrixFile, useInput, refRel)
             except Exception, e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
@@ -657,7 +659,7 @@ def showRaw(useInput=None) :
         
 # ================================================================================
 
-def runSelected(testList, nThreads=4, show=False, useInput=None) :
+def runSelected(testList, nThreads=4, show=False, useInput=None, refRel='') :
 
     stdList = ['5.2', # SingleMu10 FastSim
                '7',   # Cosmics+RECOCOS+ALCACOS
@@ -670,7 +672,7 @@ def runSelected(testList, nThreads=4, show=False, useInput=None) :
                    ]
 
     mrd = MatrixReader()
-    mrd.prepare(useInput)
+    mrd.prepare(useInput, refRel)
 
     if testList == []:
         testList = stdList+hiStatList
@@ -687,10 +689,10 @@ def runSelected(testList, nThreads=4, show=False, useInput=None) :
 
 # ================================================================================
 
-def runData(testList, nThreads=4, show=False, useInput=None) :
+def runData(testList, nThreads=4, show=False, useInput=None, refRel='') :
 
     mrd = MatrixReader()
-    mrd.prepare(useInput)
+    mrd.prepare(useInput, refRel)
 
     ret = 0
     if show:
@@ -710,10 +712,10 @@ def runData(testList, nThreads=4, show=False, useInput=None) :
 
 # --------------------------------------------------------------------------------
 
-def runAll(testList=None, nThreads=4, show=False, useInput=None) :
+def runAll(testList=None, nThreads=4, show=False, useInput=None, refRel='') :
 
     mrd = MatrixReader()
-    mrd.prepare(useInput)
+    mrd.prepare(useInput, refRel)
 
     ret = 0
     
@@ -729,7 +731,7 @@ def runAll(testList=None, nThreads=4, show=False, useInput=None) :
 
 # --------------------------------------------------------------------------------
 
-def runOnly(only, show, nThreads=4, useInput=None):
+def runOnly(only, show, nThreads=4, useInput=None, refRel=''):
 
     if not only: return
     
@@ -749,7 +751,8 @@ Where options is one of the following:
   -j, --nproc <n>   run <n> processes in parallel (default: 4 procs)
   -s, --selected    run a subset of 8 workflows (usually in the CustomIB)
   -n, -q, --show    show the (selected) workflows
-  -i, --useInput <list>   will use data input (if defined) for the step1 instead of step1. <list> can be "all" for this option
+  -i, --useInput <list>      will use data input (if defined) for the step1 instead of step1. <list> can be "all" for this option
+      --refRelease <refRel>  will use <refRel> as reference release in datasets used for input (replacing the sim step)
   -r, --raw         in combination with --show will create the old style cmsDriver_*_hlt.txt file (in the working dir)
   
 <list>s should be put in single- or double-quotes to avoid confusion with/by the shell
@@ -762,7 +765,7 @@ if __name__ == '__main__':
     import getopt
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hj:sl:nqo:d:i:r", ['help',"nproc=",'selected','list=','showMatrix','only=','data=','useInput=','raw'])
+        opts, args = getopt.getopt(sys.argv[1:], "hj:sl:nqo:d:i:r", ['help',"nproc=",'selected','list=','showMatrix','only=','data=','useInput=','raw', 'refRelease='])
     except getopt.GetoptError, e:
         print "unknown option", str(e)
         sys.exit(2)
@@ -776,6 +779,7 @@ if __name__ == '__main__':
     only = None
     data = None
     raw  = False
+    refRel = ''
     for opt, arg in opts :
         if opt in ('-h','--help'):
             usage()
@@ -792,6 +796,8 @@ if __name__ == '__main__':
             sel = arg.split(',')
         if opt in ('-i','--useInput',) :
             input = arg.split(',')
+        if opt in ('--refRelease',) :
+            refRel = arg
         if opt in ('-d','--data',) :
             data = arg.split(',')
         if opt in ('-r','--raw') :
@@ -804,12 +810,12 @@ if __name__ == '__main__':
         
     ret = 0
     if sel != None: # explicit distinguish from empty list (which is also false)
-        ret = runSelected(testList=sel, nThreads=np, show=show, useInput=input)
+        ret = runSelected(testList=sel, nThreads=np, show=show, useInput=input, refRel=refRel)
     elif only != None:
-        ret = runOnly(only=only, show=show, nThreads=np, useInput=input)
+        ret = runOnly(only=only, show=show, nThreads=np, useInput=input, refRel=refRel)
     elif data != None:
-        ret = runData(testList=data, show=show, nThreads=np, useInput=input)
+        ret = runData(testList=data, show=show, nThreads=np, useInput=input, refRel=refRel)
     else:
-        ret = runAll(show=show, nThreads=np, useInput=input)
+        ret = runAll(show=show, nThreads=np, useInput=input, refRel=refRel)
 
     sys.exit(ret)
