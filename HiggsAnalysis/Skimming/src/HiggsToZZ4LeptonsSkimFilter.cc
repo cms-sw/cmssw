@@ -3,7 +3,7 @@
  *
  * Consult header file for description
  *
- * author:  N. De Filippis - LLR - Ecole Polytechnique
+ * author:  N. De Filippis - Politecnico and INFN Bari
  *
  */
 
@@ -24,14 +24,25 @@ using namespace edm;
 // Constructor
 HiggsToZZ4LeptonsSkimFilter::HiggsToZZ4LeptonsSkimFilter(const edm::ParameterSet& pset) {
 
-  // Local Debug flag
+  // HLT
   useHLT              = pset.getUntrackedParameter<bool>("useHLT");
   HLTinst_            = pset.getParameter<string>("HLTinst");
   HLTflag_            = pset.getParameter<vector<string> >("HLTflag");
-  Skiminst_           = pset.getParameter<string>("Skiminst");
-  Skimflag_           = pset.getParameter<string>("Skimflag");
+
+  // DiLepton
+  useDiLeptonSkim     = pset.getUntrackedParameter<bool>("useDiLeptonSkim");
+  SkimDiLeptoninst_   = pset.getParameter<string>("SkimDiLeptoninst");
+  SkimDiLeptonflag_   = pset.getParameter<string>("SkimDiLeptonflag");
+
+  // TriLepton
+  useTriLeptonSkim    = pset.getUntrackedParameter<bool>("useTriLeptonSkim");
+  SkimTriLeptoninst_  = pset.getParameter<string>("SkimTriLeptoninst");
+  SkimTriLeptonflag_  = pset.getParameter<string>("SkimTriLeptonflag");
+
   nSelectedEvents.clear();
   nSelectedSkimEvents = 0;
+  nDiLeptonSkimEvents = 0;
+  nTriLeptonSkimEvents = 0;
 
 }
 
@@ -40,11 +51,11 @@ HiggsToZZ4LeptonsSkimFilter::HiggsToZZ4LeptonsSkimFilter(const edm::ParameterSet
 HiggsToZZ4LeptonsSkimFilter::~HiggsToZZ4LeptonsSkimFilter() {
 
   std::cout << "HiggsToZZ4LeptonsSkimFilter: \n" 
-  << " N_events_read= " << nSelectedEvents.at(0)
-  << " N_events_HLT= " <<  nSelectedEvents.at(1)
-  << " N_events_Skim= " << nSelectedSkimEvents
-  << "     RelEfficiency4lFilter= "     << double(nSelectedSkimEvents)/double(nSelectedEvents.at(1)) 
-  << "     AbsEfficiencySkim4lFilter= " << double(nSelectedSkimEvents)/double(nSelectedEvents.at(0))            
+  << " N_events_read  = " << nSelectedEvents.at(0)
+  << " N_events_HLT   = " << nSelectedEvents.at(1)
+  << " N_events_DiLeptonSkim   = "  << nDiLeptonSkimEvents
+  << " N_events_TriLeptonSkim   = " << nTriLeptonSkimEvents
+  << " N_events_Skim  = " << nSelectedSkimEvents
   << std::endl;
 }
 
@@ -74,18 +85,46 @@ bool HiggsToZZ4LeptonsSkimFilter::filter(edm::Event& event, const edm::EventSetu
     }
   }
   
+  // DiLepton
+  bool DiLeptonpassed=false;
+  bool TriLeptonpassed=false;
 
-
-  edm::Handle<bool> SkimboolHandle;
-  event.getByLabel(Skiminst_.c_str(),Skimflag_.c_str(), SkimboolHandle);
-
-  if ( *SkimboolHandle.product()==1 )  {
-	nSelectedSkimEvents++;
-  }	
-  else {
-      return false;
+  if (useDiLeptonSkim){ 
+    edm::Handle<bool> SkimDiboolHandle;
+    event.getByLabel(SkimDiLeptoninst_.c_str(),SkimDiLeptonflag_.c_str(), SkimDiboolHandle);
+    if ( *SkimDiboolHandle.product()==1 )  {
+      DiLeptonpassed=true;
+      nDiLeptonSkimEvents++;
+      if (!useTriLeptonSkim) nSelectedSkimEvents++;    
+    }
+    else {
+      if (!useTriLeptonSkim)  return false;
+    }
+  } 
+ 
+  // TriLepton
+  if (useTriLeptonSkim){ 
+    edm::Handle<bool> SkimTriboolHandle;
+    event.getByLabel(SkimTriLeptoninst_.c_str(),SkimTriLeptonflag_.c_str(), SkimTriboolHandle);
+    
+    if ( *SkimTriboolHandle.product()==1 )  {
+      TriLeptonpassed=true;
+      nTriLeptonSkimEvents++;
+      if (!useDiLeptonSkim) nSelectedSkimEvents++;
+    }	
+    else {
+      if (!useDiLeptonSkim)  return false;
+    }
   }
   
+  // DiLepton OR TriLepton
+  if (useDiLeptonSkim && useTriLeptonSkim) {
+    if (DiLeptonpassed ||  TriLeptonpassed){
+      nSelectedSkimEvents++;
+    }
+    else return false;
+  }
+
   return true;
 
 }

@@ -1,7 +1,8 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 
-#include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsHLTAnalysis.h>   
-#include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkimProducer.h>
+#include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsHLTAnalysis.h> 
+#include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkimDiLeptonProducer.h>  
+#include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkimTriLeptonProducer.h>
 #include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkimFilter.h>
 #include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkim.h>
 #include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkimEff.h>
@@ -15,7 +16,8 @@
 
 
 DEFINE_FWK_MODULE(HiggsToZZ4LeptonsHLTAnalysis);
-DEFINE_FWK_MODULE(HiggsToZZ4LeptonsSkimProducer);
+DEFINE_FWK_MODULE(HiggsToZZ4LeptonsSkimDiLeptonProducer);
+DEFINE_FWK_MODULE(HiggsToZZ4LeptonsSkimTriLeptonProducer);
 DEFINE_FWK_MODULE(HiggsToZZ4LeptonsSkimFilter);
 DEFINE_FWK_MODULE(HiggsToZZ4LeptonsSkim);
 DEFINE_FWK_MODULE(HiggsToZZ4LeptonsSkimEff);
