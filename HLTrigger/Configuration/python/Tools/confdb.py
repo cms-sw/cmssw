@@ -786,6 +786,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['paths'].append( "-HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*" )
       self.options['paths'].append( "-HLT_Mu5_Track0_Jpsi_B5Q7_v*" )
       self.options['paths'].append( "-HLT_Random_v*" )
+      self.options['paths'].append( "-HLT_Mu5_Track2_Jpsi_v*" )
       self.options['paths'].append( "-HLT_Mu5_Track5_Jpsi_v*" )
       self.options['paths'].append( "-HLT_Mu7_Track5_Jpsi_v*" )
       self.options['paths'].append( "-HLT_Mu7_Track7_Jpsi_v*" )
@@ -797,6 +798,7 @@ if 'GlobalTag' in %%(dict)s:
       # TODO: 5E32 paths for which a recovery should be attempted:
       self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v*" )
       self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v*" )
+      self.options['paths'].append( "-HLT_HT250_DoubleDisplacedJet60_v*" )
 
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:
