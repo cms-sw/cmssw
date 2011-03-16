@@ -239,7 +239,7 @@ int main()
   std::cout << "Stored two combinations of latency and mode: (14, 37), (14, 36)" << std::endl;
   std::cout << "The Read-out mode is the same and is deconvolution" << std::endl;
 
-  if( !latency4.allPeak() ) {
+  if( latency4.singleReadOutMode() == 0 ) {
     std::cout << "Test passed" << std::endl;
   }
   else {
@@ -254,7 +254,22 @@ int main()
   std::cout << "Stored two combinations of latency and mode: (14, 47), (14, 46)" << std::endl;
   std::cout << "The Read-out mode is the same and is peak" << std::endl;
 
-  if( latency5.allPeak() ) {
+  if( latency5.singleReadOutMode() == 1 ) {
+    std::cout << "Test passed" << std::endl;
+  }
+  else {
+    std::cout << "ERROR: test not passed" << std::endl;
+  }
+
+  SiStripLatency latency6;
+  latency6.put(1, 0, 14, 47);
+  latency6.put(2, 0, 14, 46);
+  latency6.put(3, 0, 14, 37);
+  latency6.put(4, 0, 14, 36);
+  std::cout << "Stored four combinations of latency and mode: (14, 47), (14, 46), (14, 37), (14, 36)" << std::endl;
+  std::cout << "The Read-out mode is mixed" << std::endl;
+
+  if( latency6.singleReadOutMode() == -1 ) {
     std::cout << "Test passed" << std::endl;
   }
   else {

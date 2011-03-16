@@ -152,19 +152,43 @@ void SiStripLatency::allModes(std::vector<uint16_t> & allModesVector) const
   allModesVector.erase( unique( allModesVector.begin(), allModesVector.end() ), allModesVector.end() );
 }
 
-bool SiStripLatency::allPeak() const
+int16_t SiStripLatency::singleReadOutMode() const
 {
-  if( (singleMode() & 8) == 8 ) return true;
-  // If we are here the Tracker is not in single mode. Check if it is in single Read-out mode.
-  bool allInPeakMode = true;
-  std::vector<uint16_t> allModesVector;
-  allModes(allModesVector);
-  std::vector<uint16_t>::const_iterator it = allModesVector.begin();
-  for( ; it != allModesVector.end(); ++it ) {
-    if( ((*it) & 8) == 0 ) allInPeakMode = false;
+  uint16_t mode = singleMode();
+  if(mode != 0 ) {
+    if( (mode & readModeMask_) == readModeMask_ ) return 1;
+    if( (mode & readModeMask_) == 0 ) return 0;
   }
-  return allInPeakMode;
+  else {
+    // If we are here the Tracker is not in single mode. Check if it is in single Read-out mode.
+    bool allInPeakMode = true;
+    bool allInDecoMode = true;
+    std::vector<uint16_t> allModesVector;
+    allModes(allModesVector);
+    std::vector<uint16_t>::const_iterator it = allModesVector.begin();
+    for( ; it != allModesVector.end(); ++it ) {
+      if( ((*it) & readModeMask_) == readModeMask_ ) allInDecoMode = false;
+      if( ((*it) & readModeMask_) == 0 ) allInPeakMode = false;
+    }
+    if( allInPeakMode ) return 1;
+    if( allInDecoMode ) return 0;
+  }
+  return -1;
 }
+
+// bool SiStripLatency::allPeak() const
+// {
+//   if( (singleMode() & 8) == 8 ) return true;
+//   // If we are here the Tracker is not in single mode. Check if it is in single Read-out mode.
+//   bool allInPeakMode = true;
+//   std::vector<uint16_t> allModesVector;
+//   allModes(allModesVector);
+//   std::vector<uint16_t>::const_iterator it = allModesVector.begin();
+//   for( ; it != allModesVector.end(); ++it ) {
+//     if( ((*it) & 8) == 0 ) allInPeakMode = false;
+//   }
+//   return allInPeakMode;
+// }
 
 void SiStripLatency::allLatencies(std::vector<uint16_t> & allLatenciesVector) const
 {

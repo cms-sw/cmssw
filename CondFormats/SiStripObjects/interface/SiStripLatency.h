@@ -38,8 +38,8 @@
  * The method allLatencyAndModes() returns the internal vector<Latency> (by value).
  * <br>
  * The method allUniqueLatencyAndModes() returns all the combinations of latency and mode present. <br>
- * The method allPeak() returns a bool true if all the modes are in peak. <br>
- * ATTENTION: This method assumes that latency and mode are stored in a unsinged short.
+ * ATTENTION: This method assumes that latency and mode are stored in a unsinged short. <br>
+ * The method singleReadOutMode() returns: 1 if all the Tracker is in peak, 0 if it is in deco, -1 if it is in mixed mode <br>
  * <br>
  * The method allModes (allLatencies) fill the passed vector with all different modes
  * (latencies) in the Tracker. <br>
@@ -54,7 +54,9 @@ class SiStripLatency
 {
  public:
 
-  SiStripLatency() {}
+  SiStripLatency() :
+    readModeMask_(8)
+  {}
 
   // Defined as public for genreflex
   struct Latency
@@ -93,7 +95,8 @@ class SiStripLatency
   void allLatencies(std::vector<uint16_t> & allLatenciesVector) const;
   /// Fills the passed vector with all the possible modes in the Tracker
   void allModes(std::vector<uint16_t> & allModesVector) const;
-  bool allPeak() const;
+  int16_t singleReadOutMode() const;
+  //   bool allPeak() const;
 
   std::vector<Latency> allUniqueLatencyAndModes();
 
@@ -149,6 +152,7 @@ class SiStripLatency
     latConstIt pos = lower_bound(latencies_.begin(), latencies_.end(), detIdAndApv, OrderByDetIdAndApv());
     return pos;
   }
+  uint16_t readModeMask_;
   std::vector<Latency> latencies_;
 };
 
