@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <sstream>
 
+#define READMODEMASK 8
+
 /**
  * Holds the latency and the mode of the run. <br>
  * The latency is stored per apv and the information is compressed by reducing

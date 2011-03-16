@@ -275,3 +275,5 @@ void SiStripLatency::printDebug(std::stringstream & ss) const
     ss << "for detId = " << detId << " and apv pair = " << apv << " latency = " << int(it->latency) << " and mode = " << int(it->mode) << std::endl;
   }
 }
+
+#undef READMODEMASK
