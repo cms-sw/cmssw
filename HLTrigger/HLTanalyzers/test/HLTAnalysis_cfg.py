@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 isData=1 # =1 running on real data, =0 running on MC
 
 
-OUTPUT_HIST='openhlt.root'
+OUTPUT_HIST='/tmp/jjhollar/openhlt_SingleMu_run160406.root'
 NEVTS=-1
 MENU="GRun" # GRun for data or MC with >= CMSSW_3_8_X
 isRelval=0 # =0 for running on MC RelVals, =0 for standard production MC, no effect for data 
@@ -58,7 +58,10 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/data/Commissioning11/Commissioning/RAW/v3/000/160/285/86825A00-FB4B-E011-97C0-0030487C8E00.root'
+        '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/CA9EFACF-A14D-E011-ACB9-00304879EDEA.root',
+                                        '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/34691D6B-A54D-E011-8177-0030487CF41E.root',
+                                        '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/1601C6C0-A04D-E011-A2CE-0030487CD812.root',
+                                        '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/1020951C-A34D-E011-A99F-0030487CD7B4.root'
     )
 )
 

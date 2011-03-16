@@ -120,7 +120,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     IsoPixelTrackVertices       = cms.InputTag("hltPixelVertices"),    
 
     ### Track settings
-    PixelTracksL3               = cms.InputTag("hltPixelCandsForMinBias"),                         
+    PixelTracksL3               = cms.InputTag("hltPixelCands"),                         
 
     ### Calo tower settings
     caloTowerThreshold          = cms.double( 2.0 ),
