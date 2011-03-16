@@ -50,6 +50,26 @@ summaryFile=/nfshome0/popcondev/L1Job/o2o.summary
 logFile=/nfshome0/popcondev/L1Job/validate-l1Key-${version}.log
 
 #==============================================================================
+# Check for semaphore file
+#==============================================================================
+
+semaphoreFile=/nfshome0/popcondev/L1Job/${release}/validate-l1Key.lock
+
+if [ -f ${semaphoreFile} ]
+    then
+    echo "`date` : validate-l1Key.sh" >> ${logFile}
+    echo "$0 already running.  Aborting process."  | tee -a ${logFile}
+    tail -3 ${logFile} >> /nfshome0/popcondev/L1Job/o2o.summary
+    exit 50
+else
+    touch ${semaphoreFile}
+fi
+
+# Delete semaphore and exit if any signal is trapped
+# KILL signal (9) is not trapped even though it is listed below.
+trap "rm -f ${semaphoreFile}; mv /nfshome0/popcondev/L1Job/${release}/validate-l1Key/temp.log /nfshome0/popcondev/L1Job/${release}/validate-l1Key/temp.log.save; mv /nfshome0/popcondev/L1Job/${emulatorRelease}/validate-l1Key/temp.log /nfshome0/popcondev/L1Job/${emulatorRelease}/validate-l1Key/temp.log.save; exit" 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64
+
+#==============================================================================
 # Set up environment
 #==============================================================================
 
@@ -216,5 +236,8 @@ echo "" >> ${logFile}
 #fi
 
 echo "${tsc_key} ${validationStatus} ${writeStatus}" >> ${writtenFile}
+
+# Delete semaphore file
+rm -f ${semaphoreFile}
 
 exit ${o2ocode}
