@@ -154,7 +154,6 @@ class SiStripLatency
     latConstIt pos = lower_bound(latencies_.begin(), latencies_.end(), detIdAndApv, OrderByDetIdAndApv());
     return pos;
   }
-  uint16_t readModeMask_;
   std::vector<Latency> latencies_;
 };
 
