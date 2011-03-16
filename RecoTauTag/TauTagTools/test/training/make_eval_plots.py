@@ -78,7 +78,7 @@ def make_perf_curve(signal, background, signal_denom, background_denom):
 # Get the discriminators to plot
 discriminators = {}
 discriminators['hpsPFTauProducer'] = [
-    #'hpsPFTauDiscriminationByDecayModeFinding',
+    'hpsPFTauDiscriminationByDecayModeFinding',
     'hpsPFTauDiscriminationByLooseIsolation',
     'hpsPFTauDiscriminationByMediumIsolation',
     'hpsPFTauDiscriminationByTightIsolation',
@@ -89,7 +89,7 @@ discriminators['shrinkingConePFTauProducer'] = [
     #'shrinkingConePFTauDiscriminationByIsolation',
     #'shrinkingConePFTauDiscriminationByTrackIsolation',
     #'shrinkingConePFTauDiscriminationByECALIsolation',
-    'shrinkingConePFTauDiscriminationByTaNC',
+    #'shrinkingConePFTauDiscriminationByTaNC',
     #'shrinkingConePFTauDiscriminationByTaNCfrOnePercent',
     'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent',
     #'shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent',
@@ -97,11 +97,11 @@ discriminators['shrinkingConePFTauProducer'] = [
 ]
 
 discriminators['hpsTancTaus'] = [
-    'hpsTancTausDiscriminationByTancRaw',
+    #'hpsTancTausDiscriminationByTancRaw',
     #'hpsTancTausDiscriminationByTanc',
     'hpsTancTausDiscriminationByTancLoose',
-    #'hpsTancTausDiscriminationByTancMedium',
-    #'hpsTancTausDiscriminationByTancTight',
+    'hpsTancTausDiscriminationByTancMedium',
+    'hpsTancTausDiscriminationByTancTight',
 ]
 
 #del discriminators['shrinkingConePFTauProducer']
@@ -137,7 +137,8 @@ discriminator_translator = {
 
 disc_to_plot = discriminators.keys()
 
-good_colors = [ROOT.EColor.kRed-9, ROOT.EColor.kBlue-9, ROOT.EColor.kBlack, ROOT.EColor.kGreen-9, ROOT.EColor.kViolet]
+good_colors = [ROOT.EColor.kRed-9, ROOT.EColor.kBlue-9, ROOT.EColor.kBlack,
+               ROOT.EColor.kGreen-9, ROOT.EColor.kViolet, ROOT.EColor.kAzure]
 disc_to_plot = ['shrinkingConePFTauProducer', 'hpsPFTauProducer', 'hpsTancTaus']
 
 pt_curves_to_plot = [
@@ -150,9 +151,11 @@ pt_curves_to_plot = [
     ('hpsPFTauProducer',
      'hpsPFTauDiscriminationByTightIsolation'),
     ('hpsTancTaus',
-    'hpsTancTausDiscriminationByTancRaw'),
-    #('hpsTancTaus',
-    #'hpsTancTausDiscriminationByTancMedium'),
+    'hpsTancTausDiscriminationByTancLoose'),
+    ('hpsTancTaus',
+    'hpsTancTausDiscriminationByTancMedium'),
+    ('hpsTancTaus',
+    'hpsTancTausDiscriminationByTancTight'),
 ]
 
 _PT_CUT = 15
@@ -186,6 +189,7 @@ if __name__ == "__main__":
         for producer in discriminators.keys():
             sample_info['algos'][producer] = {}
             for discriminator in discriminators[producer]:
+                print "Getting %s-%s" % (producer, discriminator)
                 producer_folder = sample_info['file'].Get("plot"+producer)
                 to_get = discriminator + _DENOM_PLOT_TYPE[sample]
                 raw_histo = producer_folder.Get(to_get)
@@ -386,11 +390,11 @@ if __name__ == "__main__":
     pt_canvas.SaveAs(output_file.replace('.pdf', '_pt_eff.pdf'))
 
     print "Making PU plots"
-    vtx_signal = ROOT.TH1F("sig_vtx", "Efficiency vs. PU", 7, -0.5, 5.5)
-    vtx_signal.SetMaximum(0.6)
+    vtx_signal = ROOT.TH1F("sig_vtx", "Efficiency vs. PU", 16, -0.5, 15.5)
+    vtx_signal.SetMaximum(1.0)
     vtx_signal.SetMinimum(0)
     vtx_signal.GetXaxis().SetTitle("N_{PU}")
-    vtx_background = ROOT.TH1F("bkg_vtx", "Fake rate vs. PU", 7, -0.5, 5.5)
+    vtx_background = ROOT.TH1F("bkg_vtx", "Fake rate vs. PU", 16, -0.5, 15.5)
     vtx_background.GetXaxis().SetTitle("N_{PU}")
     vtx_background.SetMaximum(1)
     vtx_background.SetMinimum(1e-3)
@@ -414,7 +418,7 @@ if __name__ == "__main__":
             signal_graph.SetLineWidth(2)
 
             pt_canvas.cd(1)
-            signal_graph.Draw("lpe")
+            signal_graph.Draw("pe")
             signal_graph.GetFunction("pol1").SetLineStyle(2)
             signal_graph.GetFunction("pol1").SetLineWidth(1)
             signal_graph.GetFunction("pol1").SetLineColor(color)
@@ -429,7 +433,7 @@ if __name__ == "__main__":
             background_graph.GetFunction("pol1").SetLineColor(color)
 
             pt_canvas.cd(2)
-            background_graph.Draw("lep")
+            background_graph.Draw("ep")
             keep.append(background_graph)
 
         pt_legend.Draw()

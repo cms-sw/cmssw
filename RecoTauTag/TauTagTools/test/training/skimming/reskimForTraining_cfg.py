@@ -68,3 +68,5 @@ process.schedule = cms.Schedule(
     process.backgroundPath,
     process.out
 )
+
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

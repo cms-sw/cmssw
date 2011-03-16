@@ -154,7 +154,11 @@ process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
 
 # Particle Flow re-processing
 process.pfReReco = cms.Sequence(process.particleFlowReco+
-                                process.ak5PFJets)
+                                process.ak5PFJets+
+                                process.kt6PFJets)
+
+process.kt6PFJets.doRhoFastjet = True
+process.kt6PFJets.Rho_EtaMax = cms.double( 4.4)
 
 process.rereco = cms.Sequence(
     process.localReReco*
@@ -412,6 +416,7 @@ poolOutputCommands = cms.untracked.vstring(
     'keep patTriggerEvent_*_*_TANC',
     'keep PileupSummaryInfo_*_*_*',
     'keep *_ak5PFJets_*_TANC',
+    'keep *_kt6PFJets_*_TANC', # for PU subtraction
     'keep *_offlinePrimaryVertices_*_TANC',
     'keep *_offlineBeamSpot_*_TANC',
     'keep recoTracks_generalTracks_*_TANC',

@@ -61,7 +61,7 @@ decay_mode_map = {
 _decay_mode_name = decay_mode_map[_decay_mode]
 
 process = cms.Process("Eval")
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(40000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(60000) )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 2000
@@ -75,10 +75,12 @@ process.TFileService = cms.Service(
     fileName = cms.string(options.outputFile)
 )
 
+print "WARNING: input branch workaround!"
 # Input files
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring(options.inputFiles)
+    fileNames = cms.untracked.vstring(
+        file for file in options.inputFiles if 'Multi' not in file),
 )
 
 # Load PiZero algorithm
@@ -196,3 +198,7 @@ process.cleanTauPlots = cms.EDAnalyzer(
 process.main += process.cleanTauPlots
 
 process.path = cms.Path(process.main)
+
+process.options = cms.untracked.PSet(
+    IgnoreCompletely = cms.untracked.vstring("MismatchedInputFIles"),
+)

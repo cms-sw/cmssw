@@ -46,7 +46,7 @@ if options.signal == 1:
     _SIGNAL = True
 
 process = cms.Process("Eval")
-#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(40000) )
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20000) )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 2000
@@ -75,7 +75,7 @@ process.source = cms.Source(
     #skipEvents = cms.untracked.uint32(20000)
 )
 
-_KIN_CUT = "pt > 10 & abs(eta) < 2.5"
+_KIN_CUT = "pt > 5 & abs(eta) < 2.5"
 
 # For signal, select jets that match a hadronic decaymode
 process.kinematicSignalJets = cms.EDFilter(
@@ -128,13 +128,12 @@ process.backgroundSpecific = cms.Sequence(process.kinematicBackgroundJets)
 # Load the tau sequence
 process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 # Remove the lepton discrimination
-print "Removing lepton discriminants"
-print process.PFTau.remove(process.shrinkingConePFTauDiscriminationAgainstElectron)
-print process.PFTau.remove(process.shrinkingConePFTauDiscriminationAgainstMuon)
-print process.PFTau.remove(process.hpsPFTauDiscriminationAgainstElectron)
-print process.PFTau.remove(process.hpsPFTauDiscriminationAgainstMuon)
-print process.PFTau.remove(process.hpsTancTausDiscriminationAgainstElectron)
-print process.PFTau.remove(process.hpsTancTausDiscriminationAgainstMuon)
+lepton_discriminants = [name for name in process.PFTau.moduleNames()
+                        if 'Muon' in name or 'Electron' in name]
+print "Removing lepton discriminants: %s" % " ".join(lepton_discriminants)
+for lepton_discriminant in lepton_discriminants:
+    module = getattr(process, lepton_discriminant)
+    process.PFTau.remove(module)
 
 # RecoTau modifier that takes a PFJet -> tau GenJet matching and embed the true
 # four vector and decay mode in unused PFTau variables
@@ -276,6 +275,12 @@ process.load("RecoTauTag.Configuration.HPSTancTaus_cfi")
 process.hpsTancTausDiscriminationByTanc.transforms = custom_transform.transforms
 process.combinatoricRecoTausTancTransform.transforms = \
         custom_transform.transforms
+process.hpsTancTausDiscriminationByTancLoose.Prediscriminants.tancCut.cut = \
+        custom_transform.cuts.looseCut
+process.hpsTancTausDiscriminationByTancMedium.Prediscriminants.tancCut.cut = \
+        custom_transform.cuts.mediumCut
+process.hpsTancTausDiscriminationByTancTight.Prediscriminants.tancCut.cut = \
+        custom_transform.cuts.tightCut
 
 ################################################################################
 ##         Plot the output of each tau algorithm                             ###
@@ -304,11 +309,14 @@ discriminators['shrinkingConePFTauProducer'] = [
 discriminators['hpsTancTaus'] = [
     'hpsTancTausDiscriminationByTanc',
     'hpsTancTausDiscriminationByTancLoose',
-    #'hpsTancTausDiscriminationByTancMedium',
-    #'hpsTancTausDiscriminationByTancTight',
+    'hpsTancTausDiscriminationByTancMedium',
+    'hpsTancTausDiscriminationByTancTight',
     'hpsTancTausDiscriminationByTancRaw'
 ]
 
+pileup_cut = 'pt > 15 & jetRef().pt > 20'
+if _SIGNAL:
+    pileup_cut = 'pt > 15 & alternatLorentzVect().pt > 15'
 process.plothpsTancTaus = cms.EDAnalyzer(
     "RecoTauPlotDiscriminator",
     src = cms.InputTag("hpsTancTaus"),
@@ -316,6 +324,7 @@ process.plothpsTancTaus = cms.EDAnalyzer(
     pileupInfo = cms.InputTag("addPileupInfo"),
     pileupVertices = cms.InputTag("recoTauPileUpVertices"),
     pileupTauPtCut = cms.double(15),
+    pileupPlotCut = cms.string(pileup_cut),
     discriminators = cms.VInputTag(
         discriminators['hpsTancTaus']
     ),
