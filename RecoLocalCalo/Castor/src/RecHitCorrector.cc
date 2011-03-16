@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet
 //         Created:  Wed Feb 23 11:29:43 CET 2011
-// $Id$
+// $Id: RecHitCorrector.cc,v 1.1 2011/02/24 09:45:08 hvanhaev Exp $
 //
 //
 
@@ -37,7 +37,9 @@
 #include "CalibFormats/CastorObjects/interface/CastorCalibrations.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
-
+#include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
+#include "CondFormats/CastorObjects/interface/CastorChannelStatus.h"
+#include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 
 //
 // class declaration
@@ -77,7 +79,6 @@ factor_(iConfig.getParameter<double>("revertFactor"))
    //register your products
    produces<CastorRecHitCollection>();
    //now do what ever other initialization is needed
-  
 }
 
 
@@ -100,12 +101,17 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    
+   // get original rechits
    edm::Handle<CastorRecHitCollection> rechits;
    iEvent.getByLabel(inputLabel_,rechits);
    
    // get conditions
    edm::ESHandle<CastorDbService> conditions;
    iSetup.get<CastorDbRecord>().get(conditions);
+   
+   edm::ESHandle<CastorChannelQuality> p;
+   iSetup.get<CastorChannelQualityRcd>().get(p);
+   CastorChannelQuality* myqual = new CastorChannelQuality(*p.product());
    
    if (!rechits.isValid()) std::cout << "No valid CastorRecHitCollection found, please check the InputLabel..." << std::endl;
    
@@ -122,12 +128,27 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
 	// do proper gain calibration reading the latest entries in the condDB
 	const CastorCalibrations& calibrations=conditions->getCastorCalibrations(rechit.id());
-	int capid = 0; // take some capid
+	int capid = 0; // take some capid, gains are the same for all capid's
 	double correctedenergy = fC*calibrations.gain(capid);
 	//std::cout << " correctedenergy = " << correctedenergy << " gain = " << calibrations.gain(capid) << std::endl;
 	
-	CastorRecHit *correctedhit = new CastorRecHit(rechit.id(),correctedenergy,time);
-	rec->push_back(*correctedhit);
+	// now check the channelquality of this rechit
+	bool ok = true;
+	DetId detcell=(DetId)rechit.id();
+	std::vector<DetId> channels = myqual->getAllChannels();
+	//std::cout << "number of specified quality flags = " << channels.size() << std::endl;
+	for (std::vector<DetId>::iterator channel = channels.begin();channel !=  channels.end();channel++) {	
+		if (channel->rawId() == detcell.rawId()) {
+			const CastorChannelStatus* mydigistatus=myqual->getValues(*channel);
+			//std::cout << "CastorChannelStatus = " << mydigistatus->getValue() << std::endl;
+			if (mydigistatus->getValue() == 2989) ok = false; // 2989 = BAD
+		}
+	}
+	
+	if (ok) {
+	    CastorRecHit *correctedhit = new CastorRecHit(rechit.id(),correctedenergy,time);
+	    rec->push_back(*correctedhit);
+	}
    }
    
    iEvent.put(rec);
