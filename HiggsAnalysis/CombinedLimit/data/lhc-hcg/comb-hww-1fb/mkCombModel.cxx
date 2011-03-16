@@ -99,6 +99,39 @@ void mkNuisancePdf(RooWorkspace *w) {
     w->import(*prod);
     delete it;
 }
+
+void collectObsFactors(RooProdPdf *pdf, const RooArgSet &observables, RooArgList &terms) {
+    RooArgList list(pdf->pdfList());
+    std::cout << "pdf " << pdf->GetName() << " is a product of " << list.getSize() << " terms." << std::endl;
+    for (int i = 0, n = list.getSize(); i < n; ++i) {
+        RooAbsPdf *pdfi = (RooAbsPdf *) list.at(i);
+        std::cout << "   pdf " << pdfi->GetName() << " (" << pdfi->ClassName() << ") ";
+        if (pdfi->ClassName() == std::string("RooProdPdf")) {
+            std::cout << " is product: iterate again." << std::endl;
+            collectObsFactors((RooProdPdf*)pdfi, observables, terms);
+        } else if (pdfi->dependsOn(observables)) {
+            terms.add(*pdfi);
+            std::cout << " depends on observables: included." << std::endl;
+        } else {
+            std::cout << " does not depend on observables: ignored." << std::endl;
+        }
+    }
+}
+void mkModelObsPdf(RooWorkspace *w, TString model="s") {
+    RooAbsPdf *model_s = w->pdf("model_"+model);
+    if (model_s->ClassName() != std::string("RooProdPdf")) {
+        std::cout << "Error: model_"+model+" is not a RooProdPdf. Can't optimize." << std::endl;
+        return;
+    } 
+    const RooArgSet &observables = *w->set("observables");
+    RooArgList factors;
+    collectObsFactors((RooProdPdf*)model_s, observables, factors);
+    RooProdPdf *modelObs_s = new RooProdPdf("modelObs_"+model, "Part of model_"+model+" that depends on observables", factors);
+    w->import(*modelObs_s);
+    std::cout << "Created " << modelObs_s->GetName() << " from product of " << std::endl;
+    factors.Print("V");
+}
+
 void mkCombModel(int mass=140) {
     TFile *atlas = TFile::Open(TString::Format("atlas/atlas.mH%d.root",mass));
     TFile *cms   = TFile::Open(TString::Format("cms/higgsCombineHWW.ProfileLikelihood.mH%d.root",mass));
@@ -138,6 +171,9 @@ void mkCombModel(int mass=140) {
     w->factory("EDIT::model_b(model_s,r=__zero__)");
 
     mkNuisancePdf(w);
+
+    mkModelObsPdf(w,"s");
+    mkModelObsPdf(w,"b");
 
     ModelConfig *m = new ModelConfig("ModelConfig", w);
     m->SetPdf(*model_s);
