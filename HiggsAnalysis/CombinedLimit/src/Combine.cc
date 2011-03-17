@@ -96,21 +96,22 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   toysNoSystematics_ = vm.count("toysNoSystematics");
 }
 
-bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
+bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr) {
   TStopwatch timer;
   bool ret = false;
   try {
-    double hint = 0; bool hashint = false;
+    double hint = 0, hintErr = 0; bool hashint = false;
     if (hintAlgo) {
         if (hintUsesStatOnly_ && withSystematics) {
             withSystematics = false;
-            hashint = hintAlgo->run(w, data, hint, 0);
+            hashint = hintAlgo->run(w, data, hint, hintErr, 0);
             withSystematics = true;
         } else {
-            hashint = hintAlgo->run(w, data, hint, 0);
+            hashint = hintAlgo->run(w, data, hint, hintErr, 0);
         } 
-   }
-    ret = algo->run(w, data, limit, (hashint ? &hint : 0));    
+    }
+    limitErr = 0; // start with 0, as some algorithms don't compute it
+    ret = algo->run(w, data, limit, limitErr, (hashint ? &hint : 0));    
   } catch (std::exception &ex) {
     std::cerr << "Caught exception " << ex.what() << std::endl;
     return false;
@@ -127,7 +128,7 @@ bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
   return ret;
 }
 
-void Combine::run(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys) {
+void Combine::run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys) {
   TString pwd(gSystem->pwd());
   TString tmpDir = "roostats-XXXXXX"; 
   mkdtemp(const_cast<char *>(tmpDir.Data()));
@@ -295,7 +296,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
         nuisancesGuess->Print();
         nuisances = w->set("nuisances");
     } else {
-        throw std::logic_error("The signal model has no nuisance parameters. Please run the limit tool with no systematics (option -S 0).");
+        std::cout << "The signal model has no nuisance parameters. Please run the limit tool with no systematics (option -S 0)." << std::endl;
+        std::cout << "To make things easier, I will assume you have done it." << std::endl;
+        withSystematics = false;
     }
     delete nuisancesGuess;
   }  
@@ -356,7 +359,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     if (verbose > 0) utils::printRAD(dobs);
-    if (mklimit(w,*dobs,limit)) tree->Fill();
+    if (mklimit(w,*dobs,limit,limitErr)) tree->Fill();
   }
   
   
@@ -401,7 +404,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
       if (verbose > 0) utils::printRAD(absdata_toy);
       w->loadSnapshot("clean");
       if (verbose > 1) utils::printPdf(w, "model_b");
-      if (mklimit(w,*absdata_toy,limit)) {
+      if (mklimit(w,*absdata_toy,limit,limitErr)) {
 	tree->Fill();
 	++nLimits;
 	expLimit += limit; 

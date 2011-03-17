@@ -14,7 +14,7 @@ class MarkovChainMC : public LimitAlgo {
 public:
   MarkovChainMC() ;
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
-  bool run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
+  bool run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual const std::string & name() const {
     static const std::string name("MarkovChainMC");
     return name;
@@ -42,7 +42,7 @@ private:
   static float        cropNSigmas_;
   static int          debugProposal_;
   // return number of items in chain, 0 for error
-  int runOnce(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) const ;
+  int runOnce(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) const ;
 
   void limitAndError(double &limit, double &limitErr, std::vector<double> &limits) const ;
 };

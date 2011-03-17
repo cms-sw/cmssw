@@ -22,11 +22,11 @@ public:
   HybridNew() ; 
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
 
-  virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
-  virtual bool runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
-  virtual bool runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
-  virtual bool runSinglePoint(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
-  virtual bool runTestStatistics(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
+  virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool runLimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool runSinglePoint(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool runTestStatistics(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual const std::string & name() const {
     static const std::string name("HybridNew");
     return name;

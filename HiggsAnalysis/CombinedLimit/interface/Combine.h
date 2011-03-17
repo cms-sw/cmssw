@@ -27,10 +27,10 @@ public:
   const boost::program_options::options_description & options() const { return options_; }    
   void applyOptions(const boost::program_options::variables_map &vm) ;
   
-  void run(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys);
+  void run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys);
   
 private:
-  bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit) ;
+  bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr) ;
   
   boost::program_options::options_description options_;
   

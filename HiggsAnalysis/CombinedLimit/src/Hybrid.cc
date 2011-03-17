@@ -68,7 +68,7 @@ void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
   }
 }
 
-bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
   RooFitGlobalKillSentry silence(RooFit::WARNING);
   RooRealVar *r = w->var("r"); r->setConstant(true);
   RooArgSet  poi(*r);
@@ -99,11 +99,11 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double 
   hc.PatchSetExtended(w->pdf("model_b")->canBeExtended()); // Number counting, each dataset has 1 entry 
   hc.SetNumberOfToys(nToys_);
 
-  if (singlePointScan_) return runSinglePoint(hc, w, data, limit, hint);
-  return doSignificance_ ? runSignificance(hc, w, data, limit, hint) : runLimit(hc, w, data, limit, hint);
+  if (singlePointScan_) return runSinglePoint(hc, w, data, limit, limitErr, hint);
+  return doSignificance_ ? runSignificance(hc, w, data, limit, limitErr, hint) : runLimit(hc, w, data, limit, limitErr, hint);
 }
   
-bool Hybrid::runLimit(HybridCalculatorOriginal& hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool Hybrid::runLimit(HybridCalculatorOriginal& hc, RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
   RooRealVar *r = w->var("r"); r->setConstant(true);
   if ((hint != 0) && (*hint > r->getMin())) {
     r->setMax(std::min<double>(3*(*hint), r->getMax()));
@@ -166,12 +166,14 @@ bool Hybrid::runLimit(HybridCalculatorOriginal& hc, RooWorkspace *w, RooAbsData 
   } else {
     limit = 0.5*(rMax+rMin);
   }
+  limitErr = 0.5*(rMax - rMin);
+
   std::cout << "\n -- Hybrid -- \n";
-  std::cout << "Limit: r < " << limit << " +/- " << 0.5*(rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
+  std::cout << "Limit: r < " << limit << " +/- " << limitErr << " @ " <<cl * 100<<"% CL\n";
   return true;
 }
 
-bool Hybrid::runSignificance(HybridCalculatorOriginal& hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool Hybrid::runSignificance(HybridCalculatorOriginal& hc, RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     using namespace RooStats;
     RooRealVar *r = w->var("r"); 
     r->setVal(1);
@@ -190,16 +192,18 @@ bool Hybrid::runSignificance(HybridCalculatorOriginal& hc, RooWorkspace *w, RooA
     limit = hcResult->Significance();
     double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - limit;
     double sigLo = RooStats::PValueToSignificance( 1 - (hcResult->CLb() - hcResult->CLbError()) ) - limit;
+    limitErr = std::max(sigHi,-sigLo);
     std::cout << "\n -- Hybrid -- \n";
     std::cout << "Significance: " << limit << "  " << sigLo << "/+" << sigHi << " (CLb " << hcResult->CLb() << " +/- " << hcResult->CLbError() << ")\n";
     return isfinite(limit);
 }
 
-bool Hybrid::runSinglePoint(HybridCalculatorOriginal & hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool Hybrid::runSinglePoint(HybridCalculatorOriginal & hc, RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     std::pair<double, double> result = eval(w->var("r"), rValue_, hc, true);
     std::cout << "\n -- Hybrid -- \n";
     std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << result.first << " +/- " << result.second << std::endl;
     limit = result.first;
+    limitErr = result.second;
     return true;
 }
 

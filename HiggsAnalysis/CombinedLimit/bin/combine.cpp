@@ -198,10 +198,11 @@ int main(int argc, char **argv) {
   TString toyName  = "";  if (runToys > 0 || seed != 123456 || vm.count("saveToys")) toyName  = TString::Format("%d.", seed);
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
   TFile *test = new TFile(fileName, "RECREATE"); outputFile = test;
-  TTree *t = new TTree("test", "test");
+  TTree *t = new TTree("limit", "limit");
   int syst, iToy, iSeed, iChannel; 
-  double mass, limit; 
+  double mass, limit, limitErr; 
   t->Branch("limit",&limit,"limit/D");
+  t->Branch("limitErr",&limitErr,"limitErr/D");
   t->Branch("mh",   &mass, "mh/D");
   t->Branch("syst", &syst, "syst/I");
   t->Branch("iToy", &iToy, "iToy/I");
@@ -222,7 +223,7 @@ int main(int argc, char **argv) {
   if (vm.count("igpMem")) setupIgProfDumpHook();
 
   try {
-     combiner.run(datacard, dataset, limit, iToy, t, runToys);
+     combiner.run(datacard, dataset, limit, limitErr, iToy, t, runToys);
   } catch (std::exception &ex) {
      cerr << "Error when running the combination:\n\t" << ex.what() << std::endl;
      test->Close();

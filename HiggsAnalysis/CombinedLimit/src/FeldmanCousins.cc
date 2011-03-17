@@ -30,7 +30,7 @@ void FeldmanCousins::applyOptions(const boost::program_options::variables_map &v
   toysFactor_ = vm.count("toysFactor") ? vm["toysFactor"].as<float>() : 1.0;
 }
 
-bool FeldmanCousins::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool FeldmanCousins::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
   RooRealVar *r = w->var("r");
   RooArgSet  poi(*r);
 

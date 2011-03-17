@@ -77,7 +77,7 @@ ProfileLikelihood::MinimizerSentry::~MinimizerSentry()
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer(minimizerTypeBackup.c_str(),minimizerAlgoBackup.empty() ? 0 : minimizerAlgoBackup.c_str());
 }
 
-bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) { 
+bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
   MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
   CloseCoutSentry sentry(verbose < 0);
 
@@ -113,7 +113,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
         }
         delete res;
       }
-      bool thisTry = (doSignificance_ ?  runSignificance(w,data,limit) : runLimit(w,data,limit));
+      bool thisTry = (doSignificance_ ?  runSignificance(w,data,limit,limitErr) : runLimit(w,data,limit,limitErr));
       if (!thisTry) continue;
       if (tries_ == 1) { success = true; break; }
       limits.push_back(limit); 
@@ -149,7 +149,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
   return success;
 }
 
-bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limit) {
+bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr) {
   RooRealVar *r = w->var("r");
   RooArgSet  poi(*r);
   double rMax = r->getMax();
@@ -191,7 +191,7 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limi
   return success;
 }
 
-bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit) {
+bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr) {
   RooRealVar *r = w->var("r");
   RooArgSet  poi(*r);
 

@@ -85,11 +85,6 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
         std::cerr << "MarkovChainMC: proposal type " << proposalTypeName_ << " not known." << "\n" << options_ << std::endl;
         throw std::invalid_argument("MarkovChainMC: unsupported proposal");
     }
-    if (proposalType_ == MultiGaussianP && !withSystematics) { 
-        std::cerr << "Sorry, the multi-gaussian proposal does not work without systematics.\n" << 
-                     "Please use the flat proposal instead (--proposal flat)\n" << std::endl;
-        throw std::invalid_argument("MarkovChainMC: unsupported proposal");
-    }
         
     runMinos_ = vm.count("runMinos");
     noReset_  = vm.count("noReset");
@@ -98,15 +93,21 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     //adaptiveTruncation_    = vm.count("adaptiveTruncation");
 }
 
-bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+  if (proposalType_ == MultiGaussianP && !withSystematics) { 
+      std::cerr << "Sorry, the multi-gaussian proposal does not work without systematics.\n" << 
+                   "Uniform proposal will be used instead.\n" << std::endl;
+      proposalType_ = UniformP;
+  }
+
   RooFitGlobalKillSentry silence(verbose > 0 ? RooFit::INFO : RooFit::WARNING);
 
   CloseCoutSentry coutSentry(verbose <= 0); // close standard output and error, so that we don't flood them with minuit messages
-  double suma = 0; int num = 0; double limitErr = 0;
+  double suma = 0; int num = 0;
   double savhint = (hint ? *hint : -1); const double *thehint = hint;
   std::vector<double> limits;
   for (unsigned int i = 0; i < tries_; ++i) {
-      if (int nacc = runOnce(w,data,limit,thehint)) {
+      if (int nacc = runOnce(w,data,limit,limitErr,thehint)) {
           suma += nacc;
           if (verbose > 1) std::cout << "Limit from this run: " << limit << std::endl;
           limits.push_back(limit);
@@ -134,7 +135,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
   }
   return true;
 }
-int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) const {
+int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) const {
   RooRealVar *r = w->var("r");
   RooArgSet  poi(*r);
   RooArgSet const &obs = *w->set("observables");

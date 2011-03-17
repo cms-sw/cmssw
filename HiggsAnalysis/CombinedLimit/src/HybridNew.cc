@@ -95,19 +95,19 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     plot_ = vm.count("plot") ? vm["plot"].as<std::string>() : std::string();
 }
 
-bool HybridNew::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool HybridNew::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::WARNING : RooFit::DEBUG);
     perf_totalToysRun_ = 0; // reset performance counter
     switch (workingMode_) {
-        case MakeLimit:            return runLimit(w, data, limit, hint);
-        case MakeSignificance:     return runSignificance(w, data, limit, hint);
-        case MakePValues:          return runSinglePoint(w, data, limit, hint);
-        case MakeTestStatistics:   return runTestStatistics(w, data, limit, hint);
+        case MakeLimit:            return runLimit(w, data, limit, limitErr, hint);
+        case MakeSignificance:     return runSignificance(w, data, limit, limitErr, hint);
+        case MakePValues:          return runSinglePoint(w, data, limit, limitErr, hint);
+        case MakeTestStatistics:   return runTestStatistics(w, data, limit, limitErr, hint);
     }
     assert("Shouldn't get here" == 0);
 }
 
-bool HybridNew::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool HybridNew::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     RooRealVar *r = w->var("r"); r->setConstant(true);
     HybridNew::Setup setup;
     std::auto_ptr<RooStats::HybridCalculator> hc(create(w, data, r, 1.0, setup));
@@ -132,12 +132,13 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit
     limit = hcResult->Significance();
     double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - limit;
     double sigLo = RooStats::PValueToSignificance( 1 - (hcResult->CLb() - hcResult->CLbError()) ) - limit;
+    limitErr = std::max(sigHi,-sigLo);
     std::cout << "\n -- Hybrid New -- \n";
     std::cout << "Significance: " << limit << "  " << sigLo << "/+" << sigHi << " (CLb " << hcResult->CLb() << " +/- " << hcResult->CLbError() << ")\n";
     return isfinite(limit);
 }
 
-bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
   RooRealVar *r = w->var("r"); r->setConstant(true);
   w->loadSnapshot("clean");
   if (!plot_.empty()) limitPlot_.reset(new TGraphErrors());
@@ -151,7 +152,8 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const
 
   double clsTarget = 1 - cl; 
   CLs_t clsMin(1,0), clsMax(0,0), clsMid(0,0);
-  double rMin = r->getMin(), rMax = r->getMax(), rError = 0.5*(rMax - rMin);
+  double rMin = r->getMin(), rMax = r->getMax(); 
+  limitErr = 0.5*(rMax - rMin);
 
   if (verbose > 0) std::cout << "Search for upper limit to the limit" << std::endl;
   for (int tries = 0; tries < 6; ++tries) {
@@ -182,20 +184,20 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const
   bool done = false;
   do {
     // determine point by bisection or interpolation
-    limit = 0.5*(rMin+rMax); rError = 0.5*(rMax-rMin);
+    limit = 0.5*(rMin+rMax); limitErr = 0.5*(rMax-rMin);
     if (algo_ == "logSecant" && clsMax.first != 0) {
         double logMin = log(clsMin.first), logMax = log(clsMax.first), logTarget = log(clsTarget);
         limit = rMin + (rMax-rMin) * (logTarget - logMin)/(logMax - logMin);
         if (clsMax.second != 0 && clsMin.second != 0) {
-            rError = hypot((logTarget-logMax) * (clsMin.second/clsMin.first), (logTarget-logMin) * (clsMax.second/clsMax.first));
-            rError *= (rMax-rMin)/((logMax-logMin)*(logMax-logMin));
+            limitErr = hypot((logTarget-logMax) * (clsMin.second/clsMin.first), (logTarget-logMin) * (clsMax.second/clsMax.first));
+            limitErr *= (rMax-rMin)/((logMax-logMin)*(logMax-logMin));
         }
     }
-    r->setError(rError);
+    r->setError(limitErr);
 
     // exit if reached accuracy on r 
-    if (rError < std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
-        if (verbose > 1) std::cout << "  reached accuracy " << rError << " below " << std::max(rAbsAccuracy_, rRelAccuracy_ * limit) << std::endl;
+    if (limitErr < std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
+        if (verbose > 1) std::cout << "  reached accuracy " << limitErr << " below " << std::max(rAbsAccuracy_, rRelAccuracy_ * limit) << std::endl;
         done = true; break;
     }
 
@@ -215,16 +217,19 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const
         }
     } else {
         if (verbose > 0) std::cout << "Trying to move the interval edges closer" << std::endl;
+        double rMinBound = rMin, rMaxBound = rMax;
         // try to reduce the size of the interval 
         while (clsMin.second == 0 || fabs(rMin-limit) > std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
             rMin = 0.5*(rMin+limit); 
             clsMin = eval(w, data, r, rMin, true, clsTarget); 
             if (fabs(clsMin.first-clsTarget) <= 2*clsMin.second) break;
+            rMinBound = rMin;
         } 
         while (clsMax.second == 0 || fabs(rMax-limit) > std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
             rMax = 0.5*(rMax+limit); 
             clsMax = eval(w, data, r, rMax, true, clsTarget); 
             if (fabs(clsMax.first-clsTarget) <= 2*clsMax.second) break;
+            rMaxBound = rMax;
         } 
         break;
     }
@@ -232,8 +237,10 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const
 
 
   if (!done) {
-      std::cout << "\n -- HybridNew, before fit -- \n";
-      std::cout << "Limit: r < " << limit << " +/- " << rError << " @ " <<cl * 100<<"% CL\n";
+      if (verbose) {
+          std::cout << "\n -- HybridNew, before fit -- \n";
+          std::cout << "Limit: r < " << limit << " +/- " << limitErr << " [" << rMin << ", " << rMax << "]\n";
+      }
 
       TF1 expoFit("expoFit","[0]*exp([1]*(x-[2]))", rMin, rMax);
       expoFit.FixParameter(0,clsTarget);
@@ -246,13 +253,14 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const
       graph.Fit(&expoFit,(verbose <= 1 ? "QNR EX0" : "NR EXO"));
      
       if ((rMin < expoFit.GetParameter(2))  && (expoFit.GetParameter(2) < rMax) && 
-          (expoFit.GetParError(2) < rError) && (expoFit.GetParError(2) < 0.5*(rMax-rMin))) { 
+          (expoFit.GetParError(2) < limitErr) && (expoFit.GetParError(2) < 0.5*(rMax-rMin))) { 
           // sanity check fit result
           limit = expoFit.GetParameter(2);
-          rError = expoFit.GetParError(2);
-      } else if (0.5*(rMax - rMin) < rError) {
+          limitErr = expoFit.GetParError(2);
+          if (verbose) std::cout << "fit converged" << std::endl;
+      } else if (0.5*(rMax - rMin) < limitErr) {
           limit  = 0.5*(rMax-rMin);
-          rError = 0.5*(rMax+rMin);
+          limitErr = 0.5*(rMax+rMin);
       }
   }
 
@@ -265,27 +273,28 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const
       line.SetLineColor(kRed); line.SetLineWidth(2); line.Draw();
       line.DrawLine(limit, 0, limit, limitPlot_->GetY()[0]);
       line.SetLineWidth(1); line.SetLineStyle(2);
-      line.DrawLine(limit-rError, 0, limit-rError, limitPlot_->GetY()[0]);
-      line.DrawLine(limit+rError, 0, limit+rError, limitPlot_->GetY()[0]);
+      line.DrawLine(limit-limitErr, 0, limit-limitErr, limitPlot_->GetY()[0]);
+      line.DrawLine(limit+limitErr, 0, limit+limitErr, limitPlot_->GetY()[0]);
       c1->Print(plot_.c_str());
   }
 
   std::cout << "\n -- Hybrid New -- \n";
-  std::cout << "Limit: r < " << limit << " +/- " << rError << " @ " << cl * 100 << "% CL\n";
+  std::cout << "Limit: r < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL\n";
   if (verbose > 1) std::cout << "Total toys: " << perf_totalToysRun_ << std::endl;
   return true;
 }
 
-bool HybridNew::runSinglePoint(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool HybridNew::runSinglePoint(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     RooRealVar *r = w->var("r"); r->setConstant(true);
     std::pair<double, double> result = eval(w, data, r, rValue_, true);
     std::cout << "\n -- Hybrid New -- \n";
     std::cout << (CLs_ ? "CLs = " : "CLsplusb = ") << result.first << " +/- " << result.second << std::endl;
     limit = result.first;
+    limitErr = result.second;
     return true;
 }
 
-bool HybridNew::runTestStatistics(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+bool HybridNew::runTestStatistics(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     RooRealVar *r = w->var("r"); 
     HybridNew::Setup setup;
     std::auto_ptr<RooStats::HybridCalculator> hc(create(w, data, r, rValue_, setup));

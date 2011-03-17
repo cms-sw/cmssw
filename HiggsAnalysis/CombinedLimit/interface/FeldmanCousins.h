@@ -13,7 +13,7 @@
 class FeldmanCousins : public LimitAlgo {
 public:
   FeldmanCousins() ;
-  virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
+  virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
 
   virtual const std::string & name() const {
