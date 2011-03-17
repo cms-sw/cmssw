@@ -302,7 +302,7 @@ void PedsFullNoiseAlgorithm::analyse() {
     for ( uint16_t istr = 0; istr < 128; istr++ ) { // strip loop 
       // Set the significance of the noise of each strip also compared to apv's noise spread.
       ana->noiseSignif_[iapv][istr] = (ana->noise_[iapv][istr]-ana->noiseMean_[iapv])/ana->noiseSpread_[iapv];
-      if(ana->noiseSignif_[iapv][istr] < -5){
+      if(ana->noiseSignif_[iapv][istr] < -deadStripMax_){
       	ana->dead_[iapv].push_back(istr);
         if(ShowMasked){
         	SiStripFecKey fec_key(ana->fecKey());
