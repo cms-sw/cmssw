@@ -153,7 +153,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const
   CLs_t clsMin(1,0), clsMax(0,0), clsMid(0,0);
   double rMin = r->getMin(), rMax = r->getMax(), rError = 0.5*(rMax - rMin);
 
-  std::cout << "Search for upper limit to the limit" << std::endl;
+  if (verbose > 0) std::cout << "Search for upper limit to the limit" << std::endl;
   for (int tries = 0; tries < 6; ++tries) {
     clsMax = eval(w, data, r, rMax);
     if (clsMax.first == 0 || clsMax.first + 3 * fabs(clsMax.second) < clsTarget ) break;
@@ -163,7 +163,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const
       return false;
     }
   }
-  std::cout << "Search for lower limit to the limit" << std::endl;
+  if (verbose > 0) std::cout << "Search for lower limit to the limit" << std::endl;
   clsMin = eval(w, data, r, rMin);
   if (clsMin.first != 1 && clsMin.first - 3 * fabs(clsMin.second) < clsTarget) {
       rMin = -rMax / 4;
@@ -178,7 +178,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const
       }
   }
   
-  std::cout << "Now doing proper bracketing & bisection" << std::endl;
+  if (verbose > 0) std::cout << "Now doing proper bracketing & bisection" << std::endl;
   bool done = false;
   do {
     // determine point by bisection or interpolation
@@ -214,16 +214,17 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const
           rMin = limit; clsMin = clsMid;
         }
     } else {
+        if (verbose > 0) std::cout << "Trying to move the interval edges closer" << std::endl;
         // try to reduce the size of the interval 
         while (clsMin.second == 0 || fabs(rMin-limit) > std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
             rMin = 0.5*(rMin+limit); 
             clsMin = eval(w, data, r, rMin, true, clsTarget); 
-            if (fabs(clsMid.first-clsTarget) <= 2*clsMid.second) break;
+            if (fabs(clsMin.first-clsTarget) <= 2*clsMin.second) break;
         } 
         while (clsMax.second == 0 || fabs(rMax-limit) > std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
             rMax = 0.5*(rMax+limit); 
             clsMax = eval(w, data, r, rMax, true, clsTarget); 
-            if (fabs(clsMid.first-clsTarget) <= 2*clsMid.second) break;
+            if (fabs(clsMax.first-clsTarget) <= 2*clsMax.second) break;
         } 
         break;
     }
