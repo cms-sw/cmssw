@@ -244,17 +244,35 @@ SKIMStreamWZEG = cms.FilteredStream(
 
 #####################
 
-from DPGAnalysis.Skims.WZMuSkim_cff import *
-WZ_ZMuSkimPath      = cms.Path(diMuonSelSeq)
-WZ_WtcMetSkimPath   = cms.Path(tcMetWMuNuSeq)
-WZ_WpfMetSkimPath   = cms.Path(pfMetWMuNuSeq)
+from DPGAnalysis.Skims.WMuSkim_cff import *
+from DPGAnalysis.Skims.ZMuSkim_cff import *
+ZMuSkimPath = cms.Path(diMuonSelSeq)
+WtcMetSkimPath = cms.Path(tcMetWMuNuSeq)
+WpfMetSkimPath = cms.Path(pfMetWMuNuSeq)
 SKIMStreamWZMu   = cms.FilteredStream(
     responsible = 'Muon DPG-POG-MuEW',
     name = 'WZMu',
-    paths = (WZ_ZMuSkimPath, WZ_WtcMetSkimPath, WZ_WpfMetSkimPath),
+    paths = (ZMuSkimPath, WtcMetSkimPath, WpfMetSkimPath),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
+    )
+SKIMStreamZMu   = cms.FilteredStream(
+    responsible = 'Muon DPG-POG-MuEW',
+    name = 'ZMu',
+    paths = (ZMuSkimPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+SKIMStreamWMu   = cms.FilteredStream(
+    responsible = 'Muon DPG-POG-MuEW',
+    name = 'WMu',
+    paths = (WtcMetSkimPath, WpfMetSkimPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+
     )
 
 #####################
@@ -298,33 +316,3 @@ SKIMStreamZElectron = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
-#####################
-
-from DPGAnalysis.Skims.ZMuSkim_cff import *
-ZMuSkimPath      = cms.Path(diMuonSelSeq)
-SKIMStreamZMu   = cms.FilteredStream(
-    responsible = 'Muon DPG-POG-MuEW',
-    name = 'ZMu',
-    paths = (ZMuSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
-#####################
-
-from DPGAnalysis.Skims.WMuSkim_cff import *
-WtcMetSkimPath   = cms.Path(tcMetWMuNuSeq)
-WpfMetSkimPath   = cms.Path(pfMetWMuNuSeq)
-SKIMStreamWMu   = cms.FilteredStream(
-    responsible = 'Muon DPG-POG-MuEW',
-    name = 'WMu',
-    paths = (WtcMetSkimPath, WpfMetSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-
-    )
-
-
-#####################
