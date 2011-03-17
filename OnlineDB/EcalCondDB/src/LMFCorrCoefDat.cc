@@ -433,7 +433,6 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
       }
       for (int i = 0; i <3; i++) {
 	s.p[i] = rset->getDouble(i + 5);
-	// TODO: NEED TO CHECK VALUES!!!!!!!!!!!
       }
       theMap[logic_id] = s;
       // verify that the sequence of time is correct
