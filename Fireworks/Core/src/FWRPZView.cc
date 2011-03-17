@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.39 2011/03/15 15:06:33 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.40 2011/03/15 15:19:25 amraktad Exp $
 //
 
 // system include files
@@ -24,12 +24,11 @@
 #include "TEveProjections.h"
 #include "TEveProjectionAxes.h"
 #include "TGLabel.h"
+#include "TEveProjectionManager.h"
 
 //!!! FIXME add get/sets for TEveCalo2D for CellIDs
-//          add option in FWEveProjectionManager::SetCenter()
 #define protected public  
 #include "TEveCalo.h"
-#include "TEveProjectionManager.h"
 #undef protected
 
 // user include files
@@ -165,13 +164,11 @@ FWRPZView::eventBegin()
    if (context().getBeamSpot())
    {
       FWBeamSpot& b = *(context().getBeamSpot());
-
-      // AMT: should call directly TEveProjectionManager::SetCenter()
-      // and add an option to skip EveProjectionManager::ProjectChildren() 
-    
       fwLog(fwlog::kDebug) << Form("%s::eventBegin Set projection center (%f, %f, %f) \n", typeName().c_str(), b.x0(), b.y0(), b.z0());
-      m_projMgr->fCenter.Set(b.x0(), b.y0(), b.z0());
-      m_projMgr->fProjection->SetCenter(m_projMgr->fCenter);
+
+      // projection center
+      TEveVector center(b.x0(),  b.y0(), b.z0());
+      m_projMgr->GetProjection()->SetCenter(center);
 
       // camera move
       TGLCamera& cam = viewerGL()->CurrentCamera();
