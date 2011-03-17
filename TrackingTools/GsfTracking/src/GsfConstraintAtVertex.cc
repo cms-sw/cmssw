@@ -49,7 +49,7 @@ GsfConstraintAtVertex::constrainAtBeamSpot (const reco::GsfTrack& track,
   // Beamspot (global co-ordinates)
   //
   GlobalPoint bsPosGlobal(beamSpot.x0(),beamSpot.y0(),beamSpot.z0());
-  GlobalError bsCovGlobal(beamSpot.covariance3D());
+  GlobalError bsCovGlobal(beamSpot.rotatedCovariance3D());
   //
   return constrainAtPoint(track,bsPosGlobal,bsCovGlobal);
 }
