@@ -53,7 +53,7 @@ logFile=/nfshome0/popcondev/L1Job/validate-l1Key-${version}.log
 # Check for semaphore file
 #==============================================================================
 
-semaphoreFile=/nfshome0/popcondev/L1Job/${release}/validate-l1Key.lock
+semaphoreFile=/nfshome0/popcondev/L1Job/${release}/validate-l1Key/validate-l1Key.lock
 
 if [ -f ${semaphoreFile} ]
     then
@@ -116,6 +116,7 @@ done
 if [ -z "${tsc_key}" ]
     then
     # echo "No new keys to write and test." >> ${summaryFile}
+    rm -f ${semaphoreFile}
     exit 0
 fi
 
