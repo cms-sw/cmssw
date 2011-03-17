@@ -211,7 +211,7 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
 
 #helper function for PAT on PF2PAT sample
 def tauTypeInPF2PAT(process,tauType='shrinkingConePFTau', postfix = ""): 
-    process.load("PhysicsTools.PFCandProducer.pfTaus_cff")
+    process.load("CommonTools.ParticleFlow.pfTaus_cff")
     applyPostfix(process, "pfTaus",postfix).src = cms.InputTag(tauType+'Producer'+postfix)
             
 
@@ -286,7 +286,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5', postfix =
         sys.exit(1)
         
     # changing the jet collection in PF2PAT:
-    from PhysicsTools.PFCandProducer.Tools.jetTools import jetAlgo
+    from CommonTools.ParticleFlow.Tools.jetTools import jetAlgo
     inputCollection = getattr(process,"pfJets"+postfix).src
     setattr(process, "pfJets"+postfix, jetAlgo( algo ) )
     getattr(process,"pfJets"+postfix).src = inputCollection
@@ -331,7 +331,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True, postfix = ""
 
     # -------- CORE ---------------
     if runPF2PAT:
-        process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
+        process.load("CommonTools.ParticleFlow.PF2PAT_cff")
         #add Pf2PAT *before* cloning so that overlapping modules are cloned too
         #process.patDefaultSequence.replace( process.patCandidates, process.PF2PAT+process.patCandidates)
         process.patPF2PATSequence = cms.Sequence( process.PF2PAT + process.patDefaultSequence)
@@ -389,7 +389,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True, postfix = ""
     addPFCandidates(process,cms.InputTag('pfNoJet'+postfix),patLabel='PFParticles'+postfix,cut="",postfix=postfix)
 
     if runOnMC:
-        process.load("PhysicsTools.PFCandProducer.genForPF2PAT_cff")
+        process.load("CommonTools.ParticleFlow.genForPF2PAT_cff")
         getattr(process, "patDefaultSequence"+postfix).replace(
             applyPostfix(process,"patCandidates",postfix),
             process.genForPF2PATSequence+applyPostfix(process,"patCandidates",postfix)

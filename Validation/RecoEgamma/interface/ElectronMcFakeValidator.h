@@ -26,9 +26,6 @@ class ElectronMcFakeValidator : public ElectronValidator
   private:
 
     edm::InputTag electronCollection_;
-    edm::InputTag electronCoreCollection_;
-    edm::InputTag electronTrackCollection_;
-    edm::InputTag electronSeedCollection_;
     edm::InputTag  matchingObjectCollection_;
     edm::InputTag beamSpotTag_;
     bool readAOD_;
@@ -67,10 +64,7 @@ class ElectronMcFakeValidator : public ElectronValidator
     // histos
 
     MonitorElement *h1_matchingObjectNum ;
-    MonitorElement *h1_recEleNum_ ;
-    MonitorElement *h1_recCoreNum_ ;
-    MonitorElement *h1_recTrackNum_ ;
-    MonitorElement *h1_recSeedNum_ ;
+    MonitorElement *h1_recEleNum_;
 
     MonitorElement *h1_matchingObjectEta;
     MonitorElement *h1_matchingObjectAbsEta;
@@ -297,23 +291,13 @@ class ElectronMcFakeValidator : public ElectronValidator
     MonitorElement *h2_ele_dPhiEleClVsPhi_propOut;
     MonitorElement *h2_ele_dPhiEleClVsPt_propOut;
 
-    MonitorElement *h1_ele_seed_subdet2_;
-    MonitorElement *h1_ele_seed_mask_;
-    MonitorElement *h1_ele_seed_mask_bpix_;
-    MonitorElement *h1_ele_seed_mask_fpix_;
-    MonitorElement *h1_ele_seed_mask_tec_;
     MonitorElement *h1_ele_seed_dphi2_;
     MonitorElement *h2_ele_seed_dphi2VsEta_;
     MonitorElement *h2_ele_seed_dphi2VsPt_ ;
-    MonitorElement *h1_ele_seed_dphi2pos_;
-    MonitorElement *h2_ele_seed_dphi2posVsEta_;
-    MonitorElement *h2_ele_seed_dphi2posVsPt_ ;
     MonitorElement *h1_ele_seed_drz2_;
     MonitorElement *h2_ele_seed_drz2VsEta_;
     MonitorElement *h2_ele_seed_drz2VsPt_;
-    MonitorElement *h1_ele_seed_drz2pos_;
-    MonitorElement *h2_ele_seed_drz2posVsEta_;
-    MonitorElement *h2_ele_seed_drz2posVsPt_;
+    MonitorElement *h1_ele_seed_subdet2_;
 
     MonitorElement *h1_ele_classes;
     MonitorElement *h1_ele_eta;
@@ -361,15 +345,6 @@ class ElectronMcFakeValidator : public ElectronValidator
     MonitorElement *h1_ele_ecalRecHitSumEt_dr04;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2;
-
-    MonitorElement *h1_ele_convFlags;
-    MonitorElement *h1_ele_convFlags_all;
-    MonitorElement *h1_ele_convDist;
-    MonitorElement *h1_ele_convDist_all;
-    MonitorElement *h1_ele_convDcot;
-    MonitorElement *h1_ele_convDcot_all;
-    MonitorElement *h1_ele_convRadius;
-    MonitorElement *h1_ele_convRadius_all;
 
  } ;
 

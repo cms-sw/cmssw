@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Oct 21 20:40:28 CEST 2010
-// $Id: FWTauProxyBuilderBase.cc,v 1.2 2010/11/11 20:25:27 amraktad Exp $
+// $Id: FWTauProxyBuilderBase.cc,v 1.3 2010/11/26 20:24:46 amraktad Exp $
 //
 
 // system include files
@@ -140,9 +140,11 @@ FWTauProxyBuilderBase::addLeadTrack( const reco::BaseTau &tau, class TEveElement
    if( !leadTrack ) return;
 
    TEveTrack* track = fireworks::prepareTrack( *leadTrack, context().getTrackPropagator() );
-   track->MakeTrack();
-   if( track )
+   if( track ) 
+   {
+      track->MakeTrack();
       setupAddElement( track, product );
+   }
 }
 
 void

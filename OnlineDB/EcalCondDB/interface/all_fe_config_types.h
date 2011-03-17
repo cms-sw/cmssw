@@ -28,15 +28,6 @@
 #include "OnlineDB/EcalCondDB/interface/FEConfigFgrParamDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigLinParamDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigLUTParamDat.h"
-
-#include "OnlineDB/EcalCondDB/interface/FEConfigTimingInfo.h"
-#include "OnlineDB/EcalCondDB/interface/FEConfigSpikeInfo.h"
-#include "OnlineDB/EcalCondDB/interface/FEConfigBadStripInfo.h"
-
-#include "OnlineDB/EcalCondDB/interface/FEConfigTimingDat.h"
-#include "OnlineDB/EcalCondDB/interface/FEConfigSpikeDat.h"
-#include "OnlineDB/EcalCondDB/interface/FEConfigBadStripDat.h"
-
 #endif
 
 

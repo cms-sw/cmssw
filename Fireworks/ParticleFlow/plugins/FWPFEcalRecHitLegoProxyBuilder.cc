@@ -1,6 +1,6 @@
 #include "FWPFEcalRecHitLegoProxyBuilder.h"
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFEcalRecHitLegoProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType type, const FWViewContext *vc )
 {
@@ -19,7 +19,7 @@ FWPFEcalRecHitLegoProxyBuilder::scaleProduct( TEveElementList *parent, FWViewTyp
    }
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElement *parent,
                                                    FWViewType::EType viewType, const FWViewContext *vc )
@@ -27,7 +27,7 @@ FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveEle
    for (TEveElement::List_i i = parent->BeginChildren(); i!= parent->EndChildren(); ++i)
    {
       {
-         TEveStraightLineSet* line =dynamic_cast<TEveStraightLineSet*>(*i);
+         TEveStraightLineSet* line = dynamic_cast<TEveStraightLineSet*>(*i);
          if (line)
          {
             const FWDisplayProperties &p = item()->modelInfo( iId.index() ).displayProperties();
@@ -37,7 +37,7 @@ FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveEle
    }
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 TEveVector
 FWPFEcalRecHitLegoProxyBuilder::calculateCentre( const std::vector<TEveVector> &corners ) const
 {
@@ -54,7 +54,7 @@ FWPFEcalRecHitLegoProxyBuilder::calculateCentre( const std::vector<TEveVector> &
    return centre;   
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 float
 FWPFEcalRecHitLegoProxyBuilder::calculateEt( const TEveVector &centre, float E )
 {
@@ -68,7 +68,7 @@ FWPFEcalRecHitLegoProxyBuilder::calculateEt( const TEveVector &centre, float E )
    return et;
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
@@ -98,28 +98,13 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
          etaphiCorners[i].fX = cv.Eta();                                     // Conversion of rechit X/Y values for plotting in Eta/Phi
          etaphiCorners[i].fY = cv.Phi();
          etaphiCorners[i].fZ = 0.0;
-   
-         etaphiCorners[i+4].fX = etaphiCorners[i].fX;              // Top can simply be plotted exactly over the top of the bottom face
+
+         etaphiCorners[i+4].fX = etaphiCorners[i].fX;                        // Top can simply be plotted exactly over the top of the bottom face
          etaphiCorners[i+4].fY = etaphiCorners[i].fY;
          etaphiCorners[i+4].fZ = 0.001;
          // printf("%f %f %d \n",  etaphiCorners[i].fX, etaphiCorners[i].fY, i);
          --k;
       }
-
-      float dPhi1 = etaphiCorners[2].fY - etaphiCorners[1].fY;
-      float dPhi2 = etaphiCorners[3].fY - etaphiCorners[0].fY;
-      float dPhi3 = etaphiCorners[1].fY - etaphiCorners[2].fY;
-      float dPhi4 = etaphiCorners[0].fY - etaphiCorners[3].fY;
-
-      if( dPhi1 > 1 )
-         etaphiCorners[2].fY = etaphiCorners[2].fY - ( 2 * TMath::Pi() );
-      if( dPhi2 > 1 )
-         etaphiCorners[3].fY = etaphiCorners[3].fY - ( 2 * TMath::Pi() );
-      if( dPhi3 > 1 )
-         etaphiCorners[2].fY = etaphiCorners[2].fY + ( 2 * TMath::Pi() );
-      if( dPhi4 > 1 )
-         etaphiCorners[3].fY = etaphiCorners[3].fY + ( 2 * TMath::Pi() );
-
 
       centre = calculateCentre( etaphiCorners );
       energy = iData.energy();
@@ -131,53 +116,7 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
       if( energy > maxEt )
          maxEt = et;
 
-      if (iItem->modelInfo(index).displayProperties().isVisible())
-      {
-         FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, energy, et );
-         recHit->setSquareColor(item()->defaultDisplayProperties().color());
-         m_recHits.push_back( recHit );
-      }
-   }
-      m_maxEnergy = maxEnergy;
-      m_maxEt = maxEt;
-      m_maxEnergyLog = log(maxEnergy);
-      m_maxEtLog = log(maxEt);
-
-      scaleProduct( product, FWViewType::kLegoPFECAL, vc );
-}
-
-//______________________________________________________________________________________________________
-bool
-FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEveElement* itemHolder,
-                                                       FWViewType::EType viewType, const FWViewContext* vc)
-{
-   const FWEventItem::ModelInfo& info = iId.item()->modelInfo(iId.index());
-
-   // build
-   if (info.displayProperties().isVisible() && itemHolder->NumChildren()==0)
-   {
-      const EcalRecHit &iData = modelData(iId.index() );
-      const float *corners = item()->getGeom()->getCorners( iData.detid() );
-      std::vector<TEveVector> etaphiCorners(8);
-      float energy, et;   
-      TEveVector centre;
-
-      for( int i = 0; i < 4; ++i )
-      {
-         int j = i * 3;
-         TEveVector cv = TEveVector( corners[j], corners[j+1], corners[j+2] );
-         etaphiCorners[i].fX = cv.Eta();                    // Conversion of rechit X/Y values for plotting in Eta/Phi
-         cv = TEveVector( corners[j], corners[j+1], corners[j+2] );
-         etaphiCorners[i].fY = cv.Phi();
-         etaphiCorners[i].fZ = 0.0;                         // Small (floor) Z offset
-
-         etaphiCorners[i+4].fX = etaphiCorners[i].fX;
-         etaphiCorners[i+4].fY = etaphiCorners[i].fY;       // Top can simply be plotted exactly over the top of the bottom face
-         etaphiCorners[i+4].fZ = 0.001;
-
-         // printf("%f %f %d \n",  etaphiCorners[i].fX, etaphiCorners[i].fY, i);
-      }
-
+      // Stop phi wrap
       float dPhi1 = etaphiCorners[2].fY - etaphiCorners[1].fY;
       float dPhi2 = etaphiCorners[3].fY - etaphiCorners[0].fY;
       float dPhi3 = etaphiCorners[1].fY - etaphiCorners[2].fY;
@@ -192,22 +131,20 @@ FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEv
       if( dPhi4 > 1 )
          etaphiCorners[3].fY = etaphiCorners[3].fY + ( 2 * TMath::Pi() );
 
-      centre = calculateCentre( etaphiCorners );
-      energy = iData.energy();
-      et = calculateEt( centre, energy );
-      context().voteMaxEtAndEnergy( et, energy );
-
-      {
-         FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, energy, et );
-         recHit->setSquareColor(item()->defaultDisplayProperties().color());
-         m_recHits.push_back( recHit );
-      }
-      return true;
+      FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, energy, et );
+      recHit->setSquareColor(item()->defaultDisplayProperties().color());
+      m_recHits.push_back( recHit );
    }
-   return false;
+      
+      m_maxEnergy = maxEnergy;
+      m_maxEt = maxEt;
+      m_maxEnergyLog = log(maxEnergy);
+      m_maxEtLog = log(maxEt);
+
+      scaleProduct( product, FWViewType::kLegoPFECAL, vc );
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFEcalRecHitLegoProxyBuilder::cleanLocal()
 {
@@ -217,5 +154,5 @@ FWPFEcalRecHitLegoProxyBuilder::cleanLocal()
    m_recHits.clear();
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 REGISTER_FWPROXYBUILDER( FWPFEcalRecHitLegoProxyBuilder, EcalRecHit, "Ecal RecHit", FWViewType::kLegoPFECALBit );

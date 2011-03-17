@@ -1,3 +1,14 @@
+2011-03-01  Seb Viret  <viret@in2p3.fr>
+ 
+       	* Added one new filter HLTTrackerHaloFilter dedicated to beam halo tracks 
+	  selection. Corresponding python configuration file was added.
+
+	* A small test script was added in ~/test/ directory, test_HaloFilters_cfg.py.  
+	  It runs directly on Raw data.
+	
+	* This modification was done based on tag V01-19-00
+
+	
 2011-01-21  Seb Viret  <viret@in2p3.fr>
  
        	* Replace Asymetry by Asymmetry everywhere....

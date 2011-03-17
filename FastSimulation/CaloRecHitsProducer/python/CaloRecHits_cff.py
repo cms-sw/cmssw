@@ -21,7 +21,7 @@ ecalRecHit = cms.EDProducer("CaloRecHitsProducer",
 
                             RecHitsFactory = cms.PSet(
                                                        ECALBarrel = cms.PSet(
-                                                       Noise = cms.double(0.04),
+                                                       Noise = cms.double(0.042),
                                                        Threshold = cms.double(0.1),
 						       SRThreshold = cms.double(1.),
 #						       SREtaSize = cms.untracked.int32(1),
@@ -33,7 +33,7 @@ ecalRecHit = cms.EDProducer("CaloRecHitsProducer",
                                                        
                                                        ECALEndcap = cms.PSet(
                                                        Noise = cms.double(-1.),
-                                                       NoiseADC = cms.double(2.52),
+                                                       NoiseADC = cms.double(2.32),
                                                        HighNoiseParameters = cms.vdouble(4.77,1.65,2.7,5.1),
                                                        Threshold = cms.double(.32), 
                                                        SRThreshold = cms.double(1.),

@@ -5,67 +5,97 @@
  Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
  */
 
-#include "OnlineDB/EcalCondDB/interface/LMFColoredTable.h"
+#include <string>
+#include <stdexcept>
 
-#include <math.h>
+#include "OnlineDB/EcalCondDB/interface/LMFDat.h"
+#include "OnlineDB/EcalCondDB/interface/LMFClsDatasetDat.h"
+#include "OnlineDB/EcalCondDB/interface/EcalDBConnection.h"
 
 /**
- *   LMF_CLS_XXXX_DAT interface
- *            ^
- *            |
- *            \_____ color
+ *   LMF Correction version
  */
-class LMFClsDat : public LMFColoredTable {
+class LMFClsDat : public LMFUnique {
  public:
   typedef oracle::occi::ResultSet ResultSet;
   typedef oracle::occi::Statement Statement;
 
+  friend class LMFRunIOV;  // needs permission to write
+
   LMFClsDat();
-  LMFClsDat(oracle::occi::Environment* env,
-	    oracle::occi::Connection* conn);
   LMFClsDat(EcalDBConnection *c);
-  LMFClsDat(std::string color);
-  LMFClsDat(int color);
-  LMFClsDat(oracle::occi::Environment* env,
-	    oracle::occi::Connection* conn, std::string color);
-  LMFClsDat(EcalDBConnection *c, std::string color);
-  LMFClsDat(oracle::occi::Environment* env,
-	    oracle::occi::Connection* conn, int color);
-  LMFClsDat(EcalDBConnection *c, int color);
-  ~LMFClsDat() {}
+  ~LMFClsDat();
 
-  std::string getTableName() const {
-    return "LMF_CLS_" + getColor() + "_DAT";
+  void dump() const;
+  void setClsDatasetDat(const LMFClsDatasetDat &d) {
+    m_lmfClsDatasetDat = d;
   }
-  
-  LMFClsDat& setSystem(int system) { return *this; }
-  LMFClsDat& setSystem(std::string system) { return *this; }
-
-  LMFClsDat& setLMFRefRunIOVID(EcalLogicID &id, int v);
-  LMFClsDat& setMean(EcalLogicID &id, float v);
-  LMFClsDat& setNorm(EcalLogicID &id, float v);
-  LMFClsDat& setENorm(EcalLogicID &id, float v);
-  LMFClsDat& setRMS(EcalLogicID &id, float v);
-  LMFClsDat& setNevt(EcalLogicID &id, int v);
-  LMFClsDat& setFlag(EcalLogicID &id, int v);
-  LMFClsDat& setEFlag(EcalLogicID &id, float v);
-
-  int   getLMFRefRunIOVID(EcalLogicID &id);
-  float getMean(EcalLogicID &id);
-  float getNorm(EcalLogicID &id);
-  float getENorm(EcalLogicID &id);
-  float getRMS(EcalLogicID &id);
-  int   getNevt(EcalLogicID &id);
-  int   getFlag(EcalLogicID &id);
-  float getEFlag(EcalLogicID &id);
-
-  std::string getSystem() const { return ""; }
-
-  bool isValid();
-  // to do: complete list of set/get methods
+  LMFClsDatasetDat getClsDatasetDat() const {
+    return m_lmfClsDatasetDat;
+  }
+  std::list<int> getLogicIDs() {
+    std::list<int> l;
+    std::map<int, float>::const_iterarator i = m_mean.begin();
+    std::map<int, float>::const_iterarator e = m_mean.end();
+    while (i != e) {
+      l.push_back(i->first);
+      i++;
+    }
+  }
+  void set(const EcalLogicID &id, float x, float rms, float norm, 
+	   float normError) {
+    set(id.getLogicID(), x, rms, norma, normError);
+  }
+  void set(int logic_id, float x, float rms, float norm, float normError) {
+    m_mean[logic_id]  = x;
+    m_rms[logic_id]   = rms;
+    m_norm[logic_id]  = norm;
+    m_enorm[logic_id] = normError;
+  } 
+  std::map<int, float> getMean() {
+    return m_mean;
+  }
+  float getMean(int id) {
+    return m_mean[id];
+  }
+  std::map<int, float> getRMS() {
+    return m_rms;
+  }
+  float getRMS(int id) {
+    return m_rms[id];
+  }
+  std::map<int, float> getNorm() {
+    return m_norm;
+  }
+  float getNorm(int id) {
+    return m_norm[id];
+  }
+  std::map<int, float> getNormError() {
+    return m_enorm;
+  }
+  float getNormError(int id) {
+    return m_enorm[id];
+  }
+  void getRefCls(LMFClsDat &d) {
+    m_lmfRefCls = d;
+  }
+  LMFClsDat getRefCls() const {
+    return m_lmfRefCls;
+  } 
 
  private:
-  void init();
+  // Methods from LMFUnique
+  std::string fetchIdSql(Statement *stmt);
+  std::string setByIDSql(Statement *stmt, int id);
+  void getParameters(ResultSet *rset);
+  //  LMFUnique *createObject() const;
+
+  LMFClsDatasetDat m_lmfClsDatasetDat;
+  std::map<int, float> m_mean; 
+  std::map<int, float> m_RMS; 
+  std::map<int, float> m_norm; 
+  std::map<int, float> m_enorm;
+  LMFClsDat m_lmfRefClsDat;
 };
 
 #endif

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.48 2010/11/08 11:45:33 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.47 2010/11/03 21:38:38 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -187,12 +187,10 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    //if(I_fedId[i]>=32&&I_fedId[i]<=39) std::cout<<"Attention: a BPIX module matched to an FPIX FED!"<<std::endl;
 	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigisMod;
 	    //cout<<"BPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<numberOfDigisMod<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
-	    int index1 = -1; int index2 = -1;
-	    if(I_linkId1[i]>0) index1 = I_fedId[i]*36+(I_linkId1[i]-1); 
-	    if(I_linkId2[i]>0) index2 = I_fedId[i]*36+(I_linkId2[i]-1);
+	    int index1 = I_fedId[i]*36+(I_linkId1[i]-1); int index2 = I_fedId[i]*36+(I_linkId2[i]-1);
 	    if(nDigisA>0) nDigisPerChan[index1]=nDigisPerChan[index1]+nDigisA;
 	    if(nDigisB>0) nDigisPerChan[index2]=nDigisPerChan[index2]+nDigisB;
-	    //if (index1==35 || index2==35) cout<<"BPIX 35: "<<I_detId[i]<<" : "<<I_fedId[i]<<"  "<<I_linkId1[i]<<" , "<<I_fedId[i]<<"  "<<I_linkId2[i]<<" , "<<nDigisA<<" , "<<nDigisB<<endl;
+	    //cout<<"BPIX: "<<i<<" , "<<I_linkId1[i]<<" , "<<I_linkId2[i]<<" , "<<nDigisA<<" , "<<nDigisB<<endl;
 	    i=767;
 	  }
         }

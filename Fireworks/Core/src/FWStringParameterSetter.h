@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWStringParameterSetter
-// $Id: FWStringParameterSetter.h,v 1.1 2009/10/07 12:46:47 dmytro Exp $
+// $Id: FWStringParameterSetter.h,v 1.2.20.1 2011/02/11 19:42:16 amraktad Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@ public:
 
    // ---------- member functions ---------------------------
    virtual void attach(FWParameterBase*) ;
-   virtual TGFrame* build(TGFrame* iParent) ;
+   virtual TGFrame* build(TGFrame* iParent, bool labelBack = true) ;
    void doUpdate();
 
 private:

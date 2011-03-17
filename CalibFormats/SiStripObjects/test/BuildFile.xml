@@ -10,7 +10,7 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
-<bin name="TestCalibFormatsSiStripObjects" file="UnitTests/TestSiStripGain.cc, UnitTests/TestSiStripDelay.cc, UnitTests/MasterTest.cpp">
+<bin name="TestCalibFormatsSiStripObjects" file="UnitTests/TestSiStripGain.cc, UnitTests/MasterTest.cpp">
   <use name="CalibFormats/SiStripObjects"/>
   <use name="cppunit"/>
 </bin>
