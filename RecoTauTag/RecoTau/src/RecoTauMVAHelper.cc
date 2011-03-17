@@ -19,10 +19,6 @@ RecoTauMVAHelper::RecoTauMVAHelper(const std::string& name,
 
 void RecoTauMVAHelper::setEvent(const edm::Event& evt,
                                 const edm::EventSetup &es) {
-  // Update the event info for all of our discriminators
-  BOOST_FOREACH(PluginMap::value_type plugin, plugins_) {
-    plugin.second->setup(evt, es);
-  }
   // Update our MVA from the DB
   using PhysicsTools::Calibration::MVAComputerContainer;
   edm::ESHandle<MVAComputerContainer> handle;
@@ -37,6 +33,10 @@ void RecoTauMVAHelper::setEvent(const edm::Event& evt,
   // If the MVA changed, update our list of discriminant plugins
   if (reload && computer_.get())
     loadDiscriminantPlugins(container->find(name_));
+  // Update the event info for all of our discriminators
+  BOOST_FOREACH(PluginMap::value_type plugin, plugins_) {
+    plugin.second->setup(evt, es);
+  }
 }
 
 void RecoTauMVAHelper::loadDiscriminantPlugins(
