@@ -7,6 +7,7 @@
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 
 #include<iostream>
+#include<iomanip>
 #include <sstream>
 
 popcon::EcalLaserHandler::EcalLaserHandler(const edm::ParameterSet & ps) 
@@ -31,15 +32,78 @@ popcon::EcalLaserHandler::~EcalLaserHandler()
   // do nothing
 }
 
-/*
-bool popcon::EcalLaserHandler::checkAPDPN(float x, float old_x)
-{
-  bool result=true;
-  if(x<=0 || x>20) result=false;
-  if((old_x!=1.000 && old_x!=0) && std::abs(x-old_x)/old_x>100.00) result=false; 
-  return result;
+double popcon::EcalLaserHandler::diff(float a, float b) {
+  return std::abs(b- a)/a;
 }
-*/
+
+bool popcon::EcalLaserHandler::checkAPDPNs(const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &laserMap,
+                                           const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &apdpns_popcon) {
+  bool ret = true;
+  for (int hashedIndex = 0; hashedIndex < 61200; hashedIndex++) {
+    EcalLaserAPDPNRatios::EcalLaserAPDPNpair old = laserMap.barrel(hashedIndex);
+    EcalLaserAPDPNRatios::EcalLaserAPDPNpair current = apdpns_popcon.barrel(hashedIndex);
+    if (diff(old.p1, current.p1) > 0.2) {
+      // check that corrections do not exceed 20 % 
+    }
+  }
+  return ret;
+}
+
+void popcon::EcalLaserHandler::dumpBarrelPayload(EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap const &laserMap) {
+  int c = 0;
+  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator i = laserMap.barrelItems().begin();
+  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator e = laserMap.barrelItems().end();
+  EBDetId eb;
+  try {
+    EcalCondDBInterface *econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
+    while (i != e) {
+      if (c % 1000 == 0) {
+	std::cout << std::setw(5) << c << ": " << eb.unhashIndex(c) << " "   
+		  << econn->getEcalLogicID("EB_crystal_angle", eb.unhashIndex(c).ieta(), 
+					   eb.unhashIndex(c).iphi(), EcalLogicID::NULLID, 
+					   "EB_crystal_number").getLogicID() 
+		  << " " << std::setiosflags(std::ios::fixed) << std::setprecision(9) 
+		  << i->p1 << " " << i->p2 << " " << i->p3 << std::endl;
+      }
+      i++;
+      c++;
+    }
+    delete econn;
+  }
+  catch (std::runtime_error &e) {
+    std::cerr << e.what() << std::endl;
+    delete econn;
+    throw cms::Exception("OMDS not available");
+  }
+}
+
+void popcon::EcalLaserHandler::dumpEndcapPayload(EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap const &laserMap) {
+  int c = 0;
+  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator i = laserMap.endcapItems().begin();
+  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator e = laserMap.endcapItems().end();
+  EEDetId ee;
+  try {
+    EcalCondDBInterface *econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
+    while (i != e) {
+      if (c % 1000 == 0) {
+	std::cout << std::setw(5) << c << ": " << ee.unhashIndex(c) << " "   
+		  << econn->getEcalLogicID("EE_crystal_number", ee.unhashIndex(c).zside(), 
+					   ee.unhashIndex(c).ix(), ee.unhashIndex(c).iy(),
+					   "EE_crystal_number").getLogicID() 
+		  << " " << std::setiosflags(std::ios::fixed) << std::setprecision(9) 
+		  << i->p1 << " " << i->p2 << " " << i->p3 << std::endl;
+      }
+      i++;
+      c++;
+    }
+    delete econn;
+  }
+  catch (std::runtime_error &e) {
+    std::cerr << e.what() << std::endl;
+    delete econn;
+    throw cms::Exception("OMDS not available");
+  }
+}
 
 void popcon::EcalLaserHandler::getNewObjects()
 {
@@ -73,6 +137,8 @@ void popcon::EcalLaserHandler::getNewObjects()
 	    << std::endl;
   // loop through light modules and determine the minimum date among the
   // available channels
+  dumpBarrelPayload(laserRatiosMap);
+  dumpEndcapPayload(laserRatiosMap);
   for (int i=0; i<92; i++) {
     EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp = laserTimeMap[i];
     if( t_min > timestamp.t1) {
@@ -166,8 +232,16 @@ void popcon::EcalLaserHandler::getNewObjects()
   // sextuple (p1, p2, p3, t1, t2, t3)
   Tm tmax;
   tmax.setToString(m_maxtime);
+  Tm tmin = Tm(t_min.value());
+  // GO DEBUGGING
+  Tm tgo;
+  tgo.setToString("2011-02-24 23:59:59");
+  
+  if (tmin.microsTime() < tgo.microsTime()) {
+    tmin.setToMicrosTime(tgo.microsTime());
+  }
   std::map<int, std::map<int, LMFSextuple> > d = 
-    data.getCorrections(Tm(t_min.value()), tmax, m_sequences);
+    data.getCorrections(tmin, tmax, m_sequences);
   // sice must be equal to the number of different SEQ_ID's found
   std::cout << "Data organized into " << d.size() << " sequences" << std::endl;
   // iterate over sequences

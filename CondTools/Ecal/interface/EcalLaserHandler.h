@@ -57,12 +57,17 @@ namespace popcon
     
   public:
     void getNewObjects();
-    bool checkAPDPN(float x, float old_x);
+    double diff(float x, float old_x);
     ~EcalLaserHandler(); 
     EcalLaserHandler(edm::ParameterSet const & ); 
     
     EcalCondDBInterface* econn;
     std::string id() const { return m_name;}
+    bool checkAPDPNs(const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &laserMap,
+		     const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &apdpns_popcon);
+
+    void dumpBarrelPayload(EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap const &laserMap);
+    void dumpEndcapPayload(EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap const &laserMap);
     
   private:
     const EcalLaserAPDPNRatios * myapdpns;
