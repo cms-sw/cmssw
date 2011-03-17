@@ -1,4 +1,5 @@
 
+    
 class InputInfo(object):
     def __init__(self,label,dataSet,run=0,files=1000,events=2000000,location='CAF') :
         self.run = run
@@ -180,15 +181,12 @@ step1['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},K9by10
 
 step1['QCD_Pt_50_80']=genS('QCD_Pt_50_80_7TeV_cfi',K250by100)
 step1['QCD_Pt_15_20']=genS('QCD_Pt_15_20_7TeV_cfi',K250by100)
-step1['ZTTHS']=merge([K250by100,step1['ZTT']])
 step1['QQH120Inv']=genS('QQH120Inv_7TeV_cfi',K250by100)
-step1['TTbar2HS']=merge([K250by100,step1['TTbar2']])
 step1['JpsiMM_Pt_20_inf']=genS('JpsiMM_Pt_20_inf_7TeV_cfi',K700by280)
 step1['QCD_Pt_120_170']=genS('QCD_Pt_120_170_7TeV_cfi',K250by100)
 step1['H165WW2L']=genS('H165WW2L_Tauola_7TeV_cfi',K250by100)
 step1['UpsMM']=genS('UpsMM_7TeV_cfi',K562by225)
 step1['RSGrav']=genS('RS750_quarks_and_leptons_7TeV_cff',K250by100)
-step1['QCD_Pt_80_120_2HS']=merge([K250by100,step1['QCD_Pt_80_120_2']])
 step1['bJpsiX']=genS('bJpsiX_7TeV_cfi',K3250000by1300000)
 step1['QCD_Pt_30_50']=genS('QCD_Pt_30_50_7TeV_cfi',K250by100)
 step1['H200ZZ4L']=genS('H200ZZ4L_Tauola_7TeV_cfi',K250by100)
@@ -314,8 +312,9 @@ step2Defaults = { 'cfg'           : 'step2',
 step2 = {}
 
 step2['DIGIPROD1']=merge([{'--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
-step2['DIGI1']=merge([step2Defaults])
-step2['DIGI2']=merge([stCond,step2Defaults])
+step2['DIGI']=merge([step2Defaults])
+#step2['DIGI1']=merge([step2Defaults])
+#step2['DIGI2']=merge([stCond,step2Defaults])
 step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
@@ -355,8 +354,8 @@ step3Defaults = { 'cfg'           : 'step3',
 
 step3 = {}
 
-step3['RECO1']=merge([step3Defaults])
-step3['RECO2']=merge([stCond,step3Defaults])
+step3['RECO']=merge([step3Defaults])
+#step3['RECO2']=merge([stCond,step3Defaults])
 step3['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
 step3['RECOMU']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib','--datatier':'GEN-SIM-RECO','--eventcontent':'RECOSIM'},stCond,step3Defaults])
 step3['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu','--datatier':'GEN-SIM-RECO','--eventcontent':'RECOSIM','--scenario':'cosmics'},stCond,step3Defaults])
