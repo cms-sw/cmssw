@@ -10,18 +10,30 @@ WZMuHLTFilter.HLTPaths = ["HLT_Mu9","HLT_Mu11","HLT_Mu15","HLT_Mu15_v*"]
 ### Z -> MuMu candidates
 
 # Get muons of needed quality for Zs
-goodMuonsForZ = cms.EDFilter("MuonSelector",
+looseMuonsForZ = cms.EDFilter("MuonSelector",
                              src = cms.InputTag("muons"),
-                             cut = cms.string('pt > 20 && abs(eta)<2.4 && isGlobalMuon = 1 && isTrackerMuon = 1 && isolationR03().sumPt<3.0 && abs(innerTrack().dxy)<1.0'),
+                             cut = cms.string('pt > 10 && abs(eta)<2.4 && isGlobalMuon = 1 && isTrackerMuon = 1 && isolationR03().sumPt<3.0 && abs(innerTrack().dxy)<2.0'),
+                             filter = cms.bool(True)                                
+                             )
+
+tightMuonsForZ = cms.EDFilter("MuonSelector",
+                             src = cms.InputTag("looseMuonsForZ"),
+                             cut = cms.string('pt > 20'),
                              filter = cms.bool(True)                                
                              )
 
 # build Z-> MuMu candidates
 dimuons = cms.EDProducer("CandViewShallowCloneCombiner",
                          checkCharge = cms.bool(True),
-                         cut = cms.string('mass > 60'),
-                         decay = cms.string("goodMuonsForZ@+ goodMuonsForZ@-")
+                         cut = cms.string('mass > 30'),
+                         decay = cms.string("tightMuonsForZ looseMuonsForZ")
                          )
+
+# Z filter
+dimuonsFilter = cms.EDFilter("CandViewCountFilter",
+                             src = cms.InputTag("dimuons"),
+                             minNumber = cms.uint32(1)
+                             )
 
 # Z filter
 dimuonsFilter = cms.EDFilter("CandViewCountFilter",
@@ -31,7 +43,8 @@ dimuonsFilter = cms.EDFilter("CandViewCountFilter",
 
 # Z Skim sequence
 diMuonSelSeq = cms.Sequence(WZMuHLTFilter *
-                            goodMuonsForZ *
+                            looseMuonsForZ *
+                            tightMuonsForZ *
                             dimuons *
                             dimuonsFilter
                             )
