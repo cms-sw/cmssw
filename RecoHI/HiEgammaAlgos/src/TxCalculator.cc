@@ -25,7 +25,7 @@ TxCalculator::TxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSe
 } 
 
 
-double TxCalculator::getTx(const reco::SuperClusterRef cluster, double x, double threshold)
+double TxCalculator::getTx(const reco::SuperClusterRef cluster, double x, double threshold, double innerDR)
 {
 
    using namespace edm;
@@ -45,7 +45,8 @@ double TxCalculator::getTx(const reco::SuperClusterRef cluster, double x, double
       
       if(dRDistance(SClusterEta,SClusterPhi,eta2,phi2) >= 0.1 * x)
          continue;
-
+      if(dRDistance(SClusterEta,SClusterPhi,eta2,phi2) < innerDR)
+	 continue;
       if(pt > threshold)
          TotalPt = TotalPt + pt;
    }
@@ -53,7 +54,7 @@ double TxCalculator::getTx(const reco::SuperClusterRef cluster, double x, double
    return TotalPt;
 }
 
-double TxCalculator::getCTx(const reco::SuperClusterRef cluster, double x, double threshold)
+double TxCalculator::getCTx(const reco::SuperClusterRef cluster, double x, double threshold, double innerDR)
 {
    using namespace edm;
    using namespace reco;
@@ -74,7 +75,9 @@ double TxCalculator::getCTx(const reco::SuperClusterRef cluster, double x, doubl
 
       if(dEta >= 0.1 * x)
          continue;
-
+      if(dRDistance(SClusterEta,SClusterPhi,eta2,phi2) < innerDR)
+         continue;
+      
       if(pt > threshold)
          TotalPt = TotalPt + pt;
    }

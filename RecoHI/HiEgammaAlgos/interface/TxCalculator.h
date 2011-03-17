@@ -25,8 +25,8 @@ class TxCalculator
   
    TxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel) ;
   
-   double getTx(const reco::SuperClusterRef clus, double i,double threshold);
-   double getCTx(const reco::SuperClusterRef clus, double i,double threshold); // background subtracted Cx
+   double getTx(const reco::SuperClusterRef clus, double i,double threshold, double innerDR=0);
+   double getCTx(const reco::SuperClusterRef clus, double i,double threshold, double innerDR=0); // background subtracted Cx
 
   private:
    
