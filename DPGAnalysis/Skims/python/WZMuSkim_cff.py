@@ -12,7 +12,7 @@ WZMuHLTFilter.HLTPaths = ["HLT_Mu9","HLT_Mu11","HLT_Mu15","HLT_Mu15_v*"]
 # Get muons of needed quality for Zs
 looseMuonsForZ = cms.EDFilter("MuonSelector",
                              src = cms.InputTag("muons"),
-                             cut = cms.string('pt > 10 && abs(eta)<2.4 && isGlobalMuon = 1 && isTrackerMuon = 1 && isolationR03().sumPt<3.0 && abs(innerTrack().dxy)<2.0'),
+                             cut = cms.string('pt > 10 && abs(eta)<2.4 && isGlobalMuon = 1 && isTrackerMuon = 1 && abs(innerTrack().dxy)<2.0'),
                              filter = cms.bool(True)                                
                              )
 
@@ -24,7 +24,7 @@ tightMuonsForZ = cms.EDFilter("MuonSelector",
 
 # build Z-> MuMu candidates
 dimuons = cms.EDProducer("CandViewShallowCloneCombiner",
-                         checkCharge = cms.bool(True),
+                         checkCharge = cms.bool(False),
                          cut = cms.string('mass > 30'),
                          decay = cms.string("tightMuonsForZ looseMuonsForZ")
                          )
