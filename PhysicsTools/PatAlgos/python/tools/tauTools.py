@@ -11,22 +11,34 @@ def redoPFTauDiscriminators(process,
                             tauType = 'shrinkingConePFTau', postfix = ""):
     print 'Tau discriminators: ', oldPFTauLabel, '->', newPFTauLabel
     print 'Tau type: ', tauType
+    oldPFTauLabel.setModuleLabel(oldPFTauLabel.getModuleLabel()+postfix)
     tauSrc = 'PFTauProducer'
 
     tauDiscriminationSequence = None
     if tauType == 'hpsPFTau':
-        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.patHPSPFTauDiscrimination, postfix)
+        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.produceAndDiscriminateHPSPFTaus, postfix)
+        tauDiscriminationSequence.remove(getattr(process,"produceHPSPFTaus"+postfix))
+    elif tauType == 'hpsTancTaus': #to be checked if correct
+        process.hpsTancDiscriminationSequence = cms.Sequence(process.hpsTancTauInitialSequence*process.hpsTancTauDiscriminantSequence)
+        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.hpsTancDiscriminationSequence, postfix)
+        tauDiscriminationSequence.remove(getattr(process,"combinatoricRecoTausDiscriminationByLeadingPionPtCut"+postfix))
+        tauDiscriminationSequence.remove(getattr(process,"combinatoricRecoTausHPSSelector"+postfix))
+        tauDiscriminationSequence.remove(getattr(process,"hpsTancTaus"+postfix))
     elif tauType == 'fixedConePFTau':
-        tauDiscriminationSequence = cloneProcessingSnippet(process, process.patFixedConePFTauDiscrimination, postfix)
-    elif tauType == 'shrinkingConePFTau':
-        tauDiscriminationSequence = cloneProcessingSnippet(process, process.patShrinkingConePFTauDiscrimination, postfix)
+        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.produceAndDiscriminateFixedConePFTaus, postfix)
+        tauDiscriminationSequence.remove(getattr(process,"fixedConePFTauProducer"+postfix))
+    elif tauType == 'shrinkingConePFTau': #with TaNC
+        process.shrConeDiscriminationSequence  = cms.Sequence(process.produceAndDiscriminateShrinkingConePFTaus*process.produceShrinkingConeDiscriminationByTauNeuralClassifier)
+        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.shrConeDiscriminationSequence, postfix)
+        tauDiscriminationSequence.remove(getattr(process,"shrinkingConePFTauProducer"+postfix))
     elif tauType == 'caloTau':
-        tauDiscriminationSequence = cloneProcessingSnippet(process, process.patCaloTauDiscrimination, postfix)
+        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.tautagging, postfix)
+        tauDiscriminationSequence.remove(getattr(process,"caloRecoTauTagInfoProducer"+postfix))
+        tauDiscriminationSequence.remove(getattr(process,"caloRecoTauProducer",postfix))
         tauSrc = 'CaloTauProducer'
     else:
         raise StandardError, "Unkown tauType: '%s'"%tauType
 
-    #process.makePatTaus.replace(process.patTaus, tauDiscriminationSequence*process.patTaus)
     applyPostfix(process,"makePatTaus",postfix).replace(
         applyPostfix(process,"patTaus",postfix),
         tauDiscriminationSequence*applyPostfix(process,"patTaus",postfix)

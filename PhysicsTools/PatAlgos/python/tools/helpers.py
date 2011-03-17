@@ -197,8 +197,8 @@ class MassSearchParamVisitor(object):
         return self._modules
     
     
-def massSearchReplaceParam(sequence,paramName,paramOldValue,paramValue):
-    sequence.visit(MassSearchReplaceParamVisitor(paramName,paramOldValue,paramValue))
+def massSearchReplaceParam(sequence,paramName,paramOldValue,paramValue,verbose=False):
+    sequence.visit(MassSearchReplaceParamVisitor(paramName,paramOldValue,paramValue,verbose))
 
 def listModules(sequence):
     visitor = GatherAllModulesVisitor(gatheredInstance=cms._Module)
