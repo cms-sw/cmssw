@@ -117,7 +117,7 @@ if options.dataSource.find('recoFiles') != -1:
       process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
       process.runPFTau = cms.Path(process.PFTau)
       process.schedule.append(process.runPFTau)
-   if options.dataSource.find('PFTau') != -1:
+   if options.dataSource.find('CaloTau') != -1:
       process.load("Configuration.StandardSequences.Geometry_cff")
       process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
       process.load("Configuration.StandardSequences.MagneticField_cff")
