@@ -117,8 +117,8 @@ void collectObsFactors(RooProdPdf *pdf, const RooArgSet &observables, RooArgList
         }
     }
 }
-void mkModelObsPdf(RooWorkspace *w, TString model="s") {
-    RooAbsPdf *model_s = w->pdf("model_"+model);
+void mkModelObsPdf(RooWorkspace *w, TString model="s", TString inputpdf="model_") {
+    RooAbsPdf *model_s = w->pdf(inputpdf+model);
     if (model_s->ClassName() != std::string("RooProdPdf")) {
         std::cout << "Error: model_"+model+" is not a RooProdPdf. Can't optimize." << std::endl;
         return;
@@ -126,7 +126,7 @@ void mkModelObsPdf(RooWorkspace *w, TString model="s") {
     const RooArgSet &observables = *w->set("observables");
     RooArgList factors;
     collectObsFactors((RooProdPdf*)model_s, observables, factors);
-    RooProdPdf *modelObs_s = new RooProdPdf("modelObs_"+model, "Part of model_"+model+" that depends on observables", factors);
+    RooProdPdf *modelObs_s = new RooProdPdf("modelObs_"+model, "Part of "+inputpdf+model+" that depends on observables", factors);
     w->import(*modelObs_s);
     std::cout << "Created " << modelObs_s->GetName() << " from product of " << std::endl;
     factors.Print("V");
@@ -156,23 +156,37 @@ void mkCombModel(int mass=140) {
     w->factory(TString::Format("PROD::_naive_model_s(%s_atlas,%s_cms)", mA->GetPdf()->GetName(), mC->GetPdf()->GetName()));
     w->factory("Uniform::_dummy_pdf(theta_Lumi)");
 
+    // two ways of building combined pdf:
+    //  1) replace one of the two common constraint with a uniform pdf
+    //  2) take product of modelObs and nuisancePdf
+    bool useReplace = false; // use method 1
+
     RooCustomizer make_model_s(*w->pdf("_naive_model_s"), "model_s");
     make_model_s.replaceArg(*w->var("mu"),    *w->var("r"));
-    make_model_s.replaceArg(*w->pdf("LUMI_gaus_atlas"), *w->pdf("_dummy_pdf"));
     make_model_s.replaceArg(*w->var("XS_GG_atlas"), *w->var("theta_Higgs_XS"));
     make_model_s.replaceArg(*w->var("LUMI_atlas"),  *w->var("theta_Lumi"));
-    make_model_s.replaceArg(*w->pdf("XS_GG_gaus_atlas"), *w->pdf("_dummy_pdf"));
-    RooAbsPdf *model_s = make_model_s.build(); model_s->SetName("model_s");
+    if (useReplace) {
+        w->factory("Uniform::_dummy_pdf(theta_Lumi)"); // create dummy constraint term.
+        make_model_s.replaceArg(*w->pdf("LUMI_gaus_atlas"), *w->pdf("_dummy_pdf"));  // replace one of the two copies of
+        make_model_s.replaceArg(*w->pdf("XS_GG_gaus_atlas"), *w->pdf("_dummy_pdf")); // the constranint with a dummy pdf
+    }
+    RooAbsPdf *model_s = make_model_s.build(); 
+    if (useReplace) model_s->SetName("model_s");    // this is directly the S+B model
+    else            model_s->SetName("modelDup_s"); // this is S+B model with duplicate constraints
     w->import(*model_s);
     std::cout << "Created top-level pdf model_s. Parameters: " << std::endl;
     model_s->getParameters(w->data("data_obs"))->Print("V");
 
+    mkNuisancePdf(w);
+    if (useReplace) {
+        mkModelObsPdf(w,"s"); // make modelObs_s from model_s discarding constraints
+    } else {
+        mkModelObsPdf(w,"s","modelDup_"); // make modelObs_s from modelDup_s; constraints will be discarded anyway
+        w->factory("PROD::model_s(modelObs_s,nuisancePdf)"); // then make model_s from modelObs_s and nuisances
+    }
+
     RooConstVar *zorro = new RooConstVar("__zero__","Zero", 0); w->import(*zorro);
     w->factory("EDIT::model_b(model_s,r=__zero__)");
-
-    mkNuisancePdf(w);
-
-    mkModelObsPdf(w,"s");
     mkModelObsPdf(w,"b");
 
     ModelConfig *m = new ModelConfig("ModelConfig", w);
