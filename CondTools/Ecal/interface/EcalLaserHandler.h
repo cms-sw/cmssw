@@ -63,6 +63,12 @@ namespace popcon
     
     EcalCondDBInterface* econn;
     std::string id() const { return m_name;}
+    void notifyProblems(const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &old,
+			const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &current,
+			int hashedIndex, const std::string &reason);
+    bool checkAPDPN(const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &old,
+		    const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &current,
+		    int hashedIndex);
     bool checkAPDPNs(const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &laserMap,
 		     const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &apdpns_popcon);
 

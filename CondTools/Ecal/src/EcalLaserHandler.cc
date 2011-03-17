@@ -36,15 +36,54 @@ double popcon::EcalLaserHandler::diff(float a, float b) {
   return std::abs(b- a)/a;
 }
 
+void popcon::EcalLaserHandler::notifyProblems(const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &old, 
+					      const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &current,
+					      int hashedIndex, const std::string &reason) {
+  std::cout << "===== " << reason << " =====" << std::endl;
+  if (hashedIndex < 0) {
+    EEDetId ee;
+    std::cout << "Triplets for " << ee.unhashIndex(-hashedIndex) << " bad: [" << old.p1 << ", "
+	      << old.p2 << ", " << old.p3 << "] ==> [" << current.p1 << ", "
+	      << current.p2 << ", " << current.p3 << "]" << std::endl;
+  } else {
+    EBDetId eb;
+    std::cout << "Triplets for " << eb.unhashIndex(hashedIndex) << " bad: [" << old.p1 << ", "
+	      << old.p2 << ", " << old.p3 << "] ==> [" << current.p1 << ", "
+	      << current.p2 << ", " << current.p3 << "]" << std::endl;
+  }
+} 
+
+bool popcon::EcalLaserHandler::checkAPDPN(const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &old, 
+					  const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &current,
+					  int hashedIndex) {
+  bool ret = true;
+  if ((current.p1 < 0) || (current.p2 < 0) || (current.p3 < 0)) {
+    ret = false;
+    notifyProblems(old, current, hashedIndex, "Negative values");
+  } else if ((current.p1 > 10) || (current.p2 > 10) || (current.p3 > 0)) {
+    ret = false;
+    notifyProblems(old, current, hashedIndex, "Values too large");
+  } else if (((diff(old.p1, current.p1) > 0.2) && (old.p1 != 0) && (old.p1 != 1)) ||
+	     ((diff(old.p2, current.p2) > 0.2) && (old.p2 != 0) && (old.p1 != 2)) ||
+	     ((diff(old.p3, current.p3) > 0.2) && (old.p3 != 0) && (old.p1 != 3))) {
+    ret = false;
+    notifyProblems(old, current, hashedIndex, "Difference w.r.t. previous too large");
+  }
+  return ret;
+}
+
 bool popcon::EcalLaserHandler::checkAPDPNs(const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &laserMap,
                                            const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &apdpns_popcon) {
   bool ret = true;
   for (int hashedIndex = 0; hashedIndex < 61200; hashedIndex++) {
     EcalLaserAPDPNRatios::EcalLaserAPDPNpair old = laserMap.barrel(hashedIndex);
     EcalLaserAPDPNRatios::EcalLaserAPDPNpair current = apdpns_popcon.barrel(hashedIndex);
-    if (diff(old.p1, current.p1) > 0.2) {
-      // check that corrections do not exceed 20 % 
-    }
+    ret = checkAPDPN(old, current, hashedIndex);
+  }
+  for (int hashedIndex = 0; hashedIndex < 14648; hashedIndex++) {
+    EcalLaserAPDPNRatios::EcalLaserAPDPNpair old = laserMap.endcap(hashedIndex);
+    EcalLaserAPDPNRatios::EcalLaserAPDPNpair current = apdpns_popcon.endcap(hashedIndex);
+    ret = checkAPDPN(old, current, -hashedIndex);
   }
   return ret;
 }
