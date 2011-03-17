@@ -278,11 +278,13 @@ class MatrixReader(object):
         
         self.filesPrefMap = {'relval_standard' : 'std-' ,
                              'relval_highstats': 'hi-'  ,
+                             'relval_pileup': 'PU-'  ,
                              'relval_generator': 'gen-'  ,
                              }
 
         self.files = ['relval_standard' ,
                       'relval_highstats',
+                      'relval_pileup',
                       'relval_generator',
                       ]
 
@@ -327,6 +329,18 @@ class MatrixReader(object):
         for num, wfInfo in self.relvalModule.workflows.items():
             wfName = wfInfo[0]
             stepList = wfInfo[1]
+            addTo=None
+            addCom=None
+            if len(wfInfo)>=3:
+                addCom=wfInfo[2]
+                if not type(addCom)==list:
+                    addCom=[addCom]
+                #print 'added dict',addCom
+                if len(wfInfo)>=4:
+                    addTo=wfInfo[3]
+                    #pad with 0
+                    while len(addTo)!=len(stepList):
+                        addTo.append(0)
             # if no explicit name given for the workflow, use the name of step1
             if wfName.strip() == '': wfName = stepList[0] 
             stepCmds = ['','','','']
@@ -348,7 +362,13 @@ class MatrixReader(object):
                         if step+'INPUT' in self.relvalModule.step1.keys():
                             stepName = step+"INPUT"
                 name += stepName
-                cfg, input, opts = self.makeCmd(self.relvalModule.stepList[stepIndex][stepName])
+                if addCom and (not addTo or addTo[stepIndex]==1):
+                    from Configuration.PyReleaseValidation.relval_steps import merge
+                    copyStep=merge(addCom+[self.relvalModule.stepList[stepIndex][stepName]])
+                    cfg, input, opts = self.makeCmd(copyStep)
+                else:                        
+                    cfg, input, opts = self.makeCmd(self.relvalModule.stepList[stepIndex][stepName])
+                        
                 if input and cfg :
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
                     raise MatrixException(msg)
