@@ -13,13 +13,12 @@
 #include "CondFormats/DTObjects/interface/DTConfigAbstractHandler.h"
 
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
-
-//#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigPedestals.h" CB test
-
 #include "L1TriggerConfig/DTTPGConfigProducers/src/DTPosNegType.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <iomanip>
@@ -29,18 +28,10 @@ using std::endl;
 using std::vector;
 using std::auto_ptr;
 
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
 //
 // constructors and destructor
 //
+
 DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
 {
   // tell the framework what record is being produced
@@ -99,31 +90,32 @@ DTConfigDBProducer::~DTConfigDBProducer()
 
 std::auto_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManagerRcd& iRecord)
 {
-   using namespace edm::es;
+   using namespace edm;
 
    int code; 
    if(cfgConfig){
-   	configFromCfg();
-	code = 2;
-   }	
-   else{
-   	code = readDTCCBConfig(iRecord);
-   	readDBPedestalsConfig(iRecord); // CB return code anche qui???
+     m_manager->setLutFromDB(false);
+     configFromCfg();
+     buildTrivialPedestals();
+     code = 2;
+   }  else{
+     code = readDTCCBConfig(iRecord);
+     readDBPedestalsConfig(iRecord); // no return code if fails exception is raised by ESHandle getter
    }
-   if(code==-1)
-   	cout << "ERROR code: please check!" << endl; 
-
-   if(code==1)
-   	cout << "Empty DB: configurations has been read from cfg!" << endl; 
-
-   if(code==2)
-   	cout << "Trivial : configurations has been read from cfg!" << endl; 
-
-   if(code==0)
-   	cout << "Configurations successfully read from OMDS!" << endl; 
-
-   else
-       cout << "ATTENTION: wrong configuration code.... please check! " << endl;
+   if(code==-1) {
+     throw cms::Exception("DTTPG") << "DTConfigDBProducer::produce : " << endl
+				   << "generic error pharsing DT CCB config strings." << endl
+                                   << "Run module with debug flags enable to get more info" << endl;
+   } else if(code==2) {
+     LogVerbatim ("DTTPG") << "DTConfigDBProducer::produce : Trivial : " << endl
+                           << "configurations has been read from cfg" << endl; 
+   } else if(code==0) {
+     LogVerbatim ("DTTPG") << "DTConfigDBProducer::produce : " << endl 
+                           << "Configurations successfully read from OMDS" << endl; 
+   } else {
+     LogProblem ("DTTPG") << "DTConfigDBProducer::produce : " << endl
+			  << "Wrong congiguration rertun CODE" << endl;
+   }
 
    std::auto_ptr<DTConfigManager> dtConfig = std::auto_ptr<DTConfigManager>( m_manager );
 
@@ -174,8 +166,6 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
   {
   	cout << ccb_conf->version() << endl;
   	cout << ndata << " data in the container" << endl;
-// SV 090928 : update for Paolo Ronchese new tags CondFormats/DTObjects V07-01-02 and CondTools/DT          V07-01-02
-//  	cout << "Full config key: " << ccb_conf->fullKey() << endl;
   }
 
   edm::ValidityInterval iov(iRecord.getRecord<DTCCBConfigRcd>().validityInterval() );
@@ -188,8 +178,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 	    
   // if there are no data in the container, configuration from cfg files...	    
   if( ndata==0 ){
-  	configFromCfg();
-	return 1;	
+    throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig : " << endl 
+				  << "DTCCBCOnfigRcd is empty!" << endl;
   }
 
   // get DTTPGMap for retrieving bti number and traco number
@@ -361,7 +351,6 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 			
 				// BTI config constructor from strings	
 			        DTConfigBti bticonf(m_debugBti,buffer);
-				//bticonf.setDebug(m_debugBti);					
                                  
 				m_manager->setDTConfigBti(DTBtiId(chambid,isl,ibti+1),bticonf);
 			    	
@@ -385,7 +374,6 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
   				int traco_chip = buffer[4]; 	// Chip Nr.;
 				int itraco = traco_brd * 4 + traco_chip + 1;
 				DTConfigTraco tracoconf(m_debugTraco,buffer);
-				//tracoconf.setDebug(m_debugTraco);
           			m_manager->setDTConfigTraco(DTTracoId(chambid,itraco),tracoconf);
 				
 				if(m_debugDB)
@@ -465,26 +453,19 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
        
       	++iter;
   }
-  
-  // SV 100511 add check flag for lut configuration
-  // if no lut configuration is found, luts are computed from geometry!
-  if(!flagDBLUTS && m_manager->lutFromDB()==true){
-        cout << "*** ATTENTION: Lut configuration parameters NOT found in OMDS:" << endl;
-        cout << "*** RE_RUN with the option TracoLutsFromDB = cms.bool(False)" << endl;
-        cout << "*** in L1TriggerConfig/DTTPGConfigProducers/python/L1DTConfigFromDB_cfi.py" << endl;
-        cout << "*** In this run LUTS are computed FROM GEOMETRY! " << endl;
-        m_manager->setLutFromDB(false);
-        //return -1;
-  } 
-  if(!flagDBBti || !flagDBTraco || !flagDBTSS || !flagDBTSM ){
-        cout << "*** ATTENTION: configuration strings not found in OMDS:" << endl;
-        cout << "*** CHECK and RE_RUN" << endl;
-        cout << "*** ... trying to configure from cfg" << endl; 
 
-  	configFromCfg();
-	return 1;
+  // moved to exception handling no attempt to configure from cfg is DB is missing
+  if(!flagDBBti || !flagDBTraco || !flagDBTSS || !flagDBTSM ){
+    throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig :"  << endl
+				  << "(at least) part of the CCB strings needed to configure"  << endl
+				  << "DTTPG emulator were not found in DTCCBCOnfigRcd" << endl;
   }
-  	 
+  if(!flagDBLUTS && m_manager->lutFromDB()==true){
+    throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig : " << endl
+				  << "Asked to configure the emulator using Lut seeds from DB "
+				  << "but no configuration parameters found in DTCCBCOnfigRcd." << endl;
+  } 
+  
   return 0;
 }
 
