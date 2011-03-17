@@ -93,7 +93,7 @@ getattr(process,"pfNoMuon"+postfix).verbose = False
 #    '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0006/14920B0A-0DE8-DE11-B138-002618943926.root'
 #   ]                                     ##  (e.g. 'file:AOD.root')
 #                                         ##
-#   process.maxEvents.input = ...         ##  (e.g. -1 to run on all events)
+process.maxEvents.input = 100             ##  (e.g. -1 to run on all events)
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
