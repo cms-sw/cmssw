@@ -4871,6 +4871,50 @@ void OHltTree::CheckOpenHlt(
    }
 
    /*Electron-jet cross-triggers*/
+  ///VBF Paths
+  //Ele15 - TighterEleIdIsol - CaloJetCor pT 35 20 - Deta 2.
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CleanDiJet_35_20_Deta2") == 0) {
+    if( map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second == 1 ) {
+      if( prescaleResponse(menu,cfg,rcounter,it) ) {
+        int EtMaxIt = -1;
+        std::vector<int> EleIts;
+        if( OpenHlt1ElectronVbfEleIDPassed(15.,12.,true,EtMaxIt,&EleIts) >= 1 ) {
+          if( OpenHltCleanedDiJetPassed(35.,20.,true,"Calo",2.,0.,false,false,EleIts) >= 1 )	   
+            triggerBit[it] = true;
+        }
+      }
+    }
+  }
+
+  //Ele15 - TighterEleIdIsol - CaloJetCor pT 35 20 - Deta 3. - backup
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CleanDiJet_35_20_Deta3") == 0) {
+    if( map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second == 1 ) {
+      if( prescaleResponse(menu,cfg,rcounter,it) ) {
+        int EtMaxIt = -1;
+        std::vector<int> EleIts;
+        if( OpenHlt1ElectronVbfEleIDPassed(15.,12.,true,EtMaxIt,&EleIts) >= 1 ) {
+          if( OpenHltCleanedDiJetPassed(35.,20.,true,"Calo",3.,0.,false,false,EleIts) >= 1 )	   
+            triggerBit[it] = true;
+        }
+      }
+    }
+  }
+
+  //Ele15 - TighterEleId NO Isol - CaloJetCor pT 35 20 - Deta 2. background
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_CaloIdVT_TrkIdT_CleanDiJet_35_20_Deta2") == 0) {
+    if( map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second == 1 ) {
+      if( prescaleResponse(menu,cfg,rcounter,it) ) {
+        int EtMaxIt = -1;
+        std::vector<int> EleIts;
+        if( OpenHlt1ElectronVbfEleIDPassed(15.,12.,false,EtMaxIt,&EleIts) >= 1 ) {
+          if( OpenHltCleanedDiJetPassed(35.,20.,true,"Calo",2.,0.,false,false,EleIts) >= 1 )	   
+            triggerBit[it] = true;
+        }
+      }
+    }
+  }
+
+  
    //to be removed? cant find anything looking like this in confdb
    else if (triggerName.CompareTo("OpenHLT_Ele15_SW_CaloIdVT_TrkIdT_TrkIsoT_CaloIsoT_L1R_CleanedJet35Jet20_Deta2")
          == 0)
