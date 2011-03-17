@@ -45,7 +45,7 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=post
 #usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo2, runOnMC=True, postfix=postfix2)
 
 # to use tau-cleaned jet collection uncomment the following:
-#useTauCleanedPFJets(process, jetAlgo=jetAlgo, postfix=postfix) 
+#getattr(process,"pfNoTau"+postfix).enable = True 
 
 # to switch default tau to HPS tau uncomment the following:
 #adaptPFTaus(process,"hpsPFTau",postfix=postfix)
@@ -73,16 +73,14 @@ process.out.outputCommands = cms.untracked.vstring('drop *',
 
 
 # top projections in PF2PAT:
-
-process.pfNoPileUpPFlow.enable = True 
-process.pfNoMuonPFlow.enable = True 
-process.pfNoElectronPFlow.enable = True 
-process.pfNoTauPFlow.enable = True 
-process.pfNoJetPFlow.enable = True 
+getattr(process,"pfNoPileUp"+postfix).enable = True 
+getattr(process,"pfNoMuon"+postfix).enable = True 
+getattr(process,"pfNoElectron"+postfix).enable = True 
+getattr(process,"pfNoTau"+postfix).enable = False 
+getattr(process,"pfNoJet"+postfix).enable = True 
 
 # verbose flags for the PF2PAT modules
-
-process.pfNoMuon.verbose = True
+getattr(process,"pfNoMuon"+postfix).verbose = False
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
