@@ -15,23 +15,15 @@ hltMonSimpleBTag = cms.EDAnalyzer("HLTMonSimpleBTag",
                                  
                                   filters = cms.VPSet(
     
-                                                      cms.PSet(name=cms.string("hltL1sL1SingleMu7"),
-                                                               refname=cms.string("hltDijet70PT70")
+                                                      cms.PSet(name=cms.string("hltBSoftMuonDiJet20Mu5SelL3FilterByDR"),
+                                                               refname=cms.string("hltBSoftMuonDiJet20L25FilterByDR")
                                                                ),
-                                                      cms.PSet(name=cms.string("BTagMu_DiJet20_Mu5"),
-                                                               refname=cms.string("hltL1sL1SingleMu7")
+                                                      cms.PSet(name=cms.string("hltBSoftMuonDiJet60Mu7SelL3FilterByDR"),
+                                                               refname=cms.string("hltBSoftMuonDiJet60L25FilterByDR")
                                                                ),
-                                                      cms.PSet(name=cms.string("BTagMu_DiJet60_Mu7"),
-                                                               refname=cms.string("hltL1sL1SingleMu7")
-                                                               ),
-                                                      cms.PSet(name=cms.string("BTagMu_DiJet100_Mu9"),
-                                                               refname=cms.string("hltL1sL1SingleMu7")
-                                                               ),
-                                                      cms.PSet(name=cms.string("BTagMu_DiJet80_Mu9"),
-                                                               refname=cms.string("hltDijet70PT70")
-                                                               ),
-                                                      cms.PSet(name=cms.string("BTagMu_DiJet100_Mu9"),
-                                                               refname=cms.string("hltDijet70PT70")
+                                                      
+                                                      cms.PSet(name=cms.string("hltBSoftMuonDiJet80Mu9SelL3FilterByDR"),
+                                                               refname=cms.string("hltBSoftMuonDiJet80L25FilterByDR")
                                                                )
                                                       ),
                                   # data best guess
