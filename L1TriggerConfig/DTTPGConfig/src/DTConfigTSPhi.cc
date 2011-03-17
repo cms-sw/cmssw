@@ -39,6 +39,13 @@ DTConfigTSPhi::DTConfigTSPhi(const edm::ParameterSet& ps) {
 
 DTConfigTSPhi::DTConfigTSPhi(bool debugTS, unsigned short int tss_buffer[7][31], int ntss, unsigned short int tsm_buffer[9]) { 
 
+  if (ntss == 0) {
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::DTConfigTSPhi : ntss=" << ntss << std::endl
+				  << "configuration from CCB strings not possible " << std::endl
+				  << "if error occurs configuring from DB this is " << std::endl
+                                  << "likely to be a DTCCBConfigRcd issue" << std::endl;
+  }
+
   m_debug = debugTS;
 
   bool tstren[24];
@@ -93,7 +100,8 @@ DTConfigTSPhi::DTConfigTSPhi(bool debugTS, unsigned short int tss_buffer[7][31],
     memory_tsms[ts]  = tsm_buffer[ts+3];
     memory_tsmdu[ts] = tsm_buffer[ts+5];
     memory_tsmdd[ts] = tsm_buffer[ts+7];
-    //std::cout << std::hex << memory_tsms[ts] << " " << memory_tsmdu[ts] << " " << memory_tsmdd[ts] << " " << std::endl;
+    //std::cout << std::hex << memory_tsms[ts] << " " 
+    //<< memory_tsmdu[ts] << " " << memory_tsmdd[ts] << " " << std::endl;
   }
 
   bool tsmcgs1 = true;
@@ -453,7 +461,7 @@ DTConfigTSPhi::setTssMasking(unsigned short tssmsk, int i) {
   if (checkMask(tssmsk)) 
     m_tssmsk[i-1] = tssmsk;
   else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMMSK2 not in correct form: " << tssmsk << std::endl;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setTssMasking : TSSMSK" << i << " not in correct form: " << tssmsk << std::endl;
   }
 }
 
@@ -462,7 +470,7 @@ DTConfigTSPhi::setTsmMasking(unsigned short tsmmsk, int i) {
   if (checkMask(tsmmsk)) 
     m_tsmmsk[i-1] = tsmmsk;
   else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMMSK2 not in correct form: " << tsmmsk << std::endl;
+    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setTsmMasking : TSMMSK" << i << " not in correct form: " << tsmmsk << std::endl;
   }
 }
   
