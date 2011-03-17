@@ -86,6 +86,16 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
   for (int i=0; i<(NUMDCCS * NUMSPIGS * HTRCHANMAX); i++) 
     hashedHcalDetId_[i]=HcalDetId::Undefined;
 
+  for (int d=0; d<DEPTHBINS; d++) {
+    for (int eta=0; eta<ETABINS; eta++) {
+      for (int phi=0; phi<PHIBINS; phi++){
+	problemcount[eta][phi][d] = 0.0;
+	problemfound[eta][phi][d] = false;
+      }
+    }
+  }
+
+
 } // HcalRawDataMonitor::HcalRawDataMonitor()
 
 // destructor
