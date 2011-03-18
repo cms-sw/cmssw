@@ -28,7 +28,7 @@ namespace ROOT {
          //for(unsigned int i=0; i<D1*D2; ++i) lhs.fRep[i] = rhs.apply(i);
         for( IndexType i=0; i<D; ++i)
             // storage of symmetric matrix is in lower block
-            for( IndexTypej=0; j<=i; ++j) { 
+            for( IndexType j=0; j<=i; ++j) { 
 	      lhs(i,j) = rhs(i,j);
             }
       }
