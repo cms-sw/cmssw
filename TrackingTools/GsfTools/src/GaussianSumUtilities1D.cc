@@ -94,7 +94,6 @@ const SingleGaussianState1D&
 GaussianSumUtilities1D::mode () const
 {
   if ( theModeStatus==NotComputed )  computeMode();
-//     std::cout << "Mode calculation failed!!" << std::endl;
   return theMode;
 }
 
@@ -105,6 +104,15 @@ GaussianSumUtilities1D::computeMode () const
 //   tstack.benchmark("GSU1D::benchmark",100000);
 //   FastTimerStackPush(tstack,"GaussianSumUtilities1D::computeMode");
   theModeStatus = NotValid;
+  //
+  // check for "degenerate" states (identical values with vanishing error)
+  //
+  if ( theState.variance()<1.e-14 ) {
+    theMode = SingleGaussianState1D(theState.mean(),theState.variance(),
+				    theState.weight());
+    theModeStatus = Valid;
+    return;
+  }
   //
   // Use means of individual components as start values.
   // Sort by value of pdf.
