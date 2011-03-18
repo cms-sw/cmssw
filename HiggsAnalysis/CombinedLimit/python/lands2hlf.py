@@ -143,7 +143,8 @@ if nuisances:
             globalobs.append("thetaIn_%s" % n)
         elif pdf == "gmM":
             val = 0;
-            for v in sum(errline,[]): # concatenate all numbers
+            for c in errline.values(): #list channels
+              for v in c.values():     # list effects in each channel 
                 if v != 0:
                     if val != 0 and v != val: 
                         raise RuntimeError, "Error: line %s contains two different uncertainties %g, %g, which is not supported for gmM" % (n,v,val)
