@@ -49,6 +49,14 @@ HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
   minHt_= iConfig.getParameter<double> ("minHt");
   minAlphaT_= iConfig.getParameter<double> ("minAlphaT");
 
+  // sanity checks
+  if (       (minPtJet_.size()    !=  etaJet_.size())
+       || (  (minPtJet_.size()<1) || (etaJet_.size()<1) )
+       || ( ((minPtJet_.size()<2) || (etaJet_.size()<2))
+	    && ( (mode_==1) || (mode_==2) || (mode_ == 5))) ) {
+    edm::LogError("HLTMhtHtFilter") << "inconsistent module configuration!";
+  }
+
   //register your products
   produces<trigger::TriggerFilterObjectWithRefs>();
 }
@@ -120,19 +128,19 @@ bool
       if (!usePt_ || mode_==3 ) jetVar = recocalojet->et();
 
       if (mode_==1 || mode_==2 || mode_ == 5) {//---get MHT
-        if (jetVar > minPtJet_[1] && fabs(recocalojet->eta()) < etaJet_[1]) {
+        if (jetVar > minPtJet_.at(1) && fabs(recocalojet->eta()) < etaJet_.at(1)) {
           mhtx -= jetVar*cos(recocalojet->phi());
           mhty -= jetVar*sin(recocalojet->phi());
         }
       }
       if (mode_==2 || mode_==4 || mode_==5) {//---get HT
-        if (jetVar > minPtJet_[0] && fabs(recocalojet->eta()) < etaJet_[0]) {
+        if (jetVar > minPtJet_.at(0) && fabs(recocalojet->eta()) < etaJet_.at(0)) {
           ht += jetVar;
           nj++;
         }
       }
       if (mode_==3) {//---get PT12
-        if (jetVar > minPtJet_[0] && fabs(recocalojet->eta()) < etaJet_[0]) {
+        if (jetVar > minPtJet_.at(0) && fabs(recocalojet->eta()) < etaJet_.at(0)) {
           nj++;
           mhtx -= jetVar*cos(recocalojet->phi());
           mhty -= jetVar*sin(recocalojet->phi());
@@ -164,7 +172,7 @@ bool
       jetVar = recocalojet->pt();
       if (!usePt_ || mode_==3) jetVar = recocalojet->et();
 
-      if (jetVar > minPtJet_[0]) {
+      if (jetVar > minPtJet_.at(0)) {
         ref = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
         filterobject->addObject(TriggerJet,ref);
         n++;
