@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Thu Nov  4 22:17:56 CET 2010
-// $Id: HcalHitSelection.cc,v 1.1 2010/11/05 17:22:20 vlimant Exp $
+// $Id: HcalHitSelection.cc,v 1.2 2011/03/18 11:34:07 vlimant Exp $
 //
 //
 
@@ -112,7 +112,7 @@ HcalHitSelection::HcalHitSelection(const edm::ParameterSet& iConfig)
 
   interestingDetIdCollections = iConfig.getParameter< std::vector<edm::InputTag> >("interestingDetIds");
 
-  hoSeverityLevel=iConfig.getParameter<unsigned int>("hoSeverityLevel");
+  hoSeverityLevel=iConfig.getParameter<int>("hoSeverityLevel");
 
   produces<HBHERecHitCollection>(hbheTag.label());
   produces<HFRecHitCollection>(hfTag.label());
