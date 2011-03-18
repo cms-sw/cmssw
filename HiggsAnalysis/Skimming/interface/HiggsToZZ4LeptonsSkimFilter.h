@@ -3,14 +3,7 @@
 
 /* \class HiggsTo4LeptonsSkimFilter
  *
- *
- * Filter to select 4 lepton events based on the
- * 1 or 2 electron or 1 or 2 muon HLT trigger, 
- * and four leptons (no flavour requirement).
- * No charge requirements are applied on event.
- *
- * \author Dominique Fortin - UC Riverside
- *modified by N. De Filippis - LLR - Ecole Polytechnique
+ * Author: N. De Filippis - Politecnico and INFN Bari
  */
 
 // system include files
@@ -44,8 +37,12 @@ class HiggsToZZ4LeptonsSkimFilter : public edm::EDFilter {
   bool useHLT;
   string HLTinst_;
   vector<string> HLTflag_;
-  string Skiminst_,Skimflag_;
-  int nSelectedSkimEvents;
+
+  bool useDiLeptonSkim,useTriLeptonSkim;
+  string SkimDiLeptoninst_,SkimDiLeptonflag_;
+  string SkimTriLeptoninst_,SkimTriLeptonflag_;
+
+  int nDiLeptonSkimEvents,nTriLeptonSkimEvents,nSelectedSkimEvents;
   vector<int> nSelectedEvents;
 
 };
