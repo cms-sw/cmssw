@@ -26,6 +26,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimplerLikelihoodRatioTestStat.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStat.h"
 
 using namespace RooStats;
 
@@ -299,6 +300,7 @@ bool HybridNew::runTestStatistics(RooWorkspace *w, RooAbsData &data, double &lim
     HybridNew::Setup setup;
     std::auto_ptr<RooStats::HybridCalculator> hc(create(w, data, r, rValue_, setup));
     RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
+    if (testStat_ == "Atlas" || testStat_ == "Profile") nullPOI.setRealValue(r->GetName(), rValue_);
     limit = -2 * setup.qvar->Evaluate(data, nullPOI);
     if (testStat_ == "Atlas" || testStat_ == "Profile") limit = -limit; // there's a sign flip for these two
     std::cout << "\n -- Hybrid New -- \n";
@@ -387,14 +389,20 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
           ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetAltParameters(snapS);
       }
   } else if (testStat_ == "TEV") {
-    setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), setup.modelConfig.GetSnapshot()));
-    ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
+    if (optimizeTestStatistics_ && !w->pdf("model_s")->canBeExtended()) {
+        setup.qvar.reset(new ProfiledLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), 
+                                                             withSystematics ? w->set("nuisances") : 0, poiZero, poi));
+    } else {
+        setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), setup.modelConfig.GetSnapshot()));
+        ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
+    }
   } else if (testStat_ == "Atlas" || testStat_ == "Profile") {
     r->setConstant(false); r->setMin(0);
     if (testStat_ == "Atlas") r->setMax(rVal);
     RooArgSet altPOI; altPOI.addClone(*r); 
     setup.modelConfig.SetSnapshot(altPOI);
-    setup.modelConfig_bonly.SetSnapshot(altPOI);
+    setup.modelConfig_bonly.SetSnapshot(altPOI); // need to set ALT poi, because the HC will pass this one to the test statistics.
+    setup.modelConfig_bonly.SetPdf(*w->pdf("model_b")); // note the model_s!
     setup.qvar.reset(new ProfileLikelihoodTestStat(*w->pdf("model_s")));
   }
   

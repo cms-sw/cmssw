@@ -149,7 +149,6 @@
         "comment": "not validated", 
         "status": "done"
     }, 
-
     "Counting_Hybrid": {
         "comment": "", 
         "results": {
@@ -260,7 +259,7 @@
                 "t_real": 0.00073300203075632453
             }, 
             "counting-B5p5-Obs11-StatOnly.txt": {
-                "comment": "From validation page", 
+                "comment": "Minuit", 
                 "limit": 13.34, 
                 "limitErr": 0.01, 
                 "status": "done", 
@@ -408,6 +407,128 @@
         }, 
         "status": "done"
     }, 
+    "Counting_TestStats_AboveB_HybridNew": {
+        "comment": "not validated but looks ok", 
+        "results": {
+            "Atlas": {
+                "comment": "", 
+                "limit": 1.3084299126222181, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00011293490388197824
+            }, 
+            "LEP": {
+                "comment": "", 
+                "limit": -2.7940224971090615, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00015605290536768734
+            }, 
+            "Profile": {
+                "comment": "", 
+                "limit": 1.3084202982651076, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00010883410868700594
+            }, 
+            "TEV": {
+                "comment": "", 
+                "limit": -1.4687259747081489, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00015563567285425961
+            }
+        }, 
+        "status": "done"
+    }, 
+    "Counting_TestStats_AboveSB_HybridNew": {
+        "comment": "not validated but looks ok", 
+        "results": {
+            "Atlas": {
+                "comment": "", 
+                "limit": -6.4201477911751681e-08, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.0001062671362888068
+            }, 
+            "LEP": {
+                "comment": "", 
+                "limit": -2.8234084226844658, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00015758673544041812
+            }, 
+            "Profile": {
+                "comment": "", 
+                "limit": 1.063679519192517, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.0001569469750393182
+            }, 
+            "TEV": {
+                "comment": "", 
+                "limit": -1.7134754317260716, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00016253392095677555
+            }
+        }, 
+        "status": "done"
+    }, 
+    "Counting_TestStats_BelowB_HybridNew": {
+        "comment": "not validated but looks ok", 
+        "results": {
+            "Atlas": {
+                "comment": "", 
+                "limit": 8.4575381796187319, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00011315345909679309
+            }, 
+            "LEP": {
+                "comment": "", 
+                "limit": 8.706745670149898, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00015688339772168547
+            }, 
+            "TEV": {
+                "comment": "", 
+                "limit": 8.4575380785891401, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00015559991879854351
+            }
+        }, 
+        "status": "done"
+    }, 
+    "Counting_TestStats_HybridNew": {
+        "comment": "not validated but looks ok", 
+        "results": {
+            "Atlas": {
+                "comment": "", 
+                "limit": 1.980986528105726, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00011301835183985531
+            }, 
+            "LEP": {
+                "comment": "", 
+                "limit": 2.2404740208993701, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00015256802726071328
+            }, 
+            "TEV": {
+                "comment": "", 
+                "limit": 1.9493057406825001, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00015711784362792969
+            }
+        }, 
+        "status": "done"
+    },
     "Counting_ZeroB_FeldmanCousins": {
         "comment": "all 3 jobs done", 
         "results": {
@@ -441,7 +562,7 @@
             "counting-B0-Obs0-StatOnly.txt": {
                 "comment": "", 
                 "limit": 0, 
-                "limitErr": 0, 
+                "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.055087849497795105
             }, 

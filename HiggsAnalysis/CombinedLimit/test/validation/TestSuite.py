@@ -25,8 +25,8 @@ class TestSuite:
         for m,l,test in allTests:
             if m != options.method and options.method != "*": continue
             if l != "*"            and options.suite  != l:   continue
-            if options.select  and not re.match(options.select,  test.name()): continue
-            if options.exclude and     re.match(options.exclude, test.name()): continue
+            if options.select  and not re.search(options.select,  test.name()): continue
+            if options.exclude and     re.search(options.exclude, test.name()): continue
             if test.name() in dups: raise RuntimeError, "Duplicate test %s" % test.name()
             self._tests.append(test)
             dups.append(test.name())
@@ -111,10 +111,10 @@ class TestSuite:
                 elif deltaLimRel <= 5: res['status'] = 'warning'
                 elif deltaLimRel <= 5: res['status'] = 'error'
                 if limitErr > 0 and limitErrR > 0:
-                    if limitErr/limitErrR >= 1.5: 
+                    if limitErr/limitErrR >= 1.5 and ref['comment'] == '': 
                         res['status']  = 'warning'
                         res['comment'] += 'worse uncertainty'
-                if time > 0.5 and timeR > 0.5:
+                if time > 0.5 and timeR > 0.5 and ref['comment'] == '':
                     if time/timeR >= 2: 
                         res['status'] = 'warning'
                         res['comment'] += 'worse timing'
