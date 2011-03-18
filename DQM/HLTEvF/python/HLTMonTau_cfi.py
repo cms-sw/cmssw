@@ -167,6 +167,21 @@ hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
         ),
         
         cms.PSet(
+            triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/LoosePFTau'),
+            Filter                = cms.untracked.VInputTag(
+                                        cms.InputTag("hltPFTau15","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTau15Track","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTau15TrackLooseIso","",hltTauDQMProcess)
+                                	),
+            MatchDeltaR           = cms.untracked.vdouble(0.2,0.2,0.2),    #One per filter
+            NTriggeredTaus        = cms.untracked.vuint32(1,1,1,1), #The first one is for the ref events
+            NTriggeredLeptons     = cms.untracked.vuint32(0,0,0,0), #the first one is for the ref events
+            TauType               = cms.untracked.vint32(84,84,84),
+            LeptonType            = cms.untracked.vint32(0,0,0)                         
+        ),
+        
+        cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess),
             DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/Summary'),
             Filter                = cms.untracked.VInputTag(
@@ -193,7 +208,7 @@ hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
             L1Dirs                  = cms.vstring("HLT/TauOnline/Electrons/L1"),
             caloDirs                = cms.vstring(""),
             trackDirs               = cms.vstring(""),
-            pathDirs                = cms.vstring("HLT/TauOnline/Electrons/DoubleTau","HLT/TauOnline/Electrons/SingleTau"),
+            pathDirs                = cms.vstring("HLT/TauOnline/Electrons/DoubleTau","HLT/TauOnline/Electrons/SingleTau","HLT/TauOnline/Electrons/LoosePFTau"),
             pathSummaryDirs         = cms.vstring("HLT/TauOnline/Electrons/Summary")
         ),
     
@@ -201,6 +216,7 @@ hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
                                      
 
     ConfigType = cms.vstring(
+        "Path",
         "Path",
         "Path",
         "LitePath",
