@@ -4364,6 +4364,22 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   else if (triggerName.CompareTo("OpenHLT_Photon36_CaloIdL_Photon22_CaloIdL_v1") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHltPhoCuts(36, 0.15, 0.10, 0.014, 0.035, 999, 999) >= 1
+                  && OpenHltPhoCuts(22, 0.15, 0.10, 0.014, 0.035, 999, 999)
+                        >= 2)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
    // to be removed ??
    /*PhotonX_(M)HTX */
 
