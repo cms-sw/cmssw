@@ -71,6 +71,8 @@ for l in file:
         signals = [p for p,s in isSignal.items() if s == True]
         if len(signals) == 0: raise RuntimeError, "You must have at least one signal process (id <= 0)"
     if f[0] == "rate":
+        if processline == []: raise RuntimeError, "Missing line with process names before rate line" 
+        if sigline == []:     raise RuntimeError, "Missing line with process id before rate line" 
         if len(f[1:]) != len(keyline): raise RuntimeError, "Malformed rate line: length %d, while bins and process lines have length %d" % (len(f[1:]), len(keyline))
         for (b,p,s),r in zip(keyline,f[1:]):
             exp[b][p] = float(r)
