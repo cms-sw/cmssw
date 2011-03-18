@@ -798,6 +798,7 @@ if 'GlobalTag' in %%(dict)s:
       # TODO: 5E32 paths for which a recovery should be attempted:
       self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v*" )
       self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v*" )
+      self.options['paths'].append( "-HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*")
       self.options['paths'].append( "-HLT_HT250_DoubleDisplacedJet60_v*" )
 
       # remove HLTAnalyzerEndpath from fastsim cff's
