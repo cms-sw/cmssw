@@ -9,6 +9,79 @@ import array
 #==============================
 # SELECT
 #==============================
+def runList(schema,fillnum,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=true,requirehlt=true):
+    '''
+    select runnum from cmsrunsummary r,lumidata l,trgdata t,hltdata h where r.runnum=l.runnum and l.runnum=t.runnum and t.runnum=h.runnum and r.fillnum=:fillnum and r.runnum>:runmin and r.runnum<:runmax and r.starttime>=:startT and r.stopTime<=:stopT and r.amodetag=:amodetag and regexp_like(r.l1key,:l1keypattern) and regexp_like(hltkey,:hltkeypattern) and l.nominalEnergy>=:nominalEnergy*(1-energyFlut) and l.nominalEnergy<=:nominalEnergy*(1+energyFlut)
+    '''
+    result=[]
+    qHandle=schema.newQuery()
+    r=nameDealer.cmsrunsummaryTableName()
+    l=nameDealer.lumidataTableName()
+    t=nameDealer.trgdataTableName()
+    h=nameDealer.hltdataTableName()
+    try:
+        qHandle.addToTableList(r)
+        qHandle.addToTableList(l)
+        if requiretrg:
+            qHandle.addToTableList(t)
+        if requirehlt:
+            qHandle.addToTableList(h)
+        qConditionStr=r+'.runnum='+l+'.runnum and '+l+'.runnum='+t+'.runnum and '+t+'.runnum='+h+'.runnum'
+        qCondition=coral.AttributeList()        
+        if fillnum:
+            qConditionStr+=' and '+r+'.fillnum=:fillnum'
+            qCondition.extend('fillnum','unsigned int')
+            qCondition['fillnum'].setData(fillnum)
+        if runmin:
+            qConditionStr+=' and '+r+'.runnum>=:runmin'
+            qCondition.extend('runmin','unsigned int')
+            qCondition['runmin'].setData(runmin)
+        if runmax:
+            qConditionStr+=' and '+r+'.runnum<=:runmax'
+            qCondition.extend('runmax','unsigned int')
+            qCondition['runmax'].setData(runmax)
+        if startT:
+            qConditionStr+=' and '+r+'.starttime>=:startT'
+            qCondition.extend('start','time stamp')
+            qCondition['startT'].setData(startT)
+        if stopT:
+            qConditionStr+=' and '+r+'.stoptime<=:stopT'
+            qCondition.extend('stop','time stamp')
+            qCondition['stop'].setData(stopT)
+        if amodetag:
+            qConditionStr+=' and '+r+'.amodetag=:amodetag'
+            qCondition.extend('amodetag','string')
+            qCondition['amodetag'].setData(amodetag)
+        if l1keypPattern:
+            qConditionStr+=' and regexp_like('+r+'.l1key,:l1keypattern)'
+            qCondition.extend('l1keypattern','string')
+            qCondition['l1keypattern'].setData(l1keyPattern)
+        if hltkeyPattern:
+            qConditionStr+=' and regexp_like('+r+'.hltkey,:hltkeypattern)'
+            qCondition.extend('hltkeypattern','string')
+            qCondition['hltkeypattern'].setData(hltkeyPattern)
+        if nominalEnergy:
+            emin=nominalEnergy*(1.0-energyFlut)
+            emax=nominalEnergy*(1.0+energyFlut)
+            qConditionStr+=l+'.nominalenergy>=:emin and '+l+'.nominalenergy<=:emax'
+            qCondition.extend('emin','float')
+            qCondition.extend('emax','float')
+            qCondition['emin'].setData(emin)
+            qCondition['emax'].setData(emax)
+        qResult=coral.AttributeList()
+        qResult.extend('runnum','unsigned int')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition(qConditionStr,qCondition)
+        qHandle.addToOutputList(r+'.RUNNUM','runnum')
+        cursor=qHandle.execute()
+        while cursor.next():
+            result.append(cursor.currentRow()['runnum'].data())
+    except :
+        del qHandle
+        raise
+    del qHandle
+    return result
+
 def runsummary(schema,runnum,sessionflavor=''):
     '''
     select l1key,amodetag,egev,hltkey,fillnum,sequence,to_char(starttime),to_char(stoptime) from cmsrunsummary where runnum=:runnum
