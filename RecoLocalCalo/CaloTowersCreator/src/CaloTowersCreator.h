@@ -4,20 +4,19 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
 
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2010/01/12 21:18:50 $
-  * $Revision: 1.6 $
+  * $Date: 2010/11/24 19:52:16 $
+  * $Revision: 1.7 $
   * Original author: J. Mans - Minnesota
   */
 
@@ -61,6 +60,9 @@ private:
   bool useRejectedRecoveredHcalHits_;
   bool useRejectedRecoveredEcalHits_;
 
+  edm::ESWatcher<HcalSeverityLevelComputerRcd> hcalSevLevelWatcher_;
+  edm::ESWatcher<HcalChannelQualityRcd> hcalChStatusWatcher_;
+  edm::ESWatcher<IdealGeometryRecord> caloTowerConstituentsWatcher_;
 
 };
 
