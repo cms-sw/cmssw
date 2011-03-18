@@ -7,17 +7,22 @@ process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSee
 #process.RandomNumberGeneratorService.generator.initialSeed = 12345XXXX
 
 process.load("Configuration.StandardSequences.Simulation_cff")
-process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
+
+#--- replacing two old includes with two new for 4_X_Y CMSSW
+#process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
+#process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
+process.load("SimGeneral.MixingModule.mixNoPU_cfi")
+process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('Configuration/StandardSequences/RawToDigi_cff')
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.PyReleaseValidation.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
-process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.g4SimHits.UseMagneticField = False
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
 process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
@@ -25,12 +30,12 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 # Input source
 process.source = cms.Source("PoolSource",
-    firstEvent = cms.untracked.uint32(XXXXX),
+    firstEvent = cms.untracked.uint32(1),
     fileNames = cms.untracked.vstring('file:mc.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(10)
 )
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
@@ -38,11 +43,9 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
      fileName = cms.untracked.string("output.root")
 )
 
-
 process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001
 process.VtxSmeared.SigmaZ = 0.00001
-
 
 ### ---- if unsuppressed Digi required (SimCalorimetry/HcalZeroSuppressionProducers/python/hcalDigisNoSuppression_cfi.py)
 #process.simHcalDigis.markAndPass = cms.bool(False),
@@ -97,6 +100,11 @@ process.ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 #--- calolocalreco = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence)
 # RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff
 # RecoLocalCalo.Configuration.hcalLocalReco_cff
+
+#--- To cope with pre-reco in 3_11_X introduction to bring back hbhe RecHits collection to CaloTowers
+delattr(process,"hbhereco")
+process.hbhereco = process.hbheprereco.clone()
+process.hcalLocalRecoSequence.replace(process.hbheprereco,process.hbhereco)
 
 
 process.g4SimHits.Generator.HepMCProductLabel = 'generator'
