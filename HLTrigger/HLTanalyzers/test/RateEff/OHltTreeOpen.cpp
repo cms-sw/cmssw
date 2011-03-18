@@ -4251,6 +4251,40 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+
+   else if (triggerName.CompareTo("OpenHLT_Photon50_CaloIdVL_IsoL_v1") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHlt1PhotonSamHarperPassed(50., 0, // ET, L1isolation
+                  3.5,
+                  3.5, // Track iso barrel, Track iso endcap
+                  999.,
+                  999., // Track/pT iso barrel, Track/pT iso endcap
+                  3.5,
+                  3.5, // H iso barrel, H iso endcap
+                  5.5,
+                  5.5, // E iso barrel, E iso endcap
+                  0.15,
+                  0.10, // H/E barrel, H/E endcap
+                  0.024,
+                  0.040, // cluster shape barrel, cluster shape endcap
+                  0.98,
+                  999., // R9 barrel, R9 endcap
+                  999.,
+                  999., // Deta barrel, Deta endcap
+                  999.,
+                  999. // Dphi barrel, Dphi endcap
+            )>=1)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
    else if (triggerName.CompareTo("OpenHLT_Photon75_CaloIdVL_v1") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
