@@ -198,7 +198,8 @@ PFDisplacedVertexHelper::identifyVertex(const reco::PFDisplacedVertex& v) const{
   double p_sec = mom_pipi.P();
   double pt_prim = mom_prim.Pt();
   
-  bool bLog = log10(p_prim/p_sec) > vertexIdentifier_.logPrimSec_min();
+  bool bLog = false;
+  if (p_prim > 0.05 && p_sec > 0.05)  bLog = log10(p_prim/p_sec) > vertexIdentifier_.logPrimSec_min();
   bool bPtMin = pt_prim >  vertexIdentifier_.pt_kink_min();
 
   // A vertex with at least 3 tracks is considered as high purity nuclear interaction
