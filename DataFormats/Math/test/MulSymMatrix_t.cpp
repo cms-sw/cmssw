@@ -9,6 +9,45 @@ namespace ROOT {
 
   namespace Math { 
 
+   /** 
+       Force Expression evaluation from general to symmetric. 
+       To be used when is known (like in similarity products) that the result 
+       is symmetric
+       Note this is function used in the simmilarity product: no check for temporary is 
+       done since in that case is not needed
+   */
+   struct AssignAsSym
+   {
+      /// assign a symmetric matrix from an expression
+      template <class T, 
+		IndexType D,
+                class A, 
+                class R>
+      static void Evaluate(SMatrix<T,D,D,MatRepStd<T,D> >& lhs,  const Expr<A,T,D,D,R>& rhs) 
+      {
+         //for(unsigned int i=0; i<D1*D2; ++i) lhs.fRep[i] = rhs.apply(i);
+        for( IndexType i=0; i<D; ++i)
+            // storage of symmetric matrix is in lower block
+            for( IndexTypej=0; j<=i; ++j) { 
+	      lhs(i,j) = rhs(i,j);
+            }
+      }
+      /// assign the symmetric matric  from a general matrix  
+      template <class T, 
+                 IndexType D,
+                class R>
+      static void Evaluate(SMatrix<T,D,D,MatRepStd<T,D> >& lhs,  const SMatrix<T,D,D,R>& rhs) 
+     {
+       //for(unsigned int i=0; i<D1*D2; ++i) lhs.fRep[i] = rhs.apply(i);
+       for( IndexType i=0; i<D; ++i)
+	 // storage of symmetric matrix is in lower block
+	 for( IndexType j=0; j<=i; ++j) { 
+	   lhs(i,j) = rhs(i,j);
+	 }
+      } 
+   }; // struct AssignSym 
+    
+
     template <class T,  IndexType D1,  IndexType D2, class R>
     inline SMatrix<T,D1,D1,MatRepSym<T,D1> > Similarity(const SMatrix<T,D1,D2,R>& lhs, const SMatrix<T,D2,D2,MatRepStd<T,D2> >& rhs) {
       SMatrix<T,D1,D2, MatRepStd<T,D1,D2> > tmp = lhs * rhs;
