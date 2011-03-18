@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: BeamFitter.cc,v 1.73 2010/11/03 15:42:09 friis Exp $
+   version $Id: BeamFitter.cc,v 1.74 2011/02/23 15:36:29 friis Exp $
 
 ________________________________________________________________**/
 
@@ -35,9 +35,19 @@ const char * BeamFitter::formatBTime(const std::time_t & t)  {
   struct std::tm * ptm;
   ptm = gmtime(&t);
   static char ts[] = "yyyy.mn.dd hh:mm:ss zzz ";
-  strftime(ts,sizeof(ts),"%Y.%m.%d %H:%M:%S %Z",ptm);
+  // This value should be taken directly from edm::Event::time(), which
+  // returns GMT (to be confirmed)
+  strftime(ts,sizeof(ts),"%Y.%m.%d %H:%M:%S GMT",ptm);
   return ts;
 }
+// Update the string representations of the time
+void BeamFitter::updateBTime() {
+  const char* fbeginTime = formatBTime(freftime[0]);
+  sprintf(fbeginTimeOfFit,"%s",fbeginTime);
+  const char* fendTime = formatBTime(freftime[1]);
+  sprintf(fendTimeOfFit,"%s",fendTime);
+}
+
 
 BeamFitter::BeamFitter(const edm::ParameterSet& iConfig): fPVTree_(0)
 {
@@ -221,6 +231,9 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   if (fbeginLumiOfFit == -1) freftime[0] = freftime[1] = ftmptime;
   if (freftime[0] == 0 || ftmptime < freftime[0]) freftime[0] = ftmptime;
   if (freftime[1] == 0 || ftmptime > freftime[1]) freftime[1] = ftmptime;
+  // Update the human-readable string versions of the time
+  updateBTime();
+
   flumi = iEvent.luminosityBlock();
   frunFit = frun;
   if (fbeginLumiOfFit == -1 || fbeginLumiOfFit > flumi) fbeginLumiOfFit = flumi;
@@ -402,11 +415,6 @@ bool BeamFitter::runPVandTrkFitter() {
 
     // First run PV fitter
     if ( MyPVFitter->IsFitPerBunchCrossing() ){
-      const char* fbeginTime = formatBTime(freftime[0]);
-      sprintf(fbeginTimeOfFit,"%s",fbeginTime);
-      const char* fendTime = formatBTime(freftime[1]);
-      sprintf(fendTimeOfFit,"%s",fendTime);
-
       edm::LogInfo("BeamFitter") << " [BeamFitterBxDebugTime] freftime[0] = " << freftime[0]
 				 << "; address =  " << &freftime[0]
 				 << " = " << fbeginTimeOfFit << std::endl;
@@ -500,11 +508,6 @@ bool BeamFitter::runPVandTrkFitter() {
 }
 
 bool BeamFitter::runFitterNoTxt() {
-  const char* fbeginTime = formatBTime(freftime[0]);
-  sprintf(fbeginTimeOfFit,"%s",fbeginTime);
-  const char* fendTime = formatBTime(freftime[1]);
-  sprintf(fendTimeOfFit,"%s",fendTime);
-
   edm::LogInfo("BeamFitter") << " [BeamFitterDebugTime] freftime[0] = " << freftime[0]
 			     << "; address =  " << &freftime[0]
 			     << " = " << fbeginTimeOfFit << std::endl;
@@ -825,3 +828,4 @@ void BeamFitter::runAllFitter() {
   else
     if (debug_) std::cout << "No good track selected! No beam fit!" << std::endl;
 }
+

@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamFitter.h,v 1.46 2011/02/22 17:57:06 friis Exp $
+ version $Id: BeamFitter.h,v 1.47 2011/02/23 15:36:29 friis Exp $
 
  ________________________________________________________________**/
 
@@ -52,6 +52,9 @@ class BeamFitter {
   void setRefTime(time_t t0, time_t t1) {
     freftime[0] = t0;
     freftime[1] = t1;
+    // Make sure the string representation of the time
+    // is up-to-date
+    updateBTime();
   }
 
   std::pair<time_t,time_t> getRefTime(){
@@ -120,6 +123,8 @@ class BeamFitter {
  private:
 
   const char * formatBTime( const std::time_t &);
+  // Update the fbeginTimeOfFit etc from the refTime
+  void updateBTime();
   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot fbeamspot;
   reco::BeamSpot fbeamWidthFit;
