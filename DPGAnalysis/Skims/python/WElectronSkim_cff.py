@@ -58,11 +58,11 @@ cut = cms.string(
     " && (hadronicOverEm<0.12)"
     ")"
     " || (isEE"
-    " && ( dr03TkSumPt/p4.Pt <0.05 && dr03EcalRecHitSumEt/p4.Pt < 0.06 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
+    " && ( dr03TkSumPt/p4.Pt <0.07 && dr03EcalRecHitSumEt/p4.Pt < 0.07 && dr03HcalTowerSumEt/p4.Pt  < 0.07 )"
     " && (sigmaIetaIeta<0.03)"
     " && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )" 
     " && ( -0.009<deltaEtaSuperClusterTrackAtVtx<0.009 )"
-    " && (hadronicOverEm<0.05) "
+    " && (hadronicOverEm<0.1) "
     "))"
     )
 )

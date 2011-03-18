@@ -10,13 +10,14 @@ TAG_ELECTRON_ET_CUT_MIN = 20.0
 #photon cuts (for probe)
 PHOTON_ET_CUT_MIN = 10.0
 PHOTON_COLL = "photons"
-PHOTON_CUTS = "hadronicOverEm<0.2 && (abs(superCluster.eta)<2.5)  && ((isEB && sigmaIetaIeta<0.015) || (isEE && sigmaIetaIeta<0.035)) && (superCluster.energy*sin(superCluster.position.theta)>" + str(PHOTON_ET_CUT_MIN) + ")"
+PHOTON_CUTS = "(abs(superCluster.eta)<2.5) && ( hadronicOverEm<0.5  ||  ((isEB && sigmaIetaIeta<0.02) || (isEE && sigmaIetaIeta<0.04)) ) && (superCluster.energy*sin(superCluster.position.theta)>" + str(PHOTON_ET_CUT_MIN) + ")"
 
 #track cuts (for probe)
 TRACK_ET_CUT_MIN = 25.0
 
 #mass cuts (for T&P)
 MASS_CUT_MIN = 30.
+MASS_PHOTONTAG_CUT_MIN = 50.
 MASS_TAGTRACK_CUT_MIN = 60.
 MASS_TAGTRACK_CUT_MAX = 120.
 
@@ -124,7 +125,7 @@ ZEEHltFilter.HLTPaths = ["HLT_Ele*"]
 tagPhoton = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("ZElecTagHLT goodPhotons"), # charge coniugate states are implied
     checkCharge = cms.bool(False),                           
-    cut   = cms.string("mass > " + str(MASS_CUT_MIN))
+    cut   = cms.string("mass > " + str(MASS_PHOTONTAG_CUT_MIN))
 )
 tagPhotonCounter = cms.EDFilter("CandViewCountFilter",
                                     src = cms.InputTag("tagPhoton"),
