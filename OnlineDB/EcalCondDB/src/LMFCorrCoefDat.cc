@@ -335,12 +335,15 @@ void LMFCorrCoefDat::checkTriplets(int logic_id, const LMFSextuple &s,
   // crystal coincides with T1 of the newly inserted record
   if (lastMap.find(logic_id) != lastMap.end()) {
     const LMFSextuple sold = lastMap.find(logic_id)->second;
+    /* This check is wrong as it is. But we still need to define
+       a reasonable one.
     if (sold.t[2] != s.t[0]) {
       std::cout << ":-( T3 in last sequence for crystal " << logic_id 
 		<< " differs from T1 in this sequence: "  
 		<< sold.t[2].str() << " != " << s.t[0].str() << std::endl;
       exit(0);
     }
+    */
   } else {
     std::cout << ":-( Can't find crystal " << logic_id << " in last map"
 	      << std::endl;
