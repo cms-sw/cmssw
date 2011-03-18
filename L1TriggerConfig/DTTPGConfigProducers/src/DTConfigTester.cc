@@ -44,7 +44,7 @@ void DTConfigTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
    es.get< DTConfigManagerRcd >().get( dtConfig ) ;
 
    cout << "\tPrint configuration :" << endl;
-/*
+
    DTBtiId btiid(my_wh,my_st,my_sec,my_traco,my_bti);
    DTTracoId tracoid(my_wh,my_st,my_sec,my_traco);
    DTChamberId chid(my_wh,my_st,my_sec);
@@ -66,9 +66,9 @@ void DTConfigTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
    dtConfig->getDTConfigSectColl(scid)->print();
    dtConfig->getDTConfigPedestals()->print();
-*/
 
-   // 100209 SV testing luts for each chamber type
+/*
+   // 100209 SV testing luts for each chamber type: keep in case lut from DB debug is necessary
    DTChamberId chid1(-2,3,1);
    cout << "\n CHAMBER -2 3 1" << endl;
    dtConfig->getDTConfigLUTs(chid1)->print();
@@ -173,7 +173,7 @@ void DTConfigTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
    cout << "\n CHAMBER 1 4 13 " << endl;
    dtConfig->getDTConfigLUTs(chid26)->print();
    
-
+*/
    return;
  
 }
