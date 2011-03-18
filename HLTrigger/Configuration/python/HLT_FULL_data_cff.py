@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HLT_fix3/V324 (CMSSW_3_11_0_HLT18)
+# /dev/CMSSW_3_11_1/HLT_fix3/V325 (CMSSW_3_11_0_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V324')
+  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix3/V325')
 )
 
 streams = cms.PSet( 
@@ -4523,8 +4523,8 @@ hltHT150AlphaT0p6 = cms.EDFilter( "HLTMhtHtFilter",
     minMeff = cms.double( 0.0 ),
     minHt = cms.double( 150.0 ),
     minAlphaT = cms.double( 0.6 ),
-    minPtJet = cms.vdouble( 40.0 ),
-    etaJet = cms.vdouble( 3.0 )
+    minPtJet = cms.vdouble( 40.0, 40.0 ),
+    etaJet = cms.vdouble( 3.0, 3.0 )
 )
 hltPreHLTHT150AlphaT0p7 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -4540,8 +4540,8 @@ hltHT150AlphaT0p7 = cms.EDFilter( "HLTMhtHtFilter",
     minMeff = cms.double( 0.0 ),
     minHt = cms.double( 150.0 ),
     minAlphaT = cms.double( 0.7 ),
-    minPtJet = cms.vdouble( 40.0 ),
-    etaJet = cms.vdouble( 3.0 )
+    minPtJet = cms.vdouble( 40.0, 40.0 ),
+    etaJet = cms.vdouble( 3.0, 3.0 )
 )
 hltPreHT200 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -4568,8 +4568,8 @@ hltHT200AlphaT0p6 = cms.EDFilter( "HLTMhtHtFilter",
     minMeff = cms.double( 0.0 ),
     minHt = cms.double( 200.0 ),
     minAlphaT = cms.double( 0.6 ),
-    minPtJet = cms.vdouble( 40.0 ),
-    etaJet = cms.vdouble( 3.0 )
+    minPtJet = cms.vdouble( 40.0, 40.0 ),
+    etaJet = cms.vdouble( 3.0, 3.0 )
 )
 hltPreHLTHT200AlphaT0p65 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -4585,8 +4585,8 @@ hltHT200AlphaT0p65 = cms.EDFilter( "HLTMhtHtFilter",
     minMeff = cms.double( 0.0 ),
     minHt = cms.double( 200.0 ),
     minAlphaT = cms.double( 0.65 ),
-    minPtJet = cms.vdouble( 40.0 ),
-    etaJet = cms.vdouble( 3.0 )
+    minPtJet = cms.vdouble( 40.0, 40.0 ),
+    etaJet = cms.vdouble( 3.0, 3.0 )
 )
 hltL1sL1HTT100 = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -4624,8 +4624,8 @@ hltHT250AlphaT0p55 = cms.EDFilter( "HLTMhtHtFilter",
     minMeff = cms.double( 0.0 ),
     minHt = cms.double( 250.0 ),
     minAlphaT = cms.double( 0.55 ),
-    minPtJet = cms.vdouble( 40.0 ),
-    etaJet = cms.vdouble( 3.0 )
+    minPtJet = cms.vdouble( 40.0, 40.0 ),
+    etaJet = cms.vdouble( 3.0, 3.0 )
 )
 hltPreHLTHT250AlphaT0p62 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -4641,8 +4641,8 @@ hltHT250AlphaT0p62 = cms.EDFilter( "HLTMhtHtFilter",
     minMeff = cms.double( 0.0 ),
     minHt = cms.double( 250.0 ),
     minAlphaT = cms.double( 0.62 ),
-    minPtJet = cms.vdouble( 40.0 ),
-    etaJet = cms.vdouble( 3.0 )
+    minPtJet = cms.vdouble( 40.0, 40.0 ),
+    etaJet = cms.vdouble( 3.0, 3.0 )
 )
 hltPreHT250DoubleDisplacedJet60 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -4844,8 +4844,8 @@ hltHT300AlphaT0p52 = cms.EDFilter( "HLTMhtHtFilter",
     minMeff = cms.double( 0.0 ),
     minHt = cms.double( 300.0 ),
     minAlphaT = cms.double( 0.52 ),
-    minPtJet = cms.vdouble( 40.0 ),
-    etaJet = cms.vdouble( 3.0 )
+    minPtJet = cms.vdouble( 40.0, 40.0 ),
+    etaJet = cms.vdouble( 3.0, 3.0 )
 )
 hltPreHLTHT300AlphaT0p54 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -4861,8 +4861,8 @@ hltHT300AlphaT0p54 = cms.EDFilter( "HLTMhtHtFilter",
     minMeff = cms.double( 0.0 ),
     minHt = cms.double( 300.0 ),
     minAlphaT = cms.double( 0.54 ),
-    minPtJet = cms.vdouble( 40.0 ),
-    etaJet = cms.vdouble( 3.0 )
+    minPtJet = cms.vdouble( 40.0, 40.0 ),
+    etaJet = cms.vdouble( 3.0, 3.0 )
 )
 hltPreHT350 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -4889,8 +4889,8 @@ hltHT350AlphaT0p51 = cms.EDFilter( "HLTMhtHtFilter",
     minMeff = cms.double( 0.0 ),
     minHt = cms.double( 350.0 ),
     minAlphaT = cms.double( 0.51 ),
-    minPtJet = cms.vdouble( 40.0 ),
-    etaJet = cms.vdouble( 3.0 )
+    minPtJet = cms.vdouble( 40.0, 40.0 ),
+    etaJet = cms.vdouble( 3.0, 3.0 )
 )
 hltPreHLTHT350AlphaT0p53 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -4906,8 +4906,8 @@ hltHT350AlphaT0p53 = cms.EDFilter( "HLTMhtHtFilter",
     minMeff = cms.double( 0.0 ),
     minHt = cms.double( 350.0 ),
     minAlphaT = cms.double( 0.53 ),
-    minPtJet = cms.vdouble( 40.0 ),
-    etaJet = cms.vdouble( 3.0 )
+    minPtJet = cms.vdouble( 40.0, 40.0 ),
+    etaJet = cms.vdouble( 3.0, 3.0 )
 )
 hltPreHT400 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -4934,8 +4934,8 @@ hltHT400AlphaT0p51 = cms.EDFilter( "HLTMhtHtFilter",
     minMeff = cms.double( 0.0 ),
     minHt = cms.double( 400.0 ),
     minAlphaT = cms.double( 0.51 ),
-    minPtJet = cms.vdouble( 40.0 ),
-    etaJet = cms.vdouble( 3.0 )
+    minPtJet = cms.vdouble( 40.0, 40.0 ),
+    etaJet = cms.vdouble( 3.0, 3.0 )
 )
 hltPreHT450 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
