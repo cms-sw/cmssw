@@ -6,6 +6,7 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 from Configuration.PyReleaseValidation.autoCond import autoCond
 
 import os
+import socket
 from subprocess import *
 
 
@@ -882,19 +883,20 @@ class PickRelValInputFiles( ConfigToolBase ):
         command   = ''
         storage   = ''
         filePaths = []
-        if site is 'CERN':
+        domain    = socket.getfqdn().split( '.' )
+        if domain[ -2 ] == 'cern' and domain[ -1 ] == 'ch':
             command = 'nsls'
             storage = '/castor/cern.ch/cms'
-        elif site is 'FNAL':
+        elif domain[ -2 ] == 'fnal' and domain[ -1 ] == 'gov':
             command = 'ls'
             storage = '/pnfs/cms/WAX/11'
         else:
             print 'ERROR %s'%( self._label )
-            print '    Unknown site %s'%( site )
+            print '    Running on site \'%s.%s\' without access to RelVal files'%( domain[ -2 ], domain[ -1 ] )
             print '    Aborting...'
             return filePaths
         if debug:
-            print 'DEBUG %s: Running at %s'%( self._label, site )
+            print 'DEBUG %s: Running on site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
             print '    using command   \'%s\''%( command )
             print '    on storage path %s'%( storage )
         rfdirPath    = '/store/relval/%s/%s/%s/%s-v'%( cmsswVersion, relVal, dataTier, globalTag )
