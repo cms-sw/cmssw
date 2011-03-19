@@ -26,7 +26,7 @@ public:
         theVector(aVector), 
   {
     if ( charged )
-      theCharge = theCurv>0 ? -1 : 1;
+      theCharge = theVector[0]>0 ? -1 : 1;
     else
       theCharge = 0;
   }
@@ -41,7 +41,7 @@ public:
     theVector[4] = aLip;
 
     if ( charged )
-      theCharge = theCurv>0 ? -1 : 1;
+      theCharge = aCurv>0 ? -1 : 1;
     else
       theCharge = 0;
   }
