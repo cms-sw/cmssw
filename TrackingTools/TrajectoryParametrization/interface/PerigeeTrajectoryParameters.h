@@ -23,8 +23,7 @@ public:
 
 
   explicit PerigeeTrajectoryParameters(const AlgebraicVector5 &aVector, bool charged = true):
-        theVector(aVector), 
-  {
+        theVector(aVector) {
     if ( charged )
       theCharge = theVector[0]>0 ? -1 : 1;
     else
@@ -32,8 +31,7 @@ public:
   }
 
   PerigeeTrajectoryParameters(double aCurv, double aTheta, double aPhi,
-  			      double aTip, double aLip, bool charged = true)
-  {
+  			      double aTip, double aLip, bool charged = true) {
     theVector[0] = aCurv;
     theVector[1] = aTheta;
     theVector[2] = aPhi;
