@@ -1,5 +1,4 @@
 <use   name="rootrflx"/>
-<use   name="clhep"/>
 <use   name="boost_header"/>
 <export>
   <lib   name="1"/>
