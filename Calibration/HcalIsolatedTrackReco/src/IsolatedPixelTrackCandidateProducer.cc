@@ -271,7 +271,7 @@ double IsolatedPixelTrackCandidateProducer::getDistInCM(double eta1, double phi1
   double theta1=2*atan(exp(-eta1));
   double theta2=2*atan(exp(-eta2));
   if (fabs(eta1)<1.479) Rec=129; //radius of ECAL barrel
-  else Rec=tan(theta1)*317; //distance from IP to ECAL endcap
+  else if (fabs(eta1)>1.479&&fabs(eta1)<7.0) Rec=tan(theta1)*317; //distance from IP to ECAL endcap
 
   //|vect| times tg of acos(scalar product)
   double angle=acos((sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2)));
@@ -299,7 +299,10 @@ IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(const edm::EventSetup& iSet
   double deltaPhi=0;
   double etaEC = 100;
   double phiEC = 100;
-  double Rcurv = pT*33.3*100/(bfVal*10); //r(m)=pT(GeV)*33.3/B(kG)
+
+  double Rcurv = 9999999;
+  if (bfVal!=0) Rcurv=pT*33.3*100/(bfVal*10); //r(m)=pT(GeV)*33.3/B(kG)
+
   double ecDist = zEE_;  //distance to ECAL andcap from IP (cm), 317 - ecal (not preshower), preshower -300
   double ecRad  = rEB_;  //radius of ECAL barrel (cm)
   double theta=2*atan(exp(-etaIP));
