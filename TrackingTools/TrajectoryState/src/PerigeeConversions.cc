@@ -123,11 +123,6 @@ GlobalVector PerigeeConversions::momentumFromPerigee
    		      pt / tan(parameters.theta()));
 }
 
-GlobalVector PerigeeConversions::momentumFromPerigee
-  (const AlgebraicVector& momentum, const TrackCharge& charge, 
-   const GlobalPoint& referencePoint, const MagneticField* field) const {
-      return momentumFromPerigee(asSVector<3>(momentum), charge, referencePoint, field);
-  }
 
 GlobalVector PerigeeConversions::momentumFromPerigee
   (const AlgebraicVector3& momentum, const TrackCharge& charge, 
@@ -182,12 +177,6 @@ TrajectoryStateClosestToPoint PerigeeConversions::trajectoryStateClosestToPoint
   return TrajectoryStateClosestToPoint(theFTS, referencePoint);
 }
 
-AlgebraicMatrix
-PerigeeConversions::jacobianParameters2Cartesian_old(
-	const AlgebraicVector& momentum, const GlobalPoint& position,
-	const TrackCharge& charge, const MagneticField* field) const {
-    return asHepMatrix(jacobianParameters2Cartesian(asSVector<3>(momentum), position, charge, field));
-}
 
 AlgebraicMatrix66
 PerigeeConversions::jacobianParameters2Cartesian(
@@ -214,11 +203,6 @@ PerigeeConversions::jacobianParameters2Cartesian(
   frameTransJ(5,4) = - factor / (momentum[0]*sin(momentum[1])*sin(momentum[1]));
 
   return frameTransJ;
-}
-
-AlgebraicMatrix
-PerigeeConversions::jacobianCurvilinear2Perigee_old(const FreeTrajectoryState& fts) const {
-    return asHepMatrix(jacobianCurvilinear2Perigee(fts));
 }
 
 
@@ -287,24 +271,20 @@ PerigeeConversions::jacobianCurvilinear2Perigee(const FreeTrajectoryState& fts) 
 }
 
 
-AlgebraicMatrix 
-PerigeeConversions::jacobianPerigee2Curvilinear_old(const GlobalTrajectoryParameters& gtp) const {
-    return asHepMatrix(jacobianPerigee2Curvilinear(gtp));
-}
 
 AlgebraicMatrix55 
 PerigeeConversions::jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters& gtp) const {
 
   GlobalVector p = gtp.momentum();
 
-  GlobalVector Z = GlobalVector(0.,0.,1.);
+  GlobalVector Z = GlobalVector(0.f,0.f,1.f);
   GlobalVector T = p.unit();
   GlobalVector U = Z.cross(T).unit();; 
   GlobalVector V = T.cross(U);
 
-  GlobalVector I = GlobalVector(-p.x(), -p.y(), 0.); //opposite to track dir.
+  GlobalVector I = GlobalVector(-p.x(), -p.y(), 0.f); //opposite to track dir.
   I = I.unit();
-  GlobalVector J(-I.y(), I.x(),0.); //counterclockwise rotation
+  GlobalVector J(-I.y(), I.x(),0.f); //counterclockwise rotation
   GlobalVector K(Z);
   GlobalPoint x = gtp.position();
   GlobalVector B  = gtp.magneticField().inInverseGeV(x);
@@ -331,7 +311,7 @@ PerigeeConversions::jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters
 
   AlgebraicMatrix55 jac;
 
-  if( fabs(gtp.transverseCurvature())<1.e-10 ) {
+  if( fabs(gtp.transverseCurvature())<1.e-10f ) {
     jac(0,0) = coslambda;
     jac(0,1) = sinlambda/coslambda/gtp.momentum().mag();
   }else{

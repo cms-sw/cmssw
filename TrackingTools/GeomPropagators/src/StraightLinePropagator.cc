@@ -1,6 +1,6 @@
 #include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
@@ -106,10 +106,6 @@ StraightLinePropagator::propagatedState(const FTS& fts,
     // return state without errors
     return TSOS(GlobalTrajectoryParameters(x, p, fts.charge(), theField), surface);
   }
-}
-
-AlgebraicMatrix StraightLinePropagator::jacobian_old(double& s) const {
-    return asHepMatrix(jacobian(s));
 }
 
 AlgebraicMatrix55 StraightLinePropagator::jacobian(double& s) const {

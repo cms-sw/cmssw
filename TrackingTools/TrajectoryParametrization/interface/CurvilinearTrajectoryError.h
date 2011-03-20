@@ -1,7 +1,7 @@
 #ifndef _TRACKER_CURVILINEARTRAJECTORYERROR_H_
 #define _TRACKER_CURVILINEARTRAJECTORYERROR_H_
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/Math/interface/Error.h"
 
 /** Parametrization of the error matrix in the curvilinear frame.
@@ -57,15 +57,6 @@ public:
 
   /** Returning the covariance matrix.
    */
-
-  const AlgebraicSymMatrix matrix_old() const {
-    return asHepMatrix(theCovarianceMatrix);
-  }
-
-  /** Returning the covariance matrix.
-   */
-
-  //const AlgebraicSymMatrix55 &matrix() const {
   const AlgebraicSymMatrix55 &matrix() const {
     return theCovarianceMatrix;
   }

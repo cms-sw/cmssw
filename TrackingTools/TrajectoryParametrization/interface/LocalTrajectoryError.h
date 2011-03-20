@@ -2,7 +2,7 @@
 #define _TRACKER_LOCALTRAJECTORYERROR_H_
 
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -52,14 +52,9 @@ public:
     return theCovarianceMatrix;
   }
 
-  /** Returns the covariance matrix.
+  /** Returns the inverse of covariance matrix.
    */
-
-  const AlgebraicSymMatrix matrix_old() const {
-    return asHepMatrix(theCovarianceMatrix);
-  }
-
-  const AlgebraicSymMatrix55 &weightMatrix() const;
+ const AlgebraicSymMatrix55 &weightMatrix() const;
 
 
   /** Enables the multiplication of the covariance matrix with the scalar "factor".

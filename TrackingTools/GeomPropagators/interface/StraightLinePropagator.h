@@ -94,7 +94,6 @@ private:
 
   // compute jacobian of transform
   AlgebraicMatrix55 jacobian(double& s) const;
-  AlgebraicMatrix jacobian_old(double& s) const;
 
   // compute propagated x and p and path s, return true when propagation is OK
   bool propagateParametersOnCylinder(const FreeTrajectoryState& fts, 

@@ -3,8 +3,7 @@
 
 
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
