@@ -184,6 +184,7 @@ private:
   TH1D *_heta1[NTRIG][2], *_heta2[NTRIG][2];
   TH1D *_hphi1[NTRIG][2], *_hphi2[NTRIG][2];
 
+/// added plots
   MonitorElement * hd0_OIState[NTRIG][5];
   MonitorElement * hd0_OIHit[NTRIG][5];
   MonitorElement * hd0_IOHit[NTRIG][5];

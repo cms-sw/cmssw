@@ -106,7 +106,7 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
   l3trkOIState_ = parameters_.getUntrackedParameter<edm::InputTag>("l3MuonTrkOIState",edm::InputTag("hltL3TkTracksFromL2OIState"));
   l3trkOIHit_ = parameters_.getUntrackedParameter<edm::InputTag>("l3MuonTrkOIHit",edm::InputTag("hltL3TkTracksFromL2OIHit"));
   l3trkIOHit_ = parameters_.getUntrackedParameter<edm::InputTag>("l3MuonTrkIOHit",edm::InputTag("hltL3TkTracksFromL2IOHit"));
-  l3tktrk_ = parameters_.getUntrackedParameter<edm::InputTag>("l3MuonTrkIOHit",edm::InputTag("hltL3TkTracksFromL2"));
+  l3tktrk_ = parameters_.getUntrackedParameter<edm::InputTag>("l3MuonTrk",edm::InputTag("hltL3TkTracksFromL2"));
 
   l3muons_ = parameters_.getUntrackedParameter<edm::InputTag>("l3muons",edm::InputTag("hltL3Muons"));
   l3muonsOIState_ = parameters_.getUntrackedParameter<edm::InputTag>("l3muonsOIState",edm::InputTag("hltL3MuonsOIState"));
@@ -246,7 +246,7 @@ void HLTMuonDQMSource::beginJob()
           }
           sprintf(name,"HLTMuonL%i_NMu",level);
           sprintf(title,"L%i number of muons",level);
-          hNMu[trig][level-1] = dbe_->book1D(name,title, 10, -0.5, 10.5);
+          hNMu[trig][level-1] = dbe_->book1D(name,title, 11, -0.5, 10.5);
           hNMu[trig][level-1]->setAxisTitle("Number of muons", 1);
           sprintf(name,"HLTMuonL%i_pt",level);
           sprintf(title,"L%i Pt",level);
@@ -289,7 +289,7 @@ void HLTMuonDQMSource::beginJob()
         if( level > 1 && level < 4 ) {
           sprintf(name,"HLTMuonL%i_NMu",level);
           sprintf(title,"L%i number of muons",level);
-          hNMu[trig][level-1] = dbe_->book1D(name,title,10, -0.5, 10.5);
+          hNMu[trig][level-1] = dbe_->book1D(name,title,11, -0.5, 10.5);
           hNMu[trig][level-1]->setAxisTitle("Number of muons", 1);
           sprintf(name,"HLTMuonL%i_pt",level);
           sprintf(title,"L%i Pt",level);
@@ -337,7 +337,7 @@ void HLTMuonDQMSource::beginJob()
         else if( level == 4 || level == 5 ) {
           sprintf(name,"HLTMuonL%iSeed_NMu",level-2);
           sprintf(title,"L%iSeed number of muons",level-2);
-          hNMu[trig][level-1] = dbe_->book1D(name,title, 10, -0.5, 10.5);
+          hNMu[trig][level-1] = dbe_->book1D(name,title, 11, -0.5, 10.5);
           hNMu[trig][level-1]->setAxisTitle("Number of muons", 1);
           sprintf(name,"HLTMuonL%iSeed_pt",level-2);
           sprintf(title,"L%iSeed Pt",level-2);
@@ -426,7 +426,7 @@ void HLTMuonDQMSource::beginJob()
 
             sprintf(name,"HLTMuonL%iSeed_NMu_OIState",level-2);
             sprintf(title,"OIState L%iSeed number of muons",level-2);
-            hNMu_OIState[trig][level-1] = dbe_->book1D(name,title, 10, -0.5, 10.5);
+            hNMu_OIState[trig][level-1] = dbe_->book1D(name,title, 11, -0.5, 10.5);
             hNMu_OIState[trig][level-1]->setAxisTitle("Number of muons", 1);
             sprintf(name,"HLTMuonL%iSeed_pt_OIState",level-2);
             sprintf(title,"L%iSeed OIState Muon Pt",level-2);
@@ -464,7 +464,7 @@ void HLTMuonDQMSource::beginJob()
 
             sprintf(name,"HLTMuonL%iSeed_NMu_OIHit",level-2);
             sprintf(title,"OIHit L%iSeed number of muons",level-2);
-            hNMu_OIHit[trig][level-1] = dbe_->book1D(name,title, 10, -0.5, 10.5);
+            hNMu_OIHit[trig][level-1] = dbe_->book1D(name,title, 11, -0.5, 10.5);
             hNMu_OIHit[trig][level-1]->setAxisTitle("Number of muons", 1);
             sprintf(name,"HLTMuonL%iSeed_pt_OIHit",level-2);
             sprintf(title,"L%iSeed OIHit Muon Pt",level-2);
@@ -502,7 +502,7 @@ void HLTMuonDQMSource::beginJob()
 
             sprintf(name,"HLTMuonL%iSeed_NMu_IOHit",level-2);
             sprintf(title,"IOHit L%iSeed number of muons",level-2);
-            hNMu_IOHit[trig][level-1] = dbe_->book1D(name,title, 10, -0.5, 10.5);
+            hNMu_IOHit[trig][level-1] = dbe_->book1D(name,title, 11, -0.5, 10.5);
             hNMu_IOHit[trig][level-1]->setAxisTitle("Number of muons", 1);
             sprintf(name,"HLTMuonL%iSeed_pt_IOHit",level-2);
             sprintf(title,"L%iSeed IOHit Muon Pt",level-2);
@@ -803,7 +803,7 @@ void HLTMuonDQMSource::beginJob()
           hdr_trk[trig][level-1] = dbe_->book1D(name,title, 50, -0.3, 0.3 );
           hdr_trk[trig][level-1]->setAxisTitle("R Impact (cm) vs BeamSpot", 1);
 
-          hptres_L3L3trk[trig][level-1] = dbe_->book1D("HLTMuonL3toL3trk_ptres","L3Muon 1/Pt - L3trkMuon 1/Pt;L3 1/P_{T} - L3 trk 1/P_{T}",50.05,-0.05,0.05);
+          hptres_L3L3trk[trig][level-1] = dbe_->book1D("HLTMuonL3toL3trk_ptres","L3Muon 1/Pt - L3trkMuon 1/Pt;L3 1/P_{T} - L3 trk 1/P_{T}",50+1,-0.02,0.02);
 
           hetares_L3L3trk[trig][level-1] = dbe_->book1D("HLTMuonL3toL3trk_etares","L3Muon #eta - L3trkMuon #eta;L3 #eta - L3 trk #eta",50,-0.02,0.02);
           hphires_L3L3trk[trig][level-1] = dbe_->book1D("HLTMuonL3toL3trk_phires","L3Muon #phi - L3trkMuon #phi;L3 #phi - L3 trk #phi",50,-0.02,0.02);
@@ -1373,9 +1373,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
 
   edm::Handle<reco::RecoChargedCandidateCollection> l2mucands, l3mucands;
   edm::Handle<L2MuonTrajectorySeedCollection> l2seeds; 
-  edm::Handle<L3MuonTrajectorySeedCollection> l3seedsOIState; 
-  edm::Handle<L3MuonTrajectorySeedCollection> l3seedsOIHit; 
-  edm::Handle<L3MuonTrajectorySeedCollection> l3seedsIOHit; 
   edm::Handle<L3MuonTrajectorySeedCollection> l3seeds; 
   reco::RecoChargedCandidateCollection::const_iterator cand, cand2, cand3;
 
@@ -1384,6 +1381,9 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
   event.getByLabel (l2collectionTag_,l2mucands);
   event.getByLabel (l3collectionTag_,l3mucands);
 
+  edm::Handle<L3MuonTrajectorySeedCollection> l3seedsOIState; 
+  edm::Handle<L3MuonTrajectorySeedCollection> l3seedsOIHit; 
+  edm::Handle<L3MuonTrajectorySeedCollection> l3seedsIOHit; 
   event.getByLabel (l3seedscollectionTagOIState_,l3seedsOIState);
   event.getByLabel (l3seedscollectionTagOIHit_,l3seedsOIHit);
   event.getByLabel (l3seedscollectionTagIOHit_,l3seedsIOHit);
@@ -1391,7 +1391,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
   edm::Handle<std::vector<TrackCandidate> > l3trkCandsOIState;
   edm::Handle<std::vector<TrackCandidate> > l3trkCandsOIHit;
   edm::Handle<std::vector<TrackCandidate> > l3trkCandsIOHit;
-
   event.getByLabel (l3trkfindingOIState_,l3trkCandsOIState);
   event.getByLabel (l3trkfindingOIHit_,l3trkCandsOIHit);
   event.getByLabel (l3trkfindingIOHit_,l3trkCandsIOHit);
@@ -1400,22 +1399,20 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
   edm::Handle<std::vector<reco::Track> > l3trkOIHit;
   edm::Handle<std::vector<reco::Track> > l3trkIOHit;
   edm::Handle<std::vector<reco::Track> > l3tktrk;
-
   event.getByLabel (l3trkOIState_,l3trkOIState);
   event.getByLabel (l3trkOIHit_,l3trkOIHit);
   event.getByLabel (l3trkIOHit_,l3trkIOHit);
   event.getByLabel (l3tktrk_, l3tktrk);
+
 // 
   edm::Handle<std::vector<reco::Track> > l3muonOIState;
   edm::Handle<std::vector<reco::Track> > l3muonOIHit;
   edm::Handle<std::vector<reco::Track> > l3muonIOHit;
   edm::Handle<std::vector<reco::Track> > l3muon;
-
   event.getByLabel (l3muonsOIState_,l3muonOIState);
   event.getByLabel (l3muonsOIHit_,l3muonOIHit);
   event.getByLabel (l3muonsIOHit_,l3muonIOHit);
   event.getByLabel (l3muons_, l3muon);
-
 
 //  
   if( !l2seeds.failedToGet() && l2seeds.isValid() ) {
@@ -1425,10 +1422,9 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
       if( !l3seeds.failedToGet() && l3seeds.isValid() ) event.getByLabel (l3collectionTag_,l3mucands);
     }
   }
-   
+  
   for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
-    //std::cout << "trigger fired!" << std::endl;
     if( !l2seeds.failedToGet() && l2seeds.isValid() ) {
       hNMu[ntrig][3]->Fill(l2seeds->size());
       L2MuonTrajectorySeedCollection::const_iterator l2seed;
@@ -1566,12 +1562,9 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
       }
       hNMu[ntrig][0]->Fill(l1map.size());
     }
-    //else std::cout << "failed to get l2seed!" << std::endl;
 
     if (!l3seedsOIState.failedToGet() && l3seedsOIState.isValid() ) {
       hNMu_OIState[ntrig][4]->Fill(l3seedsOIState->size());
-
-//      std::cout << "L3 seed using OIState : " << l3seedsOIState->size() << std::endl;
 
       L3MuonTrajectorySeedCollection::const_iterator l3seedOIState;
       for(l3seedOIState=l3seedsOIState->begin(); l3seedOIState != l3seedsOIState->end(); ++l3seedOIState){
@@ -1584,8 +1577,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         float pt = tsos.globalMomentum().perp();
         float eta = tsos.globalPosition().eta();
         float phi = tsos.globalPosition().phi();
-
-//        std::cout << "== l3 muon seed OIState pt : " << pt << "  eta : " << eta << "  phi : " << phi << std::endl;
 
         hNMu_l3seed_comp[ntrig][4]->Fill(1);
         hpt_OIState[ntrig][4]->Fill(pt);
@@ -1600,17 +1591,12 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         //    hpt_OIState[ntrig][2]->Fill(tk->pt());
 
         // OIState track candidate
-        reco::TrackRef l2tkRef = l3seedOIState->l2Track();
-//        std::cout << "== l3 OIState->l2tk muon pt : " << l2tkRef->pt() << "  eta : " << l2tkRef->eta() << "  phi : " << l2tkRef->phi() << std::endl;
+        //reco::TrackRef l2tkRef = l3seedOIState->l2Track();
       }
-//      std::cout << "L3 track candidate using OIState : " << l3trkCandsOIState->size() << std::endl;
-//      std::cout << "L3 track using OIState : " << l3trkOIState->size() << std::endl;
     }
 
     if ( !l3seedsOIHit.failedToGet() && l3seedsOIHit.isValid() && l3seedsOIHit->size() != 0 ) {
       hNMu_OIHit[ntrig][4]->Fill(l3seedsOIHit->size());
-
-//      std::cout << "L3 seed using OIHit : " << l3seedsOIHit->size() << std::endl;
 
       L3MuonTrajectorySeedCollection::const_iterator l3seedOIHit;
       for(l3seedOIHit=l3seedsOIHit->begin(); l3seedOIHit != l3seedsOIHit->end(); ++l3seedOIHit){
@@ -1624,8 +1610,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         float eta = tsos.globalPosition().eta();
         float phi = tsos.globalPosition().phi();
 
-//        std::cout << "== l3 muon seed OIHit pt : " << pt << "  eta : " << eta << "  phi : " << phi << std::endl;
-
         hNMu_l3seed_comp[ntrig][4]->Fill(2);
         hpt_OIHit[ntrig][4]->Fill(pt);
         hphi_OIHit[ntrig][4]->Fill(phi);
@@ -1635,17 +1619,14 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         hpteta_OIHit[ntrig][4]->Fill(pt,eta);
         hcharge_OIHit[ntrig][4]->Fill(tsos.charge());
 
-        reco::TrackRef l2tkRef = l3seedOIHit->l2Track();
+        //reco::TrackRef l2tkRef = l3seedOIHit->l2Track();
 //        std::cout << "== l3 cascade->l2tk muon pt : " << l2tkRef->pt() << "  eta : " << l2tkRef->eta() << "  phi : " << l2tkRef->phi() << std::endl;
       }
-//      std::cout << "L3 track candidate using OIHit : " << l3trkCandsOIHit->size() << std::endl;
-//      std::cout << "L3 track using OIHit : " << l3trkOIHit->size() << std::endl;
     }
 
     if ( !l3seedsIOHit.failedToGet() && l3seedsIOHit.isValid() && l3seedsIOHit->size() != 0 ) {
       hNMu_IOHit[ntrig][4]->Fill(l3seedsIOHit->size());
 
-//      std::cout << "L3 seed using IOHit : " << l3seedsIOHit->size() << std::endl;
 
       L3MuonTrajectorySeedCollection::const_iterator l3seedIOHit;
       for(l3seedIOHit=l3seedsIOHit->begin(); l3seedIOHit != l3seedsIOHit->end(); ++l3seedIOHit){
@@ -1659,7 +1640,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         float eta = tsos.globalPosition().eta();
         float phi = tsos.globalPosition().phi();
 
-//        std::cout << "== l3 muon seed IOHit pt : " << pt << "  eta : " << eta << "  phi : " << phi << std::endl;
 
         hNMu_l3seed_comp[ntrig][4]->Fill(3);
         hpt_IOHit[ntrig][4]->Fill(pt);
@@ -1670,17 +1650,13 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         hpteta_IOHit[ntrig][4]->Fill(pt,eta);
         hcharge_IOHit[ntrig][4]->Fill(tsos.charge());
 
-        reco::TrackRef l2tkRef = l3seedIOHit->l2Track();
-//        std::cout << "== l3 IOHit->l2tk muon pt : " << l2tkRef->pt() << "  eta : " << l2tkRef->eta() << "  phi : " << l2tkRef->phi() << std::endl;
+        //reco::TrackRef l2tkRef = l3seedIOHit->l2Track();
       }
-//      std::cout << "L3 track candidate using IOHit : " << l3trkCandsIOHit->size() << std::endl;
-//      std::cout << "L3 track using IOHit : " << l3trkIOHit->size() << std::endl;
     } 
 
 
     if (!l3seeds.failedToGet() && l3seeds.isValid() ) {
       hNMu[ntrig][4]->Fill(l3seeds->size());
-//      std::cout << "L3 seed using Cascade : " << l3seeds->size() << std::endl;
       L3MuonTrajectorySeedCollection::const_iterator l3seed;
       std::map<reco::TrackRef, int> l2map;
       for (l3seed=l3seeds->begin() ; l3seed != l3seeds->end();++l3seed){
@@ -1695,7 +1671,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         float eta = tsos.globalPosition().eta();
         float phi = tsos.globalPosition().phi();
 
-//        std::cout << "== l3 cascade muon pt : " << pt << "  eta : " << eta << "  phi : " << phi << std::endl;
 
         hNMu_l3seed_comp[ntrig][4]->Fill(0);
         hcharge[ntrig][4]->Fill(tsos.charge());
@@ -1707,7 +1682,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         hpteta[ntrig][4]->Fill(pt,eta);
 
         reco::TrackRef l2tkRef = l3seed->l2Track();
-//        std::cout << "== l3 cascade->l2tk muon pt : " << l2tkRef->pt() << "  eta : " << l2tkRef->eta() << "  phi : " << l2tkRef->phi() << std::endl;
 
         l2map[l2tkRef]++;
         hseedptres[ntrig][1]->Fill(1/pt - 1/l2tkRef->pt());
@@ -1724,7 +1698,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
       }
     }
 
-    //else std::cout << "failed to get l3seed!" << std::endl;
 
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -1735,7 +1708,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
       LogDebug("HLTMuonDQMSource") << " filling L2 stuff " << std::endl;
       edm::Handle<reco::IsoDepositMap> l2depMap;
 
-//      std::cout << "L2 muon = " << l2mucands->size() << std::endl;
 
       if( l2mucands->size() != 0 ) event.getByLabel (l2isolationTag_,l2depMap);
       hNMu[ntrig][1]->Fill(l2mucands->size());
@@ -1743,7 +1715,7 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         reco::TrackRef tk = cand->get<reco::TrackRef>();
         if (!l2depMap.failedToGet() && l2depMap.isValid() ) {
           LogDebug("HLTMuonDQMSource") << " filling L2 Iso stuff " << std::endl;
-          if ( l2depMap->contains(tk.id()) ){
+          if ( tk.isNonnull() &&l2depMap->contains(tk.id()) ){
             reco::IsoDepositMap::value_type calDeposit = (*l2depMap)[tk];
             double dephlt = calDeposit.depositWithin(coneSize_);
             if( dephlt != 0 ) hisoL2[ntrig]->Fill(dephlt);
@@ -1764,7 +1736,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
           heta[ntrig][1]->Fill(tk->eta());      
           hphi[ntrig][1]->Fill(tk->phi()); 
 
-//          std::cout << "== l2 muon pt : " << tk->pt() << "  eta : " << tk->eta() << "  phi : " << tk->phi() << std::endl;
 
           if(hphi[ntrig][1]->getEntries()){
             for(int ibin = 1; ibin <= hphi[ntrig][1]->getNbinsX(); ++ibin)
@@ -1782,12 +1753,12 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
           if (!recoBeamSpotHandle.failedToGet()){
             hdr[ntrig][0]->Fill(tk->dxy(beamSpot.position()));	
             hdrphi[ntrig][0]->Fill(tk->phi(),tk->dxy(beamSpot.position())); 
+            hdz[ntrig][0]->Fill(tk->dz(beamSpot.position())); 
+            hdzeta[ntrig][0]->Fill(tk->eta(),tk->dz(beamSpot.position()));
           } 
           hd0phi[ntrig][0]->Fill(tk->phi(),tk->d0()); 
           hdz0[ntrig][0]->Fill(tk->dz()); 
           hdz0eta[ntrig][0]->Fill(tk->eta(),tk->dz());
-          hdz[ntrig][0]->Fill(tk->dz(beamSpot.position())); 
-          hdzeta[ntrig][0]->Fill(tk->eta(),tk->dz(beamSpot.position()));
           herr0[ntrig][0]->Fill(tk->error(0)); 
           cand2=cand;
           ++cand2;
@@ -1807,13 +1778,11 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
       hNMu[ntrig][2]->Fill(l3mucands->size());
       edm::Handle<reco::IsoDepositMap> l3depMap;
 
-      //std::cout << "l3 muon = " << l3mucands->size() << std::endl;
-
       if( l3mucands->size() != 0 ) event.getByLabel (l3isolationTag_,l3depMap);
       for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
         reco::TrackRef tk = cand->get<reco::TrackRef>();
         if (!l3depMap.failedToGet() && l3depMap.isValid() ) {
-          if ( l3depMap->contains(tk.id()) ){
+          if ( tk.isNonnull() && l3depMap->contains(tk.id()) ){
             reco::IsoDepositMap::value_type calDeposit= (*l3depMap)[tk];
             double dephlt = calDeposit.depositWithin(coneSize_);
             if( dephlt != 0 ) hisoL3[ntrig]->Fill(dephlt);
@@ -1829,8 +1798,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         hpt[ntrig][2]->Fill(tk->pt());      
         heta[ntrig][2]->Fill(tk->eta());      
         hphi[ntrig][2]->Fill(tk->phi()); 
-
-//        std::cout << "== l3 muon pt : " << tk->pt() << "  eta : " << tk->eta() << "  phi : " << tk->phi() << std::endl;
 
         if(hphi[ntrig][2]->getEntries()){
           for(int ibin = 1; ibin <= hphi[ntrig][2]->getNbinsX(); ++ibin)
@@ -1851,12 +1818,12 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         if (!recoBeamSpotHandle.failedToGet()) {
           hdr[ntrig][1]->Fill(tk->dxy(beamSpot.position()));
           hdrphi[ntrig][1]->Fill(tk->phi(),tk->dxy(beamSpot.position())); 
+          hdz[ntrig][1]->Fill(tk->dz(beamSpot.position())); 
+          hdzeta[ntrig][1]->Fill(tk->eta(),tk->dz(beamSpot.position()));
         }
         hd0phi[ntrig][1]->Fill(tk->phi(),tk->d0()); 
         hdz0[ntrig][1]->Fill(tk->dz()); 
         hdz0eta[ntrig][1]->Fill(tk->eta(),tk->dz());
-        hdz[ntrig][1]->Fill(tk->dz(beamSpot.position())); 
-        hdzeta[ntrig][1]->Fill(tk->eta(),tk->dz(beamSpot.position()));
         herr0[ntrig][1]->Fill(tk->error(0)); 
         hcharge[ntrig][2]->Fill(tk->charge()); 
         cand2=cand;
@@ -1871,7 +1838,6 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         }
         if( tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >().isAvailable() ) {
           reco::TrackRef l2tk = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >()->l2Track();
-//          std::cout << "== l2tk muon pt : " << l2tk->pt() << "  eta : " << l2tk->eta() << "  phi : " << l2tk->phi() << std::endl;
           if(tk->pt()*l2tk->pt() != 0 ) {
             hptres[ntrig][1]->Fill(1/l2tk->pt() - 1/tk->pt());
             hptrespt[ntrig][1]->Fill(tk->pt(), 1/l2tk->pt() - 1/tk->pt());
@@ -1909,44 +1875,45 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
       }
     }
     // l3 matching
-//    double trkMatchedDeltaR = 1e14.;
-//    double trkDeltaR = 0.;
 
-    std::vector<reco::Track>::const_iterator l3MatchedTrk;
-    if( l3mucands.isValid() ) {
+//    std::vector<reco::Track>::const_iterator l3MatchedTrk = l3tktrk->end();
+    double bpt = -999.;
+    double beta = -999.;
+    double bphi = -999.;
+    if( !l3mucands.failedToGet() && l3mucands.isValid() ) {
       for(reco::RecoChargedCandidateCollection::const_iterator i = l3mucands->begin(); i != l3mucands->end(); i++ ) {
-//      double dR_L3_L3tk=-999;
         double dR_min_tk=1e9;
-        if( l3tktrk.isValid() ) {
+        if( !l3tktrk.failedToGet() && l3tktrk.isValid() ) {
           for( std::vector<reco::Track>::const_iterator itl3trk = l3tktrk->begin(); itl3trk !=l3tktrk->end(); itl3trk++ ) {
             double dR = deltaR(i->eta(), i->phi(),itl3trk->eta(),itl3trk->phi());
-            //std::cout << event.id() << "\tdelta R = " << dR << std::endl;
             if( dR < dR_min_tk ) {
               dR_min_tk=dR ;
-              l3MatchedTrk = itl3trk;
-              //std::cout << event.id() << "\tMinimum Delta R ==============> " << dR_min_tk << std::endl;
+              bpt = itl3trk->pt();
+              beta = itl3trk->eta();
+              bphi = itl3trk->phi();
+//              l3MatchedTrk = itl3trk;
             }
           }
-          //std::cout << "-------------------------------" << std::endl;
         }
-        hptres_L3L3trk[ntrig][2]->Fill(1/i->pt() - 1/l3MatchedTrk->pt());
-        hetares_L3L3trk[ntrig][2]->Fill(i->eta() - l3MatchedTrk->eta());
-        hphires_L3L3trk[ntrig][2]->Fill(i->phi() - l3MatchedTrk->phi());
-        hptrelres_L3L3trk[ntrig][2]->Fill( (1/i->pt() - 1/l3MatchedTrk->pt())/(1/i->pt()) );
-        hetarelres_L3L3trk[ntrig][2]->Fill( (i->eta() - l3MatchedTrk->eta())/i->eta() );
-        hphirelres_L3L3trk[ntrig][2]->Fill( (i->phi() - l3MatchedTrk->phi())/i->phi() );
+        if( bpt !=-999 && beta != -999 && bphi != -999  ) {
+          hptres_L3L3trk[ntrig][2]->Fill(1/i->pt() - 1/bpt);
+          hetares_L3L3trk[ntrig][2]->Fill(i->eta() - beta);
+          hphires_L3L3trk[ntrig][2]->Fill(i->phi() - bphi);
+          hptrelres_L3L3trk[ntrig][2]->Fill( (1/i->pt() - 1/bpt)/(1/i->pt()) );
+          hetarelres_L3L3trk[ntrig][2]->Fill( (i->eta() - beta)/i->eta() );
+          hphirelres_L3L3trk[ntrig][2]->Fill( (i->phi() - bphi)/i->phi() );
+        }
       }
     }
-
     std::vector<reco::Track>::const_iterator itl3mu;
-    if( l3muon.isValid() ) {
+    if( !l3muon.failedToGet() && l3muon.isValid() ) {
       for( itl3mu = l3muon->begin(); itl3mu != l3muon->end(); itl3mu++ ) {
         hNMu_comp[ntrig][2]->Fill(0);
       }
     }
 
     std::vector<reco::Track>::const_iterator itl3muOIState;
-    if( l3muonOIState.isValid() && l3muonOIState->size() > 0 ) {
+    if( !l3muonOIState.failedToGet() && l3muonOIState.isValid() && l3muonOIState->size() > 0 ) {
       hNMu_OIState[ntrig][2]->Fill(l3muonOIState->size());
       for( itl3muOIState = l3muonOIState->begin(); itl3muOIState != l3muonOIState->end(); itl3muOIState++ ) {
         hNMu_comp[ntrig][2]->Fill(1);
@@ -1959,15 +1926,15 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         hpteta_OIState[ntrig][2]->Fill(itl3muOIState->pt(),itl3muOIState->eta());
 
         hd0_OIState[ntrig][2]->Fill(itl3muOIState->d0()); 
-        hdz_OIState[ntrig][2]->Fill(itl3muOIState->dz(beamSpot.position()));
         if( !recoBeamSpotHandle.failedToGet()) {
+          hdz_OIState[ntrig][2]->Fill(itl3muOIState->dz(beamSpot.position()));
           hdr_OIState[ntrig][2]->Fill(itl3muOIState->dxy(beamSpot.position()));
         }
        //hpt_l3muOIState[ntrig][2]->Fill(itl3muOIState->pt());
       }
     } 
     std::vector<reco::Track>::const_iterator itl3muOIHit;
-    if( l3muonOIHit.isValid() && l3muonOIHit->size() > 0 ) {
+    if( !l3muonOIHit.failedToGet() && l3muonOIHit.isValid() && l3muonOIHit->size() > 0 ) {
       hNMu_OIHit[ntrig][2]->Fill(l3muonOIHit->size());
       for( itl3muOIHit = l3muonOIHit->begin(); itl3muOIHit != l3muonOIHit->end(); itl3muOIHit++ ) {
         hNMu_comp[ntrig][2]->Fill(2);
@@ -1980,15 +1947,15 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         hpteta_OIHit[ntrig][2]->Fill(itl3muOIHit->pt(),itl3muOIHit->eta());
 
         hd0_OIHit[ntrig][2]->Fill(itl3muOIHit->d0()); 
-        hdz_OIHit[ntrig][2]->Fill(itl3muOIHit->dz(beamSpot.position()));
         if( !recoBeamSpotHandle.failedToGet()) {
+          hdz_OIHit[ntrig][2]->Fill(itl3muOIHit->dz(beamSpot.position()));
           hdr_OIHit[ntrig][2]->Fill(itl3muOIHit->dxy(beamSpot.position()));
         }
        //hpt_l3muOIHit[ntrig][2]->Fill(itl3muOIHit->pt());
       }
     } 
     std::vector<reco::Track>::const_iterator itl3muIOHit;
-    if( l3muonIOHit.isValid() && l3muonIOHit->size() > 0 ) {
+    if( !l3muonIOHit.failedToGet() && l3muonIOHit.isValid() && l3muonIOHit->size() > 0 ) {
       hNMu_IOHit[ntrig][2]->Fill(l3muonIOHit->size());
       for( itl3muIOHit = l3muonIOHit->begin(); itl3muIOHit != l3muonIOHit->end(); itl3muIOHit++ ) {
         hNMu_comp[ntrig][2]->Fill(3);
@@ -2001,8 +1968,8 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         hpteta_IOHit[ntrig][2]->Fill(itl3muIOHit->pt(),itl3muIOHit->eta());
 
         hd0_IOHit[ntrig][2]->Fill(itl3muIOHit->d0()); 
-        hdz_IOHit[ntrig][2]->Fill(itl3muIOHit->dz(beamSpot.position()));
         if( !recoBeamSpotHandle.failedToGet()) {
+          hdz_IOHit[ntrig][2]->Fill(itl3muIOHit->dz(beamSpot.position()));
           hdr_IOHit[ntrig][2]->Fill(itl3muIOHit->dxy(beamSpot.position()));
         }
       //hpt_l3muIOHit[ntrig][2]->Fill(itl3muIOHit->pt());
@@ -2010,10 +1977,9 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
     } 
     // l3 muon tracker track
     std::vector<reco::Track>::const_iterator itl3tktrk;
-    if( l3tktrk.isValid() ) {
+    if( l3tktrk.failedToGet() && l3tktrk.isValid() ) {
       hNMu_trk[ntrig][2]->Fill(l3tktrk->size());
       for( itl3tktrk = l3tktrk->begin(); itl3tktrk != l3tktrk->end(); itl3tktrk++ ) {
-//        std::cout << "=== l3 trk trk pt : " << itl3tktrk->pt() << "  eta : " << itl3tktrk->eta() << "  phi : " << itl3tktrk->phi() << std::endl;
         hNMu_trk_comp[ntrig][2]->Fill(0);
         hcharge_trk[ntrig][2]->Fill(itl3tktrk->charge());
         hpt_trk[ntrig][2]->Fill(itl3tktrk->pt());
@@ -2025,21 +1991,17 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
 
         //hd0_trk[ntrig][2]->Fill(tk->d0()); 
         hd0_trk[ntrig][2]->Fill(itl3tktrk->d0()); 
-        hdz_trk[ntrig][2]->Fill(itl3tktrk->dz(beamSpot.position()));
         if( !recoBeamSpotHandle.failedToGet()) {
+          hdz_trk[ntrig][2]->Fill(itl3tktrk->dz(beamSpot.position()));
           hdr_trk[ntrig][2]->Fill(itl3tktrk->dxy(beamSpot.position()));
-        }
-        if ( l3muon.isValid() ) {
-        //   hNMu_l3mu_test1[ntrig][2]->Fill(l3muon->size());  
         }
       }
     }
     // l3 OIState tracker info.
     std::vector<reco::Track>::const_iterator itl3trkOIState;
-    if( l3trkOIState.isValid() && l3trkOIState->size() > 0 ) {
+    if( !l3trkOIState.failedToGet() && l3trkOIState.isValid() && l3trkOIState->size() > 0 ) {
       hNMu_trk_OIState[ntrig][2]->Fill(l3trkOIState->size());
       for( itl3trkOIState = l3trkOIState->begin(); itl3trkOIState != l3trkOIState->end(); itl3trkOIState++ ) {
-//        std::cout << "=== l3 trk OIState pt : " << itl3trkOIState->pt() << "  eta : " << itl3trkOIState->eta() << "  phi : " << itl3trkOIState->phi() << std::endl;
 
         hNMu_trk_comp[ntrig][2]->Fill(1);
         hcharge_trk_OIState[ntrig][2]->Fill(itl3trkOIState->charge());
@@ -2051,18 +2013,17 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         hpteta_trk_OIState[ntrig][2]->Fill(itl3trkOIState->pt(),itl3trkOIState->eta());
 
         hd0_trk_OIState[ntrig][2]->Fill(itl3trkOIState->d0()); 
-        hdz_trk_OIState[ntrig][2]->Fill(itl3trkOIState->dz(beamSpot.position()));
         if( !recoBeamSpotHandle.failedToGet()) {
+          hdz_trk_OIState[ntrig][2]->Fill(itl3trkOIState->dz(beamSpot.position()));
           hdr_trk_OIState[ntrig][2]->Fill(itl3trkOIState->dxy(beamSpot.position()));
         }
       }
     }
     // l3 OIHit tracker info.
     std::vector<reco::Track>::const_iterator itl3trkOIHit;
-    if( l3trkOIHit.isValid() && l3trkOIHit->size() >0 ) {
+    if( !l3trkOIHit.failedToGet() && l3trkOIHit.isValid() && l3trkOIHit->size() >0 ) {
       hNMu_trk_OIHit[ntrig][2]->Fill(l3trkOIHit->size());
       for( itl3trkOIHit = l3trkOIHit->begin(); itl3trkOIHit != l3trkOIHit->end(); itl3trkOIHit++ ) {
-//        std::cout << "=== l3 trk OIHit pt : " << itl3trkOIHit->pt() << "  eta : " << itl3trkOIHit->eta() << "  phi : " << itl3trkOIHit->phi() << std::endl;
 
         hNMu_trk_comp[ntrig][2]->Fill(2);
         hcharge_trk_OIHit[ntrig][2]->Fill(itl3trkOIHit->charge());
@@ -2074,18 +2035,17 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         hpteta_trk_OIHit[ntrig][2]->Fill(itl3trkOIHit->pt(),itl3trkOIHit->eta());
 
         hd0_trk_OIHit[ntrig][2]->Fill(itl3trkOIHit->d0()); 
-        hdz_trk_OIHit[ntrig][2]->Fill(itl3trkOIHit->dz(beamSpot.position()));
         if( !recoBeamSpotHandle.failedToGet()) {
+          hdz_trk_OIHit[ntrig][2]->Fill(itl3trkOIHit->dz(beamSpot.position()));
           hdr_trk_OIHit[ntrig][2]->Fill(itl3trkOIHit->dxy(beamSpot.position()));
         }
       }
     }
     // l3 IOHit tracker info.
     std::vector<reco::Track>::const_iterator itl3trkIOHit;
-    if( l3trkIOHit.isValid() && l3trkIOHit->size() > 0 ) {
+    if( !l3trkIOHit.failedToGet() && l3trkIOHit.isValid() && l3trkIOHit->size() > 0 ) {
       hNMu_trk_IOHit[ntrig][2]->Fill(l3trkIOHit->size());
       for( itl3trkIOHit = l3trkIOHit->begin(); itl3trkIOHit != l3trkIOHit->end(); itl3trkIOHit++ ) {
-//        std::cout << "=== l3 trk IOHit pt : " << itl3trkIOHit->pt() << "  eta : " << itl3trkIOHit->eta() << "  phi : " << itl3trkIOHit->phi() << std::endl;
 
         hNMu_trk_comp[ntrig][2]->Fill(3);
         hcharge_trk_IOHit[ntrig][2]->Fill(itl3trkIOHit->charge());
@@ -2097,9 +2057,9 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
         hpteta_trk_IOHit[ntrig][2]->Fill(itl3trkIOHit->pt(),itl3trkIOHit->eta());
 
         hd0_trk_IOHit[ntrig][2]->Fill(itl3trkIOHit->d0()); 
-        hdz_trk_IOHit[ntrig][2]->Fill(itl3trkIOHit->dz(beamSpot.position()));
         if( !recoBeamSpotHandle.failedToGet()) {
           hdr_trk_IOHit[ntrig][2]->Fill(itl3trkIOHit->dxy(beamSpot.position()));
+          hdz_trk_IOHit[ntrig][2]->Fill(itl3trkIOHit->dz(beamSpot.position()));
         }
       }
     }
