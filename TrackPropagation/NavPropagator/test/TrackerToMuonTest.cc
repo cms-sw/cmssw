@@ -74,7 +74,7 @@ void TrackerToMuonTest::propagateToMuon( const MagneticField* field) const
 
       PlaneBuilder::ReturnType trackerPlane = pb.plane( startingPosition, rot);
 
-      AlgebraicSymMatrix C(5,1);
+      AlgebraicSymMatrix55 C= ROOT::Math::SMatrixIdentity();
       C *= 0.01;
       CurvilinearTrajectoryError err(C);
 

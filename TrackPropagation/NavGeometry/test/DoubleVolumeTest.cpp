@@ -204,7 +204,7 @@ int main()
 	// and added MyTestField to AnalyticalPropagator and GlobalTrajectoryParameters initialisers
 	MyMagneticField  MyTestField;
         ROOT::Math::SMatrixIdentity id;
-	AlgebraicSymMatrix C(id);
+	AlgebraicSymMatrix55 C(id);
 	C *= 0.01;
 	CurvilinearTrajectoryError err(C);
 
