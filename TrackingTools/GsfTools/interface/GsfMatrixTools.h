@@ -12,10 +12,10 @@ namespace GsfMatrixTools {
 //     return vector*matrix*vector;
 //   }
 
-  template <unsigned int N>
+  template <unsigned long long N>
   double trace (const ROOT::Math::SMatrix<double, N, N>& matrix) {
     double result(0.);
-    for ( unsigned int i=0; i<N; i++ )  result += matrix(i,i);
+    for ( unsigned long long i=0; i<N; i++ )  result += matrix(i,i);
     return result;
   }
 
@@ -23,7 +23,7 @@ namespace GsfMatrixTools {
   /* compute the trace of a product of two sym matrices
    *   a(i,j)*b(j,i) = a(i,j)*b(i,j) sum over i and j
    */
-  template<typename T, unsigned int N>
+  template<typename T, unsigned long long N>
   double trace(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & a,
 	       ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & b) {
     typedef typename ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> >::const_iterator CI;

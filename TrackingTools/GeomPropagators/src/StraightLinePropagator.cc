@@ -50,15 +50,6 @@ StraightLinePropagator::propagateWithPath(const FreeTrajectoryState& fts,
 TrajectoryStateOnSurface 
 StraightLinePropagator::propagatedState(const FTS& fts,
 					const Surface& surface,
-					const AlgebraicMatrix& jacobian,
-					const LocalPoint& x, 
-					const LocalVector& p) const {
-    return propagatedState(fts,surface,asSMatrix<5,5>(jacobian),x,p);
-}
-
-TrajectoryStateOnSurface 
-StraightLinePropagator::propagatedState(const FTS& fts,
-					const Surface& surface,
 					const AlgebraicMatrix55& jacobian,
 					const LocalPoint& x, 
 					const LocalVector& p) const {
@@ -74,15 +65,6 @@ StraightLinePropagator::propagatedState(const FTS& fts,
     // return state without errors
     return TSOS(LocalTrajectoryParameters(x, p, fts.charge()), surface, theField);
   }
-}
-
-TrajectoryStateOnSurface 
-StraightLinePropagator::propagatedState(const FTS& fts,
-					const Surface& surface,
-					const AlgebraicMatrix& jacobian,
-					const GlobalPoint& x, 
-					const GlobalVector& p) const {
-    return propagatedState(fts,surface,asSMatrix<5,5>(jacobian),x,p);
 }
 
 TrajectoryStateOnSurface 

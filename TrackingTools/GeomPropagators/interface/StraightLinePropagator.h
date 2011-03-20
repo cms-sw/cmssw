@@ -69,18 +69,6 @@ private:
   // compute propagated state, with errors if needed
   TrajectoryStateOnSurface propagatedState(const FreeTrajectoryState& fts, 
 					   const Surface& surface, 
-					   const AlgebraicMatrix& jacobian, 
-					   const GlobalPoint& x, 
-					   const GlobalVector& p) const;
-
-  TrajectoryStateOnSurface propagatedState(const FreeTrajectoryState& fts, 
-					   const Surface& surface, 
-					   const AlgebraicMatrix& jacobian, 
-					   const LocalPoint& x, 
-					   const LocalVector& p) const;
-
-  TrajectoryStateOnSurface propagatedState(const FreeTrajectoryState& fts, 
-					   const Surface& surface, 
 					   const AlgebraicMatrix55& jacobian, 
 					   const GlobalPoint& x, 
 					   const GlobalVector& p) const;
