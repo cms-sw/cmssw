@@ -37,14 +37,6 @@ public:
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
    */
-
-  CurvilinearTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
-    theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)) {}
-
-  /** Constructing class from a full covariance matrix. The sequence of the parameters is
-   *  the same as the one described above.
-   */
-
   CurvilinearTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
     theCovarianceMatrix(aCovarianceMatrix) { }
 

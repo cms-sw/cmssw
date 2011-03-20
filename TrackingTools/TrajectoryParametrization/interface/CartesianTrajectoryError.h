@@ -19,15 +19,9 @@ public:
 
   /** Constructing class from error matrix.
    */
-
   CartesianTrajectoryError(const AlgebraicSymMatrix66& aCovarianceMatrix) :
     theCovarianceMatrix(aCovarianceMatrix) { }
 
-  /** Constructing class from error matrix.
-   */
-
-  CartesianTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
-    theCovarianceMatrix(asSMatrix<6>(aCovarianceMatrix)) {}
 // access
 
   /** Returning error matrix.

@@ -3,10 +3,6 @@
 
 
 
-LocalTrajectoryError::LocalTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
-  theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)), theWeightMatrixPtr() {}
-
-
 LocalTrajectoryError::
 LocalTrajectoryError( float dx, float dy, float dxdir, float dydir,
 		      float dpinv) : theCovarianceMatrix(), theWeightMatrixPtr()

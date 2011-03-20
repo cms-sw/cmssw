@@ -82,11 +82,6 @@ public:
    * (x, y, z, transverse curvature, theta, phi).
    */
   TrajectoryStateClosestToPoint trajectoryStateClosestToPoint
-	(const AlgebraicVector& momentum, const GlobalPoint& referencePoint,
-	 const TrackCharge& charge, const AlgebraicMatrix& theCovarianceMatrix,
-	 const MagneticField* field) const;
-
-  TrajectoryStateClosestToPoint trajectoryStateClosestToPoint
 	(const AlgebraicVector3& momentum, const GlobalPoint& referencePoint,
 	 const TrackCharge& charge, const AlgebraicSymMatrix66& theCovarianceMatrix,
 	 const MagneticField* field) const;

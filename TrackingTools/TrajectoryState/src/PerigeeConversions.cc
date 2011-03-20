@@ -151,17 +151,6 @@ TrackCharge PerigeeConversions::chargeFromPerigee
 }
 
 TrajectoryStateClosestToPoint PerigeeConversions::trajectoryStateClosestToPoint
-	(const AlgebraicVector& momentum, const GlobalPoint& referencePoint,
-	 const TrackCharge& charge, const AlgebraicMatrix& theCovarianceMatrix, ///FIXME !!! why not Sym !!??
-	 const MagneticField* field) const {
-            AlgebraicSymMatrix sym; sym.assign(theCovarianceMatrix); // below, this was used for Matrix => SymMatrix
-            return trajectoryStateClosestToPoint(asSVector<3>(momentum), referencePoint, 
-                    charge, asSMatrix<6>(sym), field);
-
-        }
-
-
-TrajectoryStateClosestToPoint PerigeeConversions::trajectoryStateClosestToPoint
 	(const AlgebraicVector3& momentum, const GlobalPoint& referencePoint,
 	 const TrackCharge& charge, const AlgebraicSymMatrix66& theCovarianceMatrix,
 	 const MagneticField* field) const

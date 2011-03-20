@@ -32,8 +32,6 @@ public:
   LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix):
     theCovarianceMatrix(aCovarianceMatrix), theWeightMatrixPtr() { }
 
-  LocalTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix);
-
   /** Constructing class from standard deviations of the individual parameters, making
    *  the covariance matrix diagonal. The sequence of the input parameters is sigma(x), sigma(y),
    *  sigma(dxdz), sigma(dydz), sigma(q/p), but the resulting covariance matrix has the 
