@@ -3,8 +3,8 @@
 # generate HLT tables from master table in ConfDB
 #
 
-MASTER="/dev/CMSSW_3_11_1/HLT_fix3/V249"        # no version, take the latest one
-TARGET="/online/collisions/2011/5e32/v4.1/HLT"  # where to store the online-compliant menu
+MASTER="/dev/CMSSW_3_11_1/HLT_fix4"             # no version, take the latest one
+TARGET="/online/collisions/2011/5e32/v6.0/HLT"  # where to store the online-compliant menu
 TABLES="online"
 
 source subtables.sh
