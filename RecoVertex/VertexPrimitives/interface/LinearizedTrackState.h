@@ -10,7 +10,6 @@
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "Math/SMatrix.h"
-#include "DataFormats/CLHEP/interface/Migration.h"
 
 #include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include <vector>

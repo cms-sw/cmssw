@@ -8,7 +8,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalWeight.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 //#include "CommonReco/CommonVertex/interface/RefCountedVertexSeed.h"
 
 #include <vector>
