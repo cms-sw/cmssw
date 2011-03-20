@@ -97,8 +97,18 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   //
   // create result TSOS on TangentPlane (local parameters & errors are better defined)
   //
-  ReferenceCountingPointer<TangentPlane> plane(cylinder.tangentPlane(x));  // need to be here until tsos is created!
-  return propagatedStateWithPath(fts,*plane,gtp,s);
+
+  //try {
+    ReferenceCountingPointer<TangentPlane> plane(cylinder.tangentPlane(x));  // need to be here until tsos is created!
+    return propagatedStateWithPath(fts,*plane,gtp,s);
+  /*
+  } catch(...) {
+    std::cout << "wrong tangent to cylinder " << x 
+              << " pos, rad " << cylinder.position() << " " << cylinder.radius()
+              << std::endl;
+    return TsosWP(TrajectoryStateOnSurface(),0.);
+  }
+  */
 }
 
 std::pair<TrajectoryStateOnSurface,double>
