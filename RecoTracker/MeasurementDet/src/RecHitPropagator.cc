@@ -15,7 +15,7 @@ RecHitPropagator::propagate( const TransientTrackingRecHit& hit,
   // LocalVector ldir = hit.det()->specificSurface().toLocal(ts.globalMomentum());
   LocalVector ldir = hitts.localMomentum();
   LocalTrajectoryParameters ltp( hit.localPosition(), ldir, ts.charge());
-  AlgebraicSymMatrix m(5,0);
+  AlgebraicSymMatrix55 m;
   LocalError lhe = hit.localPositionError();
   m[3][3] = lhe.xx();
   m[3][4] = lhe.xy();

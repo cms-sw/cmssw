@@ -1,6 +1,5 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/SeedFromGenericPairOrTriplet.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

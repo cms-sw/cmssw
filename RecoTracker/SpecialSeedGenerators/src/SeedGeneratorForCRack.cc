@@ -86,7 +86,7 @@ void SeedGeneratorForCRack::seeds(TrajectorySeedCollection &output,
 				       momentum,
 				       predsign, 
 				       &(*magfield));
-	AlgebraicSymMatrix errMatrix = AlgebraicSymMatrix(5,1);
+	AlgebraicSymMatrix55 errMatrix = ROOT::Math::SMatrixIdentity();
 	TSOS innerState = TSOS(Gtp, CurvilinearTrajectoryError(errMatrix), tracker->idToDet((HitPairs[is].inner()->hit())->geographicalId())->surface());
 	const TSOS innerUpdated = theUpdator->update(innerState, *inrhit);
 	//Cosmic Seed update inner...
@@ -121,7 +121,7 @@ void SeedGeneratorForCRack::seeds(TrajectorySeedCollection &output,
 				       momentum,
 				       predsign, 
 				       &(*magfield));
-	AlgebraicSymMatrix errMatrix = AlgebraicSymMatrix(5,1);
+	AlgebraicSymMatrix55 errMatrix = ROOT::Math::SMatrixIdentity();
 	TSOS innerState = TSOS(Gtp, CurvilinearTrajectoryError(errMatrix), tracker->idToDet((HitPairs[is].inner()->hit())->geographicalId())->surface());
 	const TSOS innerUpdated = theUpdator->update(innerState, *inrhit);
 	LogDebug("CosmicSeedFinder") << " FirstTSOS "<< innerState;

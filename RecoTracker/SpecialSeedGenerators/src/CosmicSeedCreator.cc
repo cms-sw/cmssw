@@ -124,7 +124,7 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
     
     FreeTrajectoryState freeState(GlobalTrajectoryParameters(usedHit->globalPosition(),
 							     initialMomentum, charge, &*bfield),
-				  CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1))
+				  CurvilinearTrajectoryError(ROOT::Math::SMatrixIdentity())
 				  );
 
     LogDebug("CosmicSeedCreator")<<"Position freeState: " << usedHit->globalPosition()

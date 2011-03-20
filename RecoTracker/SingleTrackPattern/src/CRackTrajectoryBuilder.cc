@@ -968,7 +968,7 @@ CRackTrajectoryBuilder::innerState( const Trajectory& traj) const
     }
   }
   TSOS unscaledState = measvec[actualLast].updatedState();
-  AlgebraicSymMatrix C(5,1);
+  AlgebraicSymMatrix55 C=ROOT::Math::SMatrixIdentity();
   // C *= 100.;
 
   TSOS startingState( unscaledState.localParameters(), LocalTrajectoryError(C),

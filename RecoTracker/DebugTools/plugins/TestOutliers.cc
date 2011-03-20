@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.10 2010/08/06 20:24:59 wmtan Exp $
+// $Id: TestOutliers.cc,v 1.11 2010/10/15 12:22:09 elmer Exp $
 //
 //
 
@@ -752,12 +752,12 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 		    if (m->processType()==2) {
 		      //GlobalPoint gpos = theG->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition());
 		      //GlobalPoint gpr = rhit->globalPosition();
-		      AlgebraicSymMatrix ger = 
+		      AlgebraicSymMatrix33 ger = 
 			ErrorFrameTransformer().transform((*itHit)->localPositionError(),theG->idToDet((*itHit)->geographicalId())->surface() ).matrix();
 		      //AlgebraicSymMatrix ger = rhit->globalPositionError().matrix();
 		      GlobalPoint gps = theG->idToDet((*itHit)->geographicalId())->surface().toGlobal(m->localPosition());
 		      //LogTrace("TestOutliers") << gpr << " " << gps << " " << ger;
-		      CLHEP::HepVector delta(3);
+		      ROOT::Math::SVector<double,3> delta;
 		      delta[0]=gpos.x()-gps.x();
 		      delta[1]=gpos.y()-gps.y();
 		      delta[2]=gpos.z()-gps.z();
