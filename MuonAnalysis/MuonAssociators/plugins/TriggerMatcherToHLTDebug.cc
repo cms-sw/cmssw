@@ -13,7 +13,7 @@
 //
 // Original Author:  Cristina Botta (Torino), Giovanni Petrucciani (UCSD)
 //         Created:  Fri 30 Apr 2010
-// $Id: TriggerMatcherToHLTDebug.cc,v 1.2 2010/05/25 20:55:54 gpetrucc Exp $
+// $Id: TriggerMatcherToHLTDebug.cc,v 1.4 2010/09/02 10:08:32 botta Exp $
 //
 
 
@@ -148,7 +148,6 @@ TriggerMatcherToHLTDebug::TriggerMatcherToHLTDebug(const edm::ParameterSet &pset
   deltaR_(pset.getParameter<double>("deltaR")),
   minL1Quality_(pset.getParameter<int32_t>("MinL1Quality")),
   beamspotTag_(pset.getParameter<edm::InputTag>("BeamSpotTag")),
-  seedMapTag_(pset.getParameter<edm::InputTag >("SeedMapTag") ),
   min_N_L2(pset.getParameter<int> ("MinN_L2")),
   max_Eta_L2(pset.getParameter<double> ("MaxEta_L2")),
   min_Nhits_L2(pset.getParameter<int> ("MinNhits_L2")),
@@ -162,7 +161,8 @@ TriggerMatcherToHLTDebug::TriggerMatcherToHLTDebug(const edm::ParameterSet &pset
   max_Dr_L3(pset.getParameter<double> ("MaxDr_L3")),
   max_Dz_L3(pset.getParameter<double> ("MaxDz_L3")),
   min_Pt_L3(pset.getParameter<double> ("MinPt_L3")),
-  nsigma_Pt_L3(pset.getParameter<double> ("NSigmaPt_L3"))
+  nsigma_Pt_L3(pset.getParameter<double> ("NSigmaPt_L3")),
+  seedMapTag_(pset.getParameter<edm::InputTag >("SeedMapTag"))
 {
 
 
@@ -301,10 +301,10 @@ void TriggerMatcherToHLTDebug::produce(Event &event, const EventSetup &eventSetu
 	  
 	  //AFTER THE ASSOCIATION MAP
 	  const edm::RefVector<L2MuonTrajectorySeedCollection>& seeds = (*seedMapHandle)[iL2Muon->track()->seedRef().castTo<edm::Ref<L2MuonTrajectorySeedCollection> >()];
-	  bool isTriggered = false;
-	  for(size_t i=0; i<seeds.size(); i++){
+	  //	  bool isTriggered = false;
+	  for(size_t jjj=0; jjj<seeds.size(); jjj++){
 	    
-	    if(seeds[i]->l1Particle()!= l1FromSeed) continue;
+	    if(seeds[jjj]->l1Particle()!= l1FromSeed) continue;
 	    
 	  }
           
