@@ -24,7 +24,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit, do
     std::auto_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());
     if (bcInterval.get() == 0) return false;
     limit = bcInterval->UpperLimit();
-    if (limit >= 0.75*r->getMax()) { 
+    if (limit >= 0.5*r->getMax()) { 
       std::cout << "Limit r < " << limit << "; r max < " << r->getMax() << std::endl;
       if (r->getMax()/rMax > 20) return false;
       r->setMax(r->getMax()*2); 
