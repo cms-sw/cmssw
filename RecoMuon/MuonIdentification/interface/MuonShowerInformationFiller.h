@@ -4,8 +4,8 @@
  *
  *  Description: class for muon shower identification
  *
- *  $Date: 2010/11/20 12:44:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/01/15 12:44:08 $
+ *  $Revision: 1.3 $
  *
  *  \author: A. Svyatkovskiy, Purdue University
  *
@@ -33,6 +33,9 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 #include "DataFormats/MuonReco/interface/MuonShower.h"
 
@@ -101,11 +104,9 @@ class MuonShowerInformationFiller {
     std::vector<const GeomDet*> cscPositionToDets(const GlobalPoint&) const;
     MuonRecHitContainer findPerpCluster(MuonRecHitContainer& muonRecHits) const;
     MuonRecHitContainer findPhiCluster(MuonRecHitContainer&, const GlobalPoint&) const;
-    MuonRecHitContainer findThetaCluster(MuonRecHitContainer&, const GlobalPoint&) const;
-    MuonRecHitContainer recHits4D(const GeomDet*,edm::Handle<DTRecSegment4DCollection>, edm::Handle<CSCSegmentCollection>) const;
-    int numberOfCorrelatedHits(const MuonRecHitContainer&) const;
+    TransientTrackingRecHit::ConstRecHitContainer findThetaCluster(TransientTrackingRecHit::ConstRecHitContainer&, const GlobalPoint&) const;
+    TransientTrackingRecHit::ConstRecHitContainer hitsFromSegments(const GeomDet*,edm::Handle<DTRecSegment4DCollection>, edm::Handle<CSCSegmentCollection>) const;
     std::vector<const GeomDet*> getCompatibleDets(const reco::Track&) const;
-
 
    struct LessMag {
        LessMag(const GlobalPoint& point) : thePoint(point) {}
@@ -117,8 +118,8 @@ class MuonShowerInformationFiller {
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
            return (lhs->globalPosition() - thePoint).mag() < (rhs->globalPosition() -thePoint).mag();
         }
-        GlobalPoint thePoint;
-      };
+      GlobalPoint thePoint;
+   };
 
    struct LessDPhi {
         LessDPhi(const GlobalPoint& point) : thePoint(point) {}
@@ -126,9 +127,8 @@ class MuonShowerInformationFiller {
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
            return deltaPhi(lhs->globalPosition().phi(), thePoint.phi()) < deltaPhi(rhs->globalPosition().phi(), thePoint.phi());
         }
-
-        GlobalPoint thePoint;
-      };
+      GlobalPoint thePoint;
+    };
 
     struct AbsLessDPhi {
         AbsLessDPhi(const GlobalPoint& point) : thePoint(point) {}
@@ -136,21 +136,17 @@ class MuonShowerInformationFiller {
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
            return ( fabs(deltaPhi(lhs->globalPosition().phi(), thePoint.phi())) < fabs(deltaPhi(rhs->globalPosition().phi(), thePoint.phi())) );
         }
-
-        GlobalPoint thePoint;
-
-      };
+      GlobalPoint thePoint;
+    };
 
     struct AbsLessDTheta {
         AbsLessDTheta(const GlobalPoint& point) : thePoint(point) {}
-        bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
-                       const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
+        bool operator()(const TransientTrackingRecHit::ConstRecHitPointer& lhs,
+                       const TransientTrackingRecHit::ConstRecHitPointer& rhs) const{
            return ( fabs(lhs->globalPosition().phi() - thePoint.phi()) < fabs(rhs->globalPosition().phi() - thePoint.phi()) );
         }
-
-        GlobalPoint thePoint;
-
-      };
+      GlobalPoint thePoint;
+    };
 
     struct LessPhi {
         LessPhi() : thePoint(0,0,0) {}
@@ -158,9 +154,8 @@ class MuonShowerInformationFiller {
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
            return (lhs->globalPosition().phi() < rhs->globalPosition().phi());
         }
-
         GlobalPoint thePoint;
-      };
+    };
 
     struct LessPerp {
         LessPerp() : thePoint(0,0,0) {}
@@ -168,9 +163,8 @@ class MuonShowerInformationFiller {
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
            return (lhs->globalPosition().perp() < rhs->globalPosition().perp());
         }
-
-        GlobalPoint thePoint;
-      };
+      GlobalPoint thePoint;
+    };
 
     struct LessAbsMag {
         LessAbsMag() : thePoint(0,0,0) {}
@@ -178,9 +172,8 @@ class MuonShowerInformationFiller {
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
            return (lhs->globalPosition().mag() < rhs->globalPosition().mag());
         }
-
-        GlobalPoint thePoint;
-      };
+      GlobalPoint thePoint;
+    };
 
     std::string category_;
 
@@ -206,7 +199,8 @@ class MuonShowerInformationFiller {
     edm::ESHandle<GeometricSearchTracker> theTracker;
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
     edm::ESHandle<MagneticField> theField;
-    edm::ESHandle<MuonDetLayerGeometry> theMuonGeometry;
+    edm::ESHandle<CSCGeometry> theCSCGeometry;
+    edm::ESHandle<DTGeometry> theDTGeometry;
 
 };
 #endif
