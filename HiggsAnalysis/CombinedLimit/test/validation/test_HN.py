@@ -27,14 +27,14 @@ for R in [ 'CLs', 'CLsplusb' ]:
                             "--singlePoint 5 --fork 2 --clsAcc=0.01  --rule=%s" % R,
                             {'Atlas':'--testStat=Atlas', 'LEP':'--testStat=LEP', 'TEV':'--testStat=TEV'})) ]
     suite += [ (M, 'full', MultiOptionTest("Counting_pValues_%s" % R, "simple-counting/counting-B5p5-Obs6-Syst30B.txt", M,
-                            "--singlePoint 5 --fork 6 --clsAcc=0.001 --rule=%s" % R,
+                            "--singlePoint 5 --fork 6 --clsAcc=0.005 --rule=%s" % R,
                             {'Atlas':'--testStat=Atlas', 'LEP':'--testStat=LEP', 'TEV':'--testStat=TEV'})) ]
 
 for X in [ "Atlas", "LEP", "TEV" ]:
         suite += [ (M, 'fast', SingleDatacardTest("HWW_pValues_%s"%X, "hww4ch-1fb-B-mH140.txt", M, 
                         "--singlePoint 1 --fork 2 --clsAcc=0.01  --testStat=%s"%X )) ]
         suite += [ (M, 'full', SingleDatacardTest("HWW_pValues_%s"%X, "hww4ch-1fb-B-mH140.txt", M, 
-                        "--singlePoint 1 --fork 6 --clsAcc=0.002 --testStat=%s"%X )) ]
+                        "--singlePoint 1 --fork 6 --clsAcc=0.005 --testStat=%s"%X )) ]
 
 
 ### Test the limits

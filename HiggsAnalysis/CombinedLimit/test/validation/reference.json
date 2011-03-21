@@ -1,112 +1,22 @@
 {
     "Counting_BayesianSimple": {
-        "comment": "all 20 jobs done", 
+        "comment": "Numbers from L&S", 
         "results": {
-            "counting-B5p5-Obs1-StatOnly.txt": {
-                "comment": "", 
-                "limit": 3.4183189170148456, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.00026968319434672594
-            }, 
-            "counting-B5p5-Obs1-Syst30B.txt": {
-                "comment": "", 
-                "limit": 3.5097064777694298, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0022457360755652189
-            }, 
-            "counting-B5p5-Obs1-Syst30C.txt": {
-                "comment": "", 
-                "limit": 5.1088414450852691, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0022750338539481163
-            }, 
-            "counting-B5p5-Obs1-Syst30S.txt": {
-                "comment": "", 
-                "limit": 3.9201104332673626, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0026723344344645739
-            }, 
-            "counting-B5p5-Obs1-Syst30U.txt": {
-                "comment": "", 
-                "limit": 4.0275301133350689, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.063310250639915466
-            }, 
-            "counting-B5p5-Obs11-StatOnly.txt": {
-                "comment": "", 
-                "limit": 12.687602228039523, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.00019119978242088109
-            }, 
-            "counting-B5p5-Obs11-Syst30B.txt": {
-                "comment": "", 
-                "limit": 12.934540312863705, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0026888013817369938
-            }, 
-            "counting-B5p5-Obs11-Syst30C.txt": {
-                "comment": "", 
-                "limit": 17.838069106373009, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0076628685928881168
-            }, 
-            "counting-B5p5-Obs11-Syst30S.txt": {
-                "comment": "", 
-                "limit": 14.673258405983052, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0025881330948323011
-            }, 
-            "counting-B5p5-Obs11-Syst30U.txt": {
-                "comment": "", 
-                "limit": 14.853927278771202, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.050877735018730164
-            }, 
-            "counting-B5p5-Obs6-StatOnly.txt": {
-                "comment": "", 
-                "limit": 7.0133367779074085, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.00017846425180323422
-            }, 
-            "counting-B5p5-Obs6-Syst30B.txt": {
-                "comment": "", 
-                "limit": 7.4118237974731462, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0023619690909981728
-            }, 
-            "counting-B5p5-Obs6-Syst30C.txt": {
-                "comment": "", 
-                "limit": 10.126002172531356, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0023332317359745502
-            }, 
-            "counting-B5p5-Obs6-Syst30S.txt": {
-                "comment": "", 
-                "limit": 8.1760486220559816, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0023772001732140779
-            }, 
-            "counting-B5p5-Obs6-Syst30U.txt": {
-                "comment": "", 
-                "limit": 8.6544794497480275, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.054821599274873734
-            }
+            "counting-B5p5-Obs1-StatOnly.txt": { "comment": "L&S", "limit":3.41831, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30B.txt": { "comment": "L&S", "limit":3.5089, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30C.txt": { "comment": "L&S", "limit":5.07665, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30S.txt": { "comment": "L&S", "limit":3.9136, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30U.txt": { "comment": "L&S", "limit":4.04075, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-StatOnly.txt": { "comment": "L&S", "limit":12.7319, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30B.txt": { "comment": "L&S", "limit":12.9845, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30C.txt": { "comment": "L&S", "limit":17.8015, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30S.txt": { "comment": "L&S", "limit":15.4327, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30U.txt": { "comment": "L&S", "limit":15.7621, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-StatOnly.txt": { "comment": "L&S", "limit":7.0135, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30B.txt": { "comment": "L&S", "limit":7.40953, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30C.txt": { "comment": "L&S", "limit":10.1983, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30S.txt": { "comment": "L&S", "limit":8.18149, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30U.txt": { "comment": "L&S", "limit":8.69503, "limitErr":0, "status":"done", "t_real":0 }
         }, 
         "status": "done"
     }, 
@@ -117,41 +27,43 @@
     "Counting_Hybrid": {
         "comment": "Numbers from L&S", 
         "results": {
-            "counting-B5p5-Obs6-Syst30B.txt": {
-                "comment": "Number from L&S", 
-                "limit": 7.45, 
-                "limitErr": 0.01, 
-                "status": "done", 
-                "t_real": 0 
-            }
+            "counting-B5p5-Obs1-StatOnly.txt": { "comment": "L&S", "limit":3.35875, "limitErr":0.0963188, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30B.txt": { "comment": "L&S", "limit":3.4955, "limitErr":0.0330343, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30C.txt": { "comment": "L&S", "limit":4.83562, "limitErr":0.31824, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30S.txt": { "comment": "L&S", "limit":3.55917, "limitErr":0.0448707, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30U.txt": { "comment": "L&S", "limit":3.85107, "limitErr":0.00814019, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-StatOnly.txt": { "comment": "L&S", "limit":12.7319, "limitErr":0.037187, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30B.txt": { "comment": "L&S", "limit":12.9717, "limitErr":0.0320949, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30C.txt": { "comment": "L&S", "limit":16.4315, "limitErr":0.103774, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30S.txt": { "comment": "L&S", "limit":14.4402, "limitErr":0.0791625, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30U.txt": { "comment": "L&S", "limit":14.6878, "limitErr":0.0430272, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-StatOnly.txt": { "comment": "L&S", "limit":7.0135, "limitErr":0.00451102, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30B.txt": { "comment": "L&S", "limit":7.44632, "limitErr":0.0286556, "status":"done", "t_real":0 }, 
+            "counting-B5p5-Obs6-Syst30C.txt": { "comment": "L&S", "limit":9.37707, "limitErr":0.0516178, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30S.txt": { "comment": "L&S", "limit":7.59585, "limitErr":0.0319019, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30U.txt": { "comment": "L&S", "limit":8.0976, "limitErr":0.0430498, "status":"done", "t_real":0 } 
         }, 
         "status": "done"
     }, 
     "Counting_HybridNew": {
         "comment": "Numbers from L&S", 
-        "results": {
-            "counting-B5p5-Obs1-Syst30B.txt": {
-                "comment": "L&S", 
-                "limit": 3.49, 
-                "limitErr": 0.03, 
-                "status": "done", 
-                "t_real": 0
-            }, 
-            "counting-B5p5-Obs11-Syst30B.txt": {
-                "comment": "L&S", 
-                "limit": 12.97, 
-                "limitErr": 0.03, 
-                "status": "done", 
-                "t_real": 0
-            }, 
-            "counting-B5p5-Obs6-Syst30B.txt": {
-                "comment": "L&S", 
-                "limit": 7.44, 
-                "limitErr": 0.03, 
-                "status": "done", 
-                "t_real": 0
-            }
-        }, 
+        "results": {    
+            "counting-B5p5-Obs1-StatOnly.txt": { "comment": "L&S", "limit":3.35875, "limitErr":0.0963188, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs1-Syst30B.txt": { "comment": "L&S", "limit":3.4955, "limitErr":0.0330343, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs1-Syst30C.txt": { "comment": "L&S", "limit":4.83562, "limitErr":0.31824, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs1-Syst30S.txt": { "comment": "L&S", "limit":3.55917, "limitErr":0.0448707, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs1-Syst30U.txt": { "comment": "L&S", "limit":3.85107, "limitErr":0.00814019, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs11-StatOnly.txt": { "comment": "L&S", "limit":12.7319, "limitErr":0.037187, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs11-Syst30B.txt": { "comment": "L&S", "limit":12.9717, "limitErr":0.0320949, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs11-Syst30C.txt": { "comment": "L&S", "limit":16.4315, "limitErr":0.103774, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs11-Syst30S.txt": { "comment": "L&S", "limit":14.4402, "limitErr":0.0791625, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs11-Syst30U.txt": { "comment": "L&S", "limit":14.6878, "limitErr":0.0430272, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs6-StatOnly.txt": { "comment": "L&S", "limit":7.0135, "limitErr":0.00451102, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs6-Syst30B.txt": { "comment": "L&S", "limit":7.44632, "limitErr":0.0286556, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs6-Syst30C.txt": { "comment": "L&S", "limit":9.37707, "limitErr":0.0516178, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs6-Syst30S.txt": { "comment": "L&S", "limit":7.59585, "limitErr":0.0319019, "status":"done", "t_real":0 } ,
+            "counting-B5p5-Obs6-Syst30U.txt": { "comment": "L&S", "limit":8.0976, "limitErr":0.0430498, "status":"done", "t_real":0 } 
+        },
         "status": "done"
     }, 
     "Counting_Lower_FeldmanCousins": {
@@ -159,44 +71,24 @@
         "status": "done"
     }, 
     "Counting_MarkovChainMC": {
-        "comment": "all 5 jobs done", 
+        "comment": "From L&S", 
         "results": {
-            "counting-B5p5-Obs6-StatOnly.txt": {
-                "comment": "", 
-                "limit": 7.1065884602550886, 
-                "limitErr": 0.043241966220199442, 
-                "status": "done", 
-                "t_real": 0.015948398038744926
-            }, 
-            "counting-B5p5-Obs6-Syst30B.txt": {
-                "comment": "", 
-                "limit": 7.4288597173549054, 
-                "limitErr": 0.058867822111422018, 
-                "status": "done", 
-                "t_real": 0.025738298892974854
-            }, 
-            "counting-B5p5-Obs6-Syst30C.txt": {
-                "comment": "", 
-                "limit": 10.158934744342405, 
-                "limitErr": 0.12877572589931041, 
-                "status": "done", 
-                "t_real": 0.027214519679546356
-            }, 
-            "counting-B5p5-Obs6-Syst30S.txt": {
-                "comment": "", 
-                "limit": 8.3818211950380856, 
-                "limitErr": 0.078852165088253129, 
-                "status": "done", 
-                "t_real": 0.026968566700816154
-            }, 
-            "counting-B5p5-Obs6-Syst30U.txt": {
-                "comment": "", 
-                "limit": 8.7117621705597923, 
-                "limitErr": 0.19797611581515118, 
-                "status": "done", 
-                "t_real": 0.031193852424621582
-            }
-        }, 
+            "counting-B5p5-Obs1-StatOnly.txt": { "comment": "L&S", "limit":3.41831, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30B.txt": { "comment": "L&S", "limit":3.5089, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30C.txt": { "comment": "L&S", "limit":5.07665, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30S.txt": { "comment": "L&S", "limit":3.9136, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30U.txt": { "comment": "L&S", "limit":4.04075, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-StatOnly.txt": { "comment": "L&S", "limit":12.7319, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30B.txt": { "comment": "L&S", "limit":12.9845, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30C.txt": { "comment": "L&S", "limit":17.8015, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30S.txt": { "comment": "L&S", "limit":15.4327, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30U.txt": { "comment": "L&S", "limit":15.7621, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-StatOnly.txt": { "comment": "L&S", "limit":7.0135, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30B.txt": { "comment": "L&S", "limit":7.40953, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30C.txt": { "comment": "L&S", "limit":10.1983, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30S.txt": { "comment": "L&S", "limit":8.18149, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30U.txt": { "comment": "L&S", "limit":8.69503, "limitErr":0, "status":"done", "t_real":0 }
+        },
         "status": "done"
     }, 
     "Counting_ProfileLikelihood": {
@@ -654,105 +546,36 @@
         "status": "done"
     }, 
     "Gamma_BayesianSimple": {
-        "comment": "all 12 jobs done", 
+        "comment": "From L&S", 
         "results": {
-            "counting-B5p5-Obs6-Syst30B-gmM.txt": {
-                "comment": "", 
-                "limit": 7.6488355396322882, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0028179646469652653
-            }, 
-            "counting-B5p5-Obs6-Syst30C-gmM.txt": {
-                "comment": "", 
-                "limit": 12.12290492484555, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0028406819328665733
-            }, 
-            "counting-B5p5-Obs6-Syst30S-gmM.txt": {
-                "comment": "", 
-                "limit": 9.1360346990055792, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0023663998581469059
-            }, 
-            "counting-B5p5-Obs6-Syst30U-gmM.txt": {
-                "comment": "", 
-                "limit": 9.9763425336655249, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.042779766023159027
-            }, 
-            "counting-S1-Sideband1-alpha0p3-Obs2.txt": {
-                "comment": "", 
-                "limit": 5.8106968297411132, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0023118138778954744
-            }, 
-            "counting-S1-Sideband10-alpha0p2-Obs2.txt": {
-                "comment": "", 
-                "limit": 4.8663216314665325, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0021223663352429867
-            }, 
-            "counting-S1-Sideband100-alpha0p05-Obs4.txt": {
-                "comment": "", 
-                "limit": 5.4756834557559344, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0022803186438977718
-            }, 
-            "counting-S1-Sideband2-alpha0p3-Obs6.txt": {
-                "comment": "", 
-                "limit": 11.008040670904345, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0020700334571301937
-            }, 
-            "counting-Sideband11-alpha0p5-Obs1.txt": {
-                "comment": "", 
-                "limit": 3.529867696820979, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0024850328918546438
-            }, 
-            "counting-Sideband11-alpha0p5-Obs11.txt": {
-                "comment": "", 
-                "limit": 12.791291550554343, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0024885854218155146
-            }, 
-            "counting-Sideband11-alpha0p5-Obs20.txt": {
-                "comment": "", 
-                "limit": 23.488199403716241, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0043325186707079411
-            }, 
-            "counting-Sideband11-alpha0p5-Obs6.txt": {
-                "comment": "", 
-                "limit": 7.3934919140159892, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0025635519996285439
-            }
+            "counting-B5p5-Obs6-Syst30B-gmM.txt": { "comment": "L&S", "limit":7.65272, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30C-gmM.txt": { "comment": "L&S", "limit":12.9213, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30S-gmM.txt": { "comment": "L&S", "limit":9.26725, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30U-gmM.txt": { "comment": "L&S", "limit":10.1169, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-S1-Sideband1-alpha0p3-Obs2.txt": { "comment": "L&S", "limit":5.80744, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-S1-Sideband10-alpha0p2-Obs2.txt": { "comment": "L&S", "limit":4.86674, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-S1-Sideband100-alpha0p05-Obs4.txt": { "comment": "L&S", "limit":5.47368, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs1.txt": { "comment": "L&S", "limit":3.53229, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs11.txt": { "comment": "L&S", "limit":12.8474, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs20.txt": { "comment": "L&S", "limit":23.4879, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs6.txt": { "comment": "L&S", "limit":7.39906, "limitErr":0, "status":"done", "t_real":0 }
         }, 
         "status": "done"
     }, 
     "Gamma_MarkovChainMC": {
-        "comment": "", 
+        "comment": "From L&S", 
         "results": {
-            "counting-S1-Sideband10-alpha0p2-Obs2.txt": {
-                "comment": "", 
-                "limit": 4.9810183452402157, 
-                "limitErr": 0.084557415534189273, 
-                "status": "done", 
-                "t_real": 0.024071769788861275
-            }
+            "counting-B5p5-Obs6-Syst30B-gmM.txt": { "comment": "L&S", "limit":7.65272, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30C-gmM.txt": { "comment": "L&S", "limit":12.9213, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30S-gmM.txt": { "comment": "L&S", "limit":9.26725, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30U-gmM.txt": { "comment": "L&S", "limit":10.1169, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-S1-Sideband1-alpha0p3-Obs2.txt": { "comment": "L&S", "limit":5.80744, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-S1-Sideband10-alpha0p2-Obs2.txt": { "comment": "L&S", "limit":4.86674, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-S1-Sideband100-alpha0p05-Obs4.txt": { "comment": "L&S", "limit":5.47368, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs1.txt": { "comment": "L&S", "limit":3.53229, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs11.txt": { "comment": "L&S", "limit":12.8474, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs20.txt": { "comment": "L&S", "limit":23.4879, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs6.txt": { "comment": "L&S", "limit":7.39906, "limitErr":0, "status":"done", "t_real":0 }
         }, 
         "status": "done"
     }, 
@@ -880,6 +703,18 @@
         }, 
         "status": "partial"
     }, 
+    "HWW_B+1-mH160_MarkovChainMC": { "comment":"L&S", "results":{ "hww4ch-1fb-B+1-mH160.txt": { "comment":"L&S", "limit":0.642011, "limitErr":0, "t_real":0, "status":""} }, "status":"done"}, 
+    "HWW_B-1-mH140_MarkovChainMC": { "comment":"L&S", "results":{ "hww4ch-1fb-B-1-mH140.txt": { "comment":"L&S", "limit":0.81386, "limitErr":0, "t_real":0, "status":""} }, "status":"done"}, 
+    "HWW_B-mH140_MarkovChainMC": { "comment":"L&S", "results":{ "hww4ch-1fb-B-mH140.txt": { "comment":"L&S", "limit":1.70647, "limitErr":0, "t_real":0, "status":""} }, "status":"done"}, 
+    "HWW_B-mH160_MarkovChainMC": { "comment":"L&S", "results":{ "hww4ch-1fb-B-mH160.txt": { "comment":"L&S", "limit":0.345436, "limitErr":0, "t_real":0, "status":""} }, "status":"done"}, 
+    "HWW_B+1-mH160_Hybrid": { "comment":"L&S", "results":{ "hww4ch-1fb-B+1-mH160.txt": { "comment":"L&S", "limit":0.612737, "limitErr":0.00176815, "t_real":0, "status":""} }, "status":"done"}, 
+    "HWW_B-1-mH140_Hybrid": { "comment":"L&S", "results":{ "hww4ch-1fb-B-1-mH140.txt": { "comment":"L&S", "limit":0.778427, "limitErr":0.005775, "t_real":0, "status":""} }, "status":"done"}, 
+    "HWW_B-mH140_Hybrid": { "comment":"L&S", "results":{ "hww4ch-1fb-B-mH140.txt": { "comment":"L&S", "limit":1.63653, "limitErr":0.00243231, "t_real":0, "status":""} }, "status":"done"}, 
+    "HWW_B-mH160_Hybrid": { "comment":"L&S", "results":{ "hww4ch-1fb-B-mH160.txt": { "comment":"L&S", "limit":0.324828, "limitErr":0.00163882, "t_real":0, "status":""} }, "status":"done"}, 
+    "HWW_B+1-mH160_HybridNew": { "comment":"L&S", "results":{ "hww4ch-1fb-B+1-mH160.txt": { "comment":"L&S", "limit":0.612737, "limitErr":0.00176815, "t_real":0, "status":""} }, "status":"done"}, 
+    "HWW_B-1-mH140_HybridNew": { "comment":"L&S", "results":{ "hww4ch-1fb-B-1-mH140.txt": { "comment":"L&S", "limit":0.778427, "limitErr":0.005775, "t_real":0, "status":""} }, "status":"done"}, 
+    "HWW_B-mH140_HybridNew": { "comment":"L&S", "results":{ "hww4ch-1fb-B-mH140.txt": { "comment":"L&S", "limit":1.63653, "limitErr":0.00243231, "t_real":0, "status":""} }, "status":"done"}, 
+    "HWW_B-mH160_HybridNew": { "comment":"L&S", "results":{ "hww4ch-1fb-B-mH160.txt": { "comment":"L&S", "limit":0.324828, "limitErr":0.00163882, "t_real":0, "status":""} }, "status":"done"}, 
     "HWW_Hybrid": {
         "comment": "value from L&S", 
         "results": {
@@ -961,7 +796,7 @@
         "status": "done"
     }, 
     "HWW_S0_BayesianSimple": {
-        "comment": "all 4 jobs done", 
+        "comment": "", 
         "results": {
             "hww4ch-1fb-B+1-mH160.txt": {
                 "comment": "", 
@@ -995,7 +830,7 @@
         "status": "done"
     }, 
     "HWW_S0_MarkovChainMC": {
-        "comment": "all 2 jobs done", 
+        "comment": "", 
         "results": {
             "hww4ch-1fb-B-mH140.txt": {
                 "comment": "", 
@@ -1116,7 +951,16 @@
         "status": "done"
     }, 
     "HWW_pValues_Atlas_HybridNew": {
-        "comment": "n/a", 
+        "comment": "Number from L&S", 
+        "results": {
+            "hww4ch-1fb-B-mH140.txt": {
+                "comment": "L&S", 
+                "limit": 0.371528, 
+                "limitErr": 0.0177117, 
+                "status": "done", 
+                "t_real": 0
+            }
+        }, 
         "status": ""
     }, 
     "HWW_pValues_LEP_Hybrid": {
@@ -1146,11 +990,29 @@
         "status": "done"
     }, 
     "HWW_pValues_TEV_Hybrid": {
-        "comment": "n/a", 
+        "comment": "Number from L&S", 
+        "results": {
+            "hww4ch-1fb-B-mH140.txt": {
+                "comment": "L&S", 
+                "limit": 0.359162, 
+                "limitErr": 0.0159112, 
+                "status": "done", 
+                "t_real": 0
+            }
+        }, 
         "status": ""
     }, 
     "HWW_pValues_TEV_HybridNew": {
-        "comment": "n/a", 
+        "comment": "Number from L&S", 
+        "results": {
+            "hww4ch-1fb-B-mH140.txt": {
+                "comment": "L&S", 
+                "limit": 0.359162, 
+                "limitErr": 0.0159112, 
+                "status": "done", 
+                "t_real": 0
+            }
+        }, 
         "status": ""
     }, 
     "Proposals_MarkovChainMC": {

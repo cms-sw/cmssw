@@ -112,7 +112,7 @@ class TestSuite:
                 deltaLimRel = abs(limit-limitR)/max(hypot(limitErr,limitErrR),0.01*(limit+limitR),0.005)
                 if   deltaLimRel <= 2: res['status'] = 'ok'
                 elif deltaLimRel <= 5: res['status'] = 'warning'
-                elif deltaLimRel <= 5: res['status'] = 'error'
+                else:                  res['status'] = 'error'
                 if limitErr > 0 and limitErrR > 0:
                     if limitErr/limitErrR >= 1.5 and ref['comment'] == '': 
                         res['status']  = 'warning'
