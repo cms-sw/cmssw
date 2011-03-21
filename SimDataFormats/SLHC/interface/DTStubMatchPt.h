@@ -3,20 +3,28 @@
 
 #include <math.h>
 
+#include <TMath.h>
+
 #include <string>
 #include <map>
 
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"  
+
 #include "DataFormats/Common/interface/Ref.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatch.h"
-#include "SimDataFormats/SLHC/interface/DTStubMatch.h"
 
 
 using namespace std;
 
+
+class DTStubMatch;
+class DTStubMatchPtAlgorithms;
+
+
 class DTStubMatchPt {
   
   friend class DTStubMatch;
-  
+  friend class DTStubMatchPtAlgorithms; 
+ 
  public:
   
   DTStubMatchPt() {
@@ -25,19 +33,32 @@ class DTStubMatchPt {
     _invRb = NAN;
     _Pt = NAN;
     _invPt = NAN;
+    _alpha0 = _d = NAN;
   }
   
   DTStubMatchPt(std::string const s) {
-    _label =s;
+    _label = s;
     _Rb = NAN;
     _invRb = NAN;
     _Pt = NAN;
     _invPt = NAN;
+    _alpha0 = _d = NAN;
   }
+
+  DTStubMatchPt(std::string const s, int station, 
+		const edm::ParameterSet& pSet,
+		const GlobalVector stub_position[],
+		bool const flagMatch[]); 
+  
+  DTStubMatchPt(string const s, int station,
+		const GlobalVector stub_position[],
+		bool const flagMatch[],
+		const edm::ParameterSet& pSet);
   
   DTStubMatchPt(std::string const s, int station, 
 		const edm::ParameterSet& pSet,
-		float const stub_x[], float const stub_y[], 
+		const float vstub_rho, const float vstub_phi,
+		const GlobalVector stub_position[],
 		bool const flagMatch[]); 
   
   DTStubMatchPt(std::string const s, int station,
@@ -45,20 +66,48 @@ class DTStubMatchPt {
 		float const DTmu_x, float const DTmu_y,
 		float const stub_x[], float const stub_y[], 
 		bool const flagMatch[]); 
-  
-  DTStubMatchPt(int station, 
-		const edm::ParameterSet& pSet,
-		float const bendingDT, float const Rb);
-  
-  // copy constructor 
+
+  // using linear fit of stub dephi vs invPt
+  DTStubMatchPt(std::string const s, 
+		const float slope, const float dephi_zero,
+		const int I, const int J, const float dephi, 
+		const edm::ParameterSet& pSet, 
+		bool const flagMatch[]); 
+
+
+  // copy constructor  
   DTStubMatchPt(const DTStubMatchPt& aPt) {
-    _label = aPt.label();
-    _Rb = aPt.Rb();
-    _invRb = aPt.invRb(); 
-    _Pt = aPt.Pt(); 
-    _invPt = aPt.invPt(); 
+    _label = aPt._label;
+    _Rb = aPt._Rb;
+    _invRb = aPt._invRb; 
+    _Pt = aPt._Pt; 
+    _invPt = aPt._invPt; 
+    _alpha0 =  aPt._alpha0;
+    _d =  aPt._d;
   }
-  
+
+  // assignment operator
+  DTStubMatchPt& operator =(const DTStubMatchPt& aPt) {
+  if (this == &aPt)      // Same object?
+    return *this;        // Yes, so skip assignment, and just return *this.
+    /*
+    if(!isnan(aPt._Pt))
+      cout << "DTStubMatchPt " << _label << " assignment operator called " << flush;
+    */
+    _label = aPt._label;
+    _Rb = aPt._Rb;
+    _invRb = aPt._invRb; 
+    _Pt = aPt._Pt; 
+    /*
+    if(!isnan(_Pt))
+      cout << _Pt << endl;
+    */
+    _invPt = aPt._invPt; 
+    _alpha0 =  aPt._alpha0;
+    _d =  aPt._d;
+    return *this;
+  }
+
   // destructor
   ~DTStubMatchPt() {
     _label.clear();
@@ -69,81 +118,49 @@ class DTStubMatchPt {
   float const invRb() const             { return _invRb; }
   float const Pt() const                { return _Pt; }
   float const invPt() const             { return _invPt; }
-
+  float const alpha0() const            { return _alpha0; }
+  float const d() const                 { return _d; }
  private:
   
   std::string _label;
   float _Rb, _invRb;
   float _Pt, _invPt;
+  float _alpha0, _d;
 
-  void setPt(const edm::ParameterSet& pSet, 
+  inline float phiCMS(const GlobalVector& P) const
+    { 
+      float phiCMS = P.phi();
+      if(phiCMS < 0.)
+	phiCMS += 2. * TMath::Pi();
+      if(phiCMS > 2*TMath::Pi())
+	phiCMS -= 2 * TMath::Pi();
+      return phiCMS;
+    }
+
+  void computePt(const edm::ParameterSet& pSet, 
 	     float const X[], float const Y[], float const corr = 0.0); 
   void radius_of_curvature(const edm::ParameterSet& pSet, 
 			   float const x[], float const y[]);
-};
 
+  void computePt(const edm::ParameterSet& pSet, 
+	     const GlobalVector P[], 
+	     float const corr = 0.0); 
+  void radius_of_curvature(const edm::ParameterSet& pSet, 
+			   const GlobalVector P[]);
 
+  void computePt(const edm::ParameterSet& pSet, 
+	     const float vstub_rho, const float vstub_phi, 
+	     const GlobalVector P[], 
+	     float const corr = 0.0); 
+  void radius_of_curvature(const edm::ParameterSet& pSet,
+			   const float vstub_rho, const float vstub_phi,
+			   const GlobalVector P[]);
 
-typedef std::vector<DTStubMatchPt> PtVariety;
-
-
-//-------------------------------------------------------------------------------
-class DTStubMatchPtVariety
-{
-
-  friend class DTStubMatch;
-
-  typedef std::vector<DTStubMatchPt>::iterator _iterator;
-
- public:
-  // trivial constructor
-  DTStubMatchPtVariety() {
-    _theVariety = std::vector<DTStubMatchPt>();
-  }
-  // default constructor
-  DTStubMatchPtVariety(std::vector<DTStubMatchPt>& tracklets) {
-    _theVariety = std::vector<DTStubMatchPt>(tracklets);
-  }
- // copy constructor 
-  DTStubMatchPtVariety(const DTStubMatchPtVariety& aPt) {
-    _theVariety = aPt._theVariety;
-  }
-
-  void clear() { _theVariety.clear(); }
-  // destructor
-  ~DTStubMatchPtVariety() { clear(); } 
-  
-  void push_back(DTStubMatchPt aPt) { _theVariety.push_back(aPt); }
-
-  void insert(_iterator pos, DTStubMatchPt aPt) { 
-    _theVariety.insert(pos, aPt); 
-  }
-
-  void erase(_iterator pos) { _theVariety.erase(pos); }
-
-  //return functions  
-  const std::vector<DTStubMatchPt>& theVariety() const { return _theVariety; }
-
-  DTStubMatchPtVariety& operator=(const DTStubMatchPtVariety& aPtVariety) {
-    _theVariety = aPtVariety._theVariety;
-    return *this;
-  }
-
-  DTStubMatchPt operator[](size_t n) {
-    if( n >= _theVariety.size() ) 
-      cerr << "index out of range" << endl;
-    return _theVariety[n]; 
-  }
-  
-  size_t size() const { return _theVariety.size(); }
-
- private:
-
-  std::vector<DTStubMatchPt> _theVariety;
+  void computePt_etc(const edm::ParameterSet& pSet, 
+		     const GlobalVector P[], 
+		     float const corr = 0.0); 
 
 };
-
-
 
 
 

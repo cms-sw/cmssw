@@ -19,10 +19,6 @@
 #include <algorithm>
 #include <vector>
 
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatch.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTTrackerStub.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTBtiTrigger.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTTSPhiTrigger.h"
 #include "SimDataFormats/SLHC/interface/DTStubMatch.h"
 #include "SimDataFormats/SLHC/interface/DTTrackerStub.h"
 #include "SimDataFormats/SLHC/interface/DTBtiTrigger.h"
@@ -110,22 +106,20 @@ class DTStubMatchesCollection {
     return; 
   }
 
-  TrackerStub* getClosestStub(int phi, int theta, int lay) const; 
+  int nstubsInWindow(int phi, int theta, int sdtphi, int sdttheta, int lay) const; 
+  void getAllStubsInWindow(int phi, int theta, int sdtphi, int sdttheta, int lay) const; 
+  TrackerStub* getClosestStub(int phi, int theta, int sdtphi, int sdttheta, int lay) const; 
   TrackerStub* getClosestPhiStub(int phi, int lay) const;
   TrackerStub* getClosestThetaStub(int theta, int lay) const;
   TrackerStub* getStub(int lay) const;
-  int countStubs(int lay) const;
-
+  int  countStubs(int lay) const;
   void orderDTTriggers();
-
   void extrapolateDTToTracker();
-
   void removeRedundantDTStubMatch();
-
   void eraseDTStubMatch(int dm);
 
  private:
-  // DT Phi-Theta Match
+  // DT Phi-Theta Match then completed with TrackerStub matches
   vector<DTStubMatch*> _dtmatches;
 
   // Tracker Stub vector

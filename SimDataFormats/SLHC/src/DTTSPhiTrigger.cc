@@ -2,9 +2,8 @@
 #include <iomanip> // for setiosflags(...)
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTTSPhiTrigger.h"
 #include "SimDataFormats/SLHC/interface/DTTSPhiTrigger.h"
-#include "SLHCUpgradeSimulations/L1Trigger/src/DTUtils.h"
+#include "DTUtils.h"
 
 
 using namespace std;

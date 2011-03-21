@@ -1,10 +1,7 @@
 #include <math.h>
 
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatch.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatchPt.h"
 #include "SimDataFormats/SLHC/interface/DTStubMatch.h"
 #include "SimDataFormats/SLHC/interface/DTStubMatchPt.h"
-#include "SLHCUpgradeSimulations/L1Trigger/interface/DTParameters.h"    
 
 /**************************************************************************
   Only stubs and (primary) vertex
@@ -30,14 +27,8 @@ void DTStubMatchPt::radius_of_curvature(const edm::ParameterSet& pSet,
   double delta = acos( cosine_of_bending );
   //  float _bending = 
   //    static_cast<float>( (delta <= TMath::Pi())?delta:(TMath::Pi()-delta) );
-  /*
-  if( _bending < min_bending || _bending > max_bending ) {
-    _Rb = _invRb = _bending = NAN;
-    return;
-  }
-  */
-  // _Rb = static_cast<float>(0.5 * sqrt(2*L1DotL2 + L1sq + L2sq)/sin(delta));
   _invRb = 2. * static_cast<float>(delta/(L1+L2));
+  
   if( _invRb < min_invRb || _invRb > max_invRb ) {
     _Rb = _invRb = NAN; 
     return; 
@@ -46,9 +37,110 @@ void DTStubMatchPt::radius_of_curvature(const edm::ParameterSet& pSet,
 } 
  
 
+void DTStubMatchPt::radius_of_curvature(const edm::ParameterSet& pSet,
+					const GlobalVector P[])
+{
 
-void DTStubMatchPt::setPt(const edm::ParameterSet& pSet,
-			  float const X[], float const Y[], float const corr) {
+  float min_invRb = pSet.getUntrackedParameter<double>("min_invRb");
+  float max_invRb = pSet.getUntrackedParameter<double>("max_invRb");
+
+  /*
+    It would be nice, if not mandatory, to give a sign!!!!!!!!!!!!!!!!!!
+  */
+
+  double r2   = P[2].perp();
+  double phi2 = phiCMS(P[2]); 
+  double r1   = P[1].perp();
+  double phi1 = phiCMS(P[1]); 
+  
+  if(P[0].perp() == 0.) {
+    // here we are using the principal vertex constraint at its nominal coordinates! 
+    _Rb = 0.5*fabs(r2-r1)/fabs(phi2-phi1); //+ 0.25*r2*r1*fabs(phi2-phi1)/fabs(r2-r1);
+    if( !isnan(_Rb) )
+      _invRb = 1/_Rb;
+    if( _invRb < min_invRb || _invRb > max_invRb ) {
+      _Rb = _invRb = NAN; 
+    }
+    return;
+  }
+  // the more general case follows:
+  double r0 = P[0].perp();
+  double phi0 = phiCMS(P[0]);  
+  double L01sq = r0*r0 + r1*r1 - 2*r0*r1*cos(phi0-phi1);
+  double L01 = sqrt(L01sq);
+  double L12sq = r1*r1 + r2*r2 - 2*r1*r2*cos(phi1-phi2);
+  double L12 = sqrt(L12sq);
+  double L01DotL12 = 
+    r0*r1*cos(phi0-phi1) - r0*r2*cos(phi0-phi2) + r1*r2*cos(phi1-phi2) - r1*r1 ;
+  double cosine_of_bending = L01DotL12/(L01*L12);
+  double delta = acos( cosine_of_bending );
+  //  float _bending = 
+  //    static_cast<float>( (delta <= TMath::Pi())?delta:(TMath::Pi()-delta) );
+  _invRb = 2. * static_cast<float>(delta/(L01+L12));
+  if( _invRb < min_invRb || _invRb > max_invRb ) {
+    _Rb = _invRb = NAN;
+    return; 
+  }
+  _Rb = static_cast<float>(0.5*(L01+L12)/delta);
+  return;
+}
+
+
+void DTStubMatchPt::radius_of_curvature(const edm::ParameterSet& pSet,
+					const float vstub_rho, const float vstub_phi,
+					const GlobalVector P[])
+{
+
+  float min_invRb = pSet.getUntrackedParameter<double>("min_invRb");
+  float max_invRb = pSet.getUntrackedParameter<double>("max_invRb");
+
+  /*
+    It would be nice, if not mandatory, to give a sign!!!!!!!!!!!!!!!!!!
+  */
+
+  double r2   = vstub_rho;
+  double phi2 = vstub_phi;
+  double r1   = P[1].perp();
+  double phi1 = phiCMS(P[1]); 
+
+  if(P[0].perp() == 0.) { 
+    // vertex constraint
+    _Rb = 0.5*fabs(r2-r1)/fabs(phi2-phi1); //+ 0.25*r2*r1*fabs(phi2-phi1)/fabs(r2-r1);
+    if( !isnan(_Rb) ) 
+      _invRb = 1/_Rb;
+    else 
+    if( _invRb < min_invRb || _invRb > max_invRb ) {
+      _Rb = _invRb = NAN; 
+    }
+    return;
+  }
+  // the more general case:
+  double r0 = P[0].perp();
+  double phi0 = phiCMS(P[0]);  
+  double L01sq = r0*r0 + r1*r1 - 2*r0*r1*cos(phi0-phi1);
+  double L01 = sqrt(L01sq);
+  double L12sq = r1*r1 + r2*r2 - 2*r1*r2*cos(phi1-phi2);
+  double L12 = sqrt(L12sq);
+  double L01DotL12 = 
+    r0*r1*cos(phi0-phi1) - r0*r2*cos(phi0-phi2) + r1*r2*cos(phi1-phi2) - r1*r1 ;
+  double cosine_of_bending = L01DotL12/(L01*L12);
+  double delta = acos( cosine_of_bending );
+  //  float _bending = 
+  //    static_cast<float>( (delta <= TMath::Pi())?delta:(TMath::Pi()-delta) );
+  _invRb = 2. * static_cast<float>(delta/(L01+L12));
+  if( _invRb < min_invRb || _invRb > max_invRb ) {
+    _Rb = _invRb = NAN; 
+    return; 
+  }
+  _Rb = static_cast<float>(0.5*(L01+L12)/delta);
+  return;
+}
+
+
+
+void DTStubMatchPt::computePt(const edm::ParameterSet& pSet,
+			      float const X[], float const Y[], float const corr) {
+  // using DT muons or virtual stubs
   radius_of_curvature(pSet, X, Y);
   if( isnan( _Rb ) )
     return;
@@ -60,95 +152,268 @@ void DTStubMatchPt::setPt(const edm::ParameterSet& pSet,
 
 
 
+void DTStubMatchPt::computePt(const edm::ParameterSet& pSet,
+			      const GlobalVector P[], float const corr) {
+  // "all stubs" approach
+  radius_of_curvature(pSet, P);
+  if( isnan( _Rb ) )
+    return;
+  _Pt = 0.003 * _Rb * 3.8;
+  _Pt += corr * _Pt;
+  _invPt = 1./_Pt;
+  return;
+} 
+
+
+void  DTStubMatchPt::computePt(const edm::ParameterSet& pSet, 
+			       const float vstub_rho, const float vstub_phi, 
+			       const GlobalVector P[], 
+			       float const corr)
+{
+  radius_of_curvature(pSet, vstub_rho, vstub_phi, P);
+  if( isnan( _Rb ) )
+    return;
+  _Pt = 0.003 * _Rb * 3.8;
+  _Pt += corr * _Pt;
+  _invPt = 1./_Pt;
+  return;
+}
+
+
+
+void DTStubMatchPt::computePt_etc(const edm::ParameterSet& pSet,
+				  const GlobalVector P[], float const corr) 
+{
+  float min_invRb = pSet.getUntrackedParameter<double>("min_invRb");
+  float max_invRb = pSet.getUntrackedParameter<double>("max_invRb");
+
+  double r0   = P[0].perp();
+  double phi0 = phiCMS(P[0]);
+  double r1   = P[1].perp();
+  double phi1 = phiCMS(P[1]); 
+  double r2   = P[2].perp();
+  double phi2 = phiCMS(P[2]);
+
+  double Delta = r0*r0*(r1-r2) + r1*r1*(r2-r0) + r2*r2*(r0-r1);
+  if( Delta == 0. || Delta == NAN )
+    return;
+  double invDelta = 1/Delta;
+  _invRb = 
+    -2*(phi0*r0*(r1-r2) + phi1*r1*(r2-r0) + phi2*r2*(r0-r1))*invDelta;
+  short charge = (_invRb > 0.) - (_invRb < 0.);
+  // Mu particle (-1 charge) has PDG Id 13 !!!
+  //  if(charge > 0)
+  //    cout << "\t\t\twrong charge " << charge << endl;
+  _invRb = fabs(_invRb);
+  if( fabs(_invRb) < min_invRb || fabs(_invRb) > max_invRb ) {
+    _Rb = _invRb = _alpha0 = _d = NAN; 
+    return; 
+  }
+  _Rb = static_cast<float>(1/_invRb);
+  _Pt = 0.003 * _Rb * 3.8;
+  _Pt += corr * _Pt;
+  _invPt = 1./_Pt;
+  _alpha0 = charge*invDelta*
+    (phi0*r0*(r1*r1-r2*r2) + phi1*r1*(r2*r2-r0*r0) + phi2*r2*(r0*r0-r1*r1));
+  _d = charge*r0*r1*r2*(phi0*(r1-r2) + phi1*(r2-r0) + phi2*(r0-r1))*invDelta;
+  /*
+  cout << "_Pt = " << _Pt << endl;
+  cout << "_alpha0 = " << _alpha0 << endl;
+  cout << "_d = " << _d << endl;
+  */
+  return;
+}
+
+
+
 DTStubMatchPt::DTStubMatchPt(string const s, int station,
 			     const edm::ParameterSet& pSet, 
-			     float const stub_x[], float const stub_y[], 
+			     const GlobalVector stub_position[],
 			     bool const flagMatch[]):
   _label(s)  
 {
-  float X[3], Y[3];  
 
-  _Rb = _invRb = _Pt = _invPt = NAN;
+  GlobalVector P[3];
 
-  if( _label == string("Stubs-5-3-0") && flagMatch[5] && flagMatch[3] && flagMatch[0] ) {
-    X[0] = stub_x[5];
-    Y[0] = stub_y[5];
-    X[1] = stub_x[3];
-    Y[1] = stub_y[3];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y);
+  _Rb = _invRb = NAN;
+  _Pt = _invPt = NAN;
+  _alpha0 = _d = NAN;
+
+  if( _label == string("Stubs_9_3_0") && flagMatch[5] && flagMatch[3] && flagMatch[0] ) {
+    P[2] = stub_position[5];
+    P[1] = stub_position[3];
+    P[0] = stub_position[0];
+    computePt(pSet, P);
+    return;
+  }  /*
+  if( _label == string("Stubs_5_3_0") && flagMatch[5] && flagMatch[3] && flagMatch[0] ) {
+    P[2] = stub_position[5];
+    P[1] = stub_position[3];
+    P[0] = stub_position[0];
+    computePt(pSet, P);
     return;
   }
-  if( _label == string("Stubs-5-2-0") && flagMatch[5] && flagMatch[2] && flagMatch[0] ) {
-    X[0] = stub_x[5];
-    Y[0] = stub_y[5];
-    X[1] = stub_x[2];
-    Y[1] = stub_y[2];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y);
+     */
+  if( _label == string("Stubs_9_1_0") && flagMatch[5] && flagMatch[1] && flagMatch[0] ) {
+    P[2] = stub_position[5];
+    P[1] = stub_position[1];
+    P[0] = stub_position[0];
+    computePt(pSet, P);
     return;
   }
-  if( _label == string("Stubs-5-1-0") && flagMatch[5] && flagMatch[1] && flagMatch[0] ) {
-    X[0] = stub_x[5];
-    Y[0] = stub_y[5];
-    X[1] = stub_x[1];
-    Y[1] = stub_y[1];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y);
+  /*
+  if( _label == string("Stubs_5_1_0") && flagMatch[5] && flagMatch[1] && flagMatch[0] ) {
+    P[2] = stub_position[5];
+    P[1] = stub_position[1];
+    P[0] = stub_position[0];
+    computePt(pSet, P);
     return;
   }
-  if( _label == string("Stubs-3-2-0") && flagMatch[3] && flagMatch[2] && flagMatch[0] ) {
-    X[0] = stub_x[3];
-    Y[0] = stub_y[3];
-    X[1] = stub_x[2];
-    Y[1] = stub_y[2];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y);
+  */
+  if( _label == string("Stubs_3_2_0") && flagMatch[3] && flagMatch[2] && flagMatch[0] ) {
+    P[2] = stub_position[3];
+    P[1] = stub_position[2];
+    P[0] = stub_position[0];
+    computePt(pSet, P);
     return;
   }
-  if( _label == string("Stubs-3-1-0") && flagMatch[3] && flagMatch[1] && flagMatch[0] ) {
-    X[0] = stub_x[3];
-    Y[0] = stub_y[3];
-    X[1] = stub_x[1];
-    Y[1] = stub_y[1]; 
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y);
+  if( _label == string("Stubs_3_1_0") && flagMatch[3] && flagMatch[1] && flagMatch[0] ) {
+    P[2] = stub_position[3];
+    P[1] = stub_position[1];
+    P[0] = stub_position[0];
+    computePt(pSet, P);
     return;
   }
+
   //******************
   // Next use vertex:
   //******************
 
-  X[2] = 0.;
-  Y[2] = 0.;
+  P[0] = GlobalVector();
 
-  if( _label == string("Stubs-5-3-V") && flagMatch[5] && flagMatch[3] ) { 
-    X[0] = stub_x[5];
-    Y[0] = stub_y[5];
-    X[1] = stub_x[3];
-    Y[1] = stub_y[3];
-    setPt(pSet, X, Y);
+  if( _label == string("Stubs_9_3_V") && flagMatch[5] && flagMatch[3] ) { 
+    P[2] = stub_position[5];
+    P[1] = stub_position[3];
+    computePt(pSet, P);
     return;
   }
-  if( _label == string("Stubs-5-0-V") && flagMatch[5] && flagMatch[0] ) { 
-    X[0] = stub_x[5];
-    Y[0] = stub_y[5];
-    X[1] = stub_x[0];
-    Y[1] = stub_y[0];
-    setPt(pSet, X, Y);
+  /*
+  if( _label == string("Stubs_5_3_V") && flagMatch[5] && flagMatch[3] ) { 
+    P[2] = stub_position[5];
+    P[1] = stub_position[3];
+    computePt(pSet, P);
     return;
   }
-  if( _label == string("Stubs-3-0-V") && flagMatch[3] && flagMatch[0] ) { 
-    X[0] = stub_x[3];
-    Y[0] = stub_y[3];
-    X[1] = stub_x[0];
-    Y[1] = stub_y[0];
-    setPt(pSet, X, Y);
+  */
+  if( _label == string("Stubs_9_1_V") && flagMatch[5] && flagMatch[1] ) { 
+    P[2] = stub_position[5];
+    P[1] = stub_position[1];
+    computePt(pSet, P);
+    return;
+  }
+  /*
+  if( _label == string("Stubs_5_1_V") && flagMatch[5] && flagMatch[3] ) { 
+    P[2] = stub_position[5];
+    P[1] = stub_position[1];
+    computePt(pSet, P);
+    return;
+  }
+  */
+  if( _label == string("Stubs_9_0_V") && flagMatch[5] && flagMatch[0] ) { 
+    P[2] = stub_position[5];
+    P[1] = stub_position[0];
+    computePt(pSet, P);
+    return;
+  }
+  /*
+  if( _label == string("Stubs_5_0_V") && flagMatch[5] && flagMatch[0] ) { 
+    P[2] = stub_position[5];
+    P[1] = stub_position[0];
+    computePt(pSet, P);
+    return;
+  }
+  */
+  if( _label == string("Stubs_3_1_V") && flagMatch[3] && flagMatch[1] ) { 
+    P[2] = stub_position[3];
+    P[1] = stub_position[1];
+    computePt(pSet, P);
+    return;
+  }
+  if( _label == string("Stubs_3_0_V") && flagMatch[3] && flagMatch[0] ) { 
+    P[2] = stub_position[3];
+    P[1] = stub_position[0];
+    computePt(pSet, P);
+    return;
+  }
+}
+
+
+
+/**************************************************************************
+   Linearized algorithm getting _alpha0 and _d
+***************************************************************************/
+DTStubMatchPt::DTStubMatchPt(string const s, int station,
+			     const GlobalVector stub_position[],
+			     bool const flagMatch[],
+			     const edm::ParameterSet& pSet):
+  _label(s)  
+{
+
+  GlobalVector P[3];
+
+  _Rb = _invRb = NAN;
+  _Pt = _invPt = NAN;
+  _alpha0 = _d = NAN;
+
+  if( _label == string("LinStubs_9_3_0") 
+      && flagMatch[5] && flagMatch[3] && flagMatch[0] ) {
+    P[2] = stub_position[5];
+    P[1] = stub_position[3];
+    P[0] = stub_position[0];
+    computePt_etc(pSet, P);
+    return;
+  } 
+  if( _label == string("LinStubs_9_1_0") 
+      && flagMatch[5] && flagMatch[1] && flagMatch[0] ) {
+    P[2] = stub_position[5];
+    P[1] = stub_position[1];
+    P[0] = stub_position[0];
+    computePt_etc(pSet, P);
+    return;
+  }
+  /*
+  if( _label == string("LinStubs_5_3_0") 
+      && flagMatch[5] && flagMatch[3] && flagMatch[0] ) {
+    P[2] = stub_position[5];
+    P[1] = stub_position[3];
+    P[0] = stub_position[0];
+    computePt_etc(pSet, P);
+    return;
+  }
+
+  if( _label == string("LinStubs_5_1_0") 
+      && flagMatch[5] && flagMatch[1] && flagMatch[0] ) {
+    P[2] = stub_position[5];
+    P[1] = stub_position[1];
+    P[0] = stub_position[0];
+    computePt_etc(pSet, P);
+    return;
+  }
+  */
+  if( _label == string("LinStubs_3_2_0") 
+      && flagMatch[3] && flagMatch[2] && flagMatch[0] ) {
+    P[2] = stub_position[3];
+    P[1] = stub_position[2];
+    P[0] = stub_position[0];
+    computePt_etc(pSet, P);
+    return;
+  }
+  if( _label == string("LinStubs_3_1_0") 
+      && flagMatch[3] && flagMatch[1] && flagMatch[0] ) {
+    P[2] = stub_position[3];
+    P[1] = stub_position[1];
+    P[0] = stub_position[0];
+    computePt_etc(pSet, P);
     return;
   }
 }
@@ -166,13 +431,16 @@ DTStubMatchPt::DTStubMatchPt(string const s, int station,
 			     bool const flagMatch[]):
   _label(s)  
 { 
+
   float corr = 0.0;
   //if(_label[0] == 'I') corr = 0.156; 
   //else if(_label[0] == 'M') corr = 0.05;
 
   float X[3], Y[3]; 
 
-  _Rb = _invRb = _Pt = _invPt = NAN;
+  _Rb = _invRb = NAN;
+  _Pt = _invPt = NAN;
+  _alpha0 = _d = NAN;
 
   if(isnan(DTmu_x) || isnan(DTmu_y)) 
     return;
@@ -180,254 +448,413 @@ DTStubMatchPt::DTStubMatchPt(string const s, int station,
   X[0] = DTmu_x;
   Y[0] = DTmu_y;
 
-  if( _label == string("Mu-5-0") && flagMatch[5] && flagMatch[0] ) {
+  if( _label == string("Mu_9_0") && flagMatch[5] && flagMatch[0] ) {
     X[1] = stub_x[5];
     Y[1] = stub_y[5];
     X[2] = stub_x[0];
     Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
+    computePt(pSet, X, Y, corr);
     return;
   }
-  if( _label == string("Mu-3-0") && flagMatch[3] && flagMatch[0] ) {
-    X[1] = stub_x[3];
-    Y[1] = stub_y[3];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("Mu-2-0") && flagMatch[3] && flagMatch[0] ) {
-    X[1] = stub_x[2];
-    Y[1] = stub_y[2];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("Mu-1-0") && flagMatch[3] && flagMatch[0] ) {
-    X[1] = stub_x[1];
-    Y[1] = stub_y[1];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("Mu-5-V") && flagMatch[0] ) {
-    X[1] = stub_x[5];
-    Y[1] = stub_y[5];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("Mu-3-V") && flagMatch[0] ) {
-    X[1] = stub_x[3];
-    Y[1] = stub_y[3];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("Mu-2-V") && flagMatch[0] ) {
-    X[1] = stub_x[2];
-    Y[1] = stub_y[2];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("Mu-1-V") && flagMatch[0] ) {
-    X[1] = stub_x[1];
-    Y[1] = stub_y[1];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("Mu-0-V") && flagMatch[0] ) {
-    X[1] = stub_x[0];
-    Y[1] = stub_y[0];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("IMu-5-0") && flagMatch[5] && flagMatch[0] ) {
-    X[1] = stub_x[5];
-    Y[1] = stub_y[5];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("IMu-3-0") && flagMatch[3] && flagMatch[0] ) {
-    X[1] = stub_x[3];
-    Y[1] = stub_y[3];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("IMu-2-0") && flagMatch[3] && flagMatch[0] ) {
-    X[1] = stub_x[2];
-    Y[1] = stub_y[2];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("IMu-1-0") && flagMatch[3] && flagMatch[0] ) {
-    X[1] = stub_x[1];
-    Y[1] = stub_y[1];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("IMu-5-V") && flagMatch[0] ) {
-    X[1] = stub_x[5];
-    Y[1] = stub_y[5];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("IMu-3-V") && flagMatch[0] ) {
-    X[1] = stub_x[3];
-    Y[1] = stub_y[3];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("IMu-2-V") && flagMatch[0] ) {
-    X[1] = stub_x[2];
-    Y[1] = stub_y[2];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("IMu-1-V") && flagMatch[0] ) {
-    X[1] = stub_x[1];
-    Y[1] = stub_y[1];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("IMu-0-V") && flagMatch[0] ) {
-    X[1] = stub_x[0];
-    Y[1] = stub_y[0];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("mu-5-0") && flagMatch[5] && flagMatch[0] ) {
-    X[1] = stub_x[5];
-    Y[1] = stub_y[5];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("mu-3-0") && flagMatch[3] && flagMatch[0] ) {
-    X[1] = stub_x[3];
-    Y[1] = stub_y[3];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("mu-2-0") && flagMatch[3] && flagMatch[0] ) {
-    X[1] = stub_x[2];
-    Y[1] = stub_y[2];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("mu-1-0") && flagMatch[3] && flagMatch[0] ) {
-    X[1] = stub_x[1];
-    Y[1] = stub_y[1];
-    X[2] = stub_x[0];
-    Y[2] = stub_y[0];
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("mu-5-V") && flagMatch[0] ) {
-    X[1] = stub_x[5];
-    Y[1] = stub_y[5];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("mu-3-V") && flagMatch[0] ) {
-    X[1] = stub_x[3];
-    Y[1] = stub_y[3];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("mu-2-V") && flagMatch[0] ) {
-    X[1] = stub_x[2];
-    Y[1] = stub_y[2];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("mu-1-V") && flagMatch[0] ) {
-    X[1] = stub_x[1];
-    Y[1] = stub_y[1];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-  if( _label == string("mu-0-V") && flagMatch[0] ) {
-    X[1] = stub_x[0];
-    Y[1] = stub_y[0];
-    X[2] = 0.;
-    Y[2] = 0.;
-    setPt(pSet, X, Y, corr);
-    return;
-  }
-
   /*
-  if( _label == string("Zo-5-0") && flagMatch[5] && flagMatch[0] ) {
+  if( _label == string("Mu_5_0") && flagMatch[5] && flagMatch[0] ) {
     X[1] = stub_x[5];
     Y[1] = stub_y[5];
     X[2] = stub_x[0];
     Y[2] = stub_y[0];
-    setPt(pSet, X, Y);
+    computePt(pSet, X, Y, corr);
     return;
   }
-  if( _label == string("Zo-3-0") && flagMatch[3] && flagMatch[0] ) {
+  */
+  if( _label == string("Mu_3_2") && flagMatch[3] && flagMatch[2] ) {
+    X[1] = stub_x[3];
+    Y[1] = stub_y[3];
+    X[2] = stub_x[2];
+    Y[2] = stub_y[2];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("Mu_3_1") && flagMatch[3] && flagMatch[1] ) {
+    X[1] = stub_x[3];
+    Y[1] = stub_y[3];
+    X[2] = stub_x[1];
+    Y[2] = stub_y[1];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("Mu_3_0") && flagMatch[3] && flagMatch[0] ) {
     X[1] = stub_x[3];
     Y[1] = stub_y[3];
     X[2] = stub_x[0];
     Y[2] = stub_y[0];
-    setPt(pSet, X, Y);
+    computePt(pSet, X, Y, corr);
     return;
   }
-  if( _label == string("Zo-2-0") && flagMatch[3] && flagMatch[0] ) {
+  if( _label == string("Mu_2_1") && flagMatch[2] && flagMatch[1] ) {
+    X[1] = stub_x[2];
+    Y[1] = stub_y[2];
+    X[2] = stub_x[1];
+    Y[2] = stub_y[1];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("Mu_2_0") && flagMatch[2] && flagMatch[0] ) {
     X[1] = stub_x[2];
     Y[1] = stub_y[2];
     X[2] = stub_x[0];
     Y[2] = stub_y[0];
-    setPt(pSet, X, Y);
+    computePt(pSet, X, Y, corr);
     return;
   }
-  if( _label == string("Zo-0-V") && flagMatch[0] ) {
+  if( _label == string("Mu_1_0") && flagMatch[1] && flagMatch[0] ) {
+    X[1] = stub_x[1];
+    Y[1] = stub_y[1];
+    X[2] = stub_x[0];
+    Y[2] = stub_y[0];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("Mu_9_V") && flagMatch[5] ) {
+    X[1] = stub_x[5];
+    Y[1] = stub_y[5];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  /*
+  if( _label == string("Mu_5_V") && flagMatch[0] ) {
+    X[1] = stub_x[5];
+    Y[1] = stub_y[5];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  */
+  if( _label == string("Mu_3_V") && flagMatch[3] ) {
+    X[1] = stub_x[3];
+    Y[1] = stub_y[3];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("Mu_2_V") && flagMatch[2] ) {
+    X[1] = stub_x[2];
+    Y[1] = stub_y[2];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("Mu_1_V") && flagMatch[1] ) {
+    X[1] = stub_x[1];
+    Y[1] = stub_y[1];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("Mu_0_V") && flagMatch[0] ) {
     X[1] = stub_x[0];
     Y[1] = stub_y[0];
     X[2] = 0.;
     Y[2] = 0.;
-    setPt(pSet, X, Y);
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("IMu_9_0") && flagMatch[5] && flagMatch[0] ) {
+    X[1] = stub_x[5];
+    Y[1] = stub_y[5];
+    X[2] = stub_x[0];
+    Y[2] = stub_y[0];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  /*
+  if( _label == string("IMu_5_0") && flagMatch[5] && flagMatch[0] ) {
+    X[1] = stub_x[5];
+    Y[1] = stub_y[5];
+    X[2] = stub_x[0];
+    Y[2] = stub_y[0];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  */
+  if( _label == string("IMu_3_2") && flagMatch[3] && flagMatch[2] ) {
+    X[1] = stub_x[3];
+    Y[1] = stub_y[3];
+    X[2] = stub_x[2];
+    Y[2] = stub_y[2];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("IMu_3_1") && flagMatch[3] && flagMatch[1] ) {
+    X[1] = stub_x[3];
+    Y[1] = stub_y[3];
+    X[2] = stub_x[1];
+    Y[2] = stub_y[1];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("IMu_3_0") && flagMatch[3] && flagMatch[0] ) {
+    X[1] = stub_x[3];
+    Y[1] = stub_y[3];
+    X[2] = stub_x[0];
+    Y[2] = stub_y[0];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("IMu_2_1") && flagMatch[3] && flagMatch[1] ) {
+    X[1] = stub_x[2];
+    Y[1] = stub_y[2];
+    X[2] = stub_x[1];
+    Y[2] = stub_y[1];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("IMu_2_0") && flagMatch[3] && flagMatch[0] ) {
+    X[1] = stub_x[2];
+    Y[1] = stub_y[2];
+    X[2] = stub_x[0];
+    Y[2] = stub_y[0];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("IMu_1_0") && flagMatch[3] && flagMatch[0] ) {
+    X[1] = stub_x[1];
+    Y[1] = stub_y[1];
+    X[2] = stub_x[0];
+    Y[2] = stub_y[0];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("IMu_9_V") && flagMatch[5] ) {
+    X[1] = stub_x[5];
+    Y[1] = stub_y[5];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  /*
+  if( _label == string("IMu_5_V") && flagMatch[0] ) {
+    X[1] = stub_x[5];
+    Y[1] = stub_y[5];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  */
+  if( _label == string("IMu_3_V") && flagMatch[3] ) {
+    X[1] = stub_x[3];
+    Y[1] = stub_y[3];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("IMu_2_V") && flagMatch[2] ) {
+    X[1] = stub_x[2];
+    Y[1] = stub_y[2];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("IMu_1_V") && flagMatch[1] ) {
+    X[1] = stub_x[1];
+    Y[1] = stub_y[1];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("IMu_0_V") && flagMatch[0] ) {
+    X[1] = stub_x[0];
+    Y[1] = stub_y[0];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("mu_9_0") && flagMatch[5] && flagMatch[0] ) {
+    X[1] = stub_x[5];
+    Y[1] = stub_y[5];
+    X[2] = stub_x[0];
+    Y[2] = stub_y[0];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  /*
+  if( _label == string("mu_5_0") && flagMatch[5] && flagMatch[0] ) {
+    X[1] = stub_x[5];
+    Y[1] = stub_y[5];
+    X[2] = stub_x[0];
+    Y[2] = stub_y[0];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  */
+  if( _label == string("mu_3_2") && flagMatch[3] && flagMatch[2] ) {
+    X[1] = stub_x[3];
+    Y[1] = stub_y[3];
+    X[2] = stub_x[2];
+    Y[2] = stub_y[2];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("mu_3_1") && flagMatch[3] && flagMatch[1] ) {
+    X[1] = stub_x[3];
+    Y[1] = stub_y[3];
+    X[2] = stub_x[1];
+    Y[2] = stub_y[1];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("mu_3_0") && flagMatch[3] && flagMatch[0] ) {
+    X[1] = stub_x[3];
+    Y[1] = stub_y[3];
+    X[2] = stub_x[0];
+    Y[2] = stub_y[0];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("mu_2_1") && flagMatch[2] && flagMatch[1] ) {
+    X[1] = stub_x[2];
+    Y[1] = stub_y[2];
+    X[2] = stub_x[1];
+    Y[2] = stub_y[1];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("mu_2_0") && flagMatch[2] && flagMatch[0] ) {
+    X[1] = stub_x[2];
+    Y[1] = stub_y[2];
+    X[2] = stub_x[0];
+    Y[2] = stub_y[0];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("mu_1_0") && flagMatch[1] && flagMatch[0] ) {
+    X[1] = stub_x[1];
+    Y[1] = stub_y[1];
+    X[2] = stub_x[0];
+    Y[2] = stub_y[0];
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("mu_9_V") && flagMatch[5] ) {
+    X[1] = stub_x[5];
+    Y[1] = stub_y[5];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  /*
+  if( _label == string("mu_5_V") && flagMatch[0] ) {
+    X[1] = stub_x[5];
+    Y[1] = stub_y[5];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  */
+  if( _label == string("mu_3_V") && flagMatch[3] ) {
+    X[1] = stub_x[3];
+    Y[1] = stub_y[3];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("mu_2_V") && flagMatch[2] ) {
+    X[1] = stub_x[2];
+    Y[1] = stub_y[2];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("mu_1_V") && flagMatch[2] ) {
+    X[1] = stub_x[1];
+    Y[1] = stub_y[1];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+  if( _label == string("mu_0_V") && flagMatch[0] ) {
+    X[1] = stub_x[0];
+    Y[1] = stub_y[0];
+    X[2] = 0.;
+    Y[2] = 0.;
+    computePt(pSet, X, Y, corr);
+    return;
+  }
+}
+
+
+
+DTStubMatchPt::DTStubMatchPt(string const s, int station,
+			     const edm::ParameterSet& pSet, 
+			     const float vstub_rho, const float vstub_phi,
+			     const GlobalVector stub_position[],
+			     bool const flagMatch[]):
+  _label(s)  
+{ 
+  /* 
+  float corr = 0.0;
+  //if(_label[0] == 'I') corr = 0.156; 
+  //else if(_label[0] == 'M') corr = 0.05;
+
+  GlobalVector P[2];
+
+  _Rb = _invRb = _Pt = _invPt = NAN; 
+  _alpha0 = _d = NAN;
+
+  if(isnan(vstub_rho) || isnan(vstub_phi)) 
+    return;
+  
+  if( _label == string("newestIMu_2_0") && flagMatch[2] && flagMatch[0] ) {
+    P[1] = stub_position[2];
+    P[0] = stub_position[0];
+    computePt(pSet,  vstub_rho, vstub_phi, P,corr);
+    return;
+  }
+  if( _label == string("newestIMu_3_0") && flagMatch[3] && flagMatch[0] ) {
+    P[1] = stub_position[3];
+    P[0] = stub_position[0];
+    computePt(pSet, vstub_rho, vstub_phi, P, corr);
+    return;
+  }
+ 
+  if( _label == string("newestIMu_3_V") && flagMatch[3] ) {
+    P[1] = stub_position[3];
+    P[0] = GlobalVector();
+    computePt(pSet, vstub_rho, vstub_phi, P, corr);
+    return;
+  }
+  if( _label == string("newestIMu_2_V") && flagMatch[3] ) {
+    P[1] = stub_position[2];
+    P[0] = GlobalVector();
+    computePt(pSet, vstub_rho, vstub_phi, P, corr);
+    return;
+  }
+  if( _label == string("newestIMu_1_V") && flagMatch[3] ) {
+    P[1] = stub_position[1];
+    P[0] = GlobalVector();
+    computePt(pSet, vstub_rho, vstub_phi, P, corr);
+    return;
+  }
+  if( _label == string("newestIMu_0_V") && flagMatch[0] ) {
+    P[1] = stub_position[0];
+    P[0] = GlobalVector();
+    computePt(pSet, vstub_rho, vstub_phi, P, corr);
     return;
   }
   */
@@ -435,34 +862,21 @@ DTStubMatchPt::DTStubMatchPt(string const s, int station,
 
 
 
-
-/**************************************************************************
-   Only DT muons
-***************************************************************************/
-
-DTStubMatchPt::DTStubMatchPt(int station,
+// using linear fit of stub dephi vs invPt
+DTStubMatchPt::DTStubMatchPt(std::string const s, 
+			     const float slope, const float dephi_zero,
+			     const int I, const int J, const float dephi, 
 			     const edm::ParameterSet& pSet, 
-			     float const bendingDT, float const Rb) 
-{
-  float corr = 0.0; //0.06;
-  _invRb = _Rb = _Pt = _invPt = NAN;
-
-  float min_invRb = pSet.getUntrackedParameter<double>("min_invRb");
-  float max_invRb = pSet.getUntrackedParameter<double>("max_invRb");
-
-  if( isnan(Rb) )
+			     bool const flagMatch[]):
+  _label(s) { 
+  _Rb = _invRb = NAN;
+  _Pt = _invPt = NAN;
+  _alpha0 = _d = NAN;
+  if( isnan(dephi) || isnan(dephi_zero) ) //|| dephi < 0.0015 ) 
     return;
-  _Rb = Rb;
-  _invRb = 1./Rb; 
-  if( _invRb < min_invRb || _invRb > max_invRb ) {
-    _Rb = _invRb = NAN;
-    return;
+  if( flagMatch[I] && flagMatch[J] && !isnan(slope) ) {
+    _invPt = (dephi - dephi_zero)/slope;
+    _Pt = slope/(dephi - dephi_zero);
   }
-
-  _Pt = 0.003 * Rb * 3.8;
-  _Pt += corr * _Pt;
-  _invPt = 1./_Pt;
-
   return;
-} 
-
+}

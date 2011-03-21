@@ -1,51 +1,146 @@
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatchesCollection.h"
 #include "SimDataFormats/SLHC/interface/DTStubMatchesCollection.h"
 
 
 using namespace std;
 
-// 090320 SV get closest stub 
-TrackerStub* DTStubMatchesCollection::getClosestStub(int phi, int theta, int lay) const
-{
-  int distMin = 1000;
-  TrackerStub* stubMin = new TrackerStub(); //_stubs[0]; (Ignazio)
 
+//090112 PLZ count stubs in matching window
+int DTStubMatchesCollection::nstubsInWindow (int phi, int theta, 
+					     int sdtphi, int sdttheta, 
+					     int lay) const
+{
+  int nstubs = 0;
+  float nsigmas = 3 ;
+  int phimax = static_cast<int>(2*TMath::Pi()*4096.);
   for(unsigned int s = 0; s<_stubs.size(); s++)
     {
-      /* 
-	 int phitk = _stubs[s]->phi()*4096;
-	 int thetatk = _stubs[s]->theta()*4096;	
-	 cout 	<< "stub : phi " << phitk << " theta " << thetatk
-	 << " deltaPhi " << (phi-phitk) << " deltaTheta " << (theta - thetatk)
-	 << " layer " << _stubs[s]->layer() << endl; 
-      */		 
-      // Ignazio 091116 adopting our_to_tracker_lay_Id converter
-      if( _stubs[s]->layer() == our_to_tracker_lay_Id(lay) )
+      // adopting our_to_tracker_lay_Id converter
+      if( _stubs[s]->layer() == our_to_tracker_lay_Id(lay) && _stubs[s]-> PTflag() )
 	{ 
 	  int phitk = static_cast<int>(_stubs[s]->phi()*4096.);
-	  /*
-	    int thetatk = static_cast<int>(_stubs[s]->theta()*4096.);	
-	    float dist = 
-	    sqrt( (phi-phitk)*(phi-phitk) + (theta - thetatk)*(theta - thetatk) );
-	  */
-	  int dist = abs(static_cast<int>(phi)-phitk);
-	  /*
-	    cout << "stub : phi " << phitk << " theta " << thetatk
-	    << " deltaPhi " << (phi-phitk) << " deltaTheta " << (theta - thetatk)
-	    << " layer " << _stubs[s]->layer() << " dist " << dist << endl;  
-	  */		
-	  if(dist < distMin)
-	    {
-	      distMin = dist;
+	  int thetatk = static_cast<int>(_stubs[s]->theta()*4096.);
+	  
+	  int dist_phi = abs(phi-phitk);
+	  // Reminder: 2pi round window !!!!!
+	  int dist_phi_max = abs(phi+phimax-phitk);
+          int dist_phi_min = abs(phi-phimax-phitk);
+	  if(dist_phi_max < dist_phi) dist_phi = dist_phi_max;
+	  if(dist_phi_min < dist_phi) dist_phi = dist_phi_min;
+	  
+	  int dist_theta = abs(theta-thetatk);
+	  // check if stub is in window	  
+	  float nsphi = 
+	    static_cast<float>(dist_phi)/static_cast<float>(sdtphi);
+	  float nstheta = 
+	    static_cast<float>(dist_theta)/static_cast<float>(sdttheta);
+	  if( nsphi <= nsigmas && nstheta <= nsigmas){		      
+	    nstubs++;
+	  }
+	}
+    }    
+  return nstubs;
+}
+
+
+
+//100513 PLZ : store stubs in matching window
+void DTStubMatchesCollection::getAllStubsInWindow(int phi, int theta, 
+						  int sdtphi,int sdttheta, 
+						  int lay) const
+{
+  
+  int nstubs = 0;
+  TrackerStub* Stubs_in_window[20];
+  int phimax = static_cast<int>(2*TMath::Pi()*4096.);
+  int nsigmas = 3;
+  
+  for(unsigned int s = 0; s<_stubs.size(); s++)
+    {
+      
+      // Ignazio 091116 adopting our_to_tracker_lay_Id converter
+      if( _stubs[s]->layer() == our_to_tracker_lay_Id(lay) && _stubs[s]-> PTflag())
+	{ 
+	  int phitk = static_cast<int>(_stubs[s]->phi()*4096.);
+	  int dist_phi = abs(phi-phitk);
+	  // Reminder: 2pi round window !!!!!
+	  int dist_phi_max = abs(phi+phimax-phitk);
+          int dist_phi_min = abs(phi-phimax-phitk);
+	  if(dist_phi_max < dist_phi) dist_phi = dist_phi_max;
+	  if(dist_phi_min < dist_phi) dist_phi = dist_phi_min;
+	  
+	  int thetatk = static_cast<int>(_stubs[s]->theta()*4096.);
+	  int dist_theta = abs(static_cast<int>(theta)-thetatk);
+	  
+	  if(dist_theta < nsigmas*sdttheta && dist_phi < nsigmas*sdtphi) {          
+	    if (nstubs < 21) Stubs_in_window[nstubs] = _stubs[s]; 
+	    nstubs++;
+	  }
+	}
+    }
+  if(nstubs >20) cout << " Warning: too many stubs in matching window: " << nstubs << endl;
+}
+
+
+
+
+// 090320 SV get closest stub 
+TrackerStub* DTStubMatchesCollection::getClosestStub(int phi, int theta, 
+						     int sdtphi, int sdttheta,
+						     int lay) const
+{
+  int distMin = 10000;
+  int phimax = static_cast<int>(2*TMath::Pi()*4096.);
+  int nsigmas =3;
+  TrackerStub* stubMin = new TrackerStub(); //_stubs[0]; (Ignazio)
+//   cout << "DT   : phi " << phi << " theta " << theta << endl;
+  for(unsigned int s = 0; s<_stubs.size(); s++)
+    {
+
+      if( _stubs[s]->layer() == our_to_tracker_lay_Id(lay))
+      {
+	int phitk = _stubs[s]->phi()*4096;
+	int thetatk = _stubs[s]->theta()*4096;	
+/*	cout 	<< "stub : phi " << phitk << " theta " << thetatk
+	<< " deltaPhi " << (phi-phitk) << " deltaTheta " << (theta - thetatk)
+	<< " layer " << _stubs[s]->layer()
+	<< " PTflag " << _stubs[s]->PTflag() << endl; */
+      
+      // Ignazio 091116 adopting our_to_tracker_lay_Id converter
+      if(_stubs[s]-> PTflag())
+	{ 
+	  int phitk = static_cast<int>(_stubs[s]->phi()*4096.);
+	  int dist_phi = abs(phi-phitk);
+	  // Reminder: 2pi round window !!!!!
+	  int dist_phi_max = abs(phi+phimax-phitk);
+          int dist_phi_min = abs(phi-phimax-phitk);
+	  if(dist_phi_max < dist_phi) dist_phi = dist_phi_max;
+	  if(dist_phi_min < dist_phi) dist_phi = dist_phi_min;
+	  
+	  int thetatk = static_cast<int>(_stubs[s]->theta()*4096.);
+	  int dist_theta = abs(static_cast<int>(theta)-thetatk);
+	  	  
+/*	    float nsphi =  nsigmas*sdtphi;
+	    float nstheta = nsigmas*sdttheta;
+	    cout << " phitk " << phitk << " theta " 
+	    << thetatk << " phi cut " << nsphi << " theta cut " 
+	    << nstheta << endl;*/
+	  
+	  if(dist_theta < nsigmas*sdttheta && dist_phi < nsigmas*sdtphi) {  
+	    if(dist_phi < distMin) {
+	      distMin = dist_phi;
 	      stubMin = _stubs[s];
-	    }	
+	    }
+	  }	
 	  /*  
 	      cout << " dist " << dist << " distMin " << distMin << endl; 
 	  */
 	}
+      }
     }
+    
   return stubMin;
 }
+
 
 
 
@@ -54,7 +149,7 @@ TrackerStub* DTStubMatchesCollection::getClosestPhiStub(int phi, int lay) const
 {
   int distMin = 1000;
   TrackerStub* stubMin = new TrackerStub(); //_stubs[0]; (Ignazio)
-
+  
   for(unsigned int s = 0; s<_stubs.size(); s++)
     {		 
       // Ignazio 091116 adopting our_to_tracker_lay_Id converter
@@ -62,16 +157,15 @@ TrackerStub* DTStubMatchesCollection::getClosestPhiStub(int phi, int lay) const
 	{ 
 	  int phitk = static_cast<int>(_stubs[s]->phi()*4096.);
 	  int dist = abs(static_cast<int>(phi)-phitk);
-/*	  
+	  /*	  
 	    cout << "stub : phi " << phitk // << " theta " << thetatk
 	    << " deltaPhi " << (phi-phitk) //<< " deltaTheta " << (theta - thetatk)
 	    << " layer " << _stubs[s]->layer() << " dist " << dist << endl;  
-*/	  		
-	  if(dist < distMin)
-	    {
-	      distMin = dist;
-	      stubMin = _stubs[s];
-	    }	
+	  */	  		
+	  if(dist < distMin) {
+	    distMin = dist;
+	    stubMin = _stubs[s];
+	  }	
 	  /*  
 	      cout << " dist " << dist << " distMin " << distMin << endl; 
 	  */
@@ -79,6 +173,10 @@ TrackerStub* DTStubMatchesCollection::getClosestPhiStub(int phi, int lay) const
     }
   return stubMin;
 }
+
+
+
+
 // 090320 SV get closest stub - mod PZ 091002
 TrackerStub* DTStubMatchesCollection::getClosestThetaStub(int theta, int lay) const
 {
@@ -98,11 +196,10 @@ TrackerStub* DTStubMatchesCollection::getClosestThetaStub(int theta, int lay) co
 	    << " deltaPhi " << (phi-phitk) << " deltaTheta " << (theta - thetatk)
 	    << " layer " << _stubs[s]->layer() << " dist " << dist << endl;  
 	  */		
-	  if(dist < distMin)
-	    {
-	      distMin = dist;
-	      stubMin = _stubs[s];
-	    }	
+	  if(dist < distMin) {
+	    distMin = dist;
+	    stubMin = _stubs[s];
+	  }	
 	  /*  
 	      cout << " dist " << dist << " distMin " << distMin << endl; 
 	  */
@@ -110,6 +207,10 @@ TrackerStub* DTStubMatchesCollection::getClosestThetaStub(int theta, int lay) co
     }
   return stubMin;
 }
+
+
+
+
 
 // 090320 SV get closest stub - mod PZ 091002
 TrackerStub* DTStubMatchesCollection::getStub(int lay) const
@@ -125,6 +226,7 @@ TrackerStub* DTStubMatchesCollection::getStub(int lay) const
     
   return stub;
 }
+
 
 
 // 090320 SV get closest stub - mod PZ 091002
@@ -276,114 +378,114 @@ void DTStubMatchesCollection::eraseDTStubMatch(int dm)
   
 void DTStubMatchesCollection::removeRedundantDTStubMatch() 
 {
-  cout << " \n\n*** DTStubMatchesCollection::removeRedundantDTStubMatch " << endl;
+  // cout << " \n\n*** DTStubMatchesCollection::removeRedundantDTStubMatch " << endl;
   // SV 090428 Redundant DTStubMatch cancellation 
-  // choose one layer for extrapolation
+  // choose one layer for extrapolation (central layer for the time being)
   int lay = 2; 
-  /*
-    cout << "BEFORE CANCELLATION: Num DTStubMatch " << numDt() << endl;
-    for(int dm = 0; dm < numDt(); dm++){
-    cout << "N. " << dm << "  ";
-    dtmatch(dm)->print();
-    } 
-  */  
+  int nsigma_cut = 3;
+  
   // find II tracks in SAME station SAME sector SAME bx and remove single L in anycase
   for (int dmI = 0; dmI < numDt(); dmI++) {
-    if( dtmatch(dmI)->flagReject()==false ){
+    if( dtmatch(dmI)->flagReject() == false ) {
       // record mb I track station, sector and bx
       int stationI = dtmatch(dmI)->station();
       int bxI = dtmatch(dmI)->bx();
-      int sectorI = dtmatch(dmI)->sector();
-      
-      for (int dmII = 0; dmII < numDt(); dmII++) {
+      int sectorI = dtmatch(dmI)->sector();      
+      // for (int dmII = 0; dmII < numDt(); dmII++) {
+      for (int dmII=(dmI+1); dmII < numDt(); dmII++) {  // Ignazio
 	if( dtmatch(dmII)->station() == stationI
 	    && dtmatch(dmII)->bx() == bxI
 	    && dtmatch(dmII)->sector() == sectorI
-	    && dmI != dmII
-	    && dtmatch(dmII)->flagReject()==false 
+	    //&& dmI != dmII                            // Ignazio
+	    && dtmatch(dmII)->flagReject() == false 
 	    && dtmatch(dmII)->code()<=7 )
 	  dtmatch(dmII)->setRejection(true);
       }
     }
   }// end L II track rejection 
   
-  // collect mb1 and mb2 DTStubMatch at same bx and sector and compare phi, phib 
+  // collect mb1 and mb2 DTStubMatch at same bx in same sector and compare phi, phib 
   for (int dm1 = 0; dm1 < numDt(); dm1++) {
-    if( dtmatch(dm1)->station()==1 
-	&& dtmatch(dm1)->flagReject()==false ){
+    if( dtmatch(dm1)->station() == 1                 // dm1 --> station1
+	&& dtmatch(dm1)->flagReject() == false ) {
       // record mb1 track sector and bx
       int bx1 = dtmatch(dm1)->bx();
       int sector1 = dtmatch(dm1)->sector();      
-      // find tracks in mb2 SAME sector SAME bx
+      // find tracks in mb2: SAME sector SAME bx
       for (int dm2 = 0; dm2 < numDt(); dm2++) {
-	if( dtmatch(dm2)->station()==2
-	    && dtmatch(dm2)->flagReject()==false 
+	if( dtmatch(dm2)->station() == 2             // dm2 --> station2
+	    && dtmatch(dm2)->flagReject() == false 
 	    && dtmatch(dm2)->bx() == bx1
 	    && dtmatch(dm2)->sector() == sector1 ) {
-	  float phi1 = static_cast<float>(dtmatch(dm1)->predPhi(lay)/4096.);
-	  float phi2 = static_cast<float>(dtmatch(dm2)->predPhi(lay)/4096.);
+	  // get quantities to compare					
+	  int phi1 = dtmatch(dm1)->predPhi(lay);
+	  int phi2 = dtmatch(dm2)->predPhi(lay);
 	  
-	  float phib1 = static_cast<float>(dtmatch(dm1)->phib_ts()/512.);
-	  float phib2 = static_cast<float>(dtmatch(dm2)->phib_ts()/512.);	  
-	  /*
-	    cout << "COMPARING ..." << endl;
-	    dtmatch(dm1)->print();
-	    cout << "WITH... " << endl;
-	    dtmatch(dm2)->print();
-	    cout << "DeltaPhi " << fabs(phi1 - phi2) 
-	    << " DeltaPhiB " << fabs(phib1 - phib2) << endl;
-	  */
+	  int theta1 = dtmatch(dm1)->predTheta();
+	  int theta2 = dtmatch(dm2)->predTheta();
+	  
+	  float phib1 = static_cast<float>(dtmatch(dm1)->phib_ts());
+	  float phib2 = static_cast<float>(dtmatch(dm2)->phib_ts());
+	  
+	  // needing a small correction in phi predicted (extrapolation precision?)
+	  // correction in phib due to field between ST1 and ST2
+	  int dphicor = static_cast<int>(-0.0097*phib1*phib1+1.0769*phib1+4.2324);
+	  int dphibcor = static_cast<int>(0.3442*phib1);
+ 	  
+	  int dphi = abs(phi1-phi2)-dphicor;	
+	  int dtheta = abs(theta1-theta2);	
+	  int dphib = static_cast<int>(fabs(phib1-phib2))-dphibcor;	  
+	  // tolerances parameterization
+	  int sigma_phi =static_cast<int>(0.006*phib1*phib1+0.4821*phib1+37.64);
+	  int sigma_phib =static_cast<int>(0.0005*phib1*phib1+0.01211*phib1+3.4125);
+	  int sigma_theta = 100;
+	  
 	  // remove redundant DTStubMatch: for the moment keep the one with higher quality
-	  // remove if inside tolerance and if L in anycase
-	  float mean_sigma_phi = 0.05;	// chosen with layer 2
-	  float mean_sigma_phib = 0.05;	
-	  if((fabs(phi1 - phi2) < (3.*mean_sigma_phi)  &&  
-	      fabs(phib1 - phib2) < (3.*mean_sigma_phib))
-	     ||
-	     (dtmatch(dm2)->code()<=7 || dtmatch(dm1)->code()<=7 )  ) {
-	    int dmc = -1;
+	  // remove if inside all tolerances
+	  if((dphi < (nsigma_cut*sigma_phi)  &&  
+	      dphib < (nsigma_cut*sigma_phib) && 
+	      dtheta < (nsigma_cut*sigma_theta))  ) {
 	    if( dtmatch(dm2)->code() <= dtmatch(dm1)->code() ) {
 	      //eraseDTStubMatch(dm2);
 	      dtmatch(dm2)->setRejection(true);
-	      dmc = dm2;
+	      //	    cout << "DTStubMatch " << dm2 << " set Rejected ! " << endl;
 	    }
-	    else{
+	    else {
 	      //eraseDTStubMatch(dm1);
 	      dtmatch(dm1)->setRejection(true);
-	      dmc = dm1;
+	      //	    cout << "DTStubMatch " << dm1 << " set Rejected ! " << endl;
 	    }	    
-	    cout << "DTStubMatch " << dmc << " set Rejected ! " << endl;
 	  }		
 	} //end mb2 selection 
       } //end mb2 loop
     } //end mb1 selection 
   } //end mb1 loop
   
-  /* 
-     cout << "AFTER CANCELLATION FLAG: Num DTStubMatch " << numDt() << endl;
-     for(int dm = 0; dm < numDt(); dm++){
-     cout << "N. " << dm << "  ";
-     dtmatch(dm)->print();
-     }
-  */
+  /*
+    cout << "AFTER CANCELLATION FLAG: Num DTStubMatch " << numDt() << endl;
+    for(int dm = 0; dm < numDt(); dm++){
+    dtmatch(dm)->print();
+    }*/
+  
   /* 
      ATTENTION: erase change pointers!! FIX
      for(int dm = 0; dm < numDt(); dm++)
      if(dtmatch(dm)->flagReject()==true){
      eraseDTStubMatch(dm);	
      break;
-    }
-    cout << "AFTER CANCELLATION: Num DTStubMatch " << numDt() << endl;
-    for(int dm = 0; dm < numDt(); dm++){
-    cout << "N. " << dm << "  ";
-    dtmatch(dm)->print();
-    }
-    
+     }
+     cout << "AFTER CANCELLATION: Num DTStubMatch " << numDt() << endl;
+     for(int dm = 0; dm < numDt(); dm++){
+     cout << "N. " << dm << "  ";
+     dtmatch(dm)->print();
+     }
   */
   return;
 }
 
 //end
+
+
 
 
 
@@ -452,6 +554,8 @@ void DTStubMatchesCollection::addDT(const DTBtiTrigger& bti,
 
   return; 
 }
+
+
 
 
 /*

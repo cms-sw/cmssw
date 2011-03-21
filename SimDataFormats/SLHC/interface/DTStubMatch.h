@@ -26,34 +26,33 @@
 
 #include <TMath.h>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"                 //Ignazio
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"           //Ignazio
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"          //Ignazio
+#include "FWCore/ParameterSet/interface/ParameterSet.h"            //Ignazio
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"      //Ignazio
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"     //Ignazio
 
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTTrackerStub.h" //Ignazio
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatchPt.h" //Ignazio
-#include "SimDataFormats/SLHC/interface/DTTrackerStub.h"    //Ignazio
-#include "SimDataFormats/SLHC/interface/DTStubMatchPt.h"    //Ignazio
+#include "SimDataFormats/SLHC/interface/DTTrackerStub.h"           //Ignazio
+#include "SimDataFormats/SLHC/interface/DTStubMatchPtVariety.h"    //Ignazio
+#include "SimDataFormats/SLHC/interface/DTStubMatchPtAlgorithms.h" //Ignazio
 
+#include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
 
+  
 using namespace std;
 
-
-const int StackedLayersInUseTotal = 6;
-
-const int StackedLayersInUse[] = {0, 1, 2, 3, 8, 9};
-
-int const our_to_tracker_lay_Id(int const l);
-
-int const tracker_lay_Id_to_our(int const l);
-
-static int const LENGTH = StackedLayersInUseTotal;
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTStubMatch {
+
+static size_t const RTSdataSize(16);
+
+
+class DTStubMatch: public DTStubMatchPtAlgorithms 
+{
+
+  // 6.5.2010 PLZ : to use Stacked Tracker PTFlag 
+  typedef GlobalStub<Ref_PixelDigi_>  GlobalStubRefType;
 
  public:
   
@@ -74,9 +73,14 @@ class DTStubMatch {
   // copy constructor
   DTStubMatch(const DTStubMatch& dtsm);
 
+  // assignment operator
+  DTStubMatch& operator =(const DTStubMatch& dtsm);
+
   // destructor
   ~DTStubMatch(){ } 
   
+  void to_get_pt() {}
+
   //return functions
   inline int 	wheel() 		const { return _wheel; }
   inline int	station()		const { return _station; }
@@ -86,51 +90,53 @@ class DTStubMatch {
   inline int 	phi_ts()		const { return _phi_ts; }
   inline int 	phib_ts()		const { return _phib_ts; }
   inline int 	theta_ts()		const { return _theta_ts; }
+  inline float  gunFiredSingleMuPt()    const { return _GunFiredSingleMuPt; }
   inline float 	phi_glo()               const
     { 
       float phiCMS = static_cast<float>(_phi_ts)/4096.+(_sector-1)*TMath::Pi()/6.;
-      if(phiCMS < 0.)
+      if(phiCMS <= 0.)
 	phiCMS += 2. * TMath::Pi();
       if(phiCMS > 2*TMath::Pi())
 	phiCMS -= 2 * TMath::Pi();
       return phiCMS;
     }
+
   inline float 	phib_glo()              const
     { 
       return static_cast<float>(_phib_ts)/512.;                          	// 9 bits
     }
-  inline float 	bendingDT()             const { return _bendingDT; }            // 9 bits
 
-  inline GlobalPoint  position()        const { return _position; }
-  inline GlobalVector direction()       const { return _direction; }
-  inline float 	alphaDT()	        const { return _alphaDT; }
-  inline float 	sqrtDiscrim()	        const { return _sqrtDscrm; }
-  inline float  Xerre()	                const { return _Xerre; }
-  inline float  Yerre()                 const { return _Yerre; }
-  inline float  XerreI()	        const { return _XerreI; }
-  inline float  YerreI()                const { return _YerreI; }
-  inline float  xerre()	                const { return _xerre; }
-  inline float  yerre()                 const { return _yerre; }
-  inline float  erre()                  const { return _erre; }
-  inline float  erresq()                const { return _erresq; }
-  inline float  rhoDT()                 const { return _rhoDT; }
-  inline float  phiCMS()                const { return _phiCMS; }
-  inline float 	thetaCMS() 		const { return _thetaCMS; }
-  inline float  eta()                   const { return _eta; }
   inline bool 	flagBxOK() 		const { return _flagBxOK; }
-  inline int    trig_order()		const { return _trig_order; }			
+  inline int    trig_order()		const { return _trig_order; }           // PLZ 
+  inline float  Pt_value()		const { return _Pt_value; }             // PLZ
+  inline float  Pt_bin()		const { return _Pt_bin; }               // PLZ  
   inline int    predPhi(int lay)	const { return _pred_phi[lay]; }	// 12 bits
   inline int  	predSigmaPhi(int lay)	const { return _pred_sigma_phi[lay]; }	// 12 bits
-  inline int  	predTheta()		const { return _pred_theta; }		// 12 bits
+  inline int  	predTheta()	        const { return _pred_theta; }   	// 12 bits
   inline int  	predSigmaTheta(int lay) const { return _pred_sigma_theta[lay]; }// 12 bits
   inline float  predSigmaPhiB()		const { return _pred_sigma_phib; }	// 12 bits
   inline int  	stubPhi(int lay)	const { return _stub_phi[lay]; }
+  inline float  stubDePhi(int lay)      const { return _stub_dephi[lay]; }
   inline int  	stubTheta(int lay)	const { return _stub_theta[lay]; }
   inline bool   isMatched(int lay)	const { return _flagMatch[lay]; }
   inline bool   flagReject()		const { return _flag_reject; }
+  inline bool   flagPt()		const { return _flagPt; }                // PLZ 
+  inline bool   flagTheta()		const { return _flag_theta; }            // PLZ 
+  inline int    deltaTheta()		const { return _delta_theta; }           // PLZ
+  
 
-  float const Pt(std::string const label) const; 
- 
+  inline void setGunFiredSingleMuPt(const float Pt) {
+    _GunFiredSingleMuPt = Pt;
+  }
+
+  //set theta existence flag
+  inline void setTheta(float deltatheta)
+    { 
+      _flag_theta = false; 
+      _delta_theta = static_cast<int>(deltatheta*4096./3.); 
+      return; 
+    }
+
   //set rejection flag
   inline void setRejection(bool flag)
     { 
@@ -186,31 +192,7 @@ class DTStubMatch {
   }
 
   void setMatchStub(int lay, int phi, int theta, 
-		    GlobalVector position, GlobalVector direction) { 
-    // Ignazio
-    _stub_phi[lay]   = phi;
-    _stub_theta[lay] = theta; 
-    float length = 
-      position.x()*position.x()+ 
-      position.y()*position.y()+ 
-      position.z()*position.z();
-    if( length == 0. ) {
-      _stub_rho[lay] = NAN;
-      _stub_x[lay]   = NAN;
-      _stub_y[lay]   = NAN;
-      _stub_z[lay]   = NAN;
-    }
-    else {
-    _stub_x[lay] = position.x();
-    _stub_y[lay] = position.y();
-    _stub_z[lay] = position.z();
-    _stub_rho[lay] = 
-      float(sqrt(position.x()*position.x() + position.y()*position.y()));
-    }
-    _stub_direction[lay] = direction;
-    _flagMatch[lay] = true; 
-    return; 
-  }
+		    GlobalVector position, GlobalVector direction);   // Ignazio
 
   inline void setMatchStubPhi(int lay, int phi)	 { 	
     _stub_phi[lay] = phi; 
@@ -218,20 +200,39 @@ class DTStubMatch {
     return; 
   } 
 
+
   inline void setMatchStubTheta(int lay, int theta) {
     _stub_theta[lay] = theta; 
     _flagMatch[lay] = true; 
     return; 
   } 
 
+  //set Pt value from priority encoder (PLZ; Ignazio modifications)
+  void choosePtValue();
+  std::string writePhiStubToPredictedDistance() const;
+  void assignPtBin();
+
+  //set Pt value from priority encoder (PLZ)
+  inline void setPtValue(float invPt_value) { 
+    _Pt_value = 1./invPt_value; 
+    _flagPt = true;
+    return; 
+  } 
+
+  //assign Pt bin after priority encoder choice  (PLZ)
+  inline void setPtBin(float Pt_bin) { 
+    _Pt_bin = Pt_bin; 
+    return; 
+  }
+
   void extrapolateToTrackerLayer(int l);
+
+  size_t matching_stubs_No()  const { return _matching_stubs_No; }    // Ignazio
 
   // SV 090505 correlate phib and error in station 1 to phib in station 2, 
   // for track rejection
   int corrPhiBend1ToCh2(int phib2);
   int corrSigmaPhiBend1ToCh2(int phib2, int sigma_phib2);
-
-  void setPt(const edm::ParameterSet& pSet);
 
   // debug functions
   void print();  
@@ -242,19 +243,30 @@ class DTStubMatch {
   // debug flags
   bool _debug_dttrackmatch;
 
+  void setRTSdata(size_t i, short datum) { _RTSdata[i] = datum; }
+  int  RTSdata(size_t i) const { 
+    if( i < RTSdataSize ) 
+      return _RTSdata[i];
+    else {
+      cerr << "error: RTSdataSize exceeded" << endl; 
+      return 9999; 
+    }
+  }
 
  private:
   
   void init();
+
+  float _GunFiredSingleMuPt;
   
-  int   _wheel, _station, _sector, _bx, _code;
+  //  int   _wheel, _station, _sector, _bx, _code;
   int   _phi_ts, _phib_ts; 
-  float _rhoDT, _phiCMS, _bendingDT;
-  float _erre, _erresq;
   int   _theta_ts;
-  float _thetaCMS, _eta;
   bool  _flagBxOK; 
   int   _trig_order;
+  float _Pt_value;    // PLZ
+  bool  _flagPt;      // PLZ
+  float _Pt_bin;      // PLZ
   
   // predicted phi, theta, sigma_phi, sigma_theta, sigma_phib in tracker layers 
   // (NB wheel dependent!)
@@ -264,93 +276,21 @@ class DTStubMatch {
   int   _pred_sigma_theta[LENGTH];
   float _pred_sigma_phib;
   
-  // matched tracker stub phi and theta 
-  int _stub_phi[LENGTH];
-  int _stub_theta[LENGTH];
-  // we have a match with tracker stub
-  bool _flagMatch[LENGTH];
+  // Set of matching stacked tracker stubs, used to get the Pt: for each tracker 
+  // layer we take the stub which is the closest to a "predicted" position, out from 
+  // those included in a suitable window around this "predicted" position.
+  // Different DTStubMatch objects sharing at least three matching stubs are
+  // assumed to belong to the same muon: such shared stubs are obtained by set
+  // intersection of their matching stubs. 
+  std::set<TrackerStub*, lt_stub> _matching_stubs;        // Ignazio
 
-
-  // Ignazio begin ***
-  GlobalPoint  _position;      
-  GlobalVector _direction; 
-
-  float _stub_x[LENGTH], _stub_y[LENGTH], _stub_z[LENGTH],  _stub_rho[LENGTH];  // Ignazio 
-  GlobalVector _stub_direction[LENGTH];
-
-  DTStubMatchPt Stubs_5_3_0;
-  DTStubMatchPt Stubs_5_1_0;
-  DTStubMatchPt Stubs_3_2_0;
-  DTStubMatchPt Stubs_3_1_0;
-  DTStubMatchPt Stubs_5_3_V; 
-  DTStubMatchPt Stubs_5_0_V;
-  DTStubMatchPt Stubs_3_0_V;
-  DTStubMatchPt Mu_5_0;
-  DTStubMatchPt Mu_3_0;
-  DTStubMatchPt Mu_2_0; 
-  DTStubMatchPt Mu_1_0; 
-  DTStubMatchPt Mu_5_V;
-  DTStubMatchPt Mu_3_V;
-  DTStubMatchPt Mu_2_V;
-  DTStubMatchPt Mu_1_V;
-  DTStubMatchPt Mu_0_V;
-  DTStubMatchPt IMu_5_0;
-  DTStubMatchPt IMu_3_0;
-  DTStubMatchPt IMu_2_0; 
-  DTStubMatchPt IMu_1_0; 
-  DTStubMatchPt IMu_5_V;
-  DTStubMatchPt IMu_3_V;
-  DTStubMatchPt IMu_2_V;
-  DTStubMatchPt IMu_1_V;
-  DTStubMatchPt IMu_0_V;
-  DTStubMatchPt mu_5_0;
-  DTStubMatchPt mu_3_0;  
-  DTStubMatchPt mu_2_0;
-  DTStubMatchPt mu_1_0;
-  DTStubMatchPt mu_5_V;
-  DTStubMatchPt mu_3_V;
-  DTStubMatchPt mu_2_V;
-  DTStubMatchPt mu_1_V;
-  DTStubMatchPt mu_0_V;
-  DTStubMatchPt only_Mu_V; 
-
-  float  _alphaDT;  // tan(_alpha) is the angular coefficient of the muon trajectory 
-                    // outside the inner surface of the CMS superconducting coil,  
-                    // assuming that trajectory to be linear. 
-  // Say double delta   = _phiCMS - _alphaDT; then:
-  float _sqrtDscrm;    // sqrt(1. - rhoDT*rhoDT*sin(delta)*sin(delta)/(Erre*Erre)).
-  // On the tranverse plane of CMS, (_X,_Y) is the intercept of the muon trajectory 
-  // outside the inner surface of the CMS superconducting coil with that boundary surface.
-  float _xerre, _yerre;
-  float _phiR; 
-  float _Xerre, _Yerre;    // _sqrtDscrm set to 1: it turns to be excellent approximation!
-  float _deltaPhiR, _PhiR;// using deltaPhiR_over_bending  = 1. - _rhoDT/Erre;
-  float _XerreI, _YerreI;
-
-
-  float _deltaPhiR_over_bendingDT;
-
-  float 
-    _deltaPhiR_over_bendingDT_S1, 
-    _deltaPhiR_over_bendingDT_S2;  
-  float 
-    _deltaPhiR_over_bendingDT_S1_0, 
-    _deltaPhiR_over_bendingDT_S1_1,
-    _deltaPhiR_over_bendingDT_S1_2;
-  float
-    _deltaPhiR_over_bendingDT_S2_0,
-    _deltaPhiR_over_bendingDT_S2_1,
-    _deltaPhiR_over_bendingDT_S2_2;
-
-  float _deltaPhiL9_over_bendingDT;
-
-  std::set<TrackerStub*, lt_stub> _matching_stubs; 
-    
-  size_t _matching_stubs_No;
-  //  Ignazio end ****
-  
   // rejection flags for redundancy cancellation
   bool _flag_reject;
+  // flag if theta missing
+  bool _flag_theta;
+  int _delta_theta; 
+
+  short _RTSdata[RTSdataSize]; // data to feed RTSable neural network  (Ignazio)
 
 };
 
@@ -359,10 +299,15 @@ class DTStubMatch {
 typedef std::vector<DTStubMatch*> DTTracklet;
 
 
-/*------------------*
- * a global method  *
- *------------------*/
+/*----------------------------------------------------------------------------*/
+/*                          global methods                                    */
+/*----------------------------------------------------------------------------*/
+
 bool DTStubMatchSortPredicate(const DTStubMatch* d1, const DTStubMatch* d2);
+
+
+ostream& operator <<(ostream &os, const DTStubMatch &obj);
+
 
 #endif
 

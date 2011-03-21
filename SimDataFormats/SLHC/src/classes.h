@@ -97,24 +97,18 @@ namespace {
 #include <vector>
 #include <set>
 
-#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"      
-#include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"     
-#include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"        
-#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"      
-
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTBtiTrigger.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTTSPhiTrigger.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatch.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatchPt.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTTrackerStub.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatchesCollection.h"
-//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTSeededTracklet.h"
-
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
+#include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
+#include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
+#include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"
 
 #include "SimDataFormats/SLHC/interface/DTBtiTrigger.h"
 #include "SimDataFormats/SLHC/interface/DTTSPhiTrigger.h"
+#include "SimDataFormats/SLHC/interface/DTTSThetaTrigger.h"
 #include "SimDataFormats/SLHC/interface/DTStubMatch.h"
 #include "SimDataFormats/SLHC/interface/DTStubMatchPt.h"
+#include "SimDataFormats/SLHC/interface/DTStubMatchPtVariety.h"
+#include "SimDataFormats/SLHC/interface/DTStubMatchPtAlgorithms.h"
 #include "SimDataFormats/SLHC/interface/DTTrackerStub.h"
 #include "SimDataFormats/SLHC/interface/DTStubMatchesCollection.h"
 #include "SimDataFormats/SLHC/interface/DTSeededTracklet.h"
@@ -124,7 +118,6 @@ namespace {
 
 namespace {
   namespace {
-    
     edm::Wrapper<DTBtiTrigger>                   Bti1;
     std::vector<DTBtiTrigger>                    Btv1;
     edm::Wrapper<std::vector<DTBtiTrigger> >     Btc1;
@@ -136,8 +129,6 @@ namespace {
     edm::Wrapper<DTStubMatchPt>                  DTPt1;
     std::vector<DTStubMatchPt>                   DTPtV1;
     edm::Wrapper<std::vector<DTStubMatchPt> >    DTPtW1;
-    DTStubMatchPtVariety                         DTPtc1;
-    edm::Wrapper<DTStubMatchPtVariety>           DTPtcw1;
 
     edm::Wrapper<DTStubMatch>                    DTM1;
     std::vector<DTStubMatch*>                    DTMv1;
@@ -158,6 +149,7 @@ namespace {
     edm::Wrapper<std::vector<DTSeededTracklet*> >  DTTSTa1;
     DTSeededTrackletsCollection                    DTTSTc1;
     edm::Wrapper<DTSeededTrackletsCollection>      DTTSTcw1;
+  
   }
 }
 

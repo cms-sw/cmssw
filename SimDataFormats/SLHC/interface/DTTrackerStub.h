@@ -36,40 +36,32 @@ class TrackerStub {
   // trivial default constructor needed by dictionary building (Ignazio)
   TrackerStub()
     {
-      _id = StackedTrackerDetId();
-      
+      _id = StackedTrackerDetId();     
       _x = NAN;
       _y = NAN;
       _z = NAN;
-      _rho = NAN;
-      
+      _rho = NAN;      
       _phi = NAN;
       _theta = NAN;
-
       _direction = GlobalVector();
-
       _valid = false;  //Ignazio
-      
+      _PTflag = false; //PLZ      
     }
   // default constructor (with "direction" added by Ignazio)
   TrackerStub(StackedTrackerDetId const id, 
               float const x, float const y, float const z, 
-	      GlobalVector const direction, float const phi, float const theta ) 
+	      GlobalVector const direction, float const phi, float const theta, bool PTflag ) 
     {
-      _id = id;
-      
+      _id = id;      
       _x = x;
       _y = y;
       _z = z;
       _rho = sqrt(x*x + y*y);
-
-      _direction = direction;
-      
+      _direction = direction;      
       _phi = phi;
       _theta = theta;
-
-      _valid = true;  //Ignazio
-      
+      _valid = true;  //Ignazio   
+     _PTflag = PTflag;   
     }
 
   // copy constructor (Ignazio)
@@ -82,7 +74,8 @@ class TrackerStub {
     _z = TrSt.z();
     _rho = TrSt.rho();
     _valid = true;     
-    _direction = TrSt.direction();    
+    _direction = TrSt.direction(); 
+    _PTflag = TrSt.PTflag();     
   }
   
   // destructor
@@ -95,11 +88,12 @@ class TrackerStub {
   inline float  z()		  const	{ return _z; }
   inline float  rho()		  const	{ return _rho; }
   inline float 	phi() 		  const	{ return _phi; }
+  inline float 	theta() 	  const	{ return _theta; }
   inline GlobalVector position()  const { return GlobalVector(_x,_y,_z); } //Ignazio
   inline GlobalVector direction() const { return _direction; }             //Ignazio 
-  inline float 	theta() 	  const	{ return _theta; }
   inline int    layer()		  const	{ return _id.layer(); } 
   inline bool   valid()           const { return _valid; }                 //Ignazio
+  inline bool PTflag()            const { return _PTflag;}
 
  private:
   StackedTrackerDetId _id;
@@ -107,6 +101,7 @@ class TrackerStub {
   float _x, _y, _z, _rho;
   bool _valid;
   GlobalVector _direction;                                                 // Ignazio  
+  bool _PTflag;
 };
 
 
@@ -116,6 +111,7 @@ struct lt_stub
     return ( (a->id()).rawId() < (b->id()).rawId() );
   }
 };
+
 
 typedef std::set<TrackerStub*, lt_stub> StubTracklet;
 

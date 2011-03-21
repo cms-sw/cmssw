@@ -98,19 +98,18 @@
 
   <class name="DTStubMatchPt" />
   <class name="edm::Wrapper<DTStubMatchPt>" />
-  <class name="std::vector<DTStubMatchPt>" /> 
+  <class name="std::vector<DTStubMatchPt>" />
   <class name="edm::Wrapper<std::vector<DTStubMatchPt> >" />
   <class name="DTStubMatchPtVariety" />
-  <class name="edm::Wrapper<DTStubMatchPtVariety>" />
+  <class name="DTStubMatchPtAlgorithms" />
 
   <class name="DTStubMatch" />
   <class name="edm::Wrapper<DTStubMatch>" />
-  <class name="std::vector<DTStubMatch*>" /> 
+  <class name="std::vector<DTStubMatch*>" />
   <class name="edm::Wrapper<std::vector<DTStubMatch*> >" />
 
   <class name="DTStubMatchesCollection"/>
   <class name="edm::Wrapper<DTStubMatchesCollection>" />
-
   <class name="TrackerStub" />
   <class name="lt_stub" />
   <class name="edm::Wrapper<TrackerStub>" />
