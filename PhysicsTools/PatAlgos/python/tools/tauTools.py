@@ -237,7 +237,7 @@ def switchToPFTauHPS(process,
     
     ## adapt cleanPatTaus
     getattr(process, "cleanPatTaus" + patTauLabel).preselection = \
-      'pt > 15 & abs(eta) < 2.3 & etatauID("decayModeFinding") > 0.5 & tauID("byLooseIsolation") > 0.5' \
+      'pt > 15 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byLooseIsolation") > 0.5' \
      + ' & tauID("againstMuonTight") > 0.5 & tauID("againstElectronLoose") > 0.5'
 
 # switch to hadron-plus-strip(s) (HPS) PFTau collection
@@ -251,7 +251,7 @@ def switchToPFTauHPSpTaNC(process,
     
     ## adapt cleanPatTaus
     getattr(process, "cleanPatTaus" + patTauLabel).preselection = \
-      'pt > 15 & abs(eta) < 2.3 & tauID("tauID("decayModeFinding") > 0.5 & tauID("byHPSloose") > 0.5' \
+      'pt > 15 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byHPSloose") > 0.5' \
      + ' & tauID("againstMuonTight") > 0.5 & tauID("againstElectronLoose") > 0.5'
 
 # Select switcher by string
