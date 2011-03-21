@@ -113,7 +113,7 @@ FreeTrajectoryState ConversionSeedFinder::trackStateFromClusters( int charge, co
   float theta1 = theSCPosition_.theta();
   float theta2 = atan2(double(theSCPosition_.perp()), theSCPosition_.z()-5.5);
   float dtheta = theta1 - theta2;
-  AlgebraicSymMatrix  m(5,1) ;
+  AlgebraicSymMatrix55 m;
   m[0][0] = 1.; m[1][1] = dpos*dpos ; m[2][2] = dpos*dpos ;
   m[3][3] = dphi*dphi ; m[4][4] = dtheta * dtheta ;
 
