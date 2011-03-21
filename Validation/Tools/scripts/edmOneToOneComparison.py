@@ -80,6 +80,9 @@ if __name__ == "__main__":
                              help="Write out root file for file comparisons")
     optionsGroup.add_option ('--debug', dest='debug', action='store_true',
                              help="Print debugging information")
+    optionsGroup.add_option ('--strictPairing', dest='strictPairing',
+                             action='store_true',
+                             help="Objects are paired uniquely by order in collection")
     optionsGroup.add_option ('--relative', dest='relative',
                              action='store_true', default=True,
                              help='Precision is checked against relative difference')
@@ -141,14 +144,15 @@ if __name__ == "__main__":
                 raise RuntimeError, "Can't process label command '%s'" \
                       % options.label
             GenObject.changeLabel (*pieces)
-    # We don't want to use options beyond the main code, so let thee
+    # We don't want to use options beyond the main code, so let the
     # kitchen sink know what we want
-    GenObject.setGlobalFlag ('printEvent', options.printEvent)
-    GenObject.setGlobalFlag ('debug', options.debug)
-    GenObject.setGlobalFlag ('relative', options.relative)
+    GenObject.setGlobalFlag ('printEvent',    options.printEvent)
+    GenObject.setGlobalFlag ('debug',         options.debug)
+    GenObject.setGlobalFlag ('relative',      options.relative)
+    GenObject.setGlobalFlag ('strictPairing', options.strictPairing)
     if options.blur:
-        GenObject.setGlobalFlag ('blur', options.blur)
-        GenObject.setGlobalFlag ('blurRate', options.blurRate)
+        GenObject.setGlobalFlag ('blur',      options.blur)
+        GenObject.setGlobalFlag ('blurRate',  options.blurRate)
     # take care of any 'double' options now
     if options.tuple:
         options.tuple1 = options.tuple2 = options.tuple
@@ -165,7 +169,7 @@ if __name__ == "__main__":
         problems = \
                  GenObject.compareTwoTrees (chain1, chain2,
                                             diffOutputName = options.compRoot)
-        print "problems"
+        print "Summary"
         pprint.pprint (problems)
     if options.saveAs:
         chain1 = GenObject.prepareTuple (options.tuple1, options.file1,

@@ -1129,7 +1129,8 @@ class GenObject (object):
         firstDict = {}
         secondDict = {}
         # let's see if we're only using 'index' and nothing else
-        if equivList == [('index', 0)]:
+        if GenObject._kitchenSinkDict.get ('strictPairing') or \
+               equivList == [('index', 0)]:
             # we're only matching on index, nothing else matters
             matchedSet = set (zip ( range( min (len1, len2) ),
                                     range( min (len1, len2) ) ) )
@@ -1144,7 +1145,19 @@ class GenObject (object):
                 noMatch2Set = set (range(len1, len2 + 1))
             else:
                 noMatch2Set = set()
-            return matchedSet, noMatch1Set, noMatch2Set   
+            return matchedSet, noMatch1Set, noMatch2Set
+        ##  # If we're still here, that means that we aren't matching on
+        ##  # just index.  Instead of jumping to O(N^2), let's assume that
+        ##  # both branches have everything in order and try to pair like
+        ##  # that.  Anything not paired will be checked in a third pass.
+        ##  unpairedFirst  = []
+        ##  unpairedSecond = []
+        ##  for index in xrange( min (len1, len2) ):
+        ##      obj1 = vec1[index1]
+        ##      total = 0.
+        ##      obj2 = vec2[index2]
+        ##      ok = True
+        
         # First, look for vec2 objects that are equivalent to a
         # given vec1 object.
         for index1 in xrange (len1):
@@ -1412,7 +1425,6 @@ class GenObject (object):
                 # the proper items:                
                 for pair in sorted(list(matchedSet)):
                     if diffOutputName:
-                        print "calling with %d and %d" % (pair[1-1], pair[2-1])
                         rootDiffObj = GenObject._rootDiffObject \
                                       ( vec1[ pair[1 - 1] ],
                                         vec2[ pair[2 - 1] ] ) 
