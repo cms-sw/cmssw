@@ -4,6 +4,12 @@ import os, sys, re, time
 
 import random
 from threading import Thread
+
+class MatrixException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return self.msg
         
 class WorkFlowRunner(Thread):
     def __init__(self, wf):
@@ -69,57 +75,51 @@ class WorkFlowRunner(Thread):
         cmd = preamble
 
         inFile = 'file:raw.root'
-        if 'REALDATA' in self.wf.cmdStep1:
-            realDataRe = re.compile('REALDATA:\s*(/[A-Za-z].*?),(\s*RUN:\s*(?P<run>\d+),)?(\s*FILES:\s*(?P<files>\d+),)?(\s*EVENTS:\s*(?P<events>\d+))?,\s*LABEL:\s*(?P<label>.*),\s*LOCATION:\s*(?P<location>.*)\s*')
-            realDataMatch = realDataRe.match(self.wf.cmdStep1)
-            if realDataMatch:
-                run = None
-                if realDataMatch.group("run") : run = realDataMatch.group("run")
-                label  = realDataMatch.group("label")
-                location = realDataMatch.group("location").lower().strip()
-                if 'caf' in location:
-                    print "ignoring workflow ",self.wf.numId, self.wf.nameId, ' as this is on CAF ...'
-                    self.npass = [0,0,0,0]
-                    self.nfail = [0,0,0,0]
-
-                    logStat = 'Step1-NOTRUN Step2-NOTRUN Step3-NOTRUN Step4-NOTRUN ' 
-                    self.report+='%s_%s %s - time %s; exit: %s %s %s %s \n' % (self.wf.numId, self.wf.nameId, logStat, 0, 0,0,0,0)
-                    return
-                
-                files  = None
-                events = None
-                if realDataMatch.group("files"): 
-                  files  = realDataMatch.group("files")
-                if realDataMatch.group("events"): 
-                  events = realDataMatch.group("events")
-                  if self.wf.cmdStep2 and ' -n ' not in self.wf.cmdStep2: self.wf.cmdStep2 += ' -n ' + events
-                  if self.wf.cmdStep3 and ' -n ' not in self.wf.cmdStep3: self.wf.cmdStep3 += ' -n ' + events
-                  if self.wf.cmdStep4 and ' -n ' not in self.wf.cmdStep4: self.wf.cmdStep4 += ' -n ' + events
-
-                print "run, files, events, label", run, files, events, label 
-                cmd += 'dbs search --noheader --url=http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet '
-                cmd += "--query='find file where dataset like "+realDataMatch.group(1)
-                if run: cmd += " and run=" + run
-                cmd += "' "
-                cmd += ' > %s 2>&1; ' % ('step1_'+self.wf.nameId+'-dbsquery.log',)
-                retStep1 = self.doCmd(cmd)
-                if retStep1 == 0:
-                    lf = open(wfDir+'/step1_'+self.wf.nameId+'-dbsquery.log', 'r')
-                    lines = lf.readlines()
-                    lf.close()
-                    if not lines or len(lines)==0 :
-                        inFile = "NoFileFoundInDBS"
-                        retStep1 = -95
-                    else:
-                        try:
-                            inFile = lines[0].strip()
-                        except Exception, e:
-                            print "ERROR determining file from DBS query: ", str(e)
-                            inFile = "NoFileFoundInDBS"
-                            retStep1 = -90
+        if self.wf.cmdStep1.startswith('DATAINPUT'):
+            print "going to run with file input ... "
+            if self.wf.input.run:
+                run      = str(self.wf.input.run)
             else:
-                print "ERROR: found REALDATA in '"+self.wf.cmdStep1+"' but not RE match !!??!"
-                retStep1 = -99
+                run=None
+
+            label    = self.wf.input.label
+            location = self.wf.input.location.lower().strip()
+            if 'caf' in location:
+                print "ignoring workflow ",self.wf.numId, self.wf.nameId, ' as this is on CAF ...'
+                self.npass = [0,0,0,0]
+                self.nfail = [0,0,0,0]
+
+                logStat = 'Step1-NOTRUN Step2-NOTRUN Step3-NOTRUN Step4-NOTRUN ' 
+                self.report+='%s_%s %s - time %s; exit: %s %s %s %s \n' % (self.wf.numId, self.wf.nameId, logStat, 0, 0,0,0,0)
+                return
+                
+            files  = str(self.wf.input.files)
+            events = '10' # ignore the give number ...    str(self.wf.input.events)
+            if self.wf.cmdStep2 and ' -n ' not in self.wf.cmdStep2: self.wf.cmdStep2 += ' -n ' + events
+            if self.wf.cmdStep3 and ' -n ' not in self.wf.cmdStep3: self.wf.cmdStep3 += ' -n ' + events
+            if self.wf.cmdStep4 and ' -n ' not in self.wf.cmdStep4: self.wf.cmdStep4 += ' -n ' + events
+
+            print "run, files, events, label", run, files, events, label 
+            cmd += 'dbs search --noheader --url=http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet '
+            cmd += "--query='find file where dataset like "+self.wf.input.dataSet
+            if run: cmd += " and run=" + run
+            cmd += "' "
+            cmd += ' > %s 2>&1; ' % ('step1_'+self.wf.nameId+'-dbsquery.log',)
+            retStep1 = self.doCmd(cmd)
+            if retStep1 == 0:
+                lf = open(wfDir+'/step1_'+self.wf.nameId+'-dbsquery.log', 'r')
+                lines = lf.readlines()
+                lf.close()
+                if not lines or len(lines)==0 :
+                    inFile = "NoFileFoundInDBS"
+                    retStep1 = -95
+                else:
+                    try:
+                        inFile = lines[0].strip()
+                    except Exception, e:
+                        print "ERROR determining file from DBS query: ", str(e)
+                        inFile = "NoFileFoundInDBS"
+                        retStep1 = -90
         else:
             cmd += self.wf.cmdStep1 + ' --fileout file:raw.root '
             cmd += ' > %s 2>&1; ' % ('step1_'+self.wf.nameId+'.log ',)
@@ -144,10 +144,10 @@ class WorkFlowRunner(Thread):
             # input files (the relvals are OK)
             if ( '40.0' in str(self.wf.numId) ) :
                 fullcmd += ' --himix '
-                inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/102FF831-9B0F-E011-A3E9-003048678BC6.root'
+                inFile = '/store/relval/CMSSW_3_8_0_pre1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-RAW/MC_37Y_V5-v1/0001/E0DE7C01-2C6F-DF11-B61F-0026189438F4.root'
             if ( '41.0' in str(self.wf.numId) ) : 
                 fullcmd += ' --himix '
-                inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_GammaJet_pt20_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/06B4F699-A50F-E011-AD62-0018F3D0962E.root'
+                inFile = '/store/relval/CMSSW_3_8_0_pre1/RelValPyquen_GammaJet_pt20_2760GeV/GEN-SIM-RAW/MC_37Y_V5-v1/0001/F68A53A5-2B6F-DF11-8958-003048678FE6.root'
 
             fullcmd += ' --filein '+inFile+ ' '
             fullcmd += ' > %s 2>&1; ' % ('step2_'+self.wf.nameId+'.log ',)
@@ -161,10 +161,7 @@ class WorkFlowRunner(Thread):
                 if ' -n ' not in fullcmd : fullcmd += ' -n -1 '
                 # FIXME: dirty hack for beam-spot dedicated relval
                 if not '134' in str(self.wf.numId):
-                    if 'HARVESTING' in fullcmd and not 'filein' in fullcmd:
-                        fullcmd += ' --filein file:reco_inDQM.root --fileout file:step3.root '
-                    else:
-                        fullcmd += ' --filein file:reco.root --fileout file:step3.root '
+                    fullcmd += ' --filein file:reco.root --fileout file:step3.root '
                 fullcmd += ' > %s 2>&1; ' % ('step3_'+self.wf.nameId+'.log ',)
                 # print fullcmd
                 retStep3 = self.doCmd(fullcmd)
@@ -231,21 +228,33 @@ class WorkFlowRunner(Thread):
 
 class WorkFlow(object):
 
-    def __init__(self, num, nameID, cmd1, cmd2=None, cmd3=None, cmd4=None, real=None):
+    def __init__(self, num, nameID, cmd1, cmd2=None, cmd3=None, cmd4=None, inputInfo=None):
+
         self.numId  = num.strip()
         self.nameId = nameID
-        self.cmdStep1 = cmd1
-        if self.cmdStep1: self.cmdStep1 = self.cmdStep1.replace('--no_exec', '') # make sure the commands execute
-        self.cmdStep2 = cmd2
-        if self.cmdStep2: self.cmdStep2 = self.cmdStep2.replace('--no_exec', '') # make sure the commands execute
-        self.cmdStep3 = cmd3
-        if self.cmdStep3: self.cmdStep3 = self.cmdStep3.replace('--no_exec', '') # make sure the commands execute
-        self.cmdStep4 = cmd4
-        if self.cmdStep4: self.cmdStep4 = self.cmdStep4.replace('--no_exec', '') # make sure the commands execute
+        self.cmdStep1 = self.check(cmd1)
+        self.cmdStep2 = self.check(cmd2, 100)
+        self.cmdStep3 = self.check(cmd3, 100)
+        self.cmdStep4 = self.check(cmd4, 100)
 
         # run on real data requested:
-        self.real = real
+        self.input = inputInfo
+
         return
+
+    def check(self, cmd=None, nEvtDefault=10):
+        if not cmd : return None
+
+        # raw data are treated differently ...
+        if 'DATAINPUT' in cmd: return cmd
+
+        # force the number of events to process to be 10
+        reN = re.compile('\s*-n\s*\d+\s*')
+        newCmd = reN.sub(' -n 10 ', cmd)
+        if not reN.match(newCmd) : # -n not specified, add it:
+            newCmd += ' -n '+str(nEvtDefault)+' '
+
+        return newCmd
 
 # ================================================================================
 
@@ -267,147 +276,186 @@ class MatrixReader(object):
         self.workFlows = []
         self.nameList  = {}
         
-
-        self.filesPrefMap = {'cmsDriver_standard_hlt.txt' : 'std-' ,
-                             'cmsDriver_highstats_hlt.txt': 'hi-'  ,
-                             'cmsDriver_generator.txt'    : 'gen-'  ,
-                             # 'cmsDriver_PileUp_hlt.txt'   : 'pu-'  ,
-                             # 'cmsDriver_realData_hlt.txt' : 'data-'
+        self.filesPrefMap = {'relval_standard' : 'std-' ,
+                             'relval_highstats': 'hi-'  ,
+                             'relval_pileup': 'PU-'  ,
+                             'relval_generator': 'gen-'  ,
                              }
 
-        self.files = ['cmsDriver_standard_hlt.txt' ,
-                      'cmsDriver_highstats_hlt.txt',
-                      'cmsDriver_generator.txt'    ,
-                      # 'cmsDriver_PileUp_hlt.txt'   ,
-                      # 'cmsDriver_realData_hlt.txt' 
+        self.files = ['relval_standard' ,
+                      'relval_highstats',
+                      'relval_pileup',
+                      'relval_generator',
                       ]
+
+        self.relvalModule = None
         
         return
 
-    def readMatrix(self, fileNameIn):
+    def makeCmd(self, step):
+
+        cmd = ''
+        cfg = None
+        input = None
+        #print step
+        #print defaults
+        for k,v in step.items():
+            if 'no_exec' in k : continue  # we want to really run it ...
+            if k.lower() == 'cfg':
+                cfg = v
+                continue # do not append to cmd, return separately
+            if k.lower() == 'input':
+                input = v
+                continue # do not append to cmd, return separately
+            #print k,v
+            cmd += ' ' + k + ' ' + str(v)
+        return cfg, input, cmd
+    
+    def readMatrix(self, fileNameIn, useInput=None, refRel='CMSSW_4_2_0_pre2', fromScratch=None):
         
         prefix = self.filesPrefMap[fileNameIn]
 
-        print "processing ", fileNameIn,
-        lines = []
+        print "processing ", fileNameIn
+
         try:
-            try:
-                inFile = open(fileNameIn, 'r')
-                print ' from local developer area',
-            except IOError:
-                baseRelPath = os.environ['CMSSW_BASE']
-                # print "trying fall-back to cmsDriver files from developer area at:", baseRelPath
-                try:
-                    inFile = open( os.path.join(baseRelPath, 'src/Configuration/PyReleaseValidation/data' ,fileNameIn), 'r')
-                    print ' from ', baseRelPath,
-                except IOError:
-                    baseRelPath = os.environ['CMSSW_RELEASE_BASE']
-                    # print "trying fall back to cmsDriver files from base release at:", baseRelPath
-                    inFile = open( os.path.join(baseRelPath, 'src/Configuration/PyReleaseValidation/data' ,fileNameIn), 'r')
-                    print ' from ', baseRelPath,
-            lines = inFile.readlines()
-            inFile.close()
+            _tmpMod = __import__( 'Configuration.PyReleaseValidation.'+fileNameIn )
+            self.relvalModule = sys.modules['Configuration.PyReleaseValidation.'+fileNameIn]
         except Exception, e:
-            print "ERROR reading in file ", fileNameIn, str(e)
+            print "ERROR importing file ", fileNameIn, str(e)
             return
 
-        print " found ", len(lines), 'entries.'
+        print "request for INPUT for ", useInput
+
+        for num, wfInfo in self.relvalModule.workflows.items():
+            wfName = wfInfo[0]
+            stepList = wfInfo[1]
+            addTo=None
+            addCom=None
+            if len(wfInfo)>=3:
+                addCom=wfInfo[2]
+                if not type(addCom)==list:
+                    addCom=[addCom]
+                #print 'added dict',addCom
+                if len(wfInfo)>=4:
+                    addTo=wfInfo[3]
+                    #pad with 0
+                    while len(addTo)!=len(stepList):
+                        addTo.append(0)
+            # if no explicit name given for the workflow, use the name of step1
+            if wfName.strip() == '': wfName = stepList[0] 
+            stepCmds = ['','','','']
+            stepIndex = 0
+            name  = wfName
+            inputInfo = None
+            for step in stepList:
+                if len(name) > 0 : name += '+'
+                stepName = step
+                # check if we have explicit selections and overlapping requests:
+                if stepIndex==0 and useInput and (str(num) in useInput and not "all" in useInput):
+                    if fromScratch and (str(num) in fromScratch and not "all" in fromScratch):
+                        msg = "FATAL ERROR: request for both fromScratch and input for workflow "+str(num)
+                        raise MatrixException(msg)
+                if stepIndex==0 and useInput and ("all" == useInput):
+                    if fromScratch and (str(num) in fromScratch or "all" in fromScratch):
+                        pass
+                    else:
+                        if step+'INPUT' in self.relvalModule.step1.keys():
+                            stepName = step+"INPUT"
+                name += stepName
+                if addCom and (not addTo or addTo[stepIndex]==1):
+                    from Configuration.PyReleaseValidation.relval_steps import merge
+                    copyStep=merge(addCom+[self.relvalModule.stepList[stepIndex][stepName]])
+                    cfg, input, opts = self.makeCmd(copyStep)
+                else:                        
+                    cfg, input, opts = self.makeCmd(self.relvalModule.stepList[stepIndex][stepName])
+                        
+                if input and cfg :
+                    msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
+                    raise MatrixException(msg)
+
+                if cfg:
+                    cmd  = 'cmsDriver.py '+cfg+' '+opts
+                if stepIndex==0 and not inputInfo and input: # only if we didn't already set the input
+                    inputInfo = input
+                    # map input dataset to the one from the reference release:
+                    inputInfo.dataSet = inputInfo.dataSet.replace('CMSSW_4_2_0_pre4', refRel)
+                    cmd = 'DATAINPUT from '+inputInfo.dataSet
+                    
+                if stepIndex > 0:
+                    cmd  = 'cmsDriver.py step'+str(stepIndex+1)+'.py '+opts
+                    
+                stepCmds[stepIndex] = cmd
+                stepIndex += 1
+
+            self.step1WorkFlows[(float(num),prefix)] = (str(float(num)), name, stepCmds[0], stepCmds[1], stepCmds[2], stepCmds[3], inputInfo)
         
-        realRe = re.compile('\s*([1-9][0-9]*\.*[0-9]*)\s*\+\+\s*(.*?)\s*\+\+\s*(.*?)\s*\+\+\s*(.*?)\s*@@@\s*(.*)\s*')
-        step1Re = re.compile('\s*([1-9][0-9]*\.*[0-9]*)\s*\+\+\s*(.*?)\s*\+\+\s*(.*?)\s*@@@\s*(.*)\s*')
-        step2Re = re.compile('\s*STEP2\s*\+\+\s*(\S*)\s*@@@\s*(.*)\s*')
-        step3Re = re.compile('\s*STEP3\s*\+\+\s*(\S*)\s*@@@\s*(.*)\s*')
-        step4Re = re.compile('\s*STEP4\s*\+\+\s*(\S*)\s*@@@\s*(.*)\s*')
-        for lineIn in lines:
-            line = lineIn.strip()
-
-            realMatch = realRe.match(line)
-            if realMatch :
-                num  = realMatch.group(1).strip()
-                name = realMatch.group(2).strip().replace('<','').replace('>','').replace(':','')
-                next = realMatch.group(3).strip().replace('+','').replace(',', ' ')
-                cmd  = realMatch.group(4).strip()
-
-                step2 = "None"
-                step3 = "None"
-                step4 = "None"
-
-                steps = next.split()
-                if len(steps) > 0:
-                    step2 = steps[0].strip()
-                if len(steps) > 1:
-                    step3 = steps[1].strip()
-                if len(steps) > 2:
-                    step4 = steps[2].strip()
-                
-                self.step1WorkFlows[(float(num),prefix)] = (str(float(num)), name, step2, step3, step4, cmd, None)
-                continue
-            
-                
-            step1Match = step1Re.match(line)
-            if step1Match :
-                num  = step1Match.group(1).strip()
-                name = step1Match.group(2).strip().replace('<','').replace('>','').replace(':','')
-                next = step1Match.group(3).strip().replace('+','').replace(',', ' ')
-                cmd  = step1Match.group(4).strip()
-                step2 = "None"
-                step3 = "None"
-                step4 = "None"
-
-                steps = next.split()
-                if len(steps) > 0:
-                    step2 = steps[0].strip()
-                if len(steps) > 1:
-                    step3 = steps[1].strip()
-                if len(steps) > 2:
-                    step4 = steps[2].strip()
-                
-                self.step1WorkFlows[(float(num),prefix)] = (str(float(num)), name, step2, step3, step4, cmd, None)
-                continue
-            
-            step2Match = step2Re.match(line)
-            if step2Match :
-                name = step2Match.group(1).strip()
-                cmd  = step2Match.group(2).strip()
-                self.step2WorkFlows[name] = (cmd.replace('--no_exec','') ) # make sure the command is really run
-                continue
-
-            step3Match = step3Re.match(line)
-            if step3Match :
-                name = step3Match.group(1).strip()
-                cmd  = step3Match.group(2).strip()
-                self.step3WorkFlows[name] = ( cmd.replace('--no_exec','') ) # make sure the command is really run
-                continue
-
-            step4Match = step4Re.match(line)
-            if step4Match :
-                name = step4Match.group(1).strip()
-                cmd  = step4Match.group(2).strip()
-                self.step4WorkFlows[name] = ( cmd.replace('--no_exec','') ) # make sure the command is really run
-                continue
-
         return
 
-    def showRaw(self):
+    def showRaw(self, useInput, refRel='CMSSW_4_2_0_pre2', fromScratch=None):
 
-        print "found ", len(self.step1WorkFlows.keys()), ' workflows for step1:'
-        ids = self.step1WorkFlows.keys()
-        ids.sort()
-        for key in ids:
-            val = self.step1WorkFlows[key]
-            print key[0], ':', val
-        
-        print "found ", len(self.step2WorkFlows.keys()), ' workflows for step2:'
-        for key, val in self.step2WorkFlows.items():
-            print key, ':', val
-        
-        print "found ", len(self.step3WorkFlows.keys()), ' workflows for step3:'
-        for key, val in self.step3WorkFlows.items():
-            print key, ':', val
-        
-        print "found ", len(self.step4WorkFlows.keys()), ' workflows for step4:'
-        for key, val in self.step4WorkFlows.items():
-            print key, ':', val
+        for matrixFile in self.files:
+            self.reset()
+            try:
+                self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+            except Exception, e:
+                print "ERROR reading file:", matrixFile, str(e)
+                raise
+
+            if not self.step1WorkFlows: continue
+
+            dataFileName = matrixFile.replace('relval_', 'cmsDriver_')+'_hlt.txt'
+            outFile = open(dataFileName,'w')
+
+            print "found ", len(self.step1WorkFlows.keys()), ' workflows for ', dataFileName
+            ids = self.step1WorkFlows.keys()
+            ids.sort()
+            stepCmds = ['','','','']
+            for key in ids:
+                num, name, stepCmds[0], stepCmds[1], stepCmds[2], stepCmds[3], inputInfo = self.step1WorkFlows[key]
+                wfName,stepNames= name.split('+',1)
+                otherSteps = None
+                if '+' in stepNames:
+                    step1,otherSteps = stepNames.split('+',1)
+                line = num + ' ++ '+ wfName 
+                if otherSteps:
+                    line += ' ++ ' +otherSteps.replace('+',',')
+                else:
+                    line += ' ++ none' 
+                if inputInfo :
+                    line += ' ++ REALDATA: '+inputInfo.dataSet
+                    line += ', FILES: ' +str(inputInfo.files)
+                    line += ', EVENTS: '+str(inputInfo.events)
+                    line += ', LABEL: ' +inputInfo.label
+                    line += ', LOCATION:'+inputInfo.location
+                    line += ' @@@'
+                else:
+                    line += ' @@@ '+stepCmds[0]
+                print line
+                outFile.write(line+'\n')
+
+            outFile.write('\n'+'\n')
+            for stepName in self.relvalModule.step2.keys():
+                cfg,input,cmd = self.makeCmd(self.relvalModule.step2[stepName])
+                line = 'STEP2 ++ ' +stepName + ' @@@ cmsDriver.py step2 ' +cmd
+                print line
+                outFile.write(line+'\n')
+                
+            outFile.write('\n'+'\n')
+            for stepName in self.relvalModule.step3.keys():
+                cfg,input,cmd = self.makeCmd(self.relvalModule.step3[stepName])
+                line ='STEP3 ++ ' +stepName + ' @@@ cmsDriver.py step3_RELVAL ' +cmd 
+                print line
+                outFile.write(line+'\n')
+                
+            outFile.write('\n'+'\n')
+            for stepName in self.relvalModule.step4.keys():
+                cfg,input,cmd = self.makeCmd(self.relvalModule.step4[stepName])
+                line = 'STEP4 ++ ' +stepName + ' @@@ cmsDriver.py step4 ' +cmd
+                print line
+                outFile.write(line+'\n')
+                
+            outFile.close()
+
         
         return
 
@@ -419,17 +467,21 @@ class MatrixReader(object):
         print "\nfound a total of ", len(self.workFlows), ' workflows:'
         if selected:
             print "      of which the following", len(selected), 'were selected:'
-            maxLen = -1  # for individual listing, no limit on width
-            fmt1   = "%-6s %-35s [1]: %s " 
-            fmt2   = "       %35s [%d]: %s"
+        #-ap for now:
+        maxLen = -1  # for individual listing, no limit on width
+        fmt1   = "%-6s %-35s [1]: %s " 
+        fmt2   = "       %35s [%d]: %s"
+
         n1 = 0
         n2 = 0
         n3 = 0
         n4 = 0
         for wf in self.workFlows:
             if selected and float(wf.numId) not in selected: continue
+            print ''
             n1+=1
-            print fmt1 % (wf.numId, wf.nameId, (wf.cmdStep1+' ')[:maxLen])
+            wfName, stepNames = wf.nameId.split('+',1)
+            print fmt1 % (wf.numId, stepNames, (wf.cmdStep1+' ')[:maxLen])
             if wf.cmdStep2:
                 n2+=1
                 print fmt2 % ( ' ', 2, (wf.cmdStep2+' ')[:maxLen])
@@ -466,14 +518,8 @@ class MatrixReader(object):
         n4 = 0
         for key in ids:
             val = self.step1WorkFlows[(key,prefixIn)]
-            num, name, step2, step3, step4, cmd, real = val
+            num, name, cmd, step2, step3, step4, inputInfo = val
             nameId = num+'_'+name
-            if step2.lower() != 'none':
-                name += '+'+step2
-                if step3.lower() != 'none':
-                    name += '+'+step3
-                    if step4.lower() != 'none':
-                        name += '+'+step4
             if nameId in self.nameList.keys():
                 print "==> duplicate name found for ", nameId
                 print '    keeping  : ', self.nameList[nameId]
@@ -487,33 +533,35 @@ class MatrixReader(object):
             
             n1 += 1
 
-            if step2.lower() != 'none':
+            if step2.lower() != '':
                 n2 += 1
-                cmd2 = self.step2WorkFlows[step2]
-                if step3.lower() != 'none':
+                cmd2 = step2
+                if step3.lower() != '':
                     n3 += 1
-                    cmd3 = self.step3WorkFlows[step3]
-                    if step4.lower() != 'none':
+                    cmd3 = step3
+                    if step4.lower() != '':
                         n4 += 1
-                        cmd4 = self.step4WorkFlows[step4]
+                        cmd4 = step4
                     #print '\tstep3 : ', self.step3WorkFlows[step3]
-            self.workFlows.append( WorkFlow(num, name, cmd, cmd2, cmd3, cmd4) )
+            self.workFlows.append( WorkFlow(num, name, cmd, cmd2, cmd3, cmd4, inputInfo) )
 
         return
 
-    def prepare(self):
+    def prepare(self, useInput=None, refRel='', fromScratch=None):
         
         for matrixFile in self.files:
             try:
-                self.readMatrix(matrixFile)
+                self.readMatrix(matrixFile, useInput, refRel, fromScratch)
             except Exception, e:
                 print "ERROR reading file:", matrixFile, str(e)
+                raise
 
             try:
                 self.createWorkFlows(matrixFile)
             except Exception, e:
                 print "ERROR creating workflows :", str(e)
-
+                raise
+            
     def show(self, selected=None):    
         # self.showRaw()
         self.showWorkFlows(selected)
@@ -564,9 +612,6 @@ class MatrixRunner(object):
         for wf in self.workFlows:
 
             if testList and float(wf.numId) not in [float(x) for x in testList]: continue
-
-            # don't know yet how to treat real data WF ...
-            if wf.real : continue
 
             item = wf.nameId
             if os.path.islink(item) : continue # ignore symlinks
@@ -638,7 +683,16 @@ class MatrixRunner(object):
         
 # ================================================================================
 
-def runSelected(testList, nThreads=4, show=False) :
+def showRaw(useInput=None, refRel='', fromScratch=None) :
+
+    mrd = MatrixReader()
+    mrd.showRaw(useInput, refRel, fromScratch)
+
+    return 0
+        
+# ================================================================================
+
+def runSelected(testList, nThreads=4, show=False, useInput=None, refRel='', fromScratch=None) :
 
     stdList = ['5.2', # SingleMu10 FastSim
                '7',   # Cosmics+RECOCOS+ALCACOS
@@ -651,7 +705,7 @@ def runSelected(testList, nThreads=4, show=False) :
                    ]
 
     mrd = MatrixReader()
-    mrd.prepare()
+    mrd.prepare(useInput, refRel, fromScratch)
 
     if testList == []:
         testList = stdList+hiStatList
@@ -668,11 +722,10 @@ def runSelected(testList, nThreads=4, show=False) :
 
 # ================================================================================
 
-def runData(testList, nThreads=4, show=False) :
+def runData(testList, nThreads=4, show=False, useInput=None, refRel='', fromScratch=None) :
 
     mrd = MatrixReader()
-
-    mrd.prepare()
+    mrd.prepare(useInput, refRel, fromScratch)
 
     ret = 0
     if show:
@@ -692,10 +745,10 @@ def runData(testList, nThreads=4, show=False) :
 
 # --------------------------------------------------------------------------------
 
-def runAll(testList=None, nThreads=4, show=False) :
+def runAll(testList=None, nThreads=4, show=False, useInput=None, refRel='', fromScratch=None) :
 
     mrd = MatrixReader()
-    mrd.prepare()
+    mrd.prepare(useInput, refRel, fromScratch)
 
     ret = 0
     
@@ -711,13 +764,13 @@ def runAll(testList=None, nThreads=4, show=False) :
 
 # --------------------------------------------------------------------------------
 
-def runOnly(only, show, nThreads=4):
+def runOnly(only, show, nThreads=4, useInput=None, refRel='', fromScratch=None):
 
     if not only: return
     
     for what in only:
         print "found request to run relvals only for ",what
-
+        print "not implemented, nothing done"
 
 # --------------------------------------------------------------------------------
 
@@ -731,7 +784,10 @@ Where options is one of the following:
   -j, --nproc <n>   run <n> processes in parallel (default: 4 procs)
   -s, --selected    run a subset of 8 workflows (usually in the CustomIB)
   -n, -q, --show    show the (selected) workflows
-
+  -i, --useInput <list>      will use data input (if defined) for the step1 instead of step1. <list> can be "all" for this option
+      --refRelease <refRel>  will use <refRel> as reference release in datasets used for input (replacing the sim step)
+  -r, --raw         in combination with --show will create the old style cmsDriver_*_hlt.txt file (in the working dir)
+  
 <list>s should be put in single- or double-quotes to avoid confusion with/by the shell
 """
 
@@ -742,18 +798,26 @@ if __name__ == '__main__':
     import getopt
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hj:sl:nqo:d:", ['help',"nproc=",'selected','list=','showMatrix','only=','data='])
+        opts, args = getopt.getopt(sys.argv[1:], "hj:sl:nqo:d:i:r", ['help',"nproc=",'selected','list=','showMatrix','only=','data=','useInput=','raw', 'refRelease=','fromScratch='])
     except getopt.GetoptError, e:
         print "unknown option", str(e)
         sys.exit(2)
         
-# check command line parameter
+# check command line parameters
 
+    # set this to None if you want fromScratch as default, set it to 'all' to set the default to from input files.
+    useInput = None  # step1 default is cmsDriver (i.e. "from scratch")
+    # useInput = 'all' # step1 default is reading from input files
+
+    
     np=4 # default: four threads
     sel = None
+    fromScratch = None
     show = False
     only = None
     data = None
+    raw  = False
+    refRel = ''
     for opt, arg in opts :
         if opt in ('-h','--help'):
             usage()
@@ -768,18 +832,36 @@ if __name__ == '__main__':
             only = []
         if opt in ('-l','--list',) :
             sel = arg.split(',')
+        if opt in ('--fromScratch',) :
+            fromScratch = arg.split(',')
+        if opt in ('-i','--useInput',) :
+            useInput = arg.split(',')
+        if opt in ('--refRelease',) :
+            refRel = arg
         if opt in ('-d','--data',) :
             data = arg.split(',')
+        if opt in ('-r','--raw') :
+            raw = True
+            
+    # some sanity checking:
+    if useInput and useInput != 'all' :
+        for item in useInput:
+            if fromScratch and item in fromScratch:
+                print "FATAL error: request to run workflow ",item,'from scratch and using input. '
+                sys.exit(-1)
+        
+    if raw and show:
+        ret = showRaw(useInput=useInput, refRel=refRel,fromScratch=fromScratch)
+        sys.exit(ret)
 
-    # print "sel",sel
     ret = 0
     if sel != None: # explicit distinguish from empty list (which is also false)
-        ret = runSelected(testList=sel, nThreads=np, show=show)
+        ret = runSelected(testList=sel, nThreads=np, show=show, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
     elif only != None:
-        ret = runOnly(only=only, show=show, nThreads=np)
+        ret = runOnly(only=only, show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
     elif data != None:
-        ret = runData(testList=data, show=show, nThreads=np)
+        ret = runData(testList=data, show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
     else:
-        ret = runAll(show=show, nThreads=np)
+        ret = runAll(show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
 
     sys.exit(ret)
