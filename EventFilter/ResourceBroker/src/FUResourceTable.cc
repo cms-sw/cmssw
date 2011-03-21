@@ -564,12 +564,13 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
     }
     if(nbPendingSMDqmDiscards_>0)nbPendingSMDqmDiscards_--;
     else {
-      LOG4CPLUS_ERROR(log_,"Spurious DQM discard by StorageManager, skip!");
+      LOG4CPLUS_WARN(log_,"Spurious DQM discard by StorageManager, skip!");
     }
 
   }
   else {
-    LOG4CPLUS_ERROR(log_,"Spurious DQM discard by StorageManager, skip!");
+    LOG4CPLUS_ERROR(log_,"Spurious DQM discard for cell " << dqmIndex 
+		    << " from StorageManager while cell is not in the right state");
   }
   
   if (isHalting_) {
