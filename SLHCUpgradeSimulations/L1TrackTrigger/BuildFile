@@ -14,22 +14,22 @@
 <use name=Geometry/TrackerGeometryBuilder>
 
 <use name=DataFormats/Common>
-<use name=DataFormats/DTDigi>
+#<use name=DataFormats/DTDigi>
 <use name=DataFormats/DetId>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/SiPixelDigi>
-<use name=DataFormats/MuonDetId>
+#<use name=DataFormats/MuonDetId>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 
-<use name=DataFormats/EcalDigi>
-<use name=DataFormats/EcalDetId>
-<use name=DataFormats/HcalDigi>
-<use name=DataFormats/HcalDetId>
+#<use name=DataFormats/EcalDigi>
+#<use name=DataFormats/EcalDetId>
+#<use name=DataFormats/HcalDigi>
+#<use name=DataFormats/HcalDetId>
+
 <use name=TrackingTools/TrackAssociator>
-<use name=SimDataFormats/SLHC>
 <use name=PhysicsTools/CandUtils>
 <use name=FWCore/MessageLogger>
 
@@ -39,7 +39,7 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/TrackingHit>
-#<use name=SimDataFormats/SLHC>
+<use name=SimDataFormats/GeneratorProducts>
 #<use name=DataFormats/SiPixelDetId>
 
 <use name=TrackingTools/Records>
@@ -52,10 +52,10 @@
 
 <use name=RecoTracker/TrackProducer>
 
-<use name=L1Trigger/DTTrigger>
-<use name=L1Trigger/DTBti>
-<use name=L1Trigger/DTTrackFinder>
-<use name=HLTrigger/HLTcore>
+#<use name=L1Trigger/DTTrigger>
+#<use name=L1Trigger/DTBti>
+#<use name=L1Trigger/DTTrackFinder>
+#<use name=HLTrigger/HLTcore>
 
 <use name=SLHCUpgradeSimulations/Utilities>
 
@@ -73,9 +73,9 @@
 <use name=root>
 <use name=rootrflx>
 
-#<use name=SimDataFormats/Track>
-#<use name=SimDataFormats/SLHC>
-#<use name=DataFormats/SiPixelDetId>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/SLHC>
+<use name=DataFormats/SiPixelDetId>
 
 <export>
  <Flags SEALPLUGIN=1>
