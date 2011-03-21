@@ -353,7 +353,7 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
     //if (ierr != 0) {
     //std::cout << "failed to invert covariance matrix (2x2) =\n" << IC << std::endl;;
     //}
-    chi2_intermed = pow(dist(1,1),2.)*IC(1,1) + 2.*dist(1,1)*dist(1,2)*IC(1,2) + pow(dist(1,2),2.)*IC(2,2);
+    chi2_intermed = pow(dist(1,1),2)*IC(1,1) + 2.*dist(1,1)*dist(1,2)*IC(1,2) + pow(dist(1,2),2)*IC(2,2);
     if(chi2_intermed<0){// should we check?
        chi2_intermed = 9999999999.;
     }
