@@ -2,7 +2,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.8 2010/08/07 14:56:05 wmtan Exp $
+// $Id: JPTJetTester.cc,v 1.9 2011/02/23 16:50:56 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -781,7 +781,8 @@ void JPTJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   {
  
       JPTJet  correctedJet = *jet;
-      double scale = corrector->correction(jet->p4()); 
+      //double scale = corrector->correction(jet->p4()); 
+      double scale = corrector->correction(*jet);
       correctedJet.scaleEnergy(scale); 
       mCorrJetPt->Fill(correctedJet.pt());
       mCorrJetPt_80->Fill(correctedJet.pt());
