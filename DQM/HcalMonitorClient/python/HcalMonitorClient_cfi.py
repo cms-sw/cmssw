@@ -41,9 +41,7 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             DeadCell_minerrorrate = cms.untracked.double(0.05),
                             #DeadCell_minevents    = cms.untracked.int32(10),
                             HotCell_minerrorrate  = cms.untracked.double(0.10),
-
-                            RawData_excludeHORing2         = cms.untracked.bool(True),                                  
-
+                            excludeHOring2_backup          = cms.untracked.bool(True), # This is only a 'backup' result, and is overwritten by what was used by the task when the task information can be found in the DQM output.  If the task info can't be found, this backup value is used in its place.
                             # Specify all clients to be run (name = prefix+"Monitor")
 
                             enabledClients = cms.untracked.vstring(["DeadCellMonitor",
