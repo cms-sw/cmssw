@@ -767,14 +767,15 @@ class PickRelValInputFiles( ConfigToolBase ):
     PickRelValInputFiles( cmsswVersion, relVal, dataTier, condition, globalTag, maxVersions, skipFiles, numberOfFiles, debug )
     - cmsswVersion : CMSSW release to pick up the RelVal files from
                      optional; default: the current release (determined automatically from environment)
-    - site         : identifies site to run on, either 'CERN' or 'FNAL'
-                     optional; default: 'CERN'
+    - formerVersion: use the last before the last valid CMSSW release to pick up the RelVal files from
+                     applies also, if 'cmsswVersion' is set explicitly
+                     optional; default: False
     - relVal       : RelVal sample to be used
                      optional; default: 'RelValTTbar'
     - dataTier     : data tier to be used
                      optional; default: 'GEN-SIM-RECO'
     - condition    : identifier of GlobalTag as defined in Configurations/PyReleaseValidation/python/autoCond.py
-                     possibly overwritten by 'globalTag'
+                     possibly overwritten, if 'globalTag' is set explicitly
                      optional; default: 'startup'
     - globalTag    : name of GlobalTag as it is used in the data path of the RelVals
                      optional; default: determined automatically as defined by 'condition' in Configurations/PyReleaseValidation/python/autoCond.py
@@ -790,8 +791,6 @@ class PickRelValInputFiles( ConfigToolBase ):
                      optional; default: 1
     - debug        : switch to enable enhanced messages in 'stdout'
                      optional; default: False
-    - command      : command to use
-                     optiona; default: nsls
     """
 
     _label             = 'pickRelValInputFiles'
@@ -803,7 +802,7 @@ class PickRelValInputFiles( ConfigToolBase ):
     def __init__( self ):
         ConfigToolBase.__init__( self )
         self.addParameter( self._defaultParameters, 'cmsswVersion' , os.getenv( "CMSSW_VERSION" )                                        , 'auto from environment' )
-        self.addParameter( self._defaultParameters, 'site'         , 'CERN'                                                              , '' )
+        self.addParameter( self._defaultParameters, 'formerVersion', False                                                               , '' )
         self.addParameter( self._defaultParameters, 'relVal'       , 'RelValTTbar'                                                       , '' )
         self.addParameter( self._defaultParameters, 'dataTier'     , 'GEN-SIM-RECO'                                                      , '' )
         self.addParameter( self._defaultParameters, 'condition'    , 'startup'                                                           , '' )
@@ -817,7 +816,7 @@ class PickRelValInputFiles( ConfigToolBase ):
 
     def __call__( self
                 , cmsswVersion  = None
-                , site          = None
+                , formerVersion = None
                 , relVal        = None
                 , dataTier      = None
                 , condition     = None
@@ -829,8 +828,8 @@ class PickRelValInputFiles( ConfigToolBase ):
                 ):
         if cmsswVersion is None:
             cmsswVersion = self.getDefaultParameters()[ 'cmsswVersion' ].value
-        if site is None:
-            site = self.getDefaultParameters()[ 'site' ].value
+        if formerVersion is None:
+            formerVersion = self.getDefaultParameters()[ 'formerVersion' ].value
         if relVal is None:
             relVal = self.getDefaultParameters()[ 'relVal' ].value
         if dataTier is None:
@@ -848,7 +847,7 @@ class PickRelValInputFiles( ConfigToolBase ):
         if debug is None:
             debug = self.getDefaultParameters()[ 'debug' ].value
         self.setParameter( 'cmsswVersion' , cmsswVersion )
-        self.setParameter( 'site'         , site )
+        self.setParameter( 'formerVersion', formerVersion )
         self.setParameter( 'relVal'       , relVal )
         self.setParameter( 'dataTier'     , dataTier )
         self.setParameter( 'condition'    , condition )
@@ -861,7 +860,7 @@ class PickRelValInputFiles( ConfigToolBase ):
 
     def apply( self ):
         cmsswVersion  = self._parameters[ 'cmsswVersion'  ].value
-        site          = self._parameters[ 'site'          ].value
+        formerVersion = self._parameters[ 'formerVersion' ].value
         relVal        = self._parameters[ 'relVal'        ].value
         dataTier      = self._parameters[ 'dataTier'      ].value
         condition     = self._parameters[ 'condition'     ].value # only used for GT determination in initialization, if GT not explicitly given
@@ -870,6 +869,39 @@ class PickRelValInputFiles( ConfigToolBase ):
         skipFiles     = self._parameters[ 'skipFiles'     ].value
         numberOfFiles = self._parameters[ 'numberOfFiles' ].value
         debug         = self._parameters[ 'debug'         ].value
+
+        filePaths = []
+
+        patchId = '_patch'
+        ibId    = '_X_'
+        if patchId in cmsswVersion:
+            cmsswVersion = cmsswVersion.split( patchId )[ 0 ]
+        elif ibId in cmsswVersion or formerVersion:
+            outputTuple = Popen( [ 'scram', 'l -c CMSSW' ], stdout = PIPE, stderr = PIPE ).communicate()
+            if len( outputTuple[ 1 ] ) != 0:
+                print 'ERROR %s'%( self._label )
+                print '    SCRAM error:'
+                print
+                print outputTuple[ 1 ]
+                print
+                print '    Aborting...'
+                return filePaths
+            versions = { 'last'      :''
+                       , 'lastToLast':''
+                       }
+            for line in outputTuple[ 0 ].splitlines():
+                version = line.split()[ 1 ]
+                if cmsswVersion.split( ibId )[ 0 ] in version or cmsswVersion.rpartition( '_' )[ 0 ] in version:
+                    if not ( patchId in version or ibId in version ):
+                        versions[ 'lastToLast' ] = versions[ 'last' ]
+                        versions[ 'last' ]       = version
+                        if version == cmsswVersion:
+                            break
+            if formerVersion:
+                cmsswVersion = versions[ 'lastToLast' ]
+            else:
+                cmsswVersion = versions[ 'last' ]
+
         if debug:
             print 'DEBUG %s: Called with...'%( self._label )
             for key in self._parameters.keys():
@@ -879,10 +911,14 @@ class PickRelValInputFiles( ConfigToolBase ):
                    print ' (default)'
                else:
                    print
+               if key == 'cmsswVersion' and cmsswVersion != self._parameters[ key  ].value:
+                   if formerVersion:
+                       print '    ==> modified to last to last valid release %s'%( cmsswVersion )
+                   else:
+                       print '    ==> modified to last valid release %s'%( cmsswVersion )
 
         command   = ''
         storage   = ''
-        filePaths = []
         domain    = socket.getfqdn().split( '.' )
         if domain[ -2 ] == 'cern' and domain[ -1 ] == 'ch':
             command = 'nsls'
