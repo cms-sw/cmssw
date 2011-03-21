@@ -74,7 +74,7 @@ from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
 # EGamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 # Muon
-#from DQMOffline.Trigger.MuonOffline_Trigger_cosmics_cff import *
+from DQMOffline.Trigger.HLTMuonOfflineAnalyzer_cosmics_cff import *
 # Top
 #from DQMOffline.Trigger.QuadJetAna_cfi import *
 # Tau
@@ -91,7 +91,7 @@ dqmEnvHLT.subSystemFolder = 'HLT'
 offlineHLTSource = cms.Sequence(
     hltResults *
     egHLTOffDQMSource *
-    #muonFullOfflineDQM *
+    hltMuonOfflineAnalyzers *
     HLTTauDQMOffline *
     jetMETHLTOfflineSource *
     #TnPEfficiency *
