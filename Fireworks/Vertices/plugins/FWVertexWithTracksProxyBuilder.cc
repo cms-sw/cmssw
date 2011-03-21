@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertexWithTracksProxyBuilder.cc,v 1.2 2009/01/23 21:35:47 amraktad Exp $
+// $Id: FWVertexWithTracksProxyBuilder.cc,v 1.1 2011/03/21 14:58:08 arizzi Exp $
 //
 
 // system include files
@@ -159,4 +159,4 @@ FWVertexWithTracksProxyBuilder::build(const reco::Vertex& iData, unsigned int iI
 //
 // static member functions
 //
-REGISTER_FWPROXYBUILDER(FWVertexWithTracksProxyBuilder, reco::VertexCollection, "VerticesWithTracks", FWViewType::k3DBit | FWViewType::kAllRPZBits);
+REGISTER_FWPROXYBUILDER(FWVertexWithTracksProxyBuilder, reco::Vertex, "VerticesWithTracks", FWViewType::k3DBit | FWViewType::kAllRPZBits);
