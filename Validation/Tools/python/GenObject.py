@@ -1152,6 +1152,20 @@ class GenObject (object):
         equivList = GenObject._equivDict[objName]
         firstDict = {}
         secondDict = {}
+        # let's see if we're only using 'index' and nothing else
+        if equivList == [('index', 0)]:
+            # we're only matching on index, nothing else matters
+            matchedSet = set (zip ( range( min (len1, len2) ),
+                                    range( min (len1, len2) ) ) )
+            if len1 > len2:
+                noMatch1Set = set (range(len2 + 1, len1 + 1))
+            else:
+                noMatch1Set = set()
+            if len2 > len1:
+                noMatch2Set = set (range(len1 + 1, len2 + 1))
+            else:
+                noMatch2Set = set()
+            return matchedSet, noMatch1Set, noMatch2Set   
         # First, look for vec2 objects that are equivalent to a
         # given vec1 object.
         for index1 in xrange (len1):
