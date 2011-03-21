@@ -48,12 +48,12 @@ bool HybridNew::optimizeTestStatistics_;
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
     options_.add_options()
-      ("searchAlgo", boost::program_options::value<std::string>(&algo_)->default_value("bisection"), "Algorithm to use to search for the limit")
+      ("searchAlgo", boost::program_options::value<std::string>(&algo_)->default_value("logSecant"), "Algorithm to use to search for the limit (bisection, logSecant)")
       ("onlyTestStat", "Just compute test statistics, not actual p-values (works only with --singlePoint)")
       ("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(false), "Enable importance sampling for null hypothesis (background only)") 
       ("importanceSamplingAlt", boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(false), "Enable importance sampling for alternative hypothesis (signal plus background)") 
       ("nCPU", boost::program_options::value<unsigned int>()->default_value(0), "Use N CPUs with PROOF Lite (experimental!)")
-      ("optimizeTestStatistics", boost::program_options::value<bool>(&optimizeTestStatistics_)->default_value(false), "Use optimized test statistics if the likelihood is not extended.")
+      ("optimizeTestStatistics", boost::program_options::value<bool>(&optimizeTestStatistics_)->default_value(true), "Use optimized test statistics if the likelihood is not extended (works for LEP and TEV test statistics).")
       ("optimizeProductPdf", boost::program_options::value<bool>(&optimizeProductPdf_)->default_value(false), "Optimize the code assuming model_s = modelObs_s(obs,r,nuis) * (other pdf not dependent on obs)")
     ;
 }
@@ -67,6 +67,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     testStat_ = vm.count("testStat") ? vm["testStat"].as<std::string>() : "LEP";
     nCpu_     = vm.count("nCPU") ? vm["nCPU"].as<unsigned int>() : 0;
     fork_     = vm.count("fork") ? vm["fork"].as<unsigned int>() : 0;
+    if (fork_ > 1) nToys_ /= fork_; // makes more sense
     if (rule_ == "CLs") {
         CLs_ = true;
     } else if (rule_ == "CLsplusb") {
@@ -169,14 +170,19 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, doubl
   if (verbose > 0) std::cout << "Search for lower limit to the limit" << std::endl;
   clsMin = eval(w, data, r, rMin);
   if (clsMin.first != 1 && clsMin.first - 3 * fabs(clsMin.second) < clsTarget) {
-      rMin = -rMax / 4;
-      for (int tries = 0; tries < 6; ++tries) {
-          clsMin = eval(w, data, r, rMin);
-          if (clsMin.first == 1 || clsMin.first - 3 * fabs(clsMin.second) > clsTarget) break;
-          rMin += rMin;
-          if (tries == 5) { 
-              std::cerr << "Cannot set lower limit: at r = " << rMin << " still get " << (CLs_ ? "CLs" : "CLsplusb") << " = " << clsMin.first << std::endl;
-              return false;
+      if (CLs_) { 
+          rMin = 0;
+          clsMin = CLs_t(1,0); // this is always true for CLs
+      } else {
+          rMin = -rMax / 4;
+          for (int tries = 0; tries < 6; ++tries) {
+              clsMin = eval(w, data, r, rMin);
+              if (clsMin.first == 1 || clsMin.first - 3 * fabs(clsMin.second) > clsTarget) break;
+              rMin += rMin;
+              if (tries == 5) { 
+                  std::cerr << "Cannot set lower limit: at r = " << rMin << " still get " << (CLs_ ? "CLs" : "CLsplusb") << " = " << clsMin.first << std::endl;
+                  return false;
+              }
           }
       }
   }
@@ -258,7 +264,6 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, doubl
           // sanity check fit result
           limit = expoFit.GetParameter(2);
           limitErr = expoFit.GetParError(2);
-          if (verbose) std::cout << "fit converged" << std::endl;
       } else if (0.5*(rMax - rMin) < limitErr) {
           limit  = 0.5*(rMax-rMin);
           limitErr = 0.5*(rMax+rMin);
@@ -269,7 +274,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, doubl
       TCanvas *c1 = new TCanvas("c1","c1");
       limitPlot_->Sort();
       limitPlot_->SetLineWidth(2);
-      limitPlot_->Draw("APL");
+      limitPlot_->Draw("APC");
       TLine line(limitPlot_->GetX()[0], clsTarget, limitPlot_->GetX()[limitPlot_->GetN()-1], clsTarget);
       line.SetLineColor(kRed); line.SetLineWidth(2); line.Draw();
       line.DrawLine(limit, 0, limit, limitPlot_->GetY()[0]);
@@ -345,6 +350,11 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   const RooArgSet &poi = *w->set("POI");
   
   r->setVal(rVal); 
+  if (testStat_ == "Atlas" || testStat_ == "Profile") {
+    r->setConstant(false); r->setMin(0);
+  } else {
+    r->setConstant(true);
+  }
   setup.modelConfig = ModelConfig("sb_model", w);
   setup.modelConfig.SetPdf(*w->pdf("model_s"));
   setup.modelConfig.SetObservables(obs);
@@ -354,13 +364,19 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   setup.modelConfig.SetSnapshot(poi);
   
   setup.modelConfig_bonly = ModelConfig("b_model", w);
-  setup.modelConfig_bonly.SetPdf(*w->pdf("model_s")); // note the model_s!
+  setup.modelConfig_bonly.SetPdf(*w->pdf("model_b")); 
   setup.modelConfig_bonly.SetObservables(obs);
   setup.modelConfig_bonly.SetParametersOfInterest(poi);
   //setup.modelConfig_bonly.SetGlobalObservables(*w->pdf("globalObservables"); // NOT for Hybrid
   if (withSystematics) setup.modelConfig_bonly.SetNuisanceParameters(*w->set("nuisances"));
-  RooArgSet poiZero; poiZero.addClone(poi); poiZero.setRealValue(r->GetName(), 0.0);
-  setup.modelConfig_bonly.SetSnapshot(poiZero);
+  if (testStat_ == "Atlas" || testStat_ == "Profile") {
+      // these need the S+B snapshot for both
+      // must set it here and not later because calling SetSnapshot more than once does not work properly
+      setup.modelConfig_bonly.SetSnapshot(poi);
+  } else {
+      RooArgSet poiZero; 
+      setup.modelConfig_bonly.SetSnapshot(poiZero);
+  }
 
   if (testStat_ == "LEP") {
       //SLR is evaluated using the central value of the nuisance parameters, so I believe we have to put them in the snapshots
@@ -389,21 +405,18 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
           ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetAltParameters(snapS);
       }
   } else if (testStat_ == "TEV") {
-    if (optimizeTestStatistics_ && !w->pdf("model_s")->canBeExtended()) {
+    /*if (optimizeTestStatistics_ && !w->pdf("model_s")->canBeExtended()) {
         setup.qvar.reset(new ProfiledLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), 
                                                              withSystematics ? w->set("nuisances") : 0, poiZero, poi));
-    } else {
+    } else {*/   // turn this off for now, it does not work properly
         setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), setup.modelConfig.GetSnapshot()));
         ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
-    }
+    //}
   } else if (testStat_ == "Atlas" || testStat_ == "Profile") {
-    r->setConstant(false); r->setMin(0);
-    if (testStat_ == "Atlas") r->setMax(rVal);
-    RooArgSet altPOI; altPOI.addClone(*r); 
-    setup.modelConfig.SetSnapshot(altPOI);
-    setup.modelConfig_bonly.SetSnapshot(altPOI); // need to set ALT poi, because the HC will pass this one to the test statistics.
-    setup.modelConfig_bonly.SetPdf(*w->pdf("model_b")); // note the model_s!
     setup.qvar.reset(new ProfileLikelihoodTestStat(*w->pdf("model_s")));
+    if (testStat_ == "Atlas") {
+       ((ProfileLikelihoodTestStat&)*setup.qvar).SetOneSided(true);
+    }
   }
   
   if (withSystematics && optimizeProductPdf_) {
