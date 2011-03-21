@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.coreTools import *
 from FWCore.GuiBrowsers.ConfigToolBase import *
-from PhysicsTools.PatAlgos.tools.helpers import applyPostfix 
+from PhysicsTools.PatAlgos.tools.helpers import applyPostfix
+from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
 from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 
 def redoPFTauDiscriminators(process,
@@ -11,30 +12,53 @@ def redoPFTauDiscriminators(process,
                             tauType = 'shrinkingConePFTau', postfix = ""):
     print 'Tau discriminators: ', oldPFTauLabel, '->', newPFTauLabel
     print 'Tau type: ', tauType
-    oldPFTauLabel.setModuleLabel(oldPFTauLabel.getModuleLabel()+postfix)
+    #oldPFTauLabel.setModuleLabel(oldPFTauLabel.getModuleLabel()+postfix)
     tauSrc = 'PFTauProducer'
 
     tauDiscriminationSequence = None
+
     if tauType == 'hpsPFTau':
-        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.produceAndDiscriminateHPSPFTaus, postfix)
-        tauDiscriminationSequence.remove(getattr(process,"produceHPSPFTaus"+postfix))
+        process.patHPSPFTauDiscrimination = process.produceAndDiscriminateHPSPFTaus.copy()
+        # remove producers
+        for iname in process.patHPSPFTauDiscrimination.moduleNames():
+            if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1):
+                process.patHPSPFTauDiscrimination.remove(getattr(process,iname) )
+        tauDiscriminationSequence = cloneProcessingSnippet(process, process.patHPSPFTauDiscrimination, postfix)
+
     elif tauType == 'hpsTancTaus': #to be checked if correct
-        process.hpsTancDiscriminationSequence = cms.Sequence(process.hpsTancTauInitialSequence*process.hpsTancTauDiscriminantSequence)
-        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.hpsTancDiscriminationSequence, postfix)
-        tauDiscriminationSequence.remove(getattr(process,"combinatoricRecoTausDiscriminationByLeadingPionPtCut"+postfix))
-        tauDiscriminationSequence.remove(getattr(process,"combinatoricRecoTausHPSSelector"+postfix))
-        tauDiscriminationSequence.remove(getattr(process,"hpsTancTaus"+postfix))
+        process.patHPSTaNCPFTauDiscrimination = process.hpsTancTauInitialSequence.copy()
+        process.patHPSTaNCPFTauDiscrimination *= process.hpsTancTauDiscriminantSequence
+        # remove producers
+        for iname in process.patHPSTaNCPFTauDiscrimination.moduleNames():
+            if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1):
+                process.patHPSTaNCPFTauDiscrimination.remove(getattr(process,iname) )
+        tauDiscriminationSequence = cloneProcessingSnippet(process, process.patHPSTaNCPFTauDiscrimination, postfix)
+
     elif tauType == 'fixedConePFTau':
-        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.produceAndDiscriminateFixedConePFTaus, postfix)
-        tauDiscriminationSequence.remove(getattr(process,"fixedConePFTauProducer"+postfix))
-    elif tauType == 'shrinkingConePFTau': #with TaNC
-        process.shrConeDiscriminationSequence  = cms.Sequence(process.produceAndDiscriminateShrinkingConePFTaus*process.produceShrinkingConeDiscriminationByTauNeuralClassifier)
-        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.shrConeDiscriminationSequence, postfix)
-        tauDiscriminationSequence.remove(getattr(process,"shrinkingConePFTauProducer"+postfix))
+        process.patFixedConePFTauDiscrimination = process.produceAndDiscriminateFixedConePFTaus.copy()
+        # remove producers
+        for iname in process.patFixedConePFTauDiscrimination.moduleNames():
+            if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1):
+                process.patFixedConePFTauDiscrimination.remove(getattr(process,iname) )
+        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.patFixedConePFTauDiscrimination, postfix)
+
+    elif tauType == 'shrinkingConePFTau': #shr cone with TaNC
+        process.patShrinkingConePFTauDiscrimination = process.produceAndDiscriminateShrinkingConePFTaus.copy()
+        process.patShrinkingConePFTauDiscrimination *= process.produceShrinkingConeDiscriminationByTauNeuralClassifier
+        # remove producers
+        for iname in process.patShrinkingConePFTauDiscrimination.moduleNames():
+            if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1):
+                process.patShrinkingConePFTauDiscrimination.remove(getattr(process,iname) )
+        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.patShrinkingConePFTauDiscrimination, postfix)
+
     elif tauType == 'caloTau':
-        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.tautagging, postfix)
-        tauDiscriminationSequence.remove(getattr(process,"caloRecoTauTagInfoProducer"+postfix))
-        tauDiscriminationSequence.remove(getattr(process,"caloRecoTauProducer",postfix))
+        # fill calo sequence by discriminants
+        process.patCaloTauDiscrimination = process.tautagging.copy()
+        # remove producers
+        for iname in process.patCaloTauDiscrimination.moduleNames():
+            if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1):
+                process.patCaloTauDiscrimination.remove(getattr(process,iname) )
+        tauDiscriminationSequence =  cloneProcessingSnippet(process, process.patCaloTauDiscrimination, postfix)
         tauSrc = 'CaloTauProducer'
     else:
         raise StandardError, "Unkown tauType: '%s'"%tauType
