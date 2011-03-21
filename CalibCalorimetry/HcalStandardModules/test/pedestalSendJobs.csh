@@ -2,18 +2,23 @@
 
 echo "---- Starting Pedestal job. Part 1 --"
 
-#set datasetName = "/TestEnables/Commissioning11-v1/RAW"
-set datasetName = "/TestEnables/HIRun2010-v1/RAW"
+set datasetName = "/TestEnables/Commissioning11-v1/RAW"
+#set datasetName =  "/TestEnables/HIRun2010-v1/RAW"
 #set datasetName = "/TestEnables/Run2010B-v1/RAW"
-@ beginRunNumber = 149513
+@ beginRunNumber = 153436
 @ lastRunNumber = 999999
 
-if (`expr index $datasetName "Commissioning11"` == 14 ) then 
+echo ${datasetName}
+
+set datasetSubName = `expr substr $datasetName 14 15`
+echo "Data to be processed belong to:" $datasetSubName
+
+if ($datasetSubName == "Commissioning11" ) then 
    @ pos = 52
-else if (`expr index $datasetName "HIRun2010"` != 14) then 
+else if ($datasetSubName == "HIRun2010-v1/RA") then 
    @ pos = 48 
-else  if (`expr index $datasetName "Run2010B"` == 14 ) then
-  @ pos = 45      
+else if ($datasetSubName == "Run2010B-v1/RAW") then
+   @ pos = 45      
 endif
   @ pos2 = $pos + 4 
 
