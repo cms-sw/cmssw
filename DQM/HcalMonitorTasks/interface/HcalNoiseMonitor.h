@@ -43,6 +43,9 @@ private:
    // Monitoring elements
    edm::InputTag rawdataLabel_;
    edm::InputTag hltresultsLabel_;
+   edm::InputTag hbheDigiLabel_;
+   edm::InputTag hbheRechitLabel_;
+   edm::InputTag noiseLabel_;
 
    // Double-chi2 related stuff
    MonitorElement *hNominalChi2;

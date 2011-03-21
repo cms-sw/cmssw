@@ -48,6 +48,9 @@ HcalNoiseMonitor::HcalNoiseMonitor(const edm::ParameterSet& ps)
    period_=ps.getUntrackedParameter<int>("NoiseeventPeriod",4096); //4096
    rawdataLabel_          = ps.getUntrackedParameter<edm::InputTag>("RawDataLabel");
    hltresultsLabel_       = ps.getUntrackedParameter<edm::InputTag>("HLTResultsLabel");
+   hbheDigiLabel_         = ps.getUntrackedParameter<edm::InputTag>("hbheDigiLabel");
+   hbheRechitLabel_       = ps.getUntrackedParameter<edm::InputTag>("hbheRechitLabel");
+   noiseLabel_            = ps.getUntrackedParameter<edm::InputTag>("noiseLabel");
 
    mTrianglePeakTS        = 4;   // for now...
 
@@ -204,16 +207,17 @@ void HcalNoiseMonitor::setup()
 void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup)
 {
    edm::Handle<HBHEDigiCollection> hHBHEDigis;
-   iEvent.getByLabel(edm::InputTag("hcalDigis"),hHBHEDigis);
+   iEvent.getByLabel(edm::InputTag(hbheDigiLabel_),hHBHEDigis);
 
    edm::ESHandle<HcalDbService> hConditions;
    iSetup.get<HcalDbRecord>().get(hConditions);
 
    edm::Handle<HBHERecHitCollection> hRecHits;
-   iEvent.getByLabel(edm::InputTag("hbhereco"), hRecHits);
+   std::cout <<"RECHIT = "<<hbheRechitLabel_<<std::endl;
+   iEvent.getByLabel(edm::InputTag(hbheRechitLabel_), hRecHits);
 
    edm::Handle<reco::HcalNoiseRBXCollection> hRBXCollection;
-   iEvent.getByLabel(edm::InputTag("hcalnoise"),hRBXCollection);
+   iEvent.getByLabel(edm::InputTag(noiseLabel_),hRBXCollection);
 
    HcalBaseDQMonitor::analyze(iEvent, iSetup);
 

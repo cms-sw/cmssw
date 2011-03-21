@@ -159,7 +159,12 @@ void HcalRawDataMonitor::setup(void){
     std::cout <<"<HcalRawDataMonitor::beginRun>  Setting up histograms"<<std::endl;
   
   dbe_->setCurrentFolder(subdir_);
-  
+
+  MonitorElement* excludeHO2=dbe_->bookInt("ExcludeHOring2");
+  // Fill with 0 if ring is not to be excluded; fill with 1 if it is to be excluded
+  if (excludeHO2) excludeHO2->Fill(excludeHORing2_==true ? 1 : 0);
+
+
   //  Already done in base class:
   //dbe_->setCurrentFolder(subdir_);
   //meIevt_ = dbe_->bookInt("EventsProcessed");
