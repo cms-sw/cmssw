@@ -1,3 +1,11 @@
+2011-03-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-01
+	* merge from branch
+	* fixes to monitoring usage 
+	* fix loss of total counters when all slave processes
+	crash
+	
 2011-02-16 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-03-00-02

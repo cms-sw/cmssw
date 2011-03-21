@@ -21,6 +21,8 @@
 
 #include "xdata/InfoSpace.h"
 #include "xdata/Integer.h"
+#include "xdata/UnsignedInteger32.h"
+#include "xdata/Boolean.h"
 #include "log4cplus/logger.h"
 
 #include <string>
@@ -69,9 +71,17 @@ namespace evf{
     void stopAndHalt();
 
     // infospace pointers transfer
-    void setScalersInfoSpace(xdata::InfoSpace *is){scalersInfoSpace_ = is;}
+    void setScalersInfoSpace(xdata::InfoSpace *sis, xdata::InfoSpace *slis)
+    {
+      scalersInfoSpace_ = sis;
+      scalersLegendaInfoSpace_ = slis;
+    }
     void setApplicationInfoSpace(xdata::InfoSpace *is){applicationInfoSpace_ = is;}
-    void setMonitorInfoSpace(xdata::InfoSpace *is){monitorInfoSpace_ = is;}
+    void setMonitorInfoSpace(xdata::InfoSpace *mis, xdata::InfoSpace *mlis)
+    {
+      monitorInfoSpace_ = mis;
+      monitorLegendaInfoSpace_ = mlis;
+    }
     void setMonitorInfoSpaceAlt(xdata::InfoSpace *is){monitorInfoSpaceAlt_ = is;}
     void setMonitorInfoSpaceLegend(xdata::InfoSpace *is){monitorInfoSpaceLegend_ = is;}
     void setRcms(xdaq::ApplicationDescriptor* rcms){rcms_ = rcms;}
@@ -99,6 +109,7 @@ namespace evf{
     void adjustLsIndexForRestart(){trh_.adjustLsIndexForRestart();}
     void resetTriggerReport(){trh_.resetTriggerReport();}
     MsgBuf &getPackedTriggerReport(){return trh_.getPackedTriggerReport();}
+    TriggerReportStatic *getPackedTriggerReportAsStruct(){return trh_.getPackedTriggerReportAsStruct();}
     bool fireScalersUpdate(); 
     void createAndSendScalersMessage();
 
@@ -130,7 +141,6 @@ namespace evf{
     edm::EventProcessor             *evtProcessor_;
 
     edm::ServiceToken                serviceToken_;    
-    edm::ServiceToken                slaveServiceToken_;    
     bool                             servicesDone_;
     bool                             epInitialized_;
     std::string                      configString_;
@@ -151,6 +161,7 @@ namespace evf{
 
     // infospace variables, monitor
     xdata::InfoSpace                *monitorInfoSpace_;
+    xdata::InfoSpace                *monitorLegendaInfoSpace_;
     xdata::InfoSpace                *monitorInfoSpaceAlt_;
     xdata::InfoSpace                *monitorInfoSpaceLegend_;
 
@@ -189,14 +200,24 @@ namespace evf{
     // LS stuff
     unsigned int                     allPastLumiProcessed_;
     std::list<std::string>           names_;
+    std::list<std::string>           namesStatusLegenda_;
+    std::list<std::string>           namesScalersLegenda_;
     std::string                      lsidTimedOutAsString_;
     unsigned int                     lsid_;
     unsigned int                     psid_;
 
     xdata::InfoSpace                *scalersInfoSpace_;
+    xdata::InfoSpace                *scalersLegendaInfoSpace_;
     xdata::UnsignedInteger32         localLsIncludingTimeOuts_;
     xdata::UnsignedInteger32         lsTimeOut_;
     xdata::Table                     scalersComplete_;
+
+    xdata::UnsignedInteger32         lumiSectionIndex_;
+    xdata::UnsignedInteger32         prescaleSetIndex_;
+    xdata::UnsignedInteger32         lastLumiPrescaleIndex_;
+    xdata::Boolean                   lsTimedOut_;
+    xdata::Boolean                   lsToBeRecovered_;
+
     unsigned int                     scalersUpdateAttempted_;    
     unsigned int                     scalersUpdateCounter_;
     std::vector<lsTriplet>           lumiSectionsCtr_;
