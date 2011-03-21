@@ -104,6 +104,9 @@ class TestSuite:
                 if res['status'] != 'done':  continue
                 if not tv_ref['results'].has_key(name): continue
                 ref = tv_ref['results'][name]
+                if not ref.has_key('limit'): 
+                    res['ref'] = { 'comment': ref['comment'] }
+                    continue
                 (limit, limitErr, time)  = res['limit'], res['limitErr'], res['t_real']
                 (limitR,limitErrR,timeR) = ref['limit'], ref['limitErr'], ref['t_real']
                 deltaLimRel = abs(limit-limitR)/max(hypot(limitErr,limitErrR),0.01*(limit+limitR),0.005)

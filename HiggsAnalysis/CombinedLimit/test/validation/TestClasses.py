@@ -81,7 +81,7 @@ class SingleDatacardTest(Test):
     def readOutput(self,dir):
         out = _readRootFile("%s/higgsCombine%s.%s.mH%s.root" % (dir, self._name, self._method, self._mass))
         if out['status'] != 'done': return out
-        return {'status':'done', 'comment':'', 'results':{self._datacard:out}}
+        return {'status':'done', 'comment':'', 'results':{os.path.basename(self._datacard):out}}
 
 class MultiDatacardTest(Test):
     def __init__(self,name,datacards,method,options):
@@ -94,8 +94,8 @@ class MultiDatacardTest(Test):
             datacard_full = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % dc 
             if os.access(datacard_full, os.R_OK) == False: 
                 raise RuntimeError, "Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % dc 
-            file.write("echo    %s -n %s -M %s %s -m %s >> %s.log     \n" % (datacard_full, self._name, self._method, self._options, mass, self._name));
-            file.write("combine %s -n %s -M %s %s -m %s >> %s.log 2>&1\n" % (datacard_full, self._name, self._method, self._options, mass, self._name));
+            file.write("echo    %s -n %s -M %s %s -m %s >  %s.%s.log     \n" % (datacard_full, self._name, self._method, self._options, mass, self._name, mass));
+            file.write("combine %s -n %s -M %s %s -m %s >> %s.%s.log 2>&1\n" % (datacard_full, self._name, self._method, self._options, mass, self._name, mass));
     def readOutput(self,dir):
         ret = { 'results':{}}
         for dc, mass in self._datacards:
@@ -129,14 +129,15 @@ class MultiOptionTest(Test):
         self._name = name + "_" + method
         self._datacard = datacard 
         self._method   = method
-        self._options  = [ (on,commonOptions+" "+ov,i*10+100) for i,(on,ov) in enumerate(optionsMap.items()) ]
+        pn = os.path.basename(self._datacard) + " ";
+        self._options  = [ (pn+on,commonOptions+" "+ov,i*10+100) for i,(on,ov) in enumerate(optionsMap.items()) ]
     def createScript(self,dir,file):
         datacard_full = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % self._datacard
         if os.access(datacard_full, os.R_OK) == False: 
             raise RuntimeError, "Datacard HiggsAnalysis/CombinedLimit/data/benchmarks/%s is not accessible" % self._datacard
         for on, ov, mass in self._options:
-            file.write("echo    %s -n %s -M %s %s -m %s >> %s.log     \n" % (datacard_full, self._name, self._method, ov, mass, self._name));
-            file.write("combine %s -n %s -M %s %s -m %s >> %s.log 2>&1\n" % (datacard_full, self._name, self._method, ov, mass, self._name));
+            file.write("echo    %s -n %s -M %s %s -m %s >  %s.%s.log     \n" % (datacard_full, self._name, self._method, ov, mass, self._name, mass));
+            file.write("combine %s -n %s -M %s %s -m %s >> %s.%s.log 2>&1\n" % (datacard_full, self._name, self._method, ov, mass, self._name, mass));
     def readOutput(self,dir):
         ret = { 'results':{}}
         for on, ov, mass in self._options:

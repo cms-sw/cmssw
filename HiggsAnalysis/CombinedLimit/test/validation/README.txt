@@ -25,3 +25,6 @@ Instructions to run the test suite:
    to compare reference.json with <dir>/report.json and propagate changes
 
 6) to add new tests, edit test_XX.py files
+
+Note: you can combine commands in a single line, e.g.
+ ./testSuite create run -j 4 report

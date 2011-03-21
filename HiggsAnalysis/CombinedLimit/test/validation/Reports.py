@@ -25,19 +25,25 @@ def textReport(report):
         if not tv.has_key('results'): continue
         one = (len(tv['results']) == 1)
         for rn, rv in isort(tv['results']):
-            msg = (tv['status'] if one else rv['status'])+": "
+            msg = "%-8s " % ((tv['status'] if one else rv['status'])+":")
             if rv['status'] != 'aborted':
                 if rv['limitErr'] != 0:
                     msg += "%-40s" % ("%6.3f +/- %5.3f  (%5.1f min)" % (rv['limit'], rv['limitErr'], rv['t_real']))
                 else:
                     msg += "%-40s" % ("%6.3f            (%5.1f min)" % (rv['limit'], rv['t_real']))
                 if rv.has_key('ref'):
-                    if rv['limitErr'] != 0:
-                        msg += "%-40s" % ("%6.3f +/- %5.3f  (%5.1f min)" % (rv['ref']['limit'], rv['ref']['limitErr'], rv['ref']['t_real']))
+                    if rv['ref'].has_key('limit'):
+                        if rv['ref']['comment'] != '':
+                            msg += "%-40s" % ("%6.3f +/- %5.3f  (%s)" % (rv['ref']['limit'], rv['ref']['limitErr'], rv['ref']['comment']))
+                        elif rv['ref']['limitErr'] != 0:
+                            msg += "%-40s" % ("%6.3f +/- %5.3f  (%5.1f min)" % (rv['ref']['limit'], rv['ref']['limitErr'], rv['ref']['t_real']))
+                        else:
+                            msg += "%-40s" % ("%6.3f            (%5.1f min)" % (rv['ref']['limit'], rv['ref']['t_real']))
                     else:
-                        msg += "%-40s" % ("%6.3f            (%5.1f min)" % (rv['ref']['limit'], rv['ref']['t_real']))
-            comm = (tv['comment'] if one else rv['comment'])
-            if comm != "": msg += " ("+comm+")"
+                        msg += "%-40s" % rv['ref']['comment']
+            else:
+                comm = (tv['comment'] if one else rv['comment'])
+                if comm != "": msg += " ("+comm+")"
             print (tfmt+"  "+sfmt+"  %s") % (tn if one else " ^", rn, msg)
 
 def twikiReport(report):
@@ -69,10 +75,13 @@ def twikiReport(report):
             else:
                 msg += "<i>%s</i>  |||" % rv['comment'];
             if rv.has_key('ref'):
-                if rv['limitErr'] != 0:
-                    msg += "%.3f &plusmn; %5.3f   | %.1f min   | %s  |" % (rv['ref']['limit'], rv['ref']['limitErr'], rv['ref']['t_real'], rv['ref']['comment'])
+                if rv['ref'].has_key('limit'):
+                    if rv['limitErr'] != 0:
+                        msg += "%.3f &plusmn; %5.3f   | %.1f min   | %s  |" % (rv['ref']['limit'], rv['ref']['limitErr'], rv['ref']['t_real'], rv['ref']['comment'])
+                    else:
+                        msg += "%.3f                  | %.1f min   | %s  |" % (rv['ref']['limit'], rv['ref']['t_real'], rv['ref']['comment'])
                 else:
-                    msg += "%.3f                  | %.1f min   | %s  |" % (rv['ref']['limit'], rv['ref']['t_real'], rv['ref']['comment'])
+                    msg += "%s   |||" % rv['ref']['comment']
             elif hasref:
                 msg += "  |||";
             print msg

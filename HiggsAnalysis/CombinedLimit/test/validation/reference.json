@@ -72,41 +72,6 @@
                 "status": "done", 
                 "t_real": 0.050877735018730164
             }, 
-            "counting-B5p5-Obs20-StatOnly.txt": {
-                "comment": "", 
-                "limit": 23.561207520637183, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.00032051801099441946
-            }, 
-            "counting-B5p5-Obs20-Syst30B.txt": {
-                "comment": "", 
-                "limit": 23.691895474231529, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.0047683636657893658
-            }, 
-            "counting-B5p5-Obs20-Syst30C.txt": {
-                "comment": "", 
-                "limit": 32.880955451839732, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.01423698291182518
-            }, 
-            "counting-B5p5-Obs20-Syst30S.txt": {
-                "comment": "", 
-                "limit": 29.422845215339883, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.005810602568089962
-            }, 
-            "counting-B5p5-Obs20-Syst30U.txt": {
-                "comment": "", 
-                "limit": 29.447500923655486, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.090973615646362305
-            }, 
             "counting-B5p5-Obs6-StatOnly.txt": {
                 "comment": "", 
                 "limit": 7.0133367779074085, 
@@ -150,27 +115,41 @@
         "status": "done"
     }, 
     "Counting_Hybrid": {
-        "comment": "", 
+        "comment": "Numbers from L&S", 
         "results": {
-            "": {
-                "comment": "Number from L&S (B5p5-Obs6-Syst30B)", 
+            "counting-B5p5-Obs6-Syst30B.txt": {
+                "comment": "Number from L&S", 
                 "limit": 7.45, 
-                "limitErr": 0.15625, 
+                "limitErr": 0.01, 
                 "status": "done", 
-                "t_real": 1.4011930227279663
+                "t_real": 0 
             }
         }, 
         "status": "done"
     }, 
     "Counting_HybridNew": {
-        "comment": "", 
+        "comment": "Numbers from L&S", 
         "results": {
-            "": {
-                "comment": "Number from L&S (B5p5-Obs6-Syst30B)", 
-                "limit": 7.45, 
-                "limitErr": 0.12766186303035512, 
+            "counting-B5p5-Obs1-Syst30B.txt": {
+                "comment": "L&S", 
+                "limit": 3.49, 
+                "limitErr": 0.03, 
                 "status": "done", 
-                "t_real": 0.87569999694824219
+                "t_real": 0
+            }, 
+            "counting-B5p5-Obs11-Syst30B.txt": {
+                "comment": "L&S", 
+                "limit": 12.97, 
+                "limitErr": 0.03, 
+                "status": "done", 
+                "t_real": 0
+            }, 
+            "counting-B5p5-Obs6-Syst30B.txt": {
+                "comment": "L&S", 
+                "limit": 7.44, 
+                "limitErr": 0.03, 
+                "status": "done", 
+                "t_real": 0
             }
         }, 
         "status": "done"
@@ -221,7 +200,7 @@
         "status": "done"
     }, 
     "Counting_ProfileLikelihood": {
-        "comment": "19 jobs done, 1 jobs aborted", 
+        "comment": "", 
         "results": {
             "counting-B5p5-Obs1-StatOnly.txt": {
                 "comment": "", 
@@ -410,28 +389,28 @@
     "Counting_TestStats_AboveB_HybridNew": {
         "comment": "not validated but looks ok", 
         "results": {
-            "Atlas": {
+            "counting-B5p5-Obs11-Syst30B.txt Atlas": {
                 "comment": "", 
                 "limit": 1.3084299126222181, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.00011293490388197824
             }, 
-            "LEP": {
+            "counting-B5p5-Obs11-Syst30B.txt LEP": {
                 "comment": "", 
                 "limit": -2.7940224971090615, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.00015605290536768734
             }, 
-            "Profile": {
+            "counting-B5p5-Obs11-Syst30B.txt Profile": {
                 "comment": "", 
                 "limit": 1.3084202982651076, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.00010883410868700594
             }, 
-            "TEV": {
+            "counting-B5p5-Obs11-Syst30B.txt TEV": {
                 "comment": "", 
                 "limit": -1.4687259747081489, 
                 "limitErr": 0.0, 
@@ -444,28 +423,28 @@
     "Counting_TestStats_AboveSB_HybridNew": {
         "comment": "not validated but looks ok", 
         "results": {
-            "Atlas": {
+            "counting-B5p5-Obs11-Syst30B.txt Atlas": {
                 "comment": "", 
                 "limit": -6.4201477911751681e-08, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.0001062671362888068
             }, 
-            "LEP": {
+            "counting-B5p5-Obs11-Syst30B.txt LEP": {
                 "comment": "", 
                 "limit": -2.8234084226844658, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.00015758673544041812
             }, 
-            "Profile": {
+            "counting-B5p5-Obs11-Syst30B.txt Profile": {
                 "comment": "", 
                 "limit": 1.063679519192517, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.0001569469750393182
             }, 
-            "TEV": {
+            "counting-B5p5-Obs11-Syst30B.txt TEV": {
                 "comment": "", 
                 "limit": -1.7134754317260716, 
                 "limitErr": 0.0, 
@@ -478,21 +457,21 @@
     "Counting_TestStats_BelowB_HybridNew": {
         "comment": "not validated but looks ok", 
         "results": {
-            "Atlas": {
+            "counting-B5p5-Obs1-Syst30B.txt Atlas": {
                 "comment": "", 
                 "limit": 8.4575381796187319, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.00011315345909679309
             }, 
-            "LEP": {
+            "counting-B5p5-Obs1-Syst30B.txt LEP": {
                 "comment": "", 
                 "limit": 8.706745670149898, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.00015688339772168547
             }, 
-            "TEV": {
+            "counting-B5p5-Obs1-Syst30B.txt TEV": {
                 "comment": "", 
                 "limit": 8.4575380785891401, 
                 "limitErr": 0.0, 
@@ -505,21 +484,21 @@
     "Counting_TestStats_HybridNew": {
         "comment": "not validated but looks ok", 
         "results": {
-            "Atlas": {
+            "counting-B5p5-Obs6-Syst30B.txt Atlas": {
                 "comment": "", 
                 "limit": 1.980986528105726, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.00011301835183985531
             }, 
-            "LEP": {
+            "counting-B5p5-Obs6-Syst30B.txt LEP": {
                 "comment": "", 
                 "limit": 2.2404740208993701, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.00015256802726071328
             }, 
-            "TEV": {
+            "counting-B5p5-Obs6-Syst30B.txt TEV": {
                 "comment": "", 
                 "limit": 1.9493057406825001, 
                 "limitErr": 0.0, 
@@ -530,7 +509,7 @@
         "status": "done"
     },
     "Counting_ZeroB_FeldmanCousins": {
-        "comment": "all 3 jobs done", 
+        "comment": "Numbers from PDG", 
         "results": {
             "counting-B0-Obs0-StatOnly.txt": {
                 "comment": "PDG", 
@@ -557,10 +536,10 @@
         "status": "done"
     }, 
     "Counting_ZeroB_Lower_FeldmanCousins": {
-        "comment": "all 3 jobs done", 
+        "comment": "Numbers from PDG", 
         "results": {
             "counting-B0-Obs0-StatOnly.txt": {
-                "comment": "", 
+                "comment": "Obvious", 
                 "limit": 0, 
                 "limitErr": 0.0, 
                 "status": "done", 
@@ -583,7 +562,97 @@
         }, 
         "status": "done"
     }, 
-
+    "Counting_pValues_CLs_Hybrid": {
+        "comment": "For S = 5", 
+        "results": {
+            "counting-B5p5-Obs6-Syst30B.txt LEP": {
+                "comment": "L&S", 
+                "limit": 0.176713, 
+                "limitErr": 0.00159946, 
+                "status": "done", 
+                "t_real": 0.88811826705932617
+            }, 
+            "counting-B5p5-Obs6-Syst30B.txt TEV": {
+                "comment": "L&S", 
+                "limit": 0.1717, 
+                "limitErr": 0.005, 
+                "status": "done", 
+                "t_real": 0
+            }
+        }, 
+        "status": "done"
+    }, 
+    "Counting_pValues_CLs_HybridNew": {
+        "comment": "NOTE: for S = 5", 
+        "results": {
+            "counting-B5p5-Obs6-Syst30B.txt Atlas": {
+                "comment": "", 
+                "limit": 0.14453179190751447, 
+                "limitErr": 0.0077058698511080978, 
+                "status": "done", 
+                "t_real": 0.14051693677902222
+            }, 
+            "counting-B5p5-Obs6-Syst30B.txt LEP": {
+                "comment": "L&S", 
+                "limit": 0.176713, 
+                "limitErr": 0.00159946, 
+                "status": "done", 
+                "t_real": 0
+            }, 
+            "counting-B5p5-Obs6-Syst30B.txt TEV": {
+                "comment": "L&S", 
+                "limit": 0.1717, 
+                "limitErr": 0.005, 
+                "status": "done", 
+                "t_real": 0
+            }
+        }, 
+        "status": "done"
+    }, 
+    "Counting_pValues_CLsplusb_Hybrid": {
+        "comment": "NOTE: for S = 5", 
+        "results": {
+            "counting-B5p5-Obs6-Syst30B.txt LEP": {
+                "comment": "L&S", 
+                "limit": 0.11545, 
+                "limitErr": 0.00101055, 
+                "status": "done", 
+                "t_real": 0
+            }, 
+            "counting-B5p5-Obs6-Syst30B.txt TEV": {
+                "comment": "L&S", 
+                "limit": 0.1137, 
+                "limitErr": 0.00317447, 
+                "status": "done", 
+                "t_real": 0 
+            }
+        }, 
+        "status": "done"
+    }, 
+    "Counting_pValues_CLsplusb_HybridNew": {
+        "comment": "NOTE: for S = 5", 
+        "results": {
+            "counting-B5p5-Obs6-Syst30B.txt Atlas": {
+                "comment": "n/a", 
+                "status": "" 
+            }, 
+            "counting-B5p5-Obs6-Syst30B.txt LEP": {
+                "comment": "L&S", 
+                "limit": 0.11545, 
+                "limitErr": 0.00101055, 
+                "status": "done", 
+                "t_real": 0
+            }, 
+            "counting-B5p5-Obs6-Syst30B.txt TEV": {
+                "comment": "L&S", 
+                "limit": 0.1137, 
+                "limitErr": 0.00317447, 
+                "status": "done", 
+                "t_real": 0 
+            }
+        }, 
+        "status": "done"
+    }, 
     "Gamma_BayesianSimple": {
         "comment": "all 12 jobs done", 
         "results": {
@@ -677,7 +746,7 @@
     "Gamma_MarkovChainMC": {
         "comment": "", 
         "results": {
-            "gammas/counting-S1-Sideband10-alpha0p2-Obs2.txt": {
+            "counting-S1-Sideband10-alpha0p2-Obs2.txt": {
                 "comment": "", 
                 "limit": 4.9810183452402157, 
                 "limitErr": 0.084557415534189273, 
@@ -778,7 +847,7 @@
         "status": "done"
     }, 
     "Gamma_Sig_ProfileLikelihood": {
-        "comment": "5 jobs done, 3 jobs aborted", 
+        "comment": "", 
         "results": {
             "counting-S1-Sideband1-alpha0p3-Obs2.txt": {
                 "comment": "", 
@@ -787,24 +856,12 @@
                 "status": "done", 
                 "t_real": 0.00019125144171994179
             }, 
-            "counting-S1-Sideband10-alpha0p2-Obs2.txt": {
-                "comment": "statistical method failed", 
-                "status": "aborted"
-            }, 
-            "counting-S1-Sideband100-alpha0p05-Obs4.txt": {
-                "comment": "statistical method failed", 
-                "status": "aborted"
-            }, 
             "counting-S1-Sideband2-alpha0p3-Obs6.txt": {
                 "comment": "", 
                 "limit": 3.1061464623164028, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.00019005140347871929
-            }, 
-            "counting-Sideband11-alpha0p5-Obs1.txt": {
-                "comment": "statistical method failed", 
-                "status": "aborted"
             }, 
             "counting-Sideband11-alpha0p5-Obs11.txt": {
                 "comment": "", 
@@ -819,64 +876,52 @@
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.00019234816136304289
-            }, 
-            "counting-Sideband11-alpha0p5-Obs6.txt": {
-                "comment": "", 
-                "limit": 0.17071393477043301, 
-                "limitErr": 0.0, 
-                "status": "done", 
-                "t_real": 0.00019191503815818578
             }
         }, 
         "status": "partial"
     }, 
-    "HWW_FeldmanCousins": {
-        "comment": "boh", 
-        "status": "boh"
-    }, 
-
     "HWW_Hybrid": {
-        "comment": "", 
+        "comment": "value from L&S", 
         "results": {
-            "": {
+            "hww4ch-1fb-B-mH140.txt": {
                 "comment": "value from L&S", 
                 "limit": 1.64, 
-                "limitErr": 0.078489997616349227, 
+                "limitErr": 0.02, 
                 "status": "done", 
-                "t_real": 6.6090092658996582
+                "t_real": 0
             }
         }, 
         "status": "done"
     }, 
     "HWW_HybridNew": {
-        "comment": "", 
+        "comment": "value from L&S", 
         "results": {
             "hww4ch-1fb-B-mH140.txt": {
                 "comment": "value from L&S", 
                 "limit": 1.64, 
-                "limitErr": 0.078489997616349227, 
+                "limitErr": 0.02, 
                 "status": "done", 
-                "t_real": 6.6090092658996582
+                "t_real": 0
             }
         }, 
         "status": "done"
     }, 
     "HWW_MarkovChainMC": {
-        "comment": "all 2 jobs done", 
+        "comment": "Value from validation", 
         "results": {
             "hww4ch-1fb-B-mH140.txt": {
                 "comment": "Value from validation", 
                 "limit": 1.75, 
-                "limitErr": 0.059631419345584261, 
+                "limitErr": 0.013, 
                 "status": "done", 
-                "t_real": 1.2151085138320923
+                "t_real": 0
             }, 
             "hww4ch-1fb-B-mH160.txt": {
-                "comment": "", 
+                "comment": "Value from validation", 
                 "limit": 0.348, 
-                "limitErr": 0.047934554236647643, 
+                "limitErr": 0.003, 
                 "status": "done", 
-                "t_real": 1.3196494579315186
+                "t_real": 0
             }
         }, 
         "status": "done"
@@ -1044,23 +1089,23 @@
         "status": "done"
     }, 
     "HWW_TestStats_HybridNew": {
-        "comment": "all 3 jobs done", 
+        "comment": "Not validated", 
         "results": {
-            "Atlas": {
+            "hww4ch-1fb-B-mH140.txt Atlas": {
                 "comment": "", 
                 "limit": 0.19040343952066507, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.003403182839974761
             }, 
-            "LEP": {
+            "hww4ch-1fb-B-mH140.txt LEP": {
                 "comment": "", 
                 "limit": -4.1278929111620215, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.0031170169822871685
             }, 
-            "TEV": {
+            "hww4ch-1fb-B-mH140.txt TEV": {
                 "comment": "", 
                 "limit": -3.1622481480868316, 
                 "limitErr": 0.0, 
@@ -1070,24 +1115,62 @@
         }, 
         "status": "done"
     }, 
+    "HWW_pValues_Atlas_HybridNew": {
+        "comment": "n/a", 
+        "status": ""
+    }, 
+    "HWW_pValues_LEP_Hybrid": {
+        "comment": "Number from L&S", 
+        "results": {
+            "hww4ch-1fb-B-mH140.txt": {
+                "comment": "L&S", 
+                "limit": 0.314001, 
+                "limitErr": 0.001540, 
+                "status": "done", 
+                "t_real": 0
+            }
+        }, 
+        "status": "done"
+    }, 
+    "HWW_pValues_LEP_HybridNew": {
+        "comment": "Number from L&S", 
+        "results": {
+            "hww4ch-1fb-B-mH140.txt": {
+                "comment": "L&S", 
+                "limit": 0.314001, 
+                "limitErr": 0.001540, 
+                "status": "done", 
+                "t_real": 0
+            }
+        }, 
+        "status": "done"
+    }, 
+    "HWW_pValues_TEV_Hybrid": {
+        "comment": "n/a", 
+        "status": ""
+    }, 
+    "HWW_pValues_TEV_HybridNew": {
+        "comment": "n/a", 
+        "status": ""
+    }, 
     "Proposals_MarkovChainMC": {
         "comment": "all 3 jobs done", 
         "results": {
-            "Gaus": {
+            "counting-B5p5-Obs6-Syst30B.txt Gaus": {
                 "comment": "", 
                 "limit": 7.5318851773045026, 
                 "limitErr": 0.027725776960563792, 
                 "status": "done", 
                 "t_real": 3.0577776432037354
             }, 
-            "Ortho": {
+            "counting-B5p5-Obs6-Syst30B.txt Ortho": {
                 "comment": "", 
                 "limit": 7.4439754902959514, 
                 "limitErr": 0.034369245517701576, 
                 "status": "done", 
                 "t_real": 0.065436944365501404
             }, 
-            "Uniform": {
+            "counting-B5p5-Obs6-Syst30B.txt Uniform": {
                 "comment": "", 
                 "limit": 7.5390232351298136, 
                 "limitErr": 0.042609751254623705, 
