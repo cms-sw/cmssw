@@ -96,12 +96,12 @@ namespace HcalSimpleRecAlgoImpl {
 
     // Temoprary Ugly Hack to apply energy-dependent corrections on some
     // HB- cells
-    //    if(forData) {
+    if(forData) {
       HcalDetId cell(digi.id());
       int ieta  = cell.ieta();
       int iphi  = cell.iphi();
       ampl *= eCorr(ieta,iphi,ampl);
-      //    }
+    }
 
     return RecHit(digi.id(),ampl,time);    
   }
