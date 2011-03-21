@@ -1,4 +1,4 @@
-// $Id: HcalPedestalsChannelsCheck.cc,v 1.6 2009/11/12 10:35:08 devildog Exp $
+// $Id: HcalPedestalsChannelsCheck.cc,v 1.7 2011/03/16 17:56:26 andrey Exp $
 
 #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalsChannelsCheck.h"
 #include <ios>
@@ -111,8 +111,8 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
    std::vector<DetId>::iterator cell;
    bool failflag = false;
 
-   std::cout<<"Size of listNewChan: "<<listNewChan.size()<<std::endl;
-   std::cout<<"Size of listRefChan: "<<listRefChan.size()<<std::endl;
+   //std::cout<<"Size of listNewChan: "<<listNewChan.size()<<std::endl;
+   //std::cout<<"Size of listRefChan: "<<listRefChan.size()<<std::endl;
 
    if(myRefPeds->isADC() != myNewPeds->isADC()) throw cms::Exception("Peds not in same units!");
 
@@ -151,18 +151,20 @@ void HcalPedestalsChannelsCheck::analyze(const edm::Event& ev, const edm::EventS
                                    +(*(oldvalue+1)-*(values+1)) 
                                    +(*(oldvalue+2)-*(values+2))
                                    +(*(oldvalue+3)-*(values+3)) );
+	       /* debug
 	       if(hocheck.iphi()==2 && hocheck.ieta()>-9 && hocheck.ieta()<-5 )
 		 {
 		   std::cout<<std::dec << HcalGenericDetId(mydetid.rawId())<<" "<<*oldvalue<<"  "<<*values<<std::endl;
 		   std::cout<<std::dec << HcalGenericDetId(mydetid.rawId())<<" "<<*(oldvalue+1)<<"  "<<*(values+1)<<std::endl;
 		 }
+	       */
 
                if(fabs(avgchange) > thresh){
                etaphi[hocheck.depth()-1]->Fill(hocheck.ieta(),hocheck.iphi(),avgchange);
                difhist[hocheck.subdet()-1]->Fill(fabs(avgchange));
 //               if(hocheck.subdet()==3) continue;
 // 	       throw cms::Exception("DataDoesNotMatch") << "Values differ by more than deltaP";
-               std::cout << std::dec << HcalGenericDetId(mydetid.rawId()) << " has changed by "<< avgchange * -1 << " " << std::hex  << std::uppercase << mydetid.rawId() <<"    threshold: "<<thresh<< std::endl;
+               std::cout << std::dec << HcalGenericDetId(mydetid.rawId()) <<"  "<< std::hex  << std::uppercase << mydetid.rawId() <<"\t  has changed by "<< avgchange * -1 << " \t  threshold: "<<thresh<< std::endl;
                failflag = true;
                const HcalPedestal* item = myNewPeds->getValues(mydetid);
                changedchannels->addValues(*item);
