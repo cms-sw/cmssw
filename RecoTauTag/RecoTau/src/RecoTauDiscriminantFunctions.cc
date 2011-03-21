@@ -265,7 +265,27 @@ double IsolationECALSumSoftRelative(Tau tau) {
 }
 
 double EMFraction(Tau tau) {
-  return tau.emFraction();
+  //double result = tau.emFraction();
+  reco::Candidate::LorentzVector gammaP4;
+  BOOST_FOREACH(const reco::PFCandidateRef& gamma, tau.signalPFGammaCands()) {
+    gammaP4 += gamma->p4();
+  }
+  double result = gammaP4.pt()/tau.pt();
+
+  if (result > 0.99) {
+    std::cout << "EM fraction = " << result
+      << tau << std::endl;
+    tau.dump(std::cout);
+    std::cout << "charged" << std::endl;
+    BOOST_FOREACH(const reco::PFCandidateRef cand, tau.signalPFChargedHadrCands()) {
+      std::cout << " pt: " << cand->pt() << " type: " << cand->particleId() <<  " key: " << cand.key() << std::endl;
+    }
+    std::cout << "gammas" << std::endl;
+    BOOST_FOREACH(const reco::PFCandidateRef cand, tau.signalPFGammaCands()) {
+      std::cout << " pt: " << cand->pt() << " type: " << cand->particleId() <<  " key: " << cand.key() << std::endl;
+    }
+  }
+  return result;
 }
 
 double ImpactParameterSignificance(Tau tau) {
