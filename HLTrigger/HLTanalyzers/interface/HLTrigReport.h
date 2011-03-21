@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2011/03/02 07:28:58 $
- *  $Revision: 1.14 $
+ *  $Date: 2011/03/11 16:34:14 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -90,12 +90,11 @@ class HLTrigReport : public edm::EDAnalyzer {
       unsigned int refIndex_;                                   // index of the reference path for rate calculation
       double refRate_;                                         // rate of the reference path, the rate of all other paths will be normalized to this
 
-      // note: one and only one of these should be enabled at the same time
-      bool reportByLumi_;                   // dump the report for every lumisection
-      bool reportByRun_;                    // dump the report for every run
-      bool reportByJob_;                    // dump the teport for every job
-
-      HLTConfigProvider hltConfig_;         // to get configuration for L1s/Pre
+      // working mode: 0=never/1=event/2=lumi/3=run/4=job
+      int reportBy_;                // dump report for every never/event/lumi/run/job
+      int resetBy_;                 // reset counters  every never/event/lumi/run/job
+      int serviceBy_;               // call to service every never/event/lumi/run/job
+      HLTConfigProvider hltConfig_; // to get configuration for L1s/Pre
 };
 
 #endif //HLTrigReport_h

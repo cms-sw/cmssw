@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/03/02 07:28:58 $
- *  $Revision: 1.30 $
+ *  $Date: 2011/03/11 16:34:14 $
+ *  $Revision: 1.31 $
  *
  *  \author Martin Grunewald
  *
@@ -18,6 +18,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Math/QuantFuncMathCore.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTrigReportService.h"
 
 #include <iomanip>
 #include <cstring>
@@ -55,27 +58,14 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   refPath_("HLTriggerFinalPath"),
   refIndex_(0),
   refRate_(100.0),
-  reportByLumi_(false),
-  reportByRun_(false),
-  reportByJob_(true),
+  reportBy_(0),
+  resetBy_(0),
+  serviceBy_(0),
   hltConfig_()
 {
-  const std::string & reportEvery = iConfig.getUntrackedParameter<std::string>("ReportEvery", "job");
-  if (strcasecmp(reportEvery.c_str(), "job") == 0) {
-    reportByLumi_ = false;
-    reportByRun_  = false;
-    reportByJob_  = true;
-  } else if (strcasecmp(reportEvery.c_str(), "run") == 0) {
-    reportByLumi_ = false;
-    reportByRun_  = true;
-    reportByJob_  = false;
-  } else if (strcasecmp(reportEvery.c_str(), "lumi") == 0) {
-    reportByLumi_ = true;
-    reportByRun_  = false;
-    reportByJob_  = false;
-  } else {
-    edm::LogError("Configuration") << "Invalid value for HLTrigReport.ReportEvery: \"" << reportEvery << "\". Valid values are: \"lumi\", \"run\", \"job\".";
-  }
+  reportBy_ = iConfig.getUntrackedParameter<int>("reportBy" ,4);
+  resetBy_  = iConfig.getUntrackedParameter<int>("resetBy"  ,0);
+  serviceBy_= iConfig.getUntrackedParameter<int>("serviceBy",0);
 
   const edm::ParameterSet customDatasets(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomDatasets", edm::ParameterSet()));
   isCustomDatasets_ = (customDatasets != edm::ParameterSet());
@@ -102,6 +92,11 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   LogDebug("HLTrigReport")
     << "HL TiggerResults: " + hlTriggerResults_.encode()
     << " using reference path and rate: " + refPath_ + " " << refRate_;
+
+  if(serviceBy_ && edm::Service<HLTrigReportService>()) {
+    edm::Service<HLTrigReportService>()->registerModule(this);
+  }
+
 }
 
 HLTrigReport::~HLTrigReport() { }
@@ -264,20 +259,29 @@ void HLTrigReport::reset(bool changed /* = false */) {
     }
   }
 
+  if(changed && serviceBy_ && edm::Service<HLTrigReportService>()) {
+    edm::Service<HLTrigReportService>()->setDatasetNames(datasetNames_);
+    edm::Service<HLTrigReportService>()->setStreamNames(streamNames_);
+  }
+
 }
 
 void HLTrigReport::beginJob() {
-  if (reportByJob_) {
-    reset();
-  }
+  if (resetBy_==4) reset();
 }
 
 void HLTrigReport::endJob() {
-  if (reportByJob_) {
-    dumpReport();
+  if (reportBy_==4) {
+    std::stringstream stream;
+    stream << "Summary for Job ";
+    dumpReport(stream.str());
   }
-}
+  if(serviceBy_==4 && edm::Service<HLTrigReportService>()) {
+    edm::Service<HLTrigReportService>()->setDatasetCounts(datasetCounts());
+    edm::Service<HLTrigReportService>()->setStreamCounts(streamCounts());
+  }
 
+}
 
 void
 HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
@@ -286,11 +290,11 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
   if (hltConfig_.init(iRun, iSetup, hlTriggerResults_.process(), changed)) {
     configured_ = true;
     if (changed) {
-      dumpReport();
+      dumpReport("Dump for this HLT table");
       reset(true);
     }
   } else {
-    dumpReport();
+    dumpReport("Dump for this HLT table");
     // cannot initialize the HLT menu - reset and clear all counters and tables
     configured_ = false;
     nEvents_    = 0;
@@ -314,31 +318,35 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
     dsAllTotS_.clear();
   }
 
-  if (reportByRun_) {
-    reset();
-  }
+  if (resetBy_==3) reset();
 
 }
 
 void HLTrigReport::endRun(edm::Run const & run, edm::EventSetup const & setup) {
-  if (reportByRun_) {
+  if (reportBy_==3) {
     std::stringstream stream;
     stream << "Summary for Run " << run.run();
     dumpReport(stream.str());
   }
-}
-
-void HLTrigReport::beginLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup) {
-  if (reportByLumi_) {
-    reset();
+  if(serviceBy_==3 && edm::Service<HLTrigReportService>()) {
+    edm::Service<HLTrigReportService>()->setDatasetCounts(datasetCounts());
+    edm::Service<HLTrigReportService>()->setStreamCounts(streamCounts());
   }
 }
 
+void HLTrigReport::beginLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup) {
+  if (resetBy_==3)  reset();
+}
+
 void HLTrigReport::endLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup) {
-  if (reportByLumi_) {
+  if (reportBy_==2) {
     std::stringstream stream;
     stream << "Summary for Run " << lumi.run() << ", LumiSection " << lumi.luminosityBlock();
     dumpReport(stream.str());
+  }
+  if(serviceBy_==2 && edm::Service<HLTrigReportService>()) {
+    edm::Service<HLTrigReportService>()->setDatasetCounts(datasetCounts());
+    edm::Service<HLTrigReportService>()->setStreamCounts(streamCounts());
   }
 }
 
@@ -351,6 +359,8 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   using namespace std;
   using namespace edm;
+
+  if (resetBy_==1) reset();
 
   nEvents_++;
 
@@ -416,6 +426,15 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
     if (acceptedByS) dsAllTotS_[s]++;
+  }
+
+  if (reportBy_==1) {
+    std::stringstream stream;
+    stream << "Summary for Run " << iEvent.run() << ", LumiSection " << iEvent.luminosityBlock() << ", Event " << iEvent.id();
+  }
+  if(serviceBy_==1 && edm::Service<HLTrigReportService>()) {
+    edm::Service<HLTrigReportService>()->setDatasetCounts(datasetCounts());
+    edm::Service<HLTrigReportService>()->setStreamCounts(streamCounts());
   }
 
 }
