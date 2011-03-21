@@ -594,7 +594,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       //  -> inital parameters
       GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,theMagField);
  //  -> large initial errors
-      AlgebraicSymMatrix errorMatrix(5,1);    
+      AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();    
       CurvilinearTrajectoryError initialError(errorMatrix);
       // -> initial state
       FreeTrajectoryState initialFTS(initialParams, initialError);      

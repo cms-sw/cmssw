@@ -596,7 +596,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       //  -> inital parameters
       GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,theMagField);
       //  -> large initial errors
-      AlgebraicSymMatrix errorMatrix(5,1);      
+      AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();      
       // errorMatrix = errorMatrix * 10;
 
       //this line help the fit succeed in the case of pixelless tracks (4th and 5th iteration)
