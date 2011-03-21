@@ -43,7 +43,11 @@ namespace egHLT {
     Data1D sigEtaEta;
     Data1D e2x5;
     Data1D e1x5;
-    Data1D r9;
+    //----Morse----
+    //Data1D r9;
+    Data1D minr9;
+    Data1D maxr9;
+    //-----------
     Data1D isolEm;
     Data1D isolHad;
     Data1D isolPtTrks;

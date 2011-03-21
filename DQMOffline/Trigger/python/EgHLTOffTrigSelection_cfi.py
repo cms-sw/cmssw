@@ -244,3 +244,169 @@ egHLTOffDoublePhoEt15VLEICuts.endcap.maxHLTIsolEmOverEt = .2;
 egHLTOffDoublePhoEt15VLEICuts.endcap.maxHLTIsolEmOverEt2 = -1.;
 egHLTOffDoublePhoEt15VLEICuts.endcap.cuts = "et:hltIsolEm"
 
+
+
+#---Morse-----
+
+egHLTOffPhotonEt30_CaloIdVL_v1Cuts = cms.PSet(egHLTOffBasePhoTrigCuts)
+egHLTOffPhotonEt30_CaloIdVL_v1Cuts.trigName = "hltEG30CaloIdVLHEFilter"
+egHLTOffPhotonEt30_CaloIdVL_v1Cuts.barrel.minEt = 30.
+egHLTOffPhotonEt30_CaloIdVL_v1Cuts.barrel.maxSigmaIEtaIEta = 0.024
+egHLTOffPhotonEt30_CaloIdVL_v1Cuts.barrel.maxHadem = 0.15
+egHLTOffPhotonEt30_CaloIdVL_v1Cuts.barrel.cuts = "et:sigmaIEtaIEta:hadem:maxr9"
+egHLTOffPhotonEt30_CaloIdVL_v1Cuts.endcap.minEt = 30.
+egHLTOffPhotonEt30_CaloIdVL_v1Cuts.endcap.maxSigmaIEtaIEta = 0.04
+egHLTOffPhotonEt30_CaloIdVL_v1Cuts.endcap.maxHadem = 0.1
+egHLTOffPhotonEt30_CaloIdVL_v1Cuts.endcap.cuts = "et:sigmaIEtaIEta:hadem:maxr9"
+
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts = cms.PSet(egHLTOffBasePhoTrigCuts)
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.trigName = "hltPhoton30CaloIdVLIsoLTrackIsoFilter"
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.barrel.minEt = 30.
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.barrel.maxSigmaIEtaIEta = 0.024
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.barrel.maxHadem = 0.15
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.barrel.isolEmConstTerm = 5.5
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.barrel.isolEmGradTerm = 0.012
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.barrel.isolHadConstTerm = 3.5
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.barrel.isolHadGradTerm = 0.005
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.barrel.isolPtTrksConstTerm = 3.5
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.barrel.isolPtTrksGradTerm = 0.002
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.barrel.cuts = "et:sigmaIEtaIEta:hadem:maxr9:isolEm:isolHad:isolPtTrks"
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.endcap.minEt = 30.
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.endcap.maxSigmaIEtaIEta = 0.04
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.endcap.maxHadem = 0.1
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.endcap.isolEmConstTerm = 5.5
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.endcap.isolEmGradTerm = 0.012
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.endcap.isolHadConstTerm = 3.5
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.endcap.isolHadGradTerm = 0.005
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.endcap.isolPtTrksConstTerm = 3.5
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.endcap.isolPtTrksGradTerm = 0.002
+egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts.endcap.cuts = "et:sigmaIEtaIEta:hadem:maxr9:isolEm:isolHad:isolPtTrks"
+
+egHLTOffPhotonEt50_CaloIdVL_IsoL_v1Cuts = cms.PSet(egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts)
+egHLTOffPhotonEt50_CaloIdVL_IsoL_v1Cuts.trigName = "hltPhoton50CaloIdVLIsoLTrackIsoFilter"
+egHLTOffPhotonEt50_CaloIdVL_IsoL_v1Cuts.barrel.minEt = 50.
+egHLTOffPhotonEt50_CaloIdVL_IsoL_v1Cuts.barrel.cuts = "et:sigmaIEtaIEta:hadem:maxr9:isolEm:isolHad:isolPtTrks"
+egHLTOffPhotonEt50_CaloIdVL_IsoL_v1Cuts.endcap.minEt = 50.
+egHLTOffPhotonEt50_CaloIdVL_IsoL_v1Cuts.endcap.cuts = "et:sigmaIEtaIEta:hadem:maxr9:isolEm:isolHad:isolPtTrks"
+
+egHLTOffPhotonEt75_CaloIdVL_v1Cuts = cms.PSet(egHLTOffPhotonEt30_CaloIdVL_v1Cuts)
+egHLTOffPhotonEt75_CaloIdVL_v1Cuts.trigName = "hltEG75CaloIdVLHEFilter"
+egHLTOffPhotonEt75_CaloIdVL_v1Cuts.barrel.minEt = 75.
+egHLTOffPhotonEt75_CaloIdVL_v1Cuts.barrel.cuts = "et:sigmaIEtaIEta:hadem:maxr9"
+egHLTOffPhotonEt75_CaloIdVL_v1Cuts.endcap.minEt = 75.
+egHLTOffPhotonEt75_CaloIdVL_v1Cuts.endcap.cuts = "et:sigmaIEtaIEta:hadem:maxr9"
+
+egHLTOffPhotonEt75_CaloIdVL_IsoL_v1Cuts = cms.PSet(egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts)
+egHLTOffPhotonEt75_CaloIdVL_IsoL_v1Cuts.trigName = "hltPhoton75CaloIdVLIsoLTrackIsoFilter"
+egHLTOffPhotonEt75_CaloIdVL_IsoL_v1Cuts.barrel.minEt = 75.
+egHLTOffPhotonEt75_CaloIdVL_IsoL_v1Cuts.barrel.cuts = "et:sigmaIEtaIEta:hadem:maxr9:isolEm:isolHad:isolPtTrks"
+egHLTOffPhotonEt75_CaloIdVL_IsoL_v1Cuts.endcap.minEt = 75.
+egHLTOffPhotonEt75_CaloIdVL_IsoL_v1Cuts.endcap.cuts = "et:sigmaIEtaIEta:hadem:maxr9:isolEm:isolHad:isolPtTrks"
+
+egHLTOffPhotonEt125_NoSpikeFilter_v1Cuts = cms.PSet(egHLTOffBasePhoTrigCuts)
+egHLTOffPhotonEt125_NoSpikeFilter_v1Cuts.trigName = "hltPhoton125HEFilter"
+egHLTOffPhotonEt125_NoSpikeFilter_v1Cuts.barrel.minEt = 125.
+egHLTOffPhotonEt125_NoSpikeFilter_v1Cuts.barrel.cuts = "et"
+egHLTOffPhotonEt125_NoSpikeFilter_v1Cuts.endcap.minEt = 125.
+egHLTOffPhotonEt125_NoSpikeFilter_v1Cuts.endcap.cuts = "et"
+
+egHLTOffDoublePhotonEt33_v1Cuts = cms.PSet(egHLTOffBasePhoTrigCuts)
+egHLTOffDoublePhotonEt33_v1Cuts.trigName = "hltDoublePhoton33EgammaLHEDoubleFilter"
+egHLTOffDoublePhotonEt33_v1Cuts.barrel.minEt = 33.
+egHLTOffDoublePhotonEt33_v1Cuts.barrel.cuts = "et:maxr9:hadem"
+egHLTOffDoublePhotonEt33_v1Cuts.endcap.minEt = 33.
+egHLTOffDoublePhotonEt33_v1Cuts.endcap.cuts = "et:maxr9:hadem"
+
+#electrons
+egHLTOffEleEt8_v1Cuts = cms.PSet(egHLTOffBaseEleTrigCuts)
+egHLTOffEleEt8_v1Cuts.trigName = "hltEle8PixelMatchFilter"
+egHLTOffEleEt8_v1Cuts.barrel.minEt = 8.
+egHLTOffEleEt8_v1Cuts.barrel.maxHadem = 0.15
+egHLTOffEleEt8_v1Cuts.barrel.cuts = "et:hadem:maxr9"
+egHLTOffEleEt8_v1Cuts.endcap.minEt = 8.
+egHLTOffEleEt8_v1Cuts.endcap.maxHadem = 0.1
+egHLTOffEleEt8_v1Cuts.endcap.cuts = "et:hadem:maxr9"
+
+egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts = cms.PSet(egHLTOffEleEt8_v1Cuts)
+egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts.trigName = "hltEle8CaloIdLCaloIsoVLPixelMatchFilter"
+egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts.barrel.maxSigmaIEtaIEta = 0.014
+egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts.barrel.maxHLTIsolEmOverEt = 0.2
+egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts.barrel.maxHLTIsolHadOverEt = 0.2
+egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts.barrel.cuts = "et:sigmaIEtaIEta:hadem:maxr9:hltIsolEm:hltIsolHad"
+egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts.endcap.maxSigmaIEtaIEta = 0.035
+egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts.barrel.maxHLTIsolEmOverEt = 0.2
+egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts.barrel.maxHLTIsolHadOverEt = 0.2
+egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts.endcap.cuts = "et:sigmaIEtaIEta:hadem:maxr9:hltIsolEm:hltIsolHad"
+
+egHLTOffEleEt8_CaloIdL_TrkIdVL_v1Cuts = cms.PSet(egHLTOffEleEt8_v1Cuts)
+egHLTOffEleEt8_CaloIdL_TrkIdVL_v1Cuts.trigName = "hltEle8CaloIdLTrkIdVLDphiFilter"
+egHLTOffEleEt8_CaloIdL_TrkIdVL_v1Cuts.barrel.maxSigmaIEtaIEta = 0.014
+egHLTOffEleEt8_CaloIdL_TrkIdVL_v1Cuts.barrel.maxDEtaIn = 0.01
+egHLTOffEleEt8_CaloIdL_TrkIdVL_v1Cuts.barrel.maxDPhiIn = 0.15
+egHLTOffEleEt8_CaloIdL_TrkIdVL_v1Cuts.barrel.cuts = "et:sigmaIEtaIEta:hadem:maxr9:dEtaIn:dPhiIn"
+egHLTOffEleEt8_CaloIdL_TrkIdVL_v1Cuts.endcap.maxSigmaIEtaIEta = 0.035
+egHLTOffEleEt8_CaloIdL_TrkIdVL_v1Cuts.endcap.maxDEtaIn = 0.01
+egHLTOffEleEt8_CaloIdL_TrkIdVL_v1Cuts.endcap.maxDPhiIn = 0.1
+egHLTOffEleEt8_CaloIdL_TrkIdVL_v1Cuts.endcap.cuts = "et:sigmaIEtaIEta:hadem:maxr9:dEtaIn:dPhiIn"
+
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts = cms.PSet(egHLTOffBaseEleTrigCuts)
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.trigName = "hltEle15CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter"
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.barrel.minEt = 15.
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.barrel.maxSigmaIEtaIEta = 0.011
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.barrel.maxHLTIsolEmOverEt = 0.125
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.barrel.maxHLTIsolHadOverEt = 0.125
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.barrel.maxHadem = 0.05
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.barrel.maxDEtaIn = 0.008
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.barrel.maxDPhiIn = 0.07
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.barrel.maxHLTIsolTrksPhoOverPt = 0.125
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.barrel.cuts = "et:sigmaIEtaIEta:hadem:maxr9:hltIsolEm:hltIsolHad:hltIsolTrksEle:dEtaIn:dPhiIn"
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.endcap.minEt = 15.
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.endcap.maxSigmaIEtaIEta = 0.031
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.endcap.maxHLTIsolEmOverEt = 0.075
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.endcap.maxHLTIsolHadOverEt = 0.075
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.endcap.maxHadem = 0.05
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.endcap.maxDEtaIn = 0.008
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.endcap.maxDPhiIn = 0.05
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.endcap.maxHLTIsolTrksPhoOverPt = 0.075
+egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.endcap.cuts = "et:sigmaIEtaIEta:hadem:maxr9:hltIsolEm:hltIsolHad:hltIsolTrksEle:dEtaIn:dPhiIn"
+
+egHLTOffEleEt17_CaloIdL_CaloIsoVL_v1Cuts = cms.PSet(egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts)
+egHLTOffEleEt17_CaloIdL_CaloIsoVL_v1Cuts.trigName = "hltEle17CaloIdLCaloIsoVLPixelMatchFilter"
+egHLTOffEleEt17_CaloIdL_CaloIsoVL_v1Cuts.barrel.minEt = 17
+egHLTOffEleEt17_CaloIdL_CaloIsoVL_v1Cuts.barrel.cuts = "et:sigmaIEtaIEta:hadem:maxr9:hltIsolEm:hltIsolHad"
+egHLTOffEleEt17_CaloIdL_CaloIsoVL_v1Cuts.endcap.minEt = 17
+egHLTOffEleEt17_CaloIdL_CaloIsoVL_v1Cuts.endcap.cuts = "et:sigmaIEtaIEta:hadem:maxr9:hltIsolEm:hltIsolHad"
+
+egHLTOffEleEt27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts = cms.PSet(egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts)
+egHLTOffEleEt27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.trigName = "hltEle27CaloIdTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter"
+egHLTOffEleEt27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.barrel.minEt = 27.
+egHLTOffEleEt27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.barrel.cuts = "et:sigmaIEtaIEta:hadem:maxr9:hltIsolEm:hltIsolHad:hltIsolTrksEle:dEtaIn:dPhiIn"
+egHLTOffEleEt27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.endcap.minEt = 27.
+egHLTOffEleEt27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts.endcap.cuts = "et:sigmaIEtaIEta:hadem:maxr9:hltIsolEm:hltIsolHad:hltIsolTrksEle:dEtaIn:dPhiIn"
+
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts = cms.PSet(egHLTOffBaseEleTrigCuts)
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.trigName = "hltEle45CaloIdVTTrkIdTDphiFilter"
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.barrel.minEt = 45.
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.barrel.maxSigmaIEtaIEta = 0.011
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.barrel.maxHadem = 0.05
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.barrel.maxDEtaIn = 0.008
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.barrel.maxDPhiIn = 0.07
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.barrel.cuts = "et:sigmaIEtaIEta:hadem:maxr9:dEtaIn:dPhiIn"
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.endcap.minEt = 45.
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.endcap.maxSigmaIEtaIEta = 0.031
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.endcap.maxHadem = 0.05
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.endcap.maxDEtaIn = 0.008
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.endcap.maxDPhiIn = 0.05
+egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts.endcap.cuts = "et:sigmaIEtaIEta:hadem:dEtaIn:dPhiIn"
+
+egHLTOffEle90_NoSpikeFilter_v1Cuts = cms.PSet(egHLTOffBaseEleTrigCuts)
+egHLTOffEle90_NoSpikeFilter_v1Cuts.trigName = "hltEle90NoSpikeFilterPixelMatchFilter"
+egHLTOffEle90_NoSpikeFilter_v1Cuts.barrel.minEt = 90.
+egHLTOffEle90_NoSpikeFilter_v1Cuts.barrel.maxHadem = 0.15
+egHLTOffEle90_NoSpikeFilter_v1Cuts.barrel.cuts = "et:hadem"
+egHLTOffEle90_NoSpikeFilter_v1Cuts.endcap.minEt = 90.
+egHLTOffEle90_NoSpikeFilter_v1Cuts.endcap.maxHadem = 0.1
+egHLTOffEle90_NoSpikeFilter_v1Cuts.endcap.cuts = "et:hadem"
+
+
+#---------

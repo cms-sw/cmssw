@@ -15,7 +15,7 @@ namespace egHLT {
   public:
     
     enum CutCode{
-      //kinematic and fiduicual cuts
+      //kinematic and fiducial cuts
       ET            =0x00000001,
       PT            =0x00000002,
       DETETA        =0x00000004,
@@ -30,7 +30,11 @@ namespace egHLT {
       HADEM         =0x00000100,
       SIGMAIETAIETA =0x00000200,
       E2X5OVER5X5   =0x00000400,
-      R9            =0x00000800,
+      //---Morse------
+      //R9            =0x00000800,
+      MINR9         =0x00000800,
+      MAXR9         =0x00100000,
+      //--------------
       //std isolation cuts
       ISOLEM        =0x00001000,
       ISOLHAD       =0x00002000,

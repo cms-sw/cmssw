@@ -21,7 +21,11 @@ ComCodes EgCutCodes::setCodes_()
   codes.setCode("sigmaIEtaIEta",int(SIGMAIETAIETA)); 
   codes.setCode("sigmaEtaEta",int(SIGMAETAETA));
   codes.setCode("e2x5Over5x5",int(E2X5OVER5X5));
-  codes.setCode("r9",int(R9));
+  //---Morse-------
+  //codes.setCode("r9",int(R9));
+  codes.setCode("minr9",int(MINR9));
+  codes.setCode("maxr9",int(MAXR9));
+  //---------------
 
   codes.setCode("isolEm",int(ISOLEM));
   codes.setCode("isolHad",int(ISOLHAD));

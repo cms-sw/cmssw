@@ -78,6 +78,7 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
 	if(filters.back()=="hltBoolEnd" && filters.size()>=2){
 	  activeFilters.push_back(filters[filters.size()-2]); //2nd to last element is the last filter, useally the case as last is hltBool except for ES bits
 	}else activeFilters.push_back(filters.back());
+	//std::cout<<filters[filters.size()-2]<<std::endl;
       }
     }//end hlt path check
   }//end path loop over
@@ -85,7 +86,35 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
   std::sort(activeFilters.begin(),activeFilters.end());
   
 }
- 
+//----Morse test--------------
+//want to grab filters based on name, hopefully be able to apply offline cuts
+//this is first test to find photon30caloidl
+//based on names as well
+/*void trigTools::getPhoton30(const HLTConfigProvider& hltConfig,std::vector<std::string>& activeFilters)
+  {
+  
+  activeFilters.clear();
+  
+  for(size_t pathNr=0;pathNr<hltConfig.size();pathNr++){
+  const std::string& pathName = hltConfig.triggerName(pathNr);
+  if(pathName.find("HLT_")==0){ //hlt path as they all start with HLT_XXXX
+  if((pathName.find("Photon")==0 || pathName.find("Ele")==0 || pathName.find("EG")==0) && pathName.find("Photon30")==0 ){
+  
+  std::string lastFilter;
+  const std::vector<std::string>& filters = hltConfig.moduleLabels(pathNr);
+  if(!filters.empty()){
+  if(filters.back()=="hltBoolEnd" && filters.size()>=2){
+  activeFilters.push_back(filters[filters.size()-2]); //2nd to last element is the last filter, useally the case as last is hltBool except for ES bits
+  //std::cout<<filters[filters.size()-2]<<std::endl;
+  }else activeFilters.push_back(filters.back());
+  }
+  }
+  }//end hlt path check
+  }//end path loop over
+  std::sort(activeFilters.begin(),activeFilters.end());
+  }*/
+//----------------------------
+
 //this function will filter the inactive filternames
 //it assumes the list of active filters is sorted   
 //at some point this will be replaced with one line of fancy stl code but I want it to work now :)
@@ -97,7 +126,7 @@ void trigTools::filterInactiveTriggers(std::vector<std::string>& namesToFilter,c
   for(size_t inputFilterNr=0;inputFilterNr<namesToFilter.size();inputFilterNr++){
     if(std::binary_search(activeFilters.begin(),activeFilters.end(),namesToFilter[inputFilterNr])){
       filteredNames.push_back(namesToFilter[inputFilterNr]);
-    }
+    }//std::cout<<filteredNames[inputFilterNr]<<std::endl;
   }
   
   namesToFilter.swap(filteredNames);
@@ -164,7 +193,9 @@ void trigTools::translateFiltersToPathNames(const HLTConfigProvider& hltConfig,c
     std::pair<VecIt,VecIt> searchResult = std::equal_range(filtersAndPaths.begin(),filtersAndPaths.end(),filters[filterNr],StringPairCompare());
     if(searchResult.first!=searchResult.second) paths.push_back(searchResult.first->second);
     else paths.push_back(filters[filterNr]);//if cant find the path, just  write the filter
- 
+    //---Morse-----
+    //std::cout<<filtersAndPaths[filterNr].first<<"  "<<filtersAndPaths[filterNr].second<<std::endl;
+    //-------------
   }
 
 }

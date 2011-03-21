@@ -16,11 +16,14 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterBit_(filterBit)
 {
   bool doChargeSep = true;
-  bool monHLTFailedEle = false;
+  bool monHLTFailedEle = true;
   bool doFakeRate=false;
   bool doTagAndProbe=false;
 
   eleMonElems_.push_back(new MonElemContainer<OffEle>());
+  //---Morse-------
+  eleMonElems_.push_back(new MonElemContainer<OffEle>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffEle>(~0x0,&OffEle::cutCode)));
+  //-----------------
   if(doChargeSep){
     eleMonElems_.push_back(new MonElemContainer<OffEle>("_posCharge"," q=+1 ",new ChargeCut<OffEle>(1)));
     eleMonElems_.push_back(new MonElemContainer<OffEle>("_negCharge"," q=-1 ",new ChargeCut<OffEle>(-1)));
@@ -62,7 +65,7 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   diEleMassBothME_ = new DiEleMon(filterName_+"_diEle_bothPassFilter_mass",
 				  filterName_+"_diEle_bothPassFilter Mass;M_{ee} (GeV/c^{2})",
 				  bins.mass.nr,bins.mass.min,bins.mass.max,&ParticlePair<OffEle>::mass);
-  diEleMassOnlyOneME_ = new DiEleMon(filterName_+"_diEle_onlyOnePassFilter_mass",
+  diEleMassOnlyOneME_ = new DiEleMon(filterName_+"_diEle_onlyOnePass Filter_mass",
 				     filterName_+"_diEle_onlyOnePassFilter Mass;M_{ee} (GeV/c^{2})",
 				     bins.mass.nr,bins.mass.min,bins.mass.max,&ParticlePair<OffEle>::mass);
   

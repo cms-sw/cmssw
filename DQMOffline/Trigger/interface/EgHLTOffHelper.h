@@ -177,7 +177,7 @@ namespace egHLT {
     void fillIsolData(const reco::Photon& pho,OffPho::IsolData& isolData);
     void fillClusShapeData(const reco::Photon& pho,OffPho::ClusShapeData& clusShapeData);
 
-    //tempory debuging functions
+    //tempory debugging functions
     const trigger::TriggerEvent* trigEvt()const{return trigEvt_.product();}
     const std::vector<std::pair<TrigCodes::TrigBitSet,OffEgSel> >& trigCuts()const{return trigCuts_;}
     

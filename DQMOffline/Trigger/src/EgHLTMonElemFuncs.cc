@@ -18,6 +18,9 @@ void MonElemFuncs::initStdEleHists(std::vector<MonElemManagerBase<OffEle>*>& his
   addStdHist<OffEle,int>(histVec,baseName+"_charge",baseName+" Charge; charge",bins.charge,&OffEle::charge);
   
   addStdHist<OffEle,float>(histVec,baseName+"_hOverE",baseName+" H/E; H/E",bins.hOverE,&OffEle::hOverE);
+  //----Morse
+  addStdHist<OffEle,float>(histVec,baseName+"_maxr9",baseName+" MAXR9 ; MAXR9",bins.maxr9,&OffEle::r9);
+  //-------
   addStdHist<OffEle,float>(histVec,baseName+"_dPhiIn",baseName+" #Delta #phi_{in}; #Delta #phi_{in}",bins.dPhiIn,&OffEle::dPhiIn);
   addStdHist<OffEle,float>(histVec,baseName+"_dEtaIn",baseName+" #Delta #eta_{in}; #Delta #eta_{in}",bins.dEtaIn,&OffEle::dEtaIn);
   addStdHist<OffEle,float>(histVec,baseName+"_sigmaIEtaIEta",baseName+"#sigma_{i#etai#eta}; #sigma_{i#etai#eta}",bins.sigEtaEta,&OffEle::sigmaIEtaIEta);  
@@ -51,7 +54,11 @@ void MonElemFuncs::initStdPhoHists(std::vector<MonElemManagerBase<OffPho>*>& his
   addStdHist<OffPho,float>(histVec,baseName+"_phi",baseName+" #phi;#phi (rad)",bins.phi,&OffPho::phi);
   
   addStdHist<OffPho,float>(histVec,baseName+"_hOverE",baseName+" H/E; H/E",bins.hOverE,&OffPho::hOverE);
-  addStdHist<OffPho,float>(histVec,baseName+"_r9",baseName+" R9 ; R9",bins.r9,&OffPho::r9);
+  //----Morse
+  //addStdHist<OffPho,float>(histVec,baseName+"_r9",baseName+" R9 ; R9",bins.r9,&OffPho::r9);
+  addStdHist<OffPho,float>(histVec,baseName+"_minr9",baseName+" MINR9 ; MINR9",bins.minr9,&OffPho::r9);
+  addStdHist<OffPho,float>(histVec,baseName+"_maxr9",baseName+" MAXR9 ; MAXR9",bins.maxr9,&OffPho::r9);
+  //-------
   addStdHist<OffPho,float>(histVec,baseName+"_sigmaIEtaIEta",baseName+"#sigma_{i#etai#eta}; #sigma_{i#etai#eta}",bins.sigEtaEta,&OffPho::sigmaIEtaIEta);  
   addStdHist<OffPho,float>(histVec,baseName+"_e2x5Over5x5",baseName+"E^{2x5}/E^{5x5}; E^{2x5}/E^{5x5}",bins.e2x5,&OffPho::e2x5MaxOver5x5);
   addStdHist<OffPho,float>(histVec,baseName+"_e1x5Over5x5",baseName+"E^{1x5}/E^{5x5}; E^{1x5}/E^{5x5}",bins.e1x5,&OffPho::e1x5Over5x5);
@@ -96,11 +103,9 @@ void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffEle>*>& his
 				     new VarCut(~EgCutCodes::DETAIN&stdCutCode,&OffEle::cutCode)));
   histVec.push_back(new MonElemFloat(baseName+"_n1_dPhiIn",baseName+" N1 #Delta#phi_{in}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::DPHIIN&stdCutCode,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_n1_sigmaIEtaIEta",baseName+" N1 #sigma_{#ieta#ieta}",nrBins,xMin,xMax,vsVarFunc,
-				     new VarCut(~EgCutCodes::SIGMAIETAIETA&stdCutCode,&OffEle::cutCode)));
+  histVec.push_back(new MonElemFloat(baseName+"_n1_sigmaIEtaIEta",baseName+" N1 #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,				     new VarCut(~EgCutCodes::SIGMAIETAIETA&stdCutCode,&OffEle::cutCode)));
   histVec.push_back(new MonElemFloat(baseName+"_n1_hOverE",baseName+" N1 H/E",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::HADEM &stdCutCode,&OffEle::cutCode)));
-
   histVec.push_back(new MonElemFloat(baseName+"_n1_isolEm",baseName+" N1 Isol Em",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::ISOLEM&stdCutCode,&OffEle::cutCode)));
   histVec.push_back(new MonElemFloat(baseName+"_n1_isolHad",baseName+" N1 Isol Had",nrBins,xMin,xMax,vsVarFunc,
@@ -109,20 +114,15 @@ void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffEle>*>& his
 				     new VarCut(~EgCutCodes::ISOLPTTRKS&stdCutCode,&OffEle::cutCode)));
   histVec.push_back(new MonElemFloat(baseName+"_n1_hltIsolHad",baseName+" N1 HLT Isol Had",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::HLTISOLHAD&stdCutCode,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_n1_hltIsolTrksEle",baseName+" N1 HLT Isol Tracks Ele ",nrBins,xMin,xMax,vsVarFunc,
-				     new VarCut(~EgCutCodes::HLTISOLTRKSELE&stdCutCode,&OffEle::cutCode)));
-
-
+  histVec.push_back(new MonElemFloat(baseName+"_n1_hltIsolTrksEle",baseName+" N1 HLT Isol Tracks Ele ",nrBins,xMin,xMax,vsVarFunc,				     new VarCut(~EgCutCodes::HLTISOLTRKSELE&stdCutCode,&OffEle::cutCode)));
   histVec.push_back(new MonElemFloat(baseName+"_single_dEtaIn",baseName+" Single #Delta#eta_{in}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::DETAIN,&OffEle::cutCode)));
   histVec.push_back(new MonElemFloat(baseName+"_single_dPhiIn",baseName+" Single #Delta#phi_{in}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::DPHIIN,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_single_sigmaIEtaIEta",baseName+" Single #sigma_{#ieta#ieta}",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(baseName+"_single_sigmaIEtaIEta",baseName+" Single #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,		
 				     new VarCut(EgCutCodes::SIGMAIETAIETA,&OffEle::cutCode)));
   histVec.push_back(new MonElemFloat(baseName+"_single_hOverE",baseName+" Single H/E",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::HADEM,&OffEle::cutCode)));
- 
-
   histVec.push_back(new MonElemFloat(baseName+"_single_isolEm",baseName+" Single Isol Em",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::ISOLEM,&OffEle::cutCode)));
   histVec.push_back(new MonElemFloat(baseName+"_single_isolHad",baseName+" Single Isol Had",nrBins,xMin,xMax,vsVarFunc,
@@ -141,7 +141,7 @@ void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffEle>*>& his
 
 void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& baseName,int nrBins,double xMin,double xMax,float (OffPho::*vsVarFunc)()const,const CutMasks& masks)
 {
-  //some convience typedefs, I hate typedefs but atleast here where they are defined is obvious
+  //some convenience typedefs, I hate typedefs but atleast here where they are defined is obvious
   typedef EgHLTDQMVarCut<OffPho> VarCut;
   typedef MonElemWithCutEBEE<OffPho,float> MonElemFloat;
   int stdCutCode = masks.stdPho;
@@ -151,12 +151,20 @@ void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& his
 				     new VarCut(stdCutCode,&OffPho::cutCode))); 
 
   
-  histVec.push_back(new MonElemFloat(baseName+"_n1_sigmaIEtaIEta",baseName+" N1 #sigma_{#ieta#ieta}",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(baseName+"_n1_sigmaIEtaIEta",baseName+" N1 #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::SIGMAIETAIETA&stdCutCode,&OffPho::cutCode)));
+  //-----Morse------
+  /*histVec.push_back(new MonElemFloat(baseName+"_n1_hOverE",baseName+" N1 H/E",nrBins,xMin,xMax,vsVarFunc,
+    new VarCut(~EgCutCodes::R9&stdCutCode,&OffPho::cutCode)));
+    histVec.push_back(new MonElemFloat(baseName+"_n1_r9",baseName+" N1 R9",nrBins,xMin,xMax,vsVarFunc,
+    new VarCut(~EgCutCodes::HADEM &stdCutCode,&OffPho::cutCode)));*/  //--BUG!!!--
   histVec.push_back(new MonElemFloat(baseName+"_n1_hOverE",baseName+" N1 H/E",nrBins,xMin,xMax,vsVarFunc,
-				     new VarCut(~EgCutCodes::R9&stdCutCode,&OffPho::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_n1_r9",baseName+" N1 R9",nrBins,xMin,xMax,vsVarFunc,
-				     new VarCut(~EgCutCodes::HADEM &stdCutCode,&OffPho::cutCode)));
+				     new VarCut(~EgCutCodes::HADEM&stdCutCode,&OffPho::cutCode)));//---BUG FIX!!--
+  histVec.push_back(new MonElemFloat(baseName+"_n1_minr9",baseName+" N1 MINR9",nrBins,xMin,xMax,vsVarFunc,
+				     new VarCut(~EgCutCodes::MINR9&stdCutCode,&OffPho::cutCode)));
+  histVec.push_back(new MonElemFloat(baseName+"_n1_maxr9",baseName+" N1 MAXR9",nrBins,xMin,xMax,vsVarFunc,
+				     new VarCut(~EgCutCodes::MAXR9&stdCutCode,&OffPho::cutCode)));
+  //----------------
   histVec.push_back(new MonElemFloat(baseName+"_n1_isolEm",baseName+" N1 Isol Em",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::ISOLEM&stdCutCode,&OffPho::cutCode)));
   histVec.push_back(new MonElemFloat(baseName+"_n1_isolHad",baseName+" N1 Isol Had",nrBins,xMin,xMax,vsVarFunc,
@@ -166,7 +174,7 @@ void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& his
   histVec.push_back(new MonElemFloat(baseName+"_n1_isolNrTrks",baseName+" N1 Nr Isol Tracks",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::ISOLNRTRKS&stdCutCode,&OffPho::cutCode)));
  
-  histVec.push_back(new MonElemFloat(baseName+"_single_sigmaIEtaIEta",baseName+" Single #sigma_{#ieta#ieta}",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(baseName+"_single_sigmaIEtaIEta",baseName+" Single #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::SIGMAIETAIETA,&OffPho::cutCode)));
   histVec.push_back(new MonElemFloat(baseName+"_single_hltIsolHad",baseName+" N1 HLT Isol Had",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::HLTISOLHAD,&OffPho::cutCode)));
@@ -352,7 +360,7 @@ void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemConta
 
 
 //tag and probe trigger efficiencies
-//this is to do measure the trigger efficiency with respect to a fully selected offline electron
+//this is to measure the trigger efficiency with respect to a fully selected offline electron
 //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
 void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins)
 {

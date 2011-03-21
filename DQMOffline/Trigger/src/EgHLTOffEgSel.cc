@@ -25,18 +25,22 @@ int OffEgSel::getCutCode(const OffEle& ele,const EgCutValues& cuts,int cutMask)
 { 
   int cutCode = 0x0;
   //kinematic cuts
-  if(ele.et()< cuts.minEt) cutCode |= EgCutCodes::ET;
-  if(fabs(ele.etaSC())< cuts.minEta || fabs(ele.etaSC())>cuts.maxEta) cutCode |= EgCutCodes::DETETA;
+  if(ele.et() < cuts.minEt) cutCode |= EgCutCodes::ET;
+  if(fabs(ele.etaSC()) < cuts.minEta || fabs(ele.etaSC()) > cuts.maxEta) cutCode |= EgCutCodes::DETETA;
   if(ele.isGap()) cutCode |= EgCutCodes::CRACK;
   //track cuts
   if(fabs(ele.dEtaIn()) > cuts.maxDEtaIn ) cutCode |=EgCutCodes::DETAIN;
   if(fabs(ele.dPhiIn()) > cuts.maxDPhiIn ) cutCode |=EgCutCodes::DPHIIN;
   if(ele.invEInvP() > cuts.maxInvEInvP) cutCode |= EgCutCodes::INVEINVP;
   //supercluster cuts
-  if(ele.hOverE()> cuts.maxHadem && ele.hOverE()*ele.caloEnergy()>cuts.maxHadEnergy) cutCode |= EgCutCodes::HADEM;
-  if(ele.sigmaIEtaIEta()>cuts.maxSigmaIEtaIEta) cutCode |= EgCutCodes::SIGMAIETAIETA;
-  if(ele.sigmaEtaEta()>cuts.maxSigmaEtaEta) cutCode |= EgCutCodes::SIGMAETAETA;
-  if(ele.r9()<cuts.minR9) cutCode |= EgCutCodes::R9;
+  if(ele.hOverE() > cuts.maxHadem && ele.hOverE()*ele.caloEnergy() > cuts.maxHadEnergy) cutCode |= EgCutCodes::HADEM;
+  if(ele.sigmaIEtaIEta() > cuts.maxSigmaIEtaIEta) cutCode |= EgCutCodes::SIGMAIETAIETA;
+  if(ele.sigmaEtaEta() > cuts.maxSigmaEtaEta) cutCode |= EgCutCodes::SIGMAETAETA;
+  //---Morse-------
+  //if(ele.r9()<cuts.minR9) cutCode |= EgCutCodes::R9;
+  if(ele.r9() < cuts.minR9) cutCode |= EgCutCodes::MINR9;
+  if(ele.r9() > cuts.maxR9) cutCode |= EgCutCodes::MAXR9;
+  //----------------
   
   //std isolation cuts
   if(ele.isolEm()>( cuts.isolEmConstTerm + cuts.isolEmGradTerm*(ele.et()<cuts.isolEmGradStart ? 0. : (ele.et()-cuts.isolEmGradStart)))) cutCode |=EgCutCodes::ISOLEM;
@@ -106,7 +110,11 @@ int OffEgSel::getCutCode(const OffPho& pho,const EgCutValues& cuts,int cutMask)
   if(pho.hOverE()> cuts.maxHadem && pho.hOverE()*pho.energy()>cuts.maxHadEnergy) cutCode |= EgCutCodes::HADEM;
   if(pho.sigmaIEtaIEta()>cuts.maxSigmaIEtaIEta) cutCode |= EgCutCodes::SIGMAIETAIETA; 
   if(pho.sigmaEtaEta()>cuts.maxSigmaEtaEta) cutCode |= EgCutCodes::SIGMAETAETA; 
-  if(pho.r9()<cuts.minR9) cutCode |= EgCutCodes::R9;
+  //----Morse--------
+  //if(pho.r9()<cuts.minR9) cutCode |= EgCutCodes::R9;
+  if(pho.r9()<cuts.minR9) cutCode |= EgCutCodes::MINR9;
+  if(pho.r9()>cuts.maxR9) cutCode |= EgCutCodes::MAXR9;
+  //----------------
   //std isolation cuts
   if(pho.isolEm()>( cuts.isolEmConstTerm + cuts.isolEmGradTerm*(pho.et()<cuts.isolEmGradStart ? 0. : (pho.et()-cuts.isolEmGradStart)))) cutCode |=EgCutCodes::ISOLEM;
   if(pho.isolHad()> (cuts.isolHadConstTerm + cuts.isolHadGradTerm*(pho.et()<cuts.isolHadGradStart ? 0. : (pho.et()-cuts.isolHadGradStart)))) cutCode |=EgCutCodes::ISOLHAD;

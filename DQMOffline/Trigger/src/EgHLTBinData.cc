@@ -16,7 +16,11 @@ void egHLT::BinData::setup(const edm::ParameterSet& conf)
   sigEtaEta.setup(conf.getParameter<edm::ParameterSet>("sigEtaEta")); 
   e2x5.setup(conf.getParameter<edm::ParameterSet>("e2x5")); 
   e1x5.setup(conf.getParameter<edm::ParameterSet>("e1x5")); 
-  r9.setup(conf.getParameter<edm::ParameterSet>("r9")); 
+  //----Morse----
+  //r9.setup(conf.getParameter<edm::ParameterSet>("r9")); 
+  minr9.setup(conf.getParameter<edm::ParameterSet>("minr9")); 
+  maxr9.setup(conf.getParameter<edm::ParameterSet>("maxr9")); 
+  //--------
   isolEm.setup(conf.getParameter<edm::ParameterSet>("isolEm")); 
   isolHad.setup(conf.getParameter<edm::ParameterSet>("isolHad")); 
   isolPtTrks.setup(conf.getParameter<edm::ParameterSet>("isolPtTrks"));

@@ -17,6 +17,9 @@ namespace egHLT {
 
     //reads hlt config and works out which are the active last filters stored in trigger summary, is sorted
     void getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<std::string>& activeFilters);
+    //---Morse test--------
+    //void getPhoton30(const HLTConfigProvider& hltConfig,std::vector<std::string>& activeFilters);
+    //------------------
     //filters a list of filternames removing any filters which are not in active filters, assumes active filters is sorted
     void filterInactiveTriggers(std::vector<std::string>& namesToFilter,const std::vector<std::string>& activeFilters);
     //filters a list of filterName1:filterName2 removing any entry for which either filter is not in activeFilters, assumes active filters is sorted
@@ -34,7 +37,7 @@ namespace egHLT {
   //Okay how this works
   //1) create a TrigBitSet for each particle set to 0 initally
   //2) loop over each filter, for each particle that passes the filter, set the appropriate bit in the TrigBitSet
-  //3) after that, loop over each particle setting the its TrigBitSet which has been calculated
+  //3) after that, loop over each particle setting that its TrigBitSet which has been calculated
   //4) because L1 pre-scaled paths are special, we only set those if an event wide trigger has been set
   template <class T>
   void trigTools::setFiltersObjPasses(std::vector<T>& particles,const std::vector<std::string>& filters,

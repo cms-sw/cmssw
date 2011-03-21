@@ -24,7 +24,7 @@ using namespace egHLT;
 EgHLTOfflineSource::EgHLTOfflineSource(const edm::ParameterSet& iConfig):
   nrEventsProcessed_(0),isSetup_(false)
 {
-  dbe_ = edm::Service<DQMStore>().operator->(); //only one chance to get this, if we every have another shot, remember to check isSetup is okay
+  dbe_ = edm::Service<DQMStore>().operator->(); //only one chance to get this, if we ever have another shot, remember to check isSetup is okay
   if (!dbe_) {
     //our one and only error message ever logged
     edm::LogInfo("EgHLTOfflineSource") << "unable to get DQMStore service?";
@@ -88,7 +88,7 @@ void EgHLTOfflineSource::endJob()
 }
 
 //due to changes in HLTConfigProvider to be called at beginRun rather then beginJob, I moved everything from beginJob here and ensure that it is only called once
-//if the HLTConfig changes during the job, the results are "un predicable" but in practice should be fine
+//if the HLTConfig changes during the job, the results are "un predictable" but in practice should be fine
 //the HLTConfig is used for working out which triggers are active, working out which filternames correspond to paths and L1 seeds
 //assuming those dont change for E/g it *should* be fine 
 void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
@@ -109,9 +109,9 @@ void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
     //now book ME's
     dbe_->setCurrentFolder(dirName_);
     //each trigger path with generate object distributions and efficiencies (BUT not trigger efficiencies...)
-    for(size_t i=0;i<eleHLTFilterNames_.size();i++) addEleTrigPath(eleHLTFilterNames_[i]);
-    for(size_t i=0;i<phoHLTFilterNames_.size();i++) addPhoTrigPath(phoHLTFilterNames_[i]);
-    
+    for(size_t i=0;i<eleHLTFilterNames_.size();i++){/*dbe_->setCurrentFolder(dirName_+"/"+eleHLTFilterNames_[i]);*/  addEleTrigPath(eleHLTFilterNames_[i]);}//dbe_->setCurrentFolder(dirName_);
+    for(size_t i=0;i<phoHLTFilterNames_.size();i++){/*dbe_->setCurrentFolder(dirName_+"/"+phoHLTFilterNames_[i]);*/  addPhoTrigPath(phoHLTFilterNames_[i]);}
+    //dbe_->setCurrentFolder(dirName_);
     //efficiencies of one trigger path relative to another
     MonElemFuncs::initTightLooseTrigHists(eleMonElems_,eleTightLooseTrigNames_,binData_,"gsfEle");
     ///	new EgHLTDQMVarCut<OffEle>(cutMasks_.stdEle,&OffEle::cutCode)); 
@@ -216,7 +216,7 @@ void EgHLTOfflineSource::addPhoTrigPath(const std::string& name)
 //eg electron filters will contain photon triggers which are also in the photon filters
 //but only want one copy in the vector
 //this function is intended to be called once per job so some inefficiency can can be tolerated
-//therefore we will use a std::set to ensure ensure that each filtername is only inserted once
+//therefore we will use a std::set to ensure that each filtername is only inserted once
 //and then convert to a std::vector
 void EgHLTOfflineSource::getHLTFilterNamesUsed(std::vector<std::string>& filterNames)const
 { 
@@ -265,6 +265,11 @@ void EgHLTOfflineSource::filterTriggers(const HLTConfigProvider& hltConfig)
   
   trigTools::getActiveFilters(hltConfig,activeFilters);
   
+  //---Morse test----------
+  //std::vector<std::string> activeFilters30;
+  //trigTools::getPhoton30(hltConfig,activeFilters30);
+  //trigTools::filterInactiveTriggers30(activeFilters30);
+  //---------------------
   trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
   trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
   trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeFilters);

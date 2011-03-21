@@ -57,7 +57,7 @@ namespace egHLT {
     ClusShapeData clusShapeData_;
     IsolData isolData_;
     
-    //these are bit-packed words telling me which cuts the phoctron fail (ie 0x0 is passed all cuts) 
+    //these are bit-packed words telling me which cuts the photon fail (ie 0x0 is passed all cuts) 
     int cutCode_;
     int looseCutCode_;
   

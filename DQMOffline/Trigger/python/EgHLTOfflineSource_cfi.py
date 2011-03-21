@@ -20,7 +20,10 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  BarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
                                  ElectronCollection = cms.InputTag("gsfElectrons"),
                                  PhotonCollection = cms.InputTag("photons"),
-                                 CaloJetCollection = cms.InputTag("sisCone5CaloJets"),
+                                 #CaloJetCollection = cms.InputTag("sisCone5CaloJets"),
+                                 #--------Morse
+                                 CaloJetCollection = cms.InputTag("ak5CaloJets"),
+                                 #--------
                                  IsolTrackCollection = cms.InputTag("generalTracks"),
                                  HBHERecHitCollection = cms.InputTag("hbhereco"),
                                  HFRecHitCollection = cms.InputTag("hfreco"),
@@ -65,18 +68,19 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  
                                  #setting up selection
                                  cutMasks = cms.PSet(
-                                    stdEle = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:sigmaIEtaIEta:isolEm:isolHad:isolPtTrks"),
-                                    tagEle = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:sigmaIEtaIEta:isolEm:isolHad:isolPtTrks"),
+                                    stdEle = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:maxr9:sigmaIEtaIEta:isolEm:isolHad:isolPtTrks"),
+                                    tagEle = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:maxr9:sigmaIEtaIEta:isolEm:isolHad:isolPtTrks"),
                                     probeEle = cms.string("et:detEta"),
                                     fakeEle = cms.string("et:detEta:hadem"),
                                     trigTPEle = cms.string("detEta:dEtaIn:dPhiIn:hadem:sigmaIEtaIEta"),
-                                    stdPho = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:r9:isolEm:isolHad:isolPtTrks"),
+                                    stdPho = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:maxr9:isolEm:isolHad:isolPtTrks"),
                                  ),
                                  eleCuts = cms.PSet (egHLTOffEleCuts,),    
                                  eleLooseCuts = cms.PSet(egHLTOffEleLooseCuts,),
                                  phoCuts = cms.PSet(egHLTOffPhoCuts,),
                                  phoLooseCuts = cms.PSet(egHLTOffPhoLooseCuts,),          
                                  triggerCuts = cms.VPSet (
+
                                    cms.PSet (egHLTOffEleEt10LWCuts), #8E29
                                    cms.PSet (egHLTOffEleEt15LWCuts),
                                    cms.PSet (egHLTOffEleEt10LWEleIdCuts),
@@ -100,7 +104,27 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                    cms.PSet (egHLTOffPhoEt25LEITICuts),
                                    cms.PSet (egHLTOffDoublePhoEt10Cuts),
                                    cms.PSet (egHLTOffDoublePhoEt15Cuts),
-                                   cms.PSet (egHLTOffDoublePhoEt15VLEICuts)
+                                   cms.PSet (egHLTOffDoublePhoEt15VLEICuts),
+                                   #----Morse-----------
+				   #5E32
+                                   cms.PSet (egHLTOffPhotonEt30_CaloIdVL_v1Cuts),
+                                   cms.PSet (egHLTOffPhotonEt30_CaloIdVL_IsoL_v1Cuts),
+                                   cms.PSet (egHLTOffPhotonEt50_CaloIdVL_IsoL_v1Cuts),
+                                   cms.PSet (egHLTOffPhotonEt75_CaloIdVL_v1Cuts),
+                                   cms.PSet (egHLTOffPhotonEt75_CaloIdVL_IsoL_v1Cuts),
+                                   cms.PSet (egHLTOffPhotonEt125_NoSpikeFilter_v1Cuts),
+                                   cms.PSet (egHLTOffDoublePhotonEt33_v1Cuts),
+                                   cms.PSet (egHLTOffEleEt8_v1Cuts),
+                                   cms.PSet (egHLTOffEleEt8_CaloIdL_CaloIsoVL_v1Cuts),
+                                   cms.PSet (egHLTOffEleEt8_CaloIdL_TrkIdVL_v1Cuts),
+                                   cms.PSet (egHLTOffEleEt15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts),
+                                   cms.PSet (egHLTOffEleEt17_CaloIdL_CaloIsoVL_v1Cuts),
+                                   cms.PSet (egHLTOffEleEt27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1Cuts),
+                                   cms.PSet (egHLTOffEleEt45_CaloIdVT_TrkIdT_v1Cuts),
+                                   cms.PSet (egHLTOffEle90_NoSpikeFilter_v1Cuts)#,
+                                   #cms.PSet (egHLTOffPhotonEt32_CaloIdL_PhotonEt26_CaloIdL_v1Cuts),
+                                   #cms.PSet (egHLTOffEleEt17_CaloIdL_CaloIsoVL_EleEt8_CaloIdL_CaloIsoVL_v1Cuts)
+                                   #-------------
                                    
                                  )
                                  

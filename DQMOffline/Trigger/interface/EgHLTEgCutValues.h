@@ -29,6 +29,9 @@ namespace egHLT {
     double maxSigmaIEtaIEta;   
     double maxSigmaEtaEta;
     double minR9;
+    //--Morse----
+    double maxR9;
+    //--------
      //std isolation cuts
     double isolEmConstTerm;
     double isolEmGradTerm;

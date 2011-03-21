@@ -15,7 +15,7 @@ PhoHLTFilterMon::PhoHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterName_(filterName),
   filterBit_(filterBit)
 {
-  bool monHLTFailedPho=false;
+  bool monHLTFailedPho=true;
 
   phoMonElems_.push_back(new MonElemContainer<OffPho>());
   phoMonElems_.push_back(new MonElemContainer<OffPho>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffPho>(~0x0,&OffPho::cutCode)));
@@ -44,13 +44,13 @@ PhoHLTFilterMon::PhoHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
 				  filterName_+"_diPho_bothPassFilter Mass;M_{#gamma#gamma} (GeV/c^{2})",
 				  bins.mass.nr,bins.mass.min,bins.mass.max,&ParticlePair<OffPho>::mass);
   diPhoMassOnlyOneME_ = new DiPhoMon(filterName_+"_diPho_onlyOnePassFilter_mass",
-				     filterName_+"_diPho_onlyOPassFilter Mass;M_{#gamma#gamma} (GeV/c^{2})",
+				     filterName_+"_diPho_onlyOnePassFilter Mass;M_{#gamma#gamma} (GeV/c^{2})",
 				     bins.mass.nr,bins.mass.min,bins.mass.max,&ParticlePair<OffPho>::mass);
   diPhoMassBothHighME_ = new DiPhoMon(filterName_+"_diPho_bothPassFilter_massHigh",
 				  filterName_+"_diPho_bothPassFilter Mass;M_{#gamma#gamma} (GeV/c^{2})",
 				  bins.massHigh.nr,bins.massHigh.min,bins.massHigh.max,&ParticlePair<OffPho>::mass);
   diPhoMassOnlyOneHighME_ = new DiPhoMon(filterName_+"_diPho_onlyOnePassFilter_massHigh",
-				     filterName_+"_diPho_onlyOPassFilter Mass;M_{#gamma#gamma} (GeV/c^{2})",
+				     filterName_+"_diPho_onlyOnePassFilter Mass;M_{#gamma#gamma} (GeV/c^{2})",
 				     bins.massHigh.nr,bins.massHigh.min,bins.massHigh.max,&ParticlePair<OffPho>::mass);
   
 }
