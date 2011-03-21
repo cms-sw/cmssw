@@ -1,3 +1,5 @@
+#ifndef HiggsAnalysis_CombinedLimit_SimplerLikelihoodRatioTestStat_h
+#define HiggsAnalysis_CombinedLimit_SimplerLikelihoodRatioTestStat_h
 #include <memory>
 #include <stdexcept>
 
@@ -43,4 +45,4 @@ class SimplerLikelihoodRatioTestStat : public RooStats::TestStatistic {
         std::auto_ptr<RooArgSet> paramsNull_, paramsAlt_;
 }; // TestSimpleStatistics
 
-
+#endif
