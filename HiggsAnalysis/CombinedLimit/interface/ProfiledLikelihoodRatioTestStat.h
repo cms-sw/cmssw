@@ -1,5 +1,7 @@
-#include <memory>
+#ifndef HiggsAnalysis_CombinedLimit_ProfiledLikelihoodRatioTestStat_h
+#define HiggsAnalysis_CombinedLimit_ProfiledLikelihoodRatioTestStat_h
 
+#include <memory>
 #include <RooAbsPdf.h>
 #include <RooAbsData.h>
 #include <RooArgSet.h>
@@ -31,3 +33,4 @@ class ProfiledLikelihoodRatioTestStat : public RooStats::TestStatistic {
 }; // TestSimpleStatistics
 
 
+#endif
