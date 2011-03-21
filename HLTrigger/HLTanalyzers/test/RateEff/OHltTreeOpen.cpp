@@ -6733,7 +6733,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
-   else if (triggerName.CompareTo("HLT_Mu5_Ele8_CaloIdL_TrkIdVL_Ele8_v2") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Mu5_Ele8_CaloIdL_TrkIdVL_Ele8_v2") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
