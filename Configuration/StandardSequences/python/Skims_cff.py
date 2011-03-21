@@ -132,3 +132,15 @@ SKIMStreamDiLeptonEle = cms.FilteredStream(
     dataTier = cms.untracked.string('RECO')
     )
 
+from Configuration.Skimming.PDWG_DiPhoton_SD_cff import *
+CaloIdIsoPhotonPairsPath = cms.Path(CaloIdIsoPhotonPairsFilter)
+R9IdPhotonPairsPath = cms.Path(R9IdPhotonPairsFilter)
+
+SKIMStreamDiPhoton = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'DiPhoton',
+    paths = (CaloIdIsoPhotonPairsPath,R9IdPhotonPairsPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
