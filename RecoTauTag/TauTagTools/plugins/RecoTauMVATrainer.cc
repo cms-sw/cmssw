@@ -29,12 +29,14 @@ class RecoTauMVATrainer : public edm::EDAnalyzer {
     virtual ~RecoTauMVATrainer() {};
     virtual void analyze(const edm::Event &evt, const edm::EventSetup &es);
   private:
+    typedef std::vector<edm::InputTag> VInputTag;
     reco::tau::RecoTauMVAHelper mva_;
     edm::InputTag signalSrc_;
     edm::InputTag backgroundSrc_;
     bool applyWeights_;
     edm::InputTag signalWeightsSrc_;
     edm::InputTag backgroundWeightsSrc_;
+    VInputTag eventWeights_;
 };
 
 RecoTauMVATrainer::RecoTauMVATrainer(const edm::ParameterSet &pset)
@@ -50,6 +52,9 @@ RecoTauMVATrainer::RecoTauMVATrainer(const edm::ParameterSet &pset)
         signalWeightsSrc_ = pset.getParameter<edm::InputTag>("signalWeights");
         backgroundWeightsSrc_ = pset.getParameter<edm::InputTag>("backgroundWeights");
       }
+      if (pset.exists("eventWeights")) {
+        eventWeights_ = pset.getParameter<VInputTag>("eventWeights");
+      }
     }
 
 namespace {
@@ -58,7 +63,7 @@ namespace {
 void uploadTrainingData(reco::tau::RecoTauMVAHelper *helper,
                         const edm::Handle<reco::CandidateView>& taus,
                         const edm::Handle<reco::PFTauDiscriminator>& weights,
-                        bool isSignal) {
+                        bool isSignal, double eventWeight) {
   // Convert to a vector of refs
   reco::PFTauRefVector tauRefs =
       reco::tau::castView<reco::PFTauRefVector>(taus);
@@ -66,7 +71,7 @@ void uploadTrainingData(reco::tau::RecoTauMVAHelper *helper,
   BOOST_FOREACH(reco::PFTauRef tau, tauRefs) {
     // Lookup the weight if desired
     double weight = (weights.isValid()) ? (*weights)[tau] : 1.0;
-    helper->train(tau, isSignal, weight);
+    helper->train(tau, isSignal, weight*eventWeight);
   }
 }
 
@@ -75,29 +80,35 @@ void uploadTrainingData(reco::tau::RecoTauMVAHelper *helper,
 
 void RecoTauMVATrainer::analyze(const edm::Event &evt,
                                 const edm::EventSetup &es) {
-  // Make sure the MVA is up to date from the DB
-  mva_.setEvent(evt, es);
-
   // Get a view to our taus
   edm::Handle<reco::CandidateView> signal;
   edm::Handle<reco::CandidateView> background;
 
-  bool signalExists = true;
-  try {
-    evt.getByLabel(signalSrc_, signal);
-    if (!signal.isValid())
-      signalExists = false;
-  } catch(...) {
-    signalExists = false;
-  }
+  bool signalExists = false;
+  evt.getByLabel(signalSrc_, signal);
+  if (signal.isValid() && signal->size())
+    signalExists = true;
 
-  bool backgroundExists = true;
-  try {
-    evt.getByLabel(backgroundSrc_, background);
-    if (!background.isValid())
-      backgroundExists = false;
-  } catch(...) {
-    backgroundExists = false;
+  bool backgroundExists = false;
+  evt.getByLabel(backgroundSrc_, background);
+  if (background.isValid() && background->size())
+    backgroundExists = true;
+
+  // Check if we have anything to do
+  bool somethingToDo = signalExists || backgroundExists;
+  if (!somethingToDo)
+    return;
+
+  // Make sure the MVA is up to date from the DB
+  mva_.setEvent(evt, es);
+
+  // Get event weights if specified
+  double eventWeight = 1.0;
+  BOOST_FOREACH(const edm::InputTag& weightTag, eventWeights_) {
+    edm::Handle<double> weightHandle;
+    evt.getByLabel(weightTag, weightHandle);
+    if (weightHandle.isValid())
+      eventWeight *= *weightHandle;
   }
 
   // Get weights if desired
@@ -109,9 +120,10 @@ void RecoTauMVATrainer::analyze(const edm::Event &evt,
     evt.getByLabel(backgroundWeightsSrc_, backgroundWeights);
 
   if (signalExists)
-    uploadTrainingData(&mva_, signal, signalWeights, true);
+    uploadTrainingData(&mva_, signal, signalWeights, true, eventWeight);
   if (backgroundExists)
-    uploadTrainingData(&mva_, background, backgroundWeights, false);
+    uploadTrainingData(&mva_, background, backgroundWeights,
+        false, eventWeight);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
