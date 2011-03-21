@@ -12,19 +12,24 @@
 #include "TVectorD.h"
 #include "TMatrixD.h"
 
+#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParCout.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHeader.h"
 
-//------------------------ TEcnaWrite.h -----------------
-//
-//   For questions or comments, please send e-mail to:
-//
-//   Bernard Fabbro             
-//   fabbro@hep.saclay.cea.fr 
-//--------------------------------------------------------
+///-----------------------------------------------------------
+///   TEcnaWrite.h
+///   Update: 15/02/2011
+///   Authors:   B.Fabbro (bernard.fabbro@cea.fr), FX Gentit
+///              DSM/IRFU/SPP CEA-Saclay
+///   Copyright: Those valid for CEA sofware
+///
+///   ECNA web page:
+///     http://cms-fabbro.web.cern.ch/cms-fabbro/
+///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
+///-----------------------------------------------------------
 
 class TEcnaWrite : public TObject {
 
@@ -49,8 +54,8 @@ class TEcnaWrite : public TObject {
   TString fFlagSubDet;
 
   TEcnaNumbering *fEcalNumbering;
-  TEcnaParPaths   *fCnaParPaths;
-  TEcnaParCout    *fCnaParCout;
+  TEcnaParPaths  *fCnaParPaths;
+  TEcnaParCout   *fCnaParCout;
 
   ofstream fFcout_f;
 
@@ -133,8 +138,6 @@ class TEcnaWrite : public TObject {
   TString  fStartDate, fStopDate;
   time_t   fStartTime, fStopTime;
 
-  // Int_t    fMaxSampADC;
-
   TString  fRootFileNameShort;  // name of  the results ROOT file 
   TString  fRootFileName;       // name of  the results ROOT file with its path = fPathRoot/fRootFileNameShort
 
@@ -142,48 +145,45 @@ class TEcnaWrite : public TObject {
   TString  fAsciiFileNameShort; // name of  the results ASCII file = fPathAscii/fAsciiFileNameShort
 
   //..... Methods
+  
+  TEcnaWrite();
+  TEcnaWrite(TEcnaObject*, const TString);
+  TEcnaWrite(const TString, const TEcnaParPaths*, const TEcnaParCout*,
+	     const TEcnaParEcal*, const TEcnaNumbering*);
 
-           TEcnaWrite();
-           TEcnaWrite(const TString, const TEcnaParPaths*, const TEcnaParCout*,
-		     const TEcnaParEcal*, const TEcnaNumbering*);
   virtual  ~TEcnaWrite();
-
+  
   void     Init();
+  void     SetEcalSubDetector(const TString);
   void     SetEcalSubDetector(const TString, const TEcnaParEcal*, const TEcnaNumbering*);
-
+  
   //...................................................... making file name method
   void     fMakeResultsFileName();                // => default: arg = fCodeRoot
   void     fMakeResultsFileName(const Int_t&);
 
-  //=============================================================================================
-  //
-  //           ci-dessous:     ==> WriteAsciiSampleMeans()
-  //                               WriteAsciiSampleSigmas()
-  //      methodes a remettre ?
-  //
-  //=============================================================================================
   //.................................... ASCII writing file methods 
-  // void    WriteAsciiSampleMeans();
-  // void    WriteAsciiSampleSigmas();
+  // void    WriteAsciiSampleMeans();    // methode a remettre ?
+  // void    WriteAsciiSampleSigmas();   // methode a remettre ?
 
   void WriteAsciiCovariancesBetweenSamples(const Int_t&, const Int_t&, const Int_t&, const TMatrixD&);
   void WriteAsciiCorrelationsBetweenSamples(const Int_t&, const Int_t&, const Int_t&, const TMatrixD&);
 
-
   void WriteAsciiHisto(const TString, const Int_t&, const TVectorD&);
 
+  //...........................................................................
   TString GetAsciiFileName();
   TString GetRootFileName();
   TString GetRootFileNameShort();
   TString GetAnalysisName();
+
   Int_t GetNbOfSamples();
   Int_t GetRunNumber();
   Int_t GetFirstReqEvtNumber();
   Int_t GetReqNbOfEvts();
   Int_t GetStexNumber();
 
-  Int_t NumberOfEvents(Int_t**, const Int_t&, const Int_t&, const Int_t&);
-  Int_t NumberOfEvents(Int_t*,  const Int_t&, const Int_t&);
+  Int_t NumberOfEventsAnalysis(Int_t**, const Int_t&, const Int_t&, const Int_t&);
+  Int_t NumberOfEventsAnalysis(Int_t*,  const Int_t&, const Int_t&);
 
   void RegisterFileParameters(const TString, const Int_t&, const Int_t&, const Int_t&,
 			      const Int_t&,  const Int_t&, const Int_t&, const TString, const TString,

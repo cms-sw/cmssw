@@ -5,7 +5,20 @@
 #include "TObject.h"
 #include "Riostream.h"
 
+#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
+
+///-----------------------------------------------------------
+///   TEcnaNumbering.h
+///   Update: 16/02/2011
+///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
+///              DSM/IRFU/SPP CEA-Saclay
+///   Copyright: Those valid for CEA sofware
+///
+///   ECNA web page:
+///     http://cms-fabbro.web.cern.ch/cms-fabbro/
+///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
+///-----------------------------------------------------------
 
 class TEcnaNumbering : public TObject {
 
@@ -76,9 +89,11 @@ public:
   //------------------------------- methods
 
   TEcnaNumbering();
+  TEcnaNumbering(TEcnaObject*, const TString);
   TEcnaNumbering(const TString, const TEcnaParEcal*);
   ~TEcnaNumbering();
 
+  void SetEcalSubDetector(const TString);
   void SetEcalSubDetector(const TString, const TEcnaParEcal*);
 
   //================================== BARREL

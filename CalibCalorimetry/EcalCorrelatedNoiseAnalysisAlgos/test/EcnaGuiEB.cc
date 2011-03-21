@@ -2,7 +2,7 @@
 //
 //         E.C.N.A.  dialog box (GUI) for Barrel
 // 
-//         Update: 13/10/2010
+//         Update: 21/10/2010
 //
 //----------------------------------------------------
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
@@ -30,16 +30,16 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-  TEcnaParPaths* pCnaParPaths = new TEcnaParPaths();
-  if( pCnaParPaths->fPathForResultsRootFiles    == kTRUE &&
-      pCnaParPaths->fPathForResultsAsciiFiles   == kTRUE &&
-      pCnaParPaths->fPathForHistoryRunListFiles == kTRUE )
+  TEcnaObject* MyEcnaObjectManager = new TEcnaObject();
+  TEcnaParPaths* pCnaParPaths = new TEcnaParPaths(MyEcnaObjectManager);
+  if( pCnaParPaths->GetPaths() == kTRUE )
     {
       cout << "*EcnaGuiEB> Starting ROOT session" << endl;
       TRint theApp("App", &argc, argv);
       
       cout << "*EcnaGuiEB> Starting ECNA session" << endl;
-      TEcnaGui* mainWin = new TEcnaGui(gClient->GetRoot(), 395, 710, "EB");
+      TEcnaGui* mainWin = new TEcnaGui(MyEcnaObjectManager, "EB", gClient->GetRoot(), 395, 710);
+      mainWin->DialogBox();
       Bool_t retVal = kTRUE;
       theApp.Run(retVal);
       cout << "*EcnaGuiEB> End of ECNA session." << endl;

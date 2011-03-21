@@ -1,37 +1,19 @@
-//---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
+//----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 13/10/2010
+//----------Modified: 20/10/2010
+
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
+#include <cstdlib>
+
+//--------------------------------------
+//  TEcnaParPaths.cc
+//  Class creation: 19 May 2005
+//  Documentation: see TEcnaParPaths.h
+//--------------------------------------
 
 ClassImp(TEcnaParPaths)
 //______________________________________________________________________________
 //
-// TEcnaParPaths.
-//
-//    Values of different parameters for plots in the framework of TEcnaHistos
-//    (see description of this class)
-//
-//    Examples of parameters:  ymin and ymax values for histos, title sizes,
-//                             margins for plots, etc...
-//                             
-//
-//-------------------------------------------------------------------------
-//
-//        For more details on other classes of the CNA package:
-//
-//                 http://www.cern.ch/cms-fabbro/cna
-//
-//-------------------------------------------------------------------------
-//
-//---------------------- TEcnaParPaths.cc -------------------------------
-//  
-//   Creation (first version): 19 May 2005
-//
-//   For questions or comments, please send e-mail to Bernard Fabbro:
-//             
-//   fabbro@hep.saclay.cea.fr 
-//
-//------------------------------------------------------------------------
 
   TEcnaParPaths::~TEcnaParPaths()
 {
@@ -48,55 +30,65 @@ ClassImp(TEcnaParPaths)
 TEcnaParPaths::TEcnaParPaths()
 {
 // Constructor without argument
-
  // cout << "[Info Management] CLASS: TEcnaParPaths.      CREATE OBJECT: this = " << this << endl;
-
   Init();
-
-  //............................... Get user's parameters from user's directory
-  GetPathForResultsRootFiles();        //  Init the values of fCfgResultsRootFilePath
-  GetPathForResultsAsciiFiles();       //  Init the values of fCfgResultsAsciiFilePath
-  GetPathForHistoryRunListFiles();     //  Init the values of fCfgHistoryRunListFilePath
-  //  GetPathForAnalyzerParametersFiles(); //  Init the values of fCfgAnalyzerParametersFilePath
-  GetCMSSWParameters();                //  Init the values of fCfgCMSSWVersion, fCfgCMSSWSubsystem and fCfgCMSSWSlc
 }
+
+TEcnaParPaths::TEcnaParPaths(TEcnaObject* pObjectManager)
+{
+// Constructor without argument
+ // cout << "[Info Management] CLASS: TEcnaParPaths.      CREATE OBJECT: this = " << this << endl;
+  Init();
+  Int_t i_this = (Int_t)this;
+  pObjectManager->RegisterPointer("TEcnaParPaths", i_this);
+}
+
 
 void  TEcnaParPaths::Init()
 {
   fgMaxCar = (Int_t)512;              // max number of characters in TStrings
-
   fTTBELL = '\007';
 
   //................ Init CNA Command and error numbering
   fCnaCommand = 0;
   fCnaError   = 0;
 
-  //................ Init path flags
-
-  fPathForResultsRootFiles    = kFALSE;
-  fPathForResultsAsciiFiles   = kFALSE;
-  fPathForHistoryRunListFiles = kFALSE;
-
 }// end of Init()
 
+Bool_t TEcnaParPaths::GetPaths()
+{
+  //............................... Get user's parameters from user's directory
+  Bool_t FileHere = kFALSE;
+  Int_t  NbFileHere = 0;
+  if( GetPathForResultsRootFiles()    == kTRUE ){NbFileHere++;} //  Init fCfgResultsRootFilePath
+  if( GetPathForResultsAsciiFiles()   == kTRUE ){NbFileHere++;} //  Init fCfgResultsAsciiFilePath
+  if( GetPathForHistoryRunListFiles() == kTRUE ){NbFileHere++;} //  Init fCfgHistoryRunListFilePath
+
+  GetCMSSWParameters(); //  Init fCfgCMSSWBase, fCfgCMSSWSubsystem, fCfgSCRAMArch <== done in TEcnaGui
+
+  if( NbFileHere == 3 ){FileHere = kTRUE;}
+  return FileHere;
+}
 
 //=======================================================================================
 //
-//     P R I V A T E    M E T H O D S    T O    G E T    T H E    P A R A M E T E R S 
+//     M E T H O D S    T O    G E T    T H E    P A R A M E T E R S 
 //
 //     F R O M    T H E    U S E R ' S    D I R E C T O R Y 
 //
 //=======================================================================================
-void TEcnaParPaths::GetPathForResultsRootFiles()
+Bool_t TEcnaParPaths::GetPathForResultsRootFiles()
 {
-  GetPathForResultsRootFiles("");
+  return GetPathForResultsRootFiles("");
 }
 
-void TEcnaParPaths::GetPathForResultsRootFiles(const TString argFileName)
+Bool_t TEcnaParPaths::GetPathForResultsRootFiles(const TString argFileName)
 {
   // Init fCfgResultsRootFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
   // if string is empty, file name = "ECNA/path_results_root" (located in $HOME user's directory - default - )
+
+  Bool_t FileHere = kFALSE;
 
   Int_t MaxCar = fgMaxCar;
   fCfgResultsRootFilePath.Resize(MaxCar);
@@ -124,7 +116,6 @@ void TEcnaParPaths::GetPathForResultsRootFiles(const TString argFileName)
 
   //........ Reading of the paths in the file named fFileForResultsRootFilePath.Data()
   //
-
   fFcin_rr.open(fFileForResultsRootFilePath.Data());
   if(fFcin_rr.fail() == kFALSE)
     {
@@ -133,7 +124,7 @@ void TEcnaParPaths::GetPathForResultsRootFiles(const TString argFileName)
       fFcin_rr >> xResultsFileP;
       fCfgResultsRootFilePath = xResultsFileP.c_str();
       fFcin_rr.close();
-      fPathForResultsRootFiles = kTRUE;
+      FileHere = kTRUE;
     }
   else
     {
@@ -146,31 +137,36 @@ void TEcnaParPaths::GetPathForResultsRootFiles(const TString argFileName)
 	   << "     Please create a subdirectory named ECNA in your HOME directory (if not already done)" << endl
 	   << "     and create a file named path_results_root in the subdirectory ECNA." << endl << endl
            << "     The file " << fFileForResultsRootFilePath.Data() << " is a configuration file" << endl
-	   << "     for the CNA and must contain one line with the following syntax:" << endl << endl
-	   << "        PATH_OF_THE_RESULTS_ROOT_FILE ($HOME/etc...) (without slash at the end of line)" << endl
-	   << "                                                      ================================"
+	   << "     for ECNA and must contain one line with the following syntax:" << endl << endl
+	   << "        PATH_FOR_THE_RESULTS_ROOT_FILE (without slash at the end of line)" << endl
+	   << "                                        ================================"
 	   << endl << endl
-	   << "     Example: $HOME/scratch0/cna/results_root" << endl << endl
+	   << "     Example: $HOME/scratch0/ecna/results_root" << endl << endl
 	   << " ***************************************************************************************** "
 	   << fTTBELL << endl;
 
       fFcin_rr.close();
-      fPathForResultsRootFiles = kFALSE;
+      FileHere = kFALSE;
     }
+
+  return FileHere;
+
 } // ----------- (end of GetPathForResultsRootFiles) --------------------
 
 //================================================================================================
 
-void TEcnaParPaths::GetPathForResultsAsciiFiles()
+Bool_t TEcnaParPaths::GetPathForResultsAsciiFiles()
 {
-  GetPathForResultsAsciiFiles("");
+  return GetPathForResultsAsciiFiles("");
 }
 
-void TEcnaParPaths::GetPathForResultsAsciiFiles(const TString argFileName)
+Bool_t TEcnaParPaths::GetPathForResultsAsciiFiles(const TString argFileName)
 {
   // Init fCfgResultsAsciiFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
   // if string is empty, file name = "ECNA/path_results_ascii" (located in $HOME user's directory - default - )
+
+  Bool_t FileHere = kFALSE;
 
   Int_t MaxCar = fgMaxCar;
   fCfgResultsAsciiFilePath.Resize(MaxCar);
@@ -198,7 +194,6 @@ void TEcnaParPaths::GetPathForResultsAsciiFiles(const TString argFileName)
 
   //........ Reading of the paths in the file named fFileForResultsAsciiFilePath.Data()
   //
-
   fFcin_ra.open(fFileForResultsAsciiFilePath.Data());
   if(fFcin_ra.fail() == kFALSE)
     {
@@ -207,7 +202,7 @@ void TEcnaParPaths::GetPathForResultsAsciiFiles(const TString argFileName)
       fFcin_ra >> xResultsFileP;
       fCfgResultsAsciiFilePath = xResultsFileP.c_str();
       fFcin_ra.close();
-      fPathForResultsAsciiFiles = kTRUE;
+      FileHere = kTRUE;
     }
   else
     {
@@ -220,31 +215,36 @@ void TEcnaParPaths::GetPathForResultsAsciiFiles(const TString argFileName)
 	   << "     Please create a subdirectory named ECNA in your HOME directory (if not already done)" << endl
 	   << "     and create a file named path_results_ascii in the subdirectory ECNA." << endl << endl
            << "     The file " << fFileForResultsAsciiFilePath.Data() << " is a configuration file" << endl
-	   << "     for the CNA and must contain one line with the following syntax:" << endl << endl
-	   << "        PATH_OF_THE_RESULTS_ASCII_FILE ($HOME/etc...) (without slash at the end of line)" << endl
-	   << "                                                       ================================"
+	   << "     for ECNA and must contain one line with the following syntax:" << endl << endl
+	   << "        PATH_FOR_THE_RESULTS_ASCII_FILE (without slash at the end of line)" << endl
+	   << "                                         ================================"
 	   << endl << endl
-	   << "     Example: $HOME/scratch0/cna/results_ascii" << endl << endl
+	   << "     Example: $HOME/scratch0/ecna/results_ascii" << endl << endl
 	   << " ***************************************************************************************** "
 	   << fTTBELL << endl;
 
       fFcin_ra.close();
-      fPathForResultsAsciiFiles = kFALSE;
+      FileHere = kFALSE;
     }
+
+  return FileHere;
+
 } // ----------- (end of GetPathForResultsAsciiFiles) --------------------
 
 //================================================================================================
 
-void TEcnaParPaths::GetPathForHistoryRunListFiles()
+Bool_t TEcnaParPaths::GetPathForHistoryRunListFiles()
 {
-  GetPathForHistoryRunListFiles("");
+  return GetPathForHistoryRunListFiles("");
 }
 
-void TEcnaParPaths::GetPathForHistoryRunListFiles(const TString argFileName)
+Bool_t TEcnaParPaths::GetPathForHistoryRunListFiles(const TString argFileName)
 {
   // Init fCfgHistoryRunListFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
   // if string is empty, file name = "ECNA/path_runlist_history_plots" (located in $HOME user's directory - default - )
+
+  Bool_t FileHere = kFALSE;
 
   Int_t MaxCar = fgMaxCar;
   fCfgHistoryRunListFilePath.Resize(MaxCar);
@@ -272,7 +272,6 @@ void TEcnaParPaths::GetPathForHistoryRunListFiles(const TString argFileName)
 
   //........ Reading of the paths in the file named fFileForHistoryRunListFilePath.Data()
   //
-
   fFcin_lor.open(fFileForHistoryRunListFilePath.Data());
   if(fFcin_lor.fail() == kFALSE)
     {
@@ -281,7 +280,7 @@ void TEcnaParPaths::GetPathForHistoryRunListFiles(const TString argFileName)
       fFcin_lor >> xHistoryRunListP;
       fCfgHistoryRunListFilePath = xHistoryRunListP.c_str();
       fFcin_lor.close();
-      fPathForHistoryRunListFiles = kTRUE;
+      FileHere = kTRUE;
     }
   else
     {
@@ -294,220 +293,91 @@ void TEcnaParPaths::GetPathForHistoryRunListFiles(const TString argFileName)
 	   << "     Please create a subdirectory named ECNA in your HOME directory (if not already done)" << endl
 	   << "     and create a file named path_runlist_history_plots in the subdirectory ECNA." << endl << endl
            << "     The file " << fFileForHistoryRunListFilePath.Data() << " is a configuration file" << endl
-	   << "     for the CNA and must contain one line with the following syntax:" << endl << endl
-	   << "        PATH_OF_THE_LIST_OF_RUNS_FOR_HISTORY_PLOTS_FILE ($HOME/etc...) (without slash at the end of line)" << endl
-	   << "                                                                        ================================"
+	   << "     for ECNA and must contain one line with the following syntax:" << endl << endl
+	   << "        PATH_FOR_THE_LIST_OF_RUNS_FOR_HISTORY_PLOTS_FILE (without slash at the end of line)" << endl
+	   << "                                                          ================================"
 	   << endl << endl
-	   << "     Example: $HOME/scratch0/cna/runlist_history_plots" << endl << endl
+	   << "     Example: $HOME/scratch0/ecna/runlist_history_plots" << endl << endl
 	   << " ******************************************************************************************************** "
 	   << fTTBELL << endl;
 
       fFcin_lor.close();
-      fPathForHistoryRunListFiles = kFALSE;
+      FileHere = kFALSE;
     }
+
+  return FileHere;
+
 } // ----------- (end of GetPathForHistoryRunListFiles) --------------------
-
-//================================================================================================
-
-#define ANAP
-#ifndef ANAP
-
-void TEcnaParPaths::GetPathForAnalyzerParametersFiles()
-{
-  GetPathForAnalyzerParametersFiles("");
-}
-
-void TEcnaParPaths::GetPathForAnalyzerParametersFiles(const TString argFileName)
-{
-  // Init fCfgAnalyzerParametersFilePath and get it from the file named argFileName
-  // argFileName = complete name of the file (/afs/cern.ch/...)
-  // if string is empty, file name = "path_analyzer_parameters.ecna" and file located
-  // in $HOME user's directory (default)
-
-  Int_t MaxCar = fgMaxCar;
-  fCfgAnalyzerParametersFilePath.Resize(MaxCar);
-  fCfgAnalyzerParametersFilePath          = "?";
-
-  //..... put the name of the ascii file (containing the paths for CNA treatements)
-  //      in the string cFileNameForCnaPaths and in class attribute fFileForAnalyzerParametersFilePath
-
-  if ( argFileName == "" )
-    {
-      string cFileNameForCnaPaths = "path_analyzer_parameters.ecna";     // config file name
-      TString s_file_name = cFileNameForCnaPaths.c_str();
-      const Text_t *t_file_name = (const Text_t *)s_file_name.Data();
-      
-      TString s_path_name = gSystem->Getenv("HOME");       // get user's home directory path
-      
-      fFileForAnalyzerParametersFilePath = s_path_name;
-      fFileForAnalyzerParametersFilePath.Append('/');
-      fFileForAnalyzerParametersFilePath.Append(t_file_name);
-    }
-  else
-    {
-      fFileForAnalyzerParametersFilePath = argFileName.Data();
-    }
-
-  //........ Reading of the paths in the file named fFileForAnalyzerParametersFilePath.Data()
-  //
-
-  fFcin_anapar.open(fFileForAnalyzerParametersFilePath.Data());
-  if(fFcin_anapar.fail() == kFALSE)
-    {
-      fFcin_anapar.clear();
-      string xAnalyzerParametersP;
-      fFcin_anapar >> xAnalyzerParametersP;
-      fCfgAnalyzerParametersFilePath = xAnalyzerParametersP.c_str();
-      fFcin_anapar.close();
-    }
-  else
-    {
-      fFcin_anapar.clear();
-      fCnaError++;
-      cout << fTTBELL << endl
-	   << " ***************************************************************************** " << endl;
-      cout << "   !CNA(TEcnaParPaths) (" << fCnaError << ") *** ERROR *** " << endl << endl
-	   << "    "
-	   << fFileForAnalyzerParametersFilePath.Data() << " : file not found. " << endl
-	   << "    "
-	   << " Please create this file in your HOME directory and then restart."
-	   << endl << endl
-	   << "    "
-           << " The file " << fFileForAnalyzerParametersFilePath.Data()
-	   << " is a configuration file for the CNA and"
-	   << " must contain one line with the following syntax:" << endl << endl
-	   << "    "
-	   << "   path of the analyzer parameters files ($HOME/etc...) " << endl
-	   << "    "
-	   << "          (without slash at the end of line)" << endl
-	   << endl << endl
-	   << "    "
-	   << " EXAMPLE:" << endl << endl
-	   << "    "
-	   << "  $HOME/scratch0/cna/analyzer_parameters" << endl << endl
-	   << " ***************************************************************************** "
-	   << fTTBELL << endl;
-
-      fFcin_anapar.close();
-    }
-} // ----------- (end of GetPathForAnalyzerParametersFiles) --------------------
-#endif // ANAP
 
 //================================================================================================
 void TEcnaParPaths::GetCMSSWParameters()
 {
-  GetCMSSWParameters("");
-}
-
-void TEcnaParPaths::GetCMSSWParameters(const TString argFileName)
-{
-  // Init fCfgCMSSWVersion, fCfgCMSSWSubsystem and fCfgCMSSWSlc
-  // and get them from the file named argFileName
-  // argFileName = complete name of the file (/afs/cern.ch/...)
-  // if string is empty, file name = "ECNA/cmssw_parameters" (located in $HOME user's directory - default - )
+  // Init fCfgCMSSWBase, fCfgSCRAMArch and fCfgCMSSWSubsystem
 
   Int_t MaxCar = fgMaxCar;
-  fCfgCMSSWVersion.Resize(MaxCar);
-  fCfgCMSSWVersion = "?";
+  fCfgCMSSWBase.Resize(MaxCar);
+  fCfgCMSSWBase = "?";
+
+  fCfgSCRAMArch.Resize(MaxCar);
+  fCfgSCRAMArch = "?";
+
   fCfgCMSSWSubsystem.Resize(MaxCar);
   fCfgCMSSWSubsystem = "?";
-  fCfgCMSSWSlc.Resize(MaxCar);
-  fCfgCMSSWSlc = "?";
 
-  //..... put the name of the ascii file (containing the paths for CNA treatements)
-  //      in the string cFileNameForCMSSWParameters and in class attribute fFileForCMSSWParameters
+  //------------ CMSSW_BASE
 
-  if ( argFileName == "" )
+  char* ch_cmssw_base = getenv("CMSSW_BASE");
+  if( ch_cmssw_base == 0 )
     {
-      string cFileNameForCMSSWParameters = "ECNA/cmssw_parameters";     // config file name
-      TString s_file_name = cFileNameForCMSSWParameters.c_str();
-      const Text_t *t_file_name = (const Text_t *)s_file_name.Data();
-      
-      TString s_path_name = gSystem->Getenv("HOME");       // get user's home directory path
-      
-      fFileForCMSSWParameters = s_path_name;
-      fFileForCMSSWParameters.Append('/');
-      fFileForCMSSWParameters.Append(t_file_name);
+      cout << "*TEcnaParPaths::GetCMSSWParameters()> CMSSW_BASE not defined."
+	   << " Please, set up the environment (command: eval `scramv1 runtime -csh`)"
+	   << fTTBELL << endl; 
     }
   else
     {
-      fFileForCMSSWParameters = argFileName.Data();
+      fCfgCMSSWBase = (TString)ch_cmssw_base;
     }
+  
+  //------------ SCRAM_ARCH
 
-  //... Reading of the CMSSW version, subsystem and slc name in the file named fFileForCMSSWParameters.Data()
-  //
-
-  fFcin_cmssw.open(fFileForCMSSWParameters.Data());
-  if(fFcin_cmssw.fail() == kFALSE)
+  char* ch_scram_arch = getenv("SCRAM_ARCH");
+  if( ch_scram_arch == 0 )
     {
-      fFcin_cmssw.clear();
-
-      string xCMSSWVersionFileP;
-      fFcin_cmssw >> xCMSSWVersionFileP;
-      fCfgCMSSWVersion = xCMSSWVersionFileP.c_str();
-
-      string xCMSSWSubsystemFileP;
-      fFcin_cmssw >> xCMSSWSubsystemFileP;
-      fCfgCMSSWSubsystem = xCMSSWSubsystemFileP.c_str();
-
-      string xCMSSWSlcFileP;
-      fFcin_cmssw >> xCMSSWSlcFileP;
-      fCfgCMSSWSlc = xCMSSWSlcFileP.c_str();
-
-      fFcin_cmssw.close();
+      cout << "*TEcnaParPaths::GetCMSSWParameters()> SCRAM_ARCH not defined."
+	   << " Please, set up the environment (command: eval `scramv1 runtime -csh`)"
+	   << fTTBELL << endl; 
     }
   else
     {
-      fFcin_cmssw.clear();
-      fCnaError++;
-      cout << fTTBELL << endl
-	   << " ************************************************************************************************** " << endl;
-      cout << "   !CNA(TEcnaParPaths) (" << fCnaError << ") *** ERROR *** " << endl << endl
-	   << "     " << fFileForCMSSWParameters.Data() << ": file not found. " << endl << endl
-	   << "     Please create a subdirectory named ECNA in your HOME directory (if not already done)" << endl
-	   << "     and create a file named cmssw_parameters in the subdirectory ECNA." << endl << endl
-           << "     The file " << fFileForCMSSWParameters.Data() << " is a configuration file" << endl
-	   << "     for the CNA and must contain one line with the following syntax:" << endl << endl
-	   << "        CMSSW_VERSION SUBSYSTEM_NAME TEST_SUBDIRECTORY_NAME" << endl
-	   << endl << endl
-	   << "     Example: CMSSW_2_1_19 CalibCalorimetry slc4_ia32_gcc345" << endl << endl
-	   << " ************************************************************************************************** "
-	   << fTTBELL << endl;
-
-      fFcin_cmssw.close();
+      fCfgSCRAMArch = (TString)ch_scram_arch;
     }
+      
+  //------------ SUBSYSTEM: CalibCalorimetry
+
+  fCfgCMSSWSubsystem = "CalibCalorimetry";
+
 } // ----------- (end of GetCMSSWParameters) --------------------
 
 //=======================================================================================
 //
-//   P U B L I C    M E T H O D S    T O    R E T U R N    T H E    P A R A M E T E R S 
+//        M E T H O D S    T O    R E T U R N    T H E    P A R A M E T E R S 
 //
 //=======================================================================================
-TString TEcnaParPaths::ResultsRootFilePath()       {return fCfgResultsRootFilePath;}
-TString TEcnaParPaths::ResultsAsciiFilePath()      {return fCfgResultsAsciiFilePath;}
-TString TEcnaParPaths::HistoryRunListFilePath()    {return fCfgHistoryRunListFilePath;}
-TString TEcnaParPaths::CMSSWVersion()              {return fCfgCMSSWVersion;}
-TString TEcnaParPaths::CMSSWSubsystem()            {return fCfgCMSSWSubsystem;}
-TString TEcnaParPaths::CMSSWSlc()                  {return fCfgCMSSWSlc;}
+TString TEcnaParPaths::ResultsRootFilePath()   {return fCfgResultsRootFilePath;}
+TString TEcnaParPaths::ResultsAsciiFilePath()  {return fCfgResultsAsciiFilePath;}
+TString TEcnaParPaths::HistoryRunListFilePath(){return fCfgHistoryRunListFilePath;}
+TString TEcnaParPaths::CMSSWBase()             {return fCfgCMSSWBase;}
+TString TEcnaParPaths::CMSSWSubsystem()        {return fCfgCMSSWSubsystem;}
+TString TEcnaParPaths::SCRAMArch()             {return fCfgSCRAMArch;}
 
 //.....................................................................................
 TString TEcnaParPaths::PathModulesData()
 {
   // ----- return the path of data subdirectory in package "Modules"
   TString ModulesdataPath = "";
-  //...... get HOME directory path, CMSSW version and Subsystem name   
-  TString s_path_name = gSystem->Getenv("HOME");
-  const Text_t *t_path_name = (const Text_t *)s_path_name.Data();
-  ModulesdataPath.Append(t_path_name);
-  ModulesdataPath.Append('/');               //  /afs/cern.ch/user/U/USERNAME/
 
-  TString s_cmssw = "cmssw";  
-  const Text_t *t_cmssw = (const Text_t *)s_cmssw.Data();
-  ModulesdataPath.Append(t_cmssw);  
-  ModulesdataPath.Append('/');               //  /afs/cern.ch/user/U/USERNAME/cmssw/
-      
-  const Text_t *t_cmssw_version = (const Text_t *)CMSSWVersion().Data();
-  ModulesdataPath.Append(t_cmssw_version);
+  const Text_t *t_cmssw_base = (const Text_t *)CMSSWBase().Data();
+  ModulesdataPath.Append(t_cmssw_base);
   ModulesdataPath.Append('/');               //  /afs/cern.ch/user/U/USERNAME/cmssw/CMSSW_X_Y_Z/
 
   TString s_src = "src";
@@ -528,23 +398,13 @@ TString TEcnaParPaths::PathModulesData()
   return ModulesdataPath;
 }
 //.....................................................................................
-TString TEcnaParPaths::PathTestSlc()
+TString TEcnaParPaths::PathTestScramArch()
 {
-  // ----- return the path of test/slc... subdirectory in CMSSW_X_Y_Z
+  // ----- return the path of test/slc... subdirectory in CMSSW_BASE
   TString TestslcPath = "";
-  //...... get HOME directory path, CMSSW version and Subsystem name   
-  TString s_path_name = gSystem->Getenv("HOME");
-  const Text_t *t_path_name = (const Text_t *)s_path_name.Data();
-  TestslcPath.Append(t_path_name);
-  TestslcPath.Append('/');               //  /afs/cern.ch/user/U/USERNAME/
-
-  TString s_cmssw = "cmssw";  
-  const Text_t *t_cmssw = (const Text_t *)s_cmssw.Data();
-  TestslcPath.Append(t_cmssw);  
-  TestslcPath.Append('/');               //  /afs/cern.ch/user/U/USERNAME/cmssw/
       
-  const Text_t *t_cmssw_version = (const Text_t *)CMSSWVersion().Data();
-  TestslcPath.Append(t_cmssw_version);
+  const Text_t *t_cmssw_base = (const Text_t *)CMSSWBase().Data();
+  TestslcPath.Append(t_cmssw_base);
   TestslcPath.Append('/');               //  /afs/cern.ch/user/U/USERNAME/cmssw/CMSSW_X_Y_Z/
 
   TString s_test = "test";
@@ -552,17 +412,21 @@ TString TEcnaParPaths::PathTestSlc()
   TestslcPath.Append(t_test);
   TestslcPath.Append('/');               //  /afs/cern.ch/user/U/USERNAME/cmssw/CMSSW_X_Y_Z/test
       
-  const Text_t *t_cmssw_subsystem = (const Text_t *)CMSSWSlc().Data();
-  TestslcPath.Append(t_cmssw_subsystem);
+  const Text_t *t_cmssw_arch = (const Text_t *)SCRAMArch().Data();
+  TestslcPath.Append(t_cmssw_arch);
   TestslcPath.Append('/');               //  /afs/cern.ch/user/U/USERNAME/cmssw/CMSSW_X_Y_Z/test/slc4_ia32_gcc345/
 
   return TestslcPath;
 }
 
-//============================================================================= Ancillary methods
-
+//=======================================================================================
+//
+//       A N C I L L A R Y   M E T H O D S   C O N C E R N I N G   P A T H S 
+//
+//=======================================================================================
 void  TEcnaParPaths::SetResultsRootFilePath(const TString ImposedPath) {fCfgResultsRootFilePath  = ImposedPath;}
 void  TEcnaParPaths::SetResultsAsciiFilePath(const TString ImposedPath){fCfgResultsAsciiFilePath = ImposedPath;}
+void  TEcnaParPaths::SetHistoryRunListFilePath(const TString ImposedPath){fCfgHistoryRunListFilePath = ImposedPath;}
 
 void  TEcnaParPaths::TruncateResultsRootFilePath(const Int_t& n1, const Int_t& nbcar) 
 {fCfgResultsRootFilePath.Remove(n1,nbcar);}

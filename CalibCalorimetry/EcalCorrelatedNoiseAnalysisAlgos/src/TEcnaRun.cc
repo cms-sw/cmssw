@@ -1,317 +1,20 @@
 //----------Author's Names: B.Fabbro, FX Gentit DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 01/04/2010
-// ROOT include files
-
-// user's include files
+//----------Modified: 02/02/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRun.h"
+
+//--------------------------------------
+//  TEcnaRun.cc
+//  Class creation: 03 Dec 2002
+//  Documentation: see TEcnaRun.h
+//--------------------------------------
 
 R__EXTERN TEcnaRootFile *gCnaRootFile;
 
 ClassImp(TEcnaRun)
 //___________________________________________________________________________
 //
-// TEcnaRun + ECNA (Ecal Correlated Noise Analysis) instructions for use 
-//           in the framework of CMSSW.
-//
-//==============> INTRODUCTION
-//
-//    The present documentation contains:
-//
-//    [1] a brief description of the ECNA package with instructions for use
-//        in the framework of the CMS Software
-//
-//    [2] the documentation for the class TEcnaRun
-//
-//
-//==[1]=====================================================================================
-//
-//
-//         DOCUMENTATION FOR THE INTERFACE: ECNA package / CMSSW / SCRAM
-//
-//
-//==========================================================================================
-//
-//  ECNA consists in 2 packages named: EcalCorrelatedNoiseAnalysisModules and
-//  EcalCorrelatedNoiseAnalysisAlgos.
-//
-//  The directory tree is the following:
-//
-//      <local path>/CMSSW_a_b_c/src/----CalibCalorimetry/---EcalCorrelatedNoiseAnalysisModules/BuildFile
-//                              |   |                    |                                     |---interface/
-//                              |   |                    |                                     |---src/
-//                                  |                    |                                     |---data/
-//                                  |                    |
-//                                  |                    |---EcalCorrelatedNoiseAnalysisAlgos/BuildFile
-//                                  |                    |                                   |---interface/
-//                                  |                    |                                   |---src/
-//                                  |                    |                                   |---test/
-//                                  |                    |
-//                                  |                    |
-//                                  |                    \--- <other packages of CalibCalorimetry> 
-//                                  |
-//                                  \----<other subsystems...>
-//
-//
-//    The package EcalCorrelatedNoiseAnalysisModules contains one standard analyzer
-//    (EcnaAnalyzer). The user can edit its own analyzer.
-//    A detailed description is given here after in the class TEcnaRun documentation.
-//    An analyzer skeleton can be obtained by means of the
-//    SkeletonCodeGenerator "mkedanlzr" (see the CMSSW Framework/Edm web page).
-//
-//    The package EcalCorrelatedNoiseAnalysisAlgos contains the basic classes of ECNA 
-//    (in src and interface) and standalone executables (in directory test).
-//
-// 
-//==[2]======================================================================================
-//
-//
-//                         CLASS TEcnaRun DOCUMENTATION
-//
-//
-//===========================================================================================
-//TEcnaRun.
-//
-//
-//
-// Brief and general description
-// -----------------------------
-//
-//   This class allows the user to calculate pedestals, noises,
-//   correlations and other quantities of interest for correlated
-//   noise studies on the CMS/ECAL (EB and EE).
-//
-//   Three main operations are performed by the class TEcnaRun. Each of them is
-//   associated with a specific method of the analyzer EcnaAnalyzer:
-//
-//    (1) Initialization and calls to "preparation methods" of the CNA.
-//        This task is done in the constructor of the analyzer:
-//        EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet)
-//
-//    (2) Building of the event distributions (distributions of the sample ADC
-//        values for each sample, each channel, etc...)
-//        This task is done in the method "analyze" of the analyzer:
-//        EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-//
-//    (3) Calculation of the different quantities (correlations, pedestals, noises, etc...)
-//        from the distributions obtained in (2) and writing of these quantities
-//        in results ROOT files and also in ASCII files.
-//        This task is done in the destructor of the analyzer:
-//        EcnaAnalyzer::~EcnaAnalyzer()
-//   
-//
-// Use of the class TEcnaRun by the analyzer EcnaAnalyzer
-// ------------------------------------------------------
-//
-//           see files EcnaAnalyzer.h and EcnaAnalyzer.cc
-//           in package EcalCorrelatedNoiseAnalysisModules
-//
-//
-// More detailled description of the class TEcnaRun
-// -----------------------------------------------
-//
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//
-//                     Declaration and Print Methods
-//
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//
-//     Just after the declaration with the constructor without arguments,
-//     you can set a "Print Flag" by means of the following "Print Methods":
-//
-//     TEcnaRun* MyCnaRun = new TEcnaRun(); // declaration of the object MyCnaRun
-//
-//   // Print Methods: 
-//
-//    MyCnaRun->PrintNoComment();  // Set flag to forbid printing of all the comments
-//                                 // except ERRORS.
-//
-//    MyCnaRun->PrintWarnings();   // (DEFAULT)
-//                                 // Set flag to authorize printing of some warnings.
-//                                 // WARNING/INFO: information on something unusual
-//                                 // in the data.
-//                                 // WARNING/CORRECTION: something wrong (but not too serious)
-//                                 // in the value of some argument.
-//                                 // Automatically modified to a correct value.
-//
-//   MyCnaRun->PrintComments();    // Set flag to authorize printing of infos
-//                                 // and some comments concerning initialisations
-//
-//   MyCnaRun->PrintAllComments(); // Set flag to authorize printing of all the comments
-//
-//
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//
-//           Method GetReadyToReadData(...) and associated methods
-//
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//
-//      MyCnaRun->GetReadyToReadData(AnalysisName,      NbOfSamples, RunNumber,
-//		                     FirstReqEvtNumber, LastReqEvtNumber,  ReqNbOfEvts,
-//                                   StexNumber,        [RunType]);
-//
-//
-//   Explanations for the arguments (all of them are input arguments):
-//
-//      TString  AnalysisName: code for the analysis. This code is
-//                             necessary to distinguish between different
-//                             analyses on the same events of a same run
-//                             (example: pedestal run for the 3 gains:
-//                                       AnalysisName = "Ped1" or "Ped6" or "Ped12")
-//                             The string AnalysisName is automatically
-//                             included in the name of the results files
-//                             (see below: results files paragraph)
-//
-//      Int_t     NbOfSamples         number of samples (=10 maximum) 
-//      Int_t     RunNumber:          run number
-//      Int_t     FirstReqEvtNumber:  first requested event number (numbering starting from 1)
-//      Int_t     LastReqEvtNumber:   last  requested event number
-//      Int_t     StexNumber:         SM or Dee number (Stex = SM if EB, Dee if EE)
-//      
-//        The different quantities (correlations, etc...) will be calculated
-//        from the event numbered: FirstReqEvtNumber
-//        to the event numbered:   LastReqEvtNumber.
-//
-//      Int_t     RunType [optional]: run type
-//
-//                          PEDESTAL_STD = 9
-//                          LASER_STD    = 4
-//                          PEDESTAL_GAP = 18, etc...
-//      (see CMSSSW/DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h)
-//
-//      if RunType is specified, the run type will be displayed on the plots
-//
-//==============> Method to set the start and stop times of the analysis (optional)
-//
-//  A method can be used to set the fStartDate and fStopDate attributes
-//  of the class TEcnaHeader from start and stop time given by the user provided
-//  these values have been recovered from the event reading:
-//
-//      void  MyCnaRun->StartStopDate(TString StartDate, TString StopDate);
-// 
-//     // TString StartDate, StopDate:  start and stop time of the run
-//     //                               in "date" format. Example: 
-//     //                               Wed Oct  8 04:14:23 2003
-//
-//     If the method is not called, the values of the attributes
-//     fStartDate and fStopDate are set to: "!Start date> no info"
-//     and "!Stop date> no info" at the level of Init() method of the class TEcnaHeader.
-//     The values of StartDate and StopDate are written in the header of
-//     the .root result file.
-//
-//
-//  Another similar method exists, with time_t type arguments:
-//
-//     void  MyCnaRun->StartStopTime(time_t  StartTime, time_t  StopTime);
-//
-//
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//
-//                       Calculation methods
-//
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//
-//    The "calculation methods" are methods which compute the different
-//    quantities of interest. 
-//
-//    List of the calculation methods:
-//
-
-//  //................... Calculation methods ( associated to GetReadyToReadData(...) )
-//  void SampleValues(); // 3D histo of the sample ADC value 
-//                       // for each triple (channel,sample,event)
-//  void SampleMeans();  // Calculation of the expectation values over the events
-//                       // for each sample and for each channel
-//  void SampleSigmas(); // Calculation of the sigmas over the events
-//                       // for each sample and for each channel
-//  //...........................................
-//  void CovariancesBetweenSamples();  // Calculation of the (s,s) covariances over the events
-//                                     // for each channel
-//  void CorrelationsBetweenSamples(); // Calculation of the (s,s) correlations over the events
-//                                     // for each channel
-//  //..........................................................
-//  void LowFrequencyCovariancesBetweenChannels();
-//  void HighFrequencyCovariancesBetweenChannels();
-//  void LowFrequencyCorrelationsBetweenChannels();
-//  void HighFrequencyCorrelationsBetweenChannels();
-//  //..........................................................
-//  void LowFrequencyMeanCorrelationsBetweenTowers();
-//  void HighFrequencyMeanCorrelationsBetweenTowers();
-//
-//  void LowFrequencyMeanCorrelationsBetweenSCs();
-//  void HighFrequencyMeanCorrelationsBetweenSCs();
-//
-// //.................................................... Quantities as a function of Xtals
-//  void Pedestals();
-//  void TotalNoise();
-//  void LowFrequencyNoise();
-//  void HighFrequencyNoise();
-//  void MeanOfCorrelationsBetweenSamples();
-//  void SigmaOfCorrelationsBetweenSamples();
-//
-//  //......................... Quantities as a function of tower (EB) or SC (EE), average over the Xtals
-//  void AveragedPedestals();
-//  void AveragedTotalNoise();
-//  void AveragedLowFrequencyNoise();
-//  void AveragedHighFrequencyNoise();
-//  void AveragedMeanOfCorrelationsBetweenSamples();
-//  void AveragedSigmaOfCorrelationsBetweenSamples();
-//
-//
-//==============> RESULTS FILES
-//
-//  The calculation methods above provide results which can be used directly
-//  in the user's code. However, these results can also be written in results
-//  files by appropriate methods.
-//  The names of the results files are automaticaly generated.
-//
-//  It is also possible to write results in ASCII files  => See TEcnaWrite and TEcnaGui
-//  It is also possible to plot results in ROOT canvases => See TEcnaHistos and TEcnaGui
-//                              
-//
-// *-----------> Codification for the name of the ROOT file:
-//
-//  The name of the ROOT file is the following:
-//
-//       aaa_S1_sss_Rrrr_fff_lll_SMnnn.root     for EB
-//       aaa_S1_sss_Rrrr_fff_lll_Deennn.root    for EE
-//
-//  with:
-//       aaa = Analysis name
-//       sss = number of samples
-//       rrr = Run number
-//       fff = First requested event number
-//       lll = Last  requested events
-//       mmm = Requested number of events
-//       nnn = SM number or Dee number
-//
-//  This name is automatically generated from the values of the arguments
-//  of the method "GetReadyToReadData".
-//
-// *-----------> Method which writes the result in the ROOT file:
-//
-//       Bool_t  MyCnaRun->WriteRootFile();
-//
-//===================================================================================================
-//
-//-------------------------------------------------------------------------
-//
-//        For more details on other classes of the CNA package:
-//
-//                 http://www.cern.ch/cms-fabbro/cna
-//
-//-------------------------------------------------------------------------
-
-//------------------------------ TEcnaRun.cc ------------------------------
-//  
-//   Creation (first version): 03 Dec 2002
-//
-//   For questions or comments, please send e-mail to Bernard Fabbro:
-//             
-//   fabbro@hep.saclay.cea.fr 
-//
-//------------------------------------------------------------------------
 
 TEcnaRun::TEcnaRun()
 {
@@ -320,25 +23,98 @@ TEcnaRun::TEcnaRun()
  // cout << "[Info Management] CLASS: TEcnaRun.           CREATE OBJECT: this = " << this << endl;
 }
 
-TEcnaRun::TEcnaRun(const TString SubDet)
+TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString SubDet)
 {
 //Constructor with argument: call to Init() and declare fEcal according to SubDet value ("EB" or "EE")
 
  // cout << "[Info Management] CLASS: TEcnaRun.           CREATE OBJECT: this = " << this << endl;
 
   Init();
+  fObjectManager = (TEcnaObject*)pObjectManager;
+  Int_t i_this = (Int_t)this;
+  pObjectManager->RegisterPointer("TEcnaRun", i_this);
+
+  //............................ fCnaParCout
+  fCnaParCout = 0;
+  Int_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
+  if( iCnaParCout == 0 )
+    {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
+  else
+    {fCnaParCout = (TEcnaParCout*)iCnaParCout;}
+
+  //............................ fCnaParPaths
+  fCnaParPaths = 0;
+  Int_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
+  if( iCnaParPaths == 0 )
+    {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
+  else
+    {fCnaParPaths = (TEcnaParPaths*)iCnaParPaths;}
+
+  //fCfgResultsRootFilePath    = fCnaParPaths->ResultsRootFilePath();
+  //fCfgHistoryRunListFilePath = fCnaParPaths->HistoryRunListFilePath();
+
+  //ffFileHeader = 0;
+  //fconst Text_t *h_name  = "CnaHeader";   //==> voir cette question avec FXG
+  //fconst Text_t *h_title = "CnaHeader";   //==> voir cette question avec FXG
+  //ffFileHeader = new TEcnaHeader(h_name, h_title);     //fCnew++;
+
+  //............................ fFileHeader
+  const Text_t *h_name  = "CnaHeader";  //==> voir cette question avec FXG
+  const Text_t *h_title = "CnaHeader";  //==> voir cette question avec FXG
+
+  fFileHeader = 0;
+  //Int_t iFileHeader = pObjectManager->GetPointerValue("TEcnaHeader");
+  Int_t iFileHeader = 0;  // one TEcnaHeader object for each file since they can be open simultaneously 
+  if( iFileHeader == 0 )
+    {fFileHeader = new TEcnaHeader(pObjectManager, h_name, h_title); /*fCnew++*/}
+  else
+    {fFileHeader = (TEcnaHeader*)iFileHeader;}
+
   SetEcalSubDetector(SubDet.Data());
   fNbSampForFic = fEcal->MaxSampADC(); // DEFAULT Number of samples for ROOT file
 }
 
-TEcnaRun::TEcnaRun(const TString SubDet, const Int_t& NbOfSamples)
+TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString SubDet, const Int_t& NbOfSamples)
 {
-//Constructor with arguments: call to Init(), declare fEcal according to SubDet value ("EB" or "EE")
-// and set NbOfSamples according to the user's willing
-
- // cout << "[Info Management] CLASS: TEcnaRun.           CREATE OBJECT: this = " << this << endl;
+  //fCnaParPaths = 0; fCnaParPaths = new TEcnaParPaths();  //fCnew++;
+  //fCnaParCout = 0;  fCnaParCout  = new TEcnaParCout();   //fCnew++;
 
   Init();
+  fObjectManager = (TEcnaObject*)pObjectManager;
+  Int_t i_this = (Int_t)this;
+  pObjectManager->RegisterPointer("TEcnaRun", i_this);
+
+  //............................ fCnaParCout
+  fCnaParCout = 0;
+  Int_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
+  if( iCnaParCout == 0 )
+    {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
+  else
+    {fCnaParCout = (TEcnaParCout*)iCnaParCout;}
+
+  //............................ fCnaParPaths
+  fCnaParPaths = 0;
+  Int_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
+  if( iCnaParPaths == 0 )
+    {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
+  else
+    {fCnaParPaths = (TEcnaParPaths*)iCnaParPaths;}
+
+  //fCfgResultsRootFilePath    = fCnaParPaths->ResultsRootFilePath();
+  //fCfgHistoryRunListFilePath = fCnaParPaths->HistoryRunListFilePath();
+
+  //............................ fFileHeader
+  const Text_t *h_name  = "CnaHeader";  //==> voir cette question avec FXG
+  const Text_t *h_title = "CnaHeader";  //==> voir cette question avec FXG
+
+  fFileHeader = 0;
+  //Int_t iFileHeader = pObjectManager->GetPointerValue("TEcnaHeader");
+  Int_t iFileHeader = 0;  // one TEcnaHeader object for each file since they can be open simultaneously 
+  if( iFileHeader == 0 )
+    {fFileHeader = new TEcnaHeader(pObjectManager, h_name, h_title); /*fCnew++*/}
+  else
+    {fFileHeader = (TEcnaHeader*)iFileHeader;}
+
   SetEcalSubDetector(SubDet.Data());
   if( NbOfSamples>0 && NbOfSamples<=fEcal->MaxSampADC() )
     {
@@ -352,6 +128,9 @@ TEcnaRun::TEcnaRun(const TString SubDet, const Int_t& NbOfSamples)
       fNbSampForFic = fEcal->MaxSampADC(); // DEFAULT Number of samples for file reading
     }
 }
+
+//.... return true or false according to the existence of the path. The path itself is in an attribute of fCnaParPaths.
+Bool_t TEcnaRun::GetPathForResults(){return fCnaParPaths->GetPathForResultsRootFiles();}
 
 void TEcnaRun::Init()
 {
@@ -374,9 +153,9 @@ void TEcnaRun::Init()
 
   fNumberOfEvents = 0;
   //............................. init pointers  ( Init() )
-  fT3d_distribs  = 0;
-  fT3d2_distribs = 0;
-  fT3d1_distribs = 0;
+  fT3d_AdcValues  = 0;
+  fT3d2_AdcValues = 0;
+  fT3d1_AdcValues = 0;
 
   fT1d_StexStinFromIndex = 0;
 
@@ -438,26 +217,26 @@ void TEcnaRun::Init()
 
   fTagAdcEvt = 0;
 
-  fTagMSp       = 0;
-  fTagSSp      = 0;
+  fTagMSp    = 0;
+  fTagSSp    = 0;
 
-  fTagCovCss   = 0;
-  fTagCorCss   = 0;
+  fTagCovCss = 0;
+  fTagCorCss = 0;
 
-  fTagHfCov    = 0;
-  fTagHfCor    = 0;
-  fTagLfCov    = 0;
-  fTagLfCor    = 0;
+  fTagHfCov  = 0;
+  fTagHfCor  = 0;
+  fTagLfCov  = 0;
+  fTagLfCor  = 0;
 
   fTagLFccMoStins = 0;
   fTagHFccMoStins = 0;
 
-  fTagPed     = 0;
-  fTagTno    = 0;
-  fTagMeanCorss  = 0;
+  fTagPed = 0;
+  fTagTno = 0;
+  fTagMeanCorss = 0;
 
-  fTagLfn    = 0;
-  fTagHfn   = 0;
+  fTagLfn = 0;
+  fTagHfn = 0;
   fTagSigCorss = 0;
 
   fTagAvPed = 0;
@@ -465,33 +244,30 @@ void TEcnaRun::Init()
   fTagAvLfn = 0;
   fTagAvHfn = 0;
 
-  fTagAvMeanCorss  = 0;
-  fTagAvSigCorss = 0;
+  fTagAvMeanCorss = 0;
+  fTagAvSigCorss  = 0;
 
   //................................................... Code Print  ( Init() )
-  fFlagPrint = fCodePrintWarnings;
-  fCnaParCout = 0; fCnaParCout = new TEcnaParCout();    //fCnew++;
   fCodePrintNoComment   = fCnaParCout->GetCodePrint("NoComment");
   fCodePrintWarnings    = fCnaParCout->GetCodePrint("Warnings ");      // => default value
   fCodePrintComments    = fCnaParCout->GetCodePrint("Comments");
   fCodePrintAllComments = fCnaParCout->GetCodePrint("AllComments");
 
-  //................................................... Paths
-  fCnaParPaths = 0; fCnaParPaths = new TEcnaParPaths();  //fCnew++;
+  fFlagPrint = fCodePrintWarnings;
+
+  //...................................................
+  gCnaRootFile = 0;
   fOpenRootFile = kFALSE;
-  
   fReadyToReadData = 0;
 
   //.............................................. Miscellaneous
-  fFileHeader = 0;
-  const Text_t *h_name  = "CnaHeader";   //==> voir cette question avec FXG
-  const Text_t *h_title = "CnaHeader";   //==> voir cette question avec FXG
-  fFileHeader = new TEcnaHeader(h_name, h_title);     //fCnew++;
-
   fSpecialStexStinNotIndexed = -1;
 
   fStinIndexBuilt     = 0;
   fBuildEvtNotSkipped = 0;
+
+  fMemoReadNumberOfEventsforSamples = 0;
+
 }// end of Init()
 
 //========================================================================
@@ -562,7 +338,7 @@ TEcnaRun::~TEcnaRun()
 	{
 	  cout << "************************************************************************************* "
 	       << endl;
-	  cout << "*TEcnaRun::~TEcnaRun()> Nb of calls to BuildEventsDistributions by cmsRun: "
+	  cout << "*TEcnaRun::~TEcnaRun()> Nb of calls to GetSampleAdcValues by cmsRun: "
 	       << fBuildEvtNotSkipped << endl;
 	  cout << "************************************************************************************* "
 	       << endl;
@@ -604,9 +380,9 @@ TEcnaRun::~TEcnaRun()
   if (fT2d_NbOfEvts        != 0){delete [] fT2d_NbOfEvts;         fCdelete++;}
   if (fT1d_NbOfEvts        != 0){delete [] fT1d_NbOfEvts;         fCdelete++;}
 
-  if (fT3d_distribs        != 0){delete [] fT3d_distribs;         fCdelete++;}
-  if (fT3d2_distribs       != 0){delete [] fT3d2_distribs;        fCdelete++;}
-  if (fT3d1_distribs       != 0){delete [] fT3d1_distribs;        fCdelete++;}
+  if (fT3d_AdcValues        != 0){delete [] fT3d_AdcValues;         fCdelete++;}
+  if (fT3d2_AdcValues       != 0){delete [] fT3d2_AdcValues;        fCdelete++;}
+  if (fT3d1_AdcValues       != 0){delete [] fT3d1_AdcValues;        fCdelete++;}
 
   if (fT2d_ev              != 0){delete [] fT2d_ev;               fCdelete++;}
   if (fT1d_ev              != 0){delete [] fT1d_ev;               fCdelete++;}
@@ -725,7 +501,7 @@ TEcnaRun::~TEcnaRun()
 //
 //============================================================================
 
-void TEcnaRun::GetReadyToReadData(TString      typ_ana, const Int_t& run_number,
+void TEcnaRun::GetReadyToReadData(TString     typ_ana, const Int_t& run_number,
 				 const Int_t& nfirst,  const Int_t& nlast, const Int_t& nbevts,
 				 const Int_t& Stex)
 {
@@ -791,8 +567,8 @@ void TEcnaRun::GetReadyToReadData( TString       typ_ana, const Int_t& run_numbe
 
 	      if ( fEcal->MaxStinEcnaInStex() > 0  &&  fEcal->MaxCrysInStin() > 0  &&  fNbSampForFic > 0 ) 
 		{
-		  if( fFileHeader == 0 ){fFileHeader = new TEcnaHeader(h_name, h_title);}     // fCnew++;
-		  
+		  if( fFileHeader == 0 ){fFileHeader = new TEcnaHeader(fObjectManager, h_name, h_title);} // fCnew++;
+
 		  fFileHeader->HeaderParameters(typ_ana,    fNbSampForFic,
 						run_number, nfirst, nlast, nbevts,
 						Stex,       run_type);
@@ -874,13 +650,13 @@ void TEcnaRun::GetReadyToReadData( TString       typ_ana, const Int_t& run_numbe
 	  
 		  //====================================================================================
 		  //
-		  //   allocation of the 3D array fT3d_distribs[channel][sample][events] (ADC values)
+		  //   allocation of the 3D array fT3d_AdcValues[channel][sample][events] (ADC values)
 		  //
-		  //   This array is filled in the BuildEventDistributions(...) method
+		  //   This array is filled in the GetSampleAdcValues(...) method
 		  //
 		  //====================================================================================
 		  
-		  if(fT3d_distribs == 0)
+		  if(fT3d_AdcValues == 0)
 		    {
 		      //............ Allocation for the 3d array 
 		      cout << "*TEcnaRun::GetReadyToReadData(...)> Allocation of 3D array for ADC distributions."
@@ -888,24 +664,23 @@ void TEcnaRun::GetReadyToReadData( TString       typ_ana, const Int_t& run_numbe
 			   << "                                    This number must not be too large"
 			   << " (no failure after this message means alloc OK)." << endl;
 
-		      fT3d_distribs = new Double_t**[fEcal->MaxCrysEcnaInStex()];        fCnew++;  
+		      fT3d_AdcValues = new Double_t**[fEcal->MaxCrysEcnaInStex()];        fCnew++;  
 
-		      fT3d2_distribs  =
+		      fT3d2_AdcValues  =
 			new  Double_t*[fEcal->MaxCrysEcnaInStex()*
 				       fNbSampForFic];                          fCnew++;  
 
-		      fT3d1_distribs  =
+		      fT3d1_AdcValues  =
 			new   Double_t[fEcal->MaxCrysEcnaInStex()*
 				       fNbSampForFic*
 				       fFileHeader->fReqNbOfEvts];                       fCnew++;
 
 		      for(Int_t i0StexEcha=0; i0StexEcha<fEcal->MaxCrysEcnaInStex(); i0StexEcha++){
-			fT3d_distribs[i0StexEcha] = &fT3d2_distribs[0] + i0StexEcha*fNbSampForFic;
+			fT3d_AdcValues[i0StexEcha] = &fT3d2_AdcValues[0] + i0StexEcha*fNbSampForFic;
 			for(Int_t j0Sample=0; j0Sample<fNbSampForFic; j0Sample++){
-			  fT3d2_distribs[fNbSampForFic*i0StexEcha + j0Sample] = &fT3d1_distribs[0]+
+			  fT3d2_AdcValues[fNbSampForFic*i0StexEcha + j0Sample] = &fT3d1_AdcValues[0]+
 			    fFileHeader->fReqNbOfEvts*(fNbSampForFic*i0StexEcha+j0Sample);}}
 		    }
-
 		  //................................. Init to zero
 		  for (Int_t iza=0; iza<fEcal->MaxCrysEcnaInStex(); iza++)
 		    {
@@ -913,10 +688,10 @@ void TEcnaRun::GetReadyToReadData( TString       typ_ana, const Int_t& run_numbe
 			{
 			  for (Int_t izc=0; izc<fFileHeader->fReqNbOfEvts; izc++)
 			    {
-			      if( fT3d_distribs[iza][izb][izc] != (Double_t)0 )
+			      if( fT3d_AdcValues[iza][izb][izc] != (Double_t)0 )
 				{
 				  fMiscDiag[0]++;
-				  fT3d_distribs[iza][izb][izc] = (Double_t)0;
+				  fT3d_AdcValues[iza][izb][izc] = (Double_t)0;
 				}
 			    }
 			}
@@ -993,7 +768,7 @@ void TEcnaRun::GetReadyToReadData( TString       typ_ana, const Int_t& run_numbe
 		     << fFileHeader->fFirstReqEvtNumber << endl
 		     << "          Last requested event number  = "
 		     << fFileHeader->fLastReqEvtNumber << endl
-		     << "          " << fStexName.Data() << " number             = "
+		     << "          " << fStexName.Data() << " number                  = "
 		     << fFileHeader->fStex << endl
 		     << "          Number of " << fStinName.Data()
 		     << " in " << fStexName.Data() << "       = "
@@ -1038,9 +813,9 @@ void TEcnaRun::GetReadyToReadData( TString       typ_ana, const Int_t& run_numbe
 
 //====================================================================================================
 //
-//     BuildEventDistributions: method called by the CMSSW analyzer (cmsRun)
+//     GetSampleAdcValues: method called by the CMSSW analyzer (cmsRun)
 //
-//     At each event, put the Sample ADC value in the 3D array: fT3d_distribs[i0StexEcha][i0Sample][i0EventIndex]
+//     At each event, put the Sample ADC value in the 3D array: fT3d_AdcValues[i0StexEcha][i0Sample][i0EventIndex]
 //
 //         |============================================================|
 //         |                                                            |
@@ -1060,11 +835,11 @@ void TEcnaRun::GetReadyToReadData( TString       typ_ana, const Int_t& run_numbe
 //             adcvalue = ADC sample value.
 //
 //====================================================================================================
-Bool_t TEcnaRun::BuildEventDistributions(const Int_t&    n1EventNumber, const Int_t& n1StexStin,
-					const Int_t&    i0StinEcha,    const Int_t& i0Sample,
-					const Double_t& adcvalue)
+Bool_t TEcnaRun::GetSampleAdcValues(const Int_t&    n1EventNumber, const Int_t& n1StexStin,
+				    const Int_t&    i0StinEcha,    const Int_t& i0Sample,
+				    const Double_t& adcvalue)
 {
-  //Building of the arrays fT1d_StexStinFromIndex[] and fT3d_distribs[][][]
+  //Building of the arrays fT1d_StexStinFromIndex[] and fT3d_AdcValues[][][]
   
   fBuildEvtNotSkipped++;      // event not skipped by cmsRun
 
@@ -1074,14 +849,14 @@ Bool_t TEcnaRun::BuildEventDistributions(const Int_t&    n1EventNumber, const In
   Int_t i0StexStinEcna = n1StexStin - 1;     // INDEX FOR StexStin = Number_of_the_Stin_in_Stex - 1
 
   Int_t i_trouve = 0;
-  //.................................................................. (BuildEventDistributions)
+  //.................................................................. (GetSampleAdcValues)
   if(fReadyToReadData == 1)  
     {
       if( n1StexStin>= 1 && n1StexStin <= fEcal->MaxStinEcnaInStex() )
 	{      
 	  if( i0StinEcha >= 0 && i0StinEcha < fEcal->MaxCrysInStin() )
 	    {
-	      if( i0Sample >= 0 && i0Sample < fNbSampForFic )
+	      if( i0Sample >= 0 && i0Sample < fEcal->MaxSampADC() )
 		{
 		  //..... Put the StexStin number in 1D array fT1d_StexStinFromIndex[] = Stin index + 1
 		  if( fT1d_StexStinFromIndex != 0 )  // table fT1d_StexStinFromIndex[index] already allocated
@@ -1091,7 +866,7 @@ Bool_t TEcnaRun::BuildEventDistributions(const Int_t&    n1EventNumber, const In
 		      // StexStin already indexed
 		      if( n1StexStin == fT1d_StexStinFromIndex[i0StexStinEcna] ){i_trouve = 1;}
 		  
-		      // StexStin index not found: new StexStin
+		      // StexStin index not found: set index for new StexStin
 		      if (i_trouve != 1 )
 			{
 			  if( fT1d_StexStinFromIndex[i0StexStinEcna] == fSpecialStexStinNotIndexed )
@@ -1105,7 +880,7 @@ Bool_t TEcnaRun::BuildEventDistributions(const Int_t&    n1EventNumber, const In
 				{
 				  if( fStinIndexBuilt == 1 )
 				    {
-				      cout << endl << "*TEcnaRun::BuildEventDistributions(...)> event " << n1EventNumber
+				      cout << endl << "*TEcnaRun::GetSampleAdcValues(...)> event " << n1EventNumber
 					   << " : first event for " << fStexName.Data() << " " << fFileHeader->fStex
 					   << "; " << fStinName.Data() << "s : ";
 				    }
@@ -1116,7 +891,7 @@ Bool_t TEcnaRun::BuildEventDistributions(const Int_t&    n1EventNumber, const In
 				       GetDeeSCConsFrom1DeeSCEcna(fFileHeader->fStex, fT1d_StexStinFromIndex[i0StexStinEcna])
 					  << ", ";}
 				}
-			      //.................................................... (BuildEventDistributions)
+			      //.................................................... (GetSampleAdcValues)
 			      if(fFlagPrint == fCodePrintAllComments)
 				{
 				  cout << " (" << fStinIndexBuilt << " " << fStinName.Data()
@@ -1126,7 +901,7 @@ Bool_t TEcnaRun::BuildEventDistributions(const Int_t&    n1EventNumber, const In
 			    } // if ( fT1d_StexStinFromIndex[i0StexStinEcna] == fSpecialStexStinNotIndexed )
 			  else
 			    {
-			      cout << "!TEcnaRun::BuildEventDistributions(...)> *** ERROR ***> NOT ALLOWED if RESULT. " 
+			      cout << "!TEcnaRun::GetSampleAdcValues(...)> *** ERROR ***> NOT ALLOWED if RESULT. " 
 				   << " n1StexStin = " << n1StexStin << ", fT1d_StexStinFromIndex["
 				   << i0StexStinEcna << "] = "
 				   << fT1d_StexStinFromIndex[i0StexStinEcna]
@@ -1135,24 +910,25 @@ Bool_t TEcnaRun::BuildEventDistributions(const Int_t&    n1EventNumber, const In
 			      ret_code = kFALSE;
 			    }
 			}  //  if (i_trouve != 1 )
+
 		    } //  if( fT1d_StexStinFromIndex != 0 ) 
 		  else
 		    {
-		      cout << "!TEcnaRun, BuildEventDistributions *** ERROR ***> "
+		      cout << "!TEcnaRun, GetSampleAdcValues *** ERROR ***> "
 			   << " fT1d_StexStinFromIndex = " << fT1d_StexStinFromIndex
 			   << " fT1d_StexStinFromIndex[] ALLOCATION NOT DONE" << fTTBELL << endl;
 		      ret_code = kFALSE;
-		    } //.................................................................. (BuildEventDistributions)
-		} // if( i0Sample >= 0 && i0Sample < fNbSampForFic )
+		    } //.................................................................. (GetSampleAdcValues)
+		} // end of if( i0Sample >= 0 && i0Sample < fNbSampForFic )
 	      else
 		{
 		  //.......Reading data => Message and error only if sample >= fEcal->MaxSampADC()
 		  //       (not fNbSampForFic, the later is used only for calculations)
 		  if( i0Sample >= fEcal->MaxSampADC() )
 		    {
-		      cout << "!TEcnaRun::BuildEventDistributions(...) *** ERROR ***> "
+		      cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
 			   << " sample number = " << i0Sample << ". OUT OF BOUNDS"
-			   << " (max = " << fEcal->MaxSampADC() << ")"
+			   << " (max = " << fNbSampForFic << ")"
 			   << fTTBELL << endl;
 		      ret_code = kFALSE;
 		    }
@@ -1160,126 +936,129 @@ Bool_t TEcnaRun::BuildEventDistributions(const Int_t&    n1EventNumber, const In
 		    {
 		      ret_code = kTRUE;
 		    }
-		}
-	    }
+		}// else of if( i0Sample >= 0 && i0Sample < fNbSampForFic )
+	    } // end of if( i0StinEcha >= 0 && i0StinEcha < fEcal->MaxCrysInStin() )
 	  else
 	    {
-	      cout << "!TEcnaRun::BuildEventDistributions(...) *** ERROR ***> "
+	      cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
 		   << " channel number in " << fStinName.Data() << " = " << i0StinEcha << ". OUT OF BOUNDS"
 		   << " (max = " << fEcal->MaxCrysInStin() << ")" 
 		   << fTTBELL << endl;
 	      ret_code = kFALSE;
-	    }
+	    } // else of if( i0StinEcha >= 0 && i0StinEcha < fEcal->MaxCrysInStin() )
 	}
       else
 	{
-	  cout << "!TEcnaRun::BuildEventDistributions(...) *** ERROR ***> "
+	  cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
 	       << fStinName.Data() << " number in " << fStexName.Data() << " = " << n1StexStin << ". OUT OF BOUNDS"
 	       << " (max = " << fEcal->MaxStinEcnaInStex() << ")"
 	       << fTTBELL << endl;
 	  ret_code = kFALSE;
 	}
-      //.................................................................. (BuildEventDistributions)
+
+      //.................................................................. (GetSampleAdcValues)
       //........ Filling of the 2D array of the event numbers in the data reading loop and 
       //         filling of the 3D array of the ADC sample values
+      //
+      //                           ONLY if ret_code == kTRUE
 
       if( ret_code == kTRUE )
 	{
-	  if( i0Sample < fNbSampForFic )
-	    {
-	      //............ 1) Conversion (Stin,i0StinEcha) -> i0StexEcha  (same numbering for EB and EE)
-	      //=========================================================================================
-	      //   n1StexStin (Tower or SC):     1            2            3
-	      //   iStexStin                     0            1            2 
-	      //
-	      //   i0StinEcha:                 0......24    0......24    0......24
-	      //
-	      //   i0StexEcha         :        0......24   25......49   50......74   grouped by StexStin's
-	      //   i0StexEcha+1 (Xtal):        1......25   26......50   51......75       
-	      //
-	      //=========================================================================================
+	  //............ 1) Conversion (Stin,i0StinEcha) -> i0StexEcha  (same numbering for EB and EE)
+	  //==========================================================================================
+	  //   n1StexStin (Tower or SC):      1            2            3
+	  //   iStexStin                      0            1            2 
+	  //
+	  //   i0StinEcha:                 0......24    0......24    0......24
+	  //
+	  //   i0StexEcha         :        0......24   25......49   50......74  grouped by StexStin's
+	  //   i0StexEcha+1 (Xtal):        1......25   26......50   51......75       
+	  //
+	  //==========================================================================================
 
-	      Int_t i0StexEcha = i0StexStinEcna*fEcal->MaxCrysInStin() + i0StinEcha;
+	  Int_t i0StexEcha = i0StexStinEcna*fEcal->MaxCrysInStin() + i0StinEcha;
 	      
-	      //--------------------------------------------------------- (BuildEventDistributions)
-	      if( i0StexEcha >= 0 && i0StexEcha < fEcal->MaxCrysEcnaInStex() )
-		{
-		  //............ 2) Increase of the nb of evts for (StexEcha,sample) (events found in the data)
-		  (fT2d_NbOfEvts[i0StexEcha][i0Sample])++;     // value after first incrementation = 1
-		  fTagNbOfEvts[0] = 1;
-		  fFileHeader->fNbOfEvtsCalc = 1;
+	  //--------------------------------------------------------- (GetSampleAdcValues)
+	  if( i0StexEcha >= 0 && i0StexEcha < fEcal->MaxCrysEcnaInStex() )
+	    {
+	      //............ 2) Increase of the nb of evts for (StexEcha,sample) (events found in the data)
+	      (fT2d_NbOfEvts[i0StexEcha][i0Sample])++;     // value after first incrementation = 1
+	      fTagNbOfEvts[0] = 1;
+	      fFileHeader->fNbOfEvtsCalc = 1;
 		  
-		  //............ 3) Filling of the 3D array of the ADC values
-		  if ( i0EventIndex >= 0 && i0EventIndex < fFileHeader->fReqNbOfEvts )
-		    {  
-		      fT3d_distribs[i0StexEcha][i0Sample][i0EventIndex] = adcvalue;
+	      //............ 3) Filling of the 3D array of the ADC values
+	      if ( i0EventIndex >= 0 && i0EventIndex < fFileHeader->fReqNbOfEvts )
+		{  
+		  if( i0Sample >= 0 && i0Sample < fNbSampForFic )
+		    {
+		      fT3d_AdcValues[i0StexEcha][i0Sample][i0EventIndex] = adcvalue;
 		    }
 		  else
 		    {
-		      cout << "!TEcnaRun::BuildEventDistributions(...) *** ERROR ***> "
-			   << " event number = " << n1EventNumber << ". OUT OF BOUNDS"
-			   << " (max = " << fFileHeader->fReqNbOfEvts << ")"
+		      cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
+			   << " sample index = " << i0Sample << ". OUT OF BOUNDS"
+			   << " (max = " << fNbSampForFic << ")"
 			   << fTTBELL << endl;
-		      ret_code = kFALSE;
 		    }
 		}
 	      else
 		{
-		  cout << "!TEcnaRun::BuildEventDistributions(...) *** ERROR ***> "
-		       << " CHANNEL NUMBER OUT OF BOUNDS" << endl
-		       << " i0StexEcha number = " << i0StexEcha
-		       << " , n1StexStin = " << n1StexStin
-		       << " , i0StinEcha = " << i0StinEcha
-		       << " , fEcal->MaxCrysEcnaInStex() = " << fEcal->MaxCrysEcnaInStex() 
-		       << fTTBELL << endl; 
+		  cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
+		       << " event number = " << n1EventNumber << ". OUT OF BOUNDS"
+		       << " (max = " << fFileHeader->fReqNbOfEvts << ")"
+		       << fTTBELL << endl;
 		  ret_code = kFALSE;
-		  // {Int_t cintoto; cout << "TAPER 0 POUR CONTINUER" << endl; cin >> cintoto;}
 		}
 	    }
 	  else
 	    {
-	      cout << "!TEcnaRun::BuildEventDistributions(...) *** ERROR ***> Nb of required samples = "
-		   << i0Sample << " (Max = " << fNbSampForFic << ")" << fTTBELL << endl; 
+	      cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
+		   << " CHANNEL NUMBER OUT OF BOUNDS" << endl
+		   << " i0StexEcha number = " << i0StexEcha
+		   << " , n1StexStin = " << n1StexStin
+		   << " , i0StinEcha = " << i0StinEcha
+		   << " , fEcal->MaxCrysEcnaInStex() = " << fEcal->MaxCrysEcnaInStex() 
+		   << fTTBELL << endl; 
+	      ret_code = kFALSE;
+	      // {Int_t cintoto; cout << "TAPER 0 POUR CONTINUER" << endl; cin >> cintoto;}
 	    }
-	}
+	} // end of if( ret_code == kTRUE )
       else
 	{
-	  cout << "!TEcnaRun::BuildEventDistributions(...) *** ERROR ***> ret_code = kFALSE "
+	  cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> ret_code = kFALSE "
 	       << fTTBELL << endl;
 	}
-    }
+    } // end of if(fReadyToReadData == 1)
   else
     {
-      cout << "!TEcnaRun::BuildEventDistributions(...) *** ERROR ***> GetReadyToReadData(...) not called."
+      cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> GetReadyToReadData(...) not called."
 	   << fTTBELL << endl;
       ret_code = kFALSE;
     }
-  //.................................................................. (BuildEventDistributions)
+  //.................................................................. (GetSampleAdcValues)
   if (ret_code == kFALSE)
     {
-      cout << "!TEcnaRun::BuildEventDistributions(...) > ret_code = " << ret_code << ". event: " << n1EventNumber
-	   << ", n1StexStin: " << n1StexStin
-	   << ", i0StinEcha: " << i0StinEcha
-	   << ", i0Sample: "   << i0Sample
-	   << ", adcvalue: " << adcvalue << endl;
+      cout << "!TEcnaRun::GetSampleAdcValues(...)> *** ERROR ***> ret_code = " << ret_code
+	   << " (FALSE). Event: " << n1EventNumber
+	   << ", " << fStexName.Data() << ": " << fFileHeader->fStex
+	   << ", " << fStinName.Data() << ": " << n1StexStin
+	   << ", channel: " << i0StinEcha
+	   << ", Sample: "   << i0Sample
+	   << ", ADC value: " << adcvalue << endl;
     } 
   return ret_code;
 }
-//------------- ( end of BuildEventDistributions ) -----------------------
+//------------- ( end of GetSampleAdcValues ) -----------------------
 //====================================================================================================
 //
-//  ReadEventDistributions: called by external program. Get the distributions of the Sample ADC values
-//                          from file by using TEcnaRead.
+//  ReadSampleAdcValues: Get the Sample ADC values from file by using TEcnaRead.
 //
 //====================================================================================================
-Bool_t TEcnaRun::ReadEventDistributions()
-{
-  return ReadEventDistributions(fEcal->MaxSampADC());
-}
+Bool_t TEcnaRun::ReadSampleAdcValues(){return ReadSampleAdcValues(fEcal->MaxSampADC());}
 
-Bool_t TEcnaRun::ReadEventDistributions(const Int_t& nb_samp_for_calc)
+Bool_t TEcnaRun::ReadSampleAdcValues(const Int_t& nb_samp_for_calc)
 {
-  // read the Sample ADC values from "ADC" result root files                     (ReadEventDistributions)
+  // read the Sample ADC values from "ADC" result root files                     (ReadSampleAdcValues)
 
   // put the number of sample for calculations in attribute fNbSampForCalc
   // and call the method without arguments
@@ -1287,18 +1066,20 @@ Bool_t TEcnaRun::ReadEventDistributions(const Int_t& nb_samp_for_calc)
 
   fNbSampForCalc = nb_samp_for_calc;
 
-  TEcnaRead* MyRootFile = new TEcnaRead(fFlagSubDet.Data(), fCnaParPaths, fCnaParCout,
-				      fFileHeader, fEcalNumbering, fCnaWrite);          //  fCnew++;
+//   TEcnaRead* MyRootFile = new TEcnaRead(fFlagSubDet.Data(), fCnaParPaths, fCnaParCout,
+// 		 			   fFileHeader, fEcalNumbering, fCnaWrite);          //  fCnew++;
   
+  TEcnaRead* MyRootFile = new TEcnaRead(fObjectManager, fFlagSubDet.Data());              //  fCnew++;
+
   MyRootFile->PrintNoComment();
-  
-  MyRootFile->GetReadyToReadRootFile(fFileHeader->fTypAna, fFileHeader->fNbOfSamples, fFileHeader->fRunNumber,
-				     fFileHeader->fFirstReqEvtNumber, fFileHeader->fLastReqEvtNumber,
-				     fFileHeader->fReqNbOfEvts,       fFileHeader->fStex,
-				     fCnaParPaths->ResultsRootFilePath().Data());
-  
+
+  MyRootFile->FileParameters(fFileHeader->fTypAna, fFileHeader->fNbOfSamples, fFileHeader->fRunNumber,
+			     fFileHeader->fFirstReqEvtNumber, fFileHeader->fLastReqEvtNumber,
+			     fFileHeader->fReqNbOfEvts,       fFileHeader->fStex,
+			     fCnaParPaths->ResultsRootFilePath().Data());
+
   Bool_t ok_read = MyRootFile->LookAtRootFile();
-  
+
   fFileHeader->fStartTime = MyRootFile->GetStartTime();
   fFileHeader->fStopTime  = MyRootFile->GetStopTime();
   fFileHeader->fStartDate = MyRootFile->GetStartDate();
@@ -1308,12 +1089,12 @@ Bool_t TEcnaRun::ReadEventDistributions(const Int_t& nb_samp_for_calc)
     {
       fRootFileName      = MyRootFile->GetRootFileName();
       fRootFileNameShort = MyRootFile->GetRootFileNameShort();
-      cout << "*TEcnaRun::ReadEventDistributions> Reading sample ADC values from file: " << endl
+      cout << "*TEcnaRun::ReadSampleAdcValues> Reading sample ADC values from file: " << endl
 	   << "           " << fRootFileName << endl;
       
       Int_t i_no_data = 0;
 
-      //.......... Read the StinNumbers in the old file                     (ReadEventDistributions)
+      //.......... Read the StinNumbers in the old file                     (ReadSampleAdcValues)
       TVectorD vec(fEcal->MaxStinEcnaInStex());
       for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vec(i)=(Double_t)0.;}
       vec = MyRootFile->ReadStinNumbers(fEcal->MaxStinEcnaInStex());
@@ -1328,11 +1109,11 @@ Bool_t TEcnaRun::ReadEventDistributions(const Int_t& nb_samp_for_calc)
 	{
 	  i_no_data++;
 	}
-      //.......... Read the Numbers of Events in the old file                      (ReadEventDistributions)
+      //.......... Read the Numbers of Events in the old file                      (ReadSampleAdcValues)
       TMatrixD partial_matrix(fEcal->MaxCrysInStin(), fFileHeader->fNbOfSamples);
       for(Int_t i=0; i<fEcal->MaxCrysInStin(); i++)
 	{for(Int_t j=0; j<fFileHeader->fNbOfSamples; j++){partial_matrix(i,j)=(Double_t)0.;}}
-      
+
       for(Int_t i0StexStinEcna=0; i0StexStinEcna<fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
 	{
 	  Int_t n1StexStin = MyRootFile->GetStexStinFromIndex(i0StexStinEcna);
@@ -1360,9 +1141,9 @@ Bool_t TEcnaRun::ReadEventDistributions(const Int_t& nb_samp_for_calc)
 	    }
 	}
 
-      //.......... Read the Sample ADC values in the old file                     (ReadEventDistributions)
-      Double_t*** fT3d_read_distribs =
-	MyRootFile->ReadSampleValuesSameFile
+      //.......... Read the Sample ADC values in the old file                     (ReadSampleAdcValues)
+      Double_t*** fT3d_read_AdcValues =
+	MyRootFile->ReadSampleAdcValuesSameFile
 	(fEcal->MaxCrysEcnaInStex(), fFileHeader->fNbOfSamples, fFileHeader->fReqNbOfEvts);
       
       if( MyRootFile->DataExist() == kTRUE )
@@ -1372,8 +1153,8 @@ Bool_t TEcnaRun::ReadEventDistributions(const Int_t& nb_samp_for_calc)
 	      for(Int_t i0Sample=0; i0Sample<fFileHeader->fNbOfSamples;i0Sample++)
 		{      
 		  for(Int_t i_event=0; i_event<fFileHeader->fReqNbOfEvts; i_event++)
-		    {fT3d_distribs[i0StexEcha][i0Sample][i_event] = 
-		       fT3d_read_distribs[i0StexEcha][i0Sample][i_event];}
+		    {fT3d_AdcValues[i0StexEcha][i0Sample][i_event] = 
+		       fT3d_read_AdcValues[i0StexEcha][i0Sample][i_event];}
 		}
 	    }
 	}
@@ -1383,19 +1164,19 @@ Bool_t TEcnaRun::ReadEventDistributions(const Int_t& nb_samp_for_calc)
 	}
       if( i_no_data != 0 )
 	{
-	  cout << "!TEcnaRun::ReadEventDistributions(...)> *ERROR* =====> "
+	  cout << "!TEcnaRun::ReadSampleAdcValues(...)> *ERROR* =====> "
 	       << " Read failure. i_no_data = " << i_no_data << fTTBELL << endl;  
 	}
     }
   else
     {
-      cout << "!TEcnaRun::ReadEventDistributions(...)> *ERROR* =====> "
+      cout << "!TEcnaRun::ReadSampleAdcValues(...)> *ERROR* =====> "
 	   << " ROOT file not found" << fTTBELL << endl;     
     }
   delete MyRootFile;        //  fCdelete++;
   return ok_read;
 }
-//------------- ( end of ReadEventDistributions ) -----------------------
+//------------- ( end of ReadSampleAdcValues ) -----------------------
 //-------------------------------------------------------------------------
 //
 //    Get the ROOT file name (long and short)
@@ -1409,8 +1190,6 @@ TString TEcnaRun::GetRootFileNameShort(){return fRootFileNameShort;}
 // THE FOLLOWING METHODS ARE CALLED AFTER THE LOOPS OVER EVENTS, STINS, CRYSTALS AND SAMPLES
 //
 //###################################################################################################
-
-
 //=========================================================================
 //
 //     Set start time, stop time, StartDate, StopDate
@@ -1431,84 +1210,121 @@ void TEcnaRun::StartStopDate(TString c_startdate, TString c_stopdate)
   fFileHeader->fStartDate = c_startdate;
   fFileHeader->fStopDate  = c_stopdate;
 }
+
 //=========================================================================
-//      
-//       S A M P L E S    A D C   V A L U E S 
 //
-//       Written in .root file corresponding to analysis name
-//       beginning with: "Adc" (see EcanAnalyzer.cc in package "Modules")
+//                         GetReadyToCompute()   (technical)
 //
 //=========================================================================
+void TEcnaRun::GetReadyToCompute()
+{
+//
+  // MAKE THE RESULTS FILE NAME and
+  // CHECK OF THE NUMBER OF FOUND EVENTS AND init fNumberOfEvents
+  // (number used to compute the average values over the events)
+  // The number of events fNumberOfEvents is extracted from the array fT2d_NbOfEvts[] 
+  // which has been filled by the GetSampleAdcValues(...) method
+
+  //..................... Making of the Root File name that will be written
+  fCnaWrite->RegisterFileParameters(fFileHeader->fTypAna.Data(), fFileHeader->fNbOfSamples,
+				    fFileHeader->fRunNumber,
+				    fFileHeader->fFirstReqEvtNumber, fFileHeader->fLastReqEvtNumber,
+				    fFileHeader->fReqNbOfEvts,       fFileHeader->fStex);
+  
+  fCnaWrite->fMakeResultsFileName();  // set fRootFileName, fRootFileNameShort
+
+  //..................... Checking numbers of found events channel by channel
+  if( fT2d_NbOfEvts != 0 )
+    {
+      fNumberOfEvents = fCnaWrite->NumberOfEventsAnalysis(fT2d_NbOfEvts, fEcal->MaxCrysEcnaInStex(),
+							  fNbSampForFic, fFileHeader->fReqNbOfEvts);
+    }
+  else
+    {
+      cout << "*TEcnaRun::GetReadyToCompute()> no data? fT2d_NbOfEvts = " << fT2d_NbOfEvts << endl;
+    }
+}  
+//  end of GetReadyToCompute()
 
 //-------------------------------------------------------------------
 //
-//                      SampleValues
+//                      SampleValues()      (technical)
+//
+//  Written in .root file corresponding to analysis name
+//  beginning with: "Adc" (see EcnaAnalyzer.cc in package "Modules")
 //
 //-------------------------------------------------------------------
 void TEcnaRun::SampleValues()
 {
 //3D histo of the sample ADC values for all the triples (StexEcha, sample, event)
 
-  if(fFlagPrint == fCodePrintAllComments){
-    cout << "*TEcnaRun::SampleValues()>"
-         << " Sample ADC values 3D histo"
-	 << " (channel, sample, event number):" << endl
-	 << "                          registration for writing in results .root file."
-	 << endl;}
-
-  // The histo is already in fT3d_distribs[][][]
-  // this method sets the "Tag", increment the "Calc" (and must be kept for that)
-  
-  for (Int_t i0StexEcha = 0 ; i0StexEcha < fEcal->MaxCrysEcnaInStex() ; i0StexEcha++)
+  // The histo is already in fT3d_AdcValues[][][]
+  // this method sets the "Tag", increment the "f...Calc" (and must be kept for that)
+  // f...Calc > 0  => allow writing on file.
+ 
+  if( fFileHeader->fAdcEvtCalc > 0 ){fFileHeader->fAdcEvtCalc = 0;}
+  for( Int_t i0StexEcha=0; i0StexEcha<fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
     {fTagAdcEvt[i0StexEcha] = 1;        fFileHeader->fAdcEvtCalc++;}
 }
 
 //=========================================================================
 //
-//                         GetReadyToCompute()
-//
-//=========================================================================
-void TEcnaRun::GetReadyToCompute()
-{
-//
-  //  CHECK OF THE NUMBER OF FOUND EVENTS AND init of fNumberOfEvents
-  //       (number used to compute the average values over the events)
-  // The number of events fNumberOfEvents is extracted from the array fT2d_NbOfEvts[] 
-  // which has been built by the BuildEventDistribution(...) method
-
-  if( fT2d_NbOfEvts != 0 )
-    {
-      fNumberOfEvents = fCnaWrite->NumberOfEvents(fT2d_NbOfEvts, fEcal->MaxCrysEcnaInStex(),
-						  fNbSampForFic, fFileHeader->fReqNbOfEvts);
-    }
-  else
-    {
-      cout << "*TEcnaRun::GetReadyToCompute()> no data? fT2d_NbOfEvts = " << fT2d_NbOfEvts << endl;
-    }
-
-}  
-//  end of GetReadyToCompute()
-
-//=========================================================================
-//
 //               C A L C U L A T I O N    M E T H O D S
 //
-//     fTag... => Calculation done. OK for writing on result file
-//     ...Calc => Incrementation for result file size. 
+//     fTag... = 1 => Calculation done. OK for writing on result file
+//     ...Calc++   => Incrementation for result file size. 
 //
 //=========================================================================
+void TEcnaRun::StandardCalculations()
+{
+  SampleMeans();
+  SampleSigmas();
+  CorrelationsBetweenSamples();
+  
+  Pedestals();                          // => mean over Xtal's
+  TotalNoise();
+  LowFrequencyNoise();
+  HighFrequencyNoise();
+  MeanCorrelationsBetweenSamples();
+  SigmaOfCorrelationsBetweenSamples();
+  
+  AveragePedestals();                  // Average => mean over Stin's (Tower if EB, SC if EE)
+  AverageTotalNoise();
+  AverageLowFrequencyNoise();
+  AverageHighFrequencyNoise();
+  AverageMeanCorrelationsBetweenSamples();
+  AverageSigmaOfCorrelationsBetweenSamples();
+}
 
+void TEcnaRun::Expert1Calculations()
+{
+  // long time, big file
+
+  LowFrequencyCorrelationsBetweenChannels();
+  HighFrequencyCorrelationsBetweenChannels();
+}
+
+void TEcnaRun::Expert2Calculations()
+{
+  // long time, no big file
+  // expert 1 is called (if not called before) without writing in file.
+  // Results are used only in memory to compute expert2 calculations
+
+  LowFrequencyMeanCorrelationsBetweenStins();
+  HighFrequencyMeanCorrelationsBetweenStins();
+}
 //====================================================================
 //
 //       E X P E C T A T I O N   V A L U E S  ,  V A R I A N C E S
 // 
 //====================================================================
-
 //----------------------------------------------------------------
+//  Calculation of the expectation values of the samples
+//  for all the StexEchas
 //
-//     Calculation of the expectation values of the samples
-//                 for all the StexEchas
-//
+//  SMean(c,s)  = E_e[A(c,s,e*)]
+//  A(c,s,e) : ADC value for channel c, sample s, event e
+//  E_e : average over the events
 //----------------------------------------------------------------
 void TEcnaRun::SampleMeans()
 {
@@ -1546,7 +1362,7 @@ void TEcnaRun::SampleMeans()
 	{
 	  for( Int_t i_event = 0; i_event < fNumberOfEvents; i_event++ )
 	    {
-	      fT2d_ev[i0StexEcha][i0Sample] += fT3d_distribs[i0StexEcha][i0Sample][i_event];
+	      fT2d_ev[i0StexEcha][i0Sample] += fT3d_AdcValues[i0StexEcha][i0Sample][i_event];
 	    }
 	  fT2d_ev[i0StexEcha][i0Sample] /= fNumberOfEvents;
 	}
@@ -1555,10 +1371,12 @@ void TEcnaRun::SampleMeans()
 }
 
 //--------------------------------------------------------
+//  Calculation of the sigmas of the samples
+//  for all the StexEchas
 //
-//      Calculation of the sigmas of the samples
-//                 for all the StexEchas
-//
+//  SSigma(c,s) = sqrt{ Cov_e[A(c,s,e*),A(c,s,e*)] }
+//  A(c,s,e) : ADC value for channel c, sample s, event e
+//  Cov_e : covariance over the events
 //--------------------------------------------------------
 void TEcnaRun::SampleSigmas() 
 {
@@ -1602,7 +1420,7 @@ void TEcnaRun::SampleSigmas()
 	  Double_t variance = (Double_t)0.;
 	  for( Int_t i_event = 0; i_event < fNumberOfEvents; i_event++ )
 	    {
-	      Double_t ecart = fT3d_distribs[i0StexEcha][i0Sample][i_event] - fT2d_ev[i0StexEcha][i0Sample];
+	      Double_t ecart = fT3d_AdcValues[i0StexEcha][i0Sample][i_event] - fT2d_ev[i0StexEcha][i0Sample];
 	      variance += ecart*ecart;
 	    }
 	  variance /= fNumberOfEvents;
@@ -1620,10 +1438,13 @@ void TEcnaRun::SampleSigmas()
 //
 //====================================================================
 //-----------------------------------------------------------
-//
-//      Calculation of the covariances between samples
-//      for all the StexEchas
-//
+//  Calculation of the covariances between samples
+//  for all the StexEchas
+//  Cov(c;s,s') = Cov_e[ A(c,s,e*) , A(c,s',e*) ]
+//              = E_e[ ( A(c,s,e*) - E_e[A(c,s,e*)] )*
+//                     ( A(c,s',e*) - E_e[A(c,s',e*)] ) ]
+//  A(c,s,e)    : ADC value for channel c, sample s, event e
+//  E_e , Cov_e : average, covariance over the events
 //-----------------------------------------------------------
 void TEcnaRun::CovariancesBetweenSamples()
 {
@@ -1668,8 +1489,8 @@ void TEcnaRun::CovariancesBetweenSamples()
 	      for( Int_t i_event = 0; i_event < fNumberOfEvents; i_event++ )
 		{
 		  fT3d_cov_ss[j0StexEcha][i0Sample][j0Sample] +=
-		    (fT3d_distribs[j0StexEcha][i0Sample][i_event] - fT2d_ev[j0StexEcha][i0Sample])
-		    *(fT3d_distribs[j0StexEcha][j0Sample][i_event] - fT2d_ev[j0StexEcha][j0Sample]);
+		    (fT3d_AdcValues[j0StexEcha][i0Sample][i_event] - fT2d_ev[j0StexEcha][i0Sample])
+		    *(fT3d_AdcValues[j0StexEcha][j0Sample][i_event] - fT2d_ev[j0StexEcha][j0Sample]);
 		}
 	      fT3d_cov_ss[j0StexEcha][i0Sample][j0Sample] /= (Double_t)fNumberOfEvents;
 	      fT3d_cov_ss[j0StexEcha][j0Sample][i0Sample] = fT3d_cov_ss[j0StexEcha][i0Sample][j0Sample];
@@ -1681,9 +1502,9 @@ void TEcnaRun::CovariancesBetweenSamples()
 
 //-----------------------------------------------------------
 //
-//      Calculation of the correlations between samples
-//      for all the StexEchas
-//
+//  Calculation of the correlations between samples
+//  for all the StexEchas
+//  Cor(c;s,s') = Cov(c;s,s')/sqrt{ Cov(c;s,s)*Cov(c;s',s') }
 //-----------------------------------------------------------
 void TEcnaRun::CorrelationsBetweenSamples()
 {
@@ -1751,8 +1572,12 @@ void TEcnaRun::CorrelationsBetweenSamples()
 //===========================================================================
 //-------------------------------------------------------------------------
 //
-//         Calculation of the Pedestals for each channel in Stex
-//         tag: Ped
+//  Calculation of the Pedestals for each channel in Stex
+//  tag: Ped
+//  Pedestal(c ) = E_e[ E_s[A(c ,s*,e*)] ]
+//  A(c,s,e) : ADC value for channel c, sample s, event e
+//  E_e : average over the events
+//  E_s : average over the samples
 //      
 //-------------------------------------------------------------------------
 void TEcnaRun::Pedestals()
@@ -1789,12 +1614,17 @@ void TEcnaRun::Pedestals()
 }
 //------------------------ (end of Pedestals) ----------------------------
 
-//-------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //
-//         Calculation of the TN (Total Noise)
-//         tag: Tno
-//      
-//-------------------------------------------------------------------------
+//  Calculation of the TN (Total Noise)
+//  tag: Tno
+//    
+//  TotalNoise(c)  = E_s[ sqrt{ E_e[ ( A(c ,s*,e*) - E_e[A(c ,s*,e*)] )^2 ] } ]
+//  A(c,s,e) : ADC value for channel c, sample s, event e
+//  E_e : average over the events
+//  E_s : average over the samples
+//
+//------------------------------------------------------------------------------
 void TEcnaRun::TotalNoise()
 {
 // Calculation, for each channel, of the expectation values
@@ -1837,12 +1667,17 @@ void TEcnaRun::TotalNoise()
 }
 //------------------------ (end of TotalNoise) ----------------------------
 
-//-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
 //
-//      Calculation of the LFN  (Low Frequency Noise)
-//      tag: Lfn
+//  Calculation of the LFN  (Low Frequency Noise)
+//  tag: Lfn
 //
-//-------------------------------------------------------------------------
+//  LowFqNoise(c) = sqrt{ E_e[ ( E_s[A(c ,s*,e*)] - E_e[ E_s[A(c ,s*,e*)] ] )^2 ] }
+//  A(c,s,e) : ADC value for channel c, sample s, event e
+//  E_e : average over the events
+//  E_s : average over the samples
+//
+//---------------------------------------------------------------------------------
 void TEcnaRun::LowFrequencyNoise()
 {
 // Calculation, for each channel, of the sigma (over the events)
@@ -1879,7 +1714,7 @@ void TEcnaRun::LowFrequencyNoise()
 	  mean_over_samples(n_event) = (Double_t)0.;
 	  for(Int_t i0Sample=0; i0Sample<fNbSampForCalc; i0Sample++)
 	    {
-	      mean_over_samples(n_event) += fT3d_distribs[i0StexEcha][i0Sample][n_event];
+	      mean_over_samples(n_event) += fT3d_AdcValues[i0StexEcha][i0Sample][n_event];
 	    }
 	  mean_over_samples(n_event) /= (Double_t)fNbSampForCalc;
 
@@ -1902,12 +1737,17 @@ void TEcnaRun::LowFrequencyNoise()
 }
 //------------------------ (end of LowFrequencyNoise) ----------------------------
 
-//-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
 //
-//      Calculation of the HFN  (High Frequency Noise)
-//      tag: Hfn
+//  Calculation of the HFN  (High Frequency Noise)
+//  tag: Hfn
 //
-//-------------------------------------------------------------------------
+//  HighFqNoise(c) = E_e[ sqrt{ E_s[ (A(c ,s*,e*) - E_s[A(c ,s*,e*)] )^2 ] } ]
+//  A(c,s,e) : ADC value for channel c, sample s, event e
+//  E_e : average over the events
+//  E_s : average over the samples
+//
+//---------------------------------------------------------------------------------
 void TEcnaRun::HighFrequencyNoise()
 {
 // Calculation, for each channel, of the mean (over the events)
@@ -1944,13 +1784,13 @@ void TEcnaRun::HighFrequencyNoise()
 	  // Calculation, for each event, of the mean over the samples  
 	  mean_over_samples(n_event) = (Double_t)0.;
 	  for(Int_t i0Sample=0; i0Sample<fNbSampForCalc; i0Sample++)
-	    {mean_over_samples(n_event) += fT3d_distribs[i0StexEcha][i0Sample][n_event];}
+	    {mean_over_samples(n_event) += fT3d_AdcValues[i0StexEcha][i0Sample][n_event];}
 	  mean_over_samples(n_event) /= (Double_t)fNbSampForCalc;
 	  
 	  // Calculation, for each event, of the sigma over the samples
 	  Double_t var_over_samples =  (Double_t)0;
 	  for(Int_t i0Sample=0; i0Sample<fNbSampForCalc; i0Sample++)
-	    {Double_t deviation = fT3d_distribs[i0StexEcha][i0Sample][n_event] - mean_over_samples(n_event);
+	    {Double_t deviation = fT3d_AdcValues[i0StexEcha][i0Sample][n_event] - mean_over_samples(n_event);
 	    var_over_samples += deviation*deviation;}
 	  var_over_samples /= (Double_t)fNbSampForCalc;
 	  
@@ -1972,12 +1812,15 @@ void TEcnaRun::HighFrequencyNoise()
 
 //-------------------------------------------------------------------------
 //
-//      Calculation of the expectation values of (sample,sample)
-//      correlations for all the channels (mean of cor(s,s))
-//      tag: MeanCorss
+//  Calculation of the expectation values of (sample,sample)
+//  correlations for all the channels (mean cor(s,s))
+//  tag: MeanCorss
+//
+//  MeanCorss(c)   = E_s,s'[ Cor(c;s,s') ]
+//  E_s,s': average  over couples of samples (half correlation matrix)
 //
 //-------------------------------------------------------------------------
-void TEcnaRun::MeanOfCorrelationsBetweenSamples()
+void TEcnaRun::MeanCorrelationsBetweenSamples()
 {
   // Calculation, for all the channels, of the expectation values
   // of the correlations between the first fNbSampForCalc samples
@@ -2004,7 +1847,7 @@ void TEcnaRun::MeanOfCorrelationsBetweenSamples()
   TVectorD  half_cor_ss(ndim); for(Int_t i=0; i<ndim; i++){half_cor_ss(i)=(Double_t)0.;}
 
   //..................... Calculation
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::MeanOfCorrelationsBetweenSamples()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::MeanCorrelationsBetweenSamples()" << endl;}
   if(fFlagPrint == fCodePrintAllComments){
     cout << "           Calculation, for all the channels, of the expectation values of the" << endl
 	 << "           correlations between the first " << fNbSampForCalc << " samples." << endl;}
@@ -2021,7 +1864,7 @@ void TEcnaRun::MeanOfCorrelationsBetweenSamples()
 	      i_count++;
 	    }
 	}
-      //...................... mean of cor(s,s') calculation
+      //...................... mean cor(s,s') calculation
       fT1d_ev_cor_ss[i0StexEcha] = (Double_t)0;
       for(Int_t i_rcor = 0; i_rcor < ndim; i_rcor++)
 	{
@@ -2031,23 +1874,26 @@ void TEcnaRun::MeanOfCorrelationsBetweenSamples()
     }
   fTagMeanCorss[0] = 1;               fFileHeader->fMeanCorssCalc++;
 }
-//--------------- (end of MeanOfCorrelationsBetweenSamples) -----------
+//--------------- (end of MeanCorrelationsBetweenSamples) -----------
 
 //-------------------------------------------------------------------------
 //
-//      Calculation of the sigmas of the (sample,sample) correlations
-//      for all the channels (sigma of cor(s,s))
-//      tag: SigCorss
+// Calculation of the sigmas of the (sample,sample) correlations
+// for all the channels (sigma of cor(s,s))
+// tag: SigCorss
+//
+// SigmaCorss(c)  = E_s,s'[ Cor(c;s,s') - E_s,s'[ Cor(c;s,s') ] ]
+// E_s,s': average  over couples of samples (half correlation matrix)
 //
 //--------------------------------------------------------------------------
 void  TEcnaRun::SigmaOfCorrelationsBetweenSamples()
 {
   //Calculation of the sigmas of the (sample,sample) correlations for all the StexEchas
  
-  //... preliminary calculation of the mean of cor(s,s') if not done yet
+  //... preliminary calculation of the mean cor(s,s') if not done yet
   //    (test only the first element since the cor are computed globaly)
   //    Results available in array fT1d_ev_cor_ss[i0StexEcha]
-  if ( fTagMeanCorss[0] != 1 ){MeanOfCorrelationsBetweenSamples(); fTagMeanCorss[0]=0;}
+  if ( fTagMeanCorss[0] != 1 ){MeanCorrelationsBetweenSamples(); fTagMeanCorss[0]=0;}
 
   //................... Allocations sig_cor_ss + init to zero
   if( fT1d_sig_cor_ss == 0 ){
@@ -2101,11 +1947,11 @@ void  TEcnaRun::SigmaOfCorrelationsBetweenSamples()
 
 //-----------------------------------------------------------------------------
 //
-//  Calculation of the average of the Pedestals for each Stin in Stex
+//  Calculation of the average Pedestals for each Stin in Stex
 //  tag: AvPed
 //      
 //-----------------------------------------------------------------------------
-void TEcnaRun::AveragedPedestals()
+void TEcnaRun::AveragePedestals()
 {
 // Calculation of the average 
 // (over the Stin's 0 to fEcal->MaxStinInStex()) of the Pedestals
@@ -2118,10 +1964,10 @@ void TEcnaRun::AveragedPedestals()
     {if( fT1d_av_mped[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[41]++; fT1d_av_mped[i0StexStinEcna] = (Double_t)0;}}
  
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AveragedPedestals()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AveragePedestals()" << endl;}
   if(fFlagPrint == fCodePrintAllComments){
     cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average of the Pedestals" << endl;}
+	 << fStinName.Data() << "s, of the average Pedestals" << endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2162,11 +2008,11 @@ void TEcnaRun::AveragedPedestals()
 }
 //-----------------------------------------------------------------------------
 //
-// Calculation of the average of the Total noise for each Stin in Stex
+// Calculation of the average total noise for each Stin in Stex
 // tag: AvTno
 //      
 //-----------------------------------------------------------------------------
-void TEcnaRun::AveragedTotalNoise()
+void TEcnaRun::AverageTotalNoise()
 {
 // Calculation of the average 
 // (over the Stin's 0 to fEcal->MaxStinInStex()) of the Total Noise
@@ -2179,10 +2025,10 @@ void TEcnaRun::AveragedTotalNoise()
     {if( fT1d_av_totn[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[42]++; fT1d_av_totn[i0StexStinEcna] = (Double_t)0;}}
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AveragedTotalNoise()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AverageTotalNoise()" << endl;}
   if(fFlagPrint == fCodePrintAllComments){
     cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average of the Total Noise" << endl;}
+	 << fStinName.Data() << "s, of the average total Noise" << endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2222,11 +2068,11 @@ void TEcnaRun::AveragedTotalNoise()
 }
 //-----------------------------------------------------------------------------
 //
-// Calculation of the average of the Low Frequency noise for each Stin in Stex
+// Calculation of the average Low Frequency noise for each Stin in Stex
 // tag: AvLfn
 //      
 //-----------------------------------------------------------------------------
-void TEcnaRun::AveragedLowFrequencyNoise()
+void TEcnaRun::AverageLowFrequencyNoise()
 {
 // Calculation of the average 
 // (over the Stin's 0 to fEcal->MaxStinInStex()) of the Low Frequency Noise
@@ -2239,10 +2085,10 @@ void TEcnaRun::AveragedLowFrequencyNoise()
     {if( fT1d_av_lofn[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[43]++; fT1d_av_lofn[i0StexStinEcna] = (Double_t)0;}}
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AveragedLowFrequencyNoise()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AverageLowFrequencyNoise()" << endl;}
   if(fFlagPrint == fCodePrintAllComments){
     cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average of the Low Frequency Noise" << endl;}
+	 << fStinName.Data() << "s, of the average Low Frequency Noise" << endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2282,11 +2128,11 @@ void TEcnaRun::AveragedLowFrequencyNoise()
 }
 //-----------------------------------------------------------------------------
 //
-// Calculation of the average of the high frequency noise for each Stin in Stex
+// Calculation of the average high frequency noise for each Stin in Stex
 // tag: AvHfn
 //      
 //-----------------------------------------------------------------------------
-void TEcnaRun::AveragedHighFrequencyNoise()
+void TEcnaRun::AverageHighFrequencyNoise()
 {
 // Calculation of the average 
 // (over the Stin's 0 to fEcal->MaxStinInStex()) of the High Frequency Noise
@@ -2299,10 +2145,10 @@ void TEcnaRun::AveragedHighFrequencyNoise()
     {if( fT1d_av_hifn[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[44]++; fT1d_av_hifn[i0StexStinEcna] = (Double_t)0;}}
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AveragedHighFrequencyNoise()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AverageHighFrequencyNoise()" << endl;}
   if(fFlagPrint == fCodePrintAllComments){
     cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average of the High Frequency Noise" << endl;}
+	 << fStinName.Data() << "s, of the average High Frequency Noise" << endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2342,27 +2188,27 @@ void TEcnaRun::AveragedHighFrequencyNoise()
 }
 //-----------------------------------------------------------------------------
 //
-// Calculation of the average of the mean of cor(s,s) for each Stin in Stex
+// Calculation of the average mean cor(s,s) for each Stin in Stex
 // tag: AvMeanCorss
 //      
 //-----------------------------------------------------------------------------
-void TEcnaRun::AveragedMeanOfCorrelationsBetweenSamples()
+void TEcnaRun::AverageMeanCorrelationsBetweenSamples()
 {
 // Calculation of the average 
-// (over the Stin's 0 to fEcal->MaxStinInStex()) of the mean of cor(s,s)
+// (over the Stin's 0 to fEcal->MaxStinInStex()) of the mean cor(s,s)
   
-  //... preliminary calculation of the mean of cor(s,s) if not done yet
-  if ( fTagMeanCorss[0] != 1 ){MeanOfCorrelationsBetweenSamples(); fTagMeanCorss[0]=0;}
+  //... preliminary calculation of the mean cor(s,s) if not done yet
+  if ( fTagMeanCorss[0] != 1 ){MeanCorrelationsBetweenSamples(); fTagMeanCorss[0]=0;}
   //................... Allocation av_ev_corss + init to zero (mandatory)
   if( fT1d_av_ev_corss == 0 ){fT1d_av_ev_corss = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
     {if( fT1d_av_ev_corss[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[45]++; fT1d_av_ev_corss[i0StexStinEcna] = (Double_t)0;}}
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AveragedMeanOfCorrelationsBetweenSamples()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AverageMeanCorrelationsBetweenSamples()" << endl;}
   if(fFlagPrint == fCodePrintAllComments){
     cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average of the mean of cor(s,s)" << endl;}
+	 << fStinName.Data() << "s, of the average mean cor(s,s)" << endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2402,11 +2248,11 @@ void TEcnaRun::AveragedMeanOfCorrelationsBetweenSamples()
 }
 //-----------------------------------------------------------------------------
 //
-// Calculation of the average of the sigma of cor(s,s) for each Stin in Stex
+// Calculation of the average sigma of cor(s,s) for each Stin in Stex
 // tag: AvSigCorss
 //      
 //-----------------------------------------------------------------------------
-void TEcnaRun::AveragedSigmaOfCorrelationsBetweenSamples()
+void TEcnaRun::AverageSigmaOfCorrelationsBetweenSamples()
 {
 // Calculation of the average 
 // (over the Stin's 0 to fEcal->MaxStinInStex()) of the sigma of cor(s,s)
@@ -2419,10 +2265,10 @@ void TEcnaRun::AveragedSigmaOfCorrelationsBetweenSamples()
     {if( fT1d_av_sig_corss[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[46]++; fT1d_av_sig_corss[i0StexStinEcna] = (Double_t)0;}}
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AveragedSigmaOfCorrelationsBetweenSamples()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AverageSigmaOfCorrelationsBetweenSamples()" << endl;}
   if(fFlagPrint == fCodePrintAllComments){
     cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average of the sigma of cor(s,s)" << endl;}
+	 << fStinName.Data() << "s, of the average sigma of cor(s,s)" << endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2461,18 +2307,31 @@ void TEcnaRun::AveragedSigmaOfCorrelationsBetweenSamples()
   fTagAvSigCorss[0] = 1;                      fFileHeader->fAvSigCorssCalc++;       
 }
 
-//====================================================================
+//======================================================================
 //
 //       C O V A R I A N C E S   &   C O R R E L A T I O N S
 //
 //                 B E T W E E N   C H A N N E L S
 //
-//====================================================================
-//------------------------------------------------------------------
+//======================================================================
+//----------------------------------------------------------------------
 //
 //  Calculation of the Low Frequency Covariances between channels
 //
-//------------------------------------------------------------------
+//  LFCov(Ci,Cj) = Cov_e[ E_s[A(Ci,s*,e*)] , E_s[A(Cj,s*,e*) ]
+//
+//               = E_e[ ( E_s[A(Ci,s*,e*)] - E_e[ E_s[A(Ci,s*,e*)] ] )*
+//                      ( E_s[A(Cj,s*,e*)] - E_e[ E_s[A(Cj,s*,e*)] ] ) ]
+//
+//   A(Ci,s,e) : ADC value for channel Ci, sample s, event e
+//
+//   E_e , Cov_e : average, covariance over the events
+//   E_s :         average over the samples
+//
+//   e* : random variable associated to events
+//   s* : random variable associated to samples
+//
+//----------------------------------------------------------------------
 void TEcnaRun::LowFrequencyCovariancesBetweenChannels()
 {
 //Calculation of the Low Frequency Covariances between channels
@@ -2529,7 +2388,7 @@ void TEcnaRun::LowFrequencyCovariancesBetweenChannels()
 	      mean_over_samples(i0StexEcha, n_event) = (Double_t)0.;
 	      for(Int_t i0Sample=0; i0Sample<fNbSampForCalc; i0Sample++)
 		{
-		  mean_over_samples(i0StexEcha, n_event) += fT3d_distribs[i0StexEcha][i0Sample][n_event];
+		  mean_over_samples(i0StexEcha, n_event) += fT3d_AdcValues[i0StexEcha][i0Sample][n_event];
 		}
 	      mean_over_samples(i0StexEcha, n_event) /= (Double_t)fNbSampForCalc;
 	    }
@@ -2574,6 +2433,8 @@ void TEcnaRun::LowFrequencyCovariancesBetweenChannels()
 //------------------------------------------------------------------
 //
 //  Calculation of the Low Frequency Correlations between channels
+//
+//  LFCor(Ci,Cj) = LFCov(Ci,Cj)/sqrt(LFCov(Ci,Ci)*LFCov(Cj,Cj))
 //
 //------------------------------------------------------------------
 void TEcnaRun::LowFrequencyCorrelationsBetweenChannels()
@@ -2648,6 +2509,16 @@ void TEcnaRun::LowFrequencyCorrelationsBetweenChannels()
 //
 //  Calculation of the High Frequency Covariances between channels
 //
+//  HFCov(Ci,Cj) = E_e[ Cov_s[ A(Ci,s*,e*) , A(Cj,s*,e*) ] ] 
+//
+//               = E_e[ E_s[ ( A(Ci,s*,e*) - E_s[A(Ci,s*,e*)] )*
+//                           ( A(Cj,s*,e*) - E_s[A(Cj,s*,e*)] ) ] ]
+//   
+//   A(Ci,s,e) : ADC value for channel Ci, sample s, event e
+//
+//   E_e         : average over the events
+//   E_s , Cov_s : average, covariance over the samples
+//
 //------------------------------------------------------------------
 void TEcnaRun::HighFrequencyCovariancesBetweenChannels()
 {
@@ -2704,7 +2575,7 @@ void TEcnaRun::HighFrequencyCovariancesBetweenChannels()
 	      // Calculation, for each event, of the mean over the samples  ( = E_s[A(c_i,s*,e_n] )
 	      mean_over_samples(i0StexEcha, n_event) = (Double_t)0.;
 	      for(Int_t i0Sample=0; i0Sample<fNbSampForCalc; i0Sample++)
-		{mean_over_samples(i0StexEcha, n_event) += fT3d_distribs[i0StexEcha][i0Sample][n_event];}
+		{mean_over_samples(i0StexEcha, n_event) += fT3d_AdcValues[i0StexEcha][i0Sample][n_event];}
 	      mean_over_samples(i0StexEcha, n_event) /= (Double_t)fNbSampForCalc;
 	    }
 	}
@@ -2732,8 +2603,8 @@ void TEcnaRun::HighFrequencyCovariancesBetweenChannels()
 		      for(Int_t i0Sample=0; i0Sample<fNbSampForCalc; i0Sample++)
 			{
 			  cov_over_samp(i0StexEcha,j0StexEcha) +=
-			    ( fT3d_distribs[i0StexEcha][i0Sample][n_event] - mean_over_samples(i0StexEcha, n_event) )*
-			    ( fT3d_distribs[j0StexEcha][i0Sample][n_event] - mean_over_samples(j0StexEcha, n_event) );
+			    ( fT3d_AdcValues[i0StexEcha][i0Sample][n_event] - mean_over_samples(i0StexEcha, n_event) )*
+			    ( fT3d_AdcValues[j0StexEcha][i0Sample][n_event] - mean_over_samples(j0StexEcha, n_event) );
 			}
 		      cov_over_samp(i0StexEcha,j0StexEcha) /= (Double_t)fNbSampForCalc;
 
@@ -2762,6 +2633,8 @@ void TEcnaRun::HighFrequencyCovariancesBetweenChannels()
 //------------------------------------------------------------------
 //
 //  Calculation of the High Frequency Correlations between channels
+//
+//  HFCor(Ci,Cj) = HFCov(Ci,Cj)/sqrt(HFCov(Ci,Ci)*HFCov(Cj,Cj))
 //
 //------------------------------------------------------------------
 void TEcnaRun::HighFrequencyCorrelationsBetweenChannels()
@@ -2842,7 +2715,7 @@ void TEcnaRun::HighFrequencyCorrelationsBetweenChannels()
 //
 //=================================================================================
 //-----------------------------------------------------------------------------
-//      Calculation of the mean of the Low Frequency Correlations
+//      Calculation of the mean Low Frequency Correlations
 //      between channels for each Stin
 //-----------------------------------------------------------------------------
 void TEcnaRun::LowFrequencyMeanCorrelationsBetweenTowers()
@@ -2852,14 +2725,14 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenSCs()
 
 void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()
 {
-//Calculation of the mean of the Low Frequency Correlations
+//Calculation of the mean Low Frequency Correlations
 //between channels for each Stin
 
   //... preliminary calculation of the Low Frequency Cor(c,c) if not done yet
   //    Only one tag (dim=1) to set to 0 (no write in the result ROOT file)
   if(fTagLfCor[0] != 1){LowFrequencyCorrelationsBetweenChannels(); fTagLfCor[0]=0;}
 
-  //..... mean of the fT2d_lfcc_mostins for each pair (Stin_X,Stin_Y)
+  //..... mean fT2d_lfcc_mostins for each pair (Stin_X,Stin_Y)
   if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()" << endl;}
   if(fFlagPrint == fCodePrintAllComments){
     cout << "           Calculation of the mean, for each "
@@ -2884,7 +2757,7 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()
   	}
     }
 
-  //..... Calculation of the mean of the LF Cor(c,c) for each pair (Stin_X,Stin_Y)
+  //..... Calculation of the mean LF Cor(c,c) for each pair (Stin_X,Stin_Y)
   //
   //           ! => Warning: this matrix is NOT symmetric => take N*N elements
   //                Only (Stin,Stin) matrix is symmetric.
@@ -2901,7 +2774,7 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()
   if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()" << endl;}
   if(fFlagPrint == fCodePrintAllComments){
     cout << "           Calculation, for each "
-	 << fStinName.Data() << ", of the mean of the" << endl
+	 << fStinName.Data() << ", of the mean " << endl
 	 << "           Low Frequency cor(c,c)." << endl;}
 
   for(Int_t i0StexStinEcna=0; i0StexStinEcna<fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2924,7 +2797,7 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()
 			  << "i0StexEcha = " << i0StexEcha <<", j0StexEcha = " << j0StexEcha << fTTBELL << endl; }
 		}
 	    }
-	  //...... Calculation of the mean of the absolute values of the LF mean Correlations(c,c')
+	  //...... Calculation of the mean absolute values of the LF mean Correlations(c,c')
 	  fT2d_lfcc_mostins[i0StexStinEcna][j0StexStinEcna] = (Double_t)0;
 	  for(Int_t i_rcor = 0; i_rcor < ndim; i_rcor++)
 	    {
@@ -2940,7 +2813,7 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()
 } // ------- end of LowFrequencyMeanCorrelationsBetweenStins() -------
 
 //-----------------------------------------------------------------------------
-//      Calculation of the mean of the High Frequency Correlations
+//      Calculation of the mean High Frequency Correlations
 //      between channels for each Stin
 //-----------------------------------------------------------------------------
 void TEcnaRun::HighFrequencyMeanCorrelationsBetweenTowers()
@@ -2950,14 +2823,14 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenSCs()
 
 void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()
 {
-//Calculation of the mean of the High Frequency Correlations
+//Calculation of the mean High Frequency Correlations
 //between channels for each Stin
 
   //... preliminary calculation of the High Frequency Cor(c,c) if not done yet
   //    Only one tag (dim=1) to set to 0 (no write in the result ROOT file)
   if(fTagHfCor[0] != 1){HighFrequencyCorrelationsBetweenChannels();fTagHfCor[0]=0;}
 
-  //..... mean of the fT2d_hfcc_mostins for each pair (Stin_X,Stin_Y)
+  //..... mean fT2d_hfcc_mostins for each pair (Stin_X,Stin_Y)
   if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()" << endl;}
   if(fFlagPrint == fCodePrintAllComments){
     cout << "           Calculation of the mean, for each "
@@ -2982,7 +2855,7 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()
   	}
     }
 
-  //..... Calculation of the mean of the HF Cor(c,c) for each pair (Stin_X,Stin_Y)
+  //..... Calculation of the mean HF Cor(c,c) for each pair (Stin_X,Stin_Y)
   //
   //           ! => Warning: this matrix is NOT symmetric => take N*N elements
   //                Only (Stin,Stin) matrix is symmetric.
@@ -2998,7 +2871,7 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()
   if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()" << endl;}
   if(fFlagPrint == fCodePrintAllComments){
     cout << "           Calculation, for each "
-	 << fFlagSubDet.Data()  << ", of the mean of the" << endl
+	 << fFlagSubDet.Data()  << ", of the mean " << endl
 	 << "           High Frequency cor(c,c)." << endl;}
 
   //..................... Calculation
@@ -3022,7 +2895,7 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()
 			  << "i0StexEcha = " << i0StexEcha <<", j0StexEcha = " << j0StexEcha << fTTBELL << endl; }
 		}
 	    }
-	  //..... Calculation of the mean of the absolute values of the HF mean Correlations(c,c')
+	  //..... Calculation of the mean absolute values of the HF mean Correlations(c,c')
 	  fT2d_hfcc_mostins[i0StexStinEcna][j0StexStinEcna] = (Double_t)0;
 	  for(Int_t i_rcor = 0; i_rcor < ndim; i_rcor++)
 	    {
@@ -3056,25 +2929,37 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()
 Bool_t TEcnaRun::OpenRootFile(const Text_t *name, TString status) {
 //Open the Root file
 
-  TString s_path;
-  s_path = fCnaParPaths->ResultsRootFilePath();
-  s_path.Append('/');
-  s_path.Append(name);
-  
-  gCnaRootFile   = new TEcnaRootFile(s_path.Data(), status);     fCnew++;
   Bool_t ok_open = kFALSE;
+
+  TString s_name;
+  s_name = fCnaParPaths->ResultsRootFilePath();
+  s_name.Append('/');
+  s_name.Append(name);
+  
+  //gCnaRootFile = new TEcnaRootFile(fObjectManager, s_name.Data(), status);     fCnew++;
+
+      Int_t iCnaRootFile = fObjectManager->GetPointerValue("TEcnaRootFile");
+      if( iCnaRootFile == 0 )
+	{
+	  gCnaRootFile = new TEcnaRootFile(fObjectManager, s_name.Data(), status); /* Anew("gCnaRootFile");*/
+	}
+      else
+	{
+	  gCnaRootFile = (TEcnaRootFile*)iCnaRootFile;
+	  gCnaRootFile->ReStart(s_name.Data(), status);
+	}
 
   if ( gCnaRootFile->fRootFileStatus == "RECREATE" ){ok_open = gCnaRootFile->OpenW();}
   if ( gCnaRootFile->fRootFileStatus == "READ"     ){ok_open = gCnaRootFile->OpenR();}
 
   if (!ok_open) // unable to open file
     {
-      cout << "TEcnaRun::OpenRootFile> Cannot open file " << s_path.Data() << endl;
+      cout << "TEcnaRun::OpenRootFile> Cannot open file " << s_name.Data() << endl;
     }
   else
     {
       if(fFlagPrint == fCodePrintAllComments)
-	{cout << "*TEcnaRun::OpenRootFile> Open ROOT file OK for file " << s_path.Data() << endl;}  
+	{cout << "*TEcnaRun::OpenRootFile> Open ROOT file OK for file " << s_name.Data() << endl;}  
       fOpenRootFile  = kTRUE;
     }
   return ok_open;
@@ -3087,16 +2972,22 @@ Bool_t TEcnaRun::OpenRootFile(const Text_t *name, TString status) {
 Bool_t TEcnaRun::CloseRootFile(const Text_t *name) {
 //Close the Root file
  
+  TString s_name;
+  s_name = fCnaParPaths->ResultsRootFilePath();
+  s_name.Append('/');
+  s_name.Append(name);
+
   Bool_t ok_close = kFALSE;
 
   if (fOpenRootFile == kTRUE ) 
     {
       gCnaRootFile->CloseFile();
 
-      if(fFlagPrint == fCodePrintAllComments){
-	cout << "*TEcnaRun::CloseRootFile> Close ROOT file." << endl;}
+      if(fFlagPrint != fCodePrintAllComments){
+	cout << "*TEcnaRun::CloseRootFile> ROOT file " << s_name.Data() << " closed." << endl;}
 
-      delete gCnaRootFile;                                     fCdelete++;
+      //     delete gCnaRootFile;     gCnaRootFile = 0;          fCdelete++;
+
       fOpenRootFile = kFALSE;
       ok_close      = kTRUE;
     }
@@ -3125,17 +3016,11 @@ Bool_t TEcnaRun::CloseRootFile(const Text_t *name) {
 //
 //=================================================================================
 Bool_t TEcnaRun::WriteRootFile(){
-//Write the Root file. File name automatically generated in fMakeResultsFileName.
-  Bool_t ok_write = kFALSE;
+//Write the Root file.
+//File name automatically generated by fCnaWrite->fMakeResultsFileName()
+//previously called in GetReadyToCompute().
 
-  fCnaWrite->RegisterFileParameters(fFileHeader->fTypAna.Data(), fFileHeader->fNbOfSamples,
-				    fFileHeader->fRunNumber,
-				    fFileHeader->fFirstReqEvtNumber, fFileHeader->fLastReqEvtNumber,
-				    fFileHeader->fReqNbOfEvts,       fFileHeader->fStex);
-  
-  fCnaWrite->fMakeResultsFileName();  // set fRootFileName, fRootFileNameShort
-  
-  const Text_t *FileShortName = (const Text_t *)fCnaWrite->fRootFileNameShort.Data();
+  Bool_t ok_write = kFALSE;
 
   //============================= check number of found events
   Int_t nCountEvts = 0;
@@ -3147,7 +3032,7 @@ Bool_t TEcnaRun::WriteRootFile(){
   if ( nCountEvts <= 0 )
     {
       //============== no write if no event found
-      cout << "!TEcnaRun::WriteRootFile()> No event found for file " << fCnaWrite->fRootFileNameShort.Data()
+      cout << "!TEcnaRun::WriteRootFile()> No event found for file " << fCnaWrite->GetRootFileNameShort().Data()
 	   << ". File will not be written." << endl;
       ok_write = kTRUE;
     }
@@ -3155,19 +3040,20 @@ Bool_t TEcnaRun::WriteRootFile(){
     {    
       if(fFlagPrint == fCodePrintAllComments){
 	cout << "*TEcnaRun::WriteRootFile()> Results are going to be written in the ROOT file: " << endl
-	     << "                           " << fCnaWrite->fRootFileName.Data() << endl;}
-      
+	     << "                           " << fCnaWrite->GetRootFileName().Data() << endl;}
+
+      const Text_t *FileShortName = (const Text_t *)fCnaWrite->GetRootFileNameShort().Data();
       ok_write = WriteRootFile(FileShortName, fFileHeader->fNbOfSamples);
 
       if( ok_write == kTRUE )
 	{
 	  if(fFlagPrint != fCodePrintNoComment)
-	    {cout << "*TEcnaRun::WriteRootFile()> Writing OK for file " << fCnaWrite->fRootFileNameShort.Data()
+	    {cout << "*TEcnaRun::WriteRootFile()> Writing OK for file " << fCnaWrite->GetRootFileName().Data()
 		  << endl;}
 	}
       else
 	{
-	  cout << "!TEcnaRun::WriteRootFile()> Writing FAILLED for file " << fCnaWrite->fRootFileNameShort.Data()
+	  cout << "!TEcnaRun::WriteRootFile()> Writing FAILLED for file " << fCnaWrite->GetRootFileName().Data()
 	       << fTTBELL << endl;
 	}
     }
@@ -3182,7 +3068,9 @@ Bool_t TEcnaRun::WriteRootFile(){
 //
 //--------------------------------------------------------------------
 Bool_t TEcnaRun::WriteNewRootFile(const TString TypAna){
-//Write a new Root file. File name automatically generated in fMakeResultsFileName.
+//Write a new Root file. File name automatically generated by fCnaWrite->fMakeResultsFileName()
+//called here.
+
   Bool_t ok_write = kFALSE;
 
   fCnaWrite->RegisterFileParameters(TypAna.Data(),   fNbSampForCalc, fFileHeader->fRunNumber,
@@ -3195,7 +3083,6 @@ Bool_t TEcnaRun::WriteNewRootFile(const TString TypAna){
   fNewRootFileName      = fCnaWrite->GetRootFileName();
   fNewRootFileNameShort = fCnaWrite->GetRootFileNameShort();
 
-  //  const Text_t *FileShortName = (const Text_t *)fCnaWrite->fRootFileNameShort.Data();
   const Text_t *FileShortName = (const Text_t *)fNewRootFileNameShort.Data();
 
   if(fFlagPrint == fCodePrintAllComments){
@@ -3203,7 +3090,7 @@ Bool_t TEcnaRun::WriteNewRootFile(const TString TypAna){
 	 << "                              " << fNewRootFileNameShort.Data() << endl;}
 
   ok_write = WriteRootFile(FileShortName, fNbSampForCalc);
-  
+
   return ok_write;
 }
 
@@ -3237,10 +3124,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
     }
   else
     {
-      //..... List of the different element types and associated parameters as ordered in the ROOT file
-      //                                                                    ==========
+      // List of the different element types and associated parameters as ordered in the ROOT file (smaller -> larger)
+      //                                                                 ==========
       //
-      //              WARNING  *** SIZES ARE THESE FOR THE BARREL (1700 Xtals) and for 10 samples ***
+      //         WARNING  *** HERE SIZES ARE THESE FOR THE BARREL (1700 Xtals) and for 10 samples ***
       //
       //   Nb of   Type of element            Type      Type                                    Size    Comment
       // elements                             Number    Name
@@ -3248,9 +3135,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       //        1  fMatHis(1,StexStin)         ( 0)  cTypNumbers             1*(   1,  68) =         68
 
       //        1  fMatHis(1,StexStin)         (12)  cTypAvPed               1*(   1,  68) =         68
-      //        1  fMatHis(1, StexStin)        ( 3)  cTypAvTno               1*(   1,  68) =         68
-      //        1  fMatHis(1, StexStin)        ( 4)  cTypAvLfn               1*(   1,  68) =         68
-      //        1  fMatHis(1, StexStin)        ( 5)  cTypAvHfn               1*(   1,  68) =         68
+      //        1  fMatHis(1,StexStin)         ( 3)  cTypAvTno               1*(   1,  68) =         68
+      //        1  fMatHis(1,StexStin)         ( 4)  cTypAvLfn               1*(   1,  68) =         68
+      //        1  fMatHis(1,StexStin)         ( 5)  cTypAvHfn               1*(   1,  68) =         68
       //        1  fMatHis(1,StexStin)         (13)  cTypAvMeanCorss         1*(   1,  68) =         68
       //        1  fMatHis(1,StexStin)         (14)  cTypAvSigCorss          1*(   1,  68) =         68
 
@@ -3332,7 +3219,7 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	}
       if(fFlagPrint == fCodePrintAllComments){cout << endl;}
 
-      //-------------------------- Averaged Pedestals (1 value per Stin)
+      //-------------------------- Average Pedestals (1 value per Stin)
       //       1   fMatHis(1, StexStin)   (12)  cTypAvPed      1*(1,  68) =     68
 
       MaxCar = fgMaxCar;
@@ -3364,7 +3251,7 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	}
       if(fFlagPrint == fCodePrintAllComments){cout << endl;}
 
-      //-------------------------- Averaged Total noise
+      //-------------------------- Average Total noise
       // StexEcha   fMatHis(1, StexStin)     ( 3)  cTypAvTno      1*(1,  68) =     68
 
       MaxCar = fgMaxCar;
@@ -3396,7 +3283,7 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	}
       if(fFlagPrint == fCodePrintAllComments){cout << endl;}
 
-      //-------------------------- Averaged Low frequency noise
+      //-------------------------- Average Low frequency noise
       //       1   fMatHis(1, StexStin)   ( 4)  cTypAvLfn      1*(1,  68) =     68
 
       MaxCar = fgMaxCar;
@@ -3428,7 +3315,7 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       	}
       if(fFlagPrint == fCodePrintAllComments){cout << endl;}
       
-      //-------------------------- Averaged High frequency noise
+      //-------------------------- Average High frequency noise
       //       1   fMatHis(1, StexStin)   ( 5)  cTypAvHfn      1*(1,  68) =     68
 
       MaxCar = fgMaxCar;      
@@ -3460,7 +3347,7 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       	}
       if(fFlagPrint == fCodePrintAllComments){cout << endl;}
 
-      //-------------------------- Averaged mean of cor(s,s)
+      //-------------------------- Average mean cor(s,s)
       //       1   fMatHis(1, StexStin)   (13)  cTypAvMeanCorss      1*(1,  68) =     68
 
       MaxCar = fgMaxCar;
@@ -3492,7 +3379,7 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	}
       if(fFlagPrint == fCodePrintAllComments){cout << endl;}
       
-      //--------------------------  Averaged sigma of cor(s,s)
+      //--------------------------  Average sigma of cor(s,s)
       //       1   fMatHis(1, StexStin)    (14)  cTypAvSigCorss      1*(1,  68) =     68
 
       MaxCar = fgMaxCar;
@@ -3970,7 +3857,7 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootAdcEvt(i0StexEcha, argNbSampWrite);
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i0StexEcha == 0  && fFlagPrint == fCodePrintAllComments)
+	      if( i0StexEcha == 0  && fFlagPrint == fCodePrintAllComments )
 		{cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
@@ -4191,7 +4078,7 @@ void TEcnaRun::TRootAdcEvt(const Int_t& user_StexEcha, const Int_t& argNbSampWri
 	  for (Int_t j_bin = 0; j_bin < fFileHeader->fReqNbOfEvts; j_bin++)
 	    {
 	      gCnaRootFile->fCnaIndivResult->fMatHis(i0Sample, j_bin) =
-		fT3d_distribs[user_StexEcha][i0Sample][j_bin]; 
+		fT3d_AdcValues[user_StexEcha][i0Sample][j_bin]; 
 	    }
 	}
     }
@@ -4578,7 +4465,7 @@ void TEcnaRun::TRootSigCorss()
 
 //-------------------------------------------------------------------------
 //
-//  Prepa Fill Averaged Pedestals
+//  Prepa Fill Average Pedestals
 //  for all the StexStins
 //                        (for writing in ROOT file)
 //

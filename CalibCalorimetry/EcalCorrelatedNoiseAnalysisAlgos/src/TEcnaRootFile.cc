@@ -1,9 +1,15 @@
 //----------Author's Names: FX Gentit, B.Fabbro  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA sofware
-//----------Modified:22/03/2010
+//----------Modified:29/11/2010
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRootFile.h"
 #include "Riostream.h"
+
+//--------------------------------------
+//  TEcnaRootFile.cc
+//  Class creation: 03 Dec 2002
+//  Documentation: see TEcnaRootFile.h
+//--------------------------------------
 
 TEcnaRootFile *gCnaRootFile = 0;
 
@@ -20,13 +26,30 @@ TEcnaRootFile::TEcnaRootFile() {
   Init();
 }
 
-TEcnaRootFile::TEcnaRootFile(const Text_t *name) {
+TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name, TString status) {
 //constructor
 
  // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
 
   Init();
+  Int_t i_this = (Int_t)this;
+  pObjectManager->RegisterPointer("TEcnaRootFile", i_this);
+
+  fRootFileName   = name;
+  fRootFileStatus = status;
+}
+
+TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name) {
+//constructor
+
+ // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
+
+  Init();
+  Int_t i_this = (Int_t)this;
+  pObjectManager->RegisterPointer("TEcnaRootFile", i_this);
+
   fRootFileName = name;
+  fRootFileStatus = "READ";
 }
 
 TEcnaRootFile::TEcnaRootFile(const Text_t *name, TString status) {
@@ -37,6 +60,16 @@ TEcnaRootFile::TEcnaRootFile(const Text_t *name, TString status) {
   Init();
   fRootFileName   = name;
   fRootFileStatus = status;
+}
+
+TEcnaRootFile::TEcnaRootFile(const Text_t *name) {
+//constructor
+
+ // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
+
+  Init();
+  fRootFileName = name;
+  fRootFileStatus = "READ";
 }
 
 TEcnaRootFile::~TEcnaRootFile() {
@@ -60,10 +93,31 @@ void TEcnaRootFile::Init()
   fCnaIndivResult         = 0;
 }
 
+void TEcnaRootFile::ReStart(const Text_t *name)
+{
+  // Set default values + fRootFileName + fRootFileStatus
+
+  Init();
+  fRootFileName   = name;
+  fRootFileStatus = "READ";
+}
+
+void TEcnaRootFile::ReStart(const Text_t *name, TString status)
+{
+  // Set default values + fRootFileName + fRootFileStatus
+
+  Init();
+  fRootFileName   = name;
+  fRootFileStatus = status;
+}
+
 void TEcnaRootFile::CloseFile() {
 //Close the CNA root file for reading
-  fRootFile->Close();
-  delete fRootFile; fRootFile = 0;
+  if( fRootFile != 0 )
+    {
+      fRootFile->Close();
+      delete fRootFile; fRootFile = 0;
+    }
   fCounterBytesCnaResults = 0;
   fCnaResultsTree         = 0;
   fCnaResultsBranch       = 0;
@@ -84,7 +138,7 @@ Bool_t TEcnaRootFile::OpenR(const Text_t *name) {
       if( fCnaIndivResult == 0 ){fCnaIndivResult = new TEcnaResultType();}
       fCnaResultsBranch = fCnaResultsTree->GetBranch("Results");
       fCnaResultsBranch->SetAddress(&fCnaIndivResult);
-      fNbEntries = (Int_t) fCnaResultsTree->GetEntries();
+      fNbEntries = (Int_t)fCnaResultsTree->GetEntries();
     }
     else ok = kFALSE;
   }
