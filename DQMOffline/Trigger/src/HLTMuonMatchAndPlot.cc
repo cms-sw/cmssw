@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
  *  $Author: klukas $
- *  $Date: 2011/01/03 21:10:33 $
- *  $Revision: 1.20 $
+ *  $Date: 2011/01/27 19:14:22 $
+ *  $Revision: 1.21 $
  */
 
 
@@ -383,9 +383,12 @@ HLTMuonMatchAndPlot::selectedMuons(const MuonCollection & allMuons,
   MuonCollection reducedMuons(allMuons);
   MuonCollection::iterator iter = reducedMuons.begin();
   while (iter != reducedMuons.end()) {
-    if (selector(* iter) &&
-        fabs(iter->innerTrack()->dxy(beamSpot.position())) < d0Cut &&
-        fabs(iter->innerTrack()->dz(beamSpot.position())) < z0Cut)
+    const Track * track = 0;
+    if (iter->isTrackerMuon()) track = & * iter->innerTrack();
+    else if (iter->isStandAloneMuon()) track = & * iter->outerTrack();
+    if (track && selector(* iter) &&
+        fabs(track->dxy(beamSpot.position())) < d0Cut &&
+        fabs(track->dz(beamSpot.position())) < z0Cut)
       ++iter;
     else reducedMuons.erase(iter);
   }
