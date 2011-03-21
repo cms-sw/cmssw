@@ -344,6 +344,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     outputFile->WriteTObject(w,workspaceName_.c_str());
   }
 
+  try { // try-catch so we do a cleanup of the directory anyway
+
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
     RooAbsData *dobs = w->data(dataset.c_str());
@@ -438,6 +440,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         cout << "   68% expected band : " << lo68 << " < r < " << hi68 << endl;
         cout << "   95% expected band : " << lo95 << " < r < " << hi95 << endl;
     }
+  }
+
+  } catch (std::logic_error &le) {
+      boost::filesystem::remove_all(tmpDir.Data());
+      throw le;
+  } catch (std::runtime_error &re) {
+      boost::filesystem::remove_all(tmpDir.Data());
+      throw re;
   }
 
   boost::filesystem::remove_all(tmpDir.Data());
