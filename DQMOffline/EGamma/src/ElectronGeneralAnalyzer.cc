@@ -55,7 +55,7 @@ void ElectronGeneralAnalyzer::book()
   py_ele_nGsfTracksVsLs = bookP1("nGsfTracksVsLs","# gsf tracks vs LS",150,0.,1500.,0.,20.,"LS","<N_{GSF tk}>") ;
   py_ele_nTracksVsLs = bookP1("nTracksVsLs","# tracks vs LS",150,0.,1500.,0.,100.,"LS","<N_{gen tk}>") ;
   py_ele_nVerticesVsLs = bookP1("nVerticesVsLs","# vertices vs LS",150,0.,1500.,0.,10.,"LS","<N_{vert}>") ;
-  h1_ele_triggers = bookH1("triggers","hlt triggers",128,0.,128.,"HLT bit") ;
+  h1_ele_triggers = bookH1("triggers","hlt triggers",256,0.,256.,"HLT bit") ;
  }
 
 void ElectronGeneralAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup & iSetup )
