@@ -115,9 +115,9 @@ void popcon::EcalTPGBadStripHandler::getNewObjects()
 
           // going to query the ecal logic id 
 	  std::vector<EcalLogicID> my_StripEcalLogicId_EE;
-	  my_StripEcalLogicId_EE = econn->getEcalLogicIDSetOrdered("ECAL_readout_strip",
-						    1, 1000, //"FED"
-						    1, 100,  //CCU
+	  my_StripEcalLogicId_EE = econn->getEcalLogicIDSetOrdered("EE_trigger_strip",
+						    1, 1000, //"TCC"
+						    1, 100,  //tower
 						    0, 5,    //strip
 						    "EE_offline_stripid",123 );
 
@@ -213,7 +213,7 @@ void popcon::EcalTPGBadStripHandler::getNewObjects()
 		     		      
 		      if(!set_the_strip){
 		      
-		        if(my_StripEcalLogicId_EE[istrip].getID1()==fed_num 
+		        if(my_StripEcalLogicId_EE[istrip].getID1()==tcc_num 
 			     && my_StripEcalLogicId_EE[istrip].getID2()==tt_num
 			     && my_StripEcalLogicId_EE[istrip].getID3()==strip_num
 			     ){
