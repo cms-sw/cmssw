@@ -9,7 +9,7 @@ import array
 #==============================
 # SELECT
 #==============================
-def runList(schema,fillnum,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=true,requirehlt=true):
+def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True):
     '''
     select runnum from cmsrunsummary r,lumidata l,trgdata t,hltdata h where r.runnum=l.runnum and l.runnum=t.runnum and t.runnum=h.runnum and r.fillnum=:fillnum and r.runnum>:runmin and r.runnum<:runmax and r.starttime>=:startT and r.stopTime<=:stopT and r.amodetag=:amodetag and regexp_like(r.l1key,:l1keypattern) and regexp_like(hltkey,:hltkeypattern) and l.nominalEnergy>=:nominalEnergy*(1-energyFlut) and l.nominalEnergy<=:nominalEnergy*(1+energyFlut)
     '''
@@ -52,7 +52,7 @@ def runList(schema,fillnum,runmin=None,runmax=None,startT=None,stopT=None,l1keyP
             qConditionStr+=' and '+r+'.amodetag=:amodetag'
             qCondition.extend('amodetag','string')
             qCondition['amodetag'].setData(amodetag)
-        if l1keypPattern:
+        if l1keyPattern:
             qConditionStr+=' and regexp_like('+r+'.l1key,:l1keypattern)'
             qCondition.extend('l1keypattern','string')
             qCondition['l1keypattern'].setData(l1keyPattern)
@@ -63,7 +63,7 @@ def runList(schema,fillnum,runmin=None,runmax=None,startT=None,stopT=None,l1keyP
         if nominalEnergy:
             emin=nominalEnergy*(1.0-energyFlut)
             emax=nominalEnergy*(1.0+energyFlut)
-            qConditionStr+=l+'.nominalenergy>=:emin and '+l+'.nominalenergy<=:emax'
+            qConditionStr+=' and '+l+'.nominalegev>=:emin and '+l+'.nominalegev<=:emax'
             qCondition.extend('emin','float')
             qCondition.extend('emax','float')
             qCondition['emin'].setData(emin)
