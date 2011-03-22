@@ -422,7 +422,7 @@ bool FastElectronSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
   FreeTrajectoryState fts = helix.stateAtVertex();
 
   // Give infinite errors to start the fit (no pattern recognition here).
-  AlgebraicSymMatrix errorMatrix(5,1);
+  AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();
   fts.setCurvilinearError(errorMatrix*100.);
 
    TrajectoryStateOnSurface propagatedState = thePropagator->propagate(fts,innerhit->det()->surface()) ;
