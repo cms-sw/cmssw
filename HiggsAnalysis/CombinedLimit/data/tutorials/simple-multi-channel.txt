@@ -4,9 +4,14 @@ imax 2  number of channels
 jmax 1  number of backgrounds 
 kmax 3  number of nuisance parameters (sources of systematical uncertainties)
 ------------
+# two channels (0jet and 1jet); 1 observed event in the first, 0 in the second 
 bin            0j   1j   
 observation     1    0
 ------------
+# now we list the expected events for signal and all backgrounds in that bin
+# the second 'process' line must have a positive number for backgrounds, and 0 for signal
+# then we list the independent sources of uncertainties, and give their effect (syst. error)
+# on each process and bin
 bin            0j     0j    1j    1j
 process        sig    bg    sig   bg
 process         0      1     0     1

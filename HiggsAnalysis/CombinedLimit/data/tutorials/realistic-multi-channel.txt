@@ -8,15 +8,16 @@ imax 3  number of channels
 jmax *  number of backgrounds ('*' = automatic)
 kmax *  number of nuisance parameters (sources of systematical uncertainties)
 ------------
-# three channels, each with it's number of bins
+# three channels, each with it's number of observed events 
 bin          e_tau mu_tau e_mu
 observation   517   540   101     
 ------------
-# now we list the expected events for signal and all backgrounds in that bin
+# now we list the expected events for signal and all backgrounds in those three bins
 # the second 'process' line must have a positive number for backgrounds, and 0 for signal
-# then we list the systematical uncertainties, and list the effect for each process and bin
 # for the signal, we normalize the yields to an hypothetical cross section of 1/pb
 # so that we get an absolute limit in cross section in units of pb.
+# then we list the independent sources of uncertainties, and give their effect (syst. error)
+# on each process and bin
 bin           e_tau  e_tau  e_tau  mu_tau  mu_tau  mu_tau  e_mu   e_mu  e_mu
 process       higgs   ZTT   QCD    higgs    ZTT     QCD    higgs   ZTT  other
 process         0      1     2       0       1       2       0      1    2

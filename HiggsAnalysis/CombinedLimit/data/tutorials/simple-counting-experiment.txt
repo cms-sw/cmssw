@@ -1,9 +1,6 @@
-# Simple counting experiment, with one signal and a few background processes 
+# Simple counting experiment, with one signal and one background process
 # Extremely simplified version of the 35/pb H->WW analysis for mH = 200 GeV,
-# for 4th generation exclusion.
-# You should get an observed limit of ~0.67 times the 4G cross section, as is
-# in the table 6 of the paper EWK-10-009 (arxiv:1102.5429v1)
-# Also, the mean expected limit should be ~1.06 times the 4G cross section.
+# for 4th generation exclusion (EWK-10-009, arxiv:1102.5429v1)
 imax 1  number of channels
 jmax 1  number of backgrounds 
 kmax 2  number of nuisance parameters (sources of systematical uncertainties)
@@ -14,7 +11,8 @@ observation 0
 ------------
 # now we list the expected events for signal and all backgrounds in that bin
 # the second 'process' line must have a positive number for backgrounds, and 0 for signal
-# then we list the systematical uncertainties, and list the effect for each process and bin
+# then we list the independent sources of uncertainties, and give their effect (syst. error)
+# on each process and bin
 bin             1      1
 process       ggh4G  Bckg 
 process         0      1

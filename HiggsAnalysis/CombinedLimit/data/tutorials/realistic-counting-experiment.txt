@@ -10,7 +10,8 @@ observation 0
 ------------
 # now we list the expected events for signal and all backgrounds in that bin
 # the second 'process' line must have a positive number for backgrounds, and 0 for signal
-# then we list the systematical uncertainties, and list the effect for each process and bin
+# then we list the independent sources of uncertainties, and give their effect (syst. error)
+# on each process and bin
 bin              1     1     1     1
 process         ggH  qqWW  ggWW  others
 process          0     1     2     3
