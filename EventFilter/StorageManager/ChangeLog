@@ -10,6 +10,12 @@
 	* tag V06-08-00
 	* Minimal changes for modified IOPool/Streamer V07-01-00
 
+2011-03-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-07-03
+	* Don't store all unique init msg every received.
+	  It's enough to keep the ones from the current run keyed to output module.
+
 2011-02-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-07-02
