@@ -3784,8 +3784,7 @@ void PFAlgo::setElectronExtraRef(const edm::OrphanHandle<reco::PFCandidateElectr
 	    (*pfCandidates_)[ic].set_mva_e_pi(it->mvaVariable(PFCandidateElectronExtra::MVA_MVA));
 	    reco::PFCandidateElectronExtraRef theRef(extrah,it-pfElectronExtra_.begin());
 	    (*pfCandidates_)[ic].setPFElectronExtraRef(theRef);
-	    // Disabled until the PFCandidate DataFormat is fixed
-	    //	    (*pfCandidates_)[ic].setGsfTrackRef(it->gsfTrackRef());
+	    (*pfCandidates_)[ic].setGsfTrackRef(it->gsfTrackRef());
 	  }	
 	}
       }
