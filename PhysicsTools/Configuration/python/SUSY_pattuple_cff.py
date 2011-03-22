@@ -339,9 +339,9 @@ def addTypeIIMet(process) :
         metSource = cms.InputTag("metJESCorAK5CaloJetMuonsTypeII")
         )
     # Add to producersLayer1 sequence
-    process.makePatMETs.replace(
-        process.patMETs,
-        process.patMETs+
+    process.patDefaultSequence.replace(
+        process.patMETsAK5Calo,
+        process.patMETsAK5Calo+
         process.patMETsAK5CaloTypeII
         )
 
@@ -356,7 +356,7 @@ def addPFTypeIMet(process):
         metSource = cms.InputTag("metJESCorAK5PFTypeI")
     )
     # Add to producersLayer1 sequence
-    process.makePatMETsPF.replace(
+    process.patDefaultSequencePF.replace(
         process.patMETsPF,
         process.patMETsPF+
         process.metJESCorAK5PFTypeI+
