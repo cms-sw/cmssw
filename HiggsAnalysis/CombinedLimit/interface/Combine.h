@@ -33,7 +33,8 @@ private:
   bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr) ;
   
   boost::program_options::options_description options_;
-  
+
+  bool unbinned_; 
   float rMin_, rMax_;
   bool compiledExpr_;
   std::string prior_;

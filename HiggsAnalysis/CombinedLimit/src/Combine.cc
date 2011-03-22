@@ -73,6 +73,7 @@ Combine::Combine() :
       ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength")
       ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength")
       ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
+      ("unbinned,U", "Generate unbinned datasets instead of binned ones (works only for extended pdfs)")
       ("compile", "Compile expressions instead of interpreting them")
       ("significance", "Compute significance instead of upper limit")
       ("hintStatOnly", "Ignore systematics when computing the hint")
@@ -89,6 +90,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   } else {
     std::cout << ">>> no systematics included" << std::endl;
   } 
+  unbinned_ = vm.count("unbinned");
   compiledExpr_ = vm.count("compile");
   doSignificance_ = vm.count("significance");
   hintUsesStatOnly_ = vm.count("hintStatOnly");
@@ -252,9 +254,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (w->data(dataset.c_str()) == 0) {
     if (w->pdf("model_b")->canBeExtended()) {
       std::cout << "Dataset " << dataset.c_str() << " not found, will try to generate the expected dataset from the 'model_b' pdf" << std::endl;
-      RooDataHist *bdata_obs = w->pdf("model_b")->generateBinned(*observables, RooFit::Asimov()); 
-      bdata_obs->SetName(dataset.c_str());
-      w->import(*bdata_obs);
+      RooAbsData *fake;
+      if (unbinned_) {
+        fake = w->pdf("model_b")->generateBinned(*observables, RooFit::Extended(), RooFit::Asimov());
+      } else {
+        fake = w->pdf("model_b")->generate(*observables, RooFit::Extended(), RooFit::Asimov()); 
+      }
+      fake->SetName(dataset.c_str());
+      w->import(*fake);
     } else {
       if (!isTextDatacard) std::cout << "Dataset " << dataset.c_str() << " not found, will make one from the starting values of the observables in the model." << std::endl;
       RooDataSet *data_obs = new RooDataSet(dataset.c_str(), dataset.c_str(), *observables); 
@@ -351,7 +358,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     RooAbsData *dobs = w->data(dataset.c_str());
     if (iToy == -1) {	
         if (w->pdf("model_b")->canBeExtended()) {
-	  dobs = w->pdf("model_b")->generateBinned(*observables,RooFit::Extended(),RooFit::Asimov());
+          if (unbinned_) {
+              dobs = w->pdf("model_b")->generate(*observables,RooFit::Extended(),RooFit::Asimov());
+          } else {
+              dobs = w->pdf("model_b")->generateBinned(*observables,RooFit::Extended(),RooFit::Asimov());
+          }
 	} else {
 	  dobs = w->pdf("model_b")->generate(*observables,1,RooFit::Asimov());
 	}
@@ -389,8 +400,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	}
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (w->pdf("model_b")->canBeExtended()) {
-	  RooDataHist *bdata_toy = w->pdf("model_b")->generateBinned(*observables,RooFit::Extended());
-	  absdata_toy = bdata_toy;
+          if (unbinned_) {
+    	      absdata_toy = w->pdf("model_b")->generate(*observables,RooFit::Extended());
+          } else {
+    	      absdata_toy = w->pdf("model_b")->generateBinned(*observables,RooFit::Extended());
+          }
 	} else {
 	  RooDataSet *data_toy = w->pdf("model_b")->generate(*observables,1);
 	  absdata_toy = data_toy;
