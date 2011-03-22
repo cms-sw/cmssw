@@ -34,7 +34,7 @@ double band_safety_crop = 0;
 TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType type, double width=0.68) {
     if (file == 0) return 0;
     TTree *t = (TTree *) file->Get("limit");
-    if (t == 0) t = (Tree *) file->Get("test"); // backwards compatibility
+    if (t == 0) t = (TTree *) file->Get("test"); // backwards compatibility
     if (t == 0) { std::cerr << "TFile " << file->GetName() << " does not contain the tree" << std::endl; return 0; }
     Double_t mass, limit; Float_t t_cpu, t_real; Int_t syst, iChannel, iToy, iMass;
     t->SetBranchAddress("mh", &mass);
