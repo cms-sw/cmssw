@@ -454,16 +454,17 @@ reco::MuonRef PFCandidate::muonRef() const { GETREF(reco::Muon, kRefMuonMask, kR
 
 //////////////
 void PFCandidate::setGsfTrackRef(reco::GsfTrackRef const & iRef) {
-  if( particleId() != e ) {
-    string err;
-    err += "PFCandidate::setGsfTrackRef: this is not an electron ! particleId_=";
-    char num[4];
-    sprintf( num, "%d", particleId());
-    err += num;
-
-    throw cms::Exception("InconsistentReference",
-                         err.c_str() );
-  }
+//  Removed by F. Beaudette. Would like to be able to save the GsfTrackRef even for charged pions
+//  if( particleId() != e ) {
+//    string err;
+//    err += "PFCandidate::setGsfTrackRef: this is not an electron ! particleId_=";
+//    char num[4];
+//    sprintf( num, "%d", particleId());
+//    err += num;
+//
+//    throw cms::Exception("InconsistentReference",
+//                         err.c_str() );
+//  }
 
   storeRefInfo(kRefGsfTrackMask, kRefGsfTrackBit, iRef.isNonnull(), 
 	       iRef.refCore(), iRef.key(),iRef.productGetter());
