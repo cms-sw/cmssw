@@ -911,9 +911,9 @@ class PickRelValInputFiles( ConfigToolBase ):
                    print ' (default)'
                else:
                    print
-               if key == 'cmsswVersion' and cmsswVersion != self._parameters[ key  ].value:
+               if key == 'cmsswVersion' and cmsswVersion != self._parameters[ key ].value:
                    if formerVersion:
-                       print '    ==> modified to last to last valid release %s'%( cmsswVersion )
+                       print '    ==> modified to last to last valid release %s (s. \'formerVersion\' parameter)'%( cmsswVersion )
                    else:
                        print '    ==> modified to last valid release %s'%( cmsswVersion )
 
@@ -932,7 +932,7 @@ class PickRelValInputFiles( ConfigToolBase ):
             print '    Aborting...'
             return filePaths
         if debug:
-            print 'DEBUG %s: Running on site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
+            print 'DEBUG %s: Running at site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
             print '    using command   \'%s\''%( command )
             print '    on storage path %s'%( storage )
         rfdirPath    = '/store/relval/%s/%s/%s/%s-v'%( cmsswVersion, relVal, dataTier, globalTag )
