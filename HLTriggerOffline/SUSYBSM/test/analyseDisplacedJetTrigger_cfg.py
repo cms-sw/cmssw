@@ -6,13 +6,13 @@
 #######################################################################
 # Specify if data/MC and name of process used when producing HLT info #
 #######################################################################
-DATA = False
+DATA = True
 hltTriggerProcess = "HLT"
 
 # Only analyse events passing this control trigger, chosen to selected an unbiased event sample for the
 # displaced jet trigger. If empty, then all events are used.
-skimTriggers =  ['HLT_HT240_v2']
-#skimTriggers = ['HLT_2DisplacedHT240']
+skimTriggers =  ['HLT_HT250_v2']
+#skimTriggers = ['HLT_HT250_DoubleDisplacedJet60_v2']
 #skimTriggers =  [] 
 
 #########################
@@ -26,6 +26,7 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 if DATA:
   print "Reading real data"
   process.GlobalTag.globaltag = 'GRP311L1HLTV0::All'
+
 #  Don't use MC truth if real data ...
   runOnData(process)
 
@@ -52,6 +53,14 @@ process.patJets.tagInfoSources = cms.VInputTag(
 # Disable cleaning
 removeCleaning(process)
 
+# Calculate these jet energy corrections
+if DATA:
+#  Residual corrections fail in 41X ?
+#   process.patJetCorrFactors.levels = ['L2Relative','L3Absolute', 'L2L3Residual']
+   process.patJetCorrFactors.levels = ['L2Relative','L3Absolute']
+else:
+   process.patJetCorrFactors.levels = ['L2Relative','L3Absolute']
+
 # enable PAT trigger functionality
 from PhysicsTools.PatAlgos.tools.trigTools import *
 switchOnTrigger(process)
@@ -72,10 +81,12 @@ process.load("HLTriggerOffline.SUSYBSM.displacedJetTagger_cff")
 #########################
                                          
 process.source.fileNames = [          
-    'file:/opt/ppd/cms/users/tomalin/mc_reco_taufix.root'
+#    'file:/opt/ppd/cms/users/tomalin/mc400_50_reco_2011_5e32_v60_v3.root'
 
-#    'file:/opt/ppd/cms/users/tomalin/data_reco_taufix1.root',
-#    'file:/opt/ppd/cms/users/tomalin/data_reco_taufix2.root'
+    'file:/opt/ppd/cms/users/tomalin/data_reco_2011_5e32_v60_v3_1.root',
+    'file:/opt/ppd/cms/users/tomalin/data_reco_2011_5e32_v60_v3_2.root',
+    'file:/opt/ppd/cms/users/tomalin/data_reco_2011_5e32_v60_v3_3.root',
+    'file:/opt/ppd/cms/users/tomalin/data_reco_2011_5e32_v60_v3_4.root'
 ]
 
 process.maxEvents.input = -1

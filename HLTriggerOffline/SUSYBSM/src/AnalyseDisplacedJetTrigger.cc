@@ -28,10 +28,10 @@ AnalyseDisplacedJetTrigger::AnalyseDisplacedJetTrigger(const edm::ParameterSet& 
 {  
   dbe_ = Service < DQMStore > ().operator->();
   if ( ! dbe_ ) {
-    LogInfo("AnalyseDisplacedJetTrigger") << "ERROR: unable to get DQMStore service?";
+    LogWarning("AnalyseDisplacedJetTrigger") << "ERROR: unable to get DQMStore service?";
   }
     
-  trigEffi_ = dbe_->bookProfile("trigEffi","Trigger efficiency",30,0.5,30.5,-9.9,9.9);
+  trigEffi_ = dbe_->bookProfile("trigEffi","Trigger efficiency",40,0.5,40.5,-9.9,9.9);
 }
 
 void AnalyseDisplacedJetTrigger::beginRun(const edm::Run& run, const edm::EventSetup& c) {
@@ -54,6 +54,8 @@ void AnalyseDisplacedJetTrigger::bookHistos(string trigName) {
 
   // If MC truth is available, this is the true production radius of the jet.
   histos_[trigName].trueJetProdRadius_ = dbe_->book1D("trueJetProdRadius","true production radius of jet (cm)",202,-1.25,99.75);
+  // If MC truth is available, this is the number of true displaced jets in the event.
+  histos_[trigName].trueNumDispJets_ = dbe_->book1D("trueNumDispJets","Number of true displaced jets per event",20,-0.5,19.5);
   // Histograms of offline recoJets that are useful for displaced exotica jet search.
   histos_[trigName].recoJetNpromptTk_ = dbe_->book1D("recoJetNpromptTk","recoJet prompt tracks",50,-0.5,49.5);
   histos_[trigName].recoJetPt_ = dbe_->book1D("recoJetPt","recoJet Pt",100,0.0,1000.);
@@ -61,15 +63,20 @@ void AnalyseDisplacedJetTrigger::bookHistos(string trigName) {
   histos_[trigName].recoJetEMfraction_ = dbe_->book1D("recoJetEMfraction","recoJet EM fraction",102,-0.01,1.01);
   histos_[trigName].recoJetHPDfraction_ = dbe_->book1D("recoJetHPDfraction","recoJet HPD fraction",102,-0.01,1.01);
   histos_[trigName].recoJetN90_ = dbe_->book1D("recoJetN90","recoJet N90",100,-0.5,99.5);
+  histos_[trigName].recoJetPVz_ = dbe_->book1D("recoJetPVz","recoJet primary vertex z",60,-30.0,30.0);
+
 
   // Ditto, but only if recoJet is matched to a trigJet found by displaced jet trigger.
   histos_[trigName].trueJetProdRadiusMatched_ = dbe_->book1D("trueJetProdRadiusMatched","true production radius of jet (cm) if found by trigger",202,-1.25,99.75);
+  histos_[trigName].trueNumDispJetsMatched_ = dbe_->book1D("trueNumDispJetsMatched","Number of true displaced jets found by trigger per event",20,-0.5,19.5);
   histos_[trigName].recoJetNpromptTkMatched_ = dbe_->book1D("recoJetNpromptTkMatched","recoJet prompt tracks if found by trigger",50,-0.5,49.5);
   histos_[trigName].recoJetPtMatched_ = dbe_->book1D("recoJetPtMatched","recoJet Pt if found by trigger",100,0.0,1000.);
   histos_[trigName].recoJetEtaMatched_ = dbe_->book1D("recoJetEtaMatched","recoJet Eta if found by trigger",30,0.0,3.0);
   histos_[trigName].recoJetEMfractionMatched_ = dbe_->book1D("recoJetEMfractionMatched","recoJet EM fraction if found by trigger",102,-0.01,1.01);
   histos_[trigName].recoJetHPDfractionMatched_ = dbe_->book1D("recoJetHPDfractionMatched","recoJet HPD fraction if found by trigger",102,-0.01,1.01);
   histos_[trigName].recoJetN90Matched_ = dbe_->book1D("recoJetN90Matched","recoJet N90 if found by trigger",100,-0.5,99.5);
+  histos_[trigName].recoJetPVzMatched_ = dbe_->book1D("recoJetPVzMatched","recoJet primary vertex z if found by trigger",60,-30.0,30.0);
+
 
   // Sundry
   histos_[trigName].trigJetVsRecoJetPt_ = dbe_->book2D("trigJetVsRecoJetPt","trigJet vs. recoJet Pt",50,0.0,1000.,50,0.0,1000.);
@@ -84,6 +91,12 @@ void AnalyseDisplacedJetTrigger::analyze(const edm::Event& iEvent,
   
   iEvent.getByLabel("selectedPatJets", patJets_);
   iEvent.getByLabel("patTriggerEvent", patTriggerEvent_);
+  iEvent.getByLabel ("offlinePrimaryVertices", primaryVertex_);
+  float PVz = 29.9;
+  if (primaryVertex_->size() > 0) PVz = primaryVertex_->begin()->z();
+
+  // Print debug PV info if required.
+  this->debugPrintPV(iEvent);
 
   // Get trigger objects for each displaced jet trigger.
   map<string, TriggerObjectRefVector> trigJetsInAllTrigs = this->getTriggerInfo();
@@ -95,7 +108,11 @@ void AnalyseDisplacedJetTrigger::analyze(const edm::Event& iEvent,
     string trigName = iter->first;
     const TriggerObjectRefVector& trigJets(iter->second);
 
-    // Analyse offline reco jets.
+    // Analyse offline reco jets and see if they match a trigger jet.
+    unsigned int nTrueDisplacedJets = 0;
+    unsigned int nTrueDisplacedJetsMatched = 0;
+    const float displacedJetRadiusCut = 1.0;
+
     for(unsigned int j=0; j<patJets_->size(); j++) {
       const pat::JetRef recoJet(patJets_,j);
 
@@ -113,14 +130,15 @@ void AnalyseDisplacedJetTrigger::analyze(const edm::Event& iEvent,
 
       // Check if this jet was produced by a displaced parton, and if so, note its production radius.
 
-      LogDebug("AnalyseDisplacedJetTrigger") <<"BTAG "<<j<<" "<<recoJet->bDiscriminator("displacedJetTags")<<endl;
+      // LogDebug("AnalyseDisplacedJetTrigger") <<"BTAG "<<j<<" "<<recoJet->bDiscriminator("displacedJetTags")<<endl;
       float trueRadius = -1.;
       const reco::GenParticle* gen = recoJet->genParton();
       if (gen != 0 && gen->numberOfDaughters() > 0) {
         trueRadius = gen->daughter(0)->vertex().rho(); // decay radius of parton
-        LogDebug("AnalyseDisplacedJetTrigger") <<"Matched to GenParton with Pt = "<<gen->pt()<< "/" <<recoJet->pt()<<" R="<<gen->vertex().rho()<<" id="<<gen->pdgId()<<" ndaugh = "<<gen->numberOfDaughters()<<" RD="<<gen->daughter(0)->vertex().rho()<<" idd="<<gen->daughter(0)->pdgId()<<" moth="<<gen->mother()->pdgId();
+        LogDebug("AnalyseDisplacedJetTrigger") <<"Jet matched to GenParton: id="<<gen->pdgId()<<" Gen/Reco Pt = "<<gen->pt()<< "/" <<recoJet->pt()<<
+              " origin x,y,z="<<gen->vertex().x()<<","<<gen->vertex().y()<<","<<gen->vertex().z()<<" dec. length="<<gen->daughter(0)->vertex().rho();
       } else {
-        LogDebug("AnalyseDisplacedJetTrigger") <<"Unmatched to GenParton with Pt = 0/" <<recoJet->pt();
+        LogDebug("AnalyseDisplacedJetTrigger") <<"Jet not matched to GenParton: Reco Pt = " <<recoJet->pt();
       }
 
       // Plot recoJet properties for jets useful to exotica search. Relax cut on quantity being plotted.
@@ -129,9 +147,22 @@ void AnalyseDisplacedJetTrigger::analyze(const edm::Event& iEvent,
  	 float nPromptTk = recoJet->bDiscriminator("displacedJetTags");
          histos_[trigName].trueJetProdRadius_->Fill(trueRadius);
          histos_[trigName].recoJetNpromptTk_->Fill(nPromptTk);
+         histos_[trigName].recoJetPVz_->Fill(PVz);
+         if (trueRadius >  displacedJetRadiusCut) nTrueDisplacedJets++;
          if (match) {
            histos_[trigName].trueJetProdRadiusMatched_->Fill(trueRadius);
            histos_[trigName].recoJetNpromptTkMatched_->Fill(nPromptTk);
+           histos_[trigName].recoJetPVzMatched_->Fill(PVz);
+           if (trueRadius >  displacedJetRadiusCut) nTrueDisplacedJetsMatched++;
+	   const reco::TrackIPTagInfo* tagInfo = recoJet->tagInfoTrackIP("displacedJet");
+           LogDebug("AnalyseDisplacedJetTrigger") << "NPROMPT offline tracks = "<<nPromptTk; 
+           if (tagInfo != 0) {
+             const edm::RefVector<reco::TrackCollection>& tracks = tagInfo->selectedTracks();
+             const std::vector<reco::TrackIPTagInfo::TrackIPData>& ip = tagInfo->impactParameterData();
+             for (unsigned int itrk = 0; itrk < tracks.size(); itrk++) {
+               LogTrace("AnalyseDisplacedJetTrigger") <<"Track "<<itrk<<" pt="<<tracks[itrk]->pt()<<" d0="<<ip[itrk].ip3d.value()<<" pixelHits="<<tracks[itrk]->hitPattern().pixelLayersWithMeasurement();
+	     }
+           }
          }
       }
       if (goodNoPtCut.ok()) {
@@ -156,12 +187,16 @@ void AnalyseDisplacedJetTrigger::analyze(const edm::Event& iEvent,
       // Sundry histos
       if (match) histos_[trigName].trigJetVsRecoJetPt_->Fill(recoJet->pt(), trigJet->pt());
     }
+
+    // True displaced jets per event count
+    histos_[trigName].trueNumDispJets_->Fill(nTrueDisplacedJets);
+    histos_[trigName].trueNumDispJetsMatched_->Fill(nTrueDisplacedJetsMatched);
   }
 }
 
 TriggerObjectRef AnalyseDisplacedJetTrigger::matchJets(pat::JetRef recoJet, const TriggerObjectRefVector& trigJets) {
   // Find closest trigger jet to reco jet, if any.
-  double bestDelR = 0.5;
+  double bestDelR = 0.3;
   TriggerObjectRef matchedJet;
   for (unsigned n = 0; n < trigJets.size(); n++) {
     double delR = deltaR(*recoJet, *(trigJets[n]));
@@ -223,11 +258,15 @@ map<string, TriggerObjectRefVector> AnalyseDisplacedJetTrigger::getTriggerInfo()
 		  }
 		*/
 		if (trigObjs[nObj]->hasFilterId( trigger::TriggerBJet )) {
+                  bool l3 = true;
+		  /*
+                  // useful if L25 objects also stored in event. 
                   bool l3 = false;
                   for (unsigned int is = 0; is < killL25objects.size(); is++) {
 		    if (fabs(killL25objects[is] - trigObjs[nObj]->pt()) < 0.1) l3 = true;
                   }
                   if (!l3) killL25objects.push_back(trigObjs[nObj]->pt());
+		  */
 		  LogVerbatim("AnalyseDisplacedJetTrigger")<<"     trig obj="<<nObj<<" Pt="<<trigObjs[nObj]->pt()<<" type="<<trigObjs[nObj]->collection()<<" l3="<<l3<<endl;
                   if (l3) trigJetsInAllTrigs[trigName].push_back(trigObjs[nObj]);
 		}
@@ -238,6 +277,32 @@ map<string, TriggerObjectRefVector> AnalyseDisplacedJetTrigger::getTriggerInfo()
     }
   }
   return trigJetsInAllTrigs;
+}
+
+void AnalyseDisplacedJetTrigger::debugPrintPV(const edm::Event& iEvent) {
+  // Print debug info comparing HLT and RECO primary vertices if required (and if stored in input data file).
+
+  LogDebug("AnalyseDisplacedJetTrigger")<<"--- primary vertex position ---";
+  for (unsigned int ipv = 0; ipv < primaryVertex_->size(); ipv++) {
+    const reco::VertexRef vtx(primaryVertex_, ipv);
+    LogTrace("AnalyseDisplacedJetTrigger")<<"Offline PV "<<ipv<<" "<<primaryVertex_<<" x="<<vtx->x()<<" y="<<vtx->y()<<" z="<<vtx->z();
+  }
+  Handle<reco::VertexCollection> hltPixelVertex;
+  iEvent.getByLabel ("hltPixelVertices", hltPixelVertex);
+  if (hltPixelVertex.isValid()) {
+    for (unsigned int ipv = 0; ipv < hltPixelVertex->size(); ipv++) {
+      const reco::VertexRef vtx(hltPixelVertex, ipv);
+      LogTrace("AnalyseDisplacedJetTrigger")<<"HLT Pixel PV "<<ipv<<" "<<hltPixelVertex<<" x="<<vtx->x()<<" y="<<vtx->y()<<" z="<<vtx->z();
+    }
+  }
+  Handle<reco::VertexCollection> pixelVertex;
+  iEvent.getByLabel ("pixelVertices", pixelVertex);
+  if (pixelVertex.isValid()) {
+    for (unsigned int ipv = 0; ipv < pixelVertex->size(); ipv++) {
+      const reco::VertexRef vtx(pixelVertex, ipv);
+      LogTrace("AnalyseDisplacedJetTrigger")<<"Offline Pixel PV "<<ipv<<" "<<pixelVertex<<" x="<<vtx->x()<<" y="<<vtx->y()<<" z="<<vtx->z();
+    }
+  }
 }
 
 DEFINE_FWK_MODULE( AnalyseDisplacedJetTrigger );

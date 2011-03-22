@@ -96,14 +96,18 @@ private:
   TriggerObjectRef matchJets(pat::JetRef recoJet, const TriggerObjectRefVector& trigJets);
 
   // Determine trigger type
-  bool isTrigDisplaced(string name) {return (name.substr(0,16) == "HLT_2DisplacedHT");}
+  bool isTrigDisplaced(string name) {return (name.find("DisplacedJet") != string::npos);}
   bool isTrigJet(string name) {return (name.substr(0,7) == "HLT_Jet");}
   bool isTrigHT(string name) {return (name.substr(0,6) == "HLT_HT");}
+
+  // Debug printout about primary vertices.
+  void debugPrintPV(const edm::Event& iEvent);
 
 private:
 
   Handle<JetCollection> patJets_;
   Handle<TriggerEvent> patTriggerEvent_;
+  Handle<reco::VertexCollection> primaryVertex_;
 
   // This stores all interesting jet/HT trigger types found so far.
   map<string, int> trigNameList_;
