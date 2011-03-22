@@ -1,10 +1,14 @@
 import re
-from sys import argv
+from sys import argv, stdout, stderr
 from optparse import OptionParser
+import ROOT
 parser = OptionParser()
 parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true")  # ignore systematic uncertainties to consider statistical uncertainties only
 parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true")
 parser.add_option("-c", "--compiled", dest="cexpr", default=False, action="store_true")
+parser.add_option("-b", "--binary",   dest="bin",   default=False, action="store_true", help="produce a Workspace in a rootfile instead of an HLF file")
+parser.add_option("-o", "--out",      dest="out",   type="string", default=None,  help="output file (if none, it will print to stdout). Required for binary mode.")
+
 (options, args) = parser.parse_args()
 
 file = open(args[0], "r")
@@ -120,30 +124,64 @@ if nuisances == -1:
 elif len(systs) != nuisances: 
     raise RuntimeError, "Found %d systematics, expected %d" % (len(systs), nuisances)
 
+out = stdout; 
+if options.bin:
+    if options.out != None:
+        ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+        out = ROOT.RooWorkspace("w","w");
+        out.dont_delete = []
+    else:
+        raise RuntimeException, "You need to specify an output file when using binary mode";
+elif options.out != None:
+    stderr.write("Will save workspace to HLF file %s" % options.out)
+    out = open(options.out, "w");
 
+def factory_(X):
+    global out
+    ret = out.factory(X);
+    if ret: out.dont_delete.append(ret)
+    else:
+        print "ERROR parsing '%s'" % X
+        out.W.Print("V");
+        raise RuntimeError, "Error in factory statement" 
+
+def doComment(X):
+    global out
+    if not options.bin: out.write("// "+X+"\n");
+def doVar(vardef):
+    global out
+    if options.bin: factory_(vardef);
+    else: out.write(vardef+";\n");
+def doSet(name,vars):
+    global out
+    if options.bin: out.defineSet(name,vars)
+    else: out.write("%s = set(%s);\n" % (name,vars));
+def doObj(name,type,X):
+    global out
+    if options.bin: factory_("%s::%s(%s)" % (type, name, X));
+    else: out.write("%s = %s(%s);\n" % (name, type, X))
+            
 if len(obs):
-    print "/// ----- observables (already set to asimov values) -----"
-    for b in bins: print "n_obs_bin%s[%f,0,%d];" % (b,obs[b],N_OBS_MAX)
+    doComment(" ----- observables (already set to asimov values) -----")
+    for b in bins: doVar("n_obs_bin%s[%f,0,%d]" % (b,obs[b],N_OBS_MAX))
 else:
-    print "/// ----- observables -----"
-    for b in bins: print "n_obs_bin%s[0,%d];" % (b,N_OBS_MAX)
-print "observables = set(", ",".join(["n_obs_bin%s" % b for b in bins]),");"
+    doComment(" ----- observables -----")
+    for b in bins: doVar("n_obs_bin%s[0,%d]" % (b,N_OBS_MAX))
+doSet("observables", ",".join(["n_obs_bin%s" % b for b in bins]))
 
-print """
-/// ----- parameters of interest -----
-// signal strength
-r[0,20];
-// set of all parameters of interest
-POI = set(r);
-"""
+doComment(" ----- parameters of interest -----");
+doComment(" --- Signal Strength --- ");
+doVar("r[0,20];");
+doComment(" --- set of all parameters of interest --- ");
+doSet("POI","r");
 
 if nuisances: 
-    print "/// ----- nuisances -----"
+    doComment(" ----- nuisances -----")
     globalobs = []
     for (n,pdf,args,errline) in systs: 
         if pdf == "lnN":
             #print "thetaPdf_%s = Gaussian(theta_%s[-5,5], 0, 1);" % (n,n)
-            print "thetaPdf_%s = Gaussian(theta_%s[-5,5], thetaIn_%s[0], 1);" % (n,n,n)
+            doObj("thetaPdf_%s" % n, "Gaussian", "theta_%s[-5,5], thetaIn_%s[0], 1" % (n,n));
             globalobs.append("thetaIn_%s" % n)
         elif pdf == "gmM":
             val = 0;
@@ -155,16 +193,16 @@ if nuisances:
                     val = v;
             if val == 0: raise RuntimeError, "Error: line %s contains all zeroes"
             theta = val*val; kappa = 1/theta
-            print "thetaPdf_%s = Gamma(theta_%s[1,%f,%f], %g, %g, 0);" % (n, n, max(0.01,1-5*val), 1+5*val, kappa, theta)
+            doObj("thetaPdf_%s" % n, "Gamma", "theta_%s[1,%f,%f], %g, %g, 0" % (n, max(0.01,1-5*val), 1+5*val, kappa, theta))
         elif pdf == "gmN":
-            print "thetaPdf_%s = Poisson(thetaIn_%s[%d], theta_%s[0,%d]);" % (n,n,args[0],n,2*args[0]+5)
+            doObj("thetaPdf_%s" % n, "Poisson", "thetaIn_%s[%d], theta_%s[0,%d]" % (n,args[0],n,2*args[0]+5))
             globalobs.append("thetaIn_%s" % n)
-    print "nuisances   =  set(", ",".join(["theta_%s"    % n for (n,p,a,e) in systs]),");"
-    print "nuisancePdf = PROD(", ",".join(["thetaPdf_%s" % n for (n,p,a,e) in systs]),");"
+    doSet("nuisances", ",".join(["theta_%s"    % n for (n,p,a,e) in systs]))
+    doObj("nuisancePdf", "PROD", ",".join(["thetaPdf_%s" % n for (n,p,a,e) in systs]))
     if globalobs:
-        print "globalObservables =  set(", ",".join(globalobs),");"
+        doSet("globalObservables", ",".join(globalobs))
 
-print "/// --- Expected events in each bin, for each process ----"
+doComment(" --- Expected events in each bin, for each process ----")
 for b in bins:
     for p in exp[b].keys(): # so that we get only processes contributing to this bin
         # collect multiplicative corrections
@@ -202,20 +240,20 @@ for b in bins:
             strexpr = str(exp[b][p]) + strexpr
         # optimize constants
         if strargs != "":
-            print "n_exp_bin%s_proc_%s = %s('%s'%s);" % (b, p, ROOFIT_EXPR, strexpr, strargs)
+            doObj("n_exp_bin%s_proc_%s" % (b,p), ROOFIT_EXPR, "'%s'%s" % (strexpr, strargs));
         else:
-            print "n_exp_bin%s_proc_%s[%g];" % (b, p, exp[b][p])
-    print "n_exp_bin%s_bonly  = sum(" % b + ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in exp[b].keys() if isSignal[p] == False]) + ");";
+            doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, exp[b][p]))
+    doObj("n_exp_bin%s_bonly" % b, "sum", ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in exp[b].keys() if isSignal[p] == False]) )
     if len(signals) == 1:
-        print "n_exp_bin%s        = sum(prod(r, n_exp_bin%s_proc_%s), n_exp_bin%s_bonly);" % (b,b,signals[0],b);
+        doObj("n_exp_bin%s" % b, "sum", "prod(r, n_exp_bin%s_proc_%s), n_exp_bin%s_bonly" % (b,signals[0],b))
     else:
         sigsum = ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in exp[b].keys() if isSignal[p] == True])  
-        print "n_exp_bin%s        = sum(prod(r, sum(%s)), n_exp_bin%s_bonly);" % (b,sigsum,b);
+        doObj("n_exp_bin%s" % b, "sum", "prod(r, sum(%s)), n_exp_bin%s_bonly" % (sigsum,b))
 
-print "/// --- Expected events in each bin, total (S+B and B) ----"
+doComment(" --- Expected events in each bin, total (S+B and B) ----")
 for b in bins:
-    print "pdf_bin%s       = Poisson(n_obs_bin%s, n_exp_bin%s);"       % (b,b,b);
-    print "pdf_bin%s_bonly = Poisson(n_obs_bin%s, n_exp_bin%s_bonly);" % (b,b,b);
+    doObj("pdf_bin%s"       % b, "Poisson", "n_obs_bin%s, n_exp_bin%s"       % (b,b))
+    doObj("pdf_bin%s_bonly" % b, "Poisson", "n_obs_bin%s, n_exp_bin%s_bonly" % (b,b))
 
 prefix = "modelObs"
 if not nuisances: prefix = "model" # we can make directly the model
@@ -223,14 +261,29 @@ if nbins > 50:
     from math import ceil
     nblocks = int(ceil(nbins/10.))
     for i in range(nblocks):
-        print prefix+"_s_%d = PROD("%i, ",".join(["pdf_bin%s"       % bins[j] for j in range(10*i,min(nbins,10*i+10))]),");"
-        print prefix+"_b_%d = PROD("%i, ",".join(["pdf_bin%s_bonly" % bins[j] for j in range(10*i,min(nbins,10*i+10))]),");"
-    print prefix+"_s = PROD(", ",".join([prefix+"_s_%d" % i for i in range(nblocks)]),");"
-    print prefix+"_b = PROD(", ",".join([prefix+"_b_%d" % i for i in range(nblocks)]),");"
+        doObj("%s_s_%d" % (prefix,i), "PROD", ",".join(["pdf_bin%s"       % bins[j] for j in range(10*i,min(nbins,10*i+10))]))
+        doObj("%s_b_%d" % (prefix,i), "PROD", ",".join(["pdf_bin%s_bonly" % bins[j] for j in range(10*i,min(nbins,10*i+10))]))
+    doObj("%s_s" % prefix, "PROD", ",".join([prefix+"_s_%d" % i for i in range(nblocks)]))
+    doObj("%s_b" % prefix, "PROD", ",".join([prefix+"_b_%d" % i for i in range(nblocks)]))
 else: 
-    print prefix+"_s = PROD({", ",".join(["pdf_bin%s"       % b for b in bins]),"});"
-    print prefix+"_b = PROD({", ",".join(["pdf_bin%s_bonly" % b for b in bins]),"});"
+    doObj("%s_s" % prefix, "PROD", ",".join(["pdf_bin%s"       % b for b in bins]))
+    doObj("%s_b" % prefix, "PROD", ",".join(["pdf_bin%s_bonly" % b for b in bins]))
 
 if nuisances: # multiply by nuisances if needed
-    print "model_s = PROD(modelObs_s, nuisancePdf);"
-    print "model_b = PROD(modelObs_b, nuisancePdf);"
+    doObj("model_s", "PROD", "modelObs_s, nuisancePdf")
+    doObj("model_b", "PROD", "modelObs_b, nuisancePdf")
+
+if options.bin:
+    if options.out != None: 
+        mc_s = ROOT.RooStats.ModelConfig("ModelConfig",   out)
+        mc_b = ROOT.RooStats.ModelConfig("ModelConfig_b", out)
+        for (l,mc) in [ ('s',mc_s), ('b',mc_b) ]:
+            mc.SetPdf(out.pdf("model_"+l))
+            mc.SetParametersOfInterest(out.set("POI"))
+            mc.SetObservables(out.set("observables"))
+            if nuisances:  mc.SetNuisanceParameters(out.set("nuisances"))
+            if out.set("globalObservables"): mc.SetGlobalObservables(out.set("globalObservables"))
+            getattr(out,"import")(mc, mc.GetName())
+        out.writeToFile(options.out)
+    else: raise RuntimeException, "You need to specify an output file when using binary mode";
+
