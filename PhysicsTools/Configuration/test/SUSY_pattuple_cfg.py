@@ -1,9 +1,9 @@
 #
 #  SUSY-PAT configuration file
 #
-#  PAT configuration for the SUSY group - 38X series
+#  PAT configuration for the SUSY group - 42X series
 #  More information here:
-#  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV9
+#  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV10
 #
 
 # Starting with a skeleton process which gets imported with the following line
@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.34 $'),
+    version = cms.untracked.string('$Revision: 1.35 $'),
     name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
