@@ -104,7 +104,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     recopfTauEta 	 =  new float[kMaxPFTau];
     recopfTauPhi 	 =  new float[kMaxPFTau];
     recopfTauPt  	 =  new float[kMaxPFTau];
-    recopfTauJetPt	 =  new float[kMaxPFTau];
     recopfTauLeadTrackPt =  new float[kMaxPFTau];
     recopfTauLeadPionPt  =  new float[kMaxPFTau];
     recopfTauTrkIso	 =  new int[kMaxPFTau];
@@ -205,7 +204,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("recopfTauLeadPionPt",recopfTauLeadPionPt,"recopfTauLeadPionPt[NRecoPFTau]/F");
     HltTree->Branch("recopfTauTrkIso",recopfTauTrkIso,"recopfTauTrkIso[NRecoPFTau]/I");
     HltTree->Branch("recopfTauGammaIso",recopfTauGammaIso,"recopfTauGammaIso[NRecoPFTau]/I");
-    HltTree->Branch("recopfTauJetPt",recopfTauJetPt,"recopfTauJetPt[NRecoPFTau]/F");   
     HltTree->Branch("recopfTauDiscrByTancOnePercent",recopfTauDiscrByTancOnePercent,"recopfTauDiscrByTancOnePercent[NRecoPFTau]/F");   
     HltTree->Branch("recopfTauDiscrByTancHalfPercent",recopfTauDiscrByTancHalfPercent,"recopfTauDiscrByTancHalfPercent[NRecoPFTau]/F");   
     HltTree->Branch("recopfTauDiscrByTancQuarterPercent",recopfTauDiscrByTancQuarterPercent,"recopfTauDiscrByTancQuarterPercent[NRecoPFTau]/F");   
@@ -522,7 +520,6 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
             recopfTauEta[ipftau] = i->eta();
             recopfTauPhi[ipftau] = i->phi();
             recopfTauPt[ipftau]  = i->pt();
-	    recopfTauJetPt[ipftau] = i->jetRef()->pt();
 
             if( (i->leadPFNeutralCand()).isNonnull())
                 recopfTauLeadPionPt[ipftau] = i->leadPFNeutralCand()->pt();        
