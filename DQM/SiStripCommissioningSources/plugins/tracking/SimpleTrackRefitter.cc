@@ -142,7 +142,7 @@ std::vector<Trajectory> SimpleTrackRefitter::refitTrack(const reco::Track& theT,
   std::vector<Trajectory> trajVec;
   reco::TransientTrack theTT(theT, thePropagator->magneticField() );
   TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.front()->det()->surface());
-  AlgebraicSymMatrix C(5,1);
+  AlgebraicSymMatrix55 C= AlgebraicMatrixID();
   C *= 100.;
   if(!firstState.isValid()) return trajVec;
   TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C),
