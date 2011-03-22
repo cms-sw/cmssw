@@ -207,7 +207,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         RooAbsPdf *mc_model_s = mc->GetPdf();
         if (mc_model_s == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not contain model_s.");
         if (poiName == "r") {
-            if (mc_model_s->GetName() != std::string("model_s")) {
+            if (w->pdf("model_s") == 0) { //mc_model_s->GetName() != std::string("model_s")) {
                 RooAbsPdf *model_s = (RooAbsPdf *) mc_model_s->Clone("model_s");
                 w->import(*model_s);
                 if (verbose > 1) std::cout << "Importing " << mc_model_s->GetName() << " -> model_s" << std::endl;
