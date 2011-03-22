@@ -43,6 +43,8 @@
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibErrorsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
+#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
@@ -138,6 +140,7 @@ REGISTER_PLUGIN(EcalIntercalibConstantsRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalIntercalibConstantsMCRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalTimeCalibConstantsRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalTimeCalibErrorsRcd,EcalFloatCondObjectContainer);
+REGISTER_PLUGIN(EcalTimeOffsetConstantRcd,EcalTimeOffsetConstant);
 REGISTER_PLUGIN(EcalIntercalibErrorsRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalADCToGeVConstantRcd,EcalADCToGeVConstant);
 REGISTER_PLUGIN(EcalLaserAlphasRcd,EcalFloatCondObjectContainer);

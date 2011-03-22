@@ -16,6 +16,7 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalDCUTemperatures.h"
 #include "CondFormats/EcalObjects/interface/EcalPTMTemperatures.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
@@ -77,6 +78,7 @@ namespace{
  
     EcalTimeCalibConstants timeCalib;
     EcalTimeCalibErrors timeCalibErrors;
+    EcalTimeOffsetConstant timeOffsetConstant;
  
     EcalDCUTemperatures dcuTemperatures;
  
