@@ -265,8 +265,8 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, doubl
           limit = expoFit.GetParameter(2);
           limitErr = expoFit.GetParError(2);
       } else if (0.5*(rMax - rMin) < limitErr) {
-          limit  = 0.5*(rMax-rMin);
-          limitErr = 0.5*(rMax+rMin);
+          limit  = 0.5*(rMax+rMin);
+          limitErr = 0.5*(rMax-rMin);
       }
   }
 
