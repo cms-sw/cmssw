@@ -44,7 +44,7 @@ class anlzrname : public edm::EDAnalyzer {
       explicit anlzrname(const edm::ParameterSet&);
       ~anlzrname();
 
-      static void fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
@@ -52,10 +52,10 @@ class anlzrname : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-      virtual void beginRun(Run const&, EventSetup const&);
-      virtual void endRun(Run const&, EventSetup const&);
-      virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
-      virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+      virtual void endRun(edm::Run const&, edm::EventSetup const&);
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
 @example_track       edm::InputTag trackTags_; //used to select what tracks to read from configuration file
@@ -142,34 +142,34 @@ anlzrname::endJob()
 
 // ------------ method called when starting to processes a run  ------------
 void 
-anlzrname::beginRun(Run const&, EventSetup const&)
+anlzrname::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void 
-anlzrname::endRun(Run const&, EventSetup const&)
+anlzrname::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void 
-anlzrname::beginLuminosityBlock(LuminosityBlock const&, EventSetup const&)
+anlzrname::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void 
-anlzrname::endLuminosityBlock(LuminosityBlock const&, EventSetup const&)
+anlzrname::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-anlzrname::fillDescriptions(ConfigurationDescriptions& descriptions) {
+anlzrname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
-  ParameterSetDescription desc;
+  edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 @example_track

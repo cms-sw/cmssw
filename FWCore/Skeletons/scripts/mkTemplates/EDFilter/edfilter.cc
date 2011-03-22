@@ -39,17 +39,17 @@ class fltrname : public edm::EDFilter {
       explicit fltrname(const edm::ParameterSet&);
       ~fltrname();
 
-      static void fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
       virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
-      virtual bool beginRun(Run&, EventSetup const&);
-      virtual bool endRun(Run&, EventSetup const&);
-      virtual bool beginLuminosityBlock(LuminosityBlock&, EventSetup const&);
-      virtual bool endLuminosityBlock(LuminosityBlock&, EventSetup const&);
+      virtual bool beginRun(edm::Run&, edm::EventSetup const&);
+      virtual bool endRun(edm::Run&, edm::EventSetup const&);
+      virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
 };
@@ -115,38 +115,38 @@ fltrname::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 bool 
-fltrname::beginRun(Run&, EventSetup const&)
+fltrname::beginRun(edm::Run&, edm::EventSetup const&)
 { 
   return true;
 }
 
 // ------------ method called when ending the processing of a run  ------------
 bool 
-fltrname::endRun(Run&, EventSetup const&)
+fltrname::endRun(edm::Run&, edm::EventSetup const&)
 {
   return true;
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 bool 
-fltrname::beginLuminosityBlock(LuminosityBlock&, EventSetup const&)
+fltrname::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
   return true;
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 bool 
-fltrname::endLuminosityBlock(LuminosityBlock&, EventSetup const&)
+fltrname::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
   return true;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-fltrname::fillDescriptions(ConfigurationDescriptions& descriptions) {
+fltrname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
-  ParameterSetDescription desc;
+  edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
