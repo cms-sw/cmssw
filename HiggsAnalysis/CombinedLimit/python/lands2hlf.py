@@ -99,7 +99,11 @@ for l in file:
     if len(numbers) < len(keyline): raise RuntimeError, "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(keyline))
     errline = dict([(b,{}) for b in bins])
     for (b,p,s),r in zip(keyline,numbers):
-        errline[b][p] = float(r) 
+        if "/" in r: # "number/number"
+            if pdf != "lnN": raise RuntimeError, "Asymmetric errors are allowed only for Log-normals"
+            errline[b][p] = [ float(x) for x in r.split("/") ]
+        else:
+            errline[b][p] = float(r) 
     systs.append((lsyst,pdf,args,errline))
 
 if options.stat: 
@@ -172,8 +176,13 @@ for b in bins:
             if pdf == "lnN" and errline[b][p] == 1.0: continue
             iSyst += 1
             if pdf == "lnN":
-                strexpr += " * pow(%f,@%d)" % (errline[b][p], iSyst)
-                strargs += ", theta_%s" % n
+                if type(errline[b][p]) == list:
+                    elow, ehigh = errline[b][p];
+                    strexpr += " * @%d" % iSyst
+                    strargs += ", AsymPow(%f,%f,theta_%s)" % (elow, ehigh, n)
+                else:
+                    strexpr += " * pow(%f,@%d)" % (errline[b][p], iSyst)
+                    strargs += ", theta_%s" % n
             elif pdf == "gmM":
                 strexpr += " * @%d " % iSyst
                 strargs += ", theta_%s" % n
