@@ -2,9 +2,9 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.9 $
- *  $Date: 2009/09/14 16:07:58 $
- *  (last update by $Author: ireid $)
+ *  date       : February 2009 *  $Revision: 1.10 $
+ *  $Date: 2010/09/10 11:36:03 $
+ *  (last update by $Author: mussgill $)
  */
 /*
  *# Parameters:
@@ -144,7 +144,7 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	   { if ((alidet->components().size()<1) || setComposites_) //the problem with glued dets...
 	     { GlobalError globErr;
 	     if (readLocalNotGlobal_)
-	       { AlgebraicSymMatrix as(3,0); 
+	       { AlgebraicSymMatrix33 as; 
 	       if (readFullLocalMatrix_)
 		 { as[0][0]=x11; as[1][0]=x21; as[1][1]=x22;
 		 as[2][0]=x31; as[2][1]=x32; as[2][2]=x33;
@@ -152,12 +152,11 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	       else
 	         { as[0][0]=x11*x11; as[1][1]=x22*x22; as[2][2]=x33*x33;} //local cov.
 	       align::RotationType rt=alidet->globalRotation();
-	       AlgebraicMatrix am(3,3);
+	       AlgebraicMatrix33 am;
 	       am[0][0]=rt.xx(); am[0][1]=rt.xy(); am[0][2]=rt.xz();
 	       am[1][0]=rt.yx(); am[1][1]=rt.yy(); am[1][2]=rt.yz();
 	       am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
-	       as=as.similarityT(am); //symmetric matrix
-	       globErr = GlobalError( as );
+	       globErr = GlobalError(ROOT::Math::SimilarityT(am,as));
 	       }
 	     else
 	       {
