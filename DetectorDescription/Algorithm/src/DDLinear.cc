@@ -7,7 +7,7 @@
 
 DDLinear::DDLinear( void )
 {
-  LogDebug( "DDAlgorithm" ) << "DDLinear info: Creating an instance";
+  LogDebug( "DDAlgorithm" ) << "DDLinear: Creating an instance.";
 }
 
 DDLinear::~DDLinear( void ) 
@@ -25,14 +25,16 @@ DDLinear::initialize( const DDNumericArguments & nArgs,
   m_incrCopyNo  = int(nArgs["IncrCopyNo"]);
   m_theta       = nArgs["Theta"];
   m_phi  	= nArgs["Phi"];
-  m_offset      = nArgs["Offset"];
+  //  m_offset      = nArgs["Offset"];
   m_delta       = nArgs["Delta"];
   m_base        = vArgs["Base"];
 
-  LogDebug( "DDAlgorithm" ) << "DDLinear debug: Parameters for position"
+  LogDebug( "DDAlgorithm" ) << "DDLinear: Parameters for position"
 			    << "ing:: n " << m_n << " Direction Theta, Phi, Offset, Delta " 
 			    << m_theta/CLHEP::deg << " " 
-			    << m_phi/CLHEP::deg << " " << m_offset/CLHEP::deg << " " << m_delta/CLHEP::deg
+			    << m_phi/CLHEP::deg << " "
+    //<< m_offset/CLHEP::deg
+			    << " " << m_delta/CLHEP::deg
 			    << " Base " << m_base[0] 
 			    << ", " << m_base[1] << ", " << m_base[2];
   
@@ -40,7 +42,7 @@ DDLinear::initialize( const DDNumericArguments & nArgs,
   m_childName   = sArgs["ChildName"]; 
   
   DDName parentName = parent().name();
-  LogDebug( "DDAlgorithm" ) << "DDLinear debug: Parent " << parentName 
+  LogDebug( "DDAlgorithm" ) << "DDLinear: Parent " << parentName 
 			    << "\tChild " << m_childName << " NameSpace "
 			    << m_idNameSpace;
 }
@@ -63,9 +65,9 @@ DDLinear::execute( DDCompactView& cpv )
   
   for( int i = 0; i < m_n; ++i )
   {
-    DDTranslation tran = basetr + ( m_offset + double( copy ) * m_delta ) * direction;	      
+    DDTranslation tran = basetr + ( /*m_offset + */ double( copy ) * m_delta ) * direction;	      
     cpv.position( DDName( m_childName, m_idNameSpace ), mother, copy, tran, rotation );
-    LogDebug( "DDAlgorithm" ) << "DDAngular test " << m_childName << " number " 
+    LogDebug( "DDAlgorithm" ) << "DDLinear: " << m_childName << " number " 
 			      << copy << " positioned in " << mother << " at "
 			      << tran << " with " << rotation;
     copy += m_incrCopyNo;

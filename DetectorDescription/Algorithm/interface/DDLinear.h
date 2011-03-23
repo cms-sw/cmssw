@@ -23,10 +23,11 @@ private:
   int           m_startCopyNo;    //Start Copy number
   int           m_incrCopyNo;     //Increment in Copy number
   double        m_theta;          //Theta
-  double        m_phi;            //Phi
-  double        m_offset;         //Offset
-  double        m_delta;          //Delta
-  std::vector<double> m_base;     //Base values
+  double        m_phi;            //Phi dir[Theta,Phi] ... unit-std::vector in direction Theta, Phi
+  //double        m_offset;         //Offset - an offset distance in direction dir(Theta,Phi)
+  double        m_delta;          //Delta - distance between two subsequent positions along dir[Theta,Phi]
+  std::vector<double> m_base;     //Base values - a 3d-point where the offset is calculated from
+                                  //base is optional, if omitted base=(0,0,0)
 
   std::string   m_idNameSpace;    //Namespace of this and ALL sub-parts
   std::string   m_childName;      //Child name

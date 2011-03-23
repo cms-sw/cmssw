@@ -7,7 +7,7 @@
 
 DDAngular::DDAngular( void )
 {
-  LogDebug( "DDAlgorithm" ) << "DDAngular info: Creating an instance";
+  LogDebug( "DDAlgorithm" ) << "DDAngular: Creating an instance.";
 }
 
 DDAngular::~DDAngular( void ) 
@@ -28,8 +28,6 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
   m_radius      = nArgs["Radius"];
   m_center      = vArgs["Center"];
   m_rotateSolid = vArgs["RotateSolid"];
-  m_idNameSpace = DDCurrentNamespace::ns();
-  m_childName   = sArgs["ChildName"]; 
 
   m_solidRot   = DDRotationMatrix();
   
@@ -49,7 +47,7 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
     }
   }  
   
-  LogDebug( "DDAlgorithm" ) << "DDAngular debug: Parameters for position"
+  LogDebug( "DDAlgorithm" ) << "DDAngular: Parameters for position"
 			    << "ing:: n " << m_n << " Start, Range, Delta " 
 			    << m_startAngle/CLHEP::deg << " " 
 			    << m_rangeAngle/CLHEP::deg << " " << m_delta/CLHEP::deg
@@ -78,9 +76,12 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
     m_solidRot = temp * m_solidRot;			  
   }
 
+  m_idNameSpace = DDCurrentNamespace::ns();
+  m_childName   = sArgs["ChildName"]; 
+
   DDName parentName = parent().name();
-  LogDebug( "DDAlgorithm" ) << "DDAngular debug: Parent " << parentName 
-			    << "\tChild " << m_childName << " NameSpace "
+  LogDebug( "DDAlgorithm" ) << "DDAngular: Parent " << parentName 
+			    << "\tChild " << m_childName << "\tNameSpace "
 			    << m_idNameSpace;
 }
 
@@ -104,7 +105,7 @@ DDAngular::execute( DDCompactView& cpv )
     rotation = DDRotation( DDName( rotstr, m_idNameSpace ));
     if( !rotation )
     {
-      LogDebug( "DDAlgorithm" ) << "DDAngular test: Creating a new "
+      LogDebug( "DDAlgorithm" ) << "DDAngular: Creating a new "
 				<< "rotation: " << rotstr << "\t90., " 
 				<< phix / CLHEP::deg << ", 90.," 
 				<< phiy / CLHEP::deg << ", 0, 0";
@@ -119,7 +120,7 @@ DDAngular::execute( DDCompactView& cpv )
     DDTranslation tran( xpos, ypos, zpos );
     
     cpv.position( DDName( m_childName, m_idNameSpace ), mother, copy, tran, rotation );
-    LogDebug( "DDAlgorithm" ) << "DDAngular test " << m_childName << " number " 
+    LogDebug( "DDAlgorithm" ) << "DDAngular: child " << m_childName << " number " 
 			      << copy << " positioned in " << mother << " at "
 			      << tran << " with " << rotation << "\n";
     copy += m_incrCopyNo;
