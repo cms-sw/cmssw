@@ -21,7 +21,8 @@
 
 
 CaloHitRespoNew::CaloHitRespoNew( const CaloVSimParameterMap* parameterMap ,
-				  const CaloVShape*           shape          ) :
+				  const CaloVShape*           shape        ,
+				  DetId                       detId         ) :
    m_parameterMap  ( parameterMap ) ,
    m_shape         ( shape        ) ,
    m_hitCorrection ( 0            ) ,
@@ -32,9 +33,9 @@ CaloHitRespoNew::CaloHitRespoNew( const CaloVSimParameterMap* parameterMap ,
    m_RandGauss     ( 0            ) ,
    m_minBunch      ( -10          ) ,
    m_maxBunch      (  10          ) ,
-   m_phaseShift    ( 1            ) ,
-   m_setup         ( false        )
+   m_phaseShift    ( 1            ) 
 {
+   setupSamples( detId ) ;
 }
 
 CaloHitRespoNew::~CaloHitRespoNew()
@@ -182,7 +183,6 @@ CaloHitRespoNew::setupSamples( const DetId& detId )
       m_vSamp[ i ].setSize( rSize ) ;
       m_vSamp[ i ].setPresamples( nPre ) ;
    }
-   m_setup = true ;
 }
 
 void 
@@ -201,9 +201,6 @@ CaloHitRespoNew::blankOutUsedSamples()  // blank out previously used elements
 void 
 CaloHitRespoNew::run( MixCollection<PCaloHit>& hits ) 
 {
-   if( !m_setup        &&
-       0 < hits.size()    ) setupSamples( hits.begin()->id() ) ;
-
    if( 0 != m_index.size() ) blankOutUsedSamples() ;
 
    for( MixCollection<PCaloHit>::MixItr hitItr ( hits.begin() ) ;

@@ -41,7 +41,8 @@ class CaloHitRespoNew
       enum {BUNCHSPACE=25};
 
       CaloHitRespoNew( const CaloVSimParameterMap* parameterMap ,
-		       const CaloVShape*           shape          ) ;
+		       const CaloVShape*           shape        ,
+		       const DetId                 detId         ) ;
 
       virtual ~CaloHitRespoNew() ;
 
@@ -92,8 +93,6 @@ class CaloHitRespoNew
 
       const CaloSubdetectorGeometry* geometry() const ;
 
-      bool setupFlag() const { return m_setup ; }
-
       int minBunch() const { return m_minBunch ; }
 
       int maxBunch() const { return m_maxBunch ; }
@@ -118,7 +117,6 @@ class CaloHitRespoNew
       int    m_minBunch   ;
       int    m_maxBunch   ;
       double m_phaseShift ;
-      bool   m_setup      ;
 
       VecSam m_vSamp ;
       VecInd m_index ;
