@@ -179,7 +179,8 @@ class SwitchOnTrigger( ConfigToolBase ):
                                      , 'keep patTriggerEvent_%s_*_%s'%( triggerEventProducer, process.name_() )
                                      ]
             if hasattr( trigProdMod, 'addL1Algos' ) and trigProdMod.addL1Algos.value() is True:
-                patTriggerEventContent += [ 'keep patTriggerAlgorithms_%s_*_%s'%( triggerProducer, process.name_() )
+                patTriggerEventContent += [ 'keep patTriggerConditions_%s_*_%s'%( triggerProducer, process.name_() )
+                                          , 'keep patTriggerAlgorithms_%s_*_%s'%( triggerProducer, process.name_() )
                                           ]
             if hasattr( trigProdMod, 'saveL1Refs' ) and trigProdMod.saveL1Refs.value() is True:
                 patTriggerEventContent += patTriggerL1RefsEventContent

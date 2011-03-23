@@ -10,18 +10,18 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #number of Events to be skimmed.
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR_R_38X_V14::All'
+process.GlobalTag.globaltag = 'START3X_V26::All'
 
 #replace fileNames  with the file you want to skim
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_8_7/RelValZTT/GEN-SIM-RECO/START38_V13-v1/0017/AA64EF7B-93FC-DF11-AB92-001A92971BC8.root',
+        '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEFC70B6-F53D-DF11-B57E-003048679150.root',
    )
 )
 
@@ -52,6 +52,8 @@ process.exoticaHSCPSkimPath=cms.Path(process.exoticaHSCPSeq)
 process.exoticaHSCPOutputModule.fileName = cms.untracked.string('EXOHSCP.root')
 
 process.endPath = cms.EndPath(process.exoticaHSCPOutputModule)
+
+
 
 
 

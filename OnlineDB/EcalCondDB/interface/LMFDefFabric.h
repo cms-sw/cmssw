@@ -16,6 +16,7 @@
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPrimVers.h"
 #include "OnlineDB/EcalCondDB/interface/LMFCorrVers.h"
+#include "OnlineDB/EcalCondDB/interface/LMFClsVers.h"
 #include "OnlineDB/EcalCondDB/interface/LMFSeqVers.h"
 #include "OnlineDB/EcalCondDB/interface/LMFUnique.h"
 
@@ -59,6 +60,7 @@ class LMFDefFabric: public IDBObject {
   std::list<LMFRunTag>   _lmfRunTags;
   std::list<LMFPrimVers> _lmfPrimVersions;  
   std::list<LMFSeqVers>  _lmfSeqVersions;  
+  std::list<LMFClsVers>  _lmfClsVersions;  
   std::list<LMFCorrVers> _lmfCorrVersions;  
 };
 

@@ -148,7 +148,7 @@ public:
 
 
     /// get/set technical trigger bits
-    inline const TechnicalTriggerWord gtTechnicalTriggerWord() const
+    inline const TechnicalTriggerWord & gtTechnicalTriggerWord() const
     {
         return m_gtTechnicalTriggerWord;
     }
@@ -170,7 +170,7 @@ public:
 
 
     /// get/set/print algorithms bits (decision word)
-    inline const DecisionWord gtDecisionWord() const
+    inline const DecisionWord & gtDecisionWord() const
     {
         return m_gtDecisionWord;
     }
@@ -202,7 +202,7 @@ public:
 
 
     /// get/set extended algorithms bits (extended decision word)
-    inline const DecisionWordExtended gtDecisionWordExtended() const
+    inline const DecisionWordExtended & gtDecisionWordExtended() const
     {
         return m_gtDecisionWordExtended;
     }

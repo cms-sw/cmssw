@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2010/12/06 14:44:18 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/03/02 07:28:58 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -32,17 +32,28 @@ class HLTrigReport : public edm::EDAnalyzer {
       explicit HLTrigReport(const edm::ParameterSet&);
       ~HLTrigReport();
 
-      virtual void beginRun(edm::Run const &, edm::EventSetup const&);
-
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
+
+      virtual void beginRun(edm::Run const &, edm::EventSetup const&);
+      virtual void endRun(edm::Run const &, edm::EventSetup const&);
+
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-   private:
-      void dumpReport(std::string const & header = std::string());
       void reset(bool changed = false);     // reset all counters
+
+      // names and event counts
+      const std::vector<std::string>& streamNames() const;
+      const std::vector<std::string>& datasetNames() const;
+      const std::vector<unsigned int>& streamCounts() const;
+      const std::vector<unsigned int>& datasetCounts() const;
+
+   private:
+
+      void dumpReport(std::string const & header = std::string());
 
       edm::InputTag hlTriggerResults_;      // Input tag for TriggerResults
       bool          configured_;            // is HLTConfigProvider configured ?
@@ -65,11 +76,13 @@ class HLTrigReport : public edm::EDAnalyzer {
 
       std::vector<std::vector<unsigned int> > hlIndex_;        // hlIndex_[ds][p] stores the hlNames_ index of the p-th path of the ds-th dataset 
       std::vector<std::vector<unsigned int> > hlAccTotDS_;     // hlAccTotDS_[ds][p] stores the # of accepted events by the 0-th to p-th paths in the ds-th dataset 
+      std::vector<unsigned int>               hlAllTotDS_;     // hlAllTotDS_[ds] stores the # of accepted events in the ds-th dataset
       std::vector<std::string> datasetNames_;                  // list of dataset names
       std::vector<std::vector<std::string> > datasetContents_; // list of path names for each dataset
       bool isCustomDatasets_;                                  // true if the user overwrote the dataset definitions of the provenance with the CustomDatasets parameter
       std::vector<std::vector<unsigned int> > dsIndex_;        // dsIndex_[s][ds] stores the datasetNames_ index of the ds-th dataset of the s-th stream 
       std::vector<std::vector<unsigned int> > dsAccTotS_;      // dsAccTotS_[s][ds] stores the # of accepted events by the 0-th to ds-th dataset in the s-th stream 
+      std::vector<unsigned int>               dsAllTotS_;      // dsAllTotS_[s] stores the # of accepted events in the s-th stream
       std::vector<std::string> streamNames_;                   // list of stream names
       std::vector<std::vector<std::string> > streamContents_;  // list of dataset names for each stream
       bool isCustomStreams_;                                   // true if the user overwrote the stream definitions of the provenance with the CustomSterams parameter

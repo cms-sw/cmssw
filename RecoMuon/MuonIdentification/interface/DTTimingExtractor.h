@@ -9,7 +9,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.h,v 1.5 2010/12/15 11:07:40 ptraczyk Exp $
+// $Id: DTTimingExtractor.h,v 1.4 2010/07/01 08:48:11 ptraczyk Exp $
 //
 //
 
@@ -85,7 +85,6 @@ private:
   double theTimeOffset_;
   bool useSegmentT0_;
   bool doWireCorr_;
-  bool dropTheta_;
   bool requireBothProjections_;
   bool debug;
   

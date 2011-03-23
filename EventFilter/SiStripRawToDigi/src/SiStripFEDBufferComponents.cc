@@ -694,7 +694,7 @@ namespace sistrip {
     case BUFFER_FORMAT_OLD_SLINK:
       specialHeader_[BUFFERFORMAT] = BUFFER_FORMAT_CODE_OLD;
       break;
-    case BUFFER_FORMAT_CODE_OLD:
+    case BUFFER_FORMAT_NEW:
       specialHeader_[BUFFERFORMAT] = BUFFER_FORMAT_CODE_NEW;
       break;
     default:

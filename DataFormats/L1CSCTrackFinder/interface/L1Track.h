@@ -84,8 +84,7 @@ namespace csc{
 	  // Accessors for some technical information:
 	  unsigned deltaPhi12(void) const { return  m_ptAddress&0xFF;     }
 	  unsigned deltaPhi23(void) const { return (m_ptAddress>>8)&0xF;  }
-	  unsigned addressEta(void) const { return (m_ptAddress>>12)&0xF; }
-	  unsigned mode      (void) const { return (m_ptAddress>>16)&0xF; }
+	  unsigned mode      (void) const { return (m_ptAddress>>12)&0xF; }
 	  bool     sign      (void) const { return (m_ptAddress>>20)&0x1; }
 	  bool     synch_err (void) const { return  m_se;  }
 	  bool     bx0       (void) const { return  m_bx0; }

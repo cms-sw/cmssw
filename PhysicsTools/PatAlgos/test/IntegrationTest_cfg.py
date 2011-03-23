@@ -8,14 +8,14 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 #  taylor your PAT configuration; for a few examples
 #  uncomment the lines below
 ## ------------------------------------------------------
-#from PhysicsTools.PatAlgos.tools.coreTools import *
+from PhysicsTools.PatAlgos.tools.coreTools import *
 
 ## remove MC matching from the default sequence
 # removeMCMatching(process, ['Muons'])
 
 ## remove certain objects from the default sequence
 # removeAllPATObjectsBut(process, ['Muons'])
-# removeSpecificPATObjects(process, ['Electrons', 'Muons', 'Taus'])
+removeSpecificPATObjects(process, ['Taus'])
 
 
 

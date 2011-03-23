@@ -859,7 +859,6 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
       {
 	pthread_mutex_lock(&stop_lock_);
 	fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
-	pthread_mutex_unlock(&stop_lock_);
 	try{
 	  LOG4CPLUS_DEBUG(getApplicationLogger(),
 			  "Trying to create message service presence ");
@@ -878,6 +877,7 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
 	stopClassic(); // call the normal sequence of stopping - as this is allowed to fail provisions must be made ...@@@EM
 	MsgBuf msg1(0,MSQS_MESSAGE_TYPE_STOP);
 	myProcess_->postSlave(msg1,false);
+	pthread_mutex_unlock(&stop_lock_);
 	fclose(stdout);
 	fclose(stderr);
 	exit(EXIT_SUCCESS);
@@ -946,6 +946,10 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		    {
 		      myProcess_=&subs_[i];
 		      scalersUpdates_ = 0;
+		      int retval = pthread_mutex_destroy(&stop_lock_);
+		      if(retval != 0) perror("error");
+		      retval = pthread_mutex_init(&stop_lock_,0);
+		      if(retval != 0) perror("error");
 		      try{
 			pt::PeerTransport * ptr =
 			  pt::getPeerTransportAgent()->getPeerTransport("http","soap",pt::Receiver);
@@ -1236,9 +1240,10 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
     evtProcessor_.fireScalersUpdate();
   }
   else{
-    LOG4CPLUS_WARN(getApplicationLogger(),"Summarize loop: no process updated successfully ");          
+    LOG4CPLUS_WARN(getApplicationLogger(),"Summarize loop: no process updated successfully - sleep 10 seconds before trying again");          
     if(msgCount==0) evtProcessor_.withdrawLumiSectionIncrement();
     nbSubProcessesReporting_.value_ = 0;
+    ::sleep(10);
   }
   if(fsm_.stateName()->toString()!="Enabled"){
     wlScalersActive_ = false;
@@ -1308,10 +1313,16 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	    if(retval != 0) perror("error");
 	    //	    std::cout << getpid() << " stop lock acquired" << std::endl;
 	    bool running = fsm_.stateName()->toString()=="Enabled";
-	    if(!running) pthread_mutex_unlock(&stop_lock_);
-	    else if(data->Ms == edm::event_processor::sStopping || data->Ms == edm::event_processor::sError) 
-	      {::sleep(5); exit(-1); /* no need to unlock mutex after exit :-)*/}
 	    pthread_mutex_unlock(&stop_lock_);
+	    if(data->Ms == edm::event_processor::sStopping || data->Ms == edm::event_processor::sError) 
+	      {    
+		::usleep(10000); 
+		//check the state again in case stop signal has arrived 
+		pthread_mutex_lock(&stop_lock_);
+		running = fsm_.stateName()->toString()=="Enabled";
+		pthread_mutex_unlock(&stop_lock_);
+		if(running){::sleep(5); exit(-1);}
+	      }
 	    
 	  }
 	  //	  scalersUpdates_++;
@@ -1551,7 +1562,6 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
     {
       pthread_mutex_lock(&stop_lock_);
       if(subs_[i].alive()>0)subs_[i].post(msg,false);
-
       if(subs_[i].alive()<=0) 
 	{
 	  pthread_mutex_unlock(&stop_lock_);
@@ -1763,7 +1773,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.114 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.115.2.1 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

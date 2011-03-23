@@ -15,7 +15,7 @@ class IDBObject {
   // give the interface class permission to use the functions
   friend class EcalCondDBInterface;
 
-  static int const ECALDB_NROWS=1024;
+  static int const ECALDB_NROWS=1000;
   
   virtual ~IDBObject() {}
 
@@ -26,12 +26,8 @@ class IDBObject {
       m_conn = conn;
     }
 
-  inline oracle::occi::Environment * getEnv() const {
-    return m_env;
-  }
-  inline oracle::occi::Connection * getConn() const {
-    return m_conn;
-  }
+  
+
 
  protected:
   // Database connection to use

@@ -6,7 +6,32 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 from Configuration.PyReleaseValidation.autoCond import autoCond
 
 import os
+import socket
 from subprocess import *
+
+
+## ------------------------------------------------------
+## Deal with backweard incompatibilities of conditions
+## ------------------------------------------------------
+
+def run41xOn3yzMcInput( process
+                      , l1MenuTag    = 'L1GtTriggerMenu_L1Menu_Commissioning2010_v4_mc' # L1 menu for Fall10 REDIGI (CMSSW_3_8_7)
+                      ):
+  """
+  """
+  # Use correct L1 trigger menu
+  import CondCore.DBCommon.CondDBCommon_cfi
+  process.l1GtTriggerMenu = cms.ESSource( "PoolDBESSource"
+  , CondCore.DBCommon.CondDBCommon_cfi.CondDBCommon
+  , toGet   = cms.VPSet(
+      cms.PSet(
+        connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_L1T' )
+      , record  = cms.string( 'L1GtTriggerMenuRcd' )
+      , tag     = cms.string( l1MenuTag )
+      )
+    )
+  )
+  process.preferL1GtTriggerMenu = cms.ESPrefer( "PoolDBESSource", "l1GtTriggerMenu" )
 
 
 ## ------------------------------------------------------
@@ -742,15 +767,18 @@ class PickRelValInputFiles( ConfigToolBase ):
     PickRelValInputFiles( cmsswVersion, relVal, dataTier, condition, globalTag, maxVersions, skipFiles, numberOfFiles, debug )
     - cmsswVersion : CMSSW release to pick up the RelVal files from
                      optional; default: the current release (determined automatically from environment)
-    . relVal       : RelVal sample to be used
+    - relVal       : RelVal sample to be used
                      optional; default: 'RelValTTbar'
     - dataTier     : data tier to be used
                      optional; default: 'GEN-SIM-RECO'
     - condition    : identifier of GlobalTag as defined in Configurations/PyReleaseValidation/python/autoCond.py
                      possibly overwritten by 'globalTag'
                      optional; default: 'startup'
-    - globalTag    : name of GlobalTag to be used
+    - globalTag    : name of GlobalTag as it is used in the data path of the RelVals
                      optional; default: determined automatically as defined by 'condition' in Configurations/PyReleaseValidation/python/autoCond.py
+      !!!            Determination is done for the release one runs in, not for the release the RelVals have been produced in.
+      !!!            Example of deviation: data RelVals (CMSSW_4_1_X) might not only have the pure name of the GlobalTag 'GR_R_311_V2' in the full path,
+                     but also an extension identifying the data: 'GR_R_311_V2_RelVal_wzMu2010B'
     - maxVersions  : max. versioning number of RelVal to check
                      optional; default: 9
     - skipFiles    : number of files to skip for a found RelVal sample
@@ -760,6 +788,8 @@ class PickRelValInputFiles( ConfigToolBase ):
                      optional; default: 1
     - debug        : switch to enable enhanced messages in 'stdout'
                      optional; default: False
+    - command      : command to use
+                     optiona; default: nsls
     """
 
     _label             = 'pickRelValInputFiles'
@@ -842,10 +872,27 @@ class PickRelValInputFiles( ConfigToolBase ):
                else:
                    print
 
-        command      = 'nsls'
+        command   = ''
+        storage   = ''
+        filePaths = []
+        domain    = socket.getfqdn().split( '.' )
+        if domain[ -2 ] == 'cern' and domain[ -1 ] == 'ch':
+            command = 'nsls'
+            storage = '/castor/cern.ch/cms'
+        elif domain[ -2 ] == 'fnal' and domain[ -1 ] == 'gov':
+            command = 'ls'
+            storage = '/pnfs/cms/WAX/11'
+        else:
+            print 'ERROR %s'%( self._label )
+            print '    Running on site \'%s.%s\' without access to RelVal files'%( domain[ -2 ], domain[ -1 ] )
+            print '    Aborting...'
+            return filePaths
+        if debug:
+            print 'DEBUG %s: Running on site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
+            print '    using command   \'%s\''%( command )
+            print '    on storage path %s'%( storage )
         rfdirPath    = '/store/relval/%s/%s/%s/%s-v'%( cmsswVersion, relVal, dataTier, globalTag )
-        argument     = '/castor/cern.ch/cms%s'%( rfdirPath )
-        filePaths    = []
+        argument     = '%s%s'%( storage, rfdirPath )
         validVersion = 0
 
         for version in range( maxVersions, 0, -1 ):
@@ -878,13 +925,13 @@ class PickRelValInputFiles( ConfigToolBase ):
               break
 
         if validVersion == 0:
-            print 'ERROR pickRelValInputFiles()'
+            print 'ERROR %s'%( self._label )
             print '    No RelVal file(s) found at all in \'%s*\''%( argument )
         elif len( filePaths ) == 0:
-            print 'ERROR pickRelValInputFiles()'
+            print 'ERROR %s'%( self._label )
             print '    No RelVal file(s) picked up in \'%s%i\''%( argument, validVersion )
         elif len( filePaths ) < numberOfFiles:
-            print 'WARNING pickRelValInputFiles()'
+            print 'WARNING %s'%( self._label )
             print '    Only %i RelVal files picked up in \'%s%i\''%( len( filePaths ), argument, validVersion )
 
         if debug:

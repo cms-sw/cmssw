@@ -224,7 +224,6 @@ CREATE TABLE ECAL_DCC_CONFIGURATION (
 	, N_TESTPATTERNS_TO_LOAD NUMBER
         , SM_HALF NUMBER
     	, dcc_CONFIGURATION CLOB
-        , weightsmode varchar2(10) default 'CLOB' NOT NULL
 );
 ALTER TABLE ECAL_DCC_CONFIGURATION ADD CONSTRAINT ecal_dcc_config_pk PRIMARY KEY (dcc_configuration_id);
 

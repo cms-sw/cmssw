@@ -3,73 +3,60 @@
 
 /*
  Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
+ */
 
- This class represents a block of data from LMF_CORR_COEF_DAT
+#include <vector>
 
-*/
+#include "OnlineDB/EcalCondDB/interface/LMFDat.h"
+#include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
+#include "OnlineDB/EcalCondDB/interface/LMFLmrSubIOV.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
-#include <map>
-
-#include "OnlineDB/EcalCondDB/interface/LMFCorrCoefDatComponent.h"
-#include "OnlineDB/EcalCondDB/interface/LMFSextuple.h"
-
-class LMFCorrCoefDat {
+class LMFCorrCoefDat: public LMFDat {
  public:
+  friend class EcalCondDBInterface;
+
   LMFCorrCoefDat();
   LMFCorrCoefDat(EcalDBConnection *c);
   LMFCorrCoefDat(oracle::occi::Environment* env,
 		 oracle::occi::Connection* conn);
-  ~LMFCorrCoefDat();
+  ~LMFCorrCoefDat() {};
 
-  void init();
-  LMFCorrCoefDat& setConnection(oracle::occi::Environment* env,
-				oracle::occi::Connection* conn);
-  LMFCorrCoefDat& setP123(const LMFLmrSubIOV&iov, 
-			  const EcalLogicID &id, float p1, float p2, float p3);
-  LMFCorrCoefDat& setP123(const LMFLmrSubIOV &iov,
-			  const EcalLogicID &id, float p1, float p2, float p3,
+  LMFCorrCoefDat& setLMFLmrSubIOV(const EcalLogicID &id, 
+				  const LMFLmrSubIOV &iov);
+  LMFCorrCoefDat& setLMFLmrSubIOV(const EcalLogicID &id, int iov_id);
+  LMFCorrCoefDat& setSequence(const EcalLogicID &id, const LMFSeqDat &iov);
+  LMFCorrCoefDat& setSequence(const EcalLogicID &id, int seq_id);
+  LMFCorrCoefDat& setP123(const EcalLogicID &id, float p1, float p2, float p3);
+  LMFCorrCoefDat& setP123(const EcalLogicID &id, float p1, float p2, float p3,
 			  float p1e, float p2e, float p3e);
-  LMFCorrCoefDat& setP123Errors(const LMFLmrSubIOV &iov,
-				const EcalLogicID &id, float p1e, float p2e,
+  LMFCorrCoefDat& setP123Errors(const EcalLogicID &id, float p1e, float p2e, 
 				float p3e);
-  LMFCorrCoefDat& setFlag(const LMFLmrSubIOV &iov,
-			  const EcalLogicID &id, int flag);
-  LMFCorrCoefDat& setSequence(const LMFLmrSubIOV &iov,
-			      const EcalLogicID &id, int seq_id);
-  LMFCorrCoefDat& setSequence(const LMFLmrSubIOV &iov,
-			      const EcalLogicID &id, 
-			      const LMFSeqDat &seq);
-  void fetchAfter(const Tm &t);
-  void fetch(std::list<int> subiov_ids);
-  void fetch(int subiov_id);
-  void fetch(const LMFLmrSubIOV &iov); 
+  LMFCorrCoefDat& setFlag(const EcalLogicID &id, int flag);
 
-  std::map<int, std::map<int, LMFSextuple> > getParameters();
-  std::list<std::vector<float> > getParameters(int id);
-  std::list<std::vector<float> > getParameters(const EcalLogicID &id);
-  std::vector<float> getParameters(const LMFLmrSubIOV &iov, 
-				   const EcalLogicID &id);
-  std::vector<float> getParameterErrors(const LMFLmrSubIOV &iov, 
-					const EcalLogicID &id);
-  std::vector<Tm> getTimes(const LMFLmrSubIOV &iov);
-  int getFlag(const LMFLmrSubIOV &iov, const EcalLogicID &id);
-  int getSeqID(const LMFLmrSubIOV &iov, const EcalLogicID &id);
-  LMFSeqDat getSequence(const LMFLmrSubIOV &iov, const EcalLogicID &id);
+  LMFLmrSubIOV        getLMFLmrSubIOV(const EcalLogicID &id);
+  int                 getLMFLmrSubIOVID(const EcalLogicID &id);
+  LMFSeqDat           getSequence(const EcalLogicID &id);
+  int                 getSequenceID(const EcalLogicID &id);
+  std::vector<float>  getParameters(const EcalLogicID &id);
+  std::vector<float>  getParameterErrors(const EcalLogicID &id);
+  int                 getFlag(const EcalLogicID &id);
 
-  int size() const;
-  void dump();
-  void debug();
-  void nodebug();
-  void writeDB();
+  bool isValid();
 
  private:
-  std::map<int, LMFCorrCoefDatComponent *> m_data;
-  std::map<int, LMFLmrSubIOV *>            m_subiov;
-  oracle::occi::Environment* m_env;
-  oracle::occi::Connection* m_conn;
-  bool                      m_debug;
+  void init();
+  /*
+  std::string fetchIdSql(Statement *stmt);
+  std::string setByIDSql(Statement *stmt, int id);
+  std::string writeDBSql(Statement *stmt);
+  void getParameters(ResultSet *rset);
+  void fetchParentIDs() throw(std::runtime_error);
+  std::map<int, LMFCorrCoefDat> fetchByRunIOV(int par, std::string sql,
+					 std::string method) 
+    throw(std::runtime_error);
+  */
 
-  LMFCorrCoefDatComponent * find(const LMFLmrSubIOV &iov);
 };
 
 #endif

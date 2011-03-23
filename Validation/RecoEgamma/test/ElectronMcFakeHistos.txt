@@ -1,11 +1,4 @@
 
-Collections sizes
-
-ElectronMcFakeValidator/h_recEleNum 1 0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_recCoreNum 1 0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_recTrackNum 1 0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_recSeedNum 1 0 1 0 0 0 1 1
-
 Basic electron quantities
 
 ElectronMcFakeValidator/h_ele_charge 1 0 1 0 0 0 1 0
@@ -85,23 +78,13 @@ ElectronMcFakeValidator/h_ele_foundHitsVsEta_pfx 0 0 1 0 0 0 1 1
 
 Electron seeds
 
+ElectronMcFakeValidator/h_ele_seedDphi2 1 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_ele_seedDrz2 1 0 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_seedSubdet2 1 0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_seedMask 1 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_seedMask_Bpix 1 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_seedMask_Fpix 1 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_seedMask_Tec 1 0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_seedDphi2 1 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_seedDphi2_VsEta_pfx 0 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_seedDphi2_VsPt_pfx 0 0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_seedDphi2Pos 1 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_seedDphi2Pos_VsEta_pfx 0 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_seedDphi2Pos_VsPt_pfx 0 0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_seedDrz2 1 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_seedDrz2_VsEta_pfx 0 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_seedDrz2_VsPt_pfx 0 0 1 0 0 0 1 1
-ElectronMcFakeValidator/h_ele_seedDrz2Pos 1 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_seedDrz2Pos_VsEta_pfx 0 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_seedDrz2Pos_VsPt_pfx 0 0 1 0 0 0 1 1
+ElectronMcFakeValidator/h_ele_seedDphi2VsEta_pfx 0 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_ele_seedDphi2VsPt_pfx 0 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_ele_seedDrz2VsEta_pfx 0 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_ele_seedDrz2VsPt_pfx 0 0 1 0 0 0 1 1
 
 Brem fraction and related distributions
 
@@ -113,6 +96,10 @@ ElectronMcFakeValidator/h_ele_eta_narrowFrac 0 0 0 1 ElectronMcFakeValidator/h_e
 ElectronMcFakeValidator/h_ele_eta_showerFrac 0 0 0 1 ElectronMcFakeValidator/h_ele_eta_show ElectronMcFakeValidator/h_ele_eta 1 0
 ElectronMcFakeValidator/h_ele_fbremvsEtamean 0 0 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_fbremvsEtamode 0 0 1 0 0 0 1 1
+
+Particle flow mva
+
+ElectronMcFakeValidator/h_ele_mva 1 0 1 0 0 0 1 1
 
 Isolation sums
 
@@ -127,6 +114,7 @@ ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth2	1 1 1 0 0 0 1 1
 
 Distributions for all reconstructed electrons (i.e. not requiring a match with a reco jet)
 
+ElectronMcFakeValidator/h_recEleNum 1 0 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_EoverP_all 1 1 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_EseedOP_all 1 1 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_EoPout_all 1 1 1 0 0 0 1 0
@@ -139,22 +127,6 @@ ElectronMcFakeValidator/h_ele_dPhiCl_propOut_all 1 1 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_HoE_all 1	1 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_mee_all 1	0 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_mee_os 1	0 1 0 0 0 1 1
-
-Provenance and pflow data
-
-ElectronMcFakeValidator/h_ele_provenance 1 0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_mva 1 0 1 0 0 0 1 1
-
-Conversion rejection information
-
-ElectronMcFakeValidator/h_ele_convFlags 1 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_convFlags_all 1 0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_convDist 1 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_convDist_all 1 0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_convDcot 1 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_convDcot_all 1 0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_convRadius 1 0 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_convRadius_all 1 0 1 0 0 0 1 1
 
 Reconstruction efficiency
 

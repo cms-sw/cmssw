@@ -147,25 +147,17 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
     // ALL others, except ZS
     else {
-      //Neither the ecal map nor the emap_* histos are drawn, but emap_HB1 is used in the endJob
-      sprintf  (histo, "emap_HB1" );
-      emap_HB1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+  
+      sprintf  (histo, "emap_depth1" );
+      emap_depth1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "emap_depth2" );
+      emap_depth2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "emap_depth3" );
+      emap_depth3 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "emap_depth4" );
+      emap_depth4 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
       
       if (useAllHistos_){
-	sprintf  (histo, "emap_HB2" );
-	emap_HB2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-	sprintf  (histo, "emap_HE1" );
-	emap_HE1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-	sprintf  (histo, "emap_HE2" );
-	emap_HE2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-	sprintf  (histo, "emap_HE3" );
-	emap_HE3 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-	sprintf  (histo, "emap_HO" );
-	emap_HO = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-	sprintf  (histo, "emap_HF1" );
-	emap_HF1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-	sprintf  (histo, "emap_HF2" );
-	emap_HF2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 	
 	if (ecalselector_ == "yes") {
 	  sprintf  (histo, "map_ecal" );
@@ -701,322 +693,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
 HcalRecHitsValidation::~HcalRecHitsValidation() { }
 
-void HcalRecHitsValidation::endJob() { 
-  //before check that histos are there....
-/*
-  // check if ME still there (and not killed by MEtoEDM for memory saving)
-  if( dbe_ )
-    {
-      // check existence of first histo in the list
-      if (! dbe_->get("HcalRecHitsV/HcalRecHitTask/N_HB")) return;
-    }
-  else
-    return;
-  
-  //======================================
-
-   //None of the ZS stuff necessary for drawn histograms
-   if (hcalselector_ == "ZS" && useAllHistos_) {
-
-    for (unsigned int i1 = 0;  i1 < 82; i1++) {
-      for (unsigned int i2 = 0;  i2 < 72; i2++) {
-
-        int index = (i1-41) * 72 + i2;
-	
-	double e = emap_min[i1][i2][0][0];
-	if( e < 10000.) {
-	  ZS_HB1->Fill(e);
-	  ZS_seqHB1->Fill(double(index),e);
-	}
-	e = emap_min[i1][i2][1][0];
-	if( e < 10000.) {
-	  ZS_HB2->Fill(e);
-	  ZS_seqHB2->Fill(double(index),e);
-	}
-	
-	e = emap_min[i1][i2][0][1];
-	if( e < 10000.) {
-	  ZS_HE1->Fill(e);
-	  ZS_seqHE1->Fill(double(index),e);
-	}
-	e = emap_min[i1][i2][1][1];
-	if( e < 10000.) {
-	  ZS_HE2->Fill(e);
-	  ZS_seqHE2->Fill(double(index),e);
-	}
-	e = emap_min[i1][i2][2][1];
-	if( e < 10000.) {
-	  ZS_HE3->Fill(e);
-	  ZS_seqHE3->Fill(double(index),e);
-	}
-	
-	
-	e = emap_min[i1][i2][3][2];
-	if( e < 10000.) {
-	  ZS_HO->Fill(e);
-	  ZS_seqHO->Fill(double(index),e);
-	}
-	
-	e = emap_min[i1][i2][0][3];
-	if( e < 10000.) {
-	  ZS_HF1->Fill(e);
-	  ZS_seqHF1->Fill(double(index),e);
-	}
-	
-	e = emap_min[i1][i2][1][3];
-	if( e < 10000.) {
-	  ZS_HF2->Fill(e);
-	  ZS_seqHF2->Fill(double(index),e);
-	}
-	
-	for (unsigned int i3 = 0;  i3 < 4;  i3++) {  // depth
-	  double emin = 100000.;
-	  for (unsigned int i4 = 0;  i4 < 4;  i4++) {  // subdet
-*/
-	    /*
-	    std::cout << "* ieta, iphi, depth, sub = " 
-		      << i1 << ", " << i2 << ", " << i3 << ", " << i4
-		      << "  emap_min = " << emap_min [i1][i2][i3][i4]
-		      << std::endl;
-	    */
-/*
-	    if ( emin > emap_min [i1][i2][i3][i4]) 
-	      emin = emap_min [i1][i2][i3][i4];
-	  }
-
-          int ieta = i1-41;
-	  if( i3 == 0 && emin < 10000.) {
-	    map_depth1->Fill(double(ieta),double(i2),emin);
-*/
-	    /*
-	    std::cout << "* Fill map_depth1 " << double(ieta) << " "  
-		      << double(i2) << "  with " << emin <<  std::endl;
-	    */
-/*
-	  }
-	  if( i3 == 1 && emin < 10000.)
-	    map_depth2->Fill(double(ieta),double(i2),emin);
-	  if( i3 == 2 && emin < 10000.) 
-	    map_depth3->Fill(double(ieta),double(i2),emin);
-	  if( i3 == 3 && emin < 10000.) 
-	    map_depth4->Fill(double(ieta),double(i2),emin);
-	}
-      }
-    } 
-  }
-  
-  // mean energies and occupancies evaluation
-   else {
-
-    int nx = emap_HB1->getNbinsX();    
-    int ny = emap_HB1->getNbinsY();
-    float cnorm;
-    float fev = float (nevtot);
-    //    std::cout << "*** nevtot " <<  nevtot << std::endl; 
-
-    float sumphi_hb1, sumphi_hb2, sumphi_he1, sumphi_he2, sumphi_he3,
-      sumphi_ho, sumphi_hf1, sumphi_hf2;
-*/
-    /*
-    if(nx != 82 || ny != 72) 
-            std::cout << "*** problem with binning " << std::endl;
-    */
-/*
-    float phi_factor;  
-
-    for (int i = 1; i <= nx; i++) {
-      sumphi_hb1 = 0.;
-      sumphi_hb2 = 0.;
-      sumphi_he1 = 0.;
-      sumphi_he2 = 0.;
-      sumphi_he3 = 0.;
-      sumphi_ho  = 0.; 
-      sumphi_hf1 = 0.;
-      sumphi_hf2 = 0.;
-      
-      for (int j = 1; j <= ny; j++) {
-	
-	int index = (i-42) * ny + j-1;
-
-	//Occupancies (needed for occ vs ieta histos)
-	cnorm = occupancy_map_HB1->getBinContent(i,j) / fev;   
-	occupancy_map_HB1->setBinContent(i,j,cnorm);
-	
-	cnorm = occupancy_map_HB2->getBinContent(i,j) / fev;   
-	occupancy_map_HB2->setBinContent(i,j,cnorm);
-	
-	cnorm = occupancy_map_HE1->getBinContent(i,j) / fev;   
-	occupancy_map_HE1->setBinContent(i,j,cnorm);
-	
-	cnorm = occupancy_map_HE2->getBinContent(i,j) / fev;   
-	occupancy_map_HE2->setBinContent(i,j,cnorm);
-	
-	cnorm = occupancy_map_HE3->getBinContent(i,j) / fev;   
-	occupancy_map_HE3->setBinContent(i,j,cnorm);
-	
-	cnorm = occupancy_map_HO->getBinContent(i,j) / fev;   
-	occupancy_map_HO->setBinContent(i,j,cnorm);
-	
-	cnorm = occupancy_map_HF1->getBinContent(i,j) / fev;   
-	occupancy_map_HF1->setBinContent(i,j,cnorm);
-	
-	cnorm = occupancy_map_HF2->getBinContent(i,j) / fev;   
-	occupancy_map_HF2->setBinContent(i,j,cnorm);
-
-	sumphi_hb1 += occupancy_map_HB1->getBinContent(i,j);
-	sumphi_hb2 += occupancy_map_HB2->getBinContent(i,j);
-	sumphi_he1 += occupancy_map_HE1->getBinContent(i,j);
-	sumphi_he2 += occupancy_map_HE2->getBinContent(i,j);
-	sumphi_he3 += occupancy_map_HE3->getBinContent(i,j);
-	sumphi_ho  += occupancy_map_HO->getBinContent(i,j);
-	sumphi_hf1 += occupancy_map_HF1->getBinContent(i,j);
-	sumphi_hf2 += occupancy_map_HF2->getBinContent(i,j);
-	
-	// Emean (only emap_HB1 is used)
-	cnorm = emap_HB1->getBinContent(i,j) / fev;
-        emap_HB1->setBinContent(i,j,cnorm);
-	if (useAllHistos_){
-	  cnorm = emap_HB2->getBinContent(i,j) / fev; 
-	  emap_HB2->setBinContent(i,j,cnorm);
-	  cnorm = emap_HE1->getBinContent(i,j) / fev;
-	  emap_HE1->setBinContent(i,j,cnorm);
-	  cnorm = emap_HE2->getBinContent(i,j) / fev;
-	  emap_HE2->setBinContent(i,j,cnorm);
-	  cnorm = emap_HE3->getBinContent(i,j) / fev;
-	  emap_HE3->setBinContent(i,j,cnorm);
-	  cnorm = emap_HO->getBinContent(i,j) / fev;
-	  emap_HO->setBinContent(i,j,cnorm);
-	  cnorm = emap_HF1->getBinContent(i,j) / fev;
-	  emap_HF1->setBinContent(i,j,cnorm);
-	  cnorm = emap_HF2->getBinContent(i,j) / fev;
-	  emap_HF2->setBinContent(i,j,cnorm);
-
-	  occupancy_seqHB1->Fill(double(index),cnorm);
-	  occupancy_seqHB2->Fill(double(index),cnorm);
-	  occupancy_seqHE1->Fill(double(index),cnorm);
-	  occupancy_seqHE2->Fill(double(index),cnorm);
-	  occupancy_seqHE3->Fill(double(index),cnorm);
-	  occupancy_seqHO->Fill(double(index),cnorm);
-	  occupancy_seqHF1->Fill(double(index),cnorm);
-	  occupancy_seqHF2->Fill(double(index),cnorm); 
-	}
-      }
-
-      int ieta = i - 42;        // -41 -1, 0 40 
-      if(ieta >=0 ) ieta +=1;   // -41 -1, 1 41  - to make it detector-like
-
-      if(ieta >= -20 && ieta <= 20 )
-	{phi_factor = 72.;}
-      else {
-	if(ieta >= 40 || ieta <= -40 ) {phi_factor = 18.;}
-        else 
-	  phi_factor = 36.;
-      }  
-      if(ieta >= 0) ieta -= 1; // -41 -1, 0 40  - to bring back to histo num
-*/	       
-      /*
-      std::cout << "*** ieta = " << ieta << "  sumphi_hb1, sumphi_hb2, sumphi_he1, sumphi_he2, simphi_he3, sumphi_ho, simphi_hf1, sumphi_hf2" << std::endl 
-		<< sumphi_hb1 << " " << sumphi_hb2 << " " << sumphi_he1 << " "
-		<< sumphi_he2 << " " << simphi_he3 << " " << sumphi_ho  << " " 
-		<< simphi_hf1 << " " << sumphi_hf2 << std::endl << std::endl;
-      */
-/*
-      //Occupancy vs. ieta histos are drawn, RMS is not
-      cnorm = sumphi_hb1 / phi_factor;
-      occupancy_vs_ieta_HB1->Fill(float(ieta), cnorm);
-      cnorm = sumphi_hb2 / phi_factor;
-      occupancy_vs_ieta_HB2->Fill(float(ieta), cnorm);
-      cnorm = sumphi_he1 / phi_factor;
-      occupancy_vs_ieta_HE1->Fill(float(ieta), cnorm);
-      cnorm = sumphi_he2 / phi_factor;
-      occupancy_vs_ieta_HE2->Fill(float(ieta), cnorm);
-      cnorm = sumphi_he3 / phi_factor;
-      occupancy_vs_ieta_HE3->Fill(float(ieta), cnorm);
-      cnorm = sumphi_ho / phi_factor;
-      occupancy_vs_ieta_HO->Fill(float(ieta), cnorm);
-      cnorm = sumphi_hf1 / phi_factor;
-      occupancy_vs_ieta_HF1->Fill(float(ieta), cnorm);
-      cnorm = sumphi_hf2 / phi_factor;
-      occupancy_vs_ieta_HF2->Fill(float(ieta), cnorm);
-      
-      if (useAllHistos_){
-	// RMS vs ieta (Emean's one)
-	cnorm = emean_vs_ieta_HB1->getBinError(i);
-	RMS_vs_ieta_HB1->Fill(ieta,cnorm);
-	cnorm = emean_vs_ieta_HB2->getBinError(i);
-	RMS_vs_ieta_HB2->Fill(ieta,cnorm);
-	cnorm = emean_vs_ieta_HE1->getBinError(i);
-	RMS_vs_ieta_HE1->Fill(ieta,cnorm);
-	cnorm = emean_vs_ieta_HE2->getBinError(i);
-	RMS_vs_ieta_HE2->Fill(ieta,cnorm);
-	cnorm = emean_vs_ieta_HE1->getBinError(i);
-	RMS_vs_ieta_HE3->Fill(ieta,cnorm);
-	cnorm = emean_vs_ieta_HB1->getBinError(i);
-	RMS_vs_ieta_HO->Fill(ieta,cnorm);
-	cnorm = emean_vs_ieta_HB1->getBinError(i);
-	RMS_vs_ieta_HF1->Fill(ieta,cnorm);
-	cnorm = emean_vs_ieta_HB1->getBinError(i);
-	RMS_vs_ieta_HF2->Fill(ieta,cnorm);
-      }
-    }  // end of i-loop
-
-    
-    // RMS seq (not drawn)
-    if(useAllHistos_){
-      nx = emean_seqHB1->getNbinsX();    
-      for(int ibin = 1; ibin <= nx; ibin++ ){
-	cnorm = emean_seqHB1->getBinError(ibin);
-	RMS_seq_HB1->setBinContent(ibin, cnorm);
-	cnorm = emean_seqHB2->getBinError(ibin);
-	RMS_seq_HB2->setBinContent(ibin, cnorm);
-	cnorm = emean_seqHO->getBinError(ibin);
-	RMS_seq_HO->setBinContent(ibin, cnorm);
-      }
-      nx = emean_seqHE1->getNbinsX();    
-      for(int ibin = 1; ibin <= nx; ibin++ ){
-	cnorm = emean_seqHE1->getBinError(ibin);
-	RMS_seq_HE1->setBinContent(ibin, cnorm);
-	cnorm = emean_seqHE2->getBinError(ibin);
-	RMS_seq_HE2->setBinContent(ibin, cnorm);
-	cnorm = emean_seqHE3->getBinError(ibin);
-	RMS_seq_HE3->setBinContent(ibin, cnorm);
-      }
-      nx = emean_seqHF1->getNbinsX();    
-      for(int ibin = 1; ibin <= nx; ibin++ ){
-	cnorm = emean_seqHF1->getBinError(ibin);
-	RMS_seq_HF1->setBinContent(ibin, cnorm);
-	cnorm = emean_seqHF2->getBinError(ibin);
-	RMS_seq_HF2->setBinContent(ibin, cnorm);
-      }
-    }
-    //Status Word (drawn)
-    nx = RecHit_StatusWord_HB->getNbinsX();    
-    for (int ibin = 1;  ibin <= nx; ibin++) {
-      cnorm = RecHit_StatusWord_HB->getBinContent(ibin) / (fev * 2592.);
-      RecHit_StatusWord_HB->setBinContent(ibin,cnorm);
-      
-      cnorm = RecHit_StatusWord_HE->getBinContent(ibin) / (fev * 2592.);
-      RecHit_StatusWord_HE->setBinContent(ibin,cnorm);
-      
-      cnorm = RecHit_StatusWord_HO->getBinContent(ibin) / (fev * 2160.);
-      RecHit_StatusWord_HO->setBinContent(ibin,cnorm);
-      
-      cnorm = RecHit_StatusWord_HF->getBinContent(ibin) / (fev * 1728.);
-      RecHit_StatusWord_HF->setBinContent(ibin,cnorm);
-    }
-    //HF 2-bit status word (not drawn)
-    if(useAllHistos_){
-      nx = RecHit_StatusWord_HF67->getNbinsX();    
-      for (int ibin = 1;  ibin <= nx; ibin++) {
-	cnorm = RecHit_StatusWord_HF67->getBinContent(ibin) / (fev * 1728.);
-	RecHit_StatusWord_HF67->setBinContent(ibin,cnorm);
-      }
-    }
-   }
-   
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-*/
-}
+void HcalRecHitsValidation::endJob() { }
 
 
 void HcalRecHitsValidation::beginJob(){ }
@@ -1290,13 +967,17 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     if( subdet_ != 6) {  
 
       //      std::cout << "*** 4-1" << std::endl; 
-      //The emean_vs_ieta histos are drawn and the occupancy_map
-      //ones are needed for occupancy_vs_ieta
-      //The rest are unnecessary except emap_HB1 used in the endJob
+      //The emean_vs_ieta histos are drawn as well as the e_maps
+
+
+      if( depth == 1) emap_depth1->Fill(double(ieta), double(iphi), en);
+      if( depth == 2) emap_depth2->Fill(double(ieta), double(iphi), en);
+      if( depth == 3) emap_depth3->Fill(double(ieta), double(iphi), en);
+      if( depth == 4) emap_depth4->Fill(double(ieta), double(iphi), en);
+      
       if (depth == 1 && sub == 1 ) {
 	emean_vs_ieta_HB1->Fill(double(ieta), en);
 	occupancy_map_HB1->Fill(double(ieta), double(iphi));          
-	emap_HB1->Fill(double(ieta), double(iphi), en);
 	if(useAllHistos_){
 	  emean_seqHB1->Fill(double(index), en);
 	}
@@ -1305,7 +986,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	emean_vs_ieta_HB2->Fill(double(ieta), en);
 	occupancy_map_HB2->Fill(double(ieta), double(iphi));          
 	if(useAllHistos_){
-	  emap_HB2->Fill(double(ieta), double(iphi), en);
 	  emean_seqHB2->Fill(double(index), en);
 	}
       }
@@ -1313,7 +993,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	emean_vs_ieta_HE1->Fill(double(ieta), en);
 	occupancy_map_HE1->Fill(double(ieta), double(iphi));   
 	if(useAllHistos_){
-	  emap_HE1->Fill(double(ieta), double(iphi), en);
 	  emean_seqHE1->Fill(double(index), en);
 	}
       }
@@ -1321,7 +1000,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	emean_vs_ieta_HE2->Fill(double(ieta), en);
 	occupancy_map_HE2->Fill(double(ieta), double(iphi));          
 	if(useAllHistos_){
-	  emap_HE2->Fill(double(ieta), double(iphi), en);
 	  emean_seqHE2->Fill(double(index), en);
 	}
       }
@@ -1329,7 +1007,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	emean_vs_ieta_HE3->Fill(double(ieta), en);
 	occupancy_map_HE3->Fill(double(ieta), double(iphi));          
 	if(useAllHistos_){
-	  emap_HE3->Fill(double(ieta), double(iphi), en);
 	  emean_seqHE3->Fill(double(index), en);
 	}
       }
@@ -1337,7 +1014,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	emean_vs_ieta_HO->Fill(double(ieta), en);
 	occupancy_map_HO->Fill(double(ieta), double(iphi));          
 	if(useAllHistos_){
-	  emap_HO->Fill(double(ieta), double(iphi), en);
 	  emean_seqHO->Fill(double(index), en);
 	}
       }
@@ -1345,7 +1021,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	emean_vs_ieta_HF1->Fill(double(ieta), en);
 	occupancy_map_HF1->Fill(double(ieta), double(iphi));          
 	if(useAllHistos_){
-	  emap_HF1->Fill(double(ieta), double(iphi), en);
 	  emean_seqHF1->Fill(double(index), en);
 	}
       }
@@ -1353,7 +1028,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	emean_vs_ieta_HF2->Fill(double(ieta), en);
 	occupancy_map_HF2->Fill(double(ieta), double(iphi));          
 	if(useAllHistos_){
-	  emap_HF2->Fill(double(ieta), double(iphi), en);
 	  emean_seqHF2->Fill(double(index), en);
 	}
       }
