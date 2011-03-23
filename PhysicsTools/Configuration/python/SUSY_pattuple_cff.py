@@ -99,7 +99,7 @@ def loadPAT(process,jetMetCorrections,extMatch):
     simpleEleId80cIso= cms.InputTag("simpleEleId80cIso"),
     simpleEleId70cIso= cms.InputTag("simpleEleId70cIso"),
     simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"))
-    process.makePatElectrons.replace(process.patElectrons,process.simpleEleIdSequence+process.patElectrons)
+    process.patDefaultSequence.replace(process.patElectrons,process.simpleEleIdSequence+process.patElectrons)
     
     #-- Tuning of Monte Carlo matching --------------------------------------------
     # Also match with leptons of opposite charge
