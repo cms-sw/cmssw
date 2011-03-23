@@ -88,7 +88,7 @@ Combine::Combine() :
       ;
     miscOptions_.add_options()
       ("compile", "Compile expressions instead of interpreting them")
-      ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on if 'compile' is activated)")
+      ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")
       ; 
 }
 
@@ -142,7 +142,7 @@ bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit, double &
 
 void Combine::run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys) {
   TString tmpDir = "", pwd(gSystem->pwd());
-  if (makeTempDir_) {
+  if (makeTempDir_ || !(hlfFile.EndsWith(".hlf") || hlfFile.EndsWith(".root"))) {
       tmpDir = "roostats-XXXXXX"; 
       mkdtemp(const_cast<char *>(tmpDir.Data()));
       gSystem->cd(tmpDir.Data());
