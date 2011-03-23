@@ -16,7 +16,8 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
 			      const CaloVShape*           apdShape = 0   ) :
 
    CaloHitResponse( parameterMap,
-		    shape         ),
+		    shape       ,
+		    EBDetId( 1, 1 ) ),
 
    m_apdOnly  ( apdOnly  ) ,
    m_apdPars  ( apdPars  ) ,
@@ -162,8 +163,6 @@ EBHitResponse::findIntercalibConstant( const DetId& detId,
 void 
 EBHitResponse::run( MixCollection<PCaloHit>& hits ) 
 {
-   if( !setupFlag() ) setupSamples( EBDetId(1,1) ) ;
-
    if( 0 != index().size() ) blankOutUsedSamples() ;
 
    const unsigned int bSize ( EBDetId::kSizeForDenseIndexing ) ;

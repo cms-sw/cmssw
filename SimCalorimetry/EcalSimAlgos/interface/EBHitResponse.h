@@ -49,9 +49,10 @@ class EBHitResponse : public CaloHitRespoNew
       const double nonlFunc( double enr ) const {
 	 return ( pelo > enr ? pext :
 		  ( pehi > enr ? nonlFunc1( enr ) : 
-		    pfac*atan( enr - pehi ) + poff ) ) ; }
+		    pfac*atan( log10( enr - pehi + 0.00001 ) ) + poff ) ) ; }
 
-      const double nonlFunc1( double enr ) const {
+      const double nonlFunc1( double energy ) const {
+	 const double enr ( log10(energy) ) ;
 	 const double enr2 ( enr*enr ) ;
 	 const double enr3 ( enr2*enr ) ;
 	 return ( pcub*enr3 + pqua*enr2 + plin*enr + pcon ) ; }
