@@ -14,7 +14,7 @@ generator = cms.EDProducer("FlatRandomPtGunProducer",
     ),
     Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
 
-    psethack = cms.string('Four Pi0 pt 1 to 50'),
+    psethack = cms.string('Four Pion pt 1 to 50'),
     AddAntiParticle = cms.bool(True),
     firstRun = cms.untracked.uint32(1)
 )
