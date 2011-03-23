@@ -18,6 +18,8 @@ if __name__=='__main__':
     normid=dataDML.guessnormIdByContext(schema,'PROTPHYS',3500)
     normval=dataDML.luminormById(schema,normid)[2]
     print 'norm in use ',normval
+    lumidataid=dataDML.guessDataIdByRun(schema,myrun)
+    print 'lumidataid ',lumidataid
     session.transaction().commit()
     del session
     
