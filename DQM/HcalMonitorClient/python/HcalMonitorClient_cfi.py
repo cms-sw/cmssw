@@ -35,13 +35,19 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             # online running -- require only 1 event (offline will require more)
                             minevents            = cms.untracked.int32(250),
                             # minerrorrate         = cms.untracked.double(0.05),
-                            BadChannelStatusMask   = cms.untracked.int32(((1<<5) | (1<<1 | 1<<15))), # dead cells mask: up to 03.01.2001 dead cells were masked as 0x20, now changed to 0x8002
 
                             # dead cell min events controlled by task in online running
                             DeadCell_minerrorrate = cms.untracked.double(0.05),
                             #DeadCell_minevents    = cms.untracked.int32(10),
                             HotCell_minerrorrate  = cms.untracked.double(0.10),
-                            excludeHOring2_backup          = cms.untracked.bool(True), # This is only a 'backup' result, and is overwritten by what was used by the task when the task information can be found in the DQM output.  If the task info can't be found, this backup value is used in its place.
+                            DeadCell_BadChannelStatusMask =  cms.untracked.int32((1<<5) | (1<<1)),
+                            RecHit_BadChannelStatusMask =  cms.untracked.int32((1<<5) | (1<<1)),
+                            Digi_BadChannelStatusMask  =  cms.untracked.int32((1<<5) | (1<<1)),
+                            CoarsePedestal_BadChannelStatusMask = cms.untracked.int32((1<<5) | (1<<6) | (1<<1)),
+                            
+                            excludeHOring2_backup          = cms.untracked.bool(True), # This is only a 'backup' result, and is overwritten by what was used by the task when the task information
+                                                                                       # can be found in the DQM output. If the task info can't be found, this backup value is used in its place.
+
                             # Specify all clients to be run (name = prefix+"Monitor")
 
                             enabledClients = cms.untracked.vstring(["DeadCellMonitor",
