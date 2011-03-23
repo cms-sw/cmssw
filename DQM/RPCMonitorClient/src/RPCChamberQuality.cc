@@ -201,7 +201,7 @@ void RPCChamberQuality::fillMonitorElements() {
 
 void RPCChamberQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {  
 
-  if(!  enableDQMClients_ ) return;
+  if(!enableDQMClients_ ) return;
 
   if(offlineDQM_) return;
 

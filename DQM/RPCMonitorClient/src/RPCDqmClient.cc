@@ -198,6 +198,7 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
       (*it)->clientOperation(c);
     }
     init_ = true;
+    return;
   }
 
   lumiCounter_ ++;
