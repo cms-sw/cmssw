@@ -3028,7 +3028,8 @@ class resolutionFunctionType42 : public resolutionFunctionBase<T> {
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return 0.00035 + eta*eta*0.00015;
+    return 0; 
+      //0.00035 + eta*eta*0.00015; // fixed from MC (Mar. 2011)
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
@@ -3081,9 +3082,9 @@ class resolutionFunctionType42 : public resolutionFunctionBase<T> {
 
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) {
     double thisStep[] = { 0.002, 0.00002, 0.000002, 0.0002,
-                          0.00002, 0.0002, 0.0000002, 0.000002,
-                          0.00002, 0.0002, 0.00000002, 0.000002,
-			  0.0002, 0.001, 0.0001
+                          0.00002, 0.0002, 0.0000002, 0.0002,
+                          0.00002, 0.0002, 0.00000002, 0.0002,
+			  0.001, 0.001, 0.0001
     };
     TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc. (all)", "Pt res. Eta sc.", "Pt res. Eta^2 sc.",
 			      "Pt res. sc. (left)", "Pt res. Eta sc. (left)",
@@ -3094,7 +3095,7 @@ class resolutionFunctionType42 : public resolutionFunctionBase<T> {
     };
     double thisMini[] = { 0.0, -0.01, 0., -0.0001,
                           0.0, -0.001, 0., -2.,
-                          0.0, -0.001, 0., -2.,
+                          0.0, -0.001, 0., 0.,
 			  -2., 1., 0.
     };
     if( muonType == 1 ) {
@@ -3106,7 +3107,7 @@ class resolutionFunctionType42 : public resolutionFunctionBase<T> {
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
       double thisMaxi[] = { 0.1, 0.01, 0.01, 0.1,
-                            0.01, 0.01, 0.1, 2.,
+                            0.01, 0.01, 0.1, 0.,
                             0.01, 0.1, 0.01, 2.,
 			    -1.,2., 0.01
 			 
