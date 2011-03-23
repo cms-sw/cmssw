@@ -858,6 +858,10 @@ class PickRelValInputFiles( ConfigToolBase ):
         self.setParameter( 'debug'        , debug )
         return self.apply()
 
+    def messageEmptyList( self ):
+        print '%s DEBUG: Empty file list returned'%( self._label )
+        print '    This might be overwritten by providing input files explicitly to the source module in the main configuration file.'
+
     def apply( self ):
         cmsswVersion  = self._parameters[ 'cmsswVersion'  ].value
         formerVersion = self._parameters[ 'formerVersion' ].value
@@ -879,12 +883,13 @@ class PickRelValInputFiles( ConfigToolBase ):
         elif ibId in cmsswVersion or formerVersion:
             outputTuple = Popen( [ 'scram', 'l -c CMSSW' ], stdout = PIPE, stderr = PIPE ).communicate()
             if len( outputTuple[ 1 ] ) != 0:
-                print 'ERROR %s'%( self._label )
-                print '    SCRAM error:'
-                print
-                print outputTuple[ 1 ]
-                print
-                print '    Aborting...'
+                print '%s INFO : SCRAM error'%( self._label )
+                if debug:
+                    print '    from trying to determine last valid releases before \'%s\''%( cmsswVersion )
+                    print
+                    print outputTuple[ 1 ]
+                    print
+                    self.messageEmptyList()
                 return filePaths
             versions = { 'last'      :''
                        , 'lastToLast':''
@@ -903,7 +908,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                 cmsswVersion = versions[ 'last' ]
 
         if debug:
-            print 'DEBUG %s: Called with...'%( self._label )
+            print '%s DEBUG: Called with...'%( self._label )
             for key in self._parameters.keys():
                print '    %s:\t'%( key ),
                print self._parameters[ key ].value,
@@ -927,12 +932,12 @@ class PickRelValInputFiles( ConfigToolBase ):
             command = 'ls'
             storage = '/pnfs/cms/WAX/11'
         else:
-            print 'ERROR %s'%( self._label )
-            print '    Running on site \'%s.%s\' without access to RelVal files'%( domain[ -2 ], domain[ -1 ] )
-            print '    Aborting...'
+            print '%s INFO : Running on site \'%s.%s\' without direct access to RelVal files'%( self._label, domain[ -2 ], domain[ -1 ] )
+            if debug:
+                self.messageEmptyList()
             return filePaths
         if debug:
-            print 'DEBUG %s: Running at site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
+            print '%s DEBUG: Running at site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
             print '    using command   \'%s\''%( command )
             print '    on storage path %s'%( storage )
         rfdirPath    = '/store/relval/%s/%s/%s/%s-v'%( cmsswVersion, relVal, dataTier, globalTag )
@@ -943,14 +948,14 @@ class PickRelValInputFiles( ConfigToolBase ):
             filePaths = []
             fileCount = 0
             if debug:
-                print 'DEBUG %s: Checking directory \'%s%i\''%( self._label, argument, version )
+                print '%s DEBUG: Checking directory \'%s%i\''%( self._label, argument, version )
             directories = Popen( [ command, '%s%i'%( argument, version ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
             for directory in directories.splitlines():
                 files = Popen( [ command, '%s%i/%s'%( argument, version, directory ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
                 for file in files.splitlines():
                     if len( file ) > 0:
                         if debug:
-                            print 'DEBUG %s: File \'%s\' found'%( self._label, file )
+                            print '%s DEBUG: File \'%s\' found'%( self._label, file )
                         fileCount += 1
                         validVersion = version
                     if fileCount > skipFiles:
@@ -959,7 +964,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                     if numberOfFiles != 0 and len( filePaths ) >= numberOfFiles:
                         break
                 if debug:
-                    print 'DEBUG %s: %i file(s) found'%( self._label, fileCount )
+                    print '%s DEBUG: %i file(s) found'%( self._label, fileCount )
                 if numberOfFiles != 0 and len( filePaths ) >= numberOfFiles:
                     break
             if numberOfFiles != 0:
@@ -969,17 +974,18 @@ class PickRelValInputFiles( ConfigToolBase ):
               break
 
         if validVersion == 0:
-            print 'ERROR %s'%( self._label )
-            print '    No RelVal file(s) found at all in \'%s*\''%( argument )
+            print '%s INFO : No RelVal file(s) found at all in \'%s*\''%( self._label, argument )
+            if debug:
+                self.messageEmptyList()
         elif len( filePaths ) == 0:
-            print 'ERROR %s'%( self._label )
-            print '    No RelVal file(s) picked up in \'%s%i\''%( argument, validVersion )
+            print '%s INFO : No RelVal file(s) picked up in \'%s%i\''%( self._label, argument, validVersion )
+            if debug:
+                self.messageEmptyList()
         elif len( filePaths ) < numberOfFiles:
-            print 'WARNING %s'%( self._label )
-            print '    Only %i RelVal files picked up in \'%s%i\''%( len( filePaths ), argument, validVersion )
+            print '%s INFO : Only %i RelVal files picked up in \'%s%i\''%( self._label, len( filePaths ), argument, validVersion )
 
         if debug:
-            print 'DEBUG %s: returning %i file(s)\n%s'%( self._label, len( filePaths ), filePaths )
+            print '%s DEBUG: returning %i file(s)\n%s'%( self._label, len( filePaths ), filePaths )
         return filePaths
 
 pickRelValInputFiles = PickRelValInputFiles()
