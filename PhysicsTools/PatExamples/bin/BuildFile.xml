@@ -21,6 +21,5 @@
   <bin   file="PatBasicFWLiteAnalyzer_Selector_Fast.cc"></bin>
   <bin   file="PatBasicFWLiteJetAnalyzer_Selector.cc"></bin>
   <bin   file="PatBasicFWLiteJetUnitTest.cc"></bin>
-  <bin   file="WrappedFWLiteMuonAnalyzer.cc"></bin>
   <bin   file="PatCleaningExercise.cc"></bin>
 </environment>
