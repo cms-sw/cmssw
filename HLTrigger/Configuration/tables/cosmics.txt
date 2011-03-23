@@ -1,3 +1,4 @@
+HLT_Activity_Ecal_SC7_v*
 HLT_L1SingleJet36_v*
 HLT_Jet30_v*
 HLT_Jet60_v*
@@ -197,8 +198,8 @@ HLT_DoubleEle8_CaloIdL_TrkIdVL_HT160_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_HT160_v*
 HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_v*
 HLT_TripleEle10_CaloIdL_TrkIdVL_v*
-HLT_PixelTracks_Multiplicity110_v*
-HLT_PixelTracks_Multiplicity125_v*
+HLT_PixelTracks_Multiplicity80_v*
+HLT_PixelTracks_Multiplicity100_v*
 HLT_BeamGas_HF_v*
 HLT_BeamGas_BSC_v*
 HLT_BeamHalo_v*
@@ -242,7 +243,7 @@ ALCAPHISYMOutput
 CalibrationOutput
 DQMOutput
 EcalCalibrationOutput
-ExpressOutput
+ExpressCosmicsOutput
 HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput

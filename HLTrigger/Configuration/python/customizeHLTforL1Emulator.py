@@ -69,6 +69,11 @@ def switchToCustomL1Digis(process, customGmt, customGct, customGt):
 
 def switchToSimGtDigis(process):
   """patch the process to use newly emulated GMT, GCT and GT results"""
+  return switchToCustomL1Digis(process, 'gtDigis', 'gctDigis', 'simGtDigis')
+
+
+def switchToSimGmtGctGtDigis(process):
+  """patch the process to use newly emulated GMT, GCT and GT results"""
   return switchToCustomL1Digis(process, 'simGmtDigis', 'simGctDigis', 'simGtDigis')
 
 

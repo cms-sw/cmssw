@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_11_1/GRun/V86
+# /dev/CMSSW_3_11_1/GRun/V89
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,7 +8,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
 streamA_datasetCommissioning_selector.throw      = cms.bool(False)
-streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_BeamGas_BSC_v2', 
+streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_Ecal_SC7_v1', 
+    'HLT_BeamGas_BSC_v2', 
     'HLT_BeamGas_HF_v2', 
     'HLT_IsoTrackHB_v2', 
     'HLT_IsoTrackHE_v3', 
@@ -41,6 +42,7 @@ streamA_datasetDoubleElectron_selector.triggerConditions = cms.vstring('HLT_Doub
     'HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v2', 
     'HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2', 
     'HLT_Ele17_CaloIdL_CaloIsoVL_v2', 
+    'HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v2', 
     'HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v2', 
     'HLT_Ele32_CaloIdL_CaloIsoVL_SC17_v2', 
     'HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v2', 
@@ -179,13 +181,13 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
-streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_NoHalo_v2', 
-    'HLT_JetE30_NoBPTX_NoHalo_v2', 
+streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_NoHalo_v3', 
+    'HLT_JetE30_NoBPTX_NoHalo_v3', 
     'HLT_JetE30_NoBPTX_v1', 
     'HLT_L1Tech_BSC_minBias_threshold1_v1', 
     'HLT_Physics_v1', 
-    'HLT_PixelTracks_Multiplicity110_v2', 
-    'HLT_PixelTracks_Multiplicity125_v2', 
+    'HLT_PixelTracks_Multiplicity100_v2', 
+    'HLT_PixelTracks_Multiplicity80_v2', 
     'HLT_Random_v1', 
     'HLT_ZeroBias_v1')
 
@@ -291,8 +293,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetSingleElectron_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetSingleElectron_selector.l1tResults = cms.InputTag('')
 streamA_datasetSingleElectron_selector.throw      = cms.bool(False)
-streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v2', 
-    'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2', 
+streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2', 
     'HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1', 
     'HLT_Ele45_CaloIdVT_TrkIdT_v2', 
     'HLT_Ele90_NoSpikeFilter_v2')
