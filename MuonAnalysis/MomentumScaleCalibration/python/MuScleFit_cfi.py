@@ -57,6 +57,8 @@ MinMuonEtaFirstRange = cms.untracked.double(-6.),
 MaxMuonEtaFirstRange = cms.untracked.double(6.),
 MinMuonEtaSecondRange = cms.untracked.double(-100.),
 MaxMuonEtaSecondRange = cms.untracked.double(100.),
+DeltaPhiMinCut = cms.untracked.double(0.),
+DeltaPhiMaxCut = cms.untracked.double(100.),
 
 # Produce additional plots on the mass resolution
 DebugMassResol = cms.untracked.bool(False),

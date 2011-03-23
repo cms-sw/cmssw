@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/11/12 17:02:25 $
- *  $Revision: 1.47 $
+ *  $Date: 2010/12/03 12:57:25 $
+ *  $Revision: 1.48 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -239,6 +239,8 @@ double MuScleFitUtils::minMuonEtaFirstRange_ = -6.;
 double MuScleFitUtils::maxMuonEtaFirstRange_ = 6.;
 double MuScleFitUtils::minMuonEtaSecondRange_ = -100.;
 double MuScleFitUtils::maxMuonEtaSecondRange_ = 100.;
+double MuScleFitUtils::deltaPhiMinCut_ = -100.;
+double MuScleFitUtils::deltaPhiMaxCut_ = 100.;
 
 bool MuScleFitUtils::debugMassResol_;
 MuScleFitUtils::massResolComponentsStruct MuScleFitUtils::massResolComponents;

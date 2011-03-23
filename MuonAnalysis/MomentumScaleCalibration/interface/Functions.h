@@ -1469,6 +1469,93 @@ public:
   }
 };
 
+// Function built for J/Psi and Z
+template <class T>
+class scaleFunctionType30 : public scaleFunctionBase<T>
+{
+public:
+  scaleFunctionType30() { this->parNum_ = 6; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const
+  {
+    return( (1+ parScale[0]*pt +
+	     (double)chg*pt*parScale[1]*eta +
+	     parScale[2]*eta*eta +
+	     pt*(double)chg*parScale[3]*sin(phi+parScale[4]) +
+	     parScale[5]*etaCorrection(eta))*pt );
+  }
+  double etaCorrection(const double & eta) const
+  {
+    double fabsEta = std::fabs(eta);
+    if( fabsEta < 0.2) return -0.00063509;
+    else if( fabsEta < 0.4 ) return -0.000585369;
+    else if( fabsEta < 0.6 ) return -0.00077363;
+    else if( fabsEta < 0.8 ) return -0.000547868;
+    else if( fabsEta < 1.0 ) return -0.000954819;
+    else if( fabsEta < 1.2 ) return -0.000162139;
+    else if( fabsEta < 1.4 ) return 0.0026909;
+    else if( fabsEta < 1.6 ) return 0.000684376;
+    else if( fabsEta < 1.8 ) return -0.00174534;
+    else if( fabsEta < 2.0 ) return -0.00177076;
+    else if( fabsEta < 2.2 ) return 0.00117463;
+    else if( fabsEta < 2.4 ) return 0.000985705;
+    else if( fabsEta < 2.6 ) return 0.00163941;
+    return 0.;
+  }
+
+  // Fill the scaleVec with neutral parameters
+  virtual void resetParameters(std::vector<double> * scaleVec) const
+  {
+    scaleVec->push_back(1);
+    for( int i=1; i<this->parNum_; ++i ) {
+      scaleVec->push_back(0);
+    }
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType)
+  {
+    double thisStep[] = {0.0001,
+			 0.0001,
+			 0.00001,
+			 0.0001,
+			 0.001,
+			 0.0001};
+    TString thisParName[] = {"offset",
+			     "asymmLinearEta",
+			     "quadratic eta",
+			     "sin amplitude",
+			     "sin phase",
+			     "amplitude of eta binned"};
+    if( muonType == 1 ) {
+      double thisMini[] = {-0.2,
+			   -0.1,
+			   -0.1,
+			   0.,
+			   -3.14,
+	                   0.};
+      double thisMaxi[] = {0.2,
+			   0.1,
+			   0.1,
+			   0.,
+			   3.14,
+			   2.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {-0.2,
+			   -0.1,
+			   -0.1,
+			   0.,
+			   -3.14,
+	                   0.};
+      double thisMaxi[] = {0.2,
+			   0.1,
+			   0.1,
+			   0.,
+			   3.14,
+			   2.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
 /// Service to build the scale functor corresponding to the passed identifier
 scaleFunctionBase<double * > * scaleFunctionService( const int identifier );
 

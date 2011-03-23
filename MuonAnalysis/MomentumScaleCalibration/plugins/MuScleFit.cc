@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2011/02/24 16:50:18 $
-//  $Revision: 1.102 $
+//  $Date: 2011/02/24 17:48:26 $
+//  $Revision: 1.103 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -260,6 +260,8 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
   MuScleFitUtils::maxMuonEtaFirstRange_ = pset.getUntrackedParameter<double>("MaxMuonEtaFirstRange", 6.);
   MuScleFitUtils::minMuonEtaSecondRange_ = pset.getUntrackedParameter<double>("MinMuonEtaSecondRange", -100.);
   MuScleFitUtils::maxMuonEtaSecondRange_ = pset.getUntrackedParameter<double>("MaxMuonEtaSecondRange", 100.);
+  MuScleFitUtils::deltaPhiMinCut_ = pset.getUntrackedParameter<double>("DeltaPhiMinCut", -100.);
+  MuScleFitUtils::deltaPhiMaxCut_ = pset.getUntrackedParameter<double>("DeltaPhiMaxCut", 100.);
 
   MuScleFitUtils::debugMassResol_ = pset.getUntrackedParameter<bool>("DebugMassResol", false);
   // MuScleFitUtils::massResolComponentsStruct MuScleFitUtils::massResolComponents;
@@ -690,6 +692,11 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
 	dontPass = true;
       }
     }
+    
+    // Additional check on deltaPhi
+    double deltaPhi = MuScleFitUtils::deltaPhi(it->first.phi(), it->second.phi());
+    if( (deltaPhi <= MuScleFitUtils::deltaPhiMinCut_) || (deltaPhi >= MuScleFitUtils::deltaPhiMaxCut_) ) dontPass = true;
+    
     if( dontPass ) {
       // std::cout << "removing muons not passing cuts" << std::endl;
       it->first = reco::Particle::LorentzVector(0,0,0,0);
