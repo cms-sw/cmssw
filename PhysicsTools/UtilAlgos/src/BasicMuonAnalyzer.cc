@@ -21,7 +21,7 @@ BasicMuonAnalyzer::analyze(const edm::EventBase& event)
 {
   // define what muon you are using; this is necessary as FWLite is not 
   // capable of reading edm::Views
-  using pat::Muon;
+  using reco::Muon;
 
   // Handle to the muon collection
   edm::Handle<std::vector<Muon> > muons;
