@@ -252,21 +252,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
 
   if (w->data(dataset.c_str()) == 0) {
-    if (w->pdf("model_b")->canBeExtended()) {
-      std::cout << "Dataset " << dataset.c_str() << " not found, will try to generate the expected dataset from the 'model_b' pdf" << std::endl;
-      RooAbsData *fake;
-      if (unbinned_) {
-        fake = w->pdf("model_b")->generateBinned(*observables, RooFit::Extended(), RooFit::Asimov());
-      } else {
-        fake = w->pdf("model_b")->generate(*observables, RooFit::Extended(), RooFit::Asimov()); 
-      }
-      fake->SetName(dataset.c_str());
-      w->import(*fake);
-    } else {
-      if (!isTextDatacard) std::cout << "Dataset " << dataset.c_str() << " not found, will make one from the starting values of the observables in the model." << std::endl;
+    if (isTextDatacard) { // that's ok: the observables are pre-set to the observed values
       RooDataSet *data_obs = new RooDataSet(dataset.c_str(), dataset.c_str(), *observables); 
       data_obs->add(*observables);
       w->import(*data_obs);
+    } else {
+      std::cout << "Dataset " << dataset.c_str() << " not found." << std::endl;
     }
   }
 
@@ -359,7 +350,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (iToy == -1) {	
         if (w->pdf("model_b")->canBeExtended()) {
           if (unbinned_) {
-              dobs = w->pdf("model_b")->generate(*observables,RooFit::Extended(),RooFit::Asimov());
+              throw std::invalid_argument("Asimov datasets can only be generated binned");
           } else {
               dobs = w->pdf("model_b")->generateBinned(*observables,RooFit::Extended(),RooFit::Asimov());
           }
@@ -396,13 +387,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	if (withSystematics && !toysNoSystematics_) {
 	  std::auto_ptr<RooArgSet> vars(w->pdf("model_b")->getVariables());
 	  *vars = *systDs->get(iToy-1);
-	  if (verbose > 0) utils::printPdf(w, "model_b");
+	  if (verbose > 1) utils::printPdf(w, "model_b");
 	}
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (w->pdf("model_b")->canBeExtended()) {
           if (unbinned_) {
     	      absdata_toy = w->pdf("model_b")->generate(*observables,RooFit::Extended());
           } else {
+              std::cout<< "SHOULD GO HERE" << std::endl;
     	      absdata_toy = w->pdf("model_b")->generateBinned(*observables,RooFit::Extended());
           }
 	} else {

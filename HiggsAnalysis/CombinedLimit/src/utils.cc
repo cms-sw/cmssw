@@ -1,45 +1,23 @@
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 #include <cstdio>
-//#include <cerrno>
 #include <iostream>
-//#include <cstdlib>
 #include <cmath>
 #include <vector>
 #include <string>
 #include <memory>
-//#include <exception>
-//#include <algorithm>
 
-//#include <TCanvas.h>
-//#include <TFile.h>
-//#include <TGraphErrors.h>
 #include <TIterator.h>
-//#include <TLine.h>
-//#include <TMath.h>
-//#include <TString.h>
-//#include <TSystem.h>
-//#include <TStopwatch.h>
-//#include <TTree.h>
 
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
 #include <RooArgSet.h>
 #include <RooDataHist.h>
 #include <RooDataSet.h>
-//#include <RooFitResult.h>
-//#include <RooMsgService.h>
-//#include <RooPlot.h>
-//#include <RooRandom.h>
 #include <RooRealVar.h>
-//#include <RooUniform.h>
 #include <RooWorkspace.h>
 
-//#include <RooStats/HLFactory.h>
-//#include <boost/filesystem.hpp>
-//#include <boost/program_options.hpp>
-
-void utils::printRDH(RooDataHist *data) {
+void utils::printRDH(RooAbsData *data) {
   std::vector<std::string> varnames, catnames;
   const RooArgSet *b0 = data->get(0);
   TIterator *iter = b0->createIterator();
@@ -61,17 +39,17 @@ void utils::printRDH(RooDataHist *data) {
     printf("%4d  ",i);
     for (size_t j = 0; j < nv; ++j) { printf("%10g  ",    bin->getRealValue(varnames[j].c_str())); }
     for (size_t j = 0; j < nc; ++j) { printf("%10.10s  ", bin->getCatLabel(catnames[j].c_str())); }
-    printf("%8.3f\n", data->weight(*bin,0));
+    printf("%8.3f\n", data->weight());
   }
 }
 
 void utils::printRAD(const RooAbsData *d) {
-  if (d->InheritsFrom("RooDataHist")) printRDH((RooDataHist*)d);
+  if (d->InheritsFrom("RooDataHist") || d->numEntries() != 1) printRDH(const_cast<RooAbsData*>(d));
   else d->get(0)->Print("V");
 }
 
 void utils::printPdf(RooWorkspace *w, const char *pdfName) {
   std::cout << "PDF " << pdfName << " parameters." << std::endl;
-  std::auto_ptr<RooArgSet> params(w->pdf("model_b")->getVariables());
+  std::auto_ptr<RooArgSet> params(w->pdf(pdfName)->getVariables());
   params->Print("V");
 }

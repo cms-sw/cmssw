@@ -30,8 +30,8 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit, do
       r->setMax(r->getMax()*2); 
       continue;
     }
-    if (verbose > 0) {
-        std::cout << "\n -- Bayesian, flat prior -- " << "\n";
+    if (verbose > -1) {
+        std::cout << "\n -- BayesianSimple -- " << "\n";
         std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
     }
     if (verbose > 2) {

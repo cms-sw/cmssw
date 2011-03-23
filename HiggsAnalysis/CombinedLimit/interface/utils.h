@@ -6,7 +6,7 @@ struct RooAbsData;
 struct RooWorkspace;
 
 namespace utils {
-    void printRDH(RooDataHist *data) ;
+    void printRDH(RooAbsData *data) ;
     void printRAD(const RooAbsData *d) ;
     void printPdf(RooWorkspace *w, const char *pdfName) ;
 }
