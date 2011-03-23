@@ -441,6 +441,7 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
       
 
 * generate 'njet' PYTHIA events and fill arrays for partons and hadrons 
+      xhardestPtHat=-0.1
       nshad=0
       noquen=0 
       if(nhsel.eq.1.or.nhsel.eq.3) noquen=1
@@ -448,8 +449,6 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
        ifbp=0                                    ! fix impact parameter 
        bfixp=RA*bgen 
        Ap=AW                                     ! atomic weight            
-
-       xhardestPtHat=-0.1
 
        do ihard=1,njet       
         mstp(111)=0
