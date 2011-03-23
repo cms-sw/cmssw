@@ -5,7 +5,6 @@
 #include "CondFormats/HcalObjects/interface/HcalMCParam.h"
 #include "CondFormats/HcalObjects/interface/HcalMCParams.h"
 #include "CondFormats/DataRecord/interface/HcalMCParamsRcd.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
