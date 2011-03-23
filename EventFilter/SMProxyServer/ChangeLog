@@ -1,3 +1,7 @@
+2011-03-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V02-00-01
+	* Clear statistics only at the next run start
+
 2011-03-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
 	* tag V02-00-00
 	* Rewrite of SMPS (from SMPSdev_branch)
