@@ -60,7 +60,6 @@ namespace evf{
     , hasModuleWebRegistry_(false)
     , hasServiceWebRegistry_(false)
     , monitorInfoSpace_(0) 
-    , monitorInfoSpaceAlt_(0) 
     , monitorInfoSpaceLegend_(0) 
     , timeoutOnStop_(10)
     , monSleepSec_(1)

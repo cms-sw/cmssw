@@ -422,16 +422,17 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
   std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
 
   if(!epInitialized_){
+    evtProcessor_->beginJob(); 
     if(cpustat_) {delete cpustat_; cpustat_=0;}
     cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
 			   iDieUrl_.value_);
     if(iDieStatisticsGathering_.value_){
       try{
 	cpustat_->sendLegenda(evtProcessor_.getmicromap());
-       xdata::Serializable *legenda = scalersInfoSpace_->find("scalersLegenda");
-       if(legenda !=0){
- 	std::string slegenda = ((xdata::String*)legenda)->value_;
- 	ratestat_->sendLegenda(slegenda);
+	xdata::Serializable *legenda = scalersInfoSpace_->find("scalersLegenda");
+	if(legenda !=0){
+	  std::string slegenda = ((xdata::String*)legenda)->value_;
+	  ratestat_->sendLegenda(slegenda);
        }
       }
       catch(evf::Exception &e){
@@ -1810,7 +1811,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.118 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.119 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

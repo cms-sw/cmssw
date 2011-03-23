@@ -82,7 +82,6 @@ namespace evf{
       monitorInfoSpace_ = mis;
       monitorLegendaInfoSpace_ = mlis;
     }
-    void setMonitorInfoSpaceAlt(xdata::InfoSpace *is){monitorInfoSpaceAlt_ = is;}
     void setMonitorInfoSpaceLegend(xdata::InfoSpace *is){monitorInfoSpaceLegend_ = is;}
     void setRcms(xdaq::ApplicationDescriptor* rcms){rcms_ = rcms;}
     void setAppDesc(xdaq::ApplicationDescriptor *ad){xappDesc_ = ad;}
@@ -162,7 +161,6 @@ namespace evf{
     // infospace variables, monitor
     xdata::InfoSpace                *monitorInfoSpace_;
     xdata::InfoSpace                *monitorLegendaInfoSpace_;
-    xdata::InfoSpace                *monitorInfoSpaceAlt_;
     xdata::InfoSpace                *monitorInfoSpaceLegend_;
 
     xdata::UnsignedInteger32         timeoutOnStop_; // in seconds
