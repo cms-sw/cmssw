@@ -555,6 +555,7 @@
             "counting-S1-Sideband1-alpha0p3-Obs2.txt": { "comment": "L&S", "limit":5.80744, "limitErr":0, "status":"done", "t_real":0 },
             "counting-S1-Sideband10-alpha0p2-Obs2.txt": { "comment": "L&S", "limit":4.86674, "limitErr":0, "status":"done", "t_real":0 },
             "counting-S1-Sideband100-alpha0p05-Obs4.txt": { "comment": "L&S", "limit":5.47368, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-S1-Sideband2-alpha0p3-Obs6.txt": { "comment": "L&S", "limit":11.0042, "limitErr":0, "status":"done", "t_real":0 },
             "counting-Sideband11-alpha0p5-Obs1.txt": { "comment": "L&S", "limit":3.53229, "limitErr":0, "status":"done", "t_real":0 },
             "counting-Sideband11-alpha0p5-Obs11.txt": { "comment": "L&S", "limit":12.8474, "limitErr":0, "status":"done", "t_real":0 },
             "counting-Sideband11-alpha0p5-Obs20.txt": { "comment": "L&S", "limit":23.4879, "limitErr":0, "status":"done", "t_real":0 },
@@ -796,55 +797,69 @@
         "status": "done"
     }, 
     "HWW_S0_BayesianSimple": {
-        "comment": "", 
+        "comment": "From Validation", 
         "results": {
             "hww4ch-1fb-B+1-mH160.txt": {
-                "comment": "", 
-                "limit": 0.6032260106900349, 
+                "comment": "L&S", 
+                "limit": 0.6032, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.001496299053542316
             }, 
             "hww4ch-1fb-B-1-mH140.txt": {
-                "comment": "", 
-                "limit": 0.72239389596934267, 
+                "comment": "L&S", 
+                "limit": 0.7224, 
                 "limitErr": 0.0, 
                 "status": "done", 
                 "t_real": 0.000843950139824301
             }, 
             "hww4ch-1fb-B-mH140.txt": {
-                "comment": "", 
-                "limit": 1.586667942678528, 
+                "comment": "L&S", 
+                "limit": 1.5867, 
                 "limitErr": 0.0, 
                 "status": "done", 
-                "t_real": 0.0008666316862218082
+                "t_real": 0.0
             }, 
             "hww4ch-1fb-B-mH160.txt": {
-                "comment": "", 
-                "limit": 0.318005393435976, 
+                "comment": "L&S", 
+                "limit": 0.3180, 
                 "limitErr": 0.0, 
                 "status": "done", 
-                "t_real": 0.0011251171818003058
+                "t_real": 0.0
             }
         }, 
         "status": "done"
     }, 
     "HWW_S0_MarkovChainMC": {
-        "comment": "", 
+        "comment": "From Validation", 
         "results": {
-            "hww4ch-1fb-B-mH140.txt": {
-                "comment": "", 
-                "limit": 1.5881705133372008, 
-                "limitErr": 0.0041418763838152539, 
+            "hww4ch-1fb-B+1-mH160.txt": {
+                "comment": "L&S", 
+                "limit": 0.6032, 
+                "limitErr": 0.0, 
                 "status": "done", 
-                "t_real": 0.1280040442943573
+                "t_real": 0.001496299053542316
+            }, 
+            "hww4ch-1fb-B-1-mH140.txt": {
+                "comment": "L&S", 
+                "limit": 0.7224, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.000843950139824301
+            }, 
+            "hww4ch-1fb-B-mH140.txt": {
+                "comment": "L&S", 
+                "limit": 1.5867, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.0
             }, 
             "hww4ch-1fb-B-mH160.txt": {
-                "comment": "", 
-                "limit": 0.31951660861747067, 
-                "limitErr": 0.0052580462138645725, 
+                "comment": "L&S", 
+                "limit": 0.3180, 
+                "limitErr": 0.0, 
                 "status": "done", 
-                "t_real": 0.11681033670902252
+                "t_real": 0.0
             }
         }, 
         "status": "done"
