@@ -5,7 +5,9 @@
 #include "CondFormats/HcalObjects/interface/HcalMCParam.h"
 #include "CondFormats/HcalObjects/interface/HcalMCParams.h"
 #include "CondFormats/DataRecord/interface/HcalMCParamsRcd.h"
-
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalShapes::HcalShapes()
 : theMCParams(0),
@@ -53,7 +55,14 @@ void HcalShapes::endRun()
 const CaloVShape * HcalShapes::shape(const DetId & detId) const
 {
   if(!theMCParams) {
-    return 0;
+    edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params ";
+    // try to figure the appropriate shape
+    HcalGenericDetId::HcalGenericSubdetector subdet = HcalGenericDetId(detId).genericSubdet();
+    if(subdet == HcalGenericDetId::HcalGenBarrel || subdet == HcalGenericDetId::HcalGenEndcap) return theShapes[0];
+    else if(subdet == HcalGenericDetId::HcalGenOuter) return theShapes[2];
+    else if(subdet == HcalGenericDetId::HcalGenForward) return theShapes[3];
+    else if(subdet == HcalGenericDetId::HcalGenZDC) return theShapes[4];
+    else return 0;
   }
   int shapeType = theMCParams->getValues(detId)->signalShape();
   return theShapes.at(shapeType);
