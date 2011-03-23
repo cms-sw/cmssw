@@ -1,32 +1,3 @@
-/** 
-   Generic limit setting, with any model.
-
-
-   Takes as input:
-    - one label for the output root file
-    - one input datacard file
-    - a value of the higgs mass
-    - the name of the statistical method to apply
-    - the number of toys to run (0 means to create a single toy corresponding to the expected signal, the so called Asimov dataset)
-    - the seed for the random number generator
-
-   
-  The datacard can be:
-    - a LandS-like datacard for a generic counting experiment with an arbitrary number of bins, processes and systematical uncertainties
-    - a RooStats model in the "High Level Factory" syntax, that has to define:
-      - a RooRealVar "r" corresponding to the cross section strength
-      - a RooArgSet "obs" with the observables, and a RooArgSet "poi" with the parameters of interest (just "r")
-      - RooAbsPdfs "model_s" and "model_b" for the (S+B) and B-only scenarios (not all statistical methods use both)
-      - if systematical uncertainties are enabled, it must also define a RooArgSet "nuisances" with the nuisance parameters,
-        and a RooAbsPdf "nuisancePdf" with the pdf for those. In this case "model_s" must already be the product of the pdf
-        for the observables and the pdf for the nuisances.
-      - the observed dataset will be constructed taking the default value of the observables as in the model.
-
-  The program will assume that a file ending in ".hlf" is a RooStats model, and anything else is a LandS datacard.
-
-  See higgsCombineSimple.cxx for the documentation of the other input parameters and of the output
-*/
-//#include "higgsCombine_Common.cxx"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include <TString.h>
 #include <TSystem.h>
@@ -79,28 +50,36 @@ int main(int argc, char **argv) {
     methodsDesc += i->first;
   }
   
-  po::options_description desc("Allowed options");
+  po::options_description desc("Main options");
   desc.add_options()
-    ("help,h", "Produce help message")
-    ("verbose,v",  po::value<int>(&verbose)->default_value(1), "Verbosity level")
-    ("name,n",     po::value<string>(&name)->default_value("Test"), "Name of the job")
-    ("datacard,d", po::value<string>(&datacard), "Datacard file")
-    ("dataset,D",  po::value<string>(&dataset)->default_value("data_obs"), "Dataset for observed limit")
+    ("datacard,d", po::value<string>(&datacard), "Datacard file (can also be specified directly without the -d or --datacard)")
     ("method,M",      po::value<string>(&whichMethod)->default_value("ProfileLikelihood"), methodsDesc.c_str())
-    ("hintMethod,H",  po::value<string>(&whichHintMethod)->default_value(""), "Run first this method to provide a hint on the result")
-    ("mass,m",     po::value<int>(&iMass)->default_value(120), "Higgs mass to store in the output tree")
+    ("verbose,v",  po::value<int>(&verbose)->default_value(1), "Verbosity level (-1 = very quiet; 0 = quiet, 1 = verbose, 2+ = debug)")
+    ("help,h", "Produce help message")
+    ;
+  combiner.statOptions().add_options()
     ("toys,t", po::value<int>(&runToys)->default_value(0), "Number of Toy MC extractions")
     ("seed,s", po::value<int>(&seed)->default_value(123456), "Toy MC random seed")
-    ("saveToys,w", "Save results of toy MC")
-    ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "Toy MC input file")
+    ("hintMethod,H",  po::value<string>(&whichHintMethod)->default_value(""), "Run first this method to provide a hint on the result")
+    ;
+  combiner.ioOptions().add_options()
+    ("name,n",     po::value<string>(&name)->default_value("Test"), "Name of the job, affects the name of the output tree")
+    ("mass,m",     po::value<int>(&iMass)->default_value(120), "Higgs mass to store in the output tree")
+    ("dataset,D",  po::value<string>(&dataset)->default_value("data_obs"), "Name of the dataset for observed limit")
+    ("saveToys",   "Save results of toy MC or other intermediate results")
+    ("toysFile",   po::value<string>(&toysFile)->default_value(""), "Read toy mc or other intermediate results from this file")
+    ;
+  combiner.miscOptions().add_options()
     ("igpMem", "Setup support for memory profiling using IgProf")
     ("LoadLibrary,L", po::value<vector<string> >(&librariesToLoad), "Load library through gSystem->Load(...). Can specify multiple libraries using this option multiple times")
     ;
-  desc.add(combiner.options());
+  desc.add(combiner.statOptions());
+  desc.add(combiner.ioOptions());
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
     if(i->second->options().options().size() != 0) 
       desc.add(i->second->options());
   }
+  desc.add(combiner.miscOptions());
   po::positional_options_description p;
   p.add("datacard", -1);
   po::variables_map vm;

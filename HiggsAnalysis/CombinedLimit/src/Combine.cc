@@ -63,25 +63,33 @@ float cl = 0.95;
 
 
 Combine::Combine() :
-    options_("Common options"), 
+    statOptions_("Common statistics options"),
+    ioOptions_("Common input-output options"),
+    miscOptions_("Common miscellaneous options"),
     rMin_(std::numeric_limits<float>::quiet_NaN()), 
     rMax_(std::numeric_limits<float>::quiet_NaN()) {
     namespace po = boost::program_options;
-    options_.add_options()
+    statOptions_.add_options() 
       ("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Add systematic uncertainties")
       ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
       ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength")
       ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength")
       ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
-      ("unbinned,U", "Generate unbinned datasets instead of binned ones (works only for extended pdfs)")
-      ("compile", "Compile expressions instead of interpreting them")
       ("significance", "Compute significance instead of upper limit")
       ("hintStatOnly", "Ignore systematics when computing the hint")
-      ("saveWorkspace", "Save workspace to output root file")
       ("toysNoSystematics", "Generate all toys with the central value of the nuisance parameters, without fluctuating them")
-      ("workspaceName,w", po::value<std::string>(&workspaceName_)->default_value("w"), "Workspace name, when reading it from or writing it to a rootfile.")
-      ("modelConfigName,w", po::value<std::string>(&modelConfigName_)->default_value("ModelConfig"), "ModelConfig name, when reading it from or writing it to a rootfile.")
+      ("unbinned,U", "Generate unbinned datasets instead of binned ones (works only for extended pdfs)")
+      ("generateBinnedWorkaround", "Make binned datasets generating unbinned ones and then binnning them. Workaround for a bug in RooFit.")
       ;
+    ioOptions_.add_options()
+      ("saveWorkspace", "Save workspace to output root file")
+      ("workspaceName,w", po::value<std::string>(&workspaceName_)->default_value("w"), "Workspace name, when reading it from or writing it to a rootfile.")
+      ("modelConfigName", po::value<std::string>(&modelConfigName_)->default_value("ModelConfig"), "ModelConfig name, when reading it from or writing it to a rootfile.")
+      ;
+    miscOptions_.add_options()
+      ("compile", "Compile expressions instead of interpreting them")
+      ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on if 'compile' is activated)")
+      ; 
 }
 
 void Combine::applyOptions(const boost::program_options::variables_map &vm) {
@@ -91,7 +99,9 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
     std::cout << ">>> no systematics included" << std::endl;
   } 
   unbinned_ = vm.count("unbinned");
-  compiledExpr_ = vm.count("compile");
+  generateBinnedWorkaround_ = vm.count("generateBinnedWorkaround");
+  if (unbinned_ && generateBinnedWorkaround_) throw std::logic_error("You can't set generateBinnedWorkaround and unbinned options at the same time");
+  compiledExpr_ = vm.count("compile"); if (compiledExpr_) makeTempDir_ = true;
   doSignificance_ = vm.count("significance");
   hintUsesStatOnly_ = vm.count("hintStatOnly");
   saveWorkspace_ = vm.count("saveWorkspace");
@@ -131,10 +141,12 @@ bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit, double &
 }
 
 void Combine::run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys) {
-  TString pwd(gSystem->pwd());
-  TString tmpDir = "roostats-XXXXXX"; 
-  mkdtemp(const_cast<char *>(tmpDir.Data()));
-  gSystem->cd(tmpDir.Data());
+  TString tmpDir = "", pwd(gSystem->pwd());
+  if (makeTempDir_) {
+      tmpDir = "roostats-XXXXXX"; 
+      mkdtemp(const_cast<char *>(tmpDir.Data()));
+      gSystem->cd(tmpDir.Data());
+  }
 
   bool isTextDatacard = false, isBinary = false;
   TString fileToLoad = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
@@ -449,13 +461,13 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   } catch (std::logic_error &le) {
-      boost::filesystem::remove_all(tmpDir.Data());
+      if (tmpDir) boost::filesystem::remove_all(tmpDir.Data());
       throw le;
   } catch (std::runtime_error &re) {
-      boost::filesystem::remove_all(tmpDir.Data());
+      if (tmpDir) boost::filesystem::remove_all(tmpDir.Data());
       throw re;
   }
 
-  boost::filesystem::remove_all(tmpDir.Data());
+  if (tmpDir) boost::filesystem::remove_all(tmpDir.Data()); 
 }
 

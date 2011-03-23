@@ -24,7 +24,9 @@ class Combine {
 public:
   Combine() ;
   
-  const boost::program_options::options_description & options() const { return options_; }    
+  boost::program_options::options_description & statOptions() { return statOptions_; }    
+  boost::program_options::options_description & ioOptions() { return ioOptions_; }    
+  boost::program_options::options_description & miscOptions() { return miscOptions_; }    
   void applyOptions(const boost::program_options::variables_map &vm) ;
   
   void run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys);
@@ -32,17 +34,23 @@ public:
 private:
   bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr) ;
   
-  boost::program_options::options_description options_;
-
-  bool unbinned_; 
+  boost::program_options::options_description statOptions_, ioOptions_, miscOptions_;
+ 
+  // statistics-related variables
+  bool unbinned_, generateBinnedWorkaround_; 
   float rMin_, rMax_;
-  bool compiledExpr_;
   std::string prior_;
   bool hintUsesStatOnly_;
+  bool toysNoSystematics_;
+
+  // input-output related variables
   bool saveWorkspace_;
   std::string workspaceName_;
   std::string modelConfigName_;
-  bool toysNoSystematics_;
+
+  // implementation-related variables
+  bool compiledExpr_;
+  bool makeTempDir_;
 };
 
 #endif
