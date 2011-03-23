@@ -1,3 +1,21 @@
+2011-03-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-01
+	* Reduced memory footprint for init messages from V06-07-03.
+	* Improved locking logic for DQM event store.
+	* Not starting the DQM event store work-loop for non-DQM consumers.
+
+2011-03-10 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-00
+	* Add Srecko's option 'dropOldLumisectionEvents' to EventStreamHttpReader.
+
+2011-03-09 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-00-01
+	* Re-add 'discardedDQMEvents' quantity to infospace.
+	* A couple of minor adjustments.
+
 2011-03-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-00-00
@@ -8,7 +26,8 @@
 2011-02-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-08-00
-	* Minimal changes for modified IOPool/Streamer V07-01-00
+	* Minimal changes wrt V06-07-02 for modified
+	  IOPool/Streamer V07-01-00
 
 2011-03-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
