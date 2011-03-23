@@ -405,8 +405,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	if (w->pdf("model_b")->canBeExtended()) {
           if (unbinned_) {
     	      absdata_toy = w->pdf("model_b")->generate(*observables,RooFit::Extended());
+          } else if (generateBinnedWorkaround_) {
+              std::auto_ptr<RooDataSet> unbinn(w->pdf("model_b")->generate(*observables,RooFit::Extended()));
+              absdata_toy = new RooDataHist("toy","binned toy", *observables, *unbinn);
           } else {
-              std::cout<< "SHOULD GO HERE" << std::endl;
     	      absdata_toy = w->pdf("model_b")->generateBinned(*observables,RooFit::Extended());
           }
 	} else {
