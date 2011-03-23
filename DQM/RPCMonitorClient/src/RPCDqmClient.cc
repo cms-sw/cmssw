@@ -201,7 +201,7 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
     return;
   }
 
-  lumiCounter_ ++;
+  lumiCounter_++;
 
   if (lumiCounter_%prescaleGlobalFactor_ != 0) return;
 
