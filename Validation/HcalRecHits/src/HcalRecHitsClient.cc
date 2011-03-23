@@ -362,8 +362,9 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
       double nevtot = Nhf->getEntries();
       if(verbose_) std::cout<<"nevtot : "<<nevtot<<std::endl;
 
-      int nx = emap_depth1->getNbinsX();    
-      int ny = emap_depth1->getNbinsY();
+      int nx = occupancy_map_HB1->getNbinsX();
+      int ny = occupancy_map_HB1->getNbinsY();
+
       float cnorm;
       float fev = float (nevtot);
       //    std::cout << "*** nevtot " <<  nevtot << std::endl; 
@@ -376,6 +377,23 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
       */
       float phi_factor;  
 
+      // First - special <E> maps
+      int nx1 = emap_depth1->getNbinsX();    
+      int ny1 = emap_depth1->getNbinsY();
+      for (int i = 1; i <= nx1; i++) {      
+	for (int j = 1; j <= ny1; j++) {      
+	    cnorm = emap_depth1->getBinContent(i,j) / fev;
+            emap_depth1->setBinContent(i,j,cnorm);
+	    cnorm = emap_depth2->getBinContent(i,j) / fev;
+            emap_depth2->setBinContent(i,j,cnorm);
+	    cnorm = emap_depth3->getBinContent(i,j) / fev;
+            emap_depth3->setBinContent(i,j,cnorm);
+	    cnorm = emap_depth4->getBinContent(i,j) / fev;
+            emap_depth4->setBinContent(i,j,cnorm);
+	}
+      }
+
+      // Second: all others regular maps
       for (int i = 1; i <= nx; i++) {
          sumphi_hb1 = 0.;
          sumphi_hb2 = 0.;
@@ -424,16 +442,6 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	    sumphi_hf1 += occupancy_map_HF1->getBinContent(i,j);
 	    sumphi_hf2 += occupancy_map_HF2->getBinContent(i,j);
 	
-	    // Emean maps
-	    cnorm = emap_depth1->getBinContent(i,j) / fev;
-            emap_depth1->setBinContent(i,j,cnorm);
-	    cnorm = emap_depth2->getBinContent(i,j) / fev;
-            emap_depth2->setBinContent(i,j,cnorm);
-	    cnorm = emap_depth3->getBinContent(i,j) / fev;
-            emap_depth3->setBinContent(i,j,cnorm);
-	    cnorm = emap_depth4->getBinContent(i,j) / fev;
-            emap_depth4->setBinContent(i,j,cnorm);
-
 	    // Occupancies - not in main drawn set of histos
             if(useAllHistos){
               occupancy_seqHB1->Fill(double(index),cnorm);
