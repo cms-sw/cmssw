@@ -5,20 +5,13 @@ cmsenv
 echo "Starting Pedestal job part 2"
 
 set tagName = "HcalPedestals_ADC_v9.12_offline"
-
-set listOfFiles = "listOfPeds.txt"
-@ beginRunNumber = 149513
-
+@ beginRunNumber = 153436
 set threshold = 0.2
 
 echo "Dumping the conditions for run: $beginRunNumber"
 ./makedump.csh  Pedestals $tagName $beginRunNumber
 cp DumpPedestals_Run${beginRunNumber}.txt dump.txt
 
-# removing listof peds file if existed
-if (-e $listOfFiles) then
- rm ${listOfFiles}
-endif
 # removing test.db if existed
 if (-e test.db) then
  rm test.db
@@ -27,6 +20,12 @@ endif
 echo "Unzipping the pedestals: \n"
 rm *-peds_ADC_*.txt
 unzip pedstxt.zip
+
+set listOfFiles = "listOfPeds.txt"
+# removing listof peds file if existed
+if (-e $listOfFiles) then
+ rm ${listOfFiles}
+endif
 
 ls *-peds_ADC_*.txt > $listOfFiles
 echo "The filenames are saved in: " ${listOfFiles}
@@ -108,5 +107,5 @@ echo "Now you need to: \
        2) Double chack that metadata.txt file is valid: tag name and run number\
        3) Load the file to Orcon data base. wGet the dropbox script and execute:\
 wget http://condb.web.cern.ch/condb/DropBoxOffline/dropBoxOffline.sh \
-/bin/sh dropBoxOffline.sh temp.db metadata.txt \
+/bin/sh dropBoxOffline.sh test.db metadata.txt \
 \n Once loaded, please, update the documentation: https://twiki.cern.ch/twiki/bin/viewauth/CMS/HcalPedestalsTags2011\n"

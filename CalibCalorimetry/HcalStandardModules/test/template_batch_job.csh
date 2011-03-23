@@ -3,6 +3,7 @@
 cd <dir>
 cmsenv
 cmsRun <job>
-rfcp <run>-peds_ADC_*.txt /castor/cern.ch/user/a/andrey/peds2011/
+rfcp <run>-peds_ADC_*.txt <castor>
 zip pedstxt.zip *-peds_ADC*.txt
 rm *-peds_ADC*
+rm <job>
