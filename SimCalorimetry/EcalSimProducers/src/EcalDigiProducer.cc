@@ -34,6 +34,7 @@
 #include "CondFormats/DataRecord/interface/ESGainRcd.h"
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
 EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
    m_APDShape         ( params.getParameter<double>( "apdShapeTstart" ) ,
@@ -88,8 +89,8 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
 				     m_apdParameters ,
 				     &m_APDShape       ) ) ,
 
-   m_EEResponse ( new CaloHitRespoNew( m_ParameterMap, &m_EEShape ) ) ,
-   m_ESResponse ( new CaloHitResponse( m_ParameterMap, &m_ESShape ) ) ,
+   m_EEResponse ( new CaloHitRespoNew( m_ParameterMap, &m_EEShape, EcalEndcapGeometry::detIdFromLocalAlignmentIndex(0) ) ) ,
+   m_ESResponse ( new CaloHitResponse( m_ParameterMap, &m_ESShape ) ) ,//, EcalPreshowerGeometry::detIdFromLocalAlignmentIndex(0) ) ) ,
 
    m_addESNoise           ( params.getParameter<bool> ("doESNoise") ) ,
    m_doFastES             ( params.getParameter<bool> ("doFast"   ) ) ,
