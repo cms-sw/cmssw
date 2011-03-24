@@ -108,16 +108,32 @@ class MatrixReader(object):
                 if len(name) > 0 : name += '+'
                 stepName = step
                 # check if we have explicit selections and overlapping requests:
+                """
+                print useInput,str(num),stepIndex,(str(num) in useInput)
                 if stepIndex==0 and useInput and (str(num) in useInput and not "all" in useInput):
+                    print "indeed"
                     if fromScratch and (str(num) in fromScratch and not "all" in fromScratch):
                         msg = "FATAL ERROR: request for both fromScratch and input for workflow "+str(num)
                         raise MatrixException(msg)
+                    else:
+                        if step+'INPUT' in self.relvalModule.step1.keys():
+                            stepName = step+"INPUT"
                 if stepIndex==0 and useInput and ("all" == useInput):
                     if fromScratch and (str(num) in fromScratch or "all" in fromScratch):
                         pass
                     else:
                         if step+'INPUT' in self.relvalModule.step1.keys():
                             stepName = step+"INPUT"
+                """
+                #use input check, only for step0
+                if stepIndex==0:
+                    if useInput and (str(num) in useInput or "all" in useInput):
+                        if step+'INPUT' in self.relvalModule.step1.keys():
+                            stepName = step+"INPUT"
+                        if fromScratch and (str(num) in fromScratch or "all" in fromScratch):
+                            msg = "FATAL ERROR: request for both fromScratch and input for workflow "+str(num)
+                            raise MatrixException(msg)
+
                 name += stepName
                 if addCom and (not addTo or addTo[stepIndex]==1):
                     from Configuration.PyReleaseValidation.relval_steps import merge
