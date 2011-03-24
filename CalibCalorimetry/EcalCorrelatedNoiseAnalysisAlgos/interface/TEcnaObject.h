@@ -32,21 +32,21 @@ class TEcnaObject : public TObject {
 
   TString fTTBELL;
 
-  //................................ Pointer values (cast Int_t)
-  Int_t   fObjectTEcnaGui;
-  Int_t   fObjectTEcnaHeader;
-  Int_t   fObjectTEcnaHistos;
-  Int_t   fObjectTEcnaNArrayD;
-  Int_t   fObjectTEcnaNumbering;
-  Int_t   fObjectTEcnaParCout;
-  Int_t   fObjectTEcnaParEcal;
-  Int_t   fObjectTEcnaParHistos;
-  Int_t   fObjectTEcnaParPaths;
-  Int_t   fObjectTEcnaRead;
-  Int_t   fObjectTEcnaResultType;
-  Int_t   fObjectTEcnaRootFile;
-  Int_t   fObjectTEcnaRun;
-  Int_t   fObjectTEcnaWrite;
+  //................................ Pointer values (cast Long_t)
+  Long_t   fObjectTEcnaGui;
+  Long_t   fObjectTEcnaHeader;
+  Long_t   fObjectTEcnaHistos;
+  Long_t   fObjectTEcnaNArrayD;
+  Long_t   fObjectTEcnaNumbering;
+  Long_t   fObjectTEcnaParCout;
+  Long_t   fObjectTEcnaParEcal;
+  Long_t   fObjectTEcnaParHistos;
+  Long_t   fObjectTEcnaParPaths;
+  Long_t   fObjectTEcnaRead;
+  Long_t   fObjectTEcnaResultType;
+  Long_t   fObjectTEcnaRootFile;
+  Long_t   fObjectTEcnaRun;
+  Long_t   fObjectTEcnaWrite;
  
   //................................ Object creation counter
   Int_t   fCounterCreateTEcnaGui;
@@ -89,10 +89,10 @@ class TEcnaObject : public TObject {
 
   void Init();
 
-  Bool_t  RegisterPointer(const TString, const Int_t&);
-  void    NumberCreateObjectMessage(const TString, const Int_t&, const Int_t&);
-  void    NumberReuseObjectMessage(const TString, const Int_t&, const Int_t&);
-  Int_t   GetPointerValue(const TString);
+  Bool_t  RegisterPointer(const TString, const Long_t&);
+  Long_t  GetPointerValue(const TString);
+  void    NumberCreateObjectMessage(const TString, const Long_t&, const Int_t&);
+  void    NumberReuseObjectMessage(const TString, const Long_t&, const Int_t&);
   
 ClassDef(TEcnaObject,1)// Parameter management for CNA (Correlated Noises Analysis)
 

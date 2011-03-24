@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 02/03/2011
+//----------Modified: 24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
 #include <cstdlib>
@@ -632,7 +632,7 @@ TGMainFrame(p, w, h)
   // cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << endl;
 
   fObjectManager = (TEcnaObject*)pObjectManager;
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaGui", i_this);
 
   Int_t MaxCar = fgMaxCar;

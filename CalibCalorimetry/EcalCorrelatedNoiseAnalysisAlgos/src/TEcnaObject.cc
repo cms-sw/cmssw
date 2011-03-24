@@ -1,6 +1,6 @@
 //---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 29/11/2010
+//----------Modified: 24/03/2011
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
 
 //--------------------------------------
@@ -31,7 +31,7 @@ TEcnaObject::TEcnaObject()
 
  // cout << "[Info Management] CLASS: TEcnaObject.      CREATE OBJECT: this = " << this << endl;
 
-  Int_t PointerValue = (int)this;
+  Long_t PointerValue = (Long_t)this;
   Int_t un = 1;
   NumberCreateObjectMessage("TEcnaObject", PointerValue, un);
 
@@ -99,7 +99,7 @@ void  TEcnaObject::Init()
 //              TEcnaObject not in list because it is the manager
 //
 //=======================================================================================
-Bool_t TEcnaObject::RegisterPointer(const TString ClassName, const Int_t& PointerValue)
+Bool_t TEcnaObject::RegisterPointer(const TString ClassName, const Long_t& PointerValue)
 {
   Bool_t ClassFound = kFALSE;
 
@@ -226,9 +226,9 @@ Bool_t TEcnaObject::RegisterPointer(const TString ClassName, const Int_t& Pointe
 } // end of RegisterPointer(...)
 
 
-Int_t TEcnaObject::GetPointerValue(const TString ClassName)
+Long_t TEcnaObject::GetPointerValue(const TString ClassName)
 {
-  Int_t PointerValue = 0;
+  Long_t PointerValue = 0;
 
   if( ClassName == "TEcnaGui" )
     {
@@ -331,7 +331,7 @@ Int_t TEcnaObject::GetPointerValue(const TString ClassName)
   return PointerValue;
 }
 
-void TEcnaObject::NumberCreateObjectMessage(const TString ClassName, const Int_t& PointerValue, const Int_t& NbOfObjects)
+void TEcnaObject::NumberCreateObjectMessage(const TString ClassName, const Long_t& PointerValue, const Int_t& NbOfObjects)
 {
 #define NOCM
 #ifndef NOCM
@@ -344,7 +344,7 @@ void TEcnaObject::NumberCreateObjectMessage(const TString ClassName, const Int_t
 #endif // NOCM
 }
 
-void TEcnaObject::NumberReuseObjectMessage(const TString ClassName, const Int_t& PointerValue, const Int_t& NbOfObjects)
+void TEcnaObject::NumberReuseObjectMessage(const TString ClassName, const Long_t& PointerValue, const Int_t& NbOfObjects)
 {
 #define NOCR
 #ifndef NOCR

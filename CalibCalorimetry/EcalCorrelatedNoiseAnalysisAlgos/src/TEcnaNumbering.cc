@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro, F.X.Gentit + EB table from P.Jarry  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA software
-//----------Modified:04/02/2011
+//----------Modified:24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
 
@@ -45,7 +45,7 @@ TEcnaNumbering::TEcnaNumbering(TEcnaObject* pObjectManager, const TString SubDet
  // cout << "[Info Management] CLASS: TEcnaNumbering.    CREATE OBJECT: this = " << this << endl;
 
   Init();
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNumbering", i_this);
 
   //............................ fEcal  => to be changed in fParEcal

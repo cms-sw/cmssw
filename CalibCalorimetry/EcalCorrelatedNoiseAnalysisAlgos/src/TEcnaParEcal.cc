@@ -1,6 +1,6 @@
 //----------Author's Name:FX Gentit and B.Fabbro  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA software
-//----------Modified:04/02/2011
+//----------Modified:24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
@@ -28,7 +28,7 @@ TEcnaParEcal::TEcnaParEcal(TEcnaObject* pObjectManager, const TString SubDet){
   //cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << endl;
 
   Init();
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaParEcal", i_this);
 
   SetEcalSubDetector(SubDet.Data());

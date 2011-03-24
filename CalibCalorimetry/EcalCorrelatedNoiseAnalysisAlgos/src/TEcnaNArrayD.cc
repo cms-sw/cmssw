@@ -1,6 +1,6 @@
 //----------Author's Name:F.X. Gentit + modifs by B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA sofware
-//----------Modified:21/10/2010
+//----------Modified:24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNArrayD.h"
 #include "Riostream.h"
@@ -51,7 +51,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1) {
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;
@@ -67,7 +67,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2) {
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;
@@ -84,7 +84,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;
@@ -102,7 +102,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;
@@ -121,7 +121,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;
@@ -141,7 +141,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;

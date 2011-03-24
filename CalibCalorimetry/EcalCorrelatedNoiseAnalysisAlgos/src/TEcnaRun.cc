@@ -1,6 +1,6 @@
 //----------Author's Names: B.Fabbro, FX Gentit DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 02/02/2011
+//----------Modified: 24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRun.h"
 
@@ -31,7 +31,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString SubDet)
 
   Init();
   fObjectManager = (TEcnaObject*)pObjectManager;
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaRun", i_this);
 
   //............................ fCnaParCout
@@ -81,7 +81,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString SubDet, const Int_
 
   Init();
   fObjectManager = (TEcnaObject*)pObjectManager;
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaRun", i_this);
 
   //............................ fCnaParCout

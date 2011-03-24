@@ -1,6 +1,6 @@
 //----------Author's Names:FX. Gentit, B.Fabbro  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA sofware
-//----------Modified: 20/10/2010
+//----------Modified: 24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaResultType.h"
 #include "Riostream.h"
@@ -33,7 +33,7 @@ TEcnaResultType::TEcnaResultType(TEcnaObject* pObjectManager)
   
   // cout << "[Info Management] CLASS: TEcnaResultType.    CREATE OBJECT: this = " << this << endl;
 
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaResultType", i_this);
 
   fMatMat.ReSet(1,1);

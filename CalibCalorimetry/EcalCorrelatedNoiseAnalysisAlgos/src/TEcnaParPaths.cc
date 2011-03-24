@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 20/10/2010
+//----------Modified: 24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
 #include <cstdlib>
@@ -39,7 +39,7 @@ TEcnaParPaths::TEcnaParPaths(TEcnaObject* pObjectManager)
 // Constructor without argument
  // cout << "[Info Management] CLASS: TEcnaParPaths.      CREATE OBJECT: this = " << this << endl;
   Init();
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaParPaths", i_this);
 }
 

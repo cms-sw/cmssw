@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro, FX Gentit DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 18/02/2011
+//----------Modified: 24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRead.h"
 
@@ -26,7 +26,7 @@ TEcnaRead::TEcnaRead()
 TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString SubDet)
 {
   fObjectManager = (TEcnaObject*)pObjectManager;
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaRead", i_this);
 
  //----------------------- Object management
@@ -899,7 +899,7 @@ Bool_t TEcnaRead::CloseRootFile(const Text_t *name) {
 	    TString e_path;  e_path.Append(name);
 	    cout << "*TEcnaRead::CloseRootFile> Close ROOT file " << e_path.Data() << " OK " << endl;}
 	  if(fFlagPrint == fCodePrintAllComments){
-	    Int_t pointer_value = (Int_t)gCnaRootFile;
+	    Long_t pointer_value = (Long_t)gCnaRootFile;
 	    cout << "*TEcnaRead::CloseRootFile(...)> going to delete gCnaRootFile, gCnaRootFile = " << gCnaRootFile
 		 << ", pointer = " << pointer_value << endl;}
 

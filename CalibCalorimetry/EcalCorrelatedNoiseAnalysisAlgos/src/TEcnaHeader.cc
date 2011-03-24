@@ -1,6 +1,6 @@
 //----------Author's Name:FX Gentit and B.Fabbro  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA software
-//----------Modified:01/02/2011
+//----------Modified:24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHeader.h"
 
@@ -25,7 +25,7 @@ TEcnaHeader::TEcnaHeader(TEcnaObject* pObjectManager, const Text_t* name, const 
   // cout << "[Info Management] CLASS: TEcnaHeader.        CREATE OBJECT: this = " << this << endl;
   
   Init();
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaHeader", i_this);
 }
 

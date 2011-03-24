@@ -1,6 +1,6 @@
 //---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 17/03/2010
+//----------Modified: 24/03/2010
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParCout.h"
 
@@ -40,7 +40,7 @@ TEcnaParCout::TEcnaParCout(TEcnaObject* pObjectManager)
  // cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << endl;
 
   Init();
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaParCout", i_this);
 }
 

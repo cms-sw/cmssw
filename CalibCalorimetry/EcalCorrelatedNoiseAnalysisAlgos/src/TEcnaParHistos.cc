@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified:24/11/2010
+//----------Modified:24/03/201&
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParHistos.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
@@ -46,7 +46,7 @@ TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString SubDet
   //cout << "[Info Management] CLASS: TEcnaParHistos.     CREATE OBJECT: this = " << this << endl;
 
   Init();
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaParHistos", i_this);
 
   //............................ fEcal  => to be changed in fParEcal

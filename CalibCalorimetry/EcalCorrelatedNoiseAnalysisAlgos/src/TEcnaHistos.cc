@@ -1,6 +1,6 @@
 //---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //---------Copyright: Those valid for CEA sofware
-//---------Modified: 02/03/2011
+//---------Modified: 24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHistos.h"
 
@@ -113,7 +113,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString SubDet)
  // cout << "[Info Management] CLASS: TEcnaHistos.        CREATE OBJECT: this = " << this << endl;
 
 
-  Int_t i_this = (Int_t)this;
+  Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaHistos", i_this);
 
   Init();
