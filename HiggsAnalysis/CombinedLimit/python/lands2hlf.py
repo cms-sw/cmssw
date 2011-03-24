@@ -11,131 +11,15 @@ parser.add_option("-o", "--out",      dest="out",   type="string", default=None,
 
 (options, args) = parser.parse_args()
 
+
 file = open(args[0], "r")
+
+from HiggsAnalysis.CombinedLimit.DatacardParser import *
+
+DC = parseCard(file, options)
+
 ROOFIT_EXPR = "cexpr" if options.cexpr else "expr"  # change to cexpr to use compiled expressions (faster, but takes more time to start up)
-
-N_OBS_MAX = 10000
-nbins      = 1; bins = []
-nprocesses = 1; processes = []
-nuisances = -1;
-obs = []; exp = []; systs = []
-keyline = [];  # line that maps each column into bin and process. list of pairs (bin,process,signalT)
-binline = []; processline = []; sigline = []
-isSignal = {}; signals = [];
-shapeMap = {}; # map process -> { channel -> [ file, histo, histo_with_syst ] }
-for l in file:
-    f = l.split();
-    if len(f) < 1: continue
-    if f[0] == "imax": 
-        nbins = int(f[1]) if f[1] != "*" else -1
-    if f[0] == "jmax": 
-        nprocesses = int(f[1])+1 if f[1] != "*" else -1
-    if f[0] == "kmax": 
-        nuisances = int(f[1]) if f[1] != "*" else -1
-    if f[0] == "shapes":
-        if not options.bin: raise RuntimeError, "Can use shapes only with binary output mode"
-        if len(f) < 5: raise RuntimeError, "Malformed shapes line"
-        if not shapeMap.has_key(f[1]): shapeMap[f[1]] = {}
-        if shapeMap[f[1]].has_key(f[2]): raise RuntimeError, "Duplicate definition for process '%s', channel '%s'" % (f[1], f[2])
-        shapeMap[f[1]][f[2]] = f[3:]
-    if f[0] == "Observation" or f[0] == "observation": 
-        obs = [ float(x) for x in f[1:] ]
-        if nbins == -1: nbins = len(obs)
-        if len(obs) != nbins: raise RuntimeError, "Found %d observations but %d bins have been declared" % (len(obs), nbins)
-        if binline != []:
-            if len(binline) != len(obs): raise RuntimeError, "Found %d bins (%s) but %d bins have been declared" % (len(bins), bins, nbins)
-            bins = binline
-            obs = dict([(b,obs[i]) for i,b in enumerate(bins)])
-            binline = []
-    if f[0] == "bin": 
-        binline = f[1:] 
-    if f[0] == "process": 
-        if processline == []: # first line contains names
-            processline = f[1:]
-            if len(binline) != len(processline): raise RuntimeError, "'bin' line has a different length than 'process' line."
-            continue
-        sigline = f[1:] # second line contains ids
-        if re.match("-?[0-9]+", processline[0]) and not re.match("-?[0-9]+", sigline[0]):
-            (processline,sigline) = (sigline,processline)
-        if len(sigline) != len(processline): raise RuntimeError, "'bin' line has a different length than 'process' line."
-        hadBins = (len(bins) > 0)
-        for i,b in enumerate(binline):
-            p = processline[i];
-            s = (int(sigline[i]) <= 0) # <=0 for signals, >0 for backgrounds
-            keyline.append((b, processline[i], s))
-            if hadBins:
-                if b not in bins: raise RuntimeError, "Bin %s not among the declared bins %s" % (b, bins)
-            else:
-                if b not in bins: bins.append(b)
-            if p not in processes: processes.append(p)
-        if nprocesses == -1: nprocesses = len(processes)
-        if nbins      == -1: nbins      = len(bins)
-        if nprocesses != len(processes): raise RuntimeError, "Found %d processes (%s), declared jmax = %d" % (len(processes),processes,nprocesses)
-        if nbins      != len(bins):      raise RuntimeError, "Found %d bins (%s), declared jmax = %d" % (len(bins),bins,nbins)
-        exp = dict([(b,{}) for b in bins])
-        isSignal = dict([(p,None) for p in processes])
-        if obs != [] and type(obs) == list: # still as list, must change into map with bin names
-            obs = dict([(b,obs[i]) for i,b in enumerate(bins)])
-        for (b,p,s) in keyline:
-            if isSignal[p] == None: 
-                isSignal[p] = s
-            elif isSignal[p] != s:
-                raise RuntimeError, "Process %s is declared as signal in some bin and as background in some other bin" % p
-        signals = [p for p,s in isSignal.items() if s == True]
-        if len(signals) == 0: raise RuntimeError, "You must have at least one signal process (id <= 0)"
-    if f[0] == "rate":
-        if processline == []: raise RuntimeError, "Missing line with process names before rate line" 
-        if sigline == []:     raise RuntimeError, "Missing line with process id before rate line" 
-        if len(f[1:]) != len(keyline): raise RuntimeError, "Malformed rate line: length %d, while bins and process lines have length %d" % (len(f[1:]), len(keyline))
-        for (b,p,s),r in zip(keyline,f[1:]):
-            exp[b][p] = float(r)
-        for b in bins:
-            np_bin = sum([exp[b][p] for (b1,p,s) in keyline if b1 == b])
-            ns_bin = sum([exp[b][p] for (b1,p,s) in keyline if b1 == b and s == True])
-            nb_bin = sum([exp[b][p] for (b1,p,s) in keyline if b1 == b and s != True])
-            if np_bin == 0: raise RuntimeError, "Bin %s has no processes contributing to it" % b
-            if ns_bin == 0: raise RuntimeError, "Bin %s has no signal processes contributing to it" % b
-            if nb_bin == 0: raise RuntimeError, "Bin %s has no background processes contributing to it" % b
-        break # rate is the last line before nuisances
-    
-for l in file:
-    if l.startswith("--"): continue
-    l = re.sub("\\s-+(\\s|$)"," 0\\1",l);
-    f = l.split();
-    lsyst = f[0]; pdf = f[1]; args = []; numbers = f[2:];
-    if pdf == "lnN" or pdf == "gmM":
-        sumNotNull = sum([(n not in ["0","1"]) for n in numbers])
-        if sumNotNull == 0: continue
-        pass # nothing special to do
-    elif pdf == "gmN":
-        args = [int(f[2])]; numbers = f[3:];
-        sumNotNull = sum([(n != "0") for n in numbers])
-        if sumNotNull == 0: continue
-    else:
-        raise RuntimeError, "Unsupported pdf %s" % pdf
-    if len(numbers) < len(keyline): raise RuntimeError, "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(keyline))
-    errline = dict([(b,{}) for b in bins])
-    for (b,p,s),r in zip(keyline,numbers):
-        if "/" in r: # "number/number"
-            if pdf != "lnN": raise RuntimeError, "Asymmetric errors are allowed only for Log-normals"
-            errline[b][p] = [ float(x) for x in r.split("/") ]
-        else:
-            errline[b][p] = float(r) 
-    systs.append((lsyst,pdf,args,errline))
-
-if options.stat: 
-    nuisances = 0
-    systs = []
-
-if options.asimov:
-    obs = dict([(b,0) for b in bins])
-    for (b,p,s) in keyline: 
-        if s == False: obs[b] += exp[b][p]
-
-if nuisances == -1: 
-    nuisances = len(systs)
-elif len(systs) != nuisances: 
-    raise RuntimeError, "Found %d systematics, expected %d" % (len(systs), nuisances)
+N_OBS_MAX   = 10000
 
 out = stdout; 
 if options.bin:
@@ -178,10 +62,10 @@ def doObj(name,type,X):
     else: out.write("%s = %s(%s);\n" % (name, type, X))
 
 def getShape(process,channel,syst="",_fileCache={},_neverDelete=[]):
-    global shapeMap
+    global DC
     pentry = None
-    if shapeMap.has_key(process): pentry = shapeMap[process]
-    elif shapeMap.has_key("*"):   pentry = shapeMap["*"]
+    if DC.shapeMap.has_key(process): pentry = DC.shapeMap[process]
+    elif DC.shapeMap.has_key("*"):   pentry = DC.shapeMap["*"]
     else: raise KeyError, "Shape map has no entry for process '%s'" % (process)
     names = []
     if pentry.has_key(channel): names = pentry[channel]
@@ -205,10 +89,10 @@ def getShape(process,channel,syst="",_fileCache={},_neverDelete=[]):
 def prepareAllShapes():
     global out
     shapeTypes = []; shapeBins = [];
-    for ib,b in enumerate(bins):
-        for p in ['data_obs']+exp[b].keys():
-            if len(obs) == 0 and p == 'data_obs': continue
-            if p != 'data_obs' and exp[b][p] == 0: continue
+    for ib,b in enumerate(DC.bins):
+        for p in ['data_obs']+DC.exp[b].keys():
+            if len(DC.obs) == 0 and p == 'data_obs': continue
+            if p != 'data_obs' and DC.exp[b][p] == 0: continue
             shape = getShape(p,b); norm = 0;
             if shape.ClassName().startswith("TH1"):
                 shapeTypes.append("TH1"); shapeBins.append(shape.GetNbinsX())
@@ -219,39 +103,39 @@ def prepareAllShapes():
                 shapeTypes.append("RooAbsPdf");
             else: raise RuntimeError, "Currently supporting only TH1s, RooDataHist and RooAbsPdfs"
             if p != 'data_obs' and norm != 0:
-                if exp[b][p] == -1: exp[b][p] = norm
-                elif abs(norm-exp[b][p]) > 0.01: 
-                    stderr.write("Mismatch in normalizations for bin %s, process %d: rate %f, shape %f" % (b,p,exp[b][p],norm))
+                if DC.exp[b][p] == -1: DC.exp[b][p] = norm
+                elif abs(norm-DC.exp[b][p]) > 0.01: 
+                    stderr.write("Mismatch in normalizations for bin %s, process %d: rate %f, shape %f" % (b,p,DC.exp[b][p],norm))
     if shapeTypes.count("TH1") == len(shapeTypes):
         out.allTH1s = True
         out.mode    = "binned"
         out.maxbins = max(shapeBins)
-        stderr.write("Will use binning variable 'x' with %d bins\n" % out.maxbins)
+        stderr.write("Will use binning variable 'x' with %d DC.bins\n" % out.maxbins)
         doVar("x[0,%d]" % out.maxbins); out.var("x").setBins(out.maxbins)
         out.binVar = out.var("x")
     else: RuntimeError, "Currently implemented only case of all TH1s"
-    if len(bins) > 1:
+    if len(DC.bins) > 1:
         #out.binCat = ROOT.RooCategory("channel","channel")
         #out._import(out.binCat)
-        #for ib,b in enumerate(bins): out.binCat.defineType(b, ib)
-        strexpr="channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(bins)]) + "]";
+        #for ib,b in enumerate(DC.bins): out.binCat.defineType(b, ib)
+        strexpr="channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(DC.bins)]) + "]";
         doVar(strexpr);
         out.binCat = out.cat("channel");
         stderr.write("Will use category 'channel' to identify the %d channels\n" % out.binCat.numTypes())
         doSet("observables","x,channel")
     else:
         doSet("observables","x")
-    out.obs = out.set("observables")
+    out.DC.obs = out.set("observables")
 def doCombinedDataset():
     stderr.write("Comb DS\n")
     global out
-    if len(bins) == 1:
-        data = shape2Data(getShape('data_obs',bins[0])).Clone("data_obs")
+    if len(DC.bins) == 1:
+        data = shape2Data(getShape('data_obs',DC.bins[0])).Clone("data_obs")
         out._import(data)
         return
     if out.mode == "binned":
-        combiner = ROOT.CombDataSetFactory(out.obs, out.binCat)
-        for b in bins: combiner.addSet(b, shape2Data(getShape("data_obs",b)))
+        combiner = ROOT.CombDataSetFactory(out.DC.obs, out.binCat)
+        for b in DC.bins: combiner.addSet(b, shape2Data(getShape("data_obs",b)))
         out.data_obs = combiner.done("data_obs","data_obs")
         out._import(out.data_obs)
     else: raise RuntimeException, "Only combined binned datasets are supported"
@@ -276,19 +160,19 @@ def shape2Pdf(shape,_cache={}):
             _cache[shape.GetName()+"Pdf"] = rhp
     return _cache[shape.GetName()+"Pdf"]
 
-if len(shapeMap) == 0: ## Counting experiment
-    if len(obs):
+if len(DC.shapeMap) == 0: ## Counting experiment
+    if len(DC.obs):
         doComment(" ----- observables (already set to asimov values) -----")
-        for b in bins: doVar("n_obs_bin%s[%f,0,%d]" % (b,obs[b],N_OBS_MAX))
+        for b in DC.bins: doVar("n_obs_bin%s[%f,0,%d]" % (b,DC.obs[b],N_OBS_MAX))
     else:
         doComment(" ----- observables -----")
-        for b in bins: doVar("n_obs_bin%s[0,%d]" % (b,N_OBS_MAX))
-    doSet("observables", ",".join(["n_obs_bin%s" % b for b in bins]))
+        for b in DC.bins: doVar("n_obs_bin%s[0,%d]" % (b,N_OBS_MAX))
+    doSet("observables", ",".join(["n_obs_bin%s" % b for b in DC.bins]))
 else: 
     stderr.write("qui si parra' la tua nobilitate\n")
     # gather all histograms
     prepareAllShapes();
-    if len(obs) != 0: doCombinedDataset() 
+    if len(DC.obs) != 0: doCombinedDataset() 
 
 doComment(" ----- parameters of interest -----");
 doComment(" --- Signal Strength --- ");
@@ -296,10 +180,10 @@ doVar("r[0,20];");
 doComment(" --- set of all parameters of interest --- ");
 doSet("POI","r");
 
-if nuisances: 
+if len(DC.systs): 
     doComment(" ----- nuisances -----")
     globalobs = []
-    for (n,pdf,args,errline) in systs: 
+    for (n,pdf,args,errline) in DC.systs: 
         if pdf == "lnN":
             #print "thetaPdf_%s = Gaussian(theta_%s[-5,5], 0, 1);" % (n,n)
             doObj("thetaPdf_%s" % n, "Gaussian", "theta_%s[-5,5], thetaIn_%s[0], 1" % (n,n));
@@ -318,22 +202,22 @@ if nuisances:
         elif pdf == "gmN":
             doObj("thetaPdf_%s" % n, "Poisson", "thetaIn_%s[%d], theta_%s[0,%d]" % (n,args[0],n,2*args[0]+5))
             globalobs.append("thetaIn_%s" % n)
-    doSet("nuisances", ",".join(["theta_%s"    % n for (n,p,a,e) in systs]))
-    doObj("nuisancePdf", "PROD", ",".join(["thetaPdf_%s" % n for (n,p,a,e) in systs]))
+    doSet("nuisances", ",".join(["theta_%s"    % n for (n,p,a,e) in DC.systs]))
+    doObj("nuisancePdf", "PROD", ",".join(["thetaPdf_%s" % n for (n,p,a,e) in DC.systs]))
     if globalobs:
         doSet("globalObservables", ",".join(globalobs))
 
 doComment(" --- Expected events in each bin, for each process ----")
-for b in bins:
-    for p in exp[b].keys(): # so that we get only processes contributing to this bin
+for b in DC.bins:
+    for p in DC.exp[b].keys(): # so that we get only DC.processes contributing to this bin
         # collect multiplicative corrections
         strexpr = ""; strargs = ""
         gammaNorm = None; iSyst=-1
-        if isSignal[p]:
+        if DC.isSignal[p]:
             strexpr += " * @0";
             strargs += ", r";
             iSyst += 1
-        for (n,pdf,args,errline) in systs:
+        for (n,pdf,args,errline) in DC.systs:
             if not errline[b].has_key(p): continue
             if errline[b][p] == 0.0: continue
             if pdf == "lnN" and errline[b][p] == 1.0: continue
@@ -352,9 +236,9 @@ for b in bins:
             elif pdf == "gmN":
                 strexpr += " * @%d " % iSyst
                 strargs += ", theta_%s" % n
-                if abs(errline[b][p] * args[0] - exp[b][p]) > max(0.02 * max(exp[b][p],1), errline[b][p]):
+                if abs(errline[b][p] * args[0] - DC.exp[b][p]) > max(0.02 * max(DC.exp[b][p],1), errline[b][p]):
                     raise RuntimeError, "Values of N = %d, alpha = %g don't match with expected rate %g for systematics %s " % (
-                                            args[0], errline[b][p], exp[b][p], n)
+                                            args[0], errline[b][p], DC.exp[b][p], n)
                 if gammaNorm != None:
                     raise RuntimeError, "More than one gmN uncertainty for the same bin and process (second one is %s)" % n
                 gammaNorm = "%g" % errline[b][p]
@@ -362,59 +246,60 @@ for b in bins:
         if gammaNorm != None:
             strexpr = gammaNorm + strexpr
         else:
-            strexpr = str(exp[b][p]) + strexpr
+            strexpr = str(DC.exp[b][p]) + strexpr
         # optimize constants
         if strargs != "":
             doObj("n_exp_bin%s_proc_%s" % (b,p), ROOFIT_EXPR, "'%s'%s" % (strexpr, strargs));
         else:
-            doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, exp[b][p]))
+            doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, DC.exp[b][p]))
 
 ## Now go build the pdf for the observables (which in case of no nuisances is the full pdf)
-prefix = "modelObs" if nuisances else "model"
+prefix = "modelObs" if len(DC.systs) else "model"
 
-if len(shapeMap) == 0: ## No shapes, just Poisson
+if len(DC.shapeMap) == 0: ## No shapes, just Poisson
     doComment(" --- Expected events in each bin, total (S+B and B) ----")
-    for b in bins:
-        doObj("n_exp_bin%s_bonly" % b, "sum", ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in exp[b].keys() if isSignal[p] == False]) )
-        doObj("n_exp_bin%s"       % b, "sum", ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in exp[b].keys()                        ]) )
+    for b in DC.bins:
+        doObj("n_exp_bin%s_bonly" % b, "sum", ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in DC.exp[b].keys() if DC.isSignal[p] == False]) )
+        doObj("n_exp_bin%s"       % b, "sum", ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in DC.exp[b].keys()                        ]) )
         doObj("pdf_bin%s"       % b, "Poisson", "n_obs_bin%s, n_exp_bin%s"       % (b,b))
         doObj("pdf_bin%s_bonly" % b, "Poisson", "n_obs_bin%s, n_exp_bin%s_bonly" % (b,b))
+    nbins = len(DC.bins)
     if nbins > 50:
         from math import ceil
         nblocks = int(ceil(nbins/10.))
         for i in range(nblocks):
-            doObj("%s_s_%d" % (prefix,i), "PROD", ",".join(["pdf_bin%s"       % bins[j] for j in range(10*i,min(nbins,10*i+10))]))
-            doObj("%s_b_%d" % (prefix,i), "PROD", ",".join(["pdf_bin%s_bonly" % bins[j] for j in range(10*i,min(nbins,10*i+10))]))
+            doObj("%s_s_%d" % (prefix,i), "PROD", ",".join(["pdf_bin%s"       % DC.bins[j] for j in range(10*i,min(nbins,10*i+10))]))
+            doObj("%s_b_%d" % (prefix,i), "PROD", ",".join(["pdf_bin%s_bonly" % DC.bins[j] for j in range(10*i,min(nbins,10*i+10))]))
         doObj("%s_s" % prefix, "PROD", ",".join([prefix+"_s_%d" % i for i in range(nblocks)]))
         doObj("%s_b" % prefix, "PROD", ",".join([prefix+"_b_%d" % i for i in range(nblocks)]))
     else: 
-        doObj("%s_s" % prefix, "PROD", ",".join(["pdf_bin%s"       % b for b in bins]))
-        doObj("%s_b" % prefix, "PROD", ",".join(["pdf_bin%s_bonly" % b for b in bins]))
+        doObj("%s_s" % prefix, "PROD", ",".join(["pdf_bin%s"       % b for b in DC.bins]))
+        doObj("%s_b" % prefix, "PROD", ",".join(["pdf_bin%s_bonly" % b for b in DC.bins]))
 else:
-    for b in bins:
+    for b in DC.bins:
         pdfs   = ROOT.RooArgList(); bgpdfs   = ROOT.RooArgList()
         coeffs = ROOT.RooArgList(); bgcoeffs = ROOT.RooArgList()
-        for p in exp[b].keys(): # so that we get only processes contributing to this bin
+        for p in DC.exp[b].keys(): # so that we get only DC.processes contributing to this bin
             shape = getShape(p,b); shape2Data(shape);
             (pdf,coeff) = (shape2Pdf(shape), out.function("n_exp_bin%s_proc_%s" % (b,p)))
             pdfs.add(pdf); coeffs.add(coeff)
-            if not isSignal[p]:
+            if not DC.isSignal[p]:
                 bgpdfs.add(pdf); bgcoeffs.add(coeff)
         sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
         sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
         out._import(sum_s, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
         out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
-    if len(bins) > 1:
+    if len(DC.bins) > 1:
         for (postfixIn,postfixOut) in [ ("","_s"), ("_bonly","_b") ]:
             simPdf = ROOT.RooSimultaneous(prefix+postfixOut, prefix+postfixOut, out.binCat)
-            for b in bins:
+            for b in DC.bins:
                 simPdf.addPdf(out.pdf("pdf_bin%s%s" % (b,postfixIn)), b)
             out._import(simPdf, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
     else:
-        out._import(out.pdf("pdf_bin%s"       % bins[0]).clone(prefix+"_s"))
-        out._import(out.pdf("pdf_bin%s_bonly" % bins[0]).clone(prefix+"_b"))
+        out._import(out.pdf("pdf_bin%s"       % DC.bins[0]).clone(prefix+"_s"))
+        out._import(out.pdf("pdf_bin%s_bonly" % DC.bins[0]).clone(prefix+"_b"))
 
-if nuisances: # multiply by nuisances if needed
+if len(DC.systs): # multiply by nuisances if needed
     doObj("model_s", "PROD", "modelObs_s, nuisancePdf")
     doObj("model_b", "PROD", "modelObs_b, nuisancePdf")
 
@@ -426,7 +311,7 @@ if options.bin:
             mc.SetPdf(out.pdf("model_"+l))
             mc.SetParametersOfInterest(out.set("POI"))
             mc.SetObservables(out.set("observables"))
-            if nuisances:  mc.SetNuisanceParameters(out.set("nuisances"))
+            if len(DC.systs):  mc.SetNuisanceParameters(out.set("nuisances"))
             if out.set("globalObservables"): mc.SetGlobalObservables(out.set("globalObservables"))
             out._import(mc, mc.GetName())
         out.writeToFile(options.out)
