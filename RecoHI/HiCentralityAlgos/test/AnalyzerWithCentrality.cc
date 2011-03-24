@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.10 2010/11/02 16:15:59 yilmaz Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.11 2011/03/24 21:29:08 yilmaz Exp $
 //
 //
 
@@ -104,10 +104,12 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
    using namespace edm;
    if(!centrality_) centrality_ = new CentralityProvider(iSetup);
-   if(debugEvents_)
+   if(debugEvents_){
      centrality_->newEvent(iEvent,iSetup);
-   else
+   }else{
      centrality_->newRun(iSetup);
+       dumpTable();
+   }
 
    if(debugEvents_){
 
@@ -182,10 +184,6 @@ AnalyzerWithCentrality::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 AnalyzerWithCentrality::endJob() {
-
-  if(tableDump_ && centrality_){
-    dumpTable();    
-  }
 }
 
 void
@@ -202,9 +200,9 @@ AnalyzerWithCentrality::dumpTable(){
   cout<<"eccentricity Mean"<<"\t";
   cout<<"eccentricity RMS"<<"\t";
   cout<<"S Mean"<<"\t";
-  cout<<"S RMS"<<"\t";
+  cout<<"S RMS"<<endl;;
 
-  cout<<"__________________________________________________"<<std::endl;
+  cout<<"____________________________________________________________________________________________________________________________________"<<std::endl;
 
   for(int j=0; j<centrality_->getNbins(); j++){
 
@@ -225,8 +223,8 @@ AnalyzerWithCentrality::dumpTable(){
     cout<<centrality_->eccentricityMeanOfBin(j)<<" \t";
     cout<<centrality_->eccentricitySigmaOfBin(j)<<" \t";
     cout<<centrality_->areaMeanOfBin(j)<<" \t";
-    cout<<centrality_->areaSigmaOfBin(j)<<" \t"<<std::endl;
-    cout<<"__________________________________________________"<<std::endl;
+    cout<<centrality_->areaSigmaOfBin(j)<<std::endl;
+    cout<<"____________________________________________________________________________________________________________________________________"<<std::endl;
 
   }
 
