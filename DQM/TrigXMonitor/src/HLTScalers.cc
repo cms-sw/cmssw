@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.24 2010/03/17 20:54:51 wittich Exp $
+// $Id: HLTScalers.cc,v 1.25 2010/07/20 02:58:27 wmtan Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.25  2010/07/20 02:58:27  wmtan
+// Add missing #include files
+//
 // Revision 1.24  2010/03/17 20:54:51  wittich
 // add scalers that I manually reset on beginLumi
 //
@@ -93,6 +96,9 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   if (dbe_ ) {
     dbe_->setCurrentFolder(folderName_);
   }
+
+  processname_ = ps.getParameter<std::string>("processname");
+
   
 
 }
@@ -123,6 +129,7 @@ void HLTScalers::beginJob(void)
     // when we know more about the HLT configuration.
   
   }
+
   return;
 }
 
@@ -143,6 +150,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
   
   
   int npath = hltResults->size();
+  unsigned int nPD = pairPDPaths.size();
 
   // on the first event of a new run we book new ME's
   if (resetMe_ ) {
@@ -156,6 +164,8 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     std::string rawdir(folderName_ + "/raw");
     dbe_->setCurrentFolder(rawdir);
 
+    scalersPD_ = dbe_->book1D("hltScalersPD", "HLT scalers PD",
+			    nPD, -0.5, nPD-0.5);
 
     detailedScalers_ = dbe_->book2D("detailedHltScalers", "HLT Scalers", 
 				    npath, -0.5, npath-0.5,
@@ -183,6 +193,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     resetMe_ = false;
   } // end resetme_ - pseudo-end-run record
 
+  const edm::TriggerNames & trigNames = e.triggerNames(*hltResults);
   // for some reason this doesn't appear to work on the first event sometimes
   if ( ! sentPaths_ ) {
     const edm::TriggerNames & names = e.triggerNames(*hltResults);
@@ -198,8 +209,16 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       scalers_->getTH1()->GetXaxis()->SetBinLabel(q, j->c_str());
       sentPaths_ = true;
     }
-  }
 
+    for (unsigned int i=0;i<nPD;i++) {
+      
+      LogDebug("HLTScalers") << i << ": " << pairPDPaths[i].first << std::endl ;
+      scalersPD_->getTH1()->GetXaxis()->SetBinLabel(i+1, pairPDPaths[i].first.c_str());
+
+    }
+
+  }
+      
   bool accept = false;
   int bx = e.bunchCrossing();
   for ( int i = 0; i < npath; ++i ) {
@@ -229,6 +248,50 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     hltOverallScalerN_->Fill(1.0);
     hltBx_->Fill(int(bx));
   }
+
+  bool anyGroupPassed = false;
+  for (unsigned int mi=0; mi< pairPDPaths.size(); mi++) {
+
+    bool groupPassed = false;
+
+    for (unsigned int i=0; i< pairPDPaths[mi].second.size(); i++)
+    { 
+
+      //string hltPathName =  hist_2d->GetXaxis()->GetBinLabel(i);
+      std::string hltPathName =  pairPDPaths[mi].second[i];
+
+      // check if this is hlt path name
+      //unsigned int pathByIndex = triggerNames.triggerIndex(hltPathName);
+      unsigned int pathByIndex = trigNames.triggerIndex(pairPDPaths[mi].second[i]);
+      if(pathByIndex >= hltResults->size() ) continue;
+
+      // check if its L1 passed
+      // comment out below but set groupL1Passed to true always
+      //if(hasL1Passed(hltPathName,triggerNames)) groupL1Passed = true;
+      //groupL1Passed = true;
+
+      // Fill HLTPassed Matrix and HLTPassFail Matrix
+      // --------------------------------------------------------
+
+      if(hltResults->accept(pathByIndex)) {
+        
+        groupPassed = true; 
+        break;
+
+     }
+
+    }
+
+    if(groupPassed) {
+      
+      scalersPD_->Fill(mi);
+      anyGroupPassed = true;
+
+    }
+
+  }
+  if(anyGroupPassed) scalersPD_->Fill(pairPDPaths.size()-1);
+
   
 }
 
@@ -266,6 +329,32 @@ void HLTScalers::beginRun(const edm::Run& run, const edm::EventSetup& c)
     resetMe_ = true;
     currentRun_ = run.id().run();
   }
+
+  // HLT config does not change within runs!
+  bool changed=false;
+ 
+  if (!hltConfig_.init(run, c, processname_, changed)) {
+
+
+    LogDebug("TrigXMonitor") << "HLTConfigProvider failed to initialize.";
+
+
+    // check if trigger name in (new) config
+    //  cout << "Available TriggerNames are: " << endl;
+    //  hltConfig_.dump("Triggers");
+  }
+
+  // get hold of PD names and constituent path names
+  vPD =  hltConfig_.streamContent("A") ;
+  for (unsigned int i=0;i<vPD.size();i++) {
+
+    std::vector<std::string> datasetPaths = hltConfig_.datasetContent(vPD[i]);
+    pairPDPaths.push_back(make_pair(vPD[i],datasetPaths));
+
+  }
+  // push stream A and its PDs
+  pairPDPaths.push_back(make_pair("A",vPD));
+
 }
 
 /// EndRun

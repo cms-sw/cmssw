@@ -1,12 +1,15 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.16 2010/02/24 17:43:47 wittich Exp $
+// $Id: HLTScalers.h,v 1.17 2010/03/17 20:54:51 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.17  2010/03/17 20:54:51  wittich
+// add scalers that I manually reset on beginLumi
+//
 // Revision 1.16  2010/02/24 17:43:47  wittich
 // - keep trying to get path names if it doesn't work first time
 // - move the Bx histograms out of raw to the toplevel directory.
@@ -56,6 +59,8 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 
 class HLTScalers: public edm::EDAnalyzer
 {
@@ -92,7 +97,11 @@ public:
 
 
 private:
+
+  HLTConfigProvider hltConfig_;
+
   DQMStore * dbe_;
+  MonitorElement *scalersPD_;
   MonitorElement *scalers_;
   MonitorElement *scalersN_;
   MonitorElement *scalersException_;
@@ -106,6 +115,10 @@ private:
   MonitorElement *hltOverallScaler_;
   MonitorElement *hltOverallScalerN_;
   MonitorElement *diagnostic_;
+
+  std::string processname_;
+  std::vector<std::string> vPD;
+  std::vector <std::pair<std::string, std::vector<std::string> > > pairPDPaths;
 
   //std::vector<MonitorElement*> hltPathNames_;
   edm::InputTag trigResultsSource_;
