@@ -812,7 +812,7 @@ if 'GlobalTag' in %%(dict)s:
       self.source = "file:/tmp/InputCollection.root"
     elif self.config.data:
       # offline we can run on data...
-      self.source = "/store/data/Run2010B/MinimumBias/RAW/v1/000/149/291/DC6C917A-0EE3-DF11-867B-001617C3B654.root"
+      self.source = "/store/data/Run2011A/MinimumBias/RAW/v1/000/161/312/FEE65985-EF55-E011-A137-001617E30F50.root"
     else:
       # ...or on mc
       self.source = "file:RelVal_DigiL1Raw_%s.root" % self.config.type

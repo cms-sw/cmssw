@@ -196,7 +196,7 @@ process.datasets = cms.PSet(
 )
 
 process.source = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring( '/store/data/Run2010B/MinimumBias/RAW/v1/000/149/291/DC6C917A-0EE3-DF11-867B-001617C3B654.root' )
+    fileNames = cms.untracked.vstring( '/store/data/Run2011A/MinimumBias/RAW/v1/000/161/312/FEE65985-EF55-E011-A137-001617E30F50.root' )
 )
 
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
