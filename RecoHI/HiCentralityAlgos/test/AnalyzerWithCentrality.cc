@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.11 2011/03/24 21:29:08 yilmaz Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.12 2011/03/24 21:44:17 yilmaz Exp $
 //
 //
 
@@ -189,8 +189,8 @@ AnalyzerWithCentrality::endJob() {
 void
 AnalyzerWithCentrality::dumpTable(){
 
-  cout<<"Bin Index"<<" \t";
-  cout<<"Bin Name"<<" \t";
+  cout<<"Bin Index"<<"\t";
+  cout<<"Bin Name"<<"\t";
   cout<<"Npart Mean"<<"\t";
   cout<<"RMS"<<"\t";
   cout<<"Ncoll Mean"<<"\t";
@@ -206,23 +206,23 @@ AnalyzerWithCentrality::dumpTable(){
 
   for(int j=0; j<centrality_->getNbins(); j++){
 
-    cout<<j<<" \t";
+    cout<<j<<"\t";
 
     double binMin = (double)(100*j)/centrality_->getNbins();
     double binMax = (double)(100*(j+1))/centrality_->getNbins();
 
     string binName = Form("%0.1f - %0.1f",binMin,binMax);
-    cout<<binName.data()<<endl;
+    cout<<binName.data()<<"\t";
     cout<<centrality_->lowEdgeOfBin(j) <<"\t";
-    cout<<centrality_->NpartMeanOfBin(j)<<" \t";
-    cout<<centrality_->NpartSigmaOfBin(j)<<" \t";
-    cout<<centrality_->NcollMeanOfBin(j)<<" \t";
-    cout<<centrality_->NcollSigmaOfBin(j)<<" \t";
-    cout<<centrality_->bMeanOfBin(j)<<" \t";
-    cout<<centrality_->bSigmaOfBin(j)<<" \t";
-    cout<<centrality_->eccentricityMeanOfBin(j)<<" \t";
-    cout<<centrality_->eccentricitySigmaOfBin(j)<<" \t";
-    cout<<centrality_->areaMeanOfBin(j)<<" \t";
+    cout<<centrality_->NpartMeanOfBin(j)<<"\t";
+    cout<<centrality_->NpartSigmaOfBin(j)<<"\t";
+    cout<<centrality_->NcollMeanOfBin(j)<<"\t";
+    cout<<centrality_->NcollSigmaOfBin(j)<<"\t";
+    cout<<centrality_->bMeanOfBin(j)<<"\t";
+    cout<<centrality_->bSigmaOfBin(j)<<"\t";
+    cout<<centrality_->eccentricityMeanOfBin(j)<<"\t";
+    cout<<centrality_->eccentricitySigmaOfBin(j)<<"\t";
+    cout<<centrality_->areaMeanOfBin(j)<<"\t";
     cout<<centrality_->areaSigmaOfBin(j)<<std::endl;
     cout<<"____________________________________________________________________________________________________________________________________"<<std::endl;
 
