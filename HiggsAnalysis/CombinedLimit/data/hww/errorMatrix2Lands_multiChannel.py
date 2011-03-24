@@ -87,6 +87,7 @@ if not options.stat:
                 data[mh]['nuisname'].append(sysname)
             else:   
                 for k in range(0, nproc * options.nch):
+                    if nuisline[k] < 0.005: continue
                     data[mh]['nuis'].append([(x if j == k else 0) for j,x in enumerate(nuisline)])
                     data[mh]['nuisname'].append('Statistics in MC or control sample')
 
