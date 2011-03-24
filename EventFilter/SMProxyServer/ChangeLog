@@ -11,6 +11,10 @@
 	* Minimal changes for modified IOPool/Streamer V07-01-00
 
 2011-03-24 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V01-10-04
+	* Fix signedness of loop variable.
+
+2011-03-24 Remi Mommsen <Remigius.Mommsen@cern.ch>
 	* tag V01-10-03
 	* Remove unnecessary and no longer available call to
 	  xdata::InfoSpace::get
