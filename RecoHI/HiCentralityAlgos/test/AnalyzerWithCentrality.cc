@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.12 2011/03/24 21:44:17 yilmaz Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.13 2011/03/24 21:46:52 yilmaz Exp $
 //
 //
 
@@ -108,7 +108,7 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
      centrality_->newEvent(iEvent,iSetup);
    }else{
      centrality_->newRun(iSetup);
-       dumpTable();
+     dumpTable();
    }
 
    if(debugEvents_){
