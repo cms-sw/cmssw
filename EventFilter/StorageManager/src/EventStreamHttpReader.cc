@@ -1,4 +1,4 @@
-// $Id: EventStreamHttpReader.cc,v 1.42.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: EventStreamHttpReader.cc,v 1.44 2011/03/07 15:31:32 mommsen Exp $
 /// @file: EventStreamHttpReader.cc
 
 #include "EventFilter/StorageManager/interface/CurlInterface.h"
@@ -133,7 +133,9 @@ namespace edm
     InputSourceDescription const& desc
   ):
   StreamerInputSource(pset, desc),
-  eventServerProxy_(pset)
+  eventServerProxy_(pset),
+  dropOldLumisectionEvents_(pset.getUntrackedParameter<bool>("dropOldLumisectionEvents", false)),
+  lastLS_(0)
   {
     // Default in StreamerInputSource is 'false'
     inputFileTransitionsEachEvent_ =
@@ -146,19 +148,30 @@ namespace edm
   EventPrincipal* EventStreamHttpReader::read()
   {
     stor::CurlInterface::Content data;
-
-    eventServerProxy_.getOneEvent(data);
-    if ( data.empty() ) return 0;
-
-    HeaderView hdrView(&data[0]);
-    if (hdrView.code() == Header::DONE)
+    unsigned int currentLS(0);
+    
+    do
     {
-      setEndRun();
-      return 0;
+      eventServerProxy_.getOneEvent(data);
+      if ( data.empty() ) return 0;
+      
+      HeaderView hdrView(&data[0]);
+      if (hdrView.code() == Header::DONE)
+      {
+        setEndRun();
+        return 0;
+      }
+      
+      EventMsgView eventView(&data[0]);
+      currentLS = eventView.lumi();
     }
-
-    EventMsgView eventView(&data[0]);
-    return deserializeEvent(eventView);
+    while (
+      dropOldLumisectionEvents_ &&
+      lastLS_ > currentLS
+    );
+    
+    lastLS_ = currentLS;
+    return deserializeEvent(EventMsgView(&data[0]));
   }
   
   

@@ -223,7 +223,7 @@
         <consumerQueueSize  xsi:type="xsd:integer">10</consumerQueueSize>
         <DQMconsumerQueueSize xsi:type="xsd:integer">10</DQMconsumerQueueSize>
         <collateDQM         xsi:type="xsd:boolean">true</collateDQM>
-        <archiveDQM         xsi:type="xsd:boolean">false</archiveDQM>
+        <archiveDQM         xsi:type="xsd:boolean">true</archiveDQM>
         <filePrefixDQM      xsi:type="xsd:string">../../smpsDQM</filePrefixDQM>
         <readyTimeDQM       xsi:type="xsd:integer">30</readyTimeDQM>
         <archiveIntervalDQM xsi:type="xsd:integer">1</archiveIntervalDQM>
