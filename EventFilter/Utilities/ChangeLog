@@ -1,3 +1,8 @@
+2011-03-24  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-09
+	* put back forgotten TriggerReportDef.cc
+	
 2011-03-21  Emilio Meschi <emilio.meschi@cern.ch>
 	
 	* tag V00-19-08
