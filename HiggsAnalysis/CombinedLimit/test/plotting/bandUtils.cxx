@@ -36,9 +36,10 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
     TTree *t = (TTree *) file->Get("limit");
     if (t == 0) t = (TTree *) file->Get("test"); // backwards compatibility
     if (t == 0) { std::cerr << "TFile " << file->GetName() << " does not contain the tree" << std::endl; return 0; }
-    Double_t mass, limit; Float_t t_cpu, t_real; Int_t syst, iChannel, iToy, iMass;
+    Double_t mass, limit, limitErr = 0; Float_t t_cpu, t_real; Int_t syst, iChannel, iToy, iMass;
     t->SetBranchAddress("mh", &mass);
     t->SetBranchAddress("limit", &limit);
+    if (t->GetBranch("limitErr")) t->SetBranchAddress("limitErr", &limitErr);
     if (t->GetBranch("t_cpu") != 0) {
         t->SetBranchAddress("t_cpu", &t_cpu);
         t->SetBranchAddress("t_real", &t_real);
@@ -48,6 +49,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
     t->SetBranchAddress("iToy", &iToy);
 
     std::map<int,std::vector<double> >  dataset;
+    std::map<int,std::vector<double> >  errors;
     for (size_t i = 0, n = t->GetEntries(); i < n; ++i) {
         t->GetEntry(i);
         if (syst != doSyst)           continue;
@@ -62,6 +64,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
             limit = t_cpu; 
         }
         dataset[iMass].push_back(limit);
+        errors[iMass].push_back(limitErr);
     }
     TGraphAsymmErrors *tge = new TGraphAsymmErrors(dataset.size());
     int ip = 0;
@@ -94,8 +97,14 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
                 break;
             case Observed:
                 x = mean;
-                if (nd <= 1) {
-                    summer68 = winter68 = mean;
+                if (nd == 1) {
+                    if (errors[it->first].size() == 1) {
+                        summer68 = mean - errors[it->first][0];
+                        winter68 = mean + errors[it->first][0];
+                    } else {
+                        // could happen if limitErr is not available
+                        summer68 = winter68 = mean;
+                    }
                 } else { // if we have multiple, average and report rms (useful e.g. for MCMC)
                     double rms = 0;
                     for (int j = 0; j < nd; ++j) { rms += (mean-data[j])*(mean-data[j]); }
@@ -103,6 +112,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
                     summer68 = mean + rms;
                     winter68 = mean - rms;
                 }
+                break;
             case AdHoc:
                 x = summer68 = winter68 = mean;
                 break;
@@ -357,7 +367,7 @@ void stripBands(TDirectory *in, TString band,  int m1, int m2=0, int m3=0, int m
 }
 
 void printLine(TDirectory *bands, TString who, FILE *fout, TString header="value") {
-    TGraph *mean = (TGraph*) bands->Get(who);
+    TGraphAsymmErrors *mean = (TGraphAsymmErrors*) bands->Get(who);
     if (mean == 0) { std::cerr << "MISSING " << who << std::endl; return; }
     fprintf(fout, "%4s \t %7s\n", "mass",  header.Data());
     fprintf(fout,  "%5s\t %7s\n", "-----", "-----");
@@ -373,12 +383,33 @@ void printLine(TDirectory *bands, TString who, TString fileName, TString header=
     fclose(fout);
 }
 
+void printLineErr(TDirectory *bands, TString who, FILE *fout, TString header="value") {
+    TGraphAsymmErrors *mean = (TGraphAsymmErrors*) bands->Get(who);
+    if (mean == 0) { std::cerr << "MISSING " << who << std::endl; return; }
+    fprintf(fout, "%4s \t %7s +/- %6s\n", "mass",  header.Data()," error");
+    fprintf(fout,  "%5s\t %7s-----%6s-\n", "-----", " ------","------");
+    for (int i = 0, n = mean->GetN(); i < n; ++i) {
+        fprintf(fout, "%4d \t %7.3f +/- %6.3f\n",  
+            int(mean->GetX()[i]), 
+            mean->GetY()[i], 
+            TMath::Max(mean->GetErrorYlow(i),mean->GetErrorYhigh(i)));  
+    }
+}
+void printLineErr(TDirectory *bands, TString who, TString fileName, TString header="value") {
+    TGraph *mean = (TGraph*) bands->Get(who);
+    if (mean == 0) { std::cerr << "MISSING " << who << std::endl; return; }
+    FILE *fout = fopen(fileName.Data(), "w");
+    printLineErr(bands,who,fout,header);
+    fclose(fout);
+}
+
+
 void printBand(TDirectory *bands, TString who, FILE *fout, bool mean=true) {
     TGraphAsymmErrors *obs    = (TGraphAsymmErrors*) bands->Get(who+"_obs");
     TGraphAsymmErrors *mean68 = (TGraphAsymmErrors*) bands->Get(who+(mean?"_mean":"_median"));
     TGraphAsymmErrors *mean95 = (TGraphAsymmErrors*) bands->Get(who+(mean?"_mean":"_median")+"_95");
     if (mean68 == 0 && obs == 0) { std::cerr << "MISSING " << who << "_mean and " << who << "_obs" << std::endl; return; }
-    if (mean68 == 0) { printLine(bands, who+"_obs", fout); return; }
+    if (mean68 == 0) { printLineErr(bands, who+"_obs", fout); return; }
     fprintf(fout, "%4s \t %7s  %7s  %7s  %7s  %7s  %7s\n", "mass", " obs ", "-95%", "-68%", (mean ? "mean" : "median"), "+68%", "+95%");
     fprintf(fout,  "%5s\t %7s  %7s  %7s  %7s  %7s  %7s\n", "-----","-----",  "-----", "-----", "-----", "-----", "-----");
     for (int i = 0, n = mean68->GetN(); i < n; ++i) {
