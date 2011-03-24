@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.25 2010/07/20 02:58:27 wmtan Exp $
+// $Id: HLTScalers.cc,v 1.26 2011/03/24 18:25:45 rekovic Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.26  2011/03/24 18:25:45  rekovic
+// Add single 1D plot of streamA content
+//
 // Revision 1.25  2010/07/20 02:58:27  wmtan
 // Add missing #include files
 //
@@ -164,7 +167,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     std::string rawdir(folderName_ + "/raw");
     dbe_->setCurrentFolder(rawdir);
 
-    scalersPD_ = dbe_->book1D("hltScalersPD", "HLT scalers PD",
+    scalersPD_ = dbe_->book1D("pdScalers", "PD scalers (stream A)",
 			    nPD, -0.5, nPD-0.5);
 
     detailedScalers_ = dbe_->book2D("detailedHltScalers", "HLT Scalers", 
