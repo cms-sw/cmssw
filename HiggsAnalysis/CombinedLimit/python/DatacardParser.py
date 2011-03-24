@@ -10,6 +10,7 @@ class Datacard():
         self.systs   = []  # each entry is (name, pdf, args, error line)
                            # were error line is aligned to keyline
         self.shapeMap = {}
+        self.hasShape = False
 
 def parseCard(file, options):
     ret = Datacard()
@@ -131,5 +132,7 @@ def parseCard(file, options):
         nuisances = len(ret.systs)
     elif len(ret.systs) != nuisances: 
         raise RuntimeError, "Found %d systematics, expected %d" % (len(ret.systs), nuisances)
+    # set boolean to know about shape
+    ret.hasShapes = (len(ret.shapeMap) > 0)
     # return result
     return ret
