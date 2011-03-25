@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Nov  2 13:46:26 CST 2009
-// $Id: FWViewContextMenuHandlerBase.h,v 1.3 2009/11/03 14:01:50 amraktad Exp $
+// $Id: FWViewContextMenuHandlerBase.h,v 1.4 2009/11/04 13:30:08 amraktad Exp $
 //
 
 // system include files
@@ -39,11 +39,11 @@ public:
       friend class FWViewContextMenuHandlerBase;
       MenuEntryAdder(FWModelContextMenuHandler&);
       FWModelContextMenuHandler* m_handler;
-      int m_lastIndex;
+      // int m_lastIndex;
    public:
       /**Add an entry by name of iEntryName to the context menu.  Returns the entry index
        which simply increments after each 'addEntry' call and starts at 0 */
-      int addEntry(const char* iEntryName);
+      int addEntry(const char* iEntryName, int idx, bool enable = true);
    };
    
    // ---------- const member functions ---------------------
@@ -51,7 +51,7 @@ public:
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
-   void addTo(FWModelContextMenuHandler&);
+   void addTo(FWModelContextMenuHandler&, const FWModelId &id);
    
    /**Called when a menu item was selected
     iEntryIndex: the index of the selected menu item.  Same as returned from 'addEntry'
@@ -66,7 +66,7 @@ private:
    const FWViewContextMenuHandlerBase& operator=(const FWViewContextMenuHandlerBase&); // stop default
    
    ///Called when have to add entries to the context menu
-   virtual void init(MenuEntryAdder&) = 0;
+   virtual void init(MenuEntryAdder&, const FWModelId &id) = 0;
 
 
 };

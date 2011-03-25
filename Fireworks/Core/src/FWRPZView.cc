@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.41 2011/03/17 12:02:44 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.42 2011/03/22 13:52:18 amraktad Exp $
 //
 
 // system include files
@@ -107,7 +107,7 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
       m_showHF->changed_.connect(  boost::bind(&FWRPZView::setEtaRng, this) );
    }
 
-   m_shiftOrigin.changed_.connect(boost::bind(&FWRPZView::doShiftOrigin,this));
+   m_shiftOrigin.changed_.connect(boost::bind(&FWRPZView::doShiftOriginToBeamSpot,this));
 
    m_fishEyeDistortion.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion,this));
    m_fishEyeR.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion,this));
@@ -189,7 +189,7 @@ FWRPZView::eventBegin()
 }
 
 void
-FWRPZView::doShiftOrigin()
+FWRPZView::doShiftOriginToBeamSpot()
 { 
 #ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
 
@@ -202,6 +202,40 @@ FWRPZView::doShiftOrigin()
    }
 #endif
 }
+
+void
+FWRPZView::shiftOrigin(TEveVector& center)
+{ 
+#ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
+   // re-project with new center
+   m_projMgr->GetProjection()->SetCenter(center);
+   m_projMgr->ProjectChildren();
+
+   // draw projected center
+   float* pc =  m_projMgr->GetProjection()->GetProjectedCenter();
+   viewerGL()->CurrentCamera().SetExternalCenter(true);
+   viewerGL()->CurrentCamera().SetCenterVec(pc[0], pc[1], pc[2]);
+   viewerGL()->SetDrawCameraCenter(true);
+
+   gEve->Redraw3D();
+#endif
+}
+
+void
+FWRPZView::resetOrigin()
+{ 
+   // set center back to beam spot
+
+#ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
+   FWBeamSpot& b = *(context().getBeamSpot());
+   TEveVector center(b.x0(),  b.y0(), b.z0());
+   m_projMgr->GetProjection()->SetCenter(center);
+
+   m_projMgr->ProjectChildren();
+   gEve->Redraw3D();
+#endif
+}
+
 
 void
 FWRPZView::doFishEyeDistortion()

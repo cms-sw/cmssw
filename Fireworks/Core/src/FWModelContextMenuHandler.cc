@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.16 2010/06/18 10:17:16 yana Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.17 2010/09/01 18:49:00 amraktad Exp $
 //
 
 // system include files
@@ -270,23 +270,34 @@ FWModelContextMenuHandler::colorChangeRequested(Color_t color)
 }
 
 void 
-FWModelContextMenuHandler::addViewEntry(const char* iEntryName, int iEntryIndex)
+FWModelContextMenuHandler::addViewEntry(const char* iEntryName, int iEntryIndex, bool enabled)
 {
    if(!m_viewSeperator) { 	 
       m_modelPopup->AddSeparator(m_afterViewSeperator); 	 
       m_viewSeperator=dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Before(m_afterViewSeperator));
       assert(0!=m_viewSeperator); 	 
    }
+ 
    if(static_cast<int>(m_nViewEntries) > iEntryIndex) {
       m_modelPopup->GetEntry(iEntryIndex+kViewOptionsMO)->GetLabel()->SetString(iEntryName);
-      m_modelPopup->EnableEntry(iEntryIndex+kViewOptionsMO);
+      if(enabled)
+         m_modelPopup->EnableEntry(iEntryIndex+kViewOptionsMO);
+      else
+         m_modelPopup->DisableEntry(iEntryIndex+kViewOptionsMO);
+
    } else {
       assert(static_cast<int>(m_nViewEntries) == iEntryIndex);
       m_modelPopup->AddEntry(iEntryName,kViewOptionsMO+iEntryIndex,0,0,m_viewSeperator);
+
+      if (enabled)
+         m_modelPopup->EnableEntry(kViewOptionsMO+iEntryIndex);
+      else
+         m_modelPopup->DisableEntry(kViewOptionsMO+iEntryIndex);
+
       ++m_nViewEntries;
    }
-}
 
+}
 //
 // const member functions
 //
@@ -346,7 +357,7 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
       m_modelPopup->HideEntry(kViewOptionsMO+i);
    }
    if(m_viewHander) {
-      m_viewHander->addTo(const_cast<FWModelContextMenuHandler&>(*this));
+      m_viewHander->addTo(const_cast<FWModelContextMenuHandler&>(*this), *(m_selectionManager->selected().begin()));
    }
    
    m_x=iX;

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:02 CDT 2009
-// $Id: FWModelContextMenuHandler.h,v 1.6 2010/03/17 13:02:41 matevz Exp $
+// $Id: FWModelContextMenuHandler.h,v 1.7 2010/06/16 14:04:40 matevz Exp $
 //
 
 // system include files
@@ -55,7 +55,7 @@ public:
    void chosenItem(Int_t);
    void colorChangeRequested(Color_t);
    
-   void addViewEntry(const char*, int);
+   void addViewEntry(const char*, int, bool enabled= true);
    ClassDef(FWModelContextMenuHandler,0);
 private:
    FWModelContextMenuHandler(const FWModelContextMenuHandler&); // stop default

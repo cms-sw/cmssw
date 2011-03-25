@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.51 2010/12/06 14:25:53 amraktad Exp $
+// $Id: FWEveView.cc,v 1.52 2011/02/03 17:38:40 amraktad Exp $
 //
 
 
@@ -127,14 +127,13 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_geoScene = gEve->SpawnNewScene(Form("GeoScene %s", typeName().c_str()));
    m_geoScene->GetGLScene()->SetSelectable(kFALSE);
    m_viewer->AddScene(m_geoScene);
-   m_viewContextMenu.reset(new FWViewContextMenuHandlerGL(m_viewer));
 
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)embeddedViewer->GetGLWidget(), (TObject*)embeddedViewer);
    embeddedViewer->SetEventHandler(eh);
    eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
    eh->SetDoInternalSelection(kFALSE);
-   FWViewContextMenuHandlerGL* ctxHand = new FWViewContextMenuHandlerGL(m_viewer);
-   ctxHand->setPickCameraCenter(true);
+   FWViewContextMenuHandlerGL* ctxHand = new FWViewContextMenuHandlerGL(this);
+   // ctxHand->setPickCameraCenter(true);
    m_viewContextMenu.reset(ctxHand);
    
    m_energyMaxValAnnotation = new ScaleAnnotation(viewerGL(), "empty", 0.1, 0.9);
@@ -191,7 +190,7 @@ FWEveView::~FWEveView()
 
 FWViewContextMenuHandlerBase* 
 FWEveView::contextMenuHandler() const {
-   return (FWViewContextMenuHandlerBase*)m_viewContextMenu.get();
+   return dynamic_cast<FWViewContextMenuHandlerBase*> (m_viewContextMenu.get());
 }
 
 TGLViewer* 

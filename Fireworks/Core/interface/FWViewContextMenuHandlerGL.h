@@ -3,28 +3,25 @@
 
 #include "Fireworks/Core/interface/FWViewContextMenuHandlerBase.h"
 
-class TEveViewer;
+class FWEveView;
 class FWModelId;
 
-class FWViewContextMenuHandlerGL
+class FWViewContextMenuHandlerGL : public FWViewContextMenuHandlerBase
 {
 public:
-   enum GLViewerAction { kAnnotate, kCameraCenter, kResetCameraCenter, kNone };
+   enum GLViewerAction { kAnnotate, kCameraCenter, kResetCameraCenter,kOrigin,  kNone };
 
-   FWViewContextMenuHandlerGL(TEveViewer* v);
+   FWViewContextMenuHandlerGL(FWEveView* v);
    virtual ~FWViewContextMenuHandlerGL() {}
    virtual void select(int iEntryIndex, const FWModelId &id, int iX, int iY);
-
-   void    setPickCameraCenter(bool x) { m_pickCameraCenter = x; }
    
 private:
    FWViewContextMenuHandlerGL(const FWViewContextMenuHandlerGL&); // stop default   
    const FWViewContextMenuHandlerGL& operator=(const FWViewContextMenuHandlerGL&); // stop default
 
-   virtual void init(FWViewContextMenuHandlerBase::MenuEntryAdder&);
+   virtual void init(FWViewContextMenuHandlerBase::MenuEntryAdder&, const FWModelId &id);
  
-   TEveViewer* m_viewer;
-   bool        m_pickCameraCenter;
+    FWEveView*  m_view;
 };
 
 #endif
