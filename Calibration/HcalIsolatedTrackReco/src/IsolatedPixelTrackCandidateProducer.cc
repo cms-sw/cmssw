@@ -267,19 +267,16 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 
 double IsolatedPixelTrackCandidateProducer::getDistInCM(double eta1, double phi1, double eta2, double phi2)
 {
-  double dR, Rec;
+  double Rec;
   double theta1=2*atan(exp(-eta1));
   double theta2=2*atan(exp(-eta2));
   if (fabs(eta1)<1.479) Rec=129; //radius of ECAL barrel
   else if (fabs(eta1)>1.479&&fabs(eta1)<7.0) Rec=tan(theta1)*317; //distance from IP to ECAL endcap
+  else return 1000;
 
   //|vect| times tg of acos(scalar product)
   double angle=acos((sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2)));
-  if (angle<acos(-1)/2)
-    {
-      dR=fabs((Rec/sin(theta1))*tan(angle));
-      return dR;
-    }
+  if (angle<acos(-1)/2) return fabs((Rec/sin(theta1))*tan(angle));
   else return 1000;
 }
 
