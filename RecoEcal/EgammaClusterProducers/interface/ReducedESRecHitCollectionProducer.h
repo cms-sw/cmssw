@@ -21,18 +21,23 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
+class EcalPreshowerGeometry;
+class CaloSubdetectorTopology;
 class ReducedESRecHitCollectionProducer : public edm::EDProducer {
 
  public :
 
   ReducedESRecHitCollectionProducer(const edm::ParameterSet& pset);
   virtual ~ReducedESRecHitCollectionProducer();
+  void beginRun (edm::Run &, const edm::EventSetup&);
   void produce(edm::Event & e, const edm::EventSetup& c);
-  void beginJob(void);
-  void endJob(void);
-  EcalRecHitCollection getESHits(double X, double Y, double Z, const CaloSubdetectorGeometry*& geometry_p, CaloSubdetectorTopology *topology_p, int row=0);
+  void pushESHits(EcalRecHitCollection &,double X, double Y, double Z, int row=0);
   
  private :
+
+  const EcalPreshowerGeometry *geometry_p;
+  CaloSubdetectorTopology *topology_p;
+
 
   double scEtThresh_;
 
@@ -40,7 +45,7 @@ class ReducedESRecHitCollectionProducer : public edm::EDProducer {
   edm::InputTag InputSpuerClusterEE_;
   std::string OutputLabelES_;
 
-  map<DetId, EcalRecHit> rechits_map_;
+  map<DetId, const EcalRecHit*> rechits_map_;
   map<DetId, int> used_strips_;
   
 };
