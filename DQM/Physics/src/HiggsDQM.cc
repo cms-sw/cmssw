@@ -540,7 +540,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
     
   
   }
-  if(nMu+nEle >= 10) cout<<"WARNING: "<<nMu+nEle<<" leptons in this event: run="<<e.id().run()<<", event="<<e.id().event()<<endl; 
+  if(nMu+nEle >= 10) edm::LogDebug("HiggsDQM") <<"WARNING: "<<nMu+nEle<<" leptons in this event: run="<<e.id().run()<<", event="<<e.id().event()<< "\n"; 
   
 /*  /// channel conditions
   nElectron=0;
