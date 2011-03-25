@@ -15,6 +15,11 @@ using namespace std;
  * 
  */
 
+std::ostream& operator<<(std::ostream &out, const Tm &t) {
+  out << t.str();
+  return out;
+}
+
 // Default Constructor
 Tm::Tm()
 {
@@ -33,9 +38,11 @@ Tm::Tm(uint64_t micros)
 {
   this->setNull();
   if (micros > PLUS_INF_MICROS) {
-    micros = PLUS_INF_MICROS;
+    //micros = PLUS_INF_MICROS;
+    this->setToCmsNanoTime(micros);
+  } else {
+    this->setToMicrosTime(micros);
   }
-  this->setToMicrosTime(micros);
 }
 
 
@@ -106,6 +113,11 @@ string Tm::str() const
   return string(timebuf);
 }
 
+uint64_t Tm::cmsNanoSeconds() const
+{
+  return microsTime()/1000000 << 32;
+}
+
 uint64_t Tm::microsTime() const
 {
   uint64_t result = 0;
@@ -136,6 +148,10 @@ uint64_t Tm::microsTime() const
 
   return result; 
 
+}
+
+void Tm::setToCmsNanoTime(uint64_t nanos) {
+  setToMicrosTime((nanos >> 32) * 1000000);
 }
 
 void Tm::setToMicrosTime(uint64_t micros)
