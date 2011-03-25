@@ -25,6 +25,7 @@ patMuonsWithoutTrigger = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.
     userIsolation = cms.PSet(),   # no extra isolation beyond what's in reco::Muon itself
     isoDeposits = cms.PSet(), # no heavy isodeposits
     addGenMatch = False,       # no mc: T&P doesn't take it from here anyway.
+    pvSrc = "hiSelectedVertex"
 )
 # Reset all these; the default in muonProducer_cfi is not empty, but wrong
 patMuonsWithoutTrigger.userData.userInts.src    = []
@@ -73,12 +74,13 @@ patTrigger.onlyStandAlone = True
 muonTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR",
     src     = cms.InputTag( "patMuonsWithoutTrigger" ),
     matched = cms.InputTag( "patTrigger" ),
-    andOr          = cms.bool( False ),
-    filterIdsEnum  = cms.vstring( '*' ),
-    filterIds      = cms.vint32( 0 ),
-    filterLabels   = cms.vstring( '*' ),
-    pathNames      = cms.vstring( '*' ),
-    collectionTags = cms.vstring( '*' ),
+    matchedCuts = cms.string(""),
+#    andOr          = cms.bool( False ),
+#    filterIdsEnum  = cms.vstring( '*' ),
+#    filterIds      = cms.vint32( 0 ),
+#    filterLabels   = cms.vstring( '*' ),
+#    pathNames      = cms.vstring( '*' ),
+#    collectionTags = cms.vstring( '*' ),
     maxDPtRel = cms.double( 0.5 ),
     maxDeltaR = cms.double( 0.5 ),
     resolveAmbiguities    = cms.bool( True ),
@@ -93,11 +95,11 @@ muonMatchL1 = muonHLTL1Match.clone(
 )
 
 ### Single Mu L1
-muonMatchHLTL1 = muonMatchL1.clone(collectionTags = [ 'hltL1extraParticles' ])
-muonMatchHLTL2 = muonTriggerMatchHLT.clone(collectionTags = [ 'hltL2MuonCandidates' ], maxDeltaR = 1.2, maxDPtRel = 10.0) # L2 muons have poor resolution
-muonMatchHLTL3 = muonTriggerMatchHLT.clone(collectionTags = [ 'hltL3MuonCandidates' ], maxDeltaR = 0.5, maxDPtRel = 10.0)
-muonMatchHLTCtfTrack = muonTriggerMatchHLT.clone(collectionTags = ['hltMuTrackJpsiCtfTrackCands'])
-muonMatchHLTTrackMu  = muonTriggerMatchHLT.clone(collectionTags = ['hltMuTkMuJpsiTrackerMuonCands'])
+muonMatchHLTL1 = muonMatchL1.clone(matchedCuts = cms.string('coll("hltL1extraParticles")'))
+muonMatchHLTL2 = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltL2MuonCandidates")'), maxDeltaR = 1.2, maxDPtRel = 10.0) # L2 muons have poor resolution
+muonMatchHLTL3 = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltL3MuonCandidates")'), maxDeltaR = 0.5, maxDPtRel = 10.0)
+muonMatchHLTCtfTrack = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltMuTrackJpsiCtfTrackCands")'))
+muonMatchHLTTrackMu  = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltMuTkMuJpsiTrackerMuonCands")'))
 
 patTriggerMatchers1Mu = cms.Sequence(
       muonMatchHLTL1 +
