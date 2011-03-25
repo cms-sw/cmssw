@@ -22,12 +22,11 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
-process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.analyze = cms.EDAnalyzer("AnalyzerWithCentrality")
 
 process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string("histogramsAndTable.root")
                                    )
 
-process.p = cms.Path(process.centralityBin*process.analyze)
+process.p = cms.Path(process.analyze)
 
