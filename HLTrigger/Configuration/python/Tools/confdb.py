@@ -770,7 +770,7 @@ if 'GlobalTag' in %%(dict)s:
      #self.options['paths'].append( "-HLT_Jet15U_HcalNoiseFiltered_v*" )
      #self.options['paths'].append( "-HLT_L1DoubleMuOpen_Tight" )
      #self.options['paths'].append( "-HLT_L1MuOpen_AntiBPTX" )
-      self.options['paths'].append( "-HLT_L1MuOpen_AntiBPTX_v*" )
+      self.options['paths'].append( "-HLT_L1SingleMuOpen_AntiBPTX_v*" )
       self.options['paths'].append( "-HLT_JetE30_NoBPTX*_v*" )
      #self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi" )
      #self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi_Tight_v*" )
