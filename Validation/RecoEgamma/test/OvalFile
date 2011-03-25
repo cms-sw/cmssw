@@ -1,8 +1,8 @@
 
-<var name="TEST_RELEASE" value="4_2_0_pre6">
-<var name="TEST_GLOBAL_TAG" value="MC_42_V4">
-<var name="TEST_GLOBAL_STARTUP_TAG" value="START42_V4">
-<var name="TEST_GLOBAL_VERSION" value="v1">
+<var name="TEST_RELEASE" value="4_2_0_pre7">
+<var name="TEST_GLOBAL_TAG" value="MC_42_V6">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START42_V6">
+<var name="TEST_GLOBAL_VERSION" value="v2">
 
 The value of OVAL_ENVNAME is automatically set by Oval to the name
 of the current environment, before running any executable. Using it below,
@@ -26,9 +26,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="4_2_0_pre6">
-<var name="VAL_REF_RELEASE" value="4_2_0_pre5">
-<var name="VAL_COMMENT" value="New pflow attributes in GsfElectron, and sequence reorganized.">
+<var name="VAL_NEW_RELEASE" value="4_2_0_pre7">
+<var name="VAL_REF_RELEASE" value="4_2_0_pre6">
+<var name="VAL_COMMENT" value="Use new GsfPfRecTracks and pfTranslator GsfElectron(Core) collections.">
 
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
 
