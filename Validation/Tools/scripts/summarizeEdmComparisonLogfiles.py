@@ -53,6 +53,11 @@ if __name__ == "__main__":
                     'missingCfg'   : missingCfgRE,
                     'noEdmWrapper' : noEdmWrapperRE,
                     'dummy'        : dummyRE,
+                    'operator'     : re.compile (r"onfig file parser error 'operator"),
+                    'useless'      : re.compile (r'no member functions that are useful'),
+                    'lazy'         : re.compile (r': Assertion'),
+                    'detset'       : re.compile (r"AttributeError: 'edm::DetSet"),
+                    'doubleint'    : re.compile (r'AttributeError: (int|double)'),
                     'finish'       : finishRE}
 
     parser = optparse.OptionParser ("Usage: %prog logfilePrefix [directory]")
