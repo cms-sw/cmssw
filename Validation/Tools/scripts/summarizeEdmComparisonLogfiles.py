@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     # compile regexs
     percentRE      = re.compile (r'%')
-    startOutputRE  = re.compile (r'^problems$')
+    startOutputRE  = re.compile (r'^Summary$')
     success1RE     = re.compile (r"{'eventsCompared':\s+(\d+),\s+'count_(\S+)':\s+(\d+)\s*}")
     success2RE     = re.compile (r"{'count_(\S+)':\s+(\d+),\s+'eventsCompared':\s+(\d+)\s*}")
     loadingSoRE    = re.compile (r'loading (genobjectrootlibs/\w+)')
