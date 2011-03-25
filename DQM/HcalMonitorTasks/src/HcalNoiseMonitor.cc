@@ -213,7 +213,6 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
    iSetup.get<HcalDbRecord>().get(hConditions);
 
    edm::Handle<HBHERecHitCollection> hRecHits;
-   std::cout <<"RECHIT = "<<hbheRechitLabel_<<std::endl;
    iEvent.getByLabel(edm::InputTag(hbheRechitLabel_), hRecHits);
 
    edm::Handle<reco::HcalNoiseRBXCollection> hRBXCollection;
