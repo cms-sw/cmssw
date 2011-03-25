@@ -78,9 +78,10 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
 
 reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
                                       scEtThreshold = cms.double(15),
-                                      EcalRecHitCollectionES = cms.InputTag("ecalPreshowerRecHit:EcalRecHitsES"),
-                                      EndcapSuperClusterCollection = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower", ""),
-                                      OutputLabel_ES = cms.string('')
+                                      EcalRecHitCollectionES = cms.InputTag('ecalPreshowerRecHit','EcalRecHitsES'),
+                                      EndcapSuperClusterCollection = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'),
+                                      OutputLabel_ES = cms.string(''),
+                                      interestingDetIds = cms.VInputTag()
                                       )
 
 #selected digis

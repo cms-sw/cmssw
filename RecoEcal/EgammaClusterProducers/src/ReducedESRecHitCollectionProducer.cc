@@ -13,6 +13,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
 #include "RecoEcal/EgammaClusterProducers/interface/ReducedESRecHitCollectionProducer.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 
 ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::ParameterSet& ps):
   geometry_p(0),
@@ -25,6 +26,8 @@ ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::
  InputSpuerClusterEE_ = ps.getParameter<edm::InputTag>("EndcapSuperClusterCollection"); 
 
  OutputLabelES_       = ps.getParameter<std::string>("OutputLabel_ES");
+ 
+ interestingDetIdCollections_         = ps.getParameter<std::vector< edm::InputTag> >("interestingDetIds");
  
  produces< EcalRecHitCollection > (OutputLabelES_);
  
@@ -56,22 +59,6 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
   
   std::auto_ptr<EcalRecHitCollection> output(new EcalRecHitCollection);
 
-  std::set<DetId> collectedIds;
-
-
-
-  // make the map of rechits
-  rechits_map_.clear();
-  used_strips_.clear();
-  EcalRecHitCollection::const_iterator it;
-  for (it = ESRecHits_->begin(); it != ESRecHits_->end(); ++it) {
-    if (it->recoFlag()==1 || it->recoFlag()==14 || (it->recoFlag()<=10 && it->recoFlag()>=5)) continue;
-    rechits_map_.insert(std::make_pair(it->id(), &(*it)));   
-    //cout<<"RH : "<<ESDetId(it->id())<<" "<<it->energy()<<endl;
-    }
-  
-  output->reserve(rechits_map_.size());
-  
   edm::Handle<reco::SuperClusterCollection> pEndcapSuperClusters;
   e.getByLabel(InputSpuerClusterEE_, pEndcapSuperClusters);
   {
@@ -89,35 +76,49 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
 
 	//cout<<"BC : "<<nBC<<endl;
 
-	double X = (*ibc)->x();
-	double Y = (*ibc)->y();
-	double Z = (*ibc)->z();        
+	const GlobalPoint point((*ibc)->x(),(*ibc)->y(),(*ibc)->z());
 	
+	collectIds(point, 0);
+	collectIds(point, 1);
+	collectIds(point, -1);
 
-	pushESHits(*output, X, Y, Z, 0);
-	pushESHits(*output, X, Y, Z, 1);
-	pushESHits(*output, X, Y, Z, -1);
-	
 	//nBC++;
       }
       
     }
     
   }
-  
+
+
+  edm::Handle<DetIdCollection > detId;
+  for( unsigned int t = 0; t < interestingDetIdCollections_.size(); ++t )
+    {
+      e.getByLabel(interestingDetIdCollections_[t],detId);
+      if (!detId.isValid()){
+	edm::LogError("MissingInput")<<"the collection of interesting detIds:"<<interestingDetIdCollections_[t]<<" is not found.";
+        continue;
+      }
+      collectedIds_.insert(detId->begin(),detId->end());
+    }
+
+
+  output->reserve( collectedIds_.size());
+  EcalRecHitCollection::const_iterator it;
+  for (it = ESRecHits_->begin(); it != ESRecHits_->end(); ++it) {
+    if (it->recoFlag()==1 || it->recoFlag()==14 || (it->recoFlag()<=10 && it->recoFlag()>=5)) continue;
+    if (collectedIds_.find(it->id())!=collectedIds_.end()){
+      output->push_back(*it);
+    }
+  }
+  collectedIds_.clear();
+
   e.put(output, OutputLabelES_);
-  
+
 }
 
-void ReducedESRecHitCollectionProducer::pushESHits(EcalRecHitCollection & output,
-						   double X, double Y, double Z,
-						   int row){
-
+void ReducedESRecHitCollectionProducer::collectIds(const GlobalPoint & point,
+						   const int & row){
   //cout<<row<<endl;
-
-  int used = 0;
-
-  const GlobalPoint point(X,Y,Z);
 
   DetId esId1 = geometry_p->getClosestCellInPlane(point, 1);
   DetId esId2 = geometry_p->getClosestCellInPlane(point, 2);
@@ -150,30 +151,12 @@ void ReducedESRecHitCollectionProducer::pushESHits(EcalRecHitCollection & output
   // Plane 1 
   if (strip1 == ESDetId(0)) {
   } else {
-    
-    it = rechits_map_.find(strip1);
-    itu = used_strips_.find(strip1);
-    used = itu->second;
-    //cout<<"center : "<<strip1<<" "<<it->second.energy()<<endl;      
-    if (it != rechits_map_.end() && used == 0) {
-      output.push_back(*it->second); 
-      used_strips_.insert(std::make_pair(it->first, 1));
-      //cout<<"Found !"<<endl;
-    }
-
+    collectedIds_.insert(strip1);
     // east road 
     for (int i=0; i<15; ++i) {
       next = theESNav1.east();
       if (next != ESDetId(0)) {
-	it = rechits_map_.find(next);
-	itu = used_strips_.find(next);
-	used = itu->second;
-	//cout<<"east "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
-	if (it != rechits_map_.end() && used == 0) {
-	  output.push_back(*it->second);  
-	  used_strips_.insert(std::make_pair(it->first, 1));
-	  //cout<<"Found !"<<endl;
-	}
+	collectedIds_.insert(next);
       } else {
 	break;
       }
@@ -185,15 +168,7 @@ void ReducedESRecHitCollectionProducer::pushESHits(EcalRecHitCollection & output
     for (int i=0; i<15; ++i) {
       next = theESNav1.west();
       if (next != ESDetId(0)) {
-	it = rechits_map_.find(next);
-	itu = used_strips_.find(next);
-	used = itu->second;
-	//cout<<"west "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
-	if (it != rechits_map_.end() && used == 0) {
-	  output.push_back(*it->second);         
-	  used_strips_.insert(std::make_pair(it->first, 1));
-	  //cout<<"Found !"<<endl;
-	}
+	collectedIds_.insert(next);
       } else {
 	break;
       }
@@ -203,30 +178,12 @@ void ReducedESRecHitCollectionProducer::pushESHits(EcalRecHitCollection & output
 
   if (strip2 == ESDetId(0)) {
   } else {
-
-    it = rechits_map_.find(strip2);
-    itu = used_strips_.find(strip2);
-    used = itu->second;
-    //cout<<"center : "<<strip2<<" "<<it->second.energy()<<endl;      
-    if (it != rechits_map_.end() && used == 0) {
-      output.push_back(*it->second);
-      used_strips_.insert(std::make_pair(it->first, 1));
-      //cout<<"Found !"<<endl;
-    }
-
+    collectedIds_.insert(strip2);
     // north road 
     for (int i=0; i<15; ++i) {
       next = theESNav2.north();
       if (next != ESDetId(0)) {
-	it = rechits_map_.find(next);
-	itu = used_strips_.find(next);
-	used = itu->second;
-	//cout<<"north "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;  
-	if (it != rechits_map_.end() && used == 0) {
-	  output.push_back(*it->second);
-	  used_strips_.insert(std::make_pair(it->first, 1));
-	  //cout<<"Found !"<<endl;
-	}
+	collectedIds_.insert(next);
       } else {
 	break;
       } 
@@ -238,18 +195,12 @@ void ReducedESRecHitCollectionProducer::pushESHits(EcalRecHitCollection & output
     for (int i=0; i<15; ++i) {
       next = theESNav2.south();
       if (next != ESDetId(0)) {
-	it = rechits_map_.find(next);
-	itu = used_strips_.find(next);
-	used = itu->second;
-	//cout<<"south "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
-	if (it != rechits_map_.end() && used == 0) {
-	  output.push_back(*it->second);
-	  used_strips_.insert(std::make_pair(it->first, 1));
-	  //cout<<"Found !"<<endl;
-	}
+	collectedIds_.insert(next);
       } else {
 	break;
       }
     }
   }
 }
+
+

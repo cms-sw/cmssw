@@ -31,7 +31,7 @@ class ReducedESRecHitCollectionProducer : public edm::EDProducer {
   virtual ~ReducedESRecHitCollectionProducer();
   void beginRun (edm::Run &, const edm::EventSetup&);
   void produce(edm::Event & e, const edm::EventSetup& c);
-  void pushESHits(EcalRecHitCollection &,double X, double Y, double Z, int row=0);
+  void collectIds(const GlobalPoint & point, const int & row=0);
   
  private :
 
@@ -44,9 +44,9 @@ class ReducedESRecHitCollectionProducer : public edm::EDProducer {
   edm::InputTag InputRecHitES_;  
   edm::InputTag InputSpuerClusterEE_;
   std::string OutputLabelES_;
+  std::vector<edm::InputTag> interestingDetIdCollections_;
 
-  map<DetId, const EcalRecHit*> rechits_map_;
-  map<DetId, int> used_strips_;
+  std::set<DetId> collectedIds_;
   
 };
 
