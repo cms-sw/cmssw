@@ -1,16 +1,12 @@
 import FWCore.ParameterSet.Config as cms
-pfElectronInterestingEcalDetIdEB = cms.EDProducer("InterestingDetIdCollectionProducer",
-                                                  basicClustersLabel = cms.InputTag("pfElectronTranslator","pf"),
-                                                  recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-                                                  etaSize = cms.int32(5),
-                                                  interestingDetIdCollection = cms.string(''),
-                                                  phiSize = cms.int32(5)
-                                                  )
 
-pfElectronInterestingEcalDetIdEE = cms.EDProducer("InterestingDetIdCollectionProducer",
-                                                  basicClustersLabel = cms.InputTag("pfElectronTranslator","pf"),
-                                                  recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-                                                  etaSize = cms.int32(5),
-                                                  interestingDetIdCollection = cms.string(''),
-                                                  phiSize = cms.int32(5)
-                                                  )
+import RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi
+
+pfElectronInterestingEcalDetIdEB = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("pfElectronTranslator","pf"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    )
+pfElectronInterestingEcalDetIdEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("pfElectronTranslator","pf"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    )
