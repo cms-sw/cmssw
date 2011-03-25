@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
  *  $Author: klukas $
- *  $Date: 2011/01/27 19:14:22 $
- *  $Revision: 1.21 $
+ *  $Date: 2011/03/21 20:10:41 $
+ *  $Revision: 1.22 $
  */
 
 
@@ -217,12 +217,17 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
       }
       
       if (muon.pt() > cutMinPt && fabs(muon.eta()) < plotCuts_["maxEta"]) {
-        double d0 = muon.innerTrack()->dxy(beamSpot->position());
-        double z0 = muon.innerTrack()->dz(beamSpot->position());
-        hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
-        hists_["efficiencyD0_" + suffix]->Fill(d0);
-        hists_["efficiencyZ0_" + suffix]->Fill(z0);
-        hists_["efficiencyCharge_" + suffix]->Fill(muon.charge());
+        const Track * track = 0;
+        if (muon.isTrackerMuon()) track = & * muon.innerTrack();
+        else if (muon.isStandAloneMuon()) track = & * muon.outerTrack();
+        if (track) {
+          double d0 = track->dxy(beamSpot->position());
+          double z0 = track->dz(beamSpot->position());
+          hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
+          hists_["efficiencyD0_" + suffix]->Fill(d0);
+          hists_["efficiencyZ0_" + suffix]->Fill(z0);
+          hists_["efficiencyCharge_" + suffix]->Fill(muon.charge());
+        }
       }
       
       // Fill plots for tag and probe
