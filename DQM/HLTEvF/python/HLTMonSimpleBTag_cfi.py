@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 hltMonSimpleBTag = cms.EDAnalyzer("HLTMonSimpleBTag",
-                                  ptMax = cms.untracked.double(200.0),
+                                  ptMax = cms.untracked.double(300.0),
                                   ptMin = cms.untracked.double(0.0),
-                                  Nbins = cms.untracked.uint32(40),
-                                  dRMatch = cms.untracked.double(0.2),
+                                  Nbins = cms.untracked.uint32(30),
+                                  dRMatch = cms.untracked.double(0.3),
 
                                   #string combinations, passes two triggers. Both are saved separately, but in addition the triggers are matched and an efficiency is calculated (objects are dR matched in this case, matching angle is defined above)
 #                                  BTagMu_DiJet20_Mu5
@@ -22,17 +22,14 @@ hltMonSimpleBTag = cms.EDAnalyzer("HLTMonSimpleBTag",
                                                                ),
                                                       cms.PSet(name=cms.string("hltBSoftMuonDiJet80Mu9SelL3FilterByDR"),
                                                                refname=cms.string("hltBDiJet20Central")
-                                                               ),                                                      
-                                                      cms.PSet(name=cms.string("hltBSoftMuonDiJet20Mu5SelL3FilterByDR"),
-                                                               refname=cms.string("hltBSoftMuonDiJet20L25FilterByDR")
-                                                               ),
-                                                      cms.PSet(name=cms.string("hltBSoftMuonDiJet60Mu7SelL3FilterByDR"),
-                                                               refname=cms.string("hltBSoftMuonDiJet60L25FilterByDR")
                                                                ),
                                                       cms.PSet(name=cms.string("hltBSoftMuonDiJet80Mu9SelL3FilterByDR"),
-                                                               refname=cms.string("hltBSoftMuonDiJet80L25FilterByDR")
+                                                               refname=cms.string("hltBSoftMuonDiJet60Mu7SelL3FilterByDR")
+                                                               ),
+                                                      cms.PSet(name=cms.string("hltBSoftMuonDiJet60Mu7SelL3FilterByDR"),
+                                                               refname=cms.string("hltBSoftMuonDiJet20Mu5SelL3FilterByDR")
                                                                )
-                                                      ),
+                                      ),
                                   # data best guess
                                   triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT")
                                                       
