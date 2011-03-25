@@ -76,8 +76,20 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
     reducedHitsCollection = cms.string('')
 )
 
+reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
+                                      scEtThreshold = cms.double(15),
+                                      EcalRecHitCollectionES = cms.InputTag("ecalPreshowerRecHit:EcalRecHitsES"),
+                                      EndcapSuperClusterCollection = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower", ""),
+                                      OutputLabel_ES = cms.string('')
+                                      )
 
 #selected digis
 from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 
-reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*interestingEcalDetIdEE*interestingTrackEcalDetIds*reducedEcalRecHitsEB*reducedEcalRecHitsEE*seldigis)
+reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*
+                                          interestingEcalDetIdEE*
+                                          interestingTrackEcalDetIds*
+                                          reducedEcalRecHitsEB*
+                                          reducedEcalRecHitsEE*
+                                          seldigis*
+                                          reducedEcalRecHitsES)
