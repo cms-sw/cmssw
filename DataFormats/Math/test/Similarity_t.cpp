@@ -1,4 +1,6 @@
 #include "Math/SMatrix.h"
+#include <cmath>
+#include <cstddef>
 
 typedef unsigned int IndexType;
 //typedef unsigned long long IndexType;
@@ -8,6 +10,17 @@ namespace ROOT {
 
   namespace Math { 
 
+    static const int fOff15x15[] = 
+      { 0,1,3,6,10,15,21,28,36,45,55,66,78,91,105,1,2,4,7,11,16,22,29,37,46,56,67,79,92,106,3,4,5,8,12,17,23,30,38,47,57,68,80,93,107,6,7,8,9,13,18,24,31,39,48,58,69,81,94,108,10,11,12,13,14,19,25,32,40,49,59,70,82,95,109,15,16,17,18,19,20,26,33,41,50,60,71,83,96,110,21,22,23,24,25,26,27,34,42,51,61,72,84,97,111,28,29,30,31,32,33,34,35,43,52,62,73,85,98,112,36,37,38,39,40,41,42,43,44,53,63,74,86,99,113,45,46,47,48,49,50,51,52,53,54,64,75,87,100,114,55,56,57,58,59,60,61,62,63,64,65,76,88,101,115,66,67,68,69,70,71,72,73,74,75,76,77,89,102,116,78,79,80,81,82,83,84,85,86,87,88,89,90,103,117,91,92,93,94,95,96,97,98,99,100,101,102,103,104,118,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119 };
+    
+    template<>
+    struct RowOffsets<15> {
+      RowOffsets() {}
+      int operator()(unsigned int i, unsigned int j) const { return fOff15x15[i*15+j]; }
+      int apply(unsigned int i) const { return fOff15x15[i]; }
+    };
+    
+    
    /** 
        Force Expression evaluation from general to symmetric. 
        To be used when is known (like in similarity products) that the result 
@@ -24,32 +37,37 @@ namespace ROOT {
                 class R>
       static void Evaluate(SMatrix<T,D,D,MatRepStd<T,D> >& lhs,  const Expr<A,T,D,D,R>& rhs) 
      {
-       //for(unsigned int i=0; i<D1*D2; ++i) lhs.fRep[i] = rhs.apply(i);
+       // for(unsigned int i=0; i<D*D; ++i) lhs.fRep[i] = rhs.apply(i);
+       
+       // in principle this will do only half+D evaluations (and is ~4 times faster than the above for a multiplication)
        for( IndexType i=0; i<D; ++i)
 	 // storage of symmetric matrix is in lower block
-	 for( IndexType j=0; j<=i; ++j) { 
+ 	 for( IndexType j=0; j<=i; ++j) 
 	   lhs(i,j) = rhs(i,j);
-	 }
+       // symmetrize
        for (IndexType i=0; i!=D-1; ++i) 
 	 for (IndexType j=i+1; j!=D; ++j)
 	   lhs(i,j) = lhs(j,i);
+
      }
-      /// assign the symmetric matric  from a general matrix  
+      /// assign the "symmetric" matric  from a general matrix  
      template <class T, 
 	       IndexType D,
 	       class R>
      static void Evaluate(SMatrix<T,D,D,MatRepStd<T,D> >& lhs,  const SMatrix<T,D,D,R>& rhs) 
      {
-       //for(unsigned int i=0; i<D1*D2; ++i) lhs.fRep[i] = rhs.apply(i);
+       for(IndexType i=0; i!=D*D; ++i) lhs.fRep[i] = rhs.apply(i);
+       /*
+       // useful only if we do not store the upper triangle
        for( IndexType i=0; i<D; ++i)
-	 // storage of symmetric matrix is in lower block
-	 for( IndexType j=0; j<=i; ++j) { 
-	   lhs(i,j) = rhs(i,j);
-	 }
+       // storage of symmetric matrix is in lower block
+       for( IndexType j=0; j<=i; ++j) 
+       lhs(i,j) = rhs(i,j);
        for (IndexType i=0; i!=D-1; ++i) 
 	 for (IndexType j=i+1; j!=D; ++j)
-	   lhs(i,j) = lhs(j,i);
-     } 
+	   lhs(i,j) = lhs(j,i); 
+       */
+     }
    }; // struct AssignAsSym 
     
     
@@ -81,11 +99,36 @@ inline void
 similarity(ROOT::Math::SMatrix<T,D1,D1,ROOT::Math::MatRepStd<T,D1> > & b, 
 	   ROOT::Math::SMatrix<T,D1,D2,ROOT::Math::MatRepStd<T,D1,D2> > const & u,
 	   ROOT::Math::SMatrix<T,D2,D2,ROOT::Math::MatRepStd<T,D2> > const & a) {
+  
+  
+  // brute force loop
   for (IndexType i=0; i!=D1; ++i) 
     for (IndexType j=0; j<=i; ++j) 
       for (IndexType k=0; k!=D2; ++k) 
-	for (IndexType l=0; l!=D2; ++l) 
-	  b(i,j) += u(i,k)*a(k,l)*u(j,l);
+  	for (IndexType l=0; l!=D2; ++l) 
+  	  b(i,j) += u(i,k)*a(k,l)*u(j,l);
+  
+
+  /*
+  for (IndexType is=0; is<D1; is+=4) {
+    IndexType ie=std::min(is+4,D1);
+    //for (IndexType js=0; js<=is; js+=4) {
+      for (IndexType ks=0; ks<D2; ks+=4) { 
+	IndexType ke=std::min(ks+4,D2);
+	for (IndexType i=is; i!=ie; ++i) 
+	  for (IndexType j=0; j<=i; ++j) 
+	    //	  for (IndexType j=js; j<=std::min(js+3,i); ++j) 
+	    for (IndexType k=ks; k!=ke; ++k) 
+	      for (IndexType l=0; l!=D2; ++l) 
+		b(i,j) += u(i,k)*a(k,l)*u(j,l);
+      }
+      //}
+  }
+  */
+
+
+	//	for (IndexType l=0; l<=k; ++l) 
+	//  b(i,j) += (u(i,k)*u(j,l)+u(i,l)*u(j,k))*a(k,l);
   /*
   T s[N];
   for (IndexType i=0; i!=N; ++i) 
@@ -128,17 +171,25 @@ bool isSym(M const & m) {
 #include<iostream>
 #include "FWCore/Utilities/interface/HRRealTime.h"
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
 #include<random>
-
+#endif
 namespace {
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   std::mt19937 eng;
   std::uniform_real_distribution<double> rgen(-5.,5.);
+
+  inline double rr() { return  rgen(eng);}
+#else
+  inline double rr() { return  -5 + 10*drand48();}
+#endif
+
   template<typename T,  IndexType D1,  IndexType D2 >
   inline void
   fillRandom(ROOT::Math::SMatrix<T,D1,D2,ROOT::Math::MatRepStd<T,D1,D2> > & a) {
     for (IndexType i=0; i!=D1; ++i) {
       for (IndexType j=0; j!=D2; ++j)
-	a(i,j) =  rgen(eng);
+	a(i,j) =  rr();
     }
   }
   template<typename T,  IndexType N>
@@ -146,7 +197,7 @@ namespace {
   fillRandomSym(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepStd<T,N> > & a) {
     for (IndexType i=0; i!=N; ++i) {
       for (IndexType j=0; j<=i; ++j)
-	a(i,j) =  rgen(eng);
+	a(i,j) =  rr();
     }
     for (IndexType i=0; i!=N-1; ++i) 
       for (IndexType j=i+1; j!=N; ++j)
@@ -213,23 +264,30 @@ void go( edm::HRTimeType & s1, edm::HRTimeType & s2,
 
 
 template<typename T, IndexType D1,  IndexType D2 >
-void loop() {
+void loop(std::ostream & co) {
+  int N = 100000;
   edm::HRTimeType t1=0; edm::HRTimeType t2=0;  edm::HRTimeType t3=0; edm::HRTimeType t4=0;
   edm::HRTimeType s1=0, s2=0, s3=0, s4=0;
-  for (int  i=0; i!=50000; ++i) {
+  for (int  i=0; i!=N; ++i) {
     go<T,D1,D2>(s1,s2,s3,s4, false);
     t1+=s1; t2+=s2; t3+=s3; t4+=s4;
   }
 
   std::cout << D1 << "x"<< D2 << std::endl;
-  std::cout << "root sim " << t1/50000 << std::endl;
-  std::cout << "sym  sim " << t2/50000 << std::endl;
-  std::cout << "std  sim " << t3/50000 << std::endl;
-  std::cout << "loop sim " << t4/50000 << std::endl;
+  std::cout << "root sim " << t1/N << std::endl;
+  std::cout << "sym  sim " << t2/N << std::endl;
+  std::cout << "std  sim " << t3/N << std::endl;
+  std::cout << "loop sim " << t4/N << std::endl;
 
+
+  co << "|  " << t1/N
+     << "|  " << t2/N
+     << "|  " << t3/N
+     << "|  " << t4/N
+     << "|";
 }
 
-
+#include <sstream>
 int main() {
 
   edm::HRTimeType s1=0, s2=0, s3=0, s4=0;
@@ -240,10 +298,18 @@ int main() {
   go<double,15,15>(s1,s2,s3,s4, true);
   std::cout << std::endl;
 
-  loop<double,3,3>();
-  loop<double,5,5>();
-  loop<double,5,15>();
-  loop<double,15,15>();
+  std::ostringstream co;
+  co << "|  *3x3*  |||| |  *5x5*  |||| |  *5x15*  |||| |  *15x15*  ||||\n";
+  co << "|  *root*  |  *sym*  |  *std*  |  *loop*  |";
+  co << "|  *root*  |  *sym*  |  *std*  |  *loop*  |";
+  co << "|  *root*  |  *sym*  |  *std*  |  *loop*  |";
+  co << "|  *root*  |  *sym*  |  *std*  |  *loop*  |\n";
+  loop<double,3,3>(co);
+  loop<double,5,5>(co);
+  loop<double,5,15>(co);
+  loop<double,15,15>(co);
+  std::cout << co.str() << std::endl;
+
 
   return 0;
 
