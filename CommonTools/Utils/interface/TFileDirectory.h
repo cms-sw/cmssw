@@ -210,6 +210,8 @@ class TFileDirectory {
       }
       /// create a new subdirectory
       TFileDirectory mkdir( const std::string & dir, const std::string & descr = "" );
+      /// return the full path of the stored histograms
+      std::string fullPath() const;
 
    private:
       
@@ -234,7 +236,6 @@ class TFileDirectory {
       friend class fwlite::TFileService;
       TFile * file_;
       std::string dir_, descr_, path_;
-      std::string fullPath() const;
 };
 
 #endif
