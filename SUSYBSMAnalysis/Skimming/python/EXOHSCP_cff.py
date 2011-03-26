@@ -1,21 +1,61 @@
+TRACK_PT = 20.0  
 import FWCore.ParameterSet.Config as cms
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
+
+
+generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
+    src = 'generalTracks',
+#	src = 'TrackRefitter',
+    filter = True,
+    applyBasicCuts = True,
+    ptMin = TRACK_PT,
+    nHitMin = 8,
+    chi2nMax = 10.,
+)
+
+trackerSeq = cms.Sequence( generalTracksSkim)
 
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
 
-generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
-    src = 'generalTracks',
-    filter = True,
-    applyBasicCuts = True,
-    ptMin = 10.0,
-    nHitMin = 3,
-    chi2nMax = 10.,
-)
-TrackRefitter.TrajectoryInEvent = cms.bool(True)
-TrackRefitter.src               = 'generalTracksSkim'
 
-trackerSeq = cms.Sequence( generalTracksSkim)
+dedxNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
+    tracks                     = cms.InputTag("TrackRefitter"),
+    trajectoryTrackAssociation = cms.InputTag("TrackRefitter"),
+
+    estimator      = cms.string('generic'),
+    exponent       = cms.double(-2.0),
+
+    UseStrip       = cms.bool(True),
+    UsePixel       = cms.bool(False),
+    MeVperADCStrip = cms.double(3.61e-06*265),
+    MeVperADCPixel = cms.double(3.61e-06),
+
+    MisCalib_Mean      = cms.untracked.double(1.0),
+    MisCalib_Sigma     = cms.untracked.double(0.00),
+
+    UseCalibration  = cms.bool(False),
+    calibrationPath = cms.string(""),
+    ShapeTest       = cms.bool(True),
+)
+
+
+DedxFilter = cms.EDFilter("HSCPFilter",
+	 inputTrackCollection = cms.InputTag("TrackRefitter"),
+	 inputDedxCollection =  cms.InputTag("dedxNPHarm2"),
+	 trkPtMin = cms.double(TRACK_PT),
+	 dedxMin =cms.double(3.5),
+     dedxMaxLeft =cms.double(2.8),
+     ndedxHits = cms.int32(8),
+     etaMin= cms.double(-2.4),
+     etaMax= cms.double(2.4),
+     chi2nMax = cms.double(10),
+     dxyMax = cms.double(0.3),
+     dzMax = cms.double(3)
+						  
+)
+
+dedxSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxNPHarm2+DedxFilter)
 
 
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
@@ -28,7 +68,7 @@ highPtTrackEcalDetIds = cms.EDProducer("HighPtTrackEcalDetIdProducer",
 									   #TrackAssociatorParameterBlock
 									   TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
 									   inputCollection = cms.InputTag("generalTracksSkim"),
-									   TrackPt=cms.double(20.0)
+									   TrackPt=cms.double(TRACK_PT)
 									   )
 
 
@@ -64,7 +104,7 @@ reducedHSCPhbhereco = cms.EDProducer("ReduceHcalRecHitCollectionProducer",
 									 recHitsLabel = cms.InputTag("hbhereco",""),
 									 TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
 									 inputCollection = cms.InputTag("generalTracksSkim"),
-									 TrackPt=cms.double(20.0),					   
+									 TrackPt=cms.double(TRACK_PT),					   
 									 reducedHitsCollection = cms.string('')
 )
 
@@ -93,7 +133,7 @@ TrackAssociatorParametersForHSCPIsol.HBHERecHitCollectionLabel     = cms.InputTa
 HSCPIsolation01 = cms.EDProducer("ProduceIsolationMap",
       inputCollection  = cms.InputTag("generalTracksSkim"),
       IsolationConeDR  = cms.double(0.1),
-      TkIsolationPtCut = cms.double(10.0),
+      TkIsolationPtCut = cms.double(10),
       TKLabel          = cms.InputTag("generalTracks"),
       TrackAssociatorParameters=TrackAssociatorParametersForHSCPIsol,
 )
@@ -132,7 +172,7 @@ exoticaRecoIsoPhotonSeq = cms.EDFilter("MonoPhotonSkimmer",
 )
 
 
-exoticaHSCPSeq = cms.Sequence( trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
+exoticaHSCPSeq = cms.Sequence( dedxSeq+trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
 exoticaHSCPIsoPhotonSeq = cms.Sequence(exoticaRecoIsoPhotonSeq + trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
 
 
