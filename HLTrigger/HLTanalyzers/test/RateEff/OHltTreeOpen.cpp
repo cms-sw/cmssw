@@ -6452,7 +6452,7 @@ void OHltTree::CheckOpenHlt(
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if (OpenHlt1JetPassed(thresholds[0], 2.6)>=1 && recoMetCal
+            if (OpenHlt1CorJetPassed(thresholds[0], 2.6)>=1 && recoMetCal
                   >=thresholds[1])
             {
                triggerBit[it] = true;
