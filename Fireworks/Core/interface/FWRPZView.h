@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.20 2011/03/22 13:52:18 amraktad Exp $
+// $Id: FWRPZView.h,v 1.21 2011/03/25 18:02:45 amraktad Exp $
 //
 
 // system include files
@@ -73,8 +73,9 @@ private:
 
 
    void setEtaRng();
-
+   
    void showProjectionAxes( );
+   void projectionAxesLabelSize( );
 
    // ---------- member data --------------------------------
    static FWRPZViewGeometry* s_geometryList;
@@ -94,6 +95,7 @@ private:
    FWDoubleParameter  m_caloDistortion;
    FWDoubleParameter  m_muonDistortion;
    FWBoolParameter    m_showProjectionAxes;
+   FWDoubleParameter  m_projectionAxesLabelSize;
    FWBoolParameter    m_compressMuon;
 
    FWBoolParameter*   m_showHF;

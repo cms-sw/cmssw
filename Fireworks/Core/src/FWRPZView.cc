@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.42 2011/03/22 13:52:18 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.43 2011/03/25 18:02:46 amraktad Exp $
 //
 
 // system include files
@@ -58,6 +58,7 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
    m_showProjectionAxes(this,"Show projection axis", false),
+   m_projectionAxesLabelSize(this,"Projection axis label size", 0.015, 0.001, 0.2),
    m_compressMuon(this,"Compress detectors",false),
    m_showHF(0),
    m_showEndcaps(0)
@@ -96,8 +97,9 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
 
    m_axes = new TEveProjectionAxes(m_projMgr);
    m_axes->SetRnrState(m_showProjectionAxes.value());
-   m_axes->SetLabelSize(0.015);
+   m_axes->SetLabelSize(m_projectionAxesLabelSize.value());
    m_showProjectionAxes.changed_.connect(boost::bind(&FWRPZView::showProjectionAxes,this));
+   m_projectionAxesLabelSize.changed_.connect(boost::bind(&FWRPZView::projectionAxesLabelSize,this));
    eventScene()->AddElement(m_axes);
 
    if ( id != FWViewType::kRhoZ ) {
@@ -362,11 +364,15 @@ FWRPZView::voteCaloMaxVal()
 
 void FWRPZView::showProjectionAxes( )
 {   
-   if ( m_showProjectionAxes.value() )
-      m_axes->SetRnrState(kTRUE);
-   else
-      m_axes->SetRnrState(kFALSE);
+   m_axes->SetRnrState(m_showProjectionAxes.value());
    gEve->Redraw3D();
+   viewerGL()->RequestDraw();
+}
+
+void FWRPZView::projectionAxesLabelSize( )
+{   
+   m_axes->SetLabelSize(m_projectionAxesLabelSize.value());
+   viewerGL()->RequestDraw();
 }
 
 void 
@@ -378,7 +384,10 @@ FWRPZView::populateController(ViewerParameterGUI& gui) const
    gui.requestTab("Projection").addParam(&m_shiftOrigin);
 #endif
 
-   gui.requestTab("Projection").addParam(&m_showProjectionAxes).separator();
+   gui.requestTab("Projection").
+   addParam(&m_showProjectionAxes).
+   addParam(&m_projectionAxesLabelSize).
+   separator();
 
    TGCompositeFrame* f = gui.getTabContainer();
 
