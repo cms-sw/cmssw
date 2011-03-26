@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.7 2011/02/14 22:27:59 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.8 2011/03/07 13:13:51 amraktad Exp $
 //
 
 //#define PERFTOOL
@@ -560,7 +560,7 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
       int childIdx = vi[n];
       NodeInfo &nodeInfo = m_entries[parent_idx + 1 + n ];
       nodeInfo.m_node =   parentGeoNode->GetDaughter(childIdx);
-      nodeInfo.m_level =  parent.m_level + 1;
+      nodeInfo.m_level =  parentLevel + 1;
       nodeInfo.m_parent = parent_idx;
       if (debug)  printf(" add %s\n", nodeInfo.name());
    }
@@ -569,7 +569,7 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
    {
       // change of autoExpand parameter
       int dOff = 0;
-      if ((parent.m_level+1) < m_autoExpand)
+      if ((parentLevel+1) < m_autoExpand)
       {
          for (int n = 0; n != nV; ++n)
          {
