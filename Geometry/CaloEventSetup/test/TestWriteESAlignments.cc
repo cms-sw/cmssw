@@ -59,14 +59,14 @@ void TestWriteESAlignments::analyze(const edm::Event& evt, const edm::EventSetup
    DVec ytranslVec ( nA, 0 ) ;
    DVec ztranslVec ( nA, 0 ) ;
 
-   const WEA::WriteESAlignments wea( evtSetup   ,
-				     alphaVec   ,
-				     betaVec    ,
-				     gammaVec   ,
-				     xtranslVec ,
-				     ytranslVec ,
-				     ztranslVec  ) ;
-
+   const WriteESAlignments wea( evtSetup   ,
+				alphaVec   ,
+				betaVec    ,
+				gammaVec   ,
+				xtranslVec ,
+				ytranslVec ,
+				ztranslVec  ) ;
+   
    std::cout << "done!" << std::endl;
    nEventCalls_++;
 }
