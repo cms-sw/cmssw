@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Thu Jan 20 19:53:58 CET 2011
-// $Id: ParticleTowerProducer.cc,v 1.4 2011/03/03 13:30:51 mnguyen Exp $
+// $Id: ParticleTowerProducer.cc,v 1.5 2011/03/15 13:26:21 mnguyen Exp $
 //
 //
 
@@ -269,6 +269,8 @@ DetId ParticleTowerProducer::getNearestTower(const reco::Candidate & in) const {
 
   DetId returnId;
   
+  //int nclosetowers=0;
+
   for(std::vector<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++){
     if( (*did).det() == DetId::Hcal ){
 
@@ -292,31 +294,32 @@ DetId ParticleTowerProducer::getNearestTower(const reco::Candidate & in) const {
      
       int ieta  = (hid).ieta();
       
-      if(ieta>21){
-	if(ieta>29) towersize=0.175;
+      if(abs(ieta)>21){
+	if(abs(ieta)>29) towersize=0.175;
 	else{
-	  if(ieta==22) towersize=0.1;
-	  if(ieta==23) towersize=0.113;
-	  if(ieta==24) towersize=0.129;
-	  if(ieta==25) towersize=0.16;
-	  if(ieta==26) towersize=0.168;
-	  if(ieta==27) towersize=0.15;
-	  if(ieta==28) towersize=0.218;
-	  if(ieta==29) towersize=0.132;
+	  if(abs(ieta)==22) towersize=0.1;
+	  else if(abs(ieta)==23) towersize=0.113;
+	  else if(abs(ieta)==24) towersize=0.129;
+	  else if(abs(ieta)==25) towersize=0.16;
+	  else if(abs(ieta)==26) towersize=0.168;
+	  else if(abs(ieta)==27) towersize=0.15;
+	  else if(abs(ieta)==28) towersize=0.218;
+	  else if(abs(ieta)==29) towersize=0.132;
 	}
       }
 
       deltaR /= towersize;
+      //if(deltaR<1/3.) nclosetowers++;
 
       if(deltaR<minDeltaR){
 	 returnId = DetId(*did);
 	 minDeltaR = deltaR;
       }
       
-
+      //if(abs(eta-hcalEta)<towersize/2. && abs(phi-hcalPhi)<towersize/2.) break;
     }
   }
-  
+  //if(nclosetowers>1)std::cout<<"eta "<<eta<<" phi "<<phi<<" minDeltaR "<<minDeltaR<<" nclosetowers "<<nclosetowers<<std::endl;
   return returnId;
 
 
