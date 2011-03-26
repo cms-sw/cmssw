@@ -40,7 +40,7 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
 
 
    m_settersFrame = new TGHorizontalFrame(this);
-   this->AddFrame( m_settersFrame,new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
+   this->AddFrame( m_settersFrame,new TGLayoutHints(kLHintsLeft, 4, 2, 2, 2));
    m_settersFrame->SetCleanup(kDeepCleanup);
 
    m_tableWidget = new FWTableWidget(m_tableManager, this); 
@@ -77,12 +77,13 @@ FWGeometryBrowser::resetSetters()
    if (!m_settersFrame->GetList()->IsEmpty())
    {
       m_setters.clear();
+      while(!m_settersFrame->GetList()->IsEmpty())
+      {
       TGFrameElement *el = (TGFrameElement*) m_settersFrame->GetList()->First();
       m_settersFrame->RemoveFrame(el->fFrame);
+      }
    }
-   
-   TGHorizontalFrame* frame = new TGHorizontalFrame(m_settersFrame);
-   m_settersFrame->AddFrame(frame);
+   TGCompositeFrame* frame =  m_settersFrame;
    makeSetter(frame, &m_mode);
    makeSetter(frame, &m_filter);
    makeSetter(frame, &m_autoExpand);
@@ -203,7 +204,7 @@ FWGeometryBrowser::readFile()
 void
 FWGeometryBrowser::browse()
 {
-   std::cout<<"FWGeometryBrowser::openFile()"<<std::endl;
+   //std::cout<<"FWGeometryBrowser::openFile()"<<std::endl;
 
    if (!geodebug)
    {  
