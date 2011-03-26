@@ -16,15 +16,22 @@ popcon::EcalLaserHandler::EcalLaserHandler(const edm::ParameterSet & ps)
   std::cout << "EcalLaser Source handler constructor\n" << std::endl;
 
   m_sequences = 1;
+  m_fake = true;
 
   m_sid= ps.getParameter<std::string>("OnlineDBSID");
   m_user= ps.getParameter<std::string>("OnlineDBUser");
   m_pass= ps.getParameter<std::string>("OnlineDBPassword");
   m_debug=ps.getParameter<bool>("debug");
+  m_fake=ps.getParameter<bool>("fake");
   m_sequences=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("sequences").c_str()));
   m_maxtime=ps.getParameter<std::string>("maxtime").c_str();
   std::cout << "Starting O2O process on DB: " << m_sid
 	    << " User: "<< m_user << std::endl;
+  if (m_fake) {
+    std::cout << "*******************************************" << std::endl;
+    std::cout << "This is a fake run. No change to offline DB" << std::endl;
+    std::cout << "*******************************************" << std::endl;
+  }
 }
 
 popcon::EcalLaserHandler::~EcalLaserHandler()
@@ -60,7 +67,7 @@ bool popcon::EcalLaserHandler::checkAPDPN(const EcalLaserAPDPNRatios::EcalLaserA
   if ((current.p1 < 0) || (current.p2 < 0) || (current.p3 < 0)) {
     ret = false;
     notifyProblems(old, current, hashedIndex, "Negative values");
-  } else if ((current.p1 > 10) || (current.p2 > 10) || (current.p3 > 0)) {
+  } else if ((current.p1 > 10) || (current.p2 > 10) || (current.p3 > 10)) {
     ret = false;
     notifyProblems(old, current, hashedIndex, "Values too large");
   } else if (((diff(old.p1, current.p1) > 0.2) && (old.p1 != 0) && (old.p1 != 1)) ||
@@ -333,8 +340,11 @@ void popcon::EcalLaserHandler::getNewObjects()
 				   ss.str()));
 	}
 	is++;
+	if (m_fake) {
+	  delete apdpns_popcon;
+	}
       }
-      if (iseq->second.size() > 0) {
+      if ((iseq->second.size() > 0) && (!m_fake)) {
 	m_to_transfer.push_back(std::make_pair(apdpns_popcon, 
 					       Tm(t_last).cmsNanoSeconds()));
       } 
