@@ -34,7 +34,7 @@ FWBeamSpotProxyBuilder::build( const reco::BeamSpot& iData, unsigned int iIndex,
 {
   const reco::BeamSpot::Point &pos =  iData.position();
   TEvePointSet* pointSet = new TEvePointSet;
-  pointSet->SetMarkerSize(0.5);
+  pointSet->SetMarkerStyle(21);
   setupAddElement( pointSet, &oItemHolder );
 
   pointSet->SetNextPoint( pos.x(),  pos.y(),  pos.z()); 
