@@ -13,7 +13,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Thu Apr 29 16:32:10 CDT 2010
-// $Id$
+// $Id: HSCPFilter.cc,v 1.1 2010/05/04 06:06:41 jiechen Exp $
 //
 //
 
@@ -41,6 +41,9 @@
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 
 //
 // class declaration
@@ -57,7 +60,7 @@ class HSCPFilter : public edm::EDFilter {
       virtual void endJob() ;
       edm::InputTag input_track_collection,input_dedx_collection;
       int ndedxHits;
-      double dedxMin, trkPtMin,etaMin,etaMax,chi2nMax,d0Max,dzMax;
+      double dedxMin, dedxMaxLeft, trkPtMin,etaMin,etaMax,chi2nMax,dxyMax,dzMax;
       
       // ----------member data ---------------------------
 };
@@ -78,12 +81,13 @@ HSCPFilter::HSCPFilter(const edm::ParameterSet& iConfig)
      input_track_collection = iConfig.getParameter< edm::InputTag >("inputTrackCollection");    
 input_dedx_collection =  iConfig.getParameter< edm::InputTag >("inputDedxCollection");
      dedxMin = iConfig.getParameter< double >("dedxMin");
+     dedxMaxLeft = iConfig.getParameter< double >("dedxMaxLeft");
      trkPtMin = iConfig.getParameter< double >("trkPtMin");
      etaMin =  iConfig.getParameter< double >("etaMin");
      etaMax =  iConfig.getParameter< double >("etaMax");
      ndedxHits = iConfig.getParameter< int >("ndedxHits");
      chi2nMax = iConfig.getParameter< double >("chi2nMax");
-     d0Max = iConfig.getParameter< double >("d0Max");
+     dxyMax = iConfig.getParameter< double >("dxyMax");
      dzMax = iConfig.getParameter< double >("dzMax");
 
 }
@@ -120,6 +124,11 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace reco;
 
+  edm::Handle<reco::VertexCollection> recoVertexHandle;
+   iEvent.getByLabel("offlinePrimaryVertices", recoVertexHandle);
+   reco::VertexCollection recoVertex = *recoVertexHandle;
+
+   if(recoVertex.size()<1) return false;
 
    using reco::TrackCollection;
    Handle<TrackCollection> tkTracks;
@@ -130,15 +139,36 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(input_dedx_collection, dEdxTrackHandle);
    const ValueMap<DeDxData> dEdxTrack = *dEdxTrackHandle.product();
 
-   for(TrackCollection::const_iterator itTrack = tkTracks->begin();
-       itTrack != tkTracks->end();                      
-       ++itTrack) {
-        int iTrack = itTrack - tkTracks->begin();
-        if(itTrack->pt()>trkPtMin && itTrack->eta()<etaMax && itTrack->eta()>etaMin && itTrack->normalizedChi2()<chi2nMax && fabs(itTrack->dz())<dzMax && fabs(itTrack->d0())<d0Max ){
-           reco::TrackRef track = reco::TrackRef(tkTracks, iTrack);           
-           double dedx = dEdxTrack[track].dEdx();
-           int dedxnhits  = dEdxTrack[track].numberOfMeasurements();
-           if(dedx >dedxMin && dedxnhits > ndedxHits) return true;
+   for(size_t i=0; i<tkTracks->size(); i++){
+
+      reco::TrackRef trkRef = reco::TrackRef(tkTracks, i);
+      
+      
+      if(trkRef->pt()>trkPtMin && trkRef->eta()<etaMax && trkRef->eta()>etaMin && trkRef->normalizedChi2()<chi2nMax){
+
+           double dz  = trkRef->dz (recoVertex[0].position());
+           double dxy = trkRef->dxy(recoVertex[0].position());
+           double distancemin =sqrt(dxy*dxy+dz*dz);
+           int closestvertex=0;
+           for(unsigned int i=1;i<recoVertex.size();i++){
+              dz  = trkRef->dz (recoVertex[i].position());
+              dxy = trkRef->dxy(recoVertex[i].position());
+              double distance = sqrt(dxy*dxy+dz*dz);
+              if(distance < distancemin ){
+                 distancemin = distance;
+                 closestvertex=i;
+              }
+           }
+           
+           dz  = trkRef->dz (recoVertex[closestvertex].position());
+           dxy = trkRef->dxy(recoVertex[closestvertex].position());
+           
+           if(fabs(dz)<dzMax && fabs(dxy)<dxyMax ){
+              
+             double dedx = dEdxTrack[trkRef].dEdx();
+              int dedxnhits  = dEdxTrack[trkRef].numberOfMeasurements();
+              if((dedx >dedxMin || dedx<dedxMaxLeft) && dedxnhits > ndedxHits) return true;
+           }
         }
    }
    return false;
