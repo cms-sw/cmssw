@@ -31,8 +31,8 @@ FWViewContextMenuHandlerGL::init(FWViewContextMenuHandlerBase::MenuEntryAdder& a
    { 
       const char* p  = id.item()->purpose().c_str();
       bool enabled = (strstr(p, "Beam Spot") || strstr(p, "Vertices") || strstr(p, "Vertex") );
-      adder.addEntry("Set Projection Center", kCameraCenter, enabled);
-      adder.addEntry("Reset Projection Center", kResetCameraCenter, enabled);
+      adder.addEntry("Use As Projection Origin", kCameraCenter, enabled);
+      adder.addEntry("Reset Projection Origin", kResetCameraCenter, enabled);
    }
    else
    { 
