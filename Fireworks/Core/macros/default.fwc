@@ -409,6 +409,17 @@
       <string></string>
     </config>
    </config>
+   <config name="------Filter[1]------" version="1">
+    <config name="expression" version="0">
+      <string>$Muons@.size()&gt;3</string>
+    </config>
+    <config name="enabled" version="0">
+      <string>0</string>
+    </config>
+    <config name="comment" version="0">
+      <string></string>
+    </config>
+   </config>
    <config name="------Filter[2]------" version="1">
     <config name="expression" version="0">
       <string>HLT_Mu9</string>
