@@ -2655,20 +2655,20 @@ void OHltTree::CheckOpenHlt(
    }
    
    /* Quarkonia */
-   else if (triggerName.CompareTo("OpenHLT_DoubleMu3_Bs_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_DoubleMu2_Bs") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	 {
 	   if (prescaleResponse(menu, cfg, rcounter, it))
 	     {
-	       if (OpenHlt2MuonOSMassPassed(0., 0., 3., 2., 0, 4.8, 6.0)>=1)
+	       if (OpenHlt2MuonOSMassPassed(0., 0., 2., 2., 0, 4.8, 6.0)>=1)
 		 {
 		   triggerBit[it] = true;
 		 }
 	     }
 	 }
      }
-   else if (triggerName.CompareTo("OpenHLT_DoubleMu3_Jpsi_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_DoubleMu3_Jpsi") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	 {
@@ -2681,7 +2681,7 @@ void OHltTree::CheckOpenHlt(
 	     }
 	 }
      }
-   else if (triggerName.CompareTo("OpenHLT_DoubleMu3_Quarkonium_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_DoubleMu3_Quarkonium") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	 {
@@ -6284,6 +6284,15 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+
+   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet30_NewIsoPFTauTag") == 0) {
+     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+       if(OpenHltQuadJetCORPassedPlusTauPFIdNewIso(30, 2.5, 30) == 1 && OpenL1QuadJet8(10, 2.5) >= 4) {
+	 if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+       }
+     }
+   }
+
 
    /***********OpenHLT_SingleIsoTauX_TrkX_METX***********/
    else if (isSingleIsoTauX_TrkX_METXTrigger(
@@ -13638,4 +13647,54 @@ float OHltTree::deltaR(
 {
    return sqrt(deltaEta(eta1, eta2)*deltaEta(eta1, eta2) + deltaPhi(phi1, phi2)
          *deltaPhi(phi1, phi2));
+}
+
+int OHltTree::OpenHltQuadJetCORPassedPlusTauPFIdNewIso(double pt, double etaJet, double ptTau)
+{
+  int njet=0;
+  int rc=0;
+  bool foundPFTau=false;
+  float deltaR_L1=1000;
+  float deltaR_L1Tau=1000;
+  for(int i=0;i<NrecoJetCorCal;i++){
+
+    if(recoJetCorCalPt[i]>pt&&fabs(recoJetCorCalEta[i])<etaJet){
+
+      for(int k=0;k<NL1CenJet;k++){
+
+	float deltaETA=recoJetCorCalEta[i]-L1CenJetEta[k];
+	float deltaPHI=recoJetCorCalPhi[i]-L1CenJetPhi[k];
+	if(fabs(deltaPHI)>3.141592654)deltaPHI=6.283185308-fabs(deltaPHI);
+	float deltaR_L1_J=sqrt(pow(deltaETA,2)+pow(deltaPHI,2));
+	if(deltaR_L1_J<deltaR_L1)deltaR_L1=deltaR_L1_J;
+      }
+      for(int s=0;s<NL1Tau;s++){
+
+	float deltaETA_Tau=recoJetCorCalEta[i]-L1TauEta[s];
+	float deltaPHI_Tau=recoJetCorCalPhi[i]-L1TauPhi[s];
+	if(fabs(deltaPHI_Tau)>3.141592654)deltaPHI_Tau=6.283185308-fabs(deltaPHI_Tau);
+	float deltaR_L1Tau_T=sqrt(pow(deltaETA_Tau,2)+pow(deltaPHI_Tau,2));
+	if(deltaR_L1Tau_T<deltaR_L1Tau)deltaR_L1Tau=deltaR_L1Tau_T;
+      }
+      if(deltaR_L1<0.3||deltaR_L1Tau<0.3)
+	{
+	  njet++;
+	  for(int j=0;j<NohpfTau;j++)
+	    {
+
+	      if(ohpfTauPt[j]>ptTau  && ohpfTauLeadTrackPt[j]>=5 && fabs(ohpfTauEta[j])<2.5 && ohpfTauTrkIso[j]<1.0 && ohpfTauGammaIso[j]<1.5)
+		{
+		  float deltaEta=ohpfTauEta[j]-recoJetCorCalEta[i];
+		  float deltaPhi=ohpfTauPhi[j]-recoJetCorCalPhi[i];
+		  if(fabs(deltaPhi)>3.141592654)deltaPhi=6.283185308-fabs(deltaPhi);
+		  float deltaR=sqrt(pow(deltaEta,2)+pow(deltaPhi,2));
+		  if(deltaR<0.3){foundPFTau=true;}
+		}
+	    }
+	}
+    }
+  }
+  
+  if(njet>=4&&foundPFTau==true)
+    rc=1;return rc;
 }

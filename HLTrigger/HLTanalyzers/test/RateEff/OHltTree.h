@@ -5978,6 +5978,8 @@ public:
 
    int OpenHltQuadJetPassed(double pt);
    
+   int OpenHltQuadJetCORPassedPlusTauPFIdNewIso(double pt, double etaJet, double ptTau);
+
    int OpenHltQuadCorJetPassed(double pt);
    
    int OpenHlt1MuonIsoJetPassed(
