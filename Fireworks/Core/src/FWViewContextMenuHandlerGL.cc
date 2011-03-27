@@ -30,7 +30,7 @@ FWViewContextMenuHandlerGL::init(FWViewContextMenuHandlerBase::MenuEntryAdder& a
    if (FWViewType::isProjected(m_view->typeId()))
    { 
       const char* p  = id.item()->purpose().c_str();
-      bool enabled = (strstr(p, "Beam Spot") || strstr(p, "Vertices") || strstr(p, "Vertex") );
+      bool enabled = (strstr(p, "Beam Spot") || strstr(p, "Vertices") );
       adder.addEntry("Use As Projection Origin", kCameraCenter, enabled);
       adder.addEntry("Reset Projection Origin", kResetCameraCenter, enabled);
    }
