@@ -75,6 +75,7 @@ eventNjetsAndMetInfoNtuple = cms.EDProducer(
 
 # path for dumping vtx info, njets and met info in the ntuple
 generalEventInfoPath = cms.Path(
+    process.makePatJets +
     eventVtxInfoNtuple +
     eventNjetsAndMetInfoNtuple
     )
