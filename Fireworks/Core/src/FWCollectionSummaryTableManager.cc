@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.7 2010/06/18 10:17:14 yana Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.8 2010/12/16 12:04:43 amraktad Exp $
 //
 
 // system include files
@@ -34,11 +34,11 @@
 // constructors and destructor
 //
 FWCollectionSummaryTableManager::FWCollectionSummaryTableManager(FWEventItem* iItem, const TGGC* iContext, const TGGC* iHighlightContext,
-FWCollectionSummaryWidget* iWidget):
-m_collection(iItem),
-m_renderer(iContext,iHighlightContext),
-m_bodyRenderer(iContext, iHighlightContext, FWTextTableCellRenderer::kJustifyRight),
-m_widget(iWidget)
+                                                                 FWCollectionSummaryWidget* iWidget):
+   m_collection(iItem),
+   m_renderer(iContext,iHighlightContext),
+   m_bodyRenderer(iContext, iHighlightContext, FWTextTableCellRenderer::kJustifyRight),
+   m_widget(iWidget)
 {
    m_collection->changed_.connect(boost::bind(&FWTableManagerBase::dataChanged,this));
    m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryTableManager::dataChanged,this));
@@ -48,27 +48,47 @@ m_widget(iWidget)
    ROOT::Reflex::Type type = ROOT::Reflex::Type::ByTypeInfo(*(m_collection->modelType()->GetTypeInfo()));
 
    if ( type.Name() == "CaloTower" ){
-     if ( m_collection->purpose() == "ECal" ){
-       s_names.push_back(std::pair<std::string,std::string>("emEt","GeV"));
-       boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
-       if(trans->isValid()) m_valueGetters.push_back(trans);
-     }
-     else if ( m_collection->purpose() == "HCal" ){
-       s_names.push_back(std::pair<std::string,std::string>("hadEt","GeV"));
-       boost::shared_ptr<FWItemValueGetter> hadEt( new FWItemValueGetter(type,s_names));
-       if(hadEt->isValid()) m_valueGetters.push_back(hadEt);
-     }
-     else if (m_collection->purpose() == "HCal Outer"){
-        s_names.push_back(std::pair<std::string,std::string>("outerEt","GeV"));
-        boost::shared_ptr<FWItemValueGetter> outerEt( new FWItemValueGetter(type,s_names));
-        if(outerEt->isValid()) m_valueGetters.push_back(outerEt);
-     }
-   } else {
-     s_names.push_back(std::pair<std::string,std::string>("pt","GeV"));
-     s_names.push_back(std::pair<std::string,std::string>("et","GeV"));
-     s_names.push_back(std::pair<std::string,std::string>("energy","GeV"));
-     boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
-     if(trans->isValid()) m_valueGetters.push_back(trans);
+      if ( m_collection->purpose() == "ECal" ){
+         s_names.push_back(std::pair<std::string,std::string>("emEt","GeV"));
+         boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
+         if(trans->isValid()) m_valueGetters.push_back(trans);
+      }
+      else if ( m_collection->purpose() == "HCal" ){
+         s_names.push_back(std::pair<std::string,std::string>("hadEt","GeV"));
+         boost::shared_ptr<FWItemValueGetter> hadEt( new FWItemValueGetter(type,s_names));
+         if(hadEt->isValid()) m_valueGetters.push_back(hadEt);
+      }
+      else if (m_collection->purpose() == "HCal Outer"){
+         s_names.push_back(std::pair<std::string,std::string>("outerEt","GeV"));
+         boost::shared_ptr<FWItemValueGetter> outerEt( new FWItemValueGetter(type,s_names));
+         if(outerEt->isValid()) m_valueGetters.push_back(outerEt);
+      }
+   }
+   else if (strstr(m_collection->purpose().c_str(), "Beam Spot")  ){
+
+      s_names.push_back(std::pair<std::string,std::string>("x0","cm"));
+      {
+         boost::shared_ptr<FWItemValueGetter> pos( new FWItemValueGetter(type,s_names));
+         if(pos->isValid()) m_valueGetters.push_back(pos);
+      }
+      {
+         s_names.begin()->first = "y0";
+         boost::shared_ptr<FWItemValueGetter> pos( new FWItemValueGetter(type,s_names));
+         if(pos->isValid()) m_valueGetters.push_back(pos);
+      }
+      {
+         s_names.begin()->first = "z0";
+         boost::shared_ptr<FWItemValueGetter> pos( new FWItemValueGetter(type,s_names));
+         if(pos->isValid()) m_valueGetters.push_back(pos);
+      }
+
+   }
+   else {
+      s_names.push_back(std::pair<std::string,std::string>("pt","GeV"));
+      s_names.push_back(std::pair<std::string,std::string>("et","GeV"));
+      s_names.push_back(std::pair<std::string,std::string>("energy","GeV"));
+      boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
+      if(trans->isValid()) m_valueGetters.push_back(trans);
    }
 
    
