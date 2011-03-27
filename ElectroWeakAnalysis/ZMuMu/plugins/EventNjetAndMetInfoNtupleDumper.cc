@@ -6,6 +6,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
 
 
 #include <vector>
@@ -34,6 +35,9 @@ EventNjetAndMetInfoNtupleDumper::EventNjetAndMetInfoNtupleDumper( const Paramete
 {
   produces<int>( "numJets" ).setBranchAlias( "numJets" );
   produces<float>( "metPt" ).setBranchAlias( "metPt" );
+  produces<vector<float> >( "jetsBtag" ).setBranchAlias( "jetsBtag" );
+  produces<vector <float> >( "jetsPt" ).setBranchAlias( "jetsPt" );
+  produces<vector <float> >( "jetsEta" ).setBranchAlias( "jetsEta" );
  
 }
 
@@ -41,6 +45,9 @@ EventNjetAndMetInfoNtupleDumper::EventNjetAndMetInfoNtupleDumper( const Paramete
 
 void EventNjetAndMetInfoNtupleDumper::produce( Event & evt, const EventSetup & ) {
   auto_ptr<int> nJets( new int );
+  auto_ptr<vector<float> > jetsbtag( new vector<float> );
+  auto_ptr<vector <float> > jetspt( new vector<float> );
+  auto_ptr<vector <float> >  jetseta( new vector<float> );
   auto_ptr<float> metpt( new float );  
 
   // MET
@@ -88,8 +95,30 @@ void EventNjetAndMetInfoNtupleDumper::produce( Event & evt, const EventSetup & )
  *nJets = -1;  
  *nJets = njets;
 
+
+ // Get b tag information
+ edm::Handle<reco::JetTagCollection> bTagHandle;
+ evt.getByLabel("trackCountingHighEffBJetTags", bTagHandle);
+ const reco::JetTagCollection & bTags = *(bTagHandle.product());
+
+ // Loop over jets and study b tag info.
+ for (unsigned int i = 0; i != bTags.size(); ++i) {
+   // cout<<" Jet "<< i 
+   //  <<" has b tag discriminator (trackCountingHighEffBJetTags)= "<<bTags[i].second
+   //  << " and jet Pt = "<<bTags[i].first->pt()<<endl;
+   jetsbtag->push_back(bTags[i].second);
+   jetspt->push_back(bTags[i].first->pt());
+   jetseta->push_back(bTags[i].first->eta());
+
+ }
+
+
+
  evt.put( metpt, "metPt" );
  evt.put( nJets, "numJets" );
+ evt.put( jetsbtag, "jetsBtag" );
+ evt.put( jetspt, "jetsPt" );
+ evt.put( jetseta, "jetsEta" );
 
 }
 

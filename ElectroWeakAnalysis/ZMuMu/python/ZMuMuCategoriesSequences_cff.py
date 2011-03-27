@@ -1,5 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+# Setup PAT
+from PhysicsTools.PatAlgos.patTemplate_cfg import *
+from PhysicsTools.PatAlgos.tools.coreTools import *
+from PhysicsTools.PatAlgos.tools.pfTools import *
+
+isData= True
+
 # reorganization of Z->mumu categories sequence, to run after the ZMuMu(Sub)Skim (i.d. supposing dimuons, dimuonsGlobal, dimuonsOneTrack and dimuonsOneStndAloneMuon categories has been built)
 
 
@@ -34,7 +41,25 @@ eventVtxInfoNtuple = cms.EDProducer(
 )
 
 
+switchJetCollection(process,cms.InputTag('ak5PFJets'),
+                        doJTA        = True,
+                        doBTagging   = True,
+                        jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
+                        doType1MET   = True,
+                     #   genJetCollection=cms.InputTag("ak5GenJets"),
+                        doJetID      = True
+                    )
 
+if isData!=True:
+        switchJetCollection(process,cms.InputTag('ak5PFJets'),
+                                                        doJTA        = True,
+                                                        doBTagging   = True,
+                                                        jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute' ])),
+                                                        doType1MET   = True,
+                                                        genJetCollection=cms.InputTag("ak5GenJets"),
+                                                        doJetID      = True
+                                                    )
+        
 
 ###  NJets and Met info
 
@@ -44,8 +69,8 @@ eventNjetsAndMetInfoNtuple = cms.EDProducer(
     "EventNjetAndMetInfoNtupleDumper",
     MuonTag = cms.untracked.InputTag("muons"),
     METTag = cms.untracked.InputTag("pfMet"),
-    JetTag = cms.untracked.InputTag("ak5PFJets"),
-    EJetMin = cms.untracked.double(40.)  
+    JetTag = cms.untracked.InputTag("patJets"),
+    EJetMin = cms.untracked.double(25.)  
 )
 
 # path for dumping vtx info, njets and met info in the ntuple
