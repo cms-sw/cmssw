@@ -7,6 +7,10 @@
 #include <string>
 
 using namespace std;
+
+PropagatorWithMaterial::~PropagatorWithMaterial(){}
+
+
 PropagatorWithMaterial::PropagatorWithMaterial (PropagationDirection dir,
 						const float mass, 
 						const MagneticField * mf,

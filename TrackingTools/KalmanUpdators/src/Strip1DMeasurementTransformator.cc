@@ -1,6 +1,7 @@
 #include "TrackingTools/KalmanUpdators/interface/Strip1DMeasurementTransformator.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+// #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 
 Strip1DMeasurementTransformator::Strip1DMeasurementTransformator(const TSOS& tsos,

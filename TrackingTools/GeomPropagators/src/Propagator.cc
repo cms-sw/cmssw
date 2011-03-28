@@ -5,6 +5,9 @@
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
+
+Propagator::~Propagator() {}
+
 TrajectoryStateOnSurface 
 Propagator::propagate( const FreeTrajectoryState& state, 
 		       const Surface& sur) const

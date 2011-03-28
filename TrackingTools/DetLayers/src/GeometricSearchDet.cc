@@ -3,6 +3,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+ GeometricSearchDet::~GeometricSearchDet(){}
 
  void
  GeometricSearchDet::compatibleDetsV( const TrajectoryStateOnSurface&,
