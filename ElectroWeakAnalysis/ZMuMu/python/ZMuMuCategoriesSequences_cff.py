@@ -1,13 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-# Setup PAT
-from PhysicsTools.PatAlgos.patTemplate_cfg import *
-from PhysicsTools.PatAlgos.tools.coreTools import *
-from PhysicsTools.PatAlgos.tools.pfTools import *
 
-isData= True
 
 # reorganization of Z->mumu categories sequence, to run after the ZMuMu(Sub)Skim (i.d. supposing dimuons, dimuonsGlobal, dimuonsOneTrack and dimuonsOneStndAloneMuon categories has been built)
+
+
 
 
 ### parameter set to be overloaded in the configuration file 
@@ -35,50 +32,38 @@ zmumuSaMassHistogram = cms.EDAnalyzer(
 
 ### Primary vertex info
 
+
+
+
+
 eventVtxInfoNtuple = cms.EDProducer(
-    "EventVtxInfoNtupleDumper",
-    primaryVertices=cms.InputTag("offlinePrimaryVertices")
-)
+        "EventVtxInfoNtupleDumper",
+            primaryVertices=cms.InputTag("offlinePrimaryVertices")
+        )
 
 
-switchJetCollection(process,cms.InputTag('ak5PFJets'),
-                        doJTA        = True,
-                        doBTagging   = True,
-                        jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
-                        doType1MET   = True,
-                     #   genJetCollection=cms.InputTag("ak5GenJets"),
-                        doJetID      = True
-                    )
-
-if isData!=True:
-        switchJetCollection(process,cms.InputTag('ak5PFJets'),
-                                                        doJTA        = True,
-                                                        doBTagging   = True,
-                                                        jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute' ])),
-                                                        doType1MET   = True,
-                                                        genJetCollection=cms.InputTag("ak5GenJets"),
-                                                        doJetID      = True
-                                                    )
-        
-
-###  NJets and Met info
-
-#EventNjetAndMetInfoNtupleDumper
+eventVtxInfoNtuple.setLabel("eventVtxInfoNtuple")
 
 eventNjetsAndMetInfoNtuple = cms.EDProducer(
-    "EventNjetAndMetInfoNtupleDumper",
-    MuonTag = cms.untracked.InputTag("muons"),
-    METTag = cms.untracked.InputTag("pfMet"),
-    JetTag = cms.untracked.InputTag("patJets"),
-    EJetMin = cms.untracked.double(25.)  
-)
+        "EventNjetAndMetInfoNtupleDumper",
+       #     MuonTag = cms.untracked.InputTag("muons"),
+            METTag = cms.untracked.InputTag("pfMet"),
+            JetTag = cms.untracked.InputTag("cleanPatJets"),
+            EJetMin = cms.untracked.double(25.)
+        )
+
 
 # path for dumping vtx info, njets and met info in the ntuple
 generalEventInfoPath = cms.Path(
-    process.makePatJets +
-    eventVtxInfoNtuple +
-    eventNjetsAndMetInfoNtuple
-    )
+            eventVtxInfoNtuple +
+            eventNjetsAndMetInfoNtuple
+            )
+
+
+
+
+
+
 
 
 
@@ -223,6 +208,14 @@ globalMuQualityCutsAnalysisAAsta= cms.EDAnalyzer(
     chi2Cut = cms.untracked.double("10"),
     nHitCut = cms.untracked.int32(10)
  )
+
+
+eventVtxInfoNtuple = cms.EDProducer(
+            "EventVtxInfoNtupleDumper",
+                        primaryVertices=cms.InputTag("offlinePrimaryVertices")
+                    )
+
+
 
 
 initialGoodZToMuMuPath = cms.Path( 

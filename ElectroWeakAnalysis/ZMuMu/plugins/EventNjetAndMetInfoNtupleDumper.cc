@@ -5,9 +5,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include <vector>
 
@@ -22,22 +21,24 @@ public:
    
 private:
   void produce( edm::Event &, const edm::EventSetup & );
-  edm::InputTag muonTag_, metTag_, jetTag_;
+  edm::InputTag /*muonTag_,*/ metTag_, jetTag_;
   double eJetMin_;
 
 };
 
 EventNjetAndMetInfoNtupleDumper::EventNjetAndMetInfoNtupleDumper( const ParameterSet & cfg ) : 
-  muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag")),
+  //  muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag")),
   metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag")), 
   jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag")),
   eJetMin_(cfg.getUntrackedParameter<double>("EJetMin"))
 {
   produces<int>( "numJets" ).setBranchAlias( "numJets" );
-  produces<float>( "metPt" ).setBranchAlias( "metPt" );
+  produces<float>( "metEt" ).setBranchAlias( "metEt" );
+  produces<float>( "metPhi" ).setBranchAlias( "metPhi" );
   produces<vector<float> >( "jetsBtag" ).setBranchAlias( "jetsBtag" );
-  produces<vector <float> >( "jetsPt" ).setBranchAlias( "jetsPt" );
+  produces<vector <float> >( "jetsEt" ).setBranchAlias( "jetsPt" );
   produces<vector <float> >( "jetsEta" ).setBranchAlias( "jetsEta" );
+  produces<vector <float> >( "jetsPhi" ).setBranchAlias( "jetsPhi" );
  
 }
 
@@ -46,9 +47,11 @@ EventNjetAndMetInfoNtupleDumper::EventNjetAndMetInfoNtupleDumper( const Paramete
 void EventNjetAndMetInfoNtupleDumper::produce( Event & evt, const EventSetup & ) {
   auto_ptr<int> nJets( new int );
   auto_ptr<vector<float> > jetsbtag( new vector<float> );
-  auto_ptr<vector <float> > jetspt( new vector<float> );
+  auto_ptr<vector <float> > jetset( new vector<float> );
   auto_ptr<vector <float> >  jetseta( new vector<float> );
-  auto_ptr<float> metpt( new float );  
+  auto_ptr<vector <float> >  jetsphi( new vector<float> );
+  auto_ptr<float> metet( new float );  
+  auto_ptr<float> metphi( new float );  
 
   // MET
 
@@ -58,67 +61,84 @@ void EventNjetAndMetInfoNtupleDumper::produce( Event & evt, const EventSetup & )
     return;
   }
   const MET& met = metCollection->at(0);
-  *metpt = -1;  
-  *metpt = met.pt();
+  *metet = -1;  
+  *metet = met.et();
+  *metphi = met.phi();
  
 
 
  // Muon collection, needed for pfjet correct counting
- Handle<View<Muon> > muonCollection;
- if (!evt.getByLabel(muonTag_, muonCollection)) {
-   //LogWarning("") << ">>> Muon collection does not exist !!!";
-   return;
- }
- unsigned int muonCollectionSize = muonCollection->size();
+//  Handle<View<Muon> > muonCollection;
+//  if (!evt.getByLabel(muonTag_, muonCollection)) {
+//    //LogWarning("") << ">>> Muon collection does not exist !!!";
+//    return;
+//  }
+//  unsigned int muonCollectionSize = muonCollection->size();
 
+//  // Get b tag information
+//  edm::Handle<reco::JetTagCollection> bTagHandle;
+// evt.getByLabel("combinedSecondaryVertexBJetTags", bTagHandle);
+// // evt.getByLabel("trackCountingHighEffBJetTags", bTagHandle);
+//  const reco::JetTagCollection & bTags = *(bTagHandle.product());
 
-
- Handle<View<Jet> > jetCollection;
+ Handle<View<pat::Jet> >  jetCollection;
  if (!evt.getByLabel(jetTag_, jetCollection)) {
-   //LogError("") << ">>> JET collection does not exist !!!";
+   std::cout << ">>> JET collection does not exist !!!" << std::endl;
    return;
  }
  unsigned int jetCollectionSize = jetCollection->size();
  int njets = 0;
  for (unsigned int i=0; i<jetCollectionSize; i++) {
-   const Jet& jet = jetCollection->at(i);
-   double minDistance=99999; // This is in order to use PFJets
-   for (unsigned int i=0; i<muonCollectionSize; i++) {
-     const Muon& mu = muonCollection->at(i);
-     double distance = sqrt( (mu.eta()-jet.eta())*(mu.eta()-jet.eta()) +(mu.phi()-jet.phi())*(mu.phi()-jet.phi()) );      
-     if (minDistance>distance) minDistance=distance;
+   const pat::Jet& jet = jetCollection->at(i);
+   //  edm::RefToBase<pat::Jet> jetRef = jetCollection->refAt(i);
+   // double minDistance=99999; // This is in order to use PFJets
+//    for (unsigned int i=0; i<muonCollectionSize; i++) {
+//      const Muon& mu = muonCollection->at(i);
+//      double distance = sqrt( (mu.eta()-jet.eta())*(mu.eta()-jet.eta()) +(mu.phi()-jet.phi())*(mu.phi()-jet.phi()) );      
+//      if (minDistance>distance) minDistance=distance;
+//    }
+//    if (minDistance<0.3) continue; // 0.3 is the isolation cone around the muon
+   if (jet.et()>eJetMin_){
+
+ njets++;
+   jetset->push_back(jet.et());
+   jetseta->push_back(jet.eta());
+   jetsphi->push_back(jet.phi());
+   jetsbtag->push_back(jet.bDiscriminator("combinedSecondaryVertexBJetTags"));
+
+
    }
-   if (minDistance<0.3) continue; // 0.3 is the isolation cone around the muon
-   if (jet.et()>eJetMin_) njets++;
  }
  
  *nJets = -1;  
  *nJets = njets;
 
 
- // Get b tag information
- edm::Handle<reco::JetTagCollection> bTagHandle;
- evt.getByLabel("trackCountingHighEffBJetTags", bTagHandle);
- const reco::JetTagCollection & bTags = *(bTagHandle.product());
-
- // Loop over jets and study b tag info.
- for (unsigned int i = 0; i != bTags.size(); ++i) {
-   // cout<<" Jet "<< i 
-   //  <<" has b tag discriminator (trackCountingHighEffBJetTags)= "<<bTags[i].second
-   //  << " and jet Pt = "<<bTags[i].first->pt()<<endl;
-   jetsbtag->push_back(bTags[i].second);
-   jetspt->push_back(bTags[i].first->pt());
-   jetseta->push_back(bTags[i].first->eta());
-
- }
 
 
+ // // Loop over jets and study b tag info.
+//  for (unsigned int i = 0; i != bTags.size(); ++i) {
+//    // cout<<" Jet "<< i 
+//    //  <<" has b tag discriminator (trackCountingHighEffBJetTags)= "<<bTags[i].second
+//    //  << " and jet Pt = "<<bTags[i].first->pt()<<endl;
+  
+//    if ( bTags[i].first->et() > eJetMin_ ){
+    
+//    jetsbtag->push_back(*bTags[i].second);
 
- evt.put( metpt, "metPt" );
+
+//    }
+//  }
+
+
+
+ evt.put( metet, "metEt" );
+ evt.put( metphi, "metPhi" );
  evt.put( nJets, "numJets" );
  evt.put( jetsbtag, "jetsBtag" );
- evt.put( jetspt, "jetsPt" );
+ evt.put( jetset, "jetsEt" );
  evt.put( jetseta, "jetsEta" );
+ evt.put( jetsphi, "jetsPhi" );
 
 }
 
