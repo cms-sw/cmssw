@@ -98,6 +98,10 @@ class ModelBuilder(ModelBuilderBase):
         self.doComment(" --- Expected events in each bin, for each process ----")
         for b in self.DC.bins:
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
+                # if it's a zero background, write a zero and move on
+                if self.DC.exp[b][p] == 0:
+                    self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, self.DC.exp[b][p]))
+                    continue
                 # collect multiplicative corrections
                 strexpr = ""; strargs = ""
                 gammaNorm = None; iSyst=-1
@@ -124,7 +128,7 @@ class ModelBuilder(ModelBuilderBase):
                     elif pdf == "gmN":
                         strexpr += " * @%d " % iSyst
                         strargs += ", theta_%s" % n
-                        if abs(errline[b][p] * args[0] - self.DC.exp[b][p]) > max(0.02 * max(self.DC.exp[b][p],1), errline[b][p]):
+                        if abs(errline[b][p] * args[0] - self.DC.exp[b][p]) > max(0.05 * max(self.DC.exp[b][p],1), errline[b][p]):
                             raise RuntimeError, "Values of N = %d, alpha = %g don't match with expected rate %g for systematics %s " % (
                                                     args[0], errline[b][p], self.DC.exp[b][p], n)
                         if gammaNorm != None:
