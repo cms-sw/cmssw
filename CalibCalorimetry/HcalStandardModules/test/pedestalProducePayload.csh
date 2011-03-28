@@ -4,7 +4,8 @@ cmsenv
 
 echo "Starting Pedestal job part 2"
 set tagName = "HcalPedestals_ADC_v9.12_offline"
-@ beginRunNumber = "100000"
+# From what run to start: should be the last run that is already in the tag.
+@ beginRunNumber = "159769"
 set threshold = 0.2
 
 echo "Dumping the conditions for run: $beginRunNumber"

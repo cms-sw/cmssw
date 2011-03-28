@@ -67,11 +67,8 @@ fabs(diff[4])>pedThresh || fabs(diff[5])>pedThresh || fabs(diff[6])>pedThresh ||
 cout<<dec<<iEta1<<"  "<<iPhi1<<"  "<<sdName1<<"  "<<diff[0]<<"  "<<diff[1]<<"  "<<diff[2]<<"  "<<diff[3]<<"  "<<diff[4]<<"  "<<diff[5]<<"  "<<diff[6]<<"  "<<diff[7]<<"   "<<hex<< uppercase<<detId1<<endl;
      */
      if (fabs(avg_ped_diff)>pedThresh)
-       cout<<"("<<dec<<iEta1<<"  "<<iPhi1<<"  "<<depth1<<"  "<<sdName1<<") "<< hex<< uppercase<<detId1<< "\t average of 4 cap-ids changed by:  "<<avg_ped_diff<<endl;
+       cout<<sdName1<<"("<<dec<<iEta1<<" "<<iPhi1<<" "<<depth1<<")\t"<< hex<< uppercase<<detId1<< "\t average of 4 cap-ids changed by: "<<avg_ped_diff<<endl;
      
-
-//     cTree -> Fill();
-
    }
 
 

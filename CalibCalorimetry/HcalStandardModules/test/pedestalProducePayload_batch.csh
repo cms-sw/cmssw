@@ -15,5 +15,6 @@ cp ${localDir}/pedstxt.zip .
 
 cp test.db $localDir
 cp logfile_pedestalProducePayload.txt $localDir
+cp metadata.txt $localDir
 
 
