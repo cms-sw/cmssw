@@ -10,7 +10,7 @@
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
 #include <typeinfo>
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+// #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
