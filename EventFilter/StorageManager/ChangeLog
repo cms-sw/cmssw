@@ -1,3 +1,8 @@
+2011-03-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-02
+	* Fix error message in case of wrong run number in DQM events.
+
 2011-03-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-01-01
