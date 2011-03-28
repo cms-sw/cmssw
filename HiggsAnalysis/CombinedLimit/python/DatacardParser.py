@@ -85,39 +85,49 @@ def parseCard(file, options):
             if len(f[1:]) != len(ret.keyline): raise RuntimeError, "Malformed rate line: length %d, while bins and process lines have length %d" % (len(f[1:]), len(ret.keyline))
             for (b,p,s),r in zip(ret.keyline,f[1:]):
                 ret.exp[b][p] = float(r)
-            for b in ret.bins:
-                np_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b])
-                ns_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and s == True])
-                nb_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and s != True])
-                if np_bin == 0: raise RuntimeError, "Bin %s has no processes contributing to it" % b
-                if ns_bin == 0: raise RuntimeError, "Bin %s has no signal processes contributing to it" % b
-                if nb_bin == 0: raise RuntimeError, "Bin %s has no background processes contributing to it" % b
             break # rate is the last line before nuisances
     # parse nuisances   
     for l in file:
         if l.startswith("--"): continue
-        l = re.sub("\\s-+(\\s|$)"," 0\\1",l);
+        l = re.sub("(?<=\\s)-+(\\s|$)"," 0\\1",l);
         f = l.split();
         lsyst = f[0]; pdf = f[1]; args = []; numbers = f[2:];
         if pdf == "lnN" or pdf == "gmM":
-            sumNotNull = sum([(n not in ["0","1"]) for n in numbers])
-            if sumNotNull == 0: continue
             pass # nothing special to do
         elif pdf == "gmN":
             args = [int(f[2])]; numbers = f[3:];
-            sumNotNull = sum([(n != "0") for n in numbers])
-            if sumNotNull == 0: continue
         else:
             raise RuntimeError, "Unsupported pdf %s" % pdf
         if len(numbers) < len(ret.keyline): raise RuntimeError, "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(ret.keyline))
         errline = dict([(b,{}) for b in ret.bins])
+        nonNullEntries = 0 
         for (b,p,s),r in zip(ret.keyline,numbers):
             if "/" in r: # "number/number"
                 if pdf != "lnN": raise RuntimeError, "Asymmetric errors are allowed only for Log-normals"
                 errline[b][p] = [ float(x) for x in r.split("/") ]
             else:
                 errline[b][p] = float(r) 
+            # set the rate to epsilon for backgrounds with zero observed sideband events.
+            if pdf == "gmN" and args[0] == 0 and ret.exp[b][p] == 0 and float(r) != 0: ret.exp[b][p] == 1e-6
         ret.systs.append((lsyst,pdf,args,errline))
+    # check if there are bins with no rate
+    for b in ret.bins:
+        np_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b])
+        ns_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and s == True])
+        nb_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and s != True])
+        if np_bin == 0: raise RuntimeError, "Bin %s has no processes contributing to it" % b
+        if ns_bin == 0: raise RuntimeError, "Bin %s has no signal processes contributing to it" % b
+        if nb_bin == 0: raise RuntimeError, "Bin %s has no background processes contributing to it" % b
+    # cleanup systematics that have no effect to avoid zero derivatives
+    syst2 = []
+    for lsyst,pdf,args,errline in ret.systs:
+        nonNullEntries = 0 
+        for (b,p,s) in ret.keyline:
+            r = errline[b][p]
+            nullEffect = (r == 0.0 or (pdf == "lnN" and r == 1.0))
+            if not nullEffect and ret.exp[b][p] != 0: nonNullEntries += 1 # is this a zero background?
+        if nonNullEntries != 0: syst2.append((lsyst,pdf,args,errline))
+    ret.systs = syst2
     # remove them if options.stat asks so
     if options.stat: 
         nuisances = 0
