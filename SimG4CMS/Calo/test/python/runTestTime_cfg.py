@@ -55,7 +55,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(5)
 )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun        = cms.untracked.uint32(1),
+    firstEvent      = cms.untracked.uint32(1)
+)
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(

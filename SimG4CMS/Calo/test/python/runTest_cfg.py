@@ -64,7 +64,10 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 
 process.Timing = cms.Service("Timing")
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun        = cms.untracked.uint32(1),
+    firstEvent      = cms.untracked.uint32(1)
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -75,6 +78,10 @@ process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent.root')
+)
+
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('MinBiasTestAnalysis.root')
 )
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
@@ -95,7 +102,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HcalTestAnalysis = cms.PSet(
         Eta0 = cms.double(0.0),
         LayerGrouping = cms.int32(1),
-        FileName = cms.string('HcalTestAnalysis.root'),
+        FileName = cms.string('MinBiasTestAnalysis.root'),
         Names = cms.vstring('HcalHits', 
             'EcalHitsEB', 
             'EcalHitsEE'),
