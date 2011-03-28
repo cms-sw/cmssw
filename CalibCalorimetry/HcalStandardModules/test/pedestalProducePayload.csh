@@ -3,16 +3,9 @@
 cmsenv
 
 echo "Starting Pedestal job part 2"
-
-# this parameters are ajusted from send_pedestalProducePayloads.csh script
-set tagName = <send_tag>
-@ beginRunNumber = <send_run>
-set threshold = <send_thresh>
-
-# Or you can run it directly (locally), just change to these lines
-#set tagName = "HcalPedestals_ADC_v9.12_offline"
-#@ beginRunNumber = "100000"
-#set threshold = 0.2
+set tagName = "HcalPedestals_ADC_v9.12_offline"
+@ beginRunNumber = "100000"
+set threshold = 0.2
 
 echo "Dumping the conditions for run: $beginRunNumber"
 ./makedump.csh  Pedestals $tagName $beginRunNumber
