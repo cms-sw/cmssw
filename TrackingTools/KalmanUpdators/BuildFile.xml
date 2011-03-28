@@ -1,5 +1,6 @@
 <use   name="boost"/>
 <use   name="clhep"/>
+<use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/PatternTools"/>
 <use   name="Geometry/CommonDetUnit"/>
