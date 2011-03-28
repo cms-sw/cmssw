@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.21 2010/09/15 16:01:21 lacroix Exp $
+// $Id: Type1MET.cc,v 1.22 2010/12/13 11:07:53 gebbert Exp $
 //
 //
 
@@ -90,7 +90,7 @@ namespace cms
 	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 
 		  jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr,
                   *(inputMuons.product()), *(vm_muCorrData_h.product()),
-		  &*output );                                         //Invoke the algorithm
+		  &*output, iEvent, iSetup );                                         //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
     else if (metType == "PFMET")
@@ -113,7 +113,7 @@ namespace cms
 	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), *(inputUncorUnlustered.product()),
 		  jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr,
                   *(inputMuons.product()), *(vm_muCorrData_h.product()),
-		  &*output );                                         //Invoke the algorithm
+		  &*output, iEvent, iSetup );                                         //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
     else
@@ -128,7 +128,7 @@ namespace cms
 	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 
 		  jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr,
                   *(inputMuons.product()), *(vm_muCorrData_h.product()),
-		  &*output );                                         //Invoke the algorithm
+		  &*output, iEvent, iSetup );                                         //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
   }
