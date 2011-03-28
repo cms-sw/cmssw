@@ -99,12 +99,13 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if (jet_eta<2.5 && jet_eta>1.5)rho=medianPtkt[7];
 	    if (jet_eta<3.5 && jet_eta>2.5)rho=medianPtkt[8];
 
-
 	    double jet_area = jet.jetArea();
 
 	    double CorrFactor =0.;
 	    if(rho*jet_area<jet_et) CorrFactor = 1.0 - rho*jet_area/jet_et;
 	    jet.scaleEnergy( CorrFactor );
+	    jet.setPileup(rho*jet_area);
+	    
 	    //std::cout<<"  correction factor "<<1.0 - rho*jet_area/jet_et<<std::endl;                                                          
 	 }
 
@@ -163,6 +164,8 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double CorrFactor =0.;
 	if(rho*jet_area<jet_et) CorrFactor = 1.0 - rho*jet_area/jet_et;
 	jet.scaleEnergy( CorrFactor );
+	jet.setPileup(rho*jet_area);
+
 	//std::cout<<"  correction factor "<<1.0 - rho*jet_area/jet_et<<std::endl;
       }
 
@@ -223,6 +226,8 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double CorrFactor =0.;
 	if(rho*jet_area<jet_et) CorrFactor = 1.0 - rho*jet_area/jet_et;
 	jet.scaleEnergy( CorrFactor );
+	jet.setPileup(rho*jet_area);
+
 	//std::cout<<"  correction factor "<<1.0 - rho*jet_area/jet_et<<std::endl;
       }
 
