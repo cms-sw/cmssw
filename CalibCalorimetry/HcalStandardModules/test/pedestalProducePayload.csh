@@ -4,9 +4,10 @@ cmsenv
 
 echo "Starting Pedestal job part 2"
 
-set tagName = "HcalPedestals_ADC_v9.12_offline"
-@ beginRunNumber = 153436
-set threshold = 0.2
+# this parameters are ajusted from send_pedestalProducePayloads.csh script
+set tagName = <send_tag>
+@ beginRunNumber = <send_run>
+set threshold = <send_thresh>
 
 echo "Dumping the conditions for run: $beginRunNumber"
 ./makedump.csh  Pedestals $tagName $beginRunNumber
@@ -30,7 +31,6 @@ endif
 ls *-peds_ADC_*.txt > $listOfFiles
 echo "The filenames are saved in: " ${listOfFiles}
 
-@ currentRun = 111111
 set runsWithChanges = ()
 
 echo "\n --Looping over the raw peds files --"
