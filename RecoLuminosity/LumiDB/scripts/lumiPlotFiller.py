@@ -135,7 +135,7 @@ def totalLumi2010vstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTim
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
         
-def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
+def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
     '''
     input:
       c connect string
