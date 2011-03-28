@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.27 2010/05/19 09:38:13 fra Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.28 2010/07/07 09:08:48 depasse Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -241,6 +241,8 @@ private:
   std::string EBAlignmentFile_;
   std::string EEAlignmentFile_;
   std::string ESAlignmentFile_;
+  std::string EBLaserAlphaFile_;
+  std::string EELaserAlphaFile_;
 
   int nTDCbins_;
 
@@ -273,6 +275,7 @@ private:
   bool getEBAlignmentFromFile_;
   bool getEEAlignmentFromFile_;
   bool getESAlignmentFromFile_;
+  bool getLaserAlphaFromFile_;
 
   int    verbose_; // verbosity
 

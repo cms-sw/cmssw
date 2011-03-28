@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.48 2010/07/05 fay Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.49 2010/07/07 09:07:02 depasse Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -258,6 +258,13 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     // set all constants to 1. or smear as specified by user
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAlphas ) ;
     findingRecord<EcalLaserAlphasRcd> () ;
+    getLaserAlphaFromFile_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromFile",false);
+    std::cout << " getLaserAlphaFromFile_ " <<  getLaserAlphaFromFile_ << std::endl;
+    if(getLaserAlphaFromFile_) {
+      EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EBLaserAlphaFile",path+"EBLaserAlpha.txt");
+      EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EELaserAlphaFile",path+"EELaserAlpha.txt");
+      std::cout << " EELaserAlphaFile_ " <<  EELaserAlphaFile_.c_str() << std::endl;
+    }
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef ) ;
     findingRecord<EcalLaserAPDPNRatiosRefRcd> () ;
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios) ;
@@ -814,34 +821,130 @@ EcalTrivialConditionRetriever::produceEcalClusterEnergyUncertaintyParameters( co
 std::auto_ptr<EcalLaserAlphas>
 EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd& )
 {
-  std::auto_ptr<EcalLaserAlphas>  ical = std::auto_ptr<EcalLaserAlphas>( new EcalLaserAlphas() );
-  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
-    if(ieta==0) continue;
-    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      if (EBDetId::validDetId(ieta,iphi)) {
-            EBDetId ebid(ieta,iphi);
-            double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-            ical->setValue( ebid, laserAlphaMean_ + r*laserAlphaSigma_ );
-      }
+
+  std::cout << " produceEcalLaserAlphas " << std::endl;
+  std::auto_ptr<EcalLaserAlphas> ical = std::auto_ptr<EcalLaserAlphas>( new EcalLaserAlphas() );
+  if(getLaserAlphaFromFile_) {
+    std::ifstream fEB(edm::FileInPath(EBLaserAlphaFile_).fullPath().c_str());
+    int SMpos[36] = {-10, 4, -7, -16, 6, -9, 11, -17, 5, 18, 3, -8, 1, -3, -13, 14, -6, 2,
+		     15, -18, 8, 17, -2, 9, -1, 10, -5, 7, -12, -11, 16, -4, -15, -14, 12, 13};
+    // check!
+    int SMCal[36] = {12,17,10, 1, 8, 4,27,20,23,25, 6,34,35,15,18,30,21, 9,
+		     24,22,13,31,26,16, 2,11, 5, 0,29,28,14,33,32, 3, 7,19};
+    /*
+  int slot_to_constr[37]={-1,12,17,10,1,8,4,27,20,23,25,6,34,35,15,18,30,21,9
+			  ,24,22,13,31,26,16,2,11,5,0,29,28,14,33,32,3,7,19};
+  int constr_to_slot[36]={28,4,25,34,6,27,11,35,5,18,3,26,1,21,31,14,24,2,15,
+			  36,8,17,20,9,19,10,23,7,30,29,16,22,33,32,12,13  };
+    */
+    for(int SMcons = 0; SMcons < 36; SMcons++) {
+      int SM = SMpos[SMcons];
+      if(SM < 0) SM = 17 + abs(SM);
+      else SM--;
+      if(SMCal[SM] != SMcons)
+	 std::cout << " SM pb : read SM " <<  SMcons<< " SMpos " << SM
+		   << " SMCal " << SMCal[SM] << std::endl;
     }
-  }
+    // check
+    std::string type, batch;
+    int readSM, pos, bar, bar2;
+    float alpha = 0;
+    for(int SMcons = 0; SMcons < 36; SMcons++) {
+      int SM = SMpos[SMcons];
+      for(int ic = 0; ic < 1700; ic++) {
+	fEB >> readSM >> pos >> bar >>  bar2 >> type >> batch;
+	//	if(ic == 0) std::cout << readSM << " " << pos << " " << bar << " " << bar2 << " " 
+	//			      << type << " " << batch << std::endl;
+	if(readSM != SMcons || pos != ic + 1) 
+	  std::cout << " barrel read pb read SM " << readSM << " const SM " << SMcons
+		    << " read pos " << pos << " ic " << ic << std::endl;
+	if(SM < 0) SM = 18 + abs(SM);
+	EBDetId ebdetid(SM, pos, EBDetId::SMCRYSTALMODE);
+	if(bar == 33101 || bar == 30301 )
+	  alpha = 1.52;
+	else if(bar == 33106) {
+	  if(bar2 <= 2000)
+	    alpha = 1.0;
+	  else {
+	    std::cout << " problem with barcode first " << bar << " last " << bar2 
+		      << " read SM " << readSM << " read pos " << pos << std::endl;
+	    alpha = 0.0;
+	  }
+	}
+	ical->setValue( ebdetid, alpha );
+      }
+    }  // loop over SMcons
+  }   // laserAlpha from a file
+  else {
+    for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
+      if(ieta==0) continue;
+      for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+	if (EBDetId::validDetId(ieta,iphi)) {
+	  EBDetId ebid(ieta,iphi);
+	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  ical->setValue( ebid, laserAlphaMean_ + r*laserAlphaSigma_ );
+	}
+      }  // loop over iphi
+    }  // loop over ieta
+  }   // do not read a file
 
-   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-       // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-       if (EEDetId::validDetId(iX,iY,1)) {
-             double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-             EEDetId eedetidpos(iX,iY,1);
-             ical->setValue( eedetidpos, laserAlphaMean_ + r*laserAlphaSigma_ );
-       }
+  std::cout << " produceEcalLaserAlphas EE" << std::endl;
+  if(getLaserAlphaFromFile_) {
+    std::ifstream fEE(edm::FileInPath(EELaserAlphaFile_).fullPath().c_str());
+    int check[101][101];
+    for(int x = 1; x < 101; x++)
+      for(int y = 1; y < 101; y++)
+	check[x][y] = -1;
+    for(int crystal = 0; crystal < 14648; crystal++) {
+      int x, y ,z, bid, bar, bar2;
+      float LY, alpha = 0;
+      fEE >> z >> x >> y >> LY >> bid >> bar >> bar2;
+      if(x < 1 || x > 100 || y < 1 || y > 100)
+	std::cout << " wrong coordinates for barcode " << bar 
+		  << " x " << x << " y " << y << " z " << z << std::endl;
+      else {
+	if(z == 1) check[x][y] = 1;
+	else check[x][y] = 0;
+	if(bar == 33201 || (bar == 30399 && bar2 < 568))
+	  alpha = 1.52;
+	else if((bar == 33106 && bar2 > 2000 && bar2 < 4669) 
+		|| (bar == 30399 && bar2 > 567))
+	  alpha = 1.0;
+	else {
+	  std::cout << " problem with barcode " << bar << " " << bar2 
+		    << " x " << x << " y " << y << " z " << z << std::endl;
+	  alpha = 0.0;
+	}
+      } 
+      if (EEDetId::validDetId(x, y, z)) {
+	EEDetId eedetidpos(x, y, z);
+	ical->setValue( eedetidpos, alpha );
+      }
+      else // should not occur
+	std::cout << " problem with EEDetId " << " x " << x << " y " << y << " z " << z << std::endl;
+    }  // loop over crystal in file
+    for(int x = 1; x < 101; x++)
+      for(int y = 1; y < 101; y++)
+	if(check[x][y] == 1) std::cout << " missing x " << x << " y " << y << std::endl;
+  }  // laserAlpha from a file
+  else {
+    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+	// make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+	if (EEDetId::validDetId(iX,iY,1)) {
+	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  EEDetId eedetidpos(iX,iY,1);
+	  ical->setValue( eedetidpos, laserAlphaMean_ + r*laserAlphaSigma_ );
+	}
 
-       if (EEDetId::validDetId(iX,iY,-1)) {
-             double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
-             EEDetId eedetidneg(iX,iY,-1);
-             ical->setValue( eedetidneg, laserAlphaMean_ + r1*laserAlphaSigma_ );
-       }
-     }
-   }
+	if (EEDetId::validDetId(iX,iY,-1)) {
+	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  EEDetId eedetidneg(iX,iY,-1);
+	  ical->setValue( eedetidneg, laserAlphaMean_ + r1*laserAlphaSigma_ );
+	}
+      } // loop over iY
+    } // loop over iX
+  }  // do not read a file
   
   return ical;
 }
