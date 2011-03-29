@@ -383,8 +383,8 @@ public:
   Int_t           L1_SingleJet16;
   Int_t           L1_SingleJet68;
   Int_t           L1_SingleJet92;
-  Int_t           L1_DoubleForJet20_EtaOpp;
-  Int_t           L1_DoubleForJet36_EtaOpp;
+  Int_t           L1_DoubleForJet32_EtaOpp;
+  Int_t           L1_DoubleForJet44_EtaOpp;
   Int_t           L1_DoubleEG2_FwdVeto;
   Int_t           L1_SingleJet36_FwdVeto;
   Int_t           L1_TripleEG7;
@@ -639,8 +639,8 @@ public:
   Int_t           L1_SingleJet16_Prescl;
   Int_t           L1_SingleJet68_Prescl;
   Int_t           L1_SingleJet92_Prescl;
-  Int_t           L1_DoubleForJet20_EtaOpp_Prescl;
-  Int_t           L1_DoubleForJet36_EtaOpp_Prescl;
+  Int_t           L1_DoubleForJet32_EtaOpp_Prescl;
+  Int_t           L1_DoubleForJet44_EtaOpp_Prescl;
   Int_t           L1_DoubleEG2_FwdVeto_Prescl;
   Int_t           L1_SingleJet36_FwdVeto_Prescl;
   Int_t           L1_TripleEG7_Prescl;
@@ -3026,8 +3026,8 @@ public:
   TBranch        *b_L1_SingleJet16;   //!
   TBranch        *b_L1_SingleJet68;   //!
   TBranch        *b_L1_SingleJet92;   //!
-  TBranch        *b_L1_DoubleForJet20_EtaOpp;   //!
-  TBranch        *b_L1_DoubleForJet36_EtaOpp;   //!
+  TBranch        *b_L1_DoubleForJet32_EtaOpp;   //!
+  TBranch        *b_L1_DoubleForJet44_EtaOpp;   //!
   TBranch        *b_L1_DoubleEG2_FwdVeto;   //!
   TBranch        *b_L1_SingleJet36_FwdVeto;   //!
   TBranch        *b_L1_TripleEG7;   //!
@@ -3280,8 +3280,8 @@ public:
   TBranch        *b_L1_SingleJet16_Prescl;   //!
   TBranch        *b_L1_SingleJet68_Prescl;   //!
   TBranch        *b_L1_SingleJet92_Prescl;   //!
-  TBranch        *b_L1_DoubleForJet20_EtaOpp_Prescl;   //!
-  TBranch        *b_L1_DoubleForJet36_EtaOpp_Prescl;   //!
+  TBranch        *b_L1_DoubleForJet32_EtaOpp_Prescl;   //!
+  TBranch        *b_L1_DoubleForJet44_EtaOpp_Prescl;   //!
   TBranch        *b_L1_DoubleEG2_FwdVeto_Prescl;   //!
   TBranch        *b_L1_SingleJet36_FwdVeto_Prescl;   //!
   TBranch        *b_L1_TripleEG7_Prescl;   //!
@@ -6749,8 +6749,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleJet16", &L1_SingleJet16, &b_L1_SingleJet16);
   fChain->SetBranchAddress("L1_SingleJet68", &L1_SingleJet68, &b_L1_SingleJet68);
   fChain->SetBranchAddress("L1_SingleJet92", &L1_SingleJet92, &b_L1_SingleJet92);
-  fChain->SetBranchAddress("L1_DoubleForJet20_EtaOpp", &L1_DoubleForJet20_EtaOpp, &b_L1_DoubleForJet20_EtaOpp);
-  fChain->SetBranchAddress("L1_DoubleForJet36_EtaOpp", &L1_DoubleForJet36_EtaOpp, &b_L1_DoubleForJet36_EtaOpp);
+  fChain->SetBranchAddress("L1_DoubleForJet32_EtaOpp", &L1_DoubleForJet32_EtaOpp, &b_L1_DoubleForJet32_EtaOpp);
+  fChain->SetBranchAddress("L1_DoubleForJet44_EtaOpp", &L1_DoubleForJet44_EtaOpp, &b_L1_DoubleForJet44_EtaOpp);
   fChain->SetBranchAddress("L1_DoubleEG2_FwdVeto", &L1_DoubleEG2_FwdVeto, &b_L1_DoubleEG2_FwdVeto);
   fChain->SetBranchAddress("L1_SingleJet36_FwdVeto", &L1_SingleJet36_FwdVeto, &b_L1_SingleJet36_FwdVeto);
   fChain->SetBranchAddress("L1_TripleEG7", &L1_TripleEG7, &b_L1_TripleEG7);
@@ -7002,8 +7002,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleJet16_Prescl", &L1_SingleJet16_Prescl, &b_L1_SingleJet16_Prescl);
   fChain->SetBranchAddress("L1_SingleJet68_Prescl", &L1_SingleJet68_Prescl, &b_L1_SingleJet68_Prescl);
   fChain->SetBranchAddress("L1_SingleJet92_Prescl", &L1_SingleJet92_Prescl, &b_L1_SingleJet92_Prescl);
-  fChain->SetBranchAddress("L1_DoubleForJet20_EtaOpp_Prescl", &L1_DoubleForJet20_EtaOpp_Prescl, &b_L1_DoubleForJet20_EtaOpp_Prescl);
-  fChain->SetBranchAddress("L1_DoubleForJet36_EtaOpp_Prescl", &L1_DoubleForJet36_EtaOpp_Prescl, &b_L1_DoubleForJet36_EtaOpp_Prescl);
+  fChain->SetBranchAddress("L1_DoubleForJet32_EtaOpp_Prescl", &L1_DoubleForJet32_EtaOpp_Prescl, &b_L1_DoubleForJet32_EtaOpp_Prescl);
+  fChain->SetBranchAddress("L1_DoubleForJet44_EtaOpp_Prescl", &L1_DoubleForJet44_EtaOpp_Prescl, &b_L1_DoubleForJet44_EtaOpp_Prescl);
   fChain->SetBranchAddress("L1_DoubleEG2_FwdVeto_Prescl", &L1_DoubleEG2_FwdVeto_Prescl, &b_L1_DoubleEG2_FwdVeto_Prescl);
   fChain->SetBranchAddress("L1_SingleJet36_FwdVeto_Prescl", &L1_SingleJet36_FwdVeto_Prescl, &b_L1_SingleJet36_FwdVeto_Prescl);
   fChain->SetBranchAddress("L1_TripleEG7_Prescl", &L1_TripleEG7_Prescl, &b_L1_TripleEG7_Prescl);
@@ -9047,8 +9047,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleJet16", &map_BitOfStandardHLTPath["L1_SingleJet16"], &b_L1_SingleJet16);
   fChain->SetBranchAddress("L1_SingleJet68", &map_BitOfStandardHLTPath["L1_SingleJet68"], &b_L1_SingleJet68);
   fChain->SetBranchAddress("L1_SingleJet92", &map_BitOfStandardHLTPath["L1_SingleJet92"], &b_L1_SingleJet92);
-  fChain->SetBranchAddress("L1_DoubleForJet20_EtaOpp", &map_BitOfStandardHLTPath["L1_DoubleForJet20_EtaOpp"], &b_L1_DoubleForJet20_EtaOpp);
-  fChain->SetBranchAddress("L1_DoubleForJet36_EtaOpp", &map_BitOfStandardHLTPath["L1_DoubleForJet36_EtaOpp"], &b_L1_DoubleForJet36_EtaOpp);
+  fChain->SetBranchAddress("L1_DoubleForJet32_EtaOpp", &map_BitOfStandardHLTPath["L1_DoubleForJet32_EtaOpp"], &b_L1_DoubleForJet32_EtaOpp);
+  fChain->SetBranchAddress("L1_DoubleForJet44_EtaOpp", &map_BitOfStandardHLTPath["L1_DoubleForJet44_EtaOpp"], &b_L1_DoubleForJet44_EtaOpp);
   fChain->SetBranchAddress("L1_DoubleEG2_FwdVeto", &map_BitOfStandardHLTPath["L1_DoubleEG2_FwdVeto"], &b_L1_DoubleEG2_FwdVeto);
   fChain->SetBranchAddress("L1_SingleJet36_FwdVeto", &map_BitOfStandardHLTPath["L1_SingleJet36_FwdVeto"], &b_L1_SingleJet36_FwdVeto);
   fChain->SetBranchAddress("L1_TripleEG7", &map_BitOfStandardHLTPath["L1_TripleEG7"], &b_L1_TripleEG7);
@@ -9223,8 +9223,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleJet16_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet16"], &b_L1_SingleJet16_Prescl);
   fChain->SetBranchAddress("L1_SingleJet68_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet68"], &b_L1_SingleJet68_Prescl);
   fChain->SetBranchAddress("L1_SingleJet92_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet92"], &b_L1_SingleJet92_Prescl);
-  fChain->SetBranchAddress("L1_DoubleForJet20_EtaOpp_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleForJet20_EtaOpp"], &b_L1_DoubleForJet20_EtaOpp_Prescl);
-  fChain->SetBranchAddress("L1_DoubleForJet36_EtaOpp_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleForJet36_EtaOpp"], &b_L1_DoubleForJet36_EtaOpp_Prescl);
+  fChain->SetBranchAddress("L1_DoubleForJet32_EtaOpp_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleForJet32_EtaOpp"], &b_L1_DoubleForJet32_EtaOpp_Prescl);
+  fChain->SetBranchAddress("L1_DoubleForJet44_EtaOpp_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleForJet44_EtaOpp"], &b_L1_DoubleForJet44_EtaOpp_Prescl);
   fChain->SetBranchAddress("L1_DoubleEG2_FwdVeto_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleEG2_FwdVeto"], &b_L1_DoubleEG2_FwdVeto_Prescl);
   fChain->SetBranchAddress("L1_SingleJet36_FwdVeto_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet36_FwdVeto"], &b_L1_SingleJet36_FwdVeto_Prescl);
   fChain->SetBranchAddress("L1_TripleEG7_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_TripleEG7"], &b_L1_TripleEG7_Prescl);

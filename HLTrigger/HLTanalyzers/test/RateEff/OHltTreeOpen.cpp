@@ -1400,12 +1400,12 @@ void OHltTree::CheckOpenHlt(
             // Loop over all oh jets, select events where both pT of a pair are above threshold and in HF+ and HF-
             for (int i=0; i<NrecoJetCorCal; i++)
             {
-               if (recoJetCorCalPt[i]/0.7 > thresholds[0]
+               if (recoJetCorCalPt[i] > thresholds[0]
                      && recoJetCorCalEta[i] > 3.0 && recoJetCorCalEta[i] < 5.1)
                { // Jet pT/eta cut
                   ++rc1;
                }
-               if (recoJetCorCalPt[i]/0.7 > thresholds[0]
+               if (recoJetCorCalPt[i] > thresholds[0]
                      && recoJetCorCalEta[i] > -5.1 && recoJetCorCalEta[i]
                      < -3.0)
                { // Jet pT/eta cut
