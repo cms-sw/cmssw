@@ -1,4 +1,4 @@
-#include "FWPFLegoCandidate.h"
+#include "Fireworks/ParticleFlow/interface/FWPFLegoCandidate.h"
 
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"

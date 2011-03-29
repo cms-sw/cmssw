@@ -1,5 +1,5 @@
-#ifndef _FWPFTRACKRPZPROXYBUILDER_H_
-#define _FWPFTRACKRPZPROXYBUILDER_H_
+#ifndef _FWPFTRACKRPZLEGOPROXYBUILDER_H_
+#define _FWPFTRACKRPZLEGOPROXYBUILDER_H_
 
 // -*- C++ -*-
 //
@@ -13,12 +13,16 @@
 //
 
 // User include files
-#include "FWPFTrackBaseProxyBuilder.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
+#include "Fireworks/Tracks/interface/estimate_field.h"
+#include "Fireworks/ParticleFlow/interface/FWPFTrackUtils.h"
 
 //-----------------------------------------------------------------------------
 // FWPFTrackRPZProxyBuilder
 //-----------------------------------------------------------------------------
-class FWPFTrackRPZProxyBuilder : public FWPFTrackBaseProxyBuilder
+class FWPFTrackRPZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
    public:
    // ---------------- Constructor(s)/Destructor ----------------------

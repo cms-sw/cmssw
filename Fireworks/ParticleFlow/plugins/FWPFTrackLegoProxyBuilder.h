@@ -16,12 +16,16 @@
 #include "TEveStraightLineSet.h"
 
 // User include files
-#include "FWPFTrackBaseProxyBuilder.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
+#include "Fireworks/Tracks/interface/estimate_field.h"
+#include "Fireworks/ParticleFlow/interface/FWPFTrackUtils.h"
 
 //-----------------------------------------------------------------------------
 // FWPFTrackLegoProxyBuilder
 //-----------------------------------------------------------------------------
-class FWPFTrackLegoProxyBuilder : public FWPFTrackBaseProxyBuilder
+class FWPFTrackLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
    public:
    // ---------------- Constructor(s)/Destructor ----------------------

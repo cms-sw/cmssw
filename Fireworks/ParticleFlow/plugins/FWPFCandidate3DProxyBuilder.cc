@@ -38,11 +38,11 @@ class FWPFCandidate3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PF
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFCandidate3DProxyBuilder(const FWPFCandidate3DProxyBuilder&);                    // Stop default
-      const FWPFCandidate3DProxyBuilder& operator=(const FWPFCandidate3DProxyBuilder&);   // Stop default
+      FWPFCandidate3DProxyBuilder( const FWPFCandidate3DProxyBuilder& );                    // Stop default
+      const FWPFCandidate3DProxyBuilder& operator=( const FWPFCandidate3DProxyBuilder& );   // Stop default
 
    // --------------------- Member Functions --------------------------
-      void build(const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
+      void build( const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
 
 };
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
@@ -54,19 +54,19 @@ FWPFCandidate3DProxyBuilder::~FWPFCandidate3DProxyBuilder(){}
 
 //______________________________________________________________________________
 void 
-FWPFCandidate3DProxyBuilder::build(const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
+FWPFCandidate3DProxyBuilder::build( const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
   TEveRecTrack t;
   t.fBeta = 1.;
   t.fP = TEveVector( iData.px(), iData.py(), iData.pz() );
   t.fV = TEveVector( iData.vertex().x(), iData.vertex().y(), iData.vertex().z() );
   t.fSign = iData.charge();
-  TEveTrack* trk = new TEveTrack(&t, context().getTrackPropagator());
+  TEveTrack* trk = new TEveTrack(&t, context().getTrackPropagator() );
 
   trk->MakeTrack();
 
-  fireworks::setTrackTypePF( iData, trk ); 
-  setupAddElement(trk, &oItemHolder);
+  fireworks::setTrackTypePF( iData, trk );
+  setupAddElement( trk, &oItemHolder );
 }
 
 //______________________________________________________________________________

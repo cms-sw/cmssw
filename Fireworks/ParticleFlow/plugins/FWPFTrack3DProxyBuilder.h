@@ -1,5 +1,5 @@
-#ifndef _FWPFTrack3DProxyBuilder_H_
-#define _FWPFTrack3DProxyBuilder_H_
+#ifndef _FWPFTRACK3DPROXYBUILDER_H_
+#define _FWPFTRACK3DPROXYBUILDER_H_
 
 // -*- C++ -*-
 //
@@ -12,17 +12,17 @@
 // Original Author:  Simon Harris
 //
 
-
-// System include files
-#include "TEvePointSet.h"
-
 // User include files
-#include "FWPFTrackBaseProxyBuilder.h"
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
+#include "Fireworks/Tracks/interface/estimate_field.h"
+#include "Fireworks/ParticleFlow/interface/FWPFTrackUtils.h"
 
 //-----------------------------------------------------------------------------
 // FWPFTrack3DProxyBuilder
 //-----------------------------------------------------------------------------
-class FWPFTrack3DProxyBuilder : public FWPFTrackBaseProxyBuilder
+class FWPFTrack3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
@@ -36,7 +36,6 @@ class FWPFTrack3DProxyBuilder : public FWPFTrackBaseProxyBuilder
       const FWPFTrack3DProxyBuilder& operator=( const FWPFTrack3DProxyBuilder& );
 
    // --------------------- Member Functions --------------------------
-      float        linearInterpolation( const TEveVector &p1, const TEveVector &p2, float r );
       virtual void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 };
 #endif

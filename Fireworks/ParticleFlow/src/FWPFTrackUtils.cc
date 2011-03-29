@@ -1,25 +1,96 @@
 #include "Fireworks/ParticleFlow/interface/FWPFTrackUtils.h"
 
+FWPFTrackSingleton *FWPFTrackSingleton::pInstance = NULL;
+bool FWPFTrackSingleton::instanceFlag = false;
+
+//______________________________________________________________________________
+FWPFTrackSingleton *
+FWPFTrackSingleton::Instance()
+{
+   if( !instanceFlag )  // Instance doesn't exist yet
+   {
+      pInstance = new FWPFTrackSingleton();
+      instanceFlag = true;
+   }
+
+   return pInstance;    // Pointer to sole instance
+}
+
+//______________________________________________________________________________
+void
+FWPFTrackSingleton::initPropagator()
+{
+   m_magField = new FWMagField();
+
+   // Common propagator, helix stepper
+   m_trackPropagator = new TEveTrackPropagator();
+   m_trackPropagator->SetMagFieldObj( m_magField, false );
+   m_trackPropagator->SetMaxR( FWPFUtils::caloR3() );
+   m_trackPropagator->SetMaxZ( FWPFUtils::caloZ2() );
+   m_trackPropagator->SetDelta( 0.01 );
+   m_trackPropagator->SetProjTrackBreaking( TEveTrackPropagator::kPTB_UseLastPointPos );
+   m_trackPropagator->SetRnrPTBMarkers( kTRUE );
+   m_trackPropagator->IncDenyDestroy();
+
+   // Tracker propagator
+   m_trackerTrackPropagator = new TEveTrackPropagator();
+   m_trackerTrackPropagator->SetStepper( TEveTrackPropagator::kRungeKutta );
+   m_trackerTrackPropagator->SetMagFieldObj( m_magField, false );
+   m_trackerTrackPropagator->SetDelta( 0.01 );
+   m_trackerTrackPropagator->SetMaxR( FWPFUtils::caloR3() );
+   m_trackerTrackPropagator->SetMaxZ( FWPFUtils::caloZ2() );
+   m_trackerTrackPropagator->SetProjTrackBreaking( TEveTrackPropagator::kPTB_UseLastPointPos );
+   m_trackerTrackPropagator->SetRnrPTBMarkers( kTRUE );
+   m_trackerTrackPropagator->IncDenyDestroy();
+}
+
+//______________________________________________________________________________
+FWPFTrackUtils::FWPFTrackUtils()
+{
+   m_singleton = FWPFTrackSingleton::Instance();
+}
+
+
+//______________________________________________________________________________
+TEveTrack *
+FWPFTrackUtils::getTrack( const reco::Track &iData )
+{
+   TEveTrackPropagator *propagator = ( !iData.extra().isAvailable() ) ? 
+                           m_singleton->getTrackerTrackPropagator() : m_singleton->getTrackPropagator();
+
+   TEveRecTrack t;
+   t.fBeta = 1;
+   t.fP = TEveVector( iData.px(), iData.py(), iData.pz() );
+   t.fV = TEveVector( iData.vertex().x(), iData.vertex().y(), iData.vertex().z() );
+   t.fSign = iData.charge();
+   TEveTrack *trk = new TEveTrack( &t, propagator );
+   trk->MakeTrack();
+
+   return trk;
+}
+
 //______________________________________________________________________________
 TEveStraightLineSet *
 FWPFTrackUtils::setupLegoTrack( const reco::Track &iData )
 {
+   using namespace FWPFUtils;
+
    // Declarations
    int wraps[3] = { -1, -1, -1 };
    bool ECAL = false;
-   TEveTrack *trk = m_trackUtils->getTrack( iData );
+   TEveTrack *trk = getTrack( iData );
    std::vector<TEveVector> trackPoints( trk->GetN() - 1 );
    const Float_t *points = trk->GetP();
    TEveStraightLineSet *legoTrack = new TEveStraightLineSet();
 
-   if( m_trackUtils->getField()->getSource() == FWMagField::kNone );
+   if( m_singleton->getField()->getSource() == FWMagField::kNone )
    {
       if( fabs( iData.eta() ) < 2.0 && iData.pt() > 0.5 && iData.pt() < 30 )
       {
          double estimate = fw::estimate_field( iData, true );
-         if( estimate >= 0 ) m_trackUtils->getField()->guessField( estimate );
+         if( estimate >= 0 ) m_singleton->getField()->guessField( estimate );
       }
-   }
+   } 
 
    // Convert to Eta/Phi and store in vector
    for( Int_t i = 1; i < trk->GetN(); ++i )
@@ -39,53 +110,53 @@ FWPFTrackUtils::setupLegoTrack( const reco::Track &iData )
 
       if( !ECAL )
       {
-         if( m_trackUtils->checkIntersect( v1, m_trackUtils->getCaloR1() ) )
+         if( FWPFMaths::checkIntersect( v1, caloR1() ) )
          {        
             TEveVector v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
-            TEveVector xyPoint = m_trackUtils->lineCircleIntersect( v1, v2, m_trackUtils->getCaloR1() );
+            TEveVector xyPoint = FWPFMaths::lineCircleIntersect( v1, v2, caloR1() );
             TEveVector zPoint;
             if( v1.fZ < 0 )
                zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ - 50.f );
             else
                zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ + 50.f );
 
-            TEveVector vec = m_trackUtils->lineLineIntersect( v1, v2, xyPoint, zPoint );
+            TEveVector vec = FWPFMaths::lineLineIntersect( v1, v2, xyPoint, zPoint );
             legoTrack->AddMarker( vec.Eta(), vec.Phi(), 0.001, 0 );
 
             wraps[0] = i;        // There is now a chance that the track will also reach the HCAL radius
             ECAL = true;
          }
-         else if( fabs( v1.fZ ) >= m_trackUtils->getCaloZ1() )
+         else if( fabs( v1.fZ ) >= caloZ1() )
          {
             TEveVector p1, p2;
             TEveVector vec, v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
-            float z, y = m_trackUtils->linearInterpolation( v2, v1, m_trackUtils->getCaloZ1() );
+            float z, y = FWPFMaths::linearInterpolation( v2, v1, caloZ1() );
 
             if( v2.fZ > 0 )
-               z = m_trackUtils->getCaloZ1();
+               z = caloZ1();
             else
-               z = m_trackUtils->getCaloZ1() * -1;
+               z = caloZ1() * -1;
 
             p1 = TEveVector( v2.fX + 50, y, z );
             p2 = TEveVector( v2.fX - 50, y, z );
-            vec = m_trackUtils->lineLineIntersect( v1, v2, p1, p2 );
+            vec = FWPFMaths::lineLineIntersect( v1, v2, p1, p2 );
 
             legoTrack->AddMarker( vec.Eta(), vec.Phi(), 0.001, 0 );
             wraps[0] = i;
             ECAL = true;
          }
       }
-      else if( m_trackUtils->checkIntersect( v1, m_trackUtils->getCaloR2() ) )
+      else if( FWPFMaths::checkIntersect( v1, caloR2() ) )
       {
          TEveVector v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
-         TEveVector xyPoint = m_trackUtils->lineCircleIntersect( v1, v2, m_trackUtils->getCaloR2() );
+         TEveVector xyPoint = FWPFMaths::lineCircleIntersect( v1, v2, caloR2() );
          TEveVector zPoint;
          if( v1.fZ < 0 )
             zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ - 50.f );
          else
             zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ + 50.f );
 
-         TEveVector vec = m_trackUtils->lineLineIntersect( v1, v2, xyPoint, zPoint );
+         TEveVector vec = FWPFMaths::lineLineIntersect( v1, v2, xyPoint, zPoint );
          legoTrack->AddMarker( vec.Eta(), vec.Phi(), 0.001, 1 );
 
          wraps[1] = i;        // There is now a chance that the track will also reach the HCAL radius
@@ -99,19 +170,19 @@ FWPFTrackUtils::setupLegoTrack( const reco::Track &iData )
       int j = trk->GetN() - 2;   // This is equal to the last index in trackPoints vector
       TEveVector vec = TEveVector( points[i], points[i+1], points[i+2] );
 
-      if( m_trackUtils->checkIntersect( vec, m_trackUtils->getCaloR3() - 1 ) )
+      if( FWPFMaths::checkIntersect( vec, caloR3() - 1 ) )
       {
          legoTrack->AddMarker( vec.Eta(), vec.Phi(), 0.001, 2 );
          wraps[2] = j;
       }
-      else if( fabs( vec.fZ ) >= m_trackUtils->getCaloZ2() )
+      else if( fabs( vec.fZ ) >= caloZ2() )
       {
          legoTrack->AddMarker( vec.Eta(), vec.Phi(), 0.001, 2 );
          wraps[2] = j;
       }
    }
 
-   // Handle phi wrapping
+   /* Handle phi wrapping */
    for( int i = 0; i < static_cast<int>( trackPoints.size() - 1 ); ++i )
    {
       if( ( trackPoints[i+1].fY - trackPoints[i].fY ) > 1 )
@@ -169,27 +240,27 @@ FWPFTrackUtils::setupLegoTrack( const reco::Track &iData )
    legoTrack->SetDepthTest( false );
    legoTrack->SetMarkerStyle( 4 );
    legoTrack->SetMarkerSize( 1 );
-   legoTrack->SetRnrMarkers( false );
+   legoTrack->SetRnrMarkers( true );
 
-   delete trk;    // Release memory that is no longer required*/
+   delete trk;    // Release memory that is no longer required
 
    return legoTrack;
 }
 
 //______________________________________________________________________________
 TEveTrack *
-FWPFTrackUtils::setupRPZTrack( const reco::Track &iData )
+FWPFTrackUtils::setupTrack( const reco::Track &iData )
 {
-   if( m_trackUtils->getField()->getSource() == FWMagField::kNone );
+    if( m_singleton->getField()->getSource() == FWMagField::kNone )
    {
       if( fabs( iData.eta() ) < 2.0 && iData.pt() > 0.5 && iData.pt() < 30 )
       {
          double estimate = fw::estimate_field( iData, true );
-         if( estimate >= 0 ) m_trackUtils->getField()->guessField( estimate );
+         if( estimate >= 0 ) m_singleton->getField()->guessField( estimate );
       }
-   }
+   } 
 
-   TEveTrack *trk = m_trackUtils->getTrack( iData );
+   TEveTrack *trk = getTrack( iData );
    
    return trk;
 }
@@ -199,6 +270,8 @@ FWPFTrackUtils::setupRPZTrack( const reco::Track &iData )
 TEvePointSet *
 FWPFTrackUtils::getCollisionMarkers( const TEveTrack *trk )
 {
+   using namespace FWPFUtils;
+
    bool ECAL = false;
    const Float_t *points = trk->GetP();
    TEvePointSet *ps = new TEvePointSet();
@@ -210,51 +283,51 @@ FWPFTrackUtils::getCollisionMarkers( const TEveTrack *trk )
 
       if( !ECAL )
       {
-         if( m_trackUtils->checkIntersect( v1, m_trackUtils->getCaloR1() ) )
+         if( FWPFMaths::checkIntersect( v1, caloR1() ) )
          {
             TEveVector v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
-            TEveVector xyPoint = m_trackUtils->lineCircleIntersect( v1, v2, m_trackUtils->getCaloR1() );
+            TEveVector xyPoint = FWPFMaths::lineCircleIntersect( v1, v2, caloR1() );
             TEveVector zPoint;
             if( v1.fZ < 0 )
                zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ - 50.f );
             else
                zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ + 50.f );
 
-            TEveVector vec = m_trackUtils->lineLineIntersect( v1, v2, xyPoint, zPoint );
+            TEveVector vec = FWPFMaths::lineLineIntersect( v1, v2, xyPoint, zPoint );
             ps->SetNextPoint( vec.fX, vec.fY, vec.fZ );
 
             ECAL = true;
          }
-         else if( fabs( v1.fZ ) >= m_trackUtils->getCaloZ1() )
+         else if( fabs( v1.fZ ) >= caloZ1() )
          {
             TEveVector p1, p2;
             TEveVector vec, v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
-            float z, y = m_trackUtils->linearInterpolation( v2, v1, m_trackUtils->getCaloZ1() );
+            float z, y = FWPFMaths::linearInterpolation( v2, v1, caloZ1() );
 
             if( v2.fZ > 0 )
-               z = m_trackUtils->getCaloZ1();
+               z = caloZ1();
             else
-               z = m_trackUtils->getCaloZ1() * -1;
+               z = caloZ1() * -1;
 
             p1 = TEveVector( v2.fX + 50, y, z );
             p2 = TEveVector( v2.fX - 50, y, z );
-            vec = m_trackUtils->lineLineIntersect( v1, v2, p1, p2 );
+            vec = FWPFMaths::lineLineIntersect( v1, v2, p1, p2 );
 
             ps->SetNextPoint( vec.fX, vec.fY, vec.fZ );
             ECAL = true;
          }
       }
-      else if ( m_trackUtils->checkIntersect( v1, m_trackUtils->getCaloR2() ) )
+      else if ( FWPFMaths::checkIntersect( v1, caloR2() ) )
       {
          TEveVector v2 = TEveVector( points[j-3], points[j-2], points[j-1] );
-         TEveVector xyPoint = m_trackUtils->lineCircleIntersect( v1, v2,  m_trackUtils->getCaloR2() );
+         TEveVector xyPoint = FWPFMaths::lineCircleIntersect( v1, v2,  caloR2() );
          TEveVector zPoint;
          if( v1.fZ < 0 )
             zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ - 50.f );
          else
             zPoint = TEveVector( xyPoint.fX, xyPoint.fY, v1.fZ + 50.f );
 
-         TEveVector vec = m_trackUtils->lineLineIntersect( v1, v2, xyPoint, zPoint );
+         TEveVector vec = FWPFMaths::lineLineIntersect( v1, v2, xyPoint, zPoint );
          ps->SetNextPoint( vec.fX, vec.fY, vec.fZ );
          break;   // ECAL and HCAL collisions found so stop looping
       }
@@ -264,9 +337,9 @@ FWPFTrackUtils::getCollisionMarkers( const TEveTrack *trk )
    int i = ( trk->GetN() - 1 ) * 3;
    TEveVector vec = TEveVector( points[i], points[i+1], points[i+2] );
 
-   if( m_trackUtils->checkIntersect( vec, m_trackUtils->getCaloR3() - 1 ) )
+   if( FWPFMaths::checkIntersect( vec, caloR3() - 1 ) )
       ps->SetNextPoint( vec.fX, vec.fY, vec.fZ );
-   else if( fabs( vec.fZ ) >= m_trackUtils->getCaloZ2() )
+   else if( fabs( vec.fZ ) >= caloZ2() )
       ps->SetNextPoint( vec.fX, vec.fY, vec.fZ );
 
    return ps;

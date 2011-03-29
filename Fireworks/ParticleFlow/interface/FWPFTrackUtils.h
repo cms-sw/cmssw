@@ -4,7 +4,7 @@
 // -*- C++ -*-
 //
 // Package:     ParticleFlow
-// Class  :     FWPFTrackUtils
+// Class  :     FWPFTrackSingleton, FWPFTrackUtils
 // 
 // Implementation:
 //     <Notes on implementation>
@@ -19,11 +19,50 @@
 #include "TEveStraightLineSet.h"
 
 // User include files
+#include "Fireworks/ParticleFlow/interface/FWPFUtils.h"
+#include "Fireworks/ParticleFlow/interface/FWPFMaths.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Tracks/interface/estimate_field.h"
-#include "Fireworks/ParticleFlow/interface/FWPFUtils.h"
-
+#include "Fireworks/Core/interface/FWMagField.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+
+//-----------------------------------------------------------------------------
+// FWPFTrackSingleton
+//-----------------------------------------------------------------------------
+/* Created as singleton because only 1 instance of propagators and magfield should be shared
+ * between track proxybuilder classes */
+class FWPFTrackSingleton
+{
+   public:
+   // --------------------- Member Functions --------------------------
+      static FWPFTrackSingleton *Instance();
+
+      inline TEveTrackPropagator *getTrackerTrackPropagator()  { return m_trackerTrackPropagator;  }
+      inline TEveTrackPropagator *getTrackPropagator()         { return m_trackPropagator;         }
+      inline FWMagField          *getField()                   { return m_magField;                }
+
+   protected:
+      FWPFTrackSingleton( const FWPFTrackSingleton& );                     // Stop default copy constructor
+      const FWPFTrackSingleton& operator=( const FWPFTrackSingleton& );    // Stop default assignment operator
+
+   // ---------------- Constructor(s)/Destructor ----------------------
+      FWPFTrackSingleton(){ initPropagator(); }
+      virtual ~FWPFTrackSingleton(){ instanceFlag = false; }
+
+   private:
+   // --------------------- Member Functions --------------------------
+      void initPropagator();
+
+   // ----------------------- Data Members ----------------------------
+      static FWPFTrackSingleton  *pInstance; // Pointer to instance if one exists
+      static bool instanceFlag;
+
+      TEveTrackPropagator       *m_trackerTrackPropagator;
+      TEveTrackPropagator       *m_trackPropagator;
+      FWMagField                *m_magField;
+};
+//=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
+
 
 //-----------------------------------------------------------------------------
 // FWPFTrackUtils
@@ -31,23 +70,22 @@
 class FWPFTrackUtils
 {
    public:
-      enum Type { LEGO=0, RPZ=1 };
-
    // ---------------- Constructor(s)/Destructor ----------------------
-      FWPFTrackUtils(){ m_trackUtils = new FWPFUtils(); m_trackUtils->initPropagator(); }
-      virtual ~FWPFTrackUtils(){ delete m_trackUtils; }
+      FWPFTrackUtils();
+      virtual ~FWPFTrackUtils(){}
 
    // --------------------- Member Functions --------------------------
       TEveStraightLineSet  *setupLegoTrack( const reco::Track& );
-      TEveTrack            *setupRPZTrack( const reco::Track& );
+      TEveTrack            *setupTrack( const reco::Track& );
       TEvePointSet         *getCollisionMarkers( const TEveTrack* );
 
    private:
       FWPFTrackUtils( const FWPFTrackUtils& );                    // Stop default copy constructor
       const FWPFTrackUtils& operator=( const FWPFTrackUtils& );   // Stop default assignment operator
 
-   // ----------------------- Data Members ----------------------------
-      FWPFUtils *m_trackUtils;
+      TEveTrack            *getTrack( const reco::Track& );
+
+      FWPFTrackSingleton *m_singleton;
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

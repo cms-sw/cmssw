@@ -1,4 +1,4 @@
-#include "FWPFRhoPhiRecHit.h"
+#include "Fireworks/ParticleFlow/interface/FWPFRhoPhiRecHit.h"
 
 //______________________________________________________________________________
 FWPFRhoPhiRecHit::FWPFRhoPhiRecHit( FWProxyBuilderBase *pb, TEveElement *iH, const FWViewContext *vc,

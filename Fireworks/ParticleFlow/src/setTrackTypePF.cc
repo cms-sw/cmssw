@@ -15,7 +15,7 @@
 namespace fireworks {
 
    void setTrackTypePF(const reco::PFCandidate& pfCand,
-		       TAttLine* track ) {
+             TAttLine* track ) {
 
      using namespace reco;
 

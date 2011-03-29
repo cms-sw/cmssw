@@ -1,20 +1,6 @@
 #include "FWPFBlockProxyBuilder.h"
 
 //______________________________________________________________________________
-float
-FWPFBlockProxyBuilder::calculateEt( const TEveVector &centre, float e )
-{
-   TEveVector vec = centre;
-   float et;
-
-   vec.Normalize();
-   vec *= e;
-   et = vec.Perp();
-
-   return et;
-}
-
-//______________________________________________________________________________
 void
 FWPFBlockProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType viewType, const FWViewContext *vc )
 {
@@ -33,6 +19,23 @@ FWPFBlockProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType 
             proj->UpdateProjection();
          }
       }
+   } /* Handle cluster scaling in lego view(s) */
+   else if( viewType == FWViewType::kLego || viewType == FWViewType::kLegoPFECAL )
+   {  // Loop products
+      for( TEveElement::List_i i = parent->BeginChildren(); i != parent->EndChildren(); ++i )
+      {
+         if( (*i)->HasChildren() )
+         {  // Loop elements of block
+            for( TEveElement::List_i j = (*i)->BeginChildren(); j != (*i)->EndChildren(); ++j )
+            {
+               if( strcmp( (*j)->GetElementName(), "BlockCluster" ) == 0 )
+               {
+                  FWPFLegoCandidate *cluster = dynamic_cast<FWPFLegoCandidate*>( *j );
+                  cluster->updateScale( vc, context() );
+               }
+            }
+         }
+      }
    }
 }
 
@@ -49,12 +52,11 @@ FWPFBlockProxyBuilder::setupTrackElement( const reco::PFBlockElement &blockEleme
       if( viewType == FWViewType::kLego || viewType == FWViewType::kLegoPFECAL )       // Lego views
       {
          TEveStraightLineSet *legoTrack = trackUtils->setupLegoTrack( track );
-         legoTrack->SetRnrMarkers( true );
          setupAddElement( legoTrack, &oItemHolder );
       }
-      else if( viewType == FWViewType::kRhoPhiPF || viewType == FWViewType::kRhoZ )   // Projected views
+      else if( viewType == FWViewType::kRhoPhiPF )   // RhoPhi view
       {
-         TEveTrack *trk = trackUtils->setupRPZTrack( track );
+         TEveTrack *trk = trackUtils->setupTrack( track );
          TEvePointSet *ps = trackUtils->getCollisionMarkers( trk );
          setupAddElement( trk, &oItemHolder );
          if( ps->GetN() != 0 )
@@ -62,6 +64,45 @@ FWPFBlockProxyBuilder::setupTrackElement( const reco::PFBlockElement &blockEleme
          else
             delete ps;
       }
+      else if ( viewType == FWViewType::kRhoZ )       // RhoZ view
+      {
+         TEveTrack *trk = trackUtils->setupTrack( track );
+         TEvePointSet *markers = trackUtils->getCollisionMarkers( trk );
+         TEvePointSet *ps = new TEvePointSet();
+         setupAddElement( trk, &oItemHolder );
+
+         Float_t *trackPoints = trk->GetP();
+         unsigned int last = ( trk->GetN() - 1 ) * 3;
+         float y = trackPoints[last+1];
+         float z = trackPoints[last+2];
+
+         // Reposition any points that have been translated in RhoZ
+         for( signed int i = 0; i < markers->GetN(); ++i )
+         {
+            Float_t a,b,c;
+            markers->GetPoint( i, a, b, c );
+            
+            if( y < 0 && b > 0 )
+               b *= -1;
+            else if( y > 0 && b < 0 )
+               b *= -1;
+
+            if( z < 0 && c > 0 )
+               c *= -1;
+            else if( z > 0 && c < 0 )
+               c *= -1;
+
+            ps->SetNextPoint( a, b, c );
+         }
+
+         if( ps->GetN() != 0 )
+            setupAddElement( ps, &oItemHolder );
+         else
+            delete ps;
+         delete markers;
+      }
+      
+      delete trackUtils;
    }
 }
 
@@ -74,7 +115,7 @@ FWPFBlockProxyBuilder::setupClusterElement( const reco::PFBlockElement &blockEle
    reco::PFCluster cluster = *blockElement.clusterRef();
    TEveVector centre = TEveVector( cluster.x(), cluster.y(), cluster.z() );
    float energy = cluster.energy();
-   float et = calculateEt( centre, energy );
+   float et = FWPFMaths::calculateEt( centre, energy );
    float pt = et;
    float eta = cluster.eta();
    float phi = cluster.phi();
@@ -85,6 +126,7 @@ FWPFBlockProxyBuilder::setupClusterElement( const reco::PFBlockElement &blockEle
    {
       FWPFLegoCandidate *legoCluster = new FWPFLegoCandidate( vc, FWProxyBuilderBase::context(), energy, et, pt, eta, phi );
       legoCluster->SetMarkerColor( FWProxyBuilderBase::item()->defaultDisplayProperties().color() );
+      legoCluster->SetElementName( "BlockCluster" );
       setupAddElement( legoCluster, &oItemHolder );
    }
    if( viewType == FWViewType::kRhoPhiPF )
@@ -129,14 +171,14 @@ FWPFBlockProxyBuilder::buildViewType( const reco::PFBlock &iData, unsigned int i
 
          case 4:  // ECAL
             if( e_builderType == ECAL )
-               setupClusterElement( elements[i], oItemHolder, vc, viewType, context().caloR1() );
+               setupClusterElement( elements[i], oItemHolder, vc, viewType, FWPFUtils::caloR1() );
          break;
 
          case 5:  // HCAL
             if( e_builderType == HCAL )
             {
                if( viewType == FWViewType::kRhoPhiPF )
-                  setupClusterElement( elements[i], oItemHolder, vc, viewType, 177.7 );
+                  setupClusterElement( elements[i], oItemHolder, vc, viewType, FWPFUtils::caloR2() );
                else  // RhoZ
                   setupClusterElement( elements[i], oItemHolder, vc, viewType, context().caloR1() );
             }

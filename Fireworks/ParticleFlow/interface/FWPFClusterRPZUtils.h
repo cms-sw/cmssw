@@ -21,6 +21,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/ParticleFlow/interface/FWPFMaths.h"
 
 struct ScalableLines
 {
@@ -43,7 +44,6 @@ class FWPFClusterRPZUtils
       virtual ~FWPFClusterRPZUtils(){}
 
    // --------------------- Member Functions --------------------------
-      float calculateEt( const reco::PFCluster&, float e );
       TEveScalableStraightLineSet *buildRhoPhiClusterLineSet( const reco::PFCluster&, const FWViewContext*, float r );
       TEveScalableStraightLineSet *buildRhoPhiClusterLineSet( const reco::PFCluster&, const FWViewContext*, 
                                                               float e, float et, float r );

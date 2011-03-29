@@ -1,24 +1,6 @@
 #include "FWPFClusterLegoProxyBuilder.h"
 
 //______________________________________________________________________________
-float
-FWPFClusterLegoProxyBuilder::calculateEt( const reco::PFCluster &iData, float E )
-{
-    float et = 0.f;
-    TEveVector vec;
-    
-    vec.fX = iData.x();
-    vec.fY = iData.y();         // Get the cluster centroid
-    vec.fZ = iData.z();
-    
-    vec.Normalize();
-    vec *= E;   
-    et = vec.Perp();            // Get perpendicular vector
-
-    return et;
-}
-
-//______________________________________________________________________________
 void
 FWPFClusterLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElement *parent, FWViewType::EType viewType, const FWViewContext *vc )
 {
@@ -54,8 +36,9 @@ FWPFClusterLegoProxyBuilder::scaleProduct( TEveElementList* parent, FWViewType::
 void
 FWPFClusterLegoProxyBuilder::sharedBuild( const reco::PFCluster &iData, TEveElement &oItemHolder, const FWViewContext *vc )
 {
+   TEveVector centre = TEveVector( iData.x(), iData.y(), iData.z() );
    float energy = iData.energy();
-   float et = calculateEt( iData, energy );
+   float et = FWPFMaths::calculateEt( centre, energy );
    float pt = et;
    float eta = iData.eta();
    float phi = iData.phi();

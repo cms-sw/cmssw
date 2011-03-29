@@ -45,20 +45,6 @@ FWPFEcalRecHitRPProxyBuilder::calculateCentre( const float *vertices )
 }
 
 //______________________________________________________________________________
-float
-FWPFEcalRecHitRPProxyBuilder::calculateEt( const TEveVector &centre, float E )
-{
-   TEveVector vec = centre;
-   float et;
-
-   vec.Normalize();
-   vec *= E;
-   et = vec.Perp();
-
-   return et;
-}
-
-//______________________________________________________________________________
 void
 FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
@@ -67,46 +53,50 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
    {
       TEveCompound *itemHolder = createCompound();
       product->AddElement( itemHolder );
+      const FWEventItem::ModelInfo &info = item()->modelInfo( index );
 
-      bool added = false;
-      float E, et;
-      float ecalR = m_pfUtils->getCaloR1();
-      Double_t lPhi, rPhi;
-      const EcalRecHit &iData = modelData( index );
-      const float *vertices = item()->getGeom()->getCorners( iData.detid() );
-
-      TEveVector centre = calculateCentre( vertices );
-      TEveVector lVec = TEveVector( vertices[0], vertices[1], 0 );   // Bottom left corner of tower
-      TEveVector rVec = TEveVector( vertices[9], vertices[10], 0 );  // Bottom right corner of tower
-      
-      lPhi = lVec.Phi();
-      rPhi = rVec.Phi();
-      E = iData.energy();
-      et = calculateEt( centre, E );
-
-      for( unsigned int i = 0; i < m_towers.size(); i++ )
-      {   // Small range to catch rounding inaccuracies etc.
-         Double_t phi = m_towers[i]->getlPhi();
-         if( ( lPhi == phi ) || ( ( lPhi < phi + 0.0005 ) && ( lPhi > phi - 0.0005 ) ) )
-         {
-            m_towers[i]->addChild( this, itemHolder, vc, E, et );
-            context().voteMaxEtAndEnergy( et, E );
-            added = true;
-            break;
-         }
-      }
-   
-      if( !added )
+      if( info.displayProperties().isVisible() )
       {
-         rVec.fX = ecalR * cos( rPhi ); rVec.fY = ecalR * sin( rPhi );
-         lVec.fX = ecalR * cos( lPhi ); lVec.fY = ecalR * sin( lPhi );
-         std::vector<TEveVector> bCorners(2);
-         bCorners[0] = lVec;
-         bCorners[1] = rVec;
+         bool added = false;
+         float E, et;
+         float ecalR = FWPFUtils::caloR1();
+         Double_t lPhi, rPhi;
+         const EcalRecHit &iData = modelData( index );
+         const float *vertices = item()->getGeom()->getCorners( iData.detid() );
 
-         FWPFRhoPhiRecHit *rh = new FWPFRhoPhiRecHit( this, itemHolder, vc, E, et, lPhi, rPhi, bCorners );
-         context().voteMaxEtAndEnergy(et, E);
-         m_towers.push_back( rh );
+         TEveVector centre = calculateCentre( vertices );
+         TEveVector lVec = TEveVector( vertices[0], vertices[1], 0 );   // Bottom left corner of tower
+         TEveVector rVec = TEveVector( vertices[9], vertices[10], 0 );  // Bottom right corner of tower
+         
+         lPhi = lVec.Phi();
+         rPhi = rVec.Phi();
+         E = iData.energy();
+         et = FWPFMaths::calculateEt( centre, E );
+
+         for( unsigned int i = 0; i < m_towers.size(); i++ )
+         {   // Small range to catch rounding inaccuracies etc.
+            Double_t phi = m_towers[i]->getlPhi();
+            if( ( lPhi == phi ) || ( ( lPhi < phi + 0.0005 ) && ( lPhi > phi - 0.0005 ) ) )
+            {
+               m_towers[i]->addChild( this, itemHolder, vc, E, et );
+               context().voteMaxEtAndEnergy( et, E );
+               added = true;
+               break;
+            }
+         }
+      
+         if( !added )
+         {
+            rVec.fX = ecalR * cos( rPhi ); rVec.fY = ecalR * sin( rPhi );
+            lVec.fX = ecalR * cos( lPhi ); lVec.fY = ecalR * sin( lPhi );
+            std::vector<TEveVector> bCorners(2);
+            bCorners[0] = lVec;
+            bCorners[1] = rVec;
+
+            FWPFRhoPhiRecHit *rh = new FWPFRhoPhiRecHit( this, itemHolder, vc, E, et, lPhi, rPhi, bCorners );
+            context().voteMaxEtAndEnergy(et, E);
+            m_towers.push_back( rh );
+         }
       }
    }
 }

@@ -16,7 +16,7 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "FWPFLegoCandidate.h"
+#include "Fireworks/ParticleFlow/interface/FWPFLegoCandidate.h"
 #include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"   // NB: This has to come after FWPFLegoCandidate include
 
 //-----------------------------------------------------------------------------

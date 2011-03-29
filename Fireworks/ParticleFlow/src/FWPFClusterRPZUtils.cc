@@ -1,31 +1,14 @@
 #include "Fireworks/ParticleFlow/interface/FWPFClusterRPZUtils.h"
 
 //______________________________________________________________________________
-float
-FWPFClusterRPZUtils::calculateEt( const reco::PFCluster &cluster, float e )
-{
-   float et = 0.f;
-   TEveVector vec;
-
-   vec.fX = cluster.x();
-   vec.fY = cluster.y();
-   vec.fZ = cluster.z();
-
-   vec.Normalize();
-   vec *= e;
-   et = vec.Perp();
-
-   return et;
-}
-
-//______________________________________________________________________________
 TEveScalableStraightLineSet *
 FWPFClusterRPZUtils::buildRhoPhiClusterLineSet( const reco::PFCluster &cluster, const FWViewContext *vc, float r )
 {
    float energy, et;
+   TEveVector centre = TEveVector( cluster.x(), cluster.y(), cluster.z() );
 
    energy = cluster.energy();
-   et = calculateEt( cluster, energy );
+   et = FWPFMaths::calculateEt( centre, energy );
 
    return buildRhoPhiClusterLineSet( cluster, vc, energy, et, r );
 }
@@ -59,9 +42,10 @@ FWPFClusterRPZUtils::buildRhoZClusterLineSet( const reco::PFCluster &cluster, co
                                               float caloTransAngle, float r, float z )
 {
    float energy, et;
+   TEveVector centre = TEveVector( cluster.x(), cluster.y(), cluster.z() );
 
    energy = cluster.energy();
-   et = calculateEt( cluster, energy );
+   et = FWPFMaths::calculateEt( centre, energy );
 
    return buildRhoZClusterLineSet( cluster, vc, caloTransAngle, energy, et, r, z );
 }

@@ -56,8 +56,7 @@ class FWPFLegoRecHit
       const FWPFLegoRecHit& operator=( const FWPFLegoRecHit& );   // Disable default
 
    // --------------------- Member Functions --------------------------
-      void setupEveBox( const std::vector<TEveVector> &corners );
-      void convertToTower( std::vector<TEveVector> &corners, float scale );
+      void setupEveBox( std::vector<TEveVector> &corners, float scale );
       void buildTower( const std::vector<TEveVector> &corners, const FWViewContext *vc );
       void buildLineSet( const std::vector<TEveVector> &corners, const FWViewContext *vc );
 

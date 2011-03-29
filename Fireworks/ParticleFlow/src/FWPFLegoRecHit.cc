@@ -1,5 +1,5 @@
-#include "FWPFLegoRecHit.h"
-#include "FWPFEcalRecHitLegoProxyBuilder.h"
+#include "Fireworks/ParticleFlow/interface/FWPFLegoRecHit.h"
+#include "Fireworks/ParticleFlow/plugins/FWPFEcalRecHitLegoProxyBuilder.h"
 
 //______________________________________________________________________________
 FWPFLegoRecHit::FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElement *comp, FWPFEcalRecHitLegoProxyBuilder *pb,
@@ -15,23 +15,20 @@ FWPFLegoRecHit::FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElem
 
 //______________________________________________________________________________
 void
-FWPFLegoRecHit::setupEveBox( const std::vector<TEveVector> &corners )
+FWPFLegoRecHit::setupEveBox( std::vector<TEveVector> &corners, float scale )
 {
-   for( size_t i = 0; i < corners.size(); ++i )
+   for( size_t i = 0; i < 4; ++i )
+   {
+      int j = i + 4;
+      corners[i+4].fZ = corners[i].fZ + scale;
       m_tower->SetVertex( i, corners[i] );
+      m_tower->SetVertex( j, corners[j] );
+   }
 
    m_tower->SetPickable( true );
    m_tower->SetDrawFrame(false);
    m_tower->SetLineWidth( 1.0 );
    m_tower->SetLineColor( kBlack );
-}
-
-//______________________________________________________________________________
-void
-FWPFLegoRecHit::convertToTower( std::vector<TEveVector> &corners, float scale )
-{
-   for( size_t i = 0; i < 4; ++i )
-      corners[i+4].fZ = corners[i].fZ + scale;
 }
 
 //______________________________________________________________________________
@@ -47,8 +44,7 @@ FWPFLegoRecHit::buildTower( const std::vector<TEveVector> &corners, const FWView
    if( scale < 0 )
       scale *= -1;
 
-   convertToTower( towerCorners, scale );
-   setupEveBox( towerCorners );
+   setupEveBox( towerCorners, scale );
 }
 
 //______________________________________________________________________________
@@ -60,15 +56,15 @@ FWPFLegoRecHit::buildLineSet( const std::vector<TEveVector> &corners, const FWVi
    // no need to set anything, all is re-set in updateScales()
    // reserve space for square outline
    TEveVector c;
-   m_ls->AddLine(c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ);
-   m_ls->AddLine(c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ);
-   m_ls->AddLine(c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ);
-   m_ls->AddLine(c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ);
+   m_ls->AddLine( c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ );
+   m_ls->AddLine( c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ );
+   m_ls->AddLine( c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ );
+   m_ls->AddLine( c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ );
 
    // last line is trick to add a marker in line set
-   m_ls->SetMarkerStyle(1);
-   m_ls->AddLine(c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ);
-   m_ls->AddMarker(0, 0.);
+   m_ls->SetMarkerStyle( 1 );
+   m_ls->AddLine( c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ );
+   m_ls->AddMarker( 0, 0. );
 }
 
 //______________________________________________________________________________

@@ -3,14 +3,12 @@
 //______________________________________________________________________________
 FWPFClusterRPZProxyBuilder::FWPFClusterRPZProxyBuilder()
 {
-   m_pfUtils = new FWPFUtils();
    m_clusterUtils = new FWPFClusterRPZUtils();
 }
 
 //______________________________________________________________________________
 FWPFClusterRPZProxyBuilder::~FWPFClusterRPZProxyBuilder()
 {
-   delete m_pfUtils;
    delete m_clusterUtils;
 }
 
@@ -40,11 +38,12 @@ FWPFClusterRPZProxyBuilder::sharedBuild( const reco::PFCluster &iData, unsigned 
 {
    /* Handles RhoPhi view */
    TEveScalableStraightLineSet *ls;
+   TEveVector centre = TEveVector( iData.x(), iData.y(), iData.z() );
    const FWDisplayProperties &dp = item()->defaultDisplayProperties();
    float energy, et;
    
    energy = iData.energy();
-   et = m_clusterUtils->calculateEt( iData, energy );
+   et = FWPFMaths::calculateEt( centre, energy );
    context().voteMaxEtAndEnergy( et, energy );
 
    ls = m_clusterUtils->buildRhoPhiClusterLineSet( iData, vc, energy, et, r );
@@ -64,9 +63,10 @@ FWPFClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned int iI
    float ecalZ = context().caloZ1();
    const FWDisplayProperties &dp = item()->defaultDisplayProperties();
    TEveScalableStraightLineSet *ls;
+   TEveVector centre = TEveVector( iData.x(), iData.y(), iData.z() );
 
    energy = iData.energy();
-   et = m_clusterUtils->calculateEt( iData, energy );
+   et = FWPFMaths::calculateEt( centre, energy );
    context().voteMaxEtAndEnergy( et, energy );
 
    ls = m_clusterUtils->buildRhoZClusterLineSet( iData, vc, context().caloTransAngle(), energy, et, ecalR, ecalZ );
@@ -85,9 +85,9 @@ FWPFEcalClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned in
    if( info.displayProperties().isVisible() )
    {
       if( layer < 0 )
-         sharedBuild( iData, iIndex, oItemHolder, vc, m_pfUtils->getCaloR1() );
+         sharedBuild( iData, iIndex, oItemHolder, vc, FWPFUtils::caloR1() );
       else
-         sharedBuild( iData, iIndex, oItemHolder, vc, m_pfUtils->getCaloR2() );
+         sharedBuild( iData, iIndex, oItemHolder, vc, FWPFUtils::caloR2() );
    }
 }
 
@@ -97,7 +97,7 @@ FWPFHcalClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned in
 {
    const FWEventItem::ModelInfo &info = item()->modelInfo( iIndex );
    if( info.displayProperties().isVisible() )
-      sharedBuild( iData, iIndex, oItemHolder, vc, m_pfUtils->getCaloR1() );
+      sharedBuild( iData, iIndex, oItemHolder, vc, FWPFUtils::caloR1() );
 }
 
 //______________________________________________________________________________
