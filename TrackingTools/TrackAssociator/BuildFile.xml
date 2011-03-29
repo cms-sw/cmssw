@@ -30,7 +30,6 @@
 <use   name="TrackingTools/Records"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackPropagation/SteppingHelixPropagator"/>
-<flags   LCGDICT_ARGS="--deep"/>
 <export>
   <lib   name="1"/>
 </export>
