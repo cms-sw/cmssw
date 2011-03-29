@@ -1,3 +1,11 @@
+2011-03-29 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-03
+	* Protect static method in DQMHttpSource with static mutex
+	* Switch from xdaq::workloop to a ROOT TThread in DQMEventStore
+	  in order to enable the ROOT thread safety.
+	* Really use UTC for time comparison test to avoid issues with DST.
+
 2011-03-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-01-02
