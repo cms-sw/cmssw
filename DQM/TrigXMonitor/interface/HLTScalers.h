@@ -1,12 +1,15 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.17 2010/03/17 20:54:51 wittich Exp $
+// $Id: HLTScalers.h,v 1.18 2011/03/24 18:25:45 rekovic Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.18  2011/03/24 18:25:45  rekovic
+// Add single 1D plot of streamA content
+//
 // Revision 1.17  2010/03/17 20:54:51  wittich
 // add scalers that I manually reset on beginLumi
 //
@@ -117,8 +120,7 @@ private:
   MonitorElement *diagnostic_;
 
   std::string processname_;
-  std::vector<std::string> vPD;
-  std::vector <std::pair<std::string, std::vector<std::string> > > pairPDPaths;
+  std::vector <std::pair<std::string, std::vector<std::string> > > pairPDPaths_;
 
   //std::vector<MonitorElement*> hltPathNames_;
   edm::InputTag trigResultsSource_;

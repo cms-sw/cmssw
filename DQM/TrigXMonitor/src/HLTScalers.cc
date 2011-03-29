@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.26 2011/03/24 18:25:45 rekovic Exp $
+// $Id: HLTScalers.cc,v 1.27 2011/03/24 18:35:38 rekovic Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.27  2011/03/24 18:35:38  rekovic
+// Change name for pd histo
+//
 // Revision 1.26  2011/03/24 18:25:45  rekovic
 // Add single 1D plot of streamA content
 //
@@ -153,7 +156,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
   
   
   int npath = hltResults->size();
-  unsigned int nPD = pairPDPaths.size();
+  unsigned int nPD = pairPDPaths_.size();
 
   // on the first event of a new run we book new ME's
   if (resetMe_ ) {
@@ -215,8 +218,8 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 
     for (unsigned int i=0;i<nPD;i++) {
       
-      LogDebug("HLTScalers") << i << ": " << pairPDPaths[i].first << std::endl ;
-      scalersPD_->getTH1()->GetXaxis()->SetBinLabel(i+1, pairPDPaths[i].first.c_str());
+      LogDebug("HLTScalers") << i << ": " << pairPDPaths_[i].first << std::endl ;
+      scalersPD_->getTH1()->GetXaxis()->SetBinLabel(i+1, pairPDPaths_[i].first.c_str());
 
     }
 
@@ -253,19 +256,19 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
   }
 
   bool anyGroupPassed = false;
-  for (unsigned int mi=0; mi< pairPDPaths.size(); mi++) {
+  for (unsigned int mi=0; mi< pairPDPaths_.size(); mi++) {
 
     bool groupPassed = false;
 
-    for (unsigned int i=0; i< pairPDPaths[mi].second.size(); i++)
+    for (unsigned int i=0; i< pairPDPaths_[mi].second.size(); i++)
     { 
 
       //string hltPathName =  hist_2d->GetXaxis()->GetBinLabel(i);
-      std::string hltPathName =  pairPDPaths[mi].second[i];
+      std::string hltPathName =  pairPDPaths_[mi].second[i];
 
       // check if this is hlt path name
       //unsigned int pathByIndex = triggerNames.triggerIndex(hltPathName);
-      unsigned int pathByIndex = trigNames.triggerIndex(pairPDPaths[mi].second[i]);
+      unsigned int pathByIndex = trigNames.triggerIndex(pairPDPaths_[mi].second[i]);
       if(pathByIndex >= hltResults->size() ) continue;
 
       // check if its L1 passed
@@ -293,7 +296,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     }
 
   }
-  if(anyGroupPassed) scalersPD_->Fill(pairPDPaths.size()-1);
+  if(anyGroupPassed) scalersPD_->Fill(pairPDPaths_.size()-1);
 
   
 }
@@ -347,16 +350,19 @@ void HLTScalers::beginRun(const edm::Run& run, const edm::EventSetup& c)
     //  hltConfig_.dump("Triggers");
   }
 
-  // get hold of PD names and constituent path names
-  vPD =  hltConfig_.streamContent("A") ;
-  for (unsigned int i=0;i<vPD.size();i++) {
+  // clear vector pairPDPaths_
+  pairPDPaths_.clear();
 
-    std::vector<std::string> datasetPaths = hltConfig_.datasetContent(vPD[i]);
-    pairPDPaths.push_back(make_pair(vPD[i],datasetPaths));
+  // get hold of PD names and constituent path names
+  std::vector<std::string> PD =  hltConfig_.streamContent("A") ;
+  for (unsigned int i=0;i<PD.size();i++) {
+
+    std::vector<std::string> datasetPaths = hltConfig_.datasetContent(PD[i]);
+    pairPDPaths_.push_back(make_pair(PD[i],datasetPaths));
 
   }
   // push stream A and its PDs
-  pairPDPaths.push_back(make_pair("A",vPD));
+  pairPDPaths_.push_back(make_pair("A",PD));
 
 }
 
