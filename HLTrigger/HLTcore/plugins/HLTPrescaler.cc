@@ -31,6 +31,7 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig)
   , eventCount_(0)
   , acceptCount_(0)
   , offsetCount_(0)
+  , offsetPhase_(iConfig.existsAs<unsigned int>("offset") ? iConfig.getParameter<unsigned int>("offset") : 0)
   , prescaleService_(0)
   , newLumi_(true)
   , gtDigi_ (iConfig.getParameter<edm::InputTag>("L1GtReadoutRecordTag"))
@@ -103,8 +104,8 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
     }
   }
 
-  const bool result ( (prescaleFactor_==0) ? 
-		      false : ((eventCount_+offsetCount_)%prescaleFactor_==0) );
+  const bool result ( (prescaleFactor_ == 0) ? 
+		      false : ((eventCount_ + offsetCount_ + offsetPhase_) % prescaleFactor_ == 0) );
 
   ++eventCount_;
   if (result) ++acceptCount_;
