@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.34 2010/08/07 14:55:56 wmtan Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.35 2010/08/26 16:45:51 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/FourVectorHLTOnline.h"
@@ -981,7 +981,9 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
             (moduleType.find("Associator") != std::string::npos) || 
             (moduleType.find("HLTLevel1GTSeed") != std::string::npos) || 
             (moduleType.find("HLTGlobalSumsCaloMET") != std::string::npos) ||
-            (moduleType.find("HLTPrescaler") != std::string::npos) ) {
+            (moduleType.find("HLTPrescaler") != string::npos) ||
+            (hltConfig_.moduleEDMType(moduleName).find("EDFilter") != string::npos))
+          {
 
            //std::pair<std::string, int> filterIndexPair;
            //filterIndexPair.first   = moduleName;
