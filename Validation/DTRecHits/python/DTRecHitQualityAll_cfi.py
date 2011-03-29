@@ -12,7 +12,7 @@ rechivalidation = cms.EDAnalyzer("DTRecHitQuality",
     debug = cms.untracked.bool(False),
     segment4DLabel = cms.untracked.InputTag('dt4DSegments'),
     doall = cms.untracked.bool(True),
-    local = cms.untracked.bool(True)
+    local = cms.untracked.bool(False)
 
 )
 
@@ -31,7 +31,7 @@ seg2dsuperphivalidation = cms.EDAnalyzer("DTSegment2DSLPhiQuality",
     debug = cms.untracked.bool(False),
     segment4DLabel = cms.untracked.InputTag('dt4DSegments'),
     doall = cms.untracked.bool(True),
-    local = cms.untracked.bool(True)
+    local = cms.untracked.bool(False)
  )
 
 seg4dvalidation = cms.EDAnalyzer("DTSegment4DQuality",
@@ -46,7 +46,7 @@ seg4dvalidation = cms.EDAnalyzer("DTSegment4DQuality",
     sigmaResY = cms.double(0.05),
     segment4DLabel = cms.untracked.InputTag('dt4DSegments'),
     doall = cms.untracked.bool(True),
-    local = cms.untracked.bool(True)
+    local = cms.untracked.bool(False)
 )
 
 dtLocalRecoValidation = cms.Sequence(rechivalidation*seg2dvalidation*seg2dsuperphivalidation*seg4dvalidation)
