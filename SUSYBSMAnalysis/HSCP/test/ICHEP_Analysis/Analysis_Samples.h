@@ -44,7 +44,10 @@
 
 
 
-double               IntegratedLuminosity = 33.846283;
+double               IntegratedLuminosity = 36.139097; //33.846283;
+float                Event_Weight = 1;
+int                  MaxEntry = -1;
+
 
 class stSignal{
    public:
@@ -119,26 +122,30 @@ void GetMCDefinition(std::vector<stMC>& MC){
 
 
 void GetInputFiles(std::vector<string>& inputFiles, string SampleName){
-   string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_3_9_6/11_02_10/";
+   string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_3_9_7/11_03_08/";
 
    if(SampleName=="Data"){
-      if(true){//rand()%2==0){
+      if(rand()%2==0){
          inputFiles.push_back(BaseDirectory + "Data_135821_141887.root");
          inputFiles.push_back(BaseDirectory + "Data_141888_144114.root");
          inputFiles.push_back(BaseDirectory + "Data_146240_147000.root");
-         inputFiles.push_back(BaseDirectory + "Data_147001_148000.root");
+         inputFiles.push_back(BaseDirectory + "Data_147001_147500.root");
+         inputFiles.push_back(BaseDirectory + "Data_147501_148000.root");
          inputFiles.push_back(BaseDirectory + "Data_148001_148500.root");
          inputFiles.push_back(BaseDirectory + "Data_148501_149000.root");
-         inputFiles.push_back(BaseDirectory + "Data_149001_149250.root");
+         inputFiles.push_back(BaseDirectory + "Data_149001_149100.root");
+         inputFiles.push_back(BaseDirectory + "Data_149101_149250.root");
          inputFiles.push_back(BaseDirectory + "Data_149251_149711.root");
        }else{
          inputFiles.push_back(BaseDirectory + "Data_135821_141887_B.root");
          inputFiles.push_back(BaseDirectory + "Data_141888_144114_B.root");
          inputFiles.push_back(BaseDirectory + "Data_146240_147000_B.root");
-         inputFiles.push_back(BaseDirectory + "Data_147001_148000_B.root");
+         inputFiles.push_back(BaseDirectory + "Data_147001_147500_B.root");
+         inputFiles.push_back(BaseDirectory + "Data_147501_148000_B.root");
          inputFiles.push_back(BaseDirectory + "Data_148001_148500_B.root");
          inputFiles.push_back(BaseDirectory + "Data_148501_149000_B.root");
-         inputFiles.push_back(BaseDirectory + "Data_149001_149250_B.root");
+         inputFiles.push_back(BaseDirectory + "Data_149001_149100_B.root");
+         inputFiles.push_back(BaseDirectory + "Data_149101_149250_B.root");
          inputFiles.push_back(BaseDirectory + "Data_149251_149711_B.root");
        }
 //   }else if(SampleName=="MC_MB"){

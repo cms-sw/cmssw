@@ -156,8 +156,8 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    rpcRecHits         = cms.InputTag("rpcRecHits"),
 
    #TRACK SELECTION FOR THE HSCP SEED
-   minMuP             = cms.double(5),
-   minTkP             = cms.double(5),
+   minMuP             = cms.double(20),
+   minTkP             = cms.double(20),
    maxTkChi2          = cms.double(5),
    minTkHits          = cms.uint32(3),
 
