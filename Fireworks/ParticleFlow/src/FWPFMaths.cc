@@ -1,6 +1,6 @@
 #include <math.h>
 #include "TMath.h"
-#include "external/root/include/TEveVector.h"
+#include "TEveVector.h"
 
 namespace FWPFMaths
 {
