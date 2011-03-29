@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.94.2.1 2011/03/29 10:36:40 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.95 2011/03/29 11:07:40 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -1043,7 +1043,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        vector<string> moduleNames = hltConfig_.moduleLabels( v->getPath() ); 
        
        int numModule = 0;
-       string moduleName, moduleType;
+       string moduleName, moduleType, moduleEDMType;
        unsigned int moduleIndex;
        
        //print module name
@@ -1052,11 +1052,13 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
          moduleName = *iDumpModName;
          moduleType = hltConfig_.moduleType(moduleName);
+         moduleEDMType = hltConfig_.moduleEDMType(moduleName);
          moduleIndex = hltConfig_.moduleIndex(v->getPath(), moduleName);
 
          LogTrace ("FourVectorHLTOffline") << "Module "      << numModule
              << " is called " << moduleName
              << " , type = "  << moduleType
+             << " , EDMtype = " << moduleEDMType 
              << " , index = " << moduleIndex
              << endl;
 
@@ -1066,7 +1068,8 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
             (moduleType.find("Associator") != string::npos) || 
             (moduleType.find("HLTLevel1GTSeed") != string::npos) || 
             (moduleType.find("HLTGlobalSumsCaloMET") != string::npos) ||
-            (moduleType.find("HLTPrescaler") != string::npos) ) {
+            (moduleType.find("HLTPrescaler") != string::npos) || 
+            (moduleEDMType.find("EDFilter") != string::npos) ) {
 
            //std::pair<std::string, int> filterIndexPair;
            //filterIndexPair.first   = moduleName;
