@@ -42,8 +42,8 @@ namespace reco
        { return (superCluster_.isNull()?pflowSuperCluster_:superCluster_) ; }
       TrackRef ctfTrack() const { return closestCtfTrack_ ; } // get the CTF track best matching the GTF associated to this electron
       float ctfGsfOverlap() const { return ctfGsfOverlap_ ; } // measure the fraction of common hits between the GSF and CTF tracks
-      bool ecalDrivenSeed() const { return isEcalDriven_ ; }
-      bool trackerDrivenSeed() const { return isTrackerDriven_ ; }
+      bool ecalDrivenSeed() const { return isEcalDrivenSeed_ ; }
+      bool trackerDrivenSeed() const { return isTrackerDrivenSeed_ ; }
 
       // setters
       void setGsfTrack( const GsfTrackRef & gsfTrack ) { gsfTrack_ = gsfTrack ; }
@@ -62,8 +62,8 @@ namespace reco
       SuperClusterRef pflowSuperCluster_ ;
       TrackRef closestCtfTrack_ ; // best matching ctf track
       float ctfGsfOverlap_ ; // fraction of common hits between the ctf and gsf tracks
-      bool isEcalDriven_ ;
-      bool isTrackerDriven_ ;
+      bool isEcalDrivenSeed_ ;
+      bool isTrackerDrivenSeed_ ;
 
    } ;
 
@@ -74,9 +74,15 @@ namespace reco
 // \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
 // \author Claude Charlot - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
 //
-// \version $Id: GsfElectronCore.h,v 1.10 2011/02/16 17:42:53 chamont Exp $
+// \version $Id: GsfElectronCore.h,v 1.11.2.1 2011/03/04 18:22:31 chamont Exp $
 //
 // $Log: GsfElectronCore.h,v $
+// Revision 1.11.2.1  2011/03/04 18:22:31  chamont
+// backward incompatible cleaning
+//
+// Revision 1.11  2011/02/18 15:26:05  chamont
+// remove the ref to pflow candidate
+//
 // Revision 1.10  2011/02/16 17:42:53  chamont
 // Extend GsfElectron(Core) with new pflow attributes, backward compatible.
 //

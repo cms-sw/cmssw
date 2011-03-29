@@ -30,13 +30,6 @@ namespace reco
  *
  * \author Claude Charlot - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
- * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
- *
-<<<<<<< GsfElectron.h
- * \version $Id: GsfElectron.h,v 1.48 2011/03/03 22:04:53 chamont Exp $
-=======
- * \version $Id: GsfElectron.h,v 1.48.2.2 2011/03/05 16:38:54 chamont Exp $
->>>>>>> 1.48.2.2
  *
  ****************************************************************************/
 
@@ -296,7 +289,7 @@ class GsfElectron : public RecoCandidate
 
 
   //=======================================================
-  // Other tracks
+  // For backward compatibility
   //=======================================================
 
   public :
@@ -305,27 +298,19 @@ class GsfElectron : public RecoCandidate
      {
       TrackRef ctfTrack ; // best matching ctf track
       float shFracInnerHits ; // fraction of common hits between the ctf and gsf tracks
-  	  ClosestCtfTrack() : shFracInnerHits(0.) {}
+      ClosestCtfTrack() : shFracInnerHits(0.) {}
+      ClosestCtfTrack( TrackRef track, float sh ) : ctfTrack(track), shFracInnerHits(sh) {}
      } ;
 
-    // accessors
-    TrackRef closestCtfTrackRef() const { return closestCtfTrack_.ctfTrack ; } // get the CTF track best matching the GTF associated to this electron
-    float shFracInnerHits() const { return closestCtfTrack_.shFracInnerHits ; } // measure the fraction of common hits between the GSF and CTF tracks
-    const ClosestCtfTrack & closestCtfTrack() const { return closestCtfTrack_ ; }
-    GsfTrackRefVector::size_type ambiguousGsfTracksSize() const { return ambiguousGsfTracks_.size() ; }
-    GsfTrackRefVector::const_iterator ambiguousGsfTracksBegin() const { return ambiguousGsfTracks_.begin() ; }
-    GsfTrackRefVector::const_iterator ambiguousGsfTracksEnd() const { return ambiguousGsfTracks_.end() ; }
 
-    // setters
-    void clearAmbiguousGsfTracks() { ambiguousGsfTracks_.clear() ; }
-    void addAmbiguousGsfTrack( const reco::GsfTrackRef & t ) { ambiguousGsfTracks_.push_back(t) ; }
+    // for backward compatibility
+    float shFracInnerHits() const { return core()->ctfGsfOverlap() ; } // measure the fraction of common hits between the GSF and CTF tracks
+    TrackRef closestCtfTrackRef() const { return core()->ctfTrack() ; }
+    ClosestCtfTrack closestCtfTrack() const { return ClosestCtfTrack(core()->ctfTrack(),core()->ctfGsfOverlap()) ; }
 
+  private :
 
-  private:
-
-    // attributes
-    ClosestCtfTrack closestCtfTrack_ ;
-    GsfTrackRefVector ambiguousGsfTracks_ ; // ambiguous gsf tracks
+    //ClosestCtfTrack closestCtfTrack_ ;
 
 
   //=======================================================
@@ -551,13 +536,15 @@ class GsfElectron : public RecoCandidate
     const PflowIsolationVariables & pfIsolationVariables() const { return pfIso_ ; }
     const MvaInput & mvaInput() const { return mvaInput_ ; }
     const MvaOutput & mvaOutput() const { return mvaOutput_ ; }
-    float mva() const { return (((mvaOutput_.status)!=-1)?(mvaOutput_.mva):(mva_)) ; }
 
     // setters
     void setPfShowerShape( const ShowerShape & shape ) { pfShowerShape_ = shape ; }
     void setPfIsolationVariables( const PflowIsolationVariables & iso ) { pfIso_ = iso ; }
     void setMvaInput( const MvaInput & mi ) { mvaInput_ = mi ; }
     void setMvaOutput( const MvaOutput & mo ) { mvaOutput_ = mo ; }
+
+    // for backward compatibility
+    float mva() const { return mvaOutput_.mva ; }
 
   private:
 
@@ -578,13 +565,16 @@ class GsfElectron : public RecoCandidate
     bool passingCutBasedPreselection() const { return passCutBasedPreselection_ ; }
     bool passingMvaPreselection() const { return passMvaPreslection_ ; }
     bool ambiguous() const { return ambiguous_ ; }
-    //float mva() const { return mva_ ; }
+    GsfTrackRefVector::size_type ambiguousGsfTracksSize() const { return ambiguousGsfTracks_.size() ; }
+    GsfTrackRefVector::const_iterator ambiguousGsfTracksBegin() const { return ambiguousGsfTracks_.begin() ; }
+    GsfTrackRefVector::const_iterator ambiguousGsfTracksEnd() const { return ambiguousGsfTracks_.end() ; }
 
     // setters
     void setPassCutBasedPreselection( bool flag ) { passCutBasedPreselection_ = flag ; }
     void setPassMvaPreselection( bool flag ) { passMvaPreslection_ = flag ; }
     void setAmbiguous( bool flag ) { ambiguous_ = flag ; }
-    //void setMva( float mva ) { mva_ = mva ; }
+    void clearAmbiguousGsfTracks() { ambiguousGsfTracks_.clear() ; }
+    void addAmbiguousGsfTrack( const reco::GsfTrackRef & t ) { ambiguousGsfTracks_.push_back(t) ; }
 
   private:
 
@@ -592,7 +582,7 @@ class GsfElectron : public RecoCandidate
     bool passCutBasedPreselection_ ;
     bool passMvaPreslection_ ;
     bool ambiguous_ ;
-    float mva_ ; // FOR BACKWARD COMPATIBILITY electron ID variable from mva (tracker driven electrons)
+    GsfTrackRefVector ambiguousGsfTracks_ ; // ambiguous gsf tracks
 
 
   //=======================================================
@@ -650,21 +640,21 @@ class GsfElectron : public RecoCandidate
       bool isEcalEnergyCorrected ;  // true if ecal energy has been corrected
       float ecalEnergy ;            // ecal corrected energy (if !isEcalEnergyCorrected this value is identical to the supercluster energy)
       float ecalEnergyError ;       // error on correctedCaloEnergy
-      bool isMomentumCorrected ;    // DEPRECATED
+      //bool isMomentumCorrected ;    // DEPRECATED
       float trackMomentumError ;    // track momentum error from gsf fit
       //
       LorentzVector fromSuperClusterP4 ; // for P4_FROM_SUPER_CLUSTER
       float fromSuperClusterP4Error ;    // for P4_FROM_SUPER_CLUSTER
-      LorentzVector electronP4 ;    // for P4_COMBINATION
-      float electronMomentumError ;       // for P4_COMBINATION
+      LorentzVector combinedP4 ;    // for P4_COMBINATION
+      float combinedP4Error ;       // for P4_COMBINATION
       LorentzVector pflowP4 ;       // for P4_PFLOW_COMBINATION
       float pflowP4Error ;          // for P4_PFLOW_COMBINATION
       P4Kind candidateP4Kind ;  // say which momentum has been stored in reco::Candidate
       //
       Corrections()
        : isEcalEnergyCorrected(false), ecalEnergy(0.), ecalEnergyError(999.),
-  	     isMomentumCorrected(false), trackMomentumError(999.),
-  	     fromSuperClusterP4Error(999.), electronMomentumError(999.), pflowP4Error(999.),
+  	     /*isMomentumCorrected(false),*/ trackMomentumError(999.),
+  	     fromSuperClusterP4Error(999.), combinedP4Error(999.), pflowP4Error(999.),
   	     candidateP4Kind(P4_UNKNOWN)
        {}
      } ;
