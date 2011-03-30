@@ -1,3 +1,10 @@
+2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-02-00
+	* Configurable limit on memory consumption of the fragment store.
+	* Limit queue and fragment store memory consumption to 1GB
+	  for each entity.
+
 2011-03-29 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-01-03
