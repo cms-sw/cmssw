@@ -3,8 +3,6 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
-// timing 
-#include <sys/time.h>
 
 using namespace std;
 
