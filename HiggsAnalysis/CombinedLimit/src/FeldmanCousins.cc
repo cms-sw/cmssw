@@ -10,24 +10,24 @@
 #include <RooStats/FeldmanCousins.h>
 #include <RooStats/PointSetInterval.h>
 
-double FeldmanCousins::toysFactor_;
-double FeldmanCousins::rAbsAccuracy_, FeldmanCousins::rRelAccuracy_;
-bool FeldmanCousins::lowerLimit_;
+float FeldmanCousins::toysFactor_ = 1;
+float FeldmanCousins::rAbsAccuracy_ = 0.1;
+float FeldmanCousins::rRelAccuracy_ = 0.02;
+bool  FeldmanCousins::lowerLimit_ = false;
 
 FeldmanCousins::FeldmanCousins() :
     LimitAlgo("FeldmanCousins specific options") {
     options_.add_options()
+        ("rAbsAcc", boost::program_options::value<float>(&rAbsAccuracy_)->default_value(rAbsAccuracy_), "Absolute accuracy on r to reach to terminate the scan")
+        ("rRelAcc", boost::program_options::value<float>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan")
+        ("toysFactor", boost::program_options::value<float>(&toysFactor_)->default_value(toysFactor_),   "Increase the toys per point by this factor w.r.t. the minimum from adaptive sampling")
         ("lowerLimit", "Compute the lower limit instead of the upper limit")
-        ("toysFactor", boost::program_options::value<float>()->default_value(1),  "Increase the toys per point by this factor w.r.t. the minimum from adaptive sampling")
     ;
 }
 
 void FeldmanCousins::applyOptions(const boost::program_options::variables_map &vm) 
 {
   lowerLimit_ = vm.count("lowerLimit");
-  rAbsAccuracy_ = vm.count("rAbsAcc") ? vm["rAbsAcc"].as<double>() : 0.1;
-  rRelAccuracy_ = vm.count("rRelAcc") ? vm["rRelAcc"].as<double>() : 0.05;
-  toysFactor_ = vm.count("toysFactor") ? vm["toysFactor"].as<float>() : 2.0;
 }
 
 bool FeldmanCousins::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -85,10 +85,10 @@ bool FeldmanCousins::run(RooWorkspace *w, RooAbsData &data, double &limit, doubl
       if (verbose > 0) std::cout << "  would be r < " << limit << " +/- "<<limitErr << std::endl;
       r->setMin(std::max(r->getMin(), limit-3*limitErr)); 
       r->setMax(std::min(r->getMax(), limit+3*limitErr));
-      if (limitErr < 4*std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) { // make last scan more precise
+      if (limitErr < 4*std::max<float>(rAbsAccuracy_, rRelAccuracy_ * limit)) { // make last scan more precise
           fc.AdditionalNToysFactor(4*toysFactor_);
       }
-  } while (limitErr > std::max(rAbsAccuracy_, rRelAccuracy_ * limit));
+  } while (limitErr > std::max<float>(rAbsAccuracy_, rRelAccuracy_ * limit));
 
   if (verbose > -1) {
       std::cout << "\n -- FeldmanCousins++ -- \n";

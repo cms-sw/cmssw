@@ -18,6 +18,8 @@ class Hybrid : public LimitAlgo {
 public:
   Hybrid() ; 
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
+  virtual void applyDefaultOptions() ; 
+    
 
   virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual bool runSignificance(RooStats::HybridCalculatorOriginal &hc, RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
@@ -39,6 +41,8 @@ private:
   static bool CLs_;
   static bool saveHybridResult_, readHybridResults_; 
   static bool singlePointScan_; 
+
+  void validateOptions() ;
 
   std::pair<double,double> eval(RooRealVar *r, double rVal, RooStats::HybridCalculatorOriginal &hc, bool adaptive=false, double clsTarget=-1) ;
 

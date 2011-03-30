@@ -75,49 +75,64 @@ int main(int argc, char **argv) {
     ;
   desc.add(combiner.statOptions());
   desc.add(combiner.ioOptions());
-  for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
-    if(i->second->options().options().size() != 0) 
-      desc.add(i->second->options());
-  }
   desc.add(combiner.miscOptions());
   po::positional_options_description p;
   p.add("datacard", -1);
-  po::variables_map vm;
-  
+  po::variables_map vm, vm0;
+
+  // parse the first time, using only common options and allow unregistered options 
   try{
-    po::store(po::command_line_parser(argc, argv).
-	      options(desc).positional(p).run(), vm);
-    po::notify(vm);
+    po::store(po::command_line_parser(argc, argv).options(desc).allow_unregistered().run(), vm0);
+    po::notify(vm0);
   } catch(std::exception &ex) {
     cerr << "Invalid options: " << ex.what() << endl;
     cout << "Invalid options: " << ex.what() << endl;
-    cout << desc;
+    cout << "Use combine --help to get a list of all the allowed options"  << endl;
     return 999;
   } catch(...) {
     cerr << "Unidentified error parsing options." << endl;
     return 1000;
   }
-  if(vm.count("help")) {
-    cout << "Usage: combine [options]\n";
+
+  // if help, print help
+  if(vm0.count("help")) {
+    cout << "Usage: combine datacard [options]\n";
     cout << desc;
+    map<string, LimitAlgo *>::const_iterator i;
+    for(i = methods.begin(); i != methods.end(); ++i) {
+        cout << i->second->options() << "\n";
+    }
     return 0;
   }
 
-  if(name == "") {
-    cerr << "Missing name" << endl;
-    cout << "Usage: combine [options]\n";
-    cout << desc;
-    return 1001;
+  // now search for algo, and add option
+  map<string, LimitAlgo *>::const_iterator it_algo = methods.find(whichMethod);
+  if (it_algo == methods.end()) {
+    cerr << "Unsupported method: " << whichMethod << endl;
+    cout << "Use combine --help to get a list of all the allowed methods and options"  << endl;
+    return 1003;
+  } 
+  desc.add(it_algo->second->options());  
+
+  // parse the first time, now include options of the algo but not unregistered ones
+  try{
+    po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+    po::notify(vm);
+  } catch(std::exception &ex) {
+    cerr << "Invalid options: " << ex.what() << endl;
+    cout << "Invalid options: " << ex.what() << endl;
+    cout << "Use combine --help to get a list of all the allowed options"  << endl;
+    return 999;
+  } catch(...) {
+    cerr << "Unidentified error parsing options." << endl;
+    return 1000;
   }
+
   if(datacard == "") {
     cerr << "Missing datacard file" << endl;
     cout << "Usage: combine [options]\n";
-    cout << desc;
+    cout << "Use combine --help to get a list of all the allowed methods and options"  << endl;
     return 1002;
-  }
-
-  for (vector<string>::const_iterator lib = librariesToLoad.begin(), endlib = librariesToLoad.end(); lib != endlib; ++lib) {
-    gSystem->Load(lib->c_str());
   }
 
   try {
@@ -127,47 +142,26 @@ int main(int argc, char **argv) {
     return 2001;
   }
 
-  map<string, LimitAlgo *>::const_iterator i;
-  for(i = methods.begin(); i != methods.end(); ++i) {
-    if(whichMethod == i->first) {
-      algo = i->second;
-      try {
-          algo->applyOptions(vm);
-      } catch (std::exception &ex) {
-          cerr << "Error when configuring the algorithm " << whichMethod << ":\n\t" << ex.what() << std::endl;
-          return 2002;
-      }
-      break;
-    }
-  }
-  if(i == methods.end()) {
-    cerr << "Unsupported method: " << whichMethod << endl;
-    cout << "Usage: combine [options]\n";
-    cout << desc;
-    return 1003;
+  algo = it_algo->second;
+  try {
+      algo->applyOptions(vm);
+  } catch (std::exception &ex) {
+      cerr << "Error when configuring the algorithm " << whichMethod << ":\n\t" << ex.what() << std::endl;
+      return 2002;
   }
   cout << ">>> method used to compute upper limit is " << whichMethod << endl;
 
   if (!whichHintMethod.empty()) {
-    for(i = methods.begin(); i != methods.end(); ++i) {
-      if(whichHintMethod == i->first) {
-	hintAlgo = i->second;
-	try {
-	  hintAlgo->applyOptions(vm);
-	} catch (std::exception &ex) {
-	  cerr << "Error when configuring the algorithm " << whichHintMethod << ":\n\t" << ex.what() << std::endl;
-	  return 2002;
-	}
-	break;
-      }
-    }
-    if(i == methods.end()) {
-      cerr << "Unsupported hint method: " << whichHintMethod << endl;
-      cout << "Usage: options_description [options]\n";
-      cout << desc;
-      return 1003;
-    }
-    cout << ">>> method used to hint where the upper limit is " << whichHintMethod << endl;
+      map<string, LimitAlgo *>::const_iterator it_hint = methods.find(whichHintMethod);
+      if (it_hint == methods.end()) {
+          cerr << "Unsupported hint method: " << whichHintMethod << endl;
+          cout << "Usage: combine [options]\n";
+          cout << "Use combine --help to get a list of all the allowed methods and options"  << endl;
+          return 1003;
+      } 
+      hintAlgo = it_hint->second;
+      hintAlgo->applyDefaultOptions();
+      cout << ">>> method used to hint where the upper limit is " << whichHintMethod << endl;
   }
   
   std::cout << ">>> random number generator seed is " << seed << std::endl;
@@ -198,6 +192,11 @@ int main(int argc, char **argv) {
   mass = iMass;
   iSeed = seed;
   iChannel = 0;
+
+  // if you have libraries, it's time to load them now
+  for (vector<string>::const_iterator lib = librariesToLoad.begin(), endlib = librariesToLoad.end(); lib != endlib; ++lib) {
+    gSystem->Load(lib->c_str());
+  }
 
   if (vm.count("igpMem")) setupIgProfDumpHook();
 

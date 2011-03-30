@@ -30,56 +30,55 @@
 
 using namespace RooStats;
 
-HybridNew::WorkingMode HybridNew::workingMode_;
-unsigned int HybridNew::nToys_;
-double HybridNew::clsAccuracy_, HybridNew::rAbsAccuracy_, HybridNew::rRelAccuracy_;
-bool HybridNew::rInterval_;
-bool HybridNew::CLs_;
-bool HybridNew::saveHybridResult_, HybridNew::readHybridResults_; 
-std::string HybridNew::rule_, HybridNew::testStat_;
-double HybridNew::rValue_;
-unsigned int HybridNew::nCpu_, HybridNew::fork_;
-bool HybridNew::importanceSamplingNull_, HybridNew::importanceSamplingAlt_;
-std::string HybridNew::algo_;
+HybridNew::WorkingMode HybridNew::workingMode_ = MakeLimit;
+unsigned int HybridNew::nToys_ = 500;
+double HybridNew::clsAccuracy_ = 0.05;
+double HybridNew::rAbsAccuracy_ = 0.1;
+double HybridNew::rRelAccuracy_ = 0.05;
+std::string HybridNew::rule_ = "CLs";
+std::string HybridNew::testStat_ = "LEP";
+unsigned int HybridNew::nCpu_ = 0; // proof-lite mode
+unsigned int HybridNew::fork_ = 1; // fork mode
+double HybridNew::rValue_  = 1.0;
+bool HybridNew::CLs_ = false;
+bool HybridNew::saveHybridResult_  = false;
+bool HybridNew::readHybridResults_ = false; 
+bool HybridNew::importanceSamplingNull_ = false;
+bool HybridNew::importanceSamplingAlt_  = false;
+std::string HybridNew::algo_ = "logSecant";
+bool HybridNew::optimizeProductPdf_     = false;
+bool HybridNew::optimizeTestStatistics_ = true;
 std::string HybridNew::plot_;
-bool HybridNew::optimizeProductPdf_;
-bool HybridNew::optimizeTestStatistics_;
  
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
     options_.add_options()
-      ("searchAlgo", boost::program_options::value<std::string>(&algo_)->default_value("logSecant"), "Algorithm to use to search for the limit (bisection, logSecant)")
-      ("onlyTestStat", "Just compute test statistics, not actual p-values (works only with --singlePoint)")
-      ("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(false), "Enable importance sampling for null hypothesis (background only)") 
-      ("importanceSamplingAlt", boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(false), "Enable importance sampling for alternative hypothesis (signal plus background)") 
-      ("nCPU", boost::program_options::value<unsigned int>()->default_value(0), "Use N CPUs with PROOF Lite (experimental!)")
-      ("optimizeTestStatistics", boost::program_options::value<bool>(&optimizeTestStatistics_)->default_value(true), "Use optimized test statistics if the likelihood is not extended (works for LEP and TEV test statistics).")
-      ("optimizeProductPdf", boost::program_options::value<bool>(&optimizeProductPdf_)->default_value(false), "Optimize the code assuming model_s = modelObs_s(obs,r,nuis) * (other pdf not dependent on obs)")
+        ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, CLsplusb")
+        ("testStat",boost::program_options::value<std::string>(&testStat_)->default_value(testStat_),    "Test statistics: LEP, TEV, Atlas.")
+        ("singlePoint",  boost::program_options::value<float>(),  "Just compute CLs for the given value of r")
+        ("onlyTestStat", "Just compute test statistics, not actual p-values (works only with --singlePoint)")
+        ("searchAlgo", boost::program_options::value<std::string>(&algo_)->default_value(algo_),         "Algorithm to use to search for the limit (bisection, logSecant)")
+        ("toysH,T", boost::program_options::value<unsigned int>(&nToys_)->default_value(nToys_),         "Number of Toy MC extractions to compute CLs+b, CLb and CLs")
+        ("clsAcc",  boost::program_options::value<double>(&clsAccuracy_ )->default_value(clsAccuracy_),  "Absolute accuracy on CLs to reach to terminate the scan")
+        ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(rAbsAccuracy_), "Absolute accuracy on r to reach to terminate the scan")
+        ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan")
+        ("fork",    boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),           "Fork to N processes before running the toys (set to 0 for debugging)")
+        ("nCPU",    boost::program_options::value<unsigned int>(&nCpu_)->default_value(nCpu_),           "Use N CPUs with PROOF Lite (experimental!)")
+        ("saveHybridResult",  "Save result in the output file  (option saveToys must be enabled)")
+        ("readHybridResults", "Read and merge results from file (option toysFile must be enabled)")
+        ("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(importanceSamplingNull_),  
+                                   "Enable importance sampling for null hypothesis (background only)") 
+        ("importanceSamplingAlt",  boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(importanceSamplingAlt_),    
+                                   "Enable importance sampling for alternative hypothesis (signal plus background)") 
+        ("optimizeTestStatistics", boost::program_options::value<bool>(&optimizeTestStatistics_)->default_value(optimizeTestStatistics_), 
+                                   "Use optimized test statistics if the likelihood is not extended (works for LEP and TEV test statistics).")
+        ("optimizeProductPdf",     boost::program_options::value<bool>(&optimizeProductPdf_)->default_value(optimizeProductPdf_),      
+                                   "Optimize the code factorizing pdf (experimental)")
+        ("plot",   boost::program_options::value<std::string>(), "Save a plot of the result (test statistics distributions or limit scan)")
     ;
 }
 
 void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
-    nToys_        = vm.count("toysH")   ? vm["toysH"].as<unsigned int>() : 500;
-    clsAccuracy_  = vm.count("clsAcc" ) ? vm["clsAcc" ].as<double>() : 0.005;
-    rAbsAccuracy_ = vm.count("rAbsAcc") ? vm["rAbsAcc"].as<double>() : 0.1;
-    rRelAccuracy_ = vm.count("rRelAcc") ? vm["rRelAcc"].as<double>() : 0.05;
-    rule_     = vm.count("rule")     ? vm["rule"].as<std::string>()     : "CLs";
-    testStat_ = vm.count("testStat") ? vm["testStat"].as<std::string>() : "LEP";
-    nCpu_     = vm.count("nCPU") ? vm["nCPU"].as<unsigned int>() : 0;
-    fork_     = vm.count("fork") ? vm["fork"].as<unsigned int>() : 0;
-    if (fork_ > 1) nToys_ /= fork_; // makes more sense
-    if (rule_ == "CLs") {
-        CLs_ = true;
-    } else if (rule_ == "CLsplusb") {
-        CLs_ = false;
-    } else {
-        throw std::invalid_argument("HybridNew: Rule must be either 'CLs' or 'CLsplusb'");
-    }
-    rInterval_ = vm.count("rInterval");
-    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "Atlas" && testStat_ != "Profile") {
-        throw std::invalid_argument("HybridNew: Test statistics should be one of 'LEP' or 'TEV' or 'Atlas' or 'Profile'");
-    }
-
     if (vm.count("singlePoint")) {
         if (doSignificance_) throw std::invalid_argument("HybridNew: Can't use --significance and --singlePoint at the same time");
         rValue_ = vm["singlePoint"].as<float>();
@@ -95,6 +94,24 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     saveHybridResult_ = vm.count("saveHybridResult");
     readHybridResults_ = vm.count("readHybridResults");
     plot_ = vm.count("plot") ? vm["plot"].as<std::string>() : std::string();
+
+}
+void HybridNew::applyDefaultOptions() { 
+    workingMode_ = MakeLimit;
+    validateOptions(); 
+}
+void HybridNew::validateOptions() {
+    if (fork_ > 1) nToys_ /= fork_; // makes more sense
+    if (rule_ == "CLs") {
+        CLs_ = true;
+    } else if (rule_ == "CLsplusb") {
+        CLs_ = false;
+    } else {
+        throw std::invalid_argument("HybridNew: Rule must be either 'CLs' or 'CLsplusb'");
+    }
+    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "Atlas" && testStat_ != "Profile") {
+        throw std::invalid_argument("HybridNew: Test statistics should be one of 'LEP' or 'TEV' or 'Atlas' or 'Profile'");
+    }
 }
 
 bool HybridNew::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {

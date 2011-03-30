@@ -17,41 +17,34 @@
 
 using namespace RooStats;
 
-std::string ProfileLikelihood::minimizerAlgo_;
-float       ProfileLikelihood::minimizerTolerance_;
-int         ProfileLikelihood::tries_;
-int         ProfileLikelihood::maxTries_;
-float       ProfileLikelihood::maxRelDeviation_;
-float       ProfileLikelihood::maxOutlierFraction_;
-int         ProfileLikelihood::maxOutliers_;
-bool        ProfileLikelihood::preFit_;
-std::string ProfileLikelihood::plot_;
+std::string ProfileLikelihood::minimizerAlgo_ = "Minuit2";
+float       ProfileLikelihood::minimizerTolerance_ = 1e-3;
+int         ProfileLikelihood::tries_ = 1;
+int         ProfileLikelihood::maxTries_ = 1;
+float       ProfileLikelihood::maxRelDeviation_ = 0.05;
+float       ProfileLikelihood::maxOutlierFraction_ = 0.25;
+int         ProfileLikelihood::maxOutliers_ = 3;
+bool        ProfileLikelihood::preFit_ = false;
+std::string ProfileLikelihood::plot_ = "";
 
 ProfileLikelihood::ProfileLikelihood() :
     LimitAlgo("Profile Likelihood specific options")
 {
     options_.add_options()
-        ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value("Minuit2"), "Choice of minimizer (Minuit vs Minuit2)")
-        ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(1e-3),  "Tolerance for minimizer")
-        ("maxTries",           boost::program_options::value<int>()->default_value(1), "Stop trying after N attempts per point")
-        ("maxRelDeviation",    boost::program_options::value<float>()->default_value(0.05), "Max absolute deviation of the results from the median")
-        ("maxOutlierFraction", boost::program_options::value<float>()->default_value(0.25), "Ignore up to this fraction of results if they're too far from the median")
-        ("maxOutliers",        boost::program_options::value<int>()->default_value(3),      "Stop trying after finding N outliers")
+        ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer (Minuit vs Minuit2)")
+        ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer")
+        ("tries",              boost::program_options::value<int>(&tries_)->default_value(tries_), "Compute PL limit N times, to check for numerical instabilities")
+        ("maxTries",           boost::program_options::value<int>(&maxTries_)->default_value(maxTries_), "Stop trying after N attempts per point")
+        ("maxRelDeviation",    boost::program_options::value<float>(&maxRelDeviation_)->default_value(maxOutlierFraction_), "Max absolute deviation of the results from the median")
+        ("maxOutlierFraction", boost::program_options::value<float>(&maxOutlierFraction_)->default_value(maxOutlierFraction_), "Ignore up to this fraction of results if they're too far from the median")
+        ("maxOutliers",        boost::program_options::value<int>(&maxOutliers_)->default_value(maxOutliers_),      "Stop trying after finding N outliers")
+        ("plot",   boost::program_options::value<std::string>(&plot_)->default_value(plot_), "Save a plot of the negative log of the profiled likelihood into the specified file")
         ("preFit", "Attept a fit before running the ProfileLikelihood calculator")
-        ("plot",   boost::program_options::value<std::string>(), "Save a plot of the negative log of the profiled likelihood into the specified file")
     ;
 }
 
 void ProfileLikelihood::applyOptions(const boost::program_options::variables_map &vm) 
 {
-    tries_    = vm.count("tries")    ? vm["tries"].as<unsigned int>() : 1;
-    maxTries_ = vm["maxTries"].as<int>();
-    if (tries_ > maxTries_) tries_ = maxTries_;
-    maxRelDeviation_ = vm["maxRelDeviation"].as<float>();
-    maxOutlierFraction_ = vm["maxOutlierFraction"].as<float>();
-    maxOutliers_        = vm["maxOutliers"].as<int>();
-    preFit_ = vm.count("preFit");
-    plot_ = vm.count("plot") ? vm["plot"].as<std::string>() : std::string();
 }
 
 ProfileLikelihood::MinimizerSentry::MinimizerSentry(std::string &minimizerAlgo, double tolerance) :

@@ -21,6 +21,7 @@ class HybridNew : public LimitAlgo {
 public:
   HybridNew() ; 
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
+  virtual void applyDefaultOptions() ; 
 
   virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual bool runLimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
@@ -63,6 +64,8 @@ private:
     std::auto_ptr<RooStats::ToyMCSampler>  toymcsampler;
     std::auto_ptr<RooStats::ProofConfig> pc;
   };
+
+  void validateOptions() ;
 
   std::pair<double,double> eval(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, bool adaptive=false, double clsTarget=-1) ;
   std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, Setup &setup);

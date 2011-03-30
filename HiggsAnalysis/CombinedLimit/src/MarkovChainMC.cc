@@ -20,57 +20,55 @@
 
 using namespace RooStats;
 
-std::string MarkovChainMC::proposalTypeName_;
-MarkovChainMC::ProposalType MarkovChainMC::proposalType_;
-bool MarkovChainMC::runMinos_, MarkovChainMC::noReset_, MarkovChainMC::updateProposalParams_, MarkovChainMC::updateHint_;
-unsigned int MarkovChainMC::iterations_;
-unsigned int MarkovChainMC::burnInSteps_;
-unsigned int MarkovChainMC::tries_;
-float MarkovChainMC::truncatedMeanFraction_;
-bool MarkovChainMC::adaptiveTruncation_;
-float MarkovChainMC::hintSafetyFactor_;
-unsigned int MarkovChainMC::numberOfBins_;
-unsigned int MarkovChainMC::proposalHelperCacheSize_;
-float        MarkovChainMC::proposalHelperWidthRangeDivisor_, MarkovChainMC::proposalHelperUniformFraction_;
-float        MarkovChainMC::cropNSigmas_;
-int          MarkovChainMC::debugProposal_;
+std::string MarkovChainMC::proposalTypeName_ = "ortho";
+MarkovChainMC::ProposalType MarkovChainMC::proposalType_ = TestP;
+bool MarkovChainMC::runMinos_ = false;
+bool MarkovChainMC::noReset_ = false;
+bool MarkovChainMC::updateProposalParams_ = false;
+bool MarkovChainMC::updateHint_ = false;
+unsigned int MarkovChainMC::iterations_ = 10000;
+unsigned int MarkovChainMC::burnInSteps_ = 200;
+unsigned int MarkovChainMC::tries_ = 10;
+float MarkovChainMC::truncatedMeanFraction_ = 0.0;
+bool MarkovChainMC::adaptiveTruncation_ = true;
+float MarkovChainMC::hintSafetyFactor_ = 5.;
+float MarkovChainMC::proposalHelperWidthRangeDivisor_ = 5.;
+float MarkovChainMC::proposalHelperUniformFraction_ = 0.0;
+float MarkovChainMC::cropNSigmas_ = 0;
+int   MarkovChainMC::debugProposal_ = false;
 
 MarkovChainMC::MarkovChainMC() : 
     LimitAlgo("Markov Chain MC specific options") 
 {
     options_.add_options()
-        ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(10000), "Number of iterations")
-        ("tries", boost::program_options::value<unsigned int>(&tries_)->default_value(10), "Number of times to run the MCMC on the same data")
-        ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(200), "Burn in steps")
-        ("nBins,B", boost::program_options::value<unsigned int>(&numberOfBins_)->default_value(1000), "Number of bins")
-        ("proposal", boost::program_options::value<std::string>(&proposalTypeName_)->default_value("ortho"), 
+        ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_), "Number of iterations")
+        ("tries", boost::program_options::value<unsigned int>(&tries_)->default_value(tries_), "Number of times to run the MCMC on the same data")
+        ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(burnInSteps_), "Burn in steps")
+        ("proposal", boost::program_options::value<std::string>(&proposalTypeName_)->default_value(proposalTypeName_), 
                               "Proposal function to use: 'fit', 'uniform', 'gaus', 'ortho' (also known as 'test')")
         ("runMinos",          "Run MINOS when fitting the data")
         ("noReset",           "Don't reset variable state after fit")
         ("updateHint",        "Update hint with the results")
         ("updateProposalParams", 
-                boost::program_options::value<bool>(&updateProposalParams_)->default_value(false), 
+                boost::program_options::value<bool>(&updateProposalParams_)->default_value(updateProposalParams_), 
                 "Control ProposalHelper::SetUpdateProposalParameters")
-        ("propHelperCacheSize", 
-                boost::program_options::value<unsigned int>(&proposalHelperCacheSize_)->default_value(100), 
-                "Cache Size for ProposalHelper")
         ("propHelperWidthRangeDivisor", 
-                boost::program_options::value<float>(&proposalHelperWidthRangeDivisor_)->default_value(5.), 
+                boost::program_options::value<float>(&proposalHelperWidthRangeDivisor_)->default_value(proposalHelperWidthRangeDivisor_), 
                 "Sets the fractional size of the gaussians in the proposal")
         ("propHelperUniformFraction", 
-                boost::program_options::value<float>(&proposalHelperUniformFraction_)->default_value(0), 
+                boost::program_options::value<float>(&proposalHelperUniformFraction_)->default_value(proposalHelperUniformFraction_), 
                 "Add a fraction of uniform proposals to the algorithm")
-        ("debugProposal", boost::program_options::value<int>(&debugProposal_)->default_value(0), "Printout the first N proposals")
+        ("debugProposal", boost::program_options::value<int>(&debugProposal_)->default_value(debugProposal_), "Printout the first N proposals")
         ("cropNSigmas", 
-                boost::program_options::value<float>(&cropNSigmas_)->default_value(0),
+                boost::program_options::value<float>(&cropNSigmas_)->default_value(cropNSigmas_),
                 "crop range of all parameters to N times their uncertainty") 
         ("truncatedMeanFraction", 
-                boost::program_options::value<float>()->default_value(0.0), 
+                boost::program_options::value<float>(&truncatedMeanFraction_)->default_value(truncatedMeanFraction_), 
                 "Discard this fraction of the results before computing the mean and rms")
-        ("adaptiveTruncation", boost::program_options::value<bool>(&adaptiveTruncation_)->default_value(true),
+        ("adaptiveTruncation", boost::program_options::value<bool>(&adaptiveTruncation_)->default_value(adaptiveTruncation_),
                             "When averaging multiple runs, ignore results that are more far away from the median than the inter-quartile range")
         ("hintSafetyFactor",
-                boost::program_options::value<float>(&hintSafetyFactor_)->default_value(5),
+                boost::program_options::value<float>(&hintSafetyFactor_)->default_value(hintSafetyFactor_),
                 "set range of integration equal to this number of times the hinted limit")
     ;
 }
@@ -89,8 +87,6 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     runMinos_ = vm.count("runMinos");
     noReset_  = vm.count("noReset");
     updateHint_  = vm.count("updateHint");
-    truncatedMeanFraction_ = vm["truncatedMeanFraction"].as<float>();
-    //adaptiveTruncation_    = vm.count("adaptiveTruncation");
 }
 
 bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -215,7 +211,6 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, dou
   }
   if (proposalType_ != UniformP) {
       ph.SetUpdateProposalParameters(updateProposalParams_);
-      ph.SetCacheSize(proposalHelperCacheSize_);
       if (proposalHelperUniformFraction_ > 0) ph.SetUniformFraction(proposalHelperUniformFraction_);
   }
 
@@ -226,7 +221,6 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, dou
   mc.SetConfidenceLevel(cl);
   mc.SetNumBurnInSteps(burnInSteps_); 
   mc.SetProposalFunction(debugProposal_ > 0 ? *pdfDebugProp : *pdfProp);
-  mc.SetNumBins (numberOfBins_) ; // bins to use for RooRealVars in histograms
   mc.SetLeftSideTailFraction(0);
   mc.SetPriorPdf(*prior);
 

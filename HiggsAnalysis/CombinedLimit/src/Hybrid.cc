@@ -18,38 +18,48 @@
 
 using namespace RooStats;
 
-unsigned int Hybrid::nToys_;
-double Hybrid::clsAccuracy_;
-double Hybrid::rAbsAccuracy_;
-double Hybrid::rRelAccuracy_;
-std::string Hybrid::rule_;
-std::string Hybrid::testStat_;
-unsigned int Hybrid::fork_;
-bool Hybrid::rInterval_;
-double Hybrid::rValue_;
-bool Hybrid::CLs_;
-bool Hybrid::saveHybridResult_;
-bool Hybrid::readHybridResults_; 
-bool Hybrid::singlePointScan_; 
+unsigned int Hybrid::nToys_ = 500;
+double Hybrid::clsAccuracy_ = 0.05;
+double Hybrid::rAbsAccuracy_ = 0.1;
+double Hybrid::rRelAccuracy_ = 0.05;
+std::string Hybrid::rule_ = "CLs";
+std::string Hybrid::testStat_ = "LEP";
+unsigned int Hybrid::fork_ = 1;
+bool Hybrid::rInterval_ = false;
+double Hybrid::rValue_  = 1.0;
+bool Hybrid::CLs_ = false;
+bool Hybrid::saveHybridResult_  = false;
+bool Hybrid::readHybridResults_ = false; 
+bool Hybrid::singlePointScan_   = false; 
 
 Hybrid::Hybrid() : 
 LimitAlgo("Hybrid specific options") {
     options_.add_options()
-        ("toysH,T", boost::program_options::value<unsigned int>(&nToys_)->default_value(500),    "Number of Toy MC extractions to compute CLs+b, CLb and CLs")
-        ("clsAcc",  boost::program_options::value<double>(&clsAccuracy_ )->default_value(0.005), "Absolute accuracy on CLs to reach to terminate the scan")
-        ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(0.1),   "Absolute accuracy on r to reach to terminate the scan")
-        ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(0.05),  "Relative accuracy on r to reach to terminate the scan")
-        ("rule",    boost::program_options::value<std::string>(&rule_)->default_value("CLs"),    "Rule to use: CLs, CLsplusb")
-        ("testStat",boost::program_options::value<std::string>(&testStat_)->default_value("LEP"),"Test statistics: LEP, TEV, Atlas.")
-        ("rInterval",  "Always try to compute an interval on r even after having found a point satisfiying the CL")
+        ("toysH,T", boost::program_options::value<unsigned int>(&nToys_)->default_value(nToys_),         "Number of Toy MC extractions to compute CLs+b, CLb and CLs")
+        ("clsAcc",  boost::program_options::value<double>(&clsAccuracy_ )->default_value(clsAccuracy_),  "Absolute accuracy on CLs to reach to terminate the scan")
+        ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(rAbsAccuracy_), "Absolute accuracy on r to reach to terminate the scan")
+        ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan")
+        ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, CLsplusb")
+        ("testStat",boost::program_options::value<std::string>(&testStat_)->default_value(testStat_),    "Test statistics: LEP, TEV, Atlas.")
+        ("fork",    boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),           "Fork to N processes before running the toys (set to 0 for debugging)")
+        ("singlePoint",  boost::program_options::value<float>(),  "Just compute CLs for the given value of r")
+        ("rInterval",         "Always try to compute an interval on r even after having found a point satisfiying the CL")
         ("saveHybridResult",  "Save result in the output file  (option saveToys must be enabled)")
         ("readHybridResults", "Read and merge results from file (option toysFile must be enabled)")
-        ("singlePoint",  boost::program_options::value<float>(),                   "Just compute CLs for the given value of r")
-        ("fork", boost::program_options::value<unsigned int>(&fork_)->default_value(0), "Fork to N processes before running the toys (experimental debug hack)")
     ;
 }
 
 void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
+  rInterval_ = vm.count("rInterval");
+  saveHybridResult_ = vm.count("saveHybridResult");
+  readHybridResults_ = vm.count("readHybridResults");
+  if ((singlePointScan_ = vm.count("singlePoint"))) {
+    rValue_ = vm["singlePoint"].as<float>();
+  }
+  validateOptions();
+}
+void Hybrid::applyDefaultOptions() { validateOptions(); }
+void Hybrid::validateOptions() {
   if (rule_ == "CLs") {
     CLs_ = true;
   } else if (rule_ == "CLsplusb") {
@@ -57,14 +67,8 @@ void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
   } else {
     throw std::invalid_argument("Hybrid: Rule should be one of 'CLs' or 'CLsplusb'");
   }
-  rInterval_ = vm.count("rInterval");
   if (testStat_ != "LEP" && testStat_ != "TEV"/* && testStat_ != "Atlas"*/) { // no Atlas for this, it has bugs.
     throw std::invalid_argument("Hybrid: Test statistics should be one of 'LEP' or 'TEV'"); //or 'Atlas'
-  }
-  saveHybridResult_ = vm.count("saveHybridResult");
-  readHybridResults_ = vm.count("readHybridResults");
-  if ((singlePointScan_ = vm.count("singlePoint"))) {
-    rValue_ = vm["singlePoint"].as<float>();
   }
 }
 
