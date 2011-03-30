@@ -372,12 +372,16 @@ private:
   int currentLS_;
   bool MC_;
   
+  std::vector<std::string> vertexCollectionLabels_;
+  std::map<std::string, std::map<std::string, TH1*> > histograms_;
+  std::map<std::string,  reco::VertexCollection * > recVtxs_;
 
-  std::map<std::string, TH1*> hBS;
-  std::map<std::string, TH1*> hnoBS;
-  std::map<std::string, TH1*> hDA;
-//   std::map<std::string, TH1*> hPIX;
-//   std::map<std::string, TH1*> hMVF;
+
+//   std::map<std::string, TH1*> hBS;
+//   std::map<std::string, TH1*> hnoBS;
+//   std::map<std::string, TH1*> hDA;
+// //   std::map<std::string, TH1*> hPIX;
+// //   std::map<std::string, TH1*> hMVF;
   std::map<std::string, TH1*> hsimPV;
   std::map<std::string, TH1*> hTrk;
 
@@ -391,5 +395,7 @@ private:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle_;
   edm::ESHandle<TransientTrackBuilder> theB_;
   bool RECO_;
+
+  
 };
 

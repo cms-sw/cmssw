@@ -21,11 +21,9 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
-//experimental, certainly not before 3_8_X
-//#include "SimGeneral/PileupInformation/interface/PileupInformation.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
-// AOD
+// AOD et al
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 //generator level + CLHEP
@@ -104,6 +102,13 @@ PrimaryVertexAnalyzer4PU::PrimaryVertexAnalyzer4PU(const ParameterSet& iConfig):
   dumpSignalVsTag_=iConfig.getUntrackedParameter<bool>("dumpSignalVsTag", false);
   nEventSummary_= iConfig.getUntrackedParameter<int>("eventSummaries", 1000);
 
+  //vstring 	std::vector<std::string> 	v = cms.vstring( 'thing one', "thing two")
+  std::vector<std::string> defaultCollections;
+  defaultCollections.push_back("offlinePrimaryVertices");
+  defaultCollections.push_back("offlinePrimaryVerticesWithBS");
+  //defaultCollections.push_back("offlinePrimaryVerticesDA");
+  vertexCollectionLabels_=iConfig.getUntrackedParameter< std::vector<std::string> >("vertexCollections", defaultCollections);
+  
   currentLS_=-1;
   zmatch_=iConfig.getUntrackedParameter<double>("zmatch", 0.0500);
   cout << "PrimaryVertexAnalyzer4PU: zmatch=" << zmatch_ << endl;
@@ -708,40 +713,18 @@ void PrimaryVertexAnalyzer4PU::beginJob(){
 
   rootFile_->cd();
 
-  TDirectory *noBS = rootFile_->mkdir("noBS");
-  noBS->cd();
-  hnoBS=bookVertexHistograms();
-  for(std::map<std::string,TH1*>::const_iterator hist=hnoBS.begin(); hist!=hnoBS.end(); hist++){
-    hist->second->SetDirectory(noBS);
+  for(std::vector<std::string>::const_iterator vCollection=vertexCollectionLabels_.begin(); vCollection!=vertexCollectionLabels_.end(); vCollection++){
+    cout << "PrimaryVertexAnalyzer4PU: booking histograms for collection " << *vCollection <<endl;
+    std::string s=*vCollection;
+    TDirectory *dir = rootFile_->mkdir(s.c_str());
+    dir->cd();
+    histograms_[s]=bookVertexHistograms();
+    for(std::map<std::string,TH1*>::const_iterator hist=histograms_[s].begin(); hist!=histograms_[s].end(); hist++){
+      hist->second->SetDirectory(dir);
+    }
+
   }
 
-  TDirectory *withBS = rootFile_->mkdir("BS");
-  withBS->cd();
-  hBS=bookVertexHistograms();
-  for(std::map<std::string,TH1*>::const_iterator hist=hBS.begin(); hist!=hBS.end(); hist++){
-    hist->second->SetDirectory(withBS);
-  }
-
-  TDirectory *DA = rootFile_->mkdir("DA");
-  DA->cd();
-  hDA=bookVertexHistograms();
-  for(std::map<std::string,TH1*>::const_iterator hist=hDA.begin(); hist!=hDA.end(); hist++){
-    hist->second->SetDirectory(DA);
-  }
-
-//   TDirectory *PIX = rootFile_->mkdir("PIX");
-//   PIX->cd();
-//   hPIX=bookVertexHistograms();
-//   for(std::map<std::string,TH1*>::const_iterator hist=hPIX.begin(); hist!=hPIX.end(); hist++){
-//     hist->second->SetDirectory(PIX);
-//   }
-
-//   TDirectory *MVF = rootFile_->mkdir("MVF");
-//   MVF->cd();
-//   hMVF=bookVertexHistograms();
-//   for(std::map<std::string,TH1*>::const_iterator hist=hMVF.begin(); hist!=hMVF.end(); hist++){
-//     hist->second->SetDirectory(MVF);
-//   }
 
   rootFile_->cd();
   hsimPV["rapidity"] = new TH1F("rapidity","rapidity ",100,-10., 10.);
@@ -810,57 +793,40 @@ void PrimaryVertexAnalyzer4PU::beginJob(){
 
 void PrimaryVertexAnalyzer4PU::endJob() {
   std::cout << "this is void PrimaryVertexAnalyzer4PU::endJob() " << std::endl;
-  //cumulate some histos
-  double sumDA=0,sumBS=0,sumnoBS=0, sumPIX=0,sumMVF=0;
-  for(int i=101; i>0; i--){
-    sumDA+=hDA["matchVtxFractionSignal"]->GetBinContent(i)/hDA["matchVtxFractionSignal"]->Integral();
-    hDA["matchVtxFractionCumSignal"]->SetBinContent(i,sumDA);
-    sumBS+=hBS["matchVtxFractionSignal"]->GetBinContent(i)/hBS["matchVtxFractionSignal"]->Integral();
-    hBS["matchVtxFractionCumSignal"]->SetBinContent(i,sumBS);
-    sumnoBS+=hnoBS["matchVtxFractionSignal"]->GetBinContent(i)/hnoBS["matchVtxFractionSignal"]->Integral();
-    hnoBS["matchVtxFractionCumSignal"]->SetBinContent(i,sumnoBS);
-//     sumPIX+=hPIX["matchVtxFractionSignal"]->GetBinContent(i)/hPIX["matchVtxFractionSignal"]->Integral();
-//     hPIX["matchVtxFractionCumSignal"]->SetBinContent(i,sumPIX);
-//     sumMVF+=hMVF["matchVtxFractionSignal"]->GetBinContent(i)/hMVF["matchVtxFractionSignal"]->Integral();
-//     hMVF["matchVtxFractionCumSignal"]->SetBinContent(i,sumMVF);
-  }
-  sumDA=0,sumBS=0,sumnoBS=0,sumPIX=0,sumMVF=0;
-  for(int i=1; i<1001; i++){
-    sumDA+=hDA["abszdistancetag"]->GetBinContent(i);
-    hDA["abszdistancetagcum"]->SetBinContent(i,sumDA/float(hDA["abszdistancetag"]->GetEntries()));
-    sumBS+=hBS["abszdistancetag"]->GetBinContent(i);
-    hBS["abszdistancetagcum"]->SetBinContent(i,sumBS/float(hBS["abszdistancetag"]->GetEntries()));
-    sumnoBS+=hnoBS["abszdistancetag"]->GetBinContent(i);
-    hnoBS["abszdistancetagcum"]->SetBinContent(i,sumnoBS/float(hnoBS["abszdistancetag"]->GetEntries()));
-  }
 
-  sumDA=0,sumBS=0,sumnoBS=0,sumPIX=0,sumMVF=0;
-  for(int i=1; i<1001; i++){
-    sumDA+=hDA["abszdistancenearest"]->GetBinContent(i);
-    hDA["abszdistancenearestcum"]->SetBinContent(i,sumDA/float(hDA["abszdistancenearest"]->GetEntries()));
-    sumBS+=hBS["abszdistancenearest"]->GetBinContent(i);
-    hBS["abszdistancenearestcum"]->SetBinContent(i,sumBS/float(hBS["abszdistancenearest"]->GetEntries()));
-    sumnoBS+=hnoBS["abszdistancenearest"]->GetBinContent(i);
-    hnoBS["abszdistancenearestcum"]->SetBinContent(i,sumnoBS/float(hnoBS["abszdistancenearest"]->GetEntries()));
-  }
 
-  Cumulate(hBS["matchVtxZCum"]);   Cumulate(hBS["matchVtxZCumSignal"]);   Cumulate(hBS["matchVtxZCumPU"]); 
-  Cumulate(hnoBS["matchVtxZCum"]);   Cumulate(hnoBS["matchVtxZCumSignal"]);   Cumulate(hnoBS["matchVtxZCumPU"]); 
-  Cumulate(hDA["matchVtxZCum"]);   Cumulate(hDA["matchVtxZCumSignal"]);   Cumulate(hDA["matchVtxZCumPU"]); 
+  for(std::vector<std::string>::const_iterator vCollection=vertexCollectionLabels_.begin(); vCollection!=vertexCollectionLabels_.end(); vCollection++){
+    std::map<std::string, TH1*>  h=histograms_[*vCollection];
+    double sum=0;
+    for(int i=101; i>0; i--){
+      sum+=h["matchVtxFractionSignal"]->GetBinContent(i)/h["matchVtxFractionSignal"]->Integral();
+      h["matchVtxFractionCumSignal"]->SetBinContent(i,sum);
+    }
+    sum=0;
+    for(int i=1; i<1001; i++){
+      sum+=h["abszdistancetag"]->GetBinContent(i);
+      h["abszdistancetagcum"]->SetBinContent(i,sum/float(h["abszdistancetag"]->GetEntries()));
+    }
 
-  double p;
-  unsigned int nbin=hDA["vtxndf"]->GetNbinsX();
-  for(unsigned int i=1; i<=nbin; i++){
-    if(hDA["vtxndf"]->GetEntries()>0){
-      p=  hDA["vtxndf"]->Integral(i,nbin+1)/hDA["vtxndf"]->GetEntries();    hDA["vtxndfc"]->SetBinContent(i,p*hDA["vtxndf"]->GetBinContent(i));
+    sum=0;
+    for(int i=1; i<1001; i++){
+      sum+=h["abszdistancenearest"]->GetBinContent(i);
+      h["abszdistancenearestcum"]->SetBinContent(i,sum/float(h["abszdistancenearest"]->GetEntries()));
     }
-    if(hBS["vtxndf"]->GetEntries()>0){
-      p=  hBS["vtxndf"]->Integral(i,nbin+1)/hBS["vtxndf"]->GetEntries();    hBS["vtxndfc"]->SetBinContent(i,p*hBS["vtxndf"]->GetBinContent(i));
+
+    Cumulate(h["matchVtxZCum"]);   Cumulate(h["matchVtxZCumSignal"]);   Cumulate(h["matchVtxZCumPU"]); 
+
+ 
+    double p;
+    unsigned int nbin=h["vtxndf"]->GetNbinsX();
+    for(unsigned int i=1; i<=nbin; i++){
+      if(h["vtxndf"]->GetEntries()>0){
+	p=  h["vtxndf"]->Integral(i,nbin+1)/h["vtxndf"]->GetEntries();    h["vtxndfc"]->SetBinContent(i,p*h["vtxndf"]->GetBinContent(i));
+      }
     }
-    if(hnoBS["vtxndf"]->GetEntries()>0){
-      p=hnoBS["vtxndf"]->Integral(i,nbin+1)/hnoBS["vtxndf"]->GetEntries();  hnoBS["vtxndfc"]->SetBinContent(i,p*hnoBS["vtxndf"]->GetBinContent(i));
-    }
-  }
+
+
+   }
   
   rootFile_->cd();
   for(std::map<std::string,TH1*>::const_iterator hist=hsimPV.begin(); hist!=hsimPV.end(); hist++){
@@ -1288,8 +1254,6 @@ void PrimaryVertexAnalyzer4PU::fillTrackHistos(std::map<std::string, TH1*> & h, 
 	double ks02=(kappa*s0)*(kappa*s0);
 	s1=s0*(1.+ks02/6.+3./40.*ks02*ks02+5./112.*pow(ks02,3));
       }
-      //     sp.ddcap=-2.*D0/(1.+q);
-      //double zdcap=t.vz()-s1/tan(t.theta());
 
     }
 
@@ -1473,9 +1437,6 @@ void PrimaryVertexAnalyzer4PU::printRecTrks(const Handle<reco::TrackCollection> 
     int ninner=pinner.numberOfHits();
     int nouter=pouter.numberOfHits();
 
-    //    double d0Error=t.d0Error();
-    //    double d0=t.dxy(myBeamSpot);
-    
     //
     for(trackingRecHit_iterator hit=t->recHitsBegin(); hit!=t->recHitsEnd(); hit++){
       if ((**hit).isValid()   && (**hit).geographicalId().det() == DetId::Tracker ){
@@ -2300,15 +2261,6 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
   Handle<PileupSummaryInfo> puInfoH;
   bool bPuInfo=iEvent.getByLabel("addPileupInfo", puInfoH);
 
-//   if (bPuInfo) {
-//     cout << "PileupSummaryInfo  nPU=" << puInfoH->getPU_NumInteractions() << endl;
-//     for(int i=0; i<puInfoH->getPU_NumInteractions(); i++){
-//       cout << "pile-up " << i << ")"
-// 	   << " z= " << setw(10) << setprecision(4) << puInfoH->getPU_zpositions()[i]
-// 	   << " nlo=" << setw(5) << puInfoH->getPU_ntrks_lowpT()[i]
-// 	   << " nhi=" << setw(5) << puInfoH->getPU_ntrks_highpT()[i] <<  endl;
-//     }
-//   }
 
 
   // genParticles for AOD et al:  https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookGenParticleCandidate
@@ -2316,19 +2268,19 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
    bool bgenParticles=iEvent.getByLabel("genParticles", genParticles);
 
 
-  Handle<reco::VertexCollection> recVtxsBSH;
-  bool bBS=iEvent.getByLabel("offlinePrimaryVerticesWithBS", recVtxsBSH);
-  reco::VertexCollection * recVtxsBS = vertexFilter(recVtxsBSH, useVertexFilter_);
-  
-  Handle<reco::VertexCollection> recVtxsH;
-  bool bnoBS=iEvent.getByLabel("offlinePrimaryVertices", recVtxsH);
-  reco::VertexCollection * recVtxs = vertexFilter(recVtxsH, useVertexFilter_);
-  
-  Handle<reco::VertexCollection> recVtxsDAH;
-  bool bDA=iEvent.getByLabel("offlinePrimaryVerticesDA", recVtxsDAH);
-  reco::VertexCollection * recVtxsDA = NULL;
-  if(bDA)recVtxsDA = vertexFilter(recVtxsDAH, useVertexFilter_);
+   for(std::vector<std::string>::const_iterator vCollection=vertexCollectionLabels_.begin(); vCollection!=vertexCollectionLabels_.end(); vCollection++){
+     Handle<reco::VertexCollection> recVtxsH;
+     if(iEvent.getByLabel(*vCollection, recVtxsH)){
+       recVtxs_[*vCollection] = vertexFilter(recVtxsH, useVertexFilter_);
+     }else{
+       recVtxs_[*vCollection] = NULL;
+       cout <<"collection " << *vCollection << " not found " << endl;
+     }
+   }
 
+
+
+  
   Handle<reco::TrackCollection> recTrks;
   iEvent.getByLabel(recoTrackProducer_, recTrks);
 
@@ -2338,13 +2290,6 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
     ntot++;
     if(t->quality(reco::TrackBase::highPurity)) nhighpurity++;
   } 
-
-
-   if(ntot>10)  hnoBS["highpurityTrackFraction"]->Fill(float(nhighpurity)/float(ntot));
-//   if((recoTrackProducer_=="generalTracks")&&(nhighpurity<0.25*ntot)){
-//     if(verbose_){ cout << "rejected, " << nhighpurity << " highpurity  out of  " << ntot << "  total tracks "<< endl<< endl;}
-//     return;
-//   }
 
 
   
@@ -2400,23 +2345,23 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
   }
 
 
-  if(bnoBS){
-    if((recVtxs->begin()->isValid())&&(recVtxs->begin()->ndof()>1)&&(recVtxs->begin()->ndof()>(0.0*recVtxs->begin()->tracksSize()))){  // was 5 and 0.2
-      Fill(hnoBS,"xrecBeamvsdxXBS",recVtxs->begin()->xError(),recVtxs->begin()->x()-vertexBeamSpot_.x0());
-      Fill(hnoBS,"yrecBeamvsdyXBS",recVtxs->begin()->yError(),recVtxs->begin()->y()-vertexBeamSpot_.y0());
+//   if(bnoBS){
+//     if((recVtxs->begin()->isValid())&&(recVtxs->begin()->ndof()>1)&&(recVtxs->begin()->ndof()>(0.0*recVtxs->begin()->tracksSize()))){  // was 5 and 0.2
+//       Fill(hnoBS,"xrecBeamvsdxXBS",recVtxs->begin()->xError(),recVtxs->begin()->x()-vertexBeamSpot_.x0());
+//       Fill(hnoBS,"yrecBeamvsdyXBS",recVtxs->begin()->yError(),recVtxs->begin()->y()-vertexBeamSpot_.y0());
 
-      if(printXBS_) {
-	cout << Form("XBS %10d %5d %10d  %4d  %5lu %6.1f    %8.4f %8.4f       %8.4f %8.4f      %8.4f %8.4f",
-		     run_,luminosityBlock_,event_,bunchCrossing_,
-		     (unsigned long)(recVtxs->begin()->tracksSize()), recVtxs->begin()->ndof(),
-      		   recVtxs->begin()->x(), 		   recVtxs->begin()->xError(), 
-      		   recVtxs->begin()->y(), 		   recVtxs->begin()->yError(), 
-      		   recVtxs->begin()->z(), 		   recVtxs->begin()->zError()
-      		   ) << endl; 
-      }
+//       if(printXBS_) {
+// 	cout << Form("XBS %10d %5d %10d  %4d  %5lu %6.1f    %8.4f %8.4f       %8.4f %8.4f      %8.4f %8.4f",
+// 		     run_,luminosityBlock_,event_,bunchCrossing_,
+// 		     (unsigned long)(recVtxs->begin()->tracksSize()), recVtxs->begin()->ndof(),
+//       		   recVtxs->begin()->x(), 		   recVtxs->begin()->xError(), 
+//       		   recVtxs->begin()->y(), 		   recVtxs->begin()->yError(), 
+//       		   recVtxs->begin()->z(), 		   recVtxs->begin()->zError()
+//       		   ) << endl; 
+//       }
 
-    }
-  }
+//     }
+//   }
 
  
   // for the associator
@@ -2540,15 +2485,6 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
 
 
 
-
-  // get the beam spot from the appropriate dummy vertex, if available
-  for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
-      v!=recVtxs->end(); ++v){
-    if ((v->ndof()==-3) && (v->chi2()==0) ){ 
-      myBeamSpot=math::XYZPoint(v->x(), v->y(), v->z());
-    }
-  }
-
   
 
 
@@ -2587,61 +2523,52 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
 
 
 
-   if(bBS){
-     analyzeVertexCollection(hBS, recVtxsBS, recTrks, simpv,"BS");
-     analyzeVertexCollectionTP(hBS, recVtxsBS, recTrks, simEvt,"BS");
-   }
-   if(bnoBS){
-     nfake_=0;
-     npair_=0;
-     analyzeVertexCollection(hnoBS, recVtxs, recTrks, simpv,"noBS");
-     analyzeVertexCollectionTP(hnoBS, recVtxs, recTrks, simEvt,"noBS");
-     if ((nfake_>0) && (npair_==0)){
-       cout << "DEBUG  fake but no pair !!!  nfake_="<< nfake_ << endl;
-       dumpThisEvent_=true;
-     }
-   }
-   if(bDA){
-     analyzeVertexCollection(hDA, recVtxsDA, recTrks, simpv,"DA");
-     analyzeVertexCollectionTP(hDA, recVtxsDA, recTrks, simEvt,"DA");
-   }
-//    if(bPIX){
-//      analyzeVertexCollection(hPIX, recVtxsPIX, recTrks, simpv,"PIX");
-//      analyzeVertexCollectionTP(hPIX, recVtxsPIX, recTrks, simEvt,"PIX");
-//    }
+  // analyze the vertex collections
+  for(std::vector<std::string>::const_iterator vCollection=vertexCollectionLabels_.begin(); vCollection!=vertexCollectionLabels_.end(); vCollection++){
+    if(recVtxs_[*vCollection] !=NULL){
+      analyzeVertexCollection(histograms_[*vCollection], recVtxs_[*vCollection], recTrks, simpv, *vCollection);
+      analyzeVertexCollectionTP(histograms_[*vCollection], recVtxs_[*vCollection], recTrks, simEvt, *vCollection);
+    }
+  }
 
-   //dumpThisEvent_=true;  // auto dump
 
-   if((dumpThisEvent_ && (dumpcounter_<5)) ||(verbose_ && (eventcounter_<ndump_))){
-     cout << endl << "Event dump" << dumpcounter_ << endl
-	  << "event counter=" << eventcounter_
-	  << " Run=" << run_ << "  LumiBlock " << luminosityBlock_ << "  event  " << event_
+  // print summary info 
+  if((dumpThisEvent_ && (dumpcounter_<5)) ||(verbose_ && (eventcounter_<ndump_))){
+    cout << endl << "Event dump" << dumpcounter_ << endl
+	 << "event counter=" << eventcounter_
+	 << " Run=" << run_ << "  LumiBlock " << luminosityBlock_ << "  event  " << event_
 	  << " bx=" << bunchCrossing_ <<  " orbit=" << orbitNumber_ 
-	  << std::endl;
-     dumpcounter_++;
+	 << std::endl;
+    dumpcounter_++;
 
-     //evtMC->GetEvent()->print();
-     //printRecTrks(recTrks);  // very verbose !!
-     
-//      if (bPIX) printRecVtxs(recVtxsPIX,"pixel vertices");
-     if (bnoBS) {printRecVtxs(recVtxs,"Offline without Beamspot");}
-     if (bnoBS && (!bDA)){ printPVTrks(recTrks, recVtxs, tsim, simEvt, false);}
-     if (bBS) printRecVtxs(recVtxsBS,"Offline with Beamspot");
-     if (bDA) {
-       printRecVtxs(recVtxsDA,"Offline DA");
-       printPVTrks(recTrks, recVtxsDA, tsim, simEvt, false);
-     }
-     if (dumpcounter_<2){cout << "beamspot " << vertexBeamSpot_ << endl;}
-   }
+    bool trksdumped=false;
+    for(std::vector<std::string>::const_iterator vCollection=vertexCollectionLabels_.begin(); vCollection!=vertexCollectionLabels_.end(); vCollection++){
+      if( recVtxs_[*vCollection] !=NULL ){
+	printRecVtxs(recVtxs_[*vCollection]);
+	if(! trksdumped){
+	  printPVTrks(recTrks, recVtxs_[*vCollection], tsim, simEvt, false);
+	  trksdumped=true; // only dump one track list per event
+	}
+      }
+    }
 
-   delete recVtxs;
-   delete recVtxsBS;
-   delete recVtxsDA;
+    if (dumpcounter_<2){cout << "beamspot " << vertexBeamSpot_ << endl;}
+  }
+
+
+  // clean up
+  for(std::vector<std::string>::const_iterator vCollection=vertexCollectionLabels_.begin(); vCollection!=vertexCollectionLabels_.end(); vCollection++){
+    delete recVtxs_[*vCollection];
+  }
+
+
   if(verbose_){
-    std::cout << std::endl;
+    std::cout << std::endl << " End of PrimaryVertexAnalyzer4PU " << std::endl;
   }
 }
 
+
+/***************************************************************************************/
 
 // helper for z-sorting
 namespace {
@@ -3564,6 +3491,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
     }
 
 
+
     // look for rec vertices with no matching sim vertex
     for(reco::VertexCollection::const_iterator vrec=recVtxs->begin();  vrec!=recVtxs->end(); ++vrec){
       simPrimaryVertex * match=NULL;
@@ -3673,8 +3601,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
       fillTrackHistos(h,"sel",*t);
       int foundinvtx=0;
       int nvtemp=-1;
-      for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
-	  v!=recVtxs->end(); ++v){
+      for(reco::VertexCollection::const_iterator v=recVtxs->begin(); v!=recVtxs->end(); ++v){
 	nvtemp++;
 	if(( v->isFake()) || (v->ndof()<-2) ) break;
 	for(trackit_t tv=v->tracks_begin(); tv!=v->tracks_end(); tv++ ){
@@ -3682,8 +3609,8 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 	    foundinvtx++;
 	  }
 	}
-	
       }
+      
       if(foundinvtx==0){
 	fillTrackHistos(h,"sellost",*t);
       }else if(foundinvtx>1){
@@ -3699,7 +3626,6 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
   }else if( ! (nseltrks==(int)selTrks.size()) ){
     std::cout << "Warning: inconsistent track selection !" << std::endl;
   }
-
 
 
 
@@ -3777,6 +3703,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
   if(nrec2>0) { Fill(h,"eff0ndof2vsntsel",nseltrks,1.);}else{ Fill(h,"eff0ndof2vsntsel",nseltrks,0.);}
   if(nrec4>0) { Fill(h,"eff0ndof4vsntsel",nseltrks,1.);}else{ Fill(h,"eff0ndof4vsntsel",nseltrks,0.);}
   if(nrec8>0) { Fill(h,"eff0ndof8vsntsel",nseltrks,1.);}else{ Fill(h,"eff0ndof8vsntsel",nseltrks,0.);}
+
 
   if((nrec>1)&&(DEBUG_)) {
     cout << "multivertex event" << endl;
@@ -4215,12 +4142,6 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
   }  // vertex loop (v)
 
 
-//   // 2nd highest ndof
-//   if (ndof2>0){
-//       Fill(h,"ndofnr2",ndof2); 
-//       if(fabs(zndof1-zndof2)>1) Fill(h,"ndofnr2d1cm",ndof2); 
-//       if(fabs(zndof1-zndof2)>2) Fill(h,"ndofnr2d2cm",ndof2); 
-//   }
 
 
 }
