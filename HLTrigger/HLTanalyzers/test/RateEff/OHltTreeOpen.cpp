@@ -7158,7 +7158,7 @@ void OHltTree::CheckOpenHlt(
       char pathName_Photon_IsoVL_Photon_IsoVL[100];
       sprintf(
             pathName_Photon_IsoVL_Photon_IsoVL,
-            "OpenHLT_Photon%d_IsoVL_Photon%d_IsoVL_v1",
+            "OpenHLT_Photon%d_IsoVL_Photon%d_IsoVL_v2",
             upperEt,
             lowerEt);
       
