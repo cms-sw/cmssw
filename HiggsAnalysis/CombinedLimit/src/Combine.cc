@@ -433,7 +433,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     sort(limitHistory.begin(), limitHistory.end());
     if (nLimits > 0) {
-        double medianLimit = (nLimits % 2 == 0 ? 0.5*(limitHistory[nLimits/2]+limitHistory[nLimits/2+1]) : limitHistory[nLimits/2]);
+        double medianLimit = (nLimits % 2 == 0 ? 0.5*(limitHistory[nLimits/2-1]+limitHistory[nLimits/2]) : limitHistory[nLimits/2]);
         cout << "median expected limit: r < " << medianLimit << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
         double hi68 = limitHistory[min<int>(nLimits-1,  ceil(0.84  * nLimits))];
         double lo68 = limitHistory[min<int>(nLimits-1, floor(0.16  * nLimits))];
