@@ -132,11 +132,6 @@ def parseCard(file, options):
     if options.stat: 
         nuisances = 0
         ret.systs = []
-    # compute asimov dataset if needed (deprecated? doesn't work for shapes?)
-    if options.asimov:
-        ret.obs = dict([(b,0) for b in ret.bins])
-        for (b,p,s) in ret.keyline: 
-            if s == False: ret.obs[b] += ret.exp[b][p]
     # check number of nuisances
     if nuisances == -1: 
         nuisances = len(ret.systs)

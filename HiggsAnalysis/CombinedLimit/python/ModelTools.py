@@ -18,7 +18,7 @@ class ModelBuilderBase():
             else:
                 raise RuntimeError, "You need to specify an output file when using binary mode";
         elif options.out != None:
-            stderr.write("Will save workspace to HLF file %s" % options.out)
+            #stderr.write("Will save workspace to HLF file %s" % options.out)
             self.out = open(options.out, "w");
         if options.cexpr:
             global ROOFIT_EXPR;

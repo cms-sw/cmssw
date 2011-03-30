@@ -156,13 +156,16 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   } else if (hlfFile.EndsWith(".root")) {
     isBinary = true;
   } else {
-    isTextDatacard = true;
     TString txtFile = fileToLoad.Data();
     TString options = "";
     if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
-    int status = gSystem->Exec("python -m HiggsAnalysis.CombinedLimit.lands2hlf "+options+" '"+txtFile+"' > model.hlf"); 
-    fileToLoad = "model.hlf";
+    //-- Text mode: current default
+    int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -o model.hlf"); 
+    isTextDatacard = true; fileToLoad = "model.hlf";
+    //-- Binary mode: future default 
+    //int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -b -o model.root"); 
+    //isTextDatacard = false; fileToLoad = "model.root";
     if (status != 0 || !boost::filesystem::exists(fileToLoad.Data())) {
         throw std::invalid_argument("Failed to convert the input datacard from LandS to RooStats format. The lines above probably contain more information about the error.");
     }
