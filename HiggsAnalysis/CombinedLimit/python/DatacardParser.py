@@ -108,7 +108,7 @@ def parseCard(file, options):
             else:
                 errline[b][p] = float(r) 
             # set the rate to epsilon for backgrounds with zero observed sideband events.
-            if pdf == "gmN" and args[0] == 0 and ret.exp[b][p] == 0 and float(r) != 0: ret.exp[b][p] == 1e-6
+            if pdf == "gmN" and ret.exp[b][p] == 0 and float(r) != 0: ret.exp[b][p] = 1e-6
         ret.systs.append((lsyst,pdf,args,errline))
     # check if there are bins with no rate
     for b in ret.bins:
