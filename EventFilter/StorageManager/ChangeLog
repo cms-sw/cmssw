@@ -7,6 +7,11 @@
 
 2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
+	* tag V07-02-01
+	* Take DQM event time stamp from event instead of recreating it wrongly.
+
+2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
 	* tag V07-02-00
 	* Configurable limit on memory consumption of the fragment store.
 	* Limit queue and fragment store memory consumption to 1GB
