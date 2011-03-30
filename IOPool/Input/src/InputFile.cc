@@ -1,5 +1,4 @@
 /*----------------------------------------------------------------------
-
 Holder for an input TFile.
 ----------------------------------------------------------------------*/
 #include "InputFile.h"
@@ -14,17 +13,17 @@ namespace edm {
   InputFile::InputFile(char const* fileName, char const* msg) : file_(), fileName_(fileName), reportToken_(0) {
     logFileAction(msg, fileName);
     file_.reset(TFile::Open(fileName));
-    if(!file_) { 
+    if(!file_) {
       return;
     }
-    if(file_->IsZombie()) { 
+    if(file_->IsZombie()) {
       file_.reset();
       return;
     }
     logFileAction("  Successfully opened file ", fileName);
   }
 
-  InputFile::~InputFile() { 
+  InputFile::~InputFile() {
     Close();
   }
 
@@ -72,9 +71,9 @@ namespace edm {
         logFileAction("  Closed file ", fileName_.c_str());
         Service<JobReport> reportSvc;
         reportSvc->inputFileClosed(reportToken_);
-      } catch(...) {
+      } catch(std::exception) {
         // If Close() called in a destructor after an exception throw, the services may no longer be active.
-        // Therefore, we catch any new exception.
+        // Therefore, we catch any reasonable new exception.
       }
     }
   }
