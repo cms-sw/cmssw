@@ -61,7 +61,6 @@ void utils::printPdf(RooWorkspace *w, const char *pdfName) {
 
 void utils::factorizePdf(RooStats::ModelConfig &model, RooAbsPdf &pdf, RooArgList &obsTerms, RooArgList &constraints, bool debug) {
     const std::type_info & id = typeid(pdf);
-    RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
     if (id == typeid(RooProdPdf)) {
         RooProdPdf *prod = dynamic_cast<RooProdPdf *>(&pdf);
         RooArgList list(prod->pdfList());
@@ -70,11 +69,17 @@ void utils::factorizePdf(RooStats::ModelConfig &model, RooAbsPdf &pdf, RooArgLis
             factorizePdf(model, *pdfi, obsTerms, constraints);
         }
     } else if (id == typeid(RooSimultaneous)) {
-        throw std::invalid_argument("Not implemented");
+        RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
+        RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
+        for (int ic = 0, nc = cat->numBins((const char *)0); ic < nc; ++ic) {
+            cat->setBin(ic);
+            factorizePdf(model, *sim->getPdf(cat->getLabel()), obsTerms, constraints);
+        }
+        delete cat;
     } else if (pdf.dependsOn(*model.GetObservables())) {
-        obsTerms.add(pdf);
+        if (!obsTerms.contains(pdf)) obsTerms.add(pdf);
     } else {
-        constraints.add(pdf);
+        if (!constraints.contains(pdf)) constraints.add(pdf);
     }
 }
 
