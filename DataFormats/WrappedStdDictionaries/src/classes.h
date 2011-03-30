@@ -12,6 +12,7 @@ namespace {
   edm::Wrapper<std::vector<unsigned int> > dummy2;
   edm::Wrapper<std::vector<long> > dummy3;
   edm::Wrapper<std::vector<int> > dummy4;
+  edm::Wrapper<std::vector<std::vector<int> > > dummy4v;
   edm::Wrapper<std::vector<std::string> > dummy5;
   edm::Wrapper<std::vector<char> > dummy6;
   edm::Wrapper<std::vector<char*> > dummy6p;

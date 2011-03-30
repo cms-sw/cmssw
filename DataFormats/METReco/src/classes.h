@@ -136,6 +136,9 @@ namespace {
     edm::Ptr<reco::MET> ptr_m;
     edm::PtrVector<reco::MET> ptrv_m;
 
+    std::vector<edm::Ref<std::vector<reco::CaloMET> > > vrvcm;
+    std::vector<edm::Ref<std::vector<reco::MET> > > vrvrm;
+
 
   };
 }

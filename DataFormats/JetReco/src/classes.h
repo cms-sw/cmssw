@@ -10,6 +10,7 @@
 #include "Math/PtEtaPhiM4D.h" 
 #include "Math/PxPyPzE4D.h" 
 
+#include "DataFormats/JetReco/interface/BasicJetCollection.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -65,7 +66,9 @@ namespace {
     edm::reftobase::Holder<reco::Candidate, reco::CaloJetRef> rtb1;
     reco::JetTrackMatch<reco::CaloJetCollection> jtm1;
     edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>,std::vector<reco::Track>,unsigned int> > amp1;
+    edm::helpers::Key<edm::RefProd<std::vector<reco::CaloJet> > > k1;
     edm::helpers::KeyVal<edm::RefProd<reco::CaloJetCollection>,edm::RefProd<std::vector<reco::Track> > > kv1;
+    std::vector<edm::Ref<std::vector<reco::CaloJet> > > vrvr1;
 
     reco::GenJetCollection o2;
     reco::GenJetRef r2;
@@ -251,8 +254,6 @@ namespace {
 
     edm::Ptr<reco::TrackJet> ptrtj;
     edm::PtrVector<reco::TrackJet> ptrvtj;
-    edm::Ptr<reco::Track> ptrt;
-    std::vector<edm::Ptr<reco::Track> > vptrt;
 
     edm::Ptr<reco::PFClusterJet> ptrpfcj;
     edm::PtrVector<reco::PFClusterJet> ptrvpfcj;
