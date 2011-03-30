@@ -58,7 +58,9 @@ void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
   }
   validateOptions();
 }
+
 void Hybrid::applyDefaultOptions() { validateOptions(); }
+
 void Hybrid::validateOptions() {
   if (rule_ == "CLs") {
     CLs_ = true;
