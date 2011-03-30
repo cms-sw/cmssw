@@ -30,23 +30,19 @@ void FeldmanCousins::applyOptions(const boost::program_options::variables_map &v
   lowerLimit_ = vm.count("lowerLimit");
 }
 
-bool FeldmanCousins::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-  RooRealVar *r = w->var("r");
-  RooArgSet  poi(*r);
+bool FeldmanCousins::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+  RooArgSet  poi(*mc_s->GetParametersOfInterest());
+  RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
 
   if ((hint != 0) && (*hint > r->getMin())) {
     r->setMax(std::min<double>(3*(*hint), r->getMax()));
   }
 
-  RooStats::ModelConfig modelConfig("sb_model", w);
-  modelConfig.SetPdf(*w->pdf("model_s"));
-  modelConfig.SetObservables(*w->set("observables"));
-  modelConfig.SetParametersOfInterest(poi);
-  if (withSystematics) modelConfig.SetNuisanceParameters(*w->set("nuisances"));
+  RooStats::ModelConfig modelConfig(*mc_s);
   modelConfig.SetSnapshot(poi);
 
   RooStats::FeldmanCousins fc(data, modelConfig);
-  fc.FluctuateNumDataEntries(w->pdf("model_b")->canBeExtended());
+  fc.FluctuateNumDataEntries(mc_s->GetPdf()->canBeExtended());
   fc.UseAdaptiveSampling(true);
   fc.SetConfidenceLevel(cl);
   fc.AdditionalNToysFactor(toysFactor_);
@@ -82,7 +78,7 @@ bool FeldmanCousins::run(RooWorkspace *w, RooAbsData &data, double &limit, doubl
               parameterScan->get(found+1)->getRealValue(r->GetName()) : r->getMax());
       limit = 0.5*(fcAfter+fcBefore);
       limitErr = 0.5*(fcAfter-fcBefore);
-      if (verbose > 0) std::cout << "  would be r < " << limit << " +/- "<<limitErr << std::endl;
+      if (verbose > 0) std::cout << "  would be " << r->GetName() << " < " << limit << " +/- "<<limitErr << std::endl;
       r->setMin(std::max(r->getMin(), limit-3*limitErr)); 
       r->setMax(std::min(r->getMax(), limit+3*limitErr));
       if (limitErr < 4*std::max<float>(rAbsAccuracy_, rRelAccuracy_ * limit)) { // make last scan more precise
@@ -92,7 +88,7 @@ bool FeldmanCousins::run(RooWorkspace *w, RooAbsData &data, double &limit, doubl
 
   if (verbose > -1) {
       std::cout << "\n -- FeldmanCousins++ -- \n";
-      std::cout << "Limit: r " << (lowerLimit_ ? "> " : "< ") << limit << " +/- "<<limitErr << "\n";
+      std::cout << "Limit: " << r->GetName() << (lowerLimit_ ? "> " : "< ") << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL" << std::endl;
   }
   return true;
 }

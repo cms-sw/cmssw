@@ -23,11 +23,11 @@ public:
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
   virtual void applyDefaultOptions() ; 
 
-  virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
-  virtual bool runLimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
-  virtual bool runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
-  virtual bool runSinglePoint(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
-  virtual bool runTestStatistics(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool runSinglePoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool runTestStatistics(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual const std::string & name() const {
     static const std::string name("HybridNew");
     return name;
@@ -67,8 +67,8 @@ private:
 
   void validateOptions() ;
 
-  std::pair<double,double> eval(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, bool adaptive=false, double clsTarget=-1) ;
-  std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, Setup &setup);
+  std::pair<double,double> eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, bool adaptive=false, double clsTarget=-1) ;
+  std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, Setup &setup);
   std::pair<double,double> eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive=false, double clsTarget=-1) ;
   RooStats::HypoTestResult *evalWithFork(RooStats::HybridCalculator &hc);
   RooStats::HypoTestResult *readToysFromFile(double rValue=0);

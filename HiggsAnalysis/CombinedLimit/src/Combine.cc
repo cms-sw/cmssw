@@ -26,6 +26,7 @@
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
 #include <RooArgSet.h>
+#include <RooCustomizer.h>
 #include <RooDataHist.h>
 #include <RooDataSet.h>
 #include <RooFitResult.h>
@@ -84,7 +85,10 @@ Combine::Combine() :
     ioOptions_.add_options()
       ("saveWorkspace", "Save workspace to output root file")
       ("workspaceName,w", po::value<std::string>(&workspaceName_)->default_value("w"), "Workspace name, when reading it from or writing it to a rootfile.")
-      ("modelConfigName", po::value<std::string>(&modelConfigName_)->default_value("ModelConfig"), "ModelConfig name, when reading it from or writing it to a rootfile.")
+      ("modelConfigName",  po::value<std::string>(&modelConfigName_)->default_value("ModelConfig"), "ModelConfig name, when reading it from or writing it to a rootfile.")
+      ("modelConfigNameB", po::value<std::string>(&modelConfigNameB_)->default_value("%s_bonly"), "Name of the ModelConfig for b-only hypothesis.\n"
+                                                                                                  "If not present, it will be made from the singal model taking zero signal strength.\n"
+                                                                                                  "A '%s' in the name will be replaced with the modelConfigName.")
       ;
     miscOptions_.add_options()
       ("compile", "Compile expressions instead of interpreting them")
@@ -106,9 +110,14 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   hintUsesStatOnly_ = vm.count("hintStatOnly");
   saveWorkspace_ = vm.count("saveWorkspace");
   toysNoSystematics_ = vm.count("toysNoSystematics");
+  if (modelConfigNameB_.find("%s") != std::string::npos) {
+      char modelBName[1024]; 
+      sprintf(modelBName, modelConfigNameB_.c_str(), modelConfigName_.c_str());
+      modelConfigNameB_ = modelBName;
+  }
 }
 
-bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr) {
+bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
   TStopwatch timer;
   bool ret = false;
   try {
@@ -116,14 +125,14 @@ bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit, double &
     if (hintAlgo) {
         if (hintUsesStatOnly_ && withSystematics) {
             withSystematics = false;
-            hashint = hintAlgo->run(w, data, hint, hintErr, 0);
+            hashint = hintAlgo->run(w, mc_s, mc_b, data, hint, hintErr, 0);
             withSystematics = true;
         } else {
-            hashint = hintAlgo->run(w, data, hint, hintErr, 0);
+            hashint = hintAlgo->run(w, mc_s, mc_b, data, hint, hintErr, 0);
         } 
     }
     limitErr = 0; // start with 0, as some algorithms don't compute it
-    ret = algo->run(w, data, limit, limitErr, (hashint ? &hint : 0));    
+    ret = algo->run(w, mc_s, mc_b, data, limit, limitErr, (hashint ? &hint : 0));    
   } catch (std::exception &ex) {
     std::cerr << "Caught exception " << ex.what() << std::endl;
     return false;
@@ -192,57 +201,41 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   if (verbose <= 1) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
-  RooWorkspace *w = 0;
+  RooWorkspace *w = 0; RooStats::ModelConfig *mc = 0, *mc_bonly = 0;
   std::auto_ptr<RooStats::HLFactory> hlf(0);
   if (isBinary) {
     TFile *fIn = TFile::Open(fileToLoad);
     w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
-    if (w == 0) {  std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); return; }
-    RooStats::ModelConfig *mc = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
-    if (mc != 0) {
-        if (verbose > 1) { std::cout << "Workspace has a ModelConfig called 'ModelConfig', with contents:\n"; mc->Print("V"); }
-        const RooArgSet *mc_observables = mc->GetObservables();
-        if (mc_observables != 0 && mc_observables->GetName() != std::string("observables")) {
-            w->defineSet("observables", *mc_observables);
-            if (verbose > 1) std::cout << "Importing " << mc_observables->GetName() << " -> observables" << std::endl;
-        }
-        const RooArgSet *mc_nuisances = mc->GetNuisanceParameters();
-        if (mc_nuisances != 0 && mc_nuisances->GetName() != std::string("nuisances")) {
-            w->defineSet("nuisances", *mc_nuisances);
-            if (verbose > 1) std::cout << "Importing " << mc_nuisances->GetName() << " -> nuisances" << std::endl;
-        }
-        const RooArgSet *mc_POI = mc->GetParametersOfInterest();
-        if (mc_POI == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not contain parameters of interest.");
-        if (mc_POI->getSize() != 1)  throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' doesn't have exactly 1 parameter of interest.");
-        std::string poiName = mc_POI->first()->GetName(); 
-        if (verbose > 1) std::cout << "Parameter of interest in modelConfig: " << poiName << std::endl;
-        if (poiName != "r") {  
-            w->import(*((RooAbsArg*)mc_POI->first()->Clone("r"))); 
-            if (verbose > 1) std::cout << "  renaming " << poiName << " -> r " << std::endl;
-        }
-        w->defineSet("POI", "r");
-        RooAbsPdf *mc_model_s = mc->GetPdf();
-        if (mc_model_s == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not contain model_s.");
-        if (poiName == "r") {
-            if (w->pdf("model_s") == 0) { //mc_model_s->GetName() != std::string("model_s")) {
-                RooAbsPdf *model_s = (RooAbsPdf *) mc_model_s->Clone("model_s");
-                w->import(*model_s);
-                if (verbose > 1) std::cout << "Importing " << mc_model_s->GetName() << " -> model_s" << std::endl;
-                if (w->var("_zero_") == 0) w->factory("_zero_[0]");
-                w->factory("EDIT::model_b(model_s, r=_zero_)");
-                if (verbose > 1) std::cout << "Importing " << mc_model_s->GetName() << "[r=0] -> model_b" << std::endl;
-            } 
-        } else {
-            if (mc_model_s->GetName() != std::string("model_s")) {
-                w->factory(TString::Format("EDIT::model_s(%s, %s=r)", mc_model_s->GetName(), poiName.c_str()));
-                if (w->var("_zero_") == 0) w->factory("_zero_[0]");
-                w->factory("EDIT::model_b(model_s, r=_zero_)");
-                if (verbose > 1) std::cout << "Importing " << mc_model_s->GetName() << "[r=0] -> model_b" << std::endl;
-            } 
-            else throw std::invalid_argument("ModelConfig '"+modelConfigName_+"': model_s is called model_s but POI is not r. Not implemented.");
-        }
-        if (verbose > 2) w->Print("V");
+    if (w == 0) {  
+        std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); 
+        throw std::invalid_argument("Missing Workspace"); 
     }
+    mc       = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
+    mc_bonly = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigNameB_.c_str()));
+    if (mc == 0) {  
+        std::cerr << "Could not find ModelConfig '" << modelConfigName_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
+        throw std::invalid_argument("Missing ModelConfig"); 
+    } else if (verbose > 1) { std::cout << "Workspace has a ModelConfig for signal called '" << modelConfigName_ << "', with contents:\n"; mc->Print("V"); }
+    const RooArgSet *POI = mc->GetParametersOfInterest();
+    if (POI == 0 || POI->getSize() == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not define parameters of interest.");
+    if (POI->getSize() > 1) std::cerr << "ModelConfig '" << modelConfigName_ << "' defines more than one parameter of interest. This is not supported in some statistical methods." << std::endl;
+    if (mc->GetObservables() == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not define observables.");
+    if (mc->GetPdf() == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not define a pdf.");
+    if (mc_bonly == 0) {
+        std::cerr << "Missing background ModelConfig '" << modelConfigNameB_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
+        std::cerr << "Will make one from the signal ModelConfig '" << modelConfigName_ << "' setting signal strenth '" << POI->first()->GetName() << "' to zero"  << std::endl;
+        w->factory("_zero_[0]");
+        RooCustomizer make_model_s(*mc->GetPdf(),"_model_bonly_");
+        make_model_s.replaceArg(*POI->first(), *w->var("_zero_"));
+        RooAbsPdf *model_b = dynamic_cast<RooAbsPdf *>(make_model_s.build()); 
+        model_b->SetName("_model_bonly_");
+        w->import(*model_b);
+        mc_bonly = new RooStats::ModelConfig(*mc);
+        mc_bonly->SetPdf(*model_b);
+    }
+
+    RooAbsPdf *nuisancePdf = utils::makeNuisancePdf(*mc);
+    w->import(*nuisancePdf);
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
     gSystem->cd(pwd);
@@ -251,20 +244,39 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
         return;
     }
+    if (w->set("observables") == 0) throw std::invalid_argument("The model must define a RooArgSet 'observables'");
+    if (w->set("POI")         == 0) throw std::invalid_argument("The model must define a RooArgSet 'POI' for the parameters of interest");
+    if (w->pdf("model_b")     == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_b'");
+    if (w->pdf("model_s")     == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_s'");
+
+    // create ModelConfig
+    mc = new RooStats::ModelConfig(modelConfigName_.c_str(),"signal",w);
+    mc->SetPdf(*w->pdf("model_s"));
+    mc->SetObservables(*w->set("observables"));
+    mc->SetParametersOfInterest(*w->set("POI"));
+    if (w->set("nuisances"))         mc->SetNuisanceParameters(*w->set("nuisances"));
+    if (w->set("globalObservables")) mc->SetGlobalObservables(*w->set("globalObservables"));
+    if (w->pdf("prior")) mc->SetNuisanceParameters(*w->pdf("prior"));
+    // if (w->pdf("nuisancePdf")) mc->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
+    w->import(*mc, modelConfigName_.c_str());
+
+    mc_bonly = new RooStats::ModelConfig(modelConfigNameB_.c_str(),"background",w);
+    mc_bonly->SetPdf(*w->pdf("model_b"));
+    mc_bonly->SetObservables(*w->set("observables"));
+    mc_bonly->SetParametersOfInterest(*w->set("POI"));
+    if (w->set("nuisances"))         mc_bonly->SetNuisanceParameters(*w->set("nuisances"));
+    if (w->set("globalObservables")) mc_bonly->SetGlobalObservables(*w->set("globalObservables"));
+    if (w->pdf("prior")) mc_bonly->SetNuisanceParameters(*w->pdf("prior"));
+    // if (w->pdf("nuisancePdf")) mc_bonly->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
+    w->import(*mc_bonly, modelConfigNameB_.c_str());
   }
 
   if (verbose <= 1) RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 
-  const RooArgSet * observables = w->set("observables");
-  if (observables == 0) throw std::invalid_argument("The model must define a RooArgSet 'observables'");
-
-  if (w->pdf("model_b") == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_b'");
-  if (w->pdf("model_s") == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_s'");
-
-  if (w->var("r") == 0 || w->set("POI") == 0) {
-    throw std::invalid_argument("The model must define a RooRealVar 'r' for the signal strength, and a RooArgSet 'POI' with the parameters of interest.");
-  }
-
+  const RooArgSet * observables = mc->GetObservables();     // not null
+  const RooArgSet * POI = mc->GetParametersOfInterest();     // not null
+  const RooArgSet * nuisances = mc->GetNuisanceParameters(); // note: may be null
+  if (dynamic_cast<RooRealVar*>(POI->first()) == 0) throw std::invalid_argument("First parameter of interest is not a RooRealVar");
 
   if (w->data(dataset.c_str()) == 0) {
     if (isTextDatacard) { // that's ok: the observables are pre-set to the observed values
@@ -282,40 +294,32 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
   }
 
-  const RooArgSet * nuisances   = w->set("nuisances");
 
-  if (!isnan(rMin_)) w->var("r")->setMin(rMin_);
-  if (!isnan(rMax_)) w->var("r")->setMax(rMax_);
+  if (!isnan(rMin_)) ((RooRealVar*)POI->first())->setMin(rMin_);
+  if (!isnan(rMax_)) ((RooRealVar*)POI->first())->setMax(rMax_);
 
-  if (prior_ == "flat") {
-    w->factory("Uniform::prior(r)");
-  } else if (prior_ == "1/sqrt(r)") {
-    w->factory("EXPR::prior(\"1/sqrt(r)\",r)");
-  } else if (!prior_.empty() && w->pdf(prior_.c_str()) != 0) {
-    std::cout << "Will use prior '" << prior_ << "' in from the input workspace" << std::endl;
-  } else {
-    std::cerr << "Unknown prior '" << prior_ << "'. It's not 'flat' '1/sqrt(r)' or the name of a pdf in the model.\n" << std::endl;
-    throw std::invalid_argument("Bad prior");
+  if (mc->GetPriorPdf() == 0) {
+      if (prior_ == "flat") {
+          RooAbsPdf *prior = new RooUniform("prior","prior",*POI);
+          w->import(*prior);
+          mc->SetPriorPdf(*prior);
+      } else if (prior_ == "1/sqrt(r)") {
+          w->factory(TString::Format("EXPR::prior(\\\"1/sqrt(@0)\\\",%s)", POI->first()->GetName()));
+          mc->SetPriorPdf(*w->pdf("prior"));
+      } else if (!prior_.empty() && w->pdf(prior_.c_str()) != 0) {
+          std::cout << "Will use prior '" << prior_ << "' in from the input workspace" << std::endl;
+          mc->SetPriorPdf(*w->pdf(prior_.c_str()));
+      } else {
+          std::cerr << "Unknown prior '" << prior_ << "'. It's not 'flat' '1/sqrt(r)' or the name of a pdf in the model.\n" << std::endl;
+          throw std::invalid_argument("Bad prior");
+      }
   }
 
   if (withSystematics && nuisances == 0) {
-    RooArgSet * nuisancesGuess = w->pdf("model_s")->getParameters(*observables);
-    RooStats::RemoveConstantParameters(nuisancesGuess);
-    nuisancesGuess->remove(*w->set("POI"), true, true);
-    nuisancesGuess->setName("nuisances");
-    if (nuisancesGuess->getSize() > 0) {
-        std::cout << "Guessing the nuisances from the parameters of the model after removing observables and POIs: " << std::endl;
-        w->import(*nuisancesGuess);
-        nuisancesGuess->Print();
-        nuisances = w->set("nuisances");
-    } else {
-        std::cout << "The signal model has no nuisance parameters. Please run the limit tool with no systematics (option -S 0)." << std::endl;
-        std::cout << "To make things easier, I will assume you have done it." << std::endl;
-        withSystematics = false;
-    }
-    delete nuisancesGuess;
-  }  
-  if (!withSystematics && nuisances != 0) {
+      std::cout << "The signal model has no nuisance parameters. Please run the limit tool with no systematics (option -S 0)." << std::endl;
+      std::cout << "To make things easier, I will assume you have done it." << std::endl;
+      withSystematics = false;
+  } else if (!withSystematics && nuisances != 0) {
     std::cout << "Will set nuisance parameters to constants: " ;
     std::auto_ptr<TIterator> iter(nuisances->createIterator());
     for (TObject *a = iter->Next(); a != 0; a = iter->Next()) {
@@ -326,31 +330,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
   w->saveSnapshot("clean", w->allVars());
-
-  RooStats::ModelConfig *mc = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
-  RooStats::ModelConfig *mc_b = dynamic_cast<RooStats::ModelConfig *>(w->genobj((modelConfigName_+"_b").c_str()));
-  if (mc == 0) {
-    mc = new RooStats::ModelConfig(modelConfigName_.c_str(),"signal",w);
-    mc->SetPdf(*w->pdf("model_s"));
-    mc->SetObservables(*w->set("observables"));
-    mc->SetParametersOfInterest(*w->set("POI"));
-    if (w->set("nuisances"))         mc->SetNuisanceParameters(*w->set("nuisances"));
-    if (w->set("globalObservables")) mc->SetGlobalObservables(*w->set("globalObservables"));
-    if (w->pdf("prior")) mc->SetNuisanceParameters(*w->pdf("prior"));
-    // if (w->pdf("nuisancePdf")) mc->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
-    w->import(*mc, modelConfigName_.c_str());
-  }
-  if (mc_b == 0) {
-    mc_b = new RooStats::ModelConfig((modelConfigName_+"_b").c_str(),"background",w);
-    mc_b->SetPdf(*w->pdf("model_b"));
-    mc_b->SetObservables(*w->set("observables"));
-    mc_b->SetParametersOfInterest(*w->set("POI"));
-    if (w->set("nuisances"))         mc_b->SetNuisanceParameters(*w->set("nuisances"));
-    if (w->set("globalObservables")) mc_b->SetGlobalObservables(*w->set("globalObservables"));
-    if (w->pdf("prior")) mc_b->SetNuisanceParameters(*w->pdf("prior"));
-    // if (w->pdf("nuisancePdf")) mc_b->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
-    w->import(*mc_b, (modelConfigName_+"_b").c_str());
-  }
 
   if (saveWorkspace_) {
     w->SetName(workspaceName_.c_str());
@@ -363,14 +342,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     iToy = nToys;
     RooAbsData *dobs = w->data(dataset.c_str());
     if (iToy == -1) {	
-        if (w->pdf("model_b")->canBeExtended()) {
+        if (mc_bonly->GetPdf()->canBeExtended()) {
           if (unbinned_) {
               throw std::invalid_argument("Asimov datasets can only be generated binned");
           } else {
-              dobs = w->pdf("model_b")->generateBinned(*observables,RooFit::Extended(),RooFit::Asimov());
+              dobs = mc_bonly->GetPdf()->generateBinned(*observables,RooFit::Extended(),RooFit::Asimov());
           }
 	} else {
-	  dobs = w->pdf("model_b")->generate(*observables,1,RooFit::Asimov());
+	  dobs = mc_bonly->GetPdf()->generate(*observables,1,RooFit::Asimov());
 	}
     } else if (dobs == 0) {
       std::cerr << "No observed data '" << dataset << "' in the workspace. Cannot compute limit.\n" << std::endl;
@@ -378,7 +357,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     if (verbose > 0) utils::printRAD(dobs);
-    if (mklimit(w,*dobs,limit,limitErr)) tree->Fill();
+    if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) tree->Fill();
   }
   
   
@@ -400,22 +379,22 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	w->loadSnapshot("clean");
 	if (verbose > 1) utils::printPdf(w, "model_b");
 	if (withSystematics && !toysNoSystematics_) {
-	  std::auto_ptr<RooArgSet> vars(w->pdf("model_b")->getVariables());
+	  std::auto_ptr<RooArgSet> vars(mc_bonly->GetPdf()->getVariables());
 	  *vars = *systDs->get(iToy-1);
 	  if (verbose > 1) utils::printPdf(w, "model_b");
 	}
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
-	if (w->pdf("model_b")->canBeExtended()) {
+	if (mc_bonly->GetPdf()->canBeExtended()) {
           if (unbinned_) {
-    	      absdata_toy = w->pdf("model_b")->generate(*observables,RooFit::Extended());
+    	      absdata_toy = mc_bonly->GetPdf()->generate(*observables,RooFit::Extended());
           } else if (generateBinnedWorkaround_) {
-              std::auto_ptr<RooDataSet> unbinn(w->pdf("model_b")->generate(*observables,RooFit::Extended()));
+              std::auto_ptr<RooDataSet> unbinn(mc_bonly->GetPdf()->generate(*observables,RooFit::Extended()));
               absdata_toy = new RooDataHist("toy","binned toy", *observables, *unbinn);
           } else {
-    	      absdata_toy = w->pdf("model_b")->generateBinned(*observables,RooFit::Extended());
+    	      absdata_toy = mc_bonly->GetPdf()->generateBinned(*observables,RooFit::Extended());
           }
 	} else {
-	  RooDataSet *data_toy = w->pdf("model_b")->generate(*observables,1);
+	  RooDataSet *data_toy = mc_bonly->GetPdf()->generate(*observables,1);
 	  absdata_toy = data_toy;
 	}
       } else {
@@ -428,8 +407,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
       if (verbose > 0) utils::printRAD(absdata_toy);
       w->loadSnapshot("clean");
-      if (verbose > 1) utils::printPdf(w, "model_b");
-      if (mklimit(w,*absdata_toy,limit,limitErr)) {
+      //if (verbose > 1) utils::printPdf(w, "model_b");
+      if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
 	tree->Fill();
 	++nLimits;
 	expLimit += limit; 

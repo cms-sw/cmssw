@@ -70,24 +70,25 @@ ProfileLikelihood::MinimizerSentry::~MinimizerSentry()
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer(minimizerTypeBackup.c_str(),minimizerAlgoBackup.empty() ? 0 : minimizerAlgoBackup.c_str());
 }
 
-bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
+bool ProfileLikelihood::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
   MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
   CloseCoutSentry sentry(verbose < 0);
 
+  RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
   bool success = false;
-  std::vector<double> limits; double rMax = w->var("r")->getMax();  
+  std::vector<double> limits; double rMax = r->getMax();  
   for (int i = 0; i < maxTries_; ++i) {
       w->loadSnapshot("clean");
       if (i > 0) { // randomize starting point
-        w->var("r")->setMax(rMax*(0.5+RooRandom::uniform()));
-        w->var("r")->setVal((0.1+0.5*RooRandom::uniform())*w->var("r")->getMax()); 
+        r->setMax(rMax*(0.5+RooRandom::uniform()));
+        r->setVal((0.1+0.5*RooRandom::uniform())*r->getMax()); 
         if (withSystematics) { 
-            RooArgSet set(*w->set("nuisances")); 
+            RooArgSet set(*mc_s->GetNuisanceParameters()); 
             RooDataSet *randoms = w->pdf("nuisancePdf")->generate(set, 1); 
             set = *randoms->get(0);
             if (verbose > 2) {
                 std::cout << "Starting minimization from point " << std::endl;
-                w->var("r")->Print("V");
+                r->Print("V");
                 set.Print("V");
             }
             delete randoms;
@@ -95,7 +96,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, do
       }
       if (preFit_) {
         CloseCoutSentry sentry(verbose < 2);
-        RooFitResult *res = w->pdf("model_s")->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2"));
+        RooFitResult *res = mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2"));
         if (res == 0 || res->covQual() != 3 || res->edm() > minimizerTolerance_) {
             if (verbose > 1) std::cout << "Fit failed (covQual " << (res ? res->covQual() : -1) << ", edm " << (res ? res->edm() : 0) << ")" << std::endl;
             continue;
@@ -106,7 +107,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, do
         }
         delete res;
       }
-      bool thisTry = (doSignificance_ ?  runSignificance(w,data,limit,limitErr) : runLimit(w,data,limit,limitErr));
+      bool thisTry = (doSignificance_ ?  runSignificance(w,mc_s,data,limit,limitErr) : runLimit(w,mc_s,data,limit,limitErr));
       if (!thisTry) continue;
       if (tries_ == 1) { success = true; break; }
       limits.push_back(limit); 
@@ -142,21 +143,20 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, do
   return success;
 }
 
-bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr) {
-  RooRealVar *r = w->var("r");
-  RooArgSet  poi(*r);
+bool ProfileLikelihood::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooAbsData &data, double &limit, double &limitErr) {
+  RooArgSet  poi(*mc_s->GetParametersOfInterest());
+  RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
   double rMax = r->getMax();
   bool success = false;
   CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
 
   while (!success) {
-    ProfileLikelihoodCalculator plcB(data, *w->pdf("model_s"), poi);
-    plcB.SetConfidenceLevel(cl);
+    ProfileLikelihoodCalculator plcB(data, *mc_s, 1.0-cl);
     std::auto_ptr<LikelihoodInterval> plInterval(plcB.GetInterval());
     if (plInterval.get() == 0) break;
     limit = plInterval->UpperLimit(*r); 
     if (limit >= 0.75*r->getMax()) { 
-      std::cout << "Limit r < " << limit << "; r max < " << r->getMax() << std::endl;
+      std::cout << "Limit " << r->GetName() << " < " << limit << "; " << r->GetName() << " max < " << r->getMax() << std::endl;
       if (r->getMax()/rMax > 20) break;
       r->setMax(r->getMax()*2); 
       continue;
@@ -178,20 +178,20 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limi
   if (verbose >= 0) {
       if (success) {
         std::cout << "\n -- Profile Likelihood -- " << "\n";
-        std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+        std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
       }
   }
   return success;
 }
 
-bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr) {
-  RooRealVar *r = w->var("r");
-  RooArgSet  poi(*r);
+bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooAbsData &data, double &limit, double &limitErr) {
+  RooArgSet  poi(*mc_s->GetParametersOfInterest());
+  RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
 
-  ProfileLikelihoodCalculator plcS(data, *w->pdf("model_s"), poi);
-
+  ProfileLikelihoodCalculator plcS(data, *mc_s, 1.0-cl);
   RooArgSet nullParamValues; 
-  nullParamValues.addClone(*r); ((RooRealVar&)nullParamValues["r"]).setVal(0);
+  r->setVal(0.0);
+  nullParamValues.addClone(*r); 
   plcS.SetNullParameters(nullParamValues);
 
   CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages

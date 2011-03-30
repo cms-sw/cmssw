@@ -13,7 +13,7 @@
 class ProfileLikelihood : public LimitAlgo {
 public:
   ProfileLikelihood() ;
-  virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual const std::string & name() const {
     static const std::string name("ProfileLikelihood");
     return name;
@@ -50,8 +50,8 @@ protected:
 
   static std::string plot_;
 
-  bool runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr);
-  bool runLimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr);
+  bool runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc, RooAbsData &data, double &limit, double &limitErr);
+  bool runLimit(RooWorkspace *w, RooStats::ModelConfig *mc, RooAbsData &data, double &limit, double &limitErr);
 };
 
 #endif

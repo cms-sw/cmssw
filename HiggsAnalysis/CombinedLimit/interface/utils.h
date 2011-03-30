@@ -3,11 +3,18 @@
 
 struct RooDataHist;
 struct RooAbsData;
+struct RooAbsPdf;
+struct RooArgList;
 struct RooWorkspace;
-
+namespace RooStats { class ModelConfig; }
 namespace utils {
     void printRDH(RooAbsData *data) ;
     void printRAD(const RooAbsData *d) ;
     void printPdf(RooWorkspace *w, const char *pdfName) ;
+
+    /// collect factors depending on observables in obsTerms, and all others in constraints
+    void factorizePdf(RooStats::ModelConfig &model, RooAbsPdf &pdf, RooArgList &obsTerms, RooArgList &constraints, bool debug=false);
+    RooAbsPdf *makeNuisancePdf(RooStats::ModelConfig &model) ;
+    RooAbsPdf *makeObsOnlyPdf(RooStats::ModelConfig &model) ;
 }
 #endif

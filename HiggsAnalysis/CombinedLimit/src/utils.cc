@@ -6,6 +6,8 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <typeinfo>
+#include <stdexcept>
 
 #include <TIterator.h>
 
@@ -15,7 +17,10 @@
 #include <RooDataHist.h>
 #include <RooDataSet.h>
 #include <RooRealVar.h>
+#include <RooProdPdf.h>
+#include <RooSimultaneous.h>
 #include <RooWorkspace.h>
+#include <RooStats/ModelConfig.h>
 
 void utils::printRDH(RooAbsData *data) {
   std::vector<std::string> varnames, catnames;
@@ -52,4 +57,35 @@ void utils::printPdf(RooWorkspace *w, const char *pdfName) {
   std::cout << "PDF " << pdfName << " parameters." << std::endl;
   std::auto_ptr<RooArgSet> params(w->pdf(pdfName)->getVariables());
   params->Print("V");
+}
+
+void utils::factorizePdf(RooStats::ModelConfig &model, RooAbsPdf &pdf, RooArgList &obsTerms, RooArgList &constraints, bool debug) {
+    const std::type_info & id = typeid(pdf);
+    RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
+    if (id == typeid(RooProdPdf)) {
+        RooProdPdf *prod = dynamic_cast<RooProdPdf *>(&pdf);
+        RooArgList list(prod->pdfList());
+        for (int i = 0, n = list.getSize(); i < n; ++i) {
+            RooAbsPdf *pdfi = (RooAbsPdf *) list.at(i);
+            factorizePdf(model, *pdfi, obsTerms, constraints);
+        }
+    } else if (id == typeid(RooSimultaneous)) {
+        throw std::invalid_argument("Not implemented");
+    } else if (pdf.dependsOn(*model.GetObservables())) {
+        obsTerms.add(pdf);
+    } else {
+        constraints.add(pdf);
+    }
+}
+
+RooAbsPdf *utils::makeNuisancePdf(RooStats::ModelConfig &model) { 
+    RooArgList obsTerms, constraints;
+    factorizePdf(model, *model.GetPdf(), obsTerms, constraints);
+    return new RooProdPdf("nuisancePdf","", constraints);
+}
+
+RooAbsPdf *utils::makeObsOnlyPdf(RooStats::ModelConfig &model) { 
+    RooArgList obsTerms, constraints;
+    factorizePdf(model, *model.GetPdf(), obsTerms, constraints);
+    return new RooProdPdf("obsPdf","", obsTerms);
 }

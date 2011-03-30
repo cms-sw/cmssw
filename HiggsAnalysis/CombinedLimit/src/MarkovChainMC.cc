@@ -89,7 +89,7 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     updateHint_  = vm.count("updateHint");
 }
 
-bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+bool MarkovChainMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
   if (proposalType_ == MultiGaussianP && !withSystematics) { 
       std::cerr << "Sorry, the multi-gaussian proposal does not work without systematics.\n" << 
                    "Uniform proposal will be used instead.\n" << std::endl;
@@ -103,7 +103,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, double
   double savhint = (hint ? *hint : -1); const double *thehint = hint;
   std::vector<double> limits;
   for (unsigned int i = 0; i < tries_; ++i) {
-      if (int nacc = runOnce(w,data,limit,limitErr,thehint)) {
+      if (int nacc = runOnce(w,mc_s,mc_b,data,limit,limitErr,thehint)) {
           suma += nacc;
           if (verbose > 1) std::cout << "Limit from this run: " << limit << std::endl;
           limits.push_back(limit);
@@ -122,19 +122,18 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, double
 
   if (verbose >= 0) {
       std::cout << "\n -- MarkovChainMC -- " << "\n";
+      RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
       if (num > 1) {
-          std::cout << "Limit: r < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL (" << num << " tries)" << std::endl;
+          std::cout << "Limit: " << r->GetName() <<" < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL (" << num << " tries)" << std::endl;
           if (verbose > 0) std::cout << "Average chain acceptance: " << suma << std::endl;
       } else {
-          std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+          std::cout << "Limit: " << r->GetName() <<" < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
       }
   }
   return true;
 }
-int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) const {
-  RooRealVar *r = w->var("r");
-  RooArgSet  poi(*r);
-  RooArgSet const &obs = *w->set("observables");
+int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) const {
+  RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
 
   if ((hint != 0) && (*hint > r->getMin())) {
     r->setMax(hintSafetyFactor_*(*hint));
@@ -145,11 +144,10 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, dou
   }
   
   w->loadSnapshot("clean");
-  RooAbsPdf *prior = w->pdf("prior"); if (prior == 0) { throw std::logic_error("Missing prior"); }
   std::auto_ptr<RooFitResult> fit(0);
   if (proposalType_ == FitP || (cropNSigmas_ > 0)) {
       CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
-      fit.reset(w->pdf("model_s")->fitTo(data, RooFit::Save(), RooFit::Minos(runMinos_)));
+      fit.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(), RooFit::Minos(runMinos_)));
       coutSentry.clear();
       if (fit.get() == 0) { std::cerr << "Fit failed." << std::endl; return false; }
       if (verbose > 1) fit->Print("V");
@@ -160,7 +158,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, dou
       const RooArgList &fpf = fit->floatParsFinal();
       for (int i = 0, n = fpf.getSize(); i < n; ++i) {
           RooRealVar *fv = dynamic_cast<RooRealVar *>(fpf.at(i));
-          if (std::string("r") == fv->GetName()) continue;
+          if (std::string(r->GetName()) == fv->GetName()) continue;
           RooRealVar *v  = w->var(fv->GetName());
           double min = v->getMin(), max = v->getMax();
           if (fv->hasAsymError(false)) {
@@ -177,12 +175,6 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, dou
       }
   }
 
-  ModelConfig modelConfig("sb_model", w);
-  modelConfig.SetPdf(*w->pdf("model_s"));
-  modelConfig.SetObservables(obs);
-  modelConfig.SetParametersOfInterest(poi);
-  if (withSystematics) modelConfig.SetNuisanceParameters(*w->set("nuisances"));
- 
   std::auto_ptr<ProposalFunction> ownedPdfProp; 
   ProposalFunction* pdfProp = 0;
   ProposalHelper ph;
@@ -200,7 +192,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, dou
         break;
     case MultiGaussianP:
         if (verbose) std::cout << "Using multi-gaussian proposal" << std::endl;
-        ph.SetVariables(*w->set("nuisances"));
+        ph.SetVariables(*mc_s->GetNuisanceParameters());
         ph.SetWidthRangeDivisor(proposalHelperWidthRangeDivisor_);
         pdfProp = ph.GetProposalFunction();
         break;
@@ -214,15 +206,14 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, dou
       if (proposalHelperUniformFraction_ > 0) ph.SetUniformFraction(proposalHelperUniformFraction_);
   }
 
-  std::auto_ptr<DebugProposal> pdfDebugProp(debugProposal_ > 0 ? new DebugProposal(pdfProp, w->pdf("model_s"), &data, debugProposal_) : 0);
+  std::auto_ptr<DebugProposal> pdfDebugProp(debugProposal_ > 0 ? new DebugProposal(pdfProp, mc_s->GetPdf(), &data, debugProposal_) : 0);
   
-  MCMCCalculator mc(data, modelConfig);
+  MCMCCalculator mc(data, *mc_s);
   mc.SetNumIters(iterations_); 
   mc.SetConfidenceLevel(cl);
   mc.SetNumBurnInSteps(burnInSteps_); 
   mc.SetProposalFunction(debugProposal_ > 0 ? *pdfDebugProp : *pdfProp);
   mc.SetLeftSideTailFraction(0);
-  mc.SetPriorPdf(*prior);
 
   std::auto_ptr<MCMCInterval> mcInt;
   try {  

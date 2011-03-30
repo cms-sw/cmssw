@@ -8,6 +8,7 @@ class TTree;
 class LimitAlgo;
 class RooWorkspace;
 class RooAbsData;
+namespace RooStats { class ModelConfig; }
 
 extern Float_t t_cpu_, t_real_;
 //RooWorkspace *writeToysHere = 0;
@@ -32,7 +33,7 @@ public:
   void run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys);
   
 private:
-  bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr) ;
+  bool mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) ;
   
   boost::program_options::options_description statOptions_, ioOptions_, miscOptions_;
  
@@ -46,7 +47,7 @@ private:
   // input-output related variables
   bool saveWorkspace_;
   std::string workspaceName_;
-  std::string modelConfigName_;
+  std::string modelConfigName_, modelConfigNameB_;
 
   // implementation-related variables
   bool compiledExpr_;

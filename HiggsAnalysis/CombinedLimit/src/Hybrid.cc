@@ -74,14 +74,16 @@ void Hybrid::validateOptions() {
   }
 }
 
-bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+bool Hybrid::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
   RooFitGlobalKillSentry silence(RooFit::WARNING);
   RooRealVar *r = w->var("r"); r->setConstant(true);
   RooArgSet  poi(*r);
   w->loadSnapshot("clean");
-  RooAbsPdf *altModel  = w->pdf("model_s"), *nullModel = w->pdf("model_b");
+
+  RooStats::ModelConfig modelConfig(*mc_s);
+  modelConfig.SetSnapshot(poi);
   
-  HybridCalculatorOriginal hc(data,*altModel,*nullModel);
+  HybridCalculatorOriginal hc(data, *mc_s, *mc_b);
   if (withSystematics) {
     if ((w->set("nuisances") == 0) || (w->pdf("nuisancePdf") == 0)) {
       throw std::logic_error("Hybrid: running with systematics enabled, but nuisances or nuisancePdf not defined.");
@@ -102,15 +104,17 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limit
     hc.SetTestStatistic(3);
     r->setConstant(false);
   }
-  hc.PatchSetExtended(w->pdf("model_b")->canBeExtended()); // Number counting, each dataset has 1 entry 
+  hc.PatchSetExtended(mc_b->GetPdf()->canBeExtended()); // Number counting, each dataset has 1 entry 
   hc.SetNumberOfToys(nToys_);
 
-  if (singlePointScan_) return runSinglePoint(hc, w, data, limit, limitErr, hint);
-  return doSignificance_ ? runSignificance(hc, w, data, limit, limitErr, hint) : runLimit(hc, w, data, limit, limitErr, hint);
+  if (singlePointScan_) return runSinglePoint(hc, w, mc_s, mc_b, data, limit, limitErr, hint);
+  return doSignificance_ ? runSignificance(hc, w, mc_s, mc_b, data, limit, limitErr, hint) : runLimit(hc, w, mc_s, mc_b, data, limit, limitErr, hint);
 }
   
-bool Hybrid::runLimit(HybridCalculatorOriginal& hc, RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-  RooRealVar *r = w->var("r"); r->setConstant(true);
+bool Hybrid::runLimit(HybridCalculatorOriginal& hc, RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+  RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
+  r->setConstant(true);
+
   if ((hint != 0) && (*hint > r->getMin())) {
     r->setMax(std::min<double>(3*(*hint), r->getMax()));
   }
@@ -157,7 +161,7 @@ bool Hybrid::runLimit(HybridCalculatorOriginal& hc, RooWorkspace *w, RooAbsData 
     limit = r->getVal();
     if (rInterval_) {
       std::cout << "\n -- Hybrid (before determining interval) -- \n";
-      std::cout << "Limit: r < " << limit << " +/- " << 0.5*(rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
+      std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << 0.5*(rMax - rMin) << " @ " << cl * 100 << "% CL" << std::endl;
 
       double rBoundLow  = limit - 0.5*std::max(rAbsAccuracy_, rRelAccuracy_ * limit);
       for (r->setVal(rMin); r->getVal() < rBoundLow  && (fabs(clsMin.first-clsTarget) >= clsAccuracy_); rMin = r->getVal()) {
@@ -175,15 +179,14 @@ bool Hybrid::runLimit(HybridCalculatorOriginal& hc, RooWorkspace *w, RooAbsData 
   limitErr = 0.5*(rMax - rMin);
 
   std::cout << "\n -- Hybrid -- \n";
-  std::cout << "Limit: r < " << limit << " +/- " << limitErr << " @ " <<cl * 100<<"% CL\n";
+  std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL" << std::endl;
   return true;
 }
 
-bool Hybrid::runSignificance(HybridCalculatorOriginal& hc, RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+bool Hybrid::runSignificance(HybridCalculatorOriginal& hc, RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     using namespace RooStats;
-    RooRealVar *r = w->var("r"); 
-    r->setVal(1);
-    r->setConstant(true);
+    RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
+    r->setVal(1); r->setConstant(true);
     std::auto_ptr<HybridResult> hcResult(readHybridResults_ ? readToysFromFile() : (fork_ ? evalWithFork(hc) : hc.GetHypoTest()));
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
@@ -204,8 +207,9 @@ bool Hybrid::runSignificance(HybridCalculatorOriginal& hc, RooWorkspace *w, RooA
     return isfinite(limit);
 }
 
-bool Hybrid::runSinglePoint(HybridCalculatorOriginal & hc, RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-    std::pair<double, double> result = eval(w->var("r"), rValue_, hc, true);
+bool Hybrid::runSinglePoint(HybridCalculatorOriginal & hc, RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+    RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
+    std::pair<double, double> result = eval(r, rValue_, hc, true);
     std::cout << "\n -- Hybrid -- \n";
     std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << result.first << " +/- " << result.second << std::endl;
     limit = result.first;

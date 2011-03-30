@@ -16,6 +16,8 @@
 #include "RooArgSet.h"
 #include "RooAbsPdf.h"
 #include "RooRandom.h"
+#include "RooAddPdf.h"
+#include "RooConstVar.h"
 #include <RooStats/ModelConfig.h>
 #include <RooStats/HybridCalculator.h>
 #include <RooStats/SimpleLikelihoodRatioTestStat.h>
@@ -116,22 +118,21 @@ void HybridNew::validateOptions() {
     }
 }
 
-bool HybridNew::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::WARNING : RooFit::DEBUG);
     perf_totalToysRun_ = 0; // reset performance counter
     switch (workingMode_) {
-        case MakeLimit:            return runLimit(w, data, limit, limitErr, hint);
-        case MakeSignificance:     return runSignificance(w, data, limit, limitErr, hint);
-        case MakePValues:          return runSinglePoint(w, data, limit, limitErr, hint);
-        case MakeTestStatistics:   return runTestStatistics(w, data, limit, limitErr, hint);
+        case MakeLimit:            return runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
+        case MakeSignificance:     return runSignificance(w, mc_s, mc_b, data, limit, limitErr, hint);
+        case MakePValues:          return runSinglePoint(w, mc_s, mc_b, data, limit, limitErr, hint);
+        case MakeTestStatistics:   return runTestStatistics(w, mc_s, mc_b, data, limit, limitErr, hint);
     }
     assert("Shouldn't get here" == 0);
 }
 
-bool HybridNew::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-    RooRealVar *r = w->var("r"); r->setConstant(true);
+bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     HybridNew::Setup setup;
-    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, data, r, 1.0, setup));
+    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, 1.0, setup));
     std::auto_ptr<HypoTestResult> hcResult(readHybridResults_ ? readToysFromFile() : (fork_ ? evalWithFork(*hc) : hc->GetHypoTest()));
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
@@ -159,8 +160,8 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit
     return isfinite(limit);
 }
 
-bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-  RooRealVar *r = w->var("r"); r->setConstant(true);
+bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+  RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first()); r->setConstant(true);
   w->loadSnapshot("clean");
   if (!plot_.empty()) limitPlot_.reset(new TGraphErrors());
 
@@ -178,16 +179,16 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, doubl
 
   if (verbose > 0) std::cout << "Search for upper limit to the limit" << std::endl;
   for (int tries = 0; tries < 6; ++tries) {
-    clsMax = eval(w, data, r, rMax);
+    clsMax = eval(w, mc_s, mc_b, data, rMax);
     if (clsMax.first == 0 || clsMax.first + 3 * fabs(clsMax.second) < clsTarget ) break;
     rMax += rMax;
     if (tries == 5) { 
-      std::cerr << "Cannot set higher limit: at r = " << rMax << " still get " << (CLs_ ? "CLs" : "CLsplusb") << " = " << clsMax.first << std::endl;
+      std::cerr << "Cannot set higher limit: at " << r->GetName() << " = " << rMax << " still get " << (CLs_ ? "CLs" : "CLsplusb") << " = " << clsMax.first << std::endl;
       return false;
     }
   }
   if (verbose > 0) std::cout << "Search for lower limit to the limit" << std::endl;
-  clsMin = eval(w, data, r, rMin);
+  clsMin = eval(w, mc_s, mc_b, data, rMin);
   if (clsMin.first != 1 && clsMin.first - 3 * fabs(clsMin.second) < clsTarget) {
       if (CLs_) { 
           rMin = 0;
@@ -195,11 +196,11 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, doubl
       } else {
           rMin = -rMax / 4;
           for (int tries = 0; tries < 6; ++tries) {
-              clsMin = eval(w, data, r, rMin);
+              clsMin = eval(w, mc_s, mc_b, data, rMin);
               if (clsMin.first == 1 || clsMin.first - 3 * fabs(clsMin.second) > clsTarget) break;
               rMin += rMin;
               if (tries == 5) { 
-                  std::cerr << "Cannot set lower limit: at r = " << rMin << " still get " << (CLs_ ? "CLs" : "CLsplusb") << " = " << clsMin.first << std::endl;
+                  std::cerr << "Cannot set lower limit: at " << r->GetName() << " = " << rMin << " still get " << (CLs_ ? "CLs" : "CLsplusb") << " = " << clsMin.first << std::endl;
                   return false;
               }
           }
@@ -228,7 +229,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, doubl
     }
 
     // evaluate point 
-    clsMid = eval(w, data, r, limit, true, clsTarget);
+    clsMid = eval(w, mc_s, mc_b, data, limit, true, clsTarget);
     if (clsMid.second == -1) {
       std::cerr << "Hypotest failed" << std::endl;
       return false;
@@ -247,13 +248,13 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, doubl
         // try to reduce the size of the interval 
         while (clsMin.second == 0 || fabs(rMin-limit) > std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
             rMin = 0.5*(rMin+limit); 
-            clsMin = eval(w, data, r, rMin, true, clsTarget); 
+            clsMin = eval(w, mc_s, mc_b, data, rMin, true, clsTarget); 
             if (fabs(clsMin.first-clsTarget) <= 2*clsMin.second) break;
             rMinBound = rMin;
         } 
         while (clsMax.second == 0 || fabs(rMax-limit) > std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) {
             rMax = 0.5*(rMax+limit); 
-            clsMax = eval(w, data, r, rMax, true, clsTarget); 
+            clsMax = eval(w, mc_s, mc_b, data, rMax, true, clsTarget); 
             if (fabs(clsMax.first-clsTarget) <= 2*clsMax.second) break;
             rMaxBound = rMax;
         } 
@@ -265,7 +266,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, doubl
   if (!done) {
       if (verbose) {
           std::cout << "\n -- HybridNew, before fit -- \n";
-          std::cout << "Limit: r < " << limit << " +/- " << limitErr << " [" << rMin << ", " << rMax << "]\n";
+          std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " [" << rMin << ", " << rMax << "]\n";
       }
 
       TF1 expoFit("expoFit","[0]*exp([1]*(x-[2]))", rMin, rMax);
@@ -304,14 +305,14 @@ bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, doubl
   }
 
   std::cout << "\n -- Hybrid New -- \n";
-  std::cout << "Limit: r < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL\n";
+  std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL\n";
   if (verbose > 1) std::cout << "Total toys: " << perf_totalToysRun_ << std::endl;
   return true;
 }
 
-bool HybridNew::runSinglePoint(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-    RooRealVar *r = w->var("r"); r->setConstant(true);
-    std::pair<double, double> result = eval(w, data, r, rValue_, true);
+bool HybridNew::runSinglePoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+    RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first()); r->setConstant(true);
+    std::pair<double, double> result = eval(w, mc_s, mc_b, data, rValue_, true);
     std::cout << "\n -- Hybrid New -- \n";
     std::cout << (CLs_ ? "CLs = " : "CLsplusb = ") << result.first << " +/- " << result.second << std::endl;
     limit = result.first;
@@ -319,10 +320,10 @@ bool HybridNew::runSinglePoint(RooWorkspace *w, RooAbsData &data, double &limit,
     return true;
 }
 
-bool HybridNew::runTestStatistics(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-    RooRealVar *r = w->var("r"); 
+bool HybridNew::runTestStatistics(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+    RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
     HybridNew::Setup setup;
-    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, data, r, rValue_, setup));
+    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rValue_, setup));
     RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
     if (testStat_ == "Atlas" || testStat_ == "Profile") nullPOI.setRealValue(r->GetName(), rValue_);
     limit = -2 * setup.qvar->Evaluate(data, nullPOI);
@@ -332,7 +333,7 @@ bool HybridNew::runTestStatistics(RooWorkspace *w, RooAbsData &data, double &lim
     return true;
 }
 
-std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, bool adaptive, double clsTarget) {
+std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, bool adaptive, double clsTarget) {
     if (readHybridResults_) {
         std::auto_ptr<RooStats::HypoTestResult> result(readToysFromFile(rVal));
         std::pair<double, double> ret(-1,-1);
@@ -346,8 +347,10 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooAbsData &data, Roo
     }
 
     HybridNew::Setup setup;
-    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, data, r, rVal, setup));
-    if (verbose) std::cout << "  r = " << rVal << " +/- " << r->getError() << std::endl;
+    RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
+    r->setVal(rVal);
+    if (verbose) std::cout << "  " << r->GetName() << " = " << rVal << " +/- " << r->getError() << std::endl;
+    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rVal, setup));
     std::pair<double, double> ret = eval(*hc, rVal, adaptive, clsTarget);
 
     // add to plot 
@@ -362,11 +365,11 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooAbsData &data, Roo
 
 
 
-std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, HybridNew::Setup &setup) {
+std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, HybridNew::Setup &setup) {
   using namespace RooStats;
   
-  const RooArgSet &obs = *w->set("observables");
-  const RooArgSet &poi = *w->set("POI");
+  RooArgSet  poi(*mc_s->GetParametersOfInterest());
+  RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
   
   r->setVal(rVal); 
   if (testStat_ == "Atlas" || testStat_ == "Profile") {
@@ -374,20 +377,12 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   } else {
     r->setConstant(true);
   }
-  setup.modelConfig = ModelConfig("sb_model", w);
-  setup.modelConfig.SetPdf(*w->pdf("model_s"));
-  setup.modelConfig.SetObservables(obs);
-  setup.modelConfig.SetParametersOfInterest(poi);
-  //setup.modelConfig.SetGlobalObservables(*w->pdf("globalObservables"); // NOT for Hybrid
-  if (withSystematics) setup.modelConfig.SetNuisanceParameters(*w->set("nuisances"));
-  setup.modelConfig.SetSnapshot(poi);
+  setup.modelConfig = ModelConfig(*mc_s);
+  setup.modelConfig.SetGlobalObservables(RooArgSet()); // NOT for Hybrid
   
-  setup.modelConfig_bonly = ModelConfig("b_model", w);
-  setup.modelConfig_bonly.SetPdf(*w->pdf("model_b")); 
-  setup.modelConfig_bonly.SetObservables(obs);
-  setup.modelConfig_bonly.SetParametersOfInterest(poi);
-  //setup.modelConfig_bonly.SetGlobalObservables(*w->pdf("globalObservables"); // NOT for Hybrid
-  if (withSystematics) setup.modelConfig_bonly.SetNuisanceParameters(*w->set("nuisances"));
+  setup.modelConfig_bonly = ModelConfig(*mc_b);
+  setup.modelConfig_bonly.SetGlobalObservables(RooArgSet()); // NOT for Hybrid
+
   if (testStat_ == "Atlas" || testStat_ == "Profile") {
       // these need the S+B snapshot for both
       // must set it here and not later because calling SetSnapshot more than once does not work properly
@@ -400,30 +395,33 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   if (testStat_ == "LEP") {
       //SLR is evaluated using the central value of the nuisance parameters, so I believe we have to put them in the snapshots
       RooArgSet snapS; snapS.addClone(poi); 
-      if (withSystematics) snapS.addClone(*w->set("nuisances"));
+      if (withSystematics) snapS.addClone(*mc_s->GetNuisanceParameters());
       RooArgSet snapB; snapB.addClone(snapS);
       snapS.setRealValue(r->GetName(), rVal);
       snapB.setRealValue(r->GetName(),    0);
-      if (optimizeTestStatistics_ && !w->pdf("model_s")->canBeExtended()) {
-          if (withSystematics && optimizeProductPdf_) {
-              if (w->pdf("modelObs_b") == 0 || w->pdf("modelObs_s") == 0) 
-                  throw std::invalid_argument("HybridNew: you can't use 'optimizeProduct' if the module does not define 'modelObs_s', 'modelObs_b'");
-              setup.qvar.reset(new SimplerLikelihoodRatioTestStat(*w->pdf("modelObs_b"), *w->pdf("modelObs_s"), snapB, snapS));
-          } else {
-              setup.qvar.reset(new SimplerLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), snapB, snapS));
-          }
+      if (optimizeTestStatistics_ && !mc_s->GetPdf()->canBeExtended()) {
+          // FIXME
+          //if (withSystematics && optimizeProductPdf_) {
+          //    if (w->pdf("modelObs_b") == 0 || w->pdf("modelObs_s") == 0) 
+          //        throw std::invalid_argument("HybridNew: you can't use 'optimizeProduct' if the module does not define 'modelObs_s', 'modelObs_b'");
+          //    setup.qvar.reset(new SimplerLikelihoodRatioTestStat(*w->pdf("modelObs_b"), *w->pdf("modelObs_s"), snapB, snapS));
+          //} else {
+          setup.qvar.reset(new SimplerLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), snapB, snapS));
+          //}
       } else {
-          if (withSystematics && optimizeProductPdf_) {
-              if (w->pdf("modelObs_b") == 0 || w->pdf("modelObs_s") == 0) 
-                  throw std::invalid_argument("HybridNew: you can't use 'optimizeProduct' if the module does not define 'modelObs_s', 'modelObs_b'");
-              setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*w->pdf("modelObs_b"), *w->pdf("modelObs_s")));
-          } else {
-              setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf()));
-          }
+          // FIXME
+          //if (withSystematics && optimizeProductPdf_) {
+          //    if (w->pdf("modelObs_b") == 0 || w->pdf("modelObs_s") == 0) 
+          //        throw std::invalid_argument("HybridNew: you can't use 'optimizeProduct' if the module does not define 'modelObs_s', 'modelObs_b'");
+          //    setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*w->pdf("modelObs_b"), *w->pdf("modelObs_s")));
+          //} else {
+          setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf()));
+          //}
           ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetNullParameters(snapB); // Null is B
           ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetAltParameters(snapS);
       }
   } else if (testStat_ == "TEV") {
+      // FIXME
     /*if (optimizeTestStatistics_ && !w->pdf("model_s")->canBeExtended()) {
         setup.qvar.reset(new ProfiledLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), 
                                                              withSystematics ? w->set("nuisances") : 0, poiZero, poi));
@@ -432,18 +430,19 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
         ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
     //}
   } else if (testStat_ == "Atlas" || testStat_ == "Profile") {
-    setup.qvar.reset(new ProfileLikelihoodTestStat(*w->pdf("model_s")));
+    setup.qvar.reset(new ProfileLikelihoodTestStat(*setup.modelConfig.GetPdf()));
     if (testStat_ == "Atlas") {
        ((ProfileLikelihoodTestStat&)*setup.qvar).SetOneSided(true);
     }
   }
   
-  if (withSystematics && optimizeProductPdf_) {
-      if (w->pdf("modelObs_b") == 0 || w->pdf("modelObs_s") == 0) 
-          throw std::invalid_argument("HybridNew: you can't use 'optimizeProduct' if the module does not define 'modelObs_s', 'modelObs_b'");
-     setup.modelConfig.SetPdf(*w->pdf("modelObs_s"));
-     setup.modelConfig_bonly.SetPdf(*w->pdf("modelObs_b"));
-  } 
+  // FIXME
+  //if (withSystematics && optimizeProductPdf_) {
+  //    if (w->pdf("modelObs_b") == 0 || w->pdf("modelObs_s") == 0) 
+  //        throw std::invalid_argument("HybridNew: you can't use 'optimizeProduct' if the module does not define 'modelObs_s', 'modelObs_b'");
+  //   setup.modelConfig.SetPdf(*w->pdf("modelObs_s"));
+  //   setup.modelConfig_bonly.SetPdf(*w->pdf("modelObs_b"));
+  //} 
 
   setup.toymcsampler.reset(new ToyMCSampler(*setup.qvar, nToys_));
 
@@ -481,9 +480,9 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     }
     RooArgSet importanceSnapshot;
     importanceSnapshot.addClone(poi);
-    importanceSnapshot.addClone(*w->set("nuisances"));
+    importanceSnapshot.addClone(*mc_s->GetNuisanceParameters());
     if (verbose > 2) importanceSnapshot.Print("V");
-    hc->SetNullImportanceDensity(w->pdf("model_b"), &importanceSnapshot);
+    hc->SetNullImportanceDensity(mc_b->GetPdf(), &importanceSnapshot);
   }
   if(importanceSamplingAlt_) {
     if(verbose > 1) std::cout << ">>> Enabling importance sampling for alt. hyp." << std::endl;
@@ -491,11 +490,13 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
       throw std::invalid_argument("Importance sampling is not available without systematics");
     }
     if (w->pdf(istr) == 0) {
-      w->factory((std::string("SUM::") + istr + "(0.5*model_b, 0.5*model_s)").c_str());
+      w->factory("__oneHalf__[0.5]");
+      RooAddPdf *sum = new RooAddPdf(istr, "fifty-fifty", *mc_s->GetPdf(), *mc_b->GetPdf(), *w->var("__oneHalf__"));
+      w->import(*sum); 
     }
     RooArgSet importanceSnapshot;
     importanceSnapshot.addClone(poi);
-    importanceSnapshot.addClone(*w->set("nuisances"));
+    importanceSnapshot.addClone(*mc_s->GetNuisanceParameters());
     if (verbose > 2) importanceSnapshot.Print("V");
     hc->SetAltImportanceDensity(w->pdf(istr), &importanceSnapshot);
   }
@@ -522,15 +523,13 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
     if (adaptive) {
         hc.SetToys(CLs_ ? nToys_ : 1, 4*nToys_);
-        double effError = std::max(clsMidErr, 1.0/sqrt(hcResult->GetAltDistribution()->GetSize()));
-        while (effError >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
+        while (clsMidErr >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
             std::auto_ptr<HypoTestResult> more(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
             if (testStat_ == "Atlas" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
             clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
-            effError = std::max(clsMidErr, 1.0/sqrt(hcResult->GetAltDistribution()->GetSize()));
-            if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- max(" << clsMidErr << ", " << 1.0/sqrt(hcResult->GetAltDistribution()->GetSize()) << ")" << std::endl;
+            if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
         }
     }
     if (verbose > 0) {

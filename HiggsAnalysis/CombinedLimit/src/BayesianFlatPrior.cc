@@ -9,32 +9,33 @@
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "RooStats/BayesianCalculator.h"
 #include "RooStats/SimpleInterval.h"
+#include "RooStats/ModelConfig.h"
 
 using namespace RooStats;
 
-bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-  RooRealVar *r = w->var("r");
-  RooAbsPdf *prior = w->pdf("prior"); if (prior == 0) { throw std::logic_error("Missing prior"); }
-  RooArgSet  poi(*r);
+bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+  RooArgSet  poi(*mc_s->GetParametersOfInterest());
+  RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
   double rMax = r->getMax();
   for (;;) {
-    BayesianCalculator bcalc(data, *w->pdf("model_s"), poi, *prior, (withSystematics ? w->set("nuisances") : 0));
+    BayesianCalculator bcalc(data, *mc_s);
     bcalc.SetLeftSideTailFraction(0);
     bcalc.SetConfidenceLevel(cl); 
     std::auto_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());
     if (bcInterval.get() == 0) return false;
     limit = bcInterval->UpperLimit();
     if (limit >= 0.5*r->getMax()) { 
-      std::cout << "Limit r < " << limit << "; r max < " << r->getMax() << std::endl;
+      std::cout << "Limit " << r->GetName() << " < " << limit << "; " << r->GetName() << " max < " << r->getMax() << std::endl;
       if (r->getMax()/rMax > 20) return false;
       r->setMax(r->getMax()*2); 
       continue;
     }
     if (verbose > -1) {
         std::cout << "\n -- BayesianSimple -- " << "\n";
-        std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+        std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
     }
     if (verbose > 2) {
+      // FIXME!!!!!
       TCanvas c1("c1", "c1");
       std::auto_ptr<RooPlot> bcPlot(bcalc.GetPosteriorPlot(true, 0.1)); 
       bcPlot->Draw(); 
