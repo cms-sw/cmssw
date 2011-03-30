@@ -23,6 +23,7 @@ class EcalTPGFineGrainStripEE;
 class EcalFenixStripFgvbEE;
 class EcalFenixStripFormatEB;
 class EcalFenixStripFormatEE;
+class EcalTPGStripStatus;
 
 /** 
     \class EcalFenixStrip
@@ -73,6 +74,7 @@ class EcalFenixStrip {
   const EcalTPGSlidingWindow *ecaltpgSlidW_;
   const EcalTPGFineGrainStripEE *ecaltpgFgStripEE_;
   const EcalTPGCrystalStatus *ecaltpgBadX_;
+  const EcalTPGStripStatus *ecaltpgStripStatus_;
 
  public:
 
@@ -82,7 +84,8 @@ class EcalFenixStrip {
 		     const EcalTPGWeightGroup *ecaltpgWeightGroup,
 		     const EcalTPGSlidingWindow *ecaltpgSlidW,
 		     const EcalTPGFineGrainStripEE *ecaltpgFgStripEE,
-		     const EcalTPGCrystalStatus *ecaltpgBadX)
+		     const EcalTPGCrystalStatus *ecaltpgBadX,
+                     const EcalTPGStripStatus *ecaltpgStripStatus)
     {
       ecaltpPed_=ecaltpPed;
       ecaltpLin_=ecaltpLin;
@@ -91,6 +94,7 @@ class EcalFenixStrip {
       ecaltpgSlidW_=ecaltpgSlidW;
       ecaltpgFgStripEE_=ecaltpgFgStripEE;
       ecaltpgBadX_=ecaltpgBadX;
+      ecaltpgStripStatus_=ecaltpgStripStatus;
     }
 
   // main methods
@@ -101,7 +105,7 @@ class EcalFenixStrip {
   void process(const edm::EventSetup&, std::vector<const T> &, int nrxtals, std::vector<int> & out);
   void process_part2_barrel(uint32_t stripid,const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE);
 
-  void process_part2_endcap(uint32_t stripid, const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE);
+  void process_part2_endcap(uint32_t stripid, const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE,const EcalTPGStripStatus * ecaltpgStripStatus);
 
 
   // getters for the algorithms  ;
@@ -142,7 +146,7 @@ class EcalFenixStrip {
    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(samples[0].id());
    uint32_t stripid=elId.rawId() & 0xfffffff8;   //from Pascal
    process_part1(samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_,ecaltpgBadX_); //templated part
-   process_part2_endcap(stripid,ecaltpgSlidW_,ecaltpgFgStripEE_);
+   process_part2_endcap(stripid,ecaltpgSlidW_,ecaltpgFgStripEE_,ecaltpgStripStatus_);
    out=format_out_; //FIXME: timing
    return;
  }

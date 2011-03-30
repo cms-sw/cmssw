@@ -67,14 +67,14 @@ void EcalFenixStrip::process_part2_barrel(uint32_t stripid,const EcalTPGSlidingW
 
 }
 //-------------------------------------------------------------------------------------
-void  EcalFenixStrip::process_part2_endcap(uint32_t stripid,const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE) {
+void  EcalFenixStrip::process_part2_endcap(uint32_t stripid,const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE,const EcalTPGStripStatus * ecaltpgStripStatus) {
    
   // call  Fgvb
   //this->getFGVB()->setParameters(stripid,ecaltpgFgStripEE); 
   //this->getFGVB()->process(lin_out_,fgvb_out_);
 
   // call formatter
-  this->getFormatterEE()->setParameters(stripid,ecaltpgSlidW) ;
+  this->getFormatterEE()->setParameters(stripid,ecaltpgSlidW,ecaltpgStripStatus) ;
 
   this->getFormatterEE()->process(fgvb_out_,peak_out_,filt_out_,format_out_);
      
