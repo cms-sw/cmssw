@@ -56,6 +56,8 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
+#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
 
 #include "EcalTrigPrimProducer.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
@@ -157,8 +159,11 @@ unsigned long long  EcalTrigPrimProducer::getRecords(edm::EventSetup const& setu
   edm::ESHandle<EcalTPGFineGrainStripEE> theEcalTPGFineGrainStripEE_handle;
   setup.get<EcalTPGFineGrainStripEERcd>().get(theEcalTPGFineGrainStripEE_handle);
   const EcalTPGFineGrainStripEE * ecaltpgFgStripEE = theEcalTPGFineGrainStripEE_handle.product();     
+  edm::ESHandle<EcalTPGStripStatus> theEcalTPGStripStatus_handle;
+  setup.get<EcalTPGStripStatusRcd>().get(theEcalTPGStripStatus_handle);
+  const EcalTPGStripStatus * ecaltpgStripStatus = theEcalTPGStripStatus_handle.product();     
  
-  algo_->setPointers(ecaltpLin,ecaltpPed,ecaltpgSlidW,ecaltpgWeightMap,ecaltpgWeightGroup,ecaltpgFgStripEE,ecaltpgBadX);
+  algo_->setPointers(ecaltpLin,ecaltpPed,ecaltpgSlidW,ecaltpgWeightMap,ecaltpgWeightGroup,ecaltpgFgStripEE,ecaltpgBadX,ecaltpgStripStatus);
 
   // .. and for EcalFenixTcp
   // get parameter records for towers
