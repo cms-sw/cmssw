@@ -94,12 +94,14 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     saveHybridResult_ = vm.count("saveHybridResult");
     readHybridResults_ = vm.count("readHybridResults");
     plot_ = vm.count("plot") ? vm["plot"].as<std::string>() : std::string();
-
+    validateOptions(); 
 }
+
 void HybridNew::applyDefaultOptions() { 
     workingMode_ = MakeLimit;
     validateOptions(); 
 }
+
 void HybridNew::validateOptions() {
     if (fork_ > 1) nToys_ /= fork_; // makes more sense
     if (rule_ == "CLs") {
@@ -520,13 +522,15 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
     if (adaptive) {
         hc.SetToys(CLs_ ? nToys_ : 1, 4*nToys_);
-        while (clsMidErr >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
+        double effError = std::max(clsMidErr, 1.0/sqrt(hcResult->GetAltDistribution()->GetSize()));
+        while (effError >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
             std::auto_ptr<HypoTestResult> more(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
             if (testStat_ == "Atlas" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
             clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
-            if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
+            effError = std::max(clsMidErr, 1.0/sqrt(hcResult->GetAltDistribution()->GetSize()));
+            if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- max(" << clsMidErr << ", " << 1.0/sqrt(hcResult->GetAltDistribution()->GetSize()) << ")" << std::endl;
         }
     }
     if (verbose > 0) {
