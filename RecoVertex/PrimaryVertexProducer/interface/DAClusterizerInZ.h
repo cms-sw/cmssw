@@ -29,18 +29,25 @@ struct track_t{
   const reco::TransientTrack* tt;  // a pointer to the Transient Track
   double Z;              // Z[i]   for DA clustering
   double pi;             // track weight
+  double npi;            // normalized track weight
 };
 
 
 struct vertex_t{
   double z;    //           z coordinate
   double pk;   //           vertex weight for "constrained" clustering
+  std::vector<double> pik;//
+  bool   update;
+  double z1,pk1;
   // --- temporary numbers, used during update
-  double ei;
+  double Ei;       // =log (pik) = (z_i - z_k)**2
+  double pi;       // pk*exp(-beta Ei).
+  //  double ei;       // exponential exp(-beta Ei).... obsolete
   double sw;
   double swz;
   double se;
-};
+  double logpk;
+ };
 
 
 
@@ -60,14 +67,15 @@ struct vertex_t{
   double update(
 		     double beta,
 		     std::vector<track_t> & tks,
-		     std::vector<vertex_t> & y
+		     std::vector<vertex_t> & y,
+		     double Z0=0
 		     )const;
-
-  double update(
+  double update1(
 		     double beta,
+		     const bool forceUpdate,
 		     std::vector<track_t> & tks,
 		     std::vector<vertex_t> & y,
-		     double &
+		     double Z0=0
 		     )const;
 
   void dump(const double beta, const std::vector<vertex_t> & y, const std::vector<track_t> & tks, const int verbosity=0)const;
@@ -85,8 +93,11 @@ struct vertex_t{
 	       std::vector<vertex_t> & y
 	       )const;
 
-  double Eik(const track_t & t, const vertex_t & k)const;
+  inline double Eik(const track_t & t, const vertex_t & k)const{double dz=t.z-k.z; return dz*dz/t.dz2;};
 
+  //   inline double fexp(const double  z) const{// (z is <=0 
+  //     return (-z)<ecutoff_ ? 1.+2.*z/(2.-z+z*z/6.) : 0.;
+  //   } 
   
 private:
   bool verbose_;
@@ -95,8 +106,12 @@ private:
   double coolingFactor_;
   float betamax_;
   float betastop_;
-  double dzCutOff_;
-  double d0CutOff_;
+  double mu0_;
+  double deltamax_;
+  bool splitMergedClusters_;
+  bool mergeAfterAnnealing_;
+  bool useTrackResolutionAfterFreezeOut_;
+  bool full_;
 };
 
 #endif
