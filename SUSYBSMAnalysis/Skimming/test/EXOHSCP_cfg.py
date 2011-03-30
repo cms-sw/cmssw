@@ -10,13 +10,13 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #number of Events to be skimmed.
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'START311_V2::All'
-
+#process.GlobalTag.globaltag = 'START311_V2::All'
+process.GlobalTag.globaltag = 'GR_P_V16::All'
 #replace fileNames  with the file you want to skim
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(

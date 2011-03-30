@@ -9,7 +9,7 @@ generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
     filter = True,
     applyBasicCuts = True,
     ptMin = TRACK_PT,
-    nHitMin = 8,
+    nHitMin = 5,
     chi2nMax = 10.,
 )
 
@@ -17,7 +17,7 @@ trackerSeq = cms.Sequence( generalTracksSkim)
 
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
-
+TrackRefitter.src = "generalTracksSkim"
 
 dedxNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
     tracks                     = cms.InputTag("TrackRefitter"),
@@ -44,14 +44,14 @@ DedxFilter = cms.EDFilter("HSCPFilter",
 	 inputTrackCollection = cms.InputTag("TrackRefitter"),
 	 inputDedxCollection =  cms.InputTag("dedxNPHarm2"),
 	 trkPtMin = cms.double(TRACK_PT),
-	 dedxMin =cms.double(3.5),
+	 dedxMin =cms.double(3.2),
      dedxMaxLeft =cms.double(2.8),
-     ndedxHits = cms.int32(8),
+     ndedxHits = cms.int32(5),
      etaMin= cms.double(-2.4),
      etaMax= cms.double(2.4),
      chi2nMax = cms.double(10),
-     dxyMax = cms.double(0.3),
-     dzMax = cms.double(3)
+     dxyMax = cms.double(0.5),
+     dzMax = cms.double(5)
 						  
 )
 
@@ -172,7 +172,7 @@ exoticaRecoIsoPhotonSeq = cms.EDFilter("MonoPhotonSkimmer",
 )
 
 
-exoticaHSCPSeq = cms.Sequence( dedxSeq+trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
+exoticaHSCPSeq = cms.Sequence( trackerSeq + dedxSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
 exoticaHSCPIsoPhotonSeq = cms.Sequence(exoticaRecoIsoPhotonSeq + trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
 
 
