@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_11_1/GRun/V91
+# /dev/CMSSW_3_11_1/GRun/V94
 
 import FWCore.ParameterSet.Config as cms
 
@@ -30,7 +30,6 @@ streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_BeamHalo_v2
     'HLT_L1SingleMuOpen_AntiBPTX_v1', 
     'HLT_L1Tech_BSC_halo_v1', 
     'HLT_L1TrackerCosmics_v2', 
-    'HLT_L2MuOpen_NoVertex_v1', 
     'HLT_L3MuonsCosmicTracking_v1', 
     'HLT_RegionalCosmicTracking_v1')
 
@@ -89,10 +88,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHT_selector.l1tResults = cms.InputTag('')
 streamA_datasetHT_selector.throw      = cms.bool(False)
-streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet100_PT100_v1', 
-    'HLT_DiJet130_PT130_v1', 
-    'HLT_DiJet70_PT70_v1', 
-    'HLT_HT150_AlphaT0p60_v1', 
+streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_HT150_AlphaT0p60_v1', 
     'HLT_HT150_AlphaT0p70_v1', 
     'HLT_HT150_v2', 
     'HLT_HT200_AlphaT0p60_v1', 
