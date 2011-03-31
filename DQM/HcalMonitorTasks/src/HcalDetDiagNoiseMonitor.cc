@@ -290,7 +290,8 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
   if(!dbe_) return;
   int orbit=-1111;
   int bx=-1111;
-
+  LastOrbit = LastOrbitLS = FirstOrbit = FirstOrbitLS = orbit;
+  
   // for local runs 
   edm::Handle<HcalTBTriggerData> trigger_data;
   iEvent.getByType(trigger_data);
@@ -553,10 +554,10 @@ void HcalDetDiagNoiseMonitor::UpdateHistos(){
 } 
 
 void HcalDetDiagNoiseMonitor::SaveRates(){
-char   RBX[20];
-int    RM;
-float VAL1,VAL2,VAL3,VAL4,VAL5;
-char str[500]; 
+    char   RBX[20];
+    int    RM;
+    float VAL1,VAL2,VAL3,VAL4,VAL5;
+    char str[500]; 
     double TIME=(double)(LastOrbit-FirstOrbit)/11223.0;
     if(TIME==0) return;
     if(OutputFilePath.size()>0){
