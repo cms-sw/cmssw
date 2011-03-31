@@ -72,18 +72,25 @@ class ShapeBuilder(ModelBuilder):
                     shapeTypes.append("RooDataHist"); 
                     shapeBins.append(shape.numEntries())
                     shapeObs[self.argSetToString(shape.get(0))] = shape.get(0)
+                    norm = shape.sumEntries()
                 elif shape.InheritsFrom("RooDataSet"):
                     shapeTypes.append("RooDataSet"); 
                     shapeObs[self.argSetToString(shape.get(0))] = shape.get(0)
+                    norm = shape.sumEntries()
                 elif shape.InheritsFrom("TTree"):
                     shapeTypes.append("TTree"); 
                 elif shape.InheritsFrom("RooAbsPdf"):
                     shapeTypes.append("RooAbsPdf");
                 else: raise RuntimeError, "Currently supporting only TH1s, RooDataHist and RooAbsPdfs"
-                if p != 'data_obs' and norm != 0:
-                    if self.DC.exp[b][p] == -1: self.DC.exp[b][p] = norm
-                    elif abs(norm-self.DC.exp[b][p]) > 0.01: 
-                        stderr.write("Mismatch in normalizations for bin %s, process %d: rate %f, shape %f" % (b,p,self.DC.exp[b][p],norm))
+                if norm != 0:
+                    if p == "data_obs":
+                        if len(self.DC.obs):
+                            if abs(norm-self.DC.obs[b]) > 0.01:
+                                raise RuntimeError, "Mismatch in normalizations for observed data in bin %s: text %f, shape %f" % (b,self.DC.obs[b],norm)
+                    else:
+                        if self.DC.exp[b][p] == -1: self.DC.exp[b][p] = norm
+                        elif abs(norm-self.DC.exp[b][p]) > 0.01: 
+                            raise RuntimeError, "Mismatch in normalizations for bin %s, process %d: rate %f, shape %f" % (b,p,self.DC.exp[b][p],norm)
         if shapeTypes.count("TH1") == len(shapeTypes):
             self.out.allTH1s = True
             self.out.mode    = "binned"
