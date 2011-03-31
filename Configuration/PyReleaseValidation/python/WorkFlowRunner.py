@@ -67,6 +67,11 @@ class WorkFlowRunner(Thread):
         # run the first workflow:
         cmd = preamble
 
+        # check where we are running:
+        onCAF = False
+        if 'cms/caf/cms' in os.environ['CMS_PATH']:
+            onCAF = True
+
         inFile = 'file:raw.root'
         if self.wf.cmdStep1.startswith('DATAINPUT'):
             print "going to run with file input ... "
@@ -77,8 +82,11 @@ class WorkFlowRunner(Thread):
 
             label    = self.wf.input.label
             location = self.wf.input.location.lower().strip()
-            if 'caf' in location:
-                print "ignoring workflow ",self.wf.numId, self.wf.nameId, ' as this is on CAF ...'
+            if 'caf' in location and not onCAF or onCAF and 'caf' not in location:
+                print "ignoring workflow ",self.wf.numId, self.wf.nameId, ' as this is on '+location+' and we are ',
+                if onCAF: print 'on the CAF.'
+                else:     print 'we are NOT.'
+                
                 self.npass = [0,0,0,0]
                 self.nfail = [0,0,0,0]
 

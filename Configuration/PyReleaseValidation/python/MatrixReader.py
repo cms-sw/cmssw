@@ -152,7 +152,7 @@ class MatrixReader(object):
                     inputInfo = input
                     # map input dataset to the one from the reference release:
                     inputInfo.dataSet = inputInfo.dataSet.replace('CMSSW_4_2_0_pre4', refRel)
-                    cmd = 'DATAINPUT from '+inputInfo.dataSet
+                    cmd = 'DATAINPUT from '+inputInfo.dataSet+' on '+inputInfo.location
                     
                 if stepIndex > 0:
                     cmd  = 'cmsDriver.py step'+str(stepIndex+1)+'.py '+opts
