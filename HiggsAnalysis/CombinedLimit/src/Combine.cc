@@ -237,12 +237,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); 
         throw std::invalid_argument("Missing Workspace"); 
     }
+    if (verbose > 1) { std::cout << "Input workspace '" << workspaceName_ << "': \n"; w->Print("V"); }
     mc       = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
     mc_bonly = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigNameB_.c_str()));
     if (mc == 0) {  
         std::cerr << "Could not find ModelConfig '" << modelConfigName_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
         throw std::invalid_argument("Missing ModelConfig"); 
     } else if (verbose > 1) { std::cout << "Workspace has a ModelConfig for signal called '" << modelConfigName_ << "', with contents:\n"; mc->Print("V"); }
+    if (verbose > 1) { std::cout << "Input ModelConfig '" << modelConfigName_ << "': \n"; mc->Print("V"); }
     const RooArgSet *POI = mc->GetParametersOfInterest();
     if (POI == 0 || POI->getSize() == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not define parameters of interest.");
     if (POI->getSize() > 1) std::cerr << "ModelConfig '" << modelConfigName_ << "' defines more than one parameter of interest. This is not supported in some statistical methods." << std::endl;
