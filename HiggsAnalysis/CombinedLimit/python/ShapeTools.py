@@ -12,7 +12,7 @@ class ShapeBuilder(ModelBuilder):
     ## -------- ModelBuilder interface ----------
     ## ------------------------------------------
     def doObservables(self):
-        stderr.write("qui si parra' la tua nobilitate\n")
+        if (self.options.verbose > 1): stderr.write("Using shapes: qui si parra' la tua nobilitate\n")
         self.prepareAllShapes();
         if len(self.DC.bins) > 1:
             strexpr="channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(self.DC.bins)]) + "]";
@@ -88,13 +88,13 @@ class ShapeBuilder(ModelBuilder):
             self.out.allTH1s = True
             self.out.mode    = "binned"
             self.out.maxbins = max(shapeBins)
-            stderr.write("Will use binning variable 'x' with %d bins\n" % self.out.maxbins)
+            if self.options.verbose: stderr.write("Will use binning variable 'x' with %d bins\n" % self.out.maxbins)
             self.doVar("x[0,%d]" % self.out.maxbins); self.out.var("x").setBins(self.out.maxbins)
             self.out.binVar = self.out.var("x")
             self.out.binVars = ROOT.RooArgSet(self.out.binVar)
         else:
-            stderr.write("Will try to make a combined dataset\n")
-            stderr.write("Observables: %s\n" % str(shapeObs.keys()))
+            if self.options.verbose: stderr.write("Will try to make a combined dataset\n")
+            if self.options.verbose: stderr.write("Observables: %s\n" % str(shapeObs.keys()))
             if len(shapeObs.keys()) != 1:
                 raise RuntimeError, "There's more than once choice of observables: %s\n" % str(shapeObs.keys())
             self.out.binVars = shapeObs.values()[0]
@@ -147,7 +147,7 @@ class ShapeBuilder(ModelBuilder):
             ret = file.Get(objname);
             if not ret: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (objname,finalNames[0],names[1],names[0])
             ret.SetName("shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""))
-            stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName()))
+            if self.options.verbose: stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName()))
             _neverDelete.append(ret)
             return ret
     def getData(self,process,channel,syst=""):
