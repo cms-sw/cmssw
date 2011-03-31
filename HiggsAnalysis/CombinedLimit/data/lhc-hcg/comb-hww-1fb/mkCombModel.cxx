@@ -95,6 +95,8 @@ void mkNuisancePdf(RooWorkspace *w) {
         std::cout << (pdf == 0 ? "NOT FOUND!" : pdf->ClassName()) << std::endl;
         if (pdf) pdfs.add(*pdf);
     }
+    std::cout << "Final list of nuisance factors:" << std::endl;
+    pdfs.Print("V");
     RooProdPdf *prod = new RooProdPdf("nuisancePdf","nuisancePdf",pdfs);
     w->import(*prod);
     delete it;
@@ -161,7 +163,7 @@ void mkCombModel(int mass=140) {
     //  2) take product of modelObs and nuisancePdf
     bool useReplace = false; // use method 1
 
-    RooCustomizer make_model_s(*w->pdf("_naive_model_s"), "model_s");
+    RooCustomizer make_model_s(*w->pdf("_naive_model_s"), (useReplace ? "model_s" : "modelDup_s"));
     make_model_s.replaceArg(*w->var("mu"),    *w->var("r"));
     make_model_s.replaceArg(*w->var("XS_GG_atlas"), *w->var("theta_Higgs_XS"));
     make_model_s.replaceArg(*w->var("LUMI_atlas"),  *w->var("theta_Lumi"));
@@ -183,6 +185,7 @@ void mkCombModel(int mass=140) {
     } else {
         mkModelObsPdf(w,"s","modelDup_"); // make modelObs_s from modelDup_s; constraints will be discarded anyway
         w->factory("PROD::model_s(modelObs_s,nuisancePdf)"); // then make model_s from modelObs_s and nuisances
+        model_s = w->pdf("model_s");
     }
 
     RooConstVar *zorro = new RooConstVar("__zero__","Zero", 0); w->import(*zorro);
@@ -198,4 +201,5 @@ void mkCombModel(int mass=140) {
     w->import(*m, "ModelConfig");
 
     w->writeToFile(TString::Format("comb/comb.mH%d.root",mass));
+    w->Print("V");
 }
