@@ -1,5 +1,5 @@
 //
-// $Id: L1MuonMatcher.cc,v 1.2 2009/09/23 12:32:27 gpetrucc Exp $
+// $Id: L1MuonMatcher.cc,v 1.3 2010/07/12 20:56:11 gpetrucc Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMatcher.cc,v 1.2 2009/09/23 12:32:27 gpetrucc Exp $
+  \version  $Id: L1MuonMatcher.cc,v 1.3 2010/07/12 20:56:11 gpetrucc Exp $
 */
 
 
@@ -107,7 +107,7 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     vector<int>   propMatches(reco->size(), -1);
     vector<int>   fullMatches(reco->size(), -1);
     vector<float> deltaRs(reco->size(), 999), deltaPhis(reco->size(), 999);
-    vector<int>   quality(reco->size(), -999), bx(reco->size(), -999), isolated(reco->size(), -999);
+    vector<int>   quality(reco->size(),   0), bx(reco->size(), -999), isolated(reco->size(), -999);
     for (int i = 0, n = reco->size(); i < n; ++i) {
         TrajectoryStateOnSurface propagated;
         const reco::Candidate &mu = (*reco)[i];
