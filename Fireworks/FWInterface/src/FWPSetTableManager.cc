@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.13 2011/03/04 20:05:10 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.14 2011/03/07 13:13:51 amraktad Exp $
 //
 
 #include <map>
@@ -940,7 +940,10 @@ void FWPSetTableManager::recalculateVisibility()
          }
          else
          {
-            data.visible = m_entries[data.parent].expandedFilter && m_entries[data.parent].visible && (data.matches || data.childMatches);
+            if (data.level < 2)
+               data.visible = m_entries[data.parent].expandedFilter && m_entries[data.parent].visible && (data.matches || data.childMatches);
+            else
+               data.visible = m_entries[data.parent].expandedFilter && m_entries[data.parent].visible;
          }
       }
    }
