@@ -127,6 +127,7 @@ def parseCard(file, options):
             nullEffect = (r == 0.0 or (pdf == "lnN" and r == 1.0))
             if not nullEffect and ret.exp[b][p] != 0: nonNullEntries += 1 # is this a zero background?
         if nonNullEntries != 0: syst2.append((lsyst,pdf,args,errline))
+        elif nuisances != -1: nuisances -= 1 # remove from count of nuisances, since qe skipped it
     ret.systs = syst2
     # remove them if options.stat asks so
     if options.stat: 
