@@ -60,6 +60,7 @@ private:
 
   struct Setup {
     RooStats::ModelConfig modelConfig, modelConfig_bonly;
+    std::auto_ptr<RooAbsPdf> nuisancePdf;
     std::auto_ptr<RooStats::TestStatistic> qvar;
     std::auto_ptr<RooStats::ToyMCSampler>  toymcsampler;
     std::auto_ptr<RooStats::ProofConfig> pc;

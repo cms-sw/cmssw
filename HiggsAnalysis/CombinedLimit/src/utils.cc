@@ -53,6 +53,19 @@ void utils::printRAD(const RooAbsData *d) {
   else d->get(0)->Print("V");
 }
 
+void utils::printPdf(RooAbsPdf *pdf) {
+  std::cout << "Pdf " << pdf->GetName() << " parameters." << std::endl;
+  std::auto_ptr<RooArgSet> params(pdf->getVariables());
+  params->Print("V");
+}
+
+
+void utils::printPdf(RooStats::ModelConfig &mc) {
+  std::cout << "ModelConfig " << mc.GetName() << " (" << mc.GetTitle() << "): pdf parameters." << std::endl;
+  std::auto_ptr<RooArgSet> params(mc.GetPdf()->getVariables());
+  params->Print("V");
+}
+
 void utils::printPdf(RooWorkspace *w, const char *pdfName) {
   std::cout << "PDF " << pdfName << " parameters." << std::endl;
   std::auto_ptr<RooArgSet> params(w->pdf(pdfName)->getVariables());
@@ -83,14 +96,14 @@ void utils::factorizePdf(RooStats::ModelConfig &model, RooAbsPdf &pdf, RooArgLis
     }
 }
 
-RooAbsPdf *utils::makeNuisancePdf(RooStats::ModelConfig &model) { 
+RooAbsPdf *utils::makeNuisancePdf(RooStats::ModelConfig &model, const char *name) { 
     RooArgList obsTerms, constraints;
     factorizePdf(model, *model.GetPdf(), obsTerms, constraints);
-    return new RooProdPdf("nuisancePdf","", constraints);
+    return new RooProdPdf(name,"", constraints);
 }
 
-RooAbsPdf *utils::makeObsOnlyPdf(RooStats::ModelConfig &model) { 
+RooAbsPdf *utils::makeObsOnlyPdf(RooStats::ModelConfig &model, const char *name) { 
     RooArgList obsTerms, constraints;
     factorizePdf(model, *model.GetPdf(), obsTerms, constraints);
-    return new RooProdPdf("obsPdf","", obsTerms);
+    return new RooProdPdf(name,"", obsTerms);
 }

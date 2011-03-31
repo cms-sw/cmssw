@@ -11,6 +11,7 @@
 #include "RooStats/HypoTestResult.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 
 #include <Math/MinimizerOptions.h>
@@ -77,14 +78,16 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
   bool success = false;
   std::vector<double> limits; double rMax = r->getMax();  
+  std::auto_ptr<RooAbsPdf> nuisancePdf(0);
   for (int i = 0; i < maxTries_; ++i) {
       w->loadSnapshot("clean");
       if (i > 0) { // randomize starting point
         r->setMax(rMax*(0.5+RooRandom::uniform()));
         r->setVal((0.1+0.5*RooRandom::uniform())*r->getMax()); 
         if (withSystematics) { 
+            if (nuisancePdf.get() == 0) nuisancePdf.reset(utils::makeNuisancePdf(*mc_s));
             RooArgSet set(*mc_s->GetNuisanceParameters()); 
-            RooDataSet *randoms = w->pdf("nuisancePdf")->generate(set, 1); 
+            RooDataSet *randoms = nuisancePdf->generate(set, 1); 
             set = *randoms->get(0);
             if (verbose > 2) {
                 std::cout << "Starting minimization from point " << std::endl;

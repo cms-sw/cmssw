@@ -11,6 +11,8 @@
 #include <string>
 #include <stdexcept>
 #include <algorithm>
+#include <unistd.h>
+#include <errno.h>
 
 #include <TCanvas.h>
 #include <TFile.h>
@@ -149,12 +151,31 @@ bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mo
   return ret;
 }
 
+namespace { 
+    struct ToCleanUp {
+        TFile *tfile; std::string file, path;
+        ToCleanUp() : tfile(0), file(""), path("") {}
+        ~ToCleanUp() {
+            if (tfile) { tfile->Close(); delete tfile; }
+            if (!file.empty()) {  
+                if (unlink(file.c_str()) == -1) std::cerr << "Failed to delete temporary file " << file << ": " << strerror(errno) << std::endl;
+            }
+            if (!path.empty()) {  boost::filesystem::remove_all(path); }
+        }
+    };
+}
 void Combine::run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys) {
-  TString tmpDir = "", pwd(gSystem->pwd());
-  if (makeTempDir_ || !(hlfFile.EndsWith(".hlf") || hlfFile.EndsWith(".root"))) {
-      tmpDir = "roostats-XXXXXX"; 
+  ToCleanUp garbageCollect; // use this to close and delete temporary files
+
+  TString tmpDir = "", tmpFile = "", pwd(gSystem->pwd());
+  if (makeTempDir_) { 
+      tmpDir = "roostats-XXXXXX"; tmpFile = "model";
       mkdtemp(const_cast<char *>(tmpDir.Data()));
       gSystem->cd(tmpDir.Data());
+      garbageCollect.path = tmpDir.Data(); // request that we delete this dir when done
+  } else if (!hlfFile.EndsWith(".hlf") && !hlfFile.EndsWith(".root")) {
+      tmpFile = "roostats-XXXXXX";
+      mktemp(const_cast<char *>(tmpFile.Data())); // somewhat unsafe, but I want to get a proper extension in the output file
   }
 
   bool isTextDatacard = false, isBinary = false;
@@ -169,18 +190,22 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     TString options = "";
     if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
-    //-- Text mode: current default
-    int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -o model.hlf"); 
-    isTextDatacard = true; fileToLoad = "model.hlf";
-    //-- Binary mode: future default 
-    //int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -b -o model.root"); 
-    //isTextDatacard = false; fileToLoad = "model.root";
+    if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);
+    //-- Text mode: old default
+    //int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -o "+tmpFile+".hlf"); 
+    //isTextDatacard = true; fileToLoad = tmpFile+".hlf";
+    //-- Binary mode: new default 
+    int status = gSystem->Exec("text2workspace.py "+options+" '"+txtFile+"' -b -o "+tmpFile+".root"); 
+    isBinary = true; fileToLoad = tmpFile+".root";
     if (status != 0 || !boost::filesystem::exists(fileToLoad.Data())) {
         throw std::invalid_argument("Failed to convert the input datacard from LandS to RooStats format. The lines above probably contain more information about the error.");
     }
+    garbageCollect.file = fileToLoad;
   }
 
   if (getenv("CMSSW_BASE")) {
+      gSystem->AddIncludePath(TString::Format(" -I%s/src ", getenv("CMSSW_BASE")));
+      if (verbose > 1) std::cout << "Adding " << getenv("CMSSW_BASE") << "/src to include path" << std::endl;
       if (verbose > 1) std::cout << "CMSSW_BASE is set, so will try to get include dir for roofit from scram." << std::endl;
       FILE *pipe = popen("scram tool tag roofitcore INCLUDE", "r"); 
       if (pipe) {
@@ -204,7 +229,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   RooWorkspace *w = 0; RooStats::ModelConfig *mc = 0, *mc_bonly = 0;
   std::auto_ptr<RooStats::HLFactory> hlf(0);
   if (isBinary) {
-    TFile *fIn = TFile::Open(fileToLoad);
+    TFile *fIn = TFile::Open(fileToLoad); 
+    garbageCollect.tfile = fIn; // request that we close this file when done
+
     w = dynamic_cast<RooWorkspace *>(fIn->Get(workspaceName_.c_str()));
     if (w == 0) {  
         std::cerr << "Could not find workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl; fIn->ls(); 
@@ -233,12 +260,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         mc_bonly = new RooStats::ModelConfig(*mc);
         mc_bonly->SetPdf(*model_b);
     }
-
-    RooAbsPdf *nuisancePdf = utils::makeNuisancePdf(*mc);
-    w->import(*nuisancePdf);
   } else {
     hlf.reset(new RooStats::HLFactory("factory", fileToLoad));
-    gSystem->cd(pwd);
     w = hlf->GetWs();
     if (w == 0) {
         std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
@@ -257,7 +280,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (w->set("nuisances"))         mc->SetNuisanceParameters(*w->set("nuisances"));
     if (w->set("globalObservables")) mc->SetGlobalObservables(*w->set("globalObservables"));
     if (w->pdf("prior")) mc->SetNuisanceParameters(*w->pdf("prior"));
-    // if (w->pdf("nuisancePdf")) mc->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
     w->import(*mc, modelConfigName_.c_str());
 
     mc_bonly = new RooStats::ModelConfig(modelConfigNameB_.c_str(),"background",w);
@@ -267,9 +289,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (w->set("nuisances"))         mc_bonly->SetNuisanceParameters(*w->set("nuisances"));
     if (w->set("globalObservables")) mc_bonly->SetGlobalObservables(*w->set("globalObservables"));
     if (w->pdf("prior")) mc_bonly->SetNuisanceParameters(*w->pdf("prior"));
-    // if (w->pdf("nuisancePdf")) mc_bonly->SetNuisanceParameters(*w->pdf("nuisancePdf")); // does not exist
     w->import(*mc_bonly, modelConfigNameB_.c_str());
   }
+  gSystem->cd(pwd);
 
   if (verbose <= 1) RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 
@@ -336,8 +358,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     outputFile->WriteTObject(w,workspaceName_.c_str());
   }
 
-  try { // try-catch so we do a cleanup of the directory anyway
-
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
     RooAbsData *dobs = w->data(dataset.c_str());
@@ -362,26 +382,26 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   
   
   std::vector<double> limitHistory;
+  std::auto_ptr<RooAbsPdf> nuisancePdf;
   if (nToys > 0) {
     double expLimit = 0;
     unsigned int nLimits = 0;
     w->loadSnapshot("clean");
     RooDataSet *systDs = 0;
     if (withSystematics && !toysNoSystematics_ && (readToysFromHere == 0)) {
-      if (nuisances == 0 || w->pdf("nuisancePdf") == 0) {
-        throw std::logic_error("Running with systematics enabled, but nuisances or nuisancePdf not defined.");
-      }
-      systDs = w->pdf("nuisancePdf")->generate(*nuisances, nToys);
+      if (nuisances == 0) throw std::logic_error("Running with systematics enabled, but nuisances not defined.");
+      nuisancePdf.reset(utils::makeNuisancePdf(*mc_bonly));
+      systDs = nuisancePdf->generate(*nuisances, nToys);
     }
     for (iToy = 1; iToy <= nToys; ++iToy) {
       RooAbsData *absdata_toy = 0;
       if (readToysFromHere == 0) {
 	w->loadSnapshot("clean");
-	if (verbose > 1) utils::printPdf(w, "model_b");
+	if (verbose > 1) utils::printPdf(*mc_bonly);
 	if (withSystematics && !toysNoSystematics_) {
 	  std::auto_ptr<RooArgSet> vars(mc_bonly->GetPdf()->getVariables());
 	  *vars = *systDs->get(iToy-1);
-	  if (verbose > 1) utils::printPdf(w, "model_b");
+	  if (verbose > 1) utils::printPdf(*mc_bonly);
 	}
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (mc_bonly->GetPdf()->canBeExtended()) {
@@ -444,14 +464,5 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
   }
 
-  } catch (std::logic_error &le) {
-      if (tmpDir) boost::filesystem::remove_all(tmpDir.Data());
-      throw le;
-  } catch (std::runtime_error &re) {
-      if (tmpDir) boost::filesystem::remove_all(tmpDir.Data());
-      throw re;
-  }
-
-  if (tmpDir) boost::filesystem::remove_all(tmpDir.Data()); 
 }
 

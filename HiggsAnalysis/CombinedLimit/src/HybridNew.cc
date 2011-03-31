@@ -29,6 +29,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
 #include "HiggsAnalysis/CombinedLimit/interface/SimplerLikelihoodRatioTestStat.h"
 #include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStat.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 using namespace RooStats;
 
@@ -446,7 +447,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
   setup.toymcsampler.reset(new ToyMCSampler(*setup.qvar, nToys_));
 
-  if (!w->pdf("model_b")->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
+  if (!mc_b->GetPdf()->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
   
   if (nCpu_ > 0) {
     if (verbose > 1) std::cout << "  Will use " << nCpu_ << " CPUs." << std::endl;
@@ -456,8 +457,9 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   
   std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data,setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
   if (withSystematics) {
-    hc->ForcePriorNuisanceNull(*w->pdf("nuisancePdf"));
-    hc->ForcePriorNuisanceAlt(*w->pdf("nuisancePdf"));
+    setup.nuisancePdf.reset(utils::makeNuisancePdf(*mc_s));
+    hc->ForcePriorNuisanceNull(*setup.nuisancePdf);
+    hc->ForcePriorNuisanceAlt(*setup.nuisancePdf);
   }
 
   // we need less B toys than S toys

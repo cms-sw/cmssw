@@ -15,6 +15,7 @@
 #include "RooRandom.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 using namespace RooStats;
 
@@ -82,15 +83,18 @@ bool Hybrid::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelCo
 
   RooStats::ModelConfig modelConfig(*mc_s);
   modelConfig.SetSnapshot(poi);
-  
+ 
+
+  std::auto_ptr<RooAbsPdf> nuisancePdf(0); 
   HybridCalculatorOriginal hc(data, *mc_s, *mc_b);
   if (withSystematics) {
-    if ((w->set("nuisances") == 0) || (w->pdf("nuisancePdf") == 0)) {
-      throw std::logic_error("Hybrid: running with systematics enabled, but nuisances or nuisancePdf not defined.");
+    if (mc_s->GetNuisanceParameters() == 0) {
+      throw std::logic_error("Hybrid: running with systematics enabled, but nuisances not defined.");
     }
+    nuisancePdf.reset(utils::makeNuisancePdf(*mc_s));
     hc.UseNuisance(true);
-    hc.SetNuisancePdf(*w->pdf("nuisancePdf"));
-    hc.SetNuisanceParameters(*w->set("nuisances"));
+    hc.SetNuisancePdf(*nuisancePdf);
+    hc.SetNuisanceParameters(*mc_s->GetNuisanceParameters());
   } else {
     hc.UseNuisance(false);
   }

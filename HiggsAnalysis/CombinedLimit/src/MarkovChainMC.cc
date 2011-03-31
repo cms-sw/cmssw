@@ -139,8 +139,8 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
     r->setMax(hintSafetyFactor_*(*hint));
   }
 
-  if (withSystematics && (w->set("nuisances") == 0)) {
-    throw std::logic_error("MarkovChainMC: running with systematics enabled, but nuisances or nuisancePdf not defined.");
+  if (withSystematics && (mc_s->GetNuisanceParameters() == 0)) {
+    throw std::logic_error("MarkovChainMC: running with systematics enabled, but nuisances not defined.");
   }
   
   w->loadSnapshot("clean");
