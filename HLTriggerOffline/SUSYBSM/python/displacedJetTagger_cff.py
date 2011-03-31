@@ -13,13 +13,13 @@ displacedJetAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
 
     jets = cms.InputTag( "ak5CaloJets" ),
 # or use the same jets as used in the trigger.
-#    jets = cms.InputTag( "hltAntiKT5L2L3CorrCaloJetsPt80Eta2"),
+#    jets = cms.InputTag( "hltAntiKT5L2L3CorrCaloJetsPt60Eta2V2"),
                                          
 # use offline tracks
     tracks = cms.InputTag( "generalTracks" ),
 # or use same tracks as used in trigger
-#    tracks = cms.InputTag( "hltPixelTracks" ),
-#    tracks = cms.InputTag( "hltDisplacedHT240RegionalCtfWithMaterialTracks" ),
+#    tracks = cms.InputTag( "hltPixelTracks24cm" ),
+#    tracks = cms.InputTag( "hltDisplacedHT250RegionalCtfWithMaterialTracksV2" ),
 # These are not used in HLT, but available in RECO.
 #    tracks = cms.InputTag( "pixelTracks" ),
     coneSize = cms.double( 0.5 )
@@ -30,7 +30,7 @@ displacedJetTagInfos = impactParameterTagInfos.clone (
     jetTracks = cms.InputTag( "displacedJetAssociator" ),
     primaryVertex = cms.InputTag("offlinePrimaryVertices"),
 # or use same priamry vertex as used in trigger
-#    primaryVertex = cms.InputTag( "hltPixelVertices" ),    
+#    primaryVertex = cms.InputTag( "hltPixelVertices24cm" ),    
 # These are not the ones used in HLT, but are available in RECO.
 #    primaryVertex = cms.InputTag( "pixelVertices" ),    
     computeProbabilities = cms.bool( False ),
