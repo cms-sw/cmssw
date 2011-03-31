@@ -1,4 +1,4 @@
-// $Id: DQMTopLevelFolder.cc,v 1.1.4.2 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DQMTopLevelFolder.cc,v 1.2 2011/03/07 15:31:32 mommsen Exp $
 /// @file: DQMTopLevelFolder.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -20,6 +20,8 @@
 
 namespace stor {
   
+  unsigned int DQMTopLevelFolder::sentEvents_(0);
+  
   DQMTopLevelFolder::DQMTopLevelFolder
   (
     const DQMKey& dqmKey,
@@ -34,7 +36,6 @@ namespace stor {
   dqmEventMonColl_(dqmEventMonColl),
   expectedUpdates_(expectedUpdates),
   nUpdates_(0),
-  sentEvents_(0),
   updateNumber_(0)
   {
     gROOT->SetBatch(kTRUE);
@@ -54,6 +55,10 @@ namespace stor {
     // A restarted EP will start counting at 0 again.
     // Thus, take the maximum of all updates we get.
     updateNumber_ = std::max(updateNumber_, view.updateNumber());
+    if ( timeStamp_ == edm::Timestamp::invalidTimestamp() )
+      timeStamp_ = view.timeStamp();
+    else
+      timeStamp_ = std::min(timeStamp_, view.timeStamp());
 
     edm::StreamDQMDeserializer deserializer;
     std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
@@ -131,14 +136,12 @@ namespace stor {
       + dqmKey_.topLevelFolderName.length()
     + folderSize;
     
-    edm::Timestamp timestamp(utils::nanosecondsSinceEpoch(lastUpdate_));
-    
     DQMEventMsgBuilder builder(
       record.getBuffer(totalSize),
       totalSize,
       dqmKey_.runNumber,
       ++sentEvents_,
-      timestamp,
+      timeStamp_,
       dqmKey_.lumiSection,
       updateNumber_,
       (uint32_t)serializer.adler32_chksum(),
