@@ -10,6 +10,10 @@ SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 SiStripMonitorDigi.TProfTotalNumberOfDigisVsLS.subdetswitchon = True
 SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = True
 SiStripMonitorDigi.xLumiProf = 3
+# removing some histograms
+SiStripMonitorDigi.TH1ADCsCoolestStrip.moduleswitchon = False
+SiStripMonitorDigi.TH1ADCsHottestStrip.moduleswitchon = False
+SiStripMonitorDigi.TH1StripOccupancy.moduleswitchon = False
 
 # SiStripMonitorCluster ####
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
@@ -18,6 +22,10 @@ SiStripMonitorClusterReal.OutputMEsInRootFile = False
 SiStripMonitorClusterReal.SelectAllDetectors = True
 SiStripMonitorClusterReal.TProfTotalNumberOfClusters.subdetswitchon = True
 SiStripMonitorClusterReal.TProfClustersApvCycle.subdetswitchon = True
+# removing some histograms
+SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
+SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
+SiStripMonitorClusterReal.TH1ModuleLocalOccupancy.moduleswitchon = False
 
 # SiStripMonitorTrack ####
 # Clone for Cosmic Track Finder
@@ -121,6 +129,8 @@ import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
 TrackMon_gentk = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
 TrackMon_gentk.FolderName          = 'Tracking/TrackParameters'
 TrackMon_gentk.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
+# decrease number of histograms
+#TrackMon_gentk.doTrackerSpecific = False
 
 # Clone for Heavy Ion Tracks (for HI Collisions)
 import DQM.TrackingMonitor.TrackerHeavyIonTrackingMonitor_cfi
