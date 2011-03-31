@@ -15,6 +15,8 @@ class ModelBuilderBase():
                     self.out = ROOT.RooWorkspace("w","w");
                     self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
                     self.out.dont_delete = []
+                    if options.verbose == 0:
+                        ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
             else:
                 raise RuntimeError, "You need to specify an output file when using binary mode";
         elif options.out != None:
@@ -58,6 +60,7 @@ class ModelBuilder(ModelBuilderBase):
         self.doCombination()
         if self.options.bin:
             self.doModelConfigs()
+            if self.options.verbose > 1: self.out.Print("V")
     def doObservables(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"
@@ -153,8 +156,8 @@ class ModelBuilder(ModelBuilderBase):
     def doModelConfigs(self):
         if not self.options.bin: raise RuntimeException
         if self.options.out == None: raise RuntimeException
-        mc_s = ROOT.RooStats.ModelConfig("ModelConfig",   self.out)
-        mc_b = ROOT.RooStats.ModelConfig("ModelConfig_b", self.out)
+        mc_s = ROOT.RooStats.ModelConfig("ModelConfig",       self.out)
+        mc_b = ROOT.RooStats.ModelConfig("ModelConfig_bonly", self.out)
         for (l,mc) in [ ('s',mc_s), ('b',mc_b) ]:
             mc.SetPdf(self.out.pdf("model_"+l))
             mc.SetParametersOfInterest(self.out.set("POI"))
@@ -172,12 +175,16 @@ class CountingModelBuilder(ModelBuilder):
             raise RuntimeError, "You're using a CountingModelBuilder for a model that has shapes"
     def doObservables(self):
         if len(self.DC.obs):
-            self.doComment(" ----- observables (already set to asimov values) -----")
+            self.doComment(" ----- observables (already set to observed values) -----")
             for b in self.DC.bins: self.doVar("n_obs_bin%s[%f,0,%d]" % (b,self.DC.obs[b],N_OBS_MAX))
         else:
             self.doComment(" ----- observables -----")
             for b in self.DC.bins: self.doVar("n_obs_bin%s[0,%d]" % (b,N_OBS_MAX))
         self.doSet("observables", ",".join(["n_obs_bin%s" % b for b in self.DC.bins]))
+        if len(self.DC.obs):
+            self.out.data_obs = ROOT.RooDataSet("data_obs","observed data", self.out.set("observables"))
+            self.out.data_obs.add( self.out.set("observables") )
+            self.out._import(self.out.data_obs)
     def doIndividualModels(self):
         self.doComment(" --- Expected events in each bin, total (S+B and B) ----")
         for b in self.DC.bins:
