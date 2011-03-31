@@ -76,9 +76,9 @@ class ModelBuilder(ModelBuilderBase):
         globalobs = []
         for (n,pdf,args,errline) in self.DC.systs: 
             if pdf == "lnN":
-                #print "thetaPdf_%s = Gaussian(theta_%s[-5,5], 0, 1);" % (n,n)
-                self.doObj("thetaPdf_%s" % n, "Gaussian", "theta_%s[-5,5], thetaIn_%s[0], 1" % (n,n));
-                globalobs.append("thetaIn_%s" % n)
+                #print "%s_Pdf = Gaussian(%s[-5,5], 0, 1);" % (n,n)
+                self.doObj("%s_Pdf" % n, "Gaussian", "%s[-5,5], %s_In[0], 1" % (n,n));
+                globalobs.append("%s_In" % n)
             elif pdf == "gmM":
                 val = 0;
                 for c in errline.values(): #list channels
@@ -89,12 +89,12 @@ class ModelBuilder(ModelBuilderBase):
                         val = v;
                 if val == 0: raise RuntimeError, "Error: line %s contains all zeroes"
                 theta = val*val; kappa = 1/theta
-                self.doObj("thetaPdf_%s" % n, "Gamma", "theta_%s[1,%f,%f], %g, %g, 0" % (n, max(0.01,1-5*val), 1+5*val, kappa, theta))
+                self.doObj("%s_Pdf" % n, "Gamma", "%s[1,%f,%f], %g, %g, 0" % (n, max(0.01,1-5*val), 1+5*val, kappa, theta))
             elif pdf == "gmN":
-                self.doObj("thetaPdf_%s" % n, "Poisson", "thetaIn_%s[%d], theta_%s[0,%d]" % (n,args[0],n,2*args[0]+5))
-                globalobs.append("thetaIn_%s" % n)
-        self.doSet("nuisances", ",".join(["theta_%s"    % n for (n,p,a,e) in self.DC.systs]))
-        self.doObj("nuisancePdf", "PROD", ",".join(["thetaPdf_%s" % n for (n,p,a,e) in self.DC.systs]))
+                self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d], %s[0,%d]" % (n,args[0],n,2*args[0]+5))
+                globalobs.append("%s_In" % n)
+        self.doSet("nuisances", ",".join(["%s"    % n for (n,p,a,e) in self.DC.systs]))
+        self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,p,a,e) in self.DC.systs]))
         if globalobs:
             self.doSet("globalObservables", ",".join(globalobs))
     def doExpectedEvents(self):
@@ -121,16 +121,16 @@ class ModelBuilder(ModelBuilderBase):
                         if type(errline[b][p]) == list:
                             elow, ehigh = errline[b][p];
                             strexpr += " * @%d" % iSyst
-                            strargs += ", AsymPow(%f,%f,theta_%s)" % (elow, ehigh, n)
+                            strargs += ", AsymPow(%f,%f,%s)" % (elow, ehigh, n)
                         else:
                             strexpr += " * pow(%f,@%d)" % (errline[b][p], iSyst)
-                            strargs += ", theta_%s" % n
+                            strargs += ", %s" % n
                     elif pdf == "gmM":
                         strexpr += " * @%d " % iSyst
-                        strargs += ", theta_%s" % n
+                        strargs += ", %s" % n
                     elif pdf == "gmN":
                         strexpr += " * @%d " % iSyst
-                        strargs += ", theta_%s" % n
+                        strargs += ", %s" % n
                         if abs(errline[b][p] * args[0] - self.DC.exp[b][p]) > max(0.05 * max(self.DC.exp[b][p],1), errline[b][p]):
                             raise RuntimeError, "Values of N = %d, alpha = %g don't match with expected rate %g for systematics %s " % (
                                                     args[0], errline[b][p], self.DC.exp[b][p], n)
@@ -182,9 +182,10 @@ class CountingModelBuilder(ModelBuilder):
             for b in self.DC.bins: self.doVar("n_obs_bin%s[0,%d]" % (b,N_OBS_MAX))
         self.doSet("observables", ",".join(["n_obs_bin%s" % b for b in self.DC.bins]))
         if len(self.DC.obs):
-            self.out.data_obs = ROOT.RooDataSet("data_obs","observed data", self.out.set("observables"))
-            self.out.data_obs.add( self.out.set("observables") )
-            self.out._import(self.out.data_obs)
+            if self.options.bin:
+                self.out.data_obs = ROOT.RooDataSet("data_obs","observed data", self.out.set("observables"))
+                self.out.data_obs.add( self.out.set("observables") )
+                self.out._import(self.out.data_obs)
     def doIndividualModels(self):
         self.doComment(" --- Expected events in each bin, total (S+B and B) ----")
         for b in self.DC.bins:
