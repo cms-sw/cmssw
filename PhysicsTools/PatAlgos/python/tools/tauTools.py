@@ -63,7 +63,7 @@ def redoPFTauDiscriminators(process,
     else:
         raise StandardError, "Unkown tauType: '%s'"%tauType
 
-    applyPostfix(process,"makePatTaus",postfix).replace(
+    applyPostfix(process,"patDefaultSequence",postfix).replace(
         applyPostfix(process,"patTaus",postfix),
         tauDiscriminationSequence*applyPostfix(process,"patTaus",postfix)
     )
