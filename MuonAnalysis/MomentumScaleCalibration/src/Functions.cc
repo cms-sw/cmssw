@@ -33,7 +33,6 @@ scaleFunctionBase<double * > * scaleFunctionService( const int identifier )
   case ( 27 ): return ( new scaleFunctionType27<double * > ); break;
   case ( 28 ): return ( new scaleFunctionType28<double * > ); break;
   case ( 29 ): return ( new scaleFunctionType29<double * > ); break;
-  case ( 30 ): return ( new scaleFunctionType30<double * > ); break;
   default: std::cout << "Error: wrong identifier = " << identifier << std::endl; exit(1);
   }
 }
@@ -71,7 +70,6 @@ scaleFunctionBase<std::vector<double> > * scaleFunctionVecService( const int ide
   case ( 27 ): return ( new scaleFunctionType27<std::vector<double> > ); break;
   case ( 28 ): return ( new scaleFunctionType28<std::vector<double> > ); break;
   case ( 29 ): return ( new scaleFunctionType29<std::vector<double> > ); break;  
-  case ( 30 ): return ( new scaleFunctionType30<std::vector<double> > ); break;  
   default: std::cout << "Error: wrong identifier = " << identifier << std::endl; exit(1);
   }
 }
@@ -119,6 +117,7 @@ resolutionFunctionBase<double *> * resolutionFunctionService( const int identifi
   case ( 40 ): return ( new resolutionFunctionType40<double *> ); break;
   case ( 41 ): return ( new resolutionFunctionType41<double *> ); break;
   case ( 42 ): return ( new resolutionFunctionType42<double *> ); break;
+  case ( 43 ): return ( new resolutionFunctionType43<double *> ); break;
 
   default: std::cout << "Error: undefined resolution type = " << identifier << std::endl; exit(1); break;
   }
@@ -152,6 +151,7 @@ resolutionFunctionBase<std::vector<double> > * resolutionFunctionVecService( con
   case ( 40 ): return ( new resolutionFunctionType40<std::vector<double> > ); break; 
   case ( 41 ): return ( new resolutionFunctionType41<std::vector<double> > ); break;
   case ( 42 ): return ( new resolutionFunctionType42<std::vector<double> > ); break;
+  case ( 43 ): return ( new resolutionFunctionType43<std::vector<double> > ); break;
  
  default: std::cout << "Error: undefined resolution type = " << identifier << std::endl; exit(1); break;
   }

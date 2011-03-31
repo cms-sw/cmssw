@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2011/02/24 17:48:26 $
-//  $Revision: 1.103 $
+//  $Date: 2011/03/23 16:14:34 $
+//  $Revision: 1.104 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -211,6 +211,9 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
   MuScleFitUtils::parBias         = pset.getParameter<std::vector<double> >("parBias");
   MuScleFitUtils::parSmear        = pset.getParameter<std::vector<double> >("parSmear");
   MuScleFitUtils::parResol        = pset.getParameter<std::vector<double> >("parResol");
+  MuScleFitUtils::parResolStep    = pset.getUntrackedParameter<std::vector<double> >("parResolStep", std::vector<double>());
+  MuScleFitUtils::parResolMin     = pset.getUntrackedParameter<std::vector<double> >("parResolMin", std::vector<double>());
+  MuScleFitUtils::parResolMax     = pset.getUntrackedParameter<std::vector<double> >("parResolMax", std::vector<double>());
   MuScleFitUtils::parScale        = pset.getParameter<std::vector<double> >("parScale");
   MuScleFitUtils::parCrossSection = pset.getParameter<std::vector<double> >("parCrossSection");
   MuScleFitUtils::parBgr          = pset.getParameter<std::vector<double> >("parBgr");

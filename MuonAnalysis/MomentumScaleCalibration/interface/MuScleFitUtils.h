@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2010/12/03 12:57:24 $
- *  $Revision: 1.28 $
+ *  $Date: 2011/03/23 16:14:34 $
+ *  $Revision: 1.29 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -170,6 +170,9 @@ public:
   static std::vector<double> parSmear;
   static std::vector<double> parBias;
   static std::vector<double> parResol;
+  static std::vector<double> parResolStep;
+  static std::vector<double> parResolMin;
+  static std::vector<double> parResolMax;
   static std::vector<double> parScale;
   static std::vector<double> parCrossSection;
   static std::vector<double> parBgr;

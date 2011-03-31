@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/12/03 12:57:25 $
- *  $Revision: 1.48 $
+ *  $Date: 2011/03/23 16:14:35 $
+ *  $Revision: 1.49 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -136,6 +136,9 @@ BackgroundHandler * MuScleFitUtils::backgroundHandler;
 std::vector<double> MuScleFitUtils::parBias;
 std::vector<double> MuScleFitUtils::parSmear;
 std::vector<double> MuScleFitUtils::parResol;
+std::vector<double> MuScleFitUtils::parResolStep;
+std::vector<double> MuScleFitUtils::parResolMin;
+std::vector<double> MuScleFitUtils::parResolMax;
 std::vector<double> MuScleFitUtils::parScale;
 std::vector<double> MuScleFitUtils::parCrossSection;
 std::vector<double> MuScleFitUtils::parBgr;
@@ -1246,7 +1249,12 @@ void MuScleFitUtils::minimizeLikelihood()
   int * ind = new int[parnumberAll]; // Order of release of parameters
   TString * parname = new TString[parnumberAll];
 
-  MuScleFitUtils::resolutionFunctionForVec->setParameters( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, MuonType );
+  if( !parResolStep.empty() && !parResolMin.empty() && !parResolMax.empty() ) {
+    MuScleFitUtils::resolutionFunctionForVec->setParameters( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parResolStep, parResolMin, parResolMax, MuonType );
+  }
+  else {
+    MuScleFitUtils::resolutionFunctionForVec->setParameters( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, MuonType );
+  }
 
   // Take the number of parameters in the resolutionFunction and displace the arrays passed to the scaleFunction
   int resParNum = MuScleFitUtils::resolutionFunctionForVec->parNum();
@@ -1579,15 +1587,17 @@ void MuScleFitUtils::minimizeLikelihood()
 	  std::cout << "plotting parameter = " << ipar+1 << std::endl;
 	  std::stringstream iparString;
 	  iparString << ipar+1;
+	  std::stringstream iparStringName;
+	  iparStringName << ipar;
 	  rmin.mncomd( ("scan "+iparString.str()).c_str(), ierror );
 	  if( ierror == 0 ) {
-	    TCanvas * canvas = new TCanvas(("likelihoodCanvas_loop_"+iLoopString.str()+"_oder_"+iorderString.str()+"_par_"+iparString.str()).c_str(), ("likelihood_"+iparString.str()).c_str(), 1000, 800);
+	    TCanvas * canvas = new TCanvas(("likelihoodCanvas_loop_"+iLoopString.str()+"_oder_"+iorderString.str()+"_par_"+iparStringName.str()).c_str(), ("likelihood_"+iparStringName.str()).c_str(), 1000, 800);
 	    canvas->cd();
 	    // arglis[0] = ipar;
 	    // rmin.mnexcm( "sca", arglis, 0, ierror );
 	    TGraph * graph = (TGraph*)rmin.GetPlot();
 	    graph->Draw("AP");
-	    // graph->SetTitle(("parvalue["+iparString.str()+"]").c_str());
+	    // graph->SetTitle(("parvalue["+iparStringName.str()+"]").c_str());
 	    graph->SetTitle(parname[ipar]);
 	    // graph->Write();
 

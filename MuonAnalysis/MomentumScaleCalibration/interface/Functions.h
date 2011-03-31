@@ -1448,111 +1448,24 @@ public:
     double thisStep[] = { 0.0001, 
 			  0.01,
 			  0.0001,
-			  0.01,
+			  0.001,
 			  0.1
 			  };
     TString thisParName[] = {"Pt bias","Eta linear coeff","Eta parabolic coeff","Phi ampl", "Phi phase"};
     double thisMini[] = { -0.02, 
 			  -0.2, 
 			  -0.02,
-			  -0.2, 
+			  -0.02, 
 			  -3.1416
 			  };
     double thisMaxi[] = {0.02, 
 			 0.2,
 			 0.02,
-			 0.2, 
+			 0.02, 
 			 3.1416
 			 };
 
     this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
-  }
-};
-
-// Function built for J/Psi and Z
-template <class T>
-class scaleFunctionType30 : public scaleFunctionBase<T>
-{
-public:
-  scaleFunctionType30() { this->parNum_ = 6; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const
-  {
-    return( (1+ parScale[0]*pt +
-	     (double)chg*pt*parScale[1]*eta +
-	     parScale[2]*eta*eta +
-	     pt*(double)chg*parScale[3]*sin(phi+parScale[4]) +
-	     parScale[5]*etaCorrection(eta))*pt );
-  }
-  double etaCorrection(const double & eta) const
-  {
-    double fabsEta = std::fabs(eta);
-    if( fabsEta < 0.2) return -0.00063509;
-    else if( fabsEta < 0.4 ) return -0.000585369;
-    else if( fabsEta < 0.6 ) return -0.00077363;
-    else if( fabsEta < 0.8 ) return -0.000547868;
-    else if( fabsEta < 1.0 ) return -0.000954819;
-    else if( fabsEta < 1.2 ) return -0.000162139;
-    else if( fabsEta < 1.4 ) return 0.0026909;
-    else if( fabsEta < 1.6 ) return 0.000684376;
-    else if( fabsEta < 1.8 ) return -0.00174534;
-    else if( fabsEta < 2.0 ) return -0.00177076;
-    else if( fabsEta < 2.2 ) return 0.00117463;
-    else if( fabsEta < 2.4 ) return 0.000985705;
-    else if( fabsEta < 2.6 ) return 0.00163941;
-    return 0.;
-  }
-
-  // Fill the scaleVec with neutral parameters
-  virtual void resetParameters(std::vector<double> * scaleVec) const
-  {
-    scaleVec->push_back(1);
-    for( int i=1; i<this->parNum_; ++i ) {
-      scaleVec->push_back(0);
-    }
-  }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType)
-  {
-    double thisStep[] = {0.0001,
-			 0.0001,
-			 0.00001,
-			 0.0001,
-			 0.001,
-			 0.0001};
-    TString thisParName[] = {"offset",
-			     "asymmLinearEta",
-			     "quadratic eta",
-			     "sin amplitude",
-			     "sin phase",
-			     "amplitude of eta binned"};
-    if( muonType == 1 ) {
-      double thisMini[] = {-0.2,
-			   -0.1,
-			   -0.1,
-			   0.,
-			   -3.14,
-	                   0.};
-      double thisMaxi[] = {0.2,
-			   0.1,
-			   0.1,
-			   0.,
-			   3.14,
-			   2.};
-      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
-    } else {
-      double thisMini[] = {-0.2,
-			   -0.1,
-			   -0.1,
-			   0.,
-			   -3.14,
-	                   0.};
-      double thisMaxi[] = {0.2,
-			   0.1,
-			   0.1,
-			   0.,
-			   3.14,
-			   2.};
-      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
-    }
   }
 };
 
@@ -1760,6 +1673,16 @@ class resolutionFunctionBase {
   virtual ~resolutionFunctionBase() = 0;
   /// This method is used to differentiate parameters among the different functions
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) = 0;
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+			     const T & parResol, const std::vector<int> & parResolOrder,
+			     const std::vector<double> & parStep,
+			     const std::vector<double> & parMin,
+			     const std::vector<double> & parMax,
+			     const int muonType)
+  {
+    std::cout << "This method must be implemented" << std::endl;
+    exit(1);
+  }
   virtual int parNum() const { return parNum_; }
  protected:
   int parNum_;
@@ -1820,6 +1743,12 @@ class resolutionFunctionType1 : public resolutionFunctionBase<T> {
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+			     const T & parResol, const std::vector<int> & parResolOrder,
+			     const std::vector<double> & parStep,
+			     const std::vector<double> & parMin,
+			     const std::vector<double> & parMax,
+			     const int muonType) {}
 };
 
 // Resolution Type 6
@@ -2812,7 +2741,7 @@ class resolutionFunctionType30 : public resolutionFunctionBase<T> {
     if(fabsEta<parval[0]) {
       return( ptPart + parError[1] + parError[2]*fabsEta + parError[3]*eta*eta );
     }
-    // Return a line connecting the two parabolas
+    // Note: this is a rough approximation, it should be fixed
     else if( fabsEta < parval[14] ) {
       double x_1 = parval[0];
       double y_1 = parval[1] + parval[2]*parval[0] + parval[3]*parval[0]*parval[0];
@@ -3096,26 +3025,36 @@ template <class T>
 class resolutionFunctionType42 : public resolutionFunctionBase<T> {
  public:
   resolutionFunctionType42() { this->parNum_ = 15; }
+  
+  inline double centralParabola(const double & pt, const double & eta, const T & parval)
+  {
+    return( parval[0]+parval[1]*pt + parval[14]*pt*pt + parval[2]*std::fabs(eta) + parval[3]*eta*eta );
+  }
+  inline double leftParabola(const double & pt, const double & eta, const T & parval)
+  {
+    return( parval[1]*pt + parval[14]*pt*pt + parval[5]*fabs(eta-parval[7]) +
+    parval[6]*(eta-parval[7])*(eta-parval[7]) );
+  }
+  inline double rightParabola(const double & pt, const double & eta, const T & parval)
+  {
+    return( parval[1]*pt + parval[14]*pt*pt + parval[9]*fabs(eta-parval[11]) +
+    parval[10]*(eta-parval[11])*(eta-parval[11]) );
+  }
+
   // linear in pt and quadratic in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    double fabsEta = std::fabs(eta);
+    //double fabsEta = std::fabs(eta);
     if(eta>=parval[12] && eta<=parval[13]){
-      return( parval[0]+parval[1]*pt + parval[14]*pt*pt + parval[2]*std::fabs(eta)+parval[3]*eta*eta );
+      return centralParabola(pt, eta, parval);
     }
-    else if(eta<parval[12]){ //eta in left endcap
-      // return( parval[4] + parval[1]*pt + parval[14]*pt*pt + parval[5]*(fabsEta-parval[7]) + parval[6]*(fabsEta-parval[7])*(fabsEta-parval[7]) );
-      return( parval[0] + parval[12]*parval[2] + parval[12]*parval[12]*parval[3]*parval[3] - parval[5]*(parval[12]-parval[7]) -
-      parval[6]*(parval[12]-parval[7])*(parval[12]-parval[7]) +
-      parval[1]*pt + parval[14]*pt*pt + parval[5]*(fabsEta-parval[7]) + parval[6]*(fabsEta-parval[7])*(fabsEta-parval[7]) );
+    else if(eta<parval[12]) { //eta in left endcap
+      return( centralParabola(pt, parval[12], parval) - leftParabola(pt, parval[12], parval) + leftParabola(pt, eta, parval) );
     }
-    // return( parval[8] + parval[1]*pt + parval[14]*pt*pt + parval[9]*(fabsEta-parval[11]) + parval[10]*(fabsEta-parval[11])*(fabsEta-parval[11]) ); 
-    return( parval[0] + parval[13]*parval[2] + parval[13]*parval[13]*parval[3]*parval[3] - parval[9]*(parval[13]-parval[11]) -
-    parval[10]*(parval[13]-parval[11])*(parval[13]-parval[11]) +
-    parval[1]*pt + parval[14]*pt*pt + parval[9]*(fabsEta-parval[11]) + parval[10]*(fabsEta-parval[11])*(fabsEta-parval[11]) );
+    return( centralParabola(pt, parval[13], parval) - rightParabola(pt, parval[13], parval) + rightParabola(pt, eta, parval) );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return 0; 
+    return 0;
       //0.00035 + eta*eta*0.00015; // fixed from MC (Mar. 2011)
   }
   // 1/pt in pt and quadratic in eta
@@ -3132,15 +3071,21 @@ class resolutionFunctionType42 : public resolutionFunctionBase<T> {
       return sqrt( pow(parError[0], 2) + pow(pt*parError[1], 2) + pow(pt*pt*parError[14], 2) + pow(fabsEta*parError[2], 2) + pow(eta*eta*parError[3], 2));
     }
     else if( eta < parval[12] ) {
+      double sign1 = 1;
+      if( parval[12] < parval[7] ) sign1 = -1;
+      double sign2 = 1;
+      if( eta < parval[7] ) sign2 = -1;
+      double sign3 = 1;
+      if( parval[12] < 0 ) sign3 = -1; // This should be always true
 
-      return( sqrt(pow(parError[0],2) +  // parval[0]
+      return(sqrt(pow(parError[0],2) +  // parval[0]
       pow(pt*parError[1], 2) +           // parval[1]
       pow(parval[12]*parError[2], 2) +   // parval[2]
-      pow(2*parval[3]*parval[12]*parval[12]*parError[3], 2) + // parval[3]
-      pow((-(parval[12]-parval[7])+(fabsEta-parval[7]))*parError[5], 2) + // parval[5]
-      pow((- pow(parval[12]-parval[7], 2) + pow(fabsEta-parval[7], 2))*parError[6], 2) + // parval[6]
-      pow((2*(parval[12]-parval[7])*parval[6] - 2*(fabsEta-parval[7])*parval[6])*parError[7], 2) + // parval[7]
-      pow((parval[2] + 2*parval[12]*parval[3]*parval[3] - parval[5] - 2*(parval[12]-parval[7])*parval[6])*parError[12], 2) + // parval[12]
+      pow(parval[12]*parval[12]*parError[3], 2) + // parval[3]
+      pow((-fabs(parval[12]-parval[7])+fabs(eta-parval[7]))*parError[5], 2) + // parval[5]
+      pow((- pow(parval[12]-parval[7], 2) + pow(eta-parval[7], 2))*parError[6], 2) + // parval[6]
+      pow((sign1*parval[5] + 2*(parval[12]-parval[7])*parval[6] - sign2*parval[5] + - 2*(eta-parval[7])*parval[6])*parError[7], 2) +
+      pow((sign3*parval[2] + 2*parval[12]*parval[3] - sign1*parval[5] - 2*(parval[12]-parval[7])*parval[6])*parError[12], 2) + // parval[12]
       pow(pt*pt*parError[14], 2)) );
 
 /*      return sqrt( pow(parError[4], 2) + pow(pt*parError[1], 2) + pow(pt*pt*parError[14], 2) +
@@ -3149,60 +3094,272 @@ class resolutionFunctionType42 : public resolutionFunctionBase<T> {
 		   pow(-parval[5] - 2*parval[6]*(fabsEta - parval[7]), 2)*pow(parError[7], 2) );*/
     }
 
+    double sign1 = 1;
+    if( parval[13] < parval[11] ) sign1 = -1;
+    double sign2 = 1;
+    if( eta < parval[11] ) sign2 = -1;
+    double sign3 = 1;
+    if( parval[13] < 0 ) sign3 = -1; // This should never be true
 
-      return( sqrt(pow(parError[0],2) +  // parval[0]
-      pow(pt*parError[1], 2) +           // parval[1]
-      pow(parval[13]*parError[2], 2) +   // parval[2]
-      pow(2*parval[3]*parval[13]*parval[13]*parError[3], 2) + // parval[3]
-      pow((-(parval[13]-parval[11])+(fabsEta-parval[11]))*parError[9], 2) + // parval[9]
-      pow((- pow(parval[13]-parval[11], 2) + pow(fabsEta-parval[11], 2))*parError[10], 2) + // parval[10]
-      pow((2*(parval[13]-parval[11])*parval[10] - 2*(fabsEta-parval[11])*parval[10])*parError[11], 2) + // parval[11]
-      pow((parval[2] + 2*parval[13]*parval[3]*parval[3] - parval[9] - 2*(parval[13]-parval[11])*parval[10])*parError[13], 2) + // parval[13]
-      pow(pt*pt*parError[14], 2)) );
-
-
-/*      return sqrt( pow(parError[8], 2) + pow(pt*parError[1], 2) + pow(pt*pt*parError[14], 2) +
-		 pow((fabsEta-parval[11])*parError[9], 2) +
-		 pow(pow(fabsEta-parval[11], 2)*parError[10], 2) +
-		 pow(-parval[9] - 2*parval[10]*(fabsEta - parval[11]), 2)*pow(parError[11], 2) );*/
+    return(sqrt(pow(parError[0],2) +  // parval[0]
+		pow(pt*parError[1], 2) +           // parval[1]
+		pow(parval[13]*parError[2], 2) +   // parval[2]
+		pow(parval[13]*parval[13]*parError[3], 2) + // parval[3]
+		pow((-fabs(parval[13]-parval[11])+fabs(eta-parval[11]))*parError[9], 2) + // parval[9]
+		pow((- pow(parval[13]-parval[11], 2) + pow(eta-parval[11], 2))*parError[10], 2) + // parval[10]
+		pow((sign1*parval[9] + 2*(parval[13]-parval[11])*parval[10] - sign2*parval[9] + - 2*(eta-parval[11])*parval[10])*parError[11], 2) + // parval[11]
+		pow((sign3*parval[2] + 2*parval[13]*parval[3] - sign1*parval[9] - 2*(parval[13]-parval[11])*parval[10])*parError[13], 2) + // parval[13]
+		pow(pt*pt*parError[14], 2)) );
   }
 
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) {
-    double thisStep[] = { 0.002, 0.00002, 0.000002, 0.0002,
-                          0.00002, 0.0002, 0.0000002, 0.0002,
-                          0.00002, 0.0002, 0.00000002, 0.0002,
-			  0.001, 0.001, 0.0001
-    };
-    TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc. (all)", "Pt res. Eta sc.", "Pt res. Eta^2 sc.",
-			      "Pt res. sc. (left)", "Pt res. Eta sc. (left)",
-			      "Pt res. Eta^2 sc. (left)", "Pt res. Eta^2 sc./offset (left)",
-			      "Pt res. sc. (right)", "Pt res. Eta sc. (right)",
-			      "Pt res. Eta^2 sc. (right)", "Pt res. Eta^2 sc./offset (right)",
-			      "floating point left","floating point right", "pt^2 sc."
-    };
-    double thisMini[] = { 0.0, -0.01, 0., -0.0001,
-                          0.0, -0.001, 0., -2.,
-                          0.0, -0.001, 0., 0.,
-			  -2., 1., 0.
-    };
-    if( muonType == 1 ) {
-      double thisMaxi[] = { 1., 1., 1., 1.,
-                            1., 1., 1., 0.1,
-                            1., 1., 1., 1.,
-			    -1.,2., 0.01
-      };
-      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
-    } else {
-      double thisMaxi[] = { 0.1, 0.01, 0.01, 0.1,
-                            0.01, 0.01, 0.1, 0.,
-                            0.01, 0.1, 0.01, 2.,
-			    -1.,2., 0.01
-			 
-      };
-      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType)
+  {
+    std::vector<ParameterSet> parSet(this->parNum_);
+    // name, step, mini, maxi
+    parSet[0]  = ParameterSet( "Pt res. sc.",                      0.002,      -0.1,  0.1  );
+    parSet[1]  = ParameterSet( "Pt res. Pt sc. (all)",             0.00002,    -0.01, 0.01 );
+    parSet[2]  = ParameterSet( "Pt res. Eta sc.",                  0.000002,   0.,    0.01 );
+    parSet[3]  = ParameterSet( "Pt res. Eta^2 sc.",                0.0002,     -0.01, 0.02 );
+    parSet[4]  = ParameterSet( "Pt res. sc. (left)",               0.00002,    0.,    0.01 );
+    parSet[5]  = ParameterSet( "Pt res. Eta sc. (left)",           0.0002,     0.,    0.2  );
+    parSet[6]  = ParameterSet( "Pt res. Eta^2 sc. (left)",         0.0000002,  -0.2,  0.5  );
+    parSet[7]  = ParameterSet( "Pt res. Eta^2 sc./offset (left)",  0.0002,     -2.2,  -0.8 );
+    parSet[8]  = ParameterSet( "Pt res. sc. (right)",              0.00002,    0.,    0.01 );
+    parSet[9]  = ParameterSet( "Pt res. Eta sc. (right)",          0.0002,     -0.2,  0.1  );
+    parSet[10] = ParameterSet( "Pt res. Eta^2 sc. (right)",        0.000002,   -0.1,  0.5  );
+    parSet[11] = ParameterSet( "Pt res. Eta^2 sc./offset (right)", 0.0002,     0.,    3.   );
+    parSet[12] = ParameterSet( "floating point left",              0.001,      -2.2,  -1.6 );
+    parSet[13] = ParameterSet( "floating point right",             0.001,      1.,    2.2  );
+    parSet[14] = ParameterSet( "pt^2 sc.",                         0.0001,     0.,    0.01 );
+
+    std::cout << "setting parameters" << std::endl;
+    this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
+  }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+			     const T & parResol, const std::vector<int> & parResolOrder,
+			     const std::vector<double> & parStep,
+			     const std::vector<double> & parMin,
+			     const std::vector<double> & parMax,
+			     const int muonType)
+  {
+    if( (int(parStep.size()) != this->parNum_) || (int(parMin.size()) != this->parNum_) || (int(parMax.size()) != this->parNum_) ) {
+      std::cout << "Error: par step or min or max do not match with number of parameters" << std::endl;
+      exit(1);
     }
+    std::vector<ParameterSet> parSet(this->parNum_);
+    // name, step, mini, maxi
+    parSet[0]  = ParameterSet( "Pt res. sc.",                      parStep[0],  parMin[0],  parMax[0]  );
+    parSet[1]  = ParameterSet( "Pt res. Pt sc. (all)",             parStep[1],  parMin[1],  parMax[1]  );
+    parSet[2]  = ParameterSet( "Pt res. Eta sc.",                  parStep[2],  parMin[2],  parMax[2]  );
+    parSet[3]  = ParameterSet( "Pt res. Eta^2 sc.",                parStep[3],  parMin[3],  parMax[3]  );
+    parSet[4]  = ParameterSet( "Pt res. sc. (left)",               parStep[4],  parMin[4],  parMax[4]  );
+    parSet[5]  = ParameterSet( "Pt res. Eta sc. (left)",           parStep[5],  parMin[5],  parMax[5]  );
+    parSet[6]  = ParameterSet( "Pt res. Eta^2 sc. (left)",         parStep[6],  parMin[6],  parMax[6]  );
+    parSet[7]  = ParameterSet( "Pt res. Eta^2 sc./offset (left)",  parStep[7],  parMin[7],  parMax[7]  );
+    parSet[8]  = ParameterSet( "Pt res. sc. (right)",              parStep[8],  parMin[8],  parMax[8]  );
+    parSet[9]  = ParameterSet( "Pt res. Eta sc. (right)",          parStep[9],  parMin[9],  parMax[9]  );
+    parSet[10] = ParameterSet( "Pt res. Eta^2 sc. (right)",        parStep[10], parMin[10], parMax[10] );
+    parSet[11] = ParameterSet( "Pt res. Eta^2 sc./offset (right)", parStep[11], parMin[11], parMax[11] );
+    parSet[12] = ParameterSet( "floating point left",              parStep[12], parMin[12], parMax[12] );
+    parSet[13] = ParameterSet( "floating point right",             parStep[13], parMin[13], parMax[13] );
+    parSet[14] = ParameterSet( "pt^2 sc.",                         parStep[14], parMin[14], parMax[14] );
+
+    std::cout << "setting parameters" << std::endl;
+    for( int i=0; i<this->parNum_; ++i ) {
+      std::cout << "parStep["<<i<<"] = " << parStep[i]
+		<< ", parMin["<<i<<"] = " << parMin[i]
+		<< ", parMax["<<i<<"] = " << parMin[i] << std::endl;
+    }
+    this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
   }
 };
+
+
+
+//------------------------ 4Nov and 22 Dec data/MC Zmumu (36/pb) -- 3 parabolas (for MU-10-004) ---------
+template <class T>
+class resolutionFunctionType43 : public resolutionFunctionBase<T> {
+ public:
+  resolutionFunctionType43() { this->parNum_ = 17; }
+
+  inline double centralParabola(const double & pt, const double & eta, const T & parval)
+  {
+    return( parval[0]+parval[1]*pt + parval[14]*pt*pt + parval[2]*std::fabs(eta)+parval[3]*eta*eta );
+  }
+  inline double leftParabola(const double & pt, const double & eta, const T & parval)
+  {
+    return( parval[0] + fabs(parval[12])*parval[2] + parval[12]*parval[12]*parval[3] -
+	    parval[5]*fabs(parval[12]-parval[7]) -
+	    parval[6]*(parval[12]-parval[7])*(parval[12]-parval[7]) +
+	    parval[1]*pt + parval[14]*pt*pt + parval[5]*fabs(eta-parval[7]) +
+	    parval[6]*(eta-parval[7])*(eta-parval[7]) );
+  }
+  inline double rightParabola(const double & pt, const double & eta, const T & parval)
+  {
+    return( parval[0] + fabs(parval[13])*parval[2] + parval[13]*parval[13]*parval[3] -
+	    parval[9]*fabs(parval[13]-parval[11]) -
+	    parval[10]*(parval[13]-parval[11])*(parval[13]-parval[11]) +
+	    parval[1]*pt + parval[14]*pt*pt + parval[9]*fabs(eta-parval[11]) +
+	    parval[10]*(eta-parval[11])*(eta-parval[11]) );
+  }
+  inline double leftLine(const double & pt, const double & eta, const T & parval)
+  {
+    double x_1 = parval[15];
+    double y_1 = centralParabola(pt, parval[15], parval);
+    double x_2 = parval[12];
+    double y_2 = leftParabola(pt, parval[12], parval);
+    return( (eta - x_1)*(y_2 - y_1)/(x_2 - x_1) + y_1 );
+  }
+  inline double rightLine(const double & pt, const double & eta, const T & parval)
+  {
+    double x_1 = parval[16];
+    double y_1 = centralParabola(pt, parval[16], parval);
+    double x_2 = parval[13];
+    double y_2 = rightParabola(pt, parval[13], parval);
+    return( (eta - x_1)*(y_2 - y_1)/(x_2 - x_1) + y_1 );
+  }
+
+  // linear in pt and quadratic in eta
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval)
+  {
+    //double fabsEta = std::fabs(eta);
+    if(eta>=parval[15] && eta<=parval[16]){
+      return centralParabola(pt, eta, parval);
+    }
+    // Return a line connecting the two parabolas
+    else if( (eta >= parval[12]) && (eta < parval[15]) ) {
+      return leftLine(pt, eta, parval);
+    }
+    else if( eta < parval[12] ){ //eta in left endcap
+      return leftParabola(pt, eta, parval);
+    }
+    // Return a line connecting the two parabolas
+    else if( (eta > parval[16]) && (eta <= parval[13]) ) {
+      return rightLine(pt, eta, parval);
+    }
+    return rightParabola(pt, eta, parval);
+  }
+
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval)
+  {
+    return 0;
+      //0.00035 + eta*eta*0.00015; // fixed from MC (Mar. 2011)
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval)
+  {
+    return 0.;
+  }
+
+  // derivatives ---------------
+  inline double centralParabolaError(const double & pt, const double & eta, const T & parval, const T & parError)
+  {
+    double fabsEta = std::fabs(eta);
+    return sqrt( pow(parError[0], 2) + pow(pt*parError[1], 2) + pow(pt*pt*parError[14], 2) + pow(fabsEta*parError[2], 2) + pow(eta*eta*parError[3], 2));
+  }
+
+  inline double leftParabolaError(const double & pt, const double & eta, const T & parval, const T & parError)
+  {
+    double sign1 = 1;
+    if( parval[12] < parval[7] ) sign1 = -1;
+    double sign2 = 1;
+    if( eta < parval[7] ) sign2 = -1;
+    double sign3 = 1;
+    if( parval[12] < 0 ) sign3 = -1; // This should be always true
+
+    return(sqrt(pow(parError[0],2) +  // parval[0]
+		pow(pt*parError[1], 2) +           // parval[1]
+		pow(parval[12]*parError[2], 2) +   // parval[2]
+		pow(parval[12]*parval[12]*parError[3], 2) + // parval[3]
+		pow((-fabs(parval[12]-parval[7])+fabs(eta-parval[7]))*parError[5], 2) + // parval[5]
+		pow((- pow(parval[12]-parval[7], 2) + pow(eta-parval[7], 2))*parError[6], 2) + // parval[6]
+		pow((sign1*parval[5] + 2*(parval[12]-parval[7])*parval[6] - sign2*parval[5] + - 2*(eta-parval[7])*parval[6])*parError[7], 2) +
+		pow((sign3*parval[2] + 2*parval[12]*parval[3] - sign1*parval[5] - 2*(parval[12]-parval[7])*parval[6])*parError[12], 2) + // parval[12]
+		pow(pt*pt*parError[14], 2)) );
+  }
+
+  inline double rightParabolaError(const double & pt, const double & eta, const T & parval, const T & parError) {
+    double sign1 = 1;
+    if( parval[13] < parval[11] ) sign1 = -1;
+    double sign2 = 1;
+    if( eta < parval[11] ) sign2 = -1;
+    double sign3 = 1;
+    if( parval[13] < 0 ) sign3 = -1; // This should never be true
+
+    return(sqrt(pow(parError[0],2) +  // parval[0]
+		pow(pt*parError[1], 2) +           // parval[1]
+		pow(parval[13]*parError[2], 2) +   // parval[2]
+		pow(parval[13]*parval[13]*parError[3], 2) + // parval[3]
+		pow((-fabs(parval[13]-parval[11])+fabs(eta-parval[11]))*parError[9], 2) + // parval[9]
+		pow((- pow(parval[13]-parval[11], 2) + pow(eta-parval[11], 2))*parError[10], 2) + // parval[10]
+		pow((sign1*parval[9] + 2*(parval[13]-parval[11])*parval[10] - sign2*parval[9] + - 2*(eta-parval[11])*parval[10])*parError[11], 2) + // parval[11]
+		pow((sign3*parval[2] + 2*parval[13]*parval[3] - sign1*parval[9] - 2*(parval[13]-parval[11])*parval[10])*parError[13], 2) + // parval[13]
+		pow(pt*pt*parError[14], 2)) );
+  }
+
+  virtual double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError)
+  {
+    // double fabsEta = std::fabs(eta);
+    if( eta >= parval[15] && eta <= parval[16] ) {
+      return centralParabolaError(pt, eta, parval, parError);
+    }
+    else if( (eta >= parval[12]) && (eta < parval[15]) ) {
+      double lineValue = leftLine(pt, eta, parval);
+
+      double x_1 = parval[15];
+      double y_1 = centralParabola(pt, parval[15], parval) + centralParabolaError(pt, parval[15], parval, parError);
+      double x_2 = parval[12];
+      double y_2 = leftParabola(pt, parval[12], parval) + leftParabolaError(pt, parval[12], parval, parError);
+      double lineValuePlusError = (eta - x_1)*(y_2 - y_1)/(x_2 - x_1) + y_1;
+      
+      return( lineValuePlusError - lineValue );
+    }
+    else if( eta < parval[12] ) {
+      return leftParabolaError(pt, eta, parval, parError);
+    }
+    else if( (eta > parval[16]) && (eta <= parval[13]) ) {
+      double lineValue = rightLine(pt, eta, parval);
+
+      double x_1 = parval[16];
+      double y_1 = centralParabola(pt, parval[16], parval) + centralParabolaError(pt, parval[16], parval, parError);
+      double x_2 = parval[13];
+      double y_2 = rightParabola(pt, parval[13], parval) + leftParabolaError(pt, parval[13], parval, parError);
+      double lineValuePlusError = (eta - x_1)*(y_2 - y_1)/(x_2 - x_1) + y_1;
+      
+      return( lineValuePlusError - lineValue );
+    }
+    return rightParabolaError(pt, eta, parval, parError);
+  }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType)
+  {
+    std::vector<ParameterSet> parSet(this->parNum_);
+    // name, step, mini, maxi
+    parSet[0]  = ParameterSet( "Pt res. sc.",			   0.002,      0.,      0.1  );
+    parSet[1]  = ParameterSet( "Pt res. Pt sc. (all)",		   0.00002,    -0.01,   0.01 );
+    parSet[2]  = ParameterSet( "Pt res. Eta sc. central",	   0.000002,   0.,      0.01 );
+    parSet[3]  = ParameterSet( "Pt res. Eta^2 sc. central",	   0.0002,     -0.0001, 0.1  );
+    parSet[4]  = ParameterSet( "Not used",      		   0.00002,    0.,      0.01 );
+    parSet[5]  = ParameterSet( "Pt res. Eta sc. (left)",	   0.0002,     -0.01,   0.1  );
+    parSet[6]  = ParameterSet( "Pt res. Eta^2 sc. (left)",	   0.0000002,  0.,      1.   );
+    parSet[7]  = ParameterSet( "Pt res. Eta^2 sc./offset (left)",  0.0002,     -2.,     0.   );
+    parSet[8]  = ParameterSet( "Not used",	        	   0.00002,    0.,      0.01 );
+    parSet[9]  = ParameterSet( "Pt res. Eta sc. (right)",	   0.0002,     -0.01,   0.1  );
+    parSet[10] = ParameterSet( "Pt res. Eta^2 sc. (right)",	   0.0000002,  -1.,     1.   );
+    parSet[11] = ParameterSet( "Pt res. Eta^2 sc./offset (right)", 0.0002,     0.,      2.   );
+    parSet[12] = ParameterSet( "floating point left",		   0.001,      -2.,     1.   );
+    parSet[13] = ParameterSet( "floating point right",		   0.001,      1.,      3.   );
+    parSet[14] = ParameterSet( "pt^2 sc.",                         0.0001,     0.,      0.01 );
+    parSet[15] = ParameterSet( "left line point",                  0.001,      -2.,     0.8  );
+    parSet[16] = ParameterSet( "right line point",                 0.001,      0.8,     2.   );
+
+    std::cout << "setting parameters" << std::endl;
+    this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
+  }
+};
+
 
 
 
