@@ -32,7 +32,7 @@ class ShapeBuilder(ModelBuilder):
             pdfs   = ROOT.RooArgList(); bgpdfs   = ROOT.RooArgList()
             coeffs = ROOT.RooArgList(); bgcoeffs = ROOT.RooArgList()
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
-                (pdf,coeff) = (self.getPdf(p,b), self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
+                (pdf,coeff) = (self.getPdf(b,p), self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
                 pdfs.add(pdf); coeffs.add(coeff)
                 if not self.DC.isSignal[p]:
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
@@ -64,7 +64,7 @@ class ShapeBuilder(ModelBuilder):
             for p in ['data_obs']+self.DC.exp[b].keys():
                 if len(self.DC.obs) == 0 and p == 'data_obs': continue
                 if p != 'data_obs' and self.DC.exp[b][p] == 0: continue
-                shape = self.getShape(p,b); norm = 0;
+                shape = self.getShape(b,p); norm = 0;
                 if shape.ClassName().startswith("TH1"):
                     shapeTypes.append("TH1"); shapeBins.append(shape.GetNbinsX())
                     norm = shape.Integral()
@@ -108,12 +108,12 @@ class ShapeBuilder(ModelBuilder):
             self.out._import(self.out.binVars)
     def doCombinedDataset(self):
         if len(self.DC.bins) == 1:
-            data = self.getData('data_obs',self.DC.bins[0]).Clone("data_obs")
+            data = self.getData(self.DC.bins[0],'data_obs').Clone("data_obs")
             self.out._import(data)
             return
         if self.out.mode == "binned":
             combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
-            for b in self.DC.bins: combiner.addSet(b, self.getData("data_obs",b))
+            for b in self.DC.bins: combiner.addSet(b, self.getData(b,"data_obs"))
             self.out.data_obs = combiner.done("data_obs","data_obs")
             self.out._import(self.out.data_obs)
         else: raise RuntimeException, "Only combined binned datasets are supported"
@@ -121,14 +121,14 @@ class ShapeBuilder(ModelBuilder):
     ## -------------------------------------
     ## -------- Low level helpers ----------
     ## -------------------------------------
-    def getShape(self,process,channel,syst="",_fileCache={},_neverDelete=[]):
-        pentry = None
-        if self.DC.shapeMap.has_key(process): pentry = self.DC.shapeMap[process]
-        elif self.DC.shapeMap.has_key("*"):   pentry = self.DC.shapeMap["*"]
-        else: raise KeyError, "Shape map has no entry for process '%s'" % (process)
+    def getShape(self,channel,process,syst="",_fileCache={},_neverDelete=[]):
+        bentry = None
+        if self.DC.shapeMap.has_key(channel): bentry = self.DC.shapeMap[channel]
+        elif self.DC.shapeMap.has_key("*"):   bentry = self.DC.shapeMap["*"]
+        else: raise KeyError, "Shape map has no entry for channel '%s'" % (channel)
         names = []
-        if pentry.has_key(channel): names = pentry[channel]
-        elif pentry.has_key("*"):   names = pentry["*"]
+        if bentry.has_key(process): names = bentry[process]
+        elif bentry.has_key("*"):   names = bentry["*"]
         else: raise KeyError, "Shape map has no entry for process '%s', channel '%s'" % (process,channel)
         if syst != "": names = [names[0], names[2]]
         else:          names = [names[0], names[1]]
@@ -157,10 +157,10 @@ class ShapeBuilder(ModelBuilder):
             if self.options.verbose: stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName()))
             _neverDelete.append(ret)
             return ret
-    def getData(self,process,channel,syst=""):
-        return self.shape2Data(self.getShape(process,channel,syst))
-    def getPdf(self,process,channel,syst=""):
-        return self.shape2Pdf(self.getShape(process,channel,syst))
+    def getData(self,channel,process,syst=""):
+        return self.shape2Data(self.getShape(channel,process,syst))
+    def getPdf(self,channel,process,syst=""):
+        return self.shape2Pdf(self.getShape(channel,process,syst))
     def shape2Data(self,shape,_cache={}):
         if not _cache.has_key(shape.GetName()):
             if shape.ClassName().startswith("TH1"):

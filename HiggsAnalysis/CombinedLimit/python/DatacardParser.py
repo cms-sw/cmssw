@@ -3,21 +3,22 @@ import re
 class Datacard():
     def __init__(self):
         self.bins = []
-        self.obs  = [] # aligned with self.bins, or empty
+        self.obs  = [] # empty or map bin -> value
         self.processes = []; self.signals = []; self.isSignal = {}
         self.keyline = []
         self.exp     = {}  # map bin -> (process -> value)
-        self.systs   = []  # each entry is (name, pdf, args, error line)
-                           # were error line is aligned to keyline
-        self.shapeMap = {}
+        self.systs   = []  # list (name, pdf, args, errline)
+                           # errline: map bin -> (process -> value)
+        self.shapeMap = {} # map process -> (channel -> shape)
+        self.shapeParams = {} #
         self.hasShape = False
 
 def parseCard(file, options):
     ret = Datacard()
     #
-    nbins      = 1; 
-    nprocesses = 1; 
-    nuisances = -1;
+    nbins      = -1; 
+    nprocesses = -1; 
+    nuisances  = -1;
     binline = []; processline = []; sigline = []
     for l in file:
         f = l.split();
@@ -31,9 +32,9 @@ def parseCard(file, options):
         if f[0] == "shapes":
             if not options.bin: raise RuntimeError, "Can use shapes only with binary output mode"
             if len(f) < 5: raise RuntimeError, "Malformed shapes line"
-            if not ret.shapeMap.has_key(f[1]): ret.shapeMap[f[1]] = {}
-            if ret.shapeMap[f[1]].has_key(f[2]): raise RuntimeError, "Duplicate definition for process '%s', channel '%s'" % (f[1], f[2])
-            ret.shapeMap[f[1]][f[2]] = f[3:]
+            if not ret.shapeMap.has_key(f[2]): ret.shapeMap[f[2]] = {}
+            if ret.shapeMap[f[2]].has_key(f[1]): raise RuntimeError, "Duplicate definition for process '%s', channel '%s'" % (f[1], f[2])
+            ret.shapeMap[f[2]][f[1]] = f[3:]
         if f[0] == "Observation" or f[0] == "observation": 
             ret.obs = [ float(x) for x in f[1:] ]
             if nbins == -1: nbins = len(ret.obs)
@@ -89,9 +90,11 @@ def parseCard(file, options):
     # parse nuisances   
     for l in file:
         if l.startswith("--"): continue
+        if l.startswith("#"):  continue
         l = re.sub("(?<=\\s)-+(\\s|$)"," 0\\1",l);
         f = l.split();
         lsyst = f[0]; pdf = f[1]; args = []; numbers = f[2:];
+        if re.match("[0-9]+",lsyst): lsyst = "theta"+lsyst
         if pdf == "lnN" or pdf == "gmM":
             pass # nothing special to do
         elif pdf == "gmN":
