@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_11_1/HLT_fix4/V50 (CMSSW_3_11_0_HLT19)
+# /dev/CMSSW_4_2_0/HLT/V1 (CMSSW_3_11_0_HLT19)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_11_1/HLT_fix4/V50')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V1')
 )
 
 streams = cms.PSet( 
@@ -14,6 +14,8 @@ streams = cms.PSet(
     'DoubleMu',
     'ElectronHad',
     'ForwardTriggers',
+    'HIAllPhysics',
+    'HICorePhysics',
     'HT',
     'HcalHPDNoise',
     'HcalNZS',
@@ -36,7 +38,8 @@ streams = cms.PSet(
   DQM = cms.vstring( 'OnlineMonitor',
     'OnlineMonitorHI' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
+  Express = cms.vstring( 'ExpressPhysics',
+    'HIExpressPhysics' ),
   ExpressCosmics = cms.vstring( 'ExpressCosmics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor',
     'OnlineHltMonitorHI' ),
@@ -114,6 +117,47 @@ datasets = cms.PSet(
     'HLT_ZeroBias_v1' ),
   FEDMonitor = cms.vstring( 'HLT_DTErrors_v1' ),
   ForwardTriggers = cms.vstring( 'HLT_L1Tech_CASTOR_HaloMuon_v1' ),
+  HIAllPhysics = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
+    'HLT_HIActivityHF_Single3',
+    'HLT_HICentralityVeto',
+    'HLT_HIClusterVertexCompatibility',
+    'HLT_HIJet35U',
+    'HLT_HIJet75U',
+    'HLT_HIJet90U',
+    'HLT_HIL1DoubleMuOpen',
+    'HLT_HIL1SingleMu5',
+    'HLT_HIL1SingleMu7',
+    'HLT_HIL2DoubleMu3',
+    'HLT_HIL2Mu3',
+    'HLT_HIMinBiasBSC',
+    'HLT_HIMinBiasHF',
+    'HLT_HIMinBiasHf_OR',
+    'HLT_HIMinBiasZDCPixel_SingleTrack',
+    'HLT_HIMinBiasZDC_Scint',
+    'HLT_HIPhoton15',
+    'HLT_HIPhoton20',
+    'HLT_HIRandom',
+    'HLT_HIUpcEcal',
+    'HLT_HIUpcEcal_Core',
+    'HLT_HIZeroBias',
+    'HLT_HIZeroBiasXOR' ),
+  HICorePhysics = cms.vstring( 'HLT_HIJet35U_Core',
+    'HLT_HIJet50U_Core',
+    'HLT_HIJet90U_Core',
+    'HLT_HIL1DoubleMuOpen_Core',
+    'HLT_HIL2DoubleMu3_Core',
+    'HLT_HIL2Mu20_Core',
+    'HLT_HIL2Mu5Tight_Core',
+    'HLT_HIMinBiasHF_Core',
+    'HLT_HIMinBiasHfOrBSC_Core',
+    'HLT_HIMinBiasZDC_Calo',
+    'HLT_HIPhoton20_Cleaned_Core',
+    'HLT_HIPhoton30_Cleaned_Core',
+    'HLT_HIUpcMu_Core' ),
+  HIExpressPhysics = cms.vstring( 'HLT_HIJet75U',
+    'HLT_HIL2DoubleMu3',
+    'HLT_HIMinBiasHfOrBSC',
+    'HLT_HIPhoton30_Cleaned_Core' ),
   HT = cms.vstring( 'HLT_HT150_AlphaT0p60_v1',
     'HLT_HT150_AlphaT0p70_v1',
     'HLT_HT150_v2',
