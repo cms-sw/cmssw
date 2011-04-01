@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.29 2011/03/30 21:35:40 fwyzard Exp $
+// $Id: HLTScalers.cc,v 1.30 2011/03/30 21:44:03 fwyzard Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.30  2011/03/30 21:44:03  fwyzard
+// make sure HLTConfigProvider is used only if succesfully initialized
+//
 // Revision 1.29  2011/03/30 21:35:40  fwyzard
 // make sure all members are initialized
 //
@@ -327,25 +330,39 @@ void HLTScalers::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
   // HLT config does not change within runs!
   bool changed=false;
+
+  // clear vector pairPDPaths_
+  pairPDPaths_.clear();
+
   if (not hltConfig_.init(run, c, processname_, changed)) {
     edm::LogError("TrigXMonitor") << "HLTConfigProvider failed to initialize.";
   } else {
+
     // check if trigger name in (new) config
     //  cout << "Available TriggerNames are: " << endl;
     //  hltConfig_.dump("Triggers");
 
-    // clear vector pairPDPaths_
-    pairPDPaths_.clear();
+    if (hltConfig_.streamIndex("A")<hltConfig_.streamNames().size()) {
 
-    // get hold of PD names and constituent path names
-    const std::vector<std::string> & PD = hltConfig_.streamContent("A") ;
-    for (unsigned int i = 0; i < PD.size(); i++) {
-      const std::vector<std::string> & datasetPaths = hltConfig_.datasetContent(PD[i]);
-      pairPDPaths_.push_back(make_pair(PD[i], datasetPaths));
+      // get hold of PD names and constituent path names
+      const std::vector<std::string> & PD = hltConfig_.streamContent("A") ;
+
+      for (unsigned int i = 0; i < PD.size(); i++) {
+
+        const std::vector<std::string> & datasetPaths = hltConfig_.datasetContent(PD[i]);
+        pairPDPaths_.push_back(make_pair(PD[i], datasetPaths));
+
+      }
+
+      // push stream A and its PDs
+      pairPDPaths_.push_back(make_pair("A", PD));
+
+    } else {
+
+      LogDebug("HLTScalers") << "HLTScalers::beginRun, steamm A not in the HLT menu ";
+
     }
 
-    // push stream A and its PDs
-    pairPDPaths_.push_back(make_pair("A", PD));
   }
 }
 
