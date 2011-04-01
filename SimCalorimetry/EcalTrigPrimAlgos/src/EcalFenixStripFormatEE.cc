@@ -74,7 +74,6 @@ void EcalFenixStripFormatEE::setParameters(uint32_t id,const EcalTPGSlidingWindo
   }
   else
   {
-    edm::LogWarning("EcalTPG")<<" could not find EcalTPGStripStatusMap entry for "<<id;
     stripStatus_ = 0; // Assume strip OK
   }
 }
