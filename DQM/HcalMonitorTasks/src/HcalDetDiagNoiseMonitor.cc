@@ -165,7 +165,9 @@ HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps)
   NoisyEvents=0;
   LocalRun=false; 
   dataset_seq_number=1;
-  
+  FirstOrbit=FirstOrbitLS=0xFFFFFFFF;
+  LastOrbit=LastOrbitLS=0;
+
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
@@ -290,8 +292,7 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
   if(!dbe_) return;
   int orbit=-1111;
   int bx=-1111;
-  LastOrbit = LastOrbitLS = FirstOrbit = FirstOrbitLS = orbit;
-  
+
   // for local runs 
   edm::Handle<HcalTBTriggerData> trigger_data;
   iEvent.getByType(trigger_data);
@@ -518,11 +519,11 @@ void HcalDetDiagNoiseMonitor::UpdateHistos(){
 	  for(int rbx=0;rbx<18;rbx++)for(int rm=1;rm<=4;rm++){
              int index=RMSummary->GetRMindex(HE_RBX[rbx+first_rbx],rm);
              if(index<0 || index>=HcalFrontEndId::maxRmIndex) continue;
-             if(sd==0){
+             if(sd==2){
                  HEM_Rate50->setBinContent(rbx*4+rm,RMSummary->rm[index].n_th_hi/TIME);
                  HEM_Rate300->setBinContent(rbx*4+rm,RMSummary->rm[index].n_th_300/TIME);
              }
-             if(sd==1){
+             if(sd==3){
                  HEP_Rate50->setBinContent(rbx*4+rm,RMSummary->rm[index].n_th_hi/TIME);
                  HEP_Rate300->setBinContent(rbx*4+rm,RMSummary->rm[index].n_th_300/TIME);
              }
@@ -554,10 +555,10 @@ void HcalDetDiagNoiseMonitor::UpdateHistos(){
 } 
 
 void HcalDetDiagNoiseMonitor::SaveRates(){
-    char   RBX[20];
-    int    RM;
-    float VAL1,VAL2,VAL3,VAL4,VAL5;
-    char str[500]; 
+char   RBX[20];
+int    RM;
+float VAL1,VAL2,VAL3,VAL4,VAL5;
+char str[500]; 
     double TIME=(double)(LastOrbit-FirstOrbit)/11223.0;
     if(TIME==0) return;
     if(OutputFilePath.size()>0){
@@ -566,8 +567,6 @@ void HcalDetDiagNoiseMonitor::SaveRates(){
        }else{
           sprintf(str,"%sHcalDetDiagNoiseData.root",OutputFilePath.c_str());
        }
-
-       sprintf(str,"%sHcalDetDiagNoiseData_run%06i.root",OutputFilePath.c_str(),run_number);
        TFile *theFile = new TFile(str, "RECREATE");
        if(!theFile->IsOpen()) return;
        theFile->cd();
