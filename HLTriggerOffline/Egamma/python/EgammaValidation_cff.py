@@ -97,6 +97,7 @@ if not use_new_method:
                  'HLT_Photon25_L1R_DQM':'1e31',
                  'HLT_Photon25_LooseEcalIso_TrackIso_L1R_DQM':'1e31'}
 
+    # add the new paths automatically
     for path in paths.Wenu + paths.Zee + paths.GammaJet + paths.DiGamma:
         pathlumi[path] = '8e29'
 
