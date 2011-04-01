@@ -128,6 +128,7 @@ namespace evf {
     UInt_t   nbSentError()        const { return nbSentError_; }
     UInt_t   nbSentDqm()          const { return nbSentDqm_; }
     UInt_t   nbPendingSMDiscards()const { return nbPendingSMDiscards_; }
+    UInt_t   nbPendingSMDqmDiscards()const { return nbPendingSMDqmDiscards_; }
     UInt_t   nbDiscarded()        const { return nbDiscarded_; }
     UInt_t   nbLost()             const { return nbLost_; }
     

@@ -557,7 +557,7 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
   UInt_t dqmIndex=msg->rbBufferID;
   unsigned int ntries = 0;
   while(shmBuffer_->dqmState(dqmIndex)!=dqm::SENT){
-    LOG4CPLUS_WARN(log_,"DQM discard for cell "<< dqmIndex << " which is not in SENT state");
+    LOG4CPLUS_WARN(log_,"DQM discard for cell "<< dqmIndex << " which is not yer in SENT state - waiting");
     ::usleep(10000);
     if(ntries++>10){
       LOG4CPLUS_ERROR(log_,"DQM cell " << dqmIndex 
@@ -570,7 +570,8 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
     acceptSMDqmDiscard_[dqmIndex]--;
     if(nbPendingSMDqmDiscards_>0)nbPendingSMDqmDiscards_--;
     else {
-      LOG4CPLUS_WARN(log_,"Spurious DQM discard by StorageManager, skip!");
+      LOG4CPLUS_WARN(log_,"Spurious??? DQM discard by StorageManager, index " << dqmIndex 
+		     << " cell state " << shmBuffer_->dqmState(dqmIndex) << " accept flag " << acceptSMDqmDiscard_[dqmIndex];);
     }
     
     if (!isHalting_) {

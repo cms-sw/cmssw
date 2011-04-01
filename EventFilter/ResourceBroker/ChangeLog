@@ -1,4 +1,9 @@
-2011-03-21  Emilio Meschi  <emilio.meschi@cern.ch>
+2011-04-01  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-05
+	* yet small improvement to dqm diagnostic
+	
+2011-04-01  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-16-04
 	* acceptDQMdiscard flag now counting 
