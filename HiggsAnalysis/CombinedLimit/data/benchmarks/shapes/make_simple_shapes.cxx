@@ -1,21 +1,21 @@
-void make_simple_shapes() {
+void make_simple_shapes(int nS=10, int nB=100, int seed=42) {
     using namespace RooFit;
-    RooRandom::randomGenerator()->SetSeed(42); 
+    RooRandom::randomGenerator()->SetSeed(seed); 
     TCanvas *c1 = new TCanvas("c1","c1");
 
     RooWorkspace *w = new RooWorkspace();
     w->factory("x[0,10]");
     w->var("x")->setBins(10);
+    w->factory(TString::Format("nS[%d]",nS));
+    w->factory(TString::Format("nB[%d]",nB));
     w->factory("Exponential::background(x,alpha[-0.3])");
     w->factory("Gaussian::signal(x,6,sigma[1])");
-    w->factory("SUM::model_s(100*background, 10*signal)");
-    w->factory("SUM::model_b(100*background)");
+    w->factory("SUM::model_s(nB*background, nS*signal)");
+    w->factory("SUM::model_b(nB*background)");
 
     RooArgSet obs(*w->var("x"));
     RooDataSet *data_s = w->pdf("model_s")->generate(obs,Extended());
     RooDataSet *data_b = w->pdf("model_b")->generate(obs,Extended());
-    RooDataSet *mc_s = w->pdf("signal")->generate(obs,1000);
-    RooDataSet *mc_b = w->pdf("background")->generate(obs,100000);
     
     RooPlot *frame = w->var("x")->frame();
     data_s->plotOn(frame);
@@ -29,23 +29,23 @@ void make_simple_shapes() {
     TFile *allHistFile = new TFile("simple-shapes-TH1.root", "RECREATE");
     // Signal model
     TH1 *signal_nominal = w->pdf("signal")->createHistogram("x"); 
-    signal_nominal->SetName("signal"); signal_nominal->Scale(10/signal_nominal->Integral());
+    signal_nominal->SetName("signal"); signal_nominal->Scale(nS/signal_nominal->Integral());
     w->var("sigma")->setVal(1.6);
     TH1 *signal_sigmaUp = w->pdf("signal")->createHistogram("x");  
-    signal_sigmaUp->SetName("signal_sigmaUp"); signal_sigmaUp->Scale(10/signal_sigmaUp->Integral());
+    signal_sigmaUp->SetName("signal_sigmaUp"); signal_sigmaUp->Scale(nS/signal_sigmaUp->Integral());
     w->var("sigma")->setVal(0.7);
     TH1 *signal_sigmaDown = w->pdf("signal")->createHistogram("x");  
-    signal_sigmaDown->SetName("signal_sigmaDown"); signal_sigmaDown->Scale(10/signal_sigmaDown->Integral());
+    signal_sigmaDown->SetName("signal_sigmaDown"); signal_sigmaDown->Scale(nS/signal_sigmaDown->Integral());
     w->var("sigma")->setVal(1.0);
     // background model
     TH1 *background_nominal = w->pdf("background")->createHistogram("x"); 
-    background_nominal->SetName("background"); background_nominal->Scale(100/background_nominal->Integral());
+    background_nominal->SetName("background"); background_nominal->Scale(nB/background_nominal->Integral());
     w->var("alpha")->setVal(-0.25);
     TH1 *background_alphaUp = w->pdf("background")->createHistogram("x");  
-    background_alphaUp->SetName("background_alphaUp"); background_alphaUp->Scale(115/background_alphaUp->Integral());
+    background_alphaUp->SetName("background_alphaUp"); background_alphaUp->Scale(nB*1.15/background_alphaUp->Integral());
     w->var("alpha")->setVal(-0.35);
     TH1 *background_alphaDown = w->pdf("background")->createHistogram("x");  
-    background_alphaDown->SetName("background_alphaDown"); background_alphaDown->Scale(90/background_alphaDown->Integral());
+    background_alphaDown->SetName("background_alphaDown"); background_alphaDown->Scale(nB*0.90/background_alphaDown->Integral());
     w->var("alpha")->setVal(-0.3);
     // data
     TH1 *hdata_b = bdata_b->createHistogram("x"); hdata_b->SetName("data_obs");
