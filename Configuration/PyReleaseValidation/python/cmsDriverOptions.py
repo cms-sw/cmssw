@@ -130,6 +130,12 @@ expertSettings.add_option("--no_output",
                           default=False,
                           dest="no_output_flag")
 
+expertSettings.add_option("--oneoutput",
+                          help="use only one output module",
+                          action="store_true",
+                          default="False",
+                          dest="oneoutput")
+
 expertSettings.add_option("--prefix",
                           help="Specify a prefix to the cmsRun command.",
                           default="",

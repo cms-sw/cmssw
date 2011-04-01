@@ -400,12 +400,12 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			for(unsigned int i = 0; i < 7; i++) {
 				unsigned int covSrc = bsCovSrc[i];
 				for(unsigned int j = 0; j < 7; j++) {
-					double v=0.0;
+					double v;
 					if (!covSrc || bsCovSrc[j] != covSrc)
 						v = 0.0;
 					else if (covSrc == 1)
 						v = beamSpot->covariance(i, j);
-					else if (j<3 && i<3)
+					else
 						v = pv.covariance(i, j) *
 						    constraintScaling;
 					cov(i, j) = v;

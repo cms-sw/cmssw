@@ -82,8 +82,8 @@
 <class name="EcalTPGWeights"/>
 <class name="std::map<uint32_t, EcalTPGWeights>"/>
 <class name="std::pair<const uint32_t, EcalTPGWeights>"/>
-<class name="EcalTPGStripStatus"/>
-<class name="EcalTPGSpike"/>
+
+
 
 
 <class name="EcalContainer<EEDetId,EcalTPGCrystalStatusCode>"/>

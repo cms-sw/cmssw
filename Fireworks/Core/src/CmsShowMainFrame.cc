@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.112 2011/02/24 10:02:24 eulisse Exp $
+// $Id: CmsShowMainFrame.cc,v 1.113 2011/02/24 10:26:25 eulisse Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -227,6 +227,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
    help->createMenuEntry(helpMenu);
    keyboardShort->createMenuEntry(helpMenu);
+   helpMenu->AddSeparator();
    helpGL->createMenuEntry(helpMenu);
 
    // colors

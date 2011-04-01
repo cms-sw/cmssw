@@ -305,6 +305,9 @@ SusyDQM<Mu, Ele, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
 
    RAL_jet_pt_cut_ = pset.getParameter<double> ("RAL_jet_pt_cut");
    RAL_jet_sum_pt_cut_ = pset.getParameter<double> ("RAL_jet_sum_pt_cut");
+   RAL_jet_eta_cut_ = pset.getParameter<double> ("RAL_jet_eta_cut");
+   RAL_jet_min_emf_cut_ = pset.getParameter<double> ("RAL_jet_min_emf_cut");
+   RAL_jet_max_emf_cut_ = pset.getParameter<double> ("RAL_jet_max_emf_cut");
 
    RAL_met_cut_ = pset.getParameter<double> ("RAL_met_cut");
 }

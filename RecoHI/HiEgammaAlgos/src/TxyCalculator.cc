@@ -60,11 +60,13 @@ double TxyCalculator::getTxy(const reco::SuperClusterRef p, double x, double y)
    using namespace edm;
    using namespace reco;
 
-   //   if(!recCollection)
-   //    {
-   //	 LogError("TxyCalculator") << "Error! The track container is not found.";
-   //	 return -100;
-   //   }
+   /*
+   if(!recCollection)
+   {
+      LogError("TxyCalculator") << "Error! The track container is not found.";
+      return -100;
+   }
+   */
    
 
    double eta1 = p->eta();
@@ -89,29 +91,3 @@ double TxyCalculator::getTxy(const reco::SuperClusterRef p, double x, double y)
    return txy;
 }
 
-double TxyCalculator::getHollSxy(const reco::SuperClusterRef p, double thePtCut, double outerR, double innerR)
-{
-   using namespace edm;
-   using namespace reco;
-   
-   double eta1 = p->eta();
-   double phi1 = p->phi();
-
-   double ptSum = 0;
-
-   for(reco::TrackCollection::const_iterator
-          recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
-      {
-	 double pt = recTrack->pt();
-	 double eta2 = recTrack->eta();
-	 double phi2 = recTrack->phi();
-	 if (dRDistance(eta1,phi1,eta2,phi2) >= outerR)
-	    continue;
-	 if (dRDistance(eta1,phi1,eta2,phi2) <= innerR)
-	    continue;
-	 if(pt > thePtCut)
-	    ptSum = ptSum + pt;
-      }
-   
-   return ptSum;
-}

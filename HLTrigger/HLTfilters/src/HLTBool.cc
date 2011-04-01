@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/01/09 14:16:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/08/28 01:17:49 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -12,8 +12,6 @@
 
 #include "HLTrigger/HLTfilters/interface/HLTBool.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
 // constructors and destructor
@@ -26,13 +24,6 @@ HLTBool::HLTBool(const edm::ParameterSet& iConfig) :
 
 HLTBool::~HLTBool()
 {
-}
-
-void
-HLTBool::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<bool>("result",false);
-  descriptions.add("hltBool",desc);
 }
 
 //

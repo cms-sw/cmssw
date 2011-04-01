@@ -179,8 +179,8 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
     const L1GtCaloTemplate* corrCalo = 0;
     const L1GtEnergySumTemplate* corrEnergySum = 0;
 
-    CombinationsInCond const * cond0Comb=0;
-    CombinationsInCond const * cond1Comb=0;
+    CombinationsInCond cond0Comb;
+    CombinationsInCond cond1Comb;
 
     switch (cond0Categ) {
         case CondMuon: {
@@ -191,7 +191,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             muCondition.evaluateConditionStoreResult();
             condResult = muCondition.condLastResult();
 
-            cond0Comb = &(muCondition.getCombinationsInCond());
+            cond0Comb = *(muCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrMuon->objectType())[0];
 
             if (m_verbosity && m_isDebugEnabled ) {
@@ -211,7 +211,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             caloCondition.evaluateConditionStoreResult();
             condResult = caloCondition.condLastResult();
 
-            cond0Comb = &(caloCondition.getCombinationsInCond());
+            cond0Comb = *(caloCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrCalo->objectType())[0];
 
             if (m_verbosity && m_isDebugEnabled ) {
@@ -229,7 +229,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             eSumCondition.evaluateConditionStoreResult();
             condResult = eSumCondition.condLastResult();
 
-            cond0Comb = &(eSumCondition.getCombinationsInCond());
+            cond0Comb = *(eSumCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity && m_isDebugEnabled ) {
@@ -262,7 +262,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             muCondition.evaluateConditionStoreResult();
             condResult = muCondition.condLastResult();
 
-            cond1Comb = &(muCondition.getCombinationsInCond());
+            cond1Comb = *(muCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrMuon->objectType())[0];
 
             if (m_verbosity && m_isDebugEnabled ) {
@@ -282,7 +282,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             caloCondition.evaluateConditionStoreResult();
             condResult = caloCondition.condLastResult();
 
-            cond1Comb = &(caloCondition.getCombinationsInCond());
+            cond1Comb = *(caloCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrCalo->objectType())[0];
 
             if (m_verbosity && m_isDebugEnabled ) {
@@ -299,7 +299,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             eSumCondition.evaluateConditionStoreResult();
             condResult = eSumCondition.condLastResult();
 
-            cond1Comb = &(eSumCondition.getCombinationsInCond());
+            cond1Comb = *(eSumCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity && m_isDebugEnabled ) {
@@ -333,7 +333,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
     objectsInComb.reserve(nObjInCond);
 
     // clear the m_combinationsInCond vector
-    (combinationsInCond()).clear();
+    (*m_combinationsInCond).clear();
 
     // pointers to objects
     const std::vector<const L1MuGMTCand*>* candMuVec = 0;
@@ -347,7 +347,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
 
     // loop over all combinations which produced individually "true" as Type1s
     for (std::vector<SingleCombInCond>::const_iterator
-        it0Comb = cond0Comb->begin(); it0Comb != cond0Comb->end(); it0Comb++) {
+        it0Comb = cond0Comb.begin(); it0Comb != cond0Comb.end(); it0Comb++) {
 
         // Type1s: there is 1 object only, no need for a loop (*it0Comb)[0]
         int obj0Index = (*it0Comb)[0];
@@ -398,7 +398,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
         }
 
         for (std::vector<SingleCombInCond>::const_iterator
-            it1Comb = cond1Comb->begin(); it1Comb != cond1Comb->end(); it1Comb++) {
+            it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end(); it1Comb++) {
 
             // Type1s: there is 1 object only, no need for a loop (*it1Comb)[0]
             int obj1Index = (*it1Comb)[0];
@@ -474,7 +474,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             // set the general result for evaluateCondition to "true"
 
             condResult = true;
-            (combinationsInCond()).push_back(objectsInComb);
+            (*m_combinationsInCond).push_back(objectsInComb);
 
         }
 

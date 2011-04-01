@@ -1,0 +1,11 @@
+<library   file="BeamSpotObjectsPyWrapper.cc" name="BeamSpotObjectsPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/BeamSpotObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <use   name="root"/>
+  <use   name="rootgraphics"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

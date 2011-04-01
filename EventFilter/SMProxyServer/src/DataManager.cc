@@ -1,4 +1,4 @@
-// $Id: DataManager.cc,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: DataManager.cc,v 1.1.4.3 2011/03/23 14:21:31 mommsen Exp $
 /// @file: DataManager.cc
 
 #include "EventFilter/SMProxyServer/interface/DataManager.h"
@@ -8,6 +8,7 @@
 #include "EventFilter/SMProxyServer/src/EventRetriever.icc"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
+#include <boost/foreach.hpp>
 #include <boost/pointer_cast.hpp>
 
 
@@ -36,6 +37,8 @@ namespace smproxy
   void DataManager::start(DataRetrieverParams const& drp)
   {
     dataRetrieverParams_ = drp;
+    dataEventRetrievers_.clear();
+    dqmEventRetrievers_.clear();
     edm::shutdown_flag = false;
     thread_.reset(
       new boost::thread( boost::bind( &DataManager::doIt, this) )
@@ -50,7 +53,16 @@ namespace smproxy
     thread_->join();
 
     edm::shutdown_flag = true;
-    dataEventRetrievers_.clear();
+
+    BOOST_FOREACH(
+      const DataEventRetrieverMap::value_type& pair,
+      dataEventRetrievers_
+    ) pair.second->stop();
+
+    BOOST_FOREACH(
+      const DQMEventRetrieverMap::value_type& pair,
+      dqmEventRetrievers_
+    ) pair.second->stop();
   }
   
   

@@ -43,7 +43,6 @@ private:
   bool debugOn;
   double thresh;
   unsigned int numtrack;
-  edm::InputTag tracks_;
 
   reco::TrackBase::TrackQuality _trackQuality;
 };

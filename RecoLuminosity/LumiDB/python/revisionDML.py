@@ -231,7 +231,6 @@ def dataRevisionsOfEntry(schema,datatableName,entry,revrange):
     all data version of the given entry whose revision falls in branch revision range
     select d.data_id,r.revision_id from datatable d, datarevmaptable r where d.entry_id(or name )=:entry and d.data_id=r.data_id
     input: if isinstance(entry,str): d.entry_name=:entry ; else d.entry_id=:entry
-    output: [data_id]
     '''
     qHandle=schema.newQuery()
     try:
@@ -276,7 +275,7 @@ def latestDataRevisionOfEntry(schema,datatableName,entry,revrange):
     result=dataRevisionsOfEntry(schema,datatableName,entry,revrange)
     if result and len(result)!=0: return max(result)
     return None
-    
+
 def branchInfoByName(schema,branchName):
     '''
     select (revision_id,branch_id) from revisions where name=:branchName
@@ -295,8 +294,6 @@ def branchInfoByName(schema,branchName):
          qHandle.defineOutput(qResult)
          qHandle.setCondition('NAME=:name',qCondition)
          cursor=qHandle.execute()
-         revision_id=None
-         branch_id=None
          while cursor.next():
              revision_id=cursor.currentRow()['revision_id'].data()
              branch_id=cursor.currentRow()['branch_id'].data()

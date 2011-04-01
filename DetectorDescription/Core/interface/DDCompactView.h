@@ -3,6 +3,10 @@
 
 #include <vector>
 
+//#include <memory>
+
+#include "DetectorDescription/Base/interface/Ptr.h"
+
 #include "DetectorDescription/Core/interface/DDAlgo.h"
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"

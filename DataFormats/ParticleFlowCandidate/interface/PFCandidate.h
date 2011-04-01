@@ -122,6 +122,7 @@ namespace reco {
     /// the particle type could be removed at some point to gain some space.
     /// low priority
     int  translateTypeToPdgId( ParticleType type ) const;
+    ParticleType translatePdgIdToType(int pdgid) const;
 
     /// set Particle Type
     void setParticleType( ParticleType type ); 
@@ -248,7 +249,7 @@ namespace reco {
     /// uncertainty on 3-momentum
     double deltaP() const { return deltaP_;}
 
-    int pdgId() const { return translateTypeToPdgId( particleId_ ); } 
+    //  int pdgId() const { return translateTypeToPdgId( particleId_ ); } 
 
     /// set mva for electron-pion discrimination. 
     /// For charged particles, this variable is set 
@@ -310,7 +311,7 @@ namespace reco {
     
     /// particle identification code
     /// \todo use Particle::pdgId_ and remove this data member
-    virtual  ParticleType particleId() const { return particleId_;}
+    virtual  ParticleType particleId() const { return translatePdgIdToType(pdgId_);}
 
     
     /// return indices of elements used in the block
@@ -346,7 +347,15 @@ namespace reco {
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFCandidate& c );
 
-    void setVertexSource( PFVertexType vt) { vertexType_=vt; }
+    //Tips on setting the vertex efficiently
+    //There are two choices: a) use the vertex_ data member, or b) point to the vertex
+    //of one of the refs stored by this class. The PFVertexType enum gives the current list
+    //of possible references. For these references, use the setVeretxSource method and NOT
+    //the setVertex method. If none of the available refs have the vertex that you want for this
+    //PFCandidate, use the setVertex method. If you find that you are using frequently two store a 
+    // vertex that is the same as one of the refs in this class, you should just extend the enum
+    // and modify the vertex() method accordingly.
+    void setVertexSource( PFVertexType vt) { vertexType_=vt; if (vertexType_!=kCandVertex) vertex_=Point(0.,0.,0.);}
 
     virtual void setVertex( math::XYZPoint p) {
       vertex_=p; vertexType_ = kCandVertex;
@@ -365,9 +374,7 @@ namespace reco {
 
     bool flag(unsigned shift, unsigned flag) const;
    
-    /// particle identification
-    ParticleType  particleId_; 
-    
+   
     mutable ElementsInBlocks elementsInBlocks_;
     Blocks blocksStorage_;
     Elements elementsStorage_;

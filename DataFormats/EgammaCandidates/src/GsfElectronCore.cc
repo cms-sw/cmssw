@@ -10,12 +10,12 @@ using namespace reco ;
 
 GsfElectronCore::GsfElectronCore
  ()
- : ctfGsfOverlap_(0.), isEcalDriven_(false), isTrackerDriven_(false)
+ : ctfGsfOverlap_(0.), isEcalDrivenSeed_(false), isTrackerDrivenSeed_(false)
  {}
 
  GsfElectronCore::GsfElectronCore
   ( const GsfTrackRef & gsfTrack )
-  : gsfTrack_(gsfTrack), ctfGsfOverlap_(0.), isEcalDriven_(false), isTrackerDriven_(false)
+  : gsfTrack_(gsfTrack), ctfGsfOverlap_(0.), isEcalDrivenSeed_(false), isTrackerDrivenSeed_(false)
   {
    edm::RefToBase<TrajectorySeed> seed = gsfTrack_->extra()->seedRef() ;
    if (seed.isNull())
@@ -27,8 +27,8 @@ GsfElectronCore::GsfElectronCore
       { edm::LogError("GsfElectronCore")<<"The GsfTrack seed is not an ElectronSeed ?!" ; }
      else
       {
-       if (elseed->isEcalDriven()) isEcalDriven_ = true ;
-       if (elseed->isTrackerDriven()) isTrackerDriven_ = true ;
+       if (elseed->isEcalDriven()) isEcalDrivenSeed_ = true ;
+       if (elseed->isTrackerDriven()) isTrackerDrivenSeed_ = true ;
       }
     }
   }

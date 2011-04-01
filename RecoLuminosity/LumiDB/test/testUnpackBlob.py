@@ -123,8 +123,6 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
             a=array.array('f')
             a.fromstring(bxlumivalue.readline())
             print '   bxindex, bxlumivalue'
-            if cmslsnum!=95:
-                continue
             for index,lum in enumerate(a):
                 print "  %4d,%.3e"%(index,lum)
             #realvalue=a.tolist()
@@ -147,11 +145,7 @@ def main():
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
     msg=coral.MessageStream('')
     msg.setMsgVerbosity(coral.message_Level_Error)
-<<<<<<< testUnpackBlob.py
-    runnum=149294
-=======
     runnum=149011
->>>>>>> 1.6
     ##here arg 4 is default to ['OCC1'], if you want to see all the algorithms do
     ##  detailForRun(session,c,runnum,['OCC1','OCC2','ET']) then modify detailForRun adding an outer loop on algos argument. I'm lazy
     #detailForRun(session,c,runnum)

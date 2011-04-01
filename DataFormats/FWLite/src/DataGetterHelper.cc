@@ -13,6 +13,7 @@
 // system include files
 #include <iostream>
 #include "Reflex/Type.h"
+#include "Reflex/Object.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"

@@ -287,7 +287,7 @@ class GenObject (object):
         # do contClass
         if GenObject.isSingleton (objName):
             # singleton
-            contDataDec += "      %s diff;\n" % diffName
+            contDataDec += "         %s diff\n" % diffName
             contDataDec += "      void setDiff (const %s &rhs)" % diffName + \
                            " { diff = rhs; }\n"
         else:
@@ -305,7 +305,6 @@ class GenObject (object):
             # we don't want a diff class for this
             diffClass = ''
             contClass = ''
-        
         return goClass + diffClass + contClass
 
 
@@ -324,7 +323,7 @@ class GenObject (object):
         sourceCode = "#include <string>\n#include <vector>\n" \
                      + "using namespace std;\n"
         for objClassName in sorted( GenObject._objsDict.keys() ):
-            sourceCode += GenObject._createCppClass (objClassName)
+            sourceCode = sourceCode + GenObject._createCppClass (objClassName)
         GenObjectRootLibDir = "genobjectrootlibs"
         if not os.path.exists (GenObjectRootLibDir):
             os.mkdir (GenObjectRootLibDir)
@@ -345,7 +344,7 @@ class GenObject (object):
                 print "%s exists" % filename
             ## command = "echo .L %s+ | root.exe -b" % filename
             ## os.system (command)
-            ROOT.gSystem.CompileMacro (filename, "k")
+            ROOT.gSystem.CompileMacro (filename,"k")
         else:
             print "loading %s" % SO
             ROOT.gSystem.Load(SO)

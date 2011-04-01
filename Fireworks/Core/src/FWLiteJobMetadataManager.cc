@@ -127,7 +127,7 @@ FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request)
          
          const static bool debug = false;
          // This is pretty much the same thing that happens 
-         if (!FWItemAccessorFactory::classAccessedAsCollection(theClass))
+         if (!FWItemAccessorFactory::classAccessedAsCollection(theClass) )
          {
             if (debug) {
                fwLog(fwlog::kDebug) << theClass->GetName() 

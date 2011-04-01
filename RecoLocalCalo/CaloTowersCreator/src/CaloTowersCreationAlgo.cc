@@ -4,10 +4,8 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "RecoLocalCalo/CaloTowersCreator/interface/HcalMaterials.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Math/Interpolator.h"
-#include<iostream>
 
 CaloTowersCreationAlgo::CaloTowersCreationAlgo()
  : theEBthreshold(-1000.),
@@ -152,36 +150,35 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 }
 
 CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
+       bool useEtEBTreshold,
+       bool useEtEETreshold,
+       bool useSymEBTreshold,
+       bool useSymEETreshold,
 
-					       bool useEtEBTreshold,
-					       bool useEtEETreshold,
-					       bool useSymEBTreshold,
-					       bool useSymEETreshold,
-
-					       double HcalThreshold,
-					       double HBthreshold, double HESthreshold, double  HEDthreshold,
-					       double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
-					       double HOthresholdPlus2, double HOthresholdMinus2,  
-					       double HF1threshold, double HF2threshold,
-					       std::vector<double> EBGrid, std::vector<double> EBWeights,
-					       std::vector<double> EEGrid, std::vector<double> EEWeights,
-					       std::vector<double> HBGrid, std::vector<double> HBWeights,
-					       std::vector<double> HESGrid, std::vector<double> HESWeights,
-					       std::vector<double> HEDGrid, std::vector<double> HEDWeights,
-					       std::vector<double> HOGrid, std::vector<double> HOWeights,
-					       std::vector<double> HF1Grid, std::vector<double> HF1Weights,
-					       std::vector<double> HF2Grid, std::vector<double> HF2Weights,
-					       double EBweight, double EEweight,
-					       double HBweight, double HESweight, double HEDweight,
-					       double HOweight, double HF1weight, double HF2weight,
-					       double EcutTower, double EBSumThreshold, double EESumThreshold,
-					       bool useHO,
-					       // (for the momentum construction algorithm)
-					       int momConstrMethod,
-					       double momHBDepth,
-					       double momHEDepth,
-					       double momEBDepth,
-					       double momEEDepth)
+       double HcalThreshold,
+       double HBthreshold, double HESthreshold, double  HEDthreshold,
+       double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
+       double HOthresholdPlus2, double HOthresholdMinus2,  
+       double HF1threshold, double HF2threshold,
+       const std::vector<double> & EBGrid, const std::vector<double> & EBWeights,
+       const std::vector<double> & EEGrid, const std::vector<double> & EEWeights,
+       const std::vector<double> & HBGrid, const std::vector<double> & HBWeights,
+       const std::vector<double> & HESGrid, const std::vector<double> & HESWeights,
+       const std::vector<double> & HEDGrid, const std::vector<double> & HEDWeights,
+       const std::vector<double> & HOGrid, const std::vector<double> & HOWeights,
+       const std::vector<double> & HF1Grid, const std::vector<double> & HF1Weights,
+       const std::vector<double> & HF2Grid, const std::vector<double> & HF2Weights,
+       double EBweight, double EEweight,
+       double HBweight, double HESweight, double HEDweight,
+       double HOweight, double HF1weight, double HF2weight,
+       double EcutTower, double EBSumThreshold, double EESumThreshold,
+       bool useHO,
+       // (for the momentum construction algorithm)
+       int momConstrMethod,
+       double momHBDepth,
+       double momHEDepth,
+       double momEBDepth,
+       double momEEDepth)
 
   : theEBthreshold(EBthreshold),
     theEEthreshold(EEthreshold),
@@ -250,7 +247,7 @@ void CaloTowersCreationAlgo::setGeometry(const CaloTowerConstituentsMap* ctt, co
 
 void CaloTowersCreationAlgo::begin() {
   theTowerMap.clear();
-  hcalDropChMap.clear();
+  //hcalDropChMap.clear();
 }
 
 void CaloTowersCreationAlgo::process(const HBHERecHitCollection& hbhe) { 
@@ -297,12 +294,8 @@ void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
 
     // Convert only if there is at least one constituent in the metatower. 
     // The check of constituents size in the coverted tower is still needed!
-    if ( (mapItr->second).metaConstituents.size()<1) continue;
-
-    CaloTower ct=convert(mapItr->first,mapItr->second);
-    if (ct.constituentsSize()>0 && ct.energy()>theEcutTower) {
-      result.push_back(ct);
-    }
+    if ( (mapItr->second).metaConstituents.empty() ) continue;
+    convert(mapItr->first, mapItr->second, result);
   }
   theTowerMap.clear(); // save the memory
 }
@@ -435,25 +428,30 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       HcalDetId(detId).depth()==3 &&
       HcalDetId(detId).ietaAbs()==28) {
 
-    CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
-    if (towerDetId.null()) return;    
-    MetaTower & tower28 = find(towerDetId);    
-    CaloTowerDetId towerDetId29 = CaloTowerDetId(towerDetId.ieta()+
-						 towerDetId.zside(),
-						 towerDetId.iphi());
-    MetaTower & tower29 = find(towerDetId29);
-
     //////////////////////////////    unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
       
     // bad channels are counted regardless of energy threshold
 
     if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
-        tower28.numBadHcalCells += 1;
-        tower29.numBadHcalCells += 1;
+      CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+      if (towerDetId.null()) return;
+      MetaTower & tower28 = find(towerDetId);
+      CaloTowerDetId towerDetId29(towerDetId.ieta()+towerDetId.zside(),
+                                  towerDetId.iphi());
+      MetaTower & tower29 = find(towerDetId29);
+      tower28.numBadHcalCells += 1;
+      tower29.numBadHcalCells += 1;
     }
 
     else if (0.5*energy >= threshold) {  // not bad channel: use energy if above threshold
       
+      CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+      if (towerDetId.null()) return;
+      MetaTower & tower28 = find(towerDetId);
+      CaloTowerDetId towerDetId29(towerDetId.ieta()+towerDetId.zside(),
+                                  towerDetId.iphi());
+      MetaTower & tower29 = find(towerDetId29);
+
       if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan) {
         tower28.numRecHcalCells += 1;
         tower29.numRecHcalCells += 1;	  
@@ -495,11 +493,6 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
   
   else {
 
-    CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
-
-    if (towerDetId.null()) return;    
-    MetaTower & tower = find(towerDetId);
-
     DetId::Detector det = detId.det();
     
     if (det == DetId::Ecal) {
@@ -528,6 +521,9 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
 
       //      if (chStatusForCT != CaloTowersCreationAlgo::BadChan && energy >= threshold) {
       if (chStatusForCT != CaloTowersCreationAlgo::BadChan && passEmThreshold) {
+        CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+        if (towerDetId.null()) return;
+        MetaTower & tower = find(towerDetId);
         tower.E_em += e;
         tower.E += e;
         
@@ -561,6 +557,10 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
 
       if(hcalDetId.subdet() == HcalOuter) {
  
+        CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+        if (towerDetId.null()) return;
+        MetaTower & tower = find(towerDetId);
+
         if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
             if (theHOIsUsed) tower.numBadHcalCells += 1;
         }
@@ -592,10 +592,17 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       else if(hcalDetId.subdet() == HcalForward) {
 
         if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
+          CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+          if (towerDetId.null()) return;
+          MetaTower & tower = find(towerDetId);
 	  tower.numBadHcalCells += 1;
         }
         
         else if (energy >= threshold)  {
+          CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+          if (towerDetId.null()) return;
+          MetaTower & tower = find(towerDetId);
+
           if (hcalDetId.depth() == 1) {
             // long fiber, so E_EM = E(Long) - E(Short)
             tower.E_em += e;
@@ -629,11 +636,16 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       
       else {
         // HCAL situation normal in HB/HE
-
         if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
+          CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+          if (towerDetId.null()) return;
+          MetaTower & tower = find(towerDetId);
 	  tower.numBadHcalCells += 1;
         }
         else if (energy >= threshold) {
+          CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+          if (towerDetId.null()) return;
+          MetaTower & tower = find(towerDetId);
           tower.E_had += e;
           tower.E += e;
           if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan) {
@@ -651,10 +663,11 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
           }
           // store energy in highest depth for towers 18-27 (for electron,photon ID in endcap)
 	  // also, store energy in HE part of tower 16 (for JetMET cleanup)
-          if (HcalDetId(detId).subdet()==HcalEndcap) {
-            if ( (HcalDetId(detId).depth()==2 && HcalDetId(detId).ietaAbs()>=18 && HcalDetId(detId).ietaAbs()<27) ||
-		 (HcalDetId(detId).depth()==3 && HcalDetId(detId).ietaAbs()==27) ||
-		 (HcalDetId(detId).depth()==3 && HcalDetId(detId).ietaAbs()==16) ) {
+          HcalDetId hcalDetId(detId);
+          if (hcalDetId.subdet()==HcalEndcap) {
+            if ( (hcalDetId.depth()==2 && hcalDetId.ietaAbs()>=18 && hcalDetId.ietaAbs()<27) ||
+		 (hcalDetId.depth()==3 && hcalDetId.ietaAbs()==27) ||
+		 (hcalDetId.depth()==3 && hcalDetId.ietaAbs()==16) ) {
               tower.E_outer += e;
 	    }
           }
@@ -681,9 +694,8 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
 // Must be rewritten for full functionality.
 void CaloTowersCreationAlgo::rescale(const CaloTower * ct) {
   double threshold, weight;
-
-  CaloTowerDetId towerDetId = ct->id();
-//  if (towerDetId.null()) return;    
+  CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(ct->id());
+  if (towerDetId.null()) return;
   MetaTower & tower = find(towerDetId);
 
   tower.E_em = 0.;
@@ -730,40 +742,29 @@ CaloTowersCreationAlgo::MetaTower::MetaTower() :
 
 
 CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTowerDetId & detId) {
-  MetaTowerMap::iterator itr = theTowerMap.find(detId);
-  if(itr == theTowerMap.end()) {
-    // need to build a new tower
-    MetaTower t;
-
-    // store it in the map
-    theTowerMap.insert(std::pair<CaloTowerDetId, CaloTowersCreationAlgo::MetaTower>(detId, t));
-    itr = theTowerMap.find(detId);
- 
-
-  }
-  return itr->second;
+  MetaTowerMap::iterator itr = theTowerMap.lower_bound(detId);
+  if(itr != theTowerMap.end() && ! (theTowerMap.key_comp()(detId,itr->first)))
+    {
+      // do nothing if exists
+    }
+  else
+    {
+      // build and insert a new tower
+      // and return position
+      itr = theTowerMap.insert(itr, std::pair<CaloTowerDetId,CaloTowersCreationAlgo::MetaTower>(detId, MetaTower()));
+    }
+   return itr->second;
 }
 
-CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& mt) {
 
+void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& mt,
+                                     CaloTowerCollection & collection) 
+{
     double ecalThres=(id.ietaAbs()<=17)?(theEBSumThreshold):(theEESumThreshold);
     double E=mt.E;
     double E_em=mt.E_em;
     double E_had=mt.E_had;
     double E_outer=mt.E_outer;
-
-    // conditional assignment of depths for barrel/endcap
-    // Some additional tuning may be required in the transitional region
-    // 14<|iEta|<19
-    if (id.ietaAbs()<=17) {
-      theMomHadDepth = theMomHBDepth;
-      theMomEmDepth  = theMomEBDepth;
-    }
-    else {
-      theMomHadDepth = theMomHEDepth;
-      theMomEmDepth  = theMomEEDepth;
-    }
-
 
     // Note: E_outer is used to save HO energy OR energy in the outermost depths in endcap region
     // In the methods with separate treatment of EM and HAD components:
@@ -772,12 +773,7 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     //     else the energy will be double counted
     // When summing up the energy of the tower these checks are performed in the loops over RecHits
 
-
-    float  ecalTime = (mt.emSumEForTime>0)?   mt.emSumTimeTimesE/mt.emSumEForTime  : -9999;
-    float  hcalTime = (mt.hadSumEForTime>0)?  mt.hadSumTimeTimesE/mt.hadSumEForTime : -9999;
-
     std::vector<std::pair<DetId,double> > metaContains=mt.metaConstituents;
-
     if (id.ietaAbs()<=29 && E_em<ecalThres) { // ignore EM threshold in HF
       E-=E_em;
       E_em=0;
@@ -787,7 +783,6 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
 	        if (i->first.det()!=DetId::Ecal) metaContains_noecal.push_back(*i);
       metaContains.swap(metaContains_noecal);
     }
-
     if (id.ietaAbs()<=29 && E_had<theHcalThreshold) {
       E-=E_had;
 
@@ -802,6 +797,7 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
       metaContains.swap(metaContains_nohcal);
     }
 
+    if(metaContains.empty()) return;
 
     double E_had_tot = (theHOIsUsed && id.ietaAbs()<16)? E_had+E_outer : E_had;
 
@@ -812,6 +808,20 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
 
     CaloTower::PolarLorentzVector towerP4;
     
+
+    // conditional assignment of depths for barrel/endcap
+    // Some additional tuning may be required in the transitional region
+    // 14<|iEta|<19
+    double momEmDepth = 0.;
+    double momHadDepth = 0.;
+    if (id.ietaAbs()<=17) {
+      momHadDepth = theMomHBDepth;
+      momEmDepth  = theMomEBDepth;
+    }
+    else {
+      momHadDepth = theMomHEDepth;
+      momEmDepth  = theMomEEDepth;
+    }
 
   switch (theMomConstrMethod) {
 
@@ -831,12 +841,12 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     {   // separate 4-vectors for ECAL, HCAL, add to get the 4-vector of the tower (=>tower has mass!)
       if (id.ietaAbs()<=29) {
         if (E_em>0) {
-          emPoint   = emShwrPos(metaContains, theMomEmDepth, E_em);
+          emPoint   = emShwrPos(metaContains, momEmDepth, E_em);
           double emPf = 1.0/cosh(emPoint.eta());
           towerP4 += CaloTower::PolarLorentzVector(E_em*emPf, emPoint.eta(), emPoint.phi(), 0); 
         }
         if ( (E_had + E_outer) >0) {
-          hadPoint  = hadShwrPos(id, theMomHadDepth);
+          hadPoint  = hadShwrPos(id, momHadDepth);
           double hadPf = 1.0/cosh(hadPoint.eta());
 	  
 	  if (E_had_tot>0) {
@@ -857,7 +867,7 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
   case 2:
     {   // use ECAL position for the tower (when E_cal>0), else default CaloTower position (massless tower)
       if (id.ietaAbs()<=29) {
-        if (E_em>0)  emPoint = emShwrLogWeightPos(metaContains, theMomEmDepth, E_em);
+        if (E_em>0)  emPoint = emShwrLogWeightPos(metaContains, momEmDepth, E_em);
         else emPoint = theTowerGeometry->getGeometry(id)->getPosition();
 
         double sumPf = 1.0/cosh(emPoint.eta());
@@ -878,11 +888,13 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
   }  // end of decision on p4 reconstruction method
 
 
-    CaloTower retval(id, E_em, E_had, E_outer, -1, -1, towerP4, emPoint, hadPoint);
-
+    CaloTower caloTower(id, E_em, E_had, E_outer, -1, -1, towerP4, emPoint, hadPoint);
+    if(caloTower.energy() < theEcutTower) return;
     // set the timings
-    retval.setEcalTime(compactTime(ecalTime));
-    retval.setHcalTime(compactTime(hcalTime));
+    float  ecalTime = (mt.emSumEForTime>0)?   mt.emSumTimeTimesE/mt.emSumEForTime  : -9999;
+    float  hcalTime = (mt.hadSumEForTime>0)?  mt.hadSumTimeTimesE/mt.hadSumEForTime : -9999;
+    caloTower.setEcalTime(compactTime(ecalTime));
+    caloTower.setHcalTime(compactTime(hcalTime));
 
     // set the CaloTower status word =====================================
     // Channels must be counter exclusively in the defined cathegories
@@ -899,7 +911,8 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     unsigned int numProbEcalChan = mt.numProbEcalCells;
 
     // now add dead/off/... channels not used in RecHit reconstruction for HCAL 
-    if (hcalDropChMap.find(id) != hcalDropChMap.end()) numBadHcalChan += hcalDropChMap[id];
+    HcalDropChMap::iterator dropChItr = hcalDropChMap.find(id);
+    if (dropChItr != hcalDropChMap.end()) numBadHcalChan += dropChItr->second;
     
 
     // for ECAL the number of all bad channels is obtained here -----------------------
@@ -932,13 +945,14 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     }
     //--------------------------------------------------------------------------------------
 
-    retval.setCaloTowerStatus(numBadHcalChan, numBadEcalChan,	 
+    caloTower.setCaloTowerStatus(numBadHcalChan, numBadEcalChan,	 
 			      numRecHcalChan, numRecEcalChan,	 
 			      numProbHcalChan, numProbEcalChan);
   
     double maxCellE = -999.0; // for storing the hottest cell E in the calotower
 
     std::vector<DetId> contains;
+    contains.reserve(metaContains.size());
     for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) {
 
       contains.push_back(i->first);
@@ -963,10 +977,10 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
 
     } // loop over matacontains
 
-    retval.addConstituents(contains);
-    retval.setHottestCellE(maxCellE);
+    caloTower.addConstituents(contains);
+    caloTower.setHottestCellE(maxCellE);
 
-    return retval;
+    collection.push_back(caloTower);
 } 
 
 
@@ -1065,7 +1079,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
     }
   }
   else {
-    std::cout << "BAD CELL det " << det << std::endl;
+    edm::LogError("CaloTowersCreationAlgo") << "Bad cell: " << det << std::endl;
   }
 }
 
@@ -1147,7 +1161,7 @@ GlobalPoint CaloTowersCreationAlgo::hadSegmentShwrPos(DetId detId, float fracDep
 }
 
 
-GlobalPoint CaloTowersCreationAlgo::hadShwrPos(std::vector<std::pair<DetId,double> >& metaContains,
+GlobalPoint CaloTowersCreationAlgo::hadShwrPos(const std::vector<std::pair<DetId,double> >& metaContains,
                                                float fracDepth, double hadE) {
                                                   
   // this is based on available RecHits, can lead to different actual depths if
@@ -1160,7 +1174,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(std::vector<std::pair<DetId,doubl
 
   int nConst = 0;
 
-  std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin();
+  std::vector<std::pair<DetId,double> >::const_iterator mc_it = metaContains.begin();
   for (; mc_it!=metaContains.end(); ++mc_it) {
     if (mc_it->first.det() != DetId::Hcal) continue;
     // do not use HO for deirection calculations for now
@@ -1267,7 +1281,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
 }
 
 
-GlobalPoint CaloTowersCreationAlgo::emShwrPos(std::vector<std::pair<DetId,double> >& metaContains, 
+GlobalPoint CaloTowersCreationAlgo::emShwrPos(const std::vector<std::pair<DetId,double> >& metaContains, 
                                               float fracDepth, double emE) {
 
   if (emE<=0) return GlobalPoint(0,0,0);
@@ -1278,7 +1292,7 @@ GlobalPoint CaloTowersCreationAlgo::emShwrPos(std::vector<std::pair<DetId,double
 
   double eSum = 0;
 
-  std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin();
+  std::vector<std::pair<DetId,double> >::const_iterator mc_it = metaContains.begin();
   for (; mc_it!=metaContains.end(); ++mc_it) {
     if (mc_it->first.det() != DetId::Ecal) continue;
     GlobalPoint p = emCrystalShwrPos(mc_it->first, fracDepth);
@@ -1297,7 +1311,7 @@ GlobalPoint CaloTowersCreationAlgo::emShwrPos(std::vector<std::pair<DetId,double
 }
 
 
-GlobalPoint CaloTowersCreationAlgo::emShwrLogWeightPos(std::vector<std::pair<DetId,double> >& metaContains, 
+GlobalPoint CaloTowersCreationAlgo::emShwrLogWeightPos(const std::vector<std::pair<DetId,double> >& metaContains, 
                                float fracDepth, double emE) {
 
   double emX = 0.0;
@@ -1309,7 +1323,7 @@ GlobalPoint CaloTowersCreationAlgo::emShwrLogWeightPos(std::vector<std::pair<Det
   double sumEmE = 0;  // add crystals with E/E_EM > 1.5%
   double crystalThresh = 0.015 * emE;
 
-  std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin();
+  std::vector<std::pair<DetId,double> >::const_iterator mc_it = metaContains.begin();
   for (; mc_it!=metaContains.end(); ++mc_it) {
     if (mc_it->second < 0) continue;
     if (mc_it->first.det() == DetId::Ecal && mc_it->second > crystalThresh) sumEmE += mc_it->second;
@@ -1361,7 +1375,7 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
   // This method fills the map of number of dead channels for the calotower,
   // The key of the map is CaloTowerDetId.
   // By definition these channels are not going to be in the RecHit collections.
-
+  hcalDropChMap.clear();
   std::vector<DetId> allChanInStatusCont = theHcalChStatus->getAllChannels();
 
   for (std::vector<DetId>::iterator it = allChanInStatusCont.begin(); it!=allChanInStatusCont.end(); ++it) {
@@ -1379,7 +1393,7 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
 	  HcalDetId(*it).depth()==3 &&
 	  HcalDetId(*it).ietaAbs()==28) {
 	
-	CaloTowerDetId twrId29 = CaloTowerDetId(twrId.ieta()+twrId.zside(), twrId.iphi());
+	CaloTowerDetId twrId29(twrId.ieta()+twrId.zside(), twrId.iphi());
 	hcalDropChMap[twrId29] +=1;
       }
 

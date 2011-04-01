@@ -1,4 +1,4 @@
-// $Id: StateMachine.cc,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: StateMachine.cc,v 1.1.4.3 2011/03/23 14:20:51 mommsen Exp $
 /// @file: StateMachine.cc
 
 #include "EventFilter/SMProxyServer/interface/DataManager.h"
@@ -160,6 +160,12 @@ namespace smproxy
   }
   
   
+  void StateMachine::resetStatistics()
+  {
+    statisticsReporter_->reset();
+  }
+  
+  
   void StateMachine::clearConsumerRegistrations()
   {
     registrationCollection_->clearRegistrations();
@@ -227,6 +233,8 @@ namespace smproxy
   {
     outermost_context_type& stateMachine = outermost_context();
     stateMachine.clearInitMsgCollection();
+    boost::this_thread::interruption_point();
+    stateMachine.resetStatistics();
     boost::this_thread::interruption_point();
     stateMachine.clearConsumerRegistrations();
     boost::this_thread::interruption_point();
