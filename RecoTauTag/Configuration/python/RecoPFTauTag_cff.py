@@ -19,26 +19,16 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
         ak5PFJetsRecoTauPiZeros
 
-# Collection PFCandidates from a DR=0.8 cone about the jet axis and make new
-# faux jets with this collection
-recoTauAK5PFJets08Region = cms.EDProducer(
-    "RecoTauJetRegionProducer",
-    deltaR = cms.double(0.8),
-    src = cms.InputTag("ak5PFJets"),
-    pfSrc = cms.InputTag("particleFlow"),
-)
-
 # The computation of the lead track signed transverse impact parameter depends
 # on the transient tracks
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import \
         TransientTrackBuilderESProducer
 
 # Only reconstruct the preselected jets
-ak5PFJetsRecoTauPiZeros.jetSrc = cms.InputTag("ak5PFJets")
-ak5PFJetsRecoTauPiZeros.jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region")
+ak5PFJetsRecoTauPiZeros.src = cms.InputTag("ak5PFJets")
 
 #-------------------------------------------------------------------------------
-#------------------ Fixed Cone Taus --------------------------------------------
+#------------------ Fixed Cone Taus ----------------------------------------
 #-------------------------------------------------------------------------------
 from RecoTauTag.Configuration.FixedConePFTaus_cfi import *
 
@@ -49,12 +39,8 @@ from RecoTauTag.Configuration.ShrinkingConePFTaus_cfi import *
 # Use the legacy PiZero reconstruction for shrinking cone taus
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
         ak5PFJetsLegacyTaNCPiZeros, ak5PFJetsLegacyHPSPiZeros
-
-ak5PFJetsLegacyTaNCPiZeros.jetSrc = cms.InputTag("ak5PFJets")
-ak5PFJetsLegacyTaNCPiZeros.jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region")
-
-shrinkingConePFTauProducer.jetRegionSrc = cms.InputTag(
-    "recoTauAK5PFJets08Region")
+ak5PFJetsLegacyTaNCPiZeros.src = cms.InputTag("ak5PFJets")
+shrinkingConePFTauProducer.jetSrc = cms.InputTag("ak5PFJets")
 shrinkingConePFTauProducer.piZeroSrc = cms.InputTag(
     "ak5PFJetsLegacyTaNCPiZeros")
 
@@ -67,9 +53,7 @@ shrinkingConePFTauProducer.piZeroSrc = cms.InputTag(
 
 from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import \
         combinatoricRecoTaus
-
 combinatoricRecoTaus.jetSrc = cms.InputTag("ak5PFJets")
-combinatoricRecoTaus.jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region")
 combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros")
 
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi import \
@@ -86,11 +70,9 @@ combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
 
 from RecoTauTag.Configuration.HPSPFTaus_cfi import *
 from RecoTauTag.Configuration.HPSTancTaus_cfi import *
-ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
-ak5PFJetsLegacyHPSPiZeros.jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region")
 
 # FIXME remove this once final pi zero reco is decided
-combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsLegacyHPSPiZeros")
+#combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsLegacyHPSPiZeros")
 
 #-------------------------------------------------------------------------------
 #------------------ PFTauTagInfo workaround ------------------------------------
@@ -112,44 +94,24 @@ tautagInfoModifer = cms.PSet(
 shrinkingConePFTauProducer.modifiers.append(tautagInfoModifer)
 combinatoricRecoTaus.modifiers.append(tautagInfoModifer)
 
-recoTauCommonSequence = cms.Sequence(
-    ak5PFJetTracksAssociatorAtVertex *
-    recoTauAK5PFJets08Region*
-    pfRecoTauTagInfoProducer
-)
-
-
-# Produce only classic HPS taus
-recoTauClassicHPSSequence = cms.Sequence(
-    recoTauCommonSequence *
-    ak5PFJetsLegacyHPSPiZeros *
-    combinatoricRecoTaus *
-    produceAndDiscriminateHPSPFTaus
-)
-
-# Produce only classic shrinking cone taus (+ TaNC)
-recoTauClassicShrinkingConeSequence = cms.Sequence(
-    recoTauCommonSequence *
-    ak5PFJetsLegacyTaNCPiZeros *
-    produceAndDiscriminateShrinkingConePFTaus *
-    produceShrinkingConeDiscriminationByTauNeuralClassifier
-)
-
-# Produce hybrid algorithm taus
-recoTauHPSTancSequence = cms.Sequence(
-    recoTauCommonSequence *
-    ak5PFJetsLegacyHPSPiZeros *
-    combinatoricRecoTaus *
-    hpsTancTauSequence
-)
-
 PFTau = cms.Sequence(
     # Jet production
-    recoTauCommonSequence *
+    #ak5PFJets *
+    ak5PFJetTracksAssociatorAtVertex *
+    pfRecoTauTagInfoProducer *
+    # Build Pi Zeros
+    ak5PFJetsRecoTauPiZeros *
     # Make shrinking cone taus
-    recoTauClassicShrinkingConeSequence *
-    # Make classic HPS taus
-    recoTauClassicHPSSequence *
-    # Make hybrid algo taus
-    recoTauHPSTancSequence
+    ak5PFJetsLegacyTaNCPiZeros *
+    produceAndDiscriminateShrinkingConePFTaus *
+    produceShrinkingConeDiscriminationByTauNeuralClassifier *
+    # Build combinatoric base taus
+    # FIXME remove this once final pi zero reco is decided
+    ak5PFJetsLegacyHPSPiZeros *
+    combinatoricRecoTaus *
+    produceAndDiscriminateHPSPFTaus *
+    hpsTancTauSequence
+    #tancTauSequence
 )
+
+

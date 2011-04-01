@@ -117,8 +117,6 @@ public:
   void initializeStripStatus (const SiStripQuality *stripQuality, int qualityFlags, int qualityDebugFlags) const;
 
   void initializePixelStatus (const SiPixelQuality *stripQuality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) const;
-
-  
 };
 
 #endif

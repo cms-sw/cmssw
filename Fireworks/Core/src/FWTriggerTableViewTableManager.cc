@@ -1,9 +1,6 @@
-// $Id: FWTriggerTableViewTableManager.cc,v 1.2 2009/10/27 12:23:11 dmytro Exp $
-
-#include <math.h>
+// $Id: FWTriggerTableViewTableManager.cc,v 1.3 2010/06/18 10:17:16 yana Exp $
 
 #include "TGClient.h"
-
 #include "Fireworks/Core/interface/FWTriggerTableViewTableManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableView.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -16,10 +13,7 @@ FWTriggerTableViewTableManager::FWTriggerTableViewTableManager (const FWTriggerT
 {
    GCValues_t gc = *(m_view->m_tableWidget->GetWhiteGC().GetAttributes());
    m_graphicsContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
-   m_highlightContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
-   m_highlightContext->SetForeground(gVirtualX->GetPixel(kBlue));
-   m_highlightContext->SetBackground(gVirtualX->GetPixel(kBlue));
-   m_renderer = new FWTextTableCellRenderer(m_graphicsContext,m_highlightContext);
+   m_renderer = new FWTextTableCellRenderer(m_graphicsContext,m_graphicsContext);
 }
 
 FWTriggerTableViewTableManager::~FWTriggerTableViewTableManager ()
@@ -30,7 +24,6 @@ FWTriggerTableViewTableManager::~FWTriggerTableViewTableManager ()
 int
 FWTriggerTableViewTableManager::numberOfRows() const
 {
-   // number of triggers
    if ( !m_view->m_columns.empty() )
       return m_view->m_columns.front().values.size();
    else
@@ -40,13 +33,6 @@ FWTriggerTableViewTableManager::numberOfRows() const
 int
 FWTriggerTableViewTableManager::numberOfColumns() const
 {
-   // Columns:
-   // * trigger name
-   // * passed/failed
-   //
-   // in future
-   // * how often passed in the current file (%)
-   // * how often passed in the current file with current selection(%)
    return m_view->m_columns.size();
 }
 
@@ -58,7 +44,6 @@ FWTriggerTableViewTableManager::getTitles () const
    ret.reserve(n);
    for (unsigned int i = 0; i < n; ++i) {
       ret.push_back(m_view->m_columns.at(i).title);
-//        printf("%s\n", ret.back().c_str());
    }
    return ret;
 }
@@ -66,9 +51,6 @@ FWTriggerTableViewTableManager::getTitles () const
 int
 FWTriggerTableViewTableManager::unsortedRowNumber(int iSortedRowNumber) const
 {
-//      printf("%d indices, returning %d (%d)\n", (int)m_sortedToUnsortedIndices.size(),
-//          iSortedRowNumber,
-//          iSortedRowNumber < (int)m_sortedToUnsortedIndices.size() ? m_sortedToUnsortedIndices[iSortedRowNumber] : -1);
    if (iSortedRowNumber >= (int)m_sortedToUnsortedIndices.size())
       return 0;
    return m_sortedToUnsortedIndices[iSortedRowNumber];
@@ -84,7 +66,7 @@ FWTableCellRendererBase
         int(m_view->m_columns.size())>iCol &&
         int(m_view->m_columns.front().values.size())>realRowNumber ) {
       bool accepted = std::string(m_view->m_columns.at(acceptColumn).values.at(realRowNumber)) == "1";
-      if ( (m_view->m_manager->colorManager().background() == kBlack) == accepted )
+      if ((m_view->backgroundColor() == kBlack) == accepted)
 	m_graphicsContext->SetForeground(0xe0e0e0);
       else
 	m_graphicsContext->SetForeground(0x404040);

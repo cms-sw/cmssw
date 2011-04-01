@@ -125,7 +125,7 @@ FWGeometry::loadMap( const char* fileName )
       }
       if( loadTranslation )
       {
-	 for( unsigned int j = 0; j < 9; ++j )
+	 for( unsigned int j = 0; j < 3; ++j )
 	    m_idToInfo[i].translation[j] = translation[j];
       }
       if( loadMatrix )

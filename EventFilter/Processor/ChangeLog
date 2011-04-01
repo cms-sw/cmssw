@@ -1,3 +1,43 @@
+2011-03-23 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-05
+	* put back begin job in mFU enabling thread
+	* remove unused infospace
+
+2011-03-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-04
+	* merge from branch
+	* fixes to monitoring usage 
+	* fix loss of total counters when all slave processes
+	crash
+	
+2011-02-16 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-00-02
+	* add forgotten mutex_destroy/mutex_init in slave process recycle
+
+2011-02-14 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-00-01
+	* more fixes with psindex reporting to db
+	
+2011-02-09 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-00-00
+	* fix deadlock and minor issues with path index 
+
+2011-02-04 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-03
+	* added rate statistics gathering to idie
+
+2011-01-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-02
+	* fix pathindex handling when path missing in index file
+	* sleep 10 s in summarize to avoid tight loop when no msg present
+
 2011-01-21 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-03-01

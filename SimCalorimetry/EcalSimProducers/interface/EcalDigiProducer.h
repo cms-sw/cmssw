@@ -17,7 +17,6 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 
-
 typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer  ;
 typedef EcalTDigitizer<EEDigitizerTraits> EEDigitizer  ;
 typedef CaloTDigitizer<ESDigitizerTraits> ESDigitizer  ;
@@ -34,8 +33,6 @@ class ESElectronicsSim ;
 class ESElectronicsSimFast ;
 class ESFastTDigitizer ;
 class CaloGeometry ;
-class EBDigiCollection ;
-class EEDigiCollection ;
 
 class EcalDigiProducer : public edm::EDProducer
 {
@@ -49,10 +46,7 @@ class EcalDigiProducer : public edm::EDProducer
       virtual void produce( edm::Event&            event ,
 			    const edm::EventSetup& eventSetup ) ;
 
-      virtual void cacheEBDigis( const EBDigiCollection* ebDigiPtr ) const { }
-      virtual void cacheEEDigis( const EEDigiCollection* eeDigiPtr ) const { }
-
-   protected:
+   private:
 
       void checkGeometry(const edm::EventSetup& eventSetup) ;
 

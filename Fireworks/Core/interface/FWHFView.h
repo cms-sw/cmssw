@@ -16,7 +16,7 @@
 //
 // Original Author:  Yanjun
 //         Created:  Mon May 31 13:42:21 CEST 2010
-// $Id: FWHFView.h,v 1.6 2010/09/21 15:25:14 amraktad Exp $
+// $Id: FWHFView.h,v 1.7 2010/09/21 17:20:55 amraktad Exp $
 //
 
 // system include files
@@ -32,7 +32,7 @@ public:
    FWHFView(TEveWindowSlot*, FWViewType::EType);
    virtual ~FWHFView();
 
-   virtual void setContext(fireworks::Context&);
+   virtual void setContext(const fireworks::Context&);
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------

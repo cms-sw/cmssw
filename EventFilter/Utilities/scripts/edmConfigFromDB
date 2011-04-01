@@ -10,8 +10,8 @@
 
 my $usage =
     "USAGE:\nedmConfigFromDB\n" .
-    "\t--v0|--v1                   (ConfDB version [default: v1])\n" .
-    "\t--hltdev|--orcoff|--test    (target db [default: hltdev])\n" .
+    "\t--v0|--v1|--test            (ConfDB version [default: v1])\n" .
+    "\t--hltdev|--orcoff           (target db [default: hltdev])\n" .
     "\t--list <s>                  (list all configurations starting with <s>)\n" .
     "\t  [all other options are diregarded if --list <s> is specified!]\n\n" .
     "\t--configId <id>             (specify configuration by id)\n" .
@@ -46,6 +46,8 @@ my $usage =
     "\t--services <-svc1[,-svc2]>  (include all services but the specified)\n" .
     "\t--paths <p1[,p2]>           (include only specified paths)\n" .
     "\t--paths <-p1[,-p2]>         (include all paths but the specified)\n" .
+    "\t--streams <s1[,s2]>         (include only specified streams)\n" .
+    "\t--datasets <d1[,d2]>        (include only specified datasets)\n" .
     "\t--sequences <s1[,s2]>       (include sequences, referenced or not!)\n" .
     "\t--modules <p1[,p2]>         (include modules, referenced or not!)\n" .
     "\t--blocks <m1::p1[,p2][,m2]> (generate parameter blocks\n" .
@@ -55,7 +57,6 @@ my $usage =
 die $usage if @ARGV<2;
 
 my $db_version  = "cms-project-confdb-hltdev";
-#my $db_version  = "test-confdb";
 my $db_name     = "hltdev";
 my $do_list     = 0;
 my $do_versions = 0;
@@ -88,7 +89,9 @@ my %options      = ('--format',1,
 		    '--paths',1,
 		    '--sequences',1,
 		    '--modules',1,
-		    '--blocks',1
+		    '--blocks',1,
+		    '--streams',1,
+		    '--datasets',1
 		    );
 
 
@@ -108,15 +111,15 @@ while (@ARGV) {
     elsif ($arg eq "--v1") {
 	$db_version = "cms-project-confdb-hltdev";
     }
-
+    elsif ($arg eq "--test") {
+	$db_version = "test--confdb";
+    }
+    
     elsif ($arg eq "--hltdev") {
 	$db_name = "HLTDEV";
     }
     elsif ($arg eq "--orcoff") {
 	$db_name = "ORCOFF";
-    }
-    elsif ($arg eq "--test") {
-	$db_name = "TEST";
     }
 
     elsif ($arg eq "--list") {
@@ -174,9 +177,7 @@ while (@ARGV) {
 my $jsp = "get.jsp";
 if ($do_list||$do_versions||$do_packages) { $jsp = "confdb.jsp"; }
 
-my $url =
-    "http://" . $db_version . ".web.cern.ch/" .
-    "" . $db_version . "/" . $jsp . "?dbName=$db_name";
+my $url = "http://www.cern.ch/" . $db_version . "/" . $jsp . "?dbName=$db_name";
 
 if ($do_list) {
     $url = $url . "&list=" . $list_begins_with;

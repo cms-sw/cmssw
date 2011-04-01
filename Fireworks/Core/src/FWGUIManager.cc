@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.226.2.1 2010/12/07 10:30:55 mccauley Exp $
+// $Id: FWGUIManager.cc,v 1.235 2011/02/23 14:07:03 amraktad Exp $
 
 
 //
@@ -49,7 +49,7 @@
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWInvMassDialog.h"
-#include "Fireworks/Core/interface/FWGeometryTable.h"
+#include "Fireworks/Core/interface/FWGeometryBrowser.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -108,6 +108,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
    m_viewPopup(0),
    m_commonPopup(0),
    m_invMassDialog(0),
+   m_geoBrowser(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
    m_helpGLPopup(0),
@@ -147,13 +148,16 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
       for (int i = 0 ; i < FWViewType::kTypeSize; ++i)
       {
-         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableTrigger);
+         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableHLT);
          CSGAction* action = m_cmsShowMainFrame->createNewViewerAction(FWViewType::idToName(i), separator);
          action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
       }
 
       m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
       m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
+
+      m_geoBrowser = new FWGeometryBrowser(getGUIManager());
+      m_cmsShowMainFrame->bindCSGActionKeys(m_geoBrowser);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
@@ -168,7 +172,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sShowCommonInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showCommonPopup));
 
       getAction(cmsshow::sShowInvMassDialog)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showInvMassDialog));
-      getAction(cmsshow::sShowGeometryTable)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showGeometryTable));
+      getAction(cmsshow::sShowGeometryTable)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showGeometryBrowser));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
@@ -321,17 +325,15 @@ FWGUIManager::titleChanged(const char *subtitle)
 }
 
 void
-FWGUIManager::loadEvent() {
+FWGUIManager::eventChangedCallback() {
    // To be replaced when we can get index from fwlite::Event
    
    TEveViewerList* viewers = gEve->GetViewers();
    for (TEveElement::List_i i=viewers->BeginChildren(); i!= viewers->EndChildren(); ++i)
    {
       TEveViewer* ev = dynamic_cast<TEveViewer*>(*i);
-      ev->GetGLViewer()->DeleteOverlayAnnotations();
-
-      // refresh label 
-      /// markup set run , event, time
+      if (ev)
+         ev->GetGLViewer()->DeleteOverlayAnnotations();
    }
    
    m_cmsShowMainFrame->loadEvent(*getCurrentEvent());
@@ -707,16 +709,10 @@ FWGUIManager::showInvMassDialog()
 }
 
 void
-FWGUIManager::showGeometryTable()
+FWGUIManager::showGeometryBrowser()
 {
-  std::cout<<"FWGUIManager::showGeometryTable()"<<std::endl;
-
-   if (! m_geometryTable)
-   {
-     m_geometryTable = new FWGeometryTable(getGUIManager());
-      m_cmsShowMainFrame->bindCSGActionKeys(m_geometryTable);
-   }
-   m_geometryTable->MapRaised();
+  m_geoBrowser->browse();
+   m_geoBrowser->MapRaised();
 }
 
 void
@@ -737,7 +733,7 @@ FWGUIManager::createShortcutPopup ()
 {
    if (m_shortcutPopup == 0) {
       m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html",
-                                             "Keyboard Shortcuts",
+                                             getAction(cmsshow::sKeyboardShort)->getName().c_str(),
                                               m_cmsShowMainFrame, 800, 600);
 
       m_shortcutPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
@@ -749,7 +745,7 @@ void FWGUIManager::createHelpGLPopup ()
 {
    if (m_helpGLPopup == 0) {
       m_helpGLPopup = new CmsShowHelpPopup("helpGL.html",
-                                           "Help On GL Viewer",
+                                            getAction(cmsshow::sHelpGL)->getName().c_str(),
                                             m_cmsShowMainFrame, 800, 600);
 
       m_helpGLPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
@@ -1154,6 +1150,14 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       }
    }
    oTo.addKeyValue(kControllers,controllers,true);
+
+   //______________________________________________________________________________
+   // geometry 
+   FWConfiguration rootGeo;
+   {
+     m_geoBrowser->addTo(rootGeo);
+   }
+   oTo.addKeyValue("geo-browser",rootGeo,true);
 }
 
 //----------------------------------------------------------------
@@ -1277,6 +1281,11 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
 
    // disable fist docked view
    checkSubviewAreaIconState(0);
+
+  //______________________________________________________________________________
+  const FWConfiguration* rootGeo = iFrom.valueForKey("geo-browser");
+  if (rootGeo)     
+     m_geoBrowser->setFrom(*rootGeo);
 }
 
 void

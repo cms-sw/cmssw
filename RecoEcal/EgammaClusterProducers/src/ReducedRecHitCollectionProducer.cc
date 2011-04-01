@@ -63,7 +63,10 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
      {
        Handle< DetIdCollection > detId;
        iEvent.getByLabel(interestingDetIdCollections_[t],detId);
-       if( !detId.isValid() ) continue;
+       if( !detId.isValid() ){
+	 edm::LogError("MissingInput")<<"no reason to skip detid from :"<<interestingDetIdCollections_[t];
+	 continue;
+       }
        
        for (unsigned int ii=0;ii<(*detId).size();ii++)
 	 {

@@ -1,8 +1,8 @@
-// $Id: DiscardManager.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: DiscardManager.h,v 1.5.10.2 2011/02/28 17:56:15 mommsen Exp $
 /// @file: DiscardManager.h 
 
-#ifndef StorageManager_DiscardManager_h
-#define StorageManager_DiscardManager_h
+#ifndef EventFilter_StorageManager_DiscardManager_h
+#define EventFilter_StorageManager_DiscardManager_h
 
 #include "xdaq/ApplicationContext.h"
 #include "xdaq/ApplicationDescriptor.h"
@@ -23,8 +23,8 @@ namespace stor {
    * Handles the discard messages sent to the upstream Resource Brokers.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.5.10.2 $
+   * $Date: 2011/02/28 17:56:15 $
    */
 
   class DiscardManager
@@ -91,18 +91,20 @@ namespace stor {
     FUProxyPtr makeNewFUProxy(std::string hltClassName,
                               unsigned int hltInstance);
 
-    xdaq::ApplicationContext* _appContext;
-    xdaq::ApplicationDescriptor* _appDescriptor;
-    toolbox::mem::Pool* _pool;
+    xdaq::ApplicationContext* appContext_;
+    xdaq::ApplicationDescriptor* appDescriptor_;
+    toolbox::mem::Pool* pool_;
 
-    FUProxyMap _proxyCache;
+    FUProxyMap proxyCache_;
 
-    DataSenderMonitorCollection& _dataSenderMonCollection;
+    DataSenderMonitorCollection& dataSenderMonCollection_;
   };
+
+  typedef boost::shared_ptr<DiscardManager> DiscardManagerPtr;
 
 } // namespace stor
 
-#endif // StorageManager_DiscardManager_h 
+#endif // EventFilter_StorageManager_DiscardManager_h 
 
 
 /// emacs configuration

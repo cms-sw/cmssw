@@ -46,12 +46,9 @@ if (options.sqlite != "") :
     process.load("CondTools.L1Trigger.L1CondDBSource_cff")
     print "Can't read SQLite files yet"
 
-#from CondCore.DBCommon.CondDBSetup_cfi import *
-
 
 process.load("L1TriggerConfig.GctConfigProducers.l1GctConfigDump_cfi")
 
 process.path = cms.Path(
     process.l1GctConfigDump
 )
-

@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # this is the configuration to model pileup in the low-luminosity phase
-from SimGeneral.MixingModule.mixObjects_cfi import *
+from SimGeneral.MixingModule.mixObjects_cfi import * 
+
+
 mix = cms.EDProducer("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(0),
@@ -20,7 +22,7 @@ mix = cms.EDProducer("MixingModule",
         averageNumber = cms.double(1.0)
     	),
 	sequential = cms.untracked.bool(True),
-        fileNames = cms.untracked.vstring('file:PCFLowLumiPU.root')
+        fileNames =  cms.untracked.vstring('file:PCFLowLumiPU.root')
     ),
     
     mixObjects = cms.PSet(
