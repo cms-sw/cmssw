@@ -6,7 +6,7 @@
 
 //
 // Jason Slaunwhite and Jeff Klukas
-// $Id: HLTMuonOfflineAnalyzer.cc,v 1.1 2011/01/03 21:13:03 klukas Exp $
+// $Id: HLTMuonOfflineAnalyzer.cc,v 1.2 2011/04/01 15:38:04 klukas Exp $
 //
 //
 
@@ -150,8 +150,11 @@ HLTMuonOfflineAnalyzer::beginRun(const edm::Run & iRun,
   set<string>::iterator iPath;
   for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
     string path = * iPath;
-    HLTMuonMatchAndPlot analyzer(pset_, path, moduleLabels(path));
-    analyzers_.push_back(analyzer);
+    vector<string> labels = moduleLabels(path);
+    if (labels.size() > 0) {
+      HLTMuonMatchAndPlot analyzer(pset_, path, moduleLabels(path));
+      analyzers_.push_back(analyzer);
+    }
   }
 
   // Call the beginRun (which books all the histograms)
