@@ -965,8 +965,18 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 	for(unsigned int i = 0; i < subs_.size(); i++)
 	  {
 	    if(subs_[i].alive() != 1){
-	      if(subs_[i].countdown()-- == 0)
+	      if(subs_[i].countdown() == 0)
 		{
+		  if(subs_[i].restartCount()>2){
+		    LOG4CPLUS_WARN(getApplicationLogger()," Not restarting subprocess in slot " << i 
+				   << " - maximum restart count reached");
+		    std::ostringstream ost1;
+		    ost1 << "-W- Dead Process in slot " << i << " reached maximum restart count"; 
+		    localLog(ost1.str());
+		    subs_[i].countdown()--;
+		    continue;
+		  }
+		  subs_[i].restartCount()++;
 		  pid_t rr = subs_[i].forkNew();
 		  if(rr==0)
 		    {
@@ -1019,6 +1029,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		      localLog(ost1.str());
 		    }
 		}
+	      if(subs_[i].countdown()>=0) subs_[i].countdown()--;
 	    }
 	  }
 	pthread_mutex_unlock(&stop_lock_);
@@ -1683,7 +1694,10 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
 		     <<subs_[i].pid()<<"</td><td colspan=\"5\">" << subs_[i].reasonForFailed();
 		if(subs_[i].alive()!=0 && subs_[i].alive()!=-1000) 
 		  {
-		    if(autoRestartSlaves_) *out << " will restart in " << subs_[i].countdown() << " s";
+		    if(autoRestartSlaves_ && subs_[i].restartCount()<=2) 
+		      *out << " will restart in " << subs_[i].countdown() << " s";
+		    else if(autoRestartSlaves_)
+		      *out << " reached maximum restart count";
 		    else *out << " autoRestart is disabled ";
 		  }
 		*out << "</td><td>" << subs_[i].params().dqm 
@@ -1811,7 +1825,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.119 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.120 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

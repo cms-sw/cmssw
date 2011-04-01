@@ -1,3 +1,8 @@
+2011-04-01 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-06
+	* limit the number of restart per slave process to 3
+	
 2011-03-23 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-03-05
