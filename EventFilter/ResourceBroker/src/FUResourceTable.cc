@@ -57,6 +57,7 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , shmBuffer_(0)
   , nbDqmCells_(nbDqmCells)
   , nbRawCells_(nbRawCells)
+  , nbRecoCells_(nbRecoCells)
   , acceptSMDataDiscard_(0)
   , acceptSMDqmDiscard_(0)
   , doCrcCheck_(1)
@@ -132,7 +133,7 @@ void FUResourceTable::initialize(bool   segmentationMode,
   }
 
   acceptSMDataDiscard_ = new bool[nbRecoCells];
-  acceptSMDqmDiscard_  = new bool[nbDqmCells];
+  acceptSMDqmDiscard_  = new int[nbDqmCells];
   
   resetCounters();
 }
@@ -297,10 +298,9 @@ bool FUResourceTable::sendDqm(toolbox::task::WorkLoop* /* wl */)
       UInt_t   cellFUGuid      = cell->fuGuid();
       UChar_t *cellPayloadAddr = cell->payloadAddr();
       UInt_t   cellEventSize   = cell->eventSize();
-      shmBuffer_->finishReadingDqmCell(cell);      
-      nbPendingSMDqmDiscards_++;
       sendDqmEvent(cellIndex,cellRunNumber,cellEvtAtUpdate,cellFolderId,
 		   cellFUProcId,cellFUGuid,cellPayloadAddr,cellEventSize);
+      shmBuffer_->finishReadingDqmCell(cell);
     }
     catch (xcept::Exception& e) {
       LOG4CPLUS_FATAL(log_,"Failed to send DQM DATA to StorageManager: "
@@ -555,22 +555,33 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
   I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DQM_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
   UInt_t dqmIndex=msg->rbBufferID;
-
-  if (acceptSMDqmDiscard_[dqmIndex]) {
-    acceptSMDqmDiscard_[dqmIndex] = false;
-    if (!isHalting_) {
-      shmBuffer_->discardDqmCell(dqmIndex);
+  unsigned int ntries = 0;
+  while(shmBuffer_->dqmState(dqmIndex)!=dqm::SENT){
+    LOG4CPLUS_WARN(log_,"DQM discard for cell "<< dqmIndex << " which is not in SENT state");
+    ::usleep(10000);
+    if(ntries++>10){
+      LOG4CPLUS_ERROR(log_,"DQM cell " << dqmIndex 
+		      << " discard timed out while cell still in state " << shmBuffer_->dqmState(dqmIndex) );
       bufRef->release();
+      return true;
     }
+  }
+  if (acceptSMDqmDiscard_[dqmIndex]>0) {
+    acceptSMDqmDiscard_[dqmIndex]--;
     if(nbPendingSMDqmDiscards_>0)nbPendingSMDqmDiscards_--;
     else {
       LOG4CPLUS_WARN(log_,"Spurious DQM discard by StorageManager, skip!");
+    }
+    
+    if (!isHalting_) {
+      shmBuffer_->discardDqmCell(dqmIndex);
+      bufRef->release();
     }
 
   }
   else {
     LOG4CPLUS_ERROR(log_,"Spurious DQM discard for cell " << dqmIndex 
-		    << " from StorageManager while cell is not in the right state");
+		    << " from StorageManager while cell is not accepting discards");
   }
   
   if (isHalting_) {
@@ -693,8 +704,8 @@ void FUResourceTable::clear()
 void FUResourceTable::resetCounters()
 {
   if (0!=shmBuffer_) {
-    for (UInt_t i=0;i<shmBuffer_->nRecoCells();i++) acceptSMDataDiscard_[i]=false;
-    for (UInt_t i=0;i<shmBuffer_->nDqmCells();i++)  acceptSMDqmDiscard_[i] =false;
+    for (UInt_t i=0;i<shmBuffer_->nRecoCells();i++) acceptSMDataDiscard_[i]= false;
+    for (UInt_t i=0;i<shmBuffer_->nDqmCells();i++)  acceptSMDqmDiscard_[i] = 0;
   }
   
   nbAllocated_           =nbPending_;
@@ -934,6 +945,29 @@ void FUResourceTable::sendErrorEvent(UInt_t   fuResourceId,
     sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     sumOfSizes_  +=nbBytes;
   }
+
+//   if (0!=shmBuffer_) {
+//     UInt_t n=nbDqmCells_;
+
+//     for (UInt_t i=0;i<n;i++) {
+//       if(shmBuffer_->dqmCell(i)->fuProcessId()==fuProcessId)
+// 	{
+// 	  if(shmBuffer_->dqmState(i)!=dqm::SENT){
+// 	    shmBuffer_->setDqmState(i,dqm::SENT);	
+// 	    shmBuffer_->discardDqmCell(i);	
+// 	    acceptSMDqmDiscard_[i] = false;
+// 	  }  
+// 	}
+//     }
+//     n=nbRecoCells_;
+//     for (UInt_t i=0;i<n;i++) {
+//       if(shmBuffer_->recoCell(i)->fuProcessId()==fuProcessId)
+// 	{
+// 	  shmBuffer_->discardOrphanedRecoCell(i);  
+// 	}
+//     }
+
+//   }
 }
 
 
@@ -951,9 +985,13 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
     LOG4CPLUS_WARN(log_,"No StorageManager, DROP DQM EVENT.");
   }
   else {
-    acceptSMDqmDiscard_[fuDqmId] = true;
     sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,
 		      fuProcessId,fuGuid,data,dataSize);
+    nbPendingSMDqmDiscards_++;
+    acceptSMDqmDiscard_[fuDqmId]++;
+    if(acceptSMDqmDiscard_[fuDqmId]>1)
+      LOG4CPLUS_WARN(log_,"DQM Cell " << fuDqmId << " being sent more than once for folder " 
+		     << folderId << " process " << fuProcessId << " guid " << fuGuid);
     nbSentDqm_++;
   }
 }

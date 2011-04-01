@@ -227,10 +227,11 @@ namespace evf {
     FUResourceVec_t    resources_;
     UInt_t             nbDqmCells_;
     UInt_t             nbRawCells_;
+    UInt_t             nbRecoCells_;
     std::queue<UInt_t> freeResourceIds_;
     
     bool              *acceptSMDataDiscard_;
-    bool              *acceptSMDqmDiscard_;
+    int               *acceptSMDqmDiscard_;
     
     UInt_t             doCrcCheck_;
     UInt_t             doDumpEvents_;
