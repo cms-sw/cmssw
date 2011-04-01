@@ -56,6 +56,7 @@ private:
   double genEtaAcc;
   double genEtAcc;
   // plotting paramters
+  double plotEtMin;
   double plotEtaMax;
   double plotPhiMax;
   double plotPtMin ;
