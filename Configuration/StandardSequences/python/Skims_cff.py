@@ -84,6 +84,19 @@ SKIMStreamHTSD = cms.FilteredStream(
 
 #####################
 
+from Configuration.Skimming.PDWG_HSCP_SD_cff import *
+HSCPSDPath = cms.Path(HSCPSD)
+SKIMStreamHSCPSD = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'HSCPSD',
+    paths = (HSCPSDPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+#####################
+
 from Configuration.EventContent.EventContent_cff import RECOEventContent
 skimRecoContent = RECOEventContent.clone()
 skimRecoContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
