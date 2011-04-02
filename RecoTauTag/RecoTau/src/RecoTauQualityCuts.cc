@@ -53,7 +53,10 @@ bool trkLongitudinalImpactParameter(const PFCandidate& cand,
   }
   TrackRef trk = cand.trackRef();
   if (!trk) return false;
-  return std::abs(trk->dz((*pv)->position())) <= cut;
+  double difference = std::abs(trk->dz((*pv)->position()));
+  //std::cout << "QCUTS LIP: track vz: " << trk->vz() <<
+    //" diff: " << difference << " cut: " << cut << std::endl;
+  return difference <= cut;
 }
 
 bool trkChi2(const PFCandidate& cand, double cut) {

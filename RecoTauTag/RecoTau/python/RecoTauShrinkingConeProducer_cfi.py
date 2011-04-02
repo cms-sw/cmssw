@@ -12,6 +12,7 @@ See PFT-08-001 for a description of the algorithm.
 _shrinkingConeRecoTausConfig = cms.PSet(
     name = cms.string("shrinkingCone"),
     primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
+    useClosestPV = cms.bool(True),
     qualityCuts = PFTauQualityCuts.signalQualityCuts,
     # If true, consider PFLeptons (e/mu) as charged hadrons.
     usePFLeptons = cms.bool(True),

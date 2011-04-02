@@ -85,7 +85,7 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   // from the pizeros.
   RecoTauConstructor tau(jet, getPFCands(), true);
   // Setup our quality cuts to use the current vertex (supplied by base class)
-  qcuts_.setPV(primaryVertex());
+  qcuts_.setPV(primaryVertex(jet));
 
   typedef std::vector<PFCandidatePtr> PFCandPtrs;
 

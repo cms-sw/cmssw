@@ -58,6 +58,7 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin {
       RecoTauEventHolderPlugin(pset){
         pfCandSrc_ = pset.getParameter<edm::InputTag>("pfCandSrc");
         pvSrc_ = pset.getParameter<edm::InputTag>("primaryVertexSrc");
+        useClosestPV_ = pset.getParameter<bool>("useClosestPV");
       };
 
     virtual ~RecoTauBuilderPlugin() {}
@@ -73,20 +74,20 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin {
     const edm::Handle<PFCandidateCollection>& getPFCands() const {
       return pfCands_; };
 
-    /// Get primary vertex associated to this event
-    const reco::VertexRef& primaryVertex() const { return pv_; }
+    /// Get primary vertex associated to this jet
+    reco::VertexRef primaryVertex(const reco::PFJetRef& jet) const;
 
     // Hook called by base class at the beginning of each event. Used to update
     // handle to PFCandidates
     virtual void beginEvent();
 
   private:
+    bool useClosestPV_;
     edm::InputTag pvSrc_;
-    reco::VertexRef pv_;
-
     edm::InputTag pfCandSrc_;
     // Handle to PFCandidates needed to build Refs
     edm::Handle<PFCandidateCollection> pfCands_;
+    edm::Handle<reco::VertexCollection> primaryVertices_;
 
 };
 

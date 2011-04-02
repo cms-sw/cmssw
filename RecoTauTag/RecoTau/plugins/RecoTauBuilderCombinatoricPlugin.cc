@@ -65,7 +65,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 
   // Update the primary vertex used by the quality cuts.  The PV is supplied by
   // the base class.
-  qcuts_.setPV(primaryVertex());
+  qcuts_.setPV(primaryVertex(jet));
 
   // Get PFCHs from this jet.  They are already sorted by descending Pt
   PFCandPtrs pfchs;
