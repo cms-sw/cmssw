@@ -100,6 +100,8 @@ process.mcvsrecogoodverticesanalyzer = process.mcvsrecoverticesanalyzer.clone(pv
 process.mcvsrecogoodverticesD0s5 = process.mcvsrecoverticesanalyzer.clone(pvCollection = cms.InputTag("goodVerticesD0s5"))
 process.mcvsrecogoodverticesD0s51mm = process.mcvsrecoverticesanalyzer.clone(pvCollection = cms.InputTag("goodVerticesD0s51mm"))
 process.mcvsrecogoodverticesDA100um = process.mcvsrecoverticesanalyzer.clone(pvCollection = cms.InputTag("goodVerticesDA100um"))
+process.mcvsrecogoodverticesDA100umV7 = process.mcvsrecoverticesanalyzer.clone(pvCollection = cms.InputTag("goodVerticesDA100umV7"))
+process.mcvsrecogoodverticesDA100umV8 = process.mcvsrecoverticesanalyzer.clone(pvCollection = cms.InputTag("goodVerticesDA100umV8"))
 
 
 process.weightedmcverticesanalyzer = process.mcverticesanalyzer.clone(useWeight = cms.bool(True))
@@ -109,6 +111,8 @@ process.weightedmcvsrecogoodverticesanalyzer = process.mcvsrecogoodverticesanaly
 process.weightedmcvsrecogoodverticesD0s5 = process.mcvsrecogoodverticesD0s5.clone(useWeight = cms.bool(True))
 process.weightedmcvsrecogoodverticesD0s51mm = process.mcvsrecogoodverticesD0s51mm.clone(useWeight = cms.bool(True))
 process.weightedmcvsrecogoodverticesDA100um = process.mcvsrecogoodverticesDA100um.clone(useWeight = cms.bool(True))
+process.weightedmcvsrecogoodverticesDA100umV7 = process.mcvsrecogoodverticesDA100umV7.clone(useWeight = cms.bool(True))
+process.weightedmcvsrecogoodverticesDA100umV8 = process.mcvsrecogoodverticesDA100umV8.clone(useWeight = cms.bool(True))
 
 
 process.weighted45mmmcverticesanalyzer = process.mcverticesanalyzer.clone(useWeight = cms.bool(True), weightProduct=cms.InputTag("mcvertexweight45mm"))
@@ -118,6 +122,8 @@ process.weighted45mmmcvsrecogoodverticesanalyzer = process.mcvsrecogoodverticesa
 process.weighted45mmmcvsrecogoodverticesD0s5 = process.mcvsrecogoodverticesD0s5.clone(useWeight = cms.bool(True), weightProduct=cms.InputTag("mcvertexweight45mm"))
 process.weighted45mmmcvsrecogoodverticesD0s51mm = process.mcvsrecogoodverticesD0s51mm.clone(useWeight = cms.bool(True), weightProduct=cms.InputTag("mcvertexweight45mm"))
 process.weighted45mmmcvsrecogoodverticesDA100um = process.mcvsrecogoodverticesDA100um.clone(useWeight = cms.bool(True), weightProduct=cms.InputTag("mcvertexweight45mm"))
+process.weighted45mmmcvsrecogoodverticesDA100umV7 = process.mcvsrecogoodverticesDA100umV7.clone(useWeight = cms.bool(True), weightProduct=cms.InputTag("mcvertexweight45mm"))
+process.weighted45mmmcvsrecogoodverticesDA100umV8 = process.mcvsrecogoodverticesDA100umV8.clone(useWeight = cms.bool(True), weightProduct=cms.InputTag("mcvertexweight45mm"))
 
 process.load("Validation.RecoVertex.anotherprimaryvertexanalyzer_cfi")
 
@@ -133,28 +139,34 @@ process.pvgoodvertices = process.primaryvertexanalyzer.clone(pvCollection=cms.In
 process.pvgoodverticesD0s5 = process.primaryvertexanalyzer.clone(pvCollection=cms.InputTag("goodVerticesD0s5"))
 process.pvgoodverticesD0s51mm = process.primaryvertexanalyzer.clone(pvCollection=cms.InputTag("goodVerticesD0s51mm"))
 process.pvgoodverticesDA100um = process.primaryvertexanalyzer.clone(pvCollection=cms.InputTag("goodVerticesDA100um"))
+process.pvgoodverticesDA100umV7 = process.primaryvertexanalyzer.clone(pvCollection=cms.InputTag("goodVerticesDA100umV7"))
+process.pvgoodverticesDA100umV8 = process.primaryvertexanalyzer.clone(pvCollection=cms.InputTag("goodVerticesDA100umV8"))
 
 
 process.p626 = cms.Path(process.seqPVReco + process.seqPVSelection +
                         process.mcverticesanalyzer + process.mcvsrecoverticesanalyzer +
                         process.mcvsreconofakeverticesanalyzer + process.mcvsrecogoodverticesanalyzer +
-                        process.mcvsrecogoodverticesD0s5 +process.mcvsrecogoodverticesD0s51mm +process.mcvsrecogoodverticesDA100um +
+                        process.mcvsrecogoodverticesD0s5 +process.mcvsrecogoodverticesD0s51mm +
+                        process.mcvsrecogoodverticesDA100um +process.mcvsrecogoodverticesDA100umV7 +process.mcvsrecogoodverticesDA100umV8 +
                         process.pvnofakevertices + process.pvgoodvertices +
-                        process.pvgoodverticesD0s5 + process.pvgoodverticesD0s51mm + process.pvgoodverticesDA100um
+                        process.pvgoodverticesD0s5 + process.pvgoodverticesD0s51mm +
+                        process.pvgoodverticesDA100um + process.pvgoodverticesDA100umV7 + process.pvgoodverticesDA100umV8
                         ) 
 
 process.p520 = cms.Path(process.mcvertexweight+
                         process.seqPVReco + process.seqPVSelection +
                         process.weightedmcverticesanalyzer + process.weightedmcvsrecoverticesanalyzer +
                         process.weightedmcvsreconofakeverticesanalyzer + process.weightedmcvsrecogoodverticesanalyzer +
-                        process.weightedmcvsrecogoodverticesD0s5 +process.weightedmcvsrecogoodverticesD0s51mm +process.weightedmcvsrecogoodverticesDA100um
+                        process.weightedmcvsrecogoodverticesD0s5 +process.weightedmcvsrecogoodverticesD0s51mm +
+                        process.weightedmcvsrecogoodverticesDA100um + process.weightedmcvsrecogoodverticesDA100umV7 + process.weightedmcvsrecogoodverticesDA100umV8
                         )
 
 process.p450 = cms.Path(process.mcvertexweight45mm+
                         process.seqPVReco + process.seqPVSelection +
                         process.weighted45mmmcverticesanalyzer + process.weighted45mmmcvsrecoverticesanalyzer +
                         process.weighted45mmmcvsreconofakeverticesanalyzer + process.weighted45mmmcvsrecogoodverticesanalyzer +
-                        process.weighted45mmmcvsrecogoodverticesD0s5 +process.weighted45mmmcvsrecogoodverticesD0s51mm +process.weighted45mmmcvsrecogoodverticesDA100um
+                        process.weighted45mmmcvsrecogoodverticesD0s5 +process.weighted45mmmcvsrecogoodverticesD0s51mm +
+                        process.weighted45mmmcvsrecogoodverticesDA100um + process.weighted45mmmcvsrecogoodverticesDA100umV7 + process.weighted45mmmcvsrecogoodverticesDA100umV8
                         )
 
 #----GlobalTag ------------------------

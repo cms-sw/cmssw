@@ -23,7 +23,7 @@ void recovsmcdraw(TFile* _file0, const char* dir, const char* label, const int c
   
 }
 
-void recovsmcalgoplot(TFile* _file0, const char* dir, const char* name)
+void recovsmcalgoplot(TFile* _file0, const char* dir, const char* name, const double offset)
 {
 
   char dir1[300]; 
@@ -40,13 +40,13 @@ void recovsmcalgoplot(TFile* _file0, const char* dir, const char* name)
   recovsmcdraw(_file0,dir1,"2010 reco",kBlack,&leg,false);
   recovsmcdraw(_file0,dir2,"gap=1mm, d0 sig=5",kBlue,&leg,false);
 
-  TLine ll(0,1,30,1+30*0.7); 
+  TLine ll(0,offset,30,offset+30*0.7); 
   ll.DrawClone();
   leg.AddEntry(&ll,"70% efficiency","l");
   leg.DrawClone();
 }
 
-void recovsmcplot(TFile* _file0, const char* dir, const char* name)
+void recovsmcplot(TFile* _file0, const char* dir, const char* name, const double offset)
 {
 
   char dir1[300]; 
@@ -63,7 +63,7 @@ void recovsmcplot(TFile* _file0, const char* dir, const char* name)
   recovsmcdraw(_file0,dir2,"sigmaZ=5.20cm",kBlue,&leg,false);
   recovsmcdraw(_file0,dir3,"sigmaZ=4.50cm",kRed,&leg,false);
 
-  TLine ll(0,1,30,1+30*0.7); 
+  TLine ll(0,offset,30,offset+30*0.7); 
   ll.DrawClone();
   leg.AddEntry(&ll,"70% efficiency","l");
   leg.DrawClone();
