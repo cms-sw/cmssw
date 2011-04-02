@@ -120,4 +120,19 @@ void make_simple_shapes(int nS=10, int nB=100, int seed=37) {
     wUP->import(*w->pdf("signal"));
     wUP->import(*w->pdf("background"));
     wUP->writeToFile("simple-shapes-UnbinnedParam.root");
+
+    // now we make a version in which the alpha is function of a unit gaussian, 
+    // so that we can do normalization and parametric morphing together
+    RooWorkspace *wUPN = new RooWorkspace("w","w");
+    wUPN->var("x[0,10]");
+    wUPN->import(*data_b, Rename("data_obs"));
+    wUPN->import(*data_s, Rename("data_sig"));
+    wUPN->import(*w->pdf("signal"));
+    RooAbsPdf *bgpdf = (RooAbsPdf *) *w->pdf("background")->clone("background_norm");
+    wUPN->import(*bgpdf);
+    wUPN->factory("sum::param_alpha(-0.3,prod(alphaNorm[0],0.1))"); // param_alpha = -0.3 + 0.1*alphaNorm, so Gauss(-0.3,1)
+    wUPN->factory("EDIT::background(background_norm, alpha=param_alpha)");
+    wUPN->Print("V");
+    wUPN->writeToFile("simple-shapes-UnbinnedParamNorm.root");
+    
 }
