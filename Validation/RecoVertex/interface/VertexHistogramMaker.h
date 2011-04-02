@@ -70,6 +70,7 @@ class VertexHistogramMaker {
   TProfile** m_hvtxxvsbxrun;
   TProfile** m_hvtxyvsbxrun;
   TProfile** m_hvtxzvsbxrun;
+  TProfile** m_hnvtxvsbxrun;
 
   TH2F** m_hvtxxvsbx2drun;
   TH2F** m_hvtxyvsbx2drun;

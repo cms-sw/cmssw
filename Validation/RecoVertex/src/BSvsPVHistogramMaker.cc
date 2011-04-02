@@ -240,7 +240,8 @@ double BSvsPVHistogramMaker::x(const reco::BeamSpot& bs, const double z) const {
 
   double x = bs.x0();
   
-  if(useSlope_) x += bs.dxdz()*z;
+  //  if(useSlope_) x += bs.dxdz()*z;
+  if(useSlope_) x += bs.dxdz()*(z-bs.z0());
  
   return x;
 
@@ -250,7 +251,8 @@ double BSvsPVHistogramMaker::y(const reco::BeamSpot& bs, const double z) const {
 
   double y = bs.y0();
   
-  if(useSlope_) y += bs.dydz()*z;
+  //  if(useSlope_) y += bs.dydz()*z;
+  if(useSlope_) y += bs.dydz()*(z-bs.z0());
  
   return y;
 
