@@ -41,7 +41,7 @@ QCoreApplication.addLibraryPath(qt_plugins_path)
 setWebsiteUrl('http://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigEditor')
 
 from Vispa.Main.Application import Application
-Application.NO_PROCESS_EVENTS=True
+Application.NO_PROCESS_EVENTS=False
 from Vispa.Share.ThreadChain import ThreadChain
 ThreadChain.NO_THREADS_FLAG=True
 

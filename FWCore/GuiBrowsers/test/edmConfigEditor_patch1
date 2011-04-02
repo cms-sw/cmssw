@@ -43,7 +43,7 @@ setWebsiteUrl('http://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigEditor')
 from Vispa.Main.Application import Application
 Application.NO_PROCESS_EVENTS=True
 from Vispa.Share.ThreadChain import ThreadChain
-ThreadChain.NO_THREADS_FLAG=True
+ThreadChain.NO_THREADS_FLAG=False
 
 from Vispa.Share import Profiling
 
