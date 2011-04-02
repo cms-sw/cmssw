@@ -520,7 +520,7 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int
    delete c1;
 }
 
-void stPlots_DrawComparison(string SavePath, string LegendTitle, unsigned int CutIndex, stPlots* st1, stPlots* st2, stPlots* st3=NULL, stPlots* st4=NULL, stPlots* st5=NULL, stPlots* st6=NULL, stPlots* st7=NULL)
+void stPlots_DrawComparison(string SavePath, string LegendTitle, unsigned int CutIndex, stPlots* st1, stPlots* st2=NULL, stPlots* st3=NULL, stPlots* st4=NULL, stPlots* st5=NULL, stPlots* st6=NULL, stPlots* st7=NULL)
 { 
    char CutIndexStr[255];sprintf(CutIndexStr,"_%03i",CutIndex);
 
