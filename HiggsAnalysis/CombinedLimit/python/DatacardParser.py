@@ -9,8 +9,7 @@ class Datacard():
         self.exp     = {}  # map bin -> (process -> value)
         self.systs   = []  # list (name, pdf, args, errline)
                            # errline: map bin -> (process -> value)
-        self.shapeMap = {} # map process -> (channel -> shape)
-        self.shapeParams = {} #
+        self.shapeMap = {} # map channel -> (process -> [fname, hname, hname_syst])
         self.hasShape = False
 
 def parseCard(file, options):
@@ -90,15 +89,23 @@ def parseCard(file, options):
     # parse nuisances   
     for l in file:
         if l.startswith("--"): continue
-        if l.startswith("#"):  continue
+        l  = re.sub("\\s*#.*","",l)
         l = re.sub("(?<=\\s)-+(\\s|$)"," 0\\1",l);
         f = l.split();
+        if len(f) <= 1: continue
         lsyst = f[0]; pdf = f[1]; args = []; numbers = f[2:];
         if re.match("[0-9]+",lsyst): lsyst = "theta"+lsyst
-        if pdf == "lnN" or pdf == "gmM":
+        if pdf == "lnN" or pdf == "gmM" or pdf == "shape":
             pass # nothing special to do
         elif pdf == "gmN":
             args = [int(f[2])]; numbers = f[3:];
+        elif pdf == "param":
+            # for parametric uncertainties, there's no line to account per bin/process effects
+            # just assume everything else is an argument and move on
+            args = f[2:]
+            if len(args) <= 1: raise RuntimeError, "Uncertainties of type 'param' must have at least two arguments (mean and sigma)"
+            ret.systs.append((lsyst,pdf,args,[]))
+            continue
         else:
             raise RuntimeError, "Unsupported pdf %s" % pdf
         if len(numbers) < len(ret.keyline): raise RuntimeError, "Malformed systematics line %s of length %d: while bins and process lines have length %d" % (lsyst, len(numbers), len(ret.keyline))
@@ -125,6 +132,9 @@ def parseCard(file, options):
     syst2 = []
     for lsyst,pdf,args,errline in ret.systs:
         nonNullEntries = 0 
+        if pdf == "param": # this doesn't have an errline
+            syst2.append((lsyst,pdf,args,errline))
+            continue
         for (b,p,s) in ret.keyline:
             r = errline[b][p]
             nullEffect = (r == 0.0 or (pdf == "lnN" and r == 1.0))

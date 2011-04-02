@@ -33,6 +33,10 @@ class ShapeBuilder(ModelBuilder):
             coeffs = ROOT.RooArgList(); bgcoeffs = ROOT.RooArgList()
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 (pdf,coeff) = (self.getPdf(b,p), self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
+                extranorm = self.getExtraNorm(b,p)
+                if extranorm:
+                    self.doObj("n_exp_final_bin%s_proc_%s" % (b,p), "prod", "n_exp_bin%s_proc_%s, %s" % (b,p, extranorm))
+                    coeff = self.out.function("n_exp_final_bin%s_proc_%s" % (b,p))
                 pdfs.add(pdf); coeffs.add(coeff)
                 if not self.DC.isSignal[p]:
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
@@ -153,14 +157,68 @@ class ShapeBuilder(ModelBuilder):
         else: # histogram
             ret = file.Get(objname);
             if not ret: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (objname,finalNames[0],names[1],names[0])
+            if ret in _neverDelete: return ret
             ret.SetName("shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""))
             if self.options.verbose: stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName()))
             _neverDelete.append(ret)
             return ret
     def getData(self,channel,process,syst=""):
         return self.shape2Data(self.getShape(channel,process,syst))
-    def getPdf(self,channel,process,syst=""):
-        return self.shape2Pdf(self.getShape(channel,process,syst))
+    def getPdf(self,channel,process,_cache={}):
+        if _cache.has_key((channel,process)): return _cache[(channel,process)]
+        shapeNominal = self.getShape(channel,process)
+        nominalPdf = self.shape2Pdf(shapeNominal)
+        morphs = []
+        for (syst,pdf,args,errline) in self.DC.systs:
+            if pdf != "shape": continue
+            if errline[channel][process] != 0:
+                shapeUp   = self.getShape(channel,process,syst+"Up")
+                shapeDown = self.getShape(channel,process,syst+"Down")
+                if shapeUp.ClassName()   != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst" % (channel,process,syst)
+                if shapeDown.ClassName() != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst" % (channel,process,syst)
+                morphs.append((syst,errline[channel][process],self.shape2Pdf(shapeUp),self.shape2Pdf(shapeDown)))
+        if len(morphs) == 0: return nominalPdf
+        pdfs = ROOT.RooArgList(nominalPdf)
+        coeffs = ROOT.RooArgList()
+        minscale = 1
+        for (syst,scale,pdfUp,pdfDown) in morphs:
+            pdfs.add(pdfUp); pdfs.add(pdfDown);
+            if scale == 1:
+                coeffs.add(self.out.var(syst))
+            else: # must scale it :-/
+                coeffs.add(self.doObj("%s_scaled_%s_%s" % (syst,channel,process), "prod","%s, %s" % (scale,syst)))
+                if scale < minscale: minscale = scale
+        _cache[(channel,process)] = ROOT.VerticalInterpPdf("shape_%s_%s_morph" % (channel,process), "", pdfs, coeffs, minscale, 0)
+        return _cache[(channel,process)]
+    def getExtraNorm(self,channel,process):
+        terms = []
+        shapeNominal = self.getShape(channel,process)
+        if shapeNominal.InheritsFrom("RooAbsPdf"): 
+            # no extra norm for parametric pdfs (could be changed)
+            return None
+        normNominal = 0
+        if shapeNominal.InheritsFrom("TH1"): normNominal = shapeNominal.Integral()
+        elif shapeNominal.InheritsFrom("RooDataHist"): normNominal = shapeNominal.sumEntries()
+        else: return None    
+        for (syst,pdf,args,errline) in self.DC.systs:
+            if pdf != "shape": continue
+            if errline[channel][process] != 0:
+                shapeUp   = self.getShape(channel,process,syst+"Up")
+                shapeDown = self.getShape(channel,process,syst+"Down")
+                if shapeUp.ClassName()   != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst" % (channel,process,syst)
+                if shapeDown.ClassName() != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst" % (channel,process,syst)
+                kappaUp,kappaDown = 1,1
+                if shapeNominal.InheritsFrom("TH1"):
+                    kappaUp,kappaDown = shapeUp.Integral(),shapeDown.Integral()
+                elif shapeNominal.InheritsFrom("RooDataHist"):
+                    kappaUp,kappaDown = shapeUp.sumEntries(),shapeDown.sumEntries()
+                kappaUp /=normNominal; kappaDown /= normNominal
+                if abs(kappaUp-1) < 1e-3 and abs(kappaDown-1) < 1e-3: continue
+                # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow
+                # for convenience, we scale the kappas
+                kappasScaled = [ pow(x, errline[channel][process]) for x in kappaDown,kappaUp ]
+                terms.append("AsymPow(%f,%f,%s)" % (kappasScaled[0], kappasScaled[1], syst))
+        return ",".join(terms) if terms else None;
     def shape2Data(self,shape,_cache={}):
         if not _cache.has_key(shape.GetName()):
             if shape.ClassName().startswith("TH1"):

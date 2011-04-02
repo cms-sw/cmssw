@@ -75,7 +75,7 @@ class ModelBuilder(ModelBuilderBase):
         self.doComment(" ----- nuisances -----")
         globalobs = []
         for (n,pdf,args,errline) in self.DC.systs: 
-            if pdf == "lnN":
+            if pdf == "lnN" or pdf == "shape":
                 #print "%s_Pdf = Gaussian(%s[-5,5], 0, 1);" % (n,n)
                 self.doObj("%s_Pdf" % n, "Gaussian", "%s[-5,5], %s_In[0], 1" % (n,n));
                 globalobs.append("%s_In" % n)
@@ -93,6 +93,29 @@ class ModelBuilder(ModelBuilderBase):
             elif pdf == "gmN":
                 self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d], %s[0,%d]" % (n,args[0],n,2*args[0]+5))
                 globalobs.append("%s_In" % n)
+            elif pdf == "param":
+                mean = float(args[0])
+                if "/" in args[1]: 
+                    sigmaL,sigmaR = args[1].split("/")
+                    if sigmaL[0] != "-" or sigmaR[0] != "+": raise RuntimeError, "Asymmetric parameter uncertainties should be entered as -x/+y"
+                    sigmaL = sigmaL[1:]; sigmaR = sigmaR[1:]
+                    if len(args) == 3: # mean, sigma, range
+                        self.doVar("%s%s" % (n,args[2]))
+                    else:
+                        sigma = float(args[1])
+                        self.doVar("%s[%g,%g]" % (n, mean-4*float(sigmaL), mean+4*float(sigmaR)))
+                    self.out.var(n).setVal(mean)
+                    self.doObj("%s_Pdf" % n, "BifurGauss", "%s, %s_In[%s], %s, %s" % (n, n, args[0], sigmaL, sigmaR))
+                else:
+                    if len(args) == 3: # mean, sigma, range
+                        self.doVar("%s%s" % (n,args[2]))
+                    else:
+                        sigma = float(args[1])
+                        self.doVar("%s[%g,%g]" % (n, mean-4*sigma, mean+4*sigma))
+                    self.out.var(n).setVal(mean)
+                    self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s], %s" % (n, n, args[0], args[1]))
+                globalobs.append("%s_In" % n)
+            else: raise RuntimeError, "Unsupported pdf %s" % pdf
         self.doSet("nuisances", ",".join(["%s"    % n for (n,p,a,e) in self.DC.systs]))
         self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,p,a,e) in self.DC.systs]))
         if globalobs:
@@ -113,6 +136,7 @@ class ModelBuilder(ModelBuilderBase):
                     strargs += ", r";
                     iSyst += 1
                 for (n,pdf,args,errline) in self.DC.systs:
+                    if pdf == "param" or pdf == "shape": continue
                     if not errline[b].has_key(p): continue
                     if errline[b][p] == 0.0: continue
                     if pdf == "lnN" and errline[b][p] == 1.0: continue
@@ -137,6 +161,7 @@ class ModelBuilder(ModelBuilderBase):
                         if gammaNorm != None:
                             raise RuntimeError, "More than one gmN uncertainty for the same bin and process (second one is %s)" % n
                         gammaNorm = "%g" % errline[b][p]
+                    else: raise RuntimeError, "Unsupported pdf %s" % pdf
                 # set base term (fixed or gamma)
                 if gammaNorm != None:
                     strexpr = gammaNorm + strexpr
