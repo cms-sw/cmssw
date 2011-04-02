@@ -1,4 +1,4 @@
-void make_simple_shapes(int nS=10, int nB=100, int seed=42) {
+void make_simple_shapes(int nS=10, int nB=100, int seed=37) {
     using namespace RooFit;
     RooRandom::randomGenerator()->SetSeed(seed); 
     TCanvas *c1 = new TCanvas("c1","c1");
@@ -19,8 +19,16 @@ void make_simple_shapes(int nS=10, int nB=100, int seed=42) {
     
     RooPlot *frame = w->var("x")->frame();
     data_s->plotOn(frame);
-    w->pdf("model_s")->plotOn(frame);
+    w->pdf("model_s")->plotOn(frame, LineColor(kRed));
+    w->pdf("model_s")->plotOn(frame, Components("background"));
     frame->Draw();
+    c1->Print("data_s.png");
+    frame = w->var("x")->frame();
+    data_b->plotOn(frame);
+    w->pdf("model_b")->plotOn(frame);
+    frame->Draw();
+    c1->Print("data_b.png");
+
 
     RooDataHist *bdata_b = new RooDataHist("data_obs", "", obs, *data_b);
     RooDataHist *bdata_s = new RooDataHist("data_sig", "", obs, *data_s);
@@ -37,16 +45,39 @@ void make_simple_shapes(int nS=10, int nB=100, int seed=42) {
     TH1 *signal_sigmaDown = w->pdf("signal")->createHistogram("x");  
     signal_sigmaDown->SetName("signal_sigmaDown"); signal_sigmaDown->Scale(nS/signal_sigmaDown->Integral());
     w->var("sigma")->setVal(1.0);
+    c1->Clear();
+    signal_sigmaDown->Draw("H"); signal_sigmaDown->SetLineColor(kBlue); signal_sigmaDown->SetLineWidth(2);
+    signal_sigmaUp->Draw("H SAME"); signal_sigmaUp->SetLineColor(kRed); signal_sigmaUp->SetLineWidth(2);
+    signal_nominal->Draw("H SAME"); signal_nominal->SetLineColor(kBlack); signal_nominal->SetLineWidth(3);
+    c1->Print("signal_model_binned.png");
+    
+    frame = w->var("x")->frame();
+    w->pdf("signal")->plotOn(frame, LineColor(kBlack), LineWidth(3));
+    w->var("sigma")->setVal(1.6);
+    w->pdf("signal")->plotOn(frame, LineColor(kBlue), LineWidth(2));
+    w->var("sigma")->setVal(0.7);
+    w->pdf("signal")->plotOn(frame, LineColor(kRed), LineWidth(2));
+    frame->Draw();
+    c1->Print("signal_model_unbinned.png");
     // background model
+    frame = w->var("x")->frame();
     TH1 *background_nominal = w->pdf("background")->createHistogram("x"); 
     background_nominal->SetName("background"); background_nominal->Scale(nB/background_nominal->Integral());
-    w->var("alpha")->setVal(-0.25);
+    w->var("alpha")->setVal(-0.2);
     TH1 *background_alphaUp = w->pdf("background")->createHistogram("x");  
     background_alphaUp->SetName("background_alphaUp"); background_alphaUp->Scale(nB*1.15/background_alphaUp->Integral());
-    w->var("alpha")->setVal(-0.35);
+    w->pdf("background")->plotOn(frame, LineColor(kRed), LineWidth(2), Normalization(1.15));
+    w->var("alpha")->setVal(-0.4);
     TH1 *background_alphaDown = w->pdf("background")->createHistogram("x");  
     background_alphaDown->SetName("background_alphaDown"); background_alphaDown->Scale(nB*0.90/background_alphaDown->Integral());
+    w->pdf("background")->plotOn(frame, LineColor(kBlue), LineWidth(2), Normalization(0.90));
     w->var("alpha")->setVal(-0.3);
+    w->pdf("background")->plotOn(frame, LineColor(kBlack), LineWidth(3), Normalization(1.0));
+    frame->Draw(); c1->Print("background_model_unbinned.png");
+    background_alphaDown->Draw("H"); background_alphaDown->SetLineColor(kBlue); background_alphaDown->SetLineWidth(2);
+    background_alphaUp->Draw("H SAME"); background_alphaUp->SetLineColor(kRed); background_alphaUp->SetLineWidth(2);
+    background_nominal->Draw("H SAME"); background_nominal->SetLineColor(kBlack); background_nominal->SetLineWidth(3);
+    c1->Print("background_model_binned.png");
     // data
     TH1 *hdata_b = bdata_b->createHistogram("x"); hdata_b->SetName("data_obs");
     TH1 *hdata_s = bdata_s->createHistogram("x"); hdata_s->SetName("data_sig");
