@@ -117,6 +117,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
       sprintf(modelBName, modelConfigNameB_.c_str(), modelConfigName_.c_str());
       modelConfigNameB_ = modelBName;
   }
+  mass_ = vm["mass"].as<int>();
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -187,7 +188,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     isBinary = true;
   } else {
     TString txtFile = fileToLoad.Data();
-    TString options = "";
+    TString options = TString::Format(" -m %f ", mass_);
     if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
     if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);

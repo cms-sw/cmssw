@@ -70,6 +70,9 @@ class ModelBuilder(ModelBuilderBase):
         self.doVar("r[0,20]");
         self.doComment(" --- set of all parameters of interest --- ")
         self.doSet("POI","r")
+        if self.options.mass != 0:
+            self.doComment(" --- We also write the higgs mass --- ")
+            self.doVar("MH[%g]" % self.options.mass); 
     def doNuisances(self):
         if len(self.DC.systs) == 0: return
         self.doComment(" ----- nuisances -----")

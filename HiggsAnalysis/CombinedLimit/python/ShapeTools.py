@@ -136,7 +136,8 @@ class ShapeBuilder(ModelBuilder):
         else: raise KeyError, "Shape map has no entry for process '%s', channel '%s'" % (process,channel)
         if syst != "": names = [names[0], names[2]]
         else:          names = [names[0], names[1]]
-        finalNames = [ x.replace("$PROCESS",process).replace("$CHANNEL",channel).replace("$SYSTEMATIC",syst) for x in names ]
+        strmass = "%d" % self.options.mass if self.options.mass % 1 == 0 else str(self.options.mass)
+        finalNames = [ x.replace("$PROCESS",process).replace("$CHANNEL",channel).replace("$SYSTEMATIC",syst).replace("$MASS",strmass) for x in names ]
         if not _fileCache.has_key(finalNames[0]): _fileCache[finalNames[0]] = ROOT.TFile.Open(finalNames[0])
         file = _fileCache[finalNames[0]]; objname = finalNames[1]
         if not file: raise RuntimeError, "Cannot open file %s (from pattern %s)" % (finalNames[0],names[0])

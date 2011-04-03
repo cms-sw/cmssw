@@ -48,6 +48,7 @@ private:
   bool saveWorkspace_;
   std::string workspaceName_;
   std::string modelConfigName_, modelConfigNameB_;
+  float mass_;
 
   // implementation-related variables
   bool compiledExpr_;
