@@ -210,6 +210,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   
   if (verbose > 0) std::cout << "Now doing proper bracketing & bisection" << std::endl;
   bool done = false;
+  TF1 expoFit("expoFit","[0]*exp([1]*(x-[2]))", rMin, rMax);
   do {
     // determine point by bisection or interpolation
     limit = 0.5*(rMin+rMax); limitErr = 0.5*(rMax-rMin);
@@ -259,6 +260,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
             if (fabs(clsMax.first-clsTarget) <= 2*clsMax.second) break;
             rMaxBound = rMax;
         } 
+        expoFit.SetRange(rMinBound,rMaxBound);
         break;
     }
   } while (true);
@@ -270,32 +272,47 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
           std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " [" << rMin << ", " << rMax << "]\n";
       }
 
-      TF1 expoFit("expoFit","[0]*exp([1]*(x-[2]))", rMin, rMax);
       expoFit.FixParameter(0,clsTarget);
       expoFit.SetParameter(1,log(clsMax.first/clsMin.first)/(rMax-rMin));
       expoFit.SetParameter(2,limit);
-      TGraphErrors graph(3);
-      graph.SetPoint(0, rMin,  clsMin.first); graph.SetPointError(0, 0, clsMin.second);
-      graph.SetPoint(1, limit, clsMid.first); graph.SetPointError(1, 0, clsMid.second);
-      graph.SetPoint(2, rMax,  clsMax.first); graph.SetPointError(2, 0, clsMax.second);
-      graph.Fit(&expoFit,(verbose <= 1 ? "QNR EX0" : "NR EXO"));
-     
-      if ((rMin < expoFit.GetParameter(2))  && (expoFit.GetParameter(2) < rMax) && 
-          (expoFit.GetParError(2) < limitErr) && (expoFit.GetParError(2) < 0.5*(rMax-rMin))) { 
-          // sanity check fit result
-          limit = expoFit.GetParameter(2);
-          limitErr = expoFit.GetParError(2);
-      } else if (0.5*(rMax - rMin) < limitErr) {
-          limit  = 0.5*(rMax+rMin);
-          limitErr = 0.5*(rMax-rMin);
+      double rMinBound, rMaxBound; expoFit.GetRange(rMinBound, rMaxBound);
+      limitErr = std::max(fabs(rMinBound-limit), fabs(rMaxBound-limit));
+      int npoints = 0; 
+      for (int j = 0; j < limitPlot_->GetN(); ++j) { 
+          if (limitPlot_->GetX()[j] >= rMinBound && limitPlot_->GetX()[j] <= rMaxBound) npoints++; 
       }
+      for (int i = 0, imax = 8; i <= imax; ++i, ++npoints) {
+          limitPlot_->Sort();
+          limitPlot_->Fit(&expoFit,(verbose <= 1 ? "QNR EX0" : "NR EXO"));
+          if (verbose) {
+             std::cout << "Fit to " << npoints << " points: " << expoFit.GetParameter(2) << " +/- " << expoFit.GetParError(2) << std::endl;
+          }
+          if ((rMin < expoFit.GetParameter(2))  && (expoFit.GetParameter(2) < rMax) && (expoFit.GetParError(2) < 0.5*(rMaxBound-rMinBound))) { 
+              // sanity check fit result
+              limit = expoFit.GetParameter(2);
+              limitErr = expoFit.GetParError(2);
+              if (limitErr < std::max(rAbsAccuracy_, rRelAccuracy_ * limit)) break;
+         }
+         // add one point in the interval. 
+         double rTry = RooRandom::uniform()*(rMaxBound-rMinBound)+rMinBound; 
+         if (i != imax) eval(w, mc_s, mc_b, data, rTry, true, clsTarget);
+      } 
   }
 
   if (limitPlot_.get()) {
       TCanvas *c1 = new TCanvas("c1","c1");
       limitPlot_->Sort();
       limitPlot_->SetLineWidth(2);
-      limitPlot_->Draw("APC");
+      double xmin = r->getMin(), xmax = r->getMax();
+      for (int j = 0; j < limitPlot_->GetN(); ++j) {
+        if (limitPlot_->GetY()[j] > 1.4*clsTarget || limitPlot_->GetY()[j] < 0.6*clsTarget) continue;
+        xmin = std::min(limitPlot_->GetX()[j], xmin);
+        xmax = std::max(limitPlot_->GetX()[j], xmax);
+      }
+      limitPlot_->GetXaxis()->SetRangeUser(xmin,xmax);
+      limitPlot_->GetYaxis()->SetRangeUser(0.5*clsTarget, 1.5*clsTarget);
+      limitPlot_->Draw("AP");
+      expoFit.Draw("SAME");
       TLine line(limitPlot_->GetX()[0], clsTarget, limitPlot_->GetX()[limitPlot_->GetN()-1], clsTarget);
       line.SetLineColor(kRed); line.SetLineWidth(2); line.Draw();
       line.DrawLine(limit, 0, limit, limitPlot_->GetY()[0]);
