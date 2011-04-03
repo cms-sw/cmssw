@@ -14,8 +14,10 @@ process = cms.Process("CASTORDQM")
 process.source = cms.Source("PoolSource",
    # fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/121/993/D04EA868-5FD6-DE11-B372-003048D2BE08.root')
    #fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/Commissioning10/MinimumBias/RAW/v3/000/129/468/8A1BC712-8A24-DF11-800B-000423D9970C.root')
+   #fileNames = cms.untracked.vstring('file:/tmp/dvolyans/90A3C7AB-04B4-DF11-B1AD-001617DBCF6A.root')
    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/Run2010A/MinimumBias/RAW/v1/000/144/114/9AB9A0B1-F1B3-DF11-BCBF-001D09F24FEC.root')
-
+   #### raw data problems
+   #fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms//store/data/Commissioning11/MinimumBias/RAW/v1/000/159/802/8A36D61A-2E48-E011-A560-0030487A322E.root')                            
                             )
 
 
@@ -114,9 +116,11 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            dump2database       = cms.untracked.bool(False),
                            pedestalsInFC = cms.untracked.bool(False),
                            digiLabel = cms.InputTag("castorDigis"),
-                           rawLabel = cms.InputTag("castorRaw"),
+                           rawLabel = cms.InputTag("source"),
+                           unpackerReport=cms.InputTag("castorDigis"),
                            CastorRecHitLabel = cms.InputTag("castorreco"),
-                          
+                           DataIntMonitor= cms.untracked.bool(True),
+                           TowerJetMonitor= cms.untracked.bool(True),
                                        
                            DigiMonitor = cms.untracked.bool(True),
                            DigiPerChannel = cms.untracked.bool(True), 
