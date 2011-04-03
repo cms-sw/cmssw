@@ -17,14 +17,16 @@
 //======================= Constructor ==============================//
 //==================================================================//
 CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
-
-
-
  
    ////---- get steerable variables
-  inputLabelRaw_ = ps.getParameter<edm::InputTag>("rawLabel");
-  inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
+  inputLabelRaw_     = ps.getParameter<edm::InputTag>("rawLabel");
+  inputLabelReport_  = ps.getParameter<edm::InputTag>("unpackerReport");
+  inputLabelDigi_    = ps.getParameter<edm::InputTag>("digiLabel");
   inputLabelRecHitCASTOR_  = ps.getParameter<edm::InputTag>("CastorRecHitLabel"); 
+  //inputLabelTowerCASTOR_  = ps.getParameter<edm::InputTag>("CastorTowerReco");  
+  //inputLabelBasicJetCASTOR_  = ps.getParameter<edm::InputTag>("ak7BasicJets"); 
+  //inputLabelJetIdCASTOR_  = ps.getParameter<edm::InputTag>("ak7CastorJetID"); 
+
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);                        //-- show debug 
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);         //-- show CPU time 
   dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false);  //-- dumps output to database file
@@ -46,6 +48,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   fedsListed_ = false;
 
   RecHitMon_ = NULL; 
+  DataIntMon_ = NULL; 
   DigiMon_ = NULL; 
   LedMon_ = NULL;    
   PSMon_ = NULL;    
@@ -59,7 +62,14 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   ////---- initialise CastorMonitorSelector
   evtSel_ = new CastorMonitorSelector(ps);
 
- 
+  //---------------------- DataIntMonitor ----------------------// 
+  if ( ps.getUntrackedParameter<bool>("DataIntMonitor", false) ) {
+    if(fVerbosity>0) std::cout << "CastorMonitorModule: Data Integrity monitor flag is on...." << std::endl;
+    DataIntMon_ = new CastorDataIntegrityMonitor();
+    DataIntMon_->setup(ps, dbe_);
+  }
+ //------------------------------------------------------------//
+
  //---------------------- DigiMonitor ----------------------// 
   if ( ps.getUntrackedParameter<bool>("DigiMonitor", false) ) {
     if(fVerbosity>0) std::cout << "CastorMonitorModule: Digi monitor flag is on...." << std::endl;
@@ -118,6 +128,13 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
  //------------------------------------------------------------//
 
 
+ //---------------------- Tower Jet Monitor --------------------// 
+  if ( ps.getUntrackedParameter<bool>("TowerJetMonitor", false) ) {
+    if(fVerbosity>0) std::cout << "CastorMonitorModule: Tower Jet monitor flag is on...." << std::endl;
+    TowerJetMon_ = new CastorTowerJetMonitor();
+    TowerJetMon_->setup(ps, dbe_);
+  }
+ //------------------------------------------------------------//
 
 
 
@@ -165,11 +182,13 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
 CastorMonitorModule::~CastorMonitorModule(){
   
 // if (dbe_){    
+// if(DataIntMon_!=NULL)     {  DigiMon_->clearME();}
 //   if(DigiMon_!=NULL)     {  DigiMon_->clearME();}
 //   if(RecHitMon_!=NULL)  {  RecHitMon_->clearME();}
 //   if(LedMon_!=NULL)     {  LedMon_->clearME();}
 //   if(PSMon_!=NULL)     {  LedMon_->clearME();}
 //   if(HIMon_!=NULL)     {  HIMon_->clearME();}
+//   if(TowerJetMon_!=NULL)     {  HIMon_->clearME();}
 //   dbe_->setCurrentFolder(rootFolder_);
 //   dbe_->removeContents();
 // }
@@ -177,6 +196,7 @@ CastorMonitorModule::~CastorMonitorModule(){
 //  if(DigiMon_!=NULL)    { delete DigiMon_;   DigiMon_=NULL;     }
 //  if(RecHitMon_!=NULL) { delete RecHitMon_; RecHitMon_=NULL; }
 //  if(HIMon_!=NULL) { delete HIMon_; HIMon_=NULL; }
+//  if(TowerJetMon_!=NULL) { delete TowerJetMon_; TowerJetMon_=NULL; }
 //  if(LedMon_!=NULL)    { delete LedMon_;   LedMon_=NULL;     }
 //  delete evtSel_; evtSel_ = NULL;
 
@@ -198,16 +218,20 @@ void CastorMonitorModule::beginJob(){
      ////---- create EventProduct histogram
     dbe_->setCurrentFolder(rootFolder_+"CastorEventProducts");
     meEVT_ = dbe_->bookInt("Event Number"); 
-    CastorEventProduct =dbe_->book2D("CastorEventProduct","CastorEventProduct",3,0,3,1,0,1);
-    TH2F* hCastorEventProduct =CastorEventProduct->getTH2F();
-    hCastorEventProduct->GetXaxis()->SetBinLabel(1,"RawData");
-    hCastorEventProduct->GetXaxis()->SetBinLabel(2,"CastorDigi");
-    hCastorEventProduct->GetXaxis()->SetBinLabel(3,"CastorRecHits");
-    hCastorEventProduct->GetYaxis()->SetBinLabel(1,"Status");
-    hCastorEventProduct->SetBinContent(1,1,-1);
-    hCastorEventProduct->SetBinContent(2,1,-1);
-    hCastorEventProduct->SetBinContent(3,1,-1);
-    hCastorEventProduct->SetOption("textcolz");
+    CastorEventProduct =dbe_->book2D("CastorEventProduct","CastorEventProduct",6,0,6,1,0,1);
+    /*
+    CastorEventProduct->getTH2F()->GetXaxis()->SetBinLabel(1,"RawData");
+    CastorEventProduct->getTH2F()->GetXaxis()->SetBinLabel(2,"CastorDigi");
+    CastorEventProduct->getTH2F()->GetXaxis()->SetBinLabel(3,"CastorRecHits");
+    CastorEventProduct->getTH2F()->GetXaxis()->SetBinLabel(4,"CastorTowers");
+    CastorEventProduct->getTH2F()->GetXaxis()->SetBinLabel(4,"CastorBasicJets");
+    CastorEventProduct->getTH2F()->GetXaxis()->SetBinLabel(5,"CastorJetIDs");
+    CastorEventProduct->getTH2F()->GetYaxis()->SetBinLabel(1,"Status");
+    CastorEventProduct->getTH2F()->SetBinContent(1,1,-1);
+    CastorEventProduct->getTH2F()->SetBinContent(2,1,-1);
+    CastorEventProduct->getTH2F()->SetBinContent(3,1,-1);
+    CastorEventProduct->getTH2F()->SetOption("textcolz");
+    */
 
 
     dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
@@ -243,8 +267,9 @@ void CastorMonitorModule::beginRun(const edm::Run& iRun, const edm::EventSetup& 
   fedsListed_ = false;
   reset();
 
-  ////---- get Castor Conditions at the begiining of each new run
+  ////---- get Castor Conditions and eMap at the beginning of each new run
   iSetup.get<CastorDbRecord>().get(conditions_);
+  CastorReadoutMap_=conditions_->getCastorMapping();
   
   ////---- get Castor Pedestal Values from the DB
   iSetup.get<CastorPedestalsRcd>().get(dbPedestals);
@@ -271,6 +296,8 @@ void CastorMonitorModule::beginRun(const edm::Run& iRun, const edm::EventSetup& 
   };
 
   if(iChannel<224 && fVerbosity>0)  std::cout << "There are less that 224 channels in CastorPedestalsRcd record !!!" << std::endl;
+
+
 
   return;
 }
@@ -316,12 +343,14 @@ void CastorMonitorModule::endJob(void) {
   //if ( meStatus_ ) meStatus_->Fill(2);
  
   if(RecHitMon_!=NULL) RecHitMon_->done();
+  if(DataIntMon_!=NULL) DataIntMon_->done();
   if(DigiMon_!=NULL) DigiMon_->done();
   if(LedMon_!=NULL) LedMon_->done();
   if(CQMon_!=NULL) CQMon_->done();
   if(PSMon_!=NULL) PSMon_->done();
   if(EDMon_!=NULL) EDMon_->done();
   if(HIMon_!=NULL) RecHitMon_->done();
+  if(TowerJetMon_!=NULL) TowerJetMon_->done();
 
   /* LEAVE IT OUT FOR THE MOMENT
   // TO DUMP THE OUTPUT TO DATABASE FILE
@@ -338,6 +367,7 @@ void CastorMonitorModule::endJob(void) {
 //=================================================================//
 void CastorMonitorModule::reset(){
 
+  if(DataIntMon_!=NULL)  DataIntMon_->reset();
   if(DigiMon_!=NULL)     DigiMon_->reset();
   if(RecHitMon_!=NULL)   RecHitMon_->reset();
   if(LedMon_!=NULL)      LedMon_->reset();
@@ -345,7 +375,7 @@ void CastorMonitorModule::reset(){
   if(PSMon_!=NULL)       PSMon_->reset();
   if(EDMon_!=NULL)       EDMon_->reset();
   if(HIMon_!=NULL)       HIMon_->reset();
-
+  if(TowerJetMon_!=NULL)       HIMon_->reset();
 }
 
 
@@ -380,35 +410,41 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   meLatency_->Fill(psTime_.elapsedTime);
  
-
-  int evtMask=DO_CASTOR_RECHITMON|DO_CASTOR_PED_CALIBMON; 
- // add in DO_HCAL_TPMON, DO_HCAL_CTMON ?(in CastorMonitorSelector.h)
-  /* FIX
-  //  int trigMask=0;
-  if(mtccMon_==NULL){
-    evtSel_->processEvent(e);
-    evtMask = evtSel_->getEventMask();
-    //    trigMask =  evtSel_->getTriggerMask();
-  }
-  */
-  if ( dbe_ ){ 
+  if ( dbe_ ) 
     meStatus_->Fill(1);
-    meEvtMask_->Fill(evtMask);
-  }
-  
+    
+ 
   /////---- See if our products are in the event...
   bool rawOK_    = true;
+  bool reportOK_ = true;
   bool digiOK_   = true;
   bool rechitOK_ = true;
+  bool towerOK_   = true;
+  bool jetOK_   = true;
+  bool jetIdOK_ = true;
 
-  //-- TAKE IT AWAY for the time being
+
+
+  //---------------------------------------------------------------//
+  //----------- try to get raw data and unpacker report -----------//
+  //---------------------------------------------------------------//
+
+  
   ////---- try to get raw data and unpacker report
-  //edm::Handle<FEDRawDataCollection> RawData;  
-  //iEvent.getByLabel(inputLabelRaw_,RawData);
-  //if (!RawData.isValid()) {
-  //  rawOK_=false;
-  //}
+  edm::Handle<FEDRawDataCollection> RawData;   // We do not want to look at Abort Gap events
+  iEvent.getByLabel(inputLabelRaw_,RawData);
+  if (!RawData.isValid()){ 
+  rawOK_=false;
+  if (fVerbosity>0)  std::cout << "==> CastorMonitorModule: RawData with label: "<<inputLabelRaw_<<" not available !!!";
+  }
 
+  edm::Handle<HcalUnpackerReport> unpackReport;
+  iEvent.getByLabel(inputLabelReport_,unpackReport);
+  if (!unpackReport.isValid() ) {
+       reportOK_=false;
+        if (fVerbosity>0)  std::cout << "==> CastorMonitorModule: UnpackerReport with label: "<<inputLabelReport_<<" not available !!!";
+        //if (fVerbosity>0) edm::LogWarning("CastorMonitorModule")<<" UnpackerReport with label "<<inputLabelReport_<<" \not available";
+     }
   /*
   edm::Handle<HcalUnpackerReport> report; 
   iEvent.getByType(report);  
@@ -435,8 +471,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (!CastorDigi.isValid()) {
     digiOK_=false;
   }
-  
-
+ 
   
   ////---- LEAVE IT OUT FOR THE MOMENT
   ////---- check that Castor is on by seeing which are reading out FED data
@@ -452,20 +487,68 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (!CastorHits.isValid()) {
     rechitOK_ = false;
   }
+ 
+  
+  //---------------------------------------------------------------//
+  //------------------- try to get Towers ------------------------//
+  //---------------------------------------------------------------//
+  
+  edm::Handle<reco::CastorTowerCollection> CastorTowers;
+   iEvent.getByLabel("CastorTowerReco",CastorTowers);
+   if (!CastorTowers.isValid()) {
+   towerOK_ = false;
+   }
+  
+ 
+  //---------------------------------------------------------------//
+  //------------------- try to get BasicJets ----------------------//
+  //---------------------------------------------------------------//
+  edm::Handle<reco::BasicJet> CastorBasicJets;
+  iEvent.getByLabel("ak7BasicJets",CastorBasicJets); //-- hardcode it now
+  if (!CastorBasicJets.isValid()) {
+    jetOK_= false;
+  }
 
 
-  ////---- fill CastorEventProduct every 10 events
- if(ievt_%10 == 0) {
+  //---------------------------------------------------------------//
+  //------------------- try to get JetIDs    ----------------------//
+  //---------------------------------------------------------------//
+  edm::Handle<reco::CastorJetIDValueMap> CastorJetIDs;
+  iEvent.getByLabel("ak7CastorJetID",CastorJetIDs); //-- hardcode it now
+  if (!CastorJetIDs.isValid()) {
+    jetIdOK_= false;
+  }
+ 
 
-  TH2F* hCastorEventProduct=CastorEventProduct->getTH2F();
-  hCastorEventProduct->SetBinContent(1,1,int(rawOK_));
-  hCastorEventProduct->SetBinContent(2,1,int(digiOK_));
-  hCastorEventProduct->SetBinContent(3,1,int(rechitOK_));
 
+  ////---- fill CastorEventProduct every 100 events
+ if(ievt_%100 == 0) {
+
+   if(rawOK_) CastorEventProduct->getTH2F()->SetBinContent(1,1,1);
+   else CastorEventProduct->getTH2F()->SetBinContent(1,1,-1);
+  
+   if(digiOK_) CastorEventProduct->getTH2F()->SetBinContent(2,1,1);
+   else CastorEventProduct->getTH2F()->SetBinContent(2,1,-1);
+
+   if(rechitOK_) CastorEventProduct->getTH2F()->SetBinContent(3,1,1);
+   else CastorEventProduct->getTH2F()->SetBinContent(3,1,-1);
+
+   if(towerOK_) CastorEventProduct->getTH2F()->SetBinContent(4,1,1);
+   else CastorEventProduct->getTH2F()->SetBinContent(4,1,-1);
+
+   if(jetOK_) CastorEventProduct->getTH2F()->SetBinContent(5,1,1);
+   else CastorEventProduct->getTH2F()->SetBinContent(5,1,-1);
+
+   if(jetIdOK_) CastorEventProduct->getTH2F()->SetBinContent(6,1,1);
+   else CastorEventProduct->getTH2F()->SetBinContent(6,1,-1);
+ 
    if(fVerbosity>0) {
    std::cout << "    RAW Data   ==> " << rawOK_<< std::endl;
    std::cout << "    Digis      ==> " << digiOK_<< std::endl;
    std::cout << "    RecHits    ==> " << rechitOK_<< std::endl;
+   std::cout << "    CaloTowers ==> " << towerOK_<< std::endl;
+   std::cout << "    BasicJets  ==> " << jetOK_<< std::endl;
+   std::cout << "    CastorJetIDs     ==> " << jetIdOK_<< std::endl;
    }
  
  }
@@ -479,8 +562,18 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       cpu_timer.reset(); cpu_timer.start();
   }
 
+
+
+  //----------------- Data Integrity monitor task ------------------//
+ if(rawOK_) DataIntMon_->processEvent(*RawData,*unpackReport,*CastorReadoutMap_ ); 
+  if (showTiming_){
+      cpu_timer.stop();
+      if (DataIntMon_!=NULL) std::cout <<"TIMER:: DATA INTEGRITY MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+
   //----------------- Digi monitor task ------------------//
-  // if((DigiMon_!=NULL) && (evtMask&DO_CASTOR_PED_CALIBMON) && digiOK_) 
   if(digiOK_) DigiMon_->processEvent(*CastorDigi,*conditions_);
   if (showTiming_){
       cpu_timer.stop();
@@ -490,7 +583,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 
  //----------------- Rec Hit monitor task -------------------------//
-  //  if((RecHitMon_ != NULL) && (evtMask&DO_CASTOR_RECHITMON) && rechitOK_) 
  if(rechitOK_) RecHitMon_->processEvent(*CastorHits);
  if (showTiming_){
       cpu_timer.stop();
@@ -509,7 +601,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
  ////--- TAKE IT OUT FOR THE TIME BEING
  /*
   //---------------- LED monitor task ------------------------//
-  //  if((LedMon_!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON) && digiOK_)
   if(digiOK_) LedMon_->processEvent(*CastorDigi,*conditions_);
    if (showTiming_){
        cpu_timer.stop();
@@ -532,6 +623,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
 
+
   //---------------- EventDisplay monitor task ------------------------//
   ////---- get calo geometry
   edm::ESHandle<CaloGeometry> caloGeometry;
@@ -551,6 +643,17 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       if (HIMon_!=NULL) std::cout <<"TIMER:: HI MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
     }
+
+
+//----------------- TowerJet monitor task ------------------//
+ if( towerOK_ || jetOK_ ) TowerJetMon_->processEvent(*CastorTowers,*CastorBasicJets,*CastorJetIDs );
+  if (showTiming_){
+      cpu_timer.stop();
+      if (DigiMon_!=NULL) std::cout <<"TIMER:: TOWER JET MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+
 
 
   if(fVerbosity>0 && ievt_%100 == 0)
