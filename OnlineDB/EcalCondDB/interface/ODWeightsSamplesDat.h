@@ -33,6 +33,7 @@ class ODWeightsSamplesDat : public IODConfig {
 
 
  private:
+  void clear();
   void prepareWrite() 
     throw(std::runtime_error);
 
@@ -45,6 +46,8 @@ class ODWeightsSamplesDat : public IODConfig {
 
   void fetchData(std::vector< ODWeightsSamplesDat >* fillMap, ODFEWeightsInfo* iov)
      throw(std::runtime_error);
+
+  void fetchData(ODWeightsSamplesDat * p)     throw(std::runtime_error);
 
   // User data
 

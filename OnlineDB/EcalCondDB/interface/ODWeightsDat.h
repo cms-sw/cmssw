@@ -40,6 +40,8 @@ class ODWeightsDat : public IODConfig {
   inline void setWeight4( float x) { m_wei4 = x; }
   inline void setWeight5( float x) { m_wei5 = x; }
 
+  inline void setWeight( int pos, float x) { m_wei[pos] = x; }
+
   inline float getWeight0() const { return m_wei0; }
   inline float getWeight1() const { return m_wei1; }
   inline float getWeight2() const { return m_wei2; }
@@ -47,8 +49,10 @@ class ODWeightsDat : public IODConfig {
   inline float getWeight4() const { return m_wei4; }
   inline float getWeight5() const { return m_wei5; }
 
+  inline std::vector<std::vector<float> > getWeight() const { return dccw; }
 
  private:
+  void clear();
   void prepareWrite() 
     throw(std::runtime_error);
 
@@ -62,19 +66,24 @@ class ODWeightsDat : public IODConfig {
   void fetchData(std::vector< ODWeightsDat >* fillMap, ODFEWeightsInfo* iov)
      throw(std::runtime_error);
 
+  void fetchData(ODWeightsDat * p)     throw(std::runtime_error);
+
   // User data
   int m_sm;
   int m_fed;
   int m_tt;
   int m_xt;
   int m_ID;
+  
   float m_wei0;
   float m_wei1;
   float m_wei2;
   float m_wei3;
   float m_wei4;
   float m_wei5;
- 
+  
+  float m_wei[6];
+  std::vector<std::vector<float> > dccw;
 };
 
 #endif

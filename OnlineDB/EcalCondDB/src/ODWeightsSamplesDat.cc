@@ -24,7 +24,11 @@ ODWeightsSamplesDat::~ODWeightsSamplesDat()
 {
 }
 
-
+void ODWeightsSamplesDat::clear() {
+  m_fed = 0;
+  m_ss = 0;
+  m_sn = 0;
+}
 
 void ODWeightsSamplesDat::prepareWrite()
   throw(std::runtime_error)
@@ -88,6 +92,28 @@ void ODWeightsSamplesDat::fetchData(std::vector< ODWeightsSamplesDat >* p, ODFEW
 
       p->push_back( dat);
 
+    }
+
+  } catch (SQLException &e) {
+    throw(std::runtime_error("ODWeightsSamplesDat::fetchData():  "+e.getMessage()));
+  }
+}
+
+
+void ODWeightsSamplesDat::fetchData(ODWeightsSamplesDat * p)
+  throw(std::runtime_error)
+{
+  this->checkConnection();
+
+  try {
+    m_readStmt->setSQL("SELECT * FROM " + getTable() + " WHERE rec_id = :1 order by fed_id, sample_id");
+    m_readStmt->setInt(1, p->getId());
+    ResultSet* rset = m_readStmt->executeQuery();
+    
+    while(rset->next()) {
+      p->setFedId(        rset->getInt(2) );
+      p->setSampleId(     rset->getInt(3) );
+      p->setWeightNumber( rset->getInt(4) );
     }
 
   } catch (SQLException &e) {
