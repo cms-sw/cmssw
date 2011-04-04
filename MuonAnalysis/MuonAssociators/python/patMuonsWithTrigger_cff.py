@@ -25,7 +25,6 @@ patMuonsWithoutTrigger = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.
     userIsolation = cms.PSet(),   # no extra isolation beyond what's in reco::Muon itself
     isoDeposits = cms.PSet(), # no heavy isodeposits
     addGenMatch = False,       # no mc: T&P doesn't take it from here anyway.
-    pvSrc = "hiSelectedVertex"
 )
 # Reset all these; the default in muonProducer_cfi is not empty, but wrong
 patMuonsWithoutTrigger.userData.userInts.src    = []
