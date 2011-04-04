@@ -135,20 +135,6 @@ SKIMStreamTPG = cms.FilteredStream(
     
 #####################
 
-from DPGAnalysis.Skims.HSCPSkim_cff import *
-
-HSCPSkimPath = cms.Path( HSCPSkim )
-SKIMStreamHSCP = cms.FilteredStream(
-    responsible = '',
-    name = 'HSCP',
-    paths = (HSCPSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
-#####################
-
 
 from DPGAnalysis.Skims.ecalrechitsSkim_cff import *
 ecalrechitSkimPath = cms.Path(ecalrechitSkim)
