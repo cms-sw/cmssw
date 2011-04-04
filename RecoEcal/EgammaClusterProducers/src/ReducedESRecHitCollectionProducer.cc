@@ -141,20 +141,22 @@ void ReducedESRecHitCollectionProducer::collectIds(const GlobalPoint & point,
   theESNav2.setHome(strip2);
 
   if (row == 1) {
-    strip1 = theESNav1.north();
-    strip2 = theESNav2.east();
+    if (strip1 != ESDetId(0)) strip1 = theESNav1.north();
+    if (strip2 != ESDetId(0)) strip2 = theESNav2.east();
   } else if (row == -1) {
-    strip1 = theESNav1.south();
-    strip2 = theESNav2.west();
+    if (strip1 != ESDetId(0)) strip1 = theESNav1.south();
+    if (strip2 != ESDetId(0)) strip2 = theESNav2.west();
   }
 
   // Plane 1 
   if (strip1 == ESDetId(0)) {
   } else {
     collectedIds_.insert(strip1);
+    //cout<<"center : "<<strip1<<endl;
     // east road 
     for (int i=0; i<15; ++i) {
       next = theESNav1.east();
+      //cout<<"east : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
 	collectedIds_.insert(next);
       } else {
@@ -167,6 +169,7 @@ void ReducedESRecHitCollectionProducer::collectIds(const GlobalPoint & point,
     theESNav1.home();
     for (int i=0; i<15; ++i) {
       next = theESNav1.west();
+      //cout<<"west : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
 	collectedIds_.insert(next);
       } else {
@@ -179,9 +182,11 @@ void ReducedESRecHitCollectionProducer::collectIds(const GlobalPoint & point,
   if (strip2 == ESDetId(0)) {
   } else {
     collectedIds_.insert(strip2);
+    //cout<<"center : "<<strip2<<endl;
     // north road 
     for (int i=0; i<15; ++i) {
       next = theESNav2.north();
+      //cout<<"north : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
 	collectedIds_.insert(next);
       } else {
@@ -194,6 +199,7 @@ void ReducedESRecHitCollectionProducer::collectIds(const GlobalPoint & point,
     theESNav2.home();
     for (int i=0; i<15; ++i) {
       next = theESNav2.south();
+      //cout<<"south : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
 	collectedIds_.insert(next);
       } else {
