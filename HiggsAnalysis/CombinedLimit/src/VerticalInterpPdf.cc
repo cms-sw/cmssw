@@ -69,6 +69,14 @@ VerticalInterpPdf::VerticalInterpPdf(const char *name, const char *title, const 
 
   _funcIter  = _funcList.createIterator() ;
   _coefIter = _coefList.createIterator() ;
+
+  if (_quadraticAlgo == -1) { 
+    // multiplicative morphing: no way to do analytical integrals.
+    _forceNumInt = kTRUE; 
+  } else if (_quadraticAlgo >= 100) {
+      _quadraticAlgo -= 100;
+      _forceNumInt = kTRUE; 
+  }
 }
 
 
@@ -79,7 +87,9 @@ VerticalInterpPdf::VerticalInterpPdf(const VerticalInterpPdf& other, const char*
   RooAbsPdf(other,name),
   _normIntMgr(other._normIntMgr,this),
   _funcList("!funcList",this,other._funcList),
-  _coefList("!coefList",this,other._coefList)
+  _coefList("!coefList",this,other._coefList),
+  _quadraticRegion(other._quadraticRegion),
+  _quadraticAlgo(other._quadraticAlgo)
 {
   // Copy constructor
 
@@ -112,13 +122,24 @@ Double_t VerticalInterpPdf::evaluate() const
   Double_t central = func->getVal();
   value = central;
 
-  while((coef=(RooAbsReal*)_coefIter->Next())) {
-    Double_t coefVal = coef->getVal() ;
-    RooAbsReal* funcUp = (RooAbsReal*)_funcIter->Next() ;
-    RooAbsReal* funcDn = (RooAbsReal*)_funcIter->Next() ;
-    value += interpolate(coefVal, central, funcUp, funcDn);
+  if (_quadraticAlgo >= 0) {
+      // additive interpolation
+      while((coef=(RooAbsReal*)_coefIter->Next())) {
+          Double_t coefVal = coef->getVal() ;
+          RooAbsReal* funcUp = (RooAbsReal*)_funcIter->Next() ;
+          RooAbsReal* funcDn = (RooAbsReal*)_funcIter->Next() ;
+          value += interpolate(coefVal, central, funcUp, funcDn);
+      }
+  } else {
+      // multiplicative interpolation
+      while((coef=(RooAbsReal*)_coefIter->Next())) {
+          Double_t coefVal = coef->getVal() ;
+          RooAbsReal* funcUp = (RooAbsReal*)_funcIter->Next() ;
+          RooAbsReal* funcDn = (RooAbsReal*)_funcIter->Next() ;
+          value *= interpolate(coefVal, central, funcUp, funcDn);
+      }
   }
-  
+   
   return value > 0 ? value : 1E-9 ;
 }
 
@@ -134,6 +155,8 @@ Bool_t VerticalInterpPdf::checkObservables(const RooArgSet* nset) const
   //
   // In the present implementation, coefficients may not be observables or derive
   // from observables
+  if (_quadraticAlgo == -1) return false; // multiplicative morphing. we don't care.
+  
 
   _coefIter->Reset() ;
   RooAbsReal* coef ;
@@ -266,11 +289,16 @@ Double_t VerticalInterpPdf::analyticalIntegralWN(Int_t code, const RooArgSet* no
 
 Double_t VerticalInterpPdf::interpolate(Double_t coeff, Double_t central, RooAbsReal *fUp, RooAbsReal *fDn) const  
 {
+    if (_quadraticAlgo == -1) {
+        Double_t kappa = (coeff > 0 ? fUp->getVal()/central : central/fDn->getVal());
+        return pow(kappa,fabs(coeff));
+    }
+
     if (fabs(coeff) >= _quadraticRegion) {
         return coeff * (coeff > 0 ? fUp->getVal() - central : central - fDn->getVal());
     } else {
         // quadratic interpolation coefficients between the three
-        if (_quadraticAlgo == 0 || _quadraticAlgo == 2) {
+        if (_quadraticAlgo != 1) {
             // quadratic interpolation null in zero and continuos at boundaries, but not differentiable at boundaries
             // conditions:
             //   c_up (+_quadraticRegion) = +_quadraticRegion

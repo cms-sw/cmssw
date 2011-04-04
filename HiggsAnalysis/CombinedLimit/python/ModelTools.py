@@ -78,7 +78,7 @@ class ModelBuilder(ModelBuilderBase):
         self.doComment(" ----- nuisances -----")
         globalobs = []
         for (n,pdf,args,errline) in self.DC.systs: 
-            if pdf == "lnN" or pdf == "shape":
+            if pdf == "lnN" or pdf.startswith("shape"):
                 #print "%s_Pdf = Gaussian(%s[-5,5], 0, 1);" % (n,n)
                 self.doObj("%s_Pdf" % n, "Gaussian", "%s[-5,5], %s_In[0], 1" % (n,n));
                 globalobs.append("%s_In" % n)
@@ -139,7 +139,7 @@ class ModelBuilder(ModelBuilderBase):
                     strargs += ", r";
                     iSyst += 1
                 for (n,pdf,args,errline) in self.DC.systs:
-                    if pdf == "param" or pdf == "shape": continue
+                    if pdf == "param" or pdf.startswith("shape"): continue
                     if not errline[b].has_key(p): continue
                     if errline[b][p] == 0.0: continue
                     if pdf == "lnN" and errline[b][p] == 1.0: continue

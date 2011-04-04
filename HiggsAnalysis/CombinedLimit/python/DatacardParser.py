@@ -95,7 +95,7 @@ def parseCard(file, options):
         if len(f) <= 1: continue
         lsyst = f[0]; pdf = f[1]; args = []; numbers = f[2:];
         if re.match("[0-9]+",lsyst): lsyst = "theta"+lsyst
-        if pdf == "lnN" or pdf == "gmM" or pdf == "shape":
+        if pdf == "lnN" or pdf == "gmM" or pdf.startswith("shape"):
             pass # nothing special to do
         elif pdf == "gmN":
             args = [int(f[2])]; numbers = f[3:];

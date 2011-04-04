@@ -169,9 +169,11 @@ class ShapeBuilder(ModelBuilder):
         if _cache.has_key((channel,process)): return _cache[(channel,process)]
         shapeNominal = self.getShape(channel,process)
         nominalPdf = self.shape2Pdf(shapeNominal)
-        morphs = []
+        morphs = []; shapeAlgo = None
         for (syst,pdf,args,errline) in self.DC.systs:
-            if pdf != "shape": continue
+            if not "shape" in pdf: continue
+            if shapeAlgo != None and pdf != shapeAlgo: raise RuntimeError, "You can use only one morphing algorithm for a given shape"
+            shapeAlgo = pdf
             if errline[channel][process] != 0:
                 shapeUp   = self.getShape(channel,process,syst+"Up")
                 shapeDown = self.getShape(channel,process,syst+"Down")
@@ -179,6 +181,7 @@ class ShapeBuilder(ModelBuilder):
                 if shapeDown.ClassName() != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst" % (channel,process,syst)
                 morphs.append((syst,errline[channel][process],self.shape2Pdf(shapeUp),self.shape2Pdf(shapeDown)))
         if len(morphs) == 0: return nominalPdf
+        if shapeAlgo == "shapeN": stderr.write("Warning: the shapeN implementation in RooStats and L&S are different\n")
         pdfs = ROOT.RooArgList(nominalPdf)
         coeffs = ROOT.RooArgList()
         minscale = 1
@@ -189,7 +192,10 @@ class ShapeBuilder(ModelBuilder):
             else: # must scale it :-/
                 coeffs.add(self.doObj("%s_scaled_%s_%s" % (syst,channel,process), "prod","%s, %s" % (scale,syst)))
                 if scale < minscale: minscale = scale
-        _cache[(channel,process)] = ROOT.VerticalInterpPdf("shape_%s_%s_morph" % (channel,process), "", pdfs, coeffs, minscale, 0)
+        qrange = minscale; qalgo = 0;
+        if shapeAlgo == "shapeL": qrange = 0;
+        elif shapeAlgo == "shapeN": qalgo = -1;
+        _cache[(channel,process)] = ROOT.VerticalInterpPdf("shape_%s_%s_morph" % (channel,process), "", pdfs, coeffs, qrange, qalgo)
         return _cache[(channel,process)]
     def getExtraNorm(self,channel,process):
         terms = []
