@@ -6,7 +6,6 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -77,10 +76,13 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
 	//cout<<"BC : "<<nBC<<endl;
 
 	const GlobalPoint point((*ibc)->x(),(*ibc)->y(),(*ibc)->z());
+
+	ESDetId esId1 = geometry_p->getClosestCellInPlane(point, 1);
+	ESDetId esId2 = geometry_p->getClosestCellInPlane(point, 2);
 	
-	collectIds(point, 0);
-	collectIds(point, 1);
-	collectIds(point, -1);
+	collectIds(esId1, esId2, 0);
+	collectIds(esId1, esId2, 1);
+	collectIds(esId1, esId2, -1);
 
 	//nBC++;
       }
@@ -116,15 +118,10 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
 
 }
 
-void ReducedESRecHitCollectionProducer::collectIds(const GlobalPoint & point,
-						   const int & row){
+void ReducedESRecHitCollectionProducer::collectIds(const ESDetId esDetId1, const ESDetId esDetId2, const int & row) {
+
   //cout<<row<<endl;
-
-  DetId esId1 = geometry_p->getClosestCellInPlane(point, 1);
-  DetId esId2 = geometry_p->getClosestCellInPlane(point, 2);
-  ESDetId esDetId1 = (esId1 == DetId(0)) ? ESDetId(0) : ESDetId(esId1);
-  ESDetId esDetId2 = (esId2 == DetId(0)) ? ESDetId(0) : ESDetId(esId2);  
-
+  
   map<DetId,const EcalRecHit*>::iterator it;
   map<DetId, int>::iterator itu;
   ESDetId next;
