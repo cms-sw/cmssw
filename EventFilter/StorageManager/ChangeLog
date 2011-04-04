@@ -5,6 +5,12 @@
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
 
+2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-00
+	* Raise sentinel alarm if we get more DQM top level folder updates than
+	  we expect. Keep statistics about number of complete updates.
+
 2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-02-01
