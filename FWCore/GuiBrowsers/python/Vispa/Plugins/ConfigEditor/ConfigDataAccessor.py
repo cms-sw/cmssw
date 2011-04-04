@@ -86,6 +86,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 	if hasattr(sqt,"_SequenceCollection"):
             # since CMSSW_3_11_X
             if isinstance(pth, (sqt._ModuleSequenceType)):
+              if isinstance(pth._seq, (sqt._SequenceCollection)):
                 for o in pth._seq._collection:
                     self._readRecursive(next_mother, o)
 	else:
