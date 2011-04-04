@@ -6,6 +6,7 @@
 #include "Math/Polar3D.h" 
 #include "Math/CylindricalEta3D.h" 
 #include <boost/cstdint.hpp> 
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
@@ -22,7 +23,6 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include <vector>
 
 namespace {
@@ -66,6 +66,8 @@ namespace {
     edm::helpers::KeyVal<edm::RefProd<std::vector<Trajectory> >,edm::RefProd<std::vector<TrajectorySeed> > > x7;
     edm::AssociationMap<edm::OneToMany<std::vector<Trajectory>,std::vector<TrajectorySeed>,unsigned int> > x8;
     edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<Trajectory>,std::vector<TrajectorySeed>,unsigned int> > > x9;
-
+    edm::helpers::KeyVal<edm::RefProd<std::vector<TrackCandidate> >,edm::RefProd<std::vector<Trajectory> > > x10;
+    edm::AssociationMap<edm::OneToOne<std::vector<TrackCandidate>,std::vector<Trajectory>,unsigned int> > x11;
+    edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<TrackCandidate>,std::vector<Trajectory>,unsigned int> > > x12;
   };
 }

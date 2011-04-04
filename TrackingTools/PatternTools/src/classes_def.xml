@@ -42,4 +42,9 @@
        <field name="transientMap_" transient="true"/>
   </class>
 
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackCandidate> >, edm::RefProd<std::vector<Trajectory> > >" />
+  <class name="edm::AssociationMap<edm::OneToOne<std::vector<TrackCandidate>, std::vector<Trajectory>, unsigned int > >">
+       <field name="transientMap_" transient="true" />
+  </class>
+
 </lcgdict>
