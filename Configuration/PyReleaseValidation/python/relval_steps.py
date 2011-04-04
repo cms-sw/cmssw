@@ -313,9 +313,8 @@ step2Defaults = { 'cfg'           : 'step2',
 step2 = {}
 
 step2['DIGIPROD1']=merge([{'--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
-step2['DIGI']=merge([step2Defaults])
-#step2['DIGI1']=merge([step2Defaults])
-#step2['DIGI2']=merge([stCond,step2Defaults])
+step2['DIGI1']=merge([step2Defaults])
+step2['DIGI2']=merge([stCond,step2Defaults])
 step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
@@ -355,8 +354,8 @@ step3Defaults = { 'cfg'           : 'step3',
 
 step3 = {}
 
-step3['RECO']=merge([step3Defaults])
-#step3['RECO2']=merge([stCond,step3Defaults])
+step3['RECO1']=merge([step3Defaults])
+step3['RECO2']=merge([stCond,step3Defaults])
 step3['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
 step3['RECOMU']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib','--datatier':'GEN-SIM-RECO','--eventcontent':'RECOSIM'},stCond,step3Defaults])
 step3['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu','--datatier':'GEN-SIM-RECO','--eventcontent':'RECOSIM','--scenario':'cosmics'},stCond,step3Defaults])
