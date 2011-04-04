@@ -16,7 +16,7 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterBit_(filterBit)
 {
   bool doChargeSep = true;
-  //bool monHLTFailedEle = true;
+  bool monHLTFailedEle = false;
   bool doFakeRate=false;
   bool doTagAndProbe=false;
 

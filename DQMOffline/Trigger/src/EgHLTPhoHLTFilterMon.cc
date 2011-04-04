@@ -15,7 +15,7 @@ PhoHLTFilterMon::PhoHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterName_(filterName),
   filterBit_(filterBit)
 {
-  //bool monHLTFailedPho=true;
+  bool monHLTFailedPho=false;
 
   phoMonElems_.push_back(new MonElemContainer<OffPho>());
   phoMonElems_.push_back(new MonElemContainer<OffPho>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffPho>(~0x0,&OffPho::cutCode)));
