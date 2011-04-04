@@ -1,4 +1,4 @@
-// $Id: EventServerProxy.h,v 1.2 2011/03/07 15:31:31 mommsen Exp $
+// $Id: EventServerProxy.h,v 1.3 2011/04/04 14:47:04 mommsen Exp $
 /// @file: EventServerProxy.h
 
 #ifndef EventFilter_StorageManager_EventServerProxy_h
@@ -27,8 +27,8 @@ namespace stor {
    * is also obtained through a HTTP get.
    *
    * $Author: mommsen $
-   * $Revision: 1.2 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.3 $
+   * $Date: 2011/04/04 14:47:04 $
    */
 
   template<typename RegInfo>
@@ -127,7 +127,7 @@ namespace stor {
         alreadySaidWaiting_ = true;
       }
       // sleep for desired amount of time
-      sleep(regInfo_.headerRetryInterval());
+      ::sleep(regInfo_.headerRetryInterval());
     }
     else
     {
