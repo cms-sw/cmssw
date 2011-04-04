@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.35 $'),
+    version = cms.untracked.string('$Revision: 1.36 $'),
     name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
@@ -36,27 +36,12 @@ options.register('mcInfo', True, VarParsing.VarParsing.multiplicity.singleton, V
 options.register('jetCorrections', 'L2Relative', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Level of jet corrections to use: Note the factors are read from DB via GlobalTag")
 options.jetCorrections.append('L3Absolute')
 options.register('hltName', 'HLT', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT menu to use for trigger matching")
-options.register('mcVersion', '', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'35X' for samples from Spring10 production, not needed for new productions")
+options.register('mcVersion', '', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Currently not needed and supported")
 options.register('jetTypes', '', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Additional jet types that will be produced (AK5Calo and AK5PF, cross cleaned in PF2PAT, are included anyway)")
 options.register('hltSelection', '', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "hlTriggers (OR) used to filter events")
 options.register('doValidation', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Include the validation histograms from SusyDQM (needs extra tags)")
 options.register('doExtensiveMatching', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Matching to simtracks (needs extra tags)")
 options.register('doSusyTopProjection', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Apply Susy selection in PF2PAT to obtain lepton cleaned jets (needs validation)")
-options.register('electronHLTMatches', 
-        'path("HLT_Ele15_LW_L1R") || path("HLT_Ele15_SW_L1R") || path("HLT_Ele15_SW_CaloEleId_L1R") || path("HLT_Ele15_SW_EleId_L1R") || path("HLT_Ele17_SW_TightEleId_L1R") || path("HLT_Ele17_SW_TighterEleId_L1R_v1") || path("HLT_Ele22_SW_TighterCaloIdIsol_L1R_v1") || path("HLT_Ele22_SW_TighterCaloIdIsol_L1R_v2") || path("HLT_Ele22_SW_TighterEleId_L1R_v1") || path("HLT_Ele22_SW_TighterEleId_L1R_v2") || path("HLT_Ele22_SW_TighterEleId_L1R_v3")', 
-        VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT paths matched to electrons")
-options.register('muonHLTMatches', 
-        'path("HLT_Mu15_v1") || path("HLT_Mu_9") || path("HLT_Mu_11")', 
-        VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT paths matched to muons")
-options.register('tauHLTMatches', 
-        'path("HLT_Jet15U") || path("HLT_Jet30U") || path("HLT_Jet50U")', 
-        VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT paths matched to taus")
-options.register('photonHLTMatches', 
-        'path("HLT_Photon30")', 
-        VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT paths matched to photons")
-options.register('jetHLTMatches', 
-        'path("HLT_Jet15U") || path("HLT_Jet30U") || path("HLT_Jet50U")', 
-        VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT paths matched to jets")
 options.register('addKeep', '', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Additional keep and drop statements to trim the event content")
 
 #---parse user input
@@ -81,7 +66,7 @@ if options.GlobalTag:
 ############################# START SUSYPAT specifics ####################################
 from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
 #Apply SUSYPAT
-addDefaultSUSYPAT(process,options.mcInfo,options.hltName,options.jetCorrections,options.mcVersion,options.jetTypes,options.doValidation,options.doExtensiveMatching,options.doSusyTopProjection,options.electronHLTMatches,options.muonHLTMatches,options.tauHLTMatches,options.jetHLTMatches,options.photonHLTMatches)
+addDefaultSUSYPAT(process,options.mcInfo,options.hltName,options.jetCorrections,options.mcVersion,options.jetTypes,options.doValidation,options.doExtensiveMatching,options.doSusyTopProjection)
 SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 ############################## END SUSYPAT specifics ####################################
 

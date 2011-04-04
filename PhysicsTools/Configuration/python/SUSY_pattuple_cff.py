@@ -8,7 +8,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Relative', 'L3Absolute'],mcVersion='',theJetNames = ['AK5PF'],doValidation=False,extMatch=False,doSusyTopProjection=False,electronMatches='',muonMatches='',tauMatches='',jetMatches='',photonMatches=''):
+def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Relative', 'L3Absolute'],mcVersion='',theJetNames = ['AK5PF'],doValidation=False,extMatch=False,doSusyTopProjection=False):
     loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,'PF')
     addTagInfos(process,jetMetCorrections)
     if not mcInfo:
@@ -16,7 +16,7 @@ def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Re
     loadMCVersion(process,mcVersion,mcInfo)
     loadPAT(process,jetMetCorrections,extMatch)
     addJetMET(process,theJetNames,jetMetCorrections,mcVersion)
-    loadPATTriggers(process,HLTMenu,theJetNames,electronMatches,muonMatches,tauMatches,jetMatches,photonMatches)
+    #loadPATTriggers(process,HLTMenu,theJetNames,electronMatches,muonMatches,tauMatches,jetMatches,photonMatches)
 
     #-- Counter for the number of processed events --------------------------------
     process.eventCountProducer = cms.EDProducer("EventCountProducer")
