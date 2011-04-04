@@ -198,7 +198,7 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
     }
     if (applyCut_bremCombined_) {
       if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().size()==0) {
-	if(thePFTauRef->leadPFChargedHadrCand()->hcalEnergy()/thePFTauRef->leadPFChargedHadrCand()->trackRef()->p()>bremCombined_maxHOP_)
+	if(thePFTauRef->leadPFChargedHadrCand()->hcalEnergy()/thePFTauRef->leadPFChargedHadrCand()->trackRef()->p()<bremCombined_maxHOP_)
 	  bremCombinedPass = false;
       }
       else if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().size()>0) {
