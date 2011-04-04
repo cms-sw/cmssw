@@ -4,6 +4,10 @@
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
 
+2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V02-01-00
+	* Adjust to API change in DQMEventStore in SM V07-03-00.
+
 2011-03-29 Remi Mommsen <Remigius.Mommsen@cern.ch>
 	* tag V02-00-02
 	* Minor adjustments
