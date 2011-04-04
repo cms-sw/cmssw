@@ -133,6 +133,8 @@ class ShapeBuilder(ModelBuilder):
         names = []
         if bentry.has_key(process): names = bentry[process]
         elif bentry.has_key("*"):   names = bentry["*"]
+        elif self.DC.shapeMap["*"].has_key(process): names = self.DC.shapeMap["*"][process]
+        elif self.DC.shapeMap["*"].has_key("*"):     names = self.DC.shapeMap["*"]["*"]
         else: raise KeyError, "Shape map has no entry for process '%s', channel '%s'" % (process,channel)
         if syst != "": names = [names[0], names[2]]
         else:          names = [names[0], names[1]]
