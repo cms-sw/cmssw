@@ -27,6 +27,18 @@ ODWeightsDat::~ODWeightsDat()
 {
 }
 
+void ODWeightsDat::clear() {
+  m_sm = 0;
+  m_fed = 0;
+  m_tt = 0;
+  m_xt = 0;
+  m_wei0 = 0;
+  m_wei1 = 0;
+  m_wei2 = 0;
+  m_wei3 = 0;
+  m_wei4 = 0;
+  m_wei5 = 0;
+}
 
 
 void ODWeightsDat::prepareWrite()
@@ -97,17 +109,53 @@ void ODWeightsDat::fetchData(std::vector< ODWeightsDat >* p, ODFEWeightsInfo* io
       dat.setFedId( rset->getInt(3) );
       dat.setTTId( rset->getInt(4) );
       dat.setCrystalId( rset->getInt(5) );
+      /*
       dat.setWeight0( rset->getFloat(6) );
       dat.setWeight1( rset->getFloat(7) );
       dat.setWeight2( rset->getFloat(8) );
       dat.setWeight3( rset->getFloat(9) );
       dat.setWeight4( rset->getFloat(10) );
       dat.setWeight5( rset->getFloat(11) );
-
+      */
       p->push_back( dat);
+      for(int iwei = 0; iwei < 6; iwei++) {
+	dat.setWeight(iwei, rset->getFloat(6 + iwei) );
+      }
+      std::vector<float> dccwei( m_wei,  m_wei+6);
+      dccw.push_back(dccwei);  // vector vector
 
     }
 
+
+  } catch (SQLException &e) {
+    throw(std::runtime_error("ODWeightsDat::fetchData():  "+e.getMessage()));
+  }
+}
+
+void ODWeightsDat::fetchData(ODWeightsDat * p)
+  throw(std::runtime_error)
+{
+  this->checkConnection();
+
+  try {
+    m_readStmt->setSQL("SELECT * FROM " + getTable() + " WHERE rec_id = :1 order by sm_id, fed_id, tt_id, cry_id");
+    m_readStmt->setInt(1, p->getId());
+    ResultSet* rset = m_readStmt->executeQuery();
+    
+    int row = 0;
+    while(rset->next()) {
+      row++;
+      p->setSMId(      rset->getInt(2) );
+      p->setFedId(     rset->getInt(3) );
+      p->setTTId(      rset->getInt(4) );
+      p->setCrystalId( rset->getInt(5) );
+      for(int iwei = 0; iwei < 6; iwei++) {
+	p->setWeight(iwei, rset->getFloat(6 + iwei) );
+      }
+      std::vector<float> dccwei( m_wei,  m_wei+6);
+      dccw.push_back(dccwei);  // vector vector
+    }  // loop on all rows in the table
+    std::cout << " table " << getTable() << " total nb of rows " << row << std::endl;
 
   } catch (SQLException &e) {
     throw(std::runtime_error("ODWeightsDat::fetchData():  "+e.getMessage()));
