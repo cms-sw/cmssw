@@ -1,4 +1,11 @@
+2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-01-00
 	* Merge changes from tag V07-02-01 and V07-03-00 (branch_3_10_x) into trunk.
+	* Move EventServerProxy template specialization from EventStreamHttpReader
+	  to EventServerProxy.
+	* Fully implement mergeCount and droppedEventsCount for DQM histograms and
+	  data events, respectively.
 
 2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
