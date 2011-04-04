@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.13 2011/03/07 15:31:32 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.14 2011/03/30 15:16:48 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -43,7 +43,8 @@ namespace stor {
     sr->initMsgCollection_.get(),
     &stor::InitMsgCollection::maxMsgCount,
     sr.get(),
-    &stor::SharedResources::moveToFailedState
+    &stor::SharedResources::moveToFailedState,
+    sr->statisticsReporter_->alarmHandler()
   )
   {
     WorkerThreadParams workerParams =

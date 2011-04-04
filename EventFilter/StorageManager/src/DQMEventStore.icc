@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.icc,v 1.1.4.6 2011/03/29 16:10:19 mommsen Exp $
+// $Id: DQMEventStore.icc,v 1.3 2011/03/30 15:16:48 mommsen Exp $
 /// @file: DQMEventStore.icc
 
 #include "TROOT.h"
@@ -29,7 +29,8 @@ namespace stor {
     ConnectionType* connectionType,
     size_t (ConnectionType::*getExpectedUpdatesCount)() const,
     StateMachineType* stateMachineType,
-    void (StateMachineType::*moveToFailedState)(xcept::Exception&)
+    void (StateMachineType::*moveToFailedState)(xcept::Exception&),
+    AlarmHandlerPtr alarmHandler
   ) :
   appDescriptor_(appDescriptor),
   dqmEventQueueCollection_(dqmEventQueueCollection),
@@ -38,6 +39,7 @@ namespace stor {
   getExpectedUpdatesCount_(getExpectedUpdatesCount),
   stateMachineType_(stateMachineType),
   moveToFailedState_(moveToFailedState),
+  alarmHandler_(alarmHandler),
   completedFolderThread_(0),
   processCompletedTopLevelFolders_(false)
   {
@@ -129,7 +131,8 @@ namespace stor {
       DQMTopLevelFolderPtr topLevelFolder( new DQMTopLevelFolder(
           newKey, dqmEvent.getDQMEventConsumerTags(),
           dqmParams_, dqmEventMonColl_, 
-          (connectionType_->*getExpectedUpdatesCount_)()
+          (connectionType_->*getExpectedUpdatesCount_)(),
+          alarmHandler_
         ));
       pos = store_.insert(pos, DQMTopLevelFolderMap::value_type(newKey, topLevelFolder));
     }
@@ -147,7 +150,7 @@ namespace stor {
     
     DQMTopLevelFolderPtr topLevelFolder( new DQMTopLevelFolder(
         newKey, dqmEvent.getDQMEventConsumerTags(),
-        dqmParams_, dqmEventMonColl_, 1));
+        dqmParams_, dqmEventMonColl_, 1, alarmHandler_));
     topLevelFolder->addDQMEvent(getDQMEventView(dqmEvent));
     
     store_.insert(DQMTopLevelFolderMap::value_type(newKey, topLevelFolder));

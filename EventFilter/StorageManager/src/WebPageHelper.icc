@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.icc,v 1.1.4.2 2011/03/07 11:33:06 mommsen Exp $
+// $Id: WebPageHelper.icc,v 1.2 2011/03/07 15:31:32 mommsen Exp $
 /// @file: WebPageHelper.icc
 
 #include <iomanip>
@@ -349,6 +349,15 @@ namespace stor
     maker.addDouble( tableDiv, stats.numberOfUpdatesStats.getValueRMS(MonitoredQuantity::FULL) );
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
     maker.addDouble( tableDiv, stats.numberOfUpdatesStats.getValueRMS(MonitoredQuantity::RECENT) );
+
+    // Complete updates
+    tableRow = maker.addNode("tr", table, rowAttr_);
+    tableDiv = maker.addNode("td", tableRow);
+    maker.addText(tableDiv, "Complete updates");
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble( tableDiv, stats.numberOfCompleteUpdatesStats.getValueAverage(MonitoredQuantity::FULL),1 );
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble( tableDiv, stats.numberOfCompleteUpdatesStats.getValueAverage(MonitoredQuantity::RECENT),1 );
   }
   
   
