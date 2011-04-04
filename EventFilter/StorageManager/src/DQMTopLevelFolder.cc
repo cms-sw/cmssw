@@ -1,4 +1,4 @@
-// $Id: DQMTopLevelFolder.cc,v 1.3 2011/03/31 13:04:20 mommsen Exp $
+// $Id: DQMTopLevelFolder.cc,v 1.4 2011/04/04 12:03:30 mommsen Exp $
 /// @file: DQMTopLevelFolder.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -38,6 +38,7 @@ namespace stor {
   expectedUpdates_(expectedUpdates),
   alarmHandler_(alarmHandler),
   nUpdates_(0),
+  mergeCount_(0),
   updateNumber_(0)
   {
     gROOT->SetBatch(kTRUE);
@@ -61,6 +62,7 @@ namespace stor {
       timeStamp_ = view.timeStamp();
     else
       timeStamp_ = std::min(timeStamp_, view.timeStamp());
+    mergeCount_ += std::max(1U, view.mergeCount());
 
     edm::StreamDQMDeserializer deserializer;
     std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
@@ -183,7 +185,7 @@ namespace stor {
       // a size of 0 indicates no compression
       builder.setCompressionFlag(0);
     }
-    
+    builder.setMergeCount(mergeCount_);
     dqmEventMonColl_.getNumberOfUpdatesMQ().addSample(nUpdates_);
     dqmEventMonColl_.getServedDQMEventSizeMQ().addSample(
       static_cast<double>(record.totalDataSize()) / 0x100000

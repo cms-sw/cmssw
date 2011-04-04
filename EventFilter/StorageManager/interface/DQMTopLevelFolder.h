@@ -1,4 +1,4 @@
-// $Id: DQMTopLevelFolder.h,v 1.3 2011/03/31 13:04:20 mommsen Exp $
+// $Id: DQMTopLevelFolder.h,v 1.4 2011/04/04 12:03:30 mommsen Exp $
 /// @file: DQMTopLevelFolder.h 
 
 #ifndef EventFilter_StorageManager_DQMTopLevelFolder_h
@@ -29,8 +29,8 @@ namespace stor {
    * Class holding information for one DQM event
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2011/03/31 13:04:20 $
+   * $Revision: 1.4 $
+   * $Date: 2011/04/04 12:03:30 $
    */
 
   class DQMTopLevelFolder
@@ -170,6 +170,7 @@ namespace stor {
     AlarmHandlerPtr alarmHandler_;
 
     unsigned int nUpdates_;
+    unsigned int mergeCount_;
     utils::TimePoint_t lastUpdate_;
     std::string releaseTag_;
     uint32_t updateNumber_;

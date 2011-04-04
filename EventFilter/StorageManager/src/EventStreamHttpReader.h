@@ -1,9 +1,10 @@
-// $Id: EventStreamHttpReader.h,v 1.22.10.2 2011/03/10 09:00:16 mommsen Exp $
+// $Id: EventStreamHttpReader.h,v 1.25 2011/03/24 17:19:25 mommsen Exp $
 /// @file: EventStreamHttpReader.h
 
 #ifndef StorageManager_EventStreamHttpReader_h
 #define StorageManager_EventStreamHttpReader_h
 
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EventServerProxy.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,8 +27,8 @@ namespace edm
     framework input source. Currently we inherit from InputSource.
 
     $Author: mommsen $
-    $Revision: 1.22.10.2 $
-    $Date: 2011/03/10 09:00:16 $
+    $Revision: 1.25 $
+    $Date: 2011/03/24 17:19:25 $
   */
 
   class EventStreamHttpReader : public edm::StreamerInputSource
@@ -44,8 +45,10 @@ namespace edm
 
   private:
     void readHeader();
+    void initializeDQMStore();
     
     stor::EventServerProxy<stor::EventConsumerRegistrationInfo> eventServerProxy_;
+    DQMStore* dqmStore_;
 
     const bool dropOldLumisectionEvents_;
     unsigned int lastLS_;

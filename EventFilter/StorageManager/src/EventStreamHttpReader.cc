@@ -1,9 +1,11 @@
-// $Id: EventStreamHttpReader.cc,v 1.45 2011/03/24 17:19:25 mommsen Exp $
+// $Id: EventStreamHttpReader.cc,v 1.46 2011/04/04 14:47:04 mommsen Exp $
 /// @file: EventStreamHttpReader.cc
 
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "EventFilter/StorageManager/interface/CurlInterface.h"
 #include "EventFilter/StorageManager/src/EventServerProxy.icc"
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <string>
 
@@ -17,6 +19,7 @@ namespace edm
   ):
   StreamerInputSource(pset, desc),
   eventServerProxy_(pset),
+  dqmStore_(0),
   dropOldLumisectionEvents_(pset.getUntrackedParameter<bool>("dropOldLumisectionEvents", false)),
   lastLS_(0)
   {
@@ -30,8 +33,11 @@ namespace edm
   
   EventPrincipal* EventStreamHttpReader::read()
   {
+    initializeDQMStore();
+
     stor::CurlInterface::Content data;
     unsigned int currentLS(0);
+    unsigned int droppedEvents(0);
     
     do
     {
@@ -47,6 +53,7 @@ namespace edm
       
       EventMsgView eventView(&data[0]);
       currentLS = eventView.lumi();
+      droppedEvents += eventView.droppedEventsCount();
     }
     while (
       dropOldLumisectionEvents_ &&
@@ -54,6 +61,11 @@ namespace edm
     );
     
     lastLS_ = currentLS;
+    
+    dqmStore_->cd();
+    MonitorElement* me = dqmStore_->bookInt("droppedEventsCount");
+    me->Fill(droppedEvents);
+
     return deserializeEvent(EventMsgView(&data[0]));
   }
   
@@ -66,6 +78,18 @@ namespace edm
     InitMsgView initView(&data[0]);
     deserializeAndMergeWithRegistry(initView);
   }
+  
+  
+  void EventStreamHttpReader::initializeDQMStore()
+  {
+    if ( ! dqmStore_ )
+      dqmStore_ = edm::Service<DQMStore>().operator->();
+    
+    if ( ! dqmStore_ )
+      throw cms::Exception("read", "EventStreamHttpReader")
+        << "Unable to lookup the DQMStore service!\n";
+  }
+
 
 } //namespace edm
 
