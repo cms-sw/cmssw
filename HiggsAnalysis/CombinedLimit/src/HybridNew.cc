@@ -164,7 +164,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
 bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first()); r->setConstant(true);
   w->loadSnapshot("clean");
-  if (!plot_.empty()) limitPlot_.reset(new TGraphErrors());
+  limitPlot_.reset(new TGraphErrors());
 
   if ((hint != 0) && (*hint > r->getMin())) {
     r->setMax(std::min<double>(3.0 * (*hint), r->getMax()));
