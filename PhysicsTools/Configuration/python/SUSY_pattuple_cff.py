@@ -16,6 +16,7 @@ def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Re
     loadMCVersion(process,mcVersion,mcInfo)
     loadPAT(process,jetMetCorrections,extMatch)
     addJetMET(process,theJetNames,jetMetCorrections,mcVersion)
+    useDAVertices(process)
     #loadPATTriggers(process,HLTMenu,theJetNames,electronMatches,muonMatches,tauMatches,jetMatches,photonMatches)
 
     #-- Counter for the number of processed events --------------------------------
@@ -24,6 +25,7 @@ def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Re
     # Full path
     process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
     process.susyPatDefaultSequence = cms.Sequence( process.eventCountProducer
+                                                   * process.daVertices
                                                    * process.PFTau
                                                    * process.patDefaultSequence 
                                                    * process.patPF2PATSequencePF
@@ -36,6 +38,33 @@ def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Re
     if doValidation:
         loadSusyValidation(process)
         process.susyPatDefaultSequence.replace(process.patPF2PATSequencePF, process.patPF2PATSequencePF * process.ak5CaloJetsL2L3 * process.metJESCorAK5CaloJet  * process.RecoSusyValidation * process.PatSusyValidation*process.MEtoEDMConverter)
+
+def useDAVertices(process):
+    #-- Deterministic Annealing Vertices ---------------------------------------------------
+    from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi import offlinePrimaryVerticesDA
+    from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDAWithBS_cfi import offlinePrimaryVerticesDA as offlinePrimaryVerticesDAWithBS
+    process.offlinePrimaryVertices = offlinePrimaryVerticesDA.clone()
+    process.offlinePrimaryVerticesWithBS = offlinePrimaryVerticesDAWithBS.clone()
+
+    #-- Keep Gap Method Vertices for Comparison --------------------------------------------
+    try:
+        from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesGap_cfi import offlinePrimaryVerticesGap
+        from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesGapWithBS_cfi import offlinePrimaryVerticesGapWithBS
+    except ImportError:
+        from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices as offlinePrimaryVerticesGap
+        from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesWithBS_cfi import offlinePrimaryVerticesWithBS as offlinePrimaryVerticesGapWithBS
+        print "Could not find OfflinePrimaryVerticesGap. (This is normal if using <= CMSSW_4_1_X)"
+        
+    process.offlinePrimaryVerticesGap = offlinePrimaryVerticesGap.clone()
+    process.offlinePrimaryVerticesGapWithBS = offlinePrimaryVerticesGapWithBS.clone()
+
+    process.daVertices = cms.Sequence(
+        process.offlinePrimaryVertices
+        + process.offlinePrimaryVerticesWithBS
+        + process.offlinePrimaryVerticesGap
+        + process.offlinePrimaryVerticesGapWithBS
+        )
+
 
 def extensiveMatching(process):
     process.load("SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi")    # On RECO
@@ -172,12 +201,12 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
     addPFTypeIMet(process)
 
     #Set isolation cone to 0.3
-    process.isoValElectronWithChargedPF.deposits.deltaR = 0.3
-    process.isoValElectronWithNeutralPF.deposits.deltaR = 0.3
-    process.isoValElectronWithPhotonsPF.deposits.deltaR = 0.3
-    process.isoValMuonWithChargedPF.deposits.deltaR = 0.3
-    process.isoValMuonWithNeutralPF.deposits.deltaR = 0.3
-    process.isoValMuonWithPhotonsPF.deposits.deltaR = 0.3
+    process.isoValElectronWithChargedPF.deposits[0].deltaR = 0.3
+    process.isoValElectronWithNeutralPF.deposits[0].deltaR = 0.3
+    process.isoValElectronWithPhotonsPF.deposits[0].deltaR = 0.3
+    process.isoValMuonWithChargedPF.deposits[0].deltaR = 0.3
+    process.isoValMuonWithNeutralPF.deposits[0].deltaR = 0.3
+    process.isoValMuonWithPhotonsPF.deposits[0].deltaR = 0.3
 
     #-- Enable pileup sequence -------------------------------------------------------------
     process.pfPileUpPF.Vertices = "offlinePrimaryVertices"
@@ -502,6 +531,9 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep recoTracks_*onversions_*_*',
         'keep HcalNoiseSummary_*_*_*', #Keep the one in RECO
 	'keep *BeamHaloSummary_*_*_*',
+	# Keep Gap Vertices for comparison
+        'keep *_offlinePrimaryVerticesGap_*_*',
+        'keep *_offlinePrimaryVerticesGapWithBS_*_*',
 	#DQM
 	'keep *_MEtoEDMConverter_*_PAT',
     'drop recoTracks_generalTracks*_*_*',
