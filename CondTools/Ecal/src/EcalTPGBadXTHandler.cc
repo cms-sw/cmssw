@@ -237,8 +237,12 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 
 		      std::cout<< " masking crystal "<<sm_num<<"/"<<xt_num<<" from fed/tt/xt"<<
 			fed_id<<"/"<<tt_id<<"/"<<xt_id<< std::endl;
+		      if( sm_num==0 && xt_num==0 ) {
+			std::cout<< " ERROR FOR crystal from fed/tt/xt"<<
+			fed_id<<"/"<<tt_id<<"/"<<xt_id<< std::endl;
+		      }
 	      	      EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
-            	    
+		      
 	      	      badXt->setValue(ebdetid.rawId(),rd_badXt.getStatus());	
 	      	      ++icells;
 	    	    } else {
@@ -264,6 +268,10 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
  			}
 	      	      }
 
+		      if( x==0 && y==0 && z==0 ) {
+			std::cout<< " ERROR FOR crystal from fed/tt/xt"<<
+			fed_id<<"/"<<tt_id<<"/"<<xt_id<< std::endl;
+		      }
 	      	      EEDetId eedetid(x,y,z);
 	      	      badXt->setValue(eedetid.rawId(),rd_badXt.getStatus());	
 	      	      ++icells;
