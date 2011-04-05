@@ -127,9 +127,50 @@ void L1TdeCSCTF::beginJob()
 		pt3Comp = dbe->book2D("pt3Comp","Hardware Vs. Emulator #eta",16,0,16,16,0,16);
 		pt3Comp->setAxisTitle("Hardware #eta",1);
 		pt3Comp->setAxisTitle("Emulator #eta",2);
-		pt4Comp = dbe->book2D("pt4Comp","Hardware Vs. Emulator Mode",16,0,16,16,0,16);
+		pt4Comp = dbe->book2D("pt4Comp","Hardware Vs. Emulator Mode",19,0,19,19,0,19);
 		pt4Comp->setAxisTitle("Hardware Mode",1);
 		pt4Comp->setAxisTitle("Emulator Mode",2);
+		//Hardware Bin Titles
+		pt4Comp->setBinLabel(1,"No Track",1);
+		pt4Comp->setBinLabel(2,"Bad Phi/Single",1);
+		pt4Comp->setBinLabel(3,"ME1-2-3",1);
+		pt4Comp->setBinLabel(4,"ME1-2-4",1);
+		pt4Comp->setBinLabel(5,"ME1-3-4",1);
+		pt4Comp->setBinLabel(6,"ME2-3-4",1);
+		pt4Comp->setBinLabel(7,"ME1-2",1);
+		pt4Comp->setBinLabel(8,"ME1-3",1);
+		pt4Comp->setBinLabel(9,"ME2-3",1);
+		pt4Comp->setBinLabel(10,"ME2-4",1);
+		pt4Comp->setBinLabel(11,"ME3-4",1);
+		pt4Comp->setBinLabel(12,"MB1-ME3",1);
+		pt4Comp->setBinLabel(13,"MB1-ME2",1);
+		pt4Comp->setBinLabel(14,"ME1-4",1);
+		pt4Comp->setBinLabel(15,"MB1-ME1",1);
+		pt4Comp->setBinLabel(16,"Halo Trigger",1);
+		pt4Comp->setBinLabel(17,"MB1-ME1-2",1);
+		pt4Comp->setBinLabel(18,"MB1-ME1-3",1);
+		pt4Comp->setBinLabel(19,"MB1-ME2-3",1);
+		//Emu Bin Titles
+		pt4Comp->setBinLabel(1,"No Track",2);
+		pt4Comp->setBinLabel(2,"Bad Phi/Single",2);
+		pt4Comp->setBinLabel(3,"ME1-2-3",2);
+		pt4Comp->setBinLabel(4,"ME1-2-4",2);
+		pt4Comp->setBinLabel(5,"ME1-3-4",2);
+		pt4Comp->setBinLabel(6,"ME2-3-4",2);
+		pt4Comp->setBinLabel(7,"ME1-2",2);
+		pt4Comp->setBinLabel(8,"ME1-3",2);
+		pt4Comp->setBinLabel(9,"ME2-3",2);
+		pt4Comp->setBinLabel(10,"ME2-4",2);
+		pt4Comp->setBinLabel(11,"ME3-4",2);
+		pt4Comp->setBinLabel(12,"MB1-ME3",2);
+		pt4Comp->setBinLabel(13,"MB1-ME2",2);
+		pt4Comp->setBinLabel(14,"ME1-4",2);
+		pt4Comp->setBinLabel(15,"MB1-ME1",2);
+		pt4Comp->setBinLabel(16,"Halo Trigger",2);
+		pt4Comp->setBinLabel(17,"MB1-ME1-2",2);
+		pt4Comp->setBinLabel(18,"MB1-ME1-3",2);
+		pt4Comp->setBinLabel(19,"MB1-ME2-3",2);
+
 		pt5Comp = dbe->book2D("pt5Comp","Hardware Vs. Emulator Sign, FR",4,0,4,4,0,4);
 		pt5Comp->setAxisTitle("Hardware Sign<<1|FR",1);
 		pt5Comp->setAxisTitle("Emulator Sign<<1|FR",2);
@@ -329,7 +370,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 	////////////////////
 	int nDataMuons = 0; 
 	int nEmulMuons = 0;
-	int dataMuonArray[8][9], emuMuonArray[8][9];
+	int dataMuonArray[8][10], emuMuonArray[8][10];
 	for(int muon=0; muon<8; muon++)
 	{
 		for(int par=0; par<3; par++)
@@ -343,7 +384,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 		emuMuonArray[muon][4]=7;
 		dataMuonArray[muon][4]=7;
 		
-		for(int par2=5; par2<9; par2++)
+		for(int par2=5; par2<10; par2++)
 		{
 			emuMuonArray[muon][par2]= -1;
 			dataMuonArray[muon][par2]= -1;
@@ -380,6 +421,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 				dataMuonArray[nDataMuons][5] = trk->first.rank();
 				dataMuonArray[nDataMuons][6] = trk->first.localPhi();
 				dataMuonArray[nDataMuons][7] = trk->first.eta_packed();
+				dataMuonArray[nDataMuons][9] = trk->first.modeExtended();
 				nDataMuons++;
 			}
 		}
@@ -413,6 +455,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 				emuMuonArray[nEmulMuons][5] = trk->first.rank();
 				emuMuonArray[nEmulMuons][6] = trk->first.localPhi();
 				emuMuonArray[nEmulMuons][7] = trk->first.eta_packed();
+				emuMuonArray[nEmulMuons][9] = trk->first.modeExtended();
 				nEmulMuons++;
 			}
 		}
@@ -483,8 +526,8 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 				int datPhi23 = (0x000f00 & dataMuonArray[mapping][0])>>8;
 				int emuEta   = (0x00f000 & emuMuonArray[mu3][0])>>12;
 				int datEta   = (0x00f000 & dataMuonArray[mapping][0])>>12;
-				int emuMode = (0x0f0000 & emuMuonArray[mu3][0])>>16;
-				int datMode = (0x0f0000 & dataMuonArray[mapping][0])>>16;
+				//int emuMode = (0x0f0000 & emuMuonArray[mu3][0])>>16;
+				//int datMode = (0x0f0000 & dataMuonArray[mapping][0])>>16;
 				int emuFrSin = (0xf00000 & emuMuonArray[mu3][0])>>20;
 				int datFrSin = (0xf00000 & dataMuonArray[mapping][0])>>20;
 				//Decode Rank for more meaningful comparison
@@ -492,12 +535,14 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 				int datQual  = dataMuonArray[mapping][5]>>5;
 				int emuPt    = 0x1f & emuMuonArray[mu3][5];
 				int datPt    = 0x1f & dataMuonArray[mapping][5];
+				int emuModeExtended = emuMuonArray[mu3][9];
+				int datModeExtended = dataMuonArray[mapping][9];
 				
 				//Fill mode M.E., one of (the most important) PtLUT address field
-				pt4Comp->Fill(datMode,emuMode);
-                                (datMode==emuMode) ? pt4Comp_1d->Fill(0) : pt4Comp_1d->Fill(1);
+				pt4Comp->Fill(datModeExtended,emuModeExtended);
+                                (datModeExtended==emuModeExtended) ? pt4Comp_1d->Fill(0) : pt4Comp_1d->Fill(1);
 				//To disentagle problems, only fill histograms if mode matches
-				if(emuMode==datMode)
+				if(emuModeExtended==datModeExtended)
 				{
 					//Fill Pt LUT address field M.E.
 					pt1Comp->Fill(datPhi12,emuPhi12); (datPhi12==emuPhi12) ? pt1Comp_1d->Fill(0) : pt1Comp_1d->Fill(1);
