@@ -42,7 +42,7 @@ int main(int argc, char** argv){
     ("without-trg","exclude trg loading")
     ("without-hlt","exclude hlt loading")
     ("without-runsummary","exclude runsummary loading")
-    ("without-hltconf","exclude hltconf loading")
+    ("without-hconf","exclude hltconf loading")
     ("use-wbm","use wbmdb for trigger info")
     ("collision-only","load collision/physics run only")
     ("novalidate","do not validate lumi data")
@@ -130,7 +130,7 @@ int main(int argc, char** argv){
     if(vm.count("without-runsummary") ){
       without_runsummary=true;
     }
-    if(vm.count("without-hltconf") ){
+    if(vm.count("without-hconf") ){
       without_hltconf=true;
     }
     if(vm.count("use-wbm") ){
