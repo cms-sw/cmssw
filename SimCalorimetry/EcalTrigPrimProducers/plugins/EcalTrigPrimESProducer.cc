@@ -78,6 +78,7 @@ EcalTrigPrimESProducer::EcalTrigPrimESProducer(const edm::ParameterSet& iConfig)
   setWhatProduced(this, &EcalTrigPrimESProducer::produceFineGrainEBGroup) ;
   setWhatProduced(this, &EcalTrigPrimESProducer::producePhysicsConst) ;
   setWhatProduced(this, &EcalTrigPrimESProducer::produceBadX) ;
+  setWhatProduced(this, &EcalTrigPrimESProducer::produceBadStrip) ;
   setWhatProduced(this, &EcalTrigPrimESProducer::produceBadTT) ;
   setWhatProduced(this, &EcalTrigPrimESProducer::produceSpike) ;
   //now do what ever other initialization is needed
@@ -286,6 +287,14 @@ std::auto_ptr<EcalTPGCrystalStatus> EcalTrigPrimESProducer::produceBadX(const Ec
     badXValue.setStatusCode(0);
     prod->setValue(it->first,badXValue) ;
   }
+  return prod;
+  
+}
+
+std::auto_ptr<EcalTPGStripStatus> EcalTrigPrimESProducer::produceBadStrip(const EcalTPGStripStatusRcd & iRecord)
+{
+  std::auto_ptr<EcalTPGStripStatus> prod(new EcalTPGStripStatus());
+  // returns an empty map     
   return prod;
   
 }

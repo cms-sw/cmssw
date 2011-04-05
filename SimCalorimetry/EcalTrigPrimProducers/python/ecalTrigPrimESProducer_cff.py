@@ -96,3 +96,9 @@ tpparams15 = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
+tpparams16 = cms.ESSource("EmptyESSource",
+    recordName = cms.string('EcalTPGStripStatusRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
