@@ -131,6 +131,29 @@ private:
     int nrpj;
 
   
+    // isolation/signal cands for recoPFTau and HLTPFtau
+    int  noRecoPFTausSignal;
+    int *signalTrToPFTauMatch;
+    float *recoPFTauSignalTrDz;
+    float *recoPFTauSignalTrPt;
+
+    int noRecoPFTausIso;
+    int *isoTrToPFTauMatch;
+    float *recoPFTauIsoTrDz;
+    float *recoPFTauIsoTrPt;
+
+    int  noHLTPFTausSignal;
+    int *hltpftauSignalTrToPFTauMatch;
+    float *HLTPFTauSignalTrDz;
+    float *HLTPFTauSignalTrPt;
+
+    int noHLTPFTausIso;
+    int *hltpftauIsoTrToPFTauMatch;
+    float *HLTPFTauIsoTrDz;
+    float *HLTPFTauIsoTrPt;
+
+
+
     // input variables
     bool _Monte,_Debug;
     float _CalJetMin, _GenJetMin;

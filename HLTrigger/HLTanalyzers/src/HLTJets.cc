@@ -10,6 +10,8 @@
 #include <string.h>
 
 #include "HLTrigger/HLTanalyzers/interface/HLTJets.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 HLTJets::HLTJets() {
     evtCounter=0;
@@ -121,6 +123,60 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     pfJetEta         = new float[kMaxPFJet];
     pfJetPhi         = new float[kMaxPFJet];
     pfJetPt         = new float[kMaxPFJet];
+
+
+    const int kMaxTauIso = 5000;
+
+    // for offlineHPStau 
+    signalTrToPFTauMatch = new int[kMaxTauIso];// index of reconstructed tau in tau collection
+    recoPFTauSignalTrDz = new float[kMaxTauIso];
+    recoPFTauSignalTrPt = new float[kMaxTauIso];
+
+    isoTrToPFTauMatch = new int[kMaxTauIso]; // index of reconstructed tau in tau collection
+    recoPFTauIsoTrDz = new float[kMaxTauIso];
+    recoPFTauIsoTrPt = new float[kMaxTauIso];
+
+
+    // HLT pf taus
+    hltpftauSignalTrToPFTauMatch = new int[kMaxTauIso]; // index of HLTPF tau in tau collection
+    HLTPFTauSignalTrDz = new float[kMaxTauIso];
+    HLTPFTauSignalTrPt = new float[kMaxTauIso];
+
+    hltpftauIsoTrToPFTauMatch = new int[kMaxTauIso]; // index of HLTPF tau in tau collection
+    HLTPFTauIsoTrDz = new float[kMaxTauIso];
+    HLTPFTauIsoTrPt = new float[kMaxTauIso];
+
+
+
+
+
+    // offline pftau isolation and signal cands
+    HltTree->Branch("NoRecoPFTausSignal",&noRecoPFTausSignal,"NoRecoPFTausSignal/I");
+    HltTree->Branch("signalTrToPFTauMatch", signalTrToPFTauMatch,"signalTrToPFTauMatch[NoRecoPFTausSignal]/I");
+    HltTree->Branch("recoPFTauSignalTrDz", recoPFTauSignalTrDz,"recoPFTauSignalTrDz[NoRecoPFTausSignal]/F");
+    HltTree->Branch("recoPFTauSignalTrPt", recoPFTauSignalTrPt,"recoPFTauSignalTrPt[NoRecoPFTausSignal]/F");
+
+    HltTree->Branch("NoRecoPFTausIso",&noRecoPFTausIso,"NoRecoPFTausIso/I");
+    HltTree->Branch("isoTrToPFTauMatch", isoTrToPFTauMatch,"isoTrToPFTauMatch[NoRecoPFTausIso]/I");
+    HltTree->Branch("recoPFTauIsoTrDz", recoPFTauIsoTrDz,"recoPFTauIsoTrDz[NoRecoPFTausIso]/F");
+    HltTree->Branch("recoPFTauIsoTrPt", recoPFTauIsoTrPt,"recoPFTauIsoTrPt[NoRecoPFTausIso]/F");
+
+    // HLT pftau isolation and signal cands
+    HltTree->Branch("NoHLTPFTausSignal",&noHLTPFTausSignal,"NoHLTPFTausSignal/I");
+    HltTree->Branch("hltpftauSignalTrToPFTauMatch",
+                    hltpftauSignalTrToPFTauMatch,"hltpftauSignalTrToPFTauMatch[NoHLTPFTausSignal]/I");
+    HltTree->Branch("HLTPFTauSignalTrDz", HLTPFTauSignalTrDz,"HLTPFTauSignalTrDz[NoHLTPFTausSignal]/F");
+    HltTree->Branch("HLTPFTauSignalTrPt", HLTPFTauSignalTrPt,"HLTPFTauSignalTrPt[NoHLTPFTausSignal]/F");
+
+    HltTree->Branch("NoHLTPFTausIso",&noHLTPFTausIso,"NoHLTPFTausIso/I");
+    HltTree->Branch("hltpftauIsoTrToPFTauMatch",
+                    hltpftauIsoTrToPFTauMatch,"hltpftauIsoTrToPFTauMatch[NoHLTPFTausIso]/I");
+    HltTree->Branch("HLTPFTauIsoTrDz", HLTPFTauIsoTrDz,"HLTPFTauIsoTrDz[NoHLTPFTausIso]/F");
+    HltTree->Branch("HLTPFTauIsoTrPt", HLTPFTauIsoTrPt,"HLTPFTauIsoTrPt[NoHLTPFTausIso]/F");
+
+
+
+
     
     // Jet- MEt-specific branches of the tree 
     HltTree->Branch("NrecoJetCal",&njetcal,"NrecoJetCal/I");
@@ -266,6 +322,14 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
     mcalmet=0.; mcalphi=0.;
     mgenmet=0.; mgenphi=0.;
     htcalet=0.,htcalphi=0.,htcalsum=0.;
+
+    noRecoPFTausSignal = 0; noRecoPFTausIso =0;
+    noHLTPFTausSignal = 0; noHLTPFTausIso = 0;
+
+
+
+
+
     
     if (calojets.isValid()) {
         reco::CaloJetCollection mycalojets;
@@ -413,7 +477,7 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
     else {nohtau = 0;}
 
     
-    ////////////////Particle Flow Taus ////////////////////////////////////
+    ////////////////Particle Flow Taus - HLT ////////////////////////////////////
     if(pfTaus.isValid()) {
         //float minTrkPt = minPtCH;
         //float minGammaPt = minPtGamma;
@@ -440,12 +504,32 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
 */
             if( (i->leadPFNeutralCand()).isNonnull())
                 ohpfTauLeadPionPt[ipftau] = i->leadPFNeutralCand()->pt();        
+            else 
+                ohpfTauLeadPionPt[ipftau] = -999.0;
+
             if((i->leadPFChargedHadrCand()).isNonnull())
                 ohpfTauLeadTrackPt[ipftau] = i->leadPFChargedHadrCand()->pt();
+            else
+                ohpfTauLeadTrackPt[ipftau] = -999.0;
+  
+
             float maxPtTrkIso = 0;
             for (unsigned int iTrk = 0; iTrk < i->isolationPFChargedHadrCands().size(); iTrk++)
             {
                 if(i->isolationPFChargedHadrCands()[iTrk]->pt() > maxPtTrkIso) maxPtTrkIso = i->isolationPFChargedHadrCands()[iTrk]->pt();
+
+                if (i->isolationPFChargedHadrCands()[iTrk]->trackRef().isNonnull()){
+                  hltpftauIsoTrToPFTauMatch[noHLTPFTausIso]=ipftau;
+                  HLTPFTauIsoTrDz[noHLTPFTausIso]=i->isolationPFChargedHadrCands()[iTrk]->trackRef()->dz(); // dz wrt (0,0,0), to compare offline with HLT 
+                  HLTPFTauIsoTrPt[noHLTPFTausIso]=i->isolationPFChargedHadrCands()[iTrk]->pt();
+                  /*
+                  std::cout << "Adding isocand for hltpftau " << ipftau
+                      << " pt " << HLTPFTauIsoTrPt[noHLTPFTausIso]
+                      << " dz " << HLTPFTauIsoTrDz[noHLTPFTausIso]
+                      << std::endl; // */
+                  ++noHLTPFTausIso;
+                }
+
             }
                 
             ohpfTauTrkIso[ipftau] = maxPtTrkIso;
@@ -454,6 +538,28 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
             {
                 if(i->isolationPFGammaCands()[iGamma]->pt() > maxPtGammaIso) maxPtGammaIso = i->isolationPFGammaCands()[iGamma]->pt();
             }                        
+
+
+
+            for (unsigned int iTrk = 0; iTrk < i->signalPFChargedHadrCands().size(); iTrk++)
+            {
+              if (i->signalPFChargedHadrCands ()[iTrk]->trackRef().isNonnull()){
+                hltpftauSignalTrToPFTauMatch[noHLTPFTausSignal]=ipftau;
+                HLTPFTauSignalTrDz[noHLTPFTausSignal]=i->signalPFChargedHadrCands()[iTrk]->trackRef()->dz(); // dz wrt (0,0,0), to compare offline with HLT
+                HLTPFTauSignalTrPt[noHLTPFTausSignal]=i->signalPFChargedHadrCands()[iTrk]->pt();
+                /*
+                  std::cout << "Adding sigcand for hltpftau " << ipftau
+                      << " pt " << HLTPFTauSignalTrPt[noHLTPFTausSignal]
+                      << " dz " << HLTPFTauSignalTrDz[noHLTPFTausSignal]
+                      << std::endl; // */
+                ++noHLTPFTausSignal;
+              }
+            }
+
+
+
+
+
             ohpfTauGammaIso[ipftau] = maxPtGammaIso;
             ipftau++;
         } 
@@ -483,8 +589,15 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
 
             if( (i->leadPFNeutralCand()).isNonnull())
                 ohpfTauTightConeLeadPionPt[ipftau] = i->leadPFNeutralCand()->pt();
+            else 
+              ohpfTauTightConeLeadPionPt[ipftau] = -999.0;
+
+
             if((i->leadPFChargedHadrCand()).isNonnull())
                 ohpfTauTightConeLeadTrackPt[ipftau] = i->leadPFChargedHadrCand()->pt();
+            else
+              ohpfTauTightConeLeadTrackPt[ipftau] = -999.0;
+
             float maxPtTrkIso = 0;
             for (unsigned int iTrk = 0; iTrk < i->isolationPFChargedHadrCands().size(); iTrk++)
             {
@@ -511,7 +624,9 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
         float minGammaPt = minPtGamma;
         nRecoPFTau  = pfTaus->size();
         reco::PFTauCollection taus = *recoPfTaus;
-        std::sort(taus.begin(),taus.end(),GetPFPtGreater());
+
+        // disable sorting for proper access to discriminators
+        //std::sort(taus.begin(),taus.end(),GetPFPtGreater());
         typedef reco::PFTauCollection::const_iterator pftauit;
         int ipftau=0;
         
@@ -522,13 +637,32 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
             recopfTauPt[ipftau]  = i->pt();
 
             if( (i->leadPFNeutralCand()).isNonnull())
-                recopfTauLeadPionPt[ipftau] = i->leadPFNeutralCand()->pt();        
+                recopfTauLeadPionPt[ipftau] = i->leadPFNeutralCand()->pt();
+            else
+              recopfTauLeadPionPt[ipftau] = -999.0;  
+
+
             if((i->leadPFChargedHadrCand()).isNonnull())
                 recopfTauLeadTrackPt[ipftau] = i->leadPFChargedHadrCand()->pt();
+            else
+              recopfTauLeadTrackPt[ipftau]  = -999.0;
+
             int myTrks=0;
             for (unsigned int iTrk = 0; iTrk < i->isolationPFChargedHadrCands().size(); iTrk++)
             {
                 if(i->isolationPFChargedHadrCands()[iTrk]->pt() > minTrkPt) myTrks++;
+                if (i->isolationPFChargedHadrCands()[iTrk]->trackRef().isNonnull()){
+                  isoTrToPFTauMatch[noRecoPFTausIso]=ipftau;
+                  recoPFTauIsoTrDz[noRecoPFTausIso]=i->isolationPFChargedHadrCands()[iTrk]->trackRef()->dz(); // dz wrt (0,0,0), to compare offline with HLT
+                  recoPFTauIsoTrPt[noRecoPFTausIso]=i->isolationPFChargedHadrCands()[iTrk]->pt();
+                  /*
+                  std::cout << "Adding isocand for tau " << ipftau
+                            << " pt " << recoPFTauIsoTrPt[noRecoPFTausIso]
+                            << " dz " << recoPFTauIsoTrDz[noRecoPFTausIso]
+                            << std::endl;// */
+                  ++noRecoPFTausIso;
+                }
+
             }
                
             recopfTauTrkIso[ipftau] = myTrks;
@@ -539,6 +673,22 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
             }                        
             recopfTauGammaIso[ipftau] = myGammas;
 	    
+
+            for (unsigned int iTrk = 0; iTrk < i->signalPFChargedHadrCands().size(); iTrk++)
+            {
+                if (i->signalPFChargedHadrCands ()[iTrk]->trackRef().isNonnull()){
+                  signalTrToPFTauMatch[noRecoPFTausSignal]=ipftau;
+                  recoPFTauSignalTrDz[noRecoPFTausSignal]=i->signalPFChargedHadrCands()[iTrk]->trackRef()->dz(); // dz wrt (0,0,0), to compare offline with HLT
+                  recoPFTauSignalTrPt[noRecoPFTausSignal]=i->signalPFChargedHadrCands()[iTrk]->pt();
+                  /*
+                  std::cout << "Adding sigcand for tau " << ipftau
+                            << " pt " << recoPFTauSignalTrPt[noRecoPFTausSignal]
+                            << " dz " << recoPFTauSignalTrDz[noRecoPFTausSignal]
+                            << std::endl;// */
+                  ++noRecoPFTausSignal;
+                }
+            }
+
 	    const reco::PFTauRef thisTauRef(recoPfTaus,ipftau);
             
 	    if(theRecoPFTauDiscrByTanCOnePercent.isValid()){
