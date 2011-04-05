@@ -11,16 +11,30 @@ error = []
 
 inputFile = open("FitParameters.txt",'r')
 
+totalFits = 0
 for line in inputFile:
     if "Fitting with resolution, scale, bgr function" in line:
+        totalFits += 1
+# print "totalFits = ", totalFits
+
+inputFile = open("FitParameters.txt",'r')
+actualFit = 0
+for line in inputFile:
+    if "Fitting with resolution, scale, bgr function" in line and actualFit == totalFits-1:
         functionNumber = line.split("# ")[1].split(" ")[0]
-    if "Results of the fit: parameter" in line:
+        # print "functionNumber =", functionNumber
+        actualFit += 1
+    elif "Fitting with resolution, scale, bgr function" in line:
+        actualFit += 1
+        # print "actualFit = ", actualFit
+    if "Results of the fit: parameter" in line and actualFit == totalFits:
         valueAndError = line.split("value")[1].split(" ")[1].split("+-")
         value.append(valueAndError[0])
         error.append(valueAndError[1])
+        # print "value = ", valueAndError
         # print valueAndError[0], "+-", valueAndError[1]
         
-    if "Scale" in line:
+    if "Scale" in line and actualFit == totalFits:
         break
 
 values = ""
@@ -33,7 +47,8 @@ for i in range(len(value)):
     errorParameters += prepend+"1"
     prepend = ", "
 
-print values
+print "values = ", values
+print "errors = ", errors
     
 cfgFile = open("ErrorsPropagationAnalyzer_cfg.py", 'r')
 outputCfgFile = open("Errors_cfg.py", 'w')
