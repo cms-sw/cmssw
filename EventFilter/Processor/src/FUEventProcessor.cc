@@ -1525,7 +1525,7 @@ bool FUEventProcessor::enableClassic()
   }
   
   //  implementation moved to EPWrapper
-  startScalersWorkLoop();
+  //  startScalersWorkLoop();
   localLog("-I- Start completed");
   return retval;
 }
@@ -1825,7 +1825,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.120 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.121 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
