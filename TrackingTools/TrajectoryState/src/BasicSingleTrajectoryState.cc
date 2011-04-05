@@ -374,7 +374,10 @@ BasicSingleTrajectoryState::freeTrajectoryState(bool withErrors) const {
   return &(*theFreeState);
 }
 
+
+/*
 bool 
 BasicSingleTrajectoryState::hasError() const {
   return (theFreeState && theFreeState->hasError()) || theLocalErrorValid;
 }
+*/
