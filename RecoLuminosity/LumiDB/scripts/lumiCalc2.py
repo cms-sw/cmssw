@@ -216,9 +216,6 @@ if __name__ == '__main__':
     irunlsdict={}
     if options.runnumber: # if runnumber specified, do not go through other run selection criteria
         irunlsdict[options.runnumber]=None
-    elif options.inputfile:
-        p=inputFilesetParser.inputFilesetParser(options.inputfile)
-        irunlsdict=p.runsandls()
     else:
         reqTrg=False
         reqHlt=False
@@ -230,16 +227,24 @@ if __name__ == '__main__':
         schema=session.nominalSchema()
         runlist=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=options.begin,stopT=options.end,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
         session.transaction().commit()
-        for run in runlist:
-            irunlsdict[run]=None
+        if options.inputfile:
+            p=inputFilesetParser.inputFilesetParser(options.inputfile)
+            runlsbyfile=p.runsandls()
+            for runinfile in sorted(runlsbyfile):
+                if runinfile not in runlist:
+                    continue
+                irunlsdict[runinfile]=runlsbyfile[runinfile]
+        else:
+            for run in runlist:
+                irunlsdict[run]=None
     if options.verbose:
         print 'Selected run:ls'
         for run in sorted(irunlsdict):
             if irunlsdict[run] is not None:
-                print '\t%d : %s'%(run,','.join([str(ls) for ls in irunlsidct[run]]))
+                print '\t%d : %s'%(run,','.join([str(ls) for ls in irunlsdict[run]]))
             else:
                 print '\t%d : all'%run
-
+    
     #if options.inputfile:
     #    p=inputFilesetParser.inputFilesetParser(options.inputfile)
     #    irunlsdict=p.runsandls()
