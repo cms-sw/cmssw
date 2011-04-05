@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
 
@@ -25,15 +26,15 @@ TxCalculator::TxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSe
 } 
 
 
-double TxCalculator::getTx(const reco::SuperClusterRef cluster, double x, double threshold, double innerDR)
+double TxCalculator::getTx(const reco::Photon cluster, double x, double threshold, double innerDR)
 {
 
    using namespace edm;
    using namespace reco;
 
 
-   double SClusterEta = cluster->eta();
-   double SClusterPhi = cluster->phi();
+   double SClusterEta = cluster.eta();
+   double SClusterPhi = cluster.phi();
    double TotalPt = 0;
 
    for(reco::TrackCollection::const_iterator
@@ -54,13 +55,13 @@ double TxCalculator::getTx(const reco::SuperClusterRef cluster, double x, double
    return TotalPt;
 }
 
-double TxCalculator::getCTx(const reco::SuperClusterRef cluster, double x, double threshold, double innerDR)
+double TxCalculator::getCTx(const reco::Photon cluster, double x, double threshold, double innerDR)
 {
    using namespace edm;
    using namespace reco;
 
-   double SClusterEta = cluster->eta();
-   double SClusterPhi = cluster->phi();
+   double SClusterEta = cluster.eta();
+   double SClusterPhi = cluster.phi();
    double TotalPt = 0;
 
    TotalPt = 0;

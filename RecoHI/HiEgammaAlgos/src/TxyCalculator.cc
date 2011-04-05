@@ -6,6 +6,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
 
 using namespace edm;
 using namespace reco;
@@ -35,15 +36,15 @@ int TxyCalculator::getNumAllTracks(double ptCut)
 }
 
 
-int TxyCalculator::getNumLocalTracks(const reco::SuperClusterRef p, double detaCut, double ptCut)
+int TxyCalculator::getNumLocalTracks(const reco::Photon p, double detaCut, double ptCut)
 {
   using namespace edm;
   using namespace reco;
 
   int nTracks = 0;
 
-  double eta1 = p->eta();
-  double phi1 = p->phi();
+  double eta1 = p.eta();
+  double phi1 = p.phi();
 
   for(reco::TrackCollection::const_iterator
         recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
@@ -55,7 +56,7 @@ int TxyCalculator::getNumLocalTracks(const reco::SuperClusterRef p, double detaC
   return nTracks;
 }
 
-double TxyCalculator::getTxy(const reco::SuperClusterRef p, double x, double y)
+double TxyCalculator::getTxy(const reco::Photon p, double x, double y)
 {
    using namespace edm;
    using namespace reco;
@@ -67,8 +68,8 @@ double TxyCalculator::getTxy(const reco::SuperClusterRef p, double x, double y)
    //   }
    
 
-   double eta1 = p->eta();
-   double phi1 = p->phi();
+   double eta1 = p.eta();
+   double phi1 = p.phi();
    
    float txy = 0;
 
@@ -89,13 +90,13 @@ double TxyCalculator::getTxy(const reco::SuperClusterRef p, double x, double y)
    return txy;
 }
 
-double TxyCalculator::getHollSxy(const reco::SuperClusterRef p, double thePtCut, double outerR, double innerR)
+double TxyCalculator::getHollSxy(const reco::Photon p, double thePtCut, double outerR, double innerR)
 {
    using namespace edm;
    using namespace reco;
    
-   double eta1 = p->eta();
-   double phi1 = p->phi();
+   double eta1 = p.eta();
+   double phi1 = p.phi();
 
    double ptSum = 0;
 
