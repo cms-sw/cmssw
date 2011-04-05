@@ -1,4 +1,4 @@
-// $Id: EventServerProxy.h,v 1.3 2011/04/04 14:47:04 mommsen Exp $
+// $Id: EventServerProxy.h,v 1.4 2011/04/04 17:29:26 mommsen Exp $
 /// @file: EventServerProxy.h
 
 #ifndef EventFilter_StorageManager_EventServerProxy_h
@@ -27,8 +27,8 @@ namespace stor {
    * is also obtained through a HTTP get.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2011/04/04 14:47:04 $
+   * $Revision: 1.4 $
+   * $Date: 2011/04/04 17:29:26 $
    */
 
   template<typename RegInfo>
@@ -68,12 +68,9 @@ namespace stor {
     bool extractConsumerId(CurlInterface::Content&);
 
     const RegInfo regInfo_;
-    
-    std::string consumerPSetString_;
     unsigned int consumerId_;
-    
     stor::utils::TimePoint_t nextRequestTime_;
-    stor::utils::Duration_t minEventRequestInterval_;
+    const stor::utils::Duration_t minEventRequestInterval_;
     
     bool alreadySaidHalted_;
     bool alreadySaidWaiting_;
