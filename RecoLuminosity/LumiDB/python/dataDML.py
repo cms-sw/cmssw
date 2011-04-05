@@ -22,16 +22,18 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
     try:
         qHandle.addToTableList(r)
         qHandle.addToTableList(l)
+        qConditionStr=r+'.runnum='+l+'.runnum'
         if requiretrg:
             qHandle.addToTableList(t)
+            qConditionStr+=' and '+l+'.runnum='+t+'.runnum'
         if requirehlt:
             qHandle.addToTableList(h)
-        qConditionStr=r+'.runnum='+l+'.runnum and '+l+'.runnum='+t+'.runnum and '+t+'.runnum='+h+'.runnum'
+            qConditionStr+=' and '+l+'.runnum='+h+'.runnum'
         qCondition=coral.AttributeList()        
         if fillnum:
             qConditionStr+=' and '+r+'.fillnum=:fillnum'
             qCondition.extend('fillnum','unsigned int')
-            qCondition['fillnum'].setData(fillnum)
+            qCondition['fillnum'].setData(int(fillnum))
         if runmin:
             qConditionStr+=' and '+r+'.runnum>=:runmin'
             qCondition.extend('runmin','unsigned int')
