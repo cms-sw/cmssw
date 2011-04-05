@@ -86,21 +86,21 @@ private:
 
   // -- Input geometry parameters :  -----------------------------------------------------
  
-  static const int     nBlades;            // Number of blades
-  static const double  bladeAngle;    // Angle of blade rotation around axis perpendicular to beam
-  static const double  zPlane;             // Common shift in Z for all blades (with respect to disk center plane)
-  static const double  bladeZShift;     // Shift in Z between the axes of two adjacent blades
+  int     nBlades;            // Number of blades
+  double  bladeAngle;    // Angle of blade rotation around axis perpendicular to beam
+  double  zPlane;             // Common shift in Z for all blades (with respect to disk center plane)
+  double  bladeZShift;     // Shift in Z between the axes of two adjacent blades
   
-  static const double  ancorRadius; // Distance from beam line to ancor point defining center of "blade frame"
+  double  ancorRadius; // Distance from beam line to ancor point defining center of "blade frame"
   
       // Coordinates of Nipple ancor points J and K in "blade frame" :
 
-  static const double jX;
-  static const double jY;
-  static const double jZ;
-  static const double kX;
-  static const double kY;
-  static const double kZ;
+  double jX;
+  double jY;
+  double jZ;
+  double kX;
+  double kY;
+  double kZ;
 
   // -- Algorithm parameters :  ----------------------------------------------------------
 
@@ -118,11 +118,11 @@ private:
 
   std::string   idNameSpace;    //Namespace of this and ALL sub-parts
   
-  static std::map<std::string, int> copyNumbers;
+  std::map<std::string, int> copyNumbers;
   
-  static CLHEP::HepRotation* nippleRotationZPlus;
-  static CLHEP::HepRotation* nippleRotationZMinus;
-  static double nippleTranslationX, nippleTranslationY, nippleTranslationZ;
+  CLHEP::HepRotation* nippleRotationZPlus;
+  CLHEP::HepRotation* nippleRotationZMinus;
+  double nippleTranslationX, nippleTranslationY, nippleTranslationZ;
 
   // -- Helper functions :  --------------------------------------------------------------
   
