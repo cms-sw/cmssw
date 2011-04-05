@@ -42,8 +42,8 @@ typedef std::map<std::pair<std::string, std::string>, IdToBranches> ModuleToIdBr
 
 static std::ostream& prettyPrint(std::ostream& oStream, edm::ParameterSet const& iPSet, std::string const& iIndent, std::string const& iIndentDelta);
 
-
 namespace {
+edm::ParentageID invalidParentageID;
 typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
 
   class HistoryNode {
@@ -128,12 +128,11 @@ typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
   bool HistoryNode::sort_ = false;
 }
 
-
 std::ostream&
 operator<<(std::ostream& os, edm::ProcessHistory& iHist) {
   std::string const indentDelta("  ");
   std::string indent = indentDelta;
-  for (edm::ProcessHistory::const_iterator i = iHist.begin(), e = iHist.end();
+  for(edm::ProcessHistory::const_iterator i = iHist.begin(), e = iHist.end();
        i != e;
        ++i) {
     os << indent
@@ -150,7 +149,7 @@ operator<<(std::ostream& os, edm::ProcessHistory& iHist) {
 void HistoryNode::printHistory(std::string const& iIndent) const {
   std::string const indentDelta("  ");
   std::string indent = iIndent;
-  for (const_iterator i = begin(), e = end();
+  for(const_iterator i = begin(), e = end();
        i != e;
        ++i) {
     std::cout << indent << *i;
@@ -178,7 +177,7 @@ std::string eventSetupComponent(char const* iType,
 void HistoryNode::printEventSetupHistory(ParameterSetMap const& iPSM,
                                          std::string const& iFindMatch,
                                          std::ostream& oErrorLog) const {
-  for (const_iterator itH = begin(), e = end();
+  for(const_iterator itH = begin(), e = end();
        itH != e;
        ++itH) {
     //Get ParameterSet for process
@@ -231,8 +230,7 @@ std::string nonProducerComponent(std::string const& iCompName,
   edm::ParameterSet const& pset = iProcessConfig.getParameterSet(iCompName);
   std::string label(pset.getParameter<std::string>("@module_label"));
 
-  result <<"Module: " << label << " " << iProcessName << "\n"
-  << " parameters: ";
+  result << "Module: " << label << " " << iProcessName << "\n" << " parameters: ";
   prettyPrint(result, pset, " ", " ");
   return result.str();
 }
@@ -241,7 +239,7 @@ void HistoryNode::printOtherModulesHistory(ParameterSetMap const& iPSM,
                                            ModuleToIdBranches const& iModules,
                                            std::string const& iFindMatch,
                                            std::ostream& oErrorLog) const {
-  for (const_iterator itH = begin(), e = end();
+  for(const_iterator itH = begin(), e = end();
        itH != e;
        ++itH) {
     //Get ParameterSet for process
@@ -257,9 +255,9 @@ void HistoryNode::printOtherModulesHistory(ParameterSetMap const& iPSM,
         //if we didn't already handle this from the branches
         if(iModules.end() == iModules.find(std::make_pair(itH->processName(), *itM))) {
           std::string retValue(nonProducerComponent(
-                                                       *itM,
-                                                       processConfig,
-                                                       itH->processName()));
+                                                    *itM,
+                                                    processConfig,
+                                                    itH->processName()));
           if(iFindMatch.empty() or retValue.find(iFindMatch) != std::string::npos) {
             moduleStrings.push_back(retValue);
           }
@@ -287,13 +285,13 @@ namespace {
     std::vector<std::string> fileNames;
     fileNames.push_back(filename);
     edm::InputFileCatalog catalog(fileNames, override, true);
-    if (catalog.fileNames()[0] == filename) {
+    if(catalog.fileNames()[0] == filename) {
       throw cms::Exception("FileNotFound", "RootFile::RootFile()")
         << "File " << filename << " was not found or could not be opened.\n";
     }
     // filename is a valid LFN.
     std::auto_ptr<TFile> result(TFile::Open(catalog.fileNames()[0].c_str()));
-    if (!result.get()) {
+    if(!result.get()) {
       throw cms::Exception("FileNotFound", "RootFile::RootFile()")
         << "File " << fileNames[0] << " was not found or could not be opened.\n";
     }
@@ -309,7 +307,7 @@ namespace {
     gErrorIgnoreLevel = kFatal;
     std::auto_ptr<TFile> result(TFile::Open(filename.c_str()));
     gErrorIgnoreLevel = kError;
-    if (!result.get()) {
+    if(!result.get()) {
       // Try again with catalog.
       return makeTFileWithLookup(filename);
     }
@@ -337,7 +335,7 @@ static std::ostream& prettyPrint(std::ostream& os, edm::VParameterSetEntry const
     prettyPrint(os, *i, newIndent, iIndentDelta);
     start = between;
   }
-  if (!vps.empty()) {
+  if(!vps.empty()) {
     os << std::endl;
   }
   os << iIndent<< "})";
@@ -434,7 +432,7 @@ ProvenanceDumper::dump(std::ostream& os) {
 
 void
 ProvenanceDumper::printErrors(std::ostream& os) {
-  if (errorCount_ > 0) os << errorLog_.str() << std::endl;
+  if(errorCount_ > 0) os << errorLog_.str() << std::endl;
 }
 
 int
@@ -445,7 +443,7 @@ ProvenanceDumper::exitCode() const {
 void
 ProvenanceDumper::dumpEventFilteringParameterSets(edm::EventSelectionIDVector const& ids) {
   edm::EventSelectionIDVector::size_type num_ids = ids.size();
-  if (num_ids == 0) {
+  if(num_ids == 0) {
     std::cout << "No event filtering information is available.\n";
     std::cout << "------------------------------\n";
   } else {
@@ -454,7 +452,7 @@ ProvenanceDumper::dumpEventFilteringParameterSets(edm::EventSelectionIDVector co
               << " processing steps is available.\n"
               << "The ParameterSets will be printed out, "
               << "with the oldest printed first.\n";
-    for (edm::EventSelectionIDVector::size_type i = 0; i != num_ids; ++i) {
+    for(edm::EventSelectionIDVector::size_type i = 0; i != num_ids; ++i) {
       dumpParameterSetForID_(ids[i]);
     }
   }
@@ -464,12 +462,12 @@ void
 ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
 
   TTree* history = dynamic_cast<TTree*>(file->Get(edm::poolNames::eventHistoryTreeName().c_str()));
-  if (history != 0) {
+  if(history != 0) {
     edm::History h;
     edm::History* ph = &h;
 
     history->SetBranchAddress(edm::poolNames::eventHistoryBranchName().c_str(), &ph);
-    if (history->GetEntry(0) <= 0) {
+    if(history->GetEntry(0) <= 0) {
       std::cout << "No event filtering information is available; the event history tree has no entries\n";
     } else {
       dumpEventFilteringParameterSets(h.eventSelectionIDs());
@@ -482,7 +480,7 @@ ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
     edm::EventSelectionIDVector ids;
     edm::EventSelectionIDVector* pids = &ids;
     eventSelectionsBranch->SetAddress(&pids);
-    if (eventSelectionsBranch->GetEntry(0) <= 0) {
+    if(eventSelectionsBranch->GetEntry(0) <= 0) {
       std::cout << "No event filtering information is available; the event selections branch has no entries\n";
     } else {
       dumpEventFilteringParameterSets(ids);
@@ -493,12 +491,12 @@ ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
 void
 ProvenanceDumper::dumpParameterSetForID_(edm::ParameterSetID const& id) {
   std::cout << "ParameterSetID: " << id << '\n';
-  if (id.isValid()) {
+  if(id.isValid()) {
     ParameterSetMap::const_iterator i = psm_.find(id);
-    if (i == psm_.end()) {
+    if(i == psm_.end()) {
       std::cout << "We are unable to find the corresponding ParameterSet\n";
       edm::ParameterSet empty;
-      if (id == empty.id()) {
+      if(id == empty.id()) {
         std::cout << "But it would have been empty anyway\n";
       }
     } else {
@@ -515,23 +513,23 @@ ProvenanceDumper::dumpParameterSetForID_(edm::ParameterSetID const& id) {
 void
 ProvenanceDumper::dumpProcessHistory_() {
   std::cout << "Processing History:" << std::endl;
-  if (1 == phv_.size()) {
+  if(1 == phv_.size()) {
     std::cout << *phv_.begin();
     historyGraph_.addChild(HistoryNode(*(phv_.begin()->begin()), 1));
   } else {
     bool multipleHistories = false;
     std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
-    for (edm::ProcessHistoryVector::const_iterator it = phv_.begin(), itEnd = phv_.end();
+    for(edm::ProcessHistoryVector::const_iterator it = phv_.begin(), itEnd = phv_.end();
          it != itEnd;
          ++it) {
       //loop over the history entries looking for matches
       HistoryNode* parent = &historyGraph_;
-      for (edm::ProcessHistory::const_iterator itH = it->begin(), e = it->end();
+      for(edm::ProcessHistory::const_iterator itH = it->begin(), e = it->end();
            itH != e;
            ++itH) {
-        if (parent->size() == 0) {
+        if(parent->size() == 0) {
           unsigned int id = simpleIDs[itH->id()];
-          if (0 == id) {
+          if(0 == id) {
             id = 1;
             simpleIDs[itH->id()] = id;
           }
@@ -540,16 +538,16 @@ ProvenanceDumper::dumpProcessHistory_() {
         } else {
           //see if this is unique
           bool isUnique = true;
-          for (HistoryNode::iterator itChild = parent->begin(), itChildEnd = parent->end();
+          for(HistoryNode::iterator itChild = parent->begin(), itChildEnd = parent->end();
                itChild != itChildEnd;
                ++itChild) {
-            if (itChild->configurationID() == itH->id()) {
+            if(itChild->configurationID() == itH->id()) {
               isUnique = false;
               parent = &(*itChild);
               break;
             }
           }
-          if (isUnique) {
+          if(isUnique) {
             multipleHistories = true;
             simpleIDs[itH->id()] = parent->size() + 1;
             parent->addChild(HistoryNode(*itH, simpleIDs[itH->id()]));
@@ -576,7 +574,7 @@ ProvenanceDumper::work_() {
     meta->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(), &pPsm);
   } else {
     TTree* psetTree = dynamic_cast<TTree *>(inputFile_->Get(edm::poolNames::parameterSetsTreeName().c_str()));
-    assert(0!=psetTree);
+    assert(0 != psetTree);
     typedef std::pair<edm::ParameterSetID, edm::ParameterSetBlob> IdToBlobs;
     IdToBlobs idToBlob;
     IdToBlobs* pIdToBlob = &idToBlob;
@@ -587,23 +585,23 @@ ProvenanceDumper::work_() {
     }
   }
   edm::ProcessConfigurationVector* pPhc = &phc_;
-  if (meta->FindBranch(edm::poolNames::processConfigurationBranchName().c_str()) != 0) {
+  if(meta->FindBranch(edm::poolNames::processConfigurationBranchName().c_str()) != 0) {
     meta->SetBranchAddress(edm::poolNames::processConfigurationBranchName().c_str(), &pPhc);
   }
 
   edm::ProcessHistoryVector* pPhv = &phv_;
-  if (meta->FindBranch(edm::poolNames::processHistoryBranchName().c_str()) != 0) {
+  if(meta->FindBranch(edm::poolNames::processHistoryBranchName().c_str()) != 0) {
     meta->SetBranchAddress(edm::poolNames::processHistoryBranchName().c_str(), &pPhv);
   }
 
   edm::ProcessHistoryMap phm;
   edm::ProcessHistoryMap* pPhm = &phm;
-  if (meta->FindBranch(edm::poolNames::processHistoryMapBranchName().c_str()) != 0) {
+  if(meta->FindBranch(edm::poolNames::processHistoryMapBranchName().c_str()) != 0) {
     meta->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(), &pPhm);
   }
 
-  if (meta->FindBranch(edm::poolNames::moduleDescriptionMapBranchName().c_str()) != 0) {
-    if (meta->GetBranch(edm::poolNames::moduleDescriptionMapBranchName().c_str())->GetSplitLevel() != 0) {
+  if(meta->FindBranch(edm::poolNames::moduleDescriptionMapBranchName().c_str()) != 0) {
+    if(meta->GetBranch(edm::poolNames::moduleDescriptionMapBranchName().c_str())->GetSplitLevel() != 0) {
       meta->SetBranchStatus((edm::poolNames::moduleDescriptionMapBranchName() + ".*").c_str(), 0);
     } else {
       meta->SetBranchStatus(edm::poolNames::moduleDescriptionMapBranchName().c_str(), 0);
@@ -614,7 +612,7 @@ ProvenanceDumper::work_() {
   assert(0 != pReg);
 
   edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
-  for (ParameterSetMap::const_iterator i = psm_.begin(), iEnd = psm_.end(); i != iEnd; ++i) {
+  for(ParameterSetMap::const_iterator i = psm_.begin(), iEnd = psm_.end(); i != iEnd; ++i) {
     edm::ParameterSet pset(i->second.pset());
     pset.setID(i->first);
     psetRegistry.insertMapped(pset);
@@ -622,10 +620,10 @@ ProvenanceDumper::work_() {
 
 
   // backward compatibility
-  if (!phm.empty()) {
-    for (edm::ProcessHistoryMap::const_iterator i = phm.begin(), e = phm.end(); i != e; ++i) {
+  if(!phm.empty()) {
+    for(edm::ProcessHistoryMap::const_iterator i = phm.begin(), e = phm.end(); i != e; ++i) {
       phv_.push_back(i->second);
-      for (edm::ProcessConfigurationVector::const_iterator j = i->second.begin(), f = i->second.end(); j != f; ++j) {
+      for(edm::ProcessConfigurationVector::const_iterator j = i->second.begin(), f = i->second.end(); j != f; ++j) {
         phc_.push_back(*j);
       }
     }
@@ -694,7 +692,7 @@ ProvenanceDumper::work_() {
 
   std::map<edm::BranchID, std::string> branchIDToBranchName;
 
-  for (edm::ProductRegistry::ProductList::const_iterator it =
+  for(edm::ProductRegistry::ProductList::const_iterator it =
          reg_.productList().begin(), itEnd = reg_.productList().end();
        it != itEnd;
        ++it) {
@@ -702,13 +700,13 @@ ProvenanceDumper::work_() {
     it->second.init();
 
     if(showDependencies_) {
-      branchIDToBranchName[it->second.branchID()]=it->second.branchName();
+      branchIDToBranchName[it->second.branchID()] = it->second.branchName();
     }
     /*
       std::cout << it->second.branchName()
       << " id " << it->second.productID() << std::endl;
     */
-    for (std::map<edm::ProcessConfigurationID, edm::ParameterSetID>::const_iterator
+    for(std::map<edm::ProcessConfigurationID, edm::ParameterSetID>::const_iterator
            itId = it->second.parameterSetIDs().begin(),
            itIdEnd = it->second.parameterSetIDs().end();
            itId != itIdEnd;
@@ -720,21 +718,21 @@ ProvenanceDumper::work_() {
       //idToBranches[*itId].push_back(it->second);
     }
   }
-  for (ModuleToIdBranches::const_iterator it = moduleToIdBranches.begin(),
+  for(ModuleToIdBranches::const_iterator it = moduleToIdBranches.begin(),
          itEnd = moduleToIdBranches.end();
        it != itEnd;
        ++it) {
     std::ostringstream sout;
     sout << "Module: " << it->first.second << " " << it->first.first << std::endl;
     IdToBranches const& idToBranches = it->second;
-    for (IdToBranches::const_iterator itIdBranch = idToBranches.begin(),
+    for(IdToBranches::const_iterator itIdBranch = idToBranches.begin(),
            itIdBranchEnd = idToBranches.end();
          itIdBranch != itIdBranchEnd;
          ++itIdBranch) {
       sout << " PSet id:" << itIdBranch->first << std::endl;
       sout << " products: {" << std::endl;
       std::set<edm::BranchID> branchIDs;
-      for (std::vector<edm::BranchDescription>::const_iterator itBranch = itIdBranch->second.begin(),
+      for(std::vector<edm::BranchDescription>::const_iterator itBranch = itIdBranch->second.begin(),
              itBranchEnd = itIdBranch->second.end();
            itBranch != itBranchEnd;
            ++itBranch) {
@@ -744,7 +742,7 @@ ProvenanceDumper::work_() {
       sout << " }" << std::endl;
       edm::ParameterSetID psid(itIdBranch->first);
       ParameterSetMap::const_iterator itpsm = psm_.find(psid);
-      if (psm_.end() == itpsm) {
+      if(psm_.end() == itpsm) {
         ++errorCount_;
         errorLog_ << "No ParameterSetID for " << psid << std::endl;
         exitCode_ = 1;
@@ -758,24 +756,28 @@ ProvenanceDumper::work_() {
 
         sout << " dependencies: {" << std::endl;
         std::set<edm::ParentageID> parentageIDs;
-        for(std::set<edm::BranchID>::const_iterator itBranch = branchIDs.begin(), itBranchEnd=branchIDs.end();
+        for(std::set<edm::BranchID>::const_iterator itBranch = branchIDs.begin(), itBranchEnd = branchIDs.end();
             itBranch != itBranchEnd;
             ++itBranch) {
           std::set<edm::ParentageID> const& temp = perProductParentage[*itBranch];
           parentageIDs.insert(temp.begin(), temp.end());
         }
-        for(std::set<edm::ParentageID>::const_iterator itParentID = parentageIDs.begin(), itEndParentID=parentageIDs.end();
+        for(std::set<edm::ParentageID>::const_iterator itParentID = parentageIDs.begin(), itEndParentID = parentageIDs.end();
             itParentID != itEndParentID;
             ++itParentID) {
-          edm::Parentage const* parentage = registry.getMapped(*itParentID);
-          if(0!=parentage) {
-            for(std::vector<edm::BranchID>::const_iterator itBranch=parentage->parents().begin(), itEndBranch=parentage->parents().end();
-                itBranch != itEndBranch;
-                ++itBranch) {
-              sout << "  " << branchIDToBranchName[*itBranch] << std::endl;
-            }
+          if(*itParentID == invalidParentageID) {
+            sout << "  parentage info not supported for this product" << std::endl;
           } else {
-            sout << "  ERROR:parentage info not in registry ParentageID=" << *itParentID << std::endl;
+            edm::Parentage const* parentage = registry.getMapped(*itParentID);
+            if(0 != parentage) {
+              for(std::vector<edm::BranchID>::const_iterator itBranch = parentage->parents().begin(), itEndBranch = parentage->parents().end();
+                  itBranch != itEndBranch;
+                  ++itBranch) {
+                sout << "  " << branchIDToBranchName[*itBranch] << std::endl;
+              }
+            } else {
+              sout << "  ERROR:parentage info not in registry ParentageID=" << *itParentID << std::endl;
+            }
           }
         }
         if(parentageIDs.empty()) {
@@ -797,11 +799,10 @@ ProvenanceDumper::work_() {
     std::cout << "---------EventSetup---------" << std::endl;
     historyGraph_.printEventSetupHistory(psm_, findMatch_, errorLog_);
   }
-  if (errorCount_ != 0) {
+  if(errorCount_ != 0) {
     exitCode_ = 1;
   }
 }
-
 
 static char const* const kSortOpt = "sort";
 static char const* const kSortCommandOpt = "sort,s";
@@ -815,13 +816,11 @@ static char const* const kFindMatchOpt = "findMatch";
 static char const* const kFindMatchCommandOpt = "findMatch,f";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
-static char const* const kFileNameOpt ="input-file";
-static char const* const kFileNameCommandOpt ="input-file";
-
+static char const* const kFileNameOpt = "input-file";
+static char const* const kFileNameCommandOpt = "input-file";
 
 int main(int argc, char* argv[]) {
   using namespace boost::program_options;
-
 
   std::string descString(argv[0]);
   descString += " [options] <filename>";
@@ -852,7 +851,6 @@ int main(int argc, char* argv[]) {
   positional_options_description p;
   p.add(kFileNameOpt, -1);
 
-
   variables_map vm;
   try {
     store(command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
@@ -873,17 +871,17 @@ int main(int argc, char* argv[]) {
 
   bool showDependencies = false;
   if(vm.count(kDependenciesOpt)) {
-    showDependencies=true;
+    showDependencies = true;
   }
 
   bool excludeESModules = false;
   if(vm.count(kExcludeESModulesOpt)) {
-    excludeESModules=true;
+    excludeESModules = true;
   }
 
   bool showAllModules = false;
   if(vm.count(kShowAllModulesOpt)) {
-    showAllModules=true;
+    showAllModules = true;
   }
 
   std::string fileName;
