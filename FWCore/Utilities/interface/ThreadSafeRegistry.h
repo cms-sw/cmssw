@@ -25,6 +25,7 @@
 ///  the value of 'm'.
 // ----------------------------------------------------------------------
 
+#pragma GCC visibility push(default)
 namespace edm {
   namespace detail {
     struct empty { };
@@ -293,5 +294,5 @@ namespace edm {
 
   } // namespace detail
 } // namespace edm
-
+#pragma GCC visibility pop
 #endif //  FWCore_Utilities_ThreadSafeRegistry_h
