@@ -54,8 +54,8 @@ ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
     for (int j = 0; j < 2; ++j) 
       hTiming_[i][j] = 0;
 
-  fit_ = new TF1("fit", fitf, -200, 200, 2);
-  fit_->SetParameters(50, 10);
+  fit_ = new TF1("fit", fitf, -200, 200, 4);
+  fit_->SetParameters(50, 10, 0, 0);
   
   dqmStore_->setCurrentFolder(prefixME_ + "/ESTimingTask");
   
@@ -91,6 +91,8 @@ void ESTimingTask::endJob() {
 }
 
 void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
+
+  set(iSetup);
 
    runNum_ = e.id().run();
    eCount_++;
@@ -137,6 +139,8 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
        if (int(status) == 0) {
 	 TGraph *gr = new TGraph(3, tx, adc);
 	 fit_->SetParameters(50, 10, wc_, n_);
+	 fit_->FixParameter(2, wc_);
+	 fit_->FixParameter(3, n_);
 	 gr->Fit("fit", "MQ");
 	 fit_->GetParameters(para); 
 	 delete gr;
