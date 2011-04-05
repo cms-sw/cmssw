@@ -73,11 +73,7 @@ if(defined $detail){$detail=1;}
 else{$detail=0;}
 
 if(defined $skipheaders){$skipheaders=1;}
-else
-{
-  print "MSG:Forcing skipheaders. Current version of include checker do to support checking of header files.\n";
-  $skipheaders=1;
-}
+else{$skipheaders=0;}
 
 if(defined $recursive){$recursive=1;}
 else{$recursive=0;}
