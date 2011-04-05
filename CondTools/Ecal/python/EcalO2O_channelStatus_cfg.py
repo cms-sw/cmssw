@@ -55,7 +55,7 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalChannelStatusAnalyzer",
         OnlineDBUser = cms.string('cms_ecal_r'),
         debug = cms.bool(True),
         Location = cms.string('P5_Co'),
-        OnlineDBPassword = cms.string('3c4l_r34d3r'),
+        OnlineDBPassword = cms.string('******'),
         OnlineDBSID = cms.string('cms_testbeam'),
         )
 )
