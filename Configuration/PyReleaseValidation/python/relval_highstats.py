@@ -68,4 +68,4 @@ workflows[131]=['',['SinglePiPt100','DIGI1','RECO1']]
 workflows[132]=['',['LM9p','DIGI2','RECO2']]
 workflows[133]=['',['RSGrav','DIGI2','RECO2']]
 
-#workflows[134] #dropped
+workflows[134]=['MinimumBiasBS',['MinimumBias2010B','RECOD','ALCAPROMPT','ALCAHARVD']]

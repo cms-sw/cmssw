@@ -329,7 +329,7 @@ step2['DIGIPU2']=merge([step2['DIGI2'],PU2])
 #addForAll(step2,{'--process':'DIGI'})
 
 dataReco={'--conditions':'auto:com10',
-          '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias,DQM',
+          '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM',
           '--datatier':'RECO,DQM',
           '--eventcontent':'RECO,DQM',
           '--data':'',
@@ -382,7 +382,11 @@ step3['ALCACOSD']={'--conditions':'auto:com10',
                    '--scenario':'cosmics',
                    '-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'
                    }
-
+step3['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
+                     '--filein':'file:TkAlMinBias.root',
+                     '--conditions':'auto:com10',
+                     '--datatier':'ALCARECO',
+                     '--eventcontent':'ALCARECO'}
    
 # step4
 step4Defaults = { 'cfg'           : 'step4',
@@ -402,6 +406,12 @@ step4['ALCAQCD']=merge([{'-s':'ALCA:HcalCalIsoTrk+HcalCalDijets+HcalCalHO'},stCo
 step4['ALCAMU']=merge([{'-s':'ALCA:MuAlOverlaps+TkAlMuonIsolated+TkAlZMuMu'},stCond,step4Defaults])
 step4['ALCACOS']=merge([{'-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics'},stCond,step4Defaults])
 step4['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},stCond,step4Defaults])
+
+step4['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi',
+                    '--conditions':'auto:com10',
+                    '--scenario':'pp',
+                    '--data':'',
+                    '--filein':'file:PromptCalibProd.root'}
 
 step2['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','cfg':'step2'},step4Defaults])
 step2['HARVGEN']={'-s':'HARVESTING:genHarvesting',
