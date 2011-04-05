@@ -30,8 +30,10 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 ## to write in offline DB:
 #process.CondDBCommon.connect = cms.string('oracle://cms_orcon_prod/CMS_COND_34X_ECAL')
-process.CondDBCommon.connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_ECAL')
-#process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/nfshome0/xiezhen/conddb')
+#process.CondDBCommon.connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_ECAL')
+
+process.CondDBCommon.connect = cms.string('sqlite_file:DB_tpg.db')
+
 process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/nfshome0/popcondev/conddb')
 
 ## to write in sql file:
@@ -43,55 +45,67 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 #    catalog = cms.untracked.string('file:PoolFileCatalog_DB.xml'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGPedestalsRcd'),
-        tag = cms.string('EcalTPGPedestals_beamv5_startup_v4_mc')
+        tag = cms.string('EcalTPGPedestals_test_2011')
     ), 
         cms.PSet(
             record = cms.string('EcalTPGLinearizationConstRcd'),
-            tag = cms.string('EcalTPGLinearizationConst_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGLinearizationConst_test_2011')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGSlidingWindowRcd'),
-            tag = cms.string('EcalTPGSlidingWindow_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGSlidingWindow_test_2011')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainEBIdMapRcd'),
-            tag = cms.string('EcalTPGFineGrainEBIdMap_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGFineGrainEBIdMap_test_2011')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainStripEERcd'),
-            tag = cms.string('EcalTPGFineGrainStripEE_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGFineGrainStripEE_test_2011')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainTowerEERcd'),
-            tag = cms.string('EcalTPGFineGrainTowerEE_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGFineGrainTowerEE_test_2011')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGLutIdMapRcd'),
-            tag = cms.string('EcalTPGLutIdMap_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGLutIdMap_test_2011')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGWeightIdMapRcd'),
-            tag = cms.string('EcalTPGWeightIdMap_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGWeightIdMap_test_2011')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGWeightGroupRcd'),
-            tag = cms.string('EcalTPGWeightGroup_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGWeightGroup_test_2011')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGLutGroupRcd'),
-            tag = cms.string('EcalTPGLutGroup_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGLutGroup_test_2011')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGFineGrainEBGroupRcd'),
-            tag = cms.string('EcalTPGFineGrainEBGroup_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGFineGrainEBGroup_test_2011')
         ), 
         cms.PSet(
             record = cms.string('EcalTPGPhysicsConstRcd'),
-            tag = cms.string('EcalTPGPhysicsConst_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGPhysicsConst_test_2011')
         ),
 	cms.PSet(
             record = cms.string('EcalTPGSpikeRcd'),
-            tag = cms.string('EcalTPGSpike_beamv5_startup_v4_mc')
+            tag = cms.string('EcalTPGSpike_test_2011')
+        ),
+        cms.PSet(
+            record = cms.string('EcalTPGCrystalStatusRcd'),
+            tag = cms.string('EcalTPGCrystalStatus_test_2011')
+        ),
+        cms.PSet(
+            record = cms.string('EcalTPGTowerStatusRcd'),
+            tag = cms.string('EcalTPGTowerStatus_test_2011')
+        ),
+        cms.PSet(
+            record = cms.string('EcalTPGStripStatusRcd'),
+            tag = cms.string('EcalTPGStripStatus_test_2011')
         ))
 )
 
@@ -148,6 +162,18 @@ process.dbCopy = cms.EDAnalyzer("EcalTPGDBCopy",
 	cms.PSet(
             record = cms.string('EcalTPGSpikeRcd'),
             container = cms.string('EcalTPGSpike')
+        ),
+	cms.PSet(
+            record = cms.string('EcalTPGCrystalStatusRcd'),
+            container = cms.string('EcalTPGCrystalStatus')
+        ),
+	cms.PSet(
+            record = cms.string('EcalTPGTowerStatusRcd'),
+            container = cms.string('EcalTPGTowerStatus')
+        ),
+	cms.PSet(
+            record = cms.string('EcalTPGStripStatusRcd'),
+            container = cms.string('EcalTPGStripStatus')
         ))
 )
 
