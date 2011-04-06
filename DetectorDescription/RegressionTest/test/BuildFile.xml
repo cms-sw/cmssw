@@ -17,6 +17,14 @@
   <use name="DetectorDescription/RegressionTest"/>
 </bin>
 
+<bin file="DDCompareCPV.cpp">
+  <use name="FWCore/PluginManager"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/Parser"/>
+  <use name="boost_program_options"/>
+  <use name="DetectorDescription/RegressionTest"/>
+</bin>
+
 <bin file="html_ddd.cpp">
   <flags NO_TESTRUN="1"/>
   <use name="FWCore/PluginManager"/>
