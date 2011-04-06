@@ -925,6 +925,16 @@ class PickRelValInputFiles( ConfigToolBase ):
         command   = ''
         storage   = ''
         domain    = socket.getfqdn().split( '.' )
+        if len( domain ) == 0:
+            print '%s INFO : Cannot determine domain of this computer'%( self._label )
+            if debug:
+                self.messageEmptyList()
+            return filePaths
+        elif len( domain ) == 1:
+            print '%s INFO : Running on local host \'%s\' without direct access to RelVal files'%( self._label, domain[ 0 ] )
+            if debug:
+                self.messageEmptyList()
+            return filePaths
         if domain[ -2 ] == 'cern' and domain[ -1 ] == 'ch':
             command = 'nsls'
             storage = '/castor/cern.ch/cms'
