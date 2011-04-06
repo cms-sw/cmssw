@@ -180,9 +180,11 @@ StorageFactory::open (const std::string &url, int mode /* = IOFlags::OpenRead */
     }
     catch (cms::Exception &err)
     {
-      throw cms::Exception("StorageFactory::open()")
-	<< "Failed to open the file '" << url << "' because:\n"
-	<< err;
+      err.addContext("Calling StorageFactory::open()");
+      err.addAdditionalInfo(err.message());
+      err.clearMessage();
+      err << "Failed to open the file '" << url << "'";
+      throw;
     }
   } 
   return ret;

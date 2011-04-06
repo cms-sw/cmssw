@@ -85,9 +85,11 @@ namespace edm {
                                                    IOFlags::OpenRead));
       }
       catch (cms::Exception& e) {
-        throw Exception(errors::FileOpenError,"StreamerInputFile::openStreamerFile")
-          << "Error Opening Streamer Input File: " << name << "\n"
-          << e.explainSelf() << "\n";
+        Exception ex(errors::FileOpenError, "", e);
+        ex.addContext("Calling StreamerInputFile::openStreamerFile()");
+        ex.clearMessage();
+        ex <<  "Error Opening Streamer Input File: " << name << "\n";
+        throw ex;
       }
     }
     else {
@@ -105,9 +107,9 @@ namespace edm {
       n = storage_->read(buf, nBytes);
     }
     catch (cms::Exception& ce) {
-      throw Exception(errors::FileReadError, "StreamerInputFile::readBytes")
-        << "Failed reading streamer file in function readBytes\n"
-        << ce.explainSelf() << "\n";
+      Exception ex(errors::FileReadError, "", ce);
+      ex.addContext("Calling StreamerInputFile::readBytes()");
+      throw ex;
     }
     return n;
   }
@@ -120,9 +122,9 @@ namespace edm {
       n = storage_->position(nBytes, Storage::CURRENT) - n;
     }
     catch (cms::Exception& ce) {
-      throw Exception(errors::FileReadError, "StreamerInputFile::skipBytes")
-        << "Failed reading streamer file in function skipBytes\n"
-        << ce.explainSelf() << "\n";
+      Exception ex(errors::FileReadError, "", ce);
+      ex.addContext("Calling StreamerInputFile::skipBytes()");
+      throw ex;
     }
     return n;
   }

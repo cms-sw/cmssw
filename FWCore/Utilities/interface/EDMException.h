@@ -8,14 +8,6 @@
  from developer thrown exception types. As such there is very little
  interface other than constructors specific to this derived type.
 
- This is the initial version of the framework/edm error
- and action codes.  Should the error/action lists be completely
- dynamic?  Should they have this fixed part and allow for dynamic
- expansion?  The answer is not clear right now and this will suffice
- for the first version.
-
- Will ErrorCodes be used as return codes?  Unknown at this time.
-
 **/
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -34,6 +26,10 @@ namespace edm {
     // fragment FWCore/Framework/test/cmsExceptionsFatalOption.cff.
 
     enum ErrorCodes {
+       CommandLineProcessing = 7000,
+       ConfigFileNotFound = 7001,
+       ConfigFileReadError = 7002,
+
        OtherCMS = 8001,
        StdException = 8002,
        Unknown = 8003,
@@ -76,16 +72,16 @@ namespace edm {
     explicit Exception(Code category);
 
     Exception(Code category, std::string const& message);
+    Exception(Code category, char const*        message);
 
     Exception(Code category, std::string const& message, cms::Exception const& another);
+    Exception(Code category, char const*        message, cms::Exception const& another);
 
     Exception(Exception const& other);
 
     virtual ~Exception() throw();
 
     Code categoryCode() const { return category_; }
-
-    int returnCode() const { return static_cast<int>(category_); }
 
     static std::string codeToString(Code);
 
@@ -98,13 +94,16 @@ namespace edm {
 			  char const* message3 = "",
 			  char const* message4 = "");
     static void throwThis(Code category, char const* message0, int intVal, char const* message2 = "");
+
+    virtual Exception* clone() const;
+
   private:
 
     virtual void rethrow();
+    virtual int returnCode_() const;
 
     Code category_;
   };
-
 }
 
 #endif

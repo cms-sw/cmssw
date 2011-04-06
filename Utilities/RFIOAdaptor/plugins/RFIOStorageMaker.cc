@@ -142,18 +142,24 @@ public:
     int nresp = 0;
     stage_prepareToGet_fileresp *resp = 0;
     int rc = stage_prepareToGet(0, &req, 1, &resp, &nresp, 0, &opts);
-    if (rc < 0)
-      throw cms::Exception("RFIOStorageMaker::stagein()")
-	<< "Error while staging in '" << stagepath
-        << "', error was: " << rfio_serror()
-        << " (serrno=" << serrno << ")";
+    if (rc < 0) {
+      cms::Exception ex("FileStageInError");
+      ex << "Error while staging in '" << stagepath
+         << "', error was: " << rfio_serror()
+         << " (serrno=" << serrno << ")";
+      ex.addContext("Calling RFIOStorageMaker::stagein()");
+      throw ex;
+    }
 
-    if (nresp == 1 && resp->errorCode != 0)
-      throw cms::Exception("RFIOStorageMaker::stagein()")
-	<< "Error while staging in '" << stagepath
-        << "', stagein error was: " << resp->errorMessage
-        << " (code=" << resp->errorCode << ")";
-      
+    if (nresp == 1 && resp->errorCode != 0) {
+      cms::Exception ex("FileStageInError");
+      ex << "Error while staging in '" << stagepath
+         << "', stagein error was: " << resp->errorMessage
+         << " (code=" << resp->errorCode << ")";
+      ex.addContext("Calling RFIOStorageMaker::stagein()");
+      throw ex;
+    }
+
     free(resp->filename);
     free(resp->errorMessage);
     free(resp);

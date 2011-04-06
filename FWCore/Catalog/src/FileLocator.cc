@@ -66,7 +66,7 @@ namespace edm {
       //      << "Exception message is:  \n"
       //      << _toString(e.getMessage()) <<
       throw
-        cms::Exception(std::string("Fatal Error on edm::FileLocator:")+ _toString(e.getMessage()));
+        cms::Exception("TrivialFileCatalog", std::string("Fatal Error on edm::FileLocator:")+ _toString(e.getMessage()));
     }
     ++s_numberOfInstances;
 
@@ -105,7 +105,7 @@ namespace edm {
   void
   FileLocator::parseRule(DOMNode* ruleNode, ProtocolRules& rules) {
     if (!ruleNode) {
-      throw cms::Exception(std::string("TrivialFileCatalog::connect: Malformed trivial catalog"));
+      throw cms::Exception("TrivialFileCatalog", std::string("TrivialFileCatalog::connect: Malformed trivial catalog"));
     }
 
     // ruleNode is actually always a DOMElement because it's the result of
@@ -141,7 +141,7 @@ namespace edm {
     if (m_url.empty()) {
       Service<SiteLocalConfig> localconfservice;
       if (!localconfservice.isAvailable())
-              throw cms::Exception("edm::SiteLocalConfigService is not available");
+              throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available");
 
       m_url = (fallback ? localconfservice->fallbackDataCatalog() : localconfservice->dataCatalog());
     }
@@ -149,7 +149,7 @@ namespace edm {
     // std::cout << "Connecting to the catalog " << m_url << std::endl;
 
     if (m_url.find("file:") == std::string::npos) {
-      throw cms::Exception("TrivialFileCatalog::connect: Malformed url for file catalog configuration");
+      throw cms::Exception("TrivialFileCatalog", "TrivialFileCatalog::connect: Malformed url for file catalog configuration");
     }
 
     m_url = m_url.erase(0, m_url.find(":") + 1);
@@ -172,7 +172,7 @@ namespace edm {
         boost::algorithm::split(argTokens, option, boost::is_any_of(equalSign));
 
         if (argTokens.size() != 2) {
-          throw  cms::Exception("TrivialFileCatalog::connect: Malformed url for file catalog configuration");
+          throw  cms::Exception("TrivialFileCatalog", "TrivialFileCatalog::connect: Malformed url for file catalog configuration");
         }
 
         if (argTokens[0] == "protocol") {
@@ -184,7 +184,7 @@ namespace edm {
     }
 
     if (m_protocols.empty()) {
-      throw cms::Exception("TrivialFileCatalog::connect: protocol was not supplied in the contact string");
+      throw cms::Exception("TrivialFileCatalog", "TrivialFileCatalog::connect: protocol was not supplied in the contact string");
     }
 
     std::ifstream configFile;
@@ -194,7 +194,7 @@ namespace edm {
     // std::cout << "Using catalog configuration " << m_filename << std::endl;
 
     if (!configFile.good() || !configFile.is_open()) {
-      throw cms::Exception("TrivialFileCatalog::connect: Unable to open trivial file catalog " + m_filename);
+      throw cms::Exception("TrivialFileCatalog", "TrivialFileCatalog::connect: Unable to open trivial file catalog " + m_filename);
     }
 
     configFile.close();

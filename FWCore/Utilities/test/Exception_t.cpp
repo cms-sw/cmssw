@@ -4,9 +4,8 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
-#include <assert.h>
-
-using namespace cms;
+#include <cstdlib>
+#include <memory>
 
 struct Thing
 {
@@ -21,9 +20,9 @@ std::ostream& operator<<(std::ostream& os, const Thing& t)
   return os;
 }
 
-const char expected[] =   "---- InfiniteLoop BEGIN\n"
+const char expected[] =   "An exception of category 'InfiniteLoop' occurred.\n"
+                           "Exception Message:\n"
 			   "In func1\n"
-			   "---- DataCorrupt BEGIN\n"
 			   "This is just a test: \n"
 			   "double: 1.11111\n"
 			   "float:  2.22222\n"
@@ -37,9 +36,7 @@ const char expected[] =   "---- InfiniteLoop BEGIN\n"
 			   "float:  2.22e+00\n"
 			   "char*:  ..a nonconst pointer\n"
 			   "\n"
-			   "---- DataCorrupt END\n"
-			   "Gave up\n"
-			   "---- InfiniteLoop END\n";
+			   "Gave up\n";
 
 void func3()
 {
@@ -77,76 +74,248 @@ void func2()
 
 void func1()
 {
-  try 
-    {
-      func2();
-    }
-  catch (Exception& e)
-    {
-      throw Exception("InfiniteLoop","In func1",e) << "Gave up";
-    }
-  
+  try {
+    func2();
+  }
+  catch (cms::Exception& e) {
+    cms::Exception toThrow("InfiniteLoop", "In func1", e);
+    toThrow << "Gave up";
+    throw toThrow;
+  }  
 }
-
-// const char answer[] = 
-//   "---- InfiniteLoop BEGIN\n"
-//   "In func2\n"
-//   "---- DataCorrupt BEGIN\n"
-//   "This is just a test: \n" 
-//   "double: 1.11111\n"
-//   "float:  2.22222\n"
-//   "uint:   4294967295\n"
-//   "string: a string\n"
-//   "char*:  a nonconst pointer\n"
-//   "char[]: a c-style array\n"
-//   "Thing:  Thing(4)\n"
-//   "\n"
-//   "double: 1.111110e+00\n"
-//   "float:  2.22e+00\n"
-//   "uint:   4294967295\n"
-//   "string: a string\n"
-//   "char*:  ..a nonconst pointer\n"
-//   "char[]: a c-style array\n"
-//   "Thing:  Thing(4)\n"
-//   "---- DataCorrupt END\n"
-//   "Gave up\n"
-//   "---- InfiniteLoop END\n"
-
-const char* correct[] = { "InfiniteLoop","DataCorrupt" };
 
 int main()
 {
   try {
-      func1();
+    func1();
   }
-  catch (Exception& e) {
-      std::cerr << "*** main caught Exception, output is ***\n"
-	   << "(" << e.explainSelf() << ")"
-	   << "*** After exception output ***"
-	   << std::endl;
+  catch (cms::Exception& e) {
+    std::cerr << "*** main caught Exception, output is ***\n"
+              << e.explainSelf()
+	      << "*** After exception output ***" << std::endl;
 
-
-      if(e.explainSelf() != expected) {
-	  std::cerr << "not right answer\n(" << expected << ")\n"
-	       << std::endl;
-	  abort();
-      }
-
-
-      std::cerr << "\nCategory name list:\n";
-
-      Exception::CategoryList::const_iterator i(e.history().begin()),
-	b(e.history().end());
-      
-      //if(e.history().size() !=2) abort();
-      assert (e.history().size() == 2);
-
-      for(int j=0; i != b; ++i,++j) {
-	std::cout << "  " << *i << "\n";
-	if(*i != correct[j]) {
-	  std::cerr << "bad category " << *i << std::endl; abort();
-        }
-      }
+    if (e.explainSelf() != expected ||
+        e.explainSelf() != std::string(e.what())) {
+      std::cerr << "The output does not match the expected output.\n"
+                << "The expected output is:\n"
+                << expected << std::endl;
+      abort();
     }
+  }
+
+  cms::Exception e1("ABC");
+  cms::Exception e1s(std::string("ABC"));
+  std::cerr << e1.what() << std::endl;
+  if (e1.explainSelf() != std::string("An exception of category 'ABC' occurred.\n")) {
+    abort();
+  }
+  if (e1.explainSelf() != e1s.explainSelf()) {
+    abort();
+  }
+
+  cms::Exception e2("ABC", "foo");
+  cms::Exception e2cs("ABC", std::string("foo"));
+  cms::Exception e2sc(std::string("ABC"), "foo");
+  cms::Exception e2ss(std::string("ABC"), std::string("foo"));
+  e2 << "bar";
+  e2cs << "bar";
+  e2sc << "bar";
+  e2ss << "bar";
+  std::cerr << e2.what() << std::endl;
+  if (e2.explainSelf() != std::string("An exception of category 'ABC' occurred.\n"
+                                      "Exception Message:\n"
+                                      "foo bar\n")) {
+    abort();
+  }
+  if (e2.explainSelf() != e2cs.explainSelf()) {
+    abort();
+  }
+  if (e2.explainSelf() != e2sc.explainSelf()) {
+    abort();
+  }
+  if (e2.explainSelf() != e2ss.explainSelf()) {
+    abort();
+  }
+
+  cms::Exception e3("ABC", "foo ");
+  e3 << "bar\n";
+  std::cerr << "e3\n" << e3.explainSelf() << std::endl;
+  if (e3.explainSelf() != std::string("An exception of category 'ABC' occurred.\n"
+                                      "Exception Message:\n"
+                                      "foo bar\n")) {
+    abort();
+  }
+
+  cms::Exception e4("ABC", "foo\n");
+  e4 << "bar";
+  std::cerr << "e4\n" << e4.explainSelf() << std::endl;
+  if (e4.explainSelf() != std::string("An exception of category 'ABC' occurred.\n"
+                                      "Exception Message:\n"
+                                      "foo\nbar\n")) {
+    abort();
+  }
+
+  e2.addContext("context1");
+  e2.addContext(std::string("context2"));
+  e2.addAdditionalInfo("info1");
+  e2.addAdditionalInfo(std::string("info2"));
+  std::cerr << e2.explainSelf() << std::endl;
+  if (e2.explainSelf() != std::string("An exception of category 'ABC' occurred while\n"
+                                      "   [0] context2\n"
+                                      "   [1] context1\n"
+                                      "Exception Message:\n"
+                                      "foo bar\n"
+                                      "   Additional Info:\n"
+                                      "      [a] info2\n"
+                                      "      [b] info1\n")) {
+    abort();
+  }
+
+  cms::Exception e5("DEF", "start\n", e2);
+  cms::Exception e6("DEF", "start", e2);
+  std::string expected5("An exception of category 'DEF' occurred while\n"
+                        "   [0] context2\n"
+                        "   [1] context1\n"
+                        "Exception Message:\n"
+                        "start\n"
+                        "foo bar"
+                        "finish\n"
+                        "   Additional Info:\n"
+                        "      [a] info2\n"
+                        "      [b] info1\n");
+  e5 << "finish";
+  e6 << "finish";
+  std::cerr << e5.explainSelf() << std::endl;
+  cms::Exception e7(e6);
+  if (e7.explainSelf() != expected5) {
+    abort();
+  }
+
+  if (e7.category() != std::string("DEF")) {
+    abort();
+  }
+  if (e7.message() != std::string("start\n"
+                                  "foo bar"
+                                  "finish")) {
+    abort();
+  }
+  e7.clearContext();
+  std::string expected7_1("An exception of category 'DEF' occurred.\n"
+                          "Exception Message:\n"
+                          "start\n"
+                          "foo bar"
+                          "finish\n"
+                          "   Additional Info:\n"
+                          "      [a] info2\n"
+                          "      [b] info1\n");
+  if (e7.explainSelf() != expected7_1) {
+    abort();
+  }
+  std::list<std::string> newContext;
+  newContext.push_back("new1");
+  newContext.push_back("new2");
+  newContext.push_back("new3");
+  e7.setContext(newContext);
+  std::cerr << e7;
+  if (e7.context() != newContext) {
+    abort();
+  }
+
+  e7.clearAdditionalInfo();
+  std::string expected7_2("An exception of category 'DEF' occurred while\n"
+                          "   [0] new3\n"
+                          "   [1] new2\n"
+                          "   [2] new1\n"
+                          "Exception Message:\n"
+                          "start\n"
+                          "foo bar"
+                          "finish\n");
+  if (e7.explainSelf() != expected7_2) {
+    abort();
+  }
+  std::list<std::string> newAdditionalInfo;
+  newAdditionalInfo.push_back("newInfo1");
+  newAdditionalInfo.push_back("newInfo2");
+  newAdditionalInfo.push_back("newInfo3");
+  e7.setAdditionalInfo(newAdditionalInfo);
+  std::cerr << e7;
+  if (e7.additionalInfo() != newAdditionalInfo) {
+    abort();
+  }
+  std::string expected7_3("An exception of category 'DEF' occurred while\n"
+                          "   [0] new3\n"
+                          "   [1] new2\n"
+                          "   [2] new1\n"
+                          "Exception Message:\n"
+                          "start\n"
+                          "foo bar"
+                          "finish\n"
+                          "   Additional Info:\n"
+                          "      [a] newInfo3\n"
+                          "      [b] newInfo2\n"
+                          "      [c] newInfo1\n");
+  if (e7.explainSelf() != expected7_3) {
+    abort();
+  }
+  if (e7.returnCode() != 8001) {
+    abort();
+  }
+  e7.append(std::string(" X"));
+  e7.append("Y");
+  cms::Exception e8("ZZZ", "Z");
+  e7.append(e8);
+  std::string expected7_4("An exception of category 'DEF' occurred while\n"
+                          "   [0] new3\n"
+                          "   [1] new2\n"
+                          "   [2] new1\n"
+                          "Exception Message:\n"
+                          "start\n"
+                          "foo bar"
+                          "finish XYZ \n"
+                          "   Additional Info:\n"
+                          "      [a] newInfo3\n"
+                          "      [b] newInfo2\n"
+                          "      [c] newInfo1\n");
+  std::cerr << e7;
+  if (e7.explainSelf() != expected7_4) {
+    abort();
+  }
+  std::auto_ptr<cms::Exception> ptr(e7.clone());
+  e7.clearMessage();
+  std::string expected7_5("An exception of category 'DEF' occurred while\n"
+                          "   [0] new3\n"
+                          "   [1] new2\n"
+                          "   [2] new1\n"
+                          "   Additional Info:\n"
+                          "      [a] newInfo3\n"
+                          "      [b] newInfo2\n"
+                          "      [c] newInfo1\n");
+  std::cerr << e7;
+  if (e7.explainSelf() != expected7_5) {
+    abort();
+  }
+
+  try {
+    ptr->raise();
+  }
+  catch (cms::Exception & ex) {
+    ex << "last one ";
+    std::cerr << ex;
+    std::string expected7_6("An exception of category 'DEF' occurred while\n"
+                            "   [0] new3\n"
+                            "   [1] new2\n"
+                            "   [2] new1\n"
+                            "Exception Message:\n"
+                            "start\n"
+                            "foo bar"
+                            "finish XYZ last one \n"
+                            "   Additional Info:\n"
+                            "      [a] newInfo3\n"
+                            "      [b] newInfo2\n"
+                            "      [c] newInfo1\n");
+    if (ex.explainSelf() != expected7_6) {
+      abort();
+    }
+  }
   return 0; 
 }

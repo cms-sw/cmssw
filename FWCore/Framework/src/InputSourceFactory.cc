@@ -37,17 +37,7 @@ namespace edm {
     std::string modtype = conf.getParameter<std::string>("@module_type");
     FDEBUG(1) << "InputSourceFactory: module_type = " << modtype << std::endl;
     std::auto_ptr<InputSource> wm;
-    try {
-      wm = std::auto_ptr<InputSource>(InputSourcePluginFactory::get()->create(modtype,conf,desc));
-    }
-    catch(edm::Exception& ex) {
-      ex << "\nError occurred while creating source " << modtype << "\n";
-      throw;
-    }
-    catch(cms::Exception& e) {
-      e << "\nError occurred while creating source " << modtype << "\n";
-      throw;
-    }
+    wm = std::auto_ptr<InputSource>(InputSourcePluginFactory::get()->create(modtype,conf,desc));
     
     if(wm.get()==0) {
 	throw edm::Exception(errors::Configuration,"NoSourceModule")

@@ -252,7 +252,7 @@ namespace edm {
 	                                       iEnd = diffNames.end();
          iter != iEnd;
          ++iter) {
-      ss << " \"" << *iter <<  "\"\n";
+      ss << " '" << *iter <<  "'\n";
     }
     if (diffNames.size() == 1U) {
       throw edm::Exception(errors::Configuration)

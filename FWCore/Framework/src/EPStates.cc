@@ -70,12 +70,8 @@ namespace statemachine {
         closeFiles();
       }
       catch (...) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up after the primary fatal exception.\n"
-                << " We give up trying to clean up at this point.\n";
-        std::string msg(message.str());
-        ep_.setExceptionMessageFiles(msg);
+        std::string message("Another exception was caught while trying to clean up files after the primary fatal exception.\n");
+        ep_.setExceptionMessageFiles(message);
       }
     }
   }
@@ -225,49 +221,9 @@ namespace statemachine {
       try {
         finalizeRun();
       }
-      catch (cms::Exception& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up runs after\n" 
-                << "the primary exception.  We give up trying to clean up runs at\n"
-                << "this point.  The description of this additional exception follows:\n" 
-                << "cms::Exception\n"
-                << e.explainSelf();
-        std::string msg(message.str());
-        ep_.setExceptionMessageRuns(msg);
-      }
-      catch (std::bad_alloc& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up runs\n" 
-                << "after the primary exception.  We give up trying to clean up runs\n"
-                << "at this point.  This additional exception was a\n" 
-                << "std::bad_alloc exception thrown inside HandleRuns::finalizeRun.\n"
-                << "The job has probably exhausted the virtual memory available\n"
-                << "to the process.\n";
-        std::string msg(message.str());
-        ep_.setExceptionMessageRuns(msg);
-      }
-      catch (std::exception& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up runs after\n" 
-                << "the primary exception.  We give up trying to clean up runs at\n"
-                << "this point.  This additional exception was a\n" 
-                << "standard library exception thrown inside HandleRuns::finalizeRun\n"
-                << e.what() << "\n";
-        std::string msg(message.str());
-        ep_.setExceptionMessageRuns(msg);
-      }
       catch (...) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up runs after\n" 
-                << "the primary exception.  We give up trying to clean up runs at\n"
-                << "this point.  This additional exception was of unknown type and\n" 
-                << "thrown inside HandleRuns::finalizeRun\n";
-        std::string msg(message.str());
-        ep_.setExceptionMessageRuns(msg);
+        std::string message("Another exception was caught while trying to clean up runs after the primary fatal exception.\n");
+        ep_.setExceptionMessageRuns(message);
       }
     }
   }
@@ -462,49 +418,9 @@ namespace statemachine {
           finalizeLumi();
         }
       }
-      catch (cms::Exception& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis after\n" 
-                << "the primary exception.  We give up trying to clean up lumis at\n"
-                << "this point.  The description of this additional exception follows:\n" 
-                << "cms::Exception\n"
-                << e.explainSelf();
-        std::string msg(message.str());
-        ep_.setExceptionMessageLumis(msg);
-      }
-      catch (std::bad_alloc& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis\n" 
-                << "after the primary exception.  We give up trying to clean up lumis\n"
-                << "at this point.  This additional exception was a\n" 
-                << "std::bad_alloc exception thrown inside HandleLumis::finalizeLumi.\n"
-                << "The job has probably exhausted the virtual memory available\n"
-                << "to the process.\n";
-        std::string msg(message.str());
-        ep_.setExceptionMessageLumis(msg);
-      }
-      catch (std::exception& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis after\n" 
-                << "the primary exception.  We give up trying to clean up lumis at\n"
-                << "this point.  This additional exception was a\n" 
-                << "standard library exception thrown inside HandleLumis::finalizeLumi\n"
-                << e.what() << "\n";
-        std::string msg(message.str());
-        ep_.setExceptionMessageLumis(msg);
-      }
       catch (...) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis after\n" 
-                << "the primary exception.  We give up trying to clean up lumis at\n"
-                << "this point.  This additional exception was of unknown type and\n" 
-                << "thrown inside HandleLumis::finalizeLumi\n";
-        std::string msg(message.str());
-        ep_.setExceptionMessageLumis(msg);
+        std::string message("Another exception was caught while trying to clean up lumis after the primary fatal exception.\n");
+        ep_.setExceptionMessageLumis(message);
       }
     }
   }

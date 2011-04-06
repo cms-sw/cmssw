@@ -12,6 +12,8 @@
 
 // system include files
 #include <assert.h>
+#include <string>
+#include <exception>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecord.h"
@@ -19,6 +21,7 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
+#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace edm {
@@ -150,17 +153,23 @@ EventSetupRecord::getFromProxy(DataKey const & iKey ,
    const void* hold = 0;
    
    if(0!=proxy) {
-      try{
-         hold = proxy->get(*this, iKey,iTransientAccessOnly);
-         iDesc = proxy->providerDescription();
-         
-      } catch(cms::Exception& e) {
+      try {
+         try {
+            hold = proxy->get(*this, iKey,iTransientAccessOnly);
+            iDesc = proxy->providerDescription(); 
+         }
+         catch (cms::Exception& e) { throw; }
+         catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+         catch (std::exception& e) { convertException::stdToEDM(e); }
+         catch(std::string& s) { convertException::stringToEDM(s); }
+         catch(char const* c) { convertException::charPtrToEDM(c); }
+         catch (...) { convertException::unknownToEDM(); }
+      }
+      catch(cms::Exception& e) {
          addTraceInfoToCmsException(e,iKey.name().value(),proxy->providerDescription(), iKey);
          //NOTE: the above function can't do the 'throw' since it causes the C++ class type
          // of the throw to be changed, a 'rethrow' does not have that problem
          throw;
-      } catch(std::exception& e){
-         changeStdExceptionToCmsException(e.what(),iKey.name().value(),proxy->providerDescription(),iKey);
       }
    }
    return hold;   
@@ -181,14 +190,21 @@ EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
    const DataProxy* proxy = find(aKey);
    if(0 != proxy) {
       try {
-         proxy->doGet(*this, aKey, aGetTransiently);
-      } catch( cms::Exception& e) {
+         try {
+            proxy->doGet(*this, aKey, aGetTransiently);
+         }
+         catch (cms::Exception& e) { throw; }
+         catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+         catch (std::exception& e) { convertException::stdToEDM(e); }
+         catch(std::string& s) { convertException::stringToEDM(s); }
+         catch(char const* c) { convertException::charPtrToEDM(c); }
+         catch (...) { convertException::unknownToEDM(); }
+      }
+      catch( cms::Exception& e) {
          addTraceInfoToCmsException(e,aKey.name().value(),proxy->providerDescription(), aKey);
          //NOTE: the above function can't do the 'throw' since it causes the C++ class type
          // of the throw to be changed, a 'rethrow' does not have that problem
          throw;
-      } catch(std::exception& e){
-         changeStdExceptionToCmsException(e.what(),aKey.name().value(),proxy->providerDescription(),aKey);
       }
    }
    return 0 != proxy;
@@ -250,27 +266,16 @@ EventSetupRecord::validate(const ComponentDescription* iDesc, const ESInputTag& 
 void 
 EventSetupRecord::addTraceInfoToCmsException(cms::Exception& iException, const char* iName, const ComponentDescription* iDescription, const DataKey& iKey) const
 {
-   iException<<"\ncms::Exception going through EventSetup component "
-   <<iDescription->type_
-   <<"/\""<<iDescription->label_<<"\"\n"
-   <<"  while making data "<< iKey.type().name()<<"/\""<<iName
-   <<" in record \""<<this->key().type().name()<<"\"\n";
-}         
-      
-void 
-EventSetupRecord::changeStdExceptionToCmsException(const char* iExceptionWhatMessage, 
-                                                   const char* iName, 
-                                                   const ComponentDescription* iDescription, 
-                                                   const DataKey& iKey) const
-{
-   cms::Exception changedException("StdException");
-   changedException
-   << "std::exception going through EventSetup component "
-   <<iDescription->type_<<"/\""<<iDescription->label_<<"\"\n"
-   <<"  while making data "<< iKey.type().name()<<"/\""<<iName<<" in record \""<<this->key().type().name()<<"\"\n"
-   <<"  Previous information:\n  \"" << iExceptionWhatMessage<<"\"\n";
-   throw changedException;
-   
+   std::ostringstream ost;
+   ost << "Using EventSetup component "
+       << iDescription->type_
+       << "/'" << iDescription->label_
+       << "' to make data "
+       << iKey.type().name() << "/'"
+       << iName
+       << "' in record "
+       << this->key().type().name();
+   iException.addContext(ost.str());
 }         
 
 //

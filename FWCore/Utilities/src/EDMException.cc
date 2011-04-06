@@ -8,6 +8,9 @@ namespace edm {
       edm::Exception::CodeMap trans_;
     };
     FilledMap::FilledMap() : trans_() {
+      EDM_MAP_ENTRY_NONS(trans_, CommandLineProcessing);
+      EDM_MAP_ENTRY_NONS(trans_, ConfigFileNotFound);
+      EDM_MAP_ENTRY_NONS(trans_, ConfigFileReadError);
       EDM_MAP_ENTRY_NONS(trans_, OtherCMS);
       EDM_MAP_ENTRY_NONS(trans_, StdException);
       EDM_MAP_ENTRY_NONS(trans_, Unknown);
@@ -64,8 +67,18 @@ namespace edm {
     category_(aCategory) {
   }
 
+  Exception::Exception(errors::ErrorCodes aCategory, char const* message):
+    cms::Exception(codeToString(aCategory), std::string(message)),
+    category_(aCategory) {
+  }
+
   Exception::Exception(errors::ErrorCodes aCategory, std::string const& message, cms::Exception const& another):
     cms::Exception(codeToString(aCategory),message,another),
+    category_(aCategory) {
+  }
+
+  Exception::Exception(errors::ErrorCodes aCategory, char const* message, cms::Exception const& another):
+    cms::Exception(codeToString(aCategory), std::string(message), another),
     category_(aCategory) {
   }
 
@@ -75,6 +88,11 @@ namespace edm {
   }
 
   Exception::~Exception() throw() {
+  }
+
+  int
+  Exception::returnCode_() const {
+    return static_cast<int>(category_);
   }
 
   void
@@ -96,9 +114,12 @@ namespace edm {
     throw e;
   }
 
+  Exception* Exception::clone() const {
+    return new Exception(*this);
+  }
+
   void
   Exception::rethrow() {
     throw *this;
   }
-
 }

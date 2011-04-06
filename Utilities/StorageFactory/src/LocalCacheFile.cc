@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <errno.h>
+#include <sstream>
 
 static const IOOffset CHUNK_SIZE = 128*1024*1024;
 
@@ -81,9 +82,9 @@ LocalCacheFile::cache(IOOffset start, IOOffset end)
       catch (cms::Exception &e)
       {
         munmap(window, len);
-        throw cms::Exception("LocalCacheFile")
-	  << "Unable to cache " << len << " byte file segment at " << start
-	  << ": " << e.what();
+	std::ostringstream ost;
+        ost << "Unable to cache " << len << " byte file segment at " << start << ": ";
+        throw cms::Exception("LocalCacheFile", ost.str(), e);
       }
 
       munmap(window, len);

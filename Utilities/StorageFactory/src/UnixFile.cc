@@ -1,6 +1,7 @@
 #include "Utilities/StorageFactory/interface/File.h"
 #include "Utilities/StorageFactory/src/SysFile.h"
 #include "Utilities/StorageFactory/src/Throw.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include <cassert>
 
 using namespace IOFlags;
@@ -10,7 +11,7 @@ File::sysduplicate (IOFD fd)
 {
   IOFD copyfd;
   if ((copyfd = ::dup (fd)) == EDM_IOFD_INVALID)
-    throwStorageError ("File::sysduplicate()", "dup()", errno);
+    throwStorageError ("FileDuplicateError", "Calling File::sysduplicate()", "dup()", errno);
 
   return copyfd;
 }
@@ -56,7 +57,7 @@ File::sysopen (const char *name, int flags, int perms,
     openflags |= O_NOCTTY;
 
   if ((newfd = ::open (name, openflags, perms)) == -1)
-    throwStorageError ("File::sysopen()", "open()", errno);
+    throwStorageError (edm::errors::FileOpenError, "Calling File::sysopen()", "open()", errno);
 }
 
 IOSize
@@ -70,7 +71,7 @@ File::read (void *into, IOSize n, IOOffset pos)
   while (s == -1 && errno == EINTR);
 
   if (s == -1)
-    throwStorageError("File::read()", "pread()", errno);
+    throwStorageError(edm::errors::FileReadError, "Calling File::read()", "pread()", errno);
 
   return s;
 }
@@ -86,7 +87,7 @@ File::write (const void *from, IOSize n, IOOffset pos)
   while (s == -1 && errno == EINTR);
 
   if (s == -1)
-    throwStorageError("File::write()", "pwrite()", errno);
+    throwStorageError("FileWriteError", "Calling File::write()", "pwrite()", errno);
 
   if (m_flags & OpenUnbuffered)
     // FIXME: Exception handling?
@@ -103,7 +104,7 @@ File::size (void) const
 
   struct stat info;
   if (fstat (fd, &info) == -1)
-    throwStorageError("File::size()", "fstat()", errno);
+    throwStorageError("FileSizeError", "Calling File::size()", "fstat()", errno);
 
   return info.st_size;
 }
@@ -120,7 +121,7 @@ File::position (IOOffset offset, Relative whence /* = SET */)
 		       : whence == CURRENT ? SEEK_CUR
 		       : SEEK_END);
   if ((result = ::lseek (fd, offset, mywhence)) == -1)
-    throwStorageError("File::position()", "lseek()", errno);
+    throwStorageError("FilePositionError", "Calling File::position()", "lseek()", errno);
 
   return result;
 }
@@ -132,7 +133,7 @@ File::resize (IOOffset size)
   assert (fd != EDM_IOFD_INVALID);
 
   if (ftruncate (fd, size) == -1)
-    throwStorageError("File::resize()", "ftruncate()", errno);
+    throwStorageError("FileResizeError", "Calling File::resize()", "ftruncate()", errno);
 }
 
 void
@@ -143,10 +144,10 @@ File::flush (void)
 
 #if _POSIX_SYNCHRONIZED_IO > 0
   if (fdatasync (fd) == -1)
-    throwStorageError("File::flush()", "fdatasync()", errno);
+    throwStorageError("FileFlushError", "Calling File::flush()", "fdatasync()", errno);
 #elif _POSIX_FSYNC > 0
   if (fsync (fd) == -1)
-    throwStorageError("File::flush()", "fsync()", errno);
+    throwStorageError("FileFlushError", "Calling File::flush()", "fsync()", errno);
 #endif
 }
 

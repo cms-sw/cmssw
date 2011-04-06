@@ -5,14 +5,21 @@
 #include <string>
 #include <iomanip>
 #include <typeinfo>
-
-//using namespace cms;
+#include <memory>
 
 void func3()
 {
-  throw edm::Exception(edm::errors::NotFound)
-    << "This is just a test"
-    << std::endl;
+  edm::Exception ex(edm::errors::NotFound);
+  ex << "This is just a test";
+  ex.addContext("new1");
+  ex.addAdditionalInfo("info1");
+  if (ex.returnCode() != 8026) {
+    abort();
+  }
+  if (ex.category() != std::string("NotFound")) {
+    abort();
+  }
+  throw ex;
 }
 
 void func2()
@@ -26,66 +33,106 @@ void func1()
       func2();
   }
   catch (edm::Exception& e) {
-    //std::cerr << "GOT HERE" << std::endl;
-    throw edm::Exception(edm::errors::Unknown,"In func2",e)
-	<< "Gave up";
+    edm::Exception toThrow(edm::errors::Unknown, "In func2", e);
+    edm::Exception toThrowString(edm::errors::Unknown, std::string("In func2"), e);
+    if (toThrow.explainSelf() != toThrowString.explainSelf()) {
+      abort();
+    }
+    toThrow << "\nGave up";
+    toThrow.addContext("new2");
+    toThrow.addAdditionalInfo("info2");
+    if (toThrow.returnCode() != 8003) {
+      abort();
+    }
+    if (toThrow.categoryCode() != edm::errors::Unknown) {
+      abort();
+    }
+    cms::Exception* ptr = &toThrow;
+    ptr->raise();
   }
-  catch (cms::Exception& e) {
-    //std::cerr << "GOT HERE2 " << typeid(e).name() << std::endl;
-    throw cms::Exception("edm::errors::Unknown","In func2 bad place",e)
-	<< "Gave up";
-  }
-  
 }
 
 const char answer[] = 
-  "---- Unknown BEGIN\n"
+  "An exception of category 'Unknown' occurred while\n"
+  "   [0] new2\n"
+  "   [1] new1\n"
+  "Exception Message:\n"
   "In func2\n"
-  "---- NotFound BEGIN\n"
-  "This is just a test\n" 
-  "---- NotFound END\n"
+  "This is just a test\n"
   "Gave up\n"
-  "---- Unknown END\n"
-  ;
-
-const char* correct[] = { "Unknown","NotFound" };
+  "   Additional Info:\n"
+  "      [a] info2\n"
+  "      [b] info1\n";
 
 int main()
 {
   try {
     func1();
   }
-  catch (cms::Exception& e) {
+  catch (edm::Exception& e) {
     std::cerr << "*** main caught Exception, output is ***\n"
-	 << "(" << e.explainSelf() << ")"
+	 << e.explainSelf()
 	 << "*** After exception output ***"
 	 << std::endl;
 
-    std::cerr << "\nCategory name list:\n";
-
-#if 1
     if(e.explainSelf() != answer) {
-	std::cerr << "not right answer\n(" << answer << ")\n"
+	std::cerr << "not right answer\n" << answer << "\n"
 	     << std::endl;
 	abort();
     }
-#endif
-
-    cms::Exception::CategoryList::const_iterator i(e.history().begin()),
-	b(e.history().end());
-
-    if(e.history().size() != 2) {
-      std::cerr << "Exception history is bad"  << std::endl;
+    edm::Exception ecopy(e);
+    if (e.explainSelf() != ecopy.explainSelf()) {
       abort();
     }
+  }
+  catch (cms::Exception& e) {
+    abort();
+  }
 
-    for(int j=0; i != b; ++i, ++j) {
-      std::cout << "  " << *i << "\n";
-      if(*i != correct[j]) {
-        std::cerr << "bad category " << *i << std::endl;
-        abort();
-      }
+  edm::Exception e1(edm::errors::Unknown, "blah");
+  edm::Exception e1String(edm::errors::Unknown, std::string("blah"));
+  if (e1.explainSelf() != e1String.explainSelf()) {
+    abort();
+  }
+  if (e1.returnCode() != 8003) {
+    abort();
+  }
+  if (e1.category() != std::string("Unknown")) {
+    abort();
+  }
+  if (e1.message() != std::string("blah ")) {
+    abort();
+  }
+  cms::Exception* ptr = &e1;
+  cms::Exception* ptrCloneCopy = ptr->clone();
+  if (ptrCloneCopy->returnCode() != 8003) {
+    abort();
+  }
+  try {
+    edm::Exception::throwThis(edm::errors::ProductNotFound,
+			      "a", "b", "c", "d", "e");
+  }
+  catch (edm::Exception & ex) {
+    if (ex.explainSelf() != std::string(
+      "An exception of category 'ProductNotFound' occurred.\n"
+      "Exception Message:\n"
+      "a bcde\n")) {
+      abort();
     }
   }
+
+  try {
+    edm::Exception::throwThis(edm::errors::ProductNotFound, "a", 1, "b");
+  }
+  catch (edm::Exception & ex) {
+    if (ex.explainSelf() != std::string(
+      "An exception of category 'ProductNotFound' occurred.\n"
+      "Exception Message:\n"
+      "a 1b\n")) {
+      abort();
+    }
+  }
+
+
   return 0; 
 }

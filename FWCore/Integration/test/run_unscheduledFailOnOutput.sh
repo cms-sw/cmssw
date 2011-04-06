@@ -12,9 +12,6 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun ${CFG_DIR}/${test}IgnoreCompletely_cfg.py || die "cmsRun ${test}IgnoreCompletely_cfg.py" $?
   cmsRun ${CFG_DIR}/${test}read_found_events.py || die "cmsRun ${test}read_found_events.py" $?
 
-  cmsRun -p ${CFG_DIR}/${test}FailModule_cfg.py || die "cmsRun ${test}FailModule_cfg.py" $?
-  cmsRun ${CFG_DIR}/${test}read_found_events.py || die "cmsRun ${test}read_found_events.py" $?
-
   cmsRun -p ${CFG_DIR}/${test}FailPath_cfg.py || die "cmsRun ${test}FailPath_cfg.py" $?
   cmsRun ${CFG_DIR}/${test}read_found_events.py || die "cmsRun ${test}read_found_events.py" $?
 

@@ -13,8 +13,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
+#include <exception>
 #include <string>
 
 namespace edm {
@@ -139,30 +142,38 @@ namespace edm {
     void validateEventSetupParameters(ParameterSet & pset) {
       std::string modtype;
       std::string moduleLabel;
-      try {
-        modtype = pset.getParameter<std::string>("@module_type");
-        moduleLabel = pset.getParameter<std::string>("@module_label");
-        // Check for the "unlabeled" case
-        // This is an artifact left over from the old configuration language
-	// we were using before switching to the python configuration
-        // This is handled in the validation code and python configuration
-        // files by using a label equal to the module typename.
-        if (moduleLabel == std::string("")) {
-          moduleLabel = modtype;
-        }
-
-        std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
-          ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
-        ConfigurationDescriptions descriptions(filler->baseType());
-        filler->fill(descriptions);
-        descriptions.validate(pset, moduleLabel);
+      modtype = pset.getParameter<std::string>("@module_type");
+      moduleLabel = pset.getParameter<std::string>("@module_label");
+      // Check for the "unlabeled" case
+      // This is an artifact left over from the old configuration language
+      // we were using before switching to the python configuration
+      // This is handled in the validation code and python configuration
+      // files by using a label equal to the module typename.
+      if (moduleLabel == std::string("")) {
+        moduleLabel = modtype;
       }
-      catch (cms::Exception& iException) {
-        Exception toThrow(errors::Configuration, "Failed validating configuration of ESProducer or ESSource.");
-        toThrow << "\nThe plugin name is \"" << modtype << "\"\n";
-        toThrow << "The module label is \"" << moduleLabel << "\"\n";
-        toThrow.append(iException);
-        throw toThrow;
+
+      std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
+        ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
+      ConfigurationDescriptions descriptions(filler->baseType());
+      filler->fill(descriptions);
+      try {
+        try {
+          descriptions.validate(pset, moduleLabel);
+        }
+        catch (cms::Exception& e) { throw; }
+        catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+        catch (std::exception& e) { convertException::stdToEDM(e); }
+        catch(std::string& s) { convertException::stringToEDM(s); }
+        catch(char const* c) { convertException::charPtrToEDM(c); }
+        catch (...) { convertException::unknownToEDM(); }
+      }
+      catch (cms::Exception & iException) {
+        std::ostringstream ost;
+        ost << "Validating configuration of ESProducer or ESSource of type " << modtype
+            << " with label: '" << moduleLabel << "'";
+        iException.addContext(ost.str());
+        throw;
       }
     }
   }

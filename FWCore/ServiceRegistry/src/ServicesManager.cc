@@ -23,11 +23,15 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
 
+#include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 
 // system include files
 #include <set>
 #include <string>
+#include <exception>
+#include <sstream>
 
 //
 // constants, enums and typedefs
@@ -293,34 +297,42 @@ namespace edm {
              std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
                ParameterSetDescriptionFillerPluginFactory::get()->create(serviceType));
              ConfigurationDescriptions descriptions(filler->baseType());
+             filler->fill(descriptions);
 
              try {
-               filler->fill(descriptions);
+               try {
+                 descriptions.validate(*(itMaker->second.pset_), serviceType);
+               }
+               catch (cms::Exception& e) { throw; }
+               catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+               catch (std::exception& e) { convertException::stdToEDM(e); }
+               catch(std::string& s) { convertException::stringToEDM(s); }
+               catch(char const* c) { convertException::charPtrToEDM(c); }
+               catch (...) { convertException::unknownToEDM(); }
              }
-             catch (cms::Exception& iException) {
-               Exception toThrow(errors::Configuration, "Failed while filling ParameterSetDescriptions.");
-               toThrow << "\nService plugin name is \"" << serviceType << "\"\n";
-               toThrow.append(iException);
-               throw toThrow;
+             catch (cms::Exception & iException) {
+               std::ostringstream ost;
+               ost << "Validating configuration of service of type " << serviceType;
+               iException.addContext(ost.str());
+               throw;
              }
              try {
-               descriptions.validate(*(itMaker->second.pset_), serviceType);
+               try {
+                 // This creates the service
+                 itMaker->second.add(*this);
+               }
+               catch (cms::Exception& e) { throw; }
+               catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+               catch (std::exception& e) { convertException::stdToEDM(e); }
+               catch(std::string& s) { convertException::stringToEDM(s); }
+               catch(char const* c) { convertException::charPtrToEDM(c); }
+               catch (...) { convertException::unknownToEDM(); }
              }
-             catch (cms::Exception& iException) {
-               Exception toThrow(errors::Configuration, "Failed validating service configuration.");
-               toThrow << "\nService plugin name is \"" << serviceType << "\"\n";
-               toThrow.append(iException);
-               throw toThrow;
-             }
-             try {
-               // This creates the service
-               itMaker->second.add(*this);
-             }
-             catch(cms::Exception& iException) {
-               Exception toThrow(errors::Configuration, "Error occurred while creating ");
-               toThrow << itMaker->second.pset_->getParameter<std::string>("@service_type") << "\n";
-               toThrow.append(iException);
-               throw toThrow;
+             catch (cms::Exception & iException) {
+               std::ostringstream ost;
+               ost << "Constructing service of type " << serviceType;
+               iException.addContext(ost.str());
+               throw;
              }
            }
          }

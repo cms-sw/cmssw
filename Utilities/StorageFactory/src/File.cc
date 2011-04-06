@@ -281,7 +281,8 @@ File::close (void)
 
   int error;
   if (! sysclose (fd, &error))
-    throwStorageError("File::sysclose()", "close()", error);
+    throwStorageError("FileCloseError", "Calling File::close()",
+                      "sysclose", error);
 
   m_flags &= ~InternalAutoClose;
   this->fd (EDM_IOFD_INVALID);

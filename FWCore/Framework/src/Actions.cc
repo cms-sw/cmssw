@@ -15,7 +15,6 @@ namespace edm {
 	  table_[IgnoreCompletely] = "IgnoreCompletely";
 	  table_[Rethrow] = "Rethrow";
 	  table_[SkipEvent] = "SkipEvent";
-	  table_[FailModule] = "FailModule";
 	  table_[FailPath] = "FailPath";
 	}
 
@@ -67,7 +66,6 @@ namespace edm {
     install(actions::SkipEvent, map_, pset);
     install(actions::Rethrow, map_, pset);
     install(actions::IgnoreCompletely, map_, pset);
-    install(actions::FailModule, map_, pset);
     install(actions::FailPath, map_, pset);
   }
 

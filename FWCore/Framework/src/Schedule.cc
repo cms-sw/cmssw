@@ -17,6 +17,9 @@
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 
 #include "boost/bind.hpp"
@@ -28,6 +31,7 @@
 #include <functional>
 #include <iomanip>
 #include <list>
+#include <exception>
 
 namespace edm {
   namespace {
@@ -468,33 +472,29 @@ namespace edm {
     for_all(holder, boost::bind(&Schedule::addToAllWorkers, this, _1));
   }
 
-  void Schedule::endJob() {
+  void Schedule::endJob(ExceptionCollector & collector) {
     bool failure = false;
-    cms::Exception accumulated("endJob");
     AllWorkers::iterator ai(workersBegin()), ae(workersEnd());
     for (; ai != ae; ++ai) {
       try {
-        (*ai)->endJob();
-      }
-      catch (cms::Exception& e) {
-        accumulated << "cms::Exception caught in Schedule::endJob\n"
-                    << e.explainSelf();
-        failure = true;
-      }
-      catch (std::exception& e) {
-        accumulated << "Standard library exception caught in Schedule::endJob\n"
-                    << e.what();
-        failure = true;
-      }
-      catch (...) {
-        accumulated << "Unknown exception caught in Schedule::endJob\n";
+        try {
+          (*ai)->endJob();
+        }
+        catch (cms::Exception& e) { throw; }
+        catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+        catch (std::exception& e) { convertException::stdToEDM(e); }
+        catch (std::string& s) { convertException::stringToEDM(s); }
+        catch (char const* c) { convertException::charPtrToEDM(c); }
+        catch (...) { convertException::unknownToEDM(); }
+      }      
+      catch (cms::Exception const& ex) {
+        collector.addException(ex);
         failure = true;
       }
     }
     if (failure) {
-      throw accumulated;
+      return;
     }
-
 
     if (wantSummary_ == false) return;
 

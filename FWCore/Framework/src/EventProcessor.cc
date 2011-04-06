@@ -49,6 +49,8 @@
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
@@ -61,6 +63,7 @@
 #include <iomanip>
 #include <iostream>
 #include <utility>
+#include <sstream>
 
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -258,24 +261,34 @@ namespace edm {
             boost::shared_ptr<ProcessConfiguration> processConfiguration) {
     ParameterSet* main_input = params.getPSetForUpdate("@main_input");
     if(main_input == 0) {
-      throw Exception(errors::Configuration, "FailedInputSource")
-        << "Configuration of primary input source has failed\n";
+      throw Exception(errors::Configuration)
+        << "There must be exactly one source in the configuration.\n"
+        << "It is missing (or there are sufficient syntax errors such that it is not recognized as the source)\n";
     }
 
-    std::string modtype;
+    std::string modtype(main_input->getParameter<std::string>("@module_type"));
+
+    std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
+      ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
+    ConfigurationDescriptions descriptions(filler->baseType());
+    filler->fill(descriptions);
+
     try {
-      modtype = main_input->getParameter<std::string>("@module_type");
-      std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
-        ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
-      ConfigurationDescriptions descriptions(filler->baseType());
-      filler->fill(descriptions);
-      descriptions.validate(*main_input, std::string("source"));
+      try {
+        descriptions.validate(*main_input, std::string("source"));
+      }
+      catch (cms::Exception& e) { throw; }
+      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::exception& e) { convertException::stdToEDM(e); }
+      catch(std::string& s) { convertException::stringToEDM(s); }
+      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (...) { convertException::unknownToEDM(); }
     }
-    catch (cms::Exception& iException) {
-      Exception toThrow(errors::Configuration, "Failed validating primary input source configuration.");
-      toThrow << "\nSource plugin name is \"" << modtype << "\"\n";
-      toThrow.append(iException);
-      throw toThrow;
+    catch (cms::Exception & iException) {
+      std::ostringstream ost;
+      ost << "Validating configuration of input source of type " << modtype;
+      iException.addContext(ost.str());
+      throw;
     }
 
     main_input->registerIt();
@@ -295,25 +308,24 @@ namespace edm {
     areg->preSourceConstructionSignal_(md);
     boost::shared_ptr<InputSource> input;
     try {
-      input = boost::shared_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
-      areg->postSourceConstructionSignal_(md);
-    }
-    catch (Exception& iException) {
-      areg->postSourceConstructionSignal_(md);
-      //we want to keep the same category code so that cmsRun will return the proper return value
-      Exception toThrow(iException.categoryCode(), "Error occured while constructing primary input source.");
-      toThrow << "\nSource is of type \"" << modtype << "\"\n";
-      toThrow.append(iException);
-      throw toThrow;
+      try {
+        input = boost::shared_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+      }
+      catch (cms::Exception& e) { throw; }
+      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::exception& e) { convertException::stdToEDM(e); }
+      catch(std::string& s) { convertException::stringToEDM(s); }
+      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (...) { convertException::unknownToEDM(); }
     }
     catch (cms::Exception& iException) {
       areg->postSourceConstructionSignal_(md);
-      Exception toThrow(errors::Configuration, "Error occured while constructing primary input source.");
-      toThrow << "\nSource is of type \"" << modtype << "\"\n";
-      toThrow.append(iException);
-      throw toThrow;
+      std::ostringstream ost;
+      ost << "Constructing input source of type " << modtype;
+      iException.addContext(ost.str());
+      throw;
     }
-
+    areg->postSourceConstructionSignal_(md);
     return input;
   }
 
@@ -752,19 +764,20 @@ namespace edm {
     //   looper_->beginOfJob(es);
     //}
     try {
-      input_->doBeginJob();
-    } catch(cms::Exception& e) {
-      LogError("BeginJob") << "A cms::Exception happened while processing the beginJob of the 'source'\n";
-      e << "A cms::Exception happened while processing the beginJob of the 'source'\n";
-      throw;
-    } catch(std::exception& e) {
-      LogError("BeginJob") << "A std::exception happened while processing the beginJob of the 'source'\n";
-      throw;
-    } catch(...) {
-      LogError("BeginJob") << "An unknown exception happened while processing the beginJob of the 'source'\n";
+      try {
+        input_->doBeginJob();
+      }
+      catch (cms::Exception& e) { throw; }
+      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::exception& e) { convertException::stdToEDM(e); }
+      catch(std::string& s) { convertException::stringToEDM(s); }
+      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (...) { convertException::unknownToEDM(); }
+    }
+    catch(cms::Exception& ex) {
+      ex.addContext("Calling beginJob for the source");
       throw;
     }
-
     schedule_->beginJob();
     // toerror.succeeded(); // should we add this?
     if(hasSubProcess()) subProcess_->doBeginJob();
@@ -774,7 +787,7 @@ namespace edm {
   void
   EventProcessor::endJob() {
     // Collects exceptions, so we don't throw before all operations are performed.
-    ExceptionCollector c;
+    ExceptionCollector c("Multiple exceptions were thrown while executing endJob. An exception message follows for each.\n");
 
     // only allowed to run if state is sIdle, sJobReady, sRunGiven
     c.call(boost::bind(&EventProcessor::changeState, this, mEndJob));
@@ -783,7 +796,7 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     c.call(boost::bind(&EventProcessor::terminateMachine, this));
-    c.call(boost::bind(&Schedule::endJob, schedule_.get()));
+    schedule_->endJob(c);
     if(hasSubProcess()) {
       c.call(boost::bind(&SubProcess::doEndJob, subProcess_.get()));
     }
@@ -1492,88 +1505,95 @@ namespace edm {
     }
 
     try {
+      try {
 
-      InputSource::ItemType itemType;
+        InputSource::ItemType itemType;
 
-      int iEvents = 0;
+        int iEvents = 0;
 
-      while(true) {
+        while(true) {
 
-        itemType = input_->nextItemType();
+          itemType = input_->nextItemType();
 
-        FDEBUG(1) << "itemType = " << itemType << "\n";
+          FDEBUG(1) << "itemType = " << itemType << "\n";
 
-        // These are used for asynchronous running only and
-        // and are checking to see if stopAsync or shutdownAsync
-        // were called from another thread.  In the future, we
-        // may need to do something better than polling the state.
-        // With the current code this is the simplest thing and
-        // it should always work.  If the interaction between
-        // threads becomes more complex this may cause problems.
-        if(state_ == sStopping) {
-          FDEBUG(1) << "In main processing loop, encountered sStopping state\n";
-          forceLooperToEnd_ = true;
-          machine_->process_event(statemachine::Stop());
-          forceLooperToEnd_ = false;
-          break;
-        }
-        else if(state_ == sShuttingDown) {
-          FDEBUG(1) << "In main processing loop, encountered sShuttingDown state\n";
-          forceLooperToEnd_ = true;
-          machine_->process_event(statemachine::Stop());
-          forceLooperToEnd_ = false;
-          break;
-        }
-
-        // Look for a shutdown signal
-        {
-          boost::mutex::scoped_lock sl(usr2_lock);
-          if(shutdown_flag) {
-            changeState(mShutdownSignal);
-            returnCode = epSignal;
+          // These are used for asynchronous running only and
+          // and are checking to see if stopAsync or shutdownAsync
+          // were called from another thread.  In the future, we
+          // may need to do something better than polling the state.
+          // With the current code this is the simplest thing and
+          // it should always work.  If the interaction between
+          // threads becomes more complex this may cause problems.
+          if(state_ == sStopping) {
+            FDEBUG(1) << "In main processing loop, encountered sStopping state\n";
             forceLooperToEnd_ = true;
             machine_->process_event(statemachine::Stop());
             forceLooperToEnd_ = false;
             break;
           }
-        }
-
-        if(itemType == InputSource::IsStop) {
-          machine_->process_event(statemachine::Stop());
-        }
-        else if(itemType == InputSource::IsFile) {
-          machine_->process_event(statemachine::File());
-        }
-        else if(itemType == InputSource::IsRun) {
-          machine_->process_event(statemachine::Run(input_->processHistoryID(), input_->run()));
-        }
-        else if(itemType == InputSource::IsLumi) {
-          machine_->process_event(statemachine::Lumi(input_->luminosityBlock()));
-        }
-        else if(itemType == InputSource::IsEvent) {
-          machine_->process_event(statemachine::Event());
-          ++iEvents;
-          if(numberOfEventsToProcess > 0 && iEvents >= numberOfEventsToProcess) {
-            returnCode = epCountComplete;
-            changeState(mInputExhausted);
-            FDEBUG(1) << "Event count complete, pausing event loop\n";
+          else if(state_ == sShuttingDown) {
+            FDEBUG(1) << "In main processing loop, encountered sShuttingDown state\n";
+            forceLooperToEnd_ = true;
+            machine_->process_event(statemachine::Stop());
+            forceLooperToEnd_ = false;
             break;
           }
-        }
-        // This should be impossible
-        else {
-          throw Exception(errors::LogicError)
-            << "Unknown next item type passed to EventProcessor\n"
-            << "Please report this error to the Framework group\n";
-        }
 
-        if(machine_->terminated()) {
-          changeState(mInputExhausted);
-          break;
-        }
-      }  // End of loop over state machine events
+          // Look for a shutdown signal
+          {
+            boost::mutex::scoped_lock sl(usr2_lock);
+            if(shutdown_flag) {
+              changeState(mShutdownSignal);
+              returnCode = epSignal;
+              forceLooperToEnd_ = true;
+              machine_->process_event(statemachine::Stop());
+              forceLooperToEnd_ = false;
+              break;
+            }
+          }
+
+          if(itemType == InputSource::IsStop) {
+            machine_->process_event(statemachine::Stop());
+          }
+          else if(itemType == InputSource::IsFile) {
+            machine_->process_event(statemachine::File());
+          }
+          else if(itemType == InputSource::IsRun) {
+            machine_->process_event(statemachine::Run(input_->processHistoryID(), input_->run()));
+          }
+          else if(itemType == InputSource::IsLumi) {
+            machine_->process_event(statemachine::Lumi(input_->luminosityBlock()));
+          }
+          else if(itemType == InputSource::IsEvent) {
+            machine_->process_event(statemachine::Event());
+            ++iEvents;
+            if(numberOfEventsToProcess > 0 && iEvents >= numberOfEventsToProcess) {
+              returnCode = epCountComplete;
+              changeState(mInputExhausted);
+              FDEBUG(1) << "Event count complete, pausing event loop\n";
+              break;
+            }
+          }
+          // This should be impossible
+          else {
+            throw Exception(errors::LogicError)
+              << "Unknown next item type passed to EventProcessor\n"
+              << "Please report this error to the Framework group\n";
+          }
+
+          if(machine_->terminated()) {
+            changeState(mInputExhausted);
+            break;
+          }
+        }  // End of loop over state machine events
+      } // Try block
+      catch (cms::Exception& e) { throw; }
+      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::exception& e) { convertException::stdToEDM(e); }
+      catch(std::string& s) { convertException::stringToEDM(s); }
+      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (...) { convertException::unknownToEDM(); }
     } // Try block
-
     // Some comments on exception handling related to the boost state machine:
     //
     // Some states used in the machine are special because they
@@ -1619,47 +1639,20 @@ namespace edm {
     // We've seen crashes that are not understood when that is not
     // done.  Maintainers of this code should be careful about this.
 
-    catch (cms::Exception& e) {
+    catch (cms::Exception & e) {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
-      e << "cms::Exception caught in EventProcessor and rethrown\n";
-      e << exceptionMessageLumis_;
-      e << exceptionMessageRuns_;
-      e << exceptionMessageFiles_;
+      if (!exceptionMessageFiles_.empty()) {
+        e.addAdditionalInfo(exceptionMessageFiles_);
+      }
+      if (!exceptionMessageRuns_.empty()) {
+        e.addAdditionalInfo(exceptionMessageRuns_);
+      }
+      if (!exceptionMessageLumis_.empty()) {
+        e.addAdditionalInfo(exceptionMessageLumis_);
+      }
       throw;
-    }
-    catch (std::bad_alloc& e) {
-      alreadyHandlingException_ = true;
-      terminateMachine();
-      alreadyHandlingException_ = false;
-      throw cms::Exception("std::bad_alloc")
-        << "The EventProcessor caught a std::bad_alloc exception and converted it to a cms::Exception\n"
-        << "The job has probably exhausted the virtual memory available to the process.\n"
-        << exceptionMessageLumis_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
-    }
-    catch (std::exception& e) {
-      alreadyHandlingException_ = true;
-      terminateMachine();
-      alreadyHandlingException_ = false;
-      throw cms::Exception("StdException")
-        << "The EventProcessor caught a std::exception and converted it to a cms::Exception\n"
-        << "Previous information:\n" << e.what() << "\n"
-        << exceptionMessageLumis_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
-    }
-    catch (...) {
-      alreadyHandlingException_ = true;
-      terminateMachine();
-      alreadyHandlingException_ = false;
-      throw cms::Exception("Unknown")
-        << "The EventProcessor caught an unknown exception type and converted it to a cms::Exception\n"
-        << exceptionMessageLumis_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
     }
 
     if(machine_->terminated()) {
@@ -1913,19 +1906,20 @@ namespace edm {
   void EventProcessor::readAndProcessEvent() {
     EventPrincipal *pep = 0;
     try {
-      pep = input_->readEvent(principalCache_.lumiPrincipalPtr());
-      FDEBUG(1) << "\treadEvent\n";
-    }
-    catch(cms::Exception& e) {
-      actions::ActionCodes action = act_table_->find(e.rootCause());
-      if(action == actions::Rethrow) {
-        throw;
-      } else {
-        LogWarning(e.category())
-          << "an exception occurred and all paths for the event are being skipped: \n"
-          << e.what();
-        return;
+      try {
+        pep = input_->readEvent(principalCache_.lumiPrincipalPtr());
+        FDEBUG(1) << "\treadEvent\n";
       }
+      catch (cms::Exception& e) { throw; }
+      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::exception& e) { convertException::stdToEDM(e); }
+      catch(std::string& s) { convertException::stringToEDM(s); }
+      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (...) { convertException::unknownToEDM(); }
+    }
+    catch(cms::Exception& ex) {
+      ex.addContext("Calling readEvent in the input source");
+      throw;
     }
     assert(pep != 0);
 

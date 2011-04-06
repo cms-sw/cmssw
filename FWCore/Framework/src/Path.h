@@ -16,11 +16,16 @@
 #include "FWCore/Framework/src/Worker.h"
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
 
 #include "boost/shared_ptr.hpp"
 
 #include <string>
 #include <vector>
+#include <exception>
+#include <sstream>
 
 #include "FWCore/Framework/src/RunStopwatch.h"
 
@@ -96,8 +101,19 @@ namespace edm {
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
-    bool handleWorkerFailure(cms::Exception const& e, int nwrwue, bool isEvent);
-    void recordUnknownException(int nwrwue, bool isEvent);
+    bool handleWorkerFailure(cms::Exception & e,
+                             int nwrwue,
+                             bool isEvent,
+                             bool begin,
+                             BranchType branchType,
+                             CurrentProcessingContext const& cpc,
+                             std::string const& id);
+    static void exceptionContext(cms::Exception & ex,
+                                 bool isEvent,
+                                 bool begin,
+                                 BranchType branchType,
+                                 CurrentProcessingContext const& cpc,
+                                 std::string const& id);
     void recordStatus(int nwrwue, bool isEvent);
     void updateCounters(bool succeed, bool isEvent);
   };
@@ -154,16 +170,22 @@ namespace edm {
       ++nwrwue;
       assert (static_cast<int>(idx) == nwrwue);
       try {
-        cpc.activate(idx, i->getWorker()->descPtr());
-        should_continue = i->runWorker<T>(ep, es, &cpc);
+        try {
+          cpc.activate(idx, i->getWorker()->descPtr());
+          should_continue = i->runWorker<T>(ep, es, &cpc);
+        }
+        catch (cms::Exception& e) { throw; }
+        catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+        catch (std::exception& e) { convertException::stdToEDM(e); }
+        catch(std::string& s) { convertException::stringToEDM(s); }
+        catch(char const* c) { convertException::charPtrToEDM(c); }
+        catch (...) { convertException::unknownToEDM(); }
       }
-      catch(cms::Exception& e) {
+      catch(cms::Exception& ex) {
         // handleWorkerFailure may throw a new exception.
-        should_continue = handleWorkerFailure(e, nwrwue, T::isEvent_);
-      }
-      catch(...) {
-        recordUnknownException(nwrwue, T::isEvent_);
-        throw;
+	std::ostringstream ost;
+        ost << ep.id();
+        should_continue = handleWorkerFailure(ex, nwrwue, T::isEvent_, T::begin_, T::branchType_, cpc, ost.str());
       }
     }
     updateCounters(should_continue, T::isEvent_);

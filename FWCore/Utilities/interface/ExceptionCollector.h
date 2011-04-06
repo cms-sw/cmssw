@@ -11,32 +11,40 @@ The exception strings are saved in a cms::Exception for optional rethrow.
 
 Here is an example:
 
-ExceptionCollector c;
+ExceptionCollector c("initialMessage");
 
 c.call(boost_bind(&MyClass::myFunction, myClassPtr));
 c.call(boost_bind(&MyClass::myOtherFunction, myClassPtr, myArgPtr));
 c.call(boost_bind(&myFreeFunction, myArgPtr));
 if (c.hasThrown()) c.rethrow();
 
-This insures that all three functions will be called before any exceptionis thrown.
+This insures that all three functions will be called before any exception is thrown.
 **/
 
-#include "FWCore/Utilities/interface/Exception.h"
-#include <exception>
 #include "boost/function.hpp"
+
+#include <memory>
+#include <string>
+
+namespace cms {
+  class Exception;
+}
 
 namespace edm {
   class ExceptionCollector {
   public:
-    ExceptionCollector() : exception_(std::string()), hasThrown_(false) {}
-    ~ExceptionCollector() {}
-    bool hasThrown() const {return hasThrown_;}
+    ExceptionCollector(std::string const& initialMessage);
+    ~ExceptionCollector();
+    bool hasThrown() const;
     void rethrow() const;
     void call(boost::function<void(void)>);
+    void addException(cms::Exception const& exception);
 
   private:
-    cms::Exception exception_;
-    bool hasThrown_;
+    std::string initialMessage_;
+    std::auto_ptr<cms::Exception> firstException_;
+    std::auto_ptr<cms::Exception> accumulatedExceptions_;
+    int nExceptions_;
   };
 }
 

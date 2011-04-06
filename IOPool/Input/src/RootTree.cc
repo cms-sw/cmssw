@@ -255,7 +255,7 @@ namespace edm {
         n = branch->GetEntry(entryNumber);
       }
       catch(cms::Exception const& e) {
-        throw Exception(errors::FileReadError) << e.explainSelf() << "\n";
+        throw Exception(errors::FileReadError, "", e);
       }
       return n;
     }
@@ -267,7 +267,7 @@ namespace edm {
         n = tree->GetEntry(entryNumber);
       }
       catch(cms::Exception const& e) {
-        throw Exception(errors::FileReadError) << e.explainSelf() << "\n";
+        throw Exception (errors::FileReadError, "", e);
       }
       return n;
     }

@@ -5,7 +5,7 @@
 // 
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooperBase.cc,v 1.1 2010/08/09 21:04:56 chrjones Exp $
+// $Id: EDLooperBase.cc,v 1.2 2010/09/01 18:26:27 chrjones Exp $
 
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,6 +14,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -42,11 +43,10 @@ namespace edm {
       status = duringLoop(event, es, ioController);
     }
     catch(cms::Exception& e) {
-      actions::ActionCodes action = (act_table_->find(e.rootCause()));
+      e.addContext("Calling the 'duringLoop' method of a looper");
+      actions::ActionCodes action = (act_table_->find(e.category()));
       if (action != actions::Rethrow) {
-        LogWarning(e.category())
-          << "An exception occurred in the looper, continuing with the next event\n"
-          << e.what();
+        edm::printCmsExceptionWarning("SkipEvent", e);
       }
       else {
         throw;

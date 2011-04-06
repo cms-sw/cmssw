@@ -2,6 +2,7 @@
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
@@ -30,23 +31,27 @@ namespace edm {
   }
   
   bool
-  Path::handleWorkerFailure(cms::Exception const& e,
-			    int nwrwue, bool isEvent) {
+  Path::handleWorkerFailure(cms::Exception & e,
+			    int nwrwue,
+                            bool isEvent,
+                            bool begin,
+                            BranchType branchType,
+                            CurrentProcessingContext const& cpc,
+                            std::string const& id) {
+
+    exceptionContext(e, isEvent, begin, branchType, cpc, id);
+
     bool should_continue = true;
 
     // there is no support as of yet for specific paths having
     // different exception behavior
     
     // If not processing an event, always rethrow.
-    actions::ActionCodes action = (isEvent ? act_table_->find(e.rootCause()) : actions::Rethrow);
-    assert (action != actions::FailModule);
+    actions::ActionCodes action = (isEvent ? act_table_->find(e.category()) : actions::Rethrow);
     switch(action) {
       case actions::FailPath: {
 	  should_continue = false;
-	  LogWarning(e.category())
-	    << "Failing path " << name_
-	    << ", due to exception, message:\n"
-	    << e.what() << "\n";
+          edm::printCmsExceptionWarning("FailPath", e);
 	  break;
       }
       default: {
@@ -56,12 +61,12 @@ namespace edm {
 	  if (action == actions::Rethrow) {
 	    std::string pNF = Exception::codeToString(errors::ProductNotFound);
             if (e.category() == pNF) {
-              e << "If you wish to continue processing events after a " << pNF << " exception,\n" <<
+	      std::ostringstream ost;
+              ost <<  "If you wish to continue processing events after a " << pNF << " exception,\n" <<
 	      "add \"SkipEvent = cms.untracked.vstring('ProductNotFound')\" to the \"options\" PSet in the configuration.\n";
+              e.addAdditionalInfo(ost.str());
             }
 	  }
-          e << "ProcessingStopped\n";
-          e << "Exception going through path " << name_ << "\n";
           throw;
       }
     }
@@ -70,12 +75,49 @@ namespace edm {
   }
 
   void
-  Path::recordUnknownException(int nwrwue, bool isEvent) {
-    LogError("PassingThrough")
-      << "Exception passing through path " << name_ << "\n";
-    if (isEvent) ++timesExcept_;
-    state_ = hlt::Exception;
-    recordStatus(nwrwue, isEvent);
+  Path::exceptionContext(cms::Exception & ex,
+                         bool isEvent,
+                         bool begin,
+                         BranchType branchType,
+                         CurrentProcessingContext const& cpc,
+                         std::string const& id) {
+    std::ostringstream ost;
+    if (isEvent) {
+      ost << "Calling event method";
+    }
+    else if (begin && branchType == InRun) {
+      ost << "Calling beginRun";
+    }
+    else if (begin && branchType == InLumi) {
+      ost << "Calling beginLuminosityBlock";
+    }
+    else if (!begin && branchType == InLumi) {
+      ost << "Calling endLuminosityBlock";
+    }
+    else if (!begin && branchType == InRun) {
+      ost << "Calling endRun";
+    }
+    else {
+      // It should be impossible to get here ...
+      ost << "Calling unknown function";
+    }
+    if (cpc.moduleDescription()) {
+      ost << " for module " << cpc.moduleDescription()->moduleName() << "/'" << cpc.moduleDescription()->moduleLabel() << "'";
+    }
+    ex.addContext(ost.str());
+    ost.str("");
+    ost << "Running path '";
+    if (cpc.pathName()) {
+      ost << *cpc.pathName() << "'";
+    }
+    else {
+      ost << "unknown'";
+    }
+    ex.addContext(ost.str());
+    ost.str("");
+    ost << "Processing ";
+    ost << id;
+    ex.addContext(ost.str());
   }
 
   void

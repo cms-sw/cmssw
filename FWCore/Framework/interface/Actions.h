@@ -12,7 +12,6 @@ namespace edm {
 	IgnoreCompletely=0,
 	Rethrow,
 	SkipEvent,
-	FailModule,
 	FailPath,
 	LastCode
     };

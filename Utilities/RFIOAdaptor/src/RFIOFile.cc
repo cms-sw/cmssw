@@ -2,6 +2,7 @@
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cerrno>
 #include <unistd.h>
@@ -129,14 +130,18 @@ RFIOFile::open (const char *name,
     rfiosetopt (RFIO_READOPT, &readopt, sizeof (readopt));
   }
 
-  if ((name == 0) || (*name == 0))
-    throw cms::Exception("RFIOFile::open()")
-      << "Cannot open a file without a name";
-
-  if ((flags & (IOFlags::OpenRead | IOFlags::OpenWrite)) == 0)
-    throw cms::Exception("RFIOFile::open()")
-      << "Must open file '" << name << "' at least for read or write";
-
+  if ((name == 0) || (*name == 0)) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Cannot open a file without a name";
+    ex.addContext("Calling RFIOFile::open()");
+    throw ex;
+  }
+  if ((flags & (IOFlags::OpenRead | IOFlags::OpenWrite)) == 0) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Must open file '" << name << "' at least for read or write";
+    ex.addContext("Calling RFIOFile::open()");
+    throw ex;
+  }
   std::string lname (name);
   if (lname.find ("//") == 0)
     lname.erase(0, 1);
@@ -171,14 +176,16 @@ RFIOFile::open (const char *name,
     openflags |= O_TRUNC;
 
   IOFD newfd = EDM_IOFD_INVALID;
-  if ((newfd = rfio_open64 (lname.c_str(), openflags, perms)) == -1)
-    throw cms::Exception("RFIOFile::open()")
-      << "rfio_open(name='" << lname
-      << "', flags=0x" << std::hex << openflags
-      << ", permissions=0" << std::oct << perms << std::dec
-      << ") => error '" << rfio_serror ()
-      << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
-
+  if ((newfd = rfio_open64 (lname.c_str(), openflags, perms)) == -1) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "rfio_open(name='" << lname
+       << "', flags=0x" << std::hex << openflags
+       << ", permissions=0" << std::oct << perms << std::dec
+       << ") => error '" << rfio_serror ()
+       << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
+    ex.addContext("Calling RFIOFile::open()");
+    throw ex;
+  }
   m_fd = newfd;
   m_close = true;
   m_curpos = 0;
@@ -322,12 +329,14 @@ RFIOFile::read (void *into, IOSize n)
 
   ssize_t s;
   serrno = 0;
-  if ((s = retryRead (into, n, 3)) < 0)
-    throw cms::Exception("RFIOFile::read()")
-      << "rfio_read(name='" << m_name << "', n=" << n << ") failed"
-      << " at position " << m_curpos << " with error '" << rfio_serror()
-      << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
-
+  if ((s = retryRead (into, n, 3)) < 0) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "rfio_read(name='" << m_name << "', n=" << n << ") failed"
+       << " at position " << m_curpos << " with error '" << rfio_serror()
+       << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
+    ex.addContext("Calling RFIOFile::read()");
+    throw ex;
+  }
   m_curpos += s;
 
   double end = realNanoSecs();
@@ -351,11 +360,14 @@ RFIOFile::write (const void *from, IOSize n)
 {
   serrno = 0;
   ssize_t s = rfio_write64 (m_fd, from, n);
-  if (s < 0)
-    throw cms::Exception("RFIOFile::write()")
-      << "rfio_write(name='" << m_name << "', n=" << n << ") failed"
-      << " at position " << m_curpos << " with error '" << rfio_serror()
-      << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
+  if (s < 0) {
+    cms::Exception ex("FileWriteError");
+    ex << "rfio_write(name='" << m_name << "', n=" << n << ") failed"
+       << " at position " << m_curpos << " with error '" << rfio_serror()
+       << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
+    ex.addContext("Calling RFIOFile::write()");
+    throw ex;
+  }
   return s;
 }
 
@@ -365,26 +377,31 @@ RFIOFile::write (const void *from, IOSize n)
 IOOffset
 RFIOFile::position (IOOffset offset, Relative whence /* = SET */)
 {
-  if (m_fd == EDM_IOFD_INVALID)
-    throw cms::Exception("RFIOFile::position()")
-      << "RFIOFile::position() called on a closed file";
-  if (whence != CURRENT && whence != SET && whence != END)
-    throw cms::Exception("RFIOFile::position()")
-      << "RFIOFile::position() called with incorrect 'whence' parameter";
-
+  if (m_fd == EDM_IOFD_INVALID) {
+    cms::Exception ex("FilePositionError");
+    ex << "RFIOFile::position() called on a closed file";
+    throw ex;
+  }
+  if (whence != CURRENT && whence != SET && whence != END) {
+    cms::Exception ex("FilePositionError");
+    ex << "RFIOFile::position() called with incorrect 'whence' parameter";
+    throw ex;
+  }
   IOOffset	result;
   int		mywhence = (whence == SET ? SEEK_SET
 		    	    : whence == CURRENT ? SEEK_CUR
 			    : SEEK_END);
 
   serrno = 0;
-  if ((result = rfio_lseek64 (m_fd, offset, mywhence)) == -1)
-    throw cms::Exception("RFIOFile::position()")
-      << "rfio_lseek(name='" << m_name << "', offset=" << offset
-      << ", whence=" << mywhence << ") failed at position "
-      << m_curpos << " with error '" << rfio_serror()
-      << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
-
+  if ((result = rfio_lseek64 (m_fd, offset, mywhence)) == -1) {
+    cms::Exception ex("FilePositionError");
+    ex << "rfio_lseek(name='" << m_name << "', offset=" << offset
+       << ", whence=" << mywhence << ") failed at position "
+       << m_curpos << " with error '" << rfio_serror()
+       << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
+    ex.addContext("Calling RFIOFile::position()");
+    throw ex;
+  }
   m_curpos = result;
   return result;
 }
@@ -392,18 +409,20 @@ RFIOFile::position (IOOffset offset, Relative whence /* = SET */)
 void
 RFIOFile::resize (IOOffset /* size */)
 {
-  throw cms::Exception("RFIOFile::resize()")
-    << "RFIOFile::resize(name='" << m_name << "') not implemented";
+  cms::Exception ex("FileResizeError");
+  ex << "RFIOFile::resize(name='" << m_name << "') not implemented";
+  throw ex;
 }
 
 bool
 RFIOFile::prefetch (const IOPosBuffer *what, IOSize n)
 {
-  if (rfioreadopt (RFIO_READOPT) != 1)
-    throw cms::Exception("RFIOFile::preseek()")
-      << "RFIOFile::prefetch() called but RFIO_READOPT="
-      << rfioreadopt (RFIO_READOPT) << " (must be 1)";
-
+  if (rfioreadopt (RFIO_READOPT) != 1) {
+    cms::Exception ex("FilePrefetchError");
+    ex << "RFIOFile::prefetch() called but RFIO_READOPT="
+       << rfioreadopt (RFIO_READOPT) << " (must be 1)";
+    throw ex;
+  }
   std::vector<iovec64> iov (n);
   for (IOSize i = 0; i < n; ++i)
   {

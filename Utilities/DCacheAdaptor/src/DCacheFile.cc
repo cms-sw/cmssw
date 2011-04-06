@@ -1,5 +1,6 @@
 #include "Utilities/DCacheAdaptor/interface/DCacheFile.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
 #include <vector>
@@ -76,13 +77,19 @@ DCacheFile::open (const char *name,
   m_name = name;
 
   // Actual open
-  if ((name == 0) || (*name == 0))
-    throw cms::Exception("DCacheFile::open()")
-      << "Cannot open a file without a name";
+  if ((name == 0) || (*name == 0)) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Cannot open a file without a name";
+    ex.addContext("Calling DCacheFile::open()");
+    throw ex;
+  }
 
-  if ((flags & (IOFlags::OpenRead | IOFlags::OpenWrite)) == 0)
-    throw cms::Exception("DCacheFile::open()")
-      << "Must open file '" << name << "' at least for read or write";
+  if ((flags & (IOFlags::OpenRead | IOFlags::OpenWrite)) == 0) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Must open file '" << name << "' at least for read or write";
+    ex.addContext("Calling DCacheFile::open()");
+    throw ex;
+  }
 
   // If I am already open, close old file first
   if (m_fd != EDM_IOFD_INVALID && m_close)
@@ -115,13 +122,16 @@ DCacheFile::open (const char *name,
 
   IOFD newfd = EDM_IOFD_INVALID;
   dc_errno = 0;
-  if ((newfd = dc_open (name, openflags, perms)) == -1)
-    throw cms::Exception("DCacheFile::open()")
-      << "dc_open(name='" << name
-      << "', flags=0x" << std::hex << openflags
-      << ", permissions=0" << std::oct << perms << std::dec
-      << ") => error '" << dc_strerror(dc_errno)
-      << "' (dc_errno=" << dc_errno << ")";
+  if ((newfd = dc_open (name, openflags, perms)) == -1) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "dc_open(name='" << name
+       << "', flags=0x" << std::hex << openflags
+       << ", permissions=0" << std::oct << perms << std::dec
+       << ") => error '" << dc_strerror(dc_errno)
+       << "' (dc_errno=" << dc_errno << ")";
+    ex.addContext("Calling DCacheFile::open()");
+    throw ex;
+  }
 
   m_fd = newfd;
 
@@ -201,11 +211,14 @@ DCacheFile::read (void *into, IOSize n)
   {
     dc_errno = 0;
     ssize_t s = dc_read (m_fd, (char *) into + done, n - done);
-    if (s == -1)
-      throw cms::Exception("DCacheFile::read()")
-        << "dc_read(name='" << m_name << "', n=" << (n-done)
-        << ") failed with error '" << dc_strerror(dc_errno)
-        << "' (dc_errno=" << dc_errno << ")";
+    if (s == -1) {
+      edm::Exception ex(edm::errors::FileReadError);
+      ex << "dc_read(name='" << m_name << "', n=" << (n-done)
+         << ") failed with error '" << dc_strerror(dc_errno)
+         << "' (dc_errno=" << dc_errno << ")";
+      ex.addContext("Calling DCacheFile::read()");
+      throw ex;
+    }
     else if (s == 0)
       // end of file
       break;
@@ -229,11 +242,14 @@ DCacheFile::write (const void *from, IOSize n)
   {
     dc_errno = 0;
     ssize_t s = dc_write (m_fd, (const char *) from + done, n - done);
-    if (s == -1)
-      throw cms::Exception("DCacheFile::write()")
-        << "dc_write(name='" << m_name << "', n=" << (n-done)
-        << ") failed with error '" << dc_strerror(dc_errno)
-        << "' (dc_errno=" << dc_errno << ")";
+    if (s == -1) {
+      cms::Exception ex("FileWriteError");
+      ex << "dc_write(name='" << m_name << "', n=" << (n-done)
+         << ") failed with error '" << dc_strerror(dc_errno)
+         << "' (dc_errno=" << dc_errno << ")";
+      ex.addContext("Calling DCacheFile::write()");
+      throw ex;
+    }
     else if (s < ssize_t (n-done))
       edm::LogInfo("DCacheFileWarning")
         << "dc_write(name='" << m_name << "', n=" << (n-done)
@@ -268,11 +284,14 @@ DCacheFile::readv (IOBuffer *into, IOSize buffers)
   ssize_t n = dc_readv (m_fd, &bufs [0], buffers);
 
   // If it was serious error, throw it.
-  if (n == -1)
-    throw cms::Exception("DCacheFile::readv()")
-      << "dc_readv(name='" << m_name << "', iov[" << buffers
-      << "]) failed with error '" << dc_strerror(dc_errno)
-      << "' (dc_errno=" << dc_errno << ")";
+  if (n == -1) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "dc_readv(name='" << m_name << "', iov[" << buffers
+       << "]) failed with error '" << dc_strerror(dc_errno)
+       << "' (dc_errno=" << dc_errno << ")";
+    ex.addContext("Calling DCacheFile::readv()");
+    throw ex;
+  }
 
   // Return the number of bytes actually read.
   return n;
@@ -301,12 +320,14 @@ DCacheFile::readv (IOPosBuffer *into, IOSize buffers)
   ssize_t n = dc_readv2 (m_fd, &bufs [0], buffers);
 
   // If it was serious error, throw it.
-  if (n == -1)
-    throw cms::Exception("DCacheFile::readv()")
-      << "dc_readv2(name='" << m_name << "', iov2[" << buffers
-      << "]) failed with error '" << dc_strerror(dc_errno)
-      << "' (dc_errno=" << dc_errno << ")";
-
+  if (n == -1) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "dc_readv2(name='" << m_name << "', iov2[" << buffers
+       << "]) failed with error '" << dc_strerror(dc_errno)
+       << "' (dc_errno=" << dc_errno << ")";
+    ex.addContext("Calling DCacheFile::readv()");
+    throw ex;
+  }
   // Return the number of bytes actually read.
   return n;
 }
@@ -317,39 +338,47 @@ DCacheFile::readv (IOPosBuffer *into, IOSize buffers)
 IOOffset
 DCacheFile::position (IOOffset offset, Relative whence /* = SET */)
 {
-  if (m_fd == EDM_IOFD_INVALID)
-    throw cms::Exception("DCacheFile::position()")
-      << "DCacheFile::position() called on a closed file";
-  if (whence != CURRENT && whence != SET && whence != END)
-    throw cms::Exception("DCacheFile::position()")
-      << "DCacheFile::position() called with incorrect 'whence' parameter";
-
+  if (m_fd == EDM_IOFD_INVALID) {
+    cms::Exception ex("FilePositionError");
+    ex << "DCacheFile::position() called on a closed file";
+    throw ex;
+  }
+  if (whence != CURRENT && whence != SET && whence != END) {
+    cms::Exception ex("FilePositionError");
+    ex << "DCacheFile::position() called with incorrect 'whence' parameter";
+    throw ex;
+  }
   IOOffset	result;
   int		mywhence = (whence == SET ? SEEK_SET
 		    	    : whence == CURRENT ? SEEK_CUR
 			    : SEEK_END);
 
   dc_errno = 0;
-  if ((result = dc_lseek64 (m_fd, offset, mywhence)) == -1)
-    throw cms::Exception("DCacheFile::position()")
-      << "dc_lseek64(name='" << m_name << "', offset=" << offset
-      << ", whence=" << mywhence << ") failed with error '"
-      << dc_strerror (dc_errno) << "' (dc_errno=" << dc_errno << ")";
-
+  if ((result = dc_lseek64 (m_fd, offset, mywhence)) == -1) {
+    cms::Exception ex("FilePositionError");
+    ex << "dc_lseek64(name='" << m_name << "', offset=" << offset
+       << ", whence=" << mywhence << ") failed with error '"
+       << dc_strerror (dc_errno) << "' (dc_errno=" << dc_errno << ")";
+    ex.addContext("Calling DCacheFile::position()");
+    throw ex;
+  }
   // FIXME: dCache returns incorrect value on SEEK_END.
   // Remove this hack when dcap has been fixed.
-  if (whence == SEEK_END && (result = dc_lseek64 (m_fd, result, SEEK_SET)) == -1)
-    throw cms::Exception("DCacheFile::position()")
-      << "dc_lseek64(name='" << m_name << "', offset=" << offset
-      << ", whence=" << SEEK_SET << ") failed with error '"
-      << dc_strerror (dc_errno) << "' (dc_errno=" << dc_errno << ")";
-  
+  if (whence == SEEK_END && (result = dc_lseek64 (m_fd, result, SEEK_SET)) == -1) {
+    cms::Exception ex("FilePositionError");
+    ex << "dc_lseek64(name='" << m_name << "', offset=" << offset
+       << ", whence=" << SEEK_SET << ") failed with error '"
+       << dc_strerror (dc_errno) << "' (dc_errno=" << dc_errno << ")";
+    ex.addContext("Calling DCacheFile::position()");
+    throw ex;
+  }
   return result;
 }
 
 void
 DCacheFile::resize (IOOffset /* size */)
 {
-  throw cms::Exception("DCacheFile::resize()")
-    << "DCacheFile::resize(name='" << m_name << "') not implemented";
+  cms::Exception ex("FileResizeError");
+  ex << "DCacheFile::resize(name='" << m_name << "') not implemented";
+  throw ex;
 }

@@ -176,12 +176,18 @@ namespace edm {
     catch (cms::Exception const& e) {
       if(!skipBadFiles  && !hasFallbackUrl) {
         if(e.explainSelf().find(streamerInfo) != std::string::npos) {
-          throw Exception(errors::FileReadError) << e.explainSelf() << "\n" <<
-            "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " could not be read properly.\n" <<
+          edm::Exception ex(edm::errors::FileReadError, "", e);
+          ex.addContext("Calling RootInputFileSequence::initFile()");
+          ex.clearMessage();
+          ex << "Input file " << fileIter_->fileName() << " could not be read properly.\n" <<
             "Possibly the format is incompatible with the current release.\n";
+          throw ex;
         }
-        throw Exception(errors::FileOpenError) << e.explainSelf() << "\n" <<
-           "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
+        edm::Exception ex(edm::errors::FileOpenError, "", e);
+        ex.addContext("Calling RootInputFileSequence::initFile()");
+        ex.clearMessage();
+        ex << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
+        throw ex;
       }
     }
     if(!filePtr && (hasFallbackUrl)) {
@@ -193,12 +199,18 @@ namespace edm {
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
           if(e.explainSelf().find(streamerInfo) != std::string::npos) {
-            throw Exception(errors::FileReadError) << e.explainSelf() << "\n" <<
-              "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " could not be read properly.\n" <<
+            edm::Exception ex(edm::errors::FileReadError, "", e);
+            ex.addContext("Calling RootInputFileSequence::initFile()");
+            ex.clearMessage();
+            ex << "Input file " << fileIter_->fileName() << " could not be read properly.\n" <<
               "Possibly the format is incompatible with the current release.\n";
+            throw ex;
           }
-          throw Exception(errors::FileOpenError) << e.explainSelf() << "\n" <<
-             "RootInputFileSequence::initFile(): Input fallback file " << fallbackName << " was not found, could not be opened, or is corrupted.\n";
+          edm::Exception ex(edm::errors::FileOpenError, "", e);
+          ex.addContext("Calling RootInputFileSequence::initFile()");
+          ex.clearMessage();
+          ex << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
+          throw ex;
         }
       }
     }

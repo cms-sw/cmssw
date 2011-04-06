@@ -96,7 +96,8 @@ IOChannel::close (void)
 
   int error = 0;
   if (! sysclose (fd (), &error))
-    throwStorageError ("IOChannel::sysclose()", "close()", error);
+    throwStorageError ("FileCloseError", "Calling IOChannel::close()",
+                       "sysclose()", error);
 
   fd (EDM_IOFD_INVALID);
 }

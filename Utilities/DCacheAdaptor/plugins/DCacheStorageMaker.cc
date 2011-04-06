@@ -51,11 +51,14 @@ public:
 		        const std::string &path)
   {
     std::string npath = normalise(proto, path);
-    if (dc_stage(npath.c_str(), 0, 0) != 0)
-      throw cms::Exception("DCacheStorageMaker::stagein()")
-	<< "Cannot stage in file '" << npath
-	<< "', error was: " << dc_strerror(dc_errno)
-	<< " (dc_errno=" << dc_errno << ")";
+    if (dc_stage(npath.c_str(), 0, 0) != 0) {
+      cms::Exception ex("FileStageInError");
+      ex << "Cannot stage in file '" << npath
+	 << "', error was: " << dc_strerror(dc_errno)
+	 << " (dc_errno=" << dc_errno << ")";
+      ex.addContext("Calling DCacheStorageMaker::stagein()");
+      throw ex;
+    }
   }
 
   virtual bool check (const std::string &proto,

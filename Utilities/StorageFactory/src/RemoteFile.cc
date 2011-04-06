@@ -81,7 +81,7 @@ RemoteFile::local (const std::string &tmpdir, std::string &temp)
 
   int fd = mkstemp (&temp[0]);
   if (fd == -1)
-    throwStorageError("RemoteFile::local()", "mkstemp()", errno);
+    throwStorageError("RemoteFile", "Calling RemoteFile::local()", "mkstemp()", errno);
 
   return fd;
 }
@@ -101,7 +101,7 @@ RemoteFile::get (int localfd, const std::string &name, char **cmd, int mode)
   {
     ::close (localfd);
     unlink (name.c_str());
-    throwStorageError ("RemoteFile::get()", "posix_spawnp()", rc);
+    throwStorageError ("RemoteFile", "Calling RemoteFile::get()", "posix_spawnp()", rc);
   }
 
   pid_t rcpid;
@@ -113,7 +113,7 @@ RemoteFile::get (int localfd, const std::string &name, char **cmd, int mode)
   {
     ::close (localfd);
     unlink (name.c_str());
-    throwStorageError ("RemoteFile::get()", "waitpid()", errno);
+    throwStorageError ("RemoteFile", "Calling RemoteFile::get()", "waitpid()", errno);
   }
 
   if (WIFEXITED(rc) && WEXITSTATUS(rc) == 0)
@@ -122,13 +122,15 @@ RemoteFile::get (int localfd, const std::string &name, char **cmd, int mode)
   {
     ::close (localfd);
     unlink (name.c_str());
-    throw cms::Exception("RemoteFile::get()")
-      << "'" << join(cmd) << "'"
-      << (WIFEXITED(rc) ? " exited with exit code "
-	  : WIFSIGNALED(rc) ? " died from signal "
-	  : " died for an obscure unknown reason with exit status ")
-      << (WIFEXITED(rc) ? WEXITSTATUS(rc)
-	  : WIFSIGNALED(rc) ? WTERMSIG(rc)
-	  : rc);
+    cms::Exception ex("RemoteFile");
+    ex << "'" << join(cmd) << "'"
+       << (WIFEXITED(rc) ? " exited with exit code "
+	   : WIFSIGNALED(rc) ? " died from signal "
+	   : " died for an obscure unknown reason with exit status ")
+       << (WIFEXITED(rc) ? WEXITSTATUS(rc)
+	   : WIFSIGNALED(rc) ? WTERMSIG(rc)
+	   : rc);
+    ex.addContext("Calling RemoteFile::get()");
+    throw ex;
   }
 }

@@ -23,17 +23,22 @@ the worker is reset().
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+
+#include <sstream>
 
 namespace edm {
 
@@ -122,7 +127,7 @@ namespace edm {
 
     ModuleDescription md_;
     ActionTable const* actions_; // memory assumed to be managed elsewhere
-    boost::shared_ptr<edm::Exception> cached_exception_; // if state is 'exception'
+    boost::shared_ptr<cms::Exception> cached_exception_; // if state is 'exception'
 
     boost::shared_ptr<ActivityRegistry> actReg_;
   };
@@ -143,17 +148,51 @@ namespace edm {
     };
 
     template <typename T>
-    cms::Exception& exceptionContext(ModuleDescription const& iMD,
-				     T const& ip,
-				     cms::Exception& iEx) {
-      iEx << iMD.moduleName() << "/" << iMD.moduleLabel()
-        << " " << ip.id() << "\n";
-      return iEx;
+    void exceptionContext(typename T::MyPrincipal const& principal,
+                          cms::Exception& ex,
+                          CurrentProcessingContext const* cpc) {
+      std::ostringstream ost;
+      if (T::isEvent_) {
+        ost << "Calling event method";
+      }
+      else if (T::begin_ && T::branchType_ == InRun) {
+        ost << "Calling beginRun";
+      }
+      else if (T::begin_ && T::branchType_ == InLumi) {
+        ost << "Calling beginLuminosityBlock";
+      }
+      else if (!T::begin_ && T::branchType_ == InLumi) {
+        ost << "Calling endLuminosityBlock";
+      }
+      else if (!T::begin_ && T::branchType_ == InRun) {
+        ost << "Calling endRun";
+      }
+      else {
+        // It should be impossible to get here ...
+        ost << "Calling unknown function";
+      }
+      if (cpc && cpc->moduleDescription()) {
+        ost << " for module " << cpc->moduleDescription()->moduleName() << "/'" << cpc->moduleDescription()->moduleLabel() << "'";
+      }
+      ex.addContext(ost.str());
+      ost.str("");
+      ost << "Running path '";
+      if (cpc && cpc->pathName()) {
+        ost << *cpc->pathName() << "'";
+      }
+      else {
+        ost << "unknown'";
+      }
+      ex.addContext(ost.str());
+      ost.str("");
+      ost << "Processing ";
+      ost << principal.id();
+      ex.addContext(ost.str());
     }
   }
 
-   template <typename T>
-   bool Worker::doWork(typename T::MyPrincipal& ep, 
+  template <typename T>
+  bool Worker::doWork(typename T::MyPrincipal& ep, 
                        EventSetup const& es,
                        CurrentProcessingContext const* cpc,
                        CPUTimer* const iTimer) {
@@ -172,17 +211,6 @@ namespace edm {
       case Pass: return true;
       case Fail: return false;
       case Exception: {
-	  // rethrow the cached exception again
-	  // It seems impossible to
-	  // get here a second time until a cms::Exception has been
-	  // thrown prviously.
-	  LogWarning("repeat") << "A module has been invoked a second "
-			       << "time even though it caught an "
-			       << "exception during the previous "
-			       << "invocation.\n"
-			       << "This may be an indication of a "
-			       << "configuration problem.\n";
-
 	  cached_exception_->raise();
       }
     }
@@ -190,6 +218,7 @@ namespace edm {
     if (T::isEvent_) ++timesRun_;
 
     try {
+      try {
 
 	ModuleSignalSentry<T> cpp(actReg_.get(), md_);
 	if (T::begin_) {
@@ -205,125 +234,47 @@ namespace edm {
 	  state_ = Fail;
 	  if (T::isEvent_) ++timesFailed_;
 	}
-    }
-
-    catch(cms::Exception& e) {
-
-	// NOTE: the warning printed as a result of ignoring or failing
-	// a module will only be printed during the full true processing
-	// pass of this module
-
-	// Get the action corresponding to this exception.  However, if processing
-	// something other than an event (e.g. run, lumi) always rethrow.
-	actions::ActionCodes action = (T::isEvent_ ? actions_->find(e.rootCause()) : actions::Rethrow);
-
-	// If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
-	// as FailModule, so any subsequent OutputModules are still run.
-        // For unscheduled modules only treat FailPath as a FailModule but still allow SkipEvent to throw
-	if (cpc && cpc->isEndPath()) {
-	  if ((action == actions::SkipEvent && !cpc->isUnscheduled()) ||
-               action == actions::FailPath) action = actions::FailModule;
-	}
-	switch(action) {
-	  case actions::IgnoreCompletely: {
-	      rc = true;
-	      ++timesPassed_;
-	      state_ = Pass;
-	      LogWarning("IgnoreCompletely")
-		<< "Module ignored an exception\n"
-                << e.what() << "\n";
-	      break;
-	  }
-
-	  case actions::FailModule: {
-	      rc = true;
-	      LogWarning("FailModule")
-                << "Module failed due to an exception\n"
-                << e.what() << "\n";
-	      ++timesFailed_;
-	      state_ = Fail;
-	      break;
-	  }
-
-	  default: {
-
-	      // we should not need to include the event/run/module names
-	      // the exception because the error logger will pick this
-	      // up automatically.  I'm leaving it in until this is
-	      // verified
-
-	      // here we simply add a small amount of data to the
-	      // exception to add some context, we could have rethrown
-	      // it as something else and embedded with this exception
-	      // as an argument to the constructor.
-
-	      if (T::isEvent_) ++timesExcept_;
-	      state_ = Exception;
-	      e << "cms::Exception going through module ";
-              exceptionContext(md_, ep, e);
-	      edm::Exception *edmEx = dynamic_cast<edm::Exception *>(&e);
-	      if (edmEx) {
-	        cached_exception_.reset(new edm::Exception(*edmEx));
-	      } else {
-	        cached_exception_.reset(new edm::Exception(errors::OtherCMS, std::string(), e));
-	      }
-	      throw;
-	  }
-	}
       }
+      catch (cms::Exception& e) { throw; }
+      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::exception& e) { convertException::stdToEDM(e); }
+      catch(std::string& s) { convertException::stringToEDM(s); }
+      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (...) { convertException::unknownToEDM(); }
+    }
+    catch(cms::Exception& ex) {
 
-    catch(std::bad_alloc& bda) {
-	if (T::isEvent_) ++timesExcept_;
-	state_ = Exception;
-	cached_exception_.reset(new edm::Exception(errors::BadAlloc));
-	*cached_exception_
-	  << "A std::bad_alloc exception occurred during a call to the module ";
-	exceptionContext(md_, ep, *cached_exception_)
-	  << "The job has probably exhausted the virtual memory available to the process.\n";
-	cached_exception_->raise();
-    }
-    catch(std::exception& e) {
-	if (T::isEvent_) ++timesExcept_;
-	state_ = Exception;
-	cached_exception_.reset(new edm::Exception(errors::StdException));
-	*cached_exception_
-	  << "A std::exception occurred during a call to the module ";
-        exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
-	  << "Previous information:\n" << e.what();
-	cached_exception_->raise();
-    }
-    catch(std::string& s) {
-	if (T::isEvent_) ++timesExcept_;
-	state_ = Exception;
-	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "std::string"));
-	*cached_exception_
-	  << "A std::string thrown as an exception occurred during a call to the module ";
-        exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
-	  << "Previous information:\n string = " << s;
-	cached_exception_->raise();
-    }
-    catch(char const* c) {
-	if (T::isEvent_) ++timesExcept_;
-	state_ = Exception;
-	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "const char *"));
-	*cached_exception_
-	  << "A const char* thrown as an exception occurred during a call to the module ";
-        exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
-	  << "Previous information:\n const char* = " << c << "\n";
-	cached_exception_->raise();
-    }
-    catch(...) {
-	if (T::isEvent_) ++timesExcept_;
-	state_ = Exception;
-	cached_exception_.reset(new edm::Exception(errors::Unknown, "repeated"));
-	*cached_exception_
-	  << "An unknown occurred during a previous call to the module ";
-        exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n";
-	cached_exception_->raise();
-    }
+      // NOTE: the warning printed as a result of ignoring or failing
+      // a module will only be printed during the full true processing
+      // pass of this module
 
+      // Get the action corresponding to this exception.  However, if processing
+      // something other than an event (e.g. run, lumi) always rethrow.
+      actions::ActionCodes action = (T::isEvent_ ? actions_->find(ex.category()) : actions::Rethrow);
+
+      // If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
+      // as IgnoreCompletely, so any subsequent OutputModules are still run.
+      // For unscheduled modules only treat FailPath as IgnoreCompletely but still allow SkipEvent to throw
+      if (cpc && cpc->isEndPath()) {
+        if ((action == actions::SkipEvent && !cpc->isUnscheduled()) ||
+             action == actions::FailPath) action = actions::IgnoreCompletely;
+      }
+      switch(action) {
+        case actions::IgnoreCompletely:
+          rc = true;
+          ++timesPassed_;
+	  state_ = Pass;
+          exceptionContext<T>(ep, ex, cpc);
+          edm::printCmsExceptionWarning("IgnoreCompletely", ex);
+	  break;
+        default:
+          if (T::isEvent_) ++timesExcept_;
+	  state_ = Exception;
+          cached_exception_.reset(ex.clone());
+	  cached_exception_->raise();
+      }
+    }
     return rc;
   }
-
 }
 #endif

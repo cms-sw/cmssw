@@ -26,10 +26,10 @@ namespace edm {
 
     void throwConfigurationException(ModuleDescription const& md,
                                      sigc::signal<void, ModuleDescription const&>& post,
-                                     cms::Exception const& iException) const;
+                                     cms::Exception & iException) const;
 
     void throwValidationException(WorkerParams const& p,
-				  cms::Exception const& iException) const;
+				  cms::Exception & iException) const;
 
     void validateEDMType(std::string const& edmType, WorkerParams const& p) const;
                                              

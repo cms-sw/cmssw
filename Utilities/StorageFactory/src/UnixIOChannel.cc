@@ -1,6 +1,7 @@
 #include "Utilities/StorageFactory/interface/IOChannel.h"
 #include "Utilities/StorageFactory/src/SysIOChannel.h"
 #include "Utilities/StorageFactory/src/Throw.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include <algorithm>
 #include <vector>
 #include <cassert>
@@ -14,7 +15,7 @@ IOChannel::read (void *into, IOSize n)
   while (s == -1 && errno == EINTR);
 
   if (s == -1)
-    throwStorageError ("IOChannel::read()", "read()", errno);
+    throwStorageError (edm::errors::FileReadError, "Calling IOChannel::read()", "read()", errno);
 
   return s;
 }
@@ -45,7 +46,7 @@ IOChannel::readv (IOBuffer *into, IOSize buffers)
 
   // If it was serious error, throw it.
   if (n == -1)
-    throwStorageError ("IOChannel::readv", "readv()", errno);
+    throwStorageError (edm::errors::FileReadError, "Calling IOChannel::readv", "readv()", errno);
 
   // Return the number of bytes actually read.
   return n;
@@ -63,7 +64,7 @@ IOChannel::write (const void *from, IOSize n)
   while (s == -1 && errno == EINTR);
 
   if (s == -1 && errno != EWOULDBLOCK)
-    throwStorageError ("IOChannel::write()", "write()", errno);
+    throwStorageError ("FileWriteError", "Calling IOChannel::write()", "write()", errno);
 
   return s >= 0 ? s : 0;
 }
@@ -94,7 +95,7 @@ IOChannel::writev (const IOBuffer *from, IOSize buffers)
 
   // If it was serious error, throw it.
   if (n == -1)
-    throwStorageError ("IOChannel::writev()", "writev()", errno);
+    throwStorageError ("FileWriteError", "Calling IOChannel::writev()", "writev()", errno);
 
   // Return the number of bytes actually written.
   return n;
@@ -113,11 +114,11 @@ IOChannel::setBlocking (bool value)
 
   if ((mode = fcntl (fd (), F_GETFL, 0)) == -1
       || fcntl (fd (), F_SETFL, (mode & off) | on) == -1)
-    throwStorageError ("IOChannel::setBlocking()", "fcntl()", errno);
+    throwStorageError ("FileSetBlockingError", "Calling IOChannel::setBlocking()", "fcntl()", errno);
 #elif defined FIONBIO
   int mode = value;
   if (ioctl (fd (), FIONBIO, &value) == -1)
-    throwStorageError ("IOChannel::setBlocking()", "ioctl()", errno);
+    throwStorageError ("FileSetBlockingError", "Calling IOChannel::setBlocking()", "ioctl()", errno);
 #endif
 }
 
@@ -127,7 +128,7 @@ IOChannel::isBlocking (void) const
 #ifdef O_NONBLOCK
   int mode;
   if ((mode = fcntl (fd (), F_GETFL, 0)) == -1)
-    throwStorageError ("IOChannel::isBlocking()", "fcntl()", errno);
+    throwStorageError ("FileIsBlockingError", "Calling IOChannel::isBlocking()", "fcntl()", errno);
 
   return mode & (O_NDELAY | O_NONBLOCK);
 #else // ! O_NONBLOCK

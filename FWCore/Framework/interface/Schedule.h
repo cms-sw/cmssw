@@ -58,6 +58,7 @@
 */
 
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -67,10 +68,13 @@
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -79,6 +83,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <sstream>
 
 namespace edm {
   namespace service {
@@ -86,6 +91,7 @@ namespace edm {
   }
   class ActivityRegistry;
   class EventSetup;
+  class ExceptionCollector;
   class OutputWorker;
   class RunStopwatch;
   class UnscheduledCallProducer;
@@ -117,7 +123,7 @@ namespace edm {
     void processOneOccurrence(typename T::MyPrincipal& principal, EventSetup const& eventSetup);
 
     void beginJob();
-    void endJob();
+    void endJob(ExceptionCollector & collector);
 
     // Write the luminosity block
     void writeLumi(LuminosityBlockPrincipal const& lbp);
@@ -323,7 +329,38 @@ namespace edm {
             it != itEnd;
             ++it) {
           CPUTimer timer;
-          it->second->doWork<T>(p, es, 0, &timer);
+          try {
+            it->second->doWork<T>(p, es, 0, &timer);
+          }
+          catch (cms::Exception & ex) {
+	    std::ostringstream ost;
+            if (T::isEvent_) {
+              ost << "Calling event method";
+            }
+            else if (T::begin_ && T::branchType_ == InRun) {
+              ost << "Calling beginRun";
+            }
+            else if (T::begin_ && T::branchType_ == InLumi) {
+              ost << "Calling beginLuminosityBlock";
+            }
+            else if (!T::begin_ && T::branchType_ == InLumi) {
+              ost << "Calling endLuminosityBlock";
+            }
+            else if (!T::begin_ && T::branchType_ == InRun) {
+              ost << "Calling endRun";
+            }
+            else {
+              // It should be impossible to get here ...
+              ost << "Calling unknown function";
+            }
+            ost << " for unscheduled module " << it->second->description().moduleName()
+                << "/'" << it->second->description().moduleLabel() << "'";
+            ex.addContext(ost.str());
+            ost.str("");
+            ost << "Processing " << p.id();
+            ex.addContext(ost.str());
+            throw;
+          }
         }
       }
     }
@@ -337,7 +374,17 @@ namespace edm {
         labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
         CPUTimer timer;
-        itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, iContext, &timer);
+        try {
+          itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, iContext, &timer);
+        }
+        catch (cms::Exception & ex) {
+	  std::ostringstream ost;
+          ost << "Calling produce method for unscheduled module " 
+              <<  itFound->second->description().moduleName() << "/'"
+              << itFound->second->description().moduleLabel() << "'";
+          ex.addContext(ost.str());
+          throw;
+        }
         return true;
       }
       return false;
@@ -375,16 +422,13 @@ namespace edm {
         state_ = Latched;
       }
       catch(cms::Exception& e) {
-        actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.rootCause()) : actions::Rethrow);
+        actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.category()) : actions::Rethrow);
         assert (action != actions::IgnoreCompletely);
         assert (action != actions::FailPath);
-        assert (action != actions::FailModule);
         if (action == actions::SkipEvent) {
-            LogWarning(e.category())
-              << "an exception occurred and all paths for the event are being skipped: \n"
-              << e.what();
+          edm::printCmsExceptionWarning("SkipEvent", e);
         } else {
-           throw;
+          throw;
         }
       }
 
@@ -392,44 +436,24 @@ namespace edm {
         CPUTimer timer;
         if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0, &timer);
       }
-      catch (cms::Exception& e) {
-        e << "EventProcessingStopped\n";
-        e << "Attempt to insert TriggerResults into event failed.\n";
+      catch (cms::Exception & ex) {
+        if (T::isEvent_) {
+          ex.addContext("Calling produce method for module TriggerResultInserter");
+        }
+	std::ostringstream ost;
+        ost << "Processing " << ep.id();
+        ex.addContext(ost.str());
         throw;
       }
 
       if (endpathsAreActive_) runEndPaths<T>(ep, es);
     }
-    catch(cms::Exception& e) {
-      actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.rootCause()) : actions::Rethrow);
-      assert (action != actions::SkipEvent);
-      assert (action != actions::FailPath);
-      assert (action != actions::FailModule);
-      switch(action) {
-      case actions::IgnoreCompletely: {
-          LogWarning(e.category())
-            << "exception being ignored for current event:\n"
-            << e.what();
-          break;
-      }
-      default: {
-        state_ = Ready;
-        e << "EventProcessingStopped\n";
-        e << "an exception occurred during current event processing\n";
-        throw;
-      }
-      }
-    }
     catch(...) {
-      LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
       state_ = Ready;
       throw;
     }
-
     // next thing probably is not needed, the product insertion code clears it
     state_ = Ready;
-
   }
 
   template <typename T>

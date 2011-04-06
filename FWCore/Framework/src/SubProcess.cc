@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/ExceptionCollector.h"
 
 #include <cassert>
 #include <set>
@@ -137,7 +138,11 @@ namespace edm {
   void
   SubProcess::endJob() {
     ServiceRegistry::Operate operate(serviceToken_);
-    schedule_->endJob();
+    ExceptionCollector c("Multiple exceptions were thrown while executing endJob. An exception message follows for each.");
+    schedule_->endJob(c);
+    if(c.hasThrown()) {
+      c.rethrow();
+    }
     if(subProcess_.get()) subProcess_->doEndJob();
   }
 

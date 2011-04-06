@@ -1,5 +1,6 @@
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
@@ -70,14 +71,18 @@ XrdFile::open (const char *name,
   m_name = name;
 
   // Actual open
-  if ((name == 0) || (*name == 0))
-    throw cms::Exception("XrdFile::open()")
-      << "Cannot open a file without a name";
-
-  if ((flags & (IOFlags::OpenRead | IOFlags::OpenWrite)) == 0)
-    throw cms::Exception("XrdFile::open()")
-      << "Must open file '" << name << "' at least for read or write";
-
+  if ((name == 0) || (*name == 0)) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Cannot open a file without a name";
+    ex.addContext("Calling XrdFile::open()");
+    throw ex;
+  }
+  if ((flags & (IOFlags::OpenRead | IOFlags::OpenWrite)) == 0) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Must open file '" << name << "' at least for read or write";
+    ex.addContext("Calling XrdFile::open()");
+    throw ex;
+  }
   // If I am already open, close old file first
   if (m_client && m_close)
     close();
@@ -92,9 +97,12 @@ XrdFile::open (const char *name,
   else if (flags & IOFlags::OpenRead)
     openflags |= kXR_open_read;
 
-  if (flags & IOFlags::OpenAppend)
-    throw cms::Exception("XrdFile::open()")
-      << "Opening file '" << name << "' in append mode not supported";
+  if (flags & IOFlags::OpenAppend) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Opening file '" << name << "' in append mode not supported";
+    ex.addContext("Calling XrdFile::open()");
+    throw ex;
+  }
 
   if (flags & IOFlags::OpenCreate)
   {
@@ -109,20 +117,24 @@ XrdFile::open (const char *name,
 
   m_client = new XrdClient(name);
   if (! m_client->Open(perms, openflags)
-      || m_client->LastServerResp()->status != kXR_ok)
-    throw cms::Exception("XrdFile::open()")
-      << "XrdClient::Open(name='" << name
-      << "', flags=0x" << std::hex << openflags
-      << ", permissions=0" << std::oct << perms << std::dec
+      || m_client->LastServerResp()->status != kXR_ok) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "XrdClient::Open(name='" << name
+       << "', flags=0x" << std::hex << openflags
+       << ", permissions=0" << std::oct << perms << std::dec
+       << ") => error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
+    ex.addContext("Calling XrdFile::open()");
+    throw ex;
+  }
+  if (! m_client->Stat(&m_stat)) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "XrdClient::Stat(name='" << name
       << ") => error '" << m_client->LastServerError()->errmsg
       << "' (errno=" << m_client->LastServerError()->errnum << ")";
-
-  if (! m_client->Stat(&m_stat))
-    throw cms::Exception("XrdFile::open()")
-      << "XrdClient::Stat(name='" << name
-      << ") => error '" << m_client->LastServerError()->errmsg
-      << "' (errno=" << m_client->LastServerError()->errnum << ")";
-
+    ex.addContext("Calling XrdFile::open()");
+    throw ex;
+  }
   m_offset = 0;
   m_close = true;
   edm::LogInfo("XrdFileInfo") << "Opened " << m_name;
@@ -168,18 +180,23 @@ XrdFile::abort (void)
 IOSize
 XrdFile::read (void *into, IOSize n)
 {
-  if (n > 0x7fffffff)
-    throw cms::Exception("XrdFile::read()")
-      << "XrdFile::read(name='" << m_name << "', n=" << n
-      << ") too many bytes, limit is 0x7fffffff";
-
+  if (n > 0x7fffffff) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "XrdFile::read(name='" << m_name << "', n=" << n
+       << ") too many bytes, limit is 0x7fffffff";
+    ex.addContext("Calling XrdFile::read()");
+    throw ex;
+  }
   int s = m_client->Read(into, m_offset, n);
-  if (s < 0)
-    throw cms::Exception("XrdFile::read()")
-      << "XrdClient::Read(name='" << m_name
-      << "', offset=" << m_offset << ", n=" << n
-      << ") failed with error '" << m_client->LastServerError()->errmsg
-      << "' (errno=" << m_client->LastServerError()->errnum << ")";
+  if (s < 0) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "XrdClient::Read(name='" << m_name
+       << "', offset=" << m_offset << ", n=" << n
+       << ") failed with error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
+    ex.addContext("Calling XrdFile::read()");
+    throw ex;
+  }
   m_offset += s;
   return s;
 }
@@ -187,18 +204,23 @@ XrdFile::read (void *into, IOSize n)
 IOSize
 XrdFile::read (void *into, IOSize n, IOOffset pos)
 {
-  if (n > 0x7fffffff)
-    throw cms::Exception("XrdFile::read()")
-      << "XrdFile::read(name='" << m_name << "', n=" << n
-      << ") exceeds read size limit 0x7fffffff";
-
+  if (n > 0x7fffffff) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "XrdFile::read(name='" << m_name << "', n=" << n
+       << ") exceeds read size limit 0x7fffffff";
+    ex.addContext("Calling XrdFile::read()");
+    throw ex;
+  }
   int s = m_client->Read(into, pos, n);
-  if (s < 0)
-    throw cms::Exception("XrdFile::read()")
-      << "XrdClient::Read(name='" << m_name
-      << "', offset=" << m_offset << ", n=" << n
-      << ") failed with error '" << m_client->LastServerError()->errmsg
-      << "' (errno=" << m_client->LastServerError()->errnum << ")";
+  if (s < 0) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "XrdClient::Read(name='" << m_name
+       << "', offset=" << m_offset << ", n=" << n
+       << ") failed with error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
+    ex.addContext("Calling XrdFile::read()");
+    throw ex;
+  }
   return s;
 }
 
@@ -218,21 +240,27 @@ XrdFile::readv (IOBuffer *into, IOSize n)
   for (IOSize i = 0; i < n; ++i)
   {
     IOSize len = into[i].size();
-    if (len > 0x7fffffff)
-      throw cms::Exception("XrdFile::readv()")
-        << "XrdFile::readv(name='" << m_name << "')[" << i
-        << "].size=" << len << " exceeds read size limit 0x7fffffff";
+    if (len > 0x7fffffff) {
+      edm::Exception ex(edm::errors::FileReadError);
+      ex << "XrdFile::readv(name='" << m_name << "')[" << i
+         << "].size=" << len << " exceeds read size limit 0x7fffffff";
+      ex.addContext("Calling XrdFile::readv()");
+      throw ex;
+    }
     offsets[i] = pos;
     lengths[i] = len;
     pos += len;
   }
 
   // Prefetch into the cache (if any).
-  if (m_client->ReadV(0, &offsets[0], &lengths[0], n) < 0)
-    throw cms::Exception("XrdFile::readv()")
-      << "XrdClient::ReadV(name='" << m_name
-      << "') failed with error '" << m_client->LastServerError()->errmsg
-      << "' (errno=" << m_client->LastServerError()->errnum << ")";
+  if (m_client->ReadV(0, &offsets[0], &lengths[0], n) < 0) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "XrdClient::ReadV(name='" << m_name
+       << "') failed with error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
+    ex.addContext("Calling XrdFile::readv()");
+    throw ex;
+  }
 
   // Issue actual reads.
   IOSize total = 0;
@@ -243,11 +271,13 @@ XrdFile::readv (IOBuffer *into, IOSize n)
     {
       if (i > 0)
         break;
-      throw cms::Exception("XrdFile::readv()")
-        << "XrdClient::Read(name='" << m_name
-        << "', offset=" << offsets[i] << ", n=" << lengths[i]
-        << ") failed with error '" << m_client->LastServerError()->errmsg
-        << "' (errno=" << m_client->LastServerError()->errnum << ")";
+      edm::Exception ex(edm::errors::FileReadError);
+      ex << "XrdClient::Read(name='" << m_name
+         << "', offset=" << offsets[i] << ", n=" << lengths[i]
+         << ") failed with error '" << m_client->LastServerError()->errmsg
+         << "' (errno=" << m_client->LastServerError()->errnum << ")";
+      ex.addContext("Calling XrdFile::readv()");
+      throw ex;
     }
     total += s;
     m_offset += s;
@@ -265,21 +295,26 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
   for (IOSize i = 0; i < n; ++i)
   {
     IOSize len = into[i].size();
-    if (len > 0x7fffffff)
-      throw cms::Exception("XrdFile::readv()")
-        << "XrdFile::readv(name='" << m_name << "')[" << i
-        << "].size=" << len << " exceeds read size limit 0x7fffffff";
+    if (len > 0x7fffffff) {
+      edm::Exception ex(edm::errors::FileReadError);
+      ex << "XrdFile::readv(name='" << m_name << "')[" << i
+         << "].size=" << len << " exceeds read size limit 0x7fffffff";
+      ex.addContext("Calling XrdFile::readv()");
+      throw ex;
+    }
     offsets[i] = into[i].offset();
     lengths[i] = len;
   }
 
   // Prefetch into the cache (if any).
-  if (m_client->ReadV(0, &offsets[0], &lengths[0], n) < 0)
-    throw cms::Exception("XrdFile::readv()")
-      << "XrdClient::ReadV(name='" << m_name
-      << "') failed with error '" << m_client->LastServerError()->errmsg
-      << "' (errno=" << m_client->LastServerError()->errnum << ")";
-
+  if (m_client->ReadV(0, &offsets[0], &lengths[0], n) < 0) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "XrdClient::ReadV(name='" << m_name
+       << "') failed with error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
+    ex.addContext("Calling XrdFile::readv()");
+    throw ex;
+  }
   // Issue actual reads.
   IOSize total = 0;
   for (IOSize i = 0; i < n; ++i)
@@ -289,11 +324,13 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
     {
       if (i > 0)
         break;
-      throw cms::Exception("XrdFile::readv()")
-        << "XrdClient::Read(name='" << m_name
-        << "', offset=" << offsets[i] << ", n=" << lengths[i]
-        << ") failed with error '" << m_client->LastServerError()->errmsg
-        << "' (errno=" << m_client->LastServerError()->errnum << ")";
+      edm::Exception ex(edm::errors::FileReadError);
+      ex << "XrdClient::Read(name='" << m_name
+         << "', offset=" << offsets[i] << ", n=" << lengths[i]
+         << ") failed with error '" << m_client->LastServerError()->errmsg
+         << "' (errno=" << m_client->LastServerError()->errnum << ")";
+      ex.addContext("Calling XrdFile::readv()");
+      throw ex;
     }
     total += s;
   }
@@ -304,18 +341,22 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
 IOSize
 XrdFile::write (const void *from, IOSize n)
 {
-  if (n > 0x7fffffff)
-    throw cms::Exception("XrdFile::write()")
-      << "XrdFile::write(name='" << m_name << "', n=" << n
-      << ") too many bytes, limit is 0x7fffffff";
-
+  if (n > 0x7fffffff) {
+    cms::Exception ex("FileWriteError");
+    ex << "XrdFile::write(name='" << m_name << "', n=" << n
+       << ") too many bytes, limit is 0x7fffffff";
+    ex.addContext("Calling XrdFile::write()");
+    throw ex;
+  }
   ssize_t s = m_client->Write(from, m_offset, n);
-  if (s < 0)
-    throw cms::Exception("XrdFile::write()")
-      << "XrdFile::write(name='" << m_name << "', n=" << n
-      << ") failed with error '" << m_client->LastServerError()->errmsg
-      << "' (errno=" << m_client->LastServerError()->errnum << ")";
-
+  if (s < 0) {
+    cms::Exception ex("FileWriteError");
+    ex << "XrdFile::write(name='" << m_name << "', n=" << n
+       << ") failed with error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
+    ex.addContext("Calling XrdFile::write()");
+    throw ex;
+  }
   m_offset += s;
   if (m_offset > m_stat.size)
     m_stat.size = m_offset;
@@ -326,18 +367,22 @@ XrdFile::write (const void *from, IOSize n)
 IOSize
 XrdFile::write (const void *from, IOSize n, IOOffset pos)
 {
-  if (n > 0x7fffffff)
-    throw cms::Exception("XrdFile::write()")
-      << "XrdFile::write(name='" << m_name << "', n=" << n
-      << ") too many bytes, limit is 0x7fffffff";
-
+  if (n > 0x7fffffff) {
+    cms::Exception ex("FileWriteError");
+    ex << "XrdFile::write(name='" << m_name << "', n=" << n
+       << ") too many bytes, limit is 0x7fffffff";
+    ex.addContext("Calling XrdFile::write()");
+    throw ex;
+  }
   ssize_t s = m_client->Write(from, pos, n);
-  if (s < 0)
-    throw cms::Exception("XrdFile::write()")
-      << "XrdFile::write(name='" << m_name << "', n=" << n
-      << ") failed with error '" << m_client->LastServerError()->errmsg
-      << "' (errno=" << m_client->LastServerError()->errnum << ")";
-
+  if (s < 0) {
+    cms::Exception ex("FileWriteError");
+    ex << "XrdFile::write(name='" << m_name << "', n=" << n
+       << ") failed with error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
+    ex.addContext("Calling XrdFile::write()");
+    throw ex;
+  }
   if (pos + s > m_stat.size)
     m_stat.size = pos + s;
 
@@ -359,10 +404,12 @@ XrdFile::prefetch (const IOPosBuffer *what, IOSize n)
 IOOffset
 XrdFile::position (IOOffset offset, Relative whence /* = SET */)
 {
-  if (! m_client)
-    throw cms::Exception("XrdFile::position()")
-      << "XrdFile::position() called on a closed file";
-
+  if (! m_client) {
+    cms::Exception ex("FilePositionError");
+    ex << "XrdFile::position() called on a closed file";
+    ex.addContext("Calling XrdFile::position()");
+    throw ex;
+  }
   switch (whence)
   {
   case SET:
@@ -378,8 +425,10 @@ XrdFile::position (IOOffset offset, Relative whence /* = SET */)
     break;
 
   default:
-    throw cms::Exception("XrdFile::position()")
-      << "XrdFile::position() called with incorrect 'whence' parameter";
+    cms::Exception ex("FilePositionError");
+    ex << "XrdFile::position() called with incorrect 'whence' parameter";
+    ex.addContext("Calling XrdFile::position()");
+    throw ex;
   }
 
   if (m_offset < 0)
@@ -393,6 +442,8 @@ XrdFile::position (IOOffset offset, Relative whence /* = SET */)
 void
 XrdFile::resize (IOOffset /* size */)
 {
-  throw cms::Exception("XrdFile::resize()")
-    << "XrdFile::resize(name='" << m_name << "') not implemented";
+  cms::Exception ex("FileResizeError");
+  ex << "XrdFile::resize(name='" << m_name << "') not implemented";
+  ex.addContext("Calling XrdFile::resize()");
+  throw ex;
 }

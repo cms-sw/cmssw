@@ -21,6 +21,7 @@
 // system include files
 #include <string>
 #include <map>
+#include <exception>
 #include "boost/shared_ptr.hpp"
 
 // user include files
@@ -29,7 +30,9 @@
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ComponentMaker.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 namespace edm {
@@ -88,12 +91,21 @@ template<typename T>
          }
          
          try {
-            return it->second->addTo(iProvider,iConfiguration,iProcessName,iVersion,iPass);
-         } catch(cms::Exception& iException) {
-            Exception toThrow(errors::Configuration,"Error occurred while creating ");
-            toThrow<<modtype<<"\n";
-            toThrow.append(iException);
-            toThrow.raise();
+           try {
+             return it->second->addTo(iProvider,iConfiguration,iProcessName,iVersion,iPass);
+           }
+           catch (cms::Exception& e) { throw; }
+           catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+           catch (std::exception& e) { convertException::stdToEDM(e); }
+           catch(std::string& s) { convertException::stringToEDM(s); }
+           catch(char const* c) { convertException::charPtrToEDM(c); }
+           catch (...) { convertException::unknownToEDM(); }
+         }
+         catch(cms::Exception & iException) {
+           std::ostringstream ost;
+           ost << "Constructing ESSource or ESProducer of type " << modtype;
+           iException.addContext(ost.str());
+           throw;
          }
          return boost::shared_ptr<base_type>();
       }
