@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/25 16:50:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/07/02 13:34:23 $
+ *  $Revision: 1.2 $
  */
  
 #include "Validation/EventGenerator/interface/BasicHepMCValidation.h"
@@ -175,6 +175,19 @@ void BasicHepMCValidation::beginJob()
     genPtclStatus = dbe->book1D("genPtclStatus", "Status of genParticle", 200,0,200.);
 	//
     Bjorken_x = dbe->book1D("Bjorken_x", "Bjorken_x", 1000, 0.0, 1.0);
+    //
+    status1ShortLived = dbe->book1D("status1ShortLived","Status 1 short lived", 11, 0, 11);
+    status1ShortLived->setBinLabel(1,"d/dbar");
+    status1ShortLived->setBinLabel(2,"u/ubar");
+    status1ShortLived->setBinLabel(3,"s/sbar");
+    status1ShortLived->setBinLabel(4,"c/cbar");
+    status1ShortLived->setBinLabel(5,"b/bbar");
+    status1ShortLived->setBinLabel(6,"t/tbar");
+    status1ShortLived->setBinLabel(7,"g");
+    status1ShortLived->setBinLabel(8,"tau-/tau+");
+    status1ShortLived->setBinLabel(9,"Z0");
+    status1ShortLived->setBinLabel(10,"W-/W+");
+    status1ShortLived->setBinLabel(11,"PDG = 7,8,17,25-99");
   }
   return;
 }
@@ -285,6 +298,17 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
 	    stablePtclp->Fill(Log_p);
 	    stablePtclpT->Fill(log10(ptcl->momentum().perp()));
         if (charge != 0. && charge != 999.) ++stableChaNum;
+        if ( std::abs(Id) == 1 ) status1ShortLived->Fill(1);
+        if ( std::abs(Id) == 2 ) status1ShortLived->Fill(2);
+        if ( std::abs(Id) == 3 ) status1ShortLived->Fill(3);
+        if ( std::abs(Id) == 4 ) status1ShortLived->Fill(4);
+        if ( std::abs(Id) == 5 ) status1ShortLived->Fill(5);
+        if ( std::abs(Id) == 6 ) status1ShortLived->Fill(6);
+        if ( Id == 21 ) status1ShortLived->Fill(7);
+        if ( std::abs(Id) == 15 ) status1ShortLived->Fill(8);
+        if ( Id == 23 ) status1ShortLived->Fill(9);
+        if ( std::abs(Id) == 24 ) status1ShortLived->Fill(10);
+        if ( std::abs(Id) == 7 || std::abs(Id) == 8 || std::abs(Id) == 17 || (std::abs(Id) >= 25 && std::abs(Id) <= 99) ) status1ShortLived->Fill(11);
       }
 	
       ///counting multiplicities and filling momentum distributions
