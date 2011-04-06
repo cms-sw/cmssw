@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.32 2010/12/21 16:56:16 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.33 2011/02/07 10:23:33 organtin Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -250,6 +250,8 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   RunList fetchRunList(RunTag tag) throw(std::runtime_error);
   RunList fetchRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error);
+  RunList fetchNonEmptyRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error);
+  RunList fetchNonEmptyGlobalRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error);
   RunList fetchRunListByLocation(RunTag tag, int min_run, int max_run , const LocationDef locDef) throw(std::runtime_error);
   RunList fetchGlobalRunListByLocation(RunTag tag, int min_run, int max_run , const LocationDef locDef) throw(std::runtime_error);
   RunList fetchRunListLastNRuns(RunTag tag, int max_run, int n_runs) throw(std::runtime_error);

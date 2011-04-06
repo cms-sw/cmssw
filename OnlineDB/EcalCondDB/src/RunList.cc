@@ -37,6 +37,30 @@ RunTag RunList::getRunTag() const
   return m_vec_runiov;
 }
 
+void RunList::fetchNonEmptyRuns() 
+  throw(std::runtime_error)
+{
+  fetchRuns(-1, -1, true, false); 
+}
+
+void RunList::fetchNonEmptyGlobalRuns() 
+  throw(std::runtime_error)
+{
+  fetchRuns(-1, -1, false, true); 
+}
+
+void RunList::fetchNonEmptyRuns(int min_run, int max_run) 
+  throw(std::runtime_error)
+{
+  fetchRuns(min_run, max_run, true, false); 
+}
+
+void RunList::fetchNonEmptyGlobalRuns(int min_run, int max_run) 
+  throw(std::runtime_error)
+{
+  fetchRuns(min_run, max_run, false, true); 
+}
+
 void RunList::fetchRuns()
   throw(std::runtime_error)
 {
@@ -46,7 +70,25 @@ void RunList::fetchRuns()
 void RunList::fetchRuns(int min_run, int max_run)
   throw(std::runtime_error)
 {
+  fetchRuns(min_run, max_run, false, false);
+}
 
+void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
+			bool withGlobalTriggers)
+  throw(std::runtime_error)
+{
+
+  /*
+    withTriggers and withGlobalTriggers selects those non empty runs.
+    Possible combinations are
+
+    withTriggers withGlobalTriggers select
+    ------------ ------------------ ------------------------------
+    false        false              all
+    false        true               only runs with global triggers
+    true         false              only runs with any trigger
+    true         true               only runs with global triggers
+   */
   this->checkConnection();
   int nruns=0;
 
@@ -64,6 +106,8 @@ void RunList::fetchRuns(int min_run, int max_run)
     string sql =  "SELECT count(iov_id) FROM run_iov "
       "WHERE tag_id = :tag_id ";
     if (min_run > 0) {
+      // don't need to specify empty/non empty here. This is needed
+      // just to allocate the memory for the vector
       sql += " and run_iov.run_num> :min_run and run_iov.run_num< :max_run ";
     }
     stmt0->setSQL(sql);
@@ -83,13 +127,24 @@ void RunList::fetchRuns(int min_run, int max_run)
     m_vec_runiov.reserve(nruns);
     
     Statement* stmt = m_conn->createStatement();
-    sql = "SELECT iov_id, tag_id, run_num, run_start, run_end, " 
-      "db_timestamp FROM run_iov "
-      " WHERE tag_id = :tag_id ";
-    if (min_run > 0) {
-      sql += " and run_iov.run_num> :min_run and run_iov.run_num< :max_run ";
+    sql = "SELECT DISTINCT i.iov_id, tag_id, run_num, run_start, run_end, " 
+      "db_timestamp FROM run_iov i ";
+    if ((withTriggers) || (withGlobalTriggers)) {
+      sql += "join run_dat d on d.iov_id = i.iov_id " 
+	"left join CMS_RUNINFO.RUNSESSION_PARAMETER G on " 
+	"(i.run_num = G.RUNNUMBER and G.NAME = 'CMS.TRG:NumTriggers') "; 
     }
-    sql += 		 " order by run_num ";
+    sql +=  "WHERE tag_id = :tag_id ";
+    if (min_run > 0) {
+      sql += "and i.run_num> :min_run and i.run_num< :max_run ";
+    }
+    if (withGlobalTriggers) {
+      sql += "and G.STRING_VALUE != '0' "; 
+    } else if (withTriggers) {
+      sql += "and (G.STRING_VALUE != '0' or num_events > 0) ";
+    }
+    sql += " order by run_num ";
+    std::cout << sql << std::endl;
     stmt->setSQL(sql);
     stmt->setInt(1, tagID);
     if (min_run > 0) {
@@ -104,8 +159,7 @@ void RunList::fetchRuns(int min_run, int max_run)
   
     ResultSet* rset = stmt->executeQuery();
     int i=0;
-    while (i<nruns) {
-      rset->next();
+    while ((i<nruns) && (rset->next()))  {
       int iovID = rset->getInt(1);
       // int tagID = rset->getInt(2);
       int runNum = rset->getInt(3);
@@ -128,6 +182,7 @@ void RunList::fetchRuns(int min_run, int max_run)
       
       i++;
     }
+    m_vec_runiov.resize(i);
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
     throw(std::runtime_error("RunList::fetchRuns:  "+e.getMessage()));

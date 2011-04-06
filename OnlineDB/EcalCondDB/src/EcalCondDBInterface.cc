@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.29 2010/12/21 16:56:16 organtin Exp $
+// $Id: EcalCondDBInterface.cc,v 1.30 2011/02/07 10:23:33 organtin Exp $
 
 #include <iostream>
 #include <string>
@@ -686,6 +686,22 @@ RunList EcalCondDBInterface::fetchRunList(RunTag tag, int min_run, int max_run) 
   r.setConnection(env, conn);
   r.setRunTag(tag);
   r.fetchRuns( min_run,  max_run);
+  return r;
+}
+
+RunList EcalCondDBInterface::fetchNonEmptyRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error){
+  RunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.fetchNonEmptyRuns( min_run,  max_run);
+  return r;
+}
+
+RunList EcalCondDBInterface::fetchNonEmptyGlobalRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error){
+  RunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.fetchNonEmptyGlobalRuns( min_run,  max_run);
   return r;
 }
 
