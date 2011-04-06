@@ -197,6 +197,12 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
     #process.patTausPF.addDecayMode = True
     #process.patTausPF.decayModeSrc = "shrinkingConePFTauDecayModeProducerPF" 
 
+
+    # L1 FastJet jet corrections
+    process.pfJetsPF.doAreaFastjet = True
+    process.pfJetsPF.Rho_EtaMax = cms.double(3.0)
+
+
     #PF type I corrected MET
     addPFTypeIMet(process)
 
