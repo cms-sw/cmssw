@@ -30,7 +30,7 @@ egHLTOffDQMClient = cms.EDAnalyzer("EgHLTOfflineClient",
                                  #----Morse-----
                                  #phoN1EffVars=cms.vstring('hOverE','sigmaIEtaIEta','r9',
                                  #                         'isolEm','isolHad','isolPtTrks','isolNrTrks'),
-                                 phoN1EffVars=cms.vstring('hOverE','sigmaIEtaIEta','minr9','maxr9',
+                                 phoN1EffVars=cms.vstring('hOverE','sigmaIEtaIEta','maxr9',
                                                           'isolEm','isolHad','isolPtTrks','isolNrTrks'),
                                  #-------------
                                  phoSingleEffVars=cms.vstring('sigmaIEtaIEta','isolEm','isolHad',
