@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.95 2011/03/29 11:07:40 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.96 2011/03/29 11:20:18 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -301,6 +301,11 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   }
 
+  // Beam spot
+  if (!iEvent.getByLabel(InputTag("offlineBeamSpot"), fBeamSpotHandle)) {
+        edm::LogInfo("") << ">>> No beam spot found !!!";
+  }
+
   edm::Handle<reco::MuonCollection> muonHandle;
   iEvent.getByLabel(muonRecoCollectionName_,muonHandle);
   if(!muonHandle.isValid())  
@@ -355,11 +360,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel("pixelTracks",trackHandle);
   if(!trackHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "trackHandle not found, ";
-
-  // Beam spot
-  if (!iEvent.getByLabel(InputTag("offlineBeamSpot"), fBeamSpotHandle)) {
-        edm::LogInfo("") << ">>> No beam spot found !!!";
-  }
 
 
   // ---------------------
