@@ -109,7 +109,7 @@ void GeometryAligner::applyAlignments( C* geometry,
 	  this->setGeomDetPosition( *iGeomDet, position, rotation );
 
 	  // Alignment Position Error only if non-zero to save memory
-	  GlobalError error( (*iAlignError).matrix() );
+	  GlobalError error( asSMatrix<3>((*iAlignError).matrix()) );
 	  if ( error.cxx() || error.cyy() || error.czz() ||
 	       error.cyx() || error.czx() || error.czy() ||
                iGeomDet->alignmentPositionError() ) {
@@ -243,8 +243,8 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
     // Don't remove global position transformation from APE
     // as it wasn't applied. Just fill vector with original
     // values
-    GlobalError error( (*iAlignError).matrix() );
-    newAlignmentErrors->m_alignError.push_back( AlignTransformError( error.matrix(),
+    GlobalError error( asSMatrix<3>((*iAlignError).matrix()) );
+    newAlignmentErrors->m_alignError.push_back( AlignTransformError( (*iAlignError).matrix(),
 								     (*iAlignError).rawId() ) );
     if ( error.cxx() || error.cyy() || error.czz() ||
 	 error.cyx() || error.czx() || error.czy() ) {
