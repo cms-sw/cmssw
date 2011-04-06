@@ -9,9 +9,10 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
 
 #include <TH1.h>
+#include <TCanvas.h>
 
 #include <iostream>
 
@@ -86,7 +87,7 @@ void DQMHistEffProducer::analyze(const edm::Event&, const edm::EventSetup&)
 //--- nothing to be done yet
 }
 
-void DQMHistEffProducer::endJob()
+void DQMHistEffProducer::endRun(const edm::Run& r, const edm::EventSetup& c)
 {
   //std::cout << "<DQMHistEffProducer::endJob>:" << std::endl;
 
@@ -126,17 +127,32 @@ void DQMHistEffProducer::endJob()
       
       std::string effHistogramName, effHistogramDirectory, dummy;
       separateHistogramFromDirectoryName(plot->efficiency_, effHistogramName, effHistogramDirectory);
-      if ( effHistogramDirectory == "" ) separateHistogramFromDirectoryName(numeratorHistogramName, dummy, effHistogramDirectory);
-      if ( effHistogramDirectory != "" ) dqmStore.setCurrentFolder(effHistogramDirectory);
+      //if ( effHistogramDirectory == "" ) separateHistogramFromDirectoryName(numeratorHistogramName, dummy, effHistogramDirectory);
+      if ( effHistogramDirectory != "" ) 
+	{
+	  if(dqmStore.dirExists(effHistogramDirectory))
+	    dqmStore.setCurrentFolder(effHistogramDirectory);
+	  else
+	    std::cout<<"DQMHistEffProducer:: Directory: "<<effHistogramDirectory<<" does not exist!"<<std::endl;
+	}
       
       MonitorElement* histoEfficiency = dqmStore.book1D(effHistogramName, effHistogramName, 
 							histoNumerator->GetNbinsX(), histoNumerator->GetXaxis()->GetXmin(), histoNumerator->GetXaxis()->GetXmax());
       
       histoEfficiency->getTH1F()->Divide(histoNumerator, histoDenominator, 1., 1., "B");
+
+      //to avoid the pointer to go out of scope:
+      histoEfficiencyVector_.push_back(histoEfficiency);
+
+      /*      std::vector<std::string> mes = dqmStore.getMEs();
+      std::cout<<dqmStore.pwd()<<std::endl;
+      for(unsigned int i =0; i<mes.size(); i++)
+	std::cout<<mes[i]<<std::endl;
+      */
     } else {
-      edm::LogError("endJob") << " Failed to produce efficiency histogram = " << plot->efficiency_ << " !!";
-      if ( histoNumerator   == NULL ) edm::LogError("endJob") << "  numerator = " << plot->numerator_ << " does not exist.";
-      if ( histoDenominator == NULL ) edm::LogError("endJob") << "  denominator = " << plot->denominator_ << " does not exist.";
+      edm::LogError("endRun") << " Failed to produce efficiency histogram = " << plot->efficiency_ << " !!";
+      if ( histoNumerator   == NULL ) edm::LogError("endRun") << "  numerator = " << plot->numerator_ << " does not exist.";
+      if ( histoDenominator == NULL ) edm::LogError("endRun") << "  denominator = " << plot->denominator_ << " does not exist.";
     }
   }
 }
