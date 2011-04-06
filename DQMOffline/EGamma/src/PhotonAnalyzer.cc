@@ -9,7 +9,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2010/11/17 18:03:13 $ 
+ **  $Date: 2010/11/23 19:57:49 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -522,7 +522,10 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   sort(Keys.begin(),Keys.end());  //sort Keys vector in ascending order
 
   for(uint i=0;i<Keys.size();){  //erases duplicate entries from the vector
-    if(Keys[i]==Keys[i+1] && i!=Keys.size()-1) Keys.erase(Keys.begin()+i+1);
+    if(i!=Keys.size()-1){
+      if(Keys[i]==Keys[i+1]) Keys.erase(Keys.begin()+i+1);
+      else ++i;
+    }
     else ++i;
   }
 
