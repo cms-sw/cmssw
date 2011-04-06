@@ -91,7 +91,7 @@ for aDir in StepByStepPlotDirectories:
    images += "<hr><h3>" + producerName + "</h3>\n"
    # get the plots
    getByVar = lambda x: glob.glob(os.path.join(aDir, '*%s.png' % x))[0]
-   images += fourImages % (getByVar("pt"), getByVar("eta"), getByVar("energy"), getByVar("phi"))
+   images += fourImages % (getByVar("pt"), getByVar("eta"), getByVar("pileup"), getByVar("phi"))
 
 # open legend file
 captionsContents = ""
