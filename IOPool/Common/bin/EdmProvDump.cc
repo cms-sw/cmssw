@@ -43,7 +43,6 @@ typedef std::map<std::pair<std::string, std::string>, IdToBranches> ModuleToIdBr
 static std::ostream& prettyPrint(std::ostream& oStream, edm::ParameterSet const& iPSet, std::string const& iIndent, std::string const& iIndentDelta);
 
 namespace {
-edm::ParentageID invalidParentageID;
 typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
 
   class HistoryNode {
@@ -642,13 +641,13 @@ ProvenanceDumper::work_() {
       std::cerr << "no Parentage tree available so can not show dependencies/n";
       showDependencies_ = false;
     } else {
-      edm::Parentage parentageBuffer;
-      edm::Parentage *pParentageBuffer = &parentageBuffer;
-      parentageTree->SetBranchAddress(edm::poolNames::parentageBranchName().c_str(), &pParentageBuffer);
 
       edm::ParentageRegistry& registry = *edm::ParentageRegistry::instance();
 
       for(Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
+        edm::Parentage parentageBuffer;
+        edm::Parentage *pParentageBuffer = &parentageBuffer;
+        parentageTree->SetBranchAddress(edm::poolNames::parentageBranchName().c_str(), &pParentageBuffer);
         parentageTree->GetEntry(i);
         registry.insertMapped(parentageBuffer);
       }
@@ -765,19 +764,15 @@ ProvenanceDumper::work_() {
         for(std::set<edm::ParentageID>::const_iterator itParentID = parentageIDs.begin(), itEndParentID = parentageIDs.end();
             itParentID != itEndParentID;
             ++itParentID) {
-          if(*itParentID == invalidParentageID) {
-            sout << "  parentage info not supported for this product" << std::endl;
-          } else {
-            edm::Parentage const* parentage = registry.getMapped(*itParentID);
-            if(0 != parentage) {
-              for(std::vector<edm::BranchID>::const_iterator itBranch = parentage->parents().begin(), itEndBranch = parentage->parents().end();
-                  itBranch != itEndBranch;
-                  ++itBranch) {
-                sout << "  " << branchIDToBranchName[*itBranch] << std::endl;
-              }
-            } else {
-              sout << "  ERROR:parentage info not in registry ParentageID=" << *itParentID << std::endl;
+          edm::Parentage const* parentage = registry.getMapped(*itParentID);
+          if(0 != parentage) {
+            for(std::vector<edm::BranchID>::const_iterator itBranch = parentage->parents().begin(), itEndBranch = parentage->parents().end();
+                itBranch != itEndBranch;
+                ++itBranch) {
+              sout << "  " << branchIDToBranchName[*itBranch] << std::endl;
             }
+          } else {
+            sout << "  ERROR:parentage info not in registry ParentageID=" << *itParentID << std::endl;
           }
         }
         if(parentageIDs.empty()) {
