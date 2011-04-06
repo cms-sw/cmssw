@@ -11,6 +11,10 @@ class GluedGeomDet;
 #include <TrackingTools/PatternTools/interface/MeasurementEstimator.h>
 #include <TrackingTools/PatternTools/interface/TrajectoryMeasurement.h>
 
+
+#include "FWCore/Utilities/interface/Visibility.h"
+
+
 class TkGluedMeasurementDet : public MeasurementDet {
 public:
 
@@ -46,12 +50,12 @@ private:
 
 
   template<typename Collector>
-  void doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const;
+  void doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const  dso_internal;
 
   template<typename Collector>
-  void collectRecHits(const TrajectoryStateOnSurface&, Collector &coll) const;
+  void collectRecHits(const TrajectoryStateOnSurface&, Collector &coll) const dso_internal;
 
-  class HitCollectorForRecHits {
+  class dso_internal  HitCollectorForRecHits {
   public:
     typedef SiStripRecHitMatcher::Collector Collector;
     HitCollectorForRecHits(const GeomDet * geomDet, 
@@ -77,7 +81,7 @@ private:
   };
 
 
-  class HitCollectorForFastMeasurements {
+  class dso_internal HitCollectorForFastMeasurements {
   public:
     typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
     typedef SiStripRecHitMatcher::Collector Collector;
@@ -107,25 +111,25 @@ private:
   
   RecHitContainer 
   projectOnGluedDet( const RecHitContainer& hits,
-		     const TrajectoryStateOnSurface& ts) const;
+		     const TrajectoryStateOnSurface& ts) const dso_internal;
 
   template<typename HitCollector>
   void
   projectOnGluedDet( HitCollector & collector, 
                      const RecHitContainer& hits,
-                     const GlobalVector & gdir ) const ;
+                     const GlobalVector & gdir ) const  dso_internal;
 
   void checkProjection(const TrajectoryStateOnSurface& ts, 
 		       const RecHitContainer& monoHits, 
 		       const RecHitContainer& stereoHits) const;
   void checkHitProjection(const TransientTrackingRecHit& hit,
 			  const TrajectoryStateOnSurface& ts, 
-			  const GeomDet& det) const;
+			  const GeomDet& det) const dso_internal;
 
   /** \brief Test the strips on one of the two dets with projection */
   bool testStrips(const TrajectoryStateOnSurface& tsos,
                   const BoundPlane &gluedPlane,
-                  const TkStripMeasurementDet &mdet) const ;
+                  const TkStripMeasurementDet &mdet) const  dso_internal;
 
 };
 
