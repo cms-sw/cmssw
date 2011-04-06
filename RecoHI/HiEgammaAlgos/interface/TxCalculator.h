@@ -14,6 +14,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/PatCandidates/interface/Photon.h"
+
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -25,8 +27,8 @@ class TxCalculator
   
    TxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel) ;
   
-   double getTx(const reco::SuperClusterRef clus, double i,double threshold, double innerDR=0);
-   double getCTx(const reco::SuperClusterRef clus, double i,double threshold, double innerDR=0); // background subtracted Cx
+   double getTx(const reco::Photon clus, double i,double threshold, double innerDR=0);
+   double getCTx(const reco::Photon clus, double i,double threshold, double innerDR=0); // background subtracted Cx
 
   private:
    
