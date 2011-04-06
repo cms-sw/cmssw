@@ -2,7 +2,7 @@
 #define LMFSEQDAT_H
 
 /*
- Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
+ Last updated by  Giovanni.Organtini@roma1.infn.it 2010
  */
 
 #include <map>

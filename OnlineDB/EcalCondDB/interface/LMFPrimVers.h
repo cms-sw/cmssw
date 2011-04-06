@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 /*
- Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
+ Last updated by  Giovanni.Organtini@roma1.infn.it 2010
 */
 
 #include "OnlineDB/EcalCondDB/interface/LMFUnique.h"

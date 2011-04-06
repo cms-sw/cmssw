@@ -2,7 +2,7 @@
 #define LMFCORRCOEFDATCOMPONENT_H
 
 /*
- Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
+ Last updated by  Giovanni.Organtini@roma1.infn.it 2010
 
  This class represent a block of channels that share the same LMR_SUB_IOV_ID
  It is then modeled as a standard DAT table

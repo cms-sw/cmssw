@@ -2,7 +2,7 @@
 #define LMFCORRCOEFDAT_H
 
 /*
- Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
+ Last updated by  Giovanni.Organtini@roma1.infn.it 2010
 
  This class represents a block of data from LMF_CORR_COEF_DAT
 

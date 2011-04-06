@@ -5,7 +5,7 @@
   This class is used to get once all the definitions from the ECAL LMF
   database and return them in various forms.
 
-  Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
+  Last updated by  Giovanni.Organtini@roma1.infn.it 2010
 */
 
 #include "OnlineDB/EcalCondDB/interface/IDBObject.h"
