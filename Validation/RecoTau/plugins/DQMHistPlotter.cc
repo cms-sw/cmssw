@@ -567,6 +567,7 @@ DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
 {
   std::cout << "<DQMHistPlotter::DQMHistPlotter>:" << std::endl;
 
+  toFile_ = cfg.getParameter<bool>("PrintToFile");
   cfgError_ = 0;
 
 //--- configure processes  
@@ -887,7 +888,7 @@ void DQMHistPlotter::analyze(const edm::Event&, const edm::EventSetup&)
 // nothing to be done yet...
 }
 
-void DQMHistPlotter::endJob()
+void DQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 {
   std::cout << "<DQMHistPlotter::endJob>:" << std::endl;
 
@@ -949,11 +950,13 @@ void DQMHistPlotter::endJob()
 	  plot != drawJob->plots_.end(); ++plot ) {
 
       std::string dqmMonitorElementName_full = dqmDirectoryName(std::string(dqmRootDirectory)).append(plot->dqmMonitorElement_);
-      //std::cout << " dqmMonitorElementName_full = " << dqmMonitorElementName_full << std::endl;
+      std::cout << " dqmMonitorElementName_full = " << dqmMonitorElementName_full << std::endl;
       MonitorElement* dqmMonitorElement = dqmStore.get(dqmMonitorElementName_full);
 
-      TH1* histogram = ( dqmMonitorElement ) ? dynamic_cast<TH1*>(dqmMonitorElement->getTH1()->Clone()) : NULL;
-      histogramsToDelete.push_back(histogram);
+      TH1* histogram = dqmMonitorElement->getTH1F();
+      std::cout<<"Got Histogram "<<std::endl;
+      //      TH1* histogram = ( dqmMonitorElement ) ? dynamic_cast<TH1*>(dqmMonitorElement->getTH1()->Clone()) : NULL;
+      //histogramsToDelete.push_back(histogram);
 
       if ( histogram == NULL ) {
 	edm::LogError ("endJob") << " Failed to access dqmMonitorElement = " << dqmMonitorElementName_full <<","
@@ -1159,7 +1162,7 @@ void DQMHistPlotter::endJob()
     if ( indOutputFileName_ != "" ) {
       int errorFlag = 0;
       std::string modIndOutputFileName = replace_string(indOutputFileName_, plotKeyword, drawJobName, 1, 1, errorFlag);
-      if ( !errorFlag ) {
+      if ( !errorFlag && toFile_ ) {
 	std::string fullFileName = ( outputFilePath_ != "" ) ? 
 	  std::string(outputFilePath_).append("/").append(modIndOutputFileName) : modIndOutputFileName;
 	canvas.Print(fullFileName.data());

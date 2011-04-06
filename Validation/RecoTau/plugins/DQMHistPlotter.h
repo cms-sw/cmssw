@@ -5,8 +5,8 @@
  *  
  *  Class to plot histograms and create a postscript file
  *
- *  $Date: 2008/11/21 14:13:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/19 19:05:50 $
+ *  $Revision: 1.1 $
  *  \author Christian Veelken, UC Davis
  */
 
@@ -160,7 +160,8 @@ class DQMHistPlotter : public edm::EDAnalyzer
   explicit DQMHistPlotter(const edm::ParameterSet&);
   virtual ~DQMHistPlotter();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();  
+  virtual void endJob(){}  
+  virtual void endRun(const edm::Run& r, const edm::EventSetup& c);
 
 private:
   std::map<std::string, cfgEntryProcess> processes_;
@@ -176,6 +177,7 @@ private:
   std::string outputFileName_;
   std::string indOutputFileName_;
   int cfgError_;
+  bool toFile_;
 };
 
 #endif
