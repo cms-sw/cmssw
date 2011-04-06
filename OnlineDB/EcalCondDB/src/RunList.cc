@@ -130,7 +130,7 @@ void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
     sql = "SELECT DISTINCT i.iov_id, tag_id, run_num, run_start, run_end, " 
       "db_timestamp FROM run_iov i ";
     if ((withTriggers) || (withGlobalTriggers)) {
-      sql += "join run_dat d on d.iov_id = i.iov_id " 
+      sql += "join cms_ecal_cond.run_dat d on d.iov_id = i.iov_id " 
 	"left join CMS_RUNINFO.RUNSESSION_PARAMETER G on " 
 	"(i.run_num = G.RUNNUMBER and G.NAME = 'CMS.TRG:NumTriggers') "; 
     }
@@ -144,7 +144,6 @@ void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
       sql += "and (G.STRING_VALUE != '0' or num_events > 0) ";
     }
     sql += " order by run_num ";
-    std::cout << sql << std::endl;
     stmt->setSQL(sql);
     stmt->setInt(1, tagID);
     if (min_run > 0) {
