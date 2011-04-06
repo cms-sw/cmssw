@@ -1,5 +1,5 @@
 //
-// $Id: TriggerEvent.cc,v 1.13 2010/12/16 18:39:17 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.14 2011/02/22 18:29:50 vadler Exp $
 //
 
 
@@ -297,7 +297,7 @@ TriggerObjectRefVector TriggerEvent::objects( trigger::TriggerObjectType trigger
   TriggerObjectRefVector theObjects;
   for ( unsigned iObject = 0; iObject < objects()->size(); ++iObject ) {
     if ( objects()->at( iObject ).hasTriggerObjectType( triggerObjectType ) ) {
-      const TriggerObjectRef objectRef( objects(), iObject );
+      const TriggerObjectRef objectRef( objects_, iObject );
       theObjects.push_back( objectRef );
     }
   }
@@ -379,7 +379,7 @@ TriggerObjectRefVector TriggerEvent::conditionObjects( const std::string & nameC
   if ( condition( nameCondition ) ) {
     for ( unsigned iObject = 0; iObject < objects()->size(); ++iObject ) {
       if ( condition( nameCondition )->hasObjectKey( iObject ) ) {
-        const TriggerObjectRef objectRef( objects(), iObject );
+        const TriggerObjectRef objectRef( objects_, iObject );
         theConditionObjects.push_back( objectRef );
       }
     }
@@ -542,7 +542,7 @@ TriggerObjectRefVector TriggerEvent::filterObjects( const std::string & labelFil
   if ( filter( labelFilter ) ) {
     for ( unsigned iObject = 0; iObject < objects()->size(); ++iObject ) {
       if ( filter( labelFilter )->hasObjectKey( iObject ) ) {
-        const TriggerObjectRef objectRef( objects(), iObject );
+        const TriggerObjectRef objectRef( objects_, iObject );
         theFilterObjects.push_back( objectRef );
       }
     }
