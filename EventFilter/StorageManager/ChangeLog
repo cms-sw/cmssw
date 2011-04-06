@@ -14,6 +14,13 @@
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
 
+2011-04-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-01
+	* Create our own pool for discard messages instead of piggy-backing on the one
+	  from ATCP. Various minor improvements in DiscardManager and FUProxy.
+	* Add '--track-origins=yes' to valgrind options.
+
 2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-03-00
