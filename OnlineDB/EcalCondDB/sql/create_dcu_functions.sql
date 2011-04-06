@@ -7,7 +7,8 @@
    function */
 CREATE OR REPLACE TYPE T_DCU_SELECT AS OBJECT (
 	LOGIC_ID INTEGER,
-	SINCE    DATE,
+	IOV_ID   INTEGER,
+	TIME     DATE,
 	VALUE    FLOAT
 );
 /
@@ -22,49 +23,43 @@ CREATE OR REPLACE FUNCTION DCU_SELECT
 ( 
   tblname IN VARCHAR2,
   column IN VARCHAR2,
-  time IN VARCHAR2)  RETURN T_TABLE_DCU_SELECT IS
+  time IN VARCHAR2)  RETURN T_TABLE_DCU_SELECT PIPELINED IS
+
+  TYPE      ref0 IS REF CURSOR;
 
   sql_str   VARCHAR(1000);
   logic_id  INTEGER;
   channels  INTEGER;
   value     FLOAT;
   since     DATE;
-  i         INTEGER;
+  cur0      ref0;	
 
-  V_RET     T_TABLE_DCU_SELECT;
+  V_RET     T_DCU_SELECT
+         := T_DCU_SELECT(NULL, NULL, NULL, NULL);
 
   BEGIN
-    -- create the table
-    V_RET := T_TABLE_DCU_SELECT();
-    
     -- evaluate how many channels there are in the required table 
-    sql_str := 'SELECT COUNT(*) FROM (SELECT DISTINCT LOGIC_ID FROM ' ||
+    sql_str := 'SELECT COUNT(LOGIC_ID) FROM (SELECT DISTINCT LOGIC_ID FROM ' ||
 	tblname || ')';
     EXECUTE IMMEDIATE sql_str INTO channels;
-    dbms_output.enable(10000000);	
-    FOR i IN 1..channels LOOP
-     BEGIN
-       -- for each channel get the logic_id	
-       sql_str := 'SELECT LOGIC_ID FROM (SELECT DISTINCT ROWNUM I, ' || 
-	'LOGIC_ID FROM ' || tblname || ') WHERE I = :i';
-       EXECUTE IMMEDIATE sql_str INTO logic_id USING i;
-       -- get the value of the required field whose start of validity is lower
-       -- than the required date
-       sql_str := 'SELECT * FROM (SELECT LOGIC_ID, SINCE, ' || column || 
-	' VALUE FROM ' || tblname || 
-	' D JOIN DCU_IOV R ON D.IOV_ID = R.IOV_ID WHERE LOGIC_ID = :1 AND ' ||
-	' SINCE <= TO_DATE(''' || time || ''', ''DD-MM-YYYY HH24:MI:SS'') ' || 
-	' ORDER BY SINCE DESC) WHERE ROWNUM <= 1';
-       EXECUTE IMMEDIATE sql_str INTO logic_id, since, value USING logic_id;	
-       -- extend and fill the resulting table
-       V_RET.EXTEND;	
-       V_RET(V_RET.COUNT) := T_DCU_SELECT(logic_id, since, value);
-       EXCEPTION
-	 WHEN NO_DATA_FOUND THEN
-            -- DO NOTHING
-	    NULL;
-     END;	
+    -- get the value of the required field whose start of validity is lower
+    -- than the required date (limit the number of days considered)
+    OPEN cur0 FOR 
+        'SELECT LOGIC_ID, IOV_ID, TIME, VALUE FROM (SELECT LOGIC_ID, ' ||
+	'MAX(D.IOV_ID) IOV_ID, MAX(SINCE) TIME, '
+        || column || ' VALUE FROM ' || tblname || 
+	' D JOIN DCU_IOV R ON D.IOV_ID = R.IOV_ID WHERE' ||
+	' SINCE <= TO_DATE(:1, ''DD-MM-YYYY HH24:MI:SS'') ' ||
+	' AND SINCE >= (TO_DATE(:2, ''DD-MM-YYYY HH24:MI:SS'') - 7)' || 
+	' GROUP BY LOGIC_ID, ' || column || 
+	' ORDER BY TIME DESC) WHERE ROWNUM <= :3'
+    USING time, time, channels;
+    LOOP
+      FETCH cur0 INTO V_RET.LOGIC_ID, V_RET.IOV_ID, V_RET.TIME, V_RET.VALUE;
+      EXIT WHEN cur0%NOTFOUND;
+      PIPE ROW(V_RET);
     END LOOP;
-    return V_RET;	
+    CLOSE cur0; 
+    RETURN;	
   END DCU_SELECT;
 /
