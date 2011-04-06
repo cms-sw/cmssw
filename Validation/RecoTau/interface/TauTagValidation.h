@@ -82,7 +82,7 @@ private:
   std::string extensionName_;
 
   // Reconstructed product of interest
-  edm::InputTag TauProducerInputTag_;
+  edm::InputTag TauProducerInputTag_, PrimaryVertexCollection_;
   std::string TauProducer_;
 
   // std::vector<std::string> TauProducerDiscriminators_; 
@@ -98,7 +98,7 @@ private:
   std::map<std::string,  MonitorElement *> ptTauVisibleMap;
   std::map<std::string,  MonitorElement *> etaTauVisibleMap;
   std::map<std::string,  MonitorElement *> phiTauVisibleMap;
-  std::map<std::string,  MonitorElement *> energyTauVisibleMap;
+  std::map<std::string,  MonitorElement *> pileupTauVisibleMap;
   
   // All the extra MonitorElements that we would like to add for each Tau Tagging step
   // First for the PFTaus
