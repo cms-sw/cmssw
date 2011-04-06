@@ -37,8 +37,8 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
   std::auto_ptr<ESDigiCollection> ESZSDigis(new ESDigiCollection());
   
   if (fullESDigis) {
-    ESDigiCollection::const_iterator i;
-    for (i=ESDigis->begin(); i!=ESDigis->end(); ++i) {            
+    for (ESDigiCollection::const_iterator i (ESDigis->begin()); 
+         i!=ESDigis->end(); ++i) {            
 
       ESDataFrame dataframe = (*i);
 
