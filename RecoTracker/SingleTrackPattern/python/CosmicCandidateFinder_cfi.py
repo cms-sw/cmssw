@@ -11,7 +11,8 @@ cosmicCandidateFinder = cms.EDProducer("CosmicTrackFinder",
     rphirecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
     debug = cms.untracked.bool(True),
     GeometricStructure = cms.untracked.string('MTCC'),
-    cosmicSeeds = cms.InputTag("cosmicseedfinder")
+    cosmicSeeds = cms.InputTag("cosmicseedfinder"),
+    useHitsSplitting = cms.bool(True)                                   
 )
 
 
