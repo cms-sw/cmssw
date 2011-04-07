@@ -252,15 +252,17 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
     case ddsubtraction:
     case ddintersection: 
       {
-	ret = DDCompareBoolSol(compMatOnly_)(lhs, rhs);
+	if ( ! DDCompareBoolSol(compMatOnly_)(lhs, rhs) ) {
+	  ret = false;
+	}
 	break;
       }
     case ddreflected:
       {
 	DDReflectionSolid rs1(lhs);
 	DDReflectionSolid rs2(rhs);
-	ret = DDCompareSolid(compMatOnly_)( rs1.unreflected(), rs2.unreflected() );
-	if ( ! ret ) {
+	if ( ! DDCompareSolid(compMatOnly_)( rs1.unreflected(), rs2.unreflected()) ) {
+	  ret = false;
 	  std::cout << "Unreflected volumes of DDReflections do not match. Reflections are " 
 		    << lhs.name().fullname() << " and " << rhs.name().fullname() << std::endl;
 	}
@@ -276,10 +278,13 @@ bool DDCompareDBLVEC::operator() ( const std::vector<double>& lhs, const std::ve
   bool ret(true);
   if ( lhs.size() != rhs.size() ) {
     ret = false;
+    std::cout << "Size of vectors do not match." << std::endl;
   } else {
     for ( size_t i = 0; i < lhs.size() ; ++i ) {
       if ( std::fabs( lhs[i] - rhs[i] ) > 0.0004 ) {
 	ret = false;
+	std::cout << "Vector content at index " << i << " does not match " ;
+	std::cout << std::setw(12) << std::fixed << std::setprecision(4) << lhs[i] << " != " << rhs[i] << std::endl;
 	break;
       }
     }
@@ -294,25 +299,25 @@ bool DDCompareBoolSol::operator() ( const DDBooleanSolid& lhs, const DDBooleanSo
   bool ret(true);
   if ( lhs.name().fullname() != rhs.name().fullname() ) {
     ret = false;
-    std::cout << "Solid names do not match ";
+    std::cout << "BooleanSolid names do not match ";
   } else if ( lhs.shape() != rhs.shape() ) {
     ret = false;
-    std::cout << "Shape types do not match ";
+    std::cout << "BooleanSolid shape types do not match ";
   } else if ( ! DDCompareDBLVEC()(lhs.parameters(), rhs.parameters()) ) {
     ret = false;
-    std::cout << "Parameters do not match ";
+    std::cout << "BooleanSolid parameters do not match ";
   } else if ( ! DDCompareSolid(compMatOnly_)(lhs.solidA(), rhs.solidA()) ) {
     ret = false;
-    std::cout << "SolidA solids do not match ";
+    std::cout << "BooleanSolid SolidA solids do not match ";
   } else if ( ! DDCompareSolid(compMatOnly_)(lhs.solidB(), rhs.solidB()) ) {
     ret= false;
-    std::cout << "SolidB solids do not match ";
+    std::cout << "BooleanSolid SolidB solids do not match ";
   } else if ( ! DDCompareDDTrans()(lhs.translation(), rhs.translation()) ) {
     ret = false;
-    std::cout << "Translations do not match ";
+    std::cout << "BooleanSolid Translations do not match ";
   } else if ( ! DDCompareDDRot(compMatOnly_)(lhs.rotation(), rhs.rotation()) ) {
     ret = false;
-    std::cout << "Translations do not match ";
+    std::cout << "BooleanSolid Rotations do not match ";
   }
   if ( ! ret ) {
     std::cout << "for boolean solids " 
