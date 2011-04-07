@@ -13,13 +13,13 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.23 2010/02/18 14:35:48 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.24 2010/10/04 17:34:59 elmer Exp $
 //
 //
 
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
+#include "DetIdInfo.h"
 #include <map>
 
 DetIdAssociator::DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)

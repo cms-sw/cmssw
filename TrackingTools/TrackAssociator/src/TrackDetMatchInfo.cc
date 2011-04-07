@@ -1,6 +1,6 @@
 #include <map>
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
-#include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
+#include "DetIdInfo.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
