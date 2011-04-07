@@ -5,5 +5,5 @@
 <use   name="RecoTracker/TkDetLayers"/>
 <use   name="Geometry/Records"/>
 <flags   EDM_PLUGIN="1"/>
-<library   file="TkDetLayersAnalyzer.cc" name="testRecoTrackerTkDetLayers">
+# <library   file="TkDetLayersAnalyzer.cc" name="testRecoTrackerTkDetLayers">
 </library>

@@ -1,4 +1,4 @@
-#include "GeometricSearchTrackerBuilder.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTrackerBuilder.h"
 
 #include "PixelBarrelLayerBuilder.h"
 #include "PixelForwardLayerBuilder.h"
