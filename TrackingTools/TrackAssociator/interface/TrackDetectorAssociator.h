@@ -14,27 +14,44 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.19 2011/04/07 08:17:31 innocent Exp $
+// $Id: TrackDetectorAssociator.h,v 1.17 2010/03/12 13:51:28 gpetrucc Exp $
 //
 //
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
+#include "TrackingTools/TrackAssociator/interface/CachedTrajectory.h"
+
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackingRecHit/interface/RecSegment.h"
+
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
-
-class FreeTrajectoryState;
-class SimTrack;
-class SimVertex;
-class Propagator;
 
 class TrackDetectorAssociator {
  public:
-  TrackDetectorAssociator(){}
-  virtual ~TrackDetectorAssociator(){}
+   TrackDetectorAssociator();
+   ~TrackDetectorAssociator();
    
    typedef TrackAssociatorParameters AssociatorParameters;
    enum Direction { Any, InsideOut, OutsideIn };
@@ -52,43 +69,132 @@ class TrackDetectorAssociator {
    /// when matching is performed
    ///
    /// associate using FreeTrajectoryState
-   virtual TrackDetMatchInfo            associate( const edm::Event&,
+   TrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
 					   const FreeTrajectoryState&,
-					   const AssociatorParameters& )=0;
+					   const AssociatorParameters& );
    /// associate using inner and outer most states of a track
    /// in the silicon tracker. 
-   virtual TrackDetMatchInfo            associate( const edm::Event& iEvent,
+   TrackDetMatchInfo            associate( const edm::Event& iEvent,
 					   const edm::EventSetup& iSetup,
 					   const AssociatorParameters& parameters,
 					   const FreeTrajectoryState* innerState,
-					   const FreeTrajectoryState* outerState=0)=0;
+					   const FreeTrajectoryState* outerState=0);
    /// associate using reco::Track
-   virtual TrackDetMatchInfo            associate( const edm::Event&,
+   TrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
 					   const reco::Track&,
 					   const AssociatorParameters&,
-					   Direction direction = Any )=0;
+					   Direction direction = Any );
    /// associate using a simulated track
-   virtual TrackDetMatchInfo            associate( const edm::Event&,
+   TrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
 					   const SimTrack&,
 					   const SimVertex&,
-					   const AssociatorParameters& )=0;
+					   const AssociatorParameters& );
    /// associate using 3-momentum, vertex and charge
-   virtual TrackDetMatchInfo            associate( const edm::Event&,
+   TrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
 					   const GlobalVector&,
 					   const GlobalPoint&,
 					   const int,
-					   const AssociatorParameters& )=0;
+					   const AssociatorParameters& );
    
    /// use a user configured propagator
-   virtual void setPropagator( const Propagator* )=0;
+   void setPropagator( const Propagator* );
    
    /// use the default propagator
-   virtual void useDefaultPropagator()=0;
+   void useDefaultPropagator();
    
+   /// get FreeTrajectoryState from different track representations
+   static FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
+						      const reco::Track& );
+   static FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
+						      const SimTrack&, 
+						      const SimVertex& );
+   static FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&,
+						      const GlobalVector&,
+						      const GlobalPoint&,
+						      const int);
+        
+   static bool                crossedIP(const reco::Track& track);
 
+ private:
+   DetIdAssociator::MapRange getMapRange( const std::pair<float,float>& delta,
+					  const float dR ) dso_internal;
+
+   void fillEcal(       const edm::Event&,
+			TrackDetMatchInfo&, 
+			const AssociatorParameters&) dso_internal;
+   
+   void fillCaloTowers( const edm::Event&,
+			TrackDetMatchInfo&,
+			const AssociatorParameters&) dso_internal;
+   
+   void fillHcal(       const edm::Event&,
+			TrackDetMatchInfo&,
+			const AssociatorParameters&) dso_internal;
+   
+   void fillHO(         const edm::Event&,
+			TrackDetMatchInfo&,
+			const AssociatorParameters&) dso_internal;
+  
+   void fillPreshower(  const edm::Event& iEvent,
+		        TrackDetMatchInfo& info,
+		        const AssociatorParameters&) dso_internal;
+   
+   void fillMuon(       const edm::Event&,
+			TrackDetMatchInfo&,
+			const AssociatorParameters&) dso_internal;
+   
+   void fillCaloTruth(  const edm::Event&,
+			TrackDetMatchInfo&,
+			const AssociatorParameters&) dso_internal;
+   
+   bool addTAMuonSegmentMatch(TAMuonChamberMatch&,
+			    const RecSegment*,
+			    const AssociatorParameters&) dso_internal;
+   
+   void getTAMuonChamberMatches(std::vector<TAMuonChamberMatch>& matches,
+			      const AssociatorParameters& parameters) dso_internal;
+  
+   void           init( const edm::EventSetup&) dso_internal;
+   
+   math::XYZPoint getPoint( const GlobalPoint& point)  dso_internal
+     {
+	return math::XYZPoint(point.x(),point.y(),point.z());
+     }
+   
+   math::XYZPoint getPoint( const LocalPoint& point)  dso_internal
+     {
+	return math::XYZPoint(point.x(),point.y(),point.z());
+     }
+   
+   math::XYZVector getVector( const GlobalVector& vec)  dso_internal
+     {
+	return math::XYZVector(vec.x(),vec.y(),vec.z());
+     }
+   
+   math::XYZVector getVector( const LocalVector& vec)  dso_internal
+     {
+	return math::XYZVector(vec.x(),vec.y(),vec.z());
+     }
+   
+   const Propagator* ivProp_;
+   Propagator* defProp_;
+   CachedTrajectory cachedTrajectory_;
+   bool useDefaultPropagator_;
+   
+   edm::ESHandle<DetIdAssociator> ecalDetIdAssociator_;
+   edm::ESHandle<DetIdAssociator> hcalDetIdAssociator_;
+   edm::ESHandle<DetIdAssociator>   hoDetIdAssociator_;
+   edm::ESHandle<DetIdAssociator> caloDetIdAssociator_;
+   edm::ESHandle<DetIdAssociator> muonDetIdAssociator_;
+   edm::ESHandle<DetIdAssociator> preshowerDetIdAssociator_;
+   
+   edm::ESHandle<CaloGeometry> theCaloGeometry_;
+   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry_;
+   
+   edm::ESWatcher<IdealMagneticFieldRecord>     theMagneticFeildWatcher_;
 };
 #endif
