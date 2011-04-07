@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.24 2010/10/04 17:34:59 elmer Exp $
+// $Id: DetIdAssociator.cc,v 1.25 2011/04/07 09:09:21 innocent Exp $
 //
 //
 
@@ -385,5 +385,12 @@ void DetIdAssociator::fillSet( std::set<DetId>& set, unsigned int iEta, unsigned
   for ( i = i0; i < i0+size; ++i )
     set.insert(container_.at(i));
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(DetIdAssociator);
+
 
 //  LocalWords:  Fiducial
