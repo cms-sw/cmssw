@@ -11,6 +11,7 @@
 /** A concrete builder for TOBRod 
  */
 
+#pragma GCC visibility push(hidden)
 class TOBRodBuilder {  
  public:
   TOBRodBuilder(){};
@@ -22,4 +23,5 @@ class TOBRodBuilder {
 };
 
 
+#pragma GCC visibility pop
 #endif 

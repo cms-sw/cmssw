@@ -9,6 +9,7 @@
  *  built out of only one det
  */
 
+#pragma GCC visibility push(hidden)
 class SimpleTECWedge : public TECWedge{
  public:
   SimpleTECWedge(const GeomDet* theDet);
@@ -37,4 +38,5 @@ class SimpleTECWedge : public TECWedge{
 };
 
 
+#pragma GCC visibility pop
 #endif 

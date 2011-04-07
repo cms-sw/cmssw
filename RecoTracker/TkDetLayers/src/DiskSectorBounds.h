@@ -9,6 +9,7 @@
 #include <cmath>
 
 
+#pragma GCC visibility push(hidden)
 class DiskSectorBounds : public Bounds {
 public:
   
@@ -48,5 +49,6 @@ public:
    float theOffset;
  };
  
- #endif 
+#pragma GCC visibility pop
+#endif 
  

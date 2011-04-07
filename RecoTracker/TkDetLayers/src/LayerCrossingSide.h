@@ -11,6 +11,7 @@
  *  a layer.
  */
 
+#pragma GCC visibility push(hidden)
 class LayerCrossingSide {
 public:
 
@@ -41,4 +42,5 @@ public:
 
 };
 
+#pragma GCC visibility pop
 #endif

@@ -11,6 +11,7 @@
 /** A concrete builder for TIDLayer 
  */
 
+#pragma GCC visibility push(hidden)
 class TIDLayerBuilder {  
  public:
   TIDLayerBuilder(){};
@@ -21,4 +22,5 @@ class TIDLayerBuilder {
 };
 
 
+#pragma GCC visibility pop
 #endif 

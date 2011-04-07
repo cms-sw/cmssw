@@ -11,6 +11,7 @@
  *  built out of ForwardPixelBlade
  */
 
+#pragma GCC visibility push(hidden)
 class PixelForwardLayer : public ForwardDetLayer, public GeometricSearchDetWithGroups {
  public:
   PixelForwardLayer(std::vector<const PixelBlade*>& blades);
@@ -70,4 +71,5 @@ class PixelForwardLayer : public ForwardDetLayer, public GeometricSearchDetWithG
 };
 
 
+#pragma GCC visibility pop
 #endif 

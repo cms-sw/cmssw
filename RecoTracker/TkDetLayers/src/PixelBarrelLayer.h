@@ -13,6 +13,7 @@
  *  built out of BarrelPixelRod
  */
 
+#pragma GCC visibility push(hidden)
 class PixelBarrelLayer : public RodBarrelLayer, public GeometricSearchDetWithGroups {
  public:
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
@@ -93,4 +94,5 @@ class PixelBarrelLayer : public RodBarrelLayer, public GeometricSearchDetWithGro
 };
 
 
+#pragma GCC visibility pop
 #endif 

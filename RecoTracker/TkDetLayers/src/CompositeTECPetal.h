@@ -13,6 +13,7 @@
 /** A concrete implementation for TEC petals
  */
 
+#pragma GCC visibility push(hidden)
 class CompositeTECPetal : public TECPetal{
  public:
   CompositeTECPetal(std::vector<const TECWedge*>& innerWedges,
@@ -89,4 +90,5 @@ class CompositeTECPetal : public TECPetal{
 };
 
 
+#pragma GCC visibility pop
 #endif 

@@ -11,6 +11,7 @@
 /** A concrete builder for TIBLayer 
  */
 
+#pragma GCC visibility push(hidden)
 class TIBLayerBuilder {  
  public:
   TIBLayerBuilder(){};
@@ -24,4 +25,5 @@ class TIBLayerBuilder {
 };
 
 
+#pragma GCC visibility pop
 #endif 

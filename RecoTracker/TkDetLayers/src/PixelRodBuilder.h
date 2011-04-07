@@ -11,6 +11,7 @@
 /** A concrete builder for PixelRod 
  */
 
+#pragma GCC visibility push(hidden)
 class PixelRodBuilder {  
  public:
   PixelRodBuilder(){};
@@ -20,4 +21,5 @@ class PixelRodBuilder {
 };
 
 
+#pragma GCC visibility pop
 #endif 

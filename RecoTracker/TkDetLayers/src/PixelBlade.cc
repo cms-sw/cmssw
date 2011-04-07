@@ -15,6 +15,8 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
+PixelBlade::~PixelBlade(){}
+
 PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets,
 		       vector<const GeomDet*>& backDets):		       
   theFrontDets(frontDets), theBackDets(backDets) 

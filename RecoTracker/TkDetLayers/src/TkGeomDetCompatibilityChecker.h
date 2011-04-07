@@ -4,10 +4,12 @@
 #include <utility>
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
 class GeomDet;
 class Propagator;
 class MeasurementEstimator;
 
+#pragma GCC visibility push(hidden)
 class TkGeomDetCompatibilityChecker {
 public:
 
@@ -20,4 +22,5 @@ public:
 
 };
 
+#pragma GCC visibility pop
 #endif

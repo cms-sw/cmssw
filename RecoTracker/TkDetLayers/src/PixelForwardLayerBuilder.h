@@ -11,6 +11,7 @@
 /** A concrete builder for PixelForwardLayer 
  */
 
+#pragma GCC visibility push(hidden)
 class PixelForwardLayerBuilder {  
  public:
   PixelForwardLayerBuilder(){};
@@ -21,4 +22,5 @@ class PixelForwardLayerBuilder {
 };
 
 
+#pragma GCC visibility pop
 #endif 

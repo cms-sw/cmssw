@@ -14,6 +14,7 @@
 /** The trapezoid has the minimal size fully containing all Dets.
  */
 
+#pragma GCC visibility push(hidden)
 class BladeShapeBuilderFromDet {
  public:
   BoundDiskSector* operator()( const std::vector<const GeomDet*>& dets) const;
@@ -30,4 +31,5 @@ class BladeShapeBuilderFromDet {
 
 };
 
+#pragma GCC visibility pop
 #endif

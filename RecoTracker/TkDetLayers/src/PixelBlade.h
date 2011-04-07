@@ -11,13 +11,14 @@
 /** A concrete implementation for PixelBlade
  */
 
+#pragma GCC visibility push(hidden)
 class PixelBlade : public GeometricSearchDetWithGroups {
  public:
 
   PixelBlade(std::vector<const GeomDet*>& frontDets,
 	     std::vector<const GeomDet*>& backDets  );
 
-  ~PixelBlade(){};
+  ~PixelBlade();
   
   // GeometricSearchDet interface
   virtual const BoundSurface& surface() const {return *theDiskSector;}
@@ -90,4 +91,5 @@ class PixelBlade : public GeometricSearchDetWithGroups {
 };
 
 
+#pragma GCC visibility pop
 #endif 

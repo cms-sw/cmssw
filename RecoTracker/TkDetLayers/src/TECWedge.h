@@ -9,6 +9,7 @@
  *  built out of TECPetals
  */
 
+#pragma GCC visibility push(hidden)
 class TECWedge : public GeometricSearchDetWithGroups {
  public:
     // GeometricSearchDet interface
@@ -27,4 +28,5 @@ class TECWedge : public GeometricSearchDetWithGroups {
 };
 
 
+#pragma GCC visibility pop
 #endif 

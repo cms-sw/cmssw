@@ -11,6 +11,7 @@
  *  built out of TOBRods
  */
 
+#pragma GCC visibility push(hidden)
 class TOBLayer : public RodBarrelLayer, public GeometricSearchDetWithGroups{
  public:
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
@@ -87,4 +88,5 @@ class TOBLayer : public RodBarrelLayer, public GeometricSearchDetWithGroups{
 };
 
 
+#pragma GCC visibility pop
 #endif 

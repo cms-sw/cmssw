@@ -11,6 +11,7 @@
 /** A concrete builder for TECWedge 
  */
 
+#pragma GCC visibility push(hidden)
 class TECWedgeBuilder {  
  public:
   TECWedgeBuilder(){};
@@ -21,4 +22,5 @@ class TECWedgeBuilder {
 };
 
 
+#pragma GCC visibility pop
 #endif 

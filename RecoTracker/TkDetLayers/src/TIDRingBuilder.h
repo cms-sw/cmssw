@@ -11,6 +11,7 @@
 /** A concrete builder for TIDRing 
  */
 
+#pragma GCC visibility push(hidden)
 class TIDRingBuilder {  
  public:
   TIDRingBuilder(){};
@@ -21,4 +22,5 @@ class TIDRingBuilder {
 };
 
 
+#pragma GCC visibility pop
 #endif 

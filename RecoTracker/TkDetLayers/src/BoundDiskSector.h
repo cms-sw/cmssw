@@ -4,6 +4,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DiskSectorBounds.h"
 
+#pragma GCC visibility push(hidden)
 class BoundDiskSector : public BoundPlane {
  public:
  
@@ -32,5 +33,6 @@ class BoundDiskSector : public BoundPlane {
 };
  
  
+#pragma GCC visibility pop
 #endif 
 

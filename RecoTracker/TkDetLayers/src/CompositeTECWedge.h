@@ -10,6 +10,7 @@
  *  built out of TECPetals
  */
 
+#pragma GCC visibility push(hidden)
 class CompositeTECWedge : public TECWedge{
  public:
   CompositeTECWedge(std::vector<const GeomDet*>& innerDets,
@@ -69,4 +70,5 @@ class CompositeTECWedge : public TECWedge{
 };
 
 
+#pragma GCC visibility pop
 #endif 

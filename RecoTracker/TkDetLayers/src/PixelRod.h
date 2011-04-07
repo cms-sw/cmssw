@@ -8,6 +8,7 @@
 /** A concrete implementation for PixelRod
  */
 
+#pragma GCC visibility push(hidden)
 class PixelRod : public DetRodOneR{
  public:
     typedef PeriodicBinFinderInZ<float>   BinFinderType;
@@ -45,4 +46,5 @@ class PixelRod : public DetRodOneR{
 };
 
 
+#pragma GCC visibility pop
 #endif 

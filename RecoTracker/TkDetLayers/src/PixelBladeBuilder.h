@@ -11,6 +11,7 @@
 /** A concrete builder for PixelBlade 
  */
 
+#pragma GCC visibility push(hidden)
 class PixelBladeBuilder {  
  public:
   PixelBladeBuilder(){};
@@ -21,4 +22,5 @@ class PixelBladeBuilder {
 };
 
 
+#pragma GCC visibility pop
 #endif 

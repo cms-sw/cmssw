@@ -10,6 +10,7 @@
  *  built out of TIDRings
  */
 
+#pragma GCC visibility push(hidden)
 class TIDLayer : public RingedForwardLayer, public GeometricSearchDetWithGroups {
  public:
   TIDLayer(std::vector<const TIDRing*>& rings);
@@ -67,4 +68,5 @@ class TIDLayer : public RingedForwardLayer, public GeometricSearchDetWithGroups 
 };
 
 
+#pragma GCC visibility pop
 #endif 

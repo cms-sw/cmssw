@@ -11,6 +11,7 @@
 /** A concrete builder for TOBLayer 
  */
 
+#pragma GCC visibility push(hidden)
 class TOBLayerBuilder {  
  public:
   TOBLayerBuilder(){};
@@ -21,4 +22,5 @@ class TOBLayerBuilder {
 };
 
 
+#pragma GCC visibility pop
 #endif 

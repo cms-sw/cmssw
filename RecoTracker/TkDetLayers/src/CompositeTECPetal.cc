@@ -25,6 +25,7 @@ using namespace std;
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 
+namespace {
 namespace details {
 
   struct Mean {
@@ -52,7 +53,7 @@ namespace details {
   }
 
 }
-
+}
 
 CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges,
 				     vector<const TECWedge*>& outerWedges) : 

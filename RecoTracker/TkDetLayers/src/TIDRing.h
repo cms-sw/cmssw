@@ -10,6 +10,7 @@
 /** A concrete implementation for TID rings 
  */
 
+#pragma GCC visibility push(hidden)
 class TIDRing : public GeometricSearchDetWithGroups{
  public:
   TIDRing(std::vector<const GeomDet*>& innerDets,
@@ -81,4 +82,5 @@ class TIDRing : public GeometricSearchDetWithGroups{
   };
 
 
+#pragma GCC visibility pop
 #endif 

@@ -3,6 +3,7 @@
 
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
 
+#pragma GCC visibility push(hidden)
 class DetGroupMerger {
 public:
 
@@ -24,4 +25,5 @@ public:
   
 };
 
+#pragma GCC visibility pop
 #endif

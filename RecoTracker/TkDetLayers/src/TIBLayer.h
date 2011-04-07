@@ -11,6 +11,7 @@
  *  built out of TIBRings
  */
 
+#pragma GCC visibility push(hidden)
 class TIBLayer : public BarrelDetLayer, public GeometricSearchDetWithGroups {
  public:
 
@@ -83,4 +84,5 @@ class TIBLayer : public BarrelDetLayer, public GeometricSearchDetWithGroups {
 };
 
 
+#pragma GCC visibility pop
 #endif 

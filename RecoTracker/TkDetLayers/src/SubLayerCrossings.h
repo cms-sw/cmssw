@@ -3,6 +3,7 @@
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
+#pragma GCC visibility push(hidden)
 class SubLayerCrossing {
 public:
   SubLayerCrossing(){}
@@ -38,4 +39,5 @@ private:
 
 };
 
+#pragma GCC visibility pop
 #endif

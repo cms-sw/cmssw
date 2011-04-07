@@ -10,6 +10,7 @@
 /** A concrete implementation for TEC petals
  */
 
+#pragma GCC visibility push(hidden)
 class TECPetal : public GeometricSearchDetWithGroups {
  public:  
   // GeometricSearchDet interface  
@@ -26,4 +27,5 @@ class TECPetal : public GeometricSearchDetWithGroups {
 };
 
 
+#pragma GCC visibility pop
 #endif 

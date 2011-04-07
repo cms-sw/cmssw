@@ -11,6 +11,7 @@
 /** A concrete builder for TECLayer 
  */
 
+#pragma GCC visibility push(hidden)
 class TECLayerBuilder {  
  public:
   TECLayerBuilder(){};
@@ -21,4 +22,5 @@ class TECLayerBuilder {
 };
 
 
+#pragma GCC visibility pop
 #endif 

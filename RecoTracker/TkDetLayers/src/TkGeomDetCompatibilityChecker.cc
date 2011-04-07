@@ -1,7 +1,7 @@
 #include "TkGeomDetCompatibilityChecker.h"
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include <DataFormats/SiStripDetId/interface/SiStripDetId.h>
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
  
 using namespace std;
 

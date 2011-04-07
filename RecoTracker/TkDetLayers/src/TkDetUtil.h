@@ -3,6 +3,8 @@
 
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 
+#pragma GCC visibility push(hidden)
+
 class GeomDet;
 class BoundPlane;
 class TrajectoryStateOnSurface;
@@ -24,4 +26,5 @@ namespace tkDetUtil {
 
 }
 
+#pragma GCC visibility pop
 #endif // TkDetLayers_TkDetUtil_h

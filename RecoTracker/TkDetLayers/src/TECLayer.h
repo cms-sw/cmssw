@@ -12,6 +12,7 @@
  *  built out of TECPetals
  */
 
+#pragma GCC visibility push(hidden)
 class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
  public:
   TECLayer(std::vector<const TECPetal*>& innerPetals,
@@ -82,4 +83,5 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
 };
 
 
+#pragma GCC visibility pop
 #endif 
