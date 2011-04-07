@@ -160,13 +160,13 @@ def loadPAT(process,jetMetCorrections,extMatch):
     # kt jets for fastjet corrections (needed for CMSSW < 4_2_0)
     process.load('RecoJets.Configuration.RecoPFJets_cff')
     process.kt6PFJets.doRhoFastjet = True
-    process.kt6PFJets.Rho_EtaMax = cms.double(3.0)
+    process.kt6PFJets.Rho_EtaMax = cms.double(4.5)
 
     process.pfJets.doAreaFastjet = True
-    process.pfJets.Rho_EtaMax = cms.double(3.0)
+    process.pfJets.Rho_EtaMax = cms.double(4.5)
 
     process.pfJetsPF.doAreaFastjet = True
-    process.pfJetsPF.Rho_EtaMax = cms.double(3.0)
+    process.pfJetsPF.Rho_EtaMax = cms.double(4.5)
 
     # place kt6jets before jet corrections in default sequence
     process.patJetCorrFactors.levels = jetMetCorrections 
