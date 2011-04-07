@@ -3,11 +3,9 @@
   <use   name="GeneratorInterface/PartonShowerVeto"/>
   <use   name="GeneratorInterface/ExternalDecays"/>
   <use   name="heppdt"/>
-  <flags   FFLAGS="-w"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="Pythia6*Gun.cc" name="GeneratorInterfacePythia6Guns">
   <use   name="heppdt"/>
-  <flags   FFLAGS="-w"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

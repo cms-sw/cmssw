@@ -5,7 +5,6 @@
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="GeneratorInterface/ExternalDecays"/>
 <use   name="f77compiler"/>
-<flags   FFLAGS="-O"/>
 <export>
   <lib   name="1"/>
 </export>
