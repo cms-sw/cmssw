@@ -2,9 +2,8 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
-
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "MatchedHitRZCorrectionFromBending.h"
 
 // Note: only the TIB layers seem to cause a significant effect,
@@ -24,7 +23,7 @@ MatchedHitRZCorrectionFromBending::
   : rFixup(0), zFixup(0)
 {
   if (layer->subDetector() == GeomDetEnumerators::TIB) {
-    const TIBLayer *tibLayer = static_cast<const TIBLayer*>(layer);
+    const GeometricSearchDet *tibLayer = layer;
     TIBDetId tibDetId(tibLayer->basicComponents()[0]->geographicalId());
     if (tibDetId.isDoubleSide())
       zFixup = tibMatchedHitZFixup;

@@ -13,9 +13,6 @@
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
-#include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
-#include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
 
 #include "HitExtractorPIX.h"
 #include "HitExtractorSTRP.h"
