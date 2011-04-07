@@ -1,4 +1,4 @@
-// $Id: EventStreamHttpReader.cc,v 1.46 2011/04/04 14:47:04 mommsen Exp $
+// $Id: EventStreamHttpReader.cc,v 1.47 2011/04/04 16:05:37 mommsen Exp $
 /// @file: EventStreamHttpReader.cc
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -61,6 +61,8 @@ namespace edm
     );
     
     lastLS_ = currentLS;
+
+    std::cout << "droppedEventsCount: " << droppedEvents << std::endl;
     
     dqmStore_->cd();
     MonitorElement* me = dqmStore_->bookInt("droppedEventsCount");
