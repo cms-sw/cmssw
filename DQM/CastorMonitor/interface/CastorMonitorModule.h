@@ -149,8 +149,23 @@ public:
   int nlumisecs_;
   bool saved_;
 
-     
-
+  ////---- castor products among the event data   
+  bool rawOK_    ;
+  bool reportOK_ ;
+  bool digiOK_   ;
+  bool rechitOK_ ;
+  bool towerOK_  ;
+  bool jetOK_    ;
+  bool jetIdOK_  ;
+  
+  int nRaw;
+  int nDigi;
+  int nRechit;
+  int nTower;
+  int nJet;
+  int nJetId;
+   
+  
   ////---- control whether or not to display time used by each module
   bool showTiming_; 
   edm::CPUTimer cpu_timer; 
@@ -184,7 +199,12 @@ public:
   edm::InputTag inputLabelTowerCASTOR_;  
   edm::InputTag inputLabelBasicJetCASTOR_;  
   edm::InputTag inputLabelJetIdCASTOR_ ;
- 
+  edm::InputTag inputLabelCastorTowers_    ; 
+  edm::InputTag inputLabelCastorBasicJets_ ; 
+  edm::InputTag inputLabelCastorJetIDs_ ; 
+
+
+
   ////---- define  CastorTowerCollection
   // typedef std::vector<reco::CastorTower> CastorTowerCollection;
 
