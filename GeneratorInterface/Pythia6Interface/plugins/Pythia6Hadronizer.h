@@ -73,12 +73,17 @@ class JetMatching;
      
      Pythia6Service* fPy6Service;
 
-     // the following 3 params are common for all generators(interfaces)
+     // some of the following params are common for all generators(interfaces)
      // probably better to wrap them up in a class and reuse ?
      // (the event/run pointers are already moved to BaseHadronizer)
      //
+     enum { PP, PPbar, ElectronPositron, ElectronProton, PositronProton };
+     
+     int    fInitialState ; // pp, ppbar, e-e+, or e-p
      double fCOMEnergy ;  // this one is irrelevant for setting py6 as hadronizer
                           // or if anything, it should be picked up from LHERunInfoProduct !
+     double fBeam1PZ;
+     double fBeam2PZ; 
 
      static JetMatching* fJetMatching; 
 

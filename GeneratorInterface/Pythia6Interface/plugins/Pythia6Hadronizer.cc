@@ -92,6 +92,7 @@ JetMatching* Pythia6Hadronizer::fJetMatching = 0;
 Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps) 
    : BaseHadronizer(ps),
      fPy6Service( new Pythia6ServiceWithCallback(ps) ), // this will store py6 params for further settings
+     fInitialState(PP),
      fCOMEnergy(ps.getParameter<double>("comEnergy")),
      fHepMCVerbosity(ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      fMaxEventsToPrint(ps.getUntrackedParameter<int>("maxEventsToPrint", 0)),
@@ -100,6 +101,59 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
      fDisplayPythiaCards(ps.getUntrackedParameter<bool>("displayPythiaCards",false))
 { 
 
+   
+   // J.Y.: the following 3 parameters are hacked "for a reason"
+   //
+   if ( ps.exists( "PPbarInitialState" ) )
+   {
+      if ( fInitialState == PP )
+      {
+         fInitialState = PPbar;
+      }
+      else
+      {
+         // probably need to throw on attempt to override ?
+      }
+   }
+   else if ( ps.exists( "ElectronPositronInitialState" ) )
+   {
+      if ( fInitialState == PP )
+      {
+         fInitialState = ElectronPositron;
+      }
+      else
+      {
+         // probably need to throw on attempt to override ?
+      }
+   }
+   else if ( ps.exists( "ElectronProtonInitialState" ) )
+   {
+      if ( fInitialState == PP )
+      {
+         fInitialState = ElectronProton;	 
+	 fBeam1PZ = (ps.getParameter<edm::ParameterSet>("ElectronProtonInitialState")).getParameter<double>("electronMomentum");
+	 fBeam2PZ = (ps.getParameter<edm::ParameterSet>("ElectronProtonInitialState")).getParameter<double>("protonMomentum");
+      }
+      else
+      {
+         // probably need to throw on attempt to override ?
+      }
+   }
+   else if ( ps.exists( "PositronProtonInitialState" ) )
+   {
+      if ( fInitialState == PP )
+      {
+         fInitialState = PositronProton;	 
+	 fBeam1PZ = (ps.getParameter<edm::ParameterSet>("ElectronProtonInitialState")).getParameter<double>("positronMomentum");
+	 fBeam2PZ = (ps.getParameter<edm::ParameterSet>("ElectronProtonInitialState")).getParameter<double>("protonMomentum");
+      }
+      else
+      {
+         // probably need to throw on attempt to override ?
+      }
+   }
+   
+   
    // J.Y.: the following 4 params are "hacked", in the sense 
    // that they're tracked but get in optionally;
    // this will be fixed once we update all applications
@@ -716,7 +770,49 @@ bool Pythia6Hadronizer::initializeForInternalPartons()
       pyglrhad_();
    }
 
-   call_pyinit("CMS", "p", "p", fCOMEnergy);
+   if ( fInitialState == PP ) // default
+   {
+      call_pyinit("CMS", "p", "p", fCOMEnergy);
+   }
+   else if ( fInitialState == PPbar )
+   {
+      call_pyinit( "CMS", "p", "pbar", fCOMEnergy);
+   }
+   else if ( fInitialState == ElectronPositron )
+   {
+      call_pyinit( "CMS", "e+", "e-", fCOMEnergy );
+   }
+   else if ( fInitialState == ElectronProton)
+   {
+      // set p(1,i) & p(2,i) for the beams in pyjets !
+      pyjets.p[0][0] = 0.;
+      pyjets.p[1][0] = 0.;
+      pyjets.p[2][0] = fBeam1PZ;
+      pyjets.p[0][1] = 0.;
+      pyjets.p[1][1] = 0.;
+      pyjets.p[2][1] = fBeam2PZ;
+      // call "3mon" frame & 0.0 win
+      call_pyinit( "3mom", "e-", "p", 0.0 );
+   }
+   else if ( fInitialState == PositronProton)
+   {
+      // set p(1,i) & p(2,i) for the beams in pyjets !
+      pyjets.p[0][0] = 0.;
+      pyjets.p[1][0] = 0.;
+      pyjets.p[2][0] = fBeam1PZ;
+      pyjets.p[0][1] = 0.;
+      pyjets.p[1][1] = 0.;
+      pyjets.p[2][1] = fBeam2PZ;
+      // call "3mon" frame & 0.0 win
+      call_pyinit( "3mom", "e+", "p", 0.0 );
+   }
+   else
+   {
+      // throw on unknown initial state !
+      throw edm::Exception(edm::errors::Configuration,"Pythia6Interface") 
+             <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron, ElectronProton, and PositronProton \n";
+   }
+   
 
    fPy6Service->setPYUPDAParams(true);
    
