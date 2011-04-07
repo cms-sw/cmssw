@@ -1,3 +1,10 @@
+2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-01-01
+	* Improve handling of droppedEventsCount.
+	* Merge fixes from tags V07-03-01, V07-03-02 and V07-03-03 (branch_3_10_x)
+	  into trunk.
+
 2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-01-00
@@ -13,6 +20,11 @@
 	* Merge the new SM as of tag V07-02-00 (branch_3_10_x)
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
+
+2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-03
+	* Fix unit tests for modified DiscardManager.
 
 2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
