@@ -1,8 +1,8 @@
-#include "RecoTracker/TkDetLayers/interface/TOBLayerBuilder.h"
+#include "TOBLayerBuilder.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/TkDetLayers/interface/TOBRodBuilder.h"
+#include "TOBRodBuilder.h"
 
 using namespace edm;
 using namespace std;

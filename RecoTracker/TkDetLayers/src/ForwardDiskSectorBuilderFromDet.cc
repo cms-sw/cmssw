@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
+#include "ForwardDiskSectorBuilderFromDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"

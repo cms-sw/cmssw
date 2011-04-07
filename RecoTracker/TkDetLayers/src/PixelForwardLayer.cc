@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
+#include "PixelForwardLayer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,9 +12,9 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 
 
-#include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
-#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
+#include "LayerCrossingSide.h"
+#include "DetGroupMerger.h"
+#include "CompatibleDetToGroupAdder.h"
 
 using namespace std;
 

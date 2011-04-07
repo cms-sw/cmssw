@@ -1,11 +1,11 @@
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTrackerBuilder.h"
+#include "GeometricSearchTrackerBuilder.h"
 
-#include "RecoTracker/TkDetLayers/interface/PixelBarrelLayerBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/PixelForwardLayerBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/TIBLayerBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/TOBLayerBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/TIDLayerBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/TECLayerBuilder.h"
+#include "PixelBarrelLayerBuilder.h"
+#include "PixelForwardLayerBuilder.h"
+#include "TIBLayerBuilder.h"
+#include "TOBLayerBuilder.h"
+#include "TIDLayerBuilder.h"
+#include "TECLayerBuilder.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
 

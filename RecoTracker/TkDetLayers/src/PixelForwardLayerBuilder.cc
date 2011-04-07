@@ -1,5 +1,5 @@
-#include "RecoTracker/TkDetLayers/interface/PixelForwardLayerBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/PixelBladeBuilder.h"
+#include "PixelForwardLayerBuilder.h"
+#include "PixelBladeBuilder.h"
 
 using namespace edm;
 using namespace std;

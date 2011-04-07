@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/TkDetUtil.h"
+#include "TkDetUtil.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"

@@ -1,6 +1,6 @@
-#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
+#include "CompatibleDetToGroupAdder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
+#include "DetGroupMerger.h"
 
 
 using namespace std;
@@ -38,7 +38,7 @@ bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
 }
 
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
-#include "RecoTracker/TkDetLayers/interface/TkGeomDetCompatibilityChecker.h"
+#include "TkGeomDetCompatibilityChecker.h"
 
 bool CompatibleDetToGroupAdder::add( const GeomDet& det,
 				     const TrajectoryStateOnSurface& tsos, 

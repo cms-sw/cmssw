@@ -1,5 +1,5 @@
-#include "RecoTracker/TkDetLayers/interface/PixelBarrelLayerBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/PixelRodBuilder.h"
+#include "PixelBarrelLayerBuilder.h"
+#include "PixelRodBuilder.h"
 
 using namespace std;
 using namespace edm;

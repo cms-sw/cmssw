@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/TOBRodBuilder.h"
+#include "TOBRodBuilder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;

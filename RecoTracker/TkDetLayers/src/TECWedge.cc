@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/TECWedge.h"
+#include "TECWedge.h"
 
 
 

@@ -1,17 +1,17 @@
-#include "RecoTracker/TkDetLayers/interface/TECLayer.h"
+#include "TECLayer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
-#include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
+#include "CompatibleDetToGroupAdder.h"
+#include "DetGroupMerger.h"
+#include "LayerCrossingSide.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
-#include "RecoTracker/TkDetLayers/interface/TkDetUtil.h"
+#include "TkDetUtil.h"
 
 
 using namespace std;

@@ -1,6 +1,6 @@
-#include "RecoTracker/TkDetLayers/interface/TECWedgeBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/CompositeTECWedge.h"
-#include "RecoTracker/TkDetLayers/interface/SimpleTECWedge.h"
+#include "TECWedgeBuilder.h"
+#include "CompositeTECWedge.h"
+#include "SimpleTECWedge.h"
 
 using namespace edm;
 using namespace std;

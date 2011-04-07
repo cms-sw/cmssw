@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/DiskSectorBounds.h"
+#include "DiskSectorBounds.h"
 
 using namespace std;
 

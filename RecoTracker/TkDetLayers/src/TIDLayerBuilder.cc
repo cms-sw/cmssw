@@ -1,5 +1,5 @@
-#include "RecoTracker/TkDetLayers/interface/TIDLayerBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/TIDRingBuilder.h"
+#include "TIDLayerBuilder.h"
+#include "TIDRingBuilder.h"
 
 using namespace edm;
 using namespace std;

@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/BladeShapeBuilderFromDet.h"
+#include "BladeShapeBuilderFromDet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

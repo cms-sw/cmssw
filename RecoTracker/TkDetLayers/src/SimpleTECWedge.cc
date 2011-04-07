@@ -1,8 +1,8 @@
-#include "RecoTracker/TkDetLayers/interface/SimpleTECWedge.h"
+#include "SimpleTECWedge.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
+#include "ForwardDiskSectorBuilderFromDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

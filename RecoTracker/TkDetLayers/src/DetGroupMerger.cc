@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
+#include "DetGroupMerger.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;

@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/TIDLayer.h"
+#include "TIDLayer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -7,7 +7,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
+#include "DetGroupMerger.h"
 
 //#include "CommonDet/DetLayout/src/DetLessR.h"
 

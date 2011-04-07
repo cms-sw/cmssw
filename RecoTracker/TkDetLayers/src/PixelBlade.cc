@@ -1,11 +1,11 @@
-#include "RecoTracker/TkDetLayers/interface/PixelBlade.h"
+#include "PixelBlade.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/TkDetLayers/interface/BladeShapeBuilderFromDet.h"
-#include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
-#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
+#include "BladeShapeBuilderFromDet.h"
+#include "LayerCrossingSide.h"
+#include "DetGroupMerger.h"
+#include "CompatibleDetToGroupAdder.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"

@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromWedges.h"
+#include "ForwardDiskSectorBuilderFromWedges.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

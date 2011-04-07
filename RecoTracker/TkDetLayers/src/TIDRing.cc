@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/TIDRing.h"
+#include "TIDRing.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -10,11 +10,11 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
 
-#include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
-#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
+#include "LayerCrossingSide.h"
+#include "DetGroupMerger.h"
+#include "CompatibleDetToGroupAdder.h"
 
-#include "RecoTracker/TkDetLayers/interface/TkDetUtil.h"
+#include "TkDetUtil.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include <boost/function.hpp>
 

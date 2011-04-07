@@ -1,11 +1,11 @@
-#include "RecoTracker/TkDetLayers/interface/CompositeTECWedge.h"
+#include "CompositeTECWedge.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
-#include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
-#include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
-#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
+#include "ForwardDiskSectorBuilderFromDet.h"
+#include "LayerCrossingSide.h"
+#include "DetGroupMerger.h"
+#include "CompatibleDetToGroupAdder.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
@@ -13,7 +13,7 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 
-#include "RecoTracker/TkDetLayers/interface/TkDetUtil.h"
+#include "TkDetUtil.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include <boost/function.hpp>
 

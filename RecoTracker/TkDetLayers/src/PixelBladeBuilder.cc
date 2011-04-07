@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/PixelBladeBuilder.h"
+#include "PixelBladeBuilder.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

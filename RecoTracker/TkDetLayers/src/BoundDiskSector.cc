@@ -1,1 +1,1 @@
-#include "RecoTracker/TkDetLayers/interface/BoundDiskSector.h"
+#include "BoundDiskSector.h"

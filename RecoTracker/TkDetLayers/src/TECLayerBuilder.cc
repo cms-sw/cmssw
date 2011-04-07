@@ -1,5 +1,5 @@
-#include "RecoTracker/TkDetLayers/interface/TECLayerBuilder.h"
-#include "RecoTracker/TkDetLayers/interface/TECPetalBuilder.h"
+#include "TECLayerBuilder.h"
+#include "TECPetalBuilder.h"
 
 using namespace edm;
 using namespace std;

@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/PixelRodBuilder.h"
+#include "PixelRodBuilder.h"
 
 using namespace edm;
 using namespace std;

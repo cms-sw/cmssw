@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/interface/PixelRod.h"
+#include "PixelRod.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
