@@ -13,6 +13,7 @@
 #include <vector>
 
 
+#include "FWCore/Utilities/interface/Visibility.h"
 
 
 /** A highly configurable trajectory builder that allows full
@@ -96,17 +97,17 @@ protected:
 
 private :
   /// no copy constructor
-  GroupedCkfTrajectoryBuilder (const GroupedCkfTrajectoryBuilder&);
+  GroupedCkfTrajectoryBuilder (const GroupedCkfTrajectoryBuilder&)  dso_internal;
 
   /// no assignment operator
-  GroupedCkfTrajectoryBuilder& operator= (const GroupedCkfTrajectoryBuilder&);
+  GroupedCkfTrajectoryBuilder& operator= (const GroupedCkfTrajectoryBuilder&)  dso_internal;
 
   /// common part of both public trajectory building methods
   void buildTrajectories (const TrajectorySeed&,
                                   TrajectoryContainer &ret,
-	                          const TrajectoryFilter*) const;
+	                          const TrajectoryFilter*) const  dso_internal;
   
-  inline bool tkxor(bool a, bool b) const {return (a||b) && !(a&&b);}
+  inline bool tkxor(bool a, bool b) const  dso_internal {return (a||b) && !(a&&b);}
   // to be ported later
 
   bool advanceOneLayer( TempTrajectory& traj, 
@@ -114,23 +115,23 @@ private :
 			const Propagator* propagator, 
                         bool inOut,
 			TempTrajectoryContainer& newCand, 
-			TempTrajectoryContainer& result) const;
+			TempTrajectoryContainer& result) const  dso_internal;
 
   void groupedLimitedCandidates( TempTrajectory& startingTraj, 
 				 const TrajectoryFilter* regionalCondition,
 				 const Propagator* propagator, 
                                  bool inOut,
-				 TempTrajectoryContainer& result) const;
+				 TempTrajectoryContainer& result) const  dso_internal;
 
   /// try to find additional hits in seeding region
   void rebuildSeedingRegion (TempTrajectory& startingTraj,
-			     TempTrajectoryContainer& result) const ;
+			     TempTrajectoryContainer& result) const  dso_internal;
 
    //** try to find additional hits in seeding region for a candidate
    //* (returns number of trajectories added) *
   int rebuildSeedingRegion (const std::vector<const TrackingRecHit*>& seedHits,
 			    TempTrajectory& candidate,
-			    TempTrajectoryContainer& result) const ;
+			    TempTrajectoryContainer& result) const  dso_internal;
 
   // ** Backward fit of trajectory candidate except seed. Fit result and
   // *  remaining hits are returned in fittedTracks and remainingHits.
@@ -138,23 +139,23 @@ private :
   void backwardFit (TempTrajectory& candidate, unsigned int nSeed,
 		    const TrajectoryFitter& fitter,
 		    TempTrajectoryContainer& fittedTracks,
-		    std::vector<const TrackingRecHit*>& remainingHits) const;
+		    std::vector<const TrackingRecHit*>& remainingHits) const  dso_internal;
 
   /// Verifies presence of a RecHits in a range of TrajectoryMeasurements.
   bool verifyHits (TempTrajectory::DataContainer::const_iterator rbegin,
 		   size_t maxDepth,
-		   const std::vector<const TrackingRecHit*>& hits) const;
+		   const std::vector<const TrackingRecHit*>& hits) const  dso_internal;
 
   /// intermediate cleaning in the case of grouped measurements
-  void groupedIntermediaryClean(TempTrajectoryContainer& theTrajectories) const ;
+  void groupedIntermediaryClean(TempTrajectoryContainer& theTrajectories) const  dso_internal;
 
   /// fills in a list of layers from a container of TrajectoryMeasurements
   /// the "fillme" vector is cleared beforehand.
   void layers (const TempTrajectory::DataContainer& measurements,
-               std::vector<const DetLayer*> &fillme) const;
+               std::vector<const DetLayer*> &fillme) const  dso_internal;
 
   /// change of propagation direction
-  inline PropagationDirection oppositeDirection (PropagationDirection dir) const {
+  inline PropagationDirection oppositeDirection (PropagationDirection dir) const  dso_internal{
     if ( dir==alongMomentum )  return oppositeToMomentum;
     else if ( dir==oppositeToMomentum )  return alongMomentum;
     return dir;
