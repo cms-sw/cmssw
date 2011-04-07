@@ -1,6 +1,6 @@
 
 #include "RecoTracker/CkfPattern/interface/GroupedCkfTrajectoryBuilder.h"
-#include "RecoTracker/CkfPattern/interface/TrajectorySegmentBuilder.h"
+#include "TrajectorySegmentBuilder.h"
 
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"

@@ -1,5 +1,5 @@
 
-#include "RecoTracker/CkfPattern/interface/TrajectorySegmentBuilder.h"
+#include "TrajectorySegmentBuilder.h"
 
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
