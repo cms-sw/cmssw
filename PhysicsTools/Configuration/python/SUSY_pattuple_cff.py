@@ -156,7 +156,23 @@ def loadPAT(process,jetMetCorrections,extMatch):
         process.tauMatch.matched = "mergedTruth"
 
     #-- Jet corrections -----------------------------------------------------------
+    # L1 FastJet jet corrections
+    # kt jets for fastjet corrections (needed for CMSSW < 4_2_0)
+    process.load('RecoJets.Configuration.RecoPFJets_cff')
+    process.kt6PFJets.doRhoFastjet = True
+    process.kt6PFJets.Rho_EtaMax = cms.double(3.0)
+
+    process.pfJets.doAreaFastjet = True
+    process.pfJets.Rho_EtaMax = cms.double(3.0)
+
+    process.pfJetsPF.doAreaFastjet = True
+    process.pfJetsPF.Rho_EtaMax = cms.double(3.0)
+
+    # place kt6jets before jet corrections in default sequence
     process.patJetCorrFactors.levels = jetMetCorrections 
+    process.patDefaultSequence.replace(process.patJetCorrFactors,
+                                       process.kt6PFJets + process.patJetCorrFactors)
+
 
 def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,postfix):
     #-- PAT standard config -------------------------------------------------------
@@ -196,11 +212,6 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
     #include tau decay mode in pat::Taus (elese it will just be uninitialized)
     #process.patTausPF.addDecayMode = True
     #process.patTausPF.decayModeSrc = "shrinkingConePFTauDecayModeProducerPF" 
-
-
-    # L1 FastJet jet corrections
-    process.pfJetsPF.doAreaFastjet = True
-    process.pfJetsPF.Rho_EtaMax = cms.double(3.0)
 
 
     #PF type I corrected MET
