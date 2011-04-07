@@ -10,18 +10,21 @@ namespace edm {
 
   BranchID
   productIDToBranchID(ProductID const& pid, BranchIDLists const& lists, BranchListIndexes const& indexes) {
-    if (!pid.isValid()) {
-      return BranchID();
+
+    if (pid.isValid()) {
+      size_t procIndex = pid.processIndex()-1;
+      if (procIndex < indexes.size()) {
+        BranchListIndex blix = indexes[procIndex];
+        if (blix < lists.size()) {
+          BranchIDList const& blist = lists[blix];
+          size_t prodIndex =pid.productIndex()-1;
+          if (prodIndex<blist.size()) {
+            BranchID::value_type bid = blist[prodIndex];
+            return BranchID(bid);
+          }
+        }
+      }
     }
-    BranchID::value_type bid = 0;
-    try {
-      BranchListIndex blix = indexes.at(pid.processIndex()-1);
-      BranchIDList const& blist = lists.at(blix);
-      bid = blist.at(pid.productIndex()-1);
-    }
-    catch (std::exception) {
-      return BranchID();
-    }
-    return BranchID(bid);
+    return BranchID();
   }
 }
