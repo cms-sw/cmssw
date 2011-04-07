@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.14 2010/10/03 17:25:10 elmer Exp $
+// $Id: CachedTrajectory.h,v 1.16 2011/04/07 09:26:16 innocent Exp $
 //
 //
 
@@ -30,8 +30,9 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include <deque>
+#include "FWCore/Utilities/interface/Visibility.h"
 
-class CachedTrajectory {
+class  dso_internal CachedTrajectory {
  public:
    CachedTrajectory();
    enum TrajectorType { IpToEcal, IpToHcal, IpToHO, FullTrajectory };
