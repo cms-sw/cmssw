@@ -14,6 +14,11 @@
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
 
+2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-02
+	* A couple of minor fixes.
+
 2011-04-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-03-01
