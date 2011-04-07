@@ -4754,7 +4754,7 @@ void OHltTree::CheckOpenHlt(
             {
                if (ohBJetL2Et[i] > 10.)
                { // keep this at 10 even for the 20UU path - also, no eta cut here 
-                  if (ohBJetMuL25Tag[i] > 0.5)
+                  if (ohBJetPerfL25Tag[i] > 0.5)
                   { // Level 2.5 b tag 
                      if (ohBJetPerfL3Tag[i] > 0.5)
                      { // Level 3 b tag 
@@ -4782,7 +4782,7 @@ void OHltTree::CheckOpenHlt(
             {
                if (ohBJetL2CorrectedEt[i] > thresholds[0])
                { // ET cut
-                  if (ohBJetMuL25Tag[i] > 0.5)
+                  if (ohBJetPerfL25Tag[i] > 0.5)
                   { // Level 2.5 b tag
                      if (ohBJetPerfL3Tag[i] > 0.5)
                      { // Level 3 b tag
@@ -4820,7 +4820,7 @@ void OHltTree::CheckOpenHlt(
             {
                if (ohBJetL2Et[i] > 10.)
                { // keep this at 10 even for the 20UU path - also, no eta cut here
-                  if (ohBJetMuL25Tag[i] > 0.5)
+                  if (ohBJetPerfL25Tag[i] > 0.5)
                   { // Level 2.5 b tag
                      if (ohBJetPerfL3Tag[i] > 0.5)
                      { // Level 3 b tag
@@ -4856,7 +4856,7 @@ void OHltTree::CheckOpenHlt(
             {
                if (ohBJetL2Et[i] > 10.)
                { // keep this at 10 even for all btag mu paths
-                  if (ohBJetMuL25Tag[i] > 0.5)
+                  if (ohBJetPerfL25Tag[i] > 0.5)
                   { // Level 2.5 b tag
                      if (OpenHlt1L3MuonPassed(thresholds[1], 5.0) >=1)
                      {//require at least one L3 muon
@@ -4876,6 +4876,7 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   /**********Available in 2011 menu: BTagMu_DiJetX_MuX***************************************/
    else if (isBTagMu_DiJetX_MuXTrigger(triggerName, thresholds))
      {
        if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -4893,9 +4894,9 @@ void OHltTree::CheckOpenHlt(
 	       // apply b-tag cut
 	       for (int i = 0; i < NohBJetL2Corrected; i++)
 		 {
-		   if (ohBJetL2CorrectedEt[i] > 10.)
+		   if (ohBJetL2CorrectedEt[i] > thresholds[0])
 		     { // keep this at 10 even for all btag mu paths
-		       if (ohBJetMuL25Tag[i] > 0.5)
+		       if (ohBJetPerfL25Tag[i] > 0.5)
 			 { // Level 2.5 b tag
 			   if (OpenHlt1L3MuonPassed(thresholds[1], 5.0) >=1)
 			     {//require at least one L3 muon
@@ -4957,14 +4958,14 @@ void OHltTree::CheckOpenHlt(
             if (OpenHltQuadCorJetPassed(thresholds[0])>=1)
             {
                int rc = 0;
-               int max = (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected;
+               int max = (NohBJetL2Corrected > 4) ? 4 : NohBJetL2Corrected;
                for (int i = 0; i < max; i++)
                {
                   if (ohBJetL2CorrectedEt[i] > thresholds[0])
                   { // ET cut 
-                     if (ohBJetIPL25Tag[i] > 2.5)
+                     if (ohBJetIPL25Tag[i] > 0)
                      { // Level 2.5 b tag 
-                        if (ohBJetIPL3Tag[i] > 3.5)
+                        if (ohBJetIPL3Tag[i] > 2.0)
                         { // Level 3 b tag 
                            rc++;
                         }
@@ -5031,36 +5032,6 @@ void OHltTree::CheckOpenHlt(
             }
             if (rc >= 1 && OpenHlt1MuonPassed(7., 7., 15., 2., 1)>=1)
             {
-               triggerBit[it] = true;
-            }
-         }
-      }
-   }
-   else if (triggerName.CompareTo("OpenHLT_BTagIP_TripleJet20U") == 0)
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it))
-         {
-            int njets = 0;
-            int ntaggedjets = 0;
-            int max = (NohBJetL2 > 2) ? 2 : NohBJetL2;
-            for (int i = 0; i < max; i++)
-            {
-               if (ohBJetL2Et[i] > 20.)
-               { // ET cut on uncorrected jets 
-                  njets++;
-                  if (ohBJetPerfL25Tag[i] > 0.5)
-                  { // Level 2.5 b tag 
-                     if (ohBJetPerfL3Tag[i] > 0.5)
-                     { // Level 3 b tag 
-                        ntaggedjets++;
-                     }
-                  }
-               }
-            }
-            if (njets > 2 && ntaggedjets > 0)
-            { // Require >= 3 jets, and >= 1 tagged jet
                triggerBit[it] = true;
             }
          }
