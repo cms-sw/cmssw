@@ -1,5 +1,5 @@
 #include "RecoJets/JetAssociationProducers/interface/TrackExtrapolator.h"
-#include "TrackingTools/TrackAssociator/interface/EcalDetIdAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 
 
 #include <vector>
@@ -44,7 +44,7 @@ TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", propagator_h);
   edm::ESHandle<DetIdAssociator> ecalDetIdAssociator_h;
   iSetup.get<DetIdAssociatorRecord>().get("EcalDetIdAssociator", ecalDetIdAssociator_h);
-  FiducialVolume ecalvolume = ecalDetIdAssociator_h->volume();
+  FiducialVolume const & ecalvolume = ecalDetIdAssociator_h->volume();
 
   // get stuff from Event
   edm::Handle <reco::TrackCollection> tracks_h;
