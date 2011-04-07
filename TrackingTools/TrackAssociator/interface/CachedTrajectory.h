@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.16 2011/04/07 09:26:16 innocent Exp $
+// $Id: CachedTrajectory.h,v 1.17 2011/04/07 14:44:54 innocent Exp $
 //
 //
 
@@ -32,78 +32,78 @@
 #include <deque>
 #include "FWCore/Utilities/interface/Visibility.h"
 
-class  dso_internal CachedTrajectory {
+class CachedTrajectory {
  public:
    CachedTrajectory();
    enum TrajectorType { IpToEcal, IpToHcal, IpToHO, FullTrajectory };
    enum WideTrajectoryType { Ecal, Hcal, HO };
 
-   void reset_trajectory();
+   void reset_trajectory() dso_internal;
    
    /// propagate through the whole detector, returns true if successful
-   bool propagateAll(const SteppingHelixStateInfo& initialState);
+   bool propagateAll(const SteppingHelixStateInfo& initialState) dso_internal;
    
-   void propagateForward(SteppingHelixStateInfo& state, float distance);
-   void propagate(SteppingHelixStateInfo& state, const Plane& plane);
-   void propagate(SteppingHelixStateInfo& state, const Cylinder& cylinder);
+   void propagateForward(SteppingHelixStateInfo& state, float distance) dso_internal;
+   void propagate(SteppingHelixStateInfo& state, const Plane& plane) dso_internal;
+   void propagate(SteppingHelixStateInfo& state, const Cylinder& cylinder) dso_internal;
 
    /// get fast to a given DetId surface using cached trajectory
-   TrajectoryStateOnSurface propagate(const Plane* plane);
+   TrajectoryStateOnSurface propagate(const Plane* plane) dso_internal;
    
    /// calculate trajectory change (Theta,Phi)
    /// delta = final - original
-   std::pair<float,float> trajectoryDelta( TrajectorType );
+   std::pair<float,float> trajectoryDelta( TrajectorType ) dso_internal;
    
-   void setPropagator(const Propagator* ptr){	propagator_ = ptr; }
-   void setStateAtIP(const SteppingHelixStateInfo& state){ stateAtIP_ = state; }
+   void setPropagator(const Propagator* ptr) dso_internal { propagator_ = ptr; }
+   void setStateAtIP(const SteppingHelixStateInfo& state) dso_internal { stateAtIP_ = state; }
    
    /// get a set of points representing the trajectory between two cylinders
    /// of radius R1 and R2 and length L1 and L2. Parameter steps defines
    /// maximal number of steps in the detector.
    void getTrajectory(std::vector<SteppingHelixStateInfo>&,
 		      const FiducialVolume&,
-		      int steps = 4);
+		      int steps = 4) dso_internal;
    
-   void findEcalTrajectory(const FiducialVolume&);
-   void findHcalTrajectory(const FiducialVolume&);
-   void findHOTrajectory(const FiducialVolume&);
-   void findPreshowerTrajectory(const FiducialVolume&);
+   void findEcalTrajectory(const FiducialVolume&) dso_internal;
+   void findHcalTrajectory(const FiducialVolume&) dso_internal;
+   void findHOTrajectory(const FiducialVolume&) dso_internal;
+   void findPreshowerTrajectory(const FiducialVolume&) dso_internal;
 
-   const std::vector<SteppingHelixStateInfo>& getEcalTrajectory();
-   const std::vector<SteppingHelixStateInfo>& getHcalTrajectory();
-   const std::vector<SteppingHelixStateInfo>& getHOTrajectory();
-   const std::vector<SteppingHelixStateInfo>& getPreshowerTrajectory();
+   const std::vector<SteppingHelixStateInfo>& getEcalTrajectory() dso_internal;
+   const std::vector<SteppingHelixStateInfo>& getHcalTrajectory() dso_internal;
+   const std::vector<SteppingHelixStateInfo>& getHOTrajectory() dso_internal;
+   const std::vector<SteppingHelixStateInfo>& getPreshowerTrajectory() dso_internal;
 
    std::vector<GlobalPoint>* getWideTrajectory(const std::vector<SteppingHelixStateInfo>&,
-                                                     WideTrajectoryType);
+                                                     WideTrajectoryType) dso_internal;
 
-   SteppingHelixStateInfo getStateAtEcal();
-   SteppingHelixStateInfo getStateAtPreshower();
-   SteppingHelixStateInfo getStateAtHcal();
-   SteppingHelixStateInfo getStateAtHO();
+   SteppingHelixStateInfo getStateAtEcal() dso_internal;
+   SteppingHelixStateInfo getStateAtPreshower() dso_internal;
+   SteppingHelixStateInfo getStateAtHcal() dso_internal;
+   SteppingHelixStateInfo getStateAtHO() dso_internal;
    
    //get the innermost state of the whole trajectory 
-   SteppingHelixStateInfo getInnerState();
+   SteppingHelixStateInfo getInnerState() dso_internal;
    //get the outermost state of the whole trajectory 
-   SteppingHelixStateInfo getOuterState();
+   SteppingHelixStateInfo getOuterState() dso_internal;
    
    // specify the detector global boundaries to limit the propagator
    // units: cm
    // HINT: use lower bounds to limit propagateAll() action within
    //       smaller region, such as ECAL for example
-   void setMaxDetectorRadius(float r = 800.){ maxRho_ = r;}
-   void setMaxDetectorLength(float l = 2200.){ maxZ_ = l/2.;}
-   void setMaxHORadius(float r = 800.) { HOmaxRho_ = r;}
-   void setMaxHOLength(float l = 2200.) { HOmaxZ_ = l/2.;}
-   void setMinDetectorRadius(float r = 0.){ minRho_ = r;}
-   void setMinDetectorLength(float l = 0.){ minZ_ = l/2.;}
+   void setMaxDetectorRadius(float r = 800.) dso_internal { maxRho_ = r;}
+   void setMaxDetectorLength(float l = 2200.) dso_internal { maxZ_ = l/2.;}
+   void setMaxHORadius(float r = 800.) dso_internal { HOmaxRho_ = r;}
+   void setMaxHOLength(float l = 2200.) dso_internal { HOmaxZ_ = l/2.;}
+   void setMinDetectorRadius(float r = 0.)  dso_internal { minRho_ = r;}
+   void setMinDetectorLength(float l = 0.)  dso_internal { minZ_ = l/2.;}
 
    void setPropagationStep(float s = 20.){ step_ = s;}
-   float getPropagationStep() const { return step_;}
+   float getPropagationStep() const  dso_internal { return step_;}
    
  protected:
    
-   static int sign (float number){
+   static int sign (float number) dso_internal {
       if (number ==0) return 0;
       if (number > 0)
 	return 1;
@@ -114,9 +114,9 @@ class  dso_internal CachedTrajectory {
    std::pair<float,float> delta( const double& theta1,
 				 const double& theta2,
 				 const double& phi1,
-				 const double& phi2);
+				 const double& phi2) dso_internal;
    
-   float distance(const Plane* plane, int index) {
+   float distance(const Plane* plane, int index) dso_internal {
       if (index<0 || fullTrajectory_.empty() || (unsigned int)index >= fullTrajectory_.size()) return 0;
       return plane->localZ(fullTrajectory_[index].position());
    }
