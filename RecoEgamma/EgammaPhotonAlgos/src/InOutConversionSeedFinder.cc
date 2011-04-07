@@ -3,28 +3,18 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionForwardEstimator.h"
 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionFastHelix.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Field
-#include "MagneticField/Engine/interface/MagneticField.h"
 //
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 //
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 //
 //
-#include "FWCore/Framework/interface/EventSetup.h"
 //
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Geometry/Point3D.h"
 
 InOutConversionSeedFinder::InOutConversionSeedFinder( const edm::ParameterSet& conf ):
   ConversionSeedFinder( conf ), conf_(conf)  

@@ -3,19 +3,10 @@
 #include <memory>
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 //
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include <TMath.h>
 
 
 std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const Trajectory &traj, const reco::Vertex &vtx, double sigmaTolerance) const {

@@ -8,16 +8,12 @@
 //
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 //
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 //
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h" 
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
 //
 #include "CLHEP/Units/GlobalPhysicalConstants.h"

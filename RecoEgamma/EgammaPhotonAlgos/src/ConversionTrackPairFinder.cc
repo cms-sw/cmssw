@@ -4,17 +4,9 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h"
 
-#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 //
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include <TMath.h>
 #include <vector>
 #include <map>
 

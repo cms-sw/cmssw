@@ -1,7 +1,6 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/TangentApproachInRPhi.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 

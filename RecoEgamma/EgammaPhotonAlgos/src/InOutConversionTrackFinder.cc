@@ -3,14 +3,12 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
 
 //
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 //
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 //

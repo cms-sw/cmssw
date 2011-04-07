@@ -3,7 +3,6 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 
 #include <cfloat>

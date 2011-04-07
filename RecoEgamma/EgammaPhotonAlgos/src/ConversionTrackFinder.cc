@@ -1,21 +1,13 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
 //
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
-#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
-#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 //
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 //
-#include "DataFormats/Common/interface/OwnVector.h"
 //
-#include "Utilities/General/interface/precomputed_value_sort.h"
 
 #include <sstream>
 

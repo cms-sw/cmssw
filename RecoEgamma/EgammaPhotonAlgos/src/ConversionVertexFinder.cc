@@ -1,26 +1,13 @@
 #include <iostream>
-#include <vector>
 #include <memory>
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionVertexFinder.h"
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
 //Kinematic constraint vertex fitter
-#include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
-#include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
 #include <RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h>
 
-#include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
-#include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
-#include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
-#include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
-#include "RecoVertex/KinematicFit/interface/ColinearityKinematicConstraint.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 // new templated one
@@ -30,8 +17,6 @@
 
 
 //
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include <TMath.h>
 
 
 

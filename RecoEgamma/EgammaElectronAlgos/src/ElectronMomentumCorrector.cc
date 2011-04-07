@@ -1,13 +1,9 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
 #include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateTransform.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -25,7 +21,7 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronMomentumCorrector.cc,v 1.14 2010/10/15 18:49:18 charlot Exp $
+ * \version $Id: ElectronMomentumCorrector.cc,v 1.15 2011/02/16 17:46:35 chamont Exp $
  *
  ****************************************************************************/
 

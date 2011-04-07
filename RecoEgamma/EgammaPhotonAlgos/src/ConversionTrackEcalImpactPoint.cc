@@ -3,18 +3,10 @@
 #include <memory>
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackEcalImpactPoint.h"
 // Framework
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 
 
 //
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include <TMath.h>
 #include <vector>
 #include <map>
 

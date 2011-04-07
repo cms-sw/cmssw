@@ -1,12 +1,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
 // Field
-#include "MagneticField/Engine/interface/MagneticField.h"
 // Geometry
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 //
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h" 
 #include "RecoTracker/TkNavigation/interface/StartingLayerFinder.h"
 #include "RecoTracker/TkNavigation/interface/LayerCollector.h"
 //
@@ -113,7 +110,7 @@ FreeTrajectoryState ConversionSeedFinder::trackStateFromClusters( int charge, co
   float theta1 = theSCPosition_.theta();
   float theta2 = atan2(double(theSCPosition_.perp()), theSCPosition_.z()-5.5);
   float dtheta = theta1 - theta2;
-  AlgebraicSymMatrix55 m;
+  AlgebraicSymMatrix  m(5,1) ;
   m[0][0] = 1.; m[1][1] = dpos*dpos ; m[2][2] = dpos*dpos ;
   m[3][3] = dphi*dphi ; m[4][4] = dtheta * dtheta ;
 
