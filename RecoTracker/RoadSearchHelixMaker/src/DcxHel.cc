@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxHel.cc,v 1.4 2006/04/10 22:06:41 stevew Exp $
+// 	$Id: DcxHel.cc,v 1.5 2009/05/27 07:17:25 fabiocos Exp $
 //
 // Description:
 //	Class Implementation for |DcxHel|
@@ -11,9 +11,6 @@
 //
 // Author List:
 //	S. Wagner
-//
-// Copyright Information:
-//	Copyright (C) 1996	SLAC
 //
 //------------------------------------------------------------------------
 //babar #include "BaBar/BaBar.hh"

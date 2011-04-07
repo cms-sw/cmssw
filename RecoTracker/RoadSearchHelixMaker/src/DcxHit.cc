@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxHit.cc,v 1.4 2006/04/10 22:06:41 stevew Exp $
+// 	$Id: DcxHit.cc,v 1.5 2007/01/15 22:16:28 gutsche Exp $
 //
 // Description:
 //	Class Implementation for |DcxHit|: drift chamber hit that can compute
@@ -12,9 +12,6 @@
 //
 // Author List:
 //	A. Snyder, S. Wagner
-//
-// Copyright Information:
-//	Copyright (C) 1995	SLAC
 //
 //------------------------------------------------------------------------
 

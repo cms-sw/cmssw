@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.8 2007/03/07 22:04:03 gutsche Exp $
+// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.9 2011/03/08 15:38:50 innocent Exp $
 //
 // Description:
 //	Class Implementation for |DcxTrackCandidatesToTracks|
@@ -10,9 +10,6 @@
 //
 // Author List:
 //	S. Wagner
-//
-// Copyright Information:
-//	Copyright (C) 1995	SLAC
 //
 //------------------------------------------------------------------------
 #include <cmath>

@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxFittedHel.cc,v 1.3 2006/03/31 23:28:42 gutsche Exp $
+// 	$Id: DcxFittedHel.cc,v 1.4 2006/04/10 22:06:41 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxFittedHel|
@@ -10,9 +10,6 @@
 //
 // Author List:
 //	S. Wagner
-//
-// Copyright Information:
-//	Copyright (C) 1995	SLAC
 //
 //------------------------------------------------------------------------
 //babar #include "BaBar/BaBar.hh"
