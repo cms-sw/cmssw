@@ -22,12 +22,43 @@
 #include "FWCore/Utilities/interface/Map.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "FWCore/Utilities/interface/tinyxml.h"
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 
 namespace edm {
+  /*
+   * Note that output formatting is spattered across these classes
+   * If something outside these classes requires access to the
+   * same formatting then we need to refactor it into a common library
+   */
+  template <typename S, typename T>
+  S& formatFile(T const& f, S& os) {
+    
+    if (f.fileHasBeenClosed) {
+      os << "\n<State  Value=\"closed\"/>";
+    } else {
+      os << "\n<State  Value=\"open\"/>";
+    }
+    
+    os << "\n<LFN>" << TiXmlText(f.logicalFileName) << "</LFN>";
+    os << "\n<PFN>" << TiXmlText(f.physicalFileName) << "</PFN>";
+    os << "\n<Catalog>" << TiXmlText(f.catalog) << "</Catalog>";
+    os << "\n<ModuleLabel>" << TiXmlText(f.moduleLabel) << "</ModuleLabel>";
+    os << "\n<GUID>" << f.guid << "</GUID>";
+    os << "\n<Branches>";
+    for (std::vector<std::string>::const_iterator iBranch = f.branchNames.begin(),
+         iBranchEnd = f.branchNames.end();
+         iBranch != iBranchEnd;
+         ++iBranch) {
+      os << "\n  <Branch>" << TiXmlText(*iBranch) << "</Branch>";
+    }
+    os << "\n</Branches>";
+    return os;
+  }
     /*
      * Note that output formatting is spattered across these classes
      * If something outside these classes requires access to the

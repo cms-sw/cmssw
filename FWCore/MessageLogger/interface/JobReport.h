@@ -34,7 +34,6 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 #include <vector>
 
 #include "boost/scoped_ptr.hpp"
-#include "FWCore/Utilities/interface/tinyxml.h"
 
 namespace edm {
 
@@ -421,35 +420,6 @@ namespace edm {
    std::ostream& operator<< (std::ostream& os, JobReport::OutputFile const& f);
    std::ostream& operator<< (std::ostream& os, JobReport::LumiSectionReport const& rep);
 
-    /*
-     * Note that output formatting is spattered across these classes
-     * If something outside these classes requires access to the
-     * same formatting then we need to refactor it into a common library
-     */
-  template <typename S, typename T>
-  S& formatFile(T const& f, S& os) {
-
-    if (f.fileHasBeenClosed) {
-      os << "\n<State  Value=\"closed\"/>";
-    } else {
-      os << "\n<State  Value=\"open\"/>";
-    }
-
-    os << "\n<LFN>" << TiXmlText(f.logicalFileName) << "</LFN>";
-    os << "\n<PFN>" << TiXmlText(f.physicalFileName) << "</PFN>";
-    os << "\n<Catalog>" << TiXmlText(f.catalog) << "</Catalog>";
-    os << "\n<ModuleLabel>" << TiXmlText(f.moduleLabel) << "</ModuleLabel>";
-    os << "\n<GUID>" << f.guid << "</GUID>";
-    os << "\n<Branches>";
-    for (std::vector<std::string>::const_iterator iBranch = f.branchNames.begin(),
-        iBranchEnd = f.branchNames.end();
-        iBranch != iBranchEnd;
-        ++iBranch) {
-      os << "\n  <Branch>" << TiXmlText(*iBranch) << "</Branch>";
-    }
-    os << "\n</Branches>";
-    return os;
-  }
 }
 
 #endif
