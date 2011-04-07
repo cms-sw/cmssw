@@ -1,4 +1,4 @@
-// $Id: ConcurrentQueue.h,v 1.11 2011/03/07 15:31:31 mommsen Exp $
+// $Id: ConcurrentQueue.h,v 1.12 2011/04/07 08:22:04 mommsen Exp $
 /// @file: ConcurrentQueue.h 
 
 
@@ -42,8 +42,8 @@ namespace stor
         item cannot be added.
    
      $Author: mommsen $
-     $Revision: 1.11 $
-     $Date: 2011/03/07 15:31:31 $
+     $Revision: 1.12 $
+     $Date: 2011/04/07 08:22:04 $
    */
 
 
@@ -73,6 +73,20 @@ namespace stor
     public:
       static const bool value = (sizeof(test<T>(0)) == sizeof(TrueType));
     };
+    
+    template <typename T>
+    MemoryType 
+    memoryUsage(const std::pair<T,size_t>& t)
+    {
+      MemoryType usage(0UL);
+      try
+      {
+        usage = t.first.memoryUsed();
+      }
+      catch(...)
+      {}
+      return usage;
+    }
     
     template <typename T>
     typename boost::enable_if<hasMemoryUsed<T>, MemoryType>::type
