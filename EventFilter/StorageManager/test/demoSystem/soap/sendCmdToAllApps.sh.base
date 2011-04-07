@@ -11,8 +11,8 @@ fi
 # The order of stopping is different
 app_name[1]=pt::atcp::PeerTransportATCP ; app_host[1]=STMGR_DEV_BU_HOST      ; app_port[1]=STMGR_DEV_BU_PORT
 app_name[2]=pt::atcp::PeerTransportATCP ; app_host[2]=STMGR_DEV_SM_HOST      ; app_port[2]=STMGR_DEV_SM_PORT
-app_name[3]=SMProxyServer               ; app_host[3]=STMGR_DEV_SMPROXY_HOST ; app_port[3]=STMGR_DEV_SMPROXY_PORT
-app_name[4]=StorageManager              ; app_host[4]=STMGR_DEV_SM_HOST      ; app_port[4]=STMGR_DEV_SM_PORT
+app_name[3]=StorageManager              ; app_host[3]=STMGR_DEV_SM_HOST      ; app_port[3]=STMGR_DEV_SM_PORT
+app_name[4]=SMProxyServer               ; app_host[4]=STMGR_DEV_SMPROXY_HOST ; app_port[4]=STMGR_DEV_SMPROXY_PORT
 app_name[5]=evf::BU                     ; app_host[5]=STMGR_DEV_BU_HOST      ; app_port[5]=STMGR_DEV_BU_PORT
 app_name[6]=evf::FUResourceBroker       ; app_host[6]=STMGR_DEV_BU_HOST      ; app_port[6]=STMGR_DEV_BU_PORT
 app_name[7]=evf::FUEventProcessor       ; app_host[7]=STMGR_DEV_FU_HOST      ; app_port[7]=STMGR_DEV_FU_PORT
@@ -43,7 +43,7 @@ done
 # SMPS in the application maps.
 isPlayback=`echo $STMGR_CONFIG | grep -c 'sm_playback.xml'`
 if [[ $isPlayback -gt 0 ]] ; then
-    app_name[3]=evf::FUEventProcessor  ; app_host[3]=STMGR_DEV_BU_HOST ; app_port[3]=STMGR_DEV_BU_PORT
+    app_name[4]=evf::FUEventProcessor  ; app_host[4]=STMGR_DEV_BU_HOST ; app_port[4]=STMGR_DEV_BU_PORT
 fi
 
 if [[ $command == "Configure" || 

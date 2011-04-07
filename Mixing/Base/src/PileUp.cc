@@ -62,6 +62,36 @@ namespace edm {
         << "'type' parameter (a string) has a value of '" << type_ << "'.\n"
         << "Legal values are 'poisson', 'fixed', or 'none'\n";
     }
+
+    manage_OOT_ = pset.getUntrackedParameter<bool>("manage_OOT", false);
+
+    if(manage_OOT_) { // figure out what the parameters are
+
+      if (playback_) throw cms::Exception("Illegal parameter clash","PileUp::PileUp(ParameterSet const& pset)")
+	<< " manage_OOT option not allowed with playback ";
+
+      std::string OOT_type = pset.getUntrackedParameter<std::string>("OOT_type");
+
+      if(OOT_type == "Poisson" || OOT_type == "poisson") {
+	poisson_OOT_ = true;
+	poissonDistr_OOT_ = new CLHEP::RandPoisson(engine);
+      }
+      else if(OOT_type == "Fixed" || OOT_type == "fixed") {
+	fixed_OOT_ = true;
+	// read back the fixed number requested out-of-time
+	intFixed_OOT_ = pset.getUntrackedParameter<int>("intFixed_OOT", -1);
+	if(intFixed_OOT_ < 0) {
+	  throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)") 
+	    << " Fixed out-of-time pileup requested, but no fixed value given ";
+	}
+      }
+      else {
+	throw cms::Exception("Illegal parameter value","PileUp::PileUp(ParameterSet const& pset)")
+	  << "'OOT_type' parameter (a string) has a value of '" << OOT_type << "'.\n"
+	  << "Legal values are 'poisson' or 'fixed'\n";
+      }
+      edm::LogInfo("MixingModule") <<" Out-of-time pileup will be generated with a " << OOT_type << " distribution. " ;
+    }
     
   }
 
@@ -71,31 +101,73 @@ namespace edm {
 
   void
   PileUp::readPileUp(std::vector<EventPrincipalVector> & result,std::vector<std::vector<edm::EventID> > &ids) {
+
+    // set up vector of event counts for each bunch crossing ahead of time, so that we can
+    // allow for an arbitrary distribution for out-of-time vs. in-time pileup
+
+    std::vector<int> nint;
+
+    // if we are managing the distribution of out-of-time pileup separately, select the distribution for bunch
+    // crossing zero first, save it for later.
+
+    int nzero_crossing = -1;
+
+    if(manage_OOT_) {
+      if (none_){
+	nzero_crossing = 0;
+      }else if (poisson_){
+	nzero_crossing =  poissonDistribution_->fire() ;
+      }else if (fixed_){
+	nzero_crossing =  intAverage_ ;
+      }else if (histoDistribution_ || probFunctionDistribution_){
+	double d = histo_->GetRandom();
+	//n = (int) floor(d + 0.5);  // incorrect for bins with integer edges
+	nzero_crossing =  int(d);
+      }
+    }
             
     for (int i = minBunch_; i <= maxBunch_; ++i) {
-      EventPrincipalVector eventVector;
-      int n=0;
       
       if (playback_){
-	n = ids[i-minBunch_].size();
-      } else if (sequential_) {
-	// For now, the use case for sequential read reads only one event at a time.
-	n = 1;
-      } else {
-	
+	nint.push_back( ids[i-minBunch_].size() );
+      //} else if (sequential_) {  // just read many sequentially... why specify?
+      // For now, the use case for sequential read reads only one event at a time.
+      // nint.push_back( 1 );
+      } 
+      else if(manage_OOT_) {
+	if(i==0 && !poisson_OOT_) nint.push_back(nzero_crossing);
+	else{
+	  if(poisson_OOT_) {
+	    nint.push_back( poissonDistr_OOT_->fire(float(nzero_crossing)) );
+	  }
+	  else {
+	    nint.push_back( intFixed_OOT_ );
+	  }	  
+	}
+      } 
+      else {	
 	if (none_){
-	  n = 0;
+	  nint.push_back(0);
 	}else if (poisson_){
-	  n = poissonDistribution_->fire();
+	  nint.push_back( poissonDistribution_->fire() );
 	}else if (fixed_){
-	  n = intAverage_;
+	  nint.push_back( intAverage_ );
 	}else if (histoDistribution_ || probFunctionDistribution_){
 	  double d = histo_->GetRandom();
 	  //n = (int) floor(d + 0.5);  // incorrect for bins with integer edges
-	  n = int(d);
+	  nint.push_back( int(d) );
 	}
 
       }
+    }
+
+    int n=0;
+      
+    for (int i = minBunch_; i <= maxBunch_; ++i) {
+      EventPrincipalVector eventVector;
+
+      n = nint[i-minBunch_];
+
       eventVector.reserve(n);
       while (n > 0) {
         EventPrincipalVector oneResult;
@@ -107,6 +179,10 @@ namespace edm {
 	} else if (sequential_) {
 	  unsigned int file;
 	  input_->readManySequential(n, oneResult, file);  // sequential
+	  for (int j=0;j<(int)oneResult.size();j++){
+	    oneResultPlayback.push_back(oneResult[j]->id());
+	  }
+	  ids[i-minBunch_] = oneResultPlayback;
 	} else  {
 	  unsigned int file;   //FIXME: need unsigned filenr?
 	  input_->readManyRandom(n, oneResult,file);     //no playback

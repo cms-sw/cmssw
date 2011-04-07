@@ -169,9 +169,9 @@ void FWMagField::resetFieldEstimate() const
 }
 
 //______________________________________________________________________________
-void FWMagField::checkFiledInfo(const edm::EventBase* event)
+void FWMagField::checkFieldInfo(const edm::EventBase* event)
 {
-   const static float  currentToFiled = 3.8/18160;
+   const static float  currentToField = 3.8/18160;
    bool available = false;
    try
    {
@@ -187,7 +187,7 @@ void FWMagField::checkFiledInfo(const edm::EventBase* event)
       if( runCond.isValid())
       {
          available = true;
-         m_eventField = currentToFiled * runCond->BAvgCurrent;
+         m_eventField = currentToField * runCond->BAvgCurrent;
          fwLog( fwlog::kDebug ) << "Magnetic field info found in ConditionsInEdm branch : "<< m_eventField << std::endl;
       }
       else
@@ -203,7 +203,7 @@ void FWMagField::checkFiledInfo(const edm::EventBase* event)
                sum += (*i).magnetCurrent();
 
             available = true;
-            m_eventField = currentToFiled * sum/dcsStatus->size();
+            m_eventField = currentToField * sum/dcsStatus->size();
             fwLog( fwlog::kDebug) << "Magnetic field info found in DcsStatus branch: " << m_eventField << std::endl;
          }
 
@@ -211,7 +211,7 @@ void FWMagField::checkFiledInfo(const edm::EventBase* event)
    }
    catch (cms::Exception&)
    {
-      fwLog( fwlog::kDebug ) << "Cought exception in FWMagField::checkFiledInfo\n";
+      fwLog( fwlog::kDebug ) << "Cought exception in FWMagField::checkFieldInfo\n";
    }
 
    if (!available)

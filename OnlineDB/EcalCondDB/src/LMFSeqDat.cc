@@ -163,9 +163,10 @@ std::string LMFSeqDat::writeDBSql(Statement *stmt)
   if (runIOVID == 0) {
     throw(std::runtime_error("LMFSeqDat::writeDB: RunIOV not set"));
   }
+  std::string sp = sequencePostfix(getSequenceStart());
   std::string sql = "INSERT INTO LMF_SEQ_DAT (SEQ_ID, RUN_IOV_ID, SEQ_NUM, "
     "SEQ_START, SEQ_STOP, VMIN, VMAX) "
-    "VALUES (SEQ_ID_SQ.NextVal, :1, :2, :3, :4, :5, :6)";
+    "VALUES (SEQ_ID_" + sp + "_SQ.NextVal, :1, :2, :3, :4, :5, :6)";
   cout << sql << endl;
   stmt->setSQL(sql);
   stmt->setInt(1, runIOVID);
@@ -189,6 +190,14 @@ void LMFSeqDat::fetchParentIDs()
     throw(std::runtime_error("LMFSeqDat:  Given RunIOV does not exist in DB")); 
   }
 
+}
+
+std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::string sql,
+						  std::string method)
+  throw(std::runtime_error)
+{
+  std::vector<std::string> pars;
+  return fetchByRunIOV(pars, sql, method);
 }
 
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par, 
@@ -239,11 +248,44 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::vector<std::string> pars,
   return l;
 }
 
+LMFSeqDat LMFSeqDat::fetchLast() {
+  LMFSeqDat ret;
+  std::map<int, LMFSeqDat> m = 
+    fetchByRunIOV("SELECT SEQ_ID FROM LMF_SEQ_DAT WHERE SEQ_ID = "
+		  "(SELECT MAX(SEQ_ID) FROM LMF_SEQ_DAT)", "fetchLast");
+  if (m.size() > 0) {
+    ret = m.begin()->second;
+  }
+  return ret;
+}
+
+RunIOV LMFSeqDat::fetchLastRun() {
+  return fetchLast().getRunIOV();
+}
+
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(RunIOV &iov) {
   int runIOVID = iov.getID();
   return fetchByRunIOV(runIOVID, 
 		       "SELECT SEQ_ID FROM LMF_SEQ_DAT WHERE RUN_IOV_ID = :1",
 		       "fetchByRunIOV");
+}
+
+std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(RunIOV &iov, 
+						  const LMFColor &col) {
+  int runIOVID = iov.getID();
+  int colorId  = col.getID();
+  std::vector<std::string> pars;
+  std::stringstream ss;
+  ss << "I" << runIOVID;
+  pars.push_back(ss.str());
+  ss.str(std::string());
+  ss << "I" << colorId;
+  pars.push_back(ss.str());
+  return fetchByRunIOV(pars, 
+		       "SELECT S.SEQ_ID FROM LMF_SEQ_DAT S JOIN LMF_RUN_IOV R"
+		       " ON S.SEQ_ID = R.SEQ_ID WHERE RUN_IOV_ID = :1 AND "
+		       " COLOR_ID = :2",
+		       "fetchByRunIOVAndColor");
 }
 
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunNumber(int runno) {

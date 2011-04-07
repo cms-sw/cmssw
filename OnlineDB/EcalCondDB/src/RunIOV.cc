@@ -429,7 +429,8 @@ void RunIOV::setByRun(std::string location, run_t run)
      stmt->setSQL("SELECT iov_id FROM run_iov riov "
 		  "JOIN run_tag rtag ON riov.tag_id = rtag.tag_id "
 		  "JOIN location_def loc ON rtag.location_id = loc.def_id "
-		  "WHERE loc.location = :1 AND riov.run_num = :2");
+		  "WHERE loc.location = :1 AND riov.run_num = :2 "
+		  "AND rtag.gen_tag != 'INVALID'");
      stmt->setString(1, location);
      stmt->setInt(2, run);
      

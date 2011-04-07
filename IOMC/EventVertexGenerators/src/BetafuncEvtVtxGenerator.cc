@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.10 2009/05/25 12:46:04 fabiocos Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.11 2010/12/06 10:57:25 yumiceva Exp $
 /*
 ________________________________________________________________________
 
@@ -74,9 +74,13 @@ HepMC::FourVector* BetafuncEvtVtxGenerator::newVertex() {
 	Z = tmp_sigz + fZ0;
 
 	double tmp_sigx = BetaFunction(Z,fZ0); 
+	// need sqrt(2) for beamspot width relative to single beam width
+	tmp_sigx /= sqrt(2.0);
 	X = fRandom->fire(0.,tmp_sigx) + fX0; // + Z*fdxdz ;
 
 	double tmp_sigy = BetaFunction(Z,fZ0);
+	// need sqrt(2) for beamspot width relative to single beam width
+	tmp_sigy /= sqrt(2.0);
 	Y = fRandom->fire(0.,tmp_sigy) + fY0; // + Z*fdydz;
 
 	double tmp_sigt = fRandom->fire(0., fSigmaZ);

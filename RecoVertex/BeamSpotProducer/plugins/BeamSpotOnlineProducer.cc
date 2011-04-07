@@ -44,7 +44,7 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
   edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
   if (iEvent.getByLabel(thel1GtEvmReadoutRecordTag, gtEvmReadoutRecord)){
     const boost::uint16_t beamModeValue = (gtEvmReadoutRecord->gtfeWord()).beamMode();
-    if (beamModeValue != 11) shoutMODE=true;
+    if (beamModeValue == 11) shoutMODE=true;
   }
   else{
     shoutMODE=true;

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/03 17:02:22 $
- *  $Revision: 1.32 $
+ *  $Date: 2011/03/29 12:45:30 $
+ *  $Revision: 1.34 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -297,6 +297,13 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
 // ***********************************************************
 void PFMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+  if ( _HighPtJetEventFlag->on() ) _HighPtJetEventFlag->initRun( iRun, iSetup );
+  if ( _LowPtJetEventFlag ->on() ) _LowPtJetEventFlag ->initRun( iRun, iSetup );
+  if ( _MinBiasEventFlag  ->on() ) _MinBiasEventFlag  ->initRun( iRun, iSetup );
+  if ( _HighMETEventFlag  ->on() ) _HighMETEventFlag  ->initRun( iRun, iSetup );
+  if ( _LowMETEventFlag   ->on() ) _LowMETEventFlag   ->initRun( iRun, iSetup );
+  if ( _EleEventFlag      ->on() ) _EleEventFlag      ->initRun( iRun, iSetup );
+  if ( _MuonEventFlag     ->on() ) _MuonEventFlag     ->initRun( iRun, iSetup );
 
 }
 
@@ -443,25 +450,25 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
     if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
 
-    if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
       _trig_HighPtJet=1;
 
-    if ( _LowPtJetEventFlag->on() && ! _LowPtJetEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup ) ) 
       _trig_LowPtJet=1;
     
-    if ( _MinBiasEventFlag->on() && ! _MinBiasEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _MinBiasEventFlag->on() && _MinBiasEventFlag->accept( iEvent, iSetup ) ) 
       _trig_MinBias=1;
     
-    if ( _HighMETEventFlag->on() && ! _HighMETEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _HighMETEventFlag->on() && _HighMETEventFlag->accept( iEvent, iSetup ) ) 
       _trig_HighMET=1;
     
-    if ( _LowMETEventFlag->on() && ! _LowMETEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _LowMETEventFlag->on() && _LowMETEventFlag->accept( iEvent, iSetup ) ) 
       _trig_LowMET=1;
     
-    if ( _EleEventFlag->on() && ! _EleEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _EleEventFlag->on() && _EleEventFlag->accept( iEvent, iSetup ) ) 
       _trig_Ele=1;
     
-    if ( _MuonEventFlag->on() && ! _MuonEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _MuonEventFlag->on() && _MuonEventFlag->accept( iEvent, iSetup ) ) 
       _trig_Muon=1;
     
     if (triggerNames.triggerIndex(_hlt_PhysDec)   != triggerNames.size() &&

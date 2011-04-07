@@ -6,8 +6,8 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2009/05/23 22:36:43 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/01/21 12:05:14 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - INFN Torino
  */
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h" 
@@ -36,7 +36,7 @@ public:
   /// phi-symmetric maps and maps with sector-specific tables. 
   /// It won't be necessary anymore once the geometry is decoupled from 
   /// the specification of tables, ie when tables will come from the DB.
-  MagGeoBuilderFromDDD(std::string tableSet_, bool debug=false, bool overrideMasterSector=false);
+  MagGeoBuilderFromDDD(std::string version_, bool debug=false, bool overrideMasterSector=false);
 
   /// Destructor
   virtual ~MagGeoBuilderFromDDD();
@@ -124,9 +124,8 @@ private:
   std::vector<MagBLayer*> mBLayers; // Finally built barrel geometry
   std::vector<MagESector*> mESectors; // Finally built barrel geometry
 
-  std::string tableSet; // Version of the data files to be used
-  int geometryVersion;  // Version of MF geometry 
-
+  std::string version; // Version of the data files to be used
+  
   std::map<int, double> theScalingFactors;
 
   bool overrideMasterSector; // see comment on ctor

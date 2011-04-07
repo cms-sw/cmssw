@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2010/09/13 09:49:18 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/06/18 15:29:13 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -19,11 +19,6 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "Histograms.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
 
 #include <vector>
 #include <map>
@@ -54,10 +49,7 @@ public:
   /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
   // Write the histos to file
-
   void endJob();
-void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-					 edm::EventSetup const& c);
 
 protected:
 
@@ -65,21 +57,21 @@ private:
 
 
   // The file which will store the histos
-  //TFile *theFile;
+  TFile *theFile;
   // Switch for debug output
   bool debug;
   // Root file name
   std::string rootFileName;
-  edm::InputTag simHitLabel;
-  edm::InputTag recHitLabel;
-  edm::InputTag segment2DLabel;
-  edm::InputTag segment4DLabel;
+  std::string simHitLabel;
+  std::string recHitLabel;
+  std::string segment2DLabel;
+  std::string segment4DLabel;
 
   // Switches for analysis at various steps
   bool doStep1;
   bool doStep2;
   bool doStep3;
-  bool local;
+
   // Return a map between DTRecHit1DPair and wireId
   std::map<DTWireId, std::vector<DTRecHit1DPair> >
     map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs);
@@ -139,7 +131,7 @@ private:
 	       std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire,
 	       std::map<DTWireId, std::vector<type> > recHitsPerWire,
 	       int step);
-  //HRes1DHit * hRes_S1RPhi;
+
   HRes1DHit *hRes_S1RPhi;  // RecHits, 1. step, RPh
   HRes1DHit *hRes_S2RPhi;     // RecHits, 2. step, RPhi
   HRes1DHit *hRes_S3RPhi;     // RecHits, 3. step, RPhi
@@ -160,17 +152,6 @@ private:
   HRes1DHit *hRes_S2RZ_W2;   // RecHits, 2. step, RZ, wheel +-2
   HRes1DHit *hRes_S3RZ_W2;   // RecHits, 3. step, RZ, wheel +-2
 
-  HRes1DHit *hRes_S1RPhi_W0;   // RecHits, 1. step, RPhi, wheel 0
-  HRes1DHit *hRes_S2RPhi_W0;   // RecHits, 2. step, RPhi, wheel 0
-  HRes1DHit *hRes_S3RPhi_W0;   // RecHits, 3. step, RPhi, wheel 0
-
-  HRes1DHit *hRes_S1RPhi_W1;   // RecHits, 1. step, RPhi, wheel +-1
-  HRes1DHit *hRes_S2RPhi_W1;   // RecHits, 2. step, RPhi, wheel +-1
-  HRes1DHit *hRes_S3RPhi_W1;   // RecHits, 3. step, RPhi, wheel +-1
-
-  HRes1DHit *hRes_S1RPhi_W2;   // RecHits, 1. step, RPhi, wheel +-2
-  HRes1DHit *hRes_S2RPhi_W2;   // RecHits, 2. step, RPhi, wheel +-2
-  HRes1DHit *hRes_S3RPhi_W2;   // RecHits, 3. step, RPhi, wheel +-2
 
   HEff1DHit *hEff_S1RPhi;     // RecHits, 1. step, RPhi
   HEff1DHit *hEff_S2RPhi;     // RecHits, 2. step, RPhi
@@ -191,8 +172,6 @@ private:
   HEff1DHit *hEff_S1RZ_W2;   // RecHits, 1. step, RZ, wheel +-2
   HEff1DHit *hEff_S2RZ_W2;   // RecHits, 2. step, RZ, wheel +-2
   HEff1DHit *hEff_S3RZ_W2;   // RecHits, 3. step, RZ, wheel +-2
-  DQMStore* dbe_;
-  bool doall;
 };
 #endif
 

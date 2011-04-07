@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2009/05/11 10:15:45 $
- *  $Revision: 1.42 $
+ *  $Date: 2009/04/27 17:52:54 $
+ *  $Revision: 1.41.2.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  *  \author D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
@@ -118,18 +118,8 @@ StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
 }
 
 
-namespace {
-  struct Resetter {
-    StandAloneMuonFilter * mf;
-    explicit Resetter(StandAloneMuonFilter * imf) : mf(imf){}
-    ~Resetter() { if(mf) mf->reset();}
-  };
-}
-
 MuonTrajectoryBuilder::TrajectoryContainer 
 StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){ 
-  Resetter fwReset(filter());
-  Resetter bwReset(bwfilter());
 
   const std::string metname = "Muon|RecoMuon|StandAloneMuonTrajectoryBuilder";
   MuonPatternRecoDumper debug;

@@ -1,7 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternJetData.h"
 
@@ -29,16 +28,12 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   m_gotNeighbourPointers(false),
   m_gotJetFinderParams(false),
   m_gotJetEtCalLuts(false),
-  m_gotChannelMask(false),
-  m_positiveEtaWheel(id >= (int) (L1CaloRegionDetId::N_PHI/2)), m_minColThisJf(0),
   m_CenJetSeed(0), m_FwdJetSeed(0), m_TauJetSeed(0), m_EtaBoundry(0),
   m_jetEtCalLuts(),
-  m_useImprovedTauAlgo(false), m_ignoreTauVetoBitsForIsolation(false), m_tauIsolationThreshold(0),
-  m_HttSumJetThreshold(0), m_HtmSumJetThreshold(0),
-  m_EttMask(), m_EtmMask(), m_HttMask(), m_HtmMask(), 
   m_inputRegions(MAX_REGIONS_IN),
   m_sentProtoJets(MAX_JETS_OUT), m_rcvdProtoJets(MAX_JETS_OUT), m_keptProtoJets(MAX_JETS_OUT),
   m_outputJets(MAX_JETS_OUT), m_sortedJets(MAX_JETS_OUT),
+  m_HttSumJetThreshold(0), m_HtmSumJetThreshold(0),
   m_outputHfSums(),
   m_outputJetsPipe(MAX_JETS_OUT),
   m_outputEtSumPipe(), m_outputExSumPipe(), m_outputEySumPipe(), 
@@ -116,30 +111,6 @@ void L1GctJetFinderBase::setJetEtCalibrationLuts(const L1GctJetFinderBase::lutPt
   m_jetEtCalLuts = jfluts;
   m_gotJetEtCalLuts = (jfluts.size() >= L1GctJetFinderParams::NUMBER_ETA_VALUES);
 }
-
-/// Set et sum masks from ChannelMask object - needed to complete the setup
-void L1GctJetFinderBase::setEnergySumMasks(const L1GctChannelMask* chmask)
-{
-  bool matchCheckEttAndEtm = true;
-  if (chmask != 0) {
-    static const unsigned N_ETA = L1GctJetFinderParams::NUMBER_ETA_VALUES;
-    for (unsigned ieta=0; ieta<N_ETA; ++ieta) {
-      unsigned globalEta = (m_positiveEtaWheel ? N_ETA+ieta : N_ETA - (ieta+1) );
-      m_EttMask[ieta] = chmask->totalEtMask(globalEta);
-      m_EtmMask[ieta] = chmask->missingEtMask(globalEta);
-      m_HttMask[ieta] = chmask->totalHtMask(globalEta);
-      m_HtmMask[ieta] = chmask->missingHtMask(globalEta);
-
-      matchCheckEttAndEtm &= (m_EttMask[ieta] == m_EtmMask[ieta]);
-    }
-    if (!matchCheckEttAndEtm)
-      edm::LogWarning("L1GctSetupError") 
-	<< "L1GctJetFinderBase::setEnergySumMasks() : In Jet Finder ID " << m_id 
-	<< " setting eta-dependent masks for Et sums: you cannot have different masks for total and missing Et\n";
-    m_gotChannelMask = true;
-  }
-}
-
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo)
 {
@@ -378,14 +349,11 @@ void L1GctJetFinderBase::doEtSums() {
   // Add the Et values from regions  2 to 12 for strip 0,
   //     the Et values from regions 15 to 25 for strip 1.
   unsigned offset = COL_OFFSET * centralCol0();
-  unsigned ieta = 0;
-  for (UShort i=offset+N_EXTRA_REGIONS_ETA00; i < offset+COL_OFFSET; ++i, ++ieta) {
-    if (!m_EttMask[ieta]) {
-      et0 += m_inputRegions.at(i).et();
-      of  |= m_inputRegions.at(i).overFlow();
-      et1 += m_inputRegions.at(i+COL_OFFSET).et();
-      of  |= m_inputRegions.at(i+COL_OFFSET).overFlow();
-    }
+  for (UShort i=offset+N_EXTRA_REGIONS_ETA00; i < offset+COL_OFFSET; ++i) {
+    et0 += m_inputRegions.at(i).et();
+    of  |= m_inputRegions.at(i).overFlow();
+    et1 += m_inputRegions.at(i+COL_OFFSET).et();
+    of  |= m_inputRegions.at(i+COL_OFFSET).overFlow();
   }
 
   etTotalType etStrip0(et0);
@@ -422,11 +390,11 @@ void L1GctJetFinderBase::doHtSums() {
       unsigned ieta  = m_outputJets.at(i).rctEta();
       unsigned htJet = m_outputJets.at(i).calibratedEt(m_jetEtCalLuts.at(ieta));
       // Scalar sum of Htt, with associated threshold
-      if (htJet >= m_HttSumJetThreshold && !m_HttMask[ieta]) {
+      if (htJet >= m_HttSumJetThreshold) {
 	htt += htJet;
       } 
       // Strip sums, for input to Htm calculation, with associated threshold
-      if (htJet >= m_HtmSumJetThreshold && !m_HtmMask[ieta]) {
+      if (htJet >= m_HtmSumJetThreshold) {
 	if (m_outputJets.at(i).rctPhi() == 0) {
 	  ht0 += htJet;
 	}

@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: MockNotifier.h,v 1.6 2009/09/29 08:00:41 mommsen Exp $
+// $Id: MockNotifier.h,v 1.7.8.1 2011/02/28 17:56:41 mommsen Exp $
 
 #ifndef MOCKNOTIFIER_H
 #define MOCKNOTIFIER_H
@@ -20,7 +20,7 @@ namespace stor
   public:
 
     MockNotifier( xdaq::Application* app ):
-      _app( app )
+      app_( app )
     {}
     
     ~MockNotifier() {}
@@ -29,7 +29,7 @@ namespace stor
 
   private:
 
-    xdaq::Application* _app;
+    xdaq::Application* app_;
 
   };
 

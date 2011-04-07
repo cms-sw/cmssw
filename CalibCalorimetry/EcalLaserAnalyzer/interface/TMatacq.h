@@ -1,13 +1,12 @@
 #ifndef TMatacq_H
 #define TMatacq_H
 
-#define NMAXSAMP 100
-#define NSAMP 2560
-#define NSPARAB  16
-class TH1D;
-class TF1;
+#include "TObject.h"
 
-class TMatacq
+#define NMAXSAMP 100
+#define NSPARAB  16
+
+class TMatacq: public TObject 
 {
 
  private:	
@@ -29,20 +28,12 @@ class TMatacq
   double trise;
   double width20, width50, width80;
   double meantrise,sigtrise;
-  double fadc[NSAMP];
+
   int nevmtq0,nevmtq1,nevlasers;
   int status[1200];
   double comp_trise[1200],comp_peak[1200];
   double slidingmean;
   int nslide;
-  double laser_qmax;
-  double laser_tmax;
-  int laser_imax;
-  double* ped_cyc;
-
-  TF1  *flandau;
-  TF1  *flc;
-  TH1D *htmp;
 
   double interpolate(double);
 
@@ -56,16 +47,15 @@ class TMatacq
   // Initialize 
   void init();
 
-  int rawPulseAnalysis(int, double*); // GHM
+  int rawPulseAnalysis(Int_t, Double_t*); // GHM
   int findPeak();
   int doFit();
-  int doFit2();
   int compute_trise();
 
-  void enterdata(int);
-  int countBadPulses(int);
-  void printmatacqData(int,int,int);
-  void printitermatacqData(int,int,int);
+  void enterdata(Int_t);
+  int countBadPulses(Int_t);
+  void printmatacqData(Int_t,Int_t,Int_t);
+  void printitermatacqData(Int_t,Int_t,Int_t);
 
   int getPt1() {return firstsample;}
   int getPt2() {return lastsample;}
@@ -73,21 +63,18 @@ class TMatacq
 
   double getBaseLine() {return bl;}
   double getsigBaseLine() {return sigbl;}
-  double* getPedCyc() {return ped_cyc;}
-
 
   double getTimpeak() {return pkval;}
   double getsigTimpeak() {return sigpkval;}
 
   double getAmpl() {return ampl;}
-  double getTime() {return timeatmax;}
+  double getTimax() {return timeatmax;}
 
   double getTrise() {return trise;}
   double getFwhm() {return width50;}
   double getWidth20() {return width20;}
   double getWidth80() {return width80;}
   double getSlide() {return slidingmean;}
-
 
   //  ClassDef(TMatacq,1)
 };

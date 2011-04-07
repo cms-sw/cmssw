@@ -10,22 +10,18 @@ trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
 
     bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
-    scBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
-    scEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
 
     primaryVertexProducer = cms.string('offlinePrimaryVerticesWithBS'),
 
     HalfwayEta = cms.double(.1),# Track pairing search range on Eta
     maxNumOfTrackInPU =  cms.int32(999999),
-    minSCEt = cms.double(10.0),
-    dEtacutForSCmatching = cms.double(0.03),
-    dPhicutForSCmatching = cms.double(0.05),                                       
+
+    #tight cuts
+    d0 = cms.double(0.), #d0*charge cut
     dEtaTrackBC = cms.double(.2), # Track-Basic cluster matching, position diff on eta
     dPhiTrackBC = cms.double(1.), # Track-Basic cluster matching, position diff on phi
     EnergyBC = cms.double(0.3), # Track-Basic cluster matching, BC energy lower cut
     EnergyTotalBC = cms.double(.3), # Track-Basic cluster matching, two BC energy summation cut
-    #tight cuts
-    d0 = cms.double(0.), #d0*charge cut
     MaxChi2Left = cms.double(10.), #Track quality
     MaxChi2Right = cms.double(10.),
     MinHitsLeft = cms.int32(4),
@@ -48,7 +44,7 @@ trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
     
     AllowD0 = cms.bool(True), #Allow d0*charge cut
     AllowDeltaPhi = cms.bool(False),
-    AllowTrackBC = cms.bool(True), #Allow to match track-basic cluster
+    AllowTrackBC = cms.bool(False), #Allow to match track-basic cluster
     AllowDeltaCot = cms.bool(True), #Allow pairing using delta cot theta cut
     AllowMinApproach = cms.bool(True), #Allow pairing using min approach cut
     AllowOppCharge = cms.bool(True), #use opposite charge tracks to pair

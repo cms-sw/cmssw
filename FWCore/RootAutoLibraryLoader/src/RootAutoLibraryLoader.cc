@@ -363,7 +363,9 @@ namespace edm {
             classNameAttemptingToLoad_ = classname;
             return returnValue;
          }
-         std::cerr << "WARNING[RootAutoLibraryLoader]: Reflex failed to create CINT dictionary for " << classname << std::endl;
+         //NOTE: As of ROOT 5.27.06 this warning generates false positives for HepMC classes because
+         // ROOT has special handling for them built into class.rules
+         //std::cerr << "WARNING[RootAutoLibraryLoader]: Reflex failed to create CINT dictionary for " << classname << std::endl;
          return 0;
       }
       //std::cout << "looking for " << classname << " load " << (load? "T":"F") << std::endl;

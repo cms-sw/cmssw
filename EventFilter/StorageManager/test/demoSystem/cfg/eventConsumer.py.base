@@ -16,6 +16,14 @@ process.source = cms.Source("EventStreamHttpReader",
                             maxConnectTries = cms.untracked.int32(1)
                             )
 
+process.MessageLogger = cms.Service("MessageLogger",
+                                    destinations = cms.untracked.vstring('cout','log4cplus'),
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
+                                    log4cplus = cms.untracked.PSet(INFO = cms.untracked.PSet(reportEvery = cms.untracked.int32(250)),
+                                                                   threshold = cms.untracked.string('INFO')
+                                                                   )
+                                    )
+
 process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
 
 #process.p = cms.Path(process.contentAna)

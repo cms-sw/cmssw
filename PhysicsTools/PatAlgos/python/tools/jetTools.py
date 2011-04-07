@@ -359,7 +359,7 @@ class AddJetCollection(ConfigToolBase):
             ## add jet track association module to processes
             jtaLabel = 'jetTracksAssociatorAtVertex'+algoLabel+typeLabel
             setattr( process, jtaLabel, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection) )
-            process.makePatJets.replace(process.patJetCharge, getattr(process,jtaLabel)+process.patJetCharge)
+            process.patDefaultSequence.replace(process.patJetCharge, getattr(process,jtaLabel)+process.patJetCharge)
             l1Jets.trackAssociationSource = cms.InputTag(jtaLabel)
             addClone('patJetCharge', src=cms.InputTag(jtaLabel)),
             fixInputTag(l1Jets.jetChargeSource)
@@ -375,7 +375,7 @@ class AddJetCollection(ConfigToolBase):
             ## add b tagging sequence
             (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel)
             ## add b tagging sequence before running the allLayer1Jets modules
-            process.makePatJets.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
+            process.patDefaultSequence.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
             ## replace corresponding tags for pat jet production
             l1Jets.trackAssociationSource = cms.InputTag(btagLabels['jta'])
             l1Jets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
@@ -539,11 +539,16 @@ class SwitchJetCollection(ConfigToolBase):
         ## save label of old input jet collection
         oldLabel = applyPostfix(process, "patJets", postfix).jetSource;
     
-        ## replace input jet collection for generator matches
-	applyPostfix(process, "patJetPartonMatch", postfix).src = jetCollection
-	applyPostfix(process, "patJetGenJetMatch", postfix).src = jetCollection
-	applyPostfix(process, "patJetGenJetMatch", postfix).matched = genJetCollection
-	applyPostfix(process, "patJetPartonAssociation", postfix).jets = jetCollection
+        ## replace input jet collection for generator matches if the
+        ## genJetCollection is no empty
+        if (process.patJets.addGenPartonMatch):
+            applyPostfix(process, "patJetPartonMatch", postfix).src = jetCollection
+        if (process.patJets.addGenJetMatch):
+            applyPostfix(process, "patJetGenJetMatch", postfix).src = jetCollection
+            applyPostfix(process, "patJetGenJetMatch", postfix).matched = genJetCollection
+        if (process.patJets.getJetMCFlavour):
+            applyPostfix(process, "patJetPartonAssociation", postfix).jets = jetCollection
+            
         ## replace input jet collection for pat jet production
 	applyPostfix(process, "patJets", postfix).jetSource = jetCollection
     
