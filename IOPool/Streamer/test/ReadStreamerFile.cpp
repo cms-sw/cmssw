@@ -13,7 +13,7 @@ Disclaimer: Most of the code here is randomly written during
   readMultipleStreams():
        Reads multiple stream files and iterates through all events.
        The test case also show, how the File boundary crossing "event"
-       is handled. Basically StreamerInputFile (reader) has newHeader()
+       is handled. Basically StreamerInputFile(reader) has newHeader()
        returning TRUE, only ONCE when a New file is opened an a INIT Message
        is read instead of an Event message during next().
 
@@ -23,103 +23,100 @@ Disclaimer: Most of the code here is randomly written during
 
 */
 
-#include <iostream>
-#include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/DumpTools.h"
-
+#include "IOPool/Streamer/interface/EventMessage.h"
+#include "IOPool/Streamer/interface/InitMessage.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include <iostream>
 
 void readSingleStream() {
-try{
-  // ----------- init
-  std::string initfilename = "teststreamfile.dat";
-  edm::StreamerInputFile stream_reader (initfilename);
+  try {
+    // ----------- init
+    std::string initfilename = "teststreamfile.dat";
+    edm::StreamerInputFile stream_reader(initfilename);
 
-  std::cout << "Trying to Read The Init message from Streamer File: "
-       << initfilename << std::endl;
-  InitMsgView const* init = stream_reader.startMessage();
-  std::cout<<"\n\n-------------INIT---------------------"<< std::endl;
-  std::cout<<"Dump the Init Message from Streamer:-"<< std::endl;
-  dumpInitView(init);
+    std::cout << "Trying to Read The Init message from Streamer File: "
+         << initfilename << std::endl;
+    InitMsgView const* init = stream_reader.startMessage();
+    std::cout << "\n\n-------------INIT---------------------" << std::endl;
+    std::cout << "Dump the Init Message from Streamer:-" << std::endl;
+    dumpInitView(init);
 
-  // ------- event
+    // ------- event
 
-  while(stream_reader.next()) {
-     std::cout<<"----------EVENT-----------"<< std::endl;
-     EventMsgView const* eview = stream_reader.currentRecord();
-     dumpEventView(eview);
+    while(stream_reader.next()) {
+       std::cout << "----------EVENT-----------" << std::endl;
+       EventMsgView const* eview = stream_reader.currentRecord();
+       dumpEventView(eview);
+    }
+
+  } catch(cms::Exception& e){
+     std::cerr << "Exception caught:  "
+               << e.what()
+               << std::endl;
   }
-
-}catch (cms::Exception& e){
-   std::cerr << "Exception caught:  "
-             << e.what()
-             << std::endl;
-}
 }
 
+int readMultipleStreams() {
+  try {
+    int evCount=0;
+    std::vector<std::string> streamFiles;
+    streamFiles.push_back("teststreamfile0.dat");
+    streamFiles.push_back("teststreamfile1.dat");
 
-int readMultipleStreams()
-{
-try{  int evCount=0;
-  std::vector<std::string> streamFiles;
-  streamFiles.push_back("teststreamfile0.dat");
-  streamFiles.push_back("teststreamfile1.dat");
+    edm::StreamerInputFile stream_reader(streamFiles);
 
-  edm::StreamerInputFile stream_reader(streamFiles);
+    std::cout << "Trying to Read The Init message from Streamer File: "
+         << "teststreamfile0.dat" << std::endl;
 
-  std::cout << "Trying to Read The Init message from Streamer File: "
-       << "teststreamfile0.dat" << std::endl;
+    InitMsgView const* init = stream_reader.startMessage();
+    std::cout << "\n\n-------------INIT---------------------" << std::endl;
+    std::cout << "Dump the Init Message from Streamer:-" << std::endl;
+    dumpInitView(init);
 
-  InitMsgView const* init = stream_reader.startMessage();
-  std::cout<<"\n\n-------------INIT---------------------"<< std::endl;
-  std::cout<<"Dump the Init Message from Streamer:-"<< std::endl;
-  dumpInitView(init);
+    while(stream_reader.next()) {
+       if(stream_reader.newHeader()) {
+             std::cout << "File Boundary has just been crossed, a new file is read" << std::endl;
+             std::cout << "A new INIT Message is available" << std::endl;
+             std::cout << "Event from next file is also avialble" << std::endl;
+       }
+       std::cout << "----------EVENT-----------" << std::endl;
+       EventMsgView const* eview = stream_reader.currentRecord();
+       dumpEventView(eview);
+       ++evCount;
+    }
 
-  while(stream_reader.next()) {
-     if (stream_reader.newHeader()) {
-           std::cout << "File Boundary has just been crossed, a new file is read" << std::endl;
-           std::cout << "A new INIT Message is available" << std::endl;
-           std::cout << "Event from next file is also avialble" << std::endl;
-     }
-     std::cout << "----------EVENT-----------" << std::endl;
-     EventMsgView const* eview = stream_reader.currentRecord();
-     dumpEventView(eview);
-     ++evCount;
+   std::cout << " TOTAL Events Read: " <<evCount<< std::endl;
+  } catch(cms::Exception& e){
+     std::cerr << "Exception caught:  "
+               << e.what()
+               << std::endl;
+     return 1;
   }
-
- std::cout <<" TOTAL Events Read: "<<evCount<< std::endl;
-}catch (cms::Exception& e){
-   std::cerr << "Exception caught:  "
-             << e.what()
-             << std::endl;
-   return 1;
-}
-return 0;
+  return 0;
 }
 
 void help() {
-      std::cout << "Valid options are: " << std::endl;
-      std::cout<<"single, multi, all"<< std::endl;
+        std::cout << "Valid options are: " << std::endl;
+        std::cout << "single, multi, all" << std::endl;
 }
 
 int main(int argc, char* argv[]){
 
-   if (argc < 2)
-   {
+   if(argc < 2) {
       std::cout << "No command line argument supplied\n";
       help();
-      return 0;
+      return 1;
    }
 
    std::string doThis(argv[1]);
 
    if(doThis == "all" || doThis == "single") readSingleStream();
    if(doThis == "all" || doThis == "multi") readMultipleStreams();
-   std::cout <<"\n\nReadStreamerFile TEST DONE\n"<< std::endl;
+   std::cout << "\n\nReadStreamerFile TEST DONE\n" << std::endl;
 
    return 0;
 }

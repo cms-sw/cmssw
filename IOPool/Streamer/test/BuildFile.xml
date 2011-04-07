@@ -6,11 +6,7 @@
   </bin>
   <bin   file="ReadStreamerFile.cpp">
     <use   name="IOPool/Streamer"/>
-  </bin>
-  <bin   file="DiagStreamerFile.cpp">
-    <use   name="IOPool/Streamer"/>
-  </bin>
-  <bin   file="CalcAdler32.cpp">
+    <flags   TEST_RUNNER_ARGS=" bin/bash teststreamfile.dat"/>
   </bin>
   <bin   file="WriteStreamerFile.cpp">
     <use   name="IOPool/Streamer"/>
@@ -26,9 +22,6 @@
   </bin>
   <bin   file="Eventmsg_t.cppunit.cpp">
     <use   name="cppunit"/>
-  </bin>
-  <bin   file="RunFileReader_t.cpp">
-    <use   name="IOPool/Streamer"/>
   </bin>
   <bin   file="RunThis_t.cpp">
     <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunSimple_NewStreamer.sh"/>
