@@ -1,23 +1,18 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicTrackingRegion.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/EtaPhiMeasurementEstimator.h"
-#include "RecoTracker/TkTrackingRegions/interface/OuterEstimator.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 
 template <class T> T sqr( T t) {return t*t;}
