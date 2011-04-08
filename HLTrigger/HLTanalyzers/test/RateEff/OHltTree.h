@@ -6052,6 +6052,15 @@ public:
          int NJets);
    
    int OpenHltMhtOverHTPassedHTthresh(double HT, double MHTovHT);
+
+   int OpenHltRBTagPassed(
+         float Rmin,
+         float MRmin,
+         bool MRP,
+         int NJmax,
+         float jetPt,
+	 bool qcd=false,
+	 bool pfmht=false);
    
    int OpenHlt1PixelTrackPassed(float minpt, float minsep, float miniso);
    
