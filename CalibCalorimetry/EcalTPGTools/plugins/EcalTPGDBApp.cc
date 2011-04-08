@@ -65,7 +65,7 @@ int EcalTPGDBApp::writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLi
   return result;
 }
 
-int EcalTPGDBApp::writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int sli, int wei, int spi, int tim, int bxt, int btt, string tag, int ver) {
+int EcalTPGDBApp::writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int sli, int wei, int spi, int tim, int bxt, int btt, int bst, string tag, int ver) {
   
   int result=0;
 
@@ -86,6 +86,7 @@ int EcalTPGDBApp::writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int 
   fe_main.setTimId(tim) ;
   fe_main.setBxtId(bxt) ;
   fe_main.setBttId(btt) ;
+  fe_main.setBstId(bst) ;
   fe_main.setConfigTag(tag) ;
   fe_main.setVersion(ver) ;
 

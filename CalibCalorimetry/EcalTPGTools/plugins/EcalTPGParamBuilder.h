@@ -156,6 +156,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int del_conf_id_; //modif-alex 21/01.11
   int bxt_conf_id_;
   int btt_conf_id_;
+  int bst_conf_id_;
   std::string tag_;
   int version_;
   int m_write_ped;
@@ -168,6 +169,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int m_write_del; //modif-alex 21/01/11
   int m_write_bxt;
   int m_write_btt;
+  int m_write_bst;
 
   Int_t * ntupleInts_ ;
   Char_t ntupleDet_[10] ;

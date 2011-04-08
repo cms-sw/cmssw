@@ -20,6 +20,8 @@
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #if (CMSSW_VERSION>=340)
@@ -62,6 +64,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   del_conf_id_=0; //modif-alex 21/01/11
   bxt_conf_id_=0;
   btt_conf_id_=0;
+  bst_conf_id_=0;
   tag_="";
   version_=0;
 
@@ -75,6 +78,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   m_write_del=1; //modif-alex 21/01/11
   m_write_bxt=1;
   m_write_btt=1;
+  m_write_bst=1;
 
   writeToDB_  = pSet.getParameter<bool>("writeToDB") ;
   DBEE_ = pSet.getParameter<bool>("allowDBEE") ;
@@ -96,10 +100,14 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   m_write_del = pSet.getParameter<unsigned int>("TPGWriteDel") ; //modif-alex 21/01/11
   m_write_bxt = pSet.getParameter<unsigned int>("TPGWriteBxt") ;
   m_write_btt = pSet.getParameter<unsigned int>("TPGWriteBtt") ;
+  m_write_bst = pSet.getParameter<unsigned int>("TPGWriteBst") ;
 
   btt_conf_id_=m_write_btt;
   bxt_conf_id_=m_write_bxt;
- 
+  bst_conf_id_=m_write_bst;
+
+  if(m_write_ped != 0 && m_write_ped != 1 ) ped_conf_id_=m_write_ped;
+  
   try {
     if (writeToDB_) std::cout << "data will be saved with tag and version="<< tag_<< ".version"<<version_<< endl;
     db_ = new EcalTPGDBApp(DBsid, DBuser, DBpass) ;
@@ -434,16 +442,190 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
 
   // Pedestals
-  std::cout <<"Getting the pedestals from offline DB..."<<endl;
-  ESHandle<EcalPedestals> pedHandle;
-  evtSetup.get<EcalPedestalsRcd>().get( pedHandle );
-  const EcalPedestalsMap & pedMap = pedHandle.product()->getMap() ;
-  EcalPedestalsMapIterator pedIter ; 
-  int nPed = 0 ;
-  for (pedIter = pedMap.begin() ; pedIter != pedMap.end() && nPed<10 ; ++pedIter, nPed++) {
-    EcalPedestals::Item aped = (*pedIter);
-    std::cout<<aped.mean_x12<<", "<<aped.mean_x6<<", "<<aped.mean_x1<<std::endl ;
+
+  EcalPedestalsMap  pedMap ;
+
+  if(m_write_ped == 1) {
+    std::cout <<"Getting the pedestals from offline DB..."<<endl;
+
+    ESHandle<EcalPedestals> pedHandle;
+    evtSetup.get<EcalPedestalsRcd>().get( pedHandle );
+    pedMap = pedHandle.product()->getMap() ;
+
+
+    EcalPedestalsMapIterator pedIter ; 
+    int nPed = 0 ;
+    for (pedIter = pedMap.begin() ; pedIter != pedMap.end() && nPed<10 ; ++pedIter, nPed++) {
+      EcalPedestals::Item aped = (*pedIter);
+      std::cout<<aped.mean_x12<<", "<<aped.mean_x6<<", "<<aped.mean_x1<<std::endl ;
+    }
+  } else if(m_write_ped==0) {
+    std::cout <<"Getting the pedestals from previous configuration"<<std::endl;
+    
+    EcalPedestals peds ;
+
+    FEConfigMainInfo fe_main_info;
+    fe_main_info.setConfigTag(tag_);
+    try {
+      std::cout << "trying to read previous tag if it exists tag="<< tag_<< ".version"<<version_<< endl;
+      db_-> fetchConfigSet(&fe_main_info);
+      if(fe_main_info.getPedId()>0 ) ped_conf_id_=fe_main_info.getPedId();
+      
+      FEConfigPedInfo fe_ped_info;
+      fe_ped_info.setId(ped_conf_id_);
+      db_-> fetchConfigSet(&fe_ped_info);
+      std::map<EcalLogicID, FEConfigPedDat> dataset_TpgPed;
+      db_->fetchDataSet(&dataset_TpgPed, &fe_ped_info);
+      
+      typedef std::map<EcalLogicID, FEConfigPedDat>::const_iterator CIfeped;
+      EcalLogicID ecid_xt;
+      FEConfigPedDat  rd_ped;
+      int icells=0;
+      for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) 
+	{
+	  ecid_xt = p->first;
+	  rd_ped  = p->second;
+	  
+	  std::string ecid_name=ecid_xt.getName();
+	  
+	  // EB data
+	  if (ecid_name=="EB_crystal_number") {
+
+
+	    int sm_num=ecid_xt.getID1();
+	    int xt_num=ecid_xt.getID2();
+	    
+	    EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
+	    EcalPedestals::Item item;
+	    item.mean_x1  =rd_ped.getPedMeanG1() ;
+	    item.mean_x6  =rd_ped.getPedMeanG6();
+	    item.mean_x12 =rd_ped.getPedMeanG12();
+	    item.rms_x1  =0.5 ;
+	    item.rms_x6  =1. ;
+	    item.rms_x12  =1.2 ;
+
+	    if(icells<10) std::cout << " copy the EB data " << " ped = "  << item.mean_x12<< std::endl;
+
+	    peds.insert(std::make_pair(ebdetid.rawId(),item));
+
+	    ++icells;
+	  }else if (ecid_name=="EE_crystal_number"){
+		      
+	    // EE data
+	    int z=ecid_xt.getID1();
+	    int x=ecid_xt.getID2();
+	    int y=ecid_xt.getID3();
+	    EEDetId eedetid(x,y,z,EEDetId::XYMODE);
+	    EcalPedestals::Item item;
+	    item.mean_x1  =rd_ped.getPedMeanG1() ;
+	    item.mean_x6  =rd_ped.getPedMeanG6();
+	    item.mean_x12 =rd_ped.getPedMeanG12();
+	    item.rms_x1  =0.5 ;
+	    item.rms_x6  =1. ;
+	    item.rms_x12  =1.2 ;
+	    
+	    peds.insert(std::make_pair(eedetid.rawId(),item));
+	    ++icells;
+	  }
+	}
+      
+      pedMap = peds.getMap() ;
+      
+      EcalPedestalsMapIterator pedIter ; 
+      int nPed = 0 ;
+      for (pedIter = pedMap.begin() ; pedIter != pedMap.end() && nPed<10 ; ++pedIter, nPed++) {
+	EcalPedestals::Item aped = (*pedIter);
+	std::cout<<aped.mean_x12<<", "<<aped.mean_x6<<", "<<aped.mean_x1<<std::endl ;
+      }
+      
+      
+    } catch (exception &e) {
+      cout << " error reading previous pedestals " << endl;
+    } catch (...) {
+      cout << "Unknown error reading previous pedestals " << endl;
+    }
+    
+
+      
+
+  } else if(m_write_ped >1) {
+    std::cout <<"Getting the pedestals from configuration number"<< m_write_ped <<std::endl;
+
+
+
+    EcalPedestals peds ;
+
+      try {
+
+	  FEConfigPedInfo fe_ped_info;
+	  fe_ped_info.setId(m_write_ped);
+	  db_-> fetchConfigSet(&fe_ped_info);
+	  std::map<EcalLogicID, FEConfigPedDat> dataset_TpgPed;
+	  db_->fetchDataSet(&dataset_TpgPed, &fe_ped_info);
+	    
+	  typedef std::map<EcalLogicID, FEConfigPedDat>::const_iterator CIfeped;
+	  EcalLogicID ecid_xt;
+	  FEConfigPedDat  rd_ped;
+	  int icells=0;
+	  for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) 
+	    {
+	      ecid_xt = p->first;
+	      rd_ped  = p->second;
+	          
+	      std::string ecid_name=ecid_xt.getName();
+	          
+	      // EB data
+	      if (ecid_name=="EB_crystal_number") {
+		if(icells<10) std::cout << " copy the EB data " << " icells = " << icells << std::endl;
+		int sm_num=ecid_xt.getID1();
+		int xt_num=ecid_xt.getID2();
+		      
+		EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
+		EcalPedestals::Item item;
+		item.mean_x1  =(unsigned int)rd_ped.getPedMeanG1() ;
+		item.mean_x6  =(unsigned int)rd_ped.getPedMeanG6();
+		item.mean_x12 =(unsigned int)rd_ped.getPedMeanG12();
+		      
+		peds.insert(std::make_pair(ebdetid.rawId(),item));
+		++icells;
+	      }else if (ecid_name=="EE_crystal_number"){
+		      
+		// EE data
+		int z=ecid_xt.getID1();
+		int x=ecid_xt.getID2();
+		int y=ecid_xt.getID3();
+		EEDetId eedetid(x,y,z,EEDetId::XYMODE);
+		EcalPedestals::Item item;
+		item.mean_x1  =(unsigned int)rd_ped.getPedMeanG1();
+		item.mean_x6  =(unsigned int)rd_ped.getPedMeanG6();
+		item.mean_x12 =(unsigned int)rd_ped.getPedMeanG12();
+		      
+		peds.insert(std::make_pair(eedetid.rawId(),item));
+		++icells;
+	      }
+	    }
+
+	  pedMap = peds.getMap() ;
+
+	  EcalPedestalsMapIterator pedIter ; 
+	  int nPed = 0 ;
+	  for (pedIter = pedMap.begin() ; pedIter != pedMap.end() && nPed<10 ; ++pedIter, nPed++) {
+	    EcalPedestals::Item aped = (*pedIter);
+	    std::cout<<aped.mean_x12<<", "<<aped.mean_x6<<", "<<aped.mean_x1<<std::endl ;
+	  }
+	  
+
+      } catch (exception &e) {
+	cout << " error reading previous pedestals " << endl;
+      } catch (...) {
+	cout << "Unknown error reading previous pedestals " << endl;
+      }
+
+
   }
+
+
+
   std::cout<<"...\n"<<std::endl ; 
 
 
@@ -602,7 +784,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       std::cout << "trying to read previous tag if it exists tag="<< tag_<< ".version"<<version_<< endl;
 
       db_-> fetchConfigSet(&fe_main_info);
-      ped_conf_id_=fe_main_info.getPedId();
+      if(fe_main_info.getPedId()>0 && ped_conf_id_ ==0 ) ped_conf_id_=fe_main_info.getPedId();
       lin_conf_id_=fe_main_info.getLinId();
       lut_conf_id_=fe_main_info.getLUTId();
       wei_conf_id_=fe_main_info.getWeiId();
@@ -610,8 +792,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       sli_conf_id_=fe_main_info.getSliId();
       spi_conf_id_=fe_main_info.getSpiId(); //modif-alex 21/01/11
       del_conf_id_=fe_main_info.getTimId(); //modif-alex 21/01/11
-      if(fe_main_info.getBxtId()>0) bxt_conf_id_=fe_main_info.getBxtId();
+      if(fe_main_info.getBxtId()>0 && bxt_conf_id_==0 ) bxt_conf_id_=fe_main_info.getBxtId();
       if(fe_main_info.getBttId()>0 && btt_conf_id_==0 ) btt_conf_id_=fe_main_info.getBttId();
+      if(fe_main_info.getBstId()>0 && bst_conf_id_==0 ) bst_conf_id_=fe_main_info.getBstId();
       // those that are not written specifically in this program are propagated
       // from the previous record with the same tag and the highest version
 
@@ -1154,7 +1337,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     std::string lin_tag=ltag.str();
     std::cout<< " LIN tag "<<lin_tag<<endl;
 
-    if(m_write_ped==1) ped_conf_id_=db_->writeToConfDB_TPGPedestals(pedset, 1, "from_OfflineDB") ;
+    if(m_write_ped==1) {
+      ped_conf_id_=db_->writeToConfDB_TPGPedestals(pedset, 1, "from_OfflineDB") ;
+    } else {
+      std::cout<< "the ped id ="<<ped_conf_id_<<" will be used for the pedestals "<<std::endl; 
+    }
+
     if(m_write_lin==1) lin_conf_id_=db_->writeToConfDB_TPGLinearCoef(linset,linparamset, 1, lin_tag) ;
   }
 
@@ -1659,7 +1847,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
    //int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
    //				sli_conf_id_, wei_conf_id_, bxt_conf_id_, btt_conf_id_, tag_, version_) ;
    int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
-					   sli_conf_id_, wei_conf_id_, spi_conf_id_, del_conf_id_, bxt_conf_id_, btt_conf_id_, tag_, version_) ; //modif-alex 21/01/11
+					   sli_conf_id_, wei_conf_id_, spi_conf_id_, del_conf_id_, bxt_conf_id_, btt_conf_id_, bst_conf_id_, tag_, version_) ; //modif-alex 21/01/11
    
    std::cout << "\n Conf ID = " << conf_id_ << std::endl;
 
