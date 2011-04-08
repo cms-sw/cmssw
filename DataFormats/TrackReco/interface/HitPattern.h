@@ -536,6 +536,25 @@ namespace reco {
       stripTECLayersWithMeasurement();
   }
   
+
+  inline int HitPattern::trackerLayersWithoutMeasurement() const {
+    return pixelLayersWithoutMeasurement() + 
+      stripLayersWithoutMeasurement();
+  }
+  
+  inline int HitPattern::pixelLayersWithoutMeasurement() const {
+    return pixelBarrelLayersWithoutMeasurement() +
+      pixelEndcapLayersWithoutMeasurement();
+  }
+  
+  inline int HitPattern::stripLayersWithoutMeasurement() const {
+    return stripTIBLayersWithoutMeasurement() + 
+      stripTIDLayersWithoutMeasurement() +
+      stripTOBLayersWithoutMeasurement() + 
+      stripTECLayersWithoutMeasurement();
+  }
+
+
   inline int HitPattern::trackerLayersTotallyOffOrBad() const {
     return pixelLayersTotallyOffOrBad() + 
       stripLayersTotallyOffOrBad();
