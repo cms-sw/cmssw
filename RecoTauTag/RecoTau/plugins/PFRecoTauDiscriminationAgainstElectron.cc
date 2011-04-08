@@ -211,11 +211,9 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
 	    if(fabs(thePFTauRef->leadPFChargedHadrCand()->trackRef()->eta()-cand->eta())<bremCombined_stripSize_)
 	      bremEnergy+=cand->energy();
 	    emEnergy+=cand->energy();
-
-	    if(bremEnergy/emEnergy>bremCombined_fraction_&&thePFTauRef->mass()<bremCombined_minMass_)
-	      bremCombinedPass = false;
 	  }
-	  
+	if(bremEnergy/emEnergy>bremCombined_fraction_&&thePFTauRef->mass()<bremCombined_minMass_)
+	  bremCombinedPass = false;
 
       }
     }
