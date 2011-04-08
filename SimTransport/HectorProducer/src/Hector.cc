@@ -527,7 +527,7 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
                                         << "Hector:addPartToHepMC: isStoppedhps240=" << (*m_isStoppedhps240.find(line)).second << "\n"
                                         << "Hector:addPartToHepMC: isStoppedzdc=" << (*m_isStoppedzdc.find(line)).second;
     }
-    if ( !((*m_isStoppedfp420.find(line)).second) || !((*m_isStoppedd1.find(line)).second) || !((*m_isStoppedzdc.find(line)).second) ) {
+    if ( !((*m_isStoppedfp420.find(line)).second) || !((*m_isStoppedhps240.find(line)).second) || !((*m_isStoppedzdc.find(line)).second) ) {
       
       gpart = evt->barcode_to_particle( line );
       if ( gpart ) {
