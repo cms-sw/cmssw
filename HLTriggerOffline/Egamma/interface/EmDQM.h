@@ -67,6 +67,12 @@ private:
   edm::InputTag gencutCollection_;
   unsigned int gencut_;
 
+  /** which hltCollectionLabels were SEEN at least once */
+  std::set<std::string> hltCollectionLabelsFound;
+
+  /** which hltCollectionLabels were MISSED at least once */
+  std::set<std::string> hltCollectionLabelsMissed;
+
 
   ////////////////////////////////////////////////////////////
   //          Create Histograms                             //

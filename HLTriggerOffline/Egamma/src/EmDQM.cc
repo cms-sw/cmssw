@@ -25,6 +25,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include <boost/foreach.hpp>
+
 ////////////////////////////////////////////////////////////////////////////////
 //                           Root include files                               //
 ////////////////////////////////////////////////////////////////////////////////
@@ -483,8 +485,11 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
 {
   std::vector<edm::Ref<T> > recoecalcands;
   if ( ( triggerObj->filterIndex(theHLTCollectionLabels[n])>=triggerObj->size() )){ // only process if available
+    hltCollectionLabelsMissed.insert(theHLTCollectionLabels[n].encode());
     return;
   }
+
+  hltCollectionLabelsFound.insert(theHLTCollectionLabels[n].encode());
 
   ////////////////////////////////////////////////////////////
   //      Retrieve saved filter objects                     //
@@ -689,6 +694,40 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
 //////////////////////////////////////////////////////////////////////////////// 
 void EmDQM::endJob(){
 
+  // print information about hltCollectionLabels which were not found
+  // (but only those which were never found)
+
+  // check which ones were never found
+  std::vector<std::string> labelsNeverFound;
+  
+
+  // for (std::set<edm::InputTag>::const_iterator it = hltCollectionLabelsMissed.begin(); it != hltCollectionLabelsMissed.end(); ++it)
+  BOOST_FOREACH(const edm::InputTag &tag, hltCollectionLabelsMissed)
+  {
+    if (hltCollectionLabelsFound.count(tag.encode()) == 0)
+      // never found
+      labelsNeverFound.push_back(tag.encode());
+
+  } // loop over all tags which were missed at least once
+
+  if (labelsNeverFound.empty())
+    return;
+
+  std::sort(labelsNeverFound.begin(), labelsNeverFound.end());
+
+  // there was at least one label which was never found
+  // (note that this could also be because the corresponding
+  // trigger path slowly fades out to zero efficiency)
+  edm::LogWarning("EmDQM") << "There were some HLTCollectionLabels which were never found:";
+
+  BOOST_FOREACH(const edm::InputTag &tag, labelsNeverFound)
+  {
+    edm::LogPrint("EmDQM") << "  " << tag;
+  }
+
+
 }
+
+//----------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(EmDQM);
