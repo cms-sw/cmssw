@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.302 $"
+__version__ = "$Revision: 1.303 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -537,10 +537,22 @@ class ConfigBuilder(object):
 			if not hasattr(package,fcn):
 				#bound to fail at run time
 				raise Exception("config "+f+" has no function "+fcn)
+			#execute the command
+			self.process=getattr(package,fcn)(self.process)
+			#and print it in the configuration
 			final_snippet += "\n#call to customisation function "+fcn+" imported from "+packageName
 			final_snippet += "\nprocess = %s(process)\n"%(fcn,)
 
         final_snippet += '\n# End of customisation functions\n'
+
+	### now for a usuful command
+	if self._options.customise_commands:
+		import string
+		final_snippet +='\n# Customisation from command line'
+		for com in self._options.customise_commands.split('\\n'):
+			com=string.lstrip(com)
+			self.executeAndRemember(com)
+			final_snippet +='\n'+com
 
         return final_snippet
 
@@ -1385,7 +1397,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.302 $"),
+                                            (version=cms.untracked.string("$Revision: 1.303 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
