@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.32 2011/03/21 17:10:32 innocent Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.34 2011/04/08 07:55:12 innocent Exp $
 //
 
 // system include files
@@ -929,11 +929,11 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   // now let's through out hits with a predicted chi > chi2HitMax 
   for ( unsigned int i = 0;  i < uselist.size();  i++ ) { 
     if ( uselist[i] ) { 
-      const SiStripRecHit2D* hit = hitlist[i];
       double localchi2 = (philist[i]-(rlist[i]-scr)*phiVsRSlope)*(philist[i]-(rlist[i]-scr)*phiVsRSlope)*w2list[i] ;
       if(localchi2 > chi2HitMax ) {
 #ifdef EDM_ML_DEBUG 
-	debugstr5 << " Throwing out "
+        const SiStripRecHit2D* hit = hitlist[i];
+ 	debugstr5 << " Throwing out "
 		  <<" DetID " << ((hit)->geographicalId()).rawId()
 		  << " R " << rlist[i] 
 		  << " Phi " << philist[i]
