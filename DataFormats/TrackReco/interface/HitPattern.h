@@ -349,106 +349,104 @@ namespace reco {
     // detector side for tracker modules (mono/stereo)
     static uint32_t isStereo (DetId);
   };
-} 
 
+  // inline function
 
-// inline function
+  inline bool HitPattern::pixelHitFilter(uint32_t pattern) const { 
+    if  unlikely(!trackerHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == PixelSubdetector::PixelBarrel || 
+	substructure == PixelSubdetector::PixelEndcap) return true; 
+    return false;
+  }
+  
+  inline bool HitPattern::pixelBarrelHitFilter(uint32_t pattern) const { 
+    if  unlikely(!trackerHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == PixelSubdetector::PixelBarrel) return true; 
+    return false;
+  }
+  
+  inline bool HitPattern::pixelEndcapHitFilter(uint32_t pattern) const { 
+    if  unlikely(!trackerHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == PixelSubdetector::PixelEndcap) return true; 
+    return false;
+  }
+  
+  inline bool HitPattern::stripHitFilter(uint32_t pattern) const { 
+    if  unlikely(!trackerHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == StripSubdetector::TIB ||
+	substructure == StripSubdetector::TID ||
+	substructure == StripSubdetector::TOB ||
+	substructure == StripSubdetector::TEC) return true; 
+    return false;
+  }
+  
+  inline bool HitPattern::stripTIBHitFilter(uint32_t pattern) const { 
+    if  unlikely(!trackerHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == StripSubdetector::TIB) return true; 
+    return false;
+  }
+  
+  inline bool HitPattern::stripTIDHitFilter(uint32_t pattern) const { 
+    if  unlikely(!trackerHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == StripSubdetector::TID) return true; 
+    return false;
+  }
+  
+  inline bool HitPattern::stripTOBHitFilter(uint32_t pattern) const { 
+    if  unlikely(!trackerHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == StripSubdetector::TOB) return true; 
+    return false;
+  }
+  
+  inline bool HitPattern::stripTECHitFilter(uint32_t pattern) const { 
+    if  unlikely(!trackerHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == StripSubdetector::TEC) return true; 
+    return false;
+  }
+  
+  inline bool HitPattern::muonDTHitFilter(uint32_t pattern) const { 
+    if  unlikely(!muonHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == (uint32_t) MuonSubdetId::DT) return true; 
+    return false;
+  }
+  
+  inline bool HitPattern::muonCSCHitFilter(uint32_t pattern) const { 
+    if  unlikely(!muonHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == (uint32_t) MuonSubdetId::CSC) return true; 
+    return false;
+  }
 
-inline bool HitPattern::pixelHitFilter(uint32_t pattern) const { 
-  if  unlikely(!trackerHitFilter(pattern)) return false;
-  uint32_t substructure = getSubStructure(pattern);
-  if (substructure == PixelSubdetector::PixelBarrel || 
-      substructure == PixelSubdetector::PixelEndcap) return true; 
-  return false;
+  inline bool HitPattern::muonRPCHitFilter(uint32_t pattern) const { 
+    if  unlikely(!muonHitFilter(pattern)) return false;
+    uint32_t substructure = getSubStructure(pattern);
+    if (substructure == (uint32_t) MuonSubdetId::RPC) return true; 
+    return false;
+  }
+  
+  
+  inline bool HitPattern::trackerHitFilter(uint32_t pattern) const {
+    if  unlikely(pattern == 0) return false;
+    if (((pattern>>SubDetectorOffset) & SubDetectorMask) == 1) return true;
+    return false;
+  }
+  
+  inline bool HitPattern::muonHitFilter(uint32_t pattern) const {
+    if  unlikely(pattern == 0) return false;
+    if (((pattern>>SubDetectorOffset) & SubDetectorMask) == 0) return true; 
+    return false;
+  }
+
 }
-
-inline bool HitPattern::pixelBarrelHitFilter(uint32_t pattern) const { 
-  if  unlikely(!trackerHitFilter(pattern)) return false;
-  uint32_t substructure = getSubStructure(pattern);
-  if (substructure == PixelSubdetector::PixelBarrel) return true; 
-  return false;
-}
-
-inline bool HitPattern::pixelEndcapHitFilter(uint32_t pattern) const { 
-  if  unlikely(!trackerHitFilter(pattern)) return false;
-  uint32_t substructure = getSubStructure(pattern);
-  if (substructure == PixelSubdetector::PixelEndcap) return true; 
-  return false;
-}
-
-inline bool HitPattern::stripHitFilter(uint32_t pattern) const { 
-  if  unlikely(!trackerHitFilter(pattern)) return false;
-  uint32_t substructure = getSubStructure(pattern);
-  if (substructure == StripSubdetector::TIB ||
-      substructure == StripSubdetector::TID ||
-      substructure == StripSubdetector::TOB ||
-      substructure == StripSubdetector::TEC) return true; 
-  return false;
-}
-
-inline bool HitPattern::stripTIBHitFilter(uint32_t pattern) const { 
-  if  unlikely(!trackerHitFilter(pattern)) return false;
-  uint32_t substructure = getSubStructure(pattern);
-  if (substructure == StripSubdetector::TIB) return true; 
-  return false;
-}
-
-inline bool HitPattern::stripTIDHitFilter(uint32_t pattern) const { 
-  if  unlikely(!trackerHitFilter(pattern)) return false;
-  uint32_t substructure = getSubStructure(pattern);
-  if (substructure == StripSubdetector::TID) return true; 
-  return false;
-}
-
-inline bool HitPattern::stripTOBHitFilter(uint32_t pattern) const { 
-  if  unlikely(!trackerHitFilter(pattern)) return false;
-  uint32_t substructure = getSubStructure(pattern);
-  if (substructure == StripSubdetector::TOB) return true; 
-  return false;
-}
-
-inline bool HitPattern::stripTECHitFilter(uint32_t pattern) const { 
-  if  unlikely(!trackerHitFilter(pattern)) return false;
-  uint32_t substructure = getSubStructure(pattern);
-  if (substructure == StripSubdetector::TEC) return true; 
-  return false;
-}
-
-inline bool HitPattern::muonDTHitFilter(uint32_t pattern) const { 
-  if  unlikely(!muonHitFilter(pattern)) return false;
-  uint32_t substructure = getSubStructure(pattern);
-  if (substructure == (uint32_t) MuonSubdetId::DT) return true; 
-  return false;
-}
-
-inline bool HitPattern::muonCSCHitFilter(uint32_t pattern) const { 
-  if  unlikely(!muonHitFilter(pattern)) return false;
-  uint32_t substructure = getSubStructure(pattern);
-  if (substructure == (uint32_t) MuonSubdetId::CSC) return true; 
-  return false;
-}
-
-inline bool HitPattern::muonRPCHitFilter(uint32_t pattern) const { 
-  if  unlikely(!muonHitFilter(pattern)) return false;
-  uint32_t substructure = getSubStructure(pattern);
-  if (substructure == (uint32_t) MuonSubdetId::RPC) return true; 
-  return false;
-}
-
-
-inline bool HitPattern::trackerHitFilter(uint32_t pattern) const {
-  if  unlikely(pattern == 0) return false;
-  if (((pattern>>SubDetectorOffset) & SubDetectorMask) == 1) return true;
-  return false;
-}
-
-inline bool HitPattern::muonHitFilter(uint32_t pattern) const {
-  if  unlikely(pattern == 0) return false;
-  if (((pattern>>SubDetectorOffset) & SubDetectorMask) == 0) return true; 
-  return false;
-}
-
-
 
 
 inline uint32_t HitPattern::getSubStructure(uint32_t pattern) const {
