@@ -155,6 +155,23 @@ def loadPAT(process,jetMetCorrections,extMatch):
         process.tauGenJets.GenParticles = "mergedTruth"
         process.tauMatch.matched = "mergedTruth"
 
+
+    #-- Taus ----------------------------------------------------------------------
+    #some tau discriminators have been switched off during development. They can be switched on again...
+    setattr(process.patTaus.tauIDSources, "trackIsolation", cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolation"))
+    setattr(process.patTaus.tauIDSources, "ecalIsolation", cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolation"))
+    setattr(process.patTaus.tauIDSources, "byIsolation", cms.InputTag("shrinkingConePFTauDiscriminationByIsolation"))
+    setattr(process.patTaus.tauIDSources, "leadingPionPtCut", cms.InputTag("shrinkingConePFTauDiscriminationByLeadingPionPtCut"))
+    setattr(process.patTaus.tauIDSources, "trackIsolationUsingLeadingPion", cms.InputTag("shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion"))
+    setattr(process.patTaus.tauIDSources, "ecalIsolationUsingLeadingPion", cms.InputTag("shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion"))
+    setattr(process.patTaus.tauIDSources, "byIsolationUsingLeadingPion", cms.InputTag("shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion"))
+    setattr(process.patTaus.tauIDSources, "byTaNC", cms.InputTag("shrinkingConePFTauDiscriminationByTaNC"))
+    setattr(process.patTaus.tauIDSources, "byTaNCfrOnePercent", cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrOnePercent"))
+    setattr(process.patTaus.tauIDSources, "byTaNCfrHalfPercent", cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrHalfPercent"))
+    setattr(process.patTaus.tauIDSources, "byTaNCfrQuarterPercent", cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"))
+    setattr(process.patTaus.tauIDSources, "byTaNCfrTenthPercent", cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent"))
+
+
     #-- Jet corrections -----------------------------------------------------------
     # L1 FastJet jet corrections
     # kt jets for fastjet corrections (needed for CMSSW < 4_2_0)
@@ -258,7 +275,9 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
    
     electronSelection =  "abs( eta ) < 2.5 & pt > 5"
     electronSelection += " & mva_e_pi > 0.4" # same as patElectron::mva()
-    electronSelection += " & gsfTrackRef().isNonnull() & gsfTrackRef().trackerExpectedHitsInner().numberOfHits() < 1"
+    #electronSelection += " & (isEB & (sigmaIetaIeta < 0.024 & hadronicOverEm < 0.15) | isEE & (sigmaIetaIeta < 0.040 & hadronicOverEm < 0.10))" #caloIdVL
+    #electronSelection += " & (isEB & (deltaPhiSuperClusterTrackAtVtx < 0.15 & deltaEtaSuperClusterTrackAtVtx < 0.01) | isEE & (deltaPhiSuperClusterTrackAtVtx < 0.10 & deltaEtaSuperClusterTrackAtVtx < 0.01))" #trkIdVL
+    electronSelection += " & gsfTrackRef().isNonnull() & gsfTrackRef().trackerExpectedHitsInner().numberOfHits() <= 0"
     process.pfUnclusteredElectronsPF = cms.EDFilter( "GenericPFCandidateSelector",
         src = cms.InputTag("pfElectronsFromGoodVertex"), #pfSelectedElectronsPF
         cut = cms.string(electronSelection)
