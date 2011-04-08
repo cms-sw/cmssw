@@ -353,7 +353,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
   event.getByLabel(triggerobjwithrefs,triggerObj); 
   if(!triggerObj.isValid()) { 
-    edm::LogWarning("EmDQM") << "triggerobjwithrefs=" << triggerobjwithrefs;
+    edm::LogWarning("EmDQM") << "parameter triggerobject (" << triggerobjwithrefs << ") does not corresond to a valid TriggerEventWithRefs product. Please check especially the process name (e.g. when running over reprocessed datasets)"; 
     return;
   }
 
