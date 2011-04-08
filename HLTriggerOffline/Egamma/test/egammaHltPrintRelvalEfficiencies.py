@@ -126,6 +126,13 @@ parser.add_option("--ignore-zero-eff",
                   help="Print only information about paths which have at least one entry in the bin of the last module in the overview histogram. Note that this also excludes those paths excluded by --ignore-empty .",
                   )
 
+parser.add_option("--no-split-names",
+                  dest="split_names",
+                  action='store_false',
+                  default = True,
+                  help="Do not split module names.",
+                  )
+
 
 (options, ARGV) = parser.parse_args()
 
@@ -222,9 +229,15 @@ for path_key in top_dir.GetListOfKeys():
 
         module_name = total_eff_histo.GetXaxis().GetBinLabel(i+1)
 
+        if options.split_names:
+            module_name = splitAtCapitalization(module_name)
+
         events = total_eff_histo.GetBinContent(i+1)
 
-        print "  %-90s: %5d events" % (splitAtCapitalization(module_name), events),
+        
+
+
+        print "  %-90s: %5d events" % (module_name, events),
 
         if previous_module_output > 0:
             print "(%5.1f%% eff.)" % (100 * events / float(previous_module_output)),
