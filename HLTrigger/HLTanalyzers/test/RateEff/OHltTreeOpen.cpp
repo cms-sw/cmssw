@@ -375,16 +375,14 @@ bool isHTX_MHTXTrigger(TString triggerName, vector<double> &thresholds)
 bool isAlphaTTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-  TString pattern = "(OpenHLT_Jet([0-9]+)_HT([0-9]+)_B([0-9]+))$";
+  TString pattern = "(OpenHLT_HT([0-9]+)_AlphaT0p([0-9]+)_v1)$";
   TPRegexp matchThreshold(pattern);
 
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double JetThreshold = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double HtThreshold = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      double BetaThreshold = (((TObjString *)subStrL->At(4))->GetString()).Atof();
-      thresholds.push_back(JetThreshold);
+      double HtThreshold = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double BetaThreshold = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(HtThreshold);
       thresholds.push_back(BetaThreshold);
       delete subStrL;
@@ -6684,6 +6682,24 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+
+   /*****HTX_AlphaT0pX*******/
+   else if (isAlphaTTrigger(triggerName, thresholds))
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHltHT_AlphaT( thresholds[0],thresholds[1],40. ) >=1 )
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
+
+
    /*********************/
 
    /*Muon-photon cross-triggers*/
