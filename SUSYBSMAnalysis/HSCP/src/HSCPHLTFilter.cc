@@ -157,8 +157,8 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // HLT TRIGGER BASED ON MET!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet370_v1")){
-      if(tr.accept(tr.triggerIndex("HLT_Jet370_v1"))){METTrigger = true;}
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v1")){
+      if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v1"))){METTrigger = true;}
    }else{
       if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100_v3")){
          //if(CountEvent<MaxPrint)printf("Use HLT_MET100_v3\n");

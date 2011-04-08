@@ -44,7 +44,7 @@
 
 
 
-double               IntegratedLuminosity = 21.8;
+double               IntegratedLuminosity = 5.8;
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
