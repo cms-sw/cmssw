@@ -1,6 +1,30 @@
 import os,coral,datetime,fnmatch
 from RecoLuminosity.LumiDB import nameDealer,revisionDML,dataDML,lumiTime,CommonUtil,selectionParser,hltTrgSeedMapper
 
+#internal functions
+def _decidenorm(schema,norm=None,amodetag=None,nominalegev=None):
+    '''
+    output : (avgnorm,perbunchnorm)
+    '''
+    avgnorm=1.0
+    perbunchnorm=0.001
+    if not norm:
+        normid=dataDML.guessnormIdByContext(schema,amodetag,nominalegev)
+        if not normid:
+            raise ValueError('cannot find a normalization factor for the combined condition '+amodetag+' '+nominalegev)
+    else:
+        if isinstance(norm,str):
+            normid=dataDML.guessnormIdByName(schema,normname)
+            avgnorm=dataDML.luminormById(schema,normid)[2]
+            perbunchnorm=float(avgnorm)/1000.0
+        elif isinstance(norm,float) or isinstance(norm,int):
+            avgnorm=float(norm)
+            perbunchnorm=float(avgnorm)/1000.0
+        else:
+            raise ValueError('unexpected norm type')
+    return (avgnorm,perbunchnorm)
+
+#public functions
 def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True):
     return dataDML.runList(schema,fillnum,runmin,runmax,startT,stopT,l1keyPattern,hltkeyPattern,amodetag,nominalEnergy,energyFlut,requiretrg,requirehlt)
 
@@ -57,28 +81,85 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,datatag
             trgbitnamepattern regex match trgbitname (optional)
             datatag : data version
     output
-            result {run,{cmslsnum:[deadtimecount,bitzero_count,bitzero_prescale,deadfraction,{bitname:[prescale,counts]}]}}
+            result [run,{cmslsnum:[deadtimecount,bitzero_count,bitzero_prescale,deadfraction,{bitname:[prescale,counts]}]}]
     '''
     pass
 
-def instLumiForRange(schema,inputRange,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',xingMinLum=1.0e-4,withBeamIntensity=False,datatag=None):
+def instLumiForRange(schema,inputRange,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',withBeamIntensity=False,datatag=None):
     '''
     input:
-           inputRange  {run:[cmsls]} (required)
+           inputRange  {lumidataid:[cmsls]} (required)
            beamstatus: LS filter on beamstatus (optional)
-           beamenergy: LS filter on beamenergy (optional)  beamenergy+-beamenergyFluc
            withBXInfo: get per bunch info (optional)
            bxAlgo: algoname for bx values (optional) ['OCC1','OCC2','ET']
            xingMinLum: cut on bx lumi value (optional)
            withBeamInfo: get beam intensity info (optional)
            datatag: data version
     output:
-           result {run:{(lumilsnum,cmslsnum):[timestamp,beamstatus,beamenergy,instlumi,instlumierr,startorbit,numorbit,(bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),instlumi(5),instlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
            lumi unit: HZ/ub
     '''
-    pass
+    result={}
+    for run in inputRange.keys():
+        lslist=inputRange[run]
+        if lslist is not None and len(lslist)==0:
+            result[run]={}#if no LS is selected for a run
+            continue
+        runsummary=dataDML.runsummary(schema,run)
+        if len(runsummary)==0:#if run not found in runsummary
+            result[run]=None
+            continue
+        runstarttimeStr=runsummary[6]
+        lumidataid=dataDML.guessLumiDataIdByRun(schema,run)
+        if lumidataid is None: #if run not found in lumidata
+            result[run]=None
+            continue
+        perlsresult=dataDML.lumiLSById(schema,lumidataid,beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamIntensity)[1]
+        lsresult=[]
+        c=lumiTime.lumiTime()
+        for lumilsnum,perlsdata in perlsresult.items():
+            cmslsnum=perlsdata[0]
+            if lslist is not None and cmslsnum not in inputRange[run]:
+                continue
+            numorbit=perlsdata[6]
+            startorbit=perlsdata[7]
+            orbittime=c.OrbitToTime(runstarttimeStr,numorbit,startorbit)
+            instlumi=perlsdata[1]
+            beamstatus=perlsdata[4]
+            beamenergy=perlsdata[5]
+            instlumierr=perlsdata[2]
+            bxinfo=perlsdata[8]
+            beaminfo=perlsdata[9]
+            if bxinfo:
+                bxvaluesArray=None
+                bxerrorsArray=None
+                bxvaluesBlob=bxinfo[0]
+                bxerrorsBlob=bxinfo[1]
+                if bxvaluesBlob:
+                    bxvaluesArray=CommonUtil.unpackBlobtoArray(bxvaluesBlob,'f')
+                if bxerrorsBlob:
+                    bxerrorsArray=CommonUtil.unpackBlobtoArray(bxerrorsBlob,'f')
+                bxinfo=(bxvaluesArray,bxerrorsArray)
+            if beaminfo:
+                bxindexArray=None
+                beam1intensityArray=None
+                beam2intensityArray=None
+                bxindexBlob=beaminfo[0]
+                beam1intensityBlob=beaminfo[1]
+                beam2intensityBlob=beaminfo[2]
+                if bxindexBlob:   
+                    bxindexArray=CommonUtil.unpackBlobtoArray(bxindexBlob,'h')
+                if beam1intensityBlob: 
+                    beam1intensityArray=CommonUtil.unpackBlobtoArray(beam1intensityBlob,'f')
+                if beam2intensityBlob:
+                    beam2intensityArray=CommonUtil.unpackBlobtoArray(beam2intensityBlob,'f')
+                beaminfo=(bxindexArray,beam1intensityArray,beam2intensityArray)
+            lsresult.append([lumilsnum,cmslsnum,orbittime,beamstatus,beamenergy,instlumi,instlumierr,startorbit,numorbit,bxinfo,beaminfo])         
+            del perlsdata
+        result[run]=lsresult
+    return result
 
-def instCalibratedLumiForRange(schema,inputRange,amodetag='PROTPHYS',nominalegev=3500,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',xingMinLum=1.0e-4,withBeamInfo=False,normname=None,datatag=None):
+def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',withBeamInfo=False,norm=None,datatag=None):
     '''
     Inst luminosity after calibration
     input:
@@ -90,24 +171,22 @@ def instCalibratedLumiForRange(schema,inputRange,amodetag='PROTPHYS',nominalegev
            bxAlgo: algoname for bx values (optional) ['OCC1','OCC2','ET']
            xingMinLum: cut on bx lumi value (optional)
            withBeamInfo: get beam intensity info (optional)
-           normname: norm factor name to use (optional)
+           norm: if norm is a float, use it directly; if it is a string, consider it norm factor name to use (optional)
            datatag: data version
     output:
-           result {run:{(lumilsnum,cmslsnum):[timestamp,beamstatus,beamenergy,calibratedlumi,calibratedlumierr,startorbit,numorbit,(bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
            lumi unit: HZ/ub
     '''
     result = {}
-    normid=None
-    if not normname:
-        normid=dataDML.guessnormIdByContext(schema,amodetag,nominalegev)
-    if not normid:
-        raise ValueError('cannot find a normalization factor for the combined condition '+amodetag+' '+nominalegev)
-    normval=dataDML.luminormById(schema,normid)[2]
-    perbunchnormval=float(normval)/float(1000)
+    normval=6370
+    perbunchnormval=6.37
     instresult=instLumiForRange(schema,inputRange,beamstatus,withBXInfo,bxAlgo,withBeamIntensity,datatag)
-    for run,lsdict in instresult.items():
+    for run,perrundata in instresult.items():
+        if perrundata is None:
+            result[run]=None
+            continue
         result[run]={}
-        for (lumilsnum,cmslsnum),perlsdata in lsdict.items():
+        for (lumilsnum,cmslsnum),perlsdata in perrundata.items():
             timestamp=perlsdata[0]
             beamstatus=perlsdata[1]
             beamenergy=perlsdata[2]
@@ -120,56 +199,59 @@ def instCalibratedLumiForRange(schema,inputRange,amodetag='PROTPHYS',nominalegev
             if bxdata:
                 calibratedbxdata=([x*perbunchnormval for x in bxdata[0]],[x*perbunchnormval for x in bxdata[1]])
             intensitydata=perlsdata[8]             
-            result[run][(lumilsnum,cmslsnum)]=[timestamp,beamstatus,beamenergy,calibratedlumi,calibratedlumierr,startorbit,numorbit,calibfatedbxdata,intensitydata]
+            result[run].append([lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,calibratedlumi,calibratedlumierr,startorbit,numorbit,calibfatedbxdata,intensitydata])
     return result
          
-def deliveredLumiForRange(schema,inputRange,amodetag='PROTPHYS',nominalegev=3500,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',xingMinLum=1.0e-4,withBeamIntensity=False,normname=None,datatag=None):
+def deliveredLumiForRange(schema,inputRange,amodetag=None,nominalegev=None,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',xingMinLum=None,withBeamIntensity=False,norm=None,datatag=None):
     '''
     input:
            inputRange  {run:[lsnum]} (required) [lsnum]==None means all ; [lsnum]==[] means selected ls 
-           amodetag : accelerator mode for all the runs (optional) ['PROTPHYS','HIPHYS']
+           amodetag : accelerator mode for all the runs (optional) ['PROTPHYS','IONPHYS']
            beamstatus: LS filter on beamstatus (optional)
            beamenergy: LS filter on beamenergy (optional)  beamenergy+-beamenergyFluc
            withBXInfo: get per bunch info (optional)
            bxAlgo: algoname for bx values (optional) ['OCC1','OCC2','ET']
            xingMinLum: cut on bx lumi value (optional)
            withBeamInfo: get beam intensity info (optional)
-           normname: norm factor name to use (optional)
+           norm: norm factor name to use: if float, apply directly, if str search norm by name (optional)
            datatag: data version
     output:
-           result {run:{(lumilsnum,cmslsnum):[timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierr,(bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}}
+           result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),calibratedlumierr(6),(bxvalues,bxerrs)(7),(bxidx,b1intensities,b2intensities)(8)]}
            avg lumi unit: 1/ub
     '''
     result = {}
-    normid=None
-    if not normname:
-        normid=dataDML.guessnormIdByContext(schema,amodetag,nominalegev)
-    if not normid:
-        raise ValueError('cannot find a normalization factor for the combined condition '+amodetag+' '+nominalegev)
-    normval=dataDML.luminormById(schema,normid)[2]
-    perbunchnormval=float(normval)/float(1000)
+    normval=6370
+    perbunchnormval=6.37
+    #(normval,perbunchnormval)=_decidenorm(schema,norm=norm,amodetag=amodetag,nominalegev=nominalegev)
     instresult=instLumiForRange(schema,inputRange,beamstatus,withBXInfo,bxAlgo,withBeamIntensity,datatag)
-    for run,lslist in inputRange.items():
-        result[run]={}
-        for (lumilsnum,cmslsnum),perlsdata in lsdict.items():
-            timestamp=perlsdata[0]
-            beamstatus=perlsdata[1]
-            beamenergy=perlsdata[2]
-            calibratedlumi=perlsdata[3]*normval
-            calibratedlumierr=perlsdata[4]*normval
-            numorbit=perlsdata[6]
+    print instresult
+    #instLumiForRange should have aleady handled the selection,unpackblob
+    for run,perrundata in instresult.items():
+        if perrundata is None:
+            result[run]=None
+            continue
+        result[run]=[]
+        for perlsdata in perrundata:#loop over ls
+            lumilsnum=perlsdata[0]
+            cmslsnum=perlsdata[1]
+            timestamp=perlsdata[2]
+            beamstatus=perlsdata[3]
+            beamenergy=perlsdata[4]
+            calibratedlumi=perlsdata[5]*normval
+            calibratedlumierr=perlsdata[6]*normval
+            numorbit=perlsdata[8]
             numbx=3564
             lslen=lslengthsec(numorbit,numbx)
             deliveredlumi=calibratedlumi*lslen
-            bxdata=perlsdata[7]
+            bxdata=perlsdata[9]
             calibratedbxdata=None
             if bxdata:
                 calibratedbxdata=([x*perbunchnormval for x in bxdata[0]],[x*perbunchnormval for x in bxdata[1]])
-            intensitydata=perlsdata[8]             
-            result[run][(lumilsnum,cmslsnum)]=[timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierr,calibratedbxdata,intensitydata]
+            intensitydata=perlsdata[10]             
+            result[run].append([lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierr,calibratedbxdata,intensitydata])
     return result
                        
-def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenergy=None,beamenergyFluc=0.2,withBXInfo=False,bxAlgo='OCC1',xingMinLum=1.0e-4,withBeamInfo=False,normname=None,datatag=None):
+def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenergy=None,beamenergyFluc=0.2,withBXInfo=False,bxAlgo='OCC1',xingMinLum=1.0e-4,withBeamInfo=False,norm=None,datatag=None):
     '''
     input:
            inputRange  {run:[cmsls]} (required)
@@ -183,17 +265,11 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
            normname: norm factor name to use (optional)
            datatag: data version
     output:
-           result {run:{(lumilsnum,cmslsnum):[timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,((bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}}
+           result {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
            lumi unit: 1/ub
     '''
     result = {}
-    normid=None
-    if not normname:
-        normid=dataDML.guessnormIdByContext(schema,amodetag,nominalegev)
-    if not normid:
-        raise ValueError('cannot find a normalization factor for the combined condition '+amodetag+' '+nominalegev)
-    normval=dataDML.luminormById(schema,normid)[2]
-    perbunchnormval=float(normval)/float(1000)
+    (normval,perbunchnormval)=_decidenorm(schema,norm=norm,amodetag=amodetag,nominalegev=nominalagev)
     c=lumiTime.lumiTime()
     for run,lslist in inputRange.items():
         if lslist is not None and len(lslist)==0:#no selected ls, do nothing for this run
@@ -262,9 +338,7 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
                         beam1intensitylist=CommonUtil.unpackBlobtoArray(beam1intensityblob,'f').tolist()
                         beam2intensitylist=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f').tolist()
                 beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
-        perrunresult[(lumilsnum,cmslsnum)]=[timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata]
-        lumidata.clear() #clean lumi memory    
-        trgdata.clear()
+        perrunresult.append([lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata])
         result[run]=perrunresult
     return result
        
@@ -288,13 +362,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
            lumi unit: 1/ub
     '''
     result = {}
-    normid=None
-    if not normname:
-        normid=dataDML.guessnormIdByContext(schema,amodetag,nominalegev)
-    if not normid:
-        raise ValueError('cannot find a normalization factor for the combined condition '+amodetag+' '+nominalegev)
-    normval=dataDML.luminormById(schema,normid)[2]
-    perbunchnormval=float(normval)/float(1000)
+    (normval,perbunchnormval)=_decidenorm(schema,norm=norm,amodetag=amodetag,nominalegev=nominalagev)
     c=lumiTime.lumiTime()
     for run,lslist in inputRange.items():
         if lslist is not None and len(lslist)==0:#no selected ls, do nothing for this run

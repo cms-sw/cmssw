@@ -4,10 +4,8 @@ import os,sys,time
 import coral
 #import optparse
 from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI
-#import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
-#from pprint import pprint
 
-beamChoices=['PROTPHYS','HIPHYS']
+beamChoices=['PROTPHYS','IONPHYS']
 
 def getDeliveredPerLS(dbsession,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenergy=None,beamenergyFluc=0.2,withBXInfo=False,bxAlgo='OCC1',xingMinLum=1.0e-4,withBeamInfo=False,normname=None,datatag=None):
     '''
@@ -122,7 +120,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Lumi Calculation",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls','lumibylsXing','status']
     beamModeChoices = [ "stable", "quiet", "either"]
-    amodetagChoices = [ "PROTPHYS","HIPHYS" ]
+    amodetagChoices = [ "PROTPHYS","IONPHYS" ]
     #
     # parse arguments
     #  
@@ -147,7 +145,7 @@ if __name__ == '__main__':
     #
     parser.add_argument('-b',dest='beammode',action='store',choices=beamModeChoices,required=False,help='beam mode choices [stable] (optional)')
     parser.add_argument('-fill',dest='fillnum',action='store',default=None,required=False,help='fill number (optional) ')
-    parser.add_argument('-amodetag',dest='amodetag',action='store',choices=amodetagChoices,required=False,help='specific accelerator mode choices [PROTOPHYS,HIPHYS] (optional)')
+    parser.add_argument('-amodetag',dest='amodetag',action='store',choices=amodetagChoices,required=False,help='specific accelerator mode choices [PROTOPHYS,IONPHYS] (optional)')
     parser.add_argument('-beamenergy',dest='beamenergy',action='store',type=float,default=None,help='nominal beam energy in GeV')
     parser.add_argument('-beamfluctuation',dest='beamfluctuation',type=float,action='store',default=0.02,required=False,help='fluctuation in fraction allowed to nominal beam energy, default 0.02, to be used together with -beamenergy  (optional)')
     parser.add_argument('-begin',dest='begin',action='store',default=None,required=False,help='run selection begin time, mm/dd/yy hh:mm:ss.00 (optional)')
@@ -160,7 +158,7 @@ if __name__ == '__main__':
     #optional args for data and normalization version control
     #
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',default=None,required=False,help='data version, optional')
-    parser.add_argument('-n',dest='normfactor',action='store',default=None,required=False,help='use specify the name of the normalization to use,optional')
+    parser.add_argument('-n',dest='normfactor',action='store',default=None,required=False,help='use specify the name or the value of the normalization to use,optional')
     #
     #command configuration 
     #
@@ -175,8 +173,9 @@ if __name__ == '__main__':
     options=parser.parse_args()
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
-
+        
     pbeammode = None
+    normfactor=None
     if options.beammode=='stable':
         pbeammode    = 'STABLE BEAMS'
     if options.verbose:
@@ -191,7 +190,11 @@ if __name__ == '__main__':
         else:
             print 'Action: ',options.action
         if options.normfactor:
-            print '\tuse specific norm factor name ',options.normfactor
+            normfactor=options.normfactor
+            if CommonUtil.is_floatstr(normfactor):
+                print '\tuse norm factor value ',normfactor                
+            else:
+                print '\tuse specific norm factor name ',normfactor
         else:
             print '\tuse norm factor in context (amodetag,beamenergy)'
         if options.runnumber: # if runnumber specified, do not go through other run selection criteria
@@ -244,15 +247,11 @@ if __name__ == '__main__':
                 print '\t%d : %s'%(run,','.join([str(ls) for ls in irunlsdict[run]]))
             else:
                 print '\t%d : all'%run
-    
-    #if options.inputfile:
-    #    p=inputFilesetParser.inputFilesetParser(options.inputfile)
-    #    irunlsdict=p.runsandls()
-    #    oldresultfiles=p.resultfiles()
-    #elif options.runnumber:
-    #    irunlsdict[runnumber]=None #None means all; [] means empty
-    #else:
-    #    raise 'must provide either -i or -r option'
+    inputIdRange=lumiCalcAPI            
+    if options.action == 'delivered':
+        session.transaction().start(True)
+        result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
+        session.transaction().commit()
     #if options.action == 'overview' || options.action == 'lumibyls' || options.action == 'lumibylsXing':
     #    lumiCalcAPI.lumiForRange()
     #if options.action == 'delivered':
