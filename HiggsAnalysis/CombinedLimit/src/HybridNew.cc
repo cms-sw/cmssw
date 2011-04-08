@@ -96,6 +96,8 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     }
     saveHybridResult_ = vm.count("saveHybridResult");
     readHybridResults_ = vm.count("readHybridResults");
+    if (readHybridResults_ && !vm.count("toysFile"))     throw std::invalid_argument("HybridNew: must have 'toysFile' option to have 'readHybridResults'\n");
+    if (saveHybridResult_  && !vm.count("saveToys")) throw std::invalid_argument("HybridNew: must have 'saveToys' option to have 'saveHybridResult'\n");
     plot_ = vm.count("plot") ? vm["plot"].as<std::string>() : std::string();
     validateOptions(); 
 }
