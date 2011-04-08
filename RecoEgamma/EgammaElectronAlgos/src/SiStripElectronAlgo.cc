@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.35 2011/04/08 08:03:46 innocent Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.36 2011/04/08 08:09:29 innocent Exp $
 //
 
 // system include files
@@ -18,9 +18,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
-#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
