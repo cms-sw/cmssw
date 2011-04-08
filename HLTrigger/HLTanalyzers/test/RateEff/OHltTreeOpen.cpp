@@ -5164,6 +5164,68 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   /**********************************************/
+
+   // Single Top Triggers : Electron channel
+
+   /**********************************************/
+   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP_v2")
+         == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHlt1ElectronSamHarperPassed(25., 0, // ET, L1isolation 
+                  999.,
+                  999., // Track iso barrel, Track iso endcap 
+                  999.,
+                  999., // Track/pT iso barrel, Track/pT iso endcap 
+                  999.,
+                  999., // H/ET iso barrel, H/ET iso endcap 
+                  999.,
+                  999., // E/ET iso barrel, E/ET iso endcap 
+                  0.05,
+                  0.05, // H/E barrel, H/E endcap 
+                  0.011,
+                  0.031, // cluster shape barrel, cluster shape endcap 
+                  0.98,
+                  1.0, // R9 barrel, R9 endcap 
+                  0.008,
+                  0.008, // Deta barrel, Deta endcap 
+                  0.07,
+                  0.05 // Dphi barrel, Dphi endcap 
+            )>=1 && OpenHlt1BJetPassedEleRemoval(30., 3.0, 0.3, // jet ET, eta, DrCut
+                  0.,
+                  3.3, // discL25, discL3
+                  25.,
+                  0, // ET, L1isolation 
+                  999.,
+                  999., // Track iso barrel, Track iso endcap 
+                  999.,
+                  999., // Track/pT iso barrel, Track/pT iso endcap 
+                  999.,
+                  999., // H/ET iso barrel, H/ET iso endcap 
+                  999.,
+                  999., // E/ET iso barrel, E/ET iso endcap 
+                  0.05,
+                  0.05, // H/E barrel, H/E endcap 
+                  0.011,
+                  0.031, // cluster shape barrel, cluster shape endcap 
+                  0.98,
+                  1.0, // R9 barrel, R9 endcap 
+                  0.008,
+                  0.008, // Deta barrel, Deta endcap 
+                  0.07,
+                  0.05 // Dphi barrel, Dphi endcap 
+                  )>=1)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
    // 2011-03-29 promoted to v2 TODO check
    else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralJet40_BTagIP_v2")
          == 0)
@@ -5191,10 +5253,10 @@ void OHltTree::CheckOpenHlt(
                   0.008, // Deta barrel, Deta endcap 
                   0.07,
                   0.05 // Dphi barrel, Dphi endcap 
-            )>=1 && OpenHlt1BJetPassedEleRemoval(20., 3.0, 0.3, // jet ET, eta, DrCut
+            )>=1 && OpenHlt1BJetPassedEleRemoval(40., 3.0, 0.3, // jet ET, eta, DrCut
                   0.,
                   2.0, // discL25, discL3
-                  27.,
+                  25.,
                   0, // ET, L1isolation 
                   999.,
                   999., // Track iso barrel, Track iso endcap 
@@ -5211,9 +5273,9 @@ void OHltTree::CheckOpenHlt(
                   0.98,
                   1.0, // R9 barrel, R9 endcap 
                   0.008,
-                  0.007, // Deta barrel, Deta endcap 
-                  0.1,
-                  0.1 // Dphi barrel, Dphi endcap 
+                  0.008, // Deta barrel, Deta endcap 
+                  0.07,
+                  0.05 // Dphi barrel, Dphi endcap 
                   )>=1)
             {
                triggerBit[it] = true;
@@ -10177,173 +10239,122 @@ int OHltTree::OpenHlt1BJetPassedEleRemoval(
       float dphiendcap)
 {
 
-   int rc = 0;
+  int rc = 0;
+  int njets = 0;
+  
+   //Loop over corrected oh b-jets
+   for (int j = 0; j < NohBJetL2Corrected; j++)
+   {//loop over jets
+     
+     bool isOverlapping = false;
+     
+     // ****************************************************
+     // Exclude jets which are matched to electrons
+     // ****************************************************
+     float barreleta = 1.479;
+     float endcapeta = 2.65;
+     
+     // Loop over all oh electrons
+     for (int i=0; i<NohEle; i++)
+       {//loop over electrons
 
-   //Loop over uncorrected oh b-jets
-   for (int j = 0; j < NohBJetL2; j++)
-   {
-
-      if (ohBJetL2Et[j] > jetEt && fabs(ohBJetL2Eta[j]) < jetEta)
-      { // ET and eta cuts
-
-         bool isOverlapping = false;
-
-         // ****************************************************
-         // Exclude jets which are matched to electrons
-         // ****************************************************
-         float barreleta = 1.479;
-         float endcapeta = 2.65;
-
-         // Loop over all oh electrons
-         for (int i=0; i<NohEle; i++)
-         {
-            // ****************************************************
-            // Bug fix
-            // To be removed once the new ntuples are produced
-            // ****************************************************
-            float ohEleHoverE;
-            float ohEleR9value;
-            if (ohEleL1iso[i] == 1)
-            {
-               ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
-               ohEleR9value = ohEleR9[i];
-            }
-            if (ohEleL1iso[i] == 0)
-            {
-               ohEleHoverE = ohEleR9[i]/ohEleE[i];
-               ohEleR9value = ohEleHforHoverE[i];
-            }
-            // ****************************************************
-            // ****************************************************
-            int isbarrel = 0;
-            int isendcap = 0;
-            if (TMath::Abs(ohEleEta[i]) < barreleta)
-               isbarrel = 1;
-            if (barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i])
-                  < endcapeta)
-               isendcap = 1;
-
-            if (ohEleEt[i] > Et)
-            {
-               if (TMath::Abs(ohEleEta[i]) < endcapeta)
+	 int isbarrel = 0;
+	 int isendcap = 0;
+	 if (TMath::Abs(ohEleEta[i]) < barreleta)
+	   isbarrel = 1;
+	 if (barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i])
+	     < endcapeta)
+	   isendcap = 1;
+	 
+	 if (ohEleEt[i] > Et)
+	   {
+	     if (TMath::Abs(ohEleEta[i]) < endcapeta)
                {
-                  if (ohEleNewSC[i]<=1)
-                  {
+		 if (ohEleNewSC[i]<=1)
+		   {
                      if (ohElePixelSeeds[i]>0)
-                     {
-                        if (ohEleL1iso[i] >= L1iso)
-                        { // L1iso is 0 or 1 
-                           if (ohEleL1Dupl[i] == false)
-                           { // remove double-counted L1 SCs 
-                              if ( (isbarrel && ((ohEleHiso[i]/ohEleEt[i])
-                                    < HisooverETbarrel)) || (isendcap
-                                    && ((ohEleHiso[i]/ohEleEt[i])
-                                          < HisooverETendcap)))
-                              {
-                                 if ( (isbarrel && ((ohEleEiso[i]/ohEleEt[i])
-                                       < EisooverETbarrel)) || (isendcap
-                                       && ((ohEleEiso[i]/ohEleEt[i])
-                                             < EisooverETendcap)))
-                                 {
-                                    if ( ((isbarrel) && (ohEleHoverE
-                                          < hoverebarrel)) || ((isendcap)
-                                          && (ohEleHoverE < hovereendcap)))
-                                    {
-                                       if ( (isbarrel
-                                             && (((ohEleTiso[i] < Tisobarrel
-                                                   && ohEleTiso[i] != -999.)
-                                                   || (Tisobarrel == 999.))))
-                                             || (isendcap && (((ohEleTiso[i]
-                                                   < Tisoendcap && ohEleTiso[i]
-                                                   != -999.) || (Tisoendcap
-                                                   == 999.)))))
-                                       {
-                                          if (((isbarrel) && (ohEleTiso[i]
-                                                /ohEleEt[i] < Tisoratiobarrel))
-                                                || ((isendcap) && (ohEleTiso[i]
-                                                      /ohEleEt[i]
-                                                      < Tisoratioendcap)))
-                                          {
-                                             if ( (isbarrel && ohEleClusShap[i]
-                                                   < clusshapebarrel)
-                                                   || (isendcap
-                                                         && ohEleClusShap[i]
-                                                               < clusshapeendcap))
-                                             {
-                                                if ( (isbarrel && ohEleR9value
-                                                      < r9barrel) || (isendcap
-                                                      && ohEleR9value
-                                                            < r9endcap))
-                                                {
-                                                   if ( (isbarrel
-                                                         && TMath::Abs(ohEleDeta[i])
-                                                               < detabarrel)
-                                                         || (isendcap
-                                                               && TMath::Abs(ohEleDeta[i])
-                                                                     < detaendcap))
-                                                   {
-                                                      if ( (isbarrel
-                                                            && ohEleDphi[i]
-                                                                  < dphibarrel)
-                                                            || (isendcap
-                                                                  && ohEleDphi[i]
-                                                                        < dphiendcap))
-                                                      {
-
-                                                         double
-                                                               deltaphi =
-                                                                     fabs(ohBJetL2Phi[j]
-                                                                           -ohElePhi[i]);
-                                                         if (deltaphi > 3.14159)
-                                                            deltaphi = (2.0
-                                                                  * 3.14159)
-                                                                  - deltaphi;
-
-                                                         double
-                                                               deltaRJetEle =
-                                                                     sqrt((ohBJetL2Eta[j]
-                                                                           -ohEleEta[i])
-                                                                           *(ohBJetL2Eta[j]
-                                                                                 -ohEleEta[i])
-                                                                           + (deltaphi
-                                                                                 *deltaphi));
-
-                                                         if (deltaRJetEle
-                                                               < drcut)
-                                                         {
-                                                            isOverlapping
-                                                                  = true;
-                                                            break;
-                                                         }
-                                                      }
-                                                   }
-                                                }
-                                             }
-                                          }
-                                       }
-                                    }
-                                 }
-                              }
-                           }
-                        }
-                     }
-                  }
+		       {
+			 if (ohEleL1iso[i] >= L1iso)
+			   { // L1iso is 0 or 1 
+			     if (ohEleL1Dupl[i] == false)
+			       { // remove double-counted L1 SCs 
+				 if ( (isbarrel && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETbarrel)) || 
+				      (isendcap && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETendcap)))
+				   {
+				     if ( (isbarrel && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETbarrel)) || 
+					  (isendcap && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETendcap)))
+				       {
+					 if ( ((isbarrel) && (ohEleHforHoverE[i]/ohEleE[i] < hoverebarrel)) || 
+					      ((isendcap) && (ohEleHforHoverE[i]/ohEleE[i] < hovereendcap)))
+					   {
+					     if ( (isbarrel && (((ohEleTiso[i] < Tisobarrel && ohEleTiso[i] != -999.) || 
+								 (Tisobarrel == 999.))))
+						  || (isendcap && (((ohEleTiso[i] < Tisoendcap && ohEleTiso[i] != -999.) || 
+								    (Tisoendcap == 999.)))))
+					       {
+						 if (((isbarrel) && (ohEleTiso[i]/ohEleEt[i] < Tisoratiobarrel)) || 
+						     ((isendcap) && (ohEleTiso[i]/ohEleEt[i] < Tisoratioendcap)))
+						   {
+						     if ( (isbarrel && ohEleClusShap[i] < clusshapebarrel)
+							  || (isendcap && ohEleClusShap[i] < clusshapeendcap))
+						       {
+							 if ( (isbarrel && ohEleR9[i] < r9barrel) || 
+							      (isendcap && ohEleR9[i] < r9endcap))
+							   {
+							     if ( (isbarrel && TMath::Abs(ohEleDeta[i]) < detabarrel) || 
+								  (isendcap && TMath::Abs(ohEleDeta[i]) < detaendcap))
+							       {
+								 if ( (isbarrel && ohEleDphi[i] < dphibarrel) || 
+								      (isendcap && ohEleDphi[i] < dphiendcap))
+								   {
+								     
+								     double deltaphi = fabs(ohBJetL2CorrectedPhi[j] - ohElePhi[i]);
+								     if (deltaphi > 3.14159)
+								       deltaphi = (2.0 * 3.14159) - deltaphi;
+								     
+								     double deltaRJetEle = sqrt((ohBJetL2CorrectedEta[j]-ohEleEta[i])
+												*(ohBJetL2CorrectedEta[j]-ohEleEta[i])
+												+ (deltaphi*deltaphi));
+								     
+								     if (deltaRJetEle < drcut)
+								       {
+									 isOverlapping = true;
+									 break;
+								       }
+								   }
+							       }
+							   }
+						       }
+						   }
+					       }
+					   }
+				       }
+				   }
+			       }
+			   }
+		       }
+		   }
                }
-            }
-         }
-
-         if (!isOverlapping)
-         {//overlap
-            if (ohBJetIPL25Tag[j] >= discL25)
-            { // Level 2.5 b tag  
-               if (ohBJetIPL3Tag[j] >= discL3)
-               { // Level 3 b tag  
-                  rc++;
-               }
-            }
-         }//overlap  
-      }
+	   }
+       }//loop over electrons
+     
+     if (!isOverlapping)
+       {//overlap
+	 
+	 if (ohBJetL2CorrectedEt[j] > jetEt && fabs(ohBJetL2CorrectedEta[j]) < jetEta) {// ET and eta cuts
+	   
+	   if (ohBJetIPL25Tag[j] >= discL25)
+	     { // Level 2.5 b tag  
+	       if (ohBJetIPL3Tag[j] >= discL3)
+		 { // Level 3 b tag  
+		   njets++;
+		 }
+	     }
+	 }//ET and eta cuts
+       }//overlap  
    }//loop over jets
+   
+   if (njets >= 1) rc = true;
 
    return rc;
 }
