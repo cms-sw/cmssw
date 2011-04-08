@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
- ecalRecHitFlag_ecalRechkGood=0,                   # channel ok, the energy and time measurement are reliable
+ ecalRecHitFlag_kGood=0,                   # channel ok, the energy and time measurement are reliable
  ecalRecHitFlag_kPoorReco=1                 # the energy is available from the UncalibRecHit, but approximate (bad shape, large chi2)
  ecalRecHitFlag_kOutOfTime=2                # the energy is available from the UncalibRecHit (sync reco), but the event is out of time
  ecalRecHitFlag_kFaultyHardware=3           # The energy is available from the UncalibRecHit, channel is faulty at some hardware level (e.g. noisy)
