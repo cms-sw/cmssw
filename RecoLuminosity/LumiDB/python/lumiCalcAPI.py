@@ -85,7 +85,7 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,datatag
     '''
     pass
 
-def instLumiForRange(schema,inputRange,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',withBeamIntensity=False,datatag=None):
+def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bxAlgo='OCC1',withBeamIntensity=False,datatag=None):
     '''
     input:
            inputRange  {lumidataid:[cmsls]} (required)
@@ -114,16 +114,16 @@ def instLumiForRange(schema,inputRange,beamstatus=None,withBXInfo=False,bxAlgo='
         if lumidataid is None: #if run not found in lumidata
             result[run]=None
             continue
-        perlsresult=dataDML.lumiLSById(schema,lumidataid,beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamIntensity)[1]
+        perlsresult=dataDML.lumiLSById(schema,lumidataid,beamstatusfilter,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamIntensity)[1]
         lsresult=[]
         c=lumiTime.lumiTime()
         for lumilsnum,perlsdata in perlsresult.items():
             cmslsnum=perlsdata[0]
-            if lslist is not None and cmslsnum not in inputRange[run]:
+            if lslist is not None and lumilsnum not in inputRange[run]:
                 continue
             numorbit=perlsdata[6]
             startorbit=perlsdata[7]
-            orbittime=c.OrbitToTime(runstarttimeStr,numorbit,startorbit)
+            orbittime=c.OrbitToTime(runstarttimeStr,startorbit,0)
             instlumi=perlsdata[1]
             beamstatus=perlsdata[4]
             beamenergy=perlsdata[5]

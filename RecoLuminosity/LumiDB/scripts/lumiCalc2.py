@@ -3,7 +3,7 @@ VERSION='2.00'
 import os,sys,time
 import coral
 #import optparse
-from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI
+from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport
 
 beamChoices=['PROTPHYS','IONPHYS']
 
@@ -252,6 +252,10 @@ if __name__ == '__main__':
         session.transaction().start(True)
         result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
         session.transaction().commit()
+        if not options.outputfile:
+            lumiReport.toScreenTotDelivered(result,options.verbose)
+        else:
+            lumiReport.toCSVTotDelivered(result,options.outputfile,options.verbose)
     #if options.action == 'overview' || options.action == 'lumibyls' || options.action == 'lumibylsXing':
     #    lumiCalcAPI.lumiForRange()
     #if options.action == 'delivered':

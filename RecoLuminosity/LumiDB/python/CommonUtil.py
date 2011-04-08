@@ -1,6 +1,32 @@
 '''This module collects some frequently used helper functions
 '''
 import time,ast,re,json,coral,array
+def guessUnit(inverseubval):
+    '''
+    input:
+        float value in 1/ub
+    output:
+        printable value (value(float),unit(str)) unit in [1/ub,1/nb,1/pb,1/fb]
+    '''
+    if inverseubval<1.0e3:
+        unitstring='1/ub'
+        return (inverseubval,unitstring)
+    if inverseubval>=1.0e3 and inverseubval<1.0e06:
+        denomitor=1.0e3
+        unitstring='1/nb'
+        return (float(inverseubval)/float(denomitor),unitstring)
+    if t>=1.0e6 and t<1.0e9:
+        denomitor=1.0e6
+        unitstring='1/pb'
+        return (float(inverseubval)/float(denomitor),unitstring)
+    if t>=1.0e9 and t<1.0e12:
+        denomitor=1.0e9
+        unitstring='1/fb'
+        return (float(inverseubval)/float(denomitor),unitstring)
+    if t>=1.0e12 and t<1.0e15:
+        denomitor=1.0e12
+        unitstring='1/ab'
+        return (float(inverseubval)/float(denomitor),unitstring)
 def pairwise(lst):
     """
     yield item i and item i+1 in lst. e.g.
