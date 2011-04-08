@@ -5,12 +5,13 @@ parser = OptionParser()
 parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true")  # ignore systematic uncertainties to consider statistical uncertainties only
 parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true")
 (options, args) = parser.parse_args()
+options.bin = True # fake that is a binary output, so that we parse shape lines
 
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
 obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
-signals = []; backgrounds = []; 
+signals = []; backgrounds = []; shapeLines = []
 cmax = 5 # column width
 for ich,fname in enumerate(args):
     label = "ch%d" % (ich+1)
@@ -21,7 +22,7 @@ for ich,fname in enumerate(args):
     if not singlebin: label += "_";
     # expectations
     for b in DC.bins:
-        bout = label if singlebin else label+bin
+        bout = label if singlebin else label+b
         obskeyline.append(bout)
         for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
             expline.append("%.4f" % e)
@@ -30,7 +31,7 @@ for ich,fname in enumerate(args):
     for (lsyst,pdf,pdfargs,errline) in DC.systs:
         systeffect = {}
         for b in DC.bins:
-            bout = label if singlebin else label+bin
+            bout = label if singlebin else label+b
             if not systeffect.has_key(bout): systeffect[bout] = {} 
             for p in DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 r = "%.3f" % errline[b][p] if pdf != "gmN" else str(errline[b][p])
@@ -47,6 +48,19 @@ for ich,fname in enumerate(args):
         else:
             pdfargs = [ str(x) for x in pdfargs ]
             systlines[lsyst] = (pdf,pdfargs,systeffect)
+    # put shapes, if available
+    if len(DC.shapeMap):
+        for b in DC.bins:
+            bout = label if singlebin else label+b
+            p2sMap  = DC.shapeMap[b]   if DC.shapeMap.has_key(b)   else {}
+            p2sMapD = DC.shapeMap['*'] if DC.shapeMap.has_key('*') else {}
+            for p, x in p2sMap.items():
+                xrep = [xi.replace("$CHANNEL",bout) for xi in x]
+                shapeLines.append((p,bout,xrep))
+            for p, x in p2sMapD.items():
+                if p2sMap.has_key(p): continue
+                xrep = [xi.replace("$CHANNEL",bout) for xi in x]
+                shapeLines.append((p,bout,xrep))
     # combine observations, but remove line if any of the datacards doesn't have it
     if len(DC.obs) == 0:
         obsline = None
@@ -66,6 +80,13 @@ print "imax %d number of bins" % len(bins)
 print "jmax %d number of processes minus 1" % (len(signals) + len(backgrounds) - 1)
 print "kmax %d number of nuisance parameters" % len(systlines)
 print "-" * 130
+
+if shapeLines:
+    chmax = max([max(len(p),len(c)) for p,c,x in shapeLines]);
+    cfmt = "%-"+str(chmax)+"s ";
+    for (process,channel,stuff) in shapeLines:
+        print "shapes", cfmt % process, cfmt % channel, ' '.join(stuff);
+    print "-" * 130
 
 if obsline:
     cmax = max([cmax]+[len(l) for l in obskeyline]+[len(x) for x in obsline])
@@ -93,7 +114,9 @@ print hfmt % "rate",    "  ".join([cfmt % x for x in expline])
 
 print "-" * 130
 
-for name,(pdf,pdfargs,effect) in systlines.items():
+sysnamesSorted = systlines.keys(); sysnamesSorted.sort()
+for name in sysnamesSorted:
+    (pdf,pdfargs,effect) = systlines[name]
     systline = []
     for b,p,s in keyline:
         try:
