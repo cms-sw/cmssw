@@ -115,7 +115,6 @@ class Hector {
     std::map<unsigned int, bool> m_isStoppedfp420;
     std::map<unsigned int, bool> m_isStoppedhps240;
     std::map<unsigned int, bool> m_isStoppedzdc;
-    std::map<unsigned int, bool> m_isStoppedd1;
     //ZDC
     std::map<unsigned int, double> m_xAtZDCTrPoint;
     std::map<unsigned int, double> m_yAtZDCTrPoint;
