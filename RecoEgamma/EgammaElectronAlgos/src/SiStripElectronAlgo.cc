@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.34 2011/04/08 07:55:12 innocent Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.35 2011/04/08 08:03:46 innocent Exp $
 //
 
 // system include files
@@ -1074,9 +1074,9 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
     } // end loop over hits to calculate chi^2 and find its biggest contributer
 
     if (biggest_normresid > maxNormResid_) {
+#ifdef EDM_ML_DEBUG
       debugstr4 << "Dropping hit from fit due to Chi2 " << " \n" ;
       const SiStripRecHit2D* hit = hitlist[biggest_index];
-#ifdef EDM_ML_DEBUG 
       debugstr4 << " DetID " << ((hit)->geographicalId()).rawId()
 		<< " R " << rlist[biggest_index]
 		<< " Phi " << philist[biggest_index]
