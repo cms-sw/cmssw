@@ -4,6 +4,7 @@
 #include <RooCategory.h>
 #include <RooArgSet.h>
 #include <RooDataHist.h>
+#include <RooDataSet.h>
 #include <map>
 #include <string>
 
@@ -23,8 +24,10 @@ class CombDataSetFactory : public TObject {
       ~CombDataSetFactory() ;
 
       void addSet(const char *label, RooDataHist *set);
+      void addSet(const char *label, RooDataSet *set);
 
       RooDataHist *done(const char *name, const char *title) ;
+      RooDataSet *doneUnbinned(const char *name, const char *title) ;
 
       ClassDef(CombDataSetFactory,1) // Make RooDataHist
 
@@ -32,6 +35,7 @@ class CombDataSetFactory : public TObject {
         RooArgSet vars_;
         RooCategory *cat_;
         std::map<std::string, RooDataHist *> map_;
+        std::map<std::string, RooDataSet *> mapUB_;
 };
 
 #endif

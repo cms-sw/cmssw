@@ -89,7 +89,7 @@ class ShapeBuilder(ModelBuilder):
                 if norm != 0:
                     if p == "data_obs":
                         if len(self.DC.obs):
-                            if abs(norm-self.DC.obs[b]) > 0.01:
+                            if abs(norm-self.DC.obs[b]) > 0.01 :
                                 raise RuntimeError, "Mismatch in normalizations for observed data in bin %s: text %f, shape %f" % (b,self.DC.obs[b],norm)
                     else:
                         if self.DC.exp[b][p] == -1: self.DC.exp[b][p] = norm
@@ -120,8 +120,12 @@ class ShapeBuilder(ModelBuilder):
             for b in self.DC.bins: combiner.addSet(b, self.getData(b,"data_obs"))
             self.out.data_obs = combiner.done("data_obs","data_obs")
             self.out._import(self.out.data_obs)
-        else: raise RuntimeException, "Only combined binned datasets are supported"
-
+        if self.out.mode == "unbinned":
+            combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
+            for b in self.DC.bins: combiner.addSet(b, self.getData(b,"data_obs"))
+            self.out.data_obs = combiner.doneUnbinned("data_obs","data_obs")
+            self.out._import(self.out.data_obs)
+        else: raise RuntimeException, "Only combined datasets are supported"
     ## -------------------------------------
     ## -------- Low level helpers ----------
     ## -------------------------------------
@@ -154,7 +158,17 @@ class ShapeBuilder(ModelBuilder):
                 if ret: return ret;
                 raise RuntimeError, "Object %s in workspace %s in file %s does not exist or it's neither a data nor a pdf" % (oname, wname, finalNames[0])
             elif wsp.ClassName() == "TTree":
-                raise RuntimeError, "Another day"
+                ##If it is a tree we will convert it in RooDataSet . Then we can decide if we want to build a
+                ##RooKeysPdf or if we want to use it as an unbinned dataset 
+                if not wsp: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (wname,finalNames[0],names[1],names[0])
+                self.doVar("%s[%f,%f]" % (oname,wsp.GetMinimum(oname),wsp.GetMaximum(oname)))
+                #Check if it is weighted
+                self.doVar("__WEIGHT__[0.,1000.]")
+                rds = ROOT.RooDataSet("shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""), "shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""),wsp,ROOT.RooArgSet(self.out.var(oname)),"","__WEIGHT__")
+                rds.var=oname
+                if self.options.verbose: stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],wname,rds.GetName()))
+                _neverDelete.append(rds)
+                return rds
             else:
                 raise RuntimeError, "Object %s in file %s has unrecognized type %s" (wname, finalNames[0], wsp.ClassName())
         else: # histogram
@@ -253,6 +267,10 @@ class ShapeBuilder(ModelBuilder):
                 rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", self.out.binVars, shape) 
                 self.out._import(rhp)
                 _cache[shape.GetName()+"Pdf"] = rhp
+            elif shape.InheritsFrom("RooDataSet"):
+                rkp = ROOT.RooKeysPdf("%sPdf" % shape.GetName(), "", self.out.var(shape.var), shape,3,1.5); 
+                self.out._import(rkp)
+                _cache[shape.GetName()+"Pdf"] = rkp
             else: 
                 raise RuntimeError, "shape2Data not implemented for %s (%s)" % (shape.ClassName())
         return _cache[shape.GetName()+"Pdf"]
