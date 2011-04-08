@@ -180,6 +180,7 @@ private:
   int *elmishits; 
   float *eldist, *eldcot;  
   float *photonpt, *photonphi, *photoneta, *photonet, *photone;
+  float *photontrkiso, *photonecaliso, *photonhcaliso, *photonhovere, *photonClusShap, *photonr9id;
 
   float *hphotet, *hphoteta, *hphotphi, *hphoteiso, *hphothiso, *hphottiso, *hphothovereh;
   float *heleet, *heleeta, *helephi, *heleE, *helep, *helehiso, *heletiso, *helehovereh, *heleeiso;

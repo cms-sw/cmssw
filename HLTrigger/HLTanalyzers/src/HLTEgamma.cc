@@ -70,6 +70,12 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   photoneta         = new float[kMaxPhot];
   photonet          = new float[kMaxPhot];
   photone           = new float[kMaxPhot];
+  photontrkiso      = new float[kMaxPhot];
+  photonecaliso     = new float[kMaxPhot];
+  photonhcaliso     = new float[kMaxPhot];
+  photonhovere      = new float[kMaxPhot];
+  photonClusShap    = new float[kMaxPhot];
+  photonr9id        = new float[kMaxPhot];
 
   hphotet           = new float[kMaxhPhot];
   hphoteta          = new float[kMaxhPhot];
@@ -152,6 +158,12 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
   HltTree->Branch("recoPhotEta",        photoneta,          "recoPhotEta[NrecoPhot]/F");
   HltTree->Branch("recoPhotEt",         photonet,           "recoPhotEt[NrecoPhot]/F");
   HltTree->Branch("recoPhotE",          photone,            "recoPhotE[NrecoPhot]/F");
+  HltTree->Branch("recoPhotTiso",       photontrkiso,            "recoPhotTiso[NrecoPhot]/F");
+  HltTree->Branch("recoPhotEiso",       photonecaliso,            "recoPhotEiso[NrecoPhot]/F");
+  HltTree->Branch("recoPhotHiso",       photonhcaliso,            "recoPhotHiso[NrecoPhot]/F");
+  HltTree->Branch("recoPhotHoverE",     photonhovere,            "recoPhotHoverE[NrecoPhot]/F");
+  HltTree->Branch("recoPhotClusShap",   photonClusShap,          "recoPhotClusShap[NrecoPhot]/F");
+  HltTree->Branch("recoPhotR9ID",       photonr9id,              "recoPhotR9ID[NrecoPhot]/F");
 
   HltTree->Branch("NohPhot",            & nhltgam,          "NohPhot/I");
   HltTree->Branch("ohPhotEt",           hphotet,            "ohPhotEt[NohPhot]/F");
@@ -217,6 +229,12 @@ void HLTEgamma::clear(void)
   std::memset(photoneta,        '\0', kMaxPhot   * sizeof(float));
   std::memset(photonet,         '\0', kMaxPhot   * sizeof(float));
   std::memset(photone,          '\0', kMaxPhot   * sizeof(float));
+  std::memset(photontrkiso,     '\0', kMaxPhot   * sizeof(float));
+  std::memset(photonecaliso,    '\0', kMaxPhot   * sizeof(float));
+  std::memset(photonhcaliso,    '\0', kMaxPhot   * sizeof(float));
+  std::memset(photonhovere,     '\0', kMaxPhot   * sizeof(float));
+  std::memset(photonClusShap,   '\0', kMaxPhot   * sizeof(float));
+  std::memset(photonr9id,       '\0', kMaxPhot   * sizeof(float));
 
   std::memset(hphotet,          '\0', kMaxhPhot  * sizeof(float));
   std::memset(hphoteta,         '\0', kMaxhPhot  * sizeof(float));
@@ -360,6 +378,12 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
       photoneta[ipho] = i->eta();
       photonet[ipho] = i->et();
       photone[ipho] = i->energy();
+      photontrkiso[ipho] = i->trkSumPtSolidConeDR04(); 
+      photonecaliso[ipho] = i->ecalRecHitSumEtConeDR04(); 
+      photonhcaliso[ipho] = i->hcalTowerSumEtConeDR04(); 
+      photonhovere[ipho] = i->hadronicOverEm(); 
+      photonClusShap[ipho] = i->sigmaIetaIeta();
+      photonr9id[ipho] = i->r9(); 
       ipho++;
     }
   } else {
