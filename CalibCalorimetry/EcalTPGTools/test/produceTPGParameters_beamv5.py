@@ -78,17 +78,16 @@ process.TPGParamProducer = cms.EDAnalyzer("EcalTPGParamBuilder",
     writeToDB  = cms.bool(True),
     allowDBEE  = cms.bool(True),
 
-    DBsid   = cms.string('cms_omds_lb'), ## real DB 
-    ##DBsid   = cms.string('int2r'), ## test DB
+##    DBsid   = cms.string('cms_omds_lb'), ## real DB 
+    DBsid   = cms.string('int2r'), ## test DB
     ## P5 online DB
     DBuser  = cms.string('cms_ecal_conf'),
-    DBpass  = cms.string('0r4cms_3c4lc0nf'),
+    DBpass  = cms.string('*******'),
     ## test DB
     ##DBuser  = cms.string('cms_ecal_conf_test'),
-    ##DBpass  = cms.string('0r4cms_3c4l'),
     DBport  = cms.uint32(10121),
 
-    TPGWritePed = cms.uint32(1),
+    TPGWritePed = cms.uint32(1), # can be 1=load ped from offline DB  0=use previous ped NN=use ped from ped_conf_id=NN
     TPGWriteLin = cms.uint32(1),
     TPGWriteSli = cms.uint32(1),
     TPGWriteWei = cms.uint32(1),
@@ -96,8 +95,9 @@ process.TPGParamProducer = cms.EDAnalyzer("EcalTPGParamBuilder",
     TPGWriteFgr = cms.uint32(1),
     TPGWriteSpi = cms.uint32(1),
     TPGWriteDel = cms.uint32(1),
-    TPGWriteBxt = cms.uint32(0),
-    TPGWriteBtt = cms.uint32(0), #do not change
+    TPGWriteBxt = cms.uint32(0), # these can be 0=use same as existing number for this tag or NN=use badxt from bxt_conf_id=NN
+    TPGWriteBtt = cms.uint32(0), 
+    TPGWriteBst = cms.uint32(0), 
 
     writeToFiles = cms.bool(True),
     outFile = cms.string('TPG_beamv5.txt'), #modif
