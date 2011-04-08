@@ -21,6 +21,12 @@
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
 
+2011-04-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-04
+	* Show total number of complete DQM updates, not average.
+	* Only resize info-space vectors when actually needed. Warn when doing so.
+
 2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-03-03
