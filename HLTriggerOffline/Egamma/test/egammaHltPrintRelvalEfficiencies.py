@@ -156,12 +156,33 @@ if top_dir == None:
     sys.exit(1)
 
 
+#--------------------
+# determine the length of the longest path name (for nice printout)
+#--------------------
+
+maxPathNameLen = None
+allPathNames = []
+
 for path_key in top_dir.GetListOfKeys():
 
-    path_name = path_key.GetName()
+    pathName = path_key.GetName()
 
     if len(options.selected_paths) != 0 and not path_name in options.selected_paths:
         continue
+
+    # further checks which are done in the next
+    # loop are not repeated here.
+    # so we might get a maximum number of characters
+    # which is slightly too high (but the code here
+    # is more readable)
+
+    allPathNames.append(pathName)
+
+    maxPathNameLen = max(maxPathNameLen, len(pathName))
+
+#--------------------
+
+for path_name in allPathNames:
 
     path_dir = top_dir.Get(path_name)
 
@@ -203,7 +224,7 @@ for path_key in top_dir.GetListOfKeys():
     if not options.summary_mode:
         print "----------------------------------------"
 
-    print "PATH: %-60s" % path_name,
+    print ("PATH: %-" + str(maxPathNameLen) + "s") % path_name,
 
     if num_gen_events > 0:
         print "(%.1f%% eff.)" % (100 * total / float(num_gen_events)),
