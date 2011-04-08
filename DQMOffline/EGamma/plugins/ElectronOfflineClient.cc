@@ -1,5 +1,5 @@
 
-#include "DQMOffline/EGamma/interface/ElectronOfflineClient.h"
+#include "DQMOffline/EGamma/plugins/ElectronOfflineClient.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

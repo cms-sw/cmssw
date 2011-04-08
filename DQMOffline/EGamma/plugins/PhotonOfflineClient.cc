@@ -1,29 +1,29 @@
 #include <iostream>
 //
 
-#include "DQMOffline/EGamma/interface/PhotonOfflineClient.h"
+#include "DQMOffline/EGamma/plugins/PhotonOfflineClient.h"
 
 
 //#define TWOPI 6.283185308
-// 
+//
 
 /** \class PhotonOfflineClient
- **  
+ **
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2010/06/03 15:55:04 $ 
- **  authors: 
- **   Nancy Marinelli, U. of Notre Dame, US  
+ **  $Date: 2010/11/17 18:04:36 $
+ **  authors:
+ **   Nancy Marinelli, U. of Notre Dame, US
  **   Jamie Antonelli, U. of Notre Dame, US
- **     
+ **
  ***/
 
 
 
 using namespace std;
 using std::cout;
- 
-PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset) 
+
+PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset)
 {
 
   dbe_ = 0;
@@ -49,7 +49,7 @@ PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset)
 
   outputFileName_ = pset.getParameter<string>("OutputFileName");
   inputFileName_  = pset.getUntrackedParameter<string>("InputFileName");
-  
+
   histo_index_photons_ = 0;
   histo_index_conversions_ = 0;
   histo_index_efficiency_ = 0;
@@ -105,7 +105,7 @@ void PhotonOfflineClient::runClient()
   histo_index_efficiency_  = dbe_->get("Egamma/PhotonAnalyzer/numberOfHistogramsInEfficiencyFolder")->getIntValue();
   histo_index_invMass_     = dbe_->get("Egamma/PhotonAnalyzer/numberOfHistogramsInInvMassFolder")->getIntValue();
 
-  dbe_->setCurrentFolder("Egamma/PhotonAnalyzer/"); 
+  dbe_->setCurrentFolder("Egamma/PhotonAnalyzer/");
   dbe_->removeElement("numberOfHistogramsInPhotonsFolder");
   dbe_->removeElement("numberOfHistogramsInConversionsFolder");
   dbe_->removeElement("numberOfHistogramsInEfficiencyFolder");
@@ -119,7 +119,7 @@ void PhotonOfflineClient::runClient()
 
 
   //booking efficiency histograms
-  dbe_->setCurrentFolder(EffPath); 
+  dbe_->setCurrentFolder(EffPath);
 
   p_efficiencyVsEtaLoose_ = bookHisto("EfficiencyVsEtaLoose","Fraction of Photons passing Loose Isolation vs #eta;#eta",etaBin,etaMin, etaMax);
   p_efficiencyVsEtLoose_  = bookHisto("EfficiencyVsEtLoose", "Fraction of Photons passing Loose Isolation vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
@@ -135,14 +135,14 @@ void PhotonOfflineClient::runClient()
   p_convFractionVsEtLoose_  = bookHisto("ConvFractionVsEtLoose", "Fraction of Loosely Isolated Photons which are matched to two tracks vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
   p_convFractionVsEtaTight_ = bookHisto("ConvFractionVsEtaTight","Fraction of Tightly Isolated Photons which are matched to two tracks vs #eta;#eta",etaBin,etaMin, etaMax);
   p_convFractionVsEtTight_  = bookHisto("ConvFractionVsEtTight", "Fraction of Tightly Isolated Photons which are matched to two tracks vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
-  
+
   p_vertexReconstructionEfficiencyVsEta_ = bookHisto("VertexReconstructionEfficiencyVsEta","Fraction of Converted Photons which have a valid vertex vs #eta;#eta",etaBin,etaMin, etaMax);
 
 
   //booking conversion fraction histograms
   dbe_->setCurrentFolder(AllPath+"Et above 20 GeV/Conversions");
   p_convFractionVsEt_  = book2DHistoVector("1D","convFractionVsEt", "Fraction of Converted Photons vs E_{T};E_{T} (GeV)",etBin,etMin,etMax);
-  p_convFractionVsPhi_ = book3DHistoVector("1D","convFractionVsPhi","Fraction of Converted Photons vs #phi;#phi",phiBin,phiMin,phiMax);      
+  p_convFractionVsPhi_ = book3DHistoVector("1D","convFractionVsPhi","Fraction of Converted Photons vs #phi;#phi",phiBin,phiMin,phiMax);
   p_convFractionVsEta_ = book2DHistoVector("1D","convFractionVsEta","Fraction of Converted Photons vs #eta;#eta",etaBin,etaMin,etaMax);
 
 
@@ -162,18 +162,18 @@ void PhotonOfflineClient::runClient()
 
   currentFolder_.str("");
   currentFolder_ << AllPath << "Et above 20 GeV/";
-  
+
   //HLT efficiency plots
   dividend    = retrieveHisto(EffPath,"EfficiencyVsEtaHLT");
   numerator   = retrieveHisto(EffPath,"phoEtaPostHLT");
   denominator = retrieveHisto(EffPath,"phoEtaPreHLT");
   dividePlots(dividend,numerator,denominator);
-  
+
   dividend    = retrieveHisto(EffPath,"EfficiencyVsEtHLT");
   numerator   = retrieveHisto(EffPath,"phoEtPostHLT");
   denominator = retrieveHisto(EffPath,"phoEtPreHLT");
   dividePlots(dividend,numerator,denominator);
-  
+
 
   //efficiencies vs Eta
   denominator = retrieveHisto(currentFolder_.str(),"phoEta");
@@ -204,7 +204,7 @@ void PhotonOfflineClient::runClient()
   numerator   = retrieveHisto(EffPath,"convEtaLoose");
   denominator = retrieveHisto(EffPath,"phoEtaLoose");
   dividePlots(dividend,numerator,denominator);
- 
+
   dividend    = retrieveHisto(EffPath,"ConvFractionVsEtaTight");
   numerator   = retrieveHisto(EffPath,"convEtaTight");
   denominator = retrieveHisto(EffPath,"phoEtaTight");
@@ -216,7 +216,7 @@ void PhotonOfflineClient::runClient()
   numerator   = retrieveHisto(EffPath,"convEtLoose");
   denominator = retrieveHisto(EffPath,"phoEtLoose");
   dividePlots(dividend,numerator,denominator);
- 
+
   dividend    = retrieveHisto(EffPath,"ConvFractionVsEtTight");
   numerator   = retrieveHisto(EffPath,"convEtTight");
   denominator = retrieveHisto(EffPath,"phoEtTight");
@@ -230,9 +230,9 @@ void PhotonOfflineClient::runClient()
   dividePlots(dividend,numerator,denominator);
 
 
-  dbe_->setCurrentFolder(EffPath); 
+  dbe_->setCurrentFolder(EffPath);
 
-  
+
   dbe_->removeElement("phoEtaPreHLT");
   dbe_->removeElement("phoEtPreHLT");
   dbe_->removeElement("phoEtaPostHLT");
@@ -240,19 +240,19 @@ void PhotonOfflineClient::runClient()
   dbe_->removeElement("phoEtaLoose");
   dbe_->removeElement("phoEtaTight");
   dbe_->removeElement("phoEtLoose");
-  dbe_->removeElement("phoEtTight"); 
+  dbe_->removeElement("phoEtTight");
   dbe_->removeElement("phoEtaVertex");
   dbe_->removeElement("convEtaLoose");
   dbe_->removeElement("convEtaTight");
   dbe_->removeElement("convEtLoose");
-  dbe_->removeElement("convEtTight"); 
-  
+  dbe_->removeElement("convEtTight");
+
 
 
   for(uint type=0;type!=types_.size();++type){
-    
+
     for (int cut = 0; cut !=numberOfSteps_; ++cut) {
-      
+
       currentFolder_.str("");
       currentFolder_ << "Egamma/PhotonAnalyzer/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV/";
 
@@ -274,7 +274,7 @@ void PhotonOfflineClient::runClient()
       dividend    = retrieveHisto(currentFolder_.str(),"badChannelsFractionVsPhi");
       numerator   = retrieveHisto(currentFolder_.str(),"phoPhiBadChannels");
       denominator = retrieveHisto(currentFolder_.str(),"phoPhiAllEcal");
-      dividePlots(dividend,numerator,denominator); 
+      dividePlots(dividend,numerator,denominator);
 
       //making conversion fraction histograms
 
@@ -282,44 +282,44 @@ void PhotonOfflineClient::runClient()
       dividend    = retrieveHisto(currentFolder_.str()+"Conversions/","convFractionVsEt");
       numerator   = retrieveHisto(currentFolder_.str()+"Conversions/","phoConvEtAllEcal");
       denominator = retrieveHisto(currentFolder_.str(),"phoEtAllEcal");
-      dividePlots(dividend,numerator,denominator); 
+      dividePlots(dividend,numerator,denominator);
 
       //vs eta
       dividend    = retrieveHisto(currentFolder_.str()+"Conversions/","convFractionVsEta");
       numerator   = retrieveHisto(currentFolder_.str()+"Conversions/","phoConvEtaForEfficiency");
       denominator = retrieveHisto(currentFolder_.str(),"phoEta");
-      dividePlots(dividend,numerator,denominator); 
+      dividePlots(dividend,numerator,denominator);
 
       //vs phi
       dividend    = retrieveHisto(currentFolder_.str()+"Conversions/","convFractionVsPhiAllEcal");
       numerator   = retrieveHisto(currentFolder_.str()+"Conversions/","phoConvPhiForEfficiencyAllEcal");
       denominator = retrieveHisto(currentFolder_.str(),"phoPhiAllEcal");
-      dividePlots(dividend,numerator,denominator); 
+      dividePlots(dividend,numerator,denominator);
       dividend    = retrieveHisto(currentFolder_.str()+"Conversions/","convFractionVsPhiBarrel");
       numerator   = retrieveHisto(currentFolder_.str()+"Conversions/","phoConvPhiForEfficiencyBarrel");
       denominator = retrieveHisto(currentFolder_.str(),"phoPhiBarrel");
-      dividePlots(dividend,numerator,denominator); 
+      dividePlots(dividend,numerator,denominator);
       dividend    = retrieveHisto(currentFolder_.str()+"Conversions/","convFractionVsPhiEndcaps");
       numerator   = retrieveHisto(currentFolder_.str()+"Conversions/","phoConvPhiForEfficiencyEndcaps");
       denominator = retrieveHisto(currentFolder_.str(),"phoPhiEndcaps");
-      dividePlots(dividend,numerator,denominator); 
+      dividePlots(dividend,numerator,denominator);
 
-      
-      dbe_->setCurrentFolder(currentFolder_.str()+"Conversions/"); 
+
+      dbe_->setCurrentFolder(currentFolder_.str()+"Conversions/");
       dbe_->removeElement("phoConvEtaForEfficiency");
       dbe_->removeElement("phoConvPhiForEfficiencyAllEcal");
       dbe_->removeElement("phoConvPhiForEfficiencyBarrel");
       dbe_->removeElement("phoConvPhiForEfficiencyEndcaps");
 
     }
-    
-    
+
+
   }
-  
+
 
   if(standAlone_) dbe_->save(outputFileName_);
   else if(batch_) dbe_->save(inputFileName_);
- 
+
 
 }
 
@@ -366,7 +366,7 @@ void  PhotonOfflineClient::dividePlots(MonitorElement* dividend, MonitorElement*
 
 MonitorElement* PhotonOfflineClient::bookHisto(string histoName, string title, int bin, double min, double max)
 {
-  
+
   int histo_index = 0;
   stringstream histo_number_stream;
 
@@ -408,7 +408,7 @@ vector<vector<MonitorElement*> > PhotonOfflineClient::book2DHistoVector(string h
   }
   else{
     histo_index_photons_++;
-    histo_index = histo_index_photons_;    
+    histo_index = histo_index_photons_;
   }
 
 
@@ -419,7 +419,7 @@ vector<vector<MonitorElement*> > PhotonOfflineClient::book2DHistoVector(string h
 
 
   for(int cut = 0; cut != numberOfSteps_; ++cut){ //looping over Et cut values
-    
+
     for(uint type=0;type!=types_.size();++type){  //looping over isolation type
 
       currentFolder_.str("");
@@ -431,7 +431,7 @@ vector<vector<MonitorElement*> > PhotonOfflineClient::book2DHistoVector(string h
       string kind;
       if(conversionPlot) kind = " Conversions: ";
       else kind = " Photons: ";
-      
+
       if(histoType=="1D")           temp1DVector.push_back(dbe_->book1D(histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax));
       else if(histoType=="2D")      temp1DVector.push_back(dbe_->book2D(histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax,ybin,ymin,ymax));
       else if(histoType=="Profile") temp1DVector.push_back(dbe_->bookProfile(histo_number_stream.str()+histoName,types_[type]+kind+title,xbin,xmin,xmax,ybin,ymin,ymax,""));
@@ -470,7 +470,7 @@ vector<vector<vector<MonitorElement*> > > PhotonOfflineClient::book3DHistoVector
   }
   else{
     histo_index_photons_++;
-    histo_index = histo_index_photons_;    
+    histo_index = histo_index_photons_;
   }
 
   stringstream histo_number_stream;
@@ -480,7 +480,7 @@ vector<vector<vector<MonitorElement*> > > PhotonOfflineClient::book3DHistoVector
 
 
   for(int cut = 0; cut != numberOfSteps_; ++cut){     //looping over Et cut values
-    
+
     for(uint type=0;type!=types_.size();++type){      //looping over isolation type
 
       for(uint part=0;part!=parts_.size();++part){    //looping over different parts of the ecal
@@ -488,28 +488,28 @@ vector<vector<vector<MonitorElement*> > > PhotonOfflineClient::book3DHistoVector
 	currentFolder_.str("");
 	currentFolder_ << "Egamma/PhotonAnalyzer/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV";
 	if(conversionPlot) currentFolder_ << "/Conversions";
-	
+
 	dbe_->setCurrentFolder(currentFolder_.str());
 
 	string kind;
 	if(conversionPlot) kind = " Conversions: ";
 	else kind = " Photons: ";
-	
+
 	if(histoType=="1D")           temp1DVector.push_back(dbe_->book1D(      histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax));
 	else if(histoType=="2D")      temp1DVector.push_back(dbe_->book2D(      histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax,ybin,ymin,ymax));
 	else if(histoType=="Profile") temp1DVector.push_back(dbe_->bookProfile( histo_number_stream.str()+histoName+parts_[part],types_[type]+kind+parts_[part]+": "+title,xbin,xmin,xmax,ybin,ymin,ymax,""));
 	//else cout << "bad histoType\n";
 
-	
+
       }
-      
+
       temp2DVector.push_back(temp1DVector);
       temp1DVector.clear();
     }
 
     temp3DVector.push_back(temp2DVector);
     temp2DVector.clear();
-  }    
+  }
 
   return temp3DVector;
 }
@@ -520,7 +520,7 @@ MonitorElement* PhotonOfflineClient::retrieveHisto(string dir, string name){
   //cout << "name = " << name << endl;
   vector<MonitorElement*> histoVector;
   uint indexOfRelevantHistogram=0;
-  string fullMEName = ""; 
+  string fullMEName = "";
   histoVector = dbe_->getContents(dir);
   for(uint index=0;index!=histoVector.size();index++){
     string MEName = histoVector[index]->getName();
@@ -531,4 +531,4 @@ MonitorElement* PhotonOfflineClient::retrieveHisto(string dir, string name){
   }
   return histoVector[indexOfRelevantHistogram];
 }
-  
+

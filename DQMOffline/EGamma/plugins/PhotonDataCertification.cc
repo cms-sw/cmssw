@@ -1,14 +1,14 @@
 #include <iostream>
 
-#include "DQMOffline/EGamma/interface/PhotonDataCertification.h"
+#include "DQMOffline/EGamma/plugins/PhotonDataCertification.h"
 #include "FWCore/Framework/interface/Run.h"
 
-/**\class PhotonDataCertification 
+/**\class PhotonDataCertification
 */
 //
 // Original Author:  Louis James Antonelli
 //         Created:  Thu Jan 22 13:42:28CET 2009
-// $Id: PhotonDataCertification.cc,v 1.7 2010/01/11 09:40:59 lantonel Exp $
+// $Id: PhotonDataCertification.cc,v 1.8 2010/07/20 02:58:27 wmtan Exp $
 //
 
 
@@ -25,7 +25,7 @@ PhotonDataCertification::PhotonDataCertification(const edm::ParameterSet& pset)
   dbe_->setVerbose(0);
   parameters_ = pset;
   verbose_ = parameters_.getParameter<bool>("verbose");
-  
+
   if(verbose_) cout << ">>> Constructor (PhotonDataCertification) <<<" << endl;
 
 }
@@ -51,41 +51,41 @@ PhotonDataCertification::analyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 PhotonDataCertification::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-PhotonDataCertification::endJob() 
+void
+PhotonDataCertification::endJob()
 {
 }
 
 // ------------ method called just before starting a new run  ------------
-void 
+void
 PhotonDataCertification::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  
+
   if(verbose_) std::cout << ">>> BeginRun (PhotonDataCertification) <<<" << std::endl;
   if(verbose_) std::cout << ">>> "<< run.id() << std::endl;
 
 }
 
 // ------------ method called right after a run ends ------------
-void 
+void
 PhotonDataCertification::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
   if(verbose_) std::cout << ">>> EndRun (PhotonDataCertification) <<<" << std::endl;
 
   std::vector<string> histoNameVector;
 
- 
+
   //booking histograms according to naming conventions
 
   if(!dbe_) return;
 
-  dbe_->setCurrentFolder("Egamma/EventInfo/");  
+  dbe_->setCurrentFolder("Egamma/EventInfo/");
 
   MonitorElement*  reportSummary = dbe_->bookFloat("reportSummary");
   MonitorElement*  CertificationSummary = dbe_->bookFloat("CertificationSummary");
@@ -125,7 +125,7 @@ PhotonDataCertification::endRun(const edm::Run& run, const edm::EventSetup& c)
 
 
   // to do:  what do we want in certification contents?
-  //  dbe_->setCurrentFolder("Egamma/EventInfo/CertificationContents/"); 
+  //  dbe_->setCurrentFolder("Egamma/EventInfo/CertificationContents/");
 
 
   //looping over histograms to be tested
@@ -133,10 +133,10 @@ PhotonDataCertification::endRun(const edm::Run& run, const edm::EventSetup& c)
   for(std::vector<string>::iterator it=histoNameVector.begin();it!=histoNameVector.end();++it){
 
     string HistoName = (*it);
-    if(verbose_) std::cout << ">>> " << HistoName;        
-    
+    if(verbose_) std::cout << ">>> " << HistoName;
+
     MonitorElement * TestHist=0;
-    
+
     if(HistoName.find("Efficiency")!=std::string::npos){
       TestHist = dbe_->get("Egamma/PhotonAnalyzer/Efficiencies/"+HistoName);
     }
@@ -149,24 +149,24 @@ PhotonDataCertification::endRun(const edm::Run& run, const edm::EventSetup& c)
 
     if(verbose_)  std::cout << ">>> TestHist Name: " << TestHist->getName() << "\n\n";
 
-  
+
 
     //get QReports associated to each ME
-    std::vector<QReport *> myQReports = TestHist->getQReports();  
+    std::vector<QReport *> myQReports = TestHist->getQReports();
     if(verbose_)  cout << TestHist->getName() <<": myQReports.size() = " << myQReports.size() << "\n\n";
     for(uint i=0;i!=myQReports.size();++i) {
-      
+
       std::string qtname = myQReports[i]->getQRName() ; // get QT name
       float qtresult = myQReports[i]->getQTresult(); // get QT result value
-      int qtstatus = myQReports[i]->getStatus() ; // get QT status value 
-      
+      int qtstatus = myQReports[i]->getStatus() ; // get QT status value
+
       if(verbose_) std::cout << "\tTest " << i << ":  qtname: " << qtname   << "\n";
       if(verbose_) std::cout << "\tTest " << i << ":  qtresult: " << qtresult  << std::endl;
       if(verbose_) std::cout << "\tTest " << i << ":  qtstatus: " << qtstatus    << "\n\n";
 
-      
+
       //book and fill float for each test done
-      dbe_->setCurrentFolder("Egamma/EventInfo/reportSummaryContents/");  
+      dbe_->setCurrentFolder("Egamma/EventInfo/reportSummaryContents/");
       MonitorElement * Float  = dbe_->bookFloat(HistoName+"_"+qtname);
       Float->Fill(qtresult);
 
@@ -207,7 +207,7 @@ PhotonDataCertification::endRun(const edm::Run& run, const edm::EventSetup& c)
   if(verbose_) std::cout << "\tphiHoleTestResult= " << phiHoleTestResult << "\n\n";
 
 
-  //fill reportSummary & CertificationSummary with average of hole/spike tests 
+  //fill reportSummary & CertificationSummary with average of hole/spike tests
   float reportSummaryFloat = (etaSpikeTestResult+etaHoleTestResult+phiSpikeTestResult+phiHoleTestResult)/4.;
   if(reportSummaryFloat<0) reportSummaryFloat = -1;
   reportSummary->Fill(reportSummaryFloat);

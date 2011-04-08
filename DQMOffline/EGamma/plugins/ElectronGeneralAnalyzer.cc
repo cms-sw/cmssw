@@ -1,5 +1,5 @@
 
-#include "DQMOffline/EGamma/interface/ElectronGeneralAnalyzer.h"
+#include "DQMOffline/EGamma/plugins/ElectronGeneralAnalyzer.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 

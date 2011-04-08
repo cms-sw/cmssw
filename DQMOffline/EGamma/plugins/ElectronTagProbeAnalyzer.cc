@@ -1,5 +1,5 @@
 
-#include "DQMOffline/EGamma/interface/ElectronTagProbeAnalyzer.h"
+#include "DQMOffline/EGamma/plugins/ElectronTagProbeAnalyzer.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 

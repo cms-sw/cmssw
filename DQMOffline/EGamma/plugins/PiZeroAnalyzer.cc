@@ -1,36 +1,36 @@
 #include <iostream>
 //
 
-#include "DQMOffline/EGamma/interface/PiZeroAnalyzer.h"
+#include "DQMOffline/EGamma/plugins/PiZeroAnalyzer.h"
 
 
 //#define TWOPI 6.283185308
-// 
+//
 
 /** \class PiZeroAnalyzer
- **  
+ **
  **
  **  $Id: PiZeroAnalyzer
- **  $Date: 2010/03/10 16:02:56 $ 
- **  authors: 
- **   Nancy Marinelli, U. of Notre Dame, US  
+ **  $Date: 2010/11/23 17:28:00 $
+ **  authors:
+ **   Nancy Marinelli, U. of Notre Dame, US
  **   Jamie Antonelli, U. of Notre Dame, US
- **     
+ **
  ***/
 
 
 
 using namespace std;
 
- 
-PiZeroAnalyzer::PiZeroAnalyzer( const edm::ParameterSet& pset ) 
+
+PiZeroAnalyzer::PiZeroAnalyzer( const edm::ParameterSet& pset )
 {
- 
+
     fName_              = pset.getUntrackedParameter<std::string>("Name");
     verbosity_          = pset.getUntrackedParameter<int>("Verbosity");
 
     prescaleFactor_     = pset.getUntrackedParameter<int>("prescaleFactor",1);
-    
+
 
 
     barrelEcalHits_     = pset.getParameter<edm::InputTag>("barrelEcalHits");
@@ -39,7 +39,7 @@ PiZeroAnalyzer::PiZeroAnalyzer( const edm::ParameterSet& pset )
 
     standAlone_         = pset.getParameter<bool>("standAlone");
 
- 
+
 
 
 
@@ -52,20 +52,20 @@ PiZeroAnalyzer::PiZeroAnalyzer( const edm::ParameterSet& pset )
     ParameterX0_          = pset.getParameter<double> ("ParameterX0");
     ParameterT0_barl_     = pset.getParameter<double> ("ParameterT0_barl");
     ParameterW0_          = pset.getParameter<double> ("ParameterW0");
-    
-    selePtGammaOne_       = pset.getParameter<double> ("selePtGammaOne");  
-    selePtGammaTwo_       = pset.getParameter<double> ("selePtGammaTwo");  
-    seleS4S9GammaOne_     = pset.getParameter<double> ("seleS4S9GammaOne");  
-    seleS4S9GammaTwo_     = pset.getParameter<double> ("seleS4S9GammaTwo");  
-    selePtPi0_            = pset.getParameter<double> ("selePtPi0");  
-    selePi0Iso_           = pset.getParameter<double> ("selePi0Iso");  
-    selePi0BeltDR_        = pset.getParameter<double> ("selePi0BeltDR");  
-    selePi0BeltDeta_      = pset.getParameter<double> ("selePi0BeltDeta");  
-    seleMinvMaxPi0_       = pset.getParameter<double> ("seleMinvMaxPi0");  
-    seleMinvMinPi0_       = pset.getParameter<double> ("seleMinvMinPi0");  
-  
+
+    selePtGammaOne_       = pset.getParameter<double> ("selePtGammaOne");
+    selePtGammaTwo_       = pset.getParameter<double> ("selePtGammaTwo");
+    seleS4S9GammaOne_     = pset.getParameter<double> ("seleS4S9GammaOne");
+    seleS4S9GammaTwo_     = pset.getParameter<double> ("seleS4S9GammaTwo");
+    selePtPi0_            = pset.getParameter<double> ("selePtPi0");
+    selePi0Iso_           = pset.getParameter<double> ("selePi0Iso");
+    selePi0BeltDR_        = pset.getParameter<double> ("selePi0BeltDR");
+    selePi0BeltDeta_      = pset.getParameter<double> ("selePi0BeltDeta");
+    seleMinvMaxPi0_       = pset.getParameter<double> ("seleMinvMaxPi0");
+    seleMinvMinPi0_       = pset.getParameter<double> ("seleMinvMinPi0");
+
     parameters_ = pset;
-   
+
 
 }
 
@@ -81,14 +81,14 @@ PiZeroAnalyzer::~PiZeroAnalyzer() {
 
 void PiZeroAnalyzer::beginJob()
 {
-  
+
 
   nEvt_=0;
   nEntry_=0;
-  
+
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();
-  
+
 
 
  if (dbe_) {
@@ -107,49 +107,49 @@ void PiZeroAnalyzer::beginJob()
 
   //booking all histograms
 
-  if (dbe_) {  
+  if (dbe_) {
 
     currentFolder_.str("");
     currentFolder_ << "Egamma/PiZeroAnalyzer/";
     dbe_->setCurrentFolder(currentFolder_.str());
 
 
-    
+
 
     hMinvPi0EB_ = dbe_->book1D("Pi0InvmassEB","Pi0 Invariant Mass in EB",100,0.,0.5);
     hMinvPi0EB_->setAxisTitle("Inv Mass [GeV] ",1);
 
     hPt1Pi0EB_ = dbe_->book1D("Pt1Pi0EB","Pt 1st most energetic Pi0 photon in EB",100,0.,20.);
     hPt1Pi0EB_->setAxisTitle("1st photon Pt [GeV] ",1);
-    
+
     hPt2Pi0EB_ = dbe_->book1D("Pt2Pi0EB","Pt 2nd most energetic Pi0 photon in EB",100,0.,20.);
     hPt2Pi0EB_->setAxisTitle("2nd photon Pt [GeV] ",1);
-    
+
     hPtPi0EB_ = dbe_->book1D("PtPi0EB","Pi0 Pt in EB",100,0.,20.);
     hPtPi0EB_->setAxisTitle("Pi0 Pt [GeV] ",1);
-    
+
     hIsoPi0EB_ = dbe_->book1D("IsoPi0EB","Pi0 Iso in EB",50,0.,1.);
     hIsoPi0EB_->setAxisTitle("Pi0 Iso",1);
-   
 
-  } 
+
+  }
 
 }
- 
- 
+
+
 
 
 
 
 void PiZeroAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 {
- 
+
   using namespace edm;
- 
-  if (nEvt_% prescaleFactor_ ) return; 
-  nEvt_++;  
+
+  if (nEvt_% prescaleFactor_ ) return;
+  nEvt_++;
   LogInfo("PiZeroAnalyzer") << "PiZeroAnalyzer Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
- 
+
 
   // Get EcalRecHits
   bool validEcalRecHits=true;
@@ -158,17 +158,17 @@ void PiZeroAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   e.getByLabel(barrelEcalHits_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelEcalHits_.label();
-    validEcalRecHits=false; 
+    validEcalRecHits=false;
   }
-   
+
   Handle<EcalRecHitCollection> endcapHitHandle;
   e.getByLabel(endcapEcalHits_, endcapHitHandle);
   EcalRecHitCollection endcapRecHits;
   if (!endcapHitHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapEcalHits_.label();
-    validEcalRecHits=false; 
+    validEcalRecHits=false;
   }
- 
+
   if (validEcalRecHits) makePizero(esup,  barrelHitHandle, endcapHitHandle);
 
 
@@ -178,22 +178,22 @@ void PiZeroAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> rhEB,  const edm::Handle<EcalRecHitCollection> rhEE ) {
 
   const EcalRecHitCollection *hitCollection_p = rhEB.product();
-  
+
   edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);     
+  es.get<CaloGeometryRecord>().get(geoHandle);
 
   edm::ESHandle<CaloTopology> theCaloTopology;
   es.get<CaloTopologyRecord>().get(theCaloTopology);
 
- 
-  const CaloSubdetectorGeometry *geometry_p;    
+
+  const CaloSubdetectorGeometry *geometry_p;
   const CaloSubdetectorTopology *topology_p;
   const CaloSubdetectorGeometry *geometryES_p;
   geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
   geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   // Parameters for the position calculation:
-  edm::ParameterSet posCalcParameters = 
+  edm::ParameterSet posCalcParameters =
     parameters_.getParameter<edm::ParameterSet>("posCalcParameters");
   PositionCalc posCalculator_ = PositionCalc(posCalcParameters);
   //
@@ -217,8 +217,8 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
   vector<EBDetId> max_hit;
   vector< vector<EcalRecHit> > RecHitsCluster;
   vector<float> s4s9Clus;
-  
-  // find cluster seeds in EB 
+
+  // find cluster seeds in EB
   for(itb=rhEB->begin(); itb!=rhEB->end(); ++itb){
     EBDetId id(itb->id());
     double energy = itb->energy();
@@ -228,30 +228,30 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
     }
     if (energy > clusSeedThr_) seeds.push_back(*itb);
   } // Eb rechits
-  
+
   sort(seeds.begin(), seeds.end(), ecalRecHitLess());
   for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
     EBDetId seed_id = itseed->id();
     std::vector<EBDetId>::const_iterator usedIds;
-    
+
     bool seedAlreadyUsed=false;
     for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
       if(*usedIds==seed_id){
 	seedAlreadyUsed=true;
 	//cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<endl;
-	break; 
+	break;
       }
     }
     if(seedAlreadyUsed)continue;
     topology_p = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
-    std::vector<DetId> clus_v = topology_p->getWindow(seed_id,clusEtaSize_,clusPhiSize_);       
+    std::vector<DetId> clus_v = topology_p->getWindow(seed_id,clusEtaSize_,clusPhiSize_);
     //std::vector<DetId> clus_used;
     std::vector<std::pair<DetId, float> > clus_used;
 
     vector<EcalRecHit> RecHitsInWindow;
-    
-    double simple_energy = 0; 
-    
+
+    double simple_energy = 0;
+
     for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
       EBDetId EBdet = *det;
       //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
@@ -273,14 +273,14 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
 	simple_energy = simple_energy + aHit->second.energy();
       }
     }
-    
+
     math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_p,geometry_p,geometryES_p);
     float theta_s = 2. * atan(exp(-clus_pos.eta()));
     float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
     float p0y_s = simple_energy * sin(theta_s) * sin(clus_pos.phi());
     //      float p0z_s = simple_energy * cos(theta_s);
     float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
-    
+
     //cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<endl;
 
     eClus.push_back(simple_energy);
@@ -304,7 +304,7 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
 	    s4s9_[1]+=RecHitsInWindow[j].energy();
 	  }else{
 	    if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()+1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()+1 ){
-	      s4s9_[1]+=RecHitsInWindow[j].energy(); 
+	      s4s9_[1]+=RecHitsInWindow[j].energy();
 	    }
 	  }
 	}
@@ -315,8 +315,8 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
 	    s4s9_[3]+=RecHitsInWindow[j].energy();
 	  }else{
 	    if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()+1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()+1 ){
-	      s4s9_[1]+=RecHitsInWindow[j].energy(); 
-	      s4s9_[2]+=RecHitsInWindow[j].energy(); 
+	      s4s9_[1]+=RecHitsInWindow[j].energy();
+	      s4s9_[2]+=RecHitsInWindow[j].energy();
 	    }
 	  }
 	}else{
@@ -329,7 +329,7 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
 		s4s9_[3]+=RecHitsInWindow[j].energy();
 	      }else{
 		if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()+1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()+1 ){
-		  s4s9_[2]+=RecHitsInWindow[j].energy(); 
+		  s4s9_[2]+=RecHitsInWindow[j].energy();
 		}
 	      }
 	    }
@@ -364,18 +364,18 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
       if( etClus[i]>selePtGammaOne_ && etClus[j]>selePtGammaTwo_ && s4s9Clus[i]>seleS4S9GammaOne_ && s4s9Clus[j]>seleS4S9GammaTwo_){
 	float theta_0 = 2. * atan(exp(-etaClus[i]));
 	float theta_1 = 2. * atan(exp(-etaClus[j]));
-        
+
 	float p0x = eClus[i] * sin(theta_0) * cos(phiClus[i]);
 	float p1x = eClus[j] * sin(theta_1) * cos(phiClus[j]);
 	float p0y = eClus[i] * sin(theta_0) * sin(phiClus[i]);
 	float p1y = eClus[j] * sin(theta_1) * sin(phiClus[j]);
 	float p0z = eClus[i] * cos(theta_0);
 	float p1z = eClus[j] * cos(theta_1);
-        
+
 	float pt_pi0 = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
 	//      cout<<" pt_pi0 "<<pt_pi0<<endl;
 	if (pt_pi0 < selePtPi0_)continue;
-	float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
+	float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );
 	if ( (m_inv<seleMinvMaxPi0_) && (m_inv>seleMinvMinPi0_) ){
 
 	  //New Loop on cluster to measure isolation:
@@ -396,32 +396,32 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
 	    }
 	  }
 
-	
+
 	  if(Iso/pt_pi0<selePi0Iso_){
-			
+
 	    hMinvPi0EB_->Fill(m_inv);
 	    hPt1Pi0EB_->Fill(etClus[i]);
 	    hPt2Pi0EB_->Fill(etClus[j]);
 	    hPtPi0EB_->Fill(pt_pi0);
 	    hIsoPi0EB_->Fill(Iso/pt_pi0);
-	    
-		
+
+
 	    npi0_s++;
 	  }
-          
+
 	  if(npi0_s == MAXPI0S) return;
 	}
       }
-    } 
-  } 
+    }
+  }
 
-} 
+}
 
 
 
 void PiZeroAnalyzer::endJob()
 {
-  
+
 
 
   bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");
@@ -429,7 +429,7 @@ void PiZeroAnalyzer::endJob()
   if(outputMEsInRootFile){
     dbe_->save(outputFileName);
   }
-  
+
   edm::LogInfo("PiZeroAnalyzer") << "Analyzed " << nEvt_  << "\n";
   return ;
 }
