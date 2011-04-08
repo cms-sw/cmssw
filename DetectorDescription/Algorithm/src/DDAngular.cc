@@ -76,19 +76,23 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
     m_solidRot = temp * m_solidRot;			  
   }
 
-  m_idNameSpace = DDCurrentNamespace::ns();
-  m_childName   = sArgs["ChildName"]; 
+//   m_idNameSpace = DDCurrentNamespace::ns();
+//   m_childName   = sArgs["ChildName"]; 
+  m_childNmNs 	= DDSplit( sArgs["ChildName"] );
+  if( m_childNmNs.second.empty())
+    m_childNmNs.second = DDCurrentNamespace::ns();
 
   DDName parentName = parent().name();
   LogDebug( "DDAlgorithm" ) << "DDAngular: Parent " << parentName 
-			    << "\tChild " << m_childName << "\tNameSpace "
-			    << m_idNameSpace;
+			    << "\tChild " << m_childNmNs.first << "\tNameSpace "
+			    << m_childNmNs.second;
 }
 
 void
 DDAngular::execute( DDCompactView& cpv )
 {
   DDName mother = parent().name();
+  DDName ddname( m_childNmNs.first, m_childNmNs.second );
   double theta  = 90.*CLHEP::deg;
   int    copy   = m_startCopyNo;
   double phi    = m_startAngle;
@@ -99,10 +103,8 @@ DDAngular::execute( DDCompactView& cpv )
     double phiy = phix + 90. * CLHEP::deg;
     double phideg = phix / CLHEP::deg;
 
-    DDRotation rotation;
-    
-    std::string rotstr = DDSplit( m_childName ).first + dbl_to_string( phideg * 10.);
-    rotation = DDRotation( DDName( rotstr, m_idNameSpace ));
+    std::string rotstr = m_childNmNs.first + dbl_to_string( phideg * 10.);
+    DDRotation rotation = DDRotation( DDName( rotstr, DDCurrentNamespace::ns()));
     if( !rotation )
     {
       LogDebug( "DDAlgorithm" ) << "DDAngular: Creating a new "
@@ -110,8 +112,8 @@ DDAngular::execute( DDCompactView& cpv )
 				<< phix / CLHEP::deg << ", 90.," 
 				<< phiy / CLHEP::deg << ", 0, 0";
 	
-      rotation = DDrot( DDName( rotstr, m_idNameSpace), new DDRotationMatrix(( *DDcreateRotationMatrix( theta, phix, theta, phiy,
-													  0., 0. ) * m_solidRot ))); 
+      rotation = DDrot( DDName( rotstr, DDCurrentNamespace::ns()), new DDRotationMatrix(( *DDcreateRotationMatrix( theta, phix, theta, phiy,
+														   0., 0. ) * m_solidRot ))); 
     }
       
     double xpos = m_radius * cos( phi ) + m_center[0];
@@ -119,8 +121,8 @@ DDAngular::execute( DDCompactView& cpv )
     double zpos = m_center[2];
     DDTranslation tran( xpos, ypos, zpos );
     
-    cpv.position( DDName( m_childName, m_idNameSpace ), mother, copy, tran, rotation );
-    LogDebug( "DDAlgorithm" ) << "DDAngular: child " << m_childName << " number " 
+    cpv.position( ddname, mother, copy, tran, rotation );
+    LogDebug( "DDAlgorithm" ) << "DDAngular: child " << m_childNmNs.second << ":" << m_childNmNs.first << " number " 
 			      << copy << " positioned in " << mother << " at "
 			      << tran << " with " << rotation << "\n";
     copy += m_incrCopyNo;

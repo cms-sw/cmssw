@@ -25,7 +25,7 @@ DDLinear::initialize( const DDNumericArguments & nArgs,
   m_incrCopyNo  = int(nArgs["IncrCopyNo"]);
   m_theta       = nArgs["Theta"];
   m_phi  	= nArgs["Phi"];
-  //  m_offset      = nArgs["Offset"];
+  // FIXME: m_offset      = nArgs["Offset"];
   m_delta       = nArgs["Delta"];
   m_base        = vArgs["Base"];
 
@@ -33,24 +33,26 @@ DDLinear::initialize( const DDNumericArguments & nArgs,
 			    << "ing:: n " << m_n << " Direction Theta, Phi, Offset, Delta " 
 			    << m_theta/CLHEP::deg << " " 
 			    << m_phi/CLHEP::deg << " "
-    //<< m_offset/CLHEP::deg
+    // FIXME: << m_offset/CLHEP::deg
 			    << " " << m_delta/CLHEP::deg
 			    << " Base " << m_base[0] 
 			    << ", " << m_base[1] << ", " << m_base[2];
   
-  m_idNameSpace = DDCurrentNamespace::ns();
-  m_childName   = sArgs["ChildName"]; 
+  m_childNmNs 	= DDSplit( sArgs["ChildName"] );
+  if( m_childNmNs.second.empty())
+    m_childNmNs.second = DDCurrentNamespace::ns();
   
   DDName parentName = parent().name();
   LogDebug( "DDAlgorithm" ) << "DDLinear: Parent " << parentName 
-			    << "\tChild " << m_childName << " NameSpace "
-			    << m_idNameSpace;
+			    << "\tChild " << m_childNmNs.first << " NameSpace "
+			    << m_childNmNs.second;
 }
 
 void
 DDLinear::execute( DDCompactView& cpv )
 {
   DDName mother = parent().name();
+  DDName ddname( m_childNmNs.first, m_childNmNs.second );
   int    copy   = m_startCopyNo;
 
   DDTranslation direction( sin( m_theta ) * cos( m_phi ),
@@ -61,13 +63,20 @@ DDLinear::execute( DDCompactView& cpv )
 			m_base[1],
 			m_base[2] );			  
    			    
-  DDRotation rotation = DDrot( DDName( m_childName, m_idNameSpace ), new DDRotationMatrix());
+  DDRotation rotation = DDRotation( "IdentityRotation" );
+  if( !rotation )
+  {
+    LogDebug( "DDAlgorithm" ) << "DDLinear: Creating a new "
+			      << "rotation: IdentityRotation for " << ddname;
+	
+    rotation = DDrot( "IdentityRotation", new DDRotationMatrix());
+  }
   
   for( int i = 0; i < m_n; ++i )
   {
     DDTranslation tran = basetr + ( /*m_offset + */ double( copy ) * m_delta ) * direction;	      
-    cpv.position( DDName( m_childName, m_idNameSpace ), mother, copy, tran, rotation );
-    LogDebug( "DDAlgorithm" ) << "DDLinear: " << m_childName << " number " 
+    cpv.position( ddname, mother, copy, tran, rotation );
+    LogDebug( "DDAlgorithm" ) << "DDLinear: " << m_childNmNs.second << ":" << m_childNmNs.first << " number " 
 			      << copy << " positioned in " << mother << " at "
 			      << tran << " with " << rotation;
     copy += m_incrCopyNo;
