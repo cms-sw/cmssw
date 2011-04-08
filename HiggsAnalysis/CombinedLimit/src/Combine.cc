@@ -379,7 +379,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       return;
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
-    if (verbose > 0) utils::printRAD(dobs);
+    if (verbose > (unbinned_ ? 1 : 0)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) tree->Fill();
   }
   
@@ -428,7 +428,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  return;
 	}
       }
-      if (verbose > 0) utils::printRAD(absdata_toy);
+      if (verbose > (unbinned_ ? 1 : 0)) utils::printRAD(absdata_toy);
       w->loadSnapshot("clean");
       //if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
