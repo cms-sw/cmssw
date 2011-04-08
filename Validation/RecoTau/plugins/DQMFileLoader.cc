@@ -155,7 +155,7 @@ void DQMFileLoader::analyze(const edm::Event&, const edm::EventSetup&)
 // nothing to be done yet...
 }
 
-void DQMFileLoader::endJob()
+void DQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c)
 {
   std::cout << "<DQMFileLoader::endJob>:" << std::endl;
 
