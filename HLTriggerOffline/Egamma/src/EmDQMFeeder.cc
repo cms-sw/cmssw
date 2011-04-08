@@ -13,7 +13,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id$
+// $Id: EmDQMFeeder.cc,v 1.1 2011/04/01 10:32:26 treis Exp $
 //
 //
 
@@ -34,6 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTriggerOffline/Egamma/interface/EmDQM.h"
 //
 // class declaration
 //
@@ -59,12 +60,23 @@ class EmDQMFeeder : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
+      const edm::ParameterSet& iConfig;
+
       std::string processName_; // process name of (HLT) process for which to get HLT configuration
       /// The instance of the HLTConfigProvider as a data member
       HLTConfigProvider hltConfig_;
 
       std::vector<std::vector<std::string> > findEgammaPaths();
       std::vector<std::string> getFilterModules(const std::string&);
+
+  std::vector<EmDQM*> emDQMmodules;
+
+  static const unsigned TYPE_SINGLE_ELE = 0;
+  static const unsigned TYPE_DOUBLE_ELE = 1;
+  static const unsigned TYPE_SINGLE_PHOTON = 2;
+  static const unsigned TYPE_DOUBLE_PHOTON = 3;
+
+
 };
 
 //
@@ -78,12 +90,13 @@ class EmDQMFeeder : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-EmDQMFeeder::EmDQMFeeder(const edm::ParameterSet& iConfig)
-
+EmDQMFeeder::EmDQMFeeder(const edm::ParameterSet& iConfig_) :
+  iConfig(iConfig_)
 {
    //now do what ever initialization is needed
 
-   processName_ = iConfig.getParameter<std::string>("processname");
+   processName_ = iConfig_.getParameter<std::string>("processname");
+
 }
 
 
@@ -106,17 +119,18 @@ EmDQMFeeder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
+   for (unsigned i = 0; i < emDQMmodules.size(); ++i)
+     emDQMmodules[i]->analyze(iEvent, iSetup);
 
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
+// #ifdef THIS_IS_AN_EVENT_EXAMPLE
+//    Handle<ExampleData> pIn;
+//    iEvent.getByLabel("example",pIn);
+// #endif
+//    
+// #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
+//    ESHandle<SetupData> pSetup;
+//    iSetup.get<SetupRecord>().get(pSetup);
+// #endif
 }
 
 
@@ -124,12 +138,18 @@ EmDQMFeeder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 EmDQMFeeder::beginJob()
 {
+  for (unsigned i = 0; i < emDQMmodules.size(); ++i)
+    emDQMmodules[i]->beginJob();
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 EmDQMFeeder::endJob() 
 {
+  for (unsigned i = 0; i < emDQMmodules.size(); ++i)
+    emDQMmodules[i]->endJob();
+
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -138,6 +158,7 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
    bool changed(true);
    if (hltConfig_.init(iRun, iSetup, processName_, changed)) {
+
       // if init returns TRUE, initialisation has succeeded!
 
       // Output general information on the menu
@@ -161,11 +182,52 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
       //print filters of all egamma paths
       std::vector<std::string> filterModules;
       for (unsigned int j=0; j < egammaPaths.size() ; j++) {
+
+
          for (unsigned int i=0; i < egammaPaths.at(j).size() ; i++) {
-            std::cout << i<< std::endl;
-            filterModules = getFilterModules(egammaPaths.at(j).at(i));
-         }
-      }
+
+	   // get (absolute) index of this trigger 
+	   const std::string pathName = egammaPaths.at(j).at(i);
+	   unsigned triggerIndex = hltConfig_.triggerIndex(pathName);
+
+	   //--------------------	   
+	   edm::ParameterSet paramSet;
+	   paramSet.addParameter("@module_label",pathName + "_DQM");
+	   paramSet.addParameter("triggerobject", iConfig.getParameter<edm::InputTag>("triggerobject"));
+
+ 	   paramSet.addParameter("reqNum", iConfig.getParameter<unsigned int>("reqNum"));
+	   paramSet.addParameter("pdgGen", iConfig.getParameter<int>("pdgGen"));
+	   paramSet.addParameter("genEtaAcc", iConfig.getParameter<double>("genEtaAcc"));
+	   paramSet.addParameter("genEtAcc", iConfig.getParameter<double>("genEtAcc"));
+
+	   // plotting parameters (untracked because they don't affect the physics)
+	   paramSet.addUntrackedParameter("genEtMin", iConfig.getUntrackedParameter<double>("genEtMin",0.));
+	   paramSet.addUntrackedParameter("PtMin",iConfig.getUntrackedParameter<double>("PtMin",0.));
+	   paramSet.addUntrackedParameter("PtMax",iConfig.getUntrackedParameter<double>("PtMax",1000.));
+	   paramSet.addUntrackedParameter("EtaMax",iConfig.getUntrackedParameter<double>("EtaMax", 2.7));
+	   paramSet.addUntrackedParameter("PhiMax",iConfig.getUntrackedParameter<double>("PhiMax", 3.15));
+	   paramSet.addUntrackedParameter("Nbins",iConfig.getUntrackedParameter<unsigned int>("Nbins",40));
+	   paramSet.addUntrackedParameter("minEtForEtaEffPlot",iConfig.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15));
+	   paramSet.addUntrackedParameter("useHumanReadableHistTitles",iConfig.getUntrackedParameter<bool>("useHumanReadableHistTitles", false));
+
+	   //preselction cuts 
+	   paramSet.addParameter("cutcollection",iConfig.getParameter<edm::InputTag>("cutcollection"));
+	   paramSet.addParameter("cutnum",iConfig.getParameter<int>("cutnum"));
+	   //--------------------
+
+	   paramSet.addParameter("filters", std::vector<edm::ParameterSet>());
+
+	   emDQMmodules.push_back(new EmDQM(paramSet));
+
+	   // emDQMmodules.back()->beginRun(iRun, iSetup);
+	   emDQMmodules.back()->beginJob();
+	   
+	   std::cout << i<< std::endl;
+	   filterModules = getFilterModules(pathName);
+
+         } // loop over all paths of this analysis type
+
+      } // loop over analysis types (single ele etc.)
 
       edm::ParameterSet pathPSet;
 
@@ -186,20 +248,26 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
 // ------------ method called when ending the processing of a run  ------------
 void 
-EmDQMFeeder::endRun(edm::Run const&, edm::EventSetup const&)
+EmDQMFeeder::endRun(edm::Run const&iEvent, edm::EventSetup const&iSetup)
 {
+//  for (unsigned i = 0; i < emDQMmodules.size(); ++i)
+//     emDQMmodules[i]->endRun(iEvent, iSetup);
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void 
-EmDQMFeeder::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+EmDQMFeeder::beginLuminosityBlock(edm::LuminosityBlock const&lumi, edm::EventSetup const&iSetup)
 {
+//  for (unsigned i = 0; i < emDQMmodules.size(); ++i)
+//     emDQMmodules[i]->beginLuminosityBlock(lumi, iSetup);
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void 
-EmDQMFeeder::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+EmDQMFeeder::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup)
 {
+//  for (unsigned i = 0; i < emDQMmodules.size(); ++i)
+//     emDQMmodules[i]->endLuminosityBlock(lumi, iSetup);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -214,6 +282,8 @@ EmDQMFeeder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
    descriptions.addDefault(desc);
 }
 
+//----------------------------------------------------------------------
+
 std::vector<std::vector<std::string> >
 EmDQMFeeder::findEgammaPaths()
 {
@@ -226,19 +296,19 @@ EmDQMFeeder::findEgammaPaths()
       // Find electron and photon paths
       if (int(path.find("HLT_")) == 0) {    // Path should start with 'HLT_'
          if (path.find("HLT_Ele") != std::string::npos) {
-            Paths[0].push_back(path);
+            Paths[TYPE_SINGLE_ELE].push_back(path);
             //std::cout << "Electron ";
          }
          else if (path.find("HLT_DoubleEle") != std::string::npos) {
-            Paths[1].push_back(path);
+            Paths[TYPE_DOUBLE_ELE].push_back(path);
             //std::cout << "DoubleElectron ";
          }
          else if (path.find("HLT_Photon") != std::string::npos) {
-            Paths[2].push_back(path);
+            Paths[TYPE_SINGLE_PHOTON].push_back(path);
             //std::cout << "Photon ";
          }
          else if (path.find("HLT_DoublePhoton") != std::string::npos) {
-            Paths[3].push_back(path);
+            Paths[TYPE_DOUBLE_PHOTON].push_back(path);
             //std::cout << "DoublePhoton ";
          }
       }
@@ -247,6 +317,8 @@ EmDQMFeeder::findEgammaPaths()
    std::cout << std::endl;
    return Paths;
 }
+
+//----------------------------------------------------------------------
 
 std::vector<std::string>
 EmDQMFeeder::getFilterModules(const std::string& path)
