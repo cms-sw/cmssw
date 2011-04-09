@@ -93,6 +93,11 @@ C...Note that dimensions below grew from 4000 to 8000 in Pythia 6.2!
 C...Local array.
       DIMENSION PSUM(5),KFSAV(2),PMSAV(2),PSAV(2,5) 
 
+C...Initialise some variables that may be used before being set
+      PMNEW=0.0D0
+      IRECSV=0
+      IS=0
+
 C...Free parameter: relative probability for gluino-gluon-ball.
 C...(But occasional low-mass string will never become it anyway.)
       PROBGG=0.1D0
