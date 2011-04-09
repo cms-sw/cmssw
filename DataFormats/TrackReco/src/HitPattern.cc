@@ -125,6 +125,7 @@ uint32_t HitPattern::getHitPattern(int position) const {
 bool HitPattern::hasValidHitInFirstPixelBarrel() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
+    if (pattern == 0) break;
     if (pixelBarrelHitFilter(pattern)) {
       if (getLayer(pattern) == 1) {
         if (validHitFilter(pattern)) {
@@ -139,6 +140,7 @@ bool HitPattern::hasValidHitInFirstPixelBarrel() const {
 bool HitPattern::hasValidHitInFirstPixelEndcap() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
+    if (pattern == 0) break;
     if (pixelEndcapHitFilter(pattern)) {
       if (getLayer(pattern) == 1) {
         if (validHitFilter(pattern)) {
@@ -154,507 +156,60 @@ int HitPattern::numberOfHits() const {
   int count = 0;
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) count++;
+    if (pattern == 0) break;
+    ++count;
   }
   return count;
 }
 
-int HitPattern::numberOfValidHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+
+int HitPattern::numberOfValidStripLayersWithMonoAndStereo () const {
+  static const int nHits = (PatternSize * 32) / HitSize;
+  bool hasMono[SubstrMask + 1][LayerMask + 1];
+  //     printf("sizeof(hasMono) = %d\n", sizeof(hasMono));
+  memset(hasMono, 0, sizeof(hasMono));
+  bool hasStereo[SubstrMask + 1][LayerMask + 1];
+  memset(hasStereo, 0, sizeof(hasStereo));
+  // mark which layers have mono/stereo hits
+  for (int i = 0; i < nHits; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern == 0) break;
-    //if (pattern != 0) {
-      if (validHitFilter(pattern)) count++;
-    //}
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidTrackerHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (trackerHitFilter(pattern)) count++;
+    if (validHitFilter(pattern) && stripHitFilter(pattern)) {
+      switch (getSide(pattern)) {
+      case 0: // mono
+	hasMono[getSubStructure(pattern)][getLayer(pattern)] 
+	  = true;
+	break;
+      case 1: // stereo
+	hasStereo[getSubStructure(pattern)][getLayer(pattern)]
+	  = true;
+	break;
+      default:
+	break;
       }
     }
+    
   }
-  return count;
-}
-
-int HitPattern::numberOfValidMuonHits() const {
+  // count how many layers have mono and stereo hits
   int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (muonHitFilter(pattern)) count++;
-      }
-    }
-  }
+  for (int i = 0; i < SubstrMask + 1; ++i) 
+    for (int j = 0; j < LayerMask + 1; ++j)
+      if (hasMono[i][j] && hasStereo[i][j])
+	count++;
   return count;
 }
 
-int HitPattern::numberOfValidPixelHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (pixelHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidPixelBarrelHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (pixelBarrelHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidPixelEndcapHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (pixelEndcapHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidStripHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (stripHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidStripTIBHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (stripTIBHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidStripTIDHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (stripTIDHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidStripTOBHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (stripTOBHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidStripTECHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (stripTECHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidMuonDTHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (muonDTHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidMuonCSCHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (muonCSCHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfValidMuonRPCHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (validHitFilter(pattern)) {
-        if (muonRPCHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) count++;
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostTrackerHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (trackerHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostMuonHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (muonHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostPixelHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (pixelHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostPixelBarrelHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (pixelBarrelHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostPixelEndcapHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (pixelEndcapHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostStripHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (stripHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostStripTIBHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (stripTIBHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostStripTIDHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (stripTIDHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostStripTOBHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (stripTOBHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostStripTECHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (stripTECHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostMuonDTHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (muonDTHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostMuonCSCHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (muonCSCHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfLostMuonRPCHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_1_HitFilter(pattern)) {
-        if (muonRPCHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfBadHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_3_HitFilter(pattern)) count++;
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfBadMuonHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_3_HitFilter(pattern)) {
-        if (muonHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfBadMuonDTHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_3_HitFilter(pattern)) {
-        if (muonDTHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfBadMuonCSCHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_3_HitFilter(pattern)) {
-        if (muonCSCHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfBadMuonRPCHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_3_HitFilter(pattern)) {
-        if (muonRPCHitFilter(pattern)) count++;
-      }
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfInactiveHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_2_HitFilter(pattern)) count++;
-    }
-  }
-  return count;
-}
-
-int HitPattern::numberOfInactiveTrackerHits() const {
-  int count = 0;
-  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-    uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
-      if (type_2_HitFilter(pattern) && trackerHitFilter(pattern)) count++;
-    }
-  }
-  return count;
-}
-
-
-int HitPattern::numberOfValidStripLayersWithMonoAndStereo () const 
-{
-     static const int nHits = (PatternSize * 32) / HitSize;
-     bool hasMono[SubstrMask + 1][LayerMask + 1];
-     //     printf("sizeof(hasMono) = %d\n", sizeof(hasMono));
-     memset(hasMono, 0, sizeof(hasMono));
-     bool hasStereo[SubstrMask + 1][LayerMask + 1];
-     memset(hasStereo, 0, sizeof(hasStereo));
-     // mark which layers have mono/stereo hits
-     for (int i = 0; i < nHits; i++) {
-	  uint32_t pattern = getHitPattern(i);
-	  if (pattern != 0) {
-	       if (validHitFilter(pattern) && stripHitFilter(pattern)) {
-		    switch (getSide(pattern)) {
-		    case 0: // mono
-			 hasMono[getSubStructure(pattern)][getLayer(pattern)] 
-			      = true;
-			 break;
-		    case 1: // stereo
-			 hasStereo[getSubStructure(pattern)][getLayer(pattern)]
-			      = true;
-			 break;
-		    default:
-			 break;
-		    }
-	       }
-	  }
-     }
-     // count how many layers have mono and stereo hits
-     int count = 0;
-     for (int i = 0; i < SubstrMask + 1; ++i) 
-	  for (int j = 0; j < LayerMask + 1; ++j)
-	       if (hasMono[i][j] && hasStereo[i][j])
-		    count++;
-     return count;
-}
-
-uint32_t HitPattern::getTrackerLayerCase(uint32_t substr, uint32_t layer) const
-{
+uint32_t HitPattern::getTrackerLayerCase(uint32_t substr, uint32_t layer) const {
   uint32_t tk_substr_layer = 
     (1 << SubDetectorOffset) +
     ((substr & SubstrMask) << SubstrOffset) +
     ((layer & LayerMask) << LayerOffset);
-
+  
   uint32_t mask =
     (SubDetectorMask << SubDetectorOffset) +
     (SubstrMask << SubstrOffset) +
     (LayerMask << LayerOffset);
-
+  
   // crossed
   //   layer case 0: valid + (missing, off, bad) ==> with measurement
   //   layer case 1: missing + (off, bad) ==> without measurement
@@ -667,11 +222,9 @@ uint32_t HitPattern::getTrackerLayerCase(uint32_t substr, uint32_t layer) const
   {
     uint32_t pattern = getHitPattern(i);
     if (pattern == 0) break;
-    if ((pattern & mask) == tk_substr_layer)
-    {
+    if ((pattern & mask) == tk_substr_layer) {
       uint32_t hitType = (pattern >> HitTypeOffset) & HitTypeMask; // 0,1,2,3
-      if (hitType < layerCase)
-      {
+      if (hitType < layerCase) {
         layerCase = hitType;
         if (hitType == 3) layerCase = 2;
       }
