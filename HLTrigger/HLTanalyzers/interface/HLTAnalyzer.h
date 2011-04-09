@@ -112,6 +112,8 @@ private:
   edm::InputTag m_correctedBJets;
   edm::InputTag m_lifetimeBJetsL25;
   edm::InputTag m_lifetimeBJetsL3;
+  edm::InputTag m_lifetimeBJetsL25SingleTrack;
+  edm::InputTag m_lifetimeBJetsL3SingleTrack;
   edm::InputTag m_softmuonBJetsL25;
   edm::InputTag m_softmuonBJetsL3;
   edm::InputTag m_performanceBJetsL25;

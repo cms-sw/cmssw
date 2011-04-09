@@ -117,8 +117,6 @@ DoHLTTau = cms.Path(HLTBeginSequence +
 
 # create the b-jet HLT paths
 from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
-# create the b-jet HLT paths
-from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
 DoHLTBTag = cms.Path(
         HLTBeginSequence +
     #    HLTBCommonL2recoSequence +

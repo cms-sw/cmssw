@@ -26,12 +26,17 @@ openHltBLifetimeL25TagInfos.jetTracks = cms.InputTag("openHltBLifetimeL25Associa
 openHltBLifetimeL25BJetTags = copy.deepcopy(hltBLifetimeL25BJetTags)
 openHltBLifetimeL25BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL25TagInfos"))
 
+# Single Track TC
+openHltBLifetimeL25BJetTagsSingleTrack = copy.deepcopy(hltBLifetimeL25BJetTagsSingleTrack)
+openHltBLifetimeL25BJetTagsSingleTrack.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL25TagInfos"))
+
 # L2.5 reco sequence for lifetime tagger
 OpenHLTBLifetimeL25recoSequence = cms.Sequence(
         HLTDoLocalPixelSequence +
         HLTRecopixelvertexingSequence +
         openHltBLifetimeL25Associator +
         openHltBLifetimeL25TagInfos +
+        openHltBLifetimeL25BJetTagsSingleTrack +
         openHltBLifetimeL25BJetTags )
 
 # L3 reco modules
@@ -55,6 +60,10 @@ openHltBLifetimeL3TagInfos.jetTracks = cms.InputTag("openHltBLifetimeL3Associato
 openHltBLifetimeL3BJetTags = copy.deepcopy(hltBLifetimeL3BJetTags)
 openHltBLifetimeL3BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL3TagInfos"))
 
+# Single Track TC
+openHltBLifetimeL3BJetTagsSingleTrack = copy.deepcopy(hltBLifetimeL3BJetTagsSingleTrack)
+openHltBLifetimeL3BJetTagsSingleTrack.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL3TagInfos"))
+
 # L3 reco sequence for lifetime tagger
 OpenHLTBLifetimeL3recoSequence = cms.Sequence(
     HLTDoLocalPixelSequence +
@@ -64,6 +73,7 @@ OpenHLTBLifetimeL3recoSequence = cms.Sequence(
     openHltBLifetimeRegionalCtfWithMaterialTracks +
     openHltBLifetimeL3Associator +
     openHltBLifetimeL3TagInfos +
+    openHltBLifetimeL3BJetTagsSingleTrack +
     openHltBLifetimeL3BJetTags )
 
 ### soft-muon-based b-tag OpenHLT (ideal, start up, and performance meas.) ####
@@ -96,7 +106,7 @@ OpenHLTBSoftMuonL25recoSequence = cms.Sequence(
 
 OpenHLTBSoftMuonL3recoSequence = cms.Sequence(
     HLTL3muonrecoNocandSequence +
-    hltBSoftMuon5L3 +
+#    hltBSoftMuon5L3 + # do not cut on L3 muons
     openHltBSoftmuonL3TagInfos +
     openHltBSoftmuonL3BJetTags +
     openHltBPerfMeasL3BJetTags )
