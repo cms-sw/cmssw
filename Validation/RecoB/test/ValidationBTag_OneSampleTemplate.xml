@@ -1,0 +1,753 @@
+<cuy>
+<validation type="REF_LABEL_Val" file="CURDIR/REF_FILE" release="REF_LABEL_Val">
+<TH1 name="REF_LABEL_Val_CSV_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetFlavour_CSV_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_CSV_disc_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_CSV_disc_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_CSV_disc_g" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_CSV_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_CSV_perf_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/FlavEffVsBEff_B_discr_CSV_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_CSV_perf_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/FlavEffVsBEff_C_discr_CSV_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_CSV_perf_g" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/FlavEffVsBEff_G_discr_CSV_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_CSV_perf_dus" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/FlavEffVsBEff_DUS_discr_CSV_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_CSV_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/FlavEffVsBEff_DUSG_discr_CSV_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_CSV_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/effVsDiscrCut_discr_CSV_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_CSV_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/effVsDiscrCut_discr_CSV_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_CSV_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/effVsDiscrCut_discr_CSV_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_CSV_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/effVsDiscrCut_discr_CSV_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_CSVMVAB_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/jetFlavour_CSVMVA_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_disc_b" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/discr_CSVMVA_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_disc_c" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/discr_CSVMVA_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_disc_g" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/discr_CSVMVA_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/discr_CSVMVA_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_perf_b" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/FlavEffVsBEff_B_discr_CSVMVA_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_perf_c" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/FlavEffVsBEff_C_discr_CSVMVA_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_perf_g" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/FlavEffVsBEff_G_discr_CSVMVA_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_perf_dus" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/FlavEffVsBEff_DUS_discr_CSVMVA_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/FlavEffVsBEff_DUSG_discr_CSVMVA_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/effVsDiscrCut_discr_CSVMVA_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/effVsDiscrCut_discr_CSVMVA_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/effVsDiscrCut_discr_CSVMVA_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_CSVMVAB_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/effVsDiscrCut_discr_CSVMVA_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_JBP_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/jetFlavour_JBP_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_JBP_disc_b" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/discr_JBP_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_JBP_disc_c" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/discr_JBP_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_JBP_disc_g" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/discr_JBP_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_JBP_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/discr_JBP_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_JBP_perf_b" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/FlavEffVsBEff_B_discr_JBP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_JBP_perf_c" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/FlavEffVsBEff_C_discr_JBP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_JBP_perf_g" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/FlavEffVsBEff_G_discr_JBP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_JBP_perf_dus" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/FlavEffVsBEff_DUS_discr_JBP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_JBP_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/FlavEffVsBEff_DUSG_discr_JBP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_JBP_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/effVsDiscrCut_discr_JBP_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_JBP_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/effVsDiscrCut_discr_JBP_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_JBP_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/effVsDiscrCut_discr_JBP_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_JBP_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/effVsDiscrCut_discr_JBP_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_JP_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/jetFlavour_JP_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_JP_disc_b" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/discr_JP_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_JP_disc_c" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/discr_JP_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_JP_disc_g" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/discr_JP_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_JP_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/discr_JP_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_JP_perf_b" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/FlavEffVsBEff_B_discr_JP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_JP_perf_c" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/FlavEffVsBEff_C_discr_JP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_JP_perf_g" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/FlavEffVsBEff_G_discr_JP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_JP_perf_dus" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/FlavEffVsBEff_DUS_discr_JP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_JP_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/FlavEffVsBEff_DUSG_discr_JP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_JP_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/effVsDiscrCut_discr_JP_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_JP_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/effVsDiscrCut_discr_JP_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_JP_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/effVsDiscrCut_discr_JP_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_JP_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/effVsDiscrCut_discr_JP_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_SSV_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/jetFlavour_SSVHE_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_SSV_disc_b" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/discr_SSVHE_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SSV_disc_c" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/discr_SSVHE_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SSV_disc_g" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/discr_SSVHE_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SSV_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/discr_SSVHE_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_SSV_perf_b" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/FlavEffVsBEff_B_discr_SSVHE_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SSV_perf_c" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/FlavEffVsBEff_C_discr_SSVHE_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SSV_perf_g" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/FlavEffVsBEff_G_discr_SSVHE_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SSV_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/FlavEffVsBEff_DUS_discr_SSVHE_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SSV_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/FlavEffVsBEff_DUSG_discr_SSVHE_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SSV_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/effVsDiscrCut_discr_SSVHE_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SSV_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/effVsDiscrCut_discr_SSVHE_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SSV_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/effVsDiscrCut_discr_SSVHE_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SSV_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/effVsDiscrCut_discr_SSVHE_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_SETByIP3d_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/jetFlavour_SETIP3d_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_disc_b" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/discr_SETIP3d_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_disc_c" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/discr_SETIP3d_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_disc_g" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/discr_SETIP3d_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/discr_SETIP3d_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_perf_b" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/FlavEffVsBEff_B_discr_SETIP3d_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_perf_c" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/FlavEffVsBEff_C_discr_SETIP3d_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_perf_g" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/FlavEffVsBEff_G_discr_SETIP3d_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/FlavEffVsBEff_DUS_discr_SETIP3d_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/FlavEffVsBEff_DUSG_discr_SETIP3d_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/effVsDiscrCut_discr_SETIP3d_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/effVsDiscrCut_discr_SETIP3d_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/effVsDiscrCut_discr_SETIP3d_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SETByIP3d_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/effVsDiscrCut_discr_SETIP3d_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_SETByPt_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/jetFlavour_SETPt_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_SETByPt_disc_b" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/discr_SETPt_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SETByPt_disc_c" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/discr_SETPt_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SETByPt_disc_g" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/discr_SETPt_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SETByPt_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/discr_SETPt_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_SETByPt_perf_b" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/FlavEffVsBEff_B_discr_SETPt_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SETByPt_perf_c" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/FlavEffVsBEff_C_discr_SETPt_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SETByPt_perf_g" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/FlavEffVsBEff_G_discr_SETPt_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SETByPt_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/FlavEffVsBEff_DUS_discr_SETPt_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SETByPt_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/FlavEffVsBEff_DUSG_discr_SETPt_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SETByPt_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/effVsDiscrCut_discr_SETPt_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SETByPt_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/effVsDiscrCut_discr_SETPt_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SETByPt_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/effVsDiscrCut_discr_SETPt_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SETByPt_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/effVsDiscrCut_discr_SETPt_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_SMT_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/jetFlavour_SMT_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_SMT_disc_b" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/discr_SMT_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SMT_disc_c" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/discr_SMT_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SMT_disc_g" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/discr_SMT_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SMT_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/discr_SMT_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_SMT_perf_b" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/FlavEffVsBEff_B_discr_SMT_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMT_perf_c" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/FlavEffVsBEff_C_discr_SMT_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMT_perf_g" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/FlavEffVsBEff_G_discr_SMT_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMT_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/FlavEffVsBEff_DUS_discr_SMT_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMT_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/FlavEffVsBEff_DUSG_discr_SMT_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMT_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/effVsDiscrCut_discr_SMT_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SMT_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/effVsDiscrCut_discr_SMT_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SMT_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/effVsDiscrCut_discr_SMT_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SMT_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/effVsDiscrCut_discr_SMT_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_SMTByIP3d_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/jetFlavour_SMTIP3d_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_disc_b" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/discr_SMTIP3d_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_disc_c" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/discr_SMTIP3d_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_disc_g" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/discr_SMTIP3d_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/discr_SMTIP3d_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_perf_b" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/FlavEffVsBEff_B_discr_SMTIP3d_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_perf_c" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/FlavEffVsBEff_C_discr_SMTIP3d_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_perf_g" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/FlavEffVsBEff_G_discr_SMTIP3d_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/FlavEffVsBEff_DUS_discr_SMTIP3d_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/FlavEffVsBEff_DUSG_discr_SMTIP3d_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/effVsDiscrCut_discr_SMTIP3d_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/effVsDiscrCut_discr_SMTIP3d_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/effVsDiscrCut_discr_SMTIP3d_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SMTByIP3d_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/effVsDiscrCut_discr_SMTIP3d_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_SMTByPt_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/jetFlavour_SMTPt_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_disc_b" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/discr_SMTPt_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_disc_c" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/discr_SMTPt_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_disc_g" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/discr_SMTPt_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/discr_SMTPt_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_perf_b" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/FlavEffVsBEff_B_discr_SMTPt_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_perf_c" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/FlavEffVsBEff_C_discr_SMTPt_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_perf_g" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/FlavEffVsBEff_G_discr_SMTPt_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/FlavEffVsBEff_DUS_discr_SMTPt_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/FlavEffVsBEff_DUSG_discr_SMTPt_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/effVsDiscrCut_discr_SMTPt_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/effVsDiscrCut_discr_SMTPt_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/effVsDiscrCut_discr_SMTPt_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_SMTByPt_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/effVsDiscrCut_discr_SMTPt_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_TCHE_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/jetFlavour_TCHE_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_TCHE_disc_b" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/discr_TCHE_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_TCHE_disc_c" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/discr_TCHE_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_TCHE_disc_g" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/discr_TCHE_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_TCHE_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/discr_TCHE_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_TCHE_perf_b" source="/DQValidationBtag.xmlMData/Run 1/Btag/Run summary/TCHE_GLOBAL/FlavEffVsBEff_B_discr_TCHE_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_TCHE_perf_c" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/FlavEffVsBEff_C_discr_TCHE_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_TCHE_perf_g" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/FlavEffVsBEff_G_discr_TCHE_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_TCHE_perf_dus" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/FlavEffVsBEff_DUS_discr_TCHE_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_TCHE_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/FlavEffVsBEff_DUSG_discr_TCHE_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_TCHE_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/effVsDiscrCut_discr_TCHE_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_TCHE_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/effVsDiscrCut_discr_TCHE_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_TCHE_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/effVsDiscrCut_discr_TCHE_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_TCHE_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/effVsDiscrCut_discr_TCHE_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_TCHP_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/jetFlavour_TCHP_GLOBALALL"/>
+<TH1 name="REF_LABEL_Val_TCHP_disc_b" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/discr_TCHP_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_TCHP_disc_c" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/discr_TCHP_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_TCHP_disc_g" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/discr_TCHP_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_TCHP_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/discr_TCHP_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_TCHP_perf_b" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/FlavEffVsBEff_B_discr_TCHP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_TCHP_perf_c" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/FlavEffVsBEff_C_discr_TCHP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_TCHP_perf_g" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/FlavEffVsBEff_G_discr_TCHP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_TCHP_perf_dus" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/FlavEffVsBEff_DUS_discr_TCHP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_TCHP_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/FlavEffVsBEff_DUSG_discr_TCHP_GLOBAL"/>
+<TH1 name="REF_LABEL_Val_TCHP_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/effVsDiscrCut_discr_TCHP_GLOBALB"/>
+<TH1 name="REF_LABEL_Val_TCHP_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/effVsDiscrCut_discr_TCHP_GLOBALC"/>
+<TH1 name="REF_LABEL_Val_TCHP_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/effVsDiscrCut_discr_TCHP_GLOBALG"/>
+<TH1 name="REF_LABEL_Val_TCHP_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/effVsDiscrCut_discr_TCHP_GLOBALDUSG"/>
+
+<TH1 name="REF_LABEL_Val_TrackIPPlots_ip2_2D_dusg" source="/DQMData/Run 1/Btag/Run summary/IPTag_GLOBAL/ip2_2D_IPTag_GLOBALDUSG"/>
+<TH1 name="REF_LABEL_Val_TrackIPPlots_ipe2_2D_dusg" source="/DQMData/Run 1/Btag/Run summary/IPTag_GLOBAL/ipe2_2D_IPTag_GLOBALDUSG"/>
+</validation>
+
+<validation type="VAL_LABEL_Val" file="CURDIR/VAL_FILE" release="VAL_LABEL_Val">
+<TH1 name="VAL_LABEL_Val_CSV_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetFlavour_CSV_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_CSV_disc_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_CSV_disc_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_CSV_disc_g" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_CSV_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_CSV_perf_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/FlavEffVsBEff_B_discr_CSV_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_CSV_perf_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/FlavEffVsBEff_C_discr_CSV_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_CSV_perf_g" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/FlavEffVsBEff_G_discr_CSV_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_CSV_perf_dus" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/FlavEffVsBEff_DUS_discr_CSV_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_CSV_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/FlavEffVsBEff_DUSG_discr_CSV_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_CSV_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/effVsDiscrCut_discr_CSV_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_CSV_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/effVsDiscrCut_discr_CSV_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_CSV_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/effVsDiscrCut_discr_CSV_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_CSV_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/effVsDiscrCut_discr_CSV_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_CSVMVAB_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/jetFlavour_CSVMVA_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_disc_b" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/discr_CSVMVA_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_disc_c" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/discr_CSVMVA_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_disc_g" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/discr_CSVMVA_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/discr_CSVMVA_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_perf_b" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/FlavEffVsBEff_B_discr_CSVMVA_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_perf_c" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/FlavEffVsBEff_C_discr_CSVMVA_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_perf_g" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/FlavEffVsBEff_G_discr_CSVMVA_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_perf_dus" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/FlavEffVsBEff_DUS_discr_CSVMVA_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/FlavEffVsBEff_DUSG_discr_CSVMVA_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/effVsDiscrCut_discr_CSVMVA_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/effVsDiscrCut_discr_CSVMVA_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/effVsDiscrCut_discr_CSVMVA_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_CSVMVAB_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/CSVMVA_GLOBAL/effVsDiscrCut_discr_CSVMVA_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_JBP_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/jetFlavour_JBP_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_JBP_disc_b" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/discr_JBP_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_JBP_disc_c" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/discr_JBP_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_JBP_disc_g" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/discr_JBP_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_JBP_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/discr_JBP_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_JBP_perf_b" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/FlavEffVsBEff_B_discr_JBP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_JBP_perf_c" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/FlavEffVsBEff_C_discr_JBP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_JBP_perf_g" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/FlavEffVsBEff_G_discr_JBP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_JBP_perf_dus" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/FlavEffVsBEff_DUS_discr_JBP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_JBP_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/FlavEffVsBEff_DUSG_discr_JBP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_JBP_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/effVsDiscrCut_discr_JBP_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_JBP_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/effVsDiscrCut_discr_JBP_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_JBP_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/effVsDiscrCut_discr_JBP_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_JBP_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/JBP_GLOBAL/effVsDiscrCut_discr_JBP_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_JP_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/jetFlavour_JP_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_JP_disc_b" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/discr_JP_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_JP_disc_c" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/discr_JP_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_JP_disc_g" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/discr_JP_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_JP_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/discr_JP_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_JP_perf_b" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/FlavEffVsBEff_B_discr_JP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_JP_perf_c" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/FlavEffVsBEff_C_discr_JP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_JP_perf_g" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/FlavEffVsBEff_G_discr_JP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_JP_perf_dus" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/FlavEffVsBEff_DUS_discr_JP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_JP_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/FlavEffVsBEff_DUSG_discr_JP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_JP_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/effVsDiscrCut_discr_JP_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_JP_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/effVsDiscrCut_discr_JP_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_JP_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/effVsDiscrCut_discr_JP_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_JP_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/JP_GLOBAL/effVsDiscrCut_discr_JP_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_SSV_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/jetFlavour_SSVHE_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_SSV_disc_b" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/discr_SSVHE_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SSV_disc_c" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/discr_SSVHE_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SSV_disc_g" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/discr_SSVHE_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SSV_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/discr_SSVHE_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_SSV_perf_b" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/FlavEffVsBEff_B_discr_SSVHE_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SSV_perf_c" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/FlavEffVsBEff_C_discr_SSVHE_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SSV_perf_g" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/FlavEffVsBEff_G_discr_SSVHE_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SSV_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/FlavEffVsBEff_DUS_discr_SSVHE_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SSV_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/FlavEffVsBEff_DUSG_discr_SSVHE_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SSV_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/effVsDiscrCut_discr_SSVHE_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SSV_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/effVsDiscrCut_discr_SSVHE_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SSV_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/effVsDiscrCut_discr_SSVHE_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SSV_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SSVHE_GLOBAL/effVsDiscrCut_discr_SSVHE_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_SETByIP3d_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/jetFlavour_SETIP3d_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_disc_b" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/discr_SETIP3d_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_disc_c" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/discr_SETIP3d_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_disc_g" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/discr_SETIP3d_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/discr_SETIP3d_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_perf_b" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/FlavEffVsBEff_B_discr_SETIP3d_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_perf_c" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/FlavEffVsBEff_C_discr_SETIP3d_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_perf_g" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/FlavEffVsBEff_G_discr_SETIP3d_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/FlavEffVsBEff_DUS_discr_SETIP3d_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/FlavEffVsBEff_DUSG_discr_SETIP3d_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/effVsDiscrCut_discr_SETIP3d_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/effVsDiscrCut_discr_SETIP3d_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/effVsDiscrCut_discr_SETIP3d_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SETByIP3d_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SETIP3d_GLOBAL/effVsDiscrCut_discr_SETIP3d_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_SETByPt_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/jetFlavour_SETPt_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_disc_b" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/discr_SETPt_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_disc_c" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/discr_SETPt_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_disc_g" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/discr_SETPt_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/discr_SETPt_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_perf_b" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/FlavEffVsBEff_B_discr_SETPt_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_perf_c" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/FlavEffVsBEff_C_discr_SETPt_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_perf_g" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/FlavEffVsBEff_G_discr_SETPt_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/FlavEffVsBEff_DUS_discr_SETPt_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/FlavEffVsBEff_DUSG_discr_SETPt_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/effVsDiscrCut_discr_SETPt_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/effVsDiscrCut_discr_SETPt_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/effVsDiscrCut_discr_SETPt_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SETByPt_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SETPt_GLOBAL/effVsDiscrCut_discr_SETPt_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_SMT_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/jetFlavour_SMT_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_SMT_disc_b" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/discr_SMT_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SMT_disc_c" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/discr_SMT_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SMT_disc_g" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/discr_SMT_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SMT_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/discr_SMT_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_SMT_perf_b" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/FlavEffVsBEff_B_discr_SMT_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMT_perf_c" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/FlavEffVsBEff_C_discr_SMT_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMT_perf_g" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/FlavEffVsBEff_G_discr_SMT_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMT_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/FlavEffVsBEff_DUS_discr_SMT_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMT_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/FlavEffVsBEff_DUSG_discr_SMT_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMT_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/effVsDiscrCut_discr_SMT_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SMT_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/effVsDiscrCut_discr_SMT_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SMT_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/effVsDiscrCut_discr_SMT_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SMT_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMT_GLOBAL/effVsDiscrCut_discr_SMT_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/jetFlavour_SMTIP3d_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_disc_b" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/discr_SMTIP3d_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_disc_c" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/discr_SMTIP3d_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_disc_g" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/discr_SMTIP3d_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/discr_SMTIP3d_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_perf_b" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/FlavEffVsBEff_B_discr_SMTIP3d_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_perf_c" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/FlavEffVsBEff_C_discr_SMTIP3d_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_perf_g" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/FlavEffVsBEff_G_discr_SMTIP3d_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/FlavEffVsBEff_DUS_discr_SMTIP3d_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/FlavEffVsBEff_DUSG_discr_SMTIP3d_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/effVsDiscrCut_discr_SMTIP3d_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/effVsDiscrCut_discr_SMTIP3d_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/effVsDiscrCut_discr_SMTIP3d_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SMTByIP3d_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTIP3d_GLOBAL/effVsDiscrCut_discr_SMTIP3d_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_SMTByPt_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/jetFlavour_SMTPt_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_disc_b" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/discr_SMTPt_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_disc_c" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/discr_SMTPt_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_disc_g" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/discr_SMTPt_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/discr_SMTPt_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_perf_b" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/FlavEffVsBEff_B_discr_SMTPt_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_perf_c" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/FlavEffVsBEff_C_discr_SMTPt_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_perf_g" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/FlavEffVsBEff_G_discr_SMTPt_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_perf_dus" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/FlavEffVsBEff_DUS_discr_SMTPt_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/FlavEffVsBEff_DUSG_discr_SMTPt_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/effVsDiscrCut_discr_SMTPt_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/effVsDiscrCut_discr_SMTPt_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/effVsDiscrCut_discr_SMTPt_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_SMTByPt_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/SMTPt_GLOBAL/effVsDiscrCut_discr_SMTPt_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_TCHE_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/jetFlavour_TCHE_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_TCHE_disc_b" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/discr_TCHE_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_TCHE_disc_c" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/discr_TCHE_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_TCHE_disc_g" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/discr_TCHE_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_TCHE_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/discr_TCHE_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_TCHE_perf_b" source="/DQValidationBtag.xmlMData/Run 1/Btag/Run summary/TCHE_GLOBAL/FlavEffVsBEff_B_discr_TCHE_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_TCHE_perf_c" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/FlavEffVsBEff_C_discr_TCHE_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_TCHE_perf_g" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/FlavEffVsBEff_G_discr_TCHE_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_TCHE_perf_dus" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/FlavEffVsBEff_DUS_discr_TCHE_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_TCHE_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/FlavEffVsBEff_DUSG_discr_TCHE_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_TCHE_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/effVsDiscrCut_discr_TCHE_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_TCHE_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/effVsDiscrCut_discr_TCHE_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_TCHE_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/effVsDiscrCut_discr_TCHE_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_TCHE_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHE_GLOBAL/effVsDiscrCut_discr_TCHE_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_TCHP_jetFlavor" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/jetFlavour_TCHP_GLOBALALL"/>
+<TH1 name="VAL_LABEL_Val_TCHP_disc_b" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/discr_TCHP_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_TCHP_disc_c" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/discr_TCHP_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_TCHP_disc_g" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/discr_TCHP_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_TCHP_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/discr_TCHP_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_TCHP_perf_b" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/FlavEffVsBEff_B_discr_TCHP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_TCHP_perf_c" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/FlavEffVsBEff_C_discr_TCHP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_TCHP_perf_g" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/FlavEffVsBEff_G_discr_TCHP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_TCHP_perf_dus" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/FlavEffVsBEff_DUS_discr_TCHP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_TCHP_perf_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/FlavEffVsBEff_DUSG_discr_TCHP_GLOBAL"/>
+<TH1 name="VAL_LABEL_Val_TCHP_effVsdisc_b" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/effVsDiscrCut_discr_TCHP_GLOBALB"/>
+<TH1 name="VAL_LABEL_Val_TCHP_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/effVsDiscrCut_discr_TCHP_GLOBALC"/>
+<TH1 name="VAL_LABEL_Val_TCHP_effVsdisc_g" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/effVsDiscrCut_discr_TCHP_GLOBALG"/>
+<TH1 name="VAL_LABEL_Val_TCHP_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/effVsDiscrCut_discr_TCHP_GLOBALDUSG"/>
+
+<TH1 name="VAL_LABEL_Val_TrackIPPlots_ip2_2D_dusg" source="/DQMData/Run 1/Btag/Run summary/IPTag_GLOBAL/ip2_2D_IPTag_GLOBALDUSG"/>
+<TH1 name="VAL_LABEL_Val_TrackIPPlots_ipe2_2D_dusg" source="/DQMData/Run 1/Btag/Run summary/IPTag_GLOBAL/ipe2_2D_IPTag_GLOBALDUSG"/>
+</validation>
+
+	<superimpose name="VAL_LABEL_Val_CSV_perf_all" title="VAL_LABEL vs. REF_LABEL CSV" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_CSV_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_CSV_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSV_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSV_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_IP2_2D_dusg" title="VAL_LABEL vs. REF_LABEL IP 2nd Track 2D" SetLogy="false" SetGrid="false" Normalize="true" XTitle="IP 2D for 2nd Track" YTitle="arbitrary units" >
+<superimposeItem name="VAL_LABEL_Val_TrackIPPlots_ip2_2D_dusg" color="2" MarkerStyle="22" legend="udsg-jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TrackIPPlots_ip2_2D_dusg" color="2" MarkerStyle="8" legend="udsg-jets_REF_LABEL"/>
+</superimpose>
+	<superimpose name="VAL_LABEL_Val_IPE2_2D_dusg" title="VAL_LABEL vs. REF_LABEL IP 2nd Track 2D Error" SetLogy="false" SetGrid="false" Normalize="true" XTitle="IP 2D Error for 2nd Track" YTitle="arbitrary units" >
+<superimposeItem name="VAL_LABEL_Val_TrackIPPlots_ipe2_2D_dusg" color="2" MarkerStyle="22" legend="udsg-jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TrackIPPlots_ipe2_2D_dusg" color="2" MarkerStyle="8" legend="udsg-jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_CSV_disc_all" title="VAL_LABEL vs. REF_LABEL CSV" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_CSV_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_CSV_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_CSV_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSV_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSV_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSV_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_CSV_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL CSV" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_CSV_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_CSV_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_CSV_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSV_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSV_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSV_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_CSVMVAB_perf_all" title="VAL_LABEL vs. REF_LABEL CSVMVAB" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_CSVMVAB_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_CSVMVAB_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSVMVAB_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSVMVAB_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_CSVMVAB_disc_all" title="VAL_LABEL vs. REF_LABEL CSVMVAB" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_CSVMVAB_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_CSVMVAB_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_CSVMVAB_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSVMVAB_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSVMVAB_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSVMVAB_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_CSVMVAB_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL CSVMVAB" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_CSVMVAB_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_CSVMVAB_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_CSVMVAB_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSVMVAB_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSVMVAB_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_CSVMVAB_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+<superimpose name="VAL_LABEL_Val_JBP_perf_all" title="VAL_LABEL vs. REF_LABEL JBP" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_JBP_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_JBP_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JBP_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JBP_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_JBP_disc_all" title="VAL_LABEL vs. REF_LABEL JBP" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_JBP_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_JBP_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_JBP_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JBP_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JBP_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JBP_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_JBP_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL JBP" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_JBP_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_JBP_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_JBP_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JBP_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JBP_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JBP_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_JP_perf_all" title="VAL_LABEL vs. REF_LABEL JP" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_JP_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_JP_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JP_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JP_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_JP_disc_all" title="VAL_LABEL vs. REF_LABEL JP" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_JP_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_JP_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_JP_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JP_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JP_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JP_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_JP_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL JP" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_JP_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_JP_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_JP_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JP_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JP_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_JP_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SSV_perf_all" title="VAL_LABEL vs. REF_LABEL SSV" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_SSV_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SSV_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SSV_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SSV_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SSV_disc_all" title="VAL_LABEL vs. REF_LABEL SSV" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_SSV_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SSV_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SSV_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SSV_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SSV_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SSV_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SSV_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL SSV" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_SSV_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SSV_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SSV_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SSV_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SSV_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SSV_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SETByIP3d_perf_all" title="VAL_LABEL vs. REF_LABEL SETByIP3d" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_SETByIP3d_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SETByIP3d_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByIP3d_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByIP3d_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SETByIP3d_disc_all" title="VAL_LABEL vs. REF_LABEL SETByIP3d" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_SETByIP3d_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SETByIP3d_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SETByIP3d_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByIP3d_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByIP3d_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByIP3d_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SETByIP3d_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL SETByIP3d" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_SETByIP3d_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SETByIP3d_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SETByIP3d_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByIP3d_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByIP3d_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByIP3d_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+
+<superimpose name="VAL_LABEL_Val_SETByPt_perf_all" title="VAL_LABEL vs. REF_LABEL SETByPt" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_SETByPt_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SETByPt_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByPt_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByPt_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SETByPt_disc_all" title="VAL_LABEL vs. REF_LABEL SETByPt" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_SETByPt_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SETByPt_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SETByPt_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByPt_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByPt_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByPt_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SETByPt_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL SETByPt" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_SETByPt_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SETByPt_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SETByPt_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByPt_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByPt_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SETByPt_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+<superimpose name="VAL_LABEL_Val_SMT_perf_all" title="VAL_LABEL vs. REF_LABEL SMT" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_SMT_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMT_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMT_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMT_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SMT_disc_all" title="VAL_LABEL vs. REF_LABEL SMT" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_SMT_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMT_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMT_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMT_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMT_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMT_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SMT_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL SMT" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_SMT_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMT_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMT_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMT_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMT_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMT_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SMTByIP3d_perf_all" title="VAL_LABEL vs. REF_LABEL SMTByIP3d" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_SMTByIP3d_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByIP3d_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByIP3d_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByIP3d_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SMTByIP3d_disc_all" title="VAL_LABEL vs. REF_LABEL SMTByIP3d" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_SMTByIP3d_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByIP3d_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByIP3d_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByIP3d_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByIP3d_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByIP3d_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SMTByIP3d_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL SMTByIP3d" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_SMTByIP3d_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByIP3d_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByIP3d_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByIP3d_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByIP3d_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByIP3d_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+
+<superimpose name="VAL_LABEL_Val_SMTByPt_perf_all" title="VAL_LABEL vs. REF_LABEL SMTByPt" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_SMTByPt_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByPt_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByPt_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByPt_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SMTByPt_disc_all" title="VAL_LABEL vs. REF_LABEL SMTByPt" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_SMTByPt_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByPt_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByPt_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByPt_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByPt_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByPt_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_SMTByPt_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL SMTByPt" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_SMTByPt_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByPt_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByPt_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByPt_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByPt_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_SMTByPt_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+
+
+
+	<superimpose name="VAL_LABEL_Val_TCHP_perf_all" title="VAL_LABEL vs. REF_LABEL TCHP" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_TCHP_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_TCHP_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHP_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHP_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_TCHP_disc_all" title="VAL_LABEL vs. REF_LABEL TCHP" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_TCHP_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_TCHP_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_TCHP_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHP_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHP_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHP_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_TCHP_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL TCHP" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_TCHP_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_TCHP_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_TCHP_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHP_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHP_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHP_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_TCHE_perf_all" title="VAL_LABEL vs. REF_LABEL TCHE" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_TCHE_perf_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_TCHE_perf_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHE_perf_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHE_perf_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_TCHE_disc_all" title="VAL_LABEL vs. REF_LABEL TCHE" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+<superimposeItem name="VAL_LABEL_Val_TCHE_disc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_TCHE_disc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_TCHE_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHE_disc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHE_disc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHE_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_TCHE_effVsdisc_all" title="VAL_LABEL vs. REF_LABEL TCHE" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+<superimposeItem name="VAL_LABEL_Val_TCHE_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_TCHE_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VAL_LABEL"/>
+<superimposeItem name="VAL_LABEL_Val_TCHE_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VAL_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHE_effVsdisc_b" color="3" MarkerStyle="8" legend="b-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHE_effVsdisc_c" color="1" MarkerStyle="8" legend="c-jets_REF_LABEL"/>
+<superimposeItem name="REF_LABEL_Val_TCHE_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REF_LABEL"/>
+</superimpose>
+
+	<superimpose name="VAL_LABEL_Val_ALL_tagger_perf_c" title="VAL_LABEL vs. REF_LABEL ALL tagger c-jets" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="VAL_LABEL_Val_TCHE_perf_c" color="1" MarkerStyle="8" legend="TCHE"/>
+<superimposeItem name="VAL_LABEL_Val_TCHP_perf_c" color="2" MarkerStyle="8" legend="TCHP"/>
+<superimposeItem name="VAL_LABEL_Val_JP_perf_c" color="3" MarkerStyle="8" legend="JP"/>
+<superimposeItem name="VAL_LABEL_Val_SSV_perf_c" color="4" MarkerStyle="8" legend="SSV"/>
+<superimposeItem name="VAL_LABEL_Val_CSV_perf_c" color="5" MarkerStyle="8" legend="CSV"/>
+<superimposeItem name="VAL_LABEL_Val_CSVMVAB_perf_c" color="6" MarkerStyle="8" legend="CSVMVAB"/>
+
+<superimposeItem name="VAL_LABEL_Val_SMT_perf_c" color="8" MarkerStyle="8" legend="SMT"/>
+<superimposeItem name="VAL_LABEL_Val_JBP_perf_c" color="9" MarkerStyle="8" legend="JBP"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByIP3d_perf_c" color="11" MarkerStyle="8" legend="SMTByIP3d"/>
+<superimposeItem name="VAL_LABEL_Val_SMTByPt_perf_c" color="12" MarkerStyle="8" legend="SMTByPt"/>
+<superimposeItem name="VAL_LABEL_Val_SETByIP3d_perf_c" color="13" MarkerStyle="8" legend="SETByIP3d"/>
+<superimposeItem name="VAL_LABEL_Val_SETByPt_perf_c" color="14" MarkerStyle="8" legend="SETByPt"/>
+</superimpose>
+
+	<superimpose name="REF_LABEL_Val_ALL_tagger_perf_c" title="REF_LABEL ALL tagger c-jets" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="REF_LABEL_Val_TCHE_perf_c" color="1" MarkerStyle="8" legend="TCHE"/>
+<superimposeItem name="REF_LABEL_Val_TCHP_perf_c" color="2" MarkerStyle="8" legend="TCHP"/>
+<superimposeItem name="REF_LABEL_Val_JP_perf_c" color="3" MarkerStyle="8" legend="JP"/>
+<superimposeItem name="REF_LABEL_Val_SSV_perf_c" color="4" MarkerStyle="8" legend="SSV"/>
+<superimposeItem name="REF_LABEL_Val_CSV_perf_c" color="5" MarkerStyle="8" legend="CSV"/>
+<superimposeItem name="REF_LABEL_Val_CSVMVAB_perf_c" color="6" MarkerStyle="8" legend="CSVMVAB"/>
+
+<superimposeItem name="REF_LABEL_Val_SMT_perf_c" color="8" MarkerStyle="8" legend="SMT"/>
+<superimposeItem name="REF_LABEL_Val_JBP_perf_c" color="9" MarkerStyle="8" legend="JBP"/>
+<superimposeItem name="REF_LABEL_Val_SMTByIP3d_perf_c" color="11" MarkerStyle="8" legend="SMTByIP3d"/>
+<superimposeItem name="REF_LABEL_Val_SMTByPt_perf_c" color="12" MarkerStyle="8" legend="SMTByPt"/>
+<superimposeItem name="REF_LABEL_Val_SETByIP3d_perf_c" color="13" MarkerStyle="8" legend="SETByIP3d"/>
+<superimposeItem name="REF_LABEL_Val_SETByPt_perf_c" color="14" MarkerStyle="8" legend="SETByPt"/>
+</superimpose>
+
+
+
+<superimpose name="VAL_LABEL_Val_ALL_tagger_perf_dusg" title="VAL_LABEL vs. REF_LABEL ALL tagger dusg-jets" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+  <superimposeItem name="VAL_LABEL_Val_TCHE_perf_dusg" color="1" MarkerStyle="8" legend="TCHE"/>
+  <superimposeItem name="VAL_LABEL_Val_TCHP_perf_dusg" color="2" MarkerStyle="8" legend="TCHP"/>
+  <superimposeItem name="VAL_LABEL_Val_JP_perf_dusg" color="3" MarkerStyle="8" legend="JP"/>
+  <superimposeItem name="VAL_LABEL_Val_SSV_perf_dusg" color="4" MarkerStyle="8" legend="SSV"/>
+  <superimposeItem name="VAL_LABEL_Val_CSV_perf_dusg" color="5" MarkerStyle="8" legend="CSV"/>
+  <superimposeItem name="VAL_LABEL_Val_CSVMVAB_perf_dusg" color="6" MarkerStyle="8" legend="CSVMVAB"/>
+
+  <superimposeItem name="VAL_LABEL_Val_SMT_perf_dusg" color="8" MarkerStyle="8" legend="SMT"/>
+  <superimposeItem name="VAL_LABEL_Val_JBP_perf_dusg" color="9" MarkerStyle="8" legend="JBP"/>
+  <superimposeItem name="VAL_LABEL_Val_SMTByIP3d_perf_dusg" color="11" MarkerStyle="8" legend="SMTByIP3d"/>  
+  <superimposeItem name="VAL_LABEL_Val_SMTByPt_perf_dusg" color="12" MarkerStyle="8" legend="SMTByPt"/>  
+  <superimposeItem name="VAL_LABEL_Val_SETByIP3d_perf_dusg" color="13" MarkerStyle="8" legend="SETByIP3d"/>  
+  <superimposeItem name="VAL_LABEL_Val_SETByPt_perf_dusg" color="14" MarkerStyle="8" legend="SETByPt"/>  
+ 
+</superimpose>
+
+
+	<superimpose name="REF_LABEL_Val_ALL_tagger_perf_dusg" title="REF_LABEL ALL tagger dusg_jets" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   ">
+<superimposeItem name="REF_LABEL_Val_TCHE_perf_dusg" color="1" MarkerStyle="8" legend="TCHE"/>
+<superimposeItem name="REF_LABEL_Val_TCHP_perf_dusg" color="2" MarkerStyle="8" legend="TCHP"/>
+<superimposeItem name="REF_LABEL_Val_JP_perf_dusg" color="3" MarkerStyle="8" legend="JP"/>
+<superimposeItem name="REF_LABEL_Val_SSV_perf_dusg" color="4" MarkerStyle="8" legend="SSV"/>
+<superimposeItem name="REF_LABEL_Val_CSV_perf_dusg" color="5" MarkerStyle="8" legend="CSV"/>
+<superimposeItem name="REF_LABEL_Val_CSVMVAB_perf_dusg" color="6" MarkerStyle="8" legend="CSVMVAB"/>
+
+<superimposeItem name="REF_LABEL_Val_SMT_perf_dusg" color="8" MarkerStyle="8" legend="SMT"/>
+<superimposeItem name="REF_LABEL_Val_JBP_perf_dusg" color="9" MarkerStyle="8" legend="JBP"/>
+<superimposeItem name="REF_LABEL_Val_SMTByIP3d_perf_dusg" color="11" MarkerStyle="8" legend="SMTByIP3d"/>
+<superimposeItem name="REF_LABEL_Val_SMTByPt_perf_dusg" color="12" MarkerStyle="8" legend="SMTByPt"/>
+<superimposeItem name="REF_LABEL_Val_SETByIP3d_perf_dusg" color="13" MarkerStyle="8" legend="SETByIP3d"/>  
+<superimposeItem name="REF_LABEL_Val_SETByPt_perf_dusg" color="14" MarkerStyle="8" legend="SETByPt"/>  
+</superimpose>
+</cuy>
