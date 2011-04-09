@@ -9,6 +9,7 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
@@ -300,7 +301,14 @@ RecoTauBuilderCombinatoricPlugin::operator()(
                 cleanPiZeros.end(), cleanPiZeros.end())
             );
 
-        output.push_back(tau.get(true));
+        std::auto_ptr<reco::PFTau> tauPtr = tau.get(true);
+
+	// Set event vertex position for tau
+	reco::VertexRef primaryVertexRef = primaryVertex(jet);
+	if ( primaryVertexRef.isNonnull() )
+	  tauPtr->setVertex(primaryVertexRef->position());
+
+        output.push_back(tauPtr);
       }
     }
   }

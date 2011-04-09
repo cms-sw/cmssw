@@ -22,6 +22,7 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
@@ -306,9 +307,16 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
       );
 
   // Put our built tau in the output - 'false' indicates don't build the
-  // leading candidtes, we already did that explicitly above.
+  // leading candidates, we already did that explicitly above.
 
-  output.push_back(tau.get(false));
+  std::auto_ptr<reco::PFTau> tauPtr = tau.get(false);
+
+  // Set event vertex position for tau
+  reco::VertexRef primaryVertexRef = primaryVertex(jet);
+  if ( primaryVertexRef.isNonnull() )
+    tauPtr->setVertex(primaryVertexRef->position());
+
+  output.push_back(tauPtr);
   return output.release();
 }
 }}  // end namespace reco::tauk
