@@ -97,22 +97,24 @@ HLT_DoubleMu3_v*
 HLT_DoubleMu6_v*
 HLT_DoubleMu7_v*
 HLT_DoubleMu2_Bs_v*
-HLT_DoubleMu3_Jpsi_v*
-HLT_DoubleMu3_Quarkonium_v*
-HLT_DoubleMu3_Upsilon_v*
-HLT_DoubleMu3_LowMass_v*
 HLT_DoubleMu4_Acoplanarity03_v*
+HLT_Dimuon6p5_LowMass_v*
+HLT_Dimuon6p5_LowMass_Displaced_v*
+HLT_Dimuon6p5_Jpsi_v*
+HLT_Dimuon6p5_Jpsi_Displaced_v*
+HLT_Dimuon6p5_Barrel_Jpsi_v*
+HLT_Dimuon6p5_Barrel_PsiPrime_v*
+HLT_Dimuon0_Barrel_Upsilon_v*
 HLT_TripleMu5_v*
 HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*
-HLT_Mu5_L2Mu2_v*
 HLT_Mu5_L2Mu2_Jpsi_v*
-HLT_Mu3_Track3_Jpsi_v*
 HLT_Mu5_Track2_Jpsi_v*
-HLT_Mu7_Track5_Jpsi_v*
 HLT_Mu7_Track7_Jpsi_v*
 HLT_Photon20_CaloIdVL_IsoL_v*
 HLT_Photon20_R9Id_Photon18_R9Id_v*
 HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v*
+HLT_Photon20_NoSpikeFilter_v*
+HLT_Photon20_EBOnly_NoSpikeFilter_v*
 HLT_Photon26_Photon18_v*
 HLT_Photon26_IsoVL_Photon18_v*
 HLT_Photon26_IsoVL_Photon18_IsoVL_v*
@@ -137,9 +139,9 @@ HLT_DoublePhoton33_v*
 HLT_DoublePhoton5_IsoVL_CEP_v*
 HLT_L1SingleEG5_v*
 HLT_L1SingleEG12_v*
-HLT_Ele8_v*
-HLT_Ele8_CaloIdL_CaloIsoVL_v*
-HLT_Ele8_CaloIdL_TrkIdVL_v*
+# HLT_Ele8_v*
+# HLT_Ele8_CaloIdL_CaloIsoVL_v*
+# HLT_Ele8_CaloIdL_TrkIdVL_v*
 HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*
 HLT_Ele17_CaloIdL_CaloIsoVL_v*
 HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v*
@@ -153,14 +155,18 @@ HLT_Ele45_CaloIdVT_TrkIdT_v*
 HLT_Ele90_NoSpikeFilter_v*
 HLT_IsoPFTau35_Trk20_MET45_v*
 HLT_DoubleIsoPFTau20_Trk5_v*
+HLT_HT200_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*
+HLT_HT250_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*
 HLT_BTagMu_DiJet20_Mu5_v*
-HLT_BTagMu_DiJet60_Mu7_v*
-HLT_BTagMu_DiJet80_Mu9_v*
-HLT_BTagMu_DiJet100_Mu9_v*
+HLT_BTagMu_DiJet40_Mu5_v*
+HLT_BTagMu_DiJet70_Mu5_v*
+HLT_BTagMu_DiJet110_Mu5_v*
 HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v*
 HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v*
 HLT_Mu5_Ele8_CaloIdL_TrkIdVL_Ele8_v*
 HLT_Mu5_DoubleEle8_v*
+HLT_HT200_Mu5_PFMHT35_v*
+HLT_HT250_Mu5_PFMHT35_v*
 HLT_Mu5_HT200_v*
 HLT_Mu8_HT200_v*
 HLT_Mu8_Ele17_CaloIdL_v*
@@ -174,15 +180,17 @@ HLT_Mu17_CentralJet30_v*
 HLT_Mu17_DiCentralJet30_v*
 HLT_Mu17_TriCentralJet30_v*
 HLT_Mu17_Ele8_CaloIdL_v*
-HLT_Mu17_CentralJet40_BTagIP_v*
-HLT_IsoMu17_CentralJet40_BTagIP_v*
+HLT_Mu17_CentralJet30_BTagIP_v*
+HLT_IsoMu17_CentralJet30_BTagIP_v*
 HLT_IsoMu12_LooseIsoPFTau10_v*
 HLT_DoubleMu3_HT150_v*
 HLT_DoubleMu3_HT200_v*
 HLT_DoubleMu5_Ele8_v*
 HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v*
-HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v*
-HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v*
+HLT_HT200_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*
+HLT_HT250_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*
+# HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v*
+# HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v*
 HLT_Ele10_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v*
 HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v*
 HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v*
@@ -193,7 +201,7 @@ HLT_Ele15_CaloIdVT_TrkIdT_Jet35_Jet25_Deta2_v*
 HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_v*
 HLT_Ele25_CaloIdVT_TrkIdT_CentralDiJet30_v*
 HLT_Ele25_CaloIdVT_TrkIdT_CentralTriJet30_v*
-HLT_Ele25_CaloIdVT_TrkIdT_CentralJet40_BTagIP_v*
+HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP_v*
 HLT_DoubleEle8_CaloIdL_TrkIdVL_HT150_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_HT150_v*
 HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_v*
@@ -228,6 +236,10 @@ HLT_RegionalCosmicTracking_v*
 HLT_L3MuonsCosmicTracking_v*
 HLT_LogMonitor_v*
 HLT_DTErrors_v*
+HLT_Spike20_v*
+HLT_L1ETM30_v*
+HLT_L1DoubleJet36Central_v*
+HLT_L1MultiJet_v*
 AlCa_EcalPi0_v*
 AlCa_EcalEta_v*
 AlCa_EcalPhiSym_v*

@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V1 (CMSSW_3_11_0_HLT19)
+# /dev/CMSSW_4_2_0/HIon/V3 (CMSSW_3_11_0_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V1')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V3')
 )
 
 streams = cms.PSet( 
@@ -1275,6 +1275,7 @@ siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESPr
 
 DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
   getSCInfo = cms.untracked.bool( True ),
+  fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
   processingMode = cms.untracked.string( "HLT" )
 )
 UpdaterService = cms.Service( "UpdaterService",
@@ -2942,11 +2943,11 @@ hltHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaHLTHybridClusterProduc
     eThreshB = cms.double( 0.1 ),
     severityRecHitThreshold = cms.double( 4.0 ),
     severitySpikeId = cms.int32( 2 ),
-    severitySpikeThreshold = cms.double( 0.95 ),
+    severitySpikeThreshold = cms.double( 0.99 ),
     excludeFlagged = cms.bool( False ),
     dynamicPhiRoad = cms.bool( False ),
     RecHitFlagToBeExcluded = cms.vint32(  ),
-    RecHitSeverityToBeExcluded = cms.vint32( 999 ),
+    RecHitSeverityToBeExcluded = cms.vint32( 4 ),
     posCalcParameters = cms.PSet( 
       T0_barl = cms.double( 7.4 ),
       LogWeighted = cms.bool( True ),
@@ -3091,11 +3092,11 @@ hltHybridSuperClustersL1NonIsolated = cms.EDProducer( "EgammaHLTHybridClusterPro
     eThreshB = cms.double( 0.1 ),
     severityRecHitThreshold = cms.double( 4.0 ),
     severitySpikeId = cms.int32( 2 ),
-    severitySpikeThreshold = cms.double( 0.95 ),
+    severitySpikeThreshold = cms.double( 0.99 ),
     excludeFlagged = cms.bool( False ),
     dynamicPhiRoad = cms.bool( False ),
     RecHitFlagToBeExcluded = cms.vint32(  ),
-    RecHitSeverityToBeExcluded = cms.vint32( 999 ),
+    RecHitSeverityToBeExcluded = cms.vint32( 4 ),
     posCalcParameters = cms.PSet( 
       T0_barl = cms.double( 7.4 ),
       LogWeighted = cms.bool( True ),
@@ -3777,8 +3778,8 @@ HLTBeginSequence = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + HLTBea
 HLTDoHILocalPixelSequence = cms.Sequence( hltSiPixelDigis + hltHISiPixelClusters + hltHISiPixelRecHits )
 HLTPixelTrackingForHITrackTrigger = cms.Sequence( hltHIPixelClusterVertices + hltPixelTracksForHITrackTrigger + hltPixelCandsForHITrackTrigger )
 HLTBeginSequenceBPTX = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + hltBPTXCoincidence + HLTBeamSpot )
-HLTmuonlocalrecoSequence = cms.Sequence( hltMuonDTDigis + hltDt1DRecHits + hltDt4DSegments + hltMuonCSCDigis + hltCsc2DRecHits + hltCscSegments + hltMuonRPCDigis + hltRpcRecHits )
-HLTL2muonrecoNocandSequence = cms.Sequence( HLTmuonlocalrecoSequence + hltL2MuonSeeds + hltL2Muons )
+HLTMuonLocalRecoSequence = cms.Sequence( hltMuonDTDigis + hltDt1DRecHits + hltDt4DSegments + hltMuonCSCDigis + hltCsc2DRecHits + hltCscSegments + hltMuonRPCDigis + hltRpcRecHits )
+HLTL2muonrecoNocandSequence = cms.Sequence( HLTMuonLocalRecoSequence + hltL2MuonSeeds + hltL2Muons )
 HLTL2muonrecoSequence = cms.Sequence( HLTL2muonrecoNocandSequence + hltL2MuonCandidates )
 HLTDoLocalHcalSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + hltHoreco )
 HLTDoCaloSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + HLTDoLocalHcalSequence + hltTowerMakerForAll )
