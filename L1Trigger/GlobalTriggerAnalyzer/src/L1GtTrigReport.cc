@@ -326,7 +326,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
 
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
-    //const AlgorithmMap& technicalTriggerMap = m_l1GtMenu->gtTechnicalTriggerMap();
+    const AlgorithmMap& technicalTriggerMap = m_l1GtMenu->gtTechnicalTriggerMap();
 
     const std::string& menuName = m_l1GtMenu->gtTriggerMenuName();
 
@@ -529,14 +529,13 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
         }
 
         // loop over technical triggers and increase the corresponding counters
-        // FIXME move to names when technical triggers available in menu
-        //for (CItAlgo itAlgo = technicalTriggerMap.begin(); itAlgo != technicalTriggerMap.end(); itAlgo++) {
-        for (unsigned int iTechTrig = 0; iTechTrig < m_numberTechnicalTriggers; ++iTechTrig) {
+        for (CItAlgo itAlgo = technicalTriggerMap.begin(); itAlgo != technicalTriggerMap.end(); itAlgo++) {
+        //for (unsigned int iTechTrig = 0; iTechTrig < m_numberTechnicalTriggers; ++iTechTrig) {
 
-            //std::string ttName = itAlgo->first;
-            //int ttBitNumber = ( itAlgo->second ).algoBitNumber();
-            std::string ttName = boost::lexical_cast<std::string>(iTechTrig);
-            int ttBitNumber = iTechTrig;
+            std::string ttName = itAlgo->first;
+            int ttBitNumber = ( itAlgo->second ).algoBitNumber();
+            // std::string ttName = boost::lexical_cast<std::string>(iTechTrig);
+            // int ttBitNumber = iTechTrig;
 
             // the result before applying the trigger masks is available
             // in both L1GlobalTriggerReadoutRecord or L1GlobalTriggerRecord
@@ -728,6 +727,22 @@ void L1GtTrigReport::endJob() {
 
     }
 
+    // get the list of menus for the sample analyzed
+    //
+    std::set<std::string> menuList;
+    typedef std::set<std::string>::const_iterator CItL1Menu;
+
+    for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+        menuList.insert( ( *itEntry )->gtTriggerMenuName());
+    }
+
+    myCout
+            << "\nThe following L1 menus were used for this sample: " << std::endl;
+    for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+        myCout << "  " << ( *itMenu ) << std::endl;
+    }
+    myCout << "\n" << std::endl;
+
     switch (m_printVerbosity) {
         case 0: {
 
@@ -739,52 +754,55 @@ void L1GtTrigReport::endJob() {
                 << "\n\n Number of events written after applying L1 prescale factors"
                 << " and trigger masks\n" << " if not explicitly mentioned.\n\n";
 
-            myCout
-                << std::right << std::setw(35) << "Algorithm Key" << " "
-                << std::right << std::setw(10) << "Passed" << " "
-                << std::right << std::setw(10) << "Rejected" << " "
-                << std::right << std::setw(10) << "Error" << std::setw(2) << " "
-                << std::right << std::setw(20) << "Trigger Menu Key"
-                << "\n";
+            for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
 
-            for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+                myCout << "Report for L1 menu:  " << (*itMenu) << "\n"
+                        << std::endl;
 
-                if ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition) {
+                myCout
+                    << std::right << std::setw(35) << "Algorithm Key" << " "
+                    << std::right << std::setw(10) << "Passed" << " "
+                    << std::right << std::setw(10) << "Rejected" << " "
+                    << std::right << std::setw(10) << "Error"
+                    << "\n";
 
-                    myCout
-                        << std::right << std::setw(35) << ( *itEntry )->gtAlgoName() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsAccept() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsReject() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
-                        << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
-                        << "\n";
+                for (CItEntry itEntry = m_entryList.begin(); itEntry
+                        != m_entryList.end(); itEntry++) {
+
+                    if ((*itEntry)->gtDaqPartition() == m_physicsDaqPartition) {
+
+                        myCout
+                            << std::right << std::setw(35) << (*itEntry)->gtAlgoName() << " "
+                            << std::right << std::setw(10) << (*itEntry)->gtNrEventsAccept() << " "
+                            << std::right << std::setw(10) << (*itEntry)->gtNrEventsReject() << " "
+                            << std::right << std::setw(10) << (*itEntry)->gtNrEventsError()
+                            << "\n";
+                    }
+
                 }
 
-            }
+                myCout
+                    << "\n\n"
+                    << std::right << std::setw(35) << "Technical Trigger Key" << " "
+                    << std::right << std::setw(10) << "Passed" << " "
+                    << std::right << std::setw(10) << "Rejected" << " "
+                    << std::right << std::setw(10) << "Error"
+                    << "\n";
 
-            myCout
-                << "\n\n"
-                << std::right << std::setw(35) << "Technical Trigger Key" << " "
-                << std::right << std::setw(10) << "Passed" << " "
-                << std::right << std::setw(10) << "Rejected" << " "
-                << std::right << std::setw(10) << "Error" << std::setw(2) << " "
-                << std::right << std::setw(20) << "Trigger Menu Key"
-                << "\n";
+                for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry
+                        != m_entryListTechTrig.end(); itEntry++) {
 
-            for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry
-                    != m_entryListTechTrig.end(); itEntry++) {
+                    if ((*itEntry)->gtDaqPartition() == m_physicsDaqPartition) {
 
-                if ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition) {
+                        myCout
+                            << std::right << std::setw(35) << (*itEntry)->gtAlgoName() << " "
+                            << std::right << std::setw(10) << (*itEntry)->gtNrEventsAccept() << " "
+                            << std::right << std::setw(10) << (*itEntry)->gtNrEventsReject() << " "
+                            << std::right << std::setw(10) << (*itEntry)->gtNrEventsError()
+                            << "\n";
+                    }
 
-                    myCout
-                        << std::right << std::setw(35) << ( *itEntry )->gtAlgoName() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsAccept() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsReject() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
-                        << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
-                        << "\n";
                 }
-
             }
 
         }
@@ -798,58 +816,59 @@ void L1GtTrigReport::endJob() {
             myCout << "\n\n Number of events written after applying L1 prescale factors"
                     << " and trigger masks\n" << " if not explicitly mentioned.\n\n";
 
-            myCout
-                << std::right << std::setw(35) << "Algorithm Key" << " "
-                << std::right << std::setw(10) << "Prescale" << " "
-                << std::right << std::setw(5)  << "Mask" << " "
-                << std::right << std::setw(10) << "Passed" << " "
-                << std::right << std::setw(10) << "Rejected" << " "
-                << std::right << std::setw(10) << "Error" << std::setw(2) << " "
-                << std::right << std::setw(20) << "Trigger Menu Key"
-                << "\n";
+            for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
 
-            for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+                myCout << "Report for L1 menu:  " << (*itMenu) << "\n"
+                        << std::endl;
+                myCout
+                    << std::right << std::setw(35) << "Algorithm Key" << " "
+                    << std::right << std::setw(10) << "Prescale" << " "
+                    << std::right << std::setw(5)  << "Mask" << " "
+                    << std::right << std::setw(10) << "Passed" << " "
+                    << std::right << std::setw(10) << "Rejected" << " "
+                    << std::right << std::setw(10) << "Error" << std::setw(2) << " "
+                    << "\n";
 
-                if ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition) {
-                    myCout
-                        << std::right << std::setw(35) << ( *itEntry )->gtAlgoName() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << "    "
-                        << std::right << std::setw(2) //<< std::setfill('0')
-                        << std::hex << ( *itEntry )->gtTriggerMask() //<< std::setfill(' ')
-                        << std::dec << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsAccept() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsReject() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
-                        << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
-                        << "\n";
+                for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+
+                    if ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition) {
+                        myCout
+                            << std::right << std::setw(35) << ( *itEntry )->gtAlgoName() << " "
+                            << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << "    "
+                            << std::right << std::setw(2) //<< std::setfill('0')
+                            << std::hex << ( *itEntry )->gtTriggerMask() //<< std::setfill(' ')
+                            << std::dec << " "
+                            << std::right << std::setw(10) << ( *itEntry )->gtNrEventsAccept() << " "
+                            << std::right << std::setw(10) << ( *itEntry )->gtNrEventsReject() << " "
+                            << std::right << std::setw(10) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
+                            << "\n";
+                    }
                 }
-            }
 
-            myCout
-                << "\n\n"
-                << std::right << std::setw(35) << "Technical Trigger Key" << " "
-                << std::right << std::setw(10) << "Prescale" << " "
-                << std::right << std::setw(5)  << "Mask" << " "
-                << std::right << std::setw(10) << "Passed" << " "
-                << std::right << std::setw(10) << "Rejected" << " "
-                << std::right << std::setw(10) << "Error" << std::setw(2) << " "
-                << std::right << std::setw(20) << "Trigger Menu Key"
-                << "\n";
+                myCout
+                    << "\n\n"
+                    << std::right << std::setw(35) << "Technical Trigger Key" << " "
+                    << std::right << std::setw(10) << "Prescale" << " "
+                    << std::right << std::setw(5)  << "Mask" << " "
+                    << std::right << std::setw(10) << "Passed" << " "
+                    << std::right << std::setw(10) << "Rejected" << " "
+                    << std::right << std::setw(10) << "Error" << std::setw(2) << " "
+                    << "\n";
 
-            for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+                for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
 
-                if ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition) {
-                    myCout
-                        << std::right << std::setw(35) << ( *itEntry )->gtAlgoName() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << "    "
-                        << std::right << std::setw(2) //<< std::setfill('0')
-                        << std::hex << ( *itEntry )->gtTriggerMask() //<< std::setfill(' ')
-                        << std::dec << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsAccept() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsReject() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
-                        << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
-                        << "\n";
+                    if ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition) {
+                        myCout
+                            << std::right << std::setw(35) << ( *itEntry )->gtAlgoName() << " "
+                            << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << "    "
+                            << std::right << std::setw(2) //<< std::setfill('0')
+                            << std::hex << ( *itEntry )->gtTriggerMask() //<< std::setfill(' ')
+                            << std::dec << " "
+                            << std::right << std::setw(10) << ( *itEntry )->gtNrEventsAccept() << " "
+                            << std::right << std::setw(10) << ( *itEntry )->gtNrEventsReject() << " "
+                            << std::right << std::setw(10) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
+                            << "\n";
+                    }
                 }
             }
 
@@ -858,21 +877,6 @@ void L1GtTrigReport::endJob() {
             break;
         case 2: {
 
-            // get the list of menus for the sample analyzed
-            //
-            std::set<std::string> menuList;
-            typedef std::set<std::string>::const_iterator CItL1Menu;
-
-            for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
-                menuList.insert( ( *itEntry )->gtTriggerMenuName());
-            }
-
-            myCout
-                    << "\nThe following L1 menus were used for this sample: " << std::endl;
-            for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
-                myCout << "  " << ( *itMenu ) << std::endl;
-            }
-            myCout << "\n" << std::endl;
 
             for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
 
@@ -1025,77 +1029,69 @@ void L1GtTrigReport::endJob() {
             myCout << "\nL1T-Report " << "---------- L1 Trigger Global Summary - DAQ Partition "
                     << m_physicsDaqPartition << "----------\n\n";
 
-            myCout
-                << std::right << std::setw(35) << "Algorithm Key" << " "
-                << std::right << std::setw(10) << "Prescale" << " "
-                << std::right << std::setw(5)  << "Mask" << " "
-                << std::right << std::setw(15) << "Before Mask" << " "
-                << std::right << std::setw(15) << "After Mask" << " "
-                << std::right << std::setw(15) << "Error" << std::setw(2) << " "
-                << std::right << std::setw(20) << "Trigger Menu Key"
-                << "\n"
-                << std::right << std::setw(53) << " " << std::setw(15) << "Passed" << " "
-                << std::right << std::setw(15) << "Passed" << " " << "\n"
-                << std::right << std::setw(53) << " " << std::setw(15) << "Rejected" << " "
-                << std::right << std::setw(15) << "Rejected" << " "
-                << "\n";
+            for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
 
-            for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
-
-                if ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition) {
-                    myCout
-                        << std::right << std::setw(35) << ( *itEntry )->gtAlgoName() << " "
-                        << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << " "
-                        << std::right << std::setw(3) << " " << std::setw(2) //<< std::setfill('0')
-                        << std::hex << ( *itEntry )->gtTriggerMask() //<< std::setfill(' ')
-                        << std::dec << " "
-                        << std::right << std::setw(15) << ( *itEntry )->gtNrEventsAcceptBeforeMask() << " "
-                        << std::right << std::setw(15) << ( *itEntry )->gtNrEventsAccept() << " "
-                        << std::right << std::setw(15) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
-                        << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
-                        << "\n"
-                        << std::right << std::setw(53) << " "
-                        << std::right << std::setw(15) << ( *itEntry )->gtNrEventsRejectBeforeMask() << " "
-                        << std::right << std::setw(15) << ( *itEntry )->gtNrEventsReject()
-                        << "\n";
-                }
-            }
-
-            myCout
-                << "\n\n"
-                << std::right << std::setw(35) << "Technical Trigger Key" << " "
-                << std::right << std::setw(10) << "Prescale" << " "
-                << std::right << std::setw(5)  << "Mask" << " "
-                << std::right << std::setw(15) << "Before Mask" << " "
-                << std::right << std::setw(15) << "After Mask" << " "
-                << std::right << std::setw(15) << "Error" << std::setw(2) << " "
-                << std::right << std::setw(20) << "Trigger Menu Key"
-                << "\n"
-                << std::right << std::setw(53) << " " << std::setw(15) << "Passed" << " "
-                << std::right << std::setw(15) << "Passed" << " "
-                << "\n"
-                << std::right << std::setw(53) << " " << std::setw(15) << "Rejected" << " "
-                << std::right << std::setw(15) << "Rejected" << " "
-                << "\n";
-
-            for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
-
-                if ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition) {
-                    myCout
-                    << std::right << std::setw(35) << ( *itEntry )->gtAlgoName() << " "
-                    << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << " "
-                    << std::right << std::setw(3) << " " << std::setw(2) //<< std::setfill('0')
-                    << std::hex << ( *itEntry )->gtTriggerMask() //<< std::setfill(' ')
-                    << std::dec << " "
-                    << std::right << std::setw(15) << ( *itEntry )->gtNrEventsAcceptBeforeMask() << " "
-                    << std::right << std::setw(15) << ( *itEntry )->gtNrEventsAccept() << " "
-                    << std::right << std::setw(15) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
-                    << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
+                myCout << "Report for L1 menu:  " << ( *itMenu ) << "\n"
+                        << std::endl;
+                myCout
+                    << std::right << std::setw(45) << "Algorithm Key" << " "
+                    << std::right << std::setw(10) << "Prescale" << "  "
+                    << std::right << std::setw(5)  << "Mask" << " "
+                    << std::right << std::setw(25) << "Before Mask" << " "
+                    << std::right << std::setw(30) << "After Mask" << " "
+                    << std::right << std::setw(22) << "Error"
                     << "\n"
-                    << std::right << std::setw(53) << " "
-                    << std::right << std::setw(15) << ( *itEntry )->gtNrEventsRejectBeforeMask() << " "
-                    << std::right << std::setw(15) << ( *itEntry )->gtNrEventsReject()
+                    << std::right << std::setw(64) << " " << std::setw(15) << "Passed"
+                    << std::right << std::setw(1)  << " " << std::setw(15) << "Rejected"
+                    << std::right << std::setw(1)  << " " << std::setw(15) << "Passed"
+                    << std::right << std::setw(1)  << " " << std::setw(15) << "Rejected"
                     << "\n";
+
+                for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+
+                    if ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition) {
+                        myCout
+                            << std::right << std::setw(45) << ( *itEntry )->gtAlgoName() << " "
+                            << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << " "
+                            << std::right << std::setw(5)  << " " << std::hex << ( *itEntry )->gtTriggerMask() << std::dec << " "
+                            << std::right << std::setw(15) << ( *itEntry )->gtNrEventsAcceptBeforeMask() << " "
+                            << std::right << std::setw(15) << ( *itEntry )->gtNrEventsRejectBeforeMask() << " "
+                            << std::right << std::setw(15) << ( *itEntry )->gtNrEventsAccept() << " "
+                            << std::right << std::setw(15) << ( *itEntry )->gtNrEventsReject() << " "
+                            << std::right << std::setw(15) << ( *itEntry )->gtNrEventsError()
+                            << "\n";
+                    }
+                }
+
+                myCout
+                    << "\n\n"
+                    << std::right << std::setw(45) << "Technical Trigger Key" << " "
+                    << std::right << std::setw(10) << "Prescale" << "  "
+                    << std::right << std::setw(5)  << "Mask" << " "
+                    << std::right << std::setw(25) << "Before Mask" << " "
+                    << std::right << std::setw(30) << "After Mask" << " "
+                    << std::right << std::setw(22) << "Error"
+                    << "\n"
+                    << std::right << std::setw(64) << " " << std::setw(15) << "Passed"
+                    << std::right << std::setw(1)  << " " << std::setw(15) << "Rejected"
+                    << std::right << std::setw(1)  << " " << std::setw(15) << "Passed"
+                    << std::right << std::setw(1)  << " " << std::setw(15) << "Rejected"
+                    << "\n";
+
+                for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+
+                    if ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition) {
+                        myCout
+                            << std::right << std::setw(45) << ( *itEntry )->gtAlgoName() << " "
+                            << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << " "
+                            << std::right << std::setw(5)  << " " << std::hex << ( *itEntry )->gtTriggerMask() << std::dec << " "
+                            << std::right << std::setw(15) << ( *itEntry )->gtNrEventsAcceptBeforeMask() << " "
+                            << std::right << std::setw(15) << ( *itEntry )->gtNrEventsRejectBeforeMask() << " "
+                            << std::right << std::setw(15) << ( *itEntry )->gtNrEventsAccept() << " "
+                            << std::right << std::setw(15) << ( *itEntry )->gtNrEventsReject() << " "
+                            << std::right << std::setw(15) << ( *itEntry )->gtNrEventsError()
+                            << "\n";
+                    }
                 }
             }
         }
@@ -1114,7 +1110,6 @@ void L1GtTrigReport::endJob() {
                     << std::right << std::setw(10) << "Passed" << " "
                     << std::right << std::setw(10) << "Rejected" << " "
                     << std::right << std::setw(10) << "Error" << std::setw(2) << " "
-                    << std::right << std::setw(20) << "Trigger Menu Key"
                     << "\n";
 
                 for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
@@ -1126,7 +1121,6 @@ void L1GtTrigReport::endJob() {
                             << std::right << std::setw(10) << ( *itEntry )->gtNrEventsAccept() << " "
                             << std::right << std::setw(10) << ( *itEntry )->gtNrEventsReject() << " "
                             << std::right << std::setw(10) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
-                            << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
                             << "\n";
                     }
 
@@ -1138,7 +1132,6 @@ void L1GtTrigReport::endJob() {
                     << std::right << std::setw(10) << "Passed" << " "
                     << std::right << std::setw(10) << "Rejected" << " "
                     << std::right << std::setw(10) << "Error" << std::setw(2) << " "
-                    << std::right << std::setw(20) << "Trigger Menu Key"
                     << "\n";
 
                 for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
@@ -1175,7 +1168,6 @@ void L1GtTrigReport::endJob() {
                     << std::right << std::setw(10) << "Passed" << " "
                     << std::right << std::setw(10) << "Rejected" << " "
                     << std::right << std::setw(10) << "Error" << std::setw(2) << " "
-                    << std::right << std::setw(20) << "Trigger Menu Key"
                     << "\n";
 
                 for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
@@ -1190,7 +1182,6 @@ void L1GtTrigReport::endJob() {
                             << std::right << std::setw(10) << ( *itEntry )->gtNrEventsAccept() << " "
                             << std::right << std::setw(10) << ( *itEntry )->gtNrEventsReject() << " "
                             << std::right << std::setw(10) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
-                            << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
                             << "\n";
                     }
                 }
@@ -1203,7 +1194,6 @@ void L1GtTrigReport::endJob() {
                     << std::right << std::setw(10) << "Passed" << " "
                     << std::right << std::setw(10) << "Rejected" << " "
                     << std::right << std::setw(10) << "Error" << std::setw(2) << " "
-                    << std::right << std::setw(20) << "Trigger Menu Key"
                     << "\n";
 
                 for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
@@ -1218,7 +1208,6 @@ void L1GtTrigReport::endJob() {
                             << std::right << std::setw(10) << ( *itEntry )->gtNrEventsAccept() << " "
                             << std::right << std::setw(10) << ( *itEntry )->gtNrEventsReject() << " "
                             << std::right << std::setw(10) << ( *itEntry )->gtNrEventsError() << std::setw(2) << " "
-                            << std::right << std::setw(20) << ( *itEntry )->gtTriggerMenuName()
                             << "\n";
                     }
                 }
