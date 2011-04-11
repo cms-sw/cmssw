@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.304 $"
+__version__ = "$Revision: 1.305 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -491,6 +491,7 @@ class ConfigBuilder(object):
         custOpt=self._options.customisation_file.split(",")
 	custMap={}
 	for opt in custOpt:
+		if opt=='': continue
 		if opt.count('.')>1:
 			raise Exception("more than . in the specification:"+opt)
 		fileName=opt.split('.')[0]
@@ -544,7 +545,8 @@ class ConfigBuilder(object):
 			final_snippet += "\n#call to customisation function "+fcn+" imported from "+packageName
 			final_snippet += "\nprocess = %s(process)\n"%(fcn,)
 
-        final_snippet += '\n# End of customisation functions\n'
+	if len(custMap)!=0:
+		final_snippet += '\n# End of customisation functions\n'
 
 	### now for a usuful command
 	if self._options.customise_commands:
@@ -1398,7 +1400,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.304 $"),
+                                            (version=cms.untracked.string("$Revision: 1.305 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1519,8 +1521,7 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +='\tgetattr(process,path)._seq = process.%s * getattr(process,path)._seq \n'%(self.productionFilterSequence,)
 
         # dump customise fragment
-        if self._options.customisation_file:
-            self.pythonCfgCode += self.addCustomise()
+	self.pythonCfgCode += self.addCustomise()
         return
 
 
