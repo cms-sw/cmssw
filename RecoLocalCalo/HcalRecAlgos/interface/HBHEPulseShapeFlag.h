@@ -29,8 +29,7 @@ class HBHEPulseShapeFlagSetter
 {
 public:
    HBHEPulseShapeFlagSetter();
-   HBHEPulseShapeFlagSetter(double MinimumChargeThreshold,
-             double TS4TS5ChargeThreshold,
+   HBHEPulseShapeFlagSetter(double MinimumChargeThreshold, 
 			    unsigned int TrianglePeakTS,
 			    std::vector<double> LinearThreshold, 
 			    std::vector<double> LinearCut,
@@ -42,11 +41,7 @@ public:
 			    std::vector<double> RightSlopeCut,
 			    std::vector<double> RightSlopeSmallThreshold, 
 			    std::vector<double> RightSlopeSmallCut,
-             std::vector<double> TS4TS5UpperThreshold,
-             std::vector<double> TS4TS5UpperCut,
-             std::vector<double> TS4TS5LowerThreshold,
-             std::vector<double> TS4TS5LowerCut,
-			    bool UseDualFit,
+			    bool UseDualFit, 
 			    bool TriangleIgnoreSlow);
    ~HBHEPulseShapeFlagSetter();
    void Clear();
@@ -55,7 +50,6 @@ public:
    void Initialize();
 private:
    double mMinimumChargeThreshold;
-   double mTS4TS5ChargeThreshold;
    int mTrianglePeakTS;
    std::vector<double>  mCharge;  // stores charge for each TS in each digi
    // the pair is defined as (threshold, cut position)
@@ -64,8 +58,6 @@ private:
    std::vector<std::pair<double, double> > mLeftSlopeCut;
    std::vector<std::pair<double, double> > mRightSlopeCut;
    std::vector<std::pair<double, double> > mRightSlopeSmallCut;
-   std::vector<std::pair<double, double> > mTS4TS5UpperCut;
-   std::vector<std::pair<double, double> > mTS4TS5LowerCut;
    bool mUseDualFit;
    bool mTriangleIgnoreSlow;
    std::vector<double> CumulativeIdealPulse;
