@@ -211,7 +211,7 @@ class CountingModelBuilder(ModelBuilder):
         self.doSet("observables", ",".join(["n_obs_bin%s" % b for b in self.DC.bins]))
         if len(self.DC.obs):
             if self.options.bin:
-                self.out.data_obs = ROOT.RooDataSet("data_obs","observed data", self.out.set("observables"))
+                self.out.data_obs = ROOT.RooDataSet(self.options.dataname,"observed data", self.out.set("observables"))
                 self.out.data_obs.add( self.out.set("observables") )
                 self.out._import(self.out.data_obs)
     def doIndividualModels(self):

@@ -65,9 +65,9 @@ class ShapeBuilder(ModelBuilder):
     def prepareAllShapes(self):
         shapeTypes = []; shapeBins = []; shapeObs = {}
         for ib,b in enumerate(self.DC.bins):
-            for p in ['data_obs']+self.DC.exp[b].keys():
-                if len(self.DC.obs) == 0 and p == 'data_obs': continue
-                if p != 'data_obs' and self.DC.exp[b][p] == 0: continue
+            for p in [self.options.dataname]+self.DC.exp[b].keys():
+                if len(self.DC.obs) == 0 and p == self.options.dataname: continue
+                if p != self.options.dataname and self.DC.exp[b][p] == 0: continue
                 shape = self.getShape(b,p); norm = 0;
                 if shape.ClassName().startswith("TH1"):
                     shapeTypes.append("TH1"); shapeBins.append(shape.GetNbinsX())
@@ -87,9 +87,10 @@ class ShapeBuilder(ModelBuilder):
                     shapeTypes.append("RooAbsPdf");
                 else: raise RuntimeError, "Currently supporting only TH1s, RooDataHist and RooAbsPdfs"
                 if norm != 0:
-                    if p == "data_obs":
+                    if p == self.options.dataname:
                         if len(self.DC.obs):
-                            if abs(norm-self.DC.obs[b]) > 0.01 :
+                            if self.DC.obs[b] == -1: self.DC.obs[b] = norm
+                            elif abs(norm-self.DC.obs[b]) > 0.01:
                                 raise RuntimeError, "Mismatch in normalizations for observed data in bin %s: text %f, shape %f" % (b,self.DC.obs[b],norm)
                     else:
                         if self.DC.exp[b][p] == -1: self.DC.exp[b][p] = norm
@@ -112,13 +113,13 @@ class ShapeBuilder(ModelBuilder):
             self.out._import(self.out.binVars)
     def doCombinedDataset(self):
         if len(self.DC.bins) == 1:
-            data = self.getData(self.DC.bins[0],'data_obs').Clone("data_obs")
+            data = self.getData(self.DC.bins[0],self.options.dataname).Clone(self.options.dataname)
             self.out._import(data)
             return
         if self.out.mode == "binned":
             combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
-            for b in self.DC.bins: combiner.addSet(b, self.getData(b,"data_obs"))
-            self.out.data_obs = combiner.done("data_obs","data_obs")
+            for b in self.DC.bins: combiner.addSet(b, self.getData(b,self.options.dataname))
+            self.out.data_obs = combiner.done(self.options.dataname,self.options.dataname)
             self.out._import(self.out.data_obs)
         if self.out.mode == "unbinned":
             combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
