@@ -50,11 +50,11 @@ double TxCalculator::getMPT( double ptCut     ,   double etaCut  )
 	 
 	 sumpx = sumpx + pxTemp;
 	 sumpy = sumpy + pyTemp;
-	 cout << " pt  = " << recTrack->pt() <<  "    and px = " << pxTemp << " and  py = " << pyTemp << endl;
+	 //	 cout << " pt  = " << recTrack->pt() <<  "    and px = " << pxTemp << " and  py = " << pyTemp << endl;
       }
-   cout << " square = " << sumpx*sumpx + sumpy*sumpy << endl;
+   //   cout << " square = " << sumpx*sumpx + sumpy*sumpy << endl;
    double theMPT = sqrt(sumpx*sumpx + sumpy*sumpy) ;
-   cout << " mpt    = "<< theMPT << endl;
+   //  cout << " mpt    = "<< theMPT << endl;
    
    return theMPT;
 }
