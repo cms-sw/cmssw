@@ -1,6 +1,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalSeverityLevel.h"
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -18,6 +19,8 @@ namespace {
     edm::Wrapper< EcalUncalibratedRecHitCollection > _EURHitProd;
     edm::Wrapper< EBUncalibratedRecHitCollection > _EBURHitProd;
     edm::Wrapper< EEUncalibratedRecHitCollection > _EEURHitProd;
+
+    EcalSeverityLevel::SeverityLevel sl;
 
     EcalUncalibratedRecHitRef _EURHitRef;
     EcalUncalibratedRecHitRefs _EURHitRefs;

@@ -40,4 +40,5 @@
   <class name="edm::Ref< edm::LazyGetter<EcalRecHit>, EcalRecHit, edm::FindValue<EcalRecHit> >"/>
 
   <class name="edm::reftobase::Holder<CaloRecHit, edm::Ref<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> >, EcalRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> >, EcalRecHit> > >" />
+  <enum name="EcalSeverityLevel::SeverityLevel"/> 
 </lcgdict>
