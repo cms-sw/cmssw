@@ -17,44 +17,44 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
       toGet = cms.VPSet(
       cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_AK5Calo'),
-            label  = cms.untracked.string('AK5CaloLocal')
+            tag    = cms.string('JetCorrectorParametersCollection_Jec11V0_AK5Calo'),
+            label  = cms.untracked.string('AK5Calo')
             ),
       cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_AK5PF'),
-            label  = cms.untracked.string('AK5PFLocal')
+            tag    = cms.string('JetCorrectorParametersCollection_Jec11V0_AK5PF'),
+            label  = cms.untracked.string('AK5PF')
             ),
       cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_AK5JPT'),
-            label  = cms.untracked.string('AK5JPTLocal')
+            tag    = cms.string('JetCorrectorParametersCollection_Jec11V0_AK5JPT'),
+            label  = cms.untracked.string('AK5JPT')
             ),                                                                                
        ),
-      connect = cms.string('sqlite:Jec10V1.db')
+      connect = cms.string('sqlite:Jec11V0.db')
 )
 
 
-process.demo1 = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('AK5CaloLocal'),
+process.readAK5Calo = cms.EDAnalyzer('JetCorrectorDBReader', 
+        payloadName    = cms.untracked.string('AK5Calo'),
         printScreen    = cms.untracked.bool(False),
         createTextFile = cms.untracked.bool(True),
-        globalTag      = cms.untracked.string('Jec10V1')
+        globalTag      = cms.untracked.string('Jec11V0')
 )
 
 
-process.demo2 = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('AK5PFLocal'),
+process.readAK5PF = cms.EDAnalyzer('JetCorrectorDBReader', 
+        payloadName    = cms.untracked.string('AK5PF'),
         printScreen    = cms.untracked.bool(False),
-        createTextFile = cms.untracked.bool(False),
-        globalTag      = cms.untracked.string('Jec10V1')
+        createTextFile = cms.untracked.bool(True),
+        globalTag      = cms.untracked.string('Jec11V0')
 )
 
-process.demo3 = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('AK5JPTLocal'),
+process.readAK5JPT = cms.EDAnalyzer('JetCorrectorDBReader', 
+        payloadName    = cms.untracked.string('AK5JPT'),
         printScreen    = cms.untracked.bool(False),
-        createTextFile = cms.untracked.bool(False),
-        globalTag      = cms.untracked.string('Jec10V1')                               
+        createTextFile = cms.untracked.bool(True),
+        globalTag      = cms.untracked.string('Jec11V0')                               
 )
 
-process.p = cms.Path(process.demo1 * process.demo2 * process.demo3)
+process.p = cms.Path(process.readAK5PF * process.readAK5Calo * process.readAK5JPT)
