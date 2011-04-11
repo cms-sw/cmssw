@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEcal.EgammaClusterProducers.ecalRecHitFlags_cfi import *
 
 # Multi5x5 BasicCluster producer
 multi5x5BasicClusters = cms.EDProducer("Multi5x5ClusterProducer",
