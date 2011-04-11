@@ -67,7 +67,7 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
     ps.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
 
   const std::vector<int> severitiesexcl= 
-    StringToEnumValue<EcalSeverityLevelAlgo::EcalSeverityLevel>(severitynames);
+    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
 
   hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
                                    ps.getParameter<int>("step"),
