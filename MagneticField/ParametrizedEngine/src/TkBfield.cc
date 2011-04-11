@@ -55,7 +55,7 @@ namespace {
   }
 }
 
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
+#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)) || defined(__clang__)
 
 void  TkBfield::Bcyl(double r, double z, double * __restrict__ Bw)  const{
   z-=prm[3];                    // max Bz point is shifted in z
