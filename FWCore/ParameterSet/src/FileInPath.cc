@@ -422,7 +422,7 @@ namespace edm
     // If we got here, we ran out of path elements without finding
     // what we're looking found.
     throw edm::Exception(edm::errors::FileInPathError)
-      << "Unable to find file "
+      << "edm::FileInPath unable to find file "
       << relativePath_
       << " anywhere in the search path."
       << "\nThe search path is defined by: "

@@ -30,9 +30,12 @@ void pythonToCppException(const std::string& iType)
     object stringExc( hStringExc);
 
     //PyErr_Print();
-    throw cms::Exception(iType) <<"python encountered the error: "
-                                << PyString_AsString(stringExc.ptr())<<" "
-                                << PyString_AsString(stringVal.ptr())<<"\n";
+    throw cms::Exception(iType)
+      << "python encountered the error: "
+      // include python exception type
+      << PyString_AsString(stringExc.ptr()) << "\n"
+      // message in the python exception
+      << PyString_AsString(stringVal.ptr()) << "\n"; 
   } else {
     throw cms::Exception(iType)<<" unknown python problem occurred.\n";
   }
