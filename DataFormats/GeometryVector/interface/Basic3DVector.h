@@ -1,7 +1,7 @@
 #ifndef GeometryVector_Basic3DVector_h
 #define GeometryVector_Basic3DVector_h
 
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
+#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)) || defined(__clang__)
 #define USE_SSEVECT
 #endif
 
