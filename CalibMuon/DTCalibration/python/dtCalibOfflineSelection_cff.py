@@ -64,16 +64,33 @@ hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
 
 #from CalibMuon.DTCalibration.DTCalibMuonSelection_cfi import *
 
-goodMuons = cms.EDFilter("CandViewSelector",
+goodMuonsPt15 = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("muons"),
     cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2 & pt > 15.0'),
     filter = cms.bool(True) 
 )
-muonSelection = cms.Sequence(goodMuons)
+muonSelectionPt15 = cms.Sequence(goodMuonsPt15)
 
-offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelection)
-offlineSelectionALCARECO = cms.Sequence(muonSelection)
+goodMuonsPt5 = cms.EDFilter("CandViewSelector",
+    src = cms.InputTag("muons"),
+    cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2 & pt > 5.0'),
+    filter = cms.bool(True)
+)
+muonSelectionPt5 = cms.Sequence(goodMuonsPt5)
+
+offlineSelectionPt15 = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
+offlineSelectionALCARECOPt15 = cms.Sequence(muonSelectionPt15)
+offlineSelectionPt5 = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt5)
+offlineSelectionALCARECOPt5 = cms.Sequence(muonSelectionPt5)
+
+offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
+offlineSelectionALCARECO = cms.Sequence(muonSelectionPt15)
 offlineSelectionCosmics = cms.Sequence(l1SingleMuOpen)
+
+dtCalibOfflineSelectionPt15 = cms.Sequence(offlineSelectionPt15)
+dtCalibOfflineSelectionALCARECOPt15 = cms.Sequence(offlineSelectionALCARECOPt15)
+dtCalibOfflineSelectionPt5 = cms.Sequence(offlineSelectionPt5)
+dtCalibOfflineSelectionALCARECOPt5 = cms.Sequence(offlineSelectionALCARECOPt5)
 
 dtCalibOfflineSelection = cms.Sequence(offlineSelection)
 dtCalibOfflineSelectionALCARECO = cms.Sequence(offlineSelectionALCARECO)
