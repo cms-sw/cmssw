@@ -45,9 +45,9 @@ step1['ProdMinBias']=merge([{'cfg':'MinBias_7TeV_cfi','--relval':'9000,100'},ste
 step1['ProdTTbar']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi','--relval':'9000,50'},step1Defaults])
 step1['ProdQCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_7TeV_cfi','--relval':'9000,25'},step1Defaults])
 
-step1['ProdMinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValProdMinBias/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-RAW',label='prodmbrv',location='STD')}
-step1['ProdTTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValProdTTbar/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-RAW',label='prodttbrv',location='STD')}
-step1['ProdQCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValProdQCD_Pt_3000_3500/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-RAW',label='qcd335',location='STD')}
+#step1['ProdMinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValProdMinBias/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='prodmbrv',location='STD')}
+#step1['ProdTTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValProdTTbar/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='prodttbrv',location='STD')}
+#step1['ProdQCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValProdQCD_Pt_3000_3500/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='qcd335',location='STD')}
 
 
 
@@ -96,22 +96,22 @@ step1['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_7TeV_cfi',K9by100)
 step1['LM1_sfts']=gen('LM1_sfts_7TeV_cfi',K9by100)
 step1['QCD_FlatPt_15_3000']=gen('QCDForPF_7TeV_cfi',K9by100)
 
-step1['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='MinBiasrv',location='STD')}
-step1['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_Pt_3000_3500rv',location='STD')}
-step1['QCD_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_Pt_80_120rv',location='STD')}
-step1['SingleElectronPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='SingleElectronPt10rv',location='STD')}
-step1['SingleElectronPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt35/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='SingleElectronPt35rv',location='STD')}
-step1['SingleGammaPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt10/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='SingleGammaPt10rv',location='STD')}
-step1['SingleGammaPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt35/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='SingleGammaPt35rv',location='STD')}
-step1['SingleMuPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='SingleMuPt10rv',location='STD')}
-step1['SingleMuPt100INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='SingleMuPt100rv',location='STD')}
-step1['SingleMuPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='SingleMuPt1000rv',location='STD')}
-step1['TTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='ttbarrv',location='STD')}
-step1['ZEEINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='ZEErv',location='STD')}
-step1['Wjet_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='Wjet_Pt_80_120rv',location='STD')}
-step1['Wjet_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_3500/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='Wjet_Pt_3000_3500rv',location='STD')}
-step1['LM1_sftsINPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='LM1_sftsrv',location='STD')}
-step1['QCD_FlatPt_15_3000INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_FlatPt_15_3000rv',location='STD')}
+step1['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='MinBiasrv',location='STD')}
+step1['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='QCD_Pt_3000_3500rv',location='STD')}
+step1['QCD_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='QCD_Pt_80_120rv',location='STD')}
+step1['SingleElectronPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='SingleElectronPt10rv',location='STD')}
+step1['SingleElectronPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt35/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='SingleElectronPt35rv',location='STD')}
+step1['SingleGammaPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt10/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='SingleGammaPt10rv',location='STD')}
+step1['SingleGammaPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt35/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='SingleGammaPt35rv',location='STD')}
+step1['SingleMuPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='SingleMuPt10rv',location='STD')}
+step1['SingleMuPt100INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='SingleMuPt100rv',location='STD')}
+step1['SingleMuPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='SingleMuPt1000rv',location='STD')}
+step1['TTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='ttbarrv',location='STD')}
+step1['ZEEINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='ZEErv',location='STD')}
+step1['Wjet_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='Wjet_Pt_80_120rv',location='STD')}
+step1['Wjet_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_3500/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='Wjet_Pt_3000_3500rv',location='STD')}
+step1['LM1_sftsINPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='LM1_sftsrv',location='STD')}
+step1['QCD_FlatPt_15_3000INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='QCD_FlatPt_15_3000rv',location='STD')}
 
 ## high stat step1
 K700by280={'--relval': '70000,280'}
@@ -163,18 +163,18 @@ step1['H130GGgluonfusion']=genS('H130GGgluonfusion_7TeV_cfi',K9by100)
 step1['PhotonJets_Pt_10']=genS('PhotonJet_Pt_10_7TeV_cfi',K9by100)
 step1['QQH1352T_Tauola']=genS('QQH1352T_Tauola_7TeV_cfi',K9by100)
 
-step1['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='MinBiasrv',location='STD')}
-step1['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='Higgs200ChargedTausrv',location='STD')}
-step1['QCD_Pt_3000_3500_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_Pt_3000_3500rv',location='STD')}
-step1['QCD_Pt_80_120_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_Pt_80_120rv',location='STD')}
-step1['JpsiMMINPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='JpsiMMrv',location='STD')}
-step1['TTbar2INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='ttbarrv',location='STD')}
-step1['WEINPUT']={'INPUT':InputInfo(dataSet='/RelValWE/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='WErv',location='STD')}
-step1['ZEE2INPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='ZEErv',location='STD')}
-step1['ZTTINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='ZTTrv',location='STD')}
-step1['H130GGgluonfusionINPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='H130GGgluonfusionrv',location='STD')}
-step1['PhotonJets_Pt_10INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='PhotonJets_Pt_10rv',location='STD')}
-step1['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola_cfi/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QQH1352T_Tauola_cfirv',location='STD')}
+step1['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='MinBiasrv',location='STD')}
+step1['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='Higgs200ChargedTausrv',location='STD')}
+step1['QCD_Pt_3000_3500_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='QCD_Pt_3000_3500rv',location='STD')}
+step1['QCD_Pt_80_120_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='QCD_Pt_80_120rv',location='STD')}
+step1['JpsiMMINPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='JpsiMMrv',location='STD')}
+step1['TTbar2INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='ttbarrv',location='STD')}
+step1['WEINPUT']={'INPUT':InputInfo(dataSet='/RelValWE/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='WErv',location='STD')}
+step1['ZEE2INPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='ZEErv',location='STD')}
+step1['ZTTINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='ZTTrv',location='STD')}
+step1['H130GGgluonfusionINPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='H130GGgluonfusionrv',location='STD')}
+step1['PhotonJets_Pt_10INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='PhotonJets_Pt_10rv',location='STD')}
+step1['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola_cfi/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='QQH1352T_Tauola_cfirv',location='STD')}
 
 step1['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--relval':'666000,7400','--scenario':'cosmics'},step1Defaults])
 step1['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},K9by100,step1Defaults])
@@ -211,10 +211,12 @@ def changeRefRelease(step1s,listOfPairs):
 def addForAll(steps,d):
     for s in steps:
         steps[s].update(d)
-    
-changeRefRelease(step1,[('CMSSW_4_2_0_pre2-START311_V1-v1','CMSSW_4_2_0_pre4-START42_V1-v1'),
-                        ('CMSSW_4_2_0_pre2-MC_311_V1-v1','CMSSW_4_2_0_pre4-MC_42_V1-v1')
-                        ])
+
+
+#changeRefRelease(step1,[('CMSSW_4_3_0_pre2-START42_V9-v1','CMSSW_4_3_0_pre2-START42_V9-v1'),
+#                        ('CMSSW_4_3_0_pre2-MC_42_V9-v1','CMSSW_4_3_0_pre2-MC_42_V9-v1')
+#                        ])
+                        
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
