@@ -101,6 +101,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
         const edm::ParameterSet &psPulseShape = conf.getParameter<edm::ParameterSet>("pulseShapeParameters");
         hbhePulseShapeFlagSetter_ = new HBHEPulseShapeFlagSetter(
 								 psPulseShape.getParameter<double>("MinimumChargeThreshold"),
+								 psPulseShape.getParameter<double>("TS4TS5ChargeThreshold"),
 								 psPulseShape.getParameter<unsigned int>("TrianglePeakTS"),
 								 psPulseShape.getParameter<std::vector<double> >("LinearThreshold"),
 								 psPulseShape.getParameter<std::vector<double> >("LinearCut"),
@@ -112,6 +113,10 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 								 psPulseShape.getParameter<std::vector<double> >("RightSlopeCut"),
 								 psPulseShape.getParameter<std::vector<double> >("RightSlopeSmallThreshold"),
 								 psPulseShape.getParameter<std::vector<double> >("RightSlopeSmallCut"),
+								 psPulseShape.getParameter<std::vector<double> >("TS4TS5LowerThreshold"),
+								 psPulseShape.getParameter<std::vector<double> >("TS4TS5LowerCut"),
+								 psPulseShape.getParameter<std::vector<double> >("TS4TS5UpperThreshold"),
+								 psPulseShape.getParameter<std::vector<double> >("TS4TS5UpperCut"),
 								 psPulseShape.getParameter<bool>("UseDualFit"),
                          psPulseShape.getParameter<bool>("TriangleIgnoreSlow"));
       }  // if (setPulseShapeFlags_)

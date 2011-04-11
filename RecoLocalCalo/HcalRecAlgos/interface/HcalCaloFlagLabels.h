@@ -21,7 +21,8 @@ namespace HcalCaloFlagLabels
 		      HBHEIsolatedNoise=11,
 		      HBHEFlatNoise=12,
 		      HBHESpikeNoise=13,
-		      HBHETriangleNoise=14
+		      HBHETriangleNoise=14,
+		      HBHETS4TS5Noise=15
   };
 
   enum HFTimingTrustFlag{HFTimingTrustBits=6};
@@ -46,6 +47,7 @@ namespace HcalCaloFlagLabels
 		   TimingErrorBit=18,      // latency shift error, unrecovered
 		   ADCSaturationBit=19,
                    Fraction2TS=20,
+		   //PresampleADC=20,
 		   // The following bits are all user-defined; reverse-order them so that UserDefinedBit0 will be the last removed
 		   UserDefinedBit2 = 29,
 		   UserDefinedBit1 = 30,
