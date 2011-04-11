@@ -27,8 +27,8 @@ class TxCalculator
   
    TxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel) ;
   
-   double getTx(const reco::Photon clus, double i,double threshold, double innerDR=0, double vetoWidth);
-   double getCTx(const reco::Photon clus, double i,double threshold, double innerDR=0, double vetoWidth); // background subtracted Cx
+   double getTx(const reco::Photon clus, double i,double threshold, double innerDR=0);
+   double getCTx(const reco::Photon clus, double i,double threshold, double innerDR=0);
    double getMPT(double ptCut=0, double etaCut=1000);
    
  private:
