@@ -30,7 +30,7 @@ def CreatePlotEntry(analyzer, discriminatorLabel=None, step=True):
         numerator = cms.string(num),
         denominator = cms.string(den),
         efficiency = cms.string(out),
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'pileup'),
         stepByStep = cms.bool(step)
         )
     return ret
