@@ -546,7 +546,7 @@ namespace reco {
 // valid
 
 inline int HitPattern::numberOfValidHits() const {
-  return count(validHitFilter);
+  return countHits(validHitFilter);
 }
 
 inline int HitPattern::numberOfValidTrackerHits() const {
