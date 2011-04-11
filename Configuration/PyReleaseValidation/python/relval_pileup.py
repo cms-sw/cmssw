@@ -10,5 +10,5 @@ workflows = {}
 # the name of step1 will be used
 
 workflows[201]=['',['ZmumuJets_Pt_20_300PU1','DIGIPU1','RECOPU1']]
-workflows[202]=['TTbar',['TTbarPU2','DIGIPU2','RECOPU2']]
+workflows[202]=['TTbar',['TTbarPU2','DIGIPU1','RECOPU1']]
 

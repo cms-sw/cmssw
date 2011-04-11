@@ -300,10 +300,9 @@ step1['Z1Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20Exc
 step1['Z2Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'dy',442)
 step1['Z3Jets-Pt_0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'dy',443)
 
-PU1={'--pileup':'E7TeV_AVE_2_BX2808'}
-PU2={'--pileup':'E7TeV_AVE_2_BX156'}
+PU1={'--pileup':'E7TeV_FlatDist10_2011EarlyData_inTimeOnly'}
 step1['ZmumuJets_Pt_20_300PU1']=merge([gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100),PU1])
-step1['TTbarPU2']=merge([step1['TTbar2'],PU2])
+step1['TTbarPU2']=merge([step1['TTbar2'],PU1])
 
 ##########################
 
@@ -325,7 +324,6 @@ step2['DIGI2']=merge([stCond,step2Defaults])
 step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
 
 step2['DIGIPU1']=merge([step2['DIGI1'],PU1])
-step2['DIGIPU2']=merge([step2['DIGI2'],PU2])
     
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
@@ -373,7 +371,6 @@ step3['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiSt
 step3['RECOQCD']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},stCond,step3Defaults])
 
 step3['RECOPU1']=merge([step3['RECO1'],PU1])
-step3['RECOPU2']=merge([step3['RECO2'],PU2])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step3,{'--hltProcess':'DIGI'})
