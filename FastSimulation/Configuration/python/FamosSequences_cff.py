@@ -96,7 +96,7 @@ caloJetMetGen = cms.Sequence(
 )
 
 # Muon parametrization
-from FastSimulation.ParamL3MuonProducer.ParamL3Muon_cfi import *
+#from FastSimulation.ParamL3MuonProducer.ParamL3Muon_cfi import *
 
 # Muon simHit sequence 
 from FastSimulation.MuonSimHitProducer.MuonSimHitProducer_cfi import *
@@ -386,17 +386,17 @@ famosWithCaloTowersAndParticleFlow = cms.Sequence(
     caloTowersRec
 )
 
-famosWithMuons = cms.Sequence(
-    famosWithTracks+
-    paramMuons
-)
-
-famosWithMuonsAndIsolation = cms.Sequence(
-    famosWithTracksAndCaloTowers+
-    paramMuons+
-    ak5CaloJets+
-    muIsolation_ParamGlobalMuons
-)
+#famosWithMuons = cms.Sequence(
+#    famosWithTracks+
+#    paramMuons
+#)
+#
+#famosWithMuonsAndIsolation = cms.Sequence(
+#    famosWithTracksAndCaloTowers+
+#    paramMuons+
+#    ak5CaloJets+
+#    muIsolation_ParamGlobalMuons
+#)
 
 famosWithElectrons = cms.Sequence(
     famosWithTracksAndEcalClusters+
