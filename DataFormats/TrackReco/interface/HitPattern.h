@@ -664,6 +664,9 @@ inline int HitPattern::numberOfBadHits() const {
   return countHits(type_3_HitFilter);
 }
 
+inline int HitPattern::numberOfBadMuonDTHits() const {
+  return countTypedHits(type_2_HitFilter, muonHitFilter);
+}
 
 inline int HitPattern::numberOfBadMuonDTHits() const {
   return countTypedHits(type_2_HitFilter, muonDTHitFilter);
