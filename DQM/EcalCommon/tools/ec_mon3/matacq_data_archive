@@ -170,7 +170,7 @@ if ( @matacq_files == 0 ) {
           print "Problems with the transfer of $matacq_data_dir/$file.dat\n";
 
           open LOGFILE, ">>$matacq_data_dir/matacq_data_archive.log";
-          print LOGFILE localtime()." - matacq_data_archive: problems with the transfer of $matacq_data_dir/$file.dat";
+          print LOGFILE localtime()." - matacq_data_archive: problems with the transfer of $matacq_data_dir/$file.dat\n";
           close LOGFILE;
 
           system("rm $matacq_data_dir/.matacq_data_archive_lock");
