@@ -30,14 +30,16 @@ multi5x5BasicClusters = cms.EDProducer("Multi5x5ClusterProducer",
                                   X0           = cms.double(0.89)
                                  ),                                              
     # recHit flags to be excluded from seeding
-    RecHitFlagToBeExcluded = cms.vint32(
-        ecalRecHitFlag_kFaultyHardware,
-        ecalRecHitFlag_kPoorCalib,
-        ecalRecHitFlag_kSaturated,
-        ecalRecHitFlag_kLeadingEdgeRecovered,
-        ecalRecHitFlag_kNeighboursRecovered,
-        ecalRecHitFlag_kTowerRecovered,
-        ecalRecHitFlag_kDead,
-        ecalRecHitFlag_kWeird,
+
+    RecHitFlagToBeExcluded = cms.vstring(
+        'kFaultyHardware',
+        'kPoorCalib',
+        'kSaturated',
+        'kLeadingEdgeRecovered',
+        'kNeighboursRecovered',
+        'kTowerRecovered',
+        'kDead',
+        'kWeird',
+
     )
 )

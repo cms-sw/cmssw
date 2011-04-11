@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -56,21 +57,30 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
 
   posCalculator_ = PositionCalc(posCalcParameters);
 
+  const std::vector<std::string> flagnames = 
+    ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
+
+  const std::vector<int> flagsexcl= 
+    StringToEnumValue<EcalRecHit::Flags>(flagnames);
+
+  const std::vector<std::string> severitynames = 
+    ps.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
+
+  const std::vector<int> severitiesexcl= 
+    StringToEnumValue<EcalSeverityLevelAlgo::EcalSeverityLevel>(severitynames);
+
   hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
                                    ps.getParameter<int>("step"),
                                    ps.getParameter<double>("ethresh"),
                                    ps.getParameter<double>("eseed"),
                                    ps.getParameter<double>("ewing"),
-				   ps.getParameter<std::vector<int> >("RecHitFlagToBeExcluded"),
+				   flagsexcl,
                                    posCalculator_,
 				   debugL,
 			           ps.getParameter<bool>("dynamicEThresh"),
                                    ps.getParameter<double>("eThreshA"),
                                    ps.getParameter<double>("eThreshB"),
-				   ps.getParameter<std::vector<int> >("RecHitSeverityToBeExcluded"),
-				   //ps.getParameter<double>("severityRecHitThreshold"),
-				   //ps.getParameter<int>("severitySpikeId"),
-				   //ps.getParameter<double>("severitySpikeThreshold"),
+				   severitiesexcl,
 				   ps.getParameter<bool>("excludeFlagged")
                                    );
                                    //bremRecoveryPset,

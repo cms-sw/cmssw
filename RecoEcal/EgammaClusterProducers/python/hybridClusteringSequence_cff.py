@@ -10,7 +10,7 @@ from RecoEcal.EgammaClusterProducers.correctedHybridSuperClusters_cfi import *
 # hybrid clustering sequence
 #uncleanedHybridSuperClusters = RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi.hybridSuperClusters.clone()
 uncleanedHybridSuperClusters = cleanedHybridSuperClusters.clone()
-uncleanedHybridSuperClusters.RecHitSeverityToBeExcluded = cms.vint32(999)
+uncleanedHybridSuperClusters.RecHitSeverityToBeExcluded = cms.vstring()
 uncleanedHybridSuperClusters.excludeFlagged = False
 
 from RecoEcal.EgammaClusterProducers.unifiedSCCollection_cfi import *

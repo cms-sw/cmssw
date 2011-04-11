@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEcal.EgammaClusterProducers.ecalRecHitFlags_cfi import *
-from RecoEcal.EgammaClusterProducers.ecalSeverityLevelAlgos_cfi import *
-from RecoEcal.EgammaClusterProducers.ecalSeverityLevelFlags_cfi import *
 
 # Producer for Hybrid BasicClusters and SuperClusters
 cleanedHybridSuperClusters = cms.EDProducer("HybridClusterProducer",
@@ -33,19 +30,19 @@ cleanedHybridSuperClusters = cms.EDProducer("HybridClusterProducer",
     # input collection
     ecalhitproducer = cms.string('ecalRecHit'),
     # recHit flags to be excluded from seeding
-    RecHitFlagToBeExcluded = cms.vint32(
-        ecalRecHitFlag_kFaultyHardware,
-        ecalRecHitFlag_kPoorCalib,
-        #        ecalRecHitFlag_kSaturated,
-        #        ecalRecHitFlag_kLeadingEdgeRecovered,
-        #        ecalRecHitFlag_kNeighboursRecovered,
-        ecalRecHitFlag_kTowerRecovered,
-        ecalRecHitFlag_kDead
+    RecHitFlagToBeExcluded = cms.vstring(
+        'kFaultyHardware',
+        'kPoorCalib',
+        #'kSaturated',
+        #'kLeadingEdgeRecovered',
+        #'kNeighboursRecovered',
+        'kTowerRecovered',
+        'kDead'
         ),
-    RecHitSeverityToBeExcluded = cms.vint32(ecalSeverityLevelFlag_kWeird,ecalSeverityLevelFlag_kBad,ecalSeverityLevelFlag_kTime),
-    severityRecHitThreshold = cms.double(4.),
-    severitySpikeId = cms.int32(ecalSeverityLevelSpikeId_kSwissCrossBordersIncluded),
-    severitySpikeThreshold = cms.double(0.95),
+    RecHitSeverityToBeExcluded = cms.vstring('kWeird',
+                                             'kBad',
+                                             'kTime'),
+   
     excludeFlagged = cms.bool(True),
     posCalcParameters = cms.PSet( T0_barl      = cms.double(7.4),
                                   T0_endc      = cms.double(3.1),        

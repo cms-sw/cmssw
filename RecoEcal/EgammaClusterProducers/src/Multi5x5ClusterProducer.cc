@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -61,7 +62,11 @@ Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps)
   double barrelSeedThreshold = ps.getParameter<double>("IslandBarrelSeedThr");
   double endcapSeedThreshold = ps.getParameter<double>("IslandEndcapSeedThr");
 
-  std::vector<int> v_chstatus = ps.getParameter<std::vector<int> >("RecHitFlagToBeExcluded");
+  const std::vector<std::string> flagnames = 
+    ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
+  
+  const std::vector<int> v_chstatus= 
+    StringToEnumValue<EcalRecHit::Flags>(flagnames);
 
   // Parameters for the position calculation:
   edm::ParameterSet posCalcParameters = 
