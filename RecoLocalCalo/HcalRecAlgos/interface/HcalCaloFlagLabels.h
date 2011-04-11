@@ -46,8 +46,8 @@ namespace HcalCaloFlagLabels
 		   TimingAddedBit=17,      // latency shift correction, recovered
 		   TimingErrorBit=18,      // latency shift error, unrecovered
 		   ADCSaturationBit=19,
-                   Fraction2TS=20,
-		   //PresampleADC=20,
+                   Fraction2TS=20, // should deprecate this at some point
+		   PresampleADC=20, // uses 7 bits to store ADC from presample
 		   // The following bits are all user-defined; reverse-order them so that UserDefinedBit0 will be the last removed
 		   UserDefinedBit2 = 29,
 		   UserDefinedBit1 = 30,
