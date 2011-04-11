@@ -24,9 +24,9 @@ public:
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
 
-  void processEvent(const reco::CastorTowerCollection& castorTowers);
-  void processEvent(const  reco::BasicJet& castorBasicJets);
-  void processEvent(const reco::CastorJetIDValueMap& castorJetIDs);
+  void processEventTowers(const reco::CastorTowerCollection& castorTowers);
+  void processEventJets(const  reco::BasicJet& castorBasicJets);
+  void processEventJetIDs(const reco::CastorJetIDValueMap& castorJetIDs);
 
 
   void reset();

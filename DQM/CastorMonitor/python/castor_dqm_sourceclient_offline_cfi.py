@@ -24,7 +24,7 @@ castorOfflineMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            CastorJetIDLabel     = cms.InputTag("ak7CastorJetID"),
 			  
 			 
-                           DataIntMonitor= cms.untracked.bool(False),
+                           DataIntMonitor= cms.untracked.bool(True),
                            TowerJetMonitor= cms.untracked.bool(True),
 
                            DigiMonitor = cms.untracked.bool(True),

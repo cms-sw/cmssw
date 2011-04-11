@@ -418,6 +418,7 @@ void CastorMonitorModule::reset(){
 //=================================================================//
 void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup){
 
+
   using namespace edm;
 
 
@@ -466,6 +467,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
         //if (fVerbosity>0) edm::LogWarning("CastorMonitorModule")<<" UnpackerReport with label "<<inputLabelReport_<<" \not available";
      }
    else {reportOK_=true; }
+
   /*
   edm::Handle<HcalUnpackerReport> report; 
   iEvent.getByType(report);  
@@ -531,6 +533,15 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   else {jetIdOK_=true; nJetId++;}
 
 
+  if(fVerbosity>0) {
+   std::cout << "    RAW Data   ==> " << rawOK_<< std::endl;
+   std::cout << "    Digis      ==> " << digiOK_<< std::endl;
+   std::cout << "    RecHits    ==> " << rechitOK_<< std::endl;
+   std::cout << "    CaloTowers ==> " << towerOK_<< std::endl;
+   std::cout << "    BasicJets  ==> " << jetOK_<< std::endl;
+   std::cout << "    CastorJetIDs     ==> " << jetIdOK_<< std::endl;
+  }
+ 
   ////---- fill CastorEventProduct histogram
   if(double(nRaw)/double(ievt_)>0.85) CastorEventProduct->getTH2F()->SetBinContent(1,1,1);
   else CastorEventProduct->getTH2F()->SetBinContent(1,1,-1);
@@ -550,15 +561,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   if(double(nJetId)/double(ievt_)>0.85) CastorEventProduct->getTH2F()->SetBinContent(6,1,1);
   else CastorEventProduct->getTH2F()->SetBinContent(6,1,-1);
  
-  if(fVerbosity>0) {
-   std::cout << "    RAW Data   ==> " << rawOK_<< std::endl;
-   std::cout << "    Digis      ==> " << digiOK_<< std::endl;
-   std::cout << "    RecHits    ==> " << rechitOK_<< std::endl;
-   std::cout << "    CaloTowers ==> " << towerOK_<< std::endl;
-   std::cout << "    BasicJets  ==> " << jetOK_<< std::endl;
-   std::cout << "    CastorJetIDs     ==> " << jetIdOK_<< std::endl;
-   }
- 
+  
 
   //------------------------------------------------------------//
   //---------------- Run the configured tasks ------------------//
@@ -568,18 +571,17 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
  if (showTiming_){
       cpu_timer.reset(); cpu_timer.start();
   }
-
-
+ 
 
   //----------------- Data Integrity monitor task ------------------//
- if(rawOK_) DataIntMon_->processEvent(*RawData,*unpackReport,*CastorReadoutMap_ ); 
+ if(rawOK_ && reportOK_) DataIntMon_->processEvent(*RawData,*unpackReport,*CastorReadoutMap_ ); 
   if (showTiming_){
       cpu_timer.stop();
       if (DataIntMon_!=NULL) std::cout <<"TIMER:: DATA INTEGRITY MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 
-
+ 
   //----------------- Digi monitor task ------------------//
   if(digiOK_) DigiMon_->processEvent(*CastorDigi,*conditions_);
   if (showTiming_){
@@ -587,15 +589,15 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       if (DigiMon_!=NULL) std::cout <<"TIMER:: DIGI MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
     }
-
-
+ 
+ 
  //----------------- Rec Hit monitor task -------------------------//
  if(rechitOK_) RecHitMon_->processEvent(*CastorHits);
  if (showTiming_){
       cpu_timer.stop();
       if (RecHitMon_!=NULL) std::cout <<"TIMER:: RECHIT MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
-    }
+    } 
  
    //----------------- Channel Quality Monitor task -------------------------//
  if(rechitOK_) CQMon_->processEvent(*CastorHits);
@@ -650,12 +652,13 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       if (HIMon_!=NULL) std::cout <<"TIMER:: HI MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
     }
-
+ 
+ 
 
 //----------------- TowerJet monitor task ------------------//
- if( towerOK_ ) TowerJetMon_->processEvent(*CastorTowers);
- if( jetOK_   ) TowerJetMon_->processEvent(*CastorBasicJets);
- if( jetIdOK_ ) TowerJetMon_->processEvent(*CastorJetIDs);
+ if( towerOK_ ) TowerJetMon_->processEventTowers(*CastorTowers);
+ if( jetOK_   ) TowerJetMon_->processEventJets(*CastorBasicJets);
+ if( jetIdOK_ ) TowerJetMon_->processEventJetIDs(*CastorJetIDs);
  
   if (showTiming_){
       cpu_timer.stop();
@@ -664,15 +667,12 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
 
-
   if(fVerbosity>0 && ievt_%100 == 0)
     std::cout << "CastorMonitorModule: processed " << ievt_ << " events" << std::endl;
   
 
  ////---- fill the event number
   meEVT_->Fill(ievt_);
-
-
 
   return;
 }
@@ -701,10 +701,8 @@ bool CastorMonitorModule::prescale()
   bool updatePS = prescaleUpdate_>0;
 
   ////---- if no prescales are set, keep the event
-  if(!evtPS && !lsPS && !timePS && !updatePS)
-    {
-      return false;
-    }
+  if(!evtPS && !lsPS && !timePS && !updatePS) return false;
+    
   ////---- check each instance
   if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //-- LS veto
   //if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto

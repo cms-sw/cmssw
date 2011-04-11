@@ -99,15 +99,16 @@ void CastorTowerJetMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 //=========================== processEvent for Towers  ========================//
 //============================================================================//
 
-void  CastorTowerJetMonitor::processEvent(const reco::CastorTowerCollection& castorTowers)
+void  CastorTowerJetMonitor::processEventTowers(const reco::CastorTowerCollection& castorTowers)
 {
   
   
- if(fVerbosity>0) std::cout << "==>CastorTowerJetMonitor::processEvent !!!"<< std::endl;
+ if(fVerbosity>0) 
+   std::cout << "==>CastorTowerJetMonitor::processEventTowers !!!"<< std::endl;
 
 
   if(!m_dbe) { 
-    if(fVerbosity>0) std::cout<<"CastorTowerJetMonitor::processEvent DQMStore is not instantiated!!!"<<std::endl;  
+    if(fVerbosity>0) std::cout<<"CastorTowerJetMonitor::processEventTowers DQMStore is not instantiated!!!"<<std::endl;  
     return; 
   }
 
@@ -176,7 +177,15 @@ void  CastorTowerJetMonitor::processEvent(const reco::CastorTowerCollection& cas
 //=========================== processEvent for BasicJets  =====================//
 //============================================================================//
 
-void  CastorTowerJetMonitor::processEvent(const  reco::BasicJet& castorBasicJets){
+void  CastorTowerJetMonitor::processEventJets(const  reco::BasicJet& castorBasicJets){
+  
+ if(fVerbosity>0) 
+   std::cout << "==>CastorTowerJetMonitor::processEventJets !!!"<< std::endl;
+   
+  if(!m_dbe) { 
+    if(fVerbosity>0) std::cout<<"CastorTowerJetMonitor::processEventJets DQMStore is not instantiated!!!"<<std::endl;  
+    return; 
+  }
 
    nJets=0; 
     ////---- loop over Castor Basic Jets
@@ -188,7 +197,6 @@ void  CastorTowerJetMonitor::processEvent(const  reco::BasicJet& castorBasicJets
     }
    meCastorJetMultiplicity->Fill(nJets);
 
-
     return;
 }  
 
@@ -197,7 +205,16 @@ void  CastorTowerJetMonitor::processEvent(const  reco::BasicJet& castorBasicJets
 //=========================== processEvent for JetIDs  =======================//
 //============================================================================//
 
-void  CastorTowerJetMonitor::processEvent(const reco::CastorJetIDValueMap& castorJetIDs){
+void  CastorTowerJetMonitor::processEventJetIDs(const reco::CastorJetIDValueMap& castorJetIDs){
+
+
+ if(fVerbosity>0) 
+   std::cout << "==>CastorTowerJetMonitor::processEventJetIDs !!!"<< std::endl;   
+
+ if(!m_dbe) { 
+    if(fVerbosity>0) std::cout<<"CastorTowerJetMonitor::processEventJetIDs DQMStore is not instantiated!!!"<<std::endl;  
+    return; 
+  }  
 
   nJetIDs=0;
 
