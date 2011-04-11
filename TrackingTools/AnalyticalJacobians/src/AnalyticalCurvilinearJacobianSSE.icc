@@ -7,8 +7,10 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
  const GlobalVector& h, 
  const double& s)
 { 
+#ifdef  CMS_USE_AVX
   // needed fro gcc < 4.6    
   mathSSE::ZeroUpper zu;
+#endif
 
   using mathSSE::Vec4D;
   using mathSSE::Vec3D;
