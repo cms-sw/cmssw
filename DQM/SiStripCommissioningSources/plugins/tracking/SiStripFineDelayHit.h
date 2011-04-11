@@ -51,7 +51,7 @@ class SiStripFineDelayHit : public edm::EDProducer {
       // ----------member data ---------------------------
       SiStripFineDelayTLA *anglefinder_;
       const edm::Event* event_;
-      bool cosmic_, field_, trajInEvent_, homeMadeClusters_, noTracking_;
+      bool cosmic_, field_, homeMadeClusters_, noTracking_;
       double maxAngle_, minTrackP2_, maxClusterDistance_;
       int mode_; // 1=delayScan 2=latencyScan
       int explorationWindow_;

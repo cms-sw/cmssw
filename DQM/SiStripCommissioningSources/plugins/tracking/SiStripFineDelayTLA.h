@@ -12,7 +12,6 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 
-class SimpleTrackRefitter;
 class TrackerGeometry;
 class TrackingRecHit;
 class TrajectorySeed;
@@ -26,8 +25,6 @@ class SiStripFineDelayTLA
   virtual ~SiStripFineDelayTLA();
   void init(const edm::Event& e,const edm::EventSetup& c);
 
-  std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > findtrackangle(const TrajectorySeed& seed,const reco::Track & theT);
-  std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > findtrackangle(const reco::Track & theT);
   std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > findtrackangle(const std::vector<Trajectory>& traj);
   std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > findtrackangle(const Trajectory& traj);
 
@@ -37,7 +34,6 @@ class SiStripFineDelayTLA
 
  private:
   edm::ParameterSet conf_;
-  SimpleTrackRefitter* refitter_;
   const TrackerGeometry * tracker;
 };
 

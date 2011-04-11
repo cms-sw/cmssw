@@ -21,13 +21,11 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include <TrackingTools/PatternTools/interface/Trajectory.h>
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "DQM/SiStripCommissioningSources/plugins/tracking/SimpleTrackRefitter.h"
 
 using namespace std;
 SiStripFineDelayTLA::SiStripFineDelayTLA(edm::ParameterSet const& conf) : 
   conf_(conf)
 {
-  refitter_ = new SimpleTrackRefitter(conf);
 }
 
 void SiStripFineDelayTLA::init(const edm::Event& e, const edm::EventSetup& es)
@@ -36,26 +34,12 @@ void SiStripFineDelayTLA::init(const edm::Event& e, const edm::EventSetup& es)
   edm::ESHandle<TrackerGeometry> estracker;
   es.get<TrackerDigiGeometryRecord>().get(estracker);
   tracker=&(*estracker);
-  // the refitter
-  refitter_->setServices(es);
 }
 
 // Virtual destructor needed.
 SiStripFineDelayTLA::~SiStripFineDelayTLA() 
 {  
-  delete refitter_;
 }  
-
-std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTLA::findtrackangle(const reco::Track& theT)
-{
-  std::vector<Trajectory> traj = refitter_->refitTrack(theT);
-  return findtrackangle(traj);
-}
-
-std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTLA::findtrackangle(const TrajectorySeed& seed, const reco::Track& theT){
-  vector<Trajectory> traj = refitter_->refitTrack(seed,theT);
-  return findtrackangle(traj);
-}       
 
 std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTLA::findtrackangle(const std::vector<Trajectory>& trajVec)
 {
