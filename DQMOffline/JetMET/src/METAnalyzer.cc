@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/12/04 00:52:25 $
- *  $Revision: 1.38 $
+ *  $Date: 2011/04/02 13:30:17 $
+ *  $Revision: 1.39 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -432,6 +432,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   _trig_MinBias=0;
   _trig_HighMET=0;
   _trig_LowMET=0;
+  _trig_Ele=0;
+  _trig_Muon=0;
+  _trig_PhysDec=0;
   if(&triggerResults) {   
 
     /////////// Analyzing HLT Trigger Results (TriggerResults) //////////

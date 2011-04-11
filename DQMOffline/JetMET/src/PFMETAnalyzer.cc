@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/03/29 12:45:30 $
- *  $Revision: 1.34 $
+ *  $Date: 2011/04/02 13:30:17 $
+ *  $Revision: 1.35 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -410,6 +410,9 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   _trig_MinBias=0;
   _trig_HighMET=0;
   _trig_LowMET=0;
+  _trig_Ele=0;
+  _trig_Muon=0;
+  _trig_PhysDec=0;
   if(&triggerResults) {   
 
     /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
