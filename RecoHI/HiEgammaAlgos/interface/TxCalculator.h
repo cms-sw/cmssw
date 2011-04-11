@@ -29,8 +29,9 @@ class TxCalculator
   
    double getTx(const reco::Photon clus, double i,double threshold, double innerDR=0);
    double getCTx(const reco::Photon clus, double i,double threshold, double innerDR=0); // background subtracted Cx
-
-  private:
+   double getMPT(double ptCut=0, double etaCut=3);
+   
+ private:
    
    edm::Handle<reco::TrackCollection>  recCollection;
   

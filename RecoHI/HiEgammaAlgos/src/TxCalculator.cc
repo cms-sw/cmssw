@@ -26,6 +26,40 @@ TxCalculator::TxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSe
 } 
 
 
+
+double TxCalculator::getMPT( double ptCut     ,   double etaCut  )
+{
+   using namespace edm;
+   using namespace reco;
+   
+   double sumpx(0), sumpy(0);
+   
+   for(reco::TrackCollection::const_iterator
+          recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
+      {
+	 double pt = recTrack->pt();
+         double eta = recTrack->eta();
+	 
+	 if(pt < ptCut ) 
+	    continue;
+	 if ( fabs( eta) > etaCut ) 
+	    continue;
+	 
+	 double pxTemp = recTrack->px();
+	 double pyTemp = recTrack->py();
+	 
+	 sumpx = sumpx + pxTemp;
+	 sumpy = sumpy + pyTemp;
+	 cout << " pt  = " << recTrack->pt() <<  "    and px = " << pxTemp << " and  py = " << pyTemp << endl;
+      }
+   cout << " square = " << sumpx*sumpx + sumpy*sumpy << endl;
+   double theMPT = sqrt(sumpx*sumpx + sumpy*sumpy) ;
+   cout << " mpt    = "<< theMPT << endl;
+   
+   return theMPT;
+}
+
+
 double TxCalculator::getTx(const reco::Photon cluster, double x, double threshold, double innerDR)
 {
 
@@ -39,11 +73,11 @@ double TxCalculator::getTx(const reco::Photon cluster, double x, double threshol
 
    for(reco::TrackCollection::const_iterator
    	  recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
-   {
-      double pt = recTrack->pt();
-      double eta2 = recTrack->eta();
-      double phi2 = recTrack->phi();
-      
+      {
+	 double pt = recTrack->pt();
+	 double eta2 = recTrack->eta();
+	 double phi2 = recTrack->phi();
+	 
       if(dRDistance(SClusterEta,SClusterPhi,eta2,phi2) >= 0.1 * x)
          continue;
       if(dRDistance(SClusterEta,SClusterPhi,eta2,phi2) < innerDR)
