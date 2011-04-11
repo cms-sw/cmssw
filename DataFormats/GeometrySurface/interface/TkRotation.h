@@ -1,7 +1,7 @@
 #ifndef Geom_TkRotation_H
 #define Geom_TkRotation_H
 
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
+#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)) || defined(__clang__)
 #define USE_SSEVECT
 #endif
 
