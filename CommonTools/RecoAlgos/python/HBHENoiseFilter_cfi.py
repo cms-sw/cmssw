@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 HBHENoiseFilter = cms.EDFilter(
     'HBHENoiseFilter',
-    minRatio = cms.double(0.70),
-    maxRatio = cms.double(0.96),
+    minRatio = cms.double(-999.0),
+    maxRatio = cms.double(999.0),
     minHPDHits = cms.int32(17),
     minRBXHits = cms.int32(999),
     minHPDNoOtherHits = cms.int32(10),

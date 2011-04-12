@@ -11,8 +11,8 @@ HBHENoiseFilterResultProducer = cms.EDProducer(
     minHighEHitTime = cms.double(-9999.0),
     maxHighEHitTime = cms.double(9999.0),
     maxRBXEMF = cms.double(-999.0),
-    minNumIsolatedNoiseChannels = cms.int32(99999),
-    minIsolatedNoiseSumE = cms.double(99999),
-    minIsolatedNoiseSumEt = cms.double(99999),
+    minNumIsolatedNoiseChannels = cms.int32(10),
+    minIsolatedNoiseSumE = cms.double(50.0),
+    minIsolatedNoiseSumEt = cms.double(25.0),
     useTS4TS5 = cms.bool(True)
     )
