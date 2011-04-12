@@ -247,7 +247,6 @@ if __name__ == '__main__':
                 print '\t%d : %s'%(run,','.join([str(ls) for ls in irunlsdict[run]]))
             else:
                 print '\t%d : all'%run
-    inputIdRange=lumiCalcAPI            
     if options.action == 'delivered':
         session.transaction().start(True)
         result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
@@ -256,11 +255,14 @@ if __name__ == '__main__':
             lumiReport.toScreenTotDelivered(result,options.verbose)
         else:
             lumiReport.toCSVTotDelivered(result,options.outputfile,options.verbose)
-    #if options.action == 'overview' || options.action == 'lumibyls' || options.action == 'lumibylsXing':
-    #    lumiCalcAPI.lumiForRange()
-    #if options.action == 'delivered':
-    #    lumiCalcAPI.deliveredLumiForRange()    
-    #if options.action == 'status':
-    #    pass
+    if options.action == 'lumibyls':
+        session.transaction().start(True)
+        result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
+        session.transaction().commit()
+        if not options.outputfile:
+            lumiReport.toScreenLSDelivered(result,options.verbose)
+        else:
+            lumiReport.toCSVLSDelivered(result,options.outputfile,options.verbose)
+   
     del session
     del svc 

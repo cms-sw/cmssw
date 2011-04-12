@@ -1,4 +1,4 @@
-import datetime
+import os,sys
 from RecoLuminosity.LumiDB import tablePrinter, csvReporter,CommonUtil
 from RecoLuminosity.LumiDB.wordWrappers import wrap_always, wrap_onspace, wrap_onspace_strict
 
@@ -29,12 +29,12 @@ def toScreenTotDelivered(lumidata,isverbose):
         else:
             result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%b %d %Y %H:%M:%S"),'%.3f'%(avgbeamenergy)])
     if isverbose:
-        labels = [('Run', 'Total LS', 'Delivered Lumi','Start Time','Beam Energy(GeV)','Selected LS')]
+        labels = [('Run', 'Total LS', 'Delivered','Start Time','Beam Energy(GeV)','Selected LS')]
         print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
     else:
-        labels = [('Run', 'Total LS', 'Delivered Lumi','Start Time','Beam Energy (GeV)')]
+        labels = [('Run', 'Total LS', 'Delivered','Start Time','Beam Energy(GeV)')]
         print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,40) )
@@ -44,6 +44,9 @@ def toCSVTotDelivered(lumidata,filename,isverbose):
     '''
     result=[]
     r=csvReporter.csvReporter(filename)
+    fieldnames = ['Run', 'Total LS', 'Delivered(1/ub)','UTCTime','BeamEnergy(GeV)']
+    if isverbose:
+        fieldnames.append('Selected LS')
     for run in sorted(lumidata):
         lsdata=lumidata[run]
         if lsdata is None:
@@ -58,21 +61,57 @@ def toCSVTotDelivered(lumidata,filename,isverbose):
         if len(beamenergyPerLS):
             avgbeamenergy=sum(beamenergyPerLS)/len(beamenergyPerLS)
         runstarttime=lsdata[0][2]
-       
         if isverbose:
             selectedls=[(x[0],x[1]) for x in lsdata]
             result.append([run,nls,totlumival,runstarttime.strftime("%b %d %Y %H:%M:%S"),avgbeamenergy, str(selectedls)])
         else:
             result.append([run,nls,totlumival,runstarttime.strftime("%b %d %Y %H:%M:%S"),avgbeamenergy])
-    if isverbose:
-        fieldnames = ['Run', 'Total LS', 'Delivered Lumi(1/ub)','Start Time','Beam Energy(GeV)','Selected LS']
-        r.writeRow(fieldnames)
-        r.writeRows(result)
-    else:
-        fieldnames = ['Run', 'Total LS', 'Delivered Lumi','Start Time','Beam Energy (GeV)']
         r.writeRow(fieldnames)
         r.writeRows(result)
 def toScreenLSDelivered(lumidata,isverbose):
-    pass
-
-
+    result=[]
+    for run in sorted(lumidata):
+        rundata=lumidata[run]
+        if rundata is None:
+            result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a'])
+            continue
+        for lsdata in rundata:
+            if lsdata is None or len(lsdata)==0:
+                result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a'])
+                continue
+            else:
+                lumils=lsdata[0]
+                cmsls=lsdata[1]
+                lsts=lsdata[2]
+                beamstatus=lsdata[3]
+                beamenergy=lsdata[4]
+                delivered=lsdata[5]
+                result.append([str(run),str(lumils),str(cmsls),'%.3f'%delivered,lsts.strftime('%b %d %Y %H:%M:%S'),beamstatus,'%.3f'%beamenergy])
+    labels = [('Run','lumils','cmsls','Delivered(1/ub)','UTCTime','Beam Status','Beam Energy(GeV)')]
+    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+                               prefix = '| ', postfix = ' |', justify = 'right',
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
+         
+def toCSVLSDelivered(lumidata,filename,isverbose):
+    result=[]
+    fieldnames=['Run','lumils','cmsls','Delivered(1/ub)','UTCTime','eamStatus','Beam Energy(GeV)']
+    r=csvReporter.csvReporter(filename)
+    for run in sorted(lumidata):
+        rundata=lumidata[run]
+        if rundata is None:
+            result.append([run,'n/a','n/a','n/a','n/a','n/a','n/a'])
+            continue
+        for lsdata in rundata:
+            if lsdata is None:
+                result.append([run,'n/a','n/a','n/a','n/a','n/a','n/a'])
+                continue
+            else:
+                lumils=lsdata[0]
+                cmsls=lsdata[1]
+                lsts=lsdata[2]
+                beamstatus=lsdata[3]
+                beamenergy=lsdata[4]
+                delivered=lsdata[5]
+                result.append([run,lumils,cmsls,delivered,lsts,beamstatus,beamenergy])
+    r.writeRow(fieldnames)
+    r.writeRows(result)
