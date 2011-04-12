@@ -299,10 +299,12 @@ if 'PrescaleService' in %(dict)s:
     text = ''
     if self.config.online:
       if self.config.globaltag:
-        # override the GlobalTag
+        # override the GlobalTag connection string and pfnPrefix
         text += """
 # override the GlobalTag
 if 'GlobalTag' in %%(dict)s:
+    %%(process)sGlobalTag.connect   = '%%(connect)s/CMS_COND_31X_GLOBALTAG'
+    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('%%(connect)s/')
     %%(process)sGlobalTag.globaltag = '%(globaltag)s'
 """
 
