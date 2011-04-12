@@ -53,7 +53,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
-    	'file:../../../../../CMSSW_4_2_0_pre5/src/data_RAW2DIGI_L1Reco_RECO.root' # choose your input file here
+    	'file:data_RAW2DIGI_L1Reco_RECO.root' # choose your input file here
 	)
 )
 
@@ -66,8 +66,8 @@ process.rechitcorrector = cms.EDProducer("RecHitCorrector",
 	revertFactor = cms.double(62.5) # this is the factor to go back to the original fC: 1/0.016
 )
 
-# tell to the CastorTower reconstruction that he should use the new corrected rechits
-process.CastorTowerReco.inputprocess = "rechitcorrector"
+# tell to the CastorCell reconstruction that he should use the new corrected rechits
+process.CastorCellReco.inputprocess = "rechitcorrector"
 
 process.MyOutputModule = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('rechitcorrector_output.root') # choose your output file
