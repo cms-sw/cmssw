@@ -229,7 +229,14 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
       # override the raw data collection label
       self._fix_parameter(type = 'InputTag', value = 'source', replace = 'rawDataCollector')
       self._fix_parameter(type = 'string',   value = 'source', replace = 'rawDataCollector')
-
+      self.data += """
+# HF cleaning at HLT (default in data, revert back for MC)
+if 'hcalRecAlgos' in %(dict)s:
+    %(process)shcalRecAlgos.SeverityLevels[3].RecHitFlags.append("HFDigiTime")
+    %(process)shcalRecAlgos.SeverityLevels[4].RecHitFlags.remove("HFDigiTime")
+if 'hltHfreco' in %(dict)s:
+    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
+"""
 
   def fixForFastSim(self):
     if self.config.fastsim:

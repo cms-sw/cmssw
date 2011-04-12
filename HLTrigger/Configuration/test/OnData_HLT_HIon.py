@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V6 (CMSSW_3_11_0_HLT20)
+# /dev/CMSSW_4_2_0/HIon/V13 (CMSSW_3_11_0_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V6')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V13')
 )
 
 process.streams = cms.PSet( 
@@ -713,7 +713,6 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     cms.PSet(  RecHitFlags = cms.vstring( 'HBHEHpdHitMultiplicity',
   'HBHEPulseShape',
   'HOBit',
-  'HFDigiTime',
   'HFInTimeWindow',
   'HFS8S1Ratio',
   'ZDCBit',
@@ -722,7 +721,8 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
       ChannelStatus = cms.vstring(  ),
       Level = cms.int32( 8 )
     ),
-    cms.PSet(  RecHitFlags = cms.vstring( 'HFLongShort' ),
+    cms.PSet(  RecHitFlags = cms.vstring( 'HFLongShort',
+  'HFDigiTime' ),
       ChannelStatus = cms.vstring(  ),
       Level = cms.int32( 11 )
     ),
@@ -3034,7 +3034,7 @@ process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     correctionPhaseNS = cms.double( 0.0 ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
     correctTiming = cms.bool( False ),
-    setNoiseFlags = cms.bool( False ),
+    setNoiseFlags = cms.bool( True ),
     setHSCPFlags = cms.bool( False ),
     setSaturationFlags = cms.bool( False ),
     setTimingTrustFlags = cms.bool( False ),
