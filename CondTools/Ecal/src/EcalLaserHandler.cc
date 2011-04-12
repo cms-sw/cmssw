@@ -282,7 +282,13 @@ void popcon::EcalLaserHandler::getNewObjects()
   // we associate another map, whose key is the crystal ID and whose value is a
   // sextuple (p1, p2, p3, t1, t2, t3)
   Tm tmax;
-  tmax.setToString(m_maxtime);
+  if (m_maxtime[0] == '-') {
+    // this is a time relative to now
+    tmax.setToCurrentLocalTime();
+    tmax -= atoi(m_maxtime.substr(1).c_str())*3600;//
+  } else {
+    tmax.setToString(m_maxtime);
+  }
   //  Tm tmin = Tm((t_min.value() >> 32)*1000000);
   Tm tmin = Tm(t_min.value());
 
@@ -290,7 +296,12 @@ void popcon::EcalLaserHandler::getNewObjects()
     // 3 days buffer
     tmax += 86400 * 3;
   }
-  
+
+  if (m_debug) {
+    std::cout << "Tmin: " << tmin << std::endl;
+    std::cout << "Tmax: " << tmax << std::endl;
+  }
+
   std::map<int, std::map<int, LMFSextuple> > d = 
     data.getCorrections(tmin, tmax, m_sequences);
   // sice must be equal to the number of different SEQ_ID's found
