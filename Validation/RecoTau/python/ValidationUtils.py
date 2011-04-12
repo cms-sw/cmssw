@@ -137,7 +137,7 @@ def SetpByStep(analyzer, plotPset, useOnly):
     """SetpByStep(analyzer, plotPset) --> PSet\n
      This function produces the parameter set stepBystep for the EDAnalyzer DQMHistPlotter starting from the PSet produced for DQMHistEffProducer and the analyzer to plot"""
     standardEfficiencyOverlay = cms.PSet(
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'pileup'),
         title = cms.string('TauId step by step efficiencies'),
         xAxis = cms.string('#PAR#'),
         yAxis = cms.string('efficiency'),
@@ -182,7 +182,7 @@ def SpawnDrawJobs(analyzer, plotPset, useOnly=None):
     """SpwnDrawJobs(analyzer, plotPset) --> cms.PSet\n
     This function produces the parameter set drawJobs for the EDAnalyzer DQMHistPlotter starting from the PSet produced for DQMHistEffProducer and the analyzer to plot"""
     standardEfficiencyParameters = cms.PSet(
-        parameter = cms.vstring('pt', 'eta', 'phi', 'energy'),
+        parameter = cms.vstring('pt', 'eta', 'phi', 'pileup'),
         xAxis = cms.string('#PAR#'),
         yAxis = cms.string('efficiency'),
         legend = cms.string('efficiency'),
