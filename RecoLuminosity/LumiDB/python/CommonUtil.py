@@ -25,15 +25,15 @@ def guessUnit(inverseubval):
         denomitor=1.0e3
         unitstring='1/nb'
         return (float(inverseubval)/float(denomitor),unitstring)
-    if t>=1.0e6 and t<1.0e9:
+    if inverseubval>=1.0e6 and inverseubval<1.0e9:
         denomitor=1.0e6
         unitstring='1/pb'
         return (float(inverseubval)/float(denomitor),unitstring)
-    if t>=1.0e9 and t<1.0e12:
+    if inverseubval>=1.0e9 and inverseubval<1.0e12:
         denomitor=1.0e9
         unitstring='1/fb'
         return (float(inverseubval)/float(denomitor),unitstring)
-    if t>=1.0e12 and t<1.0e15:
+    if inverseubval>=1.0e12 and inverseubval<1.0e15:
         denomitor=1.0e12
         unitstring='1/ab'
         return (float(inverseubval)/float(denomitor),unitstring)
