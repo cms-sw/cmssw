@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V5
+# /dev/CMSSW_4_2_0/GRun/V6
 
 import FWCore.ParameterSet.Config as cms
 
@@ -48,6 +48,10 @@ streamA_datasetDoubleElectron_selector.triggerConditions = cms.vstring('HLT_Doub
     'HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v2', 
     'HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v2', 
     'HLT_Ele32_CaloIdL_CaloIsoVL_SC17_v2', 
+    'HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v2', 
+    'HLT_Ele8_CaloIdL_CaloIsoVL_v2', 
+    'HLT_Ele8_CaloIdL_TrkIdVL_v2', 
+    'HLT_Ele8_v2', 
     'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v2', 
     'HLT_TripleEle10_CaloIdL_TrkIdVL_v2')
 
@@ -71,6 +75,7 @@ streamA_datasetElectronHad_selector.l1tResults = cms.InputTag('')
 streamA_datasetElectronHad_selector.throw      = cms.bool(False)
 streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleEle8_CaloIdL_TrkIdVL_HT150_v1', 
     'HLT_DoubleEle8_CaloIdT_TrkIdVL_HT150_v1', 
+    'HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v3', 
     'HLT_Ele10_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v3', 
     'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta2_v1', 
     'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_v1', 
