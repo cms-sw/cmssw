@@ -160,7 +160,7 @@ void go() {
   std::cout << Vec4<float>(x) << std::endl;
   std::cout << Vec4<double>(x) << std::endl;
   std::cout << -x << std::endl;
-  std::cout << x.get1(2) << std::endl;
+  std::cout << x.template get1<2>() << std::endl;
   std::cout << y << std::endl;
   std::cout << T(3.)*x << std::endl;
   std::cout << y*T(0.1) << std::endl;

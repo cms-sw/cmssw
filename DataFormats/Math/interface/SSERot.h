@@ -55,7 +55,7 @@ namespace mathSSE {
 
     // toGlobal...
     Vec4<T> rotateBack(Vec4<T> v) const {
-      return v.get1(0)*axis[0] +  v.get1(1)*axis[1] + v.get1(2)*axis[2];
+      return v.template get1<0>()*axis[0] +  v.template get1<1>()*axis[1] + v.template get1<2>()*axis[2];
     }
 
     Rot3 rotate(Rot3 const& r) const {

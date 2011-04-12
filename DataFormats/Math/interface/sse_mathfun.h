@@ -1,7 +1,7 @@
 #ifndef SSE_MATHFUN_H
 #define SSE_MATHFUN_H
 
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
+#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)) || defined(__clang__)
 #include <x86intrin.h>
 #define CMS_USE_SSE
 

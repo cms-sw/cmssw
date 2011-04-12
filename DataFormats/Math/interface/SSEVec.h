@@ -364,8 +364,9 @@ namespace mathSSE {
      vec =  _mm_set1_ps(f1);
     }
 
-    Vec4 get1(unsigned int n) const { 
-      return _mm_shuffle_ps(vec, vec, _MM_SHUFFLE(n, n, n, n)); 
+    template <int N>
+    Vec4 get1() const { 
+      return _mm_shuffle_ps(vec, vec, _MM_SHUFFLE(N, N, N, N)); 
     }
 
     float & operator[](unsigned int n) {
@@ -507,8 +508,9 @@ namespace mathSSE {
     }
 
 
-    Vec4 get1(unsigned int n) const {
-      return Vec4(arr[n],arr[n],arr[n],arr[n]);
+    template<int N>
+    Vec4 get1() const {
+      return Vec4(arr[N],arr[N],arr[N],arr[N]);
     }
 
     double & operator[](unsigned int n) {
