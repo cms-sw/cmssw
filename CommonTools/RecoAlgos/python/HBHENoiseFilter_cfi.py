@@ -14,4 +14,5 @@ HBHENoiseFilter = cms.EDFilter(
     minNumIsolatedNoiseChannels = cms.int32(10),
     minIsolatedNoiseSumE = cms.double(50.0),
     minIsolatedNoiseSumEt = cms.double(25.0),
+    useTS4TS5 = cms.bool(True)
     )
