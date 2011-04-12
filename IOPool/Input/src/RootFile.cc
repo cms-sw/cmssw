@@ -1254,6 +1254,7 @@ namespace edm {
     overrideRunNumber(eventAux_.id(), eventAux().isRealData());
 
     std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(eventAux()));
+        
     // We're not done ... so prepare the EventPrincipal
     cache.fillEventPrincipal(aux,
                              lb,
@@ -1634,12 +1635,22 @@ namespace edm {
   boost::shared_ptr<BranchMapper>
   RootFile::makeBranchMapper(RootTree& rootTree, BranchType const& type) const {
     if(fileFormatVersion().splitProductIDs()) {
+      if(type == InEvent) {
+        if(not eventBranchMapper_) {
+          eventBranchMapper_ = makeBranchMapperInRelease300(rootTree);
+        }   
+        eventBranchMapper_->reset();
+        return eventBranchMapper_;
+      }
       return makeBranchMapperInRelease300(rootTree);
     } else if(fileFormatVersion().perEventProductIDs()) {
+      eventBranchMapper_.reset();
       return makeBranchMapperInRelease210(rootTree, type);
     } else if(fileFormatVersion().eventHistoryTree()) {
+      eventBranchMapper_.reset();
       return makeBranchMapperInRelease200(rootTree, type, *productRegistry_);
     } else {
+      eventBranchMapper_.reset();
       return makeBranchMapperInRelease180(rootTree, type, *productRegistry_);
     }
   }

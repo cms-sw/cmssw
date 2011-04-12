@@ -23,6 +23,7 @@ namespace edm {
   private:
     virtual void readProvenance_() const;
     virtual BranchID oldProductIDToBranchID_(ProductID const& oldProductID) const;
+    virtual void reset_();
 
     RootTree* rootTree_;
     ProductProvenanceVector infoVector_;

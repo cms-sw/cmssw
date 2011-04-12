@@ -49,4 +49,10 @@ namespace edm {
     }
     return it->second;
   }
+  
+  void BranchMapperWithReader::reset_()
+  {
+    setDelayedRead(true);
+    oldProductIDToBranchIDMap_.clear();
+  }
 }

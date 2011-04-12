@@ -188,6 +188,7 @@ namespace edm {
     boost::shared_ptr<BranchChildren> branchChildren_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     boost::shared_ptr<ProvenanceAdaptor> provenanceAdaptor_;
+    mutable boost::shared_ptr<BranchMapper> eventBranchMapper_;
   }; // class RootFile
 
 }
