@@ -32,8 +32,8 @@ HcalNoiseParameterSet = cms.PSet(
     pMaxRBXEMF = cms.double(0.02),
 
     # define loose noise cuts
-    lMinRatio = cms.double(0.70),
-    lMaxRatio = cms.double(0.96),
+    lMinRatio = cms.double(-999.),
+    lMaxRatio = cms.double(999.),
     lMinHPDHits = cms.int32(17),
     lMinRBXHits = cms.int32(999),
     lMinHPDNoOtherHits = cms.int32(10),
@@ -44,8 +44,8 @@ HcalNoiseParameterSet = cms.PSet(
     lMaxHighEHitTime = cms.double(9999.0),
 
     # define tight noise cuts
-    tMinRatio = cms.double(0.73),
-    tMaxRatio = cms.double(0.92),
+    tMinRatio = cms.double(-999.),
+    tMaxRatio = cms.double(999.),
     tMinHPDHits = cms.int32(16),
     tMinRBXHits = cms.int32(50),
     tMinHPDNoOtherHits = cms.int32(9),
