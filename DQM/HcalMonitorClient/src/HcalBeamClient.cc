@@ -11,8 +11,8 @@
 /*
  * \file HcalBeamClient.cc
  * 
- * $Date: 2010/03/25 21:16:44 $
- * $Revision: 1.16 $
+ * $Date: 2010/05/07 09:09:12 $
+ * $Revision: 1.17 $
  * \author J. Temple
  * \brief Hcal Beam Monitor Client class
  */
@@ -48,6 +48,8 @@ HcalBeamClient::HcalBeamClient(std::string myname, const edm::ParameterSet& ps)
 						   ps.getUntrackedParameter<double>("minerrorrate",0.05));
   minevents_    = ps.getUntrackedParameter<int>("Beam_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
   ProblemCells=0;
   ProblemCellsByDepth=0;
 }

@@ -19,7 +19,7 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             # Specify whether LS-by-LS certification should be created
                             saveByLumiSection = cms.untracked.bool(False),
 
-
+                            online = cms.untracked.bool(False),  # set to true only for online DQM running
                             # When enabled, this checks for NaN values in the channel status, and counts any such channels as errors in the reportSummary:
                             UseBadChannelStatusInSummary = cms.untracked.bool(False),
                             

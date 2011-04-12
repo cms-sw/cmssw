@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/09/17 13:47:10 $
- * $Revision: 1.103 $
+ * $Date: 2010/12/09 15:58:26 $
+ * $Revision: 1.104 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -59,6 +59,8 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
 						   ps.getUntrackedParameter<double>("minerrorrate",0));
   minevents_    = ps.getUntrackedParameter<int>("Summary_minevents",
 						ps.getUntrackedParameter<int>("minevents",0));
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
   SummaryMapByDepth=0;
   ProblemCells=0;
   ProblemCellsByDepth=0;

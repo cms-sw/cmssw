@@ -16,8 +16,8 @@
 /*
  * \file HcalRawDataClient.cc
  * 
- * $Date: 2011/03/04 19:02:19 $
- * $Revision: 1.9 $
+ * $Date: 2011/03/21 23:02:03 $
+ * $Revision: 1.10 $
  * \author J. St. John
  * \brief Hcal Raw Data Client class
  */
@@ -51,6 +51,7 @@ HcalRawDataClient::HcalRawDataClient(std::string myname, const edm::ParameterSet
 						ps.getUntrackedParameter<int>("minevents",1));
 
   excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHOring2_backup",false);
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
 
   ProblemCells=0;
   ProblemCellsByDepth=0;

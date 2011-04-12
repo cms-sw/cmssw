@@ -11,8 +11,8 @@
 /*
  * \file HcalDigiClient.cc
  * 
- * $Date: 2010/11/17 19:17:42 $
- * $Revision: 1.67 $
+ * $Date: 2010/11/17 19:22:16 $
+ * $Revision: 1.68 $
  * \author J. Temple
  * \brief DigiClient class
  */
@@ -45,7 +45,11 @@ HcalDigiClient::HcalDigiClient(std::string myname, const edm::ParameterSet& ps)
 						   ps.getUntrackedParameter<double>("minerrorrate",0.05));
   minevents_    = ps.getUntrackedParameter<int>("Digi_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
   ProblemCellsByDepth=0;
+  ProblemCells=0;
+
   HFTiming_averageTime=0;
 }
 
