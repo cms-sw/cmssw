@@ -368,7 +368,10 @@ if 'GlobalTag' in %%(dict)s:
 
   # override the process name and adapt the relevant filters
   def overrideProcessName(self):
-    # the following was stolen and adapted from HLTrigger.Configuration.customL1THLT_Options
+    if self.config.name is None:
+      return
+
+# the following was stolen and adapted from HLTrigger.Configuration.customL1THLT_Options
     self.data += """
 # override the process name
 %%(process)ssetName_('%(name)s')
