@@ -1,13 +1,13 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DQMOffline/EGamma/interface/PhotonAnalyzer.h"
-#include "DQMOffline/EGamma/interface/PhotonOfflineClient.h"
-#include "DQMOffline/EGamma/interface/PhotonDataCertification.h"
-#include "DQMOffline/EGamma/interface/PiZeroAnalyzer.h"
-#include "DQMOffline/EGamma/interface/ElectronGeneralAnalyzer.h"
-#include "DQMOffline/EGamma/interface/ElectronAnalyzer.h"
-#include "DQMOffline/EGamma/interface/ElectronTagProbeAnalyzer.h"
-#include "DQMOffline/EGamma/interface/ElectronOfflineClient.h"
+#include "DQMOffline/EGamma/plugins/PhotonAnalyzer.h"
+#include "DQMOffline/EGamma/plugins/PhotonOfflineClient.h"
+#include "DQMOffline/EGamma/plugins/PhotonDataCertification.h"
+#include "DQMOffline/EGamma/plugins/PiZeroAnalyzer.h"
+#include "DQMOffline/EGamma/plugins/ElectronGeneralAnalyzer.h"
+#include "DQMOffline/EGamma/plugins/ElectronAnalyzer.h"
+#include "DQMOffline/EGamma/plugins/ElectronTagProbeAnalyzer.h"
+#include "DQMOffline/EGamma/plugins/ElectronOfflineClient.h"
 
 
 
