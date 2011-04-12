@@ -3,7 +3,7 @@
    Implementation of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.cc,v 1.38 2011/02/06 11:32:28 innocent Exp $
+   \version $Id: EcalSeverityLevelAlgo.cc,v 1.39 2011/02/15 20:13:19 argiro Exp $
    \date 10 Jan 2011
 */
 
@@ -29,10 +29,11 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
 }
 
 
-EcalSeverityLevelAlgo::EcalSeverityLevel 
+EcalSeverityLevel::SeverityLevel 
 EcalSeverityLevelAlgo::severityLevel(const DetId& id, 	   
 				     const EcalRecHitCollection& rhs) const{
   
+  using namespace EcalSeverityLevel;
 
   // if the detid is within our rechits, evaluate from flag
  EcalRecHitCollection::const_iterator rh= rhs.find(id);
@@ -63,7 +64,7 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
   // This implementation implies that the statuses have a priority
   for (size_t i=0; i< dbstatusMask_.size();++i){
     uint32_t tmp = 0x1<<dbStatus;
-    if (dbstatusMask_[i] & tmp) return EcalSeverityLevel(i);
+    if (dbstatusMask_[i] & tmp) return SeverityLevel(i);
   }
 
   // no matching
@@ -73,8 +74,10 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
 }
 
 
-EcalSeverityLevelAlgo::EcalSeverityLevel 
+EcalSeverityLevel::SeverityLevel 
 EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
+
+  using namespace EcalSeverityLevel;
 
   //if marked good, do not do any further test
   if (rh.checkFlag(kGood)) return kGood;
@@ -83,7 +86,7 @@ EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
   // This implementation implies that  severities have a priority... 
   for (int sev=kBad;sev>=0;--sev){
     if(sev==kTime && rh.energy() < timeThresh_ ) continue;
-    if (rh.checkFlagMask(flagMask_[sev])) return EcalSeverityLevel(sev);
+    if (rh.checkFlagMask(flagMask_[sev])) return SeverityLevel(sev);
   }
 
   // no matching

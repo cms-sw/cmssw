@@ -3,7 +3,7 @@
    Declaration of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.h,v 1.28 2011/01/16 08:26:54 argiro Exp $
+   \version $Id: EcalSeverityLevelAlgo.h,v 1.29 2011/01/31 15:05:59 argiro Exp $
    \date 10 Jan 2011
 */
 
@@ -12,6 +12,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalSeverityLevel.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 
@@ -37,16 +38,7 @@ class  EcalSeverityLevelAlgo{
 
 public:
 
-  /** Levels of severity:
-   * - kGood        --> good channel
-   * - kProblematic --> problematic (e.g. noisy)
-   * - kRecovered   --> recovered (e.g. an originally dead or saturated)
-   * - kTime        --> the channel is out of time (e.g. spike)
-   * - kWeird       --> weird (e.g. spike)
-   * - kBad         --> bad, not suitable to be used for reconstruction 
-   */
-  enum EcalSeverityLevel { kGood=0, kProblematic, kRecovered, kTime, kWeird, kBad };
-
+ 
   explicit EcalSeverityLevelAlgo(const edm::ParameterSet& p);
 
 
@@ -54,12 +46,12 @@ public:
   /** If the id is in the collection, use the EcalRecHit::Flag
       else use the channelStatus from DB 
    */
-  EcalSeverityLevel severityLevel(const DetId& id, 
+  EcalSeverityLevel::SeverityLevel severityLevel(const DetId& id, 
 				  const EcalRecHitCollection& rhs) const;
 
 
   /// Evaluate status from rechit, using its EcalRecHit::Flag
-  EcalSeverityLevel severityLevel(const EcalRecHit& rh) const;
+  EcalSeverityLevel::SeverityLevel severityLevel(const EcalRecHit& rh) const;
 
 
   /// Set the ChannelStatus record. 
