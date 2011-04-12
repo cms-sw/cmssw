@@ -109,6 +109,11 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
       if ( fInitialState == PP )
       {
          fInitialState = PPbar;
+         edm::LogInfo("GeneratorInterface|Pythia6Interface")
+	 << "Pythia6 will be initialized for PROTON-ANTIPROTON INITIAL STATE. "
+	 << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
+	 std::cout << "Pythia6 will be initialized for PROTON-ANTIPROTON INITIAL STATE." << std::endl;
+	 std::cout << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
       }
       else
       {
@@ -120,6 +125,11 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
       if ( fInitialState == PP )
       {
          fInitialState = ElectronPositron;
+         edm::LogInfo("GeneratorInterface|Pythia6Interface")
+	 << "Pythia6 will be initialized for ELECTRON-POSITRON INITIAL STATE. "
+	 << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
+	 std::cout << "Pythia6 will be initialized for ELECTRON-POSITRON INITIAL STATE." << std::endl;
+	 std::cout << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
       }
       else
       {
@@ -133,6 +143,11 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
          fInitialState = ElectronProton;	 
 	 fBeam1PZ = (ps.getParameter<edm::ParameterSet>("ElectronProtonInitialState")).getParameter<double>("electronMomentum");
 	 fBeam2PZ = (ps.getParameter<edm::ParameterSet>("ElectronProtonInitialState")).getParameter<double>("protonMomentum");
+         edm::LogInfo("GeneratorInterface|Pythia6Interface")
+	 << "Pythia6 will be initialized for ELECTRON-PROTON INITIAL STATE. "
+	 << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
+	 std::cout << "Pythia6 will be initialized for ELECTRON-PROTON INITIAL STATE." << std::endl;
+	 std::cout << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
       }
       else
       {
@@ -146,10 +161,17 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
          fInitialState = PositronProton;	 
 	 fBeam1PZ = (ps.getParameter<edm::ParameterSet>("ElectronProtonInitialState")).getParameter<double>("positronMomentum");
 	 fBeam2PZ = (ps.getParameter<edm::ParameterSet>("ElectronProtonInitialState")).getParameter<double>("protonMomentum");
+         edm::LogInfo("GeneratorInterface|Pythia6Interface")
+	 << "Pythia6 will be initialized for POSITRON-PROTON INITIAL STATE. "
+	 << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
+	 std::cout << "Pythia6 will be initialized for POSITRON-PROTON INITIAL STATE." << std::endl;
+	 std::cout << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
       }
       else
       {
-         // probably need to throw on attempt to override ?
+         // throw on unknown initial state !
+         throw edm::Exception(edm::errors::Configuration,"Pythia6Interface") 
+             <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron, ElectronProton, and PositronProton \n";
       }
    }
    
